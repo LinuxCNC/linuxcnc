@@ -69,6 +69,9 @@ int comm_active = 0;
 static int comp_id;
 
 #define UDP_PORT 27181
+#define SEND_TIMEOUT_US 10
+#define RECV_TIMEOUT_US 10
+#define READ_PCK_DELAY_NS 10000
 
 static int sockfd = -1;
 static struct sockaddr_in local_addr;
@@ -282,13 +285,15 @@ static int init_net(void) {
 
     struct timeval timeout;
     timeout.tv_sec = 0;
-    timeout.tv_usec = 10;
+    timeout.tv_usec = RECV_TIMEOUT_US;
 
     ret = setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
         LL_PRINT("ERROR: can't set socket option: %s\n", strerror(errno));
         return -errno;
     }
+
+    timeout.tv_usec = SEND_TIMEOUT_US;
     setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
         LL_PRINT("ERROR: can't set socket option: %s\n", strerror(errno));
@@ -368,7 +373,7 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
       read_packet.addr_lo, read_packet.addr_hi, size);
     t1 = rtapi_get_time();
     do {
-        rtapi_delay(10000);
+        rtapi_delay(READ_PCK_DELAY_NS);
         recv = eth_socket_recv(sockfd, (void*) &tmp_buffer, size, 0);
         t2 = rtapi_get_time();
         i++;
@@ -399,7 +404,7 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
             LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
         t1 = rtapi_get_time();
         do {
-            rtapi_delay(10000);
+            rtapi_delay(READ_PCK_DELAY_NS);
             recv = eth_socket_recv(sockfd, (void*) &tmp_buffer, queue_buff_size, 0);
             t2 = rtapi_get_time();
             i++;
