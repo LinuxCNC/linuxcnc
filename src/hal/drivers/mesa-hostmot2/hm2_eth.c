@@ -45,9 +45,6 @@
 #include "hm2_eth.h"
 #include "lbp16.h"
 
-//#include "/usr/rtnet/include/rtnet.h"
-//#include <native/task.h>
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Geszkiewicz");
 MODULE_DESCRIPTION("Driver for HostMot2 on the 7i80 Anything I/O board from Mesa Electronics");
@@ -67,15 +64,11 @@ RTAPI_MP_INT(debug, "Developer/debug use only!  Enable debug logging.");
 static hm2_eth_t boards[MAX_ETH_BOARDS];
 static int boards_count = 0;
 
-int probe_fail = 0;
 int comm_active = 0;
 
 static int comp_id;
 
-//RT_TASK rt_probe_task;
-
 #define UDP_PORT 27181
-#define RCV_TIMEOUT 200000
 
 static int sockfd = -1;
 static struct sockaddr_in local_addr;
@@ -330,9 +323,6 @@ static int init_net(void) {
         if(ret < 0) return ret;
     }
 
-    //setsockopt (sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&size, sizeof(size));
-    //setsockopt (sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&size, sizeof(size));
-
     return 0;
 }
 
@@ -484,7 +474,7 @@ static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *
     return 1;
 }
 
-static void hm2_eth_probe() {
+static int hm2_eth_probe() {
     int ret, send, recv;
     char board_name[16] = {0, };
     char llio_name[16] = {0, };
@@ -569,9 +559,8 @@ static void hm2_eth_probe() {
         board->llio.fpga_part_number = "XC6SLX9";
         board->llio.num_leds = 4;
     } else {
-        probe_fail = 1;
         LL_PRINT("No ethernet board found\n");
-        return;
+        return -ENODEV;
     }
 
     LL_PRINT("discovered %.*s\n", 16, board_name);
@@ -589,13 +578,15 @@ static void hm2_eth_probe() {
     ret = hm2_register(&board->llio, config[boards_count]);
     if (ret != 0) {
         rtapi_print("board fails HM2 registration\n");
-        return;
+        return ret;
     }
     boards_count++;
 
     int val = fcntl(sockfd, F_GETFL);
     val = val | O_NONBLOCK;
     fcntl(sockfd, F_SETFL, val);
+
+    return 0;
 }
 
 int rtapi_app_main(void) {
@@ -609,16 +600,14 @@ int rtapi_app_main(void) {
     comp_id = ret;
 
     ret = init_net();
-    if (ret < 0) {
-        rtapi_print("RTNET layer not ready\n");
+    if (ret < 0)
         goto error1;
-    }
 
     comm_active = 1;
 
-    hm2_eth_probe();
+    ret = hm2_eth_probe();
 
-    if (probe_fail == 1)
+    if (ret < 0)
         goto error1;
 
     hal_ready(comp_id);
