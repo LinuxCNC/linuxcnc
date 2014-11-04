@@ -186,6 +186,20 @@ def wait_for_joint_to_stop_at(joint, target):
     sys.exit(1)
 
 
+def wait_for_task_mode(target):
+    timeout = 5.0
+    start = time.time()
+
+    while ((time.time() - start) < timeout):
+        e.s.poll()
+        if e.s.task_mode == target:
+            return
+        time.sleep(0.1)
+
+    print "timeout waiting for task mode to get to  %d (it's %d)" % (target, e.s.task_mode)
+    sys.exit(1)
+
+
 #
 # set up pins
 # shell out to halcmd to make nets to halui and motion
@@ -230,10 +244,7 @@ wait_for_joint_to_stop_at(0, 0);
 wait_for_joint_to_stop_at(1, 0);
 wait_for_joint_to_stop_at(2, 0);
 h['mdi-0'] = 0
-e.s.poll()
-if e.s.task_mode != linuxcnc.MODE_MANUAL:
-    print "finished mdi, but didn't restore task mode to Manual (got %d)" % e.s.task_mode;
-    sys.exit(1)
+wait_for_task_mode(linuxcnc.MODE_MANUAL)
 
 e.set_mode(linuxcnc.MODE_AUTO)
 print "running MDI command 1"
@@ -242,10 +253,7 @@ wait_for_joint_to_stop_at(0, 1);
 wait_for_joint_to_stop_at(1, 0);
 wait_for_joint_to_stop_at(2, 0);
 h['mdi-1'] = 0
-e.s.poll()
-if e.s.task_mode != linuxcnc.MODE_AUTO:
-    print "finished mdi, but didn't restore task mode to Auto (got %d)" % e.s.task_mode;
-    sys.exit(1)
+wait_for_task_mode(linuxcnc.MODE_AUTO)
 
 e.set_mode(linuxcnc.MODE_MDI)
 print "running MDI command 2"
@@ -255,9 +263,7 @@ wait_for_joint_to_stop_at(1, 2);
 wait_for_joint_to_stop_at(2, 0);
 h['mdi-2'] = 0
 e.s.poll()
-if e.s.task_mode != linuxcnc.MODE_MDI:
-    print "finished mdi, but didn't restore task mode to MDI (got %d)" % e.s.task_mode;
-    sys.exit(1)
+wait_for_task_mode(linuxcnc.MODE_MDI)
 
 print "running MDI command 3"
 h['mdi-3'] = 1
@@ -265,6 +271,7 @@ wait_for_joint_to_stop_at(0, 1);
 wait_for_joint_to_stop_at(1, 2);
 wait_for_joint_to_stop_at(2, 3);
 h['mdi-3'] = 0
+wait_for_task_mode(linuxcnc.MODE_MDI)
 
 print "running MDI command 0"
 h['mdi-0'] = 1
@@ -272,6 +279,7 @@ wait_for_joint_to_stop_at(0, 0);
 wait_for_joint_to_stop_at(1, 0);
 wait_for_joint_to_stop_at(2, 0);
 h['mdi-0'] = 0
+wait_for_task_mode(linuxcnc.MODE_MDI)
 
 
 sys.exit(0)
