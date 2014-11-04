@@ -272,7 +272,7 @@ void emcmotController(void *arg, long period)
                         _("This time, there were %ld which is so anomalously\n"
                         "large that it probably signifies a problem with your\n"
                         "realtime configuration.  For the rest of this run of\n"
-                        "EMC, this message will be suppressed.\n\n"),
+                        "LinuxCNC, this message will be suppressed.\n\n"),
                         this_run);
                     rtapi_set_msg_level(saved_level);
                 }
