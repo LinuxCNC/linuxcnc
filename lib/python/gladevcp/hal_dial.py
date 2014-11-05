@@ -18,7 +18,14 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'halDial gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 import gtk
 from gtk import gdk
 import gobject
@@ -56,7 +63,10 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
         super(Hal_Dial, self).__init__()
 
         # gtk.Widget signals
-        self.connect("expose_event", self.expose)
+        if pygtkcompat is not None:
+            self.connect("draw", self.draw)
+        else:
+            self.connect("expose_event", self.expose)
         self.connect("button_press_event", self.button_press)
         self.connect("button_release_event", self.button_release)
         self.connect("motion_notify_event", self.motion_notify)
@@ -68,7 +78,10 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
         self.scale = 1.0
         self.scale_adjustable = True
         self.count_type_shown=1
-        self.center_color = gtk.gdk.Color('#bdefbdefbdef') # gray
+        if pygtkcompat is not None:
+            self.center_color = gtk.gdk.Color.parse('#bdefbdefbdef')[1] # gray
+        else:
+            self.center_color = gtk.gdk.Color('#bdefbdefbdef') # gray
         # private
         self._minute_offset = 0 # the offset of the pointer hand
         self._last_offset = 0
@@ -108,6 +121,9 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
             self.alpha = 0.3
 
         context = widget.window.cairo_create()
+        self.draw(widget,context)
+
+    def draw(self,widget,context):
         self.set_size_request(100, 100)
         # set a clip region for the expose event
         context.rectangle(event.area.x, event.area.y, event.area.width, event.area.height)
@@ -218,10 +234,11 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
             self.redraw_canvas()
             self.emit("count_changed", self._count,self.scale,self._delta_scaled)
 
-    def draw(self, context):
+    def draw(self, widget,context):
         rect = self.get_allocation()
-        x = self.allocation.width/2
-        y = self.allocation.height/2
+        alloc = self.get_allocation()
+        x = alloc.width/2
+        y = alloc.height/2
 
         radius = min(rect.width / 2.0, rect.height / 2.0) - 5
         # black rim
@@ -298,11 +315,10 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
             context.show_text(str(self.scale))
 
     def redraw_canvas(self):
-        if self.window:
             alloc = self.get_allocation()
             self.queue_draw_area(alloc.x, alloc.y, alloc.width, alloc.height)
-            self.window.process_updates(True)
             self.queue_draw()
+            #self.window.process_updates(True)
 
     # Get propertys
     def do_get_property(self, property):

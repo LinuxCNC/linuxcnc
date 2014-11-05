@@ -12,12 +12,19 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 import gtk
 import gobject
 import cairo
 import math
-import gtk.glade
+#import gtk.glade
 
 # This creates the custom LED widget
 
@@ -28,7 +35,10 @@ MAX_INT = 0x7fffffff
 def gdk_color_tuple(c):
     if not c:
         return 0, 0, 0
-    return c.red_float, c.green_float, c.blue_float
+    if pygtkcompat is not None:
+        return c.red, c.green, c.blue
+    else:
+        return c.red_float, c.green_float, c.blue_float
 
 class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     __gtype_name__ = 'HAL_Bar'
@@ -79,18 +89,26 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
 
     def __init__(self):
         super(HAL_Bar, self).__init__()
-
-        self.bg_color = gtk.gdk.Color('gray')
-        self.z0_color = gtk.gdk.Color('green')
-        self.z1_color = gtk.gdk.Color('yellow')
-        self.z2_color = gtk.gdk.Color('red')
-        self.target_color = gtk.gdk.Color('purple')
+        if pygtkcompat is not None:
+            self.bg_color = gtk.gdk.Color.parse('gray')[1]
+            self.z0_color = gtk.gdk.Color.parse('green')[1]
+            self.z1_color = gtk.gdk.Color.parse('yellow')[1]
+            self.z2_color = gtk.gdk.Color.parse('red')[1]
+            self.target_color = gtk.gdk.Color.parse('purple')[1]
+        else:
+            self.bg_color = gtk.gdk.Color('gray')
+            self.z0_color = gtk.gdk.Color('green')
+            self.z1_color = gtk.gdk.Color('yellow')
+            self.z2_color = gtk.gdk.Color('red')
+            self.target_color = gtk.gdk.Color('purple')
         self.target_width = 2
         self.force_width = self._size_request[0]
         self.force_height = self._size_request[1]
         self.set_size_request(*self._size_request)
-
-        self.connect("expose-event", self.expose)
+        if pygtkcompat is not None:
+            self.connect("draw", self.draw)
+        else:
+            self.connect("expose-event", self.expose)
 
     def text_at(self, cr, text, x, y, xalign='center', yalign='center'):
         xbearing, ybearing, width, height, xadvance, yadvance = cr.text_extents(text)
@@ -106,14 +124,14 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         cr.move_to(x, y)
         cr.show_text(text)
 
-    def _expose_prepare(self, widget):
-        if self.flags() & gtk.PARENT_SENSITIVE:
+    def _expose_prepare(self, widget,cr):
+        if widget.get_sensitive():
             alpha = 1
         else:
             alpha = 0.3
-
-        w = self.allocation.width
-        h = self.allocation.height
+        alloc = self.get_allocation()
+        w = alloc.width
+        h = alloc.height
 
         fw = self.force_width
         fh = self.force_height
@@ -126,12 +144,14 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         if fw != -1: w = fw
         if fh != -1: h = fh
 
-        cr = widget.window.cairo_create()
         def set_color(c):
-            return cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, alpha)
-
+            if pygtkcompat is not None:
+                return cr.set_source_rgba(c.red, c.green, c.blue, alpha)
+            else:
+                return cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, alpha)
         cr.set_line_width(2)
-        set_color(gtk.gdk.Color('black'))
+        cr.set_source_rgba(0, 0, 0,alpha)
+        #set_color(gtk.gdk.Color('black'))
 
         #print w, h, aw, ah, fw, fh
         cr.translate((aw - w) / 2, (ah - h) / 2)
@@ -147,7 +167,7 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         cr.rectangle(0, 0, w, h)
         cr.stroke_preserve()
         cr.fill()
-        return cr, (w, h), set_color, alpha
+        return (w, h), set_color, alpha
 
     def _load_gradient(self, lg, alpha):
         z0 = gdk_color_tuple(self.z0_color) + (alpha,)
@@ -224,11 +244,18 @@ class HAL_HBar(HAL_Bar):
     __gtype_name__ = 'HAL_HBar'
     _size_request = (-1, 20)
 
+    def draw(self,widget,cr):
+        self.paint(widget,cr)
+
     def expose(self, widget, event):
-        cr, (w, h), set_color, alpha = self._expose_prepare(widget)
+        cr = widget.window.cairo_create()
+        self.paint(widget,cr)
+
+    def paint(self,widget,cr):
+        (w, h), set_color, alpha = self._expose_prepare(widget,cr)
 
         # make bar
-        set_color(gtk.gdk.Color('black'))
+        cr.set_source_rgba(0, 0, 0,alpha)# black
         cr.save()
         zv = w * self.get_value_diff(self.zero)
         wv = w * self.get_value_diff(self.value)
@@ -278,7 +305,8 @@ class HAL_HBar(HAL_Bar):
             cr.stroke()
 
         # write text
-        set_color(gtk.gdk.Color('black'))
+        cr.set_source_rgba(0, 0, 0,alpha)# black
+
         tmpl = lambda s: self.text_template % s
         if self.show_limits:
             if not self.invert:
@@ -295,12 +323,19 @@ class HAL_VBar(HAL_Bar):
     __gtype_name__ = 'HAL_VBar'
     _size_request = (25, -1)
 
+    def draw(self,widget,cr):
+        self.paint(widget,cr)
+
     def expose(self, widget, event):
-        cr, (w, h), set_color, alpha = self._expose_prepare(widget)
+        cr = widget.window.cairo_create()
+        self.paint(widget,cr)
+
+    def paint(self,widget,cr):
+        (w, h), set_color, alpha = self._expose_prepare(widget,cr)
 
         # make bar
         cr.save()
-        set_color(gtk.gdk.Color('black'))
+        cr.set_source_rgba(0, 0, 0,alpha)# black
         zv = h * self.get_value_diff(self.zero)
         wv = h * self.get_value_diff(self.value)
         if not self.invert:
@@ -351,7 +386,7 @@ class HAL_VBar(HAL_Bar):
             cr.stroke()
 
         # make text
-        set_color(gtk.gdk.Color('black'))
+        cr.set_source_rgba(0, 0, 0,alpha)# black
         tmpl = lambda s: self.text_template % s
         if self.show_limits:
             if not self.invert:

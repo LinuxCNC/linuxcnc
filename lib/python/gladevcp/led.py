@@ -1,9 +1,16 @@
 # vim: sts=4 sw=4 et
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 import gtk
 import gobject
 import cairo
 import math
-import gtk.glade
 
 # This creates the custom LED widget
 
@@ -55,25 +62,31 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         self._blink_invert = False
         self._blink_magic = 0
         self.set_size_request(25, 25)
-        self.connect("expose-event", self.expose)
+        if pygtkcompat is not None:
+            self.connect("draw", self.draw)
+        else:
+            self.connect("expose-event", self.expose)
 
         self.led_blink_rate = 0
         self.pick_color_on = self.pick_color_off = self.pick_color_blink = None
-        self.on_color = 'green'
-        self.off_color = 'red'
-        self.blink_color = 'black'
+        self.on_color = '#26b2f22707a0'
+        self.off_color = '#26b2f22707a0'
+        self.blink_color = '#26b2f22707a0'
         self.has_hal_pin = True
 
-        self.set_color('on', self.on_color)
-        self.set_color('off', self.off_color)
-        self.set_color('blink', self.blink_color)
+        #self.set_color('on', self.on_color)
+        #self.set_color('off', self.off_color)
+        #self.set_color('blink', self.blink_color)
 
     # This method draws our widget
     # depending on self.state, self.blink_active, self.blink_state and the sensitive state of the parent
     # sets the fill as the on or off colour.
-    def expose(self, widget, event):
+    def expose(self,widget,event):
         cr = widget.window.cairo_create()
-        sensitive = self.flags() & gtk.PARENT_SENSITIVE
+        self.draw(widget,cr)
+
+    def draw(self, widget, cr):
+        sensitive = widget.get_sensitive()
         if not sensitive: alpha = .3
         else: alpha = 1
         cr.set_line_width(3)
@@ -101,8 +114,9 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         # square led
         if self.led_shape == 2:
             self.set_size_request(self._dia*2+5, self._dia*2+5)
-            w = self.allocation.width
-            h = self.allocation.height
+            alloc = self.get_allocation()
+            w = alloc.width
+            h = alloc.height
             cr.translate(w/2, h/2)
             cr.rectangle(-self._dia, -self._dia, self._dia*2, self._dia*2)
             cr.stroke_preserve()
@@ -173,9 +187,10 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         # round led
         else:
             if self.led_shiny:
-                self.set_size_request(self._dia*2+5, self._dia*2+5)           
-                w = self.allocation.width
-                h = self.allocation.height
+                self.set_size_request(self._dia*2+5, self._dia*2+5)
+                alloc = self.get_allocation()
+                w = alloc.width
+                h = alloc.height
                 cr.translate(w/2, h/2)
 
                 radius = self._dia
@@ -208,9 +223,10 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 cr.set_source(r2)
                 cr.fill()
             else:
-                self.set_size_request(self._dia*2+5, self._dia*2+5)           
-                w = self.allocation.width
-                h = self.allocation.height
+                self.set_size_request(self._dia*2+5, self._dia*2+5)
+                alloc = self.get_allocation()
+                w = alloc.width
+                h = alloc.height
                 cr.translate(w/2, h/2)
                 lg2 = cairo.RadialGradient(0, 0, self._dia-2, 0, 0, self._dia+1)
                 lg2.add_color_stop_rgba(0.0, 0., 0., 0., 0.)
