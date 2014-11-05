@@ -1699,7 +1699,7 @@ static int emc_mdi(ClientData clientdata,
 	strcat(string, Tcl_GetStringFromObj(objv[t], 0));
     }
 
-    if (0 != sendMdiCmd(string)) {
+    if (0 != lui_send_mdi_command(lui, string)) {
 	setresult(interp,"emc_mdi: error executing command");
 	return TCL_OK;
     }

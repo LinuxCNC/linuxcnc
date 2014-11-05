@@ -262,22 +262,22 @@ void updateQueue() {
           sendFeedOverride(((double) q.front().getFeedOverride()) / 100.0);
           sendSpindleOverride(((double) q.front().getSpindleOverride()) / 100.0);             
           sendMdi();
-          sendMdiCmd("G92.1\n");
+          lui_send_mdi_command(lui, "G92.1\n");
           if (emcCommandWaitDone() != 0) {
             queueStatus = qsError;
             return;
             }
           if (q.front().getZone() != 0) {
             switch (q.front().getZone()) {
-              case 1: sendMdiCmd("G54\n"); break;
-              case 2: sendMdiCmd("G55\n"); break;
-              case 3: sendMdiCmd("G56\n"); break;
-              case 4: sendMdiCmd("G57\n"); break;
-              case 5: sendMdiCmd("G58\n"); break;
-              case 6: sendMdiCmd("G59\n"); break;
-              case 7: sendMdiCmd("G59.1\n"); break;
-              case 8: sendMdiCmd("G59.2\n"); break;
-              case 9: sendMdiCmd("G59.3\n");
+              case 1: lui_send_mdi_command(lui, "G54\n"); break;
+              case 2: lui_send_mdi_command(lui, "G55\n"); break;
+              case 3: lui_send_mdi_command(lui, "G56\n"); break;
+              case 4: lui_send_mdi_command(lui, "G57\n"); break;
+              case 5: lui_send_mdi_command(lui, "G58\n"); break;
+              case 6: lui_send_mdi_command(lui, "G59\n"); break;
+              case 7: lui_send_mdi_command(lui, "G59.1\n"); break;
+              case 8: lui_send_mdi_command(lui, "G59.2\n"); break;
+              case 9: lui_send_mdi_command(lui, "G59.3\n");
               }
             if (emcCommandWaitDone() != 0) {
               queueStatus = qsError;
@@ -287,12 +287,12 @@ void updateQueue() {
           else {
              q.front().getOffsets(x, y, z);
              sprintf(cmd, "G0 X%f Y%f Z%f\n", x, y, z); 
-             sendMdiCmd(cmd);
+             lui_send_mdi_command(lui, cmd);
              if (emcCommandWaitDone() != 0) {
                queueStatus = qsError;
                return;
                }
-             sendMdiCmd("G92 X0 Y0 Z0\n");
+             lui_send_mdi_command(lui, "G92 X0 Y0 Z0\n");
              if (emcCommandWaitDone() != 0) {
                queueStatus = qsError;
                return;
