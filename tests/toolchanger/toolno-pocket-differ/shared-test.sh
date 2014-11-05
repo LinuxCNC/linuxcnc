@@ -46,6 +46,7 @@ fi
     echo set estop off
     echo set machine on
     echo set mode mdi
+    echo set set_wait done
 
     introspect 0
 

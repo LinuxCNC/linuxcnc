@@ -64,14 +64,13 @@ printf "P is %.6f\n" -200 >> expected-gcode-output
     echo set open dummy.ngc
 
     echo set mode mdi
+    echo set set_wait done
     echo set mdi m100 p-100
-    echo set wait done
 
     # here comes a big blob
     dd bs=4096 if=lots-of-gcode
 
     echo set mdi m100 p-200
-    echo set wait done
 
     echo shutdown
 ) | nc localhost 5007
