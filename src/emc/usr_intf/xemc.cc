@@ -1100,17 +1100,6 @@ static int sendProgramStep()
   return 0;
 }
 
-static int sendMdiCmd(char *mdi)
-{
-  EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
-
-  strcpy(emc_task_plan_execute_msg.command, mdi);
-  emc_task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_task_plan_execute_msg);
-
-  return 0;
-}
-
 static int sendLoadToolTable(const char *file)
 {
   EMC_TOOL_LOAD_TOOL_TABLE emc_tool_load_tool_table_msg;
@@ -2198,7 +2187,7 @@ static void doPosOffsetDone()
             activeAxis == 1 ? "Y" :
             activeAxis == 2 ? "Z" : "X",
             val);
-    sendMdiCmd(cmd);
+    lui_send_mdi_command(lui, cmd);
   }
 
   XtPopdown(posOffsetShell);
@@ -2482,7 +2471,7 @@ static void mdiReturnAction(Widget w, XEvent *event, String *params, Cardinal *n
 
   XtVaGetValues(mdiFormText, XtNstring, &string, NULL);
 
-  sendMdiCmd(string);
+  lui_send_mdi_command(lui, string);
 }
 
 // key handling code
