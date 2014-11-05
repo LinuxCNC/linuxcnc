@@ -847,6 +847,7 @@ static cmdResponseType setEStop(char *s, connectionRecType *context)
 
 static cmdResponseType setWait(char *s, connectionRecType *context)
 {
+  fprintf(stderr, "Warning: 'set wait' doesn't work right while there is both 'raw nml' and lui\n");
   switch (checkReceivedDoneNone(s)) {
     case -1: return rtStandardError;
     case 0: 
