@@ -808,10 +808,12 @@ static cmdResponseType setSetWait(char *s, connectionRecType *context)
    switch (checkReceivedDoneNone(s)) {
      case -1: return rtStandardError;
      case 0: {
+       lui_set_command_wait_mode(lui, lui_command_wait_mode_received);
        emcWaitType = EMC_WAIT_RECEIVED;
        break;
      }
      case 1: {
+       lui_set_command_wait_mode(lui, lui_command_wait_mode_done);
        emcWaitType = EMC_WAIT_DONE;
        break;
      }
