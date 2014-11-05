@@ -990,7 +990,7 @@ static cmdResponseType setMDI(char *s, connectionRecType *context)
   char *pch;
   
   pch = strtok(NULL, "\n\r\0");
-  if (sendMdiCmd(pch) !=0) return rtStandardError;
+  if (lui_send_mdi_command(lui, pch) != 0) return rtStandardError;
   return rtNoError;
 }
 
