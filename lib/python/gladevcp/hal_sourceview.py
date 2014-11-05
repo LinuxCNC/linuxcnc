@@ -13,6 +13,14 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 
 import os, time
 
@@ -23,8 +31,10 @@ import linuxcnc
 from hal_glib import GStat
 from hal_actions import _EMC_ActionBase, _EMC_Action
 from hal_filechooser import _EMC_FileChooser
-
-import gtksourceview2 as gtksourceview
+if pygtkcompat is not None:
+    from gi.repository import GtkSource as gtksourceview
+else:
+    import gtksourceview2 as gtksourceview
 
 class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'

@@ -17,7 +17,7 @@ import gtk
 import gobject
 import cairo
 import math
-import gtk.glade
+#import gtk.glade
 import time
 from collections import deque
 

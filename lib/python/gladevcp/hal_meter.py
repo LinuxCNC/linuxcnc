@@ -17,7 +17,7 @@ import gtk
 import gobject
 import cairo
 import math
-import gtk.glade
+#import gtk.glade
 
 from hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
 

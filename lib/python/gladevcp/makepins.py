@@ -19,11 +19,11 @@
 import sys
 import gtk
 import hal
-import gtk.glade
 import gobject
 import getopt
 
 from hal_widgets import _HalWidgetBase
+from hal_gtk3_widgets import _HalGtk3WidgetBase
 from led import HAL_LED
 from hal_glib import GComponent
 
@@ -48,6 +48,10 @@ class GladePanel():
                 continue
 
             if isinstance(widget, _HalWidgetBase):
+                widget.hal_init(self.hal, idname)
+                self.widgets[idname] = widget
+
+            if isinstance(widget, _HalGtk3WidgetBase):
                 widget.hal_init(self.hal, idname)
                 self.widgets[idname] = widget
 

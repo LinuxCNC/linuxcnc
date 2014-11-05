@@ -37,8 +37,16 @@ import traceback
 
 import hal
 from optparse import Option, OptionParser
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 import gtk
-import gtk.glade
+#import gtk.glade
 import gobject
 import signal
 
