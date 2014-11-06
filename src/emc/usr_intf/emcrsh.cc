@@ -886,9 +886,9 @@ static cmdResponseType setUpdate(char *s, connectionRecType *context)
 static cmdResponseType setMode(char *s, connectionRecType *context)
 {
   switch (checkManualAutoMDI(s)) {
-    case 0: sendManual(); break;
-    case 1: sendAuto(); break;
-    case 2: sendMdi(); break;
+    case 0: lui_mode_manual(lui); break;
+    case 1: lui_mode_auto(lui); break;
+    case 2: lui_mode_mdi(lui); break;
     default: return rtStandardError;
     }
   return rtNoError;
