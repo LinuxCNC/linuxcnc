@@ -898,8 +898,8 @@ static cmdResponseType setMist(char *s, connectionRecType *context)
 {
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
-     case 0: sendMistOn(); break;
-     case 1: sendMistOff();
+     case 0: lui_coolant_mist_on(lui); break;
+     case 1: lui_coolant_mist_off(lui);
      }
    return rtNoError;
 }
@@ -908,8 +908,8 @@ static cmdResponseType setFlood(char *s, connectionRecType *context)
 {
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
-     case 0: sendFloodOn(); break;
-     case 1: sendFloodOff();
+     case 0: lui_coolant_flood_on(lui); break;
+     case 1: lui_coolant_flood_off(lui);
      }
    return rtNoError;
 }
