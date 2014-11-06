@@ -737,46 +737,6 @@ static int sendToolSetOffset(int toolno, double zoffset, double diameter)
   return 0;
 }
 
-static int sendMistOn()
-{
-  EMC_COOLANT_MIST_ON emc_coolant_mist_on_msg;
-
-  emc_coolant_mist_on_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_coolant_mist_on_msg);
-
-  return 0;
-}
-
-static int sendMistOff()
-{
-  EMC_COOLANT_MIST_OFF emc_coolant_mist_off_msg;
-
-  emc_coolant_mist_off_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_coolant_mist_off_msg);
-
-  return 0;
-}
-
-static int sendFloodOn()
-{
-  EMC_COOLANT_FLOOD_ON emc_coolant_flood_on_msg;
-
-  emc_coolant_flood_on_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_coolant_flood_on_msg);
-
-  return 0;
-}
-
-static int sendFloodOff()
-{
-  EMC_COOLANT_FLOOD_OFF emc_coolant_flood_off_msg;
-
-  emc_coolant_flood_off_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_coolant_flood_off_msg);
-
-  return 0;
-}
-
 static int sendSpindleForward()
 {
   EMC_SPINDLE_ON emc_spindle_on_msg;
@@ -2597,20 +2557,20 @@ static void keyPressAction(unsigned int state, unsigned int keycode)
   case KEY_F7:
     // mist toggle
     if (emcStatus->io.coolant.mist) {
-      sendMistOff();
+      lui_coolant_mist_off(lui);
     }
     else {
-      sendMistOn();
+      lui_coolant_mist_on(lui);
     }
     break;
 
   case KEY_F8:
     // flood toggle
     if (emcStatus->io.coolant.flood) {
-      sendFloodOff();
+      lui_coolant_flood_off(lui);
     }
     else {
-      sendFloodOn();
+      lui_coolant_flood_on(lui);
     }
     break;
 
@@ -3294,11 +3254,11 @@ static void mistMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
   switch ((long) client_data) {
   case 0:
-    sendMistOn();
+    lui_coolant_mist_on(lui);
     break;
 
   case 1:
-    sendMistOff();
+    lui_coolant_mist_off(lui);
     break;
 
   default:
@@ -3310,11 +3270,11 @@ static void floodMenuSelect(Widget w, XtPointer client_data, XtPointer call_data
 {
   switch ((long) client_data) {
   case 0:
-    sendFloodOn();
+    lui_coolant_flood_on(lui);
     break;
 
   case 1:
-    sendFloodOff();
+    lui_coolant_flood_off(lui);
     break;
 
   default:
