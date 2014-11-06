@@ -789,11 +789,11 @@ static int emc_mist(ClientData clientdata,
     if (objc == 2) {
 	objstr = Tcl_GetStringFromObj(objv[1], 0);
 	if (!strcmp(objstr, "on")) {
-	    sendMistOn();
+	    lui_coolant_mist_on(lui);
 	    return TCL_OK;
 	}
 	if (!strcmp(objstr, "off")) {
-	    sendMistOff();
+	    lui_coolant_mist_off(lui);
 	    return TCL_OK;
 	}
     }
@@ -824,11 +824,11 @@ static int emc_flood(ClientData clientdata,
     if (objc == 2) {
 	objstr = Tcl_GetStringFromObj(objv[1], 0);
 	if (!strcmp(objstr, "on")) {
-	    sendFloodOn();
+	    lui_coolant_flood_on(lui);
 	    return TCL_OK;
 	}
 	if (!strcmp(objstr, "off")) {
-	    sendFloodOff();
+	    lui_coolant_flood_off(lui);
 	    return TCL_OK;
 	}
     }
