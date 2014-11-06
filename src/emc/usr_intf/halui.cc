@@ -1024,42 +1024,6 @@ static int sendJoint()
     return emcCommandWaitDone(emcCommandSerialNumber);
 }
 
-static int sendMistOn()
-{
-    EMC_COOLANT_MIST_ON emc_coolant_mist_on_msg;
-
-    emc_coolant_mist_on_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_coolant_mist_on_msg);
-    return emcCommandWaitReceived(emcCommandSerialNumber);
-}
-
-static int sendMistOff()
-{
-    EMC_COOLANT_MIST_OFF emc_coolant_mist_off_msg;
-
-    emc_coolant_mist_off_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_coolant_mist_off_msg);
-    return emcCommandWaitReceived(emcCommandSerialNumber);
-}
-
-static int sendFloodOn()
-{
-    EMC_COOLANT_FLOOD_ON emc_coolant_flood_on_msg;
-
-    emc_coolant_flood_on_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_coolant_flood_on_msg);
-    return emcCommandWaitReceived(emcCommandSerialNumber);
-}
-
-static int sendFloodOff()
-{
-    EMC_COOLANT_FLOOD_OFF emc_coolant_flood_off_msg;
-
-    emc_coolant_flood_off_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_coolant_flood_off_msg);
-    return emcCommandWaitReceived(emcCommandSerialNumber);
-}
-
 static int sendLubeOn()
 {
     EMC_LUBE_ON emc_lube_on_msg;
@@ -1638,16 +1602,16 @@ static void check_hal_changes()
 	sendJoint();
 
     if (check_bit_changed(new_halui_data.mist_on, old_halui_data.mist_on) != 0)
-	sendMistOn();
+	lui_coolant_mist_on(lui);
 
     if (check_bit_changed(new_halui_data.mist_off, old_halui_data.mist_off) != 0)
-	sendMistOff();
+	lui_coolant_mist_off(lui);
 
     if (check_bit_changed(new_halui_data.flood_on, old_halui_data.flood_on) != 0)
-	sendFloodOn();
+	lui_coolant_flood_on(lui);
 
     if (check_bit_changed(new_halui_data.flood_off, old_halui_data.flood_off) != 0)
-	sendFloodOff();
+	lui_coolant_flood_off(lui);
 
     if (check_bit_changed(new_halui_data.lube_on, old_halui_data.lube_on) != 0)
 	sendLubeOn();
