@@ -5,6 +5,7 @@ LIBLINUXCNC_UI_SRC := \
     liblinuxcnc-ui/task-state.cc \
     liblinuxcnc-ui/task-mode.cc \
     liblinuxcnc-ui/mdi.cc \
+    liblinuxcnc-ui/coolant.cc \
     liblinuxcnc-ui/command-nml.cc \
     liblinuxcnc-ui/status-nml-update.cc \
     liblinuxcnc-ui/get-status-nml.cc \
