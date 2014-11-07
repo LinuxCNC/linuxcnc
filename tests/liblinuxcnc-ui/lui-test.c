@@ -29,6 +29,20 @@
     if(cond) { printf(message, ## __VA_ARGS__); exit(1); } \
 } while(0)
 
+void verify_coolant(lui_t *lui, int expected_flood, int expected_mist) {
+    int r;
+    int actual_flood, actual_mist;
+
+    r = lui_status_nml_update(lui);
+    fatal_if(r != 0, "Error: failed to update Status buffer\n");
+
+    actual_flood = lui_get_flood(lui);
+    fatal_if(actual_flood != expected_flood, "Error: flood is %d, expected %d\n", actual_flood, expected_flood);
+
+    actual_mist = lui_get_mist(lui);
+    fatal_if(actual_mist != expected_mist, "Error: mist is %d, expected %d\n", actual_mist, expected_mist);
+}
+
 void verify_state(lui_t *lui, lui_task_state_t expected_state) {
     int r;
     lui_task_state_t actual_state;
@@ -272,6 +286,12 @@ void test_task_introspect(lui_t *lui)
 }
 
 
+void test_coolant(lui_t *lui) {
+    verify_coolant(lui, 0, 0);
+    verify_coolant(lui, 1, 1);
+}
+
+
 int main(int argc, char *argv[]) {
     lui_t *lui;
     int r;
@@ -294,6 +314,7 @@ int main(int argc, char *argv[]) {
     test_task_state(lui);
     test_task_mode(lui);
     test_task_introspect(lui);
+    test_coolant(lui);
 
     lui_estop(lui);
     lui_free(lui);
