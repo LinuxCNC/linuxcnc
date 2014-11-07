@@ -1936,8 +1936,8 @@ static void modify_hal_pins()
     *(halui_data->ro_value) = emcStatus->motion.traj.rapid_scale; //rapid override from 0 to 1 for 100%
     *(halui_data->so_value) = emcStatus->motion.traj.spindle_scale; //spindle-speed-override from 0 to 1 for 100%
 
-    *(halui_data->mist_is_on) = emcStatus->io.coolant.mist;
-    *(halui_data->flood_is_on) = emcStatus->io.coolant.flood;
+    *(halui_data->mist_is_on) = lui_get_mist(lui);
+    *(halui_data->flood_is_on) = lui_get_flood(lui);
     *(halui_data->lube_is_on) = emcStatus->io.lube.on;
 
     *(halui_data->tool_number) = emcStatus->io.tool.toolInSpindle;
