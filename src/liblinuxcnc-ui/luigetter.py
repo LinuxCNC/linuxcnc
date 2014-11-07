@@ -451,7 +451,10 @@ LuiGetterSimple('flood', 'bool', 'io.coolant.flood',
     'whether the flood coolant is commanded to run')
 LuiGetterSimple('estop', 'bool', 'io.aux.estop',
     'whether the external estop input is asserted')
-# lube, lube_level unused
+LuiGetterSimple('lube', 'bool', 'io.lube.on',
+    'whether automatic lubrication is enabled')
+LuiGetterSimple('lube_level', 'bool', 'io.lube.level',
+    'whether the lube level sensor has tripped')
 
 # offsets and such
 LuiGetterSimple('g5x_index', 'int', 'task.g5x_index',
