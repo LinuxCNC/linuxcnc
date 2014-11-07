@@ -29,6 +29,19 @@
     if(cond) { printf(message, ## __VA_ARGS__); exit(1); } \
 } while(0)
 
+void verify_lube(lui_t *lui, int expected_lube) {
+    int r;
+    int actual_lube;
+
+    printf("verifying lube=%d\n", expected_lube);
+
+    r = lui_status_nml_update(lui);
+    fatal_if(r != 0, "Error: failed to update Status buffer\n");
+
+    actual_lube = lui_get_lube(lui);
+    fatal_if(actual_lube != expected_lube, "Error: lube is %d, expected %d\n", actual_lube, expected_lube);
+}
+
 void verify_coolant(lui_t *lui, int expected_flood, int expected_mist) {
     int r;
     int actual_flood, actual_mist;
@@ -305,6 +318,20 @@ void test_coolant(lui_t *lui) {
 }
 
 
+void test_lube(lui_t *lui) {
+    // lube starts out on, since the machine is out of estop
+    verify_lube(lui, 1);
+
+    printf("lube off\n");
+    lui_lube_off(lui);
+    verify_lube(lui, 0);
+
+    printf("lube on\n");
+    lui_lube_on(lui);
+    verify_lube(lui, 1);
+}
+
+
 int main(int argc, char *argv[]) {
     lui_t *lui;
     int r;
@@ -328,6 +355,8 @@ int main(int argc, char *argv[]) {
     test_task_mode(lui);
     test_task_introspect(lui);
     test_coolant(lui);
+
+    test_lube(lui);
 
     lui_estop(lui);
     lui_free(lui);
