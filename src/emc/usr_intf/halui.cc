@@ -1043,20 +1043,6 @@ static int sendJoint()
     return emcCommandWaitDone();
 }
 
-static int sendLubeOn()
-{
-    EMC_LUBE_ON emc_lube_on_msg;
-
-    return emcCommandSend(emc_lube_on_msg);
-}
-
-static int sendLubeOff()
-{
-    EMC_LUBE_OFF emc_lube_off_msg;
-
-    return emcCommandSend(emc_lube_off_msg);
-}
-
 // programStartLine is the saved valued of the line that
 // sendProgramRun(int line) sent
 static int programStartLine = 0;
@@ -1574,10 +1560,10 @@ static void check_hal_changes()
 	lui_coolant_flood_off(lui);
 
     if (check_bit_changed(new_halui_data.lube_on, old_halui_data.lube_on) != 0)
-	sendLubeOn();
+	lui_lube_on(lui);
 
     if (check_bit_changed(new_halui_data.lube_off, old_halui_data.lube_off) != 0)
-	sendLubeOff();
+	lui_lube_off(lui);
 
     if (check_bit_changed(new_halui_data.program_run, old_halui_data.program_run) != 0)
 	sendProgramRun(0);
@@ -1938,7 +1924,7 @@ static void modify_hal_pins()
 
     *(halui_data->mist_is_on) = lui_get_mist(lui);
     *(halui_data->flood_is_on) = lui_get_flood(lui);
-    *(halui_data->lube_is_on) = emcStatus->io.lube.on;
+    *(halui_data->lube_is_on) = lui_get_lube(lui);
 
     *(halui_data->tool_number) = emcStatus->io.tool.toolInSpindle;
     *(halui_data->tool_length_offset_x) = emcStatus->task.toolOffset.tran.x;
