@@ -3077,7 +3077,11 @@ int emc_teleop_enable(ClientData clientdata,
 	    setresult(interp,"emc_teleop_enable: <enable> must be an integer");
 	    return TCL_ERROR;
 	}
-	sendSetTeleopEnable(enable);
+	if (enable) {
+            lui_jog_mode_teleop(lui);
+        } else {
+            lui_jog_mode_joint(lui);
+        }
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
