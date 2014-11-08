@@ -141,6 +141,10 @@ int lui_coolant_flood_off(lui_t *lui);
 int lui_lube_on(lui_t *lui);
 int lui_lube_off(lui_t *lui);
 
+// control the type of jogging in manual mode
+int lui_jog_mode_teleop(lui_t *lui);
+int lui_jog_mode_joint(lui_t *lui);
+
 int lui_send_mdi_command(lui_t *lui, const char *mdi);
 
 struct EMC_STAT *lui_get_status_nml(lui_t *lui);
