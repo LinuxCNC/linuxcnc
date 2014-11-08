@@ -3,10 +3,8 @@ LIBLINUXCNC_UI_SRC := \
     liblinuxcnc-ui/free.cc \
     liblinuxcnc-ui/connect.cc \
     liblinuxcnc-ui/task-state.cc \
-    liblinuxcnc-ui/task-mode.cc \
     liblinuxcnc-ui/mdi.cc \
     liblinuxcnc-ui/coolant.cc \
-    liblinuxcnc-ui/lube.cc \
     liblinuxcnc-ui/jog-mode.cc \
     liblinuxcnc-ui/program.cc \
     liblinuxcnc-ui/command-nml.cc \
