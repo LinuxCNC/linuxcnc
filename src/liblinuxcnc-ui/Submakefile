@@ -17,11 +17,11 @@ LIBLINUXCNC_UI_SRC := \
 Makefile : objects/liblinuxcnc-ui/getter.mak
 Makefile : objects/liblinuxcnc-ui/liblinuxcnc-ui-getters.h
 
-LUIGETTER := python liblinuxcnc-ui/luigetter.py
-objects/liblinuxcnc-ui/getter.mak: liblinuxcnc-ui/luigetter.py
-	$(LUIGETTER) makefile $@.tmp && mv -f $@.tmp $@
-objects/liblinuxcnc-ui/liblinuxcnc-ui-getters.h: liblinuxcnc-ui/luigetter.py
-	$(LUIGETTER) hfile $@.tmp && mv -f $@.tmp $@
+LUIGEN := python liblinuxcnc-ui/luigen.py
+objects/liblinuxcnc-ui/getter.mak: liblinuxcnc-ui/luigen.py
+	$(LUIGEN) makefile $@.tmp && mv -f $@.tmp $@
+objects/liblinuxcnc-ui/liblinuxcnc-ui-getters.h: liblinuxcnc-ui/luigen.py
+	$(LUIGEN) hfile $@.tmp && mv -f $@.tmp $@
 
 USERSRCS += $(LIBLINUXCNC_UI_SRC)
 TARGETS += ../lib/liblinuxcnc-ui.so ../lib/liblinuxcnc-ui.so.0
