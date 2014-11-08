@@ -425,7 +425,6 @@ static int emcCommandSerialNumber = 0;
 // default value for timeout, 0 means wait forever
 // use same timeout value as in tkemc & mini
 static double receiveTimeout = 1.;
-static double doneTimeout = 60.;
 
 static void quit(int sig)
 {
@@ -524,35 +523,6 @@ static int updateStatus()
 
 
 #define EMC_COMMAND_DELAY   0.1	// how long to sleep between checks
-
-static int emcCommandWaitDone()
-{
-    double end;
-    for (end = 0.0; end < doneTimeout; end += EMC_COMMAND_DELAY) {
-	updateStatus();
-	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
-
-	if (serial_diff < 0) {
-	    continue;
-	}
-
-	if (serial_diff > 0) {
-	    return 0;
-	}
-
-	if (emcStatus->status == RCS_DONE) {
-	    return 0;
-	}
-
-	if (emcStatus->status == RCS_ERROR) {
-	    return -1;
-	}
-
-	esleep(EMC_COMMAND_DELAY);
-    }
-
-    return -1;
-}
 
 static int emcCommandSend(RCS_CMD_MSG & cmd)
 {
