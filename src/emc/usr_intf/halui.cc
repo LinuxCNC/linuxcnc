@@ -1021,28 +1021,6 @@ static int sendMdiCommand(int n)
     return 0;
 }
 
-static int sendTeleop()
-{
-    EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;
-
-    emc_set_teleop_enable_msg.enable = 1;
-    if (emcCommandSend(emc_set_teleop_enable_msg)) {
-        return -1;
-    }
-    return emcCommandWaitDone();
-}
-
-static int sendJoint()
-{
-    EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;
-
-    emc_set_teleop_enable_msg.enable = 0;
-    if (emcCommandSend(emc_set_teleop_enable_msg)) {
-        return -1;
-    }
-    return emcCommandWaitDone();
-}
-
 // programStartLine is the saved valued of the line that
 // sendProgramRun(int line) sent
 static int programStartLine = 0;
@@ -1542,10 +1520,10 @@ static void check_hal_changes()
 	lui_mode_mdi(lui);
 
     if (check_bit_changed(new_halui_data.mode_teleop, old_halui_data.mode_teleop) != 0)
-	sendTeleop();
+	lui_jog_mode_teleop(lui);
 
     if (check_bit_changed(new_halui_data.mode_joint, old_halui_data.mode_joint) != 0)
-	sendJoint();
+	lui_jog_mode_joint(lui);
 
     if (check_bit_changed(new_halui_data.mist_on, old_halui_data.mist_on) != 0)
 	lui_coolant_mist_on(lui);
