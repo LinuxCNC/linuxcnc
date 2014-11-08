@@ -35,7 +35,6 @@ class LuiBase:
         self.doc1 = doc1
         self.doc2 = doc2
         self.deprecated = " (deprecated)" if deprecated else ""
-
     def do_makefile(self, fd):
         print >>fd, """\
 manpages: ../docs/man/man3/lui_%(fname)s.3lui
@@ -292,6 +291,11 @@ int lui_%(fname)s(lui_t *lui%(signature)s) {
 }"""
 
 
+LuiSetter('lube_on', 'EMC_LUBE_ON', (), (), "Turn on lubrication pump", "")
+LuiSetter('lube_off', 'EMC_LUBE_OFF', (), (), "Turn off lubrication pump", "")
+LuiSetter('mode_manual', 'EMC_TASK_SET_MODE', (), (('mode', 'EMC_TASK_MODE_MANUAL'),), "Set task mode to manual", "")
+LuiSetter('mode_auto', 'EMC_TASK_SET_MODE', (), (('mode', 'EMC_TASK_MODE_AUTO'),), "Set task mode to manual", "")
+LuiSetter('mode_mdi', 'EMC_TASK_SET_MODE', (), (('mode', 'EMC_TASK_MODE_MDI'),), "Set task mode to manual", "")
 
 # "unused" comments below apply to in-tree python scripts using linuxcncmodule
 # stat
