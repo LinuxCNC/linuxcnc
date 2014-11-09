@@ -147,6 +147,9 @@ int lui_lube_off(lui_t *lui);
 int lui_jog_mode_teleop(lui_t *lui);
 int lui_jog_mode_joint(lui_t *lui);
 
+int lui_program_open(lui_t *lui, const char *file);
+int lui_program_run(lui_t *lui, int line);
+int lui_program_step(lui_t *lui);
 int lui_program_pause(lui_t *lui);
 int lui_program_resume(lui_t *lui);
 
