@@ -42,6 +42,7 @@ typedef struct lui {
     EMC_STAT *status;
     NML *error_nml;
     struct timeval command_nml_receive_timeout;
+    struct timeval command_nml_done_timeout;
 
     int32_t nml_serial_number;
     lui_command_wait_mode_t command_wait_mode;

@@ -33,6 +33,9 @@ lui_t *lui_new(void) {
     lui->command_nml_receive_timeout.tv_sec = 5;
     lui->command_nml_receive_timeout.tv_usec = 0;
 
+    lui->command_nml_done_timeout.tv_sec = 5;
+    lui->command_nml_done_timeout.tv_usec = 0;
+
     lui->nml_serial_number = getpid() * 100;  // pick a number that's different from every other UI instance
 
     return lui;
