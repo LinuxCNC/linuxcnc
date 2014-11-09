@@ -413,7 +413,7 @@ extern int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes);
 extern int emcTrajSetAxes(int axes, int axismask);
 extern int emcTrajSetUnits(double linearUnits, double angularUnits);
 extern int emcTrajSetCycleTime(double cycleTime);
-extern int emcTrajSetMode(int axes);
+extern int emcTrajSetMode(int traj_mode);
 extern int emcTrajSetTeleopVector(EmcPose vel);
 extern int emcTrajSetVelocity(double vel, double ini_maxvel);
 extern int emcTrajSetAcceleration(double acc);
