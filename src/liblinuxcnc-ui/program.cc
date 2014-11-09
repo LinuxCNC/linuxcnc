@@ -21,6 +21,11 @@
 #include "linuxcnc-ui-private.h"
 
 
+int lui_program_get_line(lui_t *lui) {
+    return lui->line;
+}
+
+
 int lui_program_pause(lui_t *lui) {
     EMC_TASK_PLAN_PAUSE msg;
     return lui_send_nml_command_and_wait(lui, msg);
@@ -45,6 +50,8 @@ int lui_program_run(lui_t *lui, int line) {
             return r;
         }
     }
+
+    lui->line = line;
 
     msg.line = line;
     return lui_send_nml_command_and_wait(lui, msg);

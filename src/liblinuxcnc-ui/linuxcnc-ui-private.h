@@ -47,8 +47,11 @@ typedef struct lui {
     int32_t nml_serial_number;
     lui_command_wait_mode_t command_wait_mode;
 
-    // the most recent program we asked the controller to open
+    // The most recent program the UI asked the controller to open.
     char program[LINELEN];
+
+    // The most recent line the UI we asked the controller to run.
+    int line;
 
     int shadow_homed[EMC_AXIS_MAX];
     int shadow_limit[EMC_AXIS_MAX];

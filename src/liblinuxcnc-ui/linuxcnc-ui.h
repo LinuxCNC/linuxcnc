@@ -152,6 +152,7 @@ int lui_program_run(lui_t *lui, int line);
 int lui_program_step(lui_t *lui);
 int lui_program_pause(lui_t *lui);
 int lui_program_resume(lui_t *lui);
+int lui_program_get_line(lui_t *lui);
 
 int lui_send_mdi_command(lui_t *lui, const char *mdi);
 
