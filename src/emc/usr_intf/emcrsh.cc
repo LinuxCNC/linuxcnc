@@ -1102,13 +1102,13 @@ static cmdResponseType setRun(char *s, connectionRecType *context)
 
 static cmdResponseType setPause(char *s, connectionRecType *context)
 {
-  if (sendProgramPause() != 0) return rtStandardError;
+  if (lui_program_pause(lui) != 0) return rtStandardError;
   return rtNoError;
 }
 
 static cmdResponseType setResume(char *s, connectionRecType *context)
 {
-  if (sendProgramResume() != 0) return rtStandardError;
+  if (lui_program_resume(lui) != 0) return rtStandardError;
   return rtNoError;
 }
 

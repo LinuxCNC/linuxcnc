@@ -1999,7 +1999,7 @@ static int emc_pause(ClientData clientdata,
 		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     CHECKEMC
-    if (0 != sendProgramPause()) {
+    if (0 != lui_program_pause(lui)) {
 	setresult(interp,"emc_pause: can't pause program");
 	return TCL_OK;
     }
@@ -2048,7 +2048,7 @@ static int emc_resume(ClientData clientdata,
 		      Tcl_Obj * CONST objv[])
 {
     CHECKEMC
-    if (0 != sendProgramResume()) {
+    if (0 != lui_program_resume(lui)) {
 	setresult(interp,"emc_resume: can't resume program");
 	return TCL_OK;
     }

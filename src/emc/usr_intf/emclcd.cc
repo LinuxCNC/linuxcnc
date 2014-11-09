@@ -1222,10 +1222,10 @@ static int startKey()
 static int pauseKey()
 {
   if (runStatus == rsRun)
-    return sendProgramPause();
+    return lui_program_pause(lui);
   else
     if (runStatus == rsPause)
-      return sendProgramResume();
+      return lui_program_resume(lui);
     else return -1;
 }
 
