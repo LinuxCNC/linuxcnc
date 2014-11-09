@@ -105,5 +105,8 @@ int lui_program_step(lui_t *lui) {
         }
     }
 
+    // clear out start line, if we had a verify before it would be -1
+    lui->line = 0;
+
     return lui_send_nml_command_and_wait(lui, msg);
 }
