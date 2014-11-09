@@ -1960,7 +1960,7 @@ static int emc_open(ClientData clientdata,
 	return TCL_ERROR;
     }
 
-    if (0 != sendProgramOpen(Tcl_GetStringFromObj(objv[1], 0))) {
+    if (0 != lui_program_open(lui, Tcl_GetStringFromObj(objv[1], 0))) {
 	setresult(interp,"emc_open: can't open file");
 	return TCL_OK;
     }
@@ -1975,7 +1975,7 @@ static int emc_run(ClientData clientdata,
 
     CHECKEMC
     if (objc == 1) {
-	if (0 != sendProgramRun(0)) {
+	if (0 != lui_program_run(lui, 0)) {
 	    setresult(interp,"emc_run: can't execute program");
 	    return TCL_OK;
 	}
@@ -1986,7 +1986,7 @@ static int emc_run(ClientData clientdata,
 	    setresult(interp,"emc_run: need integer start line");
 	    return TCL_ERROR;
 	}
-	if (0 != sendProgramRun(line)) {
+	if (0 != lui_program_run(lui, line)) {
 	    setresult(interp,"emc_run: can't execute program");
 	    return TCL_OK;
 	}
@@ -2060,7 +2060,7 @@ static int emc_step(ClientData clientdata,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     CHECKEMC
-    if (0 != sendProgramStep()) {
+    if (0 != lui_program_step(lui)) {
 	setresult(interp,"emc_step: can't step program");
 	return TCL_OK;
     }
