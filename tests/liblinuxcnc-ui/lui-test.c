@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 #include "linuxcnc-ui.h"
 
@@ -90,13 +91,30 @@ void verify_traj_mode(lui_t *lui, lui_traj_mode_t expected_traj_mode) {
     int r;
     lui_traj_mode_t actual_traj_mode;
 
-    r = lui_status_nml_update(lui);
-    fatal_if(r != 0, "Error: failed to update Status buffer\n");
+    struct timeval start, end, now;
+    struct timeval timeout = { 5, 0 };
 
-    actual_traj_mode = lui_get_traj_mode(lui);
-    printf("traj mode is %d\n", actual_traj_mode);
-    fatal_if(actual_traj_mode != expected_traj_mode,
-        "Error: expected traj mode %d, got traj mode %d\n", expected_traj_mode, actual_traj_mode);
+    gettimeofday(&start, NULL);
+    now = start;
+    timeradd(&start, &timeout, &end);
+
+    do {
+        r = lui_status_nml_update(lui);
+        fatal_if(r != 0, "Error: failed to update Status buffer\n");
+
+        actual_traj_mode = lui_get_traj_mode(lui);
+        if (actual_traj_mode == expected_traj_mode) {
+            timersub(&now, &start, &end);
+            printf("traj mode became the expected (%d) after %d.%06d seconds\n", actual_traj_mode, end.tv_sec, end.tv_usec);
+            return 0;
+        }
+
+        usleep(1000);
+        gettimeofday(&now, NULL);
+    } while (timercmp(&now, &end, <));
+
+    printf("Error: did not see expected traj mode %d within the timeout of %d.%06d seconds\n", expected_traj_mode, timeout.tv_sec, timeout.tv_usec);
+    exit(1);
 }
 
 
