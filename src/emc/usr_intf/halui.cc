@@ -1011,13 +1011,6 @@ static int sendProgramRun(int line)
     return emcCommandSend(emc_task_plan_run_msg);
 }
 
-static int sendProgramPause()
-{
-    EMC_TASK_PLAN_PAUSE emc_task_plan_pause_msg;
-
-    return emcCommandSend(emc_task_plan_pause_msg);
-}
-
 static int sendSetOptionalStop(bool state)
 {
     EMC_TASK_PLAN_SET_OPTIONAL_STOP emc_task_plan_set_optional_stop_msg;
@@ -1032,14 +1025,6 @@ static int sendSetBlockDelete(bool state)
 
     emc_task_plan_set_block_delete_msg.state = state;
     return emcCommandSend(emc_task_plan_set_block_delete_msg);
-}
-
-
-static int sendProgramResume()
-{
-    EMC_TASK_PLAN_RESUME emc_task_plan_resume_msg;
-
-    return emcCommandSend(emc_task_plan_resume_msg);
 }
 
 static int sendProgramStep()
@@ -1517,7 +1502,7 @@ static void check_hal_changes()
 	sendProgramRun(0);
 
     if (check_bit_changed(new_halui_data.program_pause, old_halui_data.program_pause) != 0)
-	sendProgramPause();
+	lui_program_pause(lui);
 
     if (check_bit_changed(new_halui_data.program_os_on, old_halui_data.program_os_on) != 0)
 	sendSetOptionalStop(ON);
@@ -1532,7 +1517,7 @@ static void check_hal_changes()
 	sendSetBlockDelete(OFF);
 
     if (check_bit_changed(new_halui_data.program_resume, old_halui_data.program_resume) != 0)
-	sendProgramResume();
+	lui_program_resume(lui);
 
     if (check_bit_changed(new_halui_data.program_step, old_halui_data.program_step) != 0)
 	sendProgramStep();
