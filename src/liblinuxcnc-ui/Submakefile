@@ -8,7 +8,7 @@ LIBLINUXCNC_UI_SRC := \
     liblinuxcnc-ui/coolant.cc \
     liblinuxcnc-ui/lube.cc \
     liblinuxcnc-ui/jog-mode.cc \
-    liblinuxcnc-ui/program-pause.cc \
+    liblinuxcnc-ui/program.cc \
     liblinuxcnc-ui/command-nml.cc \
     liblinuxcnc-ui/status-nml-update.cc \
     liblinuxcnc-ui/get-status-nml.cc \
