@@ -926,7 +926,7 @@ static int openProgram(char *s)
   widgetSetStr(PROG_WIDGET2, s, "");
   if (sendTaskPlanInit() != 0) return -1;
   sendAuto();
-  return sendProgramOpen(fname);
+  return lui_program_open(lui, fname);
 }
 
 #define JOGMODE_WIDGET 14
@@ -1215,7 +1215,7 @@ static int downKeyRelease()
 static int startKey()
 {
   if (runStatus == rsIdle)
-    return sendProgramRun(0);
+    return lui_program_run(lui, 0);
   else return -1;
 }
 
@@ -1236,7 +1236,7 @@ static int stopKey()
 
 static int stepKey()
 {
-  return sendProgramStep();
+  return lui_program_step(lui);
 }
 
 static int toggleMode()
@@ -1553,7 +1553,7 @@ static void updatePositions()
     sprintf(numStr, "%6.2f", emcStatus->motion.traj.actualPosition.tran.z * conversion);
   widgetSetStr(ZPOSWIDGET, numStr, oldZStr);   
 
-  if ((programStartLine< 0) || (emcStatus->task.readLine < programStartLine))
+  if ((lui_program_get_line(lui) < 0) || (emcStatus->task.readLine < lui_program_get_line(lui)))
     lineNo = emcStatus->task.readLine;
   else
     if (emcStatus->task.currentLine > 0)
@@ -1675,7 +1675,6 @@ static void initMain()
     error_string[LINELEN-1] = 0;
     operator_text_string[LINELEN-1] = 0;
     operator_display_string[LINELEN-1] = 0;
-    programStartLine = 0;
 }
 
 int main(int argc, char *argv[])
