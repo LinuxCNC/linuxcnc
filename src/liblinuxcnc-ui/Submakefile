@@ -10,6 +10,7 @@ LIBLINUXCNC_UI_SRC := \
     liblinuxcnc-ui/jog-mode.cc \
     liblinuxcnc-ui/program.cc \
     liblinuxcnc-ui/command-nml.cc \
+    liblinuxcnc-ui/error-nml.cc \
     liblinuxcnc-ui/status-nml-update.cc \
     liblinuxcnc-ui/get-status-nml.cc \
     liblinuxcnc-ui/get-command-channel-nml.cc \

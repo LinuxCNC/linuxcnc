@@ -41,6 +41,7 @@ typedef struct lui {
     RCS_STAT_CHANNEL *status_nml;
     EMC_STAT *status;
     NML *error_nml;
+    char error_string[ (LINELEN > NML_ERROR_LEN) ? LINELEN : NML_ERROR_LEN];
     struct timeval command_nml_receive_timeout;
     struct timeval command_nml_done_timeout;
 

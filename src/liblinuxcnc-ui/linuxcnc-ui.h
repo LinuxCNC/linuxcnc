@@ -113,6 +113,18 @@ typedef enum {
     lui_command_wait_mode_done,
 } lui_command_wait_mode_t;
 
+// these map to the NML error message types
+typedef enum {
+    lui_no_error, // everything's fine
+    lui_operator_error,
+    lui_operator_text,
+    lui_operator_display,
+    lui_nml_error,
+    lui_nml_text,
+    lui_nml_display,
+    lui_unknown_error
+} lui_error_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -125,6 +137,12 @@ void lui_set_done_timeout(lui_t *lui, struct timeval timeout);
 
 int lui_connect(lui_t *lui);
 int lui_status_nml_update(lui_t *lui);
+
+// Returns True if it succeeded in getting the error state from LinuxCNC.
+// In this case, error_type is a valid lui_error_t indicating the error
+// state, and if error_type is not lui_error_none, then error_message
+// points a const string containing the error message.
+int lui_error(lui_t *lui, lui_error_t *error_type, const char **error_msg);
 
 int lui_estop(lui_t *lui);
 int lui_estop_reset(lui_t *lui);
