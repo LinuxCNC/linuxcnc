@@ -991,26 +991,6 @@ static int sendMdiCommand(int n)
     return 0;
 }
 
-// programStartLine is the saved valued of the line that
-// sendProgramRun(int line) sent
-static int programStartLine = 0;
-
-static int sendProgramRun(int line)
-{
-    EMC_TASK_PLAN_RUN emc_task_plan_run_msg;
-
-    updateStatus();
-
-    if (0 == emcStatus->task.file[0]) {
-	return -1; // no program open
-    }
-    // save the start line, to compare against active line later
-    programStartLine = line;
-
-    emc_task_plan_run_msg.line = line;
-    return emcCommandSend(emc_task_plan_run_msg);
-}
-
 static int sendSetOptionalStop(bool state)
 {
     EMC_TASK_PLAN_SET_OPTIONAL_STOP emc_task_plan_set_optional_stop_msg;
@@ -1025,13 +1005,6 @@ static int sendSetBlockDelete(bool state)
 
     emc_task_plan_set_block_delete_msg.state = state;
     return emcCommandSend(emc_task_plan_set_block_delete_msg);
-}
-
-static int sendProgramStep()
-{
-    EMC_TASK_PLAN_STEP emc_task_plan_step_msg;
-
-    return emcCommandSend(emc_task_plan_step_msg);
 }
 
 static int sendSpindleForward()
