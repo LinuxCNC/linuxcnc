@@ -106,7 +106,7 @@ void verify_traj_mode(lui_t *lui, lui_traj_mode_t expected_traj_mode) {
         if (actual_traj_mode == expected_traj_mode) {
             timersub(&now, &start, &end);
             printf("traj mode became the expected (%d) after %d.%06d seconds\n", actual_traj_mode, end.tv_sec, end.tv_usec);
-            return 0;
+            return;
         }
 
         usleep(1000);
