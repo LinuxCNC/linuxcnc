@@ -55,6 +55,7 @@ parser Hal:
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
       | "include" Header ";"   {{ include(Header) }}
+      | "extralib" String ";"   {{ extralib(String) }}
       | "modparam" NAME {{ NAME1=NAME; }} NAME OptSAssign OptString ";" {{ modparam(NAME1, NAME, OptSAssign, OptString) }}
 
     rule Header: STRING {{ return STRING }} | HEADER {{ return HEADER }}
@@ -132,10 +133,10 @@ deprecated = ['s32', 'u32']
 
 def initialize():
     global functions, params, pins, options, comp_name, names, docs, variables
-    global modparams, includes
+    global modparams, includes, extralibs
 
     functions = []; params = []; pins = []; options = {}; variables = []
-    modparams = []; docs = []; includes = [];
+    modparams = []; docs = []; includes = []; extralibs = [];
     comp_name = None
 
     names = {}
@@ -230,6 +231,9 @@ def modparam(type, name, default, doc):
 def include(value):
     includes.append((value))
 
+def extralib(value):
+    extralibs.append((value))
+    
 def removeprefix(s,p):
     if s.startswith(p): return s[len(p):]
     return s
@@ -643,9 +647,14 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print >>f, "%s: %s" % (binname, filename)
-    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
-        options.get("extra_compile_args", ""),
-        options.get("extra_link_args", ""))
+    if len(extralibs):
+        print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s %s" % ( 
+    	    options.get("extra_compile_args", ""),
+    	    options.get("extra_link_args", ""), ' '.join(extralibs) )
+    else:
+        print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
+    	    options.get("extra_compile_args", ""),
+    	    options.get("extra_link_args", ""))
     print >>f, "include %s" % find_modinc()
     f.close()
     result = os.system("cd %s && make -S %s" % (tempdir, binname))
@@ -665,6 +674,8 @@ def build_rt(tempdir, filename, mode, origfilename):
     print >>f, "include %s" % find_modinc()
     print >>f, "EXTRA_CFLAGS += -I%s" % os.path.abspath(os.path.dirname(origfilename))
     print >>f, "EXTRA_CFLAGS += -I%s" % os.path.abspath('.')
+    if len(extralibs):
+        Error("extralib field(s) %s not valid for rt components" % ' '.join(extralibs ))
     f.close()
     if mode == INSTALL:
         target = "modules install"
