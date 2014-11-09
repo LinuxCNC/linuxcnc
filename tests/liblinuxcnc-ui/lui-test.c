@@ -86,6 +86,20 @@ void verify_mode(lui_t *lui, lui_task_mode_t expected_mode) {
 }
 
 
+void verify_traj_mode(lui_t *lui, lui_traj_mode_t expected_traj_mode) {
+    int r;
+    lui_traj_mode_t actual_traj_mode;
+
+    r = lui_status_nml_update(lui);
+    fatal_if(r != 0, "Error: failed to update Status buffer\n");
+
+    actual_traj_mode = lui_get_traj_mode(lui);
+    printf("traj mode is %d\n", actual_traj_mode);
+    fatal_if(actual_traj_mode != expected_traj_mode,
+        "Error: expected traj mode %d, got traj mode %d\n", expected_traj_mode, actual_traj_mode);
+}
+
+
 void test_task_state(lui_t *lui) {
     int r;
 
@@ -332,6 +346,25 @@ void test_lube(lui_t *lui) {
 }
 
 
+void test_jog_mode(lui_t *lui) {
+    // Make sure Task is in Manual mode, because that's the only Task mode
+    // that allows jogging.
+    lui_mode_manual(lui);
+    verify_mode(lui, lui_task_mode_manual);
+
+    // when Task goes to Manual mode, it places Motion in Free mode (aka joint mode)
+    verify_traj_mode(lui, lui_traj_mode_free);
+
+    printf("teleop mode on\n");
+    lui_jog_mode_teleop(lui);
+    verify_traj_mode(lui, lui_traj_mode_teleop);
+
+    printf("joint mode on\n");
+    lui_jog_mode_joint(lui);
+    verify_traj_mode(lui, lui_traj_mode_free);
+}
+
+
 int main(int argc, char *argv[]) {
     lui_t *lui;
     int r;
@@ -355,8 +388,8 @@ int main(int argc, char *argv[]) {
     test_task_mode(lui);
     test_task_introspect(lui);
     test_coolant(lui);
-
     test_lube(lui);
+    test_jog_mode(lui);
 
     lui_estop(lui);
     lui_free(lui);
