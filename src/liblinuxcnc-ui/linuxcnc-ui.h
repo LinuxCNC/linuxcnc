@@ -120,6 +120,8 @@ extern "C" {
 lui_t *lui_new(void);
 void lui_free(lui_t *lui);
 void lui_set_command_wait_mode(lui_t *lui, lui_command_wait_mode_t wait_mode);
+void lui_set_receive_timeout(lui_t *lui, struct timeval timeout);
+void lui_set_done_timeout(lui_t *lui, struct timeval timeout);
 
 int lui_connect(lui_t *lui);
 int lui_status_nml_update(lui_t *lui);

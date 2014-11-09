@@ -35,6 +35,14 @@ void lui_set_command_wait_mode(lui_t *lui, lui_command_wait_mode_t wait_mode) {
     lui->command_wait_mode = wait_mode;
 }
 
+void lui_set_receive_timeout(lui_t *lui, struct timeval timeout) {
+    lui->command_nml_receive_timeout = timeout;
+}
+
+void lui_set_done_timeout(lui_t *lui, struct timeval timeout) {
+    lui->command_nml_done_timeout = timeout;
+}
+
 
 int lui_command_wait(lui_t *lui) {
     switch (lui->command_wait_mode) {
