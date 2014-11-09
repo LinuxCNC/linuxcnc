@@ -1499,7 +1499,7 @@ static void check_hal_changes()
 	lui_lube_off(lui);
 
     if (check_bit_changed(new_halui_data.program_run, old_halui_data.program_run) != 0)
-	sendProgramRun(0);
+	lui_program_run(lui, 0);
 
     if (check_bit_changed(new_halui_data.program_pause, old_halui_data.program_pause) != 0)
 	lui_program_pause(lui);
@@ -1520,7 +1520,7 @@ static void check_hal_changes()
 	lui_program_resume(lui);
 
     if (check_bit_changed(new_halui_data.program_step, old_halui_data.program_step) != 0)
-	sendProgramStep();
+	lui_program_step(lui);
 
     if (check_bit_changed(new_halui_data.program_stop, old_halui_data.program_stop) != 0)
 	sendAbort();
