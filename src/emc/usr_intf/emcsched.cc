@@ -304,11 +304,11 @@ void updateQueue() {
           sendAuto();
           strcpy(fileStr, defaultPath);
           strcat(fileStr, q.front().getFileName().c_str());
-          if (sendProgramOpen(fileStr) != 0) {
+          if (lui_program_open(lui, fileStr) != 0) {
             queueStatus = qsError;
             return;
             }
-          if (sendProgramRun(0) != 0) {
+          if (lui_program_run(lui, 0) != 0) {
             queueStatus = qsError;
             }
           q.remove(q.front());
