@@ -226,7 +226,13 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
     // Get maximum reachable velocity from max feed override
     double v_max_target = tc->target_vel * emcmotConfig->maxFeedScale;
 
-    // Check if the cartesian velocity limit applies and clip the maximum velocity if need be
+    /* Check if the cartesian velocity limit applies and clip the maximum
+     * velocity. The vLimit is from the max velocity slider, and should
+     * restrict the maximum velocity during non-synced moves and velocity
+     * synchronization. However, position-synced moves have the target velocity
+     * computed in the TP, so it would disrupt position tracking to apply this
+     * limit here.
+     */
     if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
         tc_debug_print("Cartesian velocity limit active\n");
         v_max_target = fmin(v_max_target,tp->vLimit);
@@ -1582,7 +1588,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
  */
 STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
-    tp_debug_print("** Handle Blend Arc **\n");
+    tp_debug_print("*****************************************\n** Handle Blend Arc **\n");
 
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
