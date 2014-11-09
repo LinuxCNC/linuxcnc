@@ -145,6 +145,9 @@ int lui_lube_off(lui_t *lui);
 int lui_jog_mode_teleop(lui_t *lui);
 int lui_jog_mode_joint(lui_t *lui);
 
+int lui_program_pause(lui_t *lui);
+int lui_program_resume(lui_t *lui);
+
 int lui_send_mdi_command(lui_t *lui, const char *mdi);
 
 struct EMC_STAT *lui_get_status_nml(lui_t *lui);
