@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
 
@@ -115,6 +116,58 @@ void verify_traj_mode(lui_t *lui, lui_traj_mode_t expected_traj_mode) {
 
     printf("Error: did not see expected traj mode %d within the timeout of %d.%06d seconds\n", expected_traj_mode, timeout.tv_sec, timeout.tv_usec);
     exit(1);
+}
+
+
+void expect_error(lui_t *lui, lui_error_t expected_err_type, const char *expected_msg) {
+    const char *actual_msg;
+    lui_error_t actual_err_type;
+    int r;
+
+    r = lui_error(lui, &actual_err_type, &actual_msg);
+    fatal_if(r != 0, "error getting error\n");
+
+    fatal_if(actual_err_type != expected_err_type, "expected error type %d, got %d\n", expected_err_type, actual_err_type);
+    fatal_if(strcmp(actual_msg, expected_msg) != 0, "expected error message [%s], got [%s]\n", expected_msg, actual_msg);
+
+    printf("got expected error type %d: %s\n", actual_err_type, actual_msg);
+}
+
+
+void drain_errors(lui_t *lui) {
+    const char *msg;
+    lui_error_t err_type;
+    int r;
+
+    while (lui_error(lui, &err_type, &msg) == 0) {
+        switch (err_type) {
+            case lui_no_error:
+                return;
+
+            case lui_unknown_error:
+                printf("lui reports unknown error type\n");
+                break;
+
+            case lui_operator_error:
+            case lui_operator_text:
+            case lui_operator_display:
+            case lui_nml_error:
+            case lui_nml_text:
+            case lui_nml_display:
+                printf("got error type %d from linuxcnc:\n", err_type);
+                printf("**********\n");
+                printf("%s", msg);
+                if (msg[strlen(msg)] != '\n') {
+                    printf("\n");
+                }
+                printf("**********\n");
+                break;
+
+            default:
+                printf("got unknown error type %d\n", err_type);
+                break;
+        }
+    }
 }
 
 
@@ -383,6 +436,25 @@ void test_jog_mode(lui_t *lui) {
 }
 
 
+void test_program(lui_t *lui) {
+    int r;
+    const char *e;
+
+    lui_estop_reset(lui);
+    lui_machine_on(lui);
+    lui_mode_auto(lui);
+
+    drain_errors(lui);
+
+    printf("opening a missing program\n");
+    r = lui_program_open(lui, "missing.ngc");
+    fatal_if(r == 0, "opening a missing gcode file succeeded?!\n");
+
+    expect_error(lui, lui_operator_error, "Unable to open file <missing.ngc>");
+    expect_error(lui, lui_operator_error, "can't open missing.ngc");
+}
+
+
 int main(int argc, char *argv[]) {
     lui_t *lui;
     int r;
@@ -408,6 +480,7 @@ int main(int argc, char *argv[]) {
     test_coolant(lui);
     test_lube(lui);
     test_jog_mode(lui);
+    test_program(lui);
 
     lui_estop(lui);
     lui_free(lui);
