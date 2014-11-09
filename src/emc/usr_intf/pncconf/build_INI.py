@@ -237,11 +237,12 @@ class INI:
             if stepgen:
                 print >>file, "# The values below should be 25% larger than MAX_VELOCITY and MAX_ACCELERATION"
                 print >>file, "# If using BACKLASH compensation STEPGEN_MAXACCEL should be 100% larger."
-                print >>file, "STEPGEN_MAXVEL = %.1f" % (float(get("maxvel")) * 1.25)
                 if get("usecomp") or get("usebacklash"):
-                    print >>file, "STEPGEN_MAXACCEL = %.1f" % (float(get("maxacc")) * 2.0)
+                    factor = 2.0
                 else:
-                    print >>file, "STEPGEN_MAXACCEL = %.1f" % (float(get("maxacc")) * 1.25)
+                    factor = 1.25
+                    print >>file, "STEPGEN_MAXVEL = %.2f" % (float(get("maxvel")) * factor)
+                    print >>file, "STEPGEN_MAXACCEL = %.2f" % (float(get("maxacc")) * factor)
 
         print >>file, "P = %s" % get("P")
         print >>file, "I = %s" % get("I") 
