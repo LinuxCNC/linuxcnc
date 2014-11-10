@@ -34,16 +34,27 @@ class Private_Data:
         # [widget name,title.initialized state,active state]
         # The widget name is also the filename 'widget.glade'
         # if not initialized, the page will be loaded and added, only if page is shown (and signals selected in glade editor will be ignored)
-        self.available_page =[['intro', _('PNCconf'),True,True],['start',_('Start'),True,True],
-                            ['base',_('Base Information'),True,True],['screen',_('Screen'),True,True],['external',_('External Controls'),True,True],
-                            ['mesa0',_('Mesa Card 0'),False,True],['mesa1',_('Mesa Card 1'),False,True],
-                            ['pport1',_('Parallel Port'),False,True],['pport2',_('Parallel Port 2'),False,True],
-                            ['x_motor',_('X Motor'),True,True],['x_axis',_('X Axis'),True,True],
-                            ['y_motor',_('Y Motor'),True,True],['y_axis',_('Y Axis'),True,True],
-                            ['z_motor',_('Z Motor'),True,True],['z_axis',_('Z Axis'),True,True],
-                            ['a_motor',_('A Motor'),True,True],['a_axis',_('A Axis'),True,True],
-                            ['s_motor',_('Spindle Motor'),True,True],['options',_('Options'),True,True],['realtime',_('Realtime'),True,True],
-                            ['finished',_('Almost Done'),True,True]
+        self.available_page =[['intro', _('PNCconf'),True,True],
+                                ['start',_('Start'),True,True],
+                                ['base',_('Base Information'),True,True],
+                                ['screen',_('Screen'),True,True],
+                                ['external',_('External Controls'),True,True],
+                                ['mesa0',_('Mesa Card 0'),False,True],
+                                ['mesa1',_('Mesa Card 1'),False,True],
+                                ['pport1',_('Parallel Port'),False,True],
+                                ['pport2',_('Parallel Port 2'),False,True],
+                                ['x_motor',_('X Motor'),True,True],
+                                ['x_axis',_('X Axis'),True,True],
+                                ['y_motor',_('Y Motor'),True,True],
+                                ['y_axis',_('Y Axis'),True,True],
+                                ['z_motor',_('Z Motor'),True,True],
+                                ['z_axis',_('Z Axis'),True,True],
+                                ['a_motor',_('A Motor'),True,True],
+                                ['a_axis',_('A Axis'),True,True],
+                                ['s_motor',_('Spindle Motor'),True,True],
+                                ['options',_('Options'),True,True],
+                                ['realtime',_('Realtime'),True,True],
+                                ['finished',_('Almost Done'),True,True]
                             ]
         self.EXTRA_MESA_FIRMWAREDATA = []
         self.prepare_block = False
@@ -188,7 +199,7 @@ class Private_Data:
             _("Spindle Override incr C"),_("Spindle Override incr D"), _("Max Vel Override incr A"),_("Max Vel Override incr B"),
             _("Max Vel Override incr C"),_("Max Vel Override incr D"), _("Feed Override enable"), _("Spindle Override enable"),
             _("Max Vel Override enable") ]
-        spindle = [ _("Manual Spindle CW"),_("Manual Spindle CCW"),_("Manual Spindle Stop"),_("Spindle Up-To-Speed") ]
+        spindle = [ _("Manual Spindle CW"),_("Manual Spindle CCW"),_("Manual Spindle Stop"),_("Spindle Up-To-Speed"),_("Gear Select A"),]
         operation =  [_("Cycle Start"),_("Abort"),_("Single Step") ]
         control = [_("ESTOP In"), _("Probe In") ]
         xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),_("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
@@ -217,7 +228,7 @@ class Private_Data:
             S.JOGA,S.JOGB,S.JOGC,S.JOGD,S.FOA,S.FOB,S.FOC,S.FOD,
             S.SOA,S.SOB,S.SOC,S.SOD,S.MVOA,S.MVOB,S.MVOC,S.MVOD,
             S.FOE,S.SOE,S.MVOE,
-            S.SPINDLE_CW,S.SPINDLE_CCW,S.SPINDLE_STOP,S.SPINDLE_AT_SPEED,
+            S.SPINDLE_CW,S.SPINDLE_CCW,S.SPINDLE_STOP,S.SPINDLE_AT_SPEED,S.GEAR_SELECT_A,
             S.CYCLE_START,S.ABORT,S.SINGLE_STEP,
             S.ESTOP_IN,S.PROBE,
             S.JOGX_P,S.JOGX_N,S.JOGY_P,S.JOGY_N,S.JOGZ_P,S.JOGZ_N,S.JOGA_P,S.JOGA_N,S.JOGSLCT_P,S.JOGSLCT_N,
@@ -240,7 +251,7 @@ class Private_Data:
             "jog-incr-a","jog-incr-b","jog-incr-c","jog-incr-d","fo-incr-a","fo-incr-b","fo-incr-c","fo-incr-d",
             "so-incr-a","so-incr-b","so-incr-c","so-incr-d","mvo-incr-a","mvo-incr-b","mvo-incr-c","mvo-incr-d",
             "fo-enable","so-enable","mvo-enable",
-            "spindle-manual-cw","spindle-manual-ccw","spindle-manual-stop","spindle-at-speed",
+            "spindle-manual-cw","spindle-manual-ccw","spindle-manual-stop","spindle-at-speed","gear-select-a",
             "cycle-start","abort","single-step",
             "estop-ext", "probe-in",
             "jog-x-pos","jog-x-neg","jog-y-pos","jog-y-neg",
