@@ -1356,10 +1356,10 @@ class HAL:
                     print >>file
                     print >>file, ("setp     scale.spindle.gain 60")
                     print >>file, ("setp     lowpass.spindle.gain %f"% self.d.sfiltergain)
-                    print >>file, ("net spindle-vel-fb        =>   lowpass.spindle.in")
-                    print >>file, ("net spindle-fb-filtered-rps    lowpass.spindle.out      =>   abs.spindle.in")
-                    print >>file, ("net spindle-fb-filtered-abs-rps    abs.spindle.out      =>   scale.spindle.in")
-                    print >>file, ("net spindle-fb-filtered-abs-rpm    scale.spindle.out")
+                    print >>file, ("net spindle-vel-fb        =>     scale.spindle.in")
+                    print >>file, ("net spindle-fb-rpm               scale.spindle.out       =>   abs.spindle.in")
+                    print >>file, ("net spindle-fb-rpm-abs           abs.spindle.out         =>   lowpass.spindle.in")
+                    print >>file, ("net spindle-fb-rpm-abs-filtered  lowpass.spindle.out  ")
             return
 
         min_limsig = self.a.min_lim_sig(let)
