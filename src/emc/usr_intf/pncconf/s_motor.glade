@@ -362,37 +362,6 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="label298">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Quad Pulses / Rev:</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">7</property>
-                        <property name="bottom_attach">8</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                        <property name="x_padding">4</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="sencodercounts">
-                        <property name="width_request">100</property>
-                        <property name="visible">True</property>
-                        <property name="xalign">0.25</property>
-                        <property name="xpad">1</property>
-                        <property name="label" translatable="yes">label</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">7</property>
-                        <property name="bottom_attach">8</property>
-                        <property name="x_options"></property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkSpinButton" id="s3pwmdeadtime">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -431,8 +400,8 @@
                         <property name="label" translatable="yes">analog Min Limit:</property>
                       </object>
                       <packing>
-                        <property name="top_attach">4</property>
-                        <property name="bottom_attach">5</property>
+                        <property name="top_attach">3</property>
+                        <property name="bottom_attach">4</property>
                         <property name="x_options">GTK_FILL</property>
                         <property name="y_options"></property>
                       </packing>
@@ -445,8 +414,8 @@
                         <property name="label" translatable="yes">analog Max limit:</property>
                       </object>
                       <packing>
-                        <property name="top_attach">5</property>
-                        <property name="bottom_attach">6</property>
+                        <property name="top_attach">4</property>
+                        <property name="bottom_attach">5</property>
                         <property name="x_options">GTK_FILL</property>
                         <property name="y_options"></property>
                       </packing>
@@ -459,8 +428,8 @@
                         <property name="label" translatable="yes">analog Max Scale:</property>
                       </object>
                       <packing>
-                        <property name="top_attach">6</property>
-                        <property name="bottom_attach">7</property>
+                        <property name="top_attach">5</property>
+                        <property name="bottom_attach">6</property>
                         <property name="x_options">GTK_FILL</property>
                         <property name="y_options"></property>
                       </packing>
@@ -476,8 +445,8 @@
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
-                        <property name="top_attach">4</property>
-                        <property name="bottom_attach">5</property>
+                        <property name="top_attach">3</property>
+                        <property name="bottom_attach">4</property>
                         <property name="x_options"></property>
                         <property name="y_options"></property>
                       </packing>
@@ -493,8 +462,8 @@
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
-                        <property name="top_attach">5</property>
-                        <property name="bottom_attach">6</property>
+                        <property name="top_attach">4</property>
+                        <property name="bottom_attach">5</property>
                         <property name="x_options"></property>
                         <property name="y_options"></property>
                       </packing>
@@ -510,29 +479,119 @@
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
-                        <property name="top_attach">6</property>
-                        <property name="bottom_attach">7</property>
+                        <property name="top_attach">5</property>
+                        <property name="bottom_attach">6</property>
                         <property name="x_options"></property>
                         <property name="y_options"></property>
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkSpinButton" id="soutputminlimit2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">sanalog_min_adjust2</property>
+                        <property name="digits">2</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">7</property>
+                        <property name="bottom_attach">8</property>
+                        <property name="x_options"></property>
+                        <property name="y_options"></property>
+                      </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkSpinButton" id="soutputmaxlimit2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">sanalog_max_adjust2</property>
+                        <property name="digits">2</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">8</property>
+                        <property name="bottom_attach">9</property>
+                        <property name="x_options"></property>
+                        <property name="y_options"></property>
+                      </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkSpinButton" id="soutputscale2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">sanalog_scale_adjust2</property>
+                        <property name="digits">2</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">9</property>
+                        <property name="bottom_attach">10</property>
+                        <property name="x_options"></property>
+                        <property name="y_options"></property>
+                      </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkLabel" id="soutputminlimitlabel1">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="xpad">4</property>
+                        <property name="label" translatable="yes">analog Min Limit 2:</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">7</property>
+                        <property name="bottom_attach">8</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
+                      </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkLabel" id="soutputmaxlimitlabel1">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="xpad">4</property>
+                        <property name="label" translatable="yes">analog Max limit 2:</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">8</property>
+                        <property name="bottom_attach">9</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
+                      </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkLabel" id="soutputscalelabel1">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="xpad">4</property>
+                        <property name="label" translatable="yes">analog Max Scale 2:</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">9</property>
+                        <property name="bottom_attach">10</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="susetwooutputscales">
+                        <property name="label" translatable="yes">Use Two output Scales</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="on_susetwooutputscales_toggled"/>
+                      </object>
+                      <packing>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">6</property>
+                        <property name="bottom_attach">7</property>
+                      </packing>
                     </child>
                     <child>
                       <placeholder/>
@@ -1419,7 +1478,7 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="suseatspeed">
-                    <property name="label" translatable="yes">Use At Speed Calculation</property>
+                    <property name="label" translatable="yes">Use At-Speed Calculation</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -2029,5 +2088,18 @@ Scale</property>
     <property name="lower">0.5</property>
     <property name="upper">1.5</property>
     <property name="step_increment">0.01</property>
+  </object>
+  <object class="GtkAdjustment" id="sanalog_min_adjust2">
+    <property name="lower">-10000</property>
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sanalog_max_adjust2">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sanalog_scale_adjust2">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
   </object>
 </interface>

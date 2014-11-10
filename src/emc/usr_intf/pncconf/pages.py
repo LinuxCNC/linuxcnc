@@ -1118,11 +1118,12 @@ class Pages:
     def s_motor_finish(self):
         self.a.axis_done('s')
     # callbacks
-    def on_scalculatescale_clicked(self, *args): self.a.calculate_scale('s')
+    def on_scalculatescale_clicked(self, *args): self.a.calculate_spindle_scale()
     def on_saxistest_clicked(self, *args): self.t.test_axis('s')
     def on_saxistune_clicked(self, *args): self.t.tune_axis('s')
     def on_saxis_prepare(self, *args): self.a.axis_prepare('s')
     def on_suseatspeed_toggled(self,widget): self.a.useatspeed_toggled()
+    def on_susetwooutputscales_toggled(self,widget): self.a.usetwooutputscales_toggled()
 #************
 # Options PAGE
 #************

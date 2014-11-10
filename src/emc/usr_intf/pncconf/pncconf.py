@@ -634,27 +634,39 @@ class Data:
             self[temp+"microstep"]= 5
             self[temp+"motor_pulleydriver"]= 1
             self[temp+"motor_pulleydriven"]= 1
-            self[temp+"motor_wormdriver"]= 1
-            self[temp+"motor_wormdriven"]= 1
-            self[temp+"encoder_pulleydriver"]= 1
-            self[temp+"encoder_pulleydriven"]= 1
-            self[temp+"encoder_wormdriver"]= 1
-            self[temp+"encoder_wormdriven"]= 1
-            self[temp+"motor_leadscrew"]= 5
-            self[temp+"encoder_leadscrew"]= 5
-            self[temp+"motor_leadscrew_tpi"]= 5
-            self[temp+"encoder_leadscrew_tpi"]= 5
-
-            self[temp+"cbencoder_pitch"]= False
-            self[temp+"cbencoder_tpi"]= False
-            self[temp+"cbencoder_worm"]= False
-            self[temp+"cbencoder_pulley"]= False
-            self[temp+"cbmotor_pitch"]= False
-            self[temp+"cbmotor_tpi"]= False
             self[temp+"cbmicrosteps"]= False
-            self[temp+"cbmotor_worm"]= False
             self[temp+"cbmotor_pulley"]= False
-
+            if not temp == 's':
+                self[temp+"motor_wormdriver"]= 1
+                self[temp+"motor_wormdriven"]= 1
+                self[temp+"encoder_pulleydriver"]= 1
+                self[temp+"encoder_pulleydriven"]= 1
+                self[temp+"encoder_wormdriver"]= 1
+                self[temp+"encoder_wormdriven"]= 1
+                self[temp+"motor_leadscrew"]= 5
+                self[temp+"encoder_leadscrew"]= 5
+                self[temp+"motor_leadscrew_tpi"]= 5
+                self[temp+"encoder_leadscrew_tpi"]= 5
+                self[temp+"cbencoder_pitch"]= False
+                self[temp+"cbencoder_tpi"]= False
+                self[temp+"cbencoder_worm"]= False
+                self[temp+"cbencoder_pulley"]= False
+                self[temp+"cbmotor_pitch"]= False
+                self[temp+"cbmotor_tpi"]= False
+                self[temp+"cbmotor_worm"]= False
+            else:
+                self[temp+"motor_gear1driver"]= 1
+                self[temp+"motor_gear1driven"]= 1
+                self[temp+"motor_gear2driver"]= 1
+                self[temp+"motor_gear2driven"]= 1
+                self[temp+"motor_max"] = 2000
+                self[temp+"cbmotor_gear1"]= False
+                self[temp+"cbmotor_gear2"]= False
+                self[temp+"negative_rot"]= False
+                self[temp+"rbvoltage_5"]= False
+                self[temp+"outputscale2"]= 10
+                self[temp+"outputminlimit2"]= -10
+                self[temp+"outputmaxlimit2"]= 10
             self[temp+"encodercounts"]= 4000
             self[temp+"usecomp"]= 0
             self[temp+"compfilename"]= temp+"compensation"
@@ -728,18 +740,21 @@ class Data:
         self.ahomelatchvel= .5
         self.aminferror= .05
         self.amaxferror= .5
-        # spindle at speed near settings
+        # adjust spindle settings
         self.soutputscale = 2000
         self.soutputminlimit = -2000
         self.soutputmaxlimit = 2000
         self.smaxoutput = 2000
         self.sP = 0
+        self.sFF1= 0
+        self.sFF0= 1
         self.smaxvel = 2000
         self.smaxacc = 300
         self.snearrange = 200.0
         self.snearscale = 1.20
         self.sfiltergain = 1.0
         self.suseatspeed = False
+        self.susetwooutputscales = False
         self.susenearrange = False
         self.ssingleinputencoder = False
 
@@ -4276,6 +4291,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         set_value("outputscale")
         set_value("outputminlimit")
         set_value("outputmaxlimit")
+        if axis =='s':
+            set_value("outputscale2")
+            set_value("outputminlimit2")
+            set_value("outputmaxlimit2")
         set_value("3pwmscale")
         set_value("3pwmdeadtime")
         set_active("invertmotor")
@@ -4310,7 +4329,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         set_value("bldc_pattern_out")
         set_value("bldc_pattern_in")
         set_value("8i20maxcurrent")
-        set_text("encodercounts")
+
         w["encoderline"].set_value((d[axis+"encodercounts"]/4))
         set_value("stepscale")
         set_value("encoderscale")
@@ -4403,7 +4422,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if resolver:
             w[axis + "encoderscale_label"].set_text(_("Resolver Scale:"))
         if axis == 's':
-            w.sencodercounts.set_sensitive(encoder)
             w.ssingleinputencoder.set_sensitive(encoder)
             w["sinvertencoder"].set_sensitive(encoder)
             w["ssingleinputencoder"].show()
@@ -4422,7 +4440,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             w["snearrange"].set_value(d["snearrange"])
             set_value("filtergain")
             set_active("singleinputencoder")
+            set_active("usetwooutputscales")
+            self.usetwooutputscales_toggled()
         else:
+            set_text("encodercounts")
             w[axis+"maxferror"].set_sensitive(True)
             w[axis+"minferror"].set_sensitive(True)
             set_value("maxferror")
@@ -4517,6 +4538,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         i = self.widgets.suseatspeed.get_active()
         self.widgets.snearscale.set_sensitive(self.widgets.snearscale_button.get_active() and i)
         self.widgets.snearrange.set_sensitive(self.widgets.snearrange_button.get_active() and i)
+
+    def usetwooutputscales_toggled(self):
+        i = self.widgets.susetwooutputscales.get_active()
+        self.widgets.soutputminlimit2.set_sensitive(i)
+        self.widgets.soutputmaxlimit2.set_sensitive(i)
+        self.widgets.soutputscale2.set_sensitive(i)
 
     def bldc_update(self,Widgets,axis):
         w = self.widgets
@@ -4635,6 +4662,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             d["snearrange"] = w["snearrange"].get_value()
             get_pagevalue("filtergain")
             get_active("singleinputencoder")
+            get_pagevalue("outputscale2")
+            get_pagevalue("outputminlimit2")
+            get_pagevalue("outputmaxlimit2")
+            get_active("usetwooutputscales")
 
     def configure_bldc(self,axis):
         d = self.d
@@ -4656,6 +4687,130 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if d[axis + "bldc_force_trapz"]: string = string + "T"
         #print "axis ",axis,"bldc config ",string 
         d[axis+"bldc_config"] = string
+
+    def calculate_spindle_scale(self):
+        stepdrive = bool(self.d.findsignal("s-stepgen-step"))
+        encoder = bool(self.d.findsignal("s-encoder-a"))
+        resolver = bool(self.d.findsignal("s-resolver"))
+        twoscales = self.widgets.susetwooutputscales.get_active()
+
+        data_list=[ "steprev","microstep","motor_pulleydriver","motor_pulleydriven","motor_gear1driver","motor_gear1driven",
+                        "motor_gear2driver","motor_gear2driven","motor_max"]
+        templist1 = ["encoderline","steprev","microstep","motor_gear1driven","motor_gear1driver","motor_gear2driven","motor_gear2driver",
+                        "motor_pulleydriven","motor_pulleydriver","motor_max"]
+        checkbutton_list = ["cbmicrosteps","cbmotor_gear1","cbmotor_gear2","cbmotor_pulley","rbvoltage_5"
+                    ]
+
+        self.widgets.spindle_cbmicrosteps.set_sensitive(stepdrive)
+        self.widgets.spindle_microstep.set_sensitive(stepdrive)
+        self.widgets.spindle_steprev.set_sensitive(stepdrive)
+        self.widgets.label_steps_per_rev.set_sensitive(stepdrive)
+        self.widgets.spindle_motor_max.set_sensitive(not stepdrive)
+        self.widgets.label_motor_at_max_volt.set_sensitive(not stepdrive)
+        self.widgets.label_volt_at_max_rpm.set_sensitive(not stepdrive)
+        self.widgets.spindle_rbvoltage_10.set_sensitive(not stepdrive)
+        self.widgets.spindle_rbvoltage_5.set_sensitive(not stepdrive)
+        self.widgets.spindle_cbnegative_rot.set_sensitive(not stepdrive)
+
+        # pre set data
+        for i in data_list:
+            self.widgets['spindle_'+i].set_value(self.d['s'+i])
+        for i in checkbutton_list:
+            self.widgets['spindle_'+i].set_active(self.d['s'+i])
+        self.widgets.spindle_encoderline.set_value(self.widgets.sencoderscale.get_value()/4)
+        self.widgets.spindle_cbmotor_gear2.set_active(twoscales)
+
+        # temparally add signals
+        for i in templist1:
+            self.d[i] = self.widgets['spindle_'+i].connect("value-changed", self.update_spindle_calculation)
+        for i in checkbutton_list:
+            self.d[i] = self.widgets['spindle_'+i].connect("toggled", self.update_spindle_calculation)
+        self.update_spindle_calculation(None)
+        # run dialog
+        self.widgets.spindle_scaledialog.set_title(_("Spindle Scale Calculation"))
+        self.widgets.spindle_scaledialog.show_all()
+        result = self.widgets.spindle_scaledialog.run()
+        self.widgets.spindle_scaledialog.hide()
+
+        # remove signals
+        for i in templist1:
+            self.widgets['spindle_'+i].disconnect(self.d[i])
+        for i in checkbutton_list:
+            self.widgets['spindle_'+i].disconnect(self.d[i])
+
+        if not result: return
+
+        # record data values
+        for i in data_list:
+            self.d['s'+i] = self.widgets['spindle_'+i].get_value()
+        for i in checkbutton_list:
+            self.d['s'+i] = self.widgets['spindle_'+i].get_active()
+        # set the widgets on the spindle page as per calculations 
+        factor = 0
+        if self.widgets.spindle_cbnegative_rot.get_active():
+            factor = 1
+        self.widgets.soutputminlimit.set_value(self.temp_max_motor_speed1 * -factor)
+        self.widgets.soutputmaxlimit.set_value(self.temp_max_motor_speed1)
+        self.widgets.soutputminlimit2.set_value(self.temp_max_motor_speed2 * -factor)
+        self.widgets.soutputmaxlimit2.set_value(self.temp_max_motor_speed2)
+        factor = 1
+        if self.widgets.spindle_rbvoltage_5.get_active():
+            factor = 2
+        self.widgets.soutputscale.set_value(self.temp_max_motor_speed1 * factor)
+        self.widgets.soutputscale2.set_value(self.temp_max_motor_speed2 * factor)
+        self.widgets.smaxoutput.set_value(self.temp_max_motor_speed1)
+        self.widgets.sencoderscale.set_value(self.widgets.spindle_encoderline.get_value()*4)
+        self.widgets.susetwooutputscales.set_active(self.widgets.spindle_cbmotor_gear2.get_active())
+        if stepdrive:
+            motor_steps = get_value(self.widgets.spindle_steprev)
+            if self.widgets.spindle_cbmicrosteps.get_active():
+                microstepfactor = get_value(self.widgets.spindle_microstep)
+            else:
+                microstepfactor = 1
+            self.widgets.sstepscale.set_value(motor_steps * microstepfactor)
+
+    def update_spindle_calculation(self,widget):
+        w= self.widgets
+        def get(n): return get_value(w[n])
+        motor_pulley_ratio = gear1_ratio = gear2_ratio = 1
+        motor_rpm = get("spindle_motor_max")
+        volts_at_max_rpm = 5
+        if self.widgets.spindle_rbvoltage_10.get_active():
+            volts_at_max_rpm = 10
+        if w["spindle_cbmotor_pulley"].get_active():
+            w["spindle_motor_pulleydriver"].set_sensitive(True)
+            w["spindle_motor_pulleydriven"].set_sensitive(True)
+            motor_pulley_ratio = (get("spindle_motor_pulleydriver") / get("spindle_motor_pulleydriven"))
+        else:
+            w["spindle_motor_pulleydriver"].set_sensitive(False)
+            w["spindle_motor_pulleydriven"].set_sensitive(False)
+            motor_pulley_ratio = 1
+        if w["spindle_cbmotor_gear1"].get_active():
+            w["spindle_motor_gear1driver"].set_sensitive(True)
+            w["spindle_motor_gear1driven"].set_sensitive(True)
+            gear1_ratio = (get("spindle_motor_gear1driver") / get("spindle_motor_gear1driven"))
+        else:
+            w["spindle_motor_gear1driver"].set_sensitive(False)
+            w["spindle_motor_gear1driven"].set_sensitive(False)
+            gear1_ratio = 1
+        i = w["spindle_cbmotor_gear2"].get_active()
+        w["spindle_motor_gear2driver"].set_sensitive(i)
+        w["spindle_motor_gear2driven"].set_sensitive(i)
+        w["label_rpm_at_max_motor2"].set_sensitive(i)
+        w["label_gear2_max_speed"].set_sensitive(i)
+        if i:
+            gear2_ratio = (get("spindle_motor_gear2driver") / get("spindle_motor_gear2driven"))
+        else:
+            gear2_ratio = 1
+        w["spindle_microstep"].set_sensitive(w["spindle_cbmicrosteps"].get_active())
+        self.temp_max_motor_speed1 = (motor_pulley_ratio * gear1_ratio * motor_rpm)
+        self.temp_max_motor_speed2 = (motor_pulley_ratio * gear2_ratio * motor_rpm)
+        w["label_motor_at_max_volt"].set_markup("      <b>MOTOR</b> RPM at %d Volt Command"% volts_at_max_rpm)
+        w["label_volt_at_max_rpm"].set_text("      Voltage for %d Motor RPM:"% motor_rpm)
+        w["label_rpm_at_max_motor1"].set_text("Spindle RPM at %d Motor RPM -gear 1:"% motor_rpm)
+        w["label_rpm_at_max_motor2"].set_text("Spindle RPM at %d Motor RPM -gear 2:"% motor_rpm)
+        w["label_gear1_max_speed"].set_text("%d" % (motor_pulley_ratio * gear1_ratio * motor_rpm))
+        w["label_gear2_max_speed"].set_text("%d" % (motor_pulley_ratio * gear2_ratio * motor_rpm))
 
     def calculate_scale(self,axis):
         def get(n): return get_value(self.widgets[n])
@@ -4705,10 +4860,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         # set the calculations result
         if encoder or resolver:
             self.widgets[axis+"encoderscale"].set_value(get("calcencoder_scale"))
-        if stepdrive:
-            self.widgets[axis+"stepscale"].set_value(get("calcmotor_scale"))
 
-    def update_scale_calculation(self,widgets,axis):
+    def update_scale_calculation(self,widget,axis):
         w = self.widgets
         d = self.d
         def get(n): return get_value(w[n])
