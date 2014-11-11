@@ -12,8 +12,12 @@ import math
 timeout = 1.0
 
 
-# unbuffer stdout
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+program_start = time.time()
+
+def log(msg):
+    delta_t = time.time() - program_start;
+    print "%.3f: %s" % (delta_t, msg)
+    sys.stdout.flush()
 
 
 class LinuxcncError(Exception):
@@ -162,9 +166,6 @@ class LinuxcncControl:
 
 
 def introspect():
-    #print "joint.0.select =", h['joint-0-select']
-    #print "joint.0.selected =", h['joint-0-selected']
-    #print "joint.0.position =", h['joint-0-position']
     os.system("halcmd show pin halui")
     os.system("halcmd show pin python-ui")
     os.system("halcmd show sig")
@@ -183,10 +184,10 @@ def wait_for_joint_to_stop_at(joint, target):
         vel = curr_pos - prev_pos
         error = math.fabs(curr_pos - target)
         if (error < tolerance) and (vel == 0):
-            print "joint %d stopped at %.3f" % (joint, target)
+            log("joint %d stopped at %.3f" % (joint, target))
             return
         time.sleep(0.1)
-    print "timeout waiting for joint %d to stop at %.3f (pos=%.3f, vel=%.3f)" % (joint, target, curr_pos, vel)
+    log("timeout waiting for joint %d to stop at %.3f (pos=%.3f, vel=%.3f)" % (joint, target, curr_pos, vel))
     sys.exit(1)
 
 
@@ -200,7 +201,7 @@ def wait_for_task_mode(target):
             return
         time.sleep(0.1)
 
-    print "timeout waiting for task mode to get to  %d (it's %d)" % (target, e.s.task_mode)
+    log("timeout waiting for task mode to get to  %d (it's %d)" % (target, e.s.task_mode))
     sys.exit(1)
 
 
@@ -241,8 +242,9 @@ e.set_state(linuxcnc.STATE_ON)
 # wrong.
 #
 
+log("setting mode to Manual")
 e.set_mode(linuxcnc.MODE_MANUAL)
-print "running MDI command 0"
+log("running MDI command 0")
 h['mdi-0'] = 1
 wait_for_joint_to_stop_at(0, 0);
 wait_for_joint_to_stop_at(1, 0);
@@ -250,8 +252,9 @@ wait_for_joint_to_stop_at(2, 0);
 h['mdi-0'] = 0
 wait_for_task_mode(linuxcnc.MODE_MANUAL)
 
+log("setting mode to Auto")
 e.set_mode(linuxcnc.MODE_AUTO)
-print "running MDI command 1"
+log("running MDI command 1")
 h['mdi-1'] = 1
 wait_for_joint_to_stop_at(0, 1);
 wait_for_joint_to_stop_at(1, 0);
@@ -259,8 +262,9 @@ wait_for_joint_to_stop_at(2, 0);
 h['mdi-1'] = 0
 wait_for_task_mode(linuxcnc.MODE_AUTO)
 
+log("setting mode to MDI")
 e.set_mode(linuxcnc.MODE_MDI)
-print "running MDI command 2"
+log("running MDI command 2")
 h['mdi-2'] = 1
 wait_for_joint_to_stop_at(0, 1);
 wait_for_joint_to_stop_at(1, 2);
@@ -269,7 +273,7 @@ h['mdi-2'] = 0
 e.s.poll()
 wait_for_task_mode(linuxcnc.MODE_MDI)
 
-print "running MDI command 3"
+log("running MDI command 3")
 h['mdi-3'] = 1
 wait_for_joint_to_stop_at(0, 1);
 wait_for_joint_to_stop_at(1, 2);
@@ -277,7 +281,7 @@ wait_for_joint_to_stop_at(2, 3);
 h['mdi-3'] = 0
 wait_for_task_mode(linuxcnc.MODE_MDI)
 
-print "running MDI command 0"
+log("running MDI command 0")
 h['mdi-0'] = 1
 wait_for_joint_to_stop_at(0, 0);
 wait_for_joint_to_stop_at(1, 0);
