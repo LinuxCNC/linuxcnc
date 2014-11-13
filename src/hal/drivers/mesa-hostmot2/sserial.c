@@ -1727,7 +1727,7 @@ int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     rtapi_u32 buff;
     int i,r;
     int err_flag = 0;
-    rtapi_u32 err_mask = 0xF300E1FF;
+    rtapi_u32 err_mask = 0xFF00E1FF;
     const char *err_list[32] = {"CRC error", "Invalid cookie", "Overrun",
         "Timeout", "Extra character", "Serial Break Error", "Remote Fault", 
         "Too many errors", 
