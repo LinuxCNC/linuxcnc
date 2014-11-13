@@ -1386,13 +1386,13 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                     }
                 }
                 
-                *pin->float_pin = (buff * conf->ParmMax)
+                *pin->float_pin = (buff * pin->fullscale)
                 / ((1 << conf->DataLength) - 1);
                 break;
             case LBP_SIGNED:
                 buff32 = (buff & 0xFFFFFFFFL) << (32 - conf->DataLength);
                 *pin->float_pin = (buff32 / 2147483647.0 )
-                                    * conf->ParmMax;
+                                    * pin->fullscale;
                 break;
             case LBP_STREAM:
                 *pin->u32_pin = buff & (~0ull >> (64 - conf->DataLength));
