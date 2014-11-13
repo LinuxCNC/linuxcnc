@@ -933,6 +933,7 @@ install-python: install-dirs
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
+	$(EXE) ../bin/mkwrapper $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gremlin $(DESTDIR)$(bindir)
 	$(EXE) ../bin/lintini $(DESTDIR)$(bindir)
 	$(EXE) ../bin/teach-in $(DESTDIR)$(bindir)
