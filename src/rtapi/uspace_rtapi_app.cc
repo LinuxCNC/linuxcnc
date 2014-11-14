@@ -590,8 +590,13 @@ static void configure_memory()
     free(buf);
 }
 
+extern "C"
+int rtapi_is_realtime();
+
 static int harden_rt()
 {
+    if(!rtapi_is_realtime()) return -EINVAL;
+
     WITH_ROOT;
 #if defined(__x86_64__) || defined(__i386__)
     if (iopl(3) < 0) {
