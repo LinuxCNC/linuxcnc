@@ -384,27 +384,23 @@ G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 
 image::images/g2-3.png[align="center"]
 
-.G2 Example Line
+In the next example we show how the arc can make a helix in the Z axis
+by adding the Z word.
+
+.G2 Example Helix
 [source,{ngc}]
 ----
 G0 X0 Y0 Z0
 G17 G2 X10 Y16 I3 J4 Z-1 (helix arc with Z added)
 ----
 
+In the next example we show how to make more than one turn using the P word.
+
 .P word Example
 ----
 G0 X0 Y0 Z0
 G2 X0 Y1 Z-1 I1 J0.5 P2 F25
 ----
-
-The above example line will make a clockwise (as viewed from the positive Z-axis)
-circular or helical arc whose axis is parallel to the Z-axis, ending
-where X=10, Y=16, and Z=9, with its center offset in the X direction by
-3 units from the current X location and offset in the Y direction by 4
-units from the current Y location. If the current location has X=7, Y=7
-at the outset, the center will be at X=10, Y=11. If the starting value
-of Z is 9, this is a circular arc; otherwise it is a helical arc. The
-radius of this arc would be 5.
 
 In the center format, the radius of the arc is not specified, but it
 may be found easily as the distance from the center of the circle to
