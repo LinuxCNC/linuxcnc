@@ -9,15 +9,13 @@
 # Name                  Type    Host            size    neut?   (old)   buffer# MP ---
 
 # Top-level buffers to EMC
-B emcCommand            SHMEM   localhost       8192    0       0       1       16 1001 TCP=5005 xdr queue
-B emcStatus             SHMEM   localhost       10240   0       0       2       16 1002 TCP=5005 xdr
+B emcCommand            SHMEM   localhost       8192    0       0       1       16 1001 TCP=5005 xdr
+B emcStatus             SHMEM   localhost       16384   0       0       2       16 1002 TCP=5005 xdr
 B emcError              SHMEM   localhost       8192    0       0       3       16 1003 TCP=5005 xdr queue
 
 # These are for the IO controller, EMCIO
 B toolCmd               SHMEM   localhost       1024    0       0       4       16 1004 TCP=5005 xdr
-B toolSts               SHMEM   localhost       4096    0       0       5       16 1005 TCP=5005 xdr
-B spindleCmd            SHMEM   localhost       1024    0       0       6       16 1006 TCP=5005 xdr
-B spindleSts            SHMEM   localhost       1024    0       0       7       16 1007 TCP=5005 xdr
+B toolSts               SHMEM   localhost       8192    0       0       5       16 1005 TCP=5005 xdr
 
 # Processes
 # Name          Buffer          Type    Host              Ops     server? timeout master? cnum
@@ -39,8 +37,8 @@ P tool          emcError        LOCAL   localhost           W       0       1.0 
 P tool          toolCmd         LOCAL   localhost           RW      0       1.0     0       3
 P tool          toolSts         LOCAL   localhost           W       0       1.0     0       3
 
-P xemc          emcCommand      REMOTE   192.168.0.14       W       0       10.0    0       10
-P xemc          emcStatus       REMOTE   192.168.0.14       R       0       10.0    0       10
-P xemc          emcError        REMOTE   192.168.0.14       R       0       10.0    0       10
-P xemc          toolCmd         REMOTE   192.168.0.14       W       0       10.0    0       10
-P xemc          toolSts         REMOTE   192.168.0.14       R       0       10.0    0       10
+P xemc          emcCommand      REMOTE   localhost       W       0       10.0    0       10
+P xemc          emcStatus       REMOTE   localhost       R       0       10.0    0       10
+P xemc          emcError        REMOTE   localhost       R       0       10.0    0       10
+P xemc          toolCmd         REMOTE   localhost       W       0       10.0    0       10
+P xemc          toolSts         REMOTE   localhost       R       0       10.0    0       10

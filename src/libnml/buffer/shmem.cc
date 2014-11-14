@@ -451,7 +451,7 @@ int SHMEM::close()
 }
 
 /* Access the shared memory buffer. */
-CMS_STATUS SHMEM::main_access(void *_local)
+CMS_STATUS SHMEM::main_access(void *_local, int *serial_number)
 {
 
     /* Check pointers. */
@@ -543,7 +543,7 @@ CMS_STATUS SHMEM::main_access(void *_local)
     }
 
     /* Perform access function. */
-    internal_access(shm->addr, size, _local);
+    internal_access(shm->addr, size, _local, serial_number);
 
     disable_diag_store = 0;
 
@@ -600,7 +600,7 @@ CMS_STATUS SHMEM::main_access(void *_local)
 		second_read = 0;
 		return (status);
 	    }
-	    main_access(_local);
+	    main_access(_local, serial_number);
 	}
 	break;
 

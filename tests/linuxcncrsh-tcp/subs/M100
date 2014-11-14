@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# This script (M100) is called to log the current coordinates and the
+# current tool number and Tool Length Offset information to a log file,
+# for testing purposes
+#
+# Put this in your .ini to use:
+#
+#     [RS274NGC]USER_M_PATH = ./subs
+#
+
+TEST_DIR=$(dirname INI_FILE_NAME)
+OUT_FILE=$TEST_DIR/gcode-output
+
+P=$1
+Q=$2
+
+echo P is $P >> $OUT_FILE
+echo Q is $Q >> $OUT_FILE
+

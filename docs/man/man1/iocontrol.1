@@ -35,7 +35,10 @@ The inifile is searched for in the directory from which halcmd was run, unless a
 
 .TP
 \fBiocontrol.0.lube 
-(Bit, Out) TRUE when lube is requested
+(Bit, Out) TRUE when lube is requested.  This pin gets driven True when
+the controller comes out of E-stop, and when the "Lube On" command gets
+sent to the controller.  It gets driven False when the controller goes
+into E-stop, and when the "Lube Off" command gets sent to the controller.
 
 .TP
 \fBiocontrol.0.lube_level 

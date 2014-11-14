@@ -57,7 +57,6 @@ static void map_parports() {
         }
         fclose(f);
 
-        rtapi_print_msg(RTAPI_MSG_ERR, "Linux parport #%d @0x%x 0x%x\n", i, pi.base, pi.base_hi);
         parports[i] = pi;
         parports[pi.base] = pi;
     }

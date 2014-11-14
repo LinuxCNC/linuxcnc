@@ -1230,19 +1230,19 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
                     break; // give the register chance to clear
                 }
-                if (*inst->data_reg_read & 0xff){ // indicates a failed transfer
-                    *inst->fault_count += inst->fault_inc;
-                    f = (*inst->data_reg_read & (comm_err_flag ^ 0xFF));
-                    if (f != 0 && f != 0xFF){
-                        comm_err_flag |= (f & -f); //mask LSb
-                        HM2_ERR("Smart Serial Error: port %i channel %i. " 
+                if (hm2_sserial_check_errors(hm2, inst) != 0) {
+                    if (*inst->data_reg_read & 0xff) { // indicates a failed transfer
+                        f = (*inst->data_reg_read & (comm_err_flag ^ 0xFF));
+                        if (f != 0 && f != 0xFF) {
+                            HM2_ERR("Smart Serial Error: port %i channel %i. " 
                                 "You may see this error if the FPGA card "
                                 """read"" thread is not running. "
                                 "This error message will not repeat.\n",
                                 i, ffs(f) - 1);
-                        hm2_sserial_check_errors(hm2, inst);
-                        
+                        }
                     }
+                    *inst->fault_count += inst->fault_inc;
+                    *inst->state = 0x20;
                 }
                 
                 if (*inst->fault_count > inst->fault_dec) {
@@ -1386,13 +1386,13 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                     }
                 }
                 
-                *pin->float_pin = (buff * conf->ParmMax)
+                *pin->float_pin = (buff * pin->fullscale)
                 / ((1 << conf->DataLength) - 1);
                 break;
             case LBP_SIGNED:
                 buff32 = (buff & 0xFFFFFFFFL) << (32 - conf->DataLength);
                 *pin->float_pin = (buff32 / 2147483647.0 )
-                                    * conf->ParmMax;
+                                    * pin->fullscale;
                 break;
             case LBP_STREAM:
                 *pin->u32_pin = buff & (~0ull >> (64 - conf->DataLength));
@@ -1727,8 +1727,7 @@ int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     rtapi_u32 buff;
     int i,r;
     int err_flag = 0;
-    int err_tag = 0;
-    rtapi_u32 err_mask = 0xF300E1FF;
+    rtapi_u32 err_mask = 0xFF00E1FF;
     const char *err_list[32] = {"CRC error", "Invalid cookie", "Overrun",
         "Timeout", "Extra character", "Serial Break Error", "Remote Fault", 
         "Too many errors", 
@@ -1741,11 +1740,9 @@ int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
         "Watchdog Fault", "No Enable", "Over Temperature", "Over Current", 
         "Over Voltage", "Under Voltage", "Illegal Remote Mode", "LBPCOM Fault"};
     
-    hm2->llio->read(hm2->llio, inst->data_reg_addr, &err_tag, sizeof(rtapi_u32));
     for (r = 0 ; r < inst->num_remotes ; r++){
         hm2_sserial_remote_t *chan=&inst->remotes[r];
-        if (0 == (err_tag & (1 << chan->index))) continue;
-        hm2->llio->read(hm2->llio, chan->reg_cs_addr, &buff, sizeof(rtapi_u32));
+        buff = chan->status;
         buff &= err_mask;
         for (i = 31 ; i > 0 ; i--){
             if (buff & (1 << i)) {

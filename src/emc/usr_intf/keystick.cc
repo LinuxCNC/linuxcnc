@@ -13,6 +13,7 @@
 * Last change:
 ********************************************************************/
 
+#define __STDC_FORMAT_MACROS
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -22,6 +23,7 @@
 #include <sys/time.h>           // struct itimerval
 #include <sys/ioctl.h>          // ioctl(), TIOCGWINSZ, struct winsize
 #include <unistd.h>             // STDIN_FILENO
+#include <inttypes.h>
 
 #include "rcs.hh"               // rcs_print_error(), esleep()
 #include "emc.hh"               // EMC NML
@@ -440,14 +442,14 @@ static void printStatus()
 
       wattrset(window, A_UNDERLINE);
 
-      sprintf(scratch_string, "%10ld %10d %10d", emcStatus->task.heartbeat,
+      sprintf(scratch_string, "%10" PRId32 " %10d %10d", emcStatus->task.heartbeat,
               emcStatus->echo_serial_number,
               emcStatus->status);
       mvwaddstr(window, 2, 28, scratch_string);
-      sprintf(scratch_string, "%10ld %10d", emcStatus->io.heartbeat,
+      sprintf(scratch_string, "%10" PRId32 " %10d", emcStatus->io.heartbeat,
               emcStatus->io.echo_serial_number);
       mvwaddstr(window, 3, 28, scratch_string);
-      sprintf(scratch_string, "%10ld %10d", emcStatus->motion.heartbeat,
+      sprintf(scratch_string, "%10" PRId32 " %10d", emcStatus->motion.heartbeat,
               emcStatus->motion.echo_serial_number);
       mvwaddstr(window, 4, 28, scratch_string);
 
@@ -1174,15 +1176,19 @@ static int updateStatus()
 #define EMC_COMMAND_TIMEOUT 1.0 // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.1 // how long to sleep between checks
 
-static int emcCommandWait(int serial_number)
-{
-  double start = etime();
+static int emcCommandSend(RCS_CMD_MSG & cmd) {
+    if (emcCommandBuffer->write(&cmd)) {
+        return -1;
+    }
+    emcCommandSerialNumber = cmd.serial_number;
 
+  double start = etime();
   while (etime() - start < EMC_COMMAND_TIMEOUT)
     {
       updateStatus();
 
-      if (emcStatus->echo_serial_number == serial_number)
+      int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
+      if (serial_diff >= 0)
         {
           return 0;
         }
@@ -1256,18 +1262,14 @@ static void idleHandler()
   if (axisJogging != AXIS_NONE && keyup_count == 0)
     {
       emc_axis_abort_msg.axis = axisIndex(axisJogging);
-      emc_axis_abort_msg.serial_number = ++emcCommandSerialNumber;
-      emcCommandBuffer->write(emc_axis_abort_msg);
-      emcCommandWait(emcCommandSerialNumber);
+      emcCommandSend(emc_axis_abort_msg);
       axisJogging = AXIS_NONE;
     }
 
   // key up for spindle speed changes
   if (spindleChanging && keyup_count == 0)
     {
-      emc_spindle_constant_msg.serial_number = ++emcCommandSerialNumber;
-      emcCommandBuffer->write(emc_spindle_constant_msg);
-      emcCommandWait(emcCommandSerialNumber);
+      emcCommandSend(emc_spindle_constant_msg);
       spindleChanging = 0;
     }
   return;
@@ -1879,9 +1881,7 @@ int main(int argc, char *argv[])
           */
 
         case ESC:               // task abort (abort everything)
-          task_abort_msg.serial_number = ++emcCommandSerialNumber;
-          emcCommandBuffer->write(task_abort_msg);
-          emcCommandWait(emcCommandSerialNumber);
+          emcCommandSend(task_abort_msg);
           break;
 
         case TAB:               // toggle highlight
@@ -1930,9 +1930,7 @@ int main(int argc, char *argv[])
                 {
                   state_msg.state = EMC_TASK_STATE_ESTOP;
                 }
-              state_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(state_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(state_msg);
             }
           break;
 
@@ -1947,9 +1945,7 @@ int main(int argc, char *argv[])
                 {
                   state_msg.state = EMC_TASK_STATE_OFF;
                 }
-              state_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(state_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(state_msg);
             }
           break;
 
@@ -1957,9 +1953,7 @@ int main(int argc, char *argv[])
           if (oldch != ch)
             {
               mode_msg.mode = EMC_TASK_MODE_MANUAL;
-              mode_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(mode_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(mode_msg);
             }
           break;
 
@@ -1967,9 +1961,7 @@ int main(int argc, char *argv[])
           if (oldch != ch)
             {
               mode_msg.mode = EMC_TASK_MODE_AUTO;
-              mode_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(mode_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(mode_msg);
             }
           break;
 
@@ -1977,18 +1969,14 @@ int main(int argc, char *argv[])
           if (oldch != ch)
             {
               mode_msg.mode = EMC_TASK_MODE_MDI;
-              mode_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(mode_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(mode_msg);
             }
           break;
 
         case KEY_F(6):          // reset interpreter
           if (oldch != ch)
             {
-              task_plan_init_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(task_plan_init_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(task_plan_init_msg);
             }
           break;
 
@@ -1997,15 +1985,11 @@ int main(int argc, char *argv[])
             {
               if (emcStatus->io.coolant.mist)
                 {
-                  emc_coolant_mist_off_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(emc_coolant_mist_off_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_coolant_mist_off_msg);
                 }
               else
                 {
-                  emc_coolant_mist_on_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(emc_coolant_mist_on_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_coolant_mist_on_msg);
                 }
             }
           break;
@@ -2015,15 +1999,11 @@ int main(int argc, char *argv[])
             {
               if (emcStatus->io.coolant.flood)
                 {
-                  emc_coolant_flood_off_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(emc_coolant_flood_off_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_coolant_flood_off_msg);
                 }
               else
                 {
-                  emc_coolant_flood_on_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(emc_coolant_flood_on_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_coolant_flood_on_msg);
                 }
             }
           break;
@@ -2035,16 +2015,12 @@ int main(int argc, char *argv[])
                 {
                   // it's off, so turn forward
                   emc_spindle_on_msg.speed = 1;
-                  emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(emc_spindle_on_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_spindle_on_msg);
                 }
               else
                 {
                   // it's not off, so turn off
-                  emc_spindle_off_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(emc_spindle_off_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_spindle_off_msg);
                 }
             }
           break;
@@ -2056,16 +2032,12 @@ int main(int argc, char *argv[])
                 {
                   // it's off, so turn reverse
                   emc_spindle_on_msg.speed = -1;
-                  emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(emc_spindle_on_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_spindle_on_msg);
                 }
               else
                 {
                   // it's not off, so turn off
-                  emc_spindle_off_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(emc_spindle_off_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_spindle_off_msg);
                 }
             }
           break;
@@ -2077,9 +2049,7 @@ int main(int argc, char *argv[])
               if (emcStatus->motion.spindle.direction == 0)
                 break;
 
-              emc_spindle_decrease_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(emc_spindle_decrease_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(emc_spindle_decrease_msg);
               spindleChanging = 1;
             }
           break;
@@ -2091,9 +2061,7 @@ int main(int argc, char *argv[])
               if (emcStatus->motion.spindle.direction == 0)
                 break;
 
-              emc_spindle_increase_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(emc_spindle_increase_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(emc_spindle_increase_msg);
               spindleChanging = 1;
             }
           break;
@@ -2104,28 +2072,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_incr_jog_msg.axis = axisIndex(AXIS_X);
                   if (xJogPol)
                     emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
                   else
                     emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
                   emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandBuffer->write(emc_axis_incr_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_incr_jog_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_jog_msg.axis = axisIndex(AXIS_X);
                   if (xJogPol)
                     emc_axis_jog_msg.vel = jogSpeed / 60.0;
                   else
                     emc_axis_jog_msg.vel = - jogSpeed / 60.0;
-                  emcCommandBuffer->write(emc_axis_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_jog_msg);
                   axisJogging = AXIS_X;
                 }
               axisSelected = AXIS_X;
@@ -2138,28 +2102,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_incr_jog_msg.axis = axisIndex(AXIS_X);
                   if (xJogPol)
                     emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
                   else
                     emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
                   emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandBuffer->write(emc_axis_incr_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_incr_jog_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_jog_msg.axis = axisIndex(AXIS_X);
                   if (xJogPol)
                     emc_axis_jog_msg.vel = - jogSpeed / 60.0;
                   else
                     emc_axis_jog_msg.vel = jogSpeed / 60.0;
-                  emcCommandBuffer->write(emc_axis_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_jog_msg);
                   axisJogging = AXIS_X;
                 }
               axisSelected = AXIS_X;
@@ -2172,28 +2132,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_incr_jog_msg.axis = axisIndex(AXIS_Y);
                   if (yJogPol)
                     emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
                   else
                     emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
                   emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandBuffer->write(emc_axis_incr_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_incr_jog_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_jog_msg.axis = axisIndex(AXIS_Y);
                   if (yJogPol)
                     emc_axis_jog_msg.vel = jogSpeed / 60.0;
                   else
                     emc_axis_jog_msg.vel = - jogSpeed / 60.0;
-                  emcCommandBuffer->write(emc_axis_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_jog_msg);
                   axisJogging = AXIS_Y;
                 }
               axisSelected = AXIS_Y;
@@ -2206,28 +2162,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_incr_jog_msg.axis = axisIndex(AXIS_Y);
                   if (yJogPol)
                     emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
                   else
                     emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
                   emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandBuffer->write(emc_axis_incr_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_incr_jog_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_jog_msg.axis = axisIndex(AXIS_Y);
                   if (yJogPol)
                     emc_axis_jog_msg.vel = - jogSpeed / 60.0;
                   else
                     emc_axis_jog_msg.vel = jogSpeed / 60.0;
-                  emcCommandBuffer->write(emc_axis_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_jog_msg);
                   axisJogging = AXIS_Y;
                 }
               axisSelected = AXIS_Y;
@@ -2240,28 +2192,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_incr_jog_msg.axis = axisIndex(AXIS_Z);
                   if (zJogPol)
                     emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
                   else
                     emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
                   emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandBuffer->write(emc_axis_incr_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_incr_jog_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_jog_msg.axis = axisIndex(AXIS_Z);
                   if (zJogPol)
                     emc_axis_jog_msg.vel = jogSpeed / 60.0;
                   else
                     emc_axis_jog_msg.vel = - jogSpeed / 60.0;
-                  emcCommandBuffer->write(emc_axis_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_jog_msg);
                   axisJogging = AXIS_Z;
                 }
               axisSelected = AXIS_Z;
@@ -2274,28 +2222,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_incr_jog_msg.axis = axisIndex(AXIS_Z);
                   if (zJogPol)
                     emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
                   else
                     emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
                   emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandBuffer->write(emc_axis_incr_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_incr_jog_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
                   emc_axis_jog_msg.axis = axisIndex(AXIS_Z);
                   if (zJogPol)
                     emc_axis_jog_msg.vel = - jogSpeed / 60.0;
                   else
                     emc_axis_jog_msg.vel = jogSpeed / 60.0;
-                  emcCommandBuffer->write(emc_axis_jog_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_axis_jog_msg);
                   axisJogging = AXIS_Z;
                 }
               axisSelected = AXIS_Z;
@@ -2306,9 +2250,7 @@ int main(int argc, char *argv[])
           if (oldch != ch)
             {
               emc_axis_home_msg.axis = axisIndex(axisSelected);
-              emc_axis_home_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(emc_axis_home_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(emc_axis_home_msg);
             }
           break;
 
@@ -2355,9 +2297,7 @@ int main(int argc, char *argv[])
                 {
                 case IACT_OPEN:
                   strcpy(task_plan_open_msg.file, typebuffer);
-                  task_plan_open_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(task_plan_open_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(task_plan_open_msg);
                   strcpy(programFile, task_plan_open_msg.file);
                   programOpened = 1;
                   if (programFp)
@@ -2375,17 +2315,13 @@ int main(int argc, char *argv[])
                     break;      // ignore blank lines
                   strcpy(lastmdi, typebuffer); // save it
                   strcpy(task_plan_execute_msg.command, typebuffer);
-                  task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(task_plan_execute_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(task_plan_execute_msg);
                   interactive = IACT_NONE;
                   break;
 
                 case IACT_LOAD_TOOL:
                   strcpy(emc_tool_load_tool_table_msg.file, typebuffer);
-                  emc_tool_load_tool_table_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(emc_tool_load_tool_table_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(emc_tool_load_tool_table_msg);
                   interactive = IACT_NONE;
                   break;
 
@@ -2717,27 +2653,21 @@ int main(int argc, char *argv[])
                 {
                   emc_traj_set_scale_msg.scale = double (ch - '1' + 1) / 10.0;
                 }
-              emc_traj_set_scale_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(emc_traj_set_scale_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(emc_traj_set_scale_msg);
             }
           break;
 
         case 'b':               // spindle brake off
           if (oldch != ch)
             {
-              emc_spindle_brake_release_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(emc_spindle_brake_release_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(emc_spindle_brake_release_msg);
             }
           break;
 
         case 'B':               // spindle brake on
           if (oldch != ch)
             {
-              emc_spindle_brake_engage_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(emc_spindle_brake_engage_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(emc_spindle_brake_engage_msg);
             }
           break;
 
@@ -2773,14 +2703,10 @@ int main(int argc, char *argv[])
                 {
                   // send a request to open the last one
                   strcpy(task_plan_open_msg.file, programFile);
-                  task_plan_open_msg.serial_number = ++emcCommandSerialNumber;
-                  emcCommandBuffer->write(task_plan_open_msg);
-                  emcCommandWait(emcCommandSerialNumber);
+                  emcCommandSend(task_plan_open_msg);
                 }
-              task_plan_run_msg.serial_number = ++emcCommandSerialNumber;
               task_plan_run_msg.line = 0;
-              emcCommandBuffer->write(task_plan_run_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(task_plan_run_msg);
               programOpened = 0;
             }
           break;
@@ -2789,9 +2715,7 @@ int main(int argc, char *argv[])
         case 'P':
           if (oldch != ch)
             {
-              task_plan_pause_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(task_plan_pause_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(task_plan_pause_msg);
             }
           break;
 
@@ -2799,9 +2723,7 @@ int main(int argc, char *argv[])
         case 'S':
           if (oldch != ch)
             {
-              task_plan_resume_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(task_plan_resume_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(task_plan_resume_msg);
             }
           break;
 
@@ -2809,27 +2731,21 @@ int main(int argc, char *argv[])
         case 'A':
           if (oldch != ch)
             {
-              task_plan_step_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(task_plan_step_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(task_plan_step_msg);
             }
           break;
 
         case 'u':
           if (oldch != ch)
             {
-              emc_lube_off_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(emc_lube_off_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(emc_lube_off_msg);
             }
           break;
 
         case 'U':
           if (oldch != ch)
             {
-              emc_lube_on_msg.serial_number = ++emcCommandSerialNumber;
-              emcCommandBuffer->write(emc_lube_on_msg);
-              emcCommandWait(emcCommandSerialNumber);
+              emcCommandSend(emc_lube_on_msg);
             }
           break;
 

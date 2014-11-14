@@ -53,7 +53,7 @@ int cms_print_queue_full_messages = 1;
 * other  process.
 ************************************************************************/
 CMS_STATUS CMS::internal_access(void *_global, long _global_size,
-    void *_local)
+    void *_local, int *serial_number)
 {
     /* Don't bother trying to create a physmem handle for a NULL pointer. */
     if (NULL == _global) {
@@ -72,13 +72,13 @@ CMS_STATUS CMS::internal_access(void *_global, long _global_size,
     }
 
     dummy_handle->set_to_ptr(_global, _global_size);
-    internal_access(dummy_handle, _local);
+    internal_access(dummy_handle, _local, serial_number);
     return (status);
 }
 
  /* This function should be called by classes which overload the main_access
     function. */
-CMS_STATUS CMS::internal_access(PHYSMEM_HANDLE * _global, void *_local)
+CMS_STATUS CMS::internal_access(PHYSMEM_HANDLE * _global, void *_local, int *serial_number)
 {
     status = CMS_STATUS_NOT_SET;
     if (NULL == _global) {
@@ -185,10 +185,10 @@ CMS_STATUS CMS::internal_access(PHYSMEM_HANDLE * _global, void *_local)
 		peek_raw();
 		break;
 	    case CMS_WRITE_ACCESS:
-		write_raw(_local);
+		write_raw(_local, serial_number);
 		break;
 	    case CMS_WRITE_IF_READ_ACCESS:
-		write_if_read_raw(_local);
+		write_if_read_raw(_local, serial_number);
 		break;
 	    case CMS_GET_MSG_COUNT_ACCESS:
 		get_msg_count_raw();
@@ -239,10 +239,10 @@ CMS_STATUS CMS::internal_access(PHYSMEM_HANDLE * _global, void *_local)
 		queue_peek_raw();
 		break;
 	    case CMS_WRITE_ACCESS:
-		queue_write_raw(_local);
+		queue_write_raw(_local, serial_number);
 		break;
 	    case CMS_WRITE_IF_READ_ACCESS:
-		queue_write_if_read_raw(_local);
+		queue_write_if_read_raw(_local, serial_number);
 		break;
 	    case CMS_GET_QUEUE_LENGTH_ACCESS:
 		queue_get_queue_length_raw();
@@ -1312,7 +1312,7 @@ CMS_STATUS CMS::queue_peek_encoded()
 /* 3. Write the message. */
 /* Parameters: */
  /* user_data - pointer to where the user stored the message to be written. */
-CMS_STATUS CMS::write_raw(void *user_data)
+CMS_STATUS CMS::write_raw(void *user_data, int *serial_number)
 {
     long current_header_in_buffer_size;
 
@@ -1365,6 +1365,11 @@ CMS_STATUS CMS::write_raw(void *user_data)
 	return (status = CMS_INTERNAL_ACCESS_ERROR);
     }
 
+    /* setup serial number */
+    if (NULL != serial_number) {
+        *serial_number = (int)header.write_id;
+    }
+
     /* Write the message. */
     if (!disable_final_write_raw_for_dma) {
 	handle_to_global_data->offset += sizeof(CMS_HEADER);
@@ -1389,7 +1394,7 @@ CMS_STATUS CMS::write_raw(void *user_data)
 /* 5. Update the queuing header. */
 /* Parameters: */
  /* user_data - pointer to where the user stored the message to be written. */
-CMS_STATUS CMS::queue_write_raw(void *user_data)
+CMS_STATUS CMS::queue_write_raw(void *user_data, int *serial_number)
 {
     CMS_HEADER current_header;
     long queuing_header_offset;
@@ -1504,6 +1509,11 @@ CMS_STATUS CMS::queue_write_raw(void *user_data)
 	rcs_print_error("CMS:(%s) Error writing to global memory at %s:%d\n",
 	    BufferName, __FILE__, __LINE__);
 	return (status = CMS_INTERNAL_ACCESS_ERROR);
+    }
+
+    /* setup serial number */
+    if (NULL != serial_number) {
+        *serial_number = (int)header.write_id;
     }
 
     /* Write the message. */
@@ -1739,7 +1749,7 @@ CMS_STATUS CMS::queue_write_encoded()
 /* 3. Write the message. */
 /* Parameters: */
  /* user_data - pointer to where the user stored the message to be written. */
-CMS_STATUS CMS::write_if_read_raw(void *user_data)
+CMS_STATUS CMS::write_if_read_raw(void *user_data, int *serial_number)
 {
     CMS_HEADER current_header;
 
@@ -1794,6 +1804,11 @@ CMS_STATUS CMS::write_if_read_raw(void *user_data)
 	return (status = CMS_INTERNAL_ACCESS_ERROR);
     }
 
+    /* setup serial number */
+    if (NULL != serial_number) {
+        *serial_number = (int)header.write_id;
+    }
+
     /* Write the message. */
     handle_to_global_data->offset += sizeof(CMS_HEADER);
     if (-1 == handle_to_global_data->write(user_data,
@@ -1814,7 +1829,7 @@ CMS_STATUS CMS::write_if_read_raw(void *user_data)
 /* 5. Update the queuing header. */
 /* Parameters: */
  /* user_data - pointer to where the user stored the message to be written. */
-CMS_STATUS CMS::queue_write_if_read_raw(void *user_data)
+CMS_STATUS CMS::queue_write_if_read_raw(void *user_data, int *serial_number)
 {
     CMS_HEADER current_header;
     long queuing_header_offset;
@@ -1933,6 +1948,11 @@ CMS_STATUS CMS::queue_write_if_read_raw(void *user_data)
 	rcs_print_error("CMS:(%s) Error writing to global memory at %s:%d\n",
 	    BufferName, __FILE__, __LINE__);
 	return (status = CMS_INTERNAL_ACCESS_ERROR);
+    }
+
+    /* setup serial number */
+    if (NULL != serial_number) {
+        *serial_number = (int)header.write_id;
     }
 
     /* Write the message. */

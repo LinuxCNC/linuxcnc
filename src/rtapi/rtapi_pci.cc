@@ -326,6 +326,14 @@ void rtapi_iounmap(volatile void rtapi__iomem *addr)
     iomaps.erase(it);
 }
 
+char *get_sys_enable_path(const rtapi_pci_dev *dev, char *path, size_t npath) {
+    snprintf(path, npath, "%s/enable", dev->sys_path);
+    // kernel 3.12 renamed this file to "enabled"... doh
+    if(access(path, F_OK) < 0)
+        snprintf(path, npath, "%s/enabled", dev->sys_path);
+    return path;
+}
+
 int rtapi_pci_enable_device(struct rtapi_pci_dev *dev)
 {
     WITH_ROOT;
@@ -337,8 +345,7 @@ int rtapi_pci_enable_device(struct rtapi_pci_dev *dev)
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI_PCI: Enabling Device %s\n", dev->dev_name);
 
     /* Enable the device */
-    snprintf(path, sizeof(path), "%s/enable", dev->sys_path);
-    stream = fopen(path, "w");
+    stream = fopen(get_sys_enable_path(dev, path, sizeof(path)), "w");
     if (stream == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "Failed to open \"%s\" (%s)\n",
@@ -390,8 +397,7 @@ int rtapi_pci_disable_device(struct rtapi_pci_dev *dev)
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI_PCI: Disable Device\n");
 
     /* Enable the device */
-    snprintf(path, sizeof(path), "%s/enable", dev->sys_path);
-    stream = fopen(path, "w");
+    stream = fopen(get_sys_enable_path(dev, path, sizeof(path)), "w");
     if (stream == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "Failed to open \"%s\" (%s)\n",
