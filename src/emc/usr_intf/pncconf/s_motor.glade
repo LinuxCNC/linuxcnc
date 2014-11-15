@@ -312,7 +312,7 @@
             <child type="label">
               <object class="GtkLabel" id="label311">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Servo Info</property>
+                <property name="label" translatable="yes">PID Info</property>
                 <property name="use_markup">True</property>
               </object>
             </child>
@@ -397,7 +397,7 @@
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
                         <property name="xpad">4</property>
-                        <property name="label" translatable="yes">analog Min Limit:</property>
+                        <property name="label" translatable="yes">analog Max Voltage:</property>
                       </object>
                       <packing>
                         <property name="top_attach">3</property>
@@ -407,39 +407,11 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="soutputmaxlimitlabel">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xpad">4</property>
-                        <property name="label" translatable="yes">analog Max limit:</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">4</property>
-                        <property name="bottom_attach">5</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="soutputscalelabel">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xpad">4</property>
-                        <property name="label" translatable="yes">analog Max Scale:</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">5</property>
-                        <property name="bottom_attach">6</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSpinButton" id="soutputminlimit">
+                      <object class="GtkSpinButton" id="soutputmaxvoltage">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
-                        <property name="adjustment">sanalog_min_adjust</property>
+                        <property name="adjustment">sanalog_max_voltage_adjust</property>
                         <property name="digits">2</property>
                       </object>
                       <packing>
@@ -447,23 +419,6 @@
                         <property name="right_attach">2</property>
                         <property name="top_attach">3</property>
                         <property name="bottom_attach">4</property>
-                        <property name="x_options"></property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSpinButton" id="soutputmaxlimit">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
-                        <property name="adjustment">sanalog_max_adjust</property>
-                        <property name="digits">2</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">4</property>
-                        <property name="bottom_attach">5</property>
                         <property name="x_options"></property>
                         <property name="y_options"></property>
                       </packing>
@@ -486,40 +441,6 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="soutputminlimit2">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
-                        <property name="adjustment">sanalog_min_adjust2</property>
-                        <property name="digits">2</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">7</property>
-                        <property name="bottom_attach">8</property>
-                        <property name="x_options"></property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSpinButton" id="soutputmaxlimit2">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
-                        <property name="adjustment">sanalog_max_adjust2</property>
-                        <property name="digits">2</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">8</property>
-                        <property name="bottom_attach">9</property>
-                        <property name="x_options"></property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkSpinButton" id="soutputscale2">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -530,68 +451,75 @@
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
-                        <property name="top_attach">9</property>
-                        <property name="bottom_attach">10</property>
+                        <property name="top_attach">6</property>
+                        <property name="bottom_attach">7</property>
                         <property name="x_options"></property>
                         <property name="y_options"></property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="soutputminlimitlabel1">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xpad">4</property>
-                        <property name="label" translatable="yes">analog Min Limit 2:</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">7</property>
-                        <property name="bottom_attach">8</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="soutputmaxlimitlabel1">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xpad">4</property>
-                        <property name="label" translatable="yes">analog Max limit 2:</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">8</property>
-                        <property name="bottom_attach">9</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="soutputscalelabel1">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xpad">4</property>
-                        <property name="label" translatable="yes">analog Max Scale 2:</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">9</property>
-                        <property name="bottom_attach">10</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="susetwooutputscales">
-                        <property name="label" translatable="yes">Use Two output Scales</property>
+                      <object class="GtkCheckButton" id="susenegativevoltage">
+                        <property name="label" translatable="yes">Use +- voltage for direction</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
                         <property name="draw_indicator">True</property>
-                        <signal name="toggled" handler="on_susetwooutputscales_toggled"/>
                       </object>
                       <packing>
                         <property name="right_attach">2</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="soutputscalelabel">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="xpad">4</property>
+                        <property name="label" translatable="yes">Range 1 Max RPM:</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">5</property>
+                        <property name="bottom_attach">6</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="suseoutputrange2">
+                        <property name="label" translatable="yes">Range 2 Max RPM</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="on_suseoutputrange2_toggled"/>
+                      </object>
+                      <packing>
                         <property name="top_attach">6</property>
                         <property name="bottom_attach">7</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                     <child>
                       <placeholder/>
@@ -636,7 +564,8 @@
             <child type="label">
               <object class="GtkLabel" id="label156">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Output Info</property>
+                <property name="xalign">0.44999998807907104</property>
+                <property name="label" translatable="yes">Output Voltage Info</property>
                 <property name="use_markup">True</property>
               </object>
             </child>
@@ -2047,10 +1976,10 @@ Scale</property>
     <property name="upper">10000</property>
     <property name="step_increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="sanalog_min_adjust">
-    <property name="value">-10</property>
-    <property name="lower">-10000</property>
-    <property name="upper">10000</property>
+  <object class="GtkAdjustment" id="sanalog_max_voltage_adjust">
+    <property name="value">10</property>
+    <property name="lower">1</property>
+    <property name="upper">10</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="sanalog_max_adjust">

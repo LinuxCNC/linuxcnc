@@ -545,9 +545,18 @@ But there is not one in the machine-named folder.."""),True)
         #w.xtuneinvertmotor.set_active(w[axis+"invertmotor"].get_active())
         #w.xtuneinvertencoder.set_active(w[axis+"invertencoder"].get_active())
         dac_scale = get_value(w[axis+"outputscale"])
-        pwmminlimit = get_value(w[axis+"outputminlimit"])
-        pwmmaxlimit = get_value(w[axis+"outputmaxlimit"])
-        pwmmaxoutput = get_value(w[axis+"outputscale"])
+        if axis == "s":
+            pwmmaxlimit = get_value(w.soutputscale)
+            max_voltage_factor = 10.0/get_value(w.soutputmaxvoltage) # voltagelimit
+            pwmmaxoutput = pwmmaxlimit * max_voltage_factor
+            if w.susenegativevoltage.get_active():
+                pwmminlimit = -pwmmaxlimit
+            else:
+                pwmminlimit = 0
+        else:
+            pwmminlimit = get_value(w[axis+"outputminlimit"])
+            pwmmaxlimit = get_value(w[axis+"outputmaxlimit"])
+            pwmmaxoutput = get_value(w[axis+"outputscale"])
              
         self.halrun = halrun = os.popen("halrun -Is > /dev/null", "w")
         if debug:
@@ -906,9 +915,18 @@ But there is not one in the machine-named folder.."""),True)
         dacspeed = widgets.Dac_speed_fast.get_active()
         dac_scale = get_value(widgets[axis+"outputscale"])
         max_dac = get_value(widgets[axis+"maxoutput"])
-        pwmminlimit = get_value(widgets[axis+"outputminlimit"])
-        pwmmaxlimit = get_value(widgets[axis+"outputmaxlimit"])
-        pwmmaxoutput = get_value(widgets[axis+"outputscale"])
+        if axis == "s":
+            pwmmaxlimit = get_value(widgets.soutputscale)
+            max_voltage_factor = 10.0/get_value(widgets.soutputmaxvoltage) # voltagelimit
+            pwmmaxoutput = pwmmaxlimit * max_voltage_factor
+            if widgets.susenegativevoltage.get_active():
+                pwmminlimit = -pwmmaxlimit
+            else:
+                pwmminlimit = 0
+        else:
+            pwmminlimit = get_value(widgets[axis+"outputminlimit"])
+            pwmmaxlimit = get_value(widgets[axis+"outputmaxlimit"])
+            pwmmaxoutput = get_value(widgets[axis+"outputscale"])
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.d.findsignal("charge-pump")
         print 'fast %d,max %d, ss max %d, dac_scale %d'%(fastdac,max_dac,pwmmaxoutput,dac_scale)
@@ -1191,7 +1209,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.halrun.flush()
         time.sleep(1)
         try:
-            PyApp(self,self.d,self.widgets)  
+            PyApp(self,self.d,self.w)  
         except:
             self.halrun.close()
             a = os.popen("halrun -U > /dev/null", "w")

@@ -1123,7 +1123,7 @@ class Pages:
     def on_saxistune_clicked(self, *args): self.t.tune_axis('s')
     def on_saxis_prepare(self, *args): self.a.axis_prepare('s')
     def on_suseatspeed_toggled(self,widget): self.a.useatspeed_toggled()
-    def on_susetwooutputscales_toggled(self,widget): self.a.usetwooutputscales_toggled()
+    def on_suseoutputrange2_toggled(self,widget): self.a.useoutputrange2_toggled()
 #************
 # Options PAGE
 #************

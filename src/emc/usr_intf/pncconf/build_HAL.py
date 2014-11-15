@@ -191,18 +191,22 @@ class HAL:
 
         pytest = self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1
         gladetest = self.d.gladevcp and self.d.spindlespeedbar
-        self.d.scalenames=""
+        self.d.scalenames=[]
+        names=''
         if spindle_enc and (pytest or gladetest):
-            self.d.scalenames=self.d.scalenames+"scale.spindle"
-            if self.d.userneededscale >0:
-                self.d.scalenames=self.d.scalenames+","
+            self.d.scalenames.append("scale.spindle")
+        if self.d.suseoutputrange2:
+            self.d.scalenames.append("scale.gear")
         if self.d.userneededscale >0:
             for i in range(0,self.d.userneededscale):
-                self.d.scalenames = self.d.scalenames+"scale.%d"% (i)
-                if  i <> self.d.userneededscale-1:
-                    self.d.scalenames = self.d.scalenames+","
-        if not self.d.scalenames == "":
-            print >>file, "loadrt scale names=%s"% self.d.scalenames
+                self.d.scalenames.append("scale.%d"% (i))
+        if not self.d.scalenames == []:
+            for num,temp in enumerate(self.d.scalenames):
+                if num ==0:
+                    names+='%s'%temp
+                else:
+                    names+=',%s'%temp
+            print >>file, "loadrt scale names=%s"% names
         if pump:
             print >>file, "loadrt charge_pump"
         if not at_speed and self.d.suseatspeed:
@@ -212,22 +216,25 @@ class HAL:
                           " numS32out=%d numFloatIn=%d numFloatOut=%d numBits=%d numWords=%d") \
                           %(self.d.digitsin , self.d.digitsout , self.d.s32in, self.d.s32out, self.d.floatsin, self.d.floatsout,self.d.bitmem,self.d.wordmem)
         
-        if self.d.externalmpg or self.d.externalfo or self.d.externalmvo or self.d.externalso or self.d.joystickjog or self.d.userneededmux16 > 0:
-            self.d.mux16names=""
-            for i in range(0,self.d.userneededmux16):
-                self.d.mux16names = self.d.mux16names+"mux16.%d,"% (i)
-            if self.d.joystickjog: 
-                self.d.mux16names = self.d.mux16names+"jogspeed,"
-            if self.d.externalmpg: 
-                self.d.mux16names = self.d.mux16names+"jogincr,"  
-            if self.d.externalfo: 
-                self.d.mux16names = self.d.mux16names+"foincr,"
-            if self.d.externalmvo: 
-                self.d.mux16names = self.d.mux16names+"mvoincr,"
-            if self.d.externalso: 
-                self.d.mux16names = self.d.mux16names+"soincr,"
-            temp = self.d.mux16names.rstrip(",")
-            self.d.mux16names = temp
+        # load mux16
+        self.d.mux16names=""
+        for i in range(0,self.d.userneededmux16):
+            self.d.mux16names = self.d.mux16names+"mux16.%d,"% (i)
+        if self.d.joystickjog: 
+           self.d.mux16names = self.d.mux16names+"jogspeed,"
+        if self.d.externalmpg: 
+            self.d.mux16names = self.d.mux16names+"jogincr,"  
+        if self.d.externalfo: 
+            self.d.mux16names = self.d.mux16names+"foincr,"
+        if self.d.externalmvo: 
+            self.d.mux16names = self.d.mux16names+"mvoincr,"
+        if self.d.externalso: 
+            self.d.mux16names = self.d.mux16names+"soincr,"
+        if self.d.scaleselect: 
+            self.d.mux16names = self.d.mux16names+"ratio_select,"
+        temp = self.d.mux16names.rstrip(",")
+        self.d.mux16names = temp
+        if temp:
             print >>file, "loadrt mux16 names=%s"% (self.d.mux16names)
 
         # load user custom components
@@ -273,32 +280,39 @@ class HAL:
         if self.d.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
 
-        if self.d.externalmpg or self.d.externalfo or self.d.externalmvo or self.d.externalso or self.d.joystickjog or self.d.userneededmux16 > 0: 
-            temp=self.d.mux16names.split(",")
+        # mux16 addf 
+        temp=self.d.mux16names.split(",")
+        if not temp == ['']:
             for j in (temp):
-                print >>file, "addf %s               servo-thread"% j
+                j ='{0:<24}'.format(j)
+                print >>file, "addf %s servo-thread"% j
+        # scale addf
+        needed = False
+        if spindle_enc:
+            if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1: needed = True
+            if (self.d.gladevcp and self.d.spindlespeedbar): needed = True
+        if self.d.userneededscale > 0 or needed :
+                for j in self.d.scalenames:
+                    j ='{0:<24}'.format(j)
+                    print >>file, "addf %s servo-thread"% j
+        # abs addf
         needed = False
         if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1: needed = True
         if self.d.userneededabs > 0 or (self.d.gladevcp and self.d.spindlespeedbar): needed = True
         if needed:
             temp=self.d.absnames.split(",")
             for j in (temp):
-                print >>file, "addf %s                 servo-thread"% j
-        needed = False
-        if spindle_enc:
-            if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1: needed = True
-            if (self.d.gladevcp and self.d.spindlespeedbar): needed = True
-        if self.d.userneededscale > 0 or needed :
-                temp=self.d.scalenames.split(",")
-                for j in (temp):
-                    print >>file, "addf %s                 servo-thread"% j
+                j ='{0:<24}'.format(j)
+                print >>file, "addf %s servo-thread"% j
+        # lowpass addf
         needed = False
         if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1: needed = True
         if self.d.userneededlowpass > 0 or (self.d.gladevcp and self.d.spindlespeedbar): needed = True
         if needed:
             temp=self.d.lowpassnames.split(",")
             for j in (temp):
-                print >>file, "addf %s             servo-thread"% j
+                j ='{0:<24}'.format(j)
+                print >>file, "addf %s servo-thread"% j
 
         for i in self.d.addcompservo:
             if not i == '':
@@ -1080,7 +1094,10 @@ class HAL:
                 print >>file, "setp   pid.%s.FF1       [%s_%d]FF1" % (let, title, axnum)
                 print >>file, "setp   pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
                 print >>file, "setp   pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
-                print >>file, "setp   pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
+                if let =='s' and self.d.suseoutputrange2:
+                    print >>file, "net ratio_select.out   pid.%s.maxoutput " % (let)
+                else:
+                    print >>file, "setp   pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
                 # steppers
                 print >>file, "setp   pid.%s.error-previous-target true" % let
                 print >>file, "setp   pid.%s.maxerror .0005" % let
@@ -1091,14 +1108,34 @@ class HAL:
                     name = let
                 print >>file, "net %s-index-enable  <=> pid.%s.index-enable" % (name, let)
                 print >>file, "net %s-enable        =>  pid.%s.enable" % (name, let)
-                print >>file, "net %s-output        =>  pid.%s.output"% (name, let)
+
                 if let == 's':
-                    print >>file, "net %s-vel-cmd     => pid.%s.command" % (name, let)
-                    print >>file, "net %s-vel-fb      => pid.%s.feedback"% (name, let)
+                    if self.d.susenegativevoltage:
+                        signal = "spindle-vel-cmd-rpm"
+                        fbsignal= "spindle-vel-fb-rpm"
+                    else:
+                        signal = "spindle-vel-cmd-rpm-abs"
+                        fbsignal= "spindle-vel-fb-rpm-abs"
+                    print >>file, "net %s     => pid.%s.command" % (signal, let)
+                    print >>file, "net %s      => pid.%s.feedback"% (fbsignal, let)
+                    if self.d.suseoutputrange2:
+                        print >>file, "net spindle-pid-out  pid.%s.output    => scale.gear.in"
+                        print >>file, "net gear-ratio       ratio_select.out => scale.gear.gain"
+                        print >>file, "setp ratio_select.in0 %f" % (1/float(self.d.gsincrvalue0))
+                        print >>file, "setp ratio_select.in1 %f" % (1/float(self.d.gsincrvalue1))
+                        #print >>file, "setp ratio_select.in2 %f" % self.d.gsincrvalue2
+                        #print >>file, "setp ratio_select.in4 %f" % self.d.gsincrvalue4
+                        print >>file, "net gear-select-a         =>  ratio_select.sel0"
+                        #print >>file, "net gear-select-b ratio_select.sel1"
+                        #print >>file, "net gear-select-c ratio_select.sel2"
+                        print >>file, "net spindle-output        <=  scale.gear.out"
+                    else:
+                        print >>file, "net spindle-output        <=  pid.%s.output"% (let)
                 else:
                     print >>file, "net %s-pos-cmd       =>  pid.%s.command" % (name, let)
                     print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let) # This must be connected to something
                     print >>file, "net %s-pos-fb        =>  pid.%s.feedback"% (name,let)
+                    print >>file, "net %s-output        =>  pid.%s.output"% (name, let)
                     #print >>file, "net %s-vel-fb           => pid.%s.feedback-deriv"% (name, let) # This must be connected to something
                 print >>file
 
@@ -1138,7 +1175,7 @@ class HAL:
                     if get("outputminlimit") == 0:
                         signal = "spindle-vel-cmd-abs"
                     else:
-                        signal = "spindle-vel-cmd"
+                        signal = "spindle-vel-cmd-rpm"
                     print >>file, "net %s     => %sspinout"%(signal,potpinname)
                 print >>file, "net machine-is-enabled      => " + potpinname +"spinena"
                 print >>file, "net spindle-ccw         => " + potpinname +"spindir"
@@ -1150,25 +1187,27 @@ class HAL:
             # sserial daughter board PWMGENS eg 7i77
             if "analogout" in pwmpinname:
                 rawpinname = self.d.make_pinname(pwmpin,False,True) # dont want the component name
-                print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
-                print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
-                print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
-                print >>file
+
                 if let == 's':
-                    if get("outputminlimit") == 0:
-                        signal = "spindle-vel-cmd-abs"
-                    else:
-                        signal = "spindle-vel-cmd"
+                    print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
+                    print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
+                    print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname
-                        if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
-                            print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                     else:
+                        if self.d.susenegativevoltage:
+                            signal = "spindle-vel-cmd-rpm"
+                        else:
+                            signal = "spindle-vel-cmd-abs"
                         print >>file, "net %s     => %s"%(signal,pwmpinname)
-                        if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
-                            print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
+                    if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
+                        print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                 else:
+                    print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
+                    print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
+                    print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
+                    print >>file
                     print >>file, "net %s-output                             => "% (let) + pwmpinname
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
                     print >>file, "net %s-enable     axis.%d.amp-enable-out"% (let,axnum)
@@ -1195,7 +1234,7 @@ class HAL:
                         print >>file, "net spindle-output      => " + pwmpinname + ".value"
                         print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"    
                     else:
-                        print >>file, "net spindle-vel-cmd     => " + pwmpinname + ".value"
+                        print >>file, "net spindle-vel-cmd-rpm     => " + pwmpinname + ".value"
                         print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname + ".value"
@@ -1226,7 +1265,7 @@ class HAL:
                 print >>file, "net machine-is-enabled          =>  " + steppinname + ".enable" 
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
                 if not encoderpinname and not resolverpinname:
-                    print >>file, "net spindle-vel-fb         <=  "+ steppinname + ".velocity-fb"
+                    print >>file, "net spindle-vel-fb-rps         <=  "+ steppinname + ".velocity-fb"
             print >>file
             print >>file, "# ---closedloop stepper signals---"
             print >>file
@@ -1283,8 +1322,8 @@ class HAL:
             print >>file, "setp    "+encoderpinname+".scale  [%s_%d]ENCODER_SCALE"% (title, axnum)
             print >>file
             if let == 's':
-                print >>file, "net spindle-revs              <=  " + encoderpinname + ".position"
-                print >>file, "net spindle-vel-fb            <=  " + encoderpinname + ".velocity"
+                print >>file, "net spindle-revs             <=   " + encoderpinname + ".position"
+                print >>file, "net spindle-vel-fb-rps       <=   " + encoderpinname + ".velocity"
                 print >>file, "net spindle-index-enable     <=>  " + encoderpinname + ".index-enable"
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + encoderpinname+".position"
@@ -1302,8 +1341,8 @@ class HAL:
             print >>file
             print >>file, "net %s-pos-rawcounts        <=  "% (let) + resolverpinname + ".rawcounts"
             if let == 's':
-                print >>file, "net spindle-revs              <=  " + resolverpinname + ".position"
-                print >>file, "net spindle-vel-fb            <=  " + resolverpinname + ".velocity"
+                print >>file, "net spindle-revs             <=   " + resolverpinname + ".position"
+                print >>file, "net spindle-vel-fb-rps       <=   " + resolverpinname + ".velocity"
                 print >>file, "net spindle-index-enable     <=>  " + resolverpinname + ".index-enable"
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + resolverpinname+".position"
@@ -1317,7 +1356,7 @@ class HAL:
             print >>file
             print >>file, "net spindle-vel-cmd-rps        <=  motion.spindle-speed-out-rps"
             print >>file, "net spindle-vel-cmd-rps-abs    <=  motion.spindle-speed-out-rps-abs"
-            print >>file, "net spindle-vel-cmd            <=  motion.spindle-speed-out"
+            print >>file, "net spindle-vel-cmd-rpm        <=  motion.spindle-speed-out"
             print >>file, "net spindle-vel-cmd-rpm-abs    <=  motion.spindle-speed-out-abs"
             print >>file, "net spindle-on                 <=  motion.spindle-on"
             print >>file, "net spindle-cw                 <=  motion.spindle-forward"
@@ -1325,7 +1364,7 @@ class HAL:
             print >>file, "net spindle-brake              <=  motion.spindle-brake"            
             print >>file, "net spindle-revs               =>  motion.spindle-revs"
             print >>file, "net spindle-at-speed           =>  motion.spindle-at-speed"
-            print >>file, "net spindle-vel-fb             =>  motion.spindle-speed-in"
+            print >>file, "net spindle-vel-fb-rps         =>  motion.spindle-speed-in"
             print >>file, "net spindle-index-enable      <=>  motion.spindle-index-enable"
             print >>file
             if not self.d.findsignal("spindle-at-speed"):
@@ -1339,7 +1378,7 @@ class HAL:
                         near_scale =  self.d.snearscale
                         near_range = 0
                     print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
-                    print >>file, "net spindle-vel-fb         =>  near.0.in2"
+                    print >>file, "net spindle-vel-fb-rps         =>  near.0.in2"
                     print >>file, "net spindle-at-speed       <=  near.0.out"
                     print >>file, "setp near.0.scale %f"%near_scale
                     print >>file, "setp near.0.difference %f"% near_range
@@ -1347,8 +1386,7 @@ class HAL:
                 else:
                     print >>file, "sets spindle-at-speed true"
                     print >>file
-            if (self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect) or (self.d.gladevcp and self.d.spindlespeedbar):
-                if encoderpinname or resolverpinname:
+            if encoderpinname or resolverpinname:
                     print >>file, _("#  Use ACTUAL spindle velocity from spindle encoder")
                     print >>file, _("#  spindle-velocity bounces around so we filter it with lowpass")
                     print >>file, _("#  spindle-velocity is signed so we use absolute component to remove sign") 
@@ -1356,7 +1394,7 @@ class HAL:
                     print >>file
                     print >>file, ("setp     scale.spindle.gain 60")
                     print >>file, ("setp     lowpass.spindle.gain %f"% self.d.sfiltergain)
-                    print >>file, ("net spindle-vel-fb        =>     scale.spindle.in")
+                    print >>file, ("net spindle-vel-fb-rps        =>     scale.spindle.in")
                     print >>file, ("net spindle-fb-rpm               scale.spindle.out       =>   abs.spindle.in")
                     print >>file, ("net spindle-fb-rpm-abs           abs.spindle.out         =>   lowpass.spindle.in")
                     print >>file, ("net spindle-fb-rpm-abs-filtered  lowpass.spindle.out  ")

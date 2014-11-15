@@ -345,6 +345,28 @@ class Data:
         self.mvograycode = False
         self.mvoignorefalse = False
 
+        self.gearselect = False
+        self.gsincrvalue0 = 0  # all incr-select low
+        self.gsincrvalue1 = 0  # incr-select-a  high
+        self.gsincrvalue2 = 0  # b
+        self.gsincrvalue3 = 0  # ab
+        self.gsincrvalue4 = 0 # c
+        self.gsincrvalue5 = 0 # ac
+        self.gsincrvalue6 = 0 # bc
+        self.gsincrvalue7 = 0 # abc
+        self.gsincrvalue8 = 0  # d
+        self.gsincrvalue9 = 0  # ad
+        self.gsincrvalue10 = 0  # bd
+        self.gsincrvalue11 = 0  # abd
+        self.gsincrvalue12 = 0 # cd
+        self.gsincrvalue13 = 0 # acd
+        self.gsincrvalue14 = 0 # bcd
+        self.gsincrvalue15 = 0 # abcd
+        self.gsdebounce = True
+        self.gsdebouncetime = .2
+        self.gsgraycode = False
+        self.gsignorefalse = False
+
         # GUI frontend defaults
         self.position_offset = 1 # relative
         self.position_feedback = 1 # actual
@@ -654,6 +676,9 @@ class Data:
                 self[temp+"cbmotor_pitch"]= False
                 self[temp+"cbmotor_tpi"]= False
                 self[temp+"cbmotor_worm"]= False
+                self[temp+"outputscale"]= 10
+                self[temp+"outputminlimit"]= -10
+                self[temp+"outputmaxlimit"]= 10
             else:
                 self[temp+"motor_gear1driver"]= 1
                 self[temp+"motor_gear1driven"]= 1
@@ -665,8 +690,7 @@ class Data:
                 self[temp+"negative_rot"]= False
                 self[temp+"rbvoltage_5"]= False
                 self[temp+"outputscale2"]= 10
-                self[temp+"outputminlimit2"]= -10
-                self[temp+"outputmaxlimit2"]= 10
+                self[temp+"outputmaxvoltage"]= 10
             self[temp+"encodercounts"]= 4000
             self[temp+"usecomp"]= 0
             self[temp+"compfilename"]= temp+"compensation"
@@ -677,9 +701,6 @@ class Data:
             self[temp+"invertencoder"]= 0
             self[temp+"3pwmscale"]= 1
             self[temp+"3pwmdeadtime"]= 500
-            self[temp+"outputscale"]= 10
-            self[temp+"outputminlimit"]= -10
-            self[temp+"outputmaxlimit"]= 10
             self[temp+"maxoutput"]= 0
             self[temp+"P"]= 50
             self[temp+"I"]= 0
@@ -742,8 +763,6 @@ class Data:
         self.amaxferror= .5
         # adjust spindle settings
         self.soutputscale = 2000
-        self.soutputminlimit = -2000
-        self.soutputmaxlimit = 2000
         self.smaxoutput = 2000
         self.sP = 0
         self.sFF1= 0
@@ -754,7 +773,8 @@ class Data:
         self.snearscale = 1.20
         self.sfiltergain = 1.0
         self.suseatspeed = False
-        self.susetwooutputscales = False
+        self.suseoutputrange2 = False
+        self.susenegativevoltage = True
         self.susenearrange = False
         self.ssingleinputencoder = False
 
@@ -4289,12 +4309,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         set_value("dirhold")
         set_value("dirsetup")
         set_value("outputscale")
-        set_value("outputminlimit")
-        set_value("outputmaxlimit")
-        if axis =='s':
-            set_value("outputscale2")
-            set_value("outputminlimit2")
-            set_value("outputmaxlimit2")
         set_value("3pwmscale")
         set_value("3pwmdeadtime")
         set_active("invertmotor")
@@ -4356,16 +4370,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         else:
             w[axis + "outputscale"].hide()
             w[axis + "outputscalelabel"].hide()
-        if sserial_scaling:
-            w[axis + "outputminlimit"].show()
-            w[axis + "outputminlimitlabel"].show()
-            w[axis + "outputmaxlimit"].show()
-            w[axis + "outputmaxlimitlabel"].show()
-        else:
-            w[axis + "outputminlimit"].hide()
-            w[axis + "outputminlimitlabel"].hide()
-            w[axis + "outputmaxlimit"].hide()
-            w[axis + "outputmaxlimitlabel"].hide()
         if amp_8i20 or pwmgen and d.advanced_options == True:
             w[axis + "bldcframe"].show()
         else: w[axis + "bldcframe"].hide()
@@ -4422,6 +4426,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if resolver:
             w[axis + "encoderscale_label"].set_text(_("Resolver Scale:"))
         if axis == 's':
+            set_value("outputscale2")
             w.ssingleinputencoder.set_sensitive(encoder)
             w["sinvertencoder"].set_sensitive(encoder)
             w["ssingleinputencoder"].show()
@@ -4440,9 +4445,23 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             w["snearrange"].set_value(d["snearrange"])
             set_value("filtergain")
             set_active("singleinputencoder")
-            set_active("usetwooutputscales")
-            self.usetwooutputscales_toggled()
+            set_value("outputmaxvoltage")
+            set_active("usenegativevoltage")
+            set_active("useoutputrange2")
+            self.useoutputrange2_toggled()
         else:
+            if sserial_scaling:
+                w[axis + "outputminlimit"].show()
+                w[axis + "outputminlimitlabel"].show()
+                w[axis + "outputmaxlimit"].show()
+                w[axis + "outputmaxlimitlabel"].show()
+            else:
+                w[axis + "outputminlimit"].hide()
+                w[axis + "outputminlimitlabel"].hide()
+                w[axis + "outputmaxlimit"].hide()
+                w[axis + "outputmaxlimitlabel"].hide()
+            set_value("outputminlimit")
+            set_value("outputmaxlimit")
             set_text("encodercounts")
             w[axis+"maxferror"].set_sensitive(True)
             w[axis+"minferror"].set_sensitive(True)
@@ -4539,10 +4558,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.widgets.snearscale.set_sensitive(self.widgets.snearscale_button.get_active() and i)
         self.widgets.snearrange.set_sensitive(self.widgets.snearrange_button.get_active() and i)
 
-    def usetwooutputscales_toggled(self):
-        i = self.widgets.susetwooutputscales.get_active()
-        self.widgets.soutputminlimit2.set_sensitive(i)
-        self.widgets.soutputmaxlimit2.set_sensitive(i)
+    def useoutputrange2_toggled(self):
+        i = self.widgets.suseoutputrange2.get_active()
         self.widgets.soutputscale2.set_sensitive(i)
 
     def bldc_update(self,Widgets,axis):
@@ -4597,8 +4614,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         get_pagevalue("dirhold")
         get_pagevalue("dirsetup")
         get_pagevalue("outputscale")
-        get_pagevalue("outputminlimit")
-        get_pagevalue("outputmaxlimit")
         get_pagevalue("3pwmscale")
         get_pagevalue("3pwmdeadtime")
         get_active("bldc_option")
@@ -4637,6 +4652,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         get_text("maxacc")
         d[axis + "drivertype"] = self.drivertype_toid(axis, w[axis + "drivertype"].get_active())
         if not axis == "s":
+            get_pagevalue("outputminlimit")
+            get_pagevalue("outputmaxlimit")
             get_pagevalue("maxferror")
             get_pagevalue("minferror")
             get_text("homepos")
@@ -4663,9 +4680,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             get_pagevalue("filtergain")
             get_active("singleinputencoder")
             get_pagevalue("outputscale2")
-            get_pagevalue("outputminlimit2")
-            get_pagevalue("outputmaxlimit2")
-            get_active("usetwooutputscales")
+            self.d.gsincrvalue0 = self.d.soutputmaxlimit
+            self.d.gsincrvalue1 = self.d.soutputmaxlimit2
+            get_active("useoutputrange2")
+            self.d.scaleselect = self.d.suseoutputrange2
+            get_active("usenegativevoltage")
+            get_pagevalue("outputmaxvoltage")
 
     def configure_bldc(self,axis):
         d = self.d
@@ -4692,7 +4712,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         stepdrive = bool(self.d.findsignal("s-stepgen-step"))
         encoder = bool(self.d.findsignal("s-encoder-a"))
         resolver = bool(self.d.findsignal("s-resolver"))
-        twoscales = self.widgets.susetwooutputscales.get_active()
+        twoscales = self.widgets.suseoutputrange2.get_active()
 
         data_list=[ "steprev","microstep","motor_pulleydriver","motor_pulleydriven","motor_gear1driver","motor_gear1driven",
                         "motor_gear2driver","motor_gear2driven","motor_max"]
@@ -4719,6 +4739,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets['spindle_'+i].set_active(self.d['s'+i])
         self.widgets.spindle_encoderline.set_value(self.widgets.sencoderscale.get_value()/4)
         self.widgets.spindle_cbmotor_gear2.set_active(twoscales)
+        self.widgets.spindle_cbnegative_rot.set_active(self.widgets.susenegativevoltage.get_active())
 
         # temparally add signals
         for i in templist1:
@@ -4746,21 +4767,16 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         for i in checkbutton_list:
             self.d['s'+i] = self.widgets['spindle_'+i].get_active()
         # set the widgets on the spindle page as per calculations 
-        factor = 0
-        if self.widgets.spindle_cbnegative_rot.get_active():
-            factor = 1
-        self.widgets.soutputminlimit.set_value(self.temp_max_motor_speed1 * -factor)
-        self.widgets.soutputmaxlimit.set_value(self.temp_max_motor_speed1)
-        self.widgets.soutputminlimit2.set_value(self.temp_max_motor_speed2 * -factor)
-        self.widgets.soutputmaxlimit2.set_value(self.temp_max_motor_speed2)
-        factor = 1
+        self.widgets.susenegativevoltage.set_active(self.widgets.spindle_cbnegative_rot.get_active())
         if self.widgets.spindle_rbvoltage_5.get_active():
-            factor = 2
-        self.widgets.soutputscale.set_value(self.temp_max_motor_speed1 * factor)
-        self.widgets.soutputscale2.set_value(self.temp_max_motor_speed2 * factor)
+            self.widgets.soutputmaxvoltage.set_value(5)
+        else:
+            self.widgets.soutputmaxvoltage.set_value(10)
+        self.widgets.soutputscale.set_value(self.temp_max_motor_speed1)
+        self.widgets.soutputscale2.set_value(self.temp_max_motor_speed2)
         self.widgets.smaxoutput.set_value(self.temp_max_motor_speed1)
         self.widgets.sencoderscale.set_value(self.widgets.spindle_encoderline.get_value()*4)
-        self.widgets.susetwooutputscales.set_active(self.widgets.spindle_cbmotor_gear2.get_active())
+        self.widgets.suseoutputrange2.set_active(self.widgets.spindle_cbmotor_gear2.get_active())
         if stepdrive:
             motor_steps = get_value(self.widgets.spindle_steprev)
             if self.widgets.spindle_cbmicrosteps.get_active():
