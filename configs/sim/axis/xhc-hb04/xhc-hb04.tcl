@@ -173,7 +173,21 @@ proc wheel_setup {jogmode} {
     }
   }
 
-  net pendant:jog-scale      <= xhc-hb04.jog.scale
+  # to support fractional scales:
+  #   divide the xhc-hb04.jog.scale by $kvalue
+  #   and
+  #   multiply the pendant_util.scale$idx by $kvalue
+  # to manipulate the integer (s32) axis.N.jog-counts
+
+  set kvalue 1000000.0;
+  setp pendant_util.k $kvalue
+
+  net pendant:jog-prescale    <= xhc-hb04.jog.scale
+  net pendant:jog-prescale    => pendant_util.divide-by-k-in
+
+  net pendant:jog-scale      <= pendant_util.divide-by-k-out
+  #   pendant:jog-scale connects to each axis.$axno.jog-scale
+
   net pendant:jog-counts     <= xhc-hb04.jog.counts
   net pendant:jog-counts-neg <= xhc-hb04.jog.counts-neg
 
@@ -192,7 +206,7 @@ proc wheel_setup {jogmode} {
     set axno $::XHC_HB04_CONFIG($coord,axno)
 
     setp pendant_util.coef$idx  $::XHC_HB04_CONFIG(coef,$idx)
-    setp pendant_util.scale$idx $::XHC_HB04_CONFIG(scale,$idx)
+    setp pendant_util.scale$idx [expr $kvalue * $::XHC_HB04_CONFIG(scale,$idx)]
 
     set acoord [lindex $anames $idx]
     net pendant:pos-$coord    halui.axis.$axno.pos-feedback \
