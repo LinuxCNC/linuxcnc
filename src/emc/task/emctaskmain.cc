@@ -3437,6 +3437,7 @@ int main(int argc, char *argv[])
 		   emcStatus->task.execState == EMC_TASK_EXEC_DONE &&
 		   emcStatus->motion.status == RCS_DONE &&
 		   emcStatus->io.status == RCS_DONE &&
+		   mdi_execute_queue.len() == 0 &&
 		   interp_list.len() == 0 &&
 		   emcTaskCommand == 0 &&
 		   emcStatus->task.interpState == EMC_TASK_INTERP_IDLE) {
