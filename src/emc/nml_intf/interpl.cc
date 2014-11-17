@@ -111,7 +111,8 @@ int NML_INTERP_LIST::append(NMLmsg * nml_msg_ptr)
 
     if (emc_debug & EMC_DEBUG_INTERP_LIST) {
 	rcs_print
-	    ("NML_INTERP_LIST::append(nml_msg_ptr{size=%ld,type=%s}) : list_size=%d, line_number=%d\n",
+	    ("NML_INTERP_LIST(%p)::append(nml_msg_ptr{size=%ld,type=%s}) : list_size=%d, line_number=%d\n",
+             this,
 	     nml_msg_ptr->size, emc_symbol_lookup(nml_msg_ptr->type),
 	     linked_list_ptr->list_size, temp_node.line_number);
     }
@@ -140,6 +141,16 @@ NMLmsg *NML_INTERP_LIST::get()
 
     // get it off the front
     ret = (NMLmsg *) ((char *) node_ptr->command.commandbuf);
+
+    if (emc_debug & EMC_DEBUG_INTERP_LIST) {
+        rcs_print(
+            "NML_INTERP_LIST(%p)::get(): {size=%ld, type=%s}, list_size=%d\n",
+            this,
+            ret->size,
+            emc_symbol_lookup(ret->type),
+            linked_list_ptr->list_size
+        );
+    }
 
     return ret;
 }
