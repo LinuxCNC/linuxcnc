@@ -42,14 +42,12 @@ would normally be used. Hower, the possibility exists to use a higher-order
 bit to "shift" the values set by the integer pin. 
 The sel-bit pins are only created when the size of the mux_gen component is an
 integer power of two. 
-
 This component (unlike mux16) does not offer the option of decoding gray-code, 
 however the same effect can be achieved by arranging the order of the input
 values to suit. 
 
 .TP
 .B mux-gen.\fINN\fB.out-[bit/float/s32/u32]\fR variable-type out \fR
-
 Follows the value of one of the \fBin\fIN\fR values according to the selection 
 bits and/or the selection number. 
 Values will be converted/truncated according to standard C rules. This means,
