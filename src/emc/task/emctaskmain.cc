@@ -3372,10 +3372,10 @@ int main(int argc, char *argv[])
 	    // 	emcOperatorError(0, "wait for orient complete timed out");
 	    // }
 
-        // abort everything
-        emcTaskAbort();
-        emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
-        emcSpindleAbort();
+            // abort everything
+            emcTaskAbort();
+            emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
+            emcSpindleAbort();
 	    mdi_execute_abort();
 	    // without emcTaskPlanClose(), a new run command resumes at
 	    // aborted line-- feature that may be considered later
