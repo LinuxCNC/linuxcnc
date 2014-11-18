@@ -3474,7 +3474,6 @@ Aux Screen</property>
                                               <object class="GtkComboBoxEntry" id="cmb_mouse_button_mode">
                                                 <property name="visible">True</property>
                                                 <property name="model">lst_button_mode</property>
-                                                <property name="active">4</property>
                                                 <property name="text_column">1</property>
                                                 <signal name="changed" handler="on_cmb_mouse_button_mode_changed"/>
                                               </object>
