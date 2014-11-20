@@ -1,3 +1,9 @@
+ver. 1.3.4
+- if no virtual keyboard was installed (nor onboard or matchbox),
+  the checkboxes on the settings page has not been sensitized and the
+  settings has not been reseted correctly from the preference file
+  Thanks to Roland (concierge) for finding this one
+
 ver. 1.3.3
 - the combobox for the mouse button mode has not been initialized
   correct, if it had the default value of the glade file. It is a 

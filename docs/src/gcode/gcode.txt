@@ -1227,7 +1227,7 @@ G43 <H->
 * 'H' - tool number (optional)
 
 G43 enables tool length compensation.  G43 changes subsequent motions
-by offsetting the Z and/or X coordinates by the length of the tool. G43
+by offsetting the axis coordinates by the length of the offset. G43
 does not cause any motion. The next time a compensated axis is moved,
 that axis's endpoint is the compensated location.
 
