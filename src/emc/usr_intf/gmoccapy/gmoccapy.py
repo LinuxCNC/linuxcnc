@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "   1.3.3"
+_RELEASE = "   1.3.4"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -1050,9 +1050,9 @@ class gmoccapy(object):
             else:
                 print (_("**** GMOCCAPY ERROR ****"))
                 print (_("**** No virtual keyboard installed, we checked for <onboard> and <matchbox-keyboard>."))
+                self._no_virt_keyboard()
                 return
             sid = self.onboard_kb.stdout.readline()
-            # print"keyboard", sid # skip header line
             socket = gtk.Socket()
             socket.show()
             self.widgets.key_box.add(socket)
@@ -1063,7 +1063,9 @@ class gmoccapy(object):
             print (_("**** Error with launching virtual keyboard,"))
             print (_("**** is onboard or matchbox-keyboard installed? ****"))
             traceback.print_exc()
+            self._no_virt_keyboard()
 
+    def _no_virt_keyboard(self):
             # In this case we will disable the coresponding part on the settings page
             self.widgets.chk_use_kb_on_offset.set_active(False)
             self.widgets.chk_use_kb_on_tooledit.set_active(False)
