@@ -67,7 +67,7 @@ class HandlerClass:
     def on_hal_status_all_homed(self,widget):
         print "all-homed"
         self.data.all_homed = True
-        self.widgets.statusbar1.remove_message(self.gscreen.statusbar_id,self.gscreen.homed_status_message)
+        self.widgets.statusbar1.remove(self.gscreen.statusbar_id,self.gscreen.homed_status_message)
 
     # when run is pressed, destroy the restart dialog if it's showing
     def on_toolbutton_run_toggled(self,widget):
