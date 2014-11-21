@@ -44,10 +44,23 @@ for num,temp in enumerate(sys.argv):
         if temp == '-h' or temp == '--help' or len(sys.argv) == 1:
             _print_help()
 
+import pdb
+
+try:
+    from gi import pygtkcompat
+    from gi.repository import GLib
+    from gi.repository import Vte as vte, Gst as gst
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'halDial gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
+else:
+    import vte
+
 import pygtk
-pygtk.require("2.0")
 import gtk
-import gtk.glade
 import gobject
 import hal
 import errno
@@ -56,9 +69,10 @@ from gladevcp.gladebuilder import GladeBuilder
 import pango
 import traceback
 import atexit
-import vte
 import time
+print 'gs1'
 from time import strftime,localtime
+#pdb.set_trace()
 import hal_glib
 
 #--------------------------------------------------------
@@ -70,33 +84,26 @@ update_spindle_bar_error_ct = 0
 update_spindle_bar_error_ct_max = 3
 #--------------------------------------------------------
 
+print 'gs2'
 # try to add a notify system so messages use the
 # nice intergrated pop-ups
 # Ubuntu kinda wrecks this be not following the
 # standard - you can't set how long the message stays up for.
 # I suggest fixing this with a PPA off the net
 # https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid
-try:
-    NOTIFY_AVAILABLE = False
-    import pynotify
-    if not pynotify.init("Gscreen"):
-        print "**** GSCREEN INFO: There was a problem initializing the pynotify module"
-    else:
-        NOTIFY_AVAILABLE = True
-except:
-    print "**** GSCREEN INFO: You don't seem to have pynotify installed"
-
+NOTIFY_AVAILABLE = False
+print 'gs3'
 # try to add ability for audio feedback to user.
 try:
     _AUDIO_AVAILABLE = False
     import pygst
     pygst.require("0.10")
-    import gst
-    _AUDIO_AVAILABLE = True
+#    import gst
+#    _AUDIO_AVAILABLE = True
     print "**** GSCREEN INFO: audio available!"
 except:
     print "**** GSCREEN INFO: no audio alerts available - PYGST libray not installed?"
-
+print 'gs4'
 # BASE is the absolute path to linuxcnc base
 # libdir is the path to Gscreen python files
 # datadir is where the standarad GLADE files are
@@ -118,7 +125,7 @@ INFO_ICON = os.path.join(imagedir,"std_info.gif")
 
 # internationalization and localization
 import locale, gettext
-
+print 'gs3'
 
 # path to TCL for external programs eg. halshow
 try:
@@ -138,9 +145,9 @@ from gscreen import preferences
 from gscreen import keybindings
 
 # this is for hiding the pointer when using a touch screen
-pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
-color = gtk.gdk.Color()
-INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
+#pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
+#color = gtk.gdk.Color()
+#INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 # to help with debugging new screens
 verbose_debug = False
 # print debug messages if debug is true
@@ -187,31 +194,53 @@ _SPINDLE_INPUT = 1;_PERCENT_INPUT = 2;_VELOCITY_INPUT = 3;_DEGREE_INPUT = 4
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
 class Player:
     def __init__(self):
+        gobject.threads_init()
+        gst.init(None)
+        self.pipeline = gst.Pipeline()
+        self.bus = self.pipeline.get_bus()
+        self.bus.add_signal_watch()
+        self.bus.connect('message::eos', self.on_message)
+        self.bus.connect('message::error', self.on_message)
+
+        # This is needed to make the video output in our DrawingArea:
+        #self.bus.enable_sync_message_emission()
+        #self.bus.connect('sync-message::element', self.on_sync_message)
+
+        # Create GStreamer elements
+        self.player = gst.ElementFactory.make('playbin', 'player')
+
+        # Add playbin to the pipeline
+        self.pipeline.add(self.player)
+
         #Element playbin automatic plays any file
-        self.player = gst.element_factory_make("playbin", "player")
+        #self.player = gst.element_factory_make("playbin", "player")
+        #self.player = gst.ElementFactory.make("playbin", "player")
         #Enable message bus to check for errors in the pipeline
-        bus = self.player.get_bus()
-        bus.add_signal_watch()
-        bus.connect("message", self.on_message)
+        #bus = self.player.get_bus()
+        #bus.add_signal_watch()
+        #bus.connect("message", self.on_message)
         self.loop = gobject.MainLoop()
 
     def run(self):
-        self.player.set_state(gst.STATE_PLAYING)
-        self.loop.run()
+        print 'run sound'
+        self.pipeline.set_state(gst.State.PLAYING)
+        #self.loop.run()
 
     def set_sound(self,file):
+        print 'sound filw:',file
         #Set the uri to the file
         self.player.set_property("uri", "file://" + file)
 
     def on_message(self, bus, message):
+        print 'sound message',message
         t = message.type
         if t == gst.MESSAGE_EOS:
             #file ended, stop
-            self.player.set_state(gst.STATE_NULL)
+            self.pipeline.set_state(gst.State.NULL)
             self.loop.quit()
         elif t == gst.MESSAGE_ERROR:
             #Error ocurred, print and stop
-            self.player.set_state(gst.STATE_NULL)
+            self.pipeline.set_state(gst.State.NULL)
             err, debug = message.parse_error()
             print "Error: %s" % err, debug
             self.loop.quit()
@@ -512,6 +541,12 @@ class Gscreen:
                     if name: o.set_name(name)
         except:
             print _("**** Gscreen GLADE ERROR:    With main screen xml file: %s"% xmlname)
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            formatted_lines = traceback.format_exc().splitlines()
+            print
+            print "****Gscreen verbose debugging:",formatted_lines[0]
+            traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+            print formatted_lines[-1]
             sys.exit(0)
         # second screen
         localglade = os.path.join(CONFIGPATH,"%s2.glade"%self.skinname)
@@ -1182,11 +1217,16 @@ class Gscreen:
             self.set_dtg_color()
             Not all screens use these widgets
         """
-        self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.data.abs_textcolor))
+        def parse(color):
+            if pygtkcompat is not None:
+                return gtk.gdk.Color.parse(color)[1]
+            else:
+                return gtk.gdk.color_parse(color)
+        self.widgets.abs_colorbutton.set_color(parse(self.data.abs_textcolor))
         self.set_abs_color()
-        self.widgets.rel_colorbutton.set_color(gtk.gdk.color_parse(self.data.rel_textcolor))
+        self.widgets.rel_colorbutton.set_color(parse(self.data.rel_textcolor))
         self.set_rel_color()
-        self.widgets.dtg_colorbutton.set_color(gtk.gdk.color_parse(self.data.dtg_textcolor))
+        self.widgets.dtg_colorbutton.set_color(parse(self.data.dtg_textcolor))
         self.set_dtg_color()
 
     def init_screen2(self):
@@ -1287,7 +1327,18 @@ class Gscreen:
         # add terminal window
         self.widgets._terminal = vte.Terminal ()
         self.widgets._terminal.connect ("child-exited", lambda term: gtk.main_quit())
-        self.widgets._terminal.fork_command()
+        if pygtkcompat is not None:
+            self.widgets._terminal.fork_command_full(
+                    vte.PtyFlags.DEFAULT,
+                    os.environ['HOME'],
+                    ["/bin/sh"],
+                    [],
+                    GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+                    None,
+                    None,
+                    )
+        else:
+            self.widgets._terminal.fork_command()
         self.widgets._terminal.show()
         window = self.widgets.terminal_window.add(self.widgets._terminal)
         self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
@@ -2776,7 +2827,7 @@ class Gscreen:
         print "all-homed"
         self.data.all_homed = True
         self.widgets.button_homing.set_active(False)
-        self.widgets.statusbar1.remove_message(self.statusbar_id,self.homed_status_message)
+        self.widgets.statusbar1.remove(self.statusbar_id,self.homed_status_message)
         self.add_alarm_entry(_("All the axes have been homed"))
 
     def on_hal_status_not_all_homed(self,widget,data):
