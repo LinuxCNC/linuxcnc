@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # vim: sts=4 sw=4 et
-
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'halDial gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 import gtk
 
 class GladeBuilder:
