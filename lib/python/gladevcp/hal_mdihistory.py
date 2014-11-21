@@ -15,6 +15,14 @@
 # GNU General Public License for more details.
 
 import os, time, string
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 
 import gobject, gtk
 

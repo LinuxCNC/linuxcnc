@@ -1,3 +1,8 @@
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+
 from hal_widgets import HAL_HideTable
 from hal_widgets import HAL_HBox
 from hal_widgets import HAL_Table
@@ -24,7 +29,10 @@ from offsetwidget import HAL_Offset
 from offsetpage_widget import OffsetPage
 from hal_bar import HAL_HBar, HAL_VBar
 from hal_meter import HAL_Meter
-#from hal_gremlin import HAL_Gremlin
+if pygtkcompat is None:
+    from hal_gremlin import HAL_Gremlin
+else:
+    from hal_gremlin_gtk3 import HAL_Gremlin
 from hal_graph import HAL_Graph
 from hal_lightbutton import HAL_LightButton
 from overridewidget import Override
@@ -43,4 +51,5 @@ from hal_pyngcgui import PyNgcGui
 from hal_gremlin_plus import HAL_GremlinPlus
 
 # GTK3 only
-from hal_gtk3_widgets import HAL_Switch
+if pygtkcompat is not None:
+    from hal_gtk3_widgets import HAL_Switch

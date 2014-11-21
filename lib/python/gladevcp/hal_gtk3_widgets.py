@@ -17,7 +17,7 @@ try:
 except ImportError:
     pygtkcompat = None
 if pygtkcompat is not None:
-    print 'gtk-3'
+    print 'gtk-3 widgets'
     pygtkcompat.enable()
     pygtkcompat.enable_gtk(version='3.0')
 import gobject

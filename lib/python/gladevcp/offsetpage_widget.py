@@ -20,7 +20,14 @@
 # set metric or imperial
 # set the var file to search
 # set the text formatting for metric/imperial separately
-
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'offsetpage gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 import sys, os, pango, linuxcnc
 from hal_glib import GStat
 datadir = os.path.abspath(os.path.dirname(__file__))
@@ -90,9 +97,14 @@ class OffsetPage(gtk.VBox):
         self.display_follows_program = False # display units are chosen indepenadently of G20/G21
         self.font = "sans 12"
         self.editing_mode = False
-        self.highlight_color = gtk.gdk.Color("lightblue")
-        self.foreground_color = gtk.gdk.Color("red")
-        self.unselectable_color = gtk.gdk.Color("lightgray")
+        if pygtkcompat is not None:
+            self.highlight_color = gtk.gdk.Color.parse("lightblue")[1]
+            self.foreground_color = gtk.gdk.Color.parse("red")[1]
+            self.unselectable_color = gtk.gdk.Color.parse("lightgray")[1]
+        else:
+            self.highlight_color = gtk.gdk.Color("lightblue")
+            self.foreground_color = gtk.gdk.Color("red")
+            self.unselectable_color = gtk.gdk.Color("lightgray")
         self.hidejointslist = []
         self.hidecollist = []
         self.wTree = gtk.Builder()

@@ -279,7 +279,10 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         if isinstance(color, gtk.gdk.Color):
             pass
         elif color != 'dark':
-            color = gtk.gdk.Color(color)
+            if pygtkcompat is not None:
+                color = gtk.gdk.Color.parse(color)[1]
+            else:
+                color = gtk.gdk.Color(color)
         else:
             r = 0.4 * self._on_color.red
             g = 0.4 * self._on_color.green

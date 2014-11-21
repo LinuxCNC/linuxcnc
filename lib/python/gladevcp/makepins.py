@@ -16,6 +16,14 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 import sys
 import gtk
 import hal
@@ -23,7 +31,8 @@ import gobject
 import getopt
 
 from hal_widgets import _HalWidgetBase
-from hal_gtk3_widgets import _HalGtk3WidgetBase
+if pygtkcompat is not None:
+    from hal_gtk3_widgets import _HalGtk3WidgetBase
 from led import HAL_LED
 from hal_glib import GComponent
 
@@ -51,9 +60,10 @@ class GladePanel():
                 widget.hal_init(self.hal, idname)
                 self.widgets[idname] = widget
 
-            if isinstance(widget, _HalGtk3WidgetBase):
-                widget.hal_init(self.hal, idname)
-                self.widgets[idname] = widget
+            if pygtkcompat is not None:
+                if isinstance(widget, _HalGtk3WidgetBase):
+                    widget.hal_init(self.hal, idname)
+                    self.widgets[idname] = widget
 
         self.timer = gobject.timeout_add(100, self.update)                  
         

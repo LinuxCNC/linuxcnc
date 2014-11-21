@@ -16,7 +16,14 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 import gtk
 import gobject
 import os
@@ -108,11 +115,18 @@ class Combi_DRO(gtk.VBox):
         self._ORDER = ["Rel", "Abs", "DTG"]
         self.system = "Rel"
         self.homed = False
-        self.homed_color = gtk.gdk.Color("green")
-        self.unhomed_color = gtk.gdk.Color("red")
-        self.abs_color = gtk.gdk.Color("blue")
-        self.rel_color = gtk.gdk.Color("black")
-        self.dtg_color = gtk.gdk.Color("yellow")
+        if pygtkcompat is not None:
+            self.homed_color = gtk.gdk.Color.parse("green")[1]
+            self.unhomed_color = gtk.gdk.Color.parse("red")[1]
+            self.abs_color = gtk.gdk.Color.parse("blue")[1]
+            self.rel_color = gtk.gdk.Color.parse("black")[1]
+            self.dtg_color = gtk.gdk.Color.parse("yellow")[1]
+        else:
+            self.homed_color = gtk.gdk.Color("green")
+            self.unhomed_color = gtk.gdk.Color("red")
+            self.abs_color = gtk.gdk.Color("blue")
+            self.rel_color = gtk.gdk.Color("black")
+            self.dtg_color = gtk.gdk.Color("yellow")
         self.mm_text_template = "%10.3f"
         self.imperial_text_template = "%9.4f"
         self.font_size = 25
