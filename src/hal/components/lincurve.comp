@@ -1,17 +1,27 @@
 component lincurve "one-dimensional lookup table";
-description """Performs a 1-dimensional lookup and interpolation. The x-val
-parameters must be monotonic, though identical adjacent values are allowed.
-(for example 0,0,0,10) for a 4-element curve. 
+description """This component can be used to map any floating-point input to a
+floating-point output. Typical uses would include linearisation of
+thermocouples, defining PID gains that vary with external factors or to
+substitute for any mathematical function where absolute accuracy is not
+required.
+
+The component can be thought of as a 2-dimensional graph of points in (x,y)
+space joined by straight lines. The input value is located on the x axis,
+followed up until it touches the line, and the output of the component is set
+to the corresponding y-value.
+
+The (x,y) points are defined by the x-val-NN and y-val-NN parameters which need
+to be set in the HAL file using "setp" commands.
+
+The maximum number if (x,y) points supported is 16.
 
 For input values less than the x-val-00 breakpoint the y-val-00 is returned. 
 For x greater than the largest x-val-NN the yval corresponding to x-max is
 returned (ie, no extrapolation is performed.)
 
 Sample usage: loadrt lincurve count=3 personality=4,4,4 
-for a set of three 4-element curves.
-
-The axis breakpoints should be set in the lincurve.N.x-val-NN parameters using
-"setp", as should the corresponding y values. """;
+for a set of three 4-element graphs.
+ """;
 
 param rw float x-val-##[16 : personality] "axis breakpoints";
 param rw float y-val-##[16 : personality] "output values to be interpolated";
