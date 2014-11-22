@@ -31,28 +31,21 @@ DOC_SRCS_EN := \
 	code/NML_Messages.txt \
 	code/Contributing-to-LinuxCNC.txt \
 	common/emc-history.txt \
-	common/Getting_LinuxCNC.txt \
 	common/Glossary.txt \
 	common/GPLD_Copyright.txt \
 	common/Integrator_Concepts.txt \
-	common/Linux_FAQ.txt \
 	common/overleaf.txt \
 	common/python-interface.txt \
 	common/starting-emc.txt \
 	common/Stepper_Diagnostics.txt \
-	common/System_Requirements.txt \
-	common/Updating_LinuxCNC.txt \
 	common/User_Concepts.txt \
 	common/userforeword.txt \
 	common/user_intro.txt \
-	config/copy_and_run.txt \
 	config/emc2hal.txt \
 	config/ini_config.txt \
 	config/ini_homing.txt \
 	config/lathe_config.txt \
 	config/moveoff.txt \
-	config/pncconf.txt \
-	config/stepconf.txt \
 	config/stepper.txt \
 	drivers/AX5214H.txt \
 	drivers/VFS11.txt \
@@ -117,9 +110,9 @@ DOC_SRCS_EN := \
 	motion/kinematics.txt \
 	motion/pid_theory.txt \
 	motion/tweaking_steppers.txt \
-	quickstart/stepper_quickstart.txt \
 	remap/structure.txt \
 	Master_Getting_Started.txt \
+	getting-started/index.txt \
 	Master_User.txt \
 	Master_HAL.txt \
 	Master_Integrator.txt \

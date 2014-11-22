@@ -1,0 +1,19 @@
+:leveloffset: 1
+
+include::System_Requirements.txt[]
+
+include::Getting_LinuxCNC.txt[]
+
+include::Updating_LinuxCNC.txt[]
+
+include::stepper_quickstart.txt[]
+
+include::stepconf.txt[]
+
+include::pncconf.txt[]
+
+include::copy_and_run.txt[]
+
+include::Linux_FAQ.txt[]
+
+// vim: set syntax=asciidoc:
