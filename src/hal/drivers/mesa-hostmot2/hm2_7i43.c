@@ -41,7 +41,7 @@ MODULE_INFO(linuxcnc, "license:GPL");
 
 MODULE_LICENSE("GPL");
 
-static int ioaddr[HM2_7I43_MAX_BOARDS] = { 0x378, 0x3f8, [2 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
+static int ioaddr[HM2_7I43_MAX_BOARDS] = { 0x378, 0x278, [2 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
 static int num_ioaddrs = HM2_7I43_MAX_BOARDS;
 module_param_array(ioaddr, int, &num_ioaddrs, S_IRUGO);
 MODULE_PARM_DESC(ioaddr, "base address of the parallel port(s) (see hm2_7i43(9) manpage)");
