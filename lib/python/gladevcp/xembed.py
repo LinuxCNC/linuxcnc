@@ -3,7 +3,14 @@
 """
 XEmbed helper functions to allow correct embeding inside Axis
 """
-
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'xembed gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 import gtk
 
 def reparent(window, parent):
@@ -15,9 +22,10 @@ def reparent(window, parent):
 
     if not parent:
         return window
-
+    print window,parent
     plug = gtk.Plug(long(parent))
     plug.show()
+    print plug
 
     d = display.Display()
     w = drawable.Window(d.display, plug.window.xid, 0)
