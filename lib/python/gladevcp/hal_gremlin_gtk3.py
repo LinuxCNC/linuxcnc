@@ -114,6 +114,9 @@ class HAL_Gremlin(Gtk.DrawingArea, _EMC_ActionBase):
         self.c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
         self.initialised = False
 
+    def select_fire(self,w,e):
+        pass
+
     def reloadfile(self,w):
         try:
             self.fileloaded(None,self._reload_filename)
