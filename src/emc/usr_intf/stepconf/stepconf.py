@@ -238,7 +238,7 @@ class Data:
         #pw = pwd.getpwuid(os.getuid())
         self.createsymlink = True
         self.createshortcut = True
-        self.sim_hardware = True
+        self.sim_hardware = False
         self._lastconfigname= ""
         self._chooselastconfig = True
         self._preference_version = 1.0
