@@ -12,6 +12,14 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'offsetpage gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 
 import gtk
 import gobject
@@ -27,6 +35,13 @@ def gdk_color_tuple(c):
     if not c:
         return 0, 0, 0
     return c.red_float, c.green_float, c.blue_float
+
+# for GTK3 conversion
+def convert_color(text):
+    if pygtkcompat is not None:
+        return gtk.gdk.Color.parse(text)[1].to_string()
+    else:
+        return gtk.gdk.Color(text)
 
 class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
     __gtype_name__ = 'HAL_Meter'
@@ -71,14 +86,16 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
     def __init__(self):
         super(HAL_Meter, self).__init__()
 
-        self.bg_color = gtk.gdk.Color('white')
-        self.z0_color = gtk.gdk.Color('green')
-        self.z1_color = gtk.gdk.Color('yellow')
-        self.z2_color = gtk.gdk.Color('red')
+        self.bg_color = convert_color('white')
+        self.z0_color = convert_color('green')
+        self.z1_color = convert_color('yellow')
+        self.z2_color = convert_color('red')
 
         self.force_radius = None
-
-        self.connect("expose-event", self.expose)
+        if pygtkcompat is not None:
+            self.connect("draw", self.draw)
+        else:
+            self.connect("expose-event", self.expose)
 
     def _hal_init(self):
         _HalWidgetBase._hal_init(self)
@@ -86,14 +103,17 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
         self.hal_pin.connect('value-changed', lambda p: self.set_value(p.value))
         self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
 
-    def expose(self, widget, event):
-        if self.flags() & gtk.PARENT_SENSITIVE:
-            alpha = 1
-        else:
-            alpha = 0.3
+    def expose(self,widget,event):
+        cr = widget.window.cairo_create()
+        self.draw(widget,cr)
 
-        w = self.allocation.width
-        h = self.allocation.height
+    def draw(self, widget, cr):
+        sensitive = widget.get_sensitive()
+        if not sensitive: alpha = .3
+        else: alpha = 1
+        alloc = self.get_allocation()
+        w = alloc.width
+        h = alloc.height
         r = min(w, h) / 2
 
         fr = self.force_size
@@ -109,7 +129,7 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
             return cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, alpha)
 
         cr.set_line_width(2)
-        set_color(gtk.gdk.Color('black'))
+        set_color(convert_color('black'))
 
         #print w, h, aw, ah, fw, fh
         cr.translate(w / 2, h / 2)
@@ -142,7 +162,7 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
         set_color(self.z0_color)
         self.draw_zone(cr, r, angle(self.min), angle(self.z0_border))
 
-        set_color(gtk.gdk.Color('black'))
+        set_color(convert_color('black'))
         cr.set_font_size(r/10)
 
         v = self.min
@@ -161,10 +181,10 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
         cr.set_font_size(r/5)
         self.text_at(cr, self.label, 0, -r/5)
 
-        set_color(gtk.gdk.Color('red'))
+        set_color(convert_color('red'))
         self.draw_arrow(cr, r, angle(self.value))
 
-        set_color(gtk.gdk.Color('black'))
+        set_color(convert_color('black'))
         self.text_at(cr, self.text_template % self.value, 0, 0.8 * r)
         return True
 
