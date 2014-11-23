@@ -367,6 +367,8 @@ class Data:
         self.gsgraycode = False
         self.gsignorefalse = False
 
+        self.serial_vfd = False
+
         # GUI frontend defaults
         self.position_offset = 1 # relative
         self.position_feedback = 1 # actual
@@ -778,6 +780,18 @@ class Data:
         self.susenegativevoltage = True
         self.susenearrange = False
         self.ssingleinputencoder = False
+        self.mitsub_vfd = False
+        self.mitsub_vfd_port = '/dev/ttyS0'
+        self.mitsub_vfd_id = (('spindle_vfd',1))
+        self.mitsub_vfd_baud = 9600
+        self.mitsub_vfd_command_scale = 1
+        self.mitsub_vfd_feedback_scale = 1
+        self.gs2_vfd = False
+        self.gs2_vfd_port = '/dev/ttyS0'
+        self.gs2_vfd_slave = 1
+        self.gs2_vfd_baud = 9600
+        self.gs2_vfd_accel = 10
+        self.gs2_vfd_deaccel = 0
 
     # change the XYZ axis defaults to metric or imperial
     # This only sets data that makes sense to change eg gear ratio don't change
@@ -4277,6 +4291,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         def set_active(n): w[axis + n].set_active(d[axis + n])
         stepdriven = encoder = pwmgen = resolver = tppwm = digital_at_speed = amp_8i20 = False
         spindlepot = sserial_scaling = False
+        vfd_spindle = self.d.serial_vfd and (self.d.mitsub_vfd or self.d.gs2_vfd) 
         if self.d.findsignal("%s-8i20"% axis):amp_8i20 = True
         if self.d.findsignal("spindle-at-speed"): digital_at_speed = True
         if self.d.findsignal(axis+"-stepgen-step"): stepdriven = True
@@ -4350,11 +4365,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         set_value("encoderscale")
         w[axis+"maxvel"].set_value(d[axis+"maxvel"]*60)
         set_value("maxacc")
-        if not axis == "s" or axis == "s" and encoder:
+        if not axis == "s" or axis == "s" and (encoder and (pwmgen or tppwm or stepdriven)):
             w[axis + "servo_info"].show()
         else:
             w[axis + "servo_info"].hide()
-        if stepdriven:
+        if stepdriven or not pwmgen:
             w[axis + "output_info"].hide()
         else:
             w[axis + "output_info"].show()
@@ -4427,6 +4442,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if resolver:
             w[axis + "encoderscale_label"].set_text(_("Resolver Scale:"))
         if axis == 's':
+            if vfd_spindle:
+                w.serial_vfd_info.show()
+            else:
+                w.serial_vfd_info.hide()
             set_value("outputscale2")
             w.ssingleinputencoder.set_sensitive(encoder)
             w["sinvertencoder"].set_sensitive(encoder)
@@ -5091,6 +5110,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             print test,has_spindle
             if has_spindle:
                 return True
+        if self.d.serial_vfd and (self.d.mitsub_vfd or self.d.gs2_vfd):
+            return True
         return False
    
     def clean_unused_ports(self, *args):

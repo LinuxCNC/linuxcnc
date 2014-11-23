@@ -639,6 +639,17 @@ class Pages:
             self.w.so_usempg.set_active(1)
         else:
             self.w.so_useswitch.set_active(1)
+        self.w.mitsub_vfd.set_active(self.d.mitsub_vfd)
+        self.w.gs2_vfd.set_active(self.d.gs2_vfd)
+        self.w.gs2_vfd_slave.set_value(self.d.gs2_vfd_slave)
+        self.w.gs2_vfd_accel.set_value(self.d.gs2_vfd_accel)
+        self.w.gs2_vfd_deaccel.set_value(self.d.gs2_vfd_deaccel)
+        self.w.gs2_vfd_baud.set_active(0)
+        model = self.w.gs2_vfd_baud.get_model()
+        for num,i in enumerate(model):
+            if i[1] == self.d.gs2_vfd_baud:
+                self.w.gs2_vfd_baud.set_active(num)
+        self.w.serial_vfd.set_active(self.d.serial_vfd)
         self.w.jograpidrate.set_value(self.d.jograpidrate)
         self.w.singlejogbuttons.set_active(self.d.singlejogbuttons)
         self.w.multijogbuttons.set_active(self.d.multijogbuttons)
@@ -678,6 +689,15 @@ class Pages:
             self.w[temp].set_text(self.d[temp])
 
     def external_finish(self):
+        self.d.mitsub_vfd = self.w.mitsub_vfd.get_active()
+        self.d.gs2_vfd = self.w.gs2_vfd.get_active()
+        self.d.gs2_vfd_slave = self.w.gs2_vfd_slave.get_value()
+        self.d.gs2_vfd_accel = self.w.gs2_vfd_accel.get_value()
+        self.d.gs2_vfd_deaccel = self.w.gs2_vfd_deaccel.get_value()
+        model = self.w.gs2_vfd_baud.get_model()
+        index = self.w.gs2_vfd_baud.get_active()
+        self.d.gs2_vfd_baud = model[index][1]
+        self.d.serial_vfd = self.w.serial_vfd.get_active()
         self.d.multimpg = self.w.multimpg.get_active()
         self.d.fo_usempg = self.w.fo_usempg.get_active()
         self.d.fo_useswitch = self.w.fo_useswitch.get_active()
@@ -713,7 +733,7 @@ class Pages:
         for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdapos",
         "joycmdaneg","joycmdrapida","joycmdrapidb","joycmdanalogx","joycmdanalogy","joycmdanalogz","joycmdanaloga"):
             self.d[temp] = self.w[temp].get_text()
-        self.w.joyjogexpander.set_expanded(False)
+        #self.w.joyjogexpander.set_expanded(False)
 
     # callbacks
     def on_addrule_clicked(self, *args):
@@ -722,11 +742,29 @@ class Pages:
     def on_joystickjog_toggled(self, *args):
         if self.w.externaljog.get_active() == True and self.w.joystickjog.get_active() == True:
             self.w.externaljog.set_active(False)
+        self.w.notebook_ext_page.set_current_page(1)
         self.on_external_options_toggled()
 
     def on_externaljog_toggled(self, *args):
         if self.w.joystickjog.get_active() == True and self.w.externaljog.get_active() == True:
             self.w.joystickjog.set_active(False)
+        self.w.notebook_ext_page.set_current_page(2)
+        self.on_external_options_toggled()
+
+    def on_externalso_toggled(self, *args):
+        self.w.notebook_ext_page.set_current_page(6)
+        self.on_external_options_toggled()
+    def on_externalmvo_toggled(self, *args):
+        self.w.notebook_ext_page.set_current_page(5)
+        self.on_external_options_toggled()
+    def on_externalfo_toggled(self, *args):
+        self.w.notebook_ext_page.set_current_page(4)
+        self.on_external_options_toggled()
+    def on_externalmpg_toggled(self, *args):
+        self.w.notebook_ext_page.set_current_page(3)
+        self.on_external_options_toggled()
+    def on_spindle_vfd_toggled(self, *args):
+        self.w.notebook_ext_page.set_current_page(7)
         self.on_external_options_toggled()
 
     def on_external_options_toggled(self, *args):
