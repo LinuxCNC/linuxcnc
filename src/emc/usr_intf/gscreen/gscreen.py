@@ -50,12 +50,14 @@ try:
     from gi import pygtkcompat
     from gi.repository import GLib
     from gi.repository import Vte as vte, Gst as gst
+    from gi.repository import Gdk
 except ImportError:
     pygtkcompat = None
 if pygtkcompat is not None:
-    print 'halDial gtk-3'
+    print 'Gscreen gtk-3'
     pygtkcompat.enable()
     pygtkcompat.enable_gtk(version='3.0')
+    import cairo
 else:
     import vte
 
@@ -145,9 +147,14 @@ from gscreen import preferences
 from gscreen import keybindings
 
 # this is for hiding the pointer when using a touch screen
-#pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
-#color = gtk.gdk.Color()
-#INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
+if pygtkcompat is not None:
+    s = cairo.ImageSurface(cairo.FORMAT_A1, 1, 1)
+    cursor_pixbuf = Gdk.pixbuf_get_from_surface(s, 0, 0, 1, 1)
+    INVISABLE = Gdk.Cursor.new_from_pixbuf(Gdk.Display.get_default(), cursor_pixbuf, 0, 0)
+else:
+    pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
+    color = gtk.gdk.Color()
+    INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 # to help with debugging new screens
 verbose_debug = False
 # print debug messages if debug is true
@@ -668,6 +675,7 @@ class Gscreen:
             settings.set_string_property("gtk-theme-name", self.data.local_theme, "")
         else:
             self.data.local_theme = None
+        print self.data.system_theme
 
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
@@ -1441,10 +1449,10 @@ class Gscreen:
         # hide cursor if requested
         # that also sets the graphics to use touchscreen controls
         if self.data.hide_cursor:
-            self.widgets.window1.window.set_cursor(INVISABLE)
+            self.set_cursor_view(False)
             self.widgets.gremlin.set_property('use_default_controls',False)
         else:
-            self.widgets.window1.window.set_cursor(None)
+            self.set_cursor_view(True)
             self.widgets.gremlin.set_property('use_default_controls',True)
 
     def init_mode(self):
@@ -2319,10 +2327,13 @@ class Gscreen:
             if the cursor is hidden.
             usually called just before closing Gscreen
         """
+        return
+
         if not self.data.hide_cursor: return
-        w = self.widgets.window1.window
+        w = self.widgets.window1.get_window()
         d = w.get_display()
         s = w.get_screen()
+        print self.widgets.window1.get_window().get_origin()
         x, y = w.get_origin()
         d.warp_pointer(s, x, y)
 
@@ -2337,11 +2348,11 @@ class Gscreen:
         if self.widgets.hide_cursor.get_active():
             self.prefs.putpref('hide_cursor', True)
             self.data.hide_cursor = True
-            self.widgets.window1.window.set_cursor(INVISABLE)
+            self.set_cursor_view(True)
         else:
             self.prefs.putpref('hide_cursor', False)
             self.data.hide_cursor = False
-            self.widgets.window1.window.set_cursor(None)
+            self.set_cursor_view(False)
 
     # opens halshow
     def on_halshow(self,*args):
@@ -2595,7 +2606,12 @@ class Gscreen:
             It calls change_theme(widget.get_active_text()
             Requires a calling widget that returns a text string.
         """
-        self.change_theme(widget.get_active_text())
+        tree_iter = widget.get_active_iter()
+        if tree_iter != None:
+            model = widget.get_model()
+            text = model[tree_iter][0]
+            print 'theme-',text
+            self.change_theme(text)
 
     # True is fullscreen
     def on_fullscreen1_pressed(self, widget):
@@ -2979,6 +2995,18 @@ class Gscreen:
         self.set_full_graphics_view(widget.get_active())
 
 # ****** do stuff *****
+
+    def set_cursor_view(self,state):
+        if state:
+            cursor = INVISABLE
+        else:
+            cursor = None
+        if pygtkcompat is not None:
+            # GTK3
+            self.widgets.window1.get_window().set_cursor(cursor)
+        else:
+            # GTK2
+            self.widgets.window1.window.set_cursor(cursor)
 
     def check_mode(self):
         """This function checks if Gscreen is in jog mode and manual mode
@@ -4423,8 +4451,29 @@ class Gscreen:
         elif theme == "Follow System Theme":
             theme = self.data.system_theme
         if theme == None: return
-        settings = gtk.settings_get_default()
-        settings.set_string_property("gtk-theme-name", theme, "")
+        if pygtkcompat is  None:
+            style_provider = gtk.CssProvider()
+
+            css = open(theme+'/gtk-3.0/gtk.css')
+            css_data = css.read()
+            css.close()
+
+            style_provider.load_from_data(css_data)
+
+            gtk.StyleContext.add_provider_for_screen(
+                Gdk.Screen.get_default(), style_provider,     
+                gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
+            return
+            win_style_context = self.widgets.window1.get_style_context()
+            css_provider = gtk.CssProvider()
+            css_provider.load_from_path("/usr/share/themes/Adwaita/gtk-3.0/gtk.css")
+            screen = Gdk.Screen.get_default()
+            win_style_context.add_provider_for_screen(screen, css_provider,
+                                  gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        else:
+            settings = gtk.settings_get_default()
+            settings.set_string_property("gtk-theme-name", theme, "")
 
     # check linuxcnc for status, error and then update the readout
     def timer_interrupt(self):
@@ -4504,6 +4553,7 @@ class Gscreen:
                 update_spindle_bar_error_ct += 1
 
     def update_dro(self):
+        return
         # DRO
         for i in self.data.axis_list:
             for j in range (0,3):
