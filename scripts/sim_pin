@@ -61,7 +61,7 @@ proc add_item_to_gui {id itemname} {
 } ;# add_item_to_gui
 
 proc add_bit_item_to_gui {f id} {
-  set ::SP($id,mode) "Pulse"
+  set ::SP($id,mode) "Toggle"
   set value [get_item $id]
   set color lightgray
   if $value {set color magenta}
