@@ -713,7 +713,7 @@ class Pages:
         for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdapos",
         "joycmdaneg","joycmdrapida","joycmdrapidb","joycmdanalogx","joycmdanalogy","joycmdanalogz","joycmdanaloga"):
             self.d[temp] = self.w[temp].get_text()
-        self.w.joyjogexpander.set_expanded(False)
+        #self.w.joyjogexpander.set_expanded(False)
 
     # callbacks
     def on_addrule_clicked(self, *args):
@@ -722,11 +722,29 @@ class Pages:
     def on_joystickjog_toggled(self, *args):
         if self.w.externaljog.get_active() == True and self.w.joystickjog.get_active() == True:
             self.w.externaljog.set_active(False)
+        self.w.notebook_ext_page.set_current_page(1)
         self.on_external_options_toggled()
 
     def on_externaljog_toggled(self, *args):
         if self.w.joystickjog.get_active() == True and self.w.externaljog.get_active() == True:
             self.w.joystickjog.set_active(False)
+        self.w.notebook_ext_page.set_current_page(2)
+        self.on_external_options_toggled()
+
+    def on_externalso_toggled(self, *args):
+        self.w.notebook_ext_page.set_current_page(6)
+        self.on_external_options_toggled()
+    def on_externalmvo_toggled(self, *args):
+        self.w.notebook_ext_page.set_current_page(5)
+        self.on_external_options_toggled()
+    def on_externalfo_toggled(self, *args):
+        self.w.notebook_ext_page.set_current_page(4)
+        self.on_external_options_toggled()
+    def on_externalmpg_toggled(self, *args):
+        self.w.notebook_ext_page.set_current_page(3)
+        self.on_external_options_toggled()
+    def on_spindle_vfd_toggled(self, *args):
+        self.w.notebook_ext_page.set_current_page(7)
         self.on_external_options_toggled()
 
     def on_external_options_toggled(self, *args):
