@@ -46,7 +46,6 @@ if pygtkcompat is not None:
     pygtkcompat.enable()
     pygtkcompat.enable_gtk(version='3.0')
 import gtk
-#import gtk.glade
 import gobject
 import signal
 
