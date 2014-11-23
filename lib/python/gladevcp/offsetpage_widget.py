@@ -54,6 +54,13 @@ try:
 except:
     pass
 
+# for GTK3 conversion
+def convert_color(text):
+    if pygtkcompat is not None:
+        return gtk.gdk.Color.parse(text)[1].to_string()
+    else:
+        return gtk.gdk.Color(text)
+
 class OffsetPage(gtk.VBox):
     __gtype_name__ = 'OffsetPage'
     __gproperties__ = {
@@ -98,9 +105,9 @@ class OffsetPage(gtk.VBox):
         self.font = "sans 12"
         self.editing_mode = False
         if pygtkcompat is not None:
-            self.highlight_color = gtk.gdk.Color.parse("lightblue")[1]
-            self.foreground_color = gtk.gdk.Color.parse("red")[1]
-            self.unselectable_color = gtk.gdk.Color.parse("lightgray")[1]
+            self.highlight_color = convert_color("lightblue")
+            self.foreground_color = convert_color("red")
+            self.unselectable_color = convert_color("lightgray")
         else:
             self.highlight_color = gtk.gdk.Color("lightblue")
             self.foreground_color = gtk.gdk.Color("red")
@@ -212,7 +219,7 @@ class OffsetPage(gtk.VBox):
             if self.store[row][0] == self.current_system:
                 self.store[row][13] = self.foreground_color
             else:
-                self.store[row][13] = None
+                self.store[row][13] = convert_color('black')#None
             # mark unselectable rows a dirrerent color
             if self.store[row][0] in self.selection_mask:
                 self.store[row][12] = self.unselectable_color
@@ -308,7 +315,7 @@ class OffsetPage(gtk.VBox):
         if state:
             color = self.highlight_color
         else:
-            color = None
+            color = convert_color('white')
         # Set rows editable
         for i in range(1, 13):
             if not self.store[i][0] in('G5x', 'Rot', 'G92', 'G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3'): continue
@@ -451,11 +458,11 @@ class OffsetPage(gtk.VBox):
 
     # sets the color when editing is active
     def set_highlight_color(self, value):
-        self.highlight_color = gtk.gdk.Color(value)
+        self.highlight_color = convert_color(value)
 
     # sets the text color of the current system description name
     def set_foreground_color(self, value):
-        self.foreground_color = gtk.gdk.Color(value)
+        self.foreground_color = convert_color(value)
 
     # Allows you to set the text font of all the rows and columns
     def set_font(self, value):
@@ -586,7 +593,7 @@ def main(filename = None):
     # offsetpage.set_row_visible("89abc", True)
     # offsetpage.set_to_mm()
     # offsetpage.set_font("sans 20")
-    # offsetpage.set_property("highlight_color", gtk.gdk.Color('blue'))
+    # offsetpage.set_property("highlight_color", gtk.gdk.Color.parse('violet')[1])
     # offsetpage.set_highlight_color("violet")
     # offsetpage.set_foreground_color("yellow")
     # offsetpage.mark_active("G55")
