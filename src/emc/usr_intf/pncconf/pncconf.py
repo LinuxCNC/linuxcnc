@@ -4680,8 +4680,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             get_pagevalue("filtergain")
             get_active("singleinputencoder")
             get_pagevalue("outputscale2")
-            self.d.gsincrvalue0 = self.d.soutputmaxlimit
-            self.d.gsincrvalue1 = self.d.soutputmaxlimit2
+            self.d.gsincrvalue0 = self.d.soutputscale
+            self.d.gsincrvalue1 = self.d.soutputscale2
             get_active("useoutputrange2")
             self.d.scaleselect = self.d.suseoutputrange2
             get_active("usenegativevoltage")
