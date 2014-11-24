@@ -16,6 +16,7 @@ import ConfigParser
 import linuxcnc
 import preview
 from machinekit import service
+from machinekit import config
 
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
@@ -2305,9 +2306,12 @@ def main():
     debug = args.debug
     iniFile = args.ini
 
+    mkconfig = config.Config()
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
-        sys.stderr.write("no MACHINEKIT_INI environemnt variable set")
+        mkini = mkconfig.MACHINEKIT_INI
+    if not os.path.isfile(mkini):
+        sys.stderr.write("MACHINEKIT_INI " + mkini + " does not exist\n")
         sys.exit(1)
 
     mki = ConfigParser.ConfigParser()
@@ -2323,7 +2327,7 @@ def main():
     else:
         iface = choose_ip(prefs)
         if not iface:
-            sys.stderr.write("failed to determine preferred interface (preference = %s)" % prefs)
+            sys.stderr.write("failed to determine preferred interface (preference = %s)\n" % prefs)
             sys.exit(1)
 
     if debug:
