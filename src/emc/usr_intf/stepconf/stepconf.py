@@ -254,7 +254,7 @@ class Data:
         self.latency = 15000
         self.period = 25000
 
-        self.ioaddr = "0x378"
+        self.ioaddr = "0"
         self.ioaddr2 = "1"
         self.pp2_direction = 0 # output
         self.ioaddr3 = "2"
