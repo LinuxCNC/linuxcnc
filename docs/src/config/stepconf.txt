@@ -193,9 +193,9 @@ to your charge pump input. The charge pump output is connected to the base
 thread by Stepconf. The charge pump output will be about 1/2 of the maximum
 step rate shown on the Basic Machine Configuration page.
 
-== Parallel Port #2 Setup[[sec:Parallel-Port2-Setup]](((Parallel Port2 Setup)))
+== Parallel Port 2 Setup[[sec:Parallel-Port-2-Setup]](((Parallel Port 2 Setup)))
 
-.Parallel Port2 Setup Page[[cap:Parallel-Port #2-Setup]]
+.Parallel Port 2 Setup Page[[cap:Parallel-Port-2-Setup]]
 
 image::images/stepconf-parport2.png[align="center"]
 
