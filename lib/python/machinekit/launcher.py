@@ -85,7 +85,7 @@ def stop_process(command):
 def stop_processes():
     for process in _processes:
         sys.stdout.write('stopping ' + process.command.split(None, 1)[0]
-                        + '... ')
+                         + '... ')
         sys.stdout.flush()
         process.terminate()
         process.wait()
@@ -114,7 +114,9 @@ def install_comp(filename):
     install = True
     base = os.path.splitext(os.path.basename(filename))[0]
     flavor = compat.default_flavor()
-    modulePath = compat.get_rtapi_config("RTLIB_DIR") + '/' + flavor.name + '/' + base + flavor.mod_ext
+    moduleDir = compat.get_rtapi_config("RTLIB_DIR")
+    moduleName = flavor.name + '/' + base + flavor.mod_ext
+    modulePath = os.path.join(moduleDir, moduleName)
     if os.path.exists(modulePath):
         compTime = os.path.getmtime(filename)
         moduleTime = os.path.getmtime(modulePath)
@@ -124,7 +126,10 @@ def install_comp(filename):
     if install is True:
         sys.stdout.write("installing " + filename + '... ')
         sys.stdout.flush()
-        subprocess.check_call('comp --install ' + filename, shell=True)
+        if os.access(moduleDir, os.W_OK):  # if we have write access we might not need sudo
+            subprocess.check_call('comp --install ' + filename, shell=True)
+        else:
+            subprocess.check_call('sudo comp --install ' + filename, shell=True)
         sys.stdout.write('done\n')
 
 
@@ -146,7 +151,7 @@ def stop_realtime():
 
 # rip the Machinekit environment
 def rip_environment(path=None, force=False):
-    if force == False and os.getenv('EMC2_PATH') is not None: # check if already ripped
+    if force is False and os.getenv('EMC2_PATH') is not None:   # check if already ripped
         return
 
     if path is None:
@@ -172,8 +177,8 @@ def rip_environment(path=None, force=False):
         command = '. ' + path + '/scripts/rip-environment'
 
     process = subprocess.Popen(command + ' && env',
-                        stdout=subprocess.PIPE,
-                        shell=True)
+                               stdout=subprocess.PIPE,
+                               shell=True)
     for line in process.stdout:
         (key, _, value) = line.partition('=')
         os.environ[key] = value.rstrip()
