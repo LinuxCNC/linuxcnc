@@ -239,6 +239,7 @@ class Data:
         self.createsymlink = True
         self.createshortcut = True
         self.sim_hardware = True
+        self.sim_hardware = False
         self._lastconfigname= ""
         self._chooselastconfig = True
         self._preference_version = 1.0
@@ -254,7 +255,7 @@ class Data:
         self.latency = 15000
         self.period = 25000
 
-        self.ioaddr = "0x378"
+        self.ioaddr = "0"
         self.ioaddr2 = "1"
         self.pp2_direction = 0 # output
         self.ioaddr3 = "2"

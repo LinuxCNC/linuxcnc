@@ -26,7 +26,7 @@ include::quickstart/stepper_quickstart_es.txt[]
 
 include::config/stepconf_es.txt[]
 
-include::config/pncconf.txt[]
+include::config/pncconf_es.txt[]
 
 include::config/copy_and_run_es.txt[]
 

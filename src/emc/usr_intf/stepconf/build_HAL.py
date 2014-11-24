@@ -111,7 +111,8 @@ class HAL:
             print >>file, "addf parport.2.read base-thread"
         if self.d.sim_hardware:
             print >>file, "source sim_hardware.hal"
-            print >>file, "addf sim-encoder.make-pulses base-thread"
+            if encoder:
+                print >>file, "addf sim-encoder.make-pulses base-thread"
         print >>file, "addf stepgen.make-pulses base-thread"
         if encoder: print >>file, "addf encoder.update-counters base-thread"
         if pump: print >>file, "addf charge-pump base-thread"
@@ -126,8 +127,9 @@ class HAL:
         print >>file
         print >>file, "addf stepgen.capture-position servo-thread"
         if self.d.sim_hardware:
-            print >>file, "addf sim-encoder.update-speed servo-thread"
             print >>file, "addf sim-hardware.update servo-thread"
+            if encoder:
+                print >>file, "addf sim-encoder.update-speed servo-thread"
         if encoder: print >>file, "addf encoder.capture-position servo-thread"
         print >>file, "addf motion-command-handler servo-thread"
         print >>file, "addf motion-controller servo-thread"
