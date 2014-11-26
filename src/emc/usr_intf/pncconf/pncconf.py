@@ -4709,6 +4709,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         d[axis+"bldc_config"] = string
 
     def calculate_spindle_scale(self):
+        def get(n): return get_value(self.widgets[n])
         stepdrive = bool(self.d.findsignal("s-stepgen-step"))
         encoder = bool(self.d.findsignal("s-encoder-a"))
         resolver = bool(self.d.findsignal("s-resolver"))
@@ -4763,7 +4764,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
         # record data values
         for i in data_list:
-            self.d['s'+i] = self.widgets['spindle_'+i].get_value()
+            self.d['s'+i] = get('spindle_'+i)
         for i in checkbutton_list:
             self.d['s'+i] = self.widgets['spindle_'+i].get_active()
         # set the widgets on the spindle page as per calculations 
@@ -4784,6 +4785,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             else:
                 microstepfactor = 1
             self.widgets.sstepscale.set_value(motor_steps * microstepfactor)
+        if encoder or resolver:
+            self.widgets.sencoderscale.set_value(get("spindle_encoderline")*4)
 
     def update_spindle_calculation(self,widget):
         w= self.widgets
@@ -4876,7 +4879,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         # set the calculations result
         if encoder or resolver:
             self.widgets[axis+"encoderscale"].set_value(get("calcencoder_scale"))
-
+        if stepdrive:
+            self.widgets[axis+"stepscale"].set_value(get("calcmotor_scale"))
     def update_scale_calculation(self,widget,axis):
         w = self.widgets
         d = self.d
