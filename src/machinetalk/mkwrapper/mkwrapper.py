@@ -501,6 +501,7 @@ class LinuxCNCWrapper():
             self.status.config.no_force_homing = False
             self.status.config.remote_path = ""
             self.status.config.time_units = 0
+            self.status.config.name = ""
             self.configFirstrun = False
 
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
@@ -680,6 +681,12 @@ class LinuxCNCWrapper():
             if (self.status.config.remote_path != self.directory):
                 self.status.config.remote_path = self.directory
                 self.txStatus.config.remote_path = self.directory
+                modified = True
+           
+            name = str(self.ini.find('EMC', 'MACHINE') or '')
+            if (self.status.config.name != name):
+                self.status.config.name = name
+                self.txStatus.config.name = name
                 modified = True
 
         if self.notEqual(self.status.config.default_acceleration, stat.acceleration):
