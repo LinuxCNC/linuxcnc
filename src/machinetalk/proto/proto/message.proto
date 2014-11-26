@@ -9,7 +9,7 @@ import "types.proto";
 import "object.proto";
 import "log.proto";
 import "motcmds.proto";
-import "test.proto";
+//import "test.proto";
 import "task.proto";
 import "canon.proto";
 import "value.proto";

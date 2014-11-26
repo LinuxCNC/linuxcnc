@@ -1,5 +1,3 @@
-//import "nanopb.proto";
-
 package pb;
 
 // experimental axis/joint representation

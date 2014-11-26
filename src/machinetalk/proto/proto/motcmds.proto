@@ -1,7 +1,6 @@
+package pb;
 
 import "emcclass.proto";
-
-package pb;
 
 // an uncleaned first transliteration
 

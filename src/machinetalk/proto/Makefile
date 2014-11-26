@@ -34,6 +34,9 @@ CXXGEN   := generated
 # generated Python files
 PYGEN    := python
 
+# disable protobuf.js per default
+PROTOBUFJS := 0
+
 # directory for ProtoBuf.js generated files
 PROTOBUFJS_GEN := js
 
