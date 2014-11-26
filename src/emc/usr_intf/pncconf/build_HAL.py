@@ -288,13 +288,10 @@ class HAL:
                 print >>file, "addf %s servo-thread"% j
         # scale addf
         needed = False
-        if spindle_enc:
-            if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1: needed = True
-            if (self.d.gladevcp and self.d.spindlespeedbar): needed = True
-        if self.d.userneededscale > 0 or needed :
-                for j in self.d.scalenames:
-                    j ='{0:<24}'.format(j)
-                    print >>file, "addf %s servo-thread"% j
+        if not self.d.scalenames == '':
+            for j in self.d.scalenames:
+                j ='{0:<24}'.format(j)
+                print >>file, "addf %s servo-thread"% j
         # abs addf
         needed = False
         if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1: needed = True
@@ -1119,10 +1116,10 @@ class HAL:
                     print >>file, "net %s     => pid.%s.command" % (signal, let)
                     print >>file, "net %s      => pid.%s.feedback"% (fbsignal, let)
                     if self.d.suseoutputrange2:
-                        print >>file, "net spindle-pid-out  pid.%s.output    => scale.gear.in"
-                        print >>file, "net gear-ratio       ratio_select.out => scale.gear.gain"
-                        print >>file, "setp ratio_select.in0 %f" % (1/float(self.d.gsincrvalue0))
-                        print >>file, "setp ratio_select.in1 %f" % (1/float(self.d.gsincrvalue1))
+                        print >>file, "net spindle-pid-out  pid.s.output    => scale.gear.in"
+                        print >>file, "net gear-ratio       ratio_select.out-f => scale.gear.gain"
+                        print >>file, "setp ratio_select.in00 %f" % (1/float(self.d.gsincrvalue0))
+                        print >>file, "setp ratio_select.in01 %f" % (1/float(self.d.gsincrvalue1))
                         #print >>file, "setp ratio_select.in2 %f" % self.d.gsincrvalue2
                         #print >>file, "setp ratio_select.in4 %f" % self.d.gsincrvalue4
                         print >>file, "net gear-select-a         =>  ratio_select.sel0"
@@ -1193,7 +1190,7 @@ class HAL:
                     print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
                     print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
                     print >>file
-                    if closedloop:
+                    if closedloop or self.d.suseoutputrange2:
                         print >>file, "net spindle-output      => " + pwmpinname
                     else:
                         if self.d.susenegativevoltage:
@@ -1230,7 +1227,7 @@ class HAL:
                 print >>file
                 if let == 's':  
                     print >>file
-                    if closedloop:
+                    if closedloop or self.d.suseoutputrange2:
                         print >>file, "net spindle-output      => " + pwmpinname + ".value"
                         print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"    
                     else:
@@ -1358,7 +1355,7 @@ class HAL:
             print >>file, "net spindle-vel-cmd-rps-abs    <=  motion.spindle-speed-out-rps-abs"
             print >>file, "net spindle-vel-cmd-rpm        <=  motion.spindle-speed-out"
             print >>file, "net spindle-vel-cmd-rpm-abs    <=  motion.spindle-speed-out-abs"
-            print >>file, "net spindle-on                 <=  motion.spindle-on"
+            print >>file, "net spindle-enable             <=  motion.spindle-on"
             print >>file, "net spindle-cw                 <=  motion.spindle-forward"
             print >>file, "net spindle-ccw                <=  motion.spindle-reverse"
             print >>file, "net spindle-brake              <=  motion.spindle-brake"            
