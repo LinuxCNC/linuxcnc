@@ -66,7 +66,7 @@ enum ObjectType {
     ORIGINATOR        = 22;
     NAMED_VALUE       = 25;
 
-    ERROR             = 30;
+    OT_ERROR          = 30;
 }
 
 enum RCS_STATUS {

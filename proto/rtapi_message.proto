@@ -1,5 +1,4 @@
 import "nanopb.proto";
-import "types.proto";
 import "value.proto";
 
 package pb;
