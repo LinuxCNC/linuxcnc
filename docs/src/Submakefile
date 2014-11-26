@@ -195,25 +195,18 @@ DOC_SRCS_FR := \
 	Master_Integrator_fr.txt \
 
 DOC_SRCS_ES := \
-	common/Getting_EMC_es.txt \
 	common/Glossary_es.txt \
 	common/Integrator_Concepts_es.txt \
-	common/Linux_FAQ_es.txt \
 	common/starting-emc_es.txt \
 	common/Stepper_Diagnostics_es.txt \
-	common/System_Requirements_es.txt \
 	common/translator-needed_es.txt \
-	common/Updating_EMC_es.txt \
 	common/User_Concepts_es.txt \
 	common/userforeword_es.txt \
 	common/user_intro_es.txt \
-	config/copy_and_run_es.txt \
 	config/emc2hal_es.txt \
 	config/ini_config_es.txt \
 	config/ini_homing_es.txt \
 	config/lathe_config_es.txt \
-	config/pncconf_es.txt \
-	config/stepconf_es.txt \
 	config/stepper_es.txt \
 	drivers/AX5214H_es.txt \
 	drivers/GS2_es.txt \
@@ -272,8 +265,8 @@ DOC_SRCS_ES := \
 	motion/kinematics_es.txt \
 	motion/pid_theory_es.txt \
 	motion/tweaking_steppers_es.txt \
-	quickstart/stepper_quickstart_es.txt \
 	Master_Getting_Started_es.txt \
+        getting-started/index-es.txt \
 	Master_User_es.txt \
 	Master_HAL_es.txt \
 	Master_Integrator_es.txt \
