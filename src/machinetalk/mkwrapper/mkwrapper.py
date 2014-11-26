@@ -11,6 +11,7 @@ import socket
 import signal
 import argparse
 from urlparse import urlparse
+import shutil
 
 import ConfigParser
 import linuxcnc
@@ -295,6 +296,20 @@ class LinuxCNCWrapper():
             self.pollInterval = float(pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1)
             self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or ""
             self.interpParameterFile = os.path.abspath(os.path.expanduser(self.interpParameterFile))
+
+            # If specified in the ini, try to open the  default file
+            openFile = self.ini.find('DISPLAY', 'OPEN_FILE') or ""
+            if openFile != "":
+                openFile = os.path.abspath(os.path.expanduser(openFile))
+                fileName = os.path.basename(openFile)
+                filePath = os.path.join(self.directory, fileName)
+                shutil.copy(openFile, filePath)
+                if self.debug:
+                    print(str("loading default file " + openFile))
+                self.command.mode(linuxcnc.MODE_AUTO)
+                self.command.wait_complete()
+                self.command.program_open(filePath)
+
         except linuxcnc.error as detail:
             print(("error", detail))
             sys.exit(1)
@@ -2033,7 +2048,6 @@ class LinuxCNCWrapper():
                     if self.rx.interp_name == 'execute':
                         self.command.program_open(fileName)
                     elif self.rx.interp_name == 'preview':
-
                         self.preview.program_open(fileName)
                 else:
                     self.send_command_wrong_params()
