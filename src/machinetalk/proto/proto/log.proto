@@ -2,7 +2,6 @@ package pb;
 
 import "nanopb.proto";
 import "types.proto";
-import "value.proto";
 
 message LogMessage {
     required MsgOrigin origin  = 10;

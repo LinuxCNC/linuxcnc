@@ -205,6 +205,7 @@ message EmcStatusConfig {
     optional bool                       no_force_homing          = 34;
     optional string                     remote_path              = 35;
     optional EmcTimeUnitsType           time_units               = 36;
+    optional string                     name                     = 37;
 }
 
 message EmcStatusMotion {
