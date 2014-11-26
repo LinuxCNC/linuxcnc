@@ -119,16 +119,12 @@ DOC_SRCS_EN := \
 	Master_Developer.txt
 
 DOC_SRCS_FR := \
-	common/Getting_linuxcnc_fr.txt \
 	common/Glossary_fr.txt \
 	common/GPLD_Copyright_fr.txt \
 	common/Integrator_Concepts_fr.txt \
-	common/Linux_FAQ_fr.txt \
 	common/outdated-notice_fr.txt \
 	common/overleaf_fr.txt \
 	common/Stepper_Diagnostics_fr.txt \
-	common/System_Requirements_fr.txt \
-	common/Updating_linuxcnc_fr.txt \
 	common/User_Concepts_fr.txt \
 	common/userforeword_fr.txt \
 	common/user_intro_fr.txt \
@@ -136,8 +132,6 @@ DOC_SRCS_FR := \
 	config/ini_config_fr.txt \
 	config/ini_homing_fr.txt \
 	config/lathe_config_fr.txt \
-	config/pncconf_fr.txt \
-	config/stepconf_fr.txt \
 	config/stepper_fr.txt \
 	drivers/AX5214H_fr.txt \
 	drivers/GS2_fr.txt \
@@ -194,8 +188,8 @@ DOC_SRCS_FR := \
 	motion/kinematics_fr.txt \
 	motion/pid_theory_fr.txt \
 	motion/tweaking_steppers_fr.txt \
-	quickstart/stepper_quickstart_fr.txt \
 	Master_Getting_Started_fr.txt \
+        getting-started/index-fr.txt \
 	Master_User_fr.txt \
 	Master_HAL_fr.txt \
 	Master_Integrator_fr.txt \
