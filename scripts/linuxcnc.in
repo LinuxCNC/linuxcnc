@@ -61,14 +61,14 @@ if test "xyes" = "x@RUN_IN_PLACE@"; then
 	    LD_LIBRARY_PATH=$LINUXCNC_HOME/lib:"$LD_LIBRARY_PATH"
 	fi
 	export LD_LIBRARY_PATH
-fi
 
-if [ -z "$PYTHONPATH" ]; then
-    PYTHONPATH=$LINUXCNC_HOME/lib/python
-else
-    PYTHONPATH=$LINUXCNC_HOME/lib/python:"$PYTHONPATH"
+	if [ -z "$PYTHONPATH" ]; then
+	    PYTHONPATH=$LINUXCNC_HOME/lib/python
+	else
+	    PYTHONPATH=$LINUXCNC_HOME/lib/python:"$PYTHONPATH"
+	fi
+	export PYTHONPATH
 fi
-export PYTHONPATH
 
 PRELOAD_WORKAROUND=@PRELOAD_WORKAROUND@
 
