@@ -202,11 +202,16 @@ class Preview():
 
     def run(self):
         self.isRunning = True
+        if self.debug:
+            print("Preview starting")
+            print("Filename: " + self.filename)
+            print("Unitcode: " + self.unitcode)
+            print("Initcode: " + self.initcode)
         try:
             result, last_sequence_number = preview.parse(self.filename,
-                                                       self.canon,
-                                                       self.unitcode,
-                                                       self.initcode)
+                                                         self.canon,
+                                                         self.unitcode,
+                                                         self.initcode)
 
             if result > preview.MIN_ERROR:
                 error = " gcode error: %s " % (preview.strerror(result))
@@ -1876,7 +1881,7 @@ class LinuxCNCWrapper():
         for rawGCode in rawGcodes:
             if rawGCode > -1:
                 gcodes.append('G' + str(rawGCode / 10.0))
-        return ''.join(gcodes)
+        return ' '.join(gcodes)
 
     def send_command_wrong_params(self):
         self.tx2.note.append("wrong parameters")
@@ -1931,7 +1936,6 @@ class LinuxCNCWrapper():
                         lineNumber = self.rx.emc_command_params.line_number
                         self.command.auto(linuxcnc.AUTO_RUN, lineNumber)
                     elif self.rx.interp_name == 'preview':
-                        self.preview.initcode = self.get_active_gcodes()
                         self.preview.start()
                 else:
                     self.send_command_wrong_params()
