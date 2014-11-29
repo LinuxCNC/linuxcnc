@@ -18,14 +18,13 @@ When you change something, you need to pick the file
 that matches your configuration name.
 The file extension is .stepconf.
 
-The Stepconf Wizard needs at least 800 x 600 screen resolution 
-to see the buttons on the bottom of the pages.
+The Stepconf Wizard works best with at least 800 x 600 screen resolution.
 
 [float]
 Step by Step Instructions
 =========================
 
-== Entry Page[[sec:Entry-Page]]
+== Start Page[[sec:Entry-Page]]
 
 .Entry Page[[cap:Entry-Page]]
 
@@ -37,7 +36,10 @@ image::images/stepconf-config.png[align="center"]
 picker pops up so you can select the .stepconf file for modification. If you
 made any modifications to the main .hal or the .ini file these will be lost.
 Modifications to custom.hal and custom_postgui.hal will not be changed by
-the Stepconf Wizard.
+the Stepconf Wizard. Stepconf will highlight the lastconf that was built.
+
+These next options wiil be recorded in a preference file for the next run of
+Stepconf.
 
 * 'Create Desktop Shortcut' - This will place a link on your desktop to the
 files.
@@ -45,6 +47,9 @@ files.
 * 'Create Desktop Launcher' - This will place a launcher on your desktop to
 start your application.
 
+* 'Create Simulated Hardware' - This allows you to build a config for testing,
+even if you don't have the actual hardware.
+ 
 == Basic Information[[sec:Basic-Information]]
 
 .Basic Information Page[[cap:Basic-Information-Page]]
@@ -57,7 +62,9 @@ lowercase letters, digits, - and _.
 * 'Axis Configuration' - Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe).
 
 * 'Machine Units' - Choose Inch or mm. All subsequent entries will be in the
-chosen units
+chosen units. Changing this also changes the default values in the Axes section.
+If you change this after selecting values in any of the axes sections, they will
+be over-written by the default values of the selected units.
 
 * 'Driver Type' - If you have one of the stepper drivers listed in the pull down
 box, choose it. Otherwise, select 'Other' and find the timing values in your
@@ -90,12 +97,7 @@ direction in nanoseconds. If your not sure about this setting a value of
 step pulse in nanoseconds.  If your not sure about this setting a value of
 200,000 will work with most drives.
 
-* 'First Parport' - Usually the default of 0x378 is correct. 
-
-* 'Second Parport' - If you need to specify additional parallel ports enter
-the address and the type. For information on finding the address of PCI
-parallel ports see the Port Address in the Integrator Manual.
-(Try 0x278 or 0x3BC first.)
+* 'One / Two Parport' - Select how many parallel port are to be configured. 
 
 * 'Base Period Maximum Jitter' - Enter the result of the Latency Test here.
 To run a latency test press the 'Test Base Period Jitter' button. See the
@@ -106,10 +108,6 @@ on the driver characteristics entered and the latency test result.
 
 * 'Min Base Period' - Stepconf automatically determines the Min Base Period
 based on the driver characteristics entered and latency test result.
-
-* 'Onscreen Prompt For Tool Change' - If this box is checked, LinuxCNC will
-pause and prompt you to change the tool when 'M6' is encountered. This feature
-is usually only useful if you have presettable tools.
 
 == Latency Test[[latency-test]](((Latency Test)))
 
@@ -168,6 +166,8 @@ whether you use software stepping or not.
 .Parallel Port Setup Page[[cap:Parallel-Port-Setup]]
 
 image::images/stepconf-pinout.png[align="center"]
+You may specify the address as a hexidecimal (often 0x378) or as linux's default
+ port number (probably 0)
 
 For each pin, choose the signal which matches 
 your parallel port pinout. 
@@ -192,6 +192,20 @@ Charge Pump from the drop down list for the output pin you wish to connect
 to your charge pump input. The charge pump output is connected to the base
 thread by Stepconf. The charge pump output will be about 1/2 of the maximum
 step rate shown on the Basic Machine Configuration page.
+
+== Parallel Port 2 Setup[[sec:Parallel-Port-2-Setup]](((Parallel Port 2 Setup)))
+
+.Parallel Port 2 Setup Page[[cap:Parallel-Port-2-Setup]]
+
+image::images/stepconf-parport2.png[align="center"]
+
+The second Parallel port (if selected) can be configured and It's pins
+assigned on this page. +
+No step and direction signals can be selected. +
+You may select in or out to maximizes the number of input/output pins that
+are available. +
+You may specify the address as a hexidecimal (often 0x278) or as linux's default
+ port number (probably 1).
 
 == Axis Configuration[[sec:Axis-Configuration]](((Axis Configuration)))
 
@@ -386,6 +400,13 @@ direction sensing, increased noise immunity, and increased resolution.
 If 'Spindle Phase A' and 'Spindle Index' appear 
 on the pinout, the following information should be entered:
 
+* 'Use Spindle-At-Speed' - With encoder feedback one can choose to have linuxcnc
+ wait for the spindle to reach the commanded speed before feed moves. Select this
+option and set the 'close enough' scale.
+
+* 'Speed Display Filter Gain' - Setting for adjusting the stability of the
+visual spindle speed display.
+ 
 * 'Cycles per revolution' - The number of cycles of the 'Spindle A' signal
 during one revolution of the spindle. This option is only enabled when an
 input has been set to 'Spindle Phase A'
@@ -428,7 +449,7 @@ For instance, if your spindle will go from 0 RPM to 8000 RPM,
 but you generally use speeds from 400 RPM (10%) to 4000 RPM (100%),
 then find the PWM values that give 1600 RPM (40%) and 2800 RPM (70%).
 
-== Advanced Configuration Options[[sec:Advanced-Configuration-Options]](((Advanced Configuration Options)))
+== Options[[sec:Advanced-Configuration-Options]](((Advanced Configuration Options)))
 
 .Advanced Configuration[[cap:Advanced-Configuration]]
 
@@ -443,6 +464,10 @@ to work on. See the Integrator Manual for more information on pyVCP.
 * 'Include ClassicLadder PLC' - This option will add the ClassicLadder PLC
 (Programmable Logic Controller). See the Integrator Manual for more information
 on ClassicLadder.
+
+* 'Onscreen Prompt For Tool Change' - If this box is checked, LinuxCNC will
+pause and prompt you to change the tool when 'M6' is encountered. This feature
+is usually only useful if you have presettable tools.
 
 == Machine Configuration Complete[[sub:Machine-Configuration-Complete]]
 
