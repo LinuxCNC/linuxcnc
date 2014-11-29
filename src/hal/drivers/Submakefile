@@ -33,11 +33,9 @@ pluto_clean:
 
 # The kernel's build system won't know how to rebuild generated files
 # so modules must depend on them explicitly
-ifneq ($(BUILD_SYS),user-dso)
 modules:                                                         \
     hal/drivers/pluto_servo_rbf.h                                \
     hal/drivers/pluto_step_rbf.h
-endif
 
 INCLUDES += hal/drivers
 
