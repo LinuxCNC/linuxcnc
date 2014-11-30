@@ -46,7 +46,7 @@ function write nofp;
 license "GPL";
 ;;
 
-#include <asm/io.h>
+#include <rtapi_io.h>
 #include <rtapi_errno.h>
 
 #define MAX 8

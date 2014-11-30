@@ -3,8 +3,10 @@ HALCOMP_SUBMAKEFILE= hal/components/Submakefile
 # everything under the sun with every small change
 #HALCOMP_SUBMAKEFILE=
 
-ifneq ($(KERNELRELEASE),)
-COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp $(BASEPWD)/machinetalk/msgcomponents/*.comp))
+ifeq ($(BUILD_KBUILD),yes)
+COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard \
+	$(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp \
+	$(BASEPWD)/machinetalk/msgcomponents/*.comp))
 include $(patsubst %.comp, $(BASEPWD)/halcomp-srcs/%.mak, $(COMPS))
 else
 CONVERTERS :=  \
@@ -12,17 +14,25 @@ CONVERTERS :=  \
     conv_bit_s32.comp conv_bit_u32.comp \
     conv_s32_float.comp conv_s32_bit.comp conv_s32_u32.comp \
     conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
-COMPS := $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS)))
-COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS))
-COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
-COMPS += $(wildcard machinetalk/msgcomponents/*.comp)
-COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
-manpages: $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
+COMPS := $(sort $(wildcard hal/components/*.comp) \
+	$(addprefix hal/components/, $(CONVERTERS)))
+COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, \
+	$(COMPS))
+
+MSG_COMPS := $(wildcard machinetalk/msgcomponents/*.comp)
+MSG_COMP_MANPAGES := $(patsubst machinetalk/msgcomponents/%.comp, \
+	../docs/man/man9/%.9, $(MSG_COMPS))
+
+DRIVER_COMPS := $(wildcard hal/drivers/*.comp)
+DRIVER_COMP_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, \
+	$(COMP_DRIVERS))
+
+manpages: $(COMP_MANPAGES) $(DRIVER_COMP_MANPAGES) $(MSG_COMP_MANPAGES)
 TARGETS += manpages
 .PHONY: manpages
 ifeq ($(TRIVIAL_BUILD)+$(BUILD_THREAD_MODULES),no+yes)
 -include $(patsubst %.comp, $(BASEPWD)/halcomp-srcs/%.mak,\
-	$(COMPS) $(COMP_DRIVERS) $(MSGCOMPS))
+	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))
 endif # TRIVIAL_BUILD == no
 endif # KERNELRELEASE != ''
 
@@ -30,7 +40,7 @@ ifeq ($(BUILD_THREAD_MODULES),yes)
 obj-m += $(patsubst hal/drivers/%.comp, %.o, \
 	$(patsubst hal/components/%.comp, %.o, \
 	$(patsubst machinetalk/msgcomponents/%.comp, %.o, \
-	$(COMPS))))
+	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))))
 endif
 
 $(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
@@ -38,7 +48,13 @@ $(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
 
-$(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
+$(DRIVER_COMP_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
+	$(ECHO) Making comp manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/comp --document -o $@ $<
+
+$(MSG_COMP_MANPAGES): ../docs/man/man9/%.9: \
+		machinetalk/msgcomponents/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
@@ -62,8 +78,10 @@ halcomp-srcs/%.mak: %.comp $(HALCOMP_SUBMAKEFILE)
 	$(Q)mv -f $@.tmp $@
 
 # Generate .c and .mak files before the modules target
-modules: $(patsubst %.comp, halcomp-srcs/%.c, $(COMPS) $(COMP_DRIVERS) $(MSGCOMPS))
-modules: $(patsubst %.comp, halcomp-srcs/%.mak, $(COMPS) $(COMP_DRIVERS) $(MSGCOMPS))
+modules: $(patsubst %.comp, halcomp-srcs/%.c, \
+	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))
+modules: $(patsubst %.comp, halcomp-srcs/%.mak, \
+	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))
 endif # BUILD_ALL_FLAVORS == yes
 
 # ifeq ($(BUILD_THREAD_MODULES),yes)
@@ -90,7 +108,7 @@ endif # BUILD_ALL_FLAVORS == yes
 
 clean: clean-comp-manpages
 clean-comp-manpages:
-	-rm -f $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
+	-rm -f $(COMP_MANPAGES) $(DRIVER_COMP_MANPAGES) $(MSG_COMP_MANPAGES)
 
 HALSTREAMERSRCS := hal/components/streamer_usr.c
 USERSRCS += $(HALSTREAMERSRCS)
