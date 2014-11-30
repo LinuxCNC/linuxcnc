@@ -819,7 +819,6 @@ But there is not one in the machine-named folder.."""),True)
                 setp pid.0.bias   %(bias)f
                 setp pid.0.deadband  %(deadband)f
 
-                setp %(encoder)s.scale %(enc_scale)d
                 setp axistest.0.jog-minus %(jogminus)s
                 setp axistest.0.jog-plus %(jogplus)s
                 setp axistest.0.run %(run)s
@@ -839,8 +838,6 @@ But there is not one in the machine-named folder.."""),True)
                 'ff2':self.w.xtunecurrentFF2.get_value(),
                 'bias':self.w.xtunecurrentbias.get_value(),
                 'deadband':self.w.xtunecurrentdeadband.get_value(),
-                'encoder':self.enc_signalname,
-                'enc_scale':self.enc_scale,
                 'jogminus': self.tunejogminus,
                 'jogplus': self.tunejogplus,
                 'run': self.w.xtunerun.get_active(),
@@ -853,6 +850,13 @@ But there is not one in the machine-named folder.."""),True)
                 'enable':self.w.xtuneenable.get_active(),
                 'estop':(self.w.xtuneenable.get_active())
             })
+            if self.encoder:
+                halrun.write("""
+                    setp %(encoder)s.scale %(enc_scale)d
+            """ % {
+                    'encoder':self.enc_signalname,
+                '   enc_scale':self.enc_scale,
+                })
         halrun.flush()
 
     def tune_jogminus(self, direction):
