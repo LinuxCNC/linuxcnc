@@ -137,3 +137,9 @@ USERSRCS += $(PBZWS_PLUGIN_SRCS)
 TARGETS += ../lib/webtalk/plugins/pbzws.o
 
 endif
+
+clean:
+	-rm -f \
+	machinetalk/webtalk/zws.pb.cc \
+	machinetalk/webtalk/zws.pb.h \
+	../lib/python/zws_pb2.py
