@@ -175,8 +175,13 @@ static int serve_http(struct libwebsocket_context *context,
 	return -1;
     }
     lwsl_debug("serving '%s' mime type='%s'\n", buf, mt);
+#ifdef LWS_FEATURE_SERVE_HTTP_FILE_HAS_OTHER_HEADERS_LEN
+    if (libwebsockets_serve_http_file(context, wsi, buf, mt, NULL, 0))
+        return -1;
+#else
     if (libwebsockets_serve_http_file(context, wsi, buf, mt, NULL))
-	return -1;
+        return -1;
+#endif
     return 0;
 }
 
