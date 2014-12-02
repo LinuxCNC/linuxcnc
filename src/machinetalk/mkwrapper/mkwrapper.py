@@ -305,6 +305,7 @@ class LinuxCNCWrapper():
 
             # If specified in the ini, try to open the  default file
             openFile = self.ini.find('DISPLAY', 'OPEN_FILE') or ""
+            openFile = openFile.strip('"')  # quote signs are allowed
             if openFile != "":
                 openFile = os.path.abspath(os.path.expanduser(openFile))
                 fileName = os.path.basename(openFile)
