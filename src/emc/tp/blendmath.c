@@ -1489,3 +1489,72 @@ double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max,
     }
 }
 
+
+double pmCircleAngleFromProgress(PmCircle const * const circle,
+        double progress)
+{
+
+    // Additional data for arc length approximation
+    double spiral_coef = circle->spiral / circle->angle;
+    //TODO handle low spiral
+    double b0,b1;
+    if (spiral_coef < TP_POS_EPSILON) {
+        b0 = 0;
+        b1 = circle->radius;
+    } else {
+        double theta_start = circle->radius / spiral_coef;
+        double theta_end = theta_start + circle->angle;
+        double slope_start = spiral_coef * pmSqrt(pmSq(theta_start)+1.0);
+        double slope_end = spiral_coef * pmSqrt(pmSq(theta_end)+1.0);
+        b0 = (slope_end-slope_start) / (2.0 * circle->angle);
+        b1 = slope_start;
+    }
+
+    // TODO move arc length and fit coefficients to circle definition
+    // TODO need this calculation for initial target
+    double s_end_planar = b0 * pmSq(circle->angle) + b1 * circle->angle;
+    double h2;
+    pmCartMagSq(&circle->rHelix, &h2);
+    double s_end = pmSqrt(pmSq(s_end_planar) + h2);
+    double t = progress / s_end;
+    double s_in = t * s_end_planar;
+
+    // Quadratic formula to invert arc length -> angle
+    double disc = pmSqrt(4.0 * b0 * s_in + pmSq(b1));
+    double angle_out = (disc - b1) / (2.0 * b0);
+
+    return angle_out;
+
+}
+
+
+/**
+ * compute the total arc length of a circle segment
+ */
+double pmCircleLength(PmCircle const * const circle)
+{
+
+    // Additional data for arc length approximation
+    double spiral_coef = circle->spiral / circle->angle;
+    double b0,b1;
+    if (spiral_coef < TP_POS_EPSILON) {
+        b0 = 0;
+        b1 = circle->radius;
+    } else {
+        double theta_start = circle->radius / spiral_coef;
+        double theta_end = theta_start + circle->angle;
+        double slope_start = spiral_coef * pmSqrt(pmSq(theta_start)+1.0);
+        double slope_end = spiral_coef * pmSqrt(pmSq(theta_end)+1.0);
+        b0 = (slope_end-slope_start) / (2.0 * circle->angle);
+        b1 = slope_start;
+    }
+
+    // TODO move arc length and fit coefficients to circle definition
+    // TODO need this calculation for initial target
+    double s_end_planar = b0 * pmSq(circle->angle) + b1 * circle->angle;
+    double h2;
+    pmCartMagSq(&circle->rHelix, &h2);
+    double s_end = pmSqrt(pmSq(s_end_planar) + h2);
+
+    return s_end;
+}
