@@ -1807,7 +1807,7 @@ int tpAddCircle(TP_STRUCT * const tp,
             &normal,
             turn);
 
-    tc.target = pmCircle9Target(&tc.coords.circle);
+    tc.target = pmCircleLength(&tc.coords.circle.xyz);
     tc.nominal_length = tc.target;
 
     double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc, false);
@@ -3065,6 +3065,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n",
             time_elapsed,
             mag, emcmotStatus->current_vel);
+
+    tc_debug_print("tp_displacement = %.12e %.12e %.12e\n",
+            disp.tran.x,
+            disp.tran.y,
+            disp.tran.z);
 #endif
 
     // If TC is complete, remove it from the queue.

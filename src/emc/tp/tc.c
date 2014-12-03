@@ -267,6 +267,10 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             break;
     }
 
+
+    // Used for arc-length to angle conversion with spiral segments
+    double angle = 0.0;
+
     switch (tc->motion_type){
         case TC_RIGIDTAP:
             if(tc->coords.rigidtap.state > REVERSING) {
@@ -290,8 +294,9 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
                     &abc);
             break;
         case TC_CIRCULAR:
+            angle = pmCircleAngleFromProgress(&tc->coords.circle.xyz, progress);
             pmCirclePoint(&tc->coords.circle.xyz,
-                    progress * tc->coords.circle.xyz.angle / tc->target,
+                    angle,
                     &xyz);
             pmCartLinePoint(&tc->coords.circle.abc,
                     progress * tc->coords.circle.abc.tmag / tc->target,
