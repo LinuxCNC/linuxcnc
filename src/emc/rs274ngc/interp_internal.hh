@@ -64,8 +64,9 @@
 
 /* numerical constants */
 //FIXME made very large here to allow badly formed arcs into canon
-#define SPIRAL_TOLERANCE_INCH 1.0
-#define RADIUS_TOLERANCE_INCH 0.0005
+#define SPIRAL_TOLERANCE_INCH 1.0005
+// Note: started from original tolerance and divided by 10 here (since that was originally done inside the interpreter)
+#define RADIUS_TOLERANCE_INCH 0.00005
 
 /* Equivalent metric constants */
 #define SPIRAL_TOLERANCE_MM (SPIRAL_TOLERANCE_INCH * MM_PER_INCH)
