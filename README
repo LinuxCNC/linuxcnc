@@ -10,12 +10,18 @@ DISCLAIMER
     codes, and the authors of this software can not, and do not, take
     any responsibility for such compliance.
 
+Getting Machinekit
+-----------------
+
+The easiest way to get up-and-running is to install Debian Wheezy and get the
+binary packages. Please go to http://www.machinekit.io/docs/packages-debian/ for
+further instructions
 
 The Build Process
 -----------------
 
-Refer to the file 'docs/INSTALL' for information about building and 
-running the software.
+Refer to the http://www.machinekit.io/docs/building-from-source/ for information
+about building from source and running the software.
     
 
 Directory Layout
@@ -31,30 +37,6 @@ top level directory.
 Please also see the files in docs/
 
     README  - general information
-    INSTALL - information about compiling and installing the software
     AUTHORS - information about authors
     NEWS    - latest news
 
-
-Quickstart:
------------
-
-From the top level directory, switch to the source directory:
-
-  cd src
-
-In the source directory, build LinuxCNC:
-
-  ./autogen.sh
-  ./configure
-  [or, if you do not have a realtime kernel:]
-  ./configure --enable-simulator
-
-  make clean
-  make
-  sudo make setuid
-
-to run the software go back to the top level directory, and issue:
-
-  . scripts/rip-environment
-  linuxcnc
