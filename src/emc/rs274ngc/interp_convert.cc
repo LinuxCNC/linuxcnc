@@ -563,7 +563,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   int plane = settings->plane;
 
   // Spiral tolerance is the amount of "spiral" allowed in a given arc segment, or (r2-r1)/theta
-  double spiral_tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
+  double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
     SPIRAL_TOLERANCE_INCH : SPIRAL_TOLERANCE_MM;
 
   // Radius tolerance allows a bit of leeway on the minimum radius for a radius defined arc.
@@ -578,7 +578,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
       CHP(arc_data_ijk(move, plane, *current1, *current2, end1, end2,
                        (settings->ijk_distance_mode == MODE_ABSOLUTE),
                        offset1, offset2, block->p_flag? round_to_int(block->p_number) : 1,
-                       &center1, &center2, &turn, spiral_tolerance));
+                       &center1, &center2, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
   }
   inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
                         turn, end1, end2, end3, block, settings);
@@ -648,7 +648,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     side = settings->cutter_comp_side;
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
 
-    double spiral_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? SPIRAL_TOLERANCE_INCH : SPIRAL_TOLERANCE_MM;
+    double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? SPIRAL_TOLERANCE_INCH : SPIRAL_TOLERANCE_MM;
     double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
 
     comp_get_current(settings, &cx, &cy, &cz);
@@ -664,7 +664,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         CHP(arc_data_comp_ijk(move, plane, side, tool_radius, cx, cy, end_x, end_y,
                               (settings->ijk_distance_mode == MODE_ABSOLUTE),
                               offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
-                              &center_x, &center_y, &turn, spiral_tolerance));
+                              &center_x, &center_y, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
     }
 
     inverse_time_rate_arc(cx, cy, cz, center_x, center_y,
@@ -710,7 +710,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     /* center to endpoint distances matched before - they still should. */
     CHKS((fabs(hypot(center_x-end_x,center_y-end_y) - 
-              hypot(center_x-cx,center_y-cy)) > spiral_tolerance),
+              hypot(center_x-cx,center_y-cy)) > spiral_abs_tolerance),
         NCE_BUG_IN_TOOL_RADIUS_COMP);
 
     // need this move for lathes to move the tool origin first.  otherwise, the arc isn't an arc.
@@ -804,7 +804,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double cx, cy, cz;
     double new_end_x, new_end_y;
 
-    double spiral_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? SPIRAL_TOLERANCE_INCH : SPIRAL_TOLERANCE_MM;
+    double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? SPIRAL_TOLERANCE_INCH : SPIRAL_TOLERANCE_MM;
     double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
 
     /* find basic arc data: center_x, center_y, and turn */
@@ -822,7 +822,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                          opx, opy, end_x, end_y,
                          (settings->ijk_distance_mode == MODE_ABSOLUTE),
                          offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
-                         &centerx, &centery, &turn, spiral_tolerance));
+                         &centerx, &centery, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
     }
 
     inverse_time_rate_arc(opx, opy, opz, centerx, centery,
