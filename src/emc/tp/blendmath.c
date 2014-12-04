@@ -1500,10 +1500,12 @@ double findSpiralArcLengthFit(PmCircle const * const circle,
     double spiral_coef = circle->spiral / circle->angle;
     double radius = circle->radius;
 
-    if (fsign(spiral_coef) < 0.0) {
-        // Final radius is smaller than starting radius
+    if (fsign(circle->spiral) < 0.0) {
+        // Treat as positive spiral, parameterized in opposite
+        // direction
         spiral_coef*=-1.0;
-        radius-=circle->spiral;
+        // Treat final radius as starting radius for fit
+        radius+=circle->spiral;
         fit->spiral_in = true;
     } else {
         fit->spiral_in = false;
@@ -1549,6 +1551,12 @@ double pmCircleAngleFromProgress(PmCircle const * const circle,
     // Quadratic formula to invert arc length -> angle
     double disc = pmSqrt(4.0 * fit.b0 * s_in + pmSq(fit.b1));
     double angle_out = (disc - fit.b1) / (2.0 * fit.b0);
+
+    if (fit.spiral_in) {
+        // Spiral fit assumes that we're spiraling out, so
+        // parameterize from opposite end
+        angle_out = circle->angle - angle_out;
+    }
 
     return angle_out;
 
