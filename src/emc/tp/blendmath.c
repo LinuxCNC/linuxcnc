@@ -1549,8 +1549,14 @@ double pmCircleAngleFromProgress(PmCircle const * const circle,
     double s_in = t * fit.total_planar_length;
 
     // Quadratic formula to invert arc length -> angle
-    double disc = pmSqrt(4.0 * fit.b0 * s_in + pmSq(fit.b1));
-    double angle_out = (disc - fit.b1) / (2.0 * fit.b0);
+    double disc,angle_out;
+    if (fabs(fit.b0) > TP_POS_EPSILON) {
+        disc = pmSqrt(4.0 * fit.b0 * s_in + pmSq(fit.b1));
+        angle_out = (disc - fit.b1) / (2.0 * fit.b0);
+    } else {
+        //Circle case, don't need a fit
+        angle_out = s_in / circle->radius;
+    }
 
     if (fit.spiral_in) {
         // Spiral fit assumes that we're spiraling out, so
