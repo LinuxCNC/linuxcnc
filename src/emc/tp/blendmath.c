@@ -163,17 +163,17 @@ static inline int findSpiralApproximation(PmCircle const * const circ,
 {
     double dr = circ->spiral / circ->angle;
 
-    tp_debug_print("In findSpiralApproximation\n");
-    tp_debug_print(" dr = %f\n",dr);
-    tp_debug_print(" utan = %f %f %f\n",
-            u_tan->x,
-            u_tan->y,
-            u_tan->z);
+    /*tp_debug_print("In findSpiralApproximation\n");*/
+    /*tp_debug_print(" dr = %f\n",dr);*/
+    /*tp_debug_print(" utan = %f %f %f\n",*/
+            /*u_tan->x,*/
+            /*u_tan->y,*/
+            /*u_tan->z);*/
     pmCartScalMult(u_tan, dr, center_out);
-    tp_debug_print(" circcenter = %f %f %f\n",
-            circ->center.x,
-            circ->center.y,
-            circ->center.z);
+    /*tp_debug_print(" circcenter = %f %f %f\n",*/
+            /*circ->center.x,*/
+            /*circ->center.y,*/
+            /*circ->center.z);*/
     pmCartCartAddEq(center_out, &circ->center);
 
     PmCartesian r_adjust;
