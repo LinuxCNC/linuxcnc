@@ -592,7 +592,22 @@ double pmCircle9Target(PmCircle9 const * const circ9)
     double helix_length;
 
     pmCartMag(&circ9->xyz.rHelix, &helix_z_component);
-    double planar_arc_length = circ9->xyz.angle * circ9->xyz.radius;
+    /* Linear approximation of spiral segment arc length from initial radius to final radius.
+     * This roughly accounts for the effects of spiral error, but will break
+     * down under large spirals.
+     *
+     *  s(theta) = sqrt(r_0^2 + a^2)/phi
+     *  Where:
+     *      phi = total angle of ideal circular segment
+     *      r_0 = initial radius
+     *      a = spiral coefficient = (r_1 - r_0) / phi
+     *      theta = current angle along segment
+     */
+    double s_circular = circ9->xyz.angle * circ9->xyz.radius;
+    double s_spiral = circ9->xyz.spiral;
+
+    double planar_arc_length = pmSqrt(pmSq(s_circular) + pmSq(s_spiral));
+
     helix_length = pmSqrt(pmSq(planar_arc_length) +
             pmSq(helix_z_component));
     return helix_length;
