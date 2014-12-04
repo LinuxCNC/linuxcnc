@@ -1490,38 +1490,65 @@ double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max,
 }
 
 
-double pmCircleAngleFromProgress(PmCircle const * const circle,
-        double progress)
+/** @section spiralfuncs Functions to approximate spiral arc length */
+
+double findSpiralArcLengthFit(PmCircle const * const circle,
+        SpiralArcLengthFit * const fit)
 {
 
     // Additional data for arc length approximation
     double spiral_coef = circle->spiral / circle->angle;
-    //TODO handle low spiral
-    double b0,b1;
-    if (spiral_coef < TP_POS_EPSILON) {
-        b0 = 0;
-        b1 = circle->radius;
+    double radius = circle->radius;
+
+    if (fsign(spiral_coef) < 0.0) {
+        // Final radius is smaller than starting radius
+        spiral_coef*=-1.0;
+        radius-=circle->spiral;
+        fit->spiral_in = true;
     } else {
-        double theta_start = circle->radius / spiral_coef;
+        fit->spiral_in = false;
+    }
+
+    //TODO handle low spiral
+    if (fabs(spiral_coef) < TP_POS_EPSILON) {
+        fit->b0 = 0;
+        fit->b1 = radius;
+    } else {
+        double theta_start = radius / spiral_coef;
         double theta_end = theta_start + circle->angle;
         double slope_start = spiral_coef * pmSqrt(pmSq(theta_start)+1.0);
         double slope_end = spiral_coef * pmSqrt(pmSq(theta_end)+1.0);
-        b0 = (slope_end-slope_start) / (2.0 * circle->angle);
-        b1 = slope_start;
+        fit->b0 = (slope_end-slope_start) / (2.0 * circle->angle);
+        fit->b1 = slope_start;
     }
+    fit->total_planar_length = fit->b0 * pmSq(circle->angle) + fit->b1 * circle->angle;
+    tp_debug_print("Spiral fit: b0 = %f, b1 = %f\n",fit->b0,fit->b1);
 
-    // TODO move arc length and fit coefficients to circle definition
-    // TODO need this calculation for initial target
-    double s_end_planar = b0 * pmSq(circle->angle) + b1 * circle->angle;
+    return 0;
+}
+
+
+double pmCircleAngleFromProgress(PmCircle const * const circle,
+        double progress)
+{
+    SpiralArcLengthFit fit;
+    //TODO store in circle init rather than recalculating each time
+    findSpiralArcLengthFit(circle, &fit);
+
     double h2;
     pmCartMagSq(&circle->rHelix, &h2);
-    double s_end = pmSqrt(pmSq(s_end_planar) + h2);
+    double s_end = pmSqrt(pmSq(fit.total_planar_length) + h2);
     double t = progress / s_end;
-    double s_in = t * s_end_planar;
+    if (fit.spiral_in) {
+        // Spiral fit assumes that we're spiraling out, so
+        // parameterize from opposite end
+        t=1.0-t;
+    }
+    double s_in = t * fit.total_planar_length;
 
     // Quadratic formula to invert arc length -> angle
-    double disc = pmSqrt(4.0 * b0 * s_in + pmSq(b1));
-    double angle_out = (disc - b1) / (2.0 * b0);
+    double disc = pmSqrt(4.0 * fit.b0 * s_in + pmSq(fit.b1));
+    double angle_out = (disc - fit.b1) / (2.0 * fit.b0);
 
     return angle_out;
 
@@ -1534,27 +1561,12 @@ double pmCircleAngleFromProgress(PmCircle const * const circle,
 double pmCircleLength(PmCircle const * const circle)
 {
 
-    // Additional data for arc length approximation
-    double spiral_coef = circle->spiral / circle->angle;
-    double b0,b1;
-    if (spiral_coef < TP_POS_EPSILON) {
-        b0 = 0;
-        b1 = circle->radius;
-    } else {
-        double theta_start = circle->radius / spiral_coef;
-        double theta_end = theta_start + circle->angle;
-        double slope_start = spiral_coef * pmSqrt(pmSq(theta_start)+1.0);
-        double slope_end = spiral_coef * pmSqrt(pmSq(theta_end)+1.0);
-        b0 = (slope_end-slope_start) / (2.0 * circle->angle);
-        b1 = slope_start;
-    }
-
-    // TODO move arc length and fit coefficients to circle definition
-    // TODO need this calculation for initial target
-    double s_end_planar = b0 * pmSq(circle->angle) + b1 * circle->angle;
+    SpiralArcLengthFit fit;
+    //TODO store in circle init rather than recalculating each time
+    findSpiralArcLengthFit(circle, &fit);
     double h2;
     pmCartMagSq(&circle->rHelix, &h2);
-    double s_end = pmSqrt(pmSq(s_end_planar) + h2);
+    double helical_length = pmSqrt(pmSq(fit.total_planar_length) + h2);
 
-    return s_end;
+    return helical_length;
 }

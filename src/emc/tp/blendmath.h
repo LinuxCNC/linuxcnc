@@ -108,6 +108,19 @@ typedef struct {
     double trim2;               /* length (line) or angle (arc) to cut from tc */
 } BlendPoints3;
 
+
+/**
+ * Spiral arc length approximation by quadratic fit.
+ */
+typedef struct {
+    double b0;                  /* 2nd order coefficient */
+    double b1;                  /* 1st order coefficient */
+    double total_planar_length; /* total arc length in plane */
+    int spiral_in;              /* flag indicating spiral is inward,
+                                   rather than outward */
+} SpiralArcLengthFit;
+
+
 #ifdef BLEND_9D
 typedef struct {
 //Not implemented yet
@@ -214,7 +227,12 @@ int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const poi
 int blendGeom3Print(BlendGeom3 const * const geom);
 int blendParamPrint(BlendParameters const * const param);
 int blendPoints3Print(BlendPoints3 const * const points);
-double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max, int parabolic);
+double pmCircleActualMaxVel(PmCircle * const circle,
+        double v_max,
+        double a_max,
+        int parabolic);
+double findSpiralArcLengthFit(PmCircle const * const circle,
+        SpiralArcLengthFit * const fit);
 double pmCircleAngleFromProgress(PmCircle const * const circle,
         double progress);
 double pmCircleLength(PmCircle const * const circle);
