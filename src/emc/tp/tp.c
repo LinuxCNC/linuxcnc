@@ -1732,6 +1732,9 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
             &tp->goalPos,
             &end);
     tc.target = pmLine9Target(&tc.coords.line);
+    if (tc.target < TP_POS_EPSILON) {
+        return TP_ERR_FAIL;
+    }
     tc.nominal_length = tc.target;
 
     // For linear move, set rotary axis settings 
@@ -1808,6 +1811,9 @@ int tpAddCircle(TP_STRUCT * const tp,
             turn);
 
     tc.target = pmCircleLength(&tc.coords.circle.xyz);
+    if (tc.target < TP_POS_EPSILON) {
+        return TP_ERR_FAIL;
+    }
     tc.nominal_length = tc.target;
 
     double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc, false);
