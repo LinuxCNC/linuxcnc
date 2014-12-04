@@ -15,7 +15,7 @@ MAN_SRCS := $(sort \
 	$(patsubst %.in,%,$(wildcard $(DOC_DIR)/man/man1/*.1  $(DOC_DIR)/man/man1/*.1.in)) \
 	$(filter-out $(DOC_DIR)/man/man3/skeleton%, $(wildcard $(DOC_DIR)/man/man3/*.3rtapi $(DOC_DIR)/man/man3/*.3hal)) \
 	$(filter-out $(DOC_DIR)/man/man9/skeleton%, $(wildcard $(DOC_DIR)/man/man9/*.9)) \
-	$(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES))
+	$(GENERATED_MANPAGES))
 
 ifneq ($(MANDB),)
 default: $(DOC_DIR)/man/index.db
@@ -363,6 +363,14 @@ docs: ../docs/man/man1/linuxcnc.1
 
 ../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
 	./config.status --file=$@:$<
+
+docs: manpages
+manpages: $(GENERATED_MANPAGES)
+
+clean: clean-manpages
+clean-manpages:
+	-rm -f $(GENERATED_MANPAGES)
+
 
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
