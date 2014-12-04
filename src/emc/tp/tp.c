@@ -1814,6 +1814,7 @@ int tpAddCircle(TP_STRUCT * const tp,
     if (tc.target < TP_POS_EPSILON) {
         return TP_ERR_FAIL;
     }
+    tp_debug_print("tc.target = %f\n",tc.target);
     tc.nominal_length = tc.target;
 
     double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc, false);
