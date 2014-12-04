@@ -1479,7 +1479,8 @@ double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max,
         a_max /= 2.0;
     }
     double a_n_max = BLEND_ACC_RATIO_NORMAL * a_max;
-    double v_max_acc = pmSqrt(a_n_max * circle->radius);
+    double eff_radius = pmCircleEffectiveMinRadius(circle);
+    double v_max_acc = pmSqrt(a_n_max * eff_radius);
     if (v_max_acc < v_max) {
         tp_debug_print("Maxvel limited from %f to %f for tangential acceleration\n", v_max, v_max_acc);
         return v_max_acc;
@@ -1583,4 +1584,26 @@ double pmCircleLength(PmCircle const * const circle)
     double helical_length = pmSqrt(pmSq(fit.total_planar_length) + h2);
 
     return helical_length;
+}
+
+
+/**
+ * Find the effective minimum radius for acceleration calculations.
+ * The radius of curvature of a spiral is larger than the circle of the same
+ * radius.
+ */
+double pmCircleEffectiveMinRadius(PmCircle const * const circle)
+{
+    double radius0 = circle->radius;
+    double radius1 = circle->radius + circle->spiral;
+
+    double min_radius = fmin(radius0, radius1);
+
+    double dr = circle->spiral / circle->angle;
+    double effective_radius = pmSqrt(pmSq(min_radius)+pmSq(dr));
+
+    tp_debug_print("min_radius = %f, effective_min_radius = %f\n",
+            min_radius,
+            effective_radius);
+    return effective_radius;
 }

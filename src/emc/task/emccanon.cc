@@ -1567,7 +1567,10 @@ void ARC_FEED(int line_number,
     // the starting and ending angle. Note that atan2 arguments are atan2(Y,X).
     double theta_start = atan2(p_start_2, p_start_1);
     double theta_end= atan2(p_end_2,p_end_1);
-    double radius = hypot(p_start_1, p_start_2);
+    double start_radius = hypot(p_start_1, p_start_2);
+    double end_radius = hypot(p_end_1, p_end_2);
+    // Nominal radius is the starting radius
+    double radius = start_radius;
     canon_debug("radius = %f\n",radius);
     canon_debug("raw values: theta_end = %.17e, theta_start = %.17e\n", theta_end, theta_start);
 
@@ -1611,6 +1614,12 @@ void ARC_FEED(int line_number,
     canon_debug("full turns = %d\n", full_turns);
 
 	canon_debug("full_angle = %.17e\n", full_angle);
+
+    //Use total angle to get spiral properties
+    double dr = (end_radius - start_radius) / fabs(full_angle);
+    double min_radius = fmin(start_radius, end_radius);
+    double effective_radius = sqrt(dr*dr + min_radius*min_radius);
+
     // Compute length along normal axis
     double axis_len = dot(end_cart - canonEndPoint.xyz(), normal_cart);
 
@@ -1634,14 +1643,15 @@ void ARC_FEED(int line_number,
     double a_max_planar = MIN(a1, a2);
 
     //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
-    double v_max_radial = sqrt(a_max_planar * radius);
+    double v_max_radial = sqrt(a_max_planar * effective_radius);
     double v_max = MIN(v_max_radial, v_max_planar);
     canon_debug("v_max_planar = %f\n", v_max_planar);
     canon_debug("v_max_radial = %f\n", v_max_radial);
     canon_debug("v_max = %f\n", v_max);
 
     // find out how long the arc takes at ini_maxvel
-    double t_circle = fabs(full_angle * radius / v_max);
+    // Conservative estimate of total time (ignores spiral effects)
+    double t_circle = fabs(full_angle * start_radius / v_max);
     canon_debug("t_circle = %f\n", t_circle);
 
     double t_motion = axis_motion_time(canonEndPoint,endpt);
@@ -1658,8 +1668,10 @@ void ARC_FEED(int line_number,
 
     canon_debug("t_max = %f\n",t_max);
 
+
+
     // Total path length including helical motion
-    double helical_length = hypot(full_angle * radius, axis_len);
+    double helical_length = hypot(full_angle * effective_radius, axis_len);
     canon_debug("full_angle = %f\n", full_angle);
     canon_debug("helical_length = %f\n",helical_length);
 
