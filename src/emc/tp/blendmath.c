@@ -620,12 +620,14 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
     param->phi = (PM_PI - param->theta * 2.0);
 
     param->L1 = fmin(prev_tc->target, prev_tc->nominal_length / 2.0);
+    double min_radius = fmin(tc->coords.circle.xyz.radius,
+            tc->coords.circle.xyz.radius + tc->coords.circle.xyz.spiral);
 
     if (param->convex2) {
         //use half of the length of the chord
-        param->L2 = sin(param->phi2_max/4.0) * tc->coords.circle.xyz.radius;
+        param->L2 = sin(param->phi2_max/4.0) * min_radius;
     } else {
-        param->L2 = param->phi2_max * tc->coords.circle.xyz.radius;
+        param->L2 = param->phi2_max * min_radius;
     }
 
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
@@ -699,13 +701,15 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
 
     tp_debug_print("theta = %f\n", param->theta);
 
-
-    param->L1 = param->phi1_max * prev_tc->coords.circle.xyz.radius;
+    double min_radius = fmin(prev_tc->coords.circle.xyz.radius,
+            prev_tc->coords.circle.xyz.radius + prev_tc->coords.circle.xyz.spiral);
+    // Use end radius here
+    param->L1 = param->phi1_max * (min_radius);
     param->L2 = tc->nominal_length / 2.0;
 
     if (param->convex1) {
         //use half of the length of the chord
-        param->L1 = sin(param->phi1_max/4.0) * prev_tc->coords.circle.xyz.radius;
+        param->L1 = sin(param->phi1_max/4.0) * min_radius;
     }
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
@@ -824,16 +828,22 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
 
     param->phi = (PM_PI - param->theta * 2.0);
 
-    param->L1 = param->phi1_max * prev_tc->coords.circle.xyz.radius;
-    param->L2 = param->phi2_max * tc->coords.circle.xyz.radius;
+    double min_radius1 = fmin(tc->coords.circle.xyz.radius,
+            tc->coords.circle.xyz.radius + tc->coords.circle.xyz.spiral);
+
+    double min_radius2 = fmin(prev_tc->coords.circle.xyz.radius,
+            prev_tc->coords.circle.xyz.radius + prev_tc->coords.circle.xyz.spiral);
+
+    param->L1 = param->phi1_max * min_radius1;
+    param->L2 = param->phi2_max * min_radius2;
 
     if (param->convex1) {
         //use half of the length of the chord
-        param->L1 = sin(param->phi1_max/4.0) * prev_tc->coords.circle.xyz.radius;
+        param->L1 = sin(param->phi1_max/4.0) * min_radius1;
     }
     if (param->convex2) {
         //use half of the length of the chord
-        param->L2 = sin(param->phi2_max/4.0) * tc->coords.circle.xyz.radius;
+        param->L2 = sin(param->phi2_max/4.0) * min_radius2;
     }
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
     tp_debug_print("phi1_max = %f\n",param->phi1_max);
