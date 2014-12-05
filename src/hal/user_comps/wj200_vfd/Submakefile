@@ -21,6 +21,6 @@ hal/user_comps/wj200_vfd/wj200_vfd.c: hal/user_comps/wj200_vfd/wj200_vfd.comp ..
 	$(Q)install --mode=0644 hal/user_comps/wj200_vfd/wj200_vfd.9 $@
 
 TARGETS += ../bin/wj200_vfd
-TARGETS += ../docs/man/man9/wj200_vfd.9
+GENERATED_MANPAGES += ../docs/man/man9/wj200_vfd.9
 endif
 
