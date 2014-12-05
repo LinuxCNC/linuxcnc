@@ -1224,6 +1224,10 @@ hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o
 obj-$(CONFIG_PEPPER) += pepper.o
 pepper-objs := hal/components/pepper.o $(MATHSTUB)
 endif
+
+obj-m += hal_arm335xQEP.o
+hal_arm335xQEP-objs := hal/drivers/hal_arm335xQEP.o $(MATHSTUB)
+
 endif
 
 ifeq ($(BUILD_SYS),user-dso)
@@ -1534,6 +1538,7 @@ $(RTLIBDIR)/hal_prudebug$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_prudebug-obj
 $(RTLIBDIR)/hal_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio-objs))
 $(RTLIBDIR)/hal_bb_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_bb_gpio-objs))
 $(RTLIBDIR)/pepper$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pepper-objs))
+$(RTLIBDIR)/hal_arm335xQEP$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_arm335xQEP-objs))
 endif
 endif
 
