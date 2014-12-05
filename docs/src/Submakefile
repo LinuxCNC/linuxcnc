@@ -359,7 +359,7 @@ ifeq ($(TRIVIAL_BUILD),no)
 Makefile: $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
 endif
 
-docs: ../docs/man/man1/linuxcnc.1
+GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
 
 ../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
 	./config.status --file=$@:$<
