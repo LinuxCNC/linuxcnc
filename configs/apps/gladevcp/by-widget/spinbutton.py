@@ -10,7 +10,7 @@ class HandlerClass:
         widget.set_value(3.14)
 
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
 
     return [HandlerClass()]
 

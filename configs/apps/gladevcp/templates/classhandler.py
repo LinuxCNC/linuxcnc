@@ -40,7 +40,7 @@ class HandlerClass:
         return True
 
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         self.halcomp = halcomp
         self.builder = builder
         self.useropts = useropts
@@ -51,9 +51,9 @@ class HandlerClass:
         glib.timeout_add_seconds(1, self._on_timer_tick)
 
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
 
     for cmd in useropts:
         exec cmd in globals()
 
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]

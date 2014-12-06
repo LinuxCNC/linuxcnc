@@ -178,7 +178,7 @@ class HandlerClass:
         self.ini.restore_state(self)
 
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         self.halcomp = halcomp
         self.builder = builder
 
@@ -193,7 +193,7 @@ class HandlerClass:
 
         glib.timeout_add_seconds(1, self._query_emc_status)
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
 
     global debug
     for cmd in useropts:
@@ -201,4 +201,4 @@ def get_handlers(halcomp,builder,useropts):
 
     set_debug(debug)
 
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]

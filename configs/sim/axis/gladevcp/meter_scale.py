@@ -9,7 +9,7 @@ class HandlerClass:
         self.meter.max = float(hal_pin.get())
         self.meter.queue_draw() # force a widget redraw
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         self.builder = builder
 
         # hal pin with change callback.
@@ -23,5 +23,5 @@ class HandlerClass:
         self.meter.min = mmin
 
 
-def get_handlers(halcomp,builder,useropts):
-    return [HandlerClass(halcomp,builder,useropts)]
+def get_handlers(halcomp,builder,useropts,compname):
+    return [HandlerClass(halcomp,builder,useropts,compname)]

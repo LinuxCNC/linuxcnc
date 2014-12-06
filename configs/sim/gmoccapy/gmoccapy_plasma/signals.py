@@ -34,7 +34,7 @@ from gmoccapy import getiniinfo
 
 class SignalsClass:
 
-    def __init__(self, halcomp, builder, useropts):
+    def __init__(self, halcomp, builder, useropts,compname):
 
         get_ini_info = getiniinfo.GetIniInfo()
         prefs = preferences.preferences(get_ini_info.get_preference_file_path())
@@ -43,5 +43,5 @@ class SignalsClass:
             theme_name = gtk.settings_get_default().get_property("gtk-theme-name")
         gtk.settings_get_default().set_string_property("gtk-theme-name", theme_name, "")
 
-def get_handlers(halcomp, builder, useropts):
-    return[SignalsClass(halcomp, builder, useropts)]
+def get_handlers(halcomp, builder, useropts,compname):
+    return[SignalsClass(halcomp, builder, useropts,compname)]

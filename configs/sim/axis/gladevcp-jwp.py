@@ -66,5 +66,5 @@ class HandlerClass:
         self.motion_type  = hal_glib.GPin(halcomp.newpin('motion_type', hal.HAL_S32, hal.HAL_IN))
         self.motion_type.connect('value-changed', self._on_motion_type_changed)
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts, compname):
     return [HandlerClass(halcomp,builder,useropts)]
