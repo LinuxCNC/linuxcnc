@@ -11,7 +11,7 @@ LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 
-MAN_SRCS := $(sort \
+MAN_SRCS = $(sort \
 	$(patsubst %.in,%,$(wildcard $(DOC_DIR)/man/man1/*.1  $(DOC_DIR)/man/man1/*.1.in)) \
 	$(filter-out $(DOC_DIR)/man/man3/skeleton%, $(wildcard $(DOC_DIR)/man/man3/*.3rtapi $(DOC_DIR)/man/man3/*.3hal)) \
 	$(filter-out $(DOC_DIR)/man/man9/skeleton%, $(wildcard $(DOC_DIR)/man/man9/*.9)) \
@@ -308,7 +308,7 @@ DOC_TARGETS_HTML_ES := $(filter %_es.html, $(DOC_TARGETS_HTML))
 DOC_TARGETS_HTML_FR := $(filter %_fr.html, $(DOC_TARGETS_HTML))
 DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(DOC_TARGETS_HTML)) )
 
-MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
+MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
 PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started.pdf \
@@ -403,7 +403,7 @@ checkref_fr: $(DOC_TARGETS_HTML_FR) .htmldoc-stamp
 checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Spanish $^
 
-MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
+MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
 
 PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
