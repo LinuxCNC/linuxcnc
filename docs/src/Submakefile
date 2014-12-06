@@ -13,8 +13,8 @@ LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man1/*.1) \
-	$(filter-out $(DOC_DIR)/man/man3/skeleton%, $(wildcard $(DOC_DIR)/man/man3/*.3*)) \
-	$(filter-out $(DOC_DIR)/man/man9/skeleton%, $(wildcard $(DOC_DIR)/man/man9/*.9)) \
+	$(wildcard $(DOC_DIR)/man/man3/*.3*) \
+	$(wildcard $(DOC_DIR)/man/man9/*.9) \
 	$(GENERATED_MANPAGES))
 
 ifneq ($(MANDB),)
