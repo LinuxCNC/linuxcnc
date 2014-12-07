@@ -593,31 +593,31 @@ parameters>> can be added easily without changes to the source code.
     Return the current spindle speed (S).
 
 * `#<_x>` -
-    Return current machine X coordinate. Same as #5420.
+    Return current X coordinate. Same as #5420.
 
 * `#<_y>` -
-    Return current machine Y coordinate. Same as #5421.
+    Return current Y coordinate. Same as #5421.
 
 * `#<_z>` -
-    Return current machine Z coordinate. Same as #5422.
+    Return current Z coordinate. Same as #5422.
 
 * `#<_a>` -
-    Return current machine A coordinate. Same as #5423.
+    Return current A coordinate. Same as #5423.
 
 * `#<_b>` -
-    Return current machine B coordinate. Same as #5424.
+    Return current B coordinate. Same as #5424.
 
 * `#<_c>` -
-    Return current machine C coordinate. Same as #5425.
+    Return current C coordinate. Same as #5425.
 
 * `#<_u>` -
-    Return current machine U coordinate. Same as #5426.
+    Return current U coordinate. Same as #5426.
 
 * `#<_v>` -
-    Return current machine V coordinate. Same as #5427.
+    Return current V coordinate. Same as #5427.
 
 * `#<_w>` -
-    Return current machine W coordinate. Same as #5428.
+    Return current W coordinate. Same as #5428.
 
 * `#<_current_tool>` -
     Return number of the current tool in spindle. Same as #5400.
