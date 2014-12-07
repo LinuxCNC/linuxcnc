@@ -65,6 +65,7 @@ DOC_SRCS_EN := \
 	drivers/pluto_p.txt \
 	drivers/servo_to_go.txt \
 	drivers/shuttlexpress.txt \
+	drivers/hal_arm335xQEP.txt \
 	examples/gcode.txt \
 	examples/gs2_example.txt \
 	examples/mpg.txt \
