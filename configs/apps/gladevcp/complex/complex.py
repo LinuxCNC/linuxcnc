@@ -129,7 +129,7 @@ class HandlerClass:
         self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger',  hal.HAL_BIT, hal.HAL_IN))
         self.example_trigger.connect('value-changed', self._on_example_trigger_change)
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         '''
         Handler classes are instantiated in the following state:
         - the widget tree is created, but not yet realized (no toplevel window.show() executed yet)
@@ -190,7 +190,7 @@ class HandlerClass:
         glib.timeout_add_seconds(1, self._on_timer_tick)
 
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
     '''
     this function is called by gladevcp at import time (when this module is passed with '-u <modname>.py')
 
@@ -210,4 +210,4 @@ def get_handlers(halcomp,builder,useropts):
 
     if debug: print "%s.get_handlers() called" % (__name__)
 
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]

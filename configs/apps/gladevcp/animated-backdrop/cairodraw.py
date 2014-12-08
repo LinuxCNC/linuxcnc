@@ -31,7 +31,7 @@ class HandlerClass:
 
 
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
 
         self.builder = builder
         win = self.builder.get_object("window1")
@@ -56,6 +56,6 @@ class HandlerClass:
         # however the fixed widget does NOT do proportional scaling
         self.scale = 1
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
 
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]

@@ -28,7 +28,7 @@ class HandlerClass:
         return
 
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         self.halcomp = halcomp
         self.builder = builder
         self.useropts = useropts
@@ -49,11 +49,11 @@ class HandlerClass:
         self.combo.add_attribute(cell, "text", 0)
 
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
 
     global debug
     for cmd in useropts:
         exec cmd in globals()
 
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]
 

@@ -34,7 +34,7 @@ class HandlerClass:
         self.line -= 1
         self._set_line(self.line)
    
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         self.halcomp = halcomp
         self.builder = builder
 
@@ -51,6 +51,6 @@ class HandlerClass:
         self.mark = None
 
         
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
 
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]
