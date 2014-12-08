@@ -601,7 +601,7 @@ class Data:
             self[pinname+"23"] = _PD.UNUSED_PWM
             self[pinname+"23type"] = _PD.PWME
         for boardnum in(0,1):
-            for connector in(3,4,5,6,7,8,9):
+            for connector in(1,3,4,5,6,7,8,9):
                 # This initializes GPIO input pins
                 for i in range(0,16):
                     pinname ="mesa%dc%dpin%d"% (boardnum,connector,i)
@@ -614,7 +614,7 @@ class Data:
                     self[pinname] = _PD.UNUSED_OUTPUT
                     pinname ="mesa%dc%dpin%dtype"% (boardnum,connector,i)
                     self[pinname] = _PD.GPIOO
-            for connector in(2,3,4,5,6,7,8,9):
+            for connector in(1,2,3,4,5,6,7,8,9):
                 # This initializes the mesa inverse pins
                 for i in range(0,24):
                     pinname ="mesa%dc%dpin%dinv"% (boardnum,connector,i)
@@ -1334,7 +1334,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
                     comptype = "gpio"
-                    if '5i25' in boardname:
+                    if '5i25' in boardname or '7i76e' in boardname:
                         compnum = int(pinnum)+(concount*17)
                     else:
                         compnum = int(pinnum)+(concount*24)
@@ -1646,11 +1646,13 @@ class App:
                 dbg("****folder added :%s"%folder,mtype='firmware')
                 self._p.MESA_BOARDNAMES.append(folder)
             self._p.MESA_BOARDNAMES.append('5i25-Internal Data')
+            self._p.MESA_BOARDNAMES.append('7i76e-Internal Data')
         else:
             #TODO what if there are no external firmware is this enough?
             self.warning_dialog(_("You have no hostmot2 firmware downloaded in folder:\n%s\n\
 PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             self._p.MESA_BOARDNAMES.append('5i25-Internal Data')
+            self._p.MESA_BOARDNAMES.append('7i76e-Internal Data')
         # add any extra firmware boardnames from .pncconf-preference file 
         if not self._p.EXTRA_MESA_FIRMWAREDATA == []:
             for search, item in enumerate(self._p.EXTRA_MESA_FIRMWAREDATA):
@@ -2398,7 +2400,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         cb = "mesa%d_firmware"% (boardnum)
         i = "_mesa%dsignalhandler_firmware_change"% (boardnum)
         self.d[i] = int(self.widgets[cb].connect("changed", self.on_mesa_firmware_changed,boardnum))
-        for connector in (2,3,4,5,6,7,8,9):
+        for connector in (1,2,3,4,5,6,7,8,9):
             for pin in range(0,24):
                 cb = "mesa%dc%ipin%i"% (boardnum,connector,pin)
                 i = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
@@ -2484,7 +2486,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         #print "**** INFO boardname %d changed"% boardnum
         model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
         title = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
-        for i in(2,3,4,5,6,7,8,9):
+        for i in(1,2,3,4,5,6,7,8,9):
             self.widgets['mesa%dcon%dtable'%(boardnum,i)].hide()
         for i in(0,1,2,3,4,5):
             self.widgets["mesa%dsserial0_%d"%(boardnum,i)].hide()
@@ -2912,6 +2914,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if currentboard == "5i25":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
+        if currentboard == "7i76e":
+            for i in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]:
+                self.widgets["mesa%dcon%dtable"% (boardnum,i)].show()
+
         if currentboard == "7i43":
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
@@ -3385,7 +3391,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                 self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
                             else:
                                 self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
-                    elif '5i25' in currentboard:
+                    elif '5i25' in currentboard or '7i76e' in currentboard:
                          self.widgets[complabel].set_text("%03d:"%(concount*17+pin))# 5i25 mainboard GPIO
                     else:
                          self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
@@ -5133,7 +5139,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.d[pinname] = False        
         # clear all unused mesa signals
         for boardnum in(0,1):
-            for connector in(2,3,4,5,6,7,8,9):
+            for connector in(1,2,3,4,5,6,7,8,9):
                 if self.d.number_mesa >= boardnum + 1 :
                     if connector in(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]) :
                         continue
@@ -5340,14 +5346,18 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             directory1 = self.d.mesa1_currentfirmwaredata[_PD._DIRECTORY]
             firm0 = self.d.mesa0_currentfirmwaredata[_PD._FIRMWARE]
             firm1 = self.d.mesa1_currentfirmwaredata[_PD._FIRMWARE]
-            firmstring0 = firmstring1 = ""
+            firmstring0 = firmstring1 = board0_ip = board1_ip = ""
             mesa0_3pwm = mesa1_3pwm = ''
             mesa0_ioaddr = mesa1_ioaddr = ''
             load_cmnds.append("loadrt hostmot2")
             if '7i43' in board0:
-                mesa0_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.d.mesa0_parportaddrs 
+                mesa0_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.d.mesa0_parportaddrs
             if '7i43' in board1:
-                mesa1_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.d.mesa1_parportaddrs 
+                mesa1_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.d.mesa1_parportaddrs
+            if '7i76e' in board0:
+                board0_ip = ''' board_ip="192.168.1.121"'''
+            if '7i76e' in board1:
+                board1_ip = ''' board_ip="192.168.1.121"'''
             if not "5i25" in board0:
                 firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
             if not "5i25" in board1:
@@ -5387,22 +5397,22 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 mesa1_3pwm = ' num_3pwmgens=%d' %self.d.mesa1_numof_tppwmgens
 
             if self.d.number_mesa == 1:            
-                load_cmnds.append( """loadrt%s%s config="%s num_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
-                    driver0, mesa0_ioaddr, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, 
+                load_cmnds.append( """loadrt%s%s%s config="%s num_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
+                    driver0, board0_ip, mesa0_ioaddr, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, 
                     mesa0_3pwm, self.d.mesa0_numof_stepgens, ssconfig0, resolver0))
             elif self.d.number_mesa == 2 and (driver0 == driver1):
-                load_cmnds.append( """loadrt%s%s config="%s num_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s,\
+                load_cmnds.append( """loadrt%s%s%s config="%s num_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s,\
                                 %s%s num_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
-                    driver0, mesa0_ioaddr, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens,
+                    driver0, board0_ip, mesa0_ioaddr, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens,
                      mesa0_3pwm, self.d.mesa0_numof_stepgens, ssconfig0, resolver0, mesa1_ioaddr, firmstring1,
                     self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, mesa1_3pwm,
                     self.d.mesa1_numof_stepgens, ssconfig1, resolver1))
             elif self.d.number_mesa == 2:
-                load_cmnds.append( """loadrt%s%s config="%s num_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
-                    driver0, mesa0_ioaddr, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens,
+                load_cmnds.append( """loadrt%s%s%s config="%s num_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
+                    driver0, board0_ip, mesa0_ioaddr, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens,
                     mesa0_3pwm, self.d.mesa0_numof_stepgens, ssconfig0, resolver0 ))
-                load_cmnds.append( """loadrt%s%s config="%s num_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
-                    driver1, mesa1_ioaddr, firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens,
+                load_cmnds.append( """loadrt%s%s%s config="%s num_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
+                    driver1, board1_ip, mesa1_ioaddr, firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens,
                     mesa0_3pwm, self.d.mesa1_numof_stepgens, ssconfig1, resolver1 ))
             for boardnum in range(0,int(self.d.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
@@ -5434,6 +5444,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     halnum = 0         
                 write_cmnds.append( "addf hm2_%s.%d.write         servo-thread"%
                     (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
+                if '7i76e' in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]:
+                    write_cmnds.append( "setp hm2_%s.%d.dpll.01.timer-us -50"%
+                        (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
+                    write_cmnds.append( "setp hm2_%s.%d.stepgen.timer-number 1"%
+                        (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
             return load_cmnds,read_cmnds,write_cmnds
 
     def pport_command_string(self):
