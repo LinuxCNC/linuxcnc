@@ -147,6 +147,7 @@ spindlerate_blackout = 0
 maxvel_blackout = 0
 jogincr_index_last = 1
 mdi_history_index= -1
+resume_inhibit = 0
 
 help1 = [
     ("F1", _("Emergency stop")),
@@ -783,6 +784,14 @@ class LivePlotter:
                  self.notifications_clear_error = notifications_clear_error
                  if self.notifications_clear_error:
                      notifications.clear("error")
+            now_resume_inhibit = comp["resume-inhibit"]
+            global resume_inhibit
+            if resume_inhibit != now_resume_inhibit:
+                 resume_inhibit = now_resume_inhibit
+                 if resume_inhibit:
+                     root_window.tk.call("pause_image_override")
+                 else:
+                     root_window.tk.call("pause_image_normal")
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
         vupdate(vars.task_paused, self.stat.task_paused)
@@ -2037,6 +2046,8 @@ class TclCommands(nf.TclCommands):
         ensure_mode(linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI)
         s.poll()
         if s.paused:
+            global resume_inhibit
+            if resume_inhibit: return
             c.auto(linuxcnc.AUTO_RESUME)
         elif s.interp_state != linuxcnc.INTERP_IDLE:
             c.auto(linuxcnc.AUTO_PAUSE)
@@ -3198,6 +3209,8 @@ if hal_present == 1 :
     comp.newpin("notifications-clear",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
+    comp.newpin("resume-inhibit",hal.HAL_BIT,hal.HAL_IN)
+
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
     if vcp:

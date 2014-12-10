@@ -1,0 +1,29 @@
+moveoff.comp is a 'Hal-only' method for providing offsets for up to nine axes (x,y,z,a,b,c,u,v,w).
+
+The component can be used to add offsets to the machine postion when a running program is paused.
+
+The moveoff.comp component provides min, max, velocity, and acceleration limits for each axis (similar to the limit3 component).
+
+See the manpage for more informaion:
+
+$ man moveoff
+
+The demonstration configs show:
+  o moveoff.hal - a halfile to connect to the moveoff component
+  o moveoff_gui - a simple gui with controls
+  o moveoff_gui - interfaced to simulated external controls
+  o hookup_moveoff.tcl - a script to connect the moveoff component
+  o moveoff.halscope - halscope configs to illustrate movement
+    (GUI's to not show Hal-only offset movements)
+
+Demonstration configs:
+
+demo1 moveoff.hal, sim_pin for control pins and axis 2
+
+demo2 moveoff.hal, moveoff_gui with controls
+demo3 moveoff.hal, moveoff_gui with simulated external controls
+
+demo4 hookup_moveoff.tcl, moveoff_gui with controls
+demo5 hookup_moveoff.tcl, moveoff_gui with simulated external controls
+
+demo6 is similar to demo4 but uses a halfile named removeshort.tcl to verify operation of hookup_moveoff.tcl for 'servo-like' hal configurations

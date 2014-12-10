@@ -1,0 +1,21 @@
+# halfile to illustrate external application
+# that controls offsets (like a jog wheel)
+# this halfile should follow moveoff.hal
+
+# overall enable for the component:
+# 0 ==> external control of move-enable required
+setp mv.move-enable 0
+
+# an external app must connect the mv.move-enable pin
+# to control:
+net external_enable    mv.move-enable
+
+# an external app must connect to the mv.offset-in-M pins
+# to control:
+net external_offset_0 mv.offset-in-0
+net external_offset_1 mv.offset-in-1
+net external_offset_2 mv.offset-in-2
+
+# an external app may optionally connect the mv.backtrack-enable pin
+# to manage backtracking:
+net external_backtrack_en mv.backtrack-enable
