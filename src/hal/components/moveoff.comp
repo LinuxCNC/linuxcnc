@@ -2,69 +2,85 @@ component moveoff "Component for Hal-only offsets";
 
 description
 """
-The component may be used to supply offsets while a program is paused.
-Nine axes are supported.
+The component may be used to supply offsets using custom hal connections.
+Implementing an offset-while-program-is-paused functionality is supported
+with appropriate connections for the input pins.  Nine axes are supported.
 
 The axis offset pin values (offset-in-M) are continuously applied (respecting
-limits on value, velocity, and acceleration) when the machine is on (per the
-is-on pin) and a program is paused (per the apply-offset pin) if the move-enable
-pin is True.  The offset(s) should be returned to zero value by changing the
-offset-in-M pin values or by deasserting move-enable BEFORE the program is
-resumed.  The applied offsets are automatically returned to zero (respecting
-limits) when the move-enable input is deactivated.  The zero value tolerance is
-specified by the epsilon input pin value.
+limits on value, velocity, and acceleration) when 1) the machine is on (per the
+is-on pin) and 2) the apply-offset pin is TRUE and 3) the move-enable pin is
+TRUE.  The offset(s) should be returned to zero value by changing the
+offset-in-M pin values or by deasserting move-enable \\fBBEFORE\\fR the
+apply-offsets pin is deasserted (typically before a program is resumed when
+offsetting during a pause).  The applied offsets are \\fBautomatically
+returned\\fR to zero (respecting limits) when \\fBany\\fR of the enabling
+inputs is deactivated.  The zero value tolerance is specified by the epsilon
+input pin value.
 
 When the pin backtrack-enable is TRUE, waypoints are recorded and the
 auto-return path follows the recorded waypoints.  Waypoints are managed with
 the waypoint-sample-secs and waypoint-threshold pins.  When the memory
-available for waypoints is exceeded, motion is stopped and the waypoint-limit
-pin is asserted.  The enabling signals must be removed to allow a return to the
+available for waypoints is exceeded, offsets are frozen and the waypoint-limit
+pin is asserted.  An enabling pin must be deasserted to allow a return to the
 original (non-offset position).
 
-Backtracking through waypoints results in slower movement times as the moves are
-point-to-point respecting velocity and acceleration settings.  The
-backtrack-enable, waypoint-sample-secs, and waypoint-threshold pins are
-evaluated only when the component is idle -- e.g., not commanding motion .
+Backtracking through waypoints results in \\fBslower\\fR movement times as the
+moves are point-to-point respecting velocity and acceleration settings.  The
+velocity and acceleration limit pins can be managed dynamically to control
+offsets at all times.
 
-When backtrack-enable is FALSE, the auto-return move is NOT coordinated, each
-axis moves at its own rate.  If a controlled path is wanted, each axis should
-be manually returned to zero before deasserting the move-enable pin
+The backtrack-enable, waypoint-sample-secs, waypoint-threshold, and epsilon
+pins are evaluated only when the component is idle.
 
-The offsets-applied output pin is provided to indicate to a GUI that a program
-may be resumed.  If the offset(s) are non-zero when the program is resumed, the
-offsets are returned to zero (respecting limits) and an error message is
-issued.
+When backtrack-enable is FALSE, the auto-return move is \\fBNOT\\fR
+coordinated, each axis moves at its own rate.  If a controlled path is wanted
+in this condition, each axis should be manually returned to zero before
+deasserting the move-enable pin
 
-BEWARE: If a running program: 1) is paused and 2) offset(s) are applied and 3)
-the is-on input is deactivated for any reason, a servo system will
-potentially have a large error due to the offset output position as measured by
-its encoder.  When the machine is subsequently turned on again, the servo will
-likely correct the error with full force.  YOU HAVE BEEN WARNED.
+The offsets-applied output pin is provided to indicate the current state to a
+GUI so that program resumption can be managed.  If the offset(s) are non-zero
+when the apply-offsets pin is deasserted (typically when resuming a program
+when offsetting during a pause), offsets are returned to zero (respecting
+limits) and an \\fBError\\fR message is issued.
 
-This Hal-only means of offsetting is typically not known to LinuxCNC nor
-available in GUI preview displays.  No protection is provided for offset moves
-that exceed soft limits managed by linuxCNC.  Since soft limits are not honored,
-an offset move may encounter hard limits (or crash if there are no limit
-switches).  Use of the offset-min-M and offset-max-M inputs to limit travel is
-recommended.  Triggering a hard limit will turn off the machine deasserting is-on
--- see BEWARE above.
+\\fBBEWARE:\\fR If 1) offsets are enabled (apply-offsets,is-on,and move-enable
+pins all TRUE) and 2) offset(s) are applied and 3) the machine is turned off
+(is-on deactivated) for \\fBany\\fR reason, a servo system will potentially
+have a large error due to the offset output position as measured by its
+encoder.  When the machine is subsequently turned on again, the servo will
+likely correct the error with full force.  \\fBYOU HAVE BEEN WARNED.\\fR
+
+This Hal-only means of offsetting is typically \\fBnot known\\fR to LinuxCNC
+nor available in GUI preview displays.  \\fBNo protection is provided\\fR for
+offset moves that exceed soft limits managed by LinuxCNC.  Since soft limits
+are not honored, an offset move may encounter hard limits (or \\fBCRASH\\fR if
+there are no limit switches).  Use of the offset-min-M and offset-max-M inputs
+to limit travel is \\fBrecommended\\fR.  Triggering a hard limit will turn off
+the machine deasserting is-on -- see \\fBBEWARE\\fR above.
 
 The offset-in-M values may be set with inifile settings or controlled by a GUI.
 Fixed values may be appropriate in simple cases where the direction and amount
-of offset is well-defined but a control method is required to deactivate the
-move-enable input in order to resume the program properly.  GUIs can provide
-means for users to set, increment or decrement offset values for each axis and
-may set offset-in-M values to zero when not in use (e.g., when a program is not
-paused).  It may be useful to provide controls to manage the offset limits on
-value, velocity and acceleration.
+of offset is well-defined but a control method is \\fBrequired\\fR to
+deactivate the move-enable input in order to return offsets to zero.  GUIs may
+provide means for users to set, increment, decrement, and accumulate offset
+values for each axis and may set offset-in-M values to zero before deasserting
+move-enable.
 
-The default values for accel, vel, min, and max may not be suitable for any
-particular applcation.  This Hal component is unaware of limits enforced
-elsewhere by LinuxCNC.  Users should test usage in a simulator application and
-understand all hazards before use on hardware.
+The default values for accel, vel, min, max, epsilon, waypoint-sample-secs, and
+waypoint-threshold may not be suitable for any particular application.  This
+Hal component is \\fBunaware\\fR of limits enforced elsewhere by LinuxCNC.
+Users should \\fBtest\\fR usage in a simulator application and understand all
+hazards \\fBbefore\\fR use on hardware.
 
-Use of the names= option for naming is recommended:
-   loadrt moveoff names=mv
+The module personality item sets the number of axes supported (default==3,
+maximum is 9).
+
+Use of the names= option for naming is \\fBrecommended\\fR for compatibilty
+with the gui provided in scripts/moveoff_gui:
+  loadrt moveoff names=\\fBmv\\fR
+
+
+
 """;
 
 //"""" quote char for vim highlighting
@@ -92,11 +108,11 @@ pin in  bit is_on "Connect to halui.machine.is-on";
 pin in  bit apply_offsets "For offset while paused, connect to halui.program.is_paused";
 pin in  bit backtrack-enable = 1 "Enable backtrack on auto-return move";
 
-pin in  float epsilon=0.0005 "When apply-offset is deactivated, return to unpaused position within epsilon units.  Warning: values that are too small in value may cause overshoot";
-pin in float waypoint-threshold = 0.02 "Minimum distance for new waypoint (single axis)";
+pin in  float epsilon=0.0005 "When apply-offset is deactivated, return to un-offsetted position within epsilon units.  Warning: values that are too small in value may cause overshoot,  A minimum value of 0.0001 is \\fBsilently enforced\\fR.";
+pin in float waypoint-threshold = 0.02 "Minimum distance (in a single axis) for new waypoint";
 pin in float waypoint-sample-secs = 0.02 "Minimum sample interval (in seconds) for waypoint recording";
 
-pin out bit offset_applied "True if one or more offsets are applied";
+pin out bit offset_applied "TRUE if one or more offsets are applied";
 pin out bit waypoint-limit = 0 "Indicates waypoint limit reached (motion ceases, gui must deactivate an enable signal to initiate return to original position";
 pin out s32 waypoint-ct "Waypoint count (for debugging)";
 pin out s32 waypoint-percent-used "Percent of available waypoints used";
@@ -132,6 +148,7 @@ license "GPL";
 #define NCHANNELS         9
 #define NWAYPOINTS     1000
 #define TST_NWAYPOINTS   50
+#define MIN_EPSILON       0.0001
 
 typedef enum {
   IDLE,
@@ -292,6 +309,7 @@ static hal_float_t  goal[NCHANNELS];
 static hal_float_t  waypoints[NCHANNELS][NWAYPOINTS];
 static old_values_t data;
 
+static hal_float_t  eps_in_use;
 static bool         move = 0;
 static the_state    next_state;
 
@@ -307,6 +325,9 @@ FUNCTION(read_inputs) {
         backtrack = backtrack_enable;
         move_threshold = waypoint_threshold;
         min_sample_interval = waypoint_sample_secs;
+        eps_in_use = epsilon;
+        if (eps_in_use < MIN_EPSILON) { eps_in_use = MIN_EPSILON; }
+        
 
         if (dbg_waypoint_limit_test) {
             max_waypoints = TST_NWAYPOINTS; // tiny limit for testing
@@ -422,7 +443,7 @@ FUNCTION(read_inputs) {
                     for (r=0; r < personality; r++) {
                         pcur[r] = offset_current(r);
                     }
-                    if (at_waypoint(personality, goal, pcur, epsilon)) {
+                    if (at_waypoint(personality, goal, pcur, eps_in_use)) {
                         for (r = 0; r < personality; r++) {
                             goal[r] = waypoints[r][next_waypoint_index];
                         }
@@ -437,13 +458,13 @@ FUNCTION(read_inputs) {
 
             if (   !gave_msg
                 && !apply_offsets
-                && !offset_removed(personality, data, epsilon)
+                && !offset_removed(personality, data, eps_in_use)
                ) {
                 // apply_offsets deactivated
                 gave_msg = 1;
                 rtapi_print_msg(RTAPI_MSG_ERR,
                 "moveoff.comp: ERROR:\n"
-                "Program resumed before offsets removed\n");
+                "apply-offsets deasserted before offsets removed\n");
                 for (r = 0; r < personality; r++) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
                                "Index: %i, offset=%f\n",
@@ -451,7 +472,7 @@ FUNCTION(read_inputs) {
                 }
             }
             was_apply_offsets = 0;
-            if (offset_removed(personality, data, epsilon)) {
+            if (offset_removed(personality, data, eps_in_use)) {
                 next_state = IDLE;
                 move = 0;
                 reset_old(personality, data);
@@ -495,7 +516,7 @@ FUNCTION(write_outputs) {
         }
     }
 
-    offset_applied = ! offset_removed(personality, data, epsilon);
+    offset_applied = ! offset_removed(personality, data, eps_in_use);
     if ( backtrack && !offset_applied ) {
         // reset backtrack
         next_waypoint_index = 0;

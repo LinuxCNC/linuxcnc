@@ -303,6 +303,7 @@ proc zero_all_offsets {} {
 
 proc make_gui {} {
   set t $::MV(top)
+  wm withdraw $::MV(top)
 
   set f1 [frame $t.[qid] -relief groove -bd 4]
   pack $f1 -fill x -expand 1 -side top
@@ -355,6 +356,7 @@ proc make_gui {} {
       pack $::MV(bump,minus,$aname) -side left
 
       set ::MV(bump,zero,$aname) [button $f2.[qid] -bd 2 \
+                                 -width $::MV(button,increment,width) \
                                  -text "0" \
                                  -command [list bump_offset $aname zero]]
       pack $::MV(bump,zero,$aname) -side left
@@ -397,6 +399,9 @@ proc make_gui {} {
                           -state normal \
                           -textvariable ::MV(label,message,text) ]
   pack $::MV(label,message) -side left -fill x -expand 1
+  if {$::MV(location) == "center"} {
+    set ::MV(location) [wmcenter $::MV(top)]
+  }
   wm resizable $t 0 0
 } ;# make_gui
 
@@ -803,10 +808,6 @@ if ![info exists ::MV(top)] {
   }
   wm title $::MV(top) "$txt"
   wm protocol $::MV(top) WM_DELETE_WINDOW bye
-  if {$::MV(location) == "center"} {
-    set ::MV(location) [wmcenter $::MV(top)]
-  }
-  wm withdraw $::MV(top)
   make_gui
   do_poll
   if $::MV(opt,debug) {parray ::MV}
