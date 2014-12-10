@@ -105,6 +105,7 @@ MAKEFLAGS += w
 # as a "substitute at assignment time" variable
 TARGETS :=
 PYTARGETS :=
+GENERATED_MANPAGES :=
 
 # Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \

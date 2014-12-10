@@ -141,7 +141,7 @@ static struct option long_options[] = {
     {0,0,0,0}
 };
 
-static char *option_string = "b:d:hn:p:r:s:t:v";
+static char *option_string = "gb:d:hn:p:r:s:t:vA:D:R";
 
 static char *bitstrings[] = {"5", "6", "7", "8", NULL};
 

@@ -15,8 +15,9 @@ else
 COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
 endif
 COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
-manpages: $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
 TARGETS += manpages
+GENERATED_MANPAGES += $(COMP_MANPAGES)
+GENERATED_MANPAGES += $(COMP_DRIVER_MANPAGES)
 .PHONY: manpages
 ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
@@ -50,9 +51,8 @@ objects/%.c: %.comp ../bin/halcompile
 
 modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))
 
-clean: clean-comp-manpages
-clean-comp-manpages:
-	-rm -f $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
+# keep this make target in 2.6, remove in 2.7 (just use 'clean-manpages' in 2.7+)
+clean-comp-manpages: clean-manpages
 
 HALSTREAMERSRCS := hal/components/streamer_usr.c
 USERSRCS += $(HALSTREAMERSRCS)

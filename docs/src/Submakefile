@@ -11,11 +11,11 @@ LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 
-MAN_SRCS := $(sort \
-	$(patsubst %.in,%,$(wildcard $(DOC_DIR)/man/man1/*.1  $(DOC_DIR)/man/man1/*.1.in)) \
-	$(filter-out $(DOC_DIR)/man/man3/skeleton%, $(wildcard $(DOC_DIR)/man/man3/*.3rtapi $(DOC_DIR)/man/man3/*.3hal)) \
-	$(filter-out $(DOC_DIR)/man/man9/skeleton%, $(wildcard $(DOC_DIR)/man/man9/*.9)) \
-	$(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES))
+MAN_SRCS = $(sort \
+	$(wildcard $(DOC_DIR)/man/man1/*.1) \
+	$(wildcard $(DOC_DIR)/man/man3/*.3*) \
+	$(wildcard $(DOC_DIR)/man/man9/*.9) \
+	$(GENERATED_MANPAGES))
 
 ifneq ($(MANDB),)
 default: $(DOC_DIR)/man/index.db
@@ -309,7 +309,7 @@ DOC_TARGETS_HTML_ES := $(filter %_es.html, $(DOC_TARGETS_HTML))
 DOC_TARGETS_HTML_FR := $(filter %_fr.html, $(DOC_TARGETS_HTML))
 DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(DOC_TARGETS_HTML)) )
 
-MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
+MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
 PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started.pdf \
@@ -360,10 +360,18 @@ ifeq ($(TRIVIAL_BUILD),no)
 Makefile: $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
 endif
 
-docs: ../docs/man/man1/linuxcnc.1
+GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
 
 ../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
 	./config.status --file=$@:$<
+
+docs: manpages
+manpages: $(GENERATED_MANPAGES)
+
+clean: clean-manpages
+clean-manpages:
+	-rm -f $(GENERATED_MANPAGES)
+
 
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
@@ -376,7 +384,7 @@ endif
 pdfdocs: $(PDF_TARGETS)
 htmldocs: .htmldoc-stamp checkref
 
-.htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .html-images-stamp $(MAN_HTML_TARGETS)
+.htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .html-images-stamp
 	touch $@
 
 .PHONY: copy_asciidoc_files
@@ -396,7 +404,7 @@ checkref_fr: $(DOC_TARGETS_HTML_FR) .htmldoc-stamp
 checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Spanish $^
 
-MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
+MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
 
 PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
@@ -451,20 +459,40 @@ ST := style=\" \
     column-gap: 4ex; \
 \"
 
-objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
-	echo "<A NAME=\"man1\"><LI>Commands and userspace components<UL $(ST)>" > $@.tmp
-	for i in $(filter %.1.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "</UL><BR>" >> $@.tmp
-	echo "<A NAME=\"man9\"><LI>Realtime components and kernel modules<UL $(ST)>" >> $@.tmp
-	for i in $(filter %.9.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "</UL><BR>" >> $@.tmp
-	echo "<A NAME=\"man3hal\"><LI>HAL API calls<UL $(ST)>" >> $@.tmp
-	for i in $(filter %.3hal.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "</UL><BR>" >> $@.tmp
-	echo "<A NAME=\"man3rtapi\"><LI>RTAPI calls<UL $(ST)>" >> $@.tmp
-	for i in $(filter %.3rtapi.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "</UL><BR>" >> $@.tmp
-	mv -f $@.tmp $@
+#
+# This function appends a section to the "manpages" HTML fragment called
+# index.incl, listing all the specified manpages.  It takes 2 arguments:
+#     * the part of the manpage space, for example "1" or "3rtapi"
+#     * the manpage section title
+#
+ADD_HTML_MANPAGES = \
+	@echo "Adding manpages: man$(strip $(1)): $(strip $(2))"; \
+	echo "<A NAME=\"man$(strip $(1))\"><LI>$(strip $(2))<UL $(ST)>" >> objects/index.incl; \
+	for HTML_FILE in $(filter %.$(strip $(1)).html, $(MAN_HTML_TARGETS)); do \
+		BASENAME=$$(basename $$HTML_FILE .html); \
+		echo "<LI><A HREF=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$$BASENAME</A>"; \
+	done >> objects/index.incl; \
+	echo "</UL><BR>" >> objects/index.incl
+
+objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
+	rm -f $@
+	$(call ADD_HTML_MANPAGES, 1, Commands and userspace components)
+	$(call ADD_HTML_MANPAGES, 9, Realtime components and kernel modules)
+	$(call ADD_HTML_MANPAGES, 3hal, API calls: HAL)
+	$(call ADD_HTML_MANPAGES, 3rtapi, API calls: RTAPI)
+	$(call ADD_HTML_MANPAGES, 3hm2,  API calls: Hostmot2)
+	$(call ADD_HTML_MANPAGES, 3, API calls: General)
+	
+	# now make sure all manpages made it into the html index
+	FAIL=0; \
+	for F in $$(find $(DOC_DIR)/man/man? -type f); do \
+		B=$$(basename $$F); \
+		if ! grep -q $$B $@; then \
+			echo stray manpage not added to index: $$B; \
+			FAIL=1; \
+		fi; \
+	done; \
+	if [ $$FAIL -ne 0 ]; then false; fi
 
 $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
 	cat $(filter-out ../VERSION, $^) | \

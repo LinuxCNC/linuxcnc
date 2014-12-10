@@ -15,7 +15,7 @@ afficher son interface graphique.
 [[cap:Fenetre-AXIS]]
 .Fenêtre d'AXIS
 
-image::images/axis_25_fr.png[]
+image::../common/images/axis_25_fr.png[]
 
 == Commencer avec AXIS
 

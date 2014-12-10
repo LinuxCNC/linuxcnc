@@ -147,19 +147,19 @@ pin_12_in = pin_12_in_fake;
 pin_13_in = pin_13_in_fake;
 pin_15_in = pin_15_in_fake;
 
-pin_02_in_invert = pin_02_in ^ 1;
-pin_03_in_invert = pin_03_in ^ 1;
-pin_04_in_invert = pin_04_in ^ 1;
-pin_05_in_invert = pin_05_in ^ 1;
-pin_06_in_invert = pin_06_in ^ 1;
-pin_07_in_invert = pin_07_in ^ 1;
-pin_08_in_invert = pin_08_in ^ 1;
-pin_09_in_invert = pin_09_in ^ 1;
-pin_10_in_invert = pin_10_in ^ 1;
-pin_11_in_invert = pin_11_in ^ 1;
-pin_12_in_invert = pin_12_in ^ 1;
-pin_13_in_invert = pin_13_in ^ 1;
-pin_15_in_invert = pin_15_in ^ 1;
+pin_02_in_invert = ! pin_02_in;
+pin_03_in_invert = ! pin_03_in;
+pin_04_in_invert = ! pin_04_in;
+pin_05_in_invert = ! pin_05_in;
+pin_06_in_invert = ! pin_06_in;
+pin_07_in_invert = ! pin_07_in;
+pin_08_in_invert = ! pin_08_in;
+pin_09_in_invert = ! pin_09_in;
+pin_10_in_invert = ! pin_10_in;
+pin_11_in_invert = ! pin_11_in;
+pin_12_in_invert = ! pin_12_in;
+pin_13_in_invert = ! pin_13_in;
+pin_15_in_invert = ! pin_15_in;
 
 }
 

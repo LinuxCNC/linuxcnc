@@ -18,6 +18,42 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
 
+linuxcnc (1:2.6.5) precise; urgency=low
+
+  * gmoccapy: virtual keyboard "bug" not initialized settings correct
+  * gmoccapy: initialize mouse button mode corrected
+  * gmoccapy: PAUSE button did not get active on M01
+
+  * hostmot2: fix default address of the second EPP port (7i43 and 7i90)
+
+  * gs2_vfd: add missing short command line arguments -g, -A, -D, and -R
+  * lincurve: improve manpage
+
+  * docs: correct G43 description
+  * docs: improve G2 examples
+  * docs: fix up whitespace in mux_generic(9) manpage
+  * docs: document comp extra_link_args
+  * docs: document Signed-off-By procedure
+  * docs: include many missing manpages in the html index
+
+  * comp: test that option extra_link_args works
+  * comp: 'option extra_link_args' needs a string
+
+  * latency-histogram: clean up on ^C
+
+  * task: remove some dead code
+  * task: fix a dropped-mdi bug
+
+  * rebrand a realtime warning message from motion
+
+  * tests: reorganize the halui test dir layout
+  * tests: add a halui mdi test
+  * tests: fix a spurious false failure in the tlo test
+
+  * NML: improved debugging in interp_list
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Mon, 08 Dec 2014 22:38:23 -0700
+
 linuxcnc (1:2.6.4) precise; urgency=low
 
   * axis gui: fix shift-jog speed being too slow on inch configs displaying mm
