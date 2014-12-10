@@ -535,13 +535,19 @@ For info:\n$::MV(prog) --help | more"
     set ans [hal show pin *.resume-inhibit]
     set lines [split $ans \n]
     set rest ""
-    scan [lindex $lines 2] "%s %s %s %s %s %s" owner type dir value name rest
-    if {$type == "bit" && $dir == "IN"} {
-      if {[is_connected $name] != "not_connected"} {
-        puts "$::MV(prog):verify_context: found <$name> already connected"
-      } else {
-        set ::MV(resume-inhibit,pin) "$name"
+    if {[catch {
+
+      scan [lindex $lines 2] "%s %s %s %s %s %s" owner type dir value name rest
+      if {$type == "bit" && $dir == "IN"} {
+        if {[is_connected $name] != "not_connected"} {
+          puts "$::MV(prog):verify_context: found <$name> already connected"
+        } else {
+          set ::MV(resume-inhibit,pin) "$name"
+        }
       }
+
+    } msg ] }  {
+      puts "$::MV(prog): No pin named *.resume-inhibit"
     }
   }
   return ""
