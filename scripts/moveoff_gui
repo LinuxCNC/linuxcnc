@@ -688,6 +688,17 @@ proc error_popup {msg} { \
 } ;# popup
 #-----------------------------------------------------------------------
 proc usage {  {errtxt ""} } {
+  foreach item {resume_withdelay \
+                noentry \
+                no_resume_inhibit \
+                no_pause_requirement \
+               } {
+    if $::MV(opt,$item) {
+      set default_$item inuse
+    } else {
+      set default_$item notused
+    }
+  }
   puts stdout "\
 
 $::MV(prog):
@@ -747,16 +758,16 @@ Usage:
                               (Overall gui popup size is based on font size)
     \[-loc center|+x+y\]      (default: $::MV(location))
                               (example: -loc +10+200)
-    \[-autoresume\]           (default: $::MV(opt,resume_withdelay))
+    \[-autoresume\]           (default: $default_resume_withdelay)
                               (resume program when move-enable deasserted)
     \[-delay delay_secs\]     (default: $::MV(resume,delay,secs) (resume delay))
 
 These options are availabe for special cases:
-    \[-noentry\]              (default: $::MV(opt,noentry))
+    \[-noentry\]              (default: $default_noentry)
                               (don\'t create entry widgets)
-    \[-no_resume_inhibit\]    (default: $::MV(opt,no_resume_inhibit))
+    \[-no_resume_inhibit\]    (default: $default_no_resume_inhibit)
                               (do not use a resume-inhibit-pin)
-    \[-no_pause_requirement\] (default: $::MV(opt,no_pause_requirement))
+    \[-no_pause_requirement\] (default: $default_no_pause_requirement)
                               (no check for halui.program.is-paused)
 "
 #"vim
