@@ -109,17 +109,6 @@ typedef struct {
 } BlendPoints3;
 
 
-/**
- * Spiral arc length approximation by quadratic fit.
- */
-typedef struct {
-    double b0;                  /* 2nd order coefficient */
-    double b1;                  /* 1st order coefficient */
-    double total_planar_length; /* total arc length in plane */
-    int spiral_in;              /* flag indicating spiral is inward,
-                                   rather than outward */
-} SpiralArcLengthFit;
-
 
 #ifdef BLEND_9D
 typedef struct {
