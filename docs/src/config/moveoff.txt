@@ -70,16 +70,16 @@ as follows:
                                    (Overall gui popup size is based on font size)
          [-loc center|+x+y]      (default: center)
                                    (example: -loc +10+200)
-         [-autoresume]           (default: 0)
+         [-autoresume]           (default: notused)
                                    (resume program when move-enable deasserted)
          [-delay delay_secs]     (default: 5 (resume delay))
 
      These options are availabe for special cases:
-         [-noentry]              (default: 0)
+         [-noentry]              (default: notused)
                                    (don't create entry widgets)
-         [-no_resume_inhibit]    (default: 0)
+         [-no_resume_inhibit]    (default: notused)
                                    (do not use a resume-inhibit-pin)
-         [-no_pause_requirement] (default: 0)
+         [-no_pause_requirement] (default: notused)
                                    (no check for halui.program.is-paused)
 
 
