@@ -50,6 +50,7 @@ DOC_SRCS_EN := \
 	config/ini_config.txt \
 	config/ini_homing.txt \
 	config/lathe_config.txt \
+	config/moveoff.txt \
 	config/pncconf.txt \
 	config/stepconf.txt \
 	config/stepper.txt \

@@ -46,6 +46,8 @@ include::hal/basic_hal.txt[]
 
 include::remap/structure.txt[]
 
+include::config/moveoff.txt[]
+
 :leveloffset: 0
 
 = GUI
