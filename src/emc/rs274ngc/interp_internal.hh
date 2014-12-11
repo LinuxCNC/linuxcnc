@@ -62,7 +62,7 @@
 
 /* numerical constants */
 //FIXME made very large here to allow badly formed arcs into canon
-#define SPIRAL_TOLERANCE_INCH 10.0
+#define SPIRAL_TOLERANCE_INCH 1.0
 // Note: started from original tolerance and divided by 10 here (since that was originally done inside the interpreter)
 #define RADIUS_TOLERANCE_INCH 0.00005
 
@@ -70,8 +70,8 @@
 #define SPIRAL_TOLERANCE_MM (SPIRAL_TOLERANCE_INCH * MM_PER_INCH)
 #define RADIUS_TOLERANCE_MM (RADIUS_TOLERANCE_INCH * MM_PER_INCH)
 
-//FIXME made stupidly large to pass bad spirals down through to canon for testing
-#define SPIRAL_RELATIVE_TOLERANCE 10.0
+// Modest relative error
+#define SPIRAL_RELATIVE_TOLERANCE 0.75
 
 /* angle threshold for concavity for cutter compensation, in radians */
 #define TOLERANCE_CONCAVE_CORNER 0.05  
