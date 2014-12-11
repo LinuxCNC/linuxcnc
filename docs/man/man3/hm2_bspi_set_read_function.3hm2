@@ -1,0 +1,36 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+
+.TH hm2_bspi_set_read_function "3hm2" "2011-05-31" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
+
+hm2_bspi_set_read_function \- Register a function to handle the tram write phase
+of a hostmot2 buffered SPI driver. 
+.SH SYNTAX
+.HP
+int hm2_bspi_set_read_function(char *name, void *func, void *subdata)
+
+.SH DESCRIPTION
+\fBhm2_bspi_set_read_function\fR Registers a function in an external driver 
+(typically written in "comp") to be called every time that the main Hostmot2
+driver calls the generic "process_tram_read" functionsread. 
+ The names of the available channels are printed to standard output during the 
+driver loading process and take the form:
+hm2_<board name>.<board index>.bspi.<index> For example hm2_5i23.0.bspi.0
+ "func" should be a pointer to a function in the sub driver which is to be
+called to process the results of the BSPI TRAM read phase. The function must 
+take a single argument, a pointer to an individual instance of the internal 
+driver. If defined in comp then the function must /fBnot/fP use the FUNCTION() 
+convenience macro, and the argument to the function in the definition  must 
+read/fBallways/fP be (struct state *inst).
+ "subdata" is a pointer to the driver instance internal data. In the case of a 
+driver written in comp this will always be "inst" in the function call and the
+call should be anywhere in the EXTRA_SETUP code. 
+
+.SH RETURN VALUE
+Returns 0 on success and -1 on failure.
+
+.SH SEE ALSO
+man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame
+man hm2_allocate_bspi_tram.
+See src/hal/drivers mesa_7i65.comp for an example usage.

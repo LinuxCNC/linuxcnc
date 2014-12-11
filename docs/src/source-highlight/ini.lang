@@ -1,0 +1,15 @@
+# simpleminded ini filter for source-highlight 2.4
+# 
+comment start "#"
+section start '\[.*\]'
+
+
+state keyword start '[^="\[]+' begin
+    function = "="
+    variable = '.+'
+end
+
+
+include "number.lang"
+include "symbols.lang"
+include "c_string.lang"

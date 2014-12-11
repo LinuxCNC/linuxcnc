@@ -1,0 +1,78 @@
+.\" Copyright (c) 2007 Michael Haberler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.TH GLADEVCP "1"  "2010-12-20" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+gladevcp \- Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets
+.SH SYNOPSIS
+\fBgladevcp\fR [-g \fIWxH+X+Y\fR] [-c \fIcomponent-name\fR] [-u \fIhandler\fR] [-U \fIuseroption\fR] [-H \fIhalfile\fR] [-d] \fImyfile.ui\fR
+.SH OPTIONS
+.TP
+\fB-g\fR \fIWxH+X+Y\fR
+This sets the initial geometry of the root window.
+Use 'WxH' for just size, '+X+Y' for just position, or 'WxH+X+Y' for both.
+Size / position use pixel units. Position is referenced from top left. 
+.TP
+\fB-c\fR \fIcomponent-name\fR
+Use \fIcomponent-name\fR as the HAL component name.  If the component name is
+not specified, the basename of the ui file is used.\fR
+.TP
+\fB-u\fR \fIhandler\fR
+Instructs gladevcp to inspect the Python script \fIhandler\fR for event handlers,
+and connect them to signals in the ui file.\fR
+.TP
+\fB-U\fR \fIuseroption\fR
+gladevcp collects all \fIuseroption\fR strings and passes them to the handler init()
+method as a list of strings without further inspection.\fR
+.TP
+\fB-x\fR \fIXID\fR
+Reparent gladevcp into an existing window \fIXID\fR instead of
+creating a new top level window.\fR
+.TP
+\fB-H\fR \fIhalfile\fR
+gladevcp runs \fIhalfile\fR - a list of HAL commands - by executing \fIhalcmd -c halfile\fR
+after the HAL component is finalized.\fR
+
+.TP
+\fB-d\fR
+enable debug output.
+
+.TP
+\fB-R\fR \fIgtkrcfile\fR
+explicitly load a gtkrc file.\fR
+
+.TP
+\fB-t\fR \fITHEME\fR
+set gtk theme. Default is \fIsystem\fR theme. Different panels can have different themes.
+
+.TP
+\fB-m\fR \fIMAXIMUM\fR
+force panel window to maxumize.  Together with the \fI-g geometry\fR option 
+one can move the panel to a second monitor and force it to use all of the screen
+
+.TP
+\fB-R\fR
+explicitly deactivate workaround for a gtk bug which makes matches of widget and widget_class
+matches in gtk theme and gtkrc files fail. Normally not needed.
+
+.SH "SEE ALSO"
+\fIGladeVCP\fR in the LinuxCNC documentation for a description of gladevcp's capabilities
+and the associated HAL widget set, along with examples

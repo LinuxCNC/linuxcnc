@@ -1,0 +1,58 @@
+[cols="3*"]
+|===
+|
+|link:../DOCUMENTS.asciidoc[Back to the Documents index]
+|
+|===
+
+:lversion: {sys: cat ../VERSION}
+Documenting Manual
+==================
+
+:lang: en
+:masterdir: {indir}
+
+
+GOAL: The Best Documented Project Ever
+======================================
+
+We aim to make this project the best documented project ever...
+
+_Why?_
+=====
+
+Because that will help speed up the development of Machinekit...
+
+If the documentation
+of this project can help a *Person* get started, a *User* get better, an
+*Integrator* working faster and help a *Developer* maintaining focus and
+better reference then everybody can benefit from this wonderfull project.
+
+_What?_
+=======
+Machinekit is a fast evolving project. The development of recent years have
+resulted in smaller and faster processors, different OS'es and a lot of applications
+that were not possible before. Think about the reprap project for example.
+
+This fast evolving time asks for:
+
+- Up-to-date instructions.
+- Up-to-date examples.
+- Up-to-date references.
+- Up-to-date knowledge.
+
+_How?_
+=====
+. read up on link:http://www.machinekit.io/docs/contributing/[contributing].
+. get a Github user account.
+. fork the machinekit-docs repo.
+. add to the docs in your fork.
+. make a pull request.
+
+[cols="3*"]
+|===
+|
+|link:../DOCUMENTS.asciidoc[Back to the Documents index]
+|
+|===
+// vim: set syntax=asciidoc:

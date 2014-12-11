@@ -1,0 +1,41 @@
+.TH hal_add_funct_to_thread "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+hal_add_funct_to_thread \- cause a function to be executed at regular intervals
+
+.SH SYNTAX
+.HP
+int hal_add_funct_to_thread(const char *\fIfunct_name\fR, const char *\fIthread_name\fR,
+ int position)
+
+int hal_del_funct_from_thread(const char *\fIfunct_name\fR, const char *\fIthread_name\fR)
+
+.SH  ARGUMENTS
+.IP \fIfunct_name\fR
+The name of the function
+
+.IP \fIthread_name\fR
+The name of the thread
+
+.IP \fIposition\fR
+The desired location within the thread.  This determines when the function will
+run, in relation to other functions in the thread.  A positive number indicates
+the desired location as measured from the beginning of the thread, and a
+negative is measured from the end.  So +1 means this function will become the
+first one to run, +5 means it will be the fifth one to run, -2 means it will be
+next to last, and -1 means it will be last.  Zero is illegal.  
+
+.SH DESCRIPTION
+\fBhal_add_funct_to_thread\fR adds a function exported by a realtime HAL
+component to a realtime thread.  This determines how often and in what order
+functions are executed.  
+
+\fBhal_del_funct_from_thread\fR removes a function from a thread.
+.SH RETURN VALUE
+Returns a HAL status code.
+
+.SH REALTIME CONSIDERATIONS
+Call only from realtime init code, not from user space or realtime code.
+
+.SH SEE ALSO
+\fBhal_thread_new(3hal)\fR, \fBhal_export_funct(3hal)\fR

@@ -1,0 +1,99 @@
+= CONFIGURATION SELECTOR
+
+[[cha:selector]] (((CONFIGURATION SELECTOR)))
+
+The Configuraton Selector gui is activated from the system main 
+menu when CNC / LinuxCNC is selected.
+
+The Configuration Selector offers a selection of configurations
+organized:
+
+   My Configurations -------- User configurations
+
+   Sample Configurations ---- Sample configurations that
+                              can be copied to 'My Configurations'
+
+      sim ------------------- simulation configurations. These 
+                              can be used for testing or learning
+
+      by_interface ---------- configurations organized by interface
+
+      by_machine ------------ configurations organized by machine
+
+      apps ------------------ applications that do not require
+                              starting linuxcnc but may be useful
+                              for testing or trying applications
+                              like pyvcp or gladevcp
+
+      attic ----------------- obsolete or historical configurations
+
+
+The sim configurations are often the most useful starting point for
+new users and are organized around supported guis:
+
+     axis
+     gmoccapy
+     gscreen
+     low_graphics
+     tklinuxcnc
+     touchy
+
+A gui configuration directory may contain subdirectories with
+configurations that illustrate special situations or the embedding
+of other applications.
+
+The by_interface configurations are organized around common, supported
+interfaces like:
+
+    general mechatronics
+    mesa
+    parport
+    pico
+    pluto
+    servotogo
+    vigilant
+    vitalsystems
+
+Related hardware may be required to use these configurations as
+starting points for a system.
+
+
+The by_machine configurations are organized around complete, known
+systems like:
+
+    boss
+    cooltool
+    sherline
+    smithy
+    tormach
+
+A complete system may be required to use these configurations.
+
+The apps items are typically 1) utilities that don't require
+starting linuxcnc or 2) demonstrations of applications that can
+be used with linuxcnc:
+
+    info ------ creates a file with system information that
+                may be useful for problem diagnosis
+    gladevcp -- example gladevcp applications
+    halrun  --- starts halrun in an terminal
+    latency --- applications to investigate latency
+    parport --- applications to test parport
+    pyvcp ----- example pyvcp applications
+    xhc-hb04 -- applications to test an xhc-hb04 USB wireless MPG
+
+
+The attic directory stores obsolete or historical configurations.
+
+
+When started, the Configuration Selector allows the user to pick one
+of their existing configurations (My Configurations) or select
+a new one (from the Sample Configurations) to be copied to their
+home directory.  Copied configurations will appear under My Configurations
+on the next invocation of the Configuration Selector.
+
+[NOTE]
+Under the Apps directory, only applications that are usefully modified
+by the user are offered for copying to the user's directory.
+
+

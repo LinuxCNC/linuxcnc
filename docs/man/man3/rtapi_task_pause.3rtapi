@@ -1,0 +1,47 @@
+.TH rtapi_task_pause "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_task_pause, rtapi_task_resume \- pause and resume real-time tasks
+
+.SH SYNTAX
+.HP
+void rtapi_task_pause(int \fItask_id\fR)
+.HP
+void rtapi_task_resume(int \fItask_id\fR)
+
+.SH  ARGUMENTS
+.IP \fItask_id\fR
+An RTAPI task identifier returned by an earlier call to \fBrtapi_task_new\fR.
+.SH DESCRIPTION
+\fBrtapi_task_resume\fR starts a task in free-running mode. 
+The task must be in the "paused" state.
+
+A free running task runs continuously until either:
+.IP 1)
+It is prempted by a higher priority task.  It will resume as soon as the higher
+priority task releases the CPU.
+.IP 2)
+It calls a blocking function, like \fBrtapi_sem_take\fR.  It will resume when
+the function unblocks.
+.IP 3)
+It is returned to the "paused" state by \fBrtapi_task_pause\fR.  May be called
+from init/cleanup code, and from within realtime tasks.
+
+
+
+\fBrtapi_task_pause\fR causes a task to stop execution and change
+to the "paused" state.  The task can be free-running or periodic.
+Note that \fBrtapi_task_pause\fR may called from any task, or from init
+or cleanup code, not just from the task that is to be paused.
+The task will resume execution when either \fBrtapi_task_resume\fR or
+\fBrtapi_task_start\fR (depending on whether this is a free-running or periodic task) is called.
+
+
+.SH REALTIME CONSIDERATIONS
+May be called from init/cleanup code, and from within realtime tasks.
+
+.SH RETURN VALUE
+An RTAPI status code.
+
+.SH SEE ALSO
+\fBrtapi_task_new(3rtapi)\fR, \fBrtapi_task_start(3rtapi)\fR

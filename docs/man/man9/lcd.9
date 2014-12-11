@@ -1,0 +1,167 @@
+.TH LCD "9" "2012-09-17" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+lcd \- Stream HAL data to an LCD screen
+.SH SYNOPSIS
+.HP
+.B loadrt lcd fmt_strings=""Plain Text %4.4f\enAnd So on|Second Page, Next Inst""
+.SH FUNCTIONS
+.TP
+\fBlcd\fR (requires a floating-point thread). All LCD instances are updated by the
+same function. 
+
+.SH PINS
+'TP
+.B lcd.\fINN\fB.out\fR (u32) out
+The output byte stream is sent via this pin. One character is sent every thread
+invocation. There in no handshaking provided.
+.TP
+.B lcd.\fINN\fB.page.\fIPP.\fBarg.\fINN\fR (float/s32/u32/bit) in
+The input pins have types matched to the format string specifiers. 
+.TP
+.B lcd.\fINN\fB.page_num\fR (u32) in
+Selects the page number. Multiple layouts may be defined, and this pin switches
+between them.
+.TP
+.B lcd.\fINN\fB.contrast\fR (float) in
+Attempts to set the contrast of the LCD screen using the byte sequence ESC C and
+then a value from 0x20 to 0xBF. (matching the Mesa 7i73). The value should be
+between 0 and 1. 
+
+.SH PARAMETERS
+.TP
+.B lcd.\fINN\fB.decimal-separator\fR (u32) rw
+Sets the decimal separator used for floating point numbers. The default value is
+46 (0x2E) which corresponds to ".". If a comma is required then set this
+parameter to 44 (0x2C).
+.SH DESCRIPTION
+
+\fBlcd\fR takes format strings much like those used in C and many other languages
+in the printf and scanf functions and their variants. 
+
+The component was written specifically to support the Mesa 7i73 pendant
+controller, however it may be of use streaming data to other character devices
+and, as the output format mimics the ADM3 terminal format, it could be used
+to stream data to a serial device. Perhaps even a genuine ADM3. 
+The strings contain a mixture of text values which are displayed directly, 
+"escaped" formatting codes and numerical format descriptors. 
+For a detailed description of formatting codes see: 
+http://en.wikipedia.org/wiki/Printf
+
+The component can be configured to display an unlimited number of 
+differently-formatted pages, which may be selected with a HAL pin. 
+.TP
+ \fBEscaped codes\fR
+ \en Inserts a clear-to-end, carriage return and line feed character. This will 
+still linefeed and clear even if an automatic wrap has occurred (lcd has no 
+knowledge of the width of the lcd display.) To print in the rightmost column it
+is necessary to allow the format to wrap and omit the \en code.
+
+ \et Inserts a tab (actually 4 spaces in the current version rather than a true
+tab.)
+
+ \eNN inserts the character defined by the hexadecimal code NN. 
+ 
+ \e\e Inserts a literal \e.
+
+.TP
+ \fBNumerical formats\fR
+
+\fBlcd\fR differs slightly from the standard printf conventions. One significant
+difference is that width limits are strictly enforced to prevent the LCD display 
+wrapping and spoiling the layout. The field width includes the sign character
+so that negative numbers will often have a smaller valid range than positive. 
+Numbers that do not fit in the specified width are displayed as a line of
+asterisks (\fB********\fR).
+
+Each format begins with a "%" symbol. (For a literal % use "%%").
+Immediately after the % the following modifiers may be used:
+
+" " (space) Pad the number to the specified width with spaces. This is the
+default and is not strictly necessary. 
+
+"0" Pad the number to the specified width with the numeral 0. 
+
+"+" Force display of a + symbol before positive numbers. This (like the - sign)
+will appear immediately to the left of the digits for a space-padded number 
+and in the extreme left position for a 0-padded number. 
+
+"1234567890" A numerical entry (other than the leading 0 above)  defines the
+total number of characters to display including the decimal separator and the
+sign. Whilst this number can be as many digits as required the maximum field
+width is 20 characters. The inherent precison of the "double" data type means
+that more than 14 digits will tend to show errors in the least significant
+digits. The integer data types will never fill more than 10 decimal digits. 
+
+Following the width specifier should be the decimal specifier. This can only be
+a full-stop character (.) as the comma (,) is used as the instance separator. 
+Currently lcd does not access the locale information to determine the correct
+separator and the \fBdecimal-separator\fR parameter should be used. 
+
+Following the decimal separator should be a number that determines how many
+places of decimals to display. This entry is ignored in the case of integer
+formats. 
+
+All the above modifiers are optional, but to specify a decimal precision the 
+decimal point must precede the precision. For example %.3f. 
+ The default decimal precision is 4.
+
+The numerical formats supported are:
+
+\fB%f %F\fR (for example, %+09.3f) These create a floating-point type HAL pin. The example
+would be displayed in a 9-character field, with 3 places of decimals, . as a 
+decimal separator, padded to the left with 0s and with a sign displayed for 
+both positive and negative. Conversely a plain %f would be 6 digits of decimal,
+variable format width, with a sign only shown for negative numbers. both %f and 
+%F create exactly the same format. 
+
+\fB%i %d\fR (For example %+ 4d) Creates a signed (s32) HAL pin. The example would 
+display the value at a fixed 4 characters, space padded, width including the + 
+giving a range of +999 to -999. %i and %d create identical output. 
+
+\fB%u\fR (for example %08u) Creates an unsigned (u32) HAL pin. The example would be a
+fixed 8 characters wide, padded with zeros. 
+
+\fB%x, %X\fR Creates an unsigned (u32) HAL pin and displays the value in Hexadecimal.
+Both %x and %X display capital letters for digits ABCDEF. A width may be
+specified, though the u32 HAL type is only 8 hex digits wide. 
+
+\fB%o\fR Creates an unsigned (u32) pin and displays the value in Octal. 
+
+\fB%c\fR Creates a u32 HAL pin and displays the character corresponding to the value
+of the pin. Values less than 32 (space) are suppressed. A width specifier may
+be used, for example %20c might be used to create a complete line of one 
+character. 
+
+\fB%b\fR This specifier has no equivalent in printf. It creates a bit (boolean) type
+HAL pin. The b should be followed by two characters and the display will show
+the first of these when the pin is true, and the second when false. Note that
+the characters follow, not preceed the "b", unlike the case with other formats. 
+The characters may be "escaped" Hex values. For example "%b\eFF " will display a
+solid black block if true, and a space if false and "%b\e7F\e7E" would display
+right-arrow for false and left-arrow for true. An unexpected value of 'E'
+indicates a formatting error. 
+
+\fBPages\fR
+The page separator is the "|" (pipe) character. (if the actual character is 
+needed then \e7C may be used). A "Page" in this context refers to a separate 
+format which may be displayed on the same display. 
+
+\fBInstances\fR
+The instance separator is the comma. This creates a completely separate lcd
+instance, for example to drive a second lcd display on the second 7i73. 
+The use of comma to separate instances is built in to the modparam reading code
+so not even escaped commas "\e," can be used. A comma may be displayed by using
+the \e2C sequence. 
+
+
+
+.SH AUTHOR
+Andy Pugh
+.SH LICENSE
+GPL

@@ -1,0 +1,56 @@
+.TH WATCHDOG "9" "2010-06-22" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+watchdog \- monitor multiple inputs for a "heartbeat"
+.SH SYNOPSIS
+.HP
+.B loadrt watchdog num_inputs=\fIN\fR
+.P
+You must specify the number of inputs, from 1 to 32.  Each input has a 
+separate timeout value.
+.SH FUNCTIONS
+.TP
+\fBprocess\fR
+Check all input pins for transitions, clear the \fBok-out\fR pin if any
+input has no transition within its timeout period.  This function does not
+use floating point, and should be added to a fast thread.
+.TP
+\fBset-timeouts\fR
+Check for timeout changes, and convert the float timeout inputs to int
+values that can be used in \fBprocess\fR.  This function also monitors
+\fBenable-in\fR for false to true transitions, and re-enables monitoring
+when such a transition is detected.  This function does use floating point, 
+and it is appropriate to add it to the servo thread.
+.SH PINS
+.TP
+.B watchdog.input-n\fR bit in\fR
+Input number n.  The inputs are numbered from 0 to \fBnum_inputs\fR-1.
+.TP
+.B watchdog.enable-in\fR bit in \fR(default: \fIFALSE\fR)
+If TRUE, forces out-ok to be false.  Additionally, if a timeout occurs on
+any input, this pin must be set FALSE and TRUE again to re-start the
+monitoring of input pins.
+.TP
+.B watchdog.ok-out\fR bit out \fR(default: \fIFALSE\fR)
+OK output.  This pin is true only if enable-in is TRUE and no timeout has
+been detected.  This output can be connected to the enable input of a 
+\fBcharge_pump\fR or \fBstepgen\fR (in v mode), to provide a heartbeat signal
+to external monitoring hardware.
+.SH PARAMETERS
+.TP
+.B
+.B watchdog.timeout-n\fR float in\fR
+Timeout value for input number n.  The inputs are numbered from 0 to 
+\fBnum_inputs\fR-1.  The timeout is in seconds, and may not be below zero.
+Note that a timeout of 0.0 will likely prevent \fBok-out\fR from ever becoming
+true.  Also note that excessively long timeouts are relatively useless for
+monitoring purposes.
+.SH LICENSE
+
+GPL

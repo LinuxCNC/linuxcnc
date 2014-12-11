@@ -1,0 +1,30 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+
+.TH hm2_allocate_bspi_tram "3hm2" "2011-05-31" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
+
+hm2_allocate_bspi_tram \- Allocate the TRAM regions for a BSPI channel
+
+.SH SYNTAX
+.HP
+hm2_allocate_bspi_tram(char* name)
+
+.SH DESCRIPTION
+\fBhm2_allocate_bspi_tram\fR Allocate the TRAM memory for bspi instance "name". 
+"name" is a unique string given to each bspi channel during hostmot2 setup. 
+The names of the available channels are printed to standard output during the 
+driver loading process and take the form:
+hm2_<board name>.<board index>.bspi.<index> For example hm2_5i23.0.bspi.0
+
+This function allocates the TRAM memory and sets up the regular data transfers. 
+It should be called only when all the frames have been defined by calls to 
+hm2_tram_add_bspi_frame(). 
+
+.SH RETURN VALUE
+Returns 0 on success and -1 on failure.
+
+.SH SEE ALSO
+man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame
+man hm2_allocate_bspi_tram.
+See src/hal/drivers mesa_7i65.comp for an example usage.

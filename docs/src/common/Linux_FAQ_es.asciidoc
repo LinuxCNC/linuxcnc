@@ -1,0 +1,295 @@
+﻿= Linux FAQ
+
+[[cha:linux-faq]] (((Linux FAQ)))
+
+Estos son algunos comandos básicos y técnicas para nuevos usuarios de
+linux. Información más completa se puede encontrar en la web o mediante
+las páginas del manual con el comando man.
+
+== Acceso automático (((Automatic Login)))
+
+Al instalar linuxCNC con el CD de Ubuntu por defecto se tiene que iniciar
+sesión cada vez que encienda el ordenador. Para activar autentificacion automática
+valla a 'System > Administration > Login Window'. Si se trata
+de una nueva instalación de la ventana de inicio de sesión puede tardar
+un segundo o tres para apareser. Usted tiene que tener la contraseña que utilizo
+para la instalación para acceder a la ventana de configuracion de inicio.
+En la pestaña seguridad marque habilitar acceso automático y elija un nombre de
+usuario de la lista (seleecione su nombre de usuario).
+
+== Inicio automático (((Automatic Startup)))
+
+Para tener un inicio automático de linuxCNC con su configuración después
+de encender el equipo valla a 'System > Preferences > Sessions > Startup Applications',
+seleccione la opcion agregar nuevo.
+Valla a su carpeta de configuración y
+seleccione el archivo .ini. Cuando el cuadro de dialogo selector de
+archivos se cierra, añadir emc y un espacio al frente de la ruta a su archivo .ini.
+
+Ejemplo:
+
+----
+emc /home/mill/emc2/config/mill/mill.ini
+----
+
+== Páginas de manual [[sec:Man-Pages]]
+
+(((Man Pages)))
+
+Las páginas del manual son generadas automáticamente en la mayoría de los casos.
+Páginas del manuales estan generalmente disponibles para la
+mayoría de los programas y comandos de linux.
+
+Para abrir una página del manual utilice una terminar,
+la terminal se puede abrir usando la ruta  'Applications >
+Accessories > Terminal'. 
+Por ejemplo si quiere encontrar
+algo acerca del comando de busqueda "find" tecle:
+
+----
+man find
+----
+
+Utilice los botones página hacia arriba y pagina hacia abajo para ver las páginas del manual
+y la tecla Q para salir de la visualizacion.
+
+
+== Lista de módulos
+
+A veces para  soluciónar algun problemas que usted necesita obtener una
+lista de módulos que se encuentran cargados. En una ventana de terminal tecle:
+
+----
+lsmod
+----
+
+Si desea enviar la salida de lsmod a un archivo de texto tecle:
+
+----
+lsmod > mymod.txt
+----
+
+El archivo de texto resultante se colocara en el directorio de inicio
+si usted no cambio de directorio cuando abrio la terminal y
+será nombrado mymod.txt o como usted lo haya nombrado.
+
+
+== Edición de archivos raíz [[sec:Editing-a-Root-File]]
+
+(((Editing a Root File)))
+
+Al abrir el explorador de archivos y ver que el propietario del
+archivo es el usuario raíz, se tienen que hacer algunos pasos adicionales para modificar el archivo.
+La edición de algunos archivos puede tener malos resultados. Tenga cuidado
+al editar los archivos de raíz, generalmente usted puede ver y abrir los archivos raíz
+en modo de 'solo lectura'.
+
+
+=== El camino de línea de comandos
+
+(((sudo gedit)))
+
+Abrir 'Applications > Accessories > Terminal'.
+
+En la ventana de terminal tecle.
+
+----
+sudo gedit
+----
+
+Abrir el archivo con el menu File > Open > Edit, proceda a editar.
+
+=== Usando la interface grafica
+
+(((gksudo)))
+
+ .Haga clic derecho sobre el escritorio y seleccione crear lansador
+ .Escriba nombre en como editar sudo
+ .Escriba 'gksudo "gnome-open %u"' como el comando y guarda el lansador
+  en su escritorio.
+ .Arrastré el archivo a su lansador para abrir y editar.
+
+=== Acceso tipo super usuario
+
+
+En ubuntu puede convertirse en super usuario tecleando "sudo -i" en una terminal
+devera de escribir su contraseña. Tenga
+cuidado porque usted puede dañar su instalacion si no sabe lo que esta haciendo.
+
+== Comandos en la terminal [[sec:Terminal-Commands]]
+
+(((Terminal Commands)))
+
+=== Directorio de trabajo (((Working Directory)))(((pwd)))
+
+Para encontrar la ruta del directorio actual de trabajo en la terminal tecle:
+
+----
+pwd
+----
+
+=== Cambiar de directorios
+
+(((Changing Directories)))(((cd)))
+
+Para subir un nivel en la terminal tecle:
+
+----
+cd ..
+----
+
+Para subir dos niveles en la terminal tecle:
+
+----
+cd ../..
+----
+
+Para desplazarse hacia abajo hacia el subdirectorio emc2/configs en la terminal tecle:
+
+----
+cd emc2/configs
+----
+
+=== Listado e los archivos en un directorio
+
+(((Listing files in a directory)))(((dir)))(((ls)))
+
+Para ver una lista de todos los archivos y subdirecciones en la terminal tecle:
+
+----
+dir
+----
+
+ó
+
+----
+ls
+----
+
+=== Encontrar un archivo
+
+(((Finding a File)))(((find)))
+
+El comando encontrar puede ser un poco confuso para un usuario nuevo de linux.
+La sintaxis básica es la siguiente:
+
+----
+find directorio-inicio parametros acciones
+----
+
+Por ejemplo para encontrar todos los archivos .ini en el directorio de EMC2
+primero tiene que usar el comando pwd para ver el directorio. + abra una ventana
+terminal y escriba.
+
+----
+pwd
+----
+
+y pwd podría devolver el siguiente resultado:
+ 
+----
+/home/joe
+----
+
+Con esta información se pondrá el comando conjunto de esta manera:
+
+----
+find /home/joe/emc2 -name \*.ini -print
+----
+
+El -name es el nombre del archivo que se busca y -print muestra
+el resultado en la ventana de terminal. El \*.ini indica devolver
+todos los archivos que tienen la extensión .ini.
+La diagonal se requiere para escapar los meta caracteres de la consola.
+sidesea mas informacion al respecto vea las paginas de man.
+
+=== Búsqueda de texto
+
+(((Searching for Text)))(((grep)))
+
+----
+grep -irl 'buscar' *
+----
+
+Este comando encuentra todos los archivos que contienen el texto 'buscar'
+en el directorio actual y todos los subdirectorios por debajo de este,
+sin tener en cuenta el uso de mayusculas. El -i es para ignorar mayusculas y el -r es recursivo
+(incluir todos los subdirectorios en la búsqueda). La opcion -l retornara una lista de los nombres de archivo, si no se usa -l tambien se obtendra el texto donde fue encontrada la ocurrencia de lo buscado dentro de 'buscar'.
+El * es un comodín para buscar todos los archivos.
+
+=== Mensaje de arranque
+
+Para ver los mensajes de arranque usar "dmesg" en la ventana de comandos.
+Para guardar los mensajes de arranque en un archivo use el operador de redirección,
+de esta manera:
+
+----
+dmesg > bootmsg.txt
+----
+
+El contenido de este archivo puede ser copiado y pegado en línea para
+compartir con la gente que le este intentando ayudar a diagnosticar un problema.
+
+Para borrar el mensaje de buffer tecle:
+
+----
+sudo dmesg -c
+----
+
+Esto puede ser útil de hacer justo antes del arranque de LinuxCNC, por lo que solo
+abra un registro de información relacionada con el lanzamiento actual de LinuxCNC.
+
+Para encontrar la direccion de un puerto paralelo integrado use grep para
+filtrar la información producida por dmesg.
+
+Después del arranque abrir una terminal y escriba:
+
+-----
+dmesg|grep parport
+-----
+
+== Articulos convenientes
+
+=== Iniciador de terminal
+
+Si quiere añadir un iniciador de terminal en la barra del panel en la parte superior
+de la pantalla normalmente puede hacer clic derecho en el panel en la parte superior
+de la pantalla y seleccionar "añadir al panel". Seleccione lanzador de aplicación
+personalizado y agregar. Dele un nombre y use el comando gnome-terminal en la caja de comando.
+
+== Problemas de Hardware
+
+=== Información Hardware
+
+Para encontrar que Hardware está conectado a la placa base
+en una ventana de terminal tecle.
+
+----
+lspci -v
+----
+
+=== Resolución del monitor
+
+
+Durante la instalación ubuntu intentara detectar la configuración del monitor. Si esto no funciona
+el sistema se instalara con un máximo de resolución 800x600.
+
+Instrucciones para la fijación de este se encuentra aquí:
+
+https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
+
+== Paths
+.Paths relativos
+Los phats relativos se basan en el directorio de arranque que contiene
+el archivo ini. Usar paths relativos puede facilitar la relocalizacion
+de archivos de configuracion pero requiere una buena comprencion de los especificadores de path linux.
+
+....
+   ./f0        es lo mismo que f0, e.g., un archivo llamado f0 en el directorio de arranque
+   ../f1       se refiere a un archivo llamado f1 en el directorio padre
+   ../../f2    se refiere a un archivo llamado f2 en el directorio padre del padre
+   ../../../f3 etc.
+....
+
+
+// vim: set syntax=asciidoc:

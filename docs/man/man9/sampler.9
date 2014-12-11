@@ -1,0 +1,151 @@
+.\" Copyright (c) 2006 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH SAMPLER "9"  "2006-11-18" "LinuxCNC Documentation" "HAL User's Manual"
+.SH NAME
+sampler \- sample data from HAL in real time
+.SH SYNOPSIS
+.B loadrt sampler
+.BI depth= depth1[,depth2...]
+.BI cfg= string1[,string2...]
+
+.SH DESCRIPTION
+.B sampler
+and
+.BR halsampler (1)
+are used together to sample HAL data in real time and store it in a file.
+.B sampler
+is a realtime HAL component that exports HAL pins and creates a FIFO in shared memory.  It then begins sampling data from the HAL and storing it to the FIFO.
+.B halsampler
+is a user space program that copies data from the FIFO to stdout, where it can
+be redirected to a file or piped to some other program.
+
+.SH OPTIONS
+.TP
+.BI depth= depth1[,depth2...]
+sets the depth of the realtime->user FIFO that
+.B sampler
+creates to buffer the realtime data.  Multiple values of
+.I depth
+(separated by commas) can be specified if you need more than one FIFO
+(for example if you want to sample data from two different realtime threads).
+.TP
+.BI cfg= string1[,string2...]
+defines the set of HAL pins that
+.B sampler
+exports and later samples data from.  One 
+.I string
+must be supplied for each FIFO, separated by commas.
+.B sampler
+exports one pin for each character in
+.I string.
+Legal characters are:
+.IP "" 7
+.B F, f
+(float pin)
+.IP "" 7
+.B B, b
+(bit pin)
+.IP "" 7
+.B S, s
+(s32 pin)
+.IP "" 7
+.B U, u
+(u32 pin)
+
+.SH FUNCTIONS
+.TP
+.BI sampler. N
+One function is created per FIFO, numbered from zero.
+
+.SH PINS
+.TP
+\fBsampler.\fIN\fB.pin.\fIM\fR input
+Pin for the data that will wind up in column
+.I M
+of FIFO
+.I N
+(and in column
+.I M
+of the output file).  The pin type depends on the config string.
+.TP
+\fBsampler.\fIN\fB.curr-depth\fR s32 output
+Current number of samples in the FIFO.  When this reaches
+.I depth
+new data will begin overwriting old data, and some samples
+will be lost.
+.TP
+\fBsampler.\fIN\fB.full\fR bit output
+TRUE when the FIFO
+.I N
+is full, FALSE when there is room for another sample.
+.TP
+\fBsampler.\fIN\fB.enable\fR bit input
+When TRUE, samples are captured and placed in FIFO \fIN\fR,
+when FALSE, no samples are acquired.  Defaults to TRUE.
+
+.SH PARAMETERS
+.TP
+\fBsampler.\fIN\fB.overruns\fR s32 read/write
+The number of times that
+.B sampler
+has tried to write data to the HAL pins but found no room in the FIFO.  It increments whenever
+.B full
+is true, and can be reset by the
+.B setp
+command.
+
+.TP
+\fBsampler.\fIN\fB.sample-num\fR s32 read/write
+A number that identifies the sample.  It is automatically incremented for each
+sample, and can be reset using the
+.B setp
+command.  The sample number can optionally be printed in the first column of the output from
+.BR halsampler ,
+using the
+.I -t
+option. (see
+.BR "man 1 halsampler" )
+
+.SH "SEE ALSO"
+.BR halsampler (1)
+.BR streamer (9)
+.BR halstreamer (1)
+
+.SH HISTORY
+
+.SH BUGS
+
+.SH AUTHOR
+Original version by John Kasunich, as part of the LinuxCNC
+project.  Improvements by several other members of
+the LinuxCNC development team.
+.SH REPORTING BUGS
+Report bugs to jmkasunich AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2006 John Kasunich.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

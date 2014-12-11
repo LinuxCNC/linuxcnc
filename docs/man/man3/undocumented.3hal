@@ -1,0 +1,8 @@
+.TH undocumented "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+undocumented \- undocumented functions in HAL
+
+.SH SEE ALSO
+The header file \fIhal.h\fR.  Most hal functions have documentation
+in that file.

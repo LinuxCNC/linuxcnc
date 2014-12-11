@@ -1,0 +1,233 @@
+.TH AT_PID "9" "2007-05-12" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+at_pid \- proportional/integral/derivative controller with auto tuning
+.SH SYNOPSIS
+\fBloadrt at_pid [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]]
+
+
+
+.SH DESCRIPTION
+\fBat_pid\fR is a classic Proportional/Integral/Derivative controller,
+used to control position or speed feedback loops for servo motors and
+other closed-loop applications.
+.P
+\fBat_pid\fR supports a maximum of sixteen controllers.  The number that
+are actually loaded is set by the \fBnum_chan\fR argument when
+the module is loaded.  Alternatively, specify \fBnames=\fR and unique names
+separated by commas.
+.P
+The \fBnum_chan=\fR and \fBnames=\fR specifiers are mutually exclusive.
+If neither \fBnum_chan=\fR nor \fBnames=\fR are specified, the default
+value is three.
+.P
+If \fBdebug\fR is set to 1 (the default is 0), some
+additional HAL parameters will be exported, which might be useful
+for tuning, but are otherwise unnecessary.
+.P
+\fBat_pid\fR has a built in auto tune mode. It works by setting up a limit
+cycle to characterize the process. From this, \fBPgain/Igain/Dgain\fR or
+\fBPgain/Igain/FF1\fR can be determined using Ziegler-Nichols. When using
+\fBFF1\fR, scaling must be set so that \fBoutput\fR is in user units per second.
+.P
+During auto tuning, the \fBcommand\fR input should not change. The limit
+cycle is setup around the commanded position. No initial tuning values are
+required to start auto tuning.  Only \fBtune-cycles\fR, \fBtune-effort\fR
+and \fBtune-mode\fR need be set before starting auto tuning.  When auto tuning
+completes, the tuning parameters will be set. If running from LinuxCNC, the
+FERROR setting for the axis being tuned may need to be loosened up as it must
+be larger than the limit cycle amplitude in order to avoid a following error.
+.P
+To perform auto tuning, take the following steps.  Move the axis to be tuned,
+to somewhere near the center of it's travel.  Set \fBtune-cycles\fR (the
+default value should be fine in most cases) and \fBtune-mode\fR. Set
+\fBtune-effort\fR to a small value. Set \fBenable\fR to true. Set
+\fBtune-mode\fR to true. Set \fBtune-start\fR to true. If no oscillation
+occurs, or the oscillation is too small, slowly increase \fBtune-effort\fR.
+Auto tuning can be aborted at any time by setting \fBenable\fR or
+\fBtune-mode\fR to false.
+
+.SH NAMING
+The names for pins, parameters, and functions are prefixed as:
+  \fBpid.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
+
+The \fBpid.N.\fR format is shown in the following descriptions.
+
+
+.SH FUNCTIONS
+.TP 
+\fBpid.\fIN\fB.do-pid-calcs\fR (uses floating-point)
+Does the PID calculations for control loop \fIN\fR.
+
+.SH PINS
+
+.TP
+\fBpid.\fIN\fB.command\fR float in
+The desired (commanded) value for the control loop.
+.TP
+\fBpid.\fIN\fB.feedback\fR float in
+The actual (feedback) value, from some sensor such as an encoder.
+.TP
+\fBpid.\fIN\fB.error\fR float out
+The difference between command and feedback.
+.TP
+\fBpid.\fIN\fB.output\fR float out
+The output of the PID loop, which goes to some actuator such as a motor.
+.TP
+\fBpid.\fIN\fB.enable\fR bit in
+When true, enables the PID calculations.  When false, \fBoutput\fR is zero,
+and all internal integrators, etc, are reset.
+.TP
+\fBpid.\fIN\fB.tune-mode\fR bit in
+When true, enables auto tune mode.  When false, normal PID calculations are
+performed.
+.TP
+\fBpid.\fIN\fB.tune-start\fR bit io
+When set to true, starts auto tuning.  Cleared when the auto tuning completes.
+
+.SH PARAMETERS
+.TP
+\fBpid.\fIN\fB.Pgain\fR float rw
+Proportional gain.  Results in a contribution to the output that is the error
+multiplied by \fBPgain\fR.
+.TP
+\fBpid.\fIN\fB.Igain\fR float rw
+Integral gain.  Results in a contribution to the output that is the integral
+of the error multiplied by \fBIgain\fR.  For example an error of 0.02 that
+lasted 10 seconds would result in an integrated error (\fBerrorI\fR) of 0.2,
+and if \fBIgain\fR is 20, the integral term would add 4.0 to the output.
+.TP
+\fBpid.\fIN\fB.Dgain\fR float rw
+Derivative gain.  Results in a contribution to the output that is the rate of
+change (derivative) of the error multiplied by \fBDgain\fR.  For example an
+error that changed from 0.02 to 0.03 over 0.2 seconds would result in an error
+derivative (\fBerrorD\fR) of of 0.05, and if \fBDgain\fR is 5, the derivative
+term would add 0.25 to the output.
+.TP
+\fBpid.\fIN\fB.bias\fR float rw
+\fBbias\fR is a constant amount that is added to the output.  In most cases
+it should be left at zero.  However, it can sometimes be useful to compensate
+for offsets in servo amplifiers, or to balance the weight of an object that
+moves vertically. \fBbias\fR is turned off when the PID loop is disabled,
+just like all other components of the output.  If a non-zero output is needed
+even when the PID loop is disabled, it should be added with an external HAL
+sum2 block.
+.TP
+\fBpid.\fIN\fB.FF0\fR float rw
+Zero order feed-forward term.  Produces a contribution to the output that is
+\fBFF0\fR multiplied by the commanded value.  For position loops, it should
+usually be left at zero.  For velocity loops, \fBFF0\fR can compensate for
+friction or motor counter-EMF and may permit better tuning if used properly.
+.TP
+\fBpid.\fIN\fB.FF1\fR float rw
+First order feed-forward term.  Produces a contribution to the output that
+\fBFF1\fR multiplied by the derivative of the commanded value.  For
+position loops, the contribution is proportional to speed, and can be used
+to compensate for friction or motor CEMF.  For velocity loops, it is
+proportional to acceleration and can compensate for inertia.  In both
+cases, it can result in better tuning if used properly.
+.TP
+\fBpid.\fIN\fB.FF2\fR float rw
+Second order feed-forward term.  Produces a contribution to the output that is
+\fBFF2\fR multiplied by the second derivative of the commanded value.  For
+position loops, the contribution is proportional to acceleration, and can be
+used to compensate for inertia.  For velocity loops, it should usually be
+left at zero.
+.TP
+\fBpid.\fIN\fB.deadband\fR float rw
+Defines a range of "acceptable" error.  If the absolute value of \fBerror\fR
+is less than \fBdeadband\fR, it will be treated as if the error is zero.
+When using feedback devices such as encoders that are inherently quantized,
+the deadband should be set slightly more than one-half count, to prevent
+the control loop from hunting back and forth if the command is between two
+adjacent encoder values.  When the absolute value of the error is greater
+than the deadband, the deadband value is subtracted from the error before
+performing the loop calculations, to prevent a step in the transfer function
+at the edge of the deadband.  (See \fBBUGS\fR.)
+.TP
+\fBpid.\fIN\fB.maxoutput\fR float rw
+Output limit.  The absolute value of the output will not be permitted
+to exceed \fBmaxoutput\fR, unless \fBmaxoutput\fR is zero.  When the output
+is limited, the error integrator will hold instead of integrating, to prevent
+windup and overshoot.
+.TP
+\fBpid.\fIN\fB.maxerror\fR float rw
+Limit on the internal error variable used for P, I, and D.  Can be used to
+prevent high \fBPgain\fR values from generating large outputs under conditions
+when the error is large (for example, when the command makes a step change).
+Not normally needed, but can be useful when tuning non-linear systems.
+.TP
+\fBpid.\fIN\fB.maxerrorD\fR float rw
+Limit on the error derivative.  The rate of change of error used by the
+\fBDgain\fR term will be limited to this value, unless the value is
+zero.  Can be used to limit the effect of \fBDgain\fR and prevent large
+output spikes due to steps on the command and/or feedback.  Not normally
+needed.
+.TP
+\fBpid.\fIN\fB.maxerrorI\fR float rw
+Limit on error integrator.  The error integrator used by the \fBIgain\fR
+term will be limited to this value, unless it is zero.  Can be used to prevent
+integrator windup and the resulting overshoot during/after sustained errors.
+Not normally needed.
+.TP
+\fBpid.\fIN\fB.maxcmdD\fR float rw
+Limit on command derivative.  The command derivative used by \fBFF1\fR will
+be limited to this value, unless the value is zero.  Can be used to prevent
+\fBFF1\fR from producing large output spikes if there is a step change on the
+command.  Not normally needed.
+.TP
+\fBpid.\fIN\fB.maxcmdDD\fR float rw
+Limit on command second derivative.  The command second derivative used by
+\fBFF2\fR will be limited to this value, unless the value is zero.  Can be
+used to prevent \fBFF2\fR from producing large output spikes if there is a
+step change on the command.  Not normally needed.
+.TP
+\fBpid.\fIN\fB.tune-type\fR u32 rw
+When set to 0, \fBPgain/Igain/Dgain\fR are caclulated. When set to 1,
+\fBPgain/Igain/FF1\fR are calculated.
+.TP
+\fBpid.\fIN\fB.tune-cycles\fR u32 rw
+Determines the number of cycles to run to characterize the process.
+\fBtune-cycles\fR actually sets the number of half cycles. More cycles results
+in a more accurate characterization as the average of all cycles is used.
+.TP
+\fBpid.\fIN\fB.tune-effort\fR float rw
+Determines the effor used in setting up the limit cycle in the process.
+\fBtune-effort\fR should be set to a positive value less than \fBmaxoutput\fR.
+Start with something small and work up to a value that results in a good
+portion of the maximum motor current being used. The smaller the value, the
+smaller the amplitude of the limit cycle.
+.TP
+\fBpid.\fIN\fB.errorI\fR float ro (only if debug=1)
+Integral of error.  This is the value that is multiplied by \fBIgain\fR to produce the Integral term of the output.
+.TP
+\fBpid.\fIN\fB.errorD\fR float ro (only if debug=1)
+Derivative of error.  This is the value that is multiplied by \fBDgain\fR to produce the Derivative term of the output.
+.TP
+\fBpid.\fIN\fB.commandD\fR float ro (only if debug=1)
+Derivative of command.  This is the value that is multiplied by \fBFF1\fR to produce the first order feed-forward term of the output.
+.TP
+\fBpid.\fIN\fB.commandDD\fR float ro (only if debug=1)
+Second derivative of command.  This is the value that is multiplied by
+\fBFF2\fR to produce the second order feed-forward term of the output.
+.TP
+\fBpid.\fIN\fB.ultimate-gain\fR float ro (only if debug=1)
+Determined from process characterization. \fBultimate-gain\fR is the ratio of
+\fBtune-effort\fR to the limit cycle amplitude multipled by 4.0 divided by Pi.
+\fBpid.\fIN\fB.ultimate-period\fR float ro (only if debug=1)
+Determined from process characterization. \fBultimate-period\fR is the period
+of the limit cycle.
+
+.SH BUGS
+Some people would argue that deadband should be implemented such that error is
+treated as zero if it is within the deadband, and be unmodified if it is outside
+the deadband.  This was not done because it would cause a step in the transfer
+function equal to the size of the deadband.  People who prefer that behavior are
+welcome to add a parameter that will change the behavior, or to write their own
+version of \fBat_pid\fR. However, the default behavior should not be changed.

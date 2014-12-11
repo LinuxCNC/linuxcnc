@@ -1,0 +1,85 @@
+.TH rtapi_module_param "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_module_param \- Specifying module parameters
+
+.SH SYNTAX
+.HP
+RTAPI_MP_INT(\fIvar\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_LONG(\fIvar\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_STRING(\fIvar\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_ARRAY_INT(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_ARRAY_LONG(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_ARRAY_STRING(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+MODULE_LICENSE(\fIlicense\fR)
+
+.HP
+MODULE_AUTHOR(\fIauthor\fR)
+
+.HP
+MODULE_DESCRIPTION(\fIdescription\fR)
+
+.HP
+EXPORT_FUNCTION(\fIfunction\fR)
+
+.SH  ARGUMENTS
+.IP \fIvar\fR
+The variable where the parameter should be stored
+.IP \fIdescription\fR
+A short description of the parameter or module
+.IP \fInum\fR
+The maximum number of values for an array parameter
+.IP \fIlicense\fR
+The license of the module, for instance "GPL"
+.IP \fIauthor\fR
+The author of the module
+.IP \fIfunction\fR
+The pointer to the function to be exported
+
+.SH DESCRIPTION
+These macros are portable ways to declare kernel module parameters.  They must
+be used in the global scope, and are not followed by a terminating semicolon.
+They must be used after the associated variable or function has been defined.
+
+.SH NOTES
+EXPORT_FUNCTION makes a symbol available for use by a subsequently loaded
+component.  It is unrelated to hal functions, which are described in
+hal_export_funct(3hal)
+
+.SH Interpretation of license strings
+
+\fBMODULE_LICENSE\fR follows the kernel's definition of license strings.  Notably,
+"GPL" indicates "GNU Public License v2 \fIor later\fR".  (emphasis ours).
+
+.IP \fB"GPL"\fR
+GNU Public License v2 or later
+.IP \fB"GPL\ v2"\fR
+GNU Public License v2
+.IP \fB"GPL\ and\ additional\ rights"\fR
+GNU Public License v2 rights and more
+.IP \fB"Dual\ BSD/GPL"\fR
+GNU Public License v2 or BSD license choice
+.IP \fB"Dual\ MIT/GPL"\fR
+GNU Public License v2 or MIT license choice
+.IP \fB"Dual\ MPL/GPL"\fR
+GNU Public License v2 or Mozilla license choice
+.IP \fB"Proprietary"\fR
+Non-free products
+.P
+It is still good practice to include a license block which indicates the author,
+copyright date, and disclaimer of warranty as recommended by the GNU GPL.
+
+.SH REALTIME CONSIDERATIONS
+Not available in userspace code.

@@ -1,0 +1,220 @@
+This file describes needed steps to update configurations from 2.2.x to 2.3
+
+1. Classicladder changes
+Default input and output pins change from 50 to 15 each.
+s32 now uses %IW0 for in and %QW0 for out.
+
+2. RS274NGC_STARTUP_CODE should be in the [RS274NGC] section.
+
+
+This file describes needed steps to update configurations to 2.2.x
+=============================================================================
+
+
+-----------------------------------------------------------------------------
+I. Upgrading configurations from 2.1.x to 2.2.x
+-----------------------------------------------------------------------------
+
+1. m5i20 encoder changes
+The m5i20 "encoder" pins now match the HAL canonical encoder interface. 
+The -cnt-latch, -pos-latch, -idx-latch, and -latch-index pins have been 
+removed. The standard encoder pin -index-enable has been added. The behavior 
+of the -position and -count pins now match the HAL canonical interface.
+
+2. pluto_servo changes
+Most pins and parameters on pluto-servo were changed to use dots instead of 
+dashes, in accordance with the HAL canonical naming conventions. For example, 
+'pluto-servo.encoder-0-velocity' has been renamed to 
+'pluto-servo.encoder.0.velocity' and 'pluto-servo.dout-00-invert' has been 
+renamed to 'pluto-servo.dout.00-invert'.
+
+3. stepgen and freqgen changes
+The units for steplen, stepspace, dirsetup, and dirhold have been changed 
+from BASE_PERIOD units to nanosecond units. Internally, the values given are 
+rounded up to a multiple of BASE_PERIOD, and at runtime the parameters are 
+changed to display the rounded up value.
+
+Freqgen has been deprecated and replaced by stepgen, which now has an 
+additional command line argument 'ctrl_mode', which can be used to specify 
+position mode (the default) or velocity mode. Position mode is the default, 
+and works the same as before. Velocity mode accepts a velocity command, and 
+works like freqgen.
+
+In step modes 0 and 1, setting stepspace to 0 will allow "step" 
+(or "up/down") to be asserted on every invocation of make-pulses. Use a 
+stepspace value of 1 to signify "the smallest nonzero stepspace".
+
+4. double-linking of pins is now treated as an error
+halcmd and hal_link() now refuse to link an already-linked pin. This 
+immediately diagnoses configuration errors of the form
+
+    net limit-switch parport.0.pin-26-in => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in
+    net home-switch  parport.0.pin-26-in => axis.0.home-sw-in
+	
+which have the effect of leaving no pin driving the limit switch inputs. If 
+the "re-link" behavior is truly desired, add "unlinkp" commands before the new 
+link. It is still permitted for "unlinkp" to be used on an unconnected pin.
+	
+5. The 'counter' component is deprecated
+The 'counter' component is deprecated. For a one-phase, unidirectional counter,
+use the 'encoder' component with encoder.X.counter-mode=TRUE. The version in 
+'encoder' has superior velocity estimation.
+	
+6. Homing changes
+The homing algorithm has been changed to be "level sensitive" instead of 
+"edge sensitive". This eliminates some possible "miss the switch and go to 
+the end of travel" errors on machines with flakey switches. However, it will 
+cause homing to fail on some machines that might have worked before. This can 
+happen if the following conditions are true:
+	
+	1. The home switch does not remain on from the point that it trips till 
+	   the end of axis travel
+	2. Homing speed is high and/or decel rate is low, so that the machine 
+	   will overshoot the switch when it hits it during homing. 
+			  
+	If the machine ends up on the far side of the switch during homing, it 
+	will stop with an error message.
+			  
+	Machines that can wind up "on the far side" of the home switch are 
+	considered to have defective switches. If you ever attempt to home 
+	while on the wrong side of the switch, it will run to the end of the 
+	axis. There is NO possible software solution to that scenario - the 
+	proper solution is a home switch that remains on all the way to the end 
+	of the axis. With such a switch, EMC2's homing algorithm will always work.
+			  
+7. connect motion.spindle-speed-in for Feed Per Revolution (G95) mode
+The new pin motion.spindle-speed-in must be connected for Feed Per Revolution 
+(G95) to work. The value connected must be a revolutions per second value. 
+Depending on the machine, this can be a feedback velocity from the encoder or 
+a commanded velocity loopback. If using a loopback, the output value which is 
+in revolutions per minute must be multiplied by .0167 with a gain component to 
+convert to RPS.
+			  
+8. setp requires 2 arguments, 3 given
+Additional error checking is now done in halcmd, so that giving too many 
+arguments causes an error message to be printed. In 2.1 and earlier, these 
+extra arguments were ignored.
+			  
+Note that this is the number of arguments that are present after the expansion 
+of inifile references, such as
+
+	setp example.scale [AXIS_0]INPUT_SCALE
+			      
+which might expand to to
+			      
+	setp example.scale 32000 0
+				  
+in this case, the fix is to modify the inifile to remove the second number "0" 
+from the INPUT_SCALE. This second value is no longer used anywhere in emc2.
+				  
+9. .var file changes
+The .var file has been extended to require coordinate system offsets for 
+U, V and W axes. Copy a fresh .var file. An incorrect var file leads to emc 
+printing 'emc/task/emctask.cc 312: interp_error: Coordinate system index 
+parameter 5220 out of range' at startup.
+
+
+-----------------------------------------------------------------------------
+II. Upgrading configurations from 2.0.x to 2.1.x
+-----------------------------------------------------------------------------
+
+Please review the following list if you plan to update a configuration from
+emc2.0.x to 2.1.x. It is not needed if you start with a new 
+configuration based on the sample configs supplied with this version of emc2.
+
+1. emc.nml
+The emc.nml file has been heavily revised. Unless you made your own changes to 
+emc.nml, simply make a fresh copy. If you made your own changes, then you'll 
+have to apply them to emc.nml manually. 
+
+2. kinematics
+Now a separate kinematics module must be loaded before MOTMOD, as shown below:
+    core_sim.hal:
+    + loadrt trivkins 
+
+3. spindle control
+The HAL pins for spindle control have been renamed to reflect the fact that 
+they are controlled by the realtime 'motion' component, and not by the 
+userspace 'iocontrol' component.
+    change 'iocontrol.0.spindle-speed-out' with 'motion.spindle-speed-out'
+
+4. halcmd "loadusr -W" replaces wait-for-pin and sleep
+In 2.0 there was no way to wait for a userspace component to create its pins. 
+The "wait-for-pin" program (which took a pin name as an argument) was added 
+and then removed during the 2.1 development cycle. 
+Now, the correct way to wait for a userspace component is 
+    "loadusr -W ...". 
+This requires that the component call hal_ready() after it has created all its 
+pins and is ready for use. If the executable name and the component name 
+differ, use "halcmd loadusr -W -n component-name". 
+
+5. inifile units
+Instead of specifying [AXIS_*]UNITS as a decimal number, 
+specify [TRAJ]LINEAR_UNITS and [TRAJ]ANGULAR_UNITS as unit names, 
+including "inch", "mm", "degree", and "radian". 
+The old [AXIS_*]UNITS syntax is still supported, however.
+
+6. "HAL: WARNING: blocks is deprecated, please use the subcomponents generated 
+    by 'comp' instead"
+In emc 2.1, a new tool called "comp" makes it easy to create HAL components. 
+All the items that are in the 'blocks' module have been broken into separate 
+modules such as 'ddt', 'wcomp', and so on. 
+No corrective action is needed at this time, because 'blocks' will still be 
+present in the 2.1 series. However, it may be removed in the 2.2 series, 
+and changes to HAL files will be required at that time. 
+
+If you wish to silence this warning, then change a line like 
+    loadrt blocks ddt=6 wcomp=6
+to 
+    loadrt ddt count=6
+    loadrt wcomp count=6
+   
+7. elimination of "period" from most HAL components
+In version 2.0.x, many HAL components would accept a command line argument 
+"period" (or "periodfp", or other variations on that theme). When "period" was 
+specified, the component would create a realtime thread running at the 
+specified period. This capability was _not_ used in normal EMC configurations; 
+it was mostly used for testing. 
+(In a normal EMC configuration, the servo and base periods are passed to motmod
+and it creates the threads.) 
+In version 2.1, the period argument has been removed from all HAL components. 
+'motmod' still creates the threads for EMC, and none of the sample 
+configurations should need to be changed. For other applications such as 
+testing, etc., there is now a component called "threads" which can create up 
+to three threads. 
+To create a thread, use 
+    loadrt threads name1=<name-of-thread> period1=<period-in-ns> 
+
+To create more than one, use name2, period2, and name3, period3. By default, 
+"threads" creates floating point capable threads. If you don't need floating 
+point, you can specify "fp1=0" (or fp2=0 or fp3=0) to turn off floating point 
+support for one or more threads. Disabling floating point support might save a 
+microsecond or so, and is commonly done for the "fast" thread for software 
+encoder counting and step pulse or PWM generation. 
+   
+8. elimination of s8, u8, s16, u16 HAL types
+The number of HAL types has been reduced. "newsig" commands which formerly used 
+one of those types should be converted to the corresponding 32-bit type, s32 or 
+u32. 
+   
+9. hal_ppmc uses ns units for setup-time, pulse-width, and pulse-space; pins 
+   renamed
+Instead of being specified in units of 100ns, these values (now named 
+setup-time-ns, etc) are in units of 1ns.
+   
+10. the pin axis.N.index-pulse-in has been renamed to axis.N.index-enable
+The name of the pin used for indexing (homing to index pulse) has been changed 
+to be more descriptive and to match the canonical encoder interface.
+   
+11. the meaning of the 'comp.N.hyst' parameter has changed
+In emc 2.0.x, the output of the comparator would not change until the difference
+between the inputs exceeded the hysteresis parameter, giving an effective 
+hysteresis of double the parameter. Now, the output will change when the 
+difference exceeds hyst/2. This more closely matches the [usual definition of 
+hysteresis]. Existing users of the 'comp' block must change (double) the value 
+of the 'comp.N.hyst' parameter.
+
+12. the connection to the lathe's spindle encoder has changed
+In the preliminary lathe threading support in 2.0 versions, a "not" block was 
+needed to connect the motion controller to the spindle encoder's index-enable 
+pin. This is no longer necessary (and will not work).

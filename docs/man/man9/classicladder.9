@@ -1,0 +1,65 @@
+.\"
+.TH CLASSICLADDER "9" "2008-11-23" "LinuxCNC Documentation" "HAL Component" 
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+classicladder \- realtime software plc based on ladder logic
+.SH SYNOPSIS
+\fBloadrt classicladder_rt  [numRungs=\fIN\fB] [numBits=\fIN\fB] [numWords=\fIN\fB] [numTimers=\fIN\fB] [numMonostables=\fIN\fB] [numCounters=\fIN\fB] [numPhysInputs=\fIN\fB] [numPhysOutputs=\fIN\fB] [numArithmExpr=\fIN\fB] [numSections=\fIN\fB] [numSymbols=\fIN\fB] [numS32in=\fIN\fB] [numS32out=\fIN\fB]
+
+.SH DESCRIPTION
+These pins and parameters are created by the realtime \fBclassicladder_rt\fR module. Each period (minimum 1000000 ns), classicladder reads the inputs, evaluates the ladder logic defined in the GUI, and then writes the outputs.
+
+.SH PINS
+
+.TP
+\fBclassicladder.0.in-\fIN\fB\fR IN bit 
+These bit signal pins map to \fB%I\fINNN\fR variables in classicladder
+
+.TP
+\fBclassicladder.0.out-\fIN\fB\fR OUT bit 
+These bit signal pins map to \fB%Q\fInNN\fR variables in classicladder
+Output from classicladder
+
+.TP
+\fBclassicladder.0.in-\fIN\fB\fR IN s32
+Integer input from classicladder
+These s32 signal pins map to \fB%IW\fINNN\fR variables in classicladder
+
+.TP
+\fBclassicladder.0.out-\fIN\fB\fR OUT s32 
+Integer output from classicladder
+These s32 signal pins map to \fB%QW\fINNN\fR variables in classicladder
+
+.SH PARAMETERS
+
+.TP
+\fBclassicladder.0.refresh.time\fR RO s32
+Tells you how long the last refresh took
+
+.TP
+\fBclassicladder.0.refresh.tmax\fR RW s32
+Tells you how long the longest refresh took
+
+.TP
+\fBclassicladder.0.ladder-state\fR RO s32
+Tells you if the program is running or not
+.SH FUNCTIONS
+
+.TP
+\fBclassicladder.0.refresh\fR FP 
+The rung update rate. Add this to the servo thread.
+You can added it to a faster thread but it
+Will update no faster than once every 1 millisecond (1000000 ns).
+
+.SH BUGS
+See http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadder_Ver_7.124 for the latest.
+
+.SH SEE ALSO
+\fIClassicladder\fR chapters in the LinuxCNC documentation for a full description of the \fBClassicladder\fR syntax and examples
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadder_Ver_7.124

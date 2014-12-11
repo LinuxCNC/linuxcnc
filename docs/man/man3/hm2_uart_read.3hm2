@@ -1,0 +1,32 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_uart_read "3hm2" "2012-05-23" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
+
+hm2_uart_read \- read data from a Hostmot2 UART buffer
+
+.SH SYNTAX
+.HP
+int hm2_uart_read(char *name, unsigned char *data)
+
+.SH DESCRIPTION
+\fBhm2_uart_read\fR read data from the UART "name".
+"name" is a unique string given to each UART during hostmot2 setup. The names of 
+the available channels are printed to standard output during the driver loading 
+process and take the form:
+hm2_<board name>.<board index>.uart.<index> For example hm2_5i23.0.uart.0
+
+This function reads a variable number of bytes from the the specified 
+channel.It should be used inside a realtime HAL component registered with the 
+main hostmot2 driver using the function hm2_uart_set_read_function in the setup
+code. 
+
+Note that the UART Receieve FIFO is only 16 bytes deep,(the transmit FIFO is 64 
+bytes) and "data" needs to be at least that large or undefined mayhem will ensue. 
+
+.SH RETURN VALUE
+Returns the number of bytes read on success and -1 on failure.
+
+.SH SEE ALSO
+man hm2_uart_setup, man hm2_uart_send
+See src/hal/drivers mesa_uart.comp for an example usage.

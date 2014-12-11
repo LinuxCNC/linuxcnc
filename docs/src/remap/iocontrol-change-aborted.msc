@@ -1,0 +1,15 @@
+msc {
+ hscale="1.5", arcgradient="5";
+
+ a [label="EMC"], b [label="iocontrol"],c [label="HAL TC component"], d [label="Machine"];
+
+ a=>b [label="M6"];
+ b=>c [label="tool-change = 1"];
+ c=>d [label="change tool"];
+ c<=d [label="change complete", ID=1];
+ a->b  [label="abort by user",ID=2,linecolor="red"];
+ b=>c [label="tool-change = 0",ID=3];
+ a<=b [label="M6 command aborted",ID=4];
+ b<=c [label="tool-changed = 1",ID=5];
+ b<=c [label="tool-changed = 0",ID=6];
+}

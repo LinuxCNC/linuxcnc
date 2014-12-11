@@ -1,0 +1,107 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH SETSERIAL "9" "2012-10-28" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+setsserial - a utility for setting Smart Serial NVRAM parameters. 
+.SH SYNOPSIS
+.HP
+.B loadrt setsserial cmd="set hm2_8i20.001f.nvmaxcurrent 750"
+.SH FUNCTIONS
+.TP
+None
+.SH PINS
+.TP
+None
+.SH USAGE
+
+loadrt setsserial cmd="{command} {parameter/device} {value/filename}"
+
+Commands available are \fBset\fR and \fBflash\fR.
+
+This utility should be used under halcmd, without LinuxCNC running or any
+realtime threads running. 
+
+A typical command sequence would be:
+
+ halrun
+ loadrt hostmot2 use_serial_numbers=1
+ loadrt hm2_pci config="firmware=hm2/5i23/svss8_8.bit"
+ show param
+ loadrt setsserial cmd="set hm2_8i20.001f.nvmaxcurrent 750"
+ exit
+ 
+This example uses the option to have the hal pins and parameters labelled by 
+the serial number of the remote. This is not necessary but can reduce the scope
+for confusion. (The serial number is normally on a sticker on the device.) 
+
+The next line loads the hm2_pci driver in the normal way. The hm2_7i43 driver
+should work equally well, as should any future 7i80 driver. 
+If the card has already been strted up and a firmware has been loaded, then 
+the config string may be omitted. 
+
+"show param" is optional, but provides a handy list of all the devices and 
+parameters. It also shows the current values of the parameters which can be 
+useful for determining scaling. u32 pin values are always shown in hex, but new
+values can be entered in decimal or hex. Use the Ox123ABC format to enter a hex
+value. 
+
+The next line invokes setsserial. This is run in a slightly strange way in order
+to have kernel-level access to a live Hostmot2 config. It is basically a 
+HAL module that always fails to load. This may lead to error messages being
+printed to the halcmd prompt. These can often be ignored. 
+All the real feedback is via the dmesg command. It is suggested to have a second
+terminal window open to run dmesg after each command. 
+
+On exiting there will typically be a further error message related to the driver
+failing to unload setsserial. This can be ignored.
+
+The parameter changes will not show up until the drivers are reloaded.
+//TODO// Add a "get" command to avoid this problem. 
+
+.B Flashing Firmware
+To flash new firmware to an FPGA card such as the 5i25 or 5i20 the "mesaflash" 
+utility should be used. Setsserial is only useful for changing/updating the
+firmare on smart-serial remote such as the 8i20. 
+The firmware should be placed somewhere in the /lib/firmware/hm2 tree, where the
+Linux firmware loading macros can find it. 
+
+The flashing routine operates in a realtime thread, and can only send prompts
+to the user through the kernel log (dmesg). It is most convenient to open two
+terminal windows, one for command entry and one to monitor progress. 
+
+In the first terminal enter
+
+tail -f /var/log/kern.log
+
+This terminal will now display status information.
+
+The second window will be used to enter the commands. It is important that
+LinuxCNC and/or HAL are not already loaded when the process is started.  
+To flash new firmware it is necessary to move a jumper on the smart-serial
+remote drive and to switch smart-serial communication to a slower baudrate.  
+
+A typical command sequence is then
+ halrun
+ loadrt hostmot2 sserial_baudrate=115200
+ loadrt hm2_pci config="firmware=hm2/5i23/svss8_8.bit"
+ loadrt setsserial cmd="flash hm2_5i23.0.8i20.0.1 hm2/8i20/8i20T.BIN"
+ exit
+ 
+It is not necessary (or useful) to specify a config string in a system using the
+5i25 or 6i25 cards. 
+
+Note that it is necessary to exit halrun and unload the realtime environment
+before flashing the next card (exit)
+
+The correct sserial channel name to use can be seen in the dmesg output in the
+feedback terminal after the loadrt hm2_pci step of the sequence. 
+
+.SH LICENSE
+
+GPL

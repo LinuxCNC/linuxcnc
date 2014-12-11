@@ -1,0 +1,110 @@
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.TH KINS "9" "2007-01-20" "LinuxCNC Documentation" "HAL Component"
+.SH NAME
+kins \- kinematics definitions for LinuxCNC
+.SH SYNOPSIS
+.B loadrt trivkins
+.PP
+.B loadrt rotatekins 
+.PP
+.B loadrt tripodkins
+.PP
+.B loadrt genhexkins
+.PP
+.B loadrt maxkins
+.PP
+.B loadrt genserkins
+.PP
+.B loadrt pumakins
+.PP
+.B loadrt scarakins
+.SH DESCRIPTION
+Rather than exporting HAL pins and functions, these components provide the
+forward and inverse kinematics definitions for LinuxCNC.
+.SS trivkins \- Trivial Kinematics
+There is a 1:1 correspondence between joints and axes.  Most standard milling
+machines and lathes use the trivial kinematics module.
+.SS rotatekins \- Rotated Kinematics
+The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
+.SS tripodkins \- Tripod Kinematics
+The joints represent the distance of the controlled point from three predefined
+locations (the motors), giving three degrees of freedom in position (XYZ)
+.TP
+.B tripodkins.Bx
+.TQ
+.B tripodkins.Cx
+.TQ
+.B tripodkins.Cy
+The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
+.SS genhexkins \- Hexapod Kinematics
+Gives six degrees of freedom in position and orientation (XYZABC).  The
+location of the motors is defined at compile time.
+.SS maxkins \- 5-axis kinematics example
+Kinematics for Chris Radek's tabletop 5 axis mill named 'max' with tilting
+head (B axis) and horizintal rotary mounted to the table (C axis).  Provides
+UVW motion in the rotated coordinate system.  The source file, maxkins.c,
+may be a useful starting point for other 5-axis systems.
+.SS genserkins \- generalized serial kinematics
+Kinematics that can model a general serial-link manipulator with up to 6
+angular joints.  
+
+The kinematics use Denavit-Hartenberg definition for the joint and
+links. The DH definitions are the ones used by John J Craig in
+"Introduction to Robotics: Mechanics and Control" The parameters for the
+manipulator are defined by hal pins.
+.TP
+.B genserkins.A-\fIN
+.TQ
+.B genserkins.ALPHA-\fIN
+.TQ
+.B genserkins.D-\fIN
+Parameters describing the \fIN\fRth joint's geometry.
+
+.SS pumakins \- kinematics for puma typed robots
+Kinematics for a puma-style robot with 6 joints
+.TP
+.B pumakins.A2
+.TQ
+.B pumakins.A3
+.TQ
+.B pumakins.D3
+.TQ
+.B pumakins.D4
+Describe the geometry of the robot
+
+.SS scarakins \- kinematics for SCARA-type robots
+.TP
+.B scarakins.D1
+Vertical distance from the ground plane to the center of the inner arm.
+.TP
+.B scarakins.D2
+Horizontal distance between joint[0] axis and joint[1] axis, ie.  the
+length of the inner arm.
+.TP
+.B scarakins.D3
+Vertical distance from the center of the inner arm to the center of the
+outer arm.  May be positive or negative depending on the structure of
+the robot.
+.TP
+.B scarakins.D4
+Horizontal distance between joint[1] axis and joint[2] axis, ie.  the
+length of the outer arm.
+.TP
+.B scarakins.D5
+Vertical distance from the end effector to the tooltip.  Positive means
+the tooltip is lower than the end effector, and is the normal case.
+.TP
+.B scarakins.D6
+Horizontal distance from the centerline of the end effector (and the
+joints 2 and 3 axis) and the tooltip.  Zero means the tooltip is on the
+centerline.  Non-zero values should be positive, if negative they
+introduce a 180 degree offset on the value of joint[3].
+
+.SH SEE ALSO
+\fIKinematics\fR section in the LinuxCNC documentation
+

@@ -1,0 +1,47 @@
+.TH hal_create_thread "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+hal_create_thread \- Create a HAL thread
+
+.SH SYNTAX
+.HP
+int hal_create_thread(const char *\fIname\fR, unsigned long
+\fIperiod\fR, int \fIuses_fp\fR, int \fIcpu_id\fR)
+
+.HP
+int hal_thread_delete(const char *\fIname\fR)
+
+.SH  ARGUMENTS
+.IP \fIname\fR
+The name of the thread
+
+.IP \fIperiod\fR
+The interval, in nanoseconds, between iterations of the thread
+
+.IP \fIuses_fp\fR
+Must be nonzero if a function which uses floating-point will be attached
+to this thread.
+
+.IP \fcpu_id\fR
+Make the RTAPI layer bind this thread to a particular CPU core.
+
+.SH DESCRIPTION
+\fBhal_create_thread\fR establishes a realtime thread that will
+execute one or more HAL functions periodically.
+
+All thread periods are rounded to integer multiples of the hardware timer
+period, and the timer period is based on the first thread created.  Threads
+must be created in order, from the fastest to the slowest.  HAL assigns
+decreasing priorities to threads that are created later, so creating them
+from fastest to slowest results in rate monotonic priority scheduling.
+
+\fBhal_delete_thread\fR deletes a previously created thread.
+
+.SH REALTIME CONSIDERATIONS
+Call only from realtime init code, not from user space or realtime code.
+
+.SH RETURN VALUE
+Returns a HAL status code.
+
+.SH SEE ALSO
+\fBhal_export_funct(3hal)\fR

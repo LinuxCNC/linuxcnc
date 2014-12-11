@@ -1,0 +1,42 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_bspi_setup_chan "3hm2" "2011-05-31" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
+
+hm2_bspi_setup_chan \- setup a Hostmot2 bspi channel
+
+.SH SYNTAX
+.HP
+int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
+int delay, int cpol, int cpha, int clear, int echo)
+
+.SH DESCRIPTION
+\fBhm2_bspi_setup_chan\fR Setup the bspi channel "chan" on the bspi instance 
+"name". "name" is a unique string given to each bspi channel during hostmot2 
+setup. The names of the available
+channels are printed to standard output during the driver loading process and 
+take the form:
+hm2_<board name>.<board index>.bspi.<index> For example hm2_5i23.0.bspi.0
+Channels are numbered 0 to 15.
+The value on the chip-select lines is set by cs and need not match the
+channel number. BSPI supports 4 chip select lines, so the valid range for cs is 
+0-15. "bits" sets the bit-length of the SPI packet. The maximum supported length
+is 64 bits but this will span two read FIFO entries and will need special 
+handling. "mhz" sets the chip communication rate. The maximum value for this is 
+half the FPGA base frequency, so for example with a 48MHz 5i23 the max SPI 
+frequency is 24Mhz. Values in excess of the max supported will be silently 
+rounded down. "delay" sets the chip select valid delay (in nS). "cpha" is the 
+clock phase and "cpol" is the clock polarity (from the device datasheet). 
+"clear" controls whether the frame clear bit is set after the 32 bit buffer 
+transfer. This parameter should be set to 1 when the frame length is greater 
+than 32 bits and the next data in the FIFO contains the other bits. "echo" is 
+sense-inverted, it should be set to 1 for devices which do not return data (such
+ as DACs). 
+
+.SH RETURN VALUE
+Returns 0 on success and -1 on failure.
+
+.SH SEE ALSO
+man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame
+man hm2_allocate_bspi_tram.
+See src/hal/drivers mesa_7i65.comp for an example usage.

@@ -1,0 +1,23 @@
+.TH rtapi_exit "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_exit \- Shut down RTAPI
+
+.SH SYNTAX
+.HP
+ int rtapi_exit(int \fImodule_id\fR)
+
+.SH ARGUMENTS
+.IP \fImodule_id\fR
+An rtapi module identifier returned by an earlier call to \fBrtapi_init\fR.
+
+.SH DESCRIPTION
+\fBrtapi_exit\fR shuts down and cleans up the RTAPI.  It must be
+called prior to exit by any module that called \fBrtapi_init\fR.
+
+.SH REALTIME CONSIDERATIONS
+Call only from within user or init/cleanup code, not from relatime tasks.
+
+.SH RETURN VALUE
+Returns a RTAPI status code.
+

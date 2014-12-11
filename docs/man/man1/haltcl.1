@@ -1,0 +1,93 @@
+.\" Copyright (c) 2003 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.TH HALTCL "1"  "2012-01-31" "LinuxCNC Documentation" "HAL User's Manual"
+.SH NAME
+haltcl \- manipulate the LinuxCNC HAL from the command line using a tcl
+interpeter.
+
+.SH SYNOPSIS
+.B haltcl [\fI-i inifile\fR] [\fIfilename\fR\]
+.PP
+
+.SH DESCRIPTION
+\fBhaltcl\fR is used to manipulate the HAL (Hardware Abstraction
+Layer) from the command line using a tcl interpreter.  \fBhaltcl\fR
+can optionally read commands from a file (filename), allowing
+complex HAL configurations to be set up with a single command.
+
+.SH OPTIONS
+.TP
+\fB-i\fR \fIinifile\fR
+If specified, the inifile is read and used to create tcl global variable
+arrays.  An array is created for each SECTION of the inifile with
+elements for each ITEM in the section.
+.P
+       For example, if the inifile contains:
+       [SECTION_A]ITEM_1 =  1
+       [SECTION_A]ITEM_2 =  2
+       [SECTION_B]ITEM_1 = 10
+
+       The corresponding tcl variables are:
+       SECTION_A(ITEM_1) =  1
+       SECTION_A(ITEM_2) =  2
+       SECTION_B(ITEM_1) = 10
+.TP
+\fB-ini\fR \fIinifile\fR -- declining usage, use \fB-i\fR \fIinifile\fR
+.TP
+\fBfilename\fR
+If specified, the tcl commands of \fBfilename\fR are executed.  If no filename
+is specified, haltcl opens an interactive session.
+
+.SH COMMANDS
+\fBhaltcl\fR includes the commands of a tcl interpreter augmented with
+commands for the hal language as described for \fBhalcmd\fR(1).  The augmented
+commands can be listed with the command:
+
+   haltcl: hal --commands
+
+   addf alias delf delsig getp gets ptype stype help linkpp linkps linksp list loadrt loadusr lock net newsig save setexact_for_test_suite_only setp sets show source start status stop unalias unlinkp unload unloadrt unloadusr unlock waitusr
+
+Two of the augmented commands, 'list' and 'gets', require special treatment to
+avoid conflict with tcl built-in commands having the same names.  To use these
+commands, precede them with the keyword 'hal':
+
+   hal list
+   hal gets
+
+.SH REPORTING BUGS
+Report bugs to the
+.URL http://sf.net/tracker/?group_id=6744&atid=106744 "LinuxCNC bug tracker" .
+.SH COPYRIGHT
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+.SH SEE ALSO
+\fBhalcmd\fR(1), \fBhalrun\fR(1)

@@ -1,0 +1,60 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_uart_setup "3hm2" "2011-05-31" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
+
+hm2_uart_setup \- setup a Hostmot2 UART
+.SH SYNTAX
+.HP
+int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode){
+
+.SH DESCRIPTION
+\fBhm2_uart_setup\fR Setup the bitrate for the UART named "name".
+"name" is a unique string given to each UART during hostmot2 
+setup. The names of the available UARTs are printed to standard output during 
+the driver loading process and take the form:
+hm2_<board name>.<board index>.uart.<index> For example hm2_5i23.0.uart.0
+The minimum bitrate is approximately 50bps, and the maximimum around the FPGA 
+frequency, 48MHz for a 5i23. 
+The UART function allows different RX and TX bitrates, but that is not currently
+supported by this driver
+
+tx_mode is bit mask defined in the Hostmot2 regmap:
+Bit 0..3 = TXEnable delay. TXEnable delay specifies the transmit data 
+        holdoff time from the TXenable signal valid state. This is used for 
+        RS-485 (half duplex) operaton, to delay transmit data until the driver 
+        is enabled, allowing for driver enable delays, isolation barrier delays 
+        etc. Delay is in units of ClockLow period.
+Bit 4 = FIFOError, it indicates that a host push has overflowed the FIFO
+        (Mainly for driver debugging)
+Bit 5 = DriveEnableAuto, When set, enables Drive when any data is in FIFO or 
+        Xmit Shift register,removes drive when FIFO and Xmit shift register 
+        are empty.
+Bit 6 = DriveEnableBit, If DriveEnableAuto is 0, controls Drive (
+        for software control of Xmit drive)
+        
+tx_mode is bit mask defined in the Hostmot2 regmap:
+Bit 0 = FalseStart bit Status, 1 = false start bit detected
+Bit 1 = OverRun Status, 1 = overrun condition detected (no valid stop bit)
+Bit 2 = RXMaskEnable, 1= enable RXMask for half duplex operation,
+    0 = ignore RXMask
+Bit 4 = FIFOError, indicates that a host read has attemped to read more 
+        data than available. (mainly for driver debugging)
+Bit 5 = LostDataError, indicates that data was received with no room in FIFO, 
+        therefore lost
+Bit 6 = RXMask, RO RXMASK status
+Bit 7 = FIFO Has Data
+
+rx_mode and tx_mode registers are currently write-only. There should possibly be
+a get-status function.
+
+To write only to the tx_mode DriveEnable bit call this function with the bitrate
+unchanged and -1 as the rx_mode
+To change bitrate without altering mode settings send -1 to both modes. 
+        
+.SH RETURN VALUE
+Returns0 on success and -1 on failure 
+
+.SH SEE ALSO
+man hm2_uart_send, man hm2_uart_read
+See src/hal/drivers mesa_uart.comp for an example usage.
