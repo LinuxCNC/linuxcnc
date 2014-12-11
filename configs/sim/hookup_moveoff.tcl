@@ -44,11 +44,11 @@
 #   For available options, Use:
 #      $ moveoff_gui --help
 #
-#   The moveoff_gui will provide a display and and control for
-#   enabling offsetting if the pin mv.move-enable is connected
+#   The moveoff_gui will provide a display and control for
+#   enabling offsetting if the pin mv.move-enable is not connected
 #   when moveoff_gui is started.
 #
-#   If the mv.move-enable pin is not connected when moveoff_gui
+#   If the mv.move-enable pin is connected when moveoff_gui
 #   is started, then it will provide a display but no control.
 #   This mode supports hal connections for a jog wheel or other
 #   methods of controlling the offset input pins (mv.offset-M)

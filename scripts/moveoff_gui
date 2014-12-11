@@ -10,7 +10,7 @@
 # $ man moveoff
 
 # Note: If a pin named '*.resume-inhibit' exists (and is not
-#       connected), #       it will be set when offsets are applied.
+#       connected), it will be set when offsets are applied.
 #       The pin would typically be provided by a controlling gui.
 #       (for example: axisui.resume-inhibit)
 

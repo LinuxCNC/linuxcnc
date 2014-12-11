@@ -77,7 +77,7 @@ maximum is 9).
 
 Use of the names= option for naming is \\fBrecommended\\fR for compatibilty
 with the gui provided in scripts/moveoff_gui:
-  loadrt moveoff names=\\fBmv\\fR
+  loadrt moveoff names=\\fBmv\\fR personality=number_of_axes
 
 
 
