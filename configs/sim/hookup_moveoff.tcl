@@ -373,6 +373,20 @@ set ::m mv ;# moveoff component name
 set ::HU(verbose) 0
 set ::noexecute   0
 
+# ::tp is the namspace for [HAL]TWOPASS processing
+if [namespace exists ::tp] {
+  set passno [::tp::passnumber]
+  if {$passno == 0} {
+    puts "hookup_moveoff.tcl: twopass active, pass $passno skipped"
+    # By returning here, the loadrt and addf commands herein are not
+    # accumulated for deferred execution by pass0 processing.
+    # But they will be executed in pass1
+    return
+  } else {
+    puts "hookup_moveoff.tcl: twopass active, pass $passno active"
+  }
+}
+
 if [catch {
   set ::HU(cmd) find_thread_names; eval $::HU(cmd)
   set ::HU(cmd) setup_pinnames;    eval $::HU(cmd)
@@ -401,4 +415,3 @@ if [catch {
   puts msg=<$msg>
   return -code error
 }
-
