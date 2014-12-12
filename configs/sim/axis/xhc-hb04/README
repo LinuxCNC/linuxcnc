@@ -16,7 +16,7 @@ Sim configurations are provided for two known button configurations:
 layout1 -- 16 buttons
 layout2 -- 18 buttons (more common)
 
-The button names are defined in the files xhc-hb04-layout*.cfg in a stanza labeled XHC-HB04 with definitions as BUTTON=XX:name where XX is a hexadecimal code used by the device.
+The button names are defined in the files LIB:xhc-hb04-layout*.cfg in a stanza labeled XHC-HB04 with definitions as BUTTON=XX:name where XX is a hexadecimal code used by the device.
 
 Example:
    [XHC-HB04]
@@ -66,8 +66,8 @@ ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="666", OWNER="root", GROUP
 This rule uses mode 0666 to provide read and write access to owner,group,world -- e.g., everyone.
 
 ----------------------------------
-The sim configurations use a single halfile: xhc-hb04.tcl.  This halfile uses a custom comp file (xhc_hb04_util.comp) and can be added to existing configurations by adding an ini file entry for:
-  [HAL]HALFILE=xhc-hb04.tcl
+The sim configurations use a single halfile: LIB:xhc-hb04.tcl.  This halfile uses a custom comp file (xhc_hb04_util.comp) and can be added to existing configurations by adding an ini file entry for:
+  [HAL]HALFILE = LIB:xhc-hb04.tcl
 
 This HALFILE entry should follow other HALFILE entries.
 
@@ -133,20 +133,16 @@ MDI_COMMAND = M101
 The commands are assigned to pins (Type=bit, Dir=IN) named halui.mdi-command-nn whre
 nn corresponds to their ordered appearance beginning with nn=00.  (man halui for more information)
 ----------------------------------
-A applicatin named monitor_xhc-hb04.tcl is included to monitor disconnects and reconnects of the pendant.  This script runs in the background and will pop up a message when the pendant is disconnected or reconnected.  Usage is optional; if used it is specified with ini file entry:
-  [APPLICATIONS]APP = monitor_xhc_hb04.tcl
+A application named monitor-xhc-hb04 is included to monitor disconnects and reconnects of the pendant.  This script runs in the background and will pop up a message when the pendant is disconnected or reconnected.  Usage is optional; if used it is specified with ini file entry:
+  [APPLICATIONS]APP = monitor-xhc-hb04
 
 (Note: when using require_pendant=1, disconnects are detected but reconnects are not supported)
 ----------------------------------
 
 An xhc-hb04 pendant can be added to existing configurations.
-  1) copy files to the configuration directory:
-     $ cp xhc-hb04.tcl         your_config_dir/
-     $ cp monitor_xhc-hb04.tcl your_config_dir/
-     $ cp xhc-hb04-layout*.cfg your_config_dir/
-  2) Edit existing configuration ini file to:
-    a) add [HAL]HALFILE=xhc-hb04.tcl
-    b) add [APPLICATIONS]APP=monitor_xhc-hb04.tcl
+  Edit existing configuration ini file to:
+    a) add [HAL]HALFILE = LIB:xhc-hb04.tcl
+    b) (optional) add [APPLICATIONS]APP = monitor-xhc-hb04
     c) add stanza [XHC-HB04_CONFIG]
     d) add stanza [XHC-HB04_BUTTONS]
     e) add or update stanza for [HALUI]

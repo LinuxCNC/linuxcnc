@@ -272,8 +272,46 @@ proc ::tp::pass0 {} {
 proc ::tp::prep_the_files {} {
   set passno [passnumber]
   if {$passno == 0} {
-    # first convert if necessary
+    # find file by search rules
+    set libtag "LIB:"
     foreach f $::HAL(HALFILE) {
+      set foundmsg ""
+      # test for LIB:filename
+      if {[string first "LIB:" $f] == 0} {
+         set explicit_file_in_hallib \
+            [string range $f [string len $libtag] end]
+         if {"$explicit_file_in_hallib" == ""} {
+           puts "twopass:ILLFORMED LIB:file:<$f>"
+         }
+         set explicit_file_in_hallib \
+            [file join $::env(HALLIB_DIR) $explicit_file_in_hallib]
+         if [file readable $explicit_file_in_hallib] {
+           set foundfile $explicit_file_in_hallib
+           set foundmsg "Found LIB file:$explicit_file_in_hallib"
+         }
+      } else {
+        foreach pathdir [split $::env(HALLIB_PATH) :] {
+          set foundfile [file join $pathdir $f]
+          if [file readable $foundfile] {
+             set foundmsg "Found file:$foundfile"
+             break
+          }
+        }
+      }
+      if [file isdirectory $foundfile] {set foundmsg ""}
+      if {"$foundmsg" == ""} {
+        puts "twopass:CANNOT FIND FILE FOR:$f"
+        if [info exists ::env(PRINT_FILE)] {
+           set fd [open $::env(PRINT_FILE) a]
+           puts $fd "twopass:CANNOT FIND FILE FOR:$f"
+           close $fd
+        }
+        exit 1
+      }
+      puts "twopass:$foundmsg"
+      set f $foundfile
+
+      # convert to a temporary tcl file if necessary
       set suffix [filesuffix $f]
       switch -exact $suffix {
         tcl {lappend ::TP(runfiles) $f
@@ -460,7 +498,7 @@ if {[string first nodelete [string tolower $::HAL(TWOPASS)]] >=0} {
   set ::tp::nodelete 1
   lappend ::tp::options nodelete
 }
-puts "twopass: invoked with <$::tp::options> options"
+puts "twopass:invoked with <$::tp::options> options"
 
 ::tp::pass0
 ::tp::pass1

@@ -762,7 +762,7 @@ Usage:
                               (resume program when move-enable deasserted)
     \[-delay delay_secs\]     (default: $::MV(resume,delay,secs) (resume delay))
 
-These options are availabe for special cases:
+These options are available for special cases:
     \[-noentry\]              (default: $default_noentry)
                               (don\'t create entry widgets)
     \[-no_resume_inhibit\]    (default: $default_no_resume_inhibit)

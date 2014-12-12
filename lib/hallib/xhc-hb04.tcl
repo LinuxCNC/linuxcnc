@@ -125,13 +125,15 @@ proc connect_pins {} {
       continue
     }
     set fullbname xhc-hb04.button-$bname
-    if ![pin_exists $fullbname] {
-      puts stderr "$::progname: !!! <$fullbname> pin does not exist, continuing"
-      continue
-    }
-    if ![pin_exists $thepin] {
-      puts stderr "$::progname: !!! <$thepin> target pin does not exist, continuing"
-      continue
+    if !$::quiet {
+      if ![pin_exists $fullbname] {
+        puts stderr "$::progname: !!! <$fullbname> pin does not exist, continuing"
+        continue
+      }
+      if ![pin_exists $thepin] {
+        puts stderr "$::progname: !!! <$thepin> target pin does not exist, continuing"
+        continue
+      }
     }
 
     net pendant:$bname $fullbname => $thepin
@@ -316,7 +318,15 @@ proc err_exit {msg} {
 
 # begin------------------------------------------------------------------------
 set ::progname "xhc-hb04.tcl"
-set cfg xhc-hb04-layout2.cfg ;# default
+
+set ::quiet 0
+# ::tp is the namespace for [HAL]TWOPASS processing
+if { [namespace exists ::tp] && ([::tp::passnumber] == 0) } {
+  set ::quiet 1
+  puts "$::progname: suppressing messages in twopass pass0"
+}
+
+set cfg LIB:xhc-hb04-layout2.cfg ;# default
 
 foreach name [array names ::XHC_HB04_CONFIG] {
   set ::XHC_HB04_CONFIG($name) [string trim $::XHC_HB04_CONFIG($name) "{}"]
@@ -324,15 +334,24 @@ foreach name [array names ::XHC_HB04_CONFIG] {
 
 if [info exists ::XHC_HB04_CONFIG(layout)] {
   switch ${::XHC_HB04_CONFIG(layout)} {
-    1 {set cfg xhc-hb04-layout1.cfg}
-    2 {set cfg xhc-hb04-layout2.cfg}
+    1 {set cfg LIB:xhc-hb04-layout1.cfg}
+    2 {set cfg LIB:xhc-hb04-layout2.cfg}
     default {
-      set msg "Unknown layout:<$::XHC_HB04_CONFIG(layout)>"
+      set msg "Nonstandard layout:<$::XHC_HB04_CONFIG(layout)>"
+      set cfg $::XHC_HB04_CONFIG(layout)
       set msg "$msg\ntrying: $cfg"
       popup_msg "$msg"
       # keep going
     }
   }
+}
+
+set libtag "LIB:"
+# test for LIB:filename
+if {[string first "LIB:" $cfg] == 0} {
+   set cfg [string range $cfg [string len $libtag] end]
+   set cfg [file join $::env(HALLIB_DIR) $cfg]
+   puts "$::progname: LIB file: $cfg"
 }
 
 if ![file exists $cfg] {

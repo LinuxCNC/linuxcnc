@@ -508,18 +508,42 @@ Section.
 === [HAL] section[[sub:HAL-section]]
 (((HAL (inifile section))))
 
-* 'TWOPASS=ON' - Use two pass processing for loading HAL comps. With TWOPASS processing,
-    all [HAL]HALFILES are first read and multiple appearances of loadrt
-    directives for each moduleb are accumulated.
-    No hal commands are executed in this initial pass.
-
 * 'HALFILE = example.hal' - Execute the file 'example.hal' at start up.
-   If 'HALFILE' is specified multiple times, the files are executed in the order they
+    If 'HALFILE' is specified multiple times, the files are executed in the order they
     appear in the ini file. Almost all configurations will have at least
-    one 'HALFILE', and stepper systems typically have two such files, one
-    which
+    one 'HALFILE', and stepper systems typically have two such files, one which
     specifies the generic stepper configuration ('core_stepper.hal') and
-    one which specifies the machine pin out ('xxx_pinout.hal')
+    one which specifies the machine pin out ('xxx_pinout.hal').
+    HALFILES are found using a search.  If the named file is found in the directory
+    containing the ini file, it is used.  If the named file is not found in this
+    ini file directory, a search is made using a system library of halfiles.
+
+* 'HALFILE = texample.tcl' - Execute the tcl file 'texample.tcl' at start up.
+    Files with a .tcl suffix are processed as above but use haltcl tcl extension
+    for processing.  See the section on HALTCL for more information.
+
+* 'HALFILE = LIB:sys_example.hal' - Execute the system library file 'sys_example.hal'
+    at start up.
+    Explicit use of the LIB: prefixes causes use of the system library HALFILE without
+    searching the ini file directory.
+
+* 'HALFILE = LIB:sys_texample.tcl' - Execute the system library file 'sys_texample.tcl' at
+    start up.
+    Explicit use of the LIB: prefixes causes use of the system library HALFILE without
+    searching the ini file directory.
+
+* 'TWOPASS = ON' - Use twopass processing for loading HAL components. With TWOPASS processing,
+    [HAL]HALFILE= lines are processed in two passes.  In the first pass (pass0), all
+    HALFILES are read and multiple appearances of loadrt and loadusr commands are accumulated.
+    These accumulated load commands are executed at the end of pass0.  This accumulation allows
+    load lines to be specified more than once for a given component (provided the
+    names= names used are unique on each invocation).  In the second pass (pass1), the
+    HALFILES are reread and all commands except the previously executed load commands
+    are executed.  The TWOPASS item can be activated with any non-null string and supports
+    keywords: verbose and nodelete. The verbose keyword causes printing of details to stdout.
+    The nodelete keyword preserves temporary files in /tmp.
+    Example: TWOPASS = nodelete verbose
+    See the section on TWOPASS for more information.
 
 * 'HALCMD = command' - Execute 'command' as a single HAL command.
    If 'HALCMD' is specified multiple times, the commands are executed in the order

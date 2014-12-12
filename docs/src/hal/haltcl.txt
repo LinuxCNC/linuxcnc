@@ -1,6 +1,6 @@
-= HAL TCL Files
+= HALTCL Files
 
-[[cha:hal-tcl]] (((HAL TCL Files)))
+[[cha:haltcl]] (((HALTCL Files)))
 
 The halcmd language excels in specifiying components and connections but
 offers no computational capabilities.  As a result, ini files are limited in
