@@ -354,6 +354,13 @@ clean-manpages:
 	-rm -f $(GENERATED_MANPAGES)
 
 
+%_fr.txt: %.txt %.fr.po
+	# for po4a 0.42 and older (wheezy)
+	po4a-translate --debug --verbose -o asciidoc --keep 15 -f text -m $*.txt -p $*.fr.po -l $*_fr.txt
+	# for po4a 0.45 and newer (jessie)
+	#po4a-translate --debug --verbose -f asciidoc --keep 15 -m $*.txt -p $*.fr.po -l $*_fr.txt
+
+
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
 install-doc: install-doc-pdf
