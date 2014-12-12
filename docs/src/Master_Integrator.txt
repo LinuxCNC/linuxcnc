@@ -134,13 +134,11 @@ include::examples/gs2_example.txt[]
 
 :leveloffset: 0
 
-= Diagnostics & FAQ
+= Diagnostics
 
 :leveloffset: 1
 
 include::common/Stepper_Diagnostics.txt[]
-
-include::common/Linux_FAQ.txt[]
 
 include::common/Glossary.txt[]
 
