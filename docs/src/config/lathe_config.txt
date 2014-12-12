@@ -1,3 +1,5 @@
+:toc:
+
 = Lathe Configuration
 
 [[cha:lathe-configuration]] (((Lathe Configuration)))

@@ -29,6 +29,7 @@ en remplacement ou ajout au fichier .ini normal.
 [DISPLAY]
 DISPLAY = axis
 LATHE = 1
+
 [TRAJ]
 AXES = 3
 COORDINATES = X Z
