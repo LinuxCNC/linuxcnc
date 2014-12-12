@@ -18,52 +18,47 @@ msgstr ""
 
 #. type: Plain text
 #: lathe_config.txt:2
-#, fuzzy
 msgid ":toc:"
 msgstr ":lang: fr :toc:"
 
 #. type: Plain text
 #: lathe_config.txt:4
-#, fuzzy
 msgid "= Lathe Configuration"
 msgstr "= Tours"
 
 #. type: Plain text
 #: lathe_config.txt:6
-#, fuzzy
 msgid "[[cha:lathe-configuration]] (((Lathe Configuration)))"
 msgstr "[[cha:Configuration-tour]] (((Configuration tour)))"
 
 #. type: Plain text
 #: lathe_config.txt:8
-#, fuzzy
 msgid "== Default Plane"
 msgstr "== Plan par défaut"
 
 #. type: Plain text
 #: lathe_config.txt:13
-#, fuzzy
 msgid ""
 "When LinuxCNC's interpreter was first written, it was designed for mills.  "
 "That is why the default plane is XY (G17). A normal lathe only uses the XZ "
 "plane (G18). To change the default plane place the following line in the "
 ".ini file in the RS274NGC section."
 msgstr ""
-"Quand l'interpréteur de LinuxCNC à été créé, il à été écrit pour "
-"les fraiseuses. C'est pourquoi le plan par défaut est le plan XY (G17). Sur "
-"un tour standard on utilise seulement les axes du plan XZ (G18). Pour "
-"changer le plan par défaut d'un tour, mettez la ligne suivante dans la "
-"section RS274NGC du fichier ini."
+"Quand l'interpréteur de LinuxCNC à été créé, il à été écrit pour les "
+"fraiseuses. C'est pourquoi le plan par défaut est le plan XY (G17). Sur un "
+"tour standard on utilise seulement les axes du plan XZ (G18). Pour changer "
+"le plan par défaut d'un tour, mettez la ligne suivante dans la section "
+"RS274NGC du fichier ini."
 
 #. type: Plain text
 #: lathe_config.txt:14 lathe_config.txt:27
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "----\n"
 msgstr "----\n"
 
 #. type: Plain text
 #: lathe_config.txt:16
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "RS274NGC_STARTUP_CODE = G18\n"
 "----\n"
@@ -73,23 +68,20 @@ msgstr ""
 
 #. type: Plain text
 #: lathe_config.txt:20
-#, fuzzy
 msgid ""
 "The above can be overwritten in a g code program so always set important "
 "things in the preamble of the g code file."
 msgstr ""
-"La ligne de commande ci-dessus peut être remplacées par des G codes "
-"placés dans le préambule du programme G-code."
+"La ligne de commande ci-dessus peut être remplacées par des G codes placés "
+"dans le préambule du programme G-code."
 
 #. type: Plain text
 #: lathe_config.txt:22
-#, fuzzy
 msgid "== INI Settings"
 msgstr "== Réglages INI"
 
 #. type: Plain text
 #: lathe_config.txt:26
-#, fuzzy
 msgid ""
 "The following .ini settings are needed for lathe mode in Axis in addition to "
 "or replacing normal settings in the .ini file. Gmoccapy uses also the "
@@ -101,13 +93,12 @@ msgstr ""
 
 #. type: Plain text
 #: lathe_config.txt:31
-#, fuzzy
 msgid "[DISPLAY] DISPLAY = axis LATHE = 1"
 msgstr "[DISPLAY] DISPLAY = axis LATHE = 1"
 
 #. type: Plain text
 #: lathe_config.txt:39
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "[TRAJ]\n"
 "AXES = 3\n"
