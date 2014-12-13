@@ -1,0 +1,52 @@
+# removeshort.hal
+# demonstrate that hookup_moveoff.tcl works with
+# non-shortcircuit hal configurations (like a servo)
+# this halfile should follow core_sim.hal
+
+# remove usual sim signals
+delsig Xpos
+delsig Ypos
+delsig Zpos
+
+# add pid components
+loadrt pid names=xpid,ypid,zpid
+addf xpid.do-pid-calcs servo-thread 3
+addf ypid.do-pid-calcs servo-thread 3
+addf zpid.do-pid-calcs servo-thread 3
+
+# note: pid has default PGain=1, Dgain=Igain=FF0=FF1=FF2=0
+setp xpid.Pgain 0
+setp ypid.Pgain 0
+setp zpid.Pgain 0
+
+# pass thru input to output by using FF0=1
+setp xpid.FF0 1
+setp ypid.FF0 1
+setp zpid.FF0 1
+
+# enable pid in usual manner
+net xenable axis.0.amp-enable-out => xpid.enable
+net yenable axis.1.amp-enable-out => ypid.enable
+net zenable axis.2.amp-enable-out => zpid.enable
+
+# connect without a shortcircuit usin pass-thru pid
+net Xpos-cmd <= axis.0.motor-pos-cmd
+net Xpos-cmd => xpid.command
+net Xpos-fb  <= xpid.output
+net Xpos-fb  => axis.0.motor-pos-fb
+net Xpos-fb  => comp_x.in1
+net Xpos-fb  => ddt_x.in
+
+net Ypos-cmd <= axis.1.motor-pos-cmd
+net Ypos-cmd => ypid.command
+net Ypos-fb  <= ypid.output
+net Ypos-fb  => axis.1.motor-pos-fb
+net Ypos-fb  => comp_y.in1
+net Ypos-fb  => ddt_y.in
+
+net Zpos-cmd <= axis.2.motor-pos-cmd
+net Zpos-cmd => zpid.command
+net Zpos-fb  <= zpid.output
+net Zpos-fb  => axis.2.motor-pos-fb
+net Zpos-fb  => comp_z.in1
+net Zpos-fb  => ddt_z.in

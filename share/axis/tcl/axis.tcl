@@ -532,7 +532,14 @@ Button .toolbar.program_pause \
 	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.program_pause {}
-       
+
+proc pause_image_normal {} {
+  .toolbar.program_pause configure -image [load_image tool_pause]
+}
+proc pause_image_override {} {
+  .toolbar.program_pause configure -image [load_image resume_inhibit]
+}
+
 Button .toolbar.program_stop \
 	-command task_stop \
 	-helptext [_ "Stop program execution \[ESC\]"] \

@@ -46,6 +46,8 @@ include::hal/basic_hal.txt[]
 
 include::remap/structure.txt[]
 
+include::config/moveoff.txt[]
+
 :leveloffset: 0
 
 = GUI
@@ -132,13 +134,11 @@ include::examples/gs2_example.txt[]
 
 :leveloffset: 0
 
-= Diagnostics & FAQ
+= Diagnostics
 
 :leveloffset: 1
 
 include::common/Stepper_Diagnostics.txt[]
-
-include::common/Linux_FAQ.txt[]
 
 include::common/Glossary.txt[]
 

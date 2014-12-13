@@ -1,0 +1,104 @@
+= Moveoff Component
+
+The moveoff Hal component can be used as a Hal-only method
+for implementing offsets.  See the manpage (man moveoff)
+for the IMPORTANT limitations and warnings.
+
+Sim configurations that demonstrate the component and a
+gui (moveoff_gui) are located in:
+
+* configs/sim/axis/moveoff     (axis-ui)
+* configs/sim/touchy/ngcgui    (touchy-ui)
+
+
+== Modifying an existing configuration
+
+An existing configuration can be modified to use a simple gui
+(moveoff_gui) for implementing offsets while paused by modifying
+as follows:
+
+. Include a copy of hookup_moveoff.tcl in the configuration
+  directory with the inifile.  The file can be copied from:
+
+* configs/sim/hookup_moveoff.tcl
+
+. Make inifile entries for HALUI and hookup_moveoff.tcl.
+  The entry for hookup_moveoff.tcl should be the last HALFILE.
+
+----
+[HAL]
+HALUI = halui
+...
+HALFILE = hookup_moveoff.tcl
+----
+
+. Add inifile entries for the per-axis settings for
+  each axis in use (omit to use moveoff defaults NOT RECOMMENDED):
+
+----
+[AXIS_n]
+OFFSET_MAX_LIMIT =
+OFFSET_MIN_LIMIT =
+OFFSET_MAX_VELOCITY =
+OFFSET_MAX_ACCELERATION =
+----
+
+. Add inifile entries for moveoff component settings
+  (omit to use moveoff defaults):
+
+----
+[OFFSET]
+EPSILON =
+WAYPOINT_SAMPLE_SECS =
+WAYPOINT_THRESHOLD =
+----
+
+. Add inifile entries to start the gui:
+
+----
+[APPLICATIONS]
+DELAY = 5
+APP = moveoff_gui option1 option2 ...
+----
+
+For details on available options, Use:
+
+----
+$ moveoff_gui --help
+
+moveoff_gui:
+ options:
+   [--help | -? | -- -h ]  (This text)
+   [-axes axisnames]       (default: xyz (no spaces))
+                             (letters from set of: x y z a b c u v w)
+                             (example: -axes z)
+                             (example: -axes xz)
+                             (example: -axes xyz)
+   [-inc incrementvalue]   (default: 0.001 0.01 0.10 1.0 )
+                             (specify one per -inc (up to 4) )
+                             (example: -inc 0.001 -inc 0.01 -inc 0.1 )
+   [-size integer]         (default: 14
+                             (Overall gui popup size is based on font size)
+   [-loc center|+x+y]      (default: center)
+                             (example: -loc +10+200)
+   [-autoresume]           (default: not used)
+                             (resume program when move-enable deasserted)
+   [-delay delay_secs]     (default: 5 (resume delay))
+
+These options are availabe for special cases:
+   [-noentry]              (default: not used)
+                             (don't create entry widgets)
+   [-no_resume_inhibit]    (default: not used)
+                             (do not use a resume-inhibit-pin)
+   [-no_pause_requirement] (default: not used)
+                             (no check for halui.program.is-paused)
+----
+
+The moveoff_gui will provide a display and and control for
+enabling offsetting if the pin mv.move-enable is NOT connected
+when moveoff_gui is started.
+
+If the mv.move-enable pin is connected when moveoff_gui
+is started, then it will provide a display but no control.
+This mode supports hal connections for a jog wheel or other
+methods of controlling the offset input pins (mv.offset-M)
