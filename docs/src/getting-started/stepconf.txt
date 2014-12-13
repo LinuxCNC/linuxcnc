@@ -2,6 +2,8 @@
 
 [[cha:stepconf-wizard]] (((Stepconf Wizard)))
 
+== Introduction
+
 LinuxCNC is capable of controlling a wide range of machinery 
 using many different hardware interfaces.
 
@@ -20,9 +22,6 @@ The file extension is .stepconf.
 
 The Stepconf Wizard works best with at least 800 x 600 screen resolution.
 
-[float]
-Step by Step Instructions
-=========================
 
 == Start Page[[sec:Entry-Page]]
 
