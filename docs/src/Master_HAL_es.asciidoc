@@ -12,68 +12,66 @@ The LinuxCNC Team
 
 image::common/images/emc2-intro.*[]
 
-include::common/overleaf.txt[]
+include::common/overleaf.asciidoc[]
 
-include::common/translator-needed_es.txt[]
+include::common/translator-needed_es.asciidoc[]
 
 :leveloffset: 0
 = HAL
 :leveloffset: 1
 
-include::hal/intro.txt[]
+include::hal/intro.asciidoc[]
 
-include::hal/tutorial.txt[]
+include::hal/tutorial.asciidoc[]
 
-include::hal/general_ref.txt[]
+include::hal/general_ref.asciidoc[]
 
-include::hal/canonical-devices.txt[]
+include::hal/canonical-devices.asciidoc[]
 
-include::hal/tools.txt[]
+include::hal/tools.asciidoc[]
 
-include::hal/basic_hal.txt[]
+include::hal/basic_hal.asciidoc[]
 
-include::hal/halshow.txt[]
+include::hal/halshow.asciidoc[]
 
-include::hal/components.txt[]
+include::hal/components.asciidoc[]
 
-include::hal/rtcomps.txt[]
+include::hal/rtcomps.asciidoc[]
 
-include::hal/parallel_port.txt[]
+include::hal/parallel_port.asciidoc[]
 
-include::hal/hal-examples.txt[]
+include::hal/hal-examples.asciidoc[]
 
-include::gui/halui.txt[]
+include::gui/halui.asciidoc[]
 
-include::hal/halui_examples.txt[]
+include::hal/halui_examples.asciidoc[]
 
-include::hal/comp.txt[]
+include::hal/comp.asciidoc[]
 
-include::hal/halmodule.txt[]
+include::hal/halmodule.asciidoc[]
 
 :leveloffset: 0
 = Hardware Drivers
 :leveloffset: 1
 
-include::drivers/AX5214H.txt[]
+include::drivers/AX5214H.asciidoc[]
 
-include::drivers/GS2.txt[]
+include::drivers/GS2.asciidoc[]
 
-include::drivers/hostmot2.txt[]
+include::drivers/hostmot2.asciidoc[]
 
-include::drivers/motenc.txt[]
+include::drivers/motenc.asciidoc[]
 
-include::drivers/opto22.txt[]
+include::drivers/opto22.asciidoc[]
 
-include::drivers/pico_ppmc.txt[]
+include::drivers/pico_ppmc.asciidoc[]
 
-include::drivers/pluto_p.txt[]
+include::drivers/pluto_p.asciidoc[]
 
-include::drivers/servo_to_go.txt[]
+include::drivers/servo_to_go.asciidoc[]
 
-include::common/GPLD_Copyright.txt[]
+include::common/GPLD_Copyright.asciidoc[]
 
 // = Index
 
 // vim: set syntax=asciidoc:
-
-

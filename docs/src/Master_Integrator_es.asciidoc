@@ -16,11 +16,11 @@ The LinuxCNC Team
 
 image::common/images/emc2-intro.*[]
 
-include::common/overleaf.txt[]
+include::common/overleaf.asciidoc[]
 
-include::common/translator-needed_es.txt[]
+include::common/translator-needed_es.asciidoc[]
 
-include::common/Integrator_Concepts.txt[]
+include::common/Integrator_Concepts.asciidoc[]
 
 :leveloffset: 0
 
@@ -28,19 +28,19 @@ include::common/Integrator_Concepts.txt[]
 
 :leveloffset: 1
 
-include::install/Latency_Test.txt[]
+include::install/Latency_Test.asciidoc[]
 
-include::config/ini_config.txt[]
+include::config/ini_config.asciidoc[]
 
-include::config/ini_homing.txt[]
+include::config/ini_homing.asciidoc[]
 
-include::config/lathe_config.txt[]
+include::config/lathe_config.asciidoc[]
 
-include::hal/haltcl.txt[]
+include::hal/haltcl.asciidoc[]
 
-include::config/emc2hal.txt[]
+include::config/emc2hal.asciidoc[]
 
-include::config/stepper.txt[]
+include::config/stepper.asciidoc[]
 
 :leveloffset: 0
 
@@ -48,13 +48,13 @@ include::config/stepper.txt[]
 
 :leveloffset: 1
 
-include::hal/pyvcp.txt[]
+include::hal/pyvcp.asciidoc[]
 
-include::hal/pyvcp_examples.txt[]
+include::hal/pyvcp_examples.asciidoc[]
 
-include::gui/gladevcp.txt[]
+include::gui/gladevcp.asciidoc[]
 
-include::gui/halui.txt[]
+include::gui/halui.asciidoc[]
 
 :leveloffset: 0
 
@@ -62,25 +62,25 @@ include::gui/halui.txt[]
 
 :leveloffset: 1
 
-include::hal/parallel_port.txt[]
+include::hal/parallel_port.asciidoc[]
 
-include::drivers/AX5214H.txt[]
+include::drivers/AX5214H.asciidoc[]
 
-include::drivers/GS2.txt[]
+include::drivers/GS2.asciidoc[]
 
-include::drivers/hostmot2.txt[]
+include::drivers/hostmot2.asciidoc[]
 
-include::drivers/motenc.txt[]
+include::drivers/motenc.asciidoc[]
 
-include::drivers/opto22.txt[]
+include::drivers/opto22.asciidoc[]
 
-include::drivers/pico_ppmc.txt[]
+include::drivers/pico_ppmc.asciidoc[]
 
-include::drivers/pluto_p.txt[]
+include::drivers/pluto_p.asciidoc[]
 
-include::drivers/servo_to_go.txt[]
+include::drivers/servo_to_go.asciidoc[]
 
-include::drivers/shuttlexpress.txt[]
+include::drivers/shuttlexpress.asciidoc[]
 
 :leveloffset: 0
 
@@ -88,13 +88,13 @@ include::drivers/shuttlexpress.txt[]
 
 :leveloffset: 1
 
-include::common/python-interface.txt[]
+include::common/python-interface.asciidoc[]
 
-include::motion/kinematics.txt[]
+include::motion/kinematics.asciidoc[]
 
-include::motion/tweaking_steppers.txt[]
+include::motion/tweaking_steppers.asciidoc[]
 
-include::motion/pid_theory.txt[]
+include::motion/pid_theory.asciidoc[]
 
 :leveloffset: 0
 
@@ -102,11 +102,11 @@ include::motion/pid_theory.txt[]
 
 :leveloffset: 1
 
-include::ladder/ladder_intro.txt[]
+include::ladder/ladder_intro.asciidoc[]
 
-include::ladder/classic_ladder.txt[]
+include::ladder/classic_ladder.asciidoc[]
 
-include::ladder/ladder_examples.txt[]
+include::ladder/ladder_examples.asciidoc[]
 
 :leveloffset: 0
 
@@ -114,13 +114,13 @@ include::ladder/ladder_examples.txt[]
 
 :leveloffset: 1
 
-include::examples/pci_parallel_port.txt[]
+include::examples/pci_parallel_port.asciidoc[]
 
-include::examples/spindle.txt[]
+include::examples/spindle.asciidoc[]
 
-include::examples/mpg.txt[]
+include::examples/mpg.asciidoc[]
 
-include::examples/gs2_example.txt[]
+include::examples/gs2_example.asciidoc[]
 
 :leveloffset: 0
 
@@ -128,16 +128,14 @@ include::examples/gs2_example.txt[]
 
 :leveloffset: 1
 
-include::common/Stepper_Diagnostics.txt[]
+include::common/Stepper_Diagnostics.asciidoc[]
 
-include::common/Linux_FAQ.txt[]
+include::common/Linux_FAQ.asciidoc[]
 
-include::common/Glossary.txt[]
+include::common/Glossary.asciidoc[]
 
-include::common/GPLD_Copyright.txt[]
+include::common/GPLD_Copyright.asciidoc[]
 
 // = Index
 
 // vim: set syntax=asciidoc:
-
-

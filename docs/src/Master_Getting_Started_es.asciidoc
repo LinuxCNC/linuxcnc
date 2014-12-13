@@ -14,28 +14,26 @@ The LinuxCNC Team
 
 image::common/images/emc2-intro.*[]
 
-include::common/overleaf.txt[]
+include::common/overleaf.asciidoc[]
 
-include::common/System_Requirements_es.txt[]
+include::common/System_Requirements_es.asciidoc[]
 
-include::common/Getting_EMC_es.txt[]
+include::common/Getting_EMC_es.asciidoc[]
 
-include::common/Updating_EMC_es.txt[]
+include::common/Updating_EMC_es.asciidoc[]
 
-include::quickstart/stepper_quickstart_es.txt[]
+include::quickstart/stepper_quickstart_es.asciidoc[]
 
-include::config/stepconf_es.txt[]
+include::config/stepconf_es.asciidoc[]
 
-include::config/pncconf.txt[]
+include::config/pncconf.asciidoc[]
 
-include::config/copy_and_run_es.txt[]
+include::config/copy_and_run_es.asciidoc[]
 
-include::common/Linux_FAQ_es.txt[]
+include::common/Linux_FAQ_es.asciidoc[]
 
-include::common/GPLD_Copyright.txt[]
+include::common/GPLD_Copyright.asciidoc[]
 
 // = Index
 
 // vim: set syntax=asciidoc:
-
-

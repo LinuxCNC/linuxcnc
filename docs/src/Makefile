@@ -1,9 +1,9 @@
-DOCS_EN := $(patsubst %.txt,%,$(wildcard *.txt */*.txt))
-DOCS_ES := $(patsubst %.txt,%,$(wildcard *_es.txt */*_es.txt))
-DOCS_FR := $(patsubst %.txt,%,$(wildcard *_fr.txt */*_fr.txt))
-LARGE_EN := $(patsubst %.txt,%,$(wildcard *.txt))
-LARGE_ES := $(patsubst %.txt,%,$(wildcard *_es.txt))
-LARGE_FR := $(patsubst %.txt,%,$(wildcard *_fr.txt))
+DOCS_EN := $(patsubst %.asciidoc,%,$(wildcard *.asciidoc */*.asciidoc))
+DOCS_ES := $(patsubst %.asciidoc,%,$(wildcard *_es.asciidoc */*_es.asciidoc))
+DOCS_FR := $(patsubst %.asciidoc,%,$(wildcard *_fr.asciidoc */*_fr.asciidoc))
+LARGE_EN := $(patsubst %.asciidoc,%,$(wildcard *.asciidoc))
+LARGE_ES := $(patsubst %.asciidoc,%,$(wildcard *_es.asciidoc))
+LARGE_FR := $(patsubst %.asciidoc,%,$(wildcard *_fr.asciidoc))
 DOCS_EN := $(filter-out $(DOCS_ES), (filter-out $(DOCS_FR), $(DOCS_EN)) )
 SMALL := $(filter-out $(LARGE_EN),$(DOCS_EN))
 DOCS  := $(DOCS_EN) $(DOCS_ES) $(DOCS_FR)
@@ -40,33 +40,32 @@ xref_en.links: $(patsubst %,%.db,$(SMALL))
 	echo $(SMALL)
 	./links_db_gen.py $^ > $@
 
-%.db: %.txt
+%.db: %.asciidoc
 	asciidoc -d book -o- -b docbook $< | xsltproc links.xslt - > $@ || (X=$$?; rm $@; exit $$X)
 
-%.dep: %.txt
+%.dep: %.asciidoc
 	./asciideps $< > $@.tmp
 	mv $@.tmp $@
 
-%.html: %.txt
+%.html: %.asciidoc
 	asciidoc -a linksfile=xref_en.links -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
-#$(patsubst %,%.html,$(DOCS_ES)) :: %.html: %.txt
+#$(patsubst %,%.html,$(DOCS_ES)) :: %.html: %.asciidoc
 #	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
-#$(patsubst %,%.html,$(DOCS_FR)) :: %.html: %.txt
+#$(patsubst %,%.html,$(DOCS_FR)) :: %.html: %.asciidoc
 #	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
-%.pdf: %.txt
+%.pdf: %.asciidoc
 	$(A2X) -L -d book -vf pdf $< || (X=$$?; rm $@; exit $$X)
 
-$(patsubst %,%.html,$(LARGE)) :: %.html: %.txt
+$(patsubst %,%.html,$(LARGE)) :: %.html: %.asciidoc
 	$(A2X) --stylesheet=./linuxcnc.css -L -d book -vf xhtml $< || (X=$$?; rm $@; exit $$X)
 
-#$(patsubst %,%.html,$(LARGE_ES)) :: %.html: %.txt
+#$(patsubst %,%.html,$(LARGE_ES)) :: %.html: %.asciidoc
 #	$(A2X) --stylesheet=../linuxcnc.css -L -d book -vf xhtml $< || (X=$$?; rm $@; exit $$X)
 
-#$(patsubst %,%.html,$(LARGE_FR)) :: %.html: %.txt
+#$(patsubst %,%.html,$(LARGE_FR)) :: %.html: %.asciidoc
 #	$(A2X) --stylesheet=../linuxcnc.css -L -d book -vf xhtml $< || (X=$$?; rm $@; exit $$X)
 
 .PHONY: all docs htmldocs pdfdocs docclean clean
-

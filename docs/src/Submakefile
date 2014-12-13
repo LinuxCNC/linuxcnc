@@ -26,279 +26,279 @@ endif
 
 ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS_EN := \
-	code/Code_Notes.txt \
-	code/Style_Guide.txt \
-	code/NML_Messages.txt \
-	code/Contributing-to-LinuxCNC.txt \
-	common/emc-history.txt \
-	common/Getting_LinuxCNC.txt \
-	common/Glossary.txt \
-	common/GPLD_Copyright.txt \
-	common/Integrator_Concepts.txt \
-	common/Linux_FAQ.txt \
-	common/overleaf.txt \
-	common/python-interface.txt \
-	common/starting-emc.txt \
-	common/Stepper_Diagnostics.txt \
-	common/System_Requirements.txt \
-	common/Updating_LinuxCNC.txt \
-	common/User_Concepts.txt \
-	common/userforeword.txt \
-	common/user_intro.txt \
-	common/UnifiedBuild.txt \
-	config/copy_and_run.txt \
-	config/emc2hal.txt \
-	config/ini_config.txt \
-	config/ini_homing.txt \
-	config/lathe_config.txt \
-	config/pncconf.txt \
-	config/stepconf.txt \
-	config/stepper.txt \
-	drivers/AX5214H.txt \
-	drivers/VFS11.txt \
-        drivers/GM.txt \
-	drivers/GS2.txt \
-	drivers/hostmot2.txt \
-	drivers/motenc.txt \
-	drivers/opto22.txt \
-	drivers/pico_ppmc.txt \
-	drivers/pluto_p.txt \
-	drivers/servo_to_go.txt \
-	drivers/shuttlexpress.txt \
-	drivers/hal_arm335xQEP.txt \
-	examples/gcode.txt \
-	examples/gs2_example.txt \
-	examples/mpg.txt \
-	examples/pci_parallel_port.txt \
-	examples/spindle.txt \
-	gcode/coordinates.txt \
-	gcode/gcode.txt \
-	gcode/machining_center.txt \
-	gcode/m-code.txt \
-	gcode/o-code.txt \
-	gcode/other-code.txt \
-	gcode/overview.txt \
-	gcode/rs274ngc.txt \
-	gcode/tool_compensation.txt \
-	gui/selector.txt \
-	gui/axis.txt \
-	gui/gladevcp.txt \
-	gui/halui.txt \
-	gui/image-to-gcode.txt \
-	gui/keystick.txt \
-	gui/mini.txt \
-	gui/ngcgui.txt \
-	gui/tklinuxcnc.txt \
-	gui/tooledit.txt \
-	gui/touchy.txt \
-	hal/basic_hal.txt \
-	hal/canonical-devices.txt \
-	hal/comp.txt \
-	hal/components.txt \
-	hal/general_ref.txt \
-	hal/hal-examples.txt \
-	hal/halmodule.txt \
-	hal/halshow.txt \
-	hal/haltcl.txt \
-	hal/halui_examples.txt \
-	hal/intro.txt \
-	hal/parallel_port.txt \
-	hal/pyvcp.txt \
-	hal/pyvcp_examples.txt \
-	hal/rtcomps.txt \
-	hal/tools.txt \
-	hal/tutorial.txt \
-	install/Latency_Test.txt \
-	ladder/classic_ladder.txt \
-	ladder/ladder_examples.txt \
-	ladder/ladder_intro.txt \
-	lathe/lathe-user.txt \
-	motion/kinematics.txt \
-	motion/pid_theory.txt \
-	motion/tweaking_steppers.txt \
-	quickstart/stepper_quickstart.txt \
-	remap/structure.txt \
-	Master_Getting_Started.txt \
-	Master_User.txt \
-	Master_HAL.txt \
-	Master_Integrator.txt \
-	Master_Developer.txt
+	code/Code_Notes.asciidoc \
+	code/Style_Guide.asciidoc \
+	code/NML_Messages.asciidoc \
+	code/Contributing-to-LinuxCNC.asciidoc \
+	common/emc-history.asciidoc \
+	common/Getting_LinuxCNC.asciidoc \
+	common/Glossary.asciidoc \
+	common/GPLD_Copyright.asciidoc \
+	common/Integrator_Concepts.asciidoc \
+	common/Linux_FAQ.asciidoc \
+	common/overleaf.asciidoc \
+	common/python-interface.asciidoc \
+	common/starting-emc.asciidoc \
+	common/Stepper_Diagnostics.asciidoc \
+	common/System_Requirements.asciidoc \
+	common/Updating_LinuxCNC.asciidoc \
+	common/User_Concepts.asciidoc \
+	common/userforeword.asciidoc \
+	common/user_intro.asciidoc \
+	common/UnifiedBuild.asciidoc \
+	config/copy_and_run.asciidoc \
+	config/emc2hal.asciidoc \
+	config/ini_config.asciidoc \
+	config/ini_homing.asciidoc \
+	config/lathe_config.asciidoc \
+	config/pncconf.asciidoc \
+	config/stepconf.asciidoc \
+	config/stepper.asciidoc \
+	drivers/AX5214H.asciidoc \
+	drivers/VFS11.asciidoc \
+        drivers/GM.asciidoc \
+	drivers/GS2.asciidoc \
+	drivers/hostmot2.asciidoc \
+	drivers/motenc.asciidoc \
+	drivers/opto22.asciidoc \
+	drivers/pico_ppmc.asciidoc \
+	drivers/pluto_p.asciidoc \
+	drivers/servo_to_go.asciidoc \
+	drivers/shuttlexpress.asciidoc \
+	drivers/hal_arm335xQEP.asciidoc \
+	examples/gcode.asciidoc \
+	examples/gs2_example.asciidoc \
+	examples/mpg.asciidoc \
+	examples/pci_parallel_port.asciidoc \
+	examples/spindle.asciidoc \
+	gcode/coordinates.asciidoc \
+	gcode/gcode.asciidoc \
+	gcode/machining_center.asciidoc \
+	gcode/m-code.asciidoc \
+	gcode/o-code.asciidoc \
+	gcode/other-code.asciidoc \
+	gcode/overview.asciidoc \
+	gcode/rs274ngc.asciidoc \
+	gcode/tool_compensation.asciidoc \
+	gui/selector.asciidoc \
+	gui/axis.asciidoc \
+	gui/gladevcp.asciidoc \
+	gui/halui.asciidoc \
+	gui/image-to-gcode.asciidoc \
+	gui/keystick.asciidoc \
+	gui/mini.asciidoc \
+	gui/ngcgui.asciidoc \
+	gui/tklinuxcnc.asciidoc \
+	gui/tooledit.asciidoc \
+	gui/touchy.asciidoc \
+	hal/basic_hal.asciidoc \
+	hal/canonical-devices.asciidoc \
+	hal/comp.asciidoc \
+	hal/components.asciidoc \
+	hal/general_ref.asciidoc \
+	hal/hal-examples.asciidoc \
+	hal/halmodule.asciidoc \
+	hal/halshow.asciidoc \
+	hal/haltcl.asciidoc \
+	hal/halui_examples.asciidoc \
+	hal/intro.asciidoc \
+	hal/parallel_port.asciidoc \
+	hal/pyvcp.asciidoc \
+	hal/pyvcp_examples.asciidoc \
+	hal/rtcomps.asciidoc \
+	hal/tools.asciidoc \
+	hal/tutorial.asciidoc \
+	install/Latency_Test.asciidoc \
+	ladder/classic_ladder.asciidoc \
+	ladder/ladder_examples.asciidoc \
+	ladder/ladder_intro.asciidoc \
+	lathe/lathe-user.asciidoc \
+	motion/kinematics.asciidoc \
+	motion/pid_theory.asciidoc \
+	motion/tweaking_steppers.asciidoc \
+	quickstart/stepper_quickstart.asciidoc \
+	remap/structure.asciidoc \
+	Master_Getting_Started.asciidoc \
+	Master_User.asciidoc \
+	Master_HAL.asciidoc \
+	Master_Integrator.asciidoc \
+	Master_Developer.asciidoc
 
 DOC_SRCS_FR := \
-	common/Getting_linuxcnc_fr.txt \
-	common/Glossary_fr.txt \
-	common/GPLD_Copyright_fr.txt \
-	common/Integrator_Concepts_fr.txt \
-	common/Linux_FAQ_fr.txt \
-	common/outdated-notice_fr.txt \
-	common/overleaf_fr.txt \
-	common/Stepper_Diagnostics_fr.txt \
-	common/System_Requirements_fr.txt \
-	common/Updating_linuxcnc_fr.txt \
-	common/User_Concepts_fr.txt \
-	common/userforeword_fr.txt \
-	common/user_intro_fr.txt \
-	config/linuxcnc2hal_fr.txt \
-	config/ini_config_fr.txt \
-	config/ini_homing_fr.txt \
-	config/lathe_config_fr.txt \
-	config/pncconf_fr.txt \
-	config/stepconf_fr.txt \
-	config/stepper_fr.txt \
-	drivers/AX5214H_fr.txt \
-	drivers/GS2_fr.txt \
-	drivers/hostmot2_fr.txt \
-	drivers/motenc_fr.txt \
-	drivers/opto22_fr.txt \
-	drivers/pico_ppmc_fr.txt \
-	drivers/pluto_p_fr.txt \
-	drivers/servo_to_go_fr.txt \
-	examples/gcode_fr.txt \
-	examples/gs2_example_fr.txt \
-	examples/misc_fr.txt \
-	examples/mpg_fr.txt \
-	examples/pci_parallel_port_fr.txt \
-	examples/spindle_fr.txt \
-	gcode/coordinates_fr.txt \
-	gcode/gcode_fr.txt \
-	gcode/machining_center_fr.txt \
-	gcode/m-code_fr.txt \
-	gcode/o-code_fr.txt \
-	gcode/other-code_fr.txt \
-	gcode/overview_fr.txt \
-	gcode/rs274ngc_fr.txt \
-	gcode/tool_compensation_fr.txt \
-	gui/axis_fr.txt \
-	gui/gladevcp_fr.txt \
-	gui/image-to-gcode_fr.txt \
-	gui/keystick_fr.txt \
-	gui/mini_fr.txt \
-	gui/ngcgui_fr.txt \
-	gui/tklinuxcnc_fr.txt \
-	gui/tooledit_fr.txt\
-	gui/touchy_fr.txt \
-	hal/basic_hal_fr.txt \
-	hal/comp_fr.txt \
-	hal/components_fr.txt \
-	hal/general_ref_fr.txt \
-	hal/hal-examples_fr.txt \
-	hal/halmodule_fr.txt \
-	hal/halshow_fr.txt \
-	hal/haltcl_fr.txt \
-	hal/halui_fr.txt \
-	hal/intro_fr.txt \
-	hal/parallel_port_fr.txt \
-	hal/pyvcp_fr.txt \
-	hal/pyvcp_examples_fr.txt \
-	hal/rtcomps_fr.txt \
-	hal/tutorial_fr.txt \
-	install/Latency_Test_fr.txt \
-	ladder/classic_ladder_fr.txt \
-	ladder/ladder_examples_fr.txt \
-	ladder/ladder_intro_fr.txt \
-	lathe/lathe-user_fr.txt \
-	motion/kinematics_fr.txt \
-	motion/pid_theory_fr.txt \
-	motion/tweaking_steppers_fr.txt \
-	quickstart/stepper_quickstart_fr.txt \
-	Master_Getting_Started_fr.txt \
-	Master_User_fr.txt \
-	Master_HAL_fr.txt \
-	Master_Integrator_fr.txt \
+	common/Getting_linuxcnc_fr.asciidoc \
+	common/Glossary_fr.asciidoc \
+	common/GPLD_Copyright_fr.asciidoc \
+	common/Integrator_Concepts_fr.asciidoc \
+	common/Linux_FAQ_fr.asciidoc \
+	common/outdated-notice_fr.asciidoc \
+	common/overleaf_fr.asciidoc \
+	common/Stepper_Diagnostics_fr.asciidoc \
+	common/System_Requirements_fr.asciidoc \
+	common/Updating_linuxcnc_fr.asciidoc \
+	common/User_Concepts_fr.asciidoc \
+	common/userforeword_fr.asciidoc \
+	common/user_intro_fr.asciidoc \
+	config/linuxcnc2hal_fr.asciidoc \
+	config/ini_config_fr.asciidoc \
+	config/ini_homing_fr.asciidoc \
+	config/lathe_config_fr.asciidoc \
+	config/pncconf_fr.asciidoc \
+	config/stepconf_fr.asciidoc \
+	config/stepper_fr.asciidoc \
+	drivers/AX5214H_fr.asciidoc \
+	drivers/GS2_fr.asciidoc \
+	drivers/hostmot2_fr.asciidoc \
+	drivers/motenc_fr.asciidoc \
+	drivers/opto22_fr.asciidoc \
+	drivers/pico_ppmc_fr.asciidoc \
+	drivers/pluto_p_fr.asciidoc \
+	drivers/servo_to_go_fr.asciidoc \
+	examples/gcode_fr.asciidoc \
+	examples/gs2_example_fr.asciidoc \
+	examples/misc_fr.asciidoc \
+	examples/mpg_fr.asciidoc \
+	examples/pci_parallel_port_fr.asciidoc \
+	examples/spindle_fr.asciidoc \
+	gcode/coordinates_fr.asciidoc \
+	gcode/gcode_fr.asciidoc \
+	gcode/machining_center_fr.asciidoc \
+	gcode/m-code_fr.asciidoc \
+	gcode/o-code_fr.asciidoc \
+	gcode/other-code_fr.asciidoc \
+	gcode/overview_fr.asciidoc \
+	gcode/rs274ngc_fr.asciidoc \
+	gcode/tool_compensation_fr.asciidoc \
+	gui/axis_fr.asciidoc \
+	gui/gladevcp_fr.asciidoc \
+	gui/image-to-gcode_fr.asciidoc \
+	gui/keystick_fr.asciidoc \
+	gui/mini_fr.asciidoc \
+	gui/ngcgui_fr.asciidoc \
+	gui/tklinuxcnc_fr.asciidoc \
+	gui/tooledit_fr.asciidoc\
+	gui/touchy_fr.asciidoc \
+	hal/basic_hal_fr.asciidoc \
+	hal/comp_fr.asciidoc \
+	hal/components_fr.asciidoc \
+	hal/general_ref_fr.asciidoc \
+	hal/hal-examples_fr.asciidoc \
+	hal/halmodule_fr.asciidoc \
+	hal/halshow_fr.asciidoc \
+	hal/haltcl_fr.asciidoc \
+	hal/halui_fr.asciidoc \
+	hal/intro_fr.asciidoc \
+	hal/parallel_port_fr.asciidoc \
+	hal/pyvcp_fr.asciidoc \
+	hal/pyvcp_examples_fr.asciidoc \
+	hal/rtcomps_fr.asciidoc \
+	hal/tutorial_fr.asciidoc \
+	install/Latency_Test_fr.asciidoc \
+	ladder/classic_ladder_fr.asciidoc \
+	ladder/ladder_examples_fr.asciidoc \
+	ladder/ladder_intro_fr.asciidoc \
+	lathe/lathe-user_fr.asciidoc \
+	motion/kinematics_fr.asciidoc \
+	motion/pid_theory_fr.asciidoc \
+	motion/tweaking_steppers_fr.asciidoc \
+	quickstart/stepper_quickstart_fr.asciidoc \
+	Master_Getting_Started_fr.asciidoc \
+	Master_User_fr.asciidoc \
+	Master_HAL_fr.asciidoc \
+	Master_Integrator_fr.asciidoc \
 
 DOC_SRCS_ES := \
-	common/Getting_EMC_es.txt \
-	common/Glossary_es.txt \
-	common/Integrator_Concepts_es.txt \
-	common/Linux_FAQ_es.txt \
-	common/starting-emc_es.txt \
-	common/Stepper_Diagnostics_es.txt \
-	common/System_Requirements_es.txt \
-	common/translator-needed_es.txt \
-	common/Updating_EMC_es.txt \
-	common/User_Concepts_es.txt \
-	common/userforeword_es.txt \
-	common/user_intro_es.txt \
-	config/copy_and_run_es.txt \
-	config/emc2hal_es.txt \
-	config/ini_config_es.txt \
-	config/ini_homing_es.txt \
-	config/lathe_config_es.txt \
-	config/pncconf_es.txt \
-	config/stepconf_es.txt \
-	config/stepper_es.txt \
-	drivers/AX5214H_es.txt \
-	drivers/GS2_es.txt \
-	drivers/hostmot2_es.txt \
-	drivers/motenc_es.txt \
-	drivers/opto22_es.txt \
-	drivers/pico_ppmc_es.txt \
-	drivers/pluto_p_es.txt \
-	drivers/servo_to_go_es.txt \
-	drivers/shuttlexpress_es.txt \
-	examples/gcode_es.txt \
-	examples/gs2_example_es.txt \
-	examples/mpg_es.txt \
-	examples/pci_parallel_port_es.txt \
-	examples/spindle_es.txt \
-	gcode/coordinates_es.txt \
-	gcode/gcode_es.txt \
-	gcode/machining_center_es.txt \
-	gcode/m-code_es.txt \
-	gcode/o-code_es.txt \
-	gcode/other-code_es.txt \
-	gcode/overview_es.txt \
-	gcode/rs274ngc_es.txt \
-	gcode/tool_compensation_es.txt \
-	gui/axis_es.txt \
-	gui/gladevcp_es.txt \
-	gui/halui_es.txt \
-	gui/image-to-gcode_es.txt \
-	gui/keystick_es.txt \
-	gui/mini_es.txt \
-	gui/ngcgui_es.txt \
-	gui/tklinuxcnc_es.txt \
-	gui/touchy_es.txt \
-	hal/basic_hal_es.txt \
-	hal/canonical-devices_es.txt \
-	hal/comp_es.txt \
-	hal/components_es.txt \
-	hal/general_ref_es.txt \
-	hal/hal-examples_es.txt \
-	hal/halmodule_es.txt \
-	hal/halshow_es.txt \
-	hal/haltcl_es.txt \
-	hal/halui_examples_es.txt \
-	hal/intro_es.txt \
-	hal/parallel_port_es.txt \
-	hal/pyvcp_es.txt \
-	hal/pyvcp_examples_es.txt \
-	hal/rtcomps_es.txt \
-	hal/tools_es.txt \
-	hal/tutorial_es.txt \
-	install/Latency_Test_es.txt \
-	ladder/classic_ladder_es.txt \
-	ladder/ladder_examples_es.txt \
-	ladder/ladder_intro_es.txt \
-	lathe/lathe-user_es.txt \
-	motion/kinematics_es.txt \
-	motion/pid_theory_es.txt \
-	motion/tweaking_steppers_es.txt \
-	quickstart/stepper_quickstart_es.txt \
-	Master_Getting_Started_es.txt \
-	Master_User_es.txt \
-	Master_HAL_es.txt \
-	Master_Integrator_es.txt \
+	common/Getting_EMC_es.asciidoc \
+	common/Glossary_es.asciidoc \
+	common/Integrator_Concepts_es.asciidoc \
+	common/Linux_FAQ_es.asciidoc \
+	common/starting-emc_es.asciidoc \
+	common/Stepper_Diagnostics_es.asciidoc \
+	common/System_Requirements_es.asciidoc \
+	common/translator-needed_es.asciidoc \
+	common/Updating_EMC_es.asciidoc \
+	common/User_Concepts_es.asciidoc \
+	common/userforeword_es.asciidoc \
+	common/user_intro_es.asciidoc \
+	config/copy_and_run_es.asciidoc \
+	config/emc2hal_es.asciidoc \
+	config/ini_config_es.asciidoc \
+	config/ini_homing_es.asciidoc \
+	config/lathe_config_es.asciidoc \
+	config/pncconf_es.asciidoc \
+	config/stepconf_es.asciidoc \
+	config/stepper_es.asciidoc \
+	drivers/AX5214H_es.asciidoc \
+	drivers/GS2_es.asciidoc \
+	drivers/hostmot2_es.asciidoc \
+	drivers/motenc_es.asciidoc \
+	drivers/opto22_es.asciidoc \
+	drivers/pico_ppmc_es.asciidoc \
+	drivers/pluto_p_es.asciidoc \
+	drivers/servo_to_go_es.asciidoc \
+	drivers/shuttlexpress_es.asciidoc \
+	examples/gcode_es.asciidoc \
+	examples/gs2_example_es.asciidoc \
+	examples/mpg_es.asciidoc \
+	examples/pci_parallel_port_es.asciidoc \
+	examples/spindle_es.asciidoc \
+	gcode/coordinates_es.asciidoc \
+	gcode/gcode_es.asciidoc \
+	gcode/machining_center_es.asciidoc \
+	gcode/m-code_es.asciidoc \
+	gcode/o-code_es.asciidoc \
+	gcode/other-code_es.asciidoc \
+	gcode/overview_es.asciidoc \
+	gcode/rs274ngc_es.asciidoc \
+	gcode/tool_compensation_es.asciidoc \
+	gui/axis_es.asciidoc \
+	gui/gladevcp_es.asciidoc \
+	gui/halui_es.asciidoc \
+	gui/image-to-gcode_es.asciidoc \
+	gui/keystick_es.asciidoc \
+	gui/mini_es.asciidoc \
+	gui/ngcgui_es.asciidoc \
+	gui/tklinuxcnc_es.asciidoc \
+	gui/touchy_es.asciidoc \
+	hal/basic_hal_es.asciidoc \
+	hal/canonical-devices_es.asciidoc \
+	hal/comp_es.asciidoc \
+	hal/components_es.asciidoc \
+	hal/general_ref_es.asciidoc \
+	hal/hal-examples_es.asciidoc \
+	hal/halmodule_es.asciidoc \
+	hal/halshow_es.asciidoc \
+	hal/haltcl_es.asciidoc \
+	hal/halui_examples_es.asciidoc \
+	hal/intro_es.asciidoc \
+	hal/parallel_port_es.asciidoc \
+	hal/pyvcp_es.asciidoc \
+	hal/pyvcp_examples_es.asciidoc \
+	hal/rtcomps_es.asciidoc \
+	hal/tools_es.asciidoc \
+	hal/tutorial_es.asciidoc \
+	install/Latency_Test_es.asciidoc \
+	ladder/classic_ladder_es.asciidoc \
+	ladder/ladder_examples_es.asciidoc \
+	ladder/ladder_intro_es.asciidoc \
+	lathe/lathe-user_es.asciidoc \
+	motion/kinematics_es.asciidoc \
+	motion/pid_theory_es.asciidoc \
+	motion/tweaking_steppers_es.asciidoc \
+	quickstart/stepper_quickstart_es.asciidoc \
+	Master_Getting_Started_es.asciidoc \
+	Master_User_es.asciidoc \
+	Master_HAL_es.asciidoc \
+	Master_Integrator_es.asciidoc \
 
 DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES)
 
-DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
+DOC_SRCS_TXT := $(patsubst %.asciidoc, %.asciidoc, $(DOC_SRCS))
 
 DOC_SRCS_ES_SMALL := $(filter-out Master_%,$(DOC_SRCS_ES))
 DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(DOC_SRCS_FR))
 DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(DOC_SRCS_EN))
 
-DOC_SRCS_HTML := $(patsubst %.txt, %.html, $(filter-out Master_%, $(DOC_SRCS)))
+DOC_SRCS_HTML := $(patsubst %.asciidoc, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_TARGETS_HTML := $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
 DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
@@ -356,8 +356,8 @@ A2X = a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
                           $(A2X_LATEX_ENCODING)"
 
 ifeq ($(TRIVIAL_BUILD),no)
--include $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
-Makefile: $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
+-include $(patsubst %.asciidoc, depends/%.d, $(DOC_SRCS_TXT))
+Makefile: $(patsubst %.asciidoc, depends/%.d, $(DOC_SRCS_TXT))
 endif
 
 docs: ../docs/man/man1/linuxcnc.1
@@ -402,7 +402,7 @@ MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
 PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
 	man3/intro.3hal $(filter-out %/undocumented.3hal %/intro.3hal, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
 	man3/undocumented.3hal man3/intro.3rtapi $(filter-out %/undocumented.3rtapi %/intro.3rtapi, $(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
-	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO)) 
+	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO))
 
 $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	@echo Formatting manual pages as PDF
@@ -468,18 +468,18 @@ objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 
 $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
 	cat $(filter-out ../VERSION, $^) | \
-		sed "s/@VERSION@/`cat ../VERSION`/" > $@	
+		sed "s/@VERSION@/`cat ../VERSION`/" > $@
 
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
-	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
+	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@
 
-$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.txt
+$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.asciidoc
 	$(ECHO) Building $@
 	@rm -f $@
 	$(A2X) -L -d book -vf pdf $< || (X=$$?; rm $@; exit $$X)
 	@test -f $@
 
-depends/%.d: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/asciideps
+depends/%.d: $(DOC_SRCDIR)/%.asciidoc $(DOC_SRCDIR)/asciideps
 	$(ECHO) Depending $<
 	@mkdir -p $(dir $@)
 	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
@@ -492,7 +492,7 @@ objects/xref_fr.xml: $(DOC_TARGETS_XML_FR) $(DOC_SRCDIR)/xref.py
 objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
 	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
 
-objects/%.links-stamp: $(DOC_SRCDIR)/%.txt
+objects/%.links-stamp: $(DOC_SRCDIR)/%.asciidoc
 	@mkdir -p `dirname $@`
 	asciidoc -f $(DOC_SRCDIR)/attribute-colon.conf -a "scriptdir=$(DOC_SRCDIR)/" -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@.tmp || (X=$$?; rm $@; exit $$X)
 	sh move-if-change $@.tmp $(patsubst %-stamp,%,$@)
@@ -505,13 +505,13 @@ objects/%.links: objects/%.links-stamp
 # See http://www.gnu.org/software/make/manual/make.html#Chained-Rules
 .PRECIOUS: objects/%.links-stamp
 
-objects/xref_en.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_EN_SMALL))
+objects/xref_en.links: $(patsubst %.asciidoc,objects/%.links,$(DOC_SRCS_EN_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
-objects/xref_es.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_ES_SMALL))
+objects/xref_es.links: $(patsubst %.asciidoc,objects/%.links,$(DOC_SRCS_ES_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
-objects/xref_fr.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_FR_SMALL))
+objects/xref_fr.links: $(patsubst %.asciidoc,objects/%.links,$(DOC_SRCS_FR_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
 $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
@@ -542,7 +542,7 @@ $(LOC_LANG_MAP): $(wildcard $(LOC_HL_DIR)/*.lang) $(LANG_MAP)
 # and javascript files will be installed.
 $(DOC_SRCDIR)/%.html: STYLES_SCRIPTS_DIR=$(shell for i in $(shell dirname $* | tr '/' '\n' ); do echo -n "../"; done; echo)
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links $(LOC_LANG_MAP)
+$(patsubst %.asciidoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.asciidoc objects/xref_en.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
@@ -556,7 +556,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.htm
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links $(LOC_LANG_MAP)
+$(patsubst %.asciidoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.asciidoc objects/xref_fr.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
@@ -570,7 +570,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.htm
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_es.links $(LOC_LANG_MAP)
+$(patsubst %.asciidoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.asciidoc objects/xref_es.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -a linkcss \
