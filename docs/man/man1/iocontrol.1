@@ -1,0 +1,82 @@
+.TH IOCONTROL "1" "2007-08-25" "LinuxCNC Documentation" "HAL Component" 
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+iocontrol \- accepts NML I/O commands, interacts with HAL in userspace
+
+.SH SYNOPSIS
+\fBloadusr io [-ini \fIinifile\fB]
+
+
+.SH DESCRIPTION
+These pins are created by the userspace IO controller, usually found in $LINUXCNC_HOME/bin/io
+.P
+The signals are turned on and off in userspace - if you have strict timing requirements or simply need more i/o, consider using the realtime synchronized i/o provided by \fBmotion\fR(9) instead.
+.P
+The inifile is searched for in the directory from which halcmd was run, unless an absolute path is specified.
+
+.SH PINS
+
+.TP
+\fBiocontrol.0.coolant-flood
+(Bit, Out) TRUE when flood coolant is requested
+
+.TP
+\fBiocontrol.0.coolant-mist 
+(Bit, Out) TRUE when mist coolant is requested
+
+.TP
+\fBiocontrol.0.emc-enable-in 
+(Bit, In) Should be driven FALSE when an external estop condition exists.
+
+.TP
+\fBiocontrol.0.lube 
+(Bit, Out) TRUE when lube is requested
+
+.TP
+\fBiocontrol.0.lube_level 
+(Bit, In) Should be driven FALSE when lubrication tank is empty.
+
+.TP
+\fBiocontrol.0.tool-change 
+(Bit, Out) TRUE when a tool change is requested
+
+.TP
+\fBiocontrol.0.tool-changed 
+(Bit, In) Should be driven TRUE when a tool change is completed.
+
+.TP
+\fBiocontrol.0.tool-number
+(s32, Out) Current tool number
+
+.TP
+\fBiocontrol.0.tool-prep-number 
+(s32, Out) The number of the next tool, from the RS274NGC T-word
+
+.TP
+\fBiocontrol.0.tool-prep-pocket
+(s32, Out) The pocket number (location in tool storage mechanism) of the next tool, as described in the tool table
+
+.TP
+\fBiocontrol.0.tool-prepare 
+(Bit, Out) TRUE when a T\fIn\fR tool prepare is requested
+
+.TP
+\fBiocontrol.0.tool-prepared 
+(Bit, In) Should be driven TRUE when a tool prepare is completed.
+
+.TP
+\fBiocontrol.0.user-enable-out 
+(Bit, Out) FALSE when an internal estop condition exists
+
+.TP
+\fBiocontrol.0.user-request-enable 
+(Bit, Out) TRUE when the user has requested that estop be cleared
+
+.SH SEE ALSO
+\fBmotion\fR(9)
+

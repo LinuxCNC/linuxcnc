@@ -1,0 +1,70 @@
+.\" Copyright (c) 2007 Jeff Epler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH comp "1" "2007-10-17" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+comp \- Build, compile and install LinuxCNC HAL components
+.SH SYNOPSIS
+.PD 0
+.RS 5
+.PP
+\fBcomp\fR [\fB--compile\fR|\fB--preprocess\fR|\fB--document\fR|\fB--view-doc\fR] compfile...
+.RE
+.PP
+\fIsudo\fR \fBcomp\fR [\fB--install\fR|\fB--install-doc\fR] compfile...
+.RS 5
+.PP
+\fBcomp\fR \fB--compile\fR \fB--userspace\fR cfile...
+.RE
+.PP
+\fIsudo\fR \fBcomp\fR \fB--install\fR \fB--userspace\fR cfile...
+.PP
+\fIsudo\fR \fBcomp\fR \fB--install\fR \fB--userspace\fR pyfile...
+.PD
+.SH DESCRIPTION
+\fBcomp\fR performs many different functions:
+.IP \(bu 4
+Compile \fB.comp\fR and \fB.c\fR files into \fB.so\fR or \fB.ko\fR HAL realtime components (the \fB--compile\fR flag)
+.IP \(bu 4
+Compile \fB.comp\fR and \fB.c\fR files into HAL userspace components (the \fB--compile --userspace\fR flag)
+.IP \(bu 4
+Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB--preprocess\fR flag)
+.IP \(bu 4
+Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files (the \fB--document\fR flag)
+.IP \(bu 4
+Display documentation from \fB.comp\fR files onscreen (the \fB--view-doc\fR flag)
+.IP \(bu 4
+Compile and install \fB.comp\fR and \fB.c\fR files into the proper directory for HAL realtime components (the \fB--install\fR flag), which may require \fIsudo\fR to write to system directories.
+.IP \(bu 4
+Install \fB.c\fR and \fB.py\fR files into the proper directory for HAL userspace components (the \fB--install --userspace\fR flag), which may require \fIsudo\fR to write to system directories.
+.IP \(bu 4
+Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files in the proper system directory (the \fB--install\fR flag), which may require \fIsudo\fR to write to system directories.
+.IP \(bu 4
+Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB--preprocess\fR flag)
+.SH "SEE ALSO"
+\fIComp HAL Component Generator\fR in the LinuxCNC documentation for a full description of the \fB.comp\fR syntax, along with examples
+
+\fBpydoc hal\fR and \fICreating Userspace Python Components\fR in the LinuxCNC documentation for documentation on the Python interface to HAL components
+
+\fBcomp(9)\fR for documentation on the "two input comparator with hysteresis", a HAL realtime component with the same name as this program

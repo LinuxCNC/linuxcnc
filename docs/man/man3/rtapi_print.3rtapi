@@ -1,0 +1,59 @@
+.TH rtapi_print "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_print, rtapi_print_msg \- print diagnostic messages
+
+.SH SYNTAX
+.HP
+ void rtapi_print(const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+ void rtapi_print_msg(int level, const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+ typedef void(*\fBrtapi_msg_handler_t\fR)(msg_level_t \fIlevel\fR, const char *\fImsg\fR);
+.HP
+ void \fBrtapi_set_msg_handler\fR(rtapi_msg_handler_t \fIhandler\fR);
+.HP
+ rtapi_msg_handler_t \fBrtapi_set_msg_handler\fR(void);
+.SH  ARGUMENTS
+.IP \fIlevel\fR
+A message level: One of \fBRTAPI_MSG_ERR\fR,
+\fBRTAPI_MSG_WARN\fR, \fBRTAPI_MSG_INFO\fR, or \fBRTAPI_MSG_DBG\fR.
+
+.IP \fIhandler\fR
+A function to call from \fBrtapi_print\fR or \fBrtapi_print_msg\fR to
+actually output the message.
+
+.IP \fIfmt\fI
+.IP \fI...\fI
+Other arguments are as for \fIprintf(3)\fR.
+
+.SH DESCRIPTION
+\fBrtapi_print\fR and \fBrtapi_print_msg\fR work like the standard C
+printf functions, except that a reduced set of formatting operations are
+supported.
+
+Depending on the RTOS, the default may be to print the message to stdout,
+stderr, a kernel log, etc.   In RTAPI code, the action may be changed by
+a call to \fBrtapi_set_msg_handler\fR.  A \fBNULL\fR argument to
+\fBrtapi_set_msg_handler\fR restores the default handler.
+\fBrtapi_msg_get_handler\fR returns the current handler.  When the
+message came from \fBrtapi_print\fR, \fIlevel\fR is RTAPI_MSG_ALL.
+
+\fBrtapi_print_msg\fR works like \fRrtapi_print\fR but only prints if
+\fIlevel\fR is less than or equal to the current message level.
+
+.SH REALTIME CONSIDERATIONS
+\fBrtapi_print\fR and \fBrtapi_print_msg\fR May be called from user,
+init/cleanup, and realtime code.  \fBrtapi_get_msg_handler\fR and
+\fBftapi_set_msg_handler\fR may be called from realtime init/cleanup
+code.  A message handler passed to \fBrtapi_set_msg_handler\fR may only
+call functions that can be called from realtime code.
+
+.SH RETURN VALUE
+None.
+
+.SH SEE ALSO
+\fBrtapi_set_msg_level(3rtapi)\fR, \fBrtapi_get_msg_level(3rtapi)\fR,
+\fBprintf(3)\fR

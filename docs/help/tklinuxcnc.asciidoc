@@ -1,0 +1,334 @@
+
+Menus
+-----
+File->Run... : prompts for an NC program to run. You need to be
+in Auto mode, or you'll get an error.
+
+File->Reset : resets the interpreter. The modal G and M codes are
+set to their defaults.
+
+File->Quit : quits the Tkemc graphical application. The controller will
+also shut down.
+
+View->Tools : shows the tool table. You can edit the table. Selecting
+the Done button will save the table and reload it into the
+controller. Note that Tab and Return affect the text, so you have to
+click the Done button with the mouse.
+
+View->Offsets and Variables : shows the interpreter parameters, which
+hold the work offsets and user variables. You can edit the
+file. Selecting the Done button will save the file and reload it into
+the controller. Note that Tab and Return affect the text, so you have
+to click the Done button with the mouse.
+
+Settings->Relative Display, Actual Display : sets the display to show
+positions as relative to the current work offset, or in absolute
+machine coordinates. In relative display mode, the work offsets are
+shown also.
+
+Settings->Actual Position, Commanded Position : sets the display to
+show either the actual position of the axes, as reported by their
+feedback, or the commanded position, which is where the controller is
+commanding them to go.
+
+Help->Help... : brings up this help window.
+
+Help->About... : brings up a credits window.
+
+Status Command Buttons
+----------------------
+The buttons in the next two rows are labeled according to the current
+EMC status. Click on them to pop up menus that send commands to the
+EMC. The labels on these buttons will change to reflect the new
+status.
+
+ON/ESTOP-RESET/ESTOP : changes the power state of the machine. At
+startup the machine is in ESTOP. Selecting Estop Reset will enable the
+estop circuitry, but the servos will not yet be enabled. Selecting
+Machine On will enable the servos. Selecting Machine Off will disable
+the servos. Selecting Estop at any time will return the machine to the
+initial estopped state. Function keys F1 and F2 will toggle the states
+of the estop and servo systems, respectively. The Function Keys are
+listed completely below.
+
+(!) SAFETY NOTE: ESTOP will put the machine into the estopped state,
+but should not be relied on for this action in the event of an
+emergency. Always use the hardware estop to assure physical disabling
+of the machine.
+
+MANUAL/AUTO/MDI : changes the execution mode of the machine. Manual
+mode allows the operator to jog and home the axes, and control the coolant
+and spindle. Auto mode allows the operator to load programs into the
+machine, run them, and pause/step/resume them. Manual Data Input (MDI)
+mode allows the operator to type in blocks of NC code
+interactively. Function key F3 puts the controller into manual
+mode. F4 puts the controller into Auto mode. F5 puts the controller
+into MDI mode.
+
+MIST ON/OFF, FLOOD ON/OFF : turns mist or flood coolant on or
+off. Function key F7 toggles the state of the mist coolant; F8 toggles
+the flood coolant. These buttons and function keys only work in Manual
+mode.
+
+SPINDLE FORWARD/REVERSE/OFF : turns the spindle on forward, reverse,
+or off. Function key F9 turns the spindle on forward if it's off, or
+off if it's on. F10 turns the spindle on reverse if it's off, or off
+it it's on. These buttons and function keys only work in Manual mode.
+
+The speed of the spindle can be decreased or increased using the < and
+> buttons to the left and right of the spindle control button,
+respectively. F11 and F12, while pressed, decrease or increase the
+spindle speed, respectively, until they are released. These buttons
+and function keys work in manual, auto, or MDI mode. They are not
+active when the spindle is off.
+
+BRAKE ON/OFF : puts the spindle brake on, or releases it. This can be
+used to manually operate the spindle brake for maintenance or tramming
+operations. The 'B' and 'b' key, in manual mode,
+
+ABORT : stops all motion and any program that is running. The Escape
+key accomplishes the same result. Use ABORT or the Escape key to stop
+machine motions while testing programs.
+
+(!) NOTE: ABORT will not affect the estop state of the machine.
+
+Tool and Tool Offset
+--------------------
+At the left, below the command buttons, is a display of the currently
+loaded tool and the tool offset, if any. A value of 0 for the Tool
+means that no tool is in the spindle. The offset is non-zero if a tool
+length offset is active.
+
+Position Display Options and Work Offsets
+-----------------------------------------
+At the right, below the command buttons, is a display showing how to
+interpret the position numbers. There are two sources of position
+feedback, either Commanded or Actual. Commanded numbers are what the
+motion system asks for, and is not necessarily what the machine axes
+positions are (servo lag may mean they are different). Actual numbers
+reflect the current position of the axes. Normally, actual numbers are
+what you want. In some cases, for example running a program in
+simulation with the axes inhibited or disconnected, commanded numbers
+are what you want.
+
+Position numbers can also be Absolute or Relative. Absolute numbers
+are not affected by any work offsets in a program. They are relative
+to the machine home position. Relative numbers include any work
+offset. If Relative numbers are selected, the applicable Work Offsets
+are shown.
+
+To change these settings, use the '@' key for Commanded/Actual, and
+the '#' key for Absolute/Relative. The default values can be set in
+the INI file, e.g.,
+
+    [DISPLAY]
+    POSITION_OFFSET =   RELATIVE
+    POSITION_FEEDBACK = ACTUAL
+
+or
+
+    [DISPLAY]
+    POSITION_OFFSET =   ABSOLUTE
+    POSITION_FEEDBACK = COMMANDED
+
+Axis Positions
+--------------
+Axis positions are displayed in a large font in the middle of the
+display. The values are interpreted in units, commanded/actual, and
+absolute/relative, as described above.
+
+The color of the numbers shows the state of each axis. Yellow numbers
+mean the axis has not yet been homed. Green numbers mean the axis has
+been homed and is within limits. Red numbers mean the axis is at a
+soft or hard limit.
+
+Axis Command Buttons
+--------------------
+Below the axis position numbers is a row of command buttons that
+affect axis motion. The Axis Speed setting, displayed in units/minute,
+can be changed by clicking and holding the < or > buttons until the
+desired setting is reached.
+
+The Increment button shows the current
+value of the jog increment, or "continuous" for continuous
+jogging. Clicking on this button brings up a menu that changes the jog
+increment or selects continuous jogging.
+
+The Axis Motion buttons jog an axis in the negative direction using
+the "-" button, positive direction using the "+" button, or home the
+axis using the "home" button.
+
+The Feed Override value in percent is displayed, and can be changed by
+clicking and holding the < or > buttons until the desired setting is
+reached.
+
+Manual Data Input (MDI) Box
+---------------------------
+Below the axis command buttons is an input box labeled "MDI:" that is
+active when the machine is in manual data input (MDI) mode. You can
+type NC code statements into this box, and hit Enter to send the
+command. Note that many of the function and alphanumeric accelerator
+keys don't work as accelerator keys, so that they can be used to
+compose MDI statements. Keys F1-F5 (estop state and manual/auto/mdi
+mode), and F11-F12 (spindle speed control) do work; others do not.
+
+Below the MDI box is a display of the current modal settings for G, M,
+F, and S codes. These are only valid when in MDI mode. In Auto mode,
+they hold the modal values up to the point where the interpreter has
+read, usually far ahead of the executing line in the program. They do,
+however, always show the modal groups that are applicable when you
+next enter an MDI line.
+
+Program Display
+---------------
+At the bottom of the main screen is a label showing the current
+program, or the last program loaded. Below this is a row of command
+buttons to Open, Run, Pause, Resume, or Step the program. The Open
+button is identical to the File->Open... menu at the top, as is the
+'o' or 'O' accelerator. The run, pause, resume, and step accelerators
+are 'r', 'p', 's', and 'a', respectively, lower or upper case.
+
+The window at the bottom shows a few lines of text of the currently
+loaded program. The display window is moved through the program so
+that the currently executing line is always at the top.
+
+Function and Accelerator Keys
+-----------------------------
+Escape  abort motion                        <-|
+F1      toggle estop/estop reset state        |
+F2      toggle machine off/machine on state   |- work in MDI mode also
+F3      manual mode                           |
+F4      auto mode                             |
+F5      MDI mode                            <-|
+F6      reset interpreter
+F7      toggle mist on/mist off
+F8      toggle flood on/flood off
+F9      toggle spindle forward/off
+F10     toggle spindle reverse/off
+F11     decrease spindle speed              <-|- work in MDI mode also
+F12     increase spindle speed              <-|
+x       select X axis
+y       select Y axis
+z       select Z axis
+Left, Right Arrow  jog X axis
+Up, Down Arrow     jog Y axis
+Page Up, Down      jog Z axis
+Home    home selected axis
+<, >    decrement or increment axis speed
+c/C     select continuous jogging
+i/I     select incremental jog, and toggle through increments
+1-9,0   set feed override to 10%-90%, 0 is 100%
+@       toggle commanded/actual position display
+#       toggle absolute/relative position display
+o/O     open a program
+r/R     run an opened program
+p/P     pause an executing program
+s/S     resume a paused program
+a/A     step one line in a paused program
+b       take spindle brake off
+Alt-b   put spindle brake on
+
+Note that MDI mode disables most of the keys, since they are valid
+symbols that can be typed in. F1-F5 work in MDI, as do the spindle
+speed change keys F11 and F12.
+
+The RS-274-NGC Interpreter
+--------------------------
+The EMC runs a dialect of RS-274 "G codes" that originated from
+Allen-Bradley as part of their work for the National Center for
+Manufacturing Sciences (NCMS) on the Next Generation Controller (NGC)
+project. The dialect is similar to the Fanuc series of CNCs.
+
+G codes:
+
+G00 X Y Z          rapid feed
+G01 X Y Z          linear feed, e.g., G01 X10 Y20 Z30 F60 for 60 ipm
+G02 X Y Z I J      clockwise circular feed (helical with Z)
+G03 X Y Z I J      counterclockwise circular feed (helical with Z)
+G04 P<#>           dwell # of seconds
+G10 L2 P<#> X Y Z  set coordinates for system #1-9, 1 = G54, 9 = G59.3
+G17                XY plane circular interpolation
+G18                ZX plane circular interpolation
+G19                YZ plane circular interpolation
+G20                English units (inches)
+G21                metric units (millimeters)
+G40                cancel cutter compensation
+G41 D<#>           cutter compensation for tool <#>, tool on left
+G42 D<#>           cutter compensation for tool <#>, tool on right
+G43 H<#>           use tool length offset for tool #, 0 = no offset
+G49                cancel tool length offset
+G53                turn any coordinate offsets off for this block
+G54                use coordinate offsets for system #1, from G10 L2 P1
+G55                "" for system #2, from G10 L2 P2
+G56                "" for system #3, from G10 L2 P3
+G57                "" for system #4, from G10 L2 P4
+G58                "" for system #5, from G10 L2 P5
+G59                "" for system #6, from G10 L2 P6
+G59.1              "" for system #7, G10 L2 P7
+G59.2              "" for system #8, G10 L2 P8
+G59.3              "" for system #9, G10 L2 P9
+G61                exact stop mode
+G64                cutting mode
+G76                threading canned cycle
+G80                cancel fixed (canned) cycle
+G81                drilling cycle, no dwell, rapid out
+G82                drilling cycle, dwell, rapid out
+G83                deep hole peck drilling cycle
+G84                tapping cycle
+G85                boring cycle, no dwell, feed out
+G86                boring cycle, spindle stop, rapid out
+G87                back boring cycle
+G88                boring cycle, spindle stop, manual out
+G89                boring cycle, with dwell, feed out
+G90                non-incremental programming (the usual)
+G91                incremental programming
+G93                inverse time feed mode
+G94                feed per minute mode (the usual)
+G98,G99            set canned cycle return level
+
+M codes:
+
+M0   optional program stop
+M1   program stop
+M2   program end
+M3   turn spindle clockwise, e.g., S1000 M3 for 1000 rpm
+M4   turn spindle counterclockwise
+M5   turn spindle off
+M6   tool change, e.g., T1 M6 for tool 1
+M7   mist coolant on
+M8   flood coolant on
+M9   all coolant off
+M48  disable override control for M50-51 switches
+M49  enable override control for M50-51 switches
+M50  enable/disable feed override
+M51  enable/disable spindle speed override
+M52  enable/disable adaptive feed override
+M53  enable/disable feed hold
+M62  <|
+..    |- digital IO control
+M65  <|
+M100..M199  user defined commands
+
+(check the user manual for details).
+
+Frequently Asked Questions (FAQ)
+--------------------------------
+Q. The axes don't move when I try to jog them.
+A. Make sure you're out of estop, in manual mode.
+
+Q. Software limits don't work. I can jog past a soft limit.
+A. Software limits only work when an axis has been homed, since
+otherwise the machine doesn't know where the limits really are.
+
+Q. Why doesn't the mouse or return key work?
+A. Sometimes the cursor needs to be in the part of the window with the
+text in it. Move the cursor to a different region and try it.
+
+Q. Why are the modal G and M codes not correct in Auto mode?
+A. The modes that will be active when you enter MDI mode are
+shown. These are read ahead of actual program execution.
+
+Q. How can I change the fonts/colors/sizes in the Tkemc display?
+A. The "Tkemc" file in the emc/ directory contains the X resources used
+by the program. Almost nothing is hard coded in the program
+itself. You can change any of these values and see the effects.

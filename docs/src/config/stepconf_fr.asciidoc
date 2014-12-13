@@ -1,0 +1,675 @@
+﻿:lang: fr
+:toc:
+
+= Assistant graphique de configuration StepConf
+
+[[cha:Assistant-graphique-StepConf]] (((Assistant stepconf)))
+
+[[sec:Introduction]]
+== Introduction
+(((Introduction)))
+
+LinuxCNC est capable de contrôler un large éventail de machines
+utilisant de nombreuses interfaces matérielles différentes.
+
+Stepconf est un programme qui génère des fichiers de configuration LinuxCNC
+pour une classe spécifique de machine CNC: celles qui sont pilotées
+via un, ou plusieurs ports parallèles standards et contrôlées par des signaux
+de type pas/direction (step/dir).
+
+Stepconf est installé en même temps que LinuxCNC et un lanceur se trouve
+dans le menu _Application → CNC → LinuxCNC StepConf_.
+
+Stepconf place les fichiers qu'il crée dans le répertoire _~/linuxcnc/config_
+pour y stocker les paramètres de chaque configuration.
+Lorsque quelque chose doit être modifié, il faut choisir le fichier
+correspondant au nom de la configuration et portant l'extension .stepconf.
+
+L'Assistant Stepconf a besoin, au minimum, d'une résolution de 800 x 600
+pour que les boutons sur le bas des pages soient apparents.
+
+== Page d'accueil
+
+.La page d'accueil de stepconf
+
+image::images/stepconf-config_fr.png[]
+
+* _Créer une nouvelle configuration_ - 
+Créera une configuration nouvelle.
+
+* _Modifier une configuration déjà créée_ - 
+Modifiera une configuration existante, déjà créée avec Stepconf.
+Après la sélection de celle-ci un sélecteur de fichier s'ouvre pour y
+choisir le fichier .stepconf à modifier. Si des modifications sont
+faites aux fichiers .hal et .ini avec un autre éditeur, ils ne seront
+plus utilisables par Stepconf. Les modifications de custom.hal et de
+custom_postgui.hal, par contre, sont conservées par Stepconf.
+
+* _Créer un lien_ - 
+Placera un lien sur le bureau, pointant sur le dossier des fichiers
+de configuration.
+
+* _Créer un lanceur_ - 
+Placera un lanceur sur le bureau pour démarrer l'application avec sa
+configuration.
+
+[[sub:Informations-base]]
+== Informations machine
+
+.Page d'informations sur la machine
+
+image::images/stepconf-basic_fr.png[]
+
+* _Nom de la machine_ - 
+(((Nom de la machine)))
+Choisir un nom pour la machine.
+Utiliser uniquement des lettres majuscules, minuscules, des chiffres
+ou "-" et "_".
+
+* _Configuration des axes_ - 
+(((Configuration des axes)))
+Choisir les axes correspondants à la machine:
+XYZ (fraiseuse 3 axes), XYZA (fraiseuse 4 axes) ou XZ (tour).
+
+* _Unité machine_ - 
+(((Unité machine)))
+Choisir entre le pouce et le millimètre. Toutes les questions suivantes
+(telles que la longueur des courses, le pas de la vis, etc)
+devront obtenir des réponses dans l'unité choisie ici.
+
+* _Caractéristiques du pilote_ - 
+(((Caractéristiques du pilote)))
+Si un des pilotes énumérés dans la liste déroulante peut être utilisé,
+cliquer	sur son nom. Sinon, trouver les 4 valeurs de timing dans la fiche
+de caractéristiques fournie par le fabricant du pilote et les saisir.
+Si la fiche donne des valeurs en microsecondes, les multiplier par 1000.
+pour les convertir en nanosecondes.
+Par exemple, pour 4.5µs saisir 4500ns.
+
+Une liste de certains des pilotes pas à pas les plus populaires, avec leurs
+valeurs caractéristiques de timing, se trouve sur le wiki de LinuxCNC.org à la page
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[Timming des pilotes].
+
+D'éventuels traitements des signaux, une opto-isolation ou des filtres RC,
+peuvent imposer des contraintes de temps supplémentaires aux signaux,
+il convient de les ajouter à celles du pilote.
+La Configuration LinuxCNC pour Sherline est déjà réglée.
+
+* _Step Time_ - 
+Durée de la largeur de l'impulsion de pas à l'état _on_, en nanosecondes.
+
+* _Valeur Space d'un pas_ - 
+Temps entre deux impulsions de pas, en nanosecondes.
+
+* _Direction Hold_ - 
+Durée de maintien du signal après un changement de direction, en
+nanosecondes.
+
+* _Réglage direction_ - 
+Délai avant le changement de direction après la dernière impulsion de pas,
+en nanosecondes.
+
+* _Adresse de base du premier port parallèle_ - 
+Généralement l'adresse 0x378 est correcte pour le premier port.
+Le premier port a toujours ses broches 2 à 9 configurées en sortie.
+
+* _Adresse du second port parallèle_ - 
+Si un second port parallèle est nécessaire, entrer son adresse ici.
+Si ce port est intégré à la carte mère il est possible de vérifier leur
+ordre dans le BIOS, habituellement 0x378 0x278 0x3bc. Attention les cartes
+additionnelles ont d'autres adresses.
+Dans ce cas, la commande lspci -v dans un terminal peux aider, si le nom
+du chipset de la carte est connu.
+Plus de détails à ce sujet sont disponibles dans le manuel de l'intégrateur.
+Le bouton situé à droite du champs d'adresse du port, permet de choisir le
+sens des broches 2 à 9, soit comme étant des entrée, soit comme étant des
+sorties.
+
+* _Adresse du troisième port parallèle_ - 
+Si un troisième port parallèle est nécessaire, entrer son adresse ici.
+Si ce port est intégré à la carte mère il est possible de vérifier leur
+ordre dans le BIOS, habituellement 0x378 0x278 0x3bc. Attention les cartes
+additionnelles ont d'autres adresses.
+Dans ce cas, la commande lspci -v dans un terminal peux aider, si le nom
+du chipset de la carte est connu.
+Plus de détails à ce sujet sont disponibles dans le manuel de l'intégrateur.
+Le bouton situé à droite du champs d'adresse du port, permet de choisir le
+sens des broches 2 à 9, soit comme étant des entrée, soit comme étant des
+sorties.
+
+* _Période de base minimale_ - 
+(((Période de base minimale)))
+En se basant sur les caractéristiques du pilote et sur le résultat du
+test de latence, Stepconf détermine automatiquement la période de base
+(BASE_PERIOD) la plus petite utilisable et l'affiche ici.
+
+* _Fréquence maxi des pas_ - 
+(((Fréquence maximale de pas)))
+Affiche la valeur calculée de la fréquence maximum des pas que la
+machine devrait atteindre avec les paramètres de cette configuration.
+
+* _Base Period Maximum Jitter_ - 
+(((Période de base maximale)))
+Après un test de latence, entrer ici la valeur retournée
+dans la colonne "Max Jitter" et à la ligne "Base thread". Cette valeur
+correspond à la latence maximale du PC testé.
+Pour exécuter directement un test de latence cliquer sur le bouton
+_Test de latence_. Lire le <<cha:test-de-latence, chapitre sur le test de
+latence>> pour tous les détails concernant ce test.
+
+* _Dialogue à l'écran pour le changement d'outil_ - 
+(((Dialogue d'appel d'outil)))
+Si cette case est cochée, LinuxCNC va faire une pause et ouvrir un dialogue
+pour charger l'outil <n> lorsque qu'un G-Code M6 T<n> sera rencontré.
+Laisser cette case cochée sauf si le support d'un changeur d'outils
+automatique est prévu dans un fichier personnalisé HAL.
+
+[[sec:Options-de-configuration-avancee]]
+== Options de configuration avancée
+(((Options de configuration avancée)))
+
+[[cap:Configuration-avancee]]
+
+.Configuration avancée
+
+image::images/stepconf-advanced_fr.png[]
+
+
+* _Inclure l'interface Halui_ - 
+Ajoutera l'interface utilisateur Halui.
+Voir le manuel de l'intégrateur pour plus d'informations sur Halui.
+
+* _Inclure un panneau pyVCP_ - 
+Ceci ajoutera un panneau pyVCP de base, avec son fichier de configuration
+sur lequel il sera possible de travailler. Quelques options sont disponibles
+pour enrichir le panneau grâce à des cases à cocher.
+Voir le manuel de l'intégrateur pour plus d'information sur pyVCP.
+
+* _Inclure l'API ClassicLadder_ - 
+Cette option ajoutera l'automate programmable en logique à contacts
+ClassicLadder. Un certain nombre d'options sont disponibles pour enrichir
+l'API grâce à des cases à cocher. L'éditeur de programme ladder est
+accessible par le bouton _Editer prog. ladder_
+Voir le manuel de l'intégrateur pour plus d'information sur ClassicLadder.
+
+[[sec:Reglage-du-port-parallele]]
+== Réglage du port parallèle
+
+[[cap:Reglage-du-port-parallele]]
+
+.Page de réglage du port parallèle
+
+image::images/stepconf-pinout_fr.png[]
+
+* _Sorties (PC vers machine)_ - 
+Pour chacune des broches, choisir le signal correspondant au brochage entre
+le port parallèle et l'interface matérielle. Cocher la case inverser
+si le signal est inversé (0V pour vrai/actif, 5V pour faux/inactif).
+
+* _Sorties présélectionnées_ - 
+(((Sorties présélectionnées)))
+Réglage automatique des pins 2 à 9
+Direction sur les pins 2, 4, 6, 8, selon le _type Sherline_
+Direction sur les pins 3, 5, 7, 9, selon le _type Xylotex_
+
+* _Entrées et sorties_ - 
+Les entrées ou les sorties non utilisées doivent être placées sur
+Inutilisé.
+
+* _Sortie arrêt d'urgence_ - 
+Sélectionnable dans la liste déroulante des sorties.
+La sortie d'arrêt d'urgence est utilisée pour actionner l'organe de coupure
+du circuit de puissance de la machine. Le contact de cet organe est câblé
+en série avec les contacts des boutons d'arrêt d'urgence extérieurs ainsi
+qu'avec tous les contacts compris dans la boucle d'arrêt d'urgence.
+
+* _Entrées (machine vers PC)_ - 
+Ces choix se font dans la liste déroulante des entrées.
+
+* _Pompe de charge_ - 
+Si la carte de contrôle accepte un signal pompe de charge, dans la liste
+déroulante des sorties, sélectionner _Pompe de charge_ sur la sortie
+correspondant à l'entrée Pompe de charge de la carte de contrôle.
+La sortie pompe de charge sera connectée en interne par Stepconf.
+Le signal de pompe de charge sera d'environ la moitié de la fréquence
+maxi des pas affichée sur la page des informations machine.
+
+[[sec:Configuration-des-axes]]
+== Configuration des axes
+(((Configuration des axes)))
+
+[[cap:Configuration-des-axes]]
+
+.Page de configuration des axes
+
+image::images/stepconf-axis_fr.png[]
+
+* _Nombre de pas moteur par tour_ - 
+(((Nombre de pas par tour)))
+Nombre de pas entiers par tour de moteur. Si l'angle d'un pas en degrés est
+connu (par exemple, 1.8 degrés), diviser 360 par cet angle
+pour obtenir le nombre de pas par tour du moteur.
+
+* _Micropas du pilote_ - 
+(((Micropas du pilote)))
+Le nombre de micropas produits par le pilote. Entrer par exemple 2
+pour le demi pas ou une des valeurs permise par le pilote du moteur.
+
+* _Dents des poulies_ - 
+(((Dents des poulies)))
+Si entre le moteur et la vis un réducteur poulie/courroie est présent,
+entrer ici le nombre de dents de chacune des poulies.
+Pour un entrainement direct, entrer 1:1.
+
+* _Pas de la vis_ - 
+(((Pas de la vis)))
+Entrer ici le pas de la vis. Si le pouce a été choisi comme
+unité, entrer ici le nombre de filets par pouce.
+Si le mm a été choisi, entrer ici le pas du filet en millimètres.
+Si la vis est à plusieurs filets, déterminer de combien se
+déplace le mobile par tour de vis et entrer cette valeur ici.
+Si la machine se déplace dans la mauvaise direction,
+entrer une valeur négative au lieu d'une positive, et vice-versa.
+
+* _Vitesse maximale_ - 
+(((Vitesse maximale)))
+Entrer ici la vitesse de déplacement maximale de l'axe, en unités par
+seconde.
+
+* _Accélération maximale_ - 
+(((Accélération maximale)))
+Les valeurs correctes pour ces deux entrées ne peuvent être
+déterminées que par l'expérimentation. Consulter
+<<sec:Trouver-Vitesse-Maximale, le calcul de la vitesse>> pour trouver la
+vitesse et <<sec:Trouver-Acceleration-Maximale, le calcul de l'accélération>>
+pour trouver l'accélération maximale.
+
+* _Emplacement de l'origine machine_ - 
+(((Emplacement de l'origine machine)))
+Position sur laquelle la machine se place après avoir terminé la
+procédure de prise d'origine de cet axe.
+Pour les machines sans contact placé au point d'origine,
+c'est la position à laquelle l'opérateur place la machine en manuel,
+avant de presser le bouton de _POM des axes_.
+Si des capteurs de fin de course sont utilisés pour la prise d'origine,
+le point d'origine ne doit pas se trouver au même coordonnées que le
+capteur. Une erreur de limite simultanée à l'origine surviendrait.
+
+* _Course de la table_ - 
+(((Course de la table)))
+Étendue de la course que le programme en G-code ne doit jamais dépasser.
+L'origine machine doit être située à l'intérieur de cette course.
+En particulier, avoir un point d'origine exactement égal à cette course est
+une configuration incorrecte.
+
+* _Position du contact d'origine machine_ - 
+(((Position du contact d'origine machine)))
+Position à laquelle le contact d'origine machine est activé ou relâché
+pendant la procédure de prise d'origine machine. Ces entrées et les
+deux suivantes, n'apparaissent que si les contacts d'origine ont été
+sélectionnés dans le réglage des broches du port parallèle.
+
+* _Vitesse de recherche de l'origine_ - 
+(((Vitesse de recherche de l'origine)))
+Vitesse utilisée pendant le déplacement vers le contact d'origine machine.
+Si le contact est proche d'une limite physique de déplacement de la table,
+cette vitesse doit être suffisamment basse pour permettre de décélérer et de
+s'arrêter avant d'atteindre la butée mécanique et cela, malgré l'inertie du
+mobile. Si le contact est fermé par la came sur une faible longueur de
+déplacement (au lieu d'être fermé depuis son point de fermeture jusqu'au
+bout de le course), cette vitesse doit être réglée pour permettre la
+décélération et l'arrêt, avant que le contact ne soit dépassé et ne s'ouvre
+à nouveau. La prise d'origine machine doit toujours commencer du même côté
+du contact. Si la machine se déplace dans la mauvaise direction au début de
+la procédure de prise d'origine machine, rendre négative la valeur de
+_Vitesse de recherche de l'origine_.
+
+* _Dégagement du contact d'origine_ - 
+(((Dégagement du contact d'origine)))
+Choisir _Identique_ pour que la machine reparte d'abord en arrière pour
+dégager le contact, puis revienne de nouveau vers lui à très petite
+vitesse. La seconde fois que le contact se ferme, la position de l'origine
+machine est acquise.  Choisir _Opposition_ pour que la machine
+reparte en arrière à très petite vitesse jusqu'au dégagement du contact.
+Quand le contact s'ouvre, la position de l'origine machine est acquise.
+
+* _Temps pour accélérer à la vitesse maxi_ - 
+(((Temps pour accélérer à la vitesse maxi)))
+Temps en secondes, calculé en fonction des paramètres renseignés
+précédemment.
+
+* _Distance pour accélérer à la vitesse maxi_ - 
+(((Distance pour accélérer à la vitesse maxi)))
+Distance en mm, calculée en fonction des paramètres renseignés précédemment.
+
+* _Fréquence des impulsions à la vitesse maxi_ - 
+(((Fréquence des impulsions à la vitesse maxi)))
+Informations calculées sur la base des informations entrées précédemment.
+Il faut rechercher la plus haute fréquence des impulsions à la vitesse maxi
+possible, elle détermine la période de base: BASE_PERIOD.
+Des valeurs supérieures à 20000Hz peuvent toutefois provoquer des
+ralentissements importants de l'ordinateur, voir même son blocage
+(La plus grande fréquence utilisable variera d'un ordinateur à un autre)
+
+* _Échelle de l'axe_ - 
+Le nombre qui sera utilisé dans le fichier ini [SCALE].
+C'est le nombre de pas moteur par unité utilisateur.
+
+* _Test de cet axe_ - 
+(((Test de cet axe)))
+Ouvre une fenêtre permettant de tester les paramètres pour chaque axe.
+Il est possible de modifier par expérimentation certaines données et de
+les reporter dans la configuration.
+
+* _Adresse du second port parallèle_ - 
+Si un second port parallèle est nécessaire, entrer son adresse ici.
+Si les ports sont intégrés à la carte mère il est possible de vérifier
+dans le BIOS, habituellement 0x378 0x278 0x3bc. Attention les cartes
+additionnelles ont d'autres adresses.
+Dans ce cas, la commande lspci -v dans un terminal peux aider, si le nom
+du chipset de la carte est connu.
+Plus de détails à ce sujet sont disponibles dans le manuel de l'intégrateur.
+
+[[cap:Tester-Cet-Axe]]
+== Tester cet axe
+
+.Tester cet axe
+
+image::images/stepconf-test_fr.png[]
+
+Tester cet axe et un test simple pour définir les signaux de directions et de
+pas, ainsi que les valeurs d'accélération et de vitesse.
+
+[IMPORTANT]
+Pour pouvoir utiliser ce test d'axe, il sera peut-être nécessaire de valider
+manuellement l'axe à tester. Si le driver utilise une pompe de charge, il faudra
+la bi-passer pour essayer les différentes valeurs de vitesse et d'accélération.
+
+[[sec:Trouver-Vitesse-Maximale]]
+== Trouver la vitesse maximale
+(((Trouver Vitesse Maximale)))
+
+Commencer avec une faible valeur d'accélération
+(par exemple, *+2 pouces/s^2^+* ou *+50 mm/s^2^+*)
+et la vitesse que espérée. En utilisant les boutons de jog, positionner
+l'axe vers son centre.
+Il faut être prudent, car avec peu d'accélération, la distance d'arrêt
+peut être très surprenante. Après avoir évalué le déplacement possible dans
+chaque direction en toute sécurité, entrer une distance dans le champs
+_Zone de test_ garder à l'esprit qu'après un décrochage, le moteur peut
+repartir dans la direction inattendue. Puis cliquer sur _Lancer_.
+La machine commencera à aller et venir le long de cet axe.
+Dans cet essai, il est important que la combinaison entre l'accélération et
+la zone de test, permette à la machine d'atteindre la vitesse sélectionnée
+et de s'y déplacer au moins, sur une courte distance.
+La formule *+d = 0.5 * v * v/a+*, donne la distance minimale requise pour
+atteindre la vitesse de _croisière_. Si la sécurité est garantie, pousser sur
+la table dans la direction inverse du mouvement pour simuler les efforts de
+coupe. Si la table décroche, réduire la vitesse et recommencer le test.
+Si la machine ne présente aucun décrochage, cliquer sur le bouton _Lancer_.
+L'axe revient alors à sa position de départ. Si cette position est incorrecte,
+c'est que l'axe a calé ou a perdu des pas au cours de l'essai.
+Réduire la vitesse et relancer le test. Si la machine ne se déplace pas,
+cale, vibre ou perd des pas, même à faible vitesse, vérifier les éléments
+suivants:
+
+- Corriger les paramètres de temps des impulsions de commande.
+- Le brochage du port et la polarité des impulsions. Les cases _Inverser_.
+- La qualité des connexions et le blindage des câbles.
+- Les problèmes mécaniques avec le moteur, l'accouplement moteur, vis,
+raideurs etc.
+
+Quand la vitesse à laquelle l'axe ne perd plus de pas et à laquelle les mesures
+sont exactes pendant le test a été déterminée, réduire cette vitesse de 10% et
+l'utiliser comme vitesse maximale pour cet axe.
+
+[[sec:Trouver-Acceleration-Maximale]]
+== Trouver l'accélération maximale
+(((Trouver Accélération Maximale)))
+
+Avec la vitesse maximale déterminée à l'étape précédente, entrer
+une valeur d'accélération approximative. Procéder comme pour la vitesse,
+en ajustant la valeur d'accélération en plus ou en moins selon le
+résultat. Dans cet essai, il est important que la combinaison de
+l'accélération et de la zone de test permette à la machine d'atteindre
+la vitesse sélectionnée. Une fois que la valeur à laquelle l'axe ne perd plus
+de pas pendant le test a été déterminée, la réduire de 10% et l'utiliser comme
+accélération maximale pour cet axe.
+
+[[sec:Page-configuration-de-la-broche]]
+== Configuration de la broche
+
+.Page configuration de la broche[[cap:Page-Configuration-de-la-broche]]
+
+image::images/stepconf-spindle_fr.png[]
+
+Ces options ne sont accessibles que quand _PWM broche_,
+_Phase A codeur broche_ ou _index broche_ sont configurés dans le
+réglage du port parallèle.
+
+[[sec:Controle-de-la-vitesse-de-broche]]
+== Contrôle de la vitesse de broche(((Contrôle de la vitesse de broche)))
+
+Si _PWM broche_ apparaît dans le réglage du port parallèle, les
+informations suivantes doivent être renseignées:
+
+* _Fréquence PWM_ - 
+(((Fréquence PWM)))
+La fréquence porteuse du signal PWM (modulation de largeur d'impulsions)
+du moteur de broche.  Entrer 0 pour le mode PDM (modulation de
+densité d'impulsions), qui est très utile pour générer une tension de
+consigne analogique. Se reporter à la documentation du variateur de broche
+pour connaître la valeur appropriée.
+
+* _Vitesse 1 et 2, PWM 1 et 2_ - 
+(((Vitesse 1 et 2)))(((PWM 1 et 2)))
+Le fichier de configuration généré utilise une simple relation linéaire
+pour déterminer la valeur PWM correspondant à une vitesse de rotation.
+Si les valeurs ne sont pas connues, elles peuvent être déterminées.
+Voir la section sur <<sub:Determiner-broche-Etalonnage-broche,la calibration
+de la broche>>.
+
+[[sec:Mouvement-avec-broche-synchronisee]]
+== Mouvement avec broche synchronisée (filetage sur tour, taraudage rigide)
+(((Mouvement avec broche synchronisée)))
+
+Lorsque les signaux appropriés, provenant d'un codeur de broche, sont
+connectés au port parallèle, LinuxCNC peut être utilisé pour les usinages
+avec broche synchronisée comme le filetage ou le taraudage rigide.
+Ces signaux son:
+
+* _Index broche_ - 
+(((Index codeur broche)))
+Également appelé PPR broche, c'est une impulsion produite à chaque
+tour de broche.
+
+* _Phase A broche_ - 
+(((Phase A codeur broche)))
+C'est une suite d'impulsions carrées générées sur la voie A du codeur
+pendant la rotation de la broche. Le nombre d'impulsions pour un
+tour correspond à la résolution du codeur.
+
+* _Phase B broche_ (optionnelle) - 
+(((Phase B codeur broche)))
+C'est une seconde suite d'impulsions, générées sur la voie B du codeur
+et décalées par rapport à celle de la voie A. L'utilisation de ces
+deux signaux permet d’accroitre l'immunité au bruit et la résolution
+d'un facteur 4.
+
+Si _Phase A broche_ et _Index broche_ apparaissent dans le
+réglage des broches du port, l'information suivante doit être renseignée sur
+la page de configuration broche:
+
+* _Cycles par tour_ - 
+(((Cycles par tour)))
+Le nombre d'impulsions par tour sur la broche Phase A broche.
+
+* _La vitesse maximale en filetage_ - 
+La vitesse de broche maximale utilisée en filetage.
+Pour exploiter un moteur de broche rapide ou un codeur ayant une résolution
+élevée, une valeur basse de BASE_PERIOD est requise.
+
+[[sub:Determiner-broche-Etalonnage-broche]]
+== Calibrer la broche
+(((Calibrer la broche)))
+
+Entrer les valeurs suivantes dans la page de configuration de la broche:
+
+[width="80%",options="header", cols="^,^,^,^"]
+|===============================
+| Vitesse 1: | 0    | PWM 1: | 0
+| Vitesse 2: | 1000 | PWM 2: | 1
+|===============================
+
+Finir les étapes suivantes de la configuration, puis lancer LinuxCNC avec
+cette configuration. Mettre la machine en marche et aller dans l'onglet Données
+manuelles, démarrer le moteur de broche en entrant: M3 S100.
+Modifier la vitesse de broche avec différentes valeurs comme: S800.
+Les valeurs permises vont de 1 à 1000.
+
+Pour deux différentes valeurs de Sxxx, mesurer la vitesse de rotation
+réelle de la broche en tours/mn. Enregistrer ces vitesses réelles de la
+broche. Relancer Stepconf. Pour les Vitesses, entrer les valeurs
+réelles mesurées et pour les PWM, entrer la valeur Sxxx divisée par 1000.
+
+Parce que la plupart des interfaces ne sont pas linéaires dans leur
+courbe de réponse, il est préférable de:
+
+  - S'assurer que les deux points de mesure des vitesses en tr/mn ne soient
+    pas trop rapprochés
+  - S'assurer que les deux vitesses utilisées sont dans la gamme des
+    vitesses utilisées généralement par la machine.
+
+Par exemple, si la broche tourne entre 0tr/mn et 8000tr/mn, mais qu'elle est
+utilisée généralement entre 400tr/mn et 4000tr/mn, prendre alors
+des valeurs qui donneront 1600tr/mn et 2800tr/mn.
+
+[[sec:Terminer-configuration]]
+== Terminer la configuration
+(((Terminer la configuration)))
+
+Cliquer _Appliquer_ pour enregistrer les fichiers de configuration.
+Ensuite, il sera possible de relancer ce programme et ajuster les réglages
+entrés précédemment.
+
+[[sec:Position-Origine-Position-Contacts]]
+== Position des fins de course sur les axes
+(((Position origine machine)))(((Emplacements des contacts)))
+
+image::images/HomeAxisTravel.png[]
+
+La course de chaque axe est bien délimitée. Les extrémités physiques d'une
+course sont appelées les _butées mécaniques_, position *[red]#(a)#*.
+
+WARNING: [red]#Si une butée mécanique venait à être dépassée,
+la vis ou le bâti machine seraient détériorés!#
+
+Avant la butée mécanique se trouve un contact de fin de course *[green]#(b)#*.
+Si ce contact est rencontré pendant les opérations normales, LinuxCNC coupe
+la puissance du moteur. La distance entre le fin de course et la butée
+mécanique doit être suffisante pour permettre au moteur, dont la puissance
+a été coupée, de s'arrêter malgré l'inertie du mobile. Ces fins de course
+doivent détecter le mobile sur toutes la distance d'arrêt et ne pas se
+réactiver à cause d'un dépassement dû à l'inertie.
+ 
+Avant le contact de fin de course se trouve une limite logicielle *[blue]#(d)#*.
+Cette limite logicielle est introduite après la prise d'origine machine.
+Si une commande manuelle ou un programme G-code dépasse cette limite,
+ils ne seront pas exécutés. Si un mouvement en jog ou en manuel cherche
+à dépasser la limite logicielle, il sera interrompu sur cette limite.
+
+Le contact d'origine machine *[purple]#(c)#* peut être positionné n'importe où,
+le long d'une course entre les butées mécaniques.
+Si aucun mécanisme externe ne désactive la puissance moteur quand un
+contact de limite est enfoncé, un des contacts de fin de course peut
+être utilisé comme contact d'origine machine.
+
+La position zéro *[orange]#(e)#* correspond au 0 de l'axe dans le
+système de coordonnées pièce, après que la prise d'origine pièce
+de cette axe ait été faite. La position zéro doit se trouver entre
+les deux limites logicielles pour que l'usinage soit possible. Sur les tours,
+le mode vitesse à surface constante requiert que la coordonnée *X=0*
+corresponde au centre de rotation de la broche quand aucun correcteur
+d'outil n'est actif.
+
+La position de l'origine est la position, située le long de l'axe, sur
+laquelle le mobile sera déplacé à la fin de la séquence de prise d'origine.
+Cette position doit se situer entre les limites logicielles. En particulier,
+la position de l'origine ne doit jamais être égale à une limite logicielle.
+On place habituellement cette position au point le plus facile pour
+réaliser le changement d'outil.
+
+[[sec:exploitation-sans-limite]]
+== Exploitation sans fin de course(((exploitation sans limite sans fin de course)))
+
+Une machine peut être utilisée sans contact de fin de course. Dans ce cas,
+seules les limites logicielles empêcheront la machine d'atteindre les butées
+mécaniques. Les limites logicielles n’opèrent qu'après que la POM
+(prise d'origine machine) soit faite sur la machine. Puisqu'il n'y a pas
+de contact, la machine doit être déplacée à la main et à l’œil,
+à sa position d'origine avant de presser le bouton _POM des axes_ ou le
+sous-menu _Machine → Prises d'origines machine → POM de l'axe_.
+L'opérateur devra cocher chacun des axes individuellement pour faire la
+POM de chacun d'eux.
+
+[[sec:exploitation-sans-origine]]
+== Exploitation sans contact d'origine(((Exploitation sans contact d'origine)))
+
+Une machine peut être utilisée sans contact d'origine machine. Si la machine
+dispose de contacts de fin de course, mais pas de contact d'origine
+machine, il est préférable d'utiliser le contact de fin de course comme
+contact d'origine machine (exemple, choisir _Limite mini + origine X_
+dans le réglage du port). Si la machine ne dispose d'aucun contact, ou
+que le contact de fin de course n'est pas utilisable pour une autre
+raison, alors la prise d'origine machine peut toujours être réalisée à la main.
+Faire la prise d'origine à la main n'est certes pas aussi reproductible
+que sur des contacts, mais elle permet tout de même aux limites logicielles
+d'être utilisables.
+
+[[sec:Contacts-Origine-et-Limites]]
+== Câblage des contacts de fin de course et d'origine machine
+(((Câblage des contacts d'origine machine et des limites)))
+
+Le câblage idéal des contacts externes serait une entrée par contact.
+Toutefois, un seul port parallèle d'ordinateur offre un total de 5 entrées,
+alors qu'il n'y a pas moins de 9 contacts sur une machine 3 axes. Au lieu
+de cela, plusieurs contacts seront câblés ensembles, selon diverse combinaisons,
+afin de nécessiter un plus petit nombre d'entrées.
+ 
+Les figures ci-dessous montrent l'idée générale du câblage de plusieurs
+contacts à une seule broche d'entrée. Dans chaque cas, lorsqu'un contact
+est actionné, la valeur vue sur l'entrée va passer d'une logique haute à
+une logique basse. Cependant, LinuxCNC s'attend à une valeur VRAIE quand un
+contact est fermé, de sorte que les cases Inverser correspondantes devront
+être cochées sur la page de réglage du port parallèle.
+Une résistance de rappel est nécessaire dans le circuit pour tirer l'entrée au
+nivaux haut. La valeur typique pour un port parallèle est de 47K.
+Une bonne sécurité utilise des contacts normalement fermés sans pièce
+de commande souple.
+
+.Contacts normalement fermés[[cap:Contacts-Normalement-Fermes]]
+
+image::images/switch-nc-series_fr.png[]
+
+Câblage de contacts NC en série (schéma simplifié)
+
+.Contacts normalement ouverts[[cap:Contacts-Normalement-Ouverts]]
+
+image::images/switch-no-parallel_fr.png[]
+
+Câblage de contacts NO en parallèle (schéma simplifié)
+
+Les combinaisons suivantes sont permises dans Stepconf:
+
+- Les contacts d'origine machine de tous les axes combinés.
+- Les contacts de fin de course de tous les axes combinés.
+- Les contacts de fin de course d'un seul axe combinés.
+- Les contacts de fin de course et le contact d'origine machine d'un seul axe
+combinés.
+- Un seul contact de fin de course et le contact d'origine machine d'un seul axe
+combinés.
+
+Les deux dernières combinaisons sont également appropriées quand le type
+contact + origine est utilisé.
+
+// vim: set syntax=asciidoc:

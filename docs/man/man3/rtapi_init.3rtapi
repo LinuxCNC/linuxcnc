@@ -1,0 +1,34 @@
+.TH rtapi_init "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_init \- Sets up RTAPI
+
+.SH SYNTAX
+.HP
+ int rtapi_init(const char *\fImodname\fR, global_data_t **\fglobal\fR)
+
+.SH ARGUMENTS
+.IP \fImodname\fR
+The name of this rtapi module
+.IP \fIglobal\fR
+reference to the global data segment. Can be NULL if unused.
+
+
+.SH DESCRIPTION
+
+\fBrtapi_init\fR sets up the RTAPI.  It must be called by any
+module that intends to use the API, before any other RTAPI
+calls.
+
+\fImodname\fR can optionally point to a string that identifies
+the module.  The string will be truncated at \fBRTAPI_NAME_LEN\fR
+characters.  If \fImodname\fR is \fBNULL\fR, the system will assign a
+name.
+
+.SH REALTIME CONSIDERATIONS
+Call only from within user or init/cleanup code, not from relatime tasks.
+
+.SH RETURN VALUE
+On success, returns a positive integer module ID, which is
+used for subsequent calls to rtapi_xxx_new, rtapi_xxx_delete,
+and rtapi_exit.  On failure, returns an RTAPI error code.

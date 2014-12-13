@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- this document gives translations of terms used in l2h.xsl and xref.xsl -->
+<!-- ce document donne la traduction des termes utilisés dans l2h.xsl et xref.xsl -->
+<terms>
+    <terms language="english">
+	<term id="lang">en</term>
+	<term id="toc">Table of Contents</term>
+	<term id="fig">Fig</term>
+	<term id="tabl">Tab</term>
+	<term id="figures">List of figures</term>
+	<term id="tables">List of tables</term>
+	<term id="index">Index</term>
+	<term id="appendix">Appendices</term>
+	<term id="next">Next</term>
+	<term id="previous">Previous</term>
+	<term id="up">Up: Documentation Index</term>
+	<term id="foot">Footnotes</term>
+	<term id="back">back</term>
+    </terms>
+    <terms language="french">
+	<term id="lang">fr</term>
+	<term id="toc">Table des matières</term>
+	<term id="fig">Figure</term>
+	<term id="tabl">Tableau</term>
+	<term id="figures">Liste des figures</term>
+	<term id="tables">Liste des tableaux</term>
+	<term id="index">Index</term>
+	<term id="appendix">Annexes</term>
+	<term id="next">Suivant</term>
+	<term id="previous">Précédent</term>
+	<term id="up">Remonter à l'index</term>
+	<term id="foot">Pieds de page</term>
+	<term id="back">Retour</term>
+    </terms>
+</terms>

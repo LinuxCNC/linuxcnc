@@ -1,0 +1,394 @@
+.\" Copyright (c) 2003 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.TH HALCMD "1"  "2003-12-18" "LinuxCNC Documentation" "HAL User's Manual"
+.SH NAME
+halcmd \- manipulate the LinuxCNC HAL from the command line
+.SH SYNOPSIS
+.B halcmd
+[\fIOPTIONS\fR] [\fICOMMAND\fR [\fIARG\fR]]
+.PP
+.SH DESCRIPTION
+\fBhalcmd\fR is used to manipulate the HAL (Hardware Abstraction
+Layer) from the command line.  \fBhalcmd\fR can optionally read
+commands from a file, allowing complex HAL configurations to be
+set up with a single command.
+
+If the \fBreadline\fR library is available when LinuxCNC is compiled, then
+\fBhalcmd\fR offers commandline editing and completion when running
+interactively.  Use the up arrow to recall previous commands, and press tab to
+complete the names of items such as pins and signals.
+.SH OPTIONS
+.TP
+\fB-I\fR
+Before tearing down the realtime environment, run an interactive halcmd.
+\fBhalrun\fR only.  If \fB-I\fR is used, it must precede all other
+commandline arguments.
+.TP
+\fB\-f\fR [\fIfile\fR]
+Ignore commands on command line, take input from \fIfile\fR
+instead.  If \fIfile\fR is not specified, take input from
+\fIstdin\fR.
+.TP
+\fB-i \fIinifile\fR
+Use variables from \fIinifile\fR for substitutions.  See \fBSUBSTITUTION\fR
+below.
+.TP
+\fB\-k\fR
+Keep going after failed command(s).  The default is to stop
+and return failure if any command fails.
+.TP
+\fB\-q\fR
+display errors only (default)
+.TP
+\fB\-Q\fR
+display nothing, execute commands silently
+.TP
+\fB\-s\fR
+Script-friendly mode.  In this mode, \fIshow\fR will not output titles for the items
+shown.  Also, module names will be printed instead of ID codes in pin, param, and funct
+listings.  Threads are printed on a single line, with the thread period, FP usage and
+name first, followed by all of the functions in the thread, in execution order.  Signals
+are printed on a single line, with the type, value, and signal name first, followed by
+a list of pins connected to the signal, showing both the direction and the pin name.
+No prompt will be printed if both \fB-s\fR and \fB-f\fR are specified.
+.TP
+\fB-R\fR
+Release the HAL mutex.  This is useful for recovering when a HAL component has crashed
+while holding the HAL mutex.
+.TP
+\fB\-v\fR
+display results of each command
+.TP
+\fB\-V\fR
+display lots of debugging junk
+.TP
+\fB\-h\fR [\fIcommand\fR]
+display a help screen and exit, displays extended help on \fIcommand\fR if specified
+.SH COMMANDS
+Commands tell \fBhalcmd\fR what to do.  Normally \fBhalcmd\fR
+reads a single command from the command line and executes it.
+If the '\fB-f\fR' option is used to read commands from a file,
+\fBhalcmd\fR reads each line of the file as a new command.
+Anything following '\fB#\fR' on a line is a comment.
+.TP
+\fBloadrt\fR \fImodname\fR
+(\fIload\fR \fIr\fReal\fIt\fRime module)  Loads a realtime HAL
+module called \fImodname\fR.  \fBhalcmd\fR looks for the module
+in a directory specified at compile time.
+
+In systems with realtime, \fBhalcmd\fR calls the
+\fBlinuxcnc_module_helper\fR to load realtime modules.
+\fBlinuxcnc_module_helper\fR is a setuid program and is compiled with
+a whitelist of modules it is allowed to load.  This is currently
+just a list of \fBLinuxCNC\fR-related modules.  The
+\fBlinuxcnc_module_helper\fR execs insmod, so return codes and error
+messages are those from insmod.  Administrators who wish to
+restrict which users can load these \fBLinuxCNC\fR-related kernel
+modules can do this by setting the permissions and group on
+\fBlinuxcnc_module_helper\fR appropriately.
+
+In systems without realtime \fBhalcmd\fR calls the
+\fBrtapi_app\fR which creates the simulated realtime environment
+if it did not yet exist, and then loads the requested component
+with a call to \fBdlopen(3)\fR.
+.TP
+\fBunloadrt\fR \fImodname\fR
+(\fIunload\fR \fIr\fReal\fIt\fRime module)  Unloads a realtime HAL
+module called \fImodname\fR.  If \fImodname\fR is "all", it will
+unload all currently loaded realtime HAL modules.  \fBunloadrt\fR
+also works by execing \fBlinuxcnc_module_helper\fR or \fBrtapi_app\fR, just like
+\fBloadrt\fR.
+.TP
+\fBloadusr\fR \fI[flags]\fR \fIunix-command\fR
+(\fIload\fR \fIUs\fRe\fIr\fRspace component) Executes the given
+\fIunix-command\fR, usually to load a userspace component.
+\fI[flags]\fR may be one or more of:
+.RS
+.IP \(bu 4
+\fB-W\fR to wait for the component to become ready.  The component
+is assumed to have the same name as the first argument of the command.
+.IP \(bu 4
+\fB-Wn name\fR to wait for the component, which will have the given
+name.
+.IP \(bu 4
+\fB-w\fR to wait for the program to exit
+.IP \(bu 4
+\fB-i\fR to ignore the program return value (with -w)
+.RE
+.TP
+\fBwaitusr\fR \fI[-i]\fR  \fIname\fR
+(\fIwait\fR for \fIUs\fRe\fIr\fRspace component) Waits for user
+space component \fIname\fR to disconnect from HAL (usually on exit).
+If the component is not loaded, or exited already, waitusr will fail the halcmd script with
+a nonzero exit status. This can be suppressed using the \fI[-i]\fR flag.
+Usefull near the end of a
+HAL file to wait until the user closes some user interface component
+before cleaning up and exiting.
+.TP
+\fBunloadusr\fR \fIcompname\fR
+(\fIunload\fR \fIUs\fRe\fIr\fRspace component)  Unloads a userspace
+component called \fIcompname\fR.  If \fIcompname\fR is "all", it will
+unload all userspace components.  \fBunloadusr\fR
+works by sending SIGTERM to all userspace components.
+.TP
+\fBunload\fR \fIcompname\fR
+Unloads a userspace component or realtime module.  If \fIcompname\fR is "all",
+it will unload all userspace components and realtime modules.
+.TP
+\fBnewsig\fR \fIsigname\fR \fItype\fR
+(OBSOLETE - use \fBnet\fR instead) (\fInew\fR \fIsig\fRnal)
+Creates a new HAL signal called \fIsigname\fR that may later
+be used to connect two or more HAL component pins.  \fItype\fR
+is the data type of the new signal, and must be one of "\fBbit\fR",
+"\fBs32\fR", "\fBu32\fR", or "\fBfloat\fR".
+Fails if a signal of the same name already exists.
+.TP
+\fBdelsig\fR \fIsigname\fR
+(\fIdel\fRete \fIsig\fRnal)  Deletes HAL signal \fIsigname\fR.
+Any pins currently linked to the signal will be unlinked.
+Fails if \fIsigname\fR does not exist.
+.TP
+\fBsets\fR \fIsigname\fR \fIvalue\fR
+(\fIset\fR \fIs\fRignal)  Sets the value of signal \fIsigname\fR
+to \fIvalue\fR.  Fails if \fIsigname\fR does not exist, if it
+already has a writer, or if \fIvalue\fR is not a legal value.
+Legal values depend on the signals's type.
+.TP
+\fBstype\fR \fIname\fR
+(\fIs\fRignal type\fR)  Gets the type of signal
+\fIname\fR.  Fails if \fIname\fR does not exist as a signal.
+.TP
+\fBgets\fR \fIsigname\fR
+(\fIget\fR \fIs\fRignal)  Gets the value of signal \fIsigname\fR.  Fails
+if \fIsigname\fR does not exist.
+.TP
+\fBlinkps\fR \fIpinname\fR [\fIarrow\fR] \fIsigname\fR
+(OBSOLETE - use \fBnet\fR instead) (\fIlink\fR \fIp\fRin to \fIs\fRignal)
+Establishs a link between a HAL component pin \fIpinname\fR and
+a HAL signal \fIsigname\fR.  Any previous link to \fIpinname\fR will be
+broken.  \fIarrow\fR can be "\fB=>\fR", "\fB<=\fR", "\fB<=>\fR",
+or omitted.  \fBhalcmd\fR ignores arrows, but they can be useful
+in command files to document the direction of data flow.  Arrows
+should not be used on the command line since the shell might try
+to interpret them.  Fails if either \fIpinname\fR or \fIsigname\fR
+does not exist, or if they are not the same type type.
+.TP
+\fBlinksp\fR \fIsigname\fR [\fIarrow\fR] \fIpinname\fR
+(OBSOLETE - use \fBnet\fR instead) (\fIlink\fR \fIs\fRignal to \fIp\fRin)
+Works like \fBlinkps\fR but reverses the order of the arguments.
+\fBhalcmd\fR treats both link commands exactly the same.  Use whichever
+you prefer.
+.TP
+\fBlinkpp\fR \fIpinname1\fR [\fIarrow\fR] \fIpinname2\fR
+(OBSOLETE - use \fBnet\fR instead) (\fIlink\fR \fIp\fRin to \fIp\fRin)
+Shortcut for \fBlinkps\fR that creates the signal (named like the
+first pin), then links them both to that signal.  \fBhalcmd\fR treats
+this just as if it were:
+   \fBhalcmd\fR \fBnewsig\fR pinname1 
+   \fBhalcmd\fR \fBlinksp\fR pinname1 pinname1
+   \fBhalcmd\fR \fBlinksp\fR pinname1 pinname2
+.TP
+\fBnet\fR \fIsigname\fR \fIpinname\fR \fI...\fR
+Create \fIsignname\fR to match the type of \fIpinname\fR if it does not yet
+exist.  Then, link \fIsigname\fR to each \fIpinname\fR in turn.  Arrows may
+be used as in \fBlinkps\fR. When linking a pin to a signal for the first
+time, the signal value will inherit the pin's default value.
+
+.TP
+\fBunlinkp\fR \fIpinname\fR
+(\fIunlink\fR \fIp\fRin)  Breaks any previous link to \fIpinname\fR.
+Fails if \fIpinname\fR does not exist. An unlinked pin will retain the last
+value of the signal it was linked to.
+
+.TP
+\fBsetp\fR \fIname\fR \fIvalue\fR
+(\fIset\fR \fIp\fRarameter or \fIp\fRin)  Sets the value of parameter or pin
+\fIname\fR to \fIvalue\fR.  Fails if \fIname\fR does not exist as a pin or
+parameter, if it is a parameter that is not writable, if it is a pin that is an
+output, if it is a pin that is already attached to a signal, or if \fIvalue\fR
+is not a legal value.  Legal values depend on the type of the pin or parameter.
+If a pin and a parameter both exist with the given name, the parameter is acted
+on.
+.TP
+\fIparamname\fR \fB=\fR \fIvalue\fR
+.TP
+\fIpinname\fR \fB=\fR \fIvalue\fR
+Identical to \fBsetp\fR.  This alternate form of the command may
+be more convenient and readable when used in a file.
+.TP
+\fBptype\fR \fIname\fR
+(\fIp\fRarameter or \fIp\fRin \fItype\fR)  Gets the type of parameter or
+pin \fIname\fR.  Fails if \fIname\fR does not exist as a pin or
+parameter.  If a pin and a parameter both exist with the given name, the
+parameter is acted on.
+.TP
+\fBgetp\fR \fIname\fR
+(\fIget\fR \fIp\fRarameter or \fIp\fRin)  Gets the value of parameter or
+pin \fIname\fR.  Fails if \fIname\fR does not exist as a pin or
+parameter.  If a pin and a parameter both exist with the given name, the
+parameter is acted on.
+.TP
+\fBaddf\fR \fIfunctname\fR \fIthreadname\fR
+(\fIadd\fR \fIf\fRunction)  Adds function \fIfunctname\fR to realtime
+thread \fIthreadname\fR.  \fIfunctname\fR will run after any functions
+that were previously added to the thread.  Fails if either
+\fIfunctname\fR or \fIthreadname\fR does not exist, or if they
+are incompatible.
+.TP
+\fBdelf\fR \fIfunctname\fR \fIthreadname\fR
+(\fIdel\fRete \fIf\fRunction)  Removes function \fIfunctname\fR from
+realtime thread \fIthreadname\fR.  Fails if either \fIfunctname\fR or
+\fIthreadname\fR does not exist, or if \fIfunctname\fR is not currently
+part of \fIthreadname\fR.
+.TP
+\fBstart\fR
+Starts execution of realtime threads.  Each thread periodically calls
+all of the functions that were added to it with the \fBaddf\fR command,
+in the order in which they were added.
+.TP
+\fBstop\fR
+Stops execution of realtime threads.  The threads will no longer call
+their functions.
+.TP
+\fBsleep\fR [\fIseconds\fR]
+Pause the halcmd script for the specified time.
+.TP
+\fBshow\fR [\fIitem\fR]
+Prints HAL items to \fIstdout\fR in human readable format.
+\fIitem\fR can be one of "\fBcomp\fR" (components), "\fBpin\fR",
+"\fBsig\fR" (signals), "\fBparam\fR" (parameters), "\fBfunct\fR"
+(functions), "\fBthread\fR", or "\fBalias\fR".  The type "\fBall\fR"
+can be used to show matching items of all the preceeding types.
+If \fIitem\fR is omitted, \fBshow\fR will print everything.
+.TP
+\fBitem\fR
+This is equivalent to \fBshow all [item]\fR.
+.TP
+\fBsave\fR [\fIitem\fR]
+Prints HAL items to \fIstdout\fR in the form of HAL commands.
+These commands can be redirected to a file and later executed
+using \fBhalcmd -f\fR to restore the saved configuration.
+\fIitem\fR can be one of the following: "\fBcomp\fR" generates
+a \fBloadrt\fR command for realtime component.  "\fBsig\fR" 
+generates a \fBnewsig\fR command for each signal, and "\fBsigu\fR" generates a
+\fBnewsig\fR command for each unlinked signal (for use with \fBnetl\fR and
+\fBnetla\fR).  "\fBlink\fR" and "\fBlinka\fR" both generate \fBlinkps\fR
+commands for each link. (\fBlinka\fR includes arrows, while \fBlink\fR does
+not.) "\fBnet\fR" and "\fBneta\fR" both generate one \fBnewsig\fR command for
+each signal, followed by \fBlinksp\fR commands for each pin linked to that
+signal.  (\fBneta\fR includes arrows.) "\fBnetl\fR" generates one \fBnet\fR
+command for each linked signal, and "\fBnetla\fR" generates a similar command
+using arrows.  "\fBparam\fR" generates one \fBsetp\fR command for each
+parameter.  "\fBthread\fR" generates one \fBaddf\fR command for each function
+in each realtime thread.  If \fIitem\fR is omitted, \fBsave\fR does the
+equivalent of \fBcomp\fR, \fBsigu\fR, \fBlink\fR, \fBparam\fR, and \fBthread\fR.
+.TP
+\fBsource\fR  \fIfilename.hal\fR
+Execute the commands from \fIfilename.hal\fR.
+.TP
+\fBalias\fR \fItype\fR \fIname\fR \fIalias\fR
+Assigns "\fBalias\fR" as a second name for the pin or parameter
+"name".  For most operations, an alias provides a second
+name that can be used to refer to a pin or parameter, both the
+original name and the alias will work.
+   "type" must be \fBpin\fR or \fBparam\fR.
+   "name" must be an existing name or \fBalias\fR of the specified type.
+.TP
+\fBunalias\fR \fItype\fR \fIalias\fR
+Removes any alias from the pin or parameter alias.
+  "type" must be \fBpin\fR or \fBparam\fR
+  "alias" must be an existing name or \fBalias\fR of the specified type.
+.TP
+\fBlist\fR \fItype\fR [\fIpattern\fR]
+  Prints the names of HAL items of the specified type.
+  'type' is '\fBcomp\fR', '\fBpin\fR', '\fBsig\fR', '\fBparam\fR', '\fBfunct\fR', or
+  '\fBthread\fR'.  If 'pattern' is specified it prints only
+  those names that match the pattern, which may be a
+  'shell glob'.
+  For '\fBsig\fR', '\fBpin\fR' and '\fBparam\fR', the first pattern may be
+  -t\fBdatatype\fR where datatype is the data type (e.g., 'float')
+  in this case, the listed pins, signals, or parameters
+  are restricted to the given data type
+  Names are printed on a single line, space separated.
+.TP
+\fBlock\fR [\fIall\fR|\fItune\fR|\fInone\fR]
+  Locks HAL to some degree.
+  none - no locking done.
+  tune - some tuning is possible (\fBsetp\fR & such).
+  all  - HAL completely locked.
+.TP
+\fBunlock\fR [\fIall\fR|\fItune\fR]
+  Unlocks HAL to some degree.
+  tune - some tuning is possible (\fBsetp\fR & such).
+  all  - HAL completely unlocked.
+.TP
+\fBstatus\fR [\fItype\fR]
+  Prints status info about HAL.
+  'type' is '\fBlock\fR', '\fBmem\fR', or '\fBall\fR'.
+  If 'type' is omitted, it assumes '\fBall\fR'.
+.TP
+\fBhelp\fR [\fIcommand\fR]
+  Give help information for command.
+  If 'command' is omitted, list command and brief description
+.SH SUBSTITUTION
+After a command is read but before it is executed, several types of variable
+substitution take place.
+.SS Environment Variables
+Environment variables have the following formats:
+.IP
+\fB$ENVVAR\fR followed by end-of-line or whitespace
+.IP
+\fB$(ENVVAR)\fR
+.SS Inifile Variables
+Inifile variables are available only when an inifile was specified with the
+halcmd \fB-i\fR flag.  They have the following formats:
+.IP
+\fB[SECTION]VAR\fR followed by end-of-line or whitespace
+.IP
+\fB[SECTION](VAR)\fR
+.SH EXAMPLES
+.SH HISTORY
+.SH BUGS
+None known at this time.
+.SH AUTHOR
+Original version by John Kasunich, as part of the LinuxCNC project.  Now
+includes major contributions by several members of the project.
+.SH REPORTING BUGS
+Report bugs to the
+.URL http://sf.net/tracker/?group_id=6744&atid=106744 "LinuxCNC bug tracker" .
+.SH COPYRIGHT
+Copyright \(co 2003 John Kasunich.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+\fBhalrun(1)\fR -- a convenience script to start a realtime environment,
+process a .hal or a .tcl file, and optionally start an interactive command
+session using \fBhalcmd\fR (described here) or \fBhaltcl\fR(1).

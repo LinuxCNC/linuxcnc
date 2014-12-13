@@ -1,0 +1,68 @@
+.\"
+.TH OPTO_AC5 "9" "2008-08-04" "LinuxCNC Documentation" "HAL Component" 
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+opto_ac5 \- Realtime driver for opto22 PCI-AC5 cards
+.SH SYNOPSIS
+\fBloadrt opto_ac5  [portconfig0=0x\fIN\fB] [portconfig1=0x\fIN\fB] 
+
+.SH DESCRIPTION
+
+These pins and parameters are created by the realtime \fBopto_ac5\fR module.
+The portconfig0 and portconfig1 variables are used to configure the two ports of each card. The first 24 bits of a 32 bit number represent the 24 i/o points of each port. The lowest (rightmost) bit would be HAL pin 0 which is  header connector pin 47. Then next bit to the left would be HAL pin 1,  header connector pin 45 and so on, untill bit 24 would be HAL pin 23 ,  header connector pin 1.
+"1" bits represent output points.
+So channel 0..11 as inputs and 12..23 as outputs would be represented by (in binary) 111111111111000000000000 which is 0xfff000 in hexadecimal. 
+That is the number you would use Eg. loadrt opto_ac5 portconfig0=0xfff000
+
+If no portconfig variable is specified the default configuration is 12 inputs then 12 outputs.
+
+Up to 4 boards are supported.  Boards are numbered starting at 0.
+
+Portnumber can be 0 or 1. Port 0 is closes to the card bracket.
+
+.SH PINS
+
+.TP
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin-[\fIPINNUMBER\fB\fR] OUT bit 
+.TQ
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin-[\fIPINNUMBER\fB\fR]-not OUT bit 
+Connect a hal bit signal to this pin to read an i/o point from the card.
+The PINNUMBER represents the position in the relay rack. Eg. PINNUMBER 0 is position 0 in a opto22 relay rack and would be pin 47 on the 50 pin header connector. The \fB-not\fR pin is
+inverted so that LOW gives TRUE and HIGH gives FALSE.
+
+.TP
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout-[\fIPINNUMBER\fB\fR] IN bit  
+Connect a hal bit signal to this pin to write to an i/o point of the card.
+The PINNUMBER represents the position in the relay rack.Eg. PINNUMBER 23 is position 23 in a opto22 relay rack and would be pin 1 on the 50 pin header connector.
+
+.TP
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBled[\fINUMBER\fB\fR] OUT bit 
+Turns one of the on board LEDS on/off. LEDS are numbered 0 to 3.
+
+.SH PARAMETERS
+.TP
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout-[\fIPINNUMBER\fB\fR]-invert W bit  
+When TRUE, invert the meaning of the corresponding \fB-out\fR pin so that TRUE
+gives LOW and FALSE gives HIGH.
+
+.SH FUNCTIONS
+
+.TP
+\fBopto_ac5.0.digital-read
+Add this to a thread to read all the input points.
+
+.TP
+\fBopto_ac5.0.digital-write
+Add this to a thread to write all the output points and LEDS.
+
+.SH BUGS
+All boards are loaded with the same port configurations  as the first board.
+
+.SH SEE ALSO
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?OptoPciAc5

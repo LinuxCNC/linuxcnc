@@ -1,0 +1,138 @@
+.\" Copyright (c) 2006 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH STREAMER "9"  "2006-11-18" "LinuxCNC Documentation" "HAL User's Manual"
+.SH NAME
+streamer \- stream file data into HAL in real time
+.SH SYNOPSIS
+.B loadrt streamer
+.BI depth= depth1[,depth2...]
+.BI cfg= string1[,string2...]
+
+.SH DESCRIPTION
+.B streamer
+and
+.BR halstreamer (1)
+are used together to stream data from a file into the HAL in real time.
+.B streamer
+is a realtime HAL component that exports HAL pins and creates a FIFO in shared memory.
+.B hal_streamer
+is a user space program that copies data from stdin into the FIFO, so that
+.B streamer
+can write it to the HAL pins.
+
+.SH OPTIONS
+.TP
+.BI depth= depth1[,depth2...]
+sets the depth of the user->realtime FIFO that
+.B streamer
+creates to receive data from
+.B halstreamer.
+Multiple values of
+.I depth
+(separated by commas) can be specified if you need more than one FIFO 
+(for example if you want to stream data from two different realtime threads).
+.TP
+.BI cfg= string1[,string2...]
+defines the set of HAL pins that
+.B streamer
+exports and later writes data to.  One 
+.I string
+must be supplied for each FIFO, separated by commas.
+.B streamer
+exports one pin for each character in
+.I string.
+Legal characters are:
+.IP "" 7
+.B F, f
+(float pin)
+.IP "" 7
+.B B, b
+(bit pin)
+.IP "" 7
+.B S, s
+(s32 pin)
+.IP "" 7
+.B U, u
+(u32 pin)
+
+.SH FUNCTIONS
+.TP
+.BI streamer. N
+One function is created per FIFO, numbered from zero.
+
+.SH PINS
+.TP
+\fBstreamer.\fIN\fB.pin.\fIM\fR output
+Data from column
+.I M
+of the data in FIFO
+.I N
+appears on this pin.  The pin type depends on the config string.
+.TP
+\fBstreamer.\fIN\fB.curr-depth\fR s32 output
+Current number of samples in the FIFO.  When this reaches zero, new data will no longer be written to the pins.
+.TP
+\fBstreamer.\fIN\fB.empty\fR bit output
+TRUE when the FIFO
+.I N
+is empty, FALSE when valid data is available.
+.TP
+\fBstreamer.\fIN\fB.enable\fR bit input
+When TRUE, data from FIFO \fIN\fR is written to the HAL pins.
+When false, no data is transferred.  Defaults to TRUE.
+.TP
+\fBstreamer.\fIN\fB.underruns\fR s32 read/write
+The number of times that
+.B sampler
+has tried to write data to the HAL pins but found no fresh data in the FIFO.  It increments whenever
+.B empty
+is true, and can be reset by the
+.B setp
+command.
+
+.SH "SEE ALSO"
+.BR halstreamer (1)
+.BR sampler (9)
+.BR halsampler (1)
+
+.SH HISTORY
+
+.SH BUGS
+Should an 
+.B enable
+HAL pin be added, to allow streaming to be turned on and off?
+
+.SH AUTHOR
+Original version by John Kasunich, as part of the LinuxCNC
+project.  Improvements by several other members of
+the LinuxCNC development team.
+.SH REPORTING BUGS
+Report bugs to jmkasunich AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2006 John Kasunich.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

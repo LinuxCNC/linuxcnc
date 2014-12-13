@@ -1,0 +1,35 @@
+= Requerimientos del sistema
+
+[[cha:system-requirements]] (((Requerimientos del sistema)))
+
+== Requerimientos Mínimos (((Requerimientos Minimos)))
+
+Los requerimientos mínimos de hardware para ejecutar EMC2 y Ubuntu pueden variar dependiendo del uso que se le dará al sistema. Sistemas basados en motores a pasos requieren procesadores mas rápidos para generar trenes de pulsos en comparación con los servomecanismos retro alimentados. Usando el Live-CD usted puedes probar el software antes de modificar la computadora. Mantenga en Mente que los resultados del estudio de latencia son mas importantes que la velocidad del procesador para la generación de pasos por software. Mas información sobre el estudio de latencia se encuentra en la sección (<<sub:latency-test,Latency Test>>).
+
+Información adicional se puede encontrar en el sitio de EMC wiki:
+
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[Wiki.LinuxCNC.org, Hardware_Requirements]
+
+EMC2 y Ubuntu deberían de ejecutarse razonablemente bien en una computadora con las siguientes especificaciones mínimas de hardware. Estas especificaciones no son las mínimas absolutas pero proporcionan un desempeño razonable para la mayoría de los sistemas basados en motores a pasos.
+
+*700 Mhz x86 procesador (se recomienda un procesador de 1.2GHz x86)
+*384 MB de RAM (se recomienda entre 512MB  hasta 1GB)
+*8 GB de espacio en disco duro
+*Tarjeta gráfica capaz de por lo menos 1024x768 de resolución, que no este ejecutando los controladores propietarios Nvidia o ATI fglrx, y de preferencia que no se trate de una tarjeta de vídeo integrada que comparta memoria con el CPU.
+*Una conexión de red o Internet (No es estrictamente necesaria, pero resulta muy útil para realizar actualizaciones y contactar a la comunidad de usuarios del EMC)
+
+Los requerimientos mínimos del sistema cambian conforme Ubuntu evoluciona, por lo tanto revise el sitio web help.ubuntu.com[Ubuntu] para mas detalles sobre el LiveCD que esta usando. Hardware antiguo podría beneficiarse si se selecciona una version mas antigua del LiveCD cuando se encuentre disponible.
+
+== Hardware Problemático
+
+=== Computadores Portátiles
+
+Los computadores portátiles en general no son buenos para la generación por software de pasos en tiempo real. De nuevo el Estudio de Latencia ejecutado por un periodo de tiempo prolongado proveerá la información necesaria para determinar si resulta apropiado su uso.
+
+=== Tarjetas de Vídeo
+
+Si su instalación comienza con una resolución de 800 x 600 en la mayoría de los casos eso significa que Ubuntu no reconoció apropiadamente su monitor o tarjeta de vídeo. Las tarjetas de vídeo integradas, la mayoría de los casos, producen malos resultados en el desempeño en tiempo real.
+
+// vim: set syntax=asciidoc:
+
+

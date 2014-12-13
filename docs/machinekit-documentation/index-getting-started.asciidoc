@@ -1,0 +1,41 @@
+[cols="3*"]
+|===
+|
+|link:documents-index.asciidoc[Back to the Documents index]
+|
+|===
+
+:leveloffset: 0
+
+= Getting Started
+
+:leveloffset: 1
+
+link:../src/common/System_Requirements.asciidoc[]
+
+link:../src/common/Getting_LinuxCNC.asciidoc[]
+
+link:../src/common/Updating_LinuxCNC.asciidoc[]
+
+link:../src/quickstart/stepper_quickstart.asciidoc[]
+
+link:../src/config/stepconf.asciidoc[]
+
+link:../src/config/pncconf.asciidoc[]
+
+link:../src/config/copy_and_run.asciidoc[]
+
+link:../src/common/Linux_FAQ.asciidoc[]
+
+link:../src/common/GPLD_Copyright.asciidoc[]
+
+[cols="3*"]
+|===
+|
+|link:documents-index.asciidoc[Back to the Documents index]
+|
+|===
+
+// = Index
+
+// vim: set syntax=asciidoc:

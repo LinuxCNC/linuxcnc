@@ -1,0 +1,61 @@
+.TH funct "3" "2006-10-12" "LinuxCNC Documentation" "libposemath"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+.SH NAME
+
+PM_CARTESIAN \- Three-axis cartesian position
+
+.SH SYNTAX
+.HP
+.B #include "posemath.h"
+.HP
+.B struct PM_CARTESIAN;
+
+.SH CONSTRUCTORS
+.TP
+.B PM_CARTESIAN()
+Construct the point <0,0,0>
+.TP
+.B PMCARTESIAN(double \fIx\fB, double \fIy\fB, double \fIz\fB)
+Construct the point <\fIx\fB,\fIy\fB,\fIz\fB>
+.TP
+.B PMCARTESIAN(const PM_CARTESIAN &v)
+Construct a copy of the point \fIv\fR
+
+.SH DATA
+.B double \fIx\fB, \fIy\fB, \fIz
+
+.SH OPERATORS
+.TP
+.B operator[](int n);
+Return the \fIn\fRth component of the vector (x=0, y=1, z=2)
+.TP
+.B int operator==(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
+.TQ
+.B int operator!=(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
+Elementwise equality and inequality operator
+.TP
+.B PM_CARTESIAN operator+(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN\fIv2\fB)
+.TQ
+.B PM_CARTESIAN operator-(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN\fIv2\fB)
+Addition and subtraction of vectors
+.TP
+.B PM_CARTESIAN operator*(double \fIs\fB, PM_CARTESIAN \fIv\fB)
+.TQ
+.B PM_CARTESIAN operator*(PM_CARTESIAN \fIv\fB, double \fIs\fB)
+Scalar multiplication
+.TP
+.B PM_CARTESIAN operator/(PM_CARTESIAN \fIv\fB, double \fIs\fB)
+Scalar multiplication by \fI1/s\fR
+.SH OTHER FUNCTIONS ON PM_CARTESIAN OBJECTS
+.TP
+.B double dot(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
+.TQ
+.B PM_CARTESIAN cross(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
+.TQ
+.B PM_CARTESIAN norm(PM_CARTESIAN \fIv\fB)
+
+.SH SEE ALSO

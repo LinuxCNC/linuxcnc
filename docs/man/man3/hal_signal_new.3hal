@@ -1,0 +1,52 @@
+.TH hal_signal_new "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+hal_signal_new, hal_signal_delete, hal_link, hal_unlink \- Manipulate HAL signals
+
+.SH SYNTAX
+.HP
+int hal_signal_new(const char *\fIsignal_name\fR, hal_type_t \fItype\fR)
+
+.HP
+int hal_signal_delete(const char *\fIsignal_name\fR)
+
+.HP
+int hal_link(const char *\fIpin_name\fR, const char *\fIsignal_name\fR)
+
+.HP
+int hal_unlink(const char *\fIpin_name\fR)
+.SH  ARGUMENTS
+.IP \fIsignal_name\fR
+The name of the signal
+
+.IP \fIpin_name\fR
+The name of the pin
+
+.IP \fItype\fR
+The type of the signal, as specified in \fBhal_type_t(3hal)\fR.
+
+.SH DESCRIPTION
+\fBhal_signal_new\fR creates a new signal object.  Once a signal has been
+created, pins can be linked to it with \fBhal_link\fR.  The signal object
+contains the actual storage for the signal data.  Pin objects linked to the
+signal have pointers that point to the data.  'name' is the name of the new
+signal.  It may be no longer than HAL_NAME_LEN characters.  If there is already
+a signal with the same name the call will fail.
+
+\fBhal_link\fR links a pin to a signal.  If the pin is already linked to the
+desired signal, the command succeeds.  If the pin is already linked to some
+other signal, it is an error.  In either case, the existing connection is not
+modified.  (Use 'hal_unlink' to break an existing connection.)  If the signal
+already has other pins linked to it, they are unaffected - one signal can be
+linked to many pins, but a pin can be linked to only one signal.
+
+\fBhal_unlink\fR unlinks any signal from the specified pin.
+
+\fBhal_signal_delete\fR deletes a signal object.  Any pins linked to the object
+are unlinked.
+
+.SH RETURN VALUE
+Returns a HAL status code.
+
+.SH SEE ALSO
+\fBhal_type_t(3hal)\fR

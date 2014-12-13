@@ -1,0 +1,50 @@
+.TH hal_export_funct "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+hal_export_funct \- create a realtime function callable from a thread
+
+.SH SYNTAX
+.HP
+typedef void(*hal_funct_t)(void * \fIarg\fR, long \fIperiod\fR)
+.HP
+int hal_export_funct(const char *\fIname\fR, hal_funct_t \fIfunct\fR, void *\fIarg\fR, int \fIuses_fp\fR, int \fIreentrant\fR, int \fIcomp_id\fR)
+
+.SH  ARGUMENTS
+.IP \fIname\fR
+The name of the function.
+
+.IP \fIfunct\fR
+The pointer to the function
+
+.IP \fIarg\fR
+The argument to be passed as the first parameter of \fIfunct\fR
+
+.IP \fIuses_fp\fR
+Nonzero if the function uses floating-point operations, including assignment
+of floating point values with "=".
+
+.IP \fIreentrant\fR
+If reentrant is non-zero, the function may be preempted and called again
+before the first call completes.  Otherwise, it may only be added to one
+thread.
+
+.IP \fIcomp_id\fR
+A HAL component identifier returned by an earlier call to \fBhal_init\fR.
+
+.SH DESCRIPTION
+\fBhal_export_funct\fR makes a realtime function provided by a component
+available to the system.  A subsequent call to \fBhal_add_funct_to_thread\fR
+can be used to schedule the execution of the function as needed by the system.
+
+When this function is placed on a HAL thread, and HAL threads are started,
+\fIfunct\fR is called repeatedly with two arguments: \fIvoid *arg\fR is the
+same value that was given to \fBhal_export_funct\fR, and \fIlong period\fR is
+the interval between calls in nanoseconds.
+
+Each call to the function should do a small amount of work and return.
+
+.SH RETURN VALUE
+Returns a HAL status code.
+
+.SH SEE ALSO
+\fBhal_create_thread(3hal)\fR, \fBhal_add_funct_to_thread(3hal)\fR

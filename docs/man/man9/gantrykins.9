@@ -1,0 +1,78 @@
+.TH GANTRYKINS "9" "2010-10-12" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+gantrykins \- A kinematics module that maps one axis to multiple joints
+
+.SH SYNOPSIS
+.HP
+.B loadrt gantrykins coordinates=\fIaxisletters
+
+.SS Specifying gantry joint mapping via loadrt
+The \fBcoordinates=\fR parameter specifies the initial gantry joint mapping.
+Each axis letter is mapped to a joint, starting from 0.  So
+\fBcoordinates=XYYZ\fR maps the X axis to joint 0, the Y axis to joint 1 and 2,
+and the Z axis to joint 3.  If not specified, the default mapping is
+\fBcoordinates=XYZABC\fR.  Coordinate letters may be specified in uppercase
+or lowercase.
+
+.SS A note about joints and axes
+LinuxCNC makes a distinction between joints and axes: a joint is something
+controlled by a motor, and an axis is a coordinate you can move via
+G-code.  You can also jog joints or jog axes.
+
+A gantry has two joints controlling one axis, and this requires a bit
+of special care.
+
+Homing always happens in joint mode (aka Free mode).  The two joints
+of a gantry's axis must be homed together, so they must have the same
+[AXIS_n]HOME_SEQUENCE in the .ini file.
+
+Jogging of a gantry must happen in world mode (aka Teleop mode).
+If you jog a gantry in joint mode (Free mode), you will move just one
+of the joints, and the gantry will rack.  In contrast, if you jog a
+gantry in world mode (Teleop mode), it's the axis that jogs: linuxcnc
+will coordinate the motion of the two joints that make up the axis,
+both joints will move together, and the gantry will stay square.
+
+The Axis GUI has provisions for jogging in joint mode (Free) and in
+world mode (Teleop).  Use the "$" hotkey, or the View menu to switch
+between them.
+
+Joint-mode (aka Free mode) supports continuous and incremental jogging.
+World-mode (aka Teleop mode) only supports continuous jogging.
+
+.SH KINEMATICS
+In the inverse kinematics, each joint gets the value of its corresponding axis.
+In the forward kinematics, each axis gets the value of the highest numbered
+corresponding joint.  For example, with \fBcoordinates=XYYZ\fR the Y axis
+position comes from joint 2, not joint 1.
+
+.SH FUNCTIONS
+None.  
+
+.SH PINS
+None.
+
+.SH PARAMETERS
+.TP
+.B gantrykins.joint-\fIN\fR (s32)
+Specifies the axis mapped to joint \fIN\fR.  The values 0 through
+8 correspond to the axes XYZABCUVW.  It is preferable to use the
+"coordinates=" parameter at loadrt-time rather than setting the joint-N
+parameters later, because the gantrykins module prints the joint-to-axis
+mapping at loadrt-time, and having that output correct is nice.
+
+.SH NOTES
+\fBgantrykins\fR must be loaded before \fBmotion\fR.
+
+.SH SEE ALSO
+\fIKinematics\fR section in the LinuxCNC documentation
+
+.SH LICENSE
+GPL

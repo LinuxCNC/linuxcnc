@@ -1,0 +1,21 @@
+.TH funct "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+hal_ready \- indicates that this component is ready
+
+.SH SYNTAX
+.HP
+ hal_ready(int \fIcomp_id\fR)
+
+.SH  ARGUMENTS
+.IP \fIcomp_id\fR
+A HAL component identifier returned by an earlier call to \fBhal_init\fR.
+
+.SH DESCRIPTION
+\fBhal_ready\fR indicates that this component is ready (has created all its pins,
+parameters, and functions).  This must be called in any realtime HAL component
+before its \fBrtapi_app_init\fR exits, and in any userspace component before it
+enters its main loop.
+
+.SH RETURN VALUE
+Returns a HAL status code.

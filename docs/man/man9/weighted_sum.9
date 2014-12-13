@@ -1,0 +1,37 @@
+.TH WEIGHTED_SUM "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
+.SH NAME
+weighted_sum \- convert a group of bits to an integer
+.SH SYNOPSIS
+.B loadrt weighted_sum wsum_sizes=\fIsize[,size,...]\fR
+.P
+Creates weighted sum groups each with the given number of input bits
+(\fIsize\fR).
+.SH DESCRIPTION
+This component is a "weighted summer": Its output is the offset plus the sum of
+the weight of each TRUE input bit.  The default value for each weight is 2^n
+where n is the bit number.  This results in a binary to unsigned conversion.
+
+There is a limit of 8 weighted summers and each may have up to 16 input bits.
+.SH FUNCTIONS
+.TP
+.B process_wsums (requires a floating point thread)
+Read all input values and update all output values.
+.SH PINS
+.TP
+.B wsum.\fIN\fB.bit.\fIM\fB.in\fR bit in 
+The \fIm\fR'th input of weighted summer \fIn\fR.
+.TP
+.B wsum.\fIN\fB.hold\fR bit in
+When TRUE, the \fIsum\fR output does not change.  When FALSE, the \fIsum\fR
+output tracks the \fIbit\fR inputs according to the weights and offset.
+.TP
+.B wsum.\fIN\fB.sum\fR signed out
+The output of the weighted summer
+.TP
+.B wsum.\fIN\fB.bit.\fIM\fB.weight\fR signed rw
+The weight of the \fIm\fR'th input of weighted summer \fIn\fR.  The default
+value is 2^\fIm\fR.
+.TP
+.B wsum.\fIN\fB.offset\fR signed rw
+The offset is added to the weights corresponding to all TRUE inputs to give the
+final sum.

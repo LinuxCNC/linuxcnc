@@ -1,0 +1,31 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_bspi_write_chan "3hm2" "2011-05-31" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
+
+hm2_bspi_write_chan \- write data to a Hostmot2 Buffered SPI channel
+
+.SH SYNTAX
+.HP
+hm2_bspi_write_chan(char* name, int chan, u32 val)
+
+.SH DESCRIPTION
+\fBhm2_bspi_write_chan\fR write one-time data to the bspi channel "chan" on the 
+bspi instance "name". "name" is a unique string given to each bspi channel 
+during hostmot2 setup. The names of the available
+channels are printed to standard output during the driver loading process and 
+take the form:
+hm2_<board name>.<board index>.bspi.<index> For example hm2_5i23.0.bspi.0
+
+This function performs a one-time write of data to the specified channel. It is
+typically used for setup and chip enabling purposes. It should not be used in 
+the main loop for regular data transfers (but is appropriate to use for on-the-
+fly setup changes).
+
+.SH RETURN VALUE
+Returns 0 on success and -1 on failure.
+
+.SH SEE ALSO
+man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame
+man hm2_allocate_bspi_tram.
+See src/hal/drivers mesa_7i65.comp for an example usage.

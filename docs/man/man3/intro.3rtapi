@@ -1,0 +1,66 @@
+.TH intro "3rtapi" "2006-10-02" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi \- Introduction to the RTAPI API
+
+.SH DESCRIPTION
+RTAPI is a library providing a uniform API for several real time operating
+systems.  As of ver 2.1, RTLinux, RTAI, and a pure userspace simulator are
+supported.
+
+.SH HEADER FILES
+.SS rtapi.h
+The file \fBrtapi.h\fR defines the RTAPI for both realtime and non-realtime
+code.  This is a change from Rev 2, where the non-realtime (user space) API
+was defined in ulapi.h and used different function names.  The symbols RTAPI
+and ULAPI are used to determine which mode is being compiled, RTAPI for
+realtime and ULAPI for non-realtime.
+
+.SS rtapi_math.h
+The file \fRrtapi_math.h\fR defines floating-point functions and constants.
+It should be used instead of \fR<math.h>\fR in rtapi real-time components.
+
+
+.SS rtapi_string.h
+The file \fRrtapi_string.h\fR defines string-related functions.
+It should be used instead of \fR<string.h>\fR in rtapi real-time components.
+
+.SS rtapi_byteorder.h
+This file defines the preprocessor macros RTAPI_BIG_ENDIAN,
+RTAPI_LITTLE_ENDIAN, and RTAPI_FLOAT_BIG_ENDIAN as true or false depending on
+the characteristics of the target system.  It should be used instead of
+\fB<endian.h>\fR (userspace) or \fB<linux/byteorder.h>\fR (kernel space).
+
+.SS rtapi_limits.h
+This file defines the minimum and maximum value of some fundamental integral
+types, such as INT_MIN and INT_MAX.  This should be used instead of
+\fB<limits.h>\fR because that header file is not available to kernel modules.
+
+.SH REALTIME CONSIDERATIONS
+.SS Userspace code
+Certain functions are not available in userspace code.  This includes functions
+that perform direct device access such as \fBrtapi_inb(3)\fR.
+
+.SS Init/cleanup code
+Certain functions may only be called from realtime init/cleanup code.
+This includes functions that perform memory allocation, such as
+\fBrtapi_shmem_new(3)\fR.
+
+.SS Realtime code
+Only a few functions may be called from realtime code.  This includes
+functions that perform direct device access such as \fBrtapi_inb(3)\fR.
+It excludes most Linux kernel APIs such as \fRdo_gettimeofday(3)\fR and
+many rtapi APIs such as \fRrtapi_shmem_new(3)\fR.
+
+.SS Simulator
+For an RTAPI module to be buildable in the "sim" environment (fake realtime
+system without special privileges), it must not use \fBany\fR linux kernel
+APIs, and must not use the RTAPI APIs for direct device access such as
+\fBrtapi_inb(3)\fR.  This automatically includes any hardware device drivers,
+and also devices which use Linux kernel APIs to do things like create
+special devices or entries in the \fB/proc\fR filesystem.
+
+.SH RTAPI STATUS CODES
+Except as noted in specific manual pages, RTAPI returns negative errno values
+for errors, and nonnegative values for success.
+

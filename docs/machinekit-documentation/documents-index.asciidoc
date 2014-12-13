@@ -1,0 +1,11 @@
+Document index
+==============
+
+This document gathers the locations of the current available manuals.
+
+- link:index-getting-started.asciidoc[Getting started manual]
+- link:index-user.asciidoc[User manual]
+- link:index-HAL.asciidoc[HAL manual]
+- link:index-integrator.asciidoc[Integrator manual]
+- link:index-developer.asciidoc[Developer manual]
+- link:index-documenting.asciidoc[Documenting manual]

@@ -1,0 +1,242 @@
+:lang: fr
+:toc:
+
+= Petite FAQ Linux
+
+[[cha:FAQ-Linux]] (((FAQ Linux)))
+
+
+Voici quelques commandes et techniques de base pour l'utilisateur
+débutant sous Linux. Beaucoup d'autres informations peuvent être
+trouvées sur http://www.linuxcnc.org/[le site web de LinuxCNC] ou dans les man
+pages.
+
+== Login automatique
+
+Quand vous installez LinuxCNC avec le CD-Live Ubuntu, par défaut vous
+devez passer par la fenêtre de connexion à chaque démarrage du PC. Pour
+activer le login automatique ouvrez le menu 
+_Système → Administration → Fenêtre de connexion_. 
+Si l'installation est 
+récente la fenêtre de connexion peut prendre quelques secondes pour
+s'ouvrir. Vous devez entrer le mot de passe utilisé pour l'installation
+pour accéder à la fenêtre des préférences. Ouvrez alors l'onglet
+_Sécurité_, cochez la case _Activer les connexions automatiques_ et
+saisissez votre nom d'utilisateur ou choisissez en un dans la liste
+déroulante. Vous êtes maintenant dispensé de la fenêtre de connexion.
+
+== Les Man Pages[[sec:Man-Pages]]
+
+(((Man Pages)))
+
+Les Man pages sont des pages de manuel générées automatiquement le
+plus souvent. Les Man pages existent pour quasiment tous les programmes
+et les commandes de Linux.
+
+Pour visualiser une man page ouvrez un terminal depuis _Applications →
+ Accessoires → Terminal_. Par exemple si vous voulez trouver quelques
+choses concernant la commande _find_, tapez alors dans le terminal:
+----
+man find
+----
+
+Utilisez les touches _Vers le haut_ et _Vers le bas_ pour faire
+défiler le texte et la touche *Q* pour quitter.
+
+== Lister les modules du noyau
+
+En cas de problème il est parfois utile de connaître la liste des
+modules du noyau qui sont chargés. Ouvrez une console et tapez:
+----
+lsmod
+----
+
+Si vous voulez, pour le consulter tranquillement, envoyer le résultat
+de la commande dans un fichier, tapez la sous cette forme:
+----
+lsmod > mes_modules.txt
+----
+
+Le fichier mes_modules.txt résultant, se trouvera alors dans votre
+répertoire home si c'est de là que vous avez ouvert la console.
+
+
+== Éditer un fichier en root[[sec:Editer-un-fichier-en-root]]
+
+(((Éditer un fichier en root)))
+
+Éditer certains fichiers du système en root peut donner des résultats
+inattendus! Soyez très vigilant quand vous éditez en root, une erreur peut
+compromettre tout le système et l'empêcher de redémarrer. Vous pouvez
+ouvrir et lire de nombreux fichiers systèmes appartenant au root qui
+sont en mode lecture seule.
+
+=== A la ligne de commande
+
+(((sudo gedit)))
+
+Ouvrir un terminal depuis _Applications → Accessoires → Terminal_.
+
+Dans ce terminal, tapez:
+----
+sudo gedit
+----
+
+Ouvrez un fichier depuis _Fichiers → Ouvrir_ puis éditez le.
+
+=== En mode graphique
+
+(((gksudo)))
+
+ . Faites un clic droit sur le bureau et choisissez _Créer un lanceur.._.
+ . Tapez un nom tel que _éditeur_, dans la zone _Nom_.
+ . Entrez _gksudo "gnome-open %u"_ dans la zone _Commande_ et validez.
+ . Glissez un fichier et déposez le sur votre lanceur, il s'ouvrira alors
+   directement dans l'éditeur.
+
+== Commandes du terminal[[sec:Commandes-Terminal]]
+
+(((Terminal Commands)))
+
+=== Répertoire de travail
+
+(((repertoire de travail))) (((pwd)))
+
+Pour afficher le chemin du répertoire courant dans le terminal tapez:
+----
+pwd
+----
+
+=== Changer de répertoire
+
+(((Changer de repertoire))) (((cd)))
+
+Pour remonter dans le répertoire précédent, tapez dans le terminal:
+----
+cd ..
+----
+
+Pour remonter de deux niveaux de répertoire, tapez dans le terminal:
+----
+cd ../..
+----
+
+Pour aller directement dans le sous-répertoire linuxcnc/configs tapez:
+----
+cd linuxcnc/configs
+----
+
+=== Lister les fichiers du répertoire courant
+
+(((Lister le répertoire courant))) (((ls)))
+
+Pour voir le contenu du répertoire courant tapez:
+----
+ls
+----
+
+=== Trouver un fichier
+
+(((Trouver un fichier))) (((find)))
+
+La commande _find_ peut être un peu déroutante pour le nouvel
+utilisateur de Linux. La syntaxe de base est:
+----
+find répertoire_de_départ <paramètres> <actions>
+----
+
+Par exemple, pour trouver tous les fichiers .ini dans votre répertoire
+linuxcnc utilisez d'abord la commande _pwd_ pour trouver le répertoire
+courant. Ouvrez un nouveau terminal et tapez:
+----
+pwd
+----
+
+il vous est retourné par exemple le résultat suivant:
+----
+/home/robert
+----
+
+Avec cette information vous pouvez taper, par exemple, la commande:
+----
+find /home/robert/linuxcnc -name *.ini -print
+----
+
+Le _-name_ est le nom du fichier que vous recherchez et le _-print_
+indique à find d'afficher le résultat dans le terminal. Le _*.ini_
+indique à find de retourner tous les fichiers portant l'extension
+_.ini_
+
+=== Rechercher un texte
+
+(((Rechercher un texte)))(((grep)))
+
+Tapez dans un terminal:
+----
+grep -lir "texte à rechercher" *
+----
+
+Pour trouver tous les fichiers contenant le texte _"texte à rechercher"_  dans le 
+répertoire courant, tous ses sous-répertoires et en ignorant la casse. 
+Le paramètre *-l* demande de ne pas afficher les résultats normalement mais à la 
+place, d'indiquer le nom des fichiers pour lesquels des résultats auraient été 
+affichés. Le paramètre *-i* demande d'ignorer la casse. Le paramètre *-r* demande 
+une recherche récursive (qui inclus tous les sous-répertoires dans la recherche). 
+Le caractère *** est un jocker indiquant _tous les fichiers_.
+
+=== Messages du boot
+
+Pour visualiser les messages du boot utilisez la commande _dmesg_
+depuis un terminal. Pour enregistrer ces messages dans un fichier,
+redirigez les avec:
+----
+dmesg > dmesg.txt
+----
+
+Le contenu de ce fichier pourra alors être copié et collé à
+destination des personnes en ligne qui vous aideront à diagnostiquer
+votre problème.
+
+Pour nettoyer le tampon des messages tapez cette commande:
+----
+sudo dmesg -c
+----
+
+C'est utile avant de lancer LinuxCNC, pour que ne soit enregistrés que les
+messages relatifs au fonctionnement courant de LinuxCNC.
+
+Pour trouver les adresses des ports parallèles de la machine, tapez cette
+commande grep pour filtrer les informations contenues dans dmesg.
+----
+dmesg|grep parport
+----
+
+== Problèmes matériels
+
+=== Informations sur le matériel
+
+Pour voir la liste du matériel installé sur les ports PCI de votre carte mère,
+tapez la commande suivante dans un terminal:
+----
+lspci -v
+----
+
+Pour voir la liste du matériel installé sur les ports USB de votre carte mère,
+tapez la commande suivante dans un terminal:
+----
+lsusb -v
+----
+
+=== Résolution du moniteur
+
+Lors de l'installation d'Ubuntu les réglages du moniteur sont automatiquement
+détectés. Il peut arriver que la détection fonctionne mal et que la résolution
+ne soit que celle d'un moniteur générique en 800x600.
+
+Pour résoudre ce cas, suivez les instructions données ici:
+
+https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
+
+// vim: set syntax=asciidoc:
+
+

@@ -1,0 +1,60 @@
+[cols="3*"]
+|===
+|link:../index-documenting.asciidoc[Back to the Documenting]
+|link:../documents-index.asciidoc[Back to the main Documents index]
+|link:../documenting.asciidoc[back]
+|===
+
+Updating your fork
+==================
+
+When the original repo changed, and you want to make modifications it is wise
+to first update your fork with the changes from upstream. That way you will make
+changes on top of other contributions. That way it will be easier to automatically
+merge your update.
+
+here's how to do that.
+
+. notice the message "This branch is 30 commits behind machinekit:master". That's
+because changes have been done to the Machinekit website after I forked it, or after
+my last `PR`. In other words `machinekit:master` is more recent and I do not
+have the latest.
+
+image::images/notice-fork-behind-master.png[]
+
+. Pushing the green compare for pull-request button will give me following screen.
+Notice the original (purple) and forked (green) branch and the "switching the base" link:
+
+image::images/switch-base.png[]
+
+. Follow the link and notice the repo's have been reversed.
+
+image::images/switched-base-with-PR.png[]
+
+. Create the `PR` by pushing the green button. This means you are going to do
+a `PR` to your own fork and get the changes from the original. Enter a descriptive commit message.
+
+image::images/merge-message-fork-update.png[]
+
+. Scroll down and create the `PR`. Then next thing you'll know you are at your own
+fork, having a PR to confirm.
+
+image::images/merge-PR-message.png[]
+
+. Scroll down and "merge" this PR in your fork.
+
+image::images/merged-PR-and-updated-fork.png[]
+
+= Congratulations, you just updated your fork
+
+image::images/merge-and-update-fork.png[]
+
+Now that you're up-to-date you can do link:../documenting.asciidoc[back] to
+editing a change and changing submitting a `PR` to the original repo.
+
+[cols="3*"]
+|===
+|link:../index-documenting.asciidoc[Back to the Documenting]
+|link:../documents-index.asciidoc[Back to the main Documents index]
+|link:../documenting.asciidoc[back]
+|===

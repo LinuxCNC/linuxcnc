@@ -1,0 +1,183 @@
+.\" Copyright (c) 2009 John Thornton
+.\"                (jet1024 AT semo DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH gs2_vfd "1" "January 1, 2009" "GS2 VFD" "LinuxCNC Documentation"
+
+.SH NAME
+\fBgs2_vfd\fR - HAL userspace component for Automation Direct GS2 VFD's
+
+.SH SYNOPSIS
+.B gs2_vfd
+.RI [OPTIONS]
+.br
+
+.SH DESCRIPTION
+This manual page explains the
+.B gs2_vfd
+component. This component reads and writes to the GS2 via a modbus connection.
+.PP
+\fBgs2_vfd\fP is for use with LinuxCNC
+
+.SH OPTIONS
+.B
+.IP -b,\ --bits\ <n>
+(default 8) Set number of data bits to <n>, where n must be from 5 to 8 inclusive
+.B
+.IP -d,\ --device\ <path>
+(default /dev/ttyS0) Set the name of the serial device node to use.
+.B
+.IP -v,\ --verbose
+Turn on verbose mode.
+.B
+.IP -g,\ --debug
+Turn on debug messages. Note that if there are serial errors, this may
+become annoying.  Debug mode will cause all modbus messages to be printed
+in hex on the terminal.
+.B
+.IP -n,\ --name\ <string>
+(default gs2_vfd) Set the name of the HAL module. The HAL comp name will be set to <string>, and all pin and parameter names will begin with <string>.
+.B
+.IP -p,\ --parity\ [even,odd,none]
+(default odd) Set serial parity to even, odd, or none.
+.B
+.IP -r,\ --rate\ <n>
+(default 38400) Set baud rate to <n>. It is an error if the rate is not one of the following: 110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200
+.B
+.IP -s,\ --stopbits\ [1,2]
+(default 1) Set serial stop bits to 1 or 2 
+.B
+.IP -t,\ --target\ <n>
+(default 1) Set MODBUS target (slave) number. This must match the device number you set on the GS2.
+.B
+.IP -A,\ --accel-seconds\ <n>
+(default 10.0) Seconds to accelerate the spindle from 0 to Max RPM.
+.B
+.IP -D,\ --decel-seconds\ <n>
+(default 0.0) Seconds to decelerate the spindle from Max RPM to 0.
+If set to 0.0 the spindle will be allowed to coast to a stop without
+controlled deceleration.
+.B
+.IP -R,\ --braking-resistor
+This argument should be used when a braking resistor is installed on the
+GS2 VFD (see Appendix A of the GS2 manual).  It disables deceleration
+over-voltage stall prevention (see GS2 modbus Parameter 6.05), allowing
+the VFD to keep braking even in situations where the motor is regenerating
+high voltage.  The regenerated voltage gets safely dumped into the
+braking resistor.
+.B
+
+.SH PINS
+.B
+.IP <name>.DC-bus-volts\ (float,\ out)
+from the VFD
+.B
+.IP <name>.at-speed\ (bit,\ out) 
+when drive is at commanded speed
+.B
+.IP <name>.err-reset\ (bit,\ in) 
+reset errors sent to VFD
+.B
+.IP <name>.firmware-revision\ (s32,\ out)
+from the VFD
+.B
+.IP <name>.frequency-command\ (float,\ out)
+from the VFD
+.B
+.IP <name>.frequency-out\ (float,\ out)
+from the VFD
+.B
+.IP <name>.is-stopped\ (bit,\ out)
+when the VFD reports 0 Hz output
+.B
+.IP <name>.load-percentage\ (float,\ out)
+from the VFD
+.B
+.IP <name>.motor-RPM\ (float,\ out)
+from the VFD
+.B
+.IP <name>.output-current\ (float,\ out)
+from the VFD
+.B
+.IP <name>.output-voltage\ (float,\ out)
+from the VFD
+.B
+.IP <name>.power-factor\ (float,\ out)
+from the VFD
+.B
+.IP <name>.scale-frequency\ (float,\ out)
+from the VFD
+.B
+.IP <name>.speed-command\ (float,\ in)
+speed sent to VFD in RPM It is an error to send a speed faster than the Motor Max RPM as set in the VFD
+.B
+.IP <name>.spindle-fwd\ (bit,\ in)
+1 for FWD and 0 for REV sent to VFD
+.B
+.IP <name>.spindle-on\ (bit,\ in)
+1 for ON and 0 for OFF sent to VFD, only on when running
+.B
+.IP <name>.spindle-rev\ (bit,\ in)
+1 for ON and 0 for OFF, only on when running
+.B
+.IP <name>.status-1\ (s32,\ out)
+Drive Status of the VFD (see the GS2 manual)
+.B
+.IP <name>.status-2\ (s32,\ out)
+Drive Status of the VFD (see the GS2 manual) Note that the value is a sum of all the bits that are on. So a 163 which means the drive is in the run mode is the sum of 3 (run) + 32 (freq set by serial) + 128 (operation set by serial).
+
+.SH PARAMETERS
+.B
+.IP <name>.error-count\ (s32,\ RW)
+.B
+.IP <name>.loop-time\ (float,\ RW) 
+how often the modbus is polled (default 0.1)
+.B
+.IP <name>.nameplate-HZ\ (float,\ RW) 
+Nameplate Hz of motor (default 60)
+.B
+.IP <name>.nameplate-RPM\ (float,\ RW) 
+Nameplate RPM of motor (default 1730)
+.B
+.IP <name>.retval\ (s32,\ RW) 
+the return value of an error in HAL
+.B
+.IP <name>.tolerance\ (float,\ RW)
+ speed tolerance (default 0.01)
+.B
+.IP <name>.ack-delay\ (s32,\ RW)
+ number of read/write cycles before checking at-speed (default 2)
+
+.SH SEE ALSO
+\fIGS2 Driver\fR in the LinuxCNC documentation for a full description of the \fBGS2\fR syntax
+
+\fIGS2 Examples\fR in the LinuxCNC documentation for examples using the \fBGS2\fR component
+
+.SH BUGS
+
+.SH AUTHOR
+John Thornton
+
+.SH LICENSE
+GPL

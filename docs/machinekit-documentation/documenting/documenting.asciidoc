@@ -1,0 +1,80 @@
+[cols="3*"]
+|===
+|link:../index-documenting.asciidoc[Back to the Documenting]
+|link:../documents-index.asciidoc[Back to the main Documents index]
+|
+|===
+
+Documenting
+===========
+
+The quick-start guide for the impatiant.
+
+Remember: no change is too small!
+
+Helping out can be done in various ways. You should choose the one that best fits you.
+No matter what you do, to get your changes into the master branch you need to
+work via these link:http://www.machinekit.io/docs/contributing/[instructions.]
+
+The original documents that originated in LinuxCNC were split in a separate repo
+so that we have a way of getting the documentation more accessible via the web
+and make it as easy as possible for people who are `fresh' to start getting up
+to speed with the workflow of contributing.
+
+These instructions are for `basic' use.
+Assuming that you're fresh below are some instructions on setting up stuff so
+you can start to do what you want to do. And share your changes.
+
+= Getting it
+. The easiest way to start after reading the link:http://www.machinekit.io/docs/contributing/[instructions]
+above is to link:https://github.com/join[get a Github user account].
+. log into your new account and fork the `machinekit` the `machinekit-docs`
+repo.
+
+= Do what you intend to do
+
+. If this is the first time with a freshly forked repo, go to the next point. If
+the original has changed then you probably need to have your fork updated. Read the
+link:updating-your-fork.asciidoc[updating your fork] instructions.
+
+. click on the file you want to change and edit the contents.
+
+image::images/editing-a-file.png[]
+. when you're done scroll down.
+
+- give a good commit message, like `<the file you changed>: <what you did>`
+- optionally more info.
+- push the `commit` button
+
+image::images/committing-changes.png[]
+
+. this will make the commit in your forked repo.
+
+= Share
+
+Next thing is to get your changes in the master branch of `machinkit-docs` (or
+maybe in `machinekit` or some other original repo you forked from). This is done
+by creating a ``Pull Request'' or `PR` for short.
+
+. notice the green button to compare for a pull request below?
+
+image::images/compare-for-PR.png[]
+
+. Pushing this button will get you to the next screen where you can create your comments
+for the `PR`. Also remember to describe this in the way you did when you created
+your commit. this will help a maintainer understand what you did, and why. So then
+the review will be much easier to understand.
+
+image::images/create-PR-to-original.png[]
+
+. when you finished this the maintainers of the project will get a message and can
+review your change.
+
+= That's all!
+
+[cols="3*"]
+|===
+|link:../index-documenting.asciidoc[Back to the Documenting]
+|link:../documents-index.asciidoc[Back to the main Documents index]
+|
+|===

@@ -1,0 +1,58 @@
+.TH SUPPLY "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+supply \- set output pins with values from parameters (obsolete)
+.SH SYNOPSIS
+\fBloadrt supply num_chan=\fInum\fR
+
+.SH DESCRIPTION
+\fBsupply\fR was used to allow the inputs of other HAL components
+to be manipulated for testing purposes.  When it was written, the
+only way to set the value of an input pin was to connect it to a 
+signal and connect that signal to an output pin of some other
+component, and then let that component write the pin value.
+\fBsupply\fR was written to be that "other component".  It reads
+values from parameters (set with the HAL command \fBsetp\fR) and
+writes them to output pins.
+
+Since \fBsupply\fR was written, the \fBsetp\fR command has been
+modified to allow it to set unconnected pins as well as parameters.
+In addition, the \fBsets\fR command was added, which can directly
+set HAL signals, as long as there are no output pins connected to
+them.  Therefore, \fBsupply\fR is obsolete.
+.P
+\fBsupply\fR supports a maximum of eight channels.  The number of
+channels actually loaded is set by the \fBnum_chan\fR argument when
+the module is loaded.  If \fBnumchan\fR is not specified, the default
+value is one.
+
+.SH FUNCTIONS
+.TP 
+\fBsupply.\fIN\fB.update\fR (uses floating-point)
+Updates output pins for channel \fIN\fR.
+
+.SH PINS
+.TP
+\fBsupply.\fIN\fB.q\fR bit out
+Output bit, copied from parameter \fBsupply.\fIN\fB.d\fR.
+.TP
+\fBsupply.\fIN\fB._q\fR bit out
+Output bit, inverted copy of parameter \fBsupply.\fIN\fB.\fBd\fR.
+.TP
+\fBsupply.\fIN\fB.variable\fR float out
+Analog output, copied from parameter \fBsupply.\fIN\fB.value\fR.
+.TP
+\fBsupply.\fIN\fB._variable\fR float out
+Analog output, equal to -1.0 times parameter \fBsupply.\fIN\fB.value\fR.
+.TP
+\fBsupply.\fIN\fB.d\fR bit rw
+Data source for \fBq\fR and \fB_q\fR output pins.
+.TP
+\fBsupply.\fIN\fB.value\fR bit rw
+Data source for \fBvariable\fR and \fB_variable\fR output pins.
+

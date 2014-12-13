@@ -1,0 +1,105 @@
+.\" Copyright (c) 2003 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.TH HALRUN "1"  "2012-01-31" "LinuxCNC Documentation" "HAL User's Manual"
+.SH NAME
+halrun \- manipulate the LinuxCNC HAL from the command line
+.SH SYNOPSIS
+.B halrun \fI-h\fR
+.PP
+.B halrun [\fI-I\fR] [\fIhalcmd_opts\fR] [\fIfilename[.hal|.tcl]\fR]
+.PP
+.B halrun \fI-T\fR [\fIhalcmd_opts\fR] [\fIfilename[.hal|.tcl]\fR]
+.PP
+.B halrun \fI-U\fR
+.SH DESCRIPTION
+\fBhalrun\fR is a convenience script used to manipulate the HAL (Hardware
+Abstraction Layer) from the command line.  When invoked, \fBhalrun\fR:
+
+    Sets up the realtime environment.
+    Executes a command interpreter (\fBhalcmd\fR or \fBhaltcl\fR).
+    (Optionally) runs an interactive session.
+    Tears down the realtime environment.
+
+    If no filename is specified, an interactive session is started.
+    The session will use \fBhalcmd\fR(1) unless -T is specified in
+    which case \fBhaltcl\fR(1) will be used.
+
+    If a filename is specifed and neither the -I nor the -T option
+    is included, the filename will be processed by the command
+    interpreter corresponding to the filename extension (\fBhalcmd\fR
+    or \fBhaltcl\fR).  After processing, the realtime environment
+    will be torn down.
+
+    If a filename is specifed and the -I or -T option is included,
+    the file is processed by the appropriate command interpreter and
+    then an interactive session is started for \fBhalcmd\fR or
+    \fBhaltcl\fR according to the -I or -T option.
+
+.SH OPTIONS
+.TP
+\fBhalcmd_opts\fR
+When a .hal file is specifed, the \fBhalcmd_opts\fR are
+passed to \fBhalcmd\fR.  See the man page for \fBhalcmd\fR(1).
+When a .tcl file is specified, the only valid options are:
+    -i inifile
+    -f filename[.tcl|.hal]  (alternate means of specifying a file)
+.TP
+\fB-I\fR
+Run an interactive \fBhalcmd\fR session
+.TP
+\fB-T\fR
+Run an interactive \fBhaltcl\fR session.
+.TP
+\fB-U\fR
+Forcibly cause the realtime environment to exit.  It releases the HAL mutex,
+requests that all HAL components unload, and stops the realtime system.
+\fB-U\fR must be the only commandline argument.
+.TP
+\fB\-h\fR
+display a brief help screen and exit
+.SH EXAMPLES
+.SH HISTORY
+.SH BUGS
+None known at this time.
+.SH AUTHOR
+Original version by John Kasunich, as part of the LinuxCNC Enhanced Machine
+Controller project.  Now includes major contributions by several
+members of the project.
+.SH REPORTING BUGS
+Report bugs to the
+.URL http://sf.net/tracker/?group_id=6744&atid=106744 "LinuxCNC bug tracker" .
+.SH COPYRIGHT
+Copyright \(co 2003 John Kasunich.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+.SH "SEE ALSO"
+\fBhalcmd\fR(1), \fBhaltcl\fR(1)

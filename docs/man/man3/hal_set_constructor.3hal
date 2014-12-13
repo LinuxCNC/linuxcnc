@@ -1,0 +1,35 @@
+.TH hal_set_constructor "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+hal_set_constructor \- Set the constructor function for this component
+
+.SH SYNTAX
+.HP
+typedef int (*hal_constructor_t)(const char *prefix, const char *arg);
+int hal_set_constructor(int \fIcomp_id\fR, hal_constructor_t \fIconstructor\fR)
+
+.SH  ARGUMENTS
+.HP
+\fIcomp_id\fR
+A HAL component identifier returned by an earlier call to \fBhal_init\fR.
+
+.HP
+\fIprefix\fR
+The prefix to be given to the pins, parameters, and functions in the new
+instance
+
+.HP
+\fParg\fR
+An argument that may be used by the component to customize this istance.
+
+.SH DESCRIPTION
+As an experimental feature in HAL 2.1, components may be \fIconstructable\fR.
+Such a component may create pins and parameters not only at the time the module
+is loaded, but it may create additional pins and parameters, and functions on
+demand.
+
+.SH RETURN VALUE
+Returns a HAL status code.
+
+.SH SEE ALSO
+\fBhalcmd(1)\fR

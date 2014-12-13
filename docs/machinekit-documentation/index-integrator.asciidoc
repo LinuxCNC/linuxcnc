@@ -1,0 +1,168 @@
+[cols="3*"]
+|===
+|
+|link:documents-index.asciidoc[Back to the Documents index]
+|
+|===
+
+:lversion: {sys: cat ../VERSION}
+Integrator Manual V{lversion}, {localdate}
+==========================================
+
+:lang: en
+
+:masterdir: {indir}
+
+The LinuxCNC Team
+
+:leveloffset: 0
+
+= LinuxCNC Introduction
+
+:leveloffset: 1
+
+image::../src/common/images/emc2-intro.*[]
+
+link:../src/common/overleaf.asciidoc[]
+
+link:../src/common/Integrator_Concepts.asciidoc[]
+
+:leveloffset: 0
+
+= Configuration
+
+:leveloffset: 1
+
+link:../src/install/Latency_Test.asciidoc[]
+
+link:../src/common/starting-emc.asciidoc[]
+
+link:../src/config/ini_config.asciidoc[]
+
+link:../src/config/ini_homing.asciidoc[]
+
+link:../src/config/lathe_config.asciidoc[]
+
+link:../src/hal/haltcl.asciidoc[]
+
+link:../src/config/emc2hal.asciidoc[]
+
+link:../src/config/stepper.asciidoc[]
+
+link:../src/hal/basic_hal.asciidoc[]
+
+link:../src/remap/structure.asciidoc[]
+
+:leveloffset: 0
+
+= GUI
+
+:leveloffset: 1
+
+link:../src/hal/pyvcp.asciidoc[]
+
+link:../src/hal/pyvcp_examples.asciidoc[]
+
+link:../src/gui/gladevcp.asciidoc[]
+
+link:../src/gui/halui.asciidoc[]
+
+link:../src/hal/halui_examples.asciidoc[]
+
+:leveloffset: 0
+
+= Hardware Drivers
+
+:leveloffset: 1
+
+link:../src/hal/parallel_port.asciidoc[]
+
+link:../src/drivers/AX5214H.asciidoc[]
+
+link:../src/drivers/GS2.asciidoc[]
+
+link:../src/drivers/hostmot2.asciidoc[]
+
+link:../src/drivers/motenc.asciidoc[]
+
+link:../src/drivers/opto22.asciidoc[]
+
+link:../src/drivers/pico_ppmc.asciidoc[]
+
+link:../src/drivers/pluto_p.asciidoc[]
+
+link:../src/drivers/servo_to_go.asciidoc[]
+
+link:../src/drivers/shuttlexpress.asciidoc[]
+
+link:../src/drivers/GM.asciidoc[]
+
+:leveloffset: 0
+
+= Advanced Topics
+
+:leveloffset: 1
+
+link:../src/common/python-interface.asciidoc[]
+
+link:../src/motion/kinematics.asciidoc[]
+
+link:../src/motion/tweaking_steppers.asciidoc[]
+
+link:../src/motion/pid_theory.asciidoc[]
+
+link:../src/common/UnifiedBuild.asciidoc[]
+
+:leveloffset: 0
+
+= Ladder Logic
+
+:leveloffset: 1
+
+link:../src/ladder/ladder_intro.asciidoc[]
+
+link:../src/ladder/classic_ladder.asciidoc[]
+
+link:../src/ladder/ladder_examples.asciidoc[]
+
+:leveloffset: 0
+
+= Hardware Examples
+
+:leveloffset: 1
+
+link:../src/examples/pci_parallel_port.asciidoc[]
+
+link:../src/examples/spindle.asciidoc[]
+
+link:../src/examples/mpg.asciidoc[]
+
+link:../src/examples/gs2_example.asciidoc[]
+
+:leveloffset: 0
+
+= Diagnostics & FAQ
+
+:leveloffset: 1
+
+link:../src/common/Stepper_Diagnostics.asciidoc[]
+
+link:../src/common/Linux_FAQ.asciidoc[]
+
+link:../src/common/Glossary.asciidoc[]
+
+link:../src/common/GPLD_Copyright.asciidoc[]
+
+= Machinekit Build Configuration
+
+
+:leveloffset: 1
+
+link:../src/install/ConfigurationChanges.asciidoc[]
+
+[cols="3*"]
+|===
+|
+|link:documents-index.asciidoc[Back to the Documents index]
+|
+|===

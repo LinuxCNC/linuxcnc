@@ -1,0 +1,137 @@
+.\" Copyright (c) 2006 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH HALSTREAMER "1"  "2006-11-18" "LinuxCNC Documentation" "HAL User's Manual"
+.SH NAME
+halstreamer \- stream file data into HAL in real time
+.SH SYNOPSIS
+.B halstreamer
+.RI [ options ]
+
+.SH DESCRIPTION
+.BR streamer (9)
+and
+.B halstreamer
+are used together to stream data from a file into the HAL in real time.
+.B streamer
+is a realtime HAL component that exports HAL pins and creates a FIFO in shared memory.
+.B hal_streamer
+is a user space program that copies data from stdin into the FIFO, so that
+.B streamer
+can write it to the HAL pins.
+
+.SH OPTIONS
+.TP
+.BI "-c " CHAN
+instructs 
+.B halstreamer
+to write to FIFO
+.IR CHAN .
+FIFOs are numbered from zero, and the default value is zero, so
+this option is not needed unless multiple FIFOs have been created.
+.TP
+.BI "-N " NAME
+sets an explicit HAL component name.
+.TP
+.B FILENAME
+instructs
+.B halsampler
+to read from \fBFILENAME\fR instead of from stdin.
+.SH USAGE
+A FIFO must first be created by loading 
+.BR streamer (9)
+with 
+.B halcmd loadrt
+or a
+.B loadrt
+command in a .hal file.  Then
+.B halstreamer
+can be invoked to begin writing data into the FIFO.
+.P
+Data is read from stdin, and is almost always either redirected from a file
+or piped from some other program, since keyboard input would be unable to keep
+up with even slow streaming rates.
+.P
+Each line of input must match the pins that are attached to the FIFO, for example, if the
+.B streamer
+config string was "ffbs" then each
+line of input must consist of two floats, a bit, and a signed integer, in that
+order and separated by whitespace.  Floats must be formatted as required by
+.BR strtod (3),
+signed and unsigned integers must be formated as required by
+.BR strtol (3)
+and
+.BR strtoul (3),
+and bits must be either '0' or '1'.
+.P
+.B halstreamer
+transfers data to the FIFO as fast as possible until the FIFO is full, then it retries at regular intervals, until it is either killed or reads 
+.B EOF
+from stdin.  Data can be redirected from a file or piped from some other program.
+.P
+The FIFO size should be chosen to ride through any momentary disruptions in the flow of data, such as disk seeks.  If the FIFO is big enough,
+.B halstreamer
+can be restarted with the same or a new file before the FIFO empties, resulting in a continuous stream of data.
+.P
+The data format for
+.B halstreamer
+input is the same as for
+.BR halsampler (1)
+output, so 'waveforms' captured with
+.B halsampler
+can be replayed using
+.B halstreamer.
+
+.SH "EXIT STATUS"
+If a problem is encountered during initialization,
+.B halstreamer
+prints a message to stderr and returns failure.
+.P
+If a badly formatted line is encountered while writing to the FIFO, it prints a message to stderr, skips the line, and continues (this behavior may be revised in the future).
+.P
+Upon reading
+.B EOF
+from the input, it returns success.  If it is terminated before the input ends, it returns failure.
+
+.SH "SEE ALSO"
+.BR streamer (9)
+.BR sampler (9)
+.BR halsampler (1)
+
+.SH HISTORY
+
+.SH BUGS
+
+.SH AUTHOR
+Original version by John Kasunich, as part of the LinuxCNC
+project.  Improvements by several other members of
+the LinuxCNC development team.
+.SH REPORTING BUGS
+Report bugs to jmkasunich AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2006 John Kasunich.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
