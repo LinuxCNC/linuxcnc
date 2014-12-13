@@ -6,7 +6,7 @@ include::About-LinuxCNC_fr.txt[]
 
 include::System_Requirements_fr.txt[]
 
-include::Getting_linuxcnc_fr.txt[]
+include::Getting-LinuxCNC_fr.txt[]
 
 include::Updating_linuxcnc_fr.txt[]
 
