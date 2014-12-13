@@ -34,9 +34,7 @@ is also a help button that gives some help information about the pages, diagrams
 TIP: PNCconf's help page should have the most up to date info and has additional
  details.
 
-[float]
-Step by Step Instructions
-=========================
+== Step by Step Instructions
 
 .PnCConf Splash
 
