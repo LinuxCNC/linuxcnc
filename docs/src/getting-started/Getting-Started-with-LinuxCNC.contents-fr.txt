@@ -10,6 +10,8 @@ include::Getting_linuxcnc_fr.txt[]
 
 include::Updating_linuxcnc_fr.txt[]
 
+include::Running-LinuxCNC_fr.txt[]
+
 include::stepper_quickstart_fr.txt[]
 
 include::stepconf_fr.txt[]
