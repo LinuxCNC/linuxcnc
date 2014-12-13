@@ -1,5 +1,4 @@
 :lang: fr
-:toc:
 
 = Mises à jour de LinuxCNC
 

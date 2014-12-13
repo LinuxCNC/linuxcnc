@@ -1,5 +1,4 @@
 ﻿:lang: fr
-:toc:
 
 = Assistant graphique de configuration StepConf
 

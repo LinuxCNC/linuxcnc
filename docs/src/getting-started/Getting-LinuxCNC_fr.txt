@@ -1,5 +1,4 @@
 ﻿:lang: fr
-:toc:
 
 = Se procurer LinuxCNC(((Obtenir LinuxCNC)))
 
