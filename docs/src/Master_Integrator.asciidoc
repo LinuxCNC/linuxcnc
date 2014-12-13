@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+=======
+[cols="3*"]
+|===
+|
+|link:../DOCUMENTS.asciidoc[Back to the Documents index]
+|
+|===
+
+>>>>>>> 127641fd81973f366361930a1a30cf3145584b39
 :lversion: {sys: cat ../VERSION}
 Integrator Manual V{lversion}, {localdate}
 ==========================================
@@ -153,6 +163,16 @@ include::common/GPLD_Copyright.asciidoc[]
 
 include::install/ConfigurationChanges.asciidoc[]
 
+<<<<<<< HEAD
+=======
+[cols="3*"]
+|===
+|
+|link:../DOCUMENTS.asciidoc[Back to the Documents index]
+|
+|===
+
+>>>>>>> 127641fd81973f366361930a1a30cf3145584b39
 // = Index
 
 // vim: set syntax=asciidoc:
