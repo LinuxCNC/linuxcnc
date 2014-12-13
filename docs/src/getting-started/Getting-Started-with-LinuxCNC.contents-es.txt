@@ -4,7 +4,7 @@ include::About-LinuxCNC_es.txt[]
 
 include::System_Requirements_es.txt[]
 
-include::Getting_EMC_es.txt[]
+include::Getting-LinuxCNC_es.txt[]
 
 include::Updating_EMC_es.txt[]
 
