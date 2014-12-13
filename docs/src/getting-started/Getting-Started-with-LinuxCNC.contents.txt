@@ -8,13 +8,13 @@ include::Getting_LinuxCNC.txt[]
 
 include::Updating_LinuxCNC.txt[]
 
+include::Running-LinuxCNC.txt[]
+
 include::stepper_quickstart.txt[]
 
 include::stepconf.txt[]
 
 include::pncconf.txt[]
-
-include::copy_and_run.txt[]
 
 include::Linux_FAQ.txt[]
 
