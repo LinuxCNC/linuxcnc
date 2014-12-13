@@ -2,6 +2,8 @@
 
 include::../common/outdated-notice_fr.txt[]
 
+include::About-LinuxCNC_fr.txt[]
+
 include::System_Requirements_fr.txt[]
 
 include::Getting_linuxcnc_fr.txt[]
