@@ -1,6 +1,8 @@
 
 = Getting LinuxCNC
 
+This section describes how to download and install LinuxCNC.
+
 == Normal Download
 
 Download the Live CD from:
