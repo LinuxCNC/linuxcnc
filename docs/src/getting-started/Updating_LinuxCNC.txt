@@ -1,5 +1,17 @@
 = Updating LinuxCNC
 
+This section describes how to upgrade LinuxCNC to version 2.7 from
+version 2.6.  It assumes that you have an existing 2.6 install that you
+want to update to 2.7.
+
+To upgrade LinuxCNC to version 2.7 from a version older than 2.6,
+you have to first upgrade your old install to 2.6, then follow these
+instructions to upgrade to 2.7.
+
+If you do not have an old (pre-2.7) version of LinuxCNC to upgrade,
+then you're best off making a fresh install of 2.7 as described in the
+section <<_getting_linuxcnc,Getting LinuxCNC>>.
+
 == Updating from 2.5.x to 2.6.x
 
 First you need to tell your computer where to find the new LinuxCNC software:
