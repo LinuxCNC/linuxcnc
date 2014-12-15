@@ -13,4 +13,131 @@ then you're best off making a fresh install of 2.7 as described in the
 section <<_getting_linuxcnc,Getting LinuxCNC>>.
 
 
+== Upgrade to the new version
+
+The basic idea is to disable the old linuxcnc.org apt sources and add
+a new linuxcnc.org apt source for 2.7, then upgrade LinuxCNC.
+
+The details will depend on which platform you're running on.
+Run `lsb_release -ic` to find this information out:
+
+-----
+> lsb_release -ic
+Distributor ID: Debian
+Codename:       wheezy
+-----
+
+You should be running on Debian Wheezy (as above), or Ubuntu Precise,
+or Ubuntu Lucid.
+
+
+=== Setting apt sources
+
+* Open the `Software Sources` window.  The process for doing this
+  differs slightly on the three supported platforms:
+
+** Debian Wheezy:
+
+*** Click on `Applications Menu`, then `System`, then
+  `Synaptic Package Manager`.
+
+*** In Synaptic, click on the `Settings` menu, then click `Repositories`
+  to open the `Software Sources` window.
+
+** Ubuntu Precise:
+
+*** Click on the `Dash Home` icon in the top left.
+
+*** In the `Search` field, type "software", then click on the `Ubuntu
+  Software Center` icon.
+
+*** In the Ubuntu Software Center window, click on the `Edit` menu,
+  then click on `Software Sources...` to open the `Software Sources`
+  window.
+
+** Ubuntu Lucid:
+
+*** Click the `System` menu, then `Administration`, then
+  `Synaptic Package Manager`.
+
+*** In Synaptic, click on the `Settings` menu, then click `Repositories`
+  to open the `Software Sources` window.
+
+* In the `Software Sources` window, select the `Other Software` tab.
+
+* Delete or un-check all the old linuxcnc.org entries (leave all
+  non-linuxcnc.org lines as they are).
+
+* Click the `Add` button and add a new apt line.  The line will be
+  slightly different on the different platforms:
+
+[options="header"]
+|===================================================================
+| Platform       | apt source line
+| Debian Wheezy  | `deb http://linuxcnc.org wheezy base 2.7-rtai`
+| Ubuntu Precise | `deb http://linuxcnc.org precise base 2.7-rtai`
+| Ubuntu Lucid   | `deb http://linuxcnc.org lucid base 2.7-rtai`
+|===================================================================
+
+image::images/upgrading-to-2.7.png[align="left"]
+
+* Click `Add Source`, then `Close` in the Software Sources window.
+  If it pops up a window informing you that the information about
+  available software is out-of-date, click the `Reload` button.
+
+
+=== Upgrading to the new version
+
+Now your computer knows where to get the new version of the software,
+next we need to install it.
+
+The process again differs depending on your platform.
+
+==== Debian Wheezy and Ubuntu Lucid
+
+Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
+
+* Open Synaptic using the instructions in <<_setting_apt_sources,Setting
+  apt sources>> above.
+
+* Click the `Reload` button.
+
+* Use the Search function to search for `linuxcnc`.
+
+* Click the check box to mark the new linuxcnc and linuxcnc-doc-*
+  packages for upgrade.  The package manager may select a number of
+  additional packages to be installed, to satisfy dependencies that the
+  new linuxcnc package has.
+
+* Click the `Apply` button, and let your computer install the new
+  package. The old linuxcnc package will be automatically upgraded to
+  the new one.
+
+
+=== Ubuntu Precise
+
+* Click on the `Dash Home` icon in the top left.
+
+* In the `Search` field, type "update", then click on the `Update Manager`
+  icon.
+
+* Click the `Check` button to fetch the list of packages available.
+
+* Click the `Install Updates` button to install the new versions of
+  all packages.
+
+
+== Updating your config
+
+LinuxCNC version 2.7 differs from version 2.6 in some ways that may
+require changes to your machine configuration.
+
+
+== Hostmot2 Watchdog
+
+The Hostmot2 watchdog now gets handled by the hm2 `write` Hal function.
+There is no longer any need to run the hm2 `pet-watchdog` Hal function.
+The `pet-watchdog` function will be removed before the 2.7.0 release.
+
+
 // vim: set syntax=asciidoc:
