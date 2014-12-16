@@ -4,7 +4,7 @@ include::About-LinuxCNC.txt[]
 
 include::System_Requirements.txt[]
 
-include::Getting_LinuxCNC.txt[]
+include::Getting-LinuxCNC.txt[]
 
 include::Updating_LinuxCNC.txt[]
 
