@@ -294,7 +294,9 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
                     &abc);
             break;
         case TC_CIRCULAR:
-            angle = pmCircleAngleFromProgress(&tc->coords.circle.xyz, progress);
+            angle = pmCircleAngleFromProgress(&tc->coords.circle.xyz,
+                    &tc->coords.circle.fit,
+                    progress);
             pmCirclePoint(&tc->coords.circle.xyz,
                     angle,
                     &xyz);
@@ -582,6 +584,8 @@ int pmCircle9Init(PmCircle9 * const circ9,
     int abc_fail = pmCartLineInit(&circ9->abc, &start_abc, &end_abc);
     int uvw_fail = pmCartLineInit(&circ9->uvw, &start_uvw, &end_uvw);
 
+    findSpiralArcLengthFit(&circ9->xyz,&circ9->fit);
+
     if (xyz_fail || abc_fail || uvw_fail) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d\n",
                 xyz_fail, abc_fail, uvw_fail);
@@ -593,29 +597,11 @@ int pmCircle9Init(PmCircle9 * const circ9,
 double pmCircle9Target(PmCircle9 const * const circ9)
 {
 
-    double helix_z_component;   // z of the helix's cylindrical coord system
-    double helix_length;
+    double h2;
+    pmCartMagSq(&circ9->xyz.rHelix, &h2);
+    double helical_length = pmSqrt(pmSq(circ9->fit.total_planar_length) + h2);
 
-    pmCartMag(&circ9->xyz.rHelix, &helix_z_component);
-    /* Linear approximation of spiral segment arc length from initial radius to final radius.
-     * This roughly accounts for the effects of spiral error, but will break
-     * down under large spirals.
-     *
-     *  s(theta) = sqrt(r_0^2 + a^2)/phi
-     *  Where:
-     *      phi = total angle of ideal circular segment
-     *      r_0 = initial radius
-     *      a = spiral coefficient = (r_1 - r_0) / phi
-     *      theta = current angle along segment
-     */
-    double s_circular = circ9->xyz.angle * circ9->xyz.radius;
-    double s_spiral = circ9->xyz.spiral;
-
-    double planar_arc_length = pmSqrt(pmSq(s_circular) + pmSq(s_spiral));
-
-    helix_length = pmSqrt(pmSq(planar_arc_length) +
-            pmSq(helix_z_component));
-    return helix_length;
+    return helical_length;
 }
 
 /**
@@ -649,6 +635,25 @@ int tcFinalizeLength(TC_STRUCT * const tc)
     tc->finalized = 1;
     return TP_ERR_OK;
 }
+
+/**
+ * compute the total arc length of a circle segment
+ */
+int tcUpdateTargetFromCircle(TC_STRUCT * const tc)
+{
+    if (!tc || tc->motion_type !=TC_CIRCULAR) {
+        return TP_ERR_FAIL;
+    }
+
+    double h2;
+    pmCartMagSq(&tc->coords.circle.xyz.rHelix, &h2);
+    double helical_length = pmSqrt(pmSq(tc->coords.circle.fit.total_planar_length) + h2);
+
+    tc->target = helical_length;
+    return TP_ERR_OK;
+}
+
+
 
 int pmRigidTapInit(PmRigidTap * const tap,
         EmcPose const * const start,
@@ -688,3 +693,40 @@ int tcPureRotaryCheck(TC_STRUCT const * const tc)
         (tc->coords.line.xyz.tmag_zero) &&
         (tc->coords.line.uvw.tmag_zero);
 }
+
+
+/**
+ * Given a PmCircle and a circular segment, copy the circle in as the XYZ portion of the segment, then update the motion parameters.
+ * NOTE: does not yet support ABC or UVW motion!
+ */
+int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ)
+{
+
+    //Update targets with new arc length
+    if (!circ || tc->motion_type != TC_CIRCULAR) {
+        return TP_ERR_FAIL;
+    }
+    if (!tc->coords.circle.abc.tmag_zero || !tc->coords.circle.uvw.tmag_zero) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "SetCircleXYZ does not supportABC or UVW motion\n");
+        return TP_ERR_FAIL;
+    }
+
+    // Store the new circular segment (or use the current one)
+
+    if (!circ) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "SetCircleXYZ missing new circle definition\n");
+        return TP_ERR_FAIL;
+    }
+
+    tc->coords.circle.xyz = *circ;
+    // Update the arc length fit to this new segment
+    findSpiralArcLengthFit(&tc->coords.circle.xyz, &tc->coords.circle.fit);
+
+    // compute the new total arc length using the fit and store as new
+    // target distance
+    tc->target = pmCircle9Target(&tc->coords.circle);
+
+    return TP_ERR_OK;
+}
+
+

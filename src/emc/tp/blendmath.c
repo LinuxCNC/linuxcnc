@@ -1503,7 +1503,7 @@ double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max,
 
 /** @section spiralfuncs Functions to approximate spiral arc length */
 
-double findSpiralArcLengthFit(PmCircle const * const circle,
+int findSpiralArcLengthFit(PmCircle const * const circle,
         SpiralArcLengthFit * const fit)
 {
 
@@ -1542,34 +1542,31 @@ double findSpiralArcLengthFit(PmCircle const * const circle,
 
 
 double pmCircleAngleFromProgress(PmCircle const * const circle,
+        SpiralArcLengthFit const * const fit,
         double progress)
 {
-    SpiralArcLengthFit fit;
-    //TODO store in circle init rather than recalculating each time
-    findSpiralArcLengthFit(circle, &fit);
-
     double h2;
     pmCartMagSq(&circle->rHelix, &h2);
-    double s_end = pmSqrt(pmSq(fit.total_planar_length) + h2);
+    double s_end = pmSqrt(pmSq(fit->total_planar_length) + h2);
     double t = progress / s_end;
-    if (fit.spiral_in) {
+    if (fit->spiral_in) {
         // Spiral fit assumes that we're spiraling out, so
         // parameterize from opposite end
         t=1.0-t;
     }
-    double s_in = t * fit.total_planar_length;
+    double s_in = t * fit->total_planar_length;
 
     // Quadratic formula to invert arc length -> angle
     double disc,angle_out;
-    if (fabs(fit.b0) > TP_POS_EPSILON) {
-        disc = pmSqrt(4.0 * fit.b0 * s_in + pmSq(fit.b1));
-        angle_out = (disc - fit.b1) / (2.0 * fit.b0);
+    if (fabs(fit->b0) > TP_POS_EPSILON) {
+        disc = pmSqrt(4.0 * fit->b0 * s_in + pmSq(fit->b1));
+        angle_out = (disc - fit->b1) / (2.0 * fit->b0);
     } else {
         //Circle case, don't need a fit
         angle_out = s_in / circle->radius;
     }
 
-    if (fit.spiral_in) {
+    if (fit->spiral_in) {
         // Spiral fit assumes that we're spiraling out, so
         // parameterize from opposite end
         angle_out = circle->angle - angle_out;
