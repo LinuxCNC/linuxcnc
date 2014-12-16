@@ -729,29 +729,6 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp, TC_STRUCT const * 
     return TP_ERR_OK;
 }
 
-
-/**
- * Given a PmCircle and a circular segment, copy the circle in as the XYZ portion of the segment, then update the motion parameters.
- * NOTE: does not yet support ABC or UVW motion!
- */
-STATIC int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ)
-{
-
-    //Update targets with new arc length
-    if (!circ || tc->motion_type != TC_CIRCULAR) {
-        return TP_ERR_FAIL;
-    }
-    if (!tc->coords.circle.abc.tmag_zero || !tc->coords.circle.uvw.tmag_zero) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "SetCircleXYZ does not supportABC or UVW motion\n");
-        return TP_ERR_FAIL;
-    }
-
-    tc->coords.circle.xyz = *circ;
-    tc->target = circ->angle * circ->radius;
-    return TP_ERR_OK;
-}
-
-
 STATIC int tcSetLineXYZ(TC_STRUCT * const tc, PmCartLine const * const line)
 {
 
@@ -1810,7 +1787,8 @@ int tpAddCircle(TP_STRUCT * const tp,
             &normal,
             turn);
 
-    tc.target = pmCircleLength(&tc.coords.circle.xyz);
+    // Update tc target with existing circular segment
+    tc.target = pmCircle9Target(&tc.coords.circle);
     if (tc.target < TP_POS_EPSILON) {
         return TP_ERR_FAIL;
     }
@@ -1831,6 +1809,7 @@ int tpAddCircle(TP_STRUCT * const tp,
     tpCheckCanonType(prev_tc, &tc);
     if (emcmotConfig->arcBlendEnable){
         tpHandleBlendArc(tp, &tc);
+        findSpiralArcLengthFit(&tc.coords.circle.xyz, &tc.coords.circle.fit);
     }
     tcCheckLastParabolic(&tc, prev_tc);
     tcFinalizeLength(prev_tc);
