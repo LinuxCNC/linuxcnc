@@ -5,11 +5,10 @@ This section describes how to download and install LinuxCNC.
 
 == Normal Download
 
-Download the Live CD from:
+Download the Live/Install CD by clicking here:
 
-http://www.linuxcnc.org/[the LinuxCNC homepage at www.linuxcnc.org]
+http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso
 
-and follow the Download link.
 
 == Multi-session Download (((Multi-session Download)))
 
