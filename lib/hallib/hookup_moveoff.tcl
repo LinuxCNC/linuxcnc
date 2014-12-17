@@ -185,10 +185,14 @@ proc get_netlist {inpins_name outpin_name signame} {
 } ;# get_netlist
 
 proc setup_pinnames {} {
+  # Note: works for standard names but a custom proc is needed
+  #       here if the Hal alias command is used on the names
+
   # Identify AXIS_n stanzas
   for {set a 0} {$a < 9} {incr a} {
      if [info exists ::AXIS_[set a](TYPE)] {
         lappend ::HU(axes) $a
+        set ::HU(highest_joint_num) $a
      }
   }
   foreach a $::HU(axes) {
@@ -199,7 +203,9 @@ proc setup_pinnames {} {
 
 proc install_moveoff {} {
   # note expected name for moveoff_gui is $::m
-  do_hal loadrt moveoff personality=[llength $::HU(axes)] names=$::m
+  set n [expr $::HU(highest_joint_num) + 1]
+  set pnumber [expr 1 + $::HU(highest_joint_num)]
+  do_hal loadrt moveoff personality=$pnumber names=$::m
 
   set mot_thread $::HU(motion,threadname)
 
@@ -281,11 +287,6 @@ proc new_connect_plus_offset {a} {
 proc new_connect_minus_offset {a} {
   do_hal net hu:minus-$a <= $::m.fb-minusoffset-$a
   do_hal net hu:minus-$a => $::HU($a,fb,pinname)
-  foreach in_pinname $::HU($a,fb,inputs) {
-    if {"$in_pinname" == "$::HU($a,pos,pinname)"} continue
-    do_hal unlinkp            $in_pinname
-    do_hal net hu:minus-$a => $in_pinname
-  }
 } ;# new_connect_plus_offset
 
 proc new_connect_fb_to_moveoff {a} {
@@ -293,6 +294,11 @@ proc new_connect_fb_to_moveoff {a} {
   do_hal delsig $::HU($a,fb,signame)
   do_hal net hu:fb-$a => $::m.fb-$a
   do_hal net hu:fb-$a <= $::HU($a,fb,output)
+  foreach in_pinname $::HU($a,fb,inputs) {
+  if {"$in_pinname" == "$::HU($a,fb,pinname)"} continue
+    do_hal unlinkp         $in_pinname
+    do_hal net hu:fb-$a => $in_pinname
+  }
 } ;# new_connect_fb_to_moveoff
 
 proc reconnect_short_circuit {a} {
@@ -373,7 +379,7 @@ set ::m mv ;# moveoff component name
 set ::HU(verbose) 0
 set ::noexecute   0
 
-# ::tp is the namespace for [HAL]TWOPASS processing
+# ::tp is the namspace for [HAL]TWOPASS processing
 if [namespace exists ::tp] {
   set passno [::tp::passnumber]
   if {$passno == 0} {
