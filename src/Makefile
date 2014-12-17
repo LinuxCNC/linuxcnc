@@ -678,7 +678,7 @@ modclean:
 depclean:
 	-rm -rf depends
 
-clean: depclean modclean
+clean: depclean modclean webtalk-clean
 	find . -name '*.o' |xargs rm -f
 	-rm -rf objects
 	-rm -f $(TARGETS)
