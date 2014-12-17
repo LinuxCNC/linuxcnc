@@ -145,8 +145,8 @@ fi
     introspect 30
 
 
-    # give linuxcnc a second to finish
-    sleep 1.0
+    # wait for linuxcnc to finish
+    echo set wait done
 
     echo shutdown
 ) | nc localhost 5007

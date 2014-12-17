@@ -32,19 +32,12 @@ fi
     function introspect() {
         SEQUENCE_NUMBER=$1
         echo "set mdi m100 P6 Q$SEQUENCE_NUMBER"  # sequence number
-        echo "set wait done"
         echo 'set mdi m100 P0 Q#5420'             # X
-        echo "set wait done"
         echo 'set mdi m100 P1 Q#5421'             # Y
-        echo "set wait done"
         echo 'set mdi m100 P2 Q#5422'             # Z
-        echo "set wait done"
         echo 'set mdi m100 P3 Q#5400'             # toolno
-        echo "set wait done"
         echo 'set mdi m100 P4 Q#5403'             # TLO z
-        echo "set wait done"
         echo 'set mdi m100 P5'                    # blank line
-        echo "set wait done"
     }
 
     echo hello EMC mt 1.0
@@ -657,7 +650,7 @@ fi
 
 
     # give linuxcnc a second to finish
-    sleep 1.0
+    echo set wait done
 
     echo shutdown
 ) | nc localhost 5007
