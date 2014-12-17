@@ -1,7 +1,9 @@
 
 = Getting LinuxCNC
 
-This section describes how to download and install LinuxCNC.
+This section describes how to download and make a fresh install of
+LinuxCNC.  If you have an existing install that you want to upgrade,
+go to the <<_updating_linuxcnc,Updating LinuxCNC>> section instead.
 
 == Normal Download
 
