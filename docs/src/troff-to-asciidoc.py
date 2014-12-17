@@ -46,12 +46,25 @@ re_ns = re.compile(r'^\.ns')
 #..
 re_pointpoint = re.compile(r'^\.\.')
 
-i = 0
+re_fI = re.compile(r'\\fI')
+re_fB = re.compile(r'\\fB')
+re_fR = re.compile(r'\\fR')
 
+i = 0
 while (i < len(SourceLines)):
-    #TODO: parse the line for the markup
     #/fI until the next /fB or /fR means that until the next markup marker
     #
+    result_re_fI = re_fI.search(SourceLines[i])
+    result_re_fB = re_fB.search(SourceLines[i])
+    result_re_fR = re_fR.search(SourceLines[i])
+    #
+    if (result_re_fI != None) \
+            or (result_re_fB != None) \
+            or (result_re_fR != None):
+        CurrLine = SourceLines[i]
+        #TODO... parse CurrLine
+
+
     result_re_TH = re_TH.search(SourceLines[i])
     if (result_re_TH != None):
         # the title must be split from the line, added, and underlined with the
