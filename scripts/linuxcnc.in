@@ -42,6 +42,8 @@ LINUXCNC_LANG_DIR=@EMC2_LANG_DIR@
 REALTIME=@REALTIME@
 LINUXCNC_IMAGEDIR=@EMC2_IMAGE_DIR@
 LINUXCNC_TCL_LIB_DIR=@EMC2_TCL_LIB_DIR@
+HALLIB_DIR=@HALLIB_DIR@; export HALLIB_DIR
+HALLIB_PATH=.:$HALLIB_DIR; export HALLIB_PATH
 
 #put the LINUXCNC_BIN_DIR in PATH
 PATH=$LINUXCNC_BIN_DIR:$PATH
@@ -738,6 +740,7 @@ TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
 if [ -n "$TWOPASS" ] ; then
   # if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
   CFGFILE=@EMC2_TCL_LIB_DIR@/twopass.tcl
+  export PRINT_FILE # twopass can append to PRINT_FILE
   if ! haltcl -i "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
       Cleanup
       exit -1
@@ -748,6 +751,36 @@ else
     NUM=1
     CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     while [ -n "$CFGFILE" ] ; do
+        foundmsg=""
+        saveIFS=$IFS; IFS=: # colon (:) path separator for HALLIB_PATH
+        explicit_file_in_hallib=${CFGFILE#LIB:} # strip leading 'LIB:'
+        if [ -z "$explicit_file_in_hallib" ] ; then
+           echo "ILLFORMED LIB:file:<$CFGFILE>"
+        fi
+        if [ "$explicit_file_in_hallib" !=  "$CFGFILE" ] ; then
+          foundfile="$HALLIB_DIR/$explicit_file_in_hallib"
+          if [ ! -r $foundfile ] ; then
+              echo "CANNOT READ LIB:file:$foundfile"
+          fi
+          foundmsg="Found LIB:file:$foundfile"
+        else
+          for pathdir in $HALLIB_PATH ; do
+            foundfile=$pathdir/$CFGFILE
+            if [ -r $foundfile ] ; then
+              foundmsg="Found file:$foundfile" # first in HALLIB_PATH
+              break
+            fi
+          done
+        fi
+        [ -d $foundfile ] && foundmsg=""
+        IFS=$saveIFS
+        if [ -z "$foundmsg" ] ; then
+          echo "CANNOT FIND FILE FOR:$CFGFILE"
+          Cleanup
+          exit -1
+        fi
+        echo "$foundmsg"
+        CFGFILE="$foundfile"
         case $CFGFILE in
         *.tcl)
             if ! haltcl -i "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then

@@ -17,19 +17,14 @@ An existing configuration can be modified to use a simple gui
 (moveoff_gui) for implementing offsets while paused by modifying
 as follows:
 
-. Include a copy of hookup_moveoff.tcl in the configuration
-  directory with the inifile.  The file can be copied from:
-
-* configs/sim/hookup_moveoff.tcl
-
-. Make inifile entries for HALUI and hookup_moveoff.tcl.
+. Make inifile entries for HALUI and LIB:hookup_moveoff.tcl.
   The entry for hookup_moveoff.tcl should be the last HALFILE.
 
 ----
 [HAL]
 HALUI = halui
 ...
-HALFILE = hookup_moveoff.tcl
+HALFILE = LIB:hookup_moveoff.tcl
 ----
 
 . Add inifile entries for the per-axis settings for
@@ -85,7 +80,7 @@ moveoff_gui:
                              (resume program when move-enable deasserted)
    [-delay delay_secs]     (default: 5 (resume delay))
 
-These options are availabe for special cases:
+These options are available for special cases:
    [-noentry]              (default: not used)
                              (don't create entry widgets)
    [-no_resume_inhibit]    (default: not used)

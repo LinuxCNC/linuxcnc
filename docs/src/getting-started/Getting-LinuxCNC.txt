@@ -1,116 +1,18 @@
-= About LinuxCNC
 
-== The Software
+= Getting LinuxCNC
 
-* LinuxCNC (the Enhanced Machine Control) is a software system for computer
-  control of machine tools such as milling machines and lathes, robots
-  such as puma and scara and other computer controlled machines up to 9 axes.
-* LinuxCNC is free software with open source code. Current versions of LinuxCNC
-  are entirely licensed under the GNU General Public License and Lesser
-  GNU General Public License (GPL and LGPL)
-* LinuxCNC provides:
-** a graphical user interface (actually several interfaces to choose from)
-** an interpreter for 'G-code' (the RS-274 machine tool programming language)
-** a realtime motion planning system with look-ahead
-** operation of low-level machine electronics such as sensors and motor drives
-** an easy to use 'breadboard' layer for quickly creating a unique 
-   configuration for your machine
-** a software PLC programmable with ladder diagrams
-** easy installation with a Live-CD
-* It does not provide drawing (CAD - Computer Aided Design) or G-code
-  generation from the drawing (CAM - Computer Automated Manufacturing)
-  functions.
-* It can simultaneously move up to 9 axes and supports a variety of
-  interfaces.
-* The control can operate true servos (analog or PWM) with the feedback
-  loop closed by the LinuxCNC software at the computer, or open loop with
-  step-servos or stepper motors.
-* Motion control features include: cutter radius and length
-  compensation, path deviation limited to a specified tolerance, lathe
-  threading, synchronized axis motion, adaptive feedrate, operator feed
-  override, and constant velocity control.
-* Support for non-Cartesian motion systems is provided via custom
-  kinematics modules. Available architectures include hexapods (Stewart
-  platforms and similar concepts) and systems with rotary joints to
-  provide motion such as PUMA or SCARA robots.
-* LinuxCNC runs on Linux using real time extensions. 
+This section describes how to download and make a fresh install of
+LinuxCNC.  If you have an existing install that you want to upgrade,
+go to the <<_updating_linuxcnc,Updating LinuxCNC>> section instead.
 
-== The Operating System
+== Normal Download
 
-LinuxCNC is available as ready-to-use packages for the Ubuntu and Debian
-distributions.
+Download the Live/Install CD by clicking here:
+
+http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso
 
 
-== Getting Help
-
-=== IRC
-
-IRC stands for Internet Relay Chat. 
-It is a live connection to other LinuxCNC users. 
-The LinuxCNC IRC channel is #linuxcnc on freenode.
-
-The simplest way to get on the IRC is to use 
-the embedded java client on this 
-http://www.linuxcnc.org/index.php/english/community[page].
-
-Some IRC etiquette::
-
- - Ask specific questions... Avoid questions like "Can someone help me?". 
- - If you're really new to all this, think a bit about your question 
-   before typing it. Make sure you give enough information so 
-   someone can solve your question. 
- - Have some patience when waiting for an answer, sometimes it takes a 
-   while to formulate an answer or everyone might be busy working or 
-   something. 
- - Set up your IRC account with your unique name so people will know who 
-   you are. If you use the java client, use the same name every time you 
-   log in. This helps people remember who you are and if you have been on 
-   before many will remember the past discussions which 
-   saves time on both ends.
-
-Sharing Files::
-The most common way to share files on the IRC is to upload the file 
-to one of the following or a similar service and paste the link:
-
-* 'For text' - http://pastebin.com/ , http://pastie.org/, https://gist.github.com/
-
-* 'For pictures' - http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
-
-* 'For files' - https://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
-
-=== Mailing List
-
-An Internet Mailing List is a way to put questions out for everyone on
-that list to see and answer at their convenience. You get better
-exposure to your questions on a mailing list than on the IRC but
-answers take longer. In a nutshell you e-mail a message to the list and
-either get daily digests or individual replies back depending on how
-you set up your account.
-
-You can subscribe to the emc-users mailing list at:
-https://lists.sourceforge.net/lists/listinfo/emc-users
-
-=== LinuxCNC Wiki
-
-A Wiki site is a user maintained web site 
-that anyone can add to or edit.
-
-The user maintained LinuxCNC Wiki site contains a 
-wealth of information and tips at:
-
-link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
-
-== Getting LinuxCNC
-
-=== Normal Download
-
-Download the Live CD from:
-
-http://www.linuxcnc.org/[the LinuxCNC homepage at www.linuxcnc.org]
-
-and follow the Download link.
-
-=== Multi-session Download (((Multi-session Download)))
+== Multi-session Download (((Multi-session Download)))
 
 If the file is too large to download in one session 
 because of a bad or slow Internet connection, 
@@ -184,7 +86,7 @@ and the prompt should change to: 'C:\Program Files\GnuWin32\bin>'
 +
 Type the wget command into the window and press enter as above.
 
-=== Burning the CD
+== Burning the CD
 
 LinuxCNC is distributed as CD image files, called ISOs. 
 To install LinuxCNC, you first need to burn the ISO file onto a CD. 
@@ -253,7 +155,7 @@ Burning the ISO in Windows::
  . Open Infra Recorder, and select the 
    'Actions' menu, then 'Burn image'.
 
-=== Testing LinuxCNC
+== Testing LinuxCNC
 
 With the Live CD in the CD/DVD drive shut down the computer then turn
 the computer back on. This will boot the computer from the Live CD.
@@ -267,11 +169,11 @@ a sim configuration to try out.
 To see if your computer is suitable for software step pulse generation
 run the Latency Test as shown <<latency-test,here>>.
 
-=== Installing LinuxCNC
+== Installing LinuxCNC
 
 To install LinuxCNC from the LiveCD select 'Install (Graphical) at bootup.
 
-=== Updates to LinuxCNC (((Updates to LinuxCNC)))
+== Updates to LinuxCNC (((Updates to LinuxCNC)))
 
 With the normal install the Update Manager will notify you of updates
 to LinuxCNC when you go on line and allow you to easily upgrade with no
@@ -282,7 +184,7 @@ It is OK to upgrade everything except the operating system when asked to.
 
 Warning: Do not upgrade the operating system if promped to do so.
 
-=== Install Problems
+== Install Problems
 
 In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it cannot recognize the hard drive 

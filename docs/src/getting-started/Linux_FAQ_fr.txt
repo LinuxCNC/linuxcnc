@@ -1,5 +1,4 @@
 :lang: fr
-:toc:
 
 = Petite FAQ Linux
 

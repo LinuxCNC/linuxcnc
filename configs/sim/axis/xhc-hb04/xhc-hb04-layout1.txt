@@ -22,7 +22,7 @@ xhc-hb04-layout1
 |                                Feed |
 ---------------------------------------
 
-Button codes defined in xhc-hb04-layout1.cfg
+Button codes defined in LIB:xhc-hb04-layout1.cfg
 
 The Start/Pause button can be connected for standard behavior with:
   [XHC_HB04_BUTTON]start-pause = std_start_pause

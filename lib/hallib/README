@@ -1,0 +1,28 @@
+This directory contains halfiles (*.hal and *.tcl) that are available
+using the LinuxCNC halfile search path or by an explicit directive.
+
+The HALLIB_PATH is '.:HALLIB_DIR'
+   The '.' specifies the directory containing the ini file.
+   HALIB_DIR specifies this directory.
+
+The explicit directive uses a prefix (LIB:) to identify halfiles:
+  [HAL]
+  HALFILE = LIB:filename.[hal|tcl]
+
+The LinuxCNC startup script (linuxcnc) finds each halfile using the
+HALLIB_PATH unless the explicit directive is used.
+
+Also included in this directory are files associated with included
+system halfiles.  For example, the button layout files
+(xhc-hb04-layout*.cfg) that are used with the halfile xhc-hb04.tcl.
+
+Filename                Usage
+----------------------- ------------------------------------------------
+hookup_moveoff.tcl      Automatic connections for a moveoff component
+moveoff_external.hal    Simulate external control connections for
+                        a moveoff component
+
+xhc-hb04.tcl            Configuration builder for xhc-hb04 pendant
+xhc-hb04-layout1.cfg      button layout 1 for xhc-hb04.tcl
+xhc-hb04-layout2.cfg      button layout 2 for xhc-hb04.tcl
+

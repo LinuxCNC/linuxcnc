@@ -5,7 +5,7 @@
 == Invoking LinuxCNC
 
 After installation, LinuxCNC starts just like any other Linux program: 
-run it from the terminal by issuing the command 'emc', 
+run it from the terminal by issuing the command 'linuxcnc',
 or select it in the Applications - CNC menu.
 
 == Configuration Selector
@@ -34,7 +34,7 @@ without showing the Configuration Selector screen.
 
 When you select a configuration from the Sample Configurations section, 
 it will automaticly place a copy of that config in the
-emc/configs directory. 
+linuxcnc/configs directory.
 
 == Next steps in configuration
 

@@ -1,5 +1,4 @@
 :lang: fr
-:toc:
 
 = Quelle configuration est requise ?
 

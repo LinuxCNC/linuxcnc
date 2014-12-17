@@ -1,5 +1,4 @@
 :lang: fr
-:toc:
 
 = Configuration rapide pour moteurs pas à pas
 
