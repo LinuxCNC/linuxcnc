@@ -757,48 +757,12 @@ proc usage {  {errtxt ""} } {
       set default_$item notused
     }
   }
-  puts stdout "\
-
-$::MV(prog):
-Provides a simple gui for use with the moveoff component (moveoff.comp)
-
-Notes:
-  LinuxCNC must be running
-  Halui must be loaded, inifile setting: \[HAL\]HALUI = halui
-  The component must be loaded with the name 'mv' as:
-     loadrt moveoff names=$::m personality=number_of_axes
-
-  If the pin $::m.motion-enable is not connected when $::MV(prog) is
-  started, controls will be provided to enable offsets and set
-  offset values.  If the pin is connected, only a display of offsets
-  is shown and control must be made by external Hal connections.
-
-  If a pin named *.resume-inhibit exists and is not connected, it will
-  be set while offsets are applied.  This pin may be provided by the
-  controlling linuxcnc gui in use.  Use of the pin may be disabled
-  with the option -no_resume_inhibit.
-
-  The -autoresume option uses halui.program.resume to automatically
-  resume program execution when the move-enable pin is deactivated
-  and all offsets are removed.  The resume pin is not activated
-  until an additional interval (-delay delay_secs) elapses.  This
-  delay interval may be useful for restarting related equipment
-  (a spindle motor for example)  While timing the delay, a popup is
-  offered to cancel the automatic program resumption.
-
-  For more info on the moveoff component, see the manpage: man moveoff
-
+  puts stdout \
+"
 Usage:
-  This script should be specified in an ini file, for example:
+$::MV(prog) \[Options\]
 
-  \[APPLICATIONS\]
-  DELAY = delay_in_secs_to_allow_hal_connections
-  APP   = moveoff_gui -option1 -option2 ... (see options below)
-
-  Additional inifile and halfile settings may be made to configure
-  the pins of the moveoff component.
-
-  options:
+Options:
     \[--help | -? | -- -h \]  (This text)
 
     \[-mode \[onpause | always\]\]  (default: $::MV(opt,mode))
@@ -821,7 +785,7 @@ Usage:
                               (resume program when move-enable deasserted)
     \[-delay delay_secs\]     (default: $::MV(resume,delay,secs) (resume delay))
 
-These options are availabe for special cases:
+Options for special cases:
     \[-noentry\]              (default: $default_noentry)
                               (don\'t create entry widgets)
     \[-no_resume_inhibit\]    (default: $default_no_resume_inhibit)

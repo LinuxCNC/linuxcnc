@@ -58,13 +58,15 @@ DELAY = 5
 APP = moveoff_gui option1 option2 ...
 ----
 
-For details on available options, Use:
+For details on available Options, Use:
 
 ----
 $ moveoff_gui --help
 
-moveoff_gui:
- options:
+Usage:
+moveoff_gui [Options}
+
+Options:
    [--help | -? | -- -h ]  (This text)
 
    [-mode [onpause | always]]  (default: onpause)
@@ -87,7 +89,7 @@ moveoff_gui:
                              (resume program when move-enable deasserted)
    [-delay delay_secs]     (default: 5 (resume delay))
 
-These options are available for special cases:
+Options for special cases:
    [-noentry]              (default: not used)
                              (don't create entry widgets)
    [-no_resume_inhibit]    (default: not used)

@@ -1,0 +1,80 @@
+.\" Copyright (c) 2014 Dewey Garrett
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH sim_pin "1"  "2014-12-18" "LinuxCNC Documentation" "LinuxCNC"
+.SH NAME
+\fBsim_pin\fR \- gui for displaying and setting multiple Hal inputs
+
+.SH SYNOPSIS
+.B \fBsim_pin name1\fR [name2 [name3 ...]]
+.PP
+
+.SH DESCRIPTION
+If the named input is a \fBnumerical\fR type, the gui displays:
+.P
+   \fBEntry\fR  Entry widget for new value
+.br
+   \fBSet\fR    Button to set new value from Entry (or use <RETURN>)
+.br
+   \fBReset\fR  Button to reset to the value present on initiation
+   
+If the input is a \fBbit\fR type, the gui shows a single pushbutton
+that is controlled by the radio\-button selectors:
+.P
+   \fBOnePulse\fR       Pulse input to 1 for each pushbutton press
+.br
+   \fBToggleValue\fR    Toggle input for each pushbutton press
+.br
+   \fB1 WhilePressed\fR Set input to 1 while pushbutton pressed
+
+
+.SH NOTE
+LinuxCNC must be running
+.P
+A named item can specify a \fBpin\fR, \fBparam\fR, or \fBsignal\fR.
+The named item must be writable:
+.P
+  \fBpin    IN or I/O\fR (and not connected to a signal)
+.br
+  \fBparam  RW\fR
+.br
+  \fBsignal connected to a writable pin\fR
+
+.SH USAGE
+\fBsim_pin\fR can be used interactively from a shell command line or
+started automatically from a configuration ini file.
+
+.SH EXAMPLE
+Example for ini file usage:
+
+   [APPLICATIONS]
+   DELAY = 5
+   APP = \fBsim_pin\fR \\
+.br
+          halui.machine.off \\
+.br
+          ini.traj_arc_blend_enable \\
+.br
+          motion-command-handler-tmax
+
