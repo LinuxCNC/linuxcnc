@@ -1,0 +1,124 @@
+LINCURVE
+========
+NAME
+
+SYNOPSIS
+
+DESCRIPTION
+
+FUNCTIONS
+
+PINS
+
+PARAMETERS
+
+AUTHOR
+
+LICENSE
+
+
+
+
+
+
+===== NAME
+
+
+
+lincurve \- one-dimensional lookup table
+
+
+===== SYNOPSIS
+
+loadrt lincurve [count=__N__**|names=**__name1__**[,**__name2...__**]] [personality=**__P,P,...__**]
+**
+
+===== DESCRIPTION
+
+
+
+Performs a 1-dimensional lookup and interpolation. The x-val
+
+parameters must be monotonic, though identical adjacent values are allowed.
+
+(for example 0,0,0,10) for a 4-element curve. 
+
+
+
+For input values less than the x-val-00 breakpoint the y-val-00 is returned. 
+
+For x greater than the largest x-val-NN the yval corresponding to x-max is
+
+returned (ie, no extrapolation is performed.)
+
+
+
+Sample usage: loadrt lincurve count=3 personality=4,4,4 
+
+for a set of three 4-element curves.
+
+
+
+The axis breakpoints should be set in the lincurve.N.x-val-NN parameters using
+
+"setp", as should the corresponding y values. 
+
+
+===== FUNCTIONS
+
+
+
+**lincurve.**__N__**** (requires a floating-point thread)
+
+
+
+
+===== PINS
+
+
+
+lincurve.__N__**.in** float in 
+
+The input value
+
+
+
+lincurve.__N__**.out** float out 
+
+The output value
+
+
+
+lincurve.__N__**.out-io** float io 
+
+The output value, compatible with PID gains
+
+
+===== PARAMETERS
+
+
+
+lincurve.__N__**.x-val-**__MM__**** float rw  (MM=00..personality) 
+
+axis breakpoints
+
+
+
+lincurve.__N__**.y-val-**__MM__**** float rw  (MM=00..personality) 
+
+output values to be interpolated
+
+
+===== AUTHOR
+
+
+
+Andy Pugh
+
+
+===== LICENSE
+
+
+
+GPL
+

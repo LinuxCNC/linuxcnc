@@ -57,14 +57,59 @@ while (i < len(SourceLines)):
     result_re_fI = re_fI.search(SourceLines[i])
     result_re_fB = re_fB.search(SourceLines[i])
     result_re_fR = re_fR.search(SourceLines[i])
+    #first time for gettin into while loop
+    CurrLine = SourceLines[i]
+    orig_line = CurrLine
+    str_asciiline = ""
+    int_Character = 0
+    last_formatting_char = ''
     #
-    if (result_re_fI != None) \
+    while ((result_re_fI != None) \
             or (result_re_fB != None) \
-            or (result_re_fR != None):
-        CurrLine = SourceLines[i]
-        #TODO... parse CurrLine
-
-
+            or (result_re_fR != None)):
+        #parse CurrLine
+        #search for the first delimiter \f with next character 'I', 'B' or 'R'
+        #when the first characters are found. The part of the string before will
+        #go to the str_asciiline, the last_formatting_char will be remembered
+        #because in asciidoc italic needs to be closed like this _italic_
+        int_Character = CurrLine.find("\\f")
+        tempchar1 = CurrLine[int_Character+1]
+        tempchar2 = CurrLine[int_Character+2]
+        if (int_Character != -1) :
+            if (CurrLine[int_Character+2]=='I'):
+                str_asciiline = str_asciiline + \
+                                CurrLine[0:int_Character] + \
+                                last_formatting_char + \
+                                "__"
+                last_formatting_char = "__"
+            if (CurrLine[int_Character+2]=='B'):
+                str_asciiline = str_asciiline + \
+                                CurrLine[0:int_Character] + \
+                                last_formatting_char + \
+                                '**'
+                last_formatting_char = "**"
+            if (CurrLine[int_Character+2]=='R'):
+                str_asciiline = str_asciiline + \
+                                CurrLine[0:int_Character] + \
+                                last_formatting_char + \
+                                ""
+                last_formatting_char = ""
+            #
+        CurrLine = CurrLine[int_Character+3:len(CurrLine)]
+        #check for more
+        result_re_fI = re_fI.search(CurrLine)
+        result_re_fB = re_fB.search(CurrLine)
+        result_re_fR = re_fR.search(CurrLine)
+        if ((result_re_fI == None) \
+            and (result_re_fB == None) \
+            and (result_re_fR == None)):
+            #exiting the while loop, the SourceLines[1] now must contain the
+            #cleaned version of the sentence for further processing
+            str_asciiline += CurrLine + last_formatting_char
+            #str_asciiline.append(last_formatting_char)
+            SourceLines[i] = str_asciiline
+    #done markup
+    #
     result_re_TH = re_TH.search(SourceLines[i])
     if (result_re_TH != None):
         # the title must be split from the line, added, and underlined with the
@@ -80,7 +125,7 @@ while (i < len(SourceLines)):
         CompHeader=SourceLines[i].split(' ')[1]
         AsciidocLines.append('\n' + "===== " + CompHeader)
         IndexLines.append(CompHeader)
-        #think about anchoring the index to the header
+        #TODO: think about anchoring the index to the header
     #
     result_re_B = re_B.search(SourceLines[i])
     if (result_re_B != None):
@@ -95,7 +140,6 @@ while (i < len(SourceLines)):
     if (result_re_TP != None):
         #add empty line
         AsciidocLines.append('\n')
-        #CurrLine=SourceLines[i][:len(SourceLines[i])]
     #
     #these lines should not do anything and are to be ignored
     result_re_de_TQ = re_de_TQ.search(SourceLines[i])
@@ -120,6 +164,10 @@ while (i < len(SourceLines)):
 
     i += 1
 #return to while loop
+
+#TODO: parse for removal of i.e. **** or ____ (4 characters)
+#TODO: remove empty lines and only make empty lines before headers
+#TODO: make anchors in the index
 
 #now write all info into the target file
 AsciidocFile = open(TargetFilePath, 'w+')
