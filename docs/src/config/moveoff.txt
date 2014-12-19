@@ -1,6 +1,6 @@
 = Moveoff Component
 
-The moveoff Hal component can be used as a Hal-only method
+The moveoff Hal component is a Hal-only method
 for implementing offsets.  See the manpage (man moveoff)
 for the IMPORTANT limitations and warnings.
 
@@ -13,8 +13,7 @@ gui (moveoff_gui) are located in:
 
 == Modifying an existing configuration
 
-An existing configuration can be modified to use a simple gui
-(moveoff_gui) for implementing offsets while paused by modifying
+An existing configuration can be modified to use moveoff_gui
 as follows:
 
 . Make inifile entries for HALUI and LIB:hookup_moveoff.tcl.
@@ -28,7 +27,10 @@ HALFILE = LIB:hookup_moveoff.tcl
 ----
 
 . Add inifile entries for the per-axis settings for
-  each axis in use (omit to use moveoff defaults NOT RECOMMENDED):
+  each axis in use (If an entry is not defined, the
+  corresponding entry without the OFFSET_ prefix
+  will be used, if no entry is found the moveoff
+  component default is used(NOT RECOMMENDED)):
 
 ----
 [AXIS_n]
@@ -56,14 +58,21 @@ DELAY = 5
 APP = moveoff_gui option1 option2 ...
 ----
 
-For details on available options, Use:
+For details on available Options, Use:
 
 ----
 $ moveoff_gui --help
 
-moveoff_gui:
- options:
+Usage:
+moveoff_gui [Options}
+
+Options:
    [--help | -? | -- -h ]  (This text)
+
+   [-mode [onpause | always]]  (default: onpause)
+                                 (onpause: show gui when program paused)
+                                 (always:  show gui always)
+
    [-axes axisnames]       (default: xyz (no spaces))
                              (letters from set of: x y z a b c u v w)
                              (example: -axes z)
@@ -80,7 +89,7 @@ moveoff_gui:
                              (resume program when move-enable deasserted)
    [-delay delay_secs]     (default: 5 (resume delay))
 
-These options are available for special cases:
+Options for special cases:
    [-noentry]              (default: not used)
                              (don't create entry widgets)
    [-no_resume_inhibit]    (default: not used)
@@ -94,6 +103,7 @@ enabling offsetting if the pin mv.move-enable is NOT connected
 when moveoff_gui is started.
 
 If the mv.move-enable pin is connected when moveoff_gui
-is started, then it will provide a display but no control.
-This mode supports hal connections for a jog wheel or other
-methods of controlling the offset input pins (mv.offset-M)
+is started, the gui will provide a display but no controls.
+This mode supports Hal connections for a jog wheel or other
+methods of controlling the enable and offset input pins
+(mv.move-enable, mv.offset-M).

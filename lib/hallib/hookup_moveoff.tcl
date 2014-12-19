@@ -24,16 +24,25 @@
 #      EPSILON =
 #      WAYPOINT_SAMPLE_SECS =
 #      WAYPOINT_THRESHOLD =
+#      BACKTRACK_ENABLE =
+#
+#      If these settings are not found in the ini file, the moveoff
+#      component defaults will be used.
 #
 #   3) Include ini file entries for the per-axis settings
 #      [AXIS_n]
-#      OFFSET_MAX_LIMIT =
-#      OFFSET_MIN_LIMIT =
 #      OFFSET_MAX_VELOCITY =
 #      OFFSET_MAX_ACCELERATION =
+#      OFFSET_MAX_LIMIT =
+#      OFFSET_MIN_LIMIT =
 #
-#   5) If settings are not found in the ini file, the moveoff
-#      component defaults will be used.
+#      If settings are not found in the ini file, the items 
+#      MAX_VELOCITY =
+#      MAX_ACCELERATION =
+#      MAX_LIMIT =
+#      MIN_LIMIT =
+#      are used.  If these are not defined, the moveoff component
+#      defaults are used.
 #
 #   To use the (optional) demonstration gui named moveoff_gui,
 #   include an ini entry:
@@ -203,7 +212,6 @@ proc setup_pinnames {} {
 
 proc install_moveoff {} {
   # note expected name for moveoff_gui is $::m
-  set n [expr $::HU(highest_joint_num) + 1]
   set pnumber [expr 1 + $::HU(highest_joint_num)]
   do_hal loadrt moveoff personality=$pnumber names=$::m
 
@@ -312,61 +320,45 @@ proc reconnect_short_circuit {a} {
 } ;# reconnect_short_circuit
 
 proc set_moveoff_inputs {a} {
-  # note: first look for item preceded with 'OFFSET_'
-  foreach {item ininame} {max,velocity     MAX_VELOCITY \
-                          max,acceleration MAX_ACCELERATION \
-                          max,limit        MAX_LIMIT \
-                          min,limit        MIN_LIMIT \
+  # note: first look for ininame preceded with 'OFFSET_'
+  foreach {pin ininame} { offset-vel   MAX_VELOCITY \
+                          offset-accel MAX_ACCELERATION \
+                          offset-max   MAX_LIMIT \
+                          offset-min   MIN_LIMIT \
                          } {
     if [info exists ::AXIS_[set a](OFFSET_$ininame)] {
-      set ::HU($a,$item) [set ::AXIS_[set a](OFFSET_$ininame)]
+      set ::HU($a,$pin) [set ::AXIS_[set a](OFFSET_$ininame)]
+      # lindex is used in case there are duplicate entries
+      set ::HU($a,$pin) [lindex $::HU($a,$pin) end]
+    } elseif { [info exists ::AXIS_[set a]($ininame)] } {
+      set ::HU($a,$pin) [set ::AXIS_[set a]($ininame)]
+      # lindex is used in case there are duplicate entries
+      set ::HU($a,$pin) [lindex $::HU($a,$pin) end]
+      puts "hookup_moveoff.tcl:use \[AXIS_$a\]$ininame=$::HU($a,$pin)"
     }
-  }
-  # setp only if ini entry found:
-  if [info exists ::HU($a,max,velocity)] {
-    do_hal setp $::m.offset-vel-$a    $::HU($a,max,velocity)
-  }
-  if [info exists ::HU($a,max,acceleration)] {
-    do_hal setp $::m.offset-accel-$a  $::HU($a,max,acceleration)
-  }
-  if [info exists ::HU($a,max,limit)] {
-    do_hal setp $::m.offset-max-$a    $::HU($a,max,limit)
-  }
-  if [info exists ::HU($a,min,limit)] {
-    do_hal setp $::m.offset-min-$a    $::HU($a,min,limit)
+    if [info exists ::HU($a,$pin)] {
+      do_hal setp $::m.$pin-$a    $::HU($a,$pin)
+    }
   }
 } ;# set_moveoff_inputs
 
-proc set_moveoff_limits {} {
-  foreach {item ininame} {epsilon               EPSILON \
-                          waypoint,sample,secs  WAYPOINT_SAMPLE_SECS \
-                          waypoint,threshold    WAYPOINT_THRESHOLD \
+proc set_moveoff_parms {} {
+  foreach {pin ininame} { epsilon               EPSILON \
+                          waypoint-sample-secs  WAYPOINT_SAMPLE_SECS \
+                          waypoint-threshold    WAYPOINT_THRESHOLD \
+                          backtrack-enable      BACKTRACK_ENABLE \
                          } {
     if {[info exists ::OFFSET($ininame)]} {
-      set ::HU($item) [set ::OFFSET($ininame)]
+      # lindex is used in case there are duplicate entries
+      set ::HU($pin) [lindex $::OFFSET($ininame) end]
+      do_hal setp $::m.$pin $::HU($pin)
     }
   }
-  # setp only if ini entry found:
-  if [info exists ::HU(epsilon)] {
-    do_hal setp $::m.epsilon              $::HU(epsilon)
-  }
-  if [info exists ::HU(waypoint,sample,secs)] {
-    do_hal setp $::m.waypoint-sample-secs $::HU(waypoint,sample,secs)
-  }
-  if [info exists ::HU(waypoint,threshold)] {
-    do_hal setp $::m.waypoint-threshold   $::HU(waypoint,threshold)
-  }
-} ;# set_moveoff_limits
+} ;# set_moveoff_parms
 
 proc set_moveoff_controls {} {
-  # offset control connections:
-  do_hal net hu:ison         halui.machine.is-on     => $::m.is-on
-
-  do_hal net hu:applyoffsets halui.program.is-paused => $::m.apply-offsets
-  # Note: The above connection is for offset during program pause.
-  #       Other modes are possible but not implemented herein.
-  #       Subsequent halfiles may delete this signal and reconnect
-  #       for other purposes
+  return
+  # provision for future offset control connections
 } ;# set_moveoff_controls
 
 # begin-----------------------------------------------------------------
@@ -410,7 +402,7 @@ if [catch {
     }
     set ::HU(cmd) "set_moveoff_inputs  $a"; eval $::HU(cmd)
   }
-  set ::HU(cmd) "set_moveoff_limits"; eval $::HU(cmd)
+  set ::HU(cmd) "set_moveoff_parms"; eval $::HU(cmd)
   set ::HU(cmd) "set_moveoff_controls"; eval $::HU(cmd)
   if $::HU(verbose) {parray ::HU}
 } msg ] {

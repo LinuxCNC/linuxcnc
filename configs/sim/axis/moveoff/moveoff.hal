@@ -36,10 +36,6 @@ net mx:fb mv.fb-minusoffset-0 => axis.0.motor-pos-fb
 net my:fb mv.fb-minusoffset-1 => axis.1.motor-pos-fb
 net mz:fb mv.fb-minusoffset-2 => axis.2.motor-pos-fb
 
-# offset control connections:
-net m:ison         halui.machine.is-on     => mv.is-on
-net m:applyoffsets halui.program.is-paused => mv.apply-offsets
-
 # example setting global inputs from ini file:
 setp mv.epsilon              [OFFSET]EPSILON
 setp mv.waypoint-sample-secs [OFFSET]WAYPOINT_SAMPLE_SECS
