@@ -8,7 +8,7 @@ import os
 
 
 # this is how long we wait for linuxcnc to do our bidding
-timeout = 1.0
+timeout = 5.0
 
 
 class LinuxcncError(Exception):
@@ -193,8 +193,9 @@ def jog_minus(name, target):
 
     if h[name + '-position'] > target:
         print name, "failed to jog", name, "to", target
+        print "timed out at %.3f after %.3f seconds" % (h[name + '-position'], timeout)
         introspect(h)
-        return False
+        sys.exit(1)
 
     h['jog-selected-minus'] = 0
 
@@ -215,12 +216,13 @@ def jog_plus(name, target):
 
     if h[name + '-position'] < target:
         print name, "failed to jog", name, "to", target
+        print "timed out at %.3f after %.3f seconds" % (h[name + '-position'], timeout)
         introspect(h)
-        return False
+        sys.exit(1)
 
     h['jog-selected-plus'] = 0
 
-    print "    jogged %s positive past target %.3f)" % (name, target)
+    print "    jogged %s positive past target %.3f" % (name, target)
 
     return True
 
@@ -237,6 +239,7 @@ def wait_for_joint_to_stop(joint_number):
             return
         prev_pos = new_pos
     print "Error: joint didn't stop jogging!"
+    print "joint %d is at %.3f %.3f seconds after reaching target (prev_pos=%.3f)" % (joint_number, h[pos_pin], timeout, prev_pos)
     sys.exit(1)
 
 
