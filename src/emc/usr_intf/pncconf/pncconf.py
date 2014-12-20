@@ -1374,16 +1374,6 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file, "INCREMENTS = %s"% self.increments_imperial
         if self.axes == 2:
             print >>file, "LATHE = 1"
-        if self.position_offset:
-            temp = "RELATIVE"
-        else:
-            temp = "MACHINE"
-        print >>file, "POSITION_OFFSET = %s"% temp
-        if self.position_feedback:
-            temp = "ACTUAL"
-        else:
-            temp = "COMMANDED"
-        print >>file, "POSITION_FEEDBACK = %s"% temp
         print >>file, "DEFAULT_LINEAR_VELOCITY = %f"% self.default_linear_velocity
         print >>file, "MAX_LINEAR_VELOCITY = %f"% self.max_linear_velocity
         print >>file, "MIN_LINEAR_VELOCITY = %f"% self.min_linear_velocity
