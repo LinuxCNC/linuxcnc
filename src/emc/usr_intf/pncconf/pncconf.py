@@ -966,7 +966,7 @@ class Data:
         self.mesa0_pwm_frequency = 20000
         self.mesa0_pdm_frequency = 6000000
         self.mesa0_3pwm_frequency = 20000
-        self.mesa0_watchdog_timeout = 10000000
+        self.mesa0_watchdog_timeout = 5000000
         self.mesa0_numof_encodergens = 1
         self.mesa0_numof_resolvers = 0
         self.mesa0_numof_pwmgens = 0
@@ -989,7 +989,7 @@ class Data:
         self.mesa1_pwm_frequency = 20000
         self.mesa1_pdm_frequency = 6000000
         self.mesa1_3pwm_frequency = 20000
-        self.mesa1_watchdog_timeout = 10000000
+        self.mesa1_watchdog_timeout = 5000000
         self.mesa1_numof_encodergens = 1
         self.mesa1_numof_resolvers = 0
         self.mesa1_numof_pwmgens = 0
