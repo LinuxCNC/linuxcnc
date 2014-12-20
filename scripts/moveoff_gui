@@ -90,8 +90,16 @@ proc do_poll {} {
       }
     } else {
       # apply-offsets deasserted ==> moveoff component will remove offsets
+      zero_all_offsets
       withdraw_with_save_loc $::MV(top)
     }
+  }
+
+  if {   [info exists ::MV(warning_reset_pending)] \
+      && !$offset_applied \
+     } {
+    hal setp $::m.warning-reset 0
+    unset ::MV(warning_reset_pending)
   }
 
   if {$::MV(enable,offsets) != $::MV(old,enable,offsets)} {
@@ -109,6 +117,7 @@ proc do_poll {} {
         }
     }
   }
+
   set status_msg ""
   if {$at_limit == "TRUE"} {
     set status_msg "Waypoint limit (Disable required)"; set bg orange
@@ -304,6 +313,7 @@ proc toggle_enable_offsets {args} {
 } ;# toggle_enable_offsets
 
 proc zero_all_offsets {} {
+  if {! $::MV(control_move_enable)} { return }
   foreach aname $::MV(axes) {
     set ::MV(offset,$aname) [format "$::MV(offset,format)" 0]
     set idx $::MV($aname,idx)
@@ -468,14 +478,17 @@ proc is_connected {pinname {signame {} } } {
   return "not_connected"
 } ;# is_connected
 
-proc connect_pin_to_sig {pinname newsigname} {
+proc connect_pin_to_sig {pinname new_signame} {
   if {[is_connected $pinname existing_signame] != "not_connected"} {
     set use_signame $existing_signame
-    puts "$::MV(prog):net $use_signame $pinname (prexisting)"
   } else {
-    set use_signame $newsigname
-    puts "$::MV(prog):net $use_signame $pinname (new signal)"
+    set use_signame $new_signame
   }
+  set msg ""
+  if {"$existing_signame" != ""} {
+    set msg "(attaching)"
+  }
+  puts "$::MV(prog):net $use_signame $pinname $msg"
   hal net $use_signame $pinname
   return "$use_signame"
 } ;# connect_pin_to_sig
@@ -838,25 +851,29 @@ if ![info exists ::MV(top)] {
   set psigname [connect_pin_to_sig motion.motion-enabled mvoff_gui:power_on]
   connect_pin_to_sig $::m.power-on $psigname
 
+  set titletxt "$::MV(prog) (MODE:$::MV(opt,mode))"
   switch $::MV(opt,mode) {
     always  { hal setp $::m.apply-offsets 1 }
     onpause { set signame [connect_pin_to_sig halui.program.is-paused \
-                                          mvoff_gui:apply_offsets]
+                                              mvoff_gui:apply_offsets]
               connect_pin_to_sig $::m.apply-offsets $signame
+              if {$::MV(opt,resume_withdelay)} {
+                set titletxt "$titletxt (AUTORESUME:on)"
+              } else {
+                set titletxt "$titletxt (AUTORESUME:off)"
+              }
             }
     default {puts "$::MV(prog):Unexpected mode: $::MV(opt,mode)"}
   }
-
   set ::MV(top) [toplevel .t]
-  set txt "$::MV(prog) Hal-only offsets (mode:$::MV(opt,mode))"
-  if {$::MV(opt,resume_withdelay)} {
-    set txt "$txt (Auto Reume enabled)"
+  if {$::MV(control_move_enable)} {
+    set titletxt "$titletxt (CONTROL:Local)"
+  } else {
+    set titletxt "$titletxt (CONTROL:External)"
   }
-  wm title $::MV(top) "$txt"
+  wm title $::MV(top) "$titletxt"
   wm protocol $::MV(top) WM_DELETE_WINDOW bye
   make_gui
   do_poll
   if $::MV(opt,debug) {parray ::MV}
 }
-#dng if !motion.move-enable disallow setting mv.move-eable
-#    currently it blinks because of test in do_poll on motion.move-enable

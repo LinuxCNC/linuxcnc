@@ -371,7 +371,7 @@ set ::m mv ;# moveoff component name
 set ::HU(verbose) 0
 set ::noexecute   0
 
-# ::tp is the namspace for [HAL]TWOPASS processing
+# ::tp is the namespace for [HAL]TWOPASS processing
 if [namespace exists ::tp] {
   set passno [::tp::passnumber]
   if {$passno == 0} {
