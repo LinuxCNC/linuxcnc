@@ -22929,7 +22929,7 @@ Connector 8</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="la">
+          <object class="GtkLabel" id="mesa0sserial0_0_tablabel">
             <property name="visible">True</property>
             <property name="label" translatable="yes">Smart Serial 0</property>
           </object>
@@ -28154,7 +28154,7 @@ Connector 8</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="m">
+          <object class="GtkLabel" id="mesa0sserial0_1_tablabel">
             <property name="visible">True</property>
             <property name="label" translatable="yes">Smart Serial 1</property>
           </object>
@@ -33379,7 +33379,7 @@ Connector 8</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label9">
+          <object class="GtkLabel" id="mesa0sserial0_2_tablabel">
             <property name="visible">True</property>
             <property name="label" translatable="yes">Smart Serial 2</property>
           </object>
@@ -38604,7 +38604,7 @@ Connector 8</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label158">
+          <object class="GtkLabel" id="mesa0sserial0_3_tablabel">
             <property name="visible">True</property>
             <property name="label" translatable="yes">Smart Serial 3</property>
           </object>
@@ -43829,7 +43829,7 @@ Connector 8</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label115">
+          <object class="GtkLabel" id="mesa0sserial0_4_tablabel">
             <property name="visible">True</property>
             <property name="label" translatable="yes">Smart Serial 4</property>
           </object>
@@ -49054,7 +49054,7 @@ Connector 8</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label161">
+          <object class="GtkLabel" id="mesa0sserial0_5_tablabel">
             <property name="visible">True</property>
             <property name="label" translatable="yes">Smart Serial 5</property>
           </object>
