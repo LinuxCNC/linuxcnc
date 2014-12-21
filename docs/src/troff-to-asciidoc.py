@@ -41,6 +41,7 @@ re_fI = re.compile(r'\\fI')
 re_fB = re.compile(r'\\fB')
 re_fR = re.compile(r'\\fR')
 re_longdash = re.compile(r'\\-')
+re_erroneous_markup = re.compile( ('\*\*\*\*|\_\_\_\_') )
 
 i = 0
 while (i < len(SourceLines)):
@@ -92,6 +93,7 @@ while (i < len(SourceLines)):
         result_re_fI = re_fI.search(CurrLine)
         result_re_fB = re_fB.search(CurrLine)
         result_re_fR = re_fR.search(CurrLine)
+        #
         if ((result_re_fI == None) \
             and (result_re_fB == None) \
             and (result_re_fR == None)):
@@ -101,10 +103,16 @@ while (i < len(SourceLines)):
             #str_asciiline.append(last_formatting_char)
             SourceLines[i] = str_asciiline
     #
+    #check for **** or ____ in str_asciiline and remove these
+    #this happens for example when the sourcefile has \\fB\\fB in the
+    #line. This will result in **** and renders faulty in asciidoc
+    result_re_erroneous_markup = re_erroneous_markup.search(SourceLines[i])
+    if (result_re_erroneous_markup != None):
+        SourceLines[i] = re_erroneous_markup.sub('',SourceLines[i])
     if (result_re_longdash != None):
-            #SourceLines[i].replace("\\-","--")
-            CurrLine = re_longdash.sub("--",SourceLines[i])
-            SourceLines[i] = CurrLine
+        #SourceLines[i].replace("\\-","--")
+        CurrLine = re_longdash.sub("--",SourceLines[i])
+        SourceLines[i] = CurrLine
     #done markup
     #
     result_re_TH = re_TH.search(SourceLines[i])
@@ -122,8 +130,10 @@ while (i < len(SourceLines)):
         CompHeader=SourceLines[i].split(' ')[1]
         CompHeader=CompHeader.strip('\n')
         AsciidocLines.append("\n\n" + "===== " + \
-                             "[[" + CompHeader.lower() + "]]" + CompHeader + "\n")
-        IndexLines.append(". <<" + CompHeader.lower() + "," + CompHeader + ">>" + "\n")
+                             "[[" + CompHeader.lower() + "]]" \
+                             + CompHeader + "\n")
+        IndexLines.append(". <<" + CompHeader.lower() + "," + \
+                          CompHeader + ">>" + "\n")
     #
     result_re_B = re_B.search(SourceLines[i])
     if (result_re_B != None):
@@ -162,8 +172,6 @@ while (i < len(SourceLines)):
 
     i += 1
 #return to while loop
-
-#TODO: parse for removal of i.e. **** or ____ (4 characters)
 
 #now write all info into the target file
 AsciidocFile = open(TargetFilePath, 'w+')
