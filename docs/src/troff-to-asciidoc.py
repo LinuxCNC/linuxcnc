@@ -17,38 +17,30 @@ IndexLines = []
 
 #.TH Header
 re_TH = re.compile(r'^\.TH')
-
 #.TP Paragraph
 re_TP = re.compile(r'^\.TP')
-
 #.HP ?
 re_HP = re.compile(r'^\.HP')
-
 #.TQ Paragraph
 re_TQ = re.compile(r'^\.TQ')
-
 #.SH NAME
 #.SH SYNOPSYS
 re_SH = re.compile(r'^\.SH')
-
 #.B
 re_B = re.compile(r'^\.B')
-
 #.de TQ
 re_de_TQ = re.compile(r'^\.de TQ')
-
 #.br
 re_br = re.compile(r'^\.br')
-
 #.ns
 re_ns = re.compile(r'^\.ns')
-
 #..
 re_pointpoint = re.compile(r'^\.\.')
-
+#markup
 re_fI = re.compile(r'\\fI')
 re_fB = re.compile(r'\\fB')
 re_fR = re.compile(r'\\fR')
+re_longdash = re.compile(r'\\-')
 
 i = 0
 while (i < len(SourceLines)):
@@ -57,9 +49,9 @@ while (i < len(SourceLines)):
     result_re_fI = re_fI.search(SourceLines[i])
     result_re_fB = re_fB.search(SourceLines[i])
     result_re_fR = re_fR.search(SourceLines[i])
+    result_re_longdash = re_longdash.search(SourceLines[i])
     #first time for gettin into while loop
     CurrLine = SourceLines[i]
-    orig_line = CurrLine
     str_asciiline = ""
     int_Character = 0
     last_formatting_char = ''
@@ -73,8 +65,8 @@ while (i < len(SourceLines)):
         #go to the str_asciiline, the last_formatting_char will be remembered
         #because in asciidoc italic needs to be closed like this _italic_
         int_Character = CurrLine.find("\\f")
-        tempchar1 = CurrLine[int_Character+1]
-        tempchar2 = CurrLine[int_Character+2]
+        #tempchar1 = CurrLine[int_Character+1]
+        #tempchar2 = CurrLine[int_Character+2]
         if (int_Character != -1) :
             if (CurrLine[int_Character+2]=='I'):
                 str_asciiline = str_asciiline + \
@@ -86,7 +78,7 @@ while (i < len(SourceLines)):
                 str_asciiline = str_asciiline + \
                                 CurrLine[0:int_Character] + \
                                 last_formatting_char + \
-                                '**'
+                                "**"
                 last_formatting_char = "**"
             if (CurrLine[int_Character+2]=='R'):
                 str_asciiline = str_asciiline + \
@@ -108,6 +100,11 @@ while (i < len(SourceLines)):
             str_asciiline += CurrLine + last_formatting_char
             #str_asciiline.append(last_formatting_char)
             SourceLines[i] = str_asciiline
+    #
+    if (result_re_longdash != None):
+            #SourceLines[i].replace("\\-","--")
+            CurrLine = re_longdash.sub("--",SourceLines[i])
+            SourceLines[i] = CurrLine
     #done markup
     #
     result_re_TH = re_TH.search(SourceLines[i])
@@ -115,17 +112,18 @@ while (i < len(SourceLines)):
         # the title must be split from the line, added, and underlined with the
         # same amount of '=' signs underneath
         CompTitle=SourceLines[i].split(' ')[1]
-        ComponentTitle.append(CompTitle)
-        ComponentTitle.append("="*len(CompTitle))
+        ComponentTitle.append(CompTitle+'\n')
+        ComponentTitle.append("="*len(CompTitle)+'\n\n')
         #ComponentTitle.append('\n')
     #
     result_re_SH = re_SH.search(SourceLines[i])
     if (result_re_SH != None):
         #.SH has been found, get the name, put it in the index and add the line
         CompHeader=SourceLines[i].split(' ')[1]
-        AsciidocLines.append('\n' + "===== " + CompHeader)
-        IndexLines.append(CompHeader)
-        #TODO: think about anchoring the index to the header
+        CompHeader=CompHeader.strip('\n')
+        AsciidocLines.append("\n\n" + "===== " + \
+                             "[[" + CompHeader.lower() + "]]" + CompHeader + "\n")
+        IndexLines.append(". <<" + CompHeader.lower() + "," + CompHeader + ">>" + "\n")
     #
     result_re_B = re_B.search(SourceLines[i])
     if (result_re_B != None):
@@ -166,23 +164,12 @@ while (i < len(SourceLines)):
 #return to while loop
 
 #TODO: parse for removal of i.e. **** or ____ (4 characters)
-#TODO: remove empty lines and only make empty lines before headers
-#TODO: make anchors in the index
 
 #now write all info into the target file
 AsciidocFile = open(TargetFilePath, 'w+')
 
-# starting with the component title
-for prog_line in ComponentTitle:
-    #    print line
-    print >> AsciidocFile, prog_line
+AsciidocFile.writelines(ComponentTitle)
+AsciidocFile.writelines(IndexLines)
+AsciidocFile.writelines(AsciidocLines)
 
-#the index
-for prog_line in IndexLines:
-    #    print line
-    print >> AsciidocFile, prog_line
-
-#the content
-for prog_line in AsciidocLines:
-    #    print line
-    print >> AsciidocFile, prog_line
+AsciidocFile.close()
