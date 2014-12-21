@@ -1,5 +1,12 @@
-# sim_lib.tcl: sim config procs
+# sim_lib.tcl: haltcl procs for sim configurations
 
+#----------------------------------------------------------------------
+# all globals are in one associative array ::SIM_LIB()
+set letters {x y z a b c u v w}
+foreach a {x y z a b c u v w} {
+  set ::SIM_LIB($a,idx) [lsearch $letters $a]
+}
+#----------------------------------------------------------------------
 proc core_sim {axes
                number_of_axes
                servo_period
@@ -7,6 +14,8 @@ proc core_sim {axes
                {emcmot motmod}
               } {
   # adapted as haltcl proc from core_sim.hal
+  # note: with default emcmot==motmot,
+  #       thread will not be added for (default) base_pariod == 9
   loadrt trivkins
   set lcmd "loadrt $emcmot"
   set lcmd "$lcmd base_period_nsec=$base_period"
@@ -16,10 +25,6 @@ proc core_sim {axes
   eval $lcmd
   addf motion-command-handler servo-thread
   addf motion-controller      servo-thread
-  set letters {x y z a b c u v w}
-  foreach aname {x y z a b c u v w} {
-    set ${aname}_idx [lsearch $letters $aname]
-  }
 
   set pid_names ""
   set mux_names ""
@@ -63,12 +68,13 @@ proc core_sim {axes
 
   net sample:enable <= motion.motion-enabled
   foreach a $axes {
+    set idx $::SIM_LIB($a,idx)
     net sample:enable => ${a}_mux.sel
 
-    net ${a}:enable  <= axis.[set ${a}_idx].amp-enable-out
+    net ${a}:enable  <= axis.$idx.amp-enable-out
     net ${a}:enable  => ${a}_pid.enable
 
-    net ${a}:pos-cmd <= axis.[set ${a}_idx].motor-pos-cmd
+    net ${a}:pos-cmd <= axis.$idx.motor-pos-cmd
     net ${a}:pos-cmd => ${a}_pid.command
 
     net ${a}:on-pos  <= ${a}_pid.output
@@ -76,13 +82,16 @@ proc core_sim {axes
 
     net ${a}:pos-fb  <= ${a}_mux.out
     net ${a}:pos-fb  => ${a}_mux.in0 ;# hold position when !motion-enabled
-    net ${a}:pos-fb  => axis.[set ${a}_idx].motor-pos-fb
+    net ${a}:pos-fb  => axis.$idx.motor-pos-fb
   }
 } ;# core_sim
 
 proc make_ddts {axes} {
   # adapted as haltcl proc from core_sim.hal
-  # 3 axes (xyz supported)
+  # any number of axes letters {x y z a b c u v w}
+  # note: 2d velocity output only for xy  (xy:vel)
+  # note: 3d velocity output only for xyz (xyz:vel)
+
   set ddt_names ""
   foreach a $axes {
     set ddt_names "${ddt_names},${a}_vel,${a}_accel"
@@ -98,7 +107,7 @@ proc make_ddts {axes} {
 
   # signal connections:
   foreach a $axes {
-    net ${a}:pos-cmd  => ${a}_vel.in ;# net presumed to exist
+    net ${a}:pos-fb   => ${a}_vel.in ;# net presumed to exist
     net ${a}:vel      <= ${a}_vel.out
     net ${a}:vel      => ${a}_accel.in
     net ${a}:acc      <= ${a}_accel.out
@@ -112,7 +121,6 @@ proc make_ddts {axes} {
         }
       z {net ${a}:vel => hyp_xyz.in2
         }
-      default {puts "make_ddts:axis not supported <$a>"}
     }
     net xy:vel   => hyp_xy.out
     net xyz:vel  <= hyp_xyz.out
@@ -138,43 +146,28 @@ proc use_hal_manualtoolchange {} {
 } ;# use_hal_manualtoolchange
 
 proc simulated_home {axes} {
-  # adapted as haltcl proc from simulated_home.hal
-  # 3 axes (xyz supported)
-  set comp_names ""
+  # uses sim_home_switch component
+  set switch_names ""
   foreach a $axes {
-    set comp_names "${comp_names},${a}_comp"
+    set switch_names "${switch_names},${a}_switch"
   }
-  set comp_names [string trimleft $comp_names ,]
-  loadrt comp names=$comp_names
-  foreach cname [split $comp_names ,] {
+  set switch_names [string trimleft $switch_names ,]
+  loadrt sim_home_switch names=$switch_names
+  foreach cname [split $switch_names ,] {
     addf $cname servo-thread
   }
-  loadrt or2  names=orhsw
-  addf orhsw servo-thread
 
   foreach a $axes {
-    net ${a}:homeswpos => ${a}_comp.in0
-    switch $a {
-      x {sets ${a}:homeswpos 1.0}
-      y {sets ${a}:homeswpos 0.5}
-      z {sets ${a}:homeswpos 2.0}
-      default {puts "simulated_home:axis not supported <$a>"}
-    }
-    setp ${a}_comp.hyst 0.02
+    set idx $::SIM_LIB($a,idx)
+    # add pin to pre-existing signal:
+    net ${a}:pos-fb => ${a}_switch.cur-pos
 
-    net  ${a}:pos-cmd => ${a}_comp.in1 ;# net presumed to exist
-    net  ${a}:homesw  <= ${a}_comp.out
+    net ${a}:homesw <= ${a}_switch.home-sw
+    net ${a}:homesw => axis.$idx.home-sw-in
+
+    #setp ${a}.$idx.hysteresis ;# using component default
+    #setp ${a}.$idx.home-pos   ;# using component default
   }
-
-  net y:homesw  => axis.1.home-sw-in
-
-  net x:homesw  => orhsw.in0
-  net z:homesw  => orhsw.in1
-
-  net xz:homesw <= orhsw.out
-  net xz:homesw => axis.0.home-sw-in
-  net xz:homesw => axis.2.home-sw-in
-
 } ;# simulated_home
 
 proc sim_spindle {} {

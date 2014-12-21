@@ -1,0 +1,49 @@
+component sim_home_switch "Simple home switch simulator";
+
+description
+"""
+After tripping home switch, travel in opposite direction is required (amount set by the hysteresis pin)
+""";
+pin in float cur_pos "Current position (typically: axis.n.motor-pos-fb)";
+pin in float home_pos = 1 "Home switch position";
+pin in float hysteresis = 0.1"Travel required to backoff (hysteresis)";
+pin out bit  home_sw"Home switch activated";
+
+function _ fp;
+license "GPL";
+;;
+
+FUNCTION(_) {
+    // could be simplified but this style is meant to be easy-to-read
+    if (home_pos >= 0) {
+        // home switch is on positive side
+        if (cur_pos >= home_pos) {
+            home_sw = 1;
+        } else {
+            if (cur_pos <= (home_pos - hysteresis) ) {
+                home_sw = 0;
+            } else {
+                if (home_sw) {
+                    home_sw = 1;
+                } else {
+                    home_sw = 0;
+                }
+            }
+        }
+    } else {
+        // negative home switch location
+        if (cur_pos <= home_pos) {
+            home_sw = 1;
+        } else {
+            if (cur_pos >= (home_pos + hysteresis) ) {
+                home_sw = 0;
+            } else {
+                if (home_sw) {
+                    home_sw = 1;
+                } else {
+                    home_sw = 0;
+                }
+            }
+        }
+    }
+}
