@@ -3978,79 +3978,89 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             elif widgetptype in (_PD.TXDATA3,_PD.SS7I77M3,_PD.SS7I76M3): channelnum = 3
                             elif widgetptype in (_PD.TXDATA4,_PD.SS7I77M4): channelnum = 4
                             elif widgetptype in (_PD.TXDATA5): channelnum = 5
+                            BASE = "mesa%dsserial0_%d"% (boardnum,channelnum)
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
-                                self.widgets["mesa%dsserial0_%d"% (boardnum,channelnum)].hide()
-                                self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "none"
+                                self.widgets[BASE].hide()
+                                self.d[BASE+"subboard"] = "none"
                                 return
                             else:
-                                self.widgets["mesa%dsserial0_%d"% (boardnum,channelnum)].show()
+                                self.widgets[BASE].show()
                                 # TODO we should search for these names rather then use hard coded logic
                                 # so as to make adding cards easier
                                 temp = self.widgets[p].get_active_text()
-                                table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
+                                table = BASE+"table2"
                                 self.widgets[table].show()
-                                table = "mesa%dsserial%d_%dtable3"% (boardnum, portnum, channelnum)
+                                table = BASE+"table3"
                                 self.widgets[table].show()
                                 if "7i76" in temp:
                                     if 'Mode 2' in temp:
                                         ssfirmname = "7i76-m2"
                                     else:
                                         ssfirmname = "7i76-m0"
-                                    self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = ssfirmname
+                                    self.d[BASE+"subboard"] = ssfirmname
+                                    self.widgets[BASE+'_tablabel'].set_text("7I76 I/O\n (SS# %d)"% channelnum)
                                 elif "7i64" in temp:
-                                    self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i64"
+                                    self.d[BASE+"subboard"] = "7i64"
+                                    self.widgets[BASE+'_tablabel'].set_text("7I64 I/O\n (SS# %d)"% channelnum)
                                 elif "7i69" in temp:
-                                    self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i69"
+                                    self.d[BASE+"subboard"] = "7i69"
                                     self.widgets[table].hide()
+                                    self.widgets[BASE+'_tablabel'].set_text("7I69 I/O\n (SS# %d)"% channelnum)
                                 elif "7i70" in temp:
-                                    self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i70"
+                                    self.d[BASE+"subboard"] = "7i70"
                                     self.widgets[table].hide()
+                                    self.widgets[BASE+'_tablabel'].set_text("7I70 I/O\n (SS# %d)"% channelnum)
                                 elif "7i71" in temp:
-                                    self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i71"
+                                    self.d[BASE+"subboard"] = "7i71"
                                     self.widgets[table].hide()
+                                    self.widgets[BASE+'_tablabel'].set_text("7I71 I/O\n (SS# %d)"% channelnum)
                                 elif "7i73" in temp:
-                                    self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "7i73-m1"
+                                    self.d[BASE+"subboard"] = "7i73-m1"
+                                    self.widgets[BASE+'_tablabel'].set_text("7I73 I/O\n (SS# %d)"% channelnum)
                                 elif "7i77" in temp:
                                     print 'ssname:',temp
                                     if 'Mode 3' in temp:
                                         ssfirmname = "7i77-m3"
                                     else:
                                         ssfirmname = "7i77-m0"
-                                    self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = ssfirmname
+                                    self.d[BASE+"subboard"] = ssfirmname
                                     if channelnum in(0,3):
+                                        self.widgets[BASE+'_tablabel'].set_text("7I77 I/O\n (SS# %d)"% channelnum)
                                         self.widgets[table].hide()
                                     elif channelnum in(1,4):
-                                        table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
+                                        self.widgets[BASE+'_tablabel'].set_text("7I77 PWM\n (SS# %d)"% channelnum)
+                                        table = BASE+"table2"
                                         self.widgets[table].hide()
-                                        table = "mesa%dsserial%d_%dtable1"% (boardnum, portnum, channelnum)
+                                        table = BASE+"table1"
                                         self.widgets[table].hide()
                                 elif "8i20" in temp:
-                                    self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "8i20"
+                                    self.d[BASE+"subboard"] = "8i20"
                                     self.widgets[table].hide()
-                                    table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
+                                    table = BASE+"table2"
                                     self.widgets[table].hide()
+                                    self.widgets[BASE+'_tablabel'].set_text("8I20\n (SS# %d)"% channelnum)
                                 else:
-                                    self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)] = "none"
+                                    self.d[BASE+"subboard"] = "none"
                                     self.widgets[table].hide()
-                                    table = "mesa%dsserial%d_%dtable2"% (boardnum, portnum, channelnum)
+                                    table = BASE+"table2"
                                     self.widgets[table].hide()
-                                    table = "mesa%dsserial%d_%dtable1"% (boardnum, portnum, channelnum)
+                                    table = BASE+"table1"
                                     self.widgets[table].hide()
                                     return
                                 # set sserial tab names to corresond to connector numbers so users have a clue
                                 # first we have to find the daughter board in pncconf's internal list
                                 # TODO here we search the list- this should be done for the table names see above todo
-                                subfirmname = self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)]
+                                subfirmname = self.d[BASE+"subboard"]
                                 for subnum,temp in enumerate(self._p.MESA_DAUGHTERDATA):
                                     if self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBFIRMNAME] == subfirmname: break
                                 subconlist = self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBCONLIST]
                                 # now search the connector list and write it to the tab names
                                 for tabnum in range(0,3):
                                     conname = subconlist[tabnum]
-                                    tab = "mesa%dsserial%d_%dtab%d"% (boardnum, portnum, channelnum,tabnum)
+                                    tab = BASE+"tab%d"% tabnum
                                     self.widgets[tab].set_text(conname)
 
-                                #print p,temp," set at",self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)]
+                                #print p,temp," set at",self.d[BASE+"subboard"]
                                 self.set_sserial_options(boardnum,portnum,channelnum)
                                 self.p.set_buttons_sensitive(1,1)
                                 return
