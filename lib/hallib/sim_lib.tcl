@@ -149,8 +149,7 @@ proc simulated_home {axes} {
   foreach cname [split $comp_names ,] {
     addf $cname servo-thread
   }
-  loadrt or8  names=orhsw ;# use or8 as it is less likely to
-                           # conflict with another halfile
+  loadrt or2  names=orhsw
   addf orhsw servo-thread
 
   foreach a $axes {
