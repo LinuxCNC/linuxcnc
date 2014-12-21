@@ -2446,14 +2446,18 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             #    for i,j in enumerate(customself._p.MESA_FIRMWAREDATA):
             #        self._p.MESA_FIRMWAREDATA.append(customself._p.MESA_FIRMWAREDATA[i])
             # ok set up mesa info
-            #print 'firmware data',self.d["mesa%d_firmware"% boardnum]
+            dbg('Looking for firmware data %s'%self.d["mesa%d_firmware"% boardnum])
+            found = False
             search = 0
             model = self.widgets["mesa%d_firmware"% boardnum].get_model()
             for search,item in enumerate(model):
+                dbg('%d,%s'%(search,model[search][0]))
                 if model[search][0]  == self.d["mesa%d_firmware"% boardnum]:
                     self.widgets["mesa%d_firmware"% boardnum].set_active(search)
+                    found = True
+                    dbg('found firmware')
                     break
-            if search == (len(model)-1):
+            if not found:
                 self.widgets["mesa%d_firmware"% boardnum].set_active(0)
             else:      
                 self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(self.d["mesa%d_pwm_frequency"% boardnum])
