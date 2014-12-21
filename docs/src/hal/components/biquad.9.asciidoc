@@ -1,0 +1,83 @@
+BIQUAD
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+biquad -- Biquad IIR filter
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt biquad [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+Biquad IIR filter. Implements the following transfer function:
+H(z) = (n0 + n1z-1 + n2z-2) / (1+ d1z-1 + d2z-2)
+
+
+===== [[functions]]FUNCTIONS
+
+**biquad.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+biquad.__N__**.in** float in 
+Filter input.
+
+biquad.__N__**.out** float out 
+Filter output.
+
+biquad.__N__**.enable** bit in (default: __0__)
+Filter enable. When false, the in is passed to out without any filtering. A transition from false to true causes filter coefficients to be calculated according to parameters
+
+biquad.__N__**.valid** bit out (default: __0__)
+When false, indicates an error occured when caclulating filter coefficients.
+
+
+===== [[parameters]]PARAMETERS
+
+biquad.__N__**.type** u32 rw (default: __0__)
+Filter type determines the type of filter coefficients calculated. When 0, coefficients must be loaded directly. When 1, a low pass filter is created. When 2, a notch filter is created.
+
+biquad.__N__**.f0** float rw (default: __250.0__)
+The corner frequency of the filter.
+
+biquad.__N__**.Q** float rw (default: __0.7071__)
+The Q of the filter.
+
+biquad.__N__**.d1** float rw (default: __0.0__)
+1st-delayed denominator coef
+
+biquad.__N__**.d2** float rw (default: __0.0__)
+2nd-delayed denominator coef
+
+biquad.__N__**.n0** float rw (default: __1.0__)
+non-delayed numerator coef
+
+biquad.__N__**.n1** float rw (default: __0.0__)
+1st-delayed numerator coef
+
+biquad.__N__**.n2** float rw (default: __0.0__)
+2nd-delayed numerator coef
+
+biquad.__N__**.s1** float rw (default: __0.0__)
+biquad.__N__**.s2** float rw (default: __0.0__)
+
+
+===== [[license]]LICENSE
+
+GPL

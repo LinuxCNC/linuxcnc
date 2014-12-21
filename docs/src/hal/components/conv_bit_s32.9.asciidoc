@@ -1,0 +1,36 @@
+CONV_BIT_S32
+============
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+conv_bit_s32 -- Convert a value from bit to s32
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt conv_bit_s32 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**conv-bit-s32.**__N__
+Update 'out' based on 'in'
+
+
+===== [[pins]]PINS
+
+conv-bit-s32.__N__**.in** bit in 
+conv-bit-s32.__N__**.out** s32 out 
+
+
+===== [[license]]LICENSE
+
+GPL

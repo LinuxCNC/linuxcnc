@@ -1,0 +1,42 @@
+RTFAULT
+=======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+rtfault -- generate RT faults on purpose
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt rtfault
+
+
+===== [[functions]]FUNCTIONS
+
+**rtfault** (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+rtfault.fault bit in 
+cause a series of count RT faults
+
+rtfault.count u32 in 
+number of faults
+
+rtfault.delay u32 in 
+ms delay on fault ⁽less than 1000)
+
+
+===== [[license]]LICENSE
+
+GPL

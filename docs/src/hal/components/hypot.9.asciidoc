@@ -1,0 +1,39 @@
+HYPOT
+=====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+hypot -- Three-input hypotenuse (Euclidean distance) calculator
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt hypot [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**hypot.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+hypot.__N__**.in0** float in 
+hypot.__N__**.in1** float in 
+hypot.__N__**.in2** float in 
+hypot.__N__**.out** float out 
+out = sqrt(in0^2 + in1^2 + in2^2)
+
+
+===== [[license]]LICENSE
+
+GPL

@@ -1,0 +1,78 @@
+MUX8
+====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+mux8 -- Select from one of eight input values
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt mux8 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**mux8.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+mux8.__N__**.sel0** bit in 
+mux8.__N__**.sel1** bit in 
+mux8.__N__**.sel2** bit in 
+Together, these determine which **in**__N__ value is copied to **out**.
+
+
+mux8.__N__**.out** float out 
+Follows the value of one of the **in**__N__ values according to the three **sel** values
+.RS
+
+**sel2=FALSE**, **sel1=FALSE**, **sel0=FALSE**
+**out** follows **in0**
+
+**sel2=FALSE**, **sel1=FALSE**, **sel0=TRUE**
+**out** follows **in1**
+
+**sel2=FALSE**, **sel1=TRUE**, **sel0=FALSE**
+**out** follows **in2**
+
+**sel2=FALSE**, **sel1=TRUE**, **sel0=TRUE**
+**out** follows **in3**
+
+**sel2=TRUE**, **sel1=FALSE**, **sel0=FALSE**
+**out** follows **in4**
+
+**sel2=TRUE**, **sel1=FALSE**, **sel0=TRUE**
+**out** follows **in5**
+
+**sel2=TRUE**, **sel1=TRUE**, **sel0=FALSE**
+**out** follows **in6**
+
+**sel2=TRUE**, **sel1=TRUE**, **sel0=TRUE**
+**out** follows **in7**
+.RE
+
+
+mux8.__N__**.in0** float in 
+mux8.__N__**.in1** float in 
+mux8.__N__**.in2** float in 
+mux8.__N__**.in3** float in 
+mux8.__N__**.in4** float in 
+mux8.__N__**.in5** float in 
+mux8.__N__**.in6** float in 
+mux8.__N__**.in7** float in 
+
+
+===== [[license]]LICENSE
+
+GPL

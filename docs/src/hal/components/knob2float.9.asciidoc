@@ -1,0 +1,55 @@
+KNOB2FLOAT
+==========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+knob2float -- Convert counts (probably from an encoder) to a float value
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt knob2float [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**knob2float.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+knob2float.__N__**.counts** s32 in 
+Counts
+
+knob2float.__N__**.enable** bit in 
+When TRUE, output is controlled by count, when FALSE, output is fixed
+
+knob2float.__N__**.scale** float in 
+Amount of output change per count
+
+knob2float.__N__**.out** float out 
+Output value
+
+
+===== [[parameters]]PARAMETERS
+
+knob2float.__N__**.max-out** float rw (default: __1.0__)
+Maximum output value, further increases in count will be ignored
+
+knob2float.__N__**.min-out** float rw (default: __0.0__)
+Minimum output value, further decreases in count will be ignored
+
+
+===== [[license]]LICENSE
+
+GPL

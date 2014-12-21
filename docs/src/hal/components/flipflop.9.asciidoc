@@ -1,0 +1,48 @@
+FLIPFLOP
+========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+flipflop -- D type flip-flop
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt flipflop [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**flipflop.**__N__
+
+
+
+===== [[pins]]PINS
+
+flipflop.__N__**.data** bit in 
+data input
+
+flipflop.__N__**.clk** bit in 
+clock, rising edge writes data to out
+
+flipflop.__N__**.set** bit in 
+when true, force out true
+
+flipflop.__N__**.reset** bit in 
+when true, force out false; overrides set
+
+flipflop.__N__**.out** bit io 
+output
+
+
+===== [[license]]LICENSE
+
+GPL

@@ -1,0 +1,37 @@
+SAMPLE_HOLD
+===========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+sample_hold -- Sample and Hold
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt sample_hold [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**sample-hold.**__N__
+
+
+
+===== [[pins]]PINS
+
+sample-hold.__N__**.in** s32 in 
+sample-hold.__N__**.hold** bit in 
+sample-hold.__N__**.out** s32 out 
+
+
+===== [[license]]LICENSE
+
+GPL

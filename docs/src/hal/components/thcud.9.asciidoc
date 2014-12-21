@@ -1,0 +1,147 @@
+THCUD
+=====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+thcud -- Torch Height Control Up/Down Input
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt thcud
+
+
+===== [[description]]DESCRIPTION
+
+
+Torch Height Control
+This THC takes either an up or a down input from a THC
+
+If enabled and torch is on and X + Y velocity is within tolerance of set speed
+allow the THC to offset the Z axis as needed to maintain voltage.
+
+If enabled and torch is off and the Z axis is moving up remove any correction
+at a rate not to exceed the rate of movement of the Z axis.
+
+If enabled and torch is off and there is no correction 
+pass the Z position and feed back untouched.
+
+If not enabled pass the Z position and feed back untouched.
+
+Physical Connections typical
+paraport.0.pin-12-in <= THC controller Plasma Up 
+paraport.0.pin-13-in <= THC controller Plasma Down
+parport.0.pin-15-in  <= Plasma Torch Arc Ok Signal
+parport.0.pin-16-out => Plasma Torch Start Arc Contacts
+
+HAL Plasma Connections
+thc.torch-up <= paraport.0.pin-12-in
+thc.torch-down <= paraport.0.pin-13-in
+motion.spindle-on => parport.0.pin-16-out (start the arc)
+thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
+
+HAL Motion Connections
+thc.requested-vel <= motion.requested-vel
+thc.current-vel <= motion.current-vel
+
+Pyvcp Connections
+In the xml file you need something like:
+
+<checkbutton>
+  <text>"THC Enable"</text>
+  <halpin>"thc-enable"</halpin>
+</checkbutton>
+<spinbox>
+  <width>"5"</width>
+  <halpin>"vel-tol"</halpin>
+  <min_>.01</min_>
+  <max_>1</max_>
+  <resolution>0.01</resolution>
+  <initval>0.2</initval>
+  <format>"1.2f"</format>
+  <font>("Arial",10)</font>
+</spinbox>
+
+Connect the Pyvcp pins in the postgui.hal file like this:
+
+net thc-enable thcud.enable <= pyvcp.thc-enable
+
+
+
+
+===== [[functions]]FUNCTIONS
+
+**thcud** (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+thcud.torch-up bit in 
+Connect to an input pin
+
+thcud.torch-down bit in 
+Connect to input pin
+
+thcud.current-vel float in 
+Connect to motion.current-vel
+
+thcud.requested-vel float in 
+Connect to motion.requested-vel
+
+thcud.torch-on bit in 
+Connect to motion.spindle-on
+
+thcud.arc-ok bit in 
+Arc Ok from Plasma Torch
+
+thcud.enable bit in 
+Enable the THC, if not enabled Z position is passed through
+
+thcud.z-pos-in float in 
+Z Motor Position Command in from axis.n.motor-pos-cmd
+
+thcud.z-pos-out float out 
+Z Motor Position Command Out
+
+thcud.z-fb-out float out 
+Z Position Feedback to Axis
+
+thcud.cur-offset float out 
+The Current Offset
+
+thcud.vel-status bit out 
+When the THC thinks we are at requested speed
+
+thcud.removing-offset bit out 
+Pin for testing
+
+
+===== [[parameters]]PARAMETERS
+
+thcud.velocity-tol float rw 
+The deviation percent from planned velocity
+
+thcud.correction-vel float rw 
+The Velocity to move Z to correct
+
+
+===== [[author]]AUTHOR
+
+John Thornton
+
+
+===== [[license]]LICENSE
+
+GPLv2 or greater

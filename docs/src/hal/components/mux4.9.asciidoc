@@ -1,0 +1,61 @@
+MUX4
+====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+mux4 -- Select from one of four input values
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt mux4 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**mux4.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+mux4.__N__**.sel0** bit in 
+mux4.__N__**.sel1** bit in 
+Together, these determine which **in**__N__ value is copied to **out**.
+
+
+mux4.__N__**.out** float out 
+Follows the value of one of the **in**__N__ values according to the two **sel** values
+.RS
+
+**sel1=FALSE**, **sel0=FALSE**
+**out** follows **in0**
+
+**sel1=FALSE**, **sel0=TRUE**
+**out** follows **in1**
+
+**sel1=TRUE**, **sel0=FALSE**
+**out** follows **in2**
+
+**sel1=TRUE**, **sel0=TRUE**
+**out** follows **in3**
+.RE
+
+
+mux4.__N__**.in0** float in 
+mux4.__N__**.in1** float in 
+mux4.__N__**.in2** float in 
+mux4.__N__**.in3** float in 
+
+
+===== [[license]]LICENSE
+
+GPL

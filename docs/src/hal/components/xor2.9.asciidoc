@@ -1,0 +1,47 @@
+XOR2
+====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+xor2 -- Two-input XOR (exclusive OR) gate
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt xor2 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**xor2.**__N__
+
+
+
+===== [[pins]]PINS
+
+xor2.__N__**.in0** bit in 
+xor2.__N__**.in1** bit in 
+xor2.__N__**.out** bit out 
+**out** is computed from the value of **in0** and **in1** according
+to the following rule:
+.RS
+
+**in0=TRUE in1=FALSE**
+**in0=FALSE in1=TRUE**
+**out=TRUE**
+
+Otherwise,
+**out=FALSE**
+
+
+===== [[license]]LICENSE
+
+GPL

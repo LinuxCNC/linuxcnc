@@ -1,0 +1,55 @@
+TIMEDELAY
+=========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+timedelay -- The equivalent of a time-delay relay
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt timedelay [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**timedelay.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+timedelay.__N__**.in** bit in 
+timedelay.__N__**.out** bit out 
+Follows the value of **in** after applying the delays
+**on-delay** and **off-delay**.
+
+timedelay.__N__**.on-delay** float in (default: __0.5__)
+The time, in seconds, for which **in** must be
+**true** before **out** becomes **true**
+
+timedelay.__N__**.off-delay** float in (default: __0.5__)
+The time, in seconds, for which **in** must be
+**false** before **out** becomes **false**
+
+timedelay.__N__**.elapsed** float out 
+Current value of the internal timer
+
+
+===== [[author]]AUTHOR
+
+Jeff Epler, based on works by Stephen Wille Padnos and John Kasunich
+
+
+===== [[license]]LICENSE
+
+GPL

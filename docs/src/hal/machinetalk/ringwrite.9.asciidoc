@@ -1,0 +1,48 @@
+RINGWRITE
+=========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+ringwrite
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt ringwrite
+
+
+===== [[functions]]FUNCTIONS
+
+**ringwrite** (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+ringwrite.write bit in 
+send a message on pin transition
+
+ringwrite.sent u32 out 
+number of messages written
+
+ringwrite.overrun u32 out 
+number of failed write attempts
+
+ringwrite.dropped u32 out 
+number of records deleted when writing to full buffer
+
+ringwrite.circular bit in 
+circular flag - set to nonzero to enable circular record buffer
+
+
+===== [[license]]LICENSE
+
+GPLv2 or later

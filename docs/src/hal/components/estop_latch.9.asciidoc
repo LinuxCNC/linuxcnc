@@ -1,0 +1,40 @@
+ESTOP_LATCH
+===========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+estop_latch -- ESTOP latch which sets ok-out true and fault-out false only if ok-in is true, fault-in is false, and a rising edge is seen on reset.  While ok-out is true, watchdog toggles, and can be used for chargepumps or similar needs.
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt estop_latch [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**estop-latch.**__N__
+
+
+
+===== [[pins]]PINS
+
+estop-latch.__N__**.ok-in** bit in 
+estop-latch.__N__**.fault-in** bit in 
+estop-latch.__N__**.reset** bit in 
+estop-latch.__N__**.ok-out** bit out 
+estop-latch.__N__**.fault-out** bit out 
+estop-latch.__N__**.watchdog** bit out 
+
+
+===== [[license]]LICENSE
+
+GPL

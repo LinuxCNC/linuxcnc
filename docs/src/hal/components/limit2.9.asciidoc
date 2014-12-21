@@ -1,0 +1,46 @@
+LIMIT2
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+limit2 -- Limit the output signal to fall between min and max and limit its slew rate to less than maxv per second.  When the signal is a position, this means that position and velocity are limited.
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt limit2 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**limit2.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+limit2.__N__**.in** float in 
+limit2.__N__**.out** float out 
+limit2.__N__**.load** bit in 
+When TRUE, immediately set **out to in**, ignoring maxv
+
+
+===== [[parameters]]PARAMETERS
+
+limit2.__N__**.min** float rw (default: __-1e20__)
+limit2.__N__**.max** float rw (default: __1e20__)
+limit2.__N__**.maxv** float rw (default: __1e20__)
+
+
+===== [[license]]LICENSE
+
+GPL

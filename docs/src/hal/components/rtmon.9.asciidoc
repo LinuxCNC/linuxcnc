@@ -1,0 +1,102 @@
+RTMON
+=====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+rtmon -- monitor RT faults and generate estop signal based on a parameterized function
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt rtmon
+
+
+===== [[description]]DESCRIPTION
+
+
+
+This component is an example how realtime faults (e.g. timing violations) can be dealt with. The realtime API (RTAPI)
+only collects relevant events but does not act upon them; every RT fault causes a call to the RTAPI
+exception handler, which is a function in RTAPI printing a message to the system log by default.
+
+This exception handler may be overridden within a RT HAL component by means of the
+rtapi_set_exception(new_handler) function. The arguments of the handler provide detail about the cause
+of the fault.
+
+The rtmon component intercepts this exception handler, and applies policy - for instance, to generate an
+estop signal based on a set of parameters.
+
+The scheme implemented here was inspired by Andy Pugh's smart serial code, which works as follows:
+
+There is a programable increment, decrement and limit. If there is an
+error then the error count increments, if no error it decrements, when
+you hit the limit, you trigger a reaction.
+
+No decrement = no fault healing. No increment = no fault reaction.
+
+Assuming that the rtmon thread function is added to the servo thread (1mS) , then an increment of
+100 and decrement of 1 and threshold of 500 would trigger a fault
+reaction after 5 seconds of more than ten errors a second.
+
+Another scenario could be where a certain amount of errors during startup is tolerated:
+If you know that there will be 100 faults at startup, but those are
+OK, but any later ones are a problem, then increment of 1, decrement
+of zero and threshold of 101 (simplistically) gives that behaviour.
+
+
+
+===== [[functions]]FUNCTIONS
+
+**rtmon** (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+rtmon.estop bit out 
+activated if more than <threshold> exceptions occur.
+
+rtmon.estop-reset bit in 
+a positive edge on this pin clears the estop and fault_count pins
+
+rtmon.rt-faults u32 out 
+total number of RT scheduling violations observed
+
+rtmon.fault-count u32 out 
+current level for RT scheduling violations; reset on estop_reset positive edge
+
+rtmon.stats-updates u32 out 
+total number of rtapi_task_update_stats() calls so far
+
+
+===== [[parameters]]PARAMETERS
+
+rtmon.fault-inc u32 rw (default: __1__)
+increment faul_count by fault_inc for each RT fault detected
+
+rtmon.fault-dec u32 rw (default: __0__)
+decrement faul_count in each thread iteration
+
+rtmon.fault-limit u32 rw (default: __1__)
+if fault_count exceeds fault_limit, cause an estop
+
+rtmon.autoclear-estop bit rw (default: __0__)
+clear estop condition once fault_count reaches zero
+
+rtmon.stats-divisor u32 rw (default: __1000__)
+rtapi_task_update_stats() update frequency
+
+
+===== [[license]]LICENSE
+
+GPL

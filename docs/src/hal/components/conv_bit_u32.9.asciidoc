@@ -1,0 +1,36 @@
+CONV_BIT_U32
+============
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+conv_bit_u32 -- Convert a value from bit to u32
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt conv_bit_u32 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**conv-bit-u32.**__N__
+Update 'out' based on 'in'
+
+
+===== [[pins]]PINS
+
+conv-bit-u32.__N__**.in** bit in 
+conv-bit-u32.__N__**.out** u32 out 
+
+
+===== [[license]]LICENSE
+
+GPL

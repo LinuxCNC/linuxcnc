@@ -1,0 +1,45 @@
+RINGREAD
+========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+ringread
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt ringread
+
+
+===== [[functions]]FUNCTIONS
+
+**ringread** (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+ringread.underrun u32 out 
+number of failed read attempts
+
+ringread.received u32 out 
+number of successful read attempts
+
+ringread.tooslow u32 out 
+number of times the reader couldnt keep up with the writer
+
+ringread.circular bit in 
+circular flag - set to nonzero to enable circular record buffer
+
+
+===== [[license]]LICENSE
+
+GPLv2 or later

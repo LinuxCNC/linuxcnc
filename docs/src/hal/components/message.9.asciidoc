@@ -1,0 +1,76 @@
+MESSAGE
+=======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+message -- Display a message
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt message [count=__N__**|names=**__name1__**[,**__name2...__**]] [messages=**__N__**]
+**.RS 4
+
+**messages**
+The messages to display. These should be listed,
+comma-delimited, inside a single set of quotes. See the "Description" section
+for an example.
+If there are more messages than "count" or "names" then the excess will be
+ignored. If there are fewer messages than "count" or "names" then an error will
+be raised and the component will not load.
+.RE
+
+
+===== [[description]]DESCRIPTION
+
+Allows HAL pins to trigger a message. Example hal commands:
+ loadrt message names=oillow,oilpressure,inverterfail messages="Slideway oil low,No oil
+pressure,Spindle inverter fault"
+ addf oillow servo-thread
+ addf oilpressure servo-thread
+ addf inverterfail servo-thread
+ 
+ setp oillow.edge 0 #this pin should be active low
+ net no-oil classicladder.0.out-21 oillow.trigger
+ net no-pressure classicladder.0.out-22 oilpressure.trigger
+ net no-inverter classicladder.0.out-23 inverterfail.trigger
+ 
+When any pin goes active, the corresponding message will be displayed.
+
+
+===== [[functions]]FUNCTIONS
+
+**message.**__N__
+Display a message
+
+
+===== [[pins]]PINS
+
+message.__N__**.trigger** bit in (default: __FALSE__)
+signal that triggers the message
+
+message.__N__**.force** bit in (default: __FALSE__)
+A FALSE->TRUE transition forces the message to be
+displayed again if the trigger is active
+
+
+===== [[parameters]]PARAMETERS
+
+message.__N__**.edge** bit rw (default: __TRUE__)
+Selects the desired edge: TRUE means falling, FALSE
+means rising
+
+
+===== [[license]]LICENSE
+
+GPL v2

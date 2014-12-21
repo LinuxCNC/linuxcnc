@@ -1,0 +1,45 @@
+CONV_S32_BIT
+============
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+conv_s32_bit -- Convert a value from s32 to bit
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt conv_s32_bit [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**conv-s32-bit.**__N__
+Update 'out' based on 'in'
+
+
+===== [[pins]]PINS
+
+conv-s32-bit.__N__**.in** s32 in 
+conv-s32-bit.__N__**.out** bit out 
+conv-s32-bit.__N__**.out-of-range** bit out 
+TRUE when 'in' is not in the range of bit
+
+
+===== [[parameters]]PARAMETERS
+
+conv-s32-bit.__N__**.clamp** bit rw 
+If TRUE, then clamp to the range of bit.  If FALSE, then allow the value to "wrap around".
+
+
+===== [[license]]LICENSE
+
+GPL

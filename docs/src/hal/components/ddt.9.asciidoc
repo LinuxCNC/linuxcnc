@@ -1,0 +1,36 @@
+DDT
+===
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+ddt -- Compute the derivative of the input function
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt ddt [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**ddt.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+ddt.__N__**.in** float in 
+ddt.__N__**.out** float out 
+
+
+===== [[license]]LICENSE
+
+GPL

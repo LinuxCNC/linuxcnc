@@ -1,0 +1,65 @@
+CLARKE2
+=======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<see,SEE>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+clarke2 -- Two input version of Clarke transform
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt clarke2 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+The Clarke transform can be used to translate a vector
+quantity from a three phase system (three components 120 degrees
+apart) to a two phase Cartesian system.
+.P
+**clarke2** implements
+a special case of the Clarke transform, which only needs two of the
+three input phases.  In a three wire three phase system, the sum of the
+three phase currents or voltages must always be zero.  As a result only
+two of the three are needed to completely define the current or voltage.
+**clarke2** assumes that the sum is zero, so it only uses phases A and
+B of the input.  Since the H (homopolar) output will always be zero in
+this case, it is not generated.
+
+
+===== [[functions]]FUNCTIONS
+
+**clarke2.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+clarke2.__N__**.a** float in 
+clarke2.__N__**.b** float in 
+first two phases of three phase input
+
+clarke2.__N__**.x** float out 
+clarke2.__N__**.y** float out 
+cartesian components of output
+
+
+===== [[see]]SEE
+
+**clarke3** for the general case, **clarkeinv** for
+the inverse transform.
+
+
+===== [[license]]LICENSE
+
+GPL

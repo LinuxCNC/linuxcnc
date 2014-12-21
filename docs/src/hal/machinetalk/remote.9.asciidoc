@@ -1,0 +1,39 @@
+REMOTE
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+remote
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt remote
+
+
+===== [[functions]]FUNCTIONS
+
+**remote** (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+remote.to-remote float in 
+a value passed to a remote HAL component
+
+remote.from-remote float in 
+a value updated by a remote HAL component
+
+
+===== [[license]]LICENSE
+
+GPLv2 or later

@@ -1,0 +1,44 @@
+INTEG
+=====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+integ -- Integrator with gain pin and windup limits
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt integ [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**integ.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+integ.__N__**.in** float in 
+integ.__N__**.gain** float in (default: __1.0__)
+integ.__N__**.out** float out 
+The discrete integral of 'gain * in' since 'reset' was deasserted
+
+integ.__N__**.reset** bit in 
+When asserted, set out to 0
+
+integ.__N__**.max** float in (default: __1e20__)
+integ.__N__**.min** float in (default: __-1e20__)
+
+
+===== [[license]]LICENSE
+
+GPL

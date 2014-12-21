@@ -1,0 +1,36 @@
+NOT
+===
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+not -- Inverter
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt not [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**not.**__N__
+
+
+
+===== [[pins]]PINS
+
+not.__N__**.in** bit in 
+not.__N__**.out** bit out 
+
+
+===== [[license]]LICENSE
+
+GPL

@@ -1,0 +1,61 @@
+LOGIC
+=====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+logic -- LinuxCNC HAL component providing configurable logic functions
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt logic [count=__N__**|names=**__name1__**[,**__name2...__**]] [personality=**__P,P,...__**]
+**
+
+===== [[description]]DESCRIPTION
+
+
+General `logic function' component.  Can perform `and', `or'
+and `xor' of up to 16 inputs.
+.LP
+Determine the proper value for `personality'
+by adding the inputs and outputs then convert to hex:
+.IP \(bu 4
+The number of input pins, usually from 2 to 16
+.IP \(bu
+256 (0x100)  if the `and' output is desired
+.IP \(bu
+512 (0x200)  if the `or' output is desired
+.IP \(bu
+1024 (0x400)  if the `xor' (exclusive or) output is desired
+.LP
+Outputs can be combined, for example 2 + 256 + 1024 = 1282 converted to hex
+would be 0x502 and would have two inputs and have both `xor' and `and' outputs.
+
+
+
+===== [[functions]]FUNCTIONS
+
+**logic.**__N__
+
+
+
+===== [[pins]]PINS
+
+logic.__N__**.in-**__MM__ bit in  (MM=00..personality & 0xff) 
+logic.__N__**.and** bit out  [if personality & 0x100] 
+logic.__N__**.or** bit out  [if personality & 0x200] 
+logic.__N__**.xor** bit out  [if personality & 0x400] 
+
+
+===== [[license]]LICENSE
+
+GPL

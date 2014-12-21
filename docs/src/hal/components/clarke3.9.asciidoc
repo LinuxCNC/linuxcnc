@@ -1,0 +1,66 @@
+CLARKE3
+=======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<see,SEE>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+clarke3 -- Clarke (3 phase to cartesian) transform
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt clarke3 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+The Clarke transform can be used to translate a vector
+quantity from a three phase system (three components 120 degrees
+apart) to a two phase Cartesian system (plus a homopolar component
+if the three phases don't sum to zero).
+.P
+**clarke3** implements
+the general case of the transform, using all three phases.  If the
+three phases are known to sum to zero, see **clarke2** for a
+simpler version.
+
+
+===== [[functions]]FUNCTIONS
+
+**clarke3.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+clarke3.__N__**.a** float in 
+clarke3.__N__**.b** float in 
+clarke3.__N__**.c** float in 
+three phase input vector
+
+clarke3.__N__**.x** float out 
+clarke3.__N__**.y** float out 
+cartesian components of output
+
+clarke3.__N__**.h** float out 
+homopolar component of output
+
+
+===== [[see]]SEE
+
+**clarke2** for the 'a+b+c=0' case, **clarkeinv** for
+the inverse transform.
+
+
+===== [[license]]LICENSE
+
+GPL

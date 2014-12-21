@@ -1,0 +1,51 @@
+OFFSET
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+offset -- Adds an offset to an input, and subtracts it from the feedback value
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt offset [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**offset.**__N__**.update-output** (requires a floating-point thread)
+Updated the output value by adding the offset to the input
+
+**offset.**__N__**.update-feedback** (requires a floating-point thread)
+Update the feedback value by subtracting the offset from the feedback
+
+
+===== [[pins]]PINS
+
+offset.__N__**.offset** float in 
+The offset value
+
+offset.__N__**.in** float in 
+The input value
+
+offset.__N__**.out** float out 
+The output value
+
+offset.__N__**.fb-in** float in 
+The feedback input value
+
+offset.__N__**.fb-out** float out 
+The feedback output value
+
+
+===== [[license]]LICENSE
+
+GPL

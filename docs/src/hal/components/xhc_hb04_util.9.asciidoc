@@ -1,0 +1,70 @@
+XHC_HB04_UTIL
+=============
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+xhc_hb04_util -- xhc-hb04 convenience utility
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt xhc_hb04_util [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+Provides logic for a start/pause button and an interface
+to halui.program.is_paused,is_idle,is_running to generate outputs for
+halui.program.pause,resume,run.
+
+Includes 4 simple lowpass filters with coef and scale pins.  The coef value should
+be 0 <= coef <=1, smaller coef values slow response.  Note: the xhc_hb04
+component includes smoothing so these values can usually be left at 1.0
+
+
+
+===== [[functions]]FUNCTIONS
+
+**xhc-hb04-util.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+xhc-hb04-util.__N__**.start-or-pause** bit in 
+xhc-hb04-util.__N__**.is-paused** bit in 
+xhc-hb04-util.__N__**.is-idle** bit in 
+xhc-hb04-util.__N__**.is-running** bit in 
+xhc-hb04-util.__N__**.pause** bit out 
+xhc-hb04-util.__N__**.resume** bit out 
+xhc-hb04-util.__N__**.run** bit out 
+xhc-hb04-util.__N__**.in0** s32 in 
+xhc-hb04-util.__N__**.in1** s32 in 
+xhc-hb04-util.__N__**.in2** s32 in 
+xhc-hb04-util.__N__**.in3** s32 in 
+xhc-hb04-util.__N__**.out0** s32 out 
+xhc-hb04-util.__N__**.out1** s32 out 
+xhc-hb04-util.__N__**.out2** s32 out 
+xhc-hb04-util.__N__**.out3** s32 out 
+xhc-hb04-util.__N__**.scale0** float in (default: __1.0__)
+xhc-hb04-util.__N__**.scale1** float in (default: __1.0__)
+xhc-hb04-util.__N__**.scale2** float in (default: __1.0__)
+xhc-hb04-util.__N__**.scale3** float in (default: __1.0__)
+xhc-hb04-util.__N__**.coef0** float in (default: __1.0__)
+xhc-hb04-util.__N__**.coef1** float in (default: __1.0__)
+xhc-hb04-util.__N__**.coef2** float in (default: __1.0__)
+xhc-hb04-util.__N__**.coef3** float in (default: __1.0__)
+
+
+===== [[license]]LICENSE
+
+GPL

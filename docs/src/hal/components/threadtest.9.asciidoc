@@ -1,0 +1,38 @@
+THREADTEST
+==========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+threadtest -- LinuxCNC HAL component for testing thread behavior
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt threadtest [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**threadtest.**__N__**.increment**
+
+
+**threadtest.**__N__**.reset**
+
+
+
+===== [[pins]]PINS
+
+threadtest.__N__**.count** u32 out 
+
+
+===== [[license]]LICENSE
+
+GPL

@@ -1,0 +1,65 @@
+MULTISWITCH
+===========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+multiswitch -- This component toggles between a specified number of output bits
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt multiswitch personality=__P__** [cfg=**__N__**]
+**.RS 4
+
+**cfg**
+cfg should be a comma-separated list of sizes
+for example cfg=2,4,6 would create 3 instances of 2, 4 and 6 bits respectively.
+ Ignore the "personality" parameter, that is auto-generated
+.RE
+
+
+===== [[functions]]FUNCTIONS
+
+**multiswitch.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+multiswitch.__N__**.up** bit in (default: __false__)
+Receives signal to toggle up
+
+multiswitch.__N__**.down** bit in (default: __false__)
+Receives signal to toggle down
+
+multiswitch.__N__**.bit-**__MM__ bit out  (MM=00..personality) (default: __false__)
+Output bits
+
+
+===== [[parameters]]PARAMETERS
+
+multiswitch.__N__**.top-position** u32 rw 
+Number of positions
+
+multiswitch.__N__**.position** s32 rw 
+Current state (may be set in the HAL)
+
+
+===== [[author]]AUTHOR
+
+ArcEye schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org
+
+
+===== [[license]]LICENSE
+
+GPL

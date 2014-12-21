@@ -1,0 +1,57 @@
+WCOMP
+=====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<notes,NOTES>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+wcomp -- Window comparator
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt wcomp [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**wcomp.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+wcomp.__N__**.in** float in 
+Value being compared
+
+wcomp.__N__**.min** float in 
+Low boundary for comparison
+
+wcomp.__N__**.max** float in 
+High boundary for comparison
+
+wcomp.__N__**.out** bit out 
+True if **in** is strictly between **min** and **max**
+
+wcomp.__N__**.under** bit out 
+True if **in** is less than or equal to **min**
+
+wcomp.__N__**.over** bit out 
+True if **in** is greater than or equal to **max**
+
+
+===== [[notes]]NOTES
+
+If **max** <= **min** then the behavior is undefined.
+
+
+===== [[license]]LICENSE
+
+GPL

@@ -1,0 +1,55 @@
+MATCH8
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+match8 -- 8-bit binary match detector
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt match8 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**match8.**__N__
+
+
+
+===== [[pins]]PINS
+
+match8.__N__**.in** bit in (default: __TRUE__)
+cascade input - if false, output is false regardless of other inputs
+
+match8.__N__**.a0** bit in 
+match8.__N__**.a1** bit in 
+match8.__N__**.a2** bit in 
+match8.__N__**.a3** bit in 
+match8.__N__**.a4** bit in 
+match8.__N__**.a5** bit in 
+match8.__N__**.a6** bit in 
+match8.__N__**.a7** bit in 
+match8.__N__**.b0** bit in 
+match8.__N__**.b1** bit in 
+match8.__N__**.b2** bit in 
+match8.__N__**.b3** bit in 
+match8.__N__**.b4** bit in 
+match8.__N__**.b5** bit in 
+match8.__N__**.b6** bit in 
+match8.__N__**.b7** bit in 
+match8.__N__**.out** bit out 
+true only if in is true and a[m] matches b[m] for m = 0 thru 7
+
+
+===== [[license]]LICENSE
+
+GPL

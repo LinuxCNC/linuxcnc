@@ -1,0 +1,47 @@
+OR2
+===
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+or2 -- Two-input OR gate
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt or2 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**or2.**__N__
+
+
+
+===== [[pins]]PINS
+
+or2.__N__**.in0** bit in 
+or2.__N__**.in1** bit in 
+or2.__N__**.out** bit out 
+**out** is computed from the value of **in0** and **in1** according
+to the following rule:
+.RS
+
+**in0=FALSE in1=FALSE
+****out=FALSE**
+
+Otherwise,
+**out=TRUE**
+.RE
+
+
+===== [[license]]LICENSE
+
+GPL

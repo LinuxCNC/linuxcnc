@@ -1,0 +1,48 @@
+ABS_S32
+=======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+abs_s32 -- Compute the absolute value and sign of the input signal
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt abs_s32 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**abs-s32.**__N__
+
+
+
+===== [[pins]]PINS
+
+abs-s32.__N__**.in** s32 in 
+input value
+
+abs-s32.__N__**.out** s32 out 
+output value, always non-negative
+
+abs-s32.__N__**.sign** bit out 
+Sign of input, false for positive, true for negative
+
+abs-s32.__N__**.is-positive** bit out 
+TRUE if input is positive, FALSE if input is 0 or negative
+
+abs-s32.__N__**.is-negative** bit out 
+TRUE if input is negative, FALSE if input is 0 or positive
+
+
+===== [[license]]LICENSE
+
+GPL

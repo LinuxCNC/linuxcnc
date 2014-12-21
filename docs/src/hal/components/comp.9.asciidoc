@@ -1,0 +1,58 @@
+COMP
+====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+comp -- Two input comparator with hysteresis
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt comp [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**comp.**__N__ (requires a floating-point thread)
+Update the comparator
+
+
+===== [[pins]]PINS
+
+comp.__N__**.in0** float in 
+Inverting input to the comparator
+
+comp.__N__**.in1** float in 
+Non-inverting input to the comparator
+
+comp.__N__**.out** bit out 
+Normal output. True when **in1** > **in0** (see parameter **hyst** for details)
+
+comp.__N__**.equal** bit out 
+Match output.  True when difference between **in1** and **in0** is less than **hyst**/2
+
+
+===== [[parameters]]PARAMETERS
+
+comp.__N__**.hyst** float rw (default: __0.0__)
+Hysteresis of the comparator (default 0.0)
+
+With zero hysteresis, the output is true when **in1** > **in0**.  With nonzero
+hysteresis, the output switches on and off at two different values,
+separated by distance **hyst** around the point where **in1** = **in0**.
+Keep in mind that floating point calculations are never absolute
+and it is wise to always set **hyst** if you intend to use equal 
+
+
+===== [[license]]LICENSE
+
+GPL

@@ -1,0 +1,46 @@
+TOGGLE
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+toggle -- 'push-on, push-off' from momentary pushbuttons
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt toggle [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**toggle.**__N__
+
+
+
+===== [[pins]]PINS
+
+toggle.__N__**.in** bit in 
+button input
+
+toggle.__N__**.out** bit io 
+on/off output
+
+
+===== [[parameters]]PARAMETERS
+
+toggle.__N__**.debounce** u32 rw (default: __2__)
+debounce delay in periods
+
+
+===== [[license]]LICENSE
+
+GPL

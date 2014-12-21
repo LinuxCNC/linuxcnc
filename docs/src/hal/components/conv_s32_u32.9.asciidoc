@@ -1,0 +1,45 @@
+CONV_S32_U32
+============
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+conv_s32_u32 -- Convert a value from s32 to u32
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt conv_s32_u32 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**conv-s32-u32.**__N__
+Update 'out' based on 'in'
+
+
+===== [[pins]]PINS
+
+conv-s32-u32.__N__**.in** s32 in 
+conv-s32-u32.__N__**.out** u32 out 
+conv-s32-u32.__N__**.out-of-range** bit out 
+TRUE when 'in' is not in the range of u32
+
+
+===== [[parameters]]PARAMETERS
+
+conv-s32-u32.__N__**.clamp** bit rw 
+If TRUE, then clamp to the range of u32.  If FALSE, then allow the value to "wrap around".
+
+
+===== [[license]]LICENSE
+
+GPL

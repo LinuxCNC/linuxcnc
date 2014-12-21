@@ -1,0 +1,59 @@
+EDGE
+====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+edge -- Edge detector
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt edge [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**edge.**__N__
+Produce output pulses from input edges
+
+
+===== [[pins]]PINS
+
+edge.__N__**.in** bit in 
+edge.__N__**.out** bit out 
+Goes high when the desired edge is seen on 'in'
+
+edge.__N__**.out-invert** bit out 
+Goes low when the desired edge is seen on 'in'
+
+
+===== [[parameters]]PARAMETERS
+
+edge.__N__**.both** bit rw (default: __FALSE__)
+If TRUE, selects both edges.  Otherwise, selects one edge according to in-edge
+
+edge.__N__**.in-edge** bit rw (default: __TRUE__)
+If both is FALSE, selects the one desired edge: TRUE means falling, FALSE means rising
+
+edge.__N__**.out-width-ns** s32 rw (default: __0__)
+Time in nanoseconds of the output pulse
+
+edge.__N__**.time-left-ns** s32 r 
+Time left in this output pulse
+
+edge.__N__**.last-in** bit r 
+Previous input value
+
+
+===== [[license]]LICENSE
+
+GPL

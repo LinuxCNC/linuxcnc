@@ -1,0 +1,42 @@
+TRISTATE_FLOAT
+==============
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+tristate_float -- Place a signal on an I/O pin only when enabled, similar to a tristate buffer in electronics
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt tristate_float [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**tristate-float.**__N__ (requires a floating-point thread)
+If **enable** is TRUE, copy **in** to **out**.
+
+
+===== [[pins]]PINS
+
+tristate-float.__N__**.in** float in 
+Input value
+
+tristate-float.__N__**.out** float io 
+Output value
+
+tristate-float.__N__**.enable** bit in 
+When TRUE, copy in to out
+
+
+===== [[license]]LICENSE
+
+GPL

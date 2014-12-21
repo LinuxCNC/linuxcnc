@@ -1,0 +1,58 @@
+FEEDCOMP
+========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<notes,NOTES>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+feedcomp -- Multiply the input by the ratio of current velocity to the feed rate
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt feedcomp [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**feedcomp.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+feedcomp.__N__**.out** float out 
+Proportionate output value
+
+feedcomp.__N__**.in** float in 
+Reference value
+
+feedcomp.__N__**.enable** bit in 
+Turn compensation on or off
+
+feedcomp.__N__**.vel** float in 
+Current velocity
+
+
+===== [[parameters]]PARAMETERS
+
+feedcomp.__N__**.feed** float rw 
+Feed rate reference value
+
+
+===== [[notes]]NOTES
+
+Note that if enable is false, out = in
+
+
+===== [[license]]LICENSE
+
+GPL

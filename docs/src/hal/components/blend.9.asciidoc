@@ -1,0 +1,52 @@
+BLEND
+=====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+blend -- Perform linear interpolation between two values
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt blend [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**blend.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+blend.__N__**.in1** float in 
+First input.  If select is equal to 1.0, the output is equal to in1
+
+blend.__N__**.in2** float in 
+Second input.  If select is equal to 0.0, the output is equal to in2
+
+blend.__N__**.select** float in 
+Select input.  For values between 0.0 and 1.0, the output changes linearly from in2 to in1
+
+blend.__N__**.out** float out 
+Output value.
+
+
+===== [[parameters]]PARAMETERS
+
+blend.__N__**.open** bit rw 
+If true, select values outside the range 0.0 to 1.0 give values outside the range in2 to in1.  If false, outputs are clamped to the the range in2 to in1
+
+
+===== [[license]]LICENSE
+
+GPL

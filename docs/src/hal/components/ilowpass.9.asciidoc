@@ -1,0 +1,77 @@
+ILOWPASS
+========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+ilowpass -- Low-pass filter with integer inputs and outputs
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt ilowpass [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+While it may find other applications, this component was written
+to create smoother motion while jogging with an MPG.
+
+In a machine with high acceleration, a short jog can behave almost like a step
+function.  By putting the **ilowpass** component between the MPG
+encoder **counts** output and the axis jog-counts input,
+this can be smoothed.
+
+Choose **scale** conservatively so that during a single session
+there will never be more than about 2e9/**scale** pulses seen
+on the MPG.  Choose **gain** according to the smoothing level
+desired.  Divide the axis.__N__.jog-scale values by
+**scale**.
+
+
+===== [[functions]]FUNCTIONS
+
+**ilowpass.**__N__ (requires a floating-point thread)
+Update the output based on the input and parameters
+
+
+===== [[pins]]PINS
+
+ilowpass.__N__**.in** s32 in 
+ilowpass.__N__**.out** s32 out 
+**out** tracks **in*scale** through a low-pass
+filter of **gain** per period.
+
+
+===== [[parameters]]PARAMETERS
+
+ilowpass.__N__**.scale** float rw (default: __1024__)
+A scale factor applied to the output
+value of the low-pass filter.
+
+ilowpass.__N__**.gain** float rw (default: __.5__)
+Together with the period, sets the rate at
+which the output changes.  Useful range is between 0 and 1, with higher
+values causing the input value to be tracked more quickly.  For
+instance, a setting of 0.9 causes the output value to go 90% of the way
+towards the input value in each period
+
+
+===== [[author]]AUTHOR
+
+Jeff Epler <jepler@unpythonic.net>
+
+
+===== [[license]]LICENSE
+
+GPL

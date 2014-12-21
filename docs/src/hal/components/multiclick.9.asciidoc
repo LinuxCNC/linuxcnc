@@ -1,0 +1,110 @@
+MULTICLICK
+==========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+multiclick -- Single-, double-, triple-, and quadruple-click detector
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt multiclick [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+A click is defined as a rising edge on the 'in' pin,
+followed by the 'in' pin being True for at most 'max-hold-ns' nanoseconds,
+followed by a falling edge.
+
+A double-click is defined as two clicks, separated by at
+most 'max-space-ns' nanoseconds with the 'in' pin in the False state.
+
+I bet you can guess the definition of triple- and quadruple-click.
+
+You probably want to run the input signal through a debounce component
+before feeding it to the multiclick detector, if the input is at all
+noisy.
+
+The '*-click' pins go high as soon as the input detects the correct
+number of clicks.
+
+The '*-click-only' pins go high a short while after the click, after
+the click separator space timeout has expired to show that no further
+click is coming.  This is useful for triggering halui MDI commands.
+
+
+===== [[functions]]FUNCTIONS
+
+**multiclick.**__N__
+Detect single-, double-, triple-, and quadruple-clicks
+
+
+===== [[pins]]PINS
+
+multiclick.__N__**.in** bit in 
+The input line, this is where we look for clicks.
+
+multiclick.__N__**.single-click** bit out 
+Goes high briefly when a single-click is detected on the 'in' pin.
+
+multiclick.__N__**.single-click-only** bit out 
+Goes high briefly when a single-click is detected on the 'in' pin
+and no second click followed it.
+
+multiclick.__N__**.double-click** bit out 
+Goes high briefly when a double-click is detected on the 'in' pin.
+
+multiclick.__N__**.double-click-only** bit out 
+Goes high briefly when a double-click is detected on the 'in' pin
+and no third click followed it.
+
+multiclick.__N__**.triple-click** bit out 
+Goes high briefly when a triple-click is detected on the 'in' pin.
+
+multiclick.__N__**.triple-click-only** bit out 
+Goes high briefly when a triple-click is detected on the 'in' pin
+and no fourth click followed it.
+
+multiclick.__N__**.quadruple-click** bit out 
+Goes high briefly when a quadruple-click is detected on the 'in' pin.
+
+multiclick.__N__**.quadruple-click-only** bit out 
+Goes high briefly when a quadruple-click is detected on the 'in'
+pin and no fifth click followed it.
+
+multiclick.__N__**.state** s32 out 
+
+
+===== [[parameters]]PARAMETERS
+
+multiclick.__N__**.invert-input** bit rw (default: __FALSE__)
+If FALSE (the default), clicks start with rising edges.  If TRUE,
+clicks start with falling edges.
+
+multiclick.__N__**.max-hold-ns** u32 rw (default: __250000000__)
+If the input is held down longer than this, it's not part of a
+multi-click.  (Default 250,000,000 ns, 250 ms.)
+
+multiclick.__N__**.max-space-ns** u32 rw (default: __250000000__)
+If the input is released longer than this, it's not part of a
+multi-click.  (Default 250,000,000 ns, 250 ms.)
+
+multiclick.__N__**.output-hold-ns** u32 rw (default: __100000000__)
+Positive pulses on the output pins last this long.  (Default
+100,000,000 ns, 100 ms.)
+
+
+===== [[license]]LICENSE
+
+GPL

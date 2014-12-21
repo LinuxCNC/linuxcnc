@@ -1,0 +1,70 @@
+JOYHANDLE
+=========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+joyhandle -- sets nonlinear joypad movements, deadbands and scales
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt joyhandle [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+
+The component **joyhandle** uses the following formula for a non linear joypad movements:
+
+**y = (scale * (a*x^power + b*x)) + offset**
+
+The parameters a and b are adjusted in such a way, that the function starts at (deadband,offset) and ends at (1,scale+offset).
+
+Negative values will be treated point symetrically to origin. Values -deadband < x < +deadband will be set to zero.
+
+Values x > 1 and x < -1 will be skipped to \(+-(scale+offset). Invert transforms the function to a progressive movement.
+
+With power one can adjust the nonlinearity (default = 2). Default for deadband is 0.
+
+Valid values are: power >= 1.0 (reasonable values are 1.x .. 4-5, take higher power-values for higher deadbands (>0.5), if you want to start with a nearly horizontal slope), 0 <= deadband < 0.99 (reasonable 0.1).
+
+An additional offset component can be set in special cases (default = 0).
+
+All values can be adjusted for each instance separately.
+
+
+
+===== [[functions]]FUNCTIONS
+
+**joyhandle.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+joyhandle.__N__**.in** float in 
+joyhandle.__N__**.out** float out 
+
+
+===== [[parameters]]PARAMETERS
+
+joyhandle.__N__**.power** float rw (default: __2.0__)
+joyhandle.__N__**.deadband** float rw (default: __0.__)
+joyhandle.__N__**.scale** float rw (default: __1.__)
+joyhandle.__N__**.offset** float rw (default: __0.__)
+joyhandle.__N__**.inverse** bit rw (default: __0__)
+
+
+===== [[license]]LICENSE
+
+GPL

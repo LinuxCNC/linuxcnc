@@ -1,0 +1,39 @@
+SCALE
+=====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+scale -- LinuxCNC HAL component that applies a scale and offset to its input
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt scale [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**scale.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+scale.__N__**.in** float in 
+scale.__N__**.gain** float in 
+scale.__N__**.offset** float in 
+scale.__N__**.out** float out 
+out = in * gain + offset
+
+
+===== [[license]]LICENSE
+
+GPL

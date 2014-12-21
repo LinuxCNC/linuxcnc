@@ -1,0 +1,44 @@
+MAJ3
+====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+maj3 -- Compute the majority of 3 inputs
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt maj3 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**maj3.**__N__
+
+
+
+===== [[pins]]PINS
+
+maj3.__N__**.in1** bit in 
+maj3.__N__**.in2** bit in 
+maj3.__N__**.in3** bit in 
+maj3.__N__**.out** bit out 
+
+
+===== [[parameters]]PARAMETERS
+
+maj3.__N__**.invert** bit rw 
+
+
+===== [[license]]LICENSE
+
+GPL

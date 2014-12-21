@@ -1,0 +1,53 @@
+BITSLICE
+========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+bitslice -- Converts an unsigned-32 input into individual bits
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt bitslice [count=__N__**|names=**__name1__**[,**__name2...__**]] [personality=**__P,P,...__**]
+**
+
+===== [[description]]DESCRIPTION
+
+This component creates individual bit-outputs for each bit of an
+unsigned-32 input. The number of bits can be limited by the "personality"
+modparam.
+The inverse process can be perfomed by the weighted_sum HAL component.
+
+
+===== [[functions]]FUNCTIONS
+
+**bitslice.**__N__
+
+
+
+===== [[pins]]PINS
+
+bitslice.__N__**.in** u32 in 
+The input value
+
+bitslice.__N__**.out-**__MM__ bit out  (MM=00..personality) 
+
+
+===== [[author]]AUTHOR
+
+Andy Pugh
+
+
+===== [[license]]LICENSE
+
+GPL2+

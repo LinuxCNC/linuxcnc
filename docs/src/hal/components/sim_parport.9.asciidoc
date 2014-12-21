@@ -1,0 +1,162 @@
+SIM_PARPORT
+===========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+sim_parport -- A component to simulate the pins of the hal_parport component
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt sim_parport [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+
+Sim_parport is used to replace the pins of a real parport without changing
+any of the pins names in the rest of the config.
+It has pass-through pins (ending in -fake) that allows connecting to other components.
+
+eg pin-02-in     will follow     pin-02-in-fake 's logic.
+pin_01_out-fake     will follow    pin_01_out (possibly modified by pin_01_out-invert)
+
+It creates all possible pins of both 'in' and 'out' options of the hal_parport component.
+This allows using other hardware I/O in place of the parport (without having to change the rest of the config)
+or simulating hardware such as limit switches.
+it's primary use is in Stepconf for building simulated configs.
+You must use the names= option to have the right pin names.
+eg. names=parport.0,parport.1
+The read and write functions pass the logic from pins to fake pins or vice vera
+The reset function is a no operation.
+ 
+
+
+
+===== [[functions]]FUNCTIONS
+
+**sim-parport.**__N__**.read**
+
+
+**sim-parport.**__N__**.write**
+
+
+**sim-parport.**__N__**.reset**
+
+
+
+===== [[pins]]PINS
+
+sim-parport.__N__**.pin-01-out** bit in 
+sim-parport.__N__**.pin-02-out** bit in 
+sim-parport.__N__**.pin-03-out** bit in 
+sim-parport.__N__**.pin-04-out** bit in 
+sim-parport.__N__**.pin-05-out** bit in 
+sim-parport.__N__**.pin-06-out** bit in 
+sim-parport.__N__**.pin-07-out** bit in 
+sim-parport.__N__**.pin-08-out** bit in 
+sim-parport.__N__**.pin-09-out** bit in 
+sim-parport.__N__**.pin-14-out** bit in 
+sim-parport.__N__**.pin-16-out** bit in 
+sim-parport.__N__**.pin-17-out** bit in 
+sim-parport.__N__**.pin-01-out-fake** bit out 
+sim-parport.__N__**.pin-02-out-fake** bit out 
+sim-parport.__N__**.pin-03-out-fake** bit out 
+sim-parport.__N__**.pin-04-out-fake** bit out 
+sim-parport.__N__**.pin-05-out-fake** bit out 
+sim-parport.__N__**.pin-06-out-fake** bit out 
+sim-parport.__N__**.pin-07-out-fake** bit out 
+sim-parport.__N__**.pin-08-out-fake** bit out 
+sim-parport.__N__**.pin-09-out-fake** bit out 
+sim-parport.__N__**.pin-14-out-fake** bit out 
+sim-parport.__N__**.pin-16-out-fake** bit out 
+sim-parport.__N__**.pin-17-out-fake** bit out 
+sim-parport.__N__**.pin-02-in** bit out 
+sim-parport.__N__**.pin-03-in** bit out 
+sim-parport.__N__**.pin-04-in** bit out 
+sim-parport.__N__**.pin-05-in** bit out 
+sim-parport.__N__**.pin-06-in** bit out 
+sim-parport.__N__**.pin-07-in** bit out 
+sim-parport.__N__**.pin-08-in** bit out 
+sim-parport.__N__**.pin-09-in** bit out 
+sim-parport.__N__**.pin-10-in** bit out 
+sim-parport.__N__**.pin-11-in** bit out 
+sim-parport.__N__**.pin-12-in** bit out 
+sim-parport.__N__**.pin-13-in** bit out 
+sim-parport.__N__**.pin-15-in** bit out 
+sim-parport.__N__**.pin-02-in-fake** bit in 
+sim-parport.__N__**.pin-03-in-fake** bit in 
+sim-parport.__N__**.pin-04-in-fake** bit in 
+sim-parport.__N__**.pin-05-in-fake** bit in 
+sim-parport.__N__**.pin-06-in-fake** bit in 
+sim-parport.__N__**.pin-07-in-fake** bit in 
+sim-parport.__N__**.pin-08-in-fake** bit in 
+sim-parport.__N__**.pin-09-in-fake** bit in 
+sim-parport.__N__**.pin-10-in-fake** bit in 
+sim-parport.__N__**.pin-11-in-fake** bit in 
+sim-parport.__N__**.pin-12-in-fake** bit in 
+sim-parport.__N__**.pin-13-in-fake** bit in 
+sim-parport.__N__**.pin-15-in-fake** bit in 
+sim-parport.__N__**.pin-02-in-invert** bit out 
+sim-parport.__N__**.pin-03-in-invert** bit out 
+sim-parport.__N__**.pin-04-in-invert** bit out 
+sim-parport.__N__**.pin-05-in-invert** bit out 
+sim-parport.__N__**.pin-06-in-invert** bit out 
+sim-parport.__N__**.pin-07-in-invert** bit out 
+sim-parport.__N__**.pin-08-in-invert** bit out 
+sim-parport.__N__**.pin-09-in-invert** bit out 
+sim-parport.__N__**.pin-10-in-invert** bit out 
+sim-parport.__N__**.pin-11-in-invert** bit out 
+sim-parport.__N__**.pin-12-in-invert** bit out 
+sim-parport.__N__**.pin-13-in-invert** bit out 
+sim-parport.__N__**.pin-15-in-invert** bit out 
+sim-parport.__N__**.reset-time** float in 
+
+
+===== [[parameters]]PARAMETERS
+
+sim-parport.__N__**.pin-01-out-invert** bit rw 
+sim-parport.__N__**.pin-02-out-invert** bit rw 
+sim-parport.__N__**.pin-03-out-invert** bit rw 
+sim-parport.__N__**.pin-04-out-invert** bit rw 
+sim-parport.__N__**.pin-05-out-invert** bit rw 
+sim-parport.__N__**.pin-06-out-invert** bit rw 
+sim-parport.__N__**.pin-07-out-invert** bit rw 
+sim-parport.__N__**.pin-08-out-invert** bit rw 
+sim-parport.__N__**.pin-09-out-invert** bit rw 
+sim-parport.__N__**.pin-14-out-invert** bit rw 
+sim-parport.__N__**.pin-16-out-invert** bit rw 
+sim-parport.__N__**.pin-17-out-invert** bit rw 
+sim-parport.__N__**.pin-01-out-reset** bit rw 
+sim-parport.__N__**.pin-02-out-reset** bit rw 
+sim-parport.__N__**.pin-03-out-reset** bit rw 
+sim-parport.__N__**.pin-04-out-reset** bit rw 
+sim-parport.__N__**.pin-05-out-reset** bit rw 
+sim-parport.__N__**.pin-06-out-reset** bit rw 
+sim-parport.__N__**.pin-07-out-reset** bit rw 
+sim-parport.__N__**.pin-08-out-reset** bit rw 
+sim-parport.__N__**.pin-09-out-reset** bit rw 
+sim-parport.__N__**.pin-14-out-reset** bit rw 
+sim-parport.__N__**.pin-16-out-reset** bit rw 
+sim-parport.__N__**.pin-17-out-reset** bit rw 
+
+
+===== [[author]]AUTHOR
+
+Chris Morley
+
+
+===== [[license]]LICENSE
+
+GPL

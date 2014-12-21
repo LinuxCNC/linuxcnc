@@ -1,0 +1,51 @@
+GRAY2BIN
+========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+gray2bin -- convert a gray-code input to binary
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt gray2bin [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+Converts a gray-coded number into the corresponding binary value
+
+
+===== [[functions]]FUNCTIONS
+
+**gray2bin.**__N__
+
+
+
+===== [[pins]]PINS
+
+gray2bin.__N__**.in** u32 in 
+gray code in
+
+gray2bin.__N__**.out** u32 out 
+binary code out
+
+
+===== [[author]]AUTHOR
+
+andy pugh
+
+
+===== [[license]]LICENSE
+
+GPL

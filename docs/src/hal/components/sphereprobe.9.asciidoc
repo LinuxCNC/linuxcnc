@@ -1,0 +1,54 @@
+SPHEREPROBE
+===========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+sphereprobe -- Probe a pretend hemisphere
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt sphereprobe [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**sphereprobe.**__N__
+update probe-out based on inputs
+
+
+===== [[pins]]PINS
+
+sphereprobe.__N__**.px** s32 in 
+sphereprobe.__N__**.py** s32 in 
+sphereprobe.__N__**.pz** s32 in 
+**rawcounts** position from software encoder
+
+sphereprobe.__N__**.cx** s32 in 
+sphereprobe.__N__**.cy** s32 in 
+sphereprobe.__N__**.cz** s32 in 
+Center of sphere in counts
+
+sphereprobe.__N__**.r** s32 in 
+Radius of hemisphere in counts
+
+sphereprobe.__N__**.probe-out** bit out 
+
+
+===== [[author]]AUTHOR
+
+Jeff Epler
+
+
+===== [[license]]LICENSE
+
+GPL

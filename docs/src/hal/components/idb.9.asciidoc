@@ -1,0 +1,51 @@
+IDB
+===
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+idb -- Inverse Deadband
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt idb [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**idb.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+idb.__N__**.in** float in 
+Input
+
+idb.__N__**.out** float out 
+Output
+
+
+===== [[parameters]]PARAMETERS
+
+idb.__N__**.amount** float rw 
+
+
+===== [[author]]AUTHOR
+
+Anders Wallin
+
+
+===== [[license]]LICENSE
+
+GPL

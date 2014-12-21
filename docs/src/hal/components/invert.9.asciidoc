@@ -1,0 +1,48 @@
+INVERT
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+invert -- Compute the inverse of the input signal
+
+
+===== [[synopsis]]SYNOPSIS
+The output will be the mathematical inverse of the input, ie **out** = 1/**in**.
+The parameter **deadband** can be used to control how close to 0 the denominator can be
+before the output is clamped to 0.  **deadband** must be at least 1e-8, and must be positive.
+
+
+===== [[functions]]FUNCTIONS
+
+**invert.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+invert.__N__**.in** float in 
+Analog input value
+
+invert.__N__**.out** float out 
+Analog output value
+
+
+===== [[parameters]]PARAMETERS
+
+invert.__N__**.deadband** float rw 
+The **out** will be zero if **in** is between -**deadband** and +**deadband**
+
+
+===== [[license]]LICENSE
+
+GPL

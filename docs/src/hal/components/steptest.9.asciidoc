@@ -1,0 +1,72 @@
+STEPTEST
+========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+steptest -- Used by Stepconf to allow testing of acceleration and velocity values for an axis.
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt steptest [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**steptest.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+steptest.__N__**.jog-minus** bit in 
+Drive TRUE to jog the axis in its minus direction
+
+steptest.__N__**.jog-plus** bit in 
+Drive TRUE to jog the axis in its positive direction
+
+steptest.__N__**.run** bit in 
+Drive TRUE to run the axis near its current position_fb with a trapezoidal velocity profile
+
+steptest.__N__**.maxvel** float in 
+Maximum velocity
+
+steptest.__N__**.maxaccel** float in 
+Permitted Acceleration
+
+steptest.__N__**.amplitude** float in 
+Approximate amplitude of positions to command during 'run'
+
+steptest.__N__**.dir** s32 in 
+Direction from central point to test: 0 = both, 1 = positive, 2 = negative
+
+steptest.__N__**.position-cmd** float out 
+steptest.__N__**.position-fb** float in 
+steptest.__N__**.running** bit out 
+steptest.__N__**.run-target** float out 
+steptest.__N__**.run-start** float out 
+steptest.__N__**.run-low** float out 
+steptest.__N__**.run-high** float out 
+steptest.__N__**.pause** s32 in (default: __0__)
+pause time for each end of run in seconds
+
+
+===== [[parameters]]PARAMETERS
+
+steptest.__N__**.epsilon** float rw (default: __.001__)
+steptest.__N__**.elapsed** float r 
+Current value of the internal timer
+
+
+===== [[license]]LICENSE
+
+GPL

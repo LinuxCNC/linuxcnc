@@ -1,0 +1,49 @@
+NEAR
+====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+near -- Determine whether two values are roughly equal.
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt near [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**near.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+near.__N__**.in1** float in 
+near.__N__**.in2** float in 
+near.__N__**.out** bit out 
+
+**out** is true if **in1** and **in2** are within a factor of
+**scale** (i.e., for in1 positive, in1/scale <= in2 <= in1*scale), OR
+if their absolute difference is no greater than **difference** (i.e.,
+|in1-in2| <= difference).  **out** is false otherwise.
+
+
+===== [[parameters]]PARAMETERS
+
+near.__N__**.scale** float rw (default: __1__)
+near.__N__**.difference** float rw (default: __0__)
+
+
+===== [[license]]LICENSE
+
+GPL

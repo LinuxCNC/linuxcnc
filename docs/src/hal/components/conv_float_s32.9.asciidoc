@@ -1,0 +1,45 @@
+CONV_FLOAT_S32
+==============
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+conv_float_s32 -- Convert a value from float to s32
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt conv_float_s32 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**conv-float-s32.**__N__ (requires a floating-point thread)
+Update 'out' based on 'in'
+
+
+===== [[pins]]PINS
+
+conv-float-s32.__N__**.in** float in 
+conv-float-s32.__N__**.out** s32 out 
+conv-float-s32.__N__**.out-of-range** bit out 
+TRUE when 'in' is not in the range of s32
+
+
+===== [[parameters]]PARAMETERS
+
+conv-float-s32.__N__**.clamp** bit rw 
+If TRUE, then clamp to the range of s32.  If FALSE, then allow the value to "wrap around".
+
+
+===== [[license]]LICENSE
+
+GPL

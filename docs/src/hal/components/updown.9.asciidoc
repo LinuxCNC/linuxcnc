@@ -1,0 +1,61 @@
+UPDOWN
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+updown -- Counts up or down, with optional limits and wraparound behavior
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt updown [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**updown.**__N__
+Process inputs and update count if necessary
+
+
+===== [[pins]]PINS
+
+updown.__N__**.countup** bit in 
+Increment count when this pin goes from 0 to 1
+
+updown.__N__**.countdown** bit in 
+Decrement count when this pin goes from 0 to 1
+
+updown.__N__**.reset** bit in 
+Reset count when this pin goes from 0 to 1
+
+updown.__N__**.count** s32 out 
+The current count
+
+
+===== [[parameters]]PARAMETERS
+
+updown.__N__**.clamp** bit rw 
+If TRUE, then clamp the output to the min and max parameters.
+
+updown.__N__**.wrap** bit rw 
+If TRUE, then wrap around when the count goes above or below the min and max parameters.  Note that wrap implies (and overrides) clamp.
+
+updown.__N__**.max** s32 rw (default: __0x7FFFFFFF__)
+If clamp or wrap is set, count will never exceed this number
+
+updown.__N__**.min** s32 rw 
+If clamp or wrap is set, count will never be less than this number
+
+
+===== [[license]]LICENSE
+
+GPL

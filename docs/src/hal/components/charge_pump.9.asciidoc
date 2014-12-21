@@ -1,0 +1,57 @@
+CHARGE_PUMP
+===========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+charge_pump -- Create a square-wave for the 'charge pump' input of some controller boards
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt charge_pump
+
+
+===== [[description]]DESCRIPTION
+
+
+The 'Charge Pump' should be added to the base thread function.
+When enabled the output is on for one period and off for one period. To calculate the
+frequency of the output 1/(period time in seconds x 2) = hz. For example if you
+have a base period of 100,000ns that is 0.0001 seconds and the formula would be
+1/(0.0001 x 2) = 5,000 hz or 5 Khz. Two additional outputs are provided that run
+a factor of 2 and 4 slower for hardware that requires a lower frequency.
+
+
+===== [[functions]]FUNCTIONS
+
+**charge-pump**
+Toggle the output bit (if enabled)
+
+
+===== [[pins]]PINS
+
+charge-pump.out bit out 
+Square wave if 'enable' is TRUE or unconnected, low if 'enable' is FALSE
+
+charge-pump.out-2 bit out 
+Square wave at half the frequency of 'out'
+
+charge-pump.out-4 bit out 
+Square wave at a quarter of the frequency of 'out'
+
+charge-pump.enable bit in (default: __TRUE__)
+If FALSE, forces all 'out' pins to be low
+
+
+===== [[license]]LICENSE
+
+GPL

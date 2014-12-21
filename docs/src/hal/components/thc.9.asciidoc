@@ -1,0 +1,141 @@
+THC
+===
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+thc -- Torch Height Control
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt thc
+
+
+===== [[description]]DESCRIPTION
+
+
+Torch Height Control
+Mesa THC > Encoder > LinuxCNC THC component
+
+The Mesa THC sends a frequency based on the voltage detected to the encoder.
+The velocity from the encoder is converted to volts with the velocity scale
+parameter inside the THC component.
+
+The THCAD card sends a frequency at 0 volts so the scale offset parameter is
+used to zero the calculated voltage.
+
+Component Functions
+If enabled and torch is on and X + Y velocity is within tolerance of set speed
+allow the THC to offset the Z axis as needed to maintain voltage.
+
+If enabled and torch is off and the Z axis is moving up remove any correction
+at a rate not to exceed the rate of movement of the Z axis.
+
+If enabled and torch is off and there is no correction
+pass the Z position and feed back untouched.
+
+If not enabled pass the Z position and feed back untouched.
+
+Physical Connections
+Plasma Torch Arc Voltage Signal => 6 x 487k 1% resistors => THC Arc Voltage In
+THC Frequency Signal => Encoder #0, pin A (Input)
+Plasma Torch Arc OK Signal => input pin
+output pin => Plasma Torch Start Arc Contacts
+
+HAL Plasma Connections
+encoder.nn.velocity => thc.encoder-vel (tip voltage)
+motion.spindle-on => output pin (start the arc)
+thc.arc-ok <= motion.digital-in-00 <= input pin (arc ok signal)
+
+HAL Motion Connections
+thc.requested-vel <= motion.requested-vel
+thc.current-vel <= motion.current-vel
+
+
+
+
+===== [[functions]]FUNCTIONS
+
+**thc** (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+thc.encoder-vel float in 
+Connect to hm2_5i20.0.encoder.00.velocity
+
+thc.current-vel float in 
+Connect to motion.current-vel
+
+thc.requested-vel float in 
+Connect to motion.requested-vel
+
+thc.volts-requested float in 
+Tip Volts current_vel >= min_velocity requested
+
+thc.vel-tol float in 
+Velocity Tolerance (Corner Lock)
+
+thc.torch-on bit in 
+Connect to motion.spindle-on
+
+thc.arc-ok bit in 
+Arc OK from Plasma Torch
+
+thc.enable bit in 
+Enable the THC, if not enabled Z position is passed through
+
+thc.z-pos-in float in 
+Z Motor Position Command in from axis.n.motor-pos-cmd
+
+thc.z-pos-out float out 
+Z Motor Position Command Out
+
+thc.z-fb-out float out 
+Z Position Feedback to Axis
+
+thc.volts float out 
+The Calculated Volts
+
+thc.vel-status bit out 
+When the THC thinks we are at requested speed
+
+
+===== [[parameters]]PARAMETERS
+
+thc.vel-scale float rw 
+The scale to convert the Velocity signal to Volts
+
+thc.scale-offset float rw 
+The offset of the velocity input at 0 volts
+
+thc.velocity-tol float rw 
+The deviation percent from planned velocity
+
+thc.voltage-tol float rw 
+The deviation of Tip Voltage before correction takes place
+
+thc.correction-vel float rw 
+The amount of change in user units per period to move Z to correct
+
+
+===== [[author]]AUTHOR
+
+John Thornton
+
+
+===== [[license]]LICENSE
+
+GPLv2 or greater

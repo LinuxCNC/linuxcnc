@@ -1,0 +1,43 @@
+LIMIT3
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+limit3 -- Limit the output signal to fall between min and max, limit its slew rate to less than maxv per second, and limit its second derivative to less than maxa per second squared.  When the signal is a position, this means that the position, velocity, and acceleration are limited.
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt limit3 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**limit3.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+limit3.__N__**.in** float in 
+limit3.__N__**.out** float out 
+limit3.__N__**.load** bit in 
+When TRUE, immediately set **out to in**, ignoring maxv and maxa
+
+limit3.__N__**.min** float in (default: __-1e20__)
+limit3.__N__**.max** float in (default: __1e20__)
+limit3.__N__**.maxv** float in (default: __1e20__)
+limit3.__N__**.maxa** float in (default: __1e20__)
+
+
+===== [[license]]LICENSE
+
+GPL

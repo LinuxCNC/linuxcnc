@@ -1,0 +1,70 @@
+LATENCYBINS
+===========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+latencybins -- comp utility for scripts/latencyhistogram
+
+
+===== [[synopsis]]SYNOPSIS
+
+Usage:
+  Read availablebins pin for the number of bins available.
+  Set the maxbinnumber pin for the number of +/- bins.
+    Ensure maxbinnumber <= availablebins
+    For maxbinnumber = N, the bins are numbered:
+       -N ... 0 ... + N bins
+    (the -0 bin is not populated)
+    (total effective bins = 2*maxbinnumber +1)
+  Set nsbinsize pin for the binsize (ns)
+  Iterate:
+    Set index pin to a bin number: 0 <= index <= maxbinnumber.
+    Read check pin and verify that check pin == index pin.
+    Read pbinvalue,nbinvalue,pextra,nextra pins.
+         (pbinvalue is count for bin = +index)
+         (nbinvalue is count for bin = -index)
+         (pextra    is count for all bins > maxbinnumber)
+         (nextra    is count for all bins < maxbinnumber)
+
+   If index is out of range ( index < 0 or index > maxbinnumber)
+   then pbinvalue = nbinvalue = -1.
+   The reset pin may be used to restart.
+   The latency pin outputs the instantaneous latency.
+
+Maintainers note: hardcoded for MAXBINNUMBER==1000
+
+
+
+===== [[functions]]FUNCTIONS
+
+**latencybins.**__N__
+
+
+
+===== [[pins]]PINS
+
+latencybins.__N__**.maxbinnumber** s32 in (default: __1000__)
+latencybins.__N__**.index** s32 in 
+latencybins.__N__**.reset** bit in 
+latencybins.__N__**.nsbinsize** s32 in 
+latencybins.__N__**.check** s32 out 
+latencybins.__N__**.latency** s32 out 
+latencybins.__N__**.pbinvalue** s32 out 
+latencybins.__N__**.nbinvalue** s32 out 
+latencybins.__N__**.pextra** s32 out 
+latencybins.__N__**.nextra** s32 out 
+latencybins.__N__**.availablebins** s32 out (default: __1000__)
+
+
+===== [[license]]LICENSE
+
+GPL

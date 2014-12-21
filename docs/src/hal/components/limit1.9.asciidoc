@@ -1,0 +1,43 @@
+LIMIT1
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+limit1 -- Limit the output signal to fall between min and max
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt limit1 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**limit1.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+limit1.__N__**.in** float in 
+limit1.__N__**.out** float out 
+
+
+===== [[parameters]]PARAMETERS
+
+limit1.__N__**.min** float rw (default: __-1e20__)
+limit1.__N__**.max** float rw (default: __1e20__)
+
+
+===== [[license]]LICENSE
+
+GPL

@@ -1,0 +1,40 @@
+MINMAX
+======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+minmax -- Track the minimum and maximum values of the input to the outputs
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt minmax [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**minmax.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+minmax.__N__**.in** float in 
+minmax.__N__**.reset** bit in 
+When reset is asserted, 'in' is copied to the outputs
+
+minmax.__N__**.max** float out 
+minmax.__N__**.min** float out 
+
+
+===== [[license]]LICENSE
+
+GPL

@@ -1,0 +1,36 @@
+CONV_U32_FLOAT
+==============
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+conv_u32_float -- Convert a value from u32 to float
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt conv_u32_float [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**conv-u32-float.**__N__ (requires a floating-point thread)
+Update 'out' based on 'in'
+
+
+===== [[pins]]PINS
+
+conv-u32-float.__N__**.in** u32 in 
+conv-u32-float.__N__**.out** float out 
+
+
+===== [[license]]LICENSE
+
+GPL

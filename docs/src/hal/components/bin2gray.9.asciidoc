@@ -1,0 +1,51 @@
+BIN2GRAY
+========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+bin2gray -- convert a number to the gray-code representation
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt bin2gray [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+Converts a number into gray-code
+
+
+===== [[functions]]FUNCTIONS
+
+**bin2gray.**__N__
+
+
+
+===== [[pins]]PINS
+
+bin2gray.__N__**.in** u32 in 
+binary code in
+
+bin2gray.__N__**.out** u32 out 
+gray code out
+
+
+===== [[author]]AUTHOR
+
+andy pugh
+
+
+===== [[license]]LICENSE
+
+GPL

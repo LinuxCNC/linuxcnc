@@ -1,0 +1,48 @@
+LOWPASS
+=======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<notes,NOTES>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+lowpass -- Low-pass filter
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt lowpass [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**lowpass.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+lowpass.__N__**.in** float in 
+lowpass.__N__**.out** float out 
+ out += (in - out) * gain 
+
+lowpass.__N__**.load** bit in 
+When TRUE, copy **in** to **out** instead of applying the filter equation.
+
+lowpass.__N__**.gain** float in 
+
+
+===== [[notes]]NOTES
+
+The effect of a specific **gain** value is dependent on the period of the function that **lowpass.**__N__ is added to
+
+
+===== [[license]]LICENSE
+
+GPL

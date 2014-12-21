@@ -1,0 +1,46 @@
+AND2
+====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+and2 -- Two-input AND gate
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt and2 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**and2.**__N__
+
+
+
+===== [[pins]]PINS
+
+and2.__N__**.in0** bit in 
+and2.__N__**.in1** bit in 
+and2.__N__**.out** bit out 
+**out** is computed from the value of **in0** and **in1** according to the following rule:
+.RS
+
+**in0=TRUE in1=TRUE
+****out=TRUE**
+
+Otherwise,
+**out=FALSE**
+.RE
+
+
+===== [[license]]LICENSE
+
+GPL

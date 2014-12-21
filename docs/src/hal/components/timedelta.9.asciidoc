@@ -1,0 +1,41 @@
+TIMEDELTA
+=========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+timedelta -- LinuxCNC HAL component that measures thread scheduling timing behavior
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt timedelta [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**timedelta.**__N__
+
+
+
+===== [[pins]]PINS
+
+timedelta.__N__**.out** s32 out 
+timedelta.__N__**.err** s32 out (default: __0__)
+timedelta.__N__**.min** s32 out (default: __0__)
+timedelta.__N__**.max** s32 out (default: __0__)
+timedelta.__N__**.jitter** s32 out (default: __0__)
+timedelta.__N__**.avg-err** float out (default: __0__)
+timedelta.__N__**.reset** bit in 
+
+
+===== [[license]]LICENSE
+
+GPL

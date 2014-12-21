@@ -1,0 +1,77 @@
+GEARCHANGE
+==========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+gearchange -- Select from one two speed ranges
+
+
+===== [[synopsis]]SYNOPSIS
+The output will be a value scaled for the selected gear, and clamped to
+the min/max values for that gear.
+The scale of gear 1 is assumed to be 1, so the output device scale
+should be chosen accordingly.
+The scale of gear 2 is relative to gear 1, so if gear 2 runs the spindle
+2.5 times as fast as gear 1, scale2 should be set to 2.5.
+
+
+===== [[functions]]FUNCTIONS
+
+**gearchange.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+gearchange.__N__**.sel** bit in 
+Gear selection input
+
+gearchange.__N__**.speed-in** float in 
+Speed command input
+
+gearchange.__N__**.speed-out** float out 
+Speed command to DAC/PWM
+
+gearchange.__N__**.dir-in** bit in 
+Direction command input
+
+gearchange.__N__**.dir-out** bit out 
+Direction output - possibly inverted for second gear
+
+
+===== [[parameters]]PARAMETERS
+
+gearchange.__N__**.min1** float rw (default: __0__)
+Minimum allowed speed in gear range 1
+
+gearchange.__N__**.max1** float rw (default: __100000__)
+Maximum allowed speed in gear range 1
+
+gearchange.__N__**.min2** float rw (default: __0__)
+Minimum allowed speed in gear range 2
+
+gearchange.__N__**.max2** float rw (default: __100000__)
+Maximum allowed speed in gear range 2
+
+gearchange.__N__**.scale2** float rw (default: __1.0__)
+Relative scale of gear 2 vs. gear 1
+Since it is assumed that gear 2 is "high gear", **scale2** must be
+greater than 1, and will be reset to 1 if set lower.
+
+gearchange.__N__**.reverse** bit rw (default: __0__)
+Set to 1 to reverse the spindle in second gear
+
+
+===== [[license]]LICENSE
+
+GPL

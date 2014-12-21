@@ -1,0 +1,46 @@
+SELECT8
+=======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+select8 -- 8-bit binary match detector
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt select8 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**select8.**__N__
+
+
+
+===== [[pins]]PINS
+
+select8.__N__**.sel** s32 in 
+The number of the output to set TRUE.  All other outputs well be set FALSE
+
+select8.__N__**.out**__M__ bit out  (M=0..7) 
+Output bits.  If enable is set and the sel input is between 0 and 7, then the corresponding output bit will be set true
+
+
+===== [[parameters]]PARAMETERS
+
+select8.__N__**.enable** bit rw (default: __TRUE__)
+Set enable to FALSE to cause all outputs to be set FALSE
+
+
+===== [[license]]LICENSE
+
+GPL

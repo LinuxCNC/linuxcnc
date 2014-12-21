@@ -1,0 +1,63 @@
+BITWISE
+=======
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+bitwise -- Computes various bitwise operations on the two input values
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt bitwise [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**bitwise.**__N__
+
+
+
+===== [[pins]]PINS
+
+bitwise.__N__**.in0** u32 in 
+First input value
+
+bitwise.__N__**.in1** u32 in 
+Second input value
+
+bitwise.__N__**.out-and** u32 out 
+The bitwise AND of the two inputs
+
+bitwise.__N__**.out-or** u32 out 
+The bitwise OR of the two inputs
+
+bitwise.__N__**.out-xor** u32 out 
+The bitwise XOR of the two inputs
+
+bitwise.__N__**.out-nand** u32 out 
+The inverse of the bitwise AND
+
+bitwise.__N__**.out-nor** u32 out 
+The inverse of the bitwise OR
+
+bitwise.__N__**.out-xnor** u32 out 
+The inverse of the bitwise XOR
+
+
+===== [[author]]AUTHOR
+
+Andy Pugh
+
+
+===== [[license]]LICENSE
+
+GPL 2+

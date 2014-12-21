@@ -1,0 +1,46 @@
+SUM2
+====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+sum2 -- Sum of two inputs (each with a gain) and an offset
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt sum2 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**sum2.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+sum2.__N__**.in0** float in 
+sum2.__N__**.in1** float in 
+sum2.__N__**.out** float out 
+out = in0 * gain0 + in1 * gain1 + offset
+
+
+===== [[parameters]]PARAMETERS
+
+sum2.__N__**.gain0** float rw (default: __1.0__)
+sum2.__N__**.gain1** float rw (default: __1.0__)
+sum2.__N__**.offset** float rw 
+
+
+===== [[license]]LICENSE
+
+GPL

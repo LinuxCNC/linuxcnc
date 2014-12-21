@@ -1,0 +1,51 @@
+TOGGLE2NIST
+===========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+toggle2nist -- toggle button to nist logic
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt toggle2nist [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+
+toggle2nist can be used with a momentary push button connected to a
+toggle component to control a device that has seperate on and off inputs
+and has an is-on output. 
+If in changes states via the toggle output
+  If is-on is true then on is false and off is true. 
+  If is-on is false the on true and off is false.
+
+
+
+===== [[functions]]FUNCTIONS
+
+**toggle2nist.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+toggle2nist.__N__**.in** bit in 
+toggle2nist.__N__**.is-on** bit in 
+toggle2nist.__N__**.on** bit out 
+toggle2nist.__N__**.off** bit out 
+
+
+===== [[license]]LICENSE
+
+GPL

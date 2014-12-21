@@ -1,0 +1,135 @@
+SIM_AXIS_HARDWARE
+=================
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<description,DESCRIPTION>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<author,AUTHOR>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+sim_axis_hardware -- A component to simulate home and limit switches
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt sim_axis_hardware [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[description]]DESCRIPTION
+
+
+This component creates simulated home and limit switches based on the current position.
+It currently can supply simulation for X,Y,Z and A axes.
+
+
+
+
+===== [[functions]]FUNCTIONS
+
+**sim-axis-hardware.**__N__**.update** (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+sim-axis-hardware.__N__**.Xcurrent-pos** float in 
+The current position on the axis - eg connect to axis.0.joint-pos-fb
+
+sim-axis-hardware.__N__**.Ycurrent-pos** float in 
+sim-axis-hardware.__N__**.Zcurrent-pos** float in 
+sim-axis-hardware.__N__**.Acurrent-pos** float in 
+sim-axis-hardware.__N__**.Xhomesw-pos** float in (default: __1__)
+The position of the home switch
+
+sim-axis-hardware.__N__**.Yhomesw-pos** float in (default: __1__)
+sim-axis-hardware.__N__**.Zhomesw-pos** float in (default: __1__)
+sim-axis-hardware.__N__**.Ahomesw-pos** float in (default: __1__)
+sim-axis-hardware.__N__**.Xmaxsw-upper** float in 
+The upper range of the maximum limit switch, above this is false.
+
+sim-axis-hardware.__N__**.Ymaxsw-upper** float in 
+sim-axis-hardware.__N__**.Zmaxsw-upper** float in 
+sim-axis-hardware.__N__**.Amaxsw-upper** float in 
+sim-axis-hardware.__N__**.Xmaxsw-lower** float in 
+The lower range of the maximum limit switch, below this is false.
+
+sim-axis-hardware.__N__**.Ymaxsw-lower** float in 
+sim-axis-hardware.__N__**.Zmaxsw-lower** float in 
+sim-axis-hardware.__N__**.Amaxsw-lower** float in 
+sim-axis-hardware.__N__**.Xminsw-upper** float in 
+The upper range of the minimum limit switch, above this is false.
+
+sim-axis-hardware.__N__**.Yminsw-upper** float in 
+sim-axis-hardware.__N__**.Zminsw-upper** float in 
+sim-axis-hardware.__N__**.Aminsw-upper** float in 
+sim-axis-hardware.__N__**.Xminsw-lower** float in 
+The lower range of the minimum limit switch, below this is false.
+
+sim-axis-hardware.__N__**.Yminsw-lower** float in 
+sim-axis-hardware.__N__**.Zminsw-lower** float in 
+sim-axis-hardware.__N__**.Aminsw-lower** float in 
+sim-axis-hardware.__N__**.Xhomesw-hyst** float in (default: __.02__)
+range that home switch will be true +- half this to the home position
+
+sim-axis-hardware.__N__**.Yhomesw-hyst** float in (default: __.02__)
+sim-axis-hardware.__N__**.Zhomesw-hyst** float in (default: __.02__)
+sim-axis-hardware.__N__**.Ahomesw-hyst** float in (default: __.02__)
+sim-axis-hardware.__N__**.Xhomesw-out** bit out 
+ Home switch for the X axis
+
+sim-axis-hardware.__N__**.Yhomesw-out** bit out 
+sim-axis-hardware.__N__**.Zhomesw-out** bit out 
+sim-axis-hardware.__N__**.Ahomesw-out** bit out 
+sim-axis-hardware.__N__**.homesw-all** bit out 
+sim-axis-hardware.__N__**.Xmaxsw-out** bit out 
+Max limit switch
+
+sim-axis-hardware.__N__**.Xminsw-out** bit out 
+min limit switch
+
+sim-axis-hardware.__N__**.Xbothsw-out** bit out 
+True for both max and min limit switch
+
+sim-axis-hardware.__N__**.Ymaxsw-out** bit out 
+sim-axis-hardware.__N__**.Yminsw-out** bit out 
+sim-axis-hardware.__N__**.Ybothsw-out** bit out 
+sim-axis-hardware.__N__**.Zmaxsw-out** bit out 
+sim-axis-hardware.__N__**.Zminsw-out** bit out 
+sim-axis-hardware.__N__**.Zbothsw-out** bit out 
+sim-axis-hardware.__N__**.Amaxsw-out** bit out 
+sim-axis-hardware.__N__**.Aminsw-out** bit out 
+sim-axis-hardware.__N__**.Abothsw-out** bit out 
+sim-axis-hardware.__N__**.limitsw-all** bit out 
+sim-axis-hardware.__N__**.limitsw-homesw-all** bit out 
+True for all limits and all home.
+
+sim-axis-hardware.__N__**.Xmaxsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Xminsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Xbothsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Ymaxsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Yminsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Ybothsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Zmaxsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Zminsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Zbothsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Amaxsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Aminsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.Abothsw-homesw-out** bit out 
+sim-axis-hardware.__N__**.limit-offset** float in (default: __.01__)
+how much the limit switches are offset from inputed position. added to max, subracted from min
+
+
+===== [[author]]AUTHOR
+
+Chris Morley
+
+
+===== [[license]]LICENSE
+
+GPL

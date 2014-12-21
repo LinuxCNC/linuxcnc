@@ -1,0 +1,46 @@
+DEADZONE
+========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+deadzone -- Return the center if within the threshold
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt deadzone [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**deadzone.**__N__ (requires a floating-point thread)
+Update **out** based on **in** and the parameters.
+
+
+===== [[pins]]PINS
+
+deadzone.__N__**.in** float in 
+deadzone.__N__**.out** float out 
+
+
+===== [[parameters]]PARAMETERS
+
+deadzone.__N__**.center** float rw (default: __0.0__)
+The center of the dead zone
+
+deadzone.__N__**.threshhold** float rw (default: __1.0__)
+The dead zone is **center** \(+- (**threshhold**/2)
+
+
+===== [[license]]LICENSE
+
+GPL

@@ -1,0 +1,87 @@
+MUX16
+=====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+mux16 -- Select from one of sixteen input values
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt mux16 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**mux16.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+mux16.__N__**.use-graycode** bit in 
+This signifies the input will use Gray code instead of binary.
+Gray code is a good choice when using physical switches because
+for each increment only one select input changes at a time.
+
+
+mux16.__N__**.suppress-no-input** bit in 
+This suppresses changing the output if all select lines are false.
+This stops unwanted jumps in output between transitions of input.
+but make in00 unavaliable.
+
+
+mux16.__N__**.debounce-time** float in 
+sets debouce time in seconds.  eg. .10 = a tenth of a second
+input must be stable this long before outputs changes. This
+helps to ignore 'noisy' switches.
+
+
+mux16.__N__**.sel**__M__ bit in  (M=0..3) 
+Together, these determine which **in**__N__ value is copied to **out**.
+
+
+mux16.__N__**.out-f** float out 
+mux16.__N__**.out-s** s32 out 
+Follows the value of one of the **in**__N__ values according to the four **sel** values
+and whether use-graycode is active.
+The s32 value will be trunuated and limited to the max and min values of signed values. 
+.RS
+
+**sel3=FALSE**, **sel2=FALSE**, **sel1=FALSE**, **sel0=FALSE**
+**out** follows **in0**
+
+**sel3=FALSE**, **sel2=FALSE**, **sel1=FALSE**, **sel0=TRUE**
+**out** follows **in1**
+
+etc.
+.RE
+
+
+mux16.__N__**.in**__MM__ float in  (MM=00..15) 
+array of selectable outputs
+
+
+===== [[parameters]]PARAMETERS
+
+mux16.__N__**.elapsed** float r 
+Current value of the internal debounce timer
+ for debugging.
+
+mux16.__N__**.selected** s32 r 
+Current value of the internal selection variable after conversion
+ for debugging
+
+
+===== [[license]]LICENSE
+
+GPL

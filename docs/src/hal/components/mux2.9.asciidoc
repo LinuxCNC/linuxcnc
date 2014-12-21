@@ -1,0 +1,40 @@
+MUX2
+====
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+mux2 -- Select from one of two input values
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt mux2 [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**mux2.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+mux2.__N__**.sel** bit in 
+mux2.__N__**.out** float out 
+Follows the value of in0 if sel is FALSE, or in1 if sel is TRUE
+
+mux2.__N__**.in1** float in 
+mux2.__N__**.in0** float in 
+
+
+===== [[license]]LICENSE
+
+GPL

@@ -1,0 +1,53 @@
+SIM_SPINDLE
+===========
+
+. <<name,NAME>>
+. <<synopsis,SYNOPSIS>>
+. <<functions,FUNCTIONS>>
+. <<pins,PINS>>
+. <<parameters,PARAMETERS>>
+. <<license,LICENSE>>
+
+
+
+
+===== [[name]]NAME
+
+sim_spindle -- Simulated spindle with index pulse
+
+
+===== [[synopsis]]SYNOPSIS
+loadrt sim_spindle [count=__N__**|names=**__name1__**[,**__name2...__**]]
+**
+
+===== [[functions]]FUNCTIONS
+
+**sim-spindle.**__N__ (requires a floating-point thread)
+
+
+
+===== [[pins]]PINS
+
+sim-spindle.__N__**.velocity-cmd** float in 
+Commanded speed
+
+sim-spindle.__N__**.position-fb** float out 
+Feedback position, in revolutions
+
+sim-spindle.__N__**.index-enable** bit io 
+Reset **position-fb\fP to 0 at the next full rotation
+**
+
+===== [[parameters]]PARAMETERS
+
+sim-spindle.__N__**.scale** float rw (default: __1.0__)
+factor applied to **velocity-cmd\fP.
+**
+The result of '** * scale\fP' be in revolutions per second.
+**For example, if ** is in revolutions/minute, scale\fP should be set to 1/60 or 0.016666667.
+**
+
+
+===== [[license]]LICENSE
+
+GPL
