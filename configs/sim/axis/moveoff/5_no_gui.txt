@@ -1,4 +1,4 @@
-moveoff_demo1
+moveoff no_gui
 
 This demonstration provides no gui support but pops up several general-purpose utilities to show behavior for a single axis (2 => z).
 

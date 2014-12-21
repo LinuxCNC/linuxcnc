@@ -72,9 +72,10 @@ proc core_sim {axes
     net ${a}:pos-cmd => ${a}_pid.command
 
     net ${a}:on-pos  <= ${a}_pid.output
-    net ${a}:on-pos  => ${a}_mux.in1
+    net ${a}:on-pos  => ${a}_mux.in1 ;# pass thru when motion-enabled
 
     net ${a}:pos-fb  <= ${a}_mux.out
+    net ${a}:pos-fb  => ${a}_mux.in0 ;# hold position when !motion-enabled
     net ${a}:pos-fb  => axis.[set ${a}_idx].motor-pos-fb
   }
 } ;# core_sim
