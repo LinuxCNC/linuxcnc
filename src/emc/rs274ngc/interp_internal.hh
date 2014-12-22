@@ -58,7 +58,7 @@
 
 /* numerical constants */
 #define TOLERANCE_INCH 0.0005
-#define TOLERANCE_MM 0.005
+#define TOLERANCE_MM (TOLERANCE_INCH * 25.4)
 /* angle threshold for concavity for cutter compensation, in radians */
 #define TOLERANCE_CONCAVE_CORNER 0.05  
 #define TOLERANCE_EQUAL 0.0001 /* two numbers compare EQ if the
