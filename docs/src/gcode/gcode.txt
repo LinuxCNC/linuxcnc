@@ -335,7 +335,7 @@ It is an error if:
 Deciphering the Error message 'Radius to end of arc differs from radius to start:'
 
 * 'start' - the current position
-* 'center' - the center position as calculated using the i,j or k words
+* 'center' - the center position as calculated using the i, j, or k words
 * 'end' - the programmed end point
 * 'r1' - radius from the start position to the center
 * 'r2' - radius from the end position to the center
