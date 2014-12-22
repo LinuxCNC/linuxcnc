@@ -5,6 +5,21 @@ This section describes how to download and make a fresh install of
 LinuxCNC.  If you have an existing install that you want to upgrade,
 go to the <<_updating_linuxcnc,Updating LinuxCNC>> section instead.
 
+Fresh installs of LinuxCNC are most easily created using the Live/Install
+Image.  This is a hybrid ISO filesystem image that can be written to a
+USB storage device or a DVD and used to boot a computer.  At boot time you
+will be given a choice of booting the "Live" system (to test out LinuxCNC
+without making any permanent changes to your computer) or booting the
+Installer, to install LinuxCNC onto your computer's hard drive.
+
+The outline of the process looks like this:
+
+* Download the Live/Install Image.
+* Write the image to a USB storage device or DVD.
+* Boot the Live system to test out LinuxCNC.
+* Boot the Installer to install LinuxCNC.
+
+
 == Normal Download
 
 Download the Live/Install CD by clicking here:
@@ -32,9 +47,6 @@ terminal window with a right mouse click and select Paste.
 +
 .Debian Wheezy and LinuxCNC fresh install
 *********************************************************************
-The Debian image is a "hybrid" iso, which means you can use the same iso file
-for a USB stick or a DVD.
-
 To get the Debian Wheezy LinuxCNC Live CD using wget
 copy one of this in a terminal window and press enter:
 
