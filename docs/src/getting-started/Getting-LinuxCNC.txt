@@ -241,6 +241,36 @@ as part of Debian Wheezy.  No special apt source is needed.  The packages
 are called `linux-image-rt-amd64` and `linux-image-rt-686-pae`.
 
 
+=== Installing on Debian Wheezy (with Preempt-RT kernel)
+
+* Install Debian Wheezy (Debian version 7), either i386 or amd64.
+  You can download the installer here:
+  https://www.debian.org/CD/http-ftp/#stable
+
+* Run `sudo apt-get update` followed by `sudo apt-get dist-upgrade` to
+  bring the machine up to date with the latest packages in Debian Wheezy.
+
+* Install the Preempt-RT kernel and modules by running: `sudo
+  apt-get install linux-image-rt-amd64` or `sudo apt-get install
+  linux-image-rt-686-pae`.
+
+* Reboot, and make sure you boot into the Preempt-RT kernel. When you
+  log in, verify that `uname -r` says 3.2.0-4-rt-686-pae.
+
+* Add the LinuxCNC Archive Signing Key to your apt keyring by running
+  `sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 8f374fef`
+
+* Add a new apt source that looks like this: `deb http://linuxcnc.org/
+  wheezy base 2.7-uspace`
+
+* Run `sudo apt-get update` again to fetch the package list from
+  linuxcnc.org.
+
+* Run `sudo apt-get install linuxcnc-uspace`.
+
+* Machine away!
+
+
 === Installing on Ubuntu Precise
 
 * Install Ubuntu Precise 12.04 x86 (32-bit). Any flavor should
