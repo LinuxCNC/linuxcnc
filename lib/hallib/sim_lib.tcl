@@ -165,8 +165,8 @@ proc simulated_home {axes} {
     net ${a}:homesw <= ${a}_switch.home-sw
     net ${a}:homesw => axis.$idx.home-sw-in
 
-    #setp ${a}.$idx.hysteresis ;# using component default
-    #setp ${a}.$idx.home-pos   ;# using component default
+    #setp ${a}_switch.hysteresis ;# using component default
+    #setp ${a}_switch.home-pos   ;# using component default
   }
 } ;# simulated_home
 

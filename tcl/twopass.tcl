@@ -223,6 +223,15 @@ proc ::tp::addf_substitute {args} {
 
 proc ::tp::hide_cmds {} {
   set ::TP(cmds) [hal --commands]
+  lappend ::TP(cmds) unknown
+
+  # subterfuge to protect parray proc
+  #   fetch non-built-in parray proc
+  #   invoke with nosuch so it wont print
+  #   silently ignore error
+  catch {parray nosuch}
+  lappend ::TP(cmds) parray
+
   set ::TP(nochange,cmds) {addf loadrt loadusr source}
 
   rename loadusr            orig_loadusr
@@ -274,7 +283,9 @@ proc ::tp::prep_the_files {} {
   if {$passno == 0} {
     # find file by search rules
     set libtag "LIB:"
-    foreach f $::HAL(HALFILE) {
+    foreach file_plus_args $::HAL(HALFILE) {
+      set f [lindex $file_plus_args 0]          ;# the file
+      set f_argv [lrange $file_plus_args 1 end] ;# possibly has args
       set foundmsg ""
       # test for LIB:filename
       if {[string first "LIB:" $f] == 0} {
@@ -314,7 +325,11 @@ proc ::tp::prep_the_files {} {
       # convert to a temporary tcl file if necessary
       set suffix [filesuffix $f]
       switch -exact $suffix {
-        tcl {lappend ::TP(runfiles) $f
+        tcl {
+             if {[llength $f_argv]} {
+               set f "$f $f_argv" ;# optional args
+             }
+             lappend ::TP(runfiles) $f
              verbose "tclfile: $f"
             }
         hal {set ::TP($f,tmp) /tmp/[file tail $f].tmp
@@ -411,15 +426,41 @@ proc ::tp::hal_to_tcl {ifile ofile} {
   return $ofile
 } ;# hal_to_tcl
 
+proc ::tp::parse_ini {filename} {
+  # adapted from haltcl.in
+  set f [open $filename]
+  while {[gets $f line] >= 0} {
+    if {[regexp {^\[(.*)\]\s*$} $line _ section]} {
+      # nothing
+    } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
+      upvar $section s
+      lappend s([string trim $k]) $v
+    }
+  }
+  close $f
+} ;# parse_ini
+
 proc ::tp::source_the_files {} {
-  foreach f $::TP(runfiles) {
+  foreach file_plus_args $::TP(runfiles) {
+    catch {unset ::argv}
+    set f [lindex $file_plus_args 0]
+    if {[filesuffix $f] == "tcl"} {
+      # note: ::argv supplies the file_plus_args to the sourced file
+      #       ::argv0 is not set to maintain compatibility with
+      #       the way the linuxcnc script uses haltcl to use tcl files
+      set ::argv [lrange $file_plus_args 1 end]
+    }
     verbose "sourcing: $f"
     set errct 0
+
     if [catch {source $f} msg] {
        if [info exists ::TP(origfile,$f)] {
          set f $::TP(origfile,$f)
        }
        puts "twopass: Error in file $f:\n    $msg"
+       if { [string first "invalid command name" $msg] >= 0} {
+          puts "    Only buil-in commands are available"
+       }
        incr errct
     }
   }
@@ -466,6 +507,9 @@ proc ::tp::addf_the_funcs {} {
 proc ::tp::pass1 {} {
   verbose "pass1:BEGIN"
   incr ::TP(passnumber)
+  if { [info exists ::env(INI_FILE_NAME)]} {
+    parse_ini $::env(INI_FILE_NAME)
+  }
   source_the_files
   if {$::TP(combine_addfs)} {
     # execute all addf's at end of pass1

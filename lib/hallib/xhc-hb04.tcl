@@ -125,7 +125,7 @@ proc connect_pins {} {
       continue
     }
     set fullbname xhc-hb04.button-$bname
-    if !$::quiet {
+    if !$::xhc_hb04_quiet {
       if ![pin_exists $fullbname] {
         puts stderr "$::progname: !!! <$fullbname> pin does not exist, continuing"
         continue
@@ -319,10 +319,10 @@ proc err_exit {msg} {
 # begin------------------------------------------------------------------------
 set ::progname "xhc-hb04.tcl"
 
-set ::quiet 0
+set ::xhc_hb04_quiet 0
 # ::tp is the namespace for [HAL]TWOPASS processing
 if { [namespace exists ::tp] && ([::tp::passnumber] == 0) } {
-  set ::quiet 1
+  set ::xhc_hb04_quiet 1
   puts "$::progname: suppressing messages in twopass pass0"
 }
 

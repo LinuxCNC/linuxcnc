@@ -371,14 +371,17 @@ set ::m mv ;# moveoff component name
 set ::HU(verbose) 0
 set ::noexecute   0
 
-# ::tp is the namespace for [HAL]TWOPASS processing
+# Provision for twopass compatibility
+# (::tp is the namespace for [HAL]TWOPASS processing)
 if [namespace exists ::tp] {
   set passno [::tp::passnumber]
   if {$passno == 0} {
+    # With twopass processing, the initial pass0 only collects
+    # loadrt and loadusr commands with no execution.
+    # So  the checks etc herein cannot work until pass1
+    # Note that this file only uses loadrt once for the moveoff
+    # component so it manages its loadrt exclusively
     puts "hookup_moveoff.tcl: twopass active, pass $passno skipped"
-    # By returning here, the loadrt and addf commands herein are not
-    # accumulated for deferred execution by pass0 processing.
-    # But they will be executed in pass1
     return
   } else {
     puts "hookup_moveoff.tcl: twopass active, pass $passno active"
