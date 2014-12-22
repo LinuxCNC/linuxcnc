@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-=======
-[cols="3*"]
-|===
-|
-|link:../DOCUMENTS.asciidoc[Back to the Documents index]
-|
-|===
-
->>>>>>> 127641fd81973f366361930a1a30cf3145584b39
 :lversion: {sys: cat ../VERSION}
 HAL Manual V{lversion}, {localdate}
 ===================================
@@ -84,16 +74,6 @@ include::drivers/GM.asciidoc[]
 
 include::common/GPLD_Copyright.asciidoc[]
 
-<<<<<<< HEAD
-=======
-[cols="3*"]
-|===
-|
-|link:../DOCUMENTS.asciidoc[Back to the Documents index]
-|
-|===
-
->>>>>>> 127641fd81973f366361930a1a30cf3145584b39
 // = Index
 
 // vim: set syntax=asciidoc:
