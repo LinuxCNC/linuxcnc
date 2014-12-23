@@ -1,1 +1,1 @@
-twopass_demo -- demonstrates a ".tcl" configuration file
+twopass_demo -- demonstrates a ".tcl" configuration file with tests for loadrt,puts, passnumber
