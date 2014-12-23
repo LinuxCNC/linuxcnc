@@ -470,7 +470,6 @@ void cb_response_in(struct libusb_transfer *transfer)
 
 void setup_asynch_transfer(libusb_device_handle *dev_handle)
 {
-	transfer_in  = libusb_alloc_transfer(0);
 	libusb_fill_bulk_transfer( transfer_in, dev_handle, (0x1 | LIBUSB_ENDPOINT_IN),
 		in_buf, sizeof(in_buf),
 		cb_response_in, NULL, 0); // no user data
@@ -790,6 +789,8 @@ int main (int argc,char **argv)
 				perror("libusb_claim_interface");
 				return 1;
 			}
+			//allocate the transfer struct here only once after successful connection
+			transfer_in  = libusb_alloc_transfer(0);
 		}
 
 		*(xhc.hal->connected) = 1;
