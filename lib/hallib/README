@@ -18,8 +18,11 @@ system halfiles.  For example, the button layout files
 
 Filename                Usage
 ----------------------- ------------------------------------------------
-sim_lib.tcl             library of haltcl procs
 basic_sim.tcl           haltcl file for setting up a sim config
+var_show.tcl            haltcl file to ini variables and context
+
+sim_lib.tcl             library of haltcl procs
+util_lib.tcl            library of utility procs
 
 hookup_moveoff.tcl      Automatic connections for a moveoff component
 moveoff_external.hal    Simulate external control connections for
