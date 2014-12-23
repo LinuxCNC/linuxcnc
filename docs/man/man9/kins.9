@@ -4,7 +4,7 @@
 .TP \\$1
 ..
 
-.TH KINS "9" "2007-01-20" "LinuxCNC Documentation" "HAL Component"
+.TH KINS "9" "2014-12-22" "LinuxCNC Documentation" "HAL Component"
 .SH NAME
 kins \- kinematics definitions for LinuxCNC
 .SH SYNOPSIS
@@ -43,7 +43,37 @@ locations (the motors), giving three degrees of freedom in position (XYZ)
 The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
 .SS genhexkins \- Hexapod Kinematics
 Gives six degrees of freedom in position and orientation (XYZABC).  The
-location of the motors is defined at compile time.
+location of base and platform joints is defined by hal parameters.  The
+forward kinematics iteration is controlled by hal pins.
+.TP
+.B genhexkins.base.\fIN\fB.x
+.TQ
+.B genhexkins.base.\fIN\fB.y
+.TQ
+.B genhexkins.base.\fIN\fB.z
+.TQ
+.B genhexkins.platform.\fIN\fB.x
+.TQ
+.B genhexkins.platform.\fIN\fB.y
+.TQ
+.B genhexkins.platform.\fIN\fB.z
+Parameters describing the \fIN\fRth joint's coordinates.
+.TQ
+.B genhexkins.convergence-criterion
+Minimum error value that ends iterations with converged solution.
+.TQ
+.B genhexkins.limit-iterations
+Limit of iterations, if exceeded iterations stop with no convergence.
+.TQ
+.B genhexkins.max-error
+Maximum error value, if exceeded iterations stop with no convergence.
+.TQ
+.B genhexkins.last-iterations
+Number of iterations spent for the last forward kinematics solution.
+.TQ
+.B genhexkins.max-iterations
+Maximum number of iterations spent for a converged solution during current
+session.
 .SS maxkins \- 5-axis kinematics example
 Kinematics for Chris Radek's tabletop 5 axis mill named 'max' with tilting
 head (B axis) and horizintal rotary mounted to the table (C axis).  Provides
