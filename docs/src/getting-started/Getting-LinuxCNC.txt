@@ -24,14 +24,20 @@ there are <<_alternate_install_methods,Alternate Install Methods>>
 for the adventurous.
 
 
-== Normal Download
+== Download the image
+
+This section describes some methods for downloading the Live/Install
+Image.
+
+
+=== Normal Download
 
 Download the Live/Install CD by clicking here:
 
 http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso
 
 
-== Multi-session Download (((Multi-session Download)))
+=== Multi-session Download
 
 If the file is too large to download in one session 
 because of a bad or slow Internet connection, 
