@@ -37,6 +37,25 @@ Download the Live/Install CD by clicking here:
 http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso
 
 
+=== Download using zsync
+
+zsync is a download application that efficiently resumes interrupted
+downloads and efficiently transfers large files with small modifications
+(if you have an older local copy).
+
+zsync in Linux::
+    Install zsync by running `sudo apt-get install zsync`.  To use
+    zsync in Linux to download the Live/Install Image, run this command:
+    `zsync http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync`
+
+
+zsync in Windows::
+    There is a Windows port of zsync.  It works as a
+    console application, just like the Linux version, so
+    get out that Command Prompt.  It can be downloaded from:
+    https://www.assembla.com/spaces/zsync-windows/documents
+
+
 === Multi-session Download
 
 If the file is too large to download in one session 
