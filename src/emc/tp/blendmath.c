@@ -111,6 +111,22 @@ double saturate(double x, double max) {
 }
 
 
+/**
+ * Apply bounds to a value x.
+ */
+inline double bound(double x, double max, double min) {
+    if ( x > max ) {
+        return max;
+    }
+    else if ( x < (min) ) {
+        return min;
+    }
+    else {
+        return x;
+    }
+}
+
+
 /** In-place saturation function */
 int sat_inplace(double * const x, double max) {
     if ( *x > max ) {
@@ -1503,64 +1519,24 @@ double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max,
 
 /** @section spiralfuncs Functions to approximate spiral arc length */
 
-int findSpiralArcLengthFit(PmCircle const * const circle,
-        SpiralArcLengthFit * const fit)
-{
-
-    // Additional data for arc length approximation
-    double spiral_coef = circle->spiral / circle->angle;
-    double radius = circle->radius;
-
-    if (fsign(circle->spiral) < 0.0) {
-        // Treat as positive spiral, parameterized in opposite
-        // direction
-        spiral_coef*=-1.0;
-        // Treat final radius as starting radius for fit
-        radius+=circle->spiral;
-        fit->spiral_in = true;
-    } else {
-        fit->spiral_in = false;
-    }
-
-    //TODO handle low spiral
-    if (fabs(spiral_coef) < TP_POS_EPSILON) {
-        fit->b0 = 0;
-        fit->b1 = radius;
-    } else {
-        double theta_start = radius / spiral_coef;
-        double theta_end = theta_start + circle->angle;
-        double slope_start = spiral_coef * pmSqrt(pmSq(theta_start)+1.0);
-        double slope_end = spiral_coef * pmSqrt(pmSq(theta_end)+1.0);
-        fit->b0 = (slope_end-slope_start) / (2.0 * circle->angle);
-        fit->b1 = slope_start;
-    }
-    fit->total_planar_length = fit->b0 * pmSq(circle->angle) + fit->b1 * circle->angle;
-    tp_debug_print("Spiral fit: b0 = %f, b1 = %f\n",fit->b0,fit->b1);
-
-    return 0;
-}
-
-
-double pmCircleAngleFromProgress(PmCircle const * const circle,
+/**
+ * Intermediate function to find the angle for a parameter from 0..1 along the
+ * spiral arc.
+ */
+static double pmCircleAngleFromParam(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
-        double progress)
+        double t)
 {
-    double h2;
-    pmCartMagSq(&circle->rHelix, &h2);
-    double s_end = pmSqrt(pmSq(fit->total_planar_length) + h2);
-    double t = progress / s_end;
-    if (fit->spiral_in) {
-        // Spiral fit assumes that we're spiraling out, so
-        // parameterize from opposite end
-        t=1.0-t;
-    }
     double s_in = t * fit->total_planar_length;
 
     // Quadratic formula to invert arc length -> angle
-    double disc,angle_out;
-    if (fabs(fit->b0) > TP_POS_EPSILON) {
-        disc = pmSqrt(4.0 * fit->b0 * s_in + pmSq(fit->b1));
-        angle_out = (disc - fit->b1) / (2.0 * fit->b0);
+    double angle_out;
+    double disc = 4.0 * fit->b0 * s_in + pmSq(fit->b1);
+
+    if (fabs(fit->b0) > TP_POS_EPSILON && disc > TP_POS_EPSILON) {
+        //Know that discriminant is positive and divisor is large enough not to
+        //cause numerical errors
+        angle_out = (pmSqrt(disc) - fit->b1) / (2.0 * fit->b0);
     } else {
         //Circle case, don't need a fit
         angle_out = s_in / circle->radius;
@@ -1573,12 +1549,103 @@ double pmCircleAngleFromProgress(PmCircle const * const circle,
     }
 
     return angle_out;
+}
+
+
+/**
+ * Approximate the arc length function of a general spiral.
+ *
+ * The closed-form arc length of a general archimedean spiral is rather
+ * computationally messy to work with. 
+ * See http://mathworld.wolfram.com/ArchimedesSpiral.html for the actual form.
+ *
+ * The simplification here is made possible by a few assumptions:
+ *  1) That the spiral starts with a nonzero radius
+ *  2) The spiral coefficient (i.e. change in radius / angle) is not too large
+ *  3) The spiral coefficient has some minimum magnitude ("perfect" circles are handled as a special case)
+ *
+ * The 2nd-order fit below works by matching slope at the start and end of the
+ * arc length vs. angle curve. This completely specifies the 2nd order fit.
+ * Also, this fit predicts a total arc length >= the true arc length, which
+ * means the true speed along the curve will be the same or slower than the
+ * nominal speed.
+ */
+int findSpiralArcLengthFit(PmCircle const * const circle,
+        SpiralArcLengthFit * const fit)
+{
+    // Additional data for arc length approximation
+    double spiral_coef = circle->spiral / circle->angle;
+    double min_radius = circle->radius;
+
+    if (fsign(circle->spiral) < 0.0) {
+        // Treat as positive spiral, parameterized in opposite
+        // direction
+        spiral_coef*=-1.0;
+        // Treat final radius as starting radius for fit, so we add the
+        // negative spiral term to get the minimum radius
+        //
+        min_radius+=circle->spiral;
+        fit->spiral_in = true;
+    } else {
+        fit->spiral_in = false;
+    }
+
+    //TODO handle low spiral
+    if (fabs(spiral_coef) < 1.0e-8) {
+        // Use simple linear fit for arc length
+        fit->b0 = 0.0;
+        fit->b1 = pmSqrt(pmSq(min_radius) + pmSq(circle->spiral));
+    } else {
+        // Compute the equivalent "spiral" angles, starting from a 0-radius
+        // spiral. This comes from the definition of an archimedean spiral:
+        //              r = a * theta
+        // In this case, min_radius = spiral_coef * theta_start
+        double theta_start = min_radius / spiral_coef;
+        double theta_end = theta_start + circle->angle;
+        // slope of curve in polar coordinates, solved at start and end
+        double slope_start = spiral_coef * pmSqrt(pmSq(theta_start)+1.0);
+        double slope_end = spiral_coef * pmSqrt(pmSq(theta_end)+1.0);
+
+        // fit coefficients for a parabola with specified slopes
+        // at 2 points
+        fit->b0 = (slope_end-slope_start) / (2.0 * circle->angle);
+        fit->b1 = slope_start;
+        // b2 term is 0 since arc length is 0 when angle is 0
+    }
+    fit->total_planar_length = fit->b0 * pmSq(circle->angle) + fit->b1 * circle->angle;
+    tp_debug_print("Spiral fit: b0 = %f, b1 = %f\n",fit->b0,fit->b1);
+
+    // Check against start and end angle
+    double angle_start_chk = pmCircleAngleFromParam(circle,fit,0.0);
+    double angle_end_chk = pmCircleAngleFromParam(circle,fit,1.0);
+    tp_debug_print("Spiral fit check: angle_0 = %f, angle_1 = %f\n", angle_start_chk, angle_end_chk);
+
+    return 0;
+}
+
+
+double pmCircleAngleFromProgress(PmCircle const * const circle,
+        SpiralArcLengthFit const * const fit,
+        double progress)
+{
+    double h2;
+    pmCartMagSq(&circle->rHelix, &h2);
+    double s_end = pmSqrt(pmSq(fit->total_planar_length) + h2);
+    // Parameterize by total progress along helix
+    double t = progress / s_end;
+    if (fit->spiral_in) {
+        // Spiral fit assumes that we're spiraling out, so
+        // parameterize from opposite end
+        t = 1.0 - t;
+    }
+    return pmCircleAngleFromParam(circle, fit, t);
 
 }
 
 
 /**
- * compute the total arc length of a circle segment
+ * compute the total arc length of a circle segment.
+ * Deprecated since adding the fit to PmCircle9
  */
 double pmCircleLength(PmCircle const * const circle)
 {
