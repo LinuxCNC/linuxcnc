@@ -1752,7 +1752,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             #print "\ntype",item[0]
             count = 0
             end = len(item[1])-1
-            self.d[item[0]]= gtk.TreeStore(str,int,str,str)
+            # treestore(parentname,parentnum,signalname,signaltreename,signal index number)
+            self.d[item[0]]= gtk.TreeStore(str,int,str,str,int)
             for i,parent in enumerate(item[1]):
                 if len(parent[1]) == 0:
                     # if combobox has a 'custom' signal choice then the index must be 0
@@ -1764,21 +1765,59 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                         signame=_PD[item[3]][count]
                     except:
                         signame = 'none'
-                    piter = self.d[item[0]].append(None, [parent[0], temp,signame,item[3]])
-                    #print parent,temp,count,signame,item[3]
+                    piter = self.d[item[0]].append(None, [parent[0], temp,signame,item[3],count])
+                    #print parent,temp,count,signame,item[3],i,signame,count
                     if count == 0: count = 1
                     else: count +=item[2]
                 else:
                     #print "parsing child"
-                    piter = self.d[item[0]].append(None, [parent[0],0,signame,item[3]])
+                    piter = self.d[item[0]].append(None, [parent[0],0,signame,item[3],count])
                     for j,child in enumerate(parent[1]):
                         signame=_PD[item[3]][count]
-                        #print i,count,parent[0],child,signame,item[3]
-                        self.d[item[0]].append(piter, [child, count,signame,item[3]])
+                        #print i,count,parent[0],child,signame,item[3], _PD[item[3]].index(signame),count
+                        self.d[item[0]].append(piter, [child, count,signame,item[3],count])
                         count +=item[2]
-        self.d._notusedsignaltree = gtk.TreeStore(str,int,str,str)
-        self.d._notusedsignaltree.append(None, [_PD.human_notused_names[0][0],0,'unused-unused','_notusedsignaltree',])
+        self.d._notusedsignaltree = gtk.TreeStore(str,int,str,str,int)
+        self.d._notusedsignaltree.append(None, [_PD.human_notused_names[0][0],0,'unused-unused','_notusedsignaltree',0])
+        # make a filter for sserial encoder as they can't be used for AXES
+        self.d._encodersignalfilter = self.d._encodersignaltree.filter_new()
+        self.d._enc_filter_list = ['Axis Encoder']
+        self.d._encodersignalfilter.set_visible_func(self.visible_cb, self.d._enc_filter_list)
+        # build filters for the 'controlling' sserial combbox
+        # We need to limit selections often
+        for channel in range(0,_PD._NUM_CHANNELS):
+            self.d['_sserial%d_filter_list'%channel] =[]
+            self.d['_sserial%d_signalfilter'%channel] = self.d._sserialsignaltree.filter_new()
+            self.d['_sserial%d_signalfilter'%channel].set_visible_func(self.filter_cb,self.d['_sserial%d_filter_list'%channel])
+            self.set_filter('_sserial%d'%channel,'ALL')
 
+    # Filter out any matching names in a list
+    def visible_cb(self, model, iter, data ):
+        #print model.get_value(iter, 0) ,data
+        return not model.get_value(iter, 0) in data
+
+    # filter out anything not in one of the lists, the list depending on a keyword 
+    def set_filter(self,sserial,data):
+        keyword = data.upper()
+        if keyword == '7I77':
+            f_list = ['Unused','7i77']
+        elif keyword == '7I76':
+            f_list = ['Unused','7i76']
+        else:
+            f_list = ['Unused','7i73','7i69','8i20','7i64','7i71','7i70']
+        del self.d['%s_filter_list'%sserial][:]
+        for i in(f_list):
+            self.d['%s_filter_list'%sserial].append(i)
+        #print '\n',filterlist,self.d[filterlist]
+        self.d['%s_signalfilter'%sserial].refilter()
+
+    # Filter callback
+    def filter_cb(self, model, iter, data ):
+        #print model.get_value(iter, 0) ,data
+        for i in data:
+            if i in model.get_value(iter, 0):
+                return True
+        return False
 
     def load_config(self):
         filter = gtk.FileFilter()
@@ -2287,10 +2326,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         except:
             self.recursive_block = False
             return
-        dbg('exclusive: current:%s %d %s %s'%(pinname,index,signame,sig_group))
+        dbg('exclusive: current:%s %d %s %s'%(pinname,index,signame,sig_group),mtype='excl')
         ex = exclusive.get(signame, ())
         if self.d.number_mesa > 0:
-            dbg( 'looking for %s in mesa'%signame)
+            dbg( 'looking for %s in mesa'%signame,mtype='excl')
             # check mesa main board - only if the tab is shown and the ptype is GOIOI
             for boardnum in range(0,int(self.d.number_mesa)):
                 for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]) :
@@ -2315,11 +2354,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
                         #print 'check mesa signals',v1
                         if v1 in ex or v1 == signame:
-                            dbg( 'found %s, at %s'%(signame,p))
+                            dbg( 'found %s, at %s'%(signame,p),mtype='excl')
                             self.widgets[p].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
                             self.d[p] = SIG.UNUSED_INPUT
             port = 0
-            dbg( 'looking for %s in mesa sserial'%signame)
+            dbg( 'looking for %s in mesa sserial'%signame,mtype='excl')
             for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
                 if channel == _PD._NUM_CHANNELS: break # TODO may not have all channels worth of glade widgets
                 if not self.widgets['mesa%dsserial%d_%d'%(boardnum,port,channel)].get_visible():continue
@@ -2338,13 +2377,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
                     #print 'check mesa signals',v1
                     if v1 in ex or v1 == signame:
-                        dbg( 'found %s, at %s'%(signame,p))
+                        dbg( 'found %s, at %s'%(signame,p),mtype='excl')
                         self.widgets[p].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
                         self.d[p] = SIG.UNUSED_INPUT
 
         if self.d.number_pports >0:
             # search pport1 for the illegal signals and change them to unused.
-            dbg( 'looking for %s in pport1'%signame)
+            dbg( 'looking for %s in pport1'%signame,mtype='excl')
             for pin1 in (2,3,4,5,6,7,8,9,10,11,12,13,15):
                 p = 'pp1_Ipin%d' % pin1
                 # pport2 may not be loaded yet
@@ -2358,12 +2397,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
                 #print 'check pport1 signals',v1
                 if v1 in ex or v1 == signame:
-                    dbg( 'found %s, at %s'%(signame,p))
+                    dbg( 'found %s, at %s'%(signame,p),mtype='excl')
                     self.widgets[p].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
                     self.d[p] = SIG.UNUSED_INPUT
         if self.d.number_pports >1:
             # search pport2 for the illegal signals and change them to unused.
-            dbg( 'looking for %s in pport2'%signame)
+            dbg( 'looking for %s in pport2'%signame,mtype='excl')
             for pin1 in (2,3,4,5,6,7,8,9,10,11,12,13,15):
                 p2 = 'pp2_Ipin%d' % pin1
                 # pport2 may not be loaded yet
@@ -2377,7 +2416,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 dummy, index,v2,sig_group = model.get(piter, 0,1,2,3)
                 #print 'check pport2 signals',v1
                 if v2 in ex or v2 == signame:
-                    dbg( 'found %s, at %s'%(signame,p2))
+                    dbg( 'found %s, at %s'%(signame,p2),mtype='excl')
                     self.widgets[p2].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
                     self.d[p2] = SIG.UNUSED_INPUT
         self.recursive_block = False
@@ -2642,6 +2681,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 ptiter = self.widgets[ptype].get_active_iter()
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
+                signaltree = self.widgets[p].get_model()
                 #if "serial" in p:
                 #    print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
                 #    print "**** INFO mesa-data-transfer:",ptiter,piter
@@ -2653,47 +2693,38 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     return
                 # type GPIO input
                 if pintype == _PD.GPIOI:
-                    signaltree = self.d._gpioisignaltree
                     ptypetree = self.d._gpioliststore
                     signaltocheck = _PD.hal_input_names
                 # type gpio output and open drain
                 elif pintype in (_PD.GPIOO,_PD.GPIOD):
-                    signaltree = self.d._gpioosignaltree
                     ptypetree = self.d._gpioliststore
                     signaltocheck = _PD.hal_output_names
                 #type encoder
                 elif pintype in (_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM):
-                    signaltree = self.d._encodersignaltree
                     ptypetree = self.d._encoderliststore
                     signaltocheck = _PD.hal_encoder_input_names
                 # resolvers
                 elif pintype in (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.RESU):
-                    signaltree = self.d._resolversignaltree
                     ptypetree = self.d._resolverliststore
                     signaltocheck = _PD.hal_resolver_input_names
                 # 8i20 amplifier card
                 elif pintype == _PD.AMP8I20:
-                    signaltree = self.d._8i20signaltree
                     ptypetree = self.d._8i20liststore
                     signaltocheck = _PD.hal_8i20_input_names
                 # potentiometer output
                 elif pintype in (_PD.POTO,_PD.POTE):
-                    signaltree = self.d._potsignaltree
                     ptypetree = self.d._potliststore
                     signaltocheck = _PD.hal_pot_output_names
                 # analog in 
                 elif pintype == (_PD.ANALOGIN):
-                    signaltree = self.d._analoginsignaltree
                     ptypetree = self.d._analoginliststore
                     signaltocheck = _PD.hal_analog_input_names
                 #type mux encoder
                 elif pintype in (_PD.MXE0, _PD.MXE1, _PD.MXEI, _PD.MXEM, _PD.MXES):
-                    signaltree = self.d._muxencodersignaltree
                     ptypetree = self.d._muxencoderliststore
                     signaltocheck = _PD.hal_encoder_input_names
                 # type PWM gen
                 elif pintype in( _PD.PDMP,_PD.PDMD,_PD.PDME):
-                    signaltree = self.d._pwmsignaltree
                     if pintype == _PD.PDMP:
                         ptypetree = self.d._pdmcontrolliststore
                     else:
@@ -2701,7 +2732,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     signaltocheck = _PD.hal_pwm_output_names
                 # PDM
                 elif pintype in( _PD.PWMP,_PD.PWMD,_PD.PWME):
-                    signaltree = self.d._pwmsignaltree
                     if pintype == _PD.PWMP:
                         ptypetree = self.d._pwmcontrolliststore
                     else:
@@ -2709,7 +2739,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     signaltocheck = _PD.hal_pwm_output_names
                 # Up/Down mode
                 elif pintype in( _PD.UDMU,_PD.UDMD,_PD.UDME):
-                    signaltree = self.d._pwmsignaltree
                     if pintype == _PD.UDMU:
                         ptypetree = self.d._udmcontrolliststore
                     else:
@@ -2717,12 +2746,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     signaltocheck = _PD.hal_pwm_output_names
                 # type tp pwm
                 elif pintype in (_PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF): 
-                    signaltree = self.d._tppwmsignaltree
                     ptypetree = self.d._tppwmliststore 
                     signaltocheck = _PD.hal_tppwm_output_names
                 # type step gen
                 elif pintype in (_PD.STEPA,_PD.STEPB):
-                    signaltree = self.d._steppersignaltree
                     ptypetree = self.d._stepperliststore
                     signaltocheck = _PD.hal_stepper_names
                 # type sserial
@@ -2731,7 +2758,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     _PD.RXDATA4,_PD.TXDATA4,_PD.TXEN4,_PD.RXDATA5,_PD.TXDATA5,_PD.TXEN5,_PD.RXDATA6,_PD.TXDATA6,
                                     _PD.TXEN6,_PD.RXDATA7,_PD.TXDATA7,_PD.TXEN7,
                                     _PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
-                    signaltree = self.d._sserialsignaltree
                     ptypetree = self.d._sserialliststore
                     signaltocheck = _PD.hal_sserial_names
                 # this suppresses errors because of unused and unintialized sserial instances
@@ -2890,7 +2916,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             if d[_PD._FIRMWARE] == firmware:
                 self.d["mesa%d_currentfirmwaredata"% boardnum] = self._p.MESA_FIRMWAREDATA[search]
                 break
-        #print self._p.MESA_FIRMWAREDATA[search]
+        dbg('current firmware:\n%r'%self._p.MESA_FIRMWAREDATA[search],mtype='curfirm')
 
         self.widgets["mesa%dcon2table"% boardnum].hide()
         self.widgets["mesa%dcon3table"% boardnum].hide()
@@ -3101,7 +3127,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             self.widgets[pinv].set_sensitive(0)
                             self.widgets[pinv].set_active(0)
                             self.widgets[ptype].set_model(self.d._encoderliststore)
-                            self.widgets[p].set_model(self.d._encodersignaltree)
+                            # serial encoders are not for AXES - filter AXES selections out
+                            if sserialflag:
+                                self.widgets[p].set_model(self.d._encodersignalfilter)
+                            else:
+                                self.widgets[p].set_model(self.d._encodersignaltree)
                             # we only add every 4th human name so the user can only select
                             # the encoder's 'A' signal name. If its the other signals
                             # we can add them all because pncconf controls what the user sees
@@ -3303,6 +3333,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     if firmptype in (_PD.TXDATA5,_PD.RXDATA5,_PD.TXEN5): channelnum = 6
                     if firmptype in (_PD.TXDATA6,_PD.RXDATA6,_PD.TXEN6): channelnum = 7
                     if firmptype in (_PD.TXDATA7,_PD.RXDATA7,_PD.TXEN7): channelnum = 8
+                    # control combobox is the one the user can select from others are unsensitized
+                    CONTROL = False
+                    if firmptype in (_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.TXDATA5,_PD.TXDATA6,
+                                        _PD.TXDATA7,_PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,_PD.SS7I77M0,
+                                        _PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
+                        CONTROL = True
                     #print "**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum," channel = ",channelnum
                     #print "sserial channel:%d"% numofsserialchannels
                     if numofsserialports >= (compnum + 1) and numofsserialchannels >= (channelnum):
@@ -3310,34 +3346,53 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         # then we need to set up the comboboxes for this pin, otherwise skip it
                         #if compnum < _PD._NUM_CHANNELS: # TODO not all channels available 
                         #    self.widgets["mesa%dsserialtab%d"% (boardnum,compnum)].show()
+                        
                         self.widgets[pinv].set_sensitive(0)
                         self.widgets[pinv].set_active(0)
-                        pmodel = self.widgets[p].set_model(self.d._sserialsignaltree)
-                        ptmodel = self.widgets[ptype].set_model(self.d._sserialliststore)
+                        # Filter the selection that the user can choose.
+                        # eg only show two modes for 7i77 and 7i76 or
+                        # don't give those selections on regular sserial channels
+                        if CONTROL:
+                            self.widgets[p].set_model(self.d['_sserial%d_signalfilter'%(channelnum-1)])
+                            if firmptype in (_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
+                                self.set_filter('_sserial%d'% (channelnum-1),'7I77')
+                            elif firmptype in (_PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3):
+                                self.set_filter('_sserial%d'% (channelnum-1),'7I76')
+                            else:
+                                self.set_filter('_sserial%d'% (channelnum-1),'ALL')
+                        else:
+                            self.widgets[p].set_model(self.d._sserialsignaltree)
+                        self.widgets[ptype].set_model(self.d._sserialliststore)
                         self.widgets[ptype].set_active(_PD.pintype_sserial.index(firmptype))
                         self.widgets[ptype].set_sensitive(0)
                         self.widgets[p].set_active(0)
                         self.widgets[p].child.set_editable(False) # sserial cannot have custom names
-                        if firmptype in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.TXDATA5,
-                                            _PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
+                        # controlling combbox
+                        if CONTROL:
                             self.widgets[complabel].set_text("%d:"% (channelnum -1))
                             if channelnum <= _PD._NUM_CHANNELS:#TODO not all channels available
                                 self.widgets[p].set_sensitive(1)
                             else:
                                 self.widgets[p].set_sensitive(0)
+                            # This is a bit of a hack to make 7i77 and 7i76 firmware automatically choose
+                            # the apropriate sserial component and allow the user to select different modes
                             # if the sserial ptype is 7i76 or 7i77 then the data must be set to 7i76/7i77 signal
                             # as that sserial instance can only be for the 7i76/7i77 I/O points
+                            # 7i76:
                             if firmptype in (_PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3):
                                 if not self.d[p] in (_PD.I7I76_M0_T,_PD.I7I76_M2_T):
                                     self.d[p] = _PD.I7I76_M0_T
                                 self.d[ptype] = firmptype
                                 self.widgets[p].set_sensitive(self.d.advanced_option)
-                                print 'state',self.d.advanced_option
+                            # 7i77:
                             elif firmptype in (_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
                                 if not self.d[p] in (_PD.I7I77_M3_T,_PD.I7I77_M0_T):
                                     self.d[p] = _PD.I7I77_M0_T
+                                if not firmptype in( _PD.SS7I77M1,_PD.SS7I77M4):
+                                    self.widgets[p].set_sensitive(self.d.advanced_option)
+                                else:
+                                    self.widgets[p].set_sensitive(0)
                                 self.d[ptype] = firmptype
-                                self.widgets[p].set_sensitive(self.d.advanced_option)
                         else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
@@ -3515,6 +3570,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         self.widgets[p].set_active_iter(treeiter)
 
                 # type encoder / mux encoder
+                # we find the data's signal index
+                # then we search through the combobox's actual model's 4th array index
+                # this contains the comboxbox's signal's index number
+                # when they match then that is the row to show in the combobox
+                # this is different because the sserial combobox's model
+                # can be filtered and that screws with the relationship of
+                # signalname array vrs model row
                 elif widgetptype == _PD.ENCA or widgetptype in(_PD.MXE0,_PD.MXE1):
                     try:
                         signalindex = _PD.hal_encoder_input_names.index(datap)
@@ -3522,25 +3584,25 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         if debug: print "**** INFO: PNCCONF warning no ENCODER signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
                     #print "ENC ->dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
-                    count = -3
-                    temp = (0) # set unused encoder if no match
+
+                    pinmodel = self.widgets[p].get_model()
+                    temp = (0)
+                    # don't search if we know it's unused
                     if signalindex > 0:
-                        for row,parent in enumerate(_PD.human_encoder_input_names):
-                            if len(parent[1]) == 0:continue
-                            for column,child in enumerate(parent[1]):
-                                count +=4
-                                #print row,column,count,parent[0],child
-                                if count == signalindex:
-                                    #print "match",row,column
+                        for row,parent in enumerate(pinmodel):
+                                #print row,parent[2]
+                                for column,child in enumerate(parent.iterchildren()):
+                                    #print 'signalname:',child[2],'index:',child[4]
+                                    # try to match the signal index # of the model and the data
+                                    if child[4] == signalindex:
+                                        #print 'match',child[2],child[4]
+                                        temp = (row,column)
+                                        break
+                                if not temp == (0):
                                     break
-                            if count >= signalindex:break
-                        temp = (row,column)
-                    #print temp
-                    if widgetptype == _PD.ENCA:
-                        treeiter = self.d._encodersignaltree.get_iter(temp)
-                    else:
-                        treeiter = self.d._muxencodersignaltree.get_iter(temp)
+                    treeiter = pinmodel.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
+
 
                 # type resolver
                 elif widgetptype in(_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.RESU):
@@ -3793,7 +3855,15 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     treeiter = self.d._steppersignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
-                # type smartserial  
+                # type smartserial
+                # we do things differently here
+                # we find the data's signal index
+                # then we search through the combobox's model's 4th array index
+                # this contains the comboxbox's signal's index number
+                # when they match then that is the row to show in the combobox
+                # this is different because the sserial combobox's model
+                # can be filtered and that screws with the relationship of
+                # signalname array vrs model row
                 elif widgetptype in( _PD.TXDATA0,_PD.SS7I76M0,_PD.SS7I77M0,_PD.SS7I77M3,_PD.TXDATA1,
                                     _PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.TXDATA5,_PD.TXDATA6,_PD.TXDATA7,
                                     _PD.SS7I76M2,_PD.SS7I76M3,_PD.SS7I77M1,_PD.SS7I77M4):
@@ -3804,23 +3874,14 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     except:
                         if debug: print "**** INFO: PNCCONF warning no SMART SERIAL signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
-                    #print "sserial,dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
-                    count = -2
-                    temp = (0) # set unused sserial
-                    if signalindex > 0:
-                       for row,parent in enumerate(_PD.human_sserial_names):
-                          if row == 0:continue
-                          if len(parent[1]) == 0:
-                             count += 3
-                             #print row,count,parent[0]
-                             if count == signalindex:
-                                #print "match",row
-                                temp = (row)
-                                break
-                             continue
-                    treeiter = self.d._sserialsignaltree.get_iter(temp)
-                    self.widgets[p].set_active_iter(treeiter)
-
+                    
+                    pinmodel = self.widgets[p].get_model()
+                    for row,parent in enumerate(pinmodel):
+                            #print row,parent[0],parent[2],parent[3],parent[4]
+                            if parent[4] == signalindex:
+                                #print 'FOUND',parent[2],parent[4]
+                                treeiter = pinmodel.get_iter(row)
+                                self.widgets[p].set_active_iter(treeiter)
                 else:
                     print "**** WARNING: PNCCONF data to widget: ptype not recognized/match:",dataptype,widgetptype
 
@@ -3846,11 +3907,17 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     else: widgetptype = _PD.GPIOO
                 pinchanged =  self.widgets[p].get_active_text()
                 piter = self.widgets[p].get_active_iter()
+                signaltree = self.widgets[p].get_model()
+                try:
+                    basetree = signaltree.get_model()
+                except:
+                    basetree = signaltree
                 #print "generalpin changed",p
                 #print "*** INFO ",boardtype,"-pin-changed: pin:",p,"custom:",custom
                 #print "*** INFO ",boardtype,"-pin-changed: ptype:",widgetptype,"pinchaanged:",pinchanged
                 if piter == None and not custom:
                     #print "*** INFO ",boardtype,"-pin-changed: no iter and not custom"
+                    self.p.set_buttons_sensitive(1,1)
                     return
                 if widgetptype in (_PD.ENCB,_PD.ENCI,_PD.ENCM,
                                     _PD.MXEI,_PD.MXEM,_PD.MXES,
@@ -3864,7 +3931,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # for GPIO output
                 if widgetptype in (_PD.GPIOO,_PD.GPIOD):
                     #print"ptype GPIOO\n"
-                    signaltree = self.d._gpioosignaltree
                     halsignallist = 'hal_output_names'
                     humansignallist = _PD.human_output_names
                     addsignalto = self.d.haloutputsignames
@@ -3874,7 +3940,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # for GPIO input
                 elif widgetptype == _PD.GPIOI:
                     #print"ptype GPIOI\n"
-                    signaltree = self.d._gpioisignaltree
                     halsignallist =  'hal_input_names'
                     humansignallist = _PD.human_input_names
                     addsignalto = self.d.halinputsignames
@@ -3884,7 +3949,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # for stepgen pins
                 elif widgetptype == _PD.STEPA:
                     #print"ptype step\n"
-                    signaltree = self.d._steppersignaltree
                     halsignallist = 'hal_stepper_names'
                     humansignallist = _PD.human_stepper_names
                     addsignalto = self.d.halsteppersignames
@@ -3894,7 +3958,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # for encoder pins
                 elif widgetptype == _PD.ENCA: 
                     #print"\nptype encoder"
-                    signaltree = self.d._encodersignaltree
                     halsignallist = 'hal_encoder_input_names'
                     humansignallist = _PD.human_encoder_input_names
                     addsignalto = self.d.halencoderinputsignames
@@ -3904,7 +3967,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # for mux encoder pins
                 elif widgetptype in(_PD.MXE0,_PD.MXE1): 
                     #print"\nptype encoder"
-                    signaltree = self.d._muxencodersignaltree
                     halsignallist = 'hal_encoder_input_names'
                     humansignallist = _PD.human_encoder_input_names
                     addsignalto = self.d.halencoderinputsignames
@@ -3913,7 +3975,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     customindex = 4
                 # resolvers 
                 elif widgetptype in (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5):
-                    signaltree = self.d._resolversignaltree
                     halsignallist = 'hal_resolver_input_names'
                     humansignallist = _PD.human_resolver_input_names
                     addsignalto = self.d.halresolversignames
@@ -3922,7 +3983,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     customindex = 1
                 # 8i20 amplifier 
                 elif widgetptype == _PD.AMP8I20:
-                    signaltree = self.d._8i20signaltree
                     halsignallist = 'hal_8i20_input_names'
                     humansignallist = _PD.human_8i20_input_names
                     addsignalto = self.d.hal8i20signames
@@ -3931,7 +3991,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     customindex = 1
                 # potentiometer output
                 elif widgetptype == _PD.POTO:
-                    signaltree = self.d._potsignaltree
                     halsignallist = 'hal_pot_output_names'
                     humansignallist = _PD.human_pot_output_names
                     addsignalto = self.d.halpotsignames
@@ -3940,7 +3999,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     customindex = 2
                 # analog input
                 elif widgetptype == _PD.ANALOGIN:
-                    signaltree = self.d._analoginsignaltree
                     halsignallist = 'hal_analog_input_names'
                     humansignallist = _PD.human_analog_input_names
                     addsignalto = self.d.halanaloginsignames
@@ -3950,7 +4008,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # for PWM,PDM,UDM pins
                 elif widgetptype in(_PD.PWMP,_PD.PDMP,_PD.UDMU): 
                     #print"ptype pwmp\n"
-                    signaltree = self.d._pwmsignaltree
                     halsignallist = 'hal_pwm_output_names'
                     humansignallist = _PD.human_pwm_output_names
                     addsignalto = self.d.halpwmoutputsignames
@@ -3959,7 +4016,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     customindex = 6
                 elif widgetptype == _PD.TPPWMA: 
                     #print"ptype pdmp\n"
-                    signaltree = self.d._tppwmsignaltree
                     halsignallist = 'hal_tppwm_output_names'
                     humansignallist = _PD.human_tppwm_output_names
                     addsignalto = self.d.haltppwmoutputsignames
@@ -4018,7 +4074,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     self.d[BASE+"subboard"] = "7i73-m1"
                                     self.widgets[BASE+'_tablabel'].set_text("7I73 I/O\n (SS# %d)"% channelnum)
                                 elif "7i77" in temp:
-                                    print 'ssname:',temp
+                                    print 'ssname',temp,'sschannel#',channelnum
                                     if 'Mode 3' in temp:
                                         ssfirmname = "7i77-m3"
                                     else:
@@ -4126,9 +4182,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto.append ((legal_name))
                     #print "add"+legal_name+"to human list"
                     humansignallist[customindex][1].append ((legal_name))
-                    endoftree = len(signaltree)-1
-                    customiter = signaltree.get_iter((endoftree,))
-                    newiter = signaltree.append(customiter, [legal_name,index,legal_name,halsignallist])
+                    endoftree = len(basetree)-1
+                    customiter = basetree.get_iter((endoftree,))
+                    newiter = basetree.append(customiter, [legal_name,index,legal_name,halsignallist,index])
+                    #print 'new signal:',legal_name,index,legal_name,halsignallist,endoftree,index
                     for offset,i in enumerate(relatedsearch):
                         with_endings = legal_name + relatedending[offset]
                         #print "new signal:",with_endings
@@ -4146,7 +4203,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     self.widgets[data[0]].handler_block(self.d[blocksignal1])
                     self.widgets[data[0]].child.handler_block(self.d[blocksignal2])
                     if custom:
-                        self.widgets[data[0]].set_active_iter(newiter)
+                        if basetree == signaltree:
+                            temp = newiter
+                        else:
+                            temp = signaltree.convert_child_iter_to_iter(newiter)
+                        self.widgets[data[0]].set_active_iter(temp)
                     else:
                         self.widgets[data[0]].set_active_iter(piter)
 
@@ -5515,7 +5576,7 @@ if __name__ == "__main__":
     usage = "usage: pncconf -h for options"
     parser = OptionParser(usage=usage)
     parser.add_option("-d", action="store", metavar='all', dest="debug",
-                        help="Print debug info and ignore realtime/kernel tests.\nUse 'alldev' to show all the page tabs. 'step'")
+                        help="Print debug info and ignore realtime/kernel tests.\nUse 'alldev' to show all the page tabs. 'step','excl','5i25','rawfirm','curfirm'")
     (options, args) = parser.parse_args()
     if options.debug:
         app = App(dbgstate=options.debug)
