@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
   <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="adjustment_fo">
     <property name="upper">200</property>
@@ -1544,6 +1544,10 @@ Down</property>
                                             <property name="label" translatable="yes">label</property>
                                             <property name="imperial_text_template">X %9.4f</property>
                                             <property name="mm_text_template">X %10.3f</property>
+                                            <attributes>
+                                              <attribute name="weight" value="bold"/>
+                                              <attribute name="scale" value="4"/>
+                                            </attributes>
                                           </object>
                                           <packing>
                                             <property name="expand">True</property>
@@ -1559,6 +1563,10 @@ Down</property>
                                             <property name="imperial_text_template">Y %9.4f</property>
                                             <property name="joint_number">1</property>
                                             <property name="mm_text_template">Y %10.3f</property>
+                                            <attributes>
+                                              <attribute name="weight" value="bold"/>
+                                              <attribute name="scale" value="4"/>
+                                            </attributes>
                                           </object>
                                           <packing>
                                             <property name="expand">True</property>
@@ -1572,8 +1580,12 @@ Down</property>
                                             <property name="can_focus">False</property>
                                             <property name="label" translatable="yes">label</property>
                                             <property name="imperial_text_template">Z %9.4f</property>
-                                            <property name="joint_number">3</property>
+                                            <property name="joint_number">2</property>
                                             <property name="mm_text_template">Z %10.3f</property>
+                                            <attributes>
+                                              <attribute name="weight" value="bold"/>
+                                              <attribute name="scale" value="4"/>
+                                            </attributes>
                                           </object>
                                           <packing>
                                             <property name="expand">True</property>
