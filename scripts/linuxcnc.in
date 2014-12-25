@@ -751,6 +751,7 @@ else
     NUM=1
     CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     while [ -n "$CFGFILE" ] ; do
+        IFS='\ ' read CFGFILE CFGFILE_ARGS <<< "$CFGFILE" # separate args
         foundmsg=""
         saveIFS=$IFS; IFS=: # colon (:) path separator for HALLIB_PATH
         explicit_file_in_hallib=${CFGFILE#LIB:} # strip leading 'LIB:'
@@ -783,7 +784,8 @@ else
         CFGFILE="$foundfile"
         case $CFGFILE in
         *.tcl)
-            if ! haltcl -i "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
+            if ! haltcl -i "$INIFILE" $CFGFILE $CFGFILE_ARGS \
+               && [ "$DASHK" = "" ]; then
                 Cleanup
                 exit -1
             fi

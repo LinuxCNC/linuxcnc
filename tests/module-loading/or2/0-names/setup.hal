@@ -1,0 +1,4 @@
+
+loadrt or2 names=
+show pin
+

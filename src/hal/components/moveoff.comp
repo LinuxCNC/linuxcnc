@@ -8,13 +8,16 @@ supported with appropriate connections for the input pins.  Nine joints are
 supported.
 
 The axis offset pin values (offset-in-M) are continuously applied (respecting
-limits on value, velocity, and acceleration) to the output pins (offset-current-M,
-pos-plusoffset-M, fb-minusoffset-M) when both enabling input pins (apply-offsets
-and move-enable) are TRUE.  The two enabling inputs are anded internally;
-a warning message is issued if the apply-offsets pin is deasserted while offsets
-are applied.  Typically, the move-enable pin is connected to external controls
-and the apply-offsets pin is connected to halui.program.is-paused (for offsets
-only while paused) or set to TRUE (for continuously applied offsets).
+limits on value, velocity, and acceleration) to the output pins
+(offset-current-M, pos-plusoffset-M, fb-minusoffset-M) when both enabling input
+pins (apply-offsets and move-enable) are TRUE.  The two enabling inputs are
+anded internally.   A \\fBwarning\\fR pin is set and a message issued if the
+apply-offsets pin is deasserted while offsets are applied.  The warning pin
+remains TRUE until the offsets are removed or the apply-offsets pin is set.
+
+Typically, the move-enable pin is connected to external controls and the
+apply-offsets pin is connected to halui.program.is-paused (for offsets only
+while paused) or set to TRUE (for continuously applied offsets).
 
 Applied offsets are \\fBautomatically returned\\fR to zero (respecting limits)
 when \\fBeither\\fR of the enabling inputs is deactivated.  The zero value
@@ -79,9 +82,6 @@ maximum is 9).
 Use of the names= option for naming is \\fBrequired\\fR for compatibilty
 with the gui provided as scripts/moveoff_gui:
   loadrt moveoff names=\\fBmv\\fR personality=number_of_joints
-
-
-
 """;
 
 //"""" quote char for vim highlighting
@@ -114,6 +114,7 @@ pin in  float epsilon=0.0005 "When enablin pins are deactivated, return to un-of
 pin in float waypoint-threshold = 0.02 "Minimum distance (in a single axis) for a new waypoint";
 pin in float waypoint-sample-secs = 0.02 "Minimum sample interval (in seconds) for a new waypoint";
 
+pin out bit warning "Set TRUE if apply-offsets is deasserted while offset-applied is TRUE";
 pin out bit offset_applied "TRUE if one or more offsets are applied";
 pin out bit waypoint-limit = 0 "Indicates waypoint limit reached (motion ceases), an enabling pin must be deasserted to initiate return to original position";
 pin out s32 waypoint-ct "Waypoint count (for debugging)";
@@ -379,7 +380,6 @@ FUNCTION(read_inputs) {
     switch (state) {
       case IDLE:
             last_waypoint_time = now;
-            gave_msg = 0;
             if ( all_enables ) {
                 next_state = MOVE_AWAY;
                 move_in_progress = 1;
@@ -456,23 +456,31 @@ FUNCTION(read_inputs) {
             }
             break;
     }
+
     if (   !apply_offsets
         &&  offset_applied
-        && !gave_msg
-       ) {
-        // apply_offsets deasserted while offset_applied
-        // example use-case is apply-offsets connected to is-paused
-        //          when there is no *.resume-inhibit pin
-        //          or when -no_resume_inhibit used
-        gave_msg = 1;
-        for (r = 0; r < personality; r++) {
+        ) {
+        warning = 1;
+        if (!gave_msg) {
+            // apply_offsets deasserted while offset_applied
+            // for example:
+            //   1) program stopped with offsets applied
+            //   2) (no *.resume-inhibit pin) or (-no_resume_inhibit option)
+            //      and program resumed with offsets applied
+            for (r = 0; r < personality; r++) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                           "Index: %i, offset=%f",
+                           r, data.old_out[r]);
+            }
             rtapi_print_msg(RTAPI_MSG_ERR,
-                       "Index: %i, offset=%f",
-                       r, data.old_out[r]);
+            "apply_offsets deasserted before offsets removed "
+            "moveoff.comp: WARNING"
+            );
+            gave_msg = 1;
         }
-        rtapi_print_msg(RTAPI_MSG_ERR,
-        "moveoff.comp: WARNING:"
-        "apply_offsets deasserted before offsets removed");
+    } else {
+        gave_msg = 0;
+        warning = 0;
     }
     //}end state control
 } //read_inputs

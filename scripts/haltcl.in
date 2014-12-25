@@ -50,7 +50,7 @@ if {[llength $argv] == 0} {
 }
 
 set filename [lindex $argv 0]
-set argv [lindex $argv 1 end]
+set argv [lrange $argv 1 end]
 
 set result [source $filename]
 

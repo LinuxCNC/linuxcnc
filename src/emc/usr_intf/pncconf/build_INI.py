@@ -64,15 +64,6 @@ class INI:
             print >>file, "INCREMENTS = %s"% self.d.increments_imperial
         if self.d.axes == 2:
             print >>file, "LATHE = 1"
-        if self.d.position_offset:
-            temp = "RELATIVE"
-        else:
-            temp = "MACHINE"
-        print >>file, "POSITION_OFFSET = %s"% temp
-        if self.d.position_feedback:
-            temp = "ACTUAL"
-        else:
-            temp = "COMMANDED"
         print >>file, "POSITION_FEEDBACK = %s"% temp
         print >>file, "DEFAULT_LINEAR_VELOCITY = %f"% self.d.default_linear_velocity
         print >>file, "MAX_LINEAR_VELOCITY = %f"% self.d.max_linear_velocity

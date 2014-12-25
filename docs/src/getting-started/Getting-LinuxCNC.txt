@@ -5,14 +5,58 @@ This section describes how to download and make a fresh install of
 LinuxCNC.  If you have an existing install that you want to upgrade,
 go to the <<_updating_linuxcnc,Updating LinuxCNC>> section instead.
 
-== Normal Download
+Fresh installs of LinuxCNC are most easily created using the Live/Install
+Image.  This is a hybrid ISO filesystem image that can be written to a
+USB storage device or a DVD and used to boot a computer.  At boot time you
+will be given a choice of booting the "Live" system (to test out LinuxCNC
+without making any permanent changes to your computer) or booting the
+Installer, to install LinuxCNC onto your computer's hard drive.
+
+The outline of the process looks like this:
+
+* Download the Live/Install Image.
+* Write the image to a USB storage device or DVD.
+* Boot the Live system to test out LinuxCNC.
+* Boot the Installer to install LinuxCNC.
+
+In addition to the recommended Live/Install Image install method,
+there are <<_alternate_install_methods,Alternate Install Methods>>
+for the adventurous.
+
+
+== Download the image
+
+This section describes some methods for downloading the Live/Install
+Image.
+
+
+=== Normal Download
 
 Download the Live/Install CD by clicking here:
 
 http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso
 
 
-== Multi-session Download (((Multi-session Download)))
+=== Download using zsync
+
+zsync is a download application that efficiently resumes interrupted
+downloads and efficiently transfers large files with small modifications
+(if you have an older local copy).
+
+zsync in Linux::
+    Install zsync by running `sudo apt-get install zsync`.  To use
+    zsync in Linux to download the Live/Install Image, run this command:
+    `zsync http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync`
+
+
+zsync in Windows::
+    There is a Windows port of zsync.  It works as a
+    console application, just like the Linux version, so
+    get out that Command Prompt.  It can be downloaded from:
+    https://www.assembla.com/spaces/zsync-windows/documents
+
+
+=== Multi-session Download
 
 If the file is too large to download in one session 
 because of a bad or slow Internet connection, 
@@ -32,9 +76,6 @@ terminal window with a right mouse click and select Paste.
 +
 .Debian Wheezy and LinuxCNC fresh install
 *********************************************************************
-The Debian image is a "hybrid" iso, which means you can use the same iso file
-for a USB stick or a DVD.
-
 To get the Debian Wheezy LinuxCNC Live CD using wget
 copy one of this in a terminal window and press enter:
 
@@ -190,3 +231,99 @@ In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it cannot recognize the hard drive 
 during the boot up.
 
+
+== Alternate Install Methods
+
+The easiest, preferred way to install LinuxCNC is to use the Live/Install
+Image as described above.  That method is as simple and reliable as we
+can make it, and is suitable for novice users and experienced users alike.
+
+In addition, for experienced users who are familiar with Debian system
+administration (finding install images, manipulating apt sources, changing
+kernel flavors, etc), new installs are supported on following platforms:
+
+[options="header"]
+|===================================================================
+| Distribution   | Architecture | kernel     | Typical use
+| Debian Wheezy  | i386         | RTAI       | machine control & simulation
+| Debian Wheezy  | amd64 & i386 | Preempt-RT | machine control & simulation
+| Debian Wheezy  | amd64 & i386 | vanilla    | simulation only
+| Ubuntu Precise | i386         | RTAI       | machine control & simulation
+| Ubuntu Precise | amd64 & i386 | vanilla    | simulation only
+| Ubuntu Lucid   | i386         | RTAI       | machine control & simulation
+| Ubuntu Lucid   | amd64 & i386 | vanilla    | simulation only
+|===================================================================
+
+The RTAI kernels are available for download from the linuxcnc.org
+debian archive.  The apt source is:
+
+    * Debian Wheezy: `deb http://linuxcnc.org wheezy base`
+    * Ubuntu Precise: `deb http://linuxcnc.org precise base`
+    * Ubuntu Lucid: `deb http://linuxcnc.org lucid base`
+
+The Preempt-RT kernels are available from the regular debian.org archive,
+as part of Debian Wheezy.  No special apt source is needed.  The packages
+are called `linux-image-rt-amd64` and `linux-image-rt-686-pae`.
+
+
+=== Installing on Debian Wheezy (with Preempt-RT kernel)
+
+* Install Debian Wheezy (Debian version 7), either i386 or amd64.
+  You can download the installer here:
+  https://www.debian.org/CD/http-ftp/#stable
+
+* Run `sudo apt-get update` followed by `sudo apt-get dist-upgrade` to
+  bring the machine up to date with the latest packages in Debian Wheezy.
+
+* Install the Preempt-RT kernel and modules by running: `sudo
+  apt-get install linux-image-rt-amd64` or `sudo apt-get install
+  linux-image-rt-686-pae`.
+
+* Reboot, and make sure you boot into the Preempt-RT kernel. When you
+  log in, verify that `uname -r` says 3.2.0-4-rt-686-pae.
+
+* Add the LinuxCNC Archive Signing Key to your apt keyring by running
+  `sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 8f374fef`
+
+* Add a new apt source that looks like this: `deb http://linuxcnc.org/
+  wheezy base 2.7-uspace`
+
+* Run `sudo apt-get update` again to fetch the package list from
+  linuxcnc.org.
+
+* Run `sudo apt-get install linuxcnc-uspace`.
+
+* Machine away!
+
+
+=== Installing on Ubuntu Precise
+
+* Install Ubuntu Precise 12.04 x86 (32-bit). Any flavor should
+  work (regular Ubuntu, Xubuntu, Lubuntu, etc). 64-bit (AMD64)
+  is currently not supported. You can download the installer here:
+  http://releases.ubuntu.com/precise/
+
+* Run `sudo apt-get update` followed by `sudo apt-get dist-upgrade` to
+  bring the machine up to date with the latest packages in Ubuntu Precise.
+
+* Add the LinuxCNC Archive Signing Key to your apt keyring by running
+  `sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 8f374fef`
+
+* Add a new apt source that looks like this: `deb http://linuxcnc.org/
+  precise base 2.7-rtai`
+
+* Run `sudo apt-get update` again to fetch the package list from
+  linuxcnc.org.
+
+* Install the RTAI kernel and modules by running: `sudo apt-get install
+  linux-image-3.4-9-rtai-686-pae rtai-modules-3.4-9-rtai-686-pae`
+
+* If you want to be able to build LinuxCNC from source using the git repo,
+  also run `sudo apt-get install linux-headers-3.4-9-rtai-686-pae`
+
+* Reboot, and make sure you boot into the rtai kernel. When you log in,
+  verify that `uname -r` says 3.4-9-rtai-686-pae.
+
+* Run `sudo apt-get install linuxcnc`.
+
+* Machine away!

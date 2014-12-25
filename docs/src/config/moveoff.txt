@@ -28,23 +28,23 @@ HALFILE = LIB:hookup_moveoff.tcl
 
 . Add inifile entries for the per-axis settings for
   each axis in use (If an entry is not defined, the
-  corresponding entry without the OFFSET_ prefix
-  will be used, if no entry is found the moveoff
+  corresponding entry from the [AXIS_n} section
+  will be used, if no entry is found, then the moveoff
   component default is used(NOT RECOMMENDED)):
 
 ----
-[AXIS_n]
-OFFSET_MAX_LIMIT =
-OFFSET_MIN_LIMIT =
-OFFSET_MAX_VELOCITY =
-OFFSET_MAX_ACCELERATION =
+[MOVEOFF_n]
+MAX_LIMIT =
+MIN_LIMIT =
+MAX_VELOCITY =
+MAX_ACCELERATION =
 ----
 
 . Add inifile entries for moveoff component settings
   (omit to use moveoff defaults):
 
 ----
-[OFFSET]
+[MOVEOFF]
 EPSILON =
 WAYPOINT_SAMPLE_SECS =
 WAYPOINT_THRESHOLD =

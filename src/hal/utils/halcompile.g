@@ -524,7 +524,8 @@ static int comp_id;
             print >>f, "            if(r != 0) break;"
             print >>f, "       }"
             print >>f, "    } else {"
-            print >>f, "        for(i=0; names[i]; i++) {"
+            print >>f, "        int max_names = sizeof(names)/sizeof(names[0]);"
+            print >>f, "        for(i=0; (i < max_names) && names[i]; i++) {"
             if has_personality:
                 print >>f, "        r = export(names[i], i, personality[i%16]);"
             else:

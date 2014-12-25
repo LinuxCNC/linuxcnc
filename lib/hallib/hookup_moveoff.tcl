@@ -20,7 +20,7 @@
 #      ...
 #
 #   2) Include ini file entries for moveoff component settings:
-#      [OFFSET]
+#      [MOVEOFF]
 #      EPSILON =
 #      WAYPOINT_SAMPLE_SECS =
 #      WAYPOINT_THRESHOLD =
@@ -30,13 +30,14 @@
 #      component defaults will be used.
 #
 #   3) Include ini file entries for the per-axis settings
-#      [AXIS_n]
-#      OFFSET_MAX_VELOCITY =
-#      OFFSET_MAX_ACCELERATION =
-#      OFFSET_MAX_LIMIT =
-#      OFFSET_MIN_LIMIT =
+#      [MOVEOFF_n]
+#      MAX_VELOCITY =
+#      MAX_ACCELERATION =
+#      MAX_LIMIT =
+#      MIN_LIMIT =
 #
 #      If settings are not found in the ini file, the items 
+#      [AXIS_n]
 #      MAX_VELOCITY =
 #      MAX_ACCELERATION =
 #      MAX_LIMIT =
@@ -320,14 +321,13 @@ proc reconnect_short_circuit {a} {
 } ;# reconnect_short_circuit
 
 proc set_moveoff_inputs {a} {
-  # note: first look for ininame preceded with 'OFFSET_'
   foreach {pin ininame} { offset-vel   MAX_VELOCITY \
                           offset-accel MAX_ACCELERATION \
                           offset-max   MAX_LIMIT \
                           offset-min   MIN_LIMIT \
                          } {
-    if [info exists ::AXIS_[set a](OFFSET_$ininame)] {
-      set ::HU($a,$pin) [set ::AXIS_[set a](OFFSET_$ininame)]
+    if [info exists ::MOVEOFF_[set a]($ininame)] {
+      set ::HU($a,$pin) [set ::MOVEOFF_[set a]($ininame)]
       # lindex is used in case there are duplicate entries
       set ::HU($a,$pin) [lindex $::HU($a,$pin) end]
     } elseif { [info exists ::AXIS_[set a]($ininame)] } {
@@ -348,9 +348,9 @@ proc set_moveoff_parms {} {
                           waypoint-threshold    WAYPOINT_THRESHOLD \
                           backtrack-enable      BACKTRACK_ENABLE \
                          } {
-    if {[info exists ::OFFSET($ininame)]} {
+    if {[info exists ::MOVEOFF($ininame)]} {
       # lindex is used in case there are duplicate entries
-      set ::HU($pin) [lindex $::OFFSET($ininame) end]
+      set ::HU($pin) [lindex $::MOVEOFF($ininame) end]
       do_hal setp $::m.$pin $::HU($pin)
     }
   }
@@ -371,7 +371,7 @@ set ::m mv ;# moveoff component name
 set ::HU(verbose) 0
 set ::noexecute   0
 
-# ::tp is the namspace for [HAL]TWOPASS processing
+# ::tp is the namespace for [HAL]TWOPASS processing
 if [namespace exists ::tp] {
   set passno [::tp::passnumber]
   if {$passno == 0} {
