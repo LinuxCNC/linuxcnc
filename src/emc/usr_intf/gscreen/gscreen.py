@@ -94,6 +94,21 @@ print 'gs2'
 # I suggest fixing this with a PPA off the net
 # https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid
 NOTIFY_AVAILABLE = False
+try:
+    if pygtkcompat is not None:
+        from gi.repository import Notify
+        if not Notify.init('gscreen'):
+            print '**** GSCREEN INFO: no Notify'
+        else:
+            NOTIFY_AVAILABLE = True
+    else:
+        import pynotify
+        if not pynotify.init('gscreen'):
+            print'**** GSCREEN INFO: No pynotify'
+            NOTIFY_AVAILABLE = False
+except:
+    print '**** GSCREEN INFO: Notify not imported'
+
 print 'gs3'
 # try to add ability for audio feedback to user.
 try:
@@ -3396,11 +3411,27 @@ class Gscreen:
                 uri = ""
                 if icon:
                     uri = "file://" + icon
-                n = pynotify.Notification(title, message, uri)
-                n.set_hint_string("x-canonical-append","True")
-                n.set_urgency(pynotify.URGENCY_CRITICAL)
-                n.set_timeout(int(timeout * 1000) )
-                n.show()
+                else:
+                    icon = 'dialog-information'
+                #GTK3
+                if pygtkcompat is not None:
+                    Notify.init('My Application Name')
+                    n = Notify.Notification.new(
+                        title,
+                        message,
+                        uri
+                        )
+                    # LOW,NORMAL,CRITICAL: critical will show till closed
+                    n.set_urgency(Notify.Urgency.NORMAL)
+                    n.set_timeout(int(timeout * 1000) )
+                    n.show()
+                # GTK2
+                else:
+                    n = pynotify.Notification(title, message, uri)
+                    n.set_hint_string("x-canonical-append","True")
+                    n.set_urgency(pynotify.URGENCY_CRITICAL)
+                    n.set_timeout(int(timeout * 1000) )
+                    n.show()
             if _AUDIO_AVAILABLE:
                 if icon == ALERT_ICON:
                     self.audio.set_sound(self.data.error_sound)
