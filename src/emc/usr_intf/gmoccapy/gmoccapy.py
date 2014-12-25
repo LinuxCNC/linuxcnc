@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "   1.3.4"
+_RELEASE = "   1.3.5"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -190,6 +190,8 @@ class gmoccapy(object):
         self.ypos = 30                  # The Y Position of the main Window
         self.width = 979                # The width of the main Window
         self.height = 750               # The heigh of the main Window
+
+        self.gcodeerror = ""
 
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
@@ -1357,8 +1359,15 @@ class gmoccapy(object):
             else:
                 self.audio.set_sound(self.alert_sound)
             self.audio.run()
-#        self.halcomp["error"] = True
 
+    def on_gremlin_gcode_error(self, widget, errortext):
+        if self.gcodeerror == errortext:
+            return
+        else:
+            self.gcodeerror = errortext
+            print(errortext)
+            if self.log: self._add_alarm_entry(errortext)
+            dialogs.warning_dialog(self, _("Important Warning"), errortext)
 
 
 # =========================================================

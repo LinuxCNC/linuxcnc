@@ -1,3 +1,9 @@
+ver. 1.3.5
+- added the new signal from hal_gremlin to gmoccapy so we do get 
+  a message of gcode errors when loading a file and not only when
+  the interpreter does read the wrong line. A warning box will inform 
+  about the error details.
+
 ver. 1.3.4
 - if no virtual keyboard was installed (nor onboard or matchbox),
   the checkboxes on the settings page has not been sensitized and the
