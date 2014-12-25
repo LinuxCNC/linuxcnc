@@ -37,8 +37,10 @@ from hal_glib import GStat
 class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gtype_name__ = "HAL_Gremlin"
     __gsignals__ = {
-        'line-clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,))
+        'line-clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'gcode_error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
     }
+
     __gproperties__ = {
         'view' : ( gobject.TYPE_STRING, 'View type', 'Default view: p, x, y, y2, z, z2',
                     'p', gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -243,8 +245,9 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     def _load(self, filename):
         return self.load(filename)
 
-    # TODO fix this so it doesn't print twice and it should probably pop up a dialog
     def report_gcode_error(self, result, seq, filename):
         error_str = gcode.strerror(result)
-        print("G-Code error in " + os.path.basename(filename) + "\n" + "Near line "
-                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n")
+        errortext = "G-Code error in " + os.path.basename(filename) + "\n" + "Near line " \
+                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n"
+        print(errortext)
+        self.emit("gcode-error", errortext)
