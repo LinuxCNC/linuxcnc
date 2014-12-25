@@ -9,3 +9,6 @@ source [file join $::env(HALLIB_DIR) util_lib.tcl]
 
 show_ini
 show_context
+
+puts ::argv=$::argv
+puts ::arglen=[llength $::argv]

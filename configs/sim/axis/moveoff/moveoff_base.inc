@@ -47,7 +47,7 @@ SERVO_PERIOD = 1000000
       ANGULAR_UNITS = degree
          CYCLE_TIME = 0.010
    DEFAULT_VELOCITY = 5
-      POSITION_FILE = position.txt
+#     POSITION_FILE = position.txt
 MAX_LINEAR_VELOCITY = 5
 
 [EMCIO]

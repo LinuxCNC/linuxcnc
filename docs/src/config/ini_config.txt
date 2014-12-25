@@ -518,18 +518,19 @@ Section.
     containing the ini file, it is used.  If the named file is not found in this
     ini file directory, a search is made using a system library of halfiles.
 
-* 'HALFILE = texample.tcl' - Execute the tcl file 'texample.tcl' at start up.
-    Files with a .tcl suffix are processed as above but use haltcl tcl extension
-    for processing.  See the section on HALTCL for more information.
+* 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Execute the tcl file 'texample.tcl'
+    at start up with arg1, arg2, etc as ::argv list.  Files with a .tcl suffix are
+    processed as above but use haltcl for processing  See the section on HALTCL for
+    more information.
 
 * 'HALFILE = LIB:sys_example.hal' - Execute the system library file 'sys_example.hal'
     at start up.
-    Explicit use of the LIB: prefixes causes use of the system library HALFILE without
+    Explicit use of the LIB: prefix causes use of the system library HALFILE without
     searching the ini file directory.
 
-* 'HALFILE = LIB:sys_texample.tcl' - Execute the system library file 'sys_texample.tcl' at
-    start up.
-    Explicit use of the LIB: prefixes causes use of the system library HALFILE without
+* 'HALFILE = LIB:sys_texample.tcl [arg1 [arg2 ...]]' - Execute the system library
+    file 'sys_texample.tcl' at start up.
+    Explicit use of the LIB: prefix causes use of the system library HALFILE without
     searching the ini file directory.
 
 * 'TWOPASS = ON' - Use twopass processing for loading HAL components. With TWOPASS processing,

@@ -17,7 +17,10 @@ An existing configuration can be modified to use moveoff_gui
 as follows:
 
 . Make inifile entries for HALUI and LIB:hookup_moveoff.tcl.
-  The entry for hookup_moveoff.tcl should be the last HALFILE.
+  The entry for hookup_moveoff.tcl should follow HALFILES
+  that connect the pins for axis.N.motor-pos-cmd, axis.N.motor-pos-fb,
+  and components connected to these pins (pids and encoders
+  typically).
 
 ----
 [HAL]
@@ -106,4 +109,20 @@ If the mv.move-enable pin is connected when moveoff_gui
 is started, the gui will provide a display but no controls.
 This mode supports Hal connections for a jog wheel or other
 methods of controlling the enable and offset input pins
-(mv.move-enable, mv.offset-M).
+(mv.move-enable, mv.offset-M, mv.backtrack-enable).
+
+If the halfile LIB:hookup_moveoff.tcl is used to load and connect the
+moveoff component, the mv.move-enable pin is not connected and
+local controls provided by moveoff_gui will be used.  To enable external
+controls, subsequent halfiles should connect the mv.move-enable pin.
+For example, the configs/sim/* demo configurations use a simple halfile
+to connect the mv.move-enable,mv.offset-in-M, and  mv.bactrack-enable
+pins to signals:
+
+----
+[HAL]
+HALUI = halui
+...
+HALFILE = LIB:hookup_moveoff.tcl
+HALFIE = LIB:moveoff_external.hal
+----
