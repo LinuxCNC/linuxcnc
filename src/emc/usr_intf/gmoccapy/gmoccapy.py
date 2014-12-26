@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "   1.3.5"
+_RELEASE = " 1.3.5.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -191,7 +191,7 @@ class gmoccapy(object):
         self.width = 979                # The width of the main Window
         self.height = 750               # The heigh of the main Window
 
-        self.gcodeerror = ""
+        self.gcodeerror = ""            # we need this to avoid multile messages of the same error
 
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
@@ -3518,6 +3518,7 @@ class gmoccapy(object):
         self._show_iconview_tab(True)
         self.widgets.IconFileSelection1.refresh_filelist()
         self.widgets.IconFileSelection1.iconView.grab_focus()
+        self.gcodeerror = ""
 
     def on_btn_sel_next_clicked(self, widget, data = None):
         self.widgets.IconFileSelection1.btn_sel_next.emit("clicked")
@@ -3579,6 +3580,7 @@ class gmoccapy(object):
             self.widgets.ntb_info.hide()
             self.widgets.box_info.set_size_request(-1, 50)
         self.widgets.tbl_search.show()
+        self.gcodeerror = ""
 
 # Search and replace handling in edit mode
     # undo changes while in edit mode
@@ -3647,6 +3649,9 @@ class gmoccapy(object):
         else:
             self.widgets.btn_save.emit("clicked")
         self.widgets.hal_action_reload.emit("activate")
+        if self.gcodeerror:
+            self.on_btn_edit_clicked(None)
+            return
         self.widgets.ntb_button.set_current_page(2)
         self.widgets.btn_run.emit("clicked")
 

@@ -1,3 +1,8 @@
+ver. 1.3.5.1
+- forgot to reset the gcode error, resulting in showing it only once,
+  it ws not shown again if a good file was loaded and than again the 
+  wrong one, now the load and edit button do reset the error code. 
+
 ver. 1.3.5
 - added the new signal from hal_gremlin to gmoccapy so we do get 
   a message of gcode errors when loading a file and not only when
