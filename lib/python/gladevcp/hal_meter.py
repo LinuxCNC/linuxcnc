@@ -12,12 +12,16 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-try:
-    from gi import pygtkcompat
-except ImportError:
-    pygtkcompat = None
+
+GTK3 =  True # false to force gtk2
+pygtkcompat = None
+if GTK3:
+    try:
+        from gi import pygtkcompat
+    except ImportError:
+        pygtkcompat = None
 if pygtkcompat is not None:
-    print 'offsetpage gtk-3'
+    print 'meter gtk-3'
     pygtkcompat.enable()
     pygtkcompat.enable_gtk(version='3.0')
 
@@ -31,17 +35,14 @@ from hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
 
 MAX_INT = 0x7fffffff
 
-def gdk_color_tuple(c):
-    if not c:
-        return 0, 0, 0
-    return c.red_float, c.green_float, c.blue_float
-
-# for GTK3 conversion
+# for GTK3 conversion of text to GDK color variable
 def convert_color(text):
     if pygtkcompat is not None:
-        return gtk.gdk.Color.parse(text)[1].to_string()
+        c = gtk.gdk.Color.parse(text)[1]
+        return c
     else:
-        return gtk.gdk.Color(text)
+        c = gtk.gdk.Color(text)
+        return c
 
 class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
     __gtype_name__ = 'HAL_Meter'
@@ -124,9 +125,8 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
             r = 40
             self.set_size_request(2 * r, 2 * r)
 
-        cr = widget.window.cairo_create()
         def set_color(c):
-            return cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, alpha)
+            return cr.set_source_rgba(c.red/65535., c.green/65535., c.blue/65535., alpha)
 
         cr.set_line_width(2)
         set_color(convert_color('black'))
@@ -242,7 +242,7 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
 
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
-
+        #print name,value
         if name == 'text_template':
             try:
                 v = value % 0.0
@@ -266,3 +266,24 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
         self.queue_draw()
         return True
 
+# for testing without glade editor:
+def main():
+    window = gtk.Dialog("My dialog",
+                   None,
+                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+    meter = HAL_Meter()
+    window.vbox.add(meter)
+    #meter.set_property("z0_color", gtk.gdk.Color.parse('violet')[1])
+
+    window.connect("destroy", gtk.main_quit)
+    window.show_all()
+    response = window.run()
+    if response == gtk.RESPONSE_ACCEPT:
+       print "ok"
+    else:
+       print "cancel"
+
+if __name__ == "__main__":	
+    main()
