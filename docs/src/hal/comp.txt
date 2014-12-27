@@ -238,12 +238,17 @@ The currently defined options are:
    and the 'count' module parameter is not defined.
 
 * 'option rtapi_app no' - (default: yes)
-   Normally, the functions 'rtapi_app_main' and 'rtapi_app_exit' are
+   Normally, the functions `rtapi_app_main()` and `rtapi_app_exit()` are
    automatically defined. With 'option rtapi_app no', they are not, and
-   must be provided in the C code. 
-   When implementing your own 'rtapi_app_main', call the function 'int 
-   export(char *prefix, long extra_arg)' to register the pins, 
-   parameters, and functions for 'prefix'.
+   must be provided in the C code.  Use the following prototypes:
+   +
+   `int rtapi_app_main(void);`
+   +
+   `void rtapi_app_exit(void);`
+   +
+   When implementing your own `rtapi_app_main()`, call the function `int
+   export(char *prefix, long extra_arg)` to register the pins,
+   parameters, and functions for `prefix`.
 
 * 'option data TYPE' - (default: none) *deprecated*
    If specified, each instance of the component will have an associated
