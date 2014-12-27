@@ -216,7 +216,8 @@ static int do_load_cmd(string name, vector<string> args) {
         if(result < 0) { dlclose(module); return -1; }
 
         if ((result=start()) < 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "%s: rtapi_app_main: %d\n", name.c_str(), result);
+            rtapi_print_msg(RTAPI_MSG_ERR, "%s: rtapi_app_main: %s (%d)\n",
+                name.c_str(), strerror(-result), result);
 	    return result;
         } else {
             instance_count ++;
