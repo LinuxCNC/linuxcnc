@@ -584,11 +584,11 @@ int pmCircle9Init(PmCircle9 * const circ9,
     int abc_fail = pmCartLineInit(&circ9->abc, &start_abc, &end_abc);
     int uvw_fail = pmCartLineInit(&circ9->uvw, &start_uvw, &end_uvw);
 
-    findSpiralArcLengthFit(&circ9->xyz,&circ9->fit);
+    int res_fit = findSpiralArcLengthFit(&circ9->xyz,&circ9->fit);
 
-    if (xyz_fail || abc_fail || uvw_fail) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d\n",
-                xyz_fail, abc_fail, uvw_fail);
+    if (xyz_fail || abc_fail || uvw_fail || res_fit) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d, %d\n",
+                xyz_fail, abc_fail, uvw_fail, res_fit);
         return TP_ERR_FAIL;
     }
     return TP_ERR_OK;
