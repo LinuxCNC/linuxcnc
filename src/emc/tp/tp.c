@@ -133,26 +133,6 @@ STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
 }
 
 
-/**
- * Get a safe maximum acceleration based on X,Y, and Z.
- * Use the lowest bound on the linear axes, rather than using the
- * trajectory max accels. These are computed with the infinity norm, which
- * means we can't just assume that the smaller of the two is within the limits.
- */
-STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
-    if (!acc_limit) {
-        return TP_ERR_FAIL;
-    }
-
-    PmCartesian acc_bound;
-    tpGetMachineAccelBounds(&acc_bound);
-
-    *acc_limit = pmCartMin(&acc_bound);
-    tp_debug_print(" arc blending a_max=%f\n", *acc_limit);
-    return TP_ERR_OK;
-}
-
-
 STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
     if (!vel_bound) {
         return TP_ERR_FAIL;
@@ -164,26 +144,27 @@ STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
     return TP_ERR_OK;
 }
 
-
-/**
- * Get a same maximum velocity for XYZ.
- * This function returns the worst-case safe velocity in any direction along XYZ.
- */
-STATIC int tpGetMachineVelLimit(double * const vel_limit) {
-
-    if (!vel_limit) {
+STATIC int tpGetMachineActiveLimit(double * const act_limit, PmCartesian const * const bounds) {
+    if (!act_limit) {
         return TP_ERR_FAIL;
     }
+    //Start with max accel value
+    *act_limit = fmax(fmax(bounds->x,bounds->y),bounds->z);
 
-    //FIXME check for number of axes first!
-    double x = emcmotDebug->joints[0].vel_limit;
-    double y = emcmotDebug->joints[1].vel_limit;
-    double z = emcmotDebug->joints[2].vel_limit;
-
-    *vel_limit = fmin(fmin(x,y),z);
-    tp_debug_print(" arc blending v_max=%f\n", *vel_limit);
+    // Compare only with active axes
+    if (bounds->x > 0) {
+        *act_limit = fmin(*act_limit, bounds->x);
+    }
+    if (bounds->y > 0) {
+        *act_limit = fmin(*act_limit, bounds->y);
+    }
+    if (bounds->z > 0) {
+        *act_limit = fmin(*act_limit, bounds->z);
+    }
+    tp_debug_print(" arc blending a_max=%f\n", *act_limit);
     return TP_ERR_OK;
 }
+
 
 /**
  * Get a segment's feed scale based on the current planner state and emcmotStatus.
@@ -396,7 +377,9 @@ int tpInit(TP_STRUCT * const tp)
     tp->ini_maxvel = 0.0;
     //Accelerations
     tp->aLimit = 0.0;
-    tpGetMachineAccelLimit(&tp->aMax);
+    PmCartesian acc_bound;
+    tpGetMachineAccelBounds(&acc_bound);
+    tpGetMachineActiveLimit(&tp->aMax, &acc_bound);
     //Angular limits
     tp->wMax = 0.0;
     tp->wDotMax = 0.0;
@@ -408,7 +391,9 @@ int tpInit(TP_STRUCT * const tp)
 
     ZERO_EMC_POSE(tp->currentPos);
 
-    tpGetMachineVelLimit(&tp->vMax);
+    PmCartesian vel_bound;
+    tpGetMachineVelBounds(&vel_bound);
+    tpGetMachineActiveLimit(&tp->vMax, &vel_bound);
 
     return tpClear(tp);
 }
@@ -1529,8 +1514,11 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     double v_reachable = fmax(tpGetMaxTargetVel(tp, tc),
             tpGetMaxTargetVel(tp, prev_tc));
     double acc_limit;
-    //TODO move this to setup
-    tpGetMachineAccelLimit(&acc_limit);
+
+    //TODO store this in TP struct instead?
+    PmCartesian acc_bound;
+    tpGetMachineAccelBounds(&acc_bound);
+    tpGetMachineActiveLimit(&acc_limit, &acc_bound);
 
     double max_angle = findMaxTangentAngle(v_reachable, acc_limit, tp->cycleTime);
 
