@@ -1578,6 +1578,15 @@ static double pmCircleAngleFromParam(PmCircle const * const circle,
 }
 
 
+static void printSpiralArcLengthFit(SpiralArcLengthFit const * const fit)
+{
+    tp_debug_print("Spiral fit: b0 = %.12f, b1 = %.12f, length = %.12f, spiral_in = %d\n",
+            fit->b0,
+            fit->b1,
+            fit->total_planar_length,
+            fit->spiral_in);
+}
+
 /**
  * Approximate the arc length function of a general spiral.
  *
@@ -1639,7 +1648,7 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
         // b2 term is 0 since arc length is 0 when angle is 0
     }
     fit->total_planar_length = fit->b0 * pmSq(circle->angle) + fit->b1 * circle->angle;
-    tp_debug_print("Spiral fit: b0 = %f, b1 = %f\n",fit->b0,fit->b1);
+    printSpiralArcLengthFit(fit);
 
     // Check against start and end angle
     double angle_start_chk = pmCircleAngleFromParam(circle,fit,0.0);
