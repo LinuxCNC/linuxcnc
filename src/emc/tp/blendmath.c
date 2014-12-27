@@ -1550,6 +1550,10 @@ static double pmCircleAngleFromParam(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
         double t)
 {
+    if (fit->spiral_in) {
+        t = 1.0 - t;
+    }
+    //TODO error or cleanup input to prevent param outside 0..1
     double s_in = t * fit->total_planar_length;
 
     // Quadratic formula to invert arc length -> angle
@@ -1656,11 +1660,6 @@ double pmCircleAngleFromProgress(PmCircle const * const circle,
     double s_end = pmSqrt(pmSq(fit->total_planar_length) + h2);
     // Parameterize by total progress along helix
     double t = progress / s_end;
-    if (fit->spiral_in) {
-        // Spiral fit assumes that we're spiraling out, so
-        // parameterize from opposite end
-        t = 1.0 - t;
-    }
     return pmCircleAngleFromParam(circle, fit, t);
 
 }
