@@ -1,0 +1,22 @@
+#!/bin/sh
+
+STDERR=$(dirname $1)/stderr
+if [ ! -f $STDERR ]; then
+    echo "stderr file not found!"
+    exit 1
+fi
+
+if grep -q '../tests/module-loading/rtapi-app-main-fails/rtapi_app_main_fails: rtapi_app_main:' $STDERR; then
+    echo "loadrt found the test component"
+else
+    echo "loadrt did not find the test component"
+    exit 1
+fi
+
+if grep -q 'rtapi_app exited without becoming ready' $STDERR ; then
+    echo "the test component did not load, as expected"
+    exit 0
+fi
+
+echo "didn't find the expected rtapi_app error message"
+exit 1
