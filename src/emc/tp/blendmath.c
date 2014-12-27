@@ -1658,6 +1658,10 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
 }
 
 
+/**
+ * Compute the angle around a circular segment from the total progress along
+ * the curve.
+ */
 double pmCircleAngleFromProgress(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
         double progress)
