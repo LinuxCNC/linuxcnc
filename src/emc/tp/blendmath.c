@@ -1630,7 +1630,7 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
 
     //Compute the slope of the arc length vs. angle curve at the start and end of the segment
     double slope_start = pmSqrt(pmSq(min_radius) + pmSq(spiral_coef));
-    double slope_end = pmSqrt(pmSq(min_radius) + pmSq(spiral_coef) * (pmSq(circle->angle) + 1.0));
+    double slope_end = pmSqrt(pmSq(min_radius + spiral_coef * circle->angle) + pmSq(spiral_coef));
 
     fit->b0 = (slope_end - slope_start) / (2.0 * circle->angle);
     fit->b1 = slope_start;
