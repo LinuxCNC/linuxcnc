@@ -35,6 +35,7 @@
 double findMaxTangentAngle(double v_plan, double acc_limit, double cycle_time)
 {
     //Find acc hiccup we're allowed to get
+    //TODO somewhat redundant with findKinkAccel, should refactor
     double acc_margin = BLEND_ACC_RATIO_NORMAL * BLEND_KINK_FACTOR * acc_limit;
     double dx = v_plan / cycle_time;
     if (dx > 0.0) {
@@ -46,6 +47,13 @@ double findMaxTangentAngle(double v_plan, double acc_limit, double cycle_time)
     }
 }
 
+
+/**
+ * Find the acceleration required to create a specific change in path
+ * direction, assuming constant speed.
+ * This determines how much of a "spike" in acceleration will occur due to a
+ * slight mismatch between tangent directions at the start / end of a segment.
+ */
 double findKinkAccel(double kink_angle, double v_plan, double cycle_time)
 {
     double dx = v_plan / cycle_time;
@@ -58,6 +66,9 @@ double findKinkAccel(double kink_angle, double v_plan, double cycle_time)
 }
 
 
+/**
+ * Sign function that returns a valid numerical result for sign(0), rather than NaN.
+ */
 double fsign(double f)
 {
     if (f>0) {
@@ -236,6 +247,9 @@ static inline double findTrimAngle(PmCartesian const * const P,
 }
 
 
+/**
+ * Verify that a blend arc is tangent to a circular arc.
+ */
 int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendGeom3 const * const geom, BlendParameters const * const param, double cycle_time, int at_end)
 {
     // Debug Information to diagnose tangent issues
@@ -250,10 +264,12 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
 
     pmCartUnitEq(&u_arc);
 
-    //TODO fail if theta is too large
+    // Find angle between tangent unit vectors
     double dot;
     pmCartCartDot(&u_circ, &u_arc, &dot);
     double blend_angle = acos(saturate(dot,1.0));
+
+    // Check against the maximum allowed tangent angle for the given velocity and acceleration
     double angle_max = findMaxTangentAngle(param->v_plan, param->a_max, cycle_time);
 
     tp_debug_print("tangent angle = %f, max = %f\n",
