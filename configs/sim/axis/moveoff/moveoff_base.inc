@@ -58,11 +58,6 @@ TOOL_CHANGE_POSITION = 0 0 0
 TOOL_CHANGE_QUILL_UP = 1
 
 [AXIS_0]
-OFFSET_MAX_ACCELERATION =  60.0
-    OFFSET_MAX_VELOCITY =   6.0
-       OFFSET_MAX_LIMIT =  10.0
-       OFFSET_MIN_LIMIT = -10.0
-
                    TYPE = LINEAR
                    HOME = 0.000
            MAX_VELOCITY = 5
@@ -83,11 +78,6 @@ OFFSET_MAX_ACCELERATION =  60.0
          HOME_IS_SHARED = 0
 
 [AXIS_1]
-OFFSET_MAX_ACCELERATION =  60.0
-    OFFSET_MAX_VELOCITY =   6.0
-       OFFSET_MAX_LIMIT =  10.0
-       OFFSET_MIN_LIMIT = -10.0
-
                    TYPE = LINEAR
                    HOME = 0.000
            MAX_VELOCITY = 5
@@ -108,11 +98,6 @@ OFFSET_MAX_ACCELERATION =  60.0
          HOME_IS_SHARED = 0
 
 [AXIS_2]
-OFFSET_MAX_ACCELERATION =  60.0
-    OFFSET_MAX_VELOCITY =   6.0
-       OFFSET_MAX_LIMIT =  10.0
-       OFFSET_MIN_LIMIT = -10.0
-
                    TYPE = LINEAR
                    HOME = 0.0
            MAX_VELOCITY = 5
