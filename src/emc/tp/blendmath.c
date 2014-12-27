@@ -413,23 +413,45 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     pmCartScalMult(normal, -normal->y, &planar_y);
     pmCartScalMult(normal, -normal->z, &planar_z);
 
-    planar_x.x+=1.0;
-    planar_y.y+=1.0;
-    planar_z.z+=1.0;
+    // Prevent divide by zero error
+    planar_x.x += 1.0000001;
+    planar_y.y += 1.0000001;
+    planar_z.z += 1.0000001;
 
     pmCartAbs(&planar_x, &planar_x);
     pmCartAbs(&planar_y, &planar_y);
     pmCartAbs(&planar_z, &planar_z);
 
-    PmCartesian planar_scales;
-    pmCartMag(&planar_x, &planar_scales.x);
-    pmCartMag(&planar_y, &planar_scales.y);
-    pmCartMag(&planar_z, &planar_scales.z);
+    double x_scale, y_scale, z_scale;
+    pmCartMag(&planar_x, &x_scale);
+    pmCartMag(&planar_y, &y_scale);
+    pmCartMag(&planar_z, &z_scale);
 
-    PmCartesian extents;
-    pmCartCartDiv(bounds, &planar_scales, &extents);
+    double x_extent=0, y_extent=0, z_extent=0;
+    if (bounds->x != 0) {
+        x_extent = bounds->x / x_scale;
+    }
+    if (bounds->y != 0) {
+        y_extent = bounds->y / y_scale;
+    }
+    if (bounds->z != 0) {
+        z_extent = bounds->z / z_scale;
+    }
 
-    *diameter = pmCartMin(&extents);
+    // Find the highest value to start from
+    *diameter = fmax(fmax(x_extent, y_extent),z_extent);
+
+    // Only for active axes, find the minimum extent
+    if (bounds->x != 0) {
+        *diameter = fmin(*diameter, x_extent);
+    }
+    if (bounds->y != 0) {
+        *diameter = fmin(*diameter, y_extent);
+    }
+    if (bounds->z != 0) {
+        *diameter = fmin(*diameter, z_extent);
+    }
+
     return TP_ERR_OK;
 }
 
@@ -541,7 +563,8 @@ int blendParamKinematics(BlendGeom3 * const geom,
 
     // Calculate the maximum planar velocity
     double v_planar_max;
-    calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
+    //FIXME sloppy handling of return value
+    res_dia |= calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
     tp_debug_print("v_planar_max = %f\n", v_planar_max);
 
     // Clip the angle at a reasonable value (less than 90 deg), to prevent div by zero
@@ -672,7 +695,7 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
     // Setup common parameters
-    blendParamKinematics(geom,
+    int res_kin = blendParamKinematics(geom,
             param,
             prev_tc,
             tc,
@@ -680,7 +703,7 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
             vel_bound,
             maxFeedScale);
 
-    return TP_ERR_OK;
+    return res_kin;
 }
 
 int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param,
@@ -753,7 +776,7 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
     // Setup common parameters
-    blendParamKinematics(geom,
+    int res_kin = blendParamKinematics(geom,
             param,
             prev_tc,
             tc,
@@ -761,7 +784,7 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
             vel_bound,
             maxFeedScale);
 
-    return TP_ERR_OK;
+    return res_kin;
 }
 
 
@@ -889,7 +912,7 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
     tp_debug_print("phi2_max = %f\n",param->phi2_max);
 
     // Setup common parameters
-    blendParamKinematics(geom,
+    int res_kin = blendParamKinematics(geom,
             param,
             prev_tc,
             tc,
@@ -897,7 +920,7 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
             vel_bound,
             maxFeedScale);
 
-    return TP_ERR_OK;
+    return res_kin;
 }
 
 /**
@@ -945,7 +968,7 @@ int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const para
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
     // Setup common parameters
-    blendParamKinematics(geom,
+    int res_kin = blendParamKinematics(geom,
             param,
             prev_tc,
             tc,
@@ -953,7 +976,7 @@ int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const para
             vel_bound,
             maxFeedScale);
 
-    return TP_ERR_OK;
+    return res_kin;
 }
 
 
