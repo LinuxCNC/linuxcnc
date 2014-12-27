@@ -4,8 +4,11 @@
 rtapi_app_exit \- User-provided function to shut down a component
 
 .SH SYNTAX
-.HP
-void \fBrtapi_app_exit\fR(void) { \fI...\fR }
+.nf
+.B #include <rtapi_app.h>
+.SP
+.BI "void rtapi_app_exit(void) {" ... "}"
+.fi
 .SH ARGUMENTS
 None
 

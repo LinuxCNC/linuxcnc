@@ -12,23 +12,23 @@ as it presents HAL Pins for the most common needs. Please find more information 
 and can be adapted to nearly every need, because gmoccapy supports embedded tabs and side panels. 
 As a good example for that see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma]'
 
-'It has an integrated onboard keyboard, so there is no need for a hardware keyboard or mouse, but it can 
-also be used with that hardware. Gmoccapy offers a separate settings page to configure most settings 
-of the GUI without editing files.'
+'It has support for integrated onboard keyboard (onboard or matchbox-keyboard), so there is no need for a 
+hardware keyboard or mouse, but it can also be used with that hardware. Gmoccapy offers a separate settings 
+page to configure most settings of the GUI without editing files.'
 
 'gmoccapy can be localized very easy, because the corresponding files are separated from the linuxcnc.po files, 
 so there is no need to translate unneeded stuff. The files are placed in /src/po/gmoccapy. 
 Just copy the gmoccapy.pot file to something like fr.po and translate that file with gtranslator or poedit. 
 After a make you got the GUI in your preferenced language. 
 At the Moment it is available in English, German, Spanish and Serbian. 
-Feel free to help me to introduce more languages.
+Feel free to help me to introduce more languages, (nieson@web.de).
 If you need help, don't hesitate to ask.'
 
 image::images/gmoccapy_4_axis.png[align="left"]
 
 == Requirements
 Gmoccapy has been tested on UBUNTU 10.04 and 12.04 and DEBIAN Wheesy, 
-with linuxcnc 2.6 and 2.7-pre and machinekit, if you use other versions, please inform about 
+with linuxcnc 2.6 ,2.7 , master and machinekit, if you use other versions, please inform about 
 problems or solutions on the forum or the https://lists.sourceforge.net/lists/listinfo/emc-users[emc-users mailing list]
 
 in German http://www.cncecke.de/forum/showthread.php?t=78549[Peters CNC Ecke] +
@@ -44,6 +44,8 @@ is just to get the http://www.linuxcnc.org/index.php/english/download[actual ISO
 
 If you do have already installed an earlier Linuxcnc version, 
 check how to update http://wiki.linuxcnc.org/cgi-bin/wiki.pl?UpdatingTo2.6[here]
+
+You will recieve updates with the regular deb packages.
 
 You will get a similar sreen to the following if your locale settings is *de* (German):
 The design may varie depending on your config.
@@ -102,8 +104,8 @@ The most important part is to tell linuxcnc to use gmoccapy, editing the [DISPLA
 ---------------------------------------------
 
 The line PREFERENCE_FILE_PATH gives the location and name of the preferences file to be used.
-This file is used by gmoccapy to store your settings of the GUI, like themes, 
-DRO units, colors, and keyboard settings, etc., see <<sub:The_settings_page,SETTINGS>> for more details. 
+In most cases this line will not be needed, it is used by gmoccapy to store your settings of the GUI, 
+like themes, DRO units, colors, and keyboard settings, etc., see <<sub:The_settings_page,SETTINGS>> for more details. 
 
 [NOTE]
 ===========================================================
@@ -307,6 +309,13 @@ MESSAGE_PINNAME = is the name of the hal pin group to be created
 
 The specific hal pin conventions for these can be found under the <<sub:User_Created_Message_HAL_Pins, User Messages hal pin section>>
 
+=== The RS274NGC Section [[sub:RS274NGC]]
+
+ [RS274NGC]
+ SUBROUTINE_PATH = macros
+
+sets the path to search for macros and other subroutines.
+
 .Makros [[sub:MACROS]]
 === The MACRO Section 
 You can add macros to gmoccapy, similar to touchy's way. +
@@ -383,13 +392,6 @@ after pushing the 'execute macro button', you will be asked to enter the values 
 
 image::images/gmoccapy_getting_macro_info.png[]
 
-=== The RS274NGC Section [[sub:RS274NGC]]
-
- [RS274NGC]
- SUBROUTINE_PATH = macros
-
-sets the path to search for macros and other subroutines.
-
 === The TRAJ Section [[sub:The_TRAJ_Section]]
 
  MAX_VELOCITY = 230.000
@@ -408,10 +410,10 @@ You will have to do all connections to gmoccapy pins in your postgui.hal file, b
 === Right and bottom button lists
 
 The screen has two main button lists, one on the right side an one on the bottom. +
-The right handed buttons will not change during operation, but the bottom list will change very often. +
+The right handed buttons will not change during operation, but the bottom button list will change very often. +
 The buttons are count from up to down and from left to right beginning with "0". +
 
-In hal_show you will see the right buttons are:
+In hal_show you will see the right (vertical) buttons are:
 
 * gmoccapy.v-button-0
 * gmoccapy.v-button-1
@@ -421,7 +423,7 @@ In hal_show you will see the right buttons are:
 * gmoccapy.v-button-5
 * gmoccapy.v-button-6
 
-and the bottom buttons are:
+and the bottom (horizontal) buttons are:
 
 * gmoccapy.h-button-0
 * gmoccapy.h-button-1
@@ -488,7 +490,7 @@ select the increment to use. There will be a maximum of 10 hal pin for the incre
 the INI File, if you give more increments in your INI File, they will be not reachable from the 
 GUI as they will not be displayed.
 
-If you have 6 increments in your hal you will get following pins:
+If you have 6 increments in your hal you will get *7* pins:
 
 * gmoccapy.jog-inc-0
 * gmoccapy.jog-inc-1
@@ -544,7 +546,7 @@ There are two pins for spindle feedback
 * gmoccapy.spindle_at_speed_led
 
 gmoccapy.spindle_feedback_bar will accept an float input to show the spindle speed +
-gmoccapy.spindle_at_speed_led is an bit to lit the GUI led if spindle is at speed +
+gmoccapy.spindle_at_speed_led is an bit-pin to lit the GUI led if spindle is at speed +
 
 === Pins to indicate program progress information
 There are three pins giving information over the programm progress
@@ -600,9 +602,10 @@ image::images/manual_toolchange.png[]
 
 usually they are connected like this for a manual tool change:
 
- net tool-change        gmoccapy.toolchange-change    <=   iocontrol.0.tool-change 
- net tool-changed       gmoccapy.toolchange-changed   <=   iocontrol.0.tool-changed
- net tool-prep-number   gmoccapy.toolchange-number    <=   iocontrol.0.tool-prep-number
+ net tool-change            gmoccapy.toolchange-change    <=   iocontrol.0.tool-change 
+ net tool-changed           gmoccapy.toolchange-changed   <=   iocontrol.0.tool-changed
+ net tool-prep-number       gmoccapy.toolchange-number    <=   iocontrol.0.tool-prep-number
+ net tool-prep-loop         iocontrol.0.tool-prepare      <=   iocontrol.0.tool-prepared
 
 ==== tool offset pins
 This pins allows you to show the active tool offset values for X and Z in the tool information frame. +
@@ -746,9 +749,10 @@ In your postgui.hal file add:
  unlinkp iocontrol.0.tool-changed
 
  # link to gmoccapy toolchange, so you get the advantage of tool description on change dialog
- net tool-change gmoccapy.toolchange-change iocontrol.0.tool-change 
- net tool-changed gmoccapy.toolchange-changed iocontrol.0.tool-changed
- net tool-prep-number gmoccapy.toolchange-number iocontrol.0.tool-prep-number
+ net tool-change            gmoccapy.toolchange-change    <=   iocontrol.0.tool-change 
+ net tool-changed           gmoccapy.toolchange-changed   <=   iocontrol.0.tool-changed
+ net tool-prep-number       gmoccapy.toolchange-number    <=   iocontrol.0.tool-prep-number
+ net tool-prep-loop         iocontrol.0.tool-prepare      <=   iocontrol.0.tool-prepared
 
 == The settings page [[sub:The_settings_page]]
 To enter the page you will have to click on:
@@ -787,6 +791,8 @@ use a touch screen.
 
 ==== Keyboard
 
+NOTE: If this section is not sensitive, you have not installed a virtual keyboard, supported are *onboard and matchbox-keyboard*.
+
 The check-boxes allows the user to select if he want the on board keyboard to be shown immediately, 
 when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program 
 in the EDIT mode. The keyboard button on the bottom button list will not been affected by this settings,
@@ -803,7 +809,7 @@ Default are :
 
 If the keyboard layout is not correct, i.e. clicking X gives Z, than the layout has not been set properly, 
 related to your locale settings. +
-It can be solved with a small batch file with the following content:
+For onboard it can be solved with a small batch file with the following content:
 
  #!/bin/bash
  setxkbmap -model pc105 -layout de -variant basic
@@ -814,6 +820,8 @@ Just execute this file before starting linuxcnc, it can be done also adding a st
  ./config/autostart 
 
 so that the layout is set automatically on starting.
+
+For matchbox-keyboard you will have to make your own layout, for a german layout contact ask in the forum.
 
 ==== On Touch Off
 give the option to show the preview tab or the offset page tab if you enter the touch off mode by clicking the 
@@ -826,19 +834,18 @@ As the notebook tabs are shown, you are able to switch between both views in any
 
 ==== DRO Options
 You have the option to select the background colors of the different DRO states.
+So users suffering from protanopia (red/green weakness) are able to select proper colors
 
 By default the background is as follows:
 
-* Relative mode = black
-* Absolute mode = blue
+* Relative mode  = black
+* Absolute mode  = blue
 * Distance to go = yellow
 
 and the foreground color of the DRO can be selected with:
 
-* homed color = green
+* homed color   = green
 * unhomed color = red
-
-so users suffering from protanopia (red/green weakness) are able to select proper colors
 
 If you activate: +
 show dro in preview, the DRO will be shown also in the preview window +
@@ -855,7 +862,7 @@ and one button to toggle the units from metric to imperial and vice versa.
 CAUTION: It is not recommended to use this option, because the user will loose the auto unit option, which 
 will toggle the units according to the active gcode G20 / G21 
 
-You can change through the DRO modes (absolute, relative, distance to go) by clicking on the DRO!
+NOTE:*You can change through the DRO modes (absolute, relative, distance to go) by clicking on the DRO!*
 
 The checkbox Use Auto Units allows to disable the auto units option of the display, so you can run a 
 programm in inches and watch the DRO in mm.
@@ -881,7 +888,9 @@ Will show also the DTG (direct distance to end point) in the preview, only if Sh
 not fullsize preview.
 
 'Show Offsets' +
-Will show the offsets in the preview window, if you only check this option and leave the others unchecked, you will get in fullsize preview a offset page
+Will show the offsets in the preview window, 
+
+NOTE:If you only check this option and leave the others unchecked, you will get in fullsize preview a offset page
 
 'Mouse Button Mode' +
 With this combobox you can select the button behavior of the mouse to rotate, move or zoom within the preview.
@@ -903,13 +912,13 @@ will be taken as rotation center point.
 
 ==== File to load on start up
 Select the file you want to be loaded on start up. 
-In other GUI changing this was very cumbersome, because the user where forced to edit the INI File.
+In other GUI changing this was very cumbersome, because the users where forced to edit the INI File.
 
 If a file is loaded, it can be set by pressing the current button to avoid that any program is 
 loaded at start up, just press the None button.
 
 The file selection screen will use the filters you have set in the INI File,
-if there aren't any filters given, you will only see ngc files.
+if there aren't any filters given, you will only see *ngc* files.
 The path will be set according to the INI settings in [DISPLAY] PROGRAM_PREFIX
 
 ==== Jump to dir
@@ -957,6 +966,10 @@ Please take care if you use a lathe, than the shortcuts will be different. See <
 * F2 = Machine on
 
 * ESC = Abort 
+
+There are additional keys for message handling, see <<sub:Message_behavior_and_appearance,Message behavior and appearance>>
+* WINDOWS = Delete last message
+* <STRG><SPACE> = Delete all messages
 
 ==== Unlock options
 
@@ -1024,13 +1037,13 @@ You can do that by checking the checkbox, that will hide:
 * column of 4'th axis in the offsetpage
 * column of 4'th axis in the tolleditor
 
-==== Message behavior and appearance
+==== Message behavior and appearance [[sub:Message_behavior_and_appearance]]
 This will display small popup windows displaying the message or error text, the behavior is very similar 
 to the one axis uses. You can delete a specific message, by clicking on it's close button, if you want 
 to delete the last one, just hit the WINDOWS key on your keyboard, or delete all messages 
 at ones with <STRG><SPACE>.
 
-You are be able to set some options:
+You are able to set some options:
 * X Pos = The position of the top left corner of the message in X counted in pixel from the top left corner of the screen.
 * Y Pos = The position of the top left corner of the message in Y counted in pixel from the top left corner of the screen.
 * Width = The width of the message box
@@ -1044,7 +1057,7 @@ You are be able to set some options:
 You can allow or disallow the run from line. This will set the corresponding button insensitive (grayed out),
 so the user will not be able to use this option.
 
-WARNING: It is not recommend to use run from line, as linuxcnc will note take care of any previous 
+WARNING: It is not recommend to use run from line, as linuxcnc will not take care of any previous 
 lines in the code before the starting line. So errors or crashes are very probably.
 
 Default is disable run from line
