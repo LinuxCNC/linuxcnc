@@ -1625,38 +1625,37 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
     } else {
         fit->spiral_in = false;
     }
+    tp_debug_print("radius = %.12f, angle = %.12f\n", min_radius, circle->angle);
+    tp_debug_print("spiral_coef = %.12f\n", spiral_coef);
 
-    //TODO handle low spiral
-    if (fabs(spiral_coef) < 1.0e-8) {
-        // Use simple linear fit for arc length
-        fit->b0 = 0.0;
-        fit->b1 = pmSqrt(pmSq(min_radius) + pmSq(circle->spiral));
-    } else {
-        // Compute the equivalent "spiral" angles, starting from a 0-radius
-        // spiral. This comes from the definition of an archimedean spiral:
-        //              r = a * theta
-        // In this case, min_radius = spiral_coef * theta_start
-        double theta_start = min_radius / spiral_coef;
-        double theta_end = theta_start + circle->angle;
-        // slope of curve in polar coordinates, solved at start and end
-        double slope_start = spiral_coef * pmSqrt(pmSq(theta_start)+1.0);
-        double slope_end = spiral_coef * pmSqrt(pmSq(theta_end)+1.0);
 
-        // fit coefficients for a parabola with specified slopes
-        // at 2 points
-        fit->b0 = (slope_end-slope_start) / (2.0 * circle->angle);
-        fit->b1 = slope_start;
-        // b2 term is 0 since arc length is 0 when angle is 0
-    }
+    //Compute the slope of the arc length vs. angle curve at the start and end of the segment
+    double slope_start = pmSqrt(pmSq(min_radius) + pmSq(spiral_coef));
+    double slope_end = pmSqrt(pmSq(min_radius) + pmSq(spiral_coef) * (pmSq(circle->angle) + 1.0));
+
+    fit->b0 = (slope_end - slope_start) / (2.0 * circle->angle);
+    fit->b1 = slope_start;
+
     fit->total_planar_length = fit->b0 * pmSq(circle->angle) + fit->b1 * circle->angle;
     printSpiralArcLengthFit(fit);
 
     // Check against start and end angle
-    double angle_start_chk = pmCircleAngleFromParam(circle,fit,0.0);
-    double angle_end_chk = pmCircleAngleFromParam(circle,fit,1.0);
-    tp_debug_print("Spiral fit check: angle_0 = %f, angle_1 = %f\n", angle_start_chk, angle_end_chk);
+    double angle_end_chk = pmCircleAngleFromParam(circle, fit, 1.0);
+    /*double scale_correction = circle->angle / angle_end_chk;*/
 
-    return 0;
+    /*fit->b0 *= scale_correction;*/
+    /*fit->b1 *= scale_correction;*/
+
+    angle_end_chk = pmCircleAngleFromParam(circle, fit, 1.0);
+    double fit_err = angle_end_chk - circle->angle;
+
+    if (fabs(fit_err) > TP_ANGLE_EPSILON) {
+        tp_debug_print("Spiral fit check: fit_err = %e\n",
+                fit_err);
+        return TP_ERR_FAIL;
+    }
+
+    return TP_ERR_OK;
 }
 
 

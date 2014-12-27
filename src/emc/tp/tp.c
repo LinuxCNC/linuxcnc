@@ -1780,12 +1780,14 @@ int tpAddCircle(TP_STRUCT * const tp,
     tcSetupState(&tc, tp);
 
     // Setup circle geometry
-    pmCircle9Init(&tc.coords.circle,
+    int res_init = pmCircle9Init(&tc.coords.circle,
             &tp->goalPos,
             &end,
             &center,
             &normal,
             turn);
+
+    if (res_init) return res_init;
 
     // Update tc target with existing circular segment
     tc.target = pmCircle9Target(&tc.coords.circle);
