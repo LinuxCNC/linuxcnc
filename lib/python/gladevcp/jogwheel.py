@@ -88,6 +88,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
     # This function is called from hal_widgets.py
     # from hal_update
     def get_value(self):
+        self.queue_draw()
         return self._counts
 
     def set_label(self, labelcontent):
