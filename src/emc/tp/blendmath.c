@@ -316,8 +316,8 @@ int pmCartCartParallel(PmCartesian const * const v1,
         PmCartesian const * const v2, double tol)
 {
     PmCartesian u1,u2;
-    pmCartUnit(v1,&u1);
-    pmCartUnit(v2,&u2);
+    pmCartUnit(v1, &u1);
+    pmCartUnit(v2, &u2);
     double dot;
     pmCartCartDot(&u1, &u2, &dot);
     double theta = acos(fabs(dot));
@@ -396,11 +396,17 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     if (!normal ) {
         return TP_ERR_MISSING_INPUT;
     }
+    double n_mag;
+    pmCartMagSq(normal, &n_mag);
+    double mag_err = fabs(1.0 - n_mag);
+    if (mag_err > TP_POS_EPSILON) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"normal vector magnitude = %g\n",mag_err);
+        return TP_ERR_FAIL;
+    }
 
     PmCartesian planar_x,planar_y,planar_z;
 
     //Find perpendicular component of unit directions
-    // FIXME Assumes normal is unit length
     // FIXME use plane project?
     pmCartScalMult(normal, -normal->x, &planar_x);
     pmCartScalMult(normal, -normal->y, &planar_y);
