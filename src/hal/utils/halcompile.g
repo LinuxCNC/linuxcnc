@@ -518,18 +518,18 @@ static int comp_id;
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_"))
             if has_personality:
-                print >>f, "        r = export(buf, i, personality[i%16]);"
+                print >>f, "            r = export(buf, i, personality[i%16]);"
             else:
-                print >>f, "        r = export(buf, i);"
+                print >>f, "            r = export(buf, i);"
             print >>f, "            if(r != 0) break;"
             print >>f, "       }"
             print >>f, "    } else {"
             print >>f, "        int max_names = sizeof(names)/sizeof(names[0]);"
             print >>f, "        for(i=0; (i < max_names) && names[i]; i++) {"
             if has_personality:
-                print >>f, "        r = export(names[i], i, personality[i%16]);"
+                print >>f, "            r = export(names[i], i, personality[i%16]);"
             else:
-                print >>f, "        r = export(names[i], i);"
+                print >>f, "            r = export(names[i], i);"
             print >>f, "            if(r != 0) break;"
             print >>f, "       }"
             print >>f, "    }"
