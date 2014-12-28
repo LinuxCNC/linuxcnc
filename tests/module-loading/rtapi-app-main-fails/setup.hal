@@ -1,0 +1,1 @@
+loadrt ../tests/module-loading/rtapi-app-main-fails/rtapi_app_main_fails
