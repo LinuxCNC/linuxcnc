@@ -1584,6 +1584,9 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target /
                 tp->cycleTime / TP_MIN_SEGMENT_CYCLES);
         return TP_ERR_OK;
+    } else if (phi >= (PM_PI-TP_ANGLE_EPSILON)) {
+        tp_debug_print(" Angle %.12g too close to pi to compute normal\n", phi);
+        return TP_ERR_FAIL;
     } else {
         tp_debug_print(" New segment angle %g > max %g \n", phi, max_angle);
         return TP_ERR_NO_ACTION;
@@ -1618,9 +1621,19 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_FAIL;
     }
 
-    if (TP_ERR_OK == tpSetupTangent(tp, prev_tc, tc)) {
-        //Marked segment as tangent
-        return TP_ERR_OK;
+    // Check for tangency between segments and handle any errors
+    // TODO possibly refactor this into a macro?
+    int res_tan = tpSetupTangent(tp, prev_tc, tc);
+    switch (res_tan) {
+        // Abort blend arc creation in these cases
+        case TP_ERR_FAIL:
+        case TP_ERR_OK:
+            return res_tan;
+            break;
+        case TP_ERR_NO_ACTION:
+        default:
+            //Continue with creation
+            break;
     }
 
     TC_STRUCT blend_tc = {0};
