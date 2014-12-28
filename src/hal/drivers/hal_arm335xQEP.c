@@ -213,6 +213,7 @@ static void update(void *arg, long period)
         /* check if an index event has occured */
         if( *(eqep->index_ena) && (iflg & IEL)) {
             eqep->index_count = eqep->eqep_reg->QPOSILAT;
+            *(eqep->index_ena) = 0;
         }
 
         /* check for phase errors */
