@@ -1,5 +1,5 @@
 #!/bin/sh
-comp --compile rtapi_app_main_fails.comp
+comp --install rtapi_app_main_fails.comp
 halrun -v setup.hal
 RETVAL=$?
 
