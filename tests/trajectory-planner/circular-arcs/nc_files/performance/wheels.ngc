@@ -9,6 +9,7 @@ G54 ( Default coordinate system )
 G80 ( Cancel canned cycle )
 G90 ( Use absolute distance mode )
 G94 ( Units Per Minute feed rate mode )
+G64 Q0.0001
 (-- prologue end --)
 F9999.00000000
 G0 Z1.00000000
