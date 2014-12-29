@@ -751,10 +751,6 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     PmCircle circ2_temp = tc->coords.circle.xyz;
 
     // Change lengths of circles
-    // FIXME partial failure after this point leaves us in an unrecoverable
-    // state. We might need to do a copy and swap to
-    // ensure that we can quit at any time without borking the existing
-    // geometry.
     double new_len1 = line1_temp.tmag - points_exact.trim1;
     int res_stretch1 = pmCartLineStretch(&line1_temp,
             new_len1,
