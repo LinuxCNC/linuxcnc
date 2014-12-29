@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "   1.3.2"
+_RELEASE = " 1.3.5.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -190,6 +190,8 @@ class gmoccapy(object):
         self.ypos = 30                  # The Y Position of the main Window
         self.width = 979                # The width of the main Window
         self.height = 750               # The heigh of the main Window
+
+        self.gcodeerror = ""            # we need this to avoid multile messages of the same error
 
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
@@ -1050,9 +1052,9 @@ class gmoccapy(object):
             else:
                 print (_("**** GMOCCAPY ERROR ****"))
                 print (_("**** No virtual keyboard installed, we checked for <onboard> and <matchbox-keyboard>."))
+                self._no_virt_keyboard()
                 return
             sid = self.onboard_kb.stdout.readline()
-            # print"keyboard", sid # skip header line
             socket = gtk.Socket()
             socket.show()
             self.widgets.key_box.add(socket)
@@ -1063,7 +1065,9 @@ class gmoccapy(object):
             print (_("**** Error with launching virtual keyboard,"))
             print (_("**** is onboard or matchbox-keyboard installed? ****"))
             traceback.print_exc()
+            self._no_virt_keyboard()
 
+    def _no_virt_keyboard(self):
             # In this case we will disable the coresponding part on the settings page
             self.widgets.chk_use_kb_on_offset.set_active(False)
             self.widgets.chk_use_kb_on_tooledit.set_active(False)
@@ -1355,8 +1359,15 @@ class gmoccapy(object):
             else:
                 self.audio.set_sound(self.alert_sound)
             self.audio.run()
-#        self.halcomp["error"] = True
 
+    def on_gremlin_gcode_error(self, widget, errortext):
+        if self.gcodeerror == errortext:
+            return
+        else:
+            self.gcodeerror = errortext
+            print(errortext)
+            if self.log: self._add_alarm_entry(errortext)
+            dialogs.warning_dialog(self, _("Important Warning"), errortext)
 
 
 # =========================================================
@@ -3507,6 +3518,7 @@ class gmoccapy(object):
         self._show_iconview_tab(True)
         self.widgets.IconFileSelection1.refresh_filelist()
         self.widgets.IconFileSelection1.iconView.grab_focus()
+        self.gcodeerror = ""
 
     def on_btn_sel_next_clicked(self, widget, data = None):
         self.widgets.IconFileSelection1.btn_sel_next.emit("clicked")
@@ -3568,6 +3580,7 @@ class gmoccapy(object):
             self.widgets.ntb_info.hide()
             self.widgets.box_info.set_size_request(-1, 50)
         self.widgets.tbl_search.show()
+        self.gcodeerror = ""
 
 # Search and replace handling in edit mode
     # undo changes while in edit mode
@@ -3636,6 +3649,9 @@ class gmoccapy(object):
         else:
             self.widgets.btn_save.emit("clicked")
         self.widgets.hal_action_reload.emit("activate")
+        if self.gcodeerror:
+            self.on_btn_edit_clicked(None)
+            return
         self.widgets.ntb_button.set_current_page(2)
         self.widgets.btn_run.emit("clicked")
 

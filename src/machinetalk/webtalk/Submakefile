@@ -138,7 +138,7 @@ TARGETS += ../lib/webtalk/plugins/pbzws.o
 
 endif
 
-clean:
+webtalk-clean:
 	-rm -f \
 	machinetalk/webtalk/zws.pb.cc \
 	machinetalk/webtalk/zws.pb.h \
