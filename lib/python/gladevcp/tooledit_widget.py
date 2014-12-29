@@ -13,6 +13,17 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
+GTK3 = True
+pygtkcompat = None
+if GTK3:
+    try:
+        from gi import pygtkcompat
+    except ImportError:
+        pygtkcompat = None
+if pygtkcompat is not None:
+    print 'tool edit gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 
 import sys, os, pango, linuxcnc, hashlib, glib
 datadir = os.path.abspath(os.path.dirname(__file__))
@@ -657,16 +668,15 @@ def main(filename=None):
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                     gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
     tooledit = ToolEdit(filename)
-    
     window.vbox.add(tooledit)
     window.connect("destroy", gtk.main_quit)
-    tooledit.set_col_visible("abcUVW", False, tab='1')
-    # uncommented the below line for testing.
-    tooledit.set_filename("/home/jim/linuxcnc/configs/sim.gmoccapy/tool.tbl")
-    #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/lathe.tbl")
-    tooledit.set_font("sans 16",tab='23')
     window.show_all()
-    #tooledit.set_lathe_display(True)
+
+    #tooledit.set_visible("Abcijquvw",False)
+    #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/gscreen_custom/lathe.tbl")
+    #tooledit.set_font("sans 16")
+    #tooledit.hide_buttonbox(True)
+
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
        print "True"
