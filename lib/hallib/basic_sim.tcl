@@ -8,14 +8,20 @@
 
 #begin-----------------------------------------------------------------
 source [file join $::env(HALLIB_DIR) sim_lib.tcl]
+
 set axes [eval set axes $::TRAJ(COORDINATES)] ;# eval to handle list {}
 set axes [string tolower $axes] ;# expect lowercase throughout
 set number_of_axes $::TRAJ(AXES)
 
-# core_sim using defaults for base_period and emcmot
+set base_period 0 ;# 0 means no thread
+if [info exists ::EMCMOT(BASE_PERIOD)] {
+  set base_period $::EMCMOT(BASE_PERIOD)
+}
+
 core_sim $axes \
          $number_of_axes \
-         $::EMCMOT(SERVO_PERIOD)
+         $::EMCMOT(SERVO_PERIOD) \
+         $base_period
 
 make_ddts $axes
 simulated_home $axes

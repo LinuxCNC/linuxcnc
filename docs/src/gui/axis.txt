@@ -758,6 +758,10 @@ which shows a window prompt telling you what tool is expected when a
 'M6' command is issued. After the OK button is pressed, execution of
 the program will continue.
 
+The hal_manualtoolchange component includes a hal pin for a button that
+can be connected to a physical button to complete the tool change and
+remove the window prompt (hal_manualtoolchange.change_button).
+
 The HAL configuration file 'configs/sim/axis_manualtoolchange.hal'
 shows the HAL commands necessary to use this component.
 

@@ -22,6 +22,7 @@
 import gtk
 import gobject
 import math
+import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
 # not allow to use them in glade without linuxcnc beeing started
@@ -46,6 +47,8 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
     __gproperties__ = {
         'show_counts' : ( gobject.TYPE_BOOLEAN, 'Display the counts in the widget', 'Display or not the counts value',
                           True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_scaled_value' : ( gobject.TYPE_BOOLEAN, 'Display the scaled value in the widget', 'Display or not the scaled value',
+                          False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'size'  : ( gobject.TYPE_INT, 'The size of the widget in pixel', 'Set the size of the widget',
                     100, 500, 200, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
         'cpr'   : ( gobject.TYPE_INT, 'Counts per revolution', 'Set the value of counts per revolution',
@@ -64,8 +67,10 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
         self._angle = 0
 
         self._counts = 0
+        self._scaled_value = 0
         self._allow_motion = False
         self._show_counts = True
+        self._show_scaled_value = False
         self._label = ""
 
         # connect our signals
@@ -84,11 +89,21 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
     # init the hal pin management
     def _hal_init(self):
         _HalJogWheelBase._hal_init(self)
+        self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin_scale.set(1.0)
 
     # This function is called from hal_widgets.py
     # from hal_update
     def get_value(self):
+        self._scaled_value = self._counts * self.hal_pin_scale.get()
+        self.queue_draw()
         return self._counts
+
+    def get_scaled_value(self):
+        try:
+            return self._scaled_value
+        except:
+            pass
 
     def set_label(self, labelcontent):
         self.set_property("label",labelcontent)
@@ -191,11 +206,16 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
         self.cr.fill()
 
         # Do we want to see the counts value? If so draw it
-        if self._show_counts:
+        if (self._show_counts and not self._show_scaled_value) :
             self.cr.set_font_size(self._size / 10)
             w,h = self.cr.text_extents(str(self._counts))[2:4]
             self.cr.move_to(0 - w / 2 , 0 + h / 2)
             self.cr.show_text(str(self._counts))
+        elif self._show_scaled_value :
+            self.cr.set_font_size(self._size / 10)
+            w,h = self.cr.text_extents(str(self._scaled_value))[2:4]
+            self.cr.move_to(0 - w / 2 , 0 + h / 2)
+            self.cr.show_text(str(self._scaled_value))
 
         # and now we draw the label
         if self._label != "":
@@ -257,6 +277,8 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
                 setattr(self, name, value)
                 if name == 'show_counts':
                     self._show_counts = value
+                if name == 'show_scaled_value':
+                    self._show_scaled_value = value
                 if name == "size":
                     self._size = value
                     self.set_size_request(self._size, self._size)
