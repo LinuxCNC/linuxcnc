@@ -130,7 +130,7 @@ Interp::Interp()
 	// since interp.init() may be called repeatedly this would create a new
 	// wrapper instance on every init(), abandoning the old one and all user attributes
 	// tacked onto it, so make sure this is done exactly once
-	_setup.pythis =  boost::python::object(boost::cref(this));
+	_setup.pythis =  boost::python::object(boost::cref(*this));
 	
 	// alias to 'interpreter.this' for the sake of ';py, .... ' comments
 	// besides 'this', eventually use proper instance names to handle
