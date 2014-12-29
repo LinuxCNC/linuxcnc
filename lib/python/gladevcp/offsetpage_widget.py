@@ -20,10 +20,13 @@
 # set metric or imperial
 # set the var file to search
 # set the text formatting for metric/imperial separately
-try:
-    from gi import pygtkcompat
-except ImportError:
-    pygtkcompat = None
+GTK3 = True
+pygtkcompat = None
+if GTK3:
+    try:
+        from gi import pygtkcompat
+    except ImportError:
+        pygtkcompat = None
 if pygtkcompat is not None:
     print 'offsetpage gtk-3'
     pygtkcompat.enable()
@@ -59,6 +62,7 @@ def convert_color(text):
     if pygtkcompat is not None:
         return gtk.gdk.Color.parse(text)[1].to_string()
     else:
+        print 'gtk2 color'
         return gtk.gdk.Color(text)
 
 class OffsetPage(gtk.VBox):
@@ -104,14 +108,9 @@ class OffsetPage(gtk.VBox):
         self.display_follows_program = False # display units are chosen indepenadently of G20/G21
         self.font = "sans 12"
         self.editing_mode = False
-        if pygtkcompat is not None:
-            self.highlight_color = convert_color("lightblue")
-            self.foreground_color = convert_color("red")
-            self.unselectable_color = convert_color("lightgray")
-        else:
-            self.highlight_color = gtk.gdk.Color("lightblue")
-            self.foreground_color = gtk.gdk.Color("red")
-            self.unselectable_color = gtk.gdk.Color("lightgray")
+        self.highlight_color = convert_color("lightblue")
+        self.foreground_color = convert_color("red")
+        self.unselectable_color = convert_color("lightgray")
         self.hidejointslist = []
         self.hidecollist = []
         self.wTree = gtk.Builder()
@@ -328,21 +327,27 @@ class OffsetPage(gtk.VBox):
     # TODO the edited column does not end up showing the editted number even though linuxcnc
     # registered the change
     def col_editted(self, widget, filtered_path, new_text, col):
-        (store_path,) = self.modelfilter.convert_path_to_child_path(filtered_path)
-        row = store_path
+        # have to work around GTK3 as you can't compare treeiters to integers
+        if pygtkcompat is not None:
+            x = gtk.TreePath(filtered_path)
+            store_path = self.modelfilter.convert_path_to_child_path(x)
+            row = store_path.get_indices()
+        else:
+            (store_path,) = self.modelfilter.convert_path_to_child_path(filtered_path)
+            row = [store_path]
         axisnum = col - 1
         # print "EDITED:", new_text, col, int(filtered_path), row, "axis num:", axisnum
 
         def system_to_p(system):
-            convert = { "G54":1, "G55":2, "G56":3, "G57":4, "G58":5, "G59":6, "G59.1":7, "G59.2":8, "G59.3":9}
+            convert = { "G54":1, "G55":2, "G56":3, "G57":4, "G58":5,
+                         "G59":6, "G59.1":7, "G59.2":8, "G59.3":9}
             try:
                 pnum = convert[system]
             except:
                 pnum = None
             return pnum
-
         # Hack to not edit any rotational offset but Z axis
-        if row == 2 and not col == 3: return
+        if row == [2] and not col == 3: return
 
         # set the text style based on unit type
         if self.display_units_mm:
@@ -352,16 +357,16 @@ class OffsetPage(gtk.VBox):
 
         # allow 'name' columnn text to be arbitrarily changed
         if col == 10:
-            self.store[row][14] = new_text
+            self.store[store_path][14] = new_text
             return
         # set the text in the table
         try:
-            self.store[row][col] = locale.format("%10.4f", locale.atof(new_text))
+            self.store[store_path][col] = locale.format("%10.4f", locale.atof(new_text))
         except:
             print "offsetpage widget error: unrecognized float input"
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
-            if not self.display_units_mm == self.program_units and not row == 2:
+            if not self.display_units_mm == self.program_units and not row == [2]:
                 if self.program_units == 1:
                     convert = 25.4
                 else:
@@ -378,15 +383,15 @@ class OffsetPage(gtk.VBox):
                 if self.status.task_mode != self.linuxcnc.MODE_MDI:
                     self.cmd.mode(self.linuxcnc.MODE_MDI)
                     self.cmd.wait_complete()
-                if row == 1:
+                if row == [1]:
                     self.cmd.mdi("G10 L2 P0 %s %10.4f" % (self.axisletters[axisnum], qualified))
-                elif row == 2:
+                elif row ==[2]:
                     if col == 3:
                         self.cmd.mdi("G10 L2 P0 R %10.4f" % (qualified))
-                elif row == 3:
+                elif row == [3]:
                     self.cmd.mdi("G92 %s %10.4f" % (self.axisletters[axisnum], qualified))
                 else:
-                    pnum = system_to_p(self.store[row][0])
+                    pnum = system_to_p(self.store[store_path][0])
                     if not pnum == None:
                         self.cmd.mdi("G10 L2 P%d %s %10.4f" % (pnum, self.axisletters[axisnum], qualified))
                 self.cmd.mode(self.linuxcnc.MODE_MANUAL)
@@ -593,7 +598,8 @@ def main(filename = None):
     # offsetpage.set_row_visible("89abc", True)
     # offsetpage.set_to_mm()
     # offsetpage.set_font("sans 20")
-    # offsetpage.set_property("highlight_color", gtk.gdk.Color.parse('violet')[1])
+    # offsetpage.set_property("highlight_color", gtk.gdk.Color.parse('violet')[1]) # GTK3
+    # offsetpage.set_property("highlight_color", gtk.gdk.Color('violet')) # GTK2
     # offsetpage.set_highlight_color("violet")
     # offsetpage.set_foreground_color("yellow")
     # offsetpage.mark_active("G55")
