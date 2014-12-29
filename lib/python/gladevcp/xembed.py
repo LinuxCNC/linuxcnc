@@ -22,10 +22,10 @@ def reparent(window, parent):
 
     if not parent:
         return window
-    print window,parent
+    print 'xembed window,parent:',window,parent
     plug = gtk.Plug(long(parent))
     plug.show()
-    print plug
+    print 'xembed plug:',plug
 
     d = display.Display()
     w = drawable.Window(d.display, plug.window.xid, 0)
