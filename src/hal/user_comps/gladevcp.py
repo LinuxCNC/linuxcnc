@@ -222,7 +222,7 @@ def main():
         # block X errors since gdk error handling silently exits the
         # program without even the atexit handler given a chance
         gtk.gdk.error_trap_push()
-        print 'window:'window,'parent:',opts.parent
+        print 'window:',window,'parent:',opts.parent
         window = xembed.reparent(window, opts.parent)
 
         forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
