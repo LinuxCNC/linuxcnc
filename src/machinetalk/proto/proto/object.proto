@@ -141,6 +141,9 @@ message Component {
 
     repeated Pin         pin            = 16;
     repeated Param       param          = 17;
+
+    // do not create the component on MT_HALRCOMP_BIND if the component does not exist
+    optional bool        no_create      = 18;
 }
 
 message Ring {
