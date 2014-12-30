@@ -185,7 +185,6 @@ class Pages:
 
         self.a.fill_pintype_model()
 
-        self.a.add_external_folder_boardnames()
         self.intro_prepare()
         # get the original background color, must realize the widget first to get the true color.
         # we use this later to high light missing axis info
@@ -220,6 +219,7 @@ class Pages:
         self.d.createsymlink = self.w.createsymlink.get_active()
         self.d.createshortcut = self.w.createshortcut.get_active()
         self.w.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.d.machinename)
+        self.a.add_external_folder_boardnames()
         # here we initialise the mesa configure page data
         #TODO is this right place?
         self.d._mesa0_configured = False
@@ -812,11 +812,22 @@ class Pages:
 
     def mesa0_prepare(self):
         self.d.help = "help-mesa.txt"
-        temp = 0
-        for search,item in enumerate(self._p.MESA_BOARDNAMES):
-            if self._p.MESA_BOARDNAMES[search]  == self.d.mesa0_boardtitle:
-                temp = search
-        self.w.mesa0_boardtitle.set_active(temp)
+        def lookup(name):
+            temp = -1
+            for search,item in enumerate(self._p.MESA_BOARDNAMES):
+                #print self._p.MESA_BOARDNAMES[search],name
+                if self._p.MESA_BOARDNAMES[search]  == name:
+                    temp = search
+            return temp
+        # search for boardname - if it's not there add it
+        name_vector = lookup(self.d.mesa0_boardtitle)
+        if name_vector == -1:
+            self._p.MESA_BOARDNAMES.append(self.d.mesa0_boardtitle)
+            model = self.w.mesa0_boardtitle.get_model()
+            model.append((self.d.mesa0_boardtitle,))
+            name_vector = lookup(self.d.mesa0_boardtitle)
+
+        self.w.mesa0_boardtitle.set_active(name_vector)
         self._p.prepare_block = True
         self.a.init_mesa_options(0)
         self._p.prepare_block = False
@@ -842,8 +853,16 @@ class Pages:
             if error: return True # don't advance page
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
+    # mesa page signals for callbacks must be built manually (look in pncconf.py init_mesa_signals() )
+    # This is because the page in not inialized/loaded until needed
+    # callbacks:
     def on_mesapanel_clicked(self, *args):
         self.t.launch_mesa_panel()
+
+    def on_mesa0_discovery_clicked(self, *args):
+        info = self.a.discover_mesacards()
+        if not info == None:
+            self.a.discovery_selection_update(info,0)
 
 #************
 # MESA1 PAGE
@@ -882,6 +901,15 @@ class Pages:
         error = self.a.signal_sanity_check()
         if error: return True
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
+
+    # mesa page signals for callbacks must be built manually (look in pncconf.py init_mesa_signals() )
+    # This is because the page in not inialized/loaded until needed
+    # callbacks:
+
+    def on_mesa1_discovery_clicked(self, *args):
+        info = self.a.discover_mesacards()
+        if not info == None:
+            self.a.discovery_selection_update(info,1)
 
 #************
 # pport1 PAGE
