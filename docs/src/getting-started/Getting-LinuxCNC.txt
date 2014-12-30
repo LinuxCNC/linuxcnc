@@ -44,9 +44,11 @@ downloads and efficiently transfers large files with small modifications
 (if you have an older local copy).
 
 zsync in Linux::
-    Install zsync by running `sudo apt-get install zsync`.  To use
-    zsync in Linux to download the Live/Install Image, run this command:
-    `zsync http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync`
+    Install zsync using your favourite package management
+    application such as Synaptic or, by running `sudo apt-get install
+    zsync` in a terminal.  To use zsync in Linux to download the
+    Live/Install Image, run this command (in a terminal): `zsync
+    http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync`
 
 
 zsync in Windows::
@@ -55,77 +57,6 @@ zsync in Windows::
     get out that Command Prompt.  It can be downloaded from:
     https://www.assembla.com/spaces/zsync-windows/documents
 
-
-=== Multi-session Download
-
-If the file is too large to download in one session 
-because of a bad or slow Internet connection, 
-use 'wget' to allow resuming after an interrupted download. 
-
-Wget Linux:: (((Wget Linux)))
-Open a terminal window. In Ubuntu it is Applications/Accessories/Terminal. 
-Use 'cd' to change to the directory where you would like to store the ISO. 
-Use 'mkdir' to create a new directory if needed. 
-+
-Note that actual file names may change so you might have to go to 
-http://www.linuxcnc.org/[http://www.linuxcnc.org/] 
-and follow the Download link to get the actual file name. 
-In most browsers you can right click on the link and select 
-Copy Link Location or similar, then paste the link into the 
-terminal window with a right mouse click and select Paste. 
-+
-.Debian Wheezy and LinuxCNC fresh install
-*********************************************************************
-To get the Debian Wheezy LinuxCNC Live CD using wget
-copy one of this in a terminal window and press enter:
-
-wget http://linuxcnc.org/binary.hybrid.iso
-
-The md5sum of the above file is: '1d0025a8c1a61fbf32b99ab5797d95e3' 
-*********************************************************************
-+
-To continue a partial download that was interrupted 
-add the -c option to wget:
-+
-wget -c http://linuxcnc.org/binary.hybrid.iso
-+
-To stop a download use Ctrl-C or close the terminal window.
-+
-.Ubuntu 8.04 Hardy Heron and LinuxCNC (older)
-*********************************************************************
-For more information on other versions of LinuxCNC visit the linuxcnc.org
-download page.
-
-http://linuxcnc.org/index.php/english/download
-*********************************************************************
-+
-After the download is complete you will find the ISO file in the 
-directory that you selected. Next we will burn the CD.
-
-Wget Windows:: (((Wget Windows)))
-The wget program is also available for Windows from: 
-+
-http://gnuwin32.sourceforge.net/packages/wget.htm
-+
-Follow the instructions on the web page for downloading and installing
-the windows version of the wget program.
-+
-To run wget open a command prompt window.
-+
-In most Windows it is Programs/Accessories/Command Prompt
-+
-First you have to change to the directory where wget is installed in.
-+
-Typically it is in C:\Program Files\GnuWin32\bin so 
-in the Command Prompt window type:
-+
-----
-cd C:\Program Files\GnuWin32\bin
-----
-+
-and the prompt should change to: 'C:\Program Files\GnuWin32\bin>'
-+
-Type the wget command into the window and press enter as above.
 
 == Burning the CD
 
