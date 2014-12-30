@@ -1,3 +1,20 @@
+ver. 1.4.0
+- introduced turtle jog, allowing two scales for the 
+  jog vel adjustment
+- new hal pin "gmoccapy.turtle-jog" to switch from rabbit-jog 
+  (fast mode) to turtle-jog (slow mode) using a hardware switch
+- new hal pin for analog input 
+  * gmoccapy.analog-enable (must be True to activate the analog inputs)
+  * gmoccapy.spindle-override-value
+  * gmoccapy.max-vel-value
+  * gmoccapy.jog-speed-value
+  * gmoccapy.feed-override-value
+  all four taking a float input as percentage, 
+  meaning a value from 0.0 to 1.0, setting the corresponding slider
+  directly to the given value
+- some code rework, mainly in the _init_hal_pin section and on 
+  encoder counts handling 
+
 ver. 1.3.5.1
 - forgot to reset the gcode error, resulting in showing it only once,
   it ws not shown again if a good file was loaded and than again the 

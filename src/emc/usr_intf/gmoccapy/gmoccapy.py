@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = " 1.3.5.1"
+_RELEASE = "  1.4.0"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -683,6 +683,18 @@ class gmoccapy(object):
                                            self.spindle_override_max * 100, 1, 0, 0)
         self.widgets.adj_feed.configure(100, 0, self.feed_override_max * 100, 1, 0, 0)
 
+        # set and get all information for turtle jogging
+        self.rabbit_jog = self.jog_rate
+        hide_turtle_jog_button = self.prefs.getpref("hide_turtle_jog_button", False, bool)
+        self.widgets.chk_turtle_jog.set_active(hide_turtle_jog_button)
+        self.turtle_jog_factor = self.prefs.getpref('turtle_jog_factor', 20 , int)
+        self.widgets.adj_turtle_jog_factor.configure(self.turtle_jog_factor, 1,
+                                           100 , 1, 0, 0)
+        if hide_turtle_jog_button:
+            self.widgets.tbtn_turtle_jog.hide()
+            self.turtle_jog_factor = 1
+        self.turtle_jog = self.rabbit_jog / self.turtle_jog_factor
+
         # and according to machine units the digits to display
         if self.stat.linear_units == _MM:
             self.widgets.scl_max_vel.set_digits(0)
@@ -845,7 +857,7 @@ class gmoccapy(object):
         label = _("Continuous")
         rbt0 = gtk.RadioButton(None, label)
         rbt0.connect("pressed", self.on_increment_changed, 0)
-        self.widgets.vbuttonbox2.pack_start(rbt0, True, True, 0)
+        self.widgets.vbtb_jog_incr.pack_start(rbt0, True, True, 0)
         rbt0.set_property("draw_indicator", False)
         rbt0.show()
         self.incr_rbt_list.append(rbt0)
@@ -855,7 +867,7 @@ class gmoccapy(object):
             rbt = "rbt%d" % (item)
             rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
             rbt.connect("pressed", self.on_increment_changed, self.jog_increments[item])
-            self.widgets.vbuttonbox2.pack_start(rbt, True, True, 0)
+            self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
             rbt.set_property("draw_indicator", False)
             rbt.show()
             self.incr_rbt_list.append(rbt)
@@ -2387,6 +2399,46 @@ class gmoccapy(object):
         text = _("Halo, welcome to the test message %d") % index
         self._show_error((13, text))
 
+    def on_chk_turtle_jog_toggled(self, widget, data = None):
+        state = widget.get_active()
+        self.prefs.putpref("hide_turtle_jog_button", state)
+        self.widgets.tbl_turtle_jog_factor.set_sensitive(not state)
+        if state:
+            self.widgets.tbtn_turtle_jog.hide()
+        else:
+            self.widgets.tbtn_turtle_jog.show()
+            self.turtle_jog_factor = self.prefs.getpref('turtle_jog_factor', 20 , int)
+            self.widgets.adj_turtle_jog_factor.configure(self.turtle_jog_factor, 1,
+                                               100 , 1, 0, 0)
+            self.turtle_jog = self.jog_rate / self.turtle_jog_factor
+
+    def on_adj_turtle_jog_factor_value_changed(self, widget, data = None):
+        if not self.initialized:
+            return
+        self.turtle_jog_factor = int(widget.get_value())
+        self.prefs.putpref("turtle_jog_factor", self.turtle_jog_factor, int)
+        self.turtle_jog = self.rabbit_jog / self.turtle_jog_factor
+        if self.widgets.tbtn_turtle_jog.get_active():
+            self.widgets.adj_jog_vel.configure(self.turtle_jog, 1,
+                    self.jog_rate_max / self.turtle_jog_factor , 1, 0, 0)
+
+    def on_tbtn_turtle_jog_toggled(self, widget, data = None):
+        if self.log: add_alarm_entry("turtle jog has been set to %s" % widget.get_active())
+        if widget.get_active():
+            self.rabbit_jog = self.widgets.adj_jog_vel.get_value()
+            widget.set_image(self.widgets.img_turtle_jog)
+            active_jog_vel = self.widgets.adj_jog_vel.get_value()
+            self.widgets.adj_jog_vel.configure(self.turtle_jog, 0,
+                                   self.jog_rate_max / self.turtle_jog_factor , 1, 0, 0)
+        else:
+            self.turtle_jog = self.widgets.adj_jog_vel.get_value()
+            widget.set_image(self.widgets.img_rabbit_jog)
+            self.widgets.adj_jog_vel.configure(self.rabbit_jog, 0,
+                                   self.jog_rate_max , 1, 0, 0)
+
+    def _on_turtle_jog_enable(self, pin):
+        self.widgets.tbtn_turtle_jog.set_active(bool(pin.get()))
+
     def on_btn_jog_pressed(self, widget, data = None):
         # only in manual mode we will allow jogging the axis at this development state
         if not self.stat.task_mode == linuxcnc.MODE_MANUAL:
@@ -2409,14 +2461,13 @@ class gmoccapy(object):
 
         velocity = value * (1 / self.faktor)
 
-
         dir = widget.get_label()[1]
         if dir == "+":
             direction = 1
         else:
             direction = -1
 
-        self._add_alarm_entry("btn_jog_%i_%i" % (axisnumber, direction))
+        if self.log: add_alarm_entry("btn_jog_%i_%i" % (axisnumber, direction))
 
         if self.distance <> 0: # incremental jogging
             self.command.jog(linuxcnc.JOG_INCREMENT, axisnumber, direction * velocity, self.distance)
@@ -2785,9 +2836,6 @@ class gmoccapy(object):
     def on_btn_feed_100_clicked(self, widget, data = None):
         if self.log: self._add_alarm_entry("btn_feed_100_clicked")
         self.widgets.adj_feed.set_value(100)
-
-    def on_adj_jog_vel_value_changed(self, widget, data = None):
-        pass
 
     def on_adj_max_vel_value_changed(self, widget, data = None):
         if not self.initialized:
@@ -3728,53 +3776,42 @@ class gmoccapy(object):
 
 # =========================================================
 # Hal Pin Handling Start
-    def _on_fo_counts_changed(self, pin, widget):
+    def _on_counts_changed(self, pin, widget):
         if not self.initialized:
             return
         counts = pin.get()
-        difference = (counts - self.fo_counts) * self.scale_feed_override
-        self.fo_counts = counts
+        if widget == "adj_feed":
+            difference = (counts - self.fo_counts) * self.scale_feed_override
+            self.fo_counts = counts
+        if widget == "adj_spindle":
+            difference = (counts - self.so_counts) * self.scale_spindle_override
+            self.so_counts = counts
+        if widget == "adj_jog_vel":
+            difference = (counts - self.jv_counts) * self.scale_jog_vel
+            if self.widgets.tbtn_turtle_jog.get_active():
+                difference = difference / self.turtle_jog_factor
+            self.jv_counts = counts
+        if widget == "adj_max_vel":
+            difference = (counts - self.mv_counts) * self.scale_max_vel
+            self.mv_counts = counts
         val = self.widgets[widget].get_value() + difference
         if val < 0:
             val = 0
         if difference != 0:
             self.widgets[widget].set_value(val)
 
-    def _on_so_counts_changed(self, pin, widget):
-        if not self.initialized:
+    def _on_analog_value_changed(self, pin, widget):
+        if not self.initialized or not self.halcomp["analog-enable"]:
             return
-        counts = pin.get()
-        difference = (counts - self.so_counts) * self.scale_spindle_override
-        self.so_counts = counts
-        val = self.widgets[widget].get_value() + difference
-        if val < 0:
-            val = 0
-        if difference != 0:
-            self.widgets[widget].set_value(val)
-
-    def _on_jv_counts_changed(self, pin, widget):
-        if not self.initialized:
-            return
-        counts = pin.get()
-        difference = (counts - self.jv_counts) * self.scale_jog_vel
-        self.jv_counts = counts
-        val = self.widgets[widget].get_value() + difference
-        if val < 0:
-            val = 0
-        if difference != 0:
-            self.widgets[widget].set_value(val)
-
-    def _on_mv_counts_changed(self, pin, widget):
-        if not self.initialized:
-            return
-        counts = pin.get()
-        difference = (counts - self.mv_counts) * self.scale_max_vel
-        self.mv_counts = counts
-        val = self.widgets[widget].get_value() + difference
-        if val < 0:
-            val = 0
-        if difference != 0:
-            self.widgets[widget].set_value(val)
+        percentage = pin.get()
+        if percentage > 1.0:
+            percentage = 1.0
+        range = self.widgets[widget].upper - self.widgets[widget].lower
+        try:
+            value = self.widgets[widget].lower + (range * percentage)
+        except:
+            value = 0
+        self.widgets[widget].set_value(value)
 
     def _on_unlock_settings_changed(self, pin):
         if not self.widgets.rbt_hal_unlock.get_active():
@@ -3920,95 +3957,98 @@ class gmoccapy(object):
     def _init_hal_pins(self):
         # generate the horizontal button pins
         for h_button in range(0, 10):
-            self.signal = hal_glib.GPin(self.halcomp.newpin("h-button-%s" % h_button,
-                                                                    hal.HAL_BIT, hal.HAL_IN))
-            self.signal.connect("value_changed", self._on_h_button_changed)
+            pin = self.halcomp.newpin("h-button-%s" % h_button, hal.HAL_BIT, hal.HAL_IN)
+            hal_glib.GPin(pin).connect("value_changed", self._on_h_button_changed)
 
         # generate the vertical button pins
         for v_button in range(0, 7):
-            self.signal = hal_glib.GPin(self.halcomp.newpin("v-button-%s" % v_button,
-                                                                    hal.HAL_BIT, hal.HAL_IN))
-            self.signal.connect("value_changed", self._on_v_button_changed)
+            pin = self.halcomp.newpin("v-button-%s" % v_button, hal.HAL_BIT, hal.HAL_IN)
+            hal_glib.GPin(pin).connect("value_changed", self._on_v_button_changed)
 
         # buttons for jogging the axis
         for jog_button in self.axis_list:
             if jog_button not in "xyz":
                 jog_button = self.axisletter_four
-            self.signal = hal_glib.GPin(self.halcomp.newpin("jog-%s-plus" % jog_button,
-                                                                    hal.HAL_BIT, hal.HAL_IN))
-            self.signal.connect("value_changed", self._on_pin_jog_changed, jog_button, 1)
-            self.signal = hal_glib.GPin(self.halcomp.newpin("jog-%s-minus" % jog_button,
-                                                                    hal.HAL_BIT, hal.HAL_IN))
-            self.signal.connect("value_changed", self._on_pin_jog_changed, jog_button, -1)
+            pin = self.halcomp.newpin("jog-%s-plus" % jog_button, hal.HAL_BIT, hal.HAL_IN)
+            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, jog_button, 1)
+            pin = self.halcomp.newpin("jog-%s-minus" % jog_button, hal.HAL_BIT, hal.HAL_IN)
+            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, jog_button, -1)
 
         # jog_increment out pin
-        self.jog_increment = hal_glib.GPin(self.halcomp.newpin("jog-increment",
-                                                                       hal.HAL_FLOAT, hal.HAL_OUT))
+        self.halcomp.newpin("jog-increment", hal.HAL_FLOAT, hal.HAL_OUT)
 
         # generate the pins to set the increments
         for buttonnumber in range(0, len(self.jog_increments)):
-            self.signal = hal_glib.GPin(self.halcomp.newpin("jog-inc-%s" % buttonnumber,
-                                                                    hal.HAL_BIT, hal.HAL_IN))
-            self.signal.connect("value_changed", self._on_pin_incr_changed, buttonnumber)
+            pin = self.halcomp.newpin("jog-inc-%s" % buttonnumber, hal.HAL_BIT, hal.HAL_IN)
+            hal_glib.GPin(pin).connect("value_changed", self._on_pin_incr_changed, buttonnumber)
 
-        self.signal = hal_glib.GPin(self.halcomp.newpin("unlock-settings", hal.HAL_BIT, hal.HAL_IN))
-        self.signal.connect("value_changed", self._on_unlock_settings_changed)
+        # make the pin for unlocking settings page
+        pin = self.halcomp.newpin("unlock-settings", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_unlock_settings_changed)
 
         # generate the pins to connect encoders to the sliders
-        self.feed_override_counts = hal_glib.GPin(self.halcomp.newpin("feed-override-counts",
-                                                                             hal.HAL_S32, hal.HAL_IN))
-        self.feed_override_counts.connect("value_changed", self._on_fo_counts_changed, "scl_feed")
-        self.spindle_override_counts = hal_glib.GPin(self.halcomp.newpin("spindle-override-counts",
-                                                                                hal.HAL_S32, hal.HAL_IN))
-        self.spindle_override_counts.connect("value_changed", self._on_so_counts_changed, "scl_spindle")
-        self.jog_speed_counts = hal_glib.GPin(self.halcomp.newpin("jog-speed-counts", hal.HAL_S32,
-                                                                          hal.HAL_IN))
-        self.jog_speed_counts.connect("value_changed", self._on_jv_counts_changed, "scl_jog_vel")
-        self.max_vel_counts = hal_glib.GPin(self.halcomp.newpin("max-vel-counts", hal.HAL_S32,
-                                                                        hal.HAL_IN))
-        self.max_vel_counts.connect("value_changed", self._on_mv_counts_changed, "scl_max_vel")
+        pin = self.halcomp.newpin("feed-override-counts", hal.HAL_S32, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "adj_feed")
+        pin = self.halcomp.newpin("spindle-override-counts", hal.HAL_S32, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "adj_spindle")
+        pin = self.halcomp.newpin("jog-speed-counts", hal.HAL_S32, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "adj_jog_vel")
+        pin = self.halcomp.newpin("max-vel-counts", hal.HAL_S32, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "adj_max_vel")
 
-        # This is only necessary, because after connecting the Encoder the value will be increased by one
-        self.widgets.btn_feed_100.emit("clicked")
+        # generate the pins to connect analog inputs for sliders
+        self.halcomp.newpin("analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed-override-value", hal.HAL_FLOAT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "adj_feed")
+        pin = self.halcomp.newpin("spindle-override-value", hal.HAL_FLOAT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "adj_spindle")
+        pin = self.halcomp.newpin("jog-speed-value", hal.HAL_FLOAT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "adj_jog_vel")
+        pin = self.halcomp.newpin("max-vel-value", hal.HAL_FLOAT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "adj_max_vel")
+
+        # make a pin to set turtle jog vel
+        pin = self.halcomp.newpin("turtle-jog", hal.HAL_FLOAT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_turtle_jog_enable)
 
         # make the pins for tool measurement
-        self.probeheight = hal_glib.GPin(self.halcomp.newpin("probeheight", hal.HAL_FLOAT, hal.HAL_OUT))
-        self.blockheight = hal_glib.GPin(self.halcomp.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT))
-        self.enable_toolmeasurement = hal_glib.GPin(self.halcomp.newpin("toolmeasurement", hal.HAL_BIT, hal.HAL_OUT))
-        self.probe_search_vel = hal_glib.GPin(self.halcomp.newpin("searchvel", hal.HAL_FLOAT, hal.HAL_OUT))
-        self.probe_vel = hal_glib.GPin(self.halcomp.newpin("probevel", hal.HAL_FLOAT, hal.HAL_OUT))
+        self.halcomp.newpin("probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("toolmeasurement", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("probevel", hal.HAL_FLOAT, hal.HAL_OUT)
 
         # make pins to react to tool_offset changes
-        self.pin_offset_x = hal_glib.GPin(self.halcomp.newpin("tooloffset-x", hal.HAL_FLOAT, hal.HAL_IN))
-        self.pin_offset_x.connect("value_changed", self._offset_changed, "tooloffset-x")
-        self.pin_offset_z = hal_glib.GPin(self.halcomp.newpin("tooloffset-z", hal.HAL_FLOAT, hal.HAL_IN))
-        self.pin_offset_z.connect("value_changed", self._offset_changed, "tooloffset-z")
+        pin = self.halcomp.newpin("tooloffset-x", hal.HAL_FLOAT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-x")
+        pin = self.halcomp.newpin("tooloffset-z", hal.HAL_FLOAT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-z")
 
         # make a pin to delete a notification message
-        self.pin_del_message = hal_glib.GPin(self.halcomp.newpin("delete-message", hal.HAL_BIT, hal.HAL_IN))
-        self.pin_del_message.connect("value_changed", self._del_message_changed)
+        pin = self.halcomp.newpin("delete-message", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._del_message_changed)
 
         # for manual tool change dialog
         self.halcomp.newpin("toolchange-number", hal.HAL_S32, hal.HAL_IN)
         self.halcomp.newpin("toolchange-changed", hal.HAL_BIT, hal.HAL_OUT)
-        self.pin_change_tool = hal_glib.GPin(self.halcomp.newpin('toolchange-change', hal.HAL_BIT, hal.HAL_IN))
-        self.pin_change_tool.connect('value_changed', self.on_tool_change)
+        pin = self.halcomp.newpin('toolchange-change', hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect('value_changed', self.on_tool_change)
 
         # make some pin to be able to enlarge the working limits, i.e. if the tool changer is in that place
         # and the soft limits are set to not have colision with the changer, you can use this pin to change
         # the working area, you are responsible to be in the area if you reduce it!
-        self.pin_axis_to_set = hal_glib.GPin(self.halcomp.newpin("axis-to-set", hal.HAL_S32, hal.HAL_IN))
-        self.pin_set_max_limit = hal_glib.GPin(self.halcomp.newpin("set-max-limit", hal.HAL_BIT, hal.HAL_IN))
-        self.pin_limit_value = hal_glib.GPin(self.halcomp.newpin("limit-value", hal.HAL_FLOAT, hal.HAL_IN))
-        self.pin_limit_value.connect("value_changed", self._on_axis_limit_changed)
+        self.halcomp.newpin("axis-to-set", hal.HAL_S32, hal.HAL_IN)
+        self.halcomp.newpin("set-max-limit", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("limit-value", hal.HAL_FLOAT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_axis_limit_changed)
 
         # make a pin to reset feed override to 100 %
-        self.pin_res_feed = hal_glib.GPin(self.halcomp.newpin("reset-feed-override", hal.HAL_BIT, hal.HAL_IN))
-        self.pin_res_feed.connect("value_changed", self._reset_overide, "feed")
+        pin = self.halcomp.newpin("reset-feed-override", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "feed")
 
         # make a pin to reset spindle override to 100 %
-        self.pin_res_spindle = hal_glib.GPin(self.halcomp.newpin("reset-spindle-override", hal.HAL_BIT, hal.HAL_IN))
-        self.pin_res_spindle.connect("value_changed", self._reset_overide, "spindle")
+        pin = self.halcomp.newpin("reset-spindle-override", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "spindle")
 
         # make an error pin to indicate a error to hardware
         self.halcomp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
