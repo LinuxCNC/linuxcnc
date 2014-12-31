@@ -1,6 +1,6 @@
 [cols="3*"]
 |===
-|link:../index-documenting.asciidoc[Back to the Documenting]
+|link:../index-documenting.asciidoc[Back to the Documenting index]
 |link:../documents-index.asciidoc[Back to the main Documents index]
 |
 |===
@@ -74,7 +74,7 @@ review your change.
 
 [cols="3*"]
 |===
-|link:../index-documenting.asciidoc[Back to the Documenting]
+|link:../index-documenting.asciidoc[Back to the Documenting index]
 |link:../documents-index.asciidoc[Back to the main Documents index]
 |
 |===

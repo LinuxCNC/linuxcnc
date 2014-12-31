@@ -1,8 +1,8 @@
 [cols="3*"]
 |===
-|link:../index-documenting.asciidoc[Back to the Documenting]
+|link:../index-documenting.asciidoc[Back to the Documenting index]
 |link:../documents-index.asciidoc[Back to the main Documents index]
-|link:../documenting.asciidoc[back]
+|link:documenting.asciidoc[back]
 |===
 
 Updating your fork
@@ -49,12 +49,12 @@ image::images/merged-PR-and-updated-fork.png[]
 
 image::images/merge-and-update-fork.png[]
 
-Now that you're up-to-date you can do link:../documenting.asciidoc[back] to
+Now that you're up-to-date you can do link:documenting.asciidoc[back] to
 editing a change and changing submitting a `PR` to the original repo.
 
 [cols="3*"]
 |===
-|link:../index-documenting.asciidoc[Back to the Documenting]
+|link:../index-documenting.asciidoc[Back to the Documenting index]
 |link:../documents-index.asciidoc[Back to the main Documents index]
-|link:../documenting.asciidoc[back]
+|link:documenting.asciidoc[back]
 |===

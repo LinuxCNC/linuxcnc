@@ -20,6 +20,10 @@ link:../src/common/Glossary.asciidoc[]
 
 link:../src/common/GPLD_Copyright.asciidoc[]
 
+== How To
+
+- link:buildbot/interpret-buildbot-results.asciidoc[Interpret buildbot results]
+
 [cols="3*"]
 |===
 |
