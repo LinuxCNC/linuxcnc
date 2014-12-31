@@ -28,7 +28,7 @@ to the names of the hardware instance specified on the loadrt line.
    be reported as a position of 2.0 units.
 * '(s32) <name>.rawcounts' - The raw counts from the hardware register, 
    unaffected by reset or index events.
-* '(bin) <name>.reset' - When true, counts and position are reset to zero.
+* '(bit) <name>.reset' - When true, counts and position are reset to zero.
 * '(float) <name>.velocity' - Velocity in scaled units per second, When the 
    magnitude of the true velocity is below the min-speed-estimate, the
    velocity output is 0.
@@ -41,7 +41,14 @@ to the names of the hardware instance specified on the loadrt line.
    are the same as the units of velocity. Setting this parameter too low will
    cause it to take a lomg time for velocity to go to 0 after the encoder 
    pulses have stopped arriving.
-   
+* '(bit) <name>.counter_mode' - When true QEPA input will provide the clock
+   for the position counter and the QEPB input will have the direction 
+   information, defaults to false (quadrature count mode).
+* '(bit) <name>.x2_mode' - When true count rising and falling edges in 
+   counter mode, defaults to false;
+* '(bit) <name>.invert_A' - invert polarity of QEPA input. 
+* '(bit) <name>.invert_B' - invert polarity of QEPB input. 
+* '(bit) <name>.invert_Z' - invert polarity of QEPI input. 
 
 == Functions
 
