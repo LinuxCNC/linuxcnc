@@ -40,15 +40,15 @@ http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso
 
 zsync is a download application that efficiently resumes interrupted
 downloads and efficiently transfers large files with small modifications
-(if you have an older local copy).
+(if you have an older local copy).  Use zsync if you have trouble
+downloading the image using the <<_normal_download,Normal Download>>
+method.
 
 zsync in Linux::
     Install zsync using your favourite package management
     application such as Synaptic or, by running `sudo apt-get install
-    zsync` in a terminal.  To use zsync in Linux to download the
-    Live/Install Image, run this command (in a terminal): `zsync
-    http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync`
-
+    zsync` in a terminal.  Then run this command to download (in a
+    terminal): `zsync http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync`
 
 zsync in Windows::
     There is a Windows port of zsync.  It works as a
