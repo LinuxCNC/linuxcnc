@@ -104,6 +104,21 @@ typedef struct {
 
     hal_bit_t       *index_ena;
     hal_bit_t       *reset;         /* counter reset input */
+    hal_bit_t       *counter_mode;
+    hal_bit_t       old_counter_mode; /* so we can tell if counter_mode has 
+                                       changed without bothering the hardware */
+    hal_bit_t       *x2_mode;
+    hal_bit_t       old_x2_mode;      /* so we can tell if x2_mode has 
+                                       changed without bothering the hardware */
+    hal_bit_t       *invertA;
+    hal_bit_t       old_invertA;      /* so we can tell if invertA has 
+                                       changed without bothering the hardware */
+    hal_bit_t       *invertB;
+    hal_bit_t       old_invertB;      /* so we can tell if invertB has 
+                                       changed without bothering the hardware */
+    hal_bit_t       *invertZ;
+    hal_bit_t       old_invertZ;      /* so we can tell if invertZ has 
+                                       changed without bothering the hardware */
     hal_s32_t       *raw_counts;    
     hal_s32_t       *count;         /* = *(raw_counts) - index_counts */ 
     hal_float_t     *pos_scale;     /* scaling factor for pos */
