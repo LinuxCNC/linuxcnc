@@ -1,16 +1,19 @@
 
 = Getting LinuxCNC
 
-This section describes how to download and make a fresh install of
-LinuxCNC.  If you have an existing install that you want to upgrade,
+This section describes the recommended way to download
+and make a fresh install of LinuxCNC.  There are also
+<<_alternate_install_methods,Alternate Install Methods>> for the
+adventurous.  If you have an existing install that you want to upgrade,
 go to the <<_updating_linuxcnc,Updating LinuxCNC>> section instead.
 
 Fresh installs of LinuxCNC are most easily created using the Live/Install
 Image.  This is a hybrid ISO filesystem image that can be written to a
 USB storage device or a DVD and used to boot a computer.  At boot time you
-will be given a choice of booting the "Live" system (to test out LinuxCNC
+will be given a choice of booting the "Live" system (to run LinuxCNC
 without making any permanent changes to your computer) or booting the
-Installer, to install LinuxCNC onto your computer's hard drive.
+Installer (to install LinuxCNC and its operating system onto your
+computer's hard drive).
 
 The outline of the process looks like this:
 
@@ -18,10 +21,6 @@ The outline of the process looks like this:
 * Write the image to a USB storage device or DVD.
 * Boot the Live system to test out LinuxCNC.
 * Boot the Installer to install LinuxCNC.
-
-In addition to the recommended Live/Install Image install method,
-there are <<_alternate_install_methods,Alternate Install Methods>>
-for the adventurous.
 
 
 == Download the image
