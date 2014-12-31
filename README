@@ -1,7 +1,7 @@
 DISCLAIMER
 ----------
 
-   THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
+    THE AUTHORS OF THIS SOFTWARE ACCEPT ABSOLUTELY NO LIABILITY FOR
     ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
     TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
     harming persons must have provisions for completely removing power
@@ -11,6 +11,10 @@ DISCLAIMER
     any responsibility for such compliance.
 
 
+This software is released under the GPLv2, with some parts under the LGPL.
+See the file COPYING for more details.
+
+
 The Build Process
 -----------------
 
@@ -18,26 +22,8 @@ Refer to the file 'docs/INSTALL' for information about building and
 running the software.
     
 
-Directory Layout
-----------------
-
-The directory tree for LinuxCNC is documented in 'directory.map' in the
-top level directory.
-
-
-    COPYING - this software is released under the GPL, 
-              with some parts under the LGPL
-
-Please also see the files in docs/
-
-    README  - general information
-    INSTALL - information about compiling and installing the software
-    AUTHORS - information about authors
-    NEWS    - latest news
-
-
-Quickstart:
------------
+Quickstart
+----------
 
 From the top level directory, switch to the source directory:
 
