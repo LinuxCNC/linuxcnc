@@ -1,0 +1,10 @@
+
+Motion is a realtime component.  It receives Motion commands via shared
+memory from Task using the emcmotController() function, computes the
+trajectory, and emits a time-series of joint positions to HAL using the
+emcmotCommandHandler() function.
+
+SAM, the Standalone Motion program, is a userspace program that uses
+the same code as Motion, but in a framework that is more convenient
+for testing.
+

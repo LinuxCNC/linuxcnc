@@ -123,7 +123,7 @@ SUBDIRS := \
     emc/usr_intf/gremlin \ emc/usr_intf/gscreen \
     emc/usr_intf/gmoccapy \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
-    emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
+    emc/motion emc/ini emc/rs274ngc emc/sai emc/sam emc emc/pythonplugin \
     \
     module_helper \
     \

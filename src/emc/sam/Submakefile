@@ -1,0 +1,13 @@
+TARGETS += ../bin/standalone-motion
+
+SAM_SRCS := $(addprefix emc/sam/, standalone-motion.c mock-trivkins.c)
+SAM_SRCS += $(addprefix emc/motion/, control.c command.c homing.c cycle-time.c)
+SAM_SRCS += $(addprefix emc/tp/, tp.c tc.c tcq.c blendmath.c spherical_arc.c)
+SAM_SRCS += $(addprefix emc/kinematics/, cubic.c)
+
+USERSRCS += $(SAM_SRCS)
+
+../bin/standalone-motion: $(call TOOBJS, $(SAM_SRCS)) ../lib/libposemath.so ../lib/liblinuxcnc.a
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(ULFLAGS) -lposemath -llinuxcnc
+
