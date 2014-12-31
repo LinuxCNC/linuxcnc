@@ -321,6 +321,16 @@ process_rcomp_bind(htself_t *self, const std::string &from,
 		    self->rx.type(), from.c_str());
 	return send_pbcontainer(from, self->tx, socket);
     }
+
+    // fail if no_create flag is set in Component submessage
+    // meaning: bind succeeds only if the component exists
+    if (pbcomp->has_no_create() && pbcomp->no_create()) {
+	note_printf(self->tx,
+		    "request %d from '%s': Component not created since no_create flag set",
+		    self->rx.type(), from.c_str());
+	return send_pbcontainer(from, self->tx, socket);
+    }
+
     cname = pbcomp->name().c_str();
 
     // validate pinlist attributes if pins are present -
