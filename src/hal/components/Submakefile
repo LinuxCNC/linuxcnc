@@ -50,7 +50,7 @@ $(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
 	$(Q)cp $@ $@.i-need-asciidoc-rework
 	#ignore errors temporary in the script for now
 	-python ../docs/src/troff-to-asciidoc.py $@.i-need-asciidoc-rework \
-		../docs/src/hal/components/$(notdir $@.asciidoc)
+		../docs/man/man-generated/hal-components/$(notdir $@.asciidoc)
 	rm -f $@.i-need-asciidoc-rework
 
 $(DRIVER_COMP_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
@@ -60,7 +60,7 @@ $(DRIVER_COMP_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
 	$(Q)cp $@ $@.i-need-asciidoc-rework
 	#ignore errors temporary in the script for now
 	-python ../docs/src/troff-to-asciidoc.py $@.i-need-asciidoc-rework \
-		../docs/src/hal/drivers/$(notdir $@.asciidoc)
+		../docs/man/man-generated/hal-drivers/$(notdir $@.asciidoc)
 	rm -f $@.i-need-asciidoc-rework
 
 $(MSG_COMP_MANPAGES): ../docs/man/man9/%.9: \
@@ -71,7 +71,7 @@ $(MSG_COMP_MANPAGES): ../docs/man/man9/%.9: \
 	$(Q)cp $@ $@.i-need-asciidoc-rework
 	#ignore errors temporary in the script for now
 	-python ../docs/src/troff-to-asciidoc.py $@.i-need-asciidoc-rework \
-		../docs/src/hal/machinetalk/$(notdir $@.asciidoc)
+		../docs/man/man-generated/machinetalk/$(notdir $@.asciidoc)
 	rm -f $@.i-need-asciidoc-rework
 
 ifeq ($(BUILD_ALL_FLAVORS),yes)
