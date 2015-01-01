@@ -124,5 +124,5 @@ pins to signals:
 HALUI = halui
 ...
 HALFILE = LIB:hookup_moveoff.tcl
-HALFIE = LIB:moveoff_external.hal
+HALFILE = LIB:moveoff_external.hal
 ----

@@ -15,20 +15,51 @@ HALLIB_PATH unless the explicit directive is used.
 Also included in this directory are files associated with included
 system halfiles.  For example, the button layout files
 (xhc-hb04-layout*.cfg) that are used with the halfile xhc-hb04.tcl.
+------------------------------------------------------------------------
 
-Filename                Usage
------------------------ ------------------------------------------------
-basic_sim.tcl           haltcl file for setting up a sim config
-var_show.tcl            haltcl file to ini variables and context
 
-sim_lib.tcl             library of haltcl procs
-util_lib.tcl            library of utility procs
+Hal files (*.hal)          Notes
+-----------------------    ---------------------------------------------
+axis_manualtoolchange.hal  setup for using hal_manualtoolchange
+                             (for axis or other guis)
+core_sim.hal               xyz simulator config
+core_servo.hal             xyz servo (pid) config
+core_sim9.hal              9 axis (xyzabcuvw) simulation config
+core_stepper.hal           xyz stepper config
+gantrysim.hal              gantrykins config, 4 joints: X Y Y Z
+lathe.hal                  simulate spindle with encoder,sim_encoder
+locking_indexer.hal        simulate locking rotary using timedelay comp
+moveoff_external.hal       Simulate external control connections for
+                             a moveoff component
+servo_sim.hal              simulate servo (pid) xyz using lowpass comp
+sim_spindle_encoder.hal    simulate spindle with lowpass filter
+simulated-gantry-home.hal  simulate gantry home switches (4 joints)
+simulated_home.hal         simulate xyz home switches
+simulated_limits.hal       simulate xyz limit switches
+tripodsim.hal              simulated tripodkins system
 
-hookup_moveoff.tcl      Automatic connections for a moveoff component
-moveoff_external.hal    Simulate external control connections for
-                        a moveoff component
+Haltcl Files (*.tcl)       Notes
+-----------------------    ---------------------------------------------
+basic_sim.tcl              set up a sim config (arbitrary no. of axes)
+var_show.tcl               show ini variables and context
 
-xhc-hb04.tcl            Configuration builder for xhc-hb04 pendant
-xhc-hb04-layout1.cfg      button layout 1 for xhc-hb04.tcl
-xhc-hb04-layout2.cfg      button layout 2 for xhc-hb04.tcl
+hookup_moveoff.tcl         make connections for a moveoff component
 
+xhc-hb04.tcl               Configuration builder for xhc-hb04 pendant
+xhc-hb04-layout1.cfg         button layout 1 for xhc-hb04.tcl
+xhc-hb04-layout2.cfg         button layout 2 for xhc-hb04.tcl
+
+Haltcl libs (*_lib.tcl)    Notes
+-----------------------    ---------------------------------------------
+sim_lib.tcl                simulator config procedures
+                             procs:
+                               core_sim       (arbitrary axes)
+                               make-ddts      (arbitrary axes)
+                               simulated_home (arbitrary axes)
+                               use_hal_manualtoolchange
+                               sim_spindle
+util_lib.tcl               utility procedures
+                             procs:
+                               show_context (calling parms)
+                               show_ini     (ini file settings)
+                               show_env     (environmental vars)
