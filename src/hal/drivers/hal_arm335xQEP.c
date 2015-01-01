@@ -213,6 +213,7 @@ static void update(void *arg, long period)
         /* check if an index event has occured */
         if( *(eqep->index_ena) && (iflg & IEL)) {
             eqep->index_count = eqep->eqep_reg->QPOSILAT;
+            *(eqep->index_ena) = 0;
         }
 
         /* check for phase errors */
@@ -232,6 +233,36 @@ static void update(void *arg, long period)
             }
             /* we want the reciprocal */
             eqep->scale = 1.0 / *(eqep->pos_scale);
+        }
+
+        /* has counter_mode been changed? */
+        if ( *(eqep->counter_mode) != eqep->old_counter_mode ) {
+            eqep->eqep_reg->QDECCTL ^= QSRC0;
+            eqep->old_counter_mode = *(eqep->counter_mode);
+        }
+
+        /* has x2_mode been changed? */
+        if ( *(eqep->x2_mode) != eqep->old_x2_mode ) {
+            eqep->eqep_reg->QDECCTL ^= XCR;
+            eqep->old_x2_mode = *(eqep->x2_mode);
+        }
+
+        /* has invert_A been changed? */
+        if ( *(eqep->invertA) != eqep->old_invertA ) {
+            eqep->eqep_reg->QDECCTL ^= QAP;
+            eqep->old_invertA = *(eqep->invertA);
+        }
+
+        /* has invert_B been changed? */
+        if ( *(eqep->invertB) != eqep->old_invertB ) {
+            eqep->eqep_reg->QDECCTL ^= QBP;
+            eqep->old_invertB = *(eqep->invertB);
+        }
+
+        /* has invert_Z been changed? */
+        if ( *(eqep->invertZ) != eqep->old_invertZ ) {
+            eqep->eqep_reg->QDECCTL ^= QIP;
+            eqep->old_invertZ = *(eqep->invertZ);
         }
 
         /* check for valid min_speed */
@@ -322,15 +353,25 @@ static int setup_eQEP(eqep_t *eqep)
     *(eqep->pos_scale) = 1.0;
     *(eqep->vel) = 0.0;
     *(eqep->phase_error_count) = 0;
+    *(eqep->counter_mode) = 0;
+    *(eqep->x2_mode) = 0;
+    *(eqep->invertA) = 0;
+    *(eqep->invertB) = 0;
+    *(eqep->invertZ) = 0;
     eqep->old_raw_count=0;
     eqep->old_scale = 1.0;
     eqep->raw_count=0;
     eqep->timestamp=0;
     eqep->index_count=0;
     eqep->counts_since_timeout = 0;
-    
+    eqep->scale = 1.0 / *(eqep->pos_scale);
+    eqep->old_counter_mode = 0;
+    eqep->old_x2_mode = 0;
+    eqep->old_invertA = 0;
+    eqep->old_invertB = 0;
+    eqep->old_invertZ = 0;
 
-    eqep->eqep_reg->QDECCTL = QAP | QBP | QIP;
+    eqep->eqep_reg->QDECCTL = XCR; /* start in x1 resolution */
     eqep->eqep_reg->QPOSINIT = 0;
     eqep->eqep_reg->QPOSMAX = -1;
     eqep->eqep_reg->QEINT |= (IEL | PHE);
@@ -342,7 +383,6 @@ static int setup_eQEP(eqep_t *eqep)
 
 static int export_encoder(eqep_t *eqep)
 {
-    int retval;
     if (hal_pin_bit_newf(HAL_IO, &(eqep->index_ena), comp_id, "%s.index-enable", eqep->name)) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting index-enable\n");
         return -1;
@@ -371,7 +411,7 @@ static int export_encoder(eqep_t *eqep)
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting velocity\n");
         return -1;
     }
-    if (hal_pin_float_newf(HAL_OUT, &(eqep->phase_error_count), comp_id, "%s.phase_errors", eqep->name)) {
+    if (hal_pin_float_newf(HAL_OUT, &(eqep->phase_error_count), comp_id, "%s.phase-errors", eqep->name)) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting phase_errors\n");
         return -1;
     }
@@ -381,6 +421,26 @@ static int export_encoder(eqep_t *eqep)
     }
     if (hal_pin_s32_newf(HAL_OUT, &(eqep->raw_counts), comp_id, "%s.rawcounts", eqep->name)) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting rawcounts\n");
+        return -1;
+    }
+    if (hal_pin_bit_newf(HAL_IO, &(eqep->counter_mode), comp_id, "%s.counter-mode", eqep->name)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting counter mode\n");
+        return -1;
+    }
+    if (hal_pin_bit_newf(HAL_IO, &(eqep->x2_mode), comp_id, "%s.x2-mode", eqep->name)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting x2 mode\n");
+        return -1;
+    }
+    if (hal_pin_bit_newf(HAL_IO, &(eqep->invertA), comp_id, "%s.invert-A", eqep->name)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting invert_A mode\n");
+        return -1;
+    }
+    if (hal_pin_bit_newf(HAL_IO, &(eqep->invertB), comp_id, "%s.invert-B", eqep->name)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting invert_B mode\n");
+        return -1;
+    }
+    if (hal_pin_bit_newf(HAL_IO, &(eqep->invertZ), comp_id, "%s.invert-Z", eqep->name)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting invert_Z mode\n");
         return -1;
     }
     
