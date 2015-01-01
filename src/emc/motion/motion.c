@@ -76,7 +76,6 @@ emcmot_joint_t joint_array[EMCMOT_MAX_JOINTS];
 #endif
 
 int mot_comp_id;	/* component ID for motion module */
-int first_pass = 1;	/* used to set initial conditions */
 int kinType = 0;
 
 /*
@@ -179,8 +178,6 @@ int rtapi_app_main(void)
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_module() starting...\n");
 
-    /* set flag */
-    first_pass = 1;
     /* connect to the HAL and RTAPI */
     mot_comp_id = hal_init("motmod");
     if (mot_comp_id < 0) {
