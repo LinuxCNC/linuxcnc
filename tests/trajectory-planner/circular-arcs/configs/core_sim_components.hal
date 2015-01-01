@@ -13,6 +13,7 @@ loadrt hypot names=vel_xy,vel_xyz
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
+
 # link the differentiator functions into the code
 addf ddt_x servo-thread
 addf ddt_xv servo-thread
@@ -25,15 +26,11 @@ addf vel_xyz servo-thread
 
 # create HAL signals for position commands from motion module
 # loop position commands back to motion module feedback
-net Xpos axis.0.motor-pos-cmd => axis.0.motor-pos-fb ddt_x.in
-net Ypos axis.1.motor-pos-cmd => axis.1.motor-pos-fb ddt_y.in
+# NOTE handled in axis-[XYZ].hal
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
-net Xvel ddt_x.out => ddt_xv.in vel_xy.in0
-net Xacc <= ddt_xv.out
-net Yvel ddt_y.out => ddt_yv.in vel_xy.in1
-net Yacc <= ddt_yv.out
+# NOTE handled in axis-[XYZ].hal
 
 # Cartesian 2- and 3-axis velocities
 net XYvel vel_xy.out => vel_xyz.in1
