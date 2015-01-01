@@ -411,7 +411,7 @@ static int export_encoder(eqep_t *eqep)
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting velocity\n");
         return -1;
     }
-    if (hal_pin_float_newf(HAL_OUT, &(eqep->phase_error_count), comp_id, "%s.phase_errors", eqep->name)) {
+    if (hal_pin_float_newf(HAL_OUT, &(eqep->phase_error_count), comp_id, "%s.phase-errors", eqep->name)) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting phase_errors\n");
         return -1;
     }
@@ -423,23 +423,23 @@ static int export_encoder(eqep_t *eqep)
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting rawcounts\n");
         return -1;
     }
-    if (hal_pin_bit_newf(HAL_IO, &(eqep->counter_mode), comp_id, "%s.counter_mode", eqep->name)) {
+    if (hal_pin_bit_newf(HAL_IO, &(eqep->counter_mode), comp_id, "%s.counter-mode", eqep->name)) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting counter mode\n");
         return -1;
     }
-    if (hal_pin_bit_newf(HAL_IO, &(eqep->x2_mode), comp_id, "%s.x2_mode", eqep->name)) {
+    if (hal_pin_bit_newf(HAL_IO, &(eqep->x2_mode), comp_id, "%s.x2-mode", eqep->name)) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting x2 mode\n");
         return -1;
     }
-    if (hal_pin_bit_newf(HAL_IO, &(eqep->invertA), comp_id, "%s.invert_A", eqep->name)) {
+    if (hal_pin_bit_newf(HAL_IO, &(eqep->invertA), comp_id, "%s.invert-A", eqep->name)) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting invert_A mode\n");
         return -1;
     }
-    if (hal_pin_bit_newf(HAL_IO, &(eqep->invertB), comp_id, "%s.invert_B", eqep->name)) {
+    if (hal_pin_bit_newf(HAL_IO, &(eqep->invertB), comp_id, "%s.invert-B", eqep->name)) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting invert_B mode\n");
         return -1;
     }
-    if (hal_pin_bit_newf(HAL_IO, &(eqep->invertZ), comp_id, "%s.invert_Z", eqep->name)) {
+    if (hal_pin_bit_newf(HAL_IO, &(eqep->invertZ), comp_id, "%s.invert-Z", eqep->name)) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Error exporting invert_Z mode\n");
         return -1;
     }

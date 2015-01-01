@@ -41,14 +41,14 @@ to the names of the hardware instance specified on the loadrt line.
    are the same as the units of velocity. Setting this parameter too low will
    cause it to take a lomg time for velocity to go to 0 after the encoder 
    pulses have stopped arriving.
-* '(bit) <name>.counter_mode' - When true QEPA input will provide the clock
+* '(bit) <name>.counter-mode' - When true QEPA input will provide the clock
    for the position counter and the QEPB input will have the direction 
    information, defaults to false (quadrature count mode).
 * '(bit) <name>.x2_mode' - When true count rising and falling edges in 
    counter mode, defaults to false;
-* '(bit) <name>.invert_A' - invert polarity of QEPA input. 
-* '(bit) <name>.invert_B' - invert polarity of QEPB input. 
-* '(bit) <name>.invert_Z' - invert polarity of QEPI input. 
+* '(bit) <name>.invert-A' - invert polarity of QEPA input. 
+* '(bit) <name>.invert-B' - invert polarity of QEPB input. 
+* '(bit) <name>.invert-Z' - invert polarity of QEPI input. 
 
 == Functions
 
