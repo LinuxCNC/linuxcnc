@@ -221,6 +221,7 @@ extern KINEMATICS_INVERSE_FLAGS iflags;
 /* these variables have the servo cycle time and 1/cycle time */
 extern double servo_period;
 extern double servo_freq;
+extern long traj_period_nsec;	/* trajectory planner period */
 
 
 /* Struct pointers */
@@ -240,6 +241,8 @@ extern struct emcmot_error_t *emcmotError;
 extern void emcmotCommandHandler(void *arg, long period);
 extern void emcmotController(void *arg, long period);
 extern void emcmotSetCycleTime(unsigned long nsec);
+int setTrajCycleTime(double secs);
+int setServoCycleTime(double secs);
 
 /* these are related to synchronized I/O */
 extern void emcmotDioWrite(int index, char value);
