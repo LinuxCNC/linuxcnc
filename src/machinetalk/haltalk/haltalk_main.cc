@@ -203,7 +203,7 @@ zmq_init(htself_t *self)
 		    conf.progname, conf.remote ? self->z_halrcmd_dsn : self->cfg->command);
 
     // register Avahi poll adapter
-    if (conf.remote && !(self->av_loop = avahi_czmq_poll_new(self->z_loop))) {
+    if (!(self->av_loop = avahi_czmq_poll_new(self->z_loop))) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: zeroconf: Failed to create avahi event loop object.",
 			conf.progname);
 	return -1;
@@ -530,16 +530,13 @@ int main (int argc, char *argv[])
     if (retval) exit(retval);
 #endif
 
-    if (conf.remote) {
-	retval = ht_zeroconf_announce(&self);
-	if (retval) exit(retval);
-    }
+    retval = ht_zeroconf_announce(&self);
+    if (retval) exit(retval);
 
     mainloop(&self);
 
-    if (conf.remote)
-	ht_zeroconf_withdraw(&self);
-       // probably should run zloop here until deregister complete
+    ht_zeroconf_withdraw(&self);
+    // probably should run zloop here until deregister complete
 
     // shutdown zmq context
     zctx_destroy(&self.z_context);
