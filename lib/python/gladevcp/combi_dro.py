@@ -192,7 +192,7 @@ class Combi_DRO(gtk.VBox):
         attr.insert(size_attr)
         weight_attr = pango.AttrWeight(weight[0], weight[1], weight[2])
         attr.insert(weight_attr)
-        fg_color = pango.AttrForeground(fgcolor[0], fgcolor[1], fgcolor[2], 0, 11)
+        fg_color = pango.AttrForeground(fgcolor[0], fgcolor[1], fgcolor[2], 0, 13)
         attr.insert(fg_color)
         return attr
 

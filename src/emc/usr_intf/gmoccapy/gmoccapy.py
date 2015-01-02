@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.4.0"
+_RELEASE = "  1.4.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -524,7 +524,7 @@ class gmoccapy(object):
             print "******************************* Gcode.lang found"
             self.widgets.gcode_view.set_language("gcode", LANGDIR)
 
-        # set the user colors of the DRO
+        # set the user colors and digits of the DRO
         self.abs_color = self.prefs.getpref("abs_color", "blue", str)
         self.rel_color = self.prefs.getpref("rel_color", "black", str)
         self.dtg_color = self.prefs.getpref("dtg_color", "yellow", str)
@@ -535,6 +535,14 @@ class gmoccapy(object):
         self.widgets.dtg_colorbutton.set_color(gtk.gdk.color_parse(self.dtg_color))
         self.widgets.homed_colorbtn.set_color(gtk.gdk.color_parse(self.homed_color))
         self.widgets.unhomed_colorbtn.set_color(gtk.gdk.color_parse(self.unhomed_color))
+
+        # set default values according to the machine units
+        digits = 3
+        if self.stat.linear_units != _MM:
+            digits = 4
+        self.dro_digits = self.prefs.getpref("dro_digits", digits, int)
+        self.widgets.adj_dro_digits.set_value(self.dro_digits)
+        # the adjustment change signal will set the dro_digits correct, so no extra need here.
 
         for axis in self.axis_list:
             if axis == self.axisletter_four:
@@ -860,6 +868,7 @@ class gmoccapy(object):
         self.widgets.vbtb_jog_incr.pack_start(rbt0, True, True, 0)
         rbt0.set_property("draw_indicator", False)
         rbt0.show()
+        rbt0.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.incr_rbt_list.append(rbt0)
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
@@ -870,6 +879,7 @@ class gmoccapy(object):
             self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
             rbt.set_property("draw_indicator", False)
             rbt.show()
+            rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
             self.incr_rbt_list.append(rbt)
 
     def _check_screen2(self):
@@ -2222,6 +2232,28 @@ class gmoccapy(object):
             self.command.wait_complete()
 
 # helpers functions end
+
+    def on_adj_dro_digits_value_changed(self, widget, data = None):
+        if not self.initialized:
+            return
+        self.dro_digits = int(widget.get_value())
+        self.prefs.putpref("dro_digits", self.dro_digits, int)
+        if self.stat.program_units != 1:
+            format_string_mm = "%" + str(13 - self.dro_digits) + "." + str(self.dro_digits) + "f"
+            format_string_inch = "%" + str(13 - self.dro_digits - 1) + "." + str(self.dro_digits + 1) + "f"
+        else:
+            format_string_inch = "%" + str(13 - self.dro_digits) + "." + str(self.dro_digits) + "f"
+            format_string_mm = "%" + str(13 - self.dro_digits + 1) + "." + str(self.dro_digits - 1) + "f"
+
+        for axis in self.axis_list:
+            if axis == self.axisletter_four:
+                axis = 4
+            self.widgets["Combi_DRO_%s" % axis].set_property("mm_text_template", format_string_mm)
+            self.widgets["Combi_DRO_%s" % axis].set_property("imperial_text_template", format_string_inch)
+
+        if self.lathe_mode:
+            self.widgets.Combi_DRO_y.set_property("mm_text_template", format_string_mm)
+            self.widgets.Combi_DRO_y.set_property("imperial_text_template", format_string_inch)
 
     def on_Combi_DRO_clicked(self, widget, joint_number, order):
         for axis in self.axis_list:
