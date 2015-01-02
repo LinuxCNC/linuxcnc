@@ -8,14 +8,17 @@ LAYOUT=${1:-""}
 
 [ -x "$(which $COLORTERM)" ] && TERM=$COLORTERM
 [ -z $TERM ] && TERM=xterm
-# when inoked from Application menu and RIP, may have TERM=dumb
+# when invoked from Application menu and RIP, may have TERM=dumb
 [ x"$TERM" = xdumb ] && TERM=xterm
 
 XHC_HB04=$(which xhc-hb04)
+HALLIB_DIR=$(linuxcnc_var HALLIB_DIR)
 
-if [ ! -z "$LAYOUT" ] ; then
-   dashI="-I $LAYOUT"
-fi
+case $LAYOUT in
+  layout1) CFG=${HALLIB_DIR}/xhc-hb04-layout1.cfg;;
+        *) CFG=${HALLIB_DIR}/xhc-hb04-layout2.cfg;;
+esac
+dashI="-I $CFG"
 
 if [ ! -z "$debug" ] ; then
   echo "COLORTERM=$COLORTERM"
