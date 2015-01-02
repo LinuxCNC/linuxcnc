@@ -535,7 +535,19 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_WORLD_HOME:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_WORLD_HOME");
+	    rtapi_print_msg(
+                RTAPI_MSG_DBG,
+                "SET_WORLD_HOME X=%.3f Y=%.3f Z=%.3f A=%.3f B=%.3f C=%.3f U=%.3f V=%.3f W=%.3f",
+                emcmotCommand->pos.tran.x,
+                emcmotCommand->pos.tran.y,
+                emcmotCommand->pos.tran.z,
+                emcmotCommand->pos.a,
+                emcmotCommand->pos.b,
+                emcmotCommand->pos.c,
+                emcmotCommand->pos.u,
+                emcmotCommand->pos.v,
+                emcmotCommand->pos.w
+            );
 	    emcmotStatus->world_home = emcmotCommand->pos;
 	    break;
 
@@ -591,8 +603,12 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_MOTOR_OFFSET:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_MOTOR_OFFSET");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(
+                RTAPI_MSG_DBG,
+                "SET_MOTOR_OFFSET joint=%d offset=%.6f",
+                emcmotCommand->axis,
+                emcmotCommand->motor_offset
+            );
 	    if(joint == 0) {
 		break;
 	    }
@@ -601,8 +617,13 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_SET_POSITION_LIMITS:
 	    /* sets soft limits for a joint */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_POSITION_LIMITS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(
+                RTAPI_MSG_DBG,
+                "SET_POSITION_LIMITS joint=%d min=%.6f max=%.6f",
+                emcmotCommand->axis,
+                emcmotCommand->minLimit,
+                emcmotCommand->maxLimit
+            );
 	    emcmot_config_change();
 	    /* set the position limits for the joint */
 	    /* can be done at any time */
@@ -615,8 +636,12 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_SET_BACKLASH:
 	    /* sets backlash for a joint */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_BACKLASH");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(
+                RTAPI_MSG_DBG,
+                "SET_BACKLASH joint=%d backlash=%.6f",
+                emcmotCommand->axis,
+                emcmotCommand->backlash
+            );
 	    emcmot_config_change();
 	    /* set the backlash for the joint */
 	    /* can be done at any time */
@@ -633,8 +658,12 @@ check_stuff ( "before command_handler()" );
 	       minFerror then OK else if ferror < limiting ferror then OK
 	       else ERROR */
 	case EMCMOT_SET_MAX_FERROR:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_MAX_FERROR");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(
+                RTAPI_MSG_DBG,
+                "SET_MAX_FERROR joint=%d maxFerror=%.6f",
+                emcmotCommand->axis,
+                emcmotCommand->maxFerror
+            );
 	    emcmot_config_change();
 	    if (joint == 0 || emcmotCommand->maxFerror < 0.0) {
 		break;
@@ -643,8 +672,12 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_MIN_FERROR:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_MIN_FERROR");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(
+                RTAPI_MSG_DBG,
+                "SET_MIN_FERROR joint=%d minFerror=%.6f",
+                emcmotCommand->axis,
+                emcmotCommand->minFerror
+            );
 	    emcmot_config_change();
 	    if (joint == 0 || emcmotCommand->minFerror < 0.0) {
 		break;
@@ -723,8 +756,13 @@ check_stuff ( "before command_handler()" );
 	    /* do an incremental jog */
 
 	    /* check joints range */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_INCR");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(
+                RTAPI_MSG_DBG,
+                "JOG_INCR joint=%d vel=%.6f offset=%.6f",
+                emcmotCommand->axis,
+                emcmotCommand->vel,
+                emcmotCommand->offset
+            );
 	    if (joint == 0) {
 		break;
 	    }
@@ -970,14 +1008,14 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_SET_VEL:
 	    /* set the velocity for subsequent moves */
 	    /* can do it at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL %.6f", emcmotCommand->vel);
 	    emcmotStatus->vel = emcmotCommand->vel;
 	    tpSetVmax(&emcmotDebug->tp, emcmotStatus->vel, 
 			    emcmotCommand->ini_maxvel);
 	    break;
 
 	case EMCMOT_SET_VEL_LIMIT:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL_LIMIT");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL_LIMIT %0.6f", emcmotCommand->vel);
 	    emcmot_config_change();
 	    /* set the absolute max velocity for all subsequent moves */
 	    /* can do it at any time */
@@ -986,8 +1024,12 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_JOINT_VEL_LIMIT:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_VEL_LIMIT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(
+                RTAPI_MSG_DBG,
+                "SET_JOINT_VEL_LIMIT joint=%d vel_limit=%.6f",
+                emcmotCommand->axis,
+                emcmotCommand->vel
+            );
 	    emcmot_config_change();
 	    /* check joint range */
 	    if (joint == 0) {
@@ -998,8 +1040,12 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_JOINT_ACC_LIMIT:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_ACC_LIMIT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    rtapi_print_msg(
+                RTAPI_MSG_DBG,
+                "SET_JOINT_ACC_LIMIT joint=%d acc_limit=%.6f",
+                emcmotCommand->axis,
+                emcmotCommand->acc
+            );
 	    emcmot_config_change();
 	    /* check joint range */
 	    if (joint == 0) {
@@ -1011,7 +1057,7 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_SET_ACC:
 	    /* set the max acceleration */
 	    /* can do it at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_ACCEL");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_ACC %.6f", emcmotCommand->acc);
 	    emcmotStatus->acc = emcmotCommand->acc;
 	    tpSetAmax(&emcmotDebug->tp, emcmotStatus->acc);
 	    break;
@@ -1635,6 +1681,19 @@ check_stuff ( "before command_handler()" );
 	    break;
 
         case EMCMOT_SET_OFFSET:
+	    rtapi_print_msg(
+                RTAPI_MSG_DBG,
+                "SET_OFFSET X=%.6f Y=%.6f Z=%.6f A=%.6f B=%.6f C=%.6f U=%.6f V=%.6f W=%.6f",
+                emcmotCommand->tool_offset.tran.x,
+                emcmotCommand->tool_offset.tran.y,
+                emcmotCommand->tool_offset.tran.z,
+                emcmotCommand->tool_offset.a,
+                emcmotCommand->tool_offset.b,
+                emcmotCommand->tool_offset.c,
+                emcmotCommand->tool_offset.u,
+                emcmotCommand->tool_offset.v,
+                emcmotCommand->tool_offset.w
+            );
             emcmotStatus->tool_offset = emcmotCommand->tool_offset;
             break;
 
@@ -1644,9 +1703,11 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->commandStatus = EMCMOT_COMMAND_UNKNOWN_COMMAND;
 	    break;
         case EMCMOT_SET_MAX_FEED_OVERRIDE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_MAX_FEED_OVERRIDE %.6f", emcmotCommand->maxFeedScale);
             emcmotConfig->maxFeedScale = emcmotCommand->maxFeedScale;
             break;
         case EMCMOT_SETUP_ARC_BLENDS:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SETUP_ARC_BLENDS");
             emcmotConfig->arcBlendEnable = emcmotCommand->arcBlendEnable;
             emcmotConfig->arcBlendFallbackEnable = emcmotCommand->arcBlendFallbackEnable;
             emcmotConfig->arcBlendOptDepth = emcmotCommand->arcBlendOptDepth;
