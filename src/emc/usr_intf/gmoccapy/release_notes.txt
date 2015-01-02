@@ -1,3 +1,10 @@
+ver. 1.4.1
+- corrected brocken layout style, as the jog-increment buttons has not 
+  been modified to change there background color, getting only dark grey 
+  instead of yellow, if they where active. No the follow the gmoccapy style.
+- the number of digits of the DRO can now be set on the settings page, so 
+  users of fragil machines can reduce the digits.
+
 ver. 1.4.0
 - introduced turtle jog, allowing two scales for the 
   jog vel adjustment
