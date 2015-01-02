@@ -1647,6 +1647,7 @@ void ARC_FEED(int line_number,
     double a2 = FROM_EXT_LEN(axis_max_acceleration[axis2]);
     double v_max_planar = MIN(v1, v2);
     double a_max_planar = MIN(a1, a2);
+    canon_debug("a_max_planar = %f\n", a_max_planar);
 
     //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
     double v_max_radial = sqrt(a_max_planar * effective_radius);
@@ -1676,9 +1677,11 @@ void ARC_FEED(int line_number,
 
 
     // Total path length including helical motion
-    double helical_length = hypot(full_angle * effective_radius, axis_len);
+    double planar_length = full_angle * effective_radius;
+    canon_debug("planar_length = %f\n", planar_length);
+    double helical_length = hypot(planar_length, axis_len);
     canon_debug("full_angle = %f\n", full_angle);
-    canon_debug("helical_length = %f\n",helical_length);
+    canon_debug("helical_length = %f\n", helical_length);
 
     // From the total path time and length, calculate new max velocity
     if (t_max > 0.0) {
@@ -1699,7 +1702,7 @@ void ARC_FEED(int line_number,
         a_max = MIN(a_max, a_max_axial);
     }
 
-    double tt_helix = helical_length / a_max;
+    double tt_helix = axis_len / a_max;
     double tt_max = MAX(tt_motion, tt_helix);
 
     canon_debug("tt_motion = %f\n", tt_motion);
@@ -1707,10 +1710,11 @@ void ARC_FEED(int line_number,
     canon_debug("tt_max = %f\n", tt_max);
 
     // From the total path time and length, calculate new max acceleration
-    if (tt_max > 0.0) {
+    if (tt_helix > 0.0) {
+        // Only need to do this if we have a helical component
         double a_max_helical = helical_length / tt_max;
-        canon_debug("a_max_helical = %f\n",a_max_helical);
-        a_max = a_max_helical;
+        canon_debug("a_max_helical = %f\n", a_max_helical);
+        a_max = fmin(a_max_helical, a_max);
     }
 
     // Limit velocity by maximum
@@ -1720,7 +1724,6 @@ void ARC_FEED(int line_number,
     canon_debug("vel = %f\n",vel);
     canon_debug("v_max = %f\n",v_max);
     canon_debug("a_max = %f\n",a_max);
-    canon_debug("v_max_planar = %f\n",v_max_planar);
 
     cartesian_move = 1;
 
