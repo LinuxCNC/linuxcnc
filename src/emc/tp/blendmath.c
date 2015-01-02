@@ -417,14 +417,18 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     pmCartScalMult(normal, -normal->y, &planar_y);
     pmCartScalMult(normal, -normal->z, &planar_z);
 
-    // Prevent divide by zero error
-    planar_x.x += 1.0000001;
-    planar_y.y += 1.0000001;
-    planar_z.z += 1.0000001;
+    planar_x.x += 1.0;
+    planar_y.y += 1.0;
+    planar_z.z += 1.0;
 
     pmCartAbs(&planar_x, &planar_x);
     pmCartAbs(&planar_y, &planar_y);
     pmCartAbs(&planar_z, &planar_z);
+
+    // Crude way to prevent divide-by-zero-error
+    planar_x.x = fmax(planar_x.x,TP_POS_EPSILON);
+    planar_y.y = fmax(planar_y.y,TP_POS_EPSILON);
+    planar_z.z = fmax(planar_z.z,TP_POS_EPSILON);
 
     double x_scale, y_scale, z_scale;
     pmCartMag(&planar_x, &x_scale);
