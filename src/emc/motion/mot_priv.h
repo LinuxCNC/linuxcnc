@@ -211,12 +211,6 @@ extern emcmot_hal_data_t *emcmot_hal_data;
 */
 extern emcmot_joint_t *joints;
 
-/* flag used to indicate that this is the very first pass thru the
-   code.  Various places in the code use this to set initial conditions
-   and avoid startup glitches.
-*/
-extern int first_pass;
-
 /* Variable defs */
 extern int kinType;
 extern int rehomeAll;

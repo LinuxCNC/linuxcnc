@@ -340,9 +340,6 @@ check_stuff ( "after update_status()" );
     emcmotStatus->heartbeat++;
     /* set tail to head, to indicate work complete */
     emcmotStatus->tail = emcmotStatus->head;
-    /* clear init flag */
-    first_pass = 0;
-
 /* end of controller function */
 }
 
@@ -950,6 +947,7 @@ static void handle_jogwheels(void)
     joint_hal_t *joint_data;
     int new_jog_counts, delta;
     double distance, pos, stop_dist;
+    static int first_pass = 1;	/* used to set initial conditions */
 
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint data */
@@ -1048,6 +1046,9 @@ static void handle_jogwheels(void)
 	   since homing, otherwise just do this one */
 	clearHomes(joint_num);
     }
+
+    // done with initialization, do the whole thing from now on
+    first_pass = 0;
 }
 
 static void get_pos_cmds(long period)

@@ -1976,19 +1976,15 @@ void CHANGE_TOOL(int slot)
     if (have_tool_change_position) {
         double vel, acc, x, y, z, a, b, c, u, v, w;
 
-        x = canonEndPoint.x;
-        y = canonEndPoint.y;
-        z = canonEndPoint.z;
+        x = FROM_EXT_LEN(tool_change_position.tran.x);
+        y = FROM_EXT_LEN(tool_change_position.tran.y);
+        z = FROM_EXT_LEN(tool_change_position.tran.z);
         a = canonEndPoint.a;
         b = canonEndPoint.b;
         c = canonEndPoint.c;
         u = canonEndPoint.u;
         v = canonEndPoint.v;
         w = canonEndPoint.w;
-
-        x = FROM_EXT_LEN(tool_change_position.tran.x);
-        y = FROM_EXT_LEN(tool_change_position.tran.y);
-        z = FROM_EXT_LEN(tool_change_position.tran.z);
 
         if (have_tool_change_position > 3) {
             a = FROM_EXT_ANG(tool_change_position.a);
