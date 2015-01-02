@@ -4,4 +4,4 @@ thisfile=$(readlink -f "$0")
 thisdir=$(dirname "$thisfile")
 cd "$thisdir"
 
-./xhc-hb04.sh ./xhc-hb04-layout2.cfg
+./xhc-hb04.sh layout2

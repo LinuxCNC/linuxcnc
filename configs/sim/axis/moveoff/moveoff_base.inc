@@ -74,8 +74,8 @@ TOOL_CHANGE_QUILL_UP = 1
          HOME_LATCH_VEL = 20.0
          HOME_USE_INDEX = NO
      HOME_IGNORE_LIMITS = NO
-          HOME_SEQUENCE = 0
-         HOME_IS_SHARED = 0
+          HOME_SEQUENCE = 1
+         HOME_IS_SHARED = 1
 
 [AXIS_1]
                    TYPE = LINEAR
@@ -114,6 +114,6 @@ TOOL_CHANGE_QUILL_UP = 1
          HOME_LATCH_VEL = 20.0
          HOME_USE_INDEX = NO
      HOME_IGNORE_LIMITS = NO
-          HOME_SEQUENCE = 2
-         HOME_IS_SHARED = 0
+          HOME_SEQUENCE = 0
+         HOME_IS_SHARED = 1
 
