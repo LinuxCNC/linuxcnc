@@ -453,7 +453,7 @@ Place the '.comp' file in the source directory
 'Comp' files are automatically detected by the build system.
 
 If a '.comp' file is a driver for hardware, it may be placed in
-'linuxcnc/src/hal/components' and will be built unless LinuxCNC is
+'linuxcnc/src/hal/drivers' and will be built unless LinuxCNC is
 configured as a userspace simulator.
 
 [[sec:Compiling-realtime-components]]
