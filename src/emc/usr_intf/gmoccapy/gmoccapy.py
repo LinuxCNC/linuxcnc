@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.4.1"
+_RELEASE = "  1.4.2"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -230,7 +230,6 @@ class gmoccapy(object):
 
         self._init_dynamic_tabs()
         self._init_tooleditor()
-        self._init_embeded_terminal()
         self._init_themes()
         self._init_audio()
         self._init_gremlin()
@@ -521,7 +520,7 @@ class gmoccapy(object):
         LANGDIR = os.path.join(BASE, "share", "gtksourceview-2.0", "language-specs")
         file_path = os.path.join(LANGDIR, "gcode.lang")
         if os.path.isfile(file_path):
-            print "******************************* Gcode.lang found"
+            print "**** GMOCCAPY INFO: Gcode.lang found ****"
             self.widgets.gcode_view.set_language("gcode", LANGDIR)
 
         # set the user colors and digits of the DRO
@@ -739,7 +738,7 @@ class gmoccapy(object):
             return
         axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
         if len(axis_four) > 1:
-            message = _("**** GMOCCAPY INFO : ****")
+            message = _("**** GMOCCAPY ERROR : ****")
             message += _("**** gmoccapy can only handle 4 axis, ****\n**** but you have given %d through your INI file ****\n" % len(self.axis_list))
             message += _("**** gmoccapy will not start ****\n\n")
             print(message)
@@ -912,7 +911,7 @@ class gmoccapy(object):
 
         tab_names, tab_location, tab_cmd = self.get_ini_info.get_embedded_tabs()
         if not tab_names:
-            print (_("**** GMOCCAPY ERROR ****"))
+            print (_("**** GMOCCAPY INFO ****"))
             print (_("**** Invalid embeded tab configuration ****"))
             print (_("**** No tabs will be added! ****"))
             return
@@ -970,16 +969,6 @@ class gmoccapy(object):
             sys.exit()
         toolfile = os.path.join(CONFIGPATH, tooltable)
         self.widgets.tooledit1.set_filename(toolfile)
-
-    def _init_embeded_terminal(self):
-        # add terminal window
-        self.widgets._terminal = vte.Terminal ()
-        self.widgets._terminal.connect ("child-exited", lambda term: gtk.main_quit())
-        self.widgets._terminal.fork_command()
-        self.widgets._terminal.show()
-        window = self.widgets.terminal_window.add(self.widgets._terminal)
-        self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
-        self.widgets.terminal_window.show()
 
     def _init_themes(self):
         # If there are themes then add them to combo box
@@ -1072,7 +1061,7 @@ class gmoccapy(object):
                 print (_("**** GMOCCAPY INFO ****"))
                 print (_("**** virtual keyboard program found : <matchbox-keyboard>"))
             else:
-                print (_("**** GMOCCAPY ERROR ****"))
+                print (_("**** GMOCCAPY INFO ****"))
                 print (_("**** No virtual keyboard installed, we checked for <onboard> and <matchbox-keyboard>."))
                 self._no_virt_keyboard()
                 return
@@ -2568,7 +2557,7 @@ class gmoccapy(object):
             # Lets see if the user has the right to enter settings
             if code:
                 self.widgets.ntb_main.set_current_page(1)
-                self.widgets.ntb_setup.set_current_page(1)
+                self.widgets.ntb_setup.set_current_page(0)
                 self.widgets.ntb_button.set_current_page(5)
             else:
                 if self.widgets.rbt_hal_unlock.get_active():
@@ -3721,19 +3710,6 @@ class gmoccapy(object):
             self.widgets.ntb_info.show()
             self.widgets.box_info.set_size_request(-1, 200)
             self.widgets.tbl_search.hide()
-
-    # Save all changes and run the program
-    def on_btn_save_and_run_clicked(self, widget, data = None):
-        if self.widgets.lbl_program.get_label() == "":
-            self.widgets.btn_save_as.emit("clicked")
-        else:
-            self.widgets.btn_save.emit("clicked")
-        self.widgets.hal_action_reload.emit("activate")
-        if self.gcodeerror:
-            self.on_btn_edit_clicked(None)
-            return
-        self.widgets.ntb_button.set_current_page(2)
-        self.widgets.btn_run.emit("clicked")
 
     # make a new file
     def on_btn_new_clicked(self, widget, data = None):
