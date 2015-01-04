@@ -90,7 +90,7 @@ int export_pwmgen(hal_pru_generic_t *hpg, int i)
     int r, j;
 
     // HAL values common to all outputs in this instance
-    rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.pwm_period", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.pwm_period", hpg->config.halname, i);
     r = hal_param_u32_new(name, HAL_RW, &(hpg->pwmgen.instance[i].hal.param.pwm_period), hpg->config.comp_id);
     if (r != 0) { return r; }
 
@@ -98,20 +98,20 @@ int export_pwmgen(hal_pru_generic_t *hpg, int i)
 
     for (j=0; j < hpg->pwmgen.instance[i].num_outputs; j++) {
         // Export HAL Pins
-        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.enable", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.enable", hpg->config.halname, i, j);
         r = hal_pin_bit_new(name, HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.enable), hpg->config.comp_id);
         if (r != 0) { return r; }
 
-        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.value", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.value", hpg->config.halname, i, j);
         r = hal_pin_float_new(name, HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.value), hpg->config.comp_id);
         if (r != 0) { return r; }
 
         // Export HAL Parameters
-        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.scale", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.scale", hpg->config.halname, i, j);
         r = hal_param_float_new(name, HAL_RW, &(hpg->pwmgen.instance[i].out[j].hal.param.scale), hpg->config.comp_id);
         if (r != 0) { return r; }
 
-        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.pin", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.pin", hpg->config.halname, i, j);
         r = hal_param_u32_new(name, HAL_RW, &(hpg->pwmgen.instance[i].out[j].hal.param.pin), hpg->config.comp_id);
         if (r != 0) { return r; }
 

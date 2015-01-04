@@ -317,6 +317,7 @@ typedef struct {
         int num_encoders;
         int comp_id;
         const char *name;
+        const char *halname;
     } config;
 
     struct {

@@ -375,49 +375,49 @@ int export_stepgen(hal_pru_generic_t *hpg, int i)
     int r;
 
     // Pins
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-cmd", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-cmd", hpg->config.halname, i);
     r = hal_pin_float_new(name, HAL_IN, &(hpg->stepgen.instance[i].hal.pin.position_cmd), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.velocity-cmd", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.velocity-cmd", hpg->config.halname, i);
     r = hal_pin_float_new(name, HAL_IN, &(hpg->stepgen.instance[i].hal.pin.velocity_cmd), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.velocity-fb", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.velocity-fb", hpg->config.halname, i);
     r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.velocity_fb), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-fb", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-fb", hpg->config.halname, i);
     r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.position_fb), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.counts", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.counts", hpg->config.halname, i);
     r = hal_pin_s32_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.counts), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.enable", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.enable", hpg->config.halname, i);
     r = hal_pin_bit_new(name, HAL_IN, &(hpg->stepgen.instance[i].hal.pin.enable), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.control-type", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.control-type", hpg->config.halname, i);
     r = hal_pin_bit_new(name, HAL_IN, &(hpg->stepgen.instance[i].hal.pin.control_type), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
@@ -426,63 +426,63 @@ int export_stepgen(hal_pru_generic_t *hpg, int i)
 
     // debug pins
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_pos_minus_prev_cmd", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_pos_minus_prev_cmd", hpg->config.halname, i);
     r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_pos_minus_prev_cmd), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_ff_vel", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_ff_vel", hpg->config.halname, i);
     r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_ff_vel), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_s_to_match", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_s_to_match", hpg->config.halname, i);
     r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_s_to_match), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_vel_error", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_vel_error", hpg->config.halname, i);
     r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_vel_error), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_err_at_match", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_err_at_match", hpg->config.halname, i);
     r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_err_at_match), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_step_rate", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_step_rate", hpg->config.halname, i);
     r = hal_pin_s32_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_step_rate), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test1", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test1", hpg->config.halname, i);
     r = hal_pin_s32_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.test1), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test2", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test2", hpg->config.halname, i);
     r = hal_pin_s32_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.test2), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test3", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test3", hpg->config.halname, i);
     r = hal_pin_s32_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.test3), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding pin '%s', aborting\n", name);
@@ -490,70 +490,70 @@ int export_stepgen(hal_pru_generic_t *hpg, int i)
     }
 
     // Parameters
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-scale", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-scale", hpg->config.halname, i);
     r = hal_param_float_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.position_scale), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding param '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxvel", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxvel", hpg->config.halname, i);
     r = hal_param_float_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.maxvel), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding param '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxaccel", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxaccel", hpg->config.halname, i);
     r = hal_param_float_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.maxaccel), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding param '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.steplen", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.steplen", hpg->config.halname, i);
     r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.steplen), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding param '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.stepspace", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.stepspace", hpg->config.halname, i);
     r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.stepspace), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding param '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirsetup", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirsetup", hpg->config.halname, i);
     r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.dirsetup), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding param '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirhold", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirhold", hpg->config.halname, i);
     r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.dirhold), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding param '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.steppin", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.steppin", hpg->config.halname, i);
     r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.steppin), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding param '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirpin", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirpin", hpg->config.halname, i);
     r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.dirpin), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding param '%s', aborting\n", name);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.stepinvert", hpg->config.name, i);
+    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.stepinvert", hpg->config.halname, i);
     r = hal_param_bit_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.stepinv), hpg->config.comp_id);
     if (r < 0) {
         HPG_ERR("Error adding param '%s', aborting\n", name);

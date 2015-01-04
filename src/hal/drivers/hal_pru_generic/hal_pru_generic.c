@@ -123,6 +123,9 @@ RTAPI_MP_INT(num_pwmgens, "Number of PWM outputs (default: 0)");
 static int num_encoders = 0;
 RTAPI_MP_INT(num_encoders, "Number of encoder channels (default: 0)");
 
+static char *halname = "hal_pru_generic";
+RTAPI_MP_STRING(halname, "Prefix for hal names (default: hal_pru_generic)");
+
 static char *prucode = "";
 RTAPI_MP_STRING(prucode, "filename of PRU code (.bin, default: stepgen.bin)");
 
@@ -212,7 +215,7 @@ int rtapi_app_main(void)
     hpg->config.comp_id      = comp_id;
     hpg->config.pru_period   = pru_period;
     hpg->config.name         = modname;
-//    hpg->config.name         = "hpg";
+    hpg->config.halname      = halname;
 
     rtapi_print("num_pwmgens : %d\n",num_pwmgens);
     rtapi_print("num_stepgens: %d\n",num_stepgens);
@@ -330,7 +333,7 @@ int export_pru(hal_pru_generic_t *hpg)
     char name[HAL_NAME_LEN + 1];
 
     // Export functions
-    rtapi_snprintf(name, sizeof(name), "%s.update", modname);
+    rtapi_snprintf(name, sizeof(name), "%s.update", halname);
     r = hal_export_funct(name, hpg_write, hpg, 1, 0, comp_id);
     if (r != 0) {
         HPG_ERR("ERROR: function export failed: %s\n", name);
@@ -338,7 +341,7 @@ int export_pru(hal_pru_generic_t *hpg)
         return -1;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.capture-position", modname);
+    rtapi_snprintf(name, sizeof(name), "%s.capture-position", halname);
     r = hal_export_funct(name, hpg_read, hpg, 1, 0, comp_id);
     if (r != 0) {
         HPG_ERR("ERROR: function export failed: %s\n", name);
