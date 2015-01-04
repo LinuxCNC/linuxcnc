@@ -187,9 +187,9 @@ int check_ini_hal_items()
         if (CHANGED_IDX(backlash,idx) ) {
             if (debug) SHOW_CHANGE_IDX(backlash,idx);
             UPDATE_IDX(backlash,idx);
-            if (0 != emcTrajSetMaxAcceleration(NEW(backlash[idx]))) {
+            if (0 != emcAxisSetBacklash(idx,NEW(backlash[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print("check_ini_hal_items:bad return value from emcTrajSetMaxAcceleration\n");
+                    rcs_print("check_ini_hal_items:bad return value from emcAxisSetBacklash\n");
                 }
         }
         }
