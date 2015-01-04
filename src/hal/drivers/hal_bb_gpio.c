@@ -65,10 +65,10 @@ static char *user_leds;
 RTAPI_MP_STRING(user_leds, "user leds, comma separated.  0-3");
 
 static char *input_pins;
-RTAPI_MP_STRING(input_pins, "input pins, comma separated.  P8 pins add 100, P9 pins add 200");
+RTAPI_MP_STRING(input_pins, "input pins, comma separated.  P8 pins add 800, P9 pins add 900");
 
 static char *output_pins;
-RTAPI_MP_STRING(output_pins, "output pins, comma separated.  P8 pins add 100, P9 pins add 200");
+RTAPI_MP_STRING(output_pins, "output pins, comma separated.  P8 pins add 800, P9 pins add 900");
 
 void configure_control_module() {
 	int fd = open("/dev/mem", O_RDWR);
@@ -187,18 +187,23 @@ int rtapi_app_main(void) {
 			int header;
 			bb_gpio_pin *bbpin;
 
-			if(pin < 101 || pin > 246 || (pin > 146 && pin < 201)) {
-				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: invalid pin number '%d'.  Valid pins are 101-146 for P8 pins, 201-246 for P9 pins.\n", modname, pin);
+			// Fixup old pin numbering scheme:
+			// P8/P9 was 1xx/2xx, now 8xx/9xx
+			if (pin < 300)
+				pin += 700;
+
+			if(pin < 801 || pin > 946 || (pin > 846 && pin < 901)) {
+				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: invalid pin number '%d'.  Valid pins are 801-846 for P8 pins, 901-946 for P9 pins.\n", modname, pin);
 				hal_exit(comp_id);
 				return -1;
 			}
 
-			if(pin < 200) {
-				pin -= 100;
+			if(pin < 900) {
+				pin -= 800;
 				bbpin = &p8_pins[pin];
 				header = 8;
 			} else {
-				pin -= 200;
+				pin -= 900;
 				bbpin = &p9_pins[pin];
 				header = 9;
 			}
@@ -254,18 +259,23 @@ int rtapi_app_main(void) {
 			int header;
 			bb_gpio_pin *bbpin;
 
-			if(pin < 101 || pin > 246 || (pin > 146 && pin < 201)) {
-				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: invalid pin number '%d'.  Valid pins are 101-146 for P8 pins, 201-246 for P9 pins.\n", modname, pin);
+			// Fixup old pin numbering scheme:
+			// P8/P9 was 1xx/2xx, now 8xx/9xx
+			if (pin < 300)
+				pin += 700;
+
+			if(pin < 801 || pin > 946 || (pin > 846 && pin < 901)) {
+				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: invalid pin number '%d'.  Valid pins are 801-846 for P8 pins, 901-946 for P9 pins.\n", modname, pin);
 				hal_exit(comp_id);
 				return -1;
 			}
 
-			if(pin < 200) {
-				pin -= 100;
+			if(pin < 900) {
+				pin -= 800;
 				bbpin = &p8_pins[pin];
 				header = 8;
 			} else {
-				pin -= 200;
+				pin -= 900;
 				bbpin = &p9_pins[pin];
 				header = 9;
 			}
