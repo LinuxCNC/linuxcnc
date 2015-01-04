@@ -187,7 +187,7 @@ void hpg_encoder_read_chan(hal_pru_generic_t *hpg, int instance, int channel) {
     e->pru.raw.dword[1] = pruchan[channel].raw.dword[1];    // Encoder count
     e->pru.raw.dword[2] = pruchan[channel].raw.dword[2];    // Index count and latched count
 
-    HPG_ERR("rawenc:%08x %08x %08x\n", pruchan[channel].raw.dword[0],pruchan[channel].raw.dword[1],pruchan[channel].raw.dword[2]);
+//  HPG_ERR("rawenc:%08x %08x %08x\n", pruchan[channel].raw.dword[0],pruchan[channel].raw.dword[1],pruchan[channel].raw.dword[2]);
 
     // 
     // figure out current rawcounts accumulated by the driver
@@ -230,84 +230,84 @@ int export_encoder(hal_pru_generic_t *hpg, int i)
     // HAL values for individual channels
     for (j=0; j < hpg->encoder.instance[i].num_channels; j++) {
         // Export HAL Pins
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.rawcounts", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.rawcounts", hpg->config.halname, i, j);
         r = hal_pin_s32_new(name, HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.rawcounts), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.rawlatch", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.rawlatch", hpg->config.halname, i, j);
         r = hal_pin_s32_new(name, HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.rawlatch), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.count", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.count", hpg->config.halname, i, j);
         r = hal_pin_s32_new(name, HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.count), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.count-latched", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.count-latched", hpg->config.halname, i, j);
         r = hal_pin_s32_new(name, HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.count_latch), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.position", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.position", hpg->config.halname, i, j);
         r = hal_pin_float_new(name, HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.position), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.position-latched", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.position-latched", hpg->config.halname, i, j);
         r = hal_pin_float_new(name, HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.position_latch), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.velocity", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.velocity", hpg->config.halname, i, j);
         r = hal_pin_float_new(name, HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.velocity), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.reset", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.reset", hpg->config.halname, i, j);
         r = hal_pin_bit_new(name, HAL_IN, &(hpg->encoder.instance[i].chan[j].hal.pin.reset), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.index-enable", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.index-enable", hpg->config.halname, i, j);
         r = hal_pin_bit_new(name, HAL_IO, &(hpg->encoder.instance[i].chan[j].hal.pin.index_enable), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.latch-enable", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.latch-enable", hpg->config.halname, i, j);
         r = hal_pin_bit_new(name, HAL_IN, &(hpg->encoder.instance[i].chan[j].hal.pin.latch_enable), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.latch-polarity", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.latch-polarity", hpg->config.halname, i, j);
         r = hal_pin_bit_new(name, HAL_IN, &(hpg->encoder.instance[i].chan[j].hal.pin.latch_polarity), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.quadrature-error", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.quadrature-error", hpg->config.halname, i, j);
         r = hal_pin_bit_new(name, HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.quadrature_error), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding pin '%s', aborting\n", name);
@@ -315,84 +315,84 @@ int export_encoder(hal_pru_generic_t *hpg, int i)
         }
 
         // Export HAL Parameters
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.scale", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.scale", hpg->config.halname, i, j);
         r = hal_param_float_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.scale), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.A-pin", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.A-pin", hpg->config.halname, i, j);
         r = hal_param_u32_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.A_pin), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.A-invert", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.A-invert", hpg->config.halname, i, j);
         r = hal_param_bit_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.A_invert), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.B-pin", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.B-pin", hpg->config.halname, i, j);
         r = hal_param_u32_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.B_pin), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.B-invert", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.B-invert", hpg->config.halname, i, j);
         r = hal_param_bit_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.B_invert), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.index-pin", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.index-pin", hpg->config.halname, i, j);
         r = hal_param_u32_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.index_pin), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.index-invert", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.index-invert", hpg->config.halname, i, j);
         r = hal_param_bit_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.index_invert), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.index-mask", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.index-mask", hpg->config.halname, i, j);
         r = hal_param_bit_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.index_mask), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.index-mask-invert", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.index-mask-invert", hpg->config.halname, i, j);
         r = hal_param_bit_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.index_mask_invert), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.counter-mode", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.counter-mode", hpg->config.halname, i, j);
         r = hal_param_u32_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.counter_mode), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.filter", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.filter", hpg->config.halname, i, j);
         r = hal_param_bit_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.filter), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
             return r;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.vel-timeout", hpg->config.name, i, j);
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.chan.%02d.vel-timeout", hpg->config.halname, i, j);
         r = hal_param_float_new(name, HAL_RW, &(hpg->encoder.instance[i].chan[j].hal.param.vel_timeout), hpg->config.comp_id);
         if (r < 0) {
             HPG_ERR("error adding param '%s', aborting\n", name);
