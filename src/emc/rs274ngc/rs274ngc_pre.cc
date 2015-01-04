@@ -966,12 +966,50 @@ int Interp::init()
 	      CHP(parse_remap( inistring,  lineno));
 	      n++;
 	  }
+	
+	// if exist and within parameters, apply ini file arc tolerances
+	// limiting figures are defined in interp_internal.hh
+	
+	_setup.tolerance_inch = TOLERANCE_INCH;
+        inifile.Find(&_setup.tolerance_inch, "TOLERANCE_INCH", "RS274NGC");
 
+	if( (_setup.tolerance_inch > TOLERANCE_INCH) || _setup.tolerance_inch < MIN_TOLERANCE_INCH )
+	    {
+	    logDebug("setup.tolerance_inch outside bounds at %f, set to default\n", 
+		_setup.tolerance_inch );
+	    _setup.tolerance_inch = TOLERANCE_INCH;
+	    }
+	logDebug("setup.tolerance_inch set to %f\n", _setup.tolerance_inch ); 
+
+        _setup.tolerance_mm = TOLERANCE_MM;
+	inifile.Find(&_setup.tolerance_mm, "TOLERANCE_MM", "RS274NGC");
+	
+	if( (_setup.tolerance_mm > TOLERANCE_MM) || _setup.tolerance_mm < MIN_TOLERANCE_MM )
+	    {
+	    logDebug("setup.tolerance_mm outside bounds at %f, set to default\n", 
+		_setup.tolerance_mm );
+	    _setup.tolerance_mm = TOLERANCE_MM;
+	    }
+	logDebug("setup.tolerance_mm set to %f\n", _setup.tolerance_mm );         
           // close it
-          inifile.Close();
+        inifile.Close();
       }
   }
-
+    /**************************************************
+    If no ini file is used, as when runtests is called
+    always fail on arcs because tolerance is not set.
+    Ensure tests and any other instance of external 
+    launch of interpreter without ini file pass
+    **************************************************/
+  else
+    {
+    _setup.tolerance_inch = TOLERANCE_INCH;    
+    logDebug("setup.tolerance_inch set to %f\n", _setup.tolerance_inch ); 
+    
+    _setup.tolerance_mm = TOLERANCE_MM;    
+    logDebug("setup.tolerance_mm set to %f\n", _setup.tolerance_mm );             
+    }  
+      
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   USE_LENGTH_UNITS(_setup.length_units);
   GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
