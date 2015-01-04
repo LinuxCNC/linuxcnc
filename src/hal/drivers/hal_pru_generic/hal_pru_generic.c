@@ -387,10 +387,6 @@ int pru_init(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     int i;
     int retval;
 
-    if (pru != 1) {
-        HPG_ERR("WARNING: PRU is %d and not 1\n",pru);
-    }
-
     if (geteuid()) {
         HPG_ERR("ERROR: not running as root - need to 'sudo make setuid'?\n");
         return -1;
