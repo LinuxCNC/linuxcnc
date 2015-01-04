@@ -145,6 +145,8 @@ typedef struct {
     u32 written_stepspace;
     u32 written_dirsetup;
     u32 written_dirhold;
+    u32 written_steppin;
+    u32 written_dirpin;
     u32 written_task;
     hal_bit_t written_stepinv;
 } hpg_stepgen_instance_t;
@@ -193,6 +195,7 @@ typedef struct {
 
     } hal;
 
+    u32 written_pin;
 } hpg_pwmgen_output_instance_t;
 
 typedef struct {
@@ -355,7 +358,7 @@ typedef struct {
 
 pru_addr_t pru_malloc(hal_pru_generic_t *hpg, int len);
 void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task);
-
+int fixup_pin(u32 hal_pin);
 
 //
 // pwmgen functions

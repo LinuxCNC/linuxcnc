@@ -83,6 +83,7 @@
 #include <sys/stat.h>
 
 #include "hal/drivers/hal_pru_generic/hal_pru_generic.h"
+#include "hal/drivers/hal_pru_generic/beaglebone_pinmap.h"
 
 MODULE_AUTHOR("Charles Steinkuehler");
 MODULE_DESCRIPTION("AM335x PRU demo component");
@@ -562,3 +563,62 @@ void hpg_wait_update(hal_pru_generic_t *hpg) {
     PRU_task_wait_t *pru = (PRU_task_wait_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task.addr);
     *pru = hpg->wait.pru;
 }
+
+int fixup_pin(u32 hal_pin) {
+    int ret = 0;
+    u32 type, p89, index;
+
+    // Original brain-dead pin numbering
+    if (hal_pin < 192) {
+        ret = hal_pin;
+    } else {
+        type  =  hal_pin / 100;
+        p89   = (hal_pin % 1000) / 100 ;
+        index =  hal_pin % 100;
+
+        // Fixup index value for P9 pins with two CPU pins attached
+        if (p89 == 9) {
+            if ((index == 91) || (index == 92)) {
+                index = index - 50 + (47 - 41);
+            } else if (index > 46) {
+                index = 0;
+            }
+        } else if (index > 46) {
+            index = 0;
+        }
+
+        switch (type) {
+        case 8 :
+            ret = p8_pins[index].gpio_pin_num;
+            break;
+        case 9 :
+            ret = p9_pins[index].gpio_pin_num;
+            break;
+        case 18 :
+            ret = p8_pins[index].pruO_pin_num;
+            break;
+        case 19 :
+            ret = p9_pins[index].pruO_pin_num;
+            break;
+        case 28 :
+            ret = p8_pins[index].pruI_pin_num;
+            break;
+        case 29 :
+            ret = p9_pins[index].pruI_pin_num;
+            break;
+        default:
+            ret = 0;
+        }    
+
+        if (ret == 0)
+            HPG_ERR("Unknown pin: %d\n",(int)hal_pin);
+
+        if (ret < 0) {
+            HPG_ERR("Requested pin unavailable: %d\n",(int)hal_pin);
+            ret = 0;
+        }
+    }
+
+    return ret;
+}
+

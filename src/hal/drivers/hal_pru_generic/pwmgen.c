@@ -211,7 +211,10 @@ void hpg_pwmgen_update(hal_pru_generic_t *hpg) {
             // duty_cycle goes from 0.0 to 1.0, and needs to be cover the range of 0 to pwm_period, inclusive
             hpg->pwmgen.instance[i].out[j].pru.value = abs_duty_cycle * (double)(hpg->pwmgen.instance[i].pru.period + 1);
 
-            hpg->pwmgen.instance[i].out[j].pru.pin = hpg->pwmgen.instance[i].out[j].hal.param.pin;
+            if (hpg->pwmgen.instance[i].out[j].hal.param.pin != hpg->pwmgen.instance[i].out[j].written_pin) {
+                hpg->pwmgen.instance[i].out[j].pru.pin = fixup_pin(hpg->pwmgen.instance[i].out[j].hal.param.pin);
+                hpg->pwmgen.instance[i].out[j].written_pin = hpg->pwmgen.instance[i].out[j].hal.param.pin;
+            }
 
             out[j] = hpg->pwmgen.instance[i].out[j].pru;
         }

@@ -88,9 +88,9 @@ setp [PRUCONF](DRIVER).stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.00.step_type       0
 # P8.43 PRU1.out2
-setp [PRUCONF](DRIVER).stepgen.00.steppin         55
+setp [PRUCONF](DRIVER).stepgen.00.steppin        813
 # P8.44 PRU1.out4
-setp [PRUCONF](DRIVER).stepgen.00.dirpin          76
+setp [PRUCONF](DRIVER).stepgen.00.dirpin         812
 
 
 # ################
@@ -127,9 +127,9 @@ setp [PRUCONF](DRIVER).stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.01.step_type       0
 # P8.42 PRU1.out5
-setp [PRUCONF](DRIVER).stepgen.01.steppin         79
+setp [PRUCONF](DRIVER).stepgen.01.steppin        815
 # P8.39 PRU1.out6
-setp [PRUCONF](DRIVER).stepgen.01.dirpin          58
+setp [PRUCONF](DRIVER).stepgen.01.dirpin         814
 
 
 # ################
@@ -166,9 +166,9 @@ setp [PRUCONF](DRIVER).stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.02.step_type       0
 # P8.27 PRU1.out8
-setp [PRUCONF](DRIVER).stepgen.02.steppin         54
+setp [PRUCONF](DRIVER).stepgen.02.steppin        819
 # P8.29 PRU1.out9
-setp [PRUCONF](DRIVER).stepgen.02.dirpin          97
+setp [PRUCONF](DRIVER).stepgen.02.dirpin         818
 
 
 # ################
@@ -205,9 +205,9 @@ setp [PRUCONF](DRIVER).stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.03.step_type       0
 # P8.30 GPIO2.25
-setp [PRUCONF](DRIVER).stepgen.03.steppin         83
+setp [PRUCONF](DRIVER).stepgen.03.steppin        916
 # P8.21 GPIO1.30
-setp [PRUCONF](DRIVER).stepgen.03.dirpin          92
+setp [PRUCONF](DRIVER).stepgen.03.dirpin         912
 
 
 # ##################################################
@@ -331,32 +331,32 @@ newsig bed.temp.meas float
 setp hal_pru_generic.pwmgen.00.pwm_period       10000000
 
 # Bed Heater FET 1
-setp hal_pru_generic.pwmgen.00.out.00.pin       77
+setp hal_pru_generic.pwmgen.00.out.00.pin       811
 setp hal_pru_generic.pwmgen.00.out.00.enable    1
 setp hal_pru_generic.pwmgen.00.out.00.value     0.0
 
 # E0 Heater FET 2
-setp hal_pru_generic.pwmgen.00.out.01.pin       80
+setp hal_pru_generic.pwmgen.00.out.01.pin       915
 setp hal_pru_generic.pwmgen.00.out.01.enable    1
 setp hal_pru_generic.pwmgen.00.out.01.value     0.0
 
 # E1 Heater FET 3
-setp hal_pru_generic.pwmgen.00.out.02.pin       147
+setp hal_pru_generic.pwmgen.00.out.02.pin       927
 setp hal_pru_generic.pwmgen.00.out.02.enable    1
 setp hal_pru_generic.pwmgen.00.out.02.value     0.0
 
 # E2 Heater FET 4
-setp hal_pru_generic.pwmgen.00.out.03.pin       35
+setp hal_pru_generic.pwmgen.00.out.03.pin       921
 setp hal_pru_generic.pwmgen.00.out.03.enable    1
 setp hal_pru_generic.pwmgen.00.out.03.value     0.0
 
 # FET 5 - Fan / LED
-setp hal_pru_generic.pwmgen.00.out.04.pin       52
+setp hal_pru_generic.pwmgen.00.out.04.pin       941
 setp hal_pru_generic.pwmgen.00.out.04.enable    1
 setp hal_pru_generic.pwmgen.00.out.04.value     0.0
 
 # FET 6 - Fan / LED
-setp hal_pru_generic.pwmgen.00.out.05.pin       34
+setp hal_pru_generic.pwmgen.00.out.05.pin       922
 setp hal_pru_generic.pwmgen.00.out.05.enable    1
 setp hal_pru_generic.pwmgen.00.out.05.value     0.0
 

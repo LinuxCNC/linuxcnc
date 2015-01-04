@@ -641,9 +641,14 @@ void hpg_stepgen_update(hal_pru_generic_t *hpg, long l_period_ns) {
 
     for (i = 0; i < hpg->stepgen.num_instances; i ++) {
         // Update shadow of PRU control registers
-    //      hpg->stepgen.instance[i].pru.ctrl.enable  = *(hpg->stepgen.instance[i].hal.pin.enable);
-        hpg->stepgen.instance[i].pru.task.hdr.dataX   = hpg->stepgen.instance[i].hal.param.steppin;
-        hpg->stepgen.instance[i].pru.task.hdr.dataY   = hpg->stepgen.instance[i].hal.param.dirpin;
+        if ((hpg->stepgen.instance[i].hal.param.steppin != hpg->stepgen.instance[i].written_steppin) ||
+            (hpg->stepgen.instance[i].hal.param.dirpin  != hpg->stepgen.instance[i].written_dirpin)  )
+        {
+            hpg->stepgen.instance[i].pru.task.hdr.dataX = fixup_pin(hpg->stepgen.instance[i].hal.param.steppin);
+            hpg->stepgen.instance[i].pru.task.hdr.dataY = fixup_pin(hpg->stepgen.instance[i].hal.param.dirpin);
+            hpg->stepgen.instance[i].written_steppin    = hpg->stepgen.instance[i].hal.param.steppin;
+            hpg->stepgen.instance[i].written_dirpin     = hpg->stepgen.instance[i].hal.param.dirpin;
+        }
 
         if (*(hpg->stepgen.instance[i].hal.pin.enable) == 0) {
             hpg->stepgen.instance[i].pru.rate = 0;
@@ -705,8 +710,8 @@ void hpg_stepgen_force_write(hal_pru_generic_t *hpg) {
 
         hpg->stepgen.instance[i].pru.task.hdr.mode  = eMODE_STEP_DIR;
         hpg->stepgen.instance[i].pru.task.hdr.len   = 0;
-        hpg->stepgen.instance[i].pru.task.hdr.dataX = hpg->stepgen.instance[i].hal.param.steppin;
-        hpg->stepgen.instance[i].pru.task.hdr.dataY = hpg->stepgen.instance[i].hal.param.dirpin;
+        hpg->stepgen.instance[i].pru.task.hdr.dataX = fixup_pin(hpg->stepgen.instance[i].hal.param.steppin);
+        hpg->stepgen.instance[i].pru.task.hdr.dataY = fixup_pin(hpg->stepgen.instance[i].hal.param.dirpin);
         hpg->stepgen.instance[i].pru.task.hdr.addr  = hpg->stepgen.instance[i].task.next;
         hpg->stepgen.instance[i].pru.rate           = 0;
         hpg->stepgen.instance[i].pru.steplen        = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.steplen);
