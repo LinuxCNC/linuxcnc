@@ -1,3 +1,10 @@
+ver. 1.4.2
+- removed the save and run button from the edit page, 
+  because of security reasons
+- removed the integrated terminal, as it was not real usefull
+  and all terminal work can be done from normal terminal
+- translations for German and Spanish has been updated
+
 ver. 1.4.1
 - corrected brocken layout style, as the jog-increment buttons has not 
   been modified to change there background color, getting only dark grey 
