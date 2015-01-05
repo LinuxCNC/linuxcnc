@@ -561,7 +561,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   int plane = settings->plane;
 
   tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
-    TOLERANCE_INCH : TOLERANCE_MM;
+	settings->tolerance_inch : settings->tolerance_mm;
 
   if (block->r_flag) {
       CHP(arc_data_r(move, plane, *current1, *current2, end1, end2,
@@ -641,7 +641,8 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     side = settings->cutter_comp_side;
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
-    tolerance = (settings->length_units == CANON_UNITS_INCHES) ? TOLERANCE_INCH : TOLERANCE_MM;
+    tolerance = (settings->length_units == CANON_UNITS_INCHES) ? 
+	  settings->tolerance_inch : settings->tolerance_mm;  
 
     comp_get_current(settings, &cx, &cy, &cz);
 
@@ -803,7 +804,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     comp_get_current(settings, &cx, &cy, &cz);
 
     tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
-        TOLERANCE_INCH : TOLERANCE_MM;
+        settings->tolerance_inch : settings->tolerance_mm;
 
     if (block->r_flag) {
         CHP(arc_data_r(move, plane, opx, opy, end_x, end_y,
