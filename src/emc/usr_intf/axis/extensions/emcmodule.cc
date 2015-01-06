@@ -67,7 +67,7 @@
 #define LOCAL_AUTO_PAUSE (1)
 #define LOCAL_AUTO_RESUME (2)
 #define LOCAL_AUTO_STEP (3)
-#define LOCAL_SET_HOME_PARAMETERS (13)
+
 
 /* This definition of offsetof avoids the g++ warning
  * 'invalid offsetof from non-POD type'.
