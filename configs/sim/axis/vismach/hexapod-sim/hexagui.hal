@@ -1,8 +1,6 @@
 #vismach GUI stuff
 
 loadusr -W hexagui
-#must run this from the same directory for now
-loadusr -W halui -ini minitetra.ini
 
 net j0 axis.0.joint-pos-fb hexagui.joint.0
 net j1 axis.1.joint-pos-fb hexagui.joint.1

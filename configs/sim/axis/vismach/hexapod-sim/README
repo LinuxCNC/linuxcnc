@@ -1,11 +1,31 @@
-The hexapod configuration is a set of files that makes up a very basic LinuxCNC hexapod using ini, tbl, var. It is very similar to the sim config template, yet with 6 axes defined.
+The hexapod (Stewart platform) configuration is a set of files that makes up a very basic LinuxCNC hexapod. It is very similar to the sim config template, yet with 6 axes defined.
 
-There should be (in the future) a few config files based on the hexapod type you are using.
+Start the machine, toggle E-Stop and Machine power, press Home all button, switch to world mode ($) and you can move the platform in world coordinates. Note that Z home is 20, to run axis.ngc you need to touch off Z to 0.
 
-minitetra.ini
--------------
-Config file for a minitetra type hexapod.
 
-To get it working you need to #define MINITETRA inside the kinematics sources: (linuxcnc/src/linuxcnc/kinematics/genhexkins.h), and specify that genhexkins should be used instead of the normal trivkins (loadrt genhexkins in your hal file)
+hexapod.ini
+---------------
+Config file for a general hexapod.
+To get it working with your machine you need to adjust base and platform joints coordinates in kinematics.hal and specify that genhexkins should be used instead of the normal trivkins (loadrt genhexkins in your hal file).
+If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES as well, and make sure the position match (when run through the kinematics).
 
-If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES aswell, and make sure the position match (when run through the kinematics).
+kinematics.hal
+--------------
+Defines base and platform joints coordinates.
+
+hexagui.hal
+--------------
+Adds simple Vismach visualisation for hexapod.
+Note that changing joints positions most definitely breaks visualisation.
+
+core_sim_6.hal
+--------------
+Defines simulated joints, no real hardware attached in this config.
+
+panel.xml
+---------
+Adds PyVCP panel.
+
+hexapod_postgui.hal
+------------------
+Adds joints values and iterations number to PyVCP panel.

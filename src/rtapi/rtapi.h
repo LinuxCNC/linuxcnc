@@ -739,6 +739,7 @@ RTAPI_BEGIN_DECLS
 */
     static __inline__ void rtapi_release_region(unsigned long base,
             unsigned long int size) {
+        release_region(base, size);
     }
 #else
     #define rtapi_request_region(base, size, name) ((void*)-1)
