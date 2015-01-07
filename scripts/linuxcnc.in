@@ -721,6 +721,12 @@ else
                 exit -1
             fi
         ;;
+        *.py)
+            if ! python $CFGFILE ; then
+                Cleanup
+                exit -1
+            fi
+        ;;
         *)
             if ! $HALCMD -i "$INIFILE" -f $CFGFILE && [ "$DASHK" = "" ]; then
                 Cleanup
