@@ -1033,7 +1033,7 @@ static PyObject *unhome(pyCommandChannel *s, PyObject *o) {
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Additional call to set Axis Home Params!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Additional call to set Axis Home Params
 static PyObject *set_home_parameters(pyCommandChannel *s, PyObject *o) {
     EMC_AXIS_SET_HOMING_PARAMS m;
     if(!PyArg_ParseTuple(o, "idddddiiiiii", &m.axis, &m.home, &m.offset, &m.home_final_vel, &m.search_vel, &m.latch_vel, &m.use_index, &m.ignore_limits, &m.is_shared, &m.home_sequence, &m.volatile_home, &m.locking_indexer))
