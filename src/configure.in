@@ -1393,6 +1393,15 @@ else
     AC_MSG_ERROR([not found])
 fi
 
+AC_MSG_CHECKING([for tclX using $TCLSH])
+if (unset DISPLAY; echo ["catch { package require Tclx }; exit [expr [lsearch [package names] Tclx] == -1]"] | $TCLSH); then
+    AC_MSG_RESULT([found])
+else
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([Tclx not found!
+install with "sudo apt-get install tclx"])
+fi
+
 AC_SUBST([TCL_DBGX])
 AC_SUBST([TK_DBGX])
 AC_SUBST([TCL_CFLAGS])
