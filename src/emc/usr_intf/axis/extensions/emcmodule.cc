@@ -68,6 +68,7 @@
 #define LOCAL_AUTO_RESUME (2)
 #define LOCAL_AUTO_STEP (3)
 
+
 /* This definition of offsetof avoids the g++ warning
  * 'invalid offsetof from non-POD type'.
  */
@@ -899,6 +900,7 @@ static PyObject *tool_offset(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+
 static PyObject *mist(pyCommandChannel *s, PyObject *o) {
     int dir;
     if(!PyArg_ParseTuple(o, "i", &dir)) return NULL;
@@ -1031,6 +1033,20 @@ static PyObject *unhome(pyCommandChannel *s, PyObject *o) {
     Py_INCREF(Py_None);
     return Py_None;
 }
+// Additional call to set Axis Home Params
+static PyObject *set_home_parameters(pyCommandChannel *s, PyObject *o) {
+    EMC_AXIS_SET_HOMING_PARAMS m;
+    if(!PyArg_ParseTuple(o, "idddddiiiiii", &m.axis, &m.home, &m.offset, &m.home_final_vel, &m.search_vel, &m.latch_vel, &m.use_index, &m.ignore_limits, &m.is_shared, &m.home_sequence, &m.volatile_home, &m.locking_indexer))
+ 
+        return NULL;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None; 
+}
+
 
 // jog(JOG_STOP, axis) 
 // jog(JOG_CONTINUOUS, axis, speed) 
@@ -1234,6 +1250,7 @@ static PyObject *set_max_limit(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+
 static PyObject *set_feed_override(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_FO_ENABLE m;
     if(!PyArg_ParseTuple(o, "i", &m.mode))
@@ -1352,6 +1369,7 @@ static PyMethodDef Command_methods[] = {
     {"reset_interpreter", (PyCFunction)reset_interpreter, METH_NOARGS},
     {"program_open", (PyCFunction)program_open, METH_VARARGS},
     {"auto", (PyCFunction)emcauto, METH_VARARGS},
+    {"set_home_parameters", (PyCFunction)set_home_parameters, METH_VARARGS},
     {"set_optional_stop", (PyCFunction)optional_stop, METH_VARARGS},
     {"set_block_delete", (PyCFunction)block_delete, METH_VARARGS},
     {"set_min_limit", (PyCFunction)set_min_limit, METH_VARARGS},
