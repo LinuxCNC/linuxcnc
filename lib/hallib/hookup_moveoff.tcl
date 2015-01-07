@@ -362,7 +362,6 @@ proc set_moveoff_controls {} {
 } ;# set_moveoff_controls
 
 # begin-----------------------------------------------------------------
-package require Hal
 
 set ::m mv ;# moveoff component name
             #(must agree with the (optionaL) gui moveoff_gui)
