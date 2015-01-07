@@ -802,14 +802,15 @@ install-dirs:
 ifeq ($(BUILD_EMCWEB),yes)
 	$(DIR)	$(DESTDIR)$(datadir)/linuxcnc/doc-root/css/images \
 		$(DESTDIR)$(datadir)/linuxcnc/doc-root/js \
-		$(DESTDIR)$(datadir)/linuxcnc/doc-root/res 
+		$(DESTDIR)$(datadir)/linuxcnc/doc-root/res
 endif
 
 install-kernel-indep: install-dirs
-	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
-	$(FILE) $(filter-out %/skeleton.3hal, $(wildcard ../docs/man/man3/*.3hal)) $(DESTDIR)$(mandir)/man3
-	$(FILE) $(filter-out %/skeleton.3rtapi, $(wildcard ../docs/man/man3/*.3rtapi)) $(DESTDIR)$(mandir)/man3
-	$(FILE) $(filter-out %/skeleton.9, $(wildcard ../docs/man/man9/*.9)) $(DESTDIR)$(mandir)/man9
+	$(FILE) ../man/man1/*.1 $(DESTDIR)$(mandir)/man1
+	$(FILE) ../man/man9/*.9 $(DESTDIR)$(mandir)/man9
+	$(FILE) $(filter-out %/skeleton.3hal, $(wildcard ../man/man3/*.3hal)) $(DESTDIR)$(mandir)/man3
+	$(FILE) $(filter-out %/skeleton.3rtapi, $(wildcard ../man/man3/*.3rtapi)) $(DESTDIR)$(mandir)/man3
+	$(FILE) $(filter-out %/skeleton.9comp, $(wildcard ../man/man9/*.9comp)) $(DESTDIR)$(mandir)/man9
 	$(FILE) objects/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
@@ -1211,15 +1212,15 @@ hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 
 ifdef TARGET_PLATFORM_RASPBERRY
 obj-$(CONFIG_HAL_GPIO) += hal_gpio.o
-hal_gpio-objs := hal/drivers/hal_gpio.o 
+hal_gpio-objs := hal/drivers/hal_gpio.o
 obj-$(CONFIG_HAL_SPI) += hal_spi.o
-hal_spi-objs := hal/drivers/hal_spi.o 
+hal_spi-objs := hal/drivers/hal_spi.o
 endif
 
 ifdef TARGET_PLATFORM_BEAGLEBONE
 ifeq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
-hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o 
+hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o
 obj-$(CONFIG_PEPPER) += pepper.o
 pepper-objs := hal/components/pepper.o $(MATHSTUB)
 endif
@@ -1231,9 +1232,9 @@ endif
 
 ifeq ($(BUILD_SYS),user-dso)
 obj-m += gpiomap.o
-gpiomap-objs := hal/drivers/hal_gpiomap.o 
+gpiomap-objs := hal/drivers/hal_gpiomap.o
 obj-m += gpiouse.o
-gpiouse-objs := hal/drivers/hal_gpiouse.o 
+gpiouse-objs := hal/drivers/hal_gpiouse.o
 endif
 
 # hal_pru_generic driver
@@ -1526,7 +1527,7 @@ $(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
 $(RTLIBDIR)/hm2_7i43$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i43-objs))
 $(RTLIBDIR)/hm2_7i90$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i90-objs))
 $(RTLIBDIR)/hm2_pci$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_pci-objs))
-$(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs)) 
+$(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
 endif
 
 ifdef TARGET_PLATFORM_BEAGLEBONE
@@ -1642,8 +1643,7 @@ swish:
 		$(dir $(BASEPWD))lib/python \
 		$(dir $(BASEPWD))scripts \
 		$(dir $(BASEPWD))configs \
-		$(dir $(BASEPWD))docs/src \
-		$(dir $(BASEPWD))docs/man/man1
+		$(dir $(BASEPWD))man/man1
 
 # When you depend on objects/var-ZZZ you are depending on the contents of the
 # variable ZZZ, which is assumed to depend on a Makefile, a Submakefile, or
@@ -1659,10 +1659,9 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 cscope:
 	cscope -Rb
 
-cscopeclean:
+cscope/man/:
 	bash -c 'for f in `find ./ -name "cscope.*out"`;do rm $$f;done'
 
 NOSETESTS := $(wildcard ../nosetests/*.py)
 nosetest:
 	$(foreach var,$(NOSETESTS),nosetests -v $(var);)
-
