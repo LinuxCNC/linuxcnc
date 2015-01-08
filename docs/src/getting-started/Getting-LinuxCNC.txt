@@ -76,26 +76,39 @@ alternatives.  More information can be found at:
 https://help.ubuntu.com/community/HowToMD5SUM
 
 
-== Burning the CD
+== Write the image to a bootable device
 
-LinuxCNC is distributed as CD image files, called ISOs. 
-To install LinuxCNC, you first need to burn the ISO file onto a CD. 
-You need a working CD/DVD burner and an 80 minute (700 Mb) CD for this. 
-If the CD writing fails, try writing at a slower burn speed. 
+The LinuxCNC Live/Install Image is a hybrid ISO image which can be written
+directly to a USB storage device (flash drive) or a DVD and used to boot
+a computer.  The image is too large to fit on a CD.
 
-Burning the ISO in Linux::
+Writing the image to a USB storage device in Linux::
+    * Connect a USB storage device (for example a flash drive or thumb
+      drive type device).
+    * Determine the device file corresponding to the USB flash drive.
+      This information can be found in the output of `dmesg` after
+      connecting the device.  `/proc/partitions` may also be helpful.
+    * Use the `dd` command to write the image to your USB storage device.
+      For example, if your storage device showed up as `/dev/sde`,
+      then use this command:
+      +
+-----
+dd if=linuxcnc-2.7-wheezy.iso of=/dev/sde
+-----
 
- . Insert a blank CD into your burner. A 'CD/DVD Creator' or 
+Writing the image to a DVD in Linux::
+
+ . Insert a blank DVD into your burner. A 'CD/DVD Creator' or
    'Choose Disc Type' window will pop up. 
    Close this, as we will not be using it.
- . Browse to the downloaded ISO image in the file browser.
+ . Browse to the downloaded image in the file browser.
  . Right click on the ISO image file and choose Write to Disc.
- . Select the write speed. If you are burning a Ubuntu Live CD, it is
+ . Select the write speed.  It is
    recommended that you write at the lowest possible speed.
  . Start the burning process.
  . If a 'choose a file name for the disc image' window pops up, just pick OK.
 
-Burning the ISO in Windows::
+Writing the image to a DVD in Windows::
 
  . Download and install Infra Recorder, a free and open source image
    burning program: http://infrarecorder.org/
@@ -103,6 +116,7 @@ Burning the ISO in Windows::
    auto-run dialog pops up.
  . Open Infra Recorder, and select the 
    'Actions' menu, then 'Burn image'.
+
 
 == Testing LinuxCNC
 
