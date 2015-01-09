@@ -164,6 +164,19 @@ do_rtai_kernel() {
     HAVE_FLAVOR=true
 }
 
+do_docs() {
+    DOCS_BUILD_DEPS="asciidoc (>= 8.5), dblatex (>= 0.2.12), "
+    DOCS_BUILD_DEPS+="ghostscript, imagemagick, source-highlight, "
+    DOCS_BUILD_DEPS+="dvipng, python-lxml, "
+    BUILD_DEPS+="$DOCS_BUILD_DEPS"
+    cat control.docs.in >> control
+    echo "debian/control:  added docs package with Build-Depends:" >&2
+    echo "    ${DOCS_BUILD_DEPS}" >&2
+    sed -i rules -e "s/^#\(BUILDDOCS.*\)/\1/"
+    echo "debian/rules:  enabled doc builds" >&2
+}
+
+
 do_tcl_tk_version() {
     TCL_TK_VER="$1"
     if test -z "$TCL_TK_VER"; then
@@ -192,6 +205,7 @@ usage() {
 	echo "   -X <kver>	build Xenomai-kernel threads ***"
 	echo "   -R <kver>	build RTAI-kernel threads ***"
 	echo "   -t <tclver>	set tcl/tk version"
+	echo "   -d		enable documentation build"
 	echo "      *** Argument may be repeated for multiple kernels"
     } >&2
     exit 1
@@ -223,6 +237,7 @@ echo "debian/rules:  copied base template" >&2
 # read command line options
 while getopts dprxR:X:t:?h ARG; do
     case $ARG in
+	d) do_docs ;;
 	p) do_posix ;;
 	r) do_rt-preempt ;;
 	x) do_xenomai ;;
