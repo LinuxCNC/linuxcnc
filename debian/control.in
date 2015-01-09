@@ -39,7 +39,6 @@ Package: machinekit
 Breaks: linuxcnc
 Replaces: linuxcnc
 Architecture: any
-Suggests: machinekit-doc-en | machinekit-doc, 
 Depends: ${shlibs:Depends}, machinekit-rt-threads, @TCL_TK_DEPS@,
     bwidget (>= 1.7), libtk-img (>=1.13),
     python (>= 2.6), python (<< 2.8),

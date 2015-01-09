@@ -165,15 +165,9 @@ do_rtai_kernel() {
 }
 
 do_docs() {
-    DOCS_BUILD_DEPS="asciidoc (>= 8.5), dblatex (>= 0.2.12), "
-    DOCS_BUILD_DEPS+="ghostscript, imagemagick, source-highlight, "
-    DOCS_BUILD_DEPS+="dvipng, python-lxml, "
-    BUILD_DEPS+="$DOCS_BUILD_DEPS"
-    cat control.docs.in >> control
-    echo "debian/control:  added docs package with Build-Depends:" >&2
-    echo "    ${DOCS_BUILD_DEPS}" >&2
-    sed -i rules -e "s/^#\(BUILDDOCS.*\)/\1/"
-    echo "debian/rules:  enabled doc builds" >&2
+    echo "We're not building docs from the Machinekit project anymore\n \
+    please see the machinekit-docs repository on: \n \
+    https://github.com/machinekit/machinekit-docs" >&2
 }
 
 
