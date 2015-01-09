@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # Simple set of debian/rules that uses debhelper.
-# Based on an example by Joey Hess. 
+# Based on an example by Joey Hess.
 # extended by Paul Corner, Alex Joni, Chris Radek, Jeff Epler, John
 # Morris (in cronological order)
 
@@ -146,7 +146,6 @@ else
 	rm debian/tmp/usr/share/applications/linuxcnc-developer*.desktop
 endif
 
-	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
 	# update emcweb.hal

@@ -20,14 +20,8 @@ usr/libexec/linuxcnc/rtapi_msgd
 usr/share/axis/images/*
 usr/share/axis/tcl/*
 usr/share/glade3
-usr/share/doc/linuxcnc/gcode.html
-usr/share/doc/linuxcnc/gcode_fr.html
-usr/share/doc/linuxcnc/UPDATING
-usr/share/doc/linuxcnc/NEWS
-usr/share/doc/linuxcnc/AUTHORS
 usr/share/doc/linuxcnc/axis_light_background
 usr/share/doc/linuxcnc/xlinuxcnc.asciidoc
-usr/share/doc/linuxcnc/README
 usr/share/doc/linuxcnc/tklinuxcnc.asciidoc
 usr/share/doc/linuxcnc/README.axis
 usr/share/linuxcnc/*
