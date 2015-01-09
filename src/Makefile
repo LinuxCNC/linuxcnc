@@ -836,7 +836,6 @@ endif
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
 	$(FILE) $(USERPCI_HEADERS) $(DESTDIR)$(includedir)/linuxcnc/userpci
-	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docdir)
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docdir)
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
