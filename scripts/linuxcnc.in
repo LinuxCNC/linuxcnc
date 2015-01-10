@@ -297,7 +297,8 @@ function handle_includes () {
        if [ "X$b" = "X" ] ; then
           msg="$hdr <$line> found #INCLUDE with no filename" >>$outfile
           echo "$msg" >&2
-          echo "$msg" >>$outfile
+          rm -f $outfile
+          return 1 ;# error
        else
           # expand file name
           breal=$(eval echo "$b")
@@ -310,7 +311,8 @@ function handle_includes () {
           else
             msg="$hdr <$line> CANNOT READ $breal"
             echo "$msg" >&2
-            echo "$msg" >>$outfile
+            rm -f $outfile
+            return 1 ;# error
           fi
        fi
     else
@@ -323,6 +325,9 @@ function handle_includes () {
 
 PREVINIFILE=$INIFILE
 INIFILE=$(handle_includes $INIFILE)
+if [ $? -ne 0 ] ; then
+    exit 1 ; # error
+fi
 if [ "$PREVINIFILE" != "$INIFILE" ]; then
     trap "rm -f $INIFILE" 0 1 2 3 15; # Clean up the temporary file
 fi
