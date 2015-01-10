@@ -120,8 +120,9 @@ Writing the image to a DVD in Windows::
 
 == Testing LinuxCNC
 
-With the Live CD in the CD/DVD drive shut down the computer then turn
-the computer back on. This will boot the computer from the Live CD.
+With the USB storage device plugged in or the DVD in the DVD drive, the
+shut down the computer then turn the computer back on. This will boot
+the computer from the Live/Install Image and choose the Live boot option.
 Once the computer has booted up you can try out LinuxCNC without installing
 it. You can not create custom configurations or modify most system
 settings like screen resolution unless you install LinuxCNC.
@@ -131,6 +132,7 @@ a sim configuration to try out.
 
 To see if your computer is suitable for software step pulse generation
 run the Latency Test as shown <<latency-test,here>>.
+
 
 == Installing LinuxCNC
 
