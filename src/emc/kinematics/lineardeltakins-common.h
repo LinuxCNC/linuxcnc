@@ -34,7 +34,7 @@
 // Inspired by Marlin delta firmware and https://gist.github.com/kastner/5279172
 #include "emcpos.h"
 
-static double L, R;
+static double L, R, J0off, J1off, J2off;
 static double Ax, Ay, Bx, By, Cx, Cy, L2;
 
 #define SQ3    (sqrt(3))
@@ -44,15 +44,19 @@ static double Ax, Ay, Bx, By, Cx, Cy, L2;
 
 static double sq(double x) { return x*x; }
 
-static void set_geometry(double r_, double l_)
+static void set_geometry(double r_, double l_, double j0off_, double j1off_, double j2off_)
 {
-    if(L == l_ && R == r_) return;
+    if((L == l_) && (R == r_) && (J0off == j0off_) && (J1off == j1off_) && (J2off == j2off_)) return;
 
     L = l_;
     R = r_;
 
     L2 = sq(L);
-
+    
+    J0off = j0off_;
+    J1off = j1off_;
+    J2off = j2off_;
+	
     Ax = 0.0;
     Ay = R;
 
@@ -66,9 +70,9 @@ static void set_geometry(double r_, double l_)
 static int kinematics_inverse(const EmcPose *pos, double *joints)
 {
     double x = pos->tran.x, y = pos->tran.y, z = pos->tran.z;
-    joints[0] = z + sqrt(L2 - sq(Ax-x) - sq(Ay-y));
-    joints[1] = z + sqrt(L2 - sq(Bx-x) - sq(By-y));
-    joints[2] = z + sqrt(L2 - sq(Cx-x) - sq(Cy-y));
+    joints[0] = (z + sqrt(L2 - sq(Ax-x) - sq(Ay-y))) + J0off;
+    joints[1] = (z + sqrt(L2 - sq(Bx-x) - sq(By-y))) + J1off;
+    joints[2] = (z + sqrt(L2 - sq(Cx-x) - sq(Cy-y))) + J2off;
     joints[3] = pos->a;
     joints[4] = pos->b;
     joints[5] = pos->c;
@@ -82,9 +86,9 @@ static int kinematics_inverse(const EmcPose *pos, double *joints)
 
 static int kinematics_forward(const double *joints, EmcPose *pos)
 {
-    double q1 = joints[0];
-    double q2 = joints[1];
-    double q3 = joints[2];
+    double q1 = joints[0] - J0off;
+    double q2 = joints[1] - J1off;
+    double q3 = joints[2] - J2off;
 
     double den = (By-Ay)*Cx-(Cy-Ay)*Bx;
 
@@ -134,6 +138,15 @@ static int kinematics_forward(const double *joints, EmcPose *pos)
 
 // Horizontal offset of the universal joints on the carriages.
 #define DELTA_CARRIAGE_OFFSET 35.0 // mm
+
+// Horizontal offset of the universal joints on the carriages.
+#define JOINT_0_OFFSET 0.00 // mm
+
+// Horizontal offset of the universal joints on the carriages.
+#define JOINT_1_OFFSET 0.00 // mm
+
+// Horizontal offset of the universal joints on the carriages.
+#define JOINT_2_OFFSET 0.00 // mm
 
 // Effective horizontal distance bridged by diagonal push rods.
 #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
