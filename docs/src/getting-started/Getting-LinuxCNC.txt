@@ -68,6 +68,13 @@ md5sum: 3aa031895ac74a81d0639b09cd812c22
 sha256sum: c47d8c8432b710f0c28f6b98389af6ad4c429d024501335e95a2646a894f45e9
 -----
 
+Verify md5sum on Windows or Mac::
++
+Windows and Mac OS X do not come with an md5sum program, but there are
+alternatives.  More information can be found at:
++
+https://help.ubuntu.com/community/HowToMD5SUM
+
 
 == Burning the CD
 
@@ -75,37 +82,6 @@ LinuxCNC is distributed as CD image files, called ISOs.
 To install LinuxCNC, you first need to burn the ISO file onto a CD. 
 You need a working CD/DVD burner and an 80 minute (700 Mb) CD for this. 
 If the CD writing fails, try writing at a slower burn speed. 
-
-Verify md5sum in Linux::
-
-Before burning a CD, it is highly recommended that you verify the 
-md5sum (hash) of the .iso file.
-+
-Open a terminal window. 
-In Ubuntu it is Applications/Accessories/Terminal.
-+
-Change to the directory where the ISO was downloaded to.
-+
-----
-cd download_directory
-----
-+
-Then run the md5sum command with the file name you saved.
-+
-----
-md5sum -b binary.hybrid.iso
-----
-+
-The md5sum should print out a single line after 
-calculating the hash. 
-On slower computers this might take a minute or two.
-+
-----
-a9898e3397861c2cd0d707f9c27900de *binary.hybrid.iso
-----
-+
-Now compare it to the md5sum value that it should be.
-+
 
 Burning the ISO in Linux::
 
@@ -118,16 +94,6 @@ Burning the ISO in Linux::
    recommended that you write at the lowest possible speed.
  . Start the burning process.
  . If a 'choose a file name for the disc image' window pops up, just pick OK.
-
-Verify md5sum with Windows::
-
-Before burning a CD, it is highly recommended that you verify the md5
-sum (hash) of the .iso file, to ensure that you got a good download.
-+
-Windows does not come with a md5sum program. You will have to download
-and install one to check the md5sum. More information can be found at:
-+
-https://help.ubuntu.com/community/HowToMD5SUM
 
 Burning the ISO in Windows::
 
