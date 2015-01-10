@@ -1,3 +1,62 @@
+ver. 1.5.0
+- new hal pin, and some renaming of hal pin to reflect the
+  same names and behavior as halui-pin
+
+  * gmoccapy.jog-speed.counts
+  * gmoccapy.jog-speed.analog-enable
+  * gmoccapy.jog-speed.count-enable
+  * gmoccapy.jog-speed.direct-value
+
+  * gmoccapy.feed-override.counts
+  * gmoccapy.feed-override.analog-enable
+  * gmoccapy.feed-override.count-enable
+  * gmoccapy.feed-override.direct-value
+
+  * gmoccapy.spindle-override.counts
+  * gmoccapy.spindle-override.analog-enable
+  * gmoccapy.spindle-override.count-enable
+  * gmoccapy.spindle-override.direct-value
+
+  * gmoccapy.max-velocity.counts
+  * gmoccapy.max-velocity.count-enable
+  * gmoccapy.max-velocity.analog-enable
+  * gmoccapy.max-velocity.direct-value
+
+- gmoccapy will now react to some halui pin as counts or direct value
+  Be aware, that some of this may have side affects, it is strongly 
+  recomended to use the corresponding gmoccapy hal pin. 
+
+  * halui.spindle-override.counts
+  * halui.feed-override.counts
+  * halui.max-velocity.counts
+  * halui.abort
+  * halui.spindle.start
+  * halui.spindle.stop
+  * halui.spindle.reverse
+  * halui.spindle.increase
+  * halui.spindle.decrease
+  * halui.program.run
+  * halui.program.stop
+  * halui.program.pause
+  * halui.mode.manual
+  * halui.mode.mdi
+  * halui.mode.auto
+  * halui.mist.on
+  * halui.mist.off
+  * halui.flood.on
+  * halui.flood.off
+  * halui.machine.on
+  * halui.machine.off
+  * halui.home-all
+  * halui.estop.activate
+  * halui.estop.reset
+
+- to reflect the new hal pin connections I introduced a new sim config 
+  gmoccapy_pendant.ini, demonstrating the connection of a remote pendant 
+  with selection switches
+
+- deleted gmoccapy_jog_wheels.ini, as pendant.ini demonstrates it better
+
 ver. 1.4.2
 - removed the save and run button from the edit page, 
   because of security reasons
