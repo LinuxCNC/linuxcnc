@@ -327,6 +327,26 @@ if [ "$PREVINIFILE" != "$INIFILE" ]; then
     trap "rm -f $INIFILE" 0 1 2 3 15; # Clean up the temporary file
 fi
 
+function handle_env () {
+    inifile=$1
+    outfile=`mktemp`; # Let the shell create a temporary file
+    echo -e "$(eval "echo -e \"`<$inifile`\"")" >> $outfile
+    cmp --silent $inifile $outfile
+    if [ $? -ne 0 ] ; then
+        echo $outfile ;# use the expanded file
+    else
+        rm -f $outfile 
+        echo $inifile ;# use the original file
+    fi
+    return 0 ;# ok
+}
+
+PREVINIFILE=$INIFILE
+INIFILE=$(handle_env $INIFILE)
+if [ "$PREVINIFILE" != "$INIFILE" ]; then
+    trap "rm -f $INIFILE" 0 1 2 3 15; # Clean up the temporary file
+fi
+
 export PATH=$CONFIG_DIR/bin:$PATH
 
 [ -z $RUNTESTS ] && echo "Machine configuration directory is '$INI_DIR'"
