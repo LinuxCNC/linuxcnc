@@ -84,4 +84,6 @@ manual_mode.png
 mdi_mode.png
 auto_mode.png
 
-
+this ones was made by DaBit (linuxcnc english forum)
+rabbit_jog.png
+turtle_jog.png
