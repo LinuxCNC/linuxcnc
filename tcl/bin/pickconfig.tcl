@@ -735,6 +735,10 @@ proc prompt_copy configname {
                 file attributes $f -permissions u+w
             }
         }
+
+        # make convenience link to HALLIB_DIR:
+        file link -symbolic [file join $copytodir hallib] $::env(HALLIB_DIR)
+
         break
     }
 

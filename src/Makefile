@@ -88,7 +88,7 @@ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-default: configs userspace modules
+default: userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),uspace)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
@@ -700,58 +700,6 @@ CONF=../configs
 COMMON=$(CONF)/common
 CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON) $(CONF),\
                                          ${shell find ${CONF} -type d -print}))
-
-.PHONY: configs
-COPY_CONFIGS = $(patsubst %,../configs/%/core_stepper.hal, \
-                sim \
-                by_interface/parport/stepper \
-                by_machine/sherline/Sherline3Axis \
-                by_machine/sherline/SherlineLathe \
-                by_machine/cooltool \
-                by_interface/parport/classicladder/demo_step_cl)
-
-COPY_CONFIGS += $(patsubst %,../configs/%/core_servo.hal, \
-                sim \
-                by_interface/vitalsystems \
-                by_interface/servotogo \
-                by_interface/vigilant)
-
-COPY_CONFIGS += $(patsubst %,../configs/%/core_sim.hal, \
-                sim)
-
-COPY_CONFIGS += $(patsubst %,../configs/%/core_sim9.hal, \
-                sim)
-
-COPY_CONFIGS += $(patsubst %,../configs/%/axis_manualtoolchange.hal, \
-                sim \
-                by_interface/pluto/lathe-pluto\
-                by_interface/parport/plasma-thc-sim)
-
-show_configs_copy_stuff:
-	@echo CONFILES=$(CONFILES)
-	@echo CALL:$(call CONFILES,axis_manualtoolchange.hal)
-	@echo CALL:$(call CONFILES,core_stepper.hal)
-	@echo CALL:$(call CONFILES,core_servo.hal)
-	@echo CALL:$(call CONFILES,core_sim.hal)
-	@echo CALL:$(call CONFILES,core_sim9.hal)
-	@echo COPY_CONFIGS=$(COPY_CONFIGS)
-
-configs: $(COPY_CONFIGS)
-
-.PHONY: print_copy_configs
-print_copy_configs:
-	$(ECHO) copying shared configs
-
-$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal print_copy_configs
-	$(Q)-cp $< $@
-$(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal print_copy_configs
-	$(Q)-cp $< $@
-$(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal print_copy_configs
-	$(Q)-cp $< $@
-$(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal print_copy_configs
-	$(Q)-cp $< $@
-$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal print_copy_configs
-	$(Q)-cp $< $@
 
 endif # userspace
 
