@@ -301,6 +301,14 @@ static int init_hal_io(void)
 	return -1;
     }
 
+    /* allocate shared memory for joint data */
+    joints = hal_malloc(sizeof(emcmot_joint_t) * EMCMOT_MAX_JOINTS);
+    if (joints == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    _("MOTION: joints malloc failed\n"));
+	return -1;
+    }
+
     /* export machine wide hal pins */
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->probe_input), mot_comp_id, "motion.probe-input")) < 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_IO, &(emcmot_hal_data->spindle_index_enable), mot_comp_id, "motion.spindle-index-enable")) < 0) goto error;
@@ -978,11 +986,12 @@ static int init_comm_buffers(void)
     emcmot_config_change();
 
     /* init pointer to joint structs */
-#ifdef STRUCTS_IN_SHMEM
-    joints = &(emcmotDebug->joints[0]);
-#else
-    joints = &(joint_array[0]);
-#endif
+    /* already initialized in init_hal_io, above */
+//#ifdef STRUCTS_IN_SHMEM
+//    joints = &(emcmotDebug->joints[0]);
+//#else
+//    joints = &(joint_array[0]);
+//#endif
 
     /* init per-joint stuff */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
