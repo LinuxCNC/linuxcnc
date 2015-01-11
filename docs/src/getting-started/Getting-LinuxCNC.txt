@@ -144,11 +144,10 @@ To install LinuxCNC from the LiveCD select 'Install (Graphical)' at bootup.
 With the normal install the Update Manager will notify you of updates
 to LinuxCNC when you go on line and allow you to easily upgrade with no
 Linux knowledge needed.
-If you want to upgrade to Debian Wheezy from 10.04 or 8.04 a clean install from
-the Live-CD is recommended.
 It is OK to upgrade everything except the operating system when asked to.
 
-Warning: Do not upgrade the operating system if promped to do so.
+WARNING: Do not upgrade the operating system if promped to do so.
+
 
 == Install Problems
 
