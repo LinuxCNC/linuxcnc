@@ -136,7 +136,8 @@ run the Latency Test as shown <<latency-test,here>>.
 
 == Installing LinuxCNC
 
-To install LinuxCNC from the LiveCD select 'Install (Graphical) at bootup.
+To install LinuxCNC from the LiveCD select 'Install (Graphical)' at bootup.
+
 
 == Updates to LinuxCNC (((Updates to LinuxCNC)))
 
