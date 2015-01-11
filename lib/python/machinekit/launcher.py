@@ -56,15 +56,16 @@ def cleanup_session():
 
 
 # starts and registers a process
-def start_process(command):
+def start_process(command, check=True, wait=1.0):
     sys.stdout.write("starting " + command.split(None, 1)[0] + "... ")
     sys.stdout.flush()
     process = subprocess.Popen(command, shell=True)
-    sleep(1)
-    process.poll()
-    if (process.returncode is not None):
-        sys.exit(1)
     process.command = command
+    if check:
+        sleep(wait)
+        process.poll()
+        if (process.returncode is not None):
+            raise subprocess.CalledProcessError(process.returncode, command, None)
     _processes.append(process)
     sys.stdout.write('done\n')
 
