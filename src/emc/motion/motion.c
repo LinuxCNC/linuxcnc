@@ -1002,7 +1002,12 @@ static int init_comm_buffers(void)
 	/* point to structure for this joint */
 	joint = &joints[joint_num];
 
-	/* Export home_offset as a HAL parameter */
+	/* Export some HAL parameters */
+	retval = hal_param_float_newf(HAL_RW, &(joint->home), mot_comp_id, "axis.%d.home", joint_num);
+	if (retval != 0) {
+	    return retval;
+	}
+
 	retval = hal_param_float_newf(HAL_RW, &(joint->home_offset), mot_comp_id, "axis.%d.home_offset", joint_num);
 	if (retval != 0) {
 	    return retval;
