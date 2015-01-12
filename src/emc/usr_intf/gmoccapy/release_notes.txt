@@ -1,3 +1,9 @@
+ver. 1.5.1
+- solved a bug in counts handling, if only one MPG was used for 
+  all sliders and axis, there was a jump after changing the selection
+  Now it does not matter, if the user connect only one MPG or use for
+  each slider an own MPG 
+
 ver. 1.5.0
 - new hal pin, and some renaming of hal pin to reflect the
   same names and behavior as halui-pin
