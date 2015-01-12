@@ -73,7 +73,8 @@ emcmot_hal_data_t *emcmot_hal_data = 0;
 /* pointer to joint data */
 emcmot_joint_t *joints = 0;
 
-#ifndef STRUCTS_IN_SHMEM
+/* Joints moved to HAL shared memory */
+#if 0 // #ifndef STRUCTS_IN_SHMEM
 /* allocate array for joint data */
 emcmot_joint_t joint_array[EMCMOT_MAX_JOINTS];
 #endif
@@ -308,6 +309,9 @@ static int init_hal_io(void)
 	    _("MOTION: joints malloc failed\n"));
 	return -1;
     }
+
+    /* Clear joints memory */
+    memset(joints, 0, sizeof(emcmot_joint_t) * EMCMOT_MAX_JOINTS);
 
     /* export machine wide hal pins */
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->probe_input), mot_comp_id, "motion.probe-input")) < 0) goto error;

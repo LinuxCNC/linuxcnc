@@ -101,7 +101,8 @@ typedef struct emcmot_debug_t {
 	int stepping;
 	int idForStep;
 
-#ifdef STRUCTS_IN_SHMEM
+/* Joints moved to HAL shared memory */
+#if 0 // #ifdef STRUCTS_IN_SHMEM
 	emcmot_joint_t joints[EMCMOT_MAX_JOINTS];	/* joint data */
 #endif
 
