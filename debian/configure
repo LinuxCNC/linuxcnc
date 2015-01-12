@@ -164,13 +164,6 @@ do_rtai_kernel() {
     HAVE_FLAVOR=true
 }
 
-do_docs() {
-    echo "We're not building docs from the Machinekit project anymore\n \
-    please see the machinekit-docs repository on: \n \
-    https://github.com/machinekit/machinekit-docs" >&2
-}
-
-
 do_tcl_tk_version() {
     TCL_TK_VER="$1"
     if test -z "$TCL_TK_VER"; then
@@ -199,7 +192,6 @@ usage() {
 	echo "   -X <kver>	build Xenomai-kernel threads ***"
 	echo "   -R <kver>	build RTAI-kernel threads ***"
 	echo "   -t <tclver>	set tcl/tk version"
-	echo "   -d		enable documentation build"
 	echo "      *** Argument may be repeated for multiple kernels"
     } >&2
     exit 1
@@ -231,7 +223,6 @@ echo "debian/rules:  copied base template" >&2
 # read command line options
 while getopts dprxR:X:t:?h ARG; do
     case $ARG in
-	d) do_docs ;;
 	p) do_posix ;;
 	r) do_rt-preempt ;;
 	x) do_xenomai ;;
