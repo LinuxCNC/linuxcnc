@@ -46,6 +46,7 @@ from gladevcp.gladebuilder import GladeBuilder
 
 from time import strftime   # needed to add a time stamp with alarm entrys
 from time import localtime  # needed to add a time stamp with alarm entrys
+from ImageChops import difference
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook( exc_type, exc_obj, exc_tb ):
@@ -87,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "  1.5.0"
+_RELEASE = "  1.5.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -169,6 +170,7 @@ class gmoccapy( object ):
         self.tool_change = False # this is needed to get back to manual mode after a tool change
         self.macrobuttons = []   # The list of all macrios defined in the INI file
         self.log = False         # decide if the actions should be loged
+#        self.counts = 0          # need to calculate diference in counts to change slider
         self.fo_counts = 0       # need to calculate diference in counts to change the feed override slider
         self.so_counts = 0       # need to calculate diference in counts to change the spindle override slider
         self.jv_counts = 0       # need to calculate diference in counts to change the jog_vel slider
@@ -3841,34 +3843,68 @@ class gmoccapy( object ):
     def _on_counts_changed( self, pin, widget ):
         if not self.initialized:
             return
+        difference = 0
         counts = pin.get()
-        if widget == "adj_feed":
-            if not self.halcomp["feed-override.count-enable"]:
-                return
-            difference = ( counts - self.fo_counts ) * self.scale_feed_override
-            self.fo_counts = counts
-        if widget == "adj_spindle":
-            if not self.halcomp["spindle-override.count-enable"]:
-                return
-            difference = ( counts - self.so_counts ) * self.scale_spindle_override
-            self.so_counts = counts
-        if widget == "adj_jog_vel":
-            if not self.halcomp["jog-speed.count-enable"]:
-                return
-            difference = ( counts - self.jv_counts ) * self.scale_jog_vel
-            if self.widgets.tbtn_turtle_jog.get_active():
-                difference = difference / self.turtle_jog_factor
-            self.jv_counts = counts
-        if widget == "adj_max_vel":
-            if not self.halcomp["max-velocity.count-enable"]:
-                return
-            difference = ( counts - self.mv_counts ) * self.scale_max_vel
-            self.mv_counts = counts
+        if self.halcomp["feed-override.count-enable"]:
+            if widget == "adj_feed":
+                difference = ( counts - self.fo_counts ) * self.scale_feed_override
+                self.fo_counts = counts
+                self._check_counts(counts)
+        if self.halcomp["spindle-override.count-enable"]:
+            if widget == "adj_spindle":
+                difference = ( counts - self.so_counts ) * self.scale_spindle_override
+                self.so_counts = counts
+                self._check_counts(counts)
+        if self.halcomp["jog-speed.count-enable"]:
+            if widget == "adj_jog_vel":
+                difference = ( counts - self.jv_counts ) * self.scale_jog_vel
+                if self.widgets.tbtn_turtle_jog.get_active():
+                    difference = difference / self.turtle_jog_factor
+                self.jv_counts = counts
+                self._check_counts(counts)
+        if self.halcomp["max-velocity.count-enable"]:
+            if widget == "adj_max_vel":
+                difference = ( counts - self.mv_counts ) * self.scale_max_vel
+                self.mv_counts = counts
+                self._check_counts(counts)
+        if not self.halcomp["feed-override.count-enable"] and not self.halcomp["spindle-override.count-enable"] and not self.halcomp["jog-speed.count-enable"] and not self.halcomp["max-velocity.count-enable"]:
+            self._check_counts(counts)
+            
         val = self.widgets[widget].get_value() + difference
         if val < 0:
             val = 0
         if difference != 0:
             self.widgets[widget].set_value( val )
+
+    def _check_counts(self,counts):
+        # as we do not know how the user did connect the jog wheels, we have to check all
+        # possibilitys. Does he use only one jog wheel and a selection switch or do he use
+        # a mpg for each slider or one for speeds and one for override, or ??
+        if self.halcomp["feed-override.counts"] == self.halcomp["spindle-override.counts"]:
+            if self.halcomp["feed-override.count-enable"] and self.halcomp["spindle-override.count-enable"]:
+                return
+            self.fo_counts = self.so_counts = counts 
+        if self.halcomp["feed-override.counts"] == self.halcomp["jog-speed.counts"]:
+            if self.halcomp["feed-override.count-enable"] and self.halcomp["jog-speed.count-enable"]:
+                return
+            self.fo_counts = self.jv_counts = counts 
+        if self.halcomp["feed-override.counts"] == self.halcomp["max-velocity.counts"]:
+            if self.halcomp["feed-override.count-enable"] and self.halcomp["max-velocity.count-enable"]:
+                return
+            self.fo_counts = self.mv_counts = counts 
+        if self.halcomp["spindle-override.counts"] == self.halcomp["jog-speed.counts"]:
+            if self.halcomp["spindle-override.count-enable"] and self.halcomp["jog-speed.count-enable"]:
+                return
+            self.so_counts = self.jv_counts = counts
+        if self.halcomp["spindle-override.counts"] == self.halcomp["max-velocity.counts"]:
+            if self.halcomp["spindle-override.count-enable"] and self.halcomp["max-velocity.count-enable"]:
+                return
+            self.so_counts = self.mv_counts = counts
+        if self.halcomp["jog-speed.counts"] == self.halcomp["max-velocity.counts"]:
+            if self.halcomp["jog-speed.count-enable"] and self.halcomp["max-velocity.count-enable"]:
+                return
+            self.jv_counts = self.mv_counts = counts
+        print(self.fo_counts,self.so_counts,self.jv_counts,self.mv_counts)
 
     def _on_analog_value_changed( self, pin, widget ):
         if not self.initialized:
@@ -4093,7 +4129,7 @@ class gmoccapy( object ):
         hal_glib.GPin( pin ).connect( "value_changed", self._on_analog_value_changed, "adj_max_vel" )
 
         # make a pin to set turtle jog vel
-        pin = self.halcomp.newpin( "slider.turtle-jog", hal.HAL_FLOAT, hal.HAL_IN )
+        pin = self.halcomp.newpin( "turtle-jog", hal.HAL_BIT, hal.HAL_IN )
         hal_glib.GPin( pin ).connect( "value_changed", self._on_turtle_jog_enable )
 
         # make the pins for tool measurement
