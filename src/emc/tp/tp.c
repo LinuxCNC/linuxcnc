@@ -139,9 +139,9 @@ STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
         return TP_ERR_FAIL;
     }
 
-    acc_bound->x = emcmotDebug->joints[0].acc_limit;
-    acc_bound->y = emcmotDebug->joints[1].acc_limit;
-    acc_bound->z = emcmotDebug->joints[2].acc_limit;
+    acc_bound->x = joints[0].acc_limit;
+    acc_bound->y = joints[1].acc_limit;
+    acc_bound->z = joints[2].acc_limit;
     return TP_ERR_OK;
 }
 
@@ -171,9 +171,9 @@ STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
         return TP_ERR_FAIL;
     }
 
-    vel_bound->x = emcmotDebug->joints[0].vel_limit;
-    vel_bound->y = emcmotDebug->joints[1].vel_limit;
-    vel_bound->z = emcmotDebug->joints[2].vel_limit;
+    vel_bound->x = joints[0].vel_limit;
+    vel_bound->y = joints[1].vel_limit;
+    vel_bound->z = joints[2].vel_limit;
     return TP_ERR_OK;
 }
 
@@ -189,9 +189,9 @@ STATIC int tpGetMachineVelLimit(double * const vel_limit) {
     }
 
     //FIXME check for number of axes first!
-    double x = emcmotDebug->joints[0].vel_limit;
-    double y = emcmotDebug->joints[1].vel_limit;
-    double z = emcmotDebug->joints[2].vel_limit;
+    double x = joints[0].vel_limit;
+    double y = joints[1].vel_limit;
+    double z = joints[2].vel_limit;
 
     *vel_limit = fmin(fmin(x,y),z);
     tp_debug_print(" arc blending v_max=%f\n", *vel_limit);
