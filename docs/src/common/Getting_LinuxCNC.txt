@@ -148,7 +148,7 @@ copy one of this in a terminal window and press enter:
 
 wget http://linuxcnc.org/binary.hybrid.iso
 
-The md5sum of the above file is: '1d0025a8c1a61fbf32b99ab5797d95e3' 
+The md5sum of the above file is: 'b515c872335336ccfc96471d66b687d8'
 *********************************************************************
 +
 To continue a partial download that was interrupted 
@@ -226,7 +226,7 @@ calculating the hash.
 On slower computers this might take a minute or two.
 +
 ----
-a9898e3397861c2cd0d707f9c27900de *binary.hybrid.iso
+b515c872335336ccfc96471d66b687d8 *binary.hybrid.iso
 ----
 +
 Now compare it to the md5sum value that it should be.
