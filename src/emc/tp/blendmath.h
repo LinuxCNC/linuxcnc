@@ -144,6 +144,10 @@ double pmCartMin(PmCartesian const * const in);
 int calculateInscribedDiameter(PmCartesian const * const normal,
         PmCartesian const * const bounds, double * const diameter);
 
+int findAccelScale(PmCartesian const * const acc,
+        PmCartesian const * const bounds,
+        PmCartesian * const scale);
+
 int pmCartCartParallel(PmCartesian const * const v1,
         PmCartesian const * const v2, double tol);
 

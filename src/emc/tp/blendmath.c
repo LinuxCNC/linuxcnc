@@ -465,6 +465,43 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
 }
 
 
+
+int findAccelScale(PmCartesian const * const acc,
+        PmCartesian const * const bounds,
+        PmCartesian * const scale)
+{
+    if (!acc || !bounds ) {
+        return TP_ERR_MISSING_INPUT;
+    }
+
+    if (!scale ) {
+        return TP_ERR_MISSING_OUTPUT;
+    }
+
+    // Find the scale of acceleration vs. machine accel bounds
+    if (bounds->x != 0) {
+    scale->x = fabs(acc->x / bounds->x);
+    } else {
+        scale->x = 0;
+    }
+    if (bounds->y != 0) {
+    scale->y = fabs(acc->y / bounds->y);
+    } else {
+        scale->y = 0;
+    }
+
+    if (bounds->z != 0) {
+    scale->z = fabs(acc->z / bounds->z);
+    } else {
+        scale->z = 0;
+    }
+
+    return TP_ERR_OK;
+}
+
+
+
+
 /** Find real roots of a quadratic equation in standard form. */
 int quadraticFormula(double A, double B, double C, double * const root0,
         double * const root1)

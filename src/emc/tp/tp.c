@@ -1503,6 +1503,10 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     return TP_ERR_OK;
 }
 
+STATIC double pmCartAbsMax(PmCartesian const * const v)
+{
+    return fmax(fmax(fabs(v->x),fabs(v->y)),fabs(v->z));
+}
 
 /**
  * Check for tangency between the current segment and previous segment.
@@ -1545,46 +1549,62 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     tp_debug_print("prev tangent vector: %f %f %f\n", prev_tan.x, prev_tan.y, prev_tan.z);
     tp_debug_print("this tangent vector: %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
 
-    double theta;
-    int failed = findIntersectionAngle(&prev_tan, &this_tan, &theta);
-    if (failed) {
-        return TP_ERR_FAIL;
-    }
 
-    double phi = PM_PI - 2.0 * theta;
-    tp_debug_print("phi = %f\n", phi);
+    // Calculate instantaneous acceleration required for change in direction
+    // from v1 to v2, assuming constant speed
+    double v_max1 = fmin(prev_tc->maxvel, prev_tc->reqvel * emcmotConfig->maxFeedScale);
+    double v_max2 = fmin(tc->maxvel, tc->reqvel * emcmotConfig->maxFeedScale);
+    double v_max = fmin(v_max1, v_max2);
+    tp_debug_print("tangent v_max = %f\n",v_max);
 
-    double v_reachable = fmax(tpGetMaxTargetVel(tp, tc),
-            tpGetMaxTargetVel(tp, prev_tc));
-    double acc_limit;
+    double a_inst = v_max / tp->cycleTime;
+    // Set up worst-case final velocity
+    PmCartesian acc1, acc2, acc_diff;
+    pmCartScalMult(&prev_tan, a_inst, &acc1);
+    pmCartScalMult(&this_tan, a_inst, &acc2);
+    pmCartCartSub(&acc2,&acc1,&acc_diff);
 
     //TODO store this in TP struct instead?
     PmCartesian acc_bound;
     tpGetMachineAccelBounds(&acc_bound);
-    tpGetMachineActiveLimit(&acc_limit, &acc_bound);
 
-    double max_angle = findMaxTangentAngle(v_reachable, acc_limit, tp->cycleTime);
+    PmCartesian acc_scale;
+    findAccelScale(&acc_diff,&acc_bound,&acc_scale);
+    tp_debug_print("acc_diff: %f %f %f\n",
+            acc_diff.x,
+            acc_diff.y,
+            acc_diff.z);
+    tp_debug_print("acc_scale: %f %f %f\n",
+            acc_scale.x,
+            acc_scale.y,
+            acc_scale.z);
 
-    if (phi <= max_angle) {
-        tp_debug_print(" New segment tangent with angle %g\n", phi);
+    //FIXME this ratio is arbitrary, should be more easily tunable
+    const double acc_scale_threshold = 0.1;
+
+    double acc_scale_max = pmCartAbsMax(&acc_scale);
+    //KLUDGE lumping a few calculations together here
+    if (prev_tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_CIRCULAR) {
+        acc_scale_max /= BLEND_ACC_RATIO_NORMAL;
+    }
+
+    if (acc_scale_max < acc_scale_threshold) {
+        tp_debug_print(" Kink acceleration within %g, treating as tangent\n", acc_scale_threshold);
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
         //Calculate actual normal acceleration during tangent transition
-        double a_t_ratio = 1.0 - findKinkAccel(phi, v_reachable, tp->cycleTime) / acc_limit;
-        tp_debug_print("a_t_ratio = %f\n", a_t_ratio);
+        double a_ratio = 1.0 - acc_scale_max;
+        tp_debug_print(" acceleration reduction ratio is %f\n", a_ratio);
 
-        prev_tc->maxaccel *= a_t_ratio;
-        tc->maxaccel *= a_t_ratio;
+        prev_tc->maxaccel *= a_ratio;
+        tc->maxaccel *= a_ratio;
 
-        //TODO remove this, possibly redundant with optimziation
+        //TODO remove this, possibly redundant with optimization
         //Clip maximum velocity by sample rate
         prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target /
                 tp->cycleTime / TP_MIN_SEGMENT_CYCLES);
         return TP_ERR_OK;
-    } else if (phi >= (PM_PI-TP_ANGLE_EPSILON)) {
-        tp_debug_print(" Angle %.12g too close to pi to compute normal\n", phi);
-        return TP_ERR_FAIL;
     } else {
-        tp_debug_print(" New segment angle %g > max %g \n", phi, max_angle);
+        tp_debug_print("Kink acceleration too high, not tangent\n");
         return TP_ERR_NO_ACTION;
     }
 
@@ -1711,6 +1731,10 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
     }
     tc.nominal_length = tc.target;
 
+    //Reduce max velocity to match sample rate
+    double sample_maxvel = tc.target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES);
+    tc.maxvel = fmin(tc.maxvel, sample_maxvel);
+
     // For linear move, set rotary axis settings 
     tc.indexrotary = indexrotary;
 
@@ -1793,6 +1817,10 @@ int tpAddCircle(TP_STRUCT * const tp,
     }
     tp_debug_print("tc.target = %f\n",tc.target);
     tc.nominal_length = tc.target;
+
+    //Reduce max velocity to match sample rate
+    double sample_maxvel = tc.target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES);
+    tc.maxvel = fmin(tc.maxvel, sample_maxvel);
 
     double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc, false);
 
