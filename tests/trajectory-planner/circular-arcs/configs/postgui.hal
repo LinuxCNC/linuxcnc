@@ -2,7 +2,7 @@
 
 net constraints-ok <= match_all.out => motion.enable
 
-net resetall mm_xacc.reset mm_xvel.reset mm_yacc.reset mm_yvel.reset mm_zacc.reset mm_zvel.reset pyvcp.resetmm
+net resetall mm_xacc.reset mm_xvel.reset mm_yacc.reset mm_yvel.reset mm_zacc.reset mm_zvel.reset mm_aacc.reset mm_avel.reset  pyvcp.resetmm
 
 loadrt time
 loadrt not
@@ -29,3 +29,7 @@ net pzvel mm_zvel.max pyvcp.pzvel
 net nzacc mm_zacc.min pyvcp.nzacc
 net nzvel mm_zvel.min pyvcp.nzvel
 
+net paacc mm_aacc.max pyvcp.paacc
+net pavel mm_avel.max pyvcp.pavel
+net naacc mm_aacc.min pyvcp.naacc
+net navel mm_avel.min pyvcp.navel
