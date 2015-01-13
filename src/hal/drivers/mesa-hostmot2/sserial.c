@@ -1213,6 +1213,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                             inst->fault_lim);
                     HM2_ERR("***Smart Serial Port %i will be stopped***\n",i); 
                     *inst->state = 0x20;
+                    *inst->run = 0;
                     *inst->command_reg_write = 0x800; // stop command
                     break;
                 }
@@ -1242,7 +1243,6 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                         }
                     }
                     *inst->fault_count += inst->fault_inc;
-                    *inst->state = 0x20;
                 }
                 
                 if (*inst->fault_count > inst->fault_dec) {
