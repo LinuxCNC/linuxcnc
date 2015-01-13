@@ -1,4 +1,5 @@
-g21
+g21 G90
+G54
 G0 X0 Y0 Z20
 (msg,note axis positions... will return here at end oF99 pgm. press 's')
 (m0)
