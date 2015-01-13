@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # Simple set of debian/rules that uses debhelper.
-# Based on an example by Joey Hess. 
+# Based on an example by Joey Hess.
 # extended by Paul Corner, Alex Joni, Chris Radek, Jeff Epler, John
 # Morris (in cronological order)
 
@@ -16,9 +16,6 @@
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
-
-# Enable packaging of the PDF docs
-#BUILDDOCS = --enable-build-documentation=pdf
 
 # Enable/disable thread flavors; all flavors disabled by default
 THREADS_POSIX = --without-posix
@@ -93,12 +90,8 @@ build-stamp: debian/control
 	    $(HEADERS_RTAI_KERNEL_$(DEB_HOST_ARCH)) \
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
-	    --enable-emcweb \
-	    $(BUILDDOCS)
+	    --enable-emcweb
 	cd src && $(MAKE) $(MAKEFLAGS)
-ifdef BUILDDOCS
-	cd src && $(MAKE) $(MAKEFLAGS) docs
-endif
 	touch build-stamp
 
 clean: debian/control debian/substvars
@@ -117,8 +110,7 @@ clean: debian/control debian/substvars
 	    $(HEADERS_RTAI_KERNEL_$(DEB_HOST_ARCH)) \
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
-	    --enable-emcweb \
-	    $(BUILDDOCS)
+	    --enable-emcweb
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
@@ -136,17 +128,12 @@ install: build
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
-ifdef BUILDDOCS
-	rm debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf
-else
 	rm debian/tmp/usr/share/applications/linuxcnc-usermanual*.desktop
 	rm debian/tmp/usr/share/applications/linuxcnc-halmanual*.desktop
 	rm debian/tmp/usr/share/applications/linuxcnc-integratormanual*.desktop
 	rm debian/tmp/usr/share/applications/linuxcnc-gettingstarted*.desktop
 	rm debian/tmp/usr/share/applications/linuxcnc-developer*.desktop
-endif
 
-	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
 	# update emcweb.hal
@@ -172,7 +159,6 @@ binary-arch: build install debian/substvars
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs
-	dh_installdocs
 	dh_installexamples
 	dh_installman
 	dh_installmime

@@ -16,15 +16,15 @@ CONVERTERS :=  \
     conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
 COMPS := $(sort $(wildcard hal/components/*.comp) \
 	$(addprefix hal/components/, $(CONVERTERS)))
-COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, \
+COMP_MANPAGES := $(patsubst hal/components/%.comp, ../man/man9/%.9comp, \
 	$(COMPS))
 
 MSG_COMPS := $(wildcard machinetalk/msgcomponents/*.comp)
 MSG_COMP_MANPAGES := $(patsubst machinetalk/msgcomponents/%.comp, \
-	../docs/man/man9/%.9, $(MSG_COMPS))
+	../man/man9/%.9comp, $(MSG_COMPS))
 
 DRIVER_COMPS := $(wildcard hal/drivers/*.comp)
-DRIVER_COMP_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, \
+DRIVER_COMP_MANPAGES := $(patsubst hal/drivers/%.comp, ../man/man9/%.9comp, \
 	$(COMP_DRIVERS))
 
 manpages: $(COMP_MANPAGES) $(DRIVER_COMP_MANPAGES) $(MSG_COMP_MANPAGES)
@@ -43,21 +43,36 @@ obj-m += $(patsubst hal/drivers/%.comp, %.o, \
 	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))))
 endif
 
-$(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
+$(COMP_MANPAGES): ../man/man9/%.9comp: hal/components/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
+	$(Q)cp $@ $@.i-need-asciidoc-rework
+	#ignore faults in the script for now
+	-python ../scripts/troff-to-asciidoc.py $@.i-need-asciidoc-rework \
+	../man/man-generated/hal-components/$(notdir $@.asciidoc)
+	rm -f $@.i-need-asciidoc-rework
 
-$(DRIVER_COMP_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
+$(DRIVER_COMP_MANPAGES): ../man/man9/%.9comp: hal/drivers/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
+	$(Q)cp $@ $@.i-need-asciidoc-rework
+	#ignore faults in the script for now
+	-python ../scripts/troff-to-asciidoc.py $@.i-need-asciidoc-rework \
+	../man/man-generated/hal-drivers/$(notdir $@.asciidoc)
+	rm -f $@.i-need-asciidoc-rework
 
-$(MSG_COMP_MANPAGES): ../docs/man/man9/%.9: \
+$(MSG_COMP_MANPAGES): ../man/man9/%.9comp: \
 		machinetalk/msgcomponents/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
+	$(Q)cp $@ $@.i-need-asciidoc-rework
+	#ignore faults in the script for now
+	-python ../scripts/troff-to-asciidoc.py $@.i-need-asciidoc-rework \
+	../man/man-generated/machinetalk/$(notdir $@.asciidoc)
+	rm -f $@.i-need-asciidoc-rework
 
 ifeq ($(BUILD_ALL_FLAVORS),yes)
 # .c and .mak files are identical for all flavors
@@ -85,7 +100,7 @@ modules: $(patsubst %.comp, halcomp-srcs/%.mak, \
 endif # BUILD_ALL_FLAVORS == yes
 
 # ifeq ($(BUILD_THREAD_MODULES),yes)
-# # to build flavors separately, source files need to be linked 
+# # to build flavors separately, source files need to be linked
 # # are these still neededby kthreads build?
 # # are they used at all?
 # HALCOMP_DIR_STAMPS := \
@@ -165,5 +180,3 @@ hal/components/conv_u32_bit.comp: hal/components/conv.comp.in hal/components/mkc
 hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@
-
-

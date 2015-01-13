@@ -59,9 +59,9 @@ parser Hal:
 
     rule Header: STRING {{ return STRING }} | HEADER {{ return HEADER }}
 
-    rule String: TSTRING {{ return eval(TSTRING) }} 
+    rule String: TSTRING {{ return eval(TSTRING) }}
             | STRING {{ return eval(STRING) }}
- 
+
     rule OptPersonality: "if" Personality {{ return Personality }}
             | {{ return None }}
     rule Personality: {{ pp = [] }} (PersonalityPart {{ pp.append(PersonalityPart) }} )* {{ return " ".join(pp) }}
@@ -72,8 +72,8 @@ parser Hal:
     rule OptArray: "\[" NUMBER OptArrayPersonality "\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
             | {{ return 0 }}
     rule OptArrayPersonality: ":" Personality {{ return Personality }}
-            | {{ return None }} 
-    rule OptString: TSTRING {{ return eval(TSTRING) }} 
+            | {{ return None }}
+    rule OptString: TSTRING {{ return eval(TSTRING) }}
             | STRING {{ return eval(STRING) }}
             | {{ return '' }}
     rule OptAssign: "=" Value {{ return Value; }}
@@ -81,15 +81,15 @@ parser Hal:
     rule OptSAssign: "=" SValue {{ return SValue; }}
                 | {{ return None }}
     rule OptFP: "fp" {{ return 1 }} | "nofp" {{ return 0 }} | {{ return 1 }}
-    rule Value: "yes" {{ return 1 }} | "no" {{ return 0 }}  
-                | "true" {{ return 1 }} | "false" {{ return 0 }}  
-                | "TRUE" {{ return 1 }} | "FALSE" {{ return 0 }}  
+    rule Value: "yes" {{ return 1 }} | "no" {{ return 0 }}
+                | "true" {{ return 1 }} | "false" {{ return 0 }}
+                | "TRUE" {{ return 1 }} | "FALSE" {{ return 0 }}
                 | NAME {{ return NAME }}
                 | FPNUMBER {{ return float(FPNUMBER.rstrip("f")) }}
                 | NUMBER {{ return int(NUMBER,0) }}
-    rule SValue: "yes" {{ return "yes" }} | "no" {{ return "no" }}  
-                | "true" {{ return "true" }} | "false" {{ return "false" }}  
-                | "TRUE" {{ return "TRUE" }} | "FALSE" {{ return "FALSE" }}  
+    rule SValue: "yes" {{ return "yes" }} | "no" {{ return "no" }}
+                | "true" {{ return "true" }} | "false" {{ return "false" }}
+                | "TRUE" {{ return "TRUE" }} | "FALSE" {{ return "FALSE" }}
                 | NAME {{ return NAME }}
                 | FPNUMBER {{ return FPNUMBER }}
                 | NUMBER {{ return NUMBER }}
@@ -175,7 +175,7 @@ def notes(doc):
 def type2type(type):
     # When we start warning about s32/u32 this is where the warning goes
     return typemap.get(type, type)
-    
+
 def checkarray(name, array):
     hashes = len(re.findall("#+", name))
     if array:
@@ -301,7 +301,7 @@ static int comp_id;
             if default: print >>f, "= %s;" % default
             else: print >>f, ";"
             print >>f, "%s(%s, %s);" % (decl, name, q(doc))
-            
+
     print >>f
     print >>f, "struct __comp_state {"
     print >>f, "    struct __comp_state *_next;"
@@ -339,7 +339,7 @@ static int comp_id;
 
     print >>f, "struct __comp_state *__comp_inst=0;"
     print >>f, "struct __comp_state *__comp_first_inst=0, *__comp_last_inst=0;"
-    
+
     print >>f
     for name, fp in functions:
         if names.has_key(name):
@@ -461,7 +461,7 @@ static int comp_id;
             print >>f, "static int export_1(char *prefix, char *argstr) {"
             print >>f, "    int arg = simple_strtol(argstr, NULL, 0);"
             print >>f, "    return export(prefix, arg);"
-            print >>f, "}"   
+            print >>f, "}"
         if not options.get("singleton") and not options.get("count_function") :
             print >>f, "static int default_count=%s, count=0;" \
                 % options.get("default_count", 1)
@@ -556,12 +556,12 @@ static int comp_id;
         if options.get("userinit"):
             print >>f, "static void userinit(int argc, char **argv);"
         print >>f, "int argc=0; char **argv=0;"
-        print >>f, "int main(int argc_, char **argv_) {"    
+        print >>f, "int main(int argc_, char **argv_) {"
         print >>f, "    argc = argc_; argv = argv_;"
-        print >>f 
+        print >>f
         if options.get("userinit", 0):
             print >>f, "    userinit(argc, argv);"
-        print >>f 
+        print >>f
         print >>f, "    if(rtapi_app_main() < 0) return 1;"
         print >>f, "    user_mainloop();"
         print >>f, "    rtapi_app_exit();"
@@ -719,7 +719,7 @@ def to_hal_man(s):
 
 def document(filename, outfilename):
     if outfilename is None:
-        outfilename = os.path.splitext(filename)[0] + ".9"
+        outfilename = os.path.splitext(filename)[0] + ".9comp"
 
     a, b = parse(filename)
     f = open(outfilename, "w")
@@ -737,7 +737,7 @@ def document(filename, outfilename):
     print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
 
     print >>f, ".SH NAME\n"
-    doc = finddoc('component')    
+    doc = finddoc('component')
     if doc and doc[2]:
         if '\n' in doc[2]:
             firstline, rest = doc[2].split('\n', 1)
@@ -791,7 +791,7 @@ def document(filename, outfilename):
         if options.get("constructable") and not options.get("singleton"):
             print >>f, ".PP\n.B newinst %s \\fIname\\fB" % comp_name
 
-    doc = finddoc('descr')    
+    doc = finddoc('descr')
     if doc and doc[1]:
         print >>f, ".SH DESCRIPTION\n"
         print >>f, "%s" % doc[1]
@@ -856,22 +856,22 @@ def document(filename, outfilename):
             else:
                 lead = ".TQ"
 
-    doc = finddoc('see_also')    
+    doc = finddoc('see_also')
     if doc and doc[1]:
         print >>f, ".SH SEE ALSO\n"
         print >>f, "%s" % doc[1]
 
-    doc = finddoc('notes')    
+    doc = finddoc('notes')
     if doc and doc[1]:
         print >>f, ".SH NOTES\n"
         print >>f, "%s" % doc[1]
 
-    doc = finddoc('author')    
+    doc = finddoc('author')
     if doc and doc[1]:
         print >>f, ".SH AUTHOR\n"
         print >>f, "%s" % doc[1]
 
-    doc = finddoc('license')    
+    doc = finddoc('license')
     if doc and doc[1]:
         print >>f, ".SH LICENSE\n"
         print >>f, "%s" % doc[1]
@@ -926,7 +926,7 @@ def process(filename, mode, outfilename):
                 build_rt(tempdir, outfilename, mode, filename)
 
     finally:
-        shutil.rmtree(tempdir) 
+        shutil.rmtree(tempdir)
 
 def usage(exitval=0):
     print """%(name)s: Build, compile, and install LinuxCNC HAL components
@@ -977,7 +977,7 @@ def main():
         if k in ("-o", "--outfile"):
             if len(args) != 1:
                 raise SystemExit, "Cannot specify -o with multiple input files"
-            outfile = v 
+            outfile = v
         if k in ("-?", "-h", "--help"):
             usage(0)
 
@@ -995,11 +995,11 @@ def main():
         try:
             basename = os.path.basename(os.path.splitext(f)[0])
             if f.endswith(".comp") and mode == DOCUMENT:
-                document(f, outfile)            
+                document(f, outfile)
             elif f.endswith(".comp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
-                    outfile = os.path.join(tempdir, basename + ".9")
+                    outfile = os.path.join(tempdir, basename + ".9comp")
                     document(f, outfile)
                     os.spawnvp(os.P_WAIT, "man", ["man", outfile])
                 finally:
@@ -1007,10 +1007,10 @@ def main():
             elif f.endswith(".comp") and mode == INSTALLDOC:
                 manpath = os.path.join(BASE, "share/man/man9")
                 if not os.path.isdir(manpath):
-                    manpath = os.path.join(BASE, "docs/man/man9")
-                outfile = os.path.join(manpath, basename + ".9")
+                    manpath = os.path.join(BASE, "man/man9")
+                outfile = os.path.join(manpath, basename + ".9comp")
                 print "INSTALLDOC", outfile
-                document(f, outfile)            
+                document(f, outfile)
             elif f.endswith(".comp"):
                 process(f, mode, outfile)
             elif f.endswith(".py") and mode == INSTALL:
@@ -1032,7 +1032,7 @@ def main():
                     else:
                         build_rt(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
                 finally:
-                    shutil.rmtree(tempdir) 
+                    shutil.rmtree(tempdir)
             else:
                 raise SystemExit, "Unrecognized file type for mode %s: %r" % (modename[mode], f)
         except:
