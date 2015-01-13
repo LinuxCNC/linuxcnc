@@ -576,7 +576,11 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
     // nothing need be done here
 }
 
-double getStraightAcceleration(double x, double y, double z,
+/**
+ * Get the limiting acceleration for a displacement from the current position to the given position.
+ * returns a single acceleration that is the minimum of all axis accelerations.
+ */
+static double getStraightAcceleration(double x, double y, double z,
                                double a, double b, double c,
                                double u, double v, double w)
 {
@@ -692,7 +696,21 @@ double getStraightAcceleration(double x, double y, double z,
     return acc;
 }
 
-double getStraightVelocity(double x, double y, double z,
+static double getStraightAcceleration(CANON_POSITION pos)
+{
+
+    return getStraightAcceleration(pos.x,
+            pos.y,
+            pos.z,
+            pos.a,
+            pos.b,
+            pos.c,
+            pos.u,
+            pos.v,
+            pos.w);
+}
+
+static double getStraightVelocity(double x, double y, double z,
 			   double a, double b, double c,
                            double u, double v, double w)
 {
@@ -1645,83 +1663,72 @@ void ARC_FEED(int line_number,
     // Get planar acceleration bounds
     double a1 = FROM_EXT_LEN(axis_max_acceleration[axis1]);
     double a2 = FROM_EXT_LEN(axis_max_acceleration[axis2]);
-    double v_max_planar = MIN(v1, v2);
-    double a_max_planar = MIN(a1, a2);
-    canon_debug("a_max_planar = %f\n", a_max_planar);
+    double v_max_axes = MIN(v1, v2);
+    double a_max_axes = MIN(a1, a2);
+    canon_debug("a_max_axes = %f\n", a_max_axes);
 
-    //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
-    double v_max_radial = sqrt(a_max_planar * effective_radius);
-    double v_max = MIN(v_max_radial, v_max_planar);
-    canon_debug("v_max_planar = %f\n", v_max_planar);
+    // Compute the centripetal acceleration
+    double v_max_radial = sqrt(a_max_axes * effective_radius);
     canon_debug("v_max_radial = %f\n", v_max_radial);
-    canon_debug("v_max = %f\n", v_max);
 
-    // find out how long the arc takes at ini_maxvel
-    double t_spiral = fabs(spiral_length / v_max);
+    // Restrict our maximum velocity in-plane if need be
+    double v_max_planar = MIN(v_max_radial, v_max_axes);
+    canon_debug("v_max_planar = %f\n", v_max_planar);
+
+    // find out how long completely traversing the arc takes at ini_maxvel
+    double t_spiral = fabs(spiral_length / v_max_planar);
     canon_debug("t_spiral = %f\n", t_spiral);
 
+    /* Compute equivalent time to move linearly between start and end pt Note
+     * that this factors in all "linear" displacements, include helical motion
+     * and other axes. This time will be longer than the spiral time in the
+     * case of large helical displacements, or large displacements along the
+     * ABCUVW axes.
+     */
     double t_motion = axis_motion_time(canonEndPoint,endpt);
     canon_debug("t_motion = %f\n", t_motion);
 
+    // Get the limiting case (i.e. longest of the traversal times)
     double t_max = MAX(t_motion, t_spiral);
 
-    // If there is helical motion, check normal axis velocity limit as well
-    if (axis_valid(norm_axis_ind)) {
-        double v_max_axial = FROM_EXT_LEN(axis_max_velocity[norm_axis_ind]);
-        double t_axial = fabs(axis_len / v_max_axial);
-        t_max = MAX(t_max, t_axial);
-    }
+    canon_debug("t_max = %f\n", t_max);
 
-    canon_debug("t_max = %f\n",t_max);
-
-
-
-    // Total path length including helical motion
-    double planar_length = full_angle * effective_radius;
+    // Planar length is the total arc length travelled in the plane of the
+    // circle (i.e. project the motion onto the circle plane and measure the
+    // arc length.
+    double planar_length = fabs(full_angle * effective_radius);
     canon_debug("planar_length = %f\n", planar_length);
+
+    // Helical length is the actual XYZ arc length, factoring in axial
+    // displacement. This is used to get the actual velocity along the path.
     double helical_length = hypot(planar_length, axis_len);
     canon_debug("full_angle = %f\n", full_angle);
     canon_debug("helical_length = %f\n", helical_length);
 
-    // From the total path time and length, calculate new max velocity
-    if (t_max > 0.0) {
-        double v_max_helical = helical_length / t_max;
-        canon_debug("v_max_helical = %f\n",v_max_helical);
-        v_max = v_max_helical;
-    }
+    double v_max_helical = helical_length / t_max;
+    canon_debug("v_max_helical = %f\n", v_max_helical);
+    // The final maximum velocity with everything factored in
+    double v_max = v_max_helical;
+    canon_debug("v_max = %f\n", v_max);
 
 //COMPUTE ACCEL
     
-    // Compute max acceleration from axis motion (parameterized by axis, units t^2)
-    double tt_motion = axis_acc_time(canonEndPoint, endpt);
-    double a_max = a_max_planar;
+    // Use "straight" acceleration measure to compute acceleration bounds due
+    // to non-circular components (helical axis, other axes)
+    double a_max_motion = getStraightAcceleration(endpt);
+    canon_debug("a_max_motion = %f\n", a_max_motion);
 
-    // Account for axial acceleration if we have helical motion
-    if (axis_valid(norm_axis_ind)) {
-        double a_max_axial = FROM_EXT_LEN(axis_max_acceleration[norm_axis_ind]);
-        a_max = MIN(a_max, a_max_axial);
-    }
-
-    double tt_helix = axis_len / a_max;
-    double tt_max = MAX(tt_motion, tt_helix);
-
-    canon_debug("tt_motion = %f\n", tt_motion);
-    canon_debug("tt_helix = %f\n", tt_helix);
-    canon_debug("tt_max = %f\n", tt_max);
-
-    // From the total path time and length, calculate new max acceleration
-    if (tt_helix > 0.0) {
-        // Only need to do this if we have a helical component
-        double a_max_helical = helical_length / tt_max;
-        canon_debug("a_max_helical = %f\n", a_max_helical);
-        a_max = fmin(a_max_helical, a_max);
+    double a_max = a_max_axes;
+    // KLUDGE 0.0 is the case of a 360 deg. * n motion where start / finish is identical
+    if (a_max_motion > 0.0) {
+        a_max = fmin(a_max, a_max_motion);
     }
 
     // Limit velocity by maximum
     double vel = MIN(currentLinearFeedRate, v_max);
-
     canon_debug("current F = %f\n",currentLinearFeedRate);
     canon_debug("vel = %f\n",vel);
+
     canon_debug("v_max = %f\n",v_max);
     canon_debug("a_max = %f\n",a_max);
 
