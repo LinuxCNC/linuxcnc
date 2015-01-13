@@ -562,6 +562,17 @@ int blendGeom3Init(BlendGeom3 * const geom,
             &geom->u_tan2,
             &geom->theta_tan);
 
+    // Test for intersection angle errors
+    if(PM_PI / 2.0 - geom->theta_tan < TP_ANGLE_EPSILON) {
+        tp_debug_print("Intersection angle too close to pi/2, can't compute normal\n");
+        return TP_ERR_FAIL;
+    }
+
+    if(geom->theta_tan < TP_ANGLE_EPSILON) {
+        tp_debug_print("Intersection angle too small for arc fit\n");
+        return TP_ERR_FAIL;
+    }
+
     blendCalculateNormals3(geom);
 
     return res_u1 |
