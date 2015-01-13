@@ -402,11 +402,11 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     pmCartMagSq(normal, &n_mag);
     double mag_err = fabs(1.0 - n_mag);
     if (mag_err > pmSqrt(TP_POS_EPSILON)) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"normal vector <%.12g,%.12f,%.12f> has magnitude error = %e\n",
-                normal->x,
-                normal->y,
-                normal->z,
-                mag_err);
+        /*rtapi_print_msg(RTAPI_MSG_ERR,"normal vector <%.12g,%.12f,%.12f> has magnitude error = %e\n",*/
+                /*normal->x,*/
+                /*normal->y,*/
+                /*normal->z,*/
+                /*mag_err);*/
         return TP_ERR_FAIL;
     }
 
