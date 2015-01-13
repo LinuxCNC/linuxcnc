@@ -63,16 +63,19 @@ t.wm_withdraw()
 
 raw_input("Press any key when the LinuxCNC GUI has loaded")
 
-
+import glob
+#KLUDGE this lists all subfolders in the auto-test directory
+# this dir should be populated with symlinks to any folders of test files to
+# run
+test_folders=glob.glob('nc_files/auto-test/*')
 
 test_files = []
 
-test_folders=['quick-tests','spindle','performance','violation_checks']
 
 for f in test_folders:
     run_quick = query_yes_no("Run test cases in %s?" % f )
     if run_quick:
-        test_files.extend(find_test_nc_files('nc_files/%s'% f,True))
+        test_files.extend(find_test_nc_files(f,True))
 
 
 h = hal.component("python-ui")
