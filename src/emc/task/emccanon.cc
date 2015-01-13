@@ -834,6 +834,20 @@ static double getStraightVelocity(double x, double y, double z,
     return vel;
 }
 
+static double getStraightVelocity(CANON_POSITION pos)
+{
+
+    return getStraightVelocity(pos.x,
+            pos.y,
+            pos.z,
+            pos.a,
+            pos.b,
+            pos.c,
+            pos.u,
+            pos.v,
+            pos.w);
+}
+
 #include <vector>
 struct pt { double x, y, z, a, b, c, u, v, w; int line_no;};
 
@@ -1341,6 +1355,7 @@ static PM_CARTESIAN circshift(PM_CARTESIAN & vec, int steps)
     return PM_CARTESIAN(vec[X],vec[Y],vec[Z]);
 }
 
+#if 0
 static CANON_POSITION get_axis_max_velocity()
 {
     CANON_POSITION maxvel;
@@ -1417,6 +1432,7 @@ static double axis_acc_time(const CANON_POSITION & start, const CANON_POSITION &
 
     return times.max();
 }
+#endif
 
 void ARC_FEED(int line_number,
               double first_end, double second_end,
@@ -1637,15 +1653,6 @@ void ARC_FEED(int line_number,
     double min_radius = fmin(start_radius, end_radius);
     double effective_radius = sqrt(dr*dr + min_radius*min_radius);
 
-    // Compute spiral length, first by the minimum circular arc length
-    double circular_length = min_radius * fabs(full_angle);
-    // Then by linear approximation of the spiral arc length function of angle
-    // TODO use quadratic approximation
-    double spiral_length = sqrt(circular_length * circular_length + spiral * spiral);
-
-    // Compute length along normal axis
-    double axis_len = dot(end_cart - canonEndPoint.xyz(), normal_cart);
-
     // KLUDGE: assumes 0,1,2 for X Y Z
     // Find normal axis
     int norm_axis_ind = 2 + shift_ind % 3;
@@ -1674,41 +1681,17 @@ void ARC_FEED(int line_number,
     double v_max_planar = MIN(v_max_radial, v_max_axes);
     canon_debug("v_max_planar = %f\n", v_max_planar);
 
-    // find out how long completely traversing the arc takes at ini_maxvel
-    double t_spiral = fabs(spiral_length / v_max_planar);
-    canon_debug("t_spiral = %f\n", t_spiral);
+    // Find the equivalent maximum velocity for a linear displacement
+    // This accounts for speed restrictions due to helical and other axes
+    double v_max_motion = getStraightVelocity(endpt);
+    canon_debug("v_max_motion = %f\n", v_max_motion);
 
-    /* Compute equivalent time to move linearly between start and end pt Note
-     * that this factors in all "linear" displacements, include helical motion
-     * and other axes. This time will be longer than the spiral time in the
-     * case of large helical displacements, or large displacements along the
-     * ABCUVW axes.
-     */
-    double t_motion = axis_motion_time(canonEndPoint,endpt);
-    canon_debug("t_motion = %f\n", t_motion);
-
-    // Get the limiting case (i.e. longest of the traversal times)
-    double t_max = MAX(t_motion, t_spiral);
-
-    canon_debug("t_max = %f\n", t_max);
-
-    // Planar length is the total arc length travelled in the plane of the
-    // circle (i.e. project the motion onto the circle plane and measure the
-    // arc length.
-    double planar_length = fabs(full_angle * effective_radius);
-    canon_debug("planar_length = %f\n", planar_length);
-
-    // Helical length is the actual XYZ arc length, factoring in axial
-    // displacement. This is used to get the actual velocity along the path.
-    double helical_length = hypot(planar_length, axis_len);
-    canon_debug("full_angle = %f\n", full_angle);
-    canon_debug("helical_length = %f\n", helical_length);
-
-    double v_max_helical = helical_length / t_max;
-    canon_debug("v_max_helical = %f\n", v_max_helical);
-    // The final maximum velocity with everything factored in
-    double v_max = v_max_helical;
+    double v_max = v_max_planar;
+    if (v_max_motion > 0.0) {
+        v_max = fmin(v_max, v_max_motion);
+    }
     canon_debug("v_max = %f\n", v_max);
+
 
 //COMPUTE ACCEL
     
