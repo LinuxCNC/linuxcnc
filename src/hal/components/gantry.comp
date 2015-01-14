@@ -74,6 +74,7 @@ license "GPL";
 variable float offset[7] = 0.0;
 variable float prev_cmd = 0.0;
 variable int   fb_joint = 0;
+variable int   latching = 0;
 ;;
 FUNCTION(read) {
     int i=1;
@@ -84,7 +85,23 @@ FUNCTION(read) {
 
     // All other joints, if configured
     while (i < personality) {
-        home  &= joint_home(i);
+        // Check to see if machine is in latching state
+        if(latching==0)
+        {
+            // Don't asset home until all joints hit their home switches
+            home  &= joint_home(i);
+        }
+        else
+        {
+            // Don't release home until all joints have backed off their
+            // home switches
+            home |= joint_home(i);
+        }
+
+        // Remember the home state for next time
+        latching=home;
+
+        // Limit is always asserted if any home switch is asserted
         limit |= joint_home(i);
         i++;
     }
@@ -141,3 +158,4 @@ FUNCTION(write) {
         joint_offset(i)  = offset[i];
     }
 }
+
