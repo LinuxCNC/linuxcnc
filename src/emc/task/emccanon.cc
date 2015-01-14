@@ -111,6 +111,9 @@ static int rotary_unlock_for_traverse = -1;
 #define AXIS_PERIOD(axisnum) (IS_PERIODIC(axisnum) ? 360 : 0)
 
 //KLUDGE kinematic data struct (instead of returning a single float value)
+//FIXME This should really be refactored into a more general structure, but this
+//means tearing up the getStraightXXX functions, which probably means
+//converting to canon_position operators
 struct VelData {
     double tmax;
     double vel;
@@ -1700,10 +1703,12 @@ void ARC_FEED(int line_number,
     double a2 = FROM_EXT_LEN(axis_max_acceleration[axis2]);
     double v_max_axes = MIN(v1, v2);
     double a_max_axes = MIN(a1, a2);
+    //FIXME allow tangential acceleration like in TP
+    double a_max_normal = a_max_axes * sqrt(3.0)/2.0;
     canon_debug("a_max_axes = %f\n", a_max_axes);
 
     // Compute the centripetal acceleration
-    double v_max_radial = sqrt(a_max_axes * effective_radius);
+    double v_max_radial = sqrt(a_max_normal * effective_radius);
     canon_debug("v_max_radial = %f\n", v_max_radial);
 
     // Restrict our maximum velocity in-plane if need be
@@ -1745,15 +1750,13 @@ void ARC_FEED(int line_number,
     // to non-circular components (helical axis, other axes)
     AccelData accdata = getStraightAcceleration(endpt);
 
-    double a_max_motion = accdata.acc;
+    double tt_max_motion = accdata.tmax;
+    double tt_max_spiral = spiral_length / a_max_axes;
+    double tt_max = fmax(tt_max_motion, tt_max_spiral);
 
-    canon_debug("a_max_motion = %f\n", a_max_motion);
-
-    double a_max = a_max_axes;
-    // KLUDGE 0.0 is the case of a 360 deg. * n motion where start / finish is identical
-    if (a_max_motion > 0.0) {
-        a_max = fmin(a_max, a_max_motion);
-    }
+    // a_max could be higher than a_max_axes, but the projection onto the
+    // circle plane and helical axis will still be within limits
+    double a_max = total_xyz_length / tt_max;
 
     // Limit velocity by maximum
     double vel = MIN(currentLinearFeedRate, v_max);
@@ -1800,6 +1803,7 @@ void ARC_FEED(int line_number,
 
         //FIXME what happens if accel or vel is zero?
         // The end point is still updated, but nothing is added to the interp list
+        // seems to be a crude way to indicate a zero length segment?
         if(vel && a_max) {
             interp_list.set_line_number(line_number);
             interp_list.append(circularMoveMsg);
