@@ -1,0 +1,29 @@
+net Xhomeswpos => comp.0.in0 
+net Yhomeswpos => comp.1.in0 
+net Zhomeswpos => comp.2.in0 
+
+sets Xhomeswpos 1
+sets Yhomeswpos .5
+sets Zhomeswpos 2
+
+net Xpos => comp.0.in1
+net Ypos => comp.1.in1
+net Zpos => comp.2.in1
+
+setp comp.0.hyst .02
+setp comp.1.hyst .02
+setp comp.2.hyst .02
+
+net Xhomesw <= comp.0.out
+net Yhomesw <= comp.1.out => axis.1.home-sw-in
+net Zhomesw <= comp.2.out
+
+net Xhomesw => or2.0.in0
+net Zhomesw => or2.0.in1
+net XZhomesw or2.0.out => axis.0.home-sw-in axis.2.home-sw-in
+
+addf comp.0 servo-thread
+addf comp.1 servo-thread
+addf comp.2 servo-thread
+
+addf or2.0 servo-thread
