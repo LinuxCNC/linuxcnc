@@ -410,7 +410,6 @@ int hm2_sserial_setup_remotes(hostmot2_t *hm2,
                               hm2_module_descriptor_t *md) {
     int c, r;
     int buff;
-    char name[5] = {'\0'};
     
     inst->remotes =
     (hm2_sserial_remote_t *)rtapi_kzalloc(inst->num_remotes*sizeof(hm2_sserial_remote_t),
@@ -448,18 +447,18 @@ int hm2_sserial_setup_remotes(hostmot2_t *hm2,
                             &buff, sizeof(rtapi_u32));
             chan->serialnumber = buff;
             HM2_DBG("BoardSerial %08x\n", chan->serialnumber);
-            hm2->llio->read(hm2->llio, chan->reg_1_addr, name, sizeof(rtapi_u32));
-            name[1] |= 0x20; ///lower case
+            hm2->llio->read(hm2->llio, chan->reg_1_addr, chan->raw_name, sizeof(rtapi_u32));
+            chan->raw_name[1] |= 0x20; ///lower case
             if (hm2->use_serial_numbers){
                 rtapi_snprintf(chan->name, sizeof(chan->name),
                                "hm2_%2s.%04x",
-                               name, 
+                               chan->raw_name,
                                (chan->serialnumber & 0xffff));
             } else {
                 rtapi_snprintf(chan->name, sizeof(chan->name),
                                "%s.%2s.%d.%d",
                                hm2->llio->name, 
-                               name,
+                               chan->raw_name,
                                inst->index,
                                c);
             }
@@ -737,6 +736,9 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                                                   global.ParmAddr,
                                                   global.DataLength/8);
                         if (r < 0) {HM2_ERR("SSerial Parameter read error\n") ; return -EINVAL;}
+                        if ((strcmp(global.NameString, "swrevision") == 0) && (chan->params[i].u32_param < 14)) {
+                            HM2_ERR("Warning: sserial remote device %s channel %d has old firmware that should be updated\n", chan->raw_name, chan->index);
+                        }
                 }
                 break;
             case 0x04:
@@ -1213,6 +1215,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                             inst->fault_lim);
                     HM2_ERR("***Smart Serial Port %i will be stopped***\n",i); 
                     *inst->state = 0x20;
+                    *inst->run = 0;
                     *inst->command_reg_write = 0x800; // stop command
                     break;
                 }
@@ -1242,7 +1245,6 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                         }
                     }
                     *inst->fault_count += inst->fault_inc;
-                    *inst->state = 0x20;
                 }
                 
                 if (*inst->fault_count > inst->fault_dec) {

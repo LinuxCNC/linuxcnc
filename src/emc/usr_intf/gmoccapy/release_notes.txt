@@ -1,3 +1,7 @@
+ver. 1.5.1.1
+- some print commands has been commented out to avoid to much condole infos
+- there was a limit of 100 for tool sensor height, I extended to 999 mm
+
 ver. 1.5.1
 - solved a bug in counts handling, if only one MPG was used for 
   all sliders and axis, there was a jump after changing the selection
