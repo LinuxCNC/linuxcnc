@@ -1003,12 +1003,14 @@ static int init_comm_buffers(void)
 	joint = &joints[joint_num];
 
 	/* Export some HAL parameters */
-	retval = hal_param_float_newf(HAL_RW, &(joint->home), mot_comp_id, "axis.%d.home", joint_num);
+	retval = hal_pin_float_newf(HAL_IN, &(joint->home),
+				    mot_comp_id, "axis.%d.home", joint_num);
 	if (retval != 0) {
 	    return retval;
 	}
 
-	retval = hal_param_float_newf(HAL_RW, &(joint->home_offset), mot_comp_id, "axis.%d.home_offset", joint_num);
+	retval = hal_pin_float_newf(HAL_IN, &(joint->home_offset),
+				    mot_comp_id, "axis.%d.home-offset", joint_num);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1025,8 +1027,8 @@ static int init_comm_buffers(void)
 	joint->home_search_vel = 0.0;
 	joint->home_latch_vel = 0.0;
 	joint->home_final_vel = -1;
-	joint->home_offset = 0.0;
-	joint->home = 0.0;
+	*(joint->home_offset) = 0.0;
+	*(joint->home) = 0.0;
 	joint->home_flags = 0;
 	joint->home_sequence = -1;
 	joint->backlash = 0.0;
