@@ -74,6 +74,7 @@ license "GPL";
 variable float offset[7] = 0.0;
 variable float prev_cmd = 0.0;
 variable int   fb_joint = 0;
+variable int   latching = 0;
 ;;
 FUNCTION(read) {
     int i=1;
@@ -84,26 +85,41 @@ FUNCTION(read) {
 
     // All other joints, if configured
     while (i < personality) {
-        home  &= joint_home(i);
+        // Check to see if machine is in latching state
+        if(latching==0)
+        {
+            // Don't asset home until all joints hit their home switches
+            home  &= joint_home(i);
+        }
+        else
+        {
+            // Don't release home until all joints have backed off their
+            // home switches
+            home |= joint_home(i);
+        }
+
+        // Remember the home state for next time
+        latching=home;
+
+        // Limit is always asserted if any home switch is asserted
         limit |= joint_home(i);
         i++;
     }
 
     // Joint used for feedback is 'sticky', but we have to switch to
     // track active joints or motion gets upset with the sudden
-    // stop.  If all joints are not homed, but the current joint used
-    // for feedback is, find a joint that's still active
-    if ((joint_home(fb_joint) == 1) && (home == 0)) {
-        for (i=0; i < personality; i++) {
-            if (joint_home(i) == 0) {
-                position_fb = joint_pos_fb(i) + offset[i];
-                fb_joint = i;
-                break;
-            }
+    // stop.  Feedback joint used will be the first joint that is NOT
+    //  within proximity of the homing switch when not in latching mode.
+    // Feedback joint will use the first joint that IS in proximity of
+    // homing switch.
+    for (i=0; i < personality; i++) {
+        if (joint_home(i) == latching) {
+            fb_joint = i;
+            break;
         }
-    } else {
-        position_fb = joint_pos_fb(fb_joint) + offset[fb_joint];
     }
+    position_fb = joint_pos_fb(fb_joint) + offset[fb_joint];
+    
 }
 
 FUNCTION(write) {
@@ -124,12 +140,13 @@ FUNCTION(write) {
     // zero or negative.
     //
     // If we're moving towards home and all home switches are not closed
-    if ( ((delta * search_vel) > 0) && (home==0) ) {
+    if ( (((delta * search_vel) > 0) && (home==0)) || latching==1) {
         // Check each joint to see if it's home switch is active
         for (i=0; i < personality; i++) {
-            // If home switch is active, update offset, not pos_cmd
-            // so the other joints can catch up
-            if (joint_home(i)==1) {
+            // If home switch is active but system not in latching mode,
+            // update offset, not pos_cmd so the other joints can catch up
+            // When latching, this happens when home switch is inactive
+            if (joint_home(i)!=latching) {
                 offset[i] += delta;
             }
         }
@@ -141,3 +158,4 @@ FUNCTION(write) {
         joint_offset(i)  = offset[i];
     }
 }
+
