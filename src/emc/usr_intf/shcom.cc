@@ -557,15 +557,9 @@ int sendJogStop(int axis)
 {
     EMC_JOG_STOP emc_jog_stop_msg;
     
-    emc_jog_stop_msg.serial_number = ++emcCommandSerialNumber;
     emc_jog_stop_msg.axis = axis;
     emcCommandSend(emc_jog_stop_msg);
 
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-        return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-        return emcCommandWaitDone(emcCommandSerialNumber);
-    }
     axisJogging[axis] = 0;
     return 0;
 }
@@ -578,7 +572,6 @@ int sendJogCont(int axis, double speed)
         speed = -speed;
     }
 
-    emc_jog_cont_msg.serial_number = ++emcCommandSerialNumber;
     emc_jog_cont_msg.axis = axis;
     emc_jog_cont_msg.vel = speed / 60.0;
     emcCommandSend(emc_jog_cont_msg);
