@@ -259,45 +259,45 @@ int check_ini_hal_items()
         if (CHANGED_IDX(backlash,idx) ) {
             if (debug) SHOW_CHANGE_IDX(backlash,idx);
             UPDATE_IDX(backlash,idx);
-            if (0 != emcAxisSetBacklash(idx,NEW(backlash[idx]))) {
+            if (0 != emcJointSetBacklash(idx,NEW(backlash[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print("check_ini_hal_items:bad return value from emcAxisSetBacklash\n");
+                    rcs_print("check_ini_hal_items:bad return value from emcJointSetBacklash\n");
                 }
         }
         }
         if (CHANGED_IDX(min_limit,idx) ) {
             if (debug) SHOW_CHANGE_IDX(min_limit,idx);
             UPDATE_IDX(min_limit,idx);
-            if (0 != emcAxisSetMinPositionLimit(idx,NEW(min_limit[idx]))) {
+            if (0 != emcJointSetMinPositionLimit(idx,NEW(min_limit[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMinPositionLimit\n");
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMinPositionLimit\n");
                 }
             }
         }
         if (CHANGED_IDX(max_limit,idx) ) {
             if (debug) SHOW_CHANGE_IDX(max_limit,idx);
             UPDATE_IDX(max_limit,idx);
-            if (0 != emcAxisSetMaxPositionLimit(idx,NEW(max_limit[idx]))) {
+            if (0 != emcJointSetMaxPositionLimit(idx,NEW(max_limit[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxPositionLimit\n");
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxPositionLimit\n");
                 }
             }
         }
         if (CHANGED_IDX(max_velocity,idx) ) {
             if (debug) SHOW_CHANGE_IDX(max_velocity,idx);
             UPDATE_IDX(max_velocity,idx);
-            if (0 != emcAxisSetMaxVelocity(idx, NEW(max_velocity[idx]))) {
+            if (0 != emcJointSetMaxVelocity(idx, NEW(max_velocity[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxVelocity\n");
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxVelocity\n");
                 }
             }
         }
         if (CHANGED_IDX(max_acceleration,idx) ) {
             if (debug) SHOW_CHANGE_IDX(max_acceleration,idx);
             UPDATE_IDX(max_acceleration,idx);
-            if (0 != emcAxisSetMaxAcceleration(idx, NEW(max_acceleration[idx]))) {
+            if (0 != emcJointSetMaxAcceleration(idx, NEW(max_acceleration[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxAcceleration\n");
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxAcceleration\n");
                 }
             }
         }
@@ -306,7 +306,7 @@ int check_ini_hal_items()
             UPDATE_IDX(ferror,idx);
             if (0 != emcJointSetFerror(idx,NEW(ferror[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetFerror\n");
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetFerror\n");
                 }
             }
         }
@@ -315,7 +315,7 @@ int check_ini_hal_items()
             UPDATE_IDX(min_ferror,idx);
             if (0 != emcJointSetMinFerror(idx,NEW(min_ferror[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMinFerror\n");
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMinFerror\n");
                 }
         }
         }
