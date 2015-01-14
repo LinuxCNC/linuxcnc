@@ -34,9 +34,6 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 # standard components
 loadrt pid num_chan=3 
 
-# only the 7i43 and 7i90 need this, but it doesnt hurt the others
-loadrt probe_parport
-
 # hostmot2 driver
 # if you have any firmware trouble, enable the debug flags here and see what's going on in the syslog
 #loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1

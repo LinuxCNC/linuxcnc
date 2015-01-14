@@ -5125,15 +5125,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
             print formatted_lines[-1]
 
-    def probe_parport_check(self):
-            board0 = self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]
-            board1 = self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]
-            parport = self.d.number_pports
-            if '7i43' in board0 or '7i43' in board1 or parport:
-                return True
-            else:
-                return False
-
     def hostmot2_command_string(self):
             # mesa stuff
             load_cmnds = []

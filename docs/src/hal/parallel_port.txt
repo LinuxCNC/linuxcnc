@@ -198,7 +198,7 @@ generally prevents 'parport_pc' from being automatically loaded.]
 and that no other device in the system has claimed the I/O ports.
 
 If the module loads but does not appear to function, then the port
-address is incorrect or the 'probe_parport' module is required.
+address is incorrect.
 
 === Using DoubleStep
 
@@ -226,31 +226,3 @@ setp stepgen.0.stepspace 0
 
 More information on DoubleStep can be found on the 
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TweakingSoftwareStepGeneration[wiki].
-
-[[sec:probe_parport]]
-== probe_parport
-
-In modern PCs, the parallel port may require plug and play (PNP)
-configuration before it can be used. The 'probe_parport'  module
-performs configuration of any PNP ports present, and should be
-loaded before 'hal_parport'. On machines without PNP ports, it may be
-loaded but has no effect.
-
-=== Installing
-
-----
-loadrt probe_parport
-
-loadrt hal_parport ...
-----
-
-If the Linux kernel prints a message similar to
-
-----
-parport: PnPBIOS parport detected.
-----
-
-when the parport_pc module is loaded ('sudo modprobe -a parport_pc;
-sudo rmmod parport_pc)' then use of this module is probably required.
-
-

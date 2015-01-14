@@ -40,11 +40,6 @@ load time.
 
 The driver talks with the 7i90 over the parallel port, via EPP.
 
-Some parallel ports require special initialization before they can be
-used.  LinuxCNC provides a kernel driver that does this initialization
-called probe_parport.  Load this driver before loading hm2_7i90, by
-putting "loadrt probe_parport" in your .hal file.
-
 The hm2_7i90 driver requires an in-kernel EPP communications API.  This is
 provided by the 'epp' driver.  Load this driver before loading hm2_7i90,
 by putting 'loadrt epp' in your .hal file.

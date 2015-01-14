@@ -31,9 +31,6 @@ loadrt trivkins
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
 
-# only the 7i43 and 7i90 need this, but it doesnt hurt the others
-loadrt probe_parport
-
 # hostmot2 driver
 loadrt hostmot2
 
