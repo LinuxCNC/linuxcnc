@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "  1.5.1"
+_RELEASE = " 1.5.1.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -170,7 +170,6 @@ class gmoccapy( object ):
         self.tool_change = False # this is needed to get back to manual mode after a tool change
         self.macrobuttons = []   # The list of all macrios defined in the INI file
         self.log = False         # decide if the actions should be loged
-#        self.counts = 0          # need to calculate diference in counts to change slider
         self.fo_counts = 0       # need to calculate diference in counts to change the feed override slider
         self.so_counts = 0       # need to calculate diference in counts to change the spindle override slider
         self.jv_counts = 0       # need to calculate diference in counts to change the jog_vel slider
@@ -3904,7 +3903,7 @@ class gmoccapy( object ):
             if self.halcomp["jog-speed.count-enable"] and self.halcomp["max-velocity.count-enable"]:
                 return
             self.jv_counts = self.mv_counts = counts
-        print(self.fo_counts,self.so_counts,self.jv_counts,self.mv_counts)
+#        print(self.fo_counts,self.so_counts,self.jv_counts,self.mv_counts)
 
     def _on_analog_value_changed( self, pin, widget ):
         if not self.initialized:
