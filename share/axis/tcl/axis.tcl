@@ -36,6 +36,9 @@ menu .menu.machine.unhome \
 	-tearoff 0
 menu .menu.view \
 	-tearoff 0
+#  added	
+menu .menu.user \
+	-tearoff 0
 menu .menu.help \
 	-tearoff 0
 menu .menu.machine.touchoff \
@@ -433,6 +436,49 @@ setup_menu_accel .menu.view.grid end [_ "_Off"]
         -command set_grid_size_custom
 setup_menu_accel .menu.view.grid end [_ "_Custom"]
 
+#- Added User Menu-----------------------------------------------------------------------
+
+.menu.user add command \
+	-command user0
+setup_menu_accel .menu.user end [_ "User_0"]
+
+.menu.user add command \
+	-command user1
+setup_menu_accel .menu.user end [_ "User_1"]
+
+.menu.user add command \
+	-command user2
+setup_menu_accel .menu.user end [_ "User_2"]
+
+.menu.user add command \
+	-command user3
+setup_menu_accel .menu.user end [_ "User_3"]
+
+.menu.user add command \
+	-command user4
+setup_menu_accel .menu.user end [_ "User_4"]
+
+.menu.user add command \
+	-command user5
+setup_menu_accel .menu.user end [_ "User_5"]
+
+.menu.user add command \
+	-command user6
+setup_menu_accel .menu.user end [_ "User_6"]
+
+.menu.user add command \
+	-command user7
+setup_menu_accel .menu.user end [_ "User_7"]
+
+.menu.user add command \
+	-command user8
+setup_menu_accel .menu.user end [_ "User_8"]
+
+.menu.user add command \
+	-command user9
+setup_menu_accel .menu.user end [_ "User_9"]
+
+
 
 # ----------------------------------------------------------------------
 .menu.help add command \
@@ -461,6 +507,10 @@ setup_menu_accel .menu end [_ _Machine]
 .menu add cascade \
 	-menu .menu.view
 setup_menu_accel .menu end [_ _View]
+
+.menu add cascade \
+	-menu .menu.user
+setup_menu_accel .menu end [_ _User]
 
 .menu add cascade \
 	-menu .menu.help
@@ -2414,4 +2464,4 @@ proc show_menu_available {m} {
     }
 }
 
-# vim:ts=8:sts=4:et:sw=4:
+# vim:ts=8:sts=4:et:sw=4:   -value 0 \

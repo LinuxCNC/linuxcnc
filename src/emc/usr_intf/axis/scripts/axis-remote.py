@@ -18,14 +18,14 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 """\
-axis-remote: trigger commands in a running AXIS GUI
+axis-remote: cause AXIS to open, reload its opened file, or exit
 
-Usage: axis-remote --clear|--ping|--reload|--quit|--mdi command|filename
-       axis-remote -c|-p|-r|-q|-m command|filename"""
-
+Usage: axis-remote [--clear|--ping|--reload|--quit|--mdi command|filename | --run]
+       axis-remote [-c|-p|-r|-q|-m command |-R]"""
+       
 import sys, getopt, Tkinter, os
 
-UNSPECIFIED, OPEN, RELOAD, PING, CLEAR, MDI, QUIT = range(7)
+UNSPECIFIED, OPEN, RELOAD, PING, CLEAR, MDI, RUN, QUIT = range(8)
 mode = UNSPECIFIED
 
 def usage(exitval=0):
@@ -33,8 +33,9 @@ def usage(exitval=0):
     raise SystemExit, exitval
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?prqcm",
-                        ['help','ping', 'reload', 'quit', 'clear', 'mdi'])
+    opts, args = getopt.getopt(sys.argv[1:], "h?Rprqcm",
+                        ['help','ping', 'reload', 'quit', 'clear', 'mdi', 'run'])
+
 except getopt.GetoptError, detail:
     print detail
     usage(99)
@@ -62,6 +63,11 @@ for o, a in opts:
         if mode != UNSPECIFIED:
             usage(99)
         mode = MDI
+    elif o in ('-R','--run'):
+        if mode != UNSPECIFIED:
+            usage(99)
+        mode = RUN   
+                
 if mode == UNSPECIFIED:
     mode = OPEN
 
@@ -96,6 +102,8 @@ try:
         msg = t.tk.call("send", "axis", ("remote","clear_live_plot"))
     elif mode == QUIT:
         msg = t.tk.call("send", "axis", ("remote","destroy"))
+    elif mode == RUN:
+        msg = t.tk.call("send", "axis", ("remote","run_command"))             
 except Tkinter.TclError,detail:
     raise SystemExit,detail
 
