@@ -222,8 +222,8 @@ typedef struct {
     u32 data2_written;
     u32 data3_written;
     int myinst;
-    char name[21];
-    
+    char name[29];
+    char raw_name[5];
 }hm2_sserial_remote_t;
 
 typedef struct {

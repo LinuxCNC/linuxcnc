@@ -256,6 +256,9 @@ typedef struct {
 #define HM2_ENCODER_CLEAR_ON_INDEX      (1<<5)
 #define HM2_ENCODER_LATCH_ON_INDEX      (1<<4)
 #define HM2_ENCODER_INDEX_POLARITY      (1<<3)
+#define HM2_ENCODER_INPUT_INDEX         (1<<2)
+#define HM2_ENCODER_INPUT_B             (1<<1)
+#define HM2_ENCODER_INPUT_A             (1<<0)
 
 #define HM2_ENCODER_CONTROL_MASK  (0x0000ffff)
 
@@ -283,6 +286,9 @@ typedef struct {
             hal_bit_t *latch_polarity;
             hal_bit_t *quadrature_error;
             hal_bit_t *quadrature_error_enable;
+            hal_bit_t *input_a;
+            hal_bit_t *input_b;
+            hal_bit_t *input_idx;
         } pin;
 
         struct {
@@ -715,12 +721,23 @@ typedef struct {
 } hm2_stepgen_instance_t;
 
 
+// these hal params affect all stepgen instances
+typedef struct {
+    struct {
+        hal_s32_t *dpll_timer_num;
+    } pin;
+} hm2_stepgen_module_global_t;
+
 typedef struct {
     int num_instances;
     hm2_stepgen_instance_t *instance;
 
     u32 clock_frequency;
     u8 version;
+
+    // module-global HAL objects...
+    hm2_stepgen_module_global_t *hal;
+    u32 written_dpll_timer_num;
 
     // write this (via TRAM) every hm2_<foo>.write
     u32 step_rate_addr;
@@ -750,6 +767,8 @@ typedef struct {
     u32 table_sequence_length_addr;
 
     u32 master_dds_addr;
+
+    u32 dpll_timer_num_addr;
 } hm2_stepgen_t;
 
 //
@@ -997,6 +1016,7 @@ typedef struct {
     hm2_module_descriptor_t md[HM2_MAX_MODULE_DESCRIPTORS];
     int num_mds;
 
+    int dpll_module_present;
     int use_serial_numbers;
     
     hm2_pin_t *pin;
@@ -1230,8 +1250,8 @@ int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz, 
                         int delay, int cpol, int cpha, int clear, int echo);
-int hm2_bspi_set_read_function(char *name, void *func, void *subdata);
-int hm2_bspi_set_write_function(char *name, void *func, void *subdata);
+int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
+int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata);
 
 //
 // UART functions
@@ -1265,9 +1285,10 @@ void hm2_dpll_write(hostmot2_t *hm2, long period);
 int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_watchdog_print_module(hostmot2_t *hm2);
 void hm2_watchdog_cleanup(hostmot2_t *hm2);
-void hm2_watchdog_read(hostmot2_t *hm2);
-void hm2_watchdog_write(hostmot2_t *hm2);
+void hm2_watchdog_prepare_tram_write(hostmot2_t *hm2);
+void hm2_watchdog_write(hostmot2_t *hm2, long period);
 void hm2_watchdog_force_write(hostmot2_t *hm2);
+void hm2_watchdog_process_tram_read(hostmot2_t *hm2);
 
 
 

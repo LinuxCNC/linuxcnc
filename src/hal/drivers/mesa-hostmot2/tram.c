@@ -85,6 +85,9 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
     struct list_head *ptr;
     u16 offset;
     
+    int old_tram_read_size = hm2->tram_read_size;
+    int old_tram_write_size = hm2->tram_write_size;
+
     hm2->tram_read_size = 0;
     list_for_each(ptr, &hm2->tram_read_entries) {
         hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
@@ -108,12 +111,17 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
         HM2_ERR("Error while (re)allocating Translation RAM read buffer (%d bytes)\n", hm2->tram_read_size);
         return -ENOMEM;
     }
-    
+    if(hm2->tram_read_size>old_tram_read_size)
+        memset(hm2->tram_read_buffer+old_tram_read_size, 0, hm2->tram_read_size-old_tram_read_size);
+
     hm2->tram_write_buffer = (u32 *)krealloc(hm2->tram_write_buffer, hm2->tram_write_size, GFP_KERNEL);
     if (hm2->tram_write_buffer == NULL) {
         HM2_ERR("Error while (re)allocating Translation RAM write buffer (%d bytes)\n", hm2->tram_write_size);
         return -ENOMEM;
     }
+    if(hm2->tram_write_size>old_tram_write_size)
+        memset(hm2->tram_write_buffer+old_tram_write_size, 0, hm2->tram_write_size-old_tram_write_size);
+
     HM2_DBG("buffer address %p\n", &hm2->tram_write_buffer);
     HM2_DBG("Translation RAM read buffer:\n");
     offset = 0;
@@ -140,9 +148,7 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
 int hm2_tram_read(hostmot2_t *hm2) {
     static u32 tram_read_iteration = 0;
     struct list_head *ptr;
-    u16 offset;
 
-    offset = 0;
     list_for_each(ptr, &hm2->tram_read_entries) {
         hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
 

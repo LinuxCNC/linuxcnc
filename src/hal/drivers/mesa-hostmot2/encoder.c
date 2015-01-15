@@ -137,6 +137,10 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
             *e->hal.pin.quadrature_error = 0;
             last_error_enable = 0;
         }
+
+        *e->hal.pin.input_a = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_A;
+        *e->hal.pin.input_b = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_B;
+        *e->hal.pin.input_idx = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_INDEX;
     }
 }
 
@@ -462,6 +466,27 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
 
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.quad-error-enable", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.quadrature_error_enable), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.input-a", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.input_a), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.input-b", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.input_b), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.input-index", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.input_idx), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
@@ -866,11 +891,6 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
             s32 dS_counts;
             double dS_pos_units;
 
-            // these are just for debugging the encoder.vel NaN problem
-            // reported by micges, remove when the bug is fixed
-            static s32 prev_update_dS_counts;
-            static s32 prev_update_dT_clocks;
-
             // get current count from the FPGA (already read)
             reg_count = hm2_encoder_get_reg_count(hm2, instance);
             if (reg_count == e->prev_reg_count) {
@@ -907,24 +927,14 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
                 dS_pos_units = dS_counts / e->hal.param.scale;
 
-                // FIXME: There's a bug somewhere in this code that
-                //   sometimes makes encoder.velocity NaN.  Observed by
-                //   micges, but never reproduced.
-                if (dT_clocks < 1) {
-                    HM2_PRINT("(%s:%d) uh-oh, encoder vel is broken when slow\n", __FILE__, __LINE__);
-                    HM2_PRINT("    please email a bug report to the linuxcnc-devel list!\n");
-                    HM2_PRINT("    dS_counts=%d, dT_clocks=%d\n", dS_counts, dT_clocks);
-                    HM2_PRINT("    prev_update_dS_counts=%d, prev_update_dT_clocks=%d\n", prev_update_dS_counts, prev_update_dT_clocks);
-                } else {
+                // we can calculate velocity only if timestamp changed along with counts
+                if (dT_clocks > 0) {
                     // we know the encoder velocity is not faster than this
                     vel = dS_pos_units / dT_s;
                     if (fabs(vel) < fabs(*e->hal.pin.velocity)) {
                         *e->hal.pin.velocity = vel;
                     }
                 }
-
-                prev_update_dS_counts = dS_counts;
-                prev_update_dT_clocks = dT_clocks;
 
 		// if waiting for index or latch, we can't shirk our duty just
 		// because no pulses arrived
@@ -961,30 +971,18 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     || (((*e->hal.pin.rawcounts - e->prev_event_rawcounts) == -1) && (e->prev_dS_counts > 0))
                 ) {
                     *e->hal.pin.velocity = 0.0;
-                    prev_update_dT_clocks = -1;  // magic value meaning "i ignored dT_clocks last time"
                 } else {
                     dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
                     dT_s = (double)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
 
                     dS_pos_units = dS_counts / e->hal.param.scale;
 
-                    // FIXME: There's a bug somewhere in this code that
-                    //   sometimes makes encoder.velocity NaN.  Observed by
-                    //   micges, but never reproduced.
-                    if (dT_clocks < 1) {
-                        HM2_PRINT("(%s:%d) uh-oh, encoder vel is broken with an edge\n", __FILE__, __LINE__);
-                        HM2_PRINT("    please email a bug report to the linuxcnc-devel list!\n");
-                        HM2_PRINT("    dS_counts=%d, dT_clocks=%d\n", dS_counts, dT_clocks);
-                        HM2_PRINT("    prev_update_dS_counts=%d, prev_update_dT_clocks=%d\n", prev_update_dS_counts, prev_update_dT_clocks);
-                    } else {
+                    // we can calculate velocity only if timestamp changed along with counts
+                    if (dT_clocks > 0) {
                         // finally time to do Relative-Time Velocity Estimation
                         *e->hal.pin.velocity = dS_pos_units / dT_s;
                     }
-
-                    prev_update_dT_clocks = dT_clocks;
                 }
-
-                prev_update_dS_counts = dS_counts;
 
                 e->tsc_num_rollovers = 0;  // we're "using up" the rollovers now
 
