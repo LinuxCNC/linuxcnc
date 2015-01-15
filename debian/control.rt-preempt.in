@@ -2,7 +2,10 @@
 Package: machinekit-rt-preempt
 Architecture: any
 Depends: machinekit (= ${binary:Version}), ${shlibs:Depends},
-	linux-image-rt-${preempt-rt-ext} [!armhf]
+# These Debian-style RT_PREEMPT package names are restricted by
+# architecture; ARM arch SOCs are all incompatible, so this can't be
+# easily done for ARM.
+ linux-image-rt.x86-686-pae [i386], linux-image-rt.x86-amd64 [amd64]
 Provides:  machinekit-rt-threads
 Suggests: hostmot2-firmware-all [!armhf]
 Enhances: machinekit

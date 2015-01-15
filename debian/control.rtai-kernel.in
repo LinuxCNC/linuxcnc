@@ -2,7 +2,7 @@
 Package: machinekit-rtai-kernel-@KVER@
 Architecture: @ARCH@
 Depends: machinekit (= ${binary:Version}), ${shlibs:Depends},
-	linux-image-@KVER@, rtai-modules-@KVER@
+	linux-image-@KVER@, librtai1
 Provides:  machinekit-rt-threads, machinekit-rtai-kernel
 Suggests: hostmot2-firmware-all [!armhf]
 Enhances: machinekit
