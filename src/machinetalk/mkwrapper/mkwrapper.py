@@ -31,6 +31,10 @@ from preview_pb2 import *
 from object_pb2 import ProtocolParameters
 
 
+def printError(msg):
+    sys.stderr.write('ERROR: ' + msg + '\n')
+
+
 def getFreePort():
     sock = socket.socket()
     sock.bind(('', 0))
@@ -82,7 +86,7 @@ class FileService(threading.Thread):
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
             self.directory = os.path.expanduser(self.directory)
         except linuxcnc.error as detail:
-            print(("error", detail))
+            printError(detail)
             sys.exit(1)
 
         self.filePort = getFreePort()
@@ -121,7 +125,7 @@ class FileService(threading.Thread):
         try:
             self.fileService.publish()
         except Exception as e:
-            print (('cannot register DNS service' + str(e)))
+            printError('cannot register DNS service' + str(e))
             sys.exit(1)
 
         threading.Thread.__init__(self)
@@ -217,14 +221,14 @@ class Preview():
                 error = " gcode error: %s " % (preview.strerror(result))
                 line = last_sequence_number - 1
                 if self.debug:
-                    print(("preview: " + self.filename))
-                    print((error + " on line " + str(line)))
+                    printError("preview: " + self.filename)
+                    printError(error + " on line " + str(line))
                 if self.errorCallback is not None:
 
                     self.errorCallback(error, line)
 
         except Exception as e:
-            print(("exception" + str(e)))
+            printError("preview exception" + str(e))
 
         if self.debug:
             print("Preview exiting")
@@ -264,7 +268,7 @@ class LinuxCNCWrapper():
 
         # status
         self.status = StatusValues()
-        self.txStatus = StatusValues()
+        self.statusTx = StatusValues()
         self.motionSubscribed = False
         self.motionFullUpdate = False
         self.motionFirstrun = True
@@ -318,7 +322,7 @@ class LinuxCNCWrapper():
                 self.command.program_open(filePath)
 
         except linuxcnc.error as detail:
-            print(("error", detail))
+            printError(detail)
             sys.exit(1)
 
         if self.pingInterval > 0:
@@ -327,9 +331,10 @@ class LinuxCNCWrapper():
             self.pingRatio = -1
         self.pingCount = 0
 
-        self.rx = Container()
-        self.tx = Container()    # Task 1 - PUB-SUB
-        self.tx2 = Container()   # Task 2 - ROUTER-DEALER
+        self.rx = Container()          # Used by the command socket
+        self.txStatus = Container()    # Status socket - PUB-SUB
+        self.txCommand = Container()   # Command socket - ROUTER-DEALER
+        self.txError = Container()     # Error socket - PUB-SUB
         self.context = context
         self.baseUri = "tcp://" + self.ip
         self.statusSocket = context.socket(zmq.XPUB)
@@ -417,7 +422,7 @@ class LinuxCNCWrapper():
             self.previewService.publish()
             self.previewstatusService.publish()
         except Exception as e:
-            print (('cannot register DNS service' + str(e)))
+            printError('cannot register DNS service' + str(e))
             sys.exit(1)
 
     def unpublish(self):
@@ -544,7 +549,7 @@ class LinuxCNCWrapper():
 
                 if extensionModified:
                     txExtension.index = index
-                    self.txStatus.config.program_extension.add().CopyFrom(txExtension)
+                    self.statusTx.config.program_extension.add().CopyFrom(txExtension)
                     modified = True
             del txExtension
 
@@ -555,7 +560,7 @@ class LinuxCNCWrapper():
                 positionOffset = EMC_CONFIG_RELATIVE_OFFSET
             if (self.status.config.position_offset != positionOffset):
                 self.status.config.position_offset = positionOffset
-                self.txStatus.config.position_offset = positionOffset
+                self.statusTx.config.position_offset = positionOffset
                 modified = True
 
             positionFeedback = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'ACTUAL'
@@ -565,127 +570,127 @@ class LinuxCNCWrapper():
                 positionFeedback = EMC_CONFIG_ACTUAL_FEEDBACK
             if (self.status.config.position_feedback != positionFeedback):
                 self.status.config.position_feedback = positionFeedback
-                self.txStatus.config.position_feedback = positionFeedback
+                self.statusTx.config.position_feedback = positionFeedback
                 modified = True
 
             maxFeedOverride = float(self.ini.find('DISPLAY', 'MAX_FEED_OVERRIDE') or 1.2)
             if (self.status.config.max_feed_override != maxFeedOverride):
                 self.status.config.max_feed_override = maxFeedOverride
-                self.txStatus.config.max_feed_override = maxFeedOverride
+                self.statusTx.config.max_feed_override = maxFeedOverride
                 modified = True
 
             minFeedOverride = float(self.ini.find('DISPLAY', 'MIN_FEED_OVERRIDE') or 0.5)
             if (self.status.config.min_feed_override != minFeedOverride):
                 self.status.config.min_feed_override = minFeedOverride
-                self.txStatus.config.min_feed_override = minFeedOverride
+                self.statusTx.config.min_feed_override = minFeedOverride
                 modified = True
 
             maxSpindleOverride = float(self.ini.find('DISPLAY', 'MAX_SPINDLE_OVERRIDE') or 1.0)
             if (self.status.config.max_spindle_override != maxSpindleOverride):
                 self.status.config.max_spindle_override = maxSpindleOverride
-                self.txStatus.config.max_spindle_override = maxSpindleOverride
+                self.statusTx.config.max_spindle_override = maxSpindleOverride
                 modified = True
 
             minSpindleOverride = float(self.ini.find('DISPLAY', 'MIN_SPINDLE_OVERRIDE') or 0.5)
             if (self.status.config.min_spindle_override != minSpindleOverride):
                 self.status.config.min_spindle_override = minSpindleOverride
-                self.txStatus.config.min_spindle_override = minSpindleOverride
+                self.statusTx.config.min_spindle_override = minSpindleOverride
                 modified = True
 
             defaultSpindleSpeed = float(self.ini.find('DISPLAY', 'DEFAULT_SPINDLE_SPEED') or 1)
             if (self.status.config.default_spindle_speed != defaultSpindleSpeed):
                 self.status.config.default_spindle_speed = defaultSpindleSpeed
-                self.txStatus.config.default_spindle_speed = defaultSpindleSpeed
+                self.statusTx.config.default_spindle_speed = defaultSpindleSpeed
                 modified = True
 
             defaultLinearVelocity = float(self.ini.find('DISPLAY', 'DEFAULT_LINEAR_VELOCITY') or 0.25)
             if (self.status.config.default_linear_velocity != defaultLinearVelocity):
                 self.status.config.default_linear_velocity = defaultLinearVelocity
-                self.txStatus.config.default_linear_velocity = defaultLinearVelocity
+                self.statusTx.config.default_linear_velocity = defaultLinearVelocity
                 modified = True
 
             minVelocity = float(self.ini.find('DISPLAY', 'MIN_VELOCITY') or 0.01)
             if (self.status.config.min_velocity != minVelocity):
                 self.status.config.min_velocity = minVelocity
-                self.txStatus.config.min_velocity = minVelocity
+                self.statusTx.config.min_velocity = minVelocity
                 modified = True
 
             maxLinearVelocity = float(self.ini.find('DISPLAY', 'MAX_LINEAR_VELOCITY') or 1.00)
             if (self.status.config.max_linear_velocity != maxLinearVelocity):
                 self.status.config.max_linear_velocity = maxLinearVelocity
-                self.txStatus.config.max_linear_velocity = maxLinearVelocity
+                self.statusTx.config.max_linear_velocity = maxLinearVelocity
                 modified = True
 
             minLinearVelocity = float(self.ini.find('DISPLAY', 'MIN_LINEAR_VELOCITY') or 0.01)
             if (self.status.config.min_linear_velocity != minLinearVelocity):
                 self.status.config.min_linear_velocity = minLinearVelocity
-                self.txStatus.config.min_linear_velocity = minLinearVelocity
+                self.statusTx.config.min_linear_velocity = minLinearVelocity
                 modified = True
 
             defaultAngularVelocity = float(self.ini.find('DISPLAY', 'DEFAULT_ANGULAR_VELOCITY') or 0.25)
             if (self.status.config.default_angular_velocity != defaultAngularVelocity):
                 self.status.config.default_angular_velocity = defaultAngularVelocity
-                self.txStatus.config.default_angular_velocity = defaultAngularVelocity
+                self.statusTx.config.default_angular_velocity = defaultAngularVelocity
                 modified = True
 
             maxAngularVelocity = float(self.ini.find('DISPLAY', 'MAX_ANGULAR_VELOCITY') or 1.00)
             if (self.status.config.max_angular_velocity != maxAngularVelocity):
                 self.status.config.max_angular_velocity = maxAngularVelocity
-                self.txStatus.config.max_angular_velocity = maxAngularVelocity
+                self.statusTx.config.max_angular_velocity = maxAngularVelocity
                 modified = True
 
             minAngularVelocity = float(self.ini.find('DISPLAY', 'MIN_ANGULAR_VELOCITY') or 0.01)
             if (self.status.config.min_angular_velocity != minAngularVelocity):
                 self.status.config.min_angular_velocity = minAngularVelocity
-                self.txStatus.config.min_angular_velocity = minAngularVelocity
+                self.statusTx.config.min_angular_velocity = minAngularVelocity
                 modified = True
 
             increments = self.ini.find('DISPLAY', 'INCREMENTS') or ''
             if (self.status.config.increments != increments):
                 self.status.config.increments = increments
-                self.txStatus.config.increments = increments
+                self.statusTx.config.increments = increments
                 modified = True
 
             grids = self.ini.find('DISPLAY', 'GRIDS') or ''
             if (self.status.config.grids != grids):
                 self.status.config.grids = grids
-                self.txStatus.config.grids = grids
+                self.statusTx.config.grids = grids
                 modified = True
 
             lathe = bool(self.ini.find('DISPLAY', 'LATHE') or False)
             if (self.status.config.lathe != lathe):
                 self.status.config.lathe = lathe
-                self.txStatus.config.lathe = lathe
+                self.statusTx.config.lathe = lathe
                 modified = True
 
             geometry = self.ini.find('DISPLAY', 'GEOMETRY') or ''
             if (self.status.config.geometry != geometry):
                 self.status.config.geometry = geometry
-                self.txStatus.config.geometry = geometry
+                self.statusTx.config.geometry = geometry
                 modified = True
 
             arcdivision = int(self.ini.find('DISPLAY', 'ARCDIVISION') or 64)
             if (self.status.config.arcdivision != arcdivision):
                 self.status.config.arcdivision = arcdivision
-                self.txStatus.config.arcdivision = arcdivision
+                self.statusTx.config.arcdivision = arcdivision
                 modified = True
 
             noForceHoming = bool(self.ini.find('TRAJ', 'NO_FORCE_HOMING') or False)
             if (self.status.config.no_force_homing != noForceHoming):
                 self.status.config.no_force_homing = noForceHoming
-                self.txStatus.config.no_force_homing = noForceHoming
+                self.statusTx.config.no_force_homing = noForceHoming
                 modified = True
 
             maxVelocity = float(self.ini.find('TRAJ', 'MAX_VELOCITY') or 5.0)
             if (self.status.config.max_velocity != maxVelocity):
                 self.status.config.max_velocity = maxVelocity
-                self.txStatus.config.max_velocity = maxVelocity
+                self.statusTx.config.max_velocity = maxVelocity
                 modified = True
 
             maxAcceleration = float(self.ini.find('TRAJ', 'MAX_ACCELERATION') or 20.0)
             if (self.status.config.max_acceleration != maxAcceleration):
                 self.status.config.max_acceleration = maxAcceleration
-                self.txStatus.config.max_acceleration = maxAcceleration
+                self.statusTx.config.max_acceleration = maxAcceleration
                 modified = True
 
             timeUnits = str(self.ini.find('DISPLAY', 'TIME_UNITS') or 'min')
@@ -697,33 +702,33 @@ class LinuxCNCWrapper():
                 timeUnitsConverted = TIME_UNITS_MINUTE
             if (self.status.config.time_units != timeUnitsConverted):
                 self.status.config.time_units = timeUnitsConverted
-                self.txStatus.config.time_units = timeUnitsConverted
+                self.statusTx.config.time_units = timeUnitsConverted
                 modified = True
 
             if (self.status.config.remote_path != self.directory):
                 self.status.config.remote_path = self.directory
-                self.txStatus.config.remote_path = self.directory
+                self.statusTx.config.remote_path = self.directory
                 modified = True
            
             name = str(self.ini.find('EMC', 'MACHINE') or '')
             if (self.status.config.name != name):
                 self.status.config.name = name
-                self.txStatus.config.name = name
+                self.statusTx.config.name = name
                 modified = True
 
         if self.notEqual(self.status.config.default_acceleration, stat.acceleration):
             self.status.config.default_acceleration = stat.acceleration
-            self.txStatus.config.default_acceleration = stat.acceleration
+            self.statusTx.config.default_acceleration = stat.acceleration
             modified = True
 
         if self.notEqual(self.status.config.angular_units, stat.angular_units):
             self.status.config.angular_units = stat.angular_units
-            self.txStatus.config.angular_units = stat.angular_units
+            self.statusTx.config.angular_units = stat.angular_units
             modified = True
 
         if (self.status.config.axes != stat.axes):
             self.status.config.axes = stat.axes
-            self.txStatus.config.axes = stat.axes
+            self.statusTx.config.axes = stat.axes
             modified = True
 
         txAxis = EmcStatusConfigAxis()
@@ -789,44 +794,44 @@ class LinuxCNCWrapper():
 
             if axisModified:
                 txAxis.index = index
-                self.txStatus.config.axis.add().CopyFrom(txAxis)
+                self.statusTx.config.axis.add().CopyFrom(txAxis)
                 modified = True
 
         del txAxis
 
         if (self.status.config.axis_mask != stat.axis_mask):
             self.status.config.axis_mask = stat.axis_mask
-            self.txStatus.config.axis_mask = stat.axis_mask
+            self.statusTx.config.axis_mask = stat.axis_mask
             modified = True
 
         if self.notEqual(self.status.config.cycle_time, stat.cycle_time):
             self.status.config.cycle_time = stat.cycle_time
-            self.txStatus.config.cycle_time = stat.cycle_time
+            self.statusTx.config.cycle_time = stat.cycle_time
             modified = True
 
         if (self.status.config.debug != stat.debug):
             self.status.config.debug = stat.debug
-            self.txStatus.config.debug = stat.debug
+            self.statusTx.config.debug = stat.debug
             modified = True
 
         if (self.status.config.kinematics_type != stat.kinematics_type):
             self.status.config.kinematics_type = stat.kinematics_type
-            self.txStatus.config.kinematics_type = stat.kinematics_type
+            self.statusTx.config.kinematics_type = stat.kinematics_type
             modified = True
 
         if self.notEqual(self.status.config.linear_units, stat.linear_units):
             self.status.config.linear_units = stat.linear_units
-            self.txStatus.config.linear_units = stat.linear_units
+            self.statusTx.config.linear_units = stat.linear_units
             modified = True
 
         if (self.status.config.program_units != stat.program_units):
             self.status.config.program_units = stat.program_units
-            self.txStatus.config.program_units = stat.program_units
+            self.statusTx.config.program_units = stat.program_units
             modified = True
 
         if self.notEqual(self.status.config.default_velocity, stat.velocity):
             self.status.config.default_velocity = stat.velocity
-            self.txStatus.config.default_velocity = stat.velocity
+            self.statusTx.config.default_velocity = stat.velocity
             modified = True
 
         if self.configFullUpdate:
@@ -834,7 +839,7 @@ class LinuxCNCWrapper():
             self.send_config(self.status.config, MT_EMCSTAT_FULL_UPDATE)
             self.configFullUpdate = False
         elif modified:
-            self.send_config(self.txStatus.config, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_config(self.statusTx.config, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_io(self, stat):
         modified = False
@@ -852,37 +857,37 @@ class LinuxCNCWrapper():
 
         if (self.status.io.estop != stat.estop):
             self.status.io.estop = stat.estop
-            self.txStatus.io.estop = stat.estop
+            self.statusTx.io.estop = stat.estop
             modified = True
 
         if (self.status.io.flood != stat.flood):
             self.status.io.flood = stat.flood
-            self.txStatus.io.flood = stat.flood
+            self.statusTx.io.flood = stat.flood
             modified = True
 
         if (self.status.io.lube != stat.lube):
             self.status.io.lube = stat.lube
-            self.txStatus.io.lube = stat.lube
+            self.statusTx.io.lube = stat.lube
             modified = True
 
         if (self.status.io.lube_level != stat.lube_level):
             self.status.io.lube_level = stat.lube_level
-            self.txStatus.io.lube_level = stat.lube_level
+            self.statusTx.io.lube_level = stat.lube_level
             modified = True
 
         if (self.status.io.mist != stat.mist):
             self.status.io.mist = stat.mist
-            self.txStatus.io.mist = stat.mist
+            self.statusTx.io.mist = stat.mist
             modified = True
 
         if (self.status.io.pocket_prepped != stat.pocket_prepped):
             self.status.io.pocket_prepped = stat.pocket_prepped
-            self.txStatus.io.pocket_prepped = stat.pocket_prepped
+            self.statusTx.io.pocket_prepped = stat.pocket_prepped
             modified = True
 
         if (self.status.io.tool_in_spindle != stat.tool_in_spindle):
             self.status.io.tool_in_spindle = stat.tool_in_spindle
-            self.txStatus.io.tool_in_spindle = stat.tool_in_spindle
+            self.statusTx.io.tool_in_spindle = stat.tool_in_spindle
             modified = True
 
         positionModified = False
@@ -890,7 +895,7 @@ class LinuxCNCWrapper():
         positionModified, txPosition = self.check_position(self.status.io.tool_offset, stat.tool_offset)
         if positionModified:
             self.status.io.tool_offset.MergeFrom(txPosition)
-            self.txStatus.io.tool_offset.CopyFrom(txPosition)
+            self.statusTx.io.tool_offset.CopyFrom(txPosition)
             modified = True
         del txPosition
 
@@ -992,7 +997,7 @@ class LinuxCNCWrapper():
 
             if toolResultModified:
                 txToolResult.index = index
-                self.txStatus.io.tool_table.add().CopyFrom(txToolResult)
+                self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
                 modified = True
         del txToolResult
 
@@ -1001,7 +1006,7 @@ class LinuxCNCWrapper():
             self.send_io(self.status.io, MT_EMCSTAT_FULL_UPDATE)
             self.ioFullUpdate = False
         elif modified:
-            self.send_io(self.txStatus.io, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_io(self.statusTx.io, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_task(self, stat):
         modified = False
@@ -1020,47 +1025,47 @@ class LinuxCNCWrapper():
 
         if (self.status.task.echo_serial_number != stat.echo_serial_number):
             self.status.task.echo_serial_number = stat.echo_serial_number
-            self.txStatus.task.echo_serial_number = stat.echo_serial_number
+            self.statusTx.task.echo_serial_number = stat.echo_serial_number
             modified = True
 
         if (self.status.task.exec_state != stat.exec_state):
             self.status.task.exec_state = stat.exec_state
-            self.txStatus.task.exec_state = stat.exec_state
+            self.statusTx.task.exec_state = stat.exec_state
             modified = True
 
         if (self.status.task.file != stat.file):
             self.status.task.file = stat.file
-            self.txStatus.task.file = stat.file
+            self.statusTx.task.file = stat.file
             modified = True
 
         if (self.status.task.input_timeout != stat.input_timeout):
             self.status.task.input_timeout = stat.input_timeout
-            self.txStatus.task.input_timeout = stat.input_timeout
+            self.statusTx.task.input_timeout = stat.input_timeout
             modified = True
 
         if (self.status.task.optional_stop != stat.optional_stop):
             self.status.task.optional_stop = stat.optional_stop
-            self.txStatus.task.optional_stop = stat.optional_stop
+            self.statusTx.task.optional_stop = stat.optional_stop
             modified = True
 
         if (self.status.task.read_line != stat.read_line):
             self.status.task.read_line = stat.read_line
-            self.txStatus.task.read_line = stat.read_line
+            self.statusTx.task.read_line = stat.read_line
             modified = True
 
         if (self.status.task.task_mode != stat.task_mode):
             self.status.task.task_mode = stat.task_mode
-            self.txStatus.task.task_mode = stat.task_mode
+            self.statusTx.task.task_mode = stat.task_mode
             modified = True
 
         if (self.status.task.task_paused != stat.task_paused):
             self.status.task.task_paused = stat.task_paused
-            self.txStatus.task.task_paused = stat.task_paused
+            self.statusTx.task.task_paused = stat.task_paused
             modified = True
 
         if (self.status.task.task_state != stat.task_state):
             self.status.task.task_state = stat.task_state
-            self.txStatus.task.task_state = stat.task_state
+            self.statusTx.task.task_state = stat.task_state
             modified = True
 
         if self.taskFullUpdate:
@@ -1068,7 +1073,7 @@ class LinuxCNCWrapper():
             self.send_task(self.status.task, MT_EMCSTAT_FULL_UPDATE)
             self.taskFullUpdate = False
         elif modified:
-            self.send_task(self.txStatus.task, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_task(self.statusTx.task, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_interp(self, stat):
         modified = False
@@ -1081,7 +1086,7 @@ class LinuxCNCWrapper():
 
         if (self.status.interp.command != stat.command):
             self.status.interp.command = stat.command
-            self.txStatus.interp.command = stat.command
+            self.statusTx.interp.command = stat.command
             modified = True
 
         txStatusGCode = EmcStatusGCode()
@@ -1101,18 +1106,18 @@ class LinuxCNCWrapper():
 
             if gcodeModified:
                 txStatusGCode.index = index
-                self.txStatus.interp.gcodes.add().CopyFrom(txStatusGCode)
+                self.statusTx.interp.gcodes.add().CopyFrom(txStatusGCode)
                 modified = True
         del txStatusGCode
 
         if (self.status.interp.interp_state != stat.interp_state):
             self.status.interp.interp_state = stat.interp_state
-            self.txStatus.interp.interp_state = stat.interp_state
+            self.statusTx.interp.interp_state = stat.interp_state
             modified = True
 
         if (self.status.interp.interpreter_errcode != stat.interpreter_errcode):
             self.status.interp.interpreter_errcode = stat.interpreter_errcode
-            self.txStatus.interp.interpreter_errcode = stat.interpreter_errcode
+            self.statusTx.interp.interpreter_errcode = stat.interpreter_errcode
             modified = True
 
         txStatusMCode = EmcStatusMCode()
@@ -1132,7 +1137,7 @@ class LinuxCNCWrapper():
 
             if mcodeModified:
                 txStatusMCode.index = index
-                self.txStatus.interp.mcodes.add().CopyFrom(txStatusMCode)
+                self.statusTx.interp.mcodes.add().CopyFrom(txStatusMCode)
                 modified = True
         del txStatusMCode
 
@@ -1153,7 +1158,7 @@ class LinuxCNCWrapper():
 
             if settingModified:
                 txStatusSetting.index = index
-                self.txStatus.interp.settings.add().CopyFrom(txStatusSetting)
+                self.statusTx.interp.settings.add().CopyFrom(txStatusSetting)
                 modified = True
         del txStatusSetting
 
@@ -1162,7 +1167,7 @@ class LinuxCNCWrapper():
             self.send_interp(self.status.interp, MT_EMCSTAT_FULL_UPDATE)
             self.interpFullUpdate = False
         elif modified:
-            self.send_interp(self.txStatus.interp, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_interp(self.statusTx.interp, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_motion(self, stat):
         modified = False
@@ -1214,7 +1219,7 @@ class LinuxCNCWrapper():
 
         if (self.status.motion.active_queue != stat.active_queue):
             self.status.motion.active_queue = stat.active_queue
-            self.txStatus.motion.active_queue = stat.active_queue
+            self.statusTx.motion.active_queue = stat.active_queue
             modified = True
 
         positionModified = False
@@ -1222,13 +1227,13 @@ class LinuxCNCWrapper():
         positionModified, txPosition = self.check_position(self.status.motion.actual_position, stat.actual_position)
         if positionModified:
             self.status.motion.actual_position.MergeFrom(txPosition)
-            self.txStatus.motion.actual_position.CopyFrom(txPosition)
+            self.statusTx.motion.actual_position.CopyFrom(txPosition)
             modified = True
         del txPosition
 
         if (self.status.motion.adaptive_feed_enabled != stat.adaptive_feed_enabled):
             self.status.motion.adaptive_feed_enabled = stat.adaptive_feed_enabled
-            self.txStatus.motion.adaptive_feed_enabled = stat.adaptive_feed_enabled
+            self.statusTx.motion.adaptive_feed_enabled = stat.adaptive_feed_enabled
             modified = True
 
         txAin = EmcStatusAnalogIO()
@@ -1248,7 +1253,7 @@ class LinuxCNCWrapper():
 
             if ainModified:
                 txAin.index = index
-                self.txStatus.motion.ain.add().CopyFrom(txAin)
+                self.statusTx.motion.ain.add().CopyFrom(txAin)
                 modified = True
         del txAin
 
@@ -1269,7 +1274,7 @@ class LinuxCNCWrapper():
 
             if aoutModified:
                 txAout.index = index
-                self.txStatus.motion.aout.add().CopyFrom(txAout)
+                self.statusTx.motion.aout.add().CopyFrom(txAout)
                 modified = True
         del txAout
 
@@ -1377,28 +1382,28 @@ class LinuxCNCWrapper():
 
             if axisModified:
                 txAxis.index = index
-                self.txStatus.motion.axis.add().CopyFrom(txAxis)
+                self.statusTx.motion.axis.add().CopyFrom(txAxis)
                 modified = True
         del txAxis
 
         if (self.status.motion.block_delete != stat.block_delete):
             self.status.motion.block_delete = stat.block_delete
-            self.txStatus.motion.block_delete = stat.block_delete
+            self.statusTx.motion.block_delete = stat.block_delete
             modified = True
 
         if (self.status.motion.current_line != stat.current_line):
             self.status.motion.current_line = stat.current_line
-            self.txStatus.motion.current_line = stat.current_line
+            self.statusTx.motion.current_line = stat.current_line
             modified = True
 
         if self.notEqual(self.status.motion.current_vel, stat.current_vel):
             self.status.motion.current_vel = stat.current_vel
-            self.txStatus.motion.current_vel = stat.current_vel
+            self.statusTx.motion.current_vel = stat.current_vel
             modified = True
 
         if self.notEqual(self.status.motion.delay_left, stat.delay_left):
             self.status.motion.delay_left = stat.delay_left
-            self.txStatus.motion.delay_left = stat.delay_left
+            self.statusTx.motion.delay_left = stat.delay_left
             modified = True
 
         txDin = EmcStatusDigitalIO()
@@ -1418,13 +1423,13 @@ class LinuxCNCWrapper():
 
             if dinModified:
                 txDin.index = index
-                self.txStatus.motion.din.add().CopyFrom(txDin)
+                self.statusTx.motion.din.add().CopyFrom(txDin)
                 modified = True
         del txDin
 
         if self.notEqual(self.status.motion.distance_to_go, stat.distance_to_go):
             self.status.motion.distance_to_go = stat.distance_to_go
-            self.txStatus.motion.distance_to_go = stat.distance_to_go
+            self.statusTx.motion.distance_to_go = stat.distance_to_go
             modified = True
 
         txDout = EmcStatusDigitalIO()
@@ -1444,77 +1449,77 @@ class LinuxCNCWrapper():
 
             if doutModified:
                 txDout.index = index
-                self.txStatus.motion.dout.add().CopyFrom(txDout)
+                self.statusTx.motion.dout.add().CopyFrom(txDout)
                 modified = True
         del txDout
 
         positionModified, txPosition = self.check_position(self.status.motion.dtg, stat.dtg)
         if positionModified:
             self.status.motion.dtg.MergeFrom(txPosition)
-            self.txStatus.motion.dtg.CopyFrom(txPosition)
+            self.statusTx.motion.dtg.CopyFrom(txPosition)
             modified = True
         del txPosition
 
         if (self.status.motion.enabled != stat.enabled):
             self.status.motion.enabled = stat.enabled
-            self.txStatus.motion.enabled = stat.enabled
+            self.statusTx.motion.enabled = stat.enabled
             modified = True
 
         if (self.status.motion.feed_hold_enabled != stat.feed_hold_enabled):
             self.status.motion.feed_hold_enabled = stat.feed_hold_enabled
-            self.txStatus.motion.feed_hold_enabled = stat.feed_hold_enabled
+            self.statusTx.motion.feed_hold_enabled = stat.feed_hold_enabled
             modified = True
 
         if (self.status.motion.feed_override_enabled != stat.feed_override_enabled):
             self.status.motion.feed_override_enabled = stat.feed_override_enabled
-            self.txStatus.motion.feed_override_enabled = stat.feed_override_enabled
+            self.statusTx.motion.feed_override_enabled = stat.feed_override_enabled
             modified = True
 
         if self.notEqual(self.status.motion.feedrate, stat.feedrate):
             self.status.motion.feedrate = stat.feedrate
-            self.txStatus.motion.feedrate = stat.feedrate
+            self.statusTx.motion.feedrate = stat.feedrate
             modified = True
 
         if (self.status.motion.g5x_index != stat.g5x_index):
             self.status.motion.g5x_index = stat.g5x_index
-            self.txStatus.motion.g5x_index = stat.g5x_index
+            self.statusTx.motion.g5x_index = stat.g5x_index
             modified = True
 
         positionModified, txPosition = self.check_position(self.status.motion.g5x_offset, stat.g5x_offset)
         if positionModified:
             self.status.motion.g5x_offset.MergeFrom(txPosition)
-            self.txStatus.motion.g5x_offset.CopyFrom(txPosition)
+            self.statusTx.motion.g5x_offset.CopyFrom(txPosition)
             modified = True
         del txPosition
 
         positionModified, txPosition = self.check_position(self.status.motion.g92_offset, stat.g92_offset)
         if positionModified:
             self.status.motion.g92_offset.MergeFrom(txPosition)
-            self.txStatus.motion.g92_offset.CopyFrom(txPosition)
+            self.statusTx.motion.g92_offset.CopyFrom(txPosition)
             modified = True
         del txPosition
 
         if (self.status.motion.id != stat.id):
             self.status.motion.id = stat.id
-            self.txStatus.motion.id = stat.id
+            self.statusTx.motion.id = stat.id
             modified = True
 
         if (self.status.motion.inpos != stat.inpos):
             self.status.motion.inpos = stat.inpos
-            self.txStatus.motion.inpos = stat.inpos
+            self.statusTx.motion.inpos = stat.inpos
             modified = True
 
         positionModified, txPosition = self.check_position(self.status.motion.joint_actual_position, stat.joint_actual_position)
         if positionModified:
             self.status.motion.joint_actual_position.MergeFrom(txPosition)
-            self.txStatus.motion.joint_actual_position.CopyFrom(txPosition)
+            self.statusTx.motion.joint_actual_position.CopyFrom(txPosition)
             modified = True
         del txPosition
 
         positionModified, txPosition = self.check_position(self.status.motion.joint_position, stat.joint_position)
         if positionModified:
             self.status.motion.joint_position.MergeFrom(txPosition)
-            self.txStatus.motion.joint_position.CopyFrom(txPosition)
+            self.statusTx.motion.joint_position.CopyFrom(txPosition)
             modified = True
         del txPosition
 
@@ -1538,122 +1543,122 @@ class LinuxCNCWrapper():
 
             if limitModified:
                 txLimit.index = index
-                self.txStatus.motion.limit.add().CopyFrom(txLimit)
+                self.statusTx.motion.limit.add().CopyFrom(txLimit)
                 modified = True
         del txLimit
 
         if (self.status.motion.motion_line != stat.motion_line):
             self.status.motion.motion_line = stat.motion_line
-            self.txStatus.motion.motion_line = stat.motion_line
+            self.statusTx.motion.motion_line = stat.motion_line
             modified = True
 
         if (self.status.motion.motion_type != stat.motion_type):
             self.status.motion.motion_type = stat.motion_type
-            self.txStatus.motion.motion_type = stat.motion_type
+            self.statusTx.motion.motion_type = stat.motion_type
             modified = True
 
         if (self.status.motion.motion_mode != stat.motion_mode):
             self.status.motion.motion_mode = stat.motion_mode
-            self.txStatus.motion.motion_mode = stat.motion_mode
+            self.statusTx.motion.motion_mode = stat.motion_mode
             modified = True
 
         if (self.status.motion.paused != stat.paused):
             self.status.motion.paused = stat.paused
-            self.txStatus.motion.paused = stat.paused
+            self.statusTx.motion.paused = stat.paused
             modified = True
 
         positionModified, txPosition = self.check_position(self.status.motion.position, stat.position)
         if positionModified:
             self.status.motion.position.MergeFrom(txPosition)
-            self.txStatus.motion.position.CopyFrom(txPosition)
+            self.statusTx.motion.position.CopyFrom(txPosition)
             modified = True
         del txPosition
 
         if (self.status.motion.probe_tripped != stat.probe_tripped):
             self.status.motion.probe_tripped = stat.probe_tripped
-            self.txStatus.motion.probe_tripped = stat.probe_tripped
+            self.statusTx.motion.probe_tripped = stat.probe_tripped
             modified = True
 
         if (self.status.motion.probe_val != stat.probe_val):
             self.status.motion.probe_val = stat.probe_val
-            self.txStatus.motion.probe_val = stat.probe_val
+            self.statusTx.motion.probe_val = stat.probe_val
             modified = True
 
         positionModified, txPosition = self.check_position(self.status.motion.probed_position, stat.probed_position)
         if positionModified:
             self.status.motion.probed_position.MergeFrom(txPosition)
-            self.txStatus.motion.probed_position.CopyFrom(txPosition)
+            self.statusTx.motion.probed_position.CopyFrom(txPosition)
             modified = True
         del txPosition
 
         if (self.status.motion.probing != stat.probing):
             self.status.motion.probing = stat.probing
-            self.txStatus.motion.probing = stat.probing
+            self.statusTx.motion.probing = stat.probing
             modified = True
 
         if (self.status.motion.queue != stat.queue):
             self.status.motion.queue = stat.queue
-            self.txStatus.motion.queue = stat.queue
+            self.statusTx.motion.queue = stat.queue
             modified = True
 
         if (self.status.motion.queue_full != stat.queue_full):
             self.status.motion.queue_full = stat.queue_full
-            self.txStatus.motion.queue_full = stat.queue_full
+            self.statusTx.motion.queue_full = stat.queue_full
             modified = True
 
         if self.notEqual(self.status.motion.rotation_xy, stat.rotation_xy):
             self.status.motion.rotation_xy = stat.rotation_xy
-            self.txStatus.motion.rotation_xy = stat.rotation_xy
+            self.statusTx.motion.rotation_xy = stat.rotation_xy
             modified = True
 
         if (self.status.motion.spindle_brake != stat.spindle_brake):
             self.status.motion.spindle_brake = stat.spindle_brake
-            self.txStatus.motion.spindle_brake = stat.spindle_brake
+            self.statusTx.motion.spindle_brake = stat.spindle_brake
             modified = True
 
         if (self.status.motion.spindle_direction != stat.spindle_direction):
             self.status.motion.spindle_direction = stat.spindle_direction
-            self.txStatus.motion.spindle_direction = stat.spindle_direction
+            self.statusTx.motion.spindle_direction = stat.spindle_direction
             modified = True
 
         if (self.status.motion.spindle_enabled != stat.spindle_enabled):
             self.status.motion.spindle_enabled = stat.spindle_enabled
-            self.txStatus.motion.spindle_enabled = stat.spindle_enabled
+            self.statusTx.motion.spindle_enabled = stat.spindle_enabled
             modified = True
 
         if (self.status.motion.spindle_increasing != stat.spindle_increasing):
             self.status.motion.spindle_increasing = stat.spindle_increasing
-            self.txStatus.motion.spindle_increasing = stat.spindle_increasing
+            self.statusTx.motion.spindle_increasing = stat.spindle_increasing
             modified = True
 
         if (self.status.motion.spindle_override_enabled != stat.spindle_override_enabled):
             self.status.motion.spindle_override_enabled = stat.spindle_override_enabled
-            self.txStatus.motion.spindle_override_enabled = stat.spindle_override_enabled
+            self.statusTx.motion.spindle_override_enabled = stat.spindle_override_enabled
             modified = True
 
         if self.notEqual(self.status.motion.spindle_speed, stat.spindle_speed):
             self.status.motion.spindle_speed = stat.spindle_speed
-            self.txStatus.motion.spindle_speed = stat.spindle_speed
+            self.statusTx.motion.spindle_speed = stat.spindle_speed
             modified = True
 
         if self.notEqual(self.status.motion.spindlerate, stat.spindlerate):
             self.status.motion.spindlerate = stat.spindlerate
-            self.txStatus.motion.spindlerate = stat.spindlerate
+            self.statusTx.motion.spindlerate = stat.spindlerate
             modified = True
 
         if (self.status.motion.state != stat.state):
             self.status.motion.state = stat.state
-            self.txStatus.motion.state = stat.state
+            self.statusTx.motion.state = stat.state
             modified = True
 
         if self.notEqual(self.status.motion.max_acceleration, stat.max_acceleration):
             self.status.motion.max_acceleration = stat.max_acceleration
-            self.txStatus.motion.max_acceleration = stat.max_acceleration
+            self.statusTx.motion.max_acceleration = stat.max_acceleration
             modified = True
 
         if self.notEqual(self.status.motion.max_velocity, stat.max_velocity):
             self.status.motion.max_velocity = stat.max_velocity
-            self.txStatus.motion.max_velocity = stat.max_velocity
+            self.statusTx.motion.max_velocity = stat.max_velocity
             modified = True
 
         if self.motionFullUpdate:
@@ -1661,10 +1666,10 @@ class LinuxCNCWrapper():
             self.send_motion(self.status.motion, MT_EMCSTAT_FULL_UPDATE)
             self.motionFullUpdate = False
         elif modified:
-            self.send_motion(self.txStatus.motion, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_motion(self.statusTx.motion, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_status(self, stat):
-        self.txStatus.clear()
+        self.statusTx.clear()
         if (self.ioSubscribed):
             self.update_io(stat)
         if (self.taskSubscribed):
@@ -1677,10 +1682,9 @@ class LinuxCNCWrapper():
             self.update_config(stat)
 
     def update_error(self, error):
-
         if len(self.linuxcncErrors) > 0:
             for linuxcncError in self.linuxcncErrors:
-                self.tx.note.append(linuxcncError)
+                self.txError.note.append(linuxcncError)
                 self.send_error_msg('error', MT_EMC_NML_ERROR)
             self.linuxcncErrors = []
 
@@ -1688,7 +1692,7 @@ class LinuxCNCWrapper():
             return
 
         kind, text = error
-        self.tx.note.append(text)
+        self.txError.note.append(text)
 
         if (kind == linuxcnc.NML_ERROR):
             if self.errorSubscribed:
@@ -1710,57 +1714,57 @@ class LinuxCNCWrapper():
                 self.send_error_msg('display', MT_EMC_OPERATOR_DISPLAY)
 
     def send_config(self, data, type):
-        self.tx.emc_status_config.MergeFrom(data)
+        self.txStatus.emc_status_config.MergeFrom(data)
         if self.debug:
             print("sending config message")
         self.send_status_msg('config', type)
 
     def send_io(self, data, type):
-        self.tx.emc_status_io.MergeFrom(data)
+        self.txStatus.emc_status_io.MergeFrom(data)
         if self.debug:
             print("sending io message")
         self.send_status_msg('io', type)
 
     def send_task(self, data, type):
-        self.tx.emc_status_task.MergeFrom(data)
+        self.txStatus.emc_status_task.MergeFrom(data)
         if self.debug:
             print("sending task message")
         self.send_status_msg('task', type)
 
     def send_motion(self, data, type):
-        self.tx.emc_status_motion.MergeFrom(data)
+        self.txStatus.emc_status_motion.MergeFrom(data)
         if self.debug:
             print("sending motion message")
         self.send_status_msg('motion', type)
 
     def send_interp(self, data, type):
-        self.tx.emc_status_interp.MergeFrom(data)
+        self.txStatus.emc_status_interp.MergeFrom(data)
         if self.debug:
             print("sending interp message")
         self.send_status_msg('interp', type)
 
     def send_status_msg(self, topic, type):
-        self.tx.type = type
-        txBuffer = self.tx.SerializeToString()
-        self.tx.Clear()
+        self.txStatus.type = type
+        txBuffer = self.txStatus.SerializeToString()
+        self.txStatus.Clear()
         self.statusSocket.send_multipart([topic, txBuffer])
 
     def send_error_msg(self, topic, type):
-        self.tx.type = type
-        txBuffer = self.tx.SerializeToString()
-        self.tx.Clear()
+        self.txError.type = type
+        txBuffer = self.txError.SerializeToString()
+        self.txError.Clear()
         self.errorSocket.send_multipart([topic, txBuffer])
 
     def send_command_msg(self, type):
-        self.tx2.type = type
-        txBuffer = self.tx2.SerializeToString()
-        self.tx2.Clear()
+        self.txCommand.type = type
+        txBuffer = self.txCommand.SerializeToString()
+        self.txCommand.Clear()
         self.commandSocket.send(txBuffer)
 
     def add_pparams(self):
         parameters = ProtocolParameters()
         parameters.keepalive_timer = self.pingInterval * 1000
-        self.tx.pparams.MergeFrom(parameters)
+        self.txStatus.pparams.MergeFrom(parameters)
 
     def poll(self):
         while not self.shutdown.is_set():
@@ -1778,7 +1782,7 @@ class LinuxCNCWrapper():
                         self.ping_error()
 
             except linuxcnc.error as detail:
-                print(("error", detail))
+                printError("error", detail)
                 self.stop()
 
             if (self.pingCount == self.pingRatio):
@@ -1846,8 +1850,8 @@ class LinuxCNCWrapper():
                 print(("process status called " + subscription + ' ' + str(status)))
                 print(("status service subscribed: " + str(self.statusServiceSubscribed)))
 
-        except zmq.ZMQError:
-            print("ZMQ error")
+        except zmq.ZMQError as e:
+            printError('ZMQ error: ' + str(e))
 
     def process_error(self, socket):
         try:
@@ -1873,8 +1877,8 @@ class LinuxCNCWrapper():
                 print(("process error called " + subscription + ' ' + str(status)))
                 print(("error service subscribed: " + str(self.errorServiceSubscribed)))
 
-        except zmq.ZMQError:
-            print("ZMQ error")
+        except zmq.ZMQError as e:
+            printError('ZMQ error: ' + str(e))
 
     def get_active_gcodes(self):
         rawGcodes = self.stat.gcodes
@@ -1885,7 +1889,7 @@ class LinuxCNCWrapper():
         return ' '.join(gcodes)
 
     def send_command_wrong_params(self):
-        self.tx2.note.append("wrong parameters")
+        self.txCommand.note.append("wrong parameters")
         self.send_command_msg(MT_ERROR)
 
     def process_command(self, socket):
@@ -2262,7 +2266,7 @@ class LinuxCNCWrapper():
                     self.send_command_wrong_params()
 
             else:
-                self.tx2.note.append("unknown command")
+                self.txCommand.note.append("unknown command")
                 self.send_command_msg(MT_ERROR)
 
         except linuxcnc.error as detail:
@@ -2270,7 +2274,7 @@ class LinuxCNCWrapper():
         except UnicodeEncodeError:
             self.linuxcncErrors.append("Please use only ASCII characters")
         except Exception as e:
-            print(("exception " + str(e)))
+            printError('uncaught exception ' + str(e))
             self.linuxcncErrors.append(str(e))
 
 
@@ -2379,10 +2383,7 @@ def main():
         while fileService.running and mkwrapper.running and not check_exit():
             time.sleep(1)
     except Exception as e:
-        print("exception")
-        print(e)
-    except:
-        print("other exception")
+        printError("uncaught exception: " + str(e))
 
     print("stopping threads")
     if fileService is not None:
