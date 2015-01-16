@@ -52,7 +52,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
     int pin = -1;
     int port_pin, port;
     u32 ddr_reg, src_reg, buff;
-    int r = 0;
+    int r = -EINVAL;
     int count = 0;
     int chan_counts[] = {0,0,0,0,0,0,0,0};
     
@@ -171,10 +171,12 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
         HM2_PRINT("Smart Serial Firmware Version %i\n",buff);
         hm2->sserial.version = buff;
         
-        if (check_set_baudrate(hm2, inst) < 0) goto fail0;
+        r = check_set_baudrate(hm2, inst) < 0;
+        if (r < 0) {goto fail0;}
         
         //start up in setup mode
-        if ( hm2_sserial_stopstart(hm2, md, inst, 0xF00) < 0) {goto fail0;}
+        r = hm2_sserial_stopstart(hm2, md, inst, 0xF00) < 0;
+        if(r < 0) {goto fail0;}
         
         inst->num_remotes = 0;
         
@@ -222,7 +224,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                     else if (setlocal32(hm2, inst, crc_addr, 0xFF) < 0) {
                         HM2_ERR("Unable to disable CRC to check for old 8i20s");
                     }
-                    else if ( hm2_sserial_stopstart(hm2, md, inst, 0xF00) < 0) {
+                    else if ( (r = hm2_sserial_stopstart(hm2, md, inst, 0xF00)) < 0) {
                         goto fail0;
                     }
                     else {
@@ -263,19 +265,19 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
             }
         }
         if (inst->num_remotes > 0){
-            if (hm2_sserial_setup_channel(hm2, inst, count) < 0 ) {
+            if ((r = hm2_sserial_setup_channel(hm2, inst, count)) < 0 ) {
                 HM2_ERR("Smart Serial setup failure on instance %i\n", 
                         inst->device_id);
                 goto fail0;}
-            if (hm2_sserial_setup_remotes(hm2, inst, md) < 0 ) {
+            if ((r = hm2_sserial_setup_remotes(hm2, inst, md)) < 0 ) {
                 HM2_ERR("Remote setup failure on instance %i\n", 
                         inst->device_id);
                 goto fail0;}
-            if (hm2_sserial_stopstart(hm2, md, inst, 0x900) < 0 ){
+            if ((r = hm2_sserial_stopstart(hm2, md, inst, 0x900)) < 0 ){
                 HM2_ERR("Failed to restart device %i on instance\n", 
                         inst->device_id);
                 goto fail0;}
-            if (hm2_sserial_check_errors(hm2, inst) < 0) {
+            if ((r = hm2_sserial_check_errors(hm2, inst)) < 0) {
                 //goto fail0; // Ignore it for the moment. 
             }
             //only increment the instance index if this one is populated
@@ -305,7 +307,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
 fail0:
     hm2_sserial_cleanup(hm2);
     hm2->sserial.num_instances = 0;
-    return -EINVAL;
+    return r;
 }
 
 int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int index){
@@ -410,7 +412,6 @@ int hm2_sserial_setup_remotes(hostmot2_t *hm2,
                               hm2_module_descriptor_t *md) {
     int c, r;
     int buff;
-    char name[5] = {'\0'};
     
     inst->remotes =
     (hm2_sserial_remote_t *)kzalloc(inst->num_remotes*sizeof(hm2_sserial_remote_t), 
@@ -448,18 +449,18 @@ int hm2_sserial_setup_remotes(hostmot2_t *hm2,
                             &buff, sizeof(u32));
             chan->serialnumber = buff;
             HM2_DBG("BoardSerial %08x\n", chan->serialnumber);
-            hm2->llio->read(hm2->llio, chan->reg_1_addr, name, sizeof(u32));
-            name[1] |= 0x20; ///lower case
+            hm2->llio->read(hm2->llio, chan->reg_1_addr, chan->raw_name, sizeof(u32));
+            chan->raw_name[1] |= 0x20; ///lower case
             if (hm2->use_serial_numbers){
-                rtapi_snprintf(chan->name, 20, 
+                rtapi_snprintf(chan->name, sizeof(chan->name),
                                "hm2_%2s.%04x",
-                               name, 
+                               chan->raw_name,
                                (chan->serialnumber & 0xffff));
             } else {
-                rtapi_snprintf(chan->name, 20, 
+                rtapi_snprintf(chan->name, sizeof(chan->name),
                                "%s.%2s.%d.%d",
                                hm2->llio->name, 
-                               name,
+                               chan->raw_name,
                                inst->index,
                                c);
             }
@@ -737,6 +738,9 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                                                   global.ParmAddr,
                                                   global.DataLength/8);
                         if (r < 0) {HM2_ERR("SSerial Parameter read error\n") ; return -EINVAL;}
+                        if ((strcmp(global.NameString, "swrevision") == 0) && (chan->params[i].u32_param < 14)) {
+                            HM2_ERR("Warning: sserial remote device %s channel %d has old firmware that should be updated\n", chan->raw_name, chan->index);
+                        }
                 }
                 break;
             case 0x04:
@@ -1213,6 +1217,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                             inst->fault_lim);
                     HM2_ERR("***Smart Serial Port %i will be stopped***\n",i); 
                     *inst->state = 0x20;
+                    *inst->run = 0;
                     *inst->command_reg_write = 0x800; // stop command
                     break;
                 }
@@ -1230,19 +1235,18 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
                     break; // give the register chance to clear
                 }
-                if (*inst->data_reg_read & 0xff){ // indicates a failed transfer
-                    *inst->fault_count += inst->fault_inc;
-                    f = (*inst->data_reg_read & (comm_err_flag ^ 0xFF));
-                    if (f != 0 && f != 0xFF){
-                        comm_err_flag |= (f & -f); //mask LSb
-                        HM2_ERR("Smart Serial Error: port %i channel %i. " 
+                if (hm2_sserial_check_errors(hm2, inst) != 0) {
+                    if (*inst->data_reg_read & 0xff) { // indicates a failed transfer
+                        f = (*inst->data_reg_read & (comm_err_flag ^ 0xFF));
+                        if (f != 0 && f != 0xFF) {
+                            HM2_ERR("Smart Serial Error: port %i channel %i. " 
                                 "You may see this error if the FPGA card "
                                 """read"" thread is not running. "
                                 "This error message will not repeat.\n",
                                 i, ffs(f) - 1);
-                        hm2_sserial_check_errors(hm2, inst);
-                        
+                        }
                     }
+                    *inst->fault_count += inst->fault_inc;
                 }
                 
                 if (*inst->fault_count > inst->fault_dec) {
@@ -1371,6 +1375,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
         hm2_sserial_pins_t *pin = &chan->pins[p];
         if (! (conf->DataDir & 0x80)){
             r = getbits(chan, &buff, bitcount, conf->DataLength);
+            if(r < 0) return r;
             
             switch (conf->DataType){
             case LBP_PAD:
@@ -1391,13 +1396,13 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                     }
                 }
                 
-                *pin->float_pin = (buff * conf->ParmMax)
+                *pin->float_pin = (buff * pin->fullscale)
                 / ((1 << conf->DataLength) - 1);
                 break;
             case LBP_SIGNED:
                 buff32 = (buff & 0xFFFFFFFFL) << (32 - conf->DataLength);
                 *pin->float_pin = (buff32 / 2147483647.0 )
-                                    * conf->ParmMax;
+                                    * pin->fullscale;
                 break;
             case LBP_STREAM:
                 *pin->u32_pin = buff & (~0ull >> (64 - conf->DataLength));
@@ -1732,8 +1737,7 @@ int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     u32 buff;
     int i,r;
     int err_flag = 0;
-    int err_tag = 0;
-    u32 err_mask = 0xF300E1FF;
+    u32 err_mask = 0xFF00E1FF;
     const char *err_list[32] = {"CRC error", "Invalid cookie", "Overrun",
         "Timeout", "Extra character", "Serial Break Error", "Remote Fault", 
         "Too many errors", 
@@ -1746,11 +1750,9 @@ int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
         "Watchdog Fault", "No Enable", "Over Temperature", "Over Current", 
         "Over Voltage", "Under Voltage", "Illegal Remote Mode", "LBPCOM Fault"};
     
-    hm2->llio->read(hm2->llio, inst->data_reg_addr, &err_tag, sizeof(u32));
     for (r = 0 ; r < inst->num_remotes ; r++){
         hm2_sserial_remote_t *chan=&inst->remotes[r];
-        if (0 == (err_tag & (1 << chan->index))) continue;
-        hm2->llio->read(hm2->llio, chan->reg_cs_addr, &buff, sizeof(u32));
+        buff = chan->status;
         buff &= err_mask;
         for (i = 31 ; i > 0 ; i--){
             if (buff & (1 << i)) {
@@ -1843,7 +1845,7 @@ int check_set_baudrate(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     if (hm2->sserial.version < 34) {
     HM2_ERR("Setting baudrate is not supported in the current firmware version\n"
     "Version must be > v33 and you have version %i.", hm2->sserial.version);
-    return -1;
+    return -EINVAL;
     }
     lbpstride = getlocal8(hm2, inst, SSLBPCHANNELSTRIDELOC);
     HM2_PRINT("num_channels = %i\n", inst->num_channels);
@@ -1855,7 +1857,7 @@ int check_set_baudrate(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
             if (setlocal32(hm2, inst, baudaddr, hm2->sserial.baudrate) < 0) {
                 HM2_ERR("Problem setting new baudrate, power-off reset may be needed to"
                         " recover from this.\n");
-                return -1;
+                return -EINVAL;
             }
             baudrate = getlocal32(hm2, inst, baudaddr);
             HM2_PRINT("Chan %i. Baudrate set to %i\n", c, baudrate);

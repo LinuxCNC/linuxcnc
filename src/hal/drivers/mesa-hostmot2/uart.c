@@ -35,7 +35,7 @@ int hm2_uart_parse_md(hostmot2_t *hm2, int md_index)
     // some standard sanity checks
     //
     
-    int i, r;
+    int i, r = -EINVAL;
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     static int last_gtag = -1;
     
@@ -136,7 +136,7 @@ int hm2_uart_parse_md(hostmot2_t *hm2, int md_index)
     }
     return hm2->uart.num_instances;
 fail0:
-    return 0;
+    return r;
 }
 
 EXPORT_SYMBOL_GPL(hm2_uart_setup);

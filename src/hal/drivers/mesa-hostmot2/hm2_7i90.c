@@ -41,7 +41,7 @@ MODULE_INFO(linuxcnc, "license:GPL");
 
 MODULE_LICENSE("GPL");
 
-static int ioaddr[HM2_7I90_MAX_BOARDS] = { 0x378, 0x3f8, [2 ... (HM2_7I90_MAX_BOARDS-1)] = 0 };
+static int ioaddr[HM2_7I90_MAX_BOARDS] = { 0x378, 0x278, 0x3bc, [3 ... (HM2_7I90_MAX_BOARDS-1)] = 0 };
 RTAPI_MP_ARRAY_INT(ioaddr, HM2_7I90_MAX_BOARDS, "base address of the parallel port(s) (see hm2_7i90(9) manpage)");
 
 static int ioaddr_hi[HM2_7I90_MAX_BOARDS] = { [0 ... (HM2_7I90_MAX_BOARDS-1)] = 0 };
@@ -170,27 +170,6 @@ static int hm2_7i90_epp_clear_timeout(hm2_7i90_t *board) {
 
 
 //
-// misc generic helper functions
-//
-
-// FIXME: this is bogus
-static void hm2_7i90_nanosleep(unsigned long int nanoseconds) {
-    long int max_ns_delay;
-
-    max_ns_delay = rtapi_delay_max();
-
-    while (nanoseconds > max_ns_delay) {
-        rtapi_delay(max_ns_delay);
-        nanoseconds -= max_ns_delay;
-    }
-
-    rtapi_delay(nanoseconds);
-}
-
-
-
-
-//
 // these are the low-level i/o functions exported to the hostmot2 driver
 //
 
@@ -250,112 +229,6 @@ int hm2_7i90_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
 
     return 1;
 }
-
-
-
-
-int hm2_7i90_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
-    int orig_debug_epp = debug_epp;  // we turn off EPP debugging for this part...
-    hm2_7i90_t *board = this->private;
-    int64_t start_time, end_time;
-    int i;
-    const u8 *firmware = bitfile->e.data;
-
-
-    //
-    // send the firmware
-    //
-
-    debug_epp = 0;
-    start_time = rtapi_get_time();
-
-    // select the CPLD's data address
-    hm2_7i90_epp_addr8(0, board);
-
-    for (i = 0; i < bitfile->e.size; i ++, firmware ++) {
-        hm2_7i90_epp_write(bitfile_reverse_bits(*firmware), board);
-    }
-
-    end_time = rtapi_get_time();
-    debug_epp = orig_debug_epp;
-
-
-    // see if it worked
-    if (hm2_7i90_epp_check_for_timeout(board)) {
-        THIS_PRINT("EPP Timeout while sending firmware!\n");
-        return -EIO;
-    }
-
-
-    //
-    // brag about how fast it was
-    //
-
-    {
-        __u32 duration_ns;
-
-        duration_ns = (__u32)(end_time - start_time);
-
-        if (duration_ns != 0) {
-            THIS_INFO(
-                "%d bytes of firmware sent (%u KB/s)\n",
-                bitfile->e.size,
-                (__u32)(((double)bitfile->e.size / ((double)duration_ns / (double)(1000 * 1000 * 1000))) / 1024)
-            );
-        }
-    }
-
-
-    return 0;
-}
-
-
-
-
-// return 0 if the board has been reset, -errno if not
-int hm2_7i90_reset(hm2_lowlevel_io_t *this) {
-    hm2_7i90_t *board = this->private;
-    __u8 byte;
-
-
-    //
-    // this resets the FPGA *only* if it's currently configured with the
-    // HostMot2 or GPIO firmware
-    //
-
-    hm2_7i90_epp_addr16(0x7F7F, board);
-    hm2_7i90_epp_write(0x5A, board);
-    hm2_7i90_epp_addr16(0x7F7F, board);
-    hm2_7i90_epp_write(0x5A, board);
-
-
-    //
-    // this code resets the FPGA *only* if the CPLD is in charge of the
-    // parallel port
-    //
-
-    // select the control register
-    hm2_7i90_epp_addr8(1, board);
-
-    // bring the Spartan3's PROG_B line low for 1 us (the specs require 300-500 ns or longer)
-    hm2_7i90_epp_write(0x00, board);
-    hm2_7i90_nanosleep(1000);
-
-    // bring the Spartan3's PROG_B line high and wait for 2 ms before sending firmware (required by spec)
-    hm2_7i90_epp_write(0x01, board);
-    hm2_7i90_nanosleep(2 * 1000 * 1000);
-
-    // make sure the FPGA is not asserting its /DONE bit
-    byte = hm2_7i90_epp_read(board);
-    if ((byte & 0x01) != 0) {
-        LL_PRINT("/DONE is not low after CPLD reset!\n");
-        return -EIO;
-    }
-
-    return 0;
-}
-
-
 
 
 //
@@ -421,8 +294,6 @@ static int hm2_7i90_setup(void) {
 
         board[i].llio.read = hm2_7i90_read;
         board[i].llio.write = hm2_7i90_write;
-        board[i].llio.program_fpga = hm2_7i90_program_fpga;
-        board[i].llio.reset = hm2_7i90_reset;
 
         board[i].llio.num_ioport_connectors = 3;
         board[i].llio.pins_per_connector = 24;

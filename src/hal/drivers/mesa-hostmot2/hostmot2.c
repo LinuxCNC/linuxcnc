@@ -37,8 +37,7 @@
 #ifdef MODULE_INFO
 MODULE_INFO(linuxcnc, "component:hostmot2:RTAI driver for the HostMot2 firmware from Mesa Electronics.");
 MODULE_INFO(linuxcnc, "funct:read:1:Read all registers.");
-MODULE_INFO(linuxcnc, "funct:write:1:Write all registers.");
-MODULE_INFO(linuxcnc, "funct:pet_watchdog:0:Pet the watchdog to keep it from biting us for a while.");
+MODULE_INFO(linuxcnc, "funct:write:1:Write all registers, and pet the watchdog to keep it from biting.");
 MODULE_INFO(linuxcnc, "license:GPL");
 #endif // MODULE_INFO
 
@@ -82,16 +81,9 @@ static void hm2_read(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // is there a watchdog?
-    if (hm2->watchdog.num_instances > 0) {
-        // we're reading from the hm2 board now, so turn on the watchdog
-        hm2->watchdog.instance[0].enable = 1;
-
-        hm2_watchdog_read(hm2);  // look for bite
-    }
-
     hm2_tram_read(hm2);
     if ((*hm2->llio->io_error) != 0) return;
+    hm2_watchdog_process_tram_read(hm2);
     hm2_ioport_gpio_process_tram_read(hm2);
     hm2_encoder_process_tram_read(hm2, period);
     hm2_resolver_process_tram_read(hm2, period);
@@ -113,25 +105,20 @@ static void hm2_write(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // is there a watchdog?
-    if (hm2->watchdog.num_instances > 0) {
-        // we're writing to the hm2 board now, so turn on the watchdog
-        hm2->watchdog.instance[0].enable = 1;
-    }
-
     hm2_ioport_gpio_prepare_tram_write(hm2);
     hm2_pwmgen_prepare_tram_write(hm2);
     hm2_tp_pwmgen_prepare_tram_write(hm2);
     hm2_stepgen_prepare_tram_write(hm2, period);
     hm2_sserial_prepare_tram_write(hm2, period);
     hm2_bspi_prepare_tram_write(hm2, period);
+    hm2_watchdog_prepare_tram_write(hm2);
     //UARTS need to be explicity handled by an external component
     hm2_tram_write(hm2);
 
     // these usually do nothing
     // they only write to the FPGA if certain pins & params have changed
     hm2_ioport_write(hm2);    // handles gpio.is_output but not gpio.out (that's done in tram_write() above)
-    hm2_watchdog_write(hm2);  // in case the user has written to the watchdog.timeout_ns param
+    hm2_watchdog_write(hm2, period);  // in case the user has written to the watchdog.timeout_ns param
     hm2_pwmgen_write(hm2);    // update pwmgen registers if needed
     hm2_tp_pwmgen_write(hm2); // update Three Phase PWM registers if needed
     hm2_stepgen_write(hm2);   // update stepgen registers if needed
@@ -151,12 +138,6 @@ static void hm2_read_gpio(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // is there a watchdog?
-    if (hm2->watchdog.num_instances > 0) {
-        // we're reading from the hm2 board now, so turn on the watchdog
-        hm2->watchdog.instance[0].enable = 1;
-    }
-
     hm2_ioport_gpio_read(hm2);
 }
 
@@ -167,13 +148,8 @@ static void hm2_write_gpio(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // is there a watchdog?
-    if (hm2->watchdog.num_instances > 0) {
-        // we're writing to the hm2 board now, so turn on the watchdog
-        hm2->watchdog.instance[0].enable = 1;
-    }
-
     hm2_ioport_gpio_write(hm2);
+    hm2_watchdog_write(hm2, period);
 }
 
 
@@ -829,6 +805,18 @@ int hm2_md_is_consistent(
 static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
     int md_index, md_accepted;
     
+    hm2->dpll_module_present = 0;
+    for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
+        hm2_module_descriptor_t *md = &hm2->md[md_index];
+
+        if (md->gtag == HM2_GTAG_HM2DPLL) {
+            hm2->dpll_module_present = 1;
+            break;
+        } else if (md->gtag == 0) {
+            break;
+        }
+    }
+
     // Run through once looking for IO Ports in case other modules
     // need them
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
@@ -952,7 +940,6 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 md_accepted
             );
         } else {
-            HM2_ERR("failed to parse Module Descriptor %d\n", md_index);
             HM2_ERR("failed to parse Module Descriptor %d of %d gtag %s\n", md_index, hm2->num_mds, hm2_get_general_function_name(md->gtag));
             return md_accepted;
         }
@@ -1288,7 +1275,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     {
-        __u32 cookie;
+        u32 cookie;
 
         if (!llio->read(llio, HM2_ADDR_IOCOOKIE, &cookie, 4)) {
             HM2_ERR("error reading hm2 cookie\n");
