@@ -1360,6 +1360,8 @@ class gmoccapy( object ):
         self._update_spindle()
         self._update_halui_pin()
 
+        self.widgets.lbl_time.set_label(strftime("%H:%M:%S") + "\n" + strftime("%d.%m.%Y"))
+
         # keep the timer running
         return True
 
