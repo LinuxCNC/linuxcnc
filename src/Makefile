@@ -872,11 +872,6 @@ setsserial-objs :=			  \
     hal/drivers/mesa-hostmot2/setsserial.o  \
     $(MATHSTUB)
 
-ifneq ($(BUILD_SYS),uspace)
-obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
-probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
-endif
-
 obj-$(CONFIG_CLASSICLADDER_RT) += classicladder_rt.o
 classicladder_rt-objs := hal/classicladder/module_hal.o $(MATHSTUB)
 classicladder_rt-objs += hal/classicladder/arithm_eval.o

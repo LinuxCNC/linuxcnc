@@ -1,7 +1,6 @@
 
 loadrt trivkins
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
-loadrt probe_parport
 loadrt hal_parport cfg=0x378
 setp parport.0.reset-time 4000
 loadrt stepgen step_type=0,0,0,0,0 ctrl_type=p,p,p,p,v
