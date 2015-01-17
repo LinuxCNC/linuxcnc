@@ -1,3 +1,7 @@
+ver. 1.5.1.3
+- As in full screen mode the GUI covers also the clock, I added a clock
+  and date label under the right buttons. 
+
 ver. 1.5.1.2
 - The handler from glade_status <on_change_line> got lost somehow, so 
   some hal pin has not been updated correctly  
