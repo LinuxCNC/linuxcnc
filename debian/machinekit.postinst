@@ -19,4 +19,4 @@ touch /var/log/linuxcnc.log
 chmod ugo+r /var/log/linuxcnc.log
 
 # restart the rsyslogd to start logging to /var/log/linuxcnc.conf 
-service rsyslog restart
+invoke-rc.d rsyslog restart
