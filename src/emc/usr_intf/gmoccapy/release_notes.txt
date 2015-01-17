@@ -1,3 +1,13 @@
+ver. 1.5.1.2
+- The handler from glade_status <on_change_line> got lost somehow, so 
+  some hal pin has not been updated correctly  
+- in the glade file the spindle at speed led changed its color to red,
+  I don't know how, I think glade is comming to its limit ;-)
+- changed spindle label handling, now the labels display actual values, 
+  not the read values.
+- The spindle buttons will now be sensitive in auto mode, but only the
+  one witch is active, so spindle direction is displayed clearly  
+
 ver. 1.5.1.1
 - some print commands has been commented out to avoid to much condole infos
 - there was a limit of 100 for tool sensor height, I extended to 999 mm

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-01-04 15:04+0100\n"
-"PO-Revision-Date: 2014-11-18 05:03+0100\n"
+"PO-Revision-Date: 2015-01-06 00:04+0100\n"
 "Last-Translator: Adam Jedynak <tuxcnc@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -33,7 +33,6 @@ msgid "**** disabled tool measurement ****"
 msgstr "**** pomiar narzędzia wyłączony ****"
 
 #: gmoccapy.py:741
-#, fuzzy
 msgid "**** GMOCCAPY ERROR : ****"
 msgstr "**** GMOCCAPY ERROR ****"
 
@@ -118,27 +117,27 @@ msgstr "**** czy PYGST nie jest zainstalowane ? ****"
 
 #: gmoccapy.py:1055
 msgid "**** virtual keyboard program found : <onboard>"
-msgstr ""
+msgstr "****Znaleziono  klawiaturę ekranową : <onboard> "
 
 #: gmoccapy.py:1062
 msgid "**** virtual keyboard program found : <matchbox-keyboard>"
-msgstr ""
+msgstr "****Znaleziono klawiaturę ekranową : <matchbox-keyboard> "
 
 #: gmoccapy.py:1065
 msgid ""
 "**** No virtual keyboard installed, we checked for <onboard> and <matchbox-"
 "keyboard>."
 msgstr ""
+"****Brak zainstalowanej klawiatury ekranowej (szukano onboard lub matchbox-"
+"keyboard)"
 
 #: gmoccapy.py:1076
-#, fuzzy
 msgid "**** Error with launching virtual keyboard,"
-msgstr "****Błąd uruchomienia programu klawiatury ekranowej,"
+msgstr "****Błąd uruchomienia programu klawiatury ekranowej****"
 
 #: gmoccapy.py:1077
-#, fuzzy
 msgid "**** is onboard or matchbox-keyboard installed? ****"
-msgstr "**** czy onboard jest zainstalowany? ****"
+msgstr "**** czy onboard  lub matchbox-keyboard jest zainstalowany? ****"
 
 #: gmoccapy.py:1123
 msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
@@ -170,8 +169,7 @@ msgstr "Błąd : sprzętowy ESTOP jest aktywny - nie mogę zmienić stanu"
 #: gmoccapy.py:1416
 msgid "ERROR : Could not switch the machine on, is limit switch aktivated?"
 msgstr ""
-"Bład : nie mogę włączyć maszyny, czy któryś wyłącznik krańcowy nie jest "
-"aktywny ?"
+"Bład : nie mogę włączyć maszyny, czy któryś wyłącznik krańcowy jest aktywny ?"
 
 #: gmoccapy.py:1474
 #, python-format
@@ -303,7 +301,7 @@ msgstr "Wprowadzono zły kod - dostęp zablokowany"
 
 #: gmoccapy.py:2567
 msgid "Just to warn you"
-msgstr "Po prostu ostrzegam"
+msgstr "Ostrzegam !"
 
 #: gmoccapy.py:2644
 msgid "ERROR : No limit switch is active, ignore limits will not be set."
@@ -727,9 +725,8 @@ msgid "<b>Tool information</b>"
 msgstr "<b>Informacja o narzędziu</b>"
 
 #: gmoccapy.glade.h:40
-#, fuzzy
 msgid "<b>Turtle Jog</b>"
-msgstr "<b>Ruchy ręczne</b>"
+msgstr "<b>Powolne ruchy ręczne</b>"
 
 #: gmoccapy.glade.h:41
 msgid "<b>Unlock settings</b>"
@@ -797,7 +794,7 @@ msgstr "Średnica"
 
 #: gmoccapy.glade.h:57
 msgid "Digits"
-msgstr ""
+msgstr "Cyfry"
 
 #: gmoccapy.glade.h:58
 msgid "Displayes the programmed feed rate"
@@ -885,7 +882,7 @@ msgstr "Ukryj czwartą oś"
 
 #: gmoccapy.glade.h:79
 msgid "Hide turtle Jog Button"
-msgstr ""
+msgstr "Ukryj przycisk powolnych ruchów ręcznych"
 
 #: gmoccapy.glade.h:80
 msgid "Homed color"
@@ -904,11 +901,10 @@ msgstr ""
 "ruchów ręcznych."
 
 #: gmoccapy.glade.h:85
-#, fuzzy
 msgid ""
 "Ignore\n"
 " Case"
-msgstr "Ignoruj limity"
+msgstr "Ignoruj wielkość liter"
 
 #: gmoccapy.glade.h:87
 msgid "Ignore limits"
@@ -1023,9 +1019,8 @@ msgid "Probe Vel."
 msgstr "Prędkość czujnika"
 
 #: gmoccapy.glade.h:115
-#, fuzzy
 msgid "Redo"
-msgstr "ponów zmiany"
+msgstr "Ponów zmiany"
 
 #: gmoccapy.glade.h:116
 msgid "Relative Color"
@@ -1036,21 +1031,24 @@ msgid "Reload"
 msgstr "Przeładuj"
 
 #: gmoccapy.glade.h:118
-#, fuzzy
 msgid "Replace"
-msgstr "Przeładuj"
+msgstr "Zamień"
 
 #: gmoccapy.glade.h:119
 msgid ""
 "Replace\n"
 "   All"
 msgstr ""
+"Zastąp\n"
+"wszystko"
 
 #: gmoccapy.glade.h:121
 msgid ""
 "Replace\n"
 "  Text:"
 msgstr ""
+"Zastąp\n"
+"tekst"
 
 #: gmoccapy.glade.h:123
 msgid "Run the  loaded program step by step"
@@ -1077,28 +1075,25 @@ msgid "Scale spindle override"
 msgstr "Przeskalowanie prędkości wrzeciona"
 
 #: gmoccapy.glade.h:129
-#, fuzzy
 msgid ""
 "Search\n"
 "  Text:"
-msgstr "Prędkość szukania"
+msgstr "Przeszukaj tekst"
 
 #: gmoccapy.glade.h:131
-#, fuzzy
 msgid ""
 "Search\n"
 "  fwd"
 msgstr ""
-"szukaj\n"
+"Szukaj\n"
 "w przód"
 
 #: gmoccapy.glade.h:133
-#, fuzzy
 msgid ""
 "Search\n"
 " back"
 msgstr ""
-"szukaj\n"
+"Szukaj\n"
 "w tył"
 
 #: gmoccapy.glade.h:135
@@ -1282,7 +1277,7 @@ msgstr "Włącz/wyłącz maszynę"
 
 #: gmoccapy.glade.h:176
 msgid "Turtle jog Factor"
-msgstr ""
+msgstr "Współczynnik powolnych ruchów ręcznych"
 
 #: gmoccapy.glade.h:177
 msgid "Undo"
@@ -1565,9 +1560,8 @@ msgstr ""
 "poprzednie linie nie będą sprzwdzane !"
 
 #: gmoccapy.glade.h:246
-#, fuzzy
 msgid "save the file using the original name"
-msgstr "Speichern mit dem ursprünglichem Namen"
+msgstr "Zapisz plik pod oryginalną nazwą"
 
 #: gmoccapy.glade.h:247
 msgid "save the file with a new name"

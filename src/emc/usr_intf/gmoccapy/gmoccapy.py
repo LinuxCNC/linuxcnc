@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.1.1"
+_RELEASE = " 1.5.1.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1357,7 +1357,7 @@ class gmoccapy( object ):
 
         self._update_vel()
         self._update_coolant()
-        self._update_spindle_btn()
+        self._update_spindle()
         self._update_halui_pin()
 
         # keep the timer running
@@ -2151,9 +2151,6 @@ class gmoccapy( object ):
         self.widgets.lbl_active_feed.set_label( feed_str )
         self.widgets.lbl_feed_act.set_text( real_feed_str )
 
-        # set the speed label in active code frame
-        self.widgets.active_speed_label.set_label( "%.0f" % self.stat.settings[2] )
-
     def _update_coolant( self ):
         if self.stat.flood:
             if not self.widgets.tbtn_flood.get_active():
@@ -2745,7 +2742,7 @@ class gmoccapy( object ):
         # spindle stuff
         #-----------------------------------------------------------
 
-    def _update_spindle_btn( self ):
+    def _update_spindle( self ):
         if self.stat.spindle_direction > 0:
             self.widgets.rbt_forward.set_active( True )
         elif self.stat.spindle_direction < 0:
@@ -2756,6 +2753,14 @@ class gmoccapy( object ):
         if not abs( self.stat.spindle_speed ):
             self.widgets.rbt_stop.set_active( True )
             return
+        
+        # set the speed label in active code frame
+        if self.stat.spindle_speed == 0:
+            speed = self.stat.settings[2]
+        else:
+            speed = self.stat.spindle_speed
+        self.widgets.active_speed_label.set_label( "%.0f" % abs(speed) )
+        self.on_adj_spindle_value_changed(self.widgets.adj_spindle)
 
     def on_rbt_forward_clicked( self, widget, data = None ):
         if self.log: self._add_alarm_entry( "rbt_forward_clicked" )
@@ -2786,6 +2791,24 @@ class gmoccapy( object ):
         # we get an error, that switching spindle off is not allowed with estop
         if self.stat.task_state == linuxcnc.STATE_ESTOP:
             return
+
+        # if we do not check this, we will get an error in auto mode
+        if self.stat.task_mode == linuxcnc.MODE_AUTO:
+            if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
+                if self.stat.spindle_direction > 0:
+                    self.widgets.rbt_forward.set_sensitive( True )
+                    self.widgets.rbt_reverse.set_sensitive( False )
+                    self.widgets.rbt_stop.set_sensitive( False )
+                elif self.stat.spindle_direction < 0:
+                    self.widgets.rbt_forward.set_sensitive( False )
+                    self.widgets.rbt_reverse.set_sensitive( True )
+                    self.widgets.rbt_stop.set_sensitive( False )
+                else:
+                    self.widgets.rbt_forward.set_sensitive( False )
+                    self.widgets.rbt_reverse.set_sensitive( False )
+                    self.widgets.rbt_stop.set_sensitive( True )
+                return
+
         rpm = self._check_spindle_range()
         # as the commanded value will be multiplied with speed override,
         # we take care of that
@@ -2793,10 +2816,6 @@ class gmoccapy( object ):
         self.widgets.lbl_spindle_act.set_label( "S %s" % int( rpm ) )
         if self.log: self._add_alarm_entry( "Spindle set to %i rpm, mode is %s" % ( rpm, self.stat.task_mode ) )
 
-        # if we do not check this, we will get an error in auto mode
-        if self.stat.task_mode == linuxcnc.MODE_AUTO:
-            if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
-                return
         if command == "stop":
             self.command.spindle( 0 )
             self.widgets.lbl_spindle_act.set_label( "S 0" )
@@ -2808,7 +2827,7 @@ class gmoccapy( object ):
             self._add_alarm_entry( _( "Something went wrong, we have an unknown widget" ) )
 
     def _check_spindle_range( self ):
-        rpm = self.stat.settings[2]
+        rpm = (self.stat.settings[2])
         if rpm == 0:
             rpm = abs( self.spindle_start_rpm )
 
@@ -2838,7 +2857,7 @@ class gmoccapy( object ):
                 else:
                     speed = 0
             else:
-                speed = abs( self.stat.settings[2] )
+                speed = abs(self.stat.spindle_speed)
             spindle_override = widget.get_value() / 100
             real_spindle_speed = speed * spindle_override
             if real_spindle_speed > self.max_spindle_rev:
