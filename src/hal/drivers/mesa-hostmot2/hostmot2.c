@@ -1014,6 +1014,15 @@ static void hm2_release_device(struct device *dev) {
     // nothing to do here
 }
 
+static int dummy_queue_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+    if(size != -1) return this->write(this, addr, buffer, size);
+    return 1; // success
+}
+
+static int dummy_queue_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+    if(size != -1) return this->read(this, addr, buffer, size);
+    return 1; // success
+}
 
 EXPORT_SYMBOL_GPL(hm2_register);
 
@@ -1108,6 +1117,14 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     if (llio->write == NULL) {
         HM2_ERR_NO_LL("NULL llio->write passed in\n");
         return -EINVAL;
+    }
+
+    if (!llio->queue_write) {
+        llio->queue_write = dummy_queue_write;
+    }
+
+    if (!llio->queue_read) {
+        llio->queue_read = dummy_queue_read;
     }
 
     //
