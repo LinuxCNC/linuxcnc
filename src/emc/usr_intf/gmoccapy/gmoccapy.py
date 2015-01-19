@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.1.2"
+_RELEASE = " 1.5.1.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -2495,7 +2495,7 @@ class gmoccapy( object ):
                                                self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0 )
 
     def on_tbtn_turtle_jog_toggled( self, widget, data = None ):
-        if self.log: add_alarm_entry( "turtle jog has been set to %s" % widget.get_active() )
+        if self.log: self._add_alarm_entry( "turtle jog has been set to %s" % widget.get_active() )
         if widget.get_active():
             self.rabbit_jog = self.widgets.adj_jog_vel.get_value()
             widget.set_image( self.widgets.img_turtle_jog )
@@ -2539,7 +2539,7 @@ class gmoccapy( object ):
         else:
             direction = -1
 
-        if self.log: add_alarm_entry( "btn_jog_%i_%i" % ( axisnumber, direction ) )
+        if self.log: self._add_alarm_entry( "btn_jog_%i_%i" % ( axisnumber, direction ) )
 
         if self.distance <> 0:  # incremental jogging
             self.command.jog( linuxcnc.JOG_INCREMENT, axisnumber, direction * velocity, self.distance )
