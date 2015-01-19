@@ -468,9 +468,7 @@ double pmLine9Target(PmLine9 * const line9)
     } else if (!line9->abc.tmag_zero) {
         return line9->abc.tmag;
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR,"line can't have zero length!\n");
-        //FIXME yet it does return zero...
-        return 0;
+        return 0.0;
     }
 }
 
