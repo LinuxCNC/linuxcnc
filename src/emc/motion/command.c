@@ -932,19 +932,20 @@ check_stuff ( "before command_handler()" );
             if(!is_feed_type(emcmotCommand->motion_type) && emcmotStatus->spindle.css_factor) {
                 emcmotStatus->atspeed_next_feed = 1;
             }
-	    /* append it to the emcmotDebug->queue */
-	    tpSetId(emcmotQueue, emcmotCommand->id);
-	    if (-1 == tpAddLine(emcmotQueue, emcmotCommand->pos, emcmotCommand->motion_type,
+	    /* append it to the emcmotDebug->tp */
+	    tpSetId(&emcmotDebug->tp, emcmotCommand->id);
+        int res_addline = tpAddLine(&emcmotDebug->tp, emcmotCommand->pos, emcmotCommand->motion_type, 
                                 emcmotCommand->vel, emcmotCommand->ini_maxvel, 
                                 emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed,
-                                emcmotCommand->turn)) {
-		reportError(_("can't add linear move"));
-		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
-		abort_and_switchback(); // tpAbort(emcmotQueue);
-
-		SET_MOTION_ERROR_FLAG(1);
-		break;
-	    } else {
+                                emcmotCommand->turn);
+        if (res_addline != 0) {
+            reportError(_("can't add linear move at line %d, error code %d"),
+                    emcmotCommand->id, res_addline);
+            emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
+            tpAbort(&emcmotDebug->tp);
+            SET_MOTION_ERROR_FLAG(1);
+            break;
+        } else {
 		SET_MOTION_ERROR_FLAG(0);
 		/* set flag that indicates all joints need rehoming, if any
 		   joint is moved in joint mode, for machines with no forward
