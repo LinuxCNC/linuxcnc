@@ -459,7 +459,7 @@ proc ::tp::source_the_files {} {
        }
        puts "twopass: Error in file $f:\n    $msg"
        if { [string first "invalid command name" $msg] >= 0} {
-          puts "    Only buil-in commands are available"
+          puts "    Only built-in commands are available"
        }
        incr errct
     }

@@ -532,6 +532,23 @@ Section.
     file 'sys_texample.tcl' at start up.
     Explicit use of the LIB: prefix causes use of the system library HALFILE without
     searching the ini file directory.
++
+HALFILE items specify files that loadrt Hal components and make signal
+connections between component pins.  Common mistakes are 1) omission of the
+addf statement needed to add a component's function(s) to a thread, 2)
+incomplete signal (net) specifiers.  Omission of required addf statements is
+almost always an error.  Signals usually include one or more input
+connections and a single output (but both are not strictly required).
+A system library file is provided to make checks for these conditions and
+report to stdout and in a popup gui:
+----
+    HALFILE = LIB:halcheck.tcl [ nopopup ]
+----
+[NOTE]
+The LIb:halcheck.tcl line should be the last [HAL]HALFILE.
+Specify the 'nopopup' option to suppress the popup message and allow immediate starting.
+Connections made using a POSTGUI_HALFILE are not checked.
+
 
 * 'TWOPASS = ON' - Use twopass processing for loading HAL components. With TWOPASS processing,
     [HAL]HALFILE= lines are processed in two passes.  In the first pass (pass0), all
