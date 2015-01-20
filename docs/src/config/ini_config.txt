@@ -545,7 +545,7 @@ report to stdout and in a popup gui:
     HALFILE = LIB:halcheck.tcl [ nopopup ]
 ----
 [NOTE]
-The LIb:halcheck.tcl line should be the last [HAL]HALFILE.
+The LIB:halcheck.tcl line should be the last [HAL]HALFILE.
 Specify the 'nopopup' option to suppress the popup message and allow immediate starting.
 Connections made using a POSTGUI_HALFILE are not checked.
 

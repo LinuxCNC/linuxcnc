@@ -25,12 +25,13 @@ if [info exists ::argv] {
   }
 }
 
-# twopass processing uses built-ins only (no Tk)
-if {$::popup && [catch {package require Tk} msg]} {
-  set ::popup 0
-}
 #----------------------------------------------------------------------
 proc gui_message { type items } {
+  if { "$items" == "" } return
+  # twopass processing uses built-ins only (no Tk)
+  if {$::popup && [catch {package require Tk} msg]} {
+    set ::popup 0
+  }
   if { !$::popup } return
   if { ![winfo exists .b] } {
     wm title . "HAL checks"
