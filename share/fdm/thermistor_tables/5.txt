@@ -1,0 +1,1 @@
+/home/alexander/machinekit/projects/TCT3D/python/thermistor_tables/semitec_104GT_2.txt
