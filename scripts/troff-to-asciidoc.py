@@ -130,10 +130,15 @@ while (i < len(SourceLines)):
     if (result_re_SH != None):
         #.SH has been found, get the name, put it in the index and add the line
         CompHeader=result_re_SH.groups()[0]
+        #if the header is between quotes, like: "see also" then strip the
+        #quotes and change the space to a dash. in the indexlines array
+        CompHeader = CompHeader.strip('\"')
+        CompHeaderDashed = CompHeader.replace(" ", "-")
+        #result_re_between_quotes = re_between_quotes.search(CompHeader)
         AsciidocLines.append("\n\n" + "===== " + \
-                             "[[" + CompHeader.lower() + "]]" \
+                             "[[" + CompHeaderDashed.lower() + "]]" \
                              + CompHeader + "\n")
-        IndexLines.append(". <<" + CompHeader.lower() + "," + \
+        IndexLines.append(". <<" + CompHeaderDashed.lower() + "," + \
                           CompHeader + ">>" + "\n")
     #
     result_re_B = re_B.search(SourceLines[i])
