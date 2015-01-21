@@ -12,6 +12,7 @@ import signal
 import argparse
 from urlparse import urlparse
 import shutil
+import subprocess
 
 import ConfigParser
 import linuxcnc
@@ -293,6 +294,8 @@ class LinuxCNCWrapper():
         self.newErrorSubscription = False
 
         self.linuxcncErrors = []
+        self.programExtensions = {}
+        
         # Linuxcnc
         try:
             self.stat = linuxcnc.stat()
@@ -306,6 +309,18 @@ class LinuxCNCWrapper():
             self.pollInterval = float(pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1)
             self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or ""
             self.interpParameterFile = os.path.abspath(os.path.expanduser(self.interpParameterFile))
+            
+            # setup program extensions
+            extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
+            for line in extensions:
+                splitted = line.split(' ')
+                splitted = splitted[0].split(',')
+                for extension in splitted:
+                    if extension[0] == '.':
+                        extension = extension[1:]
+                    program = self.ini.find("FILTER", extension) or ""
+                    if program is not "":
+                        self.programExtensions[extension] = program
 
             # If specified in the ini, try to open the  default file
             openFile = self.ini.find('DISPLAY', 'OPEN_FILE') or ""
@@ -434,6 +449,31 @@ class LinuxCNCWrapper():
 
     def stop(self):
         self.shutdown.set()
+ 
+    # handle program extensions
+    def preprocess_program(self, filePath):
+        fileName, extension = os.path.splitext(filePath)
+        extension = extension[1:]  # remove dot
+        if extension in self.programExtensions:
+            program = self.programExtensions[extension]
+            newFileName = fileName + '.ngc'
+            try:
+                outFile = open(newFileName, 'w')
+                process = subprocess.Popen([program, filePath], stdout=outFile)
+                #subprocess.check_output([program, filePath],
+                unused_out, err = process.communicate()
+                retcode = process.poll()
+                if retcode:
+                    raise subprocess.CalledProcessError(retcode, '', output=err)
+                outFile.close()
+                return newFileName
+            except IOError as e:
+                self.linuxcncErrors.append(str(e))
+                return ''
+            except subprocess.CalledProcessError as e:
+                self.linuxcncErrors.append(e.output)
+                return ''
+        return filePath
 
     def notEqual(self, a, b):
         threshold = 0.0001
@@ -2055,10 +2095,12 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('path') \
                 and self.rx.HasField('interp_name'):
                     fileName = self.rx.emc_command_params.path
-                    if self.rx.interp_name == 'execute':
-                        self.command.program_open(fileName)
-                    elif self.rx.interp_name == 'preview':
-                        self.preview.program_open(fileName)
+                    fileName = self.preprocess_program(fileName)
+                    if fileName is not '':
+                        if self.rx.interp_name == 'execute':
+                            self.command.program_open(fileName)
+                        elif self.rx.interp_name == 'preview':
+                            self.preview.program_open(fileName)
                 else:
                     self.send_command_wrong_params()
 
