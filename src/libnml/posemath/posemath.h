@@ -705,7 +705,17 @@ extern "C" {
 #define DOUBLE_FUZZ 2.2204460492503131e-16
 #define DOUBLECP_FUZZ 1.0842021724855044e-19
 
-#define CART_FUZZ (0.000001)
+
+/**
+ * FIXME sloppily defined constants here.
+ * These constants are quite large compared to the DOUBLE_FUZZ limitation. They
+ * seem like an ugly band-aid for floating point problems.
+ */
+
+// FIXME setting this to be an order of magnitude smaller than canon's shortest
+// allowed segment. This is still larger than TP's smallest position, so it may
+// be silently causing trouble.
+#define CART_FUZZ (1.0e-8)
 /* how close a cartesian vector's magnitude must be for it to be considered
    a zero vector */
 
