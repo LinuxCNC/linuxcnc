@@ -25,7 +25,7 @@ re_HP = re.compile(r'^\.HP')
 re_TQ = re.compile(r'^\.TQ')
 #.SH NAME
 #.SH SYNOPSYS
-re_SH = re.compile(r'^\.SH')
+re_SH = re.compile(r'^\.SH\s+(.+)\n')
 #.B
 re_B = re.compile(r'^\.B')
 #.de TQ
@@ -127,8 +127,7 @@ while (i < len(SourceLines)):
     result_re_SH = re_SH.search(SourceLines[i])
     if (result_re_SH != None):
         #.SH has been found, get the name, put it in the index and add the line
-        CompHeader=SourceLines[i].split(' ')[1]
-        CompHeader=CompHeader.strip('\n')
+        CompHeader=result_re_SH.groups()[0]
         AsciidocLines.append("\n\n" + "===== " + \
                              "[[" + CompHeader.lower() + "]]" \
                              + CompHeader + "\n")
