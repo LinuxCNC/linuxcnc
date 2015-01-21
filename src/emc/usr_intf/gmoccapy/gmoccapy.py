@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.1.4"
+_RELEASE = "  1.5.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -182,6 +182,7 @@ class gmoccapy( object ):
         self.incr_rbt_list = []    # we use this list to add hal pin to the button later
         self.jog_increments = []   # This holds the increment values
         self.unlock = False        # this value will be set using the hal pin unlock settings
+
         # needed to display the labels
         self.system_list = ( "0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3" )
         self.dro_size = 28           # The size of the DRO, user may want them bigger on bigger screen
@@ -643,12 +644,10 @@ class gmoccapy( object ):
             self.widgets.rbt_view_z.hide()
 
             # check if G7 or G8 is active
-            # this is set on purpose wrong, because we want the periodic
-            # to update the state correctly
             if "70" in self.stat.gcodes:
-                self.diameter_mode = False
+                self._switch_to_g7( True )
             else:
-                self.diameter_mode = True
+                self._switch_to_g7( False )
 
         else:
             # the Y2 view is not needed on a mill
@@ -916,8 +915,8 @@ class gmoccapy( object ):
             print _( "**** No gmoccapy2.glade file present ****" )
             self.widgets.tbtn_use_screen2.set_sensitive( False )
 
-        # =============================================================
-        # Dynamic tabs handling Start
+# =============================================================
+# Dynamic tabs handling Start
 
     def _init_dynamic_tabs( self ):
         # dynamic tabs setup
@@ -961,8 +960,8 @@ class gmoccapy( object ):
         for child in self._dynamic_childs.values():
             child.terminate()
 
-        # Dynamic tabs handling End
-        # =============================================================
+# Dynamic tabs handling End
+# =============================================================
 
     # first we hide all the axis columns the unhide the ones we want
     # if it's a lathe config we show lathe related columns
@@ -1053,8 +1052,8 @@ class gmoccapy( object ):
             self.widgets.window1.window.set_cursor( None )
             self.widgets.gremlin.set_property( "use_default_controls", True )
 
-        # =============================================================
-        # Onboard keybord handling Start
+# =============================================================
+# Onboard keybord handling Start
 
     # shows "Onboard" virtual keyboard if available
     # else error message
@@ -1120,8 +1119,8 @@ class gmoccapy( object ):
             except:
                 pass
 
-            # Onboard keybord handling End
-            # =============================================================
+# Onboard keybord handling End
+# =============================================================
 
     def _init_offsetpage( self ):
         temp = "xyzabcuvw"
@@ -1339,28 +1338,16 @@ class gmoccapy( object ):
 
         if self.lathe_mode:
             if "G8" in self.active_gcodes and self.diameter_mode:
-                self.widgets.Combi_DRO_y.set_property( "abs_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-                self.widgets.Combi_DRO_y.set_property( "rel_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-                self.widgets.Combi_DRO_y.set_property( "dtg_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-                self.widgets.Combi_DRO_x.set_property( "abs_color", gtk.gdk.color_parse( self.abs_color ) )
-                self.widgets.Combi_DRO_x.set_property( "rel_color", gtk.gdk.color_parse( self.rel_color ) )
-                self.widgets.Combi_DRO_x.set_property( "dtg_color", gtk.gdk.color_parse( self.dtg_color ) )
-                self.diameter_mode = False
+                self._switch_to_g7( False )
             elif "G7" in self.active_gcodes and not self.diameter_mode:
-                self.widgets.Combi_DRO_x.set_property( "abs_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-                self.widgets.Combi_DRO_x.set_property( "rel_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-                self.widgets.Combi_DRO_x.set_property( "dtg_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-                self.widgets.Combi_DRO_y.set_property( "abs_color", gtk.gdk.color_parse( self.abs_color ) )
-                self.widgets.Combi_DRO_y.set_property( "rel_color", gtk.gdk.color_parse( self.rel_color ) )
-                self.widgets.Combi_DRO_y.set_property( "dtg_color", gtk.gdk.color_parse( self.dtg_color ) )
-                self.diameter_mode = True
+                self._switch_to_g7( True )
 
         self._update_vel()
         self._update_coolant()
         self._update_spindle()
         self._update_halui_pin()
 
-        self.widgets.lbl_time.set_label(strftime("%H:%M:%S") + "\n" + strftime("%d.%m.%Y"))
+        self.widgets.lbl_time.set_label( strftime( "%H:%M:%S" ) + "\n" + strftime( "%d.%m.%Y" ) )
 
         # keep the timer running
         return True
@@ -1404,8 +1391,8 @@ class gmoccapy( object ):
             dialogs.warning_dialog( self, _( "Important Warning" ), errortext )
 
 
-        # =========================================================
-        # button handlers Start
+# =========================================================
+# button handlers Start
 
     # toggle emergency button
     def on_tbtn_estop_toggled( self, widget, data = None ):
@@ -1466,11 +1453,11 @@ class gmoccapy( object ):
         if self.log: self._add_alarm_entry( "btn_exit_clicked" )
         self.widgets.window1.destroy()
 
-    # button handlers End
-    # =========================================================
+# button handlers End
+# =========================================================
 
-    # =========================================================
-    # hal status Start
+# =========================================================
+# hal status Start
 
     # use the hal_status widget to control buttons and
     # actions allowed by the user and sensitive widgets
@@ -1701,8 +1688,8 @@ class gmoccapy( object ):
             self.widgets.ntb_jog.set_current_page( 2 )
             self.widgets.rbt_auto.set_active( True )
 
-        # hal status End
-        # =========================================================
+# hal status End
+# =========================================================
 
     # There are some settings we can only do if the window is on the screen allready
     def on_window1_show( self, widget, data = None ):
@@ -1809,11 +1796,11 @@ class gmoccapy( object ):
             else:
                 self._add_alarm_entry( _( "macro {0} , parameter {1} set to {2:f}" ).format( o_codes[0], code, parameter ) )
             command = command + " [" + str( parameter ) + "] "
-        # TODO: Should not only clear the plot, but also the loaded programm?
+# TODO: Should not only clear the plot, but also the loaded programm?
         # self.command.program_open("")
         # self.command.reset_interpreter()
         self.widgets.gremlin.clear_live_plotter()
-        # TODO: End
+# TODO: End
         self.command.mdi( command )
         for btn in self.macrobuttons:
             btn.set_sensitive( False )
@@ -1822,7 +1809,8 @@ class gmoccapy( object ):
         self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "interrupt running macro" ) )
         self.widgets.ntb_info.set_current_page( 0 )
 
-    # helpers functions start
+# helpers functions start
+# =========================================================
 
     def _update_widgets( self, state ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
@@ -1832,6 +1820,24 @@ class gmoccapy( object ):
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets( widgetlist, state )
+
+    def _switch_to_g7( self, state ):
+        if state:
+            self.widgets.Combi_DRO_x.set_property( "abs_color", gtk.gdk.color_parse( "#F2F1F0" ) )
+            self.widgets.Combi_DRO_x.set_property( "rel_color", gtk.gdk.color_parse( "#F2F1F0" ) )
+            self.widgets.Combi_DRO_x.set_property( "dtg_color", gtk.gdk.color_parse( "#F2F1F0" ) )
+            self.widgets.Combi_DRO_y.set_property( "abs_color", gtk.gdk.color_parse( self.abs_color ) )
+            self.widgets.Combi_DRO_y.set_property( "rel_color", gtk.gdk.color_parse( self.rel_color ) )
+            self.widgets.Combi_DRO_y.set_property( "dtg_color", gtk.gdk.color_parse( self.dtg_color ) )
+            self.diameter_mode = True
+        else:
+            self.widgets.Combi_DRO_y.set_property( "abs_color", gtk.gdk.color_parse( "#F2F1F0" ) )
+            self.widgets.Combi_DRO_y.set_property( "rel_color", gtk.gdk.color_parse( "#F2F1F0" ) )
+            self.widgets.Combi_DRO_y.set_property( "dtg_color", gtk.gdk.color_parse( "#F2F1F0" ) )
+            self.widgets.Combi_DRO_x.set_property( "abs_color", gtk.gdk.color_parse( self.abs_color ) )
+            self.widgets.Combi_DRO_x.set_property( "rel_color", gtk.gdk.color_parse( self.rel_color ) )
+            self.widgets.Combi_DRO_x.set_property( "dtg_color", gtk.gdk.color_parse( self.dtg_color ) )
+            self.diameter_mode = False
 
     def on_key_event( self, widget, event, signal ):
 
@@ -1976,13 +1982,8 @@ class gmoccapy( object ):
             self.notification.set_property( 'max_messages', self.widgets.adj_max_messages.get_value() )
         self.notification.set_property( 'use_frames', self.widgets.chk_use_frames.get_active() )
         self.notification.set_property( 'font', self.widgets.fontbutton_popup.get_font_name() )
-        # TODO:
-        # this ones are not finished yet in notifications, we do add them at
-        # a later development state, just to show they are there
         self.notification.set_property( 'icon_size', 48 )
         self.notification.set_property( 'top_to_bottom', True )
-
-    # TODO: End
 
     # This is the jogging part
     def on_increment_changed( self, widget = None, data = None ):
@@ -2175,20 +2176,17 @@ class gmoccapy( object ):
         if self.spindle_override != self.stat.spindlerate:
             self.initialized = False
             self.widgets.adj_spindle.set_value( self.stat.spindlerate * 100 )
-#            print( "spindlerate = ", self.stat.spindlerate )
             self.spindle_override = self.stat.spindlerate
             self.initialized = True
         if self.feed_override != self.stat.feedrate:
             self.initialized = False
             self.widgets.adj_feed.set_value( self.stat.feedrate * 100 )
-#            print( "feedrate = ", self.stat.feedrate )
             self.feed_override = self.stat.feedrate
             self.widgets.adj_max_vel.set_value( float( self.widgets.adj_max_vel.upper * self.stat.feedrate ) )
             self.initialized = True
         if self.max_velocity != self.stat.max_velocity:
             self.initialized = False
             self.widgets.adj_max_vel.set_value( self.stat.max_velocity * 60 )
-#            print( "Max Velocity = ", self.stat.max_velocity )
             self.max_velocity = self.stat.max_velocity
             self.initialized = True
 #        if self.rapidrate != self.stat.rapidrate:
@@ -2269,7 +2267,8 @@ class gmoccapy( object ):
             self.command.mdi( "G43" )
             self.command.wait_complete()
 
-        # helpers functions end
+# helpers functions end
+# =========================================================
 
     def on_adj_dro_digits_value_changed( self, widget, data = None ):
         if not self.initialized:
@@ -2327,7 +2326,8 @@ class gmoccapy( object ):
         else:
             self.widgets.btn_set_selected.set_sensitive( True )
 
-        # from here only needed, if the DRO button will remain in gmoccapy
+# =========================================================
+# from here only needed, if the DRO button will remain in gmoccapy
 
     def on_Combi_DRO_system_changed( self, widget, system ):
         if self.widgets.tbtn_rel.get_active():
@@ -2430,7 +2430,8 @@ class gmoccapy( object ):
             self.widgets.chk_auto_units.set_sensitive( True )
         self.prefs.putpref( "show_dro_btn", self.widgets.chk_show_dro_btn.get_active(), bool )
 
-    # to here only needed, if the DRO button will remain in gmoccapy
+# to here only needed, if the DRO button will remain in gmoccapy
+# =========================================================
 
     def on_adj_x_pos_popup_value_changed( self, widget, data = None ):
         if not self.initialized:
@@ -2651,7 +2652,8 @@ class gmoccapy( object ):
             self.widgets.ntb_main.set_current_page( 0 )
             self.widgets.tbtn_fullsize_preview.set_sensitive( True )
 
-    # The homing functions
+# =========================================================
+# The homing functions
     def on_btn_homing_clicked( self, widget, data = None ):
         if self.log: self._add_alarm_entry( "btn_homing_clicked" )
         self.widgets.ntb_button.set_current_page( 3 )
@@ -2711,7 +2713,8 @@ class gmoccapy( object ):
             if not self.widgets.chk_show_dro.get_active():
                 self.widgets.gremlin.set_property( "enable_dro", False )
 
-    # this are hal-tools through gsreen function
+# =========================================================
+# this are hal-tools copied from gsreen function
     def on_btn_show_hal_clicked( self, widget, data = None ):
         if self.log: self._add_alarm_entry( "btn_show_hal_clicked" )
         p = os.popen( "tclsh %s/bin/halshow.tcl &" % TCLPATH )
@@ -2740,9 +2743,8 @@ class gmoccapy( object ):
                                    _( "Classicladder real-time component not detected" ) )
             self._add_alarm_entry( _( "ladder not available - is the real-time component loaded?" ) )
 
-        #-----------------------------------------------------------
-        # spindle stuff
-        #-----------------------------------------------------------
+# =========================================================
+# spindle stuff
 
     def _update_spindle( self ):
         if self.stat.spindle_direction > 0:
@@ -2755,14 +2757,14 @@ class gmoccapy( object ):
         if not abs( self.stat.spindle_speed ):
             self.widgets.rbt_stop.set_active( True )
             return
-        
+
         # set the speed label in active code frame
         if self.stat.spindle_speed == 0:
             speed = self.stat.settings[2]
         else:
             speed = self.stat.spindle_speed
-        self.widgets.active_speed_label.set_label( "%.0f" % abs(speed) )
-        self.on_adj_spindle_value_changed(self.widgets.adj_spindle)
+        self.widgets.active_speed_label.set_label( "%.0f" % abs( speed ) )
+        self.on_adj_spindle_value_changed( self.widgets.adj_spindle )
 
     def on_rbt_forward_clicked( self, widget, data = None ):
         if self.log: self._add_alarm_entry( "rbt_forward_clicked" )
@@ -2829,7 +2831,7 @@ class gmoccapy( object ):
             self._add_alarm_entry( _( "Something went wrong, we have an unknown widget" ) )
 
     def _check_spindle_range( self ):
-        rpm = (self.stat.settings[2])
+        rpm = ( self.stat.settings[2] )
         if rpm == 0:
             rpm = abs( self.spindle_start_rpm )
 
@@ -2859,7 +2861,7 @@ class gmoccapy( object ):
                 else:
                     speed = 0
             else:
-                speed = abs(self.stat.spindle_speed)
+                speed = abs( self.stat.spindle_speed )
             spindle_override = widget.get_value() / 100
             real_spindle_speed = speed * spindle_override
             if real_spindle_speed > self.max_spindle_rev:
@@ -2894,7 +2896,8 @@ class gmoccapy( object ):
         self.prefs.putpref( "spindle_bar_max", self.max_spindle_rev, float )
         self.widgets.spindle_feedback_bar.set_property( "max", self.max_spindle_rev )
 
-    # Coolant an mist coolant button
+# =========================================================
+# Coolant an mist coolant button
     def on_tbtn_flood_toggled( self, widget, data = None ):
         if self.log: self._add_alarm_entry( "tbtn_flood_clicked, flood is now %s" % self.stat.flood )
         if self.stat.flood and self.widgets.tbtn_flood.get_active():
@@ -2921,7 +2924,8 @@ class gmoccapy( object ):
             self.widgets.tbtn_mist.set_image( self.widgets.img_mist_off )
             self.command.mist( linuxcnc.MIST_OFF )
 
-    # feed stuff
+# =========================================================
+# feed stuff
     def on_adj_feed_value_changed( self, widget, data = None ):
         if not self.initialized:
             return
@@ -3048,7 +3052,6 @@ class gmoccapy( object ):
             self.widgets.ntb_preview.set_current_page( 1 )
 
     def on_btn_zero_g92_clicked( self, widget, data = None ):
-        # self.widgets.offsetpage1.zero_g92(self)
         self.command.mode( linuxcnc.MODE_MDI )
         self.command.wait_complete()
         self.command.mdi( "G92.1" )
@@ -3056,8 +3059,8 @@ class gmoccapy( object ):
         self.command.wait_complete()
         self.widgets.btn_touch.emit( "clicked" )
 
-    # TODO: what to do when there are more axis?
-    # all over one handler with "G10 L20 P0 %s%f"%(axis,value)
+# TODO: what to do when there are more axis?
+# all over one handler with "G10 L20 P0 %s%f"%(axis,value)
     def on_btn_zero_x_clicked( self, widget, data = None ):
         if self.log: self._add_alarm_entry( "btn_zero_X_clicked" )
         self.command.mode( linuxcnc.MODE_MDI )
@@ -3097,9 +3100,19 @@ class gmoccapy( object ):
             self._add_alarm_entry( _( "Offset %s could not be set, because off unknown axis" ) % axis )
             return
         self._add_alarm_entry( "btn_set_value_%s_clicked" % axis )
-        preset = self.prefs.getpref( "offset_axis_%s" % axis, 0, float )
-        offset = dialogs.entry_dialog( self, data = preset, header = _( "Enter value for axis %s" ) % axis,
-                                      label = _( "Set axis %s to:" ) % axis, integer = False )
+        if self.lathe_mode:
+            if self.diameter_mode:
+                preset = self.prefs.getpref( "diameter offset_axis_%s" % axis, 0, float )
+                offset = dialogs.entry_dialog( self, data = preset, header = _( "Enter value for diameter" ),
+                                              label = _( "Set diameter to:" ), integer = False )
+            else:
+                preset = self.prefs.getpref( "radius offset_axis_%s" % axis, 0, float )
+                offset = dialogs.entry_dialog( self, data = preset, header = _( "Enter value for radius" ),
+                                              label = _( "Set radius to:" ), integer = False )
+        else:
+            preset = self.prefs.getpref( "offset_axis_%s" % axis, 0, float )
+            offset = dialogs.entry_dialog( self, data = preset, header = _( "Enter value for axis %s" ) % axis,
+                                          label = _( "Set axis %s to:" ) % axis, integer = False )
         if offset == "CANCEL":
             return
         elif offset == "ERROR":
@@ -3117,7 +3130,7 @@ class gmoccapy( object ):
             self.command.mode( linuxcnc.MODE_MANUAL )
             self.command.wait_complete()
             self.prefs.putpref( "offset_axis_%s" % axis, offset, float )
-        # TODO: End
+# TODO: End
 
     def on_btn_set_selected_clicked( self, widget, data = None ):
         system, name = self.widgets.offsetpage1.get_selected()
@@ -3428,7 +3441,8 @@ class gmoccapy( object ):
         self.widgets.gremlin.set_property( "mouse_btn_mode", index )
         self.prefs.putpref( "mouse_btn_mode", index, int )
 
-    # tool stuff
+# =========================================================
+# tool stuff
     def on_btn_tool_clicked( self, widget, data = None ):
         if self.log: self._add_alarm_entry( "btn_tool_clicked" )
         if self.widgets.tbtn_fullsize_preview.get_active():
@@ -3599,7 +3613,8 @@ class gmoccapy( object ):
             message = _( "Could not understand the entered tool number. Will not change anything" )
             dialogs.warning_dialog( self, _( "Important Warning!" ), message )
 
-    # gremlin relevant calls
+# =========================================================
+# gremlin relevant calls
     def on_rbt_view_p_toggled( self, widget, data = None ):
         if self.log: self._add_alarm_entry( "rbt_view_p_toggled" )
         if self.widgets.rbt_view_p.get_active():
@@ -3684,20 +3699,11 @@ class gmoccapy( object ):
 
     def on_IconFileSelection1_selected( self, widget, path = None ):
         if path:
-            # FIXME : START
-            #            try:
-            # self.command.program_open( path )
-            # self.widgets.gcode_view.load_file( path )
             self.widgets.hal_action_open.load_file( path )
             self.widgets.ntb_preview.set_current_page( 0 )
             self.widgets.tbtn_fullsize_preview.set_active( False )
             self.widgets.ntb_button.set_current_page( 2 )
             self._show_iconview_tab( False )
-        #            except:
-        #                message = _( "error trying opening file %s" % path )
-        #                dialogs.warning_dialog(self, _( "Important Warning" ), message )
-        #                self.notification.add_message( message, INFO_ICON )
-        # FIXME : END
 
     def on_IconFileSelection1_exit( self, widget ):
         self.widgets.ntb_preview.set_current_page( 0 )
@@ -3857,8 +3863,8 @@ class gmoccapy( object ):
                 self.alert_sound = file
                 self.prefs.putpref( "audio_alert", file, str )
 
-            # =========================================================
-            # Hal Pin Handling Start
+# =========================================================
+# Hal Pin Handling Start
 
     def _on_counts_changed( self, pin, widget ):
         if not self.initialized:
@@ -3869,49 +3875,49 @@ class gmoccapy( object ):
             if widget == "adj_feed":
                 difference = ( counts - self.fo_counts ) * self.scale_feed_override
                 self.fo_counts = counts
-                self._check_counts(counts)
+                self._check_counts( counts )
         if self.halcomp["spindle-override.count-enable"]:
             if widget == "adj_spindle":
                 difference = ( counts - self.so_counts ) * self.scale_spindle_override
                 self.so_counts = counts
-                self._check_counts(counts)
+                self._check_counts( counts )
         if self.halcomp["jog-speed.count-enable"]:
             if widget == "adj_jog_vel":
                 difference = ( counts - self.jv_counts ) * self.scale_jog_vel
                 if self.widgets.tbtn_turtle_jog.get_active():
                     difference = difference / self.turtle_jog_factor
                 self.jv_counts = counts
-                self._check_counts(counts)
+                self._check_counts( counts )
         if self.halcomp["max-velocity.count-enable"]:
             if widget == "adj_max_vel":
                 difference = ( counts - self.mv_counts ) * self.scale_max_vel
                 self.mv_counts = counts
-                self._check_counts(counts)
+                self._check_counts( counts )
         if not self.halcomp["feed-override.count-enable"] and not self.halcomp["spindle-override.count-enable"] and not self.halcomp["jog-speed.count-enable"] and not self.halcomp["max-velocity.count-enable"]:
-            self._check_counts(counts)
-            
+            self._check_counts( counts )
+
         val = self.widgets[widget].get_value() + difference
         if val < 0:
             val = 0
         if difference != 0:
             self.widgets[widget].set_value( val )
 
-    def _check_counts(self,counts):
+    def _check_counts( self, counts ):
         # as we do not know how the user did connect the jog wheels, we have to check all
         # possibilitys. Does he use only one jog wheel and a selection switch or do he use
         # a mpg for each slider or one for speeds and one for override, or ??
         if self.halcomp["feed-override.counts"] == self.halcomp["spindle-override.counts"]:
             if self.halcomp["feed-override.count-enable"] and self.halcomp["spindle-override.count-enable"]:
                 return
-            self.fo_counts = self.so_counts = counts 
+            self.fo_counts = self.so_counts = counts
         if self.halcomp["feed-override.counts"] == self.halcomp["jog-speed.counts"]:
             if self.halcomp["feed-override.count-enable"] and self.halcomp["jog-speed.count-enable"]:
                 return
-            self.fo_counts = self.jv_counts = counts 
+            self.fo_counts = self.jv_counts = counts
         if self.halcomp["feed-override.counts"] == self.halcomp["max-velocity.counts"]:
             if self.halcomp["feed-override.count-enable"] and self.halcomp["max-velocity.count-enable"]:
                 return
-            self.fo_counts = self.mv_counts = counts 
+            self.fo_counts = self.mv_counts = counts
         if self.halcomp["spindle-override.counts"] == self.halcomp["jog-speed.counts"]:
             if self.halcomp["spindle-override.count-enable"] and self.halcomp["jog-speed.count-enable"]:
                 return
@@ -3924,7 +3930,6 @@ class gmoccapy( object ):
             if self.halcomp["jog-speed.count-enable"] and self.halcomp["max-velocity.count-enable"]:
                 return
             self.jv_counts = self.mv_counts = counts
-#        print(self.fo_counts,self.so_counts,self.jv_counts,self.mv_counts)
 
     def _on_analog_value_changed( self, pin, widget ):
         if not self.initialized:
@@ -4005,7 +4010,8 @@ class gmoccapy( object ):
         if pin.get():
             self.widgets["btn_%s_100" % type].emit( "clicked" )
 
-    # The actions of the buttons
+# =========================================================
+# The actions of the buttons
     def _on_h_button_changed( self, pin ):
         self._add_alarm_entry( "got h_button_signal %s" % pin.name )
         # we check if the button is pressed ore release,
@@ -4085,9 +4091,9 @@ class gmoccapy( object ):
             print( "No button found in v_tabs from %s" % pin.name )
             self._add_alarm_entry( "No button found in v_tabs from %s" % pin.name )
 
-    # We need extra HAL pins here is where we do it.
-    # we make pins for the hardware buttons witch can be placed around the
-    # screen to activate the coresponding buttons on the GUI
+# We need extra HAL pins here is where we do it.
+# we make pins for the hardware buttons witch can be placed around the
+# screen to activate the coresponding buttons on the GUI
     def _init_hal_pins( self ):
         # generate the horizontal button pins
         for h_button in range( 0, 10 ):
@@ -4199,12 +4205,11 @@ class gmoccapy( object ):
         self.halcomp.newpin( "program.current-line", hal.HAL_S32, hal.HAL_OUT )
         self.halcomp.newpin( "program.progress", hal.HAL_FLOAT, hal.HAL_OUT )
 
-    # Hal Pin Handling End
-    # =========================================================
+# Hal Pin Handling End
+# =========================================================
 
     def on_gremlin_button_press_event( self, widget, event ):
         print widget.get_highlight_line()
-
 
 if __name__ == "__main__":
     app = gmoccapy()
@@ -4219,6 +4224,4 @@ if __name__ == "__main__":
         if res:
             raise SystemExit, res
     gtk.main()
-
-
 
