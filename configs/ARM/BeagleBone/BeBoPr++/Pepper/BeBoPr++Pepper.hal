@@ -1,6 +1,6 @@
 # #######################################
 #
-# HAL file for BeagleBone + BeBoPr cape with Pepper (5 steppers)
+# HAL file for BeagleBone + BeBoPr++ cape with Pepper (5 steppers)
 #
 # Derived from example BeBoPr-Bridge.hal
 #
