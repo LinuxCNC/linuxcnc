@@ -193,7 +193,7 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
 
     // Start with the scaled target velocity based on the current feed scale
     double v_target = tc->synchronized ? tc->target_vel : tc->reqvel;
-    tc_debug_print("Initial v_target = %f\n",v_target);
+    /*tc_debug_print("Initial v_target = %f\n",v_target);*/
 
     // Get the maximum allowed target velocity, and make sure we're below it
     return fmin(v_target * tpGetFeedScale(tp,tc), tpGetMaxTargetVel(tp, tc));
@@ -215,7 +215,7 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
      * limit here.
      */
     if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        tc_debug_print("Cartesian velocity limit active\n");
+        /*tc_debug_print("Cartesian velocity limit active\n");*/
         v_max_target = fmin(v_max_target,tp->vLimit);
     }
 
