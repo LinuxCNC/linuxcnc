@@ -1,0 +1,11 @@
+o<g29_1> sub
+o100 if [EXISTS[#<x>]]
+    G10 L1 P#<_ini[PROBE]TOOL_NR> X#<x>
+o100 endif
+o101 if [EXISTS[#<y>]]
+    G10 L1 P#<_ini[PROBE]TOOL_NR> Y#<y>
+o101 endif
+o102 if [EXISTS[#<z>]]
+    G10 L1 P#<_ini[PROBE]TOOL_NR> Z#<z>
+o102 endif
+o<g29_1> end sub

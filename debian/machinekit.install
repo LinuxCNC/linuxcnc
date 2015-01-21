@@ -32,6 +32,7 @@ usr/share/man/man9/*
 usr/share/gtksourceview-2.0/
 usr/share/gscreen
 usr/share/gmoccapy
+usr/share/fdm
 usr/share/applications/linuxcnc.desktop
 usr/share/applications/linuxcnc-gcoderef.desktop
 usr/share/applications/linuxcnc-gcoderef-fr.desktop
