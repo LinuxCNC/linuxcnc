@@ -342,6 +342,14 @@ verify_tool(
 
 print "*** try to add in TLO with no H-word, should fail"
 
+# first drain the error queue
+start = time.time()
+while (time.time() - start) < 2:
+    error = e.e.poll()
+    if error == None:
+        # no more queued errors, continue with test
+        break
+
 e.g('g43.2')
 if e.error[1] != "G43.2: H-word missing":
     print "G43.2 with missing H-word did not produce expected error"

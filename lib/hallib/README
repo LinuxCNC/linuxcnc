@@ -49,6 +49,10 @@ xhc-hb04.tcl               Configuration builder for xhc-hb04 pendant
 xhc-hb04-layout1.cfg         button layout 1 for xhc-hb04.tcl
 xhc-hb04-layout2.cfg         button layout 2 for xhc-hb04.tcl
 
+halcheck.tcl               Report: 1) functions without addf
+                                   2) signals with no inputs
+                                   3) signals with no output
+
 Haltcl libs (*_lib.tcl)    Notes
 -----------------------    ---------------------------------------------
 sim_lib.tcl                simulator config procedures

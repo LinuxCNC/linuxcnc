@@ -1,3 +1,8 @@
+ver. 1.5.2
+- In Lathe mode and with startcode G7 the DRO has not been set
+  correctly, while starting in G8 was OK.
+- Some code clearance 
+
 ver. 1.5.1.4
 - Two missing self. leaded to errors if logging was active, 
   Thanks to Frans (franstrein) for reporting
