@@ -47,32 +47,17 @@ $(COMP_MANPAGES): ../man/man9/%.9comp: hal/components/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
-	$(Q)cp $@ $@.i-need-asciidoc-rework
-	#ignore faults in the script for now
-	-python ../scripts/troff-to-asciidoc.py $@.i-need-asciidoc-rework \
-	../man/man-generated/hal-components/$(notdir $@.asciidoc)
-	rm -f $@.i-need-asciidoc-rework
 
 $(DRIVER_COMP_MANPAGES): ../man/man9/%.9comp: hal/drivers/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
-	$(Q)cp $@ $@.i-need-asciidoc-rework
-	#ignore faults in the script for now
-	-python ../scripts/troff-to-asciidoc.py $@.i-need-asciidoc-rework \
-	../man/man-generated/hal-drivers/$(notdir $@.asciidoc)
-	rm -f $@.i-need-asciidoc-rework
 
 $(MSG_COMP_MANPAGES): ../man/man9/%.9comp: \
 		machinetalk/msgcomponents/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
-	$(Q)cp $@ $@.i-need-asciidoc-rework
-	#ignore faults in the script for now
-	-python ../scripts/troff-to-asciidoc.py $@.i-need-asciidoc-rework \
-	../man/man-generated/machinetalk/$(notdir $@.asciidoc)
-	rm -f $@.i-need-asciidoc-rework
 
 ifeq ($(BUILD_ALL_FLAVORS),yes)
 # .c and .mak files are identical for all flavors

@@ -25,7 +25,7 @@ re_HP = re.compile(r'^\.HP')
 re_TQ = re.compile(r'^\.TQ')
 #.SH NAME
 #.SH SYNOPSYS
-re_SH = re.compile(r'^\.SH')
+re_SH = re.compile(r'^\.SH\s+(.+)\n')
 #.B
 re_B = re.compile(r'^\.B')
 #.de TQ
@@ -42,6 +42,8 @@ re_fB = re.compile(r'\\fB')
 re_fR = re.compile(r'\\fR')
 re_longdash = re.compile(r'\\-')
 re_erroneous_markup = re.compile( ('\*\*\*\*|\_\_\_\_') )
+#.\" Comments
+re_comment = re.compile(r'^\.\\"')
 
 i = 0
 while (i < len(SourceLines)):
@@ -127,12 +129,16 @@ while (i < len(SourceLines)):
     result_re_SH = re_SH.search(SourceLines[i])
     if (result_re_SH != None):
         #.SH has been found, get the name, put it in the index and add the line
-        CompHeader=SourceLines[i].split(' ')[1]
-        CompHeader=CompHeader.strip('\n')
+        CompHeader=result_re_SH.groups()[0]
+        #if the header is between quotes, like: "see also" then strip the
+        #quotes and change the space to a dash. in the indexlines array
+        CompHeader = CompHeader.strip('\"')
+        CompHeaderDashed = CompHeader.replace(" ", "-")
+        #result_re_between_quotes = re_between_quotes.search(CompHeader)
         AsciidocLines.append("\n\n" + "===== " + \
-                             "[[" + CompHeader.lower() + "]]" \
+                             "[[" + CompHeaderDashed.lower() + "]]" \
                              + CompHeader + "\n")
-        IndexLines.append(". <<" + CompHeader.lower() + "," + \
+        IndexLines.append(". <<" + CompHeaderDashed.lower() + "," + \
                           CompHeader + ">>" + "\n")
     #
     result_re_B = re_B.search(SourceLines[i])
@@ -150,13 +156,15 @@ while (i < len(SourceLines)):
         AsciidocLines.append('\n')
     #
     #these lines should not do anything and are to be ignored
+    result_re_comment = re_comment.search(SourceLines[i])
     result_re_de_TQ = re_de_TQ.search(SourceLines[i])
     result_br = re_br.search(SourceLines[i])
     result_HP = re_HP.search(SourceLines[i])
     result_TQ = re_TQ.search(SourceLines[i])
     result_ns = re_ns.search(SourceLines[i])
     result_pointpoint = re_pointpoint.search(SourceLines[i])
-    if not ((result_re_de_TQ != None) \
+    if not ((result_re_comment != None) \
+            or (result_re_de_TQ != None) \
             or (result_br != None) \
             or (result_HP != None) \
             or (result_TQ != None) \
