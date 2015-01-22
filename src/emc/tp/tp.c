@@ -2691,10 +2691,12 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
 STATIC inline int tcSetSplitCycle(TC_STRUCT * const tc, double split_time,
         double v_f)
 {
-    tp_debug_print("split time for id %d is %f\n", tc->id, split_time);
+    tp_debug_print("split time for id %d is %.16g\n", tc->id, split_time);
     if (tc->splitting != 0) {
-        //already splitting?
-        rtapi_print_msg(RTAPI_MSG_ERR,"already splitting on id %d with cycle time %f\n",tc->id, tc->cycle_time);
+        rtapi_print_msg(RTAPI_MSG_ERR,"already splitting on id %d with cycle time %.16g, split time %.12g\n",
+                tc->id,
+                tc->cycle_time,
+                split_time);
         return TP_ERR_FAIL;
     }
     tc->splitting = 1;
@@ -2873,7 +2875,10 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     tpUpdateCycle(tp, nexttc, next2tc);
     if (nexttc && nexttc->splitting) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"nexttc (id = %d) is splitting with cycle time %.12g\n",nexttc->id,nexttc->cycle_time);
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "nexttc (id = %d) is splitting with cycle time %.16f\n",
+                nexttc->id,
+                nexttc->cycle_time);
     }
 
     // Update status for the split portion
