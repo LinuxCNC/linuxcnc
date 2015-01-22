@@ -2075,7 +2075,8 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp,
     double newvel = saturate(maxnewvel, tc_target_vel);
 
     // Calculate acceleration needed to reach newvel, bounded by machine maximum
-    double maxnewaccel = (newvel - tc->currentvel) / tc->cycle_time;
+    double dt = fmax(tc->cycle_time, TP_TIME_EPSILON);
+    double maxnewaccel = (newvel - tc->currentvel) / dt;
     *acc = saturate(maxnewaccel, maxaccel);
     *vel_desired = maxnewvel;
 }
@@ -2593,7 +2594,9 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
     if(tc->sync_accel) {
         // detect when velocities match, and move the target accordingly.
         // acceleration will abruptly stop and we will be on our new target.
-        spindle_vel = tp->spindle.revs / (tc->cycle_time * tc->sync_accel++);
+        // FIX: this is driven by TP cycle time, not the segment cycle time
+        double dt = fmax(tp->cycleTime, TP_TIME_EPSILON);
+        spindle_vel = tp->spindle.revs / ( dt * tc->sync_accel++);
         target_vel = spindle_vel * tc->uu_per_rev;
         if(tc->currentvel >= target_vel) {
             tc_debug_print("Hit accel target in pos sync\n");
