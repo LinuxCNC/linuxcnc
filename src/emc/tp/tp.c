@@ -1785,7 +1785,8 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
             &end);
     tc.target = pmLine9Target(&tc.coords.line);
     if (tc.target < TP_POS_EPSILON) {
-        return TP_ERR_FAIL;
+        rtapi_print_msg(RTAPI_MSG_DBG,"failed to create line id %d, zero-length segment\n",tp->nextId);
+        return TP_ERR_ZERO_LENGTH;
     }
     tc.nominal_length = tc.target;
 
