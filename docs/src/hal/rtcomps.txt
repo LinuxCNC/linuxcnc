@@ -562,8 +562,7 @@ implemented as parameters.
    proportional to derivative of command (velocity).
 * '(float) pid.<loopnum>.FF2' - Second order feedforward - output
    proportional to 2nd derivative
-   of command (acceleration)footnote:[FF2 is not currently implemented,
-   but it will be added. Consider this note a “FIXME” for the code]. 
+   of command (acceleration).
 * '(float) pid.<loopnum>.deadband' - Amount of error that will be ignored 
 * '(float) pid.<loopnum>.maxerror' - Limit on error 
 * '(float) pid.<loopnum>.maxerrorI' - Limit on error integrator 
