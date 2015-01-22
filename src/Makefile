@@ -892,6 +892,9 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/gladevcp
 	$(DIR) $(DESTDIR)$(SITEPY)/stepconf
 	$(DIR) $(DESTDIR)$(SITEPY)/machinekit
+	$(DIR) $(DESTDIR)$(SITEPY)/fdm
+	$(DIR) $(DESTDIR)$(datadir)/fdm/thermistor_tables
+	$(DIR) $(DESTDIR)$(SITEPY)/drivers
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
@@ -902,9 +905,16 @@ install-python: install-dirs
 	$(FILE) ../lib/python/stepconf/*.py $(DESTDIR)$(SITEPY)/stepconf
 	$(FILE) ../lib/python/machinekit/*.py $(DESTDIR)$(SITEPY)/machinekit/
 	$(FILE) ../lib/python/machinekit/*.so $(DESTDIR)$(SITEPY)/machinekit/
+	$(FILE) ../lib/python/fdm/*.py $(DESTDIR)$(SITEPY)/fdm
+	$(FILE) ../lib/python/drivers/*.py $(DESTDIR)$(SITEPY)/drivers
 	$(EXE) ../bin/stepconf $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pncconf $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_gpio_mcp23017 $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_pwm_pca9685 $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_storage $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_temp_ads7828 $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_temp_bbb $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/axis $(DESTDIR)$(bindir)
@@ -926,6 +936,7 @@ install-python: install-dirs
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
+	$(FILE) ../share/fdm/thermistor_tables/*.txt $(DESTDIR)$(datadir)/fdm/thermistor_tables
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mkwrapper $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gremlin $(DESTDIR)$(bindir)
@@ -1273,6 +1284,12 @@ endif
 
 ifeq ($(BUILD_HOSTMOT2),yes)
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_7i90.o hm2_pci.o hm2_test.o
+ifeq ($(BUILD_SYS),user-dso)
+obj-$(CONFIG_HOSTMOT2) += hm2_eth.o
+hm2_eth-objs  :=			  \
+    hal/drivers/mesa-hostmot2/hm2_eth.o   \
+    $(MATHSTUB)
+endif
 #obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_pci.o hm2_7i43.o
 hostmot2-objs +=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
@@ -1521,6 +1538,9 @@ $(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
 $(RTLIBDIR)/hm2_7i43$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i43-objs))
 $(RTLIBDIR)/hm2_7i90$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i90-objs))
 $(RTLIBDIR)/hm2_pci$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_pci-objs))
+ifeq ($(BUILD_SYS),user-dso)
+$(RTLIBDIR)/hm2_eth$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_eth-objs))
+endif
 $(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
 endif
 

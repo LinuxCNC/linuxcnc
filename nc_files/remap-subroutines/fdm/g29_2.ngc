@@ -1,0 +1,20 @@
+o<g29_2> sub
+o100 if [EXISTS[#<x>]]
+    G43 H#<_ini[PROBE]TOOL_NR>
+    G10 L1 P#<_ini[PROBE]TOOL_NR> X[[#<_x>+#<x>]*-1]
+    G49
+    G10 L20 P1 X#<x>
+o100 endif
+o101 if [EXISTS[#<y>]]
+    G43 H#<_ini[PROBE]TOOL_NR>
+    G10 L1 P#<_ini[PROBE]TOOL_NR> Y[[#<_y>+#<y>]*-1]
+    G49
+    G10 L20 P1 Y#<y>
+o101 endif
+o102 if [EXISTS[#<z>]]
+    G43 H#<_ini[PROBE]TOOL_NR>
+    G10 L1 P#<_ini[PROBE]TOOL_NR> Z[[#<_z>+#<z>]*-1]
+    G49
+    G10 L20 P1 Z#<z>
+o102 endif
+o<g29_2> end sub

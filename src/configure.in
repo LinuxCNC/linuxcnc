@@ -3179,7 +3179,22 @@ AC_MSG_RESULT(touching up $BUILD_TOPLEVEL/lib/python/machinekit/config.py)
 mkdir -p $BUILD_TOPLEVEL/lib/python/machinekit
 sed -e 's/"yes"/True/g' -e 's/"no"/False/g' \
     <machinekitcfg.py-tmp \
-    >$BUILD_TOPLEVEL/lib/python/machinekit/config.py
+    >machinekitcfg.py-tmp2
+# recursively subsitute variables
+while : ; do
+    sed -e 's/\"/\\"/g' \
+        <machinekitcfg.py-tmp2 \
+        >machinekitcfg.py-tmp3
+    echo -e "$(eval "echo -e \"`<machinekitcfg.py-tmp3`\"")" \
+        >machinekitcfg.py-tmp4
+    cmp --silent machinekitcfg.py-tmp2 machinekitcfg.py-tmp4
+    RESULT=$?
+    rm machinekitcfg.py-tmp2 machinekitcfg.py-tmp3
+    mv machinekitcfg.py-tmp4 machinekitcfg.py-tmp2
+    [[ $RESULT -ne 0 ]] || break
+done
+cat machinekitcfg.py-tmp2 > $BUILD_TOPLEVEL/lib/python/machinekit/config.py
+rm machinekitcfg.py-tmp2
 AC_MSG_CHECKING(usability of $BUILD_TOPLEVEL/lib/python/machinekit/config.py)
 python $BUILD_TOPLEVEL/lib/python/machinekit/config.py
 AC_MSG_RESULT(done)
