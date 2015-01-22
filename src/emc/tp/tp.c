@@ -1836,35 +1836,27 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
 
     double v_reachable_this = fmin(tpCalculateTriangleVel(tp,tc), target_vel_this);
     double v_reachable_next = fmin(tpCalculateTriangleVel(tp,nexttc), target_vel_next);
-    /* Scale blend velocity to match blends between current and next segment.
-     *
-     * The blend time t_b should be the same for this segment and the next
-     * segment. This is the time it takes to decelerate from v_blend_this to 0
-     * at a rate of acc_this , and accelerate from 0 to v_blend next at a rate
-     * of acc_next.
-     *
-     * t_b = v_blend_this / acc_this = v_blend_next / acc_next
-     *
-     * Solving for v_blend_this by cross multiplying, we get:
-     *
-     * v_blend_this = v_blend_next * acc_this / acc_next
-     *
-     * TODO figure illustrating this
+
+    /* Compute the maximum allowed blend time for each segment.
+     * This corresponds to the minimum acceleration that will just barely reach
+     * max velocity as we are 1/2 done the segment.
      */
 
-    double v_blend_this, v_blend_next;
+    double t_max_this = tc->target * 2.0 / v_reachable_this;
+    double t_max_next = nexttc->target * 2.0 / v_reachable_next;
+    double t_max_reachable = fmin(t_max_this, t_max_next);
 
-    v_blend_this = v_reachable_next * acc_this / acc_next;
-    v_blend_next = v_reachable_next;
+    // How long the blend phase would be at maximum acceleration
+    double t_min_blend_this = v_reachable_this / acc_this;
+    double t_min_blend_next = v_reachable_next / acc_next;
 
-    //The shorter of the two segments is our constraint
-    if (v_reachable_this < v_reachable_next) {
-        v_blend_this = fmin(v_reachable_this, v_blend_this);
-        v_blend_next = fmin(v_reachable_this * acc_next / acc_this, v_blend_next);
-    } else {
-        v_blend_this = fmin(v_blend_this, v_reachable_next * acc_this / acc_next);
-        v_blend_next = fmin(v_blend_next, v_reachable_next);
-    }
+    double t_max_blend = fmax(t_min_blend_this, t_min_blend_next);
+    // The longest blend time we can get that's still within the 1/2 segment restriction
+    double t_blend = fmin(t_max_reachable, t_max_blend);
+
+    // Now, use this blend time to find the best acceleration / velocity for each segment
+    double v_blend_this = fmin(v_reachable_this, t_blend * acc_this);
+    double v_blend_next = fmin(v_reachable_next, t_blend * acc_next);
 
     double theta;
     if (tc->tolerance > 0 || planning) {
@@ -2210,22 +2202,22 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
 STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc) {
 
-    tp_debug_print("updating blend\n");
     double save_vel = nexttc->target_vel;
 
-    if (tpGetFeedScale(tp,nexttc) > TP_VEL_EPSILON) {
+    if (tpGetFeedScale(tp, nexttc) > TP_VEL_EPSILON) {
         double dv = tc->vel_at_blend_start - tc->currentvel;
-        double vel_start = fmax(tc->vel_at_blend_start,TP_VEL_EPSILON);
+        double vel_start = fmax(tc->vel_at_blend_start, TP_VEL_EPSILON);
         // Clip the ratio at 1 and 0
-        double blend_progress = fmax(fmin(dv / vel_start, 1.0),0.0);
+        double blend_progress = fmax(fmin(dv / vel_start, 1.0), 0.0);
         double blend_scale = tc->vel_at_blend_start / tc->blend_vel;
         nexttc->target_vel = blend_progress * nexttc->blend_vel * blend_scale;
     } else {
+        // Drive the target velocity to zero since we're stopping
         nexttc->target_vel = 0.0;
     }
 
     tpUpdateCycle(tp, nexttc, NULL);
-    //Restore the blend velocity
+    //Restore the original target velocity
     nexttc->target_vel = save_vel;
 
 }
