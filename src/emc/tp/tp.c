@@ -2931,12 +2931,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     TC_STRUCT *next2tc = tcqItem(&tp->queue, 2);
 
     tpUpdateCycle(tp, nexttc, next2tc);
-    if (nexttc && nexttc->splitting) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                "nexttc (id = %d) is splitting with cycle time %.16f\n",
-                nexttc->id,
-                nexttc->cycle_time);
-    }
 
     // Update status for the split portion
     // FIXME redundant tangent check, refactor to switch
