@@ -1842,8 +1842,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
      * max velocity as we are 1/2 done the segment.
      */
 
-    double t_max_this = tc->target * 2.0 / v_reachable_this;
-    double t_max_next = nexttc->target * 2.0 / v_reachable_next;
+    double t_max_this = tc->target / v_reachable_this;
+    double t_max_next = nexttc->target / v_reachable_next;
     double t_max_reachable = fmin(t_max_this, t_max_next);
 
     // How long the blend phase would be at maximum acceleration
