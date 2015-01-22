@@ -52,6 +52,7 @@
  * the future.
  */
 typedef enum {
+    TP_ERR_ZERO_LENGTH = -7,
     TP_ERR_RADIUS = -6,
     TP_ERR_GEOM = -5,
     TP_ERR_RANGE = -4,
