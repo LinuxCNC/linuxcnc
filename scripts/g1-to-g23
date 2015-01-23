@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 #    Copyright 2013 Frank Tkalcevic (frank@franksworkshop.com.au)
 #
@@ -17,40 +18,43 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Version 1.1
-# 	- Fix problem not picking up F word
+#   - Fix problem not picking up F word
+# Version 1.2 - modified by Alexander Roessler
+#   - simplfied output
+#   - added argparse
 
-import fileinput
+
 import sys
 import re
 import os
-from author import douglas
-
-plane=17
-point_tolerance=0.05
-length_tolerance=0.005
-
-output_file = ""
-
-def output_line( s ):
-    if output_file == "":
-        print s
-    else:
-        with open(output_file, "a") as myfile:
-            myfile.write(s + "\n")
+import argparse
+from rs274.author_g1tog23 import douglas
 
 class gcode(object):
     def __init__(self):
         self.regMatch = {}
         self.line_count = 0
         self.output_line_count = 0
+        self.prev_p = [999999,999999,999999,999999,999999]  # high number so we detect the change on first move
+        self.inFile = None
+        self.outFile = None
+        self.plane = 17
+        self.point_tolerance = 0.05
+        self.length_tolerance = 0.005
 
 
-    def load(self, filename):
-        if os.path.isfile(filename):
-            self._fileSize = os.stat(filename).st_size
-            gcodeFile = open(filename, 'r')
-            self._load(gcodeFile)
-            gcodeFile.close()
+    def convert(self, infile, outfile, 
+                plane=17, point_tolerance=0.05, length_tolerance=0.005):
+        self.inFile = infile
+        self.outFile = outfile
+        self.plane = plane
+        self.point_tolerance = point_tolerance
+        self.length_tolerance = length_tolerance
+        self._load(self.inFile)
+
+
+    def outputLine(self, line):
+        self.outFile.write(line + '\n')
 
 
     def loadList(self, l):
@@ -138,17 +142,17 @@ class gcode(object):
                 if len(line) > 0 and len(st) > 0:
                     self.simplifyPath(st)
                     st = []
-                output_line( original_line )
+                self.outputLine( original_line )
                 self.output_line_count = self.output_line_count + 1
 
         if len(st) != 0:
             self.simplifyPath(st)
 
-        output_line( "; GCode file processed by " + sys.argv[0] )
-        output_line( "; Input Line Count = " + str(self.line_count) )
-        output_line( "; Output Line Count = " + str(self.output_line_count) )
+        self.outputLine( "; GCode file processed by " + sys.argv[0] )
+        self.outputLine( "; Input Line Count = " + str(self.line_count) )
+        self.outputLine( "; Output Line Count = " + str(self.output_line_count) )
         if self.output_line_count < self.line_count:
-            output_line( "; Line reduction = " + str(100 * (self.line_count - self.output_line_count)/self.line_count) + "%" )
+            self.outputLine( "; Line reduction = " + str(100 * (self.line_count - self.output_line_count)/self.line_count) + "%" )
 
 
     def getCodeInt(self, line, code):
@@ -176,39 +180,60 @@ class gcode(object):
 
     def simplifyPath(self, st):
         #print "st=",len(st)
-        l = douglas(st, plane=plane, tolerance=point_tolerance, length_tolerance=length_tolerance)
+        l = douglas(st, plane=self.plane, 
+                    tolerance=self.point_tolerance, 
+                    length_tolerance=self.length_tolerance)
         #print l
         #print len(l)
         for i, (g, p, c) in enumerate(l):
             self.output_line_count = self.output_line_count + 1
             #print "i, g,p,c=", i, g,p,c
             s = g + " "
-            if p[0] is not None:
-                s = s + "X{0:f}".format(p[0]) + " "
-            if p[1] is not None:
-                s = s + "Y{0:f}".format(p[1]) + " "
-            if p[2] is not None:
-                s = s + "Z{0:f}".format(p[2]) + " "
-            if p[3] is not None:
-                s = s + "A{0:f}".format(p[3]) + " "
-            if p[4] is not None:
-                s = s + "F{0:f}".format(p[4]) + " "
+            if (p[0] is not None) and (p[0] != self.prev_p[0]):
+                self.prev_p[0] = p[0]
+                s = s + "X{0:g}".format(p[0]) + " "
+            if (p[1] is not None) and (p[1] != self.prev_p[1]):
+                self.prev_p[1] = p[1]
+                s = s + "Y{0:g}".format(p[1]) + " "
+            if (p[2] is not None) and (p[2] != self.prev_p[2]):
+                self.prev_p[2] = p[2]
+                s = s + "Z{0:g}".format(p[2]) + " "
+            if (p[3] is not None) and (p[3] != self.prev_p[3]):
+                self.prev_p[3] = p[3]
+                s = s + "A{0:g}".format(p[3]) + " "
+            if (p[4] is not None) and (p[4] != self.prev_p[4]):
+                self.prev_p[4] = p[4]
+                s = s + "F{0:g}".format(p[4]) + " "
             if c is not None:
                 s = s + c
             s = s.rstrip()
-            output_line( s )
+            self.outputLine( s )
 
-# Check command line for file name
-if len(sys.argv) > 1:
-    # input is file name
-    output_file = sys.argv[1]
-    input_file = output_file + ".bak"
-    if os.path.isfile(input_file):
-        os.remove( input_file )
-    os.rename( output_file, input_file )
-    gcode().load( input_file )
+def main():
+    parser = argparse.ArgumentParser(description='This application simplifies G1 straight feeds to G2 and G3 arc moves')
+    parser.add_argument('infile', nargs='?', type=argparse.FileType('r'), 
+                        default=sys.stdin, help='input file, takes input from stdin if not specified')
+    parser.add_argument('outfile', nargs='?', type=argparse.FileType('w'), 
+                        default=sys.stdout, help='output file, prints output to stdout of not specified')
+    parser.add_argument('-p', '--plane', type=int, default=17, 
+                        help='plane parameter')
+    parser.add_argument('-pt', '--point_tolerance', type=float, default=0.05, 
+                        help='point tolerance parameter')
+    parser.add_argument('-lt', '--length_tolerance', type=float, default=0.005, 
+                        help='length tolerance parameter')
+    parser.add_argument('-d', '--debug', help='enable debug mode', action='store_true')
+    args = parser.parse_args()
 
-else:
-    # input is via stdin
-    gcode().loadList(fileinput.input())
-
+    inFile = args.infile
+    outFile = args.outfile
+    
+    gcode().convert(inFile, outFile,
+                    args.plane,
+                    args.point_tolerance,
+                    args.length_tolerance)
+    
+    inFile.close()
+    outFile.close()
+    
+if __name__ == "__main__":
+    main()

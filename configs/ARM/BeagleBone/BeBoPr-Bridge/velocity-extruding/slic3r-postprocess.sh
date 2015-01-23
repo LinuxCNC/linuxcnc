@@ -115,8 +115,8 @@ python ./correct-retract-on-next-layer.py "cleaned_$1"
 rm "cleaned_$1"
 
 #convert g1 line segments to g2 or g3 if possible
-python g1tog23.py "swapped-cleaned_$1"
-rm "swapped-cleaned_$1.bak"
+g1-to-g23 "swapped-cleaned_$1" "swapped-cleaned_$1.bak"
+mv "swapped-cleaned_$1.bak" "swapped-cleaned_$1"
 
 # convert all M106 to B axis
 #sed '/^M106/s/M106 P/G0 B/' "$1post" > "$1"
