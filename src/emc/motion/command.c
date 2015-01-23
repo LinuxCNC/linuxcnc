@@ -309,8 +309,10 @@ void emcmotDioWrite(int index, char value)
     } else {
 	if (value != 0) {
 	    *(emcmot_hal_data->synch_do[index])=1;
+        *(emcmot_hal_data->synch_dio[index])=1;
 	} else {
 	    *(emcmot_hal_data->synch_do[index])=0;
+        *(emcmot_hal_data->synch_dio[index])=0;
 	}
     }
 }
@@ -330,6 +332,7 @@ void emcmotAioWrite(int index, double value)
 	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_aio/EMCMOT_MAX_AIO=%d)\n", index, num_aio, EMCMOT_MAX_AIO);
     } else {
         *(emcmot_hal_data->analog_output[index]) = value;
+        *(emcmot_hal_data->analog_io[index]) = value;
     }
 }
 
