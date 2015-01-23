@@ -132,6 +132,14 @@ except TclError:
     raise
 
 
+def General_Halt():
+    text = "Do you really want to close linuxcnc?"
+    if not root_window.tk.call("nf_dialog", ".error", "Confirm Close", text, "warning", 1, "Yes", "No"):
+        root_window.destroy()
+
+root_window.protocol("WM_DELETE_WINDOW", General_Halt)
+
+
 program_start_line = 0
 program_start_line_last = -1
 
