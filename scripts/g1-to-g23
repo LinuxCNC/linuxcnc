@@ -35,7 +35,11 @@ class gcode(object):
         self.regMatch = {}
         self.line_count = 0
         self.output_line_count = 0
-        self.prev_p = [999999,999999,999999,999999,999999]  # high number so we detect the change on first move
+        self.prev_x = 999999 # high number so we detect the change on first move
+        self.prev_y = 999999
+        self.prev_z = 999999
+        self.prev_a = 999999
+        self.prev_f = 999999
         self.inFile = None
         self.outFile = None
         self.plane = 17
@@ -64,6 +68,7 @@ class gcode(object):
     def _load(self, gcodeFile):
 
         st = []
+        cs = []
         lastx = 0
         lasty = 0
         lastz = 0
@@ -74,7 +79,9 @@ class gcode(object):
 
 
         for line in gcodeFile:
-
+            move = False  # mark line as move to simplify
+            comment = None
+            
             self.line_count = self.line_count + 1
             line = line.rstrip()
             original_line = line
@@ -101,6 +108,9 @@ class gcode(object):
                 z = self.getCodeFloat(line, 'Z')
                 a = self.getCodeFloat(line, 'A')
                 f = self.getCodeFloat(line, 'F')
+                
+                if ((x is not None) or (y is not None) or (z is not None)) and (a is not None):
+                    move = True
 
                 if x is None: 
                     x = lastx
@@ -113,8 +123,6 @@ class gcode(object):
                 if f is None: 
                     f = lastf
 
-                st.append( [x,y,z,a,f] )
-
                 lastx = x
                 lasty = y
                 lastz = z
@@ -124,7 +132,7 @@ class gcode(object):
                 # any other move signifies the end of a list of line segments,
                 # so we simplify them.
 
-                if G == 0:    #Rapid - remember position
+                if (G == 0) or (G == 92):    # Rapid or coordinate offset- remember position
                     x = self.getCodeFloat(line, 'X')
                     y = self.getCodeFloat(line, 'Y')
                     z = self.getCodeFloat(line, 'Z')
@@ -132,17 +140,25 @@ class gcode(object):
 
                     if x is not None: 
                         lastx = x
+                        self.prev_x = x
                     if y is not None: 
                         lasty = y
+                        self.prev_y = y
                     if z is not None: 
-                        lastz = z 
+                        lastz = z
+                        self.prev_z = z
                     if a is not None: 
                         lasta = a
-
+                        self.prev_a = a
+            if move:
+                st.append([x,y,z,a,f])
+                cs.append(comment)
+            else:
                 if len(line) > 0 and len(st) > 0:
-                    self.simplifyPath(st)
+                    self.simplifyPath(st, cs)
                     st = []
-                self.outputLine( original_line )
+                    cs = []
+                self.outputLine(original_line)
                 self.output_line_count = self.output_line_count + 1
 
         if len(st) != 0:
@@ -178,36 +194,44 @@ class gcode(object):
         except:
             return None
 
-    def simplifyPath(self, st):
+    def simplifyPath(self, st, cs):
         #print "st=",len(st)
         l = douglas(st, plane=self.plane, 
                     tolerance=self.point_tolerance, 
                     length_tolerance=self.length_tolerance)
         #print l
         #print len(l)
+        
+        mergedc = ""
+        for comment in cs:
+            if (comment is not None) and not comment in mergedc:
+                mergedc += comment + " "
+        
         for i, (g, p, c) in enumerate(l):
             self.output_line_count = self.output_line_count + 1
             #print "i, g,p,c=", i, g,p,c
             s = g + " "
-            if (p[0] is not None) and (p[0] != self.prev_p[0]):
-                self.prev_p[0] = p[0]
+            if (p[0] is not None) and (p[0] != self.prev_x):
+                self.prev_x = p[0]
                 s = s + "X{0:g}".format(p[0]) + " "
-            if (p[1] is not None) and (p[1] != self.prev_p[1]):
-                self.prev_p[1] = p[1]
+            if (p[1] is not None) and (p[1] != self.prev_y):
+                self.prev_y = p[1]
                 s = s + "Y{0:g}".format(p[1]) + " "
-            if (p[2] is not None) and (p[2] != self.prev_p[2]):
-                self.prev_p[2] = p[2]
+            if (p[2] is not None) and (p[2] != self.prev_z):
+                self.prev_z = p[2]
                 s = s + "Z{0:g}".format(p[2]) + " "
-            if (p[3] is not None) and (p[3] != self.prev_p[3]):
-                self.prev_p[3] = p[3]
+            if (p[3] is not None) and (p[3] != self.prev_a):
+                self.prev_a = p[3]
                 s = s + "A{0:g}".format(p[3]) + " "
-            if (p[4] is not None) and (p[4] != self.prev_p[4]):
-                self.prev_p[4] = p[4]
+            if (p[4] is not None) and (p[4] != self.prev_f):
+                self.prev_f = p[4]
                 s = s + "F{0:g}".format(p[4]) + " "
             if c is not None:
-                s = s + c
+                s = s  + c + " "
+            if mergedc is not "":
+                s = s + "; " + mergedc
             s = s.rstrip()
-            self.outputLine( s )
+            self.outputLine(s)
 
 def main():
     parser = argparse.ArgumentParser(description='This application simplifies G1 straight feeds to G2 and G3 arc moves')
