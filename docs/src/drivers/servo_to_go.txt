@@ -92,7 +92,7 @@ drives the physical pin high, and FALSE drives it low. If -invert is
 TRUE, then setting the HAL out- pin TRUE will drive the physical pin
 low.
 
-=== Functions
+== Functions
 
 * 'stg.capture-position' - Reads the encoder counters from the axis
    <channel>.
