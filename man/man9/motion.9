@@ -105,6 +105,10 @@ These pins are used by M66 Enn wait-for-input mode.
 These pins are used by M67-68.
 
 .TP
+\fBmotion.analog-out-io-\fINN\fR OUT FLOAT 
+Same as \fBmotion.analog-out-\fINN\fR, compatible with I/O signals.
+
+.TP
 \fBmotion.coord-error\fR OUT BIT 
 TRUE when motion has encountered an error, such as exceeding a soft limit
 
@@ -123,6 +127,10 @@ These pins are used by M66 Pnn wait-for-input mode.
 .TP
 \fBmotion.digital-out-\fINN\fR OUT BIT 
 These pins are controlled by the M62 through M65 words.
+
+.TP
+\fBmotion.digital-out-io-\fINN\fR OUT BIT 
+Same as \fBmotion.digital-out-\fINN\fR, compatible with I/O signals.
 
 .TP
 \fBmotion.distance-to-go\fR OUT FLOAT
