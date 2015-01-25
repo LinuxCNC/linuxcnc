@@ -356,18 +356,21 @@ static int init_hal_io(void)
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->enable), mot_comp_id, "motion.enable")) < 0) goto error;
 
     /* export motion-synched digital output pins */
+    /* export motion-synched digital output io pins for compatibility with io signals */
     /* export motion digital input pins */
     for (n = 0; n < num_dio; n++) {
 	if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.digital-out-%02d", n)) < 0) goto error;
 	if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_di[n]), mot_comp_id, "motion.digital-in-%02d", n)) < 0) goto error;
-    if ((retval = hal_pin_bit_newf(HAL_IO, &(emcmot_hal_data->synch_dio[n]), mot_comp_id, "motion.digital-io-%02d", n)) < 0) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_IO, &(emcmot_hal_data->synch_do_io[n]), mot_comp_id, "motion.digital-out-io-%02d", n)) < 0) goto error;
     }
 
+    /* export motion-synched analog output pins */
+    /* export motion-synched analog output io pins for compatibility with io signals */
     /* export motion analog input pins */
     for (n = 0; n < num_aio; n++) {
 	if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->analog_output[n]), mot_comp_id, "motion.analog-out-%02d", n)) < 0) goto error;
 	if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.analog-in-%02d", n)) < 0) goto error;
-    if ((retval = hal_pin_float_newf(HAL_IO, &(emcmot_hal_data->analog_io[n]), mot_comp_id, "motion.analog-io-%02d", n)) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_IO, &(emcmot_hal_data->analog_output_io[n]), mot_comp_id, "motion.analog-out-io-%02d", n)) < 0) goto error;
     }
 
     /* export machine wide hal parameters */
@@ -630,13 +633,13 @@ static int init_hal_io(void)
     for (n = 0; n < num_dio; n++) {
 	 *(emcmot_hal_data->synch_do[n]) = 0;
 	 *(emcmot_hal_data->synch_di[n]) = 0;
-     *(emcmot_hal_data->synch_dio[n]) = 0;
+     *(emcmot_hal_data->synch_do_io[n]) = 0;
     }
 
     for (n = 0; n < num_aio; n++) {
 	 *(emcmot_hal_data->analog_output[n]) = 0.0;
 	 *(emcmot_hal_data->analog_input[n]) = 0.0;
-     *(emcmot_hal_data->analog_io[n]) = 0.0;
+     *(emcmot_hal_data->analog_output_io[n]) = 0.0;
     }
     
     /*! \todo FIXME - these don't really need initialized, since they are written
