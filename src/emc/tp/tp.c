@@ -2702,10 +2702,11 @@ STATIC inline int tcSetSplitCycle(TC_STRUCT * const tc, double split_time,
         double v_f)
 {
     tp_debug_print("split time for id %d is %.16g\n", tc->id, split_time);
-    if (tc->splitting != 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"already splitting on id %d with cycle time %.16g, split time %.12g\n",
+    if (tc->splitting != 0 && split_time > 0.0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"already splitting on id %d with cycle time %.16g, dx = %.16g, split time %.12g\n",
                 tc->id,
                 tc->cycle_time,
+                tc->target-tc->progress,
                 split_time);
         return TP_ERR_FAIL;
     }
