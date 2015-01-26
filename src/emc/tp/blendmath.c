@@ -340,8 +340,37 @@ int pmCircLineCoplanar(PmCircle const * const circ,
         PmCartLine const * const line, double tol)
 {
     double dot;
-    pmCartCartDot(&circ->normal, &line->uVec, &dot);
-    if (fabs(dot) < tol) {
+    int res = pmCartCartDot(&circ->normal, &line->uVec, &dot);
+    tp_debug_print("normal = %.12g %.12g %.12g, uVec = %.12g %.12g %.12g, dot = %.12g\n",
+            circ->normal.x,
+            circ->normal.y,
+            circ->normal.z,
+            line->uVec.x,
+            line->uVec.y,
+            line->uVec.z,
+            dot);
+    if (fabs(dot) < tol && !res) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+
+int blendCoplanarCheck(PmCartesian const * const normal,
+        PmCartesian const * const u1_tan,
+        PmCartesian const * const u2_tan,
+        double tol)
+{
+    if (!normal || !u1_tan  || !u2_tan) {
+        return TP_ERR_MISSING_INPUT;
+    }
+
+    double dot1, dot2;
+    int res1 = pmCartCartDot(normal, u1_tan, &dot1);
+    int res2 = pmCartCartDot(normal, u2_tan, &dot2);
+
+    if (fabs(dot1) < tol && fabs(dot2) < tol && !res1 && !res2) {
         return 1;
     } else {
         return 0;

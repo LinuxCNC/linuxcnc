@@ -154,6 +154,11 @@ int pmCartCartParallel(PmCartesian const * const v1,
 int pmCircLineCoplanar(PmCircle const * const circ,
         PmCartLine const * const line, double tol);
 
+int blendCoplanarCheck(PmCartesian const * const normal,
+        PmCartesian const * const u1_tan,
+        PmCartesian const * const u2_tan,
+        double tol);
+
 int blendCalculateNormals3(BlendGeom3 * const geom);
 
 int blendComputeParameters(BlendParameters * const param);

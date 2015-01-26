@@ -688,12 +688,6 @@ STATIC int tcSetLineXYZ(TC_STRUCT * const tc, PmCartLine const * const line)
 STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
     tp_debug_print("-- Starting LineArc blend arc --\n");
-    //TODO type checks
-    int coplanar = pmCircLineCoplanar(&tc->coords.circle.xyz,
-            &prev_tc->coords.line.xyz, TP_ANGLE_EPSILON);
-    if (!coplanar) {
-        return TP_ERR_FAIL;
-    }
 
     PmCartesian acc_bound, vel_bound;
     
@@ -713,6 +707,16 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             &acc_bound,
             &vel_bound,
             emcmotConfig->maxFeedScale);
+
+    // Check for coplanarity based on binormal and tangents
+    int coplanar = pmCartCartParallel(&geom.binormal,
+            &tc->coords.circle.xyz.normal,
+            TP_ANGLE_EPSILON);
+
+    if (!coplanar) {
+        tp_debug_print("aborting arc, not coplanar\n");
+        return TP_ERR_FAIL;
+    }
 
     int res_param = blendComputeParameters(&param);
 
@@ -837,13 +841,6 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 {
 
     tp_debug_print("-- Starting ArcLine blend arc --\n");
-    //TODO type checks
-    int coplanar = pmCircLineCoplanar(&prev_tc->coords.circle.xyz,
-            &tc->coords.line.xyz, TP_ANGLE_EPSILON);
-    if (!coplanar) {
-        return TP_ERR_FAIL;
-    }
-
     PmCartesian acc_bound, vel_bound;
     
     //Get machine limits
@@ -863,6 +860,19 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             &acc_bound,
             &vel_bound,
             emcmotConfig->maxFeedScale);
+    if (res_init != TP_ERR_OK) {
+        return res_init;
+    }
+
+    // Check for coplanarity based on binormal
+    int coplanar = pmCartCartParallel(&geom.binormal,
+            &prev_tc->coords.circle.xyz.normal,
+            TP_ANGLE_EPSILON);
+
+    if (!coplanar) {
+        tp_debug_print("aborting arc, not coplanar\n");
+        return TP_ERR_FAIL;
+    }
 
     int res_param = blendComputeParameters(&param);
 
