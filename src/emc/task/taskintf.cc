@@ -974,6 +974,16 @@ int emcTrajSetJoints(int joints)
     return retval;
 }
 
+// FIXME CJR move this to TrajConfig?
+static struct state_tag_t localEmcTrajTag;
+
+int emcTrajUpdateTag(StateTag const &tag) {
+    localEmcTrajTag = tag;
+    //Handle bit packing
+    localEmcTrajTag.packed_flags = tag.flags.to_ulong();
+    return 0;
+}
+
 int emcTrajSetAxes(int axismask)
 {
     int axes = 0;
@@ -1357,6 +1367,7 @@ int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, doub
     emcmotCommand.pos = end;
 
     emcmotCommand.id = TrajConfig.MotionId;
+    emcmotCommand.tag = localEmcTrajTag;
     emcmotCommand.motion_type = type;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1395,6 +1406,7 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
 
     emcmotCommand.turn = turn;
     emcmotCommand.id = TrajConfig.MotionId;
+    emcmotCommand.tag = localEmcTrajTag;
 
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1424,6 +1436,7 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
     emcmotCommand.command = EMCMOT_PROBE;
     emcmotCommand.pos = pos;
     emcmotCommand.id = TrajConfig.MotionId;
+    emcmotCommand.tag = localEmcTrajTag;
     emcmotCommand.motion_type = type;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1445,6 +1458,7 @@ int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
     emcmotCommand.command = EMCMOT_RIGID_TAP;
     emcmotCommand.pos.tran = pos.tran;
     emcmotCommand.id = TrajConfig.MotionId;
+    emcmotCommand.tag = localEmcTrajTag;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
@@ -1495,6 +1509,9 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->activeQueue = emcmotStatus.activeDepth;
     stat->queueFull = emcmotStatus.queueFull;
     stat->id = emcmotStatus.id;
+    StateTag newtag(emcmotStatus.tag);
+    //TODO assignment operator
+    stat->tag = newtag;
     stat->motion_type = emcmotStatus.motionType;
     stat->distance_to_go = emcmotStatus.distance_to_go;
     stat->dtg = emcmotStatus.dtg;

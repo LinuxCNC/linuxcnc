@@ -1914,6 +1914,7 @@ static void update_status(void)
     emcmotStatus->depth = tpQueueDepth(&emcmotDebug->coord_tp);
     emcmotStatus->activeDepth = tpActiveDepth(&emcmotDebug->coord_tp);
     emcmotStatus->id = tpGetExecId(&emcmotDebug->coord_tp);
+    emcmotStatus->tag = tpGetExecTag(&emcmotDebug->coord_tp);
     emcmotStatus->motionType = tpGetMotionType(&emcmotDebug->coord_tp);
     emcmotStatus->queueFull = tcqFull(&emcmotDebug->coord_tp.queue);
 

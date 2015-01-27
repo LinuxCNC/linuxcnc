@@ -82,6 +82,12 @@ public:
 // copy active F, S settings into array [0]..[2]
  void active_settings(double *settings);
 
+ // Update the state vectors from a state tag
+ void active_modes(int *g_codes,
+         int *mcodes,
+         double *settings,
+         StateTag const &tag);
+
 // copy the text of the error message whose number is error_code into the
 // error_text array, but stop at max_size if the text is longer.
  char *error_text(int error_code, char *error_text,
@@ -345,6 +351,7 @@ public:
  int convert_tool_length_offset(int g_code, block_pointer block,
                                       setup_pointer settings);
  int convert_tool_select(block_pointer block, setup_pointer settings);
+ int update_tag(StateTag &tag);
  int cycle_feed(block_pointer block, CANON_PLANE plane, double end1,
                 double end2, double end3);
  int cycle_traverse(block_pointer block, CANON_PLANE plane, double end1, double end2,
@@ -507,6 +514,7 @@ public:
  int write_g_codes(block_pointer block, setup_pointer settings);
  int write_m_codes(block_pointer block, setup_pointer settings);
  int write_settings(setup_pointer settings);
+ int write_state_tag(block_pointer block, setup_pointer settings, StateTag &state);
  int unwrap_rotary(double *, double, double, double, char);
  bool isreadonly(int index);
 

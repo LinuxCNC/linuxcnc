@@ -42,6 +42,7 @@
 #include "canon_position.hh"		// data type for a machine position
 #include "interpl.hh"		// interp_list
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
+#include "modal_state.hh"
 
 //#define EMCCANON_DEBUG
 
@@ -69,6 +70,13 @@ static CanonConfig_t canon;
 
 static int debug_velacc = 0;
 static const double tiny = 1e-7;
+
+static StateTag _tag;
+
+void UPDATE_TAG(StateTag tag) {
+    canon_debug("--Got UPDATE_TAG: %d--\n",tag.fields[GM_FIELD_LINE_NUMBER]);
+    _tag = tag;
+}
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -139,6 +147,22 @@ struct AccelData{
 static PM_QUATERNION quat(1, 0, 0, 0);
 
 static void flush_segments(void);
+
+static inline void add_tag_to_msg(NMLmsg * msg, StateTag const &tag){
+    //FIXME this better be an EMC_TRAJ message or bad things will happen
+    ((EMC_TRAJ_CMD_MSG *) msg)->tag = tag;
+}
+
+
+/**
+ * Add the the given line number and append the message to the interp list.
+ * Note that the append function takes the message by reference, so this also
+ * needs to have the message passed in by reference or it barfs.
+ */
+static inline void tag_and_send(NMLmsg &msg, StateTag const &tag) {
+    add_tag_to_msg(&msg,tag);
+    interp_list.append(msg);
+}
 
 /*
   These decls were from the old 3-axis canon.hh, and refer functions
@@ -805,7 +829,11 @@ static VelData getStraightVelocity(CANON_POSITION pos)
 }
 
 #include <vector>
-struct pt { double x, y, z, a, b, c, u, v, w; int line_no;};
+struct pt {
+    double x, y, z, a, b, c, u, v, w;
+    int line_no;
+    StateTag tag;
+};
 
 static std::vector<struct pt> chained_points;
 
@@ -870,7 +898,7 @@ static void flush_segments(void) {
     linearMoveMsg.indexrotary = -1;
     if ((vel && acc) || canon.synched) {
         interp_list.set_line_number(line_no);
-        interp_list.append(linearMoveMsg);
+        tag_and_send(linearMoveMsg,pos.tag);
     }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 
@@ -928,6 +956,7 @@ linkable(double x, double y, double z,
 
 static void
 see_segment(int line_number,
+        StateTag tag,
 	    double x, double y, double z, 
             double a, double b, double c,
             double u, double v, double w) {
@@ -942,7 +971,7 @@ see_segment(int line_number,
     if(!chained_points.empty() && !linkable(x, y, z, a, b, c, u, v, w)) {
         flush_segments();
     }
-    pt pos = {x, y, z, a, b, c, u, v, w, line_number};
+    pt pos = {x, y, z, a, b, c, u, v, w, line_number, tag};
     chained_points.push_back(pos);
     if(changed_abc || changed_uvw) {
         flush_segments();
@@ -989,8 +1018,7 @@ void STRAIGHT_TRAVERSE(int line_number,
 	STOP_SPEED_FEED_SYNCH();
 
     if(vel && acc)  {
-        interp_list.set_line_number(line_number);
-        interp_list.append(linearMoveMsg);
+        tag_and_send(linearMoveMsg, _tag);
     }
 
     if(old_feed_mode)
@@ -1009,7 +1037,7 @@ void STRAIGHT_FEED(int line_number,
 
     from_prog(x,y,z,a,b,c,u,v,w);
     rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
-    see_segment(line_number, x, y, z, a, b, c, u, v, w);
+    see_segment(line_number, _tag, x, y, z, a, b, c, u, v, w);
 }
 
 
@@ -1430,7 +1458,7 @@ void ARC_FEED(int line_number,
             w = FROM_PROG_LEN(w);
 
             rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
-            see_segment(line_number, mx, my,
+            see_segment(line_number, _tag, mx, my,
                         (lz + ae)/2, 
                         (canon.endPoint.a + a)/2, 
                         (canon.endPoint.b + b)/2, 
@@ -1438,7 +1466,7 @@ void ARC_FEED(int line_number,
                         (canon.endPoint.u + u)/2, 
                         (canon.endPoint.v + v)/2, 
                         (canon.endPoint.w + w)/2);
-            see_segment(line_number, fe, se, ae, a, b, c, u, v, w);
+            see_segment(line_number, _tag, fe, se, ae, a, b, c, u, v, w);
             return;
         }
     }
@@ -1724,7 +1752,7 @@ void ARC_FEED(int line_number,
         linearMoveMsg.indexrotary = -1;
         if(vel && a_max){
             interp_list.set_line_number(line_number);
-            interp_list.append(linearMoveMsg);
+            tag_and_send(linearMoveMsg, _tag);
         }
     } else {
         circularMoveMsg.end = to_ext_pose(endpt);
@@ -1750,7 +1778,7 @@ void ARC_FEED(int line_number,
         // seems to be a crude way to indicate a zero length segment?
         if(vel && a_max) {
             interp_list.set_line_number(line_number);
-            interp_list.append(circularMoveMsg);
+            tag_and_send(circularMoveMsg, _tag);
         }
     }
     // update the end point
@@ -2021,11 +2049,13 @@ void CHANGE_TOOL(int slot)
 	if(canon.feed_mode)
 	    STOP_SPEED_FEED_SYNCH();
 
-        if(vel && acc) 
-            interp_list.append(linearMoveMsg);
+        if(vel && acc) {
+            tag_and_send(linearMoveMsg, _tag);
+        }
 
-	if(old_feed_mode)
-	    START_SPEED_FEED_SYNCH(canon.linearFeedRate, 1);
+        if(old_feed_mode) {
+            START_SPEED_FEED_SYNCH(canon.linearFeedRate, 1);
+        }
 
         canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
     }
