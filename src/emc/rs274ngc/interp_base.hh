@@ -16,6 +16,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 #include <stdlib.h>
+#include <emcpos.h>
+#include <modal_state.hh>
 
 /* Size of certain arrays */
 #define ACTIVE_G_CODES 16
@@ -51,6 +53,10 @@ public:
     virtual void active_g_codes(int active_gcodes[ACTIVE_G_CODES]) = 0;
     virtual void active_m_codes(int active_mcodes[ACTIVE_M_CODES]) = 0;
     virtual void active_settings(double active_settings[ACTIVE_SETTINGS]) = 0;
+    virtual void active_modes(int g_codes[ACTIVE_G_CODES],
+            int m_codes[ACTIVE_M_CODES],
+            double settings[ACTIVE_SETTINGS],
+            StateTag const &tag) = 0;
     virtual void set_loglevel(int level) = 0;
 };
 

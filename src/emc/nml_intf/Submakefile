@@ -2,6 +2,7 @@ INCLUDES += emc/nml_intf
 
 LIBEMCSRCS := \
     emc/nml_intf/emcglb.c \
+    emc/rs274ngc/modal_state.cc \
     emc/nml_intf/emc.cc \
     emc/nml_intf/emcpose.c \
     emc/nml_intf/emcargs.cc \

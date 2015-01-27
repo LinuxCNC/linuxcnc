@@ -19,6 +19,7 @@
 #include "posemath.h"
 #include "emcpos.h"
 #include "emcmotcfg.h"
+#include "state_tag.h"
 
 /* values for endFlag */
 typedef enum {
@@ -115,6 +116,7 @@ typedef struct {
     double maxaccel;        // accel calc'd by task
     
     int id;                 // segment's serial number
+    struct state_tag_t tag; /* state tag corresponding to running motion */
 
     union {                 // describes the segment's start and end positions
         PmLine9 line;
