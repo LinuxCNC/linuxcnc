@@ -14,11 +14,6 @@
 #include "modal_state.hh"
 #include <string.h>
 
-ModalState::ModalState(): g_codes(ACTIVE_G_CODES,0),
-    m_codes(ACTIVE_M_CODES,0),
-    settings(ACTIVE_SETTINGS,0.0)
-{}
-
 StateTag::StateTag(): flags(0)
 {
     memset(fields,-1,sizeof(fields));

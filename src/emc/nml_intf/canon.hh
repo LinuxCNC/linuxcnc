@@ -18,6 +18,7 @@
 
 #include "emcpos.h"
 #include "emctool.h"
+#include "modal_state.hh"
 
 /*
   This is the header file that all applications that use the
@@ -906,5 +907,7 @@ extern void PLUGIN_CALL(int len, const char *call);
 
 // same for IoTask context
 extern void IO_PLUGIN_CALL(int len, const char *call);
+
+extern void UPDATE_TAG(StateTag tag);
 
 #endif				/* ifndef CANON_HH */

@@ -20,6 +20,7 @@
 #include "nml_type.hh"
 #include "motion_types.h"
 #include <stdint.h>
+#include "modal_state.hh"
 
 // Forward class declarations
 class EMC_AXIS_STAT;
@@ -411,6 +412,7 @@ extern int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes);
 
 // implementation functions for EMC_TRAJ types
 
+extern int emcTrajUpdateTag(StateTag const &tag);
 extern int emcTrajSetAxes(int axes, int axismask);
 extern int emcTrajSetUnits(double linearUnits, double angularUnits);
 extern int emcTrajSetCycleTime(double cycleTime);

@@ -2042,6 +2042,76 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
   }
 }
 
+//TODO rename to read_state_tag?
+
+/**
+ * Unpack state information from a motion line tag into TASK_STAT-style arrays of G/M Codes.
+ * This method allows us to keep the existing infrastructure for g
+ * code status / state storage intact.
+ */
+void Interp::active_modes(int *g_codes,
+         int *m_codes,
+         double *settings,
+         StateTag const &tag)
+{
+    // Extract as-is field values directly into appropriate array
+    // position
+    g_codes[0] = tag.fields[GM_FIELD_LINE_NUMBER];
+    g_codes[1] = tag.fields[GM_FIELD_MOTION_MODE];
+    g_codes[2] = tag.fields[GM_FIELD_G_MODE_0];
+    g_codes[3] = tag.fields[GM_FIELD_PLANE];
+    g_codes[4] = tag.fields[GM_FIELD_CUTTER_COMP];
+
+    // Unpack flags into appropriate G code equivalents
+    g_codes[5] = tag.flags[GM_FLAG_UNITS] ? G_20 : G_21;
+    g_codes[6] = tag.flags[GM_FLAG_DISTANCE_MODE] ? G_90 : G_91;
+    g_codes[7] = tag.flags[GM_FLAG_FEED_INVERSE_TIME] ? G_93 :
+        tag.flags[GM_FLAG_FEED_UPM] ? G_94 : G_95;
+    g_codes[8] = tag.fields[GM_FIELD_ORIGIN];
+    g_codes[9] = tag.flags[GM_FLAG_TOOL_OFFSETS_ON] ? G_43 : G_49;
+    g_codes[10] = tag.flags[GM_FLAG_RETRACT_OLDZ] ? G_98 : G_99;
+    g_codes[11] =
+        tag.flags[GM_FLAG_BLEND] ? G_64 :
+        tag.flags[GM_FLAG_EXACT_STOP] ? G_61 : G_61_1;
+    // Empty status code, leave as default
+    g_codes[12] = -1;
+    g_codes[13] = tag.flags[GM_FLAG_CSS_MODE] ? G_97 : G_96;
+    g_codes[14] = tag.flags[GM_FLAG_IJK_ABS] ? G_90_1 : G_91_1;
+    g_codes[15] = tag.flags[GM_FLAG_DIAMETER_MODE] ? G_7 : G_8;
+    //TODO remove redundant line number?
+    m_codes[0] = tag.fields[GM_FIELD_LINE_NUMBER];
+    m_codes[1] = tag.fields[GM_FIELD_M_MODES_4];
+    m_codes[2] = !tag.flags[GM_FLAG_SPINDLE_ON] ? 5 :
+        tag.flags[GM_FLAG_SPINDLE_CW] ? 3 : 4;
+    m_codes[3] = tag.fields[GM_FIELD_TOOLCHANGE];
+
+    m_codes[4] =
+        tag.flags[GM_FLAG_MIST] ? 7 : tag.flags[GM_FLAG_FLOOD] ? -1 : 9;
+    m_codes[5] =
+        tag.flags[GM_FLAG_FLOOD] ? 8 : -1;
+
+    // Copied from write_m_codes
+    if (tag.flags[GM_FLAG_FEED_OVERRIDE]) {
+        if (tag.flags[GM_FLAG_SPEED_OVERRIDE]) m_codes[6] =  48;
+        else m_codes[6] = 50;
+    } else if (tag.flags[GM_FLAG_SPEED_OVERRIDE]) {
+        m_codes[6] = 51;
+    } else m_codes[6] = 49;
+
+    m_codes[7] =                      /* 7 overrides   */
+        tag.flags[GM_FLAG_ADAPTIVE_FEED] ? 52 : -1;
+
+    m_codes[8] =                      /* 8 overrides   */
+        tag.flags[GM_FLAG_FEED_HOLD] ? 53 : -1;
+
+
+    settings[0] = tag.fields[GM_FIELD_LINE_NUMBER];
+    settings[1] = tag.feed;
+    settings[2] = tag.speed;
+
+}
+
+
 void Interp::setError(const char *fmt, ...)
 {
     va_list ap;

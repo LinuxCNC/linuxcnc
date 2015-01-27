@@ -1180,3 +1180,7 @@ void IO_PLUGIN_CALL(int len, const char *call)
 {
     printf("IO_PLUGIN_CALL(%d)\n",len);
 }
+void UPDATE_TAG(StateTag tag){
+    //Do nothing
+}
+
