@@ -2117,6 +2117,7 @@ static void update_status(void)
     emcmotStatus->id = tpGetExecId(&emcmotDebug->coord_tp);
     //KLUDGE add an API call for this
     emcmotStatus->reverse_run = emcmotDebug->coord_tp.reverse_run;
+    emcmotStatus->tag = tpGetExecTag(&emcmotDebug->coord_tp);
     emcmotStatus->motionType = tpGetMotionType(&emcmotDebug->coord_tp);
     emcmotStatus->queueFull = tcqFull(&emcmotDebug->coord_tp.queue);
 

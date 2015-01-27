@@ -1091,7 +1091,6 @@ void IO_PLUGIN_CALL(int len, const char *call)
 {
     printf("IO_PLUGIN_CALL(%d)\n",len);
 }
-
 void reset_internals()
 {
   _sai = StandaloneInterpInternals();
@@ -1149,4 +1148,7 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
   _toolchanger_fault(false),
   _toolchanger_reason(0)
 {
+}
+void UPDATE_TAG(StateTag tag){
+    //Do nothing
 }

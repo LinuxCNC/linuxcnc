@@ -21,13 +21,6 @@ extern "C" {
 #include "state_tag.h"
 }
 
-struct ModalState {
-    ModalState();
-    std::vector<int> g_codes;       // array of active G codes
-    std::vector<int> m_codes;      // array of active M codes
-    std::vector<double> settings;     // array of feed, speed, etc.
-};
-
 /**
  * C++ version of state_tag_t structure to stuff interp state info in a motion message.
  * Previously, this information was stored only in the interpreter, and as
