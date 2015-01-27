@@ -1358,7 +1358,6 @@ class StepconfApp:
         halrun.close()
 
     def update_axis_test(self, *args):
-        print 'update'
         axis = self.axis_under_test
         if axis is None: return
         halrun = self.halrun
