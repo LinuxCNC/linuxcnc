@@ -192,6 +192,9 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
     } else if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE ||
             tc->synchronized == TC_SYNC_POSITION ) {
         return 1.0;
+    } else if (tc->is_blending) {
+        //KLUDGE: Don't allow feed override to keep blending from overruning max velocity
+        return fmin(emcmotStatus->net_feed_scale, 1.0);
     } else {
         return emcmotStatus->net_feed_scale;
     }
@@ -223,8 +226,19 @@ STATIC inline double tpGetMaxTargetVel(
         TP_STRUCT const * const tp,
         TC_STRUCT const * const tc)
 {
+#ifdef TP_PEDANTIC
+    if (!tp || !tc) {
+        return TP_ERR_MISSING_INPUT;
+    }
+#endif
+
+    double max_scale = emcmotConfig->maxFeedScale;
+    if (tc->is_blending) {
+        //KLUDGE: Don't allow feed override to keep blending from overruning max velocity
+        max_scale = fmin(max_scale, 1.0);
+    }
     // Get maximum reachable velocity from max feed override
-    double v_max_target = tc->target_vel * emcmotConfig->maxFeedScale;
+    double v_max_target = tc->target_vel * max_scale;
 
     /* Check if the cartesian velocity limit applies and clip the maximum
      * velocity. The vLimit is from the max velocity slider, and should
@@ -409,6 +423,7 @@ int tpInit(TP_STRUCT * const tp)
     //Accelerations
     tp->aLimit = 0.0;
     PmCartesian acc_bound;
+    //FIXME this acceleration bound isn't valid (nor is it used)
     tpGetMachineAccelBounds(&acc_bound);
     tpGetMachineActiveLimit(&tp->aMax, &acc_bound);
     //Angular limits
@@ -2266,6 +2281,8 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         double blend_progress = fmax(fmin(dv / vel_start, 1.0), 0.0);
         double blend_scale = tc->vel_at_blend_start / tc->blend_vel;
         nexttc->target_vel = blend_progress * nexttc->blend_vel * blend_scale;
+        // Mark the segment as blending so we handle the new target velocity properly
+        nexttc->is_blending = true;
     } else {
         // Drive the target velocity to zero since we're stopping
         nexttc->target_vel = 0.0;
@@ -3061,6 +3078,9 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     EmcPose pos_before = tp->currentPos;
 #endif
 
+
+    tcClearFlags(tc);
+    tcClearFlags(nexttc);
     // Update the current tc
     if (tc->splitting) {
         tpHandleSplitCycle(tp, tc, nexttc);

@@ -167,6 +167,9 @@ typedef struct {
                             * after this will it take to slow to zero
                             * speed) */
     int finalized;
+
+    // Temporary status flags (reset each cycle)
+    int is_blending;
 } TC_STRUCT;
 
 #endif				/* TC_TYPES_H */
