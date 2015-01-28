@@ -55,8 +55,9 @@
  * the future.
  */
 typedef enum {
-    TP_ERR_INVALID = -8,
-    TP_ERR_INPUT_TYPE = -7,
+    TP_ERR_INVALID = -9,
+    TP_ERR_INPUT_TYPE = -8,
+    TP_ERR_TOLERANCE = -7,
     TP_ERR_RADIUS_TOO_SMALL = -6,
     TP_ERR_GEOM = -5,
     TP_ERR_RANGE = -4,

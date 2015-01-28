@@ -363,10 +363,15 @@ int findIntersectionAngle(PmCartesian const * const u1,
     double dot;
     pmCartCartDot(u1, u2, &dot);
 
-    /*tp_debug_print("u1 = %f %f %f u2 = %f %f %f\n", u1->x, u1->y, u1->z, u2->x, u2->y, u2->z);*/
-
     if (dot > 1.0 || dot < -1.0) {
-        tp_debug_print("dot product %f outside domain of acos!\n",dot);
+        tp_debug_print("dot product %.16g outside domain of acos! u1 = %.16g %.16g %.16g, u2 = %.16g %.16g %.16g\n",
+                dot,
+                u1->x,
+                u1->y,
+                u1->z,
+                u2->x,
+                u2->y,
+                u2->z);
         sat_inplace(&dot,1.0);
     }
 
@@ -565,12 +570,12 @@ int blendGeom3Init(BlendGeom3 * const geom,
     // Test for intersection angle errors
     if(PM_PI / 2.0 - geom->theta_tan < TP_ANGLE_EPSILON) {
         tp_debug_print("Intersection angle too close to pi/2, can't compute normal\n");
-        return TP_ERR_FAIL;
+        return TP_ERR_TOLERANCE;
     }
 
     if(geom->theta_tan < TP_ANGLE_EPSILON) {
         tp_debug_print("Intersection angle too small for arc fit\n");
-        return TP_ERR_FAIL;
+        return TP_ERR_TOLERANCE;
     }
 
     blendCalculateNormals3(geom);
@@ -689,7 +694,7 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
 {
 
     if (tc->motion_type != TC_CIRCULAR || prev_tc->motion_type != TC_LINEAR) {
-        return TP_ERR_FAIL;
+        return TP_ERR_INPUT_TYPE;
     }
 
     int res_init = blendGeom3Init(geom, prev_tc, tc);
@@ -776,7 +781,7 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
 {
 
     if (tc->motion_type != TC_LINEAR || prev_tc->motion_type != TC_CIRCULAR) {
-        return TP_ERR_FAIL;
+        return TP_ERR_INPUT_TYPE;
     }
 
     int res_init = blendGeom3Init(geom, prev_tc, tc);
