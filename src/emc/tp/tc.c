@@ -727,4 +727,16 @@ int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ)
     return TP_ERR_OK;
 }
 
+int tcClearFlags(TC_STRUCT * const tc)
+{
+    if (!tc) {
+        return TP_ERR_MISSING_INPUT;
+    }
+
+    //KLUDGE this will need to be updated manually if any other flags are added.
+    tc->is_blending = false;
+
+    return TP_ERR_OK;
+}
+
 
