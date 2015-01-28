@@ -608,24 +608,34 @@ int tpSetCurrentPos(TP_STRUCT * const tp, EmcPose const * const pos)
         tp->currentPos = *pos;
         return TP_ERR_OK;
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Tried to set invalid pose in tpSetCurrentPos!\n");
-        return TP_ERR_FAIL;
+        rtapi_print_msg(RTAPI_MSG_ERR, "Tried to set invalid pose in tpSetCurrentPos on id %d!"
+                "pos is %.12g, %.12g, %.12g\n",
+                tp->execId,
+                pos->tran.x,
+                pos->tran.y,
+                pos->tran.z);
+        return TP_ERR_INVALID;
     }
 }
 
 
 int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp)
 {
-    if (0 == tp) {
-        return TP_ERR_FAIL;
+    if (!tp || !disp) {
+        return TP_ERR_MISSING_INPUT;
     }
 
     if (emcPoseValid(disp)) {
         emcPoseSelfAdd(&tp->currentPos, disp);
         return TP_ERR_OK;
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Tried to set invalid pose in tpSetCurrentPos!\n");
-        return TP_ERR_FAIL;
+        rtapi_print_msg(RTAPI_MSG_ERR, "Tried to set invalid pose in tpAddCurrentPos on id %d!"
+                "disp is %.12g, %.12g, %.12g\n",
+                tp->execId,
+                disp->tran.x,
+                disp->tran.y,
+                disp->tran.z);
+        return TP_ERR_INVALID;
     }
 }
 
@@ -750,12 +760,6 @@ STATIC int tcSetLineXYZ(TC_STRUCT * const tc, PmCartLine const * const line)
 STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
     tp_debug_print("-- Starting LineArc blend arc --\n");
-    //TODO type checks
-    int coplanar = pmCircLineCoplanar(&tc->coords.circle.xyz,
-            &prev_tc->coords.line.xyz, TP_ANGLE_EPSILON);
-    if (!coplanar) {
-        return TP_ERR_FAIL;
-    }
 
     PmCartesian acc_bound, vel_bound;
     
@@ -775,6 +779,22 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             &acc_bound,
             &vel_bound,
             emcmotConfig->maxFeedScale);
+
+    if (res_init != TP_ERR_OK) {
+        tp_debug_print("blend init failed with code %d, aborting blend arc\n",
+                res_init);
+        return res_init;
+    }
+
+    // Check for coplanarity based on binormal and tangents
+    int coplanar = pmCartCartParallel(&geom.binormal,
+            &tc->coords.circle.xyz.normal,
+            TP_ANGLE_EPSILON);
+
+    if (!coplanar) {
+        tp_debug_print("aborting arc, not coplanar\n");
+        return TP_ERR_FAIL;
+    }
 
     int res_param = blendComputeParameters(&param);
 
@@ -899,12 +919,6 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 {
 
     tp_debug_print("-- Starting ArcLine blend arc --\n");
-    //TODO type checks
-    int coplanar = pmCircLineCoplanar(&prev_tc->coords.circle.xyz,
-            &tc->coords.line.xyz, TP_ANGLE_EPSILON);
-    if (!coplanar) {
-        return TP_ERR_FAIL;
-    }
 
     PmCartesian acc_bound, vel_bound;
     
@@ -925,6 +939,22 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             &acc_bound,
             &vel_bound,
             emcmotConfig->maxFeedScale);
+
+    if (res_init != TP_ERR_OK) {
+        tp_debug_print("blend init failed with code %d, aborting blend arc\n",
+                res_init);
+        return res_init;
+    }
+
+    // Check for coplanarity based on binormal
+    int coplanar = pmCartCartParallel(&geom.binormal,
+            &prev_tc->coords.circle.xyz.normal,
+            TP_ANGLE_EPSILON);
+
+    if (!coplanar) {
+        tp_debug_print("aborting arc, not coplanar\n");
+        return TP_ERR_FAIL;
+    }
 
     int res_param = blendComputeParameters(&param);
 
@@ -1057,6 +1087,12 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
             &vel_bound,
             emcmotConfig->maxFeedScale);
 
+    if (res_init != TP_ERR_OK) {
+        tp_debug_print("blend init failed with code %d, aborting blend arc\n",
+                res_init);
+        return res_init;
+    }
+
     int res_param = blendComputeParameters(&param);
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
     
@@ -1184,18 +1220,25 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     BlendParameters param;
     BlendPoints3 points;
 
-    blendInit3FromLineLine(&geom, &param,
+    int res_init = blendInit3FromLineLine(&geom, &param,
             prev_tc,
             tc,
             &acc_bound,
             &vel_bound,
             emcmotConfig->maxFeedScale);
-    int res_blend = blendComputeParameters(&param);
-    blendFindPoints3(&points, &geom, &param);
 
+    if (res_init != TP_ERR_OK) {
+        tp_debug_print("blend init failed with code %d, aborting blend arc\n",
+                res_init);
+        return res_init;
+    }
+
+    int res_blend = blendComputeParameters(&param);
     if (res_blend != TP_ERR_OK) {
         return res_blend;
     }
+
+    blendFindPoints3(&points, &geom, &param);
 
     blendCheckConsume(&param, &points, prev_tc, emcmotConfig->arcBlendGapCycles);
 
