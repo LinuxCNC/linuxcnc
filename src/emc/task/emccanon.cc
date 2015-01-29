@@ -605,6 +605,8 @@ static AccelData getStraightAcceleration(double x, double y, double z,
     AccelData out;
 
     out.acc = 0.0; // if a move to nowhere
+    out.tmax = 0.0;
+    out.dtot = 0.0;
 
     // Compute absolute travel distance for each axis:
     dx = fabs(x - canonEndPoint.x);
@@ -741,6 +743,8 @@ static VelData getStraightVelocity(double x, double y, double z,
    we might as well go there at the currentLinearFeedRate...
 */
     out.vel = currentLinearFeedRate;
+    out.tmax = 0;
+    out.dtot = 0;
 
     // Compute absolute travel distance for each axis:
     dx = fabs(x - canonEndPoint.x);
