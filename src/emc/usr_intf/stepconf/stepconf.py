@@ -805,7 +805,7 @@ class StepconfApp:
                 else:
                     return False
             elif hal.is_rt and not hal.kernel_version == actual_kernel:
-                self.warning_dialog(self._p.MESS_KERNAL_WRONG + '%s'%hal.kernel_version,True)
+                self.warning_dialog(self._p.MESS_KERNEL_WRONG + '%s'%hal.kernel_version,True)
                 if debug:
                     return True
                 else:
