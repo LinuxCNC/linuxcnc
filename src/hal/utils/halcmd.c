@@ -85,7 +85,6 @@ int hal_flag = 0;	/* used to indicate that halcmd might have the
 			   exit, instead it must set 'done' */
 int halcmd_done = 0;		/* used to break out of processing loop */
 int scriptmode = 0;	/* used to make output "script friendly" (suppress headers) */
-int prompt_mode = 0;	/* when getting input from stdin, print a prompt */
 int echo_mode = 0;
 char comp_name[HAL_NAME_LEN+1];	/* name for this instance of halcmd */
 

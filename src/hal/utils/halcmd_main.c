@@ -64,6 +64,8 @@ static void print_help_general(int showR);
 static int release_HAL_mutex(void);
 static int propose_completion(char *all, char *fragment, int start);
 
+static char *prompt = "";
+
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
@@ -216,7 +218,14 @@ int main(int argc, char **argv)
             halcmd_set_filename("<stdin>");
             /* no filename followed -f option, use stdin */
             srcfile = stdin;
-            prompt_mode = 1;
+        }
+    }
+
+    if (srcfile && isatty(fileno(srcfile))) {
+        if (scriptmode) {
+            prompt = "%%\n";
+        } else {
+            prompt = "halcmd: ";
         }
     }
 
@@ -391,7 +400,7 @@ static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
             halcmd_init_readline();
             first_time = 0;
         }
-        rlbuf = readline("halcmd: ");
+        rlbuf = readline(prompt);
         if(!rlbuf) return 0;
         strncpy(buf, rlbuf, bufsize);
         buf[bufsize-1] = 0;
@@ -401,16 +410,12 @@ static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
 
         return 1;
     }
-    if(prompt_mode) {
-	    fprintf(stdout, scriptmode ? "%%\n" : "halcmd: "); fflush(stdout);
-    }
+    fprintf(stdout, "%s", prompt); fflush(stdout);
     return fgets(buf, bufsize, srcfile) != NULL;
 }
 #else
 static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
-    if(prompt_mode) {
-	    fprintf(stdout, scriptmode ? "%%\n" : "halcmd: "); fflush(stdout);
-    }
+    fprintf(stdout, "%s", prompt); fflush(stdout);
     return fgets(buf, bufsize, srcfile) != NULL;
 }
 #endif

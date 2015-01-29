@@ -9,6 +9,13 @@ quadrature encoder input, 8 channels of analog input and output, 32
 bits digital I/O, an interval timer with interrupt and a watchdog. For more
 information see the http://www.servotogo.com/[Servo To Go] web page.
 
+NOTE: We have had reports that the opamps on the Servo To Go card do
+    not work with newer ATX power supplies that use modern switch
+    mode DC-DC converters.  The failure mode is that STG card outputs a
+    constant voltage regardless of what the driver is commanding it to do.
+    Older ATX power supplies with linear voltage regulators do not have
+    this problem, and work fine with the STG cards.
+
 == Installing
 
 ----
@@ -92,7 +99,7 @@ drives the physical pin high, and FALSE drives it low. If -invert is
 TRUE, then setting the HAL out- pin TRUE will drive the physical pin
 low.
 
-=== Functions
+== Functions
 
 * 'stg.capture-position' - Reads the encoder counters from the axis
    <channel>.

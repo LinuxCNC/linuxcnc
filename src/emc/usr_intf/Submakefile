@@ -17,7 +17,6 @@ ifeq "$(HAVE_XAW)" "yes"
 XEMCSRCS := emc/usr_intf/xemc.cc
 endif
 
-TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
 USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
 
 ifeq "$(HAVE_NCURSES)" "yes"
@@ -28,7 +27,6 @@ ifeq "$(HAVE_XAW)" "yes"
 USERSRCS += $(XEMCSRCS)
 endif
 
-$(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 $(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
 
 ../tcl/linuxcnc.so: $(call TOOBJS, $(EMCSHSRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0

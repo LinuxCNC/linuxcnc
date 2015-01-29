@@ -223,16 +223,15 @@ proc ::tp::addf_substitute {args} {
 
 proc ::tp::hide_cmds {} {
   set ::TP(cmds) [hal --commands]
-  lappend ::TP(cmds) unknown
 
-  # subterfuge to protect parray proc
-  #   fetch non-built-in parray proc
-  #   invoke with nosuch so it wont print
-  #   silently ignore error
-  catch {parray nosuch}
-  lappend ::TP(cmds) parray
-
-  set ::TP(nochange,cmds) {addf loadrt loadusr source}
+  # nochange,cmds:
+  #   addf, loadrt, loadusr:  substituted directly herein
+  #   list, gets: needed when procedure source_the_files sources
+  #
+  #   Note: 'list' and 'gets' are also conflictwords
+  #   and substituted in procedure hal_to_tcl when converting
+  #   a hal file to a temporary tcl file
+  set ::TP(nochange,cmds) {addf loadrt loadusr source list gets}
 
   rename loadusr            orig_loadusr
   rename loadusr_substitute loadusr
@@ -339,7 +338,7 @@ proc ::tp::prep_the_files {} {
              set ::TP(origfile,$::TP($f,tmp)) $f
         }
         default {return -code error \
-                "source_the_files:unknown file type <$suffix>"}
+                "prep_the_files:unknown file type <$suffix>"}
       }
     }
   }
@@ -379,9 +378,11 @@ proc ::tp::hal_to_tcl {ifile ofile} {
       if {   ([string first "$suspect "  $line] == 0)
           || ([string first " $suspect " $line] >= 0)
         } {
-         puts "hal_to_tcl:WARNING in file $ifile, line $lno: \"$suspect\"\
-              conflicts with tcl usage"
+         puts "hal_to_tcl:NOTE: in file $ifile, line $lno: \"$suspect\"\
+         conflicts with haltcl usage,\nprepended with 'hal' for compatibility"
          puts "$lno:<$theline>"
+         # prepend hal command to convert conflictword:
+         set line "# hal_to_tcl prepended hal:\nhal $line"
       }
     }
     set idx 0
@@ -459,7 +460,7 @@ proc ::tp::source_the_files {} {
        }
        puts "twopass: Error in file $f:\n    $msg"
        if { [string first "invalid command name" $msg] >= 0} {
-          puts "    Only built-in commands are available"
+          puts "Command not found using ::auto_path=\n$::auto_path"
        }
        incr errct
     }
@@ -476,6 +477,10 @@ proc ::tp::filesuffix {f} {
 } ;# filesuffix
 
 proc ::tp::load_the_modules {} {
+  if ![info exists ::TP(modules)] {
+    # no modules unlikely, but can occur in testing
+    set ::TP(modules) ""
+  }
   foreach m $::TP(modules) {
     set cmd "orig_loadrt $m" ;# this is the real loadrt
     if [info exists ::TP($m,count)] {
@@ -531,6 +536,8 @@ proc ::tp::verbose {msg} {
   puts "twopass: $msg"
 } ;# verbose
 
+#----------------------------------------------------------------------
+# begin
 set ::tp::options ""
 set ::tp::verbose 0
 if {[string first verbose [string tolower $::HAL(TWOPASS)]] >=0} {
@@ -542,6 +549,16 @@ if {[string first nodelete [string tolower $::HAL(TWOPASS)]] >=0} {
   set ::tp::nodelete 1
   lappend ::tp::options nodelete
 }
+
+# the linuxcnc script exports LINUXCNC_TCL_DIR
+# make sure it is first in case run-in-place with existing deb install
+if [info exists ::auto_path] {
+  # prepend:
+  set ::auto_path [lreplace $::auto_path -1 -1 $::env(LINUXCNC_TCL_DIR)]
+} else {
+  set ::auto_path $::env(LINUXCNC_TCL_DIR)
+}
+
 puts "twopass:invoked with <$::tp::options> options"
 
 ::tp::pass0

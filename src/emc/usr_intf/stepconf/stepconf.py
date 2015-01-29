@@ -795,27 +795,32 @@ class StepconfApp:
         if not debug: return
         print "DEBUG: %s"%str
 
-    # check for realtime kernel
+    # Check for realtime-capable LinuxCNC.
+    # Returns True if the running version of LinuxCNC is realtime-capable
+    # (or if debug is enabled), returns False otherwise.
     def check_for_rt(self):
+        is_realtime_capable = False
         try:
-            actual_kernel = os.uname()[2]
-            if hal.is_sim :
+            if hal.is_sim:
                 self.warning_dialog(self._p.MESS_NO_REALTIME,True)
-                if debug:
-                    return True
+            elif hal.is_rt:
+                if hal.is_kernelspace:
+                    actual_kernel = os.uname()[2]
+                    if hal.kernel_version == actual_kernel:
+                        is_realtime_capable = True
+                    else:
+                        self.warning_dialog(self._p.MESS_KERNEL_WRONG + '%s'%hal.kernel_version,True)
                 else:
-                    return False
-            elif hal.is_rt and not hal.kernel_version == actual_kernel:
-                self.warning_dialog(self._p.MESS_KERNAL_WRONG + '%s'%hal.kernel_version,True)
-                if debug:
-                    return True
-                else:
-                    return False
-            else:
-                return True
+                    is_realtime_capable = True
         except:
             print 'STEPCONF WARNING: check-for-realtime function failed - continuing anyways.'
+            print sys.exc_info()
             return True
+
+        if is_realtime_capable or debug:
+            return True
+        else:
+            return False
 
     # pop up dialog
     def warning_dialog(self,message,is_ok_type):
@@ -1359,7 +1364,6 @@ class StepconfApp:
         halrun.close()
 
     def update_axis_test(self, *args):
-        print 'update'
         axis = self.axis_under_test
         if axis is None: return
         halrun = self.halrun

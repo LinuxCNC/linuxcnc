@@ -312,7 +312,6 @@ static void thisQuit()
 	emcCommandBuffer = 0;
     }
 
-//    Tcl_Exit(0);
     exit(0);
 }
 
