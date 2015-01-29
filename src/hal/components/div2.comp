@@ -9,7 +9,12 @@ float prev_in0 = 0;
 float prev_in1 = 0;
 FUNCTION(_) {
     if ((prev_in0 != in0) || (prev_in1 != in1)) {
-        out = in0 / in1;
+        if (in1 != 0.0) {
+            out = in0 / in1;
+        }
+	else {
+           out = 0.0; // avoid division by zero
+        }
         prev_in0 = in0;
         prev_in1 = in1;
     }
