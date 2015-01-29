@@ -1,0 +1,16 @@
+component div2 "Quotient of two inputs";
+pin in float in0 "dividend";
+pin in float in1 "divisor";
+pin out float out "out = in0 / in1";
+function _;
+license "GPL";
+;;
+float prev_in0 = 0;
+float prev_in1 = 0;
+FUNCTION(_) {
+    if ((prev_in0 != in0) || (prev_in1 != in1)) {
+        out = in0 / in1;
+        prev_in0 = in0;
+        prev_in1 = in1;
+    }
+}
