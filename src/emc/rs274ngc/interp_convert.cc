@@ -2772,6 +2772,36 @@ int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
     return INTERP_OK;
 }
 
+
+int Interp::gen_restore_cmd(int *current_g,
+         int *current_m,
+         double *current_settings,
+         StateTag const &saved,
+         std::string &cmd)
+{
+    // A local copy of the saved settings, unpacked from a state tag
+    int saved_g[ACTIVE_G_CODES];
+    int saved_m[ACTIVE_M_CODES];
+    double saved_settings[ACTIVE_SETTINGS];
+
+    //Extract saved state to local vectors
+    active_modes(saved_g, saved_m, saved_settings, saved);
+    //Mimic the order of restoration commands used elsewhere
+    if (current_g[5] != saved_g[5]) {
+        char buf[LINELEN];
+        snprintf(buf,sizeof(buf), "G%d",saved_g[5]/10);
+        CHKS(execute(buf) != INTERP_OK, _("gen_restore G20/G21 failed: '%s'"), cmd.c_str());
+    }
+
+    gen_settings(current_settings, saved_settings, cmd);
+    gen_m_codes(current_m, saved_m, cmd);
+    gen_g_codes(current_g, saved_g, cmd);
+
+    //TODO catch errors here
+    return INTERP_OK;
+}
+
+
 int Interp::save_settings(setup_pointer settings)
 {
       // the state is sprinkled all over _setup
@@ -2856,6 +2886,57 @@ int Interp::restore_settings(setup_pointer settings,
     // TBD: any state deemed important to restore should be restored here
     // NB: some state changes might generate canon commands so do that here
     // if needed
+
+    return INTERP_OK;
+}
+
+
+/**
+ * Variation of restore_settings to pull state from a StateTag.
+ */
+int Interp::restore_from_tag(setup_pointer settings,
+			    StateTag const &tag)
+{
+
+    // linearize state
+    write_g_codes((block_pointer) NULL, settings);
+    write_m_codes((block_pointer) NULL, settings);
+    write_settings(settings);
+
+    std::string cmd;
+
+    // construct gcode from the state difference and execute
+    // this assures appropriate canon commands are generated if needed -
+    // just restoring interp variables is not enough
+
+    // G20/G21 switching is special - it is executed beforehand
+    // so restoring feed lateron is interpreted in the correct context
+
+    gen_restore_cmd((int *) settings->active_g_codes,
+            (int *) settings->active_m_codes,
+            (double *) settings->active_settings,
+            tag,
+            cmd);
+
+    if (!cmd.empty()) {
+        // the sequence can be multiline, separated by nl
+        // so split and execute each line
+        char buf[cmd.size() + 1];
+        strncpy(buf, cmd.c_str(), sizeof(buf));
+        char *last = buf;
+        char *s;
+        while ((s = strtok_r(last, "\n", &last)) != NULL) {
+            int status = execute(s);
+            if (status != INTERP_OK) {
+                char currentError[LINELEN+1];
+                strcpy(currentError,getSavedError());
+                CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
+            }
+        }
+        write_g_codes((block_pointer) NULL, settings);
+        write_m_codes((block_pointer) NULL, settings);
+        write_settings(settings);
+    }
 
     return INTERP_OK;
 }

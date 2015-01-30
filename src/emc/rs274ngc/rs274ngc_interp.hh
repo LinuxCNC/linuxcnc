@@ -460,9 +460,16 @@ public:
     int free_named_parameters(context_pointer frame);
  int save_settings(setup_pointer settings);
  int restore_settings(setup_pointer settings, int from_level);
+ int restore_from_tag(setup_pointer settings,
+			    StateTag const &tag);
  int gen_settings(double *current, double *saved, std::string &cmd);
  int gen_g_codes(int *current, int *saved, std::string &cmd);
  int gen_m_codes(int *current, int *saved, std::string &cmd);
+ int gen_restore_cmd(int *current_g,
+         int *current_m,
+         double *current_settings,
+         StateTag const &saved,
+         std::string &cmd);
  int read_name(char *line, int *counter, char *nameBuf);
  int read_named_parameter(char *line, int *counter, double *double_ptr,
                           double *parameters, bool check_exists);
