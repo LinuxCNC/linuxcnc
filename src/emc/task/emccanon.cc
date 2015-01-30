@@ -74,7 +74,7 @@ static const double tiny = 1e-7;
 static StateTag _tag;
 
 void UPDATE_TAG(StateTag tag) {
-    canon_debug("--Got UPDATE_TAG: %d--\n",tag.fields[GM_FIELD_LINE_NUMBER]);
+    canon_debug("--Got UPDATE_TAG: %d--\n",tag.line);
     _tag = tag;
 }
 
