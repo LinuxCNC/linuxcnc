@@ -175,6 +175,9 @@ int emcTaskHalt()
 
 int emcTaskAbort()
 {
+    //KLUDGE This will ONLY work with the RS274 interpreter, and is temporary
+    //FIXME FIXME add a virtual method to the base class
+    ((Interp*)pinterp)->restore_from_tag(&((Interp*)pinterp)->_setup, emcStatus->motion.traj.tag);
     emcMotionAbort();
 
     // clear out the pending command
