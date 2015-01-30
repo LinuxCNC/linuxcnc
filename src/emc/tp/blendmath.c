@@ -163,7 +163,18 @@ static inline int findSpiralApproximation(PmCircle const * const circ,
         double * const radius_out)
 {
     double dr = circ->spiral / circ->angle;
+
+    tp_debug_print("In findSpiralApproximation\n");
+    tp_debug_print(" dr = %f\n",dr);
+    tp_debug_print(" utan = %f %f %f\n",
+            u_tan->x,
+            u_tan->y,
+            u_tan->z);
     pmCartScalMult(u_tan, dr, center_out);
+    tp_debug_print(" circcenter = %f %f %f\n",
+            circ->center.x,
+            circ->center.y,
+            circ->center.z);
     pmCartCartAddEq(center_out, &circ->center);
 
     PmCartesian r_adjust;
@@ -1175,9 +1186,12 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
 /**
  * Take results of line blend calculation and project onto circular arc and line
  */
-int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * const points_in,
-        BlendParameters * const param, BlendGeom3 const * const geom,
-        PmCircle const * const circ1, PmCartLine const * const line2)
+int blendArcLinePostProcess(BlendPoints3 * const points,
+        BlendPoints3 const * const points_in,
+        BlendParameters * const param,
+        BlendGeom3 const * const geom,
+        PmCircle const * const circ1,
+        PmCartLine const * const line2)
 {
 
     //Create "shifted center" approximation of spiral circles

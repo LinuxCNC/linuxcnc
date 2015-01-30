@@ -275,7 +275,7 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   CHKS(((radius < min_radius) || (radius2 < min_radius)), NCE_ZERO_RADIUS_ARC);
   double abs_err = fabs(radius - radius2);
   double rel_err = abs_err / std::max(radius, radius2);
-  CHKS(abs_err > 100*tolerance || (abs_err > tolerance && (rel_err > .001)),
+  CHKS(abs_err > 100*tolerance || (abs_err > tolerance && (rel_err > SPIRAL_RELATIVE_TOLERANCE)),
       _("Radius to end of arc differs from radius to start: "
        "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g rel_err=%.4f%%"),
        a, current_x, b, current_y, 

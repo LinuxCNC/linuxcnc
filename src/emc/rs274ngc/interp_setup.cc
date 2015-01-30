@@ -60,6 +60,8 @@ setup_struct::setup_struct() :
     file_pointer(NULL),
     flood(0),
     length_units(0),
+    spiral_tolerance_inch(0),
+    spiral_tolerance_mm(0),
     line_length(0),
     mist(0),
     motion_mode(0),
