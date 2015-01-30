@@ -64,7 +64,7 @@ static int rotary_unlock_for_traverse = -1;
 static StateTag _tag;
 
 void UPDATE_TAG(StateTag tag) {
-    canon_debug("--Got UPDATE_TAG: %d--\n",tag.fields[GM_FIELD_LINE_NUMBER]);
+    canon_debug("--Got UPDATE_TAG: %d--\n",tag.line);
     _tag = tag;
 }
 
