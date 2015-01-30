@@ -1,0 +1,263 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+#    Copyright 2013 Frank Tkalcevic (frank@franksworkshop.com.au)
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# Version 1.1
+#   - Fix problem not picking up F word
+# Version 1.2 - modified by Alexander Roessler
+#   - simplfied output
+#   - added argparse
+
+
+import sys
+import re
+import os
+import argparse
+from rs274.author_g1tog23 import douglas
+
+class gcode(object):
+    def __init__(self):
+        self.regMatch = {}
+        self.line_count = 0
+        self.output_line_count = 0
+        self.prev_x = 999999 # high number so we detect the change on first move
+        self.prev_y = 999999
+        self.prev_z = 999999
+        self.prev_a = 999999
+        self.prev_f = 999999
+        self.inFile = None
+        self.outFile = None
+        self.plane = 17
+        self.point_tolerance = 0.05
+        self.length_tolerance = 0.005
+
+
+    def convert(self, infile, outfile, 
+                plane=17, point_tolerance=0.05, length_tolerance=0.005):
+        self.inFile = infile
+        self.outFile = outfile
+        self.plane = plane
+        self.point_tolerance = point_tolerance
+        self.length_tolerance = length_tolerance
+        self._load(self.inFile)
+
+
+    def outputLine(self, line):
+        self.outFile.write(line + '\n')
+
+
+    def loadList(self, l):
+        self._load(l)
+
+
+    def _load(self, gcodeFile):
+
+        st = []
+        cs = []
+        lastx = 0
+        lasty = 0
+        lastz = 0
+        lasta = 0
+        lastf = 0
+        self.line_count = 0
+        self.output_line_count = 0
+
+
+        for line in gcodeFile:
+            move = False  # mark line as move to simplify
+            comment = None
+            
+            self.line_count = self.line_count + 1
+            line = line.rstrip()
+            original_line = line
+            if type(line) is tuple:
+                line = line[0]
+
+            if ';' in line or '(' in line:
+                sem_pos = line.find(';')
+                par_pos = line.find('(')
+                pos = sem_pos
+                if pos is None:
+                    pos = par_pos
+                elif par_pos is not None:
+                    if par_pos > sem_pos:
+                        pos = par_pos
+                comment = line[pos+1:].strip()
+                line = line[0:pos]
+
+            # we only try to simplify G1 coordinated moves
+            G = self.getCodeInt(line, 'G')
+            if G == 1:    #Move
+                x = self.getCodeFloat(line, 'X')
+                y = self.getCodeFloat(line, 'Y')
+                z = self.getCodeFloat(line, 'Z')
+                a = self.getCodeFloat(line, 'A')
+                f = self.getCodeFloat(line, 'F')
+                
+                if ((x is not None) or (y is not None) or (z is not None)) and (a is not None):
+                    move = True
+
+                if x is None: 
+                    x = lastx
+                if y is None: 
+                    y = lasty
+                if z is None: 
+                    z = lastz
+                if a is None: 
+                    a = lasta
+                if f is None: 
+                    f = lastf
+
+                lastx = x
+                lasty = y
+                lastz = z
+                lasta = a
+                lastf = f
+            else:
+                # any other move signifies the end of a list of line segments,
+                # so we simplify them.
+
+                if (G == 0) or (G == 92):    # Rapid or coordinate offset- remember position
+                    x = self.getCodeFloat(line, 'X')
+                    y = self.getCodeFloat(line, 'Y')
+                    z = self.getCodeFloat(line, 'Z')
+                    a = self.getCodeFloat(line, 'A')
+
+                    if x is not None: 
+                        lastx = x
+                        self.prev_x = x
+                    if y is not None: 
+                        lasty = y
+                        self.prev_y = y
+                    if z is not None: 
+                        lastz = z
+                        self.prev_z = z
+                    if a is not None: 
+                        lasta = a
+                        self.prev_a = a
+            if move:
+                st.append([x,y,z,a,f])
+                cs.append(comment)
+            else:
+                if len(line) > 0 and len(st) > 0:
+                    self.simplifyPath(st, cs)
+                    st = []
+                    cs = []
+                self.outputLine(original_line)
+                self.output_line_count = self.output_line_count + 1
+
+        if len(st) != 0:
+            self.simplifyPath(st)
+
+        self.outputLine( "; GCode file processed by " + sys.argv[0] )
+        self.outputLine( "; Input Line Count = " + str(self.line_count) )
+        self.outputLine( "; Output Line Count = " + str(self.output_line_count) )
+        if self.output_line_count < self.line_count:
+            self.outputLine( "; Line reduction = " + str(100 * (self.line_count - self.output_line_count)/self.line_count) + "%" )
+
+
+    def getCodeInt(self, line, code):
+        if code not in self.regMatch:
+            self.regMatch[code] = re.compile(code + '([^\s]+)', flags=re.IGNORECASE)
+        m = self.regMatch[code].search(line)
+        if m == None:
+            return None
+        try:
+            return int(m.group(1))
+        except:
+            return None
+
+
+    def getCodeFloat(self, line, code):
+        if code not in self.regMatch:
+            self.regMatch[code] = re.compile(code + '([^\s]+)', flags=re.IGNORECASE)
+        m = self.regMatch[code].search(line)
+        if m == None:
+            return None
+        try:
+            return float(m.group(1))
+        except:
+            return None
+
+    def simplifyPath(self, st, cs):
+        #print "st=",len(st)
+        l = douglas(st, plane=self.plane, 
+                    tolerance=self.point_tolerance, 
+                    length_tolerance=self.length_tolerance)
+        #print l
+        #print len(l)
+        
+        mergedc = ""
+        for comment in cs:
+            if (comment is not None) and not comment in mergedc:
+                mergedc += comment + " "
+        
+        for i, (g, p, c) in enumerate(l):
+            self.output_line_count = self.output_line_count + 1
+            #print "i, g,p,c=", i, g,p,c
+            s = g + " "
+            if (p[0] is not None) and (p[0] != self.prev_x):
+                self.prev_x = p[0]
+                s = s + "X{0:g}".format(p[0]) + " "
+            if (p[1] is not None) and (p[1] != self.prev_y):
+                self.prev_y = p[1]
+                s = s + "Y{0:g}".format(p[1]) + " "
+            if (p[2] is not None) and (p[2] != self.prev_z):
+                self.prev_z = p[2]
+                s = s + "Z{0:g}".format(p[2]) + " "
+            if (p[3] is not None) and (p[3] != self.prev_a):
+                self.prev_a = p[3]
+                s = s + "A{0:g}".format(p[3]) + " "
+            if (p[4] is not None) and (p[4] != self.prev_f):
+                self.prev_f = p[4]
+                s = s + "F{0:g}".format(p[4]) + " "
+            if c is not None:
+                s = s  + c + " "
+            if mergedc is not "":
+                s = s + "; " + mergedc
+            s = s.rstrip()
+            self.outputLine(s)
+
+def main():
+    parser = argparse.ArgumentParser(description='This application simplifies G1 straight feeds to G2 and G3 arc moves')
+    parser.add_argument('infile', nargs='?', type=argparse.FileType('r'), 
+                        default=sys.stdin, help='input file, takes input from stdin if not specified')
+    parser.add_argument('outfile', nargs='?', type=argparse.FileType('w'), 
+                        default=sys.stdout, help='output file, prints output to stdout of not specified')
+    parser.add_argument('-p', '--plane', type=int, default=17, 
+                        help='plane parameter')
+    parser.add_argument('-pt', '--point_tolerance', type=float, default=0.05, 
+                        help='point tolerance parameter')
+    parser.add_argument('-lt', '--length_tolerance', type=float, default=0.005, 
+                        help='length tolerance parameter')
+    parser.add_argument('-d', '--debug', help='enable debug mode', action='store_true')
+    args = parser.parse_args()
+
+    inFile = args.infile
+    outFile = args.outfile
+    
+    gcode().convert(inFile, outFile,
+                    args.plane,
+                    args.point_tolerance,
+                    args.length_tolerance)
+    
+    inFile.close()
+    outFile.close()
+    
+if __name__ == "__main__":
+    main()

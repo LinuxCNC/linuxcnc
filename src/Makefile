@@ -945,6 +945,7 @@ install-python: install-dirs
 	$(EXE) ../bin/tracking-test $(DESTDIR)$(bindir)
 	$(EXE) ../bin/yapps $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/gcode-to-ngc $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/g1-to-g23 $(DESTDIR)$(bindir)
 endif
 
 install-kernel-dep: install-dirs
