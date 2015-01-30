@@ -255,7 +255,7 @@ extern int num_joints;
    but can be altered at motmod insmod time */
 extern int num_dio;
 
-/* userdefined number of analog IO. default is 4. (EMCMOT_MAX_AIO=16), 
+/* userdefined number of analog IO. default is 4. (EMCMOT_MAX_AIO=64), 
    but can be altered at motmod insmod time */
 extern int num_aio;
 
