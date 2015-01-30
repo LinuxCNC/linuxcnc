@@ -1120,24 +1120,32 @@ static int sendMdi()
 int sendMdiCmd(char *mdi)
 {
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
-
-    if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
-	halui_old_mode = emcStatus->task.mode;
-	sendMdi();
-    }
     strcpy(emc_task_plan_execute_msg.command, mdi);
     emc_task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_task_plan_execute_msg);
-    halui_sent_mdi = 1;
     return emcCommandWaitReceived(emcCommandSerialNumber);
 }
 
 static int sendMdiCommand(int n)
 {
     int r1,r2;
-    halui_old_mode = emcStatus->task.mode;
-    r1 = sendMdi();
+
+    if (!halui_sent_mdi) {
+        // There is currently no MDI command from halui executing, we're
+        // currently starting the first one.  Record what the Task mode is,
+        // so we can restore it when all the MDI commands finish.
+        halui_old_mode = emcStatus->task.mode;
+    }
+
+    // switch to MDI mode if needed
+    if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
+	r1 = sendMdi();
+    }
+
     r2 = sendMdiCmd(mdi_commands[n]);
+
+    halui_sent_mdi = 1;
+
     return r1 || r2;
 }
 
