@@ -41,12 +41,12 @@ static object inverse(double x, double y, double z)
 
 static object get_geometry()
 {
-    return make_tuple(R, L);
+    return make_tuple(R, L ,J0off, J1off, J2off);
 }
 
 BOOST_PYTHON_MODULE(lineardeltakins)
 {
-    set_geometry(DELTA_RADIUS, DELTA_DIAGONAL_ROD);
+    set_geometry(DELTA_RADIUS, DELTA_DIAGONAL_ROD,JOINT_0_OFFSET, JOINT_1_OFFSET, JOINT_2_OFFSET);
     def("set_geometry", set_geometry);
     def("get_geometry", get_geometry);
     def("forward", forward);

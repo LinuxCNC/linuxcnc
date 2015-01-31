@@ -23,7 +23,7 @@
 
 struct haldata
 {
-    hal_float_t *r, *l;
+    hal_float_t *r, *l, *j0off, *j1off, *j2off;
 } *haldata;
 
 int comp_id;
@@ -32,14 +32,14 @@ int kinematicsForward(const double * joints,
                       EmcPose * pos,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
                       KINEMATICS_INVERSE_FLAGS * iflags) {
-    set_geometry(*haldata->r, *haldata->l);
+    set_geometry(*haldata->r, *haldata->l,*haldata ->j0off,*haldata ->j1off,*haldata ->j2off);
     return kinematics_forward(joints, pos);
 }
 
 int kinematicsInverse(const EmcPose *pos, double *joints,
         const KINEMATICS_INVERSE_FLAGS *iflags,
         KINEMATICS_FORWARD_FLAGS *fflags) {
-    set_geometry(*haldata->r, *haldata->l);
+    set_geometry(*haldata->r, *haldata->l,*haldata ->j0off,*haldata ->j1off,*haldata ->j2off);
     return kinematics_inverse(pos, joints);
 }
 
@@ -67,11 +67,23 @@ int rtapi_app_main(void)
     if(retval == 0)
         retval = hal_pin_float_newf(HAL_IN, &haldata->l, comp_id,
                 "lineardeltakins.L");
+    if(retval == 0)
+        retval = hal_pin_float_newf(HAL_IN, &haldata->j0off, comp_id,
+                "lineardeltakins.J0off");
+    if(retval == 0)
+        retval = hal_pin_float_newf(HAL_IN, &haldata->j1off, comp_id,
+                "lineardeltakins.J1off");
+    if(retval == 0)
+        retval = hal_pin_float_newf(HAL_IN, &haldata->j2off, comp_id,
+                "lineardeltakins.J2off");
 
     if(retval == 0)
     {
         *haldata->r = DELTA_RADIUS;
         *haldata->l = DELTA_DIAGONAL_ROD;
+	*haldata->j0off = JOINT_0_OFFSET;
+	*haldata->j1off = JOINT_1_OFFSET;
+	*haldata->j2off = JOINT_2_OFFSET;
     }
 
     if(retval == 0)
