@@ -328,6 +328,10 @@ if { [namespace exists ::tp] && ([::tp::passnumber] == 0) } {
 
 set cfg LIB:xhc-hb04-layout2.cfg ;# default
 
+if ![info exists ::HAL(HALUI)] {
+  err_exit "\[HAL\]HALUI is not set"
+}
+
 foreach name [array names ::XHC_HB04_CONFIG] {
   set ::XHC_HB04_CONFIG($name) [string trim $::XHC_HB04_CONFIG($name) "{}"]
 }
