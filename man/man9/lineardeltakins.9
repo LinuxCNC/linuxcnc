@@ -24,6 +24,14 @@ Joints 0-2 are the linear carriages.  Axes ABC and UVW are passed
 through unchanged in joints 3-8, so that e.g., A can still be used to
 control an extruder.
 
+Three pins have been provided for joints 0-2, to allow for offset trimming 
+during calibration. It is suggested that these pins are only used during 
+calibration to determine the proper distance between the work surface and 
+the limit switches for each joint. Once the proper distance has been determined 
+The pins should be set to zero and update each joints home parameters in the INI
+file.
+ 
+
 .SH PINS
 .TP 
 .B lineardeltakins.R\fR float in
@@ -39,8 +47,20 @@ DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET.
 Length of the rod connecting the carriage to the effector.  In RepRap
 delta parlance, L is DELTA_DIAGONAL_ROD
 
+.TP
+.B lineardeltakins.J0offs\fR float in
+Offset distance applied to Joint 0 
+
+.TP
+.B lineardeltakins.J1offs\fR float in
+Offset distance applied to Joint 1
+
+.TP
+.B lineardeltakins.J2offs\fR float in
+Offset distance applied to Joint 2 
+
 .SH NOTES
-The R and L values can be adjusted while LinuxCNC is running.  However,
+The R and L and joint offset values can be adjusted while LinuxCNC is running.  However,
 doing so while in coordinated mode will lead to a step change in joint
 position, which generally will trigger a following error if in joint
 mode with machine on.
