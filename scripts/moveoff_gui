@@ -450,16 +450,11 @@ You probaly should resume in the main GUI"
   return
 } ;# bye
 
-proc bitpin_exists {pinname} {
-  if [catch {hal getp $pinname} msg ] {
-    if {[string first "not-found" $msg] < 0} {
-      return 0
-    } else {
-      return 1
-    }
-  } else {
-    return 1
-  }
+proc bitpin_exists {pattern} {
+  # return unique name iff unique bit pin matching pattern exists
+  set ans [hal list pin -tbit $pattern]
+  if {[llength $ans] == 1} {return "$ans"}
+  return ""
 } ;# bitpin_exists
 
 proc is_connected {pinname {signame {} } } {
@@ -557,12 +552,12 @@ proc verify_context {} {
   # return "" if ok, else errtxt
 
   if !$::MV(opt,no_pause_requirement) {
-    if ![bitpin_exists halui.program.is-paused] {
+    if {"" == [bitpin_exists halui.program.is-paused]} {
       return "linuxcnc and halui must be running\n
 For info:\n$::MV(prog) --help | more"
     }
   }
-  if ![bitpin_exists $::m.apply-offsets] {
+  if {"" == [bitpin_exists $::m.apply-offsets]} {
     return "moveoff component must be loaded with name: $::m"
   }
 
