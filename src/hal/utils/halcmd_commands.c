@@ -65,6 +65,7 @@
 
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
+static void print_vtable_info(char **patterns);
 static void print_pin_info(int type, char **patterns);
 static void print_pin_aliases(char **patterns);
 static void print_param_aliases(char **patterns);
@@ -1034,6 +1035,7 @@ int do_show_cmd(char *type, char **patterns)
     if (!type || *type == '\0') {
 	/* print everything */
 	print_comp_info(NULL);
+	print_vtable_info(NULL);
 	print_pin_info(-1, NULL);
 	print_pin_aliases(NULL);
 	print_sig_info(-1, NULL);
@@ -1047,6 +1049,7 @@ int do_show_cmd(char *type, char **patterns)
     } else if (strcmp(type, "all") == 0) {
 	/* print everything, using the pattern */
 	print_comp_info(patterns);
+	print_vtable_info(patterns);
 	print_pin_info(-1, patterns);
 	print_pin_aliases(patterns);
 	print_sig_info(-1, patterns);
@@ -1059,7 +1062,8 @@ int do_show_cmd(char *type, char **patterns)
 	print_eps_info(patterns);
     } else if (strcmp(type, "comp") == 0) {
 	print_comp_info(patterns);
-
+    } else if (strcmp(type, "vtable") == 0) {
+	print_vtable_info(patterns);
     } else if (strcmp(type, "pin") == 0) {
 	int type = get_type(&patterns);
 	print_pin_info(type, patterns);
@@ -1324,16 +1328,12 @@ int do_unloadusr_cmd(char *mod_name)
 
 int do_unloadrt_cmd(char *mod_name)
 {
-    int next, retval, retval1, n, all;
+    int next, retval, retval1, n, all, skipbusy = 0;
     hal_comp_t *comp;
-    char comps[64][HAL_NAME_LEN+1];
+    char comps[64][HAL_NAME_LEN+1]; // what were these guys thinking.. 64, right?
 
-    /* check for "all" */
-    if ( strcmp(mod_name, "all" ) == 0 ) {
-	all = 1;
-    } else {
-	all = 0;
-    }
+    all = strcmp(mod_name, "all" ) == 0;
+
     /* build a list of component(s) to unload */
     n = 0;
     rtapi_mutex_get(&(hal_data->mutex));
@@ -1341,9 +1341,25 @@ int do_unloadrt_cmd(char *mod_name)
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( comp->type == TYPE_RT ) {
-	    /* found a realtime component */
+
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
-		/* we want to unload this component, remember its name */
+		// see if a HAL vtable is exported by this comp, and
+		// assure unload only if refcount is zero
+		hal_vtable_t *c;
+		int next = hal_data->vtable_list_ptr;
+		while (next != 0) {
+		    c = (hal_vtable_t *) SHMPTR(next);
+		    if (comp->comp_id == c->comp_id) {
+			if (c->refcount > 0) {
+			    halcmd_error("cannot unload '%s' - owns vtable '%s' still in use, reference count=%d\n",
+					 comp->name, c->name, c->refcount);
+			    skipbusy++;
+			    goto NEXTCOMP;
+			}
+		    }
+		    next = c->next_ptr;
+		}
+
 		if ( n < 63 ) {
 		    strncpy(comps[n], comp->name, HAL_NAME_LEN );
 		    comps[n][HAL_NAME_LEN] = '\0';
@@ -1351,14 +1367,15 @@ int do_unloadrt_cmd(char *mod_name)
 		}
 	    }
 	}
+	NEXTCOMP:
 	next = comp->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     /* mark end of list */
     comps[n][0] = '\0';
     if ( !all && ( comps[0][0] == '\0' )) {
-	/* desired component not found */
-	halcmd_error("component '%s' is not loaded\n", mod_name);
+	if (!skipbusy)
+	    halcmd_error("component '%s' is not loaded\n", mod_name);
 	return -1;
     }
     /* we now have a list of components, unload them */
@@ -1710,7 +1727,7 @@ static const char *type_name(int mode){
     case TYPE_REMOTE:
 	return "Rem";
     case TYPE_INSTANCE:
-	// thi sobviously was never implemented
+	// this sobviously was never implemented
 	return "Inst";
     default:
 	return "***error***";
@@ -1756,15 +1773,20 @@ static void print_comp_info(char **patterns)
                 halcmd_output(" %5d  %-4s  %-*s",
 			      comp->comp_id, type_name(comp->type),
 			      HAL_NAME_LEN, comp->name);
-                if ((comp->type == TYPE_USER) || (comp->type == TYPE_REMOTE)) {
-		    halcmd_output(" %5d %s",
-				  comp->pid,
+		switch (comp->type) {
+		case TYPE_USER:
+
+		    halcmd_output(" %-5d %s", comp->pid,
 				  state_name(comp->state));
-                } else {
-		    halcmd_output(" %5s %s", "",
+		    break;
+		case TYPE_RT:
+		    halcmd_output(" RT    %s",
 				  state_name(comp->state));
-                }
-		if (comp->type == TYPE_REMOTE) {
+		    break;
+
+		case TYPE_REMOTE:
+		    halcmd_output(" %-5d %s", comp->pid,
+				  state_name(comp->state));
 		    time_t now = time(NULL);
 		    if (comp->last_update) {
 
@@ -1783,7 +1805,10 @@ static void print_comp_info(char **patterns)
 			halcmd_output(", unbound:%lds", comp->last_unbound-now);
 		    } else
 			halcmd_output(", unbound:never");
-		}
+		    break;
+		default:
+		    halcmd_output(" %-5s %s", "", state_name(comp->state));
+                }
 		halcmd_output(", u1:%d u2:%d", comp->userarg1, comp->userarg2);
             }
             halcmd_output("\n");
@@ -1793,6 +1818,38 @@ static void print_comp_info(char **patterns)
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
 }
+
+static void print_vtable_info(char **patterns)
+{
+    if (scriptmode == 0) {
+	halcmd_output("Exported vtables:\n");
+	halcmd_output("ID      Name                  Version Refcnt  Context Owner\n");
+    }
+    rtapi_mutex_get(&(hal_data->mutex));
+    int next = hal_data->vtable_list_ptr;
+    while (next != 0) {
+	hal_vtable_t *vt = SHMPTR(next);
+	if ( match(patterns, vt->name) ) {
+	    halcmd_output(" %5d  %-20.20s  %-5d   %-5d",
+			  vt->handle, vt->name, vt->version, vt->refcount);
+	    if (vt->context == 0)
+		halcmd_output("   RT   ");
+	    else
+		halcmd_output("   %-5d", vt->context);
+	    hal_comp_t *comp = halpr_find_comp_by_id(vt->comp_id);
+	    if (comp) {
+                halcmd_output("   %-5d %-30.30s", comp->comp_id,  comp->name);
+	    } else {
+                halcmd_output("   * not owned by a component *");
+	    }
+	    halcmd_output("\n");
+	}
+	next = vt->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    halcmd_output("\n");
+}
+
 
 static void print_pin_info(int type, char **patterns)
 {
