@@ -970,27 +970,27 @@ int Interp::init()
 	// if exist and within parameters, apply ini file arc tolerances
 	// limiting figures are defined in interp_internal.hh
 	
-	_setup.tolerance_inch = TOLERANCE_INCH;
-        inifile.Find(&_setup.tolerance_inch, "TOLERANCE_INCH", "RS274NGC");
+	_setup.spiral_tolerance_inch = SPIRAL_TOLERANCE_INCH;
+        inifile.Find(&_setup.spiral_tolerance_inch, "TOLERANCE_INCH", "RS274NGC");
 
-	if( (_setup.tolerance_inch > TOLERANCE_INCH) || _setup.tolerance_inch < MIN_TOLERANCE_INCH )
+	if( (_setup.spiral_tolerance_inch > SPIRAL_TOLERANCE_INCH) || _setup.spiral_tolerance_inch < MIN_SPIRAL_TOLERANCE_INCH )
 	    {
-	    logDebug("setup.tolerance_inch outside bounds at %f, set to default\n", 
-		_setup.tolerance_inch );
-	    _setup.tolerance_inch = TOLERANCE_INCH;
+	    logDebug("setup.spiral_tolerance_inch outside bounds at %f, set to default\n",
+		_setup.spiral_tolerance_inch );
+	    _setup.spiral_tolerance_inch = SPIRAL_TOLERANCE_INCH;
 	    }
-	logDebug("setup.tolerance_inch set to %f\n", _setup.tolerance_inch ); 
+	logDebug("setup.spiral_tolerance_inch set to %f\n", _setup.spiral_tolerance_inch );
 
-        _setup.tolerance_mm = TOLERANCE_MM;
-	inifile.Find(&_setup.tolerance_mm, "TOLERANCE_MM", "RS274NGC");
+        _setup.spiral_tolerance_mm = SPIRAL_TOLERANCE_MM;
+	inifile.Find(&_setup.spiral_tolerance_mm, "TOLERANCE_MM", "RS274NGC");
 	
-	if( (_setup.tolerance_mm > TOLERANCE_MM) || _setup.tolerance_mm < MIN_TOLERANCE_MM )
+	if( (_setup.spiral_tolerance_mm > SPIRAL_TOLERANCE_MM) || _setup.spiral_tolerance_mm < MIN_SPIRAL_TOLERANCE_MM )
 	    {
-	    logDebug("setup.tolerance_mm outside bounds at %f, set to default\n", 
-		_setup.tolerance_mm );
-	    _setup.tolerance_mm = TOLERANCE_MM;
+	    logDebug("setup.spiral_tolerance_mm outside bounds at %f, set to default\n",
+		_setup.spiral_tolerance_mm );
+	    _setup.spiral_tolerance_mm = SPIRAL_TOLERANCE_MM;
 	    }
-	logDebug("setup.tolerance_mm set to %f\n", _setup.tolerance_mm );         
+	logDebug("setup.spiral_tolerance_mm set to %f\n", _setup.spiral_tolerance_mm );
           // close it
         inifile.Close();
       }
@@ -1003,12 +1003,12 @@ int Interp::init()
     **************************************************/
   else
     {
-    _setup.tolerance_inch = TOLERANCE_INCH;    
-    logDebug("setup.tolerance_inch set to %f\n", _setup.tolerance_inch ); 
+    _setup.spiral_tolerance_inch = SPIRAL_TOLERANCE_INCH;
+    logDebug("setup.spiral_tolerance_inch set to %f\n", _setup.spiral_tolerance_inch );
     
-    _setup.tolerance_mm = TOLERANCE_MM;    
-    logDebug("setup.tolerance_mm set to %f\n", _setup.tolerance_mm );             
-    }  
+    _setup.spiral_tolerance_mm = SPIRAL_TOLERANCE_MM;
+    logDebug("setup.spiral_tolerance_mm set to %f\n", _setup.spiral_tolerance_mm );
+    }
       
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   USE_LENGTH_UNITS(_setup.length_units);

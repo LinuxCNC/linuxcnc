@@ -51,7 +51,7 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     if (radius0 < ARC_MIN_RADIUS || radius1 < ARC_MIN_RADIUS) {
         tp_debug_print("radius below min radius %f, aborting arc\n",
                 ARC_MIN_RADIUS);
-        return TP_ERR_RADIUS;
+        return TP_ERR_RADIUS_TOO_SMALL;
     }
 
     // Choose initial radius as nominal radius

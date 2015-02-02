@@ -36,10 +36,14 @@ typedef struct {
     PmCartesian u1;         /* unit vector along line 1 */
     PmCartesian u2;         /* unit vector along line 2 */
     PmCartesian P;          /* Intersection point */
-    PmCartesian normal;   /* normal unit vector to plane containing lines */
+    PmCartesian normal;     /* normal unit vector to plane containing lines */
     PmCartesian binormal;   /* binormal unit vector to plane containing lines */
     PmCartesian u_tan1;     /* Actual tangent vector to 1 (used for arcs only) */
-    PmCartesian u_tan2;
+    PmCartesian u_tan2;     /* Actual tangent vector to 2 (used for arcs only) */
+    PmCartesian center1;    /* Local approximation of center for arc 1 */
+    PmCartesian center2;    /* Local approximation of center for arc 2 */
+    double radius1;         /* Local approximation of radius */
+    double radius2;
     double theta_tan;
     double v_max1;          /* maximum velocity in direction u_tan1 */
     double v_max2;          /* maximum velocity in direction u_tan2 */
@@ -108,6 +112,8 @@ typedef struct {
     double trim2;               /* length (line) or angle (arc) to cut from tc */
 } BlendPoints3;
 
+
+
 #ifdef BLEND_9D
 typedef struct {
 //Not implemented yet
@@ -137,6 +143,10 @@ double pmCartMin(PmCartesian const * const in);
 
 int calculateInscribedDiameter(PmCartesian const * const normal,
         PmCartesian const * const bounds, double * const diameter);
+
+int findAccelScale(PmCartesian const * const acc,
+        PmCartesian const * const bounds,
+        PmCartesian * const scale);
 
 int pmCartCartParallel(PmCartesian const * const v1,
         PmCartesian const * const v2, double tol);
@@ -214,5 +224,15 @@ int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const poi
 int blendGeom3Print(BlendGeom3 const * const geom);
 int blendParamPrint(BlendParameters const * const param);
 int blendPoints3Print(BlendPoints3 const * const points);
-double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max, int parabolic);
+double pmCircleActualMaxVel(PmCircle * const circle,
+        double v_max,
+        double a_max,
+        int parabolic);
+int findSpiralArcLengthFit(PmCircle const * const circle,
+        SpiralArcLengthFit * const fit);
+double pmCircleAngleFromProgress(PmCircle const * const circle,
+        SpiralArcLengthFit const * const fit,
+        double progress);
+double pmCircleLength(PmCircle const * const circle);
+double pmCircleEffectiveMinRadius(PmCircle const * const circle);
 #endif
