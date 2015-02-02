@@ -202,6 +202,7 @@ SUBDIRS := \
 	\
 	hal/lib \
 	hal/components \
+	hal/vtable-example \
 	hal/drivers \
 	hal/user_comps/devices \
 	hal/user_comps/mb2hal \
@@ -1075,6 +1076,7 @@ ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/lib/Submakefile
 include $(BASEPWD)/machinetalk/Submakefile
 include $(BASEPWD)/hal/components/Submakefile
+include $(BASEPWD)/hal/vtable-example/Submakefile
 include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
 include $(BASEPWD)/rtapi/Submakefile
 include $(BASEPWD)/rtapi/shmdrv/Submakefile
@@ -1386,6 +1388,7 @@ endif
 
 obj-m += scope_rt.o
 scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
+
 
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o

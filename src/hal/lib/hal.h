@@ -906,6 +906,20 @@ extern int hal_start_threads(void);
 */
 extern int hal_stop_threads(void);
 
+// returns vtable ID (handle, >0) or error code (< 0)
+// mark as owned by comp comp_id (optional, zero if not owned)
+int hal_export_vtable(const char *name, int version, void *vtable, int comp_id);
+int hal_remove_vtable(int vtable_id);
+
+// returns vtable_id (handle) or error code
+// increases refcount
+int hal_reference_vtable(const char *name, int version, void **vtable);
+
+// drops refcount
+int hal_unreference_vtable(int vtable_id);
+
+
+
 /** HAL 'constructor' typedef
     If it is not NULL, this points to a function which can construct a new
     instance of its component.  Return value is >=0 for success,

@@ -210,6 +210,8 @@ typedef struct {
     int param_list_ptr;		/* root of linked list of parameters */
     int funct_list_ptr;		/* root of linked list of functions */
     int thread_list_ptr;	/* root of linked list of threads */
+    int vtable_list_ptr;	        /* root of linked list of vtables */
+
     long base_period;		/* timer period for realtime tasks */
     int threads_running;	/* non-zero if threads are started */
     int oldname_free_ptr;	/* list of free oldname structs */
@@ -220,6 +222,7 @@ typedef struct {
     int funct_free_ptr;		/* list of free function structs */
     hal_list_t funct_entry_free;	/* list of free funct entry structs */
     int thread_free_ptr;	/* list of free thread structs */
+    int vtable_free_ptr;   	/* list of free vtable structs */
     int exact_base_period;      /* if set, pretend that rtapi satisfied our
 				   period request exactly */
     unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
@@ -368,6 +371,20 @@ typedef struct {
     char name[HAL_NAME_LEN + 1];	/* thread name */
 } hal_thread_t;
 
+
+// represents a HAL vtable object
+typedef struct {
+    int next_ptr;		   // next vtable in linked list
+    int context;                   // 0 for RT, pid for userland
+    int comp_id;                   // optional owning comp reference, 0 if unused
+    int handle;                    // unique ID
+    int refcount;                  // prevents unloading while referenced
+    int version;                   // tags switchs struct version
+    void *vtable;     // pointer to vtable (valid in loading context only)
+    char name[HAL_NAME_LEN + 1];   // vtable name
+} hal_vtable_t;
+
+
 /* IMPORTANT:  If any of the structures in this file are changed, the
    version code (HAL_VER) must be incremented, to ensure that
    incompatible utilities, etc, aren't used to manipulate data in
@@ -498,6 +515,10 @@ extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
     the next matching pin.  If no match is found, it returns NULL
 */
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
+
+hal_vtable_t *halpr_find_vtable_by_name(const char *name, int version);
+hal_vtable_t *halpr_find_vtable_by_id(int vtable_id);
+
 
 // automatically release the local hal_data->mutex on scope exit.
 // if a local variable is declared like so:
