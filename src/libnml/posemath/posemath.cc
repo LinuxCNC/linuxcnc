@@ -867,14 +867,14 @@ double dot(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 PM_CARTESIAN cross(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 {
     PM_CARTESIAN ret;
-    PmCartesian _v1, _v2;
+    PmCartesian _v1, _v2, _v3;
 
     toCart(v1, &_v1);
     toCart(v2, &_v2);
 
-    pmCartCartCross(&_v1, &_v2, &_v1);
+    pmCartCartCross(&_v1, &_v2, &_v3);
 
-    toCart(_v1, &ret);
+    toCart(_v3, &ret);
 
     return ret;
 }
