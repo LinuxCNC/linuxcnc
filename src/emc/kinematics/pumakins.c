@@ -20,10 +20,11 @@
 #include "pumakins.h"
 #include "kinematics.h"             /* decls for kinematicsForward, etc. */
 
-
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
+
+#define VTVERSION VTKINEMATICS_VERSION1
 
 struct haldata {
     hal_float_t *a2, *a3, *d3, *d4;
@@ -34,6 +35,8 @@ struct haldata {
 #define PUMA_A3 (*(haldata->a3))
 #define PUMA_D3 (*(haldata->d3))
 #define PUMA_D4 (*(haldata->d4))
+
+MODULE_LICENSE("GPL");
 
 
 int kinematicsForward(const double * joint,
@@ -328,25 +331,36 @@ int kinematicsHome(EmcPose * world,
   return kinematicsForward(joint, world, fflags, iflags);
 }
 
-KINEMATICS_TYPE kinematicsType()
+KINEMATICS_TYPE kinematicsType(void)
 {
 //  return KINEMATICS_FORWARD_ONLY;
   return KINEMATICS_BOTH;
 }
 
+static vtkins_t vtk = {
+    .kinematicsForward = kinematicsForward,
+    .kinematicsInverse  = kinematicsInverse,
+    // .kinematicsHome = kinematicsHome,
+    .kinematicsType = kinematicsType
+};
 
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
-
-int comp_id;
+static int comp_id, vtable_id;
+static const char *name = "pumakins";
 
 int rtapi_app_main(void) {
     int res=0;
     
-    comp_id = hal_init("pumakins");
+    comp_id = hal_init(name);
     if (comp_id < 0) return comp_id;
-    
+
+    vtable_id = hal_export_vtable(name, VTVERSION, &vtk, comp_id);
+    if (vtable_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
+			name, name, VTVERSION, &vtk, vtable_id );
+	return -ENOENT;
+    }
+
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
 
@@ -367,4 +381,8 @@ error:
     return res;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_remove_vtable(vtable_id);
+    hal_exit(comp_id);
+}

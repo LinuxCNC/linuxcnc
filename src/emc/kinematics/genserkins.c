@@ -554,7 +554,7 @@ int kinematicsHome(EmcPose * world,
     return kinematicsForward(joint, world, fflags, iflags);
 }
 
-KINEMATICS_TYPE kinematicsType()
+KINEMATICS_TYPE kinematicsType(void)
 {
     return KINEMATICS_BOTH;
 }
