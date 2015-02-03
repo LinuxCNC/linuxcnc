@@ -98,16 +98,10 @@ AC_SUBST([BOOST_PYTHON_LIBS])
 
 # Cython Python Bindings generator
 m4_include([m4/ac_pkg_cython.m4])
-AC_MSG_CHECKING(if cython is usable)
 # 0.19.1 is the version currently in wheezy-backports
 AC_PROG_CYTHON(0.19.0)
-AC_SUBST([CYTHON])
-if test "x$CYTHON" != "xfalse"; then
-    AC_DEFINE([HAVE_CYTHON],[],[Build Cython-based Python extensions])
-    AC_SUBST([HAVE_CYTHON], [yes])
-else
-    AC_MSG_RESULT([rebuilding Cython bindings will require installing cython - not normally required])
-    AC_SUBST([HAVE_CYTHON], [no])
+if test "$CYTHON" = "false"; then
+    AC_MSG_ERROR([not found])
 fi
 AC_SUBST([CYTHON], [$CYTHON])
 

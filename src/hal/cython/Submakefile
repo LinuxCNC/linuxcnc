@@ -20,10 +20,8 @@ USERSRCS += $(HALSO_SRCS)
 $(call TOOBJSDEPS, $(HALSO_SRCS)) : EXTRAFLAGS=-fPIC -Ihal/utils -I.
 $(call TOOBJSDEPS, $(HALSO_CXXSRCS)) : EXTRAFLAGS=-fPIC -Ihal/utils -I.
 
-ifeq ($(HAVE_CYTHON),yes)
 # shotgun approach to dependencies: will alwas hit the target (and more).
 $(HALNGMKDIR)/hal.c: $(wildcard $(HALNGMKDIR)/*.pyx $(HALNGMKDIR)/*.pxd)
-endif
 
 TARGETS += ../lib/python/machinekit/hal.so
 ../lib/python/machinekit/hal.so:	../lib/liblinuxcnchal.so.0 \
@@ -37,9 +35,7 @@ TARGETS += ../lib/python/machinekit/hal.so
 RTAPISO_CSRCS := $(addprefix $(HALNGMKDIR)/, \
 	rtapi.c)
 
-ifeq ($(HAVE_CYTHON),yes)
 $(RTAPISO_CSRCS): $(wildcard $(HALNGMKDIR)/*.pyx $(HALNGMKDIR)/*.pxd)
-endif
 
 RTAPISO_CXXSRCS := \
 	hal/utils/halcmd_rtapiapp.cc
@@ -65,9 +61,7 @@ TARGETS += ../lib/python/machinekit/rtapi.so
 COMPATSO_CSRCS := $(addprefix $(HALNGMKDIR)/, \
 	compat.c)
 
-ifeq ($(HAVE_CYTHON),yes)
 $(COMPATSO_CSRCS): $(wildcard $(HALNGMKDIR)/*.pyx $(HALNGMKDIR)/*.pxd)
-endif
 
 USERSRCS += $(COMPATSO_CSRCS)
 $(call TOOBJSDEPS, $(COMPATSO_CSRCS)) : EXTRAFLAGS=-fPIC
@@ -93,7 +87,5 @@ TARGETS += ../lib/python/machinekit/shmcommon.so
 	@mkdir -p $(dir $@)
 	$(CC) -g  -shared -o $@ $^ $(LDFLAGS) -lrt
 
-ifeq ($(HAVE_CYTHON),yes)
 $(HALNGDIR)/machinekit/%.c: $(addprefix $(HALNGDIR)/machinekit/, %.pyx %.pxd)
 	$(CYTHON) -o $@ $<
-endif
