@@ -16,7 +16,6 @@
 #ifndef STATE_TAG_H
 #define STATE_TAG_H
 
-#include <stdint.h>
 
 /**
  * Enum to define bit names for StateTag's flags register.
@@ -47,6 +46,7 @@ typedef enum {
 } StateFlag;
 
 typedef enum {
+    GM_FIELD_LINE_NUMBER,
     GM_FIELD_G_MODE_0,
     GM_FIELD_CUTTER_COMP,
     GM_FIELD_MOTION_MODE,
@@ -74,8 +74,7 @@ struct state_tag_t {
     float speed;
 
     // Any G / M code states that doesn't pack nicely into a single bit
-    int line;
-    int16_t fields[GM_FIELD_MAX_FIELDS];
+    int fields[GM_FIELD_MAX_FIELDS];
 
     /** G / M mode flags for simple states like inch / mm, feedhold enable, etc.
      * This stores packed bits in one field (since we can't use a bitset in a

@@ -28,6 +28,5 @@ StateTag::StateTag(struct state_tag_t const & basetag): flags(basetag.packed_fla
     packed_flags = 0;
     feed = basetag.feed;
     speed = basetag.speed;
-    line = basetag.line;
 }
 
