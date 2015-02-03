@@ -41,8 +41,7 @@ AS_IF([test "[$]?" -eq 0 && test "x$py_val" != x], [$2], [$3])[]dnl
 ])
 
 # Python module import test
-m4_include([m4/ac_python_module.m4])
-
+#
 # adapted from AX_BOOST_PYTHON_MURRAYC
 # http://ftp.gnome.org/pub/GNOME/sources/glom/1.19/
 m4_define([AX_BOOST_PYTHON_EMC],
@@ -97,7 +96,6 @@ AC_SUBST([BOOST_PYTHON_LIBS])
 ])
 
 # Cython Python Bindings generator
-m4_include([m4/ac_pkg_cython.m4])
 # 0.19.1 is the version currently in wheezy-backports
 AC_PROG_CYTHON(0.19.0)
 if test "$CYTHON" = "false"; then
@@ -147,7 +145,6 @@ AC_PROG_CPP()
 
 # tools for correct cross-building; this sets $host (the target
 # system) to e.g. x86_64-unknown-linux-gnu
-AC_CONFIG_AUX_DIR([autoconf])
 AC_CANONICAL_HOST
 
 
@@ -2187,7 +2184,6 @@ AC_SUBST(GLIB_CFLAGS)
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 AC_PROG_CXX
 
-m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
 # make this optional - it will likely only result in warnings
 AX_CXX_COMPILE_STDCXX_11(noext,optional)
 
@@ -3103,13 +3099,9 @@ AC_SUBST([SITEPY])
 
 if test "$BUILD_EMCWEB" = yes; then
    # these are needed for the emcweb interface only
-   m4_include([m4/ax_boost_base.m4])
    AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
-   m4_include([m4/ax_boost_serialization.m4])
    AX_BOOST_SERIALIZATION()
-   m4_include([m4/ax_boost_thread.m4])
    AX_BOOST_THREAD()
-   m4_include([m4/ax_boost_system.m4])
    AX_BOOST_SYSTEM()
 fi
 
