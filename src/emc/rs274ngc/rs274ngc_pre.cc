@@ -2056,7 +2056,7 @@ void Interp::active_modes(int *g_codes,
 {
     // Extract as-is field values directly into appropriate array
     // position
-    g_codes[0] = tag.line;
+    g_codes[0] = tag.fields[GM_FIELD_LINE_NUMBER];
     g_codes[1] = tag.fields[GM_FIELD_MOTION_MODE];
     g_codes[2] = tag.fields[GM_FIELD_G_MODE_0];
     g_codes[3] = tag.fields[GM_FIELD_PLANE];
@@ -2079,7 +2079,7 @@ void Interp::active_modes(int *g_codes,
     g_codes[14] = tag.flags[GM_FLAG_IJK_ABS] ? G_90_1 : G_91_1;
     g_codes[15] = tag.flags[GM_FLAG_DIAMETER_MODE] ? G_7 : G_8;
     //TODO remove redundant line number?
-    m_codes[0] = tag.line;
+    m_codes[0] = tag.fields[GM_FIELD_LINE_NUMBER];
     m_codes[1] = tag.fields[GM_FIELD_M_MODES_4];
     m_codes[2] = !tag.flags[GM_FLAG_SPINDLE_ON] ? 5 :
         tag.flags[GM_FLAG_SPINDLE_CW] ? 3 : 4;
@@ -2105,7 +2105,7 @@ void Interp::active_modes(int *g_codes,
         tag.flags[GM_FLAG_FEED_HOLD] ? 53 : -1;
 
 
-    settings[0] = tag.line;
+    settings[0] = tag.fields[GM_FIELD_LINE_NUMBER];
     settings[1] = tag.feed;
     settings[2] = tag.speed;
 
