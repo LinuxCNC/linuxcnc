@@ -2785,7 +2785,11 @@ int Interp::gen_restore_cmd(int *current_g,
     double saved_settings[ACTIVE_SETTINGS];
 
     //Extract saved state to local vectors
-    active_modes(saved_g, saved_m, saved_settings, saved);
+    int res_unpack = active_modes(saved_g, saved_m, saved_settings, saved);
+    if (res_unpack != INTERP_OK) {
+        return INTERP_ERROR;
+    }
+
     //Mimic the order of restoration commands used elsewhere
     if (current_g[5] != saved_g[5]) {
         char buf[LINELEN];
@@ -2793,11 +2797,13 @@ int Interp::gen_restore_cmd(int *current_g,
         CHKS(execute(buf) != INTERP_OK, _("gen_restore G20/G21 failed: '%s'"), cmd.c_str());
     }
 
-    gen_settings(current_settings, saved_settings, cmd);
-    gen_m_codes(current_m, saved_m, cmd);
-    gen_g_codes(current_g, saved_g, cmd);
+    int res_settings = gen_settings(current_settings, saved_settings, cmd);
+    int res_m = gen_m_codes(current_m, saved_m, cmd);
+    int res_g = gen_g_codes(current_g, saved_g, cmd);
 
-    //TODO catch errors here
+    if (res_settings || res_m || res_g) {
+        return INTERP_ERROR;
+    }
     return INTERP_OK;
 }
 
@@ -2894,8 +2900,7 @@ int Interp::restore_settings(setup_pointer settings,
 /**
  * Variation of restore_settings to pull state from a StateTag.
  */
-int Interp::restore_from_tag(setup_pointer settings,
-			    StateTag const &tag)
+int Interp::restore_from_tag(StateTag const &tag)
 {
 
     if (tag.fields[GM_FIELD_LINE_NUMBER] < 1) {
@@ -2905,9 +2910,9 @@ int Interp::restore_from_tag(setup_pointer settings,
     }
 
     // linearize state
-    write_g_codes((block_pointer) NULL, settings);
-    write_m_codes((block_pointer) NULL, settings);
-    write_settings(settings);
+    write_g_codes((block_pointer) NULL, &_setup);
+    write_m_codes((block_pointer) NULL, &_setup);
+    write_settings(&_setup);
 
     std::string cmd;
 
@@ -2918,11 +2923,14 @@ int Interp::restore_from_tag(setup_pointer settings,
     // G20/G21 switching is special - it is executed beforehand
     // so restoring feed lateron is interpreted in the correct context
 
-    gen_restore_cmd((int *) settings->active_g_codes,
-            (int *) settings->active_m_codes,
-            (double *) settings->active_settings,
+    int res_unpack = gen_restore_cmd((int *) _setup.active_g_codes,
+            (int *) _setup.active_m_codes,
+            (double *) _setup.active_settings,
             tag,
             cmd);
+    if (res_unpack != INTERP_OK) {
+        return res_unpack;
+    }
 
     if (!cmd.empty()) {
         // the sequence can be multiline, separated by nl
@@ -2939,9 +2947,9 @@ int Interp::restore_from_tag(setup_pointer settings,
                 CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
             }
         }
-        write_g_codes((block_pointer) NULL, settings);
-        write_m_codes((block_pointer) NULL, settings);
-        write_settings(settings);
+        write_g_codes((block_pointer) NULL, &_setup);
+        write_m_codes((block_pointer) NULL, &_setup);
+        write_settings(&_setup);
     }
 
     return INTERP_OK;

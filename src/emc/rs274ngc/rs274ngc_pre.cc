@@ -2049,11 +2049,16 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
  * This method allows us to keep the existing infrastructure for g
  * code status / state storage intact.
  */
-void Interp::active_modes(int *g_codes,
+int Interp::active_modes(int *g_codes,
          int *m_codes,
          double *settings,
          StateTag const &tag)
 {
+    // Pre-checks on fields
+    if (!tag.is_valid()) {
+        return INTERP_ERROR;
+    }
+
     // Extract as-is field values directly into appropriate array
     // position
     g_codes[0] = tag.fields[GM_FIELD_LINE_NUMBER];
@@ -2109,6 +2114,7 @@ void Interp::active_modes(int *g_codes,
     settings[1] = tag.feed;
     settings[2] = tag.speed;
 
+    return INTERP_OK;
 }
 
 

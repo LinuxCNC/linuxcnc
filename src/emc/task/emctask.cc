@@ -177,7 +177,7 @@ int emcTaskAbort()
 {
     //KLUDGE This will ONLY work with the RS274 interpreter, and is temporary
     //FIXME FIXME add a virtual method to the base class
-    ((Interp*)pinterp)->restore_from_tag(&((Interp*)pinterp)->_setup, emcStatus->motion.traj.tag);
+    pinterp->restore_from_tag(emcStatus->motion.traj.tag);
     emcMotionAbort();
 
     // clear out the pending command
@@ -680,12 +680,14 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // command set in main
 
     // update active G and M codes
-    // Kludge, maybe this logic should be wrapped in these functions?
-
+    // Start by assuming that we can't unpack a state tag from motion
+    int res_state = INTERP_ERROR;
     if (emcStatus->task.interpState != EMC_TASK_INTERP_IDLE) {
-        interp.active_modes(&stat->activeGCodes[0],&stat->activeMCodes[0],&stat->activeSettings[0], emcStatus->motion.traj.tag);
-
-    } else {
+        res_state = interp.active_modes(&stat->activeGCodes[0],&stat->activeMCodes[0],&stat->activeSettings[0], emcStatus->motion.traj.tag);
+    } 
+    // If we get an error from trying to unpack from the motion state, always
+    // use interp's internal state, so the active state is never out of date
+    if (res_state == INTERP_ERROR) {
         interp.active_g_codes(&stat->activeGCodes[0]);
         interp.active_m_codes(&stat->activeMCodes[0]);
         interp.active_settings(&stat->activeSettings[0]);
