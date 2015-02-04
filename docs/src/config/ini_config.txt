@@ -615,18 +615,20 @@ POSTGUI_HALFILE = the_postgui_file.hal
 [[sub:APPLICATIONS-section]]
 === [APPLICATIONS] Section(((APPLICATIONS (inifile section))))
 
-LinuxCNC can start other applications after the specified gui is started.
-It is normal to specify a delay to allow for hal components to be created
-and connected before starting other applications.
+LinuxCNC can start other applications before the specified gui is started.
+The applications can be started after a specified delay to allow for
+gui-dependent actions (like creating gui-specific hal pins).
 
 * 'DELAY = value' - seconds to wait beore starting other
-   applications.
+   applications.  A delay may be needed if an application has
+   dependencies on [HAL]POSTGUI_HALFILE actions or gui-created
+   hal pins (default DELAY=0).
 
 * 'APP = appname [arg1 [arg2 ...]]' - Application to be started.
    This specification can be included multiple times.  The appname can be
    explicitly named as an absolute or tilde specified filename (first character
    is / or ~), a relative filename (first characters of filename are ./), or as
-   a file in the inifile directory.  If no executable file is found using 
+   a file in the inifile directory.  If no executable file is found using
    these names, then the user search PATH is used to find the application.
 
    Examples:

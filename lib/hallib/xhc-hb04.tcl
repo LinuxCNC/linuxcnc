@@ -90,16 +90,8 @@ proc is_uniq {list_name} {
 } ;# is_uniq
 
 proc pin_exists {name} {
-  set line [lindex [split [show pin $name] \n] 2]
-  if {"$line" == ""} {
-    return 0 ;# fail
-  }
-  if [catch {scan $line "%d %s %s %s%s" owner type dir value pinname} msg] {
-     return 0 ;# fail
-  } else {
-     #puts stderr "OK:$owner $type $dir $value $pinname"
-     return 1 ;# ok
-  }
+  if { [lindex [hal list pin "$name"] 0] == "$name"} {return 1}
+  return 0
 } ;# pin_exists
 
 proc connect_pins {} {
@@ -327,6 +319,10 @@ if { [namespace exists ::tp] && ([::tp::passnumber] == 0) } {
 }
 
 set cfg LIB:xhc-hb04-layout2.cfg ;# default
+
+if ![info exists ::HAL(HALUI)] {
+  err_exit "\[HAL\]HALUI is not set"
+}
 
 foreach name [array names ::XHC_HB04_CONFIG] {
   set ::XHC_HB04_CONFIG($name) [string trim $::XHC_HB04_CONFIG($name) "{}"]

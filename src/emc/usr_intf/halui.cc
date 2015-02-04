@@ -1111,8 +1111,15 @@ static int sendMdiCommand(int n)
     if (updateStatus()) {
 	return -1;
     }
-    halui_old_mode = emcStatus->task.mode;
 
+    if (!halui_sent_mdi) {
+        // There is currently no MDI command from halui executing, we're
+        // currently starting the first one.  Record what the Task mode is,
+        // so we can restore it when all the MDI commands finish.
+        halui_old_mode = emcStatus->task.mode;
+    }
+
+    // switch to MDI mode if needed
     if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
 	if (sendMdi() || updateStatus()) {
 	    return -1;

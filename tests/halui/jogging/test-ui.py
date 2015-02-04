@@ -11,6 +11,10 @@ import os
 timeout = 5.0
 
 
+# unbuffer stdout
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+
+
 class LinuxcncError(Exception):
     pass
 #    def __init__(self, value):

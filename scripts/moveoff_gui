@@ -164,10 +164,12 @@ proc do_poll {} {
   if {"$status_msg" != $::MV(old,status_msg)} {
     set ::MV(label,applied,text) $status_msg
     $::MV(label,applied) configure -state normal -bg $bg
-    if $offset_applied {
-      disallow_resume
-    } else {
-      allow_resume
+    if { !$::MV(opt,no_resume_inhibit) } {
+      if $offset_applied {
+        disallow_resume
+      } else {
+        allow_resume
+      }
     }
   }
 
@@ -450,16 +452,11 @@ You probaly should resume in the main GUI"
   return
 } ;# bye
 
-proc bitpin_exists {pinname} {
-  if [catch {hal getp $pinname} msg ] {
-    if {[string first "not-found" $msg] < 0} {
-      return 0
-    } else {
-      return 1
-    }
-  } else {
-    return 1
-  }
+proc bitpin_exists {pattern} {
+  # return unique name iff unique bit pin matching pattern exists
+  set ans [string trim [hal list pin -tbit $pattern]]
+  if {[llength $ans] == 1} {return "$ans"}
+  return ""
 } ;# bitpin_exists
 
 proc is_connected {pinname {signame {} } } {
@@ -492,15 +489,15 @@ proc connect_pin_to_sig {pinname new_signame} {
 } ;# connect_pin_to_sig
 
 proc disallow_resume {} {
-  if [info exists ::MV(resume-inhibit,pin)] {
-     hal setp $::MV(resume-inhibit,pin) 1
-  }
+  set resume_inhibit_pin [bitpin_exists *.resume-inhibit]
+  if {"$resume_inhibit_pin" == ""} return
+  hal setp $resume_inhibit_pin 1
 } ;# disallow_resume
 
 proc allow_resume {} {
-  if [info exists ::MV(resume-inhibit,pin)] {
-     hal setp $::MV(resume-inhibit,pin) 0
-  }
+  set resume_inhibit_pin [bitpin_exists *.resume-inhibit]
+  if {"$resume_inhibit_pin" == ""} return
+  hal setp $resume_inhibit_pin 0
 } ;# allow_resume
 
 proc set_defaults {} {
@@ -557,12 +554,12 @@ proc verify_context {} {
   # return "" if ok, else errtxt
 
   if !$::MV(opt,no_pause_requirement) {
-    if ![bitpin_exists halui.program.is-paused] {
+    if {"" == [bitpin_exists halui.program.is-paused]} {
       return "linuxcnc and halui must be running\n
 For info:\n$::MV(prog) --help | more"
     }
   }
-  if ![bitpin_exists $::m.apply-offsets] {
+  if {"" == [bitpin_exists $::m.apply-offsets]} {
     return "moveoff component must be loaded with name: $::m"
   }
 
@@ -588,26 +585,6 @@ For info:\n$::MV(prog) --help | more"
     return "halui.program.resume is connected cannot use -autoresume <$sig>"
   }
 
-  if { !$::MV(opt,no_resume_inhibit) } {
-    set ans [hal show pin *.resume-inhibit]
-    set lines [split $ans \n]
-    set rest ""
-    if {[catch {
-
-      scan [lindex $lines 2] "%s %s %s %s %s %s" owner type dir value name rest
-      if {$type == "bit" && $dir == "IN"} {
-        if {[is_connected $name sig] != "not_connected"} {
-          puts "$::MV(prog):verify_context: <$name> already connected <$sig>"
-        } else {
-          set ::MV(resume-inhibit,pin) "$name"
-          puts "$::MV(prog):verify_context: using <$name> for resume-inhibit"
-        }
-      }
-
-    } msg ] }  {
-      puts "$::MV(prog):No pin named *.resume-inhibit"
-    }
-  }
   return ""
 } ;# verify_context
 
