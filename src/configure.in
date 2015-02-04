@@ -139,8 +139,15 @@ AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(EGREP, egrep)
 AC_PATH_PROG(ARCHCMD, arch)
 
-# we'll be using it for compile tests
 AC_PROG_CC([gcc])
+AC_SUBST([CROSS_COMPILING],[$cross_compiling])
+dnl Put a plausible default for CC_FOR_BUILD in Makefile.inc.in
+if test "$cross_compiling" = yes; then
+    AC_PATH_PROGS(CC_FOR_BUILD, gcc cc)
+else
+    AC_SUBST(CC_FOR_BUILD,$CC)
+fi
+
 AC_PROG_CPP()
 AC_CHECK_TOOL(OBJCOPY, objcopy)
 AC_CHECK_TOOL(LD, ld)
