@@ -142,6 +142,8 @@ AC_PATH_PROG(ARCHCMD, arch)
 # we'll be using it for compile tests
 AC_PROG_CC([gcc])
 AC_PROG_CPP()
+AC_CHECK_TOOL(OBJCOPY, objcopy)
+AC_CHECK_TOOL(LD, ld)
 
 # tools for correct cross-building; this sets $host (the target
 # system) to e.g. x86_64-unknown-linux-gnu
