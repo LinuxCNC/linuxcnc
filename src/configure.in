@@ -147,6 +147,10 @@ AC_PROG_CPP()
 # system) to e.g. x86_64-unknown-linux-gnu
 AC_CANONICAL_HOST
 
+# locate pkg-config, including cross-compiler variations
+AC_CHECK_TOOL(PKG_CONFIG, pkg-config)
+AC_CONFIG_MACRO_DIR(/usr/share/aclocal)
+
 
 ##############################################################################
 # Section 2                                                                  #
@@ -1594,28 +1598,9 @@ else
 fi
 
 # test usability of libudev, needed by userland drivers
-LIBUDEV_CFLAGS=
-LIBUDEV_LIBS=
 with_libudev=no
 if test "$with_drivers" = "yes" -a $with_usermode_pci != no; then
-   AC_MSG_CHECKING(for libudev)
-   if pkg-config libudev >/dev/null 2>&1; then
-      LIBUDEV_VER=`pkg-config libudev --version`
-      AC_MSG_RESULT(found version $LIBUDEV_VER)
-      LIBUDEV_CFLAGS="`pkg-config libudev --cflags`"
-      LIBUDEV_LIBS="`pkg-config libudev --libs`"
-      LIBS_hold=$LIBS
-      LIBS=$LIBUDEV_LIBS
-      AC_CHECK_LIB(udev, udev_new, [],
-          [AC_MSG_ERROR(libudev unusable)])
-      LIBS=$LIBS_hold
-      with_libudev=yes
-   elif test -x /usr/bin/lsb_release && test "$(lsb_release -cs)" = hardy; then
-       # hardy has no libudev; disable usermode PCI & tell user why
-       AC_MSG_RESULT([not available on Ubuntu Hardy])
-   else
-       AC_MSG_RESULT(not found)
-   fi
+   PKG_CHECK_MODULES(LIBUDEV, libudev, with_libudev=yes, with_libudev=no)
 fi
 
 AC_MSG_CHECKING(whether to build usermode PCI hardware drivers)
@@ -1933,29 +1918,11 @@ AC_ARG_WITH(
 AS_IF(
     [test $WITH_LIBMODBUS = yes -o $WITH_LIBMODBUS = check ],
     [
-        AC_MSG_CHECKING([for libmodbus3])
-        if pkg-config libmodbus --atleast-version 3 >/dev/null 2>&1; then
-            LIBMODBUS_VER=`pkg-config libmodbus --modversion`
-            AC_MSG_RESULT(yes - version [$LIBMODBUS_VER])
-            LIBMODBUS_CFLAGS=`pkg-config libmodbus --cflags`
-            AC_SUBST([LIBMODBUS_CFLAGS])
-            LIBMODBUS_LIBS=`pkg-config libmodbus --libs`
-            AC_SUBST([LIBMODBUS_LIBS])
-            AC_DEFINE(
-                [HAVE_LIBMODBUS3],
-                [yes],
-                [define if the libmodbus3 headers and library are available]
-            )
-            AC_SUBST(HAVE_LIBMODBUS3, yes)
-        else
-	    if test $WITH_LIBMODBUS = yes; then
-	        # if --with-libmodbus specified and we got here, error
-		AC_MSG_RESULT(no)
-	        AC_MSG_ERROR([libmodbus3 requested but not found])
-	    else
-	        AC_MSG_RESULT([not found; disabling])
-	    fi
-        fi
+	PKG_CHECK_MODULES(
+	    LIBMODBUS,
+	    libmodbus >= 3,
+	    [ AC_SUBST(HAVE_LIBMODBUS3, yes) ],
+	    [ AC_MSG_ERROR([libmodbus3 requested but not found]) ])
     ]
 )
 
@@ -1976,25 +1943,11 @@ AC_ARG_WITH(
 AS_IF(
     [test "x$WITH_LIBUSB10" = "xyes"],
     [
-        AC_MSG_CHECKING([for libusb-1.0])
-        if pkg-config libusb-1.0 >/dev/null 2>&1; then
-            AC_MSG_RESULT(yes)
-            LIBUSB10_CFLAGS=`pkg-config libusb-1.0 --cflags`
-            AC_SUBST([LIBUSB10_CFLAGS])
-            LIBUSB10_LIBS=`pkg-config libusb-1.0 --libs`
-            AC_SUBST([LIBUSB10_LIBS])
-            AC_DEFINE(
-                [HAVE_LIBUSB10],
-                [yes],
-                [define if the libusb-1.0 headers and library are available]
-            )
-            AC_SUBST(HAVE_LIBUSB10, yes)
-        else
-          AC_MSG_RESULT(no)
-          AC_MSG_ERROR([libusb-1.0 not found!
-install with "sudo apt-get install libusb-1.0-0-dev" or disable with
-"configure --without-libusb-1.0"])
-        fi
+	PKG_CHECK_MODULES(
+	    LIBUSB10,
+	    libusb-1.0,
+	    [ AC_SUBST(HAVE_LIBUSB10, yes) ],
+	    [ AC_MSG_ERROR([not found]) ])
     ]
 )
 
@@ -2121,16 +2074,7 @@ AC_SUBST([CONFIG_DATE])
 # FIXME: allow it to be enabled or disabled command line                     #
 ##############################################################################
 
-AC_MSG_CHECKING([for glib])
-if pkg-config glib-2.0 >/dev/null 2>&1; then
-  GLIB_VER=`pkg-config glib-2.0 --modversion`
-  AC_MSG_RESULT(yes - $GLIB_VER)
-  GLIB_CFLAGS=`pkg-config glib-2.0 --cflags`
-  GLIB_LIBS=`pkg-config glib-2.0 --libs`
-else
-  AC_MSG_ERROR(no -- required until somebody makes glib optional)
-fi
-
+PKG_CHECK_MODULES(GLIB, glib-2.0)
 
 AC_ARG_ENABLE(gtk,
     [  --disable-gtk        Disable the parts of LinuxCNC that depend on GTK],
@@ -2145,26 +2089,14 @@ AC_ARG_ENABLE(gtk,
     [BUILD_GTK=yes])
 
 if test "$BUILD_GTK" = "yes"; then
-  AC_MSG_CHECKING([for GTK 2.4.0 or above])
-  if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
-    GTK_VER=`pkg-config gtk+-2.0 --modversion`
-    AC_MSG_RESULT(yes - $GTK_VER)
-    GTK_CFLAGS=`pkg-config gtk+-2.0 --cflags`
-    GTK_LIBS=`pkg-config gtk+-2.0 --libs`
-    AC_MSG_CHECKING(for libgnomeprintui-2.2)
-    if pkg-config --exists libgnomeprintui-2.2; then
-      AC_MSG_RESULT(yes)
-      GTK_CFLAGS="$GTK_CFLAGS `pkg-config --cflags libgnomeprintui-2.2`"
-      GTK_LIBS="$GTK_LIBS `pkg-config --libs libgnomeprintui-2.2`"
-      HAVE_GNOMEPRINT=yes
-    else
-      AC_MSG_RESULT(no -- printing from classicladder will not be possible)
-      HAVE_GNOMEPRINT=
-    fi
-  else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([GTK2 missing.  Install it or specify --disable-gtk to skip the parts of LinuxCNC that depend on GTK])
-  fi
+    PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0, :,
+        [ AC_MSG_ERROR([no gtk+-2.0 found; use --disable-gtk])])
+    PKG_CHECK_MODULES(GNOMEPRINT, libgnomeprintui-2.2,
+        [
+	    GTK_CFLAGS="$GTK_CFLAGS $GNOMEPRINT_CFLAGS"
+	    GTK_LIBS="$GTK_LIBS $GNOMEPRINT_LIBS"
+	    HAVE_GNOMEPRINT=yes
+	], :)
 fi
 
 AC_SUBST(HAVE_GNOMEPRINT)
