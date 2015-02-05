@@ -2573,97 +2573,21 @@ EOFOUTER
 # so testing is done by finding tclConfig.sh and tkConfig.sh                 #
 # if the search fails the traditional check is done                          #
 ##############################################################################
-AC_MSG_CHECKING([for tcl])
+export DEB_HOST_MULTIARCH=${host_cpu}-${host_os}
+SC_PATH_TCLCONFIG
+SC_LOAD_TCLCONFIG
+TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
+TCL_LIBS="$TCL_STUB_LIB_SPEC"
 
-AC_ARG_WITH(tclConfig,
-    [  --with-tclConfig=<path>                 Specify the path to tclConfig],
-    [
-        TCLCONFIG=$withval
-    ],[
-        TCLCONFIG=
-    ])
+SC_PATH_TKCONFIG
+SC_LOAD_TKCONFIG
+TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
+TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 
-# if not specified, search for tclConfig.sh
-if (test "x$TCLCONFIG" = "x"); then
-    TCLCONFIG=$(find /usr/lib* -maxdepth 2 -name tclConfig.sh 2>/dev/null \
-	| head -n1)
-    if (test "x$TCLCONFIG" = "x"); then
-	TCLCONFIG=$(find /usr/local/lib* -maxdepth 2 -name tclConfig.sh \
-	    2>/dev/null | head -n1)
-    fi
-fi
-
-if (test "x$TCLCONFIG" = "x"); then
-   AC_MSG_RESULT([tclConfig.sh not found, trying tcl.h and libs.
-		  If it doesn't work try running ./configure --with-tclConfig=<path to tclConfig.sh>])
-   AC_CHECK_HEADERS([tcl.h])
-   AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.1 tcl8.2 tcl8.3 tcl8.4 tcl8.5 tcl8.6],[],[AC_MSG_ERROR([tcl lib not found])])
-else
-# tclConfig.sh found,
-# extracting vars
-   AC_MSG_RESULT([$TCLCONFIG found])
-   . "$TCLCONFIG"
-   TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
-   TCL_LIBS="$TCL_STUB_LIB_SPEC"
-fi
-
-AC_MSG_CHECKING([for tk])
-
-AC_ARG_WITH(tkConfig,
-    [  --with-tkConfig=<path>                  Specify the path to tkConfig],
-    [
-        TKCONFIG=$withval
-    ],[
-        TKCONFIG=
-    ])
-
-# if not specified, search for tclConfig.sh
-if test -z "$TKCONFIG" -a -n "$TCLCONFIG"; then
-    TKCONFIG=$(dirname $TCLCONFIG)/tkConfig.sh
-    if ! test -f $TKCONFIG; then unset TKCONFIG; fi
-fi
-if (test "x$TKCONFIG" = "x"); then
-    # search for tkConfig.sh
-    TKCONFIG=$(find /usr/lib /usr/lib64 /usr/local/lib \
-        -maxdepth 2 -name tkConfig.sh 2>/dev/null \
-	| head -n1)
-fi
-
-if (test "x$TKCONFIG" = "x"); then
-   AC_MSG_RESULT([tkConfig.sh not found, trying tk.h and libs.
-		  If it doesn't work try running ./configure --with-tkConfig=<path to tkConfig.sh>])
-   AC_CHECK_HEADERS([tk.h])
-   AC_SEARCH_LIBS(Tk_Init,[tk tk80 tk8.0 tk8.1 tk8.2 tk8.3 tk8.4 tk8.5 tk8.6],[],[AC_MSG_ERROR([tk lib not found])])
-else
-# tkConfig.sh found,
-# extracting vars
-   AC_MSG_RESULT([$TKCONFIG found])
-   . "$TKCONFIG"
-   TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
-   TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
-fi
-
-if ! test -z "$TCL_VERSION" && ! test -z "$TK_VERSION" && ! test "$TCL_VERSION" = "$TK_VERSION" ; then
-    AC_MSG_ERROR([Tcl and Tk versions must be the same, but configure found
-Tcl $TCL_VERSION and Tk $TK_VERSION.  You can use --with-tkConfig= and --with-tclConfig=
-to override the autodetected versions.])
-fi
-
-if test -f $TCL_EXEC_PREFIX/bin/wish$TCL_VERSION; then
-    WISH=$TCL_EXEC_PREFIX/bin/wish$TCL_VERSION
-elif test -f $TCL_EXEC_PREFIX/bin/wish; then
-    WISH=$TCL_EXEC_PREFIX/bin/wish
-else
-    WISH=wish
-fi
-
-if test -f $TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION; then
-    TCLSH=$TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION
-elif test -f $TCL_EXEC_PREFIX/bin/tclsh; then
-    TCLSH=$TCL_EXEC_PREFIX/bin/tclsh
-else
-    TCLSH=tclsh
-fi
+AC_PATH_PROGS(WISH,[wish${TCL_VERSION} wish], [wish],
+     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
+AC_PATH_PROGS(TCLSH,[tclsh${TCL_VERSION} tclsh], [tclsh],
+     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
 
 AC_MSG_CHECKING([for BWidget using $TCLSH])
 if (unset DISPLAY; echo ["catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]"] | $TCLSH); then
