@@ -118,6 +118,79 @@ Set line thickness to 0.50mm
 Export image as 480 x 480 Resolution Auto .png
 
 
+Dealing with translations
+-------------------------
+
+Translation of our documentation is in transition at the moment.
+
+We have some old-style translations that are separate asciidoc .txt files
+checked into git.  These started out as copies of the english master
+docs at some point, and diverged from there over time.  This turned out
+not to be an ideal situation.
+
+We are experimenting with a new system using po4a
+(https://po4a.alioth.debian.org/).  With po4a, the english is the master
+document, and each paragraph is translated using gettext, just like the
+strings in our software.
+
+Some documentation of po4a is available in the po4a.7 manpage, and
+online here:
+
+    https://po4a.alioth.debian.org/man/man7/po4a.7.php
+
+We are using po4a version 0.42, available in Debian Wheezy.  This version
+seems to have some problems with AsciiDoc section titles, version 0.45
+in Debian Jessie does better (using the new "asciidoc" format instead
+of 0.42's "text" format).
+
+
+To transition a translated file to po4a
+---------------------------------------
+
+If there is a pre-existing translation of the file to your language,
+create a .po translation database seeded by the old translation.
+
+If the english file is called "file.txt" then the old pre-existing
+translated file is probably called "file_fr.txt" (for the french
+translation, as an example), and the translation database should be called
+"file.fr.po".  It is created by running this command:
+
+    po4a-gettextize --format text -m file.txt -M utf8 -l file_fr.txt -L utf8 -p file.fr.po
+
+
+To create a new po4a translation of an untranslated file
+--------------------------------------------------------
+
+If there is no pre-existing translation of the file to your language,
+create an empty .po file to start with.  If the english file is called
+"file.txt" then the translation database should be called "file.se.po"
+(for the swedish translation, as an example).  It is created by running
+this command:
+
+    po4a-gettextize --format text -m file.txt -M utf8 -p file.se.po
+
+
+Improving the translation of a po4a-managed file
+------------------------------------------------
+
+Translations are done paragraph by paragraph.
+
+You can use a GUI tool like poedit or gtranslator or others, or you can
+(carefully!) edit the .po file by hand.
+
+The next time the translated document gets rebuilt, the updated
+translations will be used.
+
+
+When the master document (english) changes
+------------------------------------------
+
+When the master document (english) file has changed, use the po4a-updatepo
+to update the .po files:
+
+  po4a-updatepo -f text -m file.txt -p file.fr.po
+
+
 How to add a new translation language
 -------------------------------------
 
