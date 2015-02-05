@@ -1,20 +1,20 @@
 # SOME DESCRIPTIVE TITLE
 # Copyright (C) YEAR Free Software Foundation, Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Sebastian Kuzminsky <seb@highlab.com>, 2015.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2015-02-04 21:59-0700\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2015-02-04 22:09-0700\n"
+"Last-Translator: Sebastian Kuzminsky <seb@highlab.com>\n"
+"Language-Team: Swedish <>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #. type: Plain text
 #: lathe_config.txt:2
@@ -24,7 +24,7 @@ msgstr ""
 #. type: Plain text
 #: lathe_config.txt:4
 msgid "= Lathe Configuration"
-msgstr ""
+msgstr "= Svarv Configuration"
 
 #. type: Plain text
 #: lathe_config.txt:6
@@ -34,7 +34,7 @@ msgstr ""
 #. type: Plain text
 #: lathe_config.txt:8
 msgid "== Default Plane"
-msgstr ""
+msgstr "== Standard Planet"
 
 #. type: Plain text
 #: lathe_config.txt:13
@@ -44,6 +44,10 @@ msgid ""
 "plane (G18). To change the default plane place the following line in the "
 ".ini file in the RS274NGC section."
 msgstr ""
+"När LinuxCNC först skrevs var det för fräsmaskiner.  Därför är standard "
+"planet XY (G17).  En svarv använder normalt XZ planet (G18). För att ändra "
+"standard planet, skriv den följande linjen till RS274NGC sektionen i .ini "
+"filen."
 
 #. type: Plain text
 #: lathe_config.txt:14 lathe_config.txt:27
@@ -65,6 +69,8 @@ msgid ""
 "The above can be overwritten in a g code program so always set important "
 "things in the preamble of the g code file."
 msgstr ""
+"G-code programm kan ändra vilket plan är valt, så sätt altid viktiga "
+"sättningar i början av G-code programmen."
 
 #. type: Plain text
 #: lathe_config.txt:22
