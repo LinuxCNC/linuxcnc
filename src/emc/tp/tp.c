@@ -363,8 +363,8 @@ int tpClearDIOs(TP_STRUCT * const tp) {
     //XXX: All IO's will be flushed on next synced aio/dio! Is it ok?
     int i;
     tp->syncdio.anychanged = 0;
-    tp->syncdio.dio_mask = 0;
-    tp->syncdio.aio_mask = 0;
+    tp->syncdio.dio_mask = 0ull;
+    tp->syncdio.aio_mask = 0ull;
     for (i = 0; i < num_dio; i++) {
         tp->syncdio.dios[i] = 0;
     }
@@ -2193,12 +2193,12 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
     int i=0;
     if (tc->syncdio.anychanged != 0) { // we have DIO's to turn on or off
         for (i=0; i < num_dio; i++) {
-            if (!(tc->syncdio.dio_mask & (1 << i))) continue;
+            if (!(tc->syncdio.dio_mask & (1ull << i))) continue;
             if (tc->syncdio.dios[i] > 0) emcmotDioWrite(i, 1); // turn DIO[i] on
             if (tc->syncdio.dios[i] < 0) emcmotDioWrite(i, 0); // turn DIO[i] off
         }
         for (i=0; i < num_aio; i++) {
-            if (!(tc->syncdio.aio_mask & (1 << i))) continue;
+            if (!(tc->syncdio.aio_mask & (1ull << i))) continue;
             emcmotAioWrite(i, tc->syncdio.aios[i]); // set AIO[i]
         }
         tc->syncdio.anychanged = 0; //we have turned them all on/off, nothing else to do for this TC the next time
@@ -3250,7 +3250,7 @@ int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double en
         return TP_ERR_FAIL;
     }
     tp->syncdio.anychanged = 1; //something has changed
-    tp->syncdio.aio_mask |= (1 << index);
+    tp->syncdio.aio_mask |= (1ull << index);
     tp->syncdio.aios[index] = start;
     return TP_ERR_OK;
 }
@@ -3260,7 +3260,7 @@ int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned cha
         return TP_ERR_FAIL;
     }
     tp->syncdio.anychanged = 1; //something has changed
-    tp->syncdio.dio_mask |= (1 << index);
+    tp->syncdio.dio_mask |= (1ull << index);
     if (start > 0)
         tp->syncdio.dios[index] = 1; // the end value can't be set from canon currently, and has the same value as start
     else
