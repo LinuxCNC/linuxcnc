@@ -5,9 +5,6 @@ SUPPORT_DIR := hal/support
 PRU_SRC_DIR := hal/drivers/hal_pru_generic
 PRU_MAINS   := pru_generic
 
-# The PRU assembler proper
-PASM := ../bin/pasm
-
 # Assembly of PRU code
 # the list of assembly source files
 PRU_FILES := $(wildcard $(PRU_SRC_DIR)/*.p)

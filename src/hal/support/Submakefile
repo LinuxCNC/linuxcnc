@@ -5,7 +5,7 @@ SUPPORT_DIR := hal/support
 #PRU_SRC_DIR := $(SUPPORT_DIR)/pru-src/
 
 # The PRU assembler proper
-PASM := ../bin/pasm
+PASM_HOST := ../bin/pasm
 PASM_SRCS := $(addprefix $(SUPPORT_DIR)/pasm/, \
 	pasm.c pasmpp.c pasmexp.c pasmop.c pasmdot.c pasmstruct.c pasmmacro.c)
 
@@ -16,7 +16,25 @@ $(call TOOBJSDEPS, $(PASM_SRCS)) : EXTRAFLAGS=-Wall -D_UNIX_
 	$(Q)$(CC) -o $@ $^
 
 USERSRCS += $(PASM_SRCS)
-TARGETS += $(PASM)
+TARGETS += $(PASM_HOST)
+
+ifeq ($(CROSS_COMPILING),no)
+PASM := $(PASM_HOST)
+else
+# The PRU assembler for cross-compiling
+PASM_BUILD := ../bin/pasm_build
+PASM := $(PASM_BUILD)
+
+$(call TOOBJSDEPS,$(PASM_SRCS),_build) : EXTRAFLAGS=-Wall -D_UNIX_
+$(call TOOBJSDEPS,$(PASM_SRCS),_build) : CC=$(CC_FOR_BUILD)
+
+$(PASM_BUILD): $(call TOOBJS,$(PASM_SRCS),_build)
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC_FOR_BUILD) -o $@ $^
+
+USERSRCS_BUILD += $(PASM_SRCS)
+TARGETS += $(PASM_BUILD)
+endif
 
 ## basic peek/poke utility
 #DEVMEM2 = ../bin/devmem2
