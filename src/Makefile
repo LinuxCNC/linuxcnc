@@ -495,6 +495,7 @@ HEADERS := \
     hal/lib/hal_ring.h \
     hal/lib/hal_rcomp.h \
     hal/lib/hal_iter.h \
+    hal/lib/vtable.h \
     hal/lib/config_module.h \
     hal/drivers/hal_gpiomap.h \
     hal/drivers/hal_spi.h \
