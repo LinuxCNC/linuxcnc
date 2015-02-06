@@ -5,9 +5,8 @@ AC_DEFUN([AC_PROG_CYTHON],[
                # AC_MSG_WARN([cannot find 'cython' program. You should look at http://www.cython.org] or install your distribution specific cython package.)
                 CYTHON=false
         elif test -n "$1" ; then
-                AC_MSG_CHECKING([for Cython version])
+                AC_MSG_CHECKING([cython version])
                 [cython_version=`$CYTHON --version 2>&1 | sed 's/Cython version \(.*\)$/\1/g'`]
-                AC_MSG_RESULT([$cython_version])
 
                 # Setup extra version string for parsing
                 [cython_version_stripped=`echo $cython_version | sed 's/\([0-9]\+\)\.\([0-9]\+\)[^\.]*\(\.\([0-9]\+\)\)\?.*/0\1.0\2.0\4/g'`]
@@ -53,14 +52,13 @@ AC_DEFUN([AC_PROG_CYTHON],[
                                         test $available_minor -eq $required_minor && \
                                         test $available_patch -ge $required_patch ) ; then
 
-                                AC_MSG_NOTICE([Cython executable is '$CYTHON'])
+                                AC_MSG_RESULT([$cython_version])
+
                         else
-                                AC_MSG_WARN([Cython version >= $1 is required.  You have $cython_version.  You should look at http://www.cython.org])
-                                CYTHON='echo "Error: Cython version >= $1 is required.  You have '"$cython_version"'.  You should look at http://www.cython.org" ; false'
+                                AC_MSG_ERROR([$cython_version >= $1])
                         fi
                 else
-                        AC_MSG_WARN([cannot determine Cython version])
-                        CYTHON=false
+                        AC_MSG_ERROR([cannot determine Cython version])
                 fi
         fi
         AC_SUBST([CYTHON_LIB])
