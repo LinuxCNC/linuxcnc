@@ -154,7 +154,8 @@ AC_CHECK_TOOL(LD, ld)
 
 # tools for correct cross-building; this sets $host (the target
 # system) to e.g. x86_64-unknown-linux-gnu
-AC_CANONICAL_HOST
+AC_CANONICAL_HOST  # $host, host_cpu, host_vendor, and host_os
+AC_CANONICAL_BUILD  # $build, build_cpu, build_vendor, and build_os
 
 # locate pkg-config, including cross-compiler variations
 AC_CHECK_TOOL(PKG_CONFIG, pkg-config)
