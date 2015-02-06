@@ -59,7 +59,7 @@ PROTO_SPECS := $(wildcard $(PROTODIR)/*.proto)
 PROTOC := $(shell which protoc)
 
 # the directory where descriptor.proto lives:
-GPBINCLUDE :=  $(shell pkg-config --variable=includedir protobuf)
+GPBINCLUDE :=  $(shell $(PKG_CONFIG) --variable=includedir protobuf)
 DESCDIR    :=  $(GPBINCLUDE)/google/protobuf
 
 # object files generated during dependency resolving

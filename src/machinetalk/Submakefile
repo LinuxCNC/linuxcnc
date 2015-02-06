@@ -64,7 +64,7 @@ JSNAMESPACE := =pb
 GENDEP := $(MACHINETALK)/proto/scripts/protoc-gen-depends
 
 # the directory where descriptor.proto lives:
-GPBINCLUDE :=  $(shell pkg-config --variable=includedir protobuf)
+GPBINCLUDE :=  $(shell $(PKG_CONFIG) --variable=includedir protobuf)
 DESCDIR    :=  $(GPBINCLUDE)/google/protobuf
 
 # search path for .proto files

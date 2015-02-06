@@ -260,12 +260,13 @@ PROGRAMS :=
 # file names, but this is what allows 'make src.i' to produce proper
 # preprocessed source when src.c needs a customized compile flag.
 # See Submakefile.skel for an example.
-TOOBJS = $(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1)))
-TODEPS = $(patsubst %.cc,depends/%.d,$(patsubst %.c,depends/%.d,$(1)))
+TOOBJS = $(patsubst %.cc,objects/%$(2).o,$(patsubst %.c,objects/%$(2).o,$(1)))
+TODEPS = $(patsubst %.cc,depends/%$(2).d,$(patsubst %.c,depends/%$(2).d,$(1)))
 #-not sure, something fishy here -mah
 #TODEPS = $(patsubst %.cc,objects/%.d,$(patsubst %.c,objects/%.d,$(1)))
 
-TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS, $(1)) $(patsubst %.cc,%.ii,$(patsubst %.c,%.i,$(1)))
+TOOBJSDEPS = $(call TOOBJS,$(1),$(2)) $(call TODEPS, $(1),$(2)) \
+	$(patsubst %.cc,%$(2).ii,$(patsubst %.c,%$(2).i,$(1)))
 
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 -include $(wildcard $(SUBMAKEFILES))
@@ -289,8 +290,12 @@ endif
 # Find the list of object files for each type of source file
 CUSERSRCS := $(filter %.c,$(USERSRCS))
 CXXUSERSRCS := $(filter %.cc,$(USERSRCS))
-CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
+CUSEROBJS = $(call TOOBJS,$(CUSERSRCS))
 CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
+
+# Find the list of build-arch object files for C sources
+CUSERSRCS_BUILD := $(filter %.c,$(USERSRCS_BUILD))
+CUSEROBJS_BUILD := $(call TOOBJS,$(CUSERSRCS_BUILD),_build)
 
 ifeq ($(TRIVIAL_BUILD),no)
 
@@ -310,7 +315,8 @@ endif
 endif
 
 # Find the dependency filenames, then include them all
-DEPS := $(sort $(patsubst %.o,%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
+DEPS := $(sort $(patsubst %.o,%.d,$(CUSEROBJS) $(CXXUSEROBJS) \
+	$(CUSEROBJS_BUILD)))
 READ_DEPS = $(wildcard $(DEPS))
 $(shell echo 1>&2 Reading $(words $(READ_DEPS))/$(words $(DEPS)) dependency files)
 -include $(READ_DEPS)
@@ -366,6 +372,15 @@ $(sort $(CUSEROBJS)) : objects/%.o: %.c
 	@mkdir -p $(dir $@)
 	@rm -f $@
 	$(Q)$(CC) -c $(CFLAGS) $(EXTRAFLAGS) \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
+
+# Rules to make .o (object) files, build arch
+$(sort $(CUSEROBJS_BUILD)) : objects/%_build.o: %.c
+	$(ECHO) Compiling $<
+	@mkdir -p $(dir $@)
+	@rm -f $@
+	$(Q)$(CC_FOR_BUILD) -c $(CFLAGS) $(EXTRAFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
@@ -1450,10 +1465,12 @@ modules: $(patsubst %.o,$(RTLIBDIR)/%.so,$(obj-m))
 $(RTLIBDIR)/%.so:
 	$(ECHO) Linking $@
 	@mkdir -p $(dir $@)
-	$(Q)ld -r -o $(OBJDIR)/$*.tmp $^
-	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary \
+	$(Q)$(LD) -r -o $(OBJDIR)/$*.tmp \
+	    $^
+	@if ! $(IS_POWERPC); then $(OBJCOPY) -j .rtapi_export -O binary \
 	    $(OBJDIR)/$*.tmp $(OBJDIR)/$*.exp; fi
-	@if ! $(IS_POWERPC); then objcopy  -G __x86.get_pc_thunk.bx -G __i686.get_pc_thunk.bx \
+	@if ! $(IS_POWERPC); then $(OBJCOPY) \
+	    -G __x86.get_pc_thunk.bx -G __i686.get_pc_thunk.bx \
 	    `xargs -r0n1 echo -G < $(OBJDIR)/$*.exp | grep -ve '^-G $$' | \
 	        sort -u` $(OBJDIR)/$*.tmp; fi
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ $(OBJDIR)/$*.tmp \

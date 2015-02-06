@@ -41,8 +41,7 @@ AS_IF([test "[$]?" -eq 0 && test "x$py_val" != x], [$2], [$3])[]dnl
 ])
 
 # Python module import test
-m4_include([m4/ac_python_module.m4])
-
+#
 # adapted from AX_BOOST_PYTHON_MURRAYC
 # http://ftp.gnome.org/pub/GNOME/sources/glom/1.19/
 m4_define([AX_BOOST_PYTHON_EMC],
@@ -97,7 +96,6 @@ AC_SUBST([BOOST_PYTHON_LIBS])
 ])
 
 # Cython Python Bindings generator
-m4_include([m4/ac_pkg_cython.m4])
 # 0.19.1 is the version currently in wheezy-backports
 AC_PROG_CYTHON(0.19.0)
 if test "$CYTHON" = "false"; then
@@ -141,14 +139,27 @@ AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(EGREP, egrep)
 AC_PATH_PROG(ARCHCMD, arch)
 
-# we'll be using it for compile tests
 AC_PROG_CC([gcc])
+AC_SUBST([CROSS_COMPILING],[$cross_compiling])
+dnl Put a plausible default for CC_FOR_BUILD in Makefile.inc.in
+if test "$cross_compiling" = yes; then
+    AC_PATH_PROGS(CC_FOR_BUILD, gcc cc)
+else
+    AC_SUBST(CC_FOR_BUILD,$CC)
+fi
+
 AC_PROG_CPP()
+AC_CHECK_TOOL(OBJCOPY, objcopy)
+AC_CHECK_TOOL(LD, ld)
 
 # tools for correct cross-building; this sets $host (the target
 # system) to e.g. x86_64-unknown-linux-gnu
-AC_CONFIG_AUX_DIR([autoconf])
-AC_CANONICAL_HOST
+AC_CANONICAL_HOST  # $host, host_cpu, host_vendor, and host_os
+AC_CANONICAL_BUILD  # $build, build_cpu, build_vendor, and build_os
+
+# locate pkg-config, including cross-compiler variations
+AC_CHECK_TOOL(PKG_CONFIG, pkg-config)
+AC_CONFIG_MACRO_DIR(/usr/share/aclocal)
 
 
 ##############################################################################
@@ -851,19 +862,6 @@ PKG_CHECK_MODULES([CZMQ], [libczmq > 2.0],
         AC_DEFINE(HAVE_CZMQ, [], [zeroMQ czmq library available])
 	USE_CZMQ=yes
     ],)
-
-dnl verify the czmq and zmq libs were built with libsodium support
-AC_MSG_CHECKING(for curve/libsodium support in czmq and zmq libraries)
-AC_TRY_RUN([
-#include "czmq.h"
-int main()
-{
-	exit(zsys_has_curve());
-}
-]
-,  [AC_MSG_ERROR([czmq/zmq library lacks CURVE authentication - zmq installation without libsodium?])]
-, [ AC_MSG_RESULT([curve/libsodium support present]) ]
-)
 
 PKG_CHECK_MODULES([PROTOBUF], [protobuf > 2.4.0],
     [
@@ -1610,28 +1608,9 @@ else
 fi
 
 # test usability of libudev, needed by userland drivers
-LIBUDEV_CFLAGS=
-LIBUDEV_LIBS=
 with_libudev=no
 if test "$with_drivers" = "yes" -a $with_usermode_pci != no; then
-   AC_MSG_CHECKING(for libudev)
-   if pkg-config libudev >/dev/null 2>&1; then
-      LIBUDEV_VER=`pkg-config libudev --version`
-      AC_MSG_RESULT(found version $LIBUDEV_VER)
-      LIBUDEV_CFLAGS="`pkg-config libudev --cflags`"
-      LIBUDEV_LIBS="`pkg-config libudev --libs`"
-      LIBS_hold=$LIBS
-      LIBS=$LIBUDEV_LIBS
-      AC_CHECK_LIB(udev, udev_new, [],
-          [AC_MSG_ERROR(libudev unusable)])
-      LIBS=$LIBS_hold
-      with_libudev=yes
-   elif test -x /usr/bin/lsb_release && test "$(lsb_release -cs)" = hardy; then
-       # hardy has no libudev; disable usermode PCI & tell user why
-       AC_MSG_RESULT([not available on Ubuntu Hardy])
-   else
-       AC_MSG_RESULT(not found)
-   fi
+   PKG_CHECK_MODULES(LIBUDEV, libudev, with_libudev=yes, with_libudev=no)
 fi
 
 AC_MSG_CHECKING(whether to build usermode PCI hardware drivers)
@@ -1949,29 +1928,11 @@ AC_ARG_WITH(
 AS_IF(
     [test $WITH_LIBMODBUS = yes -o $WITH_LIBMODBUS = check ],
     [
-        AC_MSG_CHECKING([for libmodbus3])
-        if pkg-config libmodbus --atleast-version 3 >/dev/null 2>&1; then
-            LIBMODBUS_VER=`pkg-config libmodbus --modversion`
-            AC_MSG_RESULT(yes - version [$LIBMODBUS_VER])
-            LIBMODBUS_CFLAGS=`pkg-config libmodbus --cflags`
-            AC_SUBST([LIBMODBUS_CFLAGS])
-            LIBMODBUS_LIBS=`pkg-config libmodbus --libs`
-            AC_SUBST([LIBMODBUS_LIBS])
-            AC_DEFINE(
-                [HAVE_LIBMODBUS3],
-                [yes],
-                [define if the libmodbus3 headers and library are available]
-            )
-            AC_SUBST(HAVE_LIBMODBUS3, yes)
-        else
-	    if test $WITH_LIBMODBUS = yes; then
-	        # if --with-libmodbus specified and we got here, error
-		AC_MSG_RESULT(no)
-	        AC_MSG_ERROR([libmodbus3 requested but not found])
-	    else
-	        AC_MSG_RESULT([not found; disabling])
-	    fi
-        fi
+	PKG_CHECK_MODULES(
+	    LIBMODBUS,
+	    libmodbus >= 3,
+	    [ AC_SUBST(HAVE_LIBMODBUS3, yes) ],
+	    [ AC_MSG_ERROR([libmodbus3 requested but not found]) ])
     ]
 )
 
@@ -1992,25 +1953,11 @@ AC_ARG_WITH(
 AS_IF(
     [test "x$WITH_LIBUSB10" = "xyes"],
     [
-        AC_MSG_CHECKING([for libusb-1.0])
-        if pkg-config libusb-1.0 >/dev/null 2>&1; then
-            AC_MSG_RESULT(yes)
-            LIBUSB10_CFLAGS=`pkg-config libusb-1.0 --cflags`
-            AC_SUBST([LIBUSB10_CFLAGS])
-            LIBUSB10_LIBS=`pkg-config libusb-1.0 --libs`
-            AC_SUBST([LIBUSB10_LIBS])
-            AC_DEFINE(
-                [HAVE_LIBUSB10],
-                [yes],
-                [define if the libusb-1.0 headers and library are available]
-            )
-            AC_SUBST(HAVE_LIBUSB10, yes)
-        else
-          AC_MSG_RESULT(no)
-          AC_MSG_ERROR([libusb-1.0 not found!
-install with "sudo apt-get install libusb-1.0-0-dev" or disable with
-"configure --without-libusb-1.0"])
-        fi
+	PKG_CHECK_MODULES(
+	    LIBUSB10,
+	    libusb-1.0,
+	    [ AC_SUBST(HAVE_LIBUSB10, yes) ],
+	    [ AC_MSG_ERROR([not found]) ])
     ]
 )
 
@@ -2104,7 +2051,6 @@ AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory for ulapi sha
 AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
-AC_DEFINE_UNQUOTED([PRELOAD_WORKAROUND], "$PRELOAD_WORKAROUND", [library pathname to LD_PRELOAD])
 AC_DEFINE_UNQUOTED([GIT_VERSION], "$GIT_VERSION", [Git version tag])
 AC_DEFINE_UNQUOTED([GIT_CONFIG_SHA], "$GIT_CONFIG_SHA", [SHA valid when configure was run])
 AC_DEFINE_UNQUOTED([CONFIG_DATE], "$CONFIG_DATE", [date when configure was run])
@@ -2126,7 +2072,6 @@ AC_SUBST([EMC2_LATENCY_SCRIPT])
 AC_SUBST([EMC2_LATENCYPLOT_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
-AC_SUBST([PRELOAD_WORKAROUND])
 
 CONFIG_DATE=$(date)
 AC_SUBST([CONFIG_DATE])
@@ -2137,16 +2082,7 @@ AC_SUBST([CONFIG_DATE])
 # FIXME: allow it to be enabled or disabled command line                     #
 ##############################################################################
 
-AC_MSG_CHECKING([for glib])
-if pkg-config glib-2.0 >/dev/null 2>&1; then
-  GLIB_VER=`pkg-config glib-2.0 --modversion`
-  AC_MSG_RESULT(yes - $GLIB_VER)
-  GLIB_CFLAGS=`pkg-config glib-2.0 --cflags`
-  GLIB_LIBS=`pkg-config glib-2.0 --libs`
-else
-  AC_MSG_ERROR(no -- required until somebody makes glib optional)
-fi
-
+PKG_CHECK_MODULES(GLIB, glib-2.0)
 
 AC_ARG_ENABLE(gtk,
     [  --disable-gtk        Disable the parts of LinuxCNC that depend on GTK],
@@ -2161,26 +2097,14 @@ AC_ARG_ENABLE(gtk,
     [BUILD_GTK=yes])
 
 if test "$BUILD_GTK" = "yes"; then
-  AC_MSG_CHECKING([for GTK 2.4.0 or above])
-  if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
-    GTK_VER=`pkg-config gtk+-2.0 --modversion`
-    AC_MSG_RESULT(yes - $GTK_VER)
-    GTK_CFLAGS=`pkg-config gtk+-2.0 --cflags`
-    GTK_LIBS=`pkg-config gtk+-2.0 --libs`
-    AC_MSG_CHECKING(for libgnomeprintui-2.2)
-    if pkg-config --exists libgnomeprintui-2.2; then
-      AC_MSG_RESULT(yes)
-      GTK_CFLAGS="$GTK_CFLAGS `pkg-config --cflags libgnomeprintui-2.2`"
-      GTK_LIBS="$GTK_LIBS `pkg-config --libs libgnomeprintui-2.2`"
-      HAVE_GNOMEPRINT=yes
-    else
-      AC_MSG_RESULT(no -- printing from classicladder will not be possible)
-      HAVE_GNOMEPRINT=
-    fi
-  else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([GTK2 missing.  Install it or specify --disable-gtk to skip the parts of LinuxCNC that depend on GTK])
-  fi
+    PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0, :,
+        [ AC_MSG_ERROR([no gtk+-2.0 found; use --disable-gtk])])
+    PKG_CHECK_MODULES(GNOMEPRINT, libgnomeprintui-2.2,
+        [
+	    GTK_CFLAGS="$GTK_CFLAGS $GNOMEPRINT_CFLAGS"
+	    GTK_LIBS="$GTK_LIBS $GNOMEPRINT_LIBS"
+	    HAVE_GNOMEPRINT=yes
+	], :)
 fi
 
 AC_SUBST(HAVE_GNOMEPRINT)
@@ -2200,7 +2124,6 @@ AC_SUBST(GLIB_CFLAGS)
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 AC_PROG_CXX
 
-m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
 # make this optional - it will likely only result in warnings
 AX_CXX_COMPILE_STDCXX_11(noext,optional)
 
@@ -2658,97 +2581,21 @@ EOFOUTER
 # so testing is done by finding tclConfig.sh and tkConfig.sh                 #
 # if the search fails the traditional check is done                          #
 ##############################################################################
-AC_MSG_CHECKING([for tcl])
+export DEB_HOST_MULTIARCH=${host_cpu}-${host_os}
+SC_PATH_TCLCONFIG
+SC_LOAD_TCLCONFIG
+TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
+TCL_LIBS="$TCL_STUB_LIB_SPEC"
 
-AC_ARG_WITH(tclConfig,
-    [  --with-tclConfig=<path>                 Specify the path to tclConfig],
-    [
-        TCLCONFIG=$withval
-    ],[
-        TCLCONFIG=
-    ])
+SC_PATH_TKCONFIG
+SC_LOAD_TKCONFIG
+TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
+TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 
-# if not specified, search for tclConfig.sh
-if (test "x$TCLCONFIG" = "x"); then
-    TCLCONFIG=$(find /usr/lib* -maxdepth 2 -name tclConfig.sh 2>/dev/null \
-	| head -n1)
-    if (test "x$TCLCONFIG" = "x"); then
-	TCLCONFIG=$(find /usr/local/lib* -maxdepth 2 -name tclConfig.sh \
-	    2>/dev/null | head -n1)
-    fi
-fi
-
-if (test "x$TCLCONFIG" = "x"); then
-   AC_MSG_RESULT([tclConfig.sh not found, trying tcl.h and libs.
-		  If it doesn't work try running ./configure --with-tclConfig=<path to tclConfig.sh>])
-   AC_CHECK_HEADERS([tcl.h])
-   AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.1 tcl8.2 tcl8.3 tcl8.4 tcl8.5 tcl8.6],[],[AC_MSG_ERROR([tcl lib not found])])
-else
-# tclConfig.sh found,
-# extracting vars
-   AC_MSG_RESULT([$TCLCONFIG found])
-   . "$TCLCONFIG"
-   TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
-   TCL_LIBS="$TCL_STUB_LIB_SPEC"
-fi
-
-AC_MSG_CHECKING([for tk])
-
-AC_ARG_WITH(tkConfig,
-    [  --with-tkConfig=<path>                  Specify the path to tkConfig],
-    [
-        TKCONFIG=$withval
-    ],[
-        TKCONFIG=
-    ])
-
-# if not specified, search for tclConfig.sh
-if test -z "$TKCONFIG" -a -n "$TCLCONFIG"; then
-    TKCONFIG=$(dirname $TCLCONFIG)/tkConfig.sh
-    if ! test -f $TKCONFIG; then unset TKCONFIG; fi
-fi
-if (test "x$TKCONFIG" = "x"); then
-    # search for tkConfig.sh
-    TKCONFIG=$(find /usr/lib /usr/lib64 /usr/local/lib \
-        -maxdepth 2 -name tkConfig.sh 2>/dev/null \
-	| head -n1)
-fi
-
-if (test "x$TKCONFIG" = "x"); then
-   AC_MSG_RESULT([tkConfig.sh not found, trying tk.h and libs.
-		  If it doesn't work try running ./configure --with-tkConfig=<path to tkConfig.sh>])
-   AC_CHECK_HEADERS([tk.h])
-   AC_SEARCH_LIBS(Tk_Init,[tk tk80 tk8.0 tk8.1 tk8.2 tk8.3 tk8.4 tk8.5 tk8.6],[],[AC_MSG_ERROR([tk lib not found])])
-else
-# tkConfig.sh found,
-# extracting vars
-   AC_MSG_RESULT([$TKCONFIG found])
-   . "$TKCONFIG"
-   TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
-   TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
-fi
-
-if ! test -z "$TCL_VERSION" && ! test -z "$TK_VERSION" && ! test "$TCL_VERSION" = "$TK_VERSION" ; then
-    AC_MSG_ERROR([Tcl and Tk versions must be the same, but configure found
-Tcl $TCL_VERSION and Tk $TK_VERSION.  You can use --with-tkConfig= and --with-tclConfig=
-to override the autodetected versions.])
-fi
-
-if test -f $TCL_EXEC_PREFIX/bin/wish$TCL_VERSION; then
-    WISH=$TCL_EXEC_PREFIX/bin/wish$TCL_VERSION
-elif test -f $TCL_EXEC_PREFIX/bin/wish; then
-    WISH=$TCL_EXEC_PREFIX/bin/wish
-else
-    WISH=wish
-fi
-
-if test -f $TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION; then
-    TCLSH=$TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION
-elif test -f $TCL_EXEC_PREFIX/bin/tclsh; then
-    TCLSH=$TCL_EXEC_PREFIX/bin/tclsh
-else
-    TCLSH=tclsh
-fi
+AC_PATH_PROGS(WISH,[wish${TCL_VERSION} wish], [wish],
+     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
+AC_PATH_PROGS(TCLSH,[tclsh${TCL_VERSION} tclsh], [tclsh],
+     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
 
 AC_MSG_CHECKING([for BWidget using $TCLSH])
 if (unset DISPLAY; echo ["catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]"] | $TCLSH); then
@@ -3095,20 +2942,6 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
     AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 fi
 
-AC_MSG_CHECKING(libgl1-mesa-dri workaround)
-
-PRELOAD_WORKAROUND=`../scripts/test-libgl-bug.sh 2>/dev/null`
-if test  $? -ne 0 ; then
-   # real bad, the test failed - let me know
-   AC_MSG_RESULT([test for libgl1-mesa-dri workaround failed, please file a bug])
-   exit 1
-fi
-if test "x$PRELOAD_WORKAROUND" != "x" ; then
-   AC_MSG_RESULT(required - need to preload $PRELOAD_WORKAROUND)
-else
-   AC_MSG_RESULT(not required)
-fi
-
 AC_SUBST([BUILD_PYTHON])
 AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
@@ -3116,13 +2949,9 @@ AC_SUBST([SITEPY])
 
 if test "$BUILD_EMCWEB" = yes; then
    # these are needed for the emcweb interface only
-   m4_include([m4/ax_boost_base.m4])
    AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
-   m4_include([m4/ax_boost_serialization.m4])
    AX_BOOST_SERIALIZATION()
-   m4_include([m4/ax_boost_thread.m4])
    AX_BOOST_THREAD()
-   m4_include([m4/ax_boost_system.m4])
    AX_BOOST_SYSTEM()
 fi
 

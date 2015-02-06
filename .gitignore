@@ -64,3 +64,5 @@ scripts/machinekit.ini.tmpl
 src/objects/*
 debian/linuxcnc-*.files
 src/hal/cython/machinekit/*.c
+# mk-build-deps artifact
+/machinekit-build-deps_*.deb
