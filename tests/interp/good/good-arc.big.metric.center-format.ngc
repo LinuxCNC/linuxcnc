@@ -1,0 +1,11 @@
+;Radius to end of arc differs from radius to start: start=(X0.0000,Y0.0000) center=(X10000.6363,Y0.0000) end=(X20000.0000,Y0.0000) r1=10000.6363 r2=9999.3637 abs_err=1.273 rel_err=0.0127%
+;
+; The tolerance for center-format-arc radius error is the difference
+; between the radius at the starting point and the radius at the ending
+; point.  It's currently specified as 0.0005 inches.
+
+g21
+f1
+g0x0y0z0
+g2 x20000 i[10000 + [[0.0499 * 25.4]/2]]
+m2

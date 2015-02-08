@@ -1,0 +1,21 @@
+#!/usr/bin/python
+import glob, os, sys, filecmp
+
+fail = 0
+for t in sorted(glob.glob('*.ngc')):
+    print >>sys.stderr, "#", t
+    p = os.popen("rs274 -g %s 2>&1 > %s.out " % (t, t))
+    output = p.readlines()
+    r = p.close()
+    if r != None:
+        print "%s: Interpreter reported an error with the gcode" % t
+        print output
+	fail += 1
+	continue
+    if not filecmp.cmp(t + ".out", t + ".expected"):
+        print "%s: Interpreter output is unexpected" % t
+        fail += 1
+        continue
+
+if fail:
+    raise SystemExit, "%d failures" % fail
