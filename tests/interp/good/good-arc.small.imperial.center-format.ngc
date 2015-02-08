@@ -6,13 +6,18 @@
 ;
 ; An arc fails the radius tolerance test if either of these conditions is
 ; true:
-;     * The absolute error is greater than 0.05 inches, or
-;     * The absolute error is greater than 0.0005 inches and the relative
-;       error is greater than 0.001 (0.1%).
+;     * The absolute error is greater than 2 * 0.001 * sqrt(2) inches, or
+;     * The relative error is greater than 0.75 (75%)
 ;
 
 g20
 f1
 g0x0y0z0
-g2 x.02 i[.01 + [0.000499/2]]
+
+; r_start = 0.00315 inch
+; r_end   = 0.00085 inch
+; abs_err = 0.00230 inch (less than the 0.002828 inch limit)
+; rel_err = 0.00230 / 0.00315 = 0.73016 (below the 75% limit)
+g2 x0.0040 y0 i0.00315
+
 m2
