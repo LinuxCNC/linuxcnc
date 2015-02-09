@@ -601,7 +601,8 @@ static void process_inputs(void)
 				emcmotCommand->acc,
 				emcmotStatus->enables_new, // FIMXE: unsure
 				0,     // FIXME: dont wait for atspeed (?)
-				-1)) { // FIXME: dont know how to handle rotary indexer
+				-1,
+                emcmotCommand->tag)) { // FIXME: dont know how to handle rotary indexer
 		reportError(_("can't add coordinated return move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		abort_and_switchback();
@@ -641,7 +642,8 @@ static void process_inputs(void)
 				emcmotCommand->acc,
 				emcmotStatus->enables_new,  // ???
 				0, // dont wait for atspeed  ???
-				-1)) { // no indexrotary action ???
+				-1,
+                emcmotCommand->tag)) { // no indexrotary action ???
 		reportError(_("can't add linear coordinated jog move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		abort_and_switchback();
@@ -2178,6 +2180,7 @@ static void update_status(void)
     if (emcmotQueue == emcmotPrimQueue) {
 	emcmotStatus->depth = tpQueueDepth(emcmotQueue);
 	emcmotStatus->id = tpGetExecId(emcmotQueue);
+    emcmotStatus->tag = tpGetExecTag(&emcmotDebug->tp);
     } else {
 	// pretend we're doing something so task keeps
 	// waiting for motion

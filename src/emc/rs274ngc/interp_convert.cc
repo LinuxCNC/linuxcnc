@@ -21,6 +21,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
@@ -455,6 +456,11 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 
   settings->motion_mode = move;
 
+  // Should be done with changes to settings here, so we can pack the state
+  // Create a state tag and dump it to canon
+  StateTag tag;
+  write_state_tag(block, settings, tag);
+  update_tag(tag);
 
   if (settings->plane == CANON_PLANE_XY) {
     if ((!settings->cutter_comp_side) ||
@@ -2409,6 +2415,11 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   if (CC_end != settings->CC_current && settings->c_indexer)
       issue_straight_index(5, CC_end, block->line_number, settings);
 
+  // Create a state tag and dump it to canon
+  StateTag tag;
+  write_state_tag(block, settings, tag);
+  update_tag(tag);
+
   STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
                     u_end, v_end, w_end);
@@ -2635,7 +2646,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
  * given two double arrays representing interpreter settings as stored in
  * _setup.active_settings, construct a G-code sequence to synchronize their state.
  */
-int Interp::gen_settings(double *current, double *saved, char *cmd)
+int Interp::gen_settings(double *current, double *saved, std::string &cmd)
 {
     int i;
     char buf[LINELEN];
@@ -2645,11 +2656,11 @@ int Interp::gen_settings(double *current, double *saved, char *cmd)
 	    case 0: break; // sequence_number - no point in restoring
 	    case 1:
 		snprintf(buf,sizeof(buf)," F%.1f", saved[i]);
-		strncat(cmd,buf,sizeof(buf));
+                cmd += buf;
 		break;
 	    case 2:
 		snprintf(buf,sizeof(buf)," S%.0f", saved[i]);
-		strncat(cmd,buf,sizeof(buf));
+                cmd += buf;
 		break;
 	    }
 	}
@@ -2662,7 +2673,7 @@ int Interp::gen_settings(double *current, double *saved, char *cmd)
  * given two int arrays representing interpreter settings as stored in
  * _setup.active_g_codes, construct a G-code sequence to synchronize their state.
  */
-int Interp::gen_g_codes(int *current, int *saved, char *cmd)
+int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
 {
     int i, val;
     char buf[LINELEN];
@@ -2705,7 +2716,7 @@ int Interp::gen_g_codes(int *current, int *saved, char *cmd)
 		    } else {
 			snprintf(buf,sizeof(buf)," G%d", val / 10);
 		    }
-		    strncat(cmd,buf,sizeof(buf));
+                    cmd += buf;
 		} else {
 		    // so complain rather loudly
 		    MSG("------ gen_g_codes BUG: index %d = -1!!\n",i);
@@ -2724,7 +2735,7 @@ int Interp::gen_g_codes(int *current, int *saved, char *cmd)
  * use multiple lines here because M7 and M8 may not be on the same line since
  * they are in the same modal group.
  */
-int Interp::gen_m_codes(int *current, int *saved, char *cmd)
+int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
 {
     int i,val;
     char buf[LINELEN];
@@ -2751,7 +2762,7 @@ int Interp::gen_m_codes(int *current, int *saved, char *cmd)
 	    case 8: // feed hold
 		if (val != -1) {  // unsure..
 		    snprintf(buf,sizeof(buf),"M%d\n", val);
-		    strncat(cmd,buf,sizeof(buf));
+		    cmd += buf;
 		} else {
 		    MSG("------ gen_m_codes: index %d = -1!!\n",i);
 		}
@@ -2762,6 +2773,42 @@ int Interp::gen_m_codes(int *current, int *saved, char *cmd)
     return INTERP_OK;
 }
 
+
+int Interp::gen_restore_cmd(int *current_g,
+         int *current_m,
+         double *current_settings,
+         StateTag const &saved,
+         std::string &cmd)
+{
+    // A local copy of the saved settings, unpacked from a state tag
+    int saved_g[ACTIVE_G_CODES];
+    int saved_m[ACTIVE_M_CODES];
+    double saved_settings[ACTIVE_SETTINGS];
+
+    //Extract saved state to local vectors
+    int res_unpack = active_modes(saved_g, saved_m, saved_settings, saved);
+    if (res_unpack != INTERP_OK) {
+        return INTERP_ERROR;
+    }
+
+    //Mimic the order of restoration commands used elsewhere
+    if (current_g[5] != saved_g[5]) {
+        char buf[LINELEN];
+        snprintf(buf,sizeof(buf), "G%d",saved_g[5]/10);
+        CHKS(execute(buf) != INTERP_OK, _("gen_restore G20/G21 failed: '%s'"), cmd.c_str());
+    }
+
+    int res_settings = gen_settings(current_settings, saved_settings, cmd);
+    int res_m = gen_m_codes(current_m, saved_m, cmd);
+    int res_g = gen_g_codes(current_g, saved_g, cmd);
+
+    if (res_settings || res_m || res_g) {
+        return INTERP_ERROR;
+    }
+    return INTERP_OK;
+}
+
+
 int Interp::save_settings(setup_pointer settings)
 {
       // the state is sprinkled all over _setup
@@ -2769,6 +2816,7 @@ int Interp::save_settings(setup_pointer settings)
       write_g_codes((block_pointer) NULL, settings);
       write_m_codes((block_pointer) NULL, settings);
       write_settings(settings);
+      write_state_tag((block_pointer) NULL, settings, settings->state_tag);
 
       // save in the current call frame
       active_g_codes((int *)settings->sub_context[settings->call_level].saved_g_codes);
@@ -2804,8 +2852,7 @@ int Interp::restore_settings(setup_pointer settings,
     write_m_codes((block_pointer) NULL, settings);
     write_settings(settings);
 
-    char cmd[LINELEN];
-    memset(cmd, 0, LINELEN);
+    std::string cmd;
 
     // construct gcode from the state difference and execute
     // this assures appropriate canon commands are generated if needed -
@@ -2815,18 +2862,20 @@ int Interp::restore_settings(setup_pointer settings,
     // so restoring feed lateron is interpreted in the correct context
 
     if (settings->active_g_codes[5] != settings->sub_context[from_level].saved_g_codes[5]) {
-	snprintf(cmd,sizeof(cmd), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
-	CHKS(execute(cmd) != INTERP_OK, _("M7x: restore_settings G20/G21 failed: '%s'"), cmd);
-	memset(cmd, 0, LINELEN);
+        char buf[LINELEN];
+	snprintf(buf,sizeof(buf), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
+	CHKS(execute(buf) != INTERP_OK, _("M7x: restore_settings G20/G21 failed: '%s'"), cmd.c_str());
     }
     gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
     gen_m_codes((int *) settings->active_m_codes, (int *)settings->sub_context[from_level].saved_m_codes,cmd);
     gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
 
-    if (strlen(cmd) > 0) {
+    if (!cmd.empty()) {
 	// the sequence can be multiline, separated by nl
 	// so split and execute each line
-	char *last = cmd;
+        char buf[cmd.size() + 1];
+        strncpy(buf, cmd.c_str(), sizeof(buf));
+	char *last = buf;
 	char *s;
 	while ((s = strtok_r(last, "\n", &last)) != NULL) {
 	    int status = execute(s);
@@ -2844,6 +2893,65 @@ int Interp::restore_settings(setup_pointer settings,
     // TBD: any state deemed important to restore should be restored here
     // NB: some state changes might generate canon commands so do that here
     // if needed
+
+    return INTERP_OK;
+}
+
+
+/**
+ * Variation of restore_settings to pull state from a StateTag.
+ */
+int Interp::restore_from_tag(StateTag const &tag)
+{
+
+    if (tag.fields[GM_FIELD_LINE_NUMBER] < 1) {
+        //Invalid line implies a bad tag, don't restore
+        //TODO More robust way to determine valid tags
+        return INTERP_ERROR;
+    }
+
+    // linearize state
+    write_g_codes((block_pointer) NULL, &_setup);
+    write_m_codes((block_pointer) NULL, &_setup);
+    write_settings(&_setup);
+
+    std::string cmd;
+
+    // construct gcode from the state difference and execute
+    // this assures appropriate canon commands are generated if needed -
+    // just restoring interp variables is not enough
+
+    // G20/G21 switching is special - it is executed beforehand
+    // so restoring feed lateron is interpreted in the correct context
+
+    int res_unpack = gen_restore_cmd((int *) _setup.active_g_codes,
+            (int *) _setup.active_m_codes,
+            (double *) _setup.active_settings,
+            tag,
+            cmd);
+    if (res_unpack != INTERP_OK) {
+        return res_unpack;
+    }
+
+    if (!cmd.empty()) {
+        // the sequence can be multiline, separated by nl
+        // so split and execute each line
+        char buf[cmd.size() + 1];
+        strncpy(buf, cmd.c_str(), sizeof(buf));
+        char *last = buf;
+        char *s;
+        while ((s = strtok_r(last, "\n", &last)) != NULL) {
+            int status = execute(s);
+            if (status != INTERP_OK) {
+                char currentError[LINELEN+1];
+                strcpy(currentError,getSavedError());
+                CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
+            }
+        }
+        write_g_codes((block_pointer) NULL, &_setup);
+        write_m_codes((block_pointer) NULL, &_setup);
+        write_settings(&_setup);
+    }
 
     return INTERP_OK;
 }
@@ -2944,6 +3052,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	 ((!block->p_flag) && (!block->e_flag)) ,
 	NCE_INVALID_OR_MISSING_P_AND_E_WORDS_FOR_WAIT_INPUT);
 
+    StateTag tag;
+    write_state_tag(block, settings, tag);
+    update_tag(tag);
     if (block->p_flag) { // got a digital input
 	if (round_to_int(block->p_number) < 0) // safety check for negative words
 	    ERS(_("invalid P-word with M66"));
@@ -3380,10 +3491,17 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   } else if (IS_USER_GCODE(motion)) {
       CHP(convert_remapped_code(block, settings, STEP_MOTION, 'g', motion));
   } else if (is_a_cycle(motion)) {
+
     CHP(convert_cycle(motion, block, settings));
   } else if ((motion == G_5) || (motion == G_5_1)) {
+    StateTag tag;
+    write_state_tag(block, settings, tag);
+    update_tag(tag);
     CHP(convert_spline(motion, block, settings));
   } else if (motion == G_5_2) {
+    StateTag tag;
+    write_state_tag(block, settings, tag);
+    update_tag(tag);
     CHP(convert_nurbs(motion, block, settings));
   } else {
     ERS(NCE_BUG_UNKNOWN_MOTION_CODE);
@@ -4328,6 +4446,11 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                                  block, settings);
   }
 
+  // Create a state tag and dump it to canon
+  StateTag tag;
+  write_state_tag(block, settings, tag);
+  update_tag(tag);
+
   if ((settings->cutter_comp_side) &&    /* ! "== true" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
 
@@ -5249,3 +5372,8 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
 }
 
 
+int Interp::update_tag(StateTag &tag)
+{
+  UPDATE_TAG(tag);
+  return INTERP_OK;
+}
