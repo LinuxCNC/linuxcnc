@@ -75,16 +75,14 @@ Tighter tolerance down to a minimum of 1 micron +- also accepted.
 #define MIN_CENTER_ARC_RADIUS_TOLERANCE_INCH 0.00004
 
 // Note: started from original tolerance and divided by 10 here (since that was originally done inside the interpreter)
-#define RADIUS_ARC_RADIUS_TOLERANCE_INCH (CENTER_ARC_RADIUS_TOLERANCE_INCH / 10.0)
-#define MIN_RADIUS_ARC_RADIUS_TOLERANCE_INCH (MIN_CENTER_ARC_RADIUS_TOLERANCE_INCH / 10.0)
+#define RADIUS_TOLERANCE_INCH 0.00005
 
 /* Equivalent metric constants */
 
 #define CENTER_ARC_RADIUS_TOLERANCE_MM (2 * 0.01 * M_SQRT2)
 #define MIN_CENTER_ARC_RADIUS_TOLERANCE_MM 0.001
 
-#define RADIUS_ARC_RADIUS_TOLERANCE_MM (RADIUS_ARC_RADIUS_TOLERANCE_INCH * MM_PER_INCH)
-#define MIN_RADIUS_ARC_RADIUS_TOLERANCE_MM (MIN_RADIUS_ARC_RADIUS_TOLERANCE_INCH * MM_PER_INCH)
+#define RADIUS_TOLERANCE_MM (RADIUS_TOLERANCE_INCH * MM_PER_INCH)
 
 // Modest relative error
 #define SPIRAL_RELATIVE_TOLERANCE 0.75
@@ -691,8 +689,6 @@ typedef struct setup_struct
   CANON_UNITS length_units;     // millimeters or inches
   double center_arc_radius_tolerance_inch; // modify with ini setting
   double center_arc_radius_tolerance_mm;   // modify with ini setting
-  double radius_arc_radius_tolerance_inch; // modify with ini setting
-  double radius_arc_radius_tolerance_mm;   // modify with ini setting
   int line_length;              // length of line last read
   char linetext[LINELEN];       // text of most recent line read
   bool mist;                  // whether mist coolant is on

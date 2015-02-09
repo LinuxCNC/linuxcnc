@@ -568,7 +568,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
 
   // Radius tolerance allows a bit of leeway on the minimum radius for a radius defined arc.
   double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
-    settings->radius_arc_radius_tolerance_inch : settings->radius_arc_radius_tolerance_mm;
+    RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
 
   if (block->r_flag) {
       CHP(arc_data_r(move, plane, *current1, *current2, end1, end2,
@@ -649,7 +649,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
 
     double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? settings->center_arc_radius_tolerance_inch : settings->center_arc_radius_tolerance_mm;
-    double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? settings->radius_arc_radius_tolerance_inch : settings->radius_arc_radius_tolerance_mm;
+    double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
 
     comp_get_current(settings, &cx, &cy, &cz);
 
@@ -805,7 +805,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double new_end_x, new_end_y;
 
     double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? settings->center_arc_radius_tolerance_inch : settings->center_arc_radius_tolerance_mm;
-    double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? settings->radius_arc_radius_tolerance_inch : settings->radius_arc_radius_tolerance_mm;
+    double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
 
     /* find basic arc data: center_x, center_y, and turn */
 

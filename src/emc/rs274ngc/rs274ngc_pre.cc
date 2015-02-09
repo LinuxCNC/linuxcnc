@@ -823,8 +823,6 @@ int Interp::init()
   // we'll try to override these from the ini file below
   _setup.center_arc_radius_tolerance_inch = CENTER_ARC_RADIUS_TOLERANCE_INCH;
   _setup.center_arc_radius_tolerance_mm = CENTER_ARC_RADIUS_TOLERANCE_MM;
-  _setup.radius_arc_radius_tolerance_inch = RADIUS_ARC_RADIUS_TOLERANCE_INCH;
-  _setup.radius_arc_radius_tolerance_mm = RADIUS_ARC_RADIUS_TOLERANCE_MM;
 
   if(iniFileName != NULL) {
 
@@ -998,28 +996,6 @@ int Interp::init()
           );
           if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
               Error("invalid [RS275NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in ini file\n");
-          }
-
-          r = inifile.Find(
-              &_setup.radius_arc_radius_tolerance_inch,
-              MIN_RADIUS_ARC_RADIUS_TOLERANCE_INCH,
-              RADIUS_ARC_RADIUS_TOLERANCE_INCH,
-              "RADIUS_ARC_RADIUS_TOLERANCE_INCH",
-              "RS274NGC"
-          );
-          if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS275NGC]RADIUS_ARC_RADIUS_TOLERANCE_INCH in ini file\n");
-          }
-
-          r = inifile.Find(
-              &_setup.radius_arc_radius_tolerance_mm,
-              MIN_RADIUS_ARC_RADIUS_TOLERANCE_MM,
-              RADIUS_ARC_RADIUS_TOLERANCE_MM,
-              "RADIUS_ARC_RADIUS_TOLERANCE_MM",
-              "RS274NGC"
-          );
-          if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS275NGC]RADIUS_ARC_RADIUS_TOLERANCE_MM in ini file\n");
           }
 
           // close it
