@@ -2567,15 +2567,21 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_OK;
     }
 
+    if (!tp) {
+        return TP_ERR_MISSING_INPUT;
+    }
+
     /* Based on the INI setting for "cutoff frequency", this calculation finds
      * short segments that can have their acceleration be simple ramps, instead
      * of a trapezoidal motion. This leads to fewer jerk spikes, at a slight
      * performance cost.
      * */
-    double cutoff_time = 1.0 / (emcmotConfig->arcBlendRampFreq);
+    double cutoff_time = 1.0 / (fmax(emcmotConfig->arcBlendRampFreq, TP_TIME_EPSILON));
 
     double length = tc->target - tc->progress;
-    double segment_time = 2.0 * length / (tc->currentvel + tc->finalvel);
+    // Given what velocities we can actually reach, estimate the total time for the segment under ramp conditions
+    double segment_time = 2.0 * length / (tc->currentvel + fmin(tc->finalvel,tpGetRealTargetVel(tp,tc)));
+
 
     if (segment_time < cutoff_time &&
             tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE &&
