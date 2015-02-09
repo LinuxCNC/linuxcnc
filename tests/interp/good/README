@@ -1,0 +1,8 @@
+This directory consists of snippets of gcode that should be accepted.
+All files that match the glob '*.ngc' are tested.
+
+An individual file is considered to be a failure if it is rejected by
+the interpreter.
+
+If any file is a failure, then the test as a whole fails and will count
+as 1 failure in the testsuite.

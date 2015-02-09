@@ -329,7 +329,7 @@ function split_app_items () {
 }
 
 function run_applications () {
-    DEFAULT_APPLICATION_DELAY=5
+    DEFAULT_APPLICATION_DELAY=0
     GetFromIni DELAY APPLICATIONS
     DELAY=${retval:-$DEFAULT_APPLICATION_DELAY}
 
@@ -734,9 +734,6 @@ if [ -n "$HALUI" ] ; then
     $HALCMD loadusr -Wn halui $HALUI -ini "$INIFILE"
 fi
 
-# 4.3.5.1. run other applications
-run_applications
-
 TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
 if [ -n "$TWOPASS" ] ; then
   # if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
@@ -839,6 +836,9 @@ if [ -n "$PRELOAD_WORKAROUND" ] ; then
 fi
 
 $EMCTASK -ini "$INIFILE" &
+
+# 4.3.9.1. run other applications
+run_applications
 
 # 4.3.10. Run display in foreground
 echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE

@@ -57,7 +57,8 @@ WAYPOINT_THRESHOLD =
 
 ----
 [APPLICATIONS]
-DELAY = 5
+# Note: a delay may be required if there are [HAL]POSTGUI_HALFILE dependencies
+DELAY = 0
 APP = moveoff_gui option1 option2 ...
 ----
 
