@@ -280,7 +280,7 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp,
     }
     if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
         //Limit acceleration for cirular arcs to allow for normal acceleration
-        a_scale *= BLEND_ACC_RATIO_TANGENTIAL;
+        a_scale *= tc->acc_ratio_tan;
     }
     return a_scale;
 }
@@ -1831,7 +1831,8 @@ int tpAddCircle(TP_STRUCT * const tp,
     double sample_maxvel = tc.target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES);
     tc.maxvel = fmin(tc.maxvel, sample_maxvel);
 
-    double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc, false);
+    double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, &tc.acc_ratio_tan, ini_maxvel, acc, false);
+    tp_debug_print("tc.acc_ratio_tan = %f\n",tc.acc_ratio_tan);
 
     // Copy in motion parameters
     tcSetupMotion(&tc,
