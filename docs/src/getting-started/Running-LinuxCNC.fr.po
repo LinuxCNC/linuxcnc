@@ -1,0 +1,259 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-08 18:14+0100\n"
+"PO-Revision-Date: 2015-02-09 12:53+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.3\n"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:4
+msgid "= Running LinuxCNC"
+msgstr "﻿= Lancer LinuxCNC"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:6
+msgid "[[cha:running-emc]] (((Running LinuxCNC)))"
+msgstr "[[cha:lancer_linuxcnc]] (((Lancer LinuxCNC)))"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:8
+msgid "== Invoking LinuxCNC"
+msgstr "== Invoquer LinuxCNC"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:12
+msgid ""
+"After installation, LinuxCNC starts just like any other Linux program: run "
+"it from the terminal by issuing the command 'linuxcnc', or select it in the "
+"Applications - CNC menu."
+msgstr ""
+"Après son installation, LinuxCNC se lance comme un autre programme Linux, "
+"depuis un terminal, en passant la commande 'linuxcnc' ou en le sélectionnant "
+"dans le menu Applications → CNC."
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:14
+msgid "== Configuration Selector"
+msgstr "== Sélecteur de configuration"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:23
+msgid ""
+"By default, the Configuration Selector dialog is shown when you first run "
+"LinuxCNC.  Your own personalized configurations are shown at the top of the "
+"list, followed by sample configurations.  Because each sample configuration "
+"is for a different type of hardware interface, almost all will not run "
+"without the hardware installed.  The configurations listed under the "
+"category 'sim' run entirely without attached hardware."
+msgstr ""
+"Par défaut, le sélecteur de configurations s'ouvrira quand LinuxCNC sera "
+"lancé pour la première fois. Les configurations personnalisées, propres à "
+"l'opérateur, s'affichent dans le haut de la liste, suivies par les "
+"différents exemples de configurations fournis en standard.  Étant donné que "
+"chaque exemple de configuration utilise un type différent d' interface "
+"matérielle, la plupart ne fonctionneront pas le système utilisé.  Les "
+"configurations listées dans la catégorie 'sim' fonctionneront toutes, même "
+"sans matériel raccordé, ce sont des simulations de machines."
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:25
+msgid ".LinuxCNC Configuration Selector[[cap:LinuxCNC-Configuration-Selector]]"
+msgstr ""
+".Sélecteur de configuration pour LinuxCNC[[cap:Selecteur-de-configuration]]"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:27
+msgid "image::images/configuration-selector.png[]"
+msgstr "image::images/configuration-selector1_fr.png[]"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:36
+msgid ""
+"Click any of the listed configurations to display specific information about "
+"it.  Double-click a configuration or click OK to start the configuration.  "
+"Select 'Create Desktop Shortcut' and then click OK to add an icon on the "
+"Ubuntu desktop to directly launch this configuration without showing the "
+"Configuration Selector screen."
+msgstr ""
+"Cliquer dans la liste, sur les différentes configurations pour afficher les "
+"informations les concernant. Double-cliquer sur une configuration ou cliquer "
+"'OK' pour démarrer LinuxCNC avec cette configuration. Cocher la case 'Créer "
+"un raccourci sur le bureau' puis cliquer 'OK' pour ajouter une icône sur le "
+"bureau.  Cette icône permettra par la suite de lancer directement LinuxCNC "
+"avec cette configuration, sans repasser par le sélecteur de configuration."
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:40
+msgid ""
+"When you select a configuration from the Sample Configurations section, it "
+"will automaticly place a copy of that config in the linuxcnc/configs "
+"directory."
+msgstr ""
+"Quand un exemple de configuration est choisi dans le sélecteur, une copie de "
+"cette configuration est faite automatiquement dans le répertoire linuxcnc/"
+"configs."
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:42
+msgid "== Next steps in configuration"
+msgstr "== Les étapes suivantes de la configuration"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:48
+msgid ""
+"After finding the sample configuration that uses the same interface hardware "
+"as your machine (or a simulator configuration), and saving a copy to your "
+"home directory, you can customize it according to the details of your "
+"machine.  Refer to the Integrator Manual for topics on configuration."
+msgstr ""
+"Après avoir trouvé l'exemple de configuration qui utilise le même matériel "
+"que la machine, (ou une configuration en simulation) et en avoir enregistré "
+"une copie dans son répertoire personnel, l'opérateur pourras la "
+"personnaliser en fonction des besoins spécifiques de sa machine.  Se référer "
+"au Manuel de l'intégrateur pour tous les détails sur la configuration."
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:50
+msgid "== Simulator Configurations"
+msgstr "== Simulateur de configurations"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:54
+msgid ""
+"All configurations listed under Sample Configurations/sim are intended to "
+"run on any computer.  No specific hardware is required and real-time support "
+"is not needed."
+msgstr ""
+"Toutes les configurations listées sous Exemples Configurations/sim sont "
+"utilisables sur n'importe quel ordinateur.  Aucun matériel spécifique n'est "
+"requis et le support temps réel n'est pas nécessaire."
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:62
+msgid ""
+"These configurations are useful for studying indivdual capabilities or "
+"options.  The sim configurations are organized according to the graphical "
+"user interface used in the demonstration.  The directory for axis contains "
+"the most choices and subdirectories because it is the most tested GUI.  The "
+"capabilities demonstrated with any specific GUI may be available in other "
+"GUIs as well."
+msgstr ""
+"Ces configurations sont très utiles pour étudier les possibilités et les "
+"options particulières de chaque exemple.  Les configurations en simulateur "
+"sont organisées pour fonctionner avec l'interface utilisateur graphique "
+"utilisée dans la démonstration.  Le répertoire pour axis contient le plus de "
+"choix et de sous-répertoires parce que axis est l'interface graphique la "
+"plus testée.  Les possibilités démontrées sur une interface graphique "
+"spécifique, peuvent aussi être disponibles sur d'autres interfaces "
+"graphiques."
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:64
+msgid "== Configuration Resources"
+msgstr "== Ressources pour configuration"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:70
+msgid ""
+"The Configuration Selector copies all files needed for a configuration to a "
+"new subdirectory of ~/linuxcnc/configs (equivalently: /home/username/"
+"linuxcnc/configs).  Each created directory will include at least one ini "
+"file (iniflename.ini)  that is used to describe a specific configuration."
+msgstr ""
+"Le sélecteur de configuration copie tous les fichiers nécessaires à la "
+"configuration dans un nouveau sous-répertoire ~/linuxcnc/configs (équivalent "
+"à: /home/utilisateur/linuxcnc/configs).  Chaque répertoire créé inclue au "
+"moins un fichier ini (filename.ini) qui est utilisé pour décrire une "
+"configuration spécifique."
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:79
+msgid ""
+"File resources within the copied directroy will typically include one or "
+"more ini file (filename.ini) for related configurations and a tool table "
+"file (toolfilename.tbl).  Additionally, resources may include halfiles "
+"(filename.hal, filename.tcl), a README file for describing the directory, "
+"and configuration specific information in a text file named after a specific "
+"configuration (inifilename.txt).  That latter two files are displayed when "
+"using the Configuration Selector."
+msgstr ""
+"Les fichiers de ressources contenus dans le répertoire copié incluront "
+"généralement un ou plusieurs fichiers ini (filename.ini) relatifs à la "
+"configuration et un fichier de table d'outils (toolfilename.tbl).  "
+"Additionnellement, les ressources peuvent inclure des fichier hal (filename."
+"hal, filename.tcl), un fichier README décrivant le répertoire, et un fichier "
+"texte d'information sur les spécificités de la configuration (inifilename."
+"txt). Ces deux derniers s'affichent lors de l'utilisation du sélecteur de "
+"configuration."
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:88
+msgid ""
+"The supplied sample configurations may specifiy HALFILEs in the "
+"configuration ini file that are not present in the copied directory because "
+"they are found in the system Halfile library.  These files can be copied to "
+"the user configuration directory and altered as required by the user for "
+"modification or test.  Since the user configuration directory is searched "
+"first when finding Halfiles, local modifications will then prevail."
+msgstr ""
+"Les exemples de configurations fournis, peuvent spécifier des fichiers en "
+"arguments de HALFILEs dans le fichier ini mais, que ces fichiers ne soient "
+"pas présents dans le répertoire copié parce qu'ils se trouvent dans la "
+"librairie Halfile du système. Ces fichiers peuvent être copiés dans le "
+"répertoire de configuration de l'utilisateur si celui-ci souhaite les "
+"modifier ou les tester.  Puisque le répertoire de configuration de "
+"l'utilisateur est recherché en priorité lors de la recherche des Halfiles, "
+"les modifications locales prévaudront."
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:94
+msgid ""
+"The Configuration selector makes a symbolic link in the user configuration "
+"directory (named hallib) that points to the system Halfile library.  This "
+"link simplifies copying a library file.  For example, to copy the library "
+"core_sim.hal file in order to make local modifications:"
+msgstr ""
+"Le sélecteur de configuration crée un lien symbolique dans le répertoire de "
+"configuration (nommé hallib), il pointe sur la librairie Halfile du "
+"système.  Ce lien simplifie la copie du fichier de librairie.  Par exemple, "
+"pour copier la librairie core_sim.hal et être en mesure de la modifier en "
+"local:"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:95
+#, no-wrap
+msgid "====\n"
+msgstr "====\n"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:98
+#, no-wrap
+msgid ""
+"  cd ~/linuxcnc/configs/name_of_configuration\n"
+"  cp hallib/core_sim.hal core_sim.hal\n"
+"====\n"
+msgstr ""
+"  cd ~/linuxcnc/configs/nom_de_configuration\n"
+"  cp hallib/core_sim.hal core_sim.hal\n"
+"====\n"
+
+#. type: Plain text
+#: Running-LinuxCNC.txt:101
+msgid "// vim: set syntax=asciidoc:"
+msgstr "// vim: set syntax=asciidoc:"

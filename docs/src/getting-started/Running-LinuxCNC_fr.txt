@@ -1,67 +1,101 @@
+:lang: fr
+
 ﻿= Lancer LinuxCNC
 
-LinuxCNC se lance comme un autre programme Linux:
-depuis un terminal en passant la commande _linuxcnc_, 
-ou depuis le menu _Applications_ → _CNC_.
+[[cha:lancer_linuxcnc]] (((Lancer LinuxCNC)))
+
+== Invoquer LinuxCNC
+
+Après son installation, LinuxCNC se lance comme un autre programme Linux,
+depuis un terminal, en passant la commande 'linuxcnc' ou en le sélectionnant
+dans le menu Applications → CNC.
 
 == Sélecteur de configuration
 
-Le _Sélecteur de configuration_ s'affichera à chaque fois que vous lancerez 
-LinuxCNC depuis le menu _Applications_ → _CNC_ → _LinuxCNC_. Vos propres 
-configurations personnalisées s'affichent dans le haut de la liste, suivies par 
-les différentes configurations fournies en standard.
-Étant donné que chaque exemple de configuration utilise un type différent d'
-interface matérielle, la plupart ne fonctionneront pas sur votre système. Les 
-configurations listées dans la catégorie _Sim_ fonctionneront toutes, même sans 
-matériel raccordé, ce sont des simulations de machines.
+Par défaut, le sélecteur de configurations s'ouvrira quand LinuxCNC sera
+lancé pour la première fois. Les configurations personnalisées, propres à
+l'opérateur, s'affichent dans le haut de la liste, suivies par les
+différents exemples de configurations fournis en standard.  Étant donné que
+chaque exemple de configuration utilise un type différent d' interface
+matérielle, la plupart ne fonctionneront pas le système utilisé.  Les
+configurations listées dans la catégorie 'sim' fonctionneront toutes, même
+sans matériel raccordé, ce sont des simulations de machines.
 
 .Sélecteur de configuration pour LinuxCNC[[cap:Selecteur-de-configuration]]
 
 image::images/configuration-selector1_fr.png[]
 
-Cliquez dans la liste, sur les différentes configurations pour afficher les 
-informations les concernant. Double-cliquez sur une configuration ou cliquez _OK_ 
-pour démarrer LinuxCNC avec cette configuration. Cochez la case _Créer un 
-raccourci sur le bureau_ puis cliquez OK pour ajouter une icône sur le bureau 
-d'Ubuntu. Cette icône vous permettra par la suite de lancer directement 
-LinuxCNC avec cette configuration, sans passer par le sélecteur de configuration.
+Cliquer dans la liste, sur les différentes configurations pour afficher les
+informations les concernant. Double-cliquer sur une configuration ou cliquer
+'OK' pour démarrer LinuxCNC avec cette configuration. Cocher la case 'Créer
+un raccourci sur le bureau' puis cliquer 'OK' pour ajouter une icône sur le
+bureau.  Cette icône permettra par la suite de lancer directement LinuxCNC
+avec cette configuration, sans repasser par le sélecteur de configuration.
 
-Quand vous choisissez un exemple de configuration dans le sélecteur, un dialogue 
-vous demandera si vous voulez en faire une copie dans votre répertoire home. 
-Si vous répondez _oui_, un dossier _linuxcnc_ autorisé en écriture sera créé, il 
-contiendra un jeu de fichiers que vous pourrez éditer pour les adapter à vos 
-besoins. Si vous répondez _non_, LinuxCNC démarrera mais pourra se comporter de 
-façon étrange, par exemple, les décalages d'origine pièce entrés avec la commande 
-_Toucher_ ne seront pas pris en compte, ce comportement est lié à ce moment, à 
-l'absence de répertoire autorisé en écriture sans lequel les paramètres ne 
-peuvent être enregistrés.
-
-.Dialogue de copie de la configuration
-
-image::images/copy-configuration_fr.png[]
-
-== L'interface utilisateur graphique Axis
-
-L'interface AXIS est une des interfaces parmi lesquelles vous avez à
-choisir. Elle peut être configurée pour lui ajouter un panneau de
-commandes virtuel personnalisé en fonction des besoins. AXIS est
-l'interface utilisateur par défaut et est activement développée.
-C'est aussi la plus populaire.
-
-.Interface Axis[[cap:Interface-Axis]]
-
-image::../common/images/axis_25_fr.png[]
+Quand un exemple de configuration est choisi dans le sélecteur, une copie de
+cette configuration est faite automatiquement dans le répertoire
+linuxcnc/configs.
 
 == Les étapes suivantes de la configuration
 
-Après avoir trouvé l'exemple de configuration qui utilise
-le même matériel que votre machine, et en avoir enregistré une copie dans votre 
-répertoire personnel, vous pouvez la personnaliser en fonction des besoins 
-spécifiques à votre machine. Consultez le _Manuel de l'intégrateur_ pour tous 
-les détails de configuration.
+Après avoir trouvé l'exemple de configuration qui utilise le même matériel
+que la machine, (ou une configuration en simulation) et en avoir enregistré
+une copie dans son répertoire personnel, l'opérateur pourras la
+personnaliser en fonction des besoins spécifiques de sa machine.  Se référer
+au Manuel de l'intégrateur pour tous les détails sur la configuration.
 
-Si vous souhaitez créer une configuration personnalisée, vous pouvez utiliser 
-pour cela, un des assistants graphiques de configuration, _StepConf_ ou _PncConf_ 
-selon votre type de machine.
+== Simulateur de configurations
+
+Toutes les configurations listées sous Exemples Configurations/sim sont
+utilisables sur n'importe quel ordinateur.  Aucun matériel spécifique n'est
+requis et le support temps réel n'est pas nécessaire.
+
+Ces configurations sont très utiles pour étudier les possibilités et les
+options particulières de chaque exemple.  Les configurations en simulateur
+sont organisées pour fonctionner avec l'interface utilisateur graphique
+utilisée dans la démonstration.  Le répertoire pour axis contient le plus de
+choix et de sous-répertoires parce que axis est l'interface graphique la
+plus testée.  Les possibilités démontrées sur une interface graphique
+spécifique, peuvent aussi être disponibles sur d'autres interfaces
+graphiques.
+
+== Ressources pour configuration
+
+Le sélecteur de configuration copie tous les fichiers nécessaires à la
+configuration dans un nouveau sous-répertoire ~/linuxcnc/configs (équivalent
+à: /home/utilisateur/linuxcnc/configs).  Chaque répertoire créé inclue au
+moins un fichier ini (filename.ini) qui est utilisé pour décrire une
+configuration spécifique.
+
+Les fichiers de ressources contenus dans le répertoire copié incluront
+généralement un ou plusieurs fichiers ini (filename.ini) relatifs à la
+configuration et un fichier de table d'outils (toolfilename.tbl).
+Additionnellement, les ressources peuvent inclure des fichier hal
+(filename.hal, filename.tcl), un fichier README décrivant le répertoire, et
+un fichier texte d'information sur les spécificités de la configuration
+(inifilename.txt). Ces deux derniers s'affichent lors de l'utilisation du
+sélecteur de configuration.
+
+Les exemples de configurations fournis, peuvent spécifier des fichiers en
+arguments de HALFILEs dans le fichier ini mais, que ces fichiers ne soient
+pas présents dans le répertoire copié parce qu'ils se trouvent dans la
+librairie Halfile du système. Ces fichiers peuvent être copiés dans le
+répertoire de configuration de l'utilisateur si celui-ci souhaite les
+modifier ou les tester.  Puisque le répertoire de configuration de
+l'utilisateur est recherché en priorité lors de la recherche des Halfiles,
+les modifications locales prévaudront.
+
+Le sélecteur de configuration crée un lien symbolique dans le répertoire de
+configuration (nommé hallib), il pointe sur la librairie Halfile du
+système.  Ce lien simplifie la copie du fichier de librairie.  Par exemple,
+pour copier la librairie core_sim.hal et être en mesure de la modifier en
+local:
+
+====
+  cd ~/linuxcnc/configs/nom_de_configuration
+  cp hallib/core_sim.hal core_sim.hal
+====
 
 // vim: set syntax=asciidoc:
+
+

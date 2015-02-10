@@ -1,3 +1,5 @@
+:lang: en
+
 = Stepper Configuration Wizard
 
 [[cha:stepconf-wizard]] (((Stepconf Wizard)))

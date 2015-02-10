@@ -1,3 +1,5 @@
+:lang: en
+
 = Stepper Quickstart
 
 [[cha:stepper-quickstart]] (((Stepper Quickstart)))
@@ -17,6 +19,7 @@ first thing you need to do. Follow the instructions
 <<latency-test,here>> to run the latency test.
 
 [[sec:Sherline]]
+
 == Sherline
 (((Sherline)))
 
@@ -25,6 +28,7 @@ This is on the main menu CNC/EMC then pick the Sherline configuration
 that matches yours and save a copy.
 
 [[sec:Xylotex]]
+
 == Xylotex
 (((Xylotex)))
 
@@ -112,62 +116,74 @@ If you're setting up in millimeters then it is millimeters per turn.
 The net result you're looking for is how many CNC-output-steps it takes 
 to move one user unit (inches or mm).
 
+
 .Units inches
 ============================================
-............................................
+....
 Stepper         = 200 steps per revolution
 Drive           =  10 micro steps per step
 Motor Teeth     =  20
 Leadscrew Teeth =  40
 Leadscrew Pitch =   0.2000 inches per turn
-............................................
+....
 ============================================
 
-From the above information, the leadscrew moves 0.200 inches per turn. 
- - The motor turns 2.000 times per 1 leadscrew turn. 
- - The drive takes 10 microstep inputs to make the stepper step once. 
- - The drive needs 2000 steps to turn the stepper one revolution. 
-So the scale needed is: 
+
+From the above information (inch):
+
+ . the leadscrew moves 0.200 inches per turn.
+ . The motor turns 2.000 times per 1 leadscrew turn.
+ . The drive takes 10 microstep inputs to make the stepper step once.
+ . The drive needs 2000 steps to turn the stepper one revolution.
+
+So the scale needed is (inch):
 
 image::images/step-calc-inch-math.png[align="center"]
 
-////////////////////////////////////////////
+
+////
 latexmath:[ 
 \frac{200 motor steps}{1 motor rev} \times 
 \frac{10 microsteps}{1 motor step} \times
 \frac{2 motor revs}{1 leadscrew rev} \times 
 \frac{1 leadscrew revs}{0.2000 inch} 
 = \frac{20,000 microsteps}{inch} ]
-///////////////////////////////////////////
+////
+
 
 .Units mm
 ============================================
-............................................
-    Stepper         = 200 steps per revolution
-    Drive           =   8 micro steps per step
-    Motor Teeth     =  30 
-    Leadscrew Teeth =  90
-    Leadscrew Pitch =   5.00 mm per turn
-............................................
+....
+Stepper         = 200 steps per revolution
+Drive           =   8 micro steps per step
+Motor Teeth     =  30 
+Leadscrew Teeth =  90
+Leadscrew Pitch =   5.00 mm per turn
+....
 ============================================
 
-From the above information: 
- - The leadscrew moves 5.00 mm per turn. 
- - The motor turns 3.000 times per 1 leadscrew turn. 
- - The drive takes 8 microstep inputs to make the stepper step once. 
- - The drive needs 1600 steps to turn the stepper one revolution. 
-So the scale needed is: 
+
+From the above information (mm):
+
+ . The leadscrew moves 5.00 mm per turn.
+ . The motor turns 3.000 times per 1 leadscrew turn.
+ . The drive takes 8 microstep inputs to make the stepper step once.
+ . The drive needs 1600 steps to turn the stepper one revolution.
+
+So the scale needed is (mm):
 
 image::images/step-calc-mm-math.png[align="center"]
 
-//////////////////////////////////////////////
+
+////
 latexmath:[ 
 \frac{200 motor steps}{1 motor rev} \times 
 \frac{8 microsteps}{1 motor step} \times
 \frac{3 motor revs}{1 leadscrew rev} \times 
 \frac{1 leadscrew revs}{5.000 mm} 
 = \frac{960 microsteps}{mm} ]
-/////////////////////////////////////////////
+////
+
 
 // vim: set syntax=asciidoc:
 

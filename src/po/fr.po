@@ -5,15 +5,14 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-07-14 19:24+0200\n"
-"PO-Revision-Date: 2014-07-14 20:06+0100\n"
+"PO-Revision-Date: 2015-02-06 19:42+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French translation team <tissf@free.fr>\n"
-"Language: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: fr\n"
-"X-Poedit-Country: France\n"
+"X-Generator: Poedit 1.7.3\n"
 
 #: src/hal/utils/meter.c:198
 #, c-format
@@ -30,8 +29,7 @@ msgstr "ERREUR: aucun nom de pin/signal/paramètre\n"
 msgid "ERROR: -s option requires a probe type and a pin/signal/parameter name\n"
 msgstr "ERREUR: l'option -s requiert un type de sonde et un nom de pin/signal/paramètre\n"
 
-#: src/hal/utils/meter.c:238
-#: tcl/tklinuxcnc.tcl:764
+#: src/hal/utils/meter.c:238 tcl/tklinuxcnc.tcl:764
 msgid "Hal Meter"
 msgstr "HalMeter"
 
@@ -43,8 +41,7 @@ msgstr "_Sélectionner"
 msgid "E_xit"
 msgstr "Quitter"
 
-#: src/hal/utils/meter.c:336
-#: src/hal/utils/meter.c:364
+#: src/hal/utils/meter.c:336 src/hal/utils/meter.c:364
 msgid "Select Item to Probe"
 msgstr "Choisir l'item à mesurer"
 
@@ -72,8 +69,7 @@ msgstr ""
 "Usage:\n"
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
 
-#: src/hal/utils/scope.c:474
-#: src/hal/utils/scope.c:501
+#: src/hal/utils/scope.c:474 src/hal/utils/scope.c:501
 msgid "Open Configuration File:"
 msgstr "Ouvrir un fichier de configuration:"
 
@@ -93,8 +89,7 @@ msgstr "Ouvrir un fichier de données..."
 msgid "S_ave Data File..."
 msgstr "Enregistrer d_ans un fichier de données"
 
-#: src/hal/utils/scope.c:566
-#: share/axis/tcl/axis.tcl:93
+#: src/hal/utils/scope.c:566 share/axis/tcl/axis.tcl:93
 msgid "_Quit"
 msgstr "_Quitter"
 
@@ -102,13 +97,11 @@ msgstr "_Quitter"
 msgid "_About Halscope"
 msgstr "_A propos de Halscope"
 
-#: src/hal/utils/scope.c:578
-#: share/axis/tcl/axis.tcl:435
+#: src/hal/utils/scope.c:578 share/axis/tcl/axis.tcl:435
 msgid "_File"
 msgstr "_Fichier"
 
-#: src/hal/utils/scope.c:582
-#: share/axis/tcl/axis.tcl:447
+#: src/hal/utils/scope.c:582 share/axis/tcl/axis.tcl:447
 msgid "_Help"
 msgstr "Aide"
 
@@ -136,8 +129,7 @@ msgstr "Trigger"
 msgid "Vertical"
 msgstr "Vertical"
 
-#: src/hal/utils/scope.c:700
-#: share/axis/tcl/axis.tcl:135
+#: src/hal/utils/scope.c:700 share/axis/tcl/axis.tcl:135
 #: share/axis/tcl/axis.tcl:1199
 msgid "Stop"
 msgstr "Stopper"
@@ -250,8 +242,7 @@ msgstr "Période d'échantillonnage:"
 msgid "Sample Rate:"
 msgstr "Taux d'échantillonnage:"
 
-#: src/hal/utils/scope_horiz.c:558
-#: src/emc/usr_intf/touchy/mdi.py:79
+#: src/hal/utils/scope_horiz.c:558 src/emc/usr_intf/touchy/mdi.py:79
 msgid "Thread"
 msgstr "Thread"
 
@@ -292,48 +283,29 @@ msgstr "%5d échantillons (8 canaux)"
 msgid "%5d samples (16 channels)"
 msgstr "%5d échantillons (16 canaux)"
 
-#: src/hal/utils/scope_horiz.c:708
-#: src/hal/utils/scope_horiz.c:754
-#: src/hal/utils/scope_horiz.c:966
-#: src/hal/utils/scope_vert.c:761
-#: src/hal/utils/scope_vert.c:853
-#: tcl/bin/emccalib.tcl:226
-#: tcl/bin/genedit.tcl:180
-#: tcl/bin/genedit.tcl:450
-#: tcl/bin/halconfig.tcl:682
-#: tcl/bin/halconfig.tcl:733
-#: tcl/bin/pickconfig.tcl:257
-#: tcl/bin/pickconfig.tcl:494
-#: tcl/bin/pickconfig.tcl:521
-#: tcl/mini.tcl:1456
-#: tcl/mini.tcl:2937
-#: tcl/tklinuxcnc.tcl:160
-#: tcl/tklinuxcnc.tcl:245
-#: tcl/tklinuxcnc.tcl:419
-#: tcl/tklinuxcnc.tcl:1338
-#: tcl/tklinuxcnc.tcl:1407
-#: tcl/tklinuxcnc.tcl:1438
-#: tcl/tklinuxcnc.tcl:1469
-#: tcl/tklinuxcnc.tcl:2017
-#: tcl/tklinuxcnc.tcl:2036
-#: tcl/tklinuxcnc.tcl:2055
-#: tcl/tklinuxcnc.tcl:2102
+#: src/hal/utils/scope_horiz.c:708 src/hal/utils/scope_horiz.c:754
+#: src/hal/utils/scope_horiz.c:966 src/hal/utils/scope_vert.c:761
+#: src/hal/utils/scope_vert.c:853 tcl/bin/emccalib.tcl:226
+#: tcl/bin/genedit.tcl:180 tcl/bin/genedit.tcl:450 tcl/bin/halconfig.tcl:682
+#: tcl/bin/halconfig.tcl:733 tcl/bin/pickconfig.tcl:257
+#: tcl/bin/pickconfig.tcl:494 tcl/bin/pickconfig.tcl:521 tcl/mini.tcl:1456
+#: tcl/mini.tcl:2937 tcl/tklinuxcnc.tcl:160 tcl/tklinuxcnc.tcl:245
+#: tcl/tklinuxcnc.tcl:419 tcl/tklinuxcnc.tcl:1338 tcl/tklinuxcnc.tcl:1407
+#: tcl/tklinuxcnc.tcl:1438 tcl/tklinuxcnc.tcl:1469 tcl/tklinuxcnc.tcl:2017
+#: tcl/tklinuxcnc.tcl:2036 tcl/tklinuxcnc.tcl:2055 tcl/tklinuxcnc.tcl:2102
 #: src/emc/usr_intf/axis/scripts/axis.py:1073
 #: src/emc/usr_intf/axis/scripts/axis.py:1133
 #: src/emc/usr_intf/axis/scripts/axis.py:1449
 #: src/emc/usr_intf/axis/scripts/axis.py:2468
 #: src/emc/usr_intf/axis/scripts/axis.py:3324
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:718
-#: lib/python/propertywindow.py:34
-#: share/axis/tcl/axis.tcl:1720
+#: lib/python/propertywindow.py:34 share/axis/tcl/axis.tcl:1720
 #: share/axis/tcl/axis.tcl:1757
 msgid "OK"
 msgstr "OK"
 
-#: src/hal/utils/scope_horiz.c:713
-#: src/hal/utils/scope_horiz.c:754
-#: tcl/bin/emccalib.tcl:91
-#: tcl/bin/halconfig.tcl:103
+#: src/hal/utils/scope_horiz.c:713 src/hal/utils/scope_horiz.c:754
+#: tcl/bin/emccalib.tcl:91 tcl/bin/halconfig.tcl:103
 #: src/emc/usr_intf/tooledit.tcl:468
 msgid "Quit"
 msgstr "Quitter"
@@ -439,8 +411,7 @@ msgstr "kHz"
 msgid "Mhz"
 msgstr "MHz"
 
-#: src/hal/utils/scope_vert.c:403
-#: src/hal/utils/scope_vert.c:1258
+#: src/hal/utils/scope_vert.c:403 src/hal/utils/scope_vert.c:1258
 #, c-format
 msgid ""
 "Offset\n"
@@ -453,13 +424,11 @@ msgstr ""
 msgid "Gain"
 msgstr "Gain"
 
-#: src/hal/utils/scope_vert.c:630
-#: src/hal/utils/scope_trig.c:252
+#: src/hal/utils/scope_vert.c:630 src/hal/utils/scope_trig.c:252
 msgid "Pos"
 msgstr "Pos"
 
-#: src/hal/utils/scope_vert.c:644
-#: tcl/ngcgui_ttt.tcl:214
+#: src/hal/utils/scope_vert.c:644 tcl/ngcgui_ttt.tcl:214
 #: src/emc/usr_intf/pncconf/pncconf.glade:64273
 msgid "Scale"
 msgstr "Échelle"
@@ -485,27 +454,14 @@ msgstr ""
 msgid "AC Coupled"
 msgstr "AC Couplé"
 
-#: src/hal/utils/scope_vert.c:769
-#: src/hal/utils/scope_vert.c:1171
-#: src/hal/utils/scope_trig.c:367
-#: tcl/bin/emccalib.tcl:228
-#: tcl/bin/genedit.tcl:294
-#: tcl/bin/halconfig.tcl:103
-#: tcl/bin/halconfig.tcl:684
-#: tcl/bin/halconfig.tcl:735
-#: tcl/bin/pickconfig.tcl:260
-#: tcl/bin/pickconfig.tcl:369
-#: tcl/mini.tcl:1457
-#: tcl/mini.tcl:2938
-#: tcl/mini.tcl:3110
-#: tcl/tklinuxcnc.tcl:162
-#: tcl/tklinuxcnc.tcl:213
-#: tcl/tklinuxcnc.tcl:420
-#: tcl/tklinuxcnc.tcl:1339
-#: tcl/tklinuxcnc.tcl:1408
-#: tcl/tklinuxcnc.tcl:1439
-#: tcl/tklinuxcnc.tcl:1470
-#: tcl/tklinuxcnc.tcl:2103
+#: src/hal/utils/scope_vert.c:769 src/hal/utils/scope_vert.c:1171
+#: src/hal/utils/scope_trig.c:367 tcl/bin/emccalib.tcl:228
+#: tcl/bin/genedit.tcl:294 tcl/bin/halconfig.tcl:103 tcl/bin/halconfig.tcl:684
+#: tcl/bin/halconfig.tcl:735 tcl/bin/pickconfig.tcl:260
+#: tcl/bin/pickconfig.tcl:369 tcl/mini.tcl:1457 tcl/mini.tcl:2938
+#: tcl/mini.tcl:3110 tcl/tklinuxcnc.tcl:162 tcl/tklinuxcnc.tcl:213
+#: tcl/tklinuxcnc.tcl:420 tcl/tklinuxcnc.tcl:1339 tcl/tklinuxcnc.tcl:1408
+#: tcl/tklinuxcnc.tcl:1439 tcl/tklinuxcnc.tcl:1470 tcl/tklinuxcnc.tcl:2103
 #: src/emc/usr_intf/axis/scripts/axis.py:1395
 #: src/emc/usr_intf/axis/scripts/axis.py:1450
 #: src/emc/usr_intf/axis/scripts/axis.py:1637
@@ -559,14 +515,12 @@ msgstr "Paramètres"
 msgid "Falling"
 msgstr "Descendant"
 
-#: src/hal/utils/scope_trig.c:112
-#: src/hal/utils/scope_trig.c:275
+#: src/hal/utils/scope_trig.c:112 src/hal/utils/scope_trig.c:275
 #, c-format
 msgid "Rising"
 msgstr "Montant"
 
-#: src/hal/utils/scope_trig.c:119
-#: src/hal/utils/scope_trig.c:283
+#: src/hal/utils/scope_trig.c:119 src/hal/utils/scope_trig.c:283
 msgid ""
 "Source\n"
 "None"
@@ -583,8 +537,7 @@ msgstr ""
 "Source\n"
 "Canal %2d"
 
-#: src/hal/utils/scope_trig.c:199
-#: tcl/tklinuxcnc.tcl:827
+#: src/hal/utils/scope_trig.c:199 tcl/tklinuxcnc.tcl:827
 #: src/emc/usr_intf/touchy/touchy.glade:2469
 msgid "Auto"
 msgstr "Auto"
@@ -593,8 +546,7 @@ msgstr "Auto"
 msgid "Force"
 msgstr "Forcer"
 
-#: src/hal/utils/scope_trig.c:235
-#: src/hal/utils/scope_trig.c:269
+#: src/hal/utils/scope_trig.c:235 src/hal/utils/scope_trig.c:269
 msgid "Level"
 msgstr "Niveau"
 
@@ -749,20 +701,17 @@ msgstr "La prise d'origine de toutes les jointures doit être faite avant d'alle
 msgid "all joints must be homed before going into teleop mode"
 msgstr "La prise d'origine de toutes les jointures doit être faite avant d'aller en mode teleop"
 
-#: src/emc/motion/command.c:675
-#: src/emc/motion/command.c:741
+#: src/emc/motion/command.c:675 src/emc/motion/command.c:741
 #: src/emc/motion/command.c:814
 msgid "Can't jog joint in coordinated mode."
 msgstr "Jog d'articulation impossible en mode coordonné."
 
-#: src/emc/motion/command.c:680
-#: src/emc/motion/command.c:746
+#: src/emc/motion/command.c:680 src/emc/motion/command.c:746
 #: src/emc/motion/command.c:819
 msgid "Can't jog joint when not enabled."
 msgstr "Jog d'articulation impossible quand elle n'est pas activée."
 
-#: src/emc/motion/command.c:685
-#: src/emc/motion/command.c:824
+#: src/emc/motion/command.c:685 src/emc/motion/command.c:824
 msgid "Can't jog any joints while homing."
 msgstr "Jog d'articulations impossible avant la prise d'origine."
 
@@ -806,8 +755,7 @@ msgstr "ne peut pas activer le mouvement, l'entrée activation est false"
 msgid "must be in joint mode to home"
 msgstr "doit être en mode jointure pour la prise d'origine"
 
-#: src/emc/motion/command.c:1224
-#: src/emc/motion/command.c:1235
+#: src/emc/motion/command.c:1224 src/emc/motion/command.c:1235
 msgid "homing sequence already in progress"
 msgstr "séquence de prise d'origine déjà en cours"
 
@@ -819,14 +767,12 @@ msgstr "prise d'origine déjà en cours"
 msgid "must be in joint mode or disabled to unhome"
 msgstr "doit être en mode jointure ou désactivé pour effacer l'origine"
 
-#: src/emc/motion/command.c:1275
-#: src/emc/motion/command.c:1298
+#: src/emc/motion/command.c:1275 src/emc/motion/command.c:1298
 #, c-format
 msgid "Cannot unhome while homing, joint %d"
 msgstr "impossible d'effacer l'origine pendant la prise d'origine, jointure %d"
 
-#: src/emc/motion/command.c:1279
-#: src/emc/motion/command.c:1302
+#: src/emc/motion/command.c:1279 src/emc/motion/command.c:1302
 #, c-format
 msgid "Cannot unhome while moving, joint %d"
 msgstr "impossible d'effacer l'origine pendant un mouvement, jointure %d"
@@ -947,8 +893,7 @@ msgstr "MOTION: défaut emcmot_hal_data malloc\n"
 msgid "MOTION: joint %d pin/param export failed\n"
 msgstr "MOTION: défaut joint %d pin/param export\n"
 
-#: src/emc/motion/homing.c:80
-#: src/emc/motion/homing.c:748
+#: src/emc/motion/homing.c:80 src/emc/motion/homing.c:748
 #, c-format
 msgid "hit limit in home state %d"
 msgstr "limite atteinte en recherche d'origine %d"
@@ -1000,60 +945,45 @@ msgstr "LinuxCNC Calibration asservissement des axes"
 msgid "Save To File"
 msgstr "Enregistrer dans un fichier"
 
-#: tcl/bin/emccalib.tcl:106
-#: tcl/bin/genedit.tcl:77
-#: tcl/bin/halconfig.tcl:151
-#: tcl/bin/halshow.tcl:86
-#: tcl/mini.tcl:2516
-#: tcl/tklinuxcnc.tcl:719
+#: tcl/bin/emccalib.tcl:106 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
+#: tcl/bin/halshow.tcl:86 tcl/mini.tcl:2516 tcl/tklinuxcnc.tcl:719
 #: tcl/ngcgui.tcl:556
 msgid "File"
 msgstr "Fichier"
 
-#: tcl/bin/emccalib.tcl:108
-#: tcl/bin/emccalib.tcl:230
-#: tcl/bin/halconfig.tcl:153
-#: tcl/mini.tcl:3558
-#: src/emc/usr_intf/touchy/touchy.glade:2420
+#: tcl/bin/emccalib.tcl:108 tcl/bin/emccalib.tcl:230 tcl/bin/halconfig.tcl:153
+#: tcl/mini.tcl:3558 src/emc/usr_intf/touchy/touchy.glade:2420
 msgid "Refresh"
 msgstr "Rafraîchir"
 
-#: tcl/bin/emccalib.tcl:110
-#: tcl/bin/genedit.tcl:82
-#: tcl/bin/halconfig.tcl:155
+#: tcl/bin/emccalib.tcl:110 tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
 #: tcl/mini.tcl:2535
 msgid "Save"
 msgstr "Enregistrer"
 
-#: tcl/bin/emccalib.tcl:159
-#: tcl/bin/halconfig.tcl:623
+#: tcl/bin/emccalib.tcl:159 tcl/bin/halconfig.tcl:623
 #, tcl-format
 msgid "Tune %d"
 msgstr "Calibrer %d"
 
-#: tcl/bin/emccalib.tcl:160
-#: tcl/bin/halconfig.tcl:628
+#: tcl/bin/emccalib.tcl:160 tcl/bin/halconfig.tcl:628
 msgid "INI Name"
 msgstr "Nom d'ini"
 
-#: tcl/bin/emccalib.tcl:161
-#: tcl/bin/halconfig.tcl:629
+#: tcl/bin/emccalib.tcl:161 tcl/bin/halconfig.tcl:629
 msgid "HAL's Value"
 msgstr "Valeurs de HAL"
 
-#: tcl/bin/emccalib.tcl:163
-#: tcl/bin/halconfig.tcl:631
+#: tcl/bin/emccalib.tcl:163 tcl/bin/halconfig.tcl:631
 msgid "Next Value"
 msgstr "Valeur suivante"
 
-#: tcl/bin/emccalib.tcl:224
-#: tcl/bin/halconfig.tcl:680
+#: tcl/bin/emccalib.tcl:224 tcl/bin/halconfig.tcl:680
 #: tcl/bin/halconfig.tcl:731
 msgid "Test"
 msgstr "Tester"
 
-#: tcl/bin/emccalib.tcl:357
-#: tcl/bin/halconfig.tcl:883
+#: tcl/bin/emccalib.tcl:357 tcl/bin/halconfig.tcl:883
 #, tcl-format
 msgid ""
 "The HAL parameter \n"
@@ -1066,8 +996,7 @@ msgstr ""
 " a changé. \n"
 " Quitter vraiment ?"
 
-#: tcl/bin/emccalib.tcl:382
-#: tcl/bin/halconfig.tcl:1170
+#: tcl/bin/emccalib.tcl:382 tcl/bin/halconfig.tcl:1170
 msgid ""
 "Not permitted to save here.\n"
 "\n"
@@ -1077,19 +1006,14 @@ msgstr ""
 "\n"
 "  Copier une configuration dans un répertoire utilisateur et travailler sur cette copie."
 
-#: tcl/bin/emccalib.tcl:456
-#: tcl/bin/genedit.tcl:211
-#: tcl/bin/halconfig.tcl:1242
-#: tcl/bin/pickconfig.tcl:559
-#: tcl/bin/pickconfig.tcl:570
-#: tcl/scripts/Set_Coordinates.tcl:205
-#: tcl/scripts/Set_Coordinates.tcl:228
+#: tcl/bin/emccalib.tcl:456 tcl/bin/genedit.tcl:211 tcl/bin/halconfig.tcl:1242
+#: tcl/bin/pickconfig.tcl:559 tcl/bin/pickconfig.tcl:570
+#: tcl/scripts/Set_Coordinates.tcl:205 tcl/scripts/Set_Coordinates.tcl:228
 #, tcl-format
 msgid "can't save %s"
 msgstr "Impossible d'enregistrer %s"
 
-#: tcl/bin/emcdebug.tcl:166
-#: tcl/bin/emcdebug.tcl:177
+#: tcl/bin/emcdebug.tcl:166 tcl/bin/emcdebug.tcl:177
 msgid "LinuxCNC Debug"
 msgstr "Débogage LinuxCNC"
 
@@ -1125,8 +1049,7 @@ msgstr "NML"
 msgid "Motion time"
 msgstr "Temps de mouvement"
 
-#: tcl/bin/emcdebug.tcl:193
-#: src/emc/usr_intf/axis/scripts/debuglevel.py:42
+#: tcl/bin/emcdebug.tcl:193 src/emc/usr_intf/axis/scripts/debuglevel.py:42
 msgid "Interpreter"
 msgstr "Interpréteur"
 
@@ -1142,71 +1065,51 @@ msgstr "Niveau de trajectoire"
 msgid "Interpreter list"
 msgstr "Liste de l'interpréteur"
 
-#: tcl/bin/genedit.tcl:78
-#: tcl/mini.tcl:2533
+#: tcl/bin/genedit.tcl:78 tcl/mini.tcl:2533
 msgid "New"
 msgstr "Nouveau"
 
-#: tcl/bin/genedit.tcl:80
-#: tcl/mini.tcl:1667
-#: tcl/mini.tcl:2534
-#: tcl/tklinuxcnc.tcl:720
-#: tcl/tklinuxcnc.tcl:1657
+#: tcl/bin/genedit.tcl:80 tcl/mini.tcl:1667 tcl/mini.tcl:2534
+#: tcl/tklinuxcnc.tcl:720 tcl/tklinuxcnc.tcl:1657
 msgid "Open..."
 msgstr "Ouvrir..."
 
-#: tcl/bin/genedit.tcl:84
-#: tcl/mini.tcl:2536
+#: tcl/bin/genedit.tcl:84 tcl/mini.tcl:2536
 msgid "Save As..."
 msgstr "Enregistrer sous..."
 
-#: tcl/bin/genedit.tcl:87
-#: tcl/bin/halconfig.tcl:165
-#: tcl/bin/halshow.tcl:93
-#: tcl/mini.tcl:954
-#: tcl/tklinuxcnc.tcl:734
-#: tcl/ngcgui.tcl:1269
+#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:93
+#: tcl/mini.tcl:954 tcl/tklinuxcnc.tcl:734 tcl/ngcgui.tcl:1269
 #: tcl/ngcgui.tcl:3710
 msgid "Exit"
 msgstr "Quitter"
 
-#: tcl/bin/genedit.tcl:91
-#: tcl/mini.tcl:2517
+#: tcl/bin/genedit.tcl:91 tcl/mini.tcl:2517
 msgid "Edit"
 msgstr "Éditer"
 
-#: tcl/bin/genedit.tcl:92
-#: tcl/mini.tcl:2543
+#: tcl/bin/genedit.tcl:92 tcl/mini.tcl:2543
 msgid "Cut"
 msgstr "Couper"
 
-#: tcl/bin/genedit.tcl:94
-#: tcl/mini.tcl:2544
+#: tcl/bin/genedit.tcl:94 tcl/mini.tcl:2544
 msgid "Copy"
 msgstr "Copier"
 
-#: tcl/bin/genedit.tcl:96
-#: tcl/mini.tcl:2545
+#: tcl/bin/genedit.tcl:96 tcl/mini.tcl:2545
 msgid "Paste"
 msgstr "Coller"
 
-#: tcl/bin/genedit.tcl:99
-#: tcl/mini.tcl:2548
-#: tcl/show_errors.tcl:68
+#: tcl/bin/genedit.tcl:99 tcl/mini.tcl:2548 tcl/show_errors.tcl:68
 msgid "Select All"
 msgstr "Tout sélectionner"
 
-#: tcl/bin/genedit.tcl:104
-#: tcl/bin/halconfig.tcl:192
-#: tcl/mini.tcl:919
-#: tcl/mini.tcl:2519
-#: tcl/tklinuxcnc.tcl:790
+#: tcl/bin/genedit.tcl:104 tcl/bin/halconfig.tcl:192 tcl/mini.tcl:919
+#: tcl/mini.tcl:2519 tcl/tklinuxcnc.tcl:790
 msgid "Help"
 msgstr "Aide"
 
-#: tcl/bin/genedit.tcl:105
-#: tcl/mini.tcl:1011
-#: tcl/mini.tcl:2559
+#: tcl/bin/genedit.tcl:105 tcl/mini.tcl:1011 tcl/mini.tcl:2559
 #: tcl/tklinuxcnc.tcl:796
 msgid "About..."
 msgstr "À propos..."
@@ -1215,35 +1118,28 @@ msgstr "À propos..."
 msgid "Save and Reload"
 msgstr "Enregistrer et recharger"
 
-#: tcl/bin/genedit.tcl:133
-#: tcl/mini.tcl:2550
+#: tcl/bin/genedit.tcl:133 tcl/mini.tcl:2550
 msgid "Find..."
 msgstr "Chercher..."
 
-#: tcl/bin/genedit.tcl:135
-#: tcl/mini.tcl:2552
+#: tcl/bin/genedit.tcl:135 tcl/mini.tcl:2552
 msgid "Renumber File..."
 msgstr "Re-numéroter le fichier..."
 
-#: tcl/bin/genedit.tcl:140
-#: tcl/mini.tcl:917
-#: tcl/mini.tcl:2518
+#: tcl/bin/genedit.tcl:140 tcl/mini.tcl:917 tcl/mini.tcl:2518
 #: tcl/tklinuxcnc.tcl:746
 msgid "Settings"
 msgstr "Réglages"
 
-#: tcl/bin/genedit.tcl:141
-#: tcl/mini.tcl:2554
+#: tcl/bin/genedit.tcl:141 tcl/mini.tcl:2554
 msgid "No Numbering"
 msgstr "Sans numérotation"
 
-#: tcl/bin/genedit.tcl:144
-#: tcl/mini.tcl:2556
+#: tcl/bin/genedit.tcl:144 tcl/mini.tcl:2556
 msgid "Line Numbering..."
 msgstr "Numérotation de ligne..."
 
-#: tcl/bin/genedit.tcl:150
-#: tcl/tklinuxcnc.tcl:768
+#: tcl/bin/genedit.tcl:150 tcl/tklinuxcnc.tcl:768
 msgid "Scripts"
 msgstr "Scripts"
 
@@ -1265,17 +1161,13 @@ msgstr ""
 "\n"
 "GPL Version 2"
 
-#: tcl/bin/genedit.tcl:197
-#: tcl/mini.tcl:1373
-#: tcl/mini.tcl:1775
-#: tcl/tklinuxcnc.tcl:451
-#: src/emc/task/emctaskmain.cc:2022
+#: tcl/bin/genedit.tcl:197 tcl/mini.tcl:1373 tcl/mini.tcl:1775
+#: tcl/tklinuxcnc.tcl:451 src/emc/task/emctaskmain.cc:2022
 #, c-format, tcl-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s"
 
-#: tcl/bin/genedit.tcl:267
-#: tcl/mini.tcl:3090
+#: tcl/bin/genedit.tcl:267 tcl/mini.tcl:3090
 msgid "Find"
 msgstr "Chercher"
 
@@ -1291,8 +1183,7 @@ msgstr "Remplacer:"
 msgid "Find All"
 msgstr "Chercher tous"
 
-#: tcl/bin/genedit.tcl:285
-#: tcl/mini.tcl:3113
+#: tcl/bin/genedit.tcl:285 tcl/mini.tcl:3113
 msgid "Replace All"
 msgstr "Remplacer tous"
 
@@ -1308,53 +1199,43 @@ msgstr "Remplacer ça"
 msgid "Clear"
 msgstr "Nettoyer"
 
-#: tcl/bin/genedit.tcl:422
-#: tcl/mini.tcl:2640
+#: tcl/bin/genedit.tcl:422 tcl/mini.tcl:2640
 msgid "Set Line Numbering"
 msgstr "Ajuster la numérotation de ligne"
 
-#: tcl/bin/genedit.tcl:424
-#: tcl/mini.tcl:2644
+#: tcl/bin/genedit.tcl:424 tcl/mini.tcl:2644
 msgid "Increment"
 msgstr "Incrément"
 
-#: tcl/bin/genedit.tcl:426
-#: tcl/mini.tcl:2646
+#: tcl/bin/genedit.tcl:426 tcl/mini.tcl:2646
 msgid "One"
 msgstr "Un"
 
-#: tcl/bin/genedit.tcl:429
-#: tcl/mini.tcl:2648
+#: tcl/bin/genedit.tcl:429 tcl/mini.tcl:2648
 msgid "Two"
 msgstr "Deux"
 
-#: tcl/bin/genedit.tcl:432
-#: tcl/mini.tcl:2650
+#: tcl/bin/genedit.tcl:432 tcl/mini.tcl:2650
 msgid "Five"
 msgstr "Cinq"
 
-#: tcl/bin/genedit.tcl:435
-#: tcl/mini.tcl:2652
+#: tcl/bin/genedit.tcl:435 tcl/mini.tcl:2652
 msgid "Ten"
 msgstr "Dix"
 
-#: tcl/bin/genedit.tcl:439
-#: tcl/mini.tcl:2654
+#: tcl/bin/genedit.tcl:439 tcl/mini.tcl:2654
 msgid "Space"
 msgstr "Espace"
 
-#: tcl/bin/genedit.tcl:441
-#: tcl/mini.tcl:2656
+#: tcl/bin/genedit.tcl:441 tcl/mini.tcl:2656
 msgid "Single Space"
 msgstr "Simple espace"
 
-#: tcl/bin/genedit.tcl:444
-#: tcl/mini.tcl:2658
+#: tcl/bin/genedit.tcl:444 tcl/mini.tcl:2658
 msgid "Double Space"
 msgstr "Double espace"
 
-#: tcl/bin/genedit.tcl:447
-#: tcl/mini.tcl:2660
+#: tcl/bin/genedit.tcl:447 tcl/mini.tcl:2660
 msgid "Tab Space"
 msgstr "Espace arrière"
 
@@ -1362,13 +1243,11 @@ msgstr "Espace arrière"
 msgid "Next Number:"
 msgstr "Numéro suivant"
 
-#: tcl/bin/genedit.tcl:474
-#: tcl/mini.tcl:2668
+#: tcl/bin/genedit.tcl:474 tcl/mini.tcl:2668
 msgid "Renumber"
 msgstr "Re-numéroter"
 
-#: tcl/bin/halconfig.tcl:88
-#: tcl/bin/halshow.tcl:33
+#: tcl/bin/halconfig.tcl:88 tcl/bin/halshow.tcl:33
 msgid "HAL Configuration"
 msgstr "Configuration HAL"
 
@@ -1420,45 +1299,35 @@ msgstr "Enregistrer les liaisons HAL"
 msgid "Save and Exit"
 msgstr "Enregistrer et quitter"
 
-#: tcl/bin/halconfig.tcl:168
-#: tcl/mini.tcl:916
-#: tcl/tklinuxcnc.tcl:739
+#: tcl/bin/halconfig.tcl:168 tcl/mini.tcl:916 tcl/tklinuxcnc.tcl:739
 msgid "View"
 msgstr "Vues"
 
-#: tcl/bin/halconfig.tcl:170
-#: tcl/bin/halshow.tcl:105
+#: tcl/bin/halconfig.tcl:170 tcl/bin/halshow.tcl:105
 msgid "Expand Tree"
 msgstr "Déployer l'arborescence"
 
-#: tcl/bin/halconfig.tcl:172
-#: tcl/bin/halshow.tcl:107
+#: tcl/bin/halconfig.tcl:172 tcl/bin/halshow.tcl:107
 msgid "Collapse Tree"
 msgstr "Replier l'arborescence"
 
-#: tcl/bin/halconfig.tcl:175
-#: tcl/bin/halshow.tcl:110
+#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:110
 msgid "Expand Pins"
 msgstr "Déployer les « pins »"
 
-#: tcl/bin/halconfig.tcl:177
-#: tcl/bin/halshow.tcl:112
+#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:112
 msgid "Expand Parameters"
 msgstr "Déployer les paramètres"
 
-#: tcl/bin/halconfig.tcl:179
-#: tcl/bin/halshow.tcl:114
+#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:114
 msgid "Expand Signals"
 msgstr "Déployer les signaux"
 
-#: tcl/bin/halconfig.tcl:182
-#: tcl/bin/halshow.tcl:117
+#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:117
 msgid "Erase Watch"
 msgstr "Effacer l'écran de watch "
 
-#: tcl/bin/halconfig.tcl:194
-#: tcl/mini.tcl:840
-#: tcl/mini.tcl:2785
+#: tcl/bin/halconfig.tcl:194 tcl/mini.tcl:840 tcl/mini.tcl:2785
 #: src/emc/usr_intf/pncconf/pncconf.glade:73109
 msgid "About"
 msgstr "À propos"
@@ -1471,26 +1340,20 @@ msgstr "Manuel"
 msgid "Enter HAL command :"
 msgstr "Entrer une commande HAL:"
 
-#: tcl/bin/halconfig.tcl:479
-#: tcl/bin/halconfig.tcl:528
-#: tcl/bin/halshow.tcl:357
+#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:357
 msgid "Execute"
 msgstr "Exécuter"
 
-#: tcl/bin/halconfig.tcl:943
-#: tcl/bin/halshow.tcl:413
+#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:413
 msgid "Select a node to show."
 msgstr "Sélectionner un « node » à afficher"
 
-#: tcl/bin/halconfig.tcl:968
-#: tcl/bin/halshow.tcl:438
+#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:438
 msgid "<-- Select a Leaf.  Click on its name."
 msgstr "<-- Sélectionner une feuille par un clic sur son nom."
 
-#: tcl/bin/halconfig.tcl:1085
-#: tcl/bin/halconfig.tcl:1095
-#: tcl/bin/halconfig.tcl:1102
-#: tcl/bin/halconfig.tcl:1109
+#: tcl/bin/halconfig.tcl:1085 tcl/bin/halconfig.tcl:1095
+#: tcl/bin/halconfig.tcl:1102 tcl/bin/halconfig.tcl:1109
 #: tcl/bin/halconfig.tcl:1116
 #, tcl-format
 msgid "Click a highlighted entry where %s should go."
@@ -1732,8 +1595,7 @@ msgstr "Informations"
 msgid "Backplot"
 msgstr "Parcours d'outil"
 
-#: tcl/mini.tcl:925
-#: src/emc/usr_intf/pncconf/pncconf.glade:5915
+#: tcl/mini.tcl:925 src/emc/usr_intf/pncconf/pncconf.glade:5915
 msgid "Editor"
 msgstr "Éditeur"
 
@@ -1745,9 +1607,7 @@ msgstr "Offsets"
 msgid "Tools"
 msgstr "Outils"
 
-#: tcl/mini.tcl:951
-#: tcl/mini.tcl:3565
-#: tcl/tklinuxcnc.tcl:732
+#: tcl/mini.tcl:951 tcl/mini.tcl:3565 tcl/tklinuxcnc.tcl:732
 msgid "Reset"
 msgstr "Reset"
 
@@ -1799,8 +1659,7 @@ msgstr "Position machine"
 msgid "Relative Position"
 msgstr "Position relative"
 
-#: tcl/mini.tcl:988
-#: tcl/tklinuxcnc.tcl:747
+#: tcl/mini.tcl:988 tcl/tklinuxcnc.tcl:747
 msgid "Calibration..."
 msgstr "Calibration..."
 
@@ -1861,37 +1720,28 @@ msgstr ""
 "Les codes actifs incluent ; \n"
 "%s"
 
-#: tcl/mini.tcl:1010
-#: tcl/mini.tcl:2558
-#: tcl/tklinuxcnc.tcl:791
+#: tcl/mini.tcl:1010 tcl/mini.tcl:2558 tcl/tklinuxcnc.tcl:791
 msgid "Help..."
 msgstr "Aide..."
 
-#: tcl/mini.tcl:1027
-#: tcl/tklinuxcnc.tcl:890
+#: tcl/mini.tcl:1027 tcl/tklinuxcnc.tcl:890
 msgid "ABORT"
 msgstr "ABANDON"
 
-#: tcl/mini.tcl:1038
-#: tcl/mini.tcl:2048
+#: tcl/mini.tcl:1038 tcl/mini.tcl:2048
 msgid "CONTINUE"
 msgstr "CONTINUER"
 
-#: tcl/mini.tcl:1044
-#: tcl/tklinuxcnc.tcl:828
-#: tcl/tklinuxcnc.tcl:2248
+#: tcl/mini.tcl:1044 tcl/tklinuxcnc.tcl:828 tcl/tklinuxcnc.tcl:2248
 #: src/emc/usr_intf/touchy/touchy.glade:1264
 msgid "MDI"
 msgstr "MDI"
 
-#: tcl/mini.tcl:1048
-#: tcl/tklinuxcnc.tcl:2239
+#: tcl/mini.tcl:1048 tcl/tklinuxcnc.tcl:2239
 msgid "AUTO"
 msgstr "AUTO"
 
-#: tcl/mini.tcl:1052
-#: tcl/mini.tcl:1812
-#: tcl/tklinuxcnc.tcl:2141
+#: tcl/mini.tcl:1052 tcl/mini.tcl:1812 tcl/tklinuxcnc.tcl:2141
 #: tcl/tklinuxcnc.tcl:2261
 msgid "MANUAL"
 msgstr "MANUEL"
@@ -1916,9 +1766,7 @@ msgstr "Ouvrir la fenêtre des offsets ici"
 msgid "start override popup here"
 msgstr "Ouvrir la fenêtre des correcteurs ici"
 
-#: tcl/mini.tcl:1168
-#: tcl/tklinuxcnc.tcl:1576
-#: share/axis/tcl/axis.tcl:1669
+#: tcl/mini.tcl:1168 tcl/tklinuxcnc.tcl:1576 share/axis/tcl/axis.tcl:1669
 msgid "Feed Override:"
 msgstr "Correcteur de vitesse:"
 
@@ -1939,13 +1787,11 @@ msgstr "Impossible de régler le zéro avec l'offset d'outil activé, un G49 a d
 msgid "Can't update the var file while machine is in auto and %s."
 msgstr "Impossible de mettre le fichier de variables à jour tant que la machine est en auto et %s"
 
-#: tcl/mini.tcl:1400
-#: tcl/tklinuxcnc.tcl:1227
+#: tcl/mini.tcl:1400 tcl/tklinuxcnc.tcl:1227
 msgid "override limits"
 msgstr "Dépassement de limite"
 
-#: tcl/mini.tcl:1405
-#: tcl/tklinuxcnc.tcl:1263
+#: tcl/mini.tcl:1405 tcl/tklinuxcnc.tcl:1263
 msgid "home"
 msgstr "origine"
 
@@ -1961,13 +1807,11 @@ msgstr "Vitesse:"
 msgid "RAPID"
 msgstr "RAPIDE"
 
-#: tcl/mini.tcl:1447
-#: tcl/tklinuxcnc.tcl:1391
+#: tcl/mini.tcl:1447 tcl/tklinuxcnc.tcl:1391
 msgid "Set Jog Speed"
 msgstr "Ajuster la vitesse de jog"
 
-#: tcl/mini.tcl:1453
-#: tcl/tklinuxcnc.tcl:1404
+#: tcl/mini.tcl:1453 tcl/tklinuxcnc.tcl:1404
 msgid "Set jog speed:"
 msgstr "Ajuster la vitesse de jog:"
 
@@ -1983,9 +1827,7 @@ msgstr "JOG X -"
 msgid "increment"
 msgstr "incréments"
 
-#: tcl/mini.tcl:1518
-#: tcl/tklinuxcnc.tcl:602
-#: tcl/tklinuxcnc.tcl:1249
+#: tcl/mini.tcl:1518 tcl/tklinuxcnc.tcl:602 tcl/tklinuxcnc.tcl:1249
 #: tcl/tklinuxcnc.tcl:1253
 msgid "continuous"
 msgstr "continu"
@@ -2010,38 +1852,31 @@ msgstr ""
 "R\n"
 "O"
 
-#: tcl/mini.tcl:1588
-#: src/emc/usr_intf/touchy/touchy.glade:1422
+#: tcl/mini.tcl:1588 src/emc/usr_intf/touchy/touchy.glade:1422
 msgid "Spindle Forward"
 msgstr "Broche sens horaire"
 
-#: tcl/mini.tcl:1589
-#: src/emc/usr_intf/touchy/touchy.glade:1433
+#: tcl/mini.tcl:1589 src/emc/usr_intf/touchy/touchy.glade:1433
 msgid "Spindle Reverse"
 msgstr "Broche sens anti-horaire"
 
-#: tcl/mini.tcl:1590
-#: tcl/tklinuxcnc.tcl:871
+#: tcl/mini.tcl:1590 tcl/tklinuxcnc.tcl:871
 msgid "Spindle off"
 msgstr "Arrêt de broche"
 
-#: tcl/mini.tcl:1592
-#: src/emc/usr_intf/touchy/touchy.glade:1479
+#: tcl/mini.tcl:1592 src/emc/usr_intf/touchy/touchy.glade:1479
 msgid "Spindle Slower"
 msgstr "Broche moins vite"
 
-#: tcl/mini.tcl:1596
-#: src/emc/usr_intf/touchy/touchy.glade:1464
+#: tcl/mini.tcl:1596 src/emc/usr_intf/touchy/touchy.glade:1464
 msgid "Spindle Faster"
 msgstr "Broche plus vite"
 
-#: tcl/mini.tcl:1632
-#: tcl/tklinuxcnc.tcl:1620
+#: tcl/mini.tcl:1632 tcl/tklinuxcnc.tcl:1620
 msgid "MDI:"
 msgstr "MDI:"
 
-#: tcl/mini.tcl:1669
-#: tcl/tklinuxcnc.tcl:1658
+#: tcl/mini.tcl:1669 tcl/tklinuxcnc.tcl:1658
 #: src/emc/usr_intf/stepconf/stepconf.glade:4403
 #: src/emc/usr_intf/pncconf/pncconf.glade:67720
 #: src/emc/usr_intf/pncconf/pncconf.glade:68814
@@ -2051,8 +1886,7 @@ msgstr "MDI:"
 msgid "Run"
 msgstr "Lancer"
 
-#: tcl/mini.tcl:1671
-#: tcl/tklinuxcnc.tcl:1659
+#: tcl/mini.tcl:1671 tcl/tklinuxcnc.tcl:1659
 #: src/emc/usr_intf/pncconf/pncconf.glade:67645
 #: src/emc/usr_intf/pncconf/pncconf.glade:68740
 #: src/emc/usr_intf/pncconf/pncconf.glade:69833
@@ -2060,18 +1894,15 @@ msgstr "Lancer"
 msgid "Pause"
 msgstr "Pause"
 
-#: tcl/mini.tcl:1673
-#: tcl/tklinuxcnc.tcl:1660
+#: tcl/mini.tcl:1673 tcl/tklinuxcnc.tcl:1660
 msgid "Resume"
 msgstr "Reprise"
 
-#: tcl/mini.tcl:1675
-#: tcl/tklinuxcnc.tcl:1661
+#: tcl/mini.tcl:1675 tcl/tklinuxcnc.tcl:1661
 msgid "Step"
 msgstr "Pas à pas"
 
-#: tcl/mini.tcl:1677
-#: tcl/tklinuxcnc.tcl:1662
+#: tcl/mini.tcl:1677 tcl/tklinuxcnc.tcl:1662
 msgid "Verify"
 msgstr "Vérifier"
 
@@ -2087,30 +1918,22 @@ msgstr "Arrière"
 msgid "Ahead"
 msgstr "Avant"
 
-#: tcl/mini.tcl:1701
-#: tcl/ngcgui.tcl:1247
+#: tcl/mini.tcl:1701 tcl/ngcgui.tcl:1247
 msgid "Restart"
 msgstr "Reprise"
 
-#: tcl/mini.tcl:1711
-#: tcl/mini.tcl:2823
-#: tcl/mini.tcl:2882
-#: tcl/tklinuxcnc.tcl:465
-#: src/emc/usr_intf/axis/scripts/axis.py:1876
+#: tcl/mini.tcl:1711 tcl/mini.tcl:2823 tcl/mini.tcl:2882
+#: tcl/tklinuxcnc.tcl:465 src/emc/usr_intf/axis/scripts/axis.py:1876
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:754
 msgid "All files"
 msgstr "Tous les fichiers"
 
-#: tcl/mini.tcl:1712
-#: tcl/mini.tcl:2824
-#: tcl/mini.tcl:2883
+#: tcl/mini.tcl:1712 tcl/mini.tcl:2824 tcl/mini.tcl:2883
 #: tcl/tklinuxcnc.tcl:466
 msgid "Text files"
 msgstr "Fichiers texte"
 
-#: tcl/mini.tcl:1713
-#: tcl/mini.tcl:2825
-#: tcl/mini.tcl:2884
+#: tcl/mini.tcl:1713 tcl/mini.tcl:2825 tcl/mini.tcl:2884
 #: tcl/tklinuxcnc.tcl:467
 msgid "NC files"
 msgstr "Fichiers NC"
@@ -2131,83 +1954,67 @@ msgstr "A/U ENGAGÉ"
 msgid "ESTOP PUSH"
 msgstr "A/U"
 
-#: tcl/mini.tcl:1892
-#: tcl/tklinuxcnc.tcl:2233
+#: tcl/mini.tcl:1892 tcl/tklinuxcnc.tcl:2233
 msgid "ESTOP RESET"
 msgstr "A/U LIBÉRÉ"
 
-#: tcl/mini.tcl:1897
-#: tcl/tklinuxcnc.tcl:2298
+#: tcl/mini.tcl:1897 tcl/tklinuxcnc.tcl:2298
 msgid "SPINDLE FORWARD"
 msgstr "BROCHE SENS HORAIRE"
 
-#: tcl/mini.tcl:1899
-#: tcl/tklinuxcnc.tcl:2300
+#: tcl/mini.tcl:1899 tcl/tklinuxcnc.tcl:2300
 msgid "SPINDLE REVERSE"
 msgstr "BROCHE SENS ANTI-HORAIRE"
 
-#: tcl/mini.tcl:1901
-#: tcl/tklinuxcnc.tcl:2302
+#: tcl/mini.tcl:1901 tcl/tklinuxcnc.tcl:2302
 msgid "SPINDLE OFF"
 msgstr "ARRÊT BROCHE"
 
-#: tcl/mini.tcl:1903
-#: tcl/tklinuxcnc.tcl:2304
+#: tcl/mini.tcl:1903 tcl/tklinuxcnc.tcl:2304
 msgid "SPINDLE INCREASE"
 msgstr "BROCHE ACCÉLÈRE"
 
-#: tcl/mini.tcl:1905
-#: tcl/tklinuxcnc.tcl:2306
+#: tcl/mini.tcl:1905 tcl/tklinuxcnc.tcl:2306
 msgid "SPINDLE DECREASE"
 msgstr "BROCHE DÉCÉLÈRE"
 
-#: tcl/mini.tcl:1907
-#: tcl/tklinuxcnc.tcl:2308
+#: tcl/mini.tcl:1907 tcl/tklinuxcnc.tcl:2308
 msgid "SPINDLE ?"
 msgstr "BROCHE ?"
 
-#: tcl/mini.tcl:1911
-#: tcl/tklinuxcnc.tcl:2312
+#: tcl/mini.tcl:1911 tcl/tklinuxcnc.tcl:2312
 msgid "BRAKE ON"
 msgstr "FREIN ENGAGÉ"
 
-#: tcl/mini.tcl:1913
-#: tcl/tklinuxcnc.tcl:2314
+#: tcl/mini.tcl:1913 tcl/tklinuxcnc.tcl:2314
 msgid "BRAKE OFF"
 msgstr "FREIN LIBÉRÉ"
 
-#: tcl/mini.tcl:1915
-#: tcl/tklinuxcnc.tcl:2316
+#: tcl/mini.tcl:1915 tcl/tklinuxcnc.tcl:2316
 msgid "BRAKE ?"
 msgstr "FREIN ?"
 
-#: tcl/mini.tcl:1919
-#: tcl/tklinuxcnc.tcl:2274
+#: tcl/mini.tcl:1919 tcl/tklinuxcnc.tcl:2274
 msgid "MIST ON"
 msgstr "AVEC GOUTTELETTES"
 
-#: tcl/mini.tcl:1921
-#: tcl/tklinuxcnc.tcl:2276
+#: tcl/mini.tcl:1921 tcl/tklinuxcnc.tcl:2276
 msgid "MIST OFF"
 msgstr "SANS GOUTELETTES"
 
-#: tcl/mini.tcl:1923
-#: tcl/tklinuxcnc.tcl:2278
+#: tcl/mini.tcl:1923 tcl/tklinuxcnc.tcl:2278
 msgid "MIST ?"
 msgstr "GOUTTELETTES ?"
 
-#: tcl/mini.tcl:1927
-#: tcl/tklinuxcnc.tcl:2282
+#: tcl/mini.tcl:1927 tcl/tklinuxcnc.tcl:2282
 msgid "FLOOD ON"
 msgstr "AVEC ARROSAGE"
 
-#: tcl/mini.tcl:1929
-#: tcl/tklinuxcnc.tcl:2284
+#: tcl/mini.tcl:1929 tcl/tklinuxcnc.tcl:2284
 msgid "FLOOD OFF"
 msgstr "SANS ARROSAGE"
 
-#: tcl/mini.tcl:1931
-#: tcl/tklinuxcnc.tcl:2286
+#: tcl/mini.tcl:1931 tcl/tklinuxcnc.tcl:2286
 msgid "FLOOD ?"
 msgstr "ARROSAGE ?"
 
@@ -2247,8 +2054,7 @@ msgstr "Ajouter un outil"
 msgid "Remove Last Tool"
 msgstr "Enlever le dernier outil"
 
-#: tcl/mini.tcl:2217
-#: tcl/mini.tcl:2253
+#: tcl/mini.tcl:2217 tcl/mini.tcl:2253
 #, tcl-format
 msgid "Can't update the tool file while machine is in auto and %s."
 msgstr "Impossible de mettre à jour le fichier d'outils tant que la machine est en auto et %s"
@@ -2269,8 +2075,7 @@ msgstr ""
 "  Cliquer la valeur à éditer au clavier. Presser Entrée pour revenir au contrôle de la machine depuis le clavier. \n"
 " "
 
-#: tcl/mini.tcl:2320
-#: tcl/scripts/Set_Coordinates.tcl:80
+#: tcl/mini.tcl:2320 tcl/scripts/Set_Coordinates.tcl:80
 msgid "Axis "
 msgstr "Axe"
 
@@ -2278,8 +2083,7 @@ msgstr "Axe"
 msgid "Value "
 msgstr "Valeur"
 
-#: tcl/mini.tcl:2326
-#: tcl/scripts/Set_Coordinates.tcl:91
+#: tcl/mini.tcl:2326 tcl/scripts/Set_Coordinates.tcl:91
 msgid "Teach"
 msgstr "Apprentissage"
 
@@ -2359,8 +2163,7 @@ msgstr "Annuler"
 msgid "Redo"
 msgstr "Rétablir"
 
-#: tcl/mini.tcl:2546
-#: src/emc/usr_intf/tooledit.tcl:488
+#: tcl/mini.tcl:2546 src/emc/usr_intf/tooledit.tcl:488
 msgid "Delete"
 msgstr "Effacer"
 
@@ -2498,13 +2301,11 @@ msgstr "Erreurs de LinuxCNC"
 msgid "LinuxCNC terminated with an error.  When reporting problems, please include all the information below in your message."
 msgstr "LinuxCNC s'est terminé avec une erreur.  Si vous rapportez le problème, merci d'inclure toutes les informations suivantes dans votre message."
 
-#: tcl/show_errors.tcl:69
-#: tcl/scripts/Set_Coordinates.tcl:103
+#: tcl/show_errors.tcl:69 tcl/scripts/Set_Coordinates.tcl:103
 msgid "Close"
 msgstr "Fermer"
 
-#: tcl/tklinuxcnc.tcl:154
-#: tcl/tklinuxcnc.tcl:181
+#: tcl/tklinuxcnc.tcl:154 tcl/tklinuxcnc.tcl:181
 msgid "Set Run Mark"
 msgstr "Ajuster point de départ"
 
@@ -2513,8 +2314,7 @@ msgstr "Ajuster point de départ"
 msgid "Set run mark at line %s?"
 msgstr "Ajuster point de départ sur la ligne %s?"
 
-#: tcl/tklinuxcnc.tcl:176
-#: tcl/tklinuxcnc.tcl:204
+#: tcl/tklinuxcnc.tcl:176 tcl/tklinuxcnc.tcl:204
 msgid "untitled"
 msgstr "Sans titre"
 
@@ -2530,27 +2330,19 @@ msgstr "Diagnostics LinuxCNC"
 msgid "Task"
 msgstr "Tâche"
 
-#: tcl/tklinuxcnc.tcl:265
-#: tcl/tklinuxcnc.tcl:288
-#: tcl/tklinuxcnc.tcl:311
+#: tcl/tklinuxcnc.tcl:265 tcl/tklinuxcnc.tcl:288 tcl/tklinuxcnc.tcl:311
 msgid "Heartbeat:"
 msgstr "Fréquence:"
 
-#: tcl/tklinuxcnc.tcl:268
-#: tcl/tklinuxcnc.tcl:291
-#: tcl/tklinuxcnc.tcl:314
+#: tcl/tklinuxcnc.tcl:268 tcl/tklinuxcnc.tcl:291 tcl/tklinuxcnc.tcl:314
 msgid "Command:"
 msgstr "Commande:"
 
-#: tcl/tklinuxcnc.tcl:271
-#: tcl/tklinuxcnc.tcl:294
-#: tcl/tklinuxcnc.tcl:317
+#: tcl/tklinuxcnc.tcl:271 tcl/tklinuxcnc.tcl:294 tcl/tklinuxcnc.tcl:317
 msgid "Command #:"
 msgstr "Commande #:"
 
-#: tcl/tklinuxcnc.tcl:274
-#: tcl/tklinuxcnc.tcl:297
-#: tcl/tklinuxcnc.tcl:320
+#: tcl/tklinuxcnc.tcl:274 tcl/tklinuxcnc.tcl:297 tcl/tklinuxcnc.tcl:320
 msgid "Status:"
 msgstr "Statut:"
 
@@ -2584,8 +2376,7 @@ msgstr ""
 msgid "Set Tool Offset"
 msgstr "Ajuster l'offset d'outil"
 
-#: tcl/tklinuxcnc.tcl:404
-#: tcl/tklinuxcnc.tcl:905
+#: tcl/tklinuxcnc.tcl:404 tcl/tklinuxcnc.tcl:905
 msgid "Tool:"
 msgstr "Outil:"
 
@@ -2597,8 +2388,7 @@ msgstr "Éditer.."
 msgid "Tool Table Editor..."
 msgstr "Editeur de fichier d'outils..."
 
-#: tcl/tklinuxcnc.tcl:730
-#: src/emc/usr_intf/touchy/touchy.glade:1383
+#: tcl/tklinuxcnc.tcl:730 src/emc/usr_intf/touchy/touchy.glade:1383
 msgid "Reload Tool Table"
 msgstr "Recharger table d'outils"
 
@@ -2626,8 +2416,7 @@ msgstr "Débogue..."
 msgid "Font..."
 msgstr "Police..."
 
-#: tcl/tklinuxcnc.tcl:754
-#: src/emc/usr_intf/axis/scripts/image-to-gcode.py:665
+#: tcl/tklinuxcnc.tcl:754 src/emc/usr_intf/axis/scripts/image-to-gcode.py:665
 msgid "Units"
 msgstr "Unités"
 
@@ -2635,13 +2424,11 @@ msgstr "Unités"
 msgid "auto"
 msgstr "auto"
 
-#: tcl/tklinuxcnc.tcl:756
-#: src/emc/usr_intf/pncconf/pncconf.py:8973
+#: tcl/tklinuxcnc.tcl:756 src/emc/usr_intf/pncconf/pncconf.py:8973
 msgid "inches"
 msgstr "pouces"
 
-#: tcl/tklinuxcnc.tcl:757
-#: src/emc/usr_intf/axis/scripts/axis.py:1547
+#: tcl/tklinuxcnc.tcl:757 src/emc/usr_intf/axis/scripts/axis.py:1547
 #: src/emc/usr_intf/axis/scripts/axis.py:1717
 #: src/emc/usr_intf/touchy/touchy.glade:3301
 #: src/emc/usr_intf/stepconf/stepconf.py:1686
@@ -2700,8 +2487,7 @@ msgstr "Machine en marche"
 msgid "Machine off"
 msgstr "Machine arrêtée"
 
-#: tcl/tklinuxcnc.tcl:826
-#: src/emc/usr_intf/touchy/touchy.glade:1561
+#: tcl/tklinuxcnc.tcl:826 src/emc/usr_intf/touchy/touchy.glade:1561
 msgid "Manual"
 msgstr "Manuel"
 
@@ -2829,13 +2615,11 @@ msgstr "Arrêt optionnel"
 msgid "Error"
 msgstr "Erreur"
 
-#: tcl/tklinuxcnc.tcl:2070
-#: tcl/ngcgui_ttt.tcl:46
+#: tcl/tklinuxcnc.tcl:2070 tcl/ngcgui_ttt.tcl:46
 msgid "Set Font"
 msgstr "Choisir police"
 
-#: tcl/tklinuxcnc.tcl:2079
-#: tcl/ngcgui_ttt.tcl:283
+#: tcl/tklinuxcnc.tcl:2079 tcl/ngcgui_ttt.tcl:283
 msgid "Font"
 msgstr "Police"
 
@@ -2847,14 +2631,11 @@ msgstr "Taille"
 msgid "Style"
 msgstr "Style"
 
-#: tcl/tklinuxcnc.tcl:2229
-#: share/axis/tcl/axis.tcl:1916
+#: tcl/tklinuxcnc.tcl:2229 share/axis/tcl/axis.tcl:1916
 msgid "ESTOP"
 msgstr "A/U"
 
-#: tcl/tklinuxcnc.tcl:2231
-#: tcl/ngcgui.tcl:2866
-#: share/axis/tcl/axis.tcl:1918
+#: tcl/tklinuxcnc.tcl:2231 tcl/ngcgui.tcl:2866 share/axis/tcl/axis.tcl:1918
 msgid "ON"
 msgstr "EN MARCHE"
 
@@ -2918,12 +2699,8 @@ msgstr ""
 "marked (not_a_subfile)\n"
 "Not intended for use as a subfile"
 
-#: tcl/ngcgui.tcl:570
-#: tcl/ngcgui.tcl:589
-#: tcl/ngcgui.tcl:611
-#: tcl/ngcgui.tcl:624
-#: tcl/ngcgui.tcl:666
-#: tcl/ngcgui.tcl:771
+#: tcl/ngcgui.tcl:570 tcl/ngcgui.tcl:589 tcl/ngcgui.tcl:611 tcl/ngcgui.tcl:624
+#: tcl/ngcgui.tcl:666 tcl/ngcgui.tcl:771
 msgid "bogus"
 msgstr "bogue"
 
@@ -2939,13 +2716,11 @@ msgstr "Multiples sous-programmes dans un fichier non permis"
 msgid "sub label"
 msgstr "sous-label"
 
-#: tcl/ngcgui.tcl:591
-#: tcl/ngcgui.tcl:668
+#: tcl/ngcgui.tcl:591 tcl/ngcgui.tcl:668
 msgid "does not match subroutine file name"
 msgstr "le sous-programme ne correspond pas au nom de fichier"
 
-#: tcl/ngcgui.tcl:606
-#: tcl/ngcgui.tcl:607
+#: tcl/ngcgui.tcl:606 tcl/ngcgui.tcl:607
 msgid "ignoring M2 after endsub"
 msgstr "M2 ignoré après endsub"
 
@@ -3009,8 +2784,7 @@ msgstr "Conserver les valeurs à la lecture du sous-fichier"
 msgid "Expand subroutine"
 msgstr "Déployer le sous-programme"
 
-#: tcl/ngcgui.tcl:1194
-#: tcl/ngcgui.tcl:2440
+#: tcl/ngcgui.tcl:1194 tcl/ngcgui.tcl:2440
 msgid "Autosend"
 msgstr "EnvoiAuto"
 
@@ -3018,20 +2792,16 @@ msgstr "EnvoiAuto"
 msgid "Verbose ngcfile"
 msgstr "Fichier G-code clair"
 
-#: tcl/ngcgui.tcl:1214
-#: tcl/ngcgui.tcl:2261
-#: tcl/ngcgui.tcl:2285
+#: tcl/ngcgui.tcl:1214 tcl/ngcgui.tcl:2261 tcl/ngcgui.tcl:2285
 #: tcl/ngcgui.tcl:2315
 msgid "Create Feature"
 msgstr "Créer la fonction"
 
-#: tcl/ngcgui.tcl:1220
-#: tcl/ngcgui.tcl:2945
+#: tcl/ngcgui.tcl:1220 tcl/ngcgui.tcl:2945
 msgid "MakeFile"
 msgstr "Fichier makefile"
 
-#: tcl/ngcgui.tcl:1221
-#: tcl/ngcgui.tcl:2942
+#: tcl/ngcgui.tcl:1221 tcl/ngcgui.tcl:2942
 msgid "Finalize"
 msgstr "Finaliser"
 
@@ -3167,8 +2937,7 @@ msgstr "Nouveau fichier de sortie"
 msgid "Ready to make New Outfile"
 msgstr "Prêt à créer un nouveau fichier de sortie"
 
-#: tcl/ngcgui.tcl:2288
-#: tcl/ngcgui.tcl:2321
+#: tcl/ngcgui.tcl:2288 tcl/ngcgui.tcl:2321
 msgid "Enter parms for feature "
 msgstr "Entrer paramètres pour la fonction "
 
@@ -3268,8 +3037,7 @@ msgstr "Verbeux"
 msgid "Finalize Canceled"
 msgstr "Finaliser l'abandon"
 
-#: tcl/ngcgui.tcl:2598
-#: tcl/ngcgui.tcl:2754
+#: tcl/ngcgui.tcl:2598 tcl/ngcgui.tcl:2754
 msgid "Dismiss"
 msgstr "Rejeter"
 
@@ -3289,8 +3057,7 @@ msgstr "Vous devez mettre LinuxCNC à jour en version >= 2.5"
 msgid "pre2.4_send_file_to_axis:error"
 msgstr "erreur: pre2.4_send_file_to_axis"
 
-#: tcl/ngcgui.tcl:2865
-#: share/axis/tcl/axis.tcl:1917
+#: tcl/ngcgui.tcl:2865 share/axis/tcl/axis.tcl:1917
 msgid "OFF"
 msgstr "ARRÊT"
 
@@ -3298,8 +3065,7 @@ msgstr "ARRÊT"
 msgid "Toggle autosend"
 msgstr "Bascule envoi auto"
 
-#: tcl/ngcgui.tcl:2869
-#: tcl/ngcgui.tcl:3083
+#: tcl/ngcgui.tcl:2869 tcl/ngcgui.tcl:3083
 msgid "Clear entries"
 msgstr "Effacer les entrées"
 
@@ -3307,9 +3073,7 @@ msgstr "Effacer les entrées"
 msgid "Set entries to default values"
 msgstr "Réglez les entrées aux valeurs par défaut"
 
-#: tcl/ngcgui.tcl:2871
-#: tcl/ngcgui.tcl:2885
-#: tcl/ngcgui.tcl:2887
+#: tcl/ngcgui.tcl:2871 tcl/ngcgui.tcl:2885 tcl/ngcgui.tcl:2887
 msgid "Open editor specified by"
 msgstr "Ouvrir l'éditeur spécifié par"
 
@@ -3389,8 +3153,7 @@ msgstr "Essayer gedit"
 msgid "No file available for editing yet"
 msgstr "Aucun fichier a éditer n'est encore disponible"
 
-#: tcl/ngcgui.tcl:2990
-#: tcl/ngcgui.tcl:2999
+#: tcl/ngcgui.tcl:2990 tcl/ngcgui.tcl:2999
 msgid "No file available for editing"
 msgstr "Aucun fichier a éditer n'est disponible"
 
@@ -3414,8 +3177,7 @@ msgstr "Fixe par défaut"
 msgid "not writable"
 msgstr "non inscriptible"
 
-#: tcl/ngcgui.tcl:3289
-#: tcl/ngcgui.tcl:3469
+#: tcl/ngcgui.tcl:3289 tcl/ngcgui.tcl:3469
 msgid "new"
 msgstr "nouveau"
 
@@ -3427,13 +3189,11 @@ msgstr "Ouvrir un nouveau sous-fichier"
 msgid "remove"
 msgstr "enlever"
 
-#: tcl/ngcgui.tcl:3482
-#: tcl/ngcgui.tcl:3488
+#: tcl/ngcgui.tcl:3482 tcl/ngcgui.tcl:3488
 msgid "move"
 msgstr "déplacer"
 
-#: tcl/ngcgui.tcl:3587
-#: src/emc/usr_intf/pncconf/pncconf.py:7476
+#: tcl/ngcgui.tcl:3587 src/emc/usr_intf/pncconf/pncconf.py:7476
 #: src/emc/usr_intf/pncconf/pncconf.py:7587
 #: src/emc/usr_intf/pncconf/pncconf.py:7752
 msgid "Custom"
@@ -3455,8 +3215,7 @@ msgstr "Trouve plusieurs occurrences pour"
 msgid "using path"
 msgstr "utiliser le chemin"
 
-#: tcl/ngcgui.tcl:3668
-#: src/emc/usr_intf/axis/scripts/axis.py:2246
+#: tcl/ngcgui.tcl:3668 src/emc/usr_intf/axis/scripts/axis.py:2246
 #: src/emc/usr_intf/axis/scripts/axis.py:2259
 msgid "Warning"
 msgstr "Attention"
@@ -3549,8 +3308,7 @@ msgstr "ngcgui_app.tcl doit être chargé avant"
 msgid "Create a subroutine file from truetype-tracer (V4 reqd)"
 msgstr "Crée un fichier sous-programme avec truetype-tracer (V4.requis)"
 
-#: tcl/ngcgui_ttt.tcl:102
-#: tcl/ngcgui_ttt.tcl:115
+#: tcl/ngcgui_ttt.tcl:102 tcl/ngcgui_ttt.tcl:115
 msgid "problem with"
 msgstr "problème avec"
 
@@ -3662,8 +3420,7 @@ msgstr "pour"
 msgid "not readable"
 msgstr "illisible"
 
-#: tcl/ngcgui_app.tcl:64
-#: tcl/ngcgui_app.tcl:67
+#: tcl/ngcgui_app.tcl:64 tcl/ngcgui_app.tcl:67
 msgid "Unexpected: multiple startups for ngcgui"
 msgstr "Inattendu: startups multiples pour ngcgui"
 
@@ -3697,10 +3454,8 @@ msgstr "Note: ignore le nom des colonnes dupliquées: %s"
 msgid "Unknown column: %s"
 msgstr "Colonne %s inconnue"
 
-#: src/emc/usr_intf/tooledit.tcl:210
-#: src/emc/usr_intf/tooledit.tcl:213
-#: src/emc/usr_intf/tooledit.tcl:598
-#: src/emc/usr_intf/tooledit.tcl:599
+#: src/emc/usr_intf/tooledit.tcl:210 src/emc/usr_intf/tooledit.tcl:213
+#: src/emc/usr_intf/tooledit.tcl:598 src/emc/usr_intf/tooledit.tcl:599
 #: src/emc/usr_intf/tooledit.tcl:1032
 msgid "NEW"
 msgstr "Nouveau"
@@ -3958,8 +3713,7 @@ msgstr "Doit être En marche et inactive pour recharger la table d'outils"
 msgid "Usage"
 msgstr "Utilisation"
 
-#: src/emc/usr_intf/tooledit.tcl:1094
-#: src/emc/usr_intf/tooledit.tcl:1095
+#: src/emc/usr_intf/tooledit.tcl:1094 src/emc/usr_intf/tooledit.tcl:1095
 msgid "filename"
 msgstr "nom de fichier"
 
@@ -4024,8 +3778,7 @@ msgstr "Sélection de la vitesse angulaire de jog"
 msgid "I, Shift-I"
 msgstr "I, Maj+I"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:155
-#: share/axis/tcl/axis.tcl:2356
+#: src/emc/usr_intf/axis/scripts/axis.py:155 share/axis/tcl/axis.tcl:2356
 msgid "Select jog increment"
 msgstr "Sélection d'incrément de jog"
 
@@ -4188,8 +3941,7 @@ msgstr "Ctrl+Maj+H"
 msgid "Paste clipboard to MDI history"
 msgstr "Coller dans l'historique du MDI"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:186
-#: share/axis/tcl/axis.tcl:1113
+#: src/emc/usr_intf/axis/scripts/axis.py:186 share/axis/tcl/axis.tcl:1113
 #: src/emc/usr_intf/touchy/touchy.glade:508
 msgid "Override Limits"
 msgstr "Dépassement des limites"
@@ -4345,10 +4097,8 @@ msgstr ""
 "%(error_str)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1283
-#: src/emc/usr_intf/axis/scripts/axis.py:2716
-#: share/axis/tcl/axis.tcl:1092
-#: share/axis/tcl/axis.tcl:1094
-#: share/axis/tcl/axis.tcl:2144
+#: src/emc/usr_intf/axis/scripts/axis.py:2716 share/axis/tcl/axis.tcl:1092
+#: share/axis/tcl/axis.tcl:1094 share/axis/tcl/axis.tcl:2144
 msgid "Continuous"
 msgstr "Continu"
 
@@ -4519,8 +4269,7 @@ msgstr "Les axes sont déjà référencés, vous êtes sûr de vouloir relancer 
 msgid "This axis is already homed, are you sure you want to re-home?"
 msgstr "Cet axe est déjà référencé, êtes vous sûr de vouloir relancer une prise d'origine ?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2299
-#: share/axis/tcl/axis.tcl:1108
+#: src/emc/usr_intf/axis/scripts/axis.py:2299 share/axis/tcl/axis.tcl:1108
 msgid "Touch Off"
 msgstr "Toucher"
 
@@ -5233,8 +4982,7 @@ msgstr "Contrôle manuel [F3]"
 msgid "MDI [F5]"
 msgstr "Données manuelles [F5]"
 
-#: share/axis/tcl/axis.tcl:781
-#: share/axis/tcl/axis.tcl:2036
+#: share/axis/tcl/axis.tcl:781 share/axis/tcl/axis.tcl:2036
 #: share/axis/tcl/axis.tcl:2203
 msgid "Axis:"
 msgstr "Axe:"
@@ -5247,8 +4995,7 @@ msgstr "POM des axes"
 msgid "Spindle:"
 msgstr "Broche:"
 
-#: share/axis/tcl/axis.tcl:1223
-#: src/emc/usr_intf/touchy/touchy.glade:946
+#: share/axis/tcl/axis.tcl:1223 src/emc/usr_intf/touchy/touchy.glade:946
 msgid "-"
 msgstr "-"
 
@@ -5296,8 +5043,7 @@ msgstr "Parcours d'outil"
 msgid "DRO"
 msgstr "Visu"
 
-#: share/axis/tcl/axis.tcl:1575
-#: share/axis/tcl/axis.tcl:1588
+#: share/axis/tcl/axis.tcl:1575 share/axis/tcl/axis.tcl:1588
 msgid "Jog Speed:"
 msgstr "Vitesse de jog:"
 
@@ -5309,8 +5055,7 @@ msgstr "Vitesse maximale:"
 msgid "Spindle Override:"
 msgstr "Correction vitesse de broche:"
 
-#: share/axis/tcl/axis.tcl:1631
-#: share/axis/tcl/axis.tcl:1671
+#: share/axis/tcl/axis.tcl:1631 share/axis/tcl/axis.tcl:1671
 #: src/emc/usr_intf/pncconf/pncconf.glade:2834
 #: src/emc/usr_intf/pncconf/pncconf.glade:2845
 #: src/emc/usr_intf/pncconf/pncconf.glade:2949
@@ -5399,8 +5144,7 @@ msgstr "AXIS $::version sur $::machine"
 msgid "(no file)"
 msgstr "(pas de fichier)"
 
-#: share/axis/tcl/axis.tcl:1976
-#: share/axis/tcl/axis.tcl:1981
+#: share/axis/tcl/axis.tcl:1976 share/axis/tcl/axis.tcl:1981
 msgid "Position:"
 msgstr "Position:"
 
@@ -5408,23 +5152,19 @@ msgstr "Position:"
 msgid "Machine"
 msgstr "Machine"
 
-#: share/axis/tcl/axis.tcl:1978
-#: src/emc/usr_intf/touchy/touchy.glade:155
+#: share/axis/tcl/axis.tcl:1978 src/emc/usr_intf/touchy/touchy.glade:155
 msgid "Relative"
 msgstr "Relatif"
 
-#: share/axis/tcl/axis.tcl:1979
-#: src/emc/usr_intf/touchy/touchy.glade:3329
+#: share/axis/tcl/axis.tcl:1979 src/emc/usr_intf/touchy/touchy.glade:3329
 msgid "Actual"
 msgstr "Actuelle"
 
-#: share/axis/tcl/axis.tcl:1979
-#: src/emc/usr_intf/touchy/touchy.glade:3318
+#: share/axis/tcl/axis.tcl:1979 src/emc/usr_intf/touchy/touchy.glade:3318
 msgid "Commanded"
 msgstr "Commandée"
 
-#: share/axis/tcl/axis.tcl:2032
-#: share/axis/tcl/axis.tcl:2203
+#: share/axis/tcl/axis.tcl:2032 share/axis/tcl/axis.tcl:2203
 msgid "Joint:"
 msgstr "Jointure:"
 
@@ -5492,8 +5232,7 @@ msgstr "Activer l'axe [4]"
 msgid "Activate axis [5]"
 msgstr "Activer l'axe [5]"
 
-#: share/axis/tcl/axis.tcl:2354
-#: share/axis/tcl/axis.tcl:2355
+#: share/axis/tcl/axis.tcl:2354 share/axis/tcl/axis.tcl:2355
 msgid "Jog selected axis"
 msgstr "Jog de l'axe sélectionné"
 
@@ -5501,14 +5240,12 @@ msgstr "Jog de l'axe sélectionné"
 msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Mouvement temporaire hors limites [L]"
 
-#: src/emc/usr_intf/touchy/mdi.py:47
-#: src/emc/usr_intf/stepconf/stepconf.py:155
+#: src/emc/usr_intf/touchy/mdi.py:47 src/emc/usr_intf/stepconf/stepconf.py:155
 #: src/emc/usr_intf/pncconf/pncconf.py:462
 msgid "Spindle CW"
 msgstr "Broche en sens horaire"
 
-#: src/emc/usr_intf/touchy/mdi.py:48
-#: src/emc/usr_intf/stepconf/stepconf.py:155
+#: src/emc/usr_intf/touchy/mdi.py:48 src/emc/usr_intf/stepconf/stepconf.py:155
 #: src/emc/usr_intf/pncconf/pncconf.py:462
 msgid "Spindle CCW"
 msgstr "Broche en sens anti-horaire"
@@ -5521,28 +5258,23 @@ msgstr "Ajuster le numéro d'outil"
 msgid "Input control"
 msgstr "Contrôle d'entrée"
 
-#: src/emc/usr_intf/touchy/mdi.py:54
-#: src/emc/usr_intf/touchy/mdi.py:55
+#: src/emc/usr_intf/touchy/mdi.py:54 src/emc/usr_intf/touchy/mdi.py:55
 msgid "Straight rapid"
 msgstr "droite rapide"
 
-#: src/emc/usr_intf/touchy/mdi.py:56
-#: src/emc/usr_intf/touchy/mdi.py:57
+#: src/emc/usr_intf/touchy/mdi.py:56 src/emc/usr_intf/touchy/mdi.py:57
 msgid "Straight feed"
 msgstr "droite vitesse travail"
 
-#: src/emc/usr_intf/touchy/mdi.py:58
-#: src/emc/usr_intf/touchy/mdi.py:59
+#: src/emc/usr_intf/touchy/mdi.py:58 src/emc/usr_intf/touchy/mdi.py:59
 msgid "Arc CW"
 msgstr "Arc sens horaire"
 
-#: src/emc/usr_intf/touchy/mdi.py:60
-#: src/emc/usr_intf/touchy/mdi.py:61
+#: src/emc/usr_intf/touchy/mdi.py:60 src/emc/usr_intf/touchy/mdi.py:61
 msgid "Arc CCW"
 msgstr "Arc sens anti-horaire"
 
-#: src/emc/usr_intf/touchy/mdi.py:62
-#: src/emc/usr_intf/touchy/mdi.py:63
+#: src/emc/usr_intf/touchy/mdi.py:62 src/emc/usr_intf/touchy/mdi.py:63
 msgid "Dwell"
 msgstr "Tempo"
 
@@ -5558,10 +5290,8 @@ msgstr "Spindle synchronized feed"
 msgid "Rigid tap"
 msgstr "Taraudage rigide"
 
-#: src/emc/usr_intf/touchy/mdi.py:67
-#: src/emc/usr_intf/touchy/mdi.py:68
-#: src/emc/usr_intf/touchy/mdi.py:69
-#: src/emc/usr_intf/touchy/mdi.py:70
+#: src/emc/usr_intf/touchy/mdi.py:67 src/emc/usr_intf/touchy/mdi.py:68
+#: src/emc/usr_intf/touchy/mdi.py:69 src/emc/usr_intf/touchy/mdi.py:70
 msgid "Probe"
 msgstr "Palpeur"
 
@@ -12802,38 +12532,32 @@ msgstr "<b>Données mouvement</b>"
 msgid "gtk-cancel"
 msgstr "gtk-cancel"
 
-#: src/emc/task/emctaskmain.cc:427
-#: src/emc/task/emctaskmain.cc:460
+#: src/emc/task/emctaskmain.cc:427 src/emc/task/emctaskmain.cc:460
 #, c-format
 msgid "%s exceeds +X limit"
 msgstr "%s limite +X dépassée"
 
-#: src/emc/task/emctaskmain.cc:432
-#: src/emc/task/emctaskmain.cc:465
+#: src/emc/task/emctaskmain.cc:432 src/emc/task/emctaskmain.cc:465
 #, c-format
 msgid "%s exceeds +Y limit"
 msgstr "%s limite +Y dépassée"
 
-#: src/emc/task/emctaskmain.cc:437
-#: src/emc/task/emctaskmain.cc:470
+#: src/emc/task/emctaskmain.cc:437 src/emc/task/emctaskmain.cc:470
 #, c-format
 msgid "%s exceeds +Z limit"
 msgstr "%s limite +Z dépassée"
 
-#: src/emc/task/emctaskmain.cc:442
-#: src/emc/task/emctaskmain.cc:475
+#: src/emc/task/emctaskmain.cc:442 src/emc/task/emctaskmain.cc:475
 #, c-format
 msgid "%s exceeds -X limit"
 msgstr "%s limite -X dépassée"
 
-#: src/emc/task/emctaskmain.cc:447
-#: src/emc/task/emctaskmain.cc:480
+#: src/emc/task/emctaskmain.cc:447 src/emc/task/emctaskmain.cc:480
 #, c-format
 msgid "%s exceeds -Y limit"
 msgstr "%s limite -Y dépassée"
 
-#: src/emc/task/emctaskmain.cc:452
-#: src/emc/task/emctaskmain.cc:485
+#: src/emc/task/emctaskmain.cc:452 src/emc/task/emctaskmain.cc:485
 #, c-format
 msgid "%s exceeds -Z limit"
 msgstr "%s limite -Z dépassée"
@@ -12889,13 +12613,11 @@ msgstr "Pas de commande MDI hors du mode MDI"
 msgid "Can't run a program when not homed"
 msgstr "Pas de départ cycle avant la prise d'origine machine"
 
-#: src/emc/rs274ngc/interp_arc.cc:108
-#: src/emc/rs274ngc/rs274ngc_return.hh:175
+#: src/emc/rs274ngc/interp_arc.cc:108 src/emc/rs274ngc/rs274ngc_return.hh:175
 msgid "Zero radius arc"
 msgstr "Arc de rayon zero"
 
-#: src/emc/rs274ngc/interp_arc.cc:112
-#: src/emc/rs274ngc/interp_arc.cc:279
+#: src/emc/rs274ngc/interp_arc.cc:112 src/emc/rs274ngc/interp_arc.cc:279
 #, c-format
 msgid "Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g rel_err=%.4f%%"
 msgstr "Le rayon à la fin de l'arc diffère de celui du début: début=(%c%.4f,%c%.4f) centre=(%c%.4f,%c%.4f) fin=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g rel_err=%.4f%%"
@@ -13047,8 +12769,7 @@ msgid "Radius of cutter compensation entry arc is not greater than the tool radi
 msgstr "L'arc d'entrée de compensation de rayon d'outil est plus petit que le rayon de l'outil"
 
 #: src/emc/rs274ngc/interp_convert.cc:870
-#: src/emc/rs274ngc/interp_convert.cc:880
-#: src/emc/rs274ngc/interp_queue.cc:541
+#: src/emc/rs274ngc/interp_convert.cc:880 src/emc/rs274ngc/interp_queue.cc:541
 msgid "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr "Le mouvement en arc dans l'angle intérieur ne peut pas s'achever sans que l'outil n'interfère avec la pièce"
 
@@ -13065,8 +12786,7 @@ msgstr "Mouvement d'arc en arc, pour initier la compensation d'outil, ne pouvant
 #: src/emc/rs274ngc/interp_convert.cc:1040
 #: src/emc/rs274ngc/interp_convert.cc:3414
 #: src/emc/rs274ngc/interp_convert.cc:3417
-#: src/emc/rs274ngc/interp_convert.cc:3420
-#: src/emc/rs274ngc/interp_find.cc:97
+#: src/emc/rs274ngc/interp_convert.cc:3420 src/emc/rs274ngc/interp_find.cc:97
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "Position absolue %5.2f invalide pour l'axe rotatif wrapped %c"
@@ -13342,10 +13062,8 @@ msgstr "Le cycle préprogrammé G18.1 est impossible sur une machine sans axe V"
 msgid "Cannot use polar coordinates with G53"
 msgstr "Coordonnées polaires inutilisables avec G53"
 
-#: src/emc/rs274ngc/interp_find.cc:266
-#: src/emc/rs274ngc/interp_find.cc:271
-#: src/emc/rs274ngc/interp_find.cc:278
-#: src/emc/rs274ngc/interp_find.cc:337
+#: src/emc/rs274ngc/interp_find.cc:266 src/emc/rs274ngc/interp_find.cc:271
+#: src/emc/rs274ngc/interp_find.cc:278 src/emc/rs274ngc/interp_find.cc:337
 #: src/emc/rs274ngc/interp_find.cc:347
 msgid "Cannot specify X or Y words with polar coordinate"
 msgstr "Impossible de spécifier les mots X et Y avec des coordonnées polaires"
@@ -13389,8 +13107,7 @@ msgstr "Impossible de spécifier ensemble les coordonnées polaires et le mot Y"
 msgid "Polar coordinates can only be used for motion"
 msgstr "Les coordonnées polaires peuvent être utilisées seulement pour un mouvement"
 
-#: src/emc/rs274ngc/interp_read.cc:1112
-#: src/emc/rs274ngc/interp_read.cc:1116
+#: src/emc/rs274ngc/interp_read.cc:1112 src/emc/rs274ngc/interp_read.cc:1116
 #, c-format
 msgid "Bad character '\\%03o' used"
 msgstr "Caractère '\\%03o' incorrect"
@@ -13421,8 +13138,7 @@ msgstr "Crochet gauche manquant après 'elseif'"
 msgid "Cannot change #<%s>"
 msgstr "Ne peux modifier #<%s>"
 
-#: src/emc/rs274ngc/interp_read.cc:1889
-#: src/emc/rs274ngc/interp_read.cc:1932
+#: src/emc/rs274ngc/interp_read.cc:1889 src/emc/rs274ngc/interp_read.cc:1932
 #, c-format
 msgid "Internal error: Could not assign #<%s>"
 msgstr "Erreur interne: Ne peut assigner #<%s>"
@@ -14280,4 +13996,3 @@ msgstr "R inférieur à U dans un cycle dans le plan VW"
 #: src/emc/rs274ngc/rs274ngc_return.hh:214
 msgid "R less than V in cycle in UW plane"
 msgstr "R inférieur à V dans un cycle dans le plan UW"
-

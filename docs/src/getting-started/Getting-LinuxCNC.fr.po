@@ -1,0 +1,664 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-08 18:13+0100\n"
+"PO-Revision-Date: 2015-02-08 19:04+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Teem\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.3\n"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:2
+msgid ":lang en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:4
+msgid "= Getting LinuxCNC"
+msgstr "= Se procurer LinuxCNC[[cha:se_procurer_linuxcnc]]"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:10
+msgid ""
+"This section describes the recommended way to download and make a fresh "
+"install of LinuxCNC.  There are also <<sec:alternate_install_methods,"
+"Alternate Install Methods>> for the adventurous.  If you have an existing "
+"install that you want to upgrade, go to the <<cha:updating_linuxcnc,Updating "
+"LinuxCNC>> section instead."
+msgstr ""
+"Cette section décrit la voie recommandée pour télécharger et faire une "
+"nouvelle installation de LinuxCNC.  Il existe également des méthodes "
+"d'installation <<sec:install_alt,alternatives>> pour les aventuriers. Si "
+"l'installation est déjà existante, mais doit juste être mise à niveau, aller "
+"à la section <<sec:maj_linuxcnc,Mise à jour>> de LinuxCNC."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:18
+msgid ""
+"Fresh installs of LinuxCNC are most easily created using the Live/Install "
+"Image.  This is a hybrid ISO filesystem image that can be written to a USB "
+"storage device or a DVD and used to boot a computer.  At boot time you will "
+"be given a choice of booting the \"Live\" system (to run LinuxCNC without "
+"making any permanent changes to your computer) or booting the Installer (to "
+"install LinuxCNC and its operating system onto your computer's hard drive)."
+msgstr ""
+"Les nouvelles installations de LinuxCNC sont facilement réalisées en "
+"utilisant l'image ISO du DVD live.  Il s'agit d'une image ISO hybride dont "
+"le système de fichiers peut être écrit sur une clé USB ou gravé sur un DVD "
+"et utilisé pour démarrer le PC.  Au moment du boot, un choix est fourni "
+"permettant de démarrer le système en \"Live\" (ce qui permet de lancer et "
+"d'évaluer LinuxCNC sans modifier quoi que ce soit sur l'ordinateur) ou de "
+"démarrer l'installateur pour installer LinuxCNC et son système "
+"d'exploitation sur le disque dur de l'ordinateur."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:20
+msgid "The outline of the process looks like this:"
+msgstr "Le processus dans ses grandes lignes ressemble à cela:"
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:25
+msgid "Download the Live/Install Image."
+msgstr "Télécharger l'image ISO."
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:25
+msgid "Write the image to a USB storage device or DVD."
+msgstr "Écrire cette image sur une clé USB ou la graver sur un DVD."
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:25
+msgid "Boot the Live system to test out LinuxCNC."
+msgstr "Démarrer sur le support choisi pour tester simplement LinuxCNC."
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:25
+msgid "Boot the Installer to install LinuxCNC."
+msgstr "Démarrer sur le support choisi pour installer LinuxCNC."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:28
+msgid "== Download the image"
+msgstr "== Télécharger une image"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:31
+msgid ""
+"This section describes some methods for downloading the Live/Install Image."
+msgstr ""
+"Cette section décrit les différentes méthodes de téléchargement de l'image "
+"ISO du DVD live."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:34
+msgid "=== Normal Download"
+msgstr "=== Téléchargement standard[[sec:telechargement_standard,standard]]"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:36
+msgid "Download the Live/Install CD by clicking here:"
+msgstr "Télécharger l'image ISO disponible ici:"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:38
+msgid "http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso"
+msgstr "http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:41
+msgid "=== Download using zsync"
+msgstr "=== Télécharger l'image à l'aide de zsync"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:46
+msgid ""
+"zsync is a download application that efficiently resumes interrupted "
+"downloads and efficiently transfers large files with small modifications (if "
+"you have an older local copy).  Use zsync if you have trouble downloading "
+"the image using the normal_download method."
+msgstr ""
+"zsync est une application de téléchargement très efficace, elle permet la "
+"reprise en cas de transfert interrompu elle est également efficace dans les "
+"transferts de gros fichiers avec de petites modifications (à condition "
+"d'avoir localement l'ancienne copie).  Utiliser zsync si la méthode de "
+"téléchargement <<sec:telechargement_standard,standard>> pose problème."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:52
+#, no-wrap
+msgid ""
+"zsync in Linux::\n"
+"    Install zsync using your favourite package management\n"
+"    application such as Synaptic or, by running `sudo apt-get install\n"
+"    zsync` in a terminal.  Then run this command to download (in a\n"
+"    terminal): `zsync http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync`\n"
+msgstr ""
+"zsync sous Linux::\n"
+"    Installer zsync avec le gestionnaire de paquets Synaptic ou,\n"
+"    en lançant la commande `sudo apt-get install zsync` dans une console.\n"
+"    Puis, pour télécharger l'image ISO, toujours dans une console, lancer:\n"
+"    `zsync http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync`\n"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:58
+#, no-wrap
+msgid ""
+"zsync in Windows::\n"
+"    There is a Windows port of zsync.  It works as a\n"
+"    console application, just like the Linux version, so\n"
+"    get out that Command Prompt.  It can be downloaded from:\n"
+"    https://www.assembla.com/spaces/zsync-windows/documents\n"
+msgstr ""
+"zsync sous Windows::\n"
+"    Zsync a été porté sous Windows.  Il fonctionne en ligne de commande\n"
+"    dans la console, comme sous Linux.  Il peut être téléchargé depuis:\n"
+"\thttps://www.assembla.com/spaces/zsync-windows/documents\n"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:61
+msgid "=== Verify the image"
+msgstr "=== Vérifier l'intégrité de l'image ISO"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:65
+msgid ""
+"After downloading, verify the checksum of the image to ensure integrity.  In "
+"a terminal, run `md5sum linuxcnc-2.7-wheezy.iso` or `sha256sum linuxcnc-2.7-"
+"wheezy.iso`, and compare to these checksums:"
+msgstr ""
+"Avant de graver un CD, il est fortement recommandé de vérifier la somme de "
+"contrôle 'md5sum' ou 'sha256sum' de l'image ISO pour s'assurer de son "
+"intégrité. Ouvrir une console dans le répertoire de téléchargement, puis "
+"lancer: 'd5sum linuxcnc-2.7-wheezy.iso` ou `sha256sum linuxcnc-2.7-wheezy."
+"iso` et comparer le résultat avec ces sommes de contrôle:"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:66
+#, no-wrap
+msgid "-----\n"
+msgstr "-----\n"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:69
+#, no-wrap
+msgid ""
+"md5sum: 3aa031895ac74a81d0639b09cd812c22\n"
+"sha256sum: c47d8c8432b710f0c28f6b98389af6ad4c429d024501335e95a2646a894f45e9\n"
+"-----\n"
+msgstr ""
+"md5sum: 3aa031895ac74a81d0639b09cd812c22\n"
+"sha256sum: c47d8c8432b710f0c28f6b98389af6ad4c429d024501335e95a2646a894f45e9\n"
+"-----\n"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:77
+msgid ""
+"Verify md5sum on Windows or Mac:: + Windows and Mac OS X do not come with an "
+"md5sum program, but there are alternatives.  More information can be found "
+"at: + https://help.ubuntu.com/community/HowToMD5SUM"
+msgstr ""
+"Vérifier la somme md5 sous Windows ou Mac:: + Windows et Mac OS X ne "
+"disposent pas, d'origine, de programme de contrôle de la somme md5, mais il "
+"existe des alternatives.  D'autres informations sont ici: + https://help."
+"ubuntu.com/community/HowToMD5SUM"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:80
+msgid "== Write the image to a bootable device"
+msgstr "== Écrire l'image sur un support bootable"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:84
+msgid ""
+"The LinuxCNC Live/Install Image is a hybrid ISO image which can be written "
+"directly to a USB storage device (flash drive) or a DVD and used to boot a "
+"computer.  The image is too large to fit on a CD."
+msgstr ""
+"L'image ISO du live DVD de LinuxCNC est une image ISO hybride, elle peut "
+"être directement écrite sur un support de stockage USB bootable, tel qu'une "
+"clé, une carte flash ou un disque dur, ou, gravée sur un DVD. Le support "
+"choisi est ensuite utilisé pour booter l'ordinateur.  L'image actuelle est "
+"trop grande pour tenir sur un CD."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:95
+#, no-wrap
+msgid ""
+"Writing the image to a USB storage device in Linux::\n"
+"    * Connect a USB storage device (for example a flash drive or thumb\n"
+"      drive type device).\n"
+"    * Determine the device file corresponding to the USB flash drive.\n"
+"      This information can be found in the output of `dmesg` after\n"
+"      connecting the device.  `/proc/partitions` may also be helpful.\n"
+"    * Use the `dd` command to write the image to your USB storage device.\n"
+"      For example, if your storage device showed up as `/dev/sde`,\n"
+"      then use this command:\n"
+"      +\n"
+"-----\n"
+msgstr ""
+"Écrire l'image sur une support de stockage USB sous Linux::\n"
+"    * Connecter un support de stockage USB (par exemple un flash disque ou une clé).\n"
+"    * Déterminer le port USB correspondant au support.\n"
+"     Cette information est disponible dans `dmesg` après la connection au port.\n"
+"     `/proc/partitions` peut aussi être utile.\n"
+"    * Utiliser la commande `dd` pour écrire l'image sur le support de stockage USB.\n"
+"      Par exemple, Si le support de stockage est sur `/dev/sde`, alors utiliser\n"
+"      cette commande:\n"
+"      +\n"
+"-----\n"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:97
+#, no-wrap
+msgid ""
+"dd if=linuxcnc-2.7-wheezy.iso of=/dev/sde\n"
+"-----\n"
+msgstr ""
+"dd if=linuxcnc-2.7-wheezy.iso of=/dev/sde\n"
+"-----\n"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:100
+msgid "Writing the image to a DVD in Linux::"
+msgstr "Graver l'image sur un DVD sous Linux::"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:110
+#, no-wrap
+msgid ""
+" . Insert a blank DVD into your burner. A 'CD/DVD Creator' or\n"
+"   'Choose Disc Type' window will pop up. \n"
+"   Close this, as we will not be using it.\n"
+" . Browse to the downloaded image in the file browser.\n"
+" . Right click on the ISO image file and choose Write to Disc.\n"
+" . Select the write speed.  It is\n"
+"   recommended that you write at the lowest possible speed.\n"
+" . Start the burning process.\n"
+" . If a 'choose a file name for the disc image' window pops up, just pick OK.\n"
+msgstr ""
+" . Insérer un DVD vierge dans lr graveur. Une fenêtre surgissante\n"
+"   'CD/DVD Creator' ou 'Choisissez le type de disque' va s'ouvrir, la fermer, \n"
+"   elle ne sera pas utilisée.\n"
+" . Naviguer jusqu'au répertoire contenant l'image ISO.\n"
+" . Faire un clic droit sur le fichier de l'image ISO et choisir\n"
+"   'Graver le Disque'.\n"
+" . Sélectionner la vitesse de gravure. Il est recommandé de graver à la vitesse\n"
+"   la plus lente possible pour éviter toute erreur de gravure.\n"
+" . Lancer la gravure.\n"
+" . Si le choix d'un nom de fichier est demandé pour l'image disque, cliquer juste 'OK'.\n"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:112
+msgid "Writing the image to a DVD in Windows::"
+msgstr "Graver l'image sur un DVD sous Windows::"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:119
+#, no-wrap
+msgid ""
+" . Download and install Infra Recorder, a free and open source image\n"
+"   burning program: http://infrarecorder.org/\n"
+" . Insert a blank CD in the drive and select Do nothing or Cancel if an\n"
+"   auto-run dialog pops up.\n"
+" . Open Infra Recorder, and select the \n"
+"   'Actions' menu, then 'Burn image'.\n"
+msgstr ""
+" . Si Windows n'intègre pas un logiciel de gravure d'image il est possible de\n"
+"   télécharger Infra Recorder, un logiciel de gravure d'images gratuit et open\n"
+"   source sur http://infrarecorder.org/\n"
+" . Insérer un DVD vierge dans le graveur, sélectionner 'Quitter' ou \n"
+"   'Abandonner' si un auto-run démarre.\n"
+" . Cliquer droit sur le fichier ISO et sélectionne le menu 'Graver l'image disque' \n"
+"   ou lancer 'Infra Recorder' et choisir le menu 'Actions', puis 'Graver l'image'.\n"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:122
+msgid "== Testing LinuxCNC"
+msgstr "== Tester LinuxCNC"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:129
+msgid ""
+"With the USB storage device plugged in or the DVD in the DVD drive, the shut "
+"down the computer then turn the computer back on. This will boot the "
+"computer from the Live/Install Image and choose the Live boot option.  Once "
+"the computer has booted up you can try out LinuxCNC without installing it. "
+"You can not create custom configurations or modify most system settings like "
+"screen resolution unless you install LinuxCNC."
+msgstr ""
+"Avec le support de stockage USB connecté ou le DVD Live de LinuxCNC dans le "
+"graveur de CD/DVD, redémarrer l'ordinateur de sorte qu'il démarre sur le "
+"support choisi. Quand l'ordinateur a redémarré, choisir soit, d'évaluer "
+"LinuxCNC sans installer quoi que ce soit, ou de l'installer avec son système "
+"d'exploitation.  Il n'est pas possible de créer de configuration "
+"personnalisée ni de modifier les réglages du système comme la résolution de "
+"l'écran sans installer LinuxCNC."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:132
+msgid ""
+"To try out LinuxCNC from the Applications/CNC menu pick LinuxCNC. Then "
+"select a sim configuration to try out."
+msgstr ""
+"Pour évaluer LinuxCNC, aller dans le menu Applications/CNC et choisir "
+"'LinuxCNC'. Puis sélectionnez une configuration en sim (simulation) et "
+"essayez la."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:135
+msgid ""
+"To see if your computer is suitable for software step pulse generation run "
+"the Latency Test as shown <<latency-test,here>>."
+msgstr ""
+"Pour savoir si votre ordinateur est utilisable par le générateur logiciel "
+"d'impulsions de pas, lancer un test de latence comme indiqué <<cha:test-de-"
+"latence, dans ce chapitre>>."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:138
+msgid "== Installing LinuxCNC"
+msgstr "== Installer LinuxCNC"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:140
+msgid ""
+"To install LinuxCNC from the LiveCD select 'Install (Graphical)' at bootup."
+msgstr ""
+"Pour installer LinuxCNC depuis le Live DVD, sélectionner 'Installation "
+"graphique' dans le menu du boot."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:143
+msgid "== Updates to LinuxCNC (((Updates to LinuxCNC)))"
+msgstr "== Mise à jour de LinuxCNC[[sec:maj_linuxcnc,Mise à jour]]"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:148
+msgid ""
+"With the normal install the Update Manager will notify you of updates to "
+"LinuxCNC when you go on line and allow you to easily upgrade with no Linux "
+"knowledge needed.  It is OK to upgrade everything except the operating "
+"system when asked to."
+msgstr ""
+"Avec l'installation standard, le gestionnaire de mise à jour avertira des "
+"mises à jour de LinuxCNC disponibles en ligne et permettra de mettre à jour "
+"facilement sans connaissance particulière de Linux.  Il est possible de "
+"faire toutes les mises à jour proposées, excepté celles du système "
+"d'exploitation."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:150
+msgid "WARNING: Do not upgrade the operating system if promped to do so."
+msgstr ""
+"WARNING: [red]#Ne jamais mettre à jour vers une nouvelle distribution, même "
+"si elle est proposée.#"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:153
+msgid "== Install Problems"
+msgstr "== Problèmes d'installation"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:157
+msgid ""
+"In rare cases you might have to reset the BIOS to default settings if during "
+"the Live CD install it cannot recognize the hard drive during the boot up."
+msgstr ""
+"Dans de rares cas, le BIOS devra être réinitialisé à ses réglages par défaut "
+"si lors de l'installation du Live CD, le disque dur n'est plus reconnu "
+"pendant le démarrage."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:160
+msgid ""
+"[[sec:alternate_install_methods,Alternate Install Methods]] == Alternate "
+"Install Methods"
+msgstr ""
+"== Méthodes d'installation alternatives[[sec:install_alt,alternatives]]"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:164
+msgid ""
+"The easiest, preferred way to install LinuxCNC is to use the Live/Install "
+"Image as described above.  That method is as simple and reliable as we can "
+"make it, and is suitable for novice users and experienced users alike."
+msgstr ""
+"La manière préférable d'installer LinuxCNC, c'est d'utiliser l'image Live/"
+"Install comme décrit précédemment.  Cette méthode est aussi simple et fiable "
+"que nous ayons pu faire. Elle est accessible aux novices comme aux "
+"utilisateurs expérimentés."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:168
+msgid ""
+"In addition, for experienced users who are familiar with Debian system "
+"administration (finding install images, manipulating apt sources, changing "
+"kernel flavors, etc), new installs are supported on following platforms:"
+msgstr ""
+"En plus, pour les utilisateurs expérimentés, familier de l'administration "
+"des systèmes Debian (trouver les images d'installation, manipuler les "
+"sources apt, changer les options du kernel etc), de nouvelles installations "
+"sont prises en charge sur les plate-formes suivantes:"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:180
+#, no-wrap
+msgid ""
+"[options=\"header\"]\n"
+"|===================================================================\n"
+"| Distribution   | Architecture | kernel     | Typical use\n"
+"| Debian Wheezy  | i386         | RTAI       | machine control & simulation\n"
+"| Debian Wheezy  | amd64 & i386 | Preempt-RT | machine control & simulation\n"
+"| Debian Wheezy  | amd64 & i386 | vanilla    | simulation only\n"
+"| Ubuntu Precise | i386         | RTAI       | machine control & simulation\n"
+"| Ubuntu Precise | amd64 & i386 | vanilla    | simulation only\n"
+"| Ubuntu Lucid   | i386         | RTAI       | machine control & simulation\n"
+"| Ubuntu Lucid   | amd64 & i386 | vanilla    | simulation only\n"
+"|===================================================================\n"
+msgstr ""
+"[options=\"header\"]\n"
+"|===========================================================================\n"
+"| Distribution   | Architecture | kernel     | Utilisation typique\n"
+"| Debian Wheezy  | i386         | RTAI       | contrôle machine & simulation\n"
+"| Debian Wheezy  | amd64 & i386 | Preempt-RT | contrôle machine & simulation\n"
+"| Debian Wheezy  | amd64 & i386 | vanilla    | simulation seule\n"
+"| Ubuntu Precise | i386         | RTAI       | contrôle machine & simulation\n"
+"| Ubuntu Precise | amd64 & i386 | vanilla    | simulation seule\n"
+"| Ubuntu Lucid   | i386         | RTAI       | contrôle machine & simulation\n"
+"| Ubuntu Lucid   | amd64 & i386 | vanilla    | simulation seule\n"
+"|============================================================================\n"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:183
+msgid ""
+"The RTAI kernels are available for download from the linuxcnc.org debian "
+"archive.  The apt source is:"
+msgstr ""
+"Les kernels RTAI sont disponibles au téléchargement depuis les archives "
+"linuxcnc.org de Debian.  Les sources apt sont:"
+
+#. type: Bullet: '    * '
+#: Getting-LinuxCNC.txt:187
+msgid "Debian Wheezy: `deb http://linuxcnc.org wheezy base`"
+msgstr "Debian Wheezy: `deb http://linuxcnc.org wheezy base`"
+
+#. type: Bullet: '    * '
+#: Getting-LinuxCNC.txt:187
+msgid "Ubuntu Precise: `deb http://linuxcnc.org precise base`"
+msgstr "Ubuntu Precise: `deb http://linuxcnc.org precise base`"
+
+#. type: Bullet: '    * '
+#: Getting-LinuxCNC.txt:187
+msgid "Ubuntu Lucid: `deb http://linuxcnc.org lucid base`"
+msgstr "Ubuntu Lucid: `deb http://linuxcnc.org lucid base`"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:191
+msgid ""
+"The Preempt-RT kernels are available from the regular debian.org archive, as "
+"part of Debian Wheezy.  No special apt source is needed.  The packages are "
+"called `linux-image-rt-amd64` and `linux-image-rt-686-pae`."
+msgstr ""
+"Les kernels Preempt-RT sont disponibles dans les archives courantes de "
+"debian.org, comme parties de Debian Wheezy.  Aucune source apt spéciale "
+"n'est nécessaire.  Les paquets sont nommés `linux-image-rt-amd64` et `linux-"
+"image-rt-686-pae`."
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:194
+msgid "=== Installing on Debian Wheezy (with Preempt-RT kernel)"
+msgstr "=== Installation sous Debian Wheezy (avec kernel Preempt-RT)"
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:198
+msgid ""
+"Install Debian Wheezy (Debian version 7), either i386 or amd64.  You can "
+"download the installer here: https://www.debian.org/CD/http-ftp/#stable"
+msgstr ""
+"Installer Debian Wheezy (Debian version 7), soit i386, soit amd64.  "
+"L'installateur est téléchargeable ici: https://www.debian.org/CD/http-ftp/"
+"#stable"
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:201
+msgid ""
+"Run `sudo apt-get update` followed by `sudo apt-get dist-upgrade` to bring "
+"the machine up to date with the latest packages in Debian Wheezy."
+msgstr ""
+"Faire un `sudo apt-get update` suivi d'un `sudo apt-get dist-upgrade` pour "
+"mettre la machine à jour avec les derniers paquets de Debian Wheezy."
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:205
+msgid ""
+"Install the Preempt-RT kernel and modules by running: `sudo apt-get install "
+"linux-image-rt-amd64` or `sudo apt-get install linux-image-rt-686-pae`."
+msgstr ""
+"Installer le kernel Preempt-RT et ses modules par un: `sudo apt-get install "
+"linux-image-rt-amd64` ou: `sudo apt-get install linux-image-rt-686-pae`."
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:208
+msgid ""
+"Reboot, and make sure you boot into the Preempt-RT kernel. When you log in, "
+"verify that `uname -r` says 3.2.0-4-rt-686-pae."
+msgstr ""
+"Rebooter, et vérifier que la machine boot bien sur le kernel Preempt-RT.  Au "
+"login, vérifier que `uname -r` donne bien 3.2.0-4-rt-686-pae."
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:211 Getting-LinuxCNC.txt:235
+msgid ""
+"Add the LinuxCNC Archive Signing Key to your apt keyring by running `sudo "
+"apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 8f374fef`"
+msgstr ""
+"Ajouter la clé de signature des archives LinuxCNC dans le apt keyring en "
+"faisant: `sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key "
+"8f374fef`"
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:214
+msgid ""
+"Add a new apt source that looks like this: `deb http://linuxcnc.org/ wheezy "
+"base 2.7-uspace`"
+msgstr ""
+"Ajouter une source apt telle que: `deb http://linuxcnc.org/ wheezy base 2.7-"
+"uspace`"
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:217 Getting-LinuxCNC.txt:241
+msgid ""
+"Run `sudo apt-get update` again to fetch the package list from linuxcnc.org."
+msgstr ""
+"Lancer `sudo apt-get update` encore une fois pour rafraîchir la liste depuis "
+"linuxcnc.org."
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:219
+msgid "Run `sudo apt-get install linuxcnc-uspace`."
+msgstr "Lancer `sudo apt-get install linuxcnc-uspace`."
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:221 Getting-LinuxCNC.txt:253
+msgid "Machine away!"
+msgstr "La machine est prête!"
+
+#. type: Plain text
+#: Getting-LinuxCNC.txt:224
+msgid "=== Installing on Ubuntu Precise"
+msgstr "=== Installation sous Ubuntu Precise"
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:229
+msgid ""
+"Install Ubuntu Precise 12.04 x86 (32-bit). Any flavor should work (regular "
+"Ubuntu, Xubuntu, Lubuntu, etc). 64-bit (AMD64)  is currently not supported. "
+"You can download the installer here: http://releases.ubuntu.com/precise/"
+msgstr ""
+"Installer Ubuntu Precise 12.04 x86 (32-bit). N'importe quel environnement "
+"doit FONCTIONNER (Ubuntu standard, Xubuntu, Lubuntu etc). Le 64-bit (AMD64)  "
+"n'est actuellement pas supporté. L'installateur est disponible au "
+"téléchargement ici: http://releases.ubuntu.com/precise/"
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:232
+msgid ""
+"Run `sudo apt-get update` followed by `sudo apt-get dist-upgrade` to bring "
+"the machine up to date with the latest packages in Ubuntu Precise."
+msgstr ""
+"Faire un `sudo apt-get update` suivi d'un `sudo apt-get dist-upgrade` pour "
+"mettre la machine à jour avec les derniers paquets de Ubuntu Precise."
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:238
+msgid ""
+"Add a new apt source that looks like this: `deb http://linuxcnc.org/ precise "
+"base 2.7-rtai`"
+msgstr ""
+"Ajouter la nouvelle source apt avec: `deb http://linuxcnc.org/precise base "
+"2.7-rtai`"
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:244
+msgid ""
+"Install the RTAI kernel and modules by running: `sudo apt-get install linux-"
+"image-3.4-9-rtai-686-pae rtai-modules-3.4-9-rtai-686-pae`"
+msgstr ""
+"Installer le kernel RTAI et ses modules avec un: `sudo apt-get install linux-"
+"image-3.4-9-rtai-686-pae rtai-modules-3.4-9-rtai-686-pae`"
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:247
+msgid ""
+"If you want to be able to build LinuxCNC from source using the git repo, "
+"also run `sudo apt-get install linux-headers-3.4-9-rtai-686-pae`"
+msgstr ""
+"Pour compiler LinuxCNC à partir de ses sources, en utilisant le dépôt git, "
+"lancer `sudo apt-get install linux-headers-3.4-9-rtai-686-pae`"
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:250
+msgid ""
+"Reboot, and make sure you boot into the rtai kernel. When you log in, verify "
+"that `uname -r` says 3.4-9-rtai-686-pae."
+msgstr ""
+"Redémarrer puis s'assurer que le kernel est bien le kernel rtai. Au login, "
+"vérifier que `uname -r` donne bien 3.4-9-rtai-686-pae."
+
+#. type: Bullet: '* '
+#: Getting-LinuxCNC.txt:252
+msgid "Run `sudo apt-get install linuxcnc`."
+msgstr "Lancer `sudo apt-get install linuxcnc`."
+
+#~ msgid "== Alternate Install Methods"
+#~ msgstr ""
+#~ "== Méthodes d'installation alternatives[[sec:Install_alt,alternatives]]"

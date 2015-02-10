@@ -1,4 +1,8 @@
+:lang: en
+
 = Updating LinuxCNC
+
+[[cha:updating_linuxcnc,Updating LinuxCNC]]
 
 This section describes how to upgrade LinuxCNC to version 2.7 from
 version 2.6.  It assumes that you have an existing 2.6 install that you
@@ -30,6 +34,7 @@ Codename:       wheezy
 You should be running on Debian Wheezy (as above), or Ubuntu Precise,
 or Ubuntu Lucid.
 
+[[sec:setting_apt_sources,Setting apt sources]]
 
 === Setting apt sources
 
@@ -97,8 +102,8 @@ The process again differs depending on your platform.
 
 Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
 
-* Open Synaptic using the instructions in <<_setting_apt_sources,Setting
-  apt sources>> above.
+* Open Synaptic using the instructions in
+<<sec:setting_apt_sources,Setting apt sources>> above.
 
 * Click the `Reload` button.
 

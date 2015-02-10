@@ -1,0 +1,293 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-08 20:42+0100\n"
+"PO-Revision-Date: 2015-02-08 20:50+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.3\n"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:2
+msgid ":lang: en"
+msgstr "﻿:lang: fr"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:4
+msgid "= About LinuxCNC"
+msgstr "= À propos du logiciel LinuxCNC"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:6
+msgid "== The Software"
+msgstr "== Le logiciel LinuxCNC"
+
+#. type: Bullet: '* '
+#: About-LinuxCNC.txt:39
+msgid ""
+"LinuxCNC (the Enhanced Machine Control) is a software system for computer "
+"control of machine tools such as milling machines and lathes, robots such as "
+"puma and scara and other computer controlled machines up to 9 axes."
+msgstr ""
+"LinuxCNC (the Enhanced Machine Control) est un logiciel de contrôle de "
+"machines-outils telles que fraiseuses, tours, robots Puma , Scara et autres "
+"machines numériques comportant jusqu'à 9 axes."
+
+#. type: Bullet: '* '
+#: About-LinuxCNC.txt:39
+msgid ""
+"LinuxCNC is free software with open source code. Current versions of LinuxCNC "
+"are entirely licensed under the GNU General Public License and Lesser GNU "
+"General Public License (GPL and LGPL)"
+msgstr ""
+"LinuxCNC est un logiciel libre avec code source ouvert. Les versions actuelles "
+"de LinuxCNC sont entièrement sous licence GNU Lesser General Public et de GNU "
+"General Public License (GPL et LGPL)"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:39
+#, no-wrap
+msgid ""
+"* LinuxCNC provides:\n"
+"** a graphical user interface (actually several interfaces to choose from)\n"
+"** an interpreter for 'G-code' (the RS-274 machine tool programming language)\n"
+"** a realtime motion planning system with look-ahead\n"
+"** operation of low-level machine electronics such as sensors and motor drives\n"
+"** an easy to use 'breadboard' layer for quickly creating a unique \n"
+"   configuration for your machine\n"
+"** a software PLC programmable with ladder diagrams\n"
+"** easy installation with a Live-CD\n"
+"* It does not provide drawing (CAD - Computer Aided Design) or G-code\n"
+"  generation from the drawing (CAM - Computer Automated Manufacturing)\n"
+"  functions.\n"
+"* It can simultaneously move up to 9 axes and supports a variety of\n"
+"  interfaces.\n"
+"* The control can operate true servos (analog or PWM) with the feedback\n"
+"  loop closed by the LinuxCNC software at the computer, or open loop with\n"
+"  step-servos or stepper motors.\n"
+"* Motion control features include: cutter radius and length\n"
+"  compensation, path deviation limited to a specified tolerance, lathe\n"
+"  threading, synchronized axis motion, adaptive feedrate, operator feed\n"
+"  override, and constant velocity control.\n"
+"* Support for non-Cartesian motion systems is provided via custom\n"
+"  kinematics modules. Available architectures include hexapods (Stewart\n"
+"  platforms and similar concepts) and systems with rotary joints to\n"
+"  provide motion such as PUMA or SCARA robots.\n"
+"* LinuxCNC runs on Linux using real time extensions. \n"
+msgstr ""
+"* LinuxCNC propose:\n"
+"** Une interface graphique (et plusieurs interfaces au choix).\n"
+"** Un interpréteur de 'G-code' (RS-274, langage de programmation des machines-outils).\n"
+"** Un système prédictif de planification de trajectoire temps réel.\n"
+"** La gestion du fonctionnement de l'électronique machine de bas niveau, comme\n"
+"   que les capteurs et les pilotes de moteurs.\n"
+"** Un assistant de configuration simple à utiliser pour créer rapidement une\n"
+"   configuration spécifique à la machine.\n"
+"** Un logiciel d'automate programmable pour schémas à contacts (Ladder).\n"
+"** Une installation facile à partir d'un DVD live.\n"
+"* Il ne fournit pas directement de logiciel de dessin (DAO) ni de générateur de G-code.\n"
+"* Il peut piloter simultanément jusqu'à 9 axes et supporte une grande variété\n"
+"  d'interfaces.\n"
+"* Le contrôleur peut fonctionner avec de vrais servomoteurs (analogiques ou PWM)\n"
+"  en boucle fermée ou avec des moteurs pas à pas en boucle ouverte ou en step-servos.\n"
+"* Le contrôleur de mouvement assure: les compensations de rayon et/ou de\n"
+"  longueur d'outil, la déviation de trajectoire d'usinage contrôlée par une\n"
+"  tolérance spécifiée, le filetage sur tour, le taraudage rigide, les\n"
+"  mouvements avec axes synchronisés, la vitesse d'avance adaptative, la\n"
+"  correction de vitesse par l'opérateur, le contrôle de vitesse de coupe constante etc.\n"
+"* Il supporte les systèmes à mouvements non cartésiens grâce aux modules de\n"
+"  cinématique personnalisée.\n"
+"  Les architectures disponibles incluent les hexapodes (plate-forme de Stewart\n"
+"  et concepts similaires) et les systèmes à articulations rotatives pour\n"
+"  assurer les mouvements de robots tels que PUMA ou SCARA.\n"
+"* LinuxCNC fonctionne sous Linux en utilisant ses extensions temps réel.\n"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:41
+msgid "== The Operating System"
+msgstr "== Le système d'exploitation"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:44
+msgid ""
+"LinuxCNC is available as ready-to-use packages for the Ubuntu and Debian "
+"distributions."
+msgstr ""
+"LinuxCNC est disponible en paquets prêts à utiliser pour les distributions "
+"Ubuntu ou Debian."
+
+#. type: Plain text
+#: About-LinuxCNC.txt:47
+msgid "== Getting Help"
+msgstr "== Trouver de l'aide"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:49
+msgid "=== IRC"
+msgstr "=== Les salons IRC"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:53
+msgid ""
+"IRC stands for Internet Relay Chat.  It is a live connection to other LinuxCNC "
+"users.  The LinuxCNC IRC channel is #linuxcnc on freenode."
+msgstr ""
+"IRC signifie Internet Relay Chat.  Il s'agit d'une connexion en direct avec "
+"d'autres utilisateurs LinuxCNC.  Le canal LinuxCNC sur IRC est: #linuxcnc sur "
+"freenode.net."
+
+#. type: Plain text
+#: About-LinuxCNC.txt:57
+msgid ""
+"The simplest way to get on the IRC is to use the embedded java client on this "
+"http://www.linuxcnc.org/index.php/english/community[page]."
+msgstr ""
+"La manière la plus simple d'aller sur IRC est d'utiliser le client embarqué "
+"sur cette page: http://webchat.freenode.net/?channels=linuxcnc"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:59
+msgid "Some IRC etiquette::"
+msgstr "Un peu d'éthique sur l'IRC::"
+
+#. type: Bullet: ' - '
+#: About-LinuxCNC.txt:72
+msgid "Ask specific questions... Avoid questions like \"Can someone help me?\"."
+msgstr "Posez des questions précises... Évitez le \"quelqu'un peut m'aider?\"."
+
+#. type: Bullet: ' - '
+#: About-LinuxCNC.txt:72
+msgid ""
+"If you're really new to all this, think a bit about your question before "
+"typing it. Make sure you give enough information so someone can solve your "
+"question."
+msgstr ""
+"Si vous êtes vraiment nouveau dans tout cela, réfléchissez à votre question "
+"avant de la poser. Assurez-vous de donner suffisamment d'informations pour que "
+"quelqu'un puisse résoudre votre problème."
+
+#. type: Bullet: ' - '
+#: About-LinuxCNC.txt:72
+msgid ""
+"Have some patience when waiting for an answer, sometimes it takes a while to "
+"formulate an answer or everyone might be busy working or something."
+msgstr ""
+"Faites preuve de patience quand vous attendez une réponse, il faut parfois du "
+"temps pour formuler une réponse. Tout les participants peuvent être occupés, à "
+"travailler par exemple :-) ou à autre chose."
+
+#. type: Bullet: ' - '
+#: About-LinuxCNC.txt:72
+msgid ""
+"Set up your IRC account with your unique name so people will know who you are. "
+"If you use the java client, use the same name every time you log in. This "
+"helps people remember who you are and if you have been on before many will "
+"remember the past discussions which saves time on both ends."
+msgstr ""
+"Configurez votre compte IRC avec un pseudo unique afin que les participants "
+"sachent qui vous êtes. Si vous utilisez le client java, utilisez le même "
+"pseudo à chaque fois que vous vous connecter, cela aidera les participants à "
+"se rappeler qui vous êtes, ainsi, si vous êtes déjà venu avant, beaucoup se "
+"souviendront des discussions passées, ce qui fait gagner du temps à tout le "
+"monde."
+
+#. type: Plain text
+#: About-LinuxCNC.txt:76
+msgid ""
+"Sharing Files:: The most common way to share files on the IRC is to upload the "
+"file to one of the following or a similar service and paste the link:"
+msgstr ""
+"Partage de fichiers sur IRC:: La façon la plus courante de partager des "
+"fichiers sur IRC est de charger le fichier sur un des services suivants ou "
+"service similaire, puis coller le lien vers le fichier, sur l'IRC:"
+
+#. type: Bullet: '* '
+#: About-LinuxCNC.txt:78
+msgid ""
+"'For text' - http://pastebin.com/ , http://pastie.org/, https://gist.github."
+"com/"
+msgstr ""
+"'Pour le texte' - http://pastebin.com/, http://pastie.org/, https://gist."
+"github.com/"
+
+#. type: Bullet: '* '
+#: About-LinuxCNC.txt:80
+msgid ""
+"'For pictures' - http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/"
+msgstr ""
+"'Pour les photos' - http://imagebin.org/, http://imgur.com/, http://bayimg.com/"
+
+#. type: Bullet: '* '
+#: About-LinuxCNC.txt:82
+msgid ""
+"'For files' - https://filedropper.com/ , http://filefactory.com/ , "
+"http://1fichier.com/"
+msgstr ""
+"'Pour les fichiers' - https://filedropper.com/, http://filefactory.com/, "
+"http://1fichier.com/"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:84
+msgid "=== Mailing List"
+msgstr "=== Les listes de diffusion"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:91
+msgid ""
+"An Internet Mailing List is a way to put questions out for everyone on that "
+"list to see and answer at their convenience. You get better exposure to your "
+"questions on a mailing list than on the IRC but answers take longer. In a "
+"nutshell you e-mail a message to the list and either get daily digests or "
+"individual replies back depending on how you set up your account."
+msgstr ""
+"Une liste de diffusion sur Internet est un moyen de poser des questions, tout "
+"les abonnés à cette liste pourrons lire et répondre à leur convenance.  Vous "
+"obtiendrez une meilleurs visibilité de vos questions sur une liste de "
+"diffusion plutôt que sur l'IRC et vous aurez plus de réponses.  En quelques "
+"mots, vous envoyez un e-mail à la liste et selon comment vous avez configuré "
+"votre compte, vous aurez les réponses soit, regroupées quotidiennement, soit "
+"individuellement."
+
+#. type: Plain text
+#: About-LinuxCNC.txt:94
+msgid ""
+"You can subscribe to the emc-users mailing list at: https://lists.sourceforge."
+"net/lists/listinfo/emc-users"
+msgstr ""
+"Inscription sur la liste de diffusion des utilisateurs de LinuxCNC sur: "
+"https://lists.sourceforge.net/lists/listinfo/linuxcnc-users"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:96
+msgid "=== LinuxCNC Wiki"
+msgstr "=== Le Wiki de LinuxCNC"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:99
+msgid "A Wiki site is a user maintained web site that anyone can add to or edit."
+msgstr ""
+"Un site Wiki est un site web maintenu et enrichi par les utilisateurs, "
+"n'importe qui peut ajouter ou modifier les pages."
+
+#. type: Plain text
+#: About-LinuxCNC.txt:102
+msgid ""
+"The user maintained LinuxCNC Wiki site contains a wealth of information and "
+"tips at:"
+msgstr ""
+"Le Wiki de LinuxCNC est également maintenu par les utilisateurs, il contient "
+"un grand nombre d'informations et d'astuces sur:"
+
+#. type: Plain text
+#: About-LinuxCNC.txt:104
+msgid "link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]"
+msgstr "link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]"

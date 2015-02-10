@@ -1,3 +1,5 @@
+:lang: en
+
 = System Requirements
 
 [[cha:system-requirements]] (((System Requirements)))

@@ -1,0 +1,486 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-08 23:27+0100\n"
+"PO-Revision-Date: 2015-02-08 23:31+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.3\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:4
+msgid "= Updating LinuxCNC"
+msgstr "= Mettre à jour LinuxCNC"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:6
+msgid "[[cha:updating_linuxcnc,Updating LinuxCNC]]"
+msgstr "[[cha:mettre_a_jour_linuxcnc,Mettre à jour LinuxCNC]]"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:10
+msgid ""
+"This section describes how to upgrade LinuxCNC to version 2.7 from version "
+"2.6.  It assumes that you have an existing 2.6 install that you want to "
+"update to 2.7."
+msgstr ""
+"Cette section décrit comment mettre à jour LinuxCNC de la version 2.6 vers "
+"la version 2.7. Ce qui suppose qu'une version 2.6 est déjà installée et "
+"qu'elle doit passer en version 2.7."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:14
+msgid ""
+"To upgrade LinuxCNC to version 2.7 from a version older than 2.6, you have "
+"to first upgrade your old install to 2.6, then follow these instructions to "
+"upgrade to 2.7."
+msgstr ""
+"Pour mettre à jour LinuxCNC vers la version 2.7 depuis une version "
+"antérieure à la 2.6, il est nécessaire de commencer par une mise à jour en "
+"version 2.6, puis de suivre les instructions pour la mise à jour en version "
+"2.7."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:18
+msgid ""
+"If you do not have an old (pre-2.7) version of LinuxCNC to upgrade, then "
+"you're best off making a fresh install of 2.7 as described in the section "
+"<<_getting_linuxcnc,Getting LinuxCNC>>."
+msgstr ""
+"Pour une version plus ancienne encore, il est préférable de repartir d'une "
+"nouvelle installation complète directement en version 2.7 comme décrit dans "
+"la section <<cha:se_procurer_linuxcnc,Se procurer LinuxCNC>>."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:21
+msgid "== Upgrade to the new version"
+msgstr "== Mise à jour vers une nouvelle version"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:24
+msgid ""
+"The basic idea is to disable the old linuxcnc.org apt sources and add a new "
+"linuxcnc.org apt source for 2.7, then upgrade LinuxCNC."
+msgstr ""
+"L'idée de base consiste à invalider les anciennes sources apt de linuxcnc."
+"org et à ajouter les sources pour la version 2.7, puis de mettre à jour "
+"LinuxCNC."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:27
+msgid ""
+"The details will depend on which platform you're running on.  Run "
+"`lsb_release -ic` to find this information out:"
+msgstr ""
+"Les détails vont dépendre de la distribution sur laquelle on travaille. "
+"Lancer `lsb_release -ic` pour obtenir cette information en sortie:"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:28
+#, no-wrap
+msgid "-----\n"
+msgstr "-----\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:32
+#, no-wrap
+msgid ""
+"> lsb_release -ic\n"
+"Distributor ID: Debian\n"
+"Codename:       wheezy\n"
+"-----\n"
+msgstr ""
+"> lsb_release -ic\n"
+"Distributor ID: Debian\n"
+"Codename:       wheezy\n"
+"-----\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:36
+msgid ""
+"You should be running on Debian Wheezy (as above), or Ubuntu Precise, or "
+"Ubuntu Lucid."
+msgstr ""
+"Il faut être sur une distribution Debian Wheezy (comme dans l'exemple "
+"précédent), ou dans une Ubuntu Precise, ou Ubuntu Lucid."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:38
+msgid "[[sec:setting_apt_sources,Setting apt sources]]"
+msgstr "[[sec:ajuster_les_sources_apt,Ajuster les sources apt]]"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:40
+msgid "=== Setting apt sources"
+msgstr "=== Ajuster les sources apt"
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:43
+msgid ""
+"Open the `Software Sources` window.  The process for doing this differs "
+"slightly on the three supported platforms:"
+msgstr ""
+"Ouvrir la fenêtre `Sources de logiciels`. La procédure va un peu différer "
+"selon les 3 distributions supportées:"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:45
+#, no-wrap
+msgid "** Debian Wheezy:\n"
+msgstr "** Debian Wheezy:\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:48
+#, no-wrap
+msgid ""
+"*** Click on `Applications Menu`, then `System`, then\n"
+"  `Synaptic Package Manager`.\n"
+msgstr ""
+"*** Cliquer sur `Menu Applications`, puis `Système`, et enfin\n"
+"  `Gestionnaire de paquets Synaptic`.\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:51 Updating_LinuxCNC.txt:70
+#, no-wrap
+msgid ""
+"*** In Synaptic, click on the `Settings` menu, then click `Repositories`\n"
+"  to open the `Software Sources` window.\n"
+msgstr ""
+"*** Dans Synaptic, cliquer sur le menu `Réglages`, puis cliquer sur `Dépôts`\n"
+"  pour ouvrir la fenêtre `Sources de logiciels`.\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:53
+#, no-wrap
+msgid "** Ubuntu Precise:\n"
+msgstr "** Ubuntu Precise:\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:55
+#, no-wrap
+msgid "*** Click on the `Dash Home` icon in the top left.\n"
+msgstr "*** Cliquer sur l’icône  `tableau de bord` dans le coin en haut à gauche.\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:58
+#, no-wrap
+msgid ""
+"*** In the `Search` field, type \"software\", then click on the `Ubuntu\n"
+"  Software Center` icon.\n"
+msgstr ""
+"*** Dans le champ `Rechercher`, taper \"software\", puis cliquer sur l'icône `Centre\n"
+"  de logiciels Ubuntu`.\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:62
+#, no-wrap
+msgid ""
+"*** In the Ubuntu Software Center window, click on the `Edit` menu,\n"
+"  then click on `Software Sources...` to open the `Software Sources`\n"
+"  window.\n"
+msgstr ""
+"*** Dans la fenêtre du centre de logiciels Ubuntu, cliquer surle menu `Editer`,\n"
+"  puis cliquer sur `Sources de logiciels...` pour ouvrir la fenêtre des `Sources de logiciels`.\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:64
+#, no-wrap
+msgid "** Ubuntu Lucid:\n"
+msgstr "** Ubuntu Lucid:\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:67
+#, no-wrap
+msgid ""
+"*** Click the `System` menu, then `Administration`, then\n"
+"  `Synaptic Package Manager`.\n"
+msgstr ""
+"*** Cliquer sur le menu `Système`, puis sur `Administration`, et\n"
+"  `Gestionnaire de paquets Synaptic`.\n"
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:72
+msgid "In the `Software Sources` window, select the `Other Software` tab."
+msgstr ""
+"Dans la fenêtre `Sources de logiciels`, sélectionner l'onglet `Autres "
+"logiciels`."
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:75
+msgid ""
+"Delete or un-check all the old linuxcnc.org entries (leave all non-linuxcnc."
+"org lines as they are)."
+msgstr ""
+"Effacer ou décocher toutes les anciennes entrées linuxcnc.org (laisser "
+"toutes celles ne concernant pas linuxcnc.org)."
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:78
+msgid ""
+"Click the `Add` button and add a new apt line.  The line will be slightly "
+"different on the different platforms:"
+msgstr ""
+"Cliquer sur le bouton `Ajouter` et ajouter une nouvelle ligne apt.  La ligne "
+"sera légèrement différente selon les plate-forme:"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:86
+#, no-wrap
+msgid ""
+"[options=\"header\"]\n"
+"|===================================================================\n"
+"| Platform       | apt source line\n"
+"| Debian Wheezy  | `deb http://linuxcnc.org wheezy base 2.7-rtai`\n"
+"| Ubuntu Precise | `deb http://linuxcnc.org precise base 2.7-rtai`\n"
+"| Ubuntu Lucid   | `deb http://linuxcnc.org lucid base 2.7-rtai`\n"
+"|===================================================================\n"
+msgstr ""
+"[options=\"header\"]\n"
+"|===================================================================\n"
+"| Plate-forme       | ligne source apt\n"
+"| Debian Wheezy  | `deb http://linuxcnc.org wheezy base 2.7-rtai`\n"
+"| Ubuntu Precise | `deb http://linuxcnc.org precise base 2.7-rtai`\n"
+"| Ubuntu Lucid   | `deb http://linuxcnc.org lucid base 2.7-rtai`\n"
+"|===================================================================\n"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:88
+msgid "image::images/upgrading-to-2.7.png[align=\"left\"]"
+msgstr "image::images/upgrading-to-2.7.png[align=\"left\"]"
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:92
+msgid ""
+"Click `Add Source`, then `Close` in the Software Sources window.  If it pops "
+"up a window informing you that the information about available software is "
+"out-of-date, click the `Reload` button."
+msgstr ""
+"Cliquer sur `Ajouter la source`, puis `Fermer` dans la fenêtre des sources "
+"de logiciels.  Si des fenêtre surgissantes indiquent que des informations "
+"sont périmées, cliquer sur le bouton `Recharger`."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:95
+msgid "=== Upgrading to the new version"
+msgstr "=== Mettre à jour vers une nouvelle version"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:98
+msgid ""
+"Now your computer knows where to get the new version of the software, next "
+"we need to install it."
+msgstr ""
+"Maintenant que l'ordinateur connaît où aller chercher la nouvelle version de "
+"logiciel, il ne reste plus qu'à l'installer."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:100
+msgid "The process again differs depending on your platform."
+msgstr "De nouveau, la procédure sera différente selon les distributions."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:102
+msgid "==== Debian Wheezy and Ubuntu Lucid"
+msgstr "==== Debian Wheezy et Ubuntu Lucid"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:104
+msgid "Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager."
+msgstr ""
+"Debian Wheezy et Ubuntu Lucid utilisent tous les deux le gestionnaire de "
+"paquets Synaptic."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:107
+#, no-wrap
+msgid ""
+"* Open Synaptic using the instructions in\n"
+"<<sec:setting_apt_sources,Setting apt sources>> above.\n"
+msgstr ""
+"Ouvrir Synaptic en suivant le paragraphe\n"
+"<<sec:ajuster_les_sources_apt,Ajuster les sources apt>>\n"
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:109
+msgid "Click the `Reload` button."
+msgstr "Cliquer le bouton `Recharger`."
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:111
+msgid "Use the Search function to search for `linuxcnc`."
+msgstr "Utiliser la fonction de recherche pour `linuxcnc`."
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:116
+msgid ""
+"Click the check box to mark the new linuxcnc and linuxcnc-doc-* packages for "
+"upgrade.  The package manager may select a number of additional packages to "
+"be installed, to satisfy dependencies that the new linuxcnc package has."
+msgstr ""
+"Cliquer la case à cocher pour marquer les nouveaux paquets linuxcnc et "
+"linuxcnc-doc-* à mettre à jour.  Le gestionnaire de paquets peux "
+"sélectionner certains paquets additionnels à installer, pour satisfaire les "
+"dépendances envers les nouveaux paquets de linuxcnc."
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:120
+msgid ""
+"Click the `Apply` button, and let your computer install the new package. The "
+"old linuxcnc package will be automatically upgraded to the new one."
+msgstr ""
+"Cliquer sur le bouton `Appliquer`, et laisser l'ordinateur installer les "
+"nouveaux paquets. Les anciens paquets linuxcnc seront automatiquement mis à "
+"jour par la nouveaux."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:123
+msgid "=== Ubuntu Precise"
+msgstr "=== Ubuntu Precise"
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:125
+msgid "Click on the `Dash Home` icon in the top left."
+msgstr "Cliquer sur l'icône `Tableau de bord` en haut à gauche."
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:128
+msgid ""
+"In the `Search` field, type \"update\", then click on the `Update Manager` "
+"icon."
+msgstr ""
+"Dans le champ `Rechercher`, taper \"update\", puis cliquer sur l'icône du "
+"`Gestionnaire de mises à jour`."
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:130
+msgid "Click the `Check` button to fetch the list of packages available."
+msgstr ""
+"Cliquer sur le bouton `Choisir` pour obtenir la liste des paquets "
+"disponibles."
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:133
+msgid ""
+"Click the `Install Updates` button to install the new versions of all "
+"packages."
+msgstr ""
+"Cliquer sur le bouton `Installer les mises à jour` pour installer les "
+"nouvelles versions des paquets."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:136
+msgid "== Updating your config"
+msgstr "== Mettre à jour la configuration"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:139
+msgid ""
+"LinuxCNC version 2.7 differs from version 2.6 in some ways that may require "
+"changes to your machine configuration."
+msgstr ""
+"LinuxCNC en version 2.7 diffère de la version 2.6 sur plusieurs points qui "
+"requiert des modifications de configuration de la machine."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:142
+msgid "=== Hostmot2 Watchdog"
+msgstr "=== Hostmot2 Watchdog"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:146
+msgid ""
+"The Hostmot2 watchdog now gets handled by the hm2 `write` Hal function.  "
+"There is no longer any need to run the hm2 `pet-watchdog` Hal function.  The "
+"`pet-watchdog` function will be removed before the 2.7.0 release."
+msgstr ""
+"Le watchdog de Hostmot2 doit maintenant être manipulé par la fonction Hal "
+"`write` de hm2.  Il n'est plus nécessaire de lancer la fonction Hal `pet-"
+"watchdog` de Hm2.  La fonction `pet-watchdog` sera supprimée avant la sortie "
+"de la version 2.7.0."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:149
+msgid "=== Parport changes"
+msgstr "=== Changements concernant Parport"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:154
+msgid ""
+"Older versions of the LinuxCNC `hal_parport` driver conflicted with the "
+"Linux `parport_pc` driver.  This required two mitigation techniques: we "
+"would prevent `parport_pc` from loading, and we would load another LinuxCNC "
+"driver called `probe_parport` before loading `hal_parport`."
+msgstr ""
+"Les anciennes versions du pilote `hal_parport` de LinuxCNC étaient en "
+"conflit avec le pilote `parport_pc` de Linux.  Ce qui nécessitait deux "
+"techniques d’atténuation: nous empêchions `parport_pc` de se charger et nous "
+"chargions un autre pilote appelé `probe_parport` avant de charger "
+"`hal_parport`."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:159
+msgid ""
+"The LinuxCNC `hal_parport` driver now cooperates well with the Linux "
+"`parport_pc` driver, and these mitigation techniques are no longer needed or "
+"useful.  In 2.7, the `probe_parport` driver has been removed from LinuxCNC."
+msgstr ""
+"Le pilote `hal_parport` de LinuxCNC coopère maintenant avec le pilote "
+"`parport_pc` de Linux, ces techniques d'atténuations ne sont donc plus, ni "
+"nécessaires, ni utiles.  En version 2.7, le pilote `probe_parport` a été "
+"retiré de LinuxCNC."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:162
+msgid ""
+"This means configs that use the parallel port may need to be updated in the "
+"following ways:"
+msgstr ""
+"Ce qui veux dire que les configurations utilisant le port parallèle peuvent "
+"demander à être mises à jour de la manière suivante:"
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:170
+#, no-wrap
+msgid ""
+"* Make sure LinuxCNC does not prevent the Linux `parport_pc` driver\n"
+"  from loading.  Older versions of LinuxCNC would blacklist `parport_pc`\n"
+"  in `/etc/modprobe.d/linuxcnc.conf` (or `/etc/modprobe.d/emc2.conf`\n"
+"  for even older versions of LinuxCNC).  Comment out any\n"
+"  lines in either of those files that looks like this:\n"
+"  +\n"
+"  `install parport_pc /bin/true`\n"
+msgstr ""
+"* Être sûr que LinuxCNC n'empêche pas le pilote `parport_pc` de Linux\n"
+"  de se charger.  Les anciennes versions de LinuxCNC blacklistaient `parport_pc`\n"
+"  dans `/etc/modprobe.d/linuxcnc.conf` (ou `/etc/modprobe.d/emc2.conf`\n"
+"  pour les plus anciennes versions de LinuxCNC).  Modifier toutes\n"
+"  ces lignes dans tous ces fichiers comme ça:\n"
+"  +\n"
+"  `install parport_pc /bin/true`\n"
+
+#. type: Bullet: '* '
+#: Updating_LinuxCNC.txt:173
+msgid ""
+"Make sure your Hal configuration does not load the `probe_parport` component."
+msgstr ""
+"Être sûr que la configuration de Hal ne charge pas le composant "
+"`probe_parport`."
+
+#. type: Plain text
+#: Updating_LinuxCNC.txt:175
+msgid "// vim: set syntax=asciidoc:"
+msgstr "// vim: set syntax=asciidoc:"

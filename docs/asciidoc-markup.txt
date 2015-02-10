@@ -10,7 +10,7 @@ Getting Started V{lversion}, {localdate}
 :lang: en
 :masterdir: {indir}
 :leveloffset: 1
-The EMC Team
+The LinuxCNC Team
 
 The parameters are interpreted well before the load files lang-xx.conf and the other files .conf
 It is particularly important for the parameters as :lang:

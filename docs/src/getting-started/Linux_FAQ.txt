@@ -1,3 +1,5 @@
+:lang: en
+
 = Linux FAQ 
 
 [[cha:linux-faq]] (((Linux FAQ)))

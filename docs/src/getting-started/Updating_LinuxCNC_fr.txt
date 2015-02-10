@@ -1,98 +1,182 @@
 :lang: fr
 
-= Mises à jour de LinuxCNC
+= Mettre à jour LinuxCNC
+
+[[cha:mettre_a_jour_linuxcnc,Mettre à jour LinuxCNC]]
+
+Cette section décrit comment mettre à jour LinuxCNC de la version 2.6 vers
+la version 2.7. Ce qui suppose qu'une version 2.6 est déjà installée et
+qu'elle doit passer en version 2.7.
+
+Pour mettre à jour LinuxCNC vers la version 2.7 depuis une version
+antérieure à la 2.6, il est nécessaire de commencer par une mise à jour en
+version 2.6, puis de suivre les instructions pour la mise à jour en version
+2.7.
+
+Pour une version plus ancienne encore, il est préférable de repartir d'une
+nouvelle installation complète directement en version 2.7 comme décrit dans
+la section <<cha:se_procurer_linuxcnc,Se procurer LinuxCNC>>.
 
 
-== Mise à jour de 2.4.x vers 2.5.x
+== Mise à jour vers une nouvelle version
 
-La version 2.5.0 de LinuxCNC change de nom, elle passe de _EMC2_ à
-_LinuxCNC_. Tous les programmes dont les noms contenaient _emc_ ont été
-renommés pour contenir _linuxcnc_. Toute la documentation à été mise à jour.
+L'idée de base consiste à invalider les anciennes sources apt de
+linuxcnc.org et à ajouter les sources pour la version 2.7, puis de mettre à
+jour LinuxCNC.
 
-De plus, le nom du paquet debian contenant le logiciel a changé.
-Malheureusement les mises à jour automatiques sont cassées. Pour mettre à jour
-depuis emc2 2.4.X vers linuxcnc 2.5.X, suivez ces méthodes:
+Les détails vont dépendre de la distribution sur laquelle on
+travaille. Lancer `lsb_release -ic` pour obtenir cette information en
+sortie:
 
-=== Sous Ubuntu Lucid 10.04
+-----
+> lsb_release -ic
+Distributor ID: Debian
+Codename:       wheezy
+-----
 
-Déclarer d'abord où se trouve le nouveau logiciel LinuxCNC, pour cela:
+Il faut être sur une distribution Debian Wheezy (comme dans l'exemple
+précédent), ou dans une Ubuntu Precise, ou Ubuntu Lucid.
 
- - Dans le menu, cliquer sur _Système -> Administration -> Sources de logiciels_.
- - Sélectionner l'onglet _Autres logiciels_.
- - Sélectionner la ligne indiquant _http://www.linuxcnc.org/emc2 lucid base
-emc2.4_ ou _http://www.linuxcnc.org/emc2 lucid base emc2.4-sim_ puis cliquer le
-bouton _Éditer_.
- - Dans le champ _URI_, remplacer la ligne courante par _http://www.linuxcnc.org_
- - Dans le champ _Composants_, modifier _emc2.4_ par _linuxcnc2.5_, ou
-_emc2.4-sim_ par _linuxcnc2.5-sim_.
- - Cliquer enfin sur le bouton _Valider_.
- - De retour dans la fenêtre des sources de logiciels, onglet _Autres
-logiciels_, cliquer sur le bouton _Fermer_.
- - Une fenêtre surgissante informe alors que _Les informations sur les
-logiciels disponibles sont obsolètes_. Cliquer le bouton _Actualiser_.
+[[sec:ajuster_les_sources_apt,Ajuster les sources apt]]
 
- - Suivre la même procédure pour le _Code source_.
+=== Ajuster les sources apt
 
-Maintenant l'ordinateur sait où trouver le nouveau logiciel, ensuite il faudra
-lui demander de l'installer:
+* Ouvrir la fenêtre `Sources de logiciels`. La procédure va un peu différer
+  selon les 3 distributions supportées:
 
- - Dans le menu, cliquer sur _Système -> Administration -> Gestionnaire de
-paquets Synaptic_
- - Dans la barre de recherche rapide, en haut, taper _linuxcnc_.
- - Cocher la case pour valider l'installation du nouveau paquet linuxcnc.
- - Cliquer sur le bouton _Appliquer_ et laisser le paquet s'installer.
- - L'ancien paquet emc 2.4 sera automatiquement supprimé pour laisser place au
-nouveau paquet LinuxCNC 2.5.
+** Debian Wheezy:
 
-=== Sous Ubuntu Hardy 8.04
+*** Cliquer sur `Menu Applications`, puis `Système`, et enfin
+  `Gestionnaire de paquets Synaptic`.
 
-Déclarer d'abord où se trouve le nouveau logiciel LinuxCNC, pour cela:
+*** Dans Synaptic, cliquer sur le menu `Réglages`, puis cliquer sur `Dépôts`
+  pour ouvrir la fenêtre `Sources de logiciels`.
 
- - Dans le menu, cliquer sur _Système -> Administration -> Gestionnaire de
-paquets Synaptic_
- - Aller dans le menu _Configuration -> Dépôts_.
- - Sélectionner l'onglet _Logiciels tiers_.
- - Sélectionner la ligne indiquant _http://linuxcnc.org/hardy hardy emc2.4_ ou
-_http://linuxcnc.org/hardy hardy emc2.4-sim_ et cliquer sur le bouton _Éditer_.
- - Dans le champs _Composants_, modifier _emc2.4_ par _linuxcnc2.5_ ou
-_emc2.4-sim_ par _linuxcnc2.5-sim_.
- - Cliquer sur le bouton _Valider_.
- - De retour dans la fenêtre des sources de logiciels, cliquer sur le
-bouton _Fermer_.
- - De retour dans la fenêtre de Synaptic, cliquer sur le bouton _Actualiser_.
+** Ubuntu Precise:
 
-Maintenant l'ordinateur sait où trouver le nouveau logiciel, ensuite il faudra
-lui demander de l'installer:
+*** Cliquer sur l’icône  `tableau de bord` dans le coin en haut à gauche.
 
- - Dans le menu, cliquer sur _Système -> Administration -> Gestionnaire de
-paquets Synaptic_, cliquer sur le bouton _Rechercher_.
- - Dans le champ du dialogue de recherche qui s'ouvre, taper _linuxcnc_ puis
-cliquer sur le bouton _Rechercher_.
- - Cocher la case pour valider l'installation du paquet _linuxcnc_.
- - Cliquer sur le bouton _Appliquer_ et laisser le nouveau paquet s'installer.
- - L'ancien paquet emc 2.4 sera automatiquement supprimé pour laisser place au
-nouveau paquet LinuxCNC 2.5.
+*** Dans le champ `Rechercher`, taper "software", puis cliquer sur l'icône `Centre
+  de logiciels Ubuntu`.
 
-== Changement de configuration
+*** Dans la fenêtre du centre de logiciels Ubuntu, cliquer surle menu `Editer`,
+  puis cliquer sur `Sources de logiciels...` pour ouvrir la fenêtre des `Sources de logiciels`.
 
-Les configurations utilisateur ont migré de $HOME/emc2 vers $HOME/linuxcnc,
-il sera nécessaire de renommer l'ancien répertoire si il existe, ou de déplacer
-les fichiers vers ce nouvel endroit.
-Le watchdog de hostmod2 dans LinuxCNC 2.5 ne démarre qu'après que les threads
-de HAL soient eux-même démarrés. Cela signifie qu'il tolère désormais un
-délai d'attente de l'ordre de la période servo thread, au lieu de nécessiter
-un délai qui soit de l'ordre du temps entre le chargement du pilote
-et le démarrage des threads de HAL. Ce qui signifie, de l'ordre de quelques
-millisecondes (quelques périodes du thread servo) au lieu de plusieurs 
-centaines de millisecondes préalablement. La valeur par défaut est descendue
-de 1 seconde à 5 millisecondes. Vous ne devriez donc plus avoir a ajuster le
-délai du watchdog, à moins que vous ne modifiez la période du threads servo.
+** Ubuntu Lucid:
 
-Les anciens pilotes pour les cartes Mesa 5i20, hal_m5i20, ont été enlevés, ils
-étaient obsolètes et remplacés par hostmot2 depuis 2009 (version 2.3.) 
-Si vous utilisiez ces pilotes, vous devrez reconstruire une nouvelle
-configuration utilisant le pilote hostmod2. Pncconf peux vous y aider et il
-contient quelques exemples de configurations (hm2-servo et hm2-stepper)
-qui vous serviront d'exemple.
+*** Cliquer sur le menu `Système`, puis sur `Administration`, et
+  `Gestionnaire de paquets Synaptic`.
+
+*** Dans Synaptic, cliquer sur le menu `Réglages`, puis cliquer sur `Dépôts`
+  pour ouvrir la fenêtre `Sources de logiciels`.
+
+* Dans la fenêtre `Sources de logiciels`, sélectionner l'onglet `Autres
+  logiciels`.
+
+* Effacer ou décocher toutes les anciennes entrées linuxcnc.org (laisser
+  toutes celles ne concernant pas linuxcnc.org).
+
+* Cliquer sur le bouton `Ajouter` et ajouter une nouvelle ligne apt.  La
+  ligne sera légèrement différente selon les plate-forme:
+
+[options="header"]
+|===================================================================
+| Plate-forme       | ligne source apt
+| Debian Wheezy  | `deb http://linuxcnc.org wheezy base 2.7-rtai`
+| Ubuntu Precise | `deb http://linuxcnc.org precise base 2.7-rtai`
+| Ubuntu Lucid   | `deb http://linuxcnc.org lucid base 2.7-rtai`
+|===================================================================
+
+image::images/upgrading-to-2.7.png[align="left"]
+
+* Cliquer sur `Ajouter la source`, puis `Fermer` dans la fenêtre des sources
+  de logiciels.  Si des fenêtre surgissantes indiquent que des informations
+  sont périmées, cliquer sur le bouton `Recharger`.
+
+
+=== Mettre à jour vers une nouvelle version
+
+Maintenant que l'ordinateur connaît où aller chercher la nouvelle version de
+logiciel, il ne reste plus qu'à l'installer.
+
+De nouveau, la procédure sera différente selon les distributions.
+
+==== Debian Wheezy et Ubuntu Lucid
+
+Debian Wheezy et Ubuntu Lucid utilisent tous les deux le gestionnaire de
+paquets Synaptic.
+
+Ouvrir Synaptic en suivant le paragraphe
+<<sec:ajuster_les_sources_apt,Ajuster les sources apt>>
+
+* Cliquer le bouton `Recharger`.
+
+* Utiliser la fonction de recherche pour `linuxcnc`.
+
+* Cliquer la case à cocher pour marquer les nouveaux paquets linuxcnc et
+  linuxcnc-doc-* à mettre à jour.  Le gestionnaire de paquets peux
+  sélectionner certains paquets additionnels à installer, pour satisfaire
+  les dépendances envers les nouveaux paquets de linuxcnc.
+
+* Cliquer sur le bouton `Appliquer`, et laisser l'ordinateur installer les
+  nouveaux paquets. Les anciens paquets linuxcnc seront automatiquement mis
+  à jour par la nouveaux.
+
+
+=== Ubuntu Precise
+
+* Cliquer sur l'icône `Tableau de bord` en haut à gauche.
+
+* Dans le champ `Rechercher`, taper "update", puis cliquer sur l'icône du
+  `Gestionnaire de mises à jour`.
+
+* Cliquer sur le bouton `Choisir` pour obtenir la liste des paquets
+  disponibles.
+
+* Cliquer sur le bouton `Installer les mises à jour` pour installer les
+  nouvelles versions des paquets.
+
+
+== Mettre à jour la configuration
+
+LinuxCNC en version 2.7 diffère de la version 2.6 sur plusieurs points qui
+requiert des modifications de configuration de la machine.
+
+
+=== Hostmot2 Watchdog
+
+Le watchdog de Hostmot2 doit maintenant être manipulé par la fonction Hal
+`write` de hm2.  Il n'est plus nécessaire de lancer la fonction Hal
+`pet-watchdog` de Hm2.  La fonction `pet-watchdog` sera supprimée avant la
+sortie de la version 2.7.0.
+
+
+=== Changements concernant Parport
+
+Les anciennes versions du pilote `hal_parport` de LinuxCNC étaient en
+conflit avec le pilote `parport_pc` de Linux.  Ce qui nécessitait deux
+techniques d’atténuation: nous empêchions `parport_pc` de se charger et nous
+chargions un autre pilote appelé `probe_parport` avant de charger
+`hal_parport`.
+
+Le pilote `hal_parport` de LinuxCNC coopère maintenant avec le pilote
+`parport_pc` de Linux, ces techniques d'atténuations ne sont donc plus, ni
+nécessaires, ni utiles.  En version 2.7, le pilote `probe_parport` a été
+retiré de LinuxCNC.
+
+Ce qui veux dire que les configurations utilisant le port parallèle peuvent
+demander à être mises à jour de la manière suivante:
+
+* Être sûr que LinuxCNC n'empêche pas le pilote `parport_pc` de Linux
+  de se charger.  Les anciennes versions de LinuxCNC blacklistaient `parport_pc`
+  dans `/etc/modprobe.d/linuxcnc.conf` (ou `/etc/modprobe.d/emc2.conf`
+  pour les plus anciennes versions de LinuxCNC).  Modifier toutes
+  ces lignes dans tous ces fichiers comme ça:
+  +
+  `install parport_pc /bin/true`
+
+* Être sûr que la configuration de Hal ne charge pas le composant
+  `probe_parport`.
+
 
 // vim: set syntax=asciidoc:

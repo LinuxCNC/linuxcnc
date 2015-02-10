@@ -1,5 +1,5 @@
-[NOTE]
 .AVIS
+[NOTE]
 =================================================
 La version Française de la documentation de LinuxCNC 
 est toujours en retard sur l'originale faute de
@@ -13,8 +13,9 @@ pour la documentation française de LinuxCNC,
 merci de nous contactez. 
 =================================================
 
-[NOTE]
+
 .NOTICE
+[NOTE]
 =================================================
 The French version of the LinuxCNC documentation 
 is always behind the original fault

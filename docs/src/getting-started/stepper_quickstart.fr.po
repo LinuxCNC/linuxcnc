@@ -1,0 +1,476 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-09 16:57+0100\n"
+"PO-Revision-Date: 2015-02-09 16:58+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.3\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: stepper_quickstart.txt:4
+msgid "= Stepper Quickstart"
+msgstr "= Configuration rapide pour moteurs pas à pas"
+
+#. type: Plain text
+#: stepper_quickstart.txt:6
+msgid "[[cha:stepper-quickstart]] (((Stepper Quickstart)))"
+msgstr "[[cha:configuration_rapide_steppers]] (((Stepper Quickstart)))"
+
+#. type: Plain text
+#: stepper_quickstart.txt:12
+msgid ""
+"This section assumes you have done a standard install from the Live CD. "
+"After installation it is recommended that you connect the computer to the "
+"Internet and wait for the update manager to pop up and get the latest "
+"updates for LinuxCNC and Ubuntu before continuing. For more complex "
+"installations see the Integrator Manual."
+msgstr ""
+"Cette section suppose qu'une installation du logiciel à partir du CD Live a "
+"été faite. Après cette installation et avant de continuer, il est recommandé "
+"de connecter le PC sur Internet pour y faire les dernières mises à jour. "
+"Pour les installations plus complexes se référer au Manuel de l'intégrateur."
+
+#. type: Plain text
+#: stepper_quickstart.txt:14
+msgid "== Latency Test"
+msgstr "== Test de latence (Latency Test)"
+
+#. type: Plain text
+#: stepper_quickstart.txt:20
+msgid ""
+"The Latency Test determines how late your computer processor is in "
+"responding to a request. Some hardware can interrupt the processing which "
+"could cause missed steps when running a CNC machine. This is the first thing "
+"you need to do. Follow the instructions <<latency-test,here>> to run the "
+"latency test."
+msgstr ""
+"Le test de latence détermine la capacité du processeur à répondre aux "
+"requêtes qui lui sont faites. Certains matériels peuvent interrompre ce "
+"processus, causant des pertes de pas lorsque le PC pilote une machine CNC. "
+"Ce test est la toute première chose à faire pour valider un PC.  Pour le "
+"lancer, suivre les instructions de la section <<cha:test-de-latence,sur le "
+"test de latence>>."
+
+#. type: Plain text
+#: stepper_quickstart.txt:22
+msgid "[[sec:Sherline]]"
+msgstr "[[sec:Sherline]]"
+
+#. type: Plain text
+#: stepper_quickstart.txt:25
+msgid "== Sherline (((Sherline)))"
+msgstr "== Sherline (((Sherline)))"
+
+#. type: Plain text
+#: stepper_quickstart.txt:29
+msgid ""
+"If you have a Sherline several predefined configurations are provided.  This "
+"is on the main menu CNC/EMC then pick the Sherline configuration that "
+"matches yours and save a copy."
+msgstr ""
+"Si la machine est une Sherline, plusieurs configurations prédéfinies sont "
+"fournies.  Au premier démarrage de LinuxCNC, le sélecteur de configuration "
+"s'ouvre, sélectionner alors le modèle correspondant à la machine _Sherline_, "
+"puis accepter d'enregistrer une copie."
+
+#. type: Plain text
+#: stepper_quickstart.txt:31
+msgid "[[sec:Xylotex]]"
+msgstr "[[sec:Xylotex]]"
+
+#. type: Plain text
+#: stepper_quickstart.txt:34
+msgid "== Xylotex (((Xylotex)))"
+msgstr "== Xylotex (((Xylotex)))"
+
+#. type: Plain text
+#: stepper_quickstart.txt:38
+msgid ""
+"If you have a Xylotex you can skip the following sections and go straight to "
+"the <<cha:stepconf-wizard,Stepper Config Wizard>>.  LinuxCNC has provided "
+"quick setup for the Xylotex machines."
+msgstr ""
+"Si la machine est une Xylotex, utiliser l'assistant graphique de "
+"configuration fourni avec LinuxCNC pour créer rapidement une configuration "
+"personnalisée <<cha:Assistant-graphique-StepConf,avec l'assistant Stepconf>>."
+
+#. type: Plain text
+#: stepper_quickstart.txt:40
+msgid "== Machine Information"
+msgstr "== Informations relatives à la machine"
+
+#. type: Plain text
+#: stepper_quickstart.txt:42
+msgid "Gather the information about each axis of your machine."
+msgstr "But, regrouper les informations à propos des axes de la machine."
+
+#. type: Plain text
+#: stepper_quickstart.txt:48
+msgid ""
+"Drive timing is in nano seconds. If you're unsure about the timing many "
+"popular drives are included in the stepper configuration wizard.  Note some "
+"newer Gecko drives have different timing than the original one. A http://"
+"wiki.linuxcnc.org/[list] is also on the user maintained LinuxCNC wiki site "
+"of more drives."
+msgstr ""
+"Les timings des pilotes sont exprimés en nanosecondes. Si l'opérateur n'est "
+"pas sûr de lui à propos des timings de son interface, les caractéristiques "
+"les plus populaires sont incluses dans l'assistant graphique de "
+"configuration. Noter que les pilotes Gecko ont des timings différents les "
+"uns des autres. Une liste des caractéristiques courantes est également "
+"maintenue sur le Wiki: http://wiki.linuxcnc.org/cgi-bin/wiki.pl?"
+"Stepper_Drive_Timing[de linuxcnc.org]."
+
+#. type: Plain text
+#: stepper_quickstart.txt:57
+#, no-wrap
+msgid ""
+"[width=\"100%\", options=\"header\"]\n"
+"|====================================================================\n"
+"|Axis | Drive Type | Step Time ns | Step Space ns | Dir. Hold ns | Dir. Setup ns\n"
+"|X    |            |              |               |              | \n"
+"|Y    |            |              |               |              | \n"
+"|Z    |            |              |               |              | \n"
+"|     |            |              |               |              | \n"
+"|====================================================================\n"
+msgstr ""
+"[width=\"90%\", options=\"header\"]\n"
+"|=============================================================================\n"
+"|Axes | Type de pilote | Step Time ns | Step Space ns | Dir. Hold ns      | Dir. Setup ns\n"
+"|X    |                |              |               |                   |\n"
+"|Y    |                |              |               |                   |\n"
+"|Z    |                |              |               |                   |\n"
+"|     |                |              |               |                   |\n"
+"|=============================================================================\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:59
+msgid "== Pinout Information"
+msgstr "== Informations relatives au brochage"
+
+#. type: Plain text
+#: stepper_quickstart.txt:62
+msgid ""
+"Gather the information about the connections from your machine to the PC "
+"parallel port."
+msgstr ""
+"But, regrouper les informations à propos des différentes broches du port "
+"parallèle utilisé."
+
+#. type: Plain text
+#: stepper_quickstart.txt:79
+#, no-wrap
+msgid ""
+"[width=\"100%\", options=\"header\"]\n"
+"|==============================================================================\n"
+"|Output Pin | Typ. Function    | If Different | Input Pin | Typ. Function | If Different\n"
+"|1          | E-Stop Out       |              | 10        | X Limit/Home  | \n"
+"|2          | X Step           |              | 11        | Y Limit/Home  | \n"
+"|3          | X Direction      |              | 12        | Z Limit/Home  | \n"
+"|4          | Y Step           |              | 13        | A Limit/Home  | \n"
+"|5          | Y Direction      |              | 15        | Probe In      | \n"
+"|6          | Z Step           |              |           |               | \n"
+"|7          | Z Direction      |              |           |               | \n"
+"|8          | A Step           |              |           |               | \n"
+"|9          | A Direction      |              |           |               | \n"
+"|14         | Spindle CW       |              |           |               | \n"
+"|16         | Spindle PWM      |              |           |               | \n"
+"|17         | Amplifier Enable |              |           |               | \n"
+"|==============================================================================\n"
+msgstr ""
+"[width=\"90%\", options=\"header\"]\n"
+"|==============================================================================\n"
+"|Pin de sortie|Fonction           |Si différent|Pin d'entrée|Fonction       |Si différent\n"
+"|1            |Sortie A/U         |            |10          |Limite et OM X |\n"
+"|2            |X Step             |            |11          |Limite et OM Y |\n"
+"|3            |X Direction        |            |12          |Limite et OM Z |\n"
+"|4            |Y Step             |            |13          |Limite et OM A |\n"
+"|5            |Y Direction        |            |15          |Entrée palpeur |\n"
+"|6            |Z Step             |            |            |               |\n"
+"|7            |Z Direction        |            |            |               |\n"
+"|8            |A Step             |            |            |               |\n"
+"|9            |A Direction        |            |            |               |\n"
+"|14           |Broche sens horaire|            |            |               |\n"
+"|16           |PWM broche         |            |            |               |\n"
+"|17           |Valide puissance   |            |            |               |\n"
+"|==============================================================================\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:82
+msgid ""
+"Note any pins not used should be set to Unused in the drop down box.  These "
+"can always be changed later by running Stepconf again."
+msgstr ""
+"Noter que toutes les broches inutilisées doivent être explicitement "
+"indiquées 'Inutilisé' dans le choix déroulant de l'assistant. Elles pourront "
+"être modifiées par la suite en relançant Stepconf."
+
+#. type: Plain text
+#: stepper_quickstart.txt:84
+msgid "== Mechanical Information"
+msgstr "== Informations relatives à la mécanique"
+
+#. type: Plain text
+#: stepper_quickstart.txt:87
+msgid ""
+"Gather information on steps and gearing. The result of this is steps per "
+"user unit which is used for SCALE in the .ini file."
+msgstr ""
+"But, regrouper les informations à propos des réducteurs.  Utilisées pour "
+"définir la taille d'un pas dans l'unité utilisateur. La taille du pas est "
+"utilisée par SCALE dans le fichier .ini."
+
+#. type: Plain text
+#: stepper_quickstart.txt:96
+#, no-wrap
+msgid ""
+"[width=\"100%\", options=\"header\"]\n"
+"|==============================================================================\n"
+"|Axis | Steps/Rev. | Micro Steps | Motor Teeth | Leadscrew Teeth | Leadscrew Pitch\n"
+"|X    |            |             |             |                 | \n"
+"|Y    |            |             |             |                 | \n"
+"|Z    |            |             |             |                 | \n"
+"|     |            |             |             |                 | \n"
+"|==============================================================================\n"
+msgstr ""
+"[width=\"90%\", options=\"header\"]\n"
+"|====================================================================\n"
+"|Axes | Pas par tour | Micropas | Dents moteur | Dents vis | Pas de la vis\n"
+"|X    |              |          |              |           |\n"
+"|Y    |              |          |              |           |\n"
+"|Z    |              |          |              |           |\n"
+"|     |              |          |              |           |\n"
+"|====================================================================\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:100
+#, no-wrap
+msgid ""
+"* 'Steps per revolution' - is how many stepper-motor-steps it takes to turn \n"
+"the stepper motor one revolution. \n"
+"Typical is 200.\n"
+msgstr ""
+"* 'Pas par tour' - indique combien de pas moteur sont nécessaires pour que\n"
+"celui-ci fasse un tour. Valeur typique: 200.\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:106
+#, no-wrap
+msgid ""
+"* 'Micro Steps' - is how many steps the drive needs \n"
+"to move the stepper motor one full step. \n"
+"If microstepping is not used, this number will be 1. \n"
+"If microstepping is used the value will depend on the \n"
+"stepper drive hardware. \n"
+msgstr ""
+"* 'Micro-pas' - indique combien d'impulsions le pilote doit recevoir pour que le\n"
+"moteur tourne d'un angle équivalent à un pas.\n"
+"Si les micro-pas ne sont pas utilisés, cette valeur devra être mise à 1.\n"
+"Si les micro-pas sont utilisés, les valeurs dépendent du pilote matériel du moteur.\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:110
+#, no-wrap
+msgid ""
+"* 'Motor Teeth and Leadscrew Teeth' - is if you have some reduction \n"
+"(gears, chain, timing belt, etc.) between the motor and the leadscrew. \n"
+"If not, then set these both to 1. \n"
+msgstr ""
+"* 'Dents moteur et Dents vis' - Valeur de réduction si une réduction\n"
+"(poulies/courroie, chaine, pignons etc) entre le moteur et la vis est utilisée.\n"
+"Sinon mettre 1 pour les deux paramètres.\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:115
+#, no-wrap
+msgid ""
+"* 'Leadscrew Pitch' - is how much movement occurs \n"
+"(in user units) in one leadscrew turn. \n"
+"If you're setting up in inches then it is inches per turn. \n"
+"If you're setting up in millimeters then it is millimeters per turn. \n"
+msgstr ""
+"* 'Pas de la vis' - indique la longueur de déplacement du mobile pour un tour\n"
+"de la vis d’entraînement de l'axe.\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:118
+msgid ""
+"The net result you're looking for is how many CNC-output-steps it takes to "
+"move one user unit (inches or mm)."
+msgstr ""
+"Le résultat qui est recherché, c'est combien de pas le pilote devra fournir "
+"pour que le mobile avance d'une unité utilisateur (pouces ou mm)."
+
+#. type: Plain text
+#: stepper_quickstart.txt:121
+#, no-wrap
+msgid ""
+".Units inches\n"
+"============================================\n"
+msgstr ""
+".Unités en pouces\n"
+"====\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:129
+#, no-wrap
+msgid ""
+"....\n"
+"Stepper         = 200 steps per revolution\n"
+"Drive           =  10 micro steps per step\n"
+"Motor Teeth     =  20\n"
+"Leadscrew Teeth =  40\n"
+"Leadscrew Pitch =   0.2000 inches per turn\n"
+"....\n"
+"============================================\n"
+msgstr ""
+"....\n"
+"Moteur            = 200 pas par tour\n"
+"Pilote            =  10 micropas par pas\n"
+"Dents côté moteur =  20\n"
+"Dents côté vis    =  40\n"
+"Pas de vis        =   0.2000 pouces par tour\n"
+"....\n"
+"====\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:133
+msgid "From the above information (inch):"
+msgstr "D'après l'exemple ci-dessus  (pouces):"
+
+#. type: Plain text
+#: stepper_quickstart.txt:138
+#, no-wrap
+msgid ""
+" . the leadscrew moves 0.200 inches per turn.\n"
+" . The motor turns 2.000 times per 1 leadscrew turn.\n"
+" . The drive takes 10 microstep inputs to make the stepper step once.\n"
+" . The drive needs 2000 steps to turn the stepper one revolution.\n"
+msgstr ""
+" - le mobile se déplacera de 0.200 pouces pour 1 tour de vis.\n"
+" - Le pilote demandera 10 impulsions en entrée pour faire un pas entier.\n"
+" - Le moteur fera 2000 micro-pas par tour de vis.\n"
+" - Le pilote recevra 2000 impulsions de pas pour faire tourner le moteur d'un tour.\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:140
+msgid "So the scale needed is (inch):"
+msgstr "Ainsi, l'échelle nécessaire sera (pouces):"
+
+#. type: Plain text
+#: stepper_quickstart.txt:142
+msgid "image::images/step-calc-inch-math.png[align=\"center\"]"
+msgstr "image::images/step-calc-inch-math.png[align=\"left\"]"
+
+#. type: Plain text
+#: stepper_quickstart.txt:152
+msgid ""
+"//// latexmath:[ \\frac{200 motor steps}{1 motor rev} \\times \\frac{10 "
+"microsteps}{1 motor step} \\times \\frac{2 motor revs}{1 leadscrew rev} "
+"\\times \\frac{1 leadscrew revs}{0.2000 inch} = \\frac{20,000 microsteps}"
+"{inch} ] ////"
+msgstr ""
+"////\n"
+"latexmath:[ \\frac{200 motor steps}{1 motor rev} \\times\n"
+"\\frac{10 microsteps}{1 motor step} \\times\n"
+"\\frac{2 motor revs}{1 leadscrew rev} \\times\n"
+"\\frac{1 leadscrew revs}{0.2000 inch}\n"
+"= \\frac{20,000 microsteps}{inch} ]\n"
+"////"
+
+#. type: Plain text
+#: stepper_quickstart.txt:155
+#, no-wrap
+msgid ""
+".Units mm\n"
+"============================================\n"
+msgstr ""
+".Unités en millimètres\n"
+"====\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:163
+#, no-wrap
+msgid ""
+"....\n"
+"Stepper         = 200 steps per revolution\n"
+"Drive           =   8 micro steps per step\n"
+"Motor Teeth     =  30 \n"
+"Leadscrew Teeth =  90\n"
+"Leadscrew Pitch =   5.00 mm per turn\n"
+"....\n"
+"============================================\n"
+msgstr ""
+"....\n"
+"Pas par tour      = 200 pas par tour\n"
+"Micropas          =   8 micropas\n"
+"Dents côté moteur =  30\n"
+"Dents côté vis    =  90\n"
+"Pas de la vis     =   5.00 mm par tour\n"
+"....\n"
+"====\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:167
+msgid "From the above information (mm):"
+msgstr "D'après l'exemple ci-dessus (mm):"
+
+#. type: Plain text
+#: stepper_quickstart.txt:172
+#, no-wrap
+msgid ""
+" . The leadscrew moves 5.00 mm per turn.\n"
+" . The motor turns 3.000 times per 1 leadscrew turn.\n"
+" . The drive takes 8 microstep inputs to make the stepper step once.\n"
+" . The drive needs 1600 steps to turn the stepper one revolution.\n"
+msgstr ""
+" - la vis déplacera le mobile de 5.00 mm par tour.\n"
+" - Le moteur fera 3 tours pour 1 tour de vis. (90/30)\n"
+" - Le pilote utilisera 8 micro-pas pour faire un pas.\n"
+" - Le pilote aura besoin de 1600 impulsions pour un tour moteur.\n"
+
+#. type: Plain text
+#: stepper_quickstart.txt:174
+msgid "So the scale needed is (mm):"
+msgstr "Ainsi, l'échelle nécessaire sera (mm):"
+
+#. type: Plain text
+#: stepper_quickstart.txt:176
+msgid "image::images/step-calc-mm-math.png[align=\"center\"]"
+msgstr "image::images/step-calc-mm-math.png[align=\"left\"]"
+
+#. type: Plain text
+#: stepper_quickstart.txt:186
+msgid ""
+"//// latexmath:[ \\frac{200 motor steps}{1 motor rev} \\times \\frac{8 "
+"microsteps}{1 motor step} \\times \\frac{3 motor revs}{1 leadscrew rev} "
+"\\times \\frac{1 leadscrew revs}{5.000 mm} = \\frac{960 microsteps}"
+"{mm} ] ////"
+msgstr ""
+"////\n"
+"latexmath:[ \\frac{200 motor steps}{1 motor rev} \\times\n"
+"\\frac{8 microsteps}{1 motor step} \\times\n"
+"\\frac{3 motor revs}{1 leadscrew rev} \\times\n"
+"\\frac{1 leadscrew revs}{5.000 mm}\n"
+"= \\frac{960 microsteps}{mm} ]\n"
+"////"
+
+#. type: Plain text
+#: stepper_quickstart.txt:189
+msgid "// vim: set syntax=asciidoc:"
+msgstr "// vim: set syntax=asciidoc:"

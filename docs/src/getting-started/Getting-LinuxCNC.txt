@@ -1,11 +1,12 @@
+:lang en
 
 = Getting LinuxCNC
 
 This section describes the recommended way to download
 and make a fresh install of LinuxCNC.  There are also
-<<_alternate_install_methods,Alternate Install Methods>> for the
+<<sec:alternate_install_methods,Alternate Install Methods>> for the
 adventurous.  If you have an existing install that you want to upgrade,
-go to the <<_updating_linuxcnc,Updating LinuxCNC>> section instead.
+go to the <<cha:updating_linuxcnc,Updating LinuxCNC>> section instead.
 
 Fresh installs of LinuxCNC are most easily created using the Live/Install
 Image.  This is a hybrid ISO filesystem image that can be written to a
@@ -41,8 +42,7 @@ http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso
 zsync is a download application that efficiently resumes interrupted
 downloads and efficiently transfers large files with small modifications
 (if you have an older local copy).  Use zsync if you have trouble
-downloading the image using the <<_normal_download,Normal Download>>
-method.
+downloading the image using the normal_download method.
 
 zsync in Linux::
     Install zsync using your favourite package management
@@ -155,7 +155,7 @@ In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it cannot recognize the hard drive 
 during the boot up.
 
-
+[[sec:alternate_install_methods,Alternate Install Methods]]
 == Alternate Install Methods
 
 The easiest, preferred way to install LinuxCNC is to use the Live/Install

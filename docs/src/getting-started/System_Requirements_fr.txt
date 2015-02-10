@@ -1,52 +1,60 @@
 :lang: fr
 
-= Quelle configuration est requise ?
+= Quelle configuration est requise
 
 [[cha:Configuration-requise]] (((Configuration requise)))
 
-== Configuration minimale
+== Configuration minimale (((Configuration minimale)))
 
 La configuration minimale pour faire tourner LinuxCNC sous Ubuntu varie
 selon l'usage envisagé. Les moteurs pas à pas en général exigent, pour
-générer leurs trains d'impulsions de pas, des machines plus rapides que
-les systèmes à servomoteurs. Il est possible de tester le logiciel à
-partir du CD-Live avant de l'installer sur un ordinateur. Guarder à
-l'esprit que les valeurs retournées par le test de latence (Latency
-Test), sont plus importantes que la vitesse du µP pour la génération
-logicielle des pas. Plus d'informations à ce propos dans la section 
-relative au <<cha:test-de-latence, test de latence>>.
+générer leurs trains d'impulsions de pas, des machines plus rapides que les
+systèmes à servomoteurs. Il est possible de tester le logiciel à partir du
+DVD-Live avant de l'installer sur un ordinateur. Garder à l'esprit que les
+valeurs retournées par le test de latence (Latency Test), sont plus
+importantes que la vitesse du µP pour la génération logicielle des pas. Plus
+d'informations à ce propos dans la section relative au
+<<cha:test-de-latence, test de latence>>.
 
-Des informations additionnelles sont disponibles sur le 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[wiki de linuxcnc.org.]
+Des informations additionnelles sont disponibles sur le
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Wiki.LinuxCNC.org,
+Hardware_Requirements]
 
 LinuxCNC et Ubuntu doivent fonctionner raisonnablement bien sur la
 configuration matérielle minimale suivante. Ces valeurs ne sont pas des
-valeurs minimales absolues mais donneront des performances acceptables
-de la plupart des systèmes à moteurs pas à pas.
+valeurs minimales absolues mais donneront des performances acceptables de la
+plupart des systèmes à moteurs pas à pas.
 
- - Microprocesseur x86 à 700 MHz (x86 à 1.2 GHz recommandé)
- - 384 Mio de RAM (512 Mio ou plus de 1 Gio recommandé)
- - 8 GB d'espace disque
- - Carte graphique avec une résolution minimale de 1024x768
- - Une connection Internet ou réseau (optionnelle mais très pratique pour
-   les mises à jour)
+* Microprocesseur x86 à 700 MHz (x86 à 1.2 GHz recommandé)
+* 384 Mio de RAM (512 Mio à 1 Gio maximum, recommandé)
+* 8 Go d'espace disque
+* Carte graphique avec une résolution minimale de 1024x768, n'utilisant pas les
+   pilotes fglrx propriétaires de Nvidia ou d'AMD et n'étant pas une carte
+   intégrée à la carte mère car elle partagerait la mémoire avec le CPU.
+* Une connexion Internet ou réseau (optionnelle mais très pratique pour
+   les mises à jour et communiquer avec la communauté LinuxCNC)
+
+Le minimum requis change avec les évolutions d'Ubuntu, voir le site
+https://help.ubuntu.com[Ubuntu] pour d'autres détails sur l'usage du liveCD
+utilisé.  Sur des machines anciennes, il peut être intéressant de choisir
+une version de liveCD plus ancienne si elle est disponible.
 
 == Problématique du matériel
 
 === Les portables
 
-Les portables donnent généralement de piètres performances pour les
-tâches temps réel utilisées pour la génération logicielle de pas.
-Encore une fois, lancer un test de latence sur une grande période de
-temps vous permettra de déterminer si le portable envisagé est
-utilisable ou non.
+Les portables donnent généralement de piètres performances pour les tâches
+temps réel utilisées pour la génération logicielle de pas.  Encore une fois,
+lancer un test de latence sur une grande période de temps vous permettra de
+déterminer si le portable envisagé est utilisable ou non.
 
 === Les cartes graphiques
 
-Si votre installation se termine par un écran avec une résolution de
-800 x 600 il est alors probable que Ubuntu n'a pas reconnu votre carte
-graphique. Les cartes graphiques intégrées aux cartes mères donnent
-souvent de mauvaises performances temps réel.
+Si votre installation se termine par un écran avec une résolution de 800 x
+600 il est alors probable que Ubuntu n'a pas reconnu votre carte
+graphique. Les cartes graphiques intégrées aux cartes mères donnent souvent
+de mauvaises performances temps réel.
 
 // vim: set syntax=asciidoc:
 
