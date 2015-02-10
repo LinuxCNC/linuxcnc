@@ -1653,8 +1653,10 @@ static double pmCircleAngleFromParam(PmCircle const * const circle,
     // Quadratic formula to invert arc length -> angle
     double angle_out;
     double disc = 4.0 * fit->b0 * s_in + pmSq(fit->b1);
+    //FIXME bigger than POS_EPSILON to smooth out acceleration on near-circular cases
+    const double MIN_FIT_COEF = 1e-10;
 
-    if (fabs(fit->b0) > TP_POS_EPSILON && disc > TP_POS_EPSILON) {
+    if (fabs(fit->b0) > MIN_FIT_COEF && disc > TP_POS_EPSILON) {
         //Know that discriminant is positive and divisor is large enough not to
         //cause numerical errors
         angle_out = (pmSqrt(disc) - fit->b1) / (2.0 * fit->b0);
