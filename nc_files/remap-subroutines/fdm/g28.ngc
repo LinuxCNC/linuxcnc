@@ -47,6 +47,8 @@ o103 if [#502 EQ 1]
     ; M65 P#505; disable probe sensor
 o103 endif
 o104 if [#503 EQ 1]
-    G92 A0; set extruder axis to 0
+    o114 if [#<_ini[FDM]VELOCITY_EXTRUSION_ENABLE> EQ 0]    
+        G92 A0; set extruder axis to 0
+    o114 endif
 o104 endif
 o<g28> end sub 

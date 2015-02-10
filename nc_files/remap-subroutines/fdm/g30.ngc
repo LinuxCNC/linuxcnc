@@ -3,7 +3,7 @@ o100 if [EXISTS[#<_ini[PROBE]HBP_TEMP>]]
     M190 S#<_ini[PROBE]HBP_TEMP>
 o100 endif
 #501=38; probe selection io index
-#502=38; probe enable io index
+#502=0; probe enable io index
 #510=#<_x>; probe x
 #511=#<_y>; probe y
 o101 if [EXISTS[#<x>]]
