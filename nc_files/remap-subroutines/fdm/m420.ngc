@@ -2,8 +2,8 @@ o<m420> sub
 #500=26; light io start index
 #501=0; not synchronized
 #502=#500
-o104 if [EXISTS[#<p>]]
-    #502=[#<p>*4+#500]
+o104 if [EXISTS[#<t>]]
+    #502=[#<t>*4+#500]
 o104 endif
 #503=[#502+1]
 #504=[#502+2]
@@ -11,85 +11,29 @@ o104 endif
 o100 if [EXISTS[#<r>]]
     o110 if [#501 EQ 1]
         M67 E#502 Q#<r>
-        o120 if [#[#502+100] EQ 1]
-            M63 P#502
-            #[#502+100]=0
-        o120 else
-            M62 P#502
-            #[#502+100]=1
-        o120 endif
     o110 else
         M68 E#502 Q#<r>
-        o130 if [#[#502+100] EQ 1]
-            M65 P#502
-            #[#502+100]=0
-        o130 else
-            M64 P#502
-            #[#502+100]=1
-        o130 endif
     o110 endif
 o100 endif
 o101 if [EXISTS[#<e>]]
     o111 if [#501 EQ 1]
         M67 E#503 Q#<e>
-        o121 if [#[#503+100] EQ 1]
-            M63 P#503
-            #[#503+100]=0
-        o121 else
-            M62 P#503
-            #[#503+100]=1
-        o121 endif
     o111 else
         M68 E#503 Q#<e>
-        o131 if [#[#503+100] EQ 1]
-            M65 P#503
-            #[#503+100]=0
-        o131 else
-            M64 P#503
-            #[#503+100]=1
-        o131 endif
     o111 endif
 o101 endif
 o102 if [EXISTS[#<d>]]
     o112 if [#501 EQ 1]
         M67 E#504 Q#<d>
-        o122 if [#[#504+100] EQ 1]
-            M63 P#504
-            #[#504+100]=0
-        o122 else
-            M62 P#504
-            #[#504+100]=1
-        o122 endif
     o112 else
         M68 E#504 Q#<d>
-        o132 if [#[#504+100] EQ 1]
-            M65 P#504
-            #[#504+100]=0
-        o132 else
-            M64 P#504
-            #[#504+100]=1
-        o132 endif
     o112 endif
 o102 endif
-o103 if [EXISTS[#<s>]]
+o103 if [EXISTS[#<p>]]
     o113 if [#501 EQ 1]
-        M67 E#505 Q#<s>
-        o123 if [#[#505+100] EQ 1]
-            M63 P#505
-            #[#505+100]=0
-        o123 else
-            M62 P#505
-            #[#505+100]=1
-        o123 endif
+        M67 E#505 Q#<p>
     o113 else
-        M68 E#505 Q#<s>
-        o133 if [#[#505+100] EQ 1]
-            M65 P#505
-            #[#505+100]=0
-        o133 else
-            M64 P#505
-            #[#505+100]=1
-        o133 endif
+        M68 E#505 Q#<p>
     o113 endif
 o103 endif
 o<m420> end sub 
