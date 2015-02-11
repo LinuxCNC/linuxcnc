@@ -1,0 +1,1245 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-10 21:07+0100\n"
+"PO-Revision-Date: 2015-02-11 13:01+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: FrenchTranslation Team\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.4\n"
+
+#. type: Plain text
+#: stepconf.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: stepconf.txt:4
+msgid "= Stepper Configuration Wizard"
+msgstr "= Assistant graphique de configuration StepConf"
+
+#. type: Plain text
+#: stepconf.txt:6
+msgid "[[cha:stepconf-wizard]] (((Stepconf Wizard)))"
+msgstr "[[cha:Assistant-graphique-StepConf]] (((Assistant stepconf)))"
+
+#. type: Plain text
+#: stepconf.txt:8
+msgid "== Introduction"
+msgstr "== Introduction"
+
+#. type: Plain text
+#: stepconf.txt:11
+msgid "LinuxCNC is capable of controlling a wide range of machinery using many different hardware interfaces."
+msgstr "LinuxCNC est capable de contrôler un large éventail de machines utilisant de nombreuses interfaces matérielles différentes."
+
+#. type: Plain text
+#: stepconf.txt:16
+msgid "Stepconf is a program that generates configuration files for LinuxCNC for a specific class of CNC machine: those that are controlled via a 'standard parallel port', and controlled by signals of type 'step & direction'."
+msgstr "Stepconf est un programme qui génère des fichiers de configuration LinuxCNC pour une classe spécifique de machine CNC: celles qui sont pilotées via un, ou plusieurs ports parallèles standards et contrôlées par des signaux de type 'pas & direction' (step/dir)."
+
+#. type: Plain text
+#: stepconf.txt:18
+msgid "Stepconf is installed when you install LinuxCNC and is in the CNC menu."
+msgstr "Stepconf est installé en même temps que LinuxCNC et un lanceur se trouve dans le menu Application → CNC → LinuxCNC → StepConf."
+
+#. type: Plain text
+#: stepconf.txt:24
+msgid "Stepconf places a file in the linuxcnc/config directory to store the choices for each configuration you create.  When you change something, you need to pick the file that matches your configuration name.  The file extension is .stepconf."
+msgstr "Stepconf place un fichier dans le répertoire ~/linuxcnc/config pour y stocker les paramètres de chaque configuration créée. Lorsque quelque chose doit être modifié, il faut choisir le fichier correspondant au nom de la configuration et portant l'extension .stepconf."
+
+#. type: Plain text
+#: stepconf.txt:26
+msgid "The Stepconf Wizard works best with at least 800 x 600 screen resolution."
+msgstr "L'Assistant Stepconf a besoin, au minimum, d'une résolution de 800 x 600 pour que les boutons sur le bas des pages soient apparents."
+
+#. type: Plain text
+#: stepconf.txt:29
+msgid "== Start Page[[sec:Entry-Page]]"
+msgstr "== Page d'accueil[[sec:page_accueil]]"
+
+#. type: Plain text
+#: stepconf.txt:31
+msgid ".Entry Page[[cap:Entry-Page]]"
+msgstr ".La page d'accueil[[cap:page_accueil]]"
+
+#. type: Plain text
+#: stepconf.txt:33
+msgid "image::images/stepconf-config.png[align=\"center\"]"
+msgstr "image::images/stepconf-config_fr.png[align=\"left\"]"
+
+#. type: Bullet: '* '
+#: stepconf.txt:35
+msgid "'Create New' - Creates a fresh configuration."
+msgstr "* 'Créer une nouvelle configuration' - Créera une nouvelle configuration."
+
+#. type: Plain text
+#: stepconf.txt:41
+#, no-wrap
+msgid ""
+"* 'Modify' - Modify an existing configuration. After selecting this a file\n"
+"picker pops up so you can select the .stepconf file for modification. If you\n"
+"made any modifications to the main .hal or the .ini file these will be lost.\n"
+"Modifications to custom.hal and custom_postgui.hal will not be changed by\n"
+"the Stepconf Wizard. Stepconf will highlight the lastconf that was built.\n"
+msgstr ""
+"* 'Modifier' - Modifiera une configuration existante. Après la sélection de celle-ci\n"
+"un sélecteur de fichier s'ouvre pour y choisir le fichier .stepconf à modifier.\n"
+"Si des modifications ont été faites aux fichiers .hal et .ini avec un autre éditeur,\n"
+"elles seront perdues. Les modifications de custom.hal et de custom_postgui.hal,\n"
+"par contre, sont conservées par Stepconf.\n"
+
+#. type: Plain text
+#: stepconf.txt:44
+msgid "These next options wiil be recorded in a preference file for the next run of Stepconf."
+msgstr "Les options suivantes seront conservées dans un fichier de préférences pour le prochain lancement de stepconf."
+
+#. type: Plain text
+#: stepconf.txt:47
+#, no-wrap
+msgid ""
+"* 'Create Desktop Shortcut' - This will place a link on your desktop to the\n"
+"files.\n"
+msgstr ""
+"* 'Créer un lien' - Placera un raccourci sur le bureau, pointant sur\n"
+"le dossier des fichiers de configuration.\n"
+
+#. type: Plain text
+#: stepconf.txt:50
+#, no-wrap
+msgid ""
+"* 'Create Desktop Launcher' - This will place a launcher on your desktop to\n"
+"start your application.\n"
+msgstr ""
+"* 'Créer un lanceur' - Placera un lanceur sur le bureau\n"
+"pour démarrer l'application avec sa configuration.\n"
+
+#. type: Plain text
+#: stepconf.txt:53
+#, no-wrap
+msgid ""
+"* 'Create Simulated Hardware' - This allows you to build a config for testing,\n"
+"even if you don't have the actual hardware.\n"
+msgstr ""
+"* 'Créer une simulation' - Permet de construire une configuration\n"
+"de test, ceci même sans aucun matériel raccordé.\n"
+
+#. type: Plain text
+#: stepconf.txt:55
+msgid "== Basic Information[[sec:Basic-Information]]"
+msgstr "== Informations machine[[sec:Informations-machine]]"
+
+#. type: Plain text
+#: stepconf.txt:57
+msgid ".Basic Information Page[[cap:Basic-Information-Page]]"
+msgstr ".Page d'informations sur la machine[[cap:page-information-machine]]"
+
+#. type: Plain text
+#: stepconf.txt:59
+msgid "image::images/stepconf-basic.png[align=\"center\"]"
+msgstr "image::images/stepconf-basic_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: stepconf.txt:62
+#, no-wrap
+msgid ""
+"* 'Machine Name' - Choose a name for your machine. Use only uppercase letters,\n"
+"lowercase letters, digits, - and _.\n"
+msgstr ""
+"* 'Nom de la machine' - Choisir un nom pour la machine.\n"
+"Utiliser uniquement des lettres majuscules, minuscules, des chiffres ou - et _.\n"
+
+#. type: Bullet: '* '
+#: stepconf.txt:64
+msgid "'Axis Configuration' - Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe)."
+msgstr ""
+"* 'Configuration des axes' - Choisir les axes XYZ (fraiseuse 3 axes),\n"
+"XYZA (fraiseuse 4 axes) ou XZ (tour)."
+
+#. type: Plain text
+#: stepconf.txt:69
+#, no-wrap
+msgid ""
+"* 'Machine Units' - Choose Inch or mm. All subsequent entries will be in the\n"
+"chosen units. Changing this also changes the default values in the Axes section.\n"
+"If you change this after selecting values in any of the axes sections, they will\n"
+"be over-written by the default values of the selected units.\n"
+msgstr ""
+"* 'Unité machine' - Choisir entre le pouce et le millimètre. Toutes les questions\n"
+"suivantes (telles que la longueur des courses, le pas de la vis, etc) devront obtenir\n"
+"des réponses dans l'unité choisie ici. Si ce paramètre change après avoir sélectionné\n"
+"des valeurs dans les sections d'axe, celles-ci seront écrasées par les valeurs par\n"
+"défaut des unités sélectionnées.\n"
+
+#. type: Plain text
+#: stepconf.txt:75
+#, no-wrap
+msgid ""
+"* 'Driver Type' - If you have one of the stepper drivers listed in the pull down\n"
+"box, choose it. Otherwise, select 'Other' and find the timing values in your\n"
+"driver's data sheet and enter them as 'nano seconds' in the 'Driver Timing\n"
+"Settings'. If the data sheet gives a value in microseconds, multiply by 1000.\n"
+"For example, enter 4.5us as 4500ns.\n"
+msgstr ""
+"* 'Caractéristiques du pilote' - Si un des pilotes énumérés dans la liste\n"
+"déroulante peut être utilisé, cliquer sur son nom. Sinon, choisir 'Autres'  et\n"
+"trouver les 4 valeurs de timing dans la fiche de caractéristiques fournie par\n"
+"le fabricant du pilote et les saisir. Si la fiche donne des valeursen microsecondes,\n"
+"les multiplier par 1000 pour les convertir en nanosecondes. Par exemple,\n"
+"pour 4.5µs saisir 4500ns.\n"
+
+#. type: Plain text
+#: stepconf.txt:79
+msgid "A list of some popular drives, along with their timing values, is on the LinuxCNC.org Wiki under http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[Stepper Drive Timing]."
+msgstr ""
+"Une liste des pilotes pas à pas les plus populaires, avec leurs valeurs caractéristiques de timing, se trouve sur le wiki de LinuxCNC.org à la page\n"
+"http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[Timming des pilotes]."
+
+#. type: Plain text
+#: stepconf.txt:84
+msgid "Additional signal conditioning or isolation such as optocouplers and RC filters on break out boards can impose timing constraints of their own, in addition to those of the driver. You may find it necessary to add some time to the drive requirements to allow for this."
+msgstr "D'éventuels traitements des signaux, une opto-isolation ou des filtres RC, peuvent imposer des contraintes de temps supplémentaires aux signaux, il convient alors de les ajouter à celles du pilote."
+
+#. type: Plain text
+#: stepconf.txt:86
+msgid "The LinuxCNC Configuration Selector has configs for Sherline already configured."
+msgstr "Le sélecteur de configuration de LinuxCNC contient des configurations pour Sherline déjà pré-configurées."
+
+#. type: Plain text
+#: stepconf.txt:89
+#, no-wrap
+msgid ""
+"* 'Step Time' - How long the step pulse is 'on' in nano seconds. If your not\n"
+"sure about this setting a value of 20,000 will work with most drives.\n"
+msgstr ""
+"* 'Step Time' - Durée de la largeur de l'impulsion de pas à l'état 'on',\n"
+"en nanosecondes. En cas de doutes, mettre cette valeur à 20000,\n"
+"elle fonctionnera avec la majorité des pilotes.\n"
+
+#. type: Plain text
+#: stepconf.txt:92
+#, no-wrap
+msgid ""
+"* 'Step Space' - Minimum time between step pulses in nano seconds. If your\n"
+"not sure about this setting a value of 20,000 will work with most drives.\n"
+msgstr ""
+"* 'Valeur Space d'un pas' - Temps entre deux impulsions de pas, en nanosecondes.\n"
+"En cas de doutes, mettre cette valeur à 20000, elle fonctionnera avec la majorité\n"
+"des pilotes.\n"
+
+#. type: Plain text
+#: stepconf.txt:96
+#, no-wrap
+msgid ""
+"* 'Direction Hold' - How long the direction pin is held after a change of\n"
+"direction in nanoseconds. If your not sure about this setting a value of\n"
+"20,000 will work with most drives.\n"
+msgstr ""
+"* 'Direction Hold' - Durée de maintien du signal après un changement de\n"
+"direction, en nanosecondes. En cas de doutes, mettre cette valeur à 20000,\n"
+"elle fonctionnera avec la majorité des pilotes.\n"
+
+#. type: Plain text
+#: stepconf.txt:100
+#, no-wrap
+msgid ""
+"* 'Direction Setup' - How long before a direction change after the last\n"
+"step pulse in nanoseconds.  If your not sure about this setting a value of\n"
+"20,000 will work with most drives.\n"
+msgstr ""
+"* 'Réglage direction' - Délai avant le changement de direction après la\n"
+"dernière impulsion de pas, en nanosecondes. En cas de doutes, mettre\n"
+"cette valeur à 20000, elle fonctionnera avec la majorité des pilotes.\n"
+
+#. type: Bullet: '* '
+#: stepconf.txt:102
+msgid "'One / Two Parport' - Select how many parallel port are to be configured."
+msgstr "* 'Un ou deux Parport' - Choix du nombre de ports parallèles."
+
+#. type: Plain text
+#: stepconf.txt:106
+#, no-wrap
+msgid ""
+"* 'Base Period Maximum Jitter' - Enter the result of the Latency Test here.\n"
+"To run a latency test press the 'Test Base Period Jitter' button. See the\n"
+"<<latency-test,Latency Test>> section for more details.\n"
+msgstr ""
+"* 'Base Period Maximum Jitter' - Entrer ici la valeur obtenue à la fin du\n"
+"test de latence. Pour exécuter directement un test de latence cliquer sur\n"
+"le bouton 'Test de latence'. Voir le chapitre sur le <<cha:test-de-latence,\n"
+"sur le test de latence>> pour tous les détails concernant ce test.\n"
+
+#. type: Plain text
+#: stepconf.txt:109
+#, no-wrap
+msgid ""
+"* 'Max Step Rate' -Stepconf automatically calculates the Max Step Rate based\n"
+"on the driver characteristics entered and the latency test result.\n"
+msgstr ""
+"* 'Fréquence maxi des pas' - Stepconf calcule automatiquement la fréquence\n"
+"maximum des pas, en se basant sur les paramètres du pilote entrés dans\n"
+"cette configuration et les résultats du test de latence.\n"
+
+#. type: Plain text
+#: stepconf.txt:112
+#, no-wrap
+msgid ""
+"* 'Min Base Period' - Stepconf automatically determines the Min Base Period\n"
+"based on the driver characteristics entered and latency test result.\n"
+msgstr ""
+"* 'Période de base minimale' - Stepconf calcule automatiquement la période\n"
+"de base minimale, en se basant sur les paramètres du pilote, entrés dans cette\n"
+"configuration et les résultats du test de latence.\n"
+
+#. type: Plain text
+#: stepconf.txt:114
+#| msgid "== Latency Test (((Latency Test)))"
+msgid "== Latency Test[[latency-test]](((Latency Test)))"
+msgstr "== Test de latence[[test-de-latence]](((Test de latence)))"
+
+#. type: Plain text
+#: stepconf.txt:124
+msgid ""
+"While the test is running, you should 'abuse' the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are.  Run the test at least a few minutes. The longer "
+"you run the test the better it will be at catching events that might occour at less frequent intervals. This is a test for your computer only, so no hardware needs to be connected to run the test."
+msgstr ""
+"Alors que le test est en cours d'exécution, il faut charger l'ordinateur au maximum. Déplacer les fenêtres sur l'écran. Surfer sur le Web. Écouter de la musique. Exécuter un programme OpenGL comme glxgears. L'idée est de charger le PC au maximum pour que le temps de latence soit mesuré dans le cas le plus défavorable et donc, connaître la latence maximale. Laisser le "
+"test se dérouler plusieurs minutes. Plus le test sera long, plus il aura de chance de capturer un événement se produisant peu fréquemment. Ce test concerne seulement l'ordinateur, aucun matériel ne doit être connecté pour lancer le test."
+
+#. type: Plain text
+#: stepconf.txt:127
+msgid "[WARNING] Do not attempt run LinuxCNC while the latency test is running."
+msgstr "[WARNING] Ne pas exécuter LinuxCNC ou Stepconf pendant que latency-test est en cours d'exécution."
+
+#. type: Plain text
+#: stepconf.txt:129
+msgid ".Latency Test[[cap:Latency-Test]]"
+msgstr ".Latency Test[[cap:Test-de-latence]]"
+
+#. type: Plain text
+#: stepconf.txt:131
+msgid "image::images/latency.png[align=\"center\"]"
+msgstr "image::images/latency.png[align=\"left\"]"
+
+#. type: Plain text
+#: stepconf.txt:137
+msgid "Latency is how long it takes the PC to stop what it is doing and respond to an external request. In our case, the request is the periodic 'heartbeat' that serves as a timing reference for the step pulses. The lower the latency, the faster you can run the heartbeat, and the faster and smoother the step pulses will be."
+msgstr "La latence correspond au temps pris par le PC pour stopper ce qui est en cours et répondre à une requête externe. Dans notre cas, la requête est 'horloge qui sert au cadencement des impulsions de pas. Plus faible est la latence, plus rapide sera l'horloge, plus rapides et plus douces seront les impulsions de pas."
+
+#. type: Plain text
+#: stepconf.txt:141
+msgid "Latency is far more important than CPU speed. The CPU isn't the only factor in determining latency. Motherboards, video cards, USB ports, SMI issues, and a number of other things can hurt the latency."
+msgstr "La latence est de loin plus importante que la vitesse du CPU. Le CPU n'est pas le seul facteur déterminant le temps de latence. Les cartes mères, les cartes vidéo, les ports USB et de nombreuses autres choses peuvent détériorer le temps de latence."
+
+#. type: Plain text
+#: stepconf.txt:145
+msgid ".Troubleshooting SMI Issues (LinuxCNC.org Wiki)  ************************************************************ Fixing Realtime problems caused by SMI on Ubuntu"
+msgstr ""
+".Dépannage de problèmes SMI (LinuxCNC.org Wiki)\n"
+"************************************************************\n"
+"Des problèmes dûs au SMI arrivent parfois sur Ubuntu, il existe un correctif:"
+
+#. type: Plain text
+#: stepconf.txt:148
+msgid "http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues ************************************************************"
+msgstr ""
+"http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues\n"
+"************************************************************"
+
+#. type: Plain text
+#: stepconf.txt:153
+msgid "The important numbers are the 'max jitter'. In the example above 9075 nanoseconds, or 9.075 microseconds, is the highest jitter.  Record this number, and enter it in the Base Period Maximum Jitter box."
+msgstr "La colonne 'max jitter' à la ligne 'Base Thread' dans l'exemple ci-dessus donne '9075'. Ce qui représente 9075 nanosecondes, soit 9.075 microsecondes. Noter ce nombre pour l'entrer dans Stepconf comme période de base maximale."
+
+#. type: Plain text
+#: stepconf.txt:164
+msgid ""
+"If your Max Jitter number is less than about 15-20 microseconds (15000-20000 nanoseconds), the computer should give very nice results with software stepping. If the max latency is more like 30-50 microseconds, you can still get good results, but your maximum step rate might be a little disappointing, especially if you use microstepping or have very fine pitch leadscrews. "
+"If the numbers are 100 us or more (100,000 nanoseconds), then the PC is not a good candidate for software stepping. Numbers over 1 millisecond (1,000,000 nanoseconds) mean the PC is not a good candidate for LinuxCNC, regardless of whether you use software stepping or not."
+msgstr ""
+"Si le résultat de Max Jitter est en dessous d'environ 15-20 µs (15000-20000 nanosecondes), l'ordinateur pourra donner d'excellents résultats pour la génération logicielle des pas. Si le temps de latence est à plus de 30-50 microsecondes, de bons résultats seront obtenus, mais la vitesse maximum sera un peu faible, spécialement si des micro-pas sont utilisés ou si le pas "
+"de la vis est fin. Si les résultats sont de 100µS ou plus (100,000 nanosecondes), alors le PC n'est pas un bon candidat à la génération des pas. Les résultats supérieurs à 1 milliseconde (1,000,000 nanosecondes) éliminent, dans tous les cas, ce PC pour faire tourner LinuxCNC, en utilisant des micro-pas ou pas."
+
+#. type: Plain text
+#: stepconf.txt:166
+msgid "== Parallel Port Setup[[sec:Parallel-Port-Setup]](((Parallel Port Setup)))"
+msgstr "== Réglage du port parallèle[[Reglage-du-port-parallele]]"
+
+#. type: Plain text
+#: stepconf.txt:168
+msgid ".Parallel Port Setup Page[[cap:Parallel-Port-Setup]]"
+msgstr ".Page de réglage du port parallèle[[cap:Reglage-du-port-parallele]]"
+
+#. type: Plain text
+#: stepconf.txt:172
+#, no-wrap
+msgid ""
+"image::images/stepconf-pinout.png[align=\"center\"]\n"
+"You may specify the address as a hexidecimal (often 0x378) or as linux's default\n"
+" port number (probably 0)\n"
+msgstr ""
+"image::images/stepconf-pinout_fr.png[align=\"left\"]\n"
+"Il est possible de spécifier l'adresse en hexadécimal (par exemple:0x378) ou\n"
+"comme numéro de port par défaut de Linux (probablement 0).\n"
+
+#. type: Plain text
+#: stepconf.txt:177
+msgid "For each pin, choose the signal which matches your parallel port pinout.  Turn on the 'invert' check box if the signal is inverted (0V for true/active, 5V for false/inactive)."
+msgstr "Pour chacune des broches, choisir le signal correspondant au brochage entre le port parallèle et l'interface matérielle. Cocher la case 'inverser' si le signal est inversé (0V pour vrai/actif, 5V pour faux/inactif)."
+
+#. type: Plain text
+#: stepconf.txt:181
+#, no-wrap
+msgid ""
+"* 'Output pinout presets' - Automatically set pins 2 through 9 according to\n"
+"the Sherline standard (Direction on pins 2, 4, 6, 8) or the Xylotex standard\n"
+"(Direction on pins 3, 5, 7, 9).\n"
+msgstr ""
+"* 'Sorties présélectionnées' - Réglage automatique des pins 2 à 9 Direction\n"
+"sur les pins 2, 4, 6, 8, selon le standard Sherline Direction sur les\n"
+"pins 3, 5, 7, 9, selon le standard Xylotex\n"
+
+#. type: Plain text
+#: stepconf.txt:184
+#, no-wrap
+msgid ""
+"* 'Inputs and Outputs' - If the input or output is not used set the option\n"
+"to 'Unused'.\n"
+msgstr ""
+"* 'Entrées et sorties' - Les entrées ou les sorties non utilisées doivent\n"
+"être placées sur 'Inutilisé'.\n"
+
+#. type: Plain text
+#: stepconf.txt:187
+#, no-wrap
+msgid ""
+"* 'External E Stop' - This can be selected from an input pin drop down box.\n"
+"A typical E Stop chain uses all normally closed contacts.\n"
+msgstr ""
+"* 'Sortie arrêt d'urgence' - Sélectionnable dans la liste déroulante des sorties.\n"
+"Tous les contacts de la boucle d'arrêt d'urgence devraient être des\n"
+"contacts Normalement Fermés (NC).\n"
+
+#. type: Plain text
+#: stepconf.txt:190
+#, no-wrap
+msgid ""
+"* 'Homing & Limit Switches' - These can be selected from an input pin drop\n"
+"down box for most configurations.\n"
+msgstr "* 'Entrées OM & Limites' - Ces choix se font dans la liste déroulante des entrées.\n"
+
+#. type: Plain text
+#: stepconf.txt:196
+#, no-wrap
+msgid ""
+"* 'Charge Pump' - If your driver board requires a charge pump signal select\n"
+"Charge Pump from the drop down list for the output pin you wish to connect\n"
+"to your charge pump input. The charge pump output is connected to the base\n"
+"thread by Stepconf. The charge pump output will be about 1/2 of the maximum\n"
+"step rate shown on the Basic Machine Configuration page.\n"
+msgstr ""
+"* 'Pompe de charge' - Si la carte de contrôle requiert un signal de\n"
+"pompe de charge, dans la liste déroulante des sorties, sélectionner\n"
+"'Pompe de charge' sur la sortie correspondant à l'entrée Pompe de\n"
+"charge de la carte de contrôle. La sortie pompe de charge est connectée\n"
+"en interne au base thread par Stepconf. Le signal de pompe de charge\n"
+"sera d'environ la moitié de la fréquence maxi des pas affichée sur la\n"
+"page des informations de base de la machine.\n"
+
+#. type: Plain text
+#: stepconf.txt:198
+msgid "== Parallel Port 2 Setup[[sec:Parallel-Port-2-Setup]](((Parallel Port 2 Setup)))"
+msgstr "== Réglage du port parallèle 2[[Parallel-Port-2-Setup]]"
+
+#. type: Plain text
+#: stepconf.txt:200
+msgid ".Parallel Port 2 Setup Page[[cap:Parallel-Port-2-Setup]]"
+msgstr ".Page de réglage du port parallèle 2[[cap:Parallel-Port-2-Setup]]"
+
+#. type: Plain text
+#: stepconf.txt:202
+msgid "image::images/stepconf-parport2.png[align=\"center\"]"
+msgstr "image::images/stepconf-parport2.png[align=\"left\"]"
+
+#. type: Plain text
+#: stepconf.txt:210
+#, no-wrap
+msgid ""
+"The second Parallel port (if selected) can be configured and It's pins\n"
+"assigned on this page. +\n"
+"No step and direction signals can be selected. +\n"
+"You may select in or out to maximizes the number of input/output pins that\n"
+"are available. +\n"
+"You may specify the address as a hexidecimal (often 0x378) or as linux's default\n"
+" port number (probably 1).\n"
+msgstr ""
+"Si un second port parallèle est sélectionné, entrer son adresse ici. +\n"
+"Les signaux pas et direction ne peuvent pas être sélectionnés. +\n"
+"Il devront être sélectionnés in ou out pour optimiser le nombre de\n"
+"broches d'entrées/sorties  qui seront disponibles. +\n"
+"L'adresse peut être spécifiée en hexadécimal (ex: 0x378) ou\n"
+"comme les ports par défaut sous Linux (probablement 1).\n"
+
+#. type: Plain text
+#: stepconf.txt:212
+msgid "== Axis Configuration[[sec:Axis-Configuration]](((Axis Configuration)))"
+msgstr "== Configuration des axes[[sec:Configuration-des-axes]]"
+
+#. type: Plain text
+#: stepconf.txt:214
+msgid ".Axis Configuration Page[[cap:Axis-Configuration-Page]]"
+msgstr ".Page de configuration des axes[[cap:Configuration-des-axes]]"
+
+#. type: Plain text
+#: stepconf.txt:216
+msgid "image::images/stepconf-axis.png[align=\"center\"]"
+msgstr "image::images/stepconf-axis_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: stepconf.txt:221
+#, no-wrap
+msgid ""
+"* 'Motor Steps Per Revolution' - The number of full steps per motor revolution.\n"
+"If you know how many degrees per step the motor is (e.g., 1.8 degree), then\n"
+"divide 360 by the degrees per step to find the number of steps per motor\n"
+"revolution.\n"
+msgstr ""
+"* 'Nombre de pas moteur par tour' - Nombre de pas entiers par tour de\n"
+"moteur.Si l'angle d'un pas en degrés est connu (par exemple, 1.8 degrés),\n"
+"diviser 360 par cet angle pour obtenir le nombre de pas par tour du moteur.\n"
+
+#. type: Plain text
+#: stepconf.txt:224
+#, no-wrap
+msgid ""
+"* 'Driver Microstepping' - The amount of microstepping performed by the driver.\n"
+"Enter '2' for half-stepping.\n"
+msgstr ""
+"* 'Micro-pas du pilote' - Le nombre de micro-pas produits par le pilote.\n"
+"Entrer par exemple '2' pour le demi pas ou une des valeurs permises par\n"
+"le pilote du moteur.\n"
+
+#. type: Plain text
+#: stepconf.txt:227
+#, no-wrap
+msgid ""
+"* 'Pulley Ratio' - If your machine has pulleys between the motor and leadscrew,\n"
+"enter the ratio here. If not, enter '1:1'.\n"
+msgstr ""
+"* 'Dents des poulies' - Si entre le moteur et la vis un réducteur poulie/courroie\n"
+"est présent, entrer ici le nombre de dents de chacune des poulies. Pour un\n"
+"entraînement direct, entrer '1:1'.\n"
+
+#. type: Plain text
+#: stepconf.txt:233
+#, no-wrap
+msgid ""
+"* 'Leadscrew Pitch' - Enter the pitch of the leadscrew here. If you chose\n"
+"'Inch' units, enter the number of threads per inch If you chose 'mm' units,\n"
+"enter the number of millimeters per revolution (e.g., enter 2 for 2mm/rev).\n"
+"If the machine travels in the wrong direction, enter a negative number here\n"
+"instead of a positive number, or invert the direction pin for the axis.\n"
+msgstr ""
+"* 'Pas de la vis' - Entrer ici le pas de la vis. Si le pouce a été choisi comme\n"
+"unité, entrer ici le nombre de filets par pouce. Si le mm a été choisi, entrer\n"
+"ici le pas du filet en millimètres. Déterminer de combien se déplace le mobile\n"
+"par tour de vis et entrer cette valeur ici (ex:entrer 2 pour 2mm par tour de vis).\n"
+"Si la machine se déplace dans la mauvaise direction, entrer une valeur\n"
+"négative au lieu d'une positive, et vice-versa.\n"
+
+#. type: Plain text
+#: stepconf.txt:236
+#, no-wrap
+msgid ""
+"* 'Maximum Velocity' -Enter the maximum velocity for the axis in units per\n"
+"second.\n"
+msgstr ""
+"* 'Vitesse maximale' - Entrer ici la vitesse de déplacement maximale de l'axe,\n"
+"en unités par seconde.\n"
+
+#. type: Plain text
+#: stepconf.txt:242
+#, no-wrap
+msgid ""
+"* 'Maximum Acceleration' - The correct values for these items can only be\n"
+"determined through experimentation. See\n"
+"<<finding-maximum-velocity,Finding Maximum Velocity>> to set the speed and\n"
+"<<finding-maximum-acceleration,Finding Maximum Acceleration>> to set the\n"
+"acceleration.\n"
+msgstr ""
+"* 'Accélération maximale' - Les valeurs correctes pour ces deux entrées ne\n"
+"peuvent être déterminées que par l'expérimentation. Consulter \n"
+"<<sec:Trouver-Vitesse-Maximale,le calcul de la vitesse>> pour trouver la\n"
+"vitesse et <<sec:Trouver-Acceleration-Maximale,le calcul de l'accélération>>\n"
+"pour trouver l'accélération maximale.\n"
+
+#. type: Plain text
+#: stepconf.txt:248
+#, no-wrap
+msgid ""
+"* 'Home Location' - The position the machine moves to after completing the\n"
+"homing procedure for this axis. For machines without home switches, this is\n"
+"the location the operator manually moves the machine to before pressing the\n"
+"Home button. If you combine the home and limit switches you must move off of\n"
+"the switch to the home position or you will get a joint limit error.\n"
+msgstr ""
+"* 'Emplacement de l'origine' - Position sur laquelle la machine se place après\n"
+"avoir terminé la procédure de prise d'origine de cet axe.Pour les machines\n"
+"sans contact placé au point d'origine, c'est la position à laquelle l'opérateur\n"
+"place la machine en manuel, avant de presser le bouton de 'POM des axes'.\n"
+"Si des fins de course de limites sont combinés avec ceux de prise d'origine,\n"
+"il est indispensable de programmer le dégagement des capteurs de prise\n"
+"d'origine. A défaut une erreur de dépassement de limite surviendrait.\n"
+
+#. type: Plain text
+#: stepconf.txt:252
+#, no-wrap
+msgid ""
+"* 'Table Travel' - The range of travel for that axis based on the machine\n"
+"origin. The home location must be inside the 'Table Travel' and not equal to\n"
+"one of the Table Travel values.\n"
+msgstr ""
+"* 'Course de la table' - Étendue de la course sur cet axe. L'emplacement de\n"
+"l'origine machine (vu précédemment) doit être situé à l'intérieur de cette\n"
+"course et non égal la valeur de la course de la table.\n"
+
+#. type: Plain text
+#: stepconf.txt:258
+#, no-wrap
+msgid ""
+"* 'Home Switch Location' - The location at which the home switch trips\n"
+"or releases reletive to the machine origin. This item and the two below only\n"
+"appear when Home Switches were chosen in the Parallel Port Pinout. If\n"
+"you combine home and limit switches the home switch location can not be\n"
+"the same as the home position or you will get a joint limit error.\n"
+msgstr ""
+"* 'Position du contact d'origine machine' - Position relative à l'origine\n"
+"machine, à laquelle le contact d'origine est activé ou relâché pendant\n"
+"la procédure de prise d'origine. Cet item et les deux suivants, n'apparaissent\n"
+"que si les contacts d'origine ont été sélectionnés dans le réglage des\n"
+"broches du port parallèle. Si les contacts d'origine machine et ceux de\n"
+"limite d'axe sont combinés, la position du contact d'origine ne peut pas\n"
+"être la même que celle de l'origine ou une erreur de dépassement de\n"
+"limite surviendrait.\n"
+
+#. type: Plain text
+#: stepconf.txt:269
+#, no-wrap
+msgid ""
+"* 'Home Search Velocity' - The velocity to use when searching for the home\n"
+"switch. If the switch is near the end of travel, this velocity must be chosen\n"
+" so that the axis can decelerate to a stop before hitting the end of travel.\n"
+"If the switch is only closed for a short range of travel\n"
+"(instead of being closed from its trip point to one end of travel),\n"
+"this velocity must be chosen so that the axis can decelerate to a stop\n"
+"before the switch opens again, and homing must always be started from\n"
+"the same side of the switch.\n"
+"If the machine moves the wrong direction at the beginning of the\n"
+"homing procedure, negate the value of 'Home Search Velocity'.\n"
+msgstr ""
+"* 'Vitesse de recherche de l'origine' - Vitesse utilisée pendant le déplacement\n"
+"vers le contact d'origine machine. Si le contact est proche d'une limite\n"
+"physique de déplacement de la table, cette vitesse doit être suffisamment\n"
+"basse pour permettre de décélérer et de s'arrêter avant d'atteindre la butée\n"
+"mécanique et cela, malgré l'inertie du mobile. Si le contact est fermé par\n"
+"la came sur une faible longueur de déplacement (au lieu d'être fermé\n"
+"depuis son point de fermeture jusqu'au bout de le course), cette vitesse\n"
+"doit être réglée pour permettre la décélération et l'arrêt, avant que le\n"
+"contact ne soit dépassé et ne s'ouvre à nouveau. La prise d'origine machine\n"
+"doit toujours commencer du même côté du contact. Si la machine se\n"
+"déplace dans la mauvaise direction au début de la procédure de prise\n"
+"d'origine machine, rendre négative la valeur de 'Vitesse de recherche de\n"
+"l'origine'.\n"
+
+#. type: Plain text
+#: stepconf.txt:274
+#, no-wrap
+msgid ""
+"* 'Home Latch Direction' - Choose 'Same' to have the axis back off the switch,\n"
+"then approach it again at a very low speed. The second time the switch\n"
+"closes, the home position is set. Choose 'Opposite' to have the axis back off\n"
+"the switch and when the switch opens, the home position is set.\n"
+msgstr ""
+"* 'Dégagement du contact d'origine' - Choisir 'Identique' pour que la machine\n"
+"reparte d'abord en arrière, dégage le contact, puis revienne de nouveau vers\n"
+"lui à très petite vitesse. La seconde fois que le contact se ferme, la position\n"
+"de l'origine machine est acquise. Choisir 'Opposition' pour que la machine\n"
+"reparte en arrière à très petite vitesse jusqu'au dégagement du contact.\n"
+"Quand le contact s'ouvre, la position de l'origine machine est acquise.\n"
+
+#. type: Plain text
+#: stepconf.txt:277
+#, no-wrap
+msgid ""
+"* 'Time to accelerate to max speed' - Time to reach maximum speed calculated\n"
+"from 'Max Acceleration' and 'Max Velocity'.\n"
+msgstr ""
+"* 'Temps pour accélérer à la vitesse maxi' - Temps en secondes, calculé\n"
+"en fonction des paramètres renseignés précédemment.\n"
+
+#. type: Plain text
+#: stepconf.txt:280
+#, no-wrap
+msgid ""
+"* 'Distance to accelerate to max speed' - Distance to reach maximum speed from\n"
+"a standstill.\n"
+msgstr ""
+"* 'Distance pour accélérer à la vitesse maxi' - Distance en mm, calculée en\n"
+"fonction des paramètres renseignés précédemment.\n"
+
+#. type: Plain text
+#: stepconf.txt:285
+#, no-wrap
+msgid ""
+"* 'Pulse rate at max speed' - Information computed based on the values entered\n"
+"above. The greatest 'Pulse rate at max speed' determines the 'BASE_PERIOD'.\n"
+"Values above 20000Hz may lead to slow response time or even lockups\n"
+"(the fastest usable pulse rate varies from computer to computer)\n"
+msgstr ""
+"* 'Fréquence des impulsions à la vitesse maxi' - Informations calculées\n"
+"sur la base des informations entrées précédemment. Il faut rechercher\n"
+"la plus haute fréquence des impulsions à la vitesse maxi possible, elle\n"
+"détermine la période de base 'BASE_PERIOD'. Des valeurs supérieures à\n"
+"20000Hz peuvent toutefois provoquer des ralentissements importants de\n"
+"l'ordinateur, voir même son blocage (La plus grande fréquence utilisable\n"
+"variera d'un ordinateur à un autre)\n"
+
+#. type: Plain text
+#: stepconf.txt:288
+#, no-wrap
+msgid ""
+"* 'Axis SCALE' - The number that will be used in the ini file [SCALE] setting.\n"
+"This is how many steps per user unit.\n"
+msgstr ""
+"* 'Échelle de l'axe' - Le nombre qui sera utilisé dans le fichier ini comme\n"
+"paramètre [SCALE]. C'est le nombre de pas moteur par unité utilisateur.\n"
+
+#. type: Plain text
+#: stepconf.txt:291
+#, no-wrap
+msgid ""
+"* 'Test this axis' - This will open a window to allow testing for each axis.\n"
+"This can be used after filling out all the information for this axis.\n"
+msgstr ""
+"* 'Test de cet axe' - Ouvre une fenêtre permettant de tester les paramètres\n"
+"pour chaque axe. Il est possible de modifier par expérimentation certaines\n"
+"données et de les reporter dans la configuration.\n"
+
+#. type: Plain text
+#: stepconf.txt:293
+msgid "=== Test This Axis"
+msgstr "=== Tester cet axe"
+
+#. type: Plain text
+#: stepconf.txt:295
+msgid ".Test This Axis[[cap:Test-This-Axis]]"
+msgstr ".Tester cet axe[[cap:Tester-Cet-Axe]]"
+
+#. type: Plain text
+#: stepconf.txt:297
+msgid "image::images/stepconf-test.png[align=\"center\"]"
+msgstr "image::images/stepconf-test_fr.png[]"
+
+#. type: Plain text
+#: stepconf.txt:300
+msgid "Test this axis is a basic tester that only outputs step and direction signals to try different values for acceleration and velocity."
+msgstr "Tester cet axe et un test simple pour définir les signaux de direction et de pas, ainsi que les valeurs d'accélération et de vitesse."
+
+#. type: Plain text
+#: stepconf.txt:305
+msgid "[IMPORTANT] In order to use test this axis you have to manually enable the axis if this is required. If your driver has a charge pump you will have to bypass it.  Test this axis does not react to limit switch inputs. Use with caution."
+msgstr "[IMPORTANT] Pour pouvoir utiliser ce test d'axe, il sera peut-être nécessaire de valider manuellement l'axe à tester. Si le driver utilise une pompe de charge, il faudra la bi-passer pour essayer les différentes valeurs de vitesse et d'accélération. Ce test doit être utilisé avec précaution car les contacts de limite d'axe ne sont pas actifs."
+
+#. type: Plain text
+#: stepconf.txt:307
+msgid "==== Finding Maximum Velocity[[finding-maximum-velocity]](((Finding Maximum Velocity)))"
+msgstr "==== Trouver la vitesse maximale[[sec:Trouver-Vitesse-Maximale]]"
+
+#. type: Plain text
+#: stepconf.txt:316
+msgid ""
+"Begin with a low Acceleration // comment out latexmath until a fix is found for the html docs // (e.g., latexmath:[ 2 in/s^2 ] or latexmath:[ 50 mm/s^2 ])  (for example, *+2 inches/s^2^+* or *+50 mm/s^2^+*)  and the velocity you hope to attain.  Using the buttons provided, jog the axis to near the center of travel.  Take care because with a low acceleration value, it can "
+"take a surprising distance for the axis to decelerate to a stop."
+msgstr "Commencer avec une faible valeur d'accélération (par exemple, *+2 pouces/s^2^+* ou *+50 mm/s^2^+*) et la vitesse espérée. En utilisant les boutons de jog, positionner l'axe vers son centre. Il faut être prudent, car avec peu d'accélération, la distance d'arrêt peut être très surprenante."
+
+#. type: Plain text
+#: stepconf.txt:332
+msgid ""
+"After gaging the amount of travel available, enter a safe distance in Test Area, keeping in mind that after a stall the motor may next start to move in an unexpected direction.  Then click Run.  The machine will begin to move back and forth along this axis.  In this test, it is important that the combination of Acceleration and Test Area allow the machine to reach the "
+"selected Velocity and 'cruise' for at least a short distance -- the more distance, the better this test is.  The formula *+d = 0.5 * v * v/a+* // latexmath:[ d = 0.5 * v * v/a ] gives the minimum distance required to reach the specified velocity with the given acceleration.  If it is convenient and safe to do so, push the table against the direction of motion to simulate "
+"cutting forces.  If the machine stalls, reduce the speed and start the test again."
+msgstr ""
+"Après avoir évalué le déplacement possible dans chaque direction en toute sécurité, entrer une distance dans le champs 'Zone de test', garder à l'esprit qu'après un décrochage, le moteur peut repartir dans la direction inattendue. Puis cliquer sur 'Lancer'. La machine commencera à aller et venir le long de cet axe. Dans cet essai, il est important que la combinaison "
+"entre l'accélération et la zone de test, permette à la machine d'atteindre la vitesse sélectionnée et de s'y déplacer au moins, sur une courte distance. La formule *+d = 0.5 * v * v/a+*, donne la distance minimale requise pour atteindre la vitesse de 'croisière'. Si la sécurité est garantie, pousser sur la table dans la direction inverse du mouvement pour simuler les "
+"efforts de coupe. Si la table décroche, réduire la vitesse et recommencer le test."
+
+#. type: Plain text
+#: stepconf.txt:337
+msgid "If the machine did not obviously stall, click the 'Run' button off. The axis now returns to the position where it started. If the position is incorrect, then the axis stalled or lost steps during the test. Reduce Velocity and start the test again."
+msgstr "Si la machine ne présente aucun décrochage, re-cliquer sur le bouton 'Lancer' pour le désactiver. L'axe revient alors à sa position de départ. Si cette position est incorrecte, c'est que l'axe a calé ou a perdu des pas au cours de l'essai. Réduire la vitesse et relancer le test."
+
+#. type: Plain text
+#: stepconf.txt:340
+msgid "If the machine doesn't move, stalls, or loses steps, no matter how low you turn Velocity, verify the following:"
+msgstr "Si la machine ne se déplace pas, cale, vibre ou perd des pas, même à faible vitesse, vérifier les éléments suivants:"
+
+#. type: Plain text
+#: stepconf.txt:345
+msgid "- Correct step waveform timings - Correct pinout, including 'Invert' on step pins - Correct, well-shielded cabling - Physical problems with the motor, motor coupling, leadscrew, etc."
+msgstr "- Corriger les paramètres de temps des impulsions de commande.- Le brochage du port et la polarité des impulsions. Les cases 'Inverser'.- La qualité des connexions et le blindage des câbles.- Les problèmes mécaniques avec le moteur, l'accouplement moteur, vis,raideurs etc."
+
+#. type: Plain text
+#: stepconf.txt:349
+msgid "Once you have found a speed at which the axis does not stall or lose steps during this testing procedure, reduce it by 10% and use that as the axis 'Maximum Velocity'."
+msgstr "Quand la vitesse à laquelle l'axe ne perd plus de pas et à laquelle les mesures sont exactes pendant le test a été déterminée, réduire cette vitesse de 10% et l'utiliser comme 'vitesse maximale' pour cet axe."
+
+#. type: Plain text
+#: stepconf.txt:351
+msgid "==== Finding Maximum Acceleration[[finding-maximum-acceleration]](((Finding Maximum Acceleration)))"
+msgstr "==== Trouver l'accélération maximale[[sec:Trouver-Acceleration-Maximale]]"
+
+#. type: Plain text
+#: stepconf.txt:361
+msgid ""
+"With the Maximum Velocity you found in the previous step, enter the acceleration value to test.  Using the same procedure as above, adjust the Acceleration value up or down as necessary.  In this test, it is important that the combination of Acceleration and Test Area allow the machine to reach the selected Velocity.  Once you have found a value at which the axis does "
+"not stall or lose steps during this testing procedure, reduce it by 10% and use that as the axis Maximum Acceleration."
+msgstr ""
+"Avec la vitesse maximale déterminée à l'étape précédente, entrer une valeur d'accélération approximative. Procéder comme pour la vitesse, en ajustant la valeur d'accélération en plus ou en moins selon le résultat. Dans cet essai, il est important que la combinaison de l'accélération et de la zone de test permette à la machine d'atteindre la vitesse sélectionnée. Une fois "
+"que la valeur à laquelle l'axe ne perd plus de pas pendant le test a été déterminée, la réduire de 10% et l'utiliser comme accélération maximale pour cet axe."
+
+#. type: Plain text
+#: stepconf.txt:363
+msgid "== Spindle Configuration[[sec:Spindle-Configuration]](((Spindle Configuration)))"
+msgstr "== Configuration de la broche[[sec:Page-configuration-de-la-broche]]"
+
+#. type: Plain text
+#: stepconf.txt:365
+msgid ".Spindle Configuration Page[[cap:Spindle-Configuration-Page]]"
+msgstr ".Page configuration de la broche[[cap:Page-Configuration-de-la-broche]]"
+
+#. type: Plain text
+#: stepconf.txt:367
+msgid "image::images/stepconf-spindle.png[align=\"center\"]"
+msgstr "image::images/stepconf-spindle_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: stepconf.txt:370
+msgid "This page only appears when 'Spindle PWM' is chosen in the 'Parallel Port Pinout' page for one of the outputs."
+msgstr "Cette page n'apparaît que quand 'PWM broche' est configuré dans le réglage du port parallèle."
+
+#. type: Plain text
+#: stepconf.txt:372
+msgid "=== Spindle Speed Control[[spindle-speed-control]](((spindle speed control)))"
+msgstr "=== Contrôle de la vitesse de broche[[sec:Controle-de-la-vitesse-de-broche]]"
+
+#. type: Plain text
+#: stepconf.txt:375
+msgid "If 'Spindle PWM' appears on the pinout, the following information should be entered:"
+msgstr "Si 'PWM broche' apparaît dans le réglage du port parallèle, les informations suivantes doivent être renseignées:"
+
+#. type: Plain text
+#: stepconf.txt:379
+#, no-wrap
+msgid ""
+"* 'PWM Rate' - The 'carrier frequency' of the PWM signal to the spindle. Enter\n"
+"'0' for PDM mode, which is useful for generating an analog control voltage.\n"
+"Refer to the documentation for your spindle controller for the appropriate value.\n"
+msgstr ""
+"* 'Fréquence PWM' - La fréquence porteuse du signal PWM (modulation de\n"
+"largeur d'impulsions) du moteur de broche.  Entrer 0 pour le mode PDM\n"
+"(modulation de densité d'impulsions), qui est très utile pour générer une\n"
+"tension de consigne analogique. Se reporter à la documentation du\n"
+"variateur de broche pour connaître la valeur appropriée.\n"
+
+#. type: Plain text
+#: stepconf.txt:384
+#, no-wrap
+msgid ""
+"* 'Speed 1 and 2, PWM 1 and 2' - The generated configuration file uses a simple\n"
+"linear relationship to determine the PWM value for a given RPM value. If the\n"
+"values are not known, they can be determined. For more information see\n"
+"<<determining-spindle-calibration,Determining Spindle Calibration>>.\n"
+msgstr ""
+"* 'Vitesse 1 et 2, PWM 1 et 2' - Le fichier de configuration généré utilise\n"
+"une simple relation linéaire pour déterminer la valeur PWM correspondant à\n"
+"une vitesse de rotation. Si les valeurs ne sont pas connues, elles peuvent\n"
+"être déterminées. Voir la section sur\n"
+"<<sec:calibration-broche,la calibration de la broche>>.\n"
+
+#. type: Plain text
+#: stepconf.txt:387
+msgid "=== Spindle-synchronized motion[[sub:Spindle-synchronized-motion-lathe]] (((Spindle-synchronized motion)))(((Lathe Threading)))"
+msgstr "=== Mouvement avec broche synchronisée[[sec:Mouvement-avec-broche-synchronisee]]"
+
+#. type: Plain text
+#: stepconf.txt:391
+msgid "When the appropriate signals from a spindle encoder are connected to LinuxCNC via HAL, LinuxCNC supports lathe threading.  These signals are:"
+msgstr "Lorsque les signaux appropriés, provenant d'un codeur de broche, sont connectés au port parallèle, LinuxCNC peut être utilisé pour les usinages avec broche synchronisée comme le filetage ou le taraudage rigide. Ces signaux son les suivants:"
+
+#. type: Bullet: '* '
+#: stepconf.txt:393
+msgid "'Spindle Index' - Is a pulse that occurs once per revolution of the spindle."
+msgstr ""
+"* 'Index broche' - Également appelé PPR broche, c'est une impulsion\n"
+"produite à chaque tour de broche."
+
+#. type: Plain text
+#: stepconf.txt:396
+#, no-wrap
+msgid ""
+"* 'Spindle Phase A' - This is a pulse that occurs in multiple equally-spaced\n"
+"locations as the spindle turns.\n"
+msgstr ""
+"* 'Phase A broche' - C'est une suite d'impulsions carrées générées sur\n"
+"la voie A du codeur pendant la rotation de la broche. Le nombre\n"
+"d'impulsions pour un tour correspond à la résolution du codeur.\n"
+
+#. type: Plain text
+#: stepconf.txt:400
+#, no-wrap
+msgid ""
+"* 'Spindle Phase B (optional)' - This is a second pulse that occurs, but with\n"
+"an offset from Spindle Phase A. The advantages to using both A and B are\n"
+"direction sensing, increased noise immunity, and increased resolution.\n"
+msgstr ""
+"* 'Phase B broche' (optionnelle) - C'est une seconde suite d'impulsions,\n"
+"générées sur la voie B du codeur et décalées par rapport à celle de la voie A.\n"
+"L'utilisation de ces deux signaux permet d’accroître l'immunité au bruit et\n"
+"la résolution d'un facteur 4.\n"
+
+#. type: Plain text
+#: stepconf.txt:403
+msgid "If 'Spindle Phase A' and 'Spindle Index' appear on the pinout, the following information should be entered:"
+msgstr "Si 'Phase A broche' et 'Index broche' apparaissent dans le réglage des broches du port, l'information suivante doit être renseignée sur la page de configuration broche:"
+
+#. type: Plain text
+#: stepconf.txt:407
+#, no-wrap
+msgid ""
+"* 'Use Spindle-At-Speed' - With encoder feedback one can choose to have linuxcnc\n"
+" wait for the spindle to reach the commanded speed before feed moves. Select this\n"
+"option and set the 'close enough' scale.\n"
+msgstr ""
+"* 'Utiliser Spindle-At-Speed' - Avec un retour de codeur il est possible de\n"
+"choisir d'attendre que la consigne de vitesse de broche soit atteinte avant\n"
+"que ne commence les mouvements d'usinage. Sélectionner cette option et\n"
+"ajuster l'échelle 'close enough' (assez prêt).\n"
+
+#. type: Plain text
+#: stepconf.txt:410
+#, no-wrap
+msgid ""
+"* 'Speed Display Filter Gain' - Setting for adjusting the stability of the\n"
+"visual spindle speed display.\n"
+msgstr ""
+"* 'Gain du filtre d'affichage vitesse' - Ajuster pour fixer la stabilité de\n"
+"l'affichage de vitesse broche.\n"
+
+#. type: Plain text
+#: stepconf.txt:414
+#, no-wrap
+msgid ""
+"* 'Cycles per revolution' - The number of cycles of the 'Spindle A' signal\n"
+"during one revolution of the spindle. This option is only enabled when an\n"
+"input has been set to 'Spindle Phase A'\n"
+msgstr ""
+"* 'Cycles par tour' - Le nombre d'impulsions par tour sur la\n"
+"pin 'Phase A broche'. Cette option n'est présente que si une entrée\n"
+"'Phase A broche' est configurée.\n"
+
+#. type: Plain text
+#: stepconf.txt:418
+#, no-wrap
+msgid ""
+"* 'Maximum speed in thread' - The maximum spindle speed used in threading.\n"
+"For a high spindle RPM or a spindle encoder with high resolution, a low value\n"
+"of 'BASE_PERIOD' is required.\n"
+msgstr ""
+"* 'Vitesse maximale en filetage' - La vitesse de broche maximale utilisée\n"
+"en filetage. Pour exploiter un moteur de broche rapide ou un codeur ayant\n"
+"une résolution élevée, une valeur basse de BASE_PERIOD est requise.\n"
+
+#. type: Plain text
+#: stepconf.txt:421
+msgid "=== Determining Spindle Calibration[[determining-spindle-calibration]] (((Determining Spindle Calibration)))"
+msgstr "=== Calibrer la broche[[sec:calibration-broche]](((Calibrer la broche)))"
+
+#. type: Plain text
+#: stepconf.txt:423
+msgid "Enter the following values in the Spindle Configuration page:"
+msgstr "Entrer les valeurs suivantes dans la page de configuration de la broche:"
+
+#. type: Plain text
+#: stepconf.txt:429
+#, no-wrap
+msgid ""
+"[width=\"80%\"]\n"
+"|============================\n"
+"|Speed 1: | 0    | PWM 1: | 0\n"
+"|Speed 2: | 1000 | PWM 2: | 1\n"
+"|============================\n"
+msgstr ""
+"[width=\"80%\"]\n"
+"|===============================\n"
+"| Vitesse 1: | 0    | PWM 1: | 0\n"
+"| Vitesse 2: | 1000 | PWM 2: | 1\n"
+"|===============================\n"
+
+#. type: Plain text
+#: stepconf.txt:436
+msgid "Finish the remaining steps of the configuration process, then launch LinuxCNC with your configuration.  Turn the machine on and select the MDI tab.  Start the spindle turning by entering: 'M3 S100'.  Change the spindle speed by entering a different S-number: 'S800'.  Valid numbers (at this point) range from 1 to 1000."
+msgstr "Finir les étapes suivantes de la configuration, puis lancer LinuxCNC avec cette configuration. Mettre la machine en marche et aller dans l'onglet 'Données manuelles', démarrer le moteur de broche en entrant: M3 S100. Modifier la vitesse de broche avec différentes valeurs comme: S800. Les valeurs permises vont de 1 à 1000."
+
+#. type: Plain text
+#: stepconf.txt:441
+msgid "For two different S-numbers, measure the actual spindle speed in RPM.  Record the S-numbers and actual spindle speeds. Run Stepconf again.  For 'Speed' enter the measured speed, and for 'PWM' enter the S-number divided by 1000."
+msgstr "Pour deux différentes valeurs de Snnn, mesurer la vitesse de rotation réelle de la broche en tours/mn. Enregistrer ces vitesses réelles de la broche. Relancer Stepconf. Pour les 'Vitesses', entrer les valeurs réelles mesurées et pour les 'PWM', entrer la valeur Snnn divisée par 1000."
+
+#. type: Plain text
+#: stepconf.txt:444
+msgid "Because most spindle drivers are somewhat nonlinear in their response curves, it is best to:"
+msgstr "Parce que la plupart des interfaces ne sont pas linéaires dans leur courbe de réponse, il est préférable de:"
+
+#. type: Plain text
+#: stepconf.txt:448
+msgid "- Make sure the two calibration speeds are not too close together in RPM - Make sure the two calibration speeds are in the range of speeds you will typically use while milling"
+msgstr "- S'assurer que les deux points de mesure des vitesses en tr/mn ne soient pas trop rapprochés- S'assurer que les deux vitesses utilisées sont dans la gamme des vitesses utilisées généralement par la machine."
+
+#. type: Plain text
+#: stepconf.txt:452
+msgid "For instance, if your spindle will go from 0 RPM to 8000 RPM, but you generally use speeds from 400 RPM (10%) to 4000 RPM (100%), then find the PWM values that give 1600 RPM (40%) and 2800 RPM (70%)."
+msgstr "Par exemple, si la broche tourne entre 0tr/mn et 8000tr/mn, mais qu'elle est utilisée généralement entre 400tr/mn (10%) et 4000tr/mn (100%), prendre alors des valeurs qui donneront 1600tr/mn (40%) et 2800tr/mn (70%)."
+
+#. type: Plain text
+#: stepconf.txt:454
+msgid "== Options[[sec:Advanced-Configuration-Options]](((Advanced Configuration Options)))"
+msgstr "== Options[[sec:Options-de-configuration-avancee]]"
+
+#. type: Plain text
+#: stepconf.txt:456
+msgid ".Advanced Configuration[[cap:Advanced-Configuration]]"
+msgstr ".Configuration avancée[[cap:Configuration-avancee]]"
+
+#. type: Plain text
+#: stepconf.txt:458
+msgid "image::images/stepconf-advanced.png[align=\"center\"]"
+msgstr "image::images/stepconf-advanced_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: stepconf.txt:461
+#, no-wrap
+msgid ""
+"* 'Include Halui' - This will add the Halui user interface component. See the\n"
+"Integrator Manual for more information on Halui.\n"
+msgstr ""
+"* 'Inclure l'interface Halui' - Ajoutera l'interface utilisateur Halui. Voir le\n"
+"manuel de l'intégrateur pour plus d'informations sur Halui.\n"
+
+#. type: Plain text
+#: stepconf.txt:464
+#, no-wrap
+msgid ""
+"* 'Include pyVCP' - This option adds the pyVCP panel base file or a sample file\n"
+"to work on. See the Integrator Manual for more information on pyVCP.\n"
+msgstr ""
+"* 'Inclure un panneau pyVCP' - Ceci ajoutera un panneau pyVCP de base,\n"
+"avec son fichier de configuration sur lequel il sera possible de travailler.\n"
+"Quelques options sont disponibles pour enrichir le panneau grâce à des\n"
+"cases à cocher. Voir le manuel de l'intégrateur pour plus d'information sur\n"
+"pyVCP.\n"
+
+#. type: Plain text
+#: stepconf.txt:468
+#, no-wrap
+msgid ""
+"* 'Include ClassicLadder PLC' - This option will add the ClassicLadder PLC\n"
+"(Programmable Logic Controller). See the Integrator Manual for more information\n"
+"on ClassicLadder.\n"
+msgstr ""
+"* 'Inclure l'API ClassicLadder' - Cette option ajoutera l'automate\n"
+"programmable en logique à contacts ClassicLadder. Voir le manuel de\n"
+"l'intégrateur pour plus d'information sur ClassicLadder.\n"
+
+#. type: Plain text
+#: stepconf.txt:472
+#, no-wrap
+msgid ""
+"* 'Onscreen Prompt For Tool Change' - If this box is checked, LinuxCNC will\n"
+"pause and prompt you to change the tool when 'M6' is encountered. This feature\n"
+"is usually only useful if you have presettable tools.\n"
+msgstr ""
+"* 'Dialogue à l'écran pour le changement d'outil' - Si cette case est cochée,\n"
+"LinuxCNC va faire une pause et ouvrir un dialogue pour monter l'outil <n>\n"
+"lorsque qu'un G-Code M6 T<n> sera rencontré. Cette possibilité n'est utile\n"
+"que si les outils sont préréglés.\n"
+
+#. type: Plain text
+#: stepconf.txt:474
+msgid "== Machine Configuration Complete[[sub:Machine-Configuration-Complete]]"
+msgstr "== Appliquer la configuration[[sec:appliquer-configuration]]"
+
+#. type: Plain text
+#: stepconf.txt:477
+msgid "Click 'Apply' to write the configuration files.  Later, you can re-run this program and tweak the settings you entered before."
+msgstr "Cliquer 'Appliquer' pour enregistrer les fichiers de configuration. Ensuite, il sera possible de relancer ce programme et ajuster les réglages entrés précédemment."
+
+#. type: Plain text
+#: stepconf.txt:480
+msgid "== Axis Travel, Home Location, and Home Switch Location[[sec:Axis-Travel-Home]] (((Axis Travel)))(((Home Location)))(((Home Switch Location)))"
+msgstr "== Position des fins de course[[sec:Position-Origine-Position-Contacts]]"
+
+#. type: Plain text
+#: stepconf.txt:483
+msgid "For each axis, there is a limited range of travel.  The physical end of travel is called the 'hard stop'."
+msgstr "La course de chaque axe est délimitée. Les extrémités physiques d'une course sont appelées les 'butées mécaniques'."
+
+#. type: Plain text
+#: stepconf.txt:489
+msgid "Before the 'hard stop' there is a 'limit switch'.  If the limit switch is encountered during normal operation, LinuxCNC shuts down the motor amplifier.  The distance between the 'hard stop' and 'limit switch' must be long enough to allow an unpowered motor to coast to a stop."
+msgstr ""
+"Avant la butée mécanique se trouve un contact de 'limite'. Si ce contact est rencontré pendant les opérations normales, LinuxCNC coupe la puissance du moteur. La distance entre le contact de limite et la butée mécanique doit être suffisante pour permettre au moteur, dont la puissance a été coupée, de s'arrêter malgré l'inertie du mobile. Ces fins de course doivent "
+"détecter le mobile sur toutes la distance d'arrêt et ne pas se réactiver en cas de dépassement dû à l'inertie."
+
+#. type: Plain text
+#: stepconf.txt:494
+msgid "Before the 'limit switch' there is a 'soft limit'.  This is a limit enforced in software after homing.  If a MDI command or g code program would pass the soft limit, it is not executed.  If a jog would pass the soft limit, it is terminated at the soft limit."
+msgstr "Avant le contact de 'limite' se trouve une limite logicielle. Cette limite logicielle est introduite après la prise d'origine machine.Si une commande manuelle ou un programme G-code dépasse cette limite, ils ne seront pas exécutés. Si un mouvement en jog ou en manuel cherche à dépasser la limite logicielle, il sera interrompu sur cette limite."
+
+#. type: Plain text
+#: stepconf.txt:499
+msgid "The 'home switch' can be placed anywhere within the travel (between hard stops).  As long as external hardware does not deactivate the motor amplifiers when the limit switch is reached, one of the limit switches can be used as a home switch."
+msgstr "Le contact 'd'origine machine' peut être positionné n'importe où, le long d'une course entre les butées mécaniques. Si aucun mécanisme externe ne désactive la puissance moteur quand un contact de limite est enfoncé, un des contacts de limite peut être utilisé comme contact d'origine machine."
+
+#. type: Plain text
+#: stepconf.txt:505
+msgid "The 'zero position' is the location on the axis that is 0 in the machine coordinate system.  Usually the 'zero position' will be within the 'soft limits'.  On lathes, constant surface speed mode requires that machine 'X=0' correspond to the center of spindle rotation when no tool offset is in effect."
+msgstr ""
+"La 'position zéro' correspond au 0 de l'axe dans le système de coordonnées pièce, après que la prise d'origine pièce de cette axe ait été faite. La position zéro doit se trouver entre les deux limites logicielles pour que l'usinage soit possible. Sur les tours, le mode vitesse à surface constante requiert que la coordonnée *X=0* corresponde au centre de rotation de la "
+"broche quand aucun correcteur d'outil n'est actif."
+
+#. type: Plain text
+#: stepconf.txt:511
+msgid "The 'home position' is the location within travel that the axis will be moved to at the end of the homing sequence.  This value must be within the 'soft limits'.  In particular, the 'home position' should never be exactly equal to a 'soft limit'."
+msgstr ""
+"La position de l'origine est la position, située le long de l'axe, sur laquelle le mobile sera déplacé à la fin de la séquence de prise d'origine. Cette position doit se situer entre les limites logicielles. En particulier, la position de l'origine ne doit jamais être égale à une limite logicielle. On place habituellement cette position au point le plus facile pour "
+"réaliser le changement d'outil."
+
+#. type: Plain text
+#: stepconf.txt:514
+msgid "=== Operating without Limit Switches[[sub:Operating-without-Limit]] (((Operating without Limit Switches)))"
+msgstr "=== Exploitation sans fin de course[[sec:exploitation-sans-limite]]"
+
+#. type: Plain text
+#: stepconf.txt:518
+msgid "A machine can be operated without limit switches. In this case, only the soft limits stop the machine from reaching the hard stop.  Soft limits only operate after the machine has been homed."
+msgstr "Une machine peut être utilisée sans contact de fin de course. Dans ce cas, seules les limites logicielles empêcheront la machine d'atteindre les butées mécaniques. Les limites logicielles n’opèrent qu'après que la POM (prise d'origine machine) soit faite sur la machine."
+
+#. type: Plain text
+#: stepconf.txt:521
+msgid "=== Operating without Home Switches[[sub:Operating-without-Home]] (((Operating without Home Switches)))"
+msgstr "=== Exploitation sans contact d'origine[[sec:exploitation-sans-origine]]"
+
+#. type: Plain text
+#: stepconf.txt:531
+msgid ""
+"A machine can be operated without home switches.  If the machine has limit switches, but no home switches, it is best to use a limit switch as the home switch (e.g., choose 'Minimum Limit + Home X' in the pinout).  If the machine has no switches at all, or the limit switches cannot be used as home switches for another reason, then the machine must be homed 'by eye' or by "
+"using match marks. Homing by eye is not as repeatable as homing to switches, but it still allows the soft limits to be useful."
+msgstr ""
+"Une machine peut être utilisée sans contact d'origine machine. Si la machine dispose de contacts de fin de course, mais pas de contact d'origine machine, il est préférable d'utiliser le contact de fin de course comme contact d'origine machine (exemple, choisir 'Limite mini + origine X' dans le réglage du port). Si la machine ne dispose d'aucun contact, ou que le contact "
+"de fin de course n'est pas utilisable pour une autre raison, alors la prise d'origine machine peut toujours être réalisée à la main. Faire la prise d'origine à la main n'est certes pas aussi reproductible que sur des contacts, mais elle permet tout de même aux limites logicielles d'être utilisables."
+
+#. type: Plain text
+#: stepconf.txt:534
+msgid "=== Home and Limit Switch wiring options[[sub:Home-and-Limit]] (((Home and Limit Switch wiring options)))"
+msgstr "=== Câblage des contacts de fin de course et d'origine machine[[sec:Contacts-Origine-et-Limites]]"
+
+#. type: Plain text
+#: stepconf.txt:540
+msgid "The ideal wiring for external switches would be one input per switch.  However, the PC parallel port only offers a total of 5 inputs, while there are as many as 9 switches on a 3-axis machine.  Instead, multiple switches are wired together in various ways so that a smaller number of inputs are required."
+msgstr "Le câblage idéal des contacts externes serait une entrée par contact. Toutefois, un seul port parallèle d'ordinateur offre un total de 5 entrées,alors qu'il n'y a pas moins de 9 contacts sur une machine 3 axes. Au lieu de cela, plusieurs contacts seront câblés ensembles, selon diverse combinaisons, afin de nécessiter un plus petit nombre d'entrées."
+
+#. type: Plain text
+#: stepconf.txt:552
+msgid ""
+"The figures below show the general idea of wiring multiple switches to a single input pin.  In each case, when one switch is actuated, the value seen on INPUT goes from logic HIGH to LOW.  However, LinuxCNC expects a TRUE value when a switch is closed, so the corresponding 'Invert' box must be checked on the pinout configuration page.  The pull up resistor show in the "
+"diagrams pulls the input high until the connection to ground is made and then the input goes low.  Otherwise the input might float between on and off when the circuit is open.  Typically for a parallel port you might use 47k."
+msgstr ""
+"Les figures ci-dessous montrent l'idée générale du câblage de plusieurs contacts à une seule broche d'entrée. Dans chaque cas, lorsqu'un contact est actionné, la valeur vue sur l'entrée va passer d'une logique haute à une logique basse. Cependant, LinuxCNC s'attend à une valeur VRAIE quand un contact est fermé, de sorte que les cases Inverser correspondantes devront être "
+"cochées sur la page de réglage du port parallèle. Une résistance de rappel est nécessaire dans le circuit pour tirer l'entrée au nivaux haut. La valeur typique pour un port parallèle est de 47K. Une bonne sécurité utilise des contacts normalement fermés sans pièce de commande souple."
+
+#. type: Plain text
+#: stepconf.txt:554
+msgid ".Normally Closed Switches[[cap:Normally-Closed-Switches]]"
+msgstr ".Contacts normalement fermés[[cap:Contacts-Normalement-Fermes]]"
+
+#. type: Plain text
+#: stepconf.txt:556
+msgid "Wiring N/C switches in series (simplified diagram)"
+msgstr "Câblage de contacts NC en série (schéma simplifié)"
+
+#. type: Plain text
+#: stepconf.txt:558
+msgid "image::images/switch-nc-series.png[align=\"center\"]"
+msgstr "image::images/switch-nc-series_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: stepconf.txt:560
+msgid ".Normally Open Switches[[cap:Normally-Open-Switches]]"
+msgstr ".Contacts normalement ouverts[[cap:Contacts-Normalement-Ouverts]]"
+
+#. type: Plain text
+#: stepconf.txt:562
+msgid "Wiring N/O switches in parallel (simplified diagram)"
+msgstr "Câblage de contacts NO en parallèle (schéma simplifié)"
+
+#. type: Plain text
+#: stepconf.txt:564
+msgid "image::images/switch-no-parallel.png[align=\"center\"]"
+msgstr "image::images/switch-no-parallel_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: stepconf.txt:566
+msgid "The following combinations of switches are permitted in Stepconf:"
+msgstr "Les combinaisons suivantes sont permises dans Stepconf:"
+
+#. type: Bullet: '* '
+#: stepconf.txt:572
+msgid "Combine home switches for all axes"
+msgstr "* Les contacts d'origine machine de tous les axes combinés."
+
+#. type: Bullet: '* '
+#: stepconf.txt:572
+msgid "Combine limit switches for all axes"
+msgstr "* Les contacts de fin de course de tous les axes combinés."
+
+#. type: Bullet: '* '
+#: stepconf.txt:572
+msgid "Combine both limit switches for one axis"
+msgstr "* Les contacts de fin de course d'un seul axe combinés."
+
+#. type: Bullet: '* '
+#: stepconf.txt:572
+msgid "Combine both limit switches and the home switch for one axis"
+msgstr ""
+"* Les contacts de fin de course et le contact d'origine machine d'un\n"
+"seul axe, combinés."
+
+#. type: Bullet: '* '
+#: stepconf.txt:572
+msgid "Combine one limit switch and the home switch for one axis"
+msgstr ""
+"* Un seul contact de fin de course et le contact d'origine machine\n"
+"d'un seul axe, combinés."
+
+#. type: Plain text
+#: stepconf.txt:574
+msgid "// vim: set syntax=asciidoc:"
+msgstr "// vim: set syntax=asciidoc:"
