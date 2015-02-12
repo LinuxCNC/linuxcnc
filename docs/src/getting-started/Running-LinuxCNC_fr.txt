@@ -1,8 +1,6 @@
 :lang: fr
 
-﻿= Lancer LinuxCNC
-
-[[cha:lancer_linuxcnc]] (((Lancer LinuxCNC)))
+= Démarrer LinuxCNC[[cha:lancer_linuxcnc]](((Lancer LinuxCNC)))
 
 == Invoquer LinuxCNC
 

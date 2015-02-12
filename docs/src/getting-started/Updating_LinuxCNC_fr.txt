@@ -1,6 +1,6 @@
 :lang: fr
 
-= Mettre à jour LinuxCNC
+= Mise à jour de LinuxCNC
 
 [[cha:mettre_a_jour_linuxcnc,Mettre à jour LinuxCNC]]
 
@@ -172,11 +172,9 @@ demander à être mises à jour de la manière suivante:
   dans `/etc/modprobe.d/linuxcnc.conf` (ou `/etc/modprobe.d/emc2.conf`
   pour les plus anciennes versions de LinuxCNC).  Modifier toutes
   ces lignes dans tous ces fichiers comme ça:
-  +
   `install parport_pc /bin/true`
 
 * Être sûr que la configuration de Hal ne charge pas le composant
   `probe_parport`.
-
 
 // vim: set syntax=asciidoc:

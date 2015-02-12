@@ -171,5 +171,4 @@ the following ways:
 * Make sure your Hal configuration does not load the `probe_parport`
   component.
 
-
 // vim: set syntax=asciidoc:

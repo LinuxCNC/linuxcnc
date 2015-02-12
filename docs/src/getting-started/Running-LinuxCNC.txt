@@ -1,8 +1,6 @@
 :lang: en
 
-= Running LinuxCNC
-
-[[cha:running-emc]] (((Running LinuxCNC)))
+= Running LinuxCNC[[cha:running-emc]](((Running LinuxCNC)))
 
 == Invoking LinuxCNC
 

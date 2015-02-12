@@ -1,3 +1,5 @@
+:lang: en
+
 = Mesa Configuration Wizard
 
 [[cha:PNCconf-wizard]]
@@ -43,16 +45,16 @@ image::images/pncconf-splash.png[]
 == Create or Edit
 
 This allows you to select a previously saved configuration or create a new one.
-If you pick 'Modify a configuration' and then press next a file selection box 
-will show. Pncconf preselects your last saved file. Choose the the config you 
+If you pick 'Modify a configuration' and then press next a file selection box
+will show. Pncconf preselects your last saved file. Choose the the config you
 wish to edit. It also allows you to select desktop shortcut / launcher options.
-A desktop shortcut will place a folder icon on the desktop that points to your 
-new configuration files. Otherwise you would have to look in your home folder 
-under emc2/configs.
+A desktop shortcut will place a folder icon on the desktop that points to your
+new configuration files. Otherwise you would have to look in your home folder
+under linuxcnc/configs.
 
-A Desktop launcher will add an icon to the desktop for starting your config 
-directly. You can also launch it under Applications/cnc/emc2 and selecting your
-config name.
+A Desktop launcher will add an icon to the desktop for starting your config
+directly. You can also launch it under Applications/CNC/LinuxCNC and selecting
+your config name.
 
 == Basic Machine Information
 
@@ -354,8 +356,7 @@ Defaults and Options::
 * Restore joint position after shutdown
 ** Used for non-trivial kinematics machines
 
-* Random position toolchangers
-** Used for toolchangers that do not return the tool to the same
+* Random position toolchangers** Used for toolchangers that do not return the tool to the same
   pocket. You will need to add custom HAL code to support toolchangers.
 
 == Mesa Configuration

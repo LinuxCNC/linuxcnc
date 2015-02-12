@@ -32,7 +32,7 @@ pour que les boutons sur le bas des pages soient apparents.
 
 image::images/stepconf-config_fr.png[align="left"]
 
-* * 'Créer une nouvelle configuration' - Créera une nouvelle configuration.
+* 'Créer une nouvelle configuration' - Créera une nouvelle configuration.
 
 * 'Modifier' - Modifiera une configuration existante. Après la sélection de celle-ci
 un sélecteur de fichier s'ouvre pour y choisir le fichier .stepconf à modifier.
@@ -61,7 +61,7 @@ image::images/stepconf-basic_fr.png[align="left"]
 * 'Nom de la machine' - Choisir un nom pour la machine.
 Utiliser uniquement des lettres majuscules, minuscules, des chiffres ou - et _.
 
-* * 'Configuration des axes' - Choisir les axes XYZ (fraiseuse 3 axes),
+* 'Configuration des axes' - Choisir les axes XYZ (fraiseuse 3 axes),
   XYZA (fraiseuse 4 axes) ou XZ (tour).
 
 * 'Unité machine' - Choisir entre le pouce et le millimètre. Toutes les questions
@@ -105,7 +105,7 @@ elle fonctionnera avec la majorité des pilotes.
 dernière impulsion de pas, en nanosecondes. En cas de doutes, mettre
 cette valeur à 20000, elle fonctionnera avec la majorité des pilotes.
 
-* * 'Un ou deux Parport' - Choix du nombre de ports parallèles.
+* 'Un ou deux Parport' - Choix du nombre de ports parallèles.
 
 * 'Base Period Maximum Jitter' - Entrer ici la valeur obtenue à la fin du
 test de latence. Pour exécuter directement un test de latence cliquer sur
@@ -414,7 +414,7 @@ connectés au port parallèle, LinuxCNC peut être utilisé pour les usinages
 avec broche synchronisée comme le filetage ou le taraudage rigide. Ces
 signaux son les suivants:
 
-* * 'Index broche' - Également appelé PPR broche, c'est une impulsion
+* 'Index broche' - Également appelé PPR broche, c'est une impulsion
   produite à chaque tour de broche.
 
 * 'Phase A broche' - C'est une suite d'impulsions carrées générées sur
@@ -599,12 +599,12 @@ image::images/switch-no-parallel_fr.png[align="left"]
 
 Les combinaisons suivantes sont permises dans Stepconf:
 
-* * Les contacts d'origine machine de tous les axes combinés.
-* * Les contacts de fin de course de tous les axes combinés.
-* * Les contacts de fin de course d'un seul axe combinés.
-* * Les contacts de fin de course et le contact d'origine machine d'un
+* Les contacts d'origine machine de tous les axes combinés.
+* Les contacts de fin de course de tous les axes combinés.
+* Les contacts de fin de course d'un seul axe combinés.
+* Les contacts de fin de course et le contact d'origine machine d'un
   seul axe, combinés.
-* * Un seul contact de fin de course et le contact d'origine machine
+* Un seul contact de fin de course et le contact d'origine machine
   d'un seul axe, combinés.
 
 // vim: set syntax=asciidoc:

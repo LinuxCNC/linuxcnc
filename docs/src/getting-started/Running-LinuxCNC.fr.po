@@ -6,15 +6,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2015-02-08 18:14+0100\n"
-"PO-Revision-Date: 2015-02-09 12:53+0100\n"
+"POT-Creation-Date: 2015-02-12 15:43+0100\n"
+"PO-Revision-Date: 2015-02-12 15:45+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French Translation Team\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.7.3\n"
+"X-Generator: Poedit 1.7.4\n"
 
 #. type: Plain text
 #: Running-LinuxCNC.txt:2
@@ -23,21 +23,16 @@ msgstr ":lang: fr"
 
 #. type: Plain text
 #: Running-LinuxCNC.txt:4
-msgid "= Running LinuxCNC"
-msgstr "﻿= Lancer LinuxCNC"
+msgid "= Running LinuxCNC[[cha:running-emc]](((Running LinuxCNC)))"
+msgstr "= Démarrer LinuxCNC[[cha:lancer_linuxcnc]](((Lancer LinuxCNC)))"
 
 #. type: Plain text
 #: Running-LinuxCNC.txt:6
-msgid "[[cha:running-emc]] (((Running LinuxCNC)))"
-msgstr "[[cha:lancer_linuxcnc]] (((Lancer LinuxCNC)))"
-
-#. type: Plain text
-#: Running-LinuxCNC.txt:8
 msgid "== Invoking LinuxCNC"
 msgstr "== Invoquer LinuxCNC"
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:12
+#: Running-LinuxCNC.txt:10
 msgid ""
 "After installation, LinuxCNC starts just like any other Linux program: run "
 "it from the terminal by issuing the command 'linuxcnc', or select it in the "
@@ -48,12 +43,12 @@ msgstr ""
 "dans le menu Applications → CNC."
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:14
+#: Running-LinuxCNC.txt:12
 msgid "== Configuration Selector"
 msgstr "== Sélecteur de configuration"
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:23
+#: Running-LinuxCNC.txt:21
 msgid ""
 "By default, the Configuration Selector dialog is shown when you first run "
 "LinuxCNC.  Your own personalized configurations are shown at the top of the "
@@ -72,18 +67,18 @@ msgstr ""
 "sans matériel raccordé, ce sont des simulations de machines."
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:25
+#: Running-LinuxCNC.txt:23
 msgid ".LinuxCNC Configuration Selector[[cap:LinuxCNC-Configuration-Selector]]"
 msgstr ""
 ".Sélecteur de configuration pour LinuxCNC[[cap:Selecteur-de-configuration]]"
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:27
+#: Running-LinuxCNC.txt:25
 msgid "image::images/configuration-selector.png[]"
 msgstr "image::images/configuration-selector1_fr.png[]"
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:36
+#: Running-LinuxCNC.txt:34
 msgid ""
 "Click any of the listed configurations to display specific information about "
 "it.  Double-click a configuration or click OK to start the configuration.  "
@@ -99,7 +94,7 @@ msgstr ""
 "avec cette configuration, sans repasser par le sélecteur de configuration."
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:40
+#: Running-LinuxCNC.txt:38
 msgid ""
 "When you select a configuration from the Sample Configurations section, it "
 "will automaticly place a copy of that config in the linuxcnc/configs "
@@ -110,12 +105,12 @@ msgstr ""
 "configs."
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:42
+#: Running-LinuxCNC.txt:40
 msgid "== Next steps in configuration"
 msgstr "== Les étapes suivantes de la configuration"
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:48
+#: Running-LinuxCNC.txt:46
 msgid ""
 "After finding the sample configuration that uses the same interface hardware "
 "as your machine (or a simulator configuration), and saving a copy to your "
@@ -129,12 +124,12 @@ msgstr ""
 "au Manuel de l'intégrateur pour tous les détails sur la configuration."
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:50
+#: Running-LinuxCNC.txt:48
 msgid "== Simulator Configurations"
 msgstr "== Simulateur de configurations"
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:54
+#: Running-LinuxCNC.txt:52
 msgid ""
 "All configurations listed under Sample Configurations/sim are intended to "
 "run on any computer.  No specific hardware is required and real-time support "
@@ -145,7 +140,7 @@ msgstr ""
 "requis et le support temps réel n'est pas nécessaire."
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:62
+#: Running-LinuxCNC.txt:60
 msgid ""
 "These configurations are useful for studying indivdual capabilities or "
 "options.  The sim configurations are organized according to the graphical "
@@ -164,12 +159,12 @@ msgstr ""
 "graphiques."
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:64
+#: Running-LinuxCNC.txt:62
 msgid "== Configuration Resources"
 msgstr "== Ressources pour configuration"
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:70
+#: Running-LinuxCNC.txt:68
 msgid ""
 "The Configuration Selector copies all files needed for a configuration to a "
 "new subdirectory of ~/linuxcnc/configs (equivalently: /home/username/"
@@ -183,7 +178,7 @@ msgstr ""
 "configuration spécifique."
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:79
+#: Running-LinuxCNC.txt:77
 msgid ""
 "File resources within the copied directroy will typically include one or "
 "more ini file (filename.ini) for related configurations and a tool table "
@@ -203,7 +198,7 @@ msgstr ""
 "configuration."
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:88
+#: Running-LinuxCNC.txt:86
 msgid ""
 "The supplied sample configurations may specifiy HALFILEs in the "
 "configuration ini file that are not present in the copied directory because "
@@ -222,7 +217,7 @@ msgstr ""
 "les modifications locales prévaudront."
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:94
+#: Running-LinuxCNC.txt:92
 msgid ""
 "The Configuration selector makes a symbolic link in the user configuration "
 "directory (named hallib) that points to the system Halfile library.  This "
@@ -236,13 +231,13 @@ msgstr ""
 "local:"
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:95
+#: Running-LinuxCNC.txt:93
 #, no-wrap
 msgid "====\n"
 msgstr "====\n"
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:98
+#: Running-LinuxCNC.txt:96
 #, no-wrap
 msgid ""
 "  cd ~/linuxcnc/configs/name_of_configuration\n"
@@ -254,6 +249,9 @@ msgstr ""
 "====\n"
 
 #. type: Plain text
-#: Running-LinuxCNC.txt:101
+#: Running-LinuxCNC.txt:99
 msgid "// vim: set syntax=asciidoc:"
 msgstr "// vim: set syntax=asciidoc:"
+
+#~ msgid "= Running LinuxCNC"
+#~ msgstr "﻿= Démarrer LinuxCNC"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2015-02-10 21:07+0100\n"
-"PO-Revision-Date: 2015-02-11 13:01+0100\n"
+"PO-Revision-Date: 2015-02-12 14:34+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: FrenchTranslation Team\n"
 "Language: fr\n"
@@ -79,7 +79,7 @@ msgstr "image::images/stepconf-config_fr.png[align=\"left\"]"
 #. type: Bullet: '* '
 #: stepconf.txt:35
 msgid "'Create New' - Creates a fresh configuration."
-msgstr "* 'Créer une nouvelle configuration' - Créera une nouvelle configuration."
+msgstr "'Créer une nouvelle configuration' - Créera une nouvelle configuration."
 
 #. type: Plain text
 #: stepconf.txt:41
@@ -161,7 +161,7 @@ msgstr ""
 #: stepconf.txt:64
 msgid "'Axis Configuration' - Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe)."
 msgstr ""
-"* 'Configuration des axes' - Choisir les axes XYZ (fraiseuse 3 axes),\n"
+"'Configuration des axes' - Choisir les axes XYZ (fraiseuse 3 axes),\n"
 "XYZA (fraiseuse 4 axes) ou XZ (tour)."
 
 #. type: Plain text
@@ -262,7 +262,7 @@ msgstr ""
 #. type: Bullet: '* '
 #: stepconf.txt:102
 msgid "'One / Two Parport' - Select how many parallel port are to be configured."
-msgstr "* 'Un ou deux Parport' - Choix du nombre de ports parallèles."
+msgstr "'Un ou deux Parport' - Choix du nombre de ports parallèles."
 
 #. type: Plain text
 #: stepconf.txt:106
@@ -888,7 +888,7 @@ msgstr "Lorsque les signaux appropriés, provenant d'un codeur de broche, sont c
 #: stepconf.txt:393
 msgid "'Spindle Index' - Is a pulse that occurs once per revolution of the spindle."
 msgstr ""
-"* 'Index broche' - Également appelé PPR broche, c'est une impulsion\n"
+"'Index broche' - Également appelé PPR broche, c'est une impulsion\n"
 "produite à chaque tour de broche."
 
 #. type: Plain text
@@ -1213,30 +1213,30 @@ msgstr "Les combinaisons suivantes sont permises dans Stepconf:"
 #. type: Bullet: '* '
 #: stepconf.txt:572
 msgid "Combine home switches for all axes"
-msgstr "* Les contacts d'origine machine de tous les axes combinés."
+msgstr "Les contacts d'origine machine de tous les axes combinés."
 
 #. type: Bullet: '* '
 #: stepconf.txt:572
 msgid "Combine limit switches for all axes"
-msgstr "* Les contacts de fin de course de tous les axes combinés."
+msgstr "Les contacts de fin de course de tous les axes combinés."
 
 #. type: Bullet: '* '
 #: stepconf.txt:572
 msgid "Combine both limit switches for one axis"
-msgstr "* Les contacts de fin de course d'un seul axe combinés."
+msgstr "Les contacts de fin de course d'un seul axe combinés."
 
 #. type: Bullet: '* '
 #: stepconf.txt:572
 msgid "Combine both limit switches and the home switch for one axis"
 msgstr ""
-"* Les contacts de fin de course et le contact d'origine machine d'un\n"
+"Les contacts de fin de course et le contact d'origine machine d'un\n"
 "seul axe, combinés."
 
 #. type: Bullet: '* '
 #: stepconf.txt:572
 msgid "Combine one limit switch and the home switch for one axis"
 msgstr ""
-"* Un seul contact de fin de course et le contact d'origine machine\n"
+"Un seul contact de fin de course et le contact d'origine machine\n"
 "d'un seul axe, combinés."
 
 #. type: Plain text

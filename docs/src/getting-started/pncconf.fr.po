@@ -1,0 +1,2250 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-11 23:09+0100\n"
+"PO-Revision-Date: 2015-02-12 16:05+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+
+#. type: Plain text
+#: pncconf.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: pncconf.txt:4
+msgid "= Mesa Configuration Wizard"
+msgstr "= Assistant de configuration Mesa"
+
+#. type: Plain text
+#: pncconf.txt:8
+msgid ""
+"[[cha:PNCconf-wizard]] (((Point n Click Configuration Wizard)))  (((Mesa Configuration "
+"Wizard)))"
+msgstr ""
+"[[cha:Assistant-graphique-PNCconf]] (((Assistant graphique de configuration Mesa PNCconf)))"
+
+#. type: Plain text
+#: pncconf.txt:11
+msgid ""
+"PNCconf is made to help build configurations that utilize specific Mesa 'Anything I/O' "
+"products."
+msgstr ""
+"L'assistant de configuration PNCconf couvre toute la gamme des produits Mesa,quel que soit "
+"le nombre d'entrées/sorties."
+
+#. type: Plain text
+#: pncconf.txt:15
+msgid ""
+"It can configure closed loop servo systems or hardware stepper systems.  It uses a similar "
+"'wizard' approach as Stepconf (used for software stepping, parallel port driven systems)."
+msgstr ""
+"Il est destiné à la configuration de systèmes à servomoteurs en boucle fermée ou de "
+"systèmes à moteurs pas à pas avec pilotage matériel externe. Il utilise assistant similaire "
+"à celui de StepConf (utilisé pour configurer le pilotage logiciel des moteurs pas à pas)."
+
+#. type: Plain text
+#: pncconf.txt:19
+#, no-wrap
+msgid ""
+"PNCconf is still in a development stage (Beta) so there are some bugs and\n"
+" lacking features.\n"
+"Please report bugs and suggestions to the LinuxCNC forum page or mail-list.\n"
+msgstr ""
+"PNCconf en est encore au stade du développement (Beta) il peut exister\n"
+"quelques bogues et manques de fonctionnalités. Merci de rapporter les\n"
+"bogues et les suggestions sur le forum ou par courriel à la liste de diffusion.\n"
+
+#. type: Plain text
+#: pncconf.txt:21
+msgid "There are two trains of thought when using PNCconf:"
+msgstr "Il y a deux manières d'utiliser PNCconf:"
+
+#. type: Plain text
+#: pncconf.txt:26
+#, no-wrap
+msgid ""
+"One is to use PNCconf to always configure your system - if you decide to change \n"
+"options, reload PNCconf and allow it to configure the new options. This will \n"
+"work well if your machine is fairly standard and you can use custom files to add\n"
+" non standard features. PNCconf tries to work with you in this regard.\n"
+msgstr ""
+"La première consiste à l'utiliser pour configurer le système et si, par\n"
+"la suite, certaines options doivent être modifiées, il suffira alors de\n"
+"recharger PNCconf et d'apporter les modifications.\n"
+"Cela fonctionne bien si la machine est assez standard et il est possible\n"
+"d'ajouter à la main des fonctionnalités non standard. PNCconf tente de\n"
+"travailler avec vous en ce sens.\n"
+
+#. type: Plain text
+#: pncconf.txt:31
+#, no-wrap
+msgid ""
+"The other is to use PNCconf to build a config that is close to what you want and\n"
+" then hand edit everything to tailor it to your needs. This would be the choice \n"
+"if you need extensive modifications beyond PNCconf's scope or just want to \n"
+"tinker with / learn about LinuxCNC\n"
+msgstr ""
+"La seconde consiste à l'utiliser pour construire une configuration\n"
+"la plus proche possible de ce qui est souhaité, puis de la modifier\n"
+"à la main pour l'adapter aux besoins. C'est le bon choix si les\n"
+"besoins de modifications vont au-delà des possibilités de PNCconf\n"
+"ou pour expérimenter et en apprendre plus sur LinuxCNC.\n"
+
+#. type: Plain text
+#: pncconf.txt:35
+#, no-wrap
+msgid ""
+"You navigate the wizard pages with the forward, back, and cancel buttons there \n"
+"is also a help button that gives some help information about the pages, diagrams\n"
+" and an output page.\n"
+msgstr ""
+"Il est possible de naviguer dans l'assistant, revenir sur des pages,\n"
+"annuler des choix, obtenir de l'aide et des diagrammes puis enfin,\n"
+"de valider la configuration par la page de sortie du programme.\n"
+
+#. type: Plain text
+#: pncconf.txt:38
+#, no-wrap
+msgid ""
+"TIP: PNCconf's help page should have the most up to date info and has additional\n"
+" details.\n"
+msgstr "TIP: La page d'aide de PNCconf contient les dernières informations et des détails additionnels.\n"
+
+#. type: Plain text
+#: pncconf.txt:40
+msgid "== Step by Step Instructions"
+msgstr "== Instructions pas à pas"
+
+#. type: Plain text
+#: pncconf.txt:42
+msgid ".PnCConf Splash"
+msgstr ".Écran d'accueil"
+
+#. type: Plain text
+#: pncconf.txt:44
+msgid "image::images/pncconf-splash.png[]"
+msgstr "image::images/pncconf-splash_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:46
+msgid "== Create or Edit"
+msgstr "== Créer ou éditer"
+
+#. type: Plain text
+#: pncconf.txt:54
+msgid ""
+"This allows you to select a previously saved configuration or create a new one.  If you "
+"pick 'Modify a configuration' and then press next a file selection box will show. Pncconf "
+"preselects your last saved file. Choose the the config you wish to edit. It also allows you "
+"to select desktop shortcut / launcher options.  A desktop shortcut will place a folder icon "
+"on the desktop that points to your new configuration files. Otherwise you would have to "
+"look in your home folder under linuxcnc/configs."
+msgstr ""
+"Il est possible de créer une nouvelle configuration ou d'en modifier une existante. Si "
+"'Modifier une configuration existante' est choisi, suivi d'un clic sur 'Suivant', un "
+"sélecteur de fichier apparaît pour choisir la configuration à modifier. Par défaut, PNCconf "
+"présélectionne le dernier fichier enregistré. Il est possible de cocher les options 'Créer "
+"un lien sur le bureau', qui créera un raccourci sur le bureau pointant sur cette nouvelle "
+"configuration, ou sur 'Créer un lanceur', qui créera un lien et une icône de dossier sur le "
+"bureau, ce lien lancera LinucCNC avec cette configuration. Autrement, le nouveau fichier de "
+"configuration se trouvera dans le dossier '~/linuxcnc/configs'."
+
+#. type: Plain text
+#: pncconf.txt:58
+msgid ""
+"A Desktop launcher will add an icon to the desktop for starting your config directly. You "
+"can also launch it under Applications/CNC/LinuxCNC and selecting your config name."
+msgstr ""
+"Il est toujours possible de lancer LinuxCNC normalement puis de sélectionner la "
+"configuration souhaitée dans la liste."
+
+#. type: Plain text
+#: pncconf.txt:60
+msgid "== Basic Machine Information"
+msgstr "== Informations machine"
+
+#. type: Plain text
+#: pncconf.txt:62
+msgid ".PnCConf Basic"
+msgstr ".Informations machine"
+
+#. type: Plain text
+#: pncconf.txt:64
+msgid "image::images/pncconf-basic.png[]"
+msgstr "image::images/pncconf-basic_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:71
+msgid ""
+"Machine Basics:: If you use a name with spaces PNCconf will replace the spaces with "
+"underscore (as a loose rule Linux doesn't like spaces in names)  Pick an axis configuration "
+"- this selects what type of machine you are building and what axes are available. The "
+"Machine units selector allows data entry of metric or imperial units in the following pages."
+msgstr ""
+"Nom de la machine:: Préciser ici le nom de la machine à configurer, les espaces dans les "
+"noms seront remplacés par des *'_'* (en règle générale, Linux n'aime pas les espaces dans "
+"les noms de fichiers). Choisir une configuration d'axes - Cette liste déroulante précise le "
+"type de machine et le nombre d'axes. Le sélecteur d'unités machine définit quelle unité "
+"sera utilisée dans les pages suivantes et par la machine, pouce ou millimètre."
+
+#. type: Plain text
+#: pncconf.txt:74
+msgid "TIP: Defaults are not converted when using metric so make sure they are sane values!"
+msgstr ""
+"TIP: Les valeurs introduites dans cet assistant ne sont pas converties automatiquement dans "
+"l'unité choisie ici, bien vérifier toutes ces valeurs."
+
+#. type: Plain text
+#: pncconf.txt:76
+msgid "Computer Response Time::"
+msgstr "Temps de réponse de l'ordinateur::"
+
+#. type: Plain text
+#: pncconf.txt:105
+msgid ""
+"The servo period sets the heart beat of the system. Latency refers to the amount of time "
+"the computer can be longer then that period. Just like a railroad, LinuxCNC requires "
+"everything on a very tight and consistent time line or bad things happen. LinuxCNC requires "
+"and uses a 'real time' operating system, which just means it has a low latency ( lateness ) "
+"response time when LinuxCNC requires its calculations and when doing LinuxCNCs calculations "
+"it cannot be interrupted by lower priority requests (such as user input to screen buttons "
+"or drawing etc).  + Testing the latency is very important and a key thing to check early. "
+"Luckily by using the Mesa card to do the work that requires the fastest response time "
+"(encoder counting and PWM generation) we can endure a lot more latency then if we used the "
+"parallel port for these things. The standard test in LinuxCNC is checking the BASE period "
+"latency (even though we are not using a base period). If you press the 'test base period "
+"jitter' button, this launches the latency test window ( you can also load this directly "
+"from the applications/cnc panel ). The test mentions to run it for a few minutes but the "
+"longer the better. consider 15 minutes a bare minimum and overnight even better. At this "
+"time use the computer to load things, use the net, use USB etc we want to know the worst "
+"case latency and to find out if any particular activity hurts our latency. We need to look "
+"at base period jitter.  Anything under 20000 is excellent - you could even do fast software "
+"stepping with the machine 20000 - 50000 is still good for software stepping and fine for "
+"us.  50000 - 100000 is really not that great but could still be used with hardware cards "
+"doing the fast response stuff.  So anything under 100000 is useable to us.  If the latency "
+"is disappointing or you get a bad hiccup periodically you may still be able to improve it."
+msgstr ""
+"La période servo règle l'horloge du système. La latence donne la variation de cette "
+"horloge. LinuxCNC demande une chronologie serrée et cohérente, sinon des problèmes "
+"surviendront. LinuxCNC requiert et utilise un système d'exploitation temps réel, ce qui "
+"signifie qu'il a une latence très faible et un temps de réponse très court. Les événements "
+"arrivent avec précision dans le temps quand LinuxCNC nécessite pour ses calculs, de ne pas "
+"être interrompu par des demandes de priorité inférieure (interruptions) comme des saisies "
+"au clavier ou des demandes d'affichage.\n"
+"Le test de latence est très important, il est un élément clef qui doit être effectué au "
+"plus tôt. Heureusement les cartes Mesa se chargent des tâches critiques en temps de "
+"réponse, comme le comptage d'impulsions, la génération de PWM et cela leur permet de "
+"supporter une latence supérieure à celle d'un système utilisant les ports parallèles de la "
+"carte mère.\n"
+"Le test standard dans LinuxCNC, consiste à vérifier la latence de base du PC. Un appui sur "
+"le bouton 'Test de latence' lancera le test de latence, il est également possible de le "
+"lancer depuis le menu 'application → cnc → latency test'. Une fenêtre s'ouvre dans laquelle "
+"s'affichent les temps mesurés.\n"
+"Ce test doit fonctionner plusieurs minutes, en fait, le plus longtemps possible. 15 minutes "
+"est un minimum. Pendant le test, essayer d'utiliser le plus possible l'ordinateur, le "
+"réseau, le port USB, les disques durs, l'affichage. Observer et noter si une action "
+"particulière dégrade le temps de latence. A la fin, la latence de base, la valeur  'base "
+"period jitter', sera affichée.\n"
+"Une valeur en dessous de 20000 est excellente et permet une génération rapide des "
+"impulsions de pas avec cette machine.\n"
+"20000 à 50000 est assez bon pour la génération de pas.\n"
+"50000 à 100000 ce n'est pas très bon mais la machine peu encore servir pour la génération "
+"de pas avec une carte ayant des temps de réponse courts.\n"
+"Plus grand que 100000, disqualifie la machine pour cette fonction, une carte extérieure est "
+"alors indispensable.\n"
+"Si la latence est médiocre ou si des problèmes intermittents surviennent régulièrement il "
+"sera toujours possible de l'améliorer."
+
+#. type: Plain text
+#: pncconf.txt:111
+msgid ""
+"TIP: There is a user compiled list of equipment and the latency obtained on the LinuxCNC "
+"wiki : http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Latency-Test Please consider adding your "
+"info to the list. Also on that page are links to info about fixing some latency problems."
+msgstr ""
+"TIP: Il y a une liste d'équipements et de leurs temps de latence sur le wiki.\n"
+"http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Latency-Test\n"
+"SVP, pensez à ajouter vos infos à la liste. Sur cette page il y a des liens vers des "
+"informations pour résoudre certains problèmes de latence."
+
+#. type: Plain text
+#: pncconf.txt:122
+#, no-wrap
+msgid ""
+"Now we are happy with the latency and \n"
+"must pick a servo period. In most cases a servo period of 1000000 ns is\n"
+"fine ( that gives a 1 kHz servo calculation rate - 1000 calculations a second) \n"
+"if you are building a closed loop servo system that controls torque (current) \n"
+"rather then velocity (voltage) a faster rate would be better - something like \n"
+"200000 (5 kHz calculation rate). The problem with lowering the servo rate is \n"
+"that it leaves less time available for the computer to do other things besides \n"
+"LinuxCNC's calculations. Typically the display (GUI) becomes less responsive. You\n"
+" must decide on a balance. Keep in mind that if you tune your closed loop servo\n"
+"system then change the servo period you probably will need to tune them again.\n"
+msgstr ""
+"Maintenant que nous avons un temps de latence acceptable nous devons\n"
+"choisir une période d'asservissement (Période servo actuelle).\n"
+"Dans la plupart des cas une période d'asservissement de 1000000ns\n"
+"est bonne, cela donne un taux de calcul de 1 kHz soit 1000 calculs par\n"
+"seconde. Si le système d'asservissement est construit en boucle fermée\n"
+"avec contrôle de couple (intensité) plutôt que de vitesse (tension) le taux\n"
+"sera meilleur, quelque chose comme 5000 calculs par seconde (5 kHz).\n"
+"Le problème avec l'abaissement de la période, c'est qu'elle laisse moins\n"
+"de temps disponible à l'ordinateur pour faire d'autres choses. Typiquement\n"
+"la réponse de l'affichage (GUI) est moins bonne. Il faut choisir un équilibre.\n"
+"Garder à l'esprit que sur un mécanisme en boucle fermée, une\n"
+"modification de la période d'asservissement nécessitera de réajuster\n"
+"l'ensemble des paramètres de la boucle.\n"
+
+#. type: Plain text
+#: pncconf.txt:127
+msgid ""
+"I/O Control Ports/Boards:: PNCconf is capable of configuring machines that have up to two "
+"Mesa boards and three parallel ports. Parallel ports can only be used for simple low speed "
+"(servo rate) I/O."
+msgstr ""
+"Ports et cartes d'entrées/sorties:: PNCconf est capable de configurer une machines avec "
+"deux cartes Mesa et trois ports parallèles. Les ports parallèles ne sont utilisables que "
+"pour des actions simples et peu rapide."
+
+#. type: Plain text
+#: pncconf.txt:139
+msgid ""
+"Mesa:: You must choose at least one Mesa board as PNCconf will not configure the parallel "
+"ports to count encoders or output step or PWM signals.  The mesa cards available in the "
+"selection box are based on what PNCconf finds for firmware on the systems. There are "
+"options to add custom firmware and/or 'blacklist' (ignore) some firmware or boards using a "
+"preference file.  If no firmware is found PNCconf will show a warning and use internal "
+"sample firmware - no testing will be possible. One point to note is that if you choose two "
+"PCI Mesa cards there currently is no way to predict which card is 0 and which is 1 - you "
+"must test - moving the cards could change their order. If you configure with two cards both "
+"cards must be installed for tests to function."
+msgstr ""
+"Mesa:: Au moins une carte Mesa doit être choisie. PNCconf ne peut pas configurer les ports "
+"parallèles pour des codeurs, des signaux de pas ou pour la génération de signaux PWM. La "
+"liste de sélection des cartes Mesa présentes dans la liste de sélection est construite "
+"selon les micros logiciels des cartes trouvées sur le système. Il existe des options "
+"permettant d'ajouter des micros logiciels personnalisés ou pour ignorer (blacklister) "
+"certaines versions de micros logiciels ou certaines cartes, en utilisant un fichier de "
+"préférences. Si aucune carte n'est détectée PNCconf affichera un avertissement et utilisera "
+"des valeurs par défaut mais aucun test ne sera possible. Il faut noter que, si plusieurs "
+"cartes Mesa sont utilisées, il n'existe aucun moyen de déterminer laquelle sera la carte N"
+"°0 ou N°1 et il sera indispensable de le tester. Déplacer les cartes dans les ports PCI, "
+"peut changer leur ordre. Si la configuration est créée pour deux cartes, elles doivent être "
+"installées pour que les tests fonctionnent."
+
+#. type: Plain text
+#: pncconf.txt:155
+#, no-wrap
+msgid ""
+"Parallel Port::\n"
+"Up to 3 parallel ports (referred to as parports) can be used as simple I/O. You \n"
+"must set the address of the parport. You can either enter the Linux parallel \n"
+"port numbering system (0,1,or 2) or enter the actual address. The address for an\n"
+" on board parport is often 0x0278 or 0x0378 (written in hexadecimal) but can be \n"
+"found in the BIOS page. The BIOS page is found when you first start your \n"
+"computer you must press a key to enter it (such as F2). On the BIOS page you can\n"
+" find the parallel port address and set the mode such as SPP, EPP, etc on some\n"
+"computers this info is displayed for a few seconds during start up. For PCI \n"
+"parallel port cards the address can be found by pressing the 'parport address \n"
+"search' button. This pops up the help output page with a list of all the PCI \n"
+"devices that can be found. In there should be a reference to a parallel port \n"
+"device with a list of addresses. One of those addresses should work. Not all\n"
+"PCI parallel ports work properly. Either type can be selected as 'in' (maximum \n"
+"amount of input pins) or 'out' (maximum amount of output pins)\n"
+msgstr ""
+"Ports parallèles::\n"
+"Jusqu'à 3 ports parallèles, appelés parports par Mesa, peuvent être\n"
+"utilisés comme de simples entrées/sorties. L'adresse du port parallèle doit\n"
+"être définie. Il est possible soit d'entrer le N° du port parallèle selon le\n"
+"système de numérotation de Linux 0, 1, 2 ou, d'entrer l'adresse réelle en\n"
+"hexadécimal. Les adresses des ports parallèles intégrés à la carte mère son\n"
+"le plus souvent aux adresses 0x0378 et 0x0278, elles peuvent être trouvées\n"
+"dans la configuration du BIOS. Le Bios s'ouvre en enfonçant une touche du\n"
+"clavier au tout début du cycle de démarrage de l'ordinateur, souvent (Del\n"
+"ou F2) se reporter au document de la carte mère. Sur une des pages du BIOS,\n"
+"il est possible de choisir l'adresse des ports parallèles et de définir\n"
+"leurs modes de fonctionnement comme SPP, EPP, etc, sur certains ordinateurs\n"
+"cette information est affichée pendant quelques secondes lors du démarrage\n"
+"du PC. Pour les ports parallèles sur carte PCI les adresses sont trouvées\n"
+"en cliquant sur le bouton 'Outil d'aide à la recherche d'adresse de ports\n"
+"parallèles' qui affichera la liste des périphériques PCI découverts. Dans\n"
+"cette liste, se trouvera une référence aux ports parallèles avec une liste\n"
+"d'adresses. Une de ces adresses doit fonctionner. Noter que tous les ports\n"
+"parallèles PCI ne fonctionnent pas correctement en EPP. Chaque port peut être\n"
+"sélectionné comme 'Entrée' pour augmenter le nombre d'entrées sur ce port\n"
+"ou 'Sortie' pour un maximum de sorties. Par défaut, les ports parallèles\n"
+"sont configurés avec leurs broches 2 à 9 en 'Sortie'.\n"
+
+#. type: Plain text
+#: pncconf.txt:159
+msgid ""
+"GUI Frontend list:: This specifies the graphical display screens LinuxCNC will use.  Each "
+"one has different option."
+msgstr ""
+"Liste des interfaces graphiques:: Spécifie les interfaces graphiques que LinuxCNC peut "
+"utiliser. Chacune dispose d'options particulières."
+
+#. type: Plain text
+#: pncconf.txt:161
+msgid "AXIS"
+msgstr "AXIS"
+
+#. type: Bullet: '* '
+#: pncconf.txt:169
+msgid "fully supports lathes."
+msgstr "Supporte les tours."
+
+#. type: Bullet: '* '
+#: pncconf.txt:169
+msgid "is the most developed and used frontend"
+msgstr "C'est l'interface la plus utilisée et la plus développée."
+
+#. type: Bullet: '* '
+#: pncconf.txt:169
+msgid "is designed to be used with mouse and keyboard"
+msgstr "Elle est conçue pour être utilisée à la souris est avec un clavier."
+
+#. type: Plain text
+#: pncconf.txt:169
+#, no-wrap
+msgid ""
+"* is tkinter based so integrates PYVCP (python based virtual control \n"
+"                panels)  naturally.\n"
+"* has a 3D graphical window.\n"
+"* allows VCP integrated on the side or in center tab\n"
+msgstr ""
+"* Elle est basée sur tkinter et intègre donc PYVCP (contrôle visuel python).\n"
+"* Elle dispose d'un affichage graphique en 3D.\n"
+"* Elle est intégrable sur les barres de tâches ou sur le bureau.\n"
+
+#. type: Plain text
+#: pncconf.txt:171
+msgid "TOUCHY"
+msgstr "TOUCHY"
+
+#. type: Plain text
+#: pncconf.txt:180
+#, no-wrap
+msgid ""
+"* Touchy was designed to be used with a touchscreen, some minimal \n"
+"                physical switches and a MPG wheel.\n"
+"* requires cycle-start, abort, and single-step signals and buttons\n"
+"* It also requires shared axis MPG jogging to be selected.  \n"
+"* is GTK based so integrates GLADE VCP (virtual control panels) naturally.\n"
+"* allows VCP panels integrated in the center Tab\n"
+"* has no graphical window\n"
+"* look can be changed with custom themes\n"
+msgstr ""
+"* Touchy est une interface conçue pour les écrans tactiles, quelques\n"
+"interrupteurs et une manivelle de jog.\n"
+"* Elle nécessite les boutons et voyants 'Départ cycle', 'Abandon',\n"
+"'Marche par pas'.\n"
+"* Elle nécessite également un sélecteur d'axe sur la manivelle.\n"
+"* Elle est basée sur GTK et intègre naturellement GladeVCP (création de\n"
+"panneaux de contrôle).\n"
+"* Elle permet d'intégrer les panneaux de contrôle virtuels (VCP).\n"
+"* Elle n'a pas de fenêtre graphique.\n"
+"* L'aspect peut être modifié avec des thèmes personnalisés.\n"
+
+#. type: Plain text
+#: pncconf.txt:182
+msgid "MINI"
+msgstr "MINI"
+
+#. type: Bullet: '* '
+#: pncconf.txt:186
+msgid "standard on OEM Sherline machines"
+msgstr "Est fourni en standard sur les machines Sherline."
+
+#. type: Bullet: '* '
+#: pncconf.txt:186
+msgid "does not use Estop"
+msgstr "N'utilise pas d'arrêt d'urgence (ESTOP)."
+
+#. type: Bullet: '* '
+#: pncconf.txt:186 pncconf.txt:192
+msgid "no VCP integration"
+msgstr "Pas de possibilité d'intégrer un panneau de contrôle."
+
+#. type: Plain text
+#: pncconf.txt:188
+msgid "TkLinuxCNC"
+msgstr "TkLinuxCNC"
+
+#. type: Bullet: '* '
+#: pncconf.txt:192
+msgid "hi contrast bright blue screen"
+msgstr "Contraste élevé grâce à un fond bleu."
+
+#. type: Bullet: '* '
+#: pncconf.txt:192
+msgid "separate graphics window"
+msgstr "Fenêtre graphique séparée."
+
+#. type: Plain text
+#: pncconf.txt:194
+msgid "== External Configuration"
+msgstr "== Contrôles externes"
+
+#. type: Plain text
+#: pncconf.txt:197
+msgid "This page allows you to select external controls such as for jogging or overrides."
+msgstr ""
+"Cette page permet de sélectionner des contrôles externes pour la commande manuelle de "
+"déplacement des axes (jog) ou des curseurs pour les correcteurs de vitesse."
+
+#. type: Plain text
+#: pncconf.txt:199
+msgid ".GUI External"
+msgstr ".Contrôles externes"
+
+#. type: Plain text
+#: pncconf.txt:201
+msgid "image::images/pncconf-external.png[]"
+msgstr "image::images/pncconf-external_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:208
+#, no-wrap
+msgid ""
+"If you select a Joystick for jogging, You will need it always connected for LinuxCNC \n"
+"to load. To use the analog sticks for useful jogging you probably need to add \n"
+"some custom HAL code. MPG jogging requires a pulse generator connected to a MESA\n"
+" encoder counter. Override controls can either use a pulse generator (MPG) or \n"
+"switches (such as a rotary dial). External buttons might be used with a switch \n"
+"based OEM joystick.\n"
+msgstr ""
+"Si une manette de jeu externe est sélectionnée pour le jog, il faudra\n"
+"toujours la connecter à LinuxCNC avant de démarrer celui-ci. Si la manette est\n"
+"analogique il faudra probablement ajouter du code personnalisé à HAL.\n"
+"Les manivelles de jog à vernier et micro impulsion nécessitent d'être\n"
+"connectées à une carte Mesa sur un compteur de codeur. Pour les correcteurs de\n"
+"vitesses externe il est possible d'utiliser un mécanisme à générateur\n"
+"d'impulsions ou à commutation comme un commutateur rotatif.\n"
+"Les boutons externes peuvent être ceux d'une manette de jeu.\n"
+
+#. type: Plain text
+#: pncconf.txt:224
+msgid ""
+"Joystick jogging:: Requires a custom 'device rule' to be installed in the system. This is a "
+"file that LinuxCNC uses to connect to LINUX's device list. PNCconf will help to make this "
+"file.  + 'Search for device rule' will search the system for rules, you can use this to "
+"find the name of devices you have already built with PNCconf.  + 'Add a device rule' will "
+"allow you to configure a new device by following the prompts. You will need your device "
+"available.  + 'test device' allows you to load a device, see its pin names and check its "
+"functions with halmeter.  + joystick jogging uses HALUI and hal_input components."
+msgstr ""
+"Joystick USB pour le jog:: Demande des réglages spécifiques personnalisés pour être "
+"installé dans le système. Il s’agit d'un fichier qui est utilisé par LinuxCNC pour se "
+"connecter à la liste des périphériques Linux. PNCconf aidera à la construction de ce "
+"fichier.\n"
+" 'Rechercher règles pour le dispositif', va rechercher les règles dans le système, "
+"utilisable pour trouver le nom des périphériques déjà construits avec PNCconf.\n"
+" 'Ajouter règle dispositif', s'utilise pour configurer un nouveau périphérique en suivant "
+"les instructions. Le périphérique doit être branché et disponible.\n"
+" 'test dispositif', permet de charger un périphérique, d'afficher les noms de ses broches "
+"et de visualiser ses fonctions avec l’outil halmeter. Les manettes de jeu utilisées en jog "
+"utilisent HALUI et les composants hal_input."
+
+#. type: Plain text
+#: pncconf.txt:228
+msgid ""
+"External buttons:: allows jogging the axis with simple buttons at a specified jog rate. "
+"Probably best for rapid jogging."
+msgstr ""
+"Boutons de jog externes:: Permet de déplacer les axes avec de simples boutons à une vitesse "
+"spécifiée. Probablement mieux adapté pour le jog en vitesse rapide."
+
+#. type: Plain text
+#: pncconf.txt:239
+msgid ""
+"MPG Jogging:: Allows you to use a Manual Pulse Generator to jog the machine's axis.  + "
+"MPG's are often found on commercial grade machines. They output quadrature pulses that can "
+"be counted with a MESA encoder counter. PNCconf allows for an MPG per axis or one MPG "
+"shared with all axis. It allows for selection of jog speeds using switches or a single "
+"speed.  + The selectable increments option uses the mux16 component. This component has "
+"options such as debounce and gray code to help filter the raw switch input."
+msgstr ""
+"Manivelle de jog externe:: Permet d'utiliser un générateur d'impulsions manuel (MPG) pour "
+"faire du jog sur les axes de la machine.\n"
+" Les manivelles à impulsions (MPG) sont souvent présentes sur les machines de bonne "
+"qualité. Elles délivrent en sortie des impulsions en quadrature qui peuvent être comptées "
+"avec un codeur MESA. PNCconf gère une manivelle paraxe ou une manivelle partagée entre les "
+"axes. Il permet la sélection des vitesses de jog en utilisant un commutateur rotatif.\n"
+" L'option de sélection des incréments de jog utilise le composant mux16. Ce composant "
+"dispose d'options telles que l'anti-rebond et l'utilisation du code Gray pour filtrer "
+"l'entrée physique du commutateur."
+
+#. type: Plain text
+#: pncconf.txt:243
+msgid ""
+"Overrides:: PNCconf allows overrides of feedrates and/or spindle speed using a pulse "
+"generator (MPG) or switches (eg. rotary)."
+msgstr ""
+"Correcteurs de vitesses:: PNCconf permet de modifier les vitesses d'avances ou de broche en "
+"utilisant une manivelle à impulsions ou un commutateur rotatif."
+
+#. type: Plain text
+#: pncconf.txt:245
+msgid "== GUI Configuration"
+msgstr "== Configuration des GUI"
+
+#. type: Plain text
+#: pncconf.txt:248
+msgid ""
+"Here you can set defaults for the display screens, add virtual control panels (VCP), and "
+"set some LinuxCNC options.."
+msgstr ""
+"Ici, il est possible de  configurer l'interface graphique (GUI), lui ajouter des panneaux "
+"de commande virtuels (VCP) et définir certaines options de LinuxCNC."
+
+#. type: Plain text
+#: pncconf.txt:250
+msgid ".GUI Configuration"
+msgstr ".Configuration des GUI"
+
+#. type: Plain text
+#: pncconf.txt:252
+msgid "image::images/pncconf-gui.png[]"
+msgstr "image::images/pncconf-gui_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:254
+msgid "Frontend GUI Options::"
+msgstr "Options des interfaces graphiques::"
+
+#. type: Plain text
+#: pncconf.txt:271
+msgid ""
+"The default options allows general defaults to be chosen for any display screen.  + AXIS "
+"defaults are options specific to AXIS. If you choose size , position or force maximize "
+"options then PNCconf will ask if it's alright to overwrite a preference file (.axisrc). "
+"Unless you have manually added commands to this file it is fine to allow it. Position and "
+"force max can be used to move AXIS to a second monitor if the system is capable.  + Touchy "
+"defaults are options specific to Touchy. Most of Touchy's options can be changed while "
+"Touchy is running using the preference page. Touchy uses GTK to draw its screen, and GTK "
+"supports themes. Themes controls the basic look and feel of a program. You can download "
+"themes from the net or edit them yourself.  There are a list of the current themes on the "
+"computer that you can pick from.  To help some of the text to stand out PNCconf allows you "
+"to override the Themes's defaults. The position and force max options can be used to move "
+"Touchy to a second monitor if the system is capable."
+msgstr ""
+"Valeurs communes par défaut, permet de fixer des valeurs générales par défaut, communes à "
+"toutes les interfaces graphiques.\n"
+" Les options par défaut spécifiques à d'AXIS. Si une des options 'Taille', 'Position' ou "
+"'Forcer à maximiser' et choisie, PNCconf demandera si il peut écraser le fichier de "
+"préférences (.Axisrc). Ce qui écrasera les données qui aurait été ajoutées extérieurement "
+"dans ce fichier. 'Position' et 'force Max' peuvent être utilisés pour déplacer AXIS sur un "
+"second moniteur si le système le supporte. Les options par défaut spécifiques à Touchy. La "
+"plupart des options de Touchy peuvent être modifiées dans la page des préférences de "
+"l'application même quand elle est en marche. Touchy utilise GTK pour dessiner son écran, et "
+"supporte les thèmes GTK. Les thèmes GTK modifient l'apparence et l'ergonomie du programme. "
+"Il est possible de télécharger des thèmes depuis le net ou de les modifier soit-même. Il y "
+"a déjà une liste des thèmes GTK utilisables sur le système. PNCconf permet de modifier "
+"facilement le thème par défaut. Les options 'Position' et 'Force max' peuvent être "
+"utilisées pour déplacer Touchy sur un second écran, si le système le supporte."
+
+#. type: Plain text
+#: pncconf.txt:273
+msgid "VCP options::"
+msgstr "Panneaux de contrôle virtuels::"
+
+#. type: Plain text
+#: pncconf.txt:279
+msgid ""
+"Virtual Control Panels allow one to add custom controls and displays to the screen. AXIS "
+"and Touchy can integrate these controls inside the screen in designated positions. There "
+"are two kinds of VCPs - pyVCP which uses 'Tkinter' to draw the screen and GLADE VCP that "
+"uses 'GTK' to draw the screen."
+msgstr ""
+"Les panneaux de contrôle virtuels (VCP), permettent d'ajouter des contrôles et des "
+"afficheurs personnalisés. AXIS et Touchy peuvent intégrer ces contrôles dans une zone "
+"déterminée de leur écran. Il y a deux sortes de panneaux de contrôle (VCP), pyVCP qui "
+"utilise 'Tkinter' pour dessiner l'écran ou GLADE VCP qui utilise 'GTK'."
+
+#. type: Plain text
+#: pncconf.txt:298
+msgid ""
+"PyVCP:: PyVCPs screen XML file can only be hand built. PyVCPs fit naturally in with AXIS as "
+"they both use TKinter.  + HAL pins are created for the user to connect to inside their "
+"custom HAL file.  There is a sample spindle display panel for the user to use as-is or "
+"build on.  You may select a blank file that you can later add your controls 'widgets' to or "
+"select a spindle display sample that will display spindle speed and indicate if the spindle "
+"is at requested speed.  + PNCconf will connect the proper spindle display HAL pins for "
+"you.  If you are using AXIS then the panel will be integrated on the right side.  If not "
+"using AXIS then the panel will be separate 'stand-alone' from the frontend screen.  + You "
+"can use the geometry options to size and move the panel, for instance to move it to a "
+"second screen if the system is capable. If you press the 'Display sample panel' button the "
+"size and placement options will be honoured."
+msgstr ""
+"PyVCP:: PyVCP est un écran construit par un fichier XML qui ne peut pas être construit à la "
+"main. Les PyVCP s'intègrent naturellement avec AXIS car ils utilisent tous les deux "
+"Tkinter.\n"
+" Des 'HAL pins' sont créées pour que l'utilisateur puisse les connecter dans son fichier "
+"HAL personnalisé. Ce sont des organes de panneau de contrôle que l'utilisateur peut "
+"utiliser tel quel ou les reconstruire à son goût. Sélectionner un fichier vide dans lequel "
+"les contrôles (widgets) personnels seront enregistrés ou sélectionner un des modèles "
+"d'affichage prêts à l'emploi.\n"
+" PCCcong établira alors lui-même les bonnes connexions avec HAL.  Si AXIS est utilisé, le "
+"panneau sera intégré sur le côté droit. Si AXIS n'est pas utilisé, le panneau sera autonome "
+"et distinct de l'écran frontal.\n"
+" Il est possible d'utiliser les options de géométrie et de dimensions et de déplacer le "
+"panneau vers un second écran si le système le permet. Si le bouton 'Ouvrir un panneau "
+"simple' est pressé, les données de géométrie et de dimensions seront utilisées et le "
+"panneau affiché."
+
+#. type: Plain text
+#: pncconf.txt:338
+msgid ""
+"GLADE VCP:: GLADE VCPs fit naturally inside of TOUCHY screen as they both use GTK to draw "
+"them, but by changing GLADE VCP's theme it can be made to blend pretty well in AXIS. (try "
+"Redmond)  + It uses a graphical editor to build its XML files.  HAL pins are created for "
+"the user to connect to, inside of their custom HAL file.  + GLADE VCP also allows much more "
+"sophisticated (and complicated) programming interaction, which PNCconf currently doesn't "
+"leverage. (see GLADE VCP in the manual)  + PNCconf has sample panels for the user to use as-"
+"is or build on.  With GLADE VCP PNCconf will allow you to select different options on your "
+"sample display.  + Under 'sample options' select which ones you would like.  The zero "
+"buttons use HALUI commands which you could edit later in the HALUI section.  + Auto Z touch-"
+"off also requires the classicladder touch-off program and a probe input selected. It "
+"requires a conductive touch-off plate and a grounded conductive tool. For an idea on how it "
+"works see: + http://wiki.linuxcnc.org/cgi-bin/wiki.pl?"
+"ClassicLadderExamples#Single_button_probe_touchoff + Under 'Display Options', size, "
+"position, and force max can be used on a 'stand-alone' panel for such things as placing the "
+"screen on a second monitor if the system is capable.  + You can select a GTK theme which "
+"sets the basic look and feel of the panel.  You Usually want this to match the frontend "
+"screen.  These options will be used if you press the 'Display sample button'.  With GLADE "
+"VCP depending on the frontend screen, you can select where the panel will display.  + You "
+"can force it to be stand-alone or with AXIS it can be in the center or on the right side, "
+"with Touchy it can be in the center."
+msgstr ""
+"GLADE VCP:: Glade VCP s'intègre naturellement à l'intérieur de l'écran TOUCHY car ils "
+"utilisent tous les deux GTK pour leurs interfaces, mais en modifiant le thème de GladeVCP "
+"il se fond très bien dans AXIS 'essayer Redmond).\n"
+" Il utilise un éditeur graphique pour créer ses fichiers XML. Des 'HAL pins' sont créées, "
+"que l'utilisateur pourra connecter dans son fichier HAL personnalisé.\n"
+" GladeVCP permet aussi une interaction de programmation beaucoup plus sophistiquée et "
+"complexe, ce qui n'est actuellement pas possible par PNCconf. Voir le chapitre sur: <<cha:"
+"GladeVCP, la création d'interfaces graphiques>>\n"
+" PNCconf propose des exemples de panneaux à utiliser tel quel ou à reconstruire. Avec "
+"PNCconf, GladeVCP permettra de sélectionner différentes options d'affichage sur le modèle.\n"
+" Sous 'Echantillon d'options' sélectionner les options souhaitées. Les boutons zéro "
+"utilisent des commandes HALUI qui pourront être éditées ultérieurement dans la section "
+"HALUI.\n"
+" Le bouton 'Toucher Z automatique' nécessite le programme 'Touch-off' de classicladder et "
+"que l'entrée de palpeur soit sélectionnée. Il faut aussi un palpeur qui peut être réalisé "
+"avec une plaque conductrice reliée à la masse. Pour avoir une idée sur la façon dont cela "
+"fonctionne, voir ici: http://wiki.linuxcnc.org/cgi-bin/wiki.pl?"
+"ClassicLadderExamples#Single_button_probe_touchoff\n"
+"Sous 'Options d'affichage', les options de géométrie et de dimensions permettent de "
+"déplacer le panneau, par exemple vers un second écran, si le système le permet.\n"
+"Sélectionner un thème GTK pour définir l'aspect du panneaux.En général, on le souhaite "
+"identique à l'aspect de l'écran frontal. Le panneau créé et ses options seront visibles en "
+"appuyant sur le bouton 'Ouvrir un panneau simple'. GladeVCP placé sur l'écran frontal "
+"permet de sélectionner la position du panneau sur celui-ci.\n"
+"Il peut fonctionner de manière autonome ou avec AXIS, il peut être au centre ou sur le côté "
+"droit, avec Touchy il peut être au centre."
+
+#. type: Plain text
+#: pncconf.txt:340
+msgid "Defaults and Options::"
+msgstr "Défauts et options::"
+
+#. type: Plain text
+#: pncconf.txt:344
+#, no-wrap
+msgid ""
+"*  Require homing before MDI / Running\n"
+"** If you want to be able to move the machine before homing uncheck \n"
+"                this checkbox.\n"
+msgstr ""
+"*  Prise d'origine requise avant tout mouvement\n"
+"** Pour pouvoir déplacer la machine sans passer par une recherche du\n"
+"point d'origine machine, décocher la case. Dans ce cas la plus grande\n"
+"vigilance est nécessaire pour ne pas percuter une limite physique.\n"
+
+#. type: Plain text
+#: pncconf.txt:348
+#, no-wrap
+msgid ""
+"*  Popup Tool Prompt\n"
+"** Choose between an on screen prompt for tool changes or export standard signal\n"
+"   names for a User supplied custom tool changer Hal file\n"
+msgstr ""
+"*  Dialogue pour le changement d'outil\n"
+"** Permet le choix entre l'utilisation d'un dialogue de changement d'outil et\n"
+"l'exportation d'un signal standard pour utiliser un changeur d'outils\n"
+"automatique externe et la table d'outils.\n"
+
+#. type: Plain text
+#: pncconf.txt:351
+#, no-wrap
+msgid ""
+"*  Leave spindle on during tool change: \n"
+"** Used for lathes\n"
+msgstr ""
+"*  Laisser tourner la broche pendant le changement d'outil\n"
+"** Utilisé sur les tours.\n"
+
+#. type: Bullet: '*  '
+#: pncconf.txt:353
+msgid "Force individual manual homing"
+msgstr "Forcer la prise d'origine individuelle en manuel"
+
+#. type: Bullet: '*  '
+#: pncconf.txt:355
+msgid "Move spindle up before tool change"
+msgstr "Relever la broche avant le changement d'outil"
+
+#. type: Plain text
+#: pncconf.txt:358
+#, no-wrap
+msgid ""
+"* Restore joint position after shutdown\n"
+"** Used for non-trivial kinematics machines\n"
+msgstr ""
+"*  Restaurer la position de la jointure après arrêt\n"
+"** Utilisé pour les machines a cinématique complexe.\n"
+
+#. type: Bullet: '* '
+#: pncconf.txt:361
+msgid ""
+"Random position toolchangers** Used for toolchangers that do not return the tool to the "
+"same pocket. You will need to add custom HAL code to support toolchangers."
+msgstr ""
+"* Changeur d'outil à position aléatoire\n"
+"** Utilisé pour les changeurs d'outils qui ne reçoivent pas toujours les outils au mêmes "
+"emplacements. Des codes HAL doivent être ajoutés pour le support de ces changeurs d'outils."
+
+#. type: Plain text
+#: pncconf.txt:366
+msgid ""
+"== Mesa Configuration The Mesa configuration pages allow one to utilize different "
+"firmwares.  On the basic page you selected a Mesa card here you pick the available firmware "
+"and select what and how many components are available."
+msgstr ""
+"== Configuration Mesa Les pages de configuration Mesa permettent d'utiliser les différents "
+"micros logiciels. Sur la page de configuration de base, si une carte Mesa a été "
+"sélectionnée, s'effectue le choix du micro logiciel parmi ceux disponibles, puis le choix "
+"et le paramétrage des composants nécessaires à la machine."
+
+#. type: Plain text
+#: pncconf.txt:368
+msgid ".Mesa Configuration"
+msgstr ".Configuration Mesa"
+
+#. type: Plain text
+#: pncconf.txt:370
+msgid "image::images/pncconf-mesa-config.png[]"
+msgstr "image::images/pncconf-mesa-config_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:376
+msgid ""
+"Parport address is used only with Mesa parport card, the 7i43. An onboard parallel port "
+"usually uses 0x278 or 0x378 though you should be able to find the address from the BIOS "
+"page. The 7i43 requires the parallel port to use the EPP mode, again set in the BIOS page. "
+"If using a PCI parallel port the address can be searched for by using the search button on "
+"the basic page."
+msgstr ""
+"Adresse du port parallèle MESA. Un port parallèle est utilisé seulement avec la carte Mesa "
+"7i43. Les ports parallèles sur la carte mère ont généralement les adresses 0x378 et 0x278, "
+"il est possible de trouver l'adresse sur la page du BIOS. La 7i43 nécessite de programmer "
+"le port parallèle dans le mode EPP, encore une fois cela se configure dans la page du BIOS. "
+"Si un port parallèle sur carte PCI est utilisé, les adresses peuvent être recherchées en "
+"utilisant le bouton de recherche sur la page de base de PNCconf."
+
+#. type: Plain text
+#: pncconf.txt:379
+msgid "[NOTE] Many PCI cards do not support the EPP protocol properly."
+msgstr ""
+"[NOTE] Noter que beaucoup de cartes PCI ne prennent pas en charge le protocole EPP "
+"correctement."
+
+#. type: Plain text
+#: pncconf.txt:382
+msgid ""
+"PDM PWM and 3PWM base frequency sets the balance between ripple and linearity.  If using "
+"Mesa daughter boards the docs for the board should give recommendations"
+msgstr ""
+"Fréquence de base PWM, PDM et 3PWM règle l'équilibrage entre entraînement et linéarité. Si "
+"des cartes filles Mesa sont utilisées, les documents de celles-ci devraient donner des "
+"recommandations. "
+
+#. type: Plain text
+#: pncconf.txt:385
+msgid ""
+"[IMPORTANT] It's important to follow these to avoid damage and get the best performance."
+msgstr ""
+"[IMPORTANT] Il est important de les suivre pour éviter des dommages et obtenir les "
+"meilleures performances."
+
+#. type: Plain text
+#: pncconf.txt:393
+msgid ""
+"....  The 7i33 requires PDM and a PDM base frequency of 6 mHz The 7i29 requires PWM and a "
+"PWM base frequency of 20 Khz The 7i30 requires PWM and a PWM base frequency of 20 Khz The "
+"7i40 requires PWM and a PWM base frequency of 50 Khz The 7i48 requires UDM and a PWM base "
+"frequency of 24 Khz ...."
+msgstr ""
+"....\n"
+"La carte 7i33 demande un PDM et une fréquence de base de 6 mHz.\n"
+"La carte 7i29 demande un PWM et une fréquence de base de 20 Khz.\n"
+"La carte 7i30 demande un PWM et une fréquence de base de 20 Khz.\n"
+"La carte 7i40 demande un PWM et une fréquence de base de 50 Khz.\n"
+"La carte 7i48 demande un PWM et une fréquence de base de 24 Khz.\n"
+"...."
+
+#. type: Plain text
+#: pncconf.txt:399
+msgid ""
+"Watchdog time out is used to set how long the MESA board will wait before killing outputs "
+"if communication is interrupted from the computer. Please remember Mesa uses 'active low' "
+"outputs meaning that when the output pin is on, it is low (approx 0 volts) and if it's off "
+"the output in high (approx 5 volts)  make sure your equipment is safe when in the off "
+"(watchdog bitten) state."
+msgstr ""
+"Délai du chien de garde. Définit le délai durant lequel la carte Mesa va attendre avant de "
+"déconnecter les sorties si la communication est interrompue avec l'ordinateur. Les carte "
+"Mesa utilisent sur ce contact un niveau actif bas ce qui signifie que lorsque la sortie est "
+"activée son niveau logique est à 0 et si la sortie est inactive son niveau logique est à 1 "
+"soit environ 5 volts. S'assurer que l'équipement est en sécurité quand le chien de garde "
+"est déclenché."
+
+#. type: Plain text
+#: pncconf.txt:402
+msgid ""
+"You may choose the number of available components by deselecting unused ones.  Not all "
+"component types are available with all firmware."
+msgstr ""
+"Il est possible de choisir les composants en dé-sélectionnant ceux qui sont inutilisés. Les "
+"types de composants disponibles varient selon le micro logiciel et les cartes installées."
+
+#. type: Plain text
+#: pncconf.txt:414
+#, no-wrap
+msgid ""
+"Choosing less then the maximum number of components allows one to gain more GPIO\n"
+" pins. If using daughter boards keep in mind you must not deselect pins that the\n"
+" card uses. For instance some firmware supports two 7i33 cards, If you only have\n"
+" one you may deselect enough components to utilize the connector that supported \n"
+"the second 7i33. Components are deselected numerically by the highest number\n"
+"first then down with out skipping a number. If by doing this the components are \n"
+"not where you want them then you must use a different firmware. The firmware \n"
+"dictates where, what and the max amounts of the components. Custom firmware is \n"
+"possible, ask nicely when contacting the LinuxCNC developers and Mesa. Using custom \n"
+"firmware in PNCconf requires special procedures and is not always possible - \n"
+"Though I try to make PNCconf as flexible as possible.\n"
+msgstr ""
+"Si des composants ne sont pas sélectionnés, des broches GPIO seront gagnées.\n"
+"Si des cartes filles sont utilisées, garder à l'esprit que les pins que\n"
+"les cartes utilisent ne doivent pas être dé-sélectionnées. Par exemple,\n"
+"certain micros logiciels supportent deux cartes 7i33, si une seule est\n"
+"installée, il est possible de dé-sélectionner assez de composants non\n"
+"nécessaires pour utiliser le connecteur qui était prévus pour la seconde\n"
+"7i33. Les composants sont dé-sélectionnés numériquement en commençant par le\n"
+"plus grand chiffre d'abord, puis en descendant sans en sauter. Si en faisant\n"
+"cela, les composants ne sont pas là où il devraient, alors il faut utiliser\n"
+"un micro logiciel différent. Le micro logiciel impose où, quoi et combien\n"
+"au maximum de composants. Un micro logiciel personnalisé est possible en le\n"
+"demandant gentiment aux développeurs LinuxCNC et Mesa.\n"
+"Les micros logiciels dans PNCconf nécessitent des procédures spéciales et ce\n"
+"n'est pas toujours possible, bien que nous essayons de rendre PNCconf aussi\n"
+"souple que possible.\n"
+
+#. type: Plain text
+#: pncconf.txt:418
+#, no-wrap
+msgid ""
+"After choosing all these options press the 'Accept Component Changes' button and\n"
+" PNCconf will update the I/O setup pages. Only I/O tabs will be shown for \n"
+"available connectors, depending on the Mesa board.\n"
+msgstr ""
+"Après avoir choisi toutes les options, appuyer sur le bouton\n"
+"'Accepter le changement de composants' et PNCconf mettra à jour les pages\n"
+"de configuration des E/S. Seuls les onglets nécessaires seront affichés\n"
+"pour les connexions disponibles, selon les cartes Mesa.\n"
+
+#. type: Plain text
+#: pncconf.txt:423
+msgid ""
+"== Mesa I/O Setup The tabs are used to configure the input and output pins of the Mesa "
+"boards.  PNCconf allows one to create custom signal names for use in custom HAL files."
+msgstr ""
+"== Réglages des E/S Mesa Les onglets sont utilisés pour configurer les broches d'entrée et "
+"de sortie des cartes Mesa. PNCconf permet de créer des noms de signaux personnalisés à "
+"utiliser dans les fichiers de HAL personnalisés."
+
+#. type: Plain text
+#: pncconf.txt:425
+msgid ".Mesa I/O C2"
+msgstr ".Réglages des E/S Mesa C2"
+
+#. type: Plain text
+#: pncconf.txt:427
+msgid "image::images/pncconf-mesa-io2.png[]"
+msgstr "image::images/pncconf-mesa-io2_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:432
+msgid ""
+"On this tab with this firmware the components are setup for a 7i33 daughter board, usually "
+"used with closed loop servos. Note the component numbers of the encoder counters and PWM "
+"drivers are not in numerical order. This follows the daughter board requirements."
+msgstr ""
+"Sur cet onglet, avec ce micro logiciel, les composants sont liés à l'installation d'une "
+"carte fille 7i33, généralement utilisée avec des servomoteurs en boucle fermée. Noter que "
+"les numéros de composant des codeurs et des pilotes PWM ne sont pas dans l'ordre numérique. "
+"Cela fait suite aux exigences de l'architecture des cartes filles."
+
+#. type: Plain text
+#: pncconf.txt:434
+msgid ".Mesa I/O C3"
+msgstr ".Réglages des E/S Mesa C3"
+
+#. type: Plain text
+#: pncconf.txt:436
+msgid "image::images/pncconf-mesa-io3.png[]"
+msgstr "image::images/pncconf-mesa-io3_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:440
+msgid ""
+"On this tab all the pins are GPIO. Note the 3 digit numbers - they will match the HAL pin "
+"number. GPIO pins can be selected as input or output and can be inverted."
+msgstr ""
+"Sur cet onglet, il n'y a que des broches GPIO. Noter les numéros à trois chiffres, ils "
+"correspondent au numéros des 'HAL pins'. Les broches GPIO peuvent être sélectionnées comme "
+"des entrées ou des sorties et elles peuvent être inversées."
+
+#. type: Plain text
+#: pncconf.txt:442
+msgid ".Mesa I/O C4"
+msgstr ".Réglages des E/S Mesa C4"
+
+#. type: Plain text
+#: pncconf.txt:444
+msgid "image::images/pncconf-mesa-io4.png[]"
+msgstr "image::images/pncconf-mesa-io4_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:449
+#, no-wrap
+msgid ""
+"On this tab there are a mix of step generators and GPIO.\n"
+"Step generators output and direction pins can be inverted. Note that inverting a\n"
+" Step Gen-A pin (the step output pin) changes the step timing. It should match \n"
+"what your controller expects.\n"
+msgstr ""
+"Sur cet onglet, il y a un mélange entre des broches GPIO\n"
+"et des générateurs de pas. Les sorties générateur de pas et de direction peuvent être inversées.\n"
+"Noter que l'inversion d'un signal Step Gen modifie les délais de pas,\n"
+"il doivent correspondre à ce que le contrôleur attend.\n"
+
+#. type: Plain text
+#: pncconf.txt:451
+msgid "== Parport configuration"
+msgstr "== Configuration des ports parallèles"
+
+#. type: Plain text
+#: pncconf.txt:453
+msgid "image::images/pncconf-parport.png[]"
+msgstr "image::images/pncconf-parport_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:455
+msgid "The parallel port can be used for simple I/O similar to Mesa's GPIO pins."
+msgstr ""
+"Les ports parallèles peuvent être utilisés pour de simples E/S similaires aux broches GPIO "
+"Mesa."
+
+#. type: Plain text
+#: pncconf.txt:457
+msgid "== Axis Configuration"
+msgstr "== Configuration des axes"
+
+#. type: Plain text
+#: pncconf.txt:459
+msgid ".Axis Drive Configuration"
+msgstr ".Configuration des axes"
+
+#. type: Plain text
+#: pncconf.txt:461
+msgid "image::images/pncconf-axis-drive.png[]"
+msgstr "image::images/pncconf-axis-drive_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:465
+msgid ""
+"This page allows configuring and testing of the motor and/or encoder combination . If using "
+"a servo motor an open loop test is available, if using a stepper a tuning test is available."
+msgstr ""
+"Cette page permet de configurer et tester un moteur combiné ou non à un codeur. Si un "
+"servomoteur est utilisé, un test en boucle ouverte est disponible. si un moteur pas à pas "
+"est utilisé, un test de réglage est disponible."
+
+#. type: Plain text
+#: pncconf.txt:487
+#, no-wrap
+msgid ""
+"Open Loop Test::\n"
+"An open loop test is important as it confirms the direction of the motor and \n"
+"encoder. The motor should move the axis in the positive direction when the \n"
+"positive button is pushed and also the encoder should count in the postie \n"
+"direction. The axis movement should follow the Machinery's Handbook \n"
+"footnote:[\"axis nomenclature\" in the chapter \"Numerical Control\" in the \n"
+"\"Machinery's Handbook\" published by Industrial Press.] standards or \n"
+"AXIS graphical display will not make much sense. Hopefully the help page and \n"
+"diagrams can help figure this out. Note that axis directions are based on TOOL \n"
+"movement not table movement. There is no acceleration ramping with the open loop\n"
+" test so start with lower DAC numbers. By moving the axis a known distance one \n"
+"can confirm the encoder scaling. The encoder should count even without the amp \n"
+"enabled depending on how power is supplied to the encoder. \n"
+"+\n"
+"WARNING: If the motor and encoder do not agree on counting direction then the \n"
+"servo will run away when using PID control.\n"
+"+\n"
+"Since at the moment PID settings can not be tested in PNCconf the settings are \n"
+"really for when you re-edit a config - enter your tested PID settings.\n"
+"+\n"
+"DAC scaling, max output and offset are used to tailor the DAC output.\n"
+msgstr ""
+"Test en boucle ouverte::\n"
+"Le test en boucle ouverte est important car il confirme la bonne direction du\n"
+"moteur et du codeur. Le moteur doit se déplacer dans le sens positif sur l'axe\n"
+"lorsque le bouton est pressé dans le sens positifs et aussi le codeur doit compter\n"
+"dans le même sens. Le mouvement de l'axe doit suivre les normes conventionnelles\n"
+"des machine-outil, sinon l'affichage graphique de l'axe n'aura pas de sens.\n"
+"Espérons que la page d'aide et le diagramme vous aideront à comprendre cela.\n"
+"Noter que les directions des axes sont celles du mouvement de l'outil et non\n"
+"celle du mouvement de la table. Il n'y a pas de rampe d'accélération lors du test\n"
+"en boucle ouverte, il convient donc de commencer avec une valeur faible du DAC.\n"
+"Déplacer l'axe sur une distance connue, confirmera la bonne mise à l'échelle du\n"
+"codeur. Le codeur doit compter dans le même sens, même sans la puissance sur le\n"
+"moteur, mais cela dépend de la manière dont le codeur est alimenté.\n"
+"\n"
+"WARNING: Si le moteur et le codeur ne comptent pas dans le même sens,\n"
+"le servomoteur sera incontrôlable et s'emballera lors de l'utilisation en boucle\n"
+"fermée sous régulation PID.\n"
+"\n"
+"Pour le moment les paramètres PID ne peuvent pas être testés dans PNCconf,\n"
+"ces réglages sont vraiment, pour quand vous rééditerez une configuration pour y\n"
+"mettre vos paramètres PID testés...\n"
+"\n"
+"Échelle du DAC, deux valeurs de mise à l'échelle, 'Max Output' et 'Offset'\n"
+"sont utilisées pour linéariser le DAC.\n"
+
+#. type: Plain text
+#: pncconf.txt:510
+#, no-wrap
+msgid ""
+"Compute DAC::\n"
+"These two values are the scale and offset factors for the axis output to the \n"
+"motor amplifiers. The second value (offset) is subtracted from the computed \n"
+"output (in volts), and divided by the first value (scale factor), before being \n"
+"written to the D/A converters. The units on the scale value are in true volts \n"
+"per DAC output volts. The units on the offset value are in volts. These can be \n"
+"used to linearize a DAC.\n"
+"+\n"
+"Specifically, when writing outputs, the LinuxCNC first converts the desired \n"
+"output in quasi-SI units to raw actuator values, e.g., volts for an amplifier\n"
+" DAC. This scaling looks like: The value for scale can be obtained analytically \n"
+"by doing a unit analysis, i.e., units are [output SI units]/[actuator units]. \n"
+"For example, on a machine with a velocity mode amplifier such that 1 volt \n"
+"results in 250 mm/sec velocity, Note that the units of the offset are in machine\n"
+" units, e.g., mm/sec, and they are pre-subtracted from the sensor readings. The \n"
+"value for this offset is obtained by finding the value of your output which \n"
+"yields 0.0 for the actuator output. If the DAC is linearized, this offset is \n"
+"normally 0.0.\n"
+"+\n"
+"The scale and offset can be used to linearize the DAC as well, resulting in \n"
+"values that reflect the combined effects of amplifier gain, DAC non-linearity, \n"
+"DAC units, etc. To do this, follow this procedure:\n"
+msgstr ""
+"Calcul du DAC::\n"
+"Les deux valeurs sont les facteurs d'échelle et d'offset de la sortie vers\n"
+"l’amplificateur moteur de l'axe. La deuxième valeur, l'offset, est soustraite\n"
+"de la sortie calculée (en Volts) et divisée par la première valeur (le facteur\n"
+"d'échelle), avant d'être écrite dans le DAC. La valeur d'échelle (Scale)\n"
+"s'exprime en Volts/Volts de sortie du DAC. Le décalage (offset) s'exprime en\n"
+"Volts. Elles peuvent être utilisées pour linéariser le DAC.\n"
+"\n"
+"Plus précisément, lors de l'écriture des sorties, LinuxCNC convertit d'abord\n"
+"la valeur effective de la sortie concernée, qui est en quasi-unités SI, en\n"
+"valeurs brute d'actionneur. Par exemple, des Volts pour un amplificateur DAC.\n"
+"La valeur de l'échelle peut être obtenue en analysant l'unité, c'est-à-dire en\n"
+"déterminant le rapport [sortie unités SI]/[unités actionneur]. Par exemple,\n"
+"sur une machine avec un amplificateur en mode vitesse, qui fourni 1 Volt pour\n"
+"une vitesse résultante de 250 mm/s. Noter que les unités de l'offset sont\n"
+"en unités machine, ici des mm/s et qu'elles sont pré-soustraites des lectures\n"
+"capteur. La valeur de cet offset est obtenue en trouvant la valeur de sortie\n"
+"qui donne 0,0 sur la sortie de l'actionneur. Si le DAC est linéarisé, cet\n"
+"offset est normalement de 0,0.\n"
+"\n"
+"L'échelle et l'offset peuvent être utilisés pour linéariser le DAC, il en\n"
+"résultera des valeurs qui refléteront les effets combinés du gain de\n"
+"l'amplificateur, de la non-linéarité du DAC, des unités du DAC, etc. Pour faire\n"
+"cela, suivre cette procédure:\n"
+
+#. type: Plain text
+#: pncconf.txt:513
+#, no-wrap
+msgid ""
+"* Build a calibration table for the output, driving the DAC with a \n"
+"            desired voltage and measuring the result:\n"
+msgstr ""
+"* Construire une table de calibration pour la sortie, piloter le DAC\n"
+"avec la tension souhaitée et mesurer le résultat:\n"
+
+#. type: Plain text
+#: pncconf.txt:515
+msgid ".Output Voltage Measurements"
+msgstr ".Mesure des tensions de sortie"
+
+#. type: Plain text
+#: pncconf.txt:526
+msgid ""
+"[cols=\"^,^\",width=\"50%\"] |================== |*Raw* | *Measured* |-10 | *-9.93* | -9 | "
+"*-8.83* | 0 | *-0.96* | 1 | *-0.03* | 9 | *9.87* | 10 | *10.07* |=================="
+msgstr ""
+"[width=\"50%\"]\n"
+"|========================================\n"
+"|*Sortie brute* | *Mesure*\n"
+"|-10            | *-9.93*\n"
+"| -9            | *-8.83*\n"
+"|  0            | *-0.96*\n"
+"|  1            | *-0.03*\n"
+"|  9            | *9.87*\n"
+"| 10            | *10.07*\n"
+"|========================================"
+
+#. type: Bullet: '* '
+#: pncconf.txt:535
+msgid "Do a least-squares linear fit to get coefficients a, b such that meas=a*raw+b"
+msgstr ""
+"Par la méthode des moindres carrés, déterminer les coefficients *+a+*, *+b+* tels que *"
+"+Mesure=a*Sortiebrute+b+*"
+
+#. type: Plain text
+#: pncconf.txt:535
+#, no-wrap
+msgid ""
+"* Note that we want raw output such that our measured result is \n"
+"            identical to the commanded output. This means\n"
+"** cmd=a*raw+b\n"
+"** raw=(cmd-b)/a\n"
+"* As a result, the a and b coefficients from the linear fit can be used \n"
+"            as the scale and offset for the controller directly. \n"
+msgstr ""
+"* Noter que nous voulons une sortie effective telle que la valeur mesurée\n"
+"soit identique à la consigne. Cela signifie\n"
+"** *+consigne=a*Sortiebrute+b+*\n"
+"** *+Sortiebrute=(consigne-b)/a+*\n"
+"* Par conséquent, les coefficients *+a+* et *+b+* de l'ajustement linéaire\n"
+"peuvent être utilisés directement comme échelle et offset pour le contrôleur.\n"
+
+#. type: Plain text
+#: pncconf.txt:541
+msgid ""
+"MAX OUTPUT: The maximum value for the output of the PID compensation that is written to the "
+"motor amplifier, in volts. The computed output value is clamped to this limit.  The limit "
+"is applied before scaling to raw output units. The value is applied symmetrically to both "
+"the plus and the minus side."
+msgstr ""
+"Valeur maximale de sortie: La valeur maximale pour la sortie de régulation PID qui est "
+"écrite sur l'ampli moteur, exprimée en volts. La valeur de sortie calculée est alignée sur "
+"cette limite. La limite est appliquée avant la mise à l'échelle des unités de sortie brute. "
+"La valeur est appliquée de manière symétrique aux deux limites, positive et négative."
+
+#. type: Plain text
+#: pncconf.txt:550
+#, no-wrap
+msgid ""
+"*Tuning Test*\n"
+"The tuning test unfortunately only works with stepper based systems. Again \n"
+"confirm the directions on the axis is correct. Then test the system by running\n"
+" the axis back and forth, If the acceleration or max speed is too high you will \n"
+"lose steps. While jogging, Keep in mind it can take a while for an axis with low\n"
+"acceleration to stop. Limit switches are not functional during this test. You \n"
+"can set a pause time so each end of the test movement. This would allow you to \n"
+"set up and read a dial indicator to see if you are loosing steps.\n"
+msgstr ""
+"*Test de réglage*\n"
+"Le test de réglage ne fonctionne, malheureusement, qu'avec les systèmes à\n"
+"moteur pas à pas. Encore une fois vérifier que les directions de déplacements\n"
+"sur l'axe sont correctes. Puis tester le système en déplaçant l'axe d’avant en arrière,\n"
+"si l'accélération ou la vitesse maximum sont trop élevées, des pas seront perdus.\n"
+"Attention: Au cours de ce déplacement manuel, garder à l'esprit que la distance\n"
+"d’arrêt est inversement proportionnelle à l’accélération et qu'avec une\n"
+"accélération faible il faut du temps et de la distance pour arrêter l’axe. Les\n"
+"fins de course ne sont pas fonctionnels pendant ce test. Un temps de pause peut\n"
+"être défini entre chaque mouvement d'essai. Cela permet de vérifier la\n"
+"position de l’axe et de voir si des pas sont perdus.\n"
+
+#. type: Plain text
+#: pncconf.txt:557
+#, no-wrap
+msgid ""
+"*Stepper Timing*\n"
+"Stepper timing needs to be tailored to the step controller's requirements. \n"
+"Pncconf supplies some default controller timing or allows custom timing settings\n"
+". See http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing for\n"
+"some more known timing numbers (feel free to add ones you have figured out). If \n"
+"in doubt use large numbers such as 5000 this will only limit max speed.\n"
+msgstr ""
+"*Timing des moteur pas à pas*\n"
+"La séquence de signaux des sorties pas a pas, doit être adaptée aux exigences\n"
+"du pilote des moteurs. PNCconf propose par défaut, certaines de ces séquences\n"
+"et il est possible de les personnaliser.\n"
+". Voir http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing pour y\n"
+"trouver des séquences pour le matériel le plus commun (n'hésitez pas à ajouter\n"
+"celles que vous avez expérimenté). En cas de doute utiliser une valeur élevée\n"
+"comme 5000, cela ne fera que limiter la vitesse maximale.\n"
+
+#. type: Plain text
+#: pncconf.txt:564
+#, no-wrap
+msgid ""
+"*Brushless Motor Control*\n"
+"These options are used to allow low level control of brushless motors using \n"
+"special firmware and daughter boards. It also allows conversion of HALL sensors \n"
+"from one manufacturer to another. It is only partially supported and will \n"
+"require one to finish the HAL connections. Contact the mail-list or forum for \n"
+"more help.\n"
+msgstr ""
+"*Contrôle de moteur Brushless*\n"
+"Ces options sont utilisées pour permettre le contrôle bas niveau des\n"
+"moteurs brushless avec un micro logiciel spécial et des cartes filles.\n"
+"Elles permettent également la conversion des capteurs à effet Hall d'un fabricant\n"
+"à l'autre. Ce n'est que partiellement pris en charge et aura besoin d’une\n"
+"intervention pour terminer les connexions de HAL. Contacter la liste de\n"
+"diffusion ou un le forum pour avoir de l'aide.\n"
+
+#. type: Plain text
+#: pncconf.txt:566
+msgid ".Axis Scale Calculation"
+msgstr ".Calcul de l'échelle d'axe"
+
+#. type: Plain text
+#: pncconf.txt:568
+msgid "image::images/pncconf-scale-calc.png[]"
+msgstr "image::images/pncconf-scale-calc_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:574
+msgid ""
+"The scale settings can be directly entered or one can use the 'calculate scale' button to "
+"assist. Use the check boxes to select appropriate calculations. Note that 'pulley teeth' "
+"requires the number of teeth not the gear ratio. Worm turn ratio is just the opposite it "
+"requires the gear ratio. If your happy with the scale press apply otherwise push cancel and "
+"enter the scale directly."
+msgstr ""
+"Les paramètres d'échelle peuvent être saisis directement ou, on peut utiliser le bouton "
+"'calculer échelle' pour être assisté. Utiliser alors les cases à cocher pour sélectionner "
+"les calculs appropriés. Noter que 'Dents des poulies' exige le nombre de dents et non le "
+"rapport de réduction. 'Rapport de réduction', le rapport de réduction est exactement le "
+"contraire, il exige le rapport entre poulie menante et poulie menée (Entrée/Sortie). Si "
+"l'échelle à déjà été calculée manuellement, il est possible de la saisir directement sans "
+"passer par l'assistant."
+
+#. type: Plain text
+#: pncconf.txt:577
+msgid ".Axis Configuration"
+msgstr ".Configuration des axes"
+
+#. type: Plain text
+#: pncconf.txt:579
+msgid "image::images/pncconf-axis-config.png[]"
+msgstr "image::images/pncconf-axis-config_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:583
+msgid ""
+"Also refer to the diagram tab for two examples of home and limit switches. These are two "
+"examples of many different ways to set homing and limits."
+msgstr ""
+"Se référer également à l'onglet diagramme pour deux exemples de disposition des contacts de "
+"fin de course d'origine machine et de limites. Ce sont deux exemples parmi les nombreuses "
+"façons différentes de placer ces contacts."
+
+#. type: Plain text
+#: pncconf.txt:586
+msgid ""
+"IMPORTANT: It is very important to start with the axis moving in the right direction or "
+"else getting homing right is very difficult!"
+msgstr ""
+"IMPORTANT: Il est très important de commencer avec l'axe se déplaçant dans la bonne "
+"direction sinon l’acquisition du point d'origine est impossible !"
+
+#. type: Plain text
+#: pncconf.txt:589
+msgid ""
+"Remember positive and negative directions refer to the TOOL not the table as per the "
+"Machinists handbook."
+msgstr ""
+"Se souvenir que les directions positives et négatives se référent toujours à l'outil et "
+"jamais à la table."
+
+#. type: Plain text
+#: pncconf.txt:595
+msgid ""
+".On a typical knee or bed mill * when the TABLE moves out that is the positive Y direction "
+"* when the TABLE moves left that is the positive X direction * when the TABLE moves down "
+"that is the positive Z direction * when the HEAD moves up that is the positive Z direction"
+msgstr ""
+".Sur une fraiseuse classique\n"
+"* Lorsque l'outil se déplace vers l'opérateur, c'est la direction positive de l'axe Y.\n"
+"* Lorsque l'outil se déplace vers la gauche, c'est la direction négative de l'axe X.\n"
+"* Lorsque la table se déplace vers le bas, c'est la direction positive de l'axe Z.\n"
+"* Lorsque la tête se déplace vers le haut, c'est la direction négative de l'axe Z."
+
+#. type: Plain text
+#: pncconf.txt:603
+msgid ""
+".On a typical lathe * when the TOOL moves right, away from the chuck * that is the positive "
+"Z direction * when the TOOL moves toward the operator * that is the positive X direction. "
+"Some lathes have X * opposite (eg tool on back side), that will work fine but * AXIS "
+"graphical display can not be made to reflect this."
+msgstr ""
+".Sur un tour classique\n"
+"* Lorsque l'outil se déplace vers la droite, en s'éloignant du mandrin,\n"
+"c'est le sens positif de l'axe Z.\n"
+"* Lorsque l'outil se déplace vers l'opérateur, c’est le sens positif de l'axe X.\n"
+"* Certains tours ont un axe X opposé, dans ce cas l'outil est à l'arrière, cela\n"
+"fonctionne bien, mais l'affichage graphique d'AXIS ne peut pas refléter cette\n"
+"configuration."
+
+#. type: Plain text
+#: pncconf.txt:613
+msgid ""
+"When using homing and / or limit switches LinuxCNC expects the HAL signals to be true when "
+"the switch is being pressed / tripped.  If the signal is wrong for a limit switch then "
+"LinuxCNC will think the machine is on end of limit all the time. If the home switch search "
+"logic is wrong LinuxCNC will seem to home in the wrong direction.  What it actually is "
+"doing is trying to BACK off the home switch."
+msgstr ""
+"Lorsque des contacts d'origine machine et/ou des contacts de limite sont utilisés, LinuxCNC "
+"attend des signaux de HAL au niveaux haut lorsque le contact est actionné. Si le signal "
+"d'un fin de course est inversé, LinuxCNC détectera en permanence que la machine est en bout "
+"de course. Si la logique de recherche du contact d'origine machine est mauvaise (fichier "
+"ini), LinuxCNC lancera la séquence de recherche d'origine machine de l'axe dans la mauvaise "
+"direction."
+
+#. type: Plain text
+#: pncconf.txt:616
+msgid "Decide on limit switch location."
+msgstr "Décider de l'emplacement des fins de courses."
+
+#. type: Plain text
+#: pncconf.txt:631
+msgid ""
+"Limit switches are the back up for software limits in case something electrical goes wrong "
+"eg. servo runaway.  Limit switches should be placed so that the machine does not hit the "
+"physical end of the axis movement. Remember the axis will coast past the contact point if "
+"moving fast. Limit switches should be 'active low' on the machine. eg. power runs through "
+"the switches all the time - a loss of power (open switch) trips.  While one could wire them "
+"the other way, this is fail safe.  This may need to be inverted so that the HAL signal in "
+"LinuxCNC in 'active high' - a TRUE means the switch was tripped. When starting LinuxCNC if "
+"you get an on-limit warning, and axis is NOT tripping the switch, inverting the signal is "
+"probably the solution. (use HALMETER to check the corresponding HAL signal eg. axis.0.pos-"
+"lim-sw-in X axis positive limit switch)"
+msgstr ""
+"Les fins de course de limite d'axe sont au delà des limites logicielles, ils protègent la "
+"machine en cas de problème électrique, par exemple, l'emballement d'un servomoteur. Les "
+"fins de course doivent être placés de manière à ce que l'axe ne puisse pas percuter une "
+"butée mécanique. Attention: si la distance d'activation du contact de fin de course est "
+"trop faible, avec l'inertie du mobile il pourra le dépasser. Les fins de course des limites "
+"d'axes, doivent être actifs à l'état bas et ils doivent aussi couper la puissance sur l'axe "
+"concerné. Le contact doit s'ouvrir à l'activation du fin de course. Utiliser un autre "
+"câblage est possible mais il est moins sécurisé. Il peut être nécessaire d'inverser le "
+"signal de HAL dans LinuxCNC pour avoir un état actif haut, TRUE signifie que le contact a "
+"été activé. Lorsqu'au démarrage de LinuxCNC un avertissement de limite et affiché même si "
+"l'axe n'est pas sur un des fins de course, le signal est probablement inversé. Utiliser "
+"HALMETER pour vérifier l'état du signal de HAL correspondant, par exemple, axis.0.pos-lim-"
+"sw-in, fin de course positif de l'axe X."
+
+#. type: Plain text
+#: pncconf.txt:633
+msgid "Decide on the home switch location."
+msgstr "Décider de l'emplacement des contacts d'origine machine."
+
+#. type: Plain text
+#: pncconf.txt:644
+msgid ""
+"If you are using limit switches You may as well use one as a home switch. A separate home "
+"switch is useful if you have a long axis that in use is usually a long way from the limit "
+"switches or moving the axis to the ends presents problems of interference with material.  "
+"eg a long shaft in a lathe makes it hard to home to limits with out the tool hitting the "
+"shaft, so a separate home switch closer to the middle may be better.  If you have an "
+"encoder with index then the home switch acts as a course home and the index will be the "
+"actual home location."
+msgstr ""
+"Si des fins de course de limite d'axe sont utilisés, il est possible d'en utiliser "
+"également un par axe comme contacts d'origine machine. Un contact d'origine machine séparé "
+"est utile si les axes sont longs et que le déplacement vers un fin de course dure trop "
+"longtemps pour un usage normale ou que le déplacement vers une extrémité présente des "
+"problèmes d'interférences avec le porte-pièce ou la pièce. Par exemple sur un tour, le "
+"déplacement en bout de banc n'est pas efficace pour un point d'origine machine et un "
+"contact placé vers le centre est certainement meilleur. Si des codeurs avec un index sont "
+"utilisés, le contact agit comme point de référence et l'index suivant sera le point "
+"d'origine machine effectif."
+
+#. type: Plain text
+#: pncconf.txt:646
+msgid "Decide on the MACHINE ORIGIN position."
+msgstr "Décider de la position du contact d'ORIGINE MACHINE."
+
+#. type: Plain text
+#: pncconf.txt:655
+msgid ""
+"MACHINE ORIGIN is what LinuxCNC uses to reference all user coordinate systems from.  I can "
+"think of little reason it would need to be in any particular spot. There are only a few G "
+"codes that can access the MACHINE COORDINATE system.( G53, G30 and G28 )  If using tool-"
+"change-at-G30 option having the Origin at the tool change position may be convenient. By "
+"convention, it may be easiest to have the ORIGIN at the home switch."
+msgstr ""
+"L'origine machine dans LinuxCNC sert de référence à tous les systèmes de coordonnées "
+"utilisateur. Il n'y a pas d'emplacement particulier pour ce contact. Seuls quelques G-codes "
+"accèdent au système de coordonnées machine (G53, G30 et G28). Si l'option de changement "
+"d'outil sur G30 est utilisée, placer l'origine machine à cet endroit peut être commode. "
+"Mais, par convention, il est plus simple d'avoir l'origine machine sur le contact d'origine."
+
+#. type: Plain text
+#: pncconf.txt:657
+msgid "Decide on the (final) HOME POSITION."
+msgstr "Décider de la position finale de l'ORIGINE MACHINE."
+
+#. type: Plain text
+#: pncconf.txt:660
+msgid ""
+"this just places the carriage at a consistent and convenient position after LinuxCNC "
+"figures out where the ORIGIN is."
+msgstr ""
+"Consiste simplement à placer le mobile ou la broche à la position la plus commode *après* "
+"que LinuxCNC soit initialisé et que les points d'origines machine de chacun des axes lui "
+"soit connus."
+
+#. type: Plain text
+#: pncconf.txt:662
+msgid "Measure / calculate the positive / negative axis travel distances."
+msgstr "Définition des côtés positifs/négatifs et des longueurs de courses maximales."
+
+#. type: Plain text
+#: pncconf.txt:669
+msgid ""
+"Move the axis to the origin. Mark a reference on the movable slide and the non-moveable "
+"support (so they are in line) move the machine to the end of limits. Measure between the "
+"marks that is one of the travel distances. Move the table to the other end of travel.  "
+"Measure the marks again. That is the other travel distance. If the ORIGIN is at one of the "
+"limits then that travel distance will be zero."
+msgstr ""
+"Placer l'axe à l'origine. Faire un repère sur le mobile et un autre sur la partie fixe. "
+"Déplacer la machine jusqu'au contact de limite d'axe. Mesurer la distance entre les deux "
+"repères pour obtenir la longueur de déplacement maximale dans ce sens. Déplacer dans "
+"l'autre sens, sur le contact de limite de l'autre côté. Mesurer de nouveau les repères pour "
+"obtenir la longueur de déplacement maximale dans l'autre sens. Si l'origine machine est "
+"située sur une des limites d'axe, alors cette distance de déplacement sera évidemment de "
+"zéro."
+
+#. type: Plain text
+#: pncconf.txt:678
+#, no-wrap
+msgid ""
+"(machine) ORIGIN::\n"
+"    The Origin is the MACHINE zero point. (not\n"
+"    the zero point you set your cutter / material at).\n"
+"    LinuxCNC uses this point to reference everything else\n"
+"    from. It should be inside the software limits.\n"
+"    LinuxCNC uses the home switch location to calculate \n"
+"    the origin position (when using home switches\n"
+"    or must be manually set if not using home switches.\n"
+msgstr ""
+"ORIGINE machine::\n"
+"Ce point est le point de référence de la machine. (Ne pas confondre avec le\n"
+"point zéro de l'outil ou de la pièce). LinuxCNC référence tout à partir de ce\n"
+"point. Il doit être à l'intérieur des limites logicielles sinon la machine\n"
+"ne pourrait jamais l'atteindre. LinuxCNC utilise la position du contact\n"
+"d'origine machine pour calculer la position d'origine. Si la machine ne\n"
+"dispose pas de contact il faudra la positionner manuellement sur les points\n"
+"d'origine et les valider.\n"
+
+#. type: Plain text
+#: pncconf.txt:686
+#, no-wrap
+msgid ""
+"Travel distance::\n"
+"    This is the maximum distance the axis can\n"
+"    travel in each direction. This may\n"
+"    or may not be able to be measured directly\n"
+"    from origin to limit switch. The positive and\n"
+"    negative travel distances should add up to the\n"
+"    total travel distance.\n"
+msgstr ""
+"Course de la table::\n"
+"C'est la distance maximale que l'axe peut parcourir dans chaque direction.\n"
+"Ceci peut ou ne peut pas être mesuré directement de l'origine aux contacts\n"
+"de fin de course. Le cumul des courses positives et négatives sera égal à la\n"
+"longueur de course totale.\n"
+
+#. type: Plain text
+#: pncconf.txt:694
+#, no-wrap
+msgid ""
+"POSITIVE TRAVEL DISTANCE::\n"
+"    This is the distance the Axis travels from \n"
+"    the Origin to the positive travel distance or\n"
+"    the total travel minus the negative travel \n"
+"    distance. You would set this to zero if the\n"
+"    origin is positioned at the positive limit.\n"
+"    The will always be zero or a positive number.\n"
+msgstr ""
+"Course positive::\n"
+"C'est la distance depuis l'origine de l'axe, jusqu'au fin de course de limite\n"
+"du côté positif. Si l'origine de l'axe est placée sur le fin de course de\n"
+"limite positive, cette valeur est égale à zéro. Les valeurs possibles sont\n"
+"positives ou égales à zéro.\n"
+
+#. type: Plain text
+#: pncconf.txt:704
+#, no-wrap
+msgid ""
+"NEGATIVE TRAVEL DISTANCE::\n"
+"    This is the distance the Axis travels from \n"
+"    the Origin to the negative travel distance.\n"
+"    or the total travel minus the positive travel \n"
+"    distance. You would set this to zero if the\n"
+"    origin is positioned at the negative limit.\n"
+"    This will always be zero or a negative number.\n"
+"    If you forget to make this negative PNCconf\n"
+"    will do it internally.\n"
+msgstr ""
+"Course négative::\n"
+"C'est la distance depuis l'origine de l'axe, jusqu'au fin de course de limite\n"
+"du coté négatif. Ou la course totale moins la course positive. Si l'origine de l'axe\n"
+"est placée sur le fin de course de limite négative, cette valeur est de zéro.\n"
+"Les valeurs possibles sont négatives ou égales à zéro.\n"
+"Si la valeur entrée dans PNCconf n'est pas négative, elle sera déduite des\n"
+"autres valeurs.\n"
+
+#. type: Plain text
+#: pncconf.txt:714
+#, no-wrap
+msgid ""
+"(Final) HOME POSITION::\n"
+"    This is the position the home sequence will\n"
+"    finish at. It is referenced from the Origin\n"
+"    so can be negative or positive depending on\n"
+"    what side of the Origin it is located.\n"
+"    When at the (final) home position if\n"
+"    you must move in the Positive direction to\n"
+"    get to the Origin, then the number will be \n"
+"    negative.\n"
+msgstr ""
+"Position finale de l'origine::\n"
+"C'est la position ou se termine la séquence de prise d'origine machine.\n"
+"Elle est référencée par rapport à l'origine et peut être positive, si cette\n"
+"position finale est du coté positif ou négative, si cette position finale est\n"
+"du coté négatif.\n"
+
+#. type: Plain text
+#: pncconf.txt:725
+#, no-wrap
+msgid ""
+"HOME SWITCH LOCATION::\n"
+"    This is the distance from the home switch to \n"
+"    the Origin. It could be negative or positive\n"
+"    depending on what side of the Origin it is\n"
+"    located. When at the home switch location if\n"
+"    you must move in the Positive direction to\n"
+"    get to the Origin, then the number will be \n"
+"    negative. If you set this to zero then the\n"
+"    Origin will be at the location of the limit\n"
+"    switch (plus distance to find index if used) \n"
+msgstr ""
+"Position du contact d'origine machine::\n"
+"C'est la distance depuis le contact d'origine jusqu'à la position de l'origine.\n"
+"Il peut être négatif ou positif selon de quel côté de l'origine il est placé.\n"
+"Depuis ce point, si l'axe doit être déplacé dans la direction positive pour\n"
+"arriver à l'origine, alors la valeur sera négative, sinon elle sera positive.\n"
+"Si il est mis à zéro, l'origine sera à l'emplacement du contact (plus la distance\n"
+"éventuelle pour attendre l'index suivant, si une règle de mesure, ou un codeur\n"
+"de position avec index sont utilisés).\n"
+
+#. type: Plain text
+#: pncconf.txt:728
+#, no-wrap
+msgid ""
+"Home Search Velocity::\n"
+"    Course home search velocity in units per minute.\n"
+msgstr ""
+"Vitesse de recherche du contact d'origine machine::\n"
+"Vitesse utilisée pendant le déplacement vers le contact d'origine machine en\n"
+"unités par minute.\n"
+
+#. type: Plain text
+#: pncconf.txt:733
+#, no-wrap
+msgid ""
+"Home Search Direction::\n"
+"    Sets the home switch search direction\n"
+"    either negative (ie. towards negative limit switch)\n"
+"    or positive (ie. towards positive limit switch)\n"
+msgstr ""
+"Direction de recherche du contact d'origine machine::\n"
+"Direction de la recherche de l'origine machine. Négatif ou Positif selon le\n"
+"coté de l'axe où se trouve le contact d'origine machine. \n"
+
+#. type: Plain text
+#: pncconf.txt:736
+#, no-wrap
+msgid ""
+"Home Latch Velocity::\n"
+"    Fine Home search velocity in units per minute\n"
+msgstr ""
+"Vitesse d'acquisition du contact d'origine machine::\n"
+"Vitesse lente de détection du contact d'origine machine, en unités par minute.\n"
+
+#. type: Plain text
+#: pncconf.txt:740
+#, no-wrap
+msgid ""
+"Home Final Velocity::\n"
+"    Velocity used from latch position to (final) home position\n"
+"    in units per minute. Set to 0 for max rapid speed \n"
+msgstr ""
+"Vitesse vers la position de l'origine::\n"
+"Vitesse utilisée pour déplacer le mobile de la position d'acquisition du contact\n"
+"d'origine machine, vers la position finale de l'origine, en unités par minute.\n"
+"Si réglée à 0 c'est la vitesse de déplacement rapide qui sera utilisée.\n"
+
+#. type: Plain text
+#: pncconf.txt:744
+#, no-wrap
+msgid ""
+"Home latch Direction::\n"
+"    Allows setting of the latch direction to the same\n"
+"    or opposite of the search direction.\n"
+msgstr ""
+"Direction d'acquisition du contact d'origine machine::\n"
+"Direction d'acquisition de l'origine machine, peut être dans la même direction\n"
+"que la recherche, ou à l'opposé.\n"
+
+#. type: Plain text
+#: pncconf.txt:748
+#, no-wrap
+msgid ""
+"Use Encoder Index For Home::\n"
+"    LinuxCNC will search for an encoder index pulse while in\n"
+"    the latch stage of homing.\n"
+msgstr ""
+"Origine machine sur l'index du codeur::\n"
+"LinuxCNC attendra l'impulsion d'index du codeur après l’acquisition du contact\n"
+"d'origine machine.\n"
+
+#. type: Plain text
+#: pncconf.txt:752
+#, no-wrap
+msgid ""
+"Use Compensation File::\n"
+"    Allows specifying a Comp filename and type.\n"
+"    Allows sophisticated compensation. See Manual.\n"
+msgstr ""
+"Utiliser un fichier de compensation de jeu::\n"
+"Permet de spécifier le nom et le type d'un fichier de compensation de jeu.\n"
+"Permet une compensation sophistiquée. Voir le manuel.\n"
+
+#. type: Plain text
+#: pncconf.txt:756
+#, no-wrap
+msgid ""
+"Use Backlash Compensation::\n"
+"    Allows setting of simple backlash compensation. Can \n"
+"    not be used with Compensation File. See Manual.\n"
+msgstr ""
+"Utiliser la compensation de jeu::\n"
+"Permet de régler la compensation du jeu de la vis, ne peut pas être utilisé\n"
+"en même temps qu'un fichier de compensation. Voir le manuel.\n"
+
+#. type: Plain text
+#: pncconf.txt:758
+msgid ".AXIS Help Diagram"
+msgstr ".Dessin d'aide à l'identification des axes et fins de course"
+
+#. type: Plain text
+#: pncconf.txt:760
+msgid "image::images/pncconf-diagram-lathe.png[]"
+msgstr "image::images/pncconf-diagram-lathe_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:772
+#, no-wrap
+msgid ""
+"The diagrams should help to demonstrate an example of limit switches and \n"
+"standard axis movement directions.\n"
+"In this example the Z axis was two limit switches, the positive switch is shared\n"
+" as a home switch.\n"
+"The MACHINE ORIGIN (zero point) is located at the negative limit.\n"
+"The left edge of the carriage is the negative trip pin and the right the \n"
+"positive trip pin.\n"
+"We wish the FINAL HOME POSITION to be 4 inches away from the ORIGIN on the \n"
+"positive side.\n"
+"If the carriage was moved to the positive limit we would measure 10 inches \n"
+"between the negative limit and the negative trip pin.\n"
+msgstr ""
+"Ce dessin devrait aider à comprendre un exemple de positionnement des contacts\n"
+"de limite et les directions standards sur un tour.\n"
+"Sur ce tour, l'axe Z a deux contacts de limite, le contact positif est\n"
+"utilisé également comme contact de prise d'origine machine. La position du zéro\n"
+"machine (origine machine de l'axe) est placée à la limite négative.\n"
+"Le bord gauche du chariot est la came qui active le fin de course de la limite\n"
+"négative et le côté droit, la came qui active le fin de course de la limite\n"
+"positive. Nous voyons que la position finale de l'origine se trouve à 4 pouces\n"
+"de distance de l'origine de l'axe, du côté positif.\n"
+"Si le chariot était déplacé jusqu'à la limite positive, nous mesurerions 10\n"
+"pouces entre la limite négative et la came du côté négatif du chariot\n"
+"(fin de course bord gauche du chariot).\n"
+
+#. type: Plain text
+#: pncconf.txt:774
+msgid "== Spindle Configuration"
+msgstr "== Configuration de la broche"
+
+#. type: Plain text
+#: pncconf.txt:777
+msgid ""
+"If you select spindle signals then this page is available to configure spindle control."
+msgstr ""
+"Si un signal de contrôle de la broche est présent, cette page permet de le configurer."
+
+#. type: Plain text
+#: pncconf.txt:780
+msgid ""
+"TIP: Many of the option on this page will not show unless the proper option was selected on "
+"previous pages!"
+msgstr ""
+"TIP: Beaucoup d'options de cette page ne sont visibles que si les sélections appropriées "
+"ont été choisies dans les pages précédentes. Si des signaux de broche ont été sélectionnés, "
+"alors cette page est disponible pour les configurer."
+
+#. type: Plain text
+#: pncconf.txt:782
+msgid ".Spindle Configuration"
+msgstr ".Configuration de la broche"
+
+#. type: Plain text
+#: pncconf.txt:784
+msgid "image::images/pncconf-spindle-config.png[]"
+msgstr "image::images/pncconf-spindle-config_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:786
+msgid "This page is similar to the axis motor configuration page."
+msgstr "Cette page est semblable à la page de configuration des moteurs d'axe."
+
+#. type: Plain text
+#: pncconf.txt:788
+msgid "There are some differences:"
+msgstr "Mais il y a quelques différences:"
+
+#. type: Plain text
+#: pncconf.txt:809
+#, no-wrap
+msgid ""
+"* Unless one has chosen a stepper driven spindle there is no acceleration or \n"
+"velocity limiting.\n"
+"* There is no support for gear changes or ranges.\n"
+"* If you picked a VCP spindle display option then spindle-at-speed scale and \n"
+"filter settings may be shown.\n"
+"* Spindle-at-speed allows LinuxCNC to wait till the spindle is at the requested speed \n"
+"before moving the axis. This is particularly handy on lathes with constant \n"
+"surface feed and large speed diameter changes. It requires either encoder \n"
+"feedback or a digital spindle-at-speed signal typically connected to a VFD \n"
+"drive.\n"
+"* If using encoder feedback, you may select a spindle-at-speed scale setting that \n"
+"specifies how close the actual speed must be to the requested speed to be \n"
+"considered at-speed.\n"
+"* If using encoder feedback, the VCP speed display can be erratic - the \n"
+"filter setting can be used to smooth out the display. The encoder scale must be \n"
+"set for the encoder count / gearing used.\n"
+"* If you are using a single input for a spindle encoder you must add the line:\n"
+"setp    hm2_7i43.0.encoder.00.counter-mode 1\n"
+"(changing the board name and encoder number to your requirements) into a custom \n"
+"HAL file. See the Hostmot2 section on encoders for more info about counter mode.\n"
+msgstr ""
+"* À moins que l'on ait choisi un moteur pas à pas pour la conduite de la broche\n"
+"il n'y a pas d'accélération ni de limitation de vitesse.\n"
+"* Il n'y a pas de support pour les changements de vitesse ni pour les gammes\n"
+"de vitesses.\n"
+"* Si une option VCP d'affichage de vitesse broche est choisie, alors la\n"
+"'Vitesse broche atteinte', 'l'échelle', 'la vitesse' et 'les réglages des\n"
+"filtres' seront visibles. \n"
+"* L’information sur la vitesse de broche permet à LinuxCNC d'attendre que\n"
+"celle-ci ait atteint la vitesse de consigne, avant de déplacer les axes. C'est\n"
+"particulièrement pratique sur les tours, lors de l'utilisation d'une vitesse\n"
+"de coupe constante avec de grands changements de diamètre. Il exige un retour\n"
+"d'information par codeur ou par un signal de vitesse broche numérique,\n"
+"typiquement connecté à un variateur de vitesse (VFD).\n"
+"* En utilisant le retour d'information d'un codeur, il est possible de choisir\n"
+"une plage de 'vitesse broche atteinte' comme tolérance de vitesse, au delà de\n"
+"laquelle, la vitesse broche sera admise comme étant à la vitesse de consigne.\n"
+"* En utilisant le retour d'information d'un codeur, l'affichage de vitesse\n"
+"VCP peut être irrégulier, des filtres peuvent dans ce cas, être utilisés pour\n"
+"corriger l'affichage. L'échelle du codeur doit être réglée à la valeur\n"
+"'comptage codeur/rapport de réduction utilisé'.\n"
+"* Si une seule entrée est utilisée pour le codeur de broche, la ligne suivante\n"
+"doit être ajoutée: setp hm2_7i43.0.encoder.00.counter-mode 1\n"
+"(Changer le nom de la carte et le numéro de codeur selon besoins) dans le\n"
+"fichier HAL personnalisé. Lire la section codeurs dans Hostmot2 pour plus\n"
+"d'information sur les modes de comptage.\n"
+
+#. type: Plain text
+#: pncconf.txt:813
+msgid "== Advanced Options"
+msgstr "== Options avancées"
+
+#. type: Plain text
+#: pncconf.txt:827
+msgid ""
+"This allows setting of HALUI commands and loading of classicladder and sample ladder "
+"programs.  If you selected GLADE VCP options such as for zeroing axis, there will be "
+"commands showing.  See the manual about info on HALUI for using custom halcmds.  There are "
+"several ladder program options.  The Estop program allows an external ESTOP switch or the "
+"GUI frontend to throw an Estop. It also has a timed lube pump signal.  The Z auto touch-off "
+"is with a touch-off plate, the GLADE VCP touch-off button and special HALUI commands to set "
+"the current user origin to zero and rapid clear.  The serial modbus program is basically a "
+"blank template program that sets up classicladder for serial modbus. See the classicladder "
+"section in the manual."
+msgstr ""
+"Cette page permet de régler les commandes HALUI, de charger classicladder. Elle propose des "
+"exemples de programmes en Ladder. Si l'option GladeVCP a été choisie, comme pour la mise à "
+"zéro de l'axe sur l'origine pièce.  Les commandes nécessaires s'afficheront. Voir le manuel "
+"à propos d'HALUI pour utiliser des commandes halcmds personnalisées. Parmi les exemples de "
+"programmes ladder: Le programme Estop permet de gérer un contact externe d'arrêt d'urgence "
+"ou permet à l'interface graphique de déclencher l'arrêt d'urgence. La commande périodique "
+"de la pompe du graissage centralisé est disponible. Le contact de mise au zéro pièce de "
+"l'axe Z (longueur d'outil) s'utilise avec une plaque conductrice de référence, le contact "
+"(touch-off) de GladeVCP et les commandes spéciales HALUI sont là pour permettre rapidement, "
+"une recherche de l'origine pièce. Le programme série 'modbus' est un squelette de "
+"programme, vierge, préréglé pour l'utilisation de classicladder avec le protocole série "
+"modbus. Voir la section classicladder dans le manuel."
+
+#. type: Plain text
+#: pncconf.txt:829
+msgid ".Advanced Options"
+msgstr ".Options avancées"
+
+#. type: Plain text
+#: pncconf.txt:831
+msgid "image::images/pncconf-advanced.png[]"
+msgstr "image::images/pncconf-advanced_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:833
+msgid "== HAL Components"
+msgstr "== Composants de HAL"
+
+#. type: Plain text
+#: pncconf.txt:838
+msgid ""
+"On this page you can add additional HAL components you might need for custom HAL files.  In "
+"this way one should not have to hand edit the main HAL file, while still allowing user "
+"needed components."
+msgstr ""
+"Cette page permet d'ajouter des composants de HAL supplémentaires qui seront utilisés dans "
+"les fichiers HAL personnalisés. De cette manière il n'est pas nécessaire d'éditer le "
+"fichier HAL principal en permettant malgré tout à l'utilisateur de définir ses propres "
+"composants."
+
+#. type: Plain text
+#: pncconf.txt:840
+msgid ".HAL Components"
+msgstr ".Composants de HAL"
+
+#. type: Plain text
+#: pncconf.txt:842
+msgid "image::images/pncconf-hal.png[]"
+msgstr "image::images/pncconf-hal_fr.png[]"
+
+#. type: Plain text
+#: pncconf.txt:846
+msgid ""
+"The first selection is components that pncconf uses internally.  You may configure pncconf "
+"to load extra instances of the components for your custom HAL file."
+msgstr ""
+"La première sélection est prévue pour les composants que PNCconf utilise en interne. Il est "
+"possible de configurer PNCconf pour qu'il charge les instances additionnelles pour votre "
+"fichier HAL personnalisé."
+
+#. type: Plain text
+#: pncconf.txt:849
+msgid ""
+"Select the number of instances your custom file will need, pncconf will add what it needs "
+"after them."
+msgstr ""
+"Sélectionner le nombres d'instances dont aura besoin le fichier de personnalisation et "
+"PNCconf ajoutera ce qui est nécessaire."
+
+#. type: Plain text
+#: pncconf.txt:852
+msgid ""
+"Meaning if you need 2 and pncconf needs 1 pncconf will load 3 instances and use the last "
+"one."
+msgstr ""
+"Si 2 composants sont nécessaires et que PNCconf à besoin d'un composant interne, il "
+"chargera 3 composants et utilisera le dernier."
+
+#. type: Plain text
+#: pncconf.txt:854
+msgid "Custom Component Commands::"
+msgstr "Composants de commande personnalisés::"
+
+#. type: Plain text
+#: pncconf.txt:860
+msgid ""
+"This selection will allow you to load HAL components that pncconf does not use.  Add the "
+"loadrt or loadusr command, under the heading 'loading command' Add the addf command under "
+"the heading 'Thread command'.  The components will be added to the thread between reading "
+"of inputs and writing of outputs, in the order you write them in the 'thread command'."
+msgstr ""
+"Cette sélection permettra de charger des composants de HAL que PNCconf n'utilise pas. "
+"Ajoute les commandes loadrt ou loadusr dans l'entête 'loading command'. Ajoute la commande "
+"addf dans l'entête 'Thread command'. Les composants seront ajoutés au thread entre la "
+"lecture des entrées et l'écriture des sorties, dans l'ordre ou ils sont écrits dans 'thread "
+"command'."
+
+#. type: Plain text
+#: pncconf.txt:862
+msgid "== Advanced Usage Of PNCconf"
+msgstr "== Utilisation avancée de PNCconf"
+
+#. type: Plain text
+#: pncconf.txt:866
+msgid ""
+"PNCconf does its best to allow flexible customization by the user.  PNCconf has support for "
+"custom signal names, custom loading of components, custom HAL files and custom firmware."
+msgstr ""
+"PNCconf fait de son mieux pour permettre un personnalisation souple à l'utilisateur, il "
+"supporte les noms de signaux personnalisés, le chargement de composants personnalisés comme "
+"la personnalisation des fichiers de HAL et des microprogrammes."
+
+#. type: Plain text
+#: pncconf.txt:871
+msgid ""
+"There are also signal names that PNCconf always provides regardless of options selected, "
+"for user's custom HAL files With some thought most customizations should work regardless if "
+"you later select different options in PNCconf."
+msgstr ""
+"Il y a aussi les noms de signaux que PNCconf fournit, indépendamment des options choisies, "
+"pour les fichiers HAL personnalisés. Avec une conception réfléchie, la plupart des "
+"personnalisations devraient fonctionner, même si des options doivent être modifiées par la "
+"suite dans PNCconf. "
+
+#. type: Plain text
+#: pncconf.txt:875
+msgid ""
+"Eventually if the customizations are beyond the scope of PNCconf's frame work you can use "
+"PNCconf to build a base config or use one of LinuxCNC's sample configurations and just hand "
+"edit it to what ever you want."
+msgstr ""
+"Finalement, si les personnalisations vont au-delà du périmètre de travail de PNCconf, il "
+"sera possible d'utiliser PNCconf pour construire une configuration de base, ou d'utiliser "
+"une des configurations fournies en standards par LinuxCNC et de l'éditer pour obtenir ce "
+"que est souhaité."
+
+#. type: Plain text
+#: pncconf.txt:877 pncconf.txt:909
+msgid "Custom Signal Names::"
+msgstr "Nom de signaux personnalisés::"
+
+#. type: Plain text
+#: pncconf.txt:881
+msgid ""
+"If you wish to connect a component to something in a custom HAL file write a unique signal "
+"name in the combo entry box. Certain components will add endings to your custom signal name:"
+msgstr ""
+"Si un composant doit être connecté à quelque chose dans un fichier HAL personnalisé, écrire "
+"un nom de signal unique dans la boîte de dialogue. Certains composants ajouteront des "
+"suffixes au nom du signal personnalisé."
+
+#. type: Plain text
+#: pncconf.txt:883
+msgid "Encoders will add < customname > +:"
+msgstr "Les codeurs ajoutent  < Nom personnalisé > +:"
+
+#. type: Bullet: '* '
+#: pncconf.txt:889
+msgid "position"
+msgstr "position"
+
+#. type: Bullet: '* '
+#: pncconf.txt:889
+msgid "count"
+msgstr "count"
+
+#. type: Bullet: '* '
+#: pncconf.txt:889
+msgid "velocity"
+msgstr "velocity"
+
+#. type: Bullet: '* '
+#: pncconf.txt:889
+msgid "index-enable"
+msgstr "index-enable"
+
+#. type: Bullet: '* '
+#: pncconf.txt:889
+msgid "reset"
+msgstr "reset"
+
+#. type: Plain text
+#: pncconf.txt:891
+msgid "Steppers add:"
+msgstr "Les contrôles de moteurs pas à pas ajoutent:"
+
+#. type: Bullet: '* '
+#: pncconf.txt:897 pncconf.txt:902
+msgid "enable"
+msgstr "enable"
+
+#. type: Bullet: '* '
+#: pncconf.txt:897
+msgid "counts"
+msgstr "counts"
+
+#. type: Bullet: '* '
+#: pncconf.txt:897
+msgid "position-cmd"
+msgstr "position-cmd"
+
+#. type: Bullet: '* '
+#: pncconf.txt:897
+msgid "position-fb"
+msgstr "position-fb"
+
+#. type: Bullet: '* '
+#: pncconf.txt:897
+msgid "velocity-fb"
+msgstr "velocity-fb"
+
+#. type: Plain text
+#: pncconf.txt:899
+msgid "PWM add:"
+msgstr "Les PWM ajoutent:"
+
+#. type: Bullet: '* '
+#: pncconf.txt:902
+msgid "value"
+msgstr "value"
+
+#. type: Plain text
+#: pncconf.txt:904
+msgid "GPIO pins will just have the entered signal name connected to it"
+msgstr "Les broches GPIO auront juste le nom du signal d'entrée qui leur est connecté."
+
+#. type: Plain text
+#: pncconf.txt:907
+msgid ""
+"In this way one can connect to these signals in the custom HAL files and still have the "
+"option to move them around later."
+msgstr ""
+"De cette façon on peut établir des connexions à ces signaux dans les fichiers personnalisés "
+"de HAL et avoir toujours la possibilité de les déplacer plus tard."
+
+#. type: Plain text
+#: pncconf.txt:912
+msgid ""
+"The Hal Components page can be used to load components needed by a user for customization."
+msgstr ""
+"La page des composants de Hal peut être utilisée pour charger les composants nécessaires à "
+"l'utilisateur pour les personnaliser."
+
+#. type: Plain text
+#: pncconf.txt:914
+msgid "Loading Custom Firmware::"
+msgstr "Charger un microprogramme personnalisé::"
+
+#. type: Plain text
+#: pncconf.txt:921
+msgid ""
+"PNCconf searches for firmware on the system and then looks for the XML file that it can "
+"convert to what it understands. These XML files are only supplied for officially released "
+"firmware from the LinuxCNC team. To utilize custom firmware one must convert it to an array "
+"that PNCconf understands and add its filepath to PNCconf's preference file. By default this "
+"path searches the desktop for a folder named custom_firmware and a file named firmware.py."
+msgstr ""
+"PNCconf cherche le microprogramme sur le système et cherche ensuite le fichier XML qu'il "
+"peut convertir et qu'il comprend. Ces fichiers XML sont seulement fournis pour les "
+"microprogrammes officiellement délivrés par l'équipe LinuxCNC. Pour utiliser un "
+"microprogramme personnalisé, il faut le convertir en tableau que PNCconf comprend et "
+"ajouter son chemin dans le fichier de préférences de PNCconf. Par défaut le chemin "
+"recherché est sur le bureau, dans un dossier nommé 'custom_firmware' contenant un fichier "
+"nommé firmware.py."
+
+#. type: Plain text
+#: pncconf.txt:926
+msgid ""
+"The hidden preference file is in the user's home file, is named .pncconf-preferences and "
+"require one to select 'show hidden files' to see and edit it. The contents of this file can "
+"be seen when you first load PNCconf - press the help button and look at the output page."
+msgstr ""
+"Le fichier caché des préférence est dans le dossier home de l'utilisateur et se nomme ."
+"pncconf-preferences, pour l'éditer il faut sélectionner 'Afficher les fichiers cachés'. On "
+"peut voir le contenu de ce fichier au premier démarrage de PNCconf. Presser le bouton "
+"d'aide et regarder la page de sortie."
+
+#. type: Plain text
+#: pncconf.txt:929
+msgid ""
+"Ask on the LinuxCNC mail-list or forum for info about converting custom firmware.  Not all "
+"firmware can be utilized with PNCconf."
+msgstr ""
+"Demander sur la liste de diffusion LinuxCNC ou sur le forum pour des renseignements pour "
+"convertir un microprogramme personnalisé. Tous les microprogrammes ne peuvent pas être "
+"utilisés avec PNCconf."
+
+#. type: Plain text
+#: pncconf.txt:931
+msgid "Custom HAL Files::"
+msgstr "Fichiers HAL Personnalisés::"
+
+#. type: Plain text
+#: pncconf.txt:933
+msgid "There are four custom files that you can use to add HAL commands to:"
+msgstr "Il y a quatre fichiers personnalisés utilisables pour leur ajouter des commandes HAL:"
+
+#. type: Plain text
+#: pncconf.txt:940
+#, no-wrap
+msgid ""
+"* custom.hal is for HAL commands that don't have to be run after the GUI frontend\n"
+"loads. It is run after the configuration-named HAL file.\n"
+"* custom_postgui.hal is for commands that must be run after AXIS loads or a \n"
+"standalone PYVCP display loads.\n"
+"* custom_gvcp.hal is for commands that must be run after glade VCP is loaded.\n"
+"* shutdown.hal is for commands to run when LinuxCNC shuts down in a controlled manner.\n"
+msgstr ""
+"* custom.hal est prévu pour les commandes HAL utilisées avant le chargement de\n"
+"l'interface graphique. Il est exécuté après le fichier HAL de configuration\n"
+"nomm: non-de-la-configuration.hal\n"
+"* custom_postgui.hal est prévu pour les commandes qui doivent être exécutées\n"
+"après le chargement de l'interface graphique Axis ou PYVCP autonomes.\n"
+"* custom_gvcp.hal est prévu pour les commandes qui doivent être exécutées après\n"
+"le chargement de GLADE VCP.\n"
+"* shutdown.hal est prévu pour des commandes exécutées quand LinuxCNC se\n"
+"ferme de manière contrôlée.\n"
+
+#. type: Plain text
+#: pncconf.txt:942
+msgid "// vim: set syntax=asciidoc:"
+msgstr "// vim: set syntax=asciidoc:"
