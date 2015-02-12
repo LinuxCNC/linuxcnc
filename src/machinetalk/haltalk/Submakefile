@@ -21,7 +21,7 @@ HALTALK_LDFLAGS := \
 	$(CZMQ_LIBS) 		\
 	$(JANSSON_LIBS) 	\
 	$(AVAHI_LIBS) 	\
-	-lstdc++
+	-lstdc++ -lm
 
 $(call TOOBJSDEPS, $(HALTALK_SRCS)) : EXTRAFLAGS += $(HALTALK_CXXFLAGS)
 
