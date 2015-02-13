@@ -66,6 +66,7 @@ typedef enum {
     TP_ERR_SLOWING,
     TP_ERR_STOPPED,
     TP_ERR_WAITING,
+    TP_ERR_ZERO_LENGTH,
     TP_ERR_LAST
 } tp_err_t;
 

@@ -1736,7 +1736,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
             &end);
     tc.target = pmLine9Target(&tc.coords.line);
     if (tc.target < TP_POS_EPSILON) {
-        return TP_ERR_FAIL;
+        return TP_ERR_ZERO_LENGTH;
     }
     tc.nominal_length = tc.target;
 
@@ -1822,7 +1822,7 @@ int tpAddCircle(TP_STRUCT * const tp,
     // Update tc target with existing circular segment
     tc.target = pmCircle9Target(&tc.coords.circle);
     if (tc.target < TP_POS_EPSILON) {
-        return TP_ERR_FAIL;
+        return TP_ERR_ZERO_LENGTH;
     }
     tp_debug_print("tc.target = %f\n",tc.target);
     tc.nominal_length = tc.target;
