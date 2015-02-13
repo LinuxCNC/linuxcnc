@@ -900,7 +900,8 @@ check_stuff ( "before command_handler()" );
                                 emcmotCommand->vel, emcmotCommand->ini_maxvel, 
                                 emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed,
                                 emcmotCommand->turn);
-        if (res_addline != 0) {
+        //KLUDGE ignore zero length line
+        if (res_addline < 0) {
             reportError(_("can't add linear move at line %d, error code %d"),
                     emcmotCommand->id, res_addline);
             emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
@@ -944,13 +945,15 @@ check_stuff ( "before command_handler()" );
             }
 	    /* append it to the emcmotDebug->tp */
 	    tpSetId(&emcmotDebug->tp, emcmotCommand->id);
-	    if (-1 ==
+	    int res_addcirc = 
 		tpAddCircle(&emcmotDebug->tp, emcmotCommand->pos,
                             emcmotCommand->center, emcmotCommand->normal,
                             emcmotCommand->turn, emcmotCommand->motion_type,
                             emcmotCommand->vel, emcmotCommand->ini_maxvel,
-                            emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed)) {
-		reportError(_("can't add circular move"));
+                            emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed);
+        if (res_addcirc < 0) {
+            reportError(_("can't add circular move at line %d, error code %d"),
+                    emcmotCommand->id, res_addcirc);
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->tp);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1421,10 +1424,11 @@ check_stuff ( "before command_handler()" );
 
 	    /* append it to the emcmotDebug->tp */
 	    tpSetId(&emcmotDebug->tp, emcmotCommand->id);
-	    if (-1 == tpAddRigidTap(&emcmotDebug->tp, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new)) {
-                emcmotStatus->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
-		reportError(_("can't add rigid tap move"));
-		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
+	    int res_addtap = tpAddRigidTap(&emcmotDebug->tp, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new);
+        if (res_addtap < 0) {
+            emcmotStatus->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
+            reportError(_("can't add rigid tap move at line %d, error code %d"),
+                    emcmotCommand->id, res_addtap);
 		tpAbort(&emcmotDebug->tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
