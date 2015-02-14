@@ -1,23 +1,5 @@
-;
-; There are two components to the radius error tolerance for center-format
-; arcs.  The "absolute error" is the difference between the radius at the
-; starting point and the radius at the ending point.  The "relative error"
-; is the absolute error divided by the maximum arc radius.
-;
-; An arc fails the radius tolerance test if either of these conditions is
-; true:
-;     * The absolute error is greater than 2 * 0.001 * sqrt(2) inches, or
-;     * The relative error is greater than 0.75 (75%)
-;
-
 g20
 f1
 g0x0y0z0
-
-; r_start = 0.00315 inch
-; r_end   = 0.00085 inch
-; abs_err = 0.00230 inch (less than the 0.002828 inch limit)
-; rel_err = 0.00230 / 0.00315 = 0.73016 (below the 75% limit)
-g2 x0.0040 y0 i0.00315
-
+g2 x5.000 y0 i[2.500 - [0.00099 * sqrt[2]]]
 m2
