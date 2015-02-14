@@ -78,6 +78,9 @@ be used with linuxcnc:
     gladevcp -- example gladevcp applications
     halrun  --- starts halrun in an terminal
     latency --- applications to investigate latency
+                latency-test -- standard test
+                latency-plot -- stripchart
+                latency-histogram -- histogram
     parport --- applications to test parport
     pyvcp ----- example pyvcp applications
     xhc-hb04 -- applications to test an xhc-hb04 USB wireless MPG

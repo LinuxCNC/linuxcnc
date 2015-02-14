@@ -95,7 +95,65 @@ LinuxCNC does not require bleeding edge hardware.
 For more information on stepper tuning see the 
 <<cha:Stepper-Tuning,Stepper Tuning>> Chapter.
 
-== Port Address
+Additional command line tools are availalbe for examining latency
+when LinuxCNC is not running.
+
+latency-plot makes a strip chart recording for a base and a servo
+thread.  It may be useful to see spikes in latency when other
+applications are started or used.  Usage:
+----
+latency-plot --help
+
+Usage:
+      latency-plot --help | -?      (this)
+      latency-plot --hal [Options]
+
+Options:
+      --base nS  (base  thread interval, default:   25000)
+      --servo nS (servo thread interval, default: 1000000)
+      --time mS  (report interval, default: 1000)
+      --relative (relative clock time (default))
+      --actual   (actual clock time)
+----
+image::../config/images/latency-plot.png[]
+
+
+latency-histogram displays a histogram of latency (jitter) for
+a base and servo thread.  Usage:
+----
+latency-histogram --help
+
+Usage:
+   latency-histogram --help | -?
+or
+   latency-histogram [Options]
+
+Options:
+  --version        (show version and exit)
+  --base      nS   (base  thread interval, default:   25000, min:  5000)
+  --servo     nS   (servo thread interval, default: 1000000, min: 25000)
+  --bbinsize  nS   (base  bin size,  default: 100
+  --sbinsize  nS   (servo bin size, default: 100
+  --bbins     n    (base  bins, default: 200
+  --sbins     n    (servo bins, default: 200
+  --logscale  0|1  (y axis log scale, default: 1)
+  --text      note (additional note, default: "" )
+  --show           (show count of undisplayed bins)
+  --nobase         (servo thread only)
+  --verbose        (progress and debug)
+
+Notes:
+  Linuxcnc and Hal should not be running, stop with halrun -U.
+  Large number of bins and/or small binsizes will slow updates.
+  For single thread, specify --nobase (and options for servo thread).
+  Measured latencies outside of the +/- bin range are reported
+  with special end bars.  Use --show to show count for
+  the off-chart [pos|neg] bin
+----
+image::../config/images/latency-histogram.png[]
+
+
+= Port Address
 
 For those who build their own hardware, one safeguard against 
 shorting out an on-board parallel port - or even the whole 

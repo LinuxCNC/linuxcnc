@@ -7,7 +7,6 @@
 #    latency-histogram [Options]
 #
 # Options:
-#   --version        (show version and exit)
 #   --base      nS   (base  thread interval, default:   25000, min:  5000)
 #   --servo     nS   (servo thread interval, default: 1000000, min: 25000)
 #   --bbinsize  nS   (base  bin size,  default: 100
@@ -59,7 +58,6 @@ proc set_defaults {} {
     program_check $::LH(realtime)
   }
 
-  set ::LH(version) 2.7
   set ::LH(verbose) 0
   set ::LH(opt,show) 0
 
@@ -127,7 +125,6 @@ proc config {} {
     set currentarg [lindex $::argv 0]
     switch -- $currentarg {
       -? - --help {usage;exit 0}
-      --version   {puts "$::argv0 Version $::LH(version)";exit 0}
       --logscale  {set t [lindex $::argv 1]
                    set ::LH(y,logscale) $t
                    set ::argv [lreplace $::argv 0 0]
@@ -190,7 +187,7 @@ proc config {} {
     exit 1
   }
 
-  set ::LH(title) "$::argv0 V:$::LH(version) $::LH(note,txt)"
+  set ::LH(title) "$::argv0 $::LH(note,txt)"
   wm title . $::LH(title)
 
   foreach thd $::LH(threads) {
@@ -228,7 +225,7 @@ proc other_info {} {
     set display "DISPLAY=?"
   }
   return "\
-$::LH(date) V$::LH(version) \
+$::LH(date) \
 [exec hostname] \
 $::tcl_platform(machine) \
 $::tcl_platform(osVersion) \
@@ -753,7 +750,6 @@ proc usage {} {
   puts "   $prog \[Options\]"
   puts ""
   puts "Options:"
-  puts "  --version        (show version and exit)"
   puts "  --base      nS   (base  thread interval, default:   $::LH(base,period,ns), min:  $::LH(base,period,ns,min))"
   puts "  --servo     nS   (servo thread interval, default: $::LH(servo,period,ns), min: $::LH(servo,period,ns,min))"
 
@@ -804,7 +800,7 @@ proc windowToFile { win } {
 #------------------------------------------------------------------
 
 # allow re-sourcing for testing with tkcon
-if ![info exists ::LH(version)] {
+if ![info exists ::LH(start)] {
   set_defaults
   config
   progress "Loading packages"
