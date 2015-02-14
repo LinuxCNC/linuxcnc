@@ -153,6 +153,13 @@ endif
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
 
+	if (grep ^USERMODE_PCI=yes src/Makefile.inc -q); then \
+	    cp debian/machinekit-dev.install.in debian/machinekit-dev.install; \
+	else \
+	    grep -v userpci debian/machinekit-dev.install.in \
+		> debian/machinekit-dev.install; \
+	fi
+
 	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
 
 # Build architecture-independent files here.

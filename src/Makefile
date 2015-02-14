@@ -787,7 +787,6 @@ install-dirs:
 	$(DIR)  $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) \
 		$(DESTDIR)$(includedir)/linuxcnc \
-		$(DESTDIR)$(includedir)/linuxcnc/userpci \
 		$(DESTDIR)$(docdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)$(EMC2_LIBEXEC_DIR) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
@@ -816,6 +815,9 @@ ifeq ($(BUILD_EMCWEB),yes)
 	$(DIR)	$(DESTDIR)$(datadir)/linuxcnc/doc-root/css/images \
 		$(DESTDIR)$(datadir)/linuxcnc/doc-root/js \
 		$(DESTDIR)$(datadir)/linuxcnc/doc-root/res
+endif
+ifeq ($(USERMODE_PCI),yes)
+	$(DIR)	$(DESTDIR)$(includedir)/linuxcnc/userpci
 endif
 
 install-kernel-indep: install-dirs
@@ -852,7 +854,9 @@ endif
 	$(FILE) ../rtlib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
+ifeq ($(USERMODE_PCI),yes)
 	$(FILE) $(USERPCI_HEADERS) $(DESTDIR)$(includedir)/linuxcnc/userpci
+endif
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docdir)
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
