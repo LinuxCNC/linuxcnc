@@ -4,6 +4,7 @@
 /files
 /configure.cmdline
 /machinekit-*-kernel-*.install
+/machinekit-dev.install
 
 # directory artifacts
 /tmp
