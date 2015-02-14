@@ -85,7 +85,7 @@ Tighter tolerance down to a minimum of 1 micron +- also accepted.
 #define RADIUS_TOLERANCE_MM (RADIUS_TOLERANCE_INCH * MM_PER_INCH)
 
 // Modest relative error
-#define SPIRAL_RELATIVE_TOLERANCE 0.75
+#define SPIRAL_RELATIVE_TOLERANCE 0.001
 
 /* angle threshold for concavity for cutter compensation, in radians */
 #define TOLERANCE_CONCAVE_CORNER 0.05  
