@@ -1206,7 +1206,7 @@ int blendCheckConsume(BlendParameters * const param,
     double L_prev = prev_tc->target - points->trim1;
     double prev_seg_time = L_prev / param->v_plan;
 
-    param->consume = (prev_seg_time < gap_cycles * prev_tc->cycle_time);
+    param->consume = (prev_seg_time < gap_cycles * prev_tc->cycle_time && !prev_tc->blend_prev);
     if (param->consume) {
         tp_debug_print("consuming prev line, L_prev = %g\n",
                 L_prev);
