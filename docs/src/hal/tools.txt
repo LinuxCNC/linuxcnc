@@ -156,3 +156,30 @@ simulate_probe &
 
 image::images/simulate_probe.png[]
 
+== hal-histogram[[sec:hal-histogram]]
+hal-histogram is a command line utility to display histograms for hal pins.
+----
+Usage:
+   hal-histogram --help | -?
+or
+   hal-histogram [Options] [pinname]
+
+Options:
+  --minvalue  minvalue (minimum bin, default: 0)
+  --binsize   binsize  (binsize, default: 100)
+  --nbins     nbins    (number of bins, default: 50)
+
+  --logscale  0|1      (y axis log scale, default: 1)
+  --text      note     (text display, default: "" )
+  --show               (show count of undisplayed nbins, default off)
+  --verbose            (progress and debug, default off)
+
+Notes:
+  1) LinuxCNC (or another Hal application) must be running
+  2) If no pinname is specified, default is: motion-command-handler.time
+  3) This app may be opened 5 times for s32 or float pins
+  4) The pin must be associated with a thread supporting floating point
+     This may require: loadrt motmod ...  base_thread_fp=1
+----
+image::images/hal-histogram.png[]
+
