@@ -224,11 +224,13 @@ proc other_info {} {
   } else {
     set display "DISPLAY=?"
   }
+  set linuxcncversion [exec linuxcnc_var LINUXCNCVERSION]
   return "\
 $::LH(date) \
 [exec hostname] \
 $::tcl_platform(machine) \
 $::tcl_platform(osVersion) \
+$linuxcncversion \
 $display \
 $::tcl_platform(user) \
 $::LH(note,txt) \
