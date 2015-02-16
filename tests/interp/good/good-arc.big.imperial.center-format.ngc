@@ -1,19 +1,5 @@
-;Radius to end of arc differs from radius to start: start=(X0.0000,Y0.0000) center=(X100.0250,Y0.0000) end=(X200.0000,Y0.0000) r1=100.0250 r2=99.9750 abs_err=0.0501 rel_err=0.0501%
-;
-; There are two components to the radius error tolerance for center-format
-; arcs.  The "absolute error" is the difference between the radius at the
-; starting point and the radius at the ending point.  The "relative error"
-; is the absolute error divided by the maximum arc radius.
-;
-; An arc fails the radius tolerance test if either of these conditions is
-; true:
-;     * The absolute error is greater than 0.05 inches, or
-;     * The absolute error is greater than 0.0005 inches and the relative
-;       error is greater than 0.001 (0.1%).
-;
-
 g20
 f1
 g0x0y0z0
-g2 x200 i[100 + [0.0499/2]]
+g2 x600 i[300 + [100 * [0.00099 * sqrt[2]]]]
 m2

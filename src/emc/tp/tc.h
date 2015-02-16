@@ -98,4 +98,8 @@ int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp);
 int tcFinalizeLength(TC_STRUCT * const tc);
 
 int tcPureRotaryCheck(TC_STRUCT const * const tc);
+
+int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ);
+
+int tcClearFlags(TC_STRUCT * const tc);
 #endif				/* TC_H */
