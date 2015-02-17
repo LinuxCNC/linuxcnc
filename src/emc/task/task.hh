@@ -30,6 +30,7 @@ int all_homed(void);
 
 int emcTaskInit();
 int emcTaskHalt();
+int emcTaskStateRestore();
 int emcTaskAbort();
 int emcTaskSetMode(int mode);
 int emcTaskSetState(int state);
