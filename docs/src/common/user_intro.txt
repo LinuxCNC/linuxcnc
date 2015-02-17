@@ -1,3 +1,5 @@
+:lang: en
+
 = LinuxCNC User Introduction
 
 [[cha:linuxcnc-user-introduction]] (((LinuxCNC User Introduction)))

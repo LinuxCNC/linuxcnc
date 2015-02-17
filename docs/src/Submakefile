@@ -74,7 +74,7 @@ DOC_SRCS_EN := \
 	gcode/tool_compensation.txt \
 	gui/selector.txt \
 	gui/axis.txt \
-        gui/gmoccapy.txt \
+	gui/gmoccapy.txt \
 	gui/gladevcp.txt \
 	gui/gscreen.txt \
 	gui/halui.txt \
@@ -157,6 +157,7 @@ DOC_SRCS_FR := \
 	gcode/rs274ngc_fr.txt \
 	gcode/tool_compensation_fr.txt \
 	gui/axis_fr.txt \
+	gui/gmoccapy_fr.txt \
 	gui/gladevcp_fr.txt \
 	gui/image-to-gcode_fr.txt \
 	gui/keystick_fr.txt \
@@ -189,7 +190,7 @@ DOC_SRCS_FR := \
 	motion/pid_theory_fr.txt \
 	motion/tweaking_steppers_fr.txt \
 	Master_Getting_Started_fr.txt \
-        getting-started/index-fr.txt \
+	getting-started/index-fr.txt \
 	Master_User_fr.txt \
 	Master_HAL_fr.txt \
 	Master_Integrator_fr.txt \

@@ -1,0 +1,3899 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-17 00:07+0100\n"
+"PO-Revision-Date: 2015-02-17 01:11+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.4\n"
+
+#. type: Plain text
+#: gmoccapy.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: gmoccapy.txt:4
+msgid "= gmoccapy"
+msgstr "= gmoccapy"
+
+#. type: Plain text
+#: gmoccapy.txt:6
+msgid "[[cha:gmoccapy]] (((gmoccapy)))"
+msgstr "[[cha:gmoccapy]] (((gmoccapy)))"
+
+#. type: Plain text
+#: gmoccapy.txt:8
+msgid "== Introduction"
+msgstr "== Introduction"
+
+#. type: Plain text
+#: gmoccapy.txt:12
+msgid ""
+"'GMOCCAPY(((GMOCCAPY))) is a GUI for linuxcnc, designed to be used with a "
+"touch screen, but can also be used on normal screens with a mouse or "
+"hardware buttons and MPG wheels, as it presents HAL Pins for the most common "
+"needs. Please find more information in the following.'"
+msgstr ""
+"'GMOCCAPY(((GMOCCAPY))) est une GUI pour LinuxCNC, conçue pour être utilisée "
+"avec un écran tactile, mais qui peut également être utilisée avec un écran "
+"normal et  la souris ou, des boutons de commande et une manivelle MPG, car "
+"il offre toutes les pins HAL les plus courantes pour ces besoins. D'autres "
+"informations plus loin dans ce texte.'"
+
+#. type: Plain text
+#: gmoccapy.txt:16
+msgid ""
+"'It offers the possibility to display up to 4 axis, support a lathe mode for "
+"normal and back tool lathe and can be adapted to nearly every need, because "
+"gmoccapy supports embedded tabs and side panels.  As a good example for that "
+"see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?"
+"Gmoccapy_plasma[gmoccapy_plasma]'"
+msgstr ""
+"'Il offre la possibilité d'afficher jusqu'à 4 axes, supporte les tours en "
+"mode outil frontal, ou en mode outil arrière et peut être adapté à presque "
+"tous les besoins, parce qu’il supporte les onglets intégrés et les panneaux "
+"latéraux. Un bon exemple se trouve ici: http://wiki.linuxcnc.org/cgi-bin/"
+"wiki.pl?Gmoccapy_plasma'"
+
+#. type: Plain text
+#: gmoccapy.txt:20
+msgid ""
+"'It has support for integrated onboard keyboard (onboard or matchbox-"
+"keyboard), so there is no need for a hardware keyboard or mouse, but it can "
+"also be used with that hardware. Gmoccapy offers a separate settings page to "
+"configure most settings of the GUI without editing files.'"
+msgstr ""
+"'Il supporte un clavier embarqué (embarqué ou clavier matchbox), il n'y a "
+"donc pas besoin d'un clavier physique ni d'une souris, bien qu'ils soient "
+"également possible d'utiliser ces matériels. Gmoccapy offre une page de "
+"réglage complètement séparée pour configurer la plupart des éléments "
+"graphiques de l'interface, sans avoir à éditer de fichier.'"
+
+#. type: Plain text
+#: gmoccapy.txt:29
+msgid ""
+"'gmoccapy can be localized very easy, because the corresponding files are "
+"separated from the linuxcnc.po files, so there is no need to translate "
+"unneeded stuff. The files are placed in */src/po/gmoccapy*.  Just copy the "
+"gmoccapy.pot file to something like fr.po and translate that file with "
+"gtranslator or poedit.  After a make you got the GUI in your preferenced "
+"language. Please publish your translation, so it can be included in the "
+"oficial packages and be published to other users.  At the Moment it is "
+"available in English, German, Spanish, Polish and Serbian.  Feel free to "
+"help me to introduce more languages, *nieson@web.de*.  If you need help, "
+"don't hesitate to ask.'"
+msgstr ""
+"'gmoccapy peut être traduit très facilement, parce que les fichiers de "
+"traductions sont séparés des .po de linuxcnc, ainsi, il n'est pas utile de "
+"traduire des fichiers pas nécessaires. Ces fichiers sont placés dans */src/"
+"po/gmoccapy*.  Copier juste le fichier gmoccapy.pot en quelque chose comme "
+"fr.po et traduire ce fichier avec poedit ou gtranslator. Après un make, la "
+"GUI traduite est disponible dans votre langue préférée. S'il vous plaît, "
+"publiez votre traduction, ainsi, elle sera incluse dans les paquets "
+"officiels et publiée pour les autres utilisateurs. Les langues actuellement "
+"disponibles sont l'anglais, l'allemand, l'espagnol, le polonais et le serbe. "
+"Vous pouvez m'aider à introduire de nouvelles langues, *nieson@web.de*. Si "
+"vous avez besoin d'aide, n'hésitez pas à en demander.'"
+
+#. type: Plain text
+#: gmoccapy.txt:31
+msgid "image::images/gmoccapy_4_axis.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_4_axis.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:33
+msgid "== Requirements"
+msgstr "== Exigences"
+
+#. type: Plain text
+#: gmoccapy.txt:37
+msgid ""
+"Gmoccapy has been tested on UBUNTU 10.04 and 12.04 and DEBIAN Wheesy, with "
+"LinuxCNC 2.6 ,2.7 , master and machinekit, if you use other versions, please "
+"inform about problems or solutions on the forum or the https://lists."
+"sourceforge.net/lists/listinfo/emc-users[emc-users mailing list]"
+msgstr ""
+"Gmoccapy a été testé avec succès sur UBUNTU 10.04 et 12.04, sur DEBIAN "
+"Wheezy avec LinuxCNC 2.6, 2.7, master et machinekit. Si vous utilisez "
+"d'autres versions, merci de m'informer sur le forum ou la liste de diffusion "
+"à propos des problèmes ou solutions rencontrés."
+
+#. type: Plain text
+#: gmoccapy.txt:40
+msgid ""
+"in German http://www.cncecke.de/forum/showthread.php?t=78549[Peters CNC "
+"Ecke] + in English http://www.linuxcnc.org/index.php/english/forum/41-"
+"guis/26314-gmoccapy-a-new-screen-for-linuxcnc[gmoccapy on linuxcnc] +"
+msgstr ""
+"En Allemand: http://www.cncecke.de/forum/showthread.php?t=78549[Peters CNC "
+"Ecke]\n"
+"En Anglais: http://www.linuxcnc.org/index.php/english/forum/41-guis/26314-"
+"gmoccapy-a-new-screen-for-linuxcnc[gmoccapy sur linuxcnc] +"
+
+#. type: Plain text
+#: gmoccapy.txt:43
+msgid ""
+"The minimum screen resolution for gmoccapy, using it without side panels is "
+"*979 x 750 Pixel*, so it should fit to every standard screen."
+msgstr ""
+"La résolution minimale de l'écran pour gmoccapy sans panneau latéral, est "
+"*979 x 750 Pixel*, ainsi, il peut tenir sur tout écran standard."
+
+#. type: Plain text
+#: gmoccapy.txt:45
+msgid "== How to get gmoccapy"
+msgstr "== Comment obtenir gmoccapy"
+
+#. type: Plain text
+#: gmoccapy.txt:49
+msgid ""
+"Beginning with LinuxCNC 2.6 gmoccapy is included in the standard "
+"installation.  So the easiest way to get gmoccapy on you controlling PC, is "
+"just to get the http://www.linuxcnc.org/index.php/english/download[actual "
+"ISO] and install from the CD / DVD /USB-Stick."
+msgstr ""
+"Depuis LinuxCNC 2.6, gmoccapy est inclus dans l'installation standard. "
+"Ainsi, il suffit d'utiliser l'image correspondante au PC de contrôle, "
+"disponible ici: http://www.linuxcnc.org/index.php/english/download[L'ISO "
+"actuelle] puis de l'installer à l'aide d'un CD/DVD/clé USB."
+
+#. type: Plain text
+#: gmoccapy.txt:52
+msgid ""
+"If you do have already installed an earlier LinuxCNC version, check how to "
+"update http://wiki.linuxcnc.org/cgi-bin/wiki.pl?UpdatingTo2.6[here]"
+msgstr ""
+"Si vous utilisez déjà une version plus ancienne de LinuxCNC, regardez  "
+"comment faire une mise à jour http://wiki.linuxcnc.org/cgi-bin/wiki.pl?"
+"UpdatingTo2.6[ici]."
+
+#. type: Plain text
+#: gmoccapy.txt:54
+msgid "You will receive updates with the regular deb packages."
+msgstr "Vous recevrez les mises à jour avec les paquets récents."
+
+#. type: Plain text
+#: gmoccapy.txt:57
+msgid ""
+"You will get a similar screen to the following if your locale settings is "
+"*de* (German): The design may variate depending on your config."
+msgstr ""
+"Si votre \"locale\" est ajustée sur *de* (Allemagne) vous obtiendrez un "
+"écran sensiblement égal à celui ci-dessous, le style peut varier selon votre "
+"configuration."
+
+#. type: Plain text
+#: gmoccapy.txt:59
+msgid "image::images/gmoccapy_3_axis.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_3_axis.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:61
+msgid "== Basic configuration"
+msgstr "== Configuration de base"
+
+#. type: Plain text
+#: gmoccapy.txt:64
+msgid ""
+"There is really not to much to configure just to run gmoccapy, but there are "
+"some points you should take care off if you want to use all the features of "
+"the GUI."
+msgstr ""
+"Il n'y a vraiment pas grand chose à configurer, juste lancer gmoccapy mais, "
+"il y a quelques points qu'il faudra prendre en considération pour être en "
+"mesure d'utiliser toutes les fonctionnalités de cette interface graphique."
+
+#. type: Plain text
+#: gmoccapy.txt:80
+#, no-wrap
+msgid ""
+"You will find the following INI files included, just to show the basics: +\n"
+" +\n"
+"* gmoccapy.ini\n"
+"* gmoccapy_4_axis.ini\n"
+"* gmoccapy_jog_wheels.ini\n"
+"* gmoccapy_lathe.ini\n"
+"* gmoccapy_lathe_imperial.ini\n"
+"* gmoccapy_left_panel.ini\n"
+"* gmoccapy_right_panel.ini\n"
+"* gmoccapy_sim_hardware_button.ini\n"
+"* gmoccapy_tool_sensor.ini\n"
+"* gmoccapy_with_user_tabs.ini\n"
+"* gmoccapy_messages.ini\n"
+" +\n"
+"The names should explain the main intention of the different INI Files. +\n"
+msgstr ""
+"Les fichiers ini suivants sont inclus, pour montrer les bases: +\n"
+" +\n"
+"* gmoccapy.ini\n"
+"* gmoccapy_4_axis.ini\n"
+"* gmoccapy_jog_wheels.ini\n"
+"* gmoccapy_lathe.ini\n"
+"* gmoccapy_lathe_imperial.ini\n"
+"* gmoccapy_left_panel.ini\n"
+"* gmoccapy_right_panel.ini\n"
+"* gmoccapy_sim_hardware_button.ini\n"
+"* gmoccapy_tool_sensor.ini\n"
+"* gmoccapy_with_user_tabs.ini\n"
+"* gmoccapy_messages.ini\n"
+" +\n"
+"Les noms des différents fichiers ini, doivent expliquer l'usage principal. +\n"
+
+#. type: Plain text
+#: gmoccapy.txt:82
+msgid ""
+"If you use an existing configuration of your machine, just edit your INI "
+"according to this document. +"
+msgstr ""
+"Si vous utilisez une configuration existante de votre machine, éditez juste "
+"votre fichier ini, en accord avec ce document. +"
+
+#. type: Plain text
+#: gmoccapy.txt:85
+msgid ""
+"IMPORTANT: If you want to use <<sub:MACROS,MACROS>>, don't forget to set the "
+"path to your macros or subroutines folder as described below."
+msgstr ""
+"IMPORTANT: Si vous voulez utiliser des <<sub:MACROS,MACROS>>, n'oubliez pas "
+"d'ajuster le chemin du répertoire de vos macros ou sous-routines, comme "
+"décrit ci-dessous."
+
+#. type: Plain text
+#: gmoccapy.txt:88
+msgid ""
+"So let us take a closer look to the the INI file and what you need to "
+"include to use gmoccapy on your machine: +"
+msgstr ""
+"Regardons maintenant en détail le fichier ini et ce que vous devez y inclure "
+"pour utiliser gmoccapy sur votre machine: +"
+
+#. type: Plain text
+#: gmoccapy.txt:90
+msgid "=== The DISPLAY Section [[sub:the_display_section]]"
+msgstr "=== The DISPLAY Section [[sub:the_display_section]]"
+
+#. type: Plain text
+#: gmoccapy.txt:102
+#, no-wrap
+msgid ""
+" [DISPLAY]\n"
+" DISPLAY = gmoccapy\n"
+" PREFERENCE_FILE_PATH = gmoccapy_preferences\n"
+" DEFAULT_LINEAR_VELOCITY = 166.666\n"
+" MAX_LINEAR_VELOCITY = 166.666\n"
+" MAX_FEED_OVERRIDE = 1.5\n"
+" MAX_SPINDLE_OVERRIDE = 1.2\n"
+" MIN_SPINDLE_OVERRIDE = 0.5\n"
+" LATHE = 1\n"
+" BACK_TOOL_LATHE = 1\n"
+" PROGRAM_PREFIX = ../../nc_files/\n"
+msgstr ""
+" [DISPLAY]\n"
+" DISPLAY = gmoccapy\n"
+" PREFERENCE_FILE_PATH = gmoccapy_preferences\n"
+" DEFAULT_LINEAR_VELOCITY = 166.666\n"
+" MAX_LINEAR_VELOCITY = 166.666\n"
+" MAX_FEED_OVERRIDE = 1.5\n"
+" MAX_SPINDLE_OVERRIDE = 1.2\n"
+" MIN_SPINDLE_OVERRIDE = 0.5\n"
+" LATHE = 1\n"
+" BACK_TOOL_LATHE = 1\n"
+" PROGRAM_PREFIX = ../../nc_files/\n"
+
+#. type: Plain text
+#: gmoccapy.txt:104
+msgid "''''"
+msgstr "''''"
+
+#. type: Plain text
+#: gmoccapy.txt:106
+msgid ""
+"The most important part is to tell LinuxCNC to use gmoccapy, editing the "
+"[DISPLAY] section."
+msgstr ""
+"La partie la plus importante dit à LinuxCNC d'utiliser gmoccapy, en éditant "
+"la section [DISPLAY]."
+
+#. type: Plain text
+#: gmoccapy.txt:109
+#, no-wrap
+msgid ""
+" [DISPLAY]\n"
+" DISPLAY = gmoccapy\n"
+msgstr ""
+" [DISPLAY]\n"
+" DISPLAY = gmoccapy\n"
+
+#. type: Plain text
+#: gmoccapy.txt:111
+#, no-wrap
+msgid " PREFERENCE_FILE_PATH = gmoccapy_preferences\n"
+msgstr " PREFERENCE_FILE_PATH = gmoccapy_preferences\n"
+
+#. type: Plain text
+#: gmoccapy.txt:115
+msgid ""
+"The line PREFERENCE_FILE_PATH gives the location and name of the preferences "
+"file to be used.  In most cases this line will not be needed, it is used by "
+"gmoccapy to store your settings of the GUI, like themes, DRO units, colors, "
+"and keyboard settings, etc., see <<sub:The_settings_page,SETTINGS>> for more "
+"details."
+msgstr ""
+"La ligne PREFERENCE_FILE_PATH donne l'emplacement et le nom du fichier de "
+"préférences à utiliser. Dans la plupart des cas cette ligne ne sera pas "
+"nécessaire, Elle est utilisée par gmoccapy pour enregistrer vos réglages de "
+"la GUI, tels que les thèmes, les unités de la visu, les couleurs, les "
+"réglages du clavier, etc., voir: <<sub:The_settings_page,SETTINGS>> pour "
+"plus de détails."
+
+#. type: Plain text
+#: gmoccapy.txt:117 gmoccapy.txt:126 gmoccapy.txt:166 gmoccapy.txt:354
+#: gmoccapy.txt:407
+#, no-wrap
+msgid ""
+"[NOTE]\n"
+"===========================================================\n"
+msgstr ""
+"[NOTE]\n"
+"===========================================================\n"
+
+#. type: Plain text
+#: gmoccapy.txt:119
+#, no-wrap
+msgid ""
+"If no path or file is given, gmoccapy will use as default <your_machinename>.pref, if no machine name is given in your INI File it will use gmoccapy.pref  The file will be stored in your config dir, so the settings will not be mixed if you use several configs. If you only want to use one file for several machines, you need to include PREFERENCE_FILE_PATH in your INI. \n"
+"===========================================================\n"
+msgstr ""
+"Si aucun chemin ni fichier n'est donné, gmoccapy utilisera par défaut <your_machinename>.pref, si aucun nom de machine n'est donné dans le fichier ini, il utilisera gmoccapy.pref. Le fichier sera enregistré dans votre répertoire config, ainsi les réglages ne pouront pas être mélangés si vous utilisez plusieurs configurations. Si vous voulez utiliser seulement un fichier pour plusieurs machines, vous devez inclure PREFERENCE_FILE_PATH dans votre fichier ini. \n"
+"===========================================================\n"
+
+#. type: Plain text
+#: gmoccapy.txt:122
+#, no-wrap
+msgid ""
+"''''\n"
+" DEFAULT_LINEAR_VELOCITY = 166.666\n"
+msgstr ""
+"''''\n"
+" DEFAULT_LINEAR_VELOCITY = 166.666\n"
+
+#. type: Plain text
+#: gmoccapy.txt:124
+msgid "Sets the default linear velocity in machine units per second."
+msgstr "Ajuste la vitesse linéaire par défaut en unités machine par seconde."
+
+#. type: Plain text
+#: gmoccapy.txt:129
+msgid ""
+"If no value is given, a value of 15 will be applied.  If you don't set max "
+"linear velocity, the default linear velocity will be reduced to the default "
+"value max linear velocity (60)"
+msgstr ""
+"Si aucune valeur n'est donnée, la valeur 15 sera appliquée. Si vous "
+"n'ajustez pas MAX_LINEAR_VELOCITY, la vitesse linéaire par défaut sera "
+"réduite à la valeur par défaut de MAX_LINEAR_VELOCITY (60)"
+
+#. type: Plain text
+#: gmoccapy.txt:131
+#, no-wrap
+msgid ""
+"If you don't set max velocity in TRAJ, it may be reduced as well see <<sub:The_TRAJ_Section,TRAY section>> \n"
+"===========================================================\n"
+msgstr ""
+"Si vous n'ajustez pas la vitesse max. dans TRAJ, elle sera réduite tel que montré ici <<sub:The_TRAJ_Section,TRAY section>> \n"
+"===========================================================\n"
+
+#. type: Plain text
+#: gmoccapy.txt:134
+#, no-wrap
+msgid ""
+"''''\n"
+" MAX_LINEAR_VELOCITY = 166.666\n"
+msgstr ""
+"''''\n"
+" MAX_LINEAR_VELOCITY = 166.666\n"
+
+#. type: Plain text
+#: gmoccapy.txt:136
+msgid ""
+"Sets the value of the max velocity for jogging in machine units per second."
+msgstr ""
+"Ajuste la valeur de la vitesse maximale de jogging en unités machine par "
+"seconde."
+
+#. type: Plain text
+#: gmoccapy.txt:140
+#, no-wrap
+msgid ""
+"NOTE: If no value is given, a value of 60 will be applied.\n"
+"''''\n"
+" MAX_FEED_OVERRIDE = 1.5\n"
+msgstr ""
+"NOTE: Si aucune valeur n'est donnée, une valeur de 60 sera appliquée.\n"
+"''\n"
+" MAX_FEED_OVERRIDE = 1.5\n"
+
+#. type: Plain text
+#: gmoccapy.txt:143
+msgid ""
+"Sets the maximum feed override, in the example given, you will be allowed to "
+"override the feed by 150% ''''"
+msgstr ""
+"Ajuste le maximum du correcteur de vitesse, dans l'exemple donné, vous êtes "
+"autorisé à augmenter la vitesse de déplacement de 150% ''''"
+
+#. type: Plain text
+#: gmoccapy.txt:146
+#, no-wrap
+msgid ""
+" MAX_SPINDLE_OVERRIDE = 1.2\n"
+" MIN_SPINDLE_OVERRIDE = 0.5\n"
+msgstr ""
+" MAX_SPINDLE_OVERRIDE = 1.2\n"
+" MIN_SPINDLE_OVERRIDE = 0.5\n"
+
+#. type: Plain text
+#: gmoccapy.txt:148
+msgid ""
+"will allow you to change the spindle override within a limit from 50% to 120%"
+msgstr ""
+"vous permet de modifier la vitesse de broche dans une limite de 50% à 120%"
+
+#. type: Plain text
+#: gmoccapy.txt:152
+#, no-wrap
+msgid ""
+"''''\n"
+" LATHE = 1\n"
+" BACK_TOOL_LATHE = 1\n"
+msgstr ""
+"''''\n"
+" LATHE = 1\n"
+" BACK_TOOL_LATHE = 1\n"
+
+#. type: Plain text
+#: gmoccapy.txt:154
+msgid "the first line set the screen layout to control a lathe."
+msgstr "La première ligne ajuste l'interface pour contrôler un tour."
+
+#. type: Plain text
+#: gmoccapy.txt:157
+msgid ""
+"The second line is optional and will switch the X axis in a way you need for "
+"a back tool lathe.  Also the keyboard shortcuts will react in a different "
+"way."
+msgstr ""
+"La seconde ligne est optionnelle et permet de basculer l'axe X pour utiliser "
+"un outil arrière. Le raccourci clavier régit également de manière différente."
+
+#. type: Plain text
+#: gmoccapy.txt:159
+msgid "TIP: See also <<sub:LATHE_specific_section, LATHE specific section>>"
+msgstr "TIP: Voir aussi <<sub:LATHE_specific_section, LATHE specific section>>"
+
+#. type: Plain text
+#: gmoccapy.txt:162
+#, no-wrap
+msgid ""
+"''''\n"
+" PROGRAM_PREFIX = ../../nc_files/\n"
+msgstr ""
+"''''\n"
+" PROGRAM_PREFIX = ../../nc_files/\n"
+
+#. type: Plain text
+#: gmoccapy.txt:164
+msgid "Is the entry to tell linuxcnc/gmoccapy where to look for the ngc files,"
+msgstr "Cette entrée indique à linuxcnc/gmoccapy où chercher les fichiers ngc,"
+
+#. type: Plain text
+#: gmoccapy.txt:168
+msgid "if not omitted we will look in the following order:"
+msgstr "Si ce n'est pas omis, il chercheront dans l'ordre suivant:"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:171
+msgid "~/linuxcnc/nc_files"
+msgstr "~/linuxcnc/nc_files"
+
+#. type: Plain text
+#: gmoccapy.txt:171
+#, no-wrap
+msgid ""
+" * ~/\n"
+"===========================================================\n"
+msgstr ""
+" * ~/\n"
+"===========================================================\n"
+
+#. type: Plain text
+#: gmoccapy.txt:174
+msgid "==== The configuration of tabs and side panels"
+msgstr "==== La configuration des onglets et des panneaux latéraux"
+
+#. type: Plain text
+#: gmoccapy.txt:180
+#, no-wrap
+msgid ""
+"You can add embedded programs to gmoccapy like you can do in axis, touchy and gscreen.\n"
+"All is done by gmoccapy automatically if you include a few lines in your INI file in the DISPLAY section. +\n"
+" +\n"
+"If you never used a glade panel, I recommend to read the excellent documentation.\n"
+"http://www.linuxcnc.org/docs/html/gui/gladevcp.html[Glade VCP] +\n"
+msgstr ""
+"Vous pouvez ajouter des programmes embarqués dans gmoccapy, comme vous pouvez le faire dans Axis, Touchy et gscreen.\n"
+"Tout est fait automatiquement par gmoccapy si vous incluez quelques lignes dans la section [DISPLAY] de votre fichier ini. +\n"
+" +\n"
+"Si vous n'avez jamais utilisé de panneau Glade, il est recommandé de lire cette excellente documentation.\n"
+"http://www.linuxcnc.org/docs/html/gui/gladevcp.html[Glade VCP] +\n"
+
+#. type: Plain text
+#: gmoccapy.txt:186
+#, no-wrap
+msgid ""
+".Example\n"
+"****\n"
+" EMBED_TAB_NAME = DRO\n"
+" EMBED_TAB_LOCATION = ntb_user_tabs\n"
+" EMBED_TAB_COMMAND = gladevcp -x {XID} dro.glade\n"
+msgstr ""
+".Exemple\n"
+"****\n"
+" EMBED_TAB_NAME = DRO\n"
+" EMBED_TAB_LOCATION = ntb_user_tabs\n"
+" EMBED_TAB_COMMAND = gladevcp -x {XID} dro.glade\n"
+
+#. type: Plain text
+#: gmoccapy.txt:191
+#, no-wrap
+msgid ""
+" EMBED_TAB_NAME = Second user tab\n"
+" EMBED_TAB_LOCATION = ntb_preview\n"
+" EMBED_TAB_COMMAND = gladevcp -x {XID} vcp_box.glade\n"
+"****\n"
+msgstr ""
+" EMBED_TAB_NAME = Second user tab\n"
+" EMBED_TAB_LOCATION = ntb_preview\n"
+" EMBED_TAB_COMMAND = gladevcp -x {XID} vcp_box.glade\n"
+"****\n"
+
+#. type: Plain text
+#: gmoccapy.txt:193
+msgid ""
+"all you have to take care off, is that you include for every tab or side "
+"panel the mentioned three lines, +"
+msgstr ""
+"Vous devez juste bien introduire les trois lignes mentionnées, pour chaque "
+"onglet ou panneau latéral, +"
+
+#. type: Plain text
+#: gmoccapy.txt:198
+msgid ""
+"'''' *EMBED_TAB_NAME* + represents the name of the tab or side panel, it is "
+"up to you what name you use, but it must be present! +"
+msgstr ""
+"'EMBED_TAB_NAME'  représente le nom de l'onglet ou du panneau latéral, "
+"mettez le nom que vous voulez mais mettez en un! "
+
+#. type: Plain text
+#: gmoccapy.txt:203
+msgid ""
+"'''' *EMBED_TAB_LOCATION* + is the place where your program will be placed "
+"in the GUI.  valid values are: +"
+msgstr ""
+"'EMBED_TAB_LOCATION'  situe l'emplacement de votre programme dans "
+"l'interface graphique. Les valeurs valides sont: "
+
+#. type: Plain text
+#: gmoccapy.txt:219
+#, no-wrap
+msgid ""
+".valid values are:\n"
+"****\n"
+"* ntb_user_tabs            (as main tab, covering the complete screen)'\n"
+"* ntb_preview              (as tab on the preview side)'\n"
+"* box_left                 (on the left, complete high of the screen)\n"
+"* box_right                (on the right, in between the normal screen and the button list)\n"
+"* box_coolant_and_spindle  (will hide the coolant and spindle frames and introduce your glade file here)\n"
+"* box_cooling              (will hide the cooling frame and introduce your glade file)\n"
+"* box_spindle              (will hide the spindle frame and introduce your glade file)\n"
+"* box_vel_info             (will hide the velocity frames and introduce your glade file)\n"
+"* box_custom_1             (will introduce your glade file left of vel_frame)\n"
+"* box_custom_2             (will introduce your glade file left of cooling_frame)\n"
+"* box_custom_3             (will introduce your glade file left of spindle_frame)\n"
+"* box_custom_4             (will introduce your glade file right of spindle_frame)\n"
+"****\n"
+msgstr ""
+".valeurs valides sont:\n"
+"****\n"
+"* ntb_user_tabs            (comme onglet principal, couvre l'écran complet)'\n"
+"* ntb_preview              (comme onglet sur le côté de parcours d'outil)'\n"
+"* box_left                 (sur la gauche, le haut complet de l'écran)\n"
+"* box_right                (sur la droite, entre l'écran normal et la liste des boutons)\n"
+"* box_coolant_and_spindle  (permet de masquer le cadre de l'arrosage et le cadre de la broche pour introduire votre fichier Glade)\n"
+"* box_cooling              (permet de masquer le cadre de l'arrosage pour introduit votre fichier Glade)\n"
+"* box_spindle              (permet de masquer le cadre de la broche pour introduire votre fichier Glade)\n"
+"* box_vel_info             (permet de masquer le cadre de vitesse pour introduire votre fichier Glade)\n"
+"* box_custom_1             (permet d'introduire votre fichier Glade à gauche du cadre de vitesse)\n"
+"* box_custom_2             (permet d'introduire votre fichier Glade à gauche du cadre de l'arrosage)\n"
+"* box_custom_3             (permet d'introduire votre fichier Glade à gauche du cadre de la broche)\n"
+"* box_custom_4             (permet d'introduire votre fichier Glade à droite du cadre de la broche)\n"
+"****\n"
+
+#. type: Plain text
+#: gmoccapy.txt:221
+msgid "see the different INI files included to see the differences +"
+msgstr "Lire les différents fichiers ini fournis pour voir les différences +"
+
+#. type: Plain text
+#: gmoccapy.txt:225
+msgid "'''' *EMBED_TAB_COMMAND* + is the command to execute, i.e. +"
+msgstr "'EMBED_TAB_COMMAND'  est la commande à exécuter, ex: "
+
+#. type: Plain text
+#: gmoccapy.txt:227
+#, no-wrap
+msgid " gladevcp -x {XID} dro.glade\n"
+msgstr " gladevcp -x {XID} dro.glade\n"
+
+#. type: Plain text
+#: gmoccapy.txt:230
+msgid ""
+"includes a custom glade file called dro.glade in the mentioned location The "
+"file must be placed in the config folder of your machine +"
+msgstr ""
+"Inclus un fichier Glade personnalisé appelé dro.glade à l'emplacement "
+"mentionné. Le fichier doit être placé dans le répertoire config de la "
+"machine +"
+
+#. type: Plain text
+#: gmoccapy.txt:232
+#, no-wrap
+msgid " gladevcp h_buttonlist.glade\n"
+msgstr " gladevcp h_buttonlist.glade\n"
+
+#. type: Plain text
+#: gmoccapy.txt:235
+msgid ""
+"will just open a new user window called h_buttonlist.glade note the "
+"difference, this one is stand alone, and can be moved around independent "
+"from gmoccapy window +"
+msgstr ""
+"Permet juste d'ouvrir une nouvelle fenêtre utilisateur appelée h_buttonlist."
+"glade noter la différence, celle-ci est autonome et peut être déplacé "
+"indépendamment de la fenêtre de gmoccapy +"
+
+#. type: Plain text
+#: gmoccapy.txt:237
+#, no-wrap
+msgid " camview-emc -w {XID}\n"
+msgstr " camview-emc -w {XID}\n"
+
+#. type: Plain text
+#: gmoccapy.txt:240
+msgid ""
+"will add a live image from a web cam to the location you specified.  take "
+"care that camview-emc is installed, as it is not by default. You find "
+"detailed information for camview and linuxcnc at: http://psha.org.ru/b/"
+"camview-emc.html[cam view] +"
+msgstr ""
+"Permet d'ajouter une image live  une webcam, à l'emplacement spécifié. Faire "
+"attention que camview-emc soit bien installé, car il n'y est pas par défaut. "
+"Vous trouverez des informations détaillées pour camview avec linuxcnc sur le "
+"site du développeur: http://psha.org.ru/b/camview-emc.html[cam view] +"
+
+#. type: Plain text
+#: gmoccapy.txt:242
+#, no-wrap
+msgid " gladevcp -c gladevcp -u hitcounter.py -H manual-example.hal manual-example.ui\n"
+msgstr " gladevcp -c gladevcp -u hitcounter.py -H manual-example.hal manual-example.ui\n"
+
+#. type: Plain text
+#: gmoccapy.txt:244
+msgid ""
+"will add a the panel manual-example.ui, include a custom python handler, "
+"hitcounter.py and make all connections after realizing the panel according "
+"to manual-example.hal. +"
+msgstr ""
+"Permet d'ajouter le panneau manual-example.ui, d'inclure le fichier "
+"d'entêtes python hitcounter.py et de faire toutes les connections après la "
+"réalisation du panneau selon manual-example.hal. +"
+
+#. type: Plain text
+#: gmoccapy.txt:246
+msgid "here are some examples: +"
+msgstr "Voici quelques exemples: +"
+
+#. type: Plain text
+#: gmoccapy.txt:249
+msgid "'''' *ntb_user_tabs - with integrated camview program* +"
+msgstr "'ntb_user_tabs' - avec le programme camview intégré"
+
+#. type: Plain text
+#: gmoccapy.txt:251
+msgid "image::images/gmoccapy_ntb_user_tab.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_ntb_user_tab.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:254
+msgid "'''' *ntb_preview - as maximized version* +"
+msgstr "'ntb_preview' - version maximisée"
+
+#. type: Plain text
+#: gmoccapy.txt:256
+msgid "image::images/gmoccapy_ntb_preview_maximized_2.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_ntb_preview_maximized_2.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:259
+msgid "'''' *ntb_preview* +"
+msgstr "'ntb_preview'"
+
+#. type: Plain text
+#: gmoccapy.txt:261
+msgid "image::images/gmoccapy_ntb_preview.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_ntb_preview.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:264
+msgid "'''' *box_left - showing gmoccapy in edit mode* +"
+msgstr "'box_left' - montrant gmoccapy en mode édition"
+
+#. type: Plain text
+#: gmoccapy.txt:266
+msgid "image::images/gmoccapy_with_left_box_in_edit_mode.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_with_left_box_in_edit_mode.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:269
+msgid "'''' *box_right - and gmoccapy in MDI mode* +"
+msgstr "'box_right' - et gmoccapy en mode MDI"
+
+#. type: Plain text
+#: gmoccapy.txt:271
+msgid "image::images/gmoccapy_with_right_panel_in_MDI_mode.png[align=\"left\"]"
+msgstr ""
+"image::images/gmoccapy_with_right_panel_in_MDI_mode.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:274
+msgid "==== Configuration of User Created Messages"
+msgstr "==== Configuration des messages créés par l'utilisateur"
+
+#. type: Plain text
+#: gmoccapy.txt:277
+msgid ""
+"Gmoccapy has the ability to create hal driven user messages. To use them you "
+"need to introduce some lines in the [DISPLAY] section of the INI file."
+msgstr ""
+"Gmoccapy a la capacité de créer des messages utilisateur destinés à Hal. "
+"Pour utiliser ce fonction, vous devez ajouter quelques lignes dans la "
+"section [DISPLAY] du fichier ini."
+
+#. type: Plain text
+#: gmoccapy.txt:280
+msgid ""
+"Here is how to set up 3 user popup message dialogs the messages support "
+"pango markup language.  Detailed information about the markup language can "
+"be found at https://developer.gnome.org/pango/stable/PangoMarkupFormat."
+"html[Pango Markup]"
+msgstr ""
+"Voici comment construire 3 boîtes de dialogue surgissantes avec message, les "
+"messages suportent le langage markup pango. Informations détaillées à propos "
+"du lagage markup se trouvent ici: https://developer.gnome.org/pango/stable/"
+"PangoMarkupFormat.html[Pango Markup]"
+
+#. type: Plain text
+#: gmoccapy.txt:284
+#, no-wrap
+msgid ""
+" MESSAGE_TEXT    = The text to be displayed, may be pango markup formated+\n"
+" MESSAGE_TYPE    = \"status\" , \"okdialog\" , \"yesnodialog\"+\n"
+" MESSAGE_PINNAME = is the name of the hal pin group to be created+\n"
+msgstr ""
+" MESSAGE_TEXT    = Le texte à afficher, doit être formaté en langage markup pango+\n"
+" MESSAGE_TYPE    = \"status\" , \"okdialog\" , \"yesnodialog\"+\n"
+" MESSAGE_PINNAME = est le nom du groupe de pins de Hal à créer+\n"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:286
+msgid ""
+"'status' : Will just display a message as popup window, using the messaging "
+"system of gmoccapy"
+msgstr ""
+"'status' : Va juste afficher un message dans une fenêtre surgissante, le "
+"système de messagerie de gmoccapy sera utilisé"
+
+#. type: Plain text
+#: gmoccapy.txt:289
+#, no-wrap
+msgid ""
+" * 'okdialog' : Will hold focus on the message dialog and will activate a \"-waiting\" Hal_Pin OUT.\n"
+"             Closing the message will reset the waiting pin\n"
+msgstr ""
+" * 'okdialog' : Va maintenir le focus sur le message du dialogue et va activer un \"-waiting\" Hal_Pin OUT.\n"
+"             Fermer le message va réinitialiser pin en attente\n"
+
+#. type: Plain text
+#: gmoccapy.txt:295
+#, no-wrap
+msgid ""
+" * 'yesnodialog' : Will hold focus on the message dialog and will activate a \"-waiting\" Hal_Pin bit OUT\n"
+"                it will also give access to an \"-response\" Hal_Pin Bit Out, this pin will hold 1 if the\n"
+"                user clicks OK, and in all other states it will be 0\n"
+"                Closing the message will reset the waiting pin\n"
+"                The response Hal Pin will remain 1 until the dialog is called again\n"
+msgstr ""
+" * 'yesnodialog' : Va maintenir le focus sur le message et va activer un \"-waiting\" Hal_Pin bit OUT\n"
+"                il va également donner accès à un \"-response\" Hal_Pin Bit Out, cette pin restera à 1 si l'utilisateur\n"
+"                clique OK et dans tous les autres états elle passera à 0\n"
+"                Fermer le message va réinitialiser la pin en attente\n"
+"                La Hal pin de réponse restera à 1 tant que le dialogue est encore appelé\n"
+
+#. type: Plain text
+#: gmoccapy.txt:301
+#, no-wrap
+msgid ""
+".Example\n"
+"****\n"
+" MESSAGE_TEXT = This is a <span background=\"#ff0000\" foreground=\"#ffffff\">info-message</span> test\n"
+" MESSAGE_TYPE = status\n"
+" MESSAGE_PINNAME = statustest\n"
+msgstr ""
+".Exemple\n"
+"****\n"
+" MESSAGE_TEXT = This is a <span background=\"#ff0000\" foreground=\"#ffffff\">info-message</span> test\n"
+" MESSAGE_TYPE = status\n"
+" MESSAGE_PINNAME = statustest\n"
+
+#. type: Plain text
+#: gmoccapy.txt:305
+#, no-wrap
+msgid ""
+" MESSAGE_TEXT = This is a yes no dialog test\n"
+" MESSAGE_TYPE = yesnodialog\n"
+" MESSAGE_PINNAME = yesnodialog\n"
+msgstr ""
+" MESSAGE_TEXT = This is a yes no dialog test\n"
+" MESSAGE_TYPE = yesnodialog\n"
+" MESSAGE_PINNAME = yesnodialog\n"
+
+#. type: Plain text
+#: gmoccapy.txt:310
+#, no-wrap
+msgid ""
+" MESSAGE_TEXT = Text can be <small>small</small>, <big>big</big>, <b>bold</b>, <i>italic</i>, and even be <span color=\"red\">colored</span>.\n"
+" MESSAGE_TYPE = okdialog\n"
+" MESSAGE_PINNAME = okdialog\n"
+"****\n"
+msgstr ""
+" MESSAGE_TEXT = Text can be <small>small</small>, <big>big</big>, <b>bold</b>, <i>italic</i>, and even be <span color=\"red\">colored</span>.\n"
+" MESSAGE_TYPE = okdialog\n"
+" MESSAGE_PINNAME = okdialog\n"
+"****\n"
+
+#. type: Plain text
+#: gmoccapy.txt:312
+msgid ""
+"The specific hal pin conventions for these can be found under the <<sub:"
+"User_Created_Message_HAL_Pins, User Messages hal pin section>>"
+msgstr ""
+"Les conventions de Hal spécifiques pour cela se trouvent sous <<sub:"
+"User_Created_Message_HAL_Pins, User Messages hal pin section>>"
+
+#. type: Plain text
+#: gmoccapy.txt:314
+msgid "=== The RS274NGC Section [[sub:RS274NGC]]"
+msgstr "=== La section RS274NGC [[sub:RS274NGC]]"
+
+#. type: Plain text
+#: gmoccapy.txt:317
+#, no-wrap
+msgid ""
+" [RS274NGC]\n"
+" SUBROUTINE_PATH = macros\n"
+msgstr ""
+" [RS274NGC]\n"
+" SUBROUTINE_PATH = macros\n"
+
+#. type: Plain text
+#: gmoccapy.txt:319
+msgid "sets the path to search for macros and other subroutines."
+msgstr ""
+"Positionne le chemin de recherche des macros et autres sous-programmes."
+
+#. type: Plain text
+#: gmoccapy.txt:321
+msgid "=== The MACRO Section [[sub:MACROS]]"
+msgstr "=== La section MACRO [[sub:MACROS]]"
+
+#. type: Plain text
+#: gmoccapy.txt:326
+msgid ""
+"You can add macros to gmoccapy, similar to touchy's way. + A macro is "
+"nothing else than a ngc-file. You are able to execute complete + CNC "
+"programs in MDI mode, by just pushing one button. + To do so, you have to "
+"add a section like so: +"
+msgstr ""
+"Vous pouvez ajouter des macros à gmoccapy, de la même manière que pour "
+"touchy.  Une macro n'est rien d'autre qu'un fichier ngc. Vous pouvez "
+"exécuter un programme CNC  complet en mode MDI, en pressant juste un bouton "
+"poussoir.  Pour faire cela, vous devez ajouter une section comme ça: +"
+
+#. type: Plain text
+#: gmoccapy.txt:333
+#, no-wrap
+msgid ""
+" [MACROS]\n"
+" MACRO = i_am_lost\n"
+" MACRO = halo_world\n"
+" MACRO = jog_around\n"
+" MACRO = increment xinc yinc\n"
+" MACRO = go_to_position X-pos Y-pos Z-pos\n"
+msgstr ""
+" [MACROS]\n"
+" MACRO = i_am_lost\n"
+" MACRO = halo_world\n"
+" MACRO = jog_around\n"
+" MACRO = increment xinc yinc\n"
+" MACRO = go_to_position X-pos Y-pos Z-pos\n"
+
+#. type: Plain text
+#: gmoccapy.txt:337
+msgid ""
+"This will add 5 macros to the MDI button list.  Please note, that maximal 9 "
+"macros will appear in the GUI, due to place reasons.  But it is no error "
+"placing more in your INI file."
+msgstr ""
+"Cela va ajouter 5 macros à la liste de boutons de l'interface graphique.  "
+"Noter que pour des raisons de place, un maximum de 9 macros apparaissent "
+"dans l'interface graphique. Mais il est permis d'en placer plus dans le "
+"fichier ini."
+
+#. type: Plain text
+#: gmoccapy.txt:339
+msgid "image::images/gmoccapy_mdi_hidden_keyboard.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_mdi_hidden_keyboard.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:342
+msgid ""
+"The name of the file must be *exactly the same* as the name given in the "
+"MACRO line. + So the macro '*i_am_lost*' will call the file '*i_am_lost."
+"ngc*'. +"
+msgstr ""
+"Le nom du fichier doit être *exactement le même* que le nom donné dans la "
+"ligne MACRO.  Ainsi la macro '*i_am_lost*' doit appeler le fichier "
+"'*i_am_lost.ngc*'. +"
+
+#. type: Plain text
+#: gmoccapy.txt:350
+msgid ""
+".The macro files must follow some rules: **** * the name of the file need to "
+"be the same as the name mentioned in the macro line, just with the ngc "
+"extension * The file must contain a subroutine like so: '*O<i_am_lost> "
+"sub*', the name of the sub must match exactly (*case sensitive*) the name of "
+"the macro * the file must end with an endsub '*O<i_am_lost> endsub*' "
+"followed by an '*M2*' command * the files need to be placed in a folder "
+"specified in your INI file in the RS274NGC section (see <<sub:RS274NGC,"
+"RS274NGC>>)  ****"
+msgstr ""
+".Les fichiers de macro doivent suivre quelques règles: \n"
+"* Le nom du fichier doit être le même que celui mentionné sur la ligne de la "
+"macro, avec juste l'extension ngc\n"
+"* Le fichier doit contenir un sous-programme comme ça: '*O<i_am_lost> sub*', "
+"le nom du sous-programme doit correspondre exactement (*sensible à la "
+"casse*) au nom de la macro\n"
+"* Le fichier doit se terminer avec un endsub '*O<i_am_lost> endsub*' suivi "
+"par une commande '*M2*' \n"
+"* Le fichier doit être placé dans le répertoire spécifié dans la section "
+"RS274NGC du fichier ini (voir <<sub:RS274NGC,RS274NGC>>)"
+
+#. type: Plain text
+#: gmoccapy.txt:352
+msgid ""
+"The code in between sub and endsub will be executed by pushing the "
+"corresponding macro button."
+msgstr ""
+"Le code contenu entre sub et endsub sera exécuté en pressant sur le bouton "
+"correspondant à la macro."
+
+#. type: Plain text
+#: gmoccapy.txt:356
+#, no-wrap
+msgid ""
+"You will find the sample macros in macros folder placed in the gmoccapy sim folder.\n"
+"===========================================================\n"
+msgstr ""
+"Vous trouverez des exemples de macros dans le répertoire macros contenu dans le répertoire sim de gmoccapy.\n"
+"===========================================================\n"
+
+#. type: Plain text
+#: gmoccapy.txt:359
+msgid "Gmoccapy will also accept macros asking for parameters like:"
+msgstr "Gmoccapy accepte aussi les macros demandant des paramètres comme ça:"
+
+#. type: Plain text
+#: gmoccapy.txt:361
+#, no-wrap
+msgid " go_to_position X-pos Y-pos Z-pos\n"
+msgstr " go_to_position X-pos Y-pos Z-pos\n"
+
+#. type: Plain text
+#: gmoccapy.txt:363
+msgid ""
+"The parameters must be separated by spaces. This calls a file "
+"'go_to_position.ngc' with the following content:"
+msgstr ""
+"Les paramètres doivent être séparés par des espaces. Ceci appelle un fichier "
+"'go_to_position.ngc' avec le contenu suivant:"
+
+#. type: Plain text
+#: gmoccapy.txt:364
+#, no-wrap
+msgid "------------\n"
+msgstr "------------\n"
+
+#. type: Plain text
+#: gmoccapy.txt:367
+#, no-wrap
+msgid ""
+" ; Testfile go to position\n"
+" ; will jog the machine to a given position\n"
+msgstr ""
+" ; Testfile go to position\n"
+" ; qui va déplacer le mobile à la position donnée\n"
+
+#. type: Plain text
+#: gmoccapy.txt:369
+#, no-wrap
+msgid " O<go_to_position> sub\n"
+msgstr " O<go_to_position> sub\n"
+
+#. type: Plain text
+#: gmoccapy.txt:378
+#, no-wrap
+msgid ""
+" G17\n"
+" G21\n"
+" G54\n"
+" G61\n"
+" G40\n"
+" G49\n"
+" G80\n"
+" G90\n"
+msgstr ""
+" G17\n"
+" G21\n"
+" G54\n"
+" G61\n"
+" G40\n"
+" G49\n"
+" G80\n"
+" G90\n"
+
+#. type: Plain text
+#: gmoccapy.txt:382
+#, no-wrap
+msgid ""
+" ;#1 = <X-Pos>\n"
+" ;#2 = <Y-Pos>\n"
+" ;#3 = <Z-Pos>\n"
+msgstr ""
+" ;#1 = <X-Pos>\n"
+" ;#2 = <Y-Pos>\n"
+" ;#3 = <Z-Pos>\n"
+
+#. type: Plain text
+#: gmoccapy.txt:385
+#, no-wrap
+msgid ""
+" (DBG, Will now move machine to X = #1 , Y = #2 , Z = #3)\n"
+" G0 X #1 Y #2 Z #3\n"
+msgstr ""
+" (DBG, Le mobile va aller en X = #1 , Y = #2 , Z = #3)\n"
+" G0 X #1 Y #2 Z #3\n"
+
+#. type: Plain text
+#: gmoccapy.txt:388
+#, no-wrap
+msgid ""
+" O<go_to_position> endsub\n"
+" M2\n"
+"------------\n"
+msgstr ""
+" O<go_to_position> endsub\n"
+" M2\n"
+"------------\n"
+
+#. type: Plain text
+#: gmoccapy.txt:392
+msgid ""
+"after pushing the '*execute macro button*', you will be asked to enter the "
+"values for '*X-pos Y-pos Z-pos*' and the macro will only run if all values "
+"have been given."
+msgstr ""
+"Après l'appui sur le bouton '*exécuter macro*', il sera demandé d'entrer les "
+"valeurs pour '*X-pos Y-pos Z-pos*' et la macro pourra ne démarrer que si "
+"toutes les valeurs sont renseignées."
+
+#. type: Plain text
+#: gmoccapy.txt:394
+msgid "image::images/gmoccapy_getting_macro_info.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_getting_macro_info.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:396
+msgid "=== The TRAJ Section [[sub:The_TRAJ_Section]]"
+msgstr "=== La section TRAJ [[sub:The_TRAJ_Section]]"
+
+#. type: Plain text
+#: gmoccapy.txt:398
+#, no-wrap
+msgid " MAX_VELOCITY = 230.000\n"
+msgstr " MAX_VELOCITY = 230.000\n"
+
+#. type: Plain text
+#: gmoccapy.txt:400
+msgid ""
+"Sets the maximal velocity of the machine, this value will also take "
+"influence to default velocity."
+msgstr ""
+"Ajuste la vitesse maximale de la machine, cette valeur également influencer "
+"la vitesse par défaut."
+
+#. type: Plain text
+#: gmoccapy.txt:402
+msgid "== HAL Pins"
+msgstr "== HAL Pins"
+
+#. type: Plain text
+#: gmoccapy.txt:405
+msgid ""
+"gmoccapy exports several hal pin to be able to react to hardware devices. + "
+"The goal is to get a GUI that may be operated in a tool shop, completely/"
+"mostly without mouse or keyboard."
+msgstr ""
+"gmoccapy exporte plusieurs broches de Hal pour être en mesure de réagir aux "
+"périphériques matériels.\n"
+"L'objectif étant d'avoir une interface graphique pouvant être utilisée dans "
+"un atelier, complètement et le plus souvent, sans souris ni clavier."
+
+#. type: Plain text
+#: gmoccapy.txt:409
+#, no-wrap
+msgid ""
+"*You will have to do all connections to gmoccapy pins in your postgui.hal file, because they are not available before loading the GUI completely.*\n"
+"===========================================================\n"
+msgstr ""
+"*Vous devez faire toutes les connections des pins de Hal de gmoccapy, dans votre fichier postgui.hal, parce qu'elles ne sont pas disponibles avant le chargement complet de l'interface graphique.*\n"
+"===========================================================\n"
+
+#. type: Plain text
+#: gmoccapy.txt:412
+msgid "=== Right and bottom button lists"
+msgstr "=== Boutons du bas et de droite"
+
+#. type: Plain text
+#: gmoccapy.txt:416
+msgid ""
+"The screen has two main button lists, one on the right side an one on the "
+"bottom. + The right handed buttons will not change during operation, but the "
+"bottom button list will change very often. + The buttons are count from up "
+"to down and from left to right beginning with \"0\". +"
+msgstr ""
+"L'écran dispose de deux principales séries de boutons, une sur le côté droit "
+"et une en bas.\n"
+"Les boutons de droite ne changerons pas durant les opérations, alors que la "
+"série du bas sera très souvent modifiée.\n"
+"Les boutons sont comptabilisés du haut en bas et de gauche à droite, en "
+"commençant par \"0\". +"
+
+#. type: Plain text
+#: gmoccapy.txt:418
+msgid "In hal_show you will see the right (vertical) buttons are:"
+msgstr ""
+"Dans hal_show vous pouvez voir que les boutons de droite (verticalement) "
+"sont:"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:426
+msgid "gmoccapy.v-button-0"
+msgstr "gmoccapy.v-button-0"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:426
+msgid "gmoccapy.v-button-1"
+msgstr "gmoccapy.v-button-1"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:426
+msgid "gmoccapy.v-button-2"
+msgstr "gmoccapy.v-button-2"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:426
+msgid "gmoccapy.v-button-3"
+msgstr "gmoccapy.v-button-3"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:426
+msgid "gmoccapy.v-button-4"
+msgstr "gmoccapy.v-button-4"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:426
+msgid "gmoccapy.v-button-5"
+msgstr "gmoccapy.v-button-5"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:426
+msgid "gmoccapy.v-button-6"
+msgstr "gmoccapy.v-button-6"
+
+#. type: Plain text
+#: gmoccapy.txt:428
+msgid "and the bottom (horizontal) buttons are:"
+msgstr "et les boutons du bas (horizontalement) sont:"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:439
+msgid "gmoccapy.h-button-0"
+msgstr "gmoccapy.h-button-0"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:439
+msgid "gmoccapy.h-button-1"
+msgstr "gmoccapy.h-button-1"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:439
+msgid "gmoccapy.h-button-2"
+msgstr "gmoccapy.h-button-2"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:439
+msgid "gmoccapy.h-button-3"
+msgstr "gmoccapy.h-button-3"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:439
+msgid "gmoccapy.h-button-4"
+msgstr "gmoccapy.h-button-4"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:439
+msgid "gmoccapy.h-button-5"
+msgstr "gmoccapy.h-button-5"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:439
+msgid "gmoccapy.h-button-6"
+msgstr "gmoccapy.h-button-6"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:439
+msgid "gmoccapy.h-button-7"
+msgstr "gmoccapy.h-button-7"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:439
+msgid "gmoccapy.h-button-8"
+msgstr "gmoccapy.h-button-8"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:439
+msgid "gmoccapy.h-button-9"
+msgstr "gmoccapy.h-button-9"
+
+#. type: Plain text
+#: gmoccapy.txt:443
+msgid ""
+"as the buttons in the bottom list will change according the mode and other "
+"influences, the hardware buttons will activate different functions, and you "
+"don't have to take care about switching functions around in hal, because "
+"that is done completely by gmoccapy!"
+msgstr ""
+"Les boutons de la série du bas vont changer selon le mode, ainsi que pour "
+"d'autres raisons, les boutons matériels activent différentes fonctions et "
+"vous n'avez pas à vous soucier des connections de Hal, c'est gmoccapy qui "
+"prends tout ça complètement en charge!"
+
+#. type: Plain text
+#: gmoccapy.txt:446
+msgid ""
+"The sens of this is to be able to use the screen without an touch panel, or "
+"protect it from excessive use by placing hardware buttons around the panel."
+msgstr ""
+"L'utilité de ça, c'est d'être capable d'utiliser un écran sans qu'il soit "
+"tactile, ou de le protéger d'une utilisation intensive en plaçant des "
+"boutons matériels autour du panneau."
+
+#. type: Plain text
+#: gmoccapy.txt:448
+msgid "image::images/gmoccapy_0_9_7_sim_hardware_button.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_0_9_7_sim_hardware_button.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:450
+msgid "=== Velocities and overrides"
+msgstr "=== Vitesses et correcteurs de vitesse"
+
+#. type: Plain text
+#: gmoccapy.txt:452
+msgid ""
+"All sliders from gmoccapy can be connected to hardware encoder or hardware "
+"potmeters. +"
+msgstr ""
+"Tous les curseurs de gmoccapy peuvent être connectés à des codeurs matériels "
+"ou à des potentiomètres. +"
+
+#. type: Plain text
+#: gmoccapy.txt:455
+msgid "'''' To connect encoders the following pin are exported:"
+msgstr "Pour connecter des codeurs, les pins suivantes sont exportées:"
+
+#. type: Plain text
+#: gmoccapy.txt:462
+#, no-wrap
+msgid ""
+"* gmoccapy.max-vel-counts          =  HAL_S32  ;  (Maximal Velocity of the machine)\n"
+"* gmoccapy.jog-speed-counts        =  HAL_S32  ;  (Jog velocity)\n"
+"* gmoccapy.spindle-override-counts =  HAL_S32  ;  (spindle override)\n"
+"* gmoccapy.feed-override-counts    =  HAL_S32  ;  (feed override)\n"
+"* gmoccapy.reset-feed-override     =  HAL_BIT  ;  (reset the feed override to 100 %)\n"
+"* gmoccapy.reset-spindle-override  =  HAL_BIT  ;  (reset the spindle override to 100 %)\n"
+msgstr ""
+"* gmoccapy.max-vel-counts          =  HAL_S32  ;  (Vitesse maximale de la machine)\n"
+"* gmoccapy.jog-speed-counts        =  HAL_S32  ;  (Vitesse de jog)\n"
+"* gmoccapy.spindle-override-counts =  HAL_S32  ;  (correcteur de vitesse broche)\n"
+"* gmoccapy.feed-override-counts    =  HAL_S32  ;  (correcteur de vitesse d'avance)\n"
+"* gmoccapy.reset-feed-override     =  HAL_BIT  ;  (remise à 100% du correcteur d'avance)\n"
+"* gmoccapy.reset-spindle-override  =  HAL_BIT  ;  (remise à 100% du correcteur de vitesse broche)\n"
+
+#. type: Plain text
+#: gmoccapy.txt:465
+msgid "'''' To connect potmeters, use the following hal pin:"
+msgstr "Pour connecter des potentiomètres, utiliser les pins de Hal suivantes:"
+
+#. type: Plain text
+#: gmoccapy.txt:471
+#, no-wrap
+msgid ""
+"* gmoccapy.analog-enable           = HAL_BIT   ;  Must be True, to allow analog inputs\n"
+"* gmoccapy.jog-vel-value           = HAL_FLOAT ;  To adjust the jog velocity slider\n"
+"* gmoccapy.max-vel-value           = HAL_FLOAT ;  To adjust the max velocity slider\n"
+"* gmoccapy.feed-override-value     = HAL_FLOAT ;  To adjust the feed override slider\n"
+"* gmoccapy.spindle-override-value  = HAL_FLOAT ;  To adjust the spindle override slider\n"
+msgstr ""
+"* gmoccapy.analog-enable           = HAL_BIT   ;  Doit être True, pour autoriser les entrées analogiques\n"
+"* gmoccapy.jog-vel-value           = HAL_FLOAT ;  Pour ajuster le curseur de vitesse de jog\n"
+"* gmoccapy.max-vel-value           = HAL_FLOAT ;  Pour ajuster le curseur de vitesse max\n"
+"* gmoccapy.feed-override-value     = HAL_FLOAT ;  Pour ajuster le curseur du correcteur de vitesse d'avance\n"
+"* gmoccapy.spindle-override-value  = HAL_FLOAT ;  Pour ajuster le curseur du correcteur de vitesse broche\n"
+
+#. type: Plain text
+#: gmoccapy.txt:473
+msgid ""
+"The float pin do accept values from 0.0 to 1.0, being the percentage value "
+"you want to set the slider value."
+msgstr ""
+"Les pins float acceptent les valeurs comprises entre 0.0 et 1.0, soit le "
+"pourcentage auquel doit être ajustée la valeur du curseur."
+
+#. type: Plain text
+#: gmoccapy.txt:475
+msgid ""
+"WARNING: If you use both connection types, do not connect the same slider to "
+"both pin, as the influences between the two has not been tested! Different "
+"sliders may be connected to the one or other hal connection type."
+msgstr ""
+"WARNING: Pour utiliser les deux types de connection, ne pas connecter les "
+"deux pins à la fois au même curseur, l'influence entre les deux n'a pas été "
+"testée! Les différents curseurs peuvent être connectés à l'un ou l'autre des "
+"types de connection."
+
+#. type: Plain text
+#: gmoccapy.txt:477
+msgid ""
+"IMPORTANT: Please be aware, that for the jog velocity depends on the turtle "
+"button state, it will lead to different slider scales depending on the mode "
+"(turtle or rabbit). Please take also a look to <<sub:Jog_Vel_and_Turtle-Jog,"
+"jog velocities and turtle-jog hal pin>> for more details."
+msgstr ""
+"IMPORTANT: Soyez attentif au fait que, la vitesse de jog dépend de l'état du "
+"bouton 'tortue', ce qui produira des échelles différentes selon les "
+"différents curseurs et selon le mode, tortue ou lapin. Regardez également "
+"<<sub:Jog_Vel_and_Turtle-Jog,pin de Hal vitesses de jog et turtle-jog>> pour "
+"plus de détails."
+
+#. type: Plain text
+#: gmoccapy.txt:489
+#, no-wrap
+msgid ""
+".Example\n"
+"****\n"
+"Spindle Override Min Value =  20 % +\n"
+"Spindle Override Max Value = 120 % +\n"
+"gmoccapy.analog-enable = 1 +\n"
+"gmoccapy.spindle-override-value = 0.25 +\n"
+" +\n"
+"value to set = Min Value + (Max Value - Min Value) * gmoccapy.spindle-override-value +\n"
+"value to set = 20 + (120 - 20) * 0.25 +\n"
+"value to set = 45 % +\n"
+"****\n"
+msgstr ""
+".Exemple\n"
+"****\n"
+"Spindle Override Min Value =  20 % +\n"
+"Spindle Override Max Value = 120 % +\n"
+"gmoccapy.analog-enable = 1 +\n"
+"gmoccapy.spindle-override-value = 0.25 +\n"
+" +\n"
+"value to set = Min Value + (Max Value - Min Value) * gmoccapy.spindle-override-value +\n"
+"value to set = 20 + (120 - 20) * 0.25 +\n"
+"value to set = 45 % +\n"
+"****\n"
+
+#. type: Plain text
+#: gmoccapy.txt:491
+msgid "=== jog hal pins"
+msgstr "=== Pin de Hal pour le jog "
+
+#. type: Plain text
+#: gmoccapy.txt:494
+msgid ""
+"All axis given in the INI File have a jog-plus and a jog-minus pin, so "
+"hardware momentary switches can be used to jog the axis. +"
+msgstr ""
+"Tous les axes définis dans le fichier ini ont chacun une pin jog-plus et une "
+"pin jog-moins, de sorte que des contacts physiques peuvent être utilisés "
+"pour jogger chaque axe. +"
+
+#. type: Plain text
+#: gmoccapy.txt:496
+msgid "For the standard config following hal Pin will be available:"
+msgstr ""
+"Pour la configuration standard, les pins de Hal suivantes sont disponibles:"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:503
+msgid "gmoccapy.jog-x-plus"
+msgstr "gmoccapy.jog-x-plus"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:503
+msgid "gmoccapy.jog-x-minus"
+msgstr "gmoccapy.jog-x-minus"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:503
+msgid "gmoccapy.jog-y-plus"
+msgstr "gmoccapy.jog-y-plus"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:503
+msgid "gmoccapy.jog-y-minus"
+msgstr "gmoccapy.jog-y-minus"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:503
+msgid "gmoccapy.jog-z-plus"
+msgstr "gmoccapy.jog-z-plus"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:503
+msgid "gmoccapy.jog-z-minus"
+msgstr "gmoccapy.jog-z-minus"
+
+#. type: Plain text
+#: gmoccapy.txt:505
+msgid "if you use a 4 axis INI file, there will be two additional pins"
+msgstr ""
+"Si une configuration 4 axes est définie dans le fichier ini, il y a deux "
+"pins additionnelles"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:508
+msgid "gmoccapy.jog-<your fourth axis letter >-plus"
+msgstr "gmoccapy.jog-<lettre de votre quatrième axe >-plus"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:508
+msgid "gmoccapy.jog-<your fourth axis letter >-minus"
+msgstr "gmoccapy.jog-<lettre de votre quatrième axe >-minus"
+
+#. type: Plain text
+#: gmoccapy.txt:510
+msgid "for a \"C\" axis you will see:"
+msgstr "pour un axe \"C\" vous devriez avoir:"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:513
+msgid "gmoccapy.jog-c-plus"
+msgstr "gmoccapy.jog-c-plus"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:513
+msgid "gmoccapy.jog-c-minus"
+msgstr "gmoccapy.jog-c-minus"
+
+#. type: Plain text
+#: gmoccapy.txt:515
+msgid ""
+"=== jog velocities and turtle-jog hal pin [[sub:Jog_Vel_and_Turtle-Jog]]"
+msgstr ""
+"=== Pins de Hal de vitesse de jog et de jog-tortue [[sub:Jog_Vel_and_Turtle-"
+"Jog]]"
+
+#. type: Plain text
+#: gmoccapy.txt:518
+msgid ""
+"The jog velocity can be selected with the corresponding slider. + The scale "
+"of the slider will be modified if the turtle button (the one showing a "
+"rabbit or a turtle) has been toggled. If the button is not visible, it might "
+"have been disabled on the <<sub:turtle_jog,settings page>>. If the button "
+"shows the rabbit-icon, the scale is from min to max machine velocity. If it "
+"shows the turtle, the scale will reach only 1/20 of max velocity by default. "
+"The used divider can be set on the <<sub:turtle_jog,settings page>>."
+msgstr ""
+"La vitesse de jog peut être ajustée avec le curseur correspondant.\n"
+"L'échelle du curseur sera différente selon la position du bouton tortue "
+"(celui qui montre une tortue ou un lapin).\n"
+"Si le bouton n'est pas visible, c'est qu'il a été désactivé dans la <<sub:"
+"turtle_jog,page de sélection>>.\n"
+"Si le bouton montre un lapin, l'échelle se situera entre la vitesse machine "
+"minimale et la vitesse machine maximale.\n"
+"Si le bouton montre une tortue, l'échelle atteindra seulement 1/20 de la "
+"vitesse max par défaut.\n"
+"Le facteur de division utilisé peut être ajusté sur la <<sub:turtle_jog,page "
+"de sélection>>."
+
+#. type: Plain text
+#: gmoccapy.txt:520
+msgid "So using a touch screen it is much easier to select smaller velocities."
+msgstr ""
+"Donc, en utilisant un écran tactile, il est plus facile de sélectionner les "
+"petites vitesses."
+
+#. type: Plain text
+#: gmoccapy.txt:522
+msgid "=== jog increment hal pins"
+msgstr "=== Pins de Hal d'incrément de jog"
+
+#. type: Plain text
+#: gmoccapy.txt:527
+msgid ""
+"The jog increments are selectable through hal pins, so a select hardware "
+"switch can be used to select the increment to use. There will be a maximum "
+"of 10 hal pin for the increments given in the INI File, if you give more "
+"increments in your INI File, they will be not reachable from the GUI as they "
+"will not be displayed."
+msgstr ""
+"Les incréments de jog sont sélectionnables par des pins de Hal, un contact "
+"physique est donc utilisable pour sélectionner l'incrément à utiliser. Il y "
+"a un maximum de 10 pins de Hal pour les incréments définis dans le fichier "
+"ini, si il en est défini d’avantage dans le fichier ini, ils ne seront pas "
+"accessibles depuis l'interface graphique puisqu'ils ne seront pas affichés."
+
+#. type: Plain text
+#: gmoccapy.txt:529
+msgid "If you have 6 increments in your hal you will get *7* pins:"
+msgstr "Si vous avez 6 incréments dans votre Hal, il vous faudra *7* pins:"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:537
+msgid "gmoccapy.jog-inc-0"
+msgstr "gmoccapy.jog-inc-0"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:537
+msgid "gmoccapy.jog-inc-1"
+msgstr "gmoccapy.jog-inc-1"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:537
+msgid "gmoccapy.jog-inc-2"
+msgstr "gmoccapy.jog-inc-2"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:537
+msgid "gmoccapy.jog-inc-3"
+msgstr "gmoccapy.jog-inc-3"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:537
+msgid "gmoccapy.jog-inc-4"
+msgstr "gmoccapy.jog-inc-4"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:537
+msgid "gmoccapy.jog-inc-5"
+msgstr "gmoccapy.jog-inc-5"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:537
+msgid "gmoccapy.jog-inc-6"
+msgstr "gmoccapy.jog-inc-6"
+
+#. type: Plain text
+#: gmoccapy.txt:539
+msgid "jog-inc-0 is unchangeable and will represent continuous jogging."
+msgstr "jog-inc-0 n'est pas modifiable et représente le mode de jog continu."
+
+#. type: Plain text
+#: gmoccapy.txt:541
+msgid "=== hardware unlock pin [[sub:hardware_unlock_pin]]"
+msgstr "=== Pin de déverrouillage matériel [[sub:hardware_unlock_pin]]"
+
+#. type: Plain text
+#: gmoccapy.txt:543
+msgid ""
+"to be able to use a key switch to unlock the settings page the following pin "
+"is exported."
+msgstr ""
+"pour pouvoir utiliser un interrupteur à clé pour déverrouiller la page des "
+"réglages, la pin suivante est exportée."
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:545
+msgid "gmoccapy.unlock-settings"
+msgstr "gmoccapy.unlock-settings"
+
+#. type: Plain text
+#: gmoccapy.txt:548
+msgid ""
+"The settings page is unlocked if the pin is high. + To use this pin, you "
+"need to activate it on the settings page."
+msgstr ""
+"La page des réglages est déverrouillée si la pin est à l'état haut. + Pour "
+"utiliser cette pin, elle doit être activée dans la page des réglages."
+
+#. type: Plain text
+#: gmoccapy.txt:550
+msgid "=== Error pins"
+msgstr "=== Pins d'erreur"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:553
+msgid "gmoccapy.error"
+msgstr "gmoccapy.error"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:553
+msgid "gmoccapy.delete-message"
+msgstr "gmoccapy.delete-message"
+
+#. type: Plain text
+#: gmoccapy.txt:557
+msgid ""
+"gmoccapy.error is an bit out pin, to indicate an error, so a light can lit "
+"or even the machine may be stopped. It will be reseted with the pin gmoccapy."
+"delete-message. gmoccapy.delete-message will delete the first error and "
+"reset the gmoccapy.error pin to False after the last error has been cleared. "
+"+"
+msgstr ""
+"gmoccapy.error est une pin de sortie de type bit, pour indiquer une erreur, "
+"allumer un voyant ou même provoquer un arrêt machine. Elle est remise à zéro "
+"avec la pin gmoccapy.delete-message. gmoccapy.delete-message va effacer la "
+"première erreur et repasser la pin gmoccapy.error à l'état bas après que la "
+"dernière erreur ait été effacée. +"
+
+#. type: Plain text
+#: gmoccapy.txt:560
+msgid ""
+"NOTE: Messages or user infos will not affect the gmoccapy.error pin, but the "
+"gmoccapy.delete-message pin will delete the last message if no error is "
+"shown!"
+msgstr ""
+"NOTE: Les messages ou les infos utilisateur n'affectent pas la pin gmoccapy."
+"error, mais la pin gmoccapy.delete-message efface le dernier message si "
+"aucune erreur n'est affichée!"
+
+#. type: Plain text
+#: gmoccapy.txt:562
+msgid "=== User Created Message HAL Pins [[sub:User_Created_Message_HAL_Pins]]"
+msgstr ""
+"=== Pins de Hal de création de message utilisateur [[sub:"
+"User_Created_Message_HAL_Pins]]"
+
+#. type: Plain text
+#: gmoccapy.txt:565
+msgid ""
+"gmoccapy may react to external errors, using 3 different user messages: + "
+"All are HAL_BIT pin. +"
+msgstr ""
+"gmoccapy peut réagir aux erreurs externes en utilisant 3 différents messages "
+"utilisateur:\n"
+"Tous sont des pins HAL_BIT. +"
+
+#. type: Plain text
+#: gmoccapy.txt:567
+msgid "'Status'"
+msgstr "'Status'"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:569
+msgid "gmoccapy.messages.statustest"
+msgstr "gmoccapy.messages.statustest"
+
+#. type: Plain text
+#: gmoccapy.txt:571
+msgid "'Yesnodialog'"
+msgstr "'Yesnodialog'"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:575
+msgid "gmoccapy.messages.yesnodialog"
+msgstr "gmoccapy.messages.yesnodialog"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:575
+msgid "gmoccapy.messages.yesnodialog-waiting"
+msgstr "gmoccapy.messages.yesnodialog-waiting"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:575
+msgid "gmoccapy.messages.yesnodialog-responce"
+msgstr "gmoccapy.messages.yesnodialog-responce"
+
+#. type: Plain text
+#: gmoccapy.txt:577
+msgid "'Okdialog'"
+msgstr "'Okdialog'"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:580
+msgid "gmoccapy.messages.okdialog"
+msgstr "gmoccapy.messages.okdialog"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:580
+msgid "gmoccapy.messages.okdialog-waiting"
+msgstr "gmoccapy.messages.okdialog-waiting"
+
+#. type: Plain text
+#: gmoccapy.txt:582
+msgid "=== Spindle feedback pins"
+msgstr "=== Pins de Hal de retour broche"
+
+#. type: Plain text
+#: gmoccapy.txt:584
+msgid "There are two pins for spindle feedback"
+msgstr "Il y a deux pins de retour broche"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:587
+msgid "gmoccapy.spindle_feedback_bar"
+msgstr "gmoccapy.spindle_feedback_bar"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:587
+msgid "gmoccapy.spindle_at_speed_led"
+msgstr "gmoccapy.spindle_at_speed_led"
+
+#. type: Plain text
+#: gmoccapy.txt:590
+msgid ""
+"'gmoccapy.spindle_feedback_bar' will accept an float input to show the "
+"spindle speed + 'gmoccapy.spindle_at_speed_led' is an bit-pin to lit the GUI "
+"led if spindle is at speed +"
+msgstr ""
+"'gmoccapy.spindle_feedback_bar' accepte une entrée de type float pour "
+"représenter la vitesse de broche\n"
+"'gmoccapy.spindle_at_speed_led' est une pin de type bit, indiquant sur "
+"l'interface graphique que la broche a atteint la vitesse demandée +"
+
+#. type: Plain text
+#: gmoccapy.txt:592
+msgid "=== Pins to indicate program progress information"
+msgstr "=== Pins d'indication de l'évolution du programme"
+
+#. type: Plain text
+#: gmoccapy.txt:594
+msgid "There are three pins giving information over the program progress +"
+msgstr ""
+"Il y a trois pins donnant des informations sur le déroulement du programme +"
+
+#. type: Plain text
+#: gmoccapy.txt:598
+#, no-wrap
+msgid ""
+"* gmoccapy.program.length         = HAL_S32   ; showing the total number of lines of the program\n"
+"* gmoccapy.program.current-line   = HAL_S32   ; indicating the current working line of the program \n"
+"* gmoccapy.program.progress       = HAL_FLOAT ; giving the program progress in percentage\n"
+msgstr ""
+"* gmoccapy.program.length         = HAL_S32   ; montrant le nombre total de lignes du programme\n"
+"* gmoccapy.program.current-line   = HAL_S32   ; indiquant la ligne du travail en cour \n"
+"* gmoccapy.program.progress       = HAL_FLOAT ; donant la progression du programme en pourcentage\n"
+
+#. type: Plain text
+#: gmoccapy.txt:601
+msgid ""
+"The values may not be very accurate, if you are working with subroutines or "
+"large remap procedures, also loops will cause different values."
+msgstr ""
+"Ces valeurs peuvent ne pas être très précises, si vous travaillez avec des "
+"sous-programmes ou des boucles, les résultats peuvent avoir des valeurs "
+"différentes."
+
+#. type: Plain text
+#: gmoccapy.txt:603
+msgid "=== Pins to modify soft limits"
+msgstr "=== Pins de modification des limites logicielles"
+
+#. type: Plain text
+#: gmoccapy.txt:610
+msgid ""
+"Gmoccapy allows you to modify the soft limits using hal pin.  The pin do "
+"allow to reduce or enlarge the soft limits, so you are able to protect your "
+"rotary table from collision just switching a hal pin. If you do not use it, "
+"just reduce your soft limits. An other option would be a tool changer which "
+"is placed in the working area, you do not want a collision during normal "
+"work, but you are forced to enter the tool change area to change a tool, so "
+"during tool change you enlarge the soft limits."
+msgstr ""
+"Gmoccapy permet de modifier les limites logicielles en utilisant des pins de "
+"Hal.  La pin va permettre de réduire ou d'augmenter les limites logicielles, "
+"ainsi il est possible de protéger une table rotative contre toute collision, "
+"juste en basculant une pin de Hal. Si vous ne l'utilisez pas, réduisez juste "
+"votre limite logicielle. Une autre option pourrait être un changeur d'outil "
+"placé dans la zone de travail, pour ne pas avoir de collision pendant le "
+"travail normal, mais il y a obligation de rentrer dans la zone de changement "
+"d'outil justement pour le changement d'outil, pour cela, pendant le "
+"changement d'outil les limites logicielles seront élargies."
+
+#. type: Plain text
+#: gmoccapy.txt:614
+#, no-wrap
+msgid ""
+"* gmoccapy.axis-to-set    = HAL_S32    ; indicating the joint of the axis to modify (X=0, Y=1, Z=2 ...)\n"
+"* gmoccapy.set-max-limit  = HAL_BIT    ; if set the value will modify the max limit value, else the min value\n"
+"* gmoccapy.limit-value    = HAL_FLOAT  ; the new value to set as soft limit\n"
+msgstr ""
+"* gmoccapy.axis-to-set    = HAL_S32    ; indique l'axe à modifier (X=0, Y=1, Z=2 ...)\n"
+"* gmoccapy.set-max-limit  = HAL_BIT    ; si haute, la valeur modifiée sera celle de la limite max, sinon, celle de la limite min\n"
+"* gmoccapy.limit-value    = HAL_FLOAT  ; valeur de la nouvelle limite logicielle à utiliser\n"
+
+#. type: Plain text
+#: gmoccapy.txt:618
+msgid ""
+"This has not been tested with a rotary axis, so be careful with that kind of "
+"axis.  There will be no check to the limits you set, so if you set a limit "
+"and the tool is out of your limit area you will get an error about being "
+"outside the soft limits."
+msgstr ""
+"Cela n'a pas été bien testé avec un axe rotatif, soyez prudent avec ce genre "
+"d'axe.  Il n'y aura pas de contrôle des limites que vous définissez, si vous "
+"définissez une limite et que l'outil est en dehors de celle-ci, vous aurez "
+"une erreur de dépassement des limites logicielles."
+
+#. type: Plain text
+#: gmoccapy.txt:620
+msgid "IMPORTANT: You are responsible to take care about that!"
+msgstr "IMPORTANT: Vous devez être très attentif à ce propos!"
+
+#. type: Plain text
+#: gmoccapy.txt:624
+msgid ""
+"You are only allowed to set limits if the machine is on! A value of 0 as "
+"limit is not allowed, please give a value of 0.000001 instead.  The GUI will "
+"react to changes of the limit-value pin, so to modify the limits you have to "
+"apply a value change to that pin."
+msgstr ""
+"Il est seulement permi de définir les limites si la machine est en marche! "
+"Une valeur de limite fixée à 0 est interdite, il faut donner une valeur "
+"minimale de 0.000001 à la place.  L'interface graphique va réagir aux "
+"changements de la pin limit-value, afin de modifier les limites à appliquer "
+"selon la valeur de cette pin."
+
+#. type: Plain text
+#: gmoccapy.txt:626
+msgid ""
+"WARNING: This is very experimental at the moment, so please take care for "
+"your security."
+msgstr ""
+"WARNING: C'est vraiment expérimental en ce moment, la plus grande prudence "
+"s'impose pour votre sécurité."
+
+#. type: Plain text
+#: gmoccapy.txt:628
+msgid "=== Tool related pin"
+msgstr "=== Pin de Hal relative à l'outil"
+
+#. type: Plain text
+#: gmoccapy.txt:630
+msgid "==== Tool Change Pin"
+msgstr "==== Pin de changement d'outil"
+
+#. type: Plain text
+#: gmoccapy.txt:634
+msgid ""
+"This pin are provided to use gmoccapy's internal tool change dialog, similar "
+"to the one known from axis, but with several modifications, so you will not "
+"only get the message to change to 'tool number 3', but also the description "
+"of that tool like '7.5 mm 3 flute cutter'.  The information is taken from "
+"the tool table, so it is up to you what to display."
+msgstr ""
+"Cette pin de Hal est prévue pour utiliser le dialogue de changement d'outil "
+"interne à gmoccapys, similaire à celui bien connu d'Axis, mais avec "
+"plusieurs modifications, de sorte que vous n'aurez plus seulement le message "
+"pour 'monter l'outil N°3', mais aussi la description de cet outil, telle que "
+"'fraise 3 dents 7.5 mm'.  L'information est tirée de la table d'outils, ce "
+"qui est affiché dépend donc de vous."
+
+#. type: Plain text
+#: gmoccapy.txt:636
+msgid "image::images/manual_toolchange.png[align=\"left\"]"
+msgstr "image::images/manual_toolchange.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:640
+#, no-wrap
+msgid ""
+"* gmoccapy.toolchange-number    = HAL_S32    ; The number of the tool to be changed\n"
+"* gmoccapy.toolchange-change    = HAL_BIT    ; Indicate that a tool has to be changed\n"
+"* gmoccapy.toolchange-changed   = HAL_BIT    ; Indicate toll has been changed \n"
+msgstr ""
+"* gmoccapy.toolchange-number    = HAL_S32    ; Le numéro de l'outil appelé\n"
+"* gmoccapy.toolchange-change    = HAL_BIT    ; Indique qu'un outil doit être changé\n"
+"* gmoccapy.toolchange-changed   = HAL_BIT    ; Indique que l'outil a bien été changé \n"
+
+#. type: Plain text
+#: gmoccapy.txt:642
+msgid "usually they are connected like this for a manual tool change:"
+msgstr ""
+"en général, ils sont connectés comme ceci pour un changement d'outil manuel:"
+
+#. type: Plain text
+#: gmoccapy.txt:643
+#, no-wrap
+msgid "-----\n"
+msgstr "-----\n"
+
+#. type: Plain text
+#: gmoccapy.txt:648
+#, no-wrap
+msgid ""
+" net tool-change            gmoccapy.toolchange-change    <=   iocontrol.0.tool-change \n"
+" net tool-changed           gmoccapy.toolchange-changed   <=   iocontrol.0.tool-changed\n"
+" net tool-prep-number       gmoccapy.toolchange-number    <=   iocontrol.0.tool-prep-number\n"
+" net tool-prep-loop         iocontrol.0.tool-prepare      <=   iocontrol.0.tool-prepared\n"
+"-----\n"
+msgstr ""
+" net tool-change            gmoccapy.toolchange-change    <=   iocontrol.0.tool-change \n"
+" net tool-changed           gmoccapy.toolchange-changed   <=   iocontrol.0.tool-changed\n"
+" net tool-prep-number       gmoccapy.toolchange-number    <=   iocontrol.0.tool-prep-number\n"
+" net tool-prep-loop         iocontrol.0.tool-prepare      <=   iocontrol.0.tool-prepared\n"
+"-----\n"
+
+#. type: Plain text
+#: gmoccapy.txt:651
+msgid "==== tool offset pins"
+msgstr "==== Pins de Hal de décalage d'outil"
+
+#. type: Plain text
+#: gmoccapy.txt:654
+msgid ""
+"This pins allows you to show the active tool offset values for X and Z in "
+"the tool information frame. + You should know that they are only active "
+"after G43 has been send."
+msgstr ""
+"Cette pin de Hal permet d'afficher la valeur de décalage de l'outil actif "
+"pour X et Z dans le cadre des outils. + Vous devez savoir que ça sera "
+"effectif seulement après qu'un G43 n'ait été envoyé."
+
+#. type: Plain text
+#: gmoccapy.txt:656
+msgid "image::images/gmoccapy_0_9_7_tool_info.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_0_9_7_tool_info.png[align=\"left\"]"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:659
+msgid "gmoccapy.tooloffset-x"
+msgstr "gmoccapy.tooloffset-x"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:659
+msgid "gmoccapy.tooloffset-z"
+msgstr "gmoccapy.tooloffset-z"
+
+#. type: Plain text
+#: gmoccapy.txt:661
+msgid "just connect them like so in your postgui hal."
+msgstr "connectez les comme ça dans votre postgui hal."
+
+#. type: Plain text
+#: gmoccapy.txt:662
+#, no-wrap
+msgid "------\n"
+msgstr "------\n"
+
+#. type: Plain text
+#: gmoccapy.txt:665
+#, no-wrap
+msgid ""
+" net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x\n"
+" net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z\n"
+"------\n"
+msgstr ""
+" net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x\n"
+" net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z\n"
+"------\n"
+
+#. type: Plain text
+#: gmoccapy.txt:669
+msgid ""
+"Please note, that gmoccapy takes care of its own to update the offsets, "
+"sending an G43 after any tool change, *but not in auto mode!*"
+msgstr ""
+"Veuillez noter que gmoccapy s'occupe de rafraîchir l'affichage des valeurs "
+"de décalage, d'envoyer un G43 après chaque changement d'outil, *mais pas en "
+"mode automatique!*"
+
+#. type: Plain text
+#: gmoccapy.txt:671
+msgid ""
+"IMPORTANT: So writing a program makes you responsible to include an G43 "
+"after each tool change!"
+msgstr ""
+"IMPORTANT: Il est donc de la responsabilité de l'opérateur d'inclure dans "
+"ses programmes, un G43 après chaque changement d'outil!"
+
+#. type: Plain text
+#: gmoccapy.txt:673
+msgid "== Auto Tool Measurement [[sub:Auto_Tool_Measurement]]"
+msgstr ""
+"== Mesure de longueur d'outil automatique [[sub:Auto_Tool_Measurement]]"
+
+#. type: Plain text
+#: gmoccapy.txt:677
+msgid ""
+"Gmoccapy offers an integrated auto tool measurement. + To use this feature, "
+"you will need to do some additional settings and you may want to use the "
+"offered hal pin to get values in your own ngc remap procedure."
+msgstr ""
+"Gmoccapy offre une mesure automatique de la longueur d'outil.\n"
+"Pour utiliser cette fonctionnalité, vous aurez quelques réglages "
+"additionnels à effectuer et vous pourrez utiliser la pin de Hal offerte pour "
+"obtenir les valeurs dans votre propre procédure de remap ngc."
+
+#. type: Plain text
+#: gmoccapy.txt:680
+msgid ""
+"IMPORTANT: Before starting the first test, do not forget to enter the Probe "
+"height and probe velocities on the settings page! See <<sub:"
+"Tool_Measurement_Setup,Settings Page Tool Measurement>>"
+msgstr ""
+"IMPORTANT: Avant de lancer le premier test, n'oubliez pas d'entrer la "
+"hauteur de la sonde et sa vitesse d'avance dans la page des réglages! Voir "
+"la <<sub:Tool_Measurement_Setup,page des réglages Mesure de la longueur "
+"d'outil>>"
+
+#. type: Plain text
+#: gmoccapy.txt:683
+msgid ""
+"It might be also a good idea to take a look at the tool measurement video: "
+"see <<sub:Tool_Measurement_Videos,tool measurement related videos>>"
+msgstr ""
+"Ça pourrait aussi être une bonne idée de jeter un coup d’œil à la vidéo sur "
+"la mesure d'outil, voir <<sub:Tool_Measurement_Videos,videos relatives à la "
+"mesure de longueur d'outil>>"
+
+#. type: Plain text
+#: gmoccapy.txt:690
+msgid ""
+"Tool Measurement in gmoccapy is done a little bit different to many other "
+"GUI. + You should follow theese steps: * touch of you workpiece in X and Y * "
+"measure the hight of your block from the base where your tool switch is "
+"located, to the upper face of the block (including chuck etc.)  * Push the "
+"button block height and enter the measured value * Go to auto mode and start "
+"your program"
+msgstr ""
+"La mesure de longueur d'outil dans gmoccapy est un peu différente de "
+"beaucoup d'autres interfaces graphiques.  Vous devez suivre ces étapes:\n"
+" * faites l'origine pièce en touchant la pièce en X et Y\n"
+" * mesurez le dessus de votre block depuis la base ou se trouve votre "
+"contact de mesure jusqu'à la face supérieure du block (inclure mandrin "
+"etc.)\n"
+" * Pressez le bouton 'hauteur du block' et entrez la valeur mesurée\n"
+" * Passez en mode auto et lancez votre programme"
+
+#. type: Plain text
+#: gmoccapy.txt:692
+msgid "here is a small sketch:"
+msgstr "voici une représentation:"
+
+#. type: Plain text
+#: gmoccapy.txt:694
+msgid "image::images/sketch_auto_tool_measurement.png[align=\"left\"]"
+msgstr "image::images/sketch_auto_tool_measurement.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:697
+msgid ""
+"With the first given tool change the tool will be measured and the offset "
+"will be set automatically to fit the block height. The advantage of the "
+"gmoccapy way is, that you do not need a reference tool."
+msgstr ""
+"Avec le premier changement d'outil, l'outil sera mesuré et le décalage sera "
+"introduit automatiquement dans la hauteur du bloc. L'avantage de la méthode "
+"de gmoccapy est qu'il n'y a pas besoin d'un outil de référence."
+
+#. type: Plain text
+#: gmoccapy.txt:699 gmoccapy.txt:851
+#, no-wrap
+msgid ""
+"[NOTE]\n"
+"=============================================================\n"
+msgstr ""
+"[NOTE]\n"
+"=============================================================\n"
+
+#. type: Plain text
+#: gmoccapy.txt:703
+#, no-wrap
+msgid ""
+"Your program must contain a tool change at the beginning!\n"
+"The tool will be measured, even it has been used before, so there is no danger, if the block height has changed.\n"
+"There are several videos showing the way to do that on you tube.\n"
+"=============================================================\n"
+msgstr ""
+"Votre programme doit contenir un changement d'outil au début!\n"
+"L'outil sera mesuré, même si il a déjà été utilisé avant, donc il n'y a aucun danger, si la hauteur du block a bien été renseignée.\n"
+"Il existe plusieurs vidéos sur youtube montrant cette façon de faire.\n"
+"=============================================================\n"
+
+#. type: Plain text
+#: gmoccapy.txt:706
+msgid "=== Tool measurement pins"
+msgstr "=== Pins de Hal de mesure d'outil"
+
+#. type: Plain text
+#: gmoccapy.txt:709
+msgid ""
+"Gmoccapy offers 5 pins for tool measurement purpose + The pins are mostly "
+"used to be read from a gcode subroutine, so the code can react to different "
+"values."
+msgstr ""
+"Gmoccapy offre 5 pins pour la mesure d'outil\n"
+" Ces pins de Hal sont principalement utilisées pour être lues depuis un sous-"
+"programme en G-code et afin que le code puisse réagir aux différentes "
+"valeurs."
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:715
+msgid "gmoccapy.toolmeasurement = HAL_BIT ; enable or not tool measurement"
+msgstr "gmoccapy.toolmeasurement = HAL_BIT ; active ou non la mesure d'outil"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:715
+msgid ""
+"gmoccapy.blockheight = HAL_FLOAT ; the measured value of the top face of the "
+"workpiece"
+msgstr ""
+"gmoccapy.blockheight = HAL_FLOAT ; la valeur mesurée de la face supérieure "
+"de la pièce"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:715
+msgid "gmoccapy.probeheight = HAL_FLOAT ; the probe switch height"
+msgstr "gmoccapy.probeheight = HAL_FLOAT ; la hauteur du contact de sonde"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:715
+msgid ""
+"gmoccapy.searchvel = HAL_FLOAT ; the velocity to search for the tool probe "
+"switch"
+msgstr ""
+"gmoccapy.searchvel = HAL_FLOAT ; la vitesse de recherche du contact de la "
+"sonde"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:715
+msgid "gmoccapy.probevel = HAL_FLOAT ; the velocity to probe tool length"
+msgstr ""
+"gmoccapy.probevel = HAL_FLOAT ; la vitesse de descente du palpeur lors de la "
+"mesure de longueur d'outil"
+
+#. type: Plain text
+#: gmoccapy.txt:717
+msgid "=== Tool Measurement INI File modifications"
+msgstr "=== Modifications au fichier ini pour la mesure d'outil"
+
+#. type: Plain text
+#: gmoccapy.txt:719
+msgid "Modify your INI File to include the following:"
+msgstr "Modifiez votre fichier ini pour y inclure ce qui suit:"
+
+#. type: Plain text
+#: gmoccapy.txt:721
+msgid "==== The RS274NGC section"
+msgstr "==== La section RS274NGC"
+
+#. type: Plain text
+#: gmoccapy.txt:725
+#, no-wrap
+msgid ""
+" [RS274NGC]\n"
+" # Enables the reading of INI and HAL values from gcode \n"
+" FEATURES=12\n"
+msgstr ""
+" [RS274NGC]\n"
+" # active la lecture de valeurs dans les fichiers ini et HAL depuis le G-code \n"
+" FEATURES=12\n"
+
+#. type: Plain text
+#: gmoccapy.txt:728
+#, no-wrap
+msgid ""
+" # is the sub, with is called when a error during tool change happens\n"
+" ON_ABORT_COMMAND=O <on_abort> call \n"
+msgstr ""
+" # est le sous-programme appelé en cas d'erreur durant un changement d'outil\n"
+" ON_ABORT_COMMAND=O <on_abort> call \n"
+
+#. type: Plain text
+#: gmoccapy.txt:731
+#, no-wrap
+msgid ""
+" # The remap code \n"
+" REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change epilog=change_epilog\n"
+msgstr ""
+" # Le code de remap \n"
+" REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change epilog=change_epilog\n"
+
+#. type: Plain text
+#: gmoccapy.txt:733
+msgid "==== The tool sensor section"
+msgstr "==== Section senseur d'outil"
+
+#. type: Plain text
+#: gmoccapy.txt:736
+msgid ""
+"The position of the tool sensor and the start position of the probing "
+"movement, all values are absolute coordinates, except MAXPROBE, what must be "
+"given in relative movement."
+msgstr ""
+"La position du senseur d'outil et la position de départ du mouvement de "
+"palpage, toutes les valeurs sont en coordonnées absolues, excepté MAXPROBE, "
+"qui doit être donnée en relatif."
+
+#. type: Plain text
+#: gmoccapy.txt:742
+#, no-wrap
+msgid ""
+" [TOOLSENSOR]\n"
+" X = 10\n"
+" Y = 10  \n"
+" Z = -20\n"
+" MAXPROBE =  -20\n"
+msgstr ""
+" [TOOLSENSOR]\n"
+" X = 10\n"
+" Y = 10  \n"
+" Z = -20\n"
+" MAXPROBE =  -20\n"
+
+#. type: Plain text
+#: gmoccapy.txt:744
+msgid "==== The Change position section"
+msgstr "==== La section Position de changement"
+
+#. type: Plain text
+#: gmoccapy.txt:747
+msgid ""
+"this is not named TOOL_CHANGE_POSITION on purpose - canon uses that name and "
+"will interfere otherwise + The position to move the machine before giving "
+"the change tool command. All values are in absolute coordinates"
+msgstr ""
+"non nommée TOOL_CHANGE_POSITION car ce nom est déjà utilisé par l'interface "
+"canonique, ce qui pourrait causer des interférences.\n"
+" C'est la position à laquelle placer le mobile, avant d'envoyer la commande "
+"de changement d'outil. Toutes les valeurs sont en coordonnées absolues"
+
+#. type: Plain text
+#: gmoccapy.txt:752
+#, no-wrap
+msgid ""
+" [CHANGE_POSITION]\n"
+" X = 10\n"
+" Y = 10\n"
+" Z = -2\n"
+msgstr ""
+" [CHANGE_POSITION]\n"
+" X = 10\n"
+" Y = 10\n"
+" Z = -2\n"
+
+#. type: Plain text
+#: gmoccapy.txt:754
+msgid "==== The Python section"
+msgstr "==== La section Python"
+
+#. type: Plain text
+#: gmoccapy.txt:756
+msgid "the Python plugins serves interpreter and task"
+msgstr "La section des plugins Python sert à l'interpréteur et aux tâches"
+
+#. type: Plain text
+#: gmoccapy.txt:762
+#, no-wrap
+msgid ""
+" [PYTHON]\n"
+" # The path to start a search for user modules\n"
+" PATH_PREPEND = python\n"
+" # The start point for all.\n"
+" TOPLEVEL = python/toplevel.py\n"
+msgstr ""
+" [PYTHON]\n"
+" # Le chemin où rechercher les modules personnalisés\n"
+" PATH_PREPEND = python\n"
+" # Le point de départ pour tout.\n"
+" TOPLEVEL = python/toplevel.py\n"
+
+#. type: Plain text
+#: gmoccapy.txt:764
+msgid "=== Needed Files"
+msgstr "=== Fichiers nécessaires"
+
+#. type: Plain text
+#: gmoccapy.txt:766
+msgid "You must copy the following files to your config dir"
+msgstr "Vous devez copier les fichiers suivants dans votre répertoire config"
+
+#. type: Plain text
+#: gmoccapy.txt:772
+#, no-wrap
+msgid ""
+"First make a directory 'python' in your config folder +\n"
+"from 'your_linuxcnc-dev_directory/configs/sim/gmoccapy/python' +\n"
+"Copy 'toplevel.py'  to your 'config_dir/python' folder +\n"
+"Copy 'remap.py'     to your 'config_dir/python' folder +\n"
+"Copy 'stdglue.py'   to your 'config_dir/python' folder +\n"
+msgstr ""
+"Premièrement, créez un répertoire 'python' dans votre dossier config +\n"
+"depuis 'votre_linuxcnc-dev_directory/configs/sim/gmoccapy/python' +\n"
+"Copiez 'toplevel.py' dans votre dossier 'config_dir/python'  +\n"
+"Copiez 'remap.py'   dans votre dossier 'config_dir/python'  +\n"
+"Copiez 'stdglue.py'  dans votre dossier 'config_dir/python'  +\n"
+
+#. type: Plain text
+#: gmoccapy.txt:778
+msgid ""
+"from 'your_linuxcnc-dev_directory/configs/sim/gmoccapy/macros' + copy "
+"'on_abort.ngc' to the directory specified as SUBROUTINE_PATH see <<sub:"
+"RS274NGC, RS274NGC Section>> + from 'your_linuxcnc-dev_directory/configs/sim/"
+"gmoccapy/macros' + copy 'change.ngc' to the directory specified as "
+"SUBROUTINE_PATH see <<sub:RS274NGC, RS274NGC Section>> + open 'change.ngc' "
+"with a editor and uncomment the following lines (49 and 50): +"
+msgstr ""
+"depuis 'votre_linuxcnc-dev_directory/configs/sim/gmoccapy/macros'\n"
+"copiez 'on_abort.ngc' dans le répertoire spécifié comme SUBROUTINE_PATH voir "
+"<<sub:RS274NGC, Section RS274NGC>> \n"
+"depuis 'votre_linuxcnc-dev_directory/configs/sim/gmoccapy/macros'\n"
+"copiez 'change.ngc' dans le répertoire spécifié comme SUBROUTINE_PATH voir "
+"<<sub:RS274NGC, Section RS274NGC>> \n"
+"ouvrir 'change.ngc' avec un éditeur et dé-commentez les lignes suivantes (49 "
+"et 50): +"
+
+#. type: Plain text
+#: gmoccapy.txt:781
+#, no-wrap
+msgid ""
+" F #<_hal[gmoccapy.probevel]>\n"
+" G38.2 Z-4\n"
+msgstr ""
+" F #<_hal[gmoccapy.probevel]>\n"
+" G38.2 Z-4\n"
+
+#. type: Plain text
+#: gmoccapy.txt:783
+msgid ""
+"You may want to modify this file to fit more your needs, feel free, but do "
+"not ask for support ;-)"
+msgstr ""
+"Vous pouvez modifier ce fichier pour l'adapter à vos besoins, n'hésitez pas, "
+"mais ne me demandez pas d'aide ;-)"
+
+#. type: Plain text
+#: gmoccapy.txt:785
+msgid "=== Needed Hal connections"
+msgstr "=== Connections de Hal nécessaires"
+
+#. type: Plain text
+#: gmoccapy.txt:787
+msgid "connect the tool probe in your hal file like so"
+msgstr ""
+"Connectez le contact de la sonde de mesure dans votre fichier hal, de cette "
+"façon"
+
+#. type: Plain text
+#: gmoccapy.txt:789
+#, no-wrap
+msgid " net probe  motion.probe-input <= <your_input_pin>\n"
+msgstr " net probe  motion.probe-input <= <votre_pin_d_entree>\n"
+
+#. type: Plain text
+#: gmoccapy.txt:791
+msgid "The line might look like this:"
+msgstr "La ligne pourrait ressembler à ça:"
+
+#. type: Plain text
+#: gmoccapy.txt:792 gmoccapy.txt:798
+#, no-wrap
+msgid "-------\n"
+msgstr "-------\n"
+
+#. type: Plain text
+#: gmoccapy.txt:794
+#, no-wrap
+msgid ""
+" net probe  motion.probe-input <= parport.0.pin-15-in\n"
+"-------\n"
+msgstr ""
+" net probe  motion.probe-input <= parport.0.pin-15-in\n"
+"-------\n"
+
+#. type: Plain text
+#: gmoccapy.txt:797
+msgid "In your postgui.hal file add:"
+msgstr "Dans votre fichier postgui.hal ajoutez:"
+
+#. type: Plain text
+#: gmoccapy.txt:804
+#, no-wrap
+msgid ""
+" # The next lines are only needed if the pins had been connected before\n"
+" unlinkp iocontrol.0.tool-change\n"
+" unlinkp iocontrol.0.tool-changed\n"
+" unlinkp iocontrol.0.tool-prep-number\n"
+" unlinkp iocontrol.0.tool-prepared\n"
+msgstr ""
+" # Les lignes suivantes sont requises si les pins ont bien été connectées avant\n"
+" unlinkp iocontrol.0.tool-change\n"
+" unlinkp iocontrol.0.tool-changed\n"
+" unlinkp iocontrol.0.tool-prep-number\n"
+" unlinkp iocontrol.0.tool-prepared\n"
+
+#. type: Plain text
+#: gmoccapy.txt:810
+#, no-wrap
+msgid ""
+" # link to gmoccapy toolchange, so you get the advantage of tool description on change dialog\n"
+" net tool-change            gmoccapy.toolchange-change    <=   iocontrol.0.tool-change \n"
+" net tool-changed           gmoccapy.toolchange-changed   <=   iocontrol.0.tool-changed\n"
+" net tool-prep-number       gmoccapy.toolchange-number    <=   iocontrol.0.tool-prep-number\n"
+" net tool-prep-loop         iocontrol.0.tool-prepare      <=   iocontrol.0.tool-prepared\n"
+"-------\n"
+msgstr ""
+" # liens vers le changement d'outil de gmoccapy, ainsi vous aurez\n"
+"# en plus la description de l'outil sur la boite dialogue de changement\n"
+"net tool-change            gmoccapy.toolchange-change    <=   iocontrol.0.tool-change \n"
+"net tool-changed           gmoccapy.toolchange-changed   <=   iocontrol.0.tool-changed\n"
+"net tool-prep-number       gmoccapy.toolchange-number    <=   iocontrol.0.tool-prep-number\n"
+"net tool-prep-loop         iocontrol.0.tool-prepare      <=   iocontrol.0.tool-prepared\n"
+"-------\n"
+
+#. type: Plain text
+#: gmoccapy.txt:813
+msgid "== The settings page [[sub:The_settings_page]]"
+msgstr "== La page des réglages [[sub:The_settings_page]]"
+
+#. type: Plain text
+#: gmoccapy.txt:815
+msgid "To enter the page you will have to click on:"
+msgstr "Cliquez pour entrer dans cette page:"
+
+#. type: Plain text
+#: gmoccapy.txt:817
+msgid "image::images/gmoccapy_settings_button.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_settings_button.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:820
+msgid ""
+"and give an unlock code, witch is *123* as default. If you want to change it "
+"at this time you will have to edit the hidden preference file, see <<sub:"
+"the_display_section,the display section>> for details."
+msgstr ""
+"et donnez un code de déverrrouillage, qui est par défaut *123*. Si vous "
+"voulez le changer à ce moment là, vous devrez éditer le fichier caché des "
+"préférences, voir <<sub:the_display_section,la section DISPLAY>> pour plus "
+"de détails."
+
+#. type: Plain text
+#: gmoccapy.txt:822
+msgid "The page looks at the moment like so:"
+msgstr "A ce moment là, la page ressemble à ça:"
+
+#. type: Plain text
+#: gmoccapy.txt:824
+msgid "image::images/gmoccapy_settings_appearance.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_settings_appearance.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:826
+msgid "The page is separated in three main tabs:"
+msgstr "La page est séparée en trois principaux onglets:"
+
+#. type: Plain text
+#: gmoccapy.txt:828
+msgid "=== Appearance"
+msgstr "=== Apparences"
+
+#. type: Plain text
+#: gmoccapy.txt:830
+msgid "on this tab you will find the following options:"
+msgstr "Sur cet onglet vous trouverez les options suivantes:"
+
+#. type: Plain text
+#: gmoccapy.txt:832
+msgid "==== Main Window"
+msgstr "==== Fenêtre principale"
+
+#. type: Plain text
+#: gmoccapy.txt:835
+msgid ""
+"Here you can select how you wish the GUI to start. The main reason for this "
+"was the wish to get an easy way for the user to set the starting options "
+"without the need to touch code."
+msgstr ""
+"Ici vous pouvez choisir l'aspect de l'interface graphique que vous voulez "
+"pour démarrer. La principale raison à cela était le souhait d'avoir un moyen "
+"facile pour l'opérateur de définir les options sans avoir à écrire de code."
+
+#. type: Plain text
+#: gmoccapy.txt:837
+msgid "You have three options:"
+msgstr "Vous avez trois options:"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:841
+msgid "start as fullscreen"
+msgstr "Démarrer en plein écran"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:841
+msgid "start maximized"
+msgstr "Démarrer avec un écran maximisé"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:841
+msgid "start as window"
+msgstr "Démarrer dans une fenêtre"
+
+#. type: Plain text
+#: gmoccapy.txt:845
+msgid ""
+"If you select start as window the spinboxes to set the position and size "
+"will get active. One time set, the GUI will start every time on the place "
+"and with the size selected. Nevertheless the user can change the size and "
+"position using the mouse, but that will not have any influence on the "
+"settings."
+msgstr ""
+"Si vous choisissez de démarrer dans une fenêtre, les boutons de taille et de "
+"position de la fenêtre deviendront actifs. Une fois ajustée, l'interface "
+"graphique re-démarrera à chaque fois dans la même position et avec la même "
+"taille. Néanmoins, l'opérateur pourras modifier la taille et la position à "
+"l'aide de la souris, mais ça n'auras pas d'influence sur les réglages "
+"initiaux."
+
+#. type: Plain text
+#: gmoccapy.txt:847
+msgid ""
+"'*hide the cursor*' does allow to hide the cursor, what is very useful if "
+"you use a touch screen."
+msgstr ""
+"'cacher le curseur' permet de cacher le curseur, ce qui est très utile si "
+"vous utilisez un écran tactile."
+
+#. type: Plain text
+#: gmoccapy.txt:849
+msgid "==== Keyboard"
+msgstr "==== Clavier"
+
+#. type: Plain text
+#: gmoccapy.txt:854
+#, no-wrap
+msgid ""
+"If this section is not sensitive, you have not installed a virtual keyboard, +\n"
+"supported are *onboard* and *matchbox-keyboard*.\n"
+"=============================================================\n"
+msgstr ""
+"Si cette section n'est pas active, c'est parce que vous n'avez pas installé de clavier virtuel, +\n"
+"Les claviers pris en charges sont *embarqué* et *matchbox-keyboard*.\n"
+"=============================================================\n"
+
+#. type: Plain text
+#: gmoccapy.txt:861
+msgid ""
+"The check-boxes allows the user to select if he want the on board keyboard "
+"to be shown immediately, when entering the MDI Mode, when entering the "
+"offset page, the tooledit widget or when open a program in the EDIT mode. "
+"The keyboard button on the bottom button list will not been affected by this "
+"settings, so you be able to show or hide the keyboard by pressing the "
+"button. The default behavior will be set by the check-boxes."
+msgstr ""
+"Les cases à cocher permettent à l'utilisateur de sélectionner si il veut "
+"qu'un clavier embarqué s'ouvre immédiatement, en entrant en mode MDI, en "
+"entrant sur la page d'offset, le widget d'édition de tables d'outils ou en "
+"ouvrant un programme en mode EDIT. Le bouton de clavier dans la liste de "
+"boutons du bas ne sera pas affecté par ce choix, il vous sera possible de "
+"cacher ou d'ouvrir le clavier en pressant ce bouton. Le comportement par "
+"défaut sera fixé par les cases à cocher."
+
+#. type: Plain text
+#: gmoccapy.txt:863
+msgid "Default are :"
+msgstr "Par défault :"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:869
+msgid "show keyboard on offset = True"
+msgstr "Montrer le clavier en offset = True"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:869
+msgid "show keyboard on tooledit = False"
+msgstr "Montrer le clavier en tooledit = False"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:869
+msgid "show keyboard on MDI = True"
+msgstr "Montrer le clavier en MDI = True"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:869
+msgid "show keyboard on EDIT = True"
+msgstr "Montrer le clavier en EDIT = True"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:869
+msgid "show keyboard on load file = False"
+msgstr "Montrer le clavier lors du chargement d'un fichier = False"
+
+#. type: Plain text
+#: gmoccapy.txt:873
+msgid ""
+"If the keyboard layout is not correct, i.e. clicking X gives Z, than the "
+"layout has not been set properly, related to your locale settings. + For "
+"onboard it can be solved with a small batch file with the following content:"
+msgstr ""
+"Si la disposition du clavier est incorrecte, par exemple: cliquer Z donne W, "
+"c'est lié à vos paramètres régionaux qui n'ont pas été réglés correctement.\n"
+"Pour le clavier embarqué, ça peut être résolu par le petit fichier batch "
+"avec le contenu suivant:"
+
+#. type: Plain text
+#: gmoccapy.txt:874
+#, no-wrap
+msgid "---------\n"
+msgstr "---------\n"
+
+#. type: Plain text
+#: gmoccapy.txt:877
+#, no-wrap
+msgid ""
+" #!/bin/bash\n"
+" setxkbmap -model pc105 -layout de -variant basic\n"
+"---------\n"
+msgstr ""
+" #!/bin/bash\n"
+" setxkbmap -model pc105 -layout fr -variant basic\n"
+"---------\n"
+
+#. type: Plain text
+#: gmoccapy.txt:881
+msgid ""
+"the letters \"de\" are for German, you will have to set them according to "
+"your locale settings + Just execute this file before starting LinuxCNC, it "
+"can be done also adding a starter to your local folder"
+msgstr ""
+"Les lettres \"fr\" sont pour la France, vous devez les régler correctement "
+"en accord avec vos réglages locaux +  Exécutez ce fichier avant le démarrage "
+"de LinuxCNC, il peux être bien aussi, d'ajouter un lanceur dans votre "
+"dossier local"
+
+#. type: Plain text
+#: gmoccapy.txt:883
+#, no-wrap
+msgid " ./config/autostart \n"
+msgstr " ./config/autostart \n"
+
+#. type: Plain text
+#: gmoccapy.txt:885
+msgid "so that the layout is set automatically on starting."
+msgstr ""
+"de sorte que l'interface graphique s'ouvre automatiquement au démarrage."
+
+#. type: Plain text
+#: gmoccapy.txt:887
+msgid ""
+"For matchbox-keyboard you will have to make your own layout, for a German "
+"layout ask in the forum."
+msgstr ""
+"Pour un matchbox-keyboard vous aurez à faire votre propre mise en page, pour "
+"une mise en page en Allemand, demandez sur le forum."
+
+#. type: Plain text
+#: gmoccapy.txt:889
+msgid "==== On Touch Off"
+msgstr "==== Touch Off On"
+
+#. type: Plain text
+#: gmoccapy.txt:892
+msgid ""
+"give the option to show the preview tab or the offset page tab if you enter "
+"the touch off mode by clicking the corresponding bottom button."
+msgstr ""
+"offre l'option de montrer l'onglet de parcours d'outil, ou l'onglet de la "
+"page d'offset, si vous entrez en mode toucher en cliquant le bouton "
+"correspondant parmi les boutons du bas."
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:895
+msgid "show preview"
+msgstr "montrer le parcours d'outil"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:895
+msgid "show offsets"
+msgstr "montrer les offsets"
+
+#. type: Plain text
+#: gmoccapy.txt:897
+msgid ""
+"As the notebook tabs are shown, you are able to switch between both views in "
+"any case."
+msgstr ""
+"Comme les onglets sont affichés, vous êtes en mesure de basculer d'une vue à "
+"l'autre dans tous les cas."
+
+#. type: Plain text
+#: gmoccapy.txt:899
+msgid "==== DRO Options"
+msgstr "==== Options de DRO"
+
+#. type: Plain text
+#: gmoccapy.txt:902
+msgid ""
+"You have the option to select the background colors of the different DRO "
+"states.  So users suffering from protanopia (red/green weakness) are able to "
+"select proper colors"
+msgstr ""
+"Vous pouvez choisir les couleurs de fond selon les différents états des DRO. "
+"Ainsi, les utilisateurs souffrant de protanopie (faiblesse au rouge/vert) "
+"seront en mesure de choisir les couleurs appropriées"
+
+#. type: Plain text
+#: gmoccapy.txt:904
+msgid "By default the backgrounds are:"
+msgstr "Par défaut, les couleurs sont les suivantes:"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:908
+msgid "Relative mode = black"
+msgstr "Mode relatif = black"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:908
+msgid "Absolute mode = blue"
+msgstr "Mode absolu = blue"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:908
+msgid "Distance to go = yellow"
+msgstr "Distance restante = yellow"
+
+#. type: Plain text
+#: gmoccapy.txt:910
+msgid "and the foreground color of the DRO can be selected with:"
+msgstr "et la couleur de fond du DRO peut être choisie avec:"
+
+#. type: Plain text
+#: gmoccapy.txt:913
+#, no-wrap
+msgid ""
+"* homed color   = green\n"
+"* unhomed color = red\n"
+msgstr ""
+"* homed color   = green\n"
+"* unhomed color = red\n"
+
+#. type: Plain text
+#: gmoccapy.txt:919
+#, no-wrap
+msgid ""
+"'show dro in preview', the DRO will be shown in the preview window +\n"
+"'show offsets', the Offsets will be shown in the preview window +\n"
+"'show DTG' , the distance to go will be shown in the preview window + +\n"
+" +\n"
+"'show DRO Button' will allow you to display additional buttons on the left side of the DRO. +\n"
+msgstr ""
+"'show dro in preview', le DRO est affiché dans la fenêtre de parcours d'outil +\n"
+"'show offsets', les décalages sont affichés dans la fenêtre de parcours d'outil +\n"
+"'show DTG' , la distance restante est affichée dans la fenêtre de parcours d'outil +\n"
+" \n"
+"'show DRO Button' vous permet d'afficher un bouton additionnel sur le côté gauche du DRO. +\n"
+
+#. type: Plain text
+#: gmoccapy.txt:924
+msgid ""
+"It will display: + one button to switch from relative to absolute "
+"coordinates, + one button to toggle between distance to go and the other "
+"states + and one button to toggle the units from metric to imperial and vice "
+"versa."
+msgstr ""
+"Seront affichés:  un bouton pour basculer entre coordonnées relatives et "
+"coordonnées absolues, + un bouton pour basculer entre la distance restante "
+"et les autres états + et un bouton pour basculer entre les unités, de "
+"métriques vers impériales et vice versa."
+
+#. type: Plain text
+#: gmoccapy.txt:927
+msgid ""
+"WARNING: It is not recommended to use this option, because the user will "
+"loose the auto unit option, which will toggle the units according to the "
+"active gcode G20 / G21"
+msgstr ""
+"WARNING: Il n'est pas du tout recommandé d'utiliser cette option, parce que "
+"l'opérateur peux perdre l'option d'unité automatique, qui va basculer les "
+"unités en accord avec le G-code actif G20 / G21"
+
+#. type: Plain text
+#: gmoccapy.txt:929
+msgid ""
+"NOTE: *You can change through the DRO modes (absolute, relative, distance to "
+"go) by clicking on the DRO!*"
+msgstr ""
+"NOTE: *Vous pouvez changer cycliquement les modes du DRO (absolu, relatif, "
+"distance restante), en cliquant directement sur celui-ci!*"
+
+#. type: Plain text
+#: gmoccapy.txt:931
+msgid ""
+"'Use Auto Units' allows to disable the auto units option of the display, so "
+"you can run a program in inches and watch the DRO in mm."
+msgstr ""
+"'Utilisez Unités Auto' permet de désactiver l'option d'unités auto de "
+"l'affichage, ainsi vous pouvez exécuter un programme en pouces et regarder "
+"la visu en mm."
+
+#. type: Plain text
+#: gmoccapy.txt:933
+msgid ""
+"'size' allows to set the size of the DRO font, default is 28, if you use a "
+"bigger screen you may want to increase the size up to 56. If you do use 4 "
+"axis, the DRO font size will be 3/4 of the value, because of space reason."
+msgstr ""
+"'taille' permet d'ajuster la taille de la police du DRO, par défaut à 28, si "
+"vous utilisez un grand écran, vous pouvez augmenter cette valeur jusqu'à 56. "
+"Si vous utilisez 4 axes, la fonct du DRO sera des 3/4 de cette valeur, pour "
+"des raisons d'espace."
+
+#. type: Plain text
+#: gmoccapy.txt:936
+msgid ""
+"'digits' sets the number of digits of the DRO from 1 to 5.  NOTE: Imperial "
+"will show one digit more that metric. So if you are in imperial machine "
+"units and set the digit value to 1, you will get no digit at all in metric."
+msgstr ""
+"'digits' ajuste le nombre de digits du DRO, entre 1 et 5.  NOTE: Impériale "
+"affiche un digit de plus que métrique. Donc, si vous êtes en unités machine "
+"impériales et que vous entrez la valeur 1, vous ne verrez aucun digit en "
+"métrique."
+
+#. type: Plain text
+#: gmoccapy.txt:938
+msgid "==== Preview"
+msgstr "==== Parcours d'outil"
+
+#. type: Plain text
+#: gmoccapy.txt:943
+msgid ""
+"'Grid Size' + Sets the grid size of the preview window. + Unfortunately the "
+"size *has to be set in inches*, even if your machine units are metric.  We "
+"do hope to fix that in a future release."
+msgstr ""
+"'Grid Size'  Ajuste la taille de la grille dans la fenêtre du parcours "
+"d'outil.\n"
+"Malheureusement, cette taille *doit être réglée en pouces*, même si votre "
+"unité machine est métrique.  Nous espérons corriger ça dans une future "
+"version."
+
+#. type: Plain text
+#: gmoccapy.txt:945
+msgid "NOTE: The grid will not be shown in perspective view."
+msgstr "NOTE: La grille n'est pas visible dans la vue en perspective."
+
+#. type: Plain text
+#: gmoccapy.txt:948
+msgid ""
+"'Show DRO' + Will show the a DRO also in the preview window, it will be "
+"shown automatically in fullsize preview"
+msgstr ""
+"'Show DRO'  Affichera un DRO également dans la fenêtre du parcours d'outil, "
+"il s'affichera aussi automatiquement en mode parcours d'outil en plein écran"
+
+#. type: Plain text
+#: gmoccapy.txt:952
+msgid ""
+"'Show DTG' + Will show also the DTG (direct distance to end point) in the "
+"preview, only if Show DRO is active and not fullsize preview."
+msgstr ""
+"'Show DTG'  Affichera aussi le DTG (distance restante) dans le parcours "
+"d'outil, seulement si Afficher DRO est actif et non en parcours d'outil "
+"pleine taille."
+
+#. type: Plain text
+#: gmoccapy.txt:955
+msgid "'Show Offsets' + Will show the offsets in the preview window,"
+msgstr ""
+"'Show Offsets'  Affichera les décalages dans la fenêtre de parcours d'outil,"
+
+#. type: Plain text
+#: gmoccapy.txt:957
+msgid ""
+"NOTE: If you only check this option and leave the others unchecked, you will "
+"get in fullsize preview a offset page"
+msgstr ""
+"NOTE: Si vous cochez seulement cette option et laissez les autres non "
+"cochées, vous aurez en parcours d'outil pleine taille, une page de décalages"
+
+#. type: Plain text
+#: gmoccapy.txt:960
+msgid ""
+"'Mouse Button Mode' + With this combobox you can select the button behavior "
+"of the mouse to rotate, move or zoom within the preview. +"
+msgstr ""
+"'Mode bouton souris' + Avec cette liste déroulante, vous pouvez sélectionner "
+"le comportement des boutons de la souris pour faire pivoter, déplacer ou "
+"zoomer le parcours d'outil. +"
+
+#. type: Plain text
+#: gmoccapy.txt:967
+#, no-wrap
+msgid ""
+" * left rotate, middle move,   right zoom\n"
+" * left zoom,   middle move,   right rotate\n"
+" * left move,   middle rotate, right zoom\n"
+" * left zoom,   middle rotate, right move\n"
+" * left move,   middle zoom,   right rotate\n"
+" * left rotate, middle zoom,   right move\n"
+msgstr ""
+" * gauche rotation, milieu déplacement,   droite zoom\n"
+" * gauche zoom,  milieu déplacement,   droite rotation\n"
+" * gauche déplacement,  milieu rotation,  droite zoom\n"
+" * gauche zoom,  milieu rotation,  droite déplacement\n"
+" * gauche déplacement,  milieu zoom,   droite rotation\n"
+" * gauche rotation, milieu zoom,   droite déplacement\n"
+
+#. type: Plain text
+#: gmoccapy.txt:969
+msgid "Default is left move, middle zoom, right rotate"
+msgstr "Par défaut: gauche déplacement, milieu zoom, droite rotation"
+
+#. type: Plain text
+#: gmoccapy.txt:971
+msgid "The mouse wheel will still zoom the preview in every mode."
+msgstr ""
+"La roulette de la souris va zoomer le parcours d'outil dans tous les modes."
+
+#. type: Plain text
+#: gmoccapy.txt:973
+msgid ""
+"TIP: If you select an element in the preview, the selected element will be "
+"taken as rotation center point."
+msgstr ""
+"TIP: Si vous sélectionnez un élément dans le parcours d'outil, l'élément "
+"sélectionné sera pris comme point central des rotations."
+
+#. type: Plain text
+#: gmoccapy.txt:975
+msgid "==== File to load on start up"
+msgstr "==== Fichier à charger au démarrage"
+
+#. type: Plain text
+#: gmoccapy.txt:978
+msgid ""
+"Select the file you want to be loaded on start up.  In other GUI changing "
+"this was very cumbersome, because the users where forced to edit the INI "
+"File."
+msgstr ""
+"Sélectionnez le fichier que vous voulez charger au démarrage.  Dans les "
+"autres interfaces graphiques c'était très lourd, parce que les utilisateurs "
+"étaient obligés d'éditer le fichier ini."
+
+#. type: Plain text
+#: gmoccapy.txt:981
+msgid ""
+"If a file is loaded, it can be set by pressing the current button to avoid "
+"that any program is loaded at start up, just press the None button."
+msgstr ""
+"Si un fichier est chargé, il peut être réglé en pressant le bouton courant "
+"afin d'éviter que tout autre fichier soit chargé au démarrage, pressez juste "
+"le bouton Aucun."
+
+#. type: Plain text
+#: gmoccapy.txt:985
+msgid ""
+"The file selection screen will use the filters you have set in the INI File, "
+"if there aren't any filters given, you will only see *ngc* files.  The path "
+"will be set according to the INI settings in [DISPLAY] PROGRAM_PREFIX"
+msgstr ""
+"L'écran de sélection de fichier utilise les filtres que vous avez défini "
+"dans le fichier ini, Si aucun filtre n'est trouvé, vous verrez seulement les "
+"fichiers *ngc*.  Le chemin sera réglé selon les paramètres de la section "
+"[DISPLAY] PROGRAM_PREFIX du fichier ini."
+
+#. type: Plain text
+#: gmoccapy.txt:987
+msgid "==== Jump to dir"
+msgstr "==== Saut au répertoire"
+
+#. type: Plain text
+#: gmoccapy.txt:990
+msgid ""
+"you can set here the directory to jump to if you press the corresponding "
+"button in the file selection dialog."
+msgstr ""
+"Vous pouvez ajuster ici le répertoire dans lequel sauter si vous pressez le "
+"bouton correspondant dans le dialogue de sélection de fichier."
+
+#. type: Plain text
+#: gmoccapy.txt:992
+msgid ""
+"image::images/gmoccapy_file_selection_dialog_with_keyboard.png[align=\"left"
+"\"]"
+msgstr ""
+"image::images/gmoccapy_file_selection_dialog_with_keyboard.png[align=\"left"
+"\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:994
+msgid "==== Themes and Sounds"
+msgstr "==== Thèmes et Sons"
+
+#. type: Plain text
+#: gmoccapy.txt:997
+msgid ""
+"This lets the user select what desktop theme to apply and what error and "
+"messages sounds should be played.  By default \"Follow System Theme\" is set."
+msgstr ""
+"Ceci permet à l'utilisateur de sélectionner quel thème de bureau appliquer "
+"et quels sons de messages d'erreur devraient être joués.  Par défaut "
+"\"Follow System Theme\" est réglé."
+
+#. type: Plain text
+#: gmoccapy.txt:999
+msgid "=== Hardware"
+msgstr "=== Matériel"
+
+#. type: Plain text
+#: gmoccapy.txt:1001
+msgid "image::images/gmoccapy_settings_hardware.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_settings_hardware.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:1003
+msgid "==== Hardware MPG Scales"
+msgstr "==== Échelle matériel MPG "
+
+#. type: Plain text
+#: gmoccapy.txt:1010
+msgid ""
+"For the different Hal Pin to connect MPG Wheels to, you may select "
+"individual scales to be applied.  The main reason for this was my own test "
+"to solve this through hal connections, resulting in a very complex hal file. "
+"Imagine a user having an MPG Wheel with 100 ipr and he wants to slow down "
+"the max vel from 14000 to 2000 mm/min, that needs 12000 impulses, resulting "
+"in 120 turns of the wheel! Or an other user having a MPG Wheel with 500 ipr "
+"and he wants to set the spindle override witch has limits from 50 to 120 % "
+"so he goes from min to max within 70 impulses, meaning not even 1/4 turn."
+msgstr ""
+"Échelles pour les différentes pins de Hal à connecter à la manivelle du MPG, "
+"vous pouvez sélectionner des échelles individuelles à appliquer.  La raison "
+"principale était mon propre test pour résoudre ça grâce à des connections de "
+"Hal, le résultat était un fichier de Hal vraiment très complexe. Imaginez un "
+"utilisateur ayant un MPG avec 100 ipt et qui veux ralentir la vitesse max de "
+"14000 à 2000 mm/min, il lui faut 12000 impulsions, ce qui demande 120 tours "
+"de molette! Ou un autre utilisateur ayant une manivelle MPG avec 500ipt et "
+"qui veux ajuster le correcteur de vitesse broche à des limites entre 50 et "
+"120% alors il ira du minimum au maximum en 70 impulsions, ce qui veux dire "
+"même pas 1/4 de tour."
+
+#. type: Plain text
+#: gmoccapy.txt:1012
+msgid "By default all scales are set using the calculation:"
+msgstr ""
+"Par défaut, toutes les échelles sont réglées en utilisant cette formule:"
+
+#. type: Plain text
+#: gmoccapy.txt:1014
+#, no-wrap
+msgid " (MAX - MIN)/100\n"
+msgstr " (MAX - MIN)/100\n"
+
+#. type: Plain text
+#: gmoccapy.txt:1016
+msgid "==== Keyboard shortcuts"
+msgstr "==== Les raccourcis clavier"
+
+#. type: Plain text
+#: gmoccapy.txt:1019
+msgid ""
+"Some users want to jog there machine using the keyboard buttons and there "
+"are others that will never allow this.  So everybody can select whether to "
+"use them or not."
+msgstr ""
+"Certains utilisateurs veulent jogger leur machine en utilisant les touches "
+"du clavier et d'autres qui ne permettrons jamais cela. Donc, tout le monde "
+"pourras choisir de les utiliser ou non."
+
+#. type: Plain text
+#: gmoccapy.txt:1021
+msgid "Default is to use keyboard shortcuts."
+msgstr "Par défaut il est possible d'utiliser les raccourcis clavier."
+
+#. type: Plain text
+#: gmoccapy.txt:1023
+msgid ""
+"Please take care if you use a lathe, than the shortcuts will be different. "
+"See <<sub:LATHE_specific_section,the Lathe section>>"
+msgstr ""
+"Faites attention, si vous utilisez un tour, les raccourcis seront "
+"différents. Voir <<sub:LATHE_specific_section,la section tour>>"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1030
+msgid "Arrow Left = X minus"
+msgstr "Flèche vers la gauche = X moins"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1030
+msgid "Arrow Right = X plus"
+msgstr "Flèce vers la droite = X plus"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1030
+msgid "Arrow up = Y plus"
+msgstr "Flèche vers le haut = Y plus"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1030
+msgid "Arrow Down = Y minus"
+msgstr "Flèche vers le bas = Y moins"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1030
+msgid "Page Up = Z plus"
+msgstr "Page Up = Z plus"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1030
+msgid "Page Down = Z minus"
+msgstr "Page Down = Z moins"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1033
+msgid "F1 = Estop (will work even if keyboard shortcuts are disabled)"
+msgstr ""
+"F1 = Arrêt d'urgence (il fonctionne même si les raccourcis clavier sont "
+"désactivés)"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1033
+msgid "F2 = Machine on"
+msgstr "F2 = Marche machine"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1035
+msgid "ESC = Abort"
+msgstr "ESC = Abandon"
+
+#. type: Plain text
+#: gmoccapy.txt:1039
+#, no-wrap
+msgid ""
+"There are additional keys for message handling, see <<sub:Message_behavior_and_appearance,Message behavior and appearance>>\n"
+" * WINDOWS = Delete last message\n"
+" * <STRG><SPACE> = Delete all messages\n"
+msgstr ""
+"Il existe d'autres touches pour gérer les messages, voir <<sub:Message_behavior_and_appearance,Message comportement et apparences>>\n"
+"* WINDOWS = Effacer le dernier message\n"
+"* <STRG><SPACE> = Effacer tous les messages\n"
+
+#. type: Plain text
+#: gmoccapy.txt:1041
+msgid "==== Unlock options"
+msgstr "==== Options de déverrouillage"
+
+#. type: Plain text
+#: gmoccapy.txt:1043
+msgid "you have three options to unlock the settings page:"
+msgstr ""
+"vous disposez de trois options pour déverrouiller la page des réglages:"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:1047
+msgid "use unlock code (the user must give a code to get in)"
+msgstr ""
+"utiliser un code de déverrouillage (l'utilisateur doit donner le code pour "
+"pouvoir entrer)"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:1047
+msgid ""
+"Do not use unlock code (There will be no security check, not recommended)"
+msgstr ""
+"Ne pas utiliser de code de déverrouillage (il n'y aura pas de vérification "
+"de sécurité, pas recommandé)"
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:1047
+msgid ""
+"Use hal pin to unlock (hardware pin must be high to unlock the settings, see "
+"<<sub:hardware_unlock_pin, hardware unlock pin>>"
+msgstr ""
+"Utiliser une pin de Hal pour déverrouiller (une pin matérielle doit être "
+"haute pour déverrouiller la page des réglages, voir <<sub:"
+"hardware_unlock_pin, pin de déverrouillage matérielle>>"
+
+#. type: Plain text
+#: gmoccapy.txt:1049
+msgid "Default is use unlock code (default = *123*)"
+msgstr "Par défaut, utilise le code de déverrouillage (default = *123*)"
+
+#. type: Plain text
+#: gmoccapy.txt:1051
+msgid "==== Spindle"
+msgstr "==== La broche"
+
+#. type: Plain text
+#: gmoccapy.txt:1053
+msgid ""
+"The start RPM sets the rpm to be used if the spindle is started and no S "
+"value has been set."
+msgstr ""
+"La vitesse de démarrage Ajuste la vitesse de rotation de la broche à "
+"utiliser si la broche démarrée sans avoir fixé la valeur S."
+
+#. type: Plain text
+#: gmoccapy.txt:1056
+msgid ""
+"With the MIN and MAX settings you set the limits of the spindle bar shown in "
+"the INFO frame on the main screen. It is no error giving wrong values. If "
+"you give a maximum of 2000 and your spindle makes 4000 rpm, only the bar "
+"level will be wrong on higher speeds than 2000 rpm."
+msgstr ""
+"Avec les réglages MIN et MAX, vous réglez les limites de la barre de vitesse "
+"du cadre INFO de l'écran principal. Aucune erreur ne sera donnée si les "
+"valeurs sont mauvaises. Si vous donnez un maximum de 2000 et que votre "
+"broche tourne à 4000 tr/mn, seul le niveau de la barre de vitesse sera "
+"mauvais aux vitesses supérieures à 2000 tr/mn."
+
+#. type: Plain text
+#: gmoccapy.txt:1060
+#, no-wrap
+msgid ""
+" default values are\n"
+" MIN = 0\n"
+" MAX = 6000\n"
+msgstr ""
+" les valeurs par défaut sont\n"
+" MIN = 0\n"
+" MAX = 6000\n"
+
+#. type: Plain text
+#: gmoccapy.txt:1062
+msgid "==== Turtle Jog [[sub:turtle_jog]]"
+msgstr "==== Jog tortue [[sub:turtle_jog]]"
+
+#. type: Plain text
+#: gmoccapy.txt:1064
+msgid "This settings will have influence on the jog velocities."
+msgstr "Ce réglage va influer sur les vitesses de jog."
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:1067
+msgid ""
+"'hide turtle jog button' will hide the button right of the jog velocity "
+"slider, if you hide this button, please take care that it shows the rabbit "
+"icon, otherwise you will not be able to jog faster than the turtle jog "
+"velocity, which is calculated using the turtle jog factor."
+msgstr ""
+"'cacher le bouton de jog-tortue' le bouton, à droite du curseur de vitesse, "
+"sera masqué, si vous masquez ce bouton, attention que son icône devienne "
+"bien celle du lapin, autrement il ne serait plus possible de jogger plus "
+"rapidement qu'à la vitesse du jog-tortue, qui est calculée avec le facteur "
+"de jog-tortue."
+
+#. type: Bullet: '* '
+#: gmoccapy.txt:1067
+msgid ""
+"'Turtle jog factor' sets the scale to apply for turtle jog mode. If you set "
+"a factor of 20, the max jog velocity will be 1/20 of max velocity of the "
+"machine if in turtle mode (button pressed, showing the turtle)"
+msgstr ""
+"'Facteur de jog-tortue' fixe le facteur d'échelle à appliquer au mode jog-"
+"tortue. Si vous réglez un facteur de 20, la vitesse de jog maximale sera de "
+"1/20 de la vitesse machine maximale si ce mode est activé (bouton pressé, "
+"icône de tortue)"
+
+#. type: Plain text
+#: gmoccapy.txt:1069
+msgid ""
+"NOTE: This button can be activated using the <<sub:Jog_Vel_and_Turtle-Jog,"
+"turtle-jog>> hal pin."
+msgstr ""
+"NOTE: Ce bouton peut être activé en utilisant la pin de Hal <<sub:"
+"Jog_Vel_and_Turtle-Jog,turtle-jog>>."
+
+#. type: Plain text
+#: gmoccapy.txt:1071
+msgid "=== Advanced Settings"
+msgstr "=== Réglages avancés"
+
+#. type: Plain text
+#: gmoccapy.txt:1073
+msgid "image::images/gmoccapy_settings_advanced.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_settings_advanced.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:1075
+msgid "==== Tool Measurement [[sub:Tool_Measurement_Setup]]"
+msgstr "==== Mesure de longueur d'outil [[sub:Tool_Measurement_Setup]]"
+
+#. type: Plain text
+#: gmoccapy.txt:1077
+msgid ""
+"If this part is not sensitive, you do not have a valid INI file "
+"configuration to use tool measurement."
+msgstr ""
+"Si cette partie n'est pas active, c'est que vous n'avez pas configuré la "
+"mesure d'outil dans le fichier ini."
+
+#. type: Plain text
+#: gmoccapy.txt:1079
+msgid "Please check <<sub:Auto_Tool_Measurement, Auto Tool Measurement>>"
+msgstr ""
+"Veuillez vous référer au chapitre: <<sub:Auto_Tool_Measurement, Mesure "
+"automatique d'outil>>"
+
+#. type: Plain text
+#: gmoccapy.txt:1082
+#, no-wrap
+msgid ""
+"* Use auto tool measurement : If checked, after each tool change, a tool measurement will be done, \n"
+"the result will be stored in the tool table and an G43 will be executed after the change.\n"
+msgstr ""
+"* Utiliser la mesure d'outil automatique : Si coché, une mesure de longueur d'outil sera effectuée après chaque changement d'outil, \n"
+"le résultat sera stocké dans la table d'outils et un G43 sera exécuté après le changement.\n"
+
+#. type: Plain text
+#: gmoccapy.txt:1085
+#, no-wrap
+msgid ""
+"*Probe informations* +\n"
+"The following informations are taken from your INI file and must be given in absolute coordinates\n"
+msgstr ""
+"*Informations sonde* +\n"
+"Les informations suivantes sont tirées du fichier ini et doivent être fournies en coordonnées absolues\n"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1089
+msgid "X Pos. = The X position of the tool switch"
+msgstr "X Pos. = C'est la position en X du contact de sonde"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1089
+msgid "Y Pos. = The Y position of the tool switch"
+msgstr "Y Pos. = C'est la position en Y du contact de sonde"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1089
+msgid ""
+"Z Pos. = The X position of the tool switch, we will go as rapid move to this "
+"coordinate"
+msgstr ""
+"Z Pos. = C'est la position de sécurité en Z, au dessus du contact de sonde, "
+"le mouvement de plongée jusqu'à cette coordonnée, se fera en vitesse rapide"
+
+#. type: Plain text
+#: gmoccapy.txt:1093
+#, no-wrap
+msgid ""
+" * Max. Probe = is the distance to search for contact, an error will be launched, if no contact is given. \n"
+"                The distance has to be given in relative coordinates, beginning the move from Z Pos., \n"
+"                so you have to give a negative value to go down!\n"
+msgstr ""
+" * Max. Sonde = C'est la profondeur maximale jusqu'à laquelle le palpeur pourras chercher le contact de sonde, une erreur se produira si le contact n'est pas rencontré. \n"
+"                Cette cote doit être donnée en coordonnées relatives à la pièce, en commençant le mouvement depuis Z Pos., \n"
+"                de sorte que cette cote doit être négative pour aller en plongée!\n"
+
+#. type: Plain text
+#: gmoccapy.txt:1097
+#, no-wrap
+msgid ""
+" * Probe Height = is the height of your probe switch, you can measure it. Just touch off the base, \n"
+"                  where the probe switch is located and set that to zero. Then make a tool change \n"
+"                  and watch the tool_offset_z value, that is the hight you must enter here.\n"
+msgstr ""
+" * Hauteur sonde = C'est la hauteur du contact de sonde, qui peut être mesurée. Touchez la base, \n"
+"                  sur laquelle le contact de sonde est posé et faites le zéro en Z. Puis faites un changement d'outil \n"
+"                  et regardez la valeur de 'tool_offset_z', c'est cette valeur que vous devez saisir ici.\n"
+
+#. type: Plain text
+#: gmoccapy.txt:1099
+#, no-wrap
+msgid "*Probe velocities* +\n"
+msgstr "*Vitesses sonde* +\n"
+
+#. type: Plain text
+#: gmoccapy.txt:1105
+#, no-wrap
+msgid ""
+" * Search Vel. = The velocity to search for the tool switch, after contact the tool will go up again \n"
+"                and then goes toward the probe again with probe vel, so you will get better results. \n"
+" * Probe Vel. = Is the velocity for the second movement to the switch, it should be slower to get better \n"
+"                touch results.(In sim mode, this is commented out in macros/change.ngc, otherwise the \n"
+"                user would have to click twice on the probe button)\n"
+msgstr ""
+" * Vitesse rech. = C'est la vitesse de recherche du contact de sonde, après l'activation du contact, l'outil remonte pour \n"
+"                dégager le contact, puis replonge de nouveau en 'Vitesse sonde', pour affiner les résultats. \n"
+" * Vitesse sonde = C'est la vitesse du second mouvement vers le contact, elle doit être assez faible pour obtenir les meilleurs \n"
+"                résultats au toucher.(En mode simulation, c'est commenté dans macros/change.ngc, autrement l'utilisateur \n"
+"                devra double-cliquer sur le bouton de sonde)\n"
+
+#. type: Plain text
+#: gmoccapy.txt:1109
+#, no-wrap
+msgid ""
+"*Tool Changer* +\n"
+"If your 4'th axis is used in a tool changer, you may want to hide the DRO and all the other buttons \n"
+"related to that axis. +\n"
+msgstr ""
+"*Changeur d'outil* +\n"
+"Si un quatrième axe est utilisé pour un changeur d'outil, vous pouvez cacher le DRO tous les autres boutons \n"
+"relatifs à cet axe. +\n"
+
+#. type: Plain text
+#: gmoccapy.txt:1111
+msgid "You can do that by checking the checkbox, that will hide: +"
+msgstr "Vous pouvez le faire en cochant la case, ce qui masquera: +"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1117
+msgid "4'th axis DRO"
+msgstr "DRO du 4eme axe"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1117
+msgid "4'th axis Jog button"
+msgstr "Bouton de jog du 4eme axe"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1117
+msgid "4'th axis home button"
+msgstr "Bouton Home du 4eme axe"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1117
+msgid "column of 4'th axis in the offsetpage"
+msgstr "La colonne du 4eme axe de la page des décalages"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1117
+msgid "column of 4'th axis in the tolleditor"
+msgstr "La colonne du 4eme axe de l'éditeur de table d'outils"
+
+#. type: Plain text
+#: gmoccapy.txt:1119
+msgid ""
+"==== Message behavior and appearance [[sub:Message_behavior_and_appearance]]"
+msgstr ""
+"==== Comportement et apparence des messages [[sub:"
+"Message_behavior_and_appearance]]"
+
+#. type: Plain text
+#: gmoccapy.txt:1124
+msgid ""
+"This will display small popup windows displaying the message or error text, "
+"the behavior is very similar to the one axis uses. You can delete a specific "
+"message, by clicking on it's close button, if you want to delete the last "
+"one, just hit the WINDOWS key on your keyboard, or delete all messages at "
+"ones with <STRG><SPACE>."
+msgstr ""
+"Cela permet d'afficher des petites fenêtres surgissantes contenant des "
+"messages ou des textes d'erreur, leur comportement est très similaire à "
+"celui utilisé par Axis. Vous pouvez supprimer un massage spécifique, en "
+"cliquant sur son bouton de fermeture, si vous voulez effacer le dernier, "
+"pressez juste sur la touche WINDOWS de votre clavier, ou pour les effacer "
+"tous sur les touches <CTRL><ESPACE>."
+
+#. type: Plain text
+#: gmoccapy.txt:1126
+msgid "You are able to set some options:"
+msgstr "Vous pouvez définir quelques options:"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1137
+msgid ""
+"X Pos = The position of the top left corner of the message in X counted in "
+"pixel from the top left corner of the screen."
+msgstr ""
+"X Pos = C'est la position en X, du coin supérieur gauche de la fenêtre de "
+"message, comptée en pixels depuis le coin supérieur gauche de l'écran."
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1137
+msgid ""
+"Y Pos = The position of the top left corner of the message in Y counted in "
+"pixel from the top left corner of the screen."
+msgstr ""
+"Y pos = C'est la position en Y, du coin supérieur gauche de la fenêtre de "
+"message, comptée en pixels depuis le coin supérieur gauche de l'écran."
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1137
+msgid "Width = The width of the message box"
+msgstr "Largeur = C'est la largeur de la boîte de message"
+
+#. type: Plain text
+#: gmoccapy.txt:1137
+#, no-wrap
+msgid ""
+" * max = The maximum messages you want to see at ones, if you set this to 10, the 11th message will delete the first one, \n"
+"         so you will only see the    last 10 ones.\n"
+" * Font = The font and size you want to use to display the messages\n"
+" * use frames = If you activate the checkbox, each message will be displayed in a frame, so it is much easiere to distinguish\n"
+"   the messages. But you will need a little bit more space.\n"
+" * The button launch test message will just do what it is supposed to, it will show a message, so you can see the changes \n"
+"   of your settings without the need to generate an error.\n"
+msgstr ""
+" * max = C'est le maximum de messages C'est le maximum de messages visibles, si vous réglez cette valeur à 10, le 11eme message sera effacé, \n"
+"         de sorte que seuls les 10 derniers seront visibles.\n"
+" * Font = La police et la taille de cette police, pour afficher les messages\n"
+" * utiliser cadres = Si vous cochez cette case, chaque message sera affiché dans un cadre, il sera donc plus facile de distinguer\n"
+"   les messages. Mais au détriment de la place nécessaire.\n"
+" * Le bouton, lancer un message de test, affichera un échantillon de message, ainsi, il est possible de visualiser les changements \n"
+"   produits par vos réglages, sans générer d'erreur éventuelle.\n"
+
+#. type: Plain text
+#: gmoccapy.txt:1139
+msgid "==== Run from line option"
+msgstr "==== Démarrer à la ligne sélectionnée"
+
+#. type: Plain text
+#: gmoccapy.txt:1142
+msgid ""
+"You can allow or disallow the run from line. This will set the corresponding "
+"button insensitive (grayed out), so the user will not be able to use this "
+"option."
+msgstr ""
+"Vous pouvez activer ou désactiver la fonction Démarrer à la ligne "
+"sélectionnée. Ce qui activera le bouton correspondant ou le désactivera en "
+"le rendant grisé, dans ce cas l'utilisateur ne pourra plus utiliser cette "
+"option."
+
+#. type: Plain text
+#: gmoccapy.txt:1145
+msgid ""
+"WARNING: It is not recommend to use run from line, as LinuxCNC will not take "
+"care of any previous lines in the code before the starting line. So errors "
+"or crashes are very probably."
+msgstr ""
+"WARNING: Il n'est pas recommandé d'activer et d'utiliser cette fonction, "
+"parce que LinuxCNC ne tiendra aucun compte des lignes de code précédent "
+"celle sélectionnée. La probabilité de crash induit par ces lignes est très "
+"élevée."
+
+#. type: Plain text
+#: gmoccapy.txt:1147
+msgid "Default is disable run from line"
+msgstr "Par défaut, le démarrage à un ligne sélectionnée est invalidé"
+
+#. type: Plain text
+#: gmoccapy.txt:1149
+msgid "==== Log Actions"
+msgstr "==== Historique des actions"
+
+#. type: Plain text
+#: gmoccapy.txt:1152
+msgid ""
+"If this button is active, nearly every button press or relevant action of "
+"LinuxCNC will be logged in the ALARM history.  This is very useful for "
+"debugging."
+msgstr ""
+"Si ce bouton est activé, presque toute pression sur un bouton ou action de "
+"LinuxCNC seront enregistrées dans l'historique des alarmes.  C'est très "
+"utile pour le débogage."
+
+#. type: Plain text
+#: gmoccapy.txt:1154
+msgid "== LATHE specific section [[sub:LATHE_specific_section]]"
+msgstr "== Section spécifique LATHE (tour) [[sub:LATHE_specific_section]]"
+
+#. type: Plain text
+#: gmoccapy.txt:1157
+msgid ""
+"If in the INI File LATHE = 1 is given, the GUI will change its appearance to "
+"the special needs for a lathe.  Mainly the Y axis will be hidden and the jog "
+"buttons will be arranged in a different order."
+msgstr ""
+"Si dans le fichier ini, on trouve LATHE = 1, alors, l'interface graphique va "
+"changer d'apparence pour s'adapter aux besoins spécifiques d'un tour.  "
+"Principalement, l'axe Y disparaît et les boutons de jog sont ré-arrangés "
+"dans un ordre différent."
+
+#. type: Plain text
+#: gmoccapy.txt:1159 gmoccapy.txt:1176
+msgid "Normal Lathe:"
+msgstr "Tour avec outil frontal:"
+
+#. type: Plain text
+#: gmoccapy.txt:1161
+msgid "image::images/gmoccapy_lathe.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_lathe.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:1163 gmoccapy.txt:1183
+msgid "Back Tool Lathe:"
+msgstr "Tour avec outil arrière:"
+
+#. type: Plain text
+#: gmoccapy.txt:1165
+msgid "image::images/gmoccapy_back_tool_lathe.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_back_tool_lathe.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:1168
+msgid ""
+"As you see the R DRO has a black background and the D DRO is gray. This will "
+"change according to the active G-Code G7 or G8. The active mode is visible "
+"by the black background, meaning in the shown images G8 is active."
+msgstr ""
+"Comme vous le voyez, le DRO R est sur fond noir et le DRO D sur fond gris. "
+"Cela changera selon le G-code actif, G7 (mode diamètre) ou G8 (mode rayon). "
+"Le mode actif est donc visible grâce à la couleur du fond, signifiant sur "
+"les images précédentes que G8 est actif."
+
+#. type: Plain text
+#: gmoccapy.txt:1172
+msgid ""
+"The next difference to the standard screen is the location of the Jog "
+"Button.  X and Z have changed places and Y is gone.  You will note that the X"
+"+ and X- buttons changes there places according to normal or back tool lathe."
+msgstr ""
+"La différence suivante par rapport à l'écran standard, c'est la position des "
+"boutons de jog.  X et Z ont changé de place et Y a disparu.  Vous noterez "
+"que les boutons X+ et X- sont permutés, selon que le tour est à outil "
+"frontal ou à outil arrière."
+
+#. type: Plain text
+#: gmoccapy.txt:1174
+msgid "Also the keyboard behavior will change:"
+msgstr "De plus, le comportement du clavier va changer:"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1181 gmoccapy.txt:1188
+msgid "Arrow Left = Z minus"
+msgstr "Flèche vers la gauche = Z moins"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1181 gmoccapy.txt:1188
+msgid "Arrow Right = Z plus"
+msgstr "Flèche vers la droite = Z plus"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1181
+msgid "Arrow up = X minus"
+msgstr "Flèche vers le haut = X moins"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1181
+msgid "Arrow Down = X plus"
+msgstr "Flèche vers le bas = X plus"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1188
+msgid "Arrow up = X plus"
+msgstr "Flèche vers le haut = X plus"
+
+#. type: Bullet: ' * '
+#: gmoccapy.txt:1188
+msgid "Arrow Down = X minus"
+msgstr "Flèche vers le bas = X moins"
+
+#. type: Plain text
+#: gmoccapy.txt:1191
+msgid ""
+"The tool information frame will show not only the Z offset, but also the X "
+"offset and the tool table is showing all lathe relevant information."
+msgstr ""
+"Le cadre d'informations outil affichera non seulement le décalage en Z, mais "
+"aussi, le décalage en X, et les informations de la table d'outils affichées, "
+"sont toutes celles d'un tour."
+
+#. type: Plain text
+#: gmoccapy.txt:1193
+msgid "== Plasma specific section"
+msgstr "== Section spécifique au Plasma"
+
+#. type: Plain text
+#: gmoccapy.txt:1195
+msgid "image::images/gmoccapy_plasma_1.png[align=\"left\"]"
+msgstr "image::images/gmoccapy_plasma_1.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:1197
+msgid ""
+"There is a very good WIKI, which is actually growing, maintained by Marius"
+msgstr ""
+"Il existe un très bon WIKI, qui est en fait, de plus en plus maintenu par "
+"Marius"
+
+#. type: Plain text
+#: gmoccapy.txt:1199
+msgid ""
+"see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki "
+"page]"
+msgstr ""
+"voir la http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[page Wiki "
+"Plasma]"
+
+#. type: Plain text
+#: gmoccapy.txt:1201
+msgid "== VIDEO on you tube"
+msgstr "== VIDEO sur you tube"
+
+#. type: Plain text
+#: gmoccapy.txt:1204
+msgid ""
+"This are videos showing gmoccapy in action, unfortunately the videos don't "
+"show the latest version of gmoccapy, but the way to use it will not change "
+"much in the future. I will try to actualize the videos as soon as possible."
+msgstr ""
+"Ce sont des vidéos montrant gmoccapy en action, malheureusement, les vidéos "
+"ne montrent pas la dernière version de gmoccapy, mais la façon de l'utiliser "
+"ne changera pas beaucoup dans l'avenir. Je vais essayer d'actualiser les "
+"vidéos dès que possible."
+
+#. type: Plain text
+#: gmoccapy.txt:1206
+msgid "=== Basic Usage"
+msgstr "=== Usage de base"
+
+#. type: Plain text
+#: gmoccapy.txt:1209
+msgid "German = + English = https://www.youtube.com/watch?v=O5B-s3uiI6g"
+msgstr "en Allemand = + Anglais = https://www.youtube.com/watch?v=O5B-s3uiI6g"
+
+#. type: Plain text
+#: gmoccapy.txt:1211
+msgid "=== Simulated Jog Wheels"
+msgstr "=== Manivelles de jog simulées"
+
+#. type: Plain text
+#: gmoccapy.txt:1213
+msgid "English = http://youtu.be/ag34SGxt97o"
+msgstr "en Anglais = http://youtu.be/ag34SGxt97o"
+
+#. type: Plain text
+#: gmoccapy.txt:1215
+msgid "=== Settings Page"
+msgstr "=== Page des réglages"
+
+#. type: Plain text
+#: gmoccapy.txt:1218
+msgid ""
+"German Settings = + English Settings = https://www.youtube.com/watch?"
+"v=AuwhSHRJoiI"
+msgstr ""
+"Réglages en Allemand = + Réglages en Anglais = https://www.youtube.com/watch?"
+"v=AuwhSHRJoiI"
+
+#. type: Plain text
+#: gmoccapy.txt:1220
+msgid "=== Simulated Hardware Button"
+msgstr "=== Boutons matériels simulés"
+
+#. type: Plain text
+#: gmoccapy.txt:1223
+msgid ""
+"German Hardware_Button = http://www.youtube.com/watch?v=DTqhY-MfzDE + "
+"English Hardware Button = http://www.youtube.com/watch?v=ItVWJBK9WFA"
+msgstr ""
+"Allemand Hardware_Button = http://www.youtube.com/watch?v=DTqhY-MfzDE\n"
+"English Hardware Button = http://www.youtube.com/watch?v=ItVWJBK9WFA"
+
+#. type: Plain text
+#: gmoccapy.txt:1225
+msgid "=== User Tabs"
+msgstr "=== Onglets personnalisés"
+
+#. type: Plain text
+#: gmoccapy.txt:1227
+msgid "English User Tabs = http://www.youtube.com/watch?v=rG1zmeqXyZI"
+msgstr "Anglais User Tabs = http://www.youtube.com/watch?v=rG1zmeqXyZI"
+
+#. type: Plain text
+#: gmoccapy.txt:1229
+msgid "=== Tool_Measurement_Video [[sub:Tool_Measurement_Videos]]"
+msgstr "=== Vidéos de mesure d'outil [[sub:Tool_Measurement_Videos]]"
+
+#. type: Plain text
+#: gmoccapy.txt:1233
+msgid ""
+"English Auto Tool Measurement Simmulation = http://youtu.be/rrkMw6rUFdk + "
+"English Auto Tool Measurement Screen = http://youtu.be/Z2ULDj9dzvk + English "
+"Auto Tool Measurement Machine = http://youtu.be/1arucCaDdX4 +"
+msgstr ""
+"English Auto Tool Measurement Simmulation = http://youtu.be/rrkMw6rUFdk\n"
+"English Auto Tool Measurement Screen = http://youtu.be/Z2ULDj9dzvk\n"
+"English Auto Tool Measurement Machine = http://youtu.be/1arucCaDdX4 +"
+
+#. type: Plain text
+#: gmoccapy.txt:1235
+msgid "== Known problems"
+msgstr "== Problèmes connus"
+
+#. type: Plain text
+#: gmoccapy.txt:1237
+msgid "=== Strange numbers in the info area"
+msgstr "=== Nombres étranges dans la zone d'information"
+
+#. type: Plain text
+#: gmoccapy.txt:1239
+msgid "If you get strange numbers in the info area of gmoccapy like:"
+msgstr ""
+"Si vous rencontrez d'étranges nombres dans la zone d'information de gmoccapy "
+"comme:"
+
+#. type: Plain text
+#: gmoccapy.txt:1241
+msgid "image::images/strange_numbers.png[align=\"left\"]"
+msgstr "image::images/strange_numbers.png[align=\"left\"]"
+
+#. type: Plain text
+#: gmoccapy.txt:1244
+msgid ""
+"You have made your config file using an older version of StepConfWizard.  It "
+"has made a wrong entry in the INI file under the [TRAJ] named "
+"MAX_LINEAR_VELOCITY = xxx.  Change that entry to MAX_VELOCITY = xxx"
+msgstr ""
+"Vous devez avez sans doute faits votre configuration avec une ancienne "
+"version de StepConf.  Il a fait une mauvaise entrée dans le fichier ini, "
+"sous [TRAJ] nommée MAX_LINEAR_VELOCITY = xxx.  Changez cette entrée en "
+"MAX_VELOCITY = xxx"

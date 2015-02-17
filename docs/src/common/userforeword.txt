@@ -1,3 +1,5 @@
+:lang: en
+
 = User Foreword
 
 [[cha:user-foreword]] (((User Foreword)))

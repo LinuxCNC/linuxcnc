@@ -1,0 +1,226 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-14 11:09+0100\n"
+"PO-Revision-Date: 2015-02-14 11:11+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+
+#. type: Plain text
+#: userforeword.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: userforeword.txt:4
+msgid "= User Foreword"
+msgstr "= Avant-propos"
+
+#. type: Plain text
+#: userforeword.txt:6
+msgid "[[cha:user-foreword]] (((User Foreword)))"
+msgstr "[[cha:avant-propos]] (((Avant propos)))"
+
+#. type: Plain text
+#: userforeword.txt:11
+msgid ""
+"LinuxCNC is modular and flexible. These attributes lead many to see it as a "
+"confusing jumble of little things and wonder why it is the way it is.  This "
+"page attempts to answer that question before you get into the thick of "
+"things."
+msgstr ""
+"LinuxCNC est souple et modulaire. Ces attributs l'ont fait apparaître à "
+"certains comme un brouillon de petits morceaux confus, ils se sont demandé "
+"pourquoi il en était ainsi. Cette page tentent de répondre à cette question "
+"avant que vous lecteurs, ne plongiez dedans pour vous faire votre propre "
+"idée."
+
+#. type: Plain text
+#: userforeword.txt:17
+msgid ""
+"LinuxCNC started at the National Institute of Standards and Technology in "
+"the USA. It grew up using Unix as its operating system. Unix made it "
+"different. Among early Unix developers there grew a set of code writing "
+"ideas that some call the Unix way. These early LinuxCNC authors followed "
+"those ways."
+msgstr ""
+"LinuxCNC a débuté à l'institut national des standards et des technologies "
+"des Etats Unis, le NIST. Il a mûri comme un logiciel fonctionnant sur le "
+"système d'exploitation Unix. Unix le rendait différent. Très tôt des "
+"développeurs Unix ont apporté une série d'idées concernant l'écriture du "
+"code, c'est devenu une écriture selon la tradition d'Unix. Les premiers "
+"auteurs de LinuxCNC ont suivi cette voie."
+
+#. type: Plain text
+#: userforeword.txt:24
+msgid ""
+"Eric S. Raymond, in his book The Art of Unix Programming, summarizes the "
+"Unix philosophy as the widely-used engineering philosophy, \"Keep it Simple, "
+"Stupid\" (KISS Principle). He then describes how he believes this overall "
+"philosophy is applied as a cultural Unix norm, although unsurprisingly it is "
+"not difficult to find severe violations of most of the following in actual "
+"Unix practice:"
+msgstr ""
+"Eric S. Raymond, dans son livre The Art of Unix Programming, résume la "
+"philosophie Unix par la philosophie largement utilisée en ingéniérie, le "
+"principe KISS, Keep it Simple, Stupid Reste Simple, Crétin ou Sois Simple et "
+"Concis. Puis il décrit sa vision selon laquelle cette philosophie globale "
+"s'applique en tant que norme culturelle Unix, bien qu'on trouve sans "
+"surprise de graves entorses à la plupart des règles Unix suivantes:"
+
+#. type: Bullet: '* '
+#: userforeword.txt:26
+msgid "Rule of Modularity: Write simple parts connected by clean interfaces."
+msgstr ""
+"Règle de modularité: Ecrire des éléments simples reliés par de bonnes "
+"interfaces."
+
+#. type: Bullet: '* '
+#: userforeword.txt:28
+msgid "Rule of Clarity: Clarity is better than cleverness."
+msgstr "Règle de clarté: La Clarté vaut mieux que l'ingéniosité."
+
+#. type: Bullet: '* '
+#: userforeword.txt:30
+msgid "Rule of Composition: Design programs to be connected to other programs."
+msgstr ""
+"Règle de composition: Concevoir des programmes qui peuvent être reliés à "
+"d'autres programmes."
+
+#. type: Plain text
+#: userforeword.txt:34
+#, no-wrap
+msgid ""
+"* Rule of Separation: Separate policy from mechanism; separate\n"
+"    interfaces from engines.footnote:[Found at\n"
+"    http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]\n"
+msgstr ""
+"* Règle de séparation: Séparer les règles du fonctionnement; Séparer les\n"
+"  interfaces du mécanisme. \n"
+"Source: http://fr.wikipedia.org/wiki/Philosophie_d%27Unix\n"
+
+#. type: Plain text
+#: userforeword.txt:37
+msgid ""
+"Mr. Raymond offered several more rules but these four describe essential "
+"characteristics of the LinuxCNC motion control system."
+msgstr ""
+"Monsieur Raymond offre d'autres règles mais ces quatre là décrivent les "
+"caractéristiques essentielles du système de contrôle de mouvement LinuxCNC."
+
+#. type: Plain text
+#: userforeword.txt:43
+msgid ""
+"The *Modularity* rule is critical. Throughout these handbooks you will find "
+"talk of the interpreter or task planner or motion or HAL. Each of these is a "
+"module or collection of modules. It's modularity that allows you to connect "
+"together just the parts you need to run your machine."
+msgstr ""
+"La règle de 'Modularité' est critique. Tout au long de ces manuels, vous "
+"trouverez des discussions à propos de l'interpréteur ou à propos des "
+"planificateurs de tâche ou de mouvement ou encore à propos de HAL.  Chacun "
+"d'eux est un module ou un ensemble de modules. Cette modularité vous "
+"permettra de ne connecter entre elles que les parties dont vous avez besoin "
+"pour le bon fonctionnement de votre machine."
+
+#. type: Plain text
+#: userforeword.txt:50
+msgid ""
+"The *Clarity* rule is essential. LinuxCNC is a work in progress -- it is not "
+"finished nor will it ever be. It is complete enough to run most of the "
+"machines we want it to run. Much of that progress is achieved because many "
+"users and code developers are able to look at the work of others and build "
+"on what they have done."
+msgstr ""
+"La règle de 'clarté' est essentielle. LinuxCNC est en perpétuelle évolution, "
+"il n'est pas terminé et ne le sera jamais. Il est assez complet pour piloter "
+"toutes les machines que nous avons voulu qu'il pilote. Une bonne partie de "
+"cette évolution est atteinte parce que les utilisateurs et les développeurs "
+"peuvent voir le travail des autres et construire sur ce qui est déjà fait."
+
+#. type: Plain text
+#: userforeword.txt:56
+msgid ""
+"The *Composition* rule allows us to build a predictable control system from "
+"the many modules available by making them connectable. We achieve "
+"connectability by setting up standard interfaces to sets of modules and "
+"following those standards."
+msgstr ""
+"La règle de 'composition' nous permet de concevoir et de construire un "
+"contrôleur à partir des nombreux modules existants, en les rendant "
+"connectables entre eux. Nous obtenons cette connectivité en appliquant une "
+"interface standard à tous les modules et en suivant ce standard."
+
+#. type: Plain text
+#: userforeword.txt:61
+msgid ""
+"The *Separation* rule requires that we make distinct parts that do little "
+"things. By separating functions debugging is much easier and replacement "
+"modules can be dropped into the system and comparisons easily made."
+msgstr ""
+"La règle de 'séparation' exige que chaque petite chose soit faite par une "
+"partie distincte. En séparant les fonctions, le dépannage est rendu plus "
+"aisé, le remplacement de modules par d'autres peut être fait à l'intérieur "
+"du système et la comparaison s'effectuer facilement."
+
+#. type: Plain text
+#: userforeword.txt:70
+msgid ""
+"What does the Unix way mean for you as a user of LinuxCNC. It means that you "
+"are able to make choices about how you will use the system. Many of these "
+"choices are a part of machine integration, but many also affect the way you "
+"will use your machine. As you read you will find many places where you will "
+"need to make comparisons. Eventually you will make choices, \"I'll use this "
+"interface rather than that” or, “I'll write part offsets this way rather "
+"than that way.\" Throughout these handbooks we describe the range of "
+"abilities currently available."
+msgstr ""
+"Qu'apporte la fameuse 'tradition d'Unix' à vous, utilisateurs de LinuxCNC.  "
+"Elle signifie que vous pourrez faire des choix sur la façon d'utiliser le "
+"système. Beaucoup de ces choix affecteront les parties intégrées à la "
+"machine, mais beaucoup également affecteront la manière dont vous utiliserez "
+"votre machine. Au cours de votre lecture, vous trouverez différents endroits "
+"où vous pourrez faire des comparaisons. Finalement vous pourrez dire "
+"'J'utiliserai cette interface plutôt que telle autre' ou, 'J'écrirai cette "
+"nouvelle partie de telle manière plutôt que de telle autre.' Tout au long de "
+"ces manuels nous décrirons l'étendue des possibilités de LinuxCNC "
+"actuellement disponibles."
+
+#. type: Plain text
+#: userforeword.txt:73
+msgid ""
+"As you begin your journey into using LinuxCNC we offer two cautionary notes:"
+"footnote:[Found at http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]"
+msgstr ""
+"Puisque vous commencez votre voyage dans l'utilisation de LinuxCNC nous vous "
+"proposons ces deux citations de précaution."
+
+#. type: Bullet: ' - '
+#: userforeword.txt:79
+msgid ""
+"Paraphrasing the words of Doug Gwyn on UNIX: \"LinuxCNC was not designed to "
+"stop its users from doing stupid things, as that would also stop them from "
+"doing clever things.\""
+msgstr ""
+"Pour paraphraser les paroles de Doug Gwyn sur UNIX: 'LinuxCNC n'a pas été "
+"conçu pour empêcher ses utilisateurs de commettre des actes stupides, car "
+"cela les empêcherait aussi de réaliser des actes intelligents.'"
+
+#. type: Bullet: ' - '
+#: userforeword.txt:79
+msgid ""
+"Likewise the words of Steven King: \"LinuxCNC is user-friendly. It just "
+"isn't promiscuous about which users it's friendly with.\""
+msgstr ""
+"De même que les paroles de Steven King: 'LinuxCNC est convivial.  Cependant "
+"il ne précise pas vraiment avec qui.'"

@@ -1,0 +1,1434 @@
+:lang: fr
+
+= gmoccapy
+
+[[cha:gmoccapy]] (((gmoccapy)))
+
+== Introduction
+
+'GMOCCAPY(((GMOCCAPY))) est une GUI pour LinuxCNC, conçue pour être utilisée
+avec un écran tactile, mais qui peut également être utilisée avec un écran
+normal et  la souris ou, des boutons de commande et une manivelle MPG, car
+il offre toutes les pins HAL les plus courantes pour ces besoins. D'autres
+informations plus loin dans ce texte.'
+
+'Il offre la possibilité d'afficher jusqu'à 4 axes, supporte les tours en
+mode outil frontal, ou en mode outil arrière et peut être adapté à presque
+tous les besoins, parce qu’il supporte les onglets intégrés et les panneaux
+latéraux. Un bon exemple se trouve ici:
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma'
+
+'Il supporte un clavier embarqué (embarqué ou clavier matchbox), il n'y a
+donc pas besoin d'un clavier physique ni d'une souris, bien qu'ils soient
+également possible d'utiliser ces matériels. Gmoccapy offre une page de
+réglage complètement séparée pour configurer la plupart des éléments
+graphiques de l'interface, sans avoir à éditer de fichier.'
+
+'gmoccapy peut être traduit très facilement, parce que les fichiers de
+traductions sont séparés des .po de linuxcnc, ainsi, il n'est pas utile de
+traduire des fichiers pas nécessaires. Ces fichiers sont placés dans
+*/src/po/gmoccapy*.  Copier juste le fichier gmoccapy.pot en quelque chose
+comme fr.po et traduire ce fichier avec poedit ou gtranslator. Après un
+make, la GUI traduite est disponible dans votre langue préférée. S'il vous
+plaît, publiez votre traduction, ainsi, elle sera incluse dans les paquets
+officiels et publiée pour les autres utilisateurs. Les langues actuellement
+disponibles sont l'anglais, l'allemand, l'espagnol, le polonais et le
+serbe. Vous pouvez m'aider à introduire de nouvelles langues,
+*nieson@web.de*. Si vous avez besoin d'aide, n'hésitez pas à en demander.'
+
+image::images/gmoccapy_4_axis.png[align="left"]
+
+== Exigences
+
+Gmoccapy a été testé avec succès sur UBUNTU 10.04 et 12.04, sur DEBIAN
+Wheezy avec LinuxCNC 2.6, 2.7, master et machinekit. Si vous utilisez
+d'autres versions, merci de m'informer sur le forum ou la liste de diffusion
+à propos des problèmes ou solutions rencontrés.
+
+En Allemand: http://www.cncecke.de/forum/showthread.php?t=78549[Peters CNC
+Ecke]
+En Anglais:
+http://www.linuxcnc.org/index.php/english/forum/41-guis/26314-gmoccapy-a-new-screen-for-linuxcnc[gmoccapy
+sur linuxcnc] +
+
+La résolution minimale de l'écran pour gmoccapy sans panneau latéral, est
+*979 x 750 Pixel*, ainsi, il peut tenir sur tout écran standard.
+
+== Comment obtenir gmoccapy
+
+Depuis LinuxCNC 2.6, gmoccapy est inclus dans l'installation
+standard. Ainsi, il suffit d'utiliser l'image correspondante au PC de
+contrôle, disponible ici:
+http://www.linuxcnc.org/index.php/english/download[L'ISO actuelle] puis de
+l'installer à l'aide d'un CD/DVD/clé USB.
+
+Si vous utilisez déjà une version plus ancienne de LinuxCNC, regardez
+comment faire une mise à jour
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?UpdatingTo2.6[ici].
+
+Vous recevrez les mises à jour avec les paquets récents.
+
+Si votre "locale" est ajustée sur *de* (Allemagne) vous obtiendrez un écran
+sensiblement égal à celui ci-dessous, le style peut varier selon votre
+configuration.
+
+image::images/gmoccapy_3_axis.png[align="left"]
+
+== Configuration de base
+
+Il n'y a vraiment pas grand chose à configurer, juste lancer gmoccapy mais,
+il y a quelques points qu'il faudra prendre en considération pour être en
+mesure d'utiliser toutes les fonctionnalités de cette interface graphique.
+
+Les fichiers ini suivants sont inclus, pour montrer les bases: +
+ +
+* gmoccapy.ini
+* gmoccapy_4_axis.ini
+* gmoccapy_jog_wheels.ini
+* gmoccapy_lathe.ini
+* gmoccapy_lathe_imperial.ini
+* gmoccapy_left_panel.ini
+* gmoccapy_right_panel.ini
+* gmoccapy_sim_hardware_button.ini
+* gmoccapy_tool_sensor.ini
+* gmoccapy_with_user_tabs.ini
+* gmoccapy_messages.ini
+ +
+Les noms des différents fichiers ini, doivent expliquer l'usage principal. +
+
+Si vous utilisez une configuration existante de votre machine, éditez juste
+votre fichier ini, en accord avec ce document. +
+
+IMPORTANT: Si vous voulez utiliser des <<sub:MACROS,MACROS>>, n'oubliez pas
+d'ajuster le chemin du répertoire de vos macros ou sous-routines, comme
+décrit ci-dessous.
+
+Regardons maintenant en détail le fichier ini et ce que vous devez y inclure
+pour utiliser gmoccapy sur votre machine: +
+
+=== The DISPLAY Section [[sub:the_display_section]]
+
+ [DISPLAY]
+ DISPLAY = gmoccapy
+ PREFERENCE_FILE_PATH = gmoccapy_preferences
+ DEFAULT_LINEAR_VELOCITY = 166.666
+ MAX_LINEAR_VELOCITY = 166.666
+ MAX_FEED_OVERRIDE = 1.5
+ MAX_SPINDLE_OVERRIDE = 1.2
+ MIN_SPINDLE_OVERRIDE = 0.5
+ LATHE = 1
+ BACK_TOOL_LATHE = 1
+ PROGRAM_PREFIX = ../../nc_files/
+
+''''
+
+La partie la plus importante dit à LinuxCNC d'utiliser gmoccapy, en éditant
+la section [DISPLAY].
+
+ [DISPLAY]
+ DISPLAY = gmoccapy
+
+ PREFERENCE_FILE_PATH = gmoccapy_preferences
+
+La ligne PREFERENCE_FILE_PATH donne l'emplacement et le nom du fichier de
+préférences à utiliser. Dans la plupart des cas cette ligne ne sera pas
+nécessaire, Elle est utilisée par gmoccapy pour enregistrer vos réglages de
+la GUI, tels que les thèmes, les unités de la visu, les couleurs, les
+réglages du clavier, etc., voir: <<sub:The_settings_page,SETTINGS>> pour
+plus de détails.
+
+[NOTE]
+===========================================================
+Si aucun chemin ni fichier n'est donné, gmoccapy utilisera par défaut <your_machinename>.pref, si aucun nom de machine n'est donné dans le fichier ini, il utilisera gmoccapy.pref. Le fichier sera enregistré dans votre répertoire config, ainsi les réglages ne pouront pas être mélangés si vous utilisez plusieurs configurations. Si vous voulez utiliser seulement un fichier pour plusieurs machines, vous devez inclure PREFERENCE_FILE_PATH dans votre fichier ini. 
+===========================================================
+''''
+ DEFAULT_LINEAR_VELOCITY = 166.666
+
+Ajuste la vitesse linéaire par défaut en unités machine par seconde.
+
+[NOTE]
+===========================================================
+Si aucune valeur n'est donnée, la valeur 15 sera appliquée. Si vous
+n'ajustez pas MAX_LINEAR_VELOCITY, la vitesse linéaire par défaut sera
+réduite à la valeur par défaut de MAX_LINEAR_VELOCITY (60)
+
+Si vous n'ajustez pas la vitesse max. dans TRAJ, elle sera réduite tel que montré ici <<sub:The_TRAJ_Section,TRAY section>> 
+===========================================================
+''''
+ MAX_LINEAR_VELOCITY = 166.666
+
+Ajuste la valeur de la vitesse maximale de jogging en unités machine par
+seconde.
+
+NOTE: Si aucune valeur n'est donnée, une valeur de 60 sera appliquée.
+''
+ MAX_FEED_OVERRIDE = 1.5
+
+Ajuste le maximum du correcteur de vitesse, dans l'exemple donné, vous êtes
+autorisé à augmenter la vitesse de déplacement de 150% ''''
+
+ MAX_SPINDLE_OVERRIDE = 1.2
+ MIN_SPINDLE_OVERRIDE = 0.5
+
+vous permet de modifier la vitesse de broche dans une limite de 50% à 120%
+
+''''
+ LATHE = 1
+ BACK_TOOL_LATHE = 1
+
+La première ligne ajuste l'interface pour contrôler un tour.
+
+La seconde ligne est optionnelle et permet de basculer l'axe X pour utiliser
+un outil arrière. Le raccourci clavier régit également de manière
+différente.
+
+TIP: Voir aussi <<sub:LATHE_specific_section, LATHE specific section>>
+
+''''
+ PROGRAM_PREFIX = ../../nc_files/
+
+Cette entrée indique à linuxcnc/gmoccapy où chercher les fichiers ngc,
+
+[NOTE]
+===========================================================
+Si ce n'est pas omis, il chercheront dans l'ordre suivant:
+
+ * ~/linuxcnc/nc_files
+ * ~/
+===========================================================
+
+==== La configuration des onglets et des panneaux latéraux
+
+Vous pouvez ajouter des programmes embarqués dans gmoccapy, comme vous pouvez le faire dans Axis, Touchy et gscreen.
+Tout est fait automatiquement par gmoccapy si vous incluez quelques lignes dans la section [DISPLAY] de votre fichier ini. +
+ +
+Si vous n'avez jamais utilisé de panneau Glade, il est recommandé de lire cette excellente documentation.
+http://www.linuxcnc.org/docs/html/gui/gladevcp.html[Glade VCP] +
+
+.Exemple
+****
+ EMBED_TAB_NAME = DRO
+ EMBED_TAB_LOCATION = ntb_user_tabs
+ EMBED_TAB_COMMAND = gladevcp -x {XID} dro.glade
+ 
+ EMBED_TAB_NAME = Second user tab
+ EMBED_TAB_LOCATION = ntb_preview
+ EMBED_TAB_COMMAND = gladevcp -x {XID} vcp_box.glade
+****
+
+Vous devez juste bien introduire les trois lignes mentionnées, pour chaque
+onglet ou panneau latéral, +
+
+'EMBED_TAB_NAME'  représente le nom de l'onglet ou du panneau latéral,
+mettez le nom que vous voulez mais mettez en un! 
+
+'EMBED_TAB_LOCATION'  situe l'emplacement de votre programme dans
+l'interface graphique. Les valeurs valides sont: 
+
+.valeurs valides sont:
+****
+* ntb_user_tabs            (comme onglet principal, couvre l'écran complet)'
+* ntb_preview              (comme onglet sur le côté de parcours d'outil)'
+* box_left                 (sur la gauche, le haut complet de l'écran)
+* box_right                (sur la droite, entre l'écran normal et la liste des boutons)
+* box_coolant_and_spindle  (permet de masquer le cadre de l'arrosage et le cadre de la broche pour introduire votre fichier Glade)
+* box_cooling              (permet de masquer le cadre de l'arrosage pour introduit votre fichier Glade)
+* box_spindle              (permet de masquer le cadre de la broche pour introduire votre fichier Glade)
+* box_vel_info             (permet de masquer le cadre de vitesse pour introduire votre fichier Glade)
+* box_custom_1             (permet d'introduire votre fichier Glade à gauche du cadre de vitesse)
+* box_custom_2             (permet d'introduire votre fichier Glade à gauche du cadre de l'arrosage)
+* box_custom_3             (permet d'introduire votre fichier Glade à gauche du cadre de la broche)
+* box_custom_4             (permet d'introduire votre fichier Glade à droite du cadre de la broche)
+****
+
+Lire les différents fichiers ini fournis pour voir les différences +
+
+'EMBED_TAB_COMMAND'  est la commande à exécuter, ex: 
+
+ gladevcp -x {XID} dro.glade
+
+Inclus un fichier Glade personnalisé appelé dro.glade à l'emplacement
+mentionné. Le fichier doit être placé dans le répertoire config de la
+machine +
+
+ gladevcp h_buttonlist.glade
+
+Permet juste d'ouvrir une nouvelle fenêtre utilisateur appelée
+h_buttonlist.glade noter la différence, celle-ci est autonome et peut être
+déplacé indépendamment de la fenêtre de gmoccapy +
+
+ camview-emc -w {XID}
+
+Permet d'ajouter une image live  une webcam, à l'emplacement spécifié. Faire
+attention que camview-emc soit bien installé, car il n'y est pas par
+défaut. Vous trouverez des informations détaillées pour camview avec
+linuxcnc sur le site du développeur:
+http://psha.org.ru/b/camview-emc.html[cam view] +
+ 
+ gladevcp -c gladevcp -u hitcounter.py -H manual-example.hal manual-example.ui
+
+Permet d'ajouter le panneau manual-example.ui, d'inclure le fichier
+d'entêtes python hitcounter.py et de faire toutes les connections après la
+réalisation du panneau selon manual-example.hal. +
+
+Voici quelques exemples: +
+
+'ntb_user_tabs' - avec le programme camview intégré
+
+image::images/gmoccapy_ntb_user_tab.png[align="left"]
+
+'ntb_preview' - version maximisée
+
+image::images/gmoccapy_ntb_preview_maximized_2.png[align="left"]
+
+'ntb_preview'
+
+image::images/gmoccapy_ntb_preview.png[align="left"]
+
+'box_left' - montrant gmoccapy en mode édition
+
+image::images/gmoccapy_with_left_box_in_edit_mode.png[align="left"]
+
+'box_right' - et gmoccapy en mode MDI
+
+image::images/gmoccapy_with_right_panel_in_MDI_mode.png[align="left"]
+
+
+==== Configuration des messages créés par l'utilisateur
+
+Gmoccapy a la capacité de créer des messages utilisateur destinés à
+Hal. Pour utiliser ce fonction, vous devez ajouter quelques lignes dans la
+section [DISPLAY] du fichier ini.
+
+Voici comment construire 3 boîtes de dialogue surgissantes avec message, les
+messages suportent le langage markup pango. Informations détaillées à propos
+du lagage markup se trouvent ici:
+https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango
+Markup]
+
+ MESSAGE_TEXT    = Le texte à afficher, doit être formaté en langage markup pango+
+ MESSAGE_TYPE    = "status" , "okdialog" , "yesnodialog"+
+ MESSAGE_PINNAME = est le nom du groupe de pins de Hal à créer+
+
+ * 'status' : Va juste afficher un message dans une fenêtre surgissante, le
+   système de messagerie de gmoccapy sera utilisé
+
+ * 'okdialog' : Va maintenir le focus sur le message du dialogue et va activer un "-waiting" Hal_Pin OUT.
+             Fermer le message va réinitialiser pin en attente
+
+ * 'yesnodialog' : Va maintenir le focus sur le message et va activer un "-waiting" Hal_Pin bit OUT
+                il va également donner accès à un "-response" Hal_Pin Bit Out, cette pin restera à 1 si l'utilisateur
+                clique OK et dans tous les autres états elle passera à 0
+                Fermer le message va réinitialiser la pin en attente
+                La Hal pin de réponse restera à 1 tant que le dialogue est encore appelé
+
+.Exemple
+****
+ MESSAGE_TEXT = This is a <span background="#ff0000" foreground="#ffffff">info-message</span> test
+ MESSAGE_TYPE = status
+ MESSAGE_PINNAME = statustest
+
+ MESSAGE_TEXT = This is a yes no dialog test
+ MESSAGE_TYPE = yesnodialog
+ MESSAGE_PINNAME = yesnodialog
+
+ MESSAGE_TEXT = Text can be <small>small</small>, <big>big</big>, <b>bold</b>, <i>italic</i>, and even be <span color="red">colored</span>.
+ MESSAGE_TYPE = okdialog
+ MESSAGE_PINNAME = okdialog
+****
+
+Les conventions de Hal spécifiques pour cela se trouvent sous
+<<sub:User_Created_Message_HAL_Pins, User Messages hal pin section>>
+
+=== La section RS274NGC [[sub:RS274NGC]]
+
+ [RS274NGC]
+ SUBROUTINE_PATH = macros
+
+Positionne le chemin de recherche des macros et autres sous-programmes.
+
+=== La section MACRO [[sub:MACROS]]
+
+Vous pouvez ajouter des macros à gmoccapy, de la même manière que pour
+touchy.  Une macro n'est rien d'autre qu'un fichier ngc. Vous pouvez
+exécuter un programme CNC  complet en mode MDI, en pressant juste un bouton
+poussoir.  Pour faire cela, vous devez ajouter une section comme ça: +
+
+ [MACROS]
+ MACRO = i_am_lost
+ MACRO = halo_world
+ MACRO = jog_around
+ MACRO = increment xinc yinc
+ MACRO = go_to_position X-pos Y-pos Z-pos
+
+Cela va ajouter 5 macros à la liste de boutons de l'interface graphique.
+Noter que pour des raisons de place, un maximum de 9 macros apparaissent
+dans l'interface graphique. Mais il est permis d'en placer plus dans le
+fichier ini.
+
+image::images/gmoccapy_mdi_hidden_keyboard.png[align="left"]
+
+Le nom du fichier doit être *exactement le même* que le nom donné dans la
+ligne MACRO.  Ainsi la macro '*i_am_lost*' doit appeler le fichier
+'*i_am_lost.ngc*'. +
+
+.Les fichiers de macro doivent suivre quelques règles:
+* Le nom du fichier doit être le même que celui mentionné sur la ligne de la
+macro, avec juste l'extension ngc
+* Le fichier doit contenir un sous-programme comme ça: '*O<i_am_lost> sub*',
+le nom du sous-programme doit correspondre exactement (*sensible à la
+casse*) au nom de la macro
+* Le fichier doit se terminer avec un endsub '*O<i_am_lost> endsub*' suivi
+par une commande '*M2*'
+* Le fichier doit être placé dans le répertoire spécifié dans la section
+RS274NGC du fichier ini (voir <<sub:RS274NGC,RS274NGC>>)
+
+Le code contenu entre sub et endsub sera exécuté en pressant sur le bouton
+correspondant à la macro.
+
+[NOTE]
+===========================================================
+Vous trouverez des exemples de macros dans le répertoire macros contenu dans le répertoire sim de gmoccapy.
+===========================================================
+
+Gmoccapy accepte aussi les macros demandant des paramètres comme ça:
+
+ go_to_position X-pos Y-pos Z-pos
+
+Les paramètres doivent être séparés par des espaces. Ceci appelle un fichier
+'go_to_position.ngc' avec le contenu suivant:
+
+------------
+ ; Testfile go to position
+ ; qui va déplacer le mobile à la position donnée
+
+ O<go_to_position> sub
+
+ G17
+ G21
+ G54
+ G61
+ G40
+ G49
+ G80
+ G90
+
+ ;#1 = <X-Pos>
+ ;#2 = <Y-Pos>
+ ;#3 = <Z-Pos>
+
+ (DBG, Le mobile va aller en X = #1 , Y = #2 , Z = #3)
+ G0 X #1 Y #2 Z #3
+
+ O<go_to_position> endsub
+ M2
+------------
+
+Après l'appui sur le bouton '*exécuter macro*', il sera demandé d'entrer les
+valeurs pour '*X-pos Y-pos Z-pos*' et la macro pourra ne démarrer que si
+toutes les valeurs sont renseignées.
+
+image::images/gmoccapy_getting_macro_info.png[align="left"]
+
+=== La section TRAJ [[sub:The_TRAJ_Section]]
+
+ MAX_VELOCITY = 230.000
+
+Ajuste la vitesse maximale de la machine, cette valeur également influencer
+la vitesse par défaut.
+
+== HAL Pins
+
+gmoccapy exporte plusieurs broches de Hal pour être en mesure de réagir aux
+périphériques matériels.
+L'objectif étant d'avoir une interface graphique pouvant être utilisée dans
+un atelier, complètement et le plus souvent, sans souris ni clavier.
+
+[NOTE]
+===========================================================
+*Vous devez faire toutes les connections des pins de Hal de gmoccapy, dans votre fichier postgui.hal, parce qu'elles ne sont pas disponibles avant le chargement complet de l'interface graphique.*
+===========================================================
+
+=== Boutons du bas et de droite
+
+L'écran dispose de deux principales séries de boutons, une sur le côté droit
+et une en bas.
+Les boutons de droite ne changerons pas durant les opérations, alors que la
+série du bas sera très souvent modifiée.
+Les boutons sont comptabilisés du haut en bas et de gauche à droite, en
+commençant par "0". +
+
+Dans hal_show vous pouvez voir que les boutons de droite (verticalement)
+sont:
+
+* gmoccapy.v-button-0
+* gmoccapy.v-button-1
+* gmoccapy.v-button-2
+* gmoccapy.v-button-3
+* gmoccapy.v-button-4
+* gmoccapy.v-button-5
+* gmoccapy.v-button-6
+
+et les boutons du bas (horizontalement) sont:
+
+* gmoccapy.h-button-0
+* gmoccapy.h-button-1
+* gmoccapy.h-button-2
+* gmoccapy.h-button-3
+* gmoccapy.h-button-4
+* gmoccapy.h-button-5
+* gmoccapy.h-button-6
+* gmoccapy.h-button-7
+* gmoccapy.h-button-8
+* gmoccapy.h-button-9
+
+Les boutons de la série du bas vont changer selon le mode, ainsi que pour
+d'autres raisons, les boutons matériels activent différentes fonctions et
+vous n'avez pas à vous soucier des connections de Hal, c'est gmoccapy qui
+prends tout ça complètement en charge!
+
+L'utilité de ça, c'est d'être capable d'utiliser un écran sans qu'il soit
+tactile, ou de le protéger d'une utilisation intensive en plaçant des
+boutons matériels autour du panneau.
+
+image::images/gmoccapy_0_9_7_sim_hardware_button.png[align="left"]
+
+=== Vitesses et correcteurs de vitesse
+
+Tous les curseurs de gmoccapy peuvent être connectés à des codeurs matériels
+ou à des potentiomètres. +
+
+Pour connecter des codeurs, les pins suivantes sont exportées:
+
+* gmoccapy.max-vel-counts          =  HAL_S32  ;  (Vitesse maximale de la machine)
+* gmoccapy.jog-speed-counts        =  HAL_S32  ;  (Vitesse de jog)
+* gmoccapy.spindle-override-counts =  HAL_S32  ;  (correcteur de vitesse broche)
+* gmoccapy.feed-override-counts    =  HAL_S32  ;  (correcteur de vitesse d'avance)
+* gmoccapy.reset-feed-override     =  HAL_BIT  ;  (remise à 100% du correcteur d'avance)
+* gmoccapy.reset-spindle-override  =  HAL_BIT  ;  (remise à 100% du correcteur de vitesse broche)
+
+Pour connecter des potentiomètres, utiliser les pins de Hal suivantes:
+
+* gmoccapy.analog-enable           = HAL_BIT   ;  Doit être True, pour autoriser les entrées analogiques
+* gmoccapy.jog-vel-value           = HAL_FLOAT ;  Pour ajuster le curseur de vitesse de jog
+* gmoccapy.max-vel-value           = HAL_FLOAT ;  Pour ajuster le curseur de vitesse max
+* gmoccapy.feed-override-value     = HAL_FLOAT ;  Pour ajuster le curseur du correcteur de vitesse d'avance
+* gmoccapy.spindle-override-value  = HAL_FLOAT ;  Pour ajuster le curseur du correcteur de vitesse broche
+
+Les pins float acceptent les valeurs comprises entre 0.0 et 1.0, soit le
+pourcentage auquel doit être ajustée la valeur du curseur.
+
+WARNING: Pour utiliser les deux types de connection, ne pas connecter les
+deux pins à la fois au même curseur, l'influence entre les deux n'a pas été
+testée! Les différents curseurs peuvent être connectés à l'un ou l'autre des
+types de connection.
+
+IMPORTANT: Soyez attentif au fait que, la vitesse de jog dépend de l'état du
+bouton 'tortue', ce qui produira des échelles différentes selon les
+différents curseurs et selon le mode, tortue ou lapin. Regardez également
+<<sub:Jog_Vel_and_Turtle-Jog,pin de Hal vitesses de jog et turtle-jog>> pour
+plus de détails.
+
+.Exemple
+****
+Spindle Override Min Value =  20 % +
+Spindle Override Max Value = 120 % +
+gmoccapy.analog-enable = 1 +
+gmoccapy.spindle-override-value = 0.25 +
+ +
+value to set = Min Value + (Max Value - Min Value) * gmoccapy.spindle-override-value +
+value to set = 20 + (120 - 20) * 0.25 +
+value to set = 45 % +
+****
+
+=== Pin de Hal pour le jog 
+
+Tous les axes définis dans le fichier ini ont chacun une pin jog-plus et une
+pin jog-moins, de sorte que des contacts physiques peuvent être utilisés
+pour jogger chaque axe. +
+
+Pour la configuration standard, les pins de Hal suivantes sont disponibles:
+
+* gmoccapy.jog-x-plus
+* gmoccapy.jog-x-minus
+* gmoccapy.jog-y-plus
+* gmoccapy.jog-y-minus
+* gmoccapy.jog-z-plus
+* gmoccapy.jog-z-minus
+
+Si une configuration 4 axes est définie dans le fichier ini, il y a deux
+pins additionnelles
+
+* gmoccapy.jog-<lettre de votre quatrième axe >-plus
+* gmoccapy.jog-<lettre de votre quatrième axe >-minus
+
+pour un axe "C" vous devriez avoir:
+
+* gmoccapy.jog-c-plus
+* gmoccapy.jog-c-minus
+
+=== Pins de Hal de vitesse de jog et de jog-tortue
+[[sub:Jog_Vel_and_Turtle-Jog]]
+
+La vitesse de jog peut être ajustée avec le curseur correspondant.
+L'échelle du curseur sera différente selon la position du bouton tortue
+(celui qui montre une tortue ou un lapin).
+Si le bouton n'est pas visible, c'est qu'il a été désactivé dans la
+<<sub:turtle_jog,page de sélection>>.
+Si le bouton montre un lapin, l'échelle se situera entre la vitesse machine
+minimale et la vitesse machine maximale.
+Si le bouton montre une tortue, l'échelle atteindra seulement 1/20 de la
+vitesse max par défaut.
+Le facteur de division utilisé peut être ajusté sur la <<sub:turtle_jog,page
+de sélection>>.
+
+Donc, en utilisant un écran tactile, il est plus facile de sélectionner les
+petites vitesses.
+
+=== Pins de Hal d'incrément de jog
+
+Les incréments de jog sont sélectionnables par des pins de Hal, un contact
+physique est donc utilisable pour sélectionner l'incrément à utiliser. Il y
+a un maximum de 10 pins de Hal pour les incréments définis dans le fichier
+ini, si il en est défini d’avantage dans le fichier ini, ils ne seront pas
+accessibles depuis l'interface graphique puisqu'ils ne seront pas affichés.
+
+Si vous avez 6 incréments dans votre Hal, il vous faudra *7* pins:
+
+* gmoccapy.jog-inc-0
+* gmoccapy.jog-inc-1
+* gmoccapy.jog-inc-2
+* gmoccapy.jog-inc-3
+* gmoccapy.jog-inc-4
+* gmoccapy.jog-inc-5
+* gmoccapy.jog-inc-6
+
+jog-inc-0 n'est pas modifiable et représente le mode de jog continu.
+
+=== Pin de déverrouillage matériel [[sub:hardware_unlock_pin]]
+
+pour pouvoir utiliser un interrupteur à clé pour déverrouiller la page des
+réglages, la pin suivante est exportée.
+
+* gmoccapy.unlock-settings
+
+La page des réglages est déverrouillée si la pin est à l'état haut. + Pour
+utiliser cette pin, elle doit être activée dans la page des réglages.
+
+=== Pins d'erreur
+
+ * gmoccapy.error
+ * gmoccapy.delete-message
+
+gmoccapy.error est une pin de sortie de type bit, pour indiquer une erreur,
+allumer un voyant ou même provoquer un arrêt machine. Elle est remise à zéro
+avec la pin gmoccapy.delete-message. gmoccapy.delete-message va effacer la
+première erreur et repasser la pin gmoccapy.error à l'état bas après que la
+dernière erreur ait été effacée. +
+
+NOTE: Les messages ou les infos utilisateur n'affectent pas la pin
+gmoccapy.error, mais la pin gmoccapy.delete-message efface le dernier
+message si aucune erreur n'est affichée!
+
+=== Pins de Hal de création de message utilisateur
+[[sub:User_Created_Message_HAL_Pins]]
+
+gmoccapy peut réagir aux erreurs externes en utilisant 3 différents messages
+utilisateur:
+Tous sont des pins HAL_BIT. +
+
+'Status'
+
+* gmoccapy.messages.statustest
+
+'Yesnodialog'
+
+* gmoccapy.messages.yesnodialog
+* gmoccapy.messages.yesnodialog-waiting
+* gmoccapy.messages.yesnodialog-responce
+
+'Okdialog'
+
+* gmoccapy.messages.okdialog
+* gmoccapy.messages.okdialog-waiting
+
+=== Pins de Hal de retour broche
+
+Il y a deux pins de retour broche
+
+* gmoccapy.spindle_feedback_bar
+* gmoccapy.spindle_at_speed_led
+
+'gmoccapy.spindle_feedback_bar' accepte une entrée de type float pour
+représenter la vitesse de broche
+'gmoccapy.spindle_at_speed_led' est une pin de type bit, indiquant sur
+l'interface graphique que la broche a atteint la vitesse demandée +
+
+=== Pins d'indication de l'évolution du programme
+
+Il y a trois pins donnant des informations sur le déroulement du programme +
+
+* gmoccapy.program.length         = HAL_S32   ; montrant le nombre total de lignes du programme
+* gmoccapy.program.current-line   = HAL_S32   ; indiquant la ligne du travail en cour 
+* gmoccapy.program.progress       = HAL_FLOAT ; donant la progression du programme en pourcentage
+
+Ces valeurs peuvent ne pas être très précises, si vous travaillez avec des
+sous-programmes ou des boucles, les résultats peuvent avoir des valeurs
+différentes.
+
+=== Pins de modification des limites logicielles
+
+Gmoccapy permet de modifier les limites logicielles en utilisant des pins de
+Hal.  La pin va permettre de réduire ou d'augmenter les limites logicielles,
+ainsi il est possible de protéger une table rotative contre toute collision,
+juste en basculant une pin de Hal. Si vous ne l'utilisez pas, réduisez juste
+votre limite logicielle. Une autre option pourrait être un changeur d'outil
+placé dans la zone de travail, pour ne pas avoir de collision pendant le
+travail normal, mais il y a obligation de rentrer dans la zone de changement
+d'outil justement pour le changement d'outil, pour cela, pendant le
+changement d'outil les limites logicielles seront élargies.
+
+* gmoccapy.axis-to-set    = HAL_S32    ; indique l'axe à modifier (X=0, Y=1, Z=2 ...)
+* gmoccapy.set-max-limit  = HAL_BIT    ; si haute, la valeur modifiée sera celle de la limite max, sinon, celle de la limite min
+* gmoccapy.limit-value    = HAL_FLOAT  ; valeur de la nouvelle limite logicielle à utiliser
+
+Cela n'a pas été bien testé avec un axe rotatif, soyez prudent avec ce genre
+d'axe.  Il n'y aura pas de contrôle des limites que vous définissez, si vous
+définissez une limite et que l'outil est en dehors de celle-ci, vous aurez
+une erreur de dépassement des limites logicielles.
+
+IMPORTANT: Vous devez être très attentif à ce propos!
+
+Il est seulement permi de définir les limites si la machine est en marche!
+Une valeur de limite fixée à 0 est interdite, il faut donner une valeur
+minimale de 0.000001 à la place.  L'interface graphique va réagir aux
+changements de la pin limit-value, afin de modifier les limites à appliquer
+selon la valeur de cette pin.
+
+WARNING: C'est vraiment expérimental en ce moment, la plus grande prudence
+s'impose pour votre sécurité.
+
+=== Pin de Hal relative à l'outil
+
+==== Pin de changement d'outil
+
+Cette pin de Hal est prévue pour utiliser le dialogue de changement d'outil
+interne à gmoccapys, similaire à celui bien connu d'Axis, mais avec
+plusieurs modifications, de sorte que vous n'aurez plus seulement le message
+pour 'monter l'outil N°3', mais aussi la description de cet outil, telle que
+'fraise 3 dents 7.5 mm'.  L'information est tirée de la table d'outils, ce
+qui est affiché dépend donc de vous.
+
+image::images/manual_toolchange.png[align="left"]
+
+* gmoccapy.toolchange-number    = HAL_S32    ; Le numéro de l'outil appelé
+* gmoccapy.toolchange-change    = HAL_BIT    ; Indique qu'un outil doit être changé
+* gmoccapy.toolchange-changed   = HAL_BIT    ; Indique que l'outil a bien été changé 
+
+en général, ils sont connectés comme ceci pour un changement d'outil manuel:
+
+-----
+ net tool-change            gmoccapy.toolchange-change    <=   iocontrol.0.tool-change 
+ net tool-changed           gmoccapy.toolchange-changed   <=   iocontrol.0.tool-changed
+ net tool-prep-number       gmoccapy.toolchange-number    <=   iocontrol.0.tool-prep-number
+ net tool-prep-loop         iocontrol.0.tool-prepare      <=   iocontrol.0.tool-prepared
+-----
+
+==== Pins de Hal de décalage d'outil
+
+Cette pin de Hal permet d'afficher la valeur de décalage de l'outil actif
+pour X et Z dans le cadre des outils. + Vous devez savoir que ça sera
+effectif seulement après qu'un G43 n'ait été envoyé.
+
+image::images/gmoccapy_0_9_7_tool_info.png[align="left"]
+
+* gmoccapy.tooloffset-x
+* gmoccapy.tooloffset-z
+
+connectez les comme ça dans votre postgui hal.
+
+------
+ net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x
+ net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
+------
+
+Veuillez noter que gmoccapy s'occupe de rafraîchir l'affichage des valeurs
+de décalage, d'envoyer un G43 après chaque changement d'outil, *mais pas en
+mode automatique!*
+
+IMPORTANT: Il est donc de la responsabilité de l'opérateur d'inclure dans
+ses programmes, un G43 après chaque changement d'outil!
+
+== Mesure de longueur d'outil automatique [[sub:Auto_Tool_Measurement]]
+
+Gmoccapy offre une mesure automatique de la longueur d'outil.
+Pour utiliser cette fonctionnalité, vous aurez quelques réglages
+additionnels à effectuer et vous pourrez utiliser la pin de Hal offerte pour
+obtenir les valeurs dans votre propre procédure de remap ngc.
+
+IMPORTANT: Avant de lancer le premier test, n'oubliez pas d'entrer la
+hauteur de la sonde et sa vitesse d'avance dans la page des réglages! Voir
+la <<sub:Tool_Measurement_Setup,page des réglages Mesure de la longueur
+d'outil>>
+
+Ça pourrait aussi être une bonne idée de jeter un coup d’œil à la vidéo sur
+la mesure d'outil, voir <<sub:Tool_Measurement_Videos,videos relatives à la
+mesure de longueur d'outil>>
+
+La mesure de longueur d'outil dans gmoccapy est un peu différente de
+beaucoup d'autres interfaces graphiques.  Vous devez suivre ces étapes:
+ * faites l'origine pièce en touchant la pièce en X et Y
+ * mesurez le dessus de votre block depuis la base ou se trouve votre
+contact de mesure jusqu'à la face supérieure du block (inclure mandrin etc.)
+ * Pressez le bouton 'hauteur du block' et entrez la valeur mesurée
+ * Passez en mode auto et lancez votre programme
+
+voici une représentation:
+
+image::images/sketch_auto_tool_measurement.png[align="left"]
+
+Avec le premier changement d'outil, l'outil sera mesuré et le décalage sera
+introduit automatiquement dans la hauteur du bloc. L'avantage de la méthode
+de gmoccapy est qu'il n'y a pas besoin d'un outil de référence.
+
+[NOTE]
+=============================================================
+Votre programme doit contenir un changement d'outil au début!
+L'outil sera mesuré, même si il a déjà été utilisé avant, donc il n'y a aucun danger, si la hauteur du block a bien été renseignée.
+Il existe plusieurs vidéos sur youtube montrant cette façon de faire.
+=============================================================
+
+=== Pins de Hal de mesure d'outil
+
+Gmoccapy offre 5 pins pour la mesure d'outil
+ Ces pins de Hal sont principalement utilisées pour être lues depuis un
+sous-programme en G-code et afin que le code puisse réagir aux différentes
+valeurs.
+
+* gmoccapy.toolmeasurement = HAL_BIT ; active ou non la mesure d'outil
+* gmoccapy.blockheight = HAL_FLOAT ; la valeur mesurée de la face supérieure
+  de la pièce
+* gmoccapy.probeheight = HAL_FLOAT ; la hauteur du contact de sonde
+* gmoccapy.searchvel = HAL_FLOAT ; la vitesse de recherche du contact de la
+  sonde
+* gmoccapy.probevel = HAL_FLOAT ; la vitesse de descente du palpeur lors de
+  la mesure de longueur d'outil
+
+=== Modifications au fichier ini pour la mesure d'outil
+
+Modifiez votre fichier ini pour y inclure ce qui suit:
+
+==== La section RS274NGC
+
+ [RS274NGC]
+ # active la lecture de valeurs dans les fichiers ini et HAL depuis le G-code 
+ FEATURES=12
+ 
+ # est le sous-programme appelé en cas d'erreur durant un changement d'outil
+ ON_ABORT_COMMAND=O <on_abort> call 
+ 
+ # Le code de remap 
+ REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change epilog=change_epilog
+
+==== Section senseur d'outil
+
+La position du senseur d'outil et la position de départ du mouvement de
+palpage, toutes les valeurs sont en coordonnées absolues, excepté MAXPROBE,
+qui doit être donnée en relatif.
+
+ [TOOLSENSOR]
+ X = 10
+ Y = 10  
+ Z = -20
+ MAXPROBE =  -20
+
+==== La section Position de changement
+
+non nommée TOOL_CHANGE_POSITION car ce nom est déjà utilisé par l'interface
+canonique, ce qui pourrait causer des interférences.
+ C'est la position à laquelle placer le mobile, avant d'envoyer la commande
+de changement d'outil. Toutes les valeurs sont en coordonnées absolues
+
+ [CHANGE_POSITION]
+ X = 10
+ Y = 10
+ Z = -2
+
+==== La section Python
+
+La section des plugins Python sert à l'interpréteur et aux tâches
+
+ [PYTHON]
+ # Le chemin où rechercher les modules personnalisés
+ PATH_PREPEND = python
+ # Le point de départ pour tout.
+ TOPLEVEL = python/toplevel.py
+
+=== Fichiers nécessaires
+
+Vous devez copier les fichiers suivants dans votre répertoire config
+
+Premièrement, créez un répertoire 'python' dans votre dossier config +
+depuis 'votre_linuxcnc-dev_directory/configs/sim/gmoccapy/python' +
+Copiez 'toplevel.py' dans votre dossier 'config_dir/python'  +
+Copiez 'remap.py'   dans votre dossier 'config_dir/python'  +
+Copiez 'stdglue.py'  dans votre dossier 'config_dir/python'  +
+
+depuis 'votre_linuxcnc-dev_directory/configs/sim/gmoccapy/macros'
+copiez 'on_abort.ngc' dans le répertoire spécifié comme SUBROUTINE_PATH voir
+<<sub:RS274NGC, Section RS274NGC>>
+depuis 'votre_linuxcnc-dev_directory/configs/sim/gmoccapy/macros'
+copiez 'change.ngc' dans le répertoire spécifié comme SUBROUTINE_PATH voir
+<<sub:RS274NGC, Section RS274NGC>>
+ouvrir 'change.ngc' avec un éditeur et dé-commentez les lignes suivantes (49
+et 50): +
+
+ F #<_hal[gmoccapy.probevel]>
+ G38.2 Z-4
+
+Vous pouvez modifier ce fichier pour l'adapter à vos besoins, n'hésitez pas,
+mais ne me demandez pas d'aide ;-)
+
+=== Connections de Hal nécessaires
+
+Connectez le contact de la sonde de mesure dans votre fichier hal, de cette
+façon
+
+ net probe  motion.probe-input <= <votre_pin_d_entree>
+
+La ligne pourrait ressembler à ça:
+
+-------
+ net probe  motion.probe-input <= parport.0.pin-15-in
+-------
+
+Dans votre fichier postgui.hal ajoutez:
+
+-------
+ # Les lignes suivantes sont requises si les pins ont bien été connectées avant
+ unlinkp iocontrol.0.tool-change
+ unlinkp iocontrol.0.tool-changed
+ unlinkp iocontrol.0.tool-prep-number
+ unlinkp iocontrol.0.tool-prepared
+
+ # liens vers le changement d'outil de gmoccapy, ainsi vous aurez
+# en plus la description de l'outil sur la boite dialogue de changement
+net tool-change            gmoccapy.toolchange-change    <=   iocontrol.0.tool-change 
+net tool-changed           gmoccapy.toolchange-changed   <=   iocontrol.0.tool-changed
+net tool-prep-number       gmoccapy.toolchange-number    <=   iocontrol.0.tool-prep-number
+net tool-prep-loop         iocontrol.0.tool-prepare      <=   iocontrol.0.tool-prepared
+-------
+
+== La page des réglages [[sub:The_settings_page]]
+
+Cliquez pour entrer dans cette page:
+
+image::images/gmoccapy_settings_button.png[align="left"]
+
+et donnez un code de déverrrouillage, qui est par défaut *123*. Si vous
+voulez le changer à ce moment là, vous devrez éditer le fichier caché des
+préférences, voir <<sub:the_display_section,la section DISPLAY>> pour plus
+de détails.
+
+A ce moment là, la page ressemble à ça:
+
+image::images/gmoccapy_settings_appearance.png[align="left"]
+
+La page est séparée en trois principaux onglets:
+
+=== Apparences
+
+Sur cet onglet vous trouverez les options suivantes:
+
+==== Fenêtre principale
+
+Ici vous pouvez choisir l'aspect de l'interface graphique que vous voulez
+pour démarrer. La principale raison à cela était le souhait d'avoir un moyen
+facile pour l'opérateur de définir les options sans avoir à écrire de code.
+
+Vous avez trois options:
+
+* Démarrer en plein écran
+* Démarrer avec un écran maximisé
+* Démarrer dans une fenêtre
+
+Si vous choisissez de démarrer dans une fenêtre, les boutons de taille et de
+position de la fenêtre deviendront actifs. Une fois ajustée, l'interface
+graphique re-démarrera à chaque fois dans la même position et avec la même
+taille. Néanmoins, l'opérateur pourras modifier la taille et la position à
+l'aide de la souris, mais ça n'auras pas d'influence sur les réglages
+initiaux.
+
+'cacher le curseur' permet de cacher le curseur, ce qui est très utile si
+vous utilisez un écran tactile.
+
+==== Clavier
+
+[NOTE]
+=============================================================
+Si cette section n'est pas active, c'est parce que vous n'avez pas installé de clavier virtuel, +
+Les claviers pris en charges sont *embarqué* et *matchbox-keyboard*.
+=============================================================
+
+Les cases à cocher permettent à l'utilisateur de sélectionner si il veut
+qu'un clavier embarqué s'ouvre immédiatement, en entrant en mode MDI, en
+entrant sur la page d'offset, le widget d'édition de tables d'outils ou en
+ouvrant un programme en mode EDIT. Le bouton de clavier dans la liste de
+boutons du bas ne sera pas affecté par ce choix, il vous sera possible de
+cacher ou d'ouvrir le clavier en pressant ce bouton. Le comportement par
+défaut sera fixé par les cases à cocher.
+
+Par défault :
+
+* Montrer le clavier en offset = True
+* Montrer le clavier en tooledit = False
+* Montrer le clavier en MDI = True
+* Montrer le clavier en EDIT = True
+* Montrer le clavier lors du chargement d'un fichier = False
+
+Si la disposition du clavier est incorrecte, par exemple: cliquer Z donne W,
+c'est lié à vos paramètres régionaux qui n'ont pas été réglés correctement.
+Pour le clavier embarqué, ça peut être résolu par le petit fichier batch
+avec le contenu suivant:
+
+---------
+ #!/bin/bash
+ setxkbmap -model pc105 -layout fr -variant basic
+---------
+
+Les lettres "fr" sont pour la France, vous devez les régler correctement en
+accord avec vos réglages locaux +  Exécutez ce fichier avant le démarrage de
+LinuxCNC, il peux être bien aussi, d'ajouter un lanceur dans votre dossier
+local
+
+ ./config/autostart 
+
+de sorte que l'interface graphique s'ouvre automatiquement au démarrage.
+
+Pour un matchbox-keyboard vous aurez à faire votre propre mise en page, pour
+une mise en page en Allemand, demandez sur le forum.
+
+==== Touch Off On
+
+offre l'option de montrer l'onglet de parcours d'outil, ou l'onglet de la
+page d'offset, si vous entrez en mode toucher en cliquant le bouton
+correspondant parmi les boutons du bas.
+
+* montrer le parcours d'outil
+* montrer les offsets
+
+Comme les onglets sont affichés, vous êtes en mesure de basculer d'une vue à
+l'autre dans tous les cas.
+
+==== Options de DRO
+
+Vous pouvez choisir les couleurs de fond selon les différents états des
+DRO. Ainsi, les utilisateurs souffrant de protanopie (faiblesse au
+rouge/vert) seront en mesure de choisir les couleurs appropriées
+
+Par défaut, les couleurs sont les suivantes:
+
+* Mode relatif = black
+* Mode absolu = blue
+* Distance restante = yellow
+
+et la couleur de fond du DRO peut être choisie avec:
+
+* homed color   = green
+* unhomed color = red
+
+'show dro in preview', le DRO est affiché dans la fenêtre de parcours d'outil +
+'show offsets', les décalages sont affichés dans la fenêtre de parcours d'outil +
+'show DTG' , la distance restante est affichée dans la fenêtre de parcours d'outil +
+ 
+'show DRO Button' vous permet d'afficher un bouton additionnel sur le côté gauche du DRO. +
+
+Seront affichés:  un bouton pour basculer entre coordonnées relatives et
+coordonnées absolues, + un bouton pour basculer entre la distance restante
+et les autres états + et un bouton pour basculer entre les unités, de
+métriques vers impériales et vice versa.
+
+WARNING: Il n'est pas du tout recommandé d'utiliser cette option, parce que
+l'opérateur peux perdre l'option d'unité automatique, qui va basculer les
+unités en accord avec le G-code actif G20 / G21
+
+NOTE: *Vous pouvez changer cycliquement les modes du DRO (absolu, relatif,
+distance restante), en cliquant directement sur celui-ci!*
+
+'Utilisez Unités Auto' permet de désactiver l'option d'unités auto de
+l'affichage, ainsi vous pouvez exécuter un programme en pouces et regarder
+la visu en mm.
+
+'taille' permet d'ajuster la taille de la police du DRO, par défaut à 28, si
+vous utilisez un grand écran, vous pouvez augmenter cette valeur jusqu'à
+56. Si vous utilisez 4 axes, la fonct du DRO sera des 3/4 de cette valeur,
+pour des raisons d'espace.
+
+'digits' ajuste le nombre de digits du DRO, entre 1 et 5.  NOTE: Impériale
+affiche un digit de plus que métrique. Donc, si vous êtes en unités machine
+impériales et que vous entrez la valeur 1, vous ne verrez aucun digit en
+métrique.
+
+==== Parcours d'outil
+
+'Grid Size'  Ajuste la taille de la grille dans la fenêtre du parcours
+d'outil.
+Malheureusement, cette taille *doit être réglée en pouces*, même si votre
+unité machine est métrique.  Nous espérons corriger ça dans une future
+version.
+
+NOTE: La grille n'est pas visible dans la vue en perspective.
+
+'Show DRO'  Affichera un DRO également dans la fenêtre du parcours d'outil,
+il s'affichera aussi automatiquement en mode parcours d'outil en plein écran
+
+'Show DTG'  Affichera aussi le DTG (distance restante) dans le parcours
+d'outil, seulement si Afficher DRO est actif et non en parcours d'outil
+pleine taille.
+
+'Show Offsets'  Affichera les décalages dans la fenêtre de parcours d'outil,
+
+NOTE: Si vous cochez seulement cette option et laissez les autres non
+cochées, vous aurez en parcours d'outil pleine taille, une page de décalages
+
+'Mode bouton souris' + Avec cette liste déroulante, vous pouvez sélectionner
+le comportement des boutons de la souris pour faire pivoter, déplacer ou
+zoomer le parcours d'outil. +
+
+ * gauche rotation, milieu déplacement,   droite zoom
+ * gauche zoom,  milieu déplacement,   droite rotation
+ * gauche déplacement,  milieu rotation,  droite zoom
+ * gauche zoom,  milieu rotation,  droite déplacement
+ * gauche déplacement,  milieu zoom,   droite rotation
+ * gauche rotation, milieu zoom,   droite déplacement
+
+Par défaut: gauche déplacement, milieu zoom, droite rotation
+
+La roulette de la souris va zoomer le parcours d'outil dans tous les modes.
+
+TIP: Si vous sélectionnez un élément dans le parcours d'outil, l'élément
+sélectionné sera pris comme point central des rotations.
+
+==== Fichier à charger au démarrage
+
+Sélectionnez le fichier que vous voulez charger au démarrage.  Dans les
+autres interfaces graphiques c'était très lourd, parce que les utilisateurs
+étaient obligés d'éditer le fichier ini.
+
+Si un fichier est chargé, il peut être réglé en pressant le bouton courant
+afin d'éviter que tout autre fichier soit chargé au démarrage, pressez juste
+le bouton Aucun.
+
+L'écran de sélection de fichier utilise les filtres que vous avez défini
+dans le fichier ini, Si aucun filtre n'est trouvé, vous verrez seulement les
+fichiers *ngc*.  Le chemin sera réglé selon les paramètres de la section
+[DISPLAY] PROGRAM_PREFIX du fichier ini.
+
+==== Saut au répertoire
+
+Vous pouvez ajuster ici le répertoire dans lequel sauter si vous pressez le
+bouton correspondant dans le dialogue de sélection de fichier.
+
+image::images/gmoccapy_file_selection_dialog_with_keyboard.png[align="left"]
+
+==== Thèmes et Sons
+
+Ceci permet à l'utilisateur de sélectionner quel thème de bureau appliquer
+et quels sons de messages d'erreur devraient être joués.  Par défaut "Follow
+System Theme" est réglé.
+
+=== Matériel
+
+image::images/gmoccapy_settings_hardware.png[align="left"]
+
+==== Échelle matériel MPG 
+
+Échelles pour les différentes pins de Hal à connecter à la manivelle du MPG,
+vous pouvez sélectionner des échelles individuelles à appliquer.  La raison
+principale était mon propre test pour résoudre ça grâce à des connections de
+Hal, le résultat était un fichier de Hal vraiment très complexe. Imaginez un
+utilisateur ayant un MPG avec 100 ipt et qui veux ralentir la vitesse max de
+14000 à 2000 mm/min, il lui faut 12000 impulsions, ce qui demande 120 tours
+de molette! Ou un autre utilisateur ayant une manivelle MPG avec 500ipt et
+qui veux ajuster le correcteur de vitesse broche à des limites entre 50 et
+120% alors il ira du minimum au maximum en 70 impulsions, ce qui veux dire
+même pas 1/4 de tour.
+
+Par défaut, toutes les échelles sont réglées en utilisant cette formule:
+
+ (MAX - MIN)/100
+
+==== Les raccourcis clavier
+
+Certains utilisateurs veulent jogger leur machine en utilisant les touches
+du clavier et d'autres qui ne permettrons jamais cela. Donc, tout le monde
+pourras choisir de les utiliser ou non.
+
+Par défaut il est possible d'utiliser les raccourcis clavier.
+
+Faites attention, si vous utilisez un tour, les raccourcis seront
+différents. Voir <<sub:LATHE_specific_section,la section tour>>
+
+ * Flèche vers la gauche = X moins
+ * Flèce vers la droite = X plus
+ * Flèche vers le haut = Y plus
+ * Flèche vers le bas = Y moins
+ * Page Up = Z plus
+ * Page Down = Z moins
+
+ * F1 = Arrêt d'urgence (il fonctionne même si les raccourcis clavier sont
+   désactivés)
+ * F2 = Marche machine
+
+ * ESC = Abandon
+
+Il existe d'autres touches pour gérer les messages, voir <<sub:Message_behavior_and_appearance,Message comportement et apparences>>
+* WINDOWS = Effacer le dernier message
+* <STRG><SPACE> = Effacer tous les messages
+
+==== Options de déverrouillage
+
+vous disposez de trois options pour déverrouiller la page des réglages:
+
+* utiliser un code de déverrouillage (l'utilisateur doit donner le code pour
+  pouvoir entrer)
+* Ne pas utiliser de code de déverrouillage (il n'y aura pas de vérification
+  de sécurité, pas recommandé)
+* Utiliser une pin de Hal pour déverrouiller (une pin matérielle doit être
+  haute pour déverrouiller la page des réglages, voir
+  <<sub:hardware_unlock_pin, pin de déverrouillage matérielle>>
+
+Par défaut, utilise le code de déverrouillage (default = *123*)
+
+==== La broche
+
+La vitesse de démarrage Ajuste la vitesse de rotation de la broche à
+utiliser si la broche démarrée sans avoir fixé la valeur S.
+
+Avec les réglages MIN et MAX, vous réglez les limites de la barre de vitesse
+du cadre INFO de l'écran principal. Aucune erreur ne sera donnée si les
+valeurs sont mauvaises. Si vous donnez un maximum de 2000 et que votre
+broche tourne à 4000 tr/mn, seul le niveau de la barre de vitesse sera
+mauvais aux vitesses supérieures à 2000 tr/mn.
+
+ les valeurs par défaut sont
+ MIN = 0
+ MAX = 6000
+
+==== Jog tortue [[sub:turtle_jog]]
+
+Ce réglage va influer sur les vitesses de jog.
+
+* 'cacher le bouton de jog-tortue' le bouton, à droite du curseur de
+  vitesse, sera masqué, si vous masquez ce bouton, attention que son icône
+  devienne bien celle du lapin, autrement il ne serait plus possible de
+  jogger plus rapidement qu'à la vitesse du jog-tortue, qui est calculée
+  avec le facteur de jog-tortue.
+* 'Facteur de jog-tortue' fixe le facteur d'échelle à appliquer au mode
+  jog-tortue. Si vous réglez un facteur de 20, la vitesse de jog maximale
+  sera de 1/20 de la vitesse machine maximale si ce mode est activé (bouton
+  pressé, icône de tortue)
+
+NOTE: Ce bouton peut être activé en utilisant la pin de Hal
+<<sub:Jog_Vel_and_Turtle-Jog,turtle-jog>>.
+
+=== Réglages avancés
+
+image::images/gmoccapy_settings_advanced.png[align="left"]
+
+==== Mesure de longueur d'outil [[sub:Tool_Measurement_Setup]]
+
+Si cette partie n'est pas active, c'est que vous n'avez pas configuré la
+mesure d'outil dans le fichier ini.
+
+Veuillez vous référer au chapitre: <<sub:Auto_Tool_Measurement, Mesure
+automatique d'outil>>
+
+* Utiliser la mesure d'outil automatique : Si coché, une mesure de longueur d'outil sera effectuée après chaque changement d'outil, 
+le résultat sera stocké dans la table d'outils et un G43 sera exécuté après le changement.
+
+*Informations sonde* +
+Les informations suivantes sont tirées du fichier ini et doivent être fournies en coordonnées absolues
+
+ * X Pos. = C'est la position en X du contact de sonde
+ * Y Pos. = C'est la position en Y du contact de sonde
+ * Z Pos. = C'est la position de sécurité en Z, au dessus du contact de
+   sonde, le mouvement de plongée jusqu'à cette coordonnée, se fera en
+   vitesse rapide
+
+ * Max. Sonde = C'est la profondeur maximale jusqu'à laquelle le palpeur pourras chercher le contact de sonde, une erreur se produira si le contact n'est pas rencontré. 
+                Cette cote doit être donnée en coordonnées relatives à la pièce, en commençant le mouvement depuis Z Pos., 
+                de sorte que cette cote doit être négative pour aller en plongée!
+
+ * Hauteur sonde = C'est la hauteur du contact de sonde, qui peut être mesurée. Touchez la base, 
+                  sur laquelle le contact de sonde est posé et faites le zéro en Z. Puis faites un changement d'outil 
+                  et regardez la valeur de 'tool_offset_z', c'est cette valeur que vous devez saisir ici.
+
+*Vitesses sonde* +
+
+ * Vitesse rech. = C'est la vitesse de recherche du contact de sonde, après l'activation du contact, l'outil remonte pour 
+                dégager le contact, puis replonge de nouveau en 'Vitesse sonde', pour affiner les résultats. 
+ * Vitesse sonde = C'est la vitesse du second mouvement vers le contact, elle doit être assez faible pour obtenir les meilleurs 
+                résultats au toucher.(En mode simulation, c'est commenté dans macros/change.ngc, autrement l'utilisateur 
+                devra double-cliquer sur le bouton de sonde)
+
+*Changeur d'outil* +
+Si un quatrième axe est utilisé pour un changeur d'outil, vous pouvez cacher le DRO tous les autres boutons 
+relatifs à cet axe. +
+
+Vous pouvez le faire en cochant la case, ce qui masquera: +
+
+ * DRO du 4eme axe
+ * Bouton de jog du 4eme axe
+ * Bouton Home du 4eme axe
+ * La colonne du 4eme axe de la page des décalages
+ * La colonne du 4eme axe de l'éditeur de table d'outils
+
+==== Comportement et apparence des messages
+[[sub:Message_behavior_and_appearance]]
+
+Cela permet d'afficher des petites fenêtres surgissantes contenant des
+messages ou des textes d'erreur, leur comportement est très similaire à
+celui utilisé par Axis. Vous pouvez supprimer un massage spécifique, en
+cliquant sur son bouton de fermeture, si vous voulez effacer le dernier,
+pressez juste sur la touche WINDOWS de votre clavier, ou pour les effacer
+tous sur les touches <CTRL><ESPACE>.
+
+Vous pouvez définir quelques options:
+
+ * X Pos = C'est la position en X, du coin supérieur gauche de la fenêtre de
+   message, comptée en pixels depuis le coin supérieur gauche de l'écran.
+ * Y pos = C'est la position en Y, du coin supérieur gauche de la fenêtre de
+   message, comptée en pixels depuis le coin supérieur gauche de l'écran.
+ * Largeur = C'est la largeur de la boîte de message
+ * max = C'est le maximum de messages C'est le maximum de messages visibles, si vous réglez cette valeur à 10, le 11eme message sera effacé, 
+         de sorte que seuls les 10 derniers seront visibles.
+ * Font = La police et la taille de cette police, pour afficher les messages
+ * utiliser cadres = Si vous cochez cette case, chaque message sera affiché dans un cadre, il sera donc plus facile de distinguer
+   les messages. Mais au détriment de la place nécessaire.
+ * Le bouton, lancer un message de test, affichera un échantillon de message, ainsi, il est possible de visualiser les changements 
+   produits par vos réglages, sans générer d'erreur éventuelle.
+
+==== Démarrer à la ligne sélectionnée
+
+Vous pouvez activer ou désactiver la fonction Démarrer à la ligne
+sélectionnée. Ce qui activera le bouton correspondant ou le désactivera en
+le rendant grisé, dans ce cas l'utilisateur ne pourra plus utiliser cette
+option.
+
+WARNING: Il n'est pas recommandé d'activer et d'utiliser cette fonction,
+parce que LinuxCNC ne tiendra aucun compte des lignes de code précédent
+celle sélectionnée. La probabilité de crash induit par ces lignes est très
+élevée.
+
+Par défaut, le démarrage à un ligne sélectionnée est invalidé
+
+==== Historique des actions
+
+Si ce bouton est activé, presque toute pression sur un bouton ou action de
+LinuxCNC seront enregistrées dans l'historique des alarmes.  C'est très
+utile pour le débogage.
+
+== Section spécifique LATHE (tour) [[sub:LATHE_specific_section]]
+
+Si dans le fichier ini, on trouve LATHE = 1, alors, l'interface graphique va
+changer d'apparence pour s'adapter aux besoins spécifiques d'un tour.
+Principalement, l'axe Y disparaît et les boutons de jog sont ré-arrangés
+dans un ordre différent.
+
+Tour avec outil frontal:
+
+image::images/gmoccapy_lathe.png[align="left"]
+
+Tour avec outil arrière:
+
+image::images/gmoccapy_back_tool_lathe.png[align="left"]
+
+Comme vous le voyez, le DRO R est sur fond noir et le DRO D sur fond
+gris. Cela changera selon le G-code actif, G7 (mode diamètre) ou G8 (mode
+rayon). Le mode actif est donc visible grâce à la couleur du fond,
+signifiant sur les images précédentes que G8 est actif.
+
+La différence suivante par rapport à l'écran standard, c'est la position des
+boutons de jog.  X et Z ont changé de place et Y a disparu.  Vous noterez
+que les boutons X+ et X- sont permutés, selon que le tour est à outil
+frontal ou à outil arrière.
+
+De plus, le comportement du clavier va changer:
+
+Tour avec outil frontal:
+
+ * Flèche vers la gauche = Z moins
+ * Flèche vers la droite = Z plus
+ * Flèche vers le haut = X moins
+ * Flèche vers le bas = X plus
+
+Tour avec outil arrière:
+
+ * Flèche vers la gauche = Z moins
+ * Flèche vers la droite = Z plus
+ * Flèche vers le haut = X plus
+ * Flèche vers le bas = X moins
+
+Le cadre d'informations outil affichera non seulement le décalage en Z, mais
+aussi, le décalage en X, et les informations de la table d'outils affichées,
+sont toutes celles d'un tour.
+
+== Section spécifique au Plasma
+
+image::images/gmoccapy_plasma_1.png[align="left"]
+
+Il existe un très bon WIKI, qui est en fait, de plus en plus maintenu par
+Marius
+
+voir la http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[page Wiki
+Plasma]
+
+== VIDEO sur you tube
+
+Ce sont des vidéos montrant gmoccapy en action, malheureusement, les vidéos
+ne montrent pas la dernière version de gmoccapy, mais la façon de l'utiliser
+ne changera pas beaucoup dans l'avenir. Je vais essayer d'actualiser les
+vidéos dès que possible.
+
+=== Usage de base
+
+en Allemand = + Anglais = https://www.youtube.com/watch?v=O5B-s3uiI6g
+
+=== Manivelles de jog simulées
+
+en Anglais = http://youtu.be/ag34SGxt97o
+
+=== Page des réglages
+
+Réglages en Allemand = + Réglages en Anglais =
+https://www.youtube.com/watch?v=AuwhSHRJoiI
+
+=== Boutons matériels simulés
+
+Allemand Hardware_Button = http://www.youtube.com/watch?v=DTqhY-MfzDE
+English Hardware Button = http://www.youtube.com/watch?v=ItVWJBK9WFA
+
+=== Onglets personnalisés
+
+Anglais User Tabs = http://www.youtube.com/watch?v=rG1zmeqXyZI
+
+=== Vidéos de mesure d'outil [[sub:Tool_Measurement_Videos]]
+
+English Auto Tool Measurement Simmulation = http://youtu.be/rrkMw6rUFdk
+English Auto Tool Measurement Screen = http://youtu.be/Z2ULDj9dzvk
+English Auto Tool Measurement Machine = http://youtu.be/1arucCaDdX4 +
+
+== Problèmes connus
+
+=== Nombres étranges dans la zone d'information
+
+Si vous rencontrez d'étranges nombres dans la zone d'information de gmoccapy
+comme:
+ 
+image::images/strange_numbers.png[align="left"]
+
+Vous devez avez sans doute faits votre configuration avec une ancienne
+version de StepConf.  Il a fait une mauvaise entrée dans le fichier ini,
+sous [TRAJ] nommée MAX_LINEAR_VELOCITY = xxx.  Changez cette entrée en
+MAX_VELOCITY = xxx

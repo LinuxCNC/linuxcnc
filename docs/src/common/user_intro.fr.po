@@ -1,0 +1,496 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-14 12:08+0100\n"
+"PO-Revision-Date: 2015-02-16 23:14+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+
+#. type: Plain text
+#: user_intro.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: user_intro.txt:4
+msgid "= LinuxCNC User Introduction"
+msgstr "= Introduction à LinuxCNC"
+
+#. type: Plain text
+#: user_intro.txt:6
+msgid "[[cha:linuxcnc-user-introduction]] (((LinuxCNC User Introduction)))"
+msgstr "[[cha:linuxcnc-user-introduction]] (((Introduction à LinuxCNC)))"
+
+#. type: Plain text
+#: user_intro.txt:8
+msgid "== This Manual"
+msgstr "== Introduction"
+
+#. type: Plain text
+#: user_intro.txt:14
+msgid ""
+"The focus of this manual is on 'using' LinuxCNC. It is intended to be used once "
+"LinuxCNC is installed and configured. For standard installations see the "
+"Getting Started Guide for step by step instructions to get you up and going. "
+"For detailed information on installation and configuration of LinuxCNC see the "
+"Integrator Manual."
+msgstr ""
+"Ce document est centré sur l'utilisation de LinuxCNC, il est plutôt destiné aux "
+"lecteurs l'ayant déjà installé et configuré. Quelques informations sur "
+"l'installation sont données dans les chapitres suivants. La documentation "
+"complète sur l'installation et la configuration se trouve dans le manuel de "
+"l'intégrateur."
+
+#. type: Plain text
+#: user_intro.txt:16
+msgid "== How LinuxCNC Works[[how-LinuxCNC-works]]"
+msgstr "== Comment fonctionne LinuxCNC[[sec:Comment-Fonctionne-LinuxCNC]]"
+
+#. type: Plain text
+#: user_intro.txt:21
+msgid ""
+"The Enhanced Machine Controller (LinuxCNC) is a lot more than just another CNC "
+"mill program. It can control machine tools, robots, or other automated devices. "
+"It can control servo motors, stepper motors, relays, and other devices related "
+"to machine tools."
+msgstr ""
+"LinuxCNC (The Enhanced Machine Controller) est un peu plus que juste un autre "
+"programme de fraiseuse CNC. Il est capable de contrôler des machines-outils, "
+"des robots ou d'autres automatismes. Il est capable de contrôler des "
+"servomoteurs, des moteurs pas à pas, des relais ainsi que d'autres mécanismes "
+"relatifs aux machines-outils. "
+
+#. type: Plain text
+#: user_intro.txt:23
+msgid "There are four main components to the LinuxCNC software:"
+msgstr "Il y a quatre principales composantes du logiciel LinuxCNC:"
+
+#. type: Bullet: '* '
+#: user_intro.txt:28
+msgid "a motion controller (EMCMOT)"
+msgstr "un contrôleur de mouvement (EMCMOT), "
+
+#. type: Bullet: '* '
+#: user_intro.txt:28
+msgid "a discrete I/O controller (EMCIO)"
+msgstr "une contrôleur d'entrées/sorties discrètes (EMCIO), "
+
+#. type: Bullet: '* '
+#: user_intro.txt:28
+msgid "a task executor which coordinates them (EMCTASK)"
+msgstr "un exécuteur de tâches qui coordonne celles-ci (EMCTASK), "
+
+#. type: Bullet: '* '
+#: user_intro.txt:28
+msgid "and one of several graphical user interfaces."
+msgstr "et les interfaces utilisateur graphiques. "
+
+#. type: Plain text
+#: user_intro.txt:31
+msgid ""
+"In addition there is a layer called HAL (Hardware Abstraction Layer)  which "
+"allows configuration of LinuxCNC without the need of recompiling."
+msgstr ""
+"En outre il existe une couche appelée HAL (couche d'abstraction matérielle) qui "
+"permet la configuration de LinuxCNC sans avoir besoin de le recompiler."
+
+#. type: Plain text
+#: user_intro.txt:33
+msgid ".Simple LinuxCNC Controlled Machine[[fig:Typical_machine]]"
+msgstr ".Machine simple contrôlée par LinuxCNC"
+
+#. type: Plain text
+#: user_intro.txt:35
+msgid "image::images/whatstep1.png[align=\"center\"]"
+msgstr "image::images/whatstep1.png[align=\"left\"]"
+
+#. type: Plain text
+#: user_intro.txt:46
+msgid ""
+"The above figure shows a simple block diagram showing what a typical 3-axis "
+"LinuxCNC system might look like. This diagram shows a stepper motor system. The "
+"PC, running Linux(((Linux))) as its operating system, is actually controlling "
+"the stepper motor drives by sending signals through the printer port. These "
+"signals (pulses) make the stepper drives move the stepper motors. The LinuxCNC "
+"system can also run servo motors via servo interface cards or by using an "
+"extended parallel port to connect with external control boards. As we examine "
+"each of the components that make up an LinuxCNC system we will remind the "
+"reader of this typical machine."
+msgstr ""
+"La figure ci-dessus montre un diagramme bloc représentant une machine 3 axes "
+"typique comme LinuxCNC les aime. Cette figure montre un système basé sur des "
+"moteurs pas à pas. Le PC,tournant sous Linux(((Linux))) contrôle les interfaces "
+"de puissance des moteurs pas à pas en leur envoyant des signaux au travers du "
+"port parallèle. Ces signaux (impulsionnels), font que la puissance adéquate est "
+"fournie aux moteurs. LinuxCNC peut également contrôler des servo-moteurs via "
+"une interface de puissance pour servomoteurs ou utiliser le port parallèle "
+"étendu connecté à une carte de contrôle externe. Quand nous examinerons chacun "
+"des composants qui forment un système LinuxCNC, nous nous référerons à cette "
+"machine typique."
+
+#. type: Plain text
+#: user_intro.txt:48
+msgid "== Graphical User Interfaces[[sub:Graphical-User-Interfaces]]"
+msgstr ""
+"== Interfaces utilisateur graphiques[[sub:Interfaces-utilisateur-graphiques]]"
+
+#. type: Plain text
+#: user_intro.txt:52
+msgid ""
+"A user interface is the part of the LinuxCNC that the machine tool operator "
+"interacts with. The LinuxCNC comes with several types of user interfaces:"
+msgstr ""
+"L'interface graphique est la partie de LinuxCNC qui interagit avec l'opérateur "
+"de la machine. LinuxCNC est fourni avec plusieurs interfaces utilisateurs "
+"graphiques:"
+
+#. type: Bullet: '* '
+#: user_intro.txt:54
+msgid "<<cha:axis-gui,'Axis'>>, the standard GUI interface."
+msgstr "<<cha:Axis,'Axis'>>, l'interface utilisateur standard."
+
+#. type: Plain text
+#: user_intro.txt:56
+msgid ".Axis GUI[[fig:The-Axis-GUI]]"
+msgstr ".L'interface graphique AXIS[[fig:Interface-graphique-AXIS]]"
+
+#. type: Plain text
+#: user_intro.txt:58
+msgid "image::images/axis-2.5.png[align=\"center\"]"
+msgstr "image::images/axis_25_fr.png[align=\"left\"]"
+
+#. type: Bullet: '* '
+#: user_intro.txt:60
+msgid "<<cha:gmoccapy,'gmoccapy'>>, A industrial like GUI."
+msgstr ""
+"<<cha:gmoccapy,'gmoccapy'>>, Une interface graphique quasiment industrielle."
+
+#. type: Plain text
+#: user_intro.txt:62
+msgid ".Gmoccapy[[fig:Gmoccapy]]"
+msgstr ".Gmoccapy[[fig:Gmoccapy]]"
+
+#. type: Plain text
+#: user_intro.txt:64
+msgid "image::images/gmoccapy_4_axis.png[align=\"center\"]"
+msgstr "image::images/gmoccapy_4_axis.png[align=\"left\"]"
+
+#. type: Bullet: '* '
+#: user_intro.txt:66
+msgid "<<cha:touchy-gui,'Touchy'>>, a touch screen GUI."
+msgstr "<<cha:touchy-gui,'Touchy'>>, une interface graphique pour écran tactile."
+
+#. type: Plain text
+#: user_intro.txt:68
+msgid ".Touchy GUI[[fig:touchy-gui]]"
+msgstr ".L'interface graphique Touchy[[fig:touchy-gui]]"
+
+#. type: Plain text
+#: user_intro.txt:70
+msgid "image::images/touchy.png[align=\"center\"]"
+msgstr "image::images/touchy_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: user_intro.txt:74
+#, no-wrap
+msgid ""
+"* <<cha:ngcgui,'NGCGUI'>>, a subroutine GUI that provides 'fill in the blanks'\n"
+"   programming of G code. It also supports concatenation of subroutine files\n"
+"   to enable you to build a complete G code file without programming.\n"
+msgstr ""
+"* <<cha:ngcgui,'NGCGUI'>>, une interface graphique gérant les sous-programmes.\n"
+"Elle permet très simplement de créer des programme G-code. Elle supporte surtout\n"
+"la concaténation de fichiers de sous-programmes, ce qui permet de construire des\n"
+"programmes G-code complets sans aucune programmation.\n"
+
+#. type: Plain text
+#: user_intro.txt:76
+msgid ".NGCGUI GUI embedded into Axis[[fig:ngcgui-gui]]"
+msgstr ".L'interface graphique NGCGUI intégrée dans Axis[[fig:ngcgui-gui]]"
+
+#. type: Plain text
+#: user_intro.txt:78
+msgid "image::images/ngcgui.png[align=\"center\"]"
+msgstr "image::images/ngcgui_fr.png[align=\"left\"]"
+
+#. type: Bullet: '* '
+#: user_intro.txt:80
+msgid "<<cha:mini-gui,'Mini'>>, a Tcl/Tk-based GUI"
+msgstr "<<cha:Mini,'Mini'>>, une interface en Tcl/Tk."
+
+#. type: Plain text
+#: user_intro.txt:82
+msgid ".The Mini GUI[[fig:The-Mini-GUI]]"
+msgstr ".L'interface graphique Mini[[fig:Interface-graphique-Mini]]"
+
+#. type: Plain text
+#: user_intro.txt:84
+msgid "image::images/mini.png[align=\"center\"]"
+msgstr "image::images/mini_fr.png[align=\"left\"]"
+
+#. type: Bullet: '* '
+#: user_intro.txt:86
+msgid "<<cha:tklinuxcnc-gui,'TkLinuxCNC'>>, a Tcl/Tk-based GUI"
+msgstr "<<cha:TkLinuxCNC,'TkLinuxCNC'>>, une autre interface basée sur Tcl/Tk."
+
+#. type: Plain text
+#: user_intro.txt:88
+msgid ".The TkLinuxCNC GUI[[fig:The-TkLinuxCNC-GUI]]"
+msgstr ".L'interface graphique tklinuxcnc[[fig:L-interface-graphique-tklinuxcnc]]"
+
+#. type: Plain text
+#: user_intro.txt:90
+msgid "image::images/tkemc.png[align=\"center\"]"
+msgstr "image::images/tklinuxcnc_fr.png[align=\"left\"]"
+
+#. type: Bullet: '* '
+#: user_intro.txt:93
+msgid ""
+"<<cha:keystick-gui,'Keystick'>>, a character-based screen graphics program "
+"suitable for minimal installations (without the X server running)."
+msgstr ""
+"<<cha:keystick-gui,'Keystick'>>, une interface graphique textuelle et "
+"minimaliste, appropriée pour les installations légères (sans serveur X par "
+"exemple)."
+
+#. type: Plain text
+#: user_intro.txt:95
+msgid ".The Keystick GUI[[fig:The-Keystick-GUI]]"
+msgstr ".L'interface textuelle Keystick[[fig:L-interface-Keystick]]"
+
+#. type: Plain text
+#: user_intro.txt:97
+msgid "image::images/keystick.png[align=\"center\"]"
+msgstr "image::images/keystick.png[align=\"left\"]"
+
+#. type: Plain text
+#: user_intro.txt:101
+#, no-wrap
+msgid ""
+"* 'Xemc', an X-Windows program. A simulator configuration of Xemc can be \n"
+"   ran from the configuration picker.\n"
+msgstr ""
+"* 'Xemc', un programme X-Windows. Une configuration de Xemc, en simulateur,\n"
+"peut être exécutée à partir du sélecteur de configuration.\n"
+
+#. type: Plain text
+#: user_intro.txt:105
+#, no-wrap
+msgid ""
+"* 'halui' - a HAL based user interface which allows to control LinuxCNC\n"
+"   using knobs and switches. See the Integrators manual for more information\n"
+"   on halui.\n"
+msgstr ""
+"* 'halui', une interface utilisateur basée sur HAL, qui permet de contrôler\n"
+"LinuxCNC en utilisant des boutons et des interrupteurs.\n"
+
+#. type: Plain text
+#: user_intro.txt:108
+#, no-wrap
+msgid ""
+"* 'linuxcncrsh' - a telnet based user interface which allows commands to\n"
+"   be sent to LinuxCNC from remote computers.\n"
+msgstr ""
+"* 'linuxcncrsh', une interface utilisateur basée sur telnet, qui permet d'envoyer\n"
+"des commandes à partir d'ordinateurs distants de celui de LinuxCNC\n"
+
+#. type: Plain text
+#: user_intro.txt:110
+msgid "== Virtual Control Panels"
+msgstr "== Panneaux de contrôle virtuels"
+
+#. type: Plain text
+#: user_intro.txt:113
+#, no-wrap
+msgid ""
+"* 'PyVCP' a python based virtual control panel that can be added to the\n"
+"   Axis GUI or be stand alone.\n"
+msgstr ""
+"* 'PyVCP', un panneau de contrôle virtuel basé sur Python, il peut être intégré\n"
+"    dans l'interface graphique Axis ou utilisé en autonome.\n"
+
+#. type: Plain text
+#: user_intro.txt:115
+msgid ".PyVCP with Axis[[fig:pyvcp-with-axis]]"
+msgstr ".PyVCP avec Axis[[fig:pyvcp-avec-axis]]"
+
+#. type: Plain text
+#: user_intro.txt:117
+msgid "image::images/axis-pyvcp.png[align=\"center\"]"
+msgstr "image::images/axis-pyvcp.png[align=\"left\"]"
+
+#. type: Plain text
+#: user_intro.txt:120
+#, no-wrap
+msgid ""
+"* 'GladeVCP' - a glade based virtual control panel that can be added to\n"
+"   the Axis GUI or be stand alone.\n"
+msgstr ""
+"* 'GladeVCP', un panneau de contrôle virtuel basé sur Glade, il peut être\n"
+"intégré dans l'interface graphique Axis ou utilisé en autonome.\n"
+
+#. type: Plain text
+#: user_intro.txt:122
+msgid ".GladeVCP with Axis[[fig:gladevcp-with-axis]]"
+msgstr ".GladeVCP with Axis[[fig:gladevcp-with-axis]]"
+
+#. type: Plain text
+#: user_intro.txt:124
+msgid "image::images/axis-gladevcp.png[align=\"center\"]"
+msgstr "image::images/axis-gladevcp.png[align=\"left\"]"
+
+#. type: Plain text
+#: user_intro.txt:126
+msgid "See the Integrators manual for more information on Virtual Control Panels."
+msgstr ""
+"Voir le manuel de l'intégrateur pour des détails sur les panneaux de contrôle "
+"virtuels."
+
+#. type: Plain text
+#: user_intro.txt:128
+msgid "== Languages"
+msgstr "== Langues"
+
+#. type: Plain text
+#: user_intro.txt:134
+msgid ""
+"LinuxCNC uses translation files to translate LinuxCNC User Interfaces into many "
+"languages. You just need to log in with the language you intend to use and when "
+"you start up LinuxCNC it comes up in that language. If your language has not "
+"been translated contact a developer on the IRC or the mailing list if you can "
+"assist in the translation."
+msgstr ""
+"LinuxCNC utilise des fichiers traduits pour les interfaces utilisateur. Il "
+"fonctionne dans plusieurs langues et démarre dans la langue de la session "
+"ouverte par l'utilisateur au démarrage du PC. Si votre langue n'a pas encore "
+"été traduite contactez un développeur sur l'IRC ou sur la mailing liste si vous "
+"pouvez aider à la traduction."
+
+#. type: Plain text
+#: user_intro.txt:136
+msgid "== Thinking Like a Machine Operator[[sec:Thinking-Operator]]"
+msgstr "== Penser comme un opérateur sur CNC[[sec:Penser-operateur]]"
+
+#. type: Plain text
+#: user_intro.txt:144
+msgid ""
+"This book will not even pretend that it can teach you to run a mill or a lathe. "
+"Becoming a machinist takes time and hard work. An author once said, \"We learn "
+"from experience, if at all.\" Broken tools, gouged vices, and scars are the "
+"evidence of lessons taught. Good part finish, close tolerances, and careful "
+"work are the evidence of lessons learned.  No machine, no computer program, can "
+"take the place of human experience."
+msgstr ""
+"Ce manuel ne prétend pas vous apprendre à utiliser un tour ou une fraiseuse. "
+"Devenir un opérateur expérimenté prends beaucoup de temps et demande beaucoup "
+"de travail. Un auteur a dit un jour, 'Nous apprenons par l'expérience, si on la "
+"possède toute'. Les outils cassés, les étaux attaqués et les cicatrices sont "
+"les preuves des leçons apprises. Une belle finition, des tolérances serrées et "
+"la prudence pendant le travail sont les preuves des leçons retenues. Aucune "
+"machine, aucun programme ne peut remplacer l'expérience humaine."
+
+#. type: Plain text
+#: user_intro.txt:153
+msgid ""
+"As you begin to work with the LinuxCNC program, you will need to place yourself "
+"in the position of operator. You need to think of yourself in the role of the "
+"one in charge of a machine. It is a machine that is either waiting for your "
+"command or executing the command that you have just given it. Throughout these "
+"pages we will give information that will help you become a good operator of the "
+"LinuxCNC system. You will need some information right up front here so that the "
+"following pages will make sense to you."
+msgstr ""
+"Maintenant que vous commencez à travailler avec le programme LinuxCNC, vous "
+"devez vous placer dans la peau d'un opérateur. Vous devez être dans le rôle de "
+"quelqu'un qui a la charge d'une machine. C'est une machine qui attendra vos "
+"commandes puis qui exécutera les ordres que vous lui donnerez. Dans ces pages, "
+"nous donnerons les explications qui vous aideront à devenir un bon opérateur de "
+"CNC avec LinuxCNC. Vous aurez besoin de bonnes informations ici, devant vous, "
+"c'est là que les pages suivantes prendront tout leur sens."
+
+#. type: Plain text
+#: user_intro.txt:155
+msgid "== Modes of Operation[[sub:Modes-of-Operation]]"
+msgstr "== Modes opératoires[[sub:Modes-operatoires]]"
+
+#. type: Plain text
+#: user_intro.txt:164
+msgid ""
+"When LinuxCNC is running, there are three different major modes used for "
+"inputting commands. These are 'Manual', 'Auto', and 'MDI'. Changing from one "
+"mode to another makes a big difference in the way that the LinuxCNC control "
+"behaves. There are specific things that can be done in one mode that cannot be "
+"done in another. An operator can home an axis in manual mode but not in auto or "
+"MDI modes.  An operator can cause the machine to execute a whole file full of G-"
+"codes in the auto mode but not in manual or MDI."
+msgstr ""
+"Quand LinuxCNC fonctionne, il existe trois différents modes majeurs pour entrer "
+"des commandes. Les modes 'Manuel', 'Auto' et 'MDI'. Passer d'un mode à un autre "
+"marque une grande différence dans le comportement de LinuxCNC. Des actions "
+"spécifiques à un mode, ne peuvent pas être faites dans un autre. L'opérateur "
+"peut faire une prise d'origine sur un axe en mode manuel, mais pas en mode auto "
+"ou MDI. L'opérateur peut lancer l'exécution complète d'un programme de G-code "
+"en mode auto, mais pas en mode manuel ni en MDI."
+
+#. type: Plain text
+#: user_intro.txt:175
+msgid ""
+"In manual mode, each command is entered separately. In human terms a manual "
+"command might be 'turn on coolant' or 'jog X at 25 inches per minute'. These "
+"are roughly equivalent to flipping a switch or turning the hand wheel for an "
+"axis. These commands are normally handled on one of the graphical interfaces by "
+"pressing a button with the mouse or holding down a key on the keyboard. In auto "
+"mode, a similar button or key press might be used to load or start the running "
+"of a whole program of G-code that is stored in a file. In the MDI mode the "
+"operator might type in a block of code and tell the machine to execute it by "
+"pressing the <return> or <enter> key on the keyboard."
+msgstr ""
+"En mode manuel, chaque commande est entrée séparément. En termes humains, une "
+"commande manuelle pourrait être 'active l'arrosage' ou 'déplace l'axe X à 250 "
+"millimètres par minute'. C'est en gros, équivalent à basculer un interrupteur "
+"ou à tourner la manivelle d'un axe. Ces commandes sont normalement contrôlées "
+"en pressant un bouton de l'interface graphique avec la souris ou en maintenant "
+"appuyée une touche du clavier. En mode auto, un bouton similaire ou l'appui "
+"d'une touche peut être utilisé pour charger ou lancer l'exécution complète d'un "
+"programme de G-code, stocké dans un fichier. En mode d'entrée de données "
+"manuelles (MDI) l'opérateur peut saisir un bloc de codes est dire à la machine "
+"de l'exécuter en pressant la touche 'Entrée' ou 'Return' du clavier."
+
+#. type: Plain text
+#: user_intro.txt:180
+msgid ""
+"Some motion control commands are available and will cause the same changes in "
+"motion in all modes. These include 'abort', 'estop', and 'feed rate "
+"override').  Commands like these should be self explanatory."
+msgstr ""
+"Certaines commandes de mouvement sont disponibles et produisent les mêmes "
+"effets dans tous les modes. Il s'agit des commandes 'Abandon', 'Arrêt "
+"d'Urgence' et 'Correcteur de vitesse travail'.Ces commandes se dispensent "
+"d'explications."
+
+#. type: Plain text
+#: user_intro.txt:187
+msgid ""
+"The AXIS user interface hides some of the distinctions between Auto and the "
+"other modes by making Auto-commands available at most times. It also blurs the "
+"distinction between Manual and MDI because some Manual commands like Touch Off "
+"are actually implemented by sending MDI commands. It does this by automatically "
+"changing to the mode that is needed for the action the user has requested."
+msgstr ""
+"L'interface utilisateur graphique AXIS supprime certaines distinctions entre "
+"Auto et les autres modes en rendant automatique la disponibilité des commandes, "
+"la plupart du temps. Il rend également floue la distinction entre Manuel et MDI "
+"parce que certaines commandes manuelles comme 'Toucher', sont également "
+"implémentées en envoyant une commande MDI. Il fait cela en changeant "
+"automatiquement le mode qui est nécessaire pour l'action que l'utilisateur a "
+"demandé."
