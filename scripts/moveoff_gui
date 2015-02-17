@@ -1,5 +1,9 @@
 #!/usr/bin/tclsh
 
+# library procs:
+set hallib_dir [exec linuxcnc_var HALLIB_DIR]
+source [file join $hallib_dir hal_procs_lib.tcl]
+
 # A gui to demonstrate the use of the moveoff component for
 # applying Hal-only offsets.
 
@@ -460,20 +464,6 @@ proc bitpin_exists {pattern} {
   if {[llength $ans] == 1} {return "$ans"}
   return ""
 } ;# bitpin_exists
-
-proc is_connected {pinname {signame {} } } {
-  upvar $signame thesig
-  set ans [hal show pin $pinname]
-  set lines [split $ans \n]
-  set thesig ""
-  set sep ""
-  set ct [scan [lindex $lines 2] "%s %s %s %s %s %s %s" \
-                                 owner type dir val name sep thesig]
-  if {$ct <0}          {return not_connected}
-  if {"$sep" == "<=="} {return is_input}
-  if {"$sep" == "==>"} {return is_output}
-  return "not_connected"
-} ;# is_connected
 
 proc connect_pin_to_sig {pinname new_signame} {
   if {[is_connected $pinname existing_signame] != "not_connected"} {
