@@ -10,7 +10,7 @@
 // Module information.
 MODULE_AUTHOR("Bence Kovacs");
 MODULE_DESCRIPTION("Driver for General Mechatronics 6-Axis Motion Control Card for EMC HAL");
-MODULE_LICENSE("GPL2");
+MODULE_LICENSE("GPL");
 
 typedef struct { //encoder_t
     // Pins
