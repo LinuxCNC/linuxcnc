@@ -1901,7 +1901,7 @@ RS485(void *arg, long period)
 
 		    case RS485MODUL_ID_DACADC:
 		     //DAC 0 
-		      if(*(device->RS485_DacAdc[i].DAC_0))
+		      if(*(device->RS485_DacAdc[i].dac_0_enable))
 		      {
 			temp = *(device->RS485_DacAdc[i].DAC_0)+ device->RS485_DacAdc[i].DAC_0_offset;
 			
@@ -1916,7 +1916,7 @@ RS485(void *arg, long period)
 		      else if(temp <0) temp=0;
 		      RS485DataIn8[0]= (hal_u32_t)temp;
 		    //DAC 1
-		      if(*(device->RS485_DacAdc[i].DAC_1))
+		      if(*(device->RS485_DacAdc[i].dac_1_enable))
 		      {
 			temp = *(device->RS485_DacAdc[i].DAC_1)+ device->RS485_DacAdc[i].DAC_1_offset;
 			
@@ -1924,13 +1924,15 @@ RS485(void *arg, long period)
 			else if(temp < device->RS485_DacAdc[i].DAC_1_min) { temp = device->RS485_DacAdc[i].DAC_1_min; }
 			
 			temp = (temp + 10)*12.8 + 0.5;
-		      }
+                      }
+                      else temp=128;
+
 		      if(temp>255) temp=255;
 		      else if(temp <0) temp=0;
 		      RS485DataIn8[1]= (hal_u32_t)temp;
 		      
 		    //DAC 2
-		      if(*(device->RS485_DacAdc[i].DAC_2))
+		      if(*(device->RS485_DacAdc[i].dac_2_enable))
 		      {
 			temp = *(device->RS485_DacAdc[i].DAC_2)+ device->RS485_DacAdc[i].DAC_2_offset;
 			
@@ -1938,13 +1940,15 @@ RS485(void *arg, long period)
 			else if(temp < device->RS485_DacAdc[i].DAC_2_min) { temp = device->RS485_DacAdc[i].DAC_2_min; }
 			
 			temp = (temp + 10)*12.8 + 0.5;
-		      }
+                      }
+                      else temp=128;
+
 		      if(temp>255) temp=255;
 		      else if(temp <0) temp=0;
 		      RS485DataIn8[2]= (hal_u32_t)temp;
 		      
 		    //DAC 3
-		      if(*(device->RS485_DacAdc[i].DAC_3))
+		      if(*(device->RS485_DacAdc[i].dac_3_enable))
 		      {
 			temp = *(device->RS485_DacAdc[i].DAC_3)+ device->RS485_DacAdc[i].DAC_3_offset;
 			
@@ -1952,7 +1956,9 @@ RS485(void *arg, long period)
 			else if(temp < device->RS485_DacAdc[i].DAC_3_min) { temp = device->RS485_DacAdc[i].DAC_3_min; }
 			
 			temp = (temp + 10)*12.8 + 0.5;
-		      }
+                      }
+                      else temp=128;
+
 		      if(temp>255) temp=255;
 		      else if(temp <0) temp=0;
 		      RS485DataIn8[3]= (hal_u32_t)temp;
@@ -2043,3 +2049,4 @@ RS485_CalcChecksum(hal_u32_t* data, hal_u32_t length)
      return (tempChecksum & 0xff) ^ 0xaa;
       
 }
+
