@@ -106,7 +106,7 @@ décrit ci-dessous.
 Regardons maintenant en détail le fichier ini et ce que vous devez y inclure
 pour utiliser gmoccapy sur votre machine: +
 
-=== The DISPLAY Section [[sub:the_display_section]]
+=== La section DISPLAY [[sub:the_display_section]]
 
  [DISPLAY]
  DISPLAY = gmoccapy
@@ -130,16 +130,16 @@ la section [DISPLAY].
 
  PREFERENCE_FILE_PATH = gmoccapy_preferences
 
-La ligne PREFERENCE_FILE_PATH donne l'emplacement et le nom du fichier de
+La ligne 'PREFERENCE_FILE_PATH' donne l'emplacement et le nom du fichier de
 préférences à utiliser. Dans la plupart des cas cette ligne ne sera pas
 nécessaire, Elle est utilisée par gmoccapy pour enregistrer vos réglages de
 la GUI, tels que les thèmes, les unités de la visu, les couleurs, les
-réglages du clavier, etc., voir: <<sub:The_settings_page,SETTINGS>> pour
-plus de détails.
+réglages du clavier, etc., voir <<sub:The_settings_page,la page des
+réglages>> pour plus de détails.
 
 [NOTE]
 ===========================================================
-Si aucun chemin ni fichier n'est donné, gmoccapy utilisera par défaut <your_machinename>.pref, si aucun nom de machine n'est donné dans le fichier ini, il utilisera gmoccapy.pref. Le fichier sera enregistré dans votre répertoire config, ainsi les réglages ne pouront pas être mélangés si vous utilisez plusieurs configurations. Si vous voulez utiliser seulement un fichier pour plusieurs machines, vous devez inclure PREFERENCE_FILE_PATH dans votre fichier ini. 
+Si aucun chemin, ni fichier n'est donné, gmoccapy utilisera par défaut <your_machinename>.pref, si aucun nom de machine n'est donné dans le fichier ini, il utilisera gmoccapy.pref. Le fichier sera enregistré dans votre répertoire config, ainsi les réglages ne pouront pas être mélangés si vous utilisez plusieurs configurations. Si vous voulez utiliser seulement un fichier pour plusieurs machines, vous devez inclure PREFERENCE_FILE_PATH dans votre fichier ini. 
 ===========================================================
 ''''
  DEFAULT_LINEAR_VELOCITY = 166.666
@@ -437,9 +437,9 @@ image::images/gmoccapy_getting_macro_info.png[align="left"]
 Ajuste la vitesse maximale de la machine, cette valeur également influencer
 la vitesse par défaut.
 
-== HAL Pins
+== Pins de HAL
 
-gmoccapy exporte plusieurs broches de Hal pour être en mesure de réagir aux
+gmoccapy exporte plusieurs pins de Hal pour être en mesure de réagir aux
 périphériques matériels.
 L'objectif étant d'avoir une interface graphique pouvant être utilisée dans
 un atelier, complètement et le plus souvent, sans souris ni clavier.
@@ -502,18 +502,18 @@ Pour connecter des codeurs, les pins suivantes sont exportées:
 
 * gmoccapy.max-vel-counts          =  HAL_S32  ;  (Vitesse maximale de la machine)
 * gmoccapy.jog-speed-counts        =  HAL_S32  ;  (Vitesse de jog)
-* gmoccapy.spindle-override-counts =  HAL_S32  ;  (correcteur de vitesse broche)
-* gmoccapy.feed-override-counts    =  HAL_S32  ;  (correcteur de vitesse d'avance)
-* gmoccapy.reset-feed-override     =  HAL_BIT  ;  (remise à 100% du correcteur d'avance)
-* gmoccapy.reset-spindle-override  =  HAL_BIT  ;  (remise à 100% du correcteur de vitesse broche)
+* gmoccapy.spindle-override-counts =  HAL_S32  ;  (Correcteur de vitesse broche)
+* gmoccapy.feed-override-counts    =  HAL_S32  ;  (Correcteur de vitesse d'avance)
+* gmoccapy.reset-feed-override     =  HAL_BIT  ;  (Remet le correcteur de vitesse d'avance à 100%)
+* gmoccapy.reset-spindle-override  =  HAL_BIT  ;  (Remet le correcteur de vitesse broche à 100%)
 
 Pour connecter des potentiomètres, utiliser les pins de Hal suivantes:
 
-* gmoccapy.analog-enable           = HAL_BIT   ;  Doit être True, pour autoriser les entrées analogiques
-* gmoccapy.jog-vel-value           = HAL_FLOAT ;  Pour ajuster le curseur de vitesse de jog
-* gmoccapy.max-vel-value           = HAL_FLOAT ;  Pour ajuster le curseur de vitesse max
-* gmoccapy.feed-override-value     = HAL_FLOAT ;  Pour ajuster le curseur du correcteur de vitesse d'avance
-* gmoccapy.spindle-override-value  = HAL_FLOAT ;  Pour ajuster le curseur du correcteur de vitesse broche
+* gmoccapy.analog-enable           = HAL_BIT   ;  (Doit être True, pour autoriser les entrées analogiques]
+* gmoccapy.jog-vel-value           = HAL_FLOAT ;  (Pour ajuster le curseur de vitesse de jog]
+* gmoccapy.max-vel-value           = HAL_FLOAT ;  (Pour ajuster le curseur de vitesse max]
+* gmoccapy.feed-override-value     = HAL_FLOAT ;  (Pour ajuster le curseur du correcteur de vitesse d'avance]
+* gmoccapy.spindle-override-value  = HAL_FLOAT ;  (Pour ajuster le curseur du correcteur de vitesse broche]
 
 Les pins float acceptent les valeurs comprises entre 0.0 et 1.0, soit le
 pourcentage auquel doit être ajustée la valeur du curseur.
@@ -523,11 +523,11 @@ deux pins à la fois au même curseur, l'influence entre les deux n'a pas été
 testée! Les différents curseurs peuvent être connectés à l'un ou l'autre des
 types de connection.
 
-IMPORTANT: Soyez attentif au fait que, la vitesse de jog dépend de l'état du
+IMPORTANT: Soyez attentif au fait que la vitesse de jog dépend de l'état du
 bouton 'tortue', ce qui produira des échelles différentes selon les
 différents curseurs et selon le mode, tortue ou lapin. Regardez également
-<<sub:Jog_Vel_and_Turtle-Jog,pin de Hal vitesses de jog et turtle-jog>> pour
-plus de détails.
+les pins de Hal de <<sub:Jog_Vel_and_Turtle-Jog,vitesses de jog et
+jog-tortue>> pour plus de détails.
 
 .Exemple
 ****
@@ -574,13 +574,13 @@ La vitesse de jog peut être ajustée avec le curseur correspondant.
 L'échelle du curseur sera différente selon la position du bouton tortue
 (celui qui montre une tortue ou un lapin).
 Si le bouton n'est pas visible, c'est qu'il a été désactivé dans la
-<<sub:turtle_jog,page de sélection>>.
+<<sub:turtle_jog,page des réglages>>.
 Si le bouton montre un lapin, l'échelle se situera entre la vitesse machine
 minimale et la vitesse machine maximale.
 Si le bouton montre une tortue, l'échelle atteindra seulement 1/20 de la
 vitesse max par défaut.
 Le facteur de division utilisé peut être ajusté sur la <<sub:turtle_jog,page
-de sélection>>.
+des réglages>>.
 
 Donc, en utilisant un écran tactile, il est plus facile de sélectionner les
 petites vitesses.
@@ -612,7 +612,7 @@ réglages, la pin suivante est exportée.
 
 * gmoccapy.unlock-settings
 
-La page des réglages est déverrouillée si la pin est à l'état haut. + Pour
+La page des réglages est déverrouillée si la pin est à l'état haut.  Pour
 utiliser cette pin, elle doit être activée dans la page des réglages.
 
 === Pins d'erreur
@@ -662,11 +662,12 @@ Il y a deux pins de retour broche
 'gmoccapy.spindle_feedback_bar' accepte une entrée de type float pour
 représenter la vitesse de broche
 'gmoccapy.spindle_at_speed_led' est une pin de type bit, indiquant sur
-l'interface graphique que la broche a atteint la vitesse demandée +
+l'interface graphique que la broche a atteint la vitesse demandée. +
 
 === Pins d'indication de l'évolution du programme
 
-Il y a trois pins donnant des informations sur le déroulement du programme +
+Il y a trois pins donnant des informations sur le déroulement du
+programme. +
 
 * gmoccapy.program.length         = HAL_S32   ; montrant le nombre total de lignes du programme
 * gmoccapy.program.current-line   = HAL_S32   ; indiquant la ligne du travail en cour 
@@ -680,20 +681,20 @@ différentes.
 
 Gmoccapy permet de modifier les limites logicielles en utilisant des pins de
 Hal.  La pin va permettre de réduire ou d'augmenter les limites logicielles,
-ainsi il est possible de protéger une table rotative contre toute collision,
-juste en basculant une pin de Hal. Si vous ne l'utilisez pas, réduisez juste
-votre limite logicielle. Une autre option pourrait être un changeur d'outil
-placé dans la zone de travail, pour ne pas avoir de collision pendant le
-travail normal, mais il y a obligation de rentrer dans la zone de changement
-d'outil justement pour le changement d'outil, pour cela, pendant le
-changement d'outil les limites logicielles seront élargies.
+ainsi par exemple, il est possible de protéger une table rotative contre
+toute collision, juste en basculant une pin de Hal. Si vous ne l'utilisez
+pas, réduisez juste votre limite logicielle. Une autre option pourrait être
+un changeur d'outil placé dans la zone de travail, pour ne pas avoir de
+collision pendant le travail normal, mais il y a obligation de rentrer dans
+la zone de changement d'outil justement pour le changement d'outil, pour
+cela, pendant le changement d'outil les limites logicielles seront élargies.
 
 * gmoccapy.axis-to-set    = HAL_S32    ; indique l'axe à modifier (X=0, Y=1, Z=2 ...)
 * gmoccapy.set-max-limit  = HAL_BIT    ; si haute, la valeur modifiée sera celle de la limite max, sinon, celle de la limite min
 * gmoccapy.limit-value    = HAL_FLOAT  ; valeur de la nouvelle limite logicielle à utiliser
 
 Cela n'a pas été bien testé avec un axe rotatif, soyez prudent avec ce genre
-d'axe.  Il n'y aura pas de contrôle des limites que vous définissez, si vous
+d'axe.  Il n'y aura pas de contrôle des limites que vous définirez, si vous
 définissez une limite et que l'outil est en dehors de celle-ci, vous aurez
 une erreur de dépassement des limites logicielles.
 
@@ -708,14 +709,14 @@ selon la valeur de cette pin.
 WARNING: C'est vraiment expérimental en ce moment, la plus grande prudence
 s'impose pour votre sécurité.
 
-=== Pin de Hal relative à l'outil
+=== Pins de Hal relatives à l'outil
 
 ==== Pin de changement d'outil
 
 Cette pin de Hal est prévue pour utiliser le dialogue de changement d'outil
-interne à gmoccapys, similaire à celui bien connu d'Axis, mais avec
-plusieurs modifications, de sorte que vous n'aurez plus seulement le message
-pour 'monter l'outil N°3', mais aussi la description de cet outil, telle que
+interne à gmoccapy, similaire à celui bien connu d'Axis, mais avec plusieurs
+modifications, de sorte que vous n'aurez plus seulement le message pour
+'monter l'outil N°3', mais aussi la description de cet outil, telle que
 'fraise 3 dents 7.5 mm'.  L'information est tirée de la table d'outils, ce
 qui est affiché dépend donc de vous.
 
@@ -736,16 +737,17 @@ en général, ils sont connectés comme ceci pour un changement d'outil manuel:
 
 ==== Pins de Hal de décalage d'outil
 
-Cette pin de Hal permet d'afficher la valeur de décalage de l'outil actif
-pour X et Z dans le cadre des outils. + Vous devez savoir que ça sera
-effectif seulement après qu'un G43 n'ait été envoyé.
+Ces pins de Hal permettent d'afficher la valeur de décalage de l'outil actif
+pour X et Z dans le cadre des outils.
+Vous devez savoir que ça sera effectif seulement après qu'un G43 n'ait été
+envoyé.
 
 image::images/gmoccapy_0_9_7_tool_info.png[align="left"]
 
 * gmoccapy.tooloffset-x
 * gmoccapy.tooloffset-z
 
-connectez les comme ça dans votre postgui hal.
+connectez les comme ça dans votre postgui hal:
 
 ------
  net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x
@@ -753,8 +755,8 @@ connectez les comme ça dans votre postgui hal.
 ------
 
 Veuillez noter que gmoccapy s'occupe de rafraîchir l'affichage des valeurs
-de décalage, d'envoyer un G43 après chaque changement d'outil, *mais pas en
-mode automatique!*
+de décalage, d'envoyer un G43 après chaque changement d'outil, 'mais pas en
+mode automatique!'
 
 IMPORTANT: Il est donc de la responsabilité de l'opérateur d'inclure dans
 ses programmes, un G43 après chaque changement d'outil!
@@ -768,28 +770,28 @@ obtenir les valeurs dans votre propre procédure de remap ngc.
 
 IMPORTANT: Avant de lancer le premier test, n'oubliez pas d'entrer la
 hauteur de la sonde et sa vitesse d'avance dans la page des réglages! Voir
-la <<sub:Tool_Measurement_Setup,page des réglages Mesure de la longueur
-d'outil>>
+<<sub:Tool_Measurement_Setup,Mesure de longueur d'outil>> dans la page des
+réglages avancés.
 
 Ça pourrait aussi être une bonne idée de jeter un coup d’œil à la vidéo sur
-la mesure d'outil, voir <<sub:Tool_Measurement_Videos,videos relatives à la
-mesure de longueur d'outil>>
+la mesure d'outil, voir les <<sub:Tool_Measurement_Videos,videos relatives à
+la mesure de longueur d'outil>>
 
 La mesure de longueur d'outil dans gmoccapy est un peu différente de
 beaucoup d'autres interfaces graphiques.  Vous devez suivre ces étapes:
- * faites l'origine pièce en touchant la pièce en X et Y
- * mesurez le dessus de votre block depuis la base ou se trouve votre
-contact de mesure jusqu'à la face supérieure du block (inclure mandrin etc.)
- * Pressez le bouton 'hauteur du block' et entrez la valeur mesurée
- * Passez en mode auto et lancez votre programme
+* Faites l'origine pièce en touchant la pièce en X et Y.
+* Mesurez le dessus de votre block depuis la base ou se trouve votre contact
+de mesure jusqu'à la face supérieure du block (inclure mandrin etc.)
+* Pressez le bouton 'hauteur du block' et entrez la valeur mesurée.
+* Passez en mode auto et lancez votre programme.
 
 voici une représentation:
 
 image::images/sketch_auto_tool_measurement.png[align="left"]
 
-Avec le premier changement d'outil, l'outil sera mesuré et le décalage sera
-introduit automatiquement dans la hauteur du bloc. L'avantage de la méthode
-de gmoccapy est qu'il n'y a pas besoin d'un outil de référence.
+Au premier changement d'outil rencontré, l'outil sera mesuré et le décalage
+sera introduit automatiquement dans la hauteur du bloc. L'avantage de la
+méthode de gmoccapy, c'est qu'il n'y a pas besoin d'un outil de référence.
 
 [NOTE]
 =============================================================
@@ -800,19 +802,19 @@ Il existe plusieurs vidéos sur youtube montrant cette façon de faire.
 
 === Pins de Hal de mesure d'outil
 
-Gmoccapy offre 5 pins pour la mesure d'outil
- Ces pins de Hal sont principalement utilisées pour être lues depuis un
-sous-programme en G-code et afin que le code puisse réagir aux différentes
+Gmoccapy offre 5 pins pour la mesure d'outil.
+Ces pins de Hal sont principalement utilisées pour être lues depuis un
+sous-programme en G-code, afin que le code puisse réagir aux différentes
 valeurs.
 
-* gmoccapy.toolmeasurement = HAL_BIT ; active ou non la mesure d'outil
+* gmoccapy.toolmeasurement = HAL_BIT ; active ou non la mesure d'outil.
 * gmoccapy.blockheight = HAL_FLOAT ; la valeur mesurée de la face supérieure
-  de la pièce
-* gmoccapy.probeheight = HAL_FLOAT ; la hauteur du contact de sonde
-* gmoccapy.searchvel = HAL_FLOAT ; la vitesse de recherche du contact de la
-  sonde
-* gmoccapy.probevel = HAL_FLOAT ; la vitesse de descente du palpeur lors de
-  la mesure de longueur d'outil
+  de la pièce.
+* gmoccapy.probeheight = HAL_FLOAT ; la hauteur du contact de sonde.
+* gmoccapy.searchvel = HAL_FLOAT ; la vitesse de recherche du contact de
+  sonde.
+* gmoccapy.probevel = HAL_FLOAT ; la vitesse de plongée lors de la mesure de
+  longueur d'outil.
 
 === Modifications au fichier ini pour la mesure d'outil
 
@@ -833,8 +835,8 @@ Modifiez votre fichier ini pour y inclure ce qui suit:
 ==== Section senseur d'outil
 
 La position du senseur d'outil et la position de départ du mouvement de
-palpage, toutes les valeurs sont en coordonnées absolues, excepté MAXPROBE,
-qui doit être donnée en relatif.
+palpage, toutes les valeurs sont en coordonnées absolues, excepté celle de
+MAXPROBE, qui doit être donnée en relatif.
 
  [TOOLSENSOR]
  X = 10
@@ -844,10 +846,10 @@ qui doit être donnée en relatif.
 
 ==== La section Position de changement
 
-non nommée TOOL_CHANGE_POSITION car ce nom est déjà utilisé par l'interface
-canonique, ce qui pourrait causer des interférences.
- C'est la position à laquelle placer le mobile, avant d'envoyer la commande
-de changement d'outil. Toutes les valeurs sont en coordonnées absolues
+Ne pas la nommer TOOL_CHANGE_POSITION, car ce nom est déjà utilisé par
+l'interface canonique, ce qui pourrait causer des interférences.
+C'est la position à laquelle placer le mobile, avant d'envoyer la commande
+de changement d'outil. Toutes les valeurs sont en coordonnées absolues.
 
  [CHANGE_POSITION]
  X = 10
@@ -856,7 +858,7 @@ de changement d'outil. Toutes les valeurs sont en coordonnées absolues
 
 ==== La section Python
 
-La section des plugins Python sert à l'interpréteur et aux tâches
+La section des plugins Python sert à l'interpréteur et aux tâches.
 
  [PYTHON]
  # Le chemin où rechercher les modules personnalisés
@@ -866,7 +868,7 @@ La section des plugins Python sert à l'interpréteur et aux tâches
 
 === Fichiers nécessaires
 
-Vous devez copier les fichiers suivants dans votre répertoire config
+Vous devez copier les fichiers suivants dans votre répertoire config:
 
 Premièrement, créez un répertoire 'python' dans votre dossier config +
 depuis 'votre_linuxcnc-dev_directory/configs/sim/gmoccapy/python' +
@@ -874,14 +876,13 @@ Copiez 'toplevel.py' dans votre dossier 'config_dir/python'  +
 Copiez 'remap.py'   dans votre dossier 'config_dir/python'  +
 Copiez 'stdglue.py'  dans votre dossier 'config_dir/python'  +
 
-depuis 'votre_linuxcnc-dev_directory/configs/sim/gmoccapy/macros'
-copiez 'on_abort.ngc' dans le répertoire spécifié comme SUBROUTINE_PATH voir
-<<sub:RS274NGC, Section RS274NGC>>
-depuis 'votre_linuxcnc-dev_directory/configs/sim/gmoccapy/macros'
-copiez 'change.ngc' dans le répertoire spécifié comme SUBROUTINE_PATH voir
-<<sub:RS274NGC, Section RS274NGC>>
-ouvrir 'change.ngc' avec un éditeur et dé-commentez les lignes suivantes (49
-et 50): +
+depuis 'votre_répertoire_linuxcnc-dev/configs/sim/gmoccapy/macros'
+copiez 'on_abort.ngc' dans le répertoire spécifié comme SUBROUTINE_PATH,
+voir <<sub:RS274NGC, Section RS274NGC>>
+depuis 'votre_répertoire_linuxcnc-dev/configs/sim/gmoccapy/macros'
+copiez 'change.ngc' dans le répertoire spécifié comme SUBROUTINE_PATH,
+voir <<sub:RS274NGC, Section RS274NGC>>
+ouvrir 'change.ngc' avec un éditeur et dé-commentez les lignes 49 et 50: +
 
  F #<_hal[gmoccapy.probevel]>
  G38.2 Z-4
@@ -959,15 +960,15 @@ taille. Néanmoins, l'opérateur pourras modifier la taille et la position à
 l'aide de la souris, mais ça n'auras pas d'influence sur les réglages
 initiaux.
 
-'cacher le curseur' permet de cacher le curseur, ce qui est très utile si
-vous utilisez un écran tactile.
+'Cacher le curseur' cache le curseur, ce qui est très utile si vous utilisez
+un écran tactile.
 
 ==== Clavier
 
 [NOTE]
 =============================================================
 Si cette section n'est pas active, c'est parce que vous n'avez pas installé de clavier virtuel, +
-Les claviers pris en charges sont *embarqué* et *matchbox-keyboard*.
+Les claviers pris en charges sont 'embarqué' et 'matchbox-keyboard'.
 =============================================================
 
 Les cases à cocher permettent à l'utilisateur de sélectionner si il veut
@@ -997,9 +998,9 @@ avec le contenu suivant:
 ---------
 
 Les lettres "fr" sont pour la France, vous devez les régler correctement en
-accord avec vos réglages locaux +  Exécutez ce fichier avant le démarrage de
-LinuxCNC, il peux être bien aussi, d'ajouter un lanceur dans votre dossier
-local
+accord avec vos réglages locaux.
+Exécutez ce fichier avant le démarrage de LinuxCNC, il également possible
+d'ajouter un lanceur dans votre dossier local.
 
  ./config/autostart 
 
@@ -1010,12 +1011,12 @@ une mise en page en Allemand, demandez sur le forum.
 
 ==== Touch Off On
 
-offre l'option de montrer l'onglet de parcours d'outil, ou l'onglet de la
-page d'offset, si vous entrez en mode toucher en cliquant le bouton
-correspondant parmi les boutons du bas.
+permet de montrer l'onglet de parcours d'outil, ou l'onglet de la page de
+décalage, si vous entrez en mode toucher en cliquant le bouton correspondant
+parmi les boutons du bas.
 
 * montrer le parcours d'outil
-* montrer les offsets
+* montrer les décalages
 
 Comme les onglets sont affichés, vous êtes en mesure de basculer d'une vue à
 l'autre dans tous les cas.
@@ -1037,25 +1038,24 @@ et la couleur de fond du DRO peut être choisie avec:
 * homed color   = green
 * unhomed color = red
 
-'show dro in preview', le DRO est affiché dans la fenêtre de parcours d'outil +
-'show offsets', les décalages sont affichés dans la fenêtre de parcours d'outil +
-'show DTG' , la distance restante est affichée dans la fenêtre de parcours d'outil +
- 
+'show dro in preview', le DRO est affiché dans la fenêtre de parcours d'outil. +
+'show offsets', les décalages sont affichés dans la fenêtre de parcours d'outil. +
+'show DTG' , la distance restante est affichée dans la fenêtre de parcours d'outil. +
 'show DRO Button' vous permet d'afficher un bouton additionnel sur le côté gauche du DRO. +
 
 Seront affichés:  un bouton pour basculer entre coordonnées relatives et
-coordonnées absolues, + un bouton pour basculer entre la distance restante
-et les autres états + et un bouton pour basculer entre les unités, de
-métriques vers impériales et vice versa.
+coordonnées absolues, un bouton pour basculer entre la distance restante et
+les autres états et un bouton pour basculer entre les unités, de métriques
+vers impériales et vice versa.
 
 WARNING: Il n'est pas du tout recommandé d'utiliser cette option, parce que
 l'opérateur peux perdre l'option d'unité automatique, qui va basculer les
 unités en accord avec le G-code actif G20 / G21
 
-NOTE: *Vous pouvez changer cycliquement les modes du DRO (absolu, relatif,
-distance restante), en cliquant directement sur celui-ci!*
+NOTE: 'Vous pouvez changer cycliquement les modes du DRO (absolu, relatif,
+distance restante), en cliquant directement sur celui-ci!'
 
-'Utilisez Unités Auto' permet de désactiver l'option d'unités auto de
+'Utiliser Unités Auto' permet de désactiver l'option d'unités auto de
 l'affichage, ainsi vous pouvez exécuter un programme en pouces et regarder
 la visu en mm.
 
@@ -1064,10 +1064,10 @@ vous utilisez un grand écran, vous pouvez augmenter cette valeur jusqu'à
 56. Si vous utilisez 4 axes, la fonct du DRO sera des 3/4 de cette valeur,
 pour des raisons d'espace.
 
-'digits' ajuste le nombre de digits du DRO, entre 1 et 5.  NOTE: Impériale
-affiche un digit de plus que métrique. Donc, si vous êtes en unités machine
-impériales et que vous entrez la valeur 1, vous ne verrez aucun digit en
-métrique.
+'digits' ajuste le nombre de digits du DRO, entre 1 et 5.
+NOTE: Impériale affiche un digit de plus que métrique. Donc, si vous êtes en
+unités machine impériales et que vous entrez la valeur 1, vous ne verrez
+aucun digit en métrique.
 
 ==== Parcours d'outil
 
@@ -1086,14 +1086,16 @@ il s'affichera aussi automatiquement en mode parcours d'outil en plein écran
 d'outil, seulement si Afficher DRO est actif et non en parcours d'outil
 pleine taille.
 
-'Show Offsets'  Affichera les décalages dans la fenêtre de parcours d'outil,
+'Show Offsets'  Affichera les décalages dans la fenêtre de parcours d'outil.
 
 NOTE: Si vous cochez seulement cette option et laissez les autres non
-cochées, vous aurez en parcours d'outil pleine taille, une page de décalages
+cochées, vous aurez en parcours d'outil pleine taille, une page de
+décalages.
 
-'Mode bouton souris' + Avec cette liste déroulante, vous pouvez sélectionner
-le comportement des boutons de la souris pour faire pivoter, déplacer ou
-zoomer le parcours d'outil. +
+'Mode bouton souris'
+Avec cette liste déroulante, vous pouvez sélectionner le comportement des
+boutons de la souris pour faire pivoter, déplacer ou zoomer le parcours
+d'outil. +
 
  * gauche rotation, milieu déplacement,   droite zoom
  * gauche zoom,  milieu déplacement,   droite rotation
@@ -1104,7 +1106,7 @@ zoomer le parcours d'outil. +
 
 Par défaut: gauche déplacement, milieu zoom, droite rotation
 
-La roulette de la souris va zoomer le parcours d'outil dans tous les modes.
+La roulette de la souris zoomera le parcours d'outil dans tous les modes.
 
 TIP: Si vous sélectionnez un élément dans le parcours d'outil, l'élément
 sélectionné sera pris comme point central des rotations.
@@ -1121,7 +1123,7 @@ le bouton Aucun.
 
 L'écran de sélection de fichier utilise les filtres que vous avez défini
 dans le fichier ini, Si aucun filtre n'est trouvé, vous verrez seulement les
-fichiers *ngc*.  Le chemin sera réglé selon les paramètres de la section
+fichiers 'ngc'.  Le chemin sera réglé selon les paramètres de la section
 [DISPLAY] PROGRAM_PREFIX du fichier ini.
 
 ==== Saut au répertoire
@@ -1134,8 +1136,8 @@ image::images/gmoccapy_file_selection_dialog_with_keyboard.png[align="left"]
 ==== Thèmes et Sons
 
 Ceci permet à l'utilisateur de sélectionner quel thème de bureau appliquer
-et quels sons de messages d'erreur devraient être joués.  Par défaut "Follow
-System Theme" est réglé.
+et quels sons de messages d'erreur devront être joués.  Par défaut "Follow
+System Theme" est utilisé.
 
 === Matériel
 
@@ -1144,15 +1146,15 @@ image::images/gmoccapy_settings_hardware.png[align="left"]
 ==== Échelle matériel MPG 
 
 Échelles pour les différentes pins de Hal à connecter à la manivelle du MPG,
-vous pouvez sélectionner des échelles individuelles à appliquer.  La raison
-principale était mon propre test pour résoudre ça grâce à des connections de
-Hal, le résultat était un fichier de Hal vraiment très complexe. Imaginez un
-utilisateur ayant un MPG avec 100 ipt et qui veux ralentir la vitesse max de
-14000 à 2000 mm/min, il lui faut 12000 impulsions, ce qui demande 120 tours
-de molette! Ou un autre utilisateur ayant une manivelle MPG avec 500ipt et
-qui veux ajuster le correcteur de vitesse broche à des limites entre 50 et
-120% alors il ira du minimum au maximum en 70 impulsions, ce qui veux dire
-même pas 1/4 de tour.
+vous pouvez sélectionner des échelles individuelles.  La raison principale
+était mon propre test pour résoudre cette question grâce à des connections
+de Hal, le résultat était un fichier de Hal vraiment très complexe. Imaginez
+un utilisateur ayant un MPG avec 100 ppr et qui veux ralentir la vitesse max
+de 14000 à 2000 mm/min, il lui faut 12000 impulsions, ce qui demande 120
+tours de manivelle! Ou un autre utilisateur ayant une manivelle MPG avec 500
+ppr et qui veux ajuster le correcteur de vitesse broche à des limites
+comprises entre 50 et 120% alors il ira du minimum au maximum en 70
+impulsions, ce qui veux dire même pas 1/4 de tour.
 
 Par défaut, toutes les échelles sont réglées en utilisant cette formule:
 
@@ -1182,23 +1184,23 @@ différents. Voir <<sub:LATHE_specific_section,la section tour>>
 
  * ESC = Abandon
 
-Il existe d'autres touches pour gérer les messages, voir <<sub:Message_behavior_and_appearance,Message comportement et apparences>>
-* WINDOWS = Effacer le dernier message
-* <STRG><SPACE> = Effacer tous les messages
+Il existe d'autres touches pour gérer les messages, voir comportement et <<sub:Message_behavior_and_appearance,apparence des messages>>
+'WINDOWS' = Effacer le dernier message
+'<STRG><SPACE>' = Effacer tous les messages
 
 ==== Options de déverrouillage
 
-vous disposez de trois options pour déverrouiller la page des réglages:
+Vous disposez de trois options pour déverrouiller la page des réglages:
 
-* utiliser un code de déverrouillage (l'utilisateur doit donner le code pour
-  pouvoir entrer)
+* Utiliser un code de déverrouillage (l'utilisateur doit donner le code pour
+  pouvoir entrer).
 * Ne pas utiliser de code de déverrouillage (il n'y aura pas de vérification
-  de sécurité, pas recommandé)
+  de sécurité, pas recommandé).
 * Utiliser une pin de Hal pour déverrouiller (une pin matérielle doit être
   haute pour déverrouiller la page des réglages, voir
-  <<sub:hardware_unlock_pin, pin de déverrouillage matérielle>>
+  <<sub:hardware_unlock_pin, pin de déverrouillage matérielle>>.
 
-Par défaut, utilise le code de déverrouillage (default = *123*)
+Par défaut, utilise le code de déverrouillage '123'.
 
 ==== La broche
 
@@ -1211,9 +1213,9 @@ valeurs sont mauvaises. Si vous donnez un maximum de 2000 et que votre
 broche tourne à 4000 tr/mn, seul le niveau de la barre de vitesse sera
 mauvais aux vitesses supérieures à 2000 tr/mn.
 
- les valeurs par défaut sont
- MIN = 0
- MAX = 6000
+Les valeurs par défaut sont
+MIN = 0
+MAX = 6000
 
 ==== Jog tortue [[sub:turtle_jog]]
 
@@ -1248,13 +1250,13 @@ automatique d'outil>>
 le résultat sera stocké dans la table d'outils et un G43 sera exécuté après le changement.
 
 *Informations sonde* +
-Les informations suivantes sont tirées du fichier ini et doivent être fournies en coordonnées absolues
+Les informations suivantes sont tirées du fichier ini et doivent être fournies en coordonnées absolues.
 
- * X Pos. = C'est la position en X du contact de sonde
- * Y Pos. = C'est la position en Y du contact de sonde
+ * X Pos. = C'est la position en X du contact de sonde.
+ * Y Pos. = C'est la position en Y du contact de sonde.
  * Z Pos. = C'est la position de sécurité en Z, au dessus du contact de
    sonde, le mouvement de plongée jusqu'à cette coordonnée, se fera en
-   vitesse rapide
+   vitesse rapide.
 
  * Max. Sonde = C'est la profondeur maximale jusqu'à laquelle le palpeur pourras chercher le contact de sonde, une erreur se produira si le contact n'est pas rencontré. 
                 Cette cote doit être donnée en coordonnées relatives à la pièce, en commençant le mouvement depuis Z Pos., 
@@ -1278,11 +1280,11 @@ relatifs à cet axe. +
 
 Vous pouvez le faire en cochant la case, ce qui masquera: +
 
- * DRO du 4eme axe
- * Bouton de jog du 4eme axe
- * Bouton Home du 4eme axe
- * La colonne du 4eme axe de la page des décalages
- * La colonne du 4eme axe de l'éditeur de table d'outils
+ * DRO du 4eme axe.
+ * Bouton de jog du 4eme axe.
+ * Bouton Home du 4eme axe.
+ * La colonne du 4eme axe de la page des décalages.
+ * La colonne du 4eme axe de l'éditeur de table d'outils.
 
 ==== Comportement et apparence des messages
 [[sub:Message_behavior_and_appearance]]
@@ -1291,7 +1293,7 @@ Cela permet d'afficher des petites fenêtres surgissantes contenant des
 messages ou des textes d'erreur, leur comportement est très similaire à
 celui utilisé par Axis. Vous pouvez supprimer un massage spécifique, en
 cliquant sur son bouton de fermeture, si vous voulez effacer le dernier,
-pressez juste sur la touche WINDOWS de votre clavier, ou pour les effacer
+pressez juste sur la touche <WINDOWS> de votre clavier, ou pour les effacer
 tous sur les touches <CTRL><ESPACE>.
 
 Vous pouvez définir quelques options:
@@ -1300,12 +1302,11 @@ Vous pouvez définir quelques options:
    message, comptée en pixels depuis le coin supérieur gauche de l'écran.
  * Y pos = C'est la position en Y, du coin supérieur gauche de la fenêtre de
    message, comptée en pixels depuis le coin supérieur gauche de l'écran.
- * Largeur = C'est la largeur de la boîte de message
- * max = C'est le maximum de messages C'est le maximum de messages visibles, si vous réglez cette valeur à 10, le 11eme message sera effacé, 
+ * Largeur = C'est la largeur de la boîte de message.
+ * max = C'est le maximum de messages visibles, si vous réglez cette valeur à 10, le 11eme message sera effacé, 
          de sorte que seuls les 10 derniers seront visibles.
- * Font = La police et la taille de cette police, pour afficher les messages
- * utiliser cadres = Si vous cochez cette case, chaque message sera affiché dans un cadre, il sera donc plus facile de distinguer
-   les messages. Mais au détriment de la place nécessaire.
+ * Font = La police et la taille de cette police, pour afficher les messages.
+ * Utiliser cadres = Si vous cochez cette case, chaque message sera affiché dans un cadre, il sera donc plus facile de distinguer les messages. Mais au détriment de la place nécessaire.
  * Le bouton, lancer un message de test, affichera un échantillon de message, ainsi, il est possible de visualiser les changements 
    produits par vos réglages, sans générer d'erreur éventuelle.
 
@@ -1321,7 +1322,7 @@ parce que LinuxCNC ne tiendra aucun compte des lignes de code précédent
 celle sélectionnée. La probabilité de crash induit par ces lignes est très
 élevée.
 
-Par défaut, le démarrage à un ligne sélectionnée est invalidé
+Par défaut, le démarrage à un ligne sélectionnée est invalidé.
 
 ==== Historique des actions
 
@@ -1329,18 +1330,18 @@ Si ce bouton est activé, presque toute pression sur un bouton ou action de
 LinuxCNC seront enregistrées dans l'historique des alarmes.  C'est très
 utile pour le débogage.
 
-== Section spécifique LATHE (tour) [[sub:LATHE_specific_section]]
+== Section spécifique au tour (LATHE) [[sub:LATHE_specific_section]]
 
 Si dans le fichier ini, on trouve LATHE = 1, alors, l'interface graphique va
 changer d'apparence pour s'adapter aux besoins spécifiques d'un tour.
 Principalement, l'axe Y disparaît et les boutons de jog sont ré-arrangés
 dans un ordre différent.
 
-Tour avec outil frontal:
+'Tour avec outil frontal:'
 
 image::images/gmoccapy_lathe.png[align="left"]
 
-Tour avec outil arrière:
+'Tour avec outil arrière:'
 
 image::images/gmoccapy_back_tool_lathe.png[align="left"]
 
@@ -1356,14 +1357,14 @@ frontal ou à outil arrière.
 
 De plus, le comportement du clavier va changer:
 
-Tour avec outil frontal:
+'Tour avec outil frontal:'
 
  * Flèche vers la gauche = Z moins
  * Flèche vers la droite = Z plus
  * Flèche vers le haut = X moins
  * Flèche vers le bas = X plus
 
-Tour avec outil arrière:
+'Tour avec outil arrière:'
 
  * Flèche vers la gauche = Z moins
  * Flèche vers la droite = Z plus
@@ -1379,12 +1380,12 @@ sont toutes celles d'un tour.
 image::images/gmoccapy_plasma_1.png[align="left"]
 
 Il existe un très bon WIKI, qui est en fait, de plus en plus maintenu par
-Marius
+Marius,
 
 voir la http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[page Wiki
 Plasma]
 
-== VIDEO sur you tube
+== Vidéos sur you tube
 
 Ce sont des vidéos montrant gmoccapy en action, malheureusement, les vidéos
 ne montrent pas la dernière version de gmoccapy, mais la façon de l'utiliser
@@ -1417,7 +1418,7 @@ Anglais User Tabs = http://www.youtube.com/watch?v=rG1zmeqXyZI
 
 English Auto Tool Measurement Simmulation = http://youtu.be/rrkMw6rUFdk
 English Auto Tool Measurement Screen = http://youtu.be/Z2ULDj9dzvk
-English Auto Tool Measurement Machine = http://youtu.be/1arucCaDdX4 +
+English Auto Tool Measurement Machine = http://youtu.be/1arucCaDdX4
 
 == Problèmes connus
 
