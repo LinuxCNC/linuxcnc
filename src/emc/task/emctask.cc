@@ -173,11 +173,18 @@ int emcTaskHalt()
     return 0;
 }
 
+int emcTaskStateRestore()
+{
+    // Do NOT restore on MDI command
+    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
+        // Validity of state tag checked within restore function
+        pinterp->restore_from_tag(emcStatus->motion.traj.tag);
+    }
+    return 0;
+}
+
 int emcTaskAbort()
 {
-    //KLUDGE This will ONLY work with the RS274 interpreter, and is temporary
-    //FIXME FIXME add a virtual method to the base class
-    pinterp->restore_from_tag(emcStatus->motion.traj.tag);
     emcMotionAbort();
 
     // clear out the pending command

@@ -2060,6 +2060,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_ABORT_TYPE:
 	// abort everything
+    // KLUDGE call motion abort before state restore to make absolutely sure no
+    // stray restore commands make it down to motion
+	emcMotionAbort();
+    // Then call state restore to update the interpreter
+    emcTaskStateRestore();
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_ABORT);
         emcSpindleAbort();
