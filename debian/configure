@@ -228,7 +228,6 @@ if config['flavor'] == 'uspace':
     config['package-name'] = 'linuxcnc-uspace'
     config['other-package-name'] = 'linuxcnc'
     config['build-depends'].add('libudev-dev')
-    config['depends'].add('libudev')
     config['recommends'].add('linux-image-rt-amd64 [linux-amd64]')
     config['recommends'].add('linux-image-rt-686-pae [linux-i386]')
     config['src/configure'].add('--with-realtime=uspace')
