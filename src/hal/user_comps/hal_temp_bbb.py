@@ -108,19 +108,6 @@ def adc2r_cramps(pin):
 
     R_T = V_T / I_PU
 
-    # Acutal resistance can't be negative, but we can get a negative value
-    # from the equation below for some real ADC values, so clip to avoid
-    # reporting crazy temperature values or dividing by zero
-    #if R_TD >= 20470 :
-    #    R_TD = 20470 - 0.1
-
-    # 1 / Rtotal = 1 / ( 1 / R1 + 1 / R2 )
-    # R2  = ( R1 * Rtotal ) / ( R1 - Rtotal )
-    #R_T  = ( 20470 * R_TD ) / ( 20470 - R_TD )
-
-    # print "V_adc: %f V_T: %f  R_TD: %f  R_T: %f" % (V_adc, V_T, R_TD, R_T)
-    
-
     return R_T
 
 
@@ -152,6 +139,10 @@ def adc2Temp(pin):
         R = adc2r_bebopr(pin)
     elif (args.cape_board == 'CRAMPS'):
         R = adc2r_cramps(pin)
+    else:
+        print("Invalid -b cape  name: %s" % args.cape_board)
+        print("Valid names are: BeBoPr, CRAMPS")
+        sys.exit(1)
     return round(pin.r2temp.r2t(R) * 10.0) / 10.0
 
 
