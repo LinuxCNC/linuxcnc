@@ -697,24 +697,28 @@ STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * con
 
 
 /**
- * Calculate the angle between two unit cartesian vectors.
+ * Handles the special case of blending into an unfinalized segment.
+ * The problem here is that the last segment in the queue can always be cut
+ * short by a blend to the next segment. However, we can only ever consume at
+ * most 1/2 of the segment. This function computes the worst-case final
+ * velocity the previous segment can have, if we want to exactly stop at the
+ * halfway point.
  */
-STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
-    double dot;
-    pmCartCartDot(u1, u2, &dot);
-
-    if (dot > 1.0 || dot < -1.0) {
-        tp_debug_print("dot product %f outside domain of acos!\n",dot);
-        sat_inplace(&dot,1.0);
-    }
-
-    *theta = acos(dot);
-    return TP_ERR_OK;
+STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_STRUCT * const tc)
+{
+    double acc_scaled = tpGetScaledAccel(tp, tc);
+    //FIXME this is defined in two places!
+    const double BLEND_GREEDINESS = 0.5;
+    double triangle_vel = pmSqrt( acc_scaled * tc->target * BLEND_GREEDINESS);
+    double max_vel = tpGetMaxTargetVel(tp, tc);
+    tp_debug_print("optimization initial vel for segment %d is %f\n", tc->id, triangle_vel);
+    return fmin(triangle_vel, max_vel);
 }
 
+
 /**
- * Initialize a blend arc from its parent segments.
- * This copies and initializes properties from the previous and next segments to
+ * Initialize a blend arc from its parent lines.
+ * This copies and initializes properties from the previous and next lines to
  * initialize a blend arc. This function does not handle connecting the
  * segments together, however.
  */
@@ -1546,10 +1550,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             tp_debug_print(" Reached end of queue in optimization\n");
             return TP_ERR_OK;
         }
-        if (!tc->finalized) {
-            tp_debug_print("Segment %d, type %d not finalized, continuing\n",tc->id,tc->motion_type);
-            continue;
-        }
 
         // stop optimizing if we hit a non-tangent segment (final velocity
         // stays zero)
@@ -1558,9 +1558,8 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
-        //Abort if a segment is already in progress, so that we don't step on
-        //split cycle calculation
-        if (prev1_tc->progress>0) {
+        //KLUDGE depends on optimization happening before cycle splitting
+        if (prev1_tc->progress / prev1_tc->target >= 0.5 && prev1_tc->splitting == 0) {
             tp_debug_print("segment %d already started, progress is %f!\n",
                     ind-1, prev1_tc->progress);
             return TP_ERR_OK;
@@ -1578,7 +1577,14 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             tc->finalvel = 0.0;
         }
 
-        tpComputeOptimalVelocity(tp, tc, prev1_tc);
+        if (!tc->finalized) {
+            tp_debug_print("Segment %d, type %d not finalized, continuing\n",tc->id,tc->motion_type);
+            // use worst-case final velocity that allows for up to 1/2 of a segment to be consumed.
+            prev1_tc->finalvel = fmin(prev1_tc->maxvel, tpCalculateOptimizationInitialVel(tp,tc));
+            tc->finalvel = 0.0;
+        } else {
+            tpComputeOptimalVelocity(tp, tc, prev1_tc);
+        }
 
         tc->active_depth = x - 2 - hit_peaks;
 #ifdef TP_OPTIMIZATION_LAZY
@@ -2550,6 +2556,7 @@ STATIC int tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
  * functions will detect that the prev. line is finalized and skip that blend
  * arc.
  */
+#if 0
 STATIC int tpHandleLowQueue(TP_STRUCT * const tp) {
 
     if (tcqLen(&tp->queue) > TP_QUEUE_THRESHOLD) {
@@ -2567,6 +2574,7 @@ STATIC int tpHandleLowQueue(TP_STRUCT * const tp) {
     }
 
 }
+#endif
 
 /**
  * "Activate" a segment being read for the first time.
@@ -3119,7 +3127,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     /* If the queue empties enough, assume that the program is near the end.
      * This forces the last segment to be "finalized" to let the optimizer run.*/
-    tpHandleLowQueue(tp);
+    /*tpHandleLowQueue(tp);*/
 
     /* If we're aborting or pausing and the velocity has reached zero, then we
      * don't need additional planning and can abort here. */
