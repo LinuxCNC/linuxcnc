@@ -267,6 +267,10 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             break;
     }
 
+
+    // Used for arc-length to angle conversion with spiral segments
+    double angle = 0.0;
+
     switch (tc->motion_type){
         case TC_RIGIDTAP:
             if(tc->coords.rigidtap.state > REVERSING) {
@@ -290,8 +294,11 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
                     &abc);
             break;
         case TC_CIRCULAR:
+            angle = pmCircleAngleFromProgress(&tc->coords.circle.xyz,
+                    &tc->coords.circle.fit,
+                    progress);
             pmCirclePoint(&tc->coords.circle.xyz,
-                    progress * tc->coords.circle.xyz.angle / tc->target,
+                    angle,
                     &xyz);
             pmCartLinePoint(&tc->coords.circle.abc,
                     progress * tc->coords.circle.abc.tmag / tc->target,
@@ -461,9 +468,7 @@ double pmLine9Target(PmLine9 * const line9)
     } else if (!line9->abc.tmag_zero) {
         return line9->abc.tmag;
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR,"line can't have zero length!\n");
-        //FIXME yet it does return zero...
-        return 0;
+        return 0.0;
     }
 }
 
@@ -577,9 +582,11 @@ int pmCircle9Init(PmCircle9 * const circ9,
     int abc_fail = pmCartLineInit(&circ9->abc, &start_abc, &end_abc);
     int uvw_fail = pmCartLineInit(&circ9->uvw, &start_uvw, &end_uvw);
 
-    if (xyz_fail || abc_fail || uvw_fail) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d\n",
-                xyz_fail, abc_fail, uvw_fail);
+    int res_fit = findSpiralArcLengthFit(&circ9->xyz,&circ9->fit);
+
+    if (xyz_fail || abc_fail || uvw_fail || res_fit) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d, %d\n",
+                xyz_fail, abc_fail, uvw_fail, res_fit);
         return TP_ERR_FAIL;
     }
     return TP_ERR_OK;
@@ -588,14 +595,11 @@ int pmCircle9Init(PmCircle9 * const circ9,
 double pmCircle9Target(PmCircle9 const * const circ9)
 {
 
-    double helix_z_component;   // z of the helix's cylindrical coord system
-    double helix_length;
+    double h2;
+    pmCartMagSq(&circ9->xyz.rHelix, &h2);
+    double helical_length = pmSqrt(pmSq(circ9->fit.total_planar_length) + h2);
 
-    pmCartMag(&circ9->xyz.rHelix, &helix_z_component);
-    double planar_arc_length = circ9->xyz.angle * circ9->xyz.radius;
-    helix_length = pmSqrt(pmSq(planar_arc_length) +
-            pmSq(helix_z_component));
-    return helix_length;
+    return helical_length;
 }
 
 /**
@@ -629,6 +633,25 @@ int tcFinalizeLength(TC_STRUCT * const tc)
     tc->finalized = 1;
     return TP_ERR_OK;
 }
+
+/**
+ * compute the total arc length of a circle segment
+ */
+int tcUpdateTargetFromCircle(TC_STRUCT * const tc)
+{
+    if (!tc || tc->motion_type !=TC_CIRCULAR) {
+        return TP_ERR_FAIL;
+    }
+
+    double h2;
+    pmCartMagSq(&tc->coords.circle.xyz.rHelix, &h2);
+    double helical_length = pmSqrt(pmSq(tc->coords.circle.fit.total_planar_length) + h2);
+
+    tc->target = helical_length;
+    return TP_ERR_OK;
+}
+
+
 
 int pmRigidTapInit(PmRigidTap * const tap,
         EmcPose const * const start,
@@ -668,3 +691,52 @@ int tcPureRotaryCheck(TC_STRUCT const * const tc)
         (tc->coords.line.xyz.tmag_zero) &&
         (tc->coords.line.uvw.tmag_zero);
 }
+
+
+/**
+ * Given a PmCircle and a circular segment, copy the circle in as the XYZ portion of the segment, then update the motion parameters.
+ * NOTE: does not yet support ABC or UVW motion!
+ */
+int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ)
+{
+
+    //Update targets with new arc length
+    if (!circ || tc->motion_type != TC_CIRCULAR) {
+        return TP_ERR_FAIL;
+    }
+    if (!tc->coords.circle.abc.tmag_zero || !tc->coords.circle.uvw.tmag_zero) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "SetCircleXYZ does not supportABC or UVW motion\n");
+        return TP_ERR_FAIL;
+    }
+
+    // Store the new circular segment (or use the current one)
+
+    if (!circ) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "SetCircleXYZ missing new circle definition\n");
+        return TP_ERR_FAIL;
+    }
+
+    tc->coords.circle.xyz = *circ;
+    // Update the arc length fit to this new segment
+    findSpiralArcLengthFit(&tc->coords.circle.xyz, &tc->coords.circle.fit);
+
+    // compute the new total arc length using the fit and store as new
+    // target distance
+    tc->target = pmCircle9Target(&tc->coords.circle);
+
+    return TP_ERR_OK;
+}
+
+int tcClearFlags(TC_STRUCT * const tc)
+{
+    if (!tc) {
+        return TP_ERR_MISSING_INPUT;
+    }
+
+    //KLUDGE this will need to be updated manually if any other flags are added.
+    tc->is_blending = false;
+
+    return TP_ERR_OK;
+}
+
+

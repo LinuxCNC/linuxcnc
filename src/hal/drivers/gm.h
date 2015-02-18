@@ -4,8 +4,9 @@
 #include "hal.h"
 
 
-#define PLX_VENDOR_ID		0x10B5 //PLX Vendor ID
-#define GM_DEVICE_ID		0x6ACC //GM 6 Axis Control Card,   www.pcidatabase.com
+#define PLX_VENDOR_ID           0x10B5 //PLX Vendor ID
+#define GM_DEVICE_ID            0x6ACC //GM 6 Axis Control Card,   www.pcidatabase.com
+#define GM_SUBDEVICE_ID         0x3131
 
 #define MAX_GM_DEVICES		3
 
@@ -83,3 +84,4 @@ typedef struct {
 
 
 #endif
+

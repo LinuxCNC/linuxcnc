@@ -1,4 +1,5 @@
-#include <linux/pci.h>
+#include <rtapi_pci.h>
+#include <rtapi_io.h>
 
 #include "rtapi.h"		// RTAPI realtime OS API
 #include "rtapi_app.h"		// RTAPI realtime module decls
@@ -9,7 +10,7 @@
 // Module information.
 MODULE_AUTHOR("Bence Kovacs");
 MODULE_DESCRIPTION("Driver for General Mechatronics 6-Axis Motion Control Card for EMC HAL");
-MODULE_LICENSE("GPL2");
+MODULE_LICENSE("GPL");
 
 typedef struct { //encoder_t
     // Pins
@@ -344,6 +345,22 @@ typedef struct { //gm_driver_t
 
 static gm_driver_t				driver;
 
+static int                      num_boards = 0;
+static int                      failed_errno = 0; // errno of last failed registration
+
+static struct
+rtapi_pci_device_id gm_pci_tbl[] = {
+    // GM PCI Card
+    {
+        .vendor = PLX_VENDOR_ID,
+        .device = GM_DEVICE_ID,
+        .subvendor = PLX_VENDOR_ID,
+        .subdevice = GM_SUBDEVICE_ID,
+    },
+ 
+    {0,},
+};
+
 //////////////////////////////////////////////////////////////////////////////
 //                          Function prototypes                             //
 //////////////////////////////////////////////////////////////////////////////
@@ -356,6 +373,10 @@ static gm_driver_t				driver;
   static int ExportRS485(void *arg, int comp_id, int version);
   static int ExportCAN(void *arg, int comp_id, int version);
   static int ExportMixed(void *arg, int comp_id);
+
+//PCI driver misc functions
+  static int gm_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_device_id *id);
+  static void gm_pci_remove(struct rtapi_pci_dev *dev);
 
 //Methods exported to HAL
   static void read(void *arg, long period);
@@ -386,6 +407,117 @@ static gm_driver_t				driver;
   //Card management
   static void card_mgr(void *arg, long period);
 
+//////////////////////////////////////////////////////////////////////////////
+//                          PCI driver functions                            //
+//////////////////////////////////////////////////////////////////////////////
+
+
+static int
+gm_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_device_id *id)
+{	
+        int			error=0;
+	card			*pCard = NULL;
+	gm_device_t		*pDevice;
+
+
+        if (num_boards >= MAX_GM_DEVICES) {
+          rtapi_print_msg(RTAPI_MSG_ERR,"skipping AnyIO board at %s, this driver can only handle %d\n", rtapi_pci_name(dev), MAX_GM_DEVICES);
+          return -EINVAL;
+        }
+
+        // NOTE: this enables the board's BARs -- this fixes the Arty bug
+        if (rtapi_pci_enable_device(dev)) {
+          rtapi_print_msg(RTAPI_MSG_ERR,"skipping AnyIO board at %s, failed to enable PCI device\n", rtapi_pci_name(dev));
+          return failed_errno = -ENODEV;
+        }
+
+	// Allocate memory for device object.
+	pDevice = hal_malloc(sizeof(gm_device_t));
+
+	if (pDevice == 0) {
+	  rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: ERROR: hal_malloc() failed.\n");
+	  hal_exit(driver.comp_id);
+	  return(-ENOMEM);
+	}
+
+	// Save pointer to device object.
+	driver.device[num_boards] = pDevice;
+
+	// Map card into memory.
+	pCard = (card *)rtapi_pci_ioremap_bar(dev, 5);
+	rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Card address @ %p, Len = %d.\n", pCard, (int)rtapi_pci_resource_len(dev, 5));
+
+	// Initialize device.
+	pDevice->pCard = pCard;
+
+	// Give board id for the card, increasing from 0
+	pDevice->boardID = num_boards++;
+	
+	//Check card ID
+	pDevice->cardID = pCard->cardID;
+	rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Card ID: 0x%X.\n", pDevice->cardID);
+	
+	if ( (pDevice->cardID & IDmask_card) != cardVersion1 ) {
+	  rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: ERROR, unknown card detected.\nPlease, download the latest driver.\n");
+	  hal_exit(driver.comp_id);
+	  return(-ENODEV);
+	}
+
+	// Export and init pins, parameters, and functions
+	rtapi_set_msg_level(RTAPI_MSG_WARN);
+	pDevice->cardMgr.disable = 0; //Enable pointers of not presented modules will be referenced to this variable
+	pDevice->period_ns	= 0; 
+	
+	error = ExportEncoder(pDevice, driver.comp_id, pDevice->cardID & IDmask_encoder);
+	if(error == 0) error = ExportStepgen(pDevice, driver.comp_id, pDevice->cardID & IDmask_stepgen);
+	if(error == 0) error = ExportDAC(pDevice, driver.comp_id, pDevice->cardID & IDmask_dac);
+	if(error == 0) error = ExportRS485(pDevice, driver.comp_id, pDevice->cardID & IDmask_rs485);
+	if(error == 0) error = ExportCAN(pDevice, driver.comp_id, pDevice->cardID & IDmask_can);
+	if(error == 0) error = ExportMixed(pDevice, driver.comp_id);
+	if(error == 0) error = ExportFunctions(pDevice, driver.comp_id, pDevice->boardID);
+	
+	pDevice->cardMgr.card_control_reg = 0;
+	
+	rtapi_set_msg_level(RTAPI_MSG_ALL);
+
+	if(error){
+	  rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: Error exporting pins and parameters.\n");
+	  hal_exit(driver.comp_id);
+	  return -EINVAL;
+	}
+
+	return 0;
+}
+
+static void
+gm_pci_remove(struct rtapi_pci_dev *dev)
+{
+        int i;
+        gm_device_t		*pDevice;
+
+        for(i = 0; i < MAX_GM_DEVICES; i++){
+			
+        if((pDevice = driver.device[i]) != NULL)
+        {
+          // turn off all
+          pDevice->pCard->card_control_reg = (hal_s32_t) 0;
+				
+          // Unmap card
+          rtapi_iounmap((void *)(pDevice->pCard));
+          rtapi_pci_disable_device(dev);
+          rtapi_pci_set_drvdata(dev, NULL);
+        }
+    }
+}
+
+
+static struct
+rtapi_pci_driver gm_pci_driver = {
+	.name = "hal_gm",
+	.id_table = gm_pci_tbl,
+	.probe = gm_pci_probe,
+	.remove = gm_pci_remove,
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //                     RTAPI main and exit functions                        //
@@ -394,11 +526,8 @@ static gm_driver_t				driver;
 int
 rtapi_app_main(void)
 {
-	int			msgLevel, i, device_ctr, error=0;
-	struct pci_dev		*pDev = NULL;
-	card			*pCard = NULL;
-	gm_device_t		*pDevice;
-	u16			temp;
+	int 			r = 0;
+	int			msgLevel, i = 0;
 
 	msgLevel = rtapi_get_msg_level();
 	rtapi_set_msg_level(RTAPI_MSG_ALL);
@@ -407,85 +536,41 @@ rtapi_app_main(void)
 	// Connect to the HAL.
 	driver.comp_id = hal_init("hal_gm");
 	if (driver.comp_id < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: ERROR: hal_init() failed.\n");
-		return(-EINVAL);
+          rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: ERROR: hal_init() failed.\n");
+          return(-EINVAL);
     	}
 
     	for(i = 0; i < MAX_GM_DEVICES; i++){
-		driver.device[i] = NULL;
+	  driver.device[i] = NULL;
     	}
 
-	// Find General Mechatronics cards
-	device_ctr = 0;
-	while((device_ctr < MAX_GM_DEVICES) && ((pDev = pci_get_device(PLX_VENDOR_ID, GM_DEVICE_ID, pDev)) != NULL)){
+	r = rtapi_pci_register_driver(&gm_pci_driver);
 
-		//Enable PCI Memory access
-		pci_read_config_word(pDev,PCI_COMMAND,&temp);
-		temp |= PCI_COMMAND_MEMORY;
-		pci_write_config_word(pDev,PCI_COMMAND,temp);
+	if (r != 0) {
+          rtapi_print_msg(RTAPI_MSG_ERR,"error registering PCI driver\n");
+          hal_exit(driver.comp_id);
+          return r;
+        }
 
-		// Allocate memory for device object.
-		pDevice = hal_malloc(sizeof(gm_device_t));
+        if(failed_errno) {
+          // at least one card registration failed
+          hal_exit(driver.comp_id);
+          rtapi_pci_unregister_driver(&gm_pci_driver);
+          return failed_errno;
+        }
 
-		if (pDevice == 0) {
-		    rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: ERROR: hal_malloc() failed.\n");
-		    hal_exit(driver.comp_id);
-		    return(-ENOMEM);
-		}
+        if(num_boards == 0) {
+          // no cards were detected
+          hal_exit(driver.comp_id);
+          rtapi_pci_unregister_driver(&gm_pci_driver);
+          return -ENODEV;
+        }
 
-		// Save pointer to device object.
-		driver.device[device_ctr] = pDevice;
-
-		// Map card into memory.
-		pCard = (card *)ioremap_nocache(pci_resource_start(pDev, 5), pci_resource_len(pDev, 5));
-		rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Card detected in slot %2x.\n", PCI_SLOT(pDev->devfn));
-		rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Card address @ %p, Len = %d.\n", pCard, (int)pci_resource_len(pDev, 5));
-
-		// Initialize device.
-		pDevice->pCard = pCard;
-	
-		// Give board id for the card, increasing from 0
-		pDevice->boardID = device_ctr++;
-		
-		//Check card ID
-		pDevice->cardID = pCard->cardID;
-		rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Card ID: 0x%X.\n", pDevice->cardID);
-		
-        	if ( (pDevice->cardID & IDmask_card) != cardVersion1 ) {
-		    rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: ERROR, unknown card detected.\nPlease, download the latest driver.\n");
-		    hal_exit(driver.comp_id);
-		    return(-ENODEV);
-		}
-
-		// Export and init pins, parameters, and functions
-		rtapi_set_msg_level(RTAPI_MSG_WARN);
-		pDevice->cardMgr.disable = 0; //Enable pointers of not presented modules will be referenced to this variable
-		pDevice->period_ns	= 0; 
-		
-		error = ExportEncoder(pDevice, driver.comp_id, pDevice->cardID & IDmask_encoder); 	if(error != 0) break;
-		error = ExportStepgen(pDevice, driver.comp_id, pDevice->cardID & IDmask_stepgen); 	if(error != 0) break;
-		error = ExportDAC(pDevice, driver.comp_id, pDevice->cardID & IDmask_dac); 		if(error != 0) break;
-		error = ExportRS485(pDevice, driver.comp_id, pDevice->cardID & IDmask_rs485);		if(error != 0) break;
-		error = ExportCAN(pDevice, driver.comp_id, pDevice->cardID & IDmask_can);		if(error != 0) break;
-		error = ExportMixed(pDevice, driver.comp_id);						if(error != 0) break;
-		error = ExportFunctions(pDevice, driver.comp_id, pDevice->boardID);			if(error != 0) break;
-		
-		pDevice->cardMgr.card_control_reg = 0;
-		
-		rtapi_set_msg_level(RTAPI_MSG_ALL);
-	}
-	
-	if(error){
-	    rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: Error exporting pins and parameters.\n");
-	    hal_exit(driver.comp_id);
-	    return -EINVAL;
-	}
-
-    	if(pCard == NULL){
-		// No card detected
-		rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: No General Mechatronics card detected :(. \n");
-		hal_exit(driver.comp_id);
-		return -ENODEV;
+    	if(num_boards == 0){
+          // No card detected
+	  rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: No General Mechatronics card detected :(. \n");
+	  hal_exit(driver.comp_id);
+	  return -ENODEV;
     	}
 
     	hal_ready(driver.comp_id);
@@ -497,22 +582,8 @@ rtapi_app_main(void)
 void
 rtapi_app_exit(void)
 {
-    	int		i;
-    	gm_device_t		*pDevice;
-
+	rtapi_pci_unregister_driver(&gm_pci_driver);
     	hal_exit(driver.comp_id);
-
-    	for(i = 0; i < MAX_GM_DEVICES; i++){
-			
-		if((pDevice = driver.device[i]) != NULL)
-		{
-			// turn off all
-			pDevice->pCard->card_control_reg = (hal_s32_t) 0;
-							
-			// Unmap card
-			iounmap((void *)(pDevice->pCard));
-		}
-    	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1014,8 +1085,7 @@ ExportMixed(void *arg, int comp_id)
 	return error;
 }
 
-static int
-ExportFunctions(void *arg, int comp_id, int boardId)
+static int ExportFunctions(void *arg, int comp_id, int boardId)
 {
 	int error;
 	char str[HAL_NAME_LEN + 1];
@@ -1901,7 +1971,7 @@ RS485(void *arg, long period)
 
 		    case RS485MODUL_ID_DACADC:
 		     //DAC 0 
-		      if(*(device->RS485_DacAdc[i].DAC_0))
+		      if(*(device->RS485_DacAdc[i].dac_0_enable))
 		      {
 			temp = *(device->RS485_DacAdc[i].DAC_0)+ device->RS485_DacAdc[i].DAC_0_offset;
 			
@@ -1916,7 +1986,7 @@ RS485(void *arg, long period)
 		      else if(temp <0) temp=0;
 		      RS485DataIn8[0]= (hal_u32_t)temp;
 		    //DAC 1
-		      if(*(device->RS485_DacAdc[i].DAC_1))
+		      if(*(device->RS485_DacAdc[i].dac_1_enable))
 		      {
 			temp = *(device->RS485_DacAdc[i].DAC_1)+ device->RS485_DacAdc[i].DAC_1_offset;
 			
@@ -1924,13 +1994,15 @@ RS485(void *arg, long period)
 			else if(temp < device->RS485_DacAdc[i].DAC_1_min) { temp = device->RS485_DacAdc[i].DAC_1_min; }
 			
 			temp = (temp + 10)*12.8 + 0.5;
-		      }
+                      }
+                      else temp=128;
+
 		      if(temp>255) temp=255;
 		      else if(temp <0) temp=0;
 		      RS485DataIn8[1]= (hal_u32_t)temp;
 		      
 		    //DAC 2
-		      if(*(device->RS485_DacAdc[i].DAC_2))
+		      if(*(device->RS485_DacAdc[i].dac_2_enable))
 		      {
 			temp = *(device->RS485_DacAdc[i].DAC_2)+ device->RS485_DacAdc[i].DAC_2_offset;
 			
@@ -1938,13 +2010,15 @@ RS485(void *arg, long period)
 			else if(temp < device->RS485_DacAdc[i].DAC_2_min) { temp = device->RS485_DacAdc[i].DAC_2_min; }
 			
 			temp = (temp + 10)*12.8 + 0.5;
-		      }
+                      }
+                      else temp=128;
+
 		      if(temp>255) temp=255;
 		      else if(temp <0) temp=0;
 		      RS485DataIn8[2]= (hal_u32_t)temp;
 		      
 		    //DAC 3
-		      if(*(device->RS485_DacAdc[i].DAC_3))
+		      if(*(device->RS485_DacAdc[i].dac_3_enable))
 		      {
 			temp = *(device->RS485_DacAdc[i].DAC_3)+ device->RS485_DacAdc[i].DAC_3_offset;
 			
@@ -1952,7 +2026,9 @@ RS485(void *arg, long period)
 			else if(temp < device->RS485_DacAdc[i].DAC_3_min) { temp = device->RS485_DacAdc[i].DAC_3_min; }
 			
 			temp = (temp + 10)*12.8 + 0.5;
-		      }
+                      }
+                      else temp=128;
+
 		      if(temp>255) temp=255;
 		      else if(temp <0) temp=0;
 		      RS485DataIn8[3]= (hal_u32_t)temp;
@@ -1977,6 +2053,7 @@ RS485(void *arg, long period)
           //Ping RS485 BUS if no RS485 module with output is connected
           if(data_wr == 0) *(&(pCard->serialModulesDataOut[0][0])) = 0;
 }
+
 
 static void
 RS485_OrderDataRead(hal_u32_t* dataIn32, hal_u32_t* dataOut8, hal_u32_t length)
@@ -2043,3 +2120,4 @@ RS485_CalcChecksum(hal_u32_t* data, hal_u32_t length)
      return (tempChecksum & 0xff) ^ 0xaa;
       
 }
+

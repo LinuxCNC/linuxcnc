@@ -277,8 +277,8 @@ typedef struct {
     int users;			/* number of threads using function */
     void *arg;			/* argument for function */
     void (*funct) (void *, long);	/* ptr to function code */
-    hal_s32_t runtime;		/* duration of last run, in nsec */
-    hal_s32_t maxtime;		/* duration of longest run, in nsec */
+    hal_s32_t* runtime;	/* (pin) duration of last run, in nsec */
+    hal_s32_t maxtime;	/* (param) duration of longest run, in nsec */
     hal_bit_t maxtime_increased;	/* on last call, maxtime increased */
     char name[HAL_NAME_LEN + 1];	/* function name */
 } hal_funct_t;

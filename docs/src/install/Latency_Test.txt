@@ -95,66 +95,62 @@ LinuxCNC does not require bleeding edge hardware.
 For more information on stepper tuning see the 
 <<cha:Stepper-Tuning,Stepper Tuning>> Chapter.
 
-== Port Address
+Additional command line tools are availalbe for examining latency
+when LinuxCNC is not running.
 
-For those who build their own hardware, one safeguard against 
-shorting out an on-board parallel port - or even the whole 
-motherboard - is to use an add-on parallel port card. Even if you 
-don't need the extra layer of safety, a parport card is a good 
-way to add extra I/O lines with LinuxCNC.
-
-One good PCI parport card is made with the Netmos 9815 chipset. 
-It has good +5V signals, and can come in a single or dual ports. 
-
-To find the I/O addresses for these cards open a terminal window 
-and use the list pci command:
-
+latency-plot makes a strip chart recording for a base and a servo
+thread.  It may be useful to see spikes in latency when other
+applications are started or used.  Usage:
 ----
-lspci -v
+latency-plot --help
+
+Usage:
+      latency-plot --help | -?      (this)
+      latency-plot --hal [Options]
+
+Options:
+      --base nS  (base  thread interval, default:   25000)
+      --servo nS (servo thread interval, default: 1000000)
+      --time mS  (report interval, default: 1000)
+      --relative (relative clock time (default))
+      --actual   (actual clock time)
 ----
+image::../config/images/latency-plot.png[]
 
-Look for the entry with "Netmos" in it. Example of a 2-port card:
 
+latency-histogram displays a histogram of latency (jitter) for
+a base and servo thread.  Usage:
 ----
-0000:01:0a.0 Communication controller: \
-      Netmos Technology PCI 9815 Multi-I/O Controller (rev 01)
-Subsystem: LSI Logic / Symbios Logic 2POS (2 port parallel adapter) 
-Flags: medium devsel, IRQ 5
-I/O ports at b800 [size=8]
-I/O ports at bc00 [size=8] 
-I/O ports at c000 [size=8] 
-I/O ports at c400 [size=8] 
-I/O ports at c800 [size=8] 
-I/O ports at cc00 [size=16]
+latency-histogram --help
+
+Usage:
+   latency-histogram --help | -?
+or
+   latency-histogram [Options]
+
+Options:
+  --version        (show version and exit)
+  --base      nS   (base  thread interval, default:   25000, min:  5000)
+  --servo     nS   (servo thread interval, default: 1000000, min: 25000)
+  --bbinsize  nS   (base  bin size,  default: 100
+  --sbinsize  nS   (servo bin size, default: 100
+  --bbins     n    (base  bins, default: 200
+  --sbins     n    (servo bins, default: 200
+  --logscale  0|1  (y axis log scale, default: 1)
+  --text      note (additional note, default: "" )
+  --show           (show count of undisplayed bins)
+  --nobase         (servo thread only)
+  --verbose        (progress and debug)
+
+Notes:
+  Linuxcnc and Hal should not be running, stop with halrun -U.
+  Large number of bins and/or small binsizes will slow updates.
+  For single thread, specify --nobase (and options for servo thread).
+  Measured latencies outside of the +/- bin range are reported
+  with special end bars.  Use --show to show count for
+  the off-chart [pos|neg] bin
 ----
-
-From experimentation, I've found the first port (the on-card 
-port) uses the third address listed (c000), and the second port 
-(the one that attaches with a ribbon cable) uses the first 
-address listed (b800).
-
-You can then open an editor and put the addresses into the 
-appropriate place in your .hal file.
-
-----
-loadrt hal_parport cfg="0x378 0xc000"
-----
-
-You must also direct LinuxCNC to run the 'read' and 'write' functions 
-for the second card. For example,
-
-----
-addf parport.1.read base-thread 1
-addf parport.1.write base-thread -1
-----
-
-Please note that your values will differ. The Netmos cards are 
-Plug-N-Play, and might change their settings depending on which 
-slot you put them into, so if you like to \'get under the hood' 
-and re-arrange things, be sure to check these values before you 
-start LinuxCNC. 
-
+image::../config/images/latency-histogram.png[]
 
 // vim: set syntax=asciidoc:
-
 

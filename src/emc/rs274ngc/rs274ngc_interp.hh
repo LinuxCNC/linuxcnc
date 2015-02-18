@@ -144,27 +144,69 @@ public:
 
 /* Function prototypes for all  functions */
 
- int arc_data_comp_ijk(int move, int plane, int side, double tool_radius,
-                          double current_x, double current_y,
-                          double end_x, double end_y,
-                          int ij_absolute, double i_number, double j_number,
-                          int p_number,
-                          double *center_x, double *center_y, int *turn,
-                          double tolerance);
- int arc_data_comp_r(int move, int plane, int side, double tool_radius,
-                        double current_x, double current_y, double end_x,
-                        double end_y, double big_radius, int p_number, double *center_x,
-                        double *center_y, int *turn, double tolerance);
- int arc_data_ijk(int move, int plane, double current_x, double current_y,
-                     double end_x, double end_y,
-                     int ij_absolute, double i_number, double j_number,
-                     int p_number,
-                     double *center_x, double *center_y,
-                     int *turn, double tolerance);
- int arc_data_r(int move, int plane, double current_x, double current_y,
-                      double end_x, double end_y, double radius, int p_number,
-                      double *center_x, double *center_y, int *turn,
-		      double tolerance);
+ int arc_data_comp_ijk(int move,
+         int plane,
+         int side,
+         double tool_radius,
+         double current_x,
+         double current_y,
+         double end_x,
+         double end_y,
+         int ij_absolute,
+         double i_number,
+         double j_number,
+         int p_number,
+         double *center_x,
+         double *center_y,
+         int *turn,
+         double radius_tolerance,
+         double spiral_abs_tolerance,
+         double spiral_rel_tolerance);
+
+ int arc_data_comp_r(int move,
+         int plane,
+         int side,
+         double tool_radius,
+         double current_x,
+         double current_y,
+         double end_x,
+         double end_y,
+         double big_radius,
+         int p_number,
+         double *center_x,
+         double *center_y,
+         int *turn,
+         double radius_tolerance);
+
+ int arc_data_ijk(int move,
+         int plane,
+         double current_x,
+         double current_y,
+         double end_x,
+         double end_y,
+         int ij_absolute,
+         double i_number,
+         double j_number,
+         int p_number,
+         double *center_x,
+         double *center_y,
+         int *turn,
+         double radius_tolerance,
+         double spiral_abs_tolerance,
+         double spiral_rel_tolerance);
+
+ int arc_data_r(int move,
+         int plane,
+         double current_x,
+         double current_y,
+         double end_x,
+         double end_y,
+         double radius,
+         int p_number,
+         double *center_x,
+         double *center_y,
+         int *turn,
+         double radius_tolerance);
  int check_g_codes(block_pointer block, setup_pointer settings);
  int check_items(block_pointer block, setup_pointer settings);
  int check_m_codes(block_pointer block);
