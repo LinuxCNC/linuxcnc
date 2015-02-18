@@ -1618,8 +1618,10 @@ def get_jog_speed(a):
         else:
             return vars.jog_aspeed.get()/60.
     else:
-        # when in free/joint mode, use linear jog speed
-        return vars.jog_speed.get()/60.
+        if joint_type[a] == 'LINEAR':
+            return vars.jog_speed.get()/60.
+        else:
+            return vars.jog_aspeed.get()/60.
 
 def get_max_jog_speed(a):
     max_linear_speed = vars.max_speed.get()
@@ -1632,8 +1634,10 @@ def get_max_jog_speed(a):
         else:
             return vars.max_aspeed.get()
     else:
-        # when in free/joint mode, use max linear jog speed
-        return max_linear_speed
+        if joint_type[a] == 'LINEAR':
+            return max_linear_speed
+        else:
+            return vars.max_aspeed.get()
 
 def run_warn():
     warnings = []
@@ -2974,6 +2978,12 @@ for a in range(9):
             step_size_tmp = min(step_size, 1. / f)
             if a < 3: step_size = astep_size = step_size_tmp
             else: astep_size = step_size_tmp
+
+joint_type = [None] * 9
+for j in range(9):
+    if s.axis_mask & (1<<j) == 0: continue
+    section = "AXIS_%d" % j
+    joint_type[j] = inifile.find(section, "TYPE")
 
 if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)
