@@ -1,0 +1,828 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-17 22:56+0100\n"
+"PO-Revision-Date: 2015-02-18 09:03+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.4\n"
+
+#. type: Plain text
+#: User_Concepts.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: User_Concepts.txt:4
+msgid "= Important User Concepts"
+msgstr "= Concepts importants pour l'utilisateur"
+
+#. type: Plain text
+#: User_Concepts.txt:6
+msgid "[[cha:important-user-concepts]] (((User Concepts)))"
+msgstr "[[cha:Concepts-pour-utilisateur]] (((Concepts pour l'utilisateur)))"
+
+#. type: Plain text
+#: User_Concepts.txt:9
+msgid ""
+"This chapter covers important user concepts that should be understood before "
+"attempting to run a CNC machine with g code."
+msgstr ""
+"Ce chapitre couvre d'importants concepts devant être bien compris avant de "
+"tenter d'exécuter un programme en G-code sur une machine CNC."
+
+#. type: Plain text
+#: User_Concepts.txt:12
+msgid ""
+"== Trajectory Control [[sec:trajectory-control]] (((Trajectory Control)))"
+msgstr "== Contrôle de trajectoire [[sec:trajectory-control]]"
+
+#. type: Plain text
+#: User_Concepts.txt:14
+msgid "=== Trajectory Planning"
+msgstr "=== Planification de trajectoire"
+
+#. type: Plain text
+#: User_Concepts.txt:24
+msgid ""
+"[WARNING] The new Trajectory Planner (TP) is on by default. + If you have no "
+"TP settings in your [TRAJ] section - LinuxCNC defaults to: + "
+"ARC_BLEND_ENABLE = 1 + ARC_BLEND_FALLBACK_ENABLE = 0 + "
+"ARC_BLEND_OPTIMIZATION_DEPTH = 50 + ARC_BLEND_GAP_CYCLES = 4 + "
+"ARC_BLEND_RAMP_FREQ = 100"
+msgstr ""
+"[WARNING] Le nouveau planificateur de trajectoire (TP) est activé par "
+"défaut.\n"
+"Si vous n'avez pas de réglage de TP dans la section [TRAJ] - LinuxCNC "
+"adoptera par défaut:\n"
+"ARC_BLEND_ENABLE = 1\n"
+"ARC_BLEND_FALLBACK_ENABLE = 0\n"
+"ARC_BLEND_OPTIMIZATION_DEPTH = 50\n"
+"ARC_BLEND_GAP_CYCLES = 4\n"
+"ARC_BLEND_RAMP_FREQ = 100"
+
+#. type: Plain text
+#: User_Concepts.txt:27
+msgid ""
+"For more information on the Trajectory Panner ini options see the "
+"Integrators Manual."
+msgstr ""
+"Pour davantage d'information sur les options d'initialisation du "
+"planificateur de trajectoire, reportez vous au manuel de l'intégrateur."
+
+#. type: Plain text
+#: User_Concepts.txt:31
+msgid ""
+"Trajectory planning, in general, is the means by which LinuxCNC follows the "
+"path specified by your G Code program, while still operating within the "
+"limits of your machinery."
+msgstr ""
+"La planification de trajectoire est en général, le moyen qui permet à "
+"LinuxCNC de suivre le chemin spécifié par le programme G-code, tout en "
+"restant dans les limites permises par la machine."
+
+#. type: Plain text
+#: User_Concepts.txt:34
+msgid ""
+"A G Code program can never be fully obeyed. For example, imagine you specify "
+"as a single-line program the following move:"
+msgstr ""
+"Un programme en G-code ne peut jamais être exactement suivi. Par exemple, "
+"imaginez que vous spécifiez dans une ligne du programme le mouvement suivant:"
+
+#. type: Plain text
+#: User_Concepts.txt:35
+#, no-wrap
+msgid "----\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: User_Concepts.txt:37
+#, no-wrap
+msgid ""
+"G1 X1 F10 (G1 is linear move, X1 is the destination, F10 is the speed)\n"
+"----\n"
+msgstr ""
+"G1 X10 F100 (G1 un mouvement linéaire, X10 la destination, F100 la vitesse)\n"
+"----\n"
+
+#. type: Plain text
+#: User_Concepts.txt:46
+msgid ""
+"In reality, the whole move can't be made at F10, since the machine must "
+"accelerate from a stop, move toward X=1, and then decelerate to stop again. "
+"Sometimes part of the move is done at F10, but for many moves, especially "
+"short ones, the specified feed rate is never reached at all. Having short "
+"moves in your G Code can cause your machine to slow down and speed up for "
+"the longer moves if the 'naive cam detector' is not employed with G64 Pn."
+msgstr ""
+"En réalité, la totalité du mouvement ne peut pas être effectuée à F100, "
+"puisque la machine commence le mouvement à une vitesse nulle, elle doit "
+"accélérer pour se déplacer vers X=10, puis décélérer pour revenir à une "
+"vitesse nulle en fin de mouvement. Parfois une portion du mouvement se fera "
+"bien à F100, mais pour beaucoup de mouvements, spécialement les petits "
+"mouvements, la vitesse spécifiée ne sera jamais atteinte. Avoir des "
+"mouvements courts dans le programme peut provoquer de gros ralentissements, "
+"suivis d'accélérations brutales pour les longs mouvements si le détecteur "
+"'naïve cam' n'est pas employé avec G64 Pn."
+
+#. type: Plain text
+#: User_Concepts.txt:51
+msgid ""
+"The basic acceleration and deceleration described above is not complex and "
+"there is no compromise to be made. In the INI file the specified machine "
+"constraints such as maximum axis velocity and axis acceleration must be "
+"obeyed by the trajectory planner."
+msgstr ""
+"Les accélérations et décélérations de base décrites ici ne sont pas "
+"complexes et ne nécessitent pas de compromis. Les contraintes des axes de la "
+"machine sont placées dans le fichier ini, comme la vitesse maximum de l'axe "
+"et l'accélération ne devant pas être dépassées. Le planificateur de "
+"trajectoire obéira à ces contraintes."
+
+#. type: Plain text
+#: User_Concepts.txt:54
+msgid "=== Path Following"
+msgstr "=== Le suivi du parcours"
+
+#. type: Plain text
+#: User_Concepts.txt:66
+msgid ""
+"A less straightforward problem is that of path following. When you program a "
+"corner in G Code, the trajectory planner can do several things, all of which "
+"are right in some cases: it can decelerate to a stop exactly at the "
+"coordinates of the corner, and then accelerate in the new direction. It can "
+"also do what is called blending, which is to keep the feed rate up while "
+"going through the corner, making it necessary to round the corner off in "
+"order to obey machine constraints.  You can see that there is a trade off "
+"here: you can slow down to get better path following, or keep the speed up "
+"and have worse path following. Depending on the particular cut, the "
+"material, the tooling, etc., the programmer may want to compromise "
+"differently."
+msgstr ""
+"Un problème plus compliqué est posé par le suivi du parcours. Quand vous "
+"programmez un angle droit en G-code, le planificateur de trajectoire peut "
+"suivre différents parcours, tous sont bons dans certains cas; il peut "
+"décélérer et s'arrêter exactement sur les coordonnées du sommet de l'angle, "
+"puis accélérer dans la direction perpendiculaire. Il peut également faire ce "
+"qui est appelé le mode 'trajectoire continue', qui consiste à maintenir la "
+"vitesse d'avance en passant vers le sommet de l'angle, ce qui nécessite "
+"d'arrondir l'angle de façon à respecter les contraintes machine. Vous pouvez "
+"remarquer qu'il y a dans ce cas un compromis: vous pouvez ralentir pour "
+"avoir un meilleur suivi du parcours, ou conserver une vitesse d'avance "
+"élevée au détriment de la finesse des angles, du fait d'un moins bon suivi "
+"du parcours. Selon les particularités de l'usinage, du matériau, de "
+"l'outillage, etc., le programmeur devra décider du bon compromis."
+
+#. type: Plain text
+#: User_Concepts.txt:70
+msgid ""
+"Rapid moves also obey the current trajectory control. With moves long enough "
+"to reach maximum velocity on a machine with low acceleration and no path "
+"tolerance specified, you can get a fairly round corner."
+msgstr ""
+"Les mouvements rapides également, obéissent au contrôle de trajectoire "
+"courant.  Avec des mouvements assez longs pour atteindre la vitesse maximale "
+"sur une machine ayant une faible accélération et en ne spécifiant pas de "
+"tolérance de parcours, il est possible d'obtenir des coins acceptablement "
+"arrondis."
+
+#. type: Plain text
+#: User_Concepts.txt:72
+msgid "=== Programming the Planner(((Programming the Planner)))"
+msgstr "=== La programmation du planificateur de trajectoire"
+
+#. type: Plain text
+#: User_Concepts.txt:74
+msgid "The trajectory control commands are as follows:"
+msgstr "Les commandes de contrôle de trajectoire sont les suivantes:"
+
+#. type: Plain text
+#: User_Concepts.txt:78
+#, no-wrap
+msgid ""
+"* 'G61' - (Exact Path Mode) visits the programmed point exactly, even though\n"
+"    that means it might temporarily come to a complete stop in order to\n"
+"    change direction to the next programmed point. \n"
+msgstr ""
+"* 'G61' - (mode trajectoire exacte) indique au planificateur de suivre\n"
+"    exactement la trajectoire prévue.\n"
+
+#. type: Plain text
+#: User_Concepts.txt:81
+#, no-wrap
+msgid ""
+"* 'G61.1' - (Exact Stop Mode) tells the planner to come to an exact stop at every\n"
+"    segment's end. \n"
+msgstr ""
+"* 'G61.1' - (mode Arrêt exact) demande au planificateur de s'arrêter exactement\n"
+"    à la fin de chaque segment. Le parcours sera suivi avec exactitude mais\n"
+"    les arrêts complets de l'avance peuvent se révéler destructeurs pour la\n"
+"    pièce ou l'outillage, selon les particularités de l'usinage.\n"
+
+#. type: Plain text
+#: User_Concepts.txt:92
+#, no-wrap
+msgid ""
+"* 'G64' - (Blend Without Tolerance Mode) G64 is the default setting when you\n"
+"    start LinuxCNC. G64 is just blending and the naive cam detector is not\n"
+"    enabled. G64 and G64 P0 tell the planner to sacrifice path following\n"
+"    accuracy in order to keep the feed rate up. This is necessary for some\n"
+"    types of material or tooling where exact stops are harmful, and can\n"
+"    work great as long as the programmer is careful to keep in mind that\n"
+"    the tool's path will be somewhat more curvy than the program specifies.\n"
+"    When using G0 (rapid) moves with G64 use caution on clearance moves and\n"
+"    allow enough distance to clear obstacles based on the acceleration\n"
+"    capabilities of your machine.\n"
+msgstr ""
+"* 'G64' - (mode trajectoire continue sans tolérance) Le mode G64 est le mode\n"
+"    par défaut au démarrage de LinuxCNC. G64 est juste une trajectoire continue,\n"
+"    le 'Détecteur naïve CAM' n'est pas activé. G64 et G64 P0 indiquent au\n"
+"    planificateur de sacrifier la précision de suivi du parcours pour\n"
+"    conserver une vitesse d'avance élevée. Ce mode est nécessaire pour\n"
+"    certains types de matériaux ou d'outillages pour lesquels l'arrêt exact\n"
+"    est dangereux. Il peut très bien fonctionner tant que le programmeur\n"
+"    garde à l'esprit que le parcours de l'outil pourra être plus arrondi que\n"
+"    celui indiqué par le programme. Dans le cas d'un mouvement en G0 (rapide)\n"
+"    avec G64, faire preuve de prudence sur les mouvements de dégagement et\n"
+"    prévoir suffisamment de distance pour éviter les obstacles selon les\n"
+"    capacités d'accélérations de la machine.\n"
+
+#. type: Plain text
+#: User_Concepts.txt:106
+#, no-wrap
+msgid ""
+"* 'G64 P- Q-' - (Blend With Tolerance Mode) This enables the 'naive cam detector' and\n"
+"    enables blending with a tolerance. If you program G64 P0.05, you tell\n"
+"    the planner that you want continuous feed, but at programmed corners\n"
+"    you want it to slow down enough so that the tool path can stay within\n"
+"    0.05 user units of the programmed path. The exact amount of slowdown\n"
+"    depends on the geometry of the programmed corner and the machine\n"
+"    constraints, but the only thing the programmer needs to worry about is\n"
+"    the tolerance. This gives the programmer complete control over the path\n"
+"    following compromise. The blend tolerance can be changed throughout the\n"
+"    program as necessary. Beware that a specification of G64 P0 has the\n"
+"    same effect as G64 alone (above), which is necessary for backward\n"
+"    compatibility for old G Code programs. See the G Code Chapter for more\n"
+"    information on G64 P- Q-.\n"
+msgstr ""
+"* 'G64 Px.xxx' - (mode trajectoire continue avec tolérance) Ce mode active\n"
+"    le 'Détecteur naïve CAM' et le mode trajectoire continue avec tolérance.\n"
+"    Si vous utilisez le millimètre comme unité et programmez G64 P1.27, vous\n"
+"    dites au planificateur que vous souhaitez une vitesse d'avance\n"
+"    continue, mais qu'aux coins programmés vous voulez un ralentissement\n"
+"    suffisant pour que le parcours de l'outil puisse rester à moins de\n"
+"    1.27mm du parcours programmé. L'amplitude exacte du ralentissement\n"
+"    dépend de la géométrie de l'angle programmé et des contraintes machine,\n"
+"    mais la seule chose dont le programmeur ait à se soucier est la\n"
+"    tolérance, ce qui lui donne le contrôle complet des compromis du suivi\n"
+"    de parcours. La tolérance de ce mode peut être modifiée tout au long du\n"
+"    programme si nécessaire. Attention: spécifier un G64 P0 aura le même\n"
+"    effet qu'un G64 seul (voir ci-dessus), c'est rendu nécessaire pour\n"
+"    conserver la compatibilité ascendante avec les anciens programmes\n"
+"    G-code. Voir le chapitre sur le G-code pour plus d'information sur\n"
+"    G64 P- Q-.\n"
+
+#. type: Plain text
+#: User_Concepts.txt:113
+#, no-wrap
+msgid ""
+"* 'Blending without tolerance' - The controlled point will touch each specified movement at at least\n"
+"    one point. The machine will never move at such a speed that it cannot\n"
+"    come to an exact stop at the end of the current movement (or next\n"
+"    movement, if you pause when blending has already started). The distance\n"
+"    from the end point of the move is as large as it needs to be to keep up\n"
+"    the best contouring feed.\n"
+msgstr ""
+"* 'Trajectoire continue sans tolérance' - Le point contrôlé touchera chaque\n"
+"    mouvement spécifié à au moins un point. La machine ne pourra jamais se\n"
+"    déplacer à une vitesse d'avance telle qu'elle ne puisse pas s'arrêter\n"
+"    avec précision à la fin du mouvement en cours (ou du prochain mouvement,\n"
+"    si vous mettez en pause lorsque la trajectoire est déjà commencée).\n"
+"    La distance avec le point final du mouvement est aussi grande que\n"
+"    nécessaire pour maintenir la meilleure vitesse d'avance possible pendant\n"
+"    le parcours.\n"
+
+#. type: Plain text
+#: User_Concepts.txt:130
+#, no-wrap
+msgid ""
+"* 'Naive Cam Detector' - Successive G1 moves that involve only the XYZ axes that deviate less\n"
+"    than Q- from a straight line are merged into a single straight line.\n"
+"    This merged movement replaces the individual G1 movements for the\n"
+"    purposes of blending with tolerance. Between successive movements, the\n"
+"    controlled point will pass no more than P- from the actual endpoints of\n"
+"    the movements. The controlled point will touch at least one point on\n"
+"    each movement. The machine will never move at such a speed that it\n"
+"    cannot come to an exact stop at the end of the current movement (or\n"
+"    next movement, if you pause when blending has already started) On G2/3\n"
+"    moves in the G17 (XY) plane when the maximum deviation of an arc from a\n"
+"    straight line is less than the G64 Q- tolerance the arc is broken into\n"
+"    two lines (from start of arc to midpoint, and from midpoint to end).\n"
+"    those lines are then subject to the naive cam algorithm for lines.\n"
+"    Thus, line-arc, arc-arc, and arc-line cases as well as line-line\n"
+"    benefit from the 'naive cam detector'. This improves contouring\n"
+"    performance by simplifying the path. \n"
+msgstr ""
+"* 'Détecteur Naive Cam' - Les mouvements successifs en G1, concernant\n"
+"    uniquement les axes XYZ, dont la déviation par rapport à une ligne\n"
+"    droite est inférieur à P, sont fusionnés en une seule ligne droite.\n"
+"    Ce mouvement fusionné remplace les mouvements individuels en G1 pour\n"
+"    obtenir une nouvelle trajectoire avec tolérance. Entre les mouvements\n"
+"    successifs, le point contrôlé ne passera jamais à plus de P- du point\n"
+"    final du mouvement en cours. Le point contrôlé touchera au moins un point\n"
+"    de chacun des mouvements. La machine ne pourra jamais se déplacer à une\n"
+"    vitesse ne lui permettant pas de venir s'arrêter exactement à la fin du\n"
+"    mouvement actuel (ou du prochain mouvement, si vous mettez en pause\n"
+"    lorsque la trajectoire est déjà commencée). En mouvement G2/3 dans le\n"
+"    plan G17 (XY) quand la déviation maximale entre un arc et une ligne\n"
+"    droite est plus petite que la tolérance G64 Q- l'arc est brisé en deux\n"
+"    lignes (du début de l'arc à son milieu et du milieu à la fin de l'arc).\n"
+"    Ces deux tronçons sont ensuite soumis à l'algorithme Naïve cam des lignes.\n"
+"    Ainsi, les cas ligne-arc, arc-arc et arc-ligne, comme les cas ligne-ligne\n"
+"    bénéficient du traitement 'Détecteur naive CAM'. Les performances de\n"
+"    contourage sont accrues grâce à la simplification de la trajectoire.\n"
+
+#. type: Plain text
+#: User_Concepts.txt:140
+msgid ""
+"In the following figure the blue line represents the actual machine "
+"velocity. The red lines are the acceleration capability of the machine.  The "
+"horizontal lines below each plot is the planned move. The upper plot shows "
+"how the trajectory planner will slow the machine down when short moves are "
+"encountered to stay within the limits of the machines acceleration setting "
+"to be able to come to an exact stop at the end of the next move. The bottom "
+"plot shows the effect of the Naive Cam Detector to combine the moves and do "
+"a better job of keeping the velocity as planned."
+msgstr ""
+"Dans la figure suivante la ligne bleue représente la vitesse machine "
+"actuelle.  La ligne rouge représente la capacité d'accélération de la "
+"machine.  La ligne horizontale sous chaque tracé est le mouvement planifié.  "
+"Le tracé supérieur montre comment le planificateur de trajectoire ralenti la "
+"machine quand des petits mouvements sont rencontrés. Ceci pour rester dans "
+"les limites fixées par les paramètres d'accélération de la machine et être "
+"capable de s'arrêter exactement à la fin du prochain mouvement.  Le tracé du "
+"bas montre l'effet du détecteur Naive Cam pour combiner les mouvements et "
+"fournir une amélioration conséquente dans le suivi de la vitesse programmée."
+
+#. type: Plain text
+#: User_Concepts.txt:142
+msgid ".Naive Cam Detector"
+msgstr ".Détecteur Naive Cam"
+
+#. type: Plain text
+#: User_Concepts.txt:144
+msgid "image::images/naive-cam.png[align=\"center\"]"
+msgstr "image::images/naive-cam.png[]"
+
+#. type: Plain text
+#: User_Concepts.txt:146
+msgid "=== Planning Moves"
+msgstr "=== Planification des mouvements"
+
+#. type: Plain text
+#: User_Concepts.txt:153
+msgid ""
+"Make sure moves are 'long enough' to suit your machine/material.  "
+"Principally because of the rule that the machine will never move at such a "
+"speed that it cannot come to a complete stop at the end of the current "
+"movement, there is a minimum movement length that will allow the machine to "
+"keep up a requested feed rate with a given acceleration setting."
+msgstr ""
+"Assurez-vous que les mouvements soient 'assez longs' pour convenir à votre "
+"machine/matériel. Principalement en raison de la règle selon laquelle \"la "
+"machine ne pourra jamais se déplacer à une vitesse ne lui permettant pas de "
+"venir s'arrêter complètement à la fin du mouvement actuel\", il y a une "
+"longueur minimale de déplacement permettant à la machine d'atteindre la "
+"vitesse demandée avec un réglage d'accélération donné."
+
+#. type: Plain text
+#: User_Concepts.txt:159
+msgid ""
+"The acceleration and deceleration phase each use half the ini file "
+"MAX_ACCELERATION. In a blend that is an exact reversal, this causes the "
+"total axis acceleration to equal the ini file MAX_ACCELERATION. In other "
+"cases, the actual machine acceleration is somewhat less than the ini file "
+"acceleration"
+msgstr ""
+"Les phases d'accélération et de décélération utilisent chacune la moitié de "
+"la variable MAX_ACCELERATION du fichier .ini. Avec une trajectoire continue "
+"c'est exactement l'inverse, ce qui fait que l'accélération totale de l'axe "
+"est égal à la variable MAX_ACCELERATION. Dans d'autres cas, l'accélération "
+"actuelle de la machine est un peu inférieure à celle du fichier ini."
+
+#. type: Plain text
+#: User_Concepts.txt:169
+msgid ""
+"To keep up the feed rate, the move must be longer than the distance it takes "
+"to accelerate from 0 to the desired feed rate and then stop again. Using A "
+"as *1/2* the ini file MAX_ACCELERATION and F as the feed rate *in units per "
+"second*, the acceleration time is *t~a~ = F/A* and the acceleration distance "
+"is *d~a~ = F*t~a~/2*. The deceleration time and distance are the same, "
+"making the critical distance *d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A*."
+msgstr ""
+"Pour maintenir la vitesse d'avance, le mouvement doit être plus long que la "
+"distance qui lui est nécessaire pour accélérer de zéro à la vitesse "
+"souhaitée, puis de décélérer pour s'arrêter. En utilisant 'A' comme étant "
+"'1/2' de la variable MAX_ACCELERATION du fichier ini et 'F' comme étant la "
+"vitesse d'avance 'en unités par seconde', le temps d'accélération sera 't~a~ "
+"= F/A' et la distance d'accélération sera 'd~a~ = F*t~a~/2'. Les temps et "
+"distance de décélération sont les mêmes, ce qui fait que la distance "
+"critique 'd = d~a~ + d~d~ = 2 * d~a~ = F^2^/A'."
+
+#. type: Plain text
+#: User_Concepts.txt:173
+msgid ""
+"For example, for a feed rate of 1 inch per second and an acceleration of *10 "
+"inches/sec^2^*, the critical distance is *1^2^/10 = 1/10 = 0.1 inches*."
+msgstr ""
+"Par exemple, pour une vitesse d'avance de '25mm par seconde' et une "
+"accélération de '250 mm/sec^2^', la distance critique sera de '10^2^/100 = "
+"100/100 = 1mm'."
+
+#. type: Plain text
+#: User_Concepts.txt:176
+msgid ""
+"For a feed rate of 0.5 inch per second, the critical distance is *5^2^/100 = "
+"25/10 = 0.025* inches."
+msgstr ""
+"Pour une vitesse d'avance de '5mm par seconde', la distance critique ne "
+"serait que de '5^2^/100 = 25/100 = 0.25mm'."
+
+#. type: Plain text
+#: User_Concepts.txt:191
+msgid ""
+"// This section has been commented out until latexmath is working again.  //"
+"To keep up the feed rate, the move must be longer than the distance it //"
+"takes to accelerate from 0 to the desired feed rate and then stop //again. "
+"Using A as latexmath:[$\\frac{1}{2}$] the ini file MAX_ACCELERATION //and F "
+"as the feed rate *in units per second*, the acceleration time is //latexmath:"
+"[$ ta = \\frac{F}{A} $] and the acceleration distance is //latexmath:[$ da = "
+"\\frac{1}{2} \\times F \\times ta $]. The deceleration time //and distance "
+"are the same, making the critical distance //latexmath:[$ d = da + dd = 2 "
+"\\times da = \\frac{F^{2}}{A} $].  //For example, for a feed rate of 1 inch "
+"per second and an acceleration of //latexmath:[$ 10 \\frac{inch}{sec^{2}} "
+"$], the critical distance is //latexmath:[$\\frac{1^{2}}{10} = \\frac{1}{10} "
+"= 0.1$] inch.  //For a feed rate of 0.5 inch per second, the critical "
+"distance is //latexmath:[$ \\frac{0.5^{2}}{10} = \\frac{0.25}{10} = 0.025$] "
+"inch."
+msgstr ""
+"//This section has been commented out until latexmath is working again.\n"
+"//To keep up the feed rate, the move must be longer than the distance it\n"
+"//takes to accelerate from 0 to the desired feed rate and then stop\n"
+"//again. Using A as latexmath:[$\\frac{1}{2}$] the ini file "
+"MAX_ACCELERATION\n"
+"//and F as the feed rate *in units per second*, the acceleration time is\n"
+"//latexmath:[$ ta = \\frac{F}{A} $] and the acceleration distance is\n"
+"//latexmath:[$ da = \\frac{1}{2} \\times F \\times ta $]. The deceleration "
+"time\n"
+"//and distance are the same, making the critical distance\n"
+"//latexmath:[$ d = da + dd = 2 \\times da = \\frac{F^{2}}{A} $].\n"
+"//For example, for a feed rate of 1 inch per second and an acceleration of\n"
+"//latexmath:[$ 10 \\frac{inch}{sec^{2}} $], the critical distance is\n"
+"//latexmath:[$\\frac{1^{2}}{10} = \\frac{1}{10} = 0.1$] inch.\n"
+"//For a feed rate of 0.5 inch per second, the critical distance is\n"
+"//latexmath:[$ \\frac{0.5^{2}}{10} = \\frac{0.25}{10} = 0.025$] inch."
+
+#. type: Plain text
+#: User_Concepts.txt:194
+msgid "== G Code"
+msgstr "== G-code"
+
+#. type: Plain text
+#: User_Concepts.txt:196
+msgid "=== Defaults"
+msgstr "=== Par défaut"
+
+#. type: Plain text
+#: User_Concepts.txt:208
+msgid ""
+"When LinuxCNC first starts up many G and M codes are loaded by default. The "
+"current active G and M codes can be viewed on the MDI tab in the 'Active G-"
+"Codes:' window in the AXIS interface. These G and M codes define the "
+"behavior of LinuxCNC and it is important that you understand what each one "
+"does before running LinuxCNC. The defaults can be changed when running a G-"
+"Code file and left in a different state than when you started your LinuxCNC "
+"session. The best practice is to set the defaults needed for the job in the "
+"preamble of your G-Code file and not assume that the defaults have not "
+"changed. Printing out the G-Code <<quick-reference-table,Quick Reference>> "
+"page can help you remember what each one is."
+msgstr ""
+"Quand LinuxCNC démarre pour la première fois beaucoup de G et M codes sont "
+"chargés par défaut. Les codes actifs courants sont visibles dans l'interface "
+"Axis, dans l'onglet 'Données manuelles' dans le champ 'G-codes actifs' Ces "
+"codes G et M définissent le comportement de LinuxCNC et il est important de "
+"bien comprendre la signification de chacun avant de démarrer LinuxCNC.  Ces "
+"codes par défaut peuvent être modifiés lors du lancement d'un fichier de G-"
+"codes puis laissés dans différents états qui seront identiques lors d'une "
+"nouvelle session de LinuxCNC. La bonne pratique consiste à mettre dans le "
+"préambule de chaque fichier de G-codes les codes nécessaires pour le travail "
+"demandé et ne pas supposer que ceux par défaut conviendront.  Imprimer la "
+"page des références rapides du G-code peut aider à se rappeler la "
+"signification de chacun d'eux."
+
+#. type: Plain text
+#: User_Concepts.txt:210
+msgid "=== Feed Rate"
+msgstr "== Vitesse d'avance"
+
+#. type: Plain text
+#: User_Concepts.txt:214
+msgid ""
+"How the feed rate is applied depends on if an axis involved with the move is "
+"a rotary axis. Read and understand the <<sub:feed-rate,Feed Rate>> section "
+"if you have a rotary axis or a lathe."
+msgstr ""
+"Si vous avez un tour ou un axe rotatif, pour savoir comment la vitesse "
+"d'avance s'applique selon que l'axe est linéaire ou rotatif, lire et "
+"comprendre la section <<sub:Vitesse-d-avance,vitesse d'avance>> du manuel de "
+"l'utilisateur."
+
+#. type: Plain text
+#: User_Concepts.txt:216
+msgid "=== Tool Radius Offset"
+msgstr "== Compensation de rayon d'outil"
+
+#. type: Plain text
+#: User_Concepts.txt:225
+msgid ""
+"Tool Radius Offset (G41/42) requires that the tool be able to touch "
+"somewhere along each programmed move without gouging the two adjacent moves. "
+"If that is not possible with the current tool diameter you will get an "
+"error. A smaller diameter tool may run without an error on the same path. "
+"This means you can program a cutter to pass down a path that is narrower "
+"than the cutter without any errors. See the <<sec:cutter-compensation,Cutter "
+"Compensation>> Section for more information."
+msgstr ""
+"La compensation de rayon d'outil (G41/G42) nécessite que l'outil puisse "
+"usiner tout au long de la trajectoire programmée sans interférer avec les "
+"mouvements d'entrée ou de sortie. Si c'est impossible avec le diamètre de "
+"l'outil courant, une erreur est signalée. Un diamètre d'outil inférieur est "
+"peut être utilisable sans erreur pour le même parcours. Ce qui signifie que "
+"quand ce type de problème se présente, il est possible de programmer un "
+"outil plus petit pour usiner le même parcours sans erreur. Voir la section "
+"compensation de rayon d'outil pour plus d'informations."
+
+#. type: Plain text
+#: User_Concepts.txt:227
+msgid "== Homing"
+msgstr "== Prise d'origine machine"
+
+#. type: Plain text
+#: User_Concepts.txt:230
+msgid ""
+"After starting LinuxCNC each axis must be homed prior to running a program "
+"or running a MDI command."
+msgstr ""
+"Après le démarrage de LinuxCNC chaque axe doit être référencé sur son point "
+"d'origine machine avant tout mouvement ou commande MDI."
+
+#. type: Plain text
+#: User_Concepts.txt:233
+msgid ""
+"If your machine does not have home switches a match mark on each axis can "
+"aid in homing the machine coordinates to the same place each time."
+msgstr ""
+"Si votre machine ne dispose pas de contacts d'origine, un repère placé sur "
+"chaque axe peut aider à la prise d'origine machine en les remettant à la "
+"même place à chaque fois."
+
+#. type: Plain text
+#: User_Concepts.txt:235
+msgid "Once homed your soft limits that are set in the ini file will be used."
+msgstr ""
+"Une fois les prises d'origine faites, les limites logicielles ajustées dans "
+"le fichier ini, seront utilisées."
+
+#. type: Plain text
+#: User_Concepts.txt:240
+msgid ""
+"If you want to deviate from the default behavior, or want to use the Mini "
+"interface you will need to set the option NO_FORCE_HOMING = 1 in the [TRAJ] "
+"section of your ini file. More information on homing can be found in the "
+"Integrator Manual."
+msgstr ""
+"Pour déroger à ce comportement par défaut, ou pour utiliser l'interface "
+"Mini, il est possible d'ajuster l'option NO_FORCE_HOMING = 1 dans la section "
+"[TRAJ] du fichier ini."
+
+#. type: Plain text
+#: User_Concepts.txt:242
+msgid "== Tool Changes"
+msgstr "== Changement d'outil"
+
+#. type: Plain text
+#: User_Concepts.txt:247
+msgid ""
+"There are several options when doing manual tool changes. See the [EMCIO] "
+"section of the Integrator Manual for information on configuration of these "
+"options. Also see the G28 and G30 section of the User Manual."
+msgstr ""
+"Il existe plusieurs options pour effectuer un changement d'outil. Voir la "
+"section [EMCIO] dans le manuel de l'intégrateur pour les informations sur la "
+"configuration de ces options. Voir également les sections G28 et G30 du "
+"manuel de l'utilisateur."
+
+#. type: Plain text
+#: User_Concepts.txt:249
+msgid "== Coordinate Systems"
+msgstr "== Systèmes de coordonnées"
+
+#. type: Plain text
+#: User_Concepts.txt:255
+msgid ""
+"The Coordinate Systems can be confusing at first. Before running a CNC "
+"machine you must understand the basics of the coordinate systems used by "
+"LinuxCNC. In depth information on the LinuxCNC Coordinate Systems is in the "
+"<<cha:coordinate-system,Coordinate System>> Section of this manual."
+msgstr ""
+"Les systèmes de coordonnées peuvent être déroutant au premier abord.  Avant "
+"de démarrer une machine CNC, il est important de bien comprendre les bases "
+"des systèmes utilisés par LinuxCNC. Pour explorer plus en profondeur les "
+"systèmes de coordonnées utilisés par LinuxCNC, voir le chapitre: <<cha:"
+"Systemes-de-coordonnees,sur les systèmes de coordonnées>>."
+
+#. type: Plain text
+#: User_Concepts.txt:257
+msgid "=== G53 Machine Coordinate"
+msgstr "=== G53 Coordonnées machine"
+
+#. type: Plain text
+#: User_Concepts.txt:260
+msgid ""
+"When you home LinuxCNC you set the G53 Machine Coordinate System to 0 for "
+"each axis homed."
+msgstr ""
+"Quand vous réalisez une prise d'origine de plusieurs axes de LinuxCNC, vous "
+"passez G53, les coordonnées système, à 0 pour chacun des axes concernés."
+
+#. type: Bullet: ' - '
+#: User_Concepts.txt:262
+msgid "No other coordinate systems or tool offsets are changed by homing."
+msgstr ""
+"La prise d'origine ne modifient en rien les autres systèmes de coordonnées, "
+"ni les décalages d'outil."
+
+#. type: Plain text
+#: User_Concepts.txt:266
+msgid ""
+"The only time you move in the G53 machine coordinate system is when you "
+"program a G53 on the same line as a move. Normally you are in the G54 "
+"coordinate system."
+msgstr ""
+"La seule façon de se déplacer en mode G53, en coordonnées machine, c'est de "
+"programmer un G53 sur la même ligne que celle d'un mouvement. En "
+"fonctionnement normal, vous êtes dans le système de coordonnées G54."
+
+#. type: Plain text
+#: User_Concepts.txt:268
+msgid "=== G54-59.3 User Coordinates"
+msgstr "=== G54 à 59.3 Coordonnées utilisateur"
+
+#. type: Plain text
+#: User_Concepts.txt:276
+msgid ""
+"Normally you use the G54 Coordinate System. When an offset is applied to a "
+"current user coordinate system a small blue ball with lines will be at the "
+"machine origin when your DRO is displaying 'Position: Relative Actual' in "
+"Axis. If your offsets are temporary use the Zero Coordinate System from the "
+"Machine menu or program 'G10 L2 P1 X0 Y0 Z0' at the end of your G Code file. "
+"Change the 'P' number to suit the coordinate system you wish to clear the "
+"offset in."
+msgstr ""
+"Normalement vous utilisez le système de coordonnées G54. Quand un décalage "
+"est appliqué au système de coordonnées utilisateur courant, dans Axis, une "
+"petite sphère bleue avec des rayons est affichée à l'emplacement de "
+"l'origine machine quand la visu affiche 'Position: Relative Actuelle'.  Si "
+"votre décalage utilise temporairement les coordonnées machine, depuis le "
+"menu Machine ou en programmant 'G10 L2 P1 X0 Y0 Z0' à la fin du programme G-"
+"Code. Modifiez la valeur du mot 'P' en fonction du système de coordonnées "
+"dont vous voulez effacer le décalage."
+
+#. type: Plain text
+#: User_Concepts.txt:281
+#, no-wrap
+msgid ""
+" -  Offsets stored in a user coordinate system are retained when LinuxCNC is\n"
+"   shut down.\n"
+" -  Using the 'Touch Off' button in Axis sets an offset for the chosen\n"
+"   User Coordinate System.\n"
+msgstr ""
+" -  Les décalages stockés dans un système de coordonnées utilisateur sont\n"
+"   conservés à l'arrêt de LinuxCNC.\n"
+" -  Dans Axis, utiliser le bouton 'Toucher' décalera le système de\n"
+"   coordonnées utilisateur choisi.\n"
+
+#. type: Plain text
+#: User_Concepts.txt:283
+msgid "=== When You're Lost"
+msgstr "=== Quand vous êtes perdu"
+
+#. type: Plain text
+#: User_Concepts.txt:287
+msgid ""
+"If you're having trouble getting 0,0,0 on the DRO when you think you should, "
+"you may have some offsets programmed in and need to remove them."
+msgstr ""
+"Si vous avez des difficultés pour obtenir 0,0,0 sur la visu alors que vous "
+"pensez que vous devriez l'avoir, c'est peut être provoqué par plusieurs "
+"décalages programmés et qu'il conviendrait de supprimer.  Pour cela:"
+
+#. type: Bullet: ' - '
+#: User_Concepts.txt:295
+msgid "Move to the Machine origin with G53 G0 X0 Y0 Z0"
+msgstr "Placez vous sur l'origine machine avec 'G53 G0 X0 Y0 Z0'"
+
+#. type: Bullet: ' - '
+#: User_Concepts.txt:295
+msgid "Clear any G92 offset with G92.1"
+msgstr "Supprimez tous les décalages 'G92' avec 'G92.1'"
+
+#. type: Bullet: ' - '
+#: User_Concepts.txt:295
+msgid "Use the G54 coordinate system with G54"
+msgstr "Utilisez les coordonnées utilisateur avec 'G54'"
+
+#. type: Bullet: ' - '
+#: User_Concepts.txt:295
+msgid ""
+"Set the G54 coordinate system to be the same as the machine coordinate "
+"system with G10 L2 P1 X0 Y0 Z0 R0"
+msgstr ""
+"Rendez les coordonnées utilisateur 'G54', identiques aux coordonnées machine "
+"avec 'G10 L2 P1 X0 Y0 Z0 R0'"
+
+#. type: Bullet: ' - '
+#: User_Concepts.txt:295
+msgid "Turn off tool offsets with G49"
+msgstr "Annulez les décalages d'outil avec 'G49'"
+
+#. type: Bullet: ' - '
+#: User_Concepts.txt:295
+msgid "Turn on the Relative Coordinate Display from the menu"
+msgstr "Activez l'affichage des coordonnées relatives depuis le menu."
+
+#. type: Plain text
+#: User_Concepts.txt:298
+msgid ""
+"Now you should be at the machine origin X0 Y0 Z0 and the relative coordinate "
+"system should be the same as the machine coordinate system."
+msgstr ""
+"Maintenant vous devriez être, à l'origine machine 'X0 Y0 Z0' et le système "
+"de coordonnées relatives devrait être le même que le système de coordonnées "
+"machine."
+
+#. type: Plain text
+#: User_Concepts.txt:300
+msgid "== Machine Configurations"
+msgstr "== La configuration machine"
+
+#. type: Plain text
+#: User_Concepts.txt:306
+msgid ""
+"The following diagram shows a typical mill showing direction of travel of "
+"the tool and the mill table and limit switches. Notice how the mill table "
+"moves in the opposite direction of the Cartesian coordinate system arrows "
+"shown by the 'Tool Direction' image. This makes the 'tool' move in the "
+"correct direction in relation to the material."
+msgstr ""
+"Le dessin suivant montre les directions de déplacement de l'outil et la "
+"position des fins de course de limite sur une fraiseuse classique.  Noter le "
+"diagramme cartésien représentant les directions de déplacement de l'outil "
+"(Tool Direction). La direction de déplacement de la table et en opposition "
+"du système de coordonnées cartésiennes. Le système de coordonnées "
+"cartésiennes représente le sens de déplacement de l'outil. Ce sont toujours "
+"les déplacements de l'outil qui doivent être programmés pour que l'outil se "
+"déplace dans les directions correctes par rapport au matériel."
+
+#. type: Plain text
+#: User_Concepts.txt:309
+msgid ".Mill Configuration image::images/mill-diagram.png[align=\"center\"]"
+msgstr ""
+".Configuration typique d'une fraiseuse image::images/mill-diagram.png[align="
+"\"left\"]"
+
+#. type: Plain text
+#: User_Concepts.txt:312
+msgid ""
+"The following diagram shows a typical lathe showing direction of travel of "
+"the tool and limit switches."
+msgstr ""
+"Le dessin suivant montre les directions de déplacement de l'outil et la "
+"position des fins de course de limite sur un tour classique."
+
+#. type: Plain text
+#: User_Concepts.txt:314
+msgid ".Lathe Configuration image::images/lathe-diagram.png[align=\"center\"]"
+msgstr ""
+".Configuration typique d'un tour image::images/lathe-diagram.png[align=\"left"
+"\"]"

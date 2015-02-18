@@ -1,3 +1,5 @@
+:lang: en
+
 = Important User Concepts
 
 [[cha:important-user-concepts]] (((User Concepts)))
@@ -5,11 +7,11 @@
 This chapter covers important user concepts that should be understood
 before attempting to run a CNC machine with g code.
 
-[[sec:trajectory-control]]
-== Trajectory Control
+== Trajectory Control [[sec:trajectory-control]]
 (((Trajectory Control)))
 
 === Trajectory Planning
+
 
 [WARNING]
 The new Trajectory Planner (TP) is on by default. +
@@ -155,42 +157,38 @@ total axis acceleration to equal the ini file MAX_ACCELERATION. In
 other cases, the actual machine acceleration is somewhat less than the
 ini file acceleration
 
-// This is a duplicate paragraph to the one below without latexmath.
 
 To keep up the feed rate, the move must be longer than the distance it
 takes to accelerate from 0 to the desired feed rate and then stop
-again. Using A as *1/2* the ini file MAX_ACCELERATION 
-and F as the feed rate *in units per second*, the acceleration time is 
-*t~a~ = F/A* and the acceleration distance is 
-*d~a~ = F*t~a~/2*. The deceleration time 
-and distance are the same, making the critical distance 
-*d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A*. 
+again. Using A as *1/2* the ini file MAX_ACCELERATION
+and F as the feed rate *in units per second*, the acceleration time is
+*t~a~ = F/A* and the acceleration distance is
+*d~a~ = F*t~a~/2*. The deceleration time
+and distance are the same, making the critical distance
+*d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A*.
 
 For example, for a feed rate of 1 inch per second and an acceleration of
-*10 inches/sec^2^*, the critical distance is 
+*10 inches/sec^2^*, the critical distance is
 *1^2^/10 = 1/10 = 0.1 inches*.
 
-For a feed rate of 0.5 inch per second, the critical distance is 
+For a feed rate of 0.5 inch per second, the critical distance is
 *5^2^/100 = 25/10 = 0.025* inches.
 
-////
-This section has been commented out until latexmath is working again.
+// This section has been commented out until latexmath is working again.
+//To keep up the feed rate, the move must be longer than the distance it
+//takes to accelerate from 0 to the desired feed rate and then stop
+//again. Using A as latexmath:[$\frac{1}{2}$] the ini file MAX_ACCELERATION
+//and F as the feed rate *in units per second*, the acceleration time is
+//latexmath:[$ ta = \frac{F}{A} $] and the acceleration distance is
+//latexmath:[$ da = \frac{1}{2} \times F \times ta $]. The deceleration time
+//and distance are the same, making the critical distance
+//latexmath:[$ d = da + dd = 2 \times da = \frac{F^{2}}{A} $].
+//For example, for a feed rate of 1 inch per second and an acceleration of
+//latexmath:[$ 10 \frac{inch}{sec^{2}} $], the critical distance is
+//latexmath:[$\frac{1^{2}}{10} = \frac{1}{10} = 0.1$] inch.
+//For a feed rate of 0.5 inch per second, the critical distance is
+//latexmath:[$ \frac{0.5^{2}}{10} = \frac{0.25}{10} = 0.025$] inch.
 
-To keep up the feed rate, the move must be longer than the distance it
-takes to accelerate from 0 to the desired feed rate and then stop
-again. Using A as latexmath:[$\frac{1}{2}$] the ini file MAX_ACCELERATION 
-and F as the feed rate *in units per second*, the acceleration time is 
-latexmath:[$ ta = \frac{F}{A} $] and the acceleration distance is 
-latexmath:[$ da = \frac{1}{2} \times F \times ta $]. The deceleration time 
-and distance are the same, making the critical distance 
-latexmath:[$ d = da + dd = 2 \times da = \frac{F^{2}}{A} $]. 
-
-For example, for a feed rate of 1 inch per second and an acceleration of 
-latexmath:[$ 10 \frac{inch}{sec^{2}} $], the critical distance is 
-latexmath:[$\frac{1^{2}}{10} = \frac{1}{10} = 0.1$] inch. 
-For a feed rate of 0.5 inch per second, the critical distance is 
-latexmath:[$ \frac{0.5^{2}}{10} = \frac{0.25}{10} = 0.025$] inch.
-////
 
 == G Code
 
@@ -290,7 +288,7 @@ them.
  - Move to the Machine origin with G53 G0 X0 Y0 Z0
  - Clear any G92 offset with G92.1
  - Use the G54 coordinate system with G54
- - Set the G54 coordinate system to be the same as the 
+ - Set the G54 coordinate system to be the same as the
    machine coordinate system with G10 L2 P1 X0 Y0 Z0 R0
  - Turn off tool offsets with G49
  - Turn on the Relative Coordinate Display from the menu
