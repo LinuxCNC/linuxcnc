@@ -1612,17 +1612,28 @@ def dist((x,y,z),(p,q,r)):
 
 # returns units/sec
 def get_jog_speed(a):
-    if vars.teleop_mode.get() or a in (0,1,2,6,7,8):
+    if vars.teleop_mode.get():
+        if a in (0,1,2,6,7,8):
+            return vars.jog_speed.get()/60.
+        else:
+            return vars.jog_aspeed.get()/60.
+    else:
+        # when in free/joint mode, use linear jog speed
         return vars.jog_speed.get()/60.
-    else: return vars.jog_aspeed.get()/60.
 
 def get_max_jog_speed(a):
-    if vars.teleop_mode.get() or a in (0,1,2,6,7,8):
-        m = vars.max_speed.get()
-        m = to_internal_linear_unit(m)
-        if vars.metric.get(): m = m * 25.4
-        return m
-    else: return vars.max_aspeed.get()    
+    max_linear_speed = vars.max_speed.get()
+    max_linear_speed = to_internal_linear_unit(max_linear_speed)
+    if vars.metric.get(): max_linear_speed = max_linear_speed * 25.4
+
+    if vars.teleop_mode.get():
+        if a in (0,1,2,6,7,8):
+            return max_linear_speed
+        else:
+            return vars.max_aspeed.get()
+    else:
+        # when in free/joint mode, use max linear jog speed
+        return max_linear_speed
 
 def run_warn():
     warnings = []
