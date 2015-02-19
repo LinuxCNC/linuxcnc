@@ -1,3 +1,5 @@
+:lang: en
+
 = Lathe User Information
 
 [[cha:lathe-user-information]] (((Lathe User Information)))

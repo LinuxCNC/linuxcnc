@@ -1,3 +1,5 @@
+:lang: en
+
 = CNC Machine Overview
 
 [[cha:cnc-machine-overview]] (((CNC Machine Overview)))
@@ -102,7 +104,7 @@ which the direction of positive rotation is counterclockwise when
 viewed from the positive end of the corresponding X, Y, or Z-axis. By
 'wrapped linear axis', we mean one on which the angular position
 increases without limit (goes towards plus infinity) as the axis turns
-counterclockwise and deceases without limit (goes towards minus
+counterclockwise and decreases without limit (goes towards minus
 infinity) as the axis turns clockwise. Wrapped linear axes are used
 regardless of whether or not there is a mechanical limit on rotation.
 

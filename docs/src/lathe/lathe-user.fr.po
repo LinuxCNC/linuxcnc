@@ -1,0 +1,844 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-19 17:30+0100\n"
+"PO-Revision-Date: 2015-02-19 17:47+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.4\n"
+
+#. type: Plain text
+#: lathe-user.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: lathe-user.txt:4
+msgid "= Lathe User Information"
+msgstr "= Particularités des tours"
+
+#. type: Plain text
+#: lathe-user.txt:6
+msgid "[[cha:lathe-user-information]] (((Lathe User Information)))"
+msgstr "[[cha:Tour-Specifiques]] (((Particularités des tours)))"
+
+#. type: Plain text
+#: lathe-user.txt:9
+msgid ""
+"This chapter attempts to bring together all the lathe specific information "
+"and is currently under construction."
+msgstr ""
+"Ce chapitre va regrouper les informations spécifiques aux tours, il est "
+"encore en cours de rédaction."
+
+#. type: Plain text
+#: lathe-user.txt:11
+msgid "== Lathe Mode"
+msgstr "== Mode tour"
+
+#. type: Plain text
+#: lathe-user.txt:15
+msgid ""
+"If your CNC machine is a lathe, there are some specific changes you will "
+"probably want to make to your ini file in order to get the best results from "
+"LinuxCNC."
+msgstr ""
+"Si la machine CNC est un tour, il y aura quelques modifications spécifiques "
+"à faire dans le fichier ini pour obtenir les meilleurs résultats de "
+"LinuxCNC.  Se référer à la section concernant la configuration du <<cha:ini-"
+"configuration,fichier ini>>"
+
+#. type: Plain text
+#: lathe-user.txt:21
+msgid ""
+"If you are using the AXIS display, have Axis display your lathe tools "
+"properly.  See the INI Configuration section of the Integrator Manual for "
+"more details but you will probably want to make an entry like this to set up "
+"AXIS for Lathe Mode."
+msgstr ""
+"Si l'interface graphique Axis est utilisée, pour que celui-ci représente "
+"correctement les axes et la position de l'outil, il conviendra d'éditer le "
+"fichier 'ini' et de modifier la section [DISPLAY] comme ceci:"
+
+#. type: Plain text
+#: lathe-user.txt:22 lathe-user.txt:33
+#, no-wrap
+msgid "---------------------------------------\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: lathe-user.txt:24
+msgid "[DISPLAY]"
+msgstr "[DISPLAY]"
+
+#. type: Plain text
+#: lathe-user.txt:27
+#, no-wrap
+msgid ""
+"# Tell the Axis Display our machine is a lathe. \n"
+"LATHE = TRUE\n"
+"---------------------------------------\n"
+msgstr ""
+"# Pour indiquer à Axis que la machine est un tour (lathe). \n"
+"LATHE = TRUE\n"
+"----\n"
+
+#. type: Plain text
+#: lathe-user.txt:32
+msgid ""
+"Lathe Mode in Axis does not set your default plane to G18 (XZ). You must "
+"program that in the preamble of each gcode file or (better) add it to your "
+"ini file, like this:"
+msgstr ""
+"Le mode tour dans Axis ne fixe pas le plan par défaut comme étant G18 (XZ). "
+"Il est nécessaire de l'ajouter dans le préambule de tout programmer G-code "
+"ou, encore mieux, de l'ajouter directement dans le fichier 'ini' comme cela:"
+
+#. type: Plain text
+#: lathe-user.txt:35
+msgid "[RS274NGC]"
+msgstr "[RS274NGC]"
+
+#. type: Plain text
+#: lathe-user.txt:38
+#, no-wrap
+msgid ""
+"# g-code modal codes (modes) that the interpreter is initialized with on startup\n"
+"RS274NGC_STARTUP_CODE = G18 G20 G90\n"
+"---------------------------------------\n"
+msgstr ""
+"# G-code modaux pour initialiser l'interpréteur\n"
+"RS274NGC_STARTUP_CODE = G18 G20 G90\n"
+"----\n"
+
+#. type: Plain text
+#: lathe-user.txt:41
+msgid "== Lathe Tool Table [[sec:lathe-tool-table]]"
+msgstr "== Table d'outils[[sec:lathe-tool-table]]"
+
+#. type: Plain text
+#: lathe-user.txt:49
+msgid ""
+"The \"Tool Table\" is a text file that contains information about each "
+"tool.  The file is located in the same directory as your configuration and "
+"is called \"tool.tbl\" by default.  The tools might be in a tool changer or "
+"just changed manually.  The file can be edited with a text editor or be "
+"updated using G10 L1,L10,L11.  There is also a built-in tool table editor in "
+"the Axis display.  The maximum number of entries in the tool table is 56.  "
+"The maximum tool and pocket number is 99999."
+msgstr ""
+"La 'table d'outils' est un fichier texte qui contient les informations de "
+"chaque outil. Ce fichier se trouve dans le même répertoire que le fichier "
+"ini, il est appelé 'tool.tbl' par défaut. Les outils peuvent être dans un "
+"changeur d'outils ou simplement changés manuellement. Le fichier peut être "
+"édité avec un éditeur de texte ou être mis à jour en utilisant G10 L1, L10, "
+"L11.  Axis peut aussi lancer l'éditeur de texte du système en y chargeant la "
+"table, l'opérateur peut ainsi intervenir directement sur les valeurs des "
+"outils.  Le nombre maximum d'outils dans la table d'outils est de 56.  Les "
+"numéros d'outil et de poches peuvent aller jusqu'à 99999."
+
+#. type: Plain text
+#: lathe-user.txt:56
+msgid ""
+"Earlier versions of LinuxCNC had two different tool table formats for mills "
+"and lathes, but since the 2.4.x release, one tool table format is used for "
+"all machines.  Just ignore the parts of the tool table that don't pertain to "
+"your machine, or which you don't need to use.  For more information on the "
+"specifics of the tool table format, see the <<sec:tool-table,Tool Table>> "
+"Section."
+msgstr ""
+"Les versions antérieures de LinuxCNC avaient deux différents formats de "
+"table d'outils pour les fraiseuses et les tours, mais depuis la version 2.4."
+"x, un format de table d'outil unique est utilisé. Il faut juste ignorer les "
+"parties de la table d'outils qui ne concernent pas la machine.  D'autres "
+"informations sont disponibles <<sec:Tool-Table-Format, sur le format de la "
+"table d'outils>>."
+
+#. type: Plain text
+#: lathe-user.txt:58
+msgid "== Lathe Tool Orientation[[lathe-tool-orientation]]"
+msgstr "== Orientations des outils[[sec:Orientations-des-outils-de-tour]]"
+
+#. type: Plain text
+#: lathe-user.txt:63
+msgid ""
+"The following figure shows the lathe tool orientations with the center line "
+"angle of each orientation and info on FRONTANGLE and BACKANGLE.  The "
+"FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+."
+msgstr ""
+"La figure suivante montre les angles d'orientations des outils de tour ainsi "
+"que les informations sur l'angle frontal de l'arête de coupe (FRONTANGLE) et "
+"l'angle arrière de l'arête de coupe (BACKANGLE).  Les positions vont "
+"croissantes dans le sens horaire par rapport à une ligne parallèle à l'axe "
+"Z, le zéro étant côté Z+."
+
+#. type: Plain text
+#: lathe-user.txt:65
+msgid ".Lathe Tool Orientations[[cap:Lathe-Tool-Orientations]]"
+msgstr ".Orientations des outils de tournage[[cap:Lathe-Tool-Orientations]]"
+
+#. type: Plain text
+#: lathe-user.txt:67
+msgid "image::images/tool_positions.png[]"
+msgstr "image::images/tool_positions_fr.png[]"
+
+#. type: Plain text
+#: lathe-user.txt:69
+msgid ""
+"In AXIS the following figures show what the Tool Positions look like, as "
+"entered in the tool table."
+msgstr ""
+"Les images ci-dessous montrent la représentation qu'Axis donne des "
+"orientations de l'outil, en se référant à la figure ci-dessus."
+
+#. type: Plain text
+#: lathe-user.txt:71
+msgid ".Tool Positions 1, 2, 3 & 4[[fig:Tool-Positions-1-2-3-4]]"
+msgstr ".Outil dans les positions 1, 2, 3 et 4[[fig:Outil-Positions-1-2-3-4]]"
+
+#. type: Plain text
+#: lathe-user.txt:76
+msgid ""
+"image::images/tool_pos_1.png[] image::images/tool_pos_2.png[] image::images/"
+"tool_pos_3.png[] image::images/tool_pos_4.png[]"
+msgstr ""
+"image::images/tool_pos_1.png[]\n"
+"\n"
+"image::images/tool_pos_2.png[]\n"
+"\n"
+"image::images/tool_pos_3.png[]\n"
+"\n"
+"image::images/tool_pos_4.png[]"
+
+#. type: Plain text
+#: lathe-user.txt:78
+msgid ".Tool Positions 5, 6, 7 & 8[[fig:Tool-Positions-5-6-7-8]]"
+msgstr ".Outil dans les positions 5, 6, 7 et 8[[fig:Outil-Positions-5-6-7-8]]"
+
+#. type: Plain text
+#: lathe-user.txt:83
+msgid ""
+"image::images/tool_pos_5.png[] image::images/tool_pos_6.png[] image::images/"
+"tool_pos_7.png[] image::images/tool_pos_8.png[]"
+msgstr ""
+"image::images/tool_pos_5.png[]\n"
+"\n"
+"image::images/tool_pos_6.png[]\n"
+"\n"
+"image::images/tool_pos_7.png[]\n"
+"\n"
+"image::images/tool_pos_8.png[]"
+
+#. type: Plain text
+#: lathe-user.txt:85
+msgid "== Tool Touch Off"
+msgstr "== Toucher d'outil"
+
+#. type: Plain text
+#: lathe-user.txt:94
+msgid ""
+"When running in lathe mode in AXIS you can set the X and Z in the tool table "
+"using the Touch Off window. If you have a tool turret you normally have "
+"'Touch off to fixture' selected when setting up your turret. When setting "
+"the material Z zero you have 'Touch off to material' selected.  For more "
+"information on the G codes used for tools see <<sec:M6-Tool-Change,M6>>, "
+"<<sec:T-Select-Tool,Tn>>, and <<sec:G43,G43>>.  For more information on tool "
+"touch off options in Axis see <<sec:tool-touch-off,Tool Touch Off>>."
+msgstr ""
+"Quand AXIS est utilisé en mode tour, il est possible de corriger l'outil sur "
+"les axes X et Z. Les corrections sont alors introduites directement dans la "
+"table d'outils en utilisant le bouton 'Toucher' et sa fenêtre de dialogue.  "
+"Avec un changeur d'outil, lorsqu'il est configuré, 'Toucher le porte-pièce' "
+"est normalement sélectionné. Pour faire l'origine pièce, sélectionner "
+"'Toucher la pièce'. Pour le détail des G-codes utilisés pour les outils, "
+"voir <<sec:M6-Appel-Outil,M6>>, <<sec:T-Choix-Outil,Tn>> et <<sec:G43,"
+"G43>>.  Pour des détails dur l'option Toucher d'Axis, se référer à <<cha:"
+"Axis,la documentation d'Axis>>."
+
+#. type: Plain text
+#: lathe-user.txt:96
+msgid "=== X Touch Off"
+msgstr "=== Toucher d'outil en X"
+
+#. type: Plain text
+#: lathe-user.txt:99
+msgid ""
+"The X axis offset for each tool is normally an offset from the center line "
+"of the spindle."
+msgstr ""
+"L'offset en X pour chaque outil correspond à un décalage de l'axe de la "
+"broche."
+
+#. type: Plain text
+#: lathe-user.txt:112
+msgid ""
+"One method is to take your normal turning tool and turn down some stock to a "
+"known diameter.  Using the Tool Touch Off window enter the measured diameter "
+"(or radius if in radius mode) for that tool.  Then using some layout fluid "
+"or a marker to coat the part bring each tool up till it just touches the dye "
+"and set it's X offset to the diameter of the part used using the tool touch "
+"off.  Make sure any tools in the corner quadrants have the nose radius set "
+"properly in the tool table so the control point is correct.  Tool touch off "
+"automatically adds a G43 so the current tool is the current offset."
+msgstr ""
+"Une méthode consiste à prendre un outil de tournage standard et usiner un "
+"diamètre.  Mesurer exactement ce diamètre puis, sans toucher à l'axe X, dans "
+"la fenêtre qui s'ouvre, après un appui sur le bouton Toucher, saisir le "
+"diamètre mesuré, ou le rayon si c'est le mode en cours. Ensuite, à l'aide "
+"d'encre à tracer ou d'un marqueur, recouvrir une zone sur la pièce, faire "
+"tangenter l'outil à cet endroit pour qu'il touche juste la surface encrée, "
+"ajuster alors le décalage X au diamètre mesuré de la pièce en utilisant le "
+"bouton Toucher. S'assurer que le rayon de bec est bien défini dans la table "
+"d'outils, pour que le point contrôlé soit correct. Le Toucher ajoute "
+"automatiquement un G43, de sorte que l'offset s'applique immédiatement à "
+"l'outil courant."
+
+#. type: Plain text
+#: lathe-user.txt:114 lathe-user.txt:137 lathe-user.txt:164
+msgid "A typical session might be:"
+msgstr "Séquence de compensation typique:"
+
+#. type: Plain text
+#: lathe-user.txt:121
+#, no-wrap
+msgid ""
+" . Home each axis if not homed.\n"
+" . Set the current tool with 'Tn M6 G43' where 'n' is the tool number.\n"
+" . Select the X axis in the Manual Control window.\n"
+" . Move the X to a known position or take a test cut and measure the diameter. \n"
+" . Select Touch Off and pick Tool Table then enter the position or the diameter. \n"
+" . Follow the same sequence to correct the Z axis.\n"
+msgstr ""
+" . Prise d'origine machine de chacun des axes, si ce n'est pas déjà fait.\n"
+" . Déclarer l'outil avec 'Tn M6 G43' dans lequel 'n' est le numéro de l'outil\n"
+"courant, présent en table d'outils.\n"
+" . Sélectionner l'axe X dans la fenêtre de l'onglet Contrôle manuel (F3).\n"
+" . Déplacer l'axe X sur une position connue ou prendre une passe de test puis\n"
+"   mesurer le diamètre obtenu.\n"
+" . Cliquer le bouton Toucher et choisir l'option Table d'outils, ce qui\n"
+"   entrera la correction directement dans la table d'outil.\n"
+" . Recommencer la même séquence pour corriger l'axe Z.\n"
+
+#. type: Plain text
+#: lathe-user.txt:123
+msgid ""
+"Note: if you are in Radius Mode you must enter the radius, not the diameter."
+msgstr ""
+"Remarque: si le mode rayon est le mode courant, il faut évidemment entrer le "
+"rayon et non pas le diamètre."
+
+#. type: Plain text
+#: lathe-user.txt:125
+msgid "=== Z Touch Off"
+msgstr "=== Toucher d'outil en Z"
+
+#. type: Plain text
+#: lathe-user.txt:135
+msgid ""
+"The Z axis offsets can be a bit confusing at first because there are two "
+"elements to the Z offset.  There is the tool table offset, and the machine "
+"coordinate offset.  First we will look at the tool table offsets.  One "
+"method is to use a fixed point on your lathe and set the Z offset for all "
+"tools from this point.  Some use the spindle nose or chuck face.  This gives "
+"you the ability to change to a new tool and set its Z offset without having "
+"to reset all the tools."
+msgstr ""
+"L'offset de l'axe Z peut être un peu déroutant au premier abord car il est "
+"composé de deux éléments. Le premier est l'offset de la table d'outils, le "
+"second est l'offset des coordonnées machine. Nous allons d'abord examiner "
+"l'offset de la table d'outils. Une méthode consiste à utiliser un point fixe "
+"sur le tour et à ajuster l'offset Z de tous les outils à partir de ce point "
+"fixe. Certains utilisent le nez de broche ou la face du mandrin. Cela donne "
+"la possibilité de changer d'outil et d'ajuster son offset Z, sans avoir à "
+"réinitialiser tous les outils."
+
+#. type: Plain text
+#: lathe-user.txt:147
+#, no-wrap
+msgid ""
+" . Home each axis if not homed.\n"
+" . Make sure no offsets are in effect for the current coordinate system.\n"
+" . Set the current tool with 'Tn M6 G43' where 'n' is the tool number.\n"
+" . Select the Z axis in the Manual Control window.\n"
+" . Bring the tool close to the control surface. Using a cylinder move the\n"
+"   Z away from the control surface until the cylinder just passes between\n"
+"   the tool and the control surface. \n"
+" . Select Touch Off and pick Tool Table and set the position to 0.0.\n"
+" . Repeat for each tool using the same cylinder.\n"
+msgstr ""
+" . Prise d'origine machine de tous les axes, si ce n'est pas déjà fait.\n"
+" . S'assurer qu'aucune compensation n'est activée pour le système de coordonnées\n"
+"courant.\n"
+" . Déclarer l'outil avec 'Tn M6 G43' dans lequel 'n' est le numéro de l'outil\n"
+"courant, présent en table d'outils.\n"
+" . Sélectionner l'axe Z dans la fenêtre de l'onglet contrôle manuel (F3).\n"
+" . Approcher l'outil de la surface de référence. En utilisant un cylindre\n"
+"en guise de jauge, déplacer doucement le chariot pour que la jauge passe juste\n"
+"entre l'outil et la surface de contrôle.\n"
+" . Cliquer le bouton Toucher puis choisir Table d'outils et saisir la\n"
+"valeur 0.0.\n"
+" . Répéter l'opération pour chaque outil, en utilisant le même cylindre.\n"
+
+#. type: Plain text
+#: lathe-user.txt:156
+msgid ""
+"Now all the tools are offset the same distance from a standard position.  If "
+"you change a tool like a drill bit you repeat the above and it is now in "
+"sync with the rest of the tools for Z offset.  Some tools might require a "
+"bit of cyphering to determine the control point from the touch off point.  "
+"For example, if you have a 0.125\" wide parting tool and you touch the left "
+"side off but want the right to be Z0, then enter 0.125\" in the touch off "
+"window."
+msgstr ""
+"Maintenant, tous les outils sont compensés à la même distance, d'une "
+"position standard. Si un outil doit être changé, par exemple par un foret il "
+"suffira de répéter la séquence précédente pour qu'il soit synchronisé avec "
+"l'offset Z du reste des outils. Certains outils peuvent nécessiter un peu de "
+"réflexion pour déterminer le point contrôlé par rapport au point de "
+"Toucher.  Par exemple, un outil de tronçonnage de 3.17mm d'épaisseur qui est "
+"touché sur le côté gauche, alors que l'opérateur veut Z0 sur le côté droit, "
+"il lui faudra alors saisir 3.17 dans la fenêtre du Toucher."
+
+#. type: Plain text
+#: lathe-user.txt:158
+msgid "=== The Z Machine Offset"
+msgstr "=== Décalage en Z des coordonnées machine"
+
+#. type: Plain text
+#: lathe-user.txt:162
+msgid ""
+"Once all the tools have the Z offset entered into the tool table, you can "
+"use any tool to set the machine offset using the machine coordinate system."
+msgstr ""
+"Une fois que tous les outils ont leurs décalages Z renseignés dans la table "
+"d'outils, il est possible d'utiliser n'importe quel outil présent en table "
+"d'outils pour ajuster le décalage du système de coordonnées machine."
+
+#. type: Plain text
+#: lathe-user.txt:169
+#, no-wrap
+msgid ""
+" . Home each axis if not homed.\n"
+" . Set the current tool with \"Tn M6\" where \"n\" is the tool number.\n"
+" . Issue a G43 so the current tool offset is in effect.\n"
+" . Bring the tool to the work piece and set the machine Z offset.\n"
+msgstr ""
+" . Prise d'origine machine de tous les axes, si ce n'est pas déjà fait.\n"
+" . Déclarer l'outil avec 'Tn M6'  dans lequel 'n' est le numéro de l'outil\n"
+"courant, présent en table d'outils.\n"
+" . Envoyer un G43 pour que l'offset de l'outil soit effectif. (voir ci-dessous)\n"
+" . Tangenter l'outil contre la pièce et fixer l'offset machine Z.\n"
+
+#. type: Plain text
+#: lathe-user.txt:174
+msgid ""
+"If you forget to set the G43 for the current tool when you set the machine "
+"coordinate system offset, you will not get what you expect, as the tool "
+"offset will be added to the current offset when the tool is used in your "
+"program."
+msgstr ""
+"Ne pas oublier d'envoyer le G43 sur l'outil *avant* de définir le décalage "
+"du système de coordonnées machine, les résultats ne seraient pas ceux "
+"attendus... puisque la compensation de l'outil serait ajoutée à l'offset "
+"courant lorsque l'outil sera utilisé dans le programme."
+
+#. type: Plain text
+#: lathe-user.txt:176
+msgid "== Spindle Synchronized Motion"
+msgstr "== Mouvements avec broche synchronisée"
+
+#. type: Plain text
+#: lathe-user.txt:181
+msgid ""
+"Spindle synchronized motion requires a quadrature encoder connected to the "
+"spindle with one index pulse per revolution. See the motion man page and "
+"Spindle Control Example in integrators manual for more information."
+msgstr ""
+"Sur un tour, les mouvements avec broche synchronisée nécessitent un signal "
+"de retour entre la broche et LinuxCNC. Généralement, c'est un codeur en "
+"quadrature qui fourni ce retour. Le manuel donne des explications sur "
+"l'utilisation des codeurs de broche."
+
+#. type: Plain text
+#: lathe-user.txt:185
+msgid ""
+".Threading The G76 threading cycle is used for both internal and external "
+"threads.  For more information see the <<sec:G76-Threading-Canned,G76>> "
+"Section."
+msgstr ""
+".Filetage\n"
+"Le cycle de filetage G76 est utilisé, tant en filetage intérieur qu'en "
+"filetage extérieur, voir <<sec:G76-Filetage, la section G76>>."
+
+#. type: Plain text
+#: lathe-user.txt:192
+msgid ""
+".Constant Surface Speed CSS or Constant Surface Speed uses the machine X "
+"origin modified by the tool X offset to compute the spindle speed in RPM. "
+"CSS will track changes in tool offsets. The X machine origin should be when "
+"the reference tool (the one with zero offset) is at the center of rotation.  "
+"For more information see the <<sec:G96-G97-Spindle,G96>> Section."
+msgstr ""
+".Vitesse de coupe à surface constante\n"
+"La vitesse de coupe à surface constante (CSS) utilise l'origine machine X "
+"modifiée par l'offset d'outil X, pour calculer la vitesse de rotation de la "
+"broche en tr/mn.  La vitesse de coupe à surface constante permet de suivre "
+"les changements d'offset de l'outil. L'emplacement de l'origine machine de "
+"l'axe X doit être sur l'axe de rotation et doit se faire avec l'outil de "
+"référence (celui qui a l'offset à zéro).  Plus d'informations sont dans la "
+"section <<sec:G96-G97-Broche,G96>>."
+
+#. type: Plain text
+#: lathe-user.txt:197
+msgid ""
+".Feed per Revolution Feed per revolution will move the Z axis by the F "
+"amount per revolution.  This is not for threading, use G76 for threading.  "
+"For more information see the <<sec:G93-G94-G95-Mode,G95>> Section."
+msgstr ""
+".Avance par tour\n"
+"L'avance par tour déplace l'axe Z de la valeur de F à chaque tour.  Ce n'est "
+"pas destiné au filetage pour lequel il faut utiliser G76.  D'autres "
+"informations sont dans la section sur <<sec:G93-G94-G95-Modes,G95>>."
+
+#. type: Plain text
+#: lathe-user.txt:199
+msgid "== Arcs"
+msgstr "== Arcs"
+
+#. type: Plain text
+#: lathe-user.txt:206
+msgid ""
+"Calculating arcs can be mind challenging enough without considering radius "
+"and diameter mode on lathes as well as machine coordinate system "
+"orientation. The following applies to center format arcs. On a lathe you "
+"should include G18 in your preamble as the default is G17 even if you're in "
+"lathe mode, in the user interface Axis. Arcs in G18 XZ plane use I (X axis) "
+"and K (Z axis) offsets."
+msgstr ""
+"Le calcul des arcs peut être un exercice assez compliqué, même sur un tour, "
+"sans considérer les modes rayon et diamètre, ni l'orientation du système de "
+"coordonnées machine. Ce qui suit s'applique à des arcs au format centre.  "
+"Sur un tour, il faut inclure G18 dans le préambule du programme G-code pour "
+"remplacer le G17 par défaut, le fait d'être en mode tour dans Axis ne suffit "
+"pas.  Les arcs en G18, plan XZ utilisent les offsets pour I (l'axe X) et K "
+"(l'axe Z)."
+
+#. type: Plain text
+#: lathe-user.txt:208
+msgid "=== Arcs and Lathe Design"
+msgstr "=== Les arcs et la cinématique du tour"
+
+#. type: Plain text
+#: lathe-user.txt:212
+msgid ""
+"The typical lathe has the spindle on the left of the operator and the tools "
+"on the operator side of the spindle center line. This is typically set up "
+"with the imaginary Y axis (+) pointing at the floor."
+msgstr ""
+"Le tour classique a la broche à gauche de l'opérateur et l'outil est "
+"frontal, entre l'opérateur et le centre de rotation du mandrin. C'est un "
+"agencement avec un axe Y(+) imaginaire pointant vers le sol."
+
+#. type: Plain text
+#: lathe-user.txt:214
+msgid "The following will be true on this type of setup:"
+msgstr "Ce qui suit est valable pour ce type d'agencement:"
+
+#. type: Bullet: ' - '
+#: lathe-user.txt:218
+msgid "The Z axis (+) points to the right, away from the spindle."
+msgstr ""
+"Le côté positif de l'axe Z pointe vers la droite, en s'éloignant de la "
+"broche."
+
+#. type: Bullet: ' - '
+#: lathe-user.txt:218
+msgid ""
+"The X axis (+) points toward the operator, and when on the operator side of "
+"the spindle the X values are positive."
+msgstr ""
+"Le côté positif de l'axe X pointe vers l'opérateur, quand il est du côté de "
+"l'opérateur par rapport au centre de rotation, ses valeur sont positives."
+
+#. type: Plain text
+#: lathe-user.txt:221
+msgid ""
+"Some lathes with tools on the back side have the imaginary Y axis (+)  "
+"pointing up."
+msgstr ""
+"Certains tours ont l'outil du côté arrière et un axe Y(+) imaginaire "
+"pointant vers le haut."
+
+#. type: Plain text
+#: lathe-user.txt:227
+msgid ""
+"G2/G3 Arc directions are based on the axis they rotate around. In the case "
+"of lathes, it is the imaginary Y axis. If the Y axis (+) points toward the "
+"floor, you have to look up for the arc to appear to go in the correct "
+"direction. So looking from above you reverse the G2/G3 for the arc to appear "
+"to go in the correct direction."
+msgstr ""
+"Les directions des arcs G2/G3 sont basées sur l'axe autour duquel ils "
+"tournent.  Dans le cas des tours, il s'agit de l'axe imaginaire Y. Si l'axe "
+"Y(+) pointe vers le sol, il faut regarder vers le haut pour que l'arc "
+"paraisse aller dans la bonne direction. Alors qu'en regardant depuis le "
+"dessus il faut inverser les G2/G3 pour que l'arc semble aller dans la bonne "
+"direction."
+
+#. type: Plain text
+#: lathe-user.txt:229
+msgid "=== Radius & Diameter Mode"
+msgstr "=== Mode rayon et mode diamètre"
+
+#. type: Plain text
+#: lathe-user.txt:232
+msgid ""
+"When calculating arcs in radius mode you only have to remember the direction "
+"of rotation as it applies to your lathe."
+msgstr ""
+"Lors du calcul des arcs en mode rayon, il suffi de se rappeler la direction "
+"de rotation telle qu'elle s'applique à ce tour."
+
+#. type: Plain text
+#: lathe-user.txt:235
+msgid ""
+"When calculating arcs in diameter mode X is diameter and the X offset (I) is "
+"radius even if you're in G7 diameter mode."
+msgstr ""
+"Lors du calcul des arcs en mode diamètre, X est le diamètre, l'offset X (I) "
+"est le rayon, même en mode diamètre G7."
+
+#. type: Plain text
+#: lathe-user.txt:237
+msgid "== Tool Path"
+msgstr "== Parcours d'outil"
+
+#. type: Plain text
+#: lathe-user.txt:239
+msgid "=== Control Point"
+msgstr "=== Point contrôlé"
+
+#. type: Plain text
+#: lathe-user.txt:249
+msgid ""
+"The control point for the tool follows the programmed path. The control "
+"point is the intersection of a line parallel to the X and Z axis and tangent "
+"to the tool tip diameter, as defined when you touch off the X and Z axes for "
+"that tool. When turning or facing straight sided parts the cutting path and "
+"the tool edge follow the same path.  When turning radius and angles the edge "
+"of the tool tip will not follow the programmed path unless cutter comp is in "
+"effect. In the following figures you can see how the control point does not "
+"follow the tool edge as you might assume."
+msgstr ""
+"Le point contrôlé pour l'outil, suit la trajectoire programmée. Le point "
+"contrôlé est l'intersection entre deux lignes parallèles aux axes X et Z, "
+"tangentes au rayon de bec de l'outil, définies en faisant tangenter l'outil "
+"en X puis en Z.  En cylindrage ou en dressage de face sur une pièce, la "
+"trajectoire de coupe et l'arête de coupe de l'outil suivent le même "
+"parcours. Lors du tournage d'un rayon ou d'un angle, l'arête de coupe de "
+"l'outil ne suit pas la trajectoire programmée, sauf si la compensation "
+"d'outil est activée. Dans la figure suivante, on voit bien que le point "
+"contrôlé n'est pas sur l'arête de coupe de l'outil comme on pourrait le "
+"supposer."
+
+#. type: Plain text
+#: lathe-user.txt:251
+msgid ".Control Point[[fig:Control-Point]]"
+msgstr ".Le point contrôlé[[fig:Control-Point]]"
+
+#. type: Plain text
+#: lathe-user.txt:253
+msgid "image::images/control_point.png[]"
+msgstr "image::images/control_point.png[]"
+
+#. type: Plain text
+#: lathe-user.txt:255
+msgid "=== Cutting Angles without Cutter Comp"
+msgstr "=== Tourner les angles sans compensation d'outil"
+
+#. type: Plain text
+#: lathe-user.txt:260
+msgid ""
+"Now imagine we program a ramp without cutter comp. The programmed path is "
+"shown in the following figure. As you can see in the figure the programmed "
+"path and the desired cut path are one and the same as long as we are moving "
+"in an X or Z direction only."
+msgstr ""
+"Maintenant imaginons de programmer une rampe sans compensation d'outil. La "
+"trajectoire programmée est représentée sur la figure suivante. Comme on peut "
+"le voir, la trajectoire programmée et la trajectoire de coupe souhaitée sont "
+"identiques uniquement si les mouvements de tournage suivent les axes X et Z."
+
+#. type: Plain text
+#: lathe-user.txt:262
+msgid ".Ramp Entry"
+msgstr ".Tournage en rampe"
+
+#. type: Plain text
+#: lathe-user.txt:264
+msgid "image::images/ramp_entry.png[]"
+msgstr "image::images/ramp_entry.png[]"
+
+#. type: Plain text
+#: lathe-user.txt:269
+msgid ""
+"Now as the control point progresses along the programmed path the actual "
+"cutter edge does not follow the programmed path as shown in the following "
+"figure. There are two ways to solve this, cutter comp and adjusting your "
+"programmed path to compensate for tip radius."
+msgstr ""
+"Le point contrôlé progresse en suivant la trajectoire programmée mais "
+"l'arête de coupe ne suit pas cette trajectoire comme c'est visible sur la "
+"figure suivante.  Pour résoudre ce problème, il est nécessaire d'activer la "
+"compensation d'outil et d'ajuster la trajectoire programmée pour compenser "
+"le rayon de bec de l'outil."
+
+#. type: Plain text
+#: lathe-user.txt:271
+msgid ".Ramp Path"
+msgstr ".Trajectoire en rampe"
+
+#. type: Plain text
+#: lathe-user.txt:273
+msgid "image::images/ramp_cut.png[]"
+msgstr "image::images/ramp_cut.png[]"
+
+#. type: Plain text
+#: lathe-user.txt:277
+msgid ""
+"In the above example it is a simple exercise to adjust the programmed path "
+"to give the desired actual path by moving the programmed path for the ramp "
+"to the left the radius of the tool tip."
+msgstr ""
+"Dans l'exemple ci-dessus, pour suivre la rampe programmée et obtenir la "
+"bonne trajectoire, il suffi de décaler la trajectoire de la rampe vers la "
+"gauche, de la valeur d'un rayon de bec."
+
+#. type: Plain text
+#: lathe-user.txt:279
+msgid "=== Cutting a Radius"
+msgstr "=== Tournage avec rayon extérieur"
+
+#. type: Plain text
+#: lathe-user.txt:284
+msgid ""
+"In this example we will examine what happens during a radius cut without "
+"cutter comp. In the next figure you see the tool turning the OD of the part. "
+"The control point of the tool is following the programmed path and the tool "
+"is touching the OD of the part."
+msgstr ""
+"Dans cet exemple nous allons examiner ce qui se passe durant le tournage "
+"d'un rayon extérieur sans compensation de rayon de bec. Sur la figure "
+"suivante on voit l'outil tourner un diamètre extérieur sur la pièce. Le "
+"point contrôlé de l'outil suit bien la trajectoire programmée, l'outil "
+"touche le diamètre extérieur de la pièce."
+
+#. type: Plain text
+#: lathe-user.txt:286
+msgid ".Turning Cut"
+msgstr ".Tournage du diamètre"
+
+#. type: Plain text
+#: lathe-user.txt:288
+msgid "image::images/radius_1.png[]"
+msgstr "image::images/radius_1.png[]"
+
+#. type: Plain text
+#: lathe-user.txt:293
+msgid ""
+"In this next figure you can see as the tool approaches the end of the part "
+"the control point still follows the path but the tool tip has left the part "
+"and is cutting air. You can also see that even though a radius has been "
+"programmed the part will actually end up with a square corner."
+msgstr ""
+"Sur la figure suivante, on voit que quand l'outil approche la fin la pièce, "
+"le point contrôlé continue de suivre la trajectoire alors que l'arête de "
+"coupe a déjà quitté la matière et coupe en l'air. On voit aussi que malgré "
+"qu'un rayon a été programmé, la pièce conserve son angle d'extrémité."
+
+#. type: Plain text
+#: lathe-user.txt:295 lathe-user.txt:302
+msgid ".Radius Cut"
+msgstr ".Tournage du rayon"
+
+#. type: Plain text
+#: lathe-user.txt:297
+msgid "image::images/radius_2.png[]"
+msgstr "image::images/radius_2.png[]"
+
+#. type: Plain text
+#: lathe-user.txt:300
+msgid ""
+"Now you can see as the control point follows the radius programmed the tool "
+"tip has left the part and is now cutting air."
+msgstr ""
+"Maintenant, comme on le voit, le point contrôlé suit bien la trajectoire "
+"programmée mais l'arête de coupe est en dehors de la matière."
+
+#. type: Plain text
+#: lathe-user.txt:304
+msgid "image::images/radius_3.png[]"
+msgstr "image::images/radius_3.png[]"
+
+#. type: Plain text
+#: lathe-user.txt:311
+msgid ""
+"In the final figure we can see the tool tip will finish cutting the face but "
+"leave a square corner instead of a nice radius. Notice also that if you "
+"program the cut to end at the center of the part a small amount of material "
+"will be left from the radius of the tool. To finish a face cut to the center "
+"of a part you have to program the tool to go past center at least the nose "
+"radius of the tool."
+msgstr ""
+"Sur la figure finale, on voit que l'arête de coupe a terminé le dressage de "
+"la face mais en laissant un coin carré à la place du beau rayon attendu. "
+"Noter aussi que, pour la même raison, pour ne pas laisser de téton au centre "
+"de la pièce lors du dressage de sa face, il convient de dépasser le centre "
+"de rotation de la valeur d'un rayon de bec de l'outil."
+
+#. type: Plain text
+#: lathe-user.txt:313
+msgid ".Face Cut"
+msgstr ".Dressage de la face"
+
+#. type: Plain text
+#: lathe-user.txt:315
+msgid "image::images/radius_4.png[]"
+msgstr "image::images/radius_4.png[]"
+
+#. type: Plain text
+#: lathe-user.txt:317
+msgid "=== Using Cutter Comp"
+msgstr "=== Utiliser la compensation d'outil"
+
+#. type: Plain text
+#: lathe-user.txt:325
+msgid ""
+"When using cutter comp on a lathe think of the tool tip radius as the radius "
+"of a round cutter. When using cutter comp the path must be large enough for "
+"a round tool that will not gouge into the next line. When cutting straight "
+"lines on the lathe you might not want to use cutter comp. For example boring "
+"a hole with a tight fitting boring bar you may not have enough room to do "
+"the exit move. The entry move into a cutter comp arc is important to get the "
+"correct results."
+msgstr ""
+"- Quand la compensation d'outil est utilisée sur un tour, penser à l'arête "
+"de coupe de l'outil comme étant celle d'un outil rond.\n"
+"- Quand la compensation d'outil est utilisée, la trajectoire doit être "
+"suffisamment large pour qu'un outil rond n'interfère pas avec la pièce à la "
+"ligne suivante.\n"
+"- Pour tourner des lignes droites sur un tour, il est préférable de ne pas "
+"utiliser la compensation d'outil. Par exemple pour aléser un trou avec une "
+"barre d'alésage un peu grosse, la place pourrait manquer pour dégager "
+"l'outil et faire le mouvement de sortie.\n"
+"- Le mouvement d'entrée dans un arc avec la compensation d'outil, est "
+"important pour obtenir des résultats corrects."
