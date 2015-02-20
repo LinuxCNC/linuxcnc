@@ -99,7 +99,9 @@ NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<'$(MACHINETALK)'/include/
 NANOPB_OPTIONS := $(MACHINETALK)/nanopb.options
 
 # any extra flags to C compile nanopb bindings
-PROTO_NANOPB_CFLAGS := $(NANOPB_CFLAGS) #-fPIC
+# this gets exported to RTFLAGS so dont add -fPIC here (stalls kthreads build)
+# machinetalk/msgcomponents/Submakefile:RTFLAGS +=   $(PROTO_NANOPB_CFLAGS)
+PROTO_NANOPB_CFLAGS := $(NANOPB_CFLAGS)
 
 # nanopb library .h/.c files
 NANOPB_INCS := $(wildcard $(NANOPB)/*.h)
@@ -284,7 +286,7 @@ PROTO_JS_SRCS +=$(JSGEN)/nanopb.js
 # Nanopb C bindings library
 #
 NANOPB_LIBSRCS = $(NANOPB_C_SRCS) $(PROTO_NANOPB_C_SRCS)
-$(call TOOBJSDEPS, $(NANOPB_LIBSRCS)) : EXTRAFLAGS += $(PROTO_NANOPB_CFLAGS)
+$(call TOOBJSDEPS, $(NANOPB_LIBSRCS)) : EXTRAFLAGS += $(PROTO_NANOPB_CFLAGS) -fPIC
 
 $(NANOPROTOCLIB).0: $(patsubst %.c,objects/%.o,$(NANOPB_LIBSRCS))
 	$(ECHO) Linking $(notdir $@)
