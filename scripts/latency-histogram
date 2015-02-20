@@ -187,7 +187,7 @@ proc config {} {
     exit 1
   }
 
-  set ::LH(title) "$::argv0 $::LH(note,txt)"
+  set ::LH(title) "$::argv0"
   wm title . $::LH(title)
 
   foreach thd $::LH(threads) {
@@ -226,14 +226,10 @@ proc other_info {} {
   }
   set linuxcncversion [exec linuxcnc_var LINUXCNCVERSION]
   return "\
-$::LH(date) \
-[exec hostname] \
 $::tcl_platform(machine) \
 $::tcl_platform(osVersion) \
 $linuxcncversion \
 $display \
-$::tcl_platform(user) \
-$::LH(note,txt) \
 "
 } ;# other_info
 
@@ -340,9 +336,17 @@ proc load_packages {} {
 proc make_gui { {w .} } {
   set f [frame ${w}fa]
   pack $f -side top -fill x -expand 1
-  pack [label $f.l -anchor w -text $::LH(info)] -fill x -expand 1
+  set hname [exec hostname]
+  set user $::tcl_platform(user)
+  pack [label $f.l -anchor w \
+       -text "$::LH(date) $hname $user $::LH(note,txt)"
+       ] -fill x -expand 1
 
   set f [frame ${w}fb]
+  pack $f -side top -fill x -expand 1
+  pack [label $f.l -anchor w -text $::LH(info)] -fill x -expand 1
+
+  set f [frame ${w}fc]
   pack $f -side top -fill x -expand 1
   pack [label $f.l -anchor w -text $::LH(processor)] -fill x -expand 1
 
@@ -369,8 +373,29 @@ proc make_gui { {w .} } {
     xaxis $thd
     $::LH(w,$thd) axis configure y -logscale $::LH(y,logscale)
 
+    set f [frame $f1.extra12]
+    pack $f -side top -anchor w -fill x -expand 1
+
+    pack [label $f.min -text "min (us)"] \
+         -side left -anchor e
+    set e [entry $f.emin -textvariable ::LH($thd,latency_min,us) \
+         -state readonly -justify right -width 9]
+    pack $e -side left -anchor e
+
+    pack [label $f.sdev -text "      sdev (us):"] \
+         -side left
+    set e [entry $f.esdev  -textvariable ::LH($thd,latency_sdev,us) \
+         -state readonly -justify right -width 9]
+    pack $e -side left -anchor e
+
+    set e [entry $f.emax  -textvariable ::LH($thd,latency_max,us) \
+         -state readonly -justify right -width 9]
+    pack $e -side right -anchor e
+    pack [label $f.max -text "max(us)"] \
+         -side right -anchor e
+
     if $::LH(opt,show) {
-      set f [frame $f1.extra]
+      set f [frame $f1.extra2]
       pack $f -side top -anchor w -fill x -expand 1
       set e [entry $f.emin -textvariable ::LH($thd,n,more) \
            -state readonly -justify right -width 9]
@@ -511,6 +536,9 @@ proc reset_data {} {
     set ::LH($thd,nextra) 0
     set ::LH($thd,p,more) 0
     set ::LH($thd,n,more) 0
+    set ::LH($thd,latency_min,us)  ""
+    set ::LH($thd,latency_max,us)  ""
+    set ::LH($thd,latency_sdev,us) ""
   }
   after 100
   foreach thd $::LH(threads) {
@@ -647,10 +675,9 @@ proc update_chart {thd} {
     set pbin [hal getp $::LH($thd,name).pbinvalue]
     set nbin [hal getp $::LH($thd,name).nbinvalue]
 
-    #verify index in range
-    #if { ($pbin < 0) ||  ($nbin < 0) } {
-    #  puts stderr "Unexpected: thd=$thd index=$bin pbin=$pbin, nbin=$nbin"
-    #}
+    # 1.1 value makes single unit bins show as pips when using log y scale:
+    if {$pbin == 1} {set pbin 1.1}
+    if {$nbin == 1} {set nbin 1.1}
 
     lappend pxd [expr $bin * $::LH($thd,binsize,us)]
     lappend pyd $pbin
@@ -663,6 +690,19 @@ proc update_chart {thd} {
       set nmore [expr $nmore + $nbin]
     }
   } ;# for bin
+
+  set ::LH($thd,latency_min,us) [format %.1f \
+               [expr 1e-3 * [hal getp $::LH($thd,name).latency-min]]]
+  set ::LH($thd,latency_max,us) [format %.1f \
+               [expr 1e-3 * [hal getp $::LH($thd,name).latency-max]]]
+
+  set variance [hal getp $::LH($thd,name).variance]
+  if [catch {
+    set ::LH($thd,latency_sdev,us) [format %.1f \
+               [expr 1e-3 * sqrt($variance)]]
+    } msg] {
+    puts msg=$msg
+  }
 
   set ::LH($thd,pextra) [hal getp $::LH($thd,name).pextra]
   set ::LH($thd,p,more) [expr $pmore + $::LH($thd,pextra)]
