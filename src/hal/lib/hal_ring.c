@@ -271,7 +271,17 @@ int hal_ring_attach(const char *name, ringbuffer_t *rbptr,unsigned *flags)
 	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_ring_attach: no such ring '%s'\n",
 			    name);
-	    return -EINVAL;
+	    return -ENOENT;
+	}
+
+	// calling hal_ring_attach(name, NULL, NULL) is a way to determine
+	// if a given ring exists.
+	// hal_ring_attach(name, NULL, &flags) is a way to inspect the flags
+	// of an existing ring without actually attaching it.
+	if (rbptr == NULL) {
+	    if (flags)
+		*flags = rbdesc->flags;
+	    return 0;
 	}
 
 	if (rbdesc->flags & ALLOC_HALMEM) {

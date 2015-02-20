@@ -60,10 +60,21 @@ int hal_ring_new(const char *name, int size, int spsize, int mode);
 // will fail if the refcount is > 0 (meaning the ring is still attached somewhere).
 int hal_ring_delete(const char *name);
 
-// make an existing ringbuffer accessible to a component
-// rb must point to storage of type ringbuffer_t.
-// Increases the reference count.
-// store halring flags in *flags if non-zero.
+// make an existing ringbuffer accessible to a component, or test for
+// existence and flags of a ringbuffer
+//
+// to attach:
+//     rb must point to storage of type ringbuffer_t.
+//     Increases the reference count on successful attach
+//     store halring flags in *flags if non-zero.
+//
+// to test for existence:
+//     hal_ring_attach(name, NULL, NULL) returns 0 if the ring exists, < 0 otherwise
+//
+// to test for existence and retrieve the ring's flags:
+//     hal_ring_attach(name, NULL, &f) - if the ring exists, returns 0
+//     and the ring's flags are returned in f
+//
 int hal_ring_attach(const char *name, ringbuffer_t *rb, unsigned *flags);
 
 // detach a ringbuffer. Decreases the reference count.
