@@ -1,0 +1,111 @@
+.TH DELAYLINE "9" "2015-01-03" "Machinekit Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+delayline \- buffer for delaying pins
+
+.SH SYNOPSIS
+.HP
+.B loadrt delayline names=foo,bar max_delay=500,2500 samples=ffb,ffbsu
+
+.SH DELAYLINE
+The delayline will sample the value of an input pin, and put the sample
+in the output pin after a certain amount of periods.
+
+With this component it is possible to attach with another component to
+inspect the buffer. For example to create a virtual look-ahead by delaying
+certain pins (motion) without other actuators. This delay
+will buy time to inspect and change buffer record values.
+
+\fImax_delay\fR will specify the max allowble delay time. When entering a
+value higher than max_delay the time will be cropped to this max value
+
+\fIsamples\fR specifies the different types of pins to be created.
+These pins must be of the type of BIT (b), FLOAT (f), S32 (s), or U32 (u).
+
+There can be different (amount of) pins that are going to be created and
+they will all have the same delay.
+
+The number of periods to delay is taken from the delay pin of the component
+
+The pins of the component are created in a HAL section of the ring buffer
+thus making the values of the pins available thru attaching to the ring.
+
+.SH THREADS
+.TP
+.B delayline.\fBsample\fR use like: \fIaddf delayline.sample realtime-thread\fR
+
+To be called by a thread to be executed. This function puts the sample from
+a pin into the buffer.
+
+.TP
+.B delayline.\fBoutput\fR use like: \fIaddf delayline.output realtime-thread\fR
+
+To be called by a thread to be executed. This function reads the sample
+from the the buffer, and puts it into the pins. When delay time is decreased
+the records between the current (old position) record, and the new position
+read record (current sample - new delay) will be dropped.
+
+
+.SH PINS
+.TP
+.B delayline.\fBenable\fR bit in
+
+Enables the delayline, when not enabled, the input sample is set directly
+to the output pin.
+
+.TP
+.B delayline.\fBabort\fR bit in
+
+This flushes the buffer. The user is responsible for whether this pin is attached.
+
+.TP
+.B delayline.\fBdelay\fR float in
+
+The delay in thread periods.
+
+.TP
+.B delayline.\fI{type}\fB-in\fI{N}\fR the input sample pin
+
+\fI{type}\fR corresponds with \fIbit\fR, \fIflt\fR, \fIu32\fR or \fIs32\fR
+
+\fI{N}\fR corresponds with the consecutive number of the pin in the line,
+so flt-in2 is the pin that is generated after bit-in1.
+
+The input sample pin is matched by output sample pin.
+\fIdelayline.flt-in0\fR is the source of the delayed \fIdelayline.flt-out0\fR
+pin
+
+.TP
+.B delayline.\fI{type}\fB-out\fI{N}\fR the input sample pin
+
+\fI{type}\fR corresponds with \fIbit\fR, \fIflt\fR, \fIu32\fR or \fIs32\fR
+
+\fI{N}\fR corresponds with the consecutive number of the pin in the line,
+so flt-out2 is the pin that is generated after bit-out1.
+
+The output sample pin is matched by input sample pin
+\fIdelayline.flt-out0\fR is the delay of the \fIdelayline.flt-out0 input
+sample\fR
+
+.TP
+.B delayline.\fBwrite-fail\fR u32 out
+counter of failed writes
+
+.TP
+.B delayline.\fBread-fail\fR u32 out
+counter of failed reads
+
+.TP
+.B delayline.\fBtoo-old\fR u32 out
+counter of records being too old
+
+.SH NOTES
+When enabled, the delay time can be changed during use. This can result in
+dropped records (decreasing delay time), or records being extra delayed
+(increasing delay time).
