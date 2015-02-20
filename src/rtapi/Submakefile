@@ -191,7 +191,10 @@ rtapi-objs := \
 	$(patsubst %.c,rtapi/%.o,$(XXAPI_COMMON_SRCS)) \
 	rtapi/rtapi_main.o \
 	rtapi/rtapi_compat.o
-
+rtapi-objs += machinetalk/support/nanopb.o
+rtapi-objs += machinetalk/nanopb/pb_decode.o
+rtapi-objs += machinetalk/nanopb/pb_encode.o
+rtapi-objs += machinetalk/nanopb/pb_common.o
 
 
 ifeq ($(USERMODE_PCI),yes)
@@ -225,6 +228,10 @@ obj-$(CONFIG_RTAPI) += rtapi.o
 rtapi-objs := \
 	$(patsubst %.c,rtapi/%.o,$(XXAPI_COMMON_SRCS)) \
 	rtapi/rtapi_module.o
+rtapi-objs += machinetalk/support/nanopb.o
+rtapi-objs += machinetalk/nanopb/pb_decode.o
+rtapi-objs += machinetalk/nanopb/pb_encode.o
+rtapi-objs += machinetalk/nanopb/pb_common.o
 
 # rule for kernel module, moved from src/Makefile
 $(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))

@@ -12,10 +12,6 @@ HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_ring.c \
 	$(HALLIBDIR)/hal_iter.c \
 	$(HALLIBDIR)/hal_rcomp.c \
-	$(MACHINETALK)/support/nanopb.c \
-	$(MACHINETALK)/nanopb/pb_decode.c \
-	$(MACHINETALK)/nanopb/pb_encode.c \
-	$(MACHINETALK)/nanopb/pb_common.c \
 	rtapi/rtapi_heap.c
 
 # protobuf support functions which depend on HAL - on RT host only
@@ -67,3 +63,12 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 
 TARGETS += $(HALLIB) $(HALLIB).0
 PYTARGETS += $(HALMODULE)
+
+
+obj-m += hal_lib.o
+hal_lib-objs := hal/lib/hal_lib.o $(MATHSTUB)
+hal_lib-objs += hal/lib/hal_group.o
+hal_lib-objs += hal/lib/hal_ring.o
+hal_lib-objs += hal/lib/hal_rcomp.o
+
+$(RTLIBDIR)/hal_lib$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_lib-objs))
