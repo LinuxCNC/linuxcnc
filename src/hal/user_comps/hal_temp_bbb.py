@@ -59,7 +59,7 @@ from fdm.r2temp import R2Temp
 # resistor, some protection diodes, and a voltage divider cosisting of two
 # 10.0K resistors.  The ADC voltage read is the voltage across the lower 10K
 # resistor in the 470R + 10K + 10K series chain
-def adc2r(pin):
+def adc2r_bebopr(pin):
     V_adc = pin.rawValue * 1.8 / 4096.0
 
     V_T  = 0.0  # Voltage across the thermistor (and the 470R + 10K + 10K resistor chain)
@@ -89,6 +89,27 @@ def adc2r(pin):
 
     return R_T
 
+# The CRAMPS board thermistor input has one side grounded and the other side
+# pulled high through a 1.00K resistor to 1.8V.  Following this is a 4.7K
+# resistor, some protection diodes, and filtering capacitors.  The ADC voltage
+# read is the filtered voltage across the thermistor.
+def adc2r_cramps(pin):
+    V_adc = pin.rawValue * 1.8 / 4096.0
+    V_T  = 0.0  # Voltage across the thermistor
+    R_PU = 2000.0 #Pull-up resistence 
+    I_PU = 0.0  # Current flowing through the pull-up resistor
+    R_T  = 0.0  # Resistance of the thermistor
+
+    V_T = V_adc
+
+    # No dividing by zero or negative voltages despite what the ADC says!
+    # Clip to a small positive value
+    I_PU = max((1.8 - V_T ) / R_PU, 0.000001) 
+
+    R_T = V_T / I_PU
+
+    return R_T
+
 
 class Pin:
     def __init__(self):
@@ -114,7 +135,14 @@ class Pin:
 
 
 def adc2Temp(pin):
-    R = adc2r(pin)
+    if(args.cape_board == 'BeBoPr'):
+        R = adc2r_bebopr(pin)
+    elif (args.cape_board == 'CRAMPS'):
+        R = adc2r_cramps(pin)
+    else:
+        print("Invalid -b cape  name: %s" % args.cape_board)
+        print("Valid names are: BeBoPr, CRAMPS")
+        sys.exit(1)
     return round(pin.r2temp.r2t(R) * 10.0) / 10.0
 
 
@@ -143,6 +171,7 @@ parser.add_argument('-n','--name', help='HAL component name',required=True)
 parser.add_argument('-i', '--interval', help='Adc update interval', default=0.05)
 parser.add_argument('-c', '--channels', help='Komma separated list of channels and thermistors to use e.g. 01:semitec_103GT_2,02:epcos_B57560G1104', required=True)
 parser.add_argument('-f', '--filter_size', help='Size of the low pass filter to use', default=10)
+parser.add_argument('-b', '--cape_board', help='Type of cape used', default='BeBoPr')
 
 args = parser.parse_args()
 
