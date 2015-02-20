@@ -187,6 +187,65 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
 
+linuxcnc (1:2.6.6) precise; urgency=low
+
+  * axis gui: fix jog speed on nontrivkins machines
+
+  * gmoccapy: bug in initializing lathe mode
+  * gmoccapy: bug because I missed two self.
+  * gmoccapy: added a clock and date label
+  * gmoccapy: bug in hal pin updating, new spindle handling
+  * gmoccapy: bug/limit in tool sensor height
+  * gmoccapy: solved a bug in counts handling
+  * gmoccapy: new hal pin and some renaming
+  * gmoccapy: deleted unneeded stuff and new translation
+  * gmoccapy: added support to select number of digits
+  * gmoccapy: turtle jog and analog in for slider values
+  * gmoccapy: introduced polish translation
+  * gmoccapy: report about gcode errors
+
+  * pncconf: lower default watchdog limit
+  * pncconf: fix double POSITION_OFFSET/FEEBACK INI entry
+
+  * halui: don't forget the Task mode when queueing MDI commands
+
+  * debounce: document filter groups better in the manpage
+  * pyvcp: Bug in radio button widgets
+  * gladevcp: bug in combi_dro foreground color attribute
+  * hal_gremlin - Emit signal in case of gcode error
+  * inihal: bugfix, typo for ini.n.backlash
+
+  * xhc-hb04: Fix memory leak
+  * xhc-hb04: error exit if [HAL]HALUI not set
+
+  * gm6: Fix RS485 DAC problem, when DAC has zero V output
+
+  * better error message when a component fails to load in sim
+
+  * comp: don't overrun the names[] array
+  * comp: fix indentation nitpick in generated C code
+
+  * docs: include a warning about power supplies for the STG
+  * docs: update gmoccapy docs
+  * docs: improve 'option rtapi_app no' description of comp
+  * docs: fixup manpage syntax for rtapi_app_main.3 & rtapi_app_exit.3
+  * docs: fix inaccuracies in hal_init manpage
+  * docs: document the surprising encoder num_chan=0 behavior
+  * docs: update the md5sum of the Live/Install Image
+  * docs: misc minor improvements
+
+  * tests: fix a spurious failure of the tlo test
+  * tests: test names= and counts= args of comp-generated components
+  * tests: longer timeout in halui jogging test
+  * tests: fix a race condition in the toolchanger/toolno-pocket-differ test
+  * tests: simplify t0 test and increase task queue usage
+  * tests: loadrt must handle failure from rtapi_app_main
+
+  * packaging: use correct dependencies on Debian Jessie
+  * packaging: tclx is a runtime dependency, not a build-dep
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 18 Feb 2015 21:15:08 -0700
+
 linuxcnc (1:2.6.5) precise; urgency=low
 
   * gmoccapy: virtual keyboard "bug" not initialized settings correct
