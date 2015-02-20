@@ -388,7 +388,7 @@ correspondant à la macro.
 
 [NOTE]
 ===========================================================
-Vous trouverez des exemples de macros dans le répertoire macros contenu dans le répertoire sim de gmoccapy.
+Des exemples de macros se trouvent dans le répertoire macros, contenu dans le répertoire sim de gmoccapy.
 ===========================================================
 
 Gmoccapy accepte aussi les macros demandant des paramètres comme ça:
@@ -487,9 +487,9 @@ d'autres raisons, les boutons matériels activent différentes fonctions et
 vous n'avez pas à vous soucier des connections de Hal, c'est gmoccapy qui
 prends tout ça complètement en charge!
 
-L'utilité de ça, c'est d'être capable d'utiliser un écran sans qu'il soit
-tactile, ou de le protéger d'une utilisation intensive en plaçant des
-boutons matériels autour du panneau.
+C'est utile pour être capable d'utiliser un écran sans qu'il soit tactile,
+ou de le protéger d'une utilisation intensive en plaçant des boutons
+matériels autour du panneau.
 
 image::images/gmoccapy_0_9_7_sim_hardware_button.png[align="left"]
 
@@ -593,7 +593,7 @@ a un maximum de 10 pins de Hal pour les incréments définis dans le fichier
 ini, si il en est défini d’avantage dans le fichier ini, ils ne seront pas
 accessibles depuis l'interface graphique puisqu'ils ne seront pas affichés.
 
-Si vous avez 6 incréments dans votre Hal, il vous faudra *7* pins:
+Si il y a 6 incréments dans le Hal, il faudra *7* pins:
 
 * gmoccapy.jog-inc-0
 * gmoccapy.jog-inc-1
@@ -670,7 +670,7 @@ Il y a trois pins donnant des informations sur le déroulement du
 programme. +
 
 * gmoccapy.program.length         = HAL_S32   ; montrant le nombre total de lignes du programme
-* gmoccapy.program.current-line   = HAL_S32   ; indiquant la ligne du travail en cour 
+* gmoccapy.program.current-line   = HAL_S32   ; indiquant la ligne de travail en cour 
 * gmoccapy.program.progress       = HAL_FLOAT ; donant la progression du programme en pourcentage
 
 Ces valeurs peuvent ne pas être très précises, si vous travaillez avec des
@@ -981,11 +981,11 @@ défaut sera fixé par les cases à cocher.
 
 Par défault :
 
-* Montrer le clavier en offset = True
-* Montrer le clavier en tooledit = False
-* Montrer le clavier en MDI = True
-* Montrer le clavier en EDIT = True
-* Montrer le clavier lors du chargement d'un fichier = False
+* Voir le clavier en offset = True
+* Voir le clavier en tooledit = False
+* Voir le clavier en MDI = True
+* Voir le clavier en EDIT = True
+* Voir le clavier au chargement d'un fichier = False
 
 Si la disposition du clavier est incorrecte, par exemple: cliquer Z donne W,
 c'est lié à vos paramètres régionaux qui n'ont pas été réglés correctement.
@@ -1011,15 +1011,15 @@ une mise en page en Allemand, demandez sur le forum.
 
 ==== Touch Off On
 
-permet de montrer l'onglet de parcours d'outil, ou l'onglet de la page de
+permet de voir l'onglet de parcours d'outil, ou l'onglet de la page de
 décalage, si vous entrez en mode toucher en cliquant le bouton correspondant
 parmi les boutons du bas.
 
-* montrer le parcours d'outil
-* montrer les décalages
+* Voir le parcours d'outil
+* Voir les offsets
 
-Comme les onglets sont affichés, vous êtes en mesure de basculer d'une vue à
-l'autre dans tous les cas.
+Les onglets sont affichés, ce qui permet de basculer d'une vue à l'autre,
+dans tous les cas.
 
 ==== Options de DRO
 
@@ -1038,10 +1038,10 @@ et la couleur de fond du DRO peut être choisie avec:
 * homed color   = green
 * unhomed color = red
 
-'show dro in preview', le DRO est affiché dans la fenêtre de parcours d'outil. +
-'show offsets', les décalages sont affichés dans la fenêtre de parcours d'outil. +
-'show DTG' , la distance restante est affichée dans la fenêtre de parcours d'outil. +
-'show DRO Button' vous permet d'afficher un bouton additionnel sur le côté gauche du DRO. +
+'Voir DRO en parcours d'outil', le DRO est affiché dans la fenêtre de parcours d'outil. +
+'Voir les offsets', les décalages sont affichés dans la fenêtre de parcours d'outil. +
+'Voir le DTG' , la distance restante est affichée dans la fenêtre de parcours d'outil. +
+'Voir le bouton DRO' permet d'afficher un bouton additionnel sur le côté gauche du DRO. +
 
 Seront affichés:  un bouton pour basculer entre coordonnées relatives et
 coordonnées absolues, un bouton pour basculer entre la distance restante et
@@ -1079,14 +1079,16 @@ version.
 
 NOTE: La grille n'est pas visible dans la vue en perspective.
 
-'Show DRO'  Affichera un DRO également dans la fenêtre du parcours d'outil,
-il s'affichera aussi automatiquement en mode parcours d'outil en plein écran
+'Voir le DRO'  Affichera un DRO également dans la fenêtre du parcours
+d'outil, il s'affichera aussi automatiquement en mode parcours d'outil plein
+écran
 
-'Show DTG'  Affichera aussi le DTG (distance restante) dans le parcours
+'Voir le DTG'  Affichera aussi le DTG (distance restante) dans le parcours
 d'outil, seulement si Afficher DRO est actif et non en parcours d'outil
 pleine taille.
 
-'Show Offsets'  Affichera les décalages dans la fenêtre de parcours d'outil.
+'Voir les Offsets'  Affichera les décalages dans la fenêtre de parcours
+d'outil.
 
 NOTE: Si vous cochez seulement cette option et laissez les autres non
 cochées, vous aurez en parcours d'outil pleine taille, une page de
@@ -1126,7 +1128,7 @@ dans le fichier ini, Si aucun filtre n'est trouvé, vous verrez seulement les
 fichiers 'ngc'.  Le chemin sera réglé selon les paramètres de la section
 [DISPLAY] PROGRAM_PREFIX du fichier ini.
 
-==== Saut au répertoire
+==== Sauter au répertoire
 
 Vous pouvez ajuster ici le répertoire dans lequel sauter si vous pressez le
 bouton correspondant dans le dialogue de sélection de fichier.
@@ -1135,9 +1137,9 @@ image::images/gmoccapy_file_selection_dialog_with_keyboard.png[align="left"]
 
 ==== Thèmes et Sons
 
-Ceci permet à l'utilisateur de sélectionner quel thème de bureau appliquer
-et quels sons de messages d'erreur devront être joués.  Par défaut "Follow
-System Theme" est utilisé.
+Ceci permet à l'utilisateur de sélectionner le thème de bureau à appliquer,
+ainsi que les sons de messages d'erreur qui devront être joués.  Par défaut
+"Suivre le thème du système" est utilisé.
 
 === Matériel
 
@@ -1270,7 +1272,7 @@ Les informations suivantes sont tirées du fichier ini et doivent être fournies
 
  * Vitesse rech. = C'est la vitesse de recherche du contact de sonde, après l'activation du contact, l'outil remonte pour 
                 dégager le contact, puis replonge de nouveau en 'Vitesse sonde', pour affiner les résultats. 
- * Vitesse sonde = C'est la vitesse du second mouvement vers le contact, elle doit être assez faible pour obtenir les meilleurs 
+ * Vitesse palpage = C'est la vitesse du second mouvement vers le contact, elle doit être assez faible pour obtenir les meilleurs 
                 résultats au toucher.(En mode simulation, c'est commenté dans macros/change.ngc, autrement l'utilisateur 
                 devra double-cliquer sur le bouton de sonde)
 

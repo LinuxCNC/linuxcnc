@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2015-02-17 00:07+0100\n"
-"PO-Revision-Date: 2015-02-17 14:56+0100\n"
+"PO-Revision-Date: 2015-02-20 19:02+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French Translation Team\n"
 "Language: fr\n"
@@ -1035,7 +1035,7 @@ msgid ""
 "You will find the sample macros in macros folder placed in the gmoccapy sim folder.\n"
 "===========================================================\n"
 msgstr ""
-"Vous trouverez des exemples de macros dans le répertoire macros contenu dans le répertoire sim de gmoccapy.\n"
+"Des exemples de macros se trouvent dans le répertoire macros, contenu dans le répertoire sim de gmoccapy.\n"
 "===========================================================\n"
 
 #. type: Plain text
@@ -1335,9 +1335,9 @@ msgid ""
 "The sens of this is to be able to use the screen without an touch panel, or "
 "protect it from excessive use by placing hardware buttons around the panel."
 msgstr ""
-"L'utilité de ça, c'est d'être capable d'utiliser un écran sans qu'il soit "
-"tactile, ou de le protéger d'une utilisation intensive en plaçant des "
-"boutons matériels autour du panneau."
+"C'est utile pour être capable d'utiliser un écran sans qu'il soit tactile, "
+"ou de le protéger d'une utilisation intensive en plaçant des boutons "
+"matériels autour du panneau."
 
 #. type: Plain text
 #: gmoccapy.txt:448
@@ -1609,7 +1609,7 @@ msgstr ""
 #. type: Plain text
 #: gmoccapy.txt:529
 msgid "If you have 6 increments in your hal you will get *7* pins:"
-msgstr "Si vous avez 6 incréments dans votre Hal, il vous faudra *7* pins:"
+msgstr "Si il y a 6 incréments dans le Hal, il faudra *7* pins:"
 
 #. type: Bullet: '* '
 #: gmoccapy.txt:537
@@ -1834,7 +1834,7 @@ msgid ""
 "* gmoccapy.program.progress       = HAL_FLOAT ; giving the program progress in percentage\n"
 msgstr ""
 "* gmoccapy.program.length         = HAL_S32   ; montrant le nombre total de lignes du programme\n"
-"* gmoccapy.program.current-line   = HAL_S32   ; indiquant la ligne du travail en cour \n"
+"* gmoccapy.program.current-line   = HAL_S32   ; indiquant la ligne de travail en cour \n"
 "* gmoccapy.program.progress       = HAL_FLOAT ; donant la progression du programme en pourcentage\n"
 
 #. type: Plain text
@@ -2658,27 +2658,27 @@ msgstr "Par défault :"
 #. type: Bullet: '* '
 #: gmoccapy.txt:869
 msgid "show keyboard on offset = True"
-msgstr "Montrer le clavier en offset = True"
+msgstr "Voir le clavier en offset = True"
 
 #. type: Bullet: '* '
 #: gmoccapy.txt:869
 msgid "show keyboard on tooledit = False"
-msgstr "Montrer le clavier en tooledit = False"
+msgstr "Voir le clavier en tooledit = False"
 
 #. type: Bullet: '* '
 #: gmoccapy.txt:869
 msgid "show keyboard on MDI = True"
-msgstr "Montrer le clavier en MDI = True"
+msgstr "Voir le clavier en MDI = True"
 
 #. type: Bullet: '* '
 #: gmoccapy.txt:869
 msgid "show keyboard on EDIT = True"
-msgstr "Montrer le clavier en EDIT = True"
+msgstr "Voir le clavier en EDIT = True"
 
 #. type: Bullet: '* '
 #: gmoccapy.txt:869
 msgid "show keyboard on load file = False"
-msgstr "Montrer le clavier lors du chargement d'un fichier = False"
+msgstr "Voir le clavier au chargement d'un fichier = False"
 
 #. type: Plain text
 #: gmoccapy.txt:873
@@ -2754,19 +2754,19 @@ msgid ""
 "give the option to show the preview tab or the offset page tab if you enter "
 "the touch off mode by clicking the corresponding bottom button."
 msgstr ""
-"permet de montrer l'onglet de parcours d'outil, ou l'onglet de la page de "
+"permet de voir l'onglet de parcours d'outil, ou l'onglet de la page de "
 "décalage, si vous entrez en mode toucher en cliquant le bouton correspondant "
 "parmi les boutons du bas."
 
 #. type: Bullet: '* '
 #: gmoccapy.txt:895
 msgid "show preview"
-msgstr "montrer le parcours d'outil"
+msgstr "Voir le parcours d'outil"
 
 #. type: Bullet: '* '
 #: gmoccapy.txt:895
 msgid "show offsets"
-msgstr "montrer les décalages"
+msgstr "Voir les offsets"
 
 #. type: Plain text
 #: gmoccapy.txt:897
@@ -2774,8 +2774,8 @@ msgid ""
 "As the notebook tabs are shown, you are able to switch between both views in "
 "any case."
 msgstr ""
-"Comme les onglets sont affichés, vous êtes en mesure de basculer d'une vue à "
-"l'autre dans tous les cas."
+"Les onglets sont affichés, ce qui permet de basculer d'une vue à l'autre, "
+"dans tous les cas."
 
 #. type: Plain text
 #: gmoccapy.txt:899
@@ -2838,10 +2838,10 @@ msgid ""
 " +\n"
 "'show DRO Button' will allow you to display additional buttons on the left side of the DRO. +\n"
 msgstr ""
-"'show dro in preview', le DRO est affiché dans la fenêtre de parcours d'outil. +\n"
-"'show offsets', les décalages sont affichés dans la fenêtre de parcours d'outil. +\n"
-"'show DTG' , la distance restante est affichée dans la fenêtre de parcours d'outil. +\n"
-"'show DRO Button' vous permet d'afficher un bouton additionnel sur le côté gauche du DRO. +\n"
+"'Voir DRO en parcours d'outil', le DRO est affiché dans la fenêtre de parcours d'outil. +\n"
+"'Voir les offsets', les décalages sont affichés dans la fenêtre de parcours d'outil. +\n"
+"'Voir le DTG' , la distance restante est affichée dans la fenêtre de parcours d'outil. +\n"
+"'Voir le bouton DRO' permet d'afficher un bouton additionnel sur le côté gauche du DRO. +\n"
 
 #. type: Plain text
 #: gmoccapy.txt:924
@@ -2939,8 +2939,9 @@ msgid ""
 "'Show DRO' + Will show the a DRO also in the preview window, it will be "
 "shown automatically in fullsize preview"
 msgstr ""
-"'Show DRO'  Affichera un DRO également dans la fenêtre du parcours d'outil, "
-"il s'affichera aussi automatiquement en mode parcours d'outil en plein écran"
+"'Voir le DRO'  Affichera un DRO également dans la fenêtre du parcours "
+"d'outil, il s'affichera aussi automatiquement en mode parcours d'outil plein "
+"écran"
 
 #. type: Plain text
 #: gmoccapy.txt:952
@@ -2948,7 +2949,7 @@ msgid ""
 "'Show DTG' + Will show also the DTG (direct distance to end point) in the "
 "preview, only if Show DRO is active and not fullsize preview."
 msgstr ""
-"'Show DTG'  Affichera aussi le DTG (distance restante) dans le parcours "
+"'Voir le DTG'  Affichera aussi le DTG (distance restante) dans le parcours "
 "d'outil, seulement si Afficher DRO est actif et non en parcours d'outil "
 "pleine taille."
 
@@ -2956,7 +2957,8 @@ msgstr ""
 #: gmoccapy.txt:955
 msgid "'Show Offsets' + Will show the offsets in the preview window,"
 msgstr ""
-"'Show Offsets'  Affichera les décalages dans la fenêtre de parcours d'outil."
+"'Voir les Offsets'  Affichera les décalages dans la fenêtre de parcours "
+"d'outil."
 
 #. type: Plain text
 #: gmoccapy.txt:957
@@ -3057,7 +3059,7 @@ msgstr ""
 #. type: Plain text
 #: gmoccapy.txt:987
 msgid "==== Jump to dir"
-msgstr "==== Saut au répertoire"
+msgstr "==== Sauter au répertoire"
 
 #. type: Plain text
 #: gmoccapy.txt:990
@@ -3088,9 +3090,9 @@ msgid ""
 "This lets the user select what desktop theme to apply and what error and "
 "messages sounds should be played.  By default \"Follow System Theme\" is set."
 msgstr ""
-"Ceci permet à l'utilisateur de sélectionner quel thème de bureau appliquer "
-"et quels sons de messages d'erreur devront être joués.  Par défaut \"Follow "
-"System Theme\" est utilisé."
+"Ceci permet à l'utilisateur de sélectionner le thème de bureau à appliquer, "
+"ainsi que les sons de messages d'erreur qui devront être joués.  Par défaut "
+"\"Suivre le thème du système\" est utilisé."
 
 #. type: Plain text
 #: gmoccapy.txt:999
@@ -3469,7 +3471,7 @@ msgid ""
 msgstr ""
 " * Vitesse rech. = C'est la vitesse de recherche du contact de sonde, après l'activation du contact, l'outil remonte pour \n"
 "                dégager le contact, puis replonge de nouveau en 'Vitesse sonde', pour affiner les résultats. \n"
-" * Vitesse sonde = C'est la vitesse du second mouvement vers le contact, elle doit être assez faible pour obtenir les meilleurs \n"
+" * Vitesse palpage = C'est la vitesse du second mouvement vers le contact, elle doit être assez faible pour obtenir les meilleurs \n"
 "                résultats au toucher.(En mode simulation, c'est commenté dans macros/change.ngc, autrement l'utilisateur \n"
 "                devra double-cliquer sur le bouton de sonde)\n"
 
