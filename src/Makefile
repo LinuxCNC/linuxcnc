@@ -1072,6 +1072,7 @@ ifneq ($(KERNELRELEASE),)
 #
 # When the Submakefile is included in the kbuild Makefile, the
 # module's obj-m and foo-objs definitions may remain in the Submakefile
+include $(BASEPWD)/hal/lib/Submakefile
 include $(BASEPWD)/machinetalk/Submakefile
 include $(BASEPWD)/hal/components/Submakefile
 include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
@@ -1386,16 +1387,6 @@ endif
 obj-m += scope_rt.o
 scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 
-obj-m += hal_lib.o
-hal_lib-objs := hal/lib/hal_lib.o $(MATHSTUB)
-hal_lib-objs += hal/lib/hal_group.o
-hal_lib-objs += hal/lib/hal_ring.o
-hal_lib-objs += hal/lib/hal_rcomp.o
-hal_lib-objs += machinetalk/support/nanopb.o
-hal_lib-objs += machinetalk/nanopb/pb_decode.o
-hal_lib-objs += machinetalk/nanopb/pb_encode.o
-hal_lib-objs += machinetalk/nanopb/pb_common.o
-
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
 
@@ -1600,7 +1591,6 @@ $(RTLIBDIR)/hal_skeleton$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_skeleton-obj
 $(RTLIBDIR)/hal_speaker$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_speaker-objs))
 $(RTLIBDIR)/opto_ac5$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(opto_ac5-objs))
 $(RTLIBDIR)/scope_rt$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(scope_rt-objs))
-$(RTLIBDIR)/hal_lib$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_lib-objs))
 $(RTLIBDIR)/motmod$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(motmod-objs))
 $(RTLIBDIR)/trivkins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(trivkins-objs))
 $(RTLIBDIR)/5axiskins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(5axiskins-objs))
