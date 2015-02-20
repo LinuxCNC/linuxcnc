@@ -201,14 +201,13 @@ message Container {
     optional Emc_Exec_Plugin_Ca1l exec_plugin_call = 580;
     optional Emc_Io_Plugin_Call io_plugin_call = 590;
 
-    optional EmcStatusConfig emc_status_config = 600;
-    optional EmcStatusMotion emc_status_motion = 601;
-    optional EmcStatusIo emc_status_io = 602;
-    optional EmcStatusTask emc_status_task = 603;
-    optional EmcStatusInterp emc_status_interp = 604;
+    optional EmcStatusConfig emc_status_config = 600 [(nanopb).type = FT_IGNORE];
+    optional EmcStatusMotion emc_status_motion = 601 [(nanopb).type = FT_IGNORE];
+    optional EmcStatusIo emc_status_io = 602 [(nanopb).type = FT_IGNORE];
+    optional EmcStatusTask emc_status_task = 603 [(nanopb).type = FT_IGNORE];
+    optional EmcStatusInterp emc_status_interp = 604 [(nanopb).type = FT_IGNORE];
 
-    optional EmcCommandParameters emc_command_params = 610;
-
+    optional EmcCommandParameters emc_command_params = 610  [(nanopb).type = FT_IGNORE];
 
     // less commonly used types
 
