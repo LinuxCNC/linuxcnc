@@ -230,6 +230,7 @@ int blendGeom3Print(BlendGeom3 const * const geom);
 int blendParamPrint(BlendParameters const * const param);
 int blendPoints3Print(BlendPoints3 const * const points);
 double pmCircleActualMaxVel(PmCircle * const circle,
+        double * const acc_ratio,
         double v_max,
         double a_max,
         int parabolic);

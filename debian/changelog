@@ -4,6 +4,181 @@ linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
 
+linuxcnc (1:2.7.0~pre3) wheezy; urgency=low
+
+  * parport: remove probe_parport, it's no longer needed
+  * add moveoff, a simple jog-while-paused implementation
+
+  * axis gui: fix too-fast UVW jogs on inch machines displaying mm
+  * axis gui: fix too-slow shift-jog speed on inch machines displaying mm
+  * axis gui: let the user confirm before closing the window
+  * axis gui: fix jog speed in Free mode
+
+  * gmoccapy: fixed a serious bug with PAUSE / RESUME / STOP
+  * gmoccapy: initialize mouse button mode corrected
+  * gmoccapy: PAUSE button did not get active on M01
+  * gmoccapy: virtual keyboard "bug" not initialized settings correct
+  * gmoccapy: report gcode errors
+  * gmoccapy: better docs
+  * gmoccapy: add polish translation
+  * gmoccapy: turtle jog and analog in for slider values
+  * gmoccapy: added support to select number of digits
+  * gmoccapy: deleted unneeded stuff and new translation
+  * gmoccapy: new hal pin and some renaming
+  * gmoccapy: solved a bug in counts handling
+  * gmoccapy: bug/limit in tool sensor height
+  * gmoccapy: bug because I missed two self.
+  * gmoccapy: added a clock and date label
+  * gmoccapy: bug in hal pin updating, new spindle handling
+  * gmoccapy: bug in initializing lathe mode
+
+  * pncconf: fix icon/image path error
+  * pncconf: lower default watchdog timeout
+  * pncconf: fix double POSITION_OFFSET/FEEBACK INI entry
+  * pncconf: fix a kernal/kernel misspelling
+
+  * stepconf & pncconf: remove probe_parport command
+  * stepconf: use linux parport enumeration number as default
+  * stepconf: remove a debug print
+  * stepconf: fix a typo in a variable name
+  * stepconf: fix the check_for_rt() function for uspace
+  * stepconf: optionally generate configs with simulated hardware
+
+  * xhc-hb04.tcl: support fractional scale factors
+  * xhc-hb04.tcl: it's an error if halui is not running
+  * xhc-hb04.tcl: simplify pin_exists proc
+  * xhc-hb04: fix a memory leak
+  * lincurve: better manpage
+  * gs2_vfd: add missing -A, -D, and -R command-line args
+  * gs2_vfd: accept -g to turn on debug output
+  * sim_pin: use Toggle by default instead of Pulse
+  * debounce: add an example of creating filter groups to manpage
+  * encoder: document the surprising encoder num_chan=0 behavior in manpage
+
+  * gladevcp: jogwheel improvements
+  * gladevcp: fix a bug forground color of combi_dro 
+  * gladevcp: add hiny versions of the hal_bar and led widgets
+
+  * pyvcp: fix a bug in radio button widget
+
+  * latency-test: fix a bug in command-line argument time parsing
+  * latency-histogram: clean up on ^C
+  * latency-histogram: show linuxcnc version
+  * popupkeyboard.py: support standalone demonstration
+  * linuxcnc, haltcl: pass args to haltcl file
+  * twopass.tcl: handle haltcl files with args
+  * util_lib.tcl utilities for haltcl halfiles
+  * hal_gremlin: Emit signal in case of gcode error
+  * linuxcnc: defer starting [APPLICATIONS]APPs
+
+  * halui: don't forget the Task mode when queueing MDI commands
+
+  * increase default arc radius tolerance (accept larger errors)
+  * make arc radius tolerance an ini setting
+
+  * hal: change function .time from parameter to pin
+  * hal: increase shared memory size limits
+
+  * halcmd: manage prompt better
+
+  * hallib: support for system-wide halfiles
+  * hallib: add sim_lib & basic_sim
+  * hallib: relocate common halfiles to lib/hallib
+  * hallib: add halcheck, a library halfile to check common errors
+
+  * haltcl: allow haltcl twopass files to use non-builtin Tk widgets
+
+  * inihal: bugfix for ini.n.backlash
+  * inihal: document ini hal pins
+
+  * sample configs: use as HALFILE not POSTGUI_HALFILE in Smithy configs
+
+  * gm6: Add USPACE support
+  * gm6: Fix RS485 DAC problem, when DAC has zero V output.
+
+  * hm2: fix second default address of EPP port in 7i43 and 7i90 drivers
+  * hm2 eth: use defines for all timeouts in driver
+  * hm2 eth: cleanup unused code and leftover from rtnet
+  * hm2 sserial: fix driver not reporting all sserial remote faults
+  * hm2 sserial: fix reporting sserial remote faults
+  * hm2 sserial: Fix .scalemax parameter was ignored on analog inputs
+  * hm2 sserial: warning when remote sserial device has firmware version lower than r14.
+  * hm2 sserial: report link failure
+
+  * task: fix a bug that could drop mdi commands
+  * task: fix a dead store
+
+  * motion: rebrand a realtime warning message
+  * motion: ignore feed-override when jogging
+  * motion: reduce the scope of a state variable
+  * motion: redo arc spiral handling
+  * motion: several trajectory planner fixes
+
+  * genhexkins: add hal pins for joints coordinates
+  * hexapod-sim: support hal pins for joints coordinates
+
+  * rtapi: fix release region
+
+  * uspace: remove debugging message in parport driver
+  * uspace: don't try to use rt hardening except on a realtime kernel
+
+  * ini file variables can now span multiple lines using backslash
+
+  * docs: lots of updates to the Getting Started document
+  * docs: tidy up the top-level README a bit
+  * docs: describe hal_manualtoolchange.change_button
+  * docs: describe our git workflow briefly
+  * docs: describe our Signed-Off-By procedure
+  * docs: update Polish translation of software strings
+  * docs: better G2/G3 description
+  * docs: better G43 description
+  * docs: update stepconf docs and images
+  * docs: document io's lube pin a bit more
+  * docs: include all manpages in the html & pdf docs
+  * docs: fix inaccuracies in hal_init manpage
+  * docs: describe postgui_halfiles with twopass info
+  * docs: improve docs of hal tools
+  * docs: improve docs of latency test tools
+  * docs: move parallel port address docs to the correct place
+  * docs: misc clarifications & minor improvements
+  * docs: fixup manpage syntax for rtapi_app_main.3 & rtapi_app_exit.3
+  * docs: improve Servo-To-Go docs
+
+  * halcompile: fix & document 'option extra_link_args'
+  * halcompile: don't overrun the names[] array
+  * halcompile: improve 'option rtapi_app no' description
+  * halcompile: fix indentation nitpick in generated C code
+  * halcompile: reject empty names
+  * halcompile: document "option userspace" a bit more
+  * halcompile: misc docs improvements
+
+  * use /usr/bin/python in all python scripts
+
+  * nml: implement command queue with reliable reception
+  * nml: convert arch-dependent types to fixed-width types
+
+  * build: refactor how manpages are generated
+  * build: install the new pncconf python modules
+  * build: depend on inkscape
+  * build: use correct dependencies on Debian Jessie
+
+  * tests: minor improvements to hm2 test
+  * tests: fix a spurious false failure in the tlo test
+  * tests: reorganize the halui jogging test dir layout
+  * tests: give halui a few seconds to switch the task mode back
+  * tests: add a halui mdi test
+  * tests: add an nml-over-tcp test
+  * tests: simplify t0 test and increase task queue usage
+  * tests: fix a race condition in the toolchanger/toolno-pocket-differ test
+  * tests: longer timeout in halui jogging test
+  * tests: test names= and counts= of halcompile-generated comps
+  * tests: loadrt must handle failure from rtapi_app_main
+  * tests: add a test of jogwheel jogging via Motion
+  * tests: fix a spurious failure of the tlo test
+  * tests: add arc radius tests
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 18 Feb 2015 20:14:41 -0700
+
 linuxcnc (1:2.7.0~pre2) wheezy; urgency=low
 
   * Fixup release tag signing.
@@ -17,6 +192,65 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
   * Other things!
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
+
+linuxcnc (1:2.6.6) precise; urgency=low
+
+  * axis gui: fix jog speed on nontrivkins machines
+
+  * gmoccapy: bug in initializing lathe mode
+  * gmoccapy: bug because I missed two self.
+  * gmoccapy: added a clock and date label
+  * gmoccapy: bug in hal pin updating, new spindle handling
+  * gmoccapy: bug/limit in tool sensor height
+  * gmoccapy: solved a bug in counts handling
+  * gmoccapy: new hal pin and some renaming
+  * gmoccapy: deleted unneeded stuff and new translation
+  * gmoccapy: added support to select number of digits
+  * gmoccapy: turtle jog and analog in for slider values
+  * gmoccapy: introduced polish translation
+  * gmoccapy: report about gcode errors
+
+  * pncconf: lower default watchdog limit
+  * pncconf: fix double POSITION_OFFSET/FEEBACK INI entry
+
+  * halui: don't forget the Task mode when queueing MDI commands
+
+  * debounce: document filter groups better in the manpage
+  * pyvcp: Bug in radio button widgets
+  * gladevcp: bug in combi_dro foreground color attribute
+  * hal_gremlin - Emit signal in case of gcode error
+  * inihal: bugfix, typo for ini.n.backlash
+
+  * xhc-hb04: Fix memory leak
+  * xhc-hb04: error exit if [HAL]HALUI not set
+
+  * gm6: Fix RS485 DAC problem, when DAC has zero V output
+
+  * better error message when a component fails to load in sim
+
+  * comp: don't overrun the names[] array
+  * comp: fix indentation nitpick in generated C code
+
+  * docs: include a warning about power supplies for the STG
+  * docs: update gmoccapy docs
+  * docs: improve 'option rtapi_app no' description of comp
+  * docs: fixup manpage syntax for rtapi_app_main.3 & rtapi_app_exit.3
+  * docs: fix inaccuracies in hal_init manpage
+  * docs: document the surprising encoder num_chan=0 behavior
+  * docs: update the md5sum of the Live/Install Image
+  * docs: misc minor improvements
+
+  * tests: fix a spurious failure of the tlo test
+  * tests: test names= and counts= args of comp-generated components
+  * tests: longer timeout in halui jogging test
+  * tests: fix a race condition in the toolchanger/toolno-pocket-differ test
+  * tests: simplify t0 test and increase task queue usage
+  * tests: loadrt must handle failure from rtapi_app_main
+
+  * packaging: use correct dependencies on Debian Jessie
+  * packaging: tclx is a runtime dependency, not a build-dep
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 18 Feb 2015 21:15:08 -0700
 
 linuxcnc (1:2.6.5) precise; urgency=low
 

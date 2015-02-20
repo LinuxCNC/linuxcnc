@@ -1206,7 +1206,7 @@ int blendCheckConsume(BlendParameters * const param,
     double L_prev = prev_tc->target - points->trim1;
     double prev_seg_time = L_prev / param->v_plan;
 
-    param->consume = (prev_seg_time < gap_cycles * prev_tc->cycle_time);
+    param->consume = (prev_seg_time < gap_cycles * prev_tc->cycle_time && !prev_tc->blend_prev);
     if (param->consume) {
         tp_debug_print("consuming prev line, L_prev = %g\n",
                 L_prev);
@@ -1616,7 +1616,11 @@ int blendPoints3Print(BlendPoints3 const * const points)
 
 }
 
-double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max, int parabolic)
+double pmCircleActualMaxVel(PmCircle * const circle,
+        double * const acc_ratio_tangential,
+        double v_max,
+        double a_max,
+        int parabolic)
 {
     if (parabolic) {
         a_max /= 2.0;
@@ -1624,6 +1628,13 @@ double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max,
     double a_n_max = BLEND_ACC_RATIO_NORMAL * a_max;
     double eff_radius = pmCircleEffectiveMinRadius(circle);
     double v_max_acc = pmSqrt(a_n_max * eff_radius);
+    double v_max_eff = fmin(v_max_acc, v_max);
+    if (acc_ratio_tangential) {
+        double a_normal = fmin(pmSq(v_max_eff) / eff_radius, a_n_max);
+        *acc_ratio_tangential = (pmSqrt(pmSq(a_max) - pmSq(a_normal)) / a_max);
+        tp_debug_print("acc_ratio_tan = %f\n",*acc_ratio_tangential);
+    }
+
     if (v_max_acc < v_max) {
         tp_debug_print("Maxvel limited from %f to %f for tangential acceleration\n", v_max, v_max_acc);
         return v_max_acc;
