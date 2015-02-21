@@ -85,6 +85,8 @@ typedef struct {
      int waiting_for_atspeed;
 } tp_spindle_t;
 
+typedef struct tp_shared_t tp_shared_t; // see tp_shared.h
+
 /**
  * Trajectory planner state structure.
  * Stores persistant data for the trajectory planner that should be accessible
@@ -93,6 +95,7 @@ typedef struct {
 typedef struct {
     TC_QUEUE_STRUCT queue;
     tp_spindle_t spindle; //Spindle data
+    tp_shared_t *shared;
 
     EmcPose currentPos;
     EmcPose goalPos;
@@ -135,5 +138,6 @@ typedef struct {
     syncdio_t syncdio; //record tpSetDout's here
 
 } TP_STRUCT;
+
 
 #endif				/* TP_TYPES_H */
