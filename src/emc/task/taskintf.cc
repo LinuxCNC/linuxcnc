@@ -1559,7 +1559,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 int emcSetupArcBlends(int arcBlendEnable,
         int arcBlendFallbackEnable,
         int arcBlendOptDepth,
-        double arcBlendGapCycles,
+        int arcBlendGapCycles,
         double arcBlendRampFreq) {
 
     emcmotCommand.command = EMCMOT_SETUP_ARC_BLENDS;
