@@ -407,16 +407,16 @@ setup_menu_accel .menu.view end [_ "Show relative position"]
 
 .menu.view add radiobutton \
         -value 0 \
-        -variable joint_mode \
+        -variable teleop_mode \
         -accelerator $ \
-        -command set_joint_mode
+        -command set_teleop_mode
 setup_menu_accel .menu.view end [_ "Joint mode"]
 
 .menu.view add radiobutton \
         -value 1 \
-        -variable joint_mode \
+        -variable teleop_mode \
         -accelerator $ \
-        -command set_joint_mode
+        -command set_teleop_mode
 setup_menu_accel .menu.view end [_ "World mode"]
 
 menu .menu.view.grid
