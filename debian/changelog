@@ -1,3 +1,9 @@
+linuxcnc (1:2.7.0~pre4) wheezy; urgency=low
+
+  * axis gui: fix transition to world mode
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 21 Feb 2015 10:11:11 -0700
+
 linuxcnc (1:2.7.0~pre3) wheezy; urgency=low
 
   * parport: remove probe_parport, it's no longer needed
