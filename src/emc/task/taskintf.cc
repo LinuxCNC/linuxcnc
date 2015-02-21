@@ -978,9 +978,7 @@ int emcTrajSetJoints(int joints)
 static struct state_tag_t localEmcTrajTag;
 
 int emcTrajUpdateTag(StateTag const &tag) {
-    localEmcTrajTag = tag;
-    //Handle bit packing
-    localEmcTrajTag.packed_flags = tag.flags.to_ulong();
+    localEmcTrajTag = tag.get_state_tag();
     return 0;
 }
 
