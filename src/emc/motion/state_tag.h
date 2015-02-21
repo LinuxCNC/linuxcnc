@@ -45,6 +45,15 @@ typedef enum {
     GM_FLAG_MAX_FLAGS
 } StateFlag;
 
+
+/**
+ * Enum for various fields of state info that aren't binary.
+ * WARNING:
+ * 1) Since these are used as array indices, they have to start at 0,
+ * be monotonic, and the MAX_FIELDS enum MUST be last in the list.
+ * 2) If your application needs to pass state tags through NML, then you MUST update the corresponding cms->update function for state tags.
+ * TODO: make that standalone function a method here for maintainability
+ */
 typedef enum {
     GM_FIELD_LINE_NUMBER,
     GM_FIELD_G_MODE_0,
@@ -74,6 +83,8 @@ struct state_tag_t {
     float speed;
 
     // Any G / M code states that doesn't pack nicely into a single bit
+    // These are an array mostly because it's easier to pass an
+    // arbitrary-length array through NML than individual fields
     int fields[GM_FIELD_MAX_FIELDS];
 
     /** G / M mode flags for simple states like inch / mm, feedhold enable, etc.

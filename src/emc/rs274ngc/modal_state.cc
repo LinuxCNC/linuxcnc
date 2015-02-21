@@ -22,14 +22,8 @@ StateTag::StateTag(): flags(0)
     speed = 0.0;
 }
 
-StateTag::StateTag(struct state_tag_t const & basetag): flags(basetag.packed_flags)
-{
-    memcpy(fields,basetag.fields,sizeof(fields));
-    packed_flags = 0;
-    feed = basetag.feed;
-    speed = basetag.speed;
-}
-
+StateTag::StateTag(struct state_tag_t const & basetag): state_tag_t(basetag), flags(basetag.packed_flags)
+{}
 
 /**
  * Return true if the tag is a valid state, and false if not
@@ -51,5 +45,16 @@ int StateTag::is_valid(void) const
     }
 
     return true;
+}
+
+
+/**
+ * Return the C-equivalent state_tag version of the current state.
+ */
+state_tag_t StateTag::get_state_tag() const
+{
+    state_tag_t out = static_cast<state_tag_t> (*this);
+    out.packed_flags = flags.to_ulong();
+    return out;
 }
 
