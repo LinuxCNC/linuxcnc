@@ -4,6 +4,12 @@ linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
 
+linuxcnc (1:2.7.0~pre4) wheezy; urgency=low
+
+  * axis gui: fix transition to world mode
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 21 Feb 2015 10:11:11 -0700
+
 linuxcnc (1:2.7.0~pre3) wheezy; urgency=low
 
   * parport: remove probe_parport, it's no longer needed
@@ -192,6 +198,12 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
   * Other things!
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
+
+linuxcnc (1:2.6.7) precise; urgency=low
+
+  * axis gui: fix transition to world mode
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 21 Feb 2015 10:04:33 -0700
 
 linuxcnc (1:2.6.6) precise; urgency=low
 
