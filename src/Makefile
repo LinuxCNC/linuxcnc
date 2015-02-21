@@ -930,13 +930,18 @@ scarakins-objs := emc/kinematics/scarakins.o
 scarakins-objs += libnml/posemath/_posemath.o
 scarakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
+obj-m += tp.o
+tp-objs := emc/tp/tc.o
+tp-objs += emc/tp/tcq.o
+tp-objs += emc/tp/tp.o
+tp-objs += emc/tp/spherical_arc.o
+tp-objs += emc/tp/blendmath.o
+tp-objs += emc/nml_intf/emcpose.o
+tp-objs += libnml/posemath/_posemath.o
+tp-objs += libnml/posemath/sincos.o $(MATHSTUB)
+
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o
-motmod-objs += emc/tp/tc.o
-motmod-objs += emc/tp/tcq.o
-motmod-objs += emc/tp/tp.o
-motmod-objs += emc/tp/spherical_arc.o
-motmod-objs += emc/tp/blendmath.o
 motmod-objs += emc/motion/motion.o
 motmod-objs += emc/motion/command.o
 motmod-objs += emc/motion/control.o
@@ -1038,6 +1043,7 @@ endif
 ../rtlib/scope_rt$(MODULE_EXT): $(addprefix objects/rt,$(scope_rt-objs))
 ../rtlib/hal_lib$(MODULE_EXT): $(addprefix objects/rt,$(hal_lib-objs))
 ../rtlib/motmod$(MODULE_EXT): $(addprefix objects/rt,$(motmod-objs))
+../rtlib/tp$(MODULE_EXT): $(addprefix objects/rt,$(tp-objs))
 ../rtlib/trivkins$(MODULE_EXT): $(addprefix objects/rt,$(trivkins-objs))
 ../rtlib/5axiskins$(MODULE_EXT): $(addprefix objects/rt,$(5axiskins-objs))
 ../rtlib/maxkins$(MODULE_EXT): $(addprefix objects/rt,$(maxkins-objs))

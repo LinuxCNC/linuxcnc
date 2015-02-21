@@ -11,6 +11,7 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 #include "rtapi.h"              /* rtapi_print_msg */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "posemath.h"           /* Geometry types & functions */
 #include "tc.h"
 #include "tp.h"
@@ -46,9 +47,17 @@
 #define TP_OPTIMIZATION_LAZY
 #define TP_PEDANTIC
 
-extern emcmot_status_t *emcmotStatus;
-extern emcmot_debug_t *emcmotDebug;
-extern emcmot_config_t *emcmotConfig;
+emcmot_status_t *emcmotStatus;
+emcmot_debug_t *emcmotDebug;
+emcmot_config_t *emcmotConfig;
+
+int num_dio;
+int num_aio;
+
+void (*DioWrite)(int index, char value);
+void (*AioWrite)(int index, double value);
+void (*SetRotaryUnlock)(int axis, int unlock);
+int (*GetRotaryIsUnlocked)(int axis);
 
 /** static function primitives (ugly but less of a pain than moving code around)*/
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc,
@@ -302,7 +311,11 @@ STATIC inline double tpGetSignedSpindlePosition(double spindle_pos, int spindle_
 /**
  * Create the trajectory planner structure with an empty queue.
  */
-int tpCreate(TP_STRUCT * const tp, int _queueSize, TC_STRUCT * const tcSpace)
+
+int tpCreate(TP_STRUCT * const tp, int _queueSize, TC_STRUCT * const tcSpace,
+             void *emcmotStatus_ptr, void *emcmotDebug_ptr, void *emcmotConfig_ptr, int dio_count, int aio_count,
+             void (*DioWrite_func)(int index, char value), void (*AioWrite_func)(int index, double value),
+             void (*SetRotaryUnlock_func)(int axis, int unlock), int (*GetRotaryIsUnlocked_func)(int axis))
 {
     if (0 == tp) {
         return TP_ERR_FAIL;
@@ -318,6 +331,17 @@ int tpCreate(TP_STRUCT * const tp, int _queueSize, TC_STRUCT * const tcSpace)
     if (-1 == tcqCreate(&tp->queue, tp->queueSize, tcSpace)) {
         return TP_ERR_FAIL;
     }
+
+    emcmotStatus = emcmotStatus_ptr;
+    emcmotDebug = emcmotDebug_ptr;
+    emcmotConfig = emcmotConfig_ptr;
+    num_dio = dio_count;
+    num_aio = aio_count;
+    
+    DioWrite = DioWrite_func;
+    AioWrite = AioWrite_func;
+    SetRotaryUnlock = SetRotaryUnlock_func;
+    GetRotaryIsUnlocked = GetRotaryIsUnlocked_func;
 
     /* init the rest of our data */
     return tpInit(tp);
@@ -2139,12 +2163,12 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
     if (tc->syncdio.anychanged != 0) { // we have DIO's to turn on or off
         for (i=0; i < num_dio; i++) {
             if (!(tc->syncdio.dio_mask & (1 << i))) continue;
-            if (tc->syncdio.dios[i] > 0) emcmotDioWrite(i, 1); // turn DIO[i] on
-            if (tc->syncdio.dios[i] < 0) emcmotDioWrite(i, 0); // turn DIO[i] off
+            if (tc->syncdio.dios[i] > 0) DioWrite(i, 1); // turn DIO[i] on
+            if (tc->syncdio.dios[i] < 0) DioWrite(i, 0); // turn DIO[i] off
         }
         for (i=0; i < num_aio; i++) {
             if (!(tc->syncdio.aio_mask & (1 << i))) continue;
-            emcmotAioWrite(i, tc->syncdio.aios[i]); // set AIO[i]
+            AioWrite(i, tc->syncdio.aios[i]); // set AIO[i]
         }
         tc->syncdio.anychanged = 0; //we have turned them all on/off, nothing else to do for this TC the next time
     }
@@ -2305,12 +2329,12 @@ STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp,
 
 /** Wrapper function to unlock rotary axes */
 STATIC void tpSetRotaryUnlock(int axis, int unlock) {
-    emcmotSetRotaryUnlock(axis, unlock);
+    SetRotaryUnlock(axis, unlock);
 }
 
 /** Wrapper function to check rotary axis lock */
 STATIC int tpGetRotaryIsUnlocked(int axis) {
-    return emcmotGetRotaryIsUnlocked(axis);
+    return GetRotaryIsUnlocked(axis);
 }
 
 
@@ -3216,5 +3240,46 @@ int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned cha
     return TP_ERR_OK;
 }
 
+int comp_id;
+
+int rtapi_app_main(void) {
+   comp_id = hal_init("tp");
+    if (comp_id > 0) {
+        hal_ready(comp_id);
+        return 0;
+    }
+    return comp_id;
+}
+
+void rtapi_app_exit(void) {
+    hal_exit(comp_id);
+}
+
+EXPORT_SYMBOL(tpRunCycle);
+EXPORT_SYMBOL(tpSetId);
+EXPORT_SYMBOL(tpGetPos);
+EXPORT_SYMBOL(tpGetMotionType);
+EXPORT_SYMBOL(tpSetCycleTime);
+EXPORT_SYMBOL(tpSetTermCond);
+EXPORT_SYMBOL(tpActiveDepth);
+EXPORT_SYMBOL(tpGetExecId);
+EXPORT_SYMBOL(tpSetVmax);
+EXPORT_SYMBOL(tpSetSpindleSync);
+EXPORT_SYMBOL(tpSetVlimit);
+EXPORT_SYMBOL(tpAddCircle);
+EXPORT_SYMBOL(tpSetDout);
+EXPORT_SYMBOL(tpIsDone);
+EXPORT_SYMBOL(tpPause);
+EXPORT_SYMBOL(tpCreate);
+EXPORT_SYMBOL(tpAddRigidTap);
+EXPORT_SYMBOL(tpResume);
+EXPORT_SYMBOL(tcqFull);
+EXPORT_SYMBOL(tpSetPos);
+EXPORT_SYMBOL(tpAbort);
+EXPORT_SYMBOL(tpSetAout);
+EXPORT_SYMBOL(tpQueueDepth);
+EXPORT_SYMBOL(tpAddLine);
+EXPORT_SYMBOL(tpSetAmax);
+EXPORT_SYMBOL(tpClear);
 
 // vim:sw=4:sts=4:et:

@@ -19,7 +19,10 @@
 #include "tp_types.h"
 #include "tcq.h"
 
-int tpCreate(TP_STRUCT * const tp, int _queueSize, TC_STRUCT * const tcSpace);
+int tpCreate(TP_STRUCT * const tp, int _queueSize, TC_STRUCT * const tcSpace,
+             void *emcmotStatus_ptr, void *emcmotDebug_ptr, void *emcmotConfig_ptr, int dio_count, int aio_count,
+             void (*DioWrite_func)(int index, char value), void (*AioWrite_func)(int index, double value),
+             void (*SetRotaryUnlock_func)(int axis, int unlock), int (*GetRotaryIsUnlocked_func)(int axis));
 int tpClear(TP_STRUCT * const tp);
 int tpInit(TP_STRUCT * const tp);
 int tpClearDIOs(TP_STRUCT * const tp);

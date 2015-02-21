@@ -1035,7 +1035,8 @@ static int init_comm_buffers(void)
 
     /* init motion emcmotDebug->tp */
     if (-1 == tpCreate(&emcmotDebug->tp, DEFAULT_TC_QUEUE_SIZE,
-	    emcmotDebug->queueTcSpace)) {
+	    emcmotDebug->queueTcSpace, emcmotStatus, emcmotDebug, emcmotConfig, num_dio, num_aio,
+        &emcmotDioWrite, &emcmotAioWrite, &emcmotSetRotaryUnlock, &emcmotGetRotaryIsUnlocked)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to create motion emcmotDebug->tp\n");
 	return -1;
