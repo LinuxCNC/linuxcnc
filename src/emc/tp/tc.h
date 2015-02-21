@@ -18,7 +18,6 @@
 #include "spherical_arc.h"
 #include "posemath.h"
 #include "emcpos.h"
-#include "emcmotcfg.h"
 #include "tc_types.h"
 #include "tp_types.h"
 
