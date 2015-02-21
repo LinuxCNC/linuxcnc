@@ -166,7 +166,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         int arcBlendEnable = 1;
         int arcBlendFallbackEnable = 0;
         int arcBlendOptDepth = 50;
-        double arcBlendGapCycles = 4;
+        int arcBlendGapCycles = 4;
         double arcBlendRampFreq = 100.0;
 
         trajInifile->Find(&arcBlendEnable, "ARC_BLEND_ENABLE", "TRAJ");
