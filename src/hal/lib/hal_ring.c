@@ -184,7 +184,7 @@ int hal_ring_delete(const char *name)
 	}
 
 	ringheader_t *rhptr;
-	int shmid;
+	int shmid = -1;
 
 	if (hrptr->flags & ALLOC_HALMEM) {
 	    // ring exists as HAL memory.
