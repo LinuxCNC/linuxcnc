@@ -309,11 +309,11 @@ extern void emcmotController(void *arg, long period);
 extern void emcmotSetCycleTime(unsigned long nsec);
 
 /* these are related to synchronized I/O */
-extern void emcmotDioWrite(int index, char value);
-extern void emcmotAioWrite(int index, double value);
+extern void emcmotDioWrite(int index, hal_bit_t value);
+extern void emcmotAioWrite(int index, hal_float_t value);
 
-extern void emcmotSetRotaryUnlock(int axis, int unlock);
-extern int emcmotGetRotaryIsUnlocked(int axis);
+extern void emcmotSetRotaryUnlock(int axis,  hal_bit_t unlock);
+extern hal_bit_t emcmotGetRotaryIsUnlocked(int axis);
 
 /* homing is no longer in control.c, make functions public */
 extern void do_homing_sequence(void);
