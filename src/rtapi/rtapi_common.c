@@ -256,7 +256,7 @@ void init_rtapi_data(rtapi_data_t * data)
 int _rtapi_task_update_stats(void)
 {
 #ifdef HAVE_RTAPI_TASK_UPDATE_STATS_HOOK
-    extern int _rtapi_task_update_stats_hook();
+    extern int _rtapi_task_update_stats_hook(void);
 
     return _rtapi_task_update_stats_hook();
 #else
