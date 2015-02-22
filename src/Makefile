@@ -1449,6 +1449,19 @@ motmod-objs += emc/motion/dbuf.o
 motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
+obj-m += tp.o
+tp-objs := $(addprefix emc/tp/, \
+	tc.o 		\
+	tcq.o 		\
+	tp.o 		\
+	tpmain.o 	\
+	blendmath.o 	\
+	spherical_arc.o 	\
+	) 		\
+	emc/nml_intf/emcpose.o \
+	libnml/posemath/_posemath.o \
+	libnml/posemath/sincos.o $(MATHSTUB)
+
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
 
 # USER_DSO module building
@@ -1606,6 +1619,8 @@ $(RTLIBDIR)/genserkins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(genserkins-objs))
 $(RTLIBDIR)/pumakins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pumakins-objs))
 $(RTLIBDIR)/scarakins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(scarakins-objs))
 $(RTLIBDIR)/hal_gm$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gm-objs))
+
+$(RTLIBDIR)/tp$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(tp-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))
