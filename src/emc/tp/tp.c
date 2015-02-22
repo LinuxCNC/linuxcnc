@@ -453,6 +453,7 @@ int tpInit(TP_STRUCT * const tp)
     tpGetMachineVelBounds(tp, &vel_bound);
     tpGetMachineActiveLimit(&tp->vMax, &vel_bound);
 
+    tp->old_spindlepos = 0.0; // sanity - just a temporary
     return tpClear(tp);
 }
 
@@ -2250,10 +2251,9 @@ void tpToggleDIOs(TP_STRUCT const * const tp,
  * during a rigid tap cycle. In particular, the target and spindle goal need to
  * be carefully handled since we're reversing direction.
  */
-STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
+STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
         TC_STRUCT * const tc) {
 
-    static double old_spindlepos;
     double new_spindlepos = get_spindleRevs(tp->shared);
     if (get_spindle_direction(tp->shared) < 0) new_spindlepos = -new_spindlepos;
 
@@ -2269,7 +2269,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
             break;
         case REVERSING:
             rtapi_print_msg(RTAPI_MSG_DBG, "REVERSING");
-            if (new_spindlepos < old_spindlepos) {
+            if (new_spindlepos < tp->old_spindlepos) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
                 // we've stopped, so set a new target at the original position
@@ -2286,7 +2286,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
 
                 tc->coords.rigidtap.state = RETRACTION;
             }
-            old_spindlepos = new_spindlepos;
+            tp->old_spindlepos = new_spindlepos;
             rtapi_print_msg(RTAPI_MSG_DBG, "Spindlepos = %f", new_spindlepos);
             break;
         case RETRACTION:
@@ -2299,7 +2299,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
             break;
         case FINAL_REVERSAL:
             rtapi_print_msg(RTAPI_MSG_DBG, "FINAL_REVERSAL");
-            if (new_spindlepos > old_spindlepos) {
+            if (new_spindlepos > tp->old_spindlepos) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
                 pmCartLinePoint(aux, tc->progress, &start);
@@ -2313,7 +2313,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
 
                 tc->coords.rigidtap.state = FINAL_PLACEMENT;
             }
-            old_spindlepos = new_spindlepos;
+            tp->old_spindlepos = new_spindlepos;
             break;
         case FINAL_PLACEMENT:
             rtapi_print_msg(RTAPI_MSG_DBG, "FINAL_PLACEMENT\n");

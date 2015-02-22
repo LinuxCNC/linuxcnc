@@ -134,6 +134,7 @@ typedef struct {
 				   FALSE if in position mode */
     double uu_per_rev;          /* user units per spindle revolution */
 
+    double old_spindlepos; // temporary in tpUpdateRigidTapState
 
     syncdio_t syncdio; //record tpSetDout's here
 
