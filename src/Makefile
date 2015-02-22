@@ -596,6 +596,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/latency-plot $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-histogram $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/moveoff_gui $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/hal-histogram $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/pyvcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/gladevcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)

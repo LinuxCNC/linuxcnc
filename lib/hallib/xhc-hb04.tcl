@@ -1,5 +1,9 @@
 # xhc-hb04.tcl: HALFILE for xhc-hb04 pendant
 
+# library procs:
+set hallib_dir [exec linuxcnc_var HALLIB_DIR]
+source [file join $hallib_dir hal_procs_lib.tcl]
+
 # Usage:
 # In ini file, include:
 #   [HAL]
@@ -88,11 +92,6 @@ proc is_uniq {list_name} {
   }
   return 1 ;# unique
 } ;# is_uniq
-
-proc pin_exists {name} {
-  if { [lindex [hal list pin "$name"] 0] == "$name"} {return 1}
-  return 0
-} ;# pin_exists
 
 proc connect_pins {} {
   foreach bname [lsort [array names ::XHC_HB04_BUTTONS]] {
