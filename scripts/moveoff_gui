@@ -231,10 +231,12 @@ proc resume_after_delay {} {
                     -font [list Helvetica $msg_fsize bold] \
        ] -side top -fill both
   set cancel_fsize [expr $::MV(font,size) + 8]
-  pack [button $t.b -text "Cancel Auto Resume" -bd 5 \
-                    -font [list Helvetica $cancel_fsize bold] \
-                    -command cancel_auto_resume \
-       ] -expand 1 -fill both
+  if !$::MV(opt,no_cancel_autoresume) {
+    pack [button $t.b -text "Cancel Auto Resume" -bd 5 \
+                      -font [list Helvetica $cancel_fsize bold] \
+                      -command cancel_auto_resume \
+         ] -expand 1 -fill both
+  }
   # use the same geometry as the toplevel for the popup:
   wm geometry $t [wm geometry $::MV(top)]
 
@@ -537,6 +539,7 @@ proc set_defaults {} {
   set ::MV(opt,noentry)                0
   set ::MV(opt,no_resume_inhibit)      0
   set ::MV(opt,no_pause_requirement)   0
+  set ::MV(opt,no_cancel_autoresume)   0
   set ::MV(resume,pulse,ms)          100
   set ::MV(resume,delay,sample,ms)   500
   set ::MV(resume,delay,secs)          5
@@ -634,6 +637,9 @@ proc get_parms {} {
                           set ::argv [lreplace $::argv 0 0]
                          }
       -no_pause_requirement {set ::MV(opt,no_pause_requirement) 1
+                             set ::argv [lreplace $::argv 0 0]
+                            }
+      -no_cancel_autoresume {set ::MV(opt,no_cancel_autoresume) 1
                              set ::argv [lreplace $::argv 0 0]
                             }
       -debug {set ::MV(opt,debug) 1
@@ -739,6 +745,7 @@ proc usage { {errtxt ""} } {
                 noentry \
                 no_resume_inhibit \
                 no_pause_requirement \
+                no_cancel_autoresume \
                } {
     if $::MV(opt,$item) {
       set default_$item inuse
@@ -781,6 +788,9 @@ Options for special cases:
                               (do not use a resume-inhibit-pin)
     \[-no_pause_requirement\] (default: $default_no_pause_requirement)
                               (no check for halui.program.is-paused)
+    \[-no_cancel_autoresume\] (default: $default_no_cancel_autoresume)
+                              (useful for retraact offsets with simple)
+                              (external control                       )
 "
 #"vim
 

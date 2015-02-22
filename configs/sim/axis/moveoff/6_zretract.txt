@@ -1,0 +1,38 @@
+Moveoff demo -- fixed retract on single axis (Z)
+
+Demo:
+  1) Start application (axis gui)
+  2) The little sim_pin gui SIMULATES an
+     external toggle switch that connected
+     to the external_enable signal.  This
+     signal enables/disables offsets
+     when the machine is paused.
+  3) Start program
+  4) Pause program
+  5) A moveoff_gui display will appear showing
+     the current Z offset
+  6) Toggle the sim_pin external_enable to 1 (ON) to 
+     apply the fixed offset.
+  7) Toggle the sim_pin external_enable to 0 (OFF) to
+     remove the fixed offset.
+     The program can not be resumed until the offset
+     is removed.
+  8) The fixed offset will be removed after
+     a delay to allow for spindle reactivation.
+     Typically, the spindle would be gated
+     off for the duration of the pause using
+     the mv.apply-offsets pin
+
+Moveoff_gui options:
+
+  onpause  -- offsets when program paused
+  local    -- local controls
+
+Moveoff component installed and connected using:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+For additional info:
+
+   man moveoff  ------ moveoff component
+   man moveoff_gui --- moveoff sample gui       
