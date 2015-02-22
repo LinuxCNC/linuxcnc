@@ -1393,7 +1393,7 @@ static int init_shared(tp_shared_t *tps,
     tps->num_aio = &num_aio;
 
     // from emcmotConfig
-    tps->arcBlendGapCycles = &cfg->arcBlendGapCycles; // XXX FIXME TYPE ERROR ?
+    tps->arcBlendGapCycles = &cfg->arcBlendGapCycles;
     tps->arcBlendOptDepth = &cfg->arcBlendOptDepth;
     tps->arcBlendEnable = &cfg->arcBlendEnable;
     tps->arcBlendRampFreq = &cfg->arcBlendRampFreq;
