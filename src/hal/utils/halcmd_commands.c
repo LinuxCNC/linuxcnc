@@ -61,6 +61,7 @@
 #include <fnmatch.h>
 #include <limits.h>			/* PATH_MAX */
 #include <math.h>
+#include <czmq.h>
 
 
 static int unloadrt_comp(char *mod_name);
@@ -1328,64 +1329,64 @@ int do_unloadusr_cmd(char *mod_name)
 
 int do_unloadrt_cmd(char *mod_name)
 {
-    int next, retval, retval1, n, all, skipbusy = 0;
+    int next, retval, retval1, nc, nvt, all;
     hal_comp_t *comp;
-    char comps[64][HAL_NAME_LEN+1]; // what were these guys thinking.. 64, right?
+
+    zlist_t *components = zlist_new ();     //  http://api.zeromq.org/czmq3-0:zlist
+    zlist_t *vtables = zlist_new ();
+
+    zlist_autofree (components); // normal rtcomps
+    zlist_autofree (vtables);    // vtables still referenced
 
     all = strcmp(mod_name, "all" ) == 0;
 
     /* build a list of component(s) to unload */
-    n = 0;
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( comp->type == TYPE_RT ) {
-
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		// see if a HAL vtable is exported by this comp, and
-		// assure unload only if refcount is zero
+		// add to 'unload last' list
 		hal_vtable_t *c;
 		int next = hal_data->vtable_list_ptr;
 		while (next != 0) {
 		    c = (hal_vtable_t *) SHMPTR(next);
 		    if (comp->comp_id == c->comp_id) {
-			if (c->refcount > 0) {
-			    halcmd_error("cannot unload '%s' - owns vtable '%s' still in use, reference count=%d\n",
-					 comp->name, c->name, c->refcount);
-			    skipbusy++;
-			    goto NEXTCOMP;
-			}
+			zlist_append(vtables, comp->name);
+			goto NEXTCOMP;
 		    }
 		    next = c->next_ptr;
 		}
-
-		if ( n < 63 ) {
-		    strncpy(comps[n], comp->name, HAL_NAME_LEN );
-		    comps[n][HAL_NAME_LEN] = '\0';
-		    n++;
-		}
+		zlist_append(components, comp->name);
 	    }
 	}
 	NEXTCOMP:
 	next = comp->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
-    /* mark end of list */
-    comps[n][0] = '\0';
-    if ( !all && ( comps[0][0] == '\0' )) {
-	if (!skipbusy)
-	    halcmd_error("component '%s' is not loaded\n", mod_name);
-	return -1;
+    nc = zlist_size(components);
+    nvt = zlist_size(vtables);
+
+    if (!all && ((nc + nvt) == 0)) {
+	halcmd_error("component '%s' is not loaded\n", mod_name);
+	retval1 = -1;
+	goto EXIT;
     }
-    /* we now have a list of components, unload them */
-    n = 0;
+    // concat vtables to end of component list
+    char *name;
+    while ((name = zlist_pop(vtables)) != NULL)
+	zlist_append(components, name);
+
+    /* we now have a list of components to do in-order, unload them */
     retval1 = 0;
-    while ( comps[n][0] != '\0' ) {
-	retval = unloadrt_comp(comps[n++]);
+    while ((name = zlist_pop(components)) != NULL) {
+	retval = unloadrt_comp(name);
 	/* check for fatal error */
 	if ( retval < -1 ) {
-	    return retval;
+	    retval1 = retval;
+	    goto EXIT;
 	}
 	/* check for other error */
 	if ( retval != 0 ) {
@@ -1395,6 +1396,9 @@ int do_unloadrt_cmd(char *mod_name)
     if (retval1 < 0) {
 	halcmd_error("unloadrt failed\n");
     }
+ EXIT:
+    zlist_destroy (&components);
+    zlist_destroy (&vtables);
     return retval1;
 }
 
