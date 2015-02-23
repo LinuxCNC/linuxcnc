@@ -1417,52 +1417,12 @@ int do_ping_cmd(void)
 static int unloadrt_comp(char *mod_name)
 {
     int retval;
-    /* char *argv[10]; */
-    /* int m=0; */
-    /* char executable[PATH_MAX]; */
 
     retval = rtapi_unloadrt(rtapi_instance, mod_name);
     /* print success message */
     halcmd_info("Realtime module '%s' unloaded rc=%d\n",
 		mod_name, retval);
     return retval;
-#if 0
-    if (!(current_flavor->flags & FLAVOR_KERNEL_BUILD)) {
-	char inst[50];
-	snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
-	if (get_rtapi_config(executable,"rtapi_app",PATH_MAX) != 0) {
-	    halcmd_error("rtapi_app executable path not found in rtapi.ini\n");
-	    return -ENOENT;
-	}
-	argv[m++] = executable;
-	argv[m++] = inst;
-	argv[m++] = "unload";
-    }  else {
-	if (get_rtapi_config(executable,"linuxcnc_module_helper",
-			     PATH_MAX) != 0) {
-	    halcmd_error("linuxcnc_module_helper executable path not found "
-			 "in rtapi.ini\n");
-	    return -ENOENT;
-	}
-	argv[m++] = executable;
-	argv[m++] = "remove";
-    }
-    argv[m++] = mod_name;
-    /* add a NULL to terminate the argv array */
-    argv[m++] = NULL;
-
-    retval = hal_systemv(argv);
-
-    if ( retval != 0 ) {
-	halcmd_error("rmmod failed, returned %d\n", retval);
-	return -1;
-    }
-    /* print success message */
-    halcmd_info("Realtime module '%s' unloaded\n",
-	mod_name);
-    return 0;
-#endif
-
 }
 
 int do_unload_cmd(char *mod_name) {
@@ -3029,7 +2989,7 @@ void dump_rings(const char *where, int attach, int detach)
 static void print_ring_info(char **patterns)
 {
     int next_ring, retval;
-    hal_ring_t *rptr; //  __attribute__((cleanup(halpr_autorelease_mutex)));
+    hal_ring_t *rptr;
     ringheader_t *rh;
     ringbuffer_t ringbuffer;
 
