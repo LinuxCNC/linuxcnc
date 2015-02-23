@@ -1,0 +1,2577 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-23 14:40+0100\n"
+"PO-Revision-Date: 2015-02-23 15:58+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.4\n"
+
+#. type: Plain text
+#: axis.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: axis.txt:4
+msgid "= AXIS GUI"
+msgstr "= L'interface graphique AXIS"
+
+#. type: Plain text
+#: axis.txt:6
+msgid "[[cha:axis-gui]] (((Axis GUI)))"
+msgstr "[[cha:Axis]] (((Axis)))"
+
+#. type: Plain text
+#: axis.txt:8
+msgid "== Introduction"
+msgstr "== Introduction"
+
+#. type: Plain text
+#: axis.txt:12
+msgid ""
+"AXIS(((AXIS))) is a graphical front-end for LinuxCNC which features a live "
+"preview and backplot. It is written in Python(((Python))) and uses "
+"Tk(((Tk))) and OpenGL(((OpenGL))) to display its user interface."
+msgstr ""
+"AXIS(((AXIS))) est une interface utilisateur graphique pour LinuxCNC, il "
+"offre un aperçu permanent du parcours de l'outil. Il est écrit en "
+"Python(((Python))), utilise Tk(((Tk))) et OpenGL(((OpenGL))) pour afficher "
+"son interface graphique."
+
+#. type: Plain text
+#: axis.txt:14
+msgid ".AXIS Window[[cap:AXIS-Window]]"
+msgstr ".Fenêtre d'AXIS[[cap:Fenetre-AXIS]]"
+
+#. type: Plain text
+#: axis.txt:16
+msgid "image::images/axis-2.5.png[align=\"center\"]"
+msgstr "image::../common/images/axis_25_fr.png[]"
+
+#. type: Plain text
+#: axis.txt:18
+msgid "== Getting Started"
+msgstr "== Commencer avec AXIS"
+
+#. type: Plain text
+#: axis.txt:23
+msgid ""
+"If your configuration is not currently set up to use AXIS, you can change it "
+"by editing the .ini file. In the section '[DISPLAY]' change the 'DISPLAY' "
+"line to read 'DISPLAY = axis'."
+msgstr ""
+"Si la configuration n'est pas couramment réglée pour utiliser Axis, éditer "
+"le fichier ini et dans la section '[DISPLAY]' changer le 'DISPLAY' en "
+"'DISPLAY = axis'."
+
+#. type: Plain text
+#: axis.txt:26
+msgid ""
+"The sample configuration 'sim/axis.ini' is already configured to use AXIS as "
+"its front-end."
+msgstr ""
+"La configuration simplifiée 'sim/axis.ini' est déjà configurée pour utiliser "
+"AXIS comme interface graphique."
+
+#. type: Plain text
+#: axis.txt:28
+msgid "=== A Typical Session"
+msgstr "=== Session classique avec AXIS"
+
+#. type: Plain text
+#: axis.txt:38
+#, no-wrap
+msgid ""
+" . Start LinuxCNC.\n"
+" . Reset E-STOP (F1) and turn the Machine Power (F2) on.\n"
+" . Home all axes.\n"
+" . Load the g-code file.\n"
+" . Use the preview plot to verify that the program is correct.\n"
+" . Load the material.\n"
+" . Set the proper offset for each axis by jogging and using the Touch\n"
+"   Off button as needed.\n"
+" . Run the program.\n"
+msgstr ""
+" . Lancer LinuxCNC et sélectionner un fichier de configuration.\n"
+" . Relâcher le bouton d'arrêt d'urgence A/U (F1) et presser celui de Marche machine (F2).\n"
+" . Faire les prises d'origine machine POM pour chacun des axes.\n"
+" . Charger un fichier d'usinage G-code.\n"
+" . Utiliser l'affichage du parcours d'outil pour vérifier que le programme est correct.\n"
+" . Brider le brut à usiner sur la table.\n"
+" . Faire les prises d'origine pièce 'POP' de chacun des axes avec le jog\n"
+"   et en utilisant le bouton Toucher.\n"
+" . Lancer le programme.\n"
+
+#. type: Plain text
+#: axis.txt:46
+msgid ""
+"[NOTE] To run the same program again depends on your setup and "
+"requirements.  You might need to load more material and set offsets or move "
+"over and set an offset then run the program again. If your material is "
+"fixtured then you might need to only run the program again. See the <<sub:"
+"axis-machine-menu,Machine Menu>> for more information on the run command."
+msgstr ""
+"[NOTE] Pour usiner le même fichier une nouvelle fois, retourner à l'étape 6. "
+"Pour usiner un fichier différent, retourner à l'étape 4. Quand le travail "
+"est terminé, quitter AXIS. <<sub:axis-machine-menu,Le menu machine>>, plus "
+"loin, donne d'autres détails à ce propos."
+
+#. type: Plain text
+#: axis.txt:48
+msgid "== AXIS Display"
+msgstr "== L'affichage d'AXIS"
+
+#. type: Plain text
+#: axis.txt:50
+msgid "The AXIS window contains the following elements:"
+msgstr "La fenêtre d'AXIS contient les éléments suivants:"
+
+#. type: Plain text
+#: axis.txt:81
+#, no-wrap
+msgid ""
+"* A display area that shows one of the following:\n"
+" ** a preview of the loaded file (in this case,\n"
+"   'axis.ngc'), as well as the current location of the CNC(((CNC)))\n"
+"   machine's 'controlled point'. Later, this area will display the path\n"
+"   the CNC machine has moved through, called the 'backplot'\n"
+" ** a large readout showing the current position and all offsets.\n"
+"* A menu bar and toolbar that allow you to perform various actions\n"
+"* 'Manual Control Tab' - which allows you to make the\n"
+" machine move, turn the spindle on or off, and turn the coolant on or\n"
+" off if included in the ini file.\n"
+"* 'MDI Tab' - where G-code programs can be entered manually,\n"
+" one line at a time. This also shows the 'Active G Codes' which shows\n"
+" which modal G Codes are in effect.\n"
+"* 'Feed Override' - which allows you to scale\n"
+" the speed of programmed motions. The default maximum is 120%\n"
+" and can be set to a different\n"
+" value in the ini file. See the Integrator Manual for more information\n"
+" on this setting.\n"
+"* 'Spindle Override' - which allows you to\n"
+" scale the spindle speed up or down.\n"
+"* 'Jog Speed' - which allows you to set the jog speed\n"
+" within the limits set in the ini file. See the Integrator Manual for\n"
+" more information on the ini file.\n"
+"* 'Max Velocity' - which allows you to restrict the maximum velocity of all\n"
+" programmed motions (except spindle synchronized motion).\n"
+"* A text display area that shows the loaded G-Code.\n"
+"* A status bar which shows the state of the machine. In this screen\n"
+" shot, the machine is turned on, does not have a tool inserted, and the\n"
+" displayed position is 'Relative' (showing all offsets), and 'Actual'\n"
+" (showing feedback position).\n"
+msgstr ""
+"* Un espace d'affichage qui montre:\n"
+" ** la visualisation du fichier chargé (dans ce cas, 'axis.ngc'), ainsi que\n"
+"    la position courante du 'point contrôlé'. Plus tard, cette zone\n"
+"    affichera le parcours de l'outil en déplacement, cette zone est appelée\n"
+"    le parcours d'outil (backplot).\n"
+" ** Un large champ de lecture, indiquant la position courante et tous les décalages.\n"
+"* Une barre de menus et une barre d'outils, permettant d'effectuer diverse actions.\n"
+"* L'onglet 'Contrôle manuel', qui permet de faire des mouvements d'axe,\n"
+"   de mettre la broche en rotation ou de l'arrêter, de mettre l'arrosage\n"
+"   en marche ou de l'arrêter, si inclus dans le fichier ini.\n"
+"* L'onglet 'Données manuelles' (appelé aussi MDI), où les blocs de\n"
+"   programme G-code peuvent être entrés et exécutés à la main, une ligne à la\n"
+"   fois. Cette fenêtre affiche également les G-codes actifs, permettant de\n"
+"   connaître le groupe modal des G-codes, en vigueur.\n"
+"* Le curseur 'Correcteur de vitesse' qui permet d'augmenter ou\n"
+"   de diminuer la vitesse d'avance. La valeur maximale par défaut\n"
+"   est de 120%, elle peut être réglée différemment dans le fichier ini.\n"
+"* Les éventuels correcteurs de vitesse de rotation de la broche.\n"
+"* Le curseur de réglage de la vitesse de jog.\n"
+"* Le curseur de réglage de la vitesse maximale de tous les mouvements machine.\n"
+"* Une zone de textes qui affiche le G-code du fichier chargé.\n"
+"* Une barre d'état qui affiche l'état de la machine. Dans cette capture\n"
+"   d'écran, la machine est en marche, aucun outil n'est monté, la position\n"
+"   s'affiche en 'relatif' à l'origine pièce (par opposition à une\n"
+"   position 'absolue') et 'actuelle' (par opposition à une position 'commandée')\n"
+
+#. type: Plain text
+#: axis.txt:83
+msgid "=== Menu Items[[sec:axis-menu]] (((Axis Menu)))"
+msgstr "=== Options des menus[[sec:axis-menu]]"
+
+#. type: Plain text
+#: axis.txt:87
+msgid ""
+"Some menu items might be grayed out depending on how you have your .ini file "
+"configured. For more information on configuration see the Integrator Manual."
+msgstr ""
+"Certaines options de menu peuvent s'afficher en grisé, c'est dépendant des "
+"options du fichier de configuration ini."
+
+#. type: Plain text
+#: axis.txt:89
+msgid ".File Menu"
+msgstr ".Menu Fichier"
+
+#. type: Plain text
+#: axis.txt:93
+#, no-wrap
+msgid ""
+"* 'Open...' - Opens a standard dialog box to open a g code file to load in AXIS. If\n"
+"    you have configured LinuxCNC to use a filter program you can also open it\n"
+"    up. See the Integrator manual for more information on filter programs.\n"
+msgstr ""
+"* 'Ouvrir...' - C'est une boîte de dialogue standard pour ouvrir un fichier G-code\n"
+"    à charger dans AXIS. Si un filtre de programme a été configuré,\n"
+"    il peut aussi être ouvert ici.\n"
+
+#. type: Bullet: '* '
+#: axis.txt:95
+msgid "'Recent Files' - Displays a list of recently opened files."
+msgstr ""
+"'Fichiers récents...' - Affiche la liste des fichiers ouverts récemment."
+
+#. type: Plain text
+#: axis.txt:99
+#, no-wrap
+msgid ""
+"* 'Edit...' - Open the current g code file for editing if you have an editor\n"
+"    configured in your ini file. See the Integrator Manual for more\n"
+"    information on specifying an editor to use.\n"
+msgstr ""
+"* 'Éditer...' - Ouvre le fichier G-code courant pour édition si un éditeur\n"
+"    a été déclaré dans le fichier ini.\n"
+
+#. type: Plain text
+#: axis.txt:104
+#, no-wrap
+msgid ""
+"* 'Reload' - Reload the current g code file. If you edited it you must reload it\n"
+"    for the changes to take affect. If you stop a file and want to start\n"
+"    from the beginning then reload the file. The toolbar reload is the same\n"
+"    as the menu.\n"
+msgstr ""
+"* 'Recharger...' - Recharge le fichier G-code courant. Si le fichier a été\n"
+"   édité, il doit être rechargé pour que les modifications prennent effet. Si un\n"
+"   programme a été stoppé, pour le reprendre depuis le début, le recharger.\n"
+"   Le bouton 'Recharger' a le même effet que l'option de menu.\n"
+
+#. type: Bullet: '* '
+#: axis.txt:106
+msgid "'Save gcode as...' - Save the current file with a new name."
+msgstr ""
+"'Enregistrer le G-code sous...' - Enregistre le fichier courant sous un   "
+"nouveau nom."
+
+#. type: Plain text
+#: axis.txt:110
+#, no-wrap
+msgid ""
+"* 'Properties' - The sum of the rapid and feed moves. Does not factor in\n"
+"    acceleration, blending or path mode so time reported will never\n"
+"    be less than the actual run time.\n"
+msgstr ""
+"* 'Propriétés...' - Donne la somme des mouvements en vitesse rapide et celle en\n"
+"    vitesse travail. Ne tient pas compte des accélérations, ni des\n"
+"    décélérations, ni des modes de trajectoire, de sorte qu'il ne donne\n"
+"    jamais de temps inférieur au temps réel d'exécution.\n"
+
+#. type: Plain text
+#: axis.txt:113
+#, no-wrap
+msgid ""
+"* 'Edit tool table...' - Same as Edit if you have defined an editor\n"
+"   you can open the tool table and edit it.\n"
+msgstr ""
+"* 'Éditer la table d'outils...' - Ouvre un dialogue permettant d'éditer les\n"
+"   valeurs de la table d'outils.\n"
+
+#. type: Bullet: '* '
+#: axis.txt:115
+msgid "'Reload tool table' - After editing the tool table you must reload it."
+msgstr ""
+"'Recharger la table d'outils...' - Après avoir édité la table d'outil, il\n"
+"   convient de la recharger pour que les nouvelles valeurs soient prisent "
+"en\n"
+"   compte tout de suite."
+
+#. type: Plain text
+#: axis.txt:118
+#, no-wrap
+msgid ""
+"* 'Ladder editor' - If you have loaded Classic Ladder you can edit it from\n"
+"   here. See the Integrator Manual on setting up Classic Ladder\n"
+msgstr ""
+"* 'Éditeur de Ladder...' - Si Classic Ladder a été chargé, il est possible de\n"
+"   l'éditer ici.\n"
+
+#. type: Bullet: '* '
+#: axis.txt:120
+msgid "'Quit' - Terminates the current LinuxCNC session."
+msgstr "'Quitter...' - Termine la session courante de LinuxCNC."
+
+#. type: Plain text
+#: axis.txt:122
+msgid ".Machine Menu [[sub:axis-machine-menu]]"
+msgstr ".Menu Machine [[sub:axis-machine-menu]]"
+
+#. type: Bullet: '* '
+#: axis.txt:124
+msgid "'Toggle Emergency Stop F1' - Change the state of the Emergency Stop."
+msgstr ""
+"'Arrêt d'Urgence F1...' - (bascule) Active/désactive l'arrêt d'urgence."
+
+#. type: Plain text
+#: axis.txt:127
+#, no-wrap
+msgid ""
+"* 'Toggle Machine Power F2' - Change the state of the Machine Power if\n"
+"   the Emergency Stop is not on.\n"
+msgstr "* 'Marche/Arrêt F2...' - Active ou désactive (bascule) la puissance machine.\n"
+
+#. type: Bullet: '* '
+#: axis.txt:129
+msgid "'Run Program' - Run the currently loaded program from the beginning."
+msgstr "'Démarrer le programme...' - Lance l'exécution du programme G-code."
+
+#. type: Plain text
+#: axis.txt:133
+#, no-wrap
+msgid ""
+"* 'Run From Selected Line' - Select the line you want to start from first.\n"
+"   Use with caution as this will move the tool to the expected position before\n"
+"   the line first then it will execute the rest of the code.\n"
+msgstr ""
+"* 'Démarrer à la ligne sélectionnée...' - Prudence avec cette commande,\n"
+"   respecter la démarche suivante: Premièrement, sélectionner à la souris,\n"
+"   la ligne à laquelle démarrer. Déplacer ensuite manuellement, l'outil à la\n"
+"   position de la ligne précédente puis, cette commande exécutera le reste du code.\n"
+
+#. type: Plain text
+#: axis.txt:136
+msgid ""
+"[WARNING] Do not use 'Run From Selected Line' if your g code program "
+"contains subroutines."
+msgstr ""
+"[WARNING] Ne pas utiliser la commande 'Démarrer à la ligne sélectionnée...' "
+"si le programme G-code contient des sous-programmes."
+
+#. type: Bullet: '* '
+#: axis.txt:138
+msgid "'Step' - Single step through a program."
+msgstr "'Pas à pas...' - Avance d'un seul pas de programme."
+
+#. type: Bullet: '* '
+#: axis.txt:140
+msgid "'Pause' - Pause a program."
+msgstr "'Pause...' - Effectue une pause dans le programme."
+
+#. type: Bullet: '* '
+#: axis.txt:142
+msgid "'Resume' - Resume running from a pause."
+msgstr "'Reprise...' - Reprends la marche après une pause."
+
+#. type: Plain text
+#: axis.txt:145
+#, no-wrap
+msgid ""
+"* 'Stop' - Stop a running program. When run is selected after a stop the program\n"
+"    will start from the beginning.\n"
+msgstr ""
+"* 'Stopper...' - Stoppe le programme en marche. Quand 'Démarrer le programme'\n"
+"   est lancé après avoir été stoppé, il redémarre au départ.\n"
+
+#. type: Plain text
+#: axis.txt:148
+#, no-wrap
+msgid ""
+"* 'Stop at M1' - If an M1 is reached, and this is checked, program execution\n"
+"    will stop on the M1 line. Press Resume to continue.\n"
+msgstr ""
+"* 'Arrêt sur M1...' - Si M1 est rencontré et que cette option est cochée,\n"
+"   l'exécution du programme s'interrompra à la ligne où M1 a été rencontré.\n"
+"   Presser 'Reprise' pour continuer.\n"
+
+#. type: Plain text
+#: axis.txt:151
+#, no-wrap
+msgid ""
+"* 'Skip lines with \"/\"' - If a line begins with '/' and this is checked,\n"
+"   the line will be skipped.\n"
+msgstr ""
+"* 'Sauter les lignes avec \"/\"...' - Si une ligne commençant par un '/' est rencontrée\n"
+"   et que cette option est cochée, cette ligne sera sautée.\n"
+
+#. type: Bullet: '* '
+#: axis.txt:153
+msgid "'Clear MDI history' - Clears the MDI history window."
+msgstr ""
+"'Vider l'historique du MDI...' - Efface l'historique des données manuelles."
+
+#. type: Bullet: '* '
+#: axis.txt:155
+msgid "'Copy from MDI history' - Copies the MDI history to the clipboard"
+msgstr ""
+"'Copier depuis l'historique du MDI...' - Copier l'historique des données "
+"manuelles dans le presse-papier."
+
+#. type: Bullet: '* '
+#: axis.txt:157
+msgid ""
+"'Paste to MDI history' - Paste from the clipboard to the MDI history window"
+msgstr ""
+"'Coller dans l'historique du MDI...' - Coller le contenu du presse-papier "
+"dans la fenêtre d'historique des données manuelles."
+
+#. type: Plain text
+#: axis.txt:162
+#, no-wrap
+msgid ""
+"* 'Calibration' - Starts the Servo Axis Calibration assistant.\n"
+"   Calibration reads the HAL file and for every 'setp' that uses a variable\n"
+"   from the ini file that is in an [AXIS_n] section it creates an entry that\n"
+"   can be edited and tested.\n"
+msgstr ""
+"* 'Calibration' - Lance l'assistant de réglage de PID Servo.\n"
+"   La calibration lit le fichier HAL et pour chaque 'pas' il utilise\n"
+"   une variable de la section [AXIS_n] du fichier ini et crée\n"
+"   une entrée pouvant être éditée et testée.\n"
+
+#. type: Plain text
+#: axis.txt:165
+#, no-wrap
+msgid ""
+"* 'Show HAL Configuration' - Opens the HAL Configuration window where you can\n"
+"   monitor HAL Components, Pins, Parameters, Signals, Functions, and Threads.\n"
+msgstr ""
+"* 'Afficher configuration de HAL...' - Ouvre une fenêtre sur la configuration de\n"
+"   HAL depuis laquelle il est possible de visualiser tous les 'Composants',\n"
+"   'Pins', 'Paramètres', 'Signaux', 'Fonctions' et 'Threads' de HAL.\n"
+
+#. type: Plain text
+#: axis.txt:168
+#, no-wrap
+msgid ""
+"* 'HAL Meter' - Opens a window where you can monitor a single HAL Pin, Signal, or\n"
+"    Parameter.\n"
+msgstr ""
+"* 'HAL Mètre...' - Ouvre une fenêtre dans laquelle il est possible de visualiser\n"
+"   un seul 'Signal, HAL Pin', ou 'Paramètre' de HAL.\n"
+
+#. type: Bullet: '* '
+#: axis.txt:170
+msgid ""
+"'HAL Scope' - Opens a virtual oscilloscope that allows plotting HAL values "
+"vs. time."
+msgstr ""
+"'HAL Scope...' - Ouvre un oscilloscope virtuel qui permet de tracer dans le "
+"temps, les valeurs de HAL."
+
+#. type: Bullet: '* '
+#: axis.txt:172
+msgid "'Show LinuxCNC Status' - Opens a window showing LinuxCNC's status."
+msgstr ""
+"'Afficher l'état de LinuxCNC...' - Ouvre une fenêtre montrant l'état de "
+"LinuxCNC."
+
+#. type: Bullet: '* '
+#: axis.txt:174
+msgid ""
+"'Set Debug Level' - Opens a window where debug levels can be viewed and some "
+"can be set."
+msgstr ""
+"'Choisir le niveau de Debug...' - Ouvre une fenêtre dans laquelle les "
+"niveaux de débogage sont visibles et certains réglables."
+
+#. type: Bullet: '* '
+#: axis.txt:176
+msgid "'Homing' - Home one or all axes."
+msgstr ""
+"'Prise d'origine...' - Effectue la prise d'origine machine d'un ou de tous "
+"les axes."
+
+#. type: Bullet: '* '
+#: axis.txt:178
+msgid "'Unhoming' - Unhome one or all axes."
+msgstr "'Annulation OM...' - Annule les origines d'un ou de tous les axes."
+
+#. type: Bullet: '* '
+#: axis.txt:180
+msgid "'Zero Coordinate System' - Clear (set to zero) a chosen offset."
+msgstr ""
+"'Annulation décalages d'origine...' - Annule les décalages d'origine du "
+"système de coordonnées choisi. (origine pièce)"
+
+#. type: Plain text
+#: axis.txt:182
+msgid "[[sec:tool-touch-off]] (((Tool Touch Off)))"
+msgstr "[[sec:tool-touch-off]] (((Tool Touch Off)))"
+
+#. type: Plain text
+#: axis.txt:188
+#, no-wrap
+msgid ""
+"* 'Tool touch off to workpiece' - When performing Touch Off, the value\n"
+"entered is relative to the current workpiece ('G5x') coordinate system,\n"
+"as modified by the axis offset ('G92').  When the Touch Off is complete,\n"
+"the Relative coordinate for the chosen axis will become the value entered.\n"
+"See <<sec:G10-L10,G10 L10>> in the G code chapter.\n"
+msgstr ""
+"* 'L'outil touchera la pièce...' - Lorsqu'un 'Toucher' est effectué, la valeur\n"
+"   entrée est relative au système de coordonnées pièce actuel (G5x), tel que\n"
+"   modifié par le décalage d'axe (G92). Quand la séquence de 'Toucher' est\n"
+"   complète, la coordonnée relative pour l'axe choisi prendra la valeur\n"
+"   entrée. Voir aussi <<sec:G10-L10,G10 L10>> dans le chapitre du G-code.\n"
+
+#. type: Plain text
+#: axis.txt:195
+#, no-wrap
+msgid ""
+"* 'Tool touch off to fixture' - When performing Touch Off, the value entered\n"
+"is relative to the ninth ('G59.3') coordinate system, with the axis offset\n"
+"('G92') ignored.  This is useful when there is a tool touch-off fixture at a\n"
+"fixed location on the machine, with the ninth ('G59.3') coordinate system set\n"
+"such that the tip of a zero-length tool is at the fixture's origin when the\n"
+"Relative coordinates are 0.  See <<sec:G10-L11,G10 L11>> in the G code chapter.\n"
+msgstr ""
+"* 'L'outil touchera le porte-pièce...' - Lorsqu'un 'Toucher' est effectué,\n"
+"   la valeur entrée est relative au 9ème système de coordonnées (G59.3), le\n"
+"   décalage d'axe (G92) est ignoré. Mode destiné aux machines possédant un\n"
+"   porte-pièce fixe, référencé à un endroit, sur lequel s'effectue le 'Toucher'.\n"
+"   Le 9ème système de coordonnées doit être ajusté pour que la pointe d'un\n"
+"   outil de longueur nulle (le nez de broche), soit à l'origine du porte-pièce\n"
+"   quand les coordonnées relatives sont à 0. Voir aussi\n"
+"   <<sec:G10-L11,G10 L11>> dans le chapitre du G-code.\n"
+
+#. type: Plain text
+#: axis.txt:197
+msgid ".View Menu"
+msgstr ".Menu Vues"
+
+#. type: Plain text
+#: axis.txt:205
+msgid ""
+".It's all in your point of view **** The AXIS display pick menu 'View' "
+"refers to 'Top', 'Front', and 'Side' views.  These terms are correct if the "
+"CNC machine has its Z axis vertical, with positive Z up. This is true for "
+"vertical mills, which is probably the most popular application, and also "
+"true for almost all EDM machines, and even vertical turret lathes, where the "
+"part is turning below the tool."
+msgstr ""
+".Tout est dans le point de vue...\n"
+"****\n"
+"Les icônes de choix du type d'affichage et du menu 'Vues' d'AXIS se référent "
+"à la 'Vue de dessus', la 'Vue de face' et la 'Vue de côté'. Ces termes sont "
+"corrects si la machine CNC a un axe Z vertical, avec une valeur de Z "
+"positive en haut. C'est vrai pour les fraiseuses verticales, qui sont "
+"probablement les plus populaires, c'est également vrai pour toutes les "
+"machines d'électro-érosion et aussi les tours verticaux, sur lesquels la "
+"pièce tourne sous l'outil."
+
+#. type: Plain text
+#: axis.txt:211
+msgid ""
+"The terms 'Top', 'Front', and 'Side' might be confusing however, in other "
+"CNC machines, such as a standard lathe, where the Z axis is horizontal, or a "
+"horizontal mill, again where the Z axis is horizontal, or even an inverted "
+"vertical turret lathe, where the part is turning above the tool, and the Z "
+"axis positive direction is down!"
+msgstr ""
+"Les termes 'Vue de dessus', 'Vue de face' et 'Vue de côté' sont cependant "
+"source de confusion sur d'autres machines CNC, comme un tour standard, sur "
+"lequel l'axe Z est horizontal, ou sur une fraiseuse horizontale, qui a "
+"également l'axe Z horizontal, ou même un tour vertical inversé, sur lequel "
+"la pièce tourne au dessus de l'outil et qui a son axe Z positif vers le bas!"
+
+#. type: Plain text
+#: axis.txt:215
+msgid ""
+"Just remember that positive Z axis is (almost) always away from the part.  "
+"So be familiar with your machine's design and interpret the display as "
+"needed.  ****"
+msgstr ""
+"Il faut juste se rappeler que l'axe Z est toujours parallèle a la broche et "
+"plus positif en s'éloignant de celle-ci. Être familiarisé avec la "
+"cinématique de ses machines, permet d'interpréter l'affichage comme il se "
+"doit.\n"
+"****"
+
+#. type: Plain text
+#: axis.txt:218
+#, no-wrap
+msgid ""
+"* 'Top View' - The Top View (or Z view) displays the G code looking along the Z axis from\n"
+"    positive to negative. This view is best for looking at X & Y.\n"
+msgstr ""
+"* 'Vue de dessus...' - La vue de dessus (ou vue de Z) affiche l'aspect du G-code\n"
+"   vu depuis le côté positif de l'axe Z et en regardant vers son côté négatif.\n"
+"   Cette vue convient bien pour visualiser les axes X et Y.\n"
+
+#. type: Plain text
+#: axis.txt:223
+#, no-wrap
+msgid ""
+"* 'Rotated Top View' - The Rotated Top View (or rotated Z view) also displays the G code looking\n"
+"    along the Z axis from positive to negative. But sometimes it's convenient\n"
+"    to display the X & Y axes rotated 90 degrees to fit the display better.\n"
+"    This view is also best for looking at X & Y.\n"
+msgstr ""
+"* 'Vue de dessus basculée...' - La vue de dessus basculée (ou vue de Z basculé)\n"
+"   affiche également l'aspect du G-code vu depuis le côté positif de l'axe Z et\n"
+"   en regardant vers son côté négatif. Mais cette fois, les axes X et Y sont\n"
+"   représentés pivoté de 90 degrés pour mieux occuper l'espace d'affichage.\n"
+"   Cette vue convient bien également, pour visualiser les axes X et Y.\n"
+
+#. type: Plain text
+#: axis.txt:226
+#, no-wrap
+msgid ""
+"* 'Side View' - The Side View (or X view) displays the G code looking along the X axis from\n"
+"    positive to negative. This view is best for looking at Y & Z.\n"
+msgstr ""
+"* 'Vue de côté...' - La vue de côté (ou vue de X) affiche l'aspect du G-code vu\n"
+"   depuis le côté positif de l'axe X et en regardant vers son côté négatif.\n"
+"   Cette vue convient pour visualiser les axes Y et Z.\n"
+
+#. type: Plain text
+#: axis.txt:229
+#, no-wrap
+msgid ""
+"* 'Front View' - The Front View (or Y view) displays the G code looking along the Y axis from\n"
+"    negative to positive. This view is best for looking at X & Z.\n"
+msgstr ""
+"* 'Vue de face...' - La vue de face (ou vue de Y) affiche l'aspect du G-code vu\n"
+"   depuis le côté positif de l'axe Y et en regardant vers son côté négatif.\n"
+"   Cette vue convient bien pour visualiser les axes X et Z.\n"
+
+#. type: Plain text
+#: axis.txt:237
+#, no-wrap
+msgid ""
+"* 'Perspective View' - The Perspective View (or P view) displays the G code looking at the part from\n"
+"    an adjustable point of view, defaulting to X+, Y-, Z+. The position is\n"
+"    adjustable using the mouse and the drag/rotate selector. This view is a\n"
+"    compromise view, and while it does do a good job of trying to show three\n"
+"    (to nine!) axes on a two-dimensional display, there will often be some\n"
+"    feature that is hard to see, requiring a change in viewpoint. This view\n"
+"    is best when you would like to see all three (to nine) axes at once.\n"
+msgstr ""
+"* 'Vue en perspective...' - La vue en perspective (ou vue P) affiche l'aspect du\n"
+"   G-code en regardant vers la pièce depuis un point de vue orientable, par\n"
+"   défaut vers X+, Y-, Z+. Cette position est orientable en la sélectionnant à\n"
+"   la souris. L'affichage est un compromis, il tente d'afficher en 3D, entre\n"
+"   trois et  neuf axes, sur un écran en deux dimensions. Il y aura donc souvent\n"
+"   certaines caractéristiques difficiles à voir, ce qui requerra un\n"
+"   changement de point de vue. Cette vue convient bien pour voir les trois\n"
+"   axes à la fois.\n"
+
+#. type: Bullet: '* '
+#: axis.txt:239
+msgid "'Display Inches' - Set the AXIS display scaling for inches."
+msgstr ""
+"'Affichage en pouces...' - Ajuste l'échelle d'affichage d'AXIS pour les "
+"pouces."
+
+#. type: Bullet: '* '
+#: axis.txt:241
+msgid "'Display MM' - Set the AXIS display scaling for millimeters."
+msgstr ""
+"'Affichage en mm...' - Ajuste l'échelle d'affichage d'AXIS pour les "
+"millimètres."
+
+#. type: Plain text
+#: axis.txt:244
+#, no-wrap
+msgid ""
+"* 'Show Program' - The preview display of the loaded G code program can be entirely\n"
+"    disabled if desired.\n"
+msgstr ""
+"* 'Afficher le programme...' - L'affichage à l'écran de l'aspect du G-code peut\n"
+"   être entièrement désactivé si l'opérateur le souhaite.\n"
+
+#. type: Plain text
+#: axis.txt:248
+#, no-wrap
+msgid ""
+"* 'Show Program Rapids' - The preview display of the loaded G code program will always show the\n"
+"    feedrate moves (G1,G2,G3) in white. But the display of rapid moves (G0)\n"
+"    in cyan can be disabled if desired.\n"
+msgstr ""
+"* 'Parcours d'outil en vitesse rapide...' - L'affichage du parcours d'outil du\n"
+"   programme G-code courant représente toujours les mouvements en vitesse\n"
+"   travail (G1,G2,G3) en blanc. Mais l'affichage des mouvements en vitesse\n"
+"   rapide (G0) en cyan peut être désactivé si si l'opérateur le souhaite.\n"
+
+#. type: Plain text
+#: axis.txt:251
+#, no-wrap
+msgid ""
+"* 'Alpha-blend Program' - This option makes the preview of complex programs easier to see, but\n"
+"    may cause the preview to display more slowly.\n"
+msgstr ""
+"* 'Simulation de transparence...' - Cette option rends plus lisible le tracé des\n"
+"   parcours affichés par les programmes complexes, mais il peut rendre\n"
+"   l'affichage plus lent.\n"
+
+#. type: Plain text
+#: axis.txt:254
+#, no-wrap
+msgid ""
+"* 'Show Live Plot' - The highlighting of the feedrate paths (G1,G2,G3) as the tool moves\n"
+"    can be disabled if desired.\n"
+msgstr ""
+"* 'Parcours d'outil en temps réel...' - La surbrillance des chemins d'outils en\n"
+"   vitesse travail (G1,G2,G3) quand l'outil se déplace peut être désactivée si\n"
+"   l'opérateur le souhaite.\n"
+
+#. type: Bullet: '* '
+#: axis.txt:256
+msgid ""
+"'Show Tool' - The display of the tool cone/cylinder can be disabled if "
+"desired."
+msgstr ""
+"'Afficher l'outil...' - Le symbole d'un outil, représenté par un cône ou un "
+"cylindre peut être désactivé si l'opérateur le souhaite."
+
+#. type: Plain text
+#: axis.txt:259
+#, no-wrap
+msgid ""
+"* 'Show Extents' - The display of the extents (maximum travel in each axis direction)\n"
+"    of the loaded G code program can be disabled if desired.\n"
+msgstr ""
+"* 'Afficher les étendues...' - L'affichage des étendues du programme G-code\n"
+"   chargé (déplacements maximum sur chacun des axes), peut être désactivé si\n"
+"   l'opérateur le souhaite.\n"
+
+#. type: Plain text
+#: axis.txt:263
+#, no-wrap
+msgid ""
+"* 'Show Offsets' - The selected fixture offset (G54-G59.3) origin location can be shown\n"
+"    as a set of three orthogonal lines, one each of red, blue, and green.\n"
+"    This offset origin (or fixture zero) display can be disabled if desired.\n"
+msgstr ""
+"* 'Afficher les offsets...' - L'emplacement de l'origine du système de\n"
+"   coordonnées pièce (G54 à G59.3) peut être représenté par un jeu de trois\n"
+"   lignes orthogonales, une rouge, une bleue et une verte.\n"
+"   L'affichage de cette origine pièce (ou zéro pièce), peut être désactivé si\n"
+"   l'opérateur le souhaite.\n"
+
+#. type: Plain text
+#: axis.txt:269
+#, no-wrap
+msgid ""
+"* 'Show Machine Limits' - The machine's maximum travel limits for each axis, as set in the ini\n"
+"    file, are shown as a rectangular box drawn in red dashed lines. This\n"
+"    is useful when loading a new G code program, or when checking for how\n"
+"    much fixture offset would be needed to bring the G code program within\n"
+"    the travel limits of your machine. It can be shut off if not needed.\n"
+msgstr ""
+"* 'Afficher les limites machine...' - Les limites maximales de déplacement\n"
+"   machine pour chacun des axes, qui sont fixées dans le fichier ini,\n"
+"   s'affichent comme une boîte rectangulaire en lignes pointillées rouges. Il\n"
+"   est facile, au chargement d'un nouveau programme G-code, de voir si la pièce\n"
+"   est contenue dans le volume représenté. Ou de vérifier de combien l'étau doit\n"
+"   être décalé, pour que le G-code puisse être usiné sans dépasser les limites\n"
+"   de déplacements de la machine. Cette option peut être désactivée si\n"
+"   l'opérateur le souhaite.\n"
+
+#. type: Plain text
+#: axis.txt:273
+#, no-wrap
+msgid ""
+"* 'Show Velocity' - A display of velocity is sometimes useful to see how close your\n"
+"    machine is running to its design velocities. It can be disabled\n"
+"    if desired.\n"
+msgstr ""
+"* 'Afficher la vitesse d'avance...' - L'affichage de la vitesse peut être utile\n"
+"   pour voir la précision avec laquelle la machine suit la vitesse commandée.\n"
+"   Cette option peut être désactivée si l'opérateur le souhaite.\n"
+
+#. type: Plain text
+#: axis.txt:280
+#, no-wrap
+msgid ""
+"* 'Show Distance to Go' - Distance to go is a very handy item to know when running an unknown\n"
+"    G code program for the first time. In combination with the rapid\n"
+"    override and feedrate override controls, unwanted tool\n"
+"    and machine damage can be avoided. Once the G code program has\n"
+"    been debugged and is running smoothly, the Distance to Go display\n"
+"    can be disabled if desired.\n"
+msgstr ""
+"* 'Afficher la distance restante...' - La distance restante est une valeur très\n"
+"   utile à suivre, au lancement d'un programme de G-code inconnu pour la\n"
+"   première fois. En combinaison avec les curseurs des correcteurs de vitesse,\n"
+"   des dégâts sur l'outil ou la machine peuvent être évités. Quand le programme\n"
+"   G-code sera débogué et qu'il fonctionnera en douceur, l'affichage de la\n"
+"   distance restante pourra être désactivée si l'opérateur le souhaite.\n"
+
+#. type: Plain text
+#: axis.txt:284
+#, no-wrap
+msgid ""
+"* 'Clear Live Plot' - As the tool travels in the Axis display, the G code path is highlighted.\n"
+"    To repeat the program, or to better see an area of interest, the\n"
+"    previously highlighted paths can be cleared.\n"
+msgstr ""
+"* 'Rafraîchir le parcours d'outil...' - Au fur et à mesure des déplacements de\n"
+"   l'outil, les parcours s'affichent sur l'écran d'Axis en surbrillance. Avant\n"
+"   de répéter le programme, ou pour avoir un affichage clair sur une zone\n"
+"   intéressante, la surbrillance des parcours précédents peut être rafraîchie.\n"
+
+#. type: Plain text
+#: axis.txt:287
+#, no-wrap
+msgid ""
+"* 'Show Commanded Position' - This is the position that LinuxCNC will try to go to. Once motion\n"
+"    has stopped, this is the position LinuxCNC will try to hold.\n"
+msgstr ""
+"* 'Afficher la position commandée...' - C'est la position que LinuxCNC cherche\n"
+"   à atteindre. Quand le mouvement est stoppé, c'est la position que LinuxCNC\n"
+"   cherchera à maintenir.\n"
+
+#. type: Plain text
+#: axis.txt:292
+#, no-wrap
+msgid ""
+"* 'Show Actual Position' - Actual Position is the measured position as read back from the\n"
+"    system's encoders or simulated by step generators. This may differ\n"
+"    slightly from the Commanded Position for many reasons including PID\n"
+"    tuning, physical constraints, or position quantization.\n"
+msgstr ""
+"* 'Afficher la position actuelle...' - La position actuelle est la position\n"
+"   mesurée grâce aux informations issues des codeurs ou simulées par le\n"
+"   générateur de pas. Elle peut différer légèrement de la position commandée\n"
+"   pour diverses raisons, comme les réglages des boucles PID, les contraintes\n"
+"   physiques ou les efforts de coupe.\n"
+
+#. type: Bullet: '* '
+#: axis.txt:294
+msgid ""
+"'Show Machine Position' - This is the position in unoffset coordinates, as "
+"established by Homing."
+msgstr ""
+"'Afficher la position machine...' - C'est la position par rapport à "
+"l'origine machine, telle qu'établie par la prise d'origine machine '(POM)'."
+
+#. type: Bullet: '* '
+#: axis.txt:296
+msgid ""
+"'Show Relative Position' - This is the Machine Position modified by 'G5x', "
+"'G92', and 'G43' offsets."
+msgstr ""
+"'Afficher la position relative...' - C'est la position par rapport à "
+"l'origine pièce, telle qu'établie par la prise d'origine pièce '(POP)'. On "
+"peut aussi représenter cette position comme étant l'origine machine à "
+"laquelle on a appliqué les codes de décalages des systèmes de coordonnées "
+"G5x, G92 et G43."
+
+#. type: Plain text
+#: axis.txt:298
+msgid ".Help Menu"
+msgstr ".Menu Aide"
+
+#. type: Bullet: '* '
+#: axis.txt:300
+msgid "'About Axis' - We all know what this is."
+msgstr ""
+"'A propos d'Axis...' - Donne la version et quelques informations relatives "
+"au copyright."
+
+#. type: Bullet: '* '
+#: axis.txt:302
+msgid "'Quick Reference' - Shows the keyboard shortcut keys."
+msgstr "'Aide rapide...' - Affiche la liste des raccourcis clavier."
+
+#. type: Plain text
+#: axis.txt:304
+msgid "=== Toolbar buttons"
+msgstr "=== Boutons de la barre d'outils"
+
+#. type: Plain text
+#: axis.txt:306
+msgid ""
+"From left to right in the Axis display, the toolbar buttons (keyboard "
+"shortcuts shown [in brackets]) are:"
+msgstr ""
+"Signification des boutons de la fenêtre d'AXIS, de gauche à droite, le "
+"raccourci clavier est [entre crochets]:"
+
+#. type: Bullet: '* '
+#: axis.txt:308
+msgid ""
+"image:images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)"
+"(((ESTOP))))"
+msgstr ""
+"image:images/tool_estop.gif[align=\"center\"] 'Arrêt d'urgence' (A/U) [F1] "
+"(en Anglais, E-Stop)(((Arrêt d'urgence)))"
+
+#. type: Bullet: '* '
+#: axis.txt:310
+msgid "image:images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))"
+msgstr ""
+"image:images/tool_power.gif[] Marche/Arrêt puissance machine [F2](((Marche/"
+"Arret)))"
+
+#. type: Bullet: '* '
+#: axis.txt:312
+msgid "image:images/tool_open.gif[] Open G Code file [O]"
+msgstr "image:images/tool_open.gif[] Ouvrir un fichier G-code [O]"
+
+#. type: Bullet: '* '
+#: axis.txt:314
+msgid "image:images/tool_reload.gif[] Reload current file [Ctrl-R]"
+msgstr "image:images/tool_reload.gif[] Recharger le fichier courant [Ctrl-R]"
+
+#. type: Bullet: '* '
+#: axis.txt:316
+msgid "image:images/tool_run.gif[] Begin executing the current file [R]"
+msgstr "image:images/tool_run.gif[] Départ cycle [R]"
+
+#. type: Bullet: '* '
+#: axis.txt:318
+msgid "image:images/tool_step.gif[] Execute next line [T]"
+msgstr "image:images/tool_step.gif[] Cycle en pas à pas [T]"
+
+#. type: Bullet: '* '
+#: axis.txt:320
+msgid "image:images/tool_pause.gif[] Pause Execution [P] Resume Execution[S]"
+msgstr "image:images/tool_pause.gif[] Pause [P] Reprise [S] "
+
+#. type: Bullet: '* '
+#: axis.txt:322
+msgid "image:images/tool_stop.gif[] Stop Program Execution [ESC]"
+msgstr "image:images/tool_stop.gif[] Stopper l'exécution du programme [ESC]"
+
+#. type: Bullet: '* '
+#: axis.txt:324
+msgid ""
+"image:images/tool_blockdelete.gif[] Toggle Skip lines with \"/\" [Alt-M-/]"
+msgstr ""
+"image:images/tool_blockdelete.gif[] Sauter ou non les lignes commençant par "
+"'/' [Alt-M-/]"
+
+#. type: Bullet: '* '
+#: axis.txt:326
+msgid "image:images/tool_optpause.gif[] Toggle Optional Pause [Alt-M-1]"
+msgstr ""
+"image:images/tool_optpause.gif[] Avec ou sans pause optionnelle [Alt-M-1]"
+
+#. type: Bullet: '* '
+#: axis.txt:328
+msgid "image:images/tool_zoomin.gif[] Zoom In"
+msgstr "image:images/tool_zoomin.gif[] Zoom plus"
+
+#. type: Bullet: '* '
+#: axis.txt:330
+msgid "image:images/tool_zoomout.gif[] Zoom Out"
+msgstr "image:images/tool_zoomout.gif[] Zoom moins"
+
+#. type: Bullet: '* '
+#: axis.txt:332
+msgid "image:images/tool_axis_z.gif[] Top view"
+msgstr "image:images/tool_axis_z.gif[] Vue prédéfinie 'Z' (vue de dessus)"
+
+#. type: Bullet: '* '
+#: axis.txt:334
+msgid "image:images/tool_axis_z2.gif[] Rotated Top view"
+msgstr "image:images/tool_axis_z2.gif[] Vue prédéfinie 'Z basculée'"
+
+#. type: Bullet: '* '
+#: axis.txt:336
+msgid "image:images/tool_axis_x.gif[] Side view"
+msgstr "image:images/tool_axis_x.gif[] Vue prédéfinie *X* (vue de côté)"
+
+#. type: Bullet: '* '
+#: axis.txt:338
+msgid "image:images/tool_axis_y.gif[] Front view"
+msgstr "image:images/tool_axis_y.gif[] Vue prédéfinie *Y* (vue de face)"
+
+#. type: Bullet: '* '
+#: axis.txt:340
+msgid "image:images/tool_axis_p.gif[] Perspective view"
+msgstr "image:images/tool_axis_p.gif[] Vue prédéfinie *P* (vue en perspective)"
+
+#. type: Bullet: '* '
+#: axis.txt:342
+msgid "image:images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]"
+msgstr ""
+"image:images/tool_rotate.gif[align=\"center\"] Orienter la vue avec le "
+"bouton gauche de la souris [D]"
+
+#. type: Bullet: '* '
+#: axis.txt:344
+msgid "image:images/tool_clear.gif[] Clear live backplot [Ctrl-K]"
+msgstr "image:images/tool_clear.gif[] Rafraîchir le parcours d'outil [Ctrl-K]"
+
+#. type: Plain text
+#: axis.txt:346
+msgid "=== Graphical Display Area"
+msgstr "=== Zones d'affichage graphique du programme"
+
+#. type: Plain text
+#: axis.txt:348
+msgid ".Coordinate Display"
+msgstr ".Affichage des coordonnées"
+
+#. type: Plain text
+#: axis.txt:353
+msgid ""
+"In the upper-left corner of the program display is the coordinate display.  "
+"It shows the position of the machine.  To the left of the axis name, an "
+"origin symbol is shown if the axis has been homed."
+msgstr ""
+"L'affichage des coordonnées est situé en haut à gauche de l'écran graphique. "
+"Il montre les positions de la machine. A gauche du nom de l'axe, un symbole "
+"d'origine est visible si la prise d'origine de l'axe a été faite."
+
+#. type: Plain text
+#: axis.txt:355
+msgid "image:images/axis-homed.png[]"
+msgstr "image:images/axis-homed.png[]"
+
+#. type: Plain text
+#: axis.txt:357
+msgid "A limit symbol is shown if the axis is on one of its limit switches."
+msgstr ""
+"A droite du nom d'axe, un symbole de limite est visible si l'axe est sur un "
+"de ses capteurs de limite."
+
+#. type: Plain text
+#: axis.txt:359
+msgid "image:images/axis-limit.png[]"
+msgstr "image:images/axis-limit.png[]"
+
+#. type: Plain text
+#: axis.txt:366
+msgid ""
+"To properly interpret these numbers, refer to the 'Position:' indicator in "
+"the status bar. If the position is 'Absolute', then the displayed number is "
+"in the machine coordinate system. If it is 'Relative', then the displayed "
+"number is in the offset coordinate system. When the coordinates displayed "
+"are relative and an offset has been set, the display will include a cyan "
+"'machine origin' marker."
+msgstr ""
+"Pour interpréter correctement ces valeurs, référez vous à l'indicateur "
+"'Position' de la barre d'état. Si la position est 'Absolue', alors les "
+"valeurs affichées sont exprimées en coordonnées machine. Si la position est "
+"'Relative', alors les valeurs affichées sont exprimées en coordonnées "
+"relatives à la pièce. Quand les coordonnées affichées sont relatives, une "
+"marque d'origine de couleur cyan est visible pour représenter l'origine "
+"machine."
+
+#. type: Plain text
+#: axis.txt:368
+msgid "image:images/axis-machineorigin.png[]"
+msgstr "image:images/axis-machineorigin.png[]"
+
+#. type: Plain text
+#: axis.txt:379
+msgid ""
+"If the position is 'Commanded', then it is the ideal position --for "
+"instance, the exact coordinate given in a 'G0' command.  If it is 'Actual', "
+"then it is the position the machine has actually moved to.  These values can "
+"differ for several reasons: Following error, dead band, encoder resolution, "
+"or step size.  For instance, if you command a movement to X 0.0033 on your "
+"mill, but one step of your stepper motor or one encoder count is 0.00125, "
+"then the 'Commanded' position might be 0.0033, but the 'Actual' position "
+"will be 0.0025 (2 steps) or 0.00375 (3 steps)."
+msgstr ""
+"Si la position est 'Commandée', alors il s'agit de la position à atteindre. "
+"Par exemple, les coordonnées passées dans une commande 'G0'.Si la position "
+"est 'Actuelle', alors il s'agit de la position à laquelle la machine vient "
+"de se déplacer. Ces valeurs peuvent varier pour certaines raisons: erreur de "
+"suivi, bande morte, résolution d'encodeur, ou taille de pas. Par exemple, si "
+"vous demandez un mouvement à X 0.08 à votre fraiseuse, mais un pas du moteur "
+"fait 0.03, alors la position 'Commandée' sera de 0.08, mais la position "
+"'Actuelle' sera de 0.06 (2 pas) ou 0.09 (3 pas)."
+
+#. type: Plain text
+#: axis.txt:382
+msgid ".Preview Plot (((preview plot)))"
+msgstr ".Vue du parcours d'outil (((Parcours d'outil)))"
+
+#. type: Plain text
+#: axis.txt:391
+msgid ""
+"When a file is loaded, a preview of it is shown in the display area.  Fast "
+"moves (such as those produced by the 'G0' command) are shown as cyan lines. "
+"Moves at a feed rate (such as those produced by the 'G1' command) are shown "
+"as solid white lines. Dwells (such as those produced by the 'G4' command)  "
+"are shown as small pink 'X' marks."
+msgstr ""
+"Quand un fichier est chargé, une vue du parcours d'outil qu'il produira est "
+"visible dans la zone graphique. Les mouvements en vitesse rapide (tels ceux "
+"produits par une commande 'G0') sont affichés en lignes pointillées vertes. "
+"Les déplacements en vitesse travail (tels ceux produits par une commande "
+"'G1') sont affichés en lignes continues blanches. Les arrêts temporisés "
+"(tels ceux produits par la commande 'G4') sont représentés par une petite "
+"marque 'X'."
+
+#. type: Plain text
+#: axis.txt:398
+msgid ""
+"G0 (Rapid) moves prior to a feed move will not show on the preview plot.  "
+"Rapid moves after a T<n> (Tool Change) will not show on the preview until "
+"after the first feed move.  To turn either of these features off program a "
+"G1 without any moves prior to the G0 moves."
+msgstr ""
+"Un mouvement G0 (Vitesse rapide) avant un déplacement en vitesse travail ne "
+"sera pas affiché sur l'écran des parcours d'outil.Un mouvement en vitesse "
+"rapide, après un appel d'outil T<n>, n'apparaîtra sur l'écran des parcours "
+"d'outil qu'après le mouvement en vitesse travail suivant. Pour contourner "
+"une de ces caractéristiques, programmer un G1 sans déplacement, juste avant "
+"le G0."
+
+#. type: Plain text
+#: axis.txt:401
+msgid ".Program Extents (((program extents)))"
+msgstr ".Étendues du programme (((Étendues du programme)))"
+
+#. type: Plain text
+#: axis.txt:405
+msgid ""
+"The 'extents' of the program in each axis are shown.  At the ends, the least "
+"and greatest coordinate values are indicated.  In the middle, the difference "
+"between the coordinates is shown."
+msgstr ""
+"Les 'étendues' du programme sont affichées pour chacun des axes. Aux "
+"extrémités, les coordonnées minimales et maximales sont indiquées. Au "
+"centres, la différence, entre ces deux coordonnées, est indiquée."
+
+#. type: Plain text
+#: axis.txt:415
+msgid ""
+"When some coordinates exceed the 'soft limits' in the .ini file, the "
+"relevant dimension is shown in a different color and enclosed by a box.  In "
+"figure below the maximum soft limit is exceeded on the X axis as indicated "
+"by the box surrounding the coordinate value.  The minimum X travel of the "
+"program is -1.95, the maximum X travel is 1.88, and the program requires "
+"3.83 inches of X travel.  To move the program so it's within the machine's "
+"travel in this case, jog to the left and Touch Off X again."
+msgstr ""
+"Quand une coordonnée dépasse la limite logicielle fixée dans le fichier ."
+"ini, la coordonnée correspondante s'affiche en rouge, entourée d'un "
+"rectangle. Dans la figure ci-dessous, la limite maximale est dépassée sur "
+"l'axe X, comme l'indique le rectangle entourant la valeur de la coordonnée. "
+"Le déplacement X minimal du programme est de -1.95, la course maximale est "
+"de 1.88 en X et le programme nécessite un déplacement en X de 3.83 pouces. "
+"Le déplacement total demandé par le programme est donc possible. Pour cela, "
+"se déplacer en jog vers la gauche puis 'Toucher' à nouveau pour corriger "
+"l'origine pièce."
+
+#. type: Plain text
+#: axis.txt:417
+msgid ".Soft Limit[[cap:Soft-Limit]]"
+msgstr ".Limites logicielles[[cap:Etendues-Depassees]]"
+
+#. type: Plain text
+#: axis.txt:419
+msgid "image::images/axis-outofrange.png[align=\"center\"]"
+msgstr "image::images/axis-outofrange.png[]"
+
+#. type: Plain text
+#: axis.txt:425
+msgid ""
+".Tool Cone When no tool is loaded, the location of the tip of the tool is "
+"indicated by the 'tool cone'.  The 'tool cone' does not provide guidance on "
+"the form, length, or radius of the tool."
+msgstr ""
+".Le cône d'outil\n"
+"Si aucun outil n'est chargé, l'emplacement de la pointe de l'outil est "
+"indiqué par le 'cône d'outil'. Le cône d'outil ne donne aucune indication "
+"sur la forme, la longueur, ou le rayon de l'outil."
+
+#. type: Plain text
+#: axis.txt:429
+msgid ""
+"When a tool is loaded (for instance, with the MDI command 'T1 M6' ), the "
+"cone changes to a cylinder which shows the diameter of the tool given in the "
+"tool table file."
+msgstr ""
+"Quand un outil est chargé, par exemple dans le MDI, avec la commande 'T1 "
+"M6', le cône d'outil passe de conique à cylindrique, il indique alors la "
+"proportion du diamètre de l'outil lu dans le fichier de la table d'outils."
+
+#. type: Plain text
+#: axis.txt:431
+msgid ".Backplot"
+msgstr ".Parcours d'outil"
+
+#. type: Plain text
+#: axis.txt:437
+msgid ""
+"When the machine moves, it leaves a trail called the backplot.  The color of "
+"the line indicates the type of motion: Yellow for jogs, faint green for "
+"rapid movements, red for straight moves at a feed rate, and magenta for "
+"circular moves at a feed rate."
+msgstr ""
+"Quand la machine se déplace, elle laisse une trace appelée le parcours "
+"d'outil. La couleur des lignes indique le type de mouvement:jaune pour les "
+"mouvements en jog, vert clair pour les mouvements en vitesse rapide, rouge "
+"pour les mouvements en vitesse d'avance programmée et magenta pour les "
+"mouvements circulaires en vitesse d'avance programmée."
+
+#. type: Plain text
+#: axis.txt:439
+msgid ".Grid"
+msgstr ".Grille"
+
+#. type: Plain text
+#: axis.txt:447
+msgid ""
+"Axis can optionally display a grid when in orthogonal views. Enable or "
+"disable the grid using the 'Grid' menu under 'View'. When enabled, the grid "
+"is shown in the top and rotated top views; when coordinate system is not "
+"rotated, the grid is shown in the front and side views as well.  The presets "
+"in the 'Grid' menu are controlled by the inifile item `[DISPLAY]GRIDS`; if "
+"unspecified, the default is `10mm 20mm 50mm 100mm 1in 2in 5in 10in`."
+msgstr ""
+"Axis peut, en option, afficher une grille dans les vues orthogonales. La "
+"grille s'active ou s'active ou se désactive depuis le sous-menu 'Grille' "
+"dans le menu 'Vue'. Quand la grille est activée, elle est visible en vue de "
+"dessus et en vue de dessus basculée, ainsi qu'en vue de face et de côté. Les "
+"réglages par défaut du menu 'Grille' sont donnés dans le fichier ini, à la "
+"section '[DISPLAY]GRIDS' ; si non spécifié, les valeurs par défaut sont: "
+"'10mm 20mm 50mm 100mm 1in 2in 5in 10in'."
+
+#. type: Plain text
+#: axis.txt:449
+msgid "Specifying a very small grid may decrease performance."
+msgstr ""
+"Spécifier une très petite valeur de grille peut faire baisser les "
+"performances."
+
+#. type: Plain text
+#: axis.txt:451
+msgid ".Interacting"
+msgstr ".Interaction avec l'affichage"
+
+#. type: Plain text
+#: axis.txt:456
+msgid ""
+"By left-clicking on a portion of the preview plot, the line will be "
+"highlighted in both the graphical and text displays.  By left-clicking on an "
+"empty area, the highlighting will be removed."
+msgstr ""
+"Par un clic gauche sur une portion du parcours d'outil, la ligne sous la "
+"souris passe en surbrillance à la fois dans le parcours d'outil et dans le "
+"texte. Un clic droit dans une zone vide enlève la surbrillance."
+
+#. type: Plain text
+#: axis.txt:459
+msgid ""
+"By dragging with the left mouse button pressed, the preview plot will be "
+"shifted (panned)."
+msgstr ""
+"En déplaçant la souris avec son bouton gauche appuyé, la vue est glissée sur "
+"l'écran."
+
+#. type: Plain text
+#: axis.txt:467
+msgid ""
+"By dragging with shift and the left mouse button pressed, or by dragging "
+"with the mouse wheel pressed, the preview plot will be rotated.  When a line "
+"is highlighted, the center of rotation is the center of the line.  "
+"Otherwise, the center of rotation is the center of the entire program."
+msgstr ""
+"En déplaçant la souris avec la touche Maj enfoncée, ou en glissant avec la "
+"molette de la souris appuyée, la vue est tournée. Si une ligne du tracé est "
+"en surbrillance, elle devient le centre de rotation de la vue. Autrement, le "
+"centre de rotation est le milieu du fichier dans son ensemble."
+
+#. type: Plain text
+#: axis.txt:472
+msgid ""
+"By rotating the mouse wheel, or by dragging with the right mouse button "
+"pressed, or by dragging with control and the left mouse button pressed, the "
+"preview plot will be zoomed in or out."
+msgstr ""
+"En tournant la molette de la souris, ou en glissant la souris avec son "
+"bouton droit enfoncé, ou encore en glissant la souris avec son bouton gauche "
+"enfoncé et la touche Ctrl appuyée, le tracé sera zoomé en plus ou en moins."
+
+#. type: Plain text
+#: axis.txt:475
+msgid ""
+"By clicking one of the 'Preset View' icons, or by pressing 'V', several "
+"preset views may be selected."
+msgstr ""
+"En cliquant sur une des icônes de vue pré-définie de la barre d'outils, ou "
+"en pressant la touche 'V', cette vue est sélectionnée."
+
+#. type: Plain text
+#: axis.txt:477
+msgid "=== Text Display Area"
+msgstr "=== Zone texte d'affichage du programme"
+
+#. type: Plain text
+#: axis.txt:480
+msgid ""
+"By left-clicking a line of the program, the line will be highlighted in both "
+"the graphical and text displays."
+msgstr ""
+"Un clic gauche sur une ligne du programme passe la ligne en surbrillance, à "
+"la fois dans la zone de texte et dans le parcours d'outil."
+
+#. type: Plain text
+#: axis.txt:484
+msgid ""
+"When the program is running, the line currently being executed is "
+"highlighted in red. If no line has been selected by the user, the text "
+"display will automatically scroll to show the current line."
+msgstr ""
+"Quand le programme est lancé, la ligne en cours d'exécution est en "
+"surbrillance rouge. Si aucune ligne n'est sélectionnée par l'utilisateur, le "
+"texte défile automatiquement pour toujours laisser la ligne courante visible."
+
+#. type: Plain text
+#: axis.txt:486
+msgid ".Current and Selected Lines[[cap:Current-and-Selected]]"
+msgstr ".Ligne courante et ligne en surbrillance[[cap:Current-and-Selected]]"
+
+#. type: Plain text
+#: axis.txt:488
+msgid "image::images/axis-currentandselected.png[align=\"center\"]"
+msgstr "image::images/axis-currentandselected_fr.png[]"
+
+#. type: Plain text
+#: axis.txt:491
+msgid "=== Manual Control (((Manual)))"
+msgstr "=== Contrôle manuel (((Contrôle manuel)))"
+
+#. type: Plain text
+#: axis.txt:495
+msgid ""
+"While the machine is turned on but not running a program, the items in the "
+"'Manual Control' tab can be used to move the machine or control its spindle "
+"and coolant."
+msgstr ""
+"Quand la machine est en marche mais qu'aucun programme n'est exécuté, les "
+"éléments graphiques de l'onglet 'Contrôle manuel' peuvent être utilisés pour "
+"actionner la machine ou mettre en marche et arrêter ses différents organes."
+
+#. type: Plain text
+#: axis.txt:498
+msgid ""
+"When the machine is not turned on, or when a program is running, the manual "
+"controls are unavailable."
+msgstr ""
+"Quand la machine n'est pas en marche, ou quand un programme est en cours "
+"d'exécution, le contrôle manuel n'est pas disponible."
+
+#. type: Plain text
+#: axis.txt:506
+msgid ""
+"Many of the items described below are not useful on all machines.  When AXIS "
+"detects that a particular pin is not connected in HAL, the corresponding "
+"item in the Manual Control tab is removed.  For instance, if the HAL pin "
+"'motion.spindle-brake' is not connected, then the 'Brake' button will not "
+"appear on the screen.  If the environment variable 'AXIS_NO_AUTOCONFIGURE' "
+"is set, this behavior is disabled and all the items will appear."
+msgstr ""
+"Certains des éléments décrits plus bas ne sont pas disponibles sur toutes "
+"les machines. Quand AXIS détecte qu'une pin particulière n'est pas connectée "
+"dans le fichier HAL, l'élément correspondant de l'onglet 'Contrôle manuel' "
+"est supprimé. Par exemple, si la pin HAL 'motion.spindle-brake' n'est pas "
+"connectée, alors le bouton 'Frein de broche' n'apparaîtra pas sur l'écran. "
+"Si la variable d'environnement AXIS_NO_AUTOCONFIGURE est mise à 1, ce "
+"comportement est désactivé et tous les boutons sont visibles."
+
+#. type: Plain text
+#: axis.txt:508
+msgid ".The Axis group"
+msgstr ".Le groupe de cases et boutons 'Axes'"
+
+#. type: Plain text
+#: axis.txt:518
+msgid ""
+"'Axis' allows you to manually move the machine.  This action is known as "
+"'jogging'.  First, select the axis to be moved by clicking it.  Then, click "
+"and hold the '+' or '-' button depending on the desired direction of "
+"motion.  The first four axes can also be moved by the arrow keys (X and Y), "
+"PAGE UP and PAGE DOWN keys (Z), and the [ and ] keys (A)."
+msgstr ""
+"Les cases à cocher du groupe 'Axes' permettent de choisir l'axe à actionner "
+"manuellement. Cette action s'appelle le 'jog'. Premièrement sélectionner "
+"l'axe à actionner en cochant sa case. Puis cliquer sur le bouton '+' ou '-' "
+"selon le sens de déplacement souhaité. Les quatre premiers axes peuvent "
+"aussi être déplacés avec les touches fléchées pour X et Y, avec les touches "
+"Page haute et Page basse pour (Z) et les touches [ et ] pour A."
+
+#. type: Plain text
+#: axis.txt:525
+msgid ""
+"If 'Continuous' is selected, the motion will continue as long as the button "
+"or key is pressed.  If another value is selected, the machine will move "
+"exactly the displayed distance each time the button is clicked or the key is "
+"pressed.  By default, the available values are '0.1000, 0.0100, 0.0010, "
+"0.0001'"
+msgstr ""
+"Si 'En continu' est sélectionné, le mouvement continuera tant que la touche "
+"ou le bouton resteront appuyés. Si une autre valeur est sélectionnée, la "
+"machine se déplacera juste de la distance affichée à chaque fois que la "
+"touche ou le bouton seront appuyés. Par défaut, les valeurs disponibles "
+"sont: 0.1000 0.0100 0.0010 0.0001"
+
+#. type: Plain text
+#: axis.txt:528
+msgid ""
+"See the Configure section of the Integrator Manual for more information on "
+"setting the increments."
+msgstr ""
+"Voir le Manuel pour plus d'informations sur la configuration des incréments "
+"de jog."
+
+#. type: Plain text
+#: axis.txt:530
+msgid ".Homing"
+msgstr ".Prise d'origine machine"
+
+#. type: Plain text
+#: axis.txt:536
+msgid ""
+"If your machine has home switches and a homing sequence defined for all axes "
+"the button will read 'Home All'. The 'Home All' button or the Ctrl-HOME key "
+"will home all axes using the homing sequence. Pressing the HOME key will "
+"home the current axis, even if a homing sequence is defined."
+msgstr ""
+"Si la machine dispose de contacts d'origine machine et a une séquence de "
+"prise d'origine définie dans le fichier ini, le bouton 'POM générale' "
+"lancera cette séquence pour tous les axes, les touches 'Ctrl-HOME' auront le "
+"même effet."
+
+#. type: Plain text
+#: axis.txt:541
+msgid ""
+"If your machine has home switches and no homing sequence is defined or not "
+"all axes have a homing sequence the button will read 'Home' and will home "
+"the selected axis only. Each axis must be selected and homed separately."
+msgstr ""
+"Si la machine dispose de contacts d'origine mais n'a pas de séquence de "
+"prise d'origine définie dans le fichier ini, le bouton 'POM générale' "
+"effectuera uniquement la prise d'origine de l'axe sélectionné. Cette "
+"procédure doit alors être réalisée, séparément pour chacun des axes."
+
+#. type: Plain text
+#: axis.txt:546
+msgid ""
+"If your machine does not have home switches defined in the configuration the "
+"'Home' button will set the current selected axis current position to be the "
+"absolute position 0 for that axis and will set the 'is-homed' bit for that "
+"axis."
+msgstr ""
+"Si la machine ne dispose d'aucun contact d'origine défini dans la "
+"configuration, le bouton 'POM générale' définira la position actuelle "
+"del'axe comme étant la position d'origine machine et l'axe sera marqué comme "
+"ayant sa prise d'origine machine faite."
+
+#. type: Plain text
+#: axis.txt:548
+msgid "See the Integrator Manual for more information on homing."
+msgstr ""
+"Voir le manuel de la configuration pour d'autres informations sur la prise "
+"d'origine."
+
+#. type: Plain text
+#: axis.txt:550
+msgid ".Touch Off"
+msgstr ".Toucher[[cap:Toucher]]"
+
+#. type: Plain text
+#: axis.txt:556
+msgid ""
+"By pressing 'Touch Off' or the END key, the 'G54 offset' for the current "
+"axis is changed so that the current axis value will be the specified value. "
+"Expressions may be entered using the rules for rs274ngc programs, except "
+"that variables may not be referred to. The resulting value is shown as a "
+"number."
+msgstr ""
+"Si le bouton 'Toucher' ou la touche 'FIN' sont appuyés, le décalage "
+"d'origine pièce, 'offset G54' de l'axe courant, est modifié de sorte que la "
+"valeur courante de l'axe devienne celle spécifiée. Sur la figure ci-dessous: "
+"P1 G54, prendra la valeur spécifiée dans le champ de la boite de dialogue. "
+"Les expressions peuvent être entrées en suivant les règles de programmation "
+"rs274ngc, sauf les variables qui ne peuvent pas être utilisées. La valeur "
+"résultante sera affichée sous le champ. Exemple, pour faire la prise "
+"d'origine pièce, on affleure l'outil sur une cale de 5mm d'épaisseur posée "
+"sur le bloc, on presse le bouton 'Toucher' et on saisi 5 dans le champ de la "
+"boîte de dialogue. La pointe de l'outil sera alors référencée à 0 sur la "
+"surface du bloc."
+
+#. type: Plain text
+#: axis.txt:558
+msgid ".Touch Off[[cap:Touch-Off]]"
+msgstr ".Fenêtre du Toucher"
+
+#. type: Plain text
+#: axis.txt:560
+msgid "image::images/touchoff.png[align=\"center\"]"
+msgstr "image::images/touchoff_fr.png[]"
+
+#. type: Plain text
+#: axis.txt:563
+msgid ""
+"See also the 'Tool touch off to workpiece' and 'Tool touch off to fixture' "
+"options in the Machine menu."
+msgstr ""
+"Voir aussi les options du menu Machine: 'Toucher la pièce' et 'Toucher le "
+"porte-pièce'."
+
+#. type: Plain text
+#: axis.txt:565
+msgid ".Override Limits"
+msgstr ".Dépassement de limite"
+
+#. type: Plain text
+#: axis.txt:573
+msgid ""
+"By pressing Override Limits, the machine will temporarily be allowed to jog "
+"off of a physical limit switch. This check box is only available when a "
+"limit switch is tripped. The override is reset after one jog. If the axis is "
+"configured with separate positive and negative limit switches, LinuxCNC will "
+"allow the jog only in the correct direction. _Override Limits will not allow "
+"a jog past a soft limit. The only way to disable a soft limit on an axis is "
+"to Unhome it._"
+msgstr ""
+"En appuyant sur 'Mouvement temporaire hors limites', la machine sera "
+"temporairement autorisée à se déplacer au delà d'un contact de limite "
+"physique. Cette case à cocher n'est disponible que lorsqu'un fin de course "
+"est enfoncé. Elle est désactivée après le premier mouvement de jogging. Si "
+"l'axe est configuré avec des contacts positifs et négatifs séparés, LinuxCNC "
+"permettra le jogging uniquement dans le sens du dégagement. 'Mouvement "
+"temporaire hors limites ne permettra pas un jogging au delà d'une limite "
+"logicielle. La seule façon de désactiver une limite logicielle sur un axe "
+"est d'annuler sa prise d'origine'."
+
+#. type: Plain text
+#: axis.txt:576
+msgid ".The Spindle group (((AxisUI, spindle)))"
+msgstr ".Le groupe 'Broche' (((Broche)))"
+
+#. type: Plain text
+#: axis.txt:586
+msgid ""
+"The buttons on the first row select the direction for the spindle to rotate: "
+"Counterclockwise, Stopped, Clockwise. Counterclockwise will only show up if "
+"the pin 'motion.spindle-reverse' is in the HAL file (it can be 'net trick-"
+"axis motion.spindle-reverse' ). The buttons on the next row increase or "
+"decrease the rotation speed. The checkbox on the third row allows the "
+"spindle brake to be engaged or released. Depending on your machine "
+"configuration, not all the items in this group may appear. Pressing the "
+"spindle start button sets the 'S' speed to 1."
+msgstr ""
+"Les boutons de la première rangée permettent de sélectionner la direction de "
+"rotation de la broche: Sens anti-horaire, Arrêt, Senshoraire. Sens anti-"
+"horaire sera visible seulement si la pin de Hal 'motion.spindle-reverse' est "
+"présente dans le fichier HAL, par exemple sous la forme: 'net trick-axis "
+"motion.spindle-reverse' ). Les boutons de la rangée suivante augmentent ou "
+"diminuent la fréquence de rotation. La case à cocher de la troisième rangée "
+"permet d'engager ou de relâcher le frein de broche. Selon la configuration "
+"de votre machine, ces éléments n'apparaîtront peut être pas tous. Presser le "
+"bouton Démarrer fixe la vitesse 'S' à 1."
+
+#. type: Plain text
+#: axis.txt:589
+msgid ".The Coolant group (((AxisUI, coolant)))"
+msgstr ".Le groupe 'Arrosage' (((Arrosage)))"
+
+#. type: Plain text
+#: axis.txt:593
+msgid ""
+"The two buttons allow the 'Mist' and 'Flood' coolants to be turned on and "
+"off. Depending on your machine configuration, not all the items in this "
+"group may appear."
+msgstr ""
+"Ces deux boutons permettent d'activer les 'gouttelettes' et l''Arrosage "
+"fluide' ou de les désactiver. Selon la configuration de votre machine, ces "
+"boutons n'apparaîtront peut être pas tous."
+
+#. type: Plain text
+#: axis.txt:596
+msgid "=== MDI (((AxisUI, MDI)))"
+msgstr "=== Données manuelles (MDI)"
+
+#. type: Plain text
+#: axis.txt:600
+msgid ""
+"MDI allows G-code commands to be entered manually.  When the machine is not "
+"turned on, or when a program is running, the MDI controls are unavailable."
+msgstr ""
+"L'onglet d'entrée de données manuelles (encore appelé MDI), permet d'entrer "
+"et d'exécuter manuellement et une par une, des lignes de programme en G-"
+"code. Quand la machine n'est pas en marche, ou quand un programme est en "
+"cours d'exécution, cet onglet n'est pas opérationnel."
+
+#. type: Plain text
+#: axis.txt:602
+msgid ".The MDI tab[[cap:The-MDI-tab]]"
+msgstr ".L'onglet Données manuelles[[cap:The-MDI-tab]]"
+
+#. type: Plain text
+#: axis.txt:604
+msgid "image::images/axis-mdi.png[align=\"center\"]"
+msgstr "image::images/axis-codeentry_fr.png[]"
+
+#. type: Bullet: '* '
+#: axis.txt:606
+msgid ""
+"'History' - This shows MDI commands that have been typed earlier in this "
+"session."
+msgstr ""
+"'Historique' - Affiche les commandes précédemment tapées et au cours des "
+"session précédentes."
+
+#. type: Plain text
+#: axis.txt:609
+#, no-wrap
+msgid ""
+"* 'MDI Command' - This allows you to enter a g-code command to be executed. Execute the\n"
+"    command by pressing Enter or by clicking 'Go'.\n"
+msgstr ""
+"* 'Commande MDI' - Ce champ permet la saisie d'une ligne de commande à exécuter.\n"
+"   La commande sera exécutée par l'appui de la touche <Entrée> ou un appui sur le bouton 'Envoi'.\n"
+
+#. type: Plain text
+#: axis.txt:614
+#, no-wrap
+msgid ""
+"* 'Active G-Codes' - This shows the 'modal codes' that are active in the interpreter. For\n"
+"    instance, 'G54' indicates that the 'G54 offset' is applied to all\n"
+"    coordinates that are entered. When in Auto the Active G-Codes represent\n"
+"    the codes after any read ahead by the interpreter.\n"
+msgstr ""
+"* 'G-Codes actifs' - Cette fenêtre affiche les 'codes modaux' actuellement\n"
+"   actifs dans l'interpréteur. Par exemple, 'G54' indique que le système de\n"
+"   décalage d'origine actuel est 'G54' qui s'appliquera à toutes les coordonnées\n"
+"   qui seront entrées.\n"
+
+#. type: Plain text
+#: axis.txt:617
+msgid "=== Feed Override (((AxisUI, feed override)))"
+msgstr "=== Correcteurs de vitesse (((Correcteurs de vitesse)))"
+
+#. type: Plain text
+#: axis.txt:621
+msgid ""
+"By moving this slider, the programmed feed rate can be modified. For "
+"instance, if a program requests 'F60' and the slider is set to 120%, then "
+"the resulting feed rate will be 72."
+msgstr ""
+"En déplaçant le curseur, la vitesse de déplacement programmée peut être "
+"modifiée. Par exemple, si un programme requiert une vitesse à F600 et que le "
+"curseur est placé sur 120%, alors la vitesse résultante sera de 720."
+
+#. type: Plain text
+#: axis.txt:624
+msgid "=== Spindle Speed Override (((AxisUI, spindle speed override)))"
+msgstr "=== Correcteur de vitesse de broche (((Correcteur de vitesse broche)))"
+
+#. type: Plain text
+#: axis.txt:629
+msgid ""
+"By moving this slider, the programmed spindle speed can be modified. For "
+"instance, if a program requests S8000 and the slider is set to 80%, then the "
+"resulting spindle speed will be 6400. This item only appears when the HAL "
+"pin 'motion.spindle-speed-out' is connected."
+msgstr ""
+"En déplaçant ce curseur, la vitesse programmée de la broche peut être "
+"modifiée. Par exemple, si un programme requiert une vitesse à F8000 et que "
+"le curseur est placé sur 80%, alors la fréquence de rotation résultante sera "
+"de 6400. Cet élément n'apparaît que si la 'HAL pin' 'motion.spindle-speed-"
+"out' est connectée dans le fichier .hal."
+
+#. type: Plain text
+#: axis.txt:632
+msgid "=== Jog Speed (((AxisUI, jog speed)))"
+msgstr "=== Vitesse de Jog (((Vitesse de jog)))"
+
+#. type: Plain text
+#: axis.txt:639
+msgid ""
+"By moving this slider, the speed of jogs can be modified. For instance, if "
+"the slider is set to 1 in/min, then a .01 inch jog will complete in about .6 "
+"seconds, or 1/100 of a minute. Near the left side (slow jogs) the values are "
+"spaced closely together, while near the right side (fast jogs) they are "
+"spaced much further apart, allowing a wide range of jog speeds with fine "
+"control when it is most important."
+msgstr ""
+"En déplaçant ce curseur, la vitesse de jog peut être modifiée. Par exemple, "
+"si ce curseur est placé sur 100 mm/mn, alors un jog de 1 mm durera .6 "
+"secondes, ou 1/100 de minute. Du côté gauche du curseur (jog lent) "
+"l'espacement des valeurs est petit alors que du côté droit (jog rapide) "
+"l'espacement des valeurs est plus grand, cela permet une large étendue de "
+"vitesses de jog avec un contrôle plus fin du curseur dans les zones les plus "
+"importantes."
+
+#. type: Plain text
+#: axis.txt:642
+msgid ""
+"On machines with a rotary axis, a second jog speed slider is shown.  This "
+"slider sets the jog rate for the rotary axes (A, B and C)."
+msgstr ""
+"Sur les machines avec axes rotatifs, un second curseur de vitesse est "
+"présent. Il permet d'ajuster la vitesse de rotation des axes rotatifs (A, B "
+"et C)."
+
+#. type: Plain text
+#: axis.txt:645
+msgid "=== Max Velocity (((AxisUI, Max Velocity)))"
+msgstr "=== Vitesse Maxi (((Vitesse maxi)))"
+
+#. type: Plain text
+#: axis.txt:649
+msgid ""
+"By moving this slider, the maximum velocity can be set. This caps the "
+"maximum velocity for all programmed moves except spindle-synchronized moves."
+msgstr ""
+"En déplaçant ce curseur, la vitesse maximale peut être réglée. Ceci couvre "
+"la vitesse maximale de tous les mouvements programmés, sauf les mouvements "
+"avec broche synchronisée."
+
+#. type: Plain text
+#: axis.txt:652
+msgid "== Keyboard Controls (((AxisUI, keyboard shortcuts)))"
+msgstr "== Raccourcis clavier"
+
+#. type: Plain text
+#: axis.txt:657
+msgid ""
+"Almost all actions in AXIS can be accomplished with the keyboard. A full "
+"list of keyboard shortcuts can be found in the AXIS Quick Reference, which "
+"can be displayed by choosing Help > Quick Reference.  Many of the shortcuts "
+"are unavailable when in MDI mode."
+msgstr ""
+"La plupart des actions d'AXIS sont accessibles depuis le clavier. La liste "
+"complète des raccourcis clavier est disponible dans l'aide rapide d'AXIS qui "
+"s'affiche en cliquant sur Aide -> Aide rapide . Beaucoup de ces raccourcis "
+"sont inaccessible en mode Entrées manuelles."
+
+#. type: Plain text
+#: axis.txt:659
+msgid ".Feed Override Keys"
+msgstr ".Touches des correcteurs de vitesse"
+
+#. type: Plain text
+#: axis.txt:666
+msgid ""
+"The Feed Override keys behave differently when in Manual Mode. The keys "
+"'12345678 will select an axis if it is programed. If you have 3 axis then ' "
+"will select axis 0, 1 will select axis 1, and 2 will select axis 2. The "
+"remainder of the number keys will still set the Feed Override. When running "
+"a program '1234567890 will set the Feed Override to 0% - 100%."
+msgstr ""
+"Les touches des correcteurs de vitesse se comportent différemment en mode "
+"manuel. Les touches '12345678' sélectionneront l'axe correspondant, si il "
+"est programmé. Si 3 axes sont utilisés, alors '*' sélectionnera l'axe 0, '1' "
+"sélectionnera l'axe 1 et '2' sélectionnera l'axe 2. Pendant l'exécution d'un "
+"programme, les touches '1234567890' fixeront la correction de vitesse "
+"travail entre 10% et 100%."
+
+#. type: Plain text
+#: axis.txt:668
+msgid ""
+"The most frequently used keyboard shortcuts are shown in the following Table"
+msgstr ""
+"Les raccourcis clavier les plus fréquents sont visibles dans la table ci-"
+"dessous."
+
+#. type: Plain text
+#: axis.txt:670
+msgid ".Most Common Keyboard Shortcuts[[cap:Most-Common-Keyboard]]"
+msgstr ".Raccourcis clavier usuels[[cap:Raccourcis-clavier-usuels]]"
+
+#. type: Plain text
+#: axis.txt:701
+#, no-wrap
+msgid ""
+"[width=\"80%\", options=\"header\", cols=\"^,<,^\"]\n"
+"|====================================================================\n"
+"|Keystroke        | Action Taken                              | Mode\n"
+"|F1               | Toggle Emergency Stop                     | All\n"
+"|F2               | Turn machine on/off                       | All\n"
+"|`, 1 .. 9, 0     | Set feed override from 0% to 100%         | Varies\n"
+"|X, `             | Activate first axis                       | Manual\n"
+"|Y, 1             | Activate second axis                      | Manual\n"
+"|Z, 2             | Activate third axis                       | Manual\n"
+"|A, 3             | Activate fourth axis                      | Manual\n"
+"|I                | Select jog increment                      | Manual\n"
+"|C                | Continuous jog                            | Manual\n"
+"|Control-Home     | Perform homing sequence                   | Manual\n"
+"|End              | Touch off: Set G54 offset for active axis | Manual\n"
+"|Left, Right      | Jog first axis                            | Manual\n"
+"|Up, Down         | Jog second axis                           | Manual\n"
+"|Pg Up, Pg Dn     | Jog third axis                            | Manual\n"
+"|[, ]             | Jog fourth axis                           | Manual\n"
+"|O                | Open File                                 | Manual\n"
+"|Control-R        | Reload File                               | Manual\n"
+"|R                | Run file                                  | Manual\n"
+"|P                | Pause execution                           | Auto\n"
+"|S                | Resume Execution                          | Auto\n"
+"|ESC              | Stop execution                            | Auto\n"
+"|Control-K        | Clear backplot                            | Auto/Manual\n"
+"|V                | Cycle among preset views                  | Auto/Manual\n"
+"|Shift-Left,Right | Rapid X Axis                              | Manual\n"
+"|Shift-Up,Down    | Rapid Y Axis                              | Manual\n"
+"|Shift-PgUp, PgDn | Rapid Z Axis                              | Manual\n"
+"|====================================================================\n"
+msgstr ""
+"[width=\"90%\", options=\"header\"]\n"
+"|====================================================================\n"
+"|Touches          | Actions produites                           | Mode\n"
+"|F1               | Bascule l'arrêt d'urgence                   | Tous\n"
+"|F2               | Bascule le marche/arrêt machine             | Tous\n"
+"|`, 1 .. 9, 0     | Correcteurs de vitesse de 10% à 100%        | Varie\n"
+"|X, *             | Active le premier axe                       | Manuel\n"
+"|Y, 1             | Active le deuxième axe                      | Manuel\n"
+"|Z, 2             | Active le troisième axe                     | Manuel\n"
+"|A, 3             | Active le quatrième axe                     | Manuel\n"
+"|I                | Sélection d'incrément du jog                | Manuel\n"
+"|C                | jog en mode continu                         | Manuel\n"
+"|Ctrl+origine     | Lance une séquence de POM                   | Manuel\n"
+"|Fin              | Toucher: valide l'offset G54 de l'axe actif | Manuel\n"
+"|Gauche, Droite   | Jog du premier axe                          | Manuel\n"
+"|Up, Down         | Jog du deuxième axe                         | Manuel\n"
+"|Pg Up, Pg Dn     | Jog du troisième axe                        | Manuel\n"
+"|[, ]             | Jog du quatrième axe                        | Manuel\n"
+"|O                | Ouvrir un fichier                           | Manuel\n"
+"|Ctrl+R           | Recharger le fichier courant                | Manuel\n"
+"|R                | Exécuter le programme                       | Manuel\n"
+"|P                | Pause dans l'exécution du programme         | Auto\n"
+"|S                | Reprise de l'exécution du programme         | Auto\n"
+"|ESC              | Stopper l'exécution                         | Auto\n"
+"|Ctrl+K           | Rafraichi le tracé d'outil                  | Auto/Manuel\n"
+"|V                | Défilement cyclique des vues prédéfinies    | Auto/Manuel\n"
+"|Maj-gauche,droite| Axe X vitesse rapide                        | Manuel\n"
+"|Maj-haut, bas    | Axe Y vitesse rapide                        | Manuel\n"
+"|Maj-PgUp, PgDn   | Axe Z vitesse rapide                        | Manuel\n"
+"|====================================================================\n"
+
+#. type: Plain text
+#: axis.txt:703
+msgid "== Show LinuxCNC Status (linuxcnctop)"
+msgstr "== Affichage de l'état de LinuxCNC (LinuxCNCtop)"
+
+#. type: Plain text
+#: axis.txt:707
+msgid ""
+"AXIS includes a program called 'linuxcnctop' which shows some of the details "
+"of LinuxCNC's state. You can run this program by invoking Machine > Show "
+"LinuxCNC Status"
+msgstr ""
+"AXIS inclut un programme appelé 'linuxcnctop' qui affiche en détail l'état "
+"de LinuxCNC. Ce programme est accessible dans le menu Machine > Fenêtre "
+"d'état de LinuxCNC."
+
+#. type: Plain text
+#: axis.txt:709
+msgid ".LinuxCNC Status Window[[cap:LinuxCNC-Status-Window]]"
+msgstr ".Fenêtre d'état de LinuxCNC"
+
+#. type: Plain text
+#: axis.txt:711
+msgid "image::images/axis-emc-status.png[align=\"center\"]"
+msgstr "image::images/axis-emc-status.png[]"
+
+#. type: Plain text
+#: axis.txt:715
+msgid ""
+"The name of each item is shown in the left column. The current value is "
+"shown in the right column. If the value has recently changed, it is shown on "
+"a red background."
+msgstr ""
+"Le nom de chaque entrée est affiché dans la colonne de gauche. La valeur "
+"courante de chaque entrée s'affiche dans la colonne de droite. Si la valeur "
+"a changé récemment, elle s'affiche en surbrillance rouge."
+
+#. type: Plain text
+#: axis.txt:717
+msgid "== MDI interface"
+msgstr "== Entrée de données en texte (MDI)"
+
+#. type: Plain text
+#: axis.txt:721
+msgid ""
+"AXIS includes a program called `mdi` which allows text-mode entry of MDI "
+"commands to a running LinuxCNC session. You can run this program by opening "
+"a terminal and typing"
+msgstr ""
+"AXIS inclut un programme appelé 'mdi', il permet d'envoyer des commandes à "
+"la session de LinuxCNC en cours, sous forme de lignes de texte. Vous pouvez "
+"lancer ce programme en ouvrant une console et en tapant:"
+
+#. type: Plain text
+#: axis.txt:722 axis.txt:732 axis.txt:842 axis.txt:851 axis.txt:868
+#: axis.txt:885 axis.txt:901 axis.txt:932
+#, no-wrap
+msgid "----\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: axis.txt:724
+#, no-wrap
+msgid ""
+"mdi\n"
+"----\n"
+msgstr ""
+"mdi\n"
+"----\n"
+
+#. type: Plain text
+#: axis.txt:729
+msgid ""
+"Once it is running, it displays the prompt 'MDI>'. When a blank line is "
+"entered, the machine's current position is shown.  When a command is "
+"entered, it is sent to LinuxCNC to be executed."
+msgstr ""
+"En cours d'exécution il affiche le prompt: 'MDI>'. Quand une ligne vide est "
+"entrée, la position courante de la machine est affichée. Quand une commande "
+"est entrée, elle est passée à LinuxCNC qui l'exécute."
+
+#. type: Plain text
+#: axis.txt:731
+msgid "This is a sample session of mdi."
+msgstr "Voici un exemple de session MDI."
+
+#. type: Plain text
+#: axis.txt:741
+#, no-wrap
+msgid ""
+"$ mdi\n"
+"MDI>\n"
+"(0.0, 0.0, 0.0, 0.0, 0.0, 0.0) \n"
+"MDI> G1 F5 X1 \n"
+"MDI>\n"
+"(0.5928500000000374, 0.0, 0.0, 0.0, 0.0, 0.0)\n"
+"MDI>\n"
+"(1.0000000000000639, 0.0, 0.0, 0.0, 0.0, 0.0)\n"
+"----\n"
+msgstr ""
+"$ mdi\n"
+"MDI>\n"
+"(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)\n"
+"MDI> G1 F5 X1\n"
+"MDI>\n"
+"(0.5928500000000374, 0.0, 0.0, 0.0, 0.0, 0.0)\n"
+"MDI>\n"
+"(1.0000000000000639, 0.0, 0.0, 0.0, 0.0, 0.0)\n"
+"----\n"
+
+#. type: Plain text
+#: axis.txt:744
+msgid "== axis-remote"
+msgstr "== axis-remote"
+
+#. type: Plain text
+#: axis.txt:750
+msgid ""
+"AXIS includes a program called 'axis-remote' which can send certain commands "
+"to a running AXIS. The available commands are shown by running 'axis-remote "
+"--help' and include checking whether AXIS is running ('--ping'), loading a "
+"file by name, reloading the currently loaded file ('--reload'), and making "
+"AXIS exit ('--quit')."
+msgstr ""
+"AXIS inclut un programme appelé 'axis-remote' qui permet d'envoyer certaines "
+"commandes vers l'application AXIS en fonctionnement.Les commandes "
+"disponibles sont visibles en faisant: 'axis-remote --help' pour vérifier "
+"qu'AXIS est en marche, inclure: ('--ping'), charger un fichier, recharger le "
+"fichier courant avec: ('--reload') et quitter le programme AXIS avec: ('--"
+"quit')."
+
+#. type: Plain text
+#: axis.txt:752
+msgid "== Manual Tool Change[[sec:Manual-Tool-Change]]"
+msgstr "== Changement d'outil manuel[[sec:Changement-D-Outil-Manuel]]"
+
+#. type: Plain text
+#: axis.txt:754
+msgid "(((Manual Tool Change)))"
+msgstr "(((Changement D'Outil Manuel)))"
+
+#. type: Plain text
+#: axis.txt:759
+msgid ""
+"LinuxCNC includes a userspace HAL component called 'hal_manualtoolchange', "
+"which shows a window prompt telling you what tool is expected when a 'M6' "
+"command is issued. After the OK button is pressed, execution of the program "
+"will continue."
+msgstr ""
+"LinuxCNC inclut un composant userspace HAL appelé 'hal_manualtoolchange', "
+"quand la commande 'M6' est invoquée, il ouvre une fenêtre d'appel d'outil, "
+"visible plus bas, donnant le N° de l'outil à monter. Dés que le bouton "
+"'Continuer' est pressé, l'exécution du programme reprend."
+
+#. type: Plain text
+#: axis.txt:763
+msgid ""
+"The hal_manualtoolchange component includes a hal pin for a button that can "
+"be connected to a physical button to complete the tool change and remove the "
+"window prompt (hal_manualtoolchange.change_button)."
+msgstr ""
+"Le composant hal_manualtoolchange, inclus une pin de Hal pouvant être "
+"connectée à un bouton physique sur lequel un appui achève la procédure de "
+"changement d'outil et ferme la fenêtre surgissante (hal_manualtoolchange."
+"change_button)."
+
+#. type: Plain text
+#: axis.txt:766
+msgid ""
+"The HAL configuration file 'configs/sim/axis_manualtoolchange.hal' shows the "
+"HAL commands necessary to use this component."
+msgstr ""
+"Le fichier de configuration HAL 'configs/sim/axis_manualtoolchange.hal' "
+"montre les commandes HAL nécessaires pour l'utilisation de ce composant."
+
+#. type: Plain text
+#: axis.txt:770
+msgid ""
+"hal_manualtoolchange can be used even when AXIS is not used as the GUI.  "
+"This component is most useful if you have presettable tools and you use the "
+"tool table."
+msgstr ""
+"hal_manualtoolchange peut être utilisé même si l'interface graphique AXIS "
+"n'est pas en service. Cette composante est particulièrement utile si vous "
+"avez des outils pré-réglés et que vous utilisez une table d'outils."
+
+#. type: Plain text
+#: axis.txt:777
+msgid ""
+"[NOTE] Important Note: Rapids will not show on the preview after a T<n> is "
+"issued until the next feed move after the M6.  This can be very confusing to "
+"most users.  To turn this feature off for the current tool change program a "
+"G1 with no move after the T<n>."
+msgstr ""
+"[NOTE] Le parcours d'outil d'un mouvement en vitesse rapide ne sera pas "
+"visible s'il suit un changement d'outil T<n> et ce, jusqu'au prochain "
+"mouvement suivant le M6. Ceci peut être source de confusion pour "
+"l'opérateur. Pour contourner cette particularité, ajoutez toujours un G1 "
+"sans mouvement derrière un M6 T<n>."
+
+#. type: Plain text
+#: axis.txt:779
+msgid ".The Manual Toolchange Window[[cap:The-Manual-Toolchange]]"
+msgstr ""
+".La fenêtre de changement manuel d'outil[[cap:Changement-manuel-d-outil]]"
+
+#. type: Plain text
+#: axis.txt:781
+msgid "image::images/manual-tool-change.png[align=\"center\"]"
+msgstr "image::images/manualtoolchange_fr.png[]"
+
+#. type: Plain text
+#: axis.txt:783
+msgid "== Python modules"
+msgstr "== Modules en Python"
+
+#. type: Plain text
+#: axis.txt:787
+msgid ""
+"AXIS(((AXIS))) includes several Python(((Python))) modules which may be "
+"useful to others. For more information on one of these modules, use 'pydoc "
+"<module name>' or read the source code. These modules include:"
+msgstr ""
+"AXIS(((AXIS))) inclut plusieurs modules en Python(((Python))) qui peuvent "
+"être très utiles. Pour des informations complètes sur cesmodules, faites: "
+"'pydoc <nom du module' ou lisez son code source. Modules inclus:"
+
+#. type: Bullet: ' - '
+#: axis.txt:794
+msgid ""
+"'emc' provides access to the LinuxCNC command, status, and error channels"
+msgstr ""
+"'emc' fournit l'accès aux commandes de LinuxCNC, à son état et aux chaînes "
+"d'erreur"
+
+#. type: Bullet: ' - '
+#: axis.txt:794
+msgid "'gcode' provides access to the rs274ngc interpreter"
+msgstr "'gcode' fournit l'accès à l'interpréteur RS274NGC"
+
+#. type: Bullet: ' - '
+#: axis.txt:794
+msgid "'rs274' provides additional tools for working with rs274ngc files"
+msgstr ""
+"'rs274' fournit des outils supplémentaires pour travailler sur les fichiers "
+"RS274NGC"
+
+#. type: Bullet: ' - '
+#: axis.txt:794
+msgid "'hal' allows the creation of userspace HAL components written in Python"
+msgstr ""
+"'hal' permet la création par l'utilisateur de composants de HAL écrits en "
+"Python"
+
+#. type: Bullet: ' - '
+#: axis.txt:794
+msgid ""
+"'_togl' provides an OpenGL widget that can be used in Tkinter applications"
+msgstr ""
+"'_togl' fournit des éléments OpenGL utilisables dans les applications Tkinter"
+
+#. type: Bullet: ' - '
+#: axis.txt:794
+msgid "'minigl' provides access to the subset of OpenGL used by AXIS"
+msgstr "'minigl' fournit l'accès aux sous-ensembles d'OpenGL utilisés par AXIS"
+
+#. type: Plain text
+#: axis.txt:800
+msgid ""
+"To use these modules in your own scripts, you must ensure that the directory "
+"where they reside is on Python's module path. When running an installed "
+"version of LinuxCNC, this should happen automatically. When running 'in-"
+"place', this can be done by using 'scripts/rip-environment'."
+msgstr ""
+"Pour utiliser ces modules dans vos propres scripts, assurez-vous que le "
+"répertoire où ils se trouvent est dans le chemin d'accès des modules Python. "
+"Avec une version installée de LinuxCNC, ça se fera automatiquement. Avec une "
+"version installée en 'en-place', ça peut être fait avec l'aide de: '/scripts/"
+"rip-environment'."
+
+#. type: Plain text
+#: axis.txt:803
+msgid "== Using AXIS in Lathe Mode (((AXIS in lathe mode)))"
+msgstr "== Utiliser AXIS en mode tour (((AXIS avec un tour)))"
+
+#. type: Plain text
+#: axis.txt:811
+msgid ""
+"By including the line 'LATHE = 1' in the [DISPLAY] section of the ini file, "
+"AXIS selects lathe mode. The 'Y' axis is not shown in coordinate readouts, "
+"the view is changed to show the Z axis extending to the right and the X axis "
+"extending towards the bottom of the screen, and several controls (such as "
+"those for preset views) are removed.  The coordinate readouts for X are "
+"replaced with diameter and radius."
+msgstr ""
+"En incluant la ligne LATHE = 1 dans la section [DISPLAY] du fichier ini, "
+"AXIS sélectionnera le mode tour. L'axe Y ne s'affiche pas parmi les "
+"coordonnées, la vue est modifiée pour placer la broche à gauche, l'axe Z "
+"horizontalement avec son côté positif vers la droite '(Z+)' et l'axe X "
+"s'étendant vers le bas de l'écran '(X+)'. Plusieurs contrôles (tels que ceux "
+"des vues prédéfinies) sont supprimés. Les lectures de coordonnées pour X "
+"sont désormais en diamètre et en rayon."
+
+#. type: Plain text
+#: axis.txt:813
+msgid "Pressing 'V' zooms out to show the entire file, if one is loaded."
+msgstr ""
+"La touche 'V' agit alors sur le zoom pour afficher le tracé complet du "
+"fichier chargé."
+
+#. type: Plain text
+#: axis.txt:815
+msgid "When in lathe mode, the shape of the loaded tool (if any) is shown."
+msgstr ""
+"En mode tour (lathe), la forme et l'orientation de l'outil chargé sont "
+"représentés."
+
+#. type: Plain text
+#: axis.txt:817
+msgid ".Lathe Tool Shape[[cap:Lathe-Tool-Shape]]"
+msgstr ".Représentation de l'outil en mode tour[[cap:Lathe-Tool-Shape]]"
+
+#. type: Plain text
+#: axis.txt:819
+msgid "image:images/axis-lathe-tool.png[align=\"center\"]"
+msgstr "image::images/axis-lathe-tool.png[]"
+
+#. type: Plain text
+#: axis.txt:821
+msgid "== Advanced Configuration"
+msgstr "== Configuration avancée d'AXIS"
+
+#. type: Plain text
+#: axis.txt:825
+msgid ""
+"For more information on ini file settings that can change how AXIS works see "
+"the INI File/Sections/[DISPLAY] Section of Configuration chapter in the "
+"Integrator manual."
+msgstr ""
+"Pour plus d'informations sur les paramètres du fichier ini pouvant modifier "
+"le fonctionnement d'AXIS, voir le fichier ini, sections [DISPLAY] et le "
+"chapitre sur la configuration dans le manuel de configuration."
+
+#. type: Plain text
+#: axis.txt:827
+msgid "=== Program Filters"
+msgstr "=== Filtres de programme"
+
+#. type: Plain text
+#: axis.txt:832
+msgid ""
+"AXIS has the ability to send loaded files through a 'filter program'.  This "
+"filter can do any desired task: Something as simple as making sure the file "
+"ends with 'M2', or something as complicated as generating G-Code from an "
+"image."
+msgstr ""
+"AXIS a la capacité d'envoyer des fichiers chargés à travers un 'filtre de "
+"programme'. Ce filtre peut faire diverses tâches: Simple, comme s'assurer "
+"que le programme se termine bien par un 'M2' ou complexe, comme détecter que "
+"l'entrée est une image et générer le g-codequi permettra d'usiner sa forme."
+
+#. type: Plain text
+#: axis.txt:841
+msgid ""
+"The '[FILTER]' section of the ini file controls how filters work.  First, "
+"for each type of file, write a 'PROGRAM_EXTENSION' line.  Then, specify the "
+"program to execute for each type of file.  This program is given the name of "
+"the input file as its first argument, and must write rs274ngc code to "
+"standard output. This output is what will be displayed in the text area, "
+"previewed in the display area, and executed by LinuxCNC when 'Run'. The "
+"following lines add support for the 'image-to-gcode' converter included with "
+"LinuxCNC:"
+msgstr ""
+"La section [FILTER] du fichier ini défini comment les filtres doivent agir. "
+"Premièrement, pour chaque type de fichier, écrire une ligne  "
+"PROGRAM_EXTENSION puis, spécifier le programme à exécuter pour chaque type "
+"de fichier. Ce programme reçoit comme argument le nom du fichier d'entrée, "
+"il doit produire le G-code selon le standard rs274ngc, en sortie. Les lignes "
+"de cette sortie s'affichent alors dans la zone de texte, le parcours d'outil "
+"résultant est visible dans la zone graphique, enfin il sera exécuté quand "
+"LinuxCNC recevra la commande 'Exécuter le programme'. Les lignes suivantes "
+"fournissent la possibilité d'utiliser 'image-to-gcode', le convertisseur "
+"d'imagesfourni avec LinuxCNC:"
+
+#. type: Plain text
+#: axis.txt:847
+#, no-wrap
+msgid ""
+"[FILTER]\n"
+"PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image\n"
+"png = image-to-gcode\n"
+"gif = image-to-gcode\n"
+"----\n"
+msgstr ""
+"[FILTER]\n"
+"PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image\n"
+"png = image-to-gcode\n"
+"gif = image-to-gcode\n"
+"----\n"
+
+#. type: Plain text
+#: axis.txt:850
+msgid "It is also possible to specify an interpreter:"
+msgstr "Il est également possible de spécifier un interpréteur:"
+
+#. type: Plain text
+#: axis.txt:854
+#, no-wrap
+msgid ""
+"PROGRAM_EXTENSION = .py Python Script\n"
+"py = python\n"
+"----\n"
+msgstr ""
+"PROGRAM_EXTENSION = .py Python Script\n"
+"py = python\n"
+"----\n"
+
+#. type: Plain text
+#: axis.txt:860
+msgid ""
+"In this way, any Python script can be opened, and its output is treated as g-"
+"code. One such example script is available at 'nc_files/holecircle.py'. This "
+"script creates g-code for drilling a series of holes along the circumference "
+"of a circle."
+msgstr ""
+"De cette manière, n'importe quel script Python pourra être ouvert et sa "
+"sortie traitée comme du G-code. Un autre exemple est disponibledans: '/"
+"nc_files/holecircle.py' . Ce script crée le G-code pour percer une série de "
+"trous suivant un arc de cercle."
+
+#. type: Plain text
+#: axis.txt:862
+msgid ".Circular Holes[[cap:Circular-Holes]]"
+msgstr ".Perçages circulaires"
+
+#. type: Plain text
+#: axis.txt:864
+msgid "image::images/holes.png[align=\"center\"]"
+msgstr "image::images/holes.png[]"
+
+#. type: Plain text
+#: axis.txt:867
+msgid ""
+"If the environment variable AXIS_PROGRESS_BAR is set, then lines written to "
+"stderr of the form"
+msgstr ""
+"Si la variable d'environnement: AXIS_PROGRESS_BAR est active, alors les "
+"lignes seront écrites sur stderr de la forme:"
+
+#. type: Plain text
+#: axis.txt:870
+#, no-wrap
+msgid ""
+"FILTER_PROGRESS=%d\n"
+"----\n"
+msgstr ""
+"FILTER_PROGRESS=%d\n"
+"----\n"
+
+#. type: Plain text
+#: axis.txt:874
+msgid ""
+"will set the AXIS progress bar to the given percentage. This feature should "
+"be used by any filter that runs for a long time."
+msgstr ""
+"AXIS fixera la barre de progression selon le pourcentage donné. Cette "
+"fonction devrait être utilisée pour un filtre qui fonctionne suffisamment "
+"longtemps."
+
+#. type: Plain text
+#: axis.txt:876
+msgid "=== The X Resource Database"
+msgstr "=== La base de données des ressources X"
+
+#. type: Plain text
+#: axis.txt:884
+msgid ""
+"The colors of most elements of the AXIS user interface can be customized "
+"through the X Resource Database. The sample file 'axis_light_background' "
+"changes the colors of the backplot window to a 'dark lines on white "
+"background' scheme, and also serves as a reference for the configurable "
+"items in the display area. The sample file 'axis_big_dro' changes the "
+"position readout to a larger size font. To use these files:"
+msgstr ""
+"Les couleurs de la plupart des éléments de l'interface utilisateur d'AXIS "
+"peuvent être personnalisées grâce à la base de données X. Lefichier "
+"'axis_light_background' modifie les couleurs de la fenêtre du parcours "
+"d'outil sur le modèle 'lignes noires et fond blanc', il sert aussi de "
+"référence des éléments configurables dans l'écran graphique. L'exemple de "
+"fichier 'axis_big_dro' modifie la visu avec une police de plus grande "
+"taille. Pour utiliser ces fichiers faire:"
+
+#. type: Plain text
+#: axis.txt:887
+msgid "xrdb -merge /usr/share/doc/emc2/axis_light_background"
+msgstr "xrdb -merge /usr/share/doc/linuxcnc/axis_light_background"
+
+#. type: Plain text
+#: axis.txt:889
+#, no-wrap
+msgid ""
+"xrdb -merge /usr/share/doc/emc2/axis_big_dro\n"
+"----\n"
+msgstr ""
+"xrdb -merge /usr/share/doc/linuxcnc/axis_big_dro\n"
+"----\n"
+
+#. type: Plain text
+#: axis.txt:893
+msgid ""
+"For information about the other items which can be configured in Tk "
+"applications, see the Tk man pages."
+msgstr ""
+"Pour plus d'informations au sujet des éléments configurables dans les "
+"applications Tk, référez vous aux pages de man de Tk."
+
+#. type: Plain text
+#: axis.txt:898
+msgid ""
+"Because modern desktop environments automatically make some settings in the "
+"X Resource Database that adversely affect AXIS, by default these settings "
+"are ignored. To make the X Resource Database items override AXIS defaults, "
+"include the following line in your X Resources:"
+msgstr ""
+"Les bureaux graphiques modernes effectuent certains réglages dans la base de "
+"données des ressources X ces réglages peuvent affecter ceux d'AXIS, par "
+"défaut ces réglages sont ignorés. Pour que les éléments des ressources X "
+"écrasent ceux par défaut dans AXIS, il faut inclure cette ligne dans vos "
+"ressources X:"
+
+#. type: Plain text
+#: axis.txt:900
+msgid "// These asterisks are not for bold,"
+msgstr "// ces astérisques ne sont pas là pour le bold,"
+
+#. type: Plain text
+#: axis.txt:903
+#, no-wrap
+msgid ""
+"    *Axis*optionLevel: widgetDefault\n"
+"----\n"
+msgstr ""
+"    *Axis*optionLevel: widgetDefault\n"
+"----\n"
+
+#. type: Plain text
+#: axis.txt:906
+msgid "// in this case, we want the asterisks to actually appear."
+msgstr "// nous voulons qu'ils apparaissent dans le texte"
+
+#. type: Plain text
+#: axis.txt:910
+msgid ""
+"this causes the built-in options to be created at the option level "
+"'widgetDefault', so that X Resources (which are level 'userDefault')  can "
+"override them."
+msgstr ""
+"ce qui entraînera la construction des options au niveau 'widgetDefault', de "
+"sorte que les ressources X (qui sont elles, au niveau 'userDefault') "
+"puissent l'emporter."
+
+#. type: Plain text
+#: axis.txt:912
+msgid "=== Physical jog wheels[[sub:Physical-jog-wheels]]"
+msgstr "=== Manivelle de jog[[sub:Manivelle-de-jog]]"
+
+#. type: Plain text
+#: axis.txt:917
+msgid ""
+"To improve the interaction of AXIS with physical jog wheels, the axis "
+"currently selected in the GUI is also reported on a pin with a name like "
+"'axisui.jog.x'. One of these pins is 'TRUE' at one time, and the rest are "
+"'FALSE'. These are meant to control motion's jog-enable pins."
+msgstr ""
+"Pour accroître l'interaction d'AXIS avec une manivelle de jog physique, "
+"l'axe actif courant sélectionné dans l'interface graphique est aussi reporté "
+"sur une pin de Hal ayant un nom comme 'axisui.jog.x'. Excepté pendant un "
+"court instant après que l'axe courant ait changé, une seule de ces pins à la "
+"fois est 'TRUE', les autres restent 'FALSE'."
+
+#. type: Plain text
+#: axis.txt:921
+msgid ""
+"After AXIS has created these HAL pins, it executes the HAL file named in "
+"'[HAL]POSTGUI_HALFILE'. Unlike '[HAL]HALFILE', only one such file may be "
+"used."
+msgstr ""
+"Après qu'AXIS ait créé ces pins de Hal, il exécute le fichier HAL déclaré "
+"avec: [HAL]POSTGUI_HALFILE. Ce qui diffère de [HAL]HALFILE, qui lui ne "
+"s'utilise qu'une seule fois."
+
+#. type: Plain text
+#: axis.txt:924
+msgid "=== ~./axisrc (((.axisrc)))"
+msgstr "=== ~/.axisrc (((.axisrc)))"
+
+#. type: Plain text
+#: axis.txt:929
+msgid ""
+"If it exists, the contents of '~/.axisrc' are executed as Python source code "
+"just before the AXIS GUI is displayed. The details of what may be written in "
+"the axisrc are subject to change during the development cycle."
+msgstr ""
+"Si il existe, le contenu de: '~/.axisrc' est exécuté comme un code source "
+"Python juste avant l'ouverture de l'interface graphique d'AXIS. Les détails "
+"de ce qui peut être écrit dans .axisrc sont sujets à changement durant le "
+"cycle de développement."
+
+#. type: Plain text
+#: axis.txt:931
+msgid "The following adds Control-Q as a keyboard shortcut for Quit."
+msgstr ""
+"Les lignes ci-dessous ajoutent un Ctrl+Q comme raccourci clavier pour "
+"Quitter."
+
+#. type: Plain text
+#: axis.txt:935
+#, no-wrap
+msgid ""
+"root_window.bind(\"<Control-q>\", \"destroy .\")\n"
+"help2.append((\"Control-Q\", \"Quit\"))\n"
+"----\n"
+msgstr ""
+"root_window.bind(\"<Control-q>\", \"destroy .\")\n"
+"help2.append((\"Control-Q\", \"Quit\"))\n"
+"----\n"
+
+#. type: Plain text
+#: axis.txt:939
+msgid "=== External Editor (((External Editor)))"
+msgstr "=== Éditeur externe (((Éditeur externe)))"
+
+#. type: Plain text
+#: axis.txt:945
+msgid ""
+"The menu options File > Edit... and File > Edit Tool Table... become "
+"available after defining the editor in the ini section [DISPLAY].  Useful "
+"values include EDITOR=gedit and EDITOR=gnome-terminal -e vim.  For more "
+"information, see the DISPLAY section of the INI Configuration Chapter in the "
+"Integrator Manual."
+msgstr ""
+"En définissant: [DISPLAY]EDITOR , les options de menu: 'Fichier' → 'Éditer' "
+"ainsi que 'Fichier' → 'Éditer la table d'outils', deviennent accessibles. "
+"Deux valeurs qui fonctionnent bien: EDITOR=gedit et 'EDITOR=gnome-terminal -"
+"e nano'."
+
+#. type: Plain text
+#: axis.txt:948
+msgid "=== Virtual Control Panel (((Virtual Control Panel)))"
+msgstr "=== Panneau de contrôle virtuel (((Panneau de contrôle virtuel)))"
+
+#. type: Plain text
+#: axis.txt:952
+msgid ""
+"AXIS can display a custom virtual control panel in the right-hand pane. You "
+"can program buttons, indicators, data displays and more. For more "
+"information, see the Integrator Manual."
+msgstr ""
+"AXIS peut afficher un panneau de commande virtuel personnalisé dans le volet "
+"de droite. Il est possible d'y placer des boutons, des indicateurs qui "
+"afficheront des données et plus encore."
+
+#. type: Plain text
+#: axis.txt:955
+msgid ""
+"=== Axis Preview Control [[sub:axis-preview-control]](((Axis Preview "
+"Control)))"
+msgstr "=== Commentaires spéciaux[[sub:Commentaires-speciaux]]"
+
+#. type: Plain text
+#: axis.txt:963
+msgid ""
+"Special comments can be inserted into the G Code file to control how the "
+"preview of AXIS behaves. In the case where you want to limit the drawing of "
+"the preview use these special comments. Anything between the (AXIS,hide) and "
+"(AXIS,show) will not be drawn during the preview. The (AXIS,hide) and (AXIS,"
+"show) must be used in pairs with the (AXIS,hide)  being first. Anything "
+"after a (AXIS,stop) will not be drawn during the preview."
+msgstr ""
+"Les commentaires spéciaux peuvent être insérés dans le fichier de G-code "
+"pour contrôler le comportement de l'affichage d'AXIS. Pour limiter l'aperçu "
+"au seul affichage du parcours d'outil, utiliser ces commentaires spéciaux. "
+"Rien ne s'affichera entre le commentaire (AXIS,hide) et le commentaire (AXIS,"
+"show) sauf le parcours d'outil. Les (AXIS,hide) et (AXIS,show) doivent être "
+"utilisés par paires avec le (AXIS, hide) en premier. Tout ce qui est après "
+"un (AXIS,stop) ne sera pas visible."
+
+#. type: Plain text
+#: axis.txt:967
+msgid ""
+"These comments are useful to unclutter the preview display (for instance "
+"while debugging a larger g-code file, one can disable the preview on certain "
+"parts that are already working OK)."
+msgstr ""
+"Ces commentaires sont utiles pour désencombrer l'affichage d'aperçu (Par "
+"exemple  pendant le débogage d'un grand fichier G-code, on peut désactiver "
+"l'aperçu sur certaines parties qui sont déjà fonctionnelles)."
+
+#. type: Bullet: ' - '
+#: axis.txt:973
+msgid "(AXIS,hide) Stops the preview (must be first)"
+msgstr "(AXIS,hide) Arrête le parcours d'outil (à placer en premier)"
+
+#. type: Bullet: ' - '
+#: axis.txt:973
+msgid "(AXIS,show) Resumes the preview (must follow a hide)"
+msgstr "(AXIS,show) Reprend le parcours d'outil (il faut suivre un cache)"
+
+#. type: Bullet: ' - '
+#: axis.txt:973
+msgid "(AXIS,stop) Stops the preview from here to the end of the file."
+msgstr "(AXIS,stop) Arrête le parcours d'outil d'ici à la fin du fichier."
+
+#. type: Plain text
+#: axis.txt:973
+#, no-wrap
+msgid ""
+" - (AXIS,notify,the_text) Displays the_text as an info display\n"
+"This display can be useful in the Axis preview when (debug,message)\n"
+"comments are not displayed.\n"
+msgstr ""
+" - (AXIS,notify,le_texte) Affiche 'le_texte' à l'écran, comme une info.\n"
+"Cet affichage peut être très utile lors du pré-affichage du parcours d'outil,\n"
+"quand les commentaires (debug,message) ne sont pas affichés.\n"
