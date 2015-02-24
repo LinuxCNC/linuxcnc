@@ -1,0 +1,39 @@
+#!/usr/bin/python
+import sys,os
+import fileinput
+inplace = 1
+mot = ['[EMCMOT]EMCMOT','motmod']
+tps = ['tp']
+
+# find configs/ -name '*.hal' -print|xargs grep EMCMOT|grep -v tp=tp|cut -d ':' -f1
+for f in sys.argv[1:]:
+    fn = os.path.realpath(f)
+    kins = None
+    fixed = False
+    for l in fileinput.input(fn, inplace=inplace):
+        line = l.rstrip()
+        words = line.split()
+        if fixed or len(words) < 2:
+            print line
+            continue
+        if not line.startswith('loadrt') or line.startswith('#') :
+            print line
+            continue
+        if words[1] in tps: # already has tp
+            print line
+            fixed = True
+            continue
+        if words[1].endswith('kins'):
+            kins = words[1]
+            print line
+            continue
+        else:
+            if words[1] in mot and line.find("tp=tp") == -1:
+                if not kins:
+                    raise RuntimeError, "kins not found in " + f + " , " + line
+
+                print '# trajectory planner'
+                print 'loadrt tp'
+                print line + " tp=tp kins=" + kins
+            else:
+                print line
