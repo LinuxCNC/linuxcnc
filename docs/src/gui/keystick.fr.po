@@ -1,0 +1,96 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-24 20:46+0100\n"
+"PO-Revision-Date: 2015-02-24 20:49+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: keystick.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: keystick.txt:4
+msgid "= KEYSTICK GUI"
+msgstr "= L'interface textuelle KEYSTICK"
+
+#. type: Plain text
+#: keystick.txt:6
+msgid "[[cha:keystick-gui]] (((KEYSTICK)))"
+msgstr "[[cha:keystick-gui]] (((KEYSTICK)))"
+
+#. type: Plain text
+#: keystick.txt:9
+msgid "== Introduction"
+msgstr "== Introduction"
+
+#. type: Plain text
+#: keystick.txt:12
+msgid ""
+".The Mini Graphical Interface[[fig:keystick]] image::images/keystick."
+"png[align=\"center\"]"
+msgstr ""
+".L'interface utilisateur minimale[[fig:startkeystick]] image::images/keystick."
+"png[]"
+
+#. type: Plain text
+#: keystick.txt:14
+msgid "Keystick is a minimal text based interface."
+msgstr "Keystick est une interface minimaliste textuelle."
+
+#. type: Plain text
+#: keystick.txt:16
+msgid "== Installing"
+msgstr "== Installation"
+
+#. type: Plain text
+#: keystick.txt:18
+msgid "To use keystick change the 'DISPLAY' setting in the ini file setting to:"
+msgstr ""
+"Pour utiliser keystick, modifier la section 'DISPLAY' du fichier ini de la "
+"manière suivante:"
+
+#. type: Plain text
+#: keystick.txt:19
+#, no-wrap
+msgid "----\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: keystick.txt:21
+#, no-wrap
+msgid ""
+"DISPLAY = keystick\n"
+"----\n"
+msgstr ""
+"[DISPLAY]\n"
+"DISPLAY = keystick\n"
+"----\n"
+
+#. type: Plain text
+#: keystick.txt:24
+msgid "== Using"
+msgstr "== Utilisation"
+
+#. type: Plain text
+#: keystick.txt:28
+msgid ""
+"Keystick is very simple to use. In the MDI Mode you simply start typing the g "
+"code and it shows up in the bottom text area. The '?' key toggles help."
+msgstr ""
+"Keystick est extrêmement simple à utiliser. Dans le mode MDI vous pouvez "
+"directement taper le G-code et il sera visible dans la partie supérieur. La "
+"touche «?» bascule avec ou sans aide."

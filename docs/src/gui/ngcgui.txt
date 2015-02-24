@@ -1,3 +1,5 @@
+:lang: en
+
 = NGCGUI
 
 [[cha:ngcgui]] (((NGCGUI)))

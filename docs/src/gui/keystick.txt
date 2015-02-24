@@ -1,3 +1,5 @@
+:lang: en
+
 = KEYSTICK GUI
 
 [[cha:keystick-gui]] (((KEYSTICK)))

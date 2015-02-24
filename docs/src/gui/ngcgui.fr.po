@@ -1,0 +1,2224 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-23 16:58+0100\n"
+"PO-Revision-Date: 2015-02-24 20:49+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: ngcgui.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: ngcgui.txt:4
+msgid "= NGCGUI"
+msgstr "= L'utilitaire graphique NGCGUI"
+
+#. type: Plain text
+#: ngcgui.txt:6
+msgid "[[cha:ngcgui]] (((NGCGUI)))"
+msgstr "[[cha:ngcgui]] (((NGCGUI)))"
+
+#. type: Plain text
+#: ngcgui.txt:8
+msgid "image::images/ngcgui.png[]"
+msgstr "image::images/ngcgui_fr.png[]"
+
+#. type: Plain text
+#: ngcgui.txt:10
+msgid "== Overview"
+msgstr "== Vue d'ensemble"
+
+#. type: Bullet: '* '
+#: ngcgui.txt:19
+msgid "'NGCGUI' is a tcl application for using LinuxCNC subroutines."
+msgstr "'NGCGUI' est un utilitaire écrit en TCL, pour utiliser les sous-programmes de LinuxCNC."
+
+#. type: Plain text
+#: ngcgui.txt:19
+#, no-wrap
+msgid ""
+"* 'NGCGUI' can run as a standalone application or can be embedded in\n"
+"   multiple tab pages in the axis gui\n"
+"* 'PYNGCGUI' is an alternate, python implementation of ngcgui.\n"
+"* 'PYNGCGUI' can run as a standalone application or can be embedded as\n"
+"   a tab page (with its own set of multiple subroutine tabs) in any\n"
+"   gui that supports embedding of gladevcp applications.  Example guis include:\n"
+"   axis, touchy, gscreen and gmoccapy\n"
+msgstr ""
+"* 'NGCGUI' peut être lancé comme une application autonome ou embarqué\n"
+"   dans des pages multi-onglets dans l'interface graphique Axis\n"
+"* 'PYNGCGUI' est une alternative de Ngcgui, implémentée en Python.\n"
+"* 'PYNGCGUI' peut également être une application autonome ou embarquée\n"
+"   dans une page à onglets (avec ses propres et multiples jeux de sous\n"
+"   programmes) dans ses onglets, dans n'importe quelle interface graphique\n"
+"   supportant l'intégration des applications Gladevcp. Par exemple, sont incluse:\n"
+"   axis, touchy, gscreen et gmoccapy\n"
+
+#. type: Plain text
+#: ngcgui.txt:21
+msgid "Using NGCGUI or PYNGCGUI:"
+msgstr "Utilisation de NGCGUI ou PYNGCGUI:"
+
+#. type: Bullet: '* '
+#: ngcgui.txt:32
+msgid "Tab pages are provided for subroutines specified in the INI file"
+msgstr "Les pages d'onglets sont fournies pour les sous-programmes spécifiés dans le fichier ini."
+
+#. type: Bullet: '* '
+#: ngcgui.txt:32
+msgid "New subroutines tab pages can be added using Custom tab pages"
+msgstr "De nouvelles pages à onglets peuvent être ajoutées à l'aide des onglets personnalisés."
+
+#. type: Bullet: '* '
+#: ngcgui.txt:32
+msgid "Each subroutine tab page provides entry boxes for all subroutine parameters"
+msgstr "Chaque page d'onglets de sous-programme fournit des boîtes de saisie pour tous les paramètres de sous-programme."
+
+#. type: Bullet: '* '
+#: ngcgui.txt:32
+msgid ""
+"The entry boxes can have a default value and an label that are identified by special comments in the subroutine file"
+msgstr ""
+"Les boîtes de saisie peuvent avoir une valeur par défaut et une étiquette, qui sont identifiées par des commentaires "
+"spéciaux, dans le fichier de sous-programme."
+
+#. type: Bullet: '* '
+#: ngcgui.txt:32
+msgid "Subroutine invocations are concatenated together to form a multiple step program"
+msgstr "Les invocations de sous-programmes sont concaténés pour former un programme multi-étapes."
+
+#. type: Bullet: '* '
+#: ngcgui.txt:32
+msgid "Any single-file gcode subroutine that conforms to ngcgui conventions can be used"
+msgstr "Tout sous-programme G-code qui est conforme aux conventions ngcgui peut être utilisé."
+
+#. type: Bullet: '* '
+#: ngcgui.txt:32
+msgid ""
+"Any gcmc (Gcode-meta-compiler) program that conforms to ngcgui conventions for tagging variables can be used. (The gcmc "
+"executable must be installed separately, see: http://www.vagrearg.org/content/gcmc)"
+msgstr ""
+"Tout programme GCMC (GCode-méta-compilateur) qui est conforme aux conventions ngcgui pour le marquage variables, peut "
+"être utilisé."
+
+#. type: Plain text
+#: ngcgui.txt:37
+msgid ""
+"[NOTE] NGCGUI and PYNGCGUI implement the same functions and both process .ngc and .gcmc files that conform to a few "
+"ngcgui-specific conventions.  In this document, the tern NGCGUI generally refers to either application."
+msgstr ""
+"[NOTE]\n"
+"NGCGUI et PYNGCGUI implémentent les mêmes fonctions et les deux processus, les fichier .ngc et les fichiers .gcmc, "
+"conformes aux quelques conventions spécifiques ngcgui. Dans le présent document, le terme se réfère généralement à "
+"NGCGUI soit l'application."
+
+#. type: Plain text
+#: ngcgui.txt:39
+msgid "== Demonstration Configurations"
+msgstr "== Démonstration et configurations"
+
+#. type: Plain text
+#: ngcgui.txt:43
+msgid ""
+"A number of demonstration configurations are located in the sim directory of the Sample Configurations offered by the "
+"LinuxCNC configuration picker. The configuration picker is on the system's main menu:"
+msgstr ""
+"Un bon nombre de configurations de démonstration sont disponibles dans le répertoire sim, parmi les configurations "
+"offertes par le sélecteur de configuration de LinuxCNC. Le sélecteur de configuration se trouve dans le menu principal "
+"du système, sous:"
+
+#. type: Plain text
+#: ngcgui.txt:45
+#, no-wrap
+msgid "  Applications > CNC > LinuxCNC\n"
+msgstr "  Applications -> CNC -> LinuxCNC\n"
+
+#. type: Plain text
+#: ngcgui.txt:53
+msgid ""
+"Examples are included for the axis, touchy, gscreen, and gmoccapy guis.  These examples demonstrate both 3-axis (XYZ) "
+"cartesian configurations (like mills) and lathe (XZ) setups.  Some examples show the use of a popupkeyboard for touch "
+"screen systems and other examples demonstrate the use of files created for the gcmc (Gcode Meta Compiler) application.  "
+"The touchy examples also demonstrate incorporation of a gladevcp backplot viewer (gremlin_view)."
+msgstr ""
+"Des exemples sont inclus pour les interfaces graphiques axis, touchy, gscreen et gmoccapy. Ces exemples montrent des "
+"configurations pour machine 3 axes (XYZ cartésiens, telles que fraiseuses) ou les tours (XZ). Certains exemples "
+"montrent l'utilisation de claviers surgissants pour systèmes à écran tactile, d'autres exemples montrent l'utilisation "
+"de fichiers créés par l'application gcmc ( Gcode Meta Compiler). Les exemples touchy montrent également l'intégration "
+"du parcours d'outil gladevcp (gremlin_view)."
+
+#. type: Plain text
+#: ngcgui.txt:55
+msgid "The simplest application is found as:"
+msgstr "Les applications simples sont dans:"
+
+#. type: Plain text
+#: ngcgui.txt:57
+#, no-wrap
+msgid "  Sample Configurations / sim / axis / ngcgui /ngcgui_simple\n"
+msgstr "  Sample Configurations/sim/axis/ngcgui/ngcgui_simple\n"
+
+#. type: Plain text
+#: ngcgui.txt:59
+msgid "A comprehensive example showing gcmc compatibility is at:"
+msgstr "Un exemple compréhensible montrant la compatibilité avec gcmc:"
+
+#. type: Plain text
+#: ngcgui.txt:61
+#, no-wrap
+msgid "  Sample Configurations / sim / axis / ngcgui / ngcgui_gcmc\n"
+msgstr "  Sample Configurations/sim/axis/ngcgui/ngcgui_gcmc\n"
+
+#. type: Plain text
+#: ngcgui.txt:63
+msgid "A comprehensive example embedded as a gladevcp app and using gcmc is at:"
+msgstr "Un exemple compréhensible, intégré dans une application gladevcp et utilisant gcmc:"
+
+#. type: Plain text
+#: ngcgui.txt:65
+#, no-wrap
+msgid "  Sample Configurations / sim / gscreen / ngcgui / pyngcgui_gcmc\n"
+msgstr "  Sample Configurations/sim/gscreen/ngcgui/pyngcgui_gcmc\n"
+
+#. type: Plain text
+#: ngcgui.txt:69
+msgid ""
+"The example sim configurations make use of library files that provide example gcode subroutine (.ngc) files and Gcode-"
+"meta-compiler (.gcmc) files:"
+msgstr ""
+"Les exemples de configurations en sim, fournissent une bibliothèque d'exemples de sous-programme G-code (.ngc) et issus "
+"du méta-compilateur-Gcode (.gcmc):"
+
+#. type: Plain text
+#: ngcgui.txt:90
+#, no-wrap
+msgid ""
+"* 'nc_files/ngcgui_lib'\n"
+"** 'arc1.ngc' - basic arc using cutter radius compensation\n"
+"** 'arc2.ngc' - arc speced by center, offset, width, angle (calls arc1)\n"
+"** 'backlash.ngc' - routine to measure an axis backlash with dial indicator\n"
+"** 'db25.ngc' - creates a DB25 plug cutout\n"
+"** 'gosper.ngc' - a recursion demo (flowsnake)\n"
+"** 'helix.ngc' - helix or D-hole cutting\n"
+"** 'helix_rtheta.ngc' - helix or D-hole positioned by radius and angle\n"
+"** 'hole_circle.ngc' - equally spaced holes on a circle\n"
+"** 'ihex.ngc' - internal hexagon\n"
+"** 'iquad.ngc' - internal quadrilateral\n"
+"** 'ohex.ngc' - outside hexagon\n"
+"** 'oquad.ngc' - outside quadrilateral\n"
+"** 'qpex_mm.ngc' - demo of qpockets (mm based)\n"
+"** 'qpex.ngc' - demo of qpockets (inch based)\n"
+"** 'qpocket.ngc' - quadrilateral pocket\n"
+"** 'rectangle_probe.ngc' - probe a rectangular area\n"
+"** 'simp.ngc' - a simple subroutine example that creates two circles\n"
+"** 'slot.ngc' - slot from connecting two endpoints\n"
+"** 'xyz.ngc' - machine exerciser constrained to a box shape\n"
+msgstr ""
+"* 'nc_files/ngcgui_lib'\n"
+"** 'arc1.ngc' - arc simple utilisant la compensation de rayon d'outil\n"
+"** 'arc2.ngc' - arc par le centre, offset, largeur, angle (appel arc1)\n"
+"** 'backlash.ngc' - routine pour mesurer le jeu d'un axe (backlash) avec un micromètre\n"
+"** 'db25.ngc' - crée une découpe de prise DB25\n"
+"** 'gosper.ngc' - une démo récursive (flocon de neige)\n"
+"** 'helix.ngc' - découpe une hélice ou un D-hole\n"
+"** 'helix_rtheta.ngc' - hélice ou D-hole positionné par rayon et angle\n"
+"** 'hole_circle.ngc' - trous espacés régulièrement sur un cercle\n"
+"** 'ihex.ngc' - hexagone interne\n"
+"** 'iquad.ngc' - quadrilatère interne\n"
+"** 'ohex.ngc' - hexagone externe\n"
+"** 'oquad.ngc' - quadrilatère externe\n"
+"** 'qpex_mm.ngc' - démo de poches en mm\n"
+"** 'qpex.ngc' - démo de poches en pouce\n"
+"** 'qpocket.ngc' - poche quadrilatère\n"
+"** 'rectangle_probe.ngc' - palpation d'une zone rectangulaire\n"
+"** 'simp.ngc' - un simple sous-programme pour créer deux cercles\n"
+"** 'slot.ngc' - rainure entre deux points\n"
+"** 'xyz.ngc' - machine exerciseur à une forme de boîte\n"
+
+#. type: Plain text
+#: ngcgui.txt:97
+#, no-wrap
+msgid ""
+"* 'nc_files/ngcgui_lib/lathe'\n"
+"** 'g76base.ngc' - gui for g76 threading\n"
+"** 'g76diam.ngc' - threading speced by major, minor diameters\n"
+"** 'id.ngc' - bores the inside diameter\n"
+"** 'od.ngc' - turns the outside diameter\n"
+"** 'taper-od.ngc' - turns a taper on the outside diameter\n"
+msgstr ""
+"* 'nc_files/ngcgui_lib/lathe'\n"
+"** 'g76base.ngc' - gui pour filetage avec G76\n"
+"** 'g76diam.ngc' - filetage avec diamètres majeur et mineur\n"
+"** 'id.ngc' - alésage d'un diamètre intérieur\n"
+"** 'od.ngc' - tournage d'un diamètre extérieur\n"
+"** 'taper-od.ngc' - tournage d'un filetage sur diamètre extérieur\n"
+
+#. type: Plain text
+#: ngcgui.txt:103
+#, no-wrap
+msgid ""
+"* 'nc_files/gcmc_lib'\n"
+"** 'drill.gcmc' - drill holes in rectangle pattern\n"
+"** 'square.gcmc' - simple demo of variable tags for gcmc files\n"
+"** 'star.gcmc' - gcmc demo illustrating functions and arrays\n"
+"** 'wheels.gcmc' - gcmc demo of complex patterns\n"
+msgstr ""
+"* 'nc_files/gcmc_lib'\n"
+"** 'drill.gcmc' - perçages d'une forme rectangulaire\n"
+"** 'square.gcmc' - simple démo de tags de variable de fichiers gcmc\n"
+"** 'star.gcmc' - démo gcmc illustrant les fonctions et les tableaux\n"
+"** 'wheels.gcmc' - démo gcmc pour des formes complexes\n"
+
+#. type: Plain text
+#: ngcgui.txt:106
+msgid "To try a demonstration, select a sim configuration and start the linuxCNC program."
+msgstr "Pour essayer une démonstration, sélectionner une configuration sim et démarrer le programme linuxCNC."
+
+#. type: Plain text
+#: ngcgui.txt:114
+msgid ""
+"If using the axis gui, press the 'E-Stop' image:images/tool_estop.gif[] then 'Machine Power' image:images/tool_power."
+"gif[] then 'Home All'. Pick a ngcgui tab, fill in any empty blanks with sensible values and press 'Create Feature' then "
+"'Finalize'. Finally press the 'Run' image:images/tool_run.gif[] button to watch it run.  Experiment by creating "
+"multiple features and features from different tab pages."
+msgstr ""
+"Si Axis est utilisé, presser 'l'Arrêt d'urgence' image:images/tool_estop.gif[] puis 'Marche machine' image:images/"
+"tool_power.gif[] puis 'POM de tous les axes'. Choisir un onglet ngcgui, remplir les espaces vides avec des valeurs et "
+"presser 'Créer Feature' puis 'Finaliser'. Finalement, presser le bouton 'Run' image:images/tool_run.gif[] pour voir le "
+"résultat. Expérimenter en créant de multiples fonctionnalités et caractéristiques depuis les différentes pages "
+"d'onglets."
+
+#. type: Plain text
+#: ngcgui.txt:117
+msgid "Other guis will have similar functionality but the buttons and names may be different."
+msgstr "Les autres GUI devront fonctionner de manière similaire, mais les boutons et les noms peuvent être différents."
+
+#. type: Plain text
+#: ngcgui.txt:120
+#, no-wrap
+msgid ""
+".Notes\n"
+"[NOTE]\n"
+"===============================\n"
+msgstr ""
+"[NOTE]\n"
+"===============================\n"
+
+#. type: Plain text
+#: ngcgui.txt:125
+msgid ""
+"The demonstration configs create tab pages for just a few of the provided examples.  Any gui with a Custom tab page can "
+"open any of the library example subroutines or any user file if it is in the linuxCNC subroutine path."
+msgstr ""
+"Les configs de démonstration créent des pages d'onglets pour quelques-uns des exemples fournis. Toute GUI avec une page "
+"d'onglets personnalisés peut ouvrir n'importe quel exemple de sous-programme de la bibliothèque, ou n'importe quel "
+"fichier utilisateur si il est dans le chemin des sous-programmes de LinuxCNC."
+
+#. type: Plain text
+#: ngcgui.txt:128
+msgid "To see special key bindings, click inside an ngcgui tab page to get focus and then presss Control-k."
+msgstr ""
+"Pour voir les raccourcis clavier spéciaux, cliquer à l'intérieur d'une page d'onglet ngcgui pour avoir le focus, puis "
+"Presser Control-k."
+
+#. type: Plain text
+#: ngcgui.txt:133
+#, no-wrap
+msgid ""
+"The demonstration subroutines should run on the simulated\n"
+"machine configurations included in the distribution.  A user\n"
+"should always understand the behavior and purpose of a program\n"
+"before running on a real machine.\n"
+"===============================\n"
+msgstr ""
+"Les sous-programmes de démonstration doivent se lancer avec une\n"
+"configuration en mode simulation incluse dans la distribution.\n"
+"L'utilisateur doit comprendre le comportement et le but d'un\n"
+"programme avant de le lancer sur une machine réelle.\n"
+"===============================\n"
+
+#. type: Plain text
+#: ngcgui.txt:136
+msgid "== Library Locations"
+msgstr "== Emplacement des librairies"
+
+#. type: Plain text
+#: ngcgui.txt:139
+msgid ""
+"In linuxCNC installations installed from deb packages, the simulation configs for ngcgui use symbolic links to non-user-"
+"writable LinuxCNC libraries for:"
+msgstr ""
+"Dans les installations LinuxCNC installées à partir de paquets deb, les configs de simulation pour ngcgui utilisent des "
+"liens symboliques vers des librairies LinuxCNC protégées en écriture pour l'utilisateur:"
+
+#. type: Plain text
+#: ngcgui.txt:145
+#, no-wrap
+msgid ""
+"* 'nc_files/ngcgui_lib'             ngcgui-compatible subfiles\n"
+"* 'nc_files/ngcgui_lib/lathe'       ngcgui-compatible lathe subfiles\n"
+"* 'nc_files/gcmc_lib'               ngcgui-gcmc-compatible programs\n"
+"* 'nc_files/ngcgui_lib/utilitysubs' Helper subroutines\n"
+"* 'nc_files/ngcgui_lib/mfiles'      User M files\n"
+msgstr ""
+"* 'nc_files/ngcgui_lib'            sous-programmes ngcgui-compatibles\n"
+"* 'nc_files/ngcgui_lib/lathe'    sous-programmes de tournage ngcgui-compatibles\n"
+"* 'nc_files/gcmc_lib'               programmes ngcgui-gcmc-compatibles\n"
+"* 'nc_files/ngcgui_lib/utilitysubs' Assistant de sous-programmes\n"
+"* 'nc_files/ngcgui_lib/mfiles'      M-files utilisateur\n"
+
+#. type: Plain text
+#: ngcgui.txt:148
+msgid "These libraries are located by ini file items that specify the search paths used by linuxCNC (and ngcgui):"
+msgstr ""
+"Ces librairies sont localisées par des éléments du fichier ini, spécifiant les chemins de recherche utilisés par "
+"LinuxCNC (et ngcgui):"
+
+#. type: Plain text
+#: ngcgui.txt:149 ngcgui.txt:173 ngcgui.txt:180 ngcgui.txt:734 ngcgui.txt:743 ngcgui.txt:843 ngcgui.txt:852
+#: ngcgui.txt:859
+#, no-wrap
+msgid "----\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: ngcgui.txt:153
+#, no-wrap
+msgid ""
+"[RS274NGC]\n"
+"SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/gcmc_lib:../../nc_files/ngcgui_lib/utilitysubs\n"
+"USER_M_PATH     = ../../nc_files/ngcgui_lib/mfiles\n"
+"----\n"
+msgstr ""
+"[RS274NGC]\n"
+"SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/gcmc_lib:../../nc_files/ngcgui_lib/utilitysubs\n"
+"USER_M_PATH     = ../../nc_files/ngcgui_lib/mfiles\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:160
+msgid ""
+"[NOTE] These are long lines (not continued on multiple lines)  that specify the directories used in a search patch.  "
+"The directory names are separated by colons (:).  No spaces should occur between directory names."
+msgstr ""
+"[NOTE]\n"
+"Ce sont de longues lignes (non découpées en multiples lignes) qui spécifient les répertoires utilisés dans le chemin de "
+"recherche. Les noms de répertoire sont séparés par deux points (:). Aucun espace ne doit être utilisé dans les noms de "
+"répertoire."
+
+#. type: Plain text
+#: ngcgui.txt:163
+msgid "A user can create new directories for their own subroutines and M-files and add them to the search path(s)."
+msgstr ""
+"Un utilisateur peux créer de nouveaux répertoires pour ces propres sous-programmes et ses M-files et les ajouter dans "
+"le(s) chemin de recherche."
+
+#. type: Plain text
+#: ngcgui.txt:165
+#, no-wrap
+msgid ""
+"For example, a user could create directories from the terminal with the commands:\n"
+"----\n"
+msgstr ""
+"Par exemple, un utilisateur peut créer des répertoires depuis la console avec les commandes:\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:168
+#, no-wrap
+msgid ""
+"mkdir /home/myusername/mysubs\n"
+"mkdir /home/myusername/mymfiles\n"
+"----\n"
+msgstr ""
+"mkdir /home/myusername/mysubs\n"
+"mkdir /home/myusername/mymfiles\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:172
+msgid ""
+"And then create or copy system-provided files to these user-writable directories.  For instance, a user might create a "
+"ngcgui-compatible subfile named:"
+msgstr ""
+"Et puis créer, ou copier des fichiers du système dans ces répertoires, dans lesquels il a les droits d'écriture. Par "
+"exemple, un utilisateur peut créer un sous-fichier ngcgui-compatible nomé:"
+
+#. type: Plain text
+#: ngcgui.txt:175
+#, no-wrap
+msgid ""
+"/home/myusername/mysubs/example.ngc\n"
+"----\n"
+msgstr ""
+"/home/myusername/mysubs/example.ngc\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:179
+msgid ""
+"To use files in new directories, the ini file must be edited to include the new subfiles and to augment the search "
+"path(s).  For this example:"
+msgstr ""
+"Pour utiliser les fichiers de ces nouveaux répertoires, le fichier ini doit être édité pour inclure les nouveaux sous "
+"fichiers et pour augmenter le(s) chemin de recherche. Pour cet exemple:"
+
+#. type: Plain text
+#: ngcgui.txt:185
+#, no-wrap
+msgid ""
+"[RS274NGC]\n"
+"...\n"
+"SUBROUTINE_PATH = /home/myusername/mysubs:../../nc_files/ngcgui_lib:../../nc_files/gcmc_lib:../../nc_files/ngcgui_lib/utilitysubs\n"
+"USER_M_PATH     = /home/myusername/mymfiles:../../nc_files/ngcgui_lib/mfiles\n"
+msgstr ""
+"[RS274NGC]\n"
+"...\n"
+"SUBROUTINE_PATH = /home/myusername/mysubs:../../nc_files/ngcgui_lib:../../nc_files/gcmc_lib:../../nc_files/ngcgui_lib/utilitysubs\n"
+"USER_M_PATH     = /home/myusername/mymfiles:../../nc_files/ngcgui_lib/mfiles\n"
+
+#. type: Plain text
+#: ngcgui.txt:190
+#, no-wrap
+msgid ""
+"[DISPLAY]\n"
+"...\n"
+"NGCGUI_SUBFILE = example.ngc\n"
+"...\n"
+"----\n"
+msgstr ""
+"[DISPLAY]\n"
+"...\n"
+"NGCGUI_SUBFILE = exemple.ngc\n"
+"...\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:198
+msgid ""
+"LinuxCNC (and ngcgui) use the first file found when searching directories in the search path.  With this behavior, you "
+"can supersede an ngcgui_lib subfile by placing a subfile with an identical name in a directory that is found earlier in "
+"the path search. More information can be found in the INI chapter of the Integrators Manual."
+msgstr ""
+"LinuxCNC (et ngcgui) utilisent le premier fichier trouvé quand ils cherchent dans les répertoires contenus dans le "
+"chemin de recherche.  Avec ce comportement, il est possible de substituer un fichier ngcgui_lib en plaçant un fichier "
+"portant un nom identique dans un répertoire qui sera trouvé en premier dans le chemin de recherche. Plus d'informations "
+"se trouvent dans le chapitre sur le fichier ini du manuel de configuration."
+
+#. type: Plain text
+#: ngcgui.txt:203
+#, no-wrap
+msgid ""
+"== Standalone Usage\n"
+"=== Standalone NGCGUI\n"
+"For usage, type in a terminal:\n"
+"----\n"
+msgstr ""
+"== Utilisation autonome\n"
+"=== NGCGUI en autonome\n"
+"Pour l'utiliser, taper dans un terminal:\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:210
+#, no-wrap
+msgid ""
+"ngcgui --help\n"
+"Usage:\n"
+"  ngcgui --help | -?\n"
+"  ngcgui [Options] -D nc_files_directory_name\n"
+"  ngcgui [Options] -i LinuxCNC_inifile_name\n"
+"  ngcgui [Options]\n"
+msgstr ""
+"ngcgui --help\n"
+"Usage:\n"
+"  ngcgui --help | -?\n"
+"  ngcgui [Options] -D nc_files_directory_name\n"
+"  ngcgui [Options] -i LinuxCNC_inifile_name\n"
+"  ngcgui [Options]\n"
+
+#. type: Plain text
+#: ngcgui.txt:225
+#, no-wrap
+msgid ""
+"  Options:\n"
+"         [-S subroutine_file]\n"
+"         [-p preamble_file]\n"
+"         [-P postamble_file]\n"
+"         [-o output_file]\n"
+"         [-a autosend_file]            (autosend to axis default:auto.ngc)\n"
+"         [--noauto]                    (no autosend to axis)\n"
+"         [-N | --nom2]                 (no m2 terminator (use %))\n"
+"         [--font [big|small|fontspec]] (default: \"Helvetica -10 normal\")\n"
+"         [--horiz|--vert]              (default: --horiz)\n"
+"         [--cwidth comment_width]      (width of comment field)\n"
+"         [--vwidth varname_width]      (width of varname field)\n"
+"         [--quiet]                     (fewer comments in outfile)\n"
+"         [--noiframe]                  (default: frame displays image)\n"
+"----\n"
+msgstr ""
+"  Options:\n"
+"         [-S subroutine_file]\n"
+"         [-p preamble_file]\n"
+"         [-P postamble_file]\n"
+"         [-o output_file]\n"
+"         [-a autosend_file]            (envoi auto à Axis défaut:auto.ngc)\n"
+"         [--noauto]                    (pas d'envoi auto à Axis)\n"
+"         [-N | --nom2]                 (pas de terminateur M2 (utilise %))\n"
+"         [--font [big|small|fontspec]] (défaut: \"Helvetica -10 normal\")\n"
+"         [--horiz|--vert]              (défaut: --horiz)\n"
+"         [--cwidth comment_width]      (largeur du champ commentaire)\n"
+"         [--vwidth varname_width]      (largeur du champ de varname)\n"
+"         [--quiet]                    (moins de commentaires de le fichier de sortie)\n"
+"         [--noiframe]              (défaut: trame d'affichages image)\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:230
+msgid ""
+"[NOTE] As a standalone application, ngcgui handles a single subroutine file which can be invoked multiple times.  "
+"Multiple standalone ngcgui applications can be started independently."
+msgstr ""
+"[NOTE]\n"
+"En temps qu'application autonome, ngcgui gère un fichier de sous-programme unique, qui peut être invoqué plusieurs "
+"fois. Plusieurs applications de ngcgui autonomes, peuvent être démarrées indépendamment."
+
+#. type: Plain text
+#: ngcgui.txt:233
+#, no-wrap
+msgid ""
+"=== Standalone PYNGCGUI\n"
+"For usage, type in a terminal:\n"
+"----\n"
+msgstr ""
+"=== PYNGCGUI en autonome\n"
+"Pour l'utiliser, taper dans un terminal:\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:263
+#, no-wrap
+msgid ""
+"pyngcgui --help\n"
+"Usage:\n"
+"pyngcgui [Options] [sub_filename]\n"
+"Options requiring values:\n"
+"    [-d | --demo] [0|1|2] (0: DEMO standalone toplevel)\n"
+"                          (1: DEMO embed new notebook)\n"
+"                          (2: DEMO embed within existing notebook)\n"
+"    [-S | --subfile       sub_filename]\n"
+"    [-p | --preamble      preamble_filename]\n"
+"    [-P | --postamble     postamble_filename]\n"
+"    [-i | --ini           inifile_name]\n"
+"    [-a | --autofile      autoauto_filename]\n"
+"    [-t | --test          testno]\n"
+"    [-H | --height        height_of_entry widget] (typ 20-40)\n"
+"    [-K | --keyboardfile  glade_file] (use custom popupkeyboard glade file)\n"
+"Solo Options:\n"
+"    [-v | --verbose]\n"
+"    [-D | --debug]\n"
+"    [-N | --nom2]         (no m2 terminator (use %))\n"
+"    [-n | --noauto]       (save but do not automatically send result)\n"
+"    [-k | --keyboard]     (use default popupkeybaord)\n"
+"    [-s | --sendtoaxis]   (send generated ngc file to axis gui)\n"
+"Notes:\n"
+"      A set of files is comprised of a preamble, subfile, postamble.\n"
+"      The preamble and postamble are optional.\n"
+"      One set of files can be specified from cmdline.\n"
+"      Multiple sets of files can be specified from an inifile.\n"
+"      If --ini is NOT specified:\n"
+"         search for a running linuxCNC and use it's inifile\n"
+"----\n"
+msgstr ""
+"pyngcgui --help\n"
+"Usage:\n"
+"pyngcgui [Options] [sub_filename]\n"
+"Options requiring values:\n"
+"    [-d | --demo] [0|1|2] (0: DEMO autonome toplevel)\n"
+"                          (1: DEMO intégré nouveau notebook)\n"
+"                          (2: DEMO intégré dans notebook existant)\n"
+"    [-S | --subfile       sub_filename]\n"
+"    [-p | --preamble      preambule_filename]\n"
+"    [-P | --postamble     postambule_filename]\n"
+"    [-i | --ini           inifile_name]\n"
+"    [-a | --autofile      autoauto_filename]\n"
+"    [-t | --test          testno]\n"
+"    [-H | --height        height_of_entry widget] (typ 20-40)\n"
+"    [-K | --keyboardfile  glade_file] (utilise fichier glage pour clavier surgissant)\n"
+"Solo Options:\n"
+"    [-v | --verbose]\n"
+"    [-D | --debug]\n"
+"    [-N | --nom2]         (pas de terminateur M2 (utilise %))\n"
+"    [-n | --noauto]       (sauve mais n’envoie pas le résultat automatiquement)\n"
+"    [-k | --keyboard]     (utilise défaut clavier surgissant)\n"
+"    [-s | --sendtoaxis]   (envoie le ngc généré à Axis)\n"
+"Notes:\n"
+"      Un jeu de fichiers est fournis pour les préambules, sous-fichiers, postambules.\n"
+"      Les préambule et postambule sont optionnels.\n"
+"      Un jeu de fichiers peut être spécifié depuis la ligne de commande.\n"
+"      De multiples jeux de fichiers peuvent être spécifiés dans un fichier ini.\n"
+"      Si --ini n'est PAS spécifié:\n"
+"         cherche pour un LinuxCNC fonctionnant et utilise son fichier ini\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:269
+msgid ""
+"[NOTE] As a standalone application, pyngcgui can read an ini file (or a running linuxCNC application) to create tab "
+"pages for multiple subfiles."
+msgstr ""
+"[NOTE]\n"
+"En temps qu'application autonome, pyngcgui peut lire un fichier ini (ou une application linuxcnc en fonctionnement) "
+"pour créer des pages d'onglets pour plusieurs sous-fichiers."
+
+#. type: Plain text
+#: ngcgui.txt:274
+msgid ""
+"== Embedding NGCGUI === Embedding NGCGUI in Axis The following INI file items go in the [DISPLAY] section. (See "
+"additional sections below for additional items needed)"
+msgstr ""
+"== Intégration de NGCGUI\n"
+"=== L'intégration de NGCGUI dans Axis\n"
+"Les éléments du fichier ini suivants se trouve dans la section [DISPLAY]. (Voir plus loin pour les éléments "
+"additionnels nécessaires) "
+
+#. type: Bullet: '* '
+#: ngcgui.txt:281
+msgid "'TKPKG = Ngcgui 1.0' - the NGCGUI package"
+msgstr "'TKPKG = Ngcgui 1.0' - le paquet NGCGUI"
+
+#. type: Plain text
+#: ngcgui.txt:281
+#, no-wrap
+msgid ""
+"* 'TKPKG = Ngcguittt 1.0' - the True Type Tracer package for generating text\n"
+"   for engraving (optional, must follow TKPKG = Ngcgui).\n"
+"* 'TTT = truetype-tracer' - name of the truetype tracer program (it must be in user PATH)\n"
+"* 'TTT_PREAMBLE = in_std.ngc' - Optional, specifies filename for preamble used for\n"
+"   ttt created subfiles. (alternate: mm_std.ngc)\n"
+msgstr ""
+"* 'TKPKG = Ngcguittt 1.0' - le paquet du traceur True Type pour générer du texte\n"
+"   à graver (optionnel, doit suivre TKPKG = Ngcgui).\n"
+"* 'TTT = truetype-tracer' - nom du programme traceur truetype (il doit être dans le PATH utilisateur)\n"
+"* 'TTT_PREAMBLE = in_std.ngc' - Optionnel, spécifie nom de fichier pour le préambule utilisé pour\n"
+"   créer les sous-fichiers ttt. (alternativement: mm_std.ngc)\n"
+
+#. type: Plain text
+#: ngcgui.txt:286
+msgid ""
+"[NOTE] The optional truetype tracer items are used to specify an ngcgui-compatible tab page that uses the application "
+"truetype-tracer.  The truetype-tracer application must be installed independently and located in the user PATH."
+msgstr ""
+"[NOTE]\n"
+"Les éléments optionnels du traceur TrueType, sont utilisés pour spécifier une page d'onglet, compatible avec ngcgui qui "
+"utilise l'application traceur TrueType. L'application traceur TrueType doit être installée de manière indépendante et "
+"située dans le PATH de l'utilisateur."
+
+#. type: Plain text
+#: ngcgui.txt:291
+msgid ""
+"=== Embedding PYNGCGUI as a gladevcp tab page in a gui The following INI file items go in the [DISPLAY] section for use "
+"with the axis, gscreen, or touchy guis.  (See additional sections below for additional items needed)"
+msgstr ""
+"=== Intégration de PYNGCGUI comme page d'onglet gladevcp dans une GUI\n"
+"Les éléments suivants du fichier ini se trouve dans la section [DISPLAY], pour être utilisés avec les GUI axis, "
+"gscreen, ou touchy.  (Voir plus loin pour les éléments additionnels nécessaires)"
+
+#. type: Plain text
+#: ngcgui.txt:298
+msgid ""
+".EMBED_ Items ....  EMBED_TAB_NAME = Pyngcgui - name to appear on embedded tab EMBED_TAB_COMMAND = gladevcp -x {XID} "
+"pyngcgui_axis.ui - invokes gladevcp EMBED_TAB_LOCATION = name_of_location - where the embeded page is located ...."
+msgstr ""
+".EMBED_ Items\n"
+"....\n"
+"EMBED_TAB_NAME = Pyngcgui - nom qui doit apparaître dans l'onglet\n"
+"EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui - invoque gladevcp\n"
+"EMBED_TAB_LOCATION = name_of_location - où la page intégrée est située\n"
+"...."
+
+#. type: Plain text
+#: ngcgui.txt:304
+msgid ""
+"[NOTE] The EMBED_TAB_LOCATION specifier is not used for the axis gui.  While pyngcgui can be embedded in axis, "
+"integration is more complete when using ngcgui (using TKPKG = Ngcgui 1.0).  To specify the EMBED_TAB_LOCATION for other "
+"guis, see the example ini files."
+msgstr ""
+"[NOTE]\n"
+"Le spécificateur EMBED_TAB_LOCATION n'est pas utilisé pour la GUI Axis. Alors que pyngcgui, lui peut être intégré dans "
+"Axis, l'intégration est plus complète avec l'usage de ngcgui (utilisant TKPKG = Ngcgui 1.0). Pour spécifier "
+"EMBED_TAB_LOCATION pour les autres GUI, voir les exemples de fichiers ini."
+
+#. type: Plain text
+#: ngcgui.txt:308
+#, no-wrap
+msgid ""
+"[NOTE]\n"
+"  The truetype tracer gui front-end is not currently available for gladevcp\n"
+"applications.\n"
+msgstr ""
+"[NOTE]\n"
+"Le frontal GUI du traceur truetype n'est pas encore disponible\n"
+"pour les applications gladevcp\n"
+
+#. type: Plain text
+#: ngcgui.txt:312
+msgid ""
+"=== Additional INI File items required for ngcgui or pyngcgui The following INI file items go in the [DISPLAY] section "
+"for any gui that embeds either ngcgui or pyngcgui."
+msgstr ""
+"=== Éléments additionnels du fichier ini requis par ngcgui ou pyngcgui\n"
+"Les éléments de fichier ini suivants, se trouvent dans dans la section [DISPLAY], pour toute GUI intégrant ngcgui ou "
+"pyngcgui."
+
+#. type: Bullet: '* '
+#: ngcgui.txt:332
+msgid "'NGCGUI_FONT = Helvetica -12 normal' - specifices the font name,size, normal|bold"
+msgstr "'NGCGUI_FONT = Helvetica -12 normal' - spécifie le nom de la police, sa taille, normal|gras"
+
+#. type: Plain text
+#: ngcgui.txt:332
+#, no-wrap
+msgid ""
+"* 'NGCGUI_PREAMBLE = in_std.ngc' - the preamble file to be added in front of the\n"
+"  subroutines. When concatenating several common subroutine invocations, this preamble\n"
+" is only added once.  For mm-based machines, use mm_std.ngc\n"
+"* 'NGCGUI_SUBFILE = filename1.ngc' - creates a tab from the filename1 subroutine\n"
+"* 'NGCGUI_SUBFILE = filename2.ngc' - creates a tab from the filename2 subroutine\n"
+"* '... etc'\n"
+"* 'NGCGUI_SUBFILE = gcmcname1.gcmc' - creates a tab from the gcmcname1 file\n"
+"* 'NGCGUI_SUBFILE = gcmcname2.gcmc' - creates a tab from the gcmcname2 file\n"
+"* '... etc'\n"
+"* 'NGCGUI_SUBFILE = \"\"' - creates a custom tab that can open any subroutine in the search path\n"
+"* 'NGCGUI_OPTIONS = opt1 opt2 ...' - NGCGUI options\n"
+"** 'nonew' - disallow making a new custom tab\n"
+"** 'noremove' - disallow removing any tab page\n"
+"** 'noauto' - no autosend (use makeFile, then save or manually send)\n"
+"** 'noiframe' - no internal image, display images on separate top level widget\n"
+"** 'nom2' - do not terminate with m2, use % terminator.  This option eliminates all\n"
+"    the side effects of m2 termination\n"
+"* 'GCMC_INCLUDE_PATH = dirname1:dirname2' - search directories for gcmc include files\n"
+msgstr ""
+"* 'NGCGUI_PREAMBLE = in_std.ngc' - le fichier de préambule ajouté devant le\n"
+"  sous-programme. Quand plusieurs invocations de sous-programmes sont concaténées, le préambule\n"
+" est seulement ajouté une fois. Pour les machines en métrique, utiliser mm_std.ngc\n"
+"* 'NGCGUI_SUBFILE = filename1.ngc' - crée un onglet depuis le sous-programme filename1\n"
+"* 'NGCGUI_SUBFILE = filename2.ngc' - crée un onglet depuis le sous-programme filename2\n"
+"* '... etc'\n"
+"* 'NGCGUI_SUBFILE = gcmcname1.gcmc' - crée un onglet depuis le fichier gcmcname1\n"
+"* 'NGCGUI_SUBFILE = gcmcname2.gcmc' - crée un onglet depuis le fichier gcmcname2\n"
+"* '... etc'\n"
+"* 'NGCGUI_SUBFILE = \"\"' - crée un onglet personnalisé pouvant ouvrir tout sous-programme présent dans le chemin de recherche\n"
+"* 'NGCGUI_OPTIONS = opt1 opt2 ...' - options NGCGUI\n"
+"** 'nonew' - désactive la possibilité de faire un nouvel onglet personnalisé\n"
+"** 'noremove' - désactive la suppression de page d'onglets\n"
+"** 'noauto' - pas d'envoi auto (utiliser makefile, puis sauver ou envoyer manuellement)\n"
+"** 'noiframe' - pas d'image interne, affiche les images sur un autre niveau de widget séparé\n"
+"** 'nom2' - ne se termine pas avec m2 mais utilise le terminateur %. Cette option élimine tous\n"
+"    les effets de bord du terminateur m2\n"
+"* 'GCMC_INCLUDE_PATH = dirname1:dirname2' - répertoire de recherche de fichiers include pour gcmc\n"
+
+#. type: Plain text
+#: ngcgui.txt:339
+msgid ""
+"This is an example of embedding NGCGUI into Axis. The subroutines need to be in a directory specified by the "
+"[RS274NGC]SUBROUTINE_PATH.  Some example subroutines use other subroutines so check to be sure you have the "
+"dependences, if any, in a SUBROUTINE_PATH directory.  Some subroutines may use custom Mfiles which must be in a "
+"directory specified by the [RS274NGC]USER_M_PATH."
+msgstr ""
+"C'est un exemple d'intégration de NGCGUI dans Axis. Les sous-programmes doivent être dans un répertoire défini par "
+"RS274NGC]SUBROUTINE_PATH. Certains exemples de sous-programmes utilisent d'autres sous-programmes, bien vérifier les "
+"dépendances, le cas échéant, dans un répertoire de SUBROUTINE_PATH. Certains sous-programmes peuvent utiliser des M-"
+"files qui doivent être dans un répertoire défini par le [RS274NGC]USER_M_PATH."
+
+#. type: Plain text
+#: ngcgui.txt:345
+#, no-wrap
+msgid ""
+"The Gcode-meta-compiler (gcmc) can include statements like:\n"
+"  include(\"filename.inc.gcmc\");\n"
+"By default, gcmc includes the current directory which, for linuxCNC,  will be\n"
+"the directory containing the linuxCNC ini file.  Additional directories can be\n"
+"prepended to the gcmc search order with the GCMC_INCLUDE_PATH item.\n"
+msgstr ""
+"Le méta-compilateur de Gcode (gcmc) peut inclure des déclarations telles que:\n"
+"  include(\"filename.inc.gcmc\");\n"
+"Par défaut, gcmc inclut le répertoire courant qui, pour LinuxCNC, sera le\n"
+"répertoire contenant le fichier ini de LinuxCNC. Des répertoires additionnels\n"
+"peuvent être préfixés à la commande de recherche de gcmc avec l'élément GCMC_INCLUDE_PATH.\n"
+
+#. type: Plain text
+#: ngcgui.txt:347
+#, no-wrap
+msgid ""
+".Sample axis-gui-based INI\n"
+"----\n"
+msgstr ""
+".échantillon d'ini basé sur Axis\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:352
+#, no-wrap
+msgid ""
+"[RS274NGC]\n"
+"...\n"
+"SUBROUTINE_PATH   = ../../nc_files/ngcgui_lib:../../ngcgui_lib/utilitysubs\n"
+"USER_M_PATH       = ../../nc_files/ngcgui_lib/mfiles\n"
+msgstr ""
+"[RS274NGC]\n"
+"...\n"
+"SUBROUTINE_PATH   = ../../nc_files/ngcgui_lib:../../ngcgui_lib/utilitysubs\n"
+"USER_M_PATH       = ../../nc_files/ngcgui_lib/mfiles\n"
+
+#. type: Plain text
+#: ngcgui.txt:357
+#, no-wrap
+msgid ""
+"[DISPLAY]\n"
+"TKPKG             = Ngcgui    1.0\n"
+"TKPKG             = Ngcguittt 1.0\n"
+"# Ngcgui must precede Ngcguittt\n"
+msgstr ""
+"[DISPLAY]\n"
+"TKPKG             = Ngcgui    1.0\n"
+"TKPKG             = Ngcguittt 1.0\n"
+"# Ngcgui doit précéder Ngcguittt\n"
+
+#. type: Plain text
+#: ngcgui.txt:380
+#, no-wrap
+msgid ""
+"NGCGUI_FONT       = Helvetica -12 normal\n"
+"# specify filenames only, files must be in [RS274NGC]SUBROUTINE_PATH\n"
+"NGCGUI_PREAMBLE   = in_std.ngc\n"
+"NGCGUI_SUBFILE    = simp.ngc\n"
+"NGCGUI_SUBFILE    = xyz.ngc\n"
+"NGCGUI_SUBFILE    = iquad.ngc\n"
+"NGCGUI_SUBFILE    = db25.ngc\n"
+"NGCGUI_SUBFILE    = ihex.ngc\n"
+"NGCGUI_SUBFILE    = gosper.ngc\n"
+"# specify \"\" for a custom tab page\n"
+"NGCGUI_SUBFILE    = \"\"\n"
+"#NGCGUI_SUBFILE   = \"\" use when image frame is specified if\n"
+"#                      opening other files is required\n"
+"#                      images will be put in a top level window\n"
+"NGCGUI_OPTIONS    =\n"
+"#NGCGUI_OPTIONS   = opt1 opt2 ...\n"
+"# opt items:\n"
+"#   nonew      -- disallow making a new custom tab\n"
+"#   noremove   -- disallow removing any tab page\n"
+"#   noauto     -- no auto send (makeFile, then manually send)\n"
+"#   noiframe   -- no internal image, image on separate top level\n"
+"GCMC_INCLUDE_PATH = /home/myname/gcmc_includes\n"
+msgstr ""
+"NGCGUI_FONT       = Helvetica -12 normal\n"
+"# spécifie noms de fichiers seulement, doivent être dans [RS274NGC]SUBROUTINE_PATH\n"
+"NGCGUI_PREAMBLE   = in_std.ngc\n"
+"NGCGUI_SUBFILE    = simp.ngc\n"
+"NGCGUI_SUBFILE    = xyz.ngc\n"
+"NGCGUI_SUBFILE    = iquad.ngc\n"
+"NGCGUI_SUBFILE    = db25.ngc\n"
+"NGCGUI_SUBFILE    = ihex.ngc\n"
+"NGCGUI_SUBFILE    = gosper.ngc\n"
+"# specify \"\" for a custom tab page\n"
+"NGCGUI_SUBFILE    = \"\"\n"
+"#NGCGUI_SUBFILE   = \"\" utilisé quand une trame d'image est spécifiée si\n"
+"#                      l'ouverture d'autres fichiers est requise\n"
+"#                      les images seront mise à un niveau de fenêtre supérieur\n"
+"NGCGUI_OPTIONS    =\n"
+"#NGCGUI_OPTIONS   = opt1 opt2 ...\n"
+"# opt items:\n"
+"#   nonew      -- désactive la possibilité de faire un nouvel onglet personnalisé\n"
+"#   noremove   -- désactive la suppression de page d'onglets\n"
+"#   noauto     -- pas d'envoi auto (utiliser makefile, puis sauver ou envoyer manuellement)\n"
+"#   noiframe   -- pas d'image interne, affiche les images sur un autre niveau séparé\n"
+"GCMC_INCLUDE_PATH = /home/myname/gcmc_includes\n"
+
+#. type: Plain text
+#: ngcgui.txt:383
+#, no-wrap
+msgid ""
+"TTT               = truetype-tracer\n"
+"TTT_PREAMBLE      = in_std.ngc\n"
+msgstr ""
+"TTT               = truetype-tracer\n"
+"TTT_PREAMBLE      = in_std.ngc\n"
+
+#. type: Plain text
+#: ngcgui.txt:385
+#, no-wrap
+msgid ""
+"PROGRAM_PREFIX    = ../../nc_files\n"
+"----\n"
+msgstr ""
+"PROGRAM_PREFIX    = ../../nc_files\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:391
+msgid ""
+"[NOTE] The above is not a complete axis gui INI -- the items show are those used by ngcgui.  Many additional items are "
+"required by LinuxCNC to have a complete INI file."
+msgstr ""
+"[NOTE]\n"
+"Le petit ini ci-dessus, n'est pas un ini complet pour Axis, les éléments affichés sont ceux utilisés par ngcgui. "
+"Beaucoup d'autres éléments sont requis par LinuxCNC pour d'avoir un fichier INI complet."
+
+#. type: Plain text
+#: ngcgui.txt:394
+msgid "=== Truetype Tracer"
+msgstr "=== Traceur Truetype"
+
+#. type: Plain text
+#: ngcgui.txt:399
+msgid ""
+"Ngcgui_ttt provides support for truetype-tracer (v4).  It creates an axis tab page which allows a user to create a new "
+"ngcgui tab page after entering text and selecting a font and other parameters.  (Truetype-tracer must be installed "
+"independently)."
+msgstr ""
+"Ngcgui_ttt fournit un support pour TrueType-traceur (v4). Il crée une page à onglets dans Axis, qui permet "
+"l'utilisateur de créer une nouvelle page à onglet ngcgui, après la saisie de texte et en sélectionnant une police et "
+"d'autres paramètres. (TrueType-traceur doit être installé indépendamment)."
+
+#. type: Plain text
+#: ngcgui.txt:406
+#, no-wrap
+msgid ""
+"To embed ngcgui_ttt in axis, specify the following items in addition to ngcgui items:\n"
+"....\n"
+"Item:    [DISPLAY]TKPKG = Ngcgui_ttt version_number\n"
+"Example: [DISPLAY]TKPKG = Ngcgui_ttt 1.0\n"
+"Note:    Mandatory, specifies loading of ngcgui_ttt in an axis tab page named ttt.\n"
+"         Must follow the TKPKG = Ngcgui item.\n"
+msgstr ""
+"Pour intégrer ngcgui_ttt dans Axis, spécifier les éléments suivants en plus de ceux de ngcgui:\n"
+"....\n"
+"Élément:    [DISPLAY]TKPKG = Ngcgui_ttt version_number\n"
+"Exemple: [DISPLAY]TKPKG = Ngcgui_ttt 1.0\n"
+"Remarque:  Spécifier obligatoirement, le chargement de ngcgui_ttt dans la page à onglet d'Axis nommée ttt.\n"
+"         Doit suivre l'élément TKPKG = Ngcgui.\n"
+
+#. type: Plain text
+#: ngcgui.txt:412
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]TTT = path_to_truetype-tracer\n"
+"Example: [DISPLAY]TTT = truetype-tracer\n"
+"Note:    Optional, if not specified, attempt to use /usr/local/bin/truetype-tracer.\n"
+"         Specify with absolute pathname or as a simple executable name\n"
+"         in which case the user PATH environment will used to find the program.\n"
+msgstr ""
+"Élément:    [DISPLAY]TTT = path_to_truetype-tracer\n"
+"Exemple: [DISPLAY]TTT = truetype-tracer\n"
+"Remarque:   En option, si non spécifié, tentera d'utiliser /usr/local/bin/truetype-tracer.\n"
+"         Spécifier un chemin absolu ou un nom simple d'exécutable\n"
+"         dans ce cas, la variable utilisateur PATH sera utilisée pour trouver le programme.\n"
+
+#. type: Plain text
+#: ngcgui.txt:417
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]TTT_PREAMBLE = preamble_filename\n"
+"Example: [DISPLAY]TTT_PREAMBLE = in_std.ngc\n"
+"Note:    Optional, specifies filename for preamble used for ttt created subfiles.\n"
+"....\n"
+msgstr ""
+"Élément:    [DISPLAY]TTT_PREAMBLE = préambule_filename\n"
+"Exemple: [DISPLAY]TTT_PREAMBLE = in_std.ngc\n"
+"Remarque:    Facultatif, spécifie le nom du préambule ttt, utilisé pour créer les sous-fichiers.\n"
+"....\n"
+
+#. type: Plain text
+#: ngcgui.txt:419
+msgid "=== INI File Path Specifications"
+msgstr "=== Spécifications du chemin du fichier ini"
+
+#. type: Plain text
+#: ngcgui.txt:421
+msgid "Ngcgui uses the linuxCNC search path to find files."
+msgstr "Ngcgui utilise le chemin de recherche de LinuxCNC pour trouver les fichiers."
+
+#. type: Plain text
+#: ngcgui.txt:423
+msgid "The search path begins with the standard directory specified by:"
+msgstr "Le chemin de recherche commence par le répertoire standard spécifié par:"
+
+#. type: Plain text
+#: ngcgui.txt:425
+#, no-wrap
+msgid "  [DISPLAY]PROGRAM_PREFIX = directory_name\n"
+msgstr "  [DISPLAY]PROGRAM_PREFIX = nom_repertoire\n"
+
+#. type: Plain text
+#: ngcgui.txt:427
+msgid "followed by multiple directories specfied by:"
+msgstr "suivi par plusieurs répertoires spécifiés par:"
+
+#. type: Plain text
+#: ngcgui.txt:429
+#, no-wrap
+msgid "  [RS274NGC]SUBROUTINE_PATH = directory1_name:directory1_name:directory3_name ...\n"
+msgstr "  [RS274NGC]SUBROUTINE_PATH = nom_repertoire1:nom_repertoire2:nom_repertoire3 ...\n"
+
+#. type: Plain text
+#: ngcgui.txt:436
+msgid ""
+"Directories may be specifed as absolute paths or relative paths.  ....  Example: [DISPLAY]PROGRAM_PREFIX = /home/myname/"
+"linuxcnc/nc_files Example: [DISPLAY]PROGRAM_PREFIX = ~/linuxcnc/nc_files Example: [DISPLAY]PROGRAM_PREFIX = ../../"
+"nc_files ...."
+msgstr ""
+"Les répertoires peuvent être spécifiés par des chemins absolus ou relatifs.\n"
+"....\n"
+"Exemple 1:\n"
+"[DISPLAY]PROGRAM_PREFIX = /home/myname/linuxcnc/nc_files\n"
+"Exemple 2:\n"
+"[DISPLAY]PROGRAM_PREFIX = ~/linuxcnc/nc_files\n"
+"Exemple 3:\n"
+"[DISPLAY]PROGRAM_PREFIX = ../../nc_files\n"
+"...."
+
+#. type: Plain text
+#: ngcgui.txt:441
+msgid ""
+"An absolute path beginning with a \"/\" specifies a complete filesystem location.  A path beginning with a \"\\~/\" "
+"specifies a path starting from the user's home directory.  A path beginning with \"~username/\" specifies a path "
+"starting in username's home directory."
+msgstr ""
+"Un chemin absolu commence avec un / qui indique un emplacement par rapport au système de fichiers complet.  Un chemin "
+"qui commence par ~/ indique un chemin commençant 'depuis' le répertoire home de l'utilisateur. Un chemin qui commence "
+"par ~nomutilisateur indique un chemin commençant 'dans' le répertoire utilisateur."
+
+#. type: Plain text
+#: ngcgui.txt:446
+msgid ""
+".Relative Paths Relative paths are based on the startup directory which is the directory containing the INI file.  "
+"Using relative paths can facilitate relocation of configurations but requires a good understanding of linux path "
+"specifiers."
+msgstr ""
+".Chemins relatifs\n"
+"Un chemin relatif commence dans le répertoire de démarrage qui est celui contenant le fichier ini. L'usage des chemins "
+"relatifs facilite l'accès aux configurations mais requiert une bonne compréhension de la façon dont les chemins sont "
+"spécifiés sous Linux."
+
+#. type: Plain text
+#: ngcgui.txt:453
+#, no-wrap
+msgid ""
+"....\n"
+"   ./d0        is the same as d0, e.g., a directory named d0 in the startup directory\n"
+"   ../d1       refers to a directory d1 in the parent directory\n"
+"   ../../d2    refers to a directory d2 in the parent of the parent directory\n"
+"   ../../../d3 etc.\n"
+"....\n"
+msgstr ""
+"....\n"
+"   ./d0         le même que d0, ex: un répertoire nommé d0 dans le répertoire de démarrage\n"
+"   ../d1        se réfère au répertoire d1 dans le répertoire parent\n"
+"   ../../d2     se réfère au répertoire d2 dans le parent du répertoire parent\n"
+"   ../../../d3  etc.\n"
+"....\n"
+
+#. type: Plain text
+#: ngcgui.txt:457
+msgid ""
+"Multiple directories can be specified with [RS274NGC]SUBROUTINE_PATH by separating them with colons.  The following "
+"example illustrates the format for multiple directories and shows the use of relative and absolute paths."
+msgstr ""
+"Plusieurs répertoires peuvent être spécifiés avec [RS274NGC] SUBROUTINE_PATH en les séparant par deux points. L'exemple "
+"suivant illustre le format de plusieurs répertoires et montre l'utilisation de chemins relatifs et absolus."
+
+#. type: Plain text
+#: ngcgui.txt:459
+#, no-wrap
+msgid ""
+".Multiple Directories Example:\n"
+"----\n"
+msgstr ""
+".Exemple avec plusieurs répertoires:\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:461
+#, no-wrap
+msgid ""
+"[RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs:/tmp/tmpngc`\n"
+"----\n"
+msgstr ""
+"[RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs:/tmp/tmpngc`\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:465
+msgid ""
+"This is one long line, do not continue on multiple lines.  When linuxCNC and/or ngcgui searches for files, the first "
+"file found in the search is used."
+msgstr ""
+"C'est une longue ligne, ne pas la couper en plusieurs lignes. Lorsque LinuxCNC et/ou ngcgui recherchent des fichiers, "
+"le premier fichier trouvé dans la recherche est utilisé."
+
+#. type: Plain text
+#: ngcgui.txt:469
+msgid ""
+"LinuxCNC (and ngcgui) must be able to find all subroutines including helper routines that are called from within ngcgui "
+"subfiles.  It is convenient to place utility subs in a separate directory as indicated in the example above."
+msgstr ""
+"LinuxCNC (et ngcgui) doivent être en mesure de trouver tous les sous-programmes, dont les routines d'assistance qui "
+"sont appelées depuis les sous-fichiers de ngcgui. Il est commode de placer les sous-programmes utilitaires dans un "
+"répertoire séparé comme indiqué dans l'exemple ci-dessus."
+
+#. type: Plain text
+#: ngcgui.txt:476
+msgid ""
+"The distribution includes the ngcgui_lib directory and demo files for preambles, subfiles, postambles and helper "
+"files.  To modify the behavior of the files, you can copy any file and place it in an earlier part of the search path.  "
+"The first directory searched is [DISPLAY]PROGRAM_PREFIX.  You can use this directory but it is better practice to "
+"create dedicated directory(ies) and put them at the beginning of the [RS274NGC]SUBROUTINE_PATH."
+msgstr ""
+"La distribution comprend le répertoire de ngcgui_lib et des fichiers de démonstration pour préambules, sous-fichiers, "
+"postambules et fichiers d'aide. Pour modifier le comportement des fichiers, copier n'importe quel fichier et le placer "
+"dans une première partie du chemin de recherche. Le premier répertoire recherché est [DISPLAY] PROGRAM_PREFIX. Il est "
+"possible d'utiliser ce répertoire mais il est préférable d'en créer d'autres, dédiés et de les mettre au début de la "
+"section [RS274NGC] SUBROUTINE_PATH."
+
+#. type: Plain text
+#: ngcgui.txt:479
+msgid ""
+"In the following example, files in /home/myname/linuxcnc/mysubs will be found before files in ../../nc_files/ngcgui_lib."
+msgstr ""
+"Dans l'exemple suivant, les fichiers dans /home/myname/linuxcnc/mysubs seront trouvés avant les fichiers dans ../../"
+"nc_files/ngcgui_lib."
+
+#. type: Plain text
+#: ngcgui.txt:481
+#, no-wrap
+msgid ""
+".Adding User Directory Example: \n"
+"----\n"
+msgstr ""
+".Exemple d'ajout d'un répertoire personnalisé: \n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:483
+#, no-wrap
+msgid ""
+"[RS274NGC]SUBROUTINE_PATH = /home/myname/linuxcnc/mysubs:../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs`\n"
+"----\n"
+msgstr ""
+"[RS274NGC]SUBROUTINE_PATH = /home/myname/linuxcnc/mysubs:../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs`\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:493
+msgid ""
+"New users may inadvertently try to use files that are not structured to be compatible with ngcgui requirements.  Ngcgui "
+"will likely report numerous errors if the files are not coded per its conventions.  Good practice suggests that ngcgui-"
+"compatible subfiles should be placed in a directory dedicated to that purpose and that preamble, postamble, and helper "
+"files should be in separate directory(ies) to discourage attempts to use them as subfiles.  Files not intended for use "
+"as subfiles can include a special comment: \"(not_a_subfile)\" so that ngcgui will reject them automatically with a "
+"relevant message."
+msgstr ""
+"Les nouveaux utilisateurs peuvent essayer d'utiliser, par inadvertance, des fichiers qui ne sont pas structurés de "
+"manière à être compatible avec les exigences de ngcgui. Ngcgui signalera probablement de nombreuses erreurs si les "
+"fichiers ne sont pas codés selon ses conventions. Une bonne pratique suggère que les sous-fichiers compatibles avec "
+"ngcgui, soient placés dans un répertoire dédié à cet effet et que les préambules, postambules et fichiers d'aide soient "
+"dans un répertoire séparé, pour décourager les tentatives de les utiliser comme sous-fichiers. Les fichiers non "
+"destinés à être utilisés comme sous-fichiers, peuvent inclure un commentaire particulier: \"(not_a_subfile) \" pour que "
+"ngcgui les rejette automatiquement avec un message pertinent."
+
+#. type: Plain text
+#: ngcgui.txt:499
+#, no-wrap
+msgid ""
+"=== Summary of INI File item details for NGCGUI usage\n"
+"....\n"
+"Item:    [RS274NGC]SUBROUTINE_PATH = dirname1:dirname2:dirname3 ...\n"
+"Example: [RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs\n"
+"Note:    Optional, but very useful to organize subfiles and utility files\n"
+msgstr ""
+"=== Résumé en détail des éléments de fichier ini utilisés par NGCGUI\n"
+"....\n"
+"Élément:    [RS274NGC]SUBROUTINE_PATH = dirname1:dirname2:dirname3 ...\n"
+"Exemple: [RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs\n"
+"Remarque:    Facultatif, mais très utile pour organiser les sous-fichiers et les fichiers utilitaires\n"
+
+#. type: Plain text
+#: ngcgui.txt:503
+#, no-wrap
+msgid ""
+"Item:    [RS274NGC]USER_M_PATH = dirname1:dirname2:dirname3 ...\n"
+"Example: [RS274NGC]USER_M_PATH = ../../nc_files/ngcgui_lib/mfiles\n"
+"Note:    Optional, needed to locate custom user mfiles\n"
+msgstr ""
+"Élément:    [RS274NGC]USER_M_PATH = dirname1:dirname2:dirname3 ...\n"
+"Exemple: [RS274NGC]USER_M_PATH = ../../nc_files/ngcgui_lib/mfiles\n"
+"Remarque:    Optionnel, requis pour localiser les M-files personnalisées\n"
+
+#. type: Plain text
+#: ngcgui.txt:509
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]EMBED_TAB_NAME = name to display on embedded tab page\n"
+"Example: [DISPLAY]EMBED_TAB_NAME = Pyngcgui\n"
+"Note:    The entries: EMBED_TAB_NAME,EMBED_TAB_COMMAND,EMBED_TAB_LOCATION\n"
+"         define an embedded application for several linuxCNC guis\n"
+msgstr ""
+"Élément:    [DISPLAY]EMBED_TAB_NAME = nom à afficher sur la page d'onglets intégrée\n"
+"Exemple: [DISPLAY]EMBED_TAB_NAME = Pyngcgui\n"
+"Remarque:    Les entrées: EMBED_TAB_NAME, EMBED_TAB_COMMAND et EMBED_TAB_LOCATION\n"
+"          définissent une application intégrée pour plusieurs interfaces LinuxCNC\n"
+
+#. type: Plain text
+#: ngcgui.txt:513
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]EMBED_TAB_COMMAND = programname followed by arguments\n"
+"Example: [DISPLAY]EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui\n"
+"Note:    For gladevcp applications, see the man page for gladevcp\n"
+msgstr ""
+"Élément:    [DISPLAY]EMBED_TAB_COMMAND = nom programme suivi par arguments\n"
+"Exemple: [DISPLAY]EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui\n"
+"Remarque:    Pour les applications GladeVCP, voir la page du manuel de gladevcp\n"
+
+#. type: Plain text
+#: ngcgui.txt:518
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]EMBED_TAB_LOCATION = name_of_location\n"
+"Example: [DISPLAY]EMBED_TAB_LOCATION = notebook_main\n"
+"Note:    See example INI files for possible locations\n"
+"         Not required for the axis gui\n"
+msgstr ""
+"Élément:    [DISPLAY]EMBED_TAB_LOCATION = name_of_location\n"
+"Exemple: [DISPLAY]EMBED_TAB_LOCATION = notebook_main\n"
+"Remarque:    Voir exemple de fichiers INI, pour les emplacements possibles\n"
+"          Non requis pour Axis\n"
+
+#. type: Plain text
+#: ngcgui.txt:524
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]PROGRAM_PREFIX = dirname\n"
+"Example: [DISPLAY]PROGRAM_PREFIX = ../../nc_files\n"
+"Note:    Mandatory and needed for numerous linuxCNC functions\n"
+"         It is the first directory used in the search for files\n"
+msgstr ""
+"Élément:    [DISPLAY]PROGRAM_PREFIX = dirname\n"
+"Exemple: [DISPLAY]PROGRAM_PREFIX = ../../nc_files\n"
+"Remarque:    Obligatoire et nécessaire pour de nombreuses fonctions de LinuxCNC\n"
+"            C'est le premier répertoire utilisé dans la recherche de fichiers\n"
+
+#. type: Plain text
+#: ngcgui.txt:529
+#, no-wrap
+msgid ""
+"item:    [DISPLAY]TKPKG = Ngcgui version_number\n"
+"Example: [DISPLAY]TKPKG = Ngcgui 1.0\n"
+"Note:    Required only for axis gui embedding, specifies loading of ngcgui axis tab pages\n"
+msgstr ""
+"Élément:    [DISPLAY]TKPKG = Ngcgui version_number\n"
+"Exemple: [DISPLAY]TKPKG = Ngcgui 1.0\n"
+"Remarque:    Nécessaire uniquement pour l'intégration dans Axis, défini le chargement des pages d'onglet ngcgui dans Axis\n"
+
+#. type: Plain text
+#: ngcgui.txt:538
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]NGCGUI_FONT = font_descriptor\n"
+"Example: [DISPLAY]NGCGUI_FONT = Helvetica -12 normal\n"
+"Note:    Optional, font_descriptor is a tcl-compatible font specifier\n"
+"         with items for fonttype -fontsize fontweight\n"
+"         Default is: Helvetica -10 normal\n"
+"         Smaller font sizes may be useful for small screens\n"
+"         Larger font sizes may be helpful for touch screen applications\n"
+msgstr ""
+"Élément:    [DISPLAY]NGCGUI_FONT = font_descriptor\n"
+"Exemple: [DISPLAY]NGCGUI_FONT = Helvetica -12 normal\n"
+"Remarque:    Facultatif, font_descriptor est un spécificateur de police tcl-compatible\n"
+"         avec des éléments pour type de police, taille et largeur de police\n"
+"         Par défaut: Helvetica -10 normal\n"
+"         Les petites tailles de police peuvent être utiles pour les petits écrans\n"
+"         Les grande tailles de police peuvent être utiles pour les écrans tactiles\n"
+
+#. type: Plain text
+#: ngcgui.txt:548
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]NGCGUI_SUBFILE = subfile_filename\n"
+"Example: [DISPLAY]NGCGUI_SUBFILE = simp.ngc\n"
+"Example: [DISPLAY]NGCGUI_SUBFILE = square.gcmc\n"
+"Example: [DISPLAY]NGCGUI_SUBFILE = \"\"\n"
+"Note:    Use one or more items to specify ngcgui-compatible\n"
+"         subfiles or gcmc programs that require a tab page on startup.\n"
+"         A \"Custom\" tab will be created when the filename is \"\".\n"
+"         A user can use a \"Custom\" tab to browse the file system\n"
+"         and identify preamble, subfile, and postamble files.\n"
+msgstr ""
+"Item:    [DISPLAY]NGCGUI_SUBFILE = subfile_filename\n"
+"Exemple: [DISPLAY]NGCGUI_SUBFILE = simp.ngc\n"
+"Exemple: [DISPLAY]NGCGUI_SUBFILE = square.gcmc\n"
+"Exemple: [DISPLAY]NGCGUI_SUBFILE = \"\"\n"
+"Remarque:    Utiliser un ou plusieurs éléments pour spécifier les sous-fichiers\n"
+"         ou fichiers gcmc ngcgui-compatibles requérant une page à onglet au démarrage.\n"
+"         Un onglet \"personnalisé\" sera créé quand le nom de fichier est \"\".\n"
+"         Un utilisateur peut utiliser un onglet \"personnalisé\" pour parcourir le système\n"
+"         de fichiers et d'identifier préambule, sous-fichier, et les fichiers de postambule.\n"
+
+#. type: Plain text
+#: ngcgui.txt:554
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]NGCGUI_PREAMBLE = preamble_filename\n"
+"Example: [DISPLAY]NGCGUI_PREAMBLE = in_std.ngc\n"
+"Note:    Optional, when specified, the file is prepended to a subfile.\n"
+"         Files created with \"Custom\" tab pages use the preamble specified\n"
+"         with the page.\n"
+msgstr ""
+"Élément:    [DISPLAY]NGCGUI_PREAMBLE = preamble_filename\n"
+"Exemple: [DISPLAY]NGCGUI_PREAMBLE = in_std.ngc\n"
+"Remarque:    En option, lorsque spécifié, le fichier est ajouté au début d'un sous-fichier.\n"
+"                    Les fichiers créés avec des pages d'onglets \"Personnalisées\" utilisent\n"
+"                    le préambule spécifié avec la page.\n"
+
+#. type: Plain text
+#: ngcgui.txt:560
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]NGCGUI_POSTAMBLE = postamble_filename\n"
+"Example: [DISPLAY]NGCGUI_POSTAMBLE = bye.ngc\n"
+"Note:    Optional, when specified, the file is appended to a subfiles.\n"
+"         Files created with \"Custom\" tab pages use the postamble specified\n"
+"         with the page.\n"
+msgstr ""
+"Élément:    [DISPLAY]NGCGUI_POSTAMBLE = postamble_filename\n"
+"Exemple: [DISPLAY]NGCGUI_POSTAMBLE = bye.ngc\n"
+"Remarque:    En option, lorsque spécifié, le fichier est ajouté à un sous-fichiers.\n"
+"         Les fichiers créés avec les pages d'onglets \"Personnalisées\" utilisent le postambule\n"
+"         spécifié avec la page.\n"
+
+#. type: Plain text
+#: ngcgui.txt:572
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]NGCGUI_OPTIONS = opt1 opt2 ...\n"
+"Example: [DISPLAY]NGCGUI_OPTIONS = nonew noremove\n"
+"Note:    Multiple options are separated by blanks.\n"
+"         By default, ngcgui configures tab pages so that:\n"
+"            1) a user can make new tabs\n"
+"            2) a user can remove tabs (except for the last remaining one)\n"
+"            3) finalized files are automatically sent to linuxCNC\n"
+"            4) an image frame (iframe) is made available to display\n"
+"               an image for the subfile (if an image is provided)\n"
+"            5) the ngcgui result file sent to linuxCNC is terminated with\n"
+"               an m2 (and incurs m2 side-effects)\n"
+msgstr ""
+"Élément:    [DISPLAY]NGCGUI_OPTIONS = opt1 opt2 ...\n"
+"Exemple: [DISPLAY]NGCGUI_OPTIONS = nonew noremove\n"
+"Remarque:    Les options multiples sont séparées par des espaces.\n"
+"         Par défaut, ngcgui configure les pages d'onglets de cette manière:\n"
+"            1) l'utilisateur peux faire de nouveaux onglets\n"
+"            2) l'utilisateur peux supprimer des onglets, excepté le dernier restant\n"
+"            3) les fichiers finalisés sont automatiquement envoyés à LinuxCNC\n"
+"            4) une trame d'image (iframe) est rendue disponible pour affichager\n"
+"               une image pour le sous-fichier (si une image est fournie)\n"
+"            5) le fichier ngcgui résultant envoyé à LinuxCNC se termine par\n"
+"               un M2 (et encourt les effets secondaires de M2)\n"
+
+#. type: Plain text
+#: ngcgui.txt:575
+#, no-wrap
+msgid ""
+"         The options nonew, noremove, noauto, noiframe, nom2 respectively\n"
+"         disable these default behaviors.\n"
+msgstr ""
+"         Les options nonew, noremove, noauto, noiframe, nom2\n"
+"         respectivement désactiver ces comportements par défaut.\n"
+
+#. type: Plain text
+#: ngcgui.txt:587
+#, no-wrap
+msgid ""
+"         By default, if an image (.png,.gif,jpg,pgm) file\n"
+"         is found in the same directory as the subfile, the\n"
+"         image is displayed in the iframe.  Specifying\n"
+"         the noiframe option makes available additional buttons\n"
+"         for selecting a preamble, subfile, and postamble and\n"
+"         additional checkboxes.  Selections of the checkboxes\n"
+"         are always available with special keys:\n"
+"           Ctrl-R Toggle \"Retain values on Subfile read\"\n"
+"           Ctrl-E Toggle \"Expand subroutine\"\n"
+"           Ctrl-a Toggle \"Autosend\"\n"
+"          (Ctrl-k lists all keys and functions)\n"
+msgstr ""
+"         Par défaut, si une image (.png,.gif,jpg,pgm)\n"
+"         est trouvée dans le même répertoire que le sous-fichier,\n"
+"         l'image est affichée dans l'iframe.  Spécifier\n"
+"         l'option noiframe rends disponibles des boutons additionnels\n"
+"         pour sélectionner les cases à cocher des préambules, sous-fichiers\n"
+"         et postambules additionnels. La sélection des cases à cocher\n"
+"         sont toujours disponible avec les touches spéciales:\n"
+"           Ctrl-R bascule \"Retain values on Subfile read\"\n"
+"           Ctrl-E bascule \"Expand subroutine\"\n"
+"           Ctrl-a bascule \"Autosend\"\n"
+"          (Ctrl-k liste complète des touches spéciales)\n"
+
+#. type: Plain text
+#: ngcgui.txt:591
+#, no-wrap
+msgid ""
+"         If noiframe is specified and an image file is found,\n"
+"         the image is displayed in a separate window and\n"
+"         all functions are available on the tab page.\n"
+msgstr ""
+"         Si noiframe est spécifié et qu'un fichier image est trouvé,\n"
+"         l'image est affichée dans une fenêtre séparée et toutes\n"
+"         les fonctions sont disponibles dans la page d'onglets.\n"
+
+#. type: Plain text
+#: ngcgui.txt:597
+#, no-wrap
+msgid ""
+"         The NGCGUI_OPTIONS apply to all ngcgui tabs except that the\n"
+"         nonew, noremove, and noiframe options are not applicable\n"
+"         for \"Custom\" tabs.  Do not use \"Custom\" tabs if you want\n"
+"         to limit the user's ability to select subfiles or create\n"
+"         additional tab pages. \n"
+msgstr ""
+"         Les NGCGUI_OPTIONS s'appliquent à tous les onglets ngcgui sauf les\n"
+"          options nonew et noremove ne sont pas applicables pour les onglets\n"
+"          \"personnalisée\". Ne pas utiliser d'onglet \"personnalisé\" si on veux\n"
+"          limiter la capacité de l'utilisateur à sélectionner des sous-fichiers ou créer\n"
+"          des onglets supplémentaires.\n"
+
+#. type: Plain text
+#: ngcgui.txt:602
+#, no-wrap
+msgid ""
+"Item:    [DISPLAY]GCMC_INCLUDE_PATH = dirname1:dirname2:...\n"
+"Example: [DISPLAY]GCMC_INCLUDE_PATH = /home/myname/gcmc_includes:/home/myname/gcmc_includes2\n"
+"Note:    Optional, each directory will be included when gcmc is invoked\n"
+"         using the option: --include dirname\n"
+msgstr ""
+"Élément:    [DISPLAY]GCMC_INCLUDE_PATH = dirname1:dirname2:...\n"
+"Exemple: [DISPLAY]GCMC_INCLUDE_PATH = /home/myname/gcmc_includes:/home/myname/gcmc_includes2\n"
+"Remarque:    En option, chaque répertoire sera incluse lorsque GCMC est invoqué\n"
+"          en utilisant l'option: --include dirname\n"
+
+#. type: Plain text
+#: ngcgui.txt:604
+msgid "...."
+msgstr "...."
+
+#. type: Plain text
+#: ngcgui.txt:607
+msgid "== File Requirements for NGCGUI Compatibility === Single-File Gcode (.ngc) Subroutine Requirements"
+msgstr ""
+"== Exigences des fichiers pour la compatibilité NGCGUI\n"
+"=== Exigences des fichiers G-code (.ngc) seuls"
+
+#. type: Plain text
+#: ngcgui.txt:613
+msgid ""
+"An NGCGUI-compatible subfile contains a single subroutine definition. The name of the subroutine must be the same as "
+"the filename (not including the .ngc suffix). LinuxCNC supports named or numbered subroutines, but only named "
+"subroutines are compatible with NGCGUI. For more information see the <<cha:O-Codes,O-Codes>> Chapter."
+msgstr ""
+"Un sous-fichiers compatible NGCGUI contient une simple définition de sous-programme. Le nom du sous-programme doit être "
+"le même que celui du fichier (non inclus l'extension .ngc). LinuxCNC supporte les sous-programmes nommés ou numérotés, "
+"mais seuls les sous-programmes nommés sont compatible avec NGCGUI. Pour plus d'informations voir le chapitre sur les "
+"<<cha:O-codes,O-Codes>>."
+
+#. type: Plain text
+#: ngcgui.txt:616
+msgid "The first non-comment line should be a sub statement.  The last non-comment line should be a endsub statement."
+msgstr ""
+"La première ligne, autre qu'un commentaire, doit être une déclaration 'sub'. La dernière ligne, autre qu'un "
+"commentaire, doit être une déclaration 'endsub'."
+
+#. type: Plain text
+#: ngcgui.txt:618
+#, no-wrap
+msgid ""
+".examp.ngc:\n"
+"----\n"
+msgstr ""
+".exemple.ngc:\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:627
+#, no-wrap
+msgid ""
+"(info: info_text_to_appear_at_top_of_tab_page)\n"
+"; comment line beginning with semicolon\n"
+"( comment line using parentheses)\n"
+"o<examp> sub\n"
+"  BODY_OF_SUBROUTINE\n"
+"o<examp> endsub\n"
+"; comment line beginning with semicolon\n"
+"( comment line using parentheses)\n"
+"----\n"
+msgstr ""
+"(info: texte_apparaissant_en_haut_de_la_page_d_onglets\n"
+"; ligne de commentaire commençant avec un point virgule\n"
+"( ligne de commentaire utilisant des parenthèses)\n"
+"o<exemple> sub\n"
+"  CORPS DU SOUS-PROGRAMME\n"
+"o<exemple> endsub\n"
+"; ligne de commentaire commençant avec un point virgule\n"
+"( ligne de commentaire utilisant des parenthèses)\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:634
+msgid ""
+"The body of the subroutine should begin with a set of statements that define local named parameters for each positional "
+"parameter expected for the subroutine call. These definitions must be consecutive beginning with #1 and ending with the "
+"last used parameter number. Definitions must be provided for each of these parameters (no omissions)."
+msgstr ""
+"Le corps du sous-programme doit commencer par un jeu de déclarations définissant les paramètres nommés locaux pour "
+"chaque paramètre positionnel attendu pour l'appel du sous-programme. Ces définitions doivent être consécutives, "
+"commencer par #1 et finir avec le numéro du dernier paramètre utilisé. Les définitions doivent être fournies pour "
+"chacun de ces paramètres (aucune omission)."
+
+#. type: Plain text
+#: ngcgui.txt:636
+#, no-wrap
+msgid ""
+".Parameter Numbering\n"
+"----\n"
+msgstr ""
+".Numérotation des paramètres\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:640
+#, no-wrap
+msgid ""
+"#<xparm> = #1\n"
+"#<yparm> = #2\n"
+"#<zparm> = #3\n"
+"----\n"
+msgstr ""
+"#<xparm> = #1\n"
+"#<yparm> = #2\n"
+"#<zparm> = #3\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:647
+msgid ""
+"LinuxCNC considers all numbered parameters in the range #1 thru #30 to be calling parameters so ngcgui provides entry "
+"boxes for any occurence of parameters in this range. It is good practice to avoid use of numbered parameters #1 through "
+"#30 anywhere else in the subroutine. Using local, named parameters is recommended for all internal variables."
+msgstr ""
+"LinuxCNC considère tous les paramètres numérotés entre #1 est #30 comme étant des paramètres appelables, de même, "
+"ngcgui fourni des boites de saisie pour n'importe quel paramètres dans cette fourchette. Il est de bonne pratique "
+"d'éviter d'utiliser un paramètre numéroté de #1 jusqu'à #30 n'importe où ailleurs dans le sous-programme. L'utilisation "
+"de paramètres nommés locaux est recommandée pour toutes le variables internes."
+
+#. type: Plain text
+#: ngcgui.txt:650
+msgid "Each defining statement may optionally include a special comment and a default value for the parameter."
+msgstr ""
+"Chaque définition de déclaration peut optionnellement inclure un commentaire spécial et une valeur par défaut pour le "
+"paramètre."
+
+#. type: Plain text
+#: ngcgui.txt:652
+#, no-wrap
+msgid ""
+".Statement Prototype\n"
+"----\n"
+msgstr ""
+".Prototypage de déclaration\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:658
+#, no-wrap
+msgid ""
+"#<vname> = #n (=default_value)\n"
+"or\n"
+"#<vname> = #n (comment_text)\n"
+"or\n"
+"#<vname> = #n (=default_value comment_text)\n"
+"----\n"
+msgstr ""
+"#<vname> = #n (=valeur_par_défaut)\n"
+"ou\n"
+"#<vname> = #n (texte_de_commentaire)\n"
+"ou\n"
+"#<vname> = #n (=valeur_par_défaut texte_de_commentaire)\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:661
+#, no-wrap
+msgid ""
+".Parameter Examples\n"
+"----\n"
+msgstr ""
+".Exemples de paramètres\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:665
+#, no-wrap
+msgid ""
+"#<xparm> = #1 (=0.0)\n"
+"#<yparm> = #2 (Ystart)\n"
+"#<zparm> = #3 (=0.0 Z start setting)\n"
+"----\n"
+msgstr ""
+"#<xparm> = #1 (=0.0)\n"
+"#<yparm> = #2 (Ystart)\n"
+"#<zparm> = #3 (=0.0 Z start setting)\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:669
+msgid "If a default_value is provided, it will be entered in the entry box for the parameter on startup."
+msgstr "Si une valeur_par_défaut est donnée, elle sera placée au démarrage, dans la boîte de saisie pour le paramètre."
+
+#. type: Plain text
+#: ngcgui.txt:672
+msgid "If comment_text is included, it will be used to identify the input instead of the parameter name."
+msgstr "Si un texte_de_commentaire est inclus, il sera utilisé pour identifier l'entrée à la place du nom du paramètre."
+
+#. type: Plain text
+#: ngcgui.txt:675
+msgid ".Global Named Parameters Notes on global named parameters and ngcgui:"
+msgstr ""
+".Paramètres nommés globaux\n"
+"Note sur les paramètres nommés globaux (#<nom_global>) avec ngcgui:"
+
+#. type: Plain text
+#: ngcgui.txt:678
+msgid "(global named parameters have a leading underscore in the name, like #<_someglobalname>)"
+msgstr "(paramètres nommés globaux ont un tiret bas dans leur nom, comme #<_unnomglobal>)"
+
+#. type: Plain text
+#: ngcgui.txt:683
+msgid ""
+"As in many programming languages, use of globals is powerful but can often lead to unexpected consequences. In "
+"LinuxCNC, existing global named parameters will be valid at subroutine execution and subroutines can modify or create "
+"global named parameters."
+msgstr ""
+"Comme dans de nombreux langages de programmation, l'utilisation de variables globales est puissante, mais peut souvent "
+"mener à des conséquences inattendues. Dans LinuxCNC, les paramètres nommés globaux existants seront valides lors de "
+"l'exécution du sous-programme et les sous-programmes peuvent les modifier ou en créer."
+
+#. type: Plain text
+#: ngcgui.txt:689
+msgid ""
+"Passing information to subroutines using global named parameters is discouraged since such usage requires the "
+"establishment and maintenance of a well-defined global context that is difficult to maintain. Using numbered parameters "
+"#1 thru #30 as subroutine inputs should be sufficient to satisfy a wide range of design requirements."
+msgstr ""
+"L'utilisation de paramètres nommé globaux comme entrées dans un sous-programme est déconseillé parce-que de tels usages "
+"requiert l'établissement et la maintenance d'un contexte global bien défini, ce qui est problématique à maintenir. "
+"L'utilisation de paramètres numérotés en #1 et #30 devrait être suffisant pour satisfaire les besoins les plus "
+"exigeants."
+
+#. type: Plain text
+#: ngcgui.txt:696
+msgid ""
+"While input global named parameters are discouraged, linuxCNC subroutines must use global named parameters for "
+"returning results. Since ngcgui-compatible subfiles are aimed at gui usage, return values are not a common "
+"requirement.  However, ngcgui is useful as a testing tool for subroutines which do return global named parameters and "
+"it is common for ngcgui-compatible subfiles to call utility subroutine files that return results with global named "
+"parameters."
+msgstr ""
+"Bien que les entrées par paramètres nommés globaux soient déconseillées, les sous-programmes LinuxCNC doivent utiliser "
+"des paramètres nommés globaux pour retourner les résultats. Puisque les sous-fichiers compatibles ngcgui sont destinés "
+"à l'usage de l'interface graphique, les valeurs de retour n'ont pas d'exigence commune. Toutefois, ngcgui est utile "
+"comme outil de test pour les sous-programmes qui ne retournent pas de paramètres nommés globaux et il est commun pour "
+"les sous-fichiers compatibles ngcgui d'appeler des fichiers de sous-programmes utilitaires qui eux retournent des "
+"résultats avec des paramètres nommés globaux."
+
+#. type: Plain text
+#: ngcgui.txt:700
+msgid ""
+"To support these usages, ngcgui ignores global named parameters that include a colon (:) character in their name. Use "
+"of the colon (:) in the name prevents ngcgui from making entryboxes for these parameters."
+msgstr ""
+"Pour supporter ces usages, ngcgui ignore les paramètres nommés globaux qui incluent le caractère (:) dans leur nom. "
+"Utilisation des deux points (:) dans un nom prévient ngcgui de créer une bîte de saisie pour ces paramètres."
+
+#. type: Plain text
+#: ngcgui.txt:702
+#, no-wrap
+msgid ""
+".Global Named Parameters\n"
+"----\n"
+msgstr ""
+".Paramètres nommés globaux\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:712
+#, no-wrap
+msgid ""
+"o<examp> sub\n"
+"...\n"
+"#<_examp:result> = #5410       (return the current tool diameter)\n"
+"...\n"
+"o<helper> call [#<x1>] [#<x2>] (call a subroutine)\n"
+"#<xresult> = #<_helper:answer> (immediately localize the helper global result)\n"
+"#<_helper:answer> = 0.0        (nullify global named parameter used by subroutine)\n"
+"...\n"
+"o<examp> endsub\n"
+"----\n"
+msgstr ""
+"o<exemp> sub\n"
+"...\n"
+"#<_exemp:result> = #5410       (retourne le diamètre de l'outil courant)\n"
+"...\n"
+"o<helper> call [#<x1>] [#<x2>] (appel d'un sous-programme)\n"
+"#<xresult> = #<_helper:answer> (localise immédiatement le résultat du fichier d'aide)\n"
+"#<_helper:answer> = 0.0 (rend nul le paramètre nommé global utilisé par le sous-programme)\n"
+"...\n"
+"o<exemp> endsub\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:717
+msgid ""
+"In the above example, the utility subroutine will be found in a separate file named helper.ngc. The helper routine "
+"returns a result in a global named parameter named #<_helper:answer."
+msgstr ""
+"Dans l'exemple précédent, le sous-programme utilitaire sera trouvé dans un fichier séparé nommé helper.ngc. Le sous-"
+"programme d'aide retourne un résultat dans un paramètre nommé global nommé #<_helper:answer>."
+
+#. type: Plain text
+#: ngcgui.txt:723
+msgid ""
+"For good practice, the calling subfile immediately localizes the result for use elsewhere in the subfile and the global "
+"named parameter used for returning the result is nullified in an attempt to mitigate its inadvertent use elsewhere in "
+"the global context. (A nullification value of 0.0 may not always be a good choice)."
+msgstr ""
+"Pour une bonne pratique, le sous-fichier appelant localise immédiatement le résultat pour une utilisation ailleurs dans "
+"le sous-fichier et le paramètre nommé global, utilisé pour retourner le résultat est mis à zéro pour diminuer les "
+"chances qu'il soit utilisé par inadvertance ailleurs dans le contexte global. (La mise à zéro avec 0.0 n'est pas "
+"toujours le meilleur choix)."
+
+#. type: Plain text
+#: ngcgui.txt:729
+msgid ""
+"Ngcgui supports the creation and concatenation of multiple features for a subfile and for multiple subfiles. It is "
+"sometimes useful for subfiles to determine their order at runtime so ngcgui inserts a special global parameter that can "
+"be tested within subroutines. The parameter is named #<_feature:>.  Its value begins with a value of 0 and is "
+"incremented for each added feature."
+msgstr ""
+"Ngcgui supporte la création et la concaténation de multiples fonctions pour un sous-fichier et pour de multiples sous-"
+"fichiers. Il est parfois pratique pour les sous-fichiers de déterminer leur ordre au début de l'exécution afin que "
+"ngcgui insère un paramètre global spécial qui pourra être testé par tous les sous-programmes. Ce paramètre est nommé "
+"#<_feature:>. Sa valeur commence avec 0 et est incrémentée avec chaque fonction qui lui est ajoutée."
+
+#. type: Plain text
+#: ngcgui.txt:733
+msgid ""
+".Additional Features A special 'info' comment can be included anywhere in an ngcgui-compatible subfile. The format is:"
+msgstr ""
+".Fonctions additionnelles\n"
+"Un commentaire spécial 'info' peut être inclus quelque part dans les sous-fichier compatibles ngcgui. Le format est le "
+"suivant:"
+
+#. type: Plain text
+#: ngcgui.txt:736
+#, no-wrap
+msgid ""
+"(info: info_text)\n"
+"----\n"
+msgstr ""
+"(info: info_text)\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:739
+msgid "The info_text is displayed near the top of the ngcgui tab page in axis."
+msgstr "La chaîne 'info_text' est affichée vers le haut de la page de l'onglet ngcgui dans Axis."
+
+#. type: Plain text
+#: ngcgui.txt:742
+msgid ""
+"Files not intended for use as subfiles can include a special comment so that ngcgui will reject them automatically with "
+"a relevant message."
+msgstr ""
+"Les fichiers non destinés à servir de sous-fichiers peuvent inclure le commentaire spécial: \"(not_a_subfile)\" de "
+"sorte que ngcgui les rejette automatiquement avec un message explicatif."
+
+#. type: Plain text
+#: ngcgui.txt:745
+#, no-wrap
+msgid ""
+"(not_a_subfile)\n"
+"----\n"
+msgstr ""
+"(not_a_subfile)\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:753
+msgid ""
+"An optional image file (.png,.gif,.jpg,.pgm) can accompany a subfile. The image file can help clarify the parameters "
+"used by the subfile. The image file should be in the same directory as the subfile and have the same name with an "
+"appropriate image suffix, e.g. the subfile example.ngc could be accompanied by an image file examp.png. Ngcgui attempts "
+"to resize large images by subsampling to a size with maximum width of 320 and maximum height of 240 pixels."
+msgstr ""
+"Un fichier image optionnel (.png, .gif, .jpg, .pgm) peut accompagner un sous-fichier. Le fichier image peut aider à "
+"clarifier les paramètres utilisés par le sous-fichier. Le fichier image doit être dans le même répertoire que le sous-"
+"fichier et doit avoir le même nom avec une extension appropriée au fichier image, ex: le sous-fichier exemp.ngc doit "
+"être accompagné par l'image exemp.png. Ngcgui tente de redimensionner de grandes images par sous-échantillonnage à une "
+"largeur maximale de 320 et une hauteur maximum de 240 pixels."
+
+#. type: Plain text
+#: ngcgui.txt:756
+msgid ""
+"None of the conventions required for making an ngcgui-compatible subfile preclude its use as general purpose subroutine "
+"file for LinuxCNC."
+msgstr ""
+"Aucune des conventions nécessaires pour faire une sous-fichier compatible ngcgui n'empêche son utilisation en tant que "
+"fichier de sous-programme pour LinuxCNC."
+
+#. type: Plain text
+#: ngcgui.txt:762
+msgid ""
+"The LinuxCNC distribution includes a library (ngcgui_lib directory) that includes both example ngcgui-compatible "
+"subfiles and utility files to illustrate the features of LinuxCNC subroutines and ngcgui usage.  Another libary "
+"(gcmc_lib) provides examples for subroutine files for the Gcode meta compiler (gcmc)"
+msgstr ""
+"La distribution LinuxCNC inclus une librairie (répertoire ngcgui_lib) qui contient plusieurs exemples de sous-fichiers "
+"et de fichiers utilitaires compatibles ngcgui pour illustrer les fonctions des sous-programmes de LinuxCNC et l'usage "
+"de ngcgui."
+
+#. type: Plain text
+#: ngcgui.txt:765
+msgid "Additional user sumitted subroutines can be found on the Forum in the Subroutines Section."
+msgstr ""
+"Des sous-programmes additionnels soumis par les utilisateurs se trouvent sur le forum dans la section 'Subroutines'."
+
+#. type: Plain text
+#: ngcgui.txt:774
+msgid ""
+"=== Gcode-meta-compiler (.gcmc) file requirements Files for the Gcode-meta-compiler (gcmc) are read by ngcgui and it "
+"creates entry boxes for variables tagged in the file.  When a feature for the file is finalized, ngcgui passes the file "
+"as input to the gcmc compiler and, if the compile is successful, the resulting gcode file is sent to linuxCNC for "
+"execution.  The resulting file is formatted as single-file subroutine; .gcmc files and .ngc files can be intermixed by "
+"ngcgui."
+msgstr ""
+"=== Exigences du Méta compilateur de G-code (.gcmc)\n"
+"Les fichiers pour le méta compilateur de G-code (GCMC) sont lus par ngcgui, il crée des zones de saisie pour étiqueter "
+"les variables dans le fichier. Quand une fonction pour le fichier est finalisée, ngcgui passe le fichier comme entrée "
+"pour le compilateur de GCMC et, si la compilation réussit, le fichier G-code résultant est envoyé à LinuxCNC pour "
+"exécution. Le fichier résultant est formaté comme un seul fichier sous-programme; les fichiers .gcmc et les fichiers ."
+"ngc peuvent être mélangés par ngcgui."
+
+#. type: Plain text
+#: ngcgui.txt:777
+msgid ""
+"The variables identified for inclusion in ngcgui are tagged with lines that will appear as comments to the gcmc "
+"compiler."
+msgstr ""
+"Les variables identifiées pour inclusion dans ngcgui sont étiquetées avec des lignes qui apparaîtront comme des "
+"commentaires pour le compilateur de GCMC."
+
+#. type: Plain text
+#: ngcgui.txt:779
+#, no-wrap
+msgid ""
+".Example variable tags formats\n"
+"----\n"
+msgstr ""
+".Exemple de formats d'étiquette de variable\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:783
+#, no-wrap
+msgid ""
+"//ngcgui: varname1 = \n"
+"//ngcgui: varname2 = value2\n"
+"//ngcgui: varname3 = value3, label3;\n"
+"----\n"
+msgstr ""
+"//ngcgui: varname1 = \n"
+"//ngcgui: varname2 = value2\n"
+"//ngcgui: varname3 = value3, label3;\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:786 ngcgui.txt:808 ngcgui.txt:828
+#, no-wrap
+msgid ""
+".Examples:\n"
+"----\n"
+msgstr ""
+".Exemples:\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:790
+#, no-wrap
+msgid ""
+"//ngcgui: zsafe =\n"
+"//ngcgui: feedrate = 10\n"
+"//ngcgui: xl = 0, x limit\n"
+"----\n"
+msgstr ""
+"//ngcgui: zsafe =\n"
+"//ngcgui: feedrate = 10\n"
+"//ngcgui: xl = 0, x limit\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:795
+msgid ""
+"For these examples, the entry box for varname1 will have no default, the entry box for varname2 will have a default of "
+"value2, and the entry box for varname 3 will have a default of value 3 and a label label3 (instead of varname3).  The "
+"default values must be numbers."
+msgstr ""
+"Dans ces exemples, la zone de saisie pour varname1 n'aura pas de valeur par défaut, la zone de saisie pour varname2 "
+"aura par défaut  valeur2, et celle de varname3 aura par défaut valeur3 avec un label3 comme étiquette (au lieu de "
+"varname3). Les valeurs par défaut doivent être des nombres."
+
+#. type: Plain text
+#: ngcgui.txt:801
+msgid ""
+"To make it easier to modify valid lines in a gcmc file, alternate tag line formats accepted.  The alternate formats "
+"ignore trailing semicolons (;) and trailing comment markers (//)  With this provision, it is often makes it possible to "
+"just add the //ngcgui: tag to existing lines in a .gcmc file."
+msgstr ""
+"Pour rendre plus facile à modifier les lignes valides dans un fichier de GCMC, le formats alternatif 'tag line' est "
+"accepté. Les formats alternatifs sont le point virgule (;) et les marqueurs de commentaire (//) Avec cette disposition, "
+"il est souvent possible de simplement ajouter l'étiquette //ngcgui: aux lignes existantes dans un fichier .gcmc."
+
+#. type: Plain text
+#: ngcgui.txt:803
+#, no-wrap
+msgid ""
+".Alternate variable tag formats\n"
+"----\n"
+msgstr ""
+".Exemple de formats d'étiquette alternatifs\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:806
+#, no-wrap
+msgid ""
+"//ngcgui: varname2 = value2;\n"
+"//ngcgui: varname3 = value3; //, label3;\n"
+"----\n"
+msgstr ""
+"//ngcgui: varname2 = value2;\n"
+"//ngcgui: varname3 = value3; //, label3;\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:811
+#, no-wrap
+msgid ""
+"//ngcgui: feedrate = 10;\n"
+"//ngcgui: xl = 0; //, x limit\n"
+"----\n"
+msgstr ""
+"//ngcgui: feedrate = 10;\n"
+"//ngcgui: xl = 0; //, x limit\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:815
+msgid "An info line that will appear at the top of a tab page may be optionally included with a line tagged as:"
+msgstr ""
+"Une ligne d'information qui apparaîtra en haut d'une page d'onglets, peut être éventuellement incluse avec une ligne "
+"étiquetée comme:"
+
+#. type: Plain text
+#: ngcgui.txt:817
+#, no-wrap
+msgid ""
+".Info tag\n"
+"----\n"
+msgstr ""
+".Info tag\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:819
+#, no-wrap
+msgid ""
+"//ngcgui: info: text_to_appear_at_top_of_tab_page\n"
+"----\n"
+msgstr ""
+"//ngcgui: info: text_to_appear_at_top_of_tab_page\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:822
+msgid "When required, options can be passed to the gcmc compiler with a line tagged:"
+msgstr "Si nécessaire, les options peuvent être passées au compilateur de GCMC avec une ligne étiquetée:"
+
+#. type: Plain text
+#: ngcgui.txt:824
+#, no-wrap
+msgid ""
+".Option line tag format\n"
+"----\n"
+msgstr ""
+".Format de ligne étiquetée\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:826
+#, no-wrap
+msgid ""
+"//ngcgui: -option_name [ [=] option_value]\n"
+"----\n"
+msgstr ""
+"//ngcgui: -option_name [ [=] option_value]\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:833
+#, no-wrap
+msgid ""
+"//ngcgui: -I\n"
+"//ngcgui: --imperial\n"
+"//ngcgui: --precision 5\n"
+"//ngcgui: --precision=6\n"
+"----\n"
+msgstr ""
+"//ngcgui: -I\n"
+"//ngcgui: --imperial\n"
+"//ngcgui: --precision 5\n"
+"//ngcgui: --precision=6\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:836
+#, no-wrap
+msgid ""
+"Options for gcmc are available with the terminal command:\n"
+"----\n"
+msgstr ""
+"Options pour que gcmc soit accessible depuis une commande du terminal:\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:838
+#, no-wrap
+msgid ""
+"gcmc --help\n"
+"----\n"
+msgstr ""
+"gcmc --help\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:842
+msgid "A gcmc program by default uses metric mode.  The mode can be set to inches with the option setting:"
+msgstr "Un programme gcmc utilise le mode métrique par défaut. Le mode peut être réglé en pouces avec le réglage suivant:"
+
+#. type: Plain text
+#: ngcgui.txt:845
+#, no-wrap
+msgid ""
+"//ngcgui: --imperial\n"
+"----\n"
+msgstr ""
+"//ngcgui: --imperial\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:851
+msgid ""
+"A preamble file, if used, can set a mode (g20 or g21) that conflicts with the mode used by a gcmc file.  To ensure that "
+"the gcmc program mode is in effect, include the following statement in the .gcmc file:"
+msgstr ""
+"Un fichier de préambule, si utilisé, peut définir un mode (G20 ou G21) qui entre en conflit avec le mode utilisé par un "
+"fichier de GCMC. Pour s'assurer que le mode de programme de GCMC est actif, inclure la mention suivante dans le "
+"fichier .gcmc:"
+
+#. type: Plain text
+#: ngcgui.txt:854
+#, no-wrap
+msgid ""
+"include(\"ensure_mode.gcmc\")\n"
+"----\n"
+msgstr ""
+"include(\"ensure_mode.gcmc\")\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:858
+msgid "and provide a proper path for gcmc include_files in the ini file, for example:"
+msgstr "et fournir un chemin correct pour include_files dans le fichier ini, par exemple:"
+
+#. type: Plain text
+#: ngcgui.txt:862
+#, no-wrap
+msgid ""
+"[DISPLAY]\n"
+"GCMC_INCLUDE_PATH = ../../nc_files/gcmc_lib\n"
+"----\n"
+msgstr ""
+"[DISPLAY]\n"
+"GCMC_INCLUDE_PATH = ../../nc_files/gcmc_lib\n"
+"----\n"
+
+#. type: Plain text
+#: ngcgui.txt:865
+msgid "== DB25 Example"
+msgstr "== Exemple, découpe pour DB25"
+
+#. type: Plain text
+#: ngcgui.txt:868
+msgid ""
+"The following shows the DB25 subroutine. In the first photo you see where you fill in the blanks for each variable."
+msgstr ""
+"L'exemple ci-dessous montre l'utilisation du sous-programme DB25. Dans la première image on voit les champs remplis "
+"pour chaque variable."
+
+#. type: Plain text
+#: ngcgui.txt:870
+msgid "image::images/ngcgui-db25-1.png[]"
+msgstr "image::images/ngcgui-db25-1_fr.png[]"
+
+#. type: Plain text
+#: ngcgui.txt:872
+msgid "This photo shows the backplot of the DB25 subroutine."
+msgstr "Cette image montre le parcours d'outil du sous-programme DB25."
+
+#. type: Plain text
+#: ngcgui.txt:874
+msgid "image::images/ngcgui-db25-2.png[]"
+msgstr "image::images/ngcgui-db25-2_fr.png[]"
+
+#. type: Plain text
+#: ngcgui.txt:877
+msgid "This photo shows the use of the new button and the custom tab to create three DB25 cutouts in one program."
+msgstr ""
+"Cette image montre l'action du bouton 'Nouveau' et de l'onglet personnalisé pour créer très facilement la découpe de "
+"trois DB25 en un seul programme."
+
+#. type: Plain text
+#: ngcgui.txt:879
+msgid "image::images/ngcgui-db25-3.png[]"
+msgstr "image::images/ngcgui-db25-3_fr.png[]"
