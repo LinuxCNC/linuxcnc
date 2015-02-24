@@ -21,7 +21,6 @@ HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_signal.c \
 	$(HALLIBDIR)/hal_pin.c \
 	$(HALLIBDIR)/hal_comp.c \
-	$(HALLIBDIR)/hal_list.c \
 	$(HALLIBDIR)/hal_memory.c \
 	$(HALLIBDIR)/hal_misc.c \
 	rtapi/rtapi_heap.c
@@ -91,7 +90,6 @@ hal_lib-objs += hal/lib/hal_pin.o
 hal_lib-objs += hal/lib/hal_param.o
 hal_lib-objs += hal/lib/hal_alias.o
 hal_lib-objs += hal/lib/hal_comp.o
-hal_lib-objs += hal/lib/hal_list.o
 hal_lib-objs += hal/lib/hal_memory.o
 hal_lib-objs += hal/lib/hal_misc.o
 
