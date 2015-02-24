@@ -1,6 +1,27 @@
-INCLUDES += emc/tp
+TP_DIR := emc/tp
+INCLUDES += $(TP_DIR)
 
-../include/%.h: ./emc/tp/%.h
+
+../include/%.h: ./$(TP_DIR)/%.h
 	cp $^ $@
-../include/%.hh: ./emc/tp/%.hh
+../include/%.hh: ./$(TP_DIR)/%.hh
 	cp $^ $@
+
+
+# obj-m += tp.o
+# tp-objs := $(addprefix emc/tp/, \
+# 	tc.o 		\
+# 	tcq.o 		\
+# 	tp.o 		\
+# 	tpmain.o 	\
+# 	blendmath.o 	\
+# 	spherical_arc.o 	\
+# 	) 		\
+# 	emc/nml_intf/emcpose.o \
+# 	libnml/posemath/_posemath.o \
+# 	libnml/posemath/sincos.o $(MATHSTUB)
+
+
+# ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
+# $(RTLIBDIR)/tp$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(tp-objs))
+# endif

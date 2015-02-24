@@ -1,5 +1,7 @@
 loadrt trivkins
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 loadrt ddt count=6
 loadrt hypot count=2
 loadrt comp count=3
@@ -22,11 +24,11 @@ net Ypos axis.1.motor-pos-cmd => axis.1.motor-pos-fb ddt.2.in
 net Zpos axis.2.motor-pos-cmd => axis.2.motor-pos-fb ddt.4.in
 
 net Xvel ddt.0.out => ddt.1.in hypot.0.in0
-net Xacc <= ddt.1.out 
+net Xacc <= ddt.1.out
 net Yvel ddt.2.out => ddt.3.in hypot.0.in1
-net Yacc <= ddt.3.out 
+net Yacc <= ddt.3.out
 net Zvel ddt.4.out => ddt.5.in hypot.1.in0
-net Zacc <= ddt.5.out 
+net Zacc <= ddt.5.out
 
 net XYvel hypot.0.out => hypot.1.in1
 net XYZvel <= hypot.1.out

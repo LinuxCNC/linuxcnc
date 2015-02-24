@@ -18,7 +18,9 @@ loadusr -w ./setup.bridge.sh
 loadrt trivkins
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 
 # load low-level drivers

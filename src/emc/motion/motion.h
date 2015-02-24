@@ -84,19 +84,11 @@ to another.
 #include "emcmotcfg.h"		/* EMCMOT_MAX_JOINTS */
 #include "kinematics.h"
 #include "rtapi_limits.h"
+#include "motion_id.h"
+#include "tp.h"
 #include <stdarg.h>
 #include "state_tag.h"
 
-
-// define a special value to denote an invalid motion ID 
-// NB: do not ever generate a motion id of  MOTION_INVALID_ID
-// this should be really be tested for in command.c 
-
-#define MOTION_INVALID_ID INT_MIN
-#define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
-
-#define MOTION_PAUSED_RETURN_MOVE (MOTION_INVALID_ID+10)
-#define MOTION_PAUSED_JOG_MOVE (MOTION_INVALID_ID+11)
 
 
 #ifdef __cplusplus
@@ -259,9 +251,9 @@ extern "C" {
 	double  timeout;        /* of wait for spindle orient to complete */
 	unsigned char tail;	/* flag count for mutex detect */
         int arcBlendOptDepth;
-        int arcBlendEnable;
-        int arcBlendFallbackEnable;
-        double arcBlendGapCycles;
+        hal_bit_t arcBlendEnable;
+        hal_bit_t arcBlendFallbackEnable;
+        hal_s32_t arcBlendGapCycles;
         double arcBlendRampFreq;
         double maxFeedScale;
     struct state_tag_t tag;
@@ -589,10 +581,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 
     typedef struct {
-	double speed;		// spindle speed in RPMs
+	hal_float_t speed;		// spindle speed in RPMs
 	double css_factor;
 	double xoffset;
-	int direction;		// 0 stopped, 1 forward, -1 reverse
+	hal_s32_t direction;	// 0 stopped, 1 forward, -1 reverse
 	int brake;		// 0 released, 1 engaged
 	int locked;             // spindle lock engaged after orient
 	int orient_fault;       // fault code from motion.spindle-orient-fault
@@ -626,12 +618,12 @@ Suggestion: Split this in to an Error and a Status flag register..
 	/* these are config info, updated when a command changes them */
 	double feed_scale;	/* velocity scale factor for all motion */
 	double spindle_scale;	/* velocity scale factor for spindle speed */
-	unsigned char enables_new;	/* flags for FS, SS, etc */
+	hal_u32_t enables_new;	/* flags for FS, SS, etc */
 		/* the above set is the enables in effect for new moves */
 	/* the rest are updated every cycle */
 	double net_feed_scale;	/* net scale factor for all motion */
 	double net_spindle_scale;	/* net scale factor for spindle */
-	unsigned char enables_queued;	/* flags for FS, SS, etc */
+	hal_u32_t enables_queued;	/* flags for FS, SS, etc */
 		/* the above set is the enables in effect for the
 		   currently executing move */
 	motion_state_t motion_state; /* operating state: FREE, COORD, etc. */
@@ -655,10 +647,10 @@ Suggestion: Split this in to an Error and a Status flag register..
         unsigned char probe_type;
 	EmcPose probedPos;	/* Axis positions stored as soon as possible
 				   after last probeTripped */
-        int spindle_index_enable;  /* hooked to a canon encoder index-enable */
-        int spindleSync;        /* we are doing spindle-synced motion */
-        double spindleRevs;     /* position of spindle in revolutions */
-        double spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
+        hal_bit_t spindle_index_enable;  /* hooked to a canon encoder index-enable */
+        hal_bit_t spindleSync;        /* we are doing spindle-synced motion */
+        hal_float_t spindleRevs;     /* position of spindle in revolutions */
+        hal_float_t spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
 
 	spindle_status spindle;	/* data types for spindle status */
 	
@@ -698,10 +690,10 @@ Suggestion: Split this in to an Error and a Status flag register..
         double current_vel;
         double requested_vel;
 
-        unsigned int tcqlen;
+        hal_u32_t tcqlen;
         EmcPose tool_offset;
         int atspeed_next_feed;  /* at next feed move, wait for spindle to be at speed  */
-        int spindle_is_atspeed; /* hal input */
+        hal_bit_t spindle_is_atspeed; /* hal input */
 
 	EmcPose pause_carte_pos;	// initial pause point (ipp) - where we switched to the altQueue
 	EmcPose pause_offset_carte_pos;	// ipp + current offset values, set by update_offset_pose()
@@ -764,12 +756,16 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	double limitVel;	/* scalar upper limit on vel */
 	KINEMATICS_TYPE kinematics_type;
+	vtkins_t *vtk;          // pointer to kinematics vtable
+	vtp_t    *vtp;          // pointer to tp vtable
+	int kins_vid;           // HAL id of kins vtable
+	int tp_vid;             // HAL id of tp vtable
 	int debug;		/* copy of DEBUG, from .ini file */
 	unsigned char tail;	/* flag count for mutex detect */
-        int arcBlendOptDepth;
-        int arcBlendEnable;
-        int arcBlendFallbackEnable;
-        double arcBlendGapCycles;
+        hal_s32_t arcBlendOptDepth;
+        hal_bit_t arcBlendEnable;
+        hal_bit_t arcBlendFallbackEnable;
+        hal_s32_t arcBlendGapCycles;
         double arcBlendRampFreq;
         double maxFeedScale;
     } emcmot_config_t;

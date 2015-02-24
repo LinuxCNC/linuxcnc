@@ -1,7 +1,9 @@
 # load realtime modules
 # kinematics
 loadrt trivkins
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 loadrt hal_parport cfg="0x378"
 loadrt encoder num_chan=2
 loadrt pid num_chan=2

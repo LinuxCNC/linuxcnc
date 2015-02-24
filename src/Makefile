@@ -202,6 +202,7 @@ SUBDIRS := \
 	\
 	hal/lib \
 	hal/components \
+	hal/vtable-example \
 	hal/drivers \
 	hal/user_comps/devices \
 	hal/user_comps/mb2hal \
@@ -466,9 +467,12 @@ HEADERS := \
     emc/tp/tp_types.h \
     emc/tp/spherical_arc.h \
     emc/tp/blendmath.h \
+    emc/tp/tp_shared.h \
+    emc/tp/tp_private.h \
     emc/motion/emcmotcfg.h \
     emc/motion/emcmotglb.h \
     emc/motion/motion.h \
+    emc/motion/motion_id.h \
     emc/motion/usrmotintf.h \
     emc/motion/state_tag.h \
     emc/nml_intf/canon.hh \
@@ -479,6 +483,7 @@ HEADERS := \
     emc/nml_intf/emccfg.h \
     emc/nml_intf/emcglb.h \
     emc/nml_intf/emcpos.h \
+    emc/nml_intf/emcpose.h \
     emc/nml_intf/interp_return.hh \
     emc/nml_intf/interpl.hh \
     emc/nml_intf/motion_types.h \
@@ -494,6 +499,7 @@ HEADERS := \
     hal/lib/hal_ring.h \
     hal/lib/hal_rcomp.h \
     hal/lib/hal_iter.h \
+    hal/lib/vtable.h \
     hal/lib/config_module.h \
     hal/drivers/hal_gpiomap.h \
     hal/drivers/hal_spi.h \
@@ -1075,6 +1081,7 @@ ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/lib/Submakefile
 include $(BASEPWD)/machinetalk/Submakefile
 include $(BASEPWD)/hal/components/Submakefile
+include $(BASEPWD)/hal/vtable-example/Submakefile
 include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
 include $(BASEPWD)/rtapi/Submakefile
 include $(BASEPWD)/rtapi/shmdrv/Submakefile
@@ -1387,6 +1394,7 @@ endif
 obj-m += scope_rt.o
 scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 
+
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
 
@@ -1430,11 +1438,6 @@ scarakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o
-motmod-objs += emc/tp/tc.o
-motmod-objs += emc/tp/tcq.o
-motmod-objs += emc/tp/tp.o
-motmod-objs += emc/tp/spherical_arc.o
-motmod-objs += emc/tp/blendmath.o
 motmod-objs += emc/motion/motion.o
 motmod-objs += emc/motion/command.o
 motmod-objs += emc/motion/control.o
@@ -1443,9 +1446,21 @@ motmod-objs += emc/motion/emcmotglb.o
 motmod-objs += emc/motion/emcmotutil.o
 motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o
-motmod-objs += emc/nml_intf/emcpose.o
 motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
+
+obj-m += tp.o
+tp-objs := $(addprefix emc/tp/, \
+	tc.o 		\
+	tcq.o 		\
+	tp.o 		\
+	tpmain.o 	\
+	blendmath.o 	\
+	spherical_arc.o 	\
+	) 		\
+	emc/nml_intf/emcpose.o \
+	libnml/posemath/_posemath.o \
+	libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
 
@@ -1604,6 +1619,8 @@ $(RTLIBDIR)/genserkins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(genserkins-objs))
 $(RTLIBDIR)/pumakins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pumakins-objs))
 $(RTLIBDIR)/scarakins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(scarakins-objs))
 $(RTLIBDIR)/hal_gm$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gm-objs))
+
+$(RTLIBDIR)/tp$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(tp-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))

@@ -23,6 +23,16 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 
+#define VTVERSION VTKINEMATICS_VERSION1
+
+#define DEFAULT_D1 490
+#define DEFAULT_D2 340
+#define DEFAULT_D3  50
+#define DEFAULT_D4 250
+#define DEFAULT_D5  50
+#define DEFAULT_D6  50
+
+
 struct scara_data {
     hal_float_t *d1, *d2, *d3, *d4, *d5, *d6;
 } *haldata = 0;
@@ -178,31 +188,39 @@ int kinematicsHome(EmcPose * world,
   return kinematicsForward(joint, world, fflags, iflags);
 }
 
-KINEMATICS_TYPE kinematicsType()
+KINEMATICS_TYPE kinematicsType(void)
 {
   return KINEMATICS_BOTH;
 }
 
-#define DEFAULT_D1 490
-#define DEFAULT_D2 340
-#define DEFAULT_D3  50
-#define DEFAULT_D4 250
-#define DEFAULT_D5  50
-#define DEFAULT_D6  50
 
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
-EXPORT_SYMBOL(kinematicsHome);
+static vtkins_t vtk = {
+    .kinematicsForward = kinematicsForward,
+    .kinematicsInverse  = kinematicsInverse,
+    // .kinematicsHome = kinematicsHome,
+    .kinematicsType = kinematicsType
+};
 
-int comp_id;
+static int comp_id, vtable_id;
+static const char *name = "scarakins";
 
-int rtapi_app_main(void) {
-    int res=0;
-    
-    comp_id = hal_init("scarakins");
+MODULE_LICENSE("GPL");
+
+int rtapi_app_main(void)
+{
+    int res = 0;
+
+    comp_id = hal_init(name);
     if (comp_id < 0) return comp_id;
-    
+
+    vtable_id = hal_export_vtable(name, VTVERSION, &vtk, comp_id);
+    if (vtable_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
+			name, name, VTVERSION, &vtk, vtable_id );
+	return -ENOENT;
+    }
+
     haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
     if((res = hal_pin_float_new("scarakins.D1", HAL_IO, &(haldata->d1), comp_id)) < 0) goto error;
@@ -227,4 +245,8 @@ error:
     return res;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_remove_vtable(vtable_id);
+    hal_exit(comp_id);
+}

@@ -65,7 +65,8 @@
 #include "kinematics.h"             /* these decls */
 #include "rtapi_math.h"
 
-/* ident tag */
+#define VTVERSION VTKINEMATICS_VERSION1
+
 #ifndef __GNUC__
 #ifndef __attribute__
 #define __attribute__(x)
@@ -73,6 +74,7 @@
 #endif
 
 #include "hal.h"
+
 struct haldata {
     hal_float_t *bx, *cx, *cy;
 } *haldata = 0;
@@ -210,7 +212,7 @@ int kinematicsInverse(const EmcPose * pos,
 #undef Dz
 }
 
-KINEMATICS_TYPE kinematicsType()
+KINEMATICS_TYPE kinematicsType(void)
 {
   return KINEMATICS_BOTH;
 }
@@ -348,20 +350,31 @@ int main(int argc, char *argv[])
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
+static vtkins_t vtk = {
+    .kinematicsForward = kinematicsForward,
+    .kinematicsInverse  = kinematicsInverse,
+    // .kinematicsHome = kinematicsHome,
+    .kinematicsType = kinematicsType
+};
+
+static int comp_id, vtable_id;
+static const char *name = "tripodkins";
 
 MODULE_LICENSE("GPL");
 
-
-
-int comp_id;
 int rtapi_app_main(void) {
     int res = 0;
 
-    comp_id = hal_init("tripodkins");
+    comp_id = hal_init(name);
     if(comp_id < 0) return comp_id;
+
+    vtable_id = hal_export_vtable(name, VTVERSION, &vtk, comp_id);
+    if (vtable_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
+			name, name, VTVERSION, &vtk, vtable_id );
+	return -ENOENT;
+    }
 
     haldata = hal_malloc(sizeof(struct haldata));
     if(!haldata) goto error;
@@ -379,4 +392,8 @@ error:
     return res;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_remove_vtable(vtable_id);
+    hal_exit(comp_id);
+}

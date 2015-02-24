@@ -16,6 +16,10 @@
 #include "rtapi.h"
 #include "rtapi_math.h"
 
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+
+
 #define d2r(d) ((d)*PM_PI/180.0)
 #define r2d(r) ((r)*180.0/PM_PI)
 
@@ -27,6 +31,10 @@ struct haldata {
     hal_float_t *pivot_length;
 } *haldata;
 
+#define VTVERSION VTKINEMATICS_VERSION1
+
+MODULE_LICENSE("GPL");
+
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
@@ -35,7 +43,7 @@ int kinematicsForward(const double *joints,
     // B correction
     double zb = (*(haldata->pivot_length) + joints[8]) * cos(d2r(joints[4]));
     double xb = (*(haldata->pivot_length) + joints[8]) * sin(d2r(joints[4]));
-        
+
     // C correction
     double xyr = hypot(joints[0], joints[1]);
     double xytheta = atan2(joints[1], joints[0]) + d2r(joints[5]);
@@ -68,7 +76,7 @@ int kinematicsInverse(const EmcPose * pos,
     // B correction
     double zb = (*(haldata->pivot_length) + pos->w) * cos(d2r(pos->b));
     double xb = (*(haldata->pivot_length) + pos->w) * sin(d2r(pos->b));
-        
+
     // C correction
     double xyr = hypot(pos->tran.x, pos->tran.y);
     double xytheta = atan2(pos->tran.y, pos->tran.x) - d2r(pos->c);
@@ -93,24 +101,34 @@ int kinematicsInverse(const EmcPose * pos,
     return 0;
 }
 
-KINEMATICS_TYPE kinematicsType()
+KINEMATICS_TYPE kinematicsType(void)
 {
     return KINEMATICS_BOTH;
 }
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
 
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsInverse);
-EXPORT_SYMBOL(kinematicsForward);
-MODULE_LICENSE("GPL");
+static vtkins_t vtk = {
+    .kinematicsForward = kinematicsForward,
+    .kinematicsInverse  = kinematicsInverse,
+    // .kinematicsHome = kinematicsHome,
+    .kinematicsType = kinematicsType
+};
 
-int comp_id;
+static int comp_id, vtable_id;
+static const char *name = "maxkins";
+
 int rtapi_app_main(void) {
     int result;
-    comp_id = hal_init("maxkins");
+    comp_id = hal_init(name);
     if(comp_id < 0) return comp_id;
+
+    vtable_id = hal_export_vtable(name, VTVERSION, &vtk, comp_id);
+    if (vtable_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
+			name, name, VTVERSION, &vtk, vtable_id );
+	return -ENOENT;
+    }
 
     haldata = hal_malloc(sizeof(struct haldata));
 
@@ -127,4 +145,8 @@ error:
     return result;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_remove_vtable(vtable_id);
+    hal_exit(comp_id);
+}

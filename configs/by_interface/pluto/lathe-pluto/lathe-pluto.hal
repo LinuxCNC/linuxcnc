@@ -1,8 +1,10 @@
 # load realtime modules
 loadrt trivkins
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 loadrt at_pid num_chan=2 debug=1
-loadrt ddt count=4 
+loadrt ddt count=4
 loadrt pluto_servo
 loadrt scale
 loadrt mux2

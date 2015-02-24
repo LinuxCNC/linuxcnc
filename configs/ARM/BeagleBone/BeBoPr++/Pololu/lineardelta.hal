@@ -22,7 +22,9 @@ setp lineardeltakins.L [MACHINE]CF_ROD
 setp lineardeltakins.R [MACHINE]DELTA_R
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=lineardeltakins
 
 # load low-level drivers
 loadrt hal_bb_gpio output_pins=107,126,217,218,224,226 input_pins=108,109,110,114,117,118

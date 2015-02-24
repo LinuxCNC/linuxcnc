@@ -18,7 +18,7 @@
 #include "spherical_arc.h"
 #include "posemath.h"
 #include "emcpos.h"
-#include "emcmotcfg.h"
+#include "emcmotcfg.h"  // EMCMOT_MAX_DIO, EMCMOT_MAX_AIO
 #include "state_tag.h"
 
 /* values for endFlag */

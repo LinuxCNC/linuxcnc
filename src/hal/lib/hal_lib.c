@@ -2902,6 +2902,7 @@ static int init_hal_data(void)
     hal_data->param_list_ptr = 0;
     hal_data->funct_list_ptr = 0;
     hal_data->thread_list_ptr = 0;
+    hal_data->vtable_list_ptr = 0;
     hal_data->base_period = 0;
     hal_data->threads_running = 0;
     hal_data->oldname_free_ptr = 0;
@@ -2910,6 +2911,7 @@ static int init_hal_data(void)
     hal_data->sig_free_ptr = 0;
     hal_data->param_free_ptr = 0;
     hal_data->funct_free_ptr = 0;
+    hal_data->vtable_free_ptr = 0;
     hal_data->pending_constructor = 0;
     hal_data->constructor_prefix[0] = 0;
     list_init_entry(&(hal_data->funct_entry_free));
@@ -3735,7 +3737,7 @@ const char *hal_lasterror()
 }
 
 #ifdef RTAPI
-/* only export symbols when we're building a kernel module */
+/* only export symbols when we're building a realtime module */
 
 EXPORT_SYMBOL(hal_init);
 EXPORT_SYMBOL(hal_init_mode);

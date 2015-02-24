@@ -4,7 +4,9 @@
 # kinematics
 loadrt maxkins
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=maxkins
 # load five limit3 blocks to simulate the accel and vel limits of the motors
 loadrt limit3 count=5
 # load window comparators for home/limit switches

@@ -12,6 +12,7 @@ HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_ring.c \
 	$(HALLIBDIR)/hal_iter.c \
 	$(HALLIBDIR)/hal_rcomp.c \
+	$(HALLIBDIR)/hal_vtable.c \
 	rtapi/rtapi_heap.c
 
 # protobuf support functions which depend on HAL - on RT host only
@@ -70,5 +71,6 @@ hal_lib-objs := hal/lib/hal_lib.o $(MATHSTUB)
 hal_lib-objs += hal/lib/hal_group.o
 hal_lib-objs += hal/lib/hal_ring.o
 hal_lib-objs += hal/lib/hal_rcomp.o
+hal_lib-objs += hal/lib/hal_vtable.o
 
 $(RTLIBDIR)/hal_lib$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_lib-objs))

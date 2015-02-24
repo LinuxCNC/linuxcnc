@@ -21,6 +21,10 @@
 #include "mot_priv.h"
 #include "rtapi_math.h"
 
+// vtable signatures
+#define VTKINS_VERSION VTKINEMATICS_VERSION1
+#define VTP_VERSION    VTTP_VERSION1
+
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
 
@@ -62,6 +66,10 @@ int num_dio = 4;			/* default number of motion synched DIO */
 RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
 int num_aio = 4;			/* default number of motion synched AIO */
 RTAPI_MP_INT(num_aio, "number of analog inputs/outputs");
+static char *kins = "trivkins";
+RTAPI_MP_STRING(kins, "kinematics vtable name");
+static char *tp = "tp";
+RTAPI_MP_STRING(tp, "tp vtable name");
 
 /***********************************************************************
 *                  GLOBAL VARIABLE DEFINITIONS                         *
@@ -147,6 +155,13 @@ static int init_threads(void);
 static int setTrajCycleTime(double secs);
 static int setServoCycleTime(double secs);
 
+// init the shared state handling between tp and motion
+static int init_shared(tp_shared_t *tps,
+		       struct emcmot_config_t *cfg,
+		       struct emcmot_status_t *status,
+		       emcmot_debug_t *dbg,
+		       emcmot_joint_t *joint,
+		       emcmot_hal_data_t *hal);
 /***********************************************************************
 *                     PUBLIC FUNCTION CODE                             *
 ************************************************************************/
@@ -265,6 +280,13 @@ void rtapi_app_exit(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    _("MOTION: hal_stop_threads() failed, returned %d\n"), retval);
     }
+
+    // release the kinematics vtable
+    hal_unreference_vtable(emcmotConfig->kins_vid);
+
+    // release the tp vtable
+    hal_unreference_vtable(emcmotConfig->tp_vid);
+
     /* free shared memory */
     retval = rtapi_shmem_delete(emc_shmem_id, mot_comp_id);
     if (retval < 0) {
@@ -902,8 +924,6 @@ static int init_comm_buffers(void)
     emcmotCommand = 0;
     emcmotConfig = 0;
 
-    /* record the kinematics type of the machine */
-    kinType = kinematicsType();
 
     /* allocate and initialize the shared memory structure */
     emc_shmem_id = rtapi_shmem_new(key, mot_comp_id, sizeof(emcmot_struct_t));
@@ -926,6 +946,30 @@ static int init_comm_buffers(void)
     emcmotCommand = &emcmotStruct->command;
     emcmotStatus = &emcmotStruct->status;
     emcmotConfig = &emcmotStruct->config;
+
+    // bind kinematics vtable
+    emcmotConfig->kins_vid = hal_reference_vtable(kins, VTKINS_VERSION,
+						  (void **)&emcmotConfig->vtk);
+    if (emcmotConfig->kins_vid < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"MOTION: hal_reference_vtable(%s,%d) failed: %d\n",
+			kins, VTKINS_VERSION, emcmotConfig->kins_vid);
+	return -1;
+    }
+
+    /* record the kinematics type of the machine */
+    kinType = emcmotConfig->vtk->kinematicsType();
+
+    // bind the tp vtable
+    emcmotConfig->tp_vid = hal_reference_vtable(tp, VTP_VERSION,
+						(void **)&emcmotConfig->vtp);
+    if (emcmotConfig->tp_vid < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"MOTION: hal_reference_vtable(%s,%d) failed: %d\n",
+			tp, VTP_VERSION, emcmotConfig->tp_vid);
+	return -1;
+    }
+
 
     emcmotDebug = &emcmotStruct->debug;
 
@@ -1123,17 +1167,34 @@ static int init_comm_buffers(void)
     emcmotPrimQueue = &emcmotStruct->debug.tp;     // primary motion queue
     emcmotAltQueue = &emcmotStruct->debug.altqueue;   // alternate motion queue
 
+
+    // init the shared data between tp and using code
+    emcmotDebug->tps = hal_malloc(sizeof(tp_shared_t));
+    if (!emcmotDebug->tps) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"MOTION: failed to create tp_shared in HAL memory");
+	return -1;
+    }
+    init_shared(emcmotDebug->tps,
+		emcmotConfig,
+		emcmotStatus,
+		emcmotDebug,
+		joints, // internal joint data
+		emcmot_hal_data); // HAL exorted part of joint data
+
     /* init motion emcmotDebug->queue */
-    if (-1 == tpCreate(emcmotPrimQueue, DEFAULT_TC_QUEUE_SIZE,
-		       emcmotDebug->queueTcSpace)) {
+    if (-1 == emcmotConfig->vtp->tpCreate(emcmotPrimQueue, DEFAULT_TC_QUEUE_SIZE,
+					  emcmotDebug->queueTcSpace,
+					  emcmotDebug->tps)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to create motion emcmotPrimQueue\n");
 	return -1;
     }
 
     // and the alternate queue
-    if (-1 == tpCreate(emcmotAltQueue, DEFAULT_ALT_TC_QUEUE_SIZE,
-	    emcmotDebug->altqueueTcSpace)) {
+    if (-1 == emcmotConfig->vtp->tpCreate(emcmotAltQueue, DEFAULT_ALT_TC_QUEUE_SIZE,
+					  emcmotDebug->altqueueTcSpace,
+					  emcmotDebug->tps)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to create motion emcmotAltQueue\n");
 	return -1;
@@ -1141,10 +1202,10 @@ static int init_comm_buffers(void)
 
 
 //    tpInit(&emcmotDebug->queue); // tpInit called from tpCreate
-    tpSetCycleTime(emcmotQueue, emcmotConfig->trajCycleTime);
-    tpSetPos(emcmotQueue, &emcmotStatus->carte_pos_cmd);
-    tpSetVmax(emcmotQueue, emcmotStatus->vel, emcmotStatus->vel);
-    tpSetAmax(emcmotQueue, emcmotStatus->acc);
+    emcmotConfig->vtp->tpSetCycleTime(emcmotQueue, emcmotConfig->trajCycleTime);
+    emcmotConfig->vtp->tpSetPos(emcmotQueue, &emcmotStatus->carte_pos_cmd);
+    emcmotConfig->vtp->tpSetVmax(emcmotQueue, emcmotStatus->vel, emcmotStatus->vel);
+    emcmotConfig->vtp->tpSetAmax(emcmotQueue, emcmotStatus->acc);
 
     // the emcmotAltQueue parameters as per above are cloned
     // by tpSnapshot() during switching queues
@@ -1274,7 +1335,7 @@ static int setTrajCycleTime(double secs)
         emcmotConfig->interpolationRate = 1;
 
     /* set traj planner */
-    tpSetCycleTime(emcmotPrimQueue, secs);
+    emcmotConfig->vtp->tpSetCycleTime(emcmotPrimQueue, secs);
 
     /* set the free planners, cubic interpolation rate and segment time */
     for (t = 0; t < num_joints; t++) {
@@ -1317,5 +1378,72 @@ static int setServoCycleTime(double secs)
     /* copy into status out */
     emcmotConfig->servoCycleTime = secs;
 
+    return 0;
+}
+
+static int init_shared(tp_shared_t *tps,
+		       struct emcmot_config_t *cfg,
+		       struct emcmot_status_t *status,
+		       emcmot_debug_t *dbg,
+		       emcmot_joint_t *joint,
+		       emcmot_hal_data_t *hal) // hal not used yet
+{
+    // global module param
+    tps->num_dio = &num_dio;
+    tps->num_aio = &num_aio;
+
+    // from emcmotConfig
+    tps->arcBlendGapCycles = &cfg->arcBlendGapCycles;
+    tps->arcBlendOptDepth = &cfg->arcBlendOptDepth;
+    tps->arcBlendEnable = &cfg->arcBlendEnable;
+    tps->arcBlendRampFreq = &cfg->arcBlendRampFreq;
+    tps->arcBlendFallbackEnable = &cfg->arcBlendFallbackEnable;
+    tps->maxFeedScale = &cfg->maxFeedScale;
+
+    // from emcmotStatus
+    tps->net_feed_scale = &status->net_feed_scale;
+    tps->spindle_direction = &status->spindle.direction;
+    tps->spindle_speed = &status->spindle.speed;
+    tps->spindleRevs = &status->spindleRevs;
+    tps->spindleSpeedIn = &status->spindleSpeedIn;
+    tps->spindle_index_enable = &status->spindle_index_enable;
+    tps->spindle_is_atspeed = &status->spindle_is_atspeed; // or pin
+    tps->spindleSync = &status->spindleSync;
+    tps->current_vel = &status->current_vel;
+    tps->requested_vel = &status->requested_vel;
+    tps->distance_to_go = &status->distance_to_go;
+    tps->enables_new = &status->enables_new;
+    tps->enables_queued = &status->enables_queued;
+    tps->tcqlen = &status->tcqlen;
+
+    tps->dtg[0] = &status->dtg.tran.x;
+    tps->dtg[1] = &status->dtg.tran.y;
+    tps->dtg[2] = &status->dtg.tran.z;
+    tps->dtg[3] = &status->dtg.a;
+    tps->dtg[4] = &status->dtg.b;
+    tps->dtg[5] = &status->dtg.c;
+    tps->dtg[6] = &status->dtg.u;
+    tps->dtg[7] = &status->dtg.v;
+    tps->dtg[8] = &status->dtg.w;
+
+    // from joints array
+    tps->acc_limit[0] = &joint[0].acc_limit;
+    tps->acc_limit[1] = &joint[1].acc_limit;
+    tps->acc_limit[2] = &joint[2].acc_limit;
+
+    tps->vel_limit[0] = &joint[0].vel_limit;
+    tps->vel_limit[1] = &joint[1].vel_limit;
+    tps->vel_limit[2] = &joint[2].vel_limit;
+
+    // from  emcmot_debug_t
+    tps->stepping = &dbg->stepping;
+
+    // M6x pin setters
+    tps->dioWrite = emcmotDioWrite;
+    tps->aioWrite = emcmotAioWrite;
+
+    // rotary setter/getters
+    tps->SetRotaryUnlock = emcmotSetRotaryUnlock;
+    tps->GetRotaryIsUnlocked = emcmotGetRotaryIsUnlocked;
     return 0;
 }

@@ -57,7 +57,7 @@ static const char *command_table[] = {
     "newring","delring","ringdump","ringwrite","ringread",
     "newcomp","newpin","ready","waitbound", "waitunbound", "waitexists",
     "log","shutdown","ping","newthread","delthread",
-	"sleep",
+    "sleep","vtable",
     NULL,
 };
 
@@ -73,7 +73,7 @@ static const char *alias_table[] = {
 
 static const char *show_table[] = {
     "all", "alias", "comp", "pin", "sig", "param", "funct", "thread", "group", "member",
-    "ring", "eps",
+    "ring", "eps","vtable",
     NULL,
 };
 

@@ -15,7 +15,9 @@ loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=3 num_pwm
 loadrt trivkins
 
 # load motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # classicladder for machine logic
 # (load the realtime portion)
