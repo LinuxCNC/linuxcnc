@@ -4,7 +4,9 @@
 # kinematics
 loadrt lineardeltakins
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=lineardeltakins
 
 #loadusr -W rostock
 
@@ -14,12 +16,12 @@ addf motion-controller servo-thread
 
 # create HAL signals for position commands from motion module
 # loop position commands back to motion module feedback
-net J0pos axis.0.motor-pos-cmd => axis.0.motor-pos-fb 
-net J1pos axis.1.motor-pos-cmd => axis.1.motor-pos-fb 
-net J2pos axis.2.motor-pos-cmd => axis.2.motor-pos-fb 
+net J0pos axis.0.motor-pos-cmd => axis.0.motor-pos-fb
+net J1pos axis.1.motor-pos-cmd => axis.1.motor-pos-fb
+net J2pos axis.2.motor-pos-cmd => axis.2.motor-pos-fb
 net Apos axis.3.motor-pos-cmd => axis.3.motor-pos-fb
 
-#setp lineardeltakins.L 190.00 
+#setp lineardeltakins.L 190.00
 #setp lineardeltakins.R  100.00
 setp lineardeltakins.J0off 0.00
 setp lineardeltakins.J1off 0.00

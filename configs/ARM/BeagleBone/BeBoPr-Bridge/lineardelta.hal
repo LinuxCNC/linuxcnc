@@ -16,14 +16,16 @@ loadusr -w ./setup.bridge.sh
 
 # kinematics
 #loadrt trivkins
-loadrt lineardeltakins 
+loadrt lineardeltakins
 
 # settings for delta printer
 setp lineardeltakins.L [MACHINE]CF_ROD
 setp lineardeltakins.R [MACHINE]DELTA_R
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=lineardeltakins
 
 # load low-level drivers
 loadrt hal_bb_gpio output_pins=107,126,217,218,224,226 input_pins=108,109,110,114,117,118
@@ -60,7 +62,7 @@ addf bb_gpio.write                        servo-thread
 addf wcomp.0                              servo-thread
 addf sum2.0                               servo-thread
 addf sum2.1                               servo-thread
-       
+
 
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
@@ -75,7 +77,7 @@ addf sum2.1                               servo-thread
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 
-net emcmot.00.enable <= axis.0.amp-enable-out 
+net emcmot.00.enable <= axis.0.amp-enable-out
 net emcmot.00.enable => [PRUCONF](DRIVER).stepgen.00.enable
 
 
@@ -108,7 +110,7 @@ setp [PRUCONF](DRIVER).stepgen.00.dirpin          0x4D
 # because column C is connected to the X-axis output
 # the bebopr-bridge signal needs to be X-max means P8.9
 net home-x bb_gpio.p8.in-09 => axis.0.home-sw-in
-setp bb_gpio.p8.in-09.invert 1 
+setp bb_gpio.p8.in-09.invert 1
 
 # ################
 # Y [1] Axis = column A
@@ -118,7 +120,7 @@ setp bb_gpio.p8.in-09.invert 1
 newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 
-net emcmot.01.enable <= axis.1.amp-enable-out 
+net emcmot.01.enable <= axis.1.amp-enable-out
 net emcmot.01.enable => [PRUCONF](DRIVER).stepgen.01.enable
 
 
@@ -162,7 +164,7 @@ setp bb_gpio.p8.in-14.invert 1
 newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 
-net emcmot.02.enable <= axis.2.amp-enable-out 
+net emcmot.02.enable <= axis.2.amp-enable-out
 net emcmot.02.enable => [PRUCONF](DRIVER).stepgen.02.enable
 
 
@@ -205,7 +207,7 @@ setp bb_gpio.p8.in-18.invert 1
 newsig emcmot.03.enable bit
 sets emcmot.03.enable FALSE
 
-net emcmot.03.enable <= axis.3.amp-enable-out 
+net emcmot.03.enable <= axis.3.amp-enable-out
 net emcmot.03.enable => [PRUCONF](DRIVER).stepgen.03.enable
 
 
@@ -361,23 +363,23 @@ setp limit1.1.min 0
 
 # PID Parameters for adjusting temperature control
 # Extruder
-#setp pid.0.FF0      0  
-#setp pid.0.FF1      0  
-#setp pid.0.FF2      0  
+#setp pid.0.FF0      0
+#setp pid.0.FF1      0
+#setp pid.0.FF2      0
 setp pid.0.Pgain  0.30
 setp pid.0.Igain  0.00001
 setp pid.0.Dgain  0.9375
 setp pid.0.maxerrorI 1.0
-setp pid.0.bias    0.5  
+setp pid.0.bias    0.5
 setp pid.0.enable   1
 
 # Bed
-#setp pid.1.FF0      0  
-#setp pid.1.FF1      0  
-#setp pid.1.FF2      0  
+#setp pid.1.FF0      0
+#setp pid.1.FF1      0
+#setp pid.1.FF2      0
 setp pid.1.Pgain  1
 setp pid.1.Igain  0.0
 setp pid.1.Dgain  0.0
 setp pid.1.maxerrorI 1.0
-setp pid.1.bias    0.5  
+setp pid.1.bias    0.5
 setp pid.1.enable   1

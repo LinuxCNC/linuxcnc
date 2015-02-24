@@ -31,7 +31,9 @@ loadusr -w ./setup.sh
 loadrt trivkins
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 
 # load low-level drivers
@@ -199,7 +201,7 @@ setp [PRUCONF](DRIVER).stepgen.02.position-scale  [AXIS_2]SCALE
 setp [PRUCONF](DRIVER).stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
-setp [PRUCONF](DRIVER).stepgen.02.control-type    1 
+setp [PRUCONF](DRIVER).stepgen.02.control-type    1
 setp [PRUCONF](DRIVER).stepgen.02.stepinvert      [AXIS_2]STEP_INVERT
 #setp [PRUCONF](DRIVER).stepgen.02.step_type       0
 setp [PRUCONF](DRIVER).stepgen.02.steppin         0x50

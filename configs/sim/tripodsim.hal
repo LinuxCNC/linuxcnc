@@ -8,7 +8,9 @@ setp tripodkins.Cx 5
 setp tripodkins.Cy 7.071
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD tp=tp kins=tripodkins
 # 6 differentiators (for velocity and accel sigs)
 loadrt ddt names=ddt_j0,ddt_j1,ddt_j2,ddt_j0v,ddt_j1v,ddt_j2v
 

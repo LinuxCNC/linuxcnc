@@ -3,7 +3,9 @@
 # kinematics
 loadrt trivkins
 # first load the motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD tp=tp kins=trivkins
 
 # next load I/O drivers.  This retrofit uses three different I/O devices
 #
@@ -405,7 +407,7 @@ net arm-retracted ax5214h.0.in-29
 net arm-extended ax5214h.0.in-30
 # FIXME!!  This sensor is broken, so we are using a delay
 # instead - 2 seconds after the cylinder is actuated, we
-# assume that we have reached the desired position and 
+# assume that we have reached the desired position and
 # set the signal true.  The commented out line below is
 # the proper source for the signal.  But for now, it is
 # driven by classicladder output number 27 (see ladder

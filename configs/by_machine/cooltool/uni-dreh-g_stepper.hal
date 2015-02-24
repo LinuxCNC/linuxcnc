@@ -3,14 +3,16 @@ loadrt trivkins
 # core HAL config file for steppers
 
 # first load the stepper module
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD tp=tp kins=trivkins
 
 loadrt stepgen step_type=0,0,0,0,0,0
 
 # hook its functions to realtime threads
 addf stepgen.capture-position servo-thread
 addf stepgen.update-freq servo-thread
-addf stepgen.make-pulses base-thread 
+addf stepgen.make-pulses base-thread
 
 #add motion controller to the threads
 addf motion-command-handler servo-thread

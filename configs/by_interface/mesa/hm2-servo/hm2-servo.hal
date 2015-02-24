@@ -29,10 +29,12 @@
 loadrt trivkins
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # standard components
-loadrt pid num_chan=3 
+loadrt pid num_chan=3
 
 # only the 7i43 needs this, but it doesnt hurt the others
 loadrt probe_parport
@@ -63,7 +65,7 @@ addf pid.2.do-pid-calcs                    servo-thread
 
 addf hm2_[HOSTMOT2](BOARD).0.write         servo-thread
 addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog  servo-thread
-       
+
 
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
@@ -79,7 +81,7 @@ newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 net emcmot.00.enable => pid.0.enable
 net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.00.enable
-net emcmot.00.enable <= axis.0.amp-enable-out 
+net emcmot.00.enable <= axis.0.amp-enable-out
 
 # encoder feedback
 setp hm2_[HOSTMOT2](BOARD).0.encoder.00.counter-mode 0
@@ -120,7 +122,7 @@ newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 net emcmot.01.enable => pid.1.enable
 net emcmot.01.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.01.enable
-net emcmot.01.enable <= axis.1.amp-enable-out 
+net emcmot.01.enable <= axis.1.amp-enable-out
 
 # encoder feedback
 setp hm2_[HOSTMOT2](BOARD).0.encoder.01.counter-mode 0
@@ -161,7 +163,7 @@ newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 net emcmot.02.enable => pid.2.enable
 net emcmot.02.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.02.enable
-net emcmot.02.enable <= axis.2.amp-enable-out 
+net emcmot.02.enable <= axis.2.amp-enable-out
 
 # encoder feedback
 setp hm2_[HOSTMOT2](BOARD).0.encoder.02.counter-mode 0

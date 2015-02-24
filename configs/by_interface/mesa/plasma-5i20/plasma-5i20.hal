@@ -17,7 +17,9 @@
 loadrt trivkins
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # only the 7i43 needs this, but it doesnt hurt the others
 # loadrt probe_parport
@@ -54,7 +56,7 @@ addf parport.0.write servo-thread
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 
-net emcmot.00.enable <= axis.0.amp-enable-out 
+net emcmot.00.enable <= axis.0.amp-enable-out
 net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.00.enable
 
 
@@ -93,7 +95,7 @@ net both-home-x => axis.0.pos-lim-sw-in
 newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 
-net emcmot.01.enable <= axis.1.amp-enable-out 
+net emcmot.01.enable <= axis.1.amp-enable-out
 net emcmot.01.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.01.enable
 
 
@@ -132,7 +134,7 @@ net both-home-y => axis.1.pos-lim-sw-in
 newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 
-net emcmot.02.enable <= axis.2.amp-enable-out 
+net emcmot.02.enable <= axis.2.amp-enable-out
 net emcmot.02.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.02.enable
 
 
@@ -167,7 +169,7 @@ net both-home-z => axis.2.pos-lim-sw-in
 
 #######################
 # Standard I/O Block - EStop, Etc
-# ############################### 
+# ###############################
 
 # create a signal for the estop loopback
 net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in

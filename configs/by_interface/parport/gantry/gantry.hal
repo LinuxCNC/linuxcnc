@@ -7,7 +7,9 @@ setp gantrykins.joint-1 1
 setp gantrykins.joint-2 2
 setp gantrykins.joint-3 1
 
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=gantrykins
 loadrt probe_parport
 loadrt hal_parport cfg="0x378 out  "
 setp parport.0.reset-time 5000

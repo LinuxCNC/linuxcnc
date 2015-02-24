@@ -1,6 +1,6 @@
 # 5i20 config file for Smithy 622 Mill with Leadshine Drives
 
-# load the hostmot2 driver, this doesnt do anything by itself, 
+# load the hostmot2 driver, this doesnt do anything by itself,
 # it just waits for low-level drivers to register boards
 loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
 
@@ -15,7 +15,9 @@ loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=1 num_pwm
 loadrt trivkins
 
 # load motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # load charge pump
 loadrt charge_pump
@@ -161,7 +163,7 @@ setp hm2_5i20.0.gpio.043.is_output TRUE
 setp hm2_5i20.0.gpio.043.invert_output TRUE
 net M8 hm2_5i20.0.gpio.043.out => iocontrol.0.coolant-flood
 
-# Mist 
+# Mist
 setp hm2_5i20.0.gpio.045.is_output TRUE
 setp hm2_5i20.0.gpio.045.invert_output TRUE
 net M7 hm2_5i20.0.gpio.045.out => iocontrol.0.coolant-mist

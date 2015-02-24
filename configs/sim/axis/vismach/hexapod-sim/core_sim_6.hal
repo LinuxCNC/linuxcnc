@@ -2,7 +2,9 @@
 
 # load RT modules
 loadrt genhexkins
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD num_joints=[TRAJ]AXES tp=tp kins=genhexkins
 loadrt ddt count=9
 
 # add motion controller functions to servo thread

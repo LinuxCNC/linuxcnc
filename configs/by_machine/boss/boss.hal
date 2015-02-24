@@ -6,7 +6,9 @@
 loadrt trivkins
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # PID module, for four PID loops
 loadrt pid num_chan=4
@@ -126,10 +128,10 @@ net aOutput pid.3.output => motenc.0.dac-00-value
 # Encoders.
 #
 # Set feedback scaling from ini file.
-setp motenc.0.enc-01-scale [AXIS_0]INPUT_SCALE 
-setp motenc.0.enc-03-scale [AXIS_1]INPUT_SCALE 
-setp motenc.0.enc-02-scale [AXIS_2]INPUT_SCALE 
-setp motenc.0.enc-00-scale [AXIS_3]INPUT_SCALE 
+setp motenc.0.enc-01-scale [AXIS_0]INPUT_SCALE
+setp motenc.0.enc-03-scale [AXIS_1]INPUT_SCALE
+setp motenc.0.enc-02-scale [AXIS_2]INPUT_SCALE
+setp motenc.0.enc-00-scale [AXIS_3]INPUT_SCALE
 
 # Connect position feedback to PID loop.
 net xPosFb motenc.0.enc-01-position => pid.0.feedback

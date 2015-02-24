@@ -18,7 +18,9 @@ loadusr -w ./setup.bridge.sh
 loadrt trivkins
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 
 # load low-level drivers
@@ -47,7 +49,7 @@ addf limit1.0                             servo-thread
 addf limit1.1                             servo-thread
 addf [PRUCONF](DRIVER).update             servo-thread
 addf bb_gpio.write                        servo-thread
-       
+
 
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
@@ -62,7 +64,7 @@ addf bb_gpio.write                        servo-thread
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 
-net emcmot.00.enable <= axis.0.amp-enable-out 
+net emcmot.00.enable <= axis.0.amp-enable-out
 net emcmot.00.enable => [PRUCONF](DRIVER).stepgen.00.enable
 
 
@@ -101,7 +103,7 @@ setp [PRUCONF](DRIVER).stepgen.00.dirpin          0x4D
 newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 
-net emcmot.01.enable <= axis.1.amp-enable-out 
+net emcmot.01.enable <= axis.1.amp-enable-out
 net emcmot.01.enable => [PRUCONF](DRIVER).stepgen.01.enable
 
 
@@ -140,7 +142,7 @@ setp [PRUCONF](DRIVER).stepgen.01.dirpin          0x4F
 newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 
-net emcmot.02.enable <= axis.2.amp-enable-out 
+net emcmot.02.enable <= axis.2.amp-enable-out
 net emcmot.02.enable => [PRUCONF](DRIVER).stepgen.02.enable
 
 
@@ -179,7 +181,7 @@ setp [PRUCONF](DRIVER).stepgen.02.dirpin          0x51
 newsig emcmot.03.enable bit
 sets emcmot.03.enable FALSE
 
-net emcmot.03.enable <= axis.3.amp-enable-out 
+net emcmot.03.enable <= axis.3.amp-enable-out
 net emcmot.03.enable => [PRUCONF](DRIVER).stepgen.03.enable
 
 
@@ -300,23 +302,23 @@ setp limit1.1.min 0
 
 # PID Parameters for adjusting temperature control
 # Extruder
-#setp pid.0.FF0      0  
-#setp pid.0.FF1      0  
-#setp pid.0.FF2      0  
+#setp pid.0.FF0      0
+#setp pid.0.FF1      0
+#setp pid.0.FF2      0
 setp pid.0.Pgain  0.30
 setp pid.0.Igain  0.00001
 setp pid.0.Dgain  0.9375
 setp pid.0.maxerrorI 1.0
-setp pid.0.bias    0.5  
+setp pid.0.bias    0.5
 setp pid.0.enable   1
 
 # Bed
-#setp pid.1.FF0      0  
-#setp pid.1.FF1      0  
-#setp pid.1.FF2      0  
+#setp pid.1.FF0      0
+#setp pid.1.FF1      0
+#setp pid.1.FF2      0
 setp pid.1.Pgain  1
 setp pid.1.Igain  0.0
 setp pid.1.Dgain  0.0
 setp pid.1.maxerrorI 1.0
-setp pid.1.bias    0.5  
+setp pid.1.bias    0.5
 setp pid.1.enable   1

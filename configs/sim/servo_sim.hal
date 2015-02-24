@@ -4,7 +4,9 @@
 # kinematics
 loadrt trivkins
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 # PID module, for three PID loops
 loadrt pid names=pid_x,pid_y,pid_z
 # 6 differentiators (for velocity and accel sigs),
@@ -138,12 +140,12 @@ setp pid_z.maxoutput [AXIS_2]MAX_VELOCITY
 # NOTE: eventually these will be non-zero values as
 # needed to tune the performance of each axis.  The
 # initial values shown here are extremely conservative
-# to prevent unexpected behavior.  After this file 
+# to prevent unexpected behavior.  After this file
 # has been "executed" by halcmd, the gains can be
 # interactively adjusted using commands like
 # "halcmd setp pid.<channel>.Pgain <value>"
-# Once the axis has been tuned to your satisfaction, 
-# do "halcmd show param | grep pid" to get a listing 
+# Once the axis has been tuned to your satisfaction,
+# do "halcmd show param | grep pid" to get a listing
 # of the tuning parameters, and enter those values here.
 
 # the values below come from the ini
