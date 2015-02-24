@@ -1,0 +1,1591 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-24 22:11+0100\n"
+"PO-Revision-Date: 2015-02-24 23:47+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: mini.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: mini.txt:4
+msgid "= MINI GUI"
+msgstr "= L'interface graphique MINI"
+
+#. type: Plain text
+#: mini.txt:6
+msgid "[[cha:mini-gui]] (((Mini GUI)))"
+msgstr "[[cha:Mini]] (((Mini)))"
+
+#. type: Plain text
+#: mini.txt:8
+msgid "== Introduction"
+msgstr "== Introduction"
+
+#. type: Plain text
+#: mini.txt:10
+msgid ".The Mini Graphical Interface (upon starting)[[fig:startmini]]"
+msgstr ".L'interface graphique Mini[[fig:startminif]]"
+
+#. type: Plain text
+#: mini.txt:12
+msgid "image::images/mini01.png[align=\"center\"]"
+msgstr "image::images/mini01_fr.png[]"
+
+#. type: Plain text
+#: mini.txt:17
+msgid ""
+"Mini was designed to be a full screen graphical interface.  It was first "
+"written for the Sherline(((Sherline))) CNC but is available for anyone to use, "
+"copy, and distribute under the terms of the GPL copyright."
+msgstr ""
+"Mini a été prévu pour être une interface graphique plein écran. Il a été écrit "
+"initialement pour Sherline(((Sherline))) CNC mais est disponible pour ceux qui "
+"veulent l'utiliser, le copier le distribuer selon les termes de la GPL."
+
+#. type: Plain text
+#: mini.txt:24
+msgid ""
+"Rather than popup new windows for each thing that an operator might want to do, "
+"Mini allows you to display these within the regular screen.  Parts of this "
+"chapter are copied from the instructions that were written for that mill by Joe "
+"Martin and Ray Henry.  footnote:[Much of this chapter quotes from a chapter of "
+"the Sherline CNC Operators Manual.]"
+msgstr ""
+"Au lieu d'ouvrir une nouvelle fenêtre pour chaque chose que l'opérateur veux "
+"faire, Mini permet de les afficher toutes dans la même fenêtre. Certaines "
+"parties de ce chapitre sont des copies des instructions écrites par Joe Martin "
+"et Ray Henry. footnote:[La plus grande partie du texte de ce chapitre, a été "
+"tirée du Sherline CNC Operators Manual.]"
+
+#. type: Plain text
+#: mini.txt:26
+msgid "== Screen layout"
+msgstr "== L'écran"
+
+#. type: Plain text
+#: mini.txt:28
+msgid ".Mini Display for a Running LinuxCNC[[fig:runmini]]"
+msgstr ".Affichage de Mini lors du fonctionnement de LinuxCNC[[fig:runminif]]"
+
+#. type: Plain text
+#: mini.txt:30
+msgid "image::images/mini02.png[align=\"center\"]"
+msgstr "image:images/mini_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: mini.txt:36
+msgid ""
+"The Mini screen is laid out in several sections. These include a menu across "
+"the top, a set of main control buttons just below the menu, and two rather "
+"large columns of information that show the state of your machine and allow you "
+"to enter commands or programs."
+msgstr ""
+"L'écran de Mini est visible dans plusieurs sections, voir la figure ci-dessus. "
+"Il inclu une barre de menu, un jeu de boutons de contrôle juste en dessous et "
+"deux larges colonnes d'information montrant l'état de la machine et permettant "
+"à l'opérateur d'entrer des commandes ou des programmes."
+
+#. type: Plain text
+#: mini.txt:39
+msgid ""
+"When you compare starting screen with run screen you will see many differences. "
+"In the second figure"
+msgstr ""
+"Quand on compare <<fig:startminif, entre l'écran d'accueil>> et <<fig:runminif,"
+"l'écran en cours de fonctionnement>>, des différences apparaissent. Sur la "
+"seconde image:"
+
+#. type: Bullet: '* '
+#: mini.txt:45
+msgid "each axis has been homed -- the display numbers are dark green"
+msgstr ""
+"Chaque axe a été référencé sur son origine -- L'affichage de la visu est vert   "
+"sombre"
+
+#. type: Bullet: '* '
+#: mini.txt:45
+msgid "the LinuxCNC mode is auto -- the auto button has a light green background"
+msgstr "LinuxCNC est en mode auto(((Auto))) -- le bouton est vert clair"
+
+#. type: Bullet: '* '
+#: mini.txt:45
+msgid ""
+"the backplotter has been turned on -- backplot is visible in the pop-in window"
+msgstr ""
+"Le parcours d'outil a été activé -- le parcours d'outil est visible dans la "
+"fenêtre"
+
+#. type: Bullet: '* '
+#: mini.txt:45
+msgid "the tool path from the program is showing in the display."
+msgstr ""
+"Le bloc de G-code en cours est en surbrillance blanche sur fond rouge parmi les "
+"lignes défilantes du programme."
+
+#. type: Plain text
+#: mini.txt:48
+msgid ""
+"Once you start working with Mini you will quickly discover how easily it shows "
+"the conditions of the LinuxCNC and allows you to make changes to it."
+msgstr ""
+"Dès le début de l'utilisation de Mini on découvre combien il est facile de "
+"visualiser le fonctionnement de LinuxCNC et d'agir sur lui."
+
+#. type: Plain text
+#: mini.txt:50
+msgid "== Menu Bar"
+msgstr "== Barre de menu"
+
+#. type: Plain text
+#: mini.txt:56
+msgid ""
+"The first row is the menu bar across the top. Here you can configure the screen "
+"to display additional information. Some of the items in this menu are very "
+"different from what you may be accustomed to with other programs. You should "
+"take a few minutes and look under each menu item in order to familiarize "
+"yourself with the features that are there."
+msgstr ""
+"La première ligne est occupée par la barre de menu. Elle permet de configurer "
+"les informations optionnelles que l'écran doit afficher. Certains des items du "
+"menu sont très différents de ce qu'il est coutume de rencontrer avec d'autres "
+"programmes. Il faut prendre quelques minutes pour regarder chaque item du menu "
+"et se familiariser avec les possibilités qu'il offre."
+
+#. type: Plain text
+#: mini.txt:58
+msgid "The menu includes each of the following sections and subsections."
+msgstr "Le menu inclus chacune des sections et sous-sections suivantes."
+
+#. type: Plain text
+#: mini.txt:63
+#, no-wrap
+msgid ""
+"* 'Program' - This menu includes both reset and exit functions. Reset will return\n"
+"    the LinuxCNC to the condition that it was in when it started. Some startup\n"
+"    configuration items like the normal program units can be specified in\n"
+"    the ini file. \n"
+msgstr ""
+"* 'Programme' - ce menu inclus les deux fonctions 'reset' et 'quitter'. Reset renvoie\n"
+"    LinuxCNC dans l'état dans lequel il était quand il à démarré. Certains items\n"
+"    de conditions de démarrage comme les unités du programme peuvent être\n"
+"    spécifiés dans le fichier ini. \n"
+
+#. type: Plain text
+#: mini.txt:66
+#, no-wrap
+msgid ""
+"* 'View' - This menu includes several screen elements that can be added so that\n"
+"    you can see additional information during a run. These include\n"
+msgstr ""
+"* 'Vues' - ce menu inclus plusieurs éléments d'affichage pouvant être ajoutés\n"
+"    pendant qu'un programme s'exécute, pour donner des information\n"
+"    supplémentaires. Ce qui inclus:\n"
+
+#. type: Plain text
+#: mini.txt:72
+#, no-wrap
+msgid ""
+"** 'Position_Type' - This menu item adds a line above the main position displays that\n"
+"        shows whether the displays are in inches or metric and whether \n"
+"        they are Machine or Relative location and if they are \n"
+"        Actual positions or Commanded positions. These can be changed \n"
+"        using the Settings menu described below.\n"
+msgstr ""
+"** 'Type_de_position' - cet item ajoute une ligne, au dessus de l'afficheur principal de\n"
+"        position, qui indique si la position affichée est en coordonnées\n"
+"        machine (absolues) ou en coordonnées pièce (relatives), si la\n"
+"        position affichée est actuelle ou commandée et si l'unité et\n"
+"        le pouce le millimètre. Ce qui peut être modifié en agissant\n"
+"        sur le menu 'Réglages' décrit plus loin.\n"
+
+#. type: Plain text
+#: mini.txt:75
+#, no-wrap
+msgid ""
+"** 'Tool_Info' - This adds a line immediately below the main position displays that\n"
+"        shows which tool has been selected and the length of offset applied.\n"
+msgstr ""
+"** 'Informations_outil' - cet item ajoute une ligne immédiatement sous l'afficheur principal,\n"
+"     elle affiche quel outil est sélectionné et la valeur de l'offset\n"
+"     appliqué.\n"
+
+#. type: Plain text
+#: mini.txt:79
+#, no-wrap
+msgid ""
+"** 'Offset_Info' - adds a line immediately below the tool info that shows what offsets\n"
+"        have been applied. This is a total distance for each axis from\n"
+"        machine zero.\n"
+msgstr ""
+"** 'Informations_offset' - ajoute une ligne immédiatement sous celle des informations outil,\n"
+"        elle affiche les offsets de travail actuellement appliqués. C'est la\n"
+"        distance totale pour chaque axe depuis son point d'origine machine.\n"
+
+#. type: Plain text
+#: mini.txt:85
+#, no-wrap
+msgid ""
+"** 'Show_Restart' - adds a block of buttons to the right of the program display in auto\n"
+"        mode. These allow the operator to restart a program after an abort\n"
+"        or estop. These will pop in whenever estop or abort is pressed but\n"
+"        can be shows by the operator anytime auto mode is active by \n"
+"        selecting this menu item. \n"
+msgstr ""
+"** 'Afficher_Reprise' - ajoute, en mode Auto, un bloc de boutons en bas à droite de\n"
+"        l'affichage du programme. Ces boutons permettent à l'opérateur de\n"
+"        relancer un programme après un A/U ou un Abandon. Le programme est\n"
+"        figé lorsqu'un A/U ou un Abandon est engagé, mais l'opérateur peut ici\n"
+"        choisir le bloc sur lequel redémarrer dans le mode Auto, en activant\n"
+"        cet item de menu.\n"
+
+#. type: Plain text
+#: mini.txt:88
+#, no-wrap
+msgid ""
+"** 'Hide_Restart' - removes the block of buttons that control the restart of a program\n"
+"        that has been aborted or estopped.\n"
+msgstr ""
+"** 'Masquer_Reprise' - enlève le bloc de boutons contrôlant la reprise d'un programme\n"
+"        stoppé par Abandon ou Arrêt d'Urgence.\n"
+
+#. type: Plain text
+#: mini.txt:91
+#, no-wrap
+msgid ""
+"** 'Show_Split_Right' - changes the nature of the right hand column so that it shows both\n"
+"    mode and pop-in information.\n"
+msgstr ""
+"** 'Diviser_la_vue_droite' - modifie la nature de l'affichage de la colonne de\n"
+"        droite pour qu'il montre plus d'informations.\n"
+
+#. type: Plain text
+#: mini.txt:96
+#, no-wrap
+msgid ""
+"** 'Show_Mode_Full' - changes the right hand column so that the mode buttons or displays\n"
+"        fill the entire right side of the screen. In manual mode, running\n"
+"        with mode full you will see spindle and lube control buttons as well as\n"
+"        the motion buttons.\n"
+msgstr ""
+"** 'Afficher_en_mode_complet' - modifie l'affichage de la colonne de droite, soit en mode boutons\n"
+"        et la colonne divisée, soit affichage sur la colonne entière. En mode\n"
+"        manuel et en utilisant ce mode entier, les boutons de la broche et\n"
+"        du lubrifiant sont visibles en plus des boutons de mouvement.\n"
+
+#. type: Plain text
+#: mini.txt:99
+#, no-wrap
+msgid ""
+"** 'Show_Popin_Full' - changes the right hand column so that the popin fills the entire\n"
+"        right side of the screen.\n"
+msgstr ""
+"** 'Afficher_dans_toute_la_fenêtre' - modifie l'affichage dans la colonne de\n"
+"        droite pour qu'elle soit remplie entièrement.\n"
+
+#. type: Plain text
+#: mini.txt:102
+#, no-wrap
+msgid ""
+"* 'Settings' - These menu items allow the operator to control certain parameters\n"
+"    during a run.\n"
+msgstr ""
+"* 'Réglages' - Les items de ce menu permettent à l'opérateur de contrôler certains\n"
+"    paramètres en cours d'usinage.\n"
+
+#. type: Plain text
+#: mini.txt:104
+#, no-wrap
+msgid "** 'Actual_Position' - sets the main position displays to actual(machine based) values.\n"
+msgstr ""
+"** 'Position_Actuelle' - régle l'afficheur principal sur des valeurs de position actuelle\n"
+"        (basées sur la machine).\n"
+
+#. type: Plain text
+#: mini.txt:107
+#, no-wrap
+msgid ""
+"** 'Commanded_Position' - sets the main position displays to the values that they were\n"
+"        commanded to. \n"
+msgstr ""
+"** Position_Commandée' - régle l'afficheur principal sur des valeurs de position commandée\n"
+"        (positions cibles).\n"
+
+#. type: Plain text
+#: mini.txt:110
+#, no-wrap
+msgid ""
+"** 'Machine_Position' - sets the main position displays to the absolute distance from where\n"
+"        the machine was homed.\n"
+msgstr ""
+"** 'Position_Machine' - régle l'afficheur principal sur des valeurs de position absolue,\n"
+"        distance depuis le point d'origine machine.\n"
+
+#. type: Plain text
+#: mini.txt:114
+#, no-wrap
+msgid ""
+"** 'Relative_Position' - sets the main position displays to show the current position\n"
+"        including any offsets like part zeros that are active. For more \n"
+"        information on offsets see the chapter on coordinate systems.\n"
+msgstr ""
+"** 'Position_Relative' - règle l'affichage principal pour qu'il affiche les valeurs de la\n"
+"        position courante en incluant tous les offsets comme les origines\n"
+"        pièces qui seraient actives. Pour plus de détails voir le chapitre\n"
+"        sur les 'Systèmes de coordonnées'.\n"
+
+#. type: Plain text
+#: mini.txt:117
+#, no-wrap
+msgid ""
+"* 'Info' - lets you see a number of active things by writing their values into\n"
+"    the MESSAGE pad.\n"
+msgstr "* 'Informations' - Indique diverses activités en affichant des valeurs dans la zone MESSAGES.\n"
+
+#. type: Plain text
+#: mini.txt:119
+#, no-wrap
+msgid "** 'Program_File' - will write the currently active program file name.\n"
+msgstr "** 'Fichier_programme' - Indique le nom du fichier programme actif.\n"
+
+#. type: Plain text
+#: mini.txt:122
+#, no-wrap
+msgid ""
+"** 'Editor_File' - will write the currently active file if the editor pop in is active\n"
+"        and a file has been selected for editing.\n"
+msgstr ""
+"** 'Éditeur_de_Fichiers' - Indique le nom de l'éditeur de texte lancé quand un fichier est\n"
+"     choisi pour être édité.\n"
+
+#. type: Plain text
+#: mini.txt:126
+#, no-wrap
+msgid ""
+"** 'Parameter_File' - will write the name of the file being used for program\n"
+"        parameters. You can find more on this in the chapters on offsets \n"
+"        and using variables for programming. \n"
+msgstr ""
+"** 'Fichier_de_paramètres' - Indique le nom du fichier devant être utilisé pour enregistrer les\n"
+"        paramètres du programme. Il est possible d'avoir plus d'informations\n"
+"        dans le chapitre sur les offsets et l'utilisation des paramètres\n"
+"        dans les programmes.\n"
+
+#. type: Plain text
+#: mini.txt:129
+#, no-wrap
+msgid ""
+"** 'Tool_File' - will write the name of the tool file that is being used during\n"
+"    this run.\n"
+msgstr "** 'Fichiers_d'outils' - Indique le nom du fichier d'outils utilisé pour l'usinage en cours.\n"
+
+#. type: Plain text
+#: mini.txt:133
+#, no-wrap
+msgid ""
+"** 'Active_G-Codes' - will write a list of all of the modal program codes that are active\n"
+"        whenever this item is selected. For more information about modal\n"
+"        codes see the introductory part programming chapter.\n"
+msgstr ""
+"** 'G-Codes_actifs' - Indique la liste des G-codes modaux actifs au moment ou cet item\n"
+"        a été sélectionné. Pour plus d'informations sur les codes modaux, se\n"
+"        reporter aux chapitres sur la programmation.\n"
+
+#. type: Bullet: '* '
+#: mini.txt:135
+msgid ""
+"'Help' - opens a text window pop in that displays the contents of the help file."
+msgstr "'Aide' - Ouvre une fenêtre de texte contenant un fichier d'aide."
+
+#. type: Plain text
+#: mini.txt:142
+msgid ""
+"You will notice between the info menu and the help menu there are a set of four "
+"buttons. These are called check buttons because they have a small box that "
+"shows red if they have been selected. These four buttons, Editor, Backplot, "
+"Tools, and Offsets pop in each of these screens. If more than one pop-in is "
+"active (button shown as red) you can toggle between these pop-ins by right "
+"clicking your mouse."
+msgstr ""
+"Noter que entre le menu informations et le menu d'aide il y a un jeu de quatre "
+"cases à cocher. Elles sont appelées cases sélectionnables car elles passent au "
+"rouge si elles sont sélectionnées. Ces quatre cases, Éditeur, Parcours d'outil, "
+"Outils et Offsets activent les différents écrans. Si plus d'une de ces cases "
+"est validée (case en rouge) il est possible de passer de l'un à l'autre des "
+"écrans surgissant par un clic droit de la souris."
+
+#. type: Plain text
+#: mini.txt:144
+msgid "== Control Button Bar"
+msgstr "== Barre de boutons de contrôle"
+
+#. type: Plain text
+#: mini.txt:150
+msgid ""
+"Below the menu line is a horizontal line of control buttons. These are the "
+"primary control buttons for the interface. Using these buttons you can change "
+"mode from [MANUAL] to [AUTO] to [MDI] (Manual Data Input).  These buttons show "
+"a light green background whenever that mode is active."
+msgstr ""
+"Sous la ligne de menu se trouve une ligne de boutons de contrôle. Ce sont les "
+"boutons principaux de l'interface. En utilisant ces boutons ilest possible de "
+"changer de mode cycliquement entre 'MANUEL' puis 'AUTO' puis MDI (Manual Data "
+"Input). Ces boutons ont un fond vert clair quand le mode correspondant est "
+"actif."
+
+#. type: Plain text
+#: mini.txt:153
+msgid ""
+"You can also use the [FEEDHOLD], [ABORT], and [ESTOP] buttons to control a "
+"programmed move."
+msgstr ""
+"Il est également possible d'utiliser les boutons 'VITESSE-0', 'ABANDON' et 'A/"
+"U' pour contrôler le programme."
+
+#. type: Plain text
+#: mini.txt:155
+msgid "=== MANUAL (((Manual)))"
+msgstr "=== MANUEL (((Manuel)))"
+
+#. type: Plain text
+#: mini.txt:164
+msgid ""
+"This button or pressing <F3> sets the LinuxCNC to Manual mode and displays an "
+"abbreviated set of buttons the operator can use to issue manual motion "
+"commands. The labels of the jog buttons change to match the active axis. "
+"Whenever Show_Mode_Full is active in in manual mode, you will see spindle and "
+"lube control buttons as well as the motion buttons. A keyboard <i> or <I> will "
+"switch from continuous jog to incremental jog. Pressing that key again will "
+"toggle the increment size through the available sizes."
+msgstr ""
+"Ce bouton, ou la touche <F3> placent LinuxCNC en mode Manuel et affiche un jeu "
+"condensé de boutons que l'opérateur peut utiliser pour effectuer des commandes "
+"de mouvements manuels. Les labels des boutons de jog varient pour refléter "
+"l'axe actif. Quand en plus de ce mode manuel, la vue en mode complet est "
+"activée, les boutons de la broche et du lubrifiant sont visibles en plus de "
+"ceux de mouvement. La touche <i> ou <I> basculera entre jog en continu et jog "
+"par incréments. Presser cette touche plusieurs fois provoquera le changement "
+"cyclique de la taille de l'incrément de jog."
+
+#. type: Plain text
+#: mini.txt:166
+msgid ".Manual Mode Buttons[[cap:Manual-Mode-Buttons]]"
+msgstr ".Boutons du mode Manuel"
+
+#. type: Plain text
+#: mini.txt:168
+msgid "image::images/miniman.png[align=\"center\"]"
+msgstr "image::images/miniman_fr.png[]"
+
+#. type: Plain text
+#: mini.txt:176
+msgid ""
+".From the Sherline CNC Operators Manual: "
+"*********************************************************************** A "
+"button has been added to designate the present position as the home position. "
+"We felt that a machine of this type (Sherline 5400) would be simpler to operate "
+"if it didn't use a machine home position.  This button will zero out any "
+"offsets and will home all axes right where they are."
+msgstr ""
+".Provenant du manuel utilisateur de Sherline CNC:\n"
+"****\n"
+"Un bouton à été ajouté pour désigner la position actuelle comme étant la "
+"position d'origine. Une machine simple telle que la Sherline 5400 serait facile "
+"à utiliser sans avoir de position d'origine. Ce bouton met les offsets de tous "
+"les axes à zéro et place l'origine de tous les axes au point courant."
+
+#. type: Plain text
+#: mini.txt:188
+msgid ""
+"Axis focus is important here. Notice in <<fig:startmini,startup figure>> that "
+"in manual mode you see a line or 'groove' around the X axis to highlight its "
+"position display. This groove says that X is the active axis. It will be the "
+"target for jog moves made with the 'plus' and 'minus' jog buttons. You can "
+"change axis focus by clicking on any other axis display. You can also change "
+"axis focus in manual mode if you press its name key on your keyboard. Case is "
+"not important here.  [Y] or [y] will shift the focus to the Y axis. [A] or [a] "
+"will shift the focus to the A axis. To help you remember which axis will jog "
+"when you press the jog buttons, the active axis name is displayed on them."
+msgstr ""
+"Ce concentrer sur les axes est important ici. Noter que sur la capture <<fig:"
+"startminif,du début de chapitre>> qui est en mode manuel, on voit un cadre "
+"autour de l'axe X pour mettre son affichage en évidence. Ce cadre (le focus) "
+"indique que l'axe X est l'axe actif. Il est l'axe cible pour les mouvements de "
+"jog faits par appui sur les boutons 'plus' ou 'moins'. Il est possible de "
+"changer l'axe actif en cliquant sur l'affichage d'un autre axe. C'est également "
+"possible en mode manuel en pressant la touche de son nom sur le clavier. La "
+"casse n'a pas d'importance [Y] ou [y] donneront le focus à l'axe Y. [A] ou [a] "
+"le donneront à l'axe A. Pour aider à se rappeler quel est l'axe actif avant de "
+"faire un jog, son nom est indiqué sur les boutons de jog."
+
+#. type: Plain text
+#: mini.txt:204
+msgid ""
+"LinuxCNC can jog (move a particular axis) as long as you hold the button down "
+"when it is set for 'continuous', or it can jog for a preset distance when it is "
+"set for 'incremental'. You can also jog the active axis by pressing the plus "
+"[+] or minus [-] keys on the keyboard. Again, case is not important for "
+"keyboard jogs. The two small buttons between the large jog buttons let you set "
+"which kind of jog you want. When you are in incremental mode, the distance "
+"buttons come alive. You can set a distance by pressing it with the mouse. You "
+"can toggle between distances by pressing [i] or [I] on the keyboard. "
+"Incremental jog has an interesting and often unexpected effect. If you press "
+"the jog button while a jog is in progress, it will add the distance to the "
+"position it was at when the second jog command was issued. Two one-inch jog "
+"presses in close succession will not get you two inches of movement. You have "
+"to wait until the first one is complete before jogging again."
+msgstr ""
+"LinuxCNC peut faire un jog (mouvement d'un axe particulier) aussi longtemps que "
+"le bouton est maintenu pressé, si le jog est réglé sur 'continu', ou il peut se "
+"déplacer d'une valeur prédéfinie, quand il est réglé sur 'incréments'. Il est "
+"aussi possible de faire un jog de l'axe actif en pressant les touches [+] ou "
+"moins [-] du clavier. De nouveau, la casse n'a pas d'importance pour les jogs "
+"au clavier. Les deux petits boutons situés entre les deux gros du jog, "
+"permettent de choisir quel type de jog est souhaite. Quand on est en mode "
+"incréments, les boutons de taille d'incréments sont accessibles. La sélection "
+"d'une taille d'incrément se fait par clic sur la case à cocher avec la souris "
+"ou cycliquement en pressant la touche [i] ou [I] sur le clavier. Le jog par "
+"incréments présente quelques effets intéressants autant qu'inattendus. Si vous "
+"pressez le bouton de jog alors qu'un mouvement de jog est déjà en cours, la "
+"distance à laquelle il était lorsque est arrivée la commande du second jog, "
+"sera ajoutée à la position. Deux pressions successives rapides de 10mm "
+"d'incrément ne donneront pas 20mm de mouvement. Vous devez attendre que le "
+"premier soit terminé avant d'envoyer le second."
+
+#. type: Plain text
+#: mini.txt:214
+msgid ""
+"Jog speed is displayed above the slider. It can be set using the slider by "
+"clicking in the slider's open slot on the side you want it to move toward, or "
+"by clicking on the [Default] or [Rapid] buttons.  This setting only affects the "
+"jog move while in manual mode. Once a jog move is initiated, jog speed has no "
+"effect on the jog. As an example of this, say you set jog mode to 'incremental' "
+"and the increment to 1 inch. Once you press the [Jog] button it will travel "
+"that inch at the rate at which it started.  "
+"***********************************************************************"
+msgstr ""
+"La vitesse de jog est affichée au dessus du curseur. Il est possible de régler "
+"le curseur en cliquant dans la glissière du curseur, du côté où vous voulez son "
+"déplacement, ou en cliquant sur les boutons 'Défaut' ou 'Rapide'. Ces réglages "
+"n'affectent que les mouvements de jog en mode manuel. Tant qu'un mouvement de "
+"jog est en cours, un changement de la vitesse de jog est sans effet sur le jog. "
+"Par exemple, disons que vous avez réglé le jog par incréments de 10mm. Même si "
+"vous pressez le bouton Jog, le déplacement de dix millimètres se finira à la "
+"vitesse à laquelle il a commencé.\n"
+"****"
+
+#. type: Plain text
+#: mini.txt:216
+msgid "=== AUTO (((Auto)))"
+msgstr "=== AUTO (((Auto)))"
+
+#. type: Plain text
+#: mini.txt:222
+msgid ""
+"When the Auto button is pressed, or <F4> on the keyboard, and LinuxCNC is set "
+"to that mode, a set of the traditional auto operation buttons is displayed, and "
+"a small text window opens to show a part program.  During run the active line "
+"will be displayed as white lettering on a red background."
+msgstr ""
+"Quand le bouton Auto est pressé, ou <F4> sur le clavier, LinuxCNC passe dans ce "
+"mode, un jeu de boutons traditionnels des opérations en auto est affiché et une "
+"petite fenêtre textuelle s'ouvre, montrant une partie du programme. Durant un "
+"usinage, la ligne active est affichée en surbrillance blanche sur fond rouge."
+
+#. type: Plain text
+#: mini.txt:227
+msgid ""
+"In the auto mode, many of the keyboard keys are bound to controls.  For "
+"example, the numbers above the qwerty keys are bound to feed rate override. The "
+"0 sets 100%, 9 sets 90% and such. Other keys work much the same as they do with "
+"the tkLinuxCNC graphical interface."
+msgstr ""
+"Dans le mode auto, beaucoup de touches sont liées aux contrôles. Par exemple, "
+"les touches numérotées au dessus du clavier sont liées aux réglages du "
+"correcteur de vitesse d'avance travail. Le <0> l'ajuste à 100%, le <9> l'ajuste "
+"à 90% etc. D'autres touches fonctionnent de la même manière qu'avec l'interface "
+"TkLinuxCNC."
+
+#. type: Plain text
+#: mini.txt:229
+msgid ".Auto Mode[[cap:Auto-Mode]]"
+msgstr ".Mode Auto"
+
+#. type: Plain text
+#: mini.txt:231
+msgid "image::images/miniauto.png[align=\"center\"]"
+msgstr "image::images/miniauto_fr.png[]"
+
+#. type: Plain text
+#: mini.txt:235
+msgid ""
+"Auto mode does not normally display the active or modal codes. If the operator "
+"wishes to check these, use menu Info→Active_G-Codes. This will write all modal "
+"codes onto the message scratch pad."
+msgstr ""
+"Le mode Auto n'affiche normalement pas les G-codes actifs ou modaux. Si "
+"l'opérateur veut les voir, il doit utiliser le menu 'Informations' → 'G-codes "
+"actifs' et afficher ainsi la liste des codes modaux dans la zone de texte "
+"MESSAGES."
+
+#. type: Plain text
+#: mini.txt:242
+msgid ""
+"If abort or estop is pressed during a run, a set of buttons will display to the "
+"right of the text that allow the operator to shift the restart line forward or "
+"backward. If the restart line is not the last active line, it will be "
+"highlighted as white letters on a blue background. Caution, a very slow feed "
+"rate, and a finger poised over the pause button is advised during any program "
+"restart."
+msgstr ""
+"Si un Arrêt d'Urgence ou un Abandon est pressé pendant un usinage, un jeu de "
+"boutons s'affiche en bas et à droite, ils permettent à l'opérateur de décaler "
+"la ligne de reprise vers l'avant ou vers l'arrière. Si la ligne de reprise "
+"n'est pas la dernière ligne active, elle sera mise en surbrillance blanche sur "
+"fond bleu. ATTENTION, une vitesse très faible et un doigt collé sur le bouton "
+"de pause est prudent pendant toute reprise de programme!"
+
+#. type: Plain text
+#: mini.txt:265
+msgid ""
+".From the Sherline CNC Operators Manual: "
+"*********************************************************************** The "
+"real heart of CNC machine tool work is the auto mode. Sherline's auto mode "
+"displays the typical functions that people have come to expect from LinuxCNC. "
+"Along the top are a set of buttons which control what is happening in auto "
+"mode. Below them is the window that shows the part of the program currently "
+"being executed. As the program runs, the active line shows in white letters on "
+"a red background. The first three buttons, [Open], [Run], and [Pause] do about "
+"what you'd expect.  [Pause] will stop the run right where it is. The next "
+"button, [Resume], will restart motion. They are like feedhold if used this way. "
+"Once [Pause] is pressed and motion has stopped, [Step] will resume motion and "
+"continue it to the end of the current block. Press [Step] again to get the "
+"motion of the next block. Press [Resume] and the interpreter goes back to "
+"reading ahead and running the program. The combination of [Pause] and [Step] "
+"work a lot like single block mode on many controllers. The difference is that "
+"[Pause] does not let motion continue to the end of the current block. Feed rate "
+"Override ... can be very handy as you approach a first cut. Move in quickly at "
+"100 percent, throttle back to 10% and toggle between [Feedhold] and 10% using "
+"the pause button. When you are satisfied that you've got it right, hit the zero "
+"to the right of nine (feedrate=100%) and go."
+msgstr ""
+".Provenant du manuel utilisateur de Sherline CNC:\n"
+"****\n"
+"Ce qui est le mieux avec une machine CNC, c'est le mode auto. Le mode auto "
+"affiche les fonctions typiques que tout le monde espère utiliser avec LinuxCNC. "
+"Au dessus de la fenêtre un jeu de boutons qui contrôlent ce qui se passe en "
+"mode auto. En dessous, la fenêtre montrant la partie du programme en cours "
+"d'exécution. Quand le programme est lancé, la ligne active s'affiche en "
+"surbrillance blanche sur fond rouge. Les trois premiers boutons, [Ouvrir], "
+"[Lancer] et [Pause] font ce que leurs noms indiquent. [Pause] stoppe le "
+"programme en cours d'exécution là où il est. Le bouton suivant, [Reprise], "
+"reprend le mouvement. Le résultat est le même si le bouton [Vitesse-0] était "
+"pressé au lieu du bouton [Pause], le mouvement est stoppé, [Pas à pas] reprend "
+"aussi le mouvement, mais il ne continue que jusqu'à la fin du bloc courant. "
+"Presser une nouvelle fois [Pas à pas] exécutera le mouvement du bloc suivant. "
+"Presser [Reprise] à ce moment là et l'interpréteur reviendra en arrière lire et "
+"relancer le programme. La combinaison entre [Pause] et [Pas à pas] marche un "
+"peu comme un seul bloc dans plusieurs interpréteurs. Avec la différence que "
+"[Pause] ne laisse pas le mouvement se poursuivre jusqu'à la fin du bloc "
+"courant. Le correcteur de vitesse d'avance travail peut se révéler très "
+"pratique pour s'approcher de la matière pour un premier usinage. Le placer sur "
+"100% pour les déplacements rapides, le régler sur 10% et basculez entre "
+"[Vitesse-0] et 10% en utilisant le bouton [Pause]. Quand vous êtes satisfait et "
+"que les choses se présentent bien, pressez le zéro à la  droite du neuf en haut "
+"du clavier, et c'est parti."
+
+#. type: Plain text
+#: mini.txt:277
+msgid ""
+"The [Verify] button runs the interpreter through the code without initiating "
+"any motion. If Verify finds a problem it will stop the read near the problem "
+"block and put up some sort of message. Most of the time you will be able to "
+"figure out the problem with your program by reading the message and looking in "
+"the program window at the highlighted line. Some of the messages are not very "
+"helpful.  Sometimes you will need to read a line or two ahead of the highlight "
+"to see the problem. Occasionally the message will refer to something well ahead "
+"of the highlight line. This often happens if you forget to end your program "
+"with an acceptable code like %, M2, M30, or M60.  "
+"***********************************************************************"
+msgstr ""
+"Le bouton [Vérifier] passe le code dans l'interpréteur sans production de "
+"mouvements. Si Vérifier trouve un problème il stoppe la lecture juste derrière "
+"le bloc posant problème et affiche un message. La plupart du temps vous serez "
+"en mesure de régler le problème avec votre programme par la lecture du message "
+"et en vérifiant la ligne de code en surbrillance dans la fenêtre du programme. "
+"Certains messages,toutefois, ne sont pas d'un grand secours. Parfois vous "
+"devrez lire une ou deux lignes en avant de celle en surbrillance pour voir le "
+"problème. Occasionnellement le message fait référence à quelque chose très en "
+"avant de la ligne en surbrillance. Le plus souvent ça se produit si vous "
+"oubliez de terminer votre programme par un code correct comme %, M2, M30, ou "
+"M60.\n"
+"****"
+
+#. type: Plain text
+#: mini.txt:280
+msgid "=== MDI"
+msgstr "=== MDI"
+
+#. type: Plain text
+#: mini.txt:284
+msgid ""
+"The MDI button or <F5> sets the Manual Data Input mode. This mode displays a "
+"single line of text for block entry and shows the currently active modal codes "
+"for the interpreter."
+msgstr ""
+"Le bouton MDI ou la touche <F5> activent le mode d'entrée de données en manuel "
+"(Manual Data Input). Ce mode affiche un simple champ de saisie d'une ligne de "
+"texte et montre les codes modaux actuellement actifs dans l'interpréteur."
+
+#. type: Plain text
+#: mini.txt:300
+msgid ""
+".From the Sherline CNC Operators Manual: "
+"*********************************************************************** MDI "
+"mode allows you to enter single blocks and have the interpreter execute them as "
+"if they were part of a program (kind of like a one-line program). You can "
+"execute circles, arcs, lines and such. You can even test sets of program lines "
+"by entering one block, waiting for that motion to end, and then enter the next "
+"block. Below the entry window, there is a listing of all of the current modal "
+"codes. This listing can be very handy. I often forget to enter a g00 before I "
+"command a motion.  If nothing happens I look down there to see if g80 is in "
+"effect. G80 stops any motion. If it's there I remember to issue a block like "
+"g00 x0 y0 z0. In MDI you are entering text from the keyboard so none of the "
+"main keys work for commands to the running machine. [F1] will Estop the "
+"control.  "
+"***********************************************************************"
+msgstr ""
+".Provenant du manuel utilisateur de Sherline CNC:\n"
+"****\n"
+"Le mode MDI vous permet d'entrer de simples blocs et de les faire exécuter par "
+"l'interpréteur comme si ils étaient une partie d'un programme (Une sorte de "
+"programme d'une seule ligne). Vous pouvez exécuter des cercles, des arcs, des "
+"lignes et autres. Vous pouvez aussi mettre au point une ligne de programme en "
+"entrant cette ligne comme un seul bloc, attendre que le mouvement se termine et "
+"entrer le bloc suivant. Sous la fenêtre d'entrée, se trouve une liste des codes "
+"modaux courants. Cette liste peut être très pratique. J'oublie parfois d'entrer "
+"un G0 avant une commande de mouvement. Si rien ne se passe je regarde dans la "
+"liste si G80 est actif. G80 stoppe tous les mouvements. Si il y est je me "
+"rappelle de mettre un bloc comme G00 X0 Y0 Z0. Dans le MDI, vous entrez du "
+"texte depuis le clavier, ainsi toutes les touches principales ne fonctionnent "
+"pas comme raccourcis clavier pour les commandes machine. [F1] engage l'Arrêt "
+"d'Urgence.\n"
+"****"
+
+#. type: Plain text
+#: mini.txt:303
+msgid ""
+"Since many of the keyboard keys are needed for entry, most of the bindings that "
+"were available in auto mode are not available here."
+msgstr ""
+"Puisque les touches du clavier sont nécessaires à la saisie du texte, beaucoup "
+"des raccourcis clavier disponibles en mode auto ne le sont pas ici."
+
+#. type: Plain text
+#: mini.txt:305
+msgid "=== [FEEDHOLD] -- [CONTINUE]"
+msgstr "=== VITESSE-0 et CONTINUER"
+
+#. type: Plain text
+#: mini.txt:314
+msgid ""
+"Feedhold is a toggle. When the LinuxCNC is ready to handle or is handling a "
+"motion command this button shows the feedhold label on a red background. If "
+"feedhold has been pressed then it will show the continue label. Using it to "
+"pause motion has the advantage of being able to restart the program from where "
+"you stopped it. Feedhold will toggle between zero speed and whatever feed rate "
+"override was active before it was pressed. This button and the function that it "
+"activates is also bound to the pause button on most keyboards."
+msgstr ""
+"Vitesse-0 est une bascule. Quand LinuxCNC est prêt pour exécuter, ou qu'il "
+"exécute une commande de mouvement, ce bouton affiche son label VITESSE-0 sur "
+"fond rouge. Si Vitesse-0 a été pressé il affiche le label CONTINUER. Utiliser "
+"ce bouton pour faire une pause dans un mouvement présente l'avantage d'être "
+"capable de relancer le programme d'où il a été stoppé. Vitesse-0 bascule "
+"simplement entre vitesse zéro et la vitesse d'avance travail avec l'éventuel "
+"correcteur qui était actif au moment de l'arrêt. Ce bouton et la fonction qu'il "
+"active sont également liés à la touche pause de la plupart des claviers."
+
+#. type: Plain text
+#: mini.txt:316
+msgid "=== [ABORT]"
+msgstr "=== ABANDON"
+
+#. type: Plain text
+#: mini.txt:324
+msgid ""
+"The abort button stops any motion when it is pressed. It also removes the "
+"motion command from the LinuxCNC. No further motions are cued up after this "
+"button is pressed. If you are in auto mode, this button removes the rest of the "
+"program from the motion cue. It also records the number of the line that was "
+"executing when it was pressed. You can use this line number to restart the "
+"program after you have cleared up the reasons for pressing it."
+msgstr ""
+"Le bouton Abandon stoppe tous les mouvements quand il est pressé. Il désactive "
+"aussi la commande de marche de LinuxCNC. Plus aucun mouvement ne survient après "
+"l'appui sur ce bouton. Si vous êtes en mode auto, ce bouton enlève le reste du "
+"programme du planificateur de mouvements. Il enregistre aussi le numéro de la "
+"ligne qui s'exécutait quand il a été pressé. Vous pouvez vous servir de ce "
+"numéro de ligne pour redémarrer le programme après avoir supprimé la raison de "
+"l'appui..."
+
+#. type: Plain text
+#: mini.txt:326
+msgid "=== [ESTOP]"
+msgstr "=== Arrêt d'Urgence"
+
+#. type: Plain text
+#: mini.txt:329
+msgid "The estop button is also a toggle but it works in three possible settings."
+msgstr ""
+"Le bouton d'Arrêt d'Urgence est une bascule mais il a trois fonctionnements "
+"possibles."
+
+#. type: Plain text
+#: mini.txt:343
+#, no-wrap
+msgid ""
+" -  When Mini starts up it will show a raised button with red background\n"
+"   with black letters that say 'ESTOP PUSH'. This is the correct state of\n"
+"   the machine when you want to run a program or jog an axis. Estop is\n"
+"   ready to work for you when it looks like this.\n"
+" -  If you push the estop button while a motion is being executed, you\n"
+"   will see a recessed gray button that says 'ESTOPPED'. You will not be\n"
+"   able to move an axis or do any work from the Mini gui when the estop\n"
+"   button displays this way. Pressing it with your mouse will return Mini\n"
+"   to normal ready condition.\n"
+" -  A third view is possible here. A recessed green button means that\n"
+"   estop has been take off but the machine has not been turned on.\n"
+"   Normally this only happens when <F1> estop has been pressed but <F2>\n"
+"   has not been pressed.\n"
+msgstr ""
+" -  Au démarrage de Mini c'est un bouton avec le texte A/U écrit en noir\n"
+"   sur fond rouge. C'est état de la machine est correct pour charger un\n"
+"   programme ou faire un jog sur un axe. L'Arrêt d'Urgence est libéré\n"
+"   quand il s'affiche dans cet état.\n"
+" -  Si vous pressez sur le bouton d'Arrêt d'Urgence pendant qu'un\n"
+"   mouvement est exécuté, le texte sur le bouton devient 'A/U Engagé' sur\n"
+"   fond gris et le bouton s'enfonce. Plus aucun mouvement n'est possible\n"
+"   et plus rien ne réagi sur l'interface Mini tant que l'Arrêt d'Urgence\n"
+"   est dans cet état. Le presser à nouveau à la souris le fera repasser en\n"
+"   conditions normales de fonctionnement.\n"
+" -  Un troisième état est encore possible. Un bouton enfoncé portant le\n"
+"   texte 'A/U Libéré' sur fond vert signifie que l'A/U a bien été libéré\n"
+"   mais que la machine n'a pas été mise en marche. Normalement cet état\n"
+"   apparaît quand l'A/U était libéré mais que la touche Marche Machine\n"
+"   <F2> a été pressée.\n"
+
+#. type: Plain text
+#: mini.txt:349
+msgid ""
+"Joe Martin says, \"When all else fails press a software [ESTOP].\" This does "
+"everything that abort does but adds in a reset so that the LinuxCNC returns to "
+"the standard settings that it wakes up on. If you have an external estop "
+"circuit that watches the relevant parallel port or DIO pin, a software estop "
+"can turn off power to the motors."
+msgstr ""
+"Joe Martin disait, \"Quand tout le reste a échoué, pressez un Arrêt d'Urgence "
+"software\". Si vous avez un circuit externe qui gère l'A/U en surveillant une "
+"broche du port parallèle ou celle d'une carte d'entrées/sorties, un arrêt "
+"d'urgence software pourra couper la puissance sur les moteurs."
+
+#. type: Plain text
+#: mini.txt:366
+msgid ""
+".From the Sherline CNC Operators Manual: "
+"*********************************************************************** Most of "
+"the time, when we abort or E-Stop it's because something went wrong. Perhaps we "
+"broke a tool and want to change it. We switch to manual mode and raise the "
+"spindle, change tools, and assuming that we got the length the same, get ready "
+"to go on. If we return the tool to the same place where the abort was issued, "
+"LinuxCNC will work perfectly.  It is possible to move the restart line back or "
+"ahead of where the abort happened. If you press the [Back] or [Ahead] buttons "
+"you will see a blue highlight that shows the relationship between the abort "
+"line and the one on which LinuxCNC will start up again. By thinking through "
+"what is happening at the time of the restart you can place the tool tip where "
+"it will resume work in an acceptable manner. You will need to think through "
+"things like tool offsets, barriers to motion along a diagonal line, and such, "
+"before you press the [Restart] button.  "
+"***********************************************************************"
+msgstr ""
+".Provenant du manuel utilisateur de Sherline CNC:\n"
+"****\n"
+"La plupart du temps, quand un Abandon ou un Arrêt d'Urgence est engagé c'est "
+"parce que quelque chose se passe mal. Peut être un outil cassé et qui doit être "
+"changé. On passe alors en mode manuel et on arrête la broche, on change l'outil "
+"et en supposant que sa longueur reste la même, on est prêt pour relancer le "
+"programme. Si on renvoie l'outil à la même place ou il était avant, LinuxCNC va "
+"fonctionner parfaitement. Il est aussi possible de se déplacer sur la ligne "
+"suivante ou précédente de celle ou c'est produit l'abandon. Si vous pressez le "
+"bouton [Arrière] ou [Avant] vous voyez une ligne en surbrillance bleue montrant "
+"l'écart entre la ligne sur laquelle l'abandon s'est produit (restée en "
+"surbrillance rouge) et la ligne à laquelle LinuxCNC va redémarrer. En "
+"réfléchissant à ce qui va se produire au moment de la reprise vous serez en "
+"mesure de placer l'arête de l'outil là où la reprise pourra se faire de manière "
+"acceptable. Vous aurez peut être à solutionner certaines difficultés comme "
+"celles créées par les compensations de rayon d'outil le long d'une ligne "
+"diagonale et vous devrez être sûr de vous avant de presser sur le bouton "
+"[Reprise].\n"
+"****"
+
+#. type: Plain text
+#: mini.txt:368
+msgid "== Left Column"
+msgstr "== Colonne de gauche"
+
+#. type: Plain text
+#: mini.txt:372
+msgid ""
+"There are two columns below the control line. The left side of the screen "
+"displays information of interest to the operator. There are very few buttons to "
+"press here."
+msgstr ""
+"Il y a deux colonnes sous la barre de contrôle. La colonne de gauche affiche "
+"les informations intéressant l'opérateur. Il y a seulement deux boutons dans "
+"cette zone."
+
+#. type: Plain text
+#: mini.txt:374
+msgid "=== Axis Position Displays"
+msgstr "=== Afficheurs de position des axes"
+
+#. type: Plain text
+#: mini.txt:377
+msgid ""
+"The axis position displays work exactly like they do with tkLinuxCNC. The color "
+"of the letters is important."
+msgstr ""
+"Ces afficheurs d'axe se comportent exactement comme ceux de TkLinuxCNC. La "
+"couleur des afficheurs est importante."
+
+#. type: Bullet: ' - '
+#: mini.txt:382
+msgid ""
+"Red indicates that the machine is sitting on a limit switch or the polarity of "
+"a min or max limit is set wrong in the ini file."
+msgstr ""
+"Rouge, elle indique que la machine est en appui sur un contact de fin de course "
+"ou que la polarité d'une limite est mal positionnée dans le fichier ini."
+
+#. type: Bullet: ' - '
+#: mini.txt:382
+msgid "Yellow indicates that the machine is ready to be homed."
+msgstr ""
+"Jaune, elle indique que la machine est prête pour faire ses prises d'origine."
+
+#. type: Bullet: ' - '
+#: mini.txt:382
+msgid "Green indicates that the machine has been homed."
+msgstr ""
+"Verte, elle indique que la machine a bien été référencée sur ses points "
+"d'origine."
+
+#. type: Plain text
+#: mini.txt:387
+msgid ""
+"The position can be changed to display any one of several values by using the "
+"menu settings. The startup or default settings can be changed in the ini file "
+"so these displays wake up just the way that you want them."
+msgstr ""
+"Le type de position affichée peut varier, selon les options choisies dans le "
+"menus 'Réglages'. Les réglages par défaut, ou de démarrage, peuvent être "
+"changés dans le fichier ini pour correspondre à vos besoins."
+
+#. type: Plain text
+#: mini.txt:389
+msgid "=== Feed rate Override (((feed override)))"
+msgstr "=== Correcteur de vitesse travail(((correcteur vitesse)))"
+
+#. type: Plain text
+#: mini.txt:400
+msgid ""
+"Immediately below the axis position displays is the feed rate override slider. "
+"You can operate feed rate override and feedhold in any mode of operation. "
+"Override will change the speed of jogs or feed rate in manual or MDI modes. You "
+"can adjust feed rate override by grabbing the slider with your mouse and "
+"dragging it along the groove. You can also change feed rate a percent at a time "
+"by clicking in the slider's groove. In auto mode you can also set feed override "
+"in 10% increments by pressing the top row of numbers. This slider is a handy "
+"visual reference to how much override is being applied to programmed feed rate."
+msgstr ""
+"Immédiatement sous les afficheurs de position on trouve un curseur, c'est le "
+"correcteur de vitesse travail. Vous pouvez agir sur le correcteur de vitesse et "
+"sur le bouton Vitesse-0 dans tous les modes de marche. Le correcteur agit sur "
+"la vitesse de jog et sur la vitesse d'avance travail dans les modes manuel ou "
+"MDI. Il est possible de modifier la position du curseur en le déplaçant à la "
+"souris le long de sa glissière. Il est également possible de modifier le "
+"correcteur de 1% à chaque fois qu'un clic de souris est fait dans la glissière "
+"du curseur. En mode Manuel il est possible d'ajuster le correcteur par "
+"incréments de 10% avec les touches chiffrées du haut du clavier. Le curseur est "
+"une référence visuelle très pratique pour estimer la correction appliquée sur "
+"la vitesse d'avance programmée."
+
+#. type: Plain text
+#: mini.txt:402
+msgid "=== Messages"
+msgstr "=== Messages"
+
+#. type: Plain text
+#: mini.txt:417
+msgid ""
+"The message display located under the axis positions is a sort of scratch pad "
+"for LinuxCNC. If there are problems it will report them there. If you try to "
+"home or move an axis when the [ESTOP] button is pressed, you'll get a message "
+"that says something about commanding motion when LinuxCNC is not ready. If an "
+"axis faults out for something like falling behind, the message pad will show "
+"what happened. If you want to remind an operator to change a tool, for example, "
+"you can add a line of code to your program that will display in the message "
+"box. An example might be (msg, change to tool #3 and press resume). This line "
+"of code, included in a program, will display 'change to tool #3 and press "
+"resume' in the message box. The word msg, (with comma included)  is the command "
+"to make this happen; without 'msg,' the message wouldn't be displayed. It will "
+"still show in the auto modes' display of the program file."
+msgstr ""
+"L'affichage des messages situé sous le curseur du correcteur de vitesse est une "
+"sorte de bloc-notes pour LinuxCNC. Si un problème survient, il est reporté sur "
+"ce bloc-notes. Si vous essayez de déplacer un axe alors que l'Arrêt d'Urgence "
+"est engagé, vous recevez un message qui dit quelques choses à propos des "
+"conditions de marche empêchant LinuxCNC de répondre à la commande de mouvement. "
+"Si un axe est en défaut, par exemple un dépassement de limite, le message "
+"affiché sur le bloc-notes indiquera ce qui se passe. Pour demander à "
+"l'opérateur de changer d'outil par exemple, vous pouvez aussi ajouter une ligne "
+"de code dans le programme qui s'affichera sur l'écran, dans la boîte de "
+"messages. Un exemple pourrait être: (msg, Montez l'outil N°3 puis pressez "
+"Reprise). Cette ligne de code, incluse dans un programme, va afficher 'Montez "
+"l'outil 3 puis pressez Reprise' dans la boîte de messages. Le mot msg, (avec la "
+"virgule) est la commande qui fait apparaître le commentaire, sans 'msg', le "
+"message ne serait pas affiché."
+
+#. type: Plain text
+#: mini.txt:420
+msgid ""
+"To erase messages simply click the message button at the top of the pad or, on "
+"the keyboard, hold down the [Alt] key and press the [m] key."
+msgstr ""
+"Pour effacer les messages cliquer simplement sur le bandeau --MESSAGES-- au "
+"dessus du bloc-notes ou au clavier, presser <m> tout en maintenant la touche "
+"'Alt' appuyée."
+
+#. type: Plain text
+#: mini.txt:422
+msgid "== Right Column"
+msgstr "== Colonne de droite"
+
+#. type: Plain text
+#: mini.txt:429
+msgid ""
+"The right column is a general purpose place to display and work. Here you can "
+"see the modal buttons and text entry or displays. Here you can view a plot of "
+"the tool path that will be commanded by your program.  You can also write "
+"programs and control tools and offsets here. The modal screens have been "
+"described above. Each of the popin displays are described in detail below."
+msgstr ""
+"La colonne de droite est l'emplacement sur lequel seront affichés les "
+"différents éléments résultants des choix de l'utilisateur. C'est ici que seront "
+"visibles les différentes entrées de texte, les différents affichages et les "
+"boutons du mode manuel. C'est ici que le parcours d'outil sera affiché pendant "
+"l'exécution d'un programme. C'est également ici que l'éditeur de texte "
+"s'ouvrira pour permettre l'édition des programmes, l'édition des tables "
+"d'outils ou d'offsets. L'écran du mode manuel a déjà été décrit précédemment. "
+"Chaque écran surgissant va être décrit en détail ci-dessous."
+
+#. type: Plain text
+#: mini.txt:431
+msgid "=== Program Editor"
+msgstr "=== Éditeur de texte"
+
+#. type: Plain text
+#: mini.txt:433
+msgid ".Mini Text Editor[[cap:Mini-Text-Editor]]"
+msgstr ".Éditeur de texte de Mini"
+
+#. type: Plain text
+#: mini.txt:435
+msgid "image::images/miniedit.png[align=\"center\"]"
+msgstr "image::images/miniedit_fr.png[]"
+
+#. type: Plain text
+#: mini.txt:450
+msgid ""
+"The editor is rather limited compared to many modern text editors. It does not "
+"have 'undo' nor 'paste' between windows with the clipboard.  These were "
+"eliminated because of interaction with a running program.  Future releases will "
+"replace these functions so that it will work the way you've come to expect from "
+"a text editor. It is included because it has the rather nice feature of being "
+"able to number and renumber lines in the way that the interpreter expects of a "
+"file.  It will also allow you to cut and paste from one part of a file to "
+"another. In addition, it will allow you to save your changes and submit them to "
+"the LinuxCNC interpreter with the same menu click.  You can work on a file in "
+"here for a while and then save and load if the LinuxCNC is in Auto mode. If you "
+"have been running a file and find that you need to edit it, that file will be "
+"placed in the editor when you click on the editor button on the top menu."
+msgstr ""
+"L'éditeur de texte de Mini peut sembler un peu limité par rapport aux éditeurs "
+"de texte modernes. Il a été inclus parce qu'il comporte l'excellente "
+"possibilité de numéroter et renuméroter un programme de la même manière que "
+"l'interpréteur le fait avec un fichier. Il permet également le couper/coller "
+"d'une partie vers une autre du fichier. En plus, il permet d'enregistrer les "
+"changements faits dans le programme et de soumettre celui-ci à l'interpréteur "
+"de LinuxCNC depuis le même menu. Il est possible de travailler sur un fichier "
+"ouvert dans cet éditeur puis de l'enregistrer et de le recharger si LinuxCNC "
+"est en mode Auto. Si vous avez lancé un fichier et que vous avez besoin de "
+"l'éditer, ce fichier sera placé dans l'éditeur quand vous cliquez sur le bouton "
+"'Éditeur' du menu."
+
+#. type: Plain text
+#: mini.txt:452
+msgid "=== Backplot Display(((backplot)))"
+msgstr "=== Parcours d'outil(((trace d'outil )))"
+
+#. type: Plain text
+#: mini.txt:454
+msgid ".Minis Backplotter[[cap:Minis-Backplotter]]"
+msgstr ".Parcours d'outil de Mini"
+
+#. type: Plain text
+#: mini.txt:456
+msgid "image::images/minibkplot.png[align=\"center\"]"
+msgstr "image::images/minibkplot_fr.png[]"
+
+#. type: Plain text
+#: mini.txt:462
+msgid ""
+"Backplot [Backplot] will show the tool path that can be viewed from a chosen "
+"direction. '3-D' is the default. Other choices and controls are displayed along "
+"the top and right side of the pop-in. If you are in the middle of a cut when "
+"you press one of these control buttons the machine will pause long enough to re-"
+"compute the view."
+msgstr ""
+"Le bouton 'Parcours d'outil' du menu, affiche un tracé produit par le "
+"cheminement de l'outil pendant l'usinage. Cette trace est affichable selon "
+"plusieurs plans et en '3-D' qui est le mode par défaut. Les choix sont affichés "
+"au dessus et à droite de cette fenêtre. Si l'usinage est déjà en cours depuis "
+"un certain temps quand cette fenêtre est activée, il lui faudra un peu de temps "
+"pour recalculer la vue du parcours."
+
+#. type: Plain text
+#: mini.txt:471
+msgid ""
+"Along the right side of the pop-in there is a small pyramid shaped graphic that "
+"tries to show the angle you are viewing the tool path from. Below it are a "
+"series of sliders that allow you to change the angle of view and the size of "
+"the plot. You can rotate the little position angle display with these. They "
+"take effect when you press the [Refresh] button. The [Reset] button removes all "
+"of the paths from the display and readies it for a new run of the program but "
+"retains your settings for that session."
+msgstr ""
+"Sur le côté droit de la fenêtre une petite pyramide graphique montre l'angle "
+"depuis lequel l'opérateur voit le tracé du parcours d'outil. En dessous, une "
+"série de curseurs permettent de modifier les angles et la taille de la vue. Il "
+"est possible de contrôler les modifications en regardant l'attitude de la "
+"petite pyramide. Les modifications ne prendront effet qu'après appui sur le "
+"bouton 'Rafraîchir'. Le bouton 'Reset' efface toutes les traces du parcours "
+"affiché et prépare la fenêtre pour un nouveau lancement du programme, il "
+"conserve toutefois les orientations et le niveau de zoom actuellement définis."
+
+#. type: Plain text
+#: mini.txt:477
+msgid ""
+"If backplot is started before a program is started, it will try to use some "
+"color lines to indicate the kind of motion that was used to make it. A green "
+"line is a rapid move. A black line is a feed rate move.  Blue and red indicate "
+"arcs in counterclockwise and clockwise directions."
+msgstr ""
+"Si un parcours d'outil est lancé avant qu'un programme ne soit démarré, il va "
+"afficher quelques lignes de couleur pour indiquer le type de tracé qui sera "
+"utilisé. Une ligne verte représente un mouvement en vitesse d'avance rapide. "
+"Une ligne noire, un mouvement en vitesse d'avance travail. Une ligne bleue et "
+"une ligne rouge indiquent respectivement un arc en sens anti-horaire et un arc "
+"en sens horaire."
+
+#. type: Plain text
+#: mini.txt:481
+msgid ""
+"The backplotter with Mini allows you to zoom and rotate views after you have "
+"run your program but it is not intended to store a tool path for a long period "
+"of time."
+msgstr ""
+"Le tracé du parcours d'outil de Mini permet de zoomer et d'orienter les vues du "
+"programme en cours d'exécution mais il n'est pas conçu pour enregistrer un "
+"chemin d'outil sur une longue période de temps."
+
+#. type: Plain text
+#: mini.txt:483
+msgid "=== Tool Page"
+msgstr "=== Page des outils"
+
+#. type: Plain text
+#: mini.txt:489
+msgid ""
+"The tool page is pretty much like the others. You can set length and diameter "
+"values here and they become effective when you press the [Enter] key. You will "
+"need to set up your tool information before you begin to run a program. You "
+"can't change tool offsets while the program is running or when the program is "
+"paused."
+msgstr ""
+"La page des outils permet d'ajuster la longueur et le diamètre des outils, ces "
+"valeurs deviennent effectives dès l'appui sur la touche 'Entrée'. Il est "
+"nécessaire de définir les paramètres des outils avant de lancer le programme. "
+"Les offsets d'outils ne peuvent pas être modifiés une fois le programme démarré "
+"ni quand il est en pause."
+
+#. type: Plain text
+#: mini.txt:491
+msgid ".Mini Tool Display[[cap:Mini-Tool-Display]]"
+msgstr ".Affichage de la table d'outils de Mini"
+
+#. type: Plain text
+#: mini.txt:493
+msgid "image::images/minitool.png[align=\"center\"]"
+msgstr "image::images/minitool_fr.png[]"
+
+#. type: Plain text
+#: mini.txt:500
+msgid ""
+"The [Add Tools] and [Remove Tools] buttons work on the bottom of the tool list "
+"so you will want to fill in tool information in descending order. Once a new "
+"tool has been added, you can use it in a program with the usual G-code "
+"commands. There is a 32 tool limit in the current LinuxCNC configuration files "
+"but you will run out of display space in Mini long before you get there."
+msgstr ""
+"Les boutons 'Ajouter un outil' et 'Enlever le dernier outil' portent sur la fin "
+"de la liste des outils de sorte que l'ajout d'outils s'effectuent vers le bas. "
+"Quand un nouvel outil est ajouté, il est utilisable dans le programme avec la "
+"commande G-code habituelle. Le nombre maximum d'outils est de 32 dans le "
+"fichier de configuration de LinuxCNC mais vous serez arrivé au bout des "
+"possibilités d'affichage de Mini bien avant cela."
+
+#. type: Plain text
+#: mini.txt:503
+msgid ""
+"[TIP] You can use Menu > View > Show Popin Full to see more tools if you need."
+msgstr ""
+"[TIP]\n"
+"A la place vous pouvez utiliser le 'menu → Vues → Afficher dans toute la "
+"fenêtre' pour voir plus d'outils si nécessaire."
+
+#. type: Plain text
+#: mini.txt:505
+msgid "=== Offset Page"
+msgstr "=== Page des offsets"
+
+#. type: Plain text
+#: mini.txt:510
+msgid ""
+"The offset page can be used to display and setup work offsets. The coordinate "
+"system is selected along the left hand side of the window.  Once you have "
+"selected a coordinate system you can enter values or move an axis to a teach "
+"position."
+msgstr ""
+"La page des offsets peut être utilisée pour afficher et ajuster les décalages "
+"d'origine des différents systèmes de coordonnées. Le système de coordonnées est "
+"choisi dans la colonne de gauche, par sélection d'une case à cocher. Quand un "
+"système de coordonnées est choisi il est possible d'entrer directement les "
+"valeurs ou de déplacer l'axe à une position d'apprentissage."
+
+#. type: Plain text
+#: mini.txt:512
+msgid ".Mini Offset Display[[cap:Mini-Offset-Display]]"
+msgstr ".Mini Offset Display"
+
+#. type: Plain text
+#: mini.txt:514
+msgid "image::images/minioffsets.png[align=\"center\"]"
+msgstr "image::images/minioffsets_fr.png[]"
+
+#. type: Plain text
+#: mini.txt:520
+msgid ""
+"You can also teach using an edgefinder by adding the radius and length to the "
+"offset_by widgets. When you do this you may need to add or subtract the radius "
+"depending upon which surface you choose to touch from. This is selected with "
+"the add or subtract radiobuttons below the offset windows."
+msgstr ""
+"Il est également possible d'utiliser une pinnule puis d'ajouter le rayon et la "
+"longueur par le bouton 'Apprentissage'. Pour cela, il peut être nécessaire "
+"d'ajouter ou de soustraire le rayon de la pinnule selon la surface qui est "
+"touchée. C'est la case à cocher 'Soustraire' ou 'Ajouter' qui permet ce choix."
+
+#. type: Plain text
+#: mini.txt:526
+msgid ""
+"The zero all for the active coordinate system button will remove any offsets "
+"that you have showing but they are not set to zero in the variable file until "
+"you press the write and load file button as well.  This write and load file "
+"button is the one to use when you have set all of the axis values that you want "
+"for a coordinate system."
+msgstr ""
+"Le bouton 'Tous les Gxx à zéro' enlève tous les décalages du système courant "
+"visibles sur l'écran mais ne modifie pas les variables dans le fichier tant que "
+"le bouton 'écrire et recharger' n'est pas pressé. Le bouton 'écrire et "
+"recharger' est à presser pour valider et recharger tous les changements "
+"effectués sur les valeurs des systèmes de coordonnées."
+
+#. type: Plain text
+#: mini.txt:528
+msgid "== Keyboard Bindings"
+msgstr "== Raccourcis clavier"
+
+#. type: Plain text
+#: mini.txt:534
+msgid ""
+"A number of the bindings used with tkLinuxCNC have been preserved with mini. A "
+"few of the bindings have been changed to extend that set or to ease the "
+"operation of a machine using this interface. Some keys operate the same "
+"regradless of the mode. Others change with the mode that LinuxCNC is operating "
+"in."
+msgstr ""
+"Un certain nombre de raccourcis clavier utilisés avec TkLinuxCNC ont été "
+"conservés avec Mini. Quelques uns ont changé pour étendre leurs fonctions ou "
+"pour faciliter les opérations sur une machine utilisant cette interface. "
+"Certaines touches opèrent de la même manière quelque soit le mode. D'autres "
+"change en fonction du mode de travail de LinuxCNC."
+
+#. type: Plain text
+#: mini.txt:536
+msgid "=== Common Keys"
+msgstr "=== Touches courantes"
+
+#. type: Bullet: '* '
+#: mini.txt:545
+msgid "'Pause' - Toggle feedhold"
+msgstr "'Pause' - Bascule du correcteur de vitesse travail"
+
+#. type: Bullet: '* '
+#: mini.txt:545
+msgid "'Escape' - abort motion"
+msgstr "'Echap' - Abandonne le mouvement "
+
+#. type: Bullet: '* '
+#: mini.txt:545
+msgid "'F1' - toggle estop/estop reset state"
+msgstr "'F1' - Bascule l'état de l'Arrêt d'Urgence"
+
+#. type: Bullet: '* '
+#: mini.txt:545
+msgid "'F2' - toggle machine off/machine on state"
+msgstr "'F2' - Marche/Arrêt machine "
+
+#. type: Bullet: '* '
+#: mini.txt:545
+msgid "'F3' - manual mode"
+msgstr "'F3' - Mode manuel "
+
+#. type: Bullet: '* '
+#: mini.txt:545
+msgid "'F4' - auto mode"
+msgstr "'F4' - Mode Auto "
+
+#. type: Bullet: '* '
+#: mini.txt:545
+msgid "'F5' - MDI mode"
+msgstr "'F5' - Mode MDI "
+
+#. type: Bullet: '* '
+#: mini.txt:545
+msgid "'F6' - reset interpreter"
+msgstr "'F6'  - Réinitialise l'interpréteur"
+
+#. type: Plain text
+#: mini.txt:547
+msgid "The following only work for machines using auxiliary I/O"
+msgstr ""
+"Les touches suivantes fonctionnent seulement pour les machines utilisant des "
+"entrées sorties auxiliaires"
+
+#. type: Bullet: '* '
+#: mini.txt:554
+msgid "'F7' - toggle mist on/mist off"
+msgstr "'F7' - Marche/Arrêt du brouillard"
+
+#. type: Bullet: '* '
+#: mini.txt:554
+msgid "'F8' - toggle flood on/flood off"
+msgstr "'F8' - Marche/Arrêt arrosage"
+
+#. type: Bullet: '* '
+#: mini.txt:554
+msgid "'F9' - toggle spindle forward/off"
+msgstr "'F9' - Marche/Arrêt broche sens horaire"
+
+#. type: Bullet: '* '
+#: mini.txt:554
+msgid "'F10' - toggle spindle reverse/off"
+msgstr "'F10' - Marche/Arrêt broche sens anti-horaire"
+
+#. type: Bullet: '* '
+#: mini.txt:554
+msgid "'F11' - decrease spindle speed"
+msgstr "'F11' - Diminue la vitesse de broche"
+
+#. type: Bullet: '* '
+#: mini.txt:554
+msgid "'F12' - increase spindle speed"
+msgstr "'F12' - Augmente la vitesse de broche"
+
+#. type: Plain text
+#: mini.txt:556
+msgid "=== Manual Mode (((Manual)))"
+msgstr "=== Mode Manuel (((Manuel)))"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'1-9 0' - set feed override to 10%-90%, 0 is 100%"
+msgstr ""
+"'1-9 0' - Positionne le correcteur de vitesse d'avance travail de 10% en 10%, "
+"de 0 à 100%"
+
+#. type: Bullet: '* '
+#: mini.txt:572 mini.txt:587
+msgid "'~' - set feed override to 0 or feedhold"
+msgstr "'~' - Positionne le correcteur de vitesse à 0"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'x' - select X axis"
+msgstr "'x' - Sélectionne l'axe X"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'y' - select Y axis"
+msgstr "'y' - Sélectionne l'axe Y"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'z' - select Z axis"
+msgstr "'z' - Sélectionne l'axe Z"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'a' - select A axis"
+msgstr "'a' - Sélectionne l'axe A"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'b' - select B axis"
+msgstr "'b' - Sélectionne l'axe B"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'c' - select C axis"
+msgstr "'c' - Sélectionne l'axe C"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'Left Right Arrow' - jog X axis"
+msgstr "'Flèches Gauche et Droite' - jog de l'axe X"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'Up Down Arrow' - jog Y axis"
+msgstr "'Flèches Haut et Bas' - jog de l'axe Y"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'Page Up Down' - jog Z axis"
+msgstr "'Pg.up et Pg.down' - jog de l'axe Z"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'- _' - jog the active axis in the minus direction"
+msgstr "'- _' - jog de l'axe actif dans la direction moins"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'+ =' - jog the active axis in the plus direction."
+msgstr "'+ =' - jog l'axe actif dans la direction plus"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'Home' - home selected axis"
+msgstr "'Home' - POM de l'axe actif"
+
+#. type: Bullet: '* '
+#: mini.txt:572
+msgid "'i I' - toggle through jog increments"
+msgstr "'i I' - Bascule cyclique des incréments de jog"
+
+#. type: Plain text
+#: mini.txt:574
+msgid "The following only work with a machine using auxiliary I/O"
+msgstr ""
+"Les touches suivantes ne fonctionnent que sur les machines utilisant des "
+"entrées sorties auxiliaires"
+
+#. type: Bullet: '* '
+#: mini.txt:577
+msgid "'b' - take spindle brake off"
+msgstr "'b' - Relâcher le frein de broche"
+
+#. type: Bullet: '* '
+#: mini.txt:577
+msgid "'Alt-b' - put spindle brake on"
+msgstr "'Alt-b' - Engager le frein de broche"
+
+#. type: Plain text
+#: mini.txt:579
+msgid "=== Auto Mode (((Auto)))"
+msgstr "=== Mode Auto (((Auto)))"
+
+#. type: Bullet: '* '
+#: mini.txt:587
+msgid "'1-9,0' - set feed override to 10%-90%, 0 is 100%"
+msgstr ""
+"'1  à 9,0' - Positionne le correcteur de vitesse d'avance travail de 10% en "
+"10%, de 0 à 100%"
+
+#. type: Bullet: '* '
+#: mini.txt:587
+msgid "'o/O' - open a program"
+msgstr "'o/O' - Ouvre un programme"
+
+#. type: Bullet: '* '
+#: mini.txt:587
+msgid "'r/R' - run an opened program"
+msgstr "'r/R' - Lance le programme ouvert"
+
+#. type: Bullet: '* '
+#: mini.txt:587
+msgid "'p/P' - pause an executing program"
+msgstr "'p/P' - Met le programme en pause"
+
+#. type: Bullet: '* '
+#: mini.txt:587
+msgid "'s/S' - resume a paused program"
+msgstr "'s/S' - Reprise d'un programme en pause"
+
+#. type: Bullet: '* '
+#: mini.txt:587
+msgid "'a/A' - step one line in a paused program"
+msgstr "'a/A' - Avance d'une ligne dans un programme en pause"
+
+#. type: Plain text
+#: mini.txt:589
+msgid "== Misc"
+msgstr "== Divers"
+
+#. type: Plain text
+#: mini.txt:593
+msgid ""
+"One of the features of Mini is that it displays any axis above number 2 as a "
+"rotary and will display degree units for it. It also converts to degree units "
+"for incremental jogs when a rotary axis has the focus."
+msgstr ""
+"Une des possibilités de Mini est d'afficher n'importe quel axe, au delà de 2, "
+"comme étant un axe rotatif, il affiche alors des degrés pour celui-ci. Il "
+"converti également les unités en degrés quand un axe rotatif a le focus."

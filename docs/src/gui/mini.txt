@@ -1,3 +1,5 @@
+:lang: en
+
 = MINI GUI
 
 [[cha:mini-gui]] (((Mini GUI)))
