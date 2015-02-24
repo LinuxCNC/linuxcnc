@@ -177,9 +177,11 @@ Options:
 Notes:
   1) LinuxCNC (or another Hal application) must be running
   2) If no pinname is specified, default is: motion-command-handler.time
-  3) This app may be opened 5 times for s32 or float pins
-  4) The pin must be associated with a thread supporting floating point
-     This may require: loadrt motmod ...  base_thread_fp=1
+  3) This app may be opened for 5 pins
+  4) pintypes float, s32, u32, bit are supported
+  5) The pin must be associated with a thread supporting floating point
+     For a base thread, this may require using:
+     loadrt motmod ... base_thread_fp=1
 ----
 image::images/hal-histogram.png[]
 

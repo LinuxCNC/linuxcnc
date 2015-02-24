@@ -122,6 +122,7 @@ if (  first
   mean = 0;
   sum = 0;
   sq_sum = 0;
+  variance = 0;
   input_min =  1e99; //dng
   input_max = -1e99; //dng
   m2 = 0;
@@ -151,16 +152,16 @@ if (invalue < input_min) input_min = invalue;
 if (invalue > input_max) input_max = invalue;
 
 nsamples++;
-if (method == 0 ) {
-  hal_float_t delta;
-  delta    = invalue - mean;
-  mean     = mean + delta / nsamples;
-  m2       = m2 + delta * (invalue - mean);
-  variance = m2/(nsamples - 1);
-} else {
-  sum       += invalue;
-  sq_sum    += invalue * invalue;
-  if (nsamples > 2) {
+if (nsamples >= 2) {
+  if (method == 0 ) {
+    hal_float_t delta;
+    delta    = invalue - mean;
+    mean     = mean + delta / nsamples;
+    m2       = m2 + delta * (invalue - mean);
+    variance = m2/(nsamples - 1);
+  } else {
+    sum     += invalue;
+    sq_sum  += invalue * invalue;
     variance = (sq_sum - (sum * sum)/nsamples)/(nsamples -1);
     mean     = sum/nsamples;
   }

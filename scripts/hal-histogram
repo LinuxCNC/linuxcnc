@@ -205,6 +205,12 @@ proc config {} {
     }
   }
   set ::HH(maxvalue) [compute_maxvalue]
+
+  set ::HH(pid) [pid]
+  set all_instances [exec pgrep $::HH(prog,short)]
+  if {[lsearch $all_instances $::HH(pid)] != 0} {
+    after 200 ;# guard for race in loadrt if simultaneous starts
+  }
 } ;# config
 
 proc load_packages {} {
@@ -408,11 +414,13 @@ proc finish {} {
   after cancel [after info]
   progress $::HH(title)\n
   progress "Fini"
-  hal delf $::HH(instance) $::HH(threadname)
-  hal unlinkp $::HH(inputpinname)
-  if $::HH(signame_is_new) {
-    hal delsig $::HH(signame)
-  }
+  catch {
+    hal delf $::HH(instance) $::HH(threadname)
+    hal unlinkp $::HH(inputpinname)
+    if $::HH(signame_is_new) {
+      hal delsig $::HH(signame)
+    }
+  } ;# avoid some msgs on close
   exit 0
 } ;# finish
 
@@ -848,9 +856,11 @@ proc usage { {errtxt ""} } {
   puts "Notes:"
   puts "  1) LinuxCNC (or another Hal application) must be running"
   puts "  2) If no pinname is specified, default is: $::HH(pinname)"
-  puts "  3) This app may be opened $::HH(max_histos) times for s32 or float pins"
-  puts "  4) The pin must be associated with a thread supporting floating point"
-  puts "     This may require: loadrt motmod ...  base_thread_fp=1"
+  puts "  3) This app may be opened for $::HH(max_histos) pins"
+  puts "  4) pintypes float, s32, u32, bit are supported"
+  puts "  5) The pin must be associated with a thread supporting floating point"
+  puts "     For a base thread, this may require using:"
+  puts "     loadrt motmod ... base_thread_fp=1"
 
   if {"$errtxt" != ""} {
     puts ""
