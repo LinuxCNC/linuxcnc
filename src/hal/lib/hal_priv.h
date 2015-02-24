@@ -147,15 +147,6 @@ RTAPI_BEGIN_DECLS
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
 ************************************************************************/
 
-/** HAL "data union" structure
- ** This structure may hold any type of hal data
-*/
-typedef union {
-    hal_bit_t b;
-    hal_s32_t s;
-    hal_s32_t u;
-    hal_float_t f;
-} hal_data_u;
 
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
@@ -430,36 +421,6 @@ extern hal_data_t *hal_data;
     accessing the data structures at the same time.
 */
 
-/** These functions are used to manipulate double-linked circular lists.
-    Every list entry has pointers to the next and previous entries.
-    The pointers are never NULL.  If an entry is not in a list its
-    pointers point back to itself (which effectively makes it a list
-    with only one entry)
-
-    'list_init_entry()' sets the pointers in the list entry to point
-    to itself - making it a legal list with only one entry. It should
-    be called when a list entry is first allocated.
-
-    'list_prev()' and 'list_next()' simply return a pointer to the
-    list entry that precedes or follows 'entry' in the list. If there
-    is only one element in the list, they return 'entry'.
-
-    'list_add_after()' adds 'entry' immediately after 'prev'.
-    Entry must be a single entry, not in a larger list.
-
-    'list_add_before()' adds 'entry' immediately before 'next'.
-    Entry must be a single entry, not in a larger list.
-
-    'list_remove_entry()' removes 'entry' from any list it may be in.
-    It returns a pointer to the next entry in the list.  If 'entry'
-    was the only entry in the list, it returns 'entry'.
-*/
-void list_init_entry(hal_list_t * entry);
-hal_list_t *list_prev(hal_list_t * entry);
-hal_list_t *list_next(hal_list_t * entry);
-void list_add_after(hal_list_t * entry, hal_list_t * prev);
-void list_add_before(hal_list_t * entry, hal_list_t * next);
-hal_list_t *list_remove_entry(hal_list_t * entry);
 
 /** The 'find_xxx_by_name()' functions search the appropriate list for
     an object that matches 'name'.  They return a pointer to the object,
@@ -550,11 +511,8 @@ void halpr_autorelease_mutex(void *variable);
     init.  This groups all the realtime data together, inproving
     cache performance.
 */
-// must resolve intra-hallib, so move here from hal_lib.c:
-void *shmalloc_up(long int size);
-void *shmalloc_dn(long int size);
 
-
+#include "hal_list.h"
 
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */

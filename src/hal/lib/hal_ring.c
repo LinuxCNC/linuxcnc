@@ -3,10 +3,8 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private decls */
+#include "hal_internal.h"
 #include "hal_ring.h"		/* HAL ringbuffer decls */
-
-// RTAPI module id of HAL_LIB. This module id owns all HAL ring shm segments.
-extern int lib_module_id;
 
 static hal_ring_t *alloc_ring_struct(void);
 static void free_ring_struct(hal_ring_t * p);

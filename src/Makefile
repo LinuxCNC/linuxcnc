@@ -494,6 +494,8 @@ HEADERS := \
     emc/rs274ngc/rs274ngc.hh \
     hal/lib/hal.h \
     hal/lib/hal_priv.h \
+    hal/lib/hal_list.h \
+    hal/lib/hal_internal.h \
     hal/lib/hal_parport.h \
     hal/lib/hal_group.h \
     hal/lib/hal_ring.h \
