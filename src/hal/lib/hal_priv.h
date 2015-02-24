@@ -147,15 +147,6 @@ RTAPI_BEGIN_DECLS
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
 ************************************************************************/
 
-/** HAL "data union" structure
- ** This structure may hold any type of hal data
-*/
-typedef union {
-    hal_bit_t b;
-    hal_s32_t s;
-    hal_s32_t u;
-    hal_float_t f;
-} hal_data_u;
 
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
@@ -550,11 +541,6 @@ void halpr_autorelease_mutex(void *variable);
     init.  This groups all the realtime data together, inproving
     cache performance.
 */
-// must resolve intra-hallib, so move here from hal_lib.c:
-void *shmalloc_up(long int size);
-void *shmalloc_dn(long int size);
-
-
 
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */
