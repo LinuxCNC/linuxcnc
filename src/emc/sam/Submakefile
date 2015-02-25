@@ -9,5 +9,5 @@ USERSRCS += $(SAM_SRCS)
 
 ../bin/standalone-motion: $(call TOOBJS, $(SAM_SRCS)) ../lib/libposemath.so ../lib/liblinuxcnc.a
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(ULFLAGS) -lposemath -llinuxcnc
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(ULFLAGS) -lrt -lposemath -llinuxcnc
 

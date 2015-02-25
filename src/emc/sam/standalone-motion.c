@@ -25,6 +25,9 @@
 #include <float.h>
 #include <stdlib.h>
 
+#include "rtapi.h"
+#include "uspace_common.h"
+
 #include "mot_priv.h"
 #include "motion_debug.h"
 #include "emcmotcfg.h"
@@ -55,39 +58,6 @@ int num_dio = 4;
 int num_aio = 4;
 
 long traj_period_nsec = 1000 * 1000;
-
-
-#ifdef MSR_H_USABLE
-#include <asm/msr.h>
-#elif defined(__i386__)
-#define rdtscll(val) \
-         __asm__ __volatile__("rdtsc" : "=A" (val))
-#elif defined(__amd64__)
-#define rdtscll(val) \
-    ({ unsigned int eax, edx; \
-         __asm__ __volatile__("rdtsc" : "=a" (eax), "=d" (edx));  \
-        val = ((unsigned long)eax) | (((unsigned long)edx) << 32); })
-#else
-#define rdtscll(val) ((val) = rtapi_get_time())
-#endif
-
-
-long long rtapi_get_clocks(void)
-{
-    long long int retval;
-
-    rdtscll(retval);
-    return retval;
-}
-
-
-void rtapi_print_msg(msg_level_t level, const char *fmt, ...) __attribute__((format(printf,2,3)));
-void rtapi_print_msg(msg_level_t level, const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-}
 
 
 void reportError(const char *fmt, ...) __attribute__((format(printf,1,2)));
