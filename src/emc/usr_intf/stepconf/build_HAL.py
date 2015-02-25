@@ -546,14 +546,14 @@ class HAL:
             i = self.d['pp2_pin%dinv' % num]
         if p == SIG.UNUSED_OUTPUT: return
         if fake:
-            p='fake-'+p
+            signame ='fake-'+p
             ending='-fake'
-            p ='{0:<20}'.format(p)
+            signame ='{0:<20}'.format(signame)
         else:
-            p ='{0:<15}'.format(p)
+            signame ='{0:<15}'.format(p)
         if i: print >>file, "setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending)
-        print >>file, "net %s => parport.%d.pin-%02d-out%s" % (p, port, num, ending)
-        if self.a.doublestep():
+        print >>file, "net %s => parport.%d.pin-%02d-out%s" % (signame, port, num, ending)
+        if self.a.doublestep() and not fake:
             if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP):
                 print >>file, "setp parport.0.pin-%02d-out-reset%s 1" % (num,ending)
 
