@@ -1008,6 +1008,17 @@ check_stuff ( "before command_handler()" );
 	    joint->acc_limit = emcmotCommand->acc;
 	    break;
 
+	case EMCMOT_SET_JOINT_JERK_LIMIT:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_JERK_LIMIT");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    emcmot_config_change();
+	    /* check joint range */
+	    if (joint == 0) {
+		break;
+	    }
+	    joint->jerk_limit = emcmotCommand->jerk;
+	    break;
+
 	case EMCMOT_SET_ACC:
 	    /* set the max acceleration */
 	    /* can do it at any time */
