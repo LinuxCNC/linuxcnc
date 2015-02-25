@@ -99,12 +99,12 @@ int tpGetExecId(TP_STRUCT * tp);
 int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance);
 int tpSetPos(TP_STRUCT * tp, EmcPose * pos);
 int tpAddRigidTap(TP_STRUCT * tp, EmcPose end, double vel, double
-        ini_maxvel, double acc, unsigned char enables);
+        ini_maxvel, double acc, double jerk, unsigned char enables);
 int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double
-                     ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary);
+                     ini_maxvel, double acc, double jerk, unsigned char enables, char atspeed, int indexrotary);
 int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,
         PmCartesian normal, int turn, int type, double vel, double ini_maxvel,
-                       double acc, unsigned char enables, char atspeed);
+                       double acc, double jerk, unsigned char enables, char atspeed);
 int tpRunCycle(TP_STRUCT * tp, long period);
 int tpPause(TP_STRUCT * tp);
 int tpResume(TP_STRUCT * tp);

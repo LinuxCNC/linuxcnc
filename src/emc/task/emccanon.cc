@@ -57,6 +57,7 @@ static double css_maximum, css_numerator; // both always positive
 static int spindle_dir = 0;
 
 static const double tiny = 1e-7;
+static const double huge = 1e9;
 static double xy_rotation = 0.;
 static int rotary_unlock_for_traverse = -1;
 
@@ -66,6 +67,10 @@ static int rotary_unlock_for_traverse = -1;
 
 #ifndef MIN3
 #define MIN3(a,b,c) (MIN(MIN((a),(b)),(c)))
+#endif
+
+#ifndef MIN4
+#define MIN4(a,b,c,d) (MIN(MIN((a),(b)),MIN((c),(d))))
 #endif
 
 #ifndef MAX
@@ -592,6 +597,93 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
     // nothing need be done here
 }
 
+double getStraightJerk(double x, double y, double z,
+                               double a, double b, double c,
+                               double u, double v, double w)
+{
+    double dx, dy, dz, du, dv, dw, da, db, dc;
+    double  jerk = 0.0; // if a move to nowhere
+
+    // Compute absolute travel distance for each axis:
+    dx = fabs(x - canonEndPoint.x);
+    dy = fabs(y - canonEndPoint.y);
+    dz = fabs(z - canonEndPoint.z);
+    da = fabs(a - canonEndPoint.a);
+    db = fabs(b - canonEndPoint.b);
+    dc = fabs(c - canonEndPoint.c);
+    du = fabs(u - canonEndPoint.u);
+    dv = fabs(v - canonEndPoint.v);
+    dw = fabs(w - canonEndPoint.w);
+
+    if(!axis_valid(0) || dx < tiny) dx = 0.0;
+    if(!axis_valid(1) || dy < tiny) dy = 0.0;
+    if(!axis_valid(2) || dz < tiny) dz = 0.0;
+    if(!axis_valid(3) || da < tiny) da = 0.0;
+    if(!axis_valid(4) || db < tiny) db = 0.0;
+    if(!axis_valid(5) || dc < tiny) dc = 0.0;
+    if(!axis_valid(6) || du < tiny) du = 0.0;
+    if(!axis_valid(7) || dv < tiny) dv = 0.0;
+    if(!axis_valid(8) || dw < tiny) dw = 0.0;
+
+    if(debug_velacc)
+        printf("getStraightJerk dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g\n",
+               dx, dy, dz, da, db, dc, du, dv, dw);
+
+    // Figure out what kind of move we're making.  This is used to determine
+    // the units of vel/acc.
+    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
+        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
+        cartesian_move = 0;
+    } else {
+        cartesian_move = 1;
+    }
+    if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
+        angular_move = 0;
+    } else {
+        angular_move = 1;
+    }
+
+    // Pure linear move:
+    if (cartesian_move && !angular_move) {
+        jerk = MIN3((dx?axis_max_jerk[0]: huge),
+                    (dy?axis_max_jerk[1]: huge),
+                    (dz?axis_max_jerk[2]: huge));
+        jerk = FROM_EXT_LEN(MIN4((jerk),
+                        (du?axis_max_jerk[6]: huge),
+                        (dv?axis_max_jerk[7]: huge),
+                        (dw?axis_max_jerk[8]: huge)));
+    }
+    // Pure angular move:
+    else if (!cartesian_move && angular_move) {
+        jerk = FROM_EXT_ANG(MIN3(
+                    (da?axis_max_jerk[3]: huge),
+                    (db?axis_max_jerk[4]: huge),
+                    (dc?axis_max_jerk[5]: huge)));
+    }
+    // Combination angular and linear move:
+    else if (cartesian_move && angular_move) {
+
+        double ang_jerk;
+        jerk = MIN3( (dx?axis_max_jerk[0]: huge),
+                    (dy?axis_max_jerk[1]: huge),
+                    (dz?axis_max_jerk[2]: huge));
+
+        jerk = FROM_EXT_LEN(MIN4( jerk,
+                                (du?axis_max_jerk[6]: huge),
+                                (dv?axis_max_jerk[7]: huge),
+                                (dw?axis_max_jerk[8]: huge)));
+
+        ang_jerk = FROM_EXT_ANG(MIN3(
+                            (da?axis_max_jerk[3]: huge),
+                            (db?axis_max_jerk[4]: huge),
+                            (dc?axis_max_jerk[5]: huge)));
+
+        jerk = MIN(jerk, ang_jerk);
+
+    }
+    return jerk;
+}
+
 /**
  * Get the limiting acceleration for a displacement from the current position to the given position.
  * returns a single acceleration that is the minimum of all axis accelerations.
@@ -936,6 +1028,7 @@ static void flush_segments(void) {
     AccelData lineaccdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     double acc = lineaccdata.acc;
     linearMoveMsg.acc = toExtAcc(acc);
+    linearMoveMsg.jerk = toExtAcc(getStraightJerk(x, y, z, a, b, c, u, v, w));
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
     linearMoveMsg.indexrotary = -1;
@@ -1053,6 +1146,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
+    linearMoveMsg.jerk = toExtAcc(getStraightJerk(x, y, z, a, b, c, u, v, w));
     linearMoveMsg.indexrotary = rotary_unlock_for_traverse;
 
     int old_feed_mode = feed_mode;
@@ -1111,6 +1205,9 @@ void RIGID_TAP(int line_number, double x, double y, double z)
     rigidTapMsg.vel = toExtVel(ini_maxvel);
     rigidTapMsg.ini_maxvel = toExtVel(ini_maxvel);
     rigidTapMsg.acc = toExtAcc(acc);
+    rigidTapMsg.jerk = toExtAcc(getStraightJerk(x, y, z,
+                                canonEndPoint.a, canonEndPoint.b, canonEndPoint.c,
+                                canonEndPoint.u, canonEndPoint.v, canonEndPoint.w));
 
     flush_segments();
 
@@ -1165,6 +1262,7 @@ void STRAIGHT_PROBE(int line_number,
     probeMsg.vel = toExtVel(vel);
     probeMsg.ini_maxvel = toExtVel(ini_maxvel);
     probeMsg.acc = toExtAcc(acc);
+    probeMsg.jerk = toExtAcc(getStraightJerk(x, y, z, a, b, c, u, v, w));
 
     probeMsg.type = EMC_MOTION_TYPE_PROBING;
     probeMsg.probe_type = probe_type;
@@ -1780,6 +1878,7 @@ void ARC_FEED(int line_number,
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(v_max);
         linearMoveMsg.acc = toExtAcc(a_max);
+        linearMoveMsg.jerk = 1.0;
         linearMoveMsg.indexrotary = -1;
         if(vel && a_max){
             interp_list.set_line_number(line_number);
@@ -1803,6 +1902,7 @@ void ARC_FEED(int line_number,
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(v_max);
         circularMoveMsg.acc = toExtAcc(a_max);
+        linearMoveMsg.jerk = 1.0;
 
         //FIXME what happens if accel or vel is zero?
         // The end point is still updated, but nothing is added to the interp list
@@ -2072,6 +2172,7 @@ void CHANGE_TOOL(int slot)
 
         linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
         linearMoveMsg.acc = toExtAcc(acc);
+        linearMoveMsg.jerk = toExtAcc(getStraightJerk(x, y, z, a, b, c, u, v, w));
         linearMoveMsg.type = EMC_MOTION_TYPE_TOOLCHANGE;
 	linearMoveMsg.feed_mode = 0;
         linearMoveMsg.indexrotary = -1;

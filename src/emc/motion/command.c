@@ -898,7 +898,7 @@ check_stuff ( "before command_handler()" );
 	    tpSetId(&emcmotDebug->tp, emcmotCommand->id);
         int res_addline = tpAddLine(&emcmotDebug->tp, emcmotCommand->pos, emcmotCommand->motion_type, 
                                 emcmotCommand->vel, emcmotCommand->ini_maxvel, 
-                                emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed,
+                                emcmotCommand->acc, emcmotCommand->jerk, emcmotStatus->enables_new, issue_atspeed,
                                 emcmotCommand->turn);
         //KLUDGE ignore zero length line
         if (res_addline < 0) {
@@ -950,7 +950,7 @@ check_stuff ( "before command_handler()" );
                             emcmotCommand->center, emcmotCommand->normal,
                             emcmotCommand->turn, emcmotCommand->motion_type,
                             emcmotCommand->vel, emcmotCommand->ini_maxvel,
-                            emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed);
+                            emcmotCommand->acc, emcmotCommand->jerk, emcmotStatus->enables_new, issue_atspeed);
         if (res_addcirc < 0) {
             reportError(_("can't add circular move at line %d, error code %d"),
                     emcmotCommand->id, res_addcirc);
@@ -1391,7 +1391,7 @@ check_stuff ( "before command_handler()" );
 
 	    /* append it to the emcmotDebug->tp */
 	    tpSetId(&emcmotDebug->tp, emcmotCommand->id);
-	    if (-1 == tpAddLine(&emcmotDebug->tp, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, 0, -1)) {
+	    if (-1 == tpAddLine(&emcmotDebug->tp, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotCommand->jerk, emcmotStatus->enables_new, 0, -1)) {
 		reportError(_("can't add probe move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->tp);
@@ -1435,7 +1435,7 @@ check_stuff ( "before command_handler()" );
 
 	    /* append it to the emcmotDebug->tp */
 	    tpSetId(&emcmotDebug->tp, emcmotCommand->id);
-	    int res_addtap = tpAddRigidTap(&emcmotDebug->tp, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new);
+	    int res_addtap = tpAddRigidTap(&emcmotDebug->tp, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotCommand->jerk, emcmotStatus->enables_new);
         if (res_addtap < 0) {
             emcmotStatus->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
             reportError(_("can't add rigid tap move at line %d, error code %d"),
