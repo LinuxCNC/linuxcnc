@@ -1,0 +1,922 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-25 20:45+0100\n"
+"PO-Revision-Date: 2015-02-25 22:43+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: tool_compensation.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: tool_compensation.txt:4
+msgid "= Tool Compensation"
+msgstr "= Les compensations d'outil"
+
+#. type: Plain text
+#: tool_compensation.txt:6
+msgid "[[cha:tool-compensation]] (((Tool Compensation)))"
+msgstr "[[cha:compensation-outil]] (((Compensation d'outil)))"
+
+#. type: Plain text
+#: tool_compensation.txt:8
+msgid "== Tool Length Offsets"
+msgstr "== Compensation de longueur d'outil"
+
+#. type: Plain text
+#: tool_compensation.txt:10
+msgid "=== Touch Off(((Touch Off)))"
+msgstr "=== Toucher(((Toucher)))"
+
+#. type: Plain text
+#: tool_compensation.txt:13
+msgid ""
+"Using the Touch Off Screen in the AXIS interface you can update the tool "
+"table automatically."
+msgstr ""
+"Dans la boîte de dialogue du bouton 'Toucher' de l'interface AXIS, il est "
+"possible de mettre à jour automatiquement la table d'outils."
+
+#. type: Plain text
+#: tool_compensation.txt:15
+msgid "Typical steps for updating the tool table:"
+msgstr "Séquence typique pour mise à jour de la table d'outils:"
+
+#. type: Bullet: '* '
+#: tool_compensation.txt:23
+msgid "After homing load a tool with 'Tn M6' where 'n' is the tool number."
+msgstr ""
+"Après la prise d'origine, charger un outil 'Tn M6' dans lequel 'n' est le "
+"numéro de l'outil."
+
+#. type: Plain text
+#: tool_compensation.txt:23
+#, no-wrap
+msgid ""
+"* Move tool to an established point using a gauge or take a test cut and\n"
+"   measure.\n"
+"* Click the \"Touch Off\" button in the Manual Control tab (or hit the\n"
+"   End button on your keyboard).\n"
+"* Select 'Tool Table' in the Coordinate System drop down box.\n"
+"* Enter the gauge or measured dimension and select OK.\n"
+msgstr ""
+"* Déplacer l'outil pour établir le zéro pièce, en utilisant une cale\n"
+"   d'épaisseur ou en faisant une petite passe puis une mesure.\n"
+"* Cliquer sur le bouton 'Toucher' de l'onglet 'Contrôle manuel' (ou presser la\n"
+"   touche 'Fin' du clavier).\n"
+"* Sélectionner 'Table d'outils' dans la liste déroulante des systèmes de\n"
+"coordonnées.\n"
+"* Entrer l'épaisseur de la cale ou la cote mesurée puis presser OK.\n"
+
+#. type: Plain text
+#: tool_compensation.txt:28
+msgid ""
+"The Tool Table will be changed with the correct Z length to make the DRO "
+"display the correct Z position and a G43 command will be issued so the new "
+"tool Z length will be in effect. Tool table touch off is only available when "
+"a tool is loaded with 'Tn M6'."
+msgstr ""
+"La table d'outil sera alors modifiée avec la longueur correcte en Z de "
+"l'outil. La visu affichera la position en Z correcte et une commande G43 "
+"sera passée pour que la nouvelle longueur Z de l'outil soit effective. Le "
+"choix 'Table d'outils' n'apparaîtra dans la liste déroulante du 'Toucher', "
+"que si l'outil à été chargé avec 'Tn M6'."
+
+#. type: Plain text
+#: tool_compensation.txt:30
+msgid ".Touch Off Tool Table[[cap:Touch-Off-Tool]]"
+msgstr ".Toucher et table d'outils[[cap:Touch-Off-Tool]]"
+
+#. type: Plain text
+#: tool_compensation.txt:32
+msgid "image::images/ToolTable-TouchOff.png[align=\"center\"]"
+msgstr "image::images/ToolTable-TouchOff_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: tool_compensation.txt:34
+msgid "=== Using G10 L1/L10/L11"
+msgstr "=== Utilisation de G10 L1/L10/L11"
+
+#. type: Plain text
+#: tool_compensation.txt:37
+#, no-wrap
+msgid ""
+"The G10 L1/L10/L11 commands can be used to set tool table offsets:\n"
+"  (these are just quick summaries, see the G code section for full details)\n"
+msgstr ""
+"Les commandes G10 L1/L10/L11 peuvent être utilisées pour ajuster les\n"
+"compensations dans la table d'outils:\n"
+"  (Ce sera juste une brève présentation, se reporter au guide de références du\n"
+"G-code pour des explications plus détaillées)\n"
+
+#. type: Plain text
+#: tool_compensation.txt:40
+#, no-wrap
+msgid ""
+"* 'G10 L1  Pn' - Set offset(s) to a value. Current position irrelevant. \n"
+"                      (see <<sec:G10-L1_,G10 L1>> for details)\n"
+msgstr ""
+"* 'G10 L1  Pn' - (n est le N° d'outil) Fixe les offsets de l'outil. La position courante n'est pas significative. \n"
+"<<sec:G10-L1, Tous les détails ici>>.\n"
+
+#. type: Plain text
+#: tool_compensation.txt:43
+#, no-wrap
+msgid ""
+"* 'G10 L10 Pn' - Set offset(s) so current position w/ fixture 1-8 becomes a value. \n"
+"                      (see <<sec:G10-L10,G10 L10>> for details)\n"
+msgstr ""
+"* 'G10 L10 Pn'  - (n est le N° d'outil) Fixe l'offset à la position courante, met les valeurs\n"
+"dans un système de 1 à 8. <<sec:G10-L10, Tous les détails ici>>.\n"
+
+#. type: Plain text
+#: tool_compensation.txt:46
+#, no-wrap
+msgid ""
+"* 'G10 L11 Pn' - Set offset(s) so current position w/ fixture 9 becomes a value. \n"
+"                      (see <<sec:G10-L11,G10 L11>> for details)\n"
+msgstr ""
+"* 'G10 L11 Pn'  - (n est le N° d'outil) Fixe l'offset à la position courante, met les valeurs\n"
+"dans le système 9. <<sec:G10-L11, Tous les détails ici>>.\n"
+
+#. type: Plain text
+#: tool_compensation.txt:49
+msgid "[[sec:tool-table]] == Tool Table"
+msgstr "== Table d'outils[[sec:Table-Outils]]"
+
+#. type: Plain text
+#: tool_compensation.txt:51
+msgid "// carried over from machining_center.txt for salvage -mah"
+msgstr "// carried over from machining_center.txt for salvage -mah"
+
+#. type: Plain text
+#: tool_compensation.txt:53
+msgid "// === Mill Format Tool Files"
+msgstr "// === Mill Format Tool Files"
+
+#. type: Plain text
+#: tool_compensation.txt:56
+msgid ""
+"// The “mill format” of a tool file is shown in Table // <<cap:Sample-Tool-"
+"File>>."
+msgstr ""
+"// The “mill format” of a tool file is shown in Table\n"
+"// <<cap:Sample-Tool-File>>."
+
+#. type: Plain text
+#: tool_compensation.txt:58
+msgid "// .Sample Tool File (mill format)[[cap:Sample-Tool-File]]"
+msgstr "// .Sample Tool File (mill format)[[cap:Sample-Tool-File]]"
+
+#. type: Plain text
+#: tool_compensation.txt:68
+msgid ""
+"// [width=\"90%\", options=\"header\"] // |"
+"======================================== // |Pocket | FMS | TLO | Diameter | "
+"Comment // | | | | | // |1 | 1 | 2.0 | 1.0 | // |2 | 2 | 1.0 | 0.2 | // |5 | "
+"5 | 1.5 | 0.25 | endmill // |10 | 10 | 2.4 | -0.3 | for testing // |"
+"========================================"
+msgstr ""
+"// [width=\"90%\", options=\"header\"]\n"
+"// |========================================\n"
+"// |Pocket | FMS | TLO | Diameter | Comment\n"
+"// | |  |  |  |\n"
+"// |1 | 1 | 2.0 | 1.0 |\n"
+"// |2 | 2 | 1.0 | 0.2 |\n"
+"// |5 | 5 | 1.5 | 0.25 | endmill\n"
+"// |10 | 10 | 2.4 | -0.3 | for testing\n"
+"// |========================================"
+
+#. type: Plain text
+#: tool_compensation.txt:76
+msgid ""
+"// Each line has five entries. The first four entries are required. The // "
+"last entry (a comment) is optional. It makes reading easier if the // "
+"entries are arranged in columns, as shown in the table, but the only // "
+"format requirement is that there be at least one space or tab after // each "
+"of the first three entries on a line and a space, tab, or newline // at the "
+"end of the fourth entry. The meanings of the columns and the // type of data "
+"to be put in each are as follows."
+msgstr ""
+"// Each line has five entries. The first four entries are required. The\n"
+"// last entry (a comment) is optional. It makes reading easier if the\n"
+"// entries are arranged in columns, as shown in the table, but the only\n"
+"// format requirement is that there be at least one space or tab after\n"
+"// each of the first three entries on a line and a space, tab, or newline\n"
+"// at the end of the fourth entry. The meanings of the columns and the\n"
+"// type of data to be put in each are as follows."
+
+#. type: Plain text
+#: tool_compensation.txt:81
+msgid ""
+"// The “Pocket” column contains the number (unsigned integer) which // "
+"represents the pocket number (slot number) of the tool carousel slot in // "
+"which the tool is placed. The entries in this column must all be // "
+"different."
+msgstr ""
+"// The “Pocket” column contains the number (unsigned integer) which\n"
+"// represents the pocket number (slot number) of the tool carousel slot in\n"
+"// which the tool is placed. The entries in this column must all be\n"
+"// different."
+
+#. type: Plain text
+#: tool_compensation.txt:86
+msgid ""
+"// The “FMS” column contains the number (unsigned integer) which // "
+"represents a code number for the tool. The user may use any code for // any "
+"tool, as long as the codes are unsigned integers. This is typically // the "
+"same as the pocket number."
+msgstr ""
+"// The “FMS” column contains the number (unsigned integer) which\n"
+"// represents a code number for the tool. The user may use any code for\n"
+"// any tool, as long as the codes are unsigned integers. This is typically\n"
+"// the same as the pocket number."
+
+#. type: Plain text
+#: tool_compensation.txt:92
+msgid ""
+"// The “TLO” column contains a real number which represents the tool // "
+"length offset. This number will be used if tool length offsets are // being "
+"used and this pocket is selected. This is normally a positive // real "
+"number, but it may be zero or any other number if it is never to // be used."
+msgstr ""
+"// The “TLO” column contains a real number which represents the tool\n"
+"// length offset. This number will be used if tool length offsets are\n"
+"// being used and this pocket is selected. This is normally a positive\n"
+"// real number, but it may be zero or any other number if it is never to\n"
+"// be used."
+
+#. type: Plain text
+#: tool_compensation.txt:103
+msgid ""
+"// The “Diameter” column contains a real number. This number is used only // "
+"if tool radius compensation is turned on using this pocket. If the // "
+"programmed path during compensation is the edge of the material being // "
+"cut, this should be a positive real number representing the measured // "
+"diameter of the tool. If the programmed path during compensation is the // "
+"path of a tool whose diameter is nominal, this should be a small number // "
+"(positive, negative, or zero) representing the difference between the // "
+"measured diameter of the tool and the nominal diameter. If cutter // radius "
+"compensation is not used with a tool, it does not matter what // number is "
+"in this column."
+msgstr ""
+"// The “Diameter” column contains a real number. This number is used only\n"
+"// if tool radius compensation is turned on using this pocket. If the\n"
+"// programmed path during compensation is the edge of the material being\n"
+"// cut, this should be a positive real number representing the measured\n"
+"// diameter of the tool. If the programmed path during compensation is the\n"
+"// path of a tool whose diameter is nominal, this should be a small number\n"
+"// (positive, negative, or zero) representing the difference between the\n"
+"// measured diameter of the tool and the nominal diameter. If cutter\n"
+"// radius compensation is not used with a tool, it does not matter what\n"
+"// number is in this column."
+
+#. type: Plain text
+#: tool_compensation.txt:107
+msgid ""
+"// The “Comment” column may optionally be used to describe the tool. Any // "
+"type of description is OK. This column is for the benefit of human // "
+"readers only."
+msgstr ""
+"// The “Comment” column may optionally be used to describe the tool. Any\n"
+"// type of description is OK. This column is for the benefit of human\n"
+"// readers only."
+
+#. type: Plain text
+#: tool_compensation.txt:116
+msgid ""
+"The 'Tool Table' is a text file that contains information about each tool. "
+"The file is located in the same directory as your configuration and is "
+"called 'tool.tbl'. The tools might be in a tool changer or just changed "
+"manually. The file can be edited with a text editor or be updated using G10 "
+"L1. See the <<sec:lathe-tool-table,Lathe Tool Table>> Section for an example "
+"of the lathe tool table format.  The maximum number of entries in the tool "
+"table is 56.  The maximum tool and pocket number is 99999."
+msgstr ""
+"La 'table d'outils' est un fichier texte qui contient les informations de "
+"chaque outil. Ce fichier est placé dans le même répertoire que le fichier "
+"ini de configuration. Il est nommé 'tool.tbl'. Les outils peuvent être dans "
+"un changeur d'outils ou changés manuellement. Ce fichier peut être édité "
+"avec un éditeur de texte ou être mis à jour avec la commande G10 L1. Voir la "
+"section: <<sec:lathe-tool-table,spécifique au tour>> pour ce qui concerne "
+"les outils de tour, avec un exemple de table. Le nombre d'outils est limité "
+"à 56 dans une table d'outils même si la numérotation des outils et des "
+"poches peut aller jusqu'à 99999."
+
+#. type: Plain text
+#: tool_compensation.txt:120
+msgid ""
+"The <<cha:tooledit-gui,Tool Editor>> or a text editor can be used to edit "
+"the tool table. If you use a text editor make sure you reload the tool table "
+"in the GUI."
+msgstr ""
+"L'éditeur d'outils peut également être utilisé pour mettre la table d'outils "
+"à jour. Après mise à jour, ne pas oublier de recharger la table dans la GUI, "
+"pour que les modifications soient effectives."
+
+#. type: Plain text
+#: tool_compensation.txt:123
+msgid "=== Tool Table Format (((Tool-Table-Format)))"
+msgstr ""
+"=== Format de la table d'outils[[sec:Tool-Table-Format]] (((Format de la "
+"table d'outils)))"
+
+#. type: Plain text
+#: tool_compensation.txt:125
+msgid ".Tool Table Format"
+msgstr ".Format de la table d'outils"
+
+#. type: Plain text
+#: tool_compensation.txt:134
+#, no-wrap
+msgid ""
+"[width=\"100%\", options=\"header\"]\n"
+"|========================================\n"
+"|T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem\n"
+"|; 15+^|(no data after opening semicolon)\n"
+"|T1    |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem\n"
+"|T2    |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem\n"
+"|T3    |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem\n"
+"|========================================\n"
+msgstr ""
+"[width=\"100%\", options=\"header\"]\n"
+"|========================================\n"
+"|T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem\n"
+"|; 15+^|(aucune donnée après le point-virgule)\n"
+"|T1    |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem\n"
+"|T2    |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem\n"
+"|T3    |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem\n"
+"|========================================\n"
+
+#. type: Plain text
+#: tool_compensation.txt:136
+msgid "In general, the new tool table line format is:"
+msgstr "En général, le format d'une ligne de table d'outils est le suivant:"
+
+#. type: Bullet: ' - '
+#: tool_compensation.txt:146
+msgid "; - opening semicolon, no data"
+msgstr "; Un point-virgule comme premier caractère, aucune donnée"
+
+#. type: Bullet: ' - '
+#: tool_compensation.txt:146
+msgid "T - tool number, 0-99999 (tool numbers must be unique)"
+msgstr "T Numéro d'outil, 0-99999 (chaque numéro d'outil doit être unique)"
+
+#. type: Bullet: ' - '
+#: tool_compensation.txt:146
+msgid "P - pocket number, 1-99999 (pocket numbers must be unique)"
+msgstr "P Numéro de poche, 1-99999 (chaque numéro de poche doit être unique)"
+
+#. type: Bullet: ' - '
+#: tool_compensation.txt:146
+msgid "X..W - tool offset on specified axis - floating-point"
+msgstr ""
+"X..W  Offset d'outil sur les axes spécifiés - nombre à virgule flottante"
+
+#. type: Bullet: ' - '
+#: tool_compensation.txt:146
+msgid "D - tool diameter - floating-point, absolute value"
+msgstr "D diamètre d'outil - nombre à virgule flottante, valeur absolue"
+
+#. type: Bullet: ' - '
+#: tool_compensation.txt:146
+msgid "I - front angle (lathe only) - floating-point"
+msgstr "I angle frontal (tour seulement) - nombre à virgule flottante"
+
+#. type: Bullet: ' - '
+#: tool_compensation.txt:146
+msgid "J - back angle (lathe only) - floating-point"
+msgstr "J angle de dos (tour seulement) - nombre à virgule flottante"
+
+#. type: Bullet: ' - '
+#: tool_compensation.txt:146
+msgid "Q - tool orientation (lathe only) - integer, 0-9"
+msgstr "Q orientation de l'outil (tour seulement) - entier de 0 à 9"
+
+#. type: Bullet: ' - '
+#: tool_compensation.txt:146
+msgid "; - beginning of comment or remark - text"
+msgstr "; début de commentaire ou remarque - texte"
+
+#. type: Plain text
+#: tool_compensation.txt:154
+msgid ""
+"The file consists of one opening semicolon on the first line, followed by up "
+"to a maximum of 56 tool entries.  footnote:[Although tool numbers up to "
+"99999 are allowed, the number of entries in the tool table, at the moment, "
+"is still limited to a maximum of 56 tools for technical reasons. The "
+"LinuxCNC developers plan to remove that limitation eventually. If you have a "
+"very large tool changer, please be patient.]"
+msgstr ""
+"Le fichier commence par un point-virgule en première ligne, suivi par les "
+"caractéristiques de 56 outils au maximum. footnote:[Bien que les numéros "
+"d'outils puissent aller jusqu'à 99999, le nombre d'outils dans la table, en "
+"ce moment, est limité à un maximum de 56 outils pour des raisons techniques. "
+"Les développeurs de LinuxCNC envisagent la possibilité de faire sauter cette "
+"limitation. Si vous avez un très gros changeur d'outils, merci d'être "
+"patient.]"
+
+#. type: Plain text
+#: tool_compensation.txt:159
+msgid ""
+"Earlier versions of LinuxCNC had two different tool table formats for mills "
+"and lathes, but since the 2.4.x release, one tool table format is used for "
+"all machines. Just ignore the parts of the tool table that don't pertain to "
+"your machine, or which you don't need to use."
+msgstr ""
+"Les versions antérieures de LinuxCNC avaient deux différents formats de "
+"table d'outils un pour les fraiseuses et un pour les tours, mais depuis la "
+"version 2.4.x, un format unique est utilisé pour toutes les machines. Il "
+"suffit d'ignorer les parties de la table d'outils qui ne se rapportent pas "
+"la machine actuelle, ou que vous n'avez pas besoin d'utiliser."
+
+#. type: Plain text
+#: tool_compensation.txt:163
+msgid ""
+"Each line of the tool table file after the opening semicolon contains the "
+"data for one tool. One line may contain as many as 16 entries, but will "
+"likely contain much fewer."
+msgstr ""
+"Chaque ligne du fichier de la table d'outils après le point-virgule ouvrant, "
+"contient les données pour un seul outil. Une ligne peut contenir jusqu'à 16 "
+"entrées, mais peut aussi en contenir beaucoup moins."
+
+#. type: Plain text
+#: tool_compensation.txt:165
+msgid "The units used for the length, diameter, etc., are in machine units."
+msgstr ""
+"Les unités utilisées pour les longueurs, diamètres, etc. sont en unités "
+"machine."
+
+#. type: Plain text
+#: tool_compensation.txt:169
+msgid ""
+"You will probably want to keep the tool entries in ascending order, "
+"especially if you are going to be using a randomizing tool changer.  "
+"Although the tool table does allow for tool numbers in any order."
+msgstr ""
+"Vous voudrez probablement maintenir les entrées d'outils dans l'ordre "
+"croissant, surtout si vous utilisez un changeur d'outils aléatoire. Bien que "
+"la table d'outils permettent des numéros d'outils dans n'importe quel ordre."
+
+#. type: Plain text
+#: tool_compensation.txt:176
+msgid ""
+"Each line may have up to 16 entries. The first two entries are required.  "
+"The last entry (a remark or comment, preceded by a semicolon) is optional. "
+"It makes reading easier if the entries are arranged in columns, as shown in "
+"the table, but the only format requirement is that there be at least one "
+"space or tab after each of the entries on a line and a newline character at "
+"the end of each entry."
+msgstr ""
+"Chaque ligne peut avoir jusqu'à 16 valeurs. Les deux premières valeurs sont "
+"requises. La dernière valeur (un point-virgule suivi d'un commentaire) est "
+"optionnelle. La lecture sera rendue plus facile si les valeurs sont "
+"disposées en colonnes, comme indiqué dans le tableau, mais la seule exigence "
+"sur le format est qu'il y ait au moins un espace ou une tabulation après "
+"chacune des valeurs sur une ligne et un saut de ligne à la fin de chaque "
+"ligne."
+
+#. type: Plain text
+#: tool_compensation.txt:179
+msgid ""
+"The meanings of the entries and the type of data to be put in each are as "
+"follows."
+msgstr ""
+"La signification des valeurs et le type de données qu'elles contiennent sont "
+"les suivantes:"
+
+#. type: Plain text
+#: tool_compensation.txt:184
+msgid ""
+".Tool Number (required)  The 'T' column contains the number (unsigned "
+"integer) which represents a code number for the tool. The user may use any "
+"code for any tool, as long as the codes are unsigned integers."
+msgstr ""
+".Numéro d'outil (requis)\n"
+"La colonne 'T' contient un nombre entier non signé, qui représente le code "
+"de l'outil. L'opérateur peut utiliser n'importe quel code pour n'importe "
+"quel outil, tant que les codes sont des entiers non signés."
+
+#. type: Plain text
+#: tool_compensation.txt:190
+msgid ""
+".Pocket Number (required)  The 'P' column contains the number (unsigned "
+"integer) which represents the pocket number (slot number) of the tool "
+"changer slot where the tool can be found. The entries in this column must "
+"all be different."
+msgstr ""
+".Numéro de poche (requis)\n"
+"La colonne 'P' contient un nombre entier non signé, qui représente le numéro "
+"de poche (numéro de slot) du changeur d'outils, poche dans laquelle l'outil "
+"se trouve. Les entrées de cette colonne doivent être toutes différentes."
+
+#. type: Plain text
+#: tool_compensation.txt:198
+msgid ""
+"The pocket numbers will typically start at 1 and go up to the highest "
+"available pocket on your tool changer. But not all tool changers follow this "
+"pattern. Your pocket numbers will be determined by the numbers that your "
+"tool changer uses to refer to the pockets. So all this is to say that the "
+"pocket numbers you use will be determined by the numbering scheme used in "
+"your tool changer, and the pocket numbers you use must make sense on your "
+"machine."
+msgstr ""
+"Le numéro de poche commence typiquement à 1 et va au maximum de poches "
+"disponibles sur le changeur d'outils. Mais tous les changeurs d'outils ne "
+"suivent pas ce modèle. Votre numéro de poche sera déterminé, par le numéro "
+"que votre changeur d'outil utilisera pour se référer à ses poches. Tout cela "
+"pour dire que les numéros de poche que vous utiliserez seront déterminés par "
+"le schéma de numérotation de votre changeur d'outil. Les numéros de poche "
+"doivent suivre la même logique que la machine."
+
+#. type: Plain text
+#: tool_compensation.txt:207
+msgid ""
+".Data Offset Numbers (optional)  The 'Data Offset' columns (XYZABCUVW) "
+"contain real numbers which represent tool offsets in each axis. This number "
+"will be used if tool length offsets are being used and this tool is "
+"selected.  These numbers can be positive, zero, or negative, and are in fact "
+"completely optional. Although you will probably want to make at least one "
+"entry here, otherwise there would be little point in making an entry in the "
+"tool table to begin with."
+msgstr ""
+".Données d'offset des outils (optionnelles)\n"
+"Les colonnes de données d'offset (XYZABCUVW) contiennent des nombres réels "
+"qui représentent les offsets d'outil pour chacun des axes. Ce nombre sera "
+"utilisé si, en usinage, les offsets de longueur d'outil sont utilisés et que "
+"l'outil concerné est sélectionné. Ces nombres peuvent être positif, égaux à "
+"zéro ou négatif, ils sont en fait, complètement optionnels. Bien qu'il "
+"vaudrait mieux qu'il y ait au moins une valeur ici, sinon il n'y aurait "
+"aucun intérêt à se servir d'une entrée complètement vide dans la table "
+"d'outils."
+
+#. type: Plain text
+#: tool_compensation.txt:215
+msgid ""
+"In a typical mill, you probably want an entry for Z (tool length offset). In "
+"a typical lathe, you probably want an entry for X (X tool offset) and Z (Z "
+"tool offset). In a typical mill using cutter diameter compensation (cutter "
+"comp), you probably also want to add an entry for D (cutter diameter). In a "
+"typical lathe using tool nose diameter compensation (tool comp), you "
+"probably also want to add an entry for D (tool nose diameter)."
+msgstr ""
+"Sur une fraiseuse classique, on trouvera probablement une entrée en Z "
+"(offset de longueur d'outil). Sur un tour classique, on trouvera "
+"certainement un entrée en X (offset d'outil en X) et une en Z (offset "
+"d'outil en Z). Sur une fraiseuse classique utilisant la compensation de "
+"rayon d'outil, on trouvera une valeur en D pour l'offset de diamètre. Sur un "
+"tour classique utilisant la compensation de diamètre de bec d'outil, une "
+"valeur sera entrée en D (diamètre de bec)."
+
+#. type: Plain text
+#: tool_compensation.txt:220
+msgid ""
+"A lathe also requires some additional information to describe the shape and "
+"orientation of the tool. So you probably want to have entries for I (tool "
+"front angle) and J (tool back angle).  You probably also want an entry for Q "
+"(tool orientation)."
+msgstr ""
+"Un tour demande encore d'autres informations pour décrire la forme et "
+"l'orientation de l'outil. Ainsi, on trouvera une valeur en I (angle avant) "
+"et en J (angle de dos) ainsi qu'une valeur en Q (orientation)."
+
+#. type: Plain text
+#: tool_compensation.txt:223
+msgid ""
+"A complete description of the lathe entries can be found in the lathe "
+"section of the user manual <<cha:lathe-user-information,here>>."
+msgstr ""
+"Une description complète des outils de tour <<cha:Tour-Specifiques,ce trouve "
+"ici>>."
+
+#. type: Plain text
+#: tool_compensation.txt:234
+msgid ""
+"The 'Diameter' column contains a real number. This number is used only if "
+"cutter compensation is turned on using this tool. If the programmed path "
+"during compensation is the edge of the material being cut, this should be a "
+"positive real number representing the measured diameter of the tool. If the "
+"programmed path during compensation is the path of a tool whose diameter is "
+"nominal, this should be a small number (positive or negative, but near zero) "
+"representing only the difference between the measured diameter of the tool "
+"and the nominal diameter.  If cutter compensation is not used with a tool, "
+"it does not matter what number is in this column."
+msgstr ""
+"La colonne 'Diamètre' contient un nombre réel. Ce nombre est utilisé "
+"seulement si la compensation est activée lors de l'usage de cet outil. Si la "
+"trajectoire programmée avec la compensation active, est un des bords de la "
+"matière à usiner, cette valeur doit être un nombre réel positif, "
+"représentant le diamètre mesuré de l'outil. Si la trajectoire programmée, "
+"toujours avec la compensation active, est prévue pour un diamètre nominal "
+"d'outil, ce nombre doit être très petit (négatif ou positif, mais proche de "
+"zéro), il représente seulement la différence entre le diamètre nominal et le "
+"diamètre mesuré de l'outil. Si la compensation n'est pas utilisée avec un "
+"outil, cette valeur est sans importance."
+
+#. type: Plain text
+#: tool_compensation.txt:238
+msgid ""
+"The 'Comment' column may optionally be used to describe the tool. Any type "
+"of description is OK. This column is for the benefit of human readers only. "
+"The comment must be preceded by a semicolon."
+msgstr ""
+"La colonne des commentaires peut optionnellement être utilisée pour décrire "
+"l'outil. Elle commence par un point-virgule, elle peut contenir n'importe "
+"quel texte pour le seul bénéfice de l'opérateur.  "
+
+#. type: Plain text
+#: tool_compensation.txt:240
+msgid "=== [[sec:Tool-Changers]] Tool Changers"
+msgstr "=== Changeur d'outil[[sec:Tool-Changers]]"
+
+#. type: Plain text
+#: tool_compensation.txt:244
+msgid ""
+"LinuxCNC supports three types of tool changers: 'manual', 'random location' "
+"and 'fixed location'. Information about configuring an LinuxCNC tool changer "
+"is in the Integrator Manual."
+msgstr ""
+"LinuxCNC supporte trois types de changeur d'outil: 'manuel', 'à emplacements "
+"aléatoires' et 'à emplacements fixes'. Une information complète à ce propos "
+"se trouve dans le manuel de configuration de LinuxCNC."
+
+#. type: Plain text
+#: tool_compensation.txt:246
+msgid ".Manual Tool Changer"
+msgstr ".Changement d'outil manuel"
+
+#. type: Plain text
+#: tool_compensation.txt:254
+msgid ""
+"Manual tool changer (you change the tool by hand) is treated like a fixed "
+"location tool changer and the P number is ignored. Using the manual tool "
+"changer only makes sense if you have tool holders that remain with the tool "
+"(Cat, NMTB, Kwik Switch etc.) when changed thus preserving the location of "
+"the tool to the spindle. Machines with R-8 or router collet type tool "
+"holders do not preserve the location of the tool and the manual tool changer "
+"should not be used."
+msgstr ""
+"Le changeur d'outil manuel (l'opérateur change les outils à la main) est "
+"traité comme un changeur d'outil à emplacement fixe, le nombre P est ignoré. "
+"L'utilisation d'un changeur d'outil manuel n'a de sens que si des porte-"
+"outils conservant les outils montés, sont utilisés. (Cat, NMTB, Kwik Switch "
+"etc.) Quand ils sont changés, les cotes de l'outil par rapport à la broche, "
+"sont préservées. Les machines avec cône R-8 ou avec maintien de l'outil de "
+"type collet, ne préservent pas les cotes des outils et le changeur d'outils "
+"manuel ne doit pas être utilisé."
+
+#. type: Plain text
+#: tool_compensation.txt:256
+msgid ".Fixed Location Tool Changers"
+msgstr ".Changeur d'outil à emplacements fixes"
+
+#. type: Plain text
+#: tool_compensation.txt:263
+msgid ""
+"Fixed location tool changers always return the tools to a fixed position in "
+"the tool changer. This would also include designs like lathe turrets. When "
+"LinuxCNC is configured for a fixed location tool changer the 'P' number is "
+"ignored (but read, preserved and rewritten) by LinuxCNC, so you can use P "
+"for any bookkeeping number you want."
+msgstr ""
+"Le changeur d'outil à emplacements fixes, range toujours l'outil dans le "
+"même emplacement du rack d'outils. Ceci inclut également les designs comme "
+"les tourelles d'outils de tour. Quand LinuxCNC est configuré pour ce type de "
+"changeur d'outil, le nombre 'P' est ignoré (mais lu, préservé et réécrit) "
+"par LinuxCNC, ainsi P peut être utilisé pour toutes sortes de compatibilité."
+
+#. type: Plain text
+#: tool_compensation.txt:265
+msgid ".Random Location Tool Changers"
+msgstr ".Changeur d'outil à emplacements aléatoires"
+
+#. type: Plain text
+#: tool_compensation.txt:272
+msgid ""
+"Random location tool changers swap the tool in the spindle with the one in "
+"the changer. With this type of tool changer the tool will always be in a "
+"different pocket after a tool change. When a tool is changed LinuxCNC "
+"rewrites the pocket number to keep track of where the tools are. T can be "
+"any number but P must be a number that makes sense for the machine."
+msgstr ""
+"Le changeur d'outil à emplacements aléatoires permute l'outil dans la broche "
+"avec celui de la poche du changeur. Avec ce type de changeur d'outil, "
+"l'outil est toujours placé dans une poche différente après le changement. "
+"Quand un outil est changé, LinuxCNC réécrit le numéro de poche pour garder "
+"la trace de la poche dans laquelle l'outil se trouve. T peut être n'importe "
+"quel numéro mais P doit être un numéro sensé selon la machine."
+
+#. type: Plain text
+#: tool_compensation.txt:276
+msgid "[[sec:cutter-compensation]] == Cutter Compensation"
+msgstr "== Compensation d'outil[[sec:Compensation-rayon-d-outil]]"
+
+#. type: Plain text
+#: tool_compensation.txt:281
+msgid ""
+"Cutter Compensation allows the programmer to program the tool path without "
+"knowing the exact tool diameter. The only caveat is the programmer must "
+"program the lead in move to be at least as long as the largest tool radius "
+"that might be used."
+msgstr ""
+"La compensation de rayon d'outil permet de suivre un parcours sans se "
+"préoccuper du diamètre de l'outil. La seule restriction, c'est que les "
+"'mouvements d'entrée' doivent être au moins aussi long que le rayon de "
+"l'outil utilisé."
+
+#. type: Plain text
+#: tool_compensation.txt:288
+msgid ""
+"There are two possible paths the cutter can take while cutter compensation "
+"is on to the left or right side of a line when facing the direction of "
+"cutter motion from behind the cutter. To visualize this imagine you were "
+"standing on the part walking behind the tool as it progresses across the "
+"part. G41 is your left side of the line and G42 is the right side of the "
+"line."
+msgstr ""
+"Il y a deux parcours que l'outil peut prendre pour usiner un profil quand la "
+"compensation de rayon est activée, un parcours à gauche du profil et un à "
+"droite du profil. Pour les visualiser, il faut s'imaginer être debout sur la "
+"pièce, marchant en suivant l'outil pendant que celui-ci progresse dans la "
+"matière. G41 fait passer l'outil à gauche du profil et G42 le fait passer à "
+"droite du profil."
+
+#. type: Plain text
+#: tool_compensation.txt:295
+msgid ""
+"The end point of each move depends on the next move. If the next move "
+"creates an outside corner the move will be to the end point of the "
+"compensated cut line. If the next move creates in an inside corner the move "
+"will stop short so to not gouge the part. The following figure shows how the "
+"compensated move will stop at different points depending on the next move."
+msgstr ""
+"Le point final de chaque mouvement, dépends du mouvement suivant. Si le "
+"mouvement suivant crée un angle extérieur, le mouvement se terminera à "
+"l'extrémité de la ligne de coupe compensée. Si le mouvement suivant crée un "
+"angle intérieur, l'outil s'arrêtera avant d'interférer avec la matière de la "
+"pièce. La figure suivante montre comment le mouvement se termine à "
+"différents endroits, dépendants du mouvement suivant."
+
+#. type: Plain text
+#: tool_compensation.txt:297
+msgid ".Compensation End Point[[cap:Compensation-End-Point]]"
+msgstr ".Point final de la compensation[[cap:Compensation-End-Point]]"
+
+#. type: Plain text
+#: tool_compensation.txt:299
+msgid "image::images/comp-path.png[align=\"center\"]"
+msgstr "image::images/comp-path_fr.png[]"
+
+#. type: Plain text
+#: tool_compensation.txt:301
+msgid "=== Overview"
+msgstr "=== Vue générale"
+
+#. type: Plain text
+#: tool_compensation.txt:303
+msgid ".Tool Table"
+msgstr ".Table d'outils"
+
+#. type: Plain text
+#: tool_compensation.txt:307
+msgid ""
+"Cutter compensation uses the data from the tool table to determine the "
+"offset needed. The data can be set at run time with G10 L1."
+msgstr ""
+"La compensation de rayon d'outil utilise les données de la table d'outils "
+"pour déterminer le décalage nécessaire. Les données peuvent être introduites "
+"à la volée, avec G10 L1."
+
+#. type: Plain text
+#: tool_compensation.txt:309
+msgid ".Programming Entry Moves"
+msgstr ".Programmation des mouvements d'entrée"
+
+#. type: Plain text
+#: tool_compensation.txt:315
+msgid ""
+"Any move that is long enough to perform the compensation will work as the "
+"entry move. The minimum length is the cutter radius. This can be a rapid "
+"move above the work piece. If several rapid moves are issued after a G41/42 "
+"only the last one will move the tool to the compensated position."
+msgstr ""
+"Tout mouvement suffisamment long pour arriver en position compensée, sera un "
+"mouvement d'entrée valide. La longueur minimale équivaut au rayon de "
+"l'outil. Ça peut être un mouvement en vitesse rapide au dessus de la pièce. "
+"Si plusieurs mouvements en vitesse rapide sont prévus après un G41/G42, seul "
+"le dernier placera l'outil en position compensée."
+
+#. type: Plain text
+#: tool_compensation.txt:321
+msgid ""
+"In the following figure you can see that the entry move is compensated to "
+"the right of the line. This puts the center of the tool to the right of X0 "
+"in this case. If you were to program a profile and the end is at X0 the "
+"resulting profile would leave a bump due to the offset of the entry move."
+msgstr ""
+"Dans la figure suivante, on voit que le mouvement d'entrée est compensé à "
+"droite du profil. Ce qui aura pour effet, lors du mouvement d'entrée, de "
+"déplacer le centre de l'outil, d'un rayon d'outil à droite de X0. Dans ce "
+"cas, le mouvement d'entrée laissera un petit plot de matière en raison du "
+"décalage de compensation et de l'arrondi de l'outil."
+
+#. type: Plain text
+#: tool_compensation.txt:323
+msgid ".Entry Move[[cap:Entry-Move]]"
+msgstr ".Mouvement d'entrée[[cap:Entry-Move]]"
+
+#. type: Plain text
+#: tool_compensation.txt:325
+msgid "image::images/comp02.png[]"
+msgstr "image::images/comp02.png[]"
+
+#. type: Plain text
+#: tool_compensation.txt:327
+msgid ".Z Motion"
+msgstr ".Mouvement en Z"
+
+#. type: Plain text
+#: tool_compensation.txt:332
+msgid ""
+"Z axis motion may take place while the contour is being followed in the XY "
+"plane. Portions of the contour may be skipped by retracting the Z axis above "
+"the part and by extending the Z-axis at the next start point."
+msgstr ""
+"Un mouvement en Z est possible pendant que le contour est suivi dans le plan "
+"XY. Des portions du contour peuvent être sautées en rétractant l'axe Z au "
+"dessus du bloc et en amenant Z au dessus du prochain point de départ."
+
+#. type: Plain text
+#: tool_compensation.txt:334
+msgid ".Rapid Moves"
+msgstr ".Mouvements en vitesse rapide"
+
+#. type: Plain text
+#: tool_compensation.txt:336
+msgid "Rapid moves may be programed while compensation is turned on."
+msgstr ""
+"Des mouvements en vitesse rapide peuvent être programmés avec les "
+"compensations d'outil activées."
+
+#. type: Plain text
+#: tool_compensation.txt:338
+msgid ".Good Practices"
+msgstr ".Bonne pratique"
+
+#. type: Bullet: ' - '
+#: tool_compensation.txt:340
+msgid "Start a program with G40 to make sure compensation is off."
+msgstr ""
+"Débuter tout programme avec un G40 pour être sûr que la compensation est "
+"désactivée."
+
+#. type: Plain text
+#: tool_compensation.txt:342
+msgid "=== Examples"
+msgstr "=== Exemples de profils"
+
+#. type: Plain text
+#: tool_compensation.txt:344
+msgid ".Outside Profile"
+msgstr ".Profil extérieur"
+
+#. type: Plain text
+#: tool_compensation.txt:346
+msgid ".Outside Profile[[cap:Outside-Profile]]"
+msgstr ".Profil extérieur[[cap:Outside-Profile]]"
+
+#. type: Plain text
+#: tool_compensation.txt:348
+msgid "image::images/outside-comp.png[]"
+msgstr "image::images/outside-comp_fr.png[]"
+
+#. type: Plain text
+#: tool_compensation.txt:350
+msgid ".Inside Profile"
+msgstr ".Profil intérieur"
+
+#. type: Plain text
+#: tool_compensation.txt:352
+msgid ".Inside Profile[[cap:Inside-Profile]]"
+msgstr ".Profil intérieur[[cap:Inside-Profile]]"
+
+#. type: Plain text
+#: tool_compensation.txt:354
+msgid "image::images/inside-comp.png[]"
+msgstr "image::images/inside-comp_fr.png[]"

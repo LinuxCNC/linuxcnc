@@ -3,23 +3,24 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-02-05 00:37-0700\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-25 15:55+0100\n"
+"PO-Revision-Date: 2015-02-25 15:56+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #. type: Plain text
 #: lathe_config.txt:2
-msgid ":toc:"
-msgstr ":lang: fr :toc:"
+msgid ":lang: en"
+msgstr ":lang: fr"
 
 #. type: Plain text
 #: lathe_config.txt:4
@@ -41,13 +42,13 @@ msgstr "== Plan par défaut"
 msgid ""
 "When LinuxCNC's interpreter was first written, it was designed for mills.  "
 "That is why the default plane is XY (G17). A normal lathe only uses the XZ "
-"plane (G18). To change the default plane place the following line in the "
-".ini file in the RS274NGC section."
+"plane (G18). To change the default plane place the following line in the ."
+"ini file in the RS274NGC section."
 msgstr ""
-"Quand l'interpréteur de LinuxCNC à été créé, il à été écrit pour les "
+"Quand l'interpréteur de LinuxCNC à été créé, il a été écrit pour les "
 "fraiseuses. C'est pourquoi le plan par défaut est le plan XY (G17). Sur un "
 "tour standard on utilise seulement les axes du plan XZ (G18). Pour changer "
-"le plan par défaut d'un tour, mettez la ligne suivante dans la section "
+"le plan par défaut d'un tour, mettre la ligne suivante dans la section "
 "RS274NGC du fichier ini."
 
 #. type: Plain text
@@ -85,8 +86,8 @@ msgstr "== Réglages INI"
 msgid ""
 "The following .ini settings are needed for lathe mode in Axis in addition to "
 "or replacing normal settings in the .ini file. Gmoccapy uses also the "
-"mentioned settings, but does offer additional settings, check the "
-"<<cha:gmoccapy,gmoccapy>> Section for details."
+"mentioned settings, but does offer additional settings, check the <<cha:"
+"gmoccapy,gmoccapy>> Section for details."
 msgstr ""
 "Les réglages du fichier .ini suivants sont nécessaires dans Axis en mode "
 "tour, en remplacement ou ajout au fichier .ini normal."
@@ -117,3 +118,6 @@ msgstr ""
 "[AXIS_2]\n"
 "...\n"
 "----\n"
+
+#~ msgid ":toc:"
+#~ msgstr ":lang: fr :toc:"

@@ -1,0 +1,858 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-25 13:19+0100\n"
+"PO-Revision-Date: 2015-02-25 14:56+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: coordinates.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: coordinates.txt:4
+msgid "= Coordinate System"
+msgstr "= Systèmes de coordonnées et décalages"
+
+#. type: Plain text
+#: coordinates.txt:6
+msgid "[[cha:coordinate-system]] (((Coordinate System)))"
+msgstr "[[cha:Systemes-de-coordonnees]] (((Systèmes de coordonnées)))"
+
+#. type: Plain text
+#: coordinates.txt:8
+msgid "== Introduction"
+msgstr "== Introduction"
+
+#. type: Plain text
+#: coordinates.txt:15
+msgid ""
+"You have seen how handy a tool length offset can be. Having this allows the "
+"programmer to ignore the actual tool length when writing a part program. In the "
+"same way, it is really nice to be able to find a prominent part of a casting or "
+"block of material and work a program from that point rather than having to take "
+"account of the location at which the casting or block will be held during the "
+"machining."
+msgstr ""
+"Dans ce chapitre, nous allons tenter de démystifier les systèmes de "
+"coordonnées. C'est une notion capitale pour maîtriser le fonctionnement d'une "
+"machine CNC, sa configuration et son utilisation. Nous montrerons également, "
+"qu'il est très intéressant d'utiliser un point de référence sur le brut ou la "
+"pièce et de faire travailler le programme à partir de ce point, sans avoir à "
+"tenir compte d'où est placée la pièce sur la machine pendant l'usinage."
+
+#. type: Plain text
+#: coordinates.txt:18
+msgid ""
+"This chapter introduces you to offsets as they are used by the LinuxCNC.  These "
+"include;"
+msgstr ""
+"Ce chapitre va donc introduire les décalages et comment ils sont utilisés par "
+"LinuxCNC:"
+
+#. type: Bullet: '* '
+#: coordinates.txt:22
+msgid "machine coordinates (G53)"
+msgstr "Les coordonnées machine.(G53)"
+
+#. type: Bullet: '* '
+#: coordinates.txt:22
+msgid "nine fixture offsets (G54-G59.3)"
+msgstr "Les neuf décalages d'origine pièce.(G54 à G59.3)"
+
+#. type: Bullet: '* '
+#: coordinates.txt:22
+msgid "global offsets (G92)"
+msgstr "Un jeu de décalages globaux.(G92)"
+
+#. type: Plain text
+#: coordinates.txt:24
+msgid "== The Machine Position Command (G53)"
+msgstr "== Commande en coordonnées machine: G53 "
+
+#. type: Plain text
+#: coordinates.txt:28
+msgid ""
+"Regardless of any offsets that may be in effect, putting a G53 in a block of "
+"code tells the interpreter to go to the real or absolute axis positions "
+"commanded in the block. For example"
+msgstr ""
+"Indépendamment de tout décalage pouvant être actif, un G53 dans une ligne de "
+"code indique à l'interpréteur de se déplacer aux positions réelles des axes "
+"(positions absolues), commandées dans la ligne. Par exemple:"
+
+#. type: Plain text
+#: coordinates.txt:29 coordinates.txt:106 coordinates.txt:131
+#, no-wrap
+msgid "----\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: coordinates.txt:31
+#, no-wrap
+msgid ""
+"G53 G0 X0 Y0 Z0 \n"
+"----\n"
+msgstr ""
+"G53 G0 X0 Y0 Z0 \n"
+"----\n"
+
+#. type: Plain text
+#: coordinates.txt:38
+msgid ""
+"will get you to the actual position where these three axes are zero.  You might "
+"use a command like this if you have a favorite position for tool changes or if "
+"your machine has an auto tool changer. You might also use this command to get "
+"the tool out of the way so that you can rotate or change a part in a vice."
+msgstr ""
+"déplacera le mobile depuis la position actuelle vers la position où les "
+"coordonnées machine des trois axes seront à zéro. Vous pouvez utiliser cette "
+"commande si vous avez une position fixe pour le changement d'outil ou si votre "
+"machine dispose d'un changeur automatique. Vous pouvez aussi utiliser cette "
+"commande pour dégager la zone de travail et accéder à la pièce dans l'étau."
+
+#. type: Plain text
+#: coordinates.txt:41
+msgid ""
+"G53 is not a modal command. It must be used on each line where motion based "
+"upon absolute machine position is desired."
+msgstr ""
+"G53 est une commande non modale. Elle doit être utilisée sur chaque ligne où un "
+"mouvement basé sur les coordonnées machine est souhaité."
+
+#. type: Plain text
+#: coordinates.txt:43
+msgid "== Fixture Offsets (G54-G59.3)"
+msgstr "== Décalages pièce (G54 à G59.3)"
+
+#. type: Plain text
+#: coordinates.txt:45
+msgid "image::images/offsets.png[]"
+msgstr "image::images/offsets.png[]"
+
+#. type: Plain text
+#: coordinates.txt:47
+msgid ".Fixture Offsets[[cap:Fixture-Offsets]]"
+msgstr ".Exemple de décalages pour 8 ilots[[fig:decalages-ilots]]"
+
+#. type: Plain text
+#: coordinates.txt:53
+msgid ""
+"Work or fixture offset are used to make a part home that is different from the "
+"absolute, machine coordinate system. This allows the part programmer to set up "
+"home positions for multiple parts. A typical operation that uses fixture "
+"offsets would be to mill multiple copies of parts on multiple part holders or "
+"vises."
+msgstr ""
+"Le décalage d'origine est utilisé pour séparer le point de référence de la "
+"pièce de l'origine machine, créant ainsi un système de coordonnées (relatif), "
+"propre à chaque pièce et décalé du système de coordonnées machine (absolu). Il "
+"permet entre autre, dans le cas de pièces multiples mais semblables, de créer "
+"en décalant ses origines, le système de coordonnées de chaque pièce, le "
+"programme restant le même. Un cas typique d'utilisation de cette "
+"fonctionnalité, pour usiner huit îlots identiques sur la même pièce, est "
+"illustré sur la figure ci-dessus."
+
+#. type: Plain text
+#: coordinates.txt:58
+msgid ""
+"The values for offsets are stored in the VAR file that is requested by the INI "
+"file during the startup of an LinuxCNC. In our example below we'll use "
+"(((G55)))G55. The values for each axis for G55 are stored as variable numbers."
+msgstr ""
+"Les valeurs des décalages sont enregistrées dans le fichier VAR qui est requis "
+"par le fichier INI durant le démarrage de LinuxCNC. Dans l'exemple ci-dessous, "
+"qui utilise (((G55)))G55, la valeur de chacun des axes de G55 est enregistrée "
+"dans une variable numérotée."
+
+#. type: Plain text
+#: coordinates.txt:69
+msgid ""
+"[width=\"40%\",cols=\"^,^\",options=\"header\"] |=============== |Variable |"
+"Value |5241 |0.000000 |5242 |0.000000 |5243 |0.000000 |5244 |0.000000 |5245 |"
+"0.000000 |5246 |0.000000 |==============="
+msgstr ""
+"[width=\"40%\",cols=\"^,^\",options=\"header\"]\n"
+"|==============\n"
+"|Variable|Valeur\n"
+"|5241 |0.000000\n"
+"|5242 |0.000000\n"
+"|5243 |0.000000\n"
+"|5244 |0.000000\n"
+"|5245 |0.000000\n"
+"|5246 |0.000000\n"
+"|=============="
+
+#. type: Plain text
+#: coordinates.txt:73
+msgid ""
+"In the VAR file scheme, the first variable number stores the X offset, the "
+"second the Y offset and so on for all six axes. There are numbered sets like "
+"this for each of the fixture offsets."
+msgstr ""
+"Dans le schéma d'un fichier VAR, la première variable contient la valeur du "
+"décalage de l'axe X, la seconde variable le décalage de l'axe Y et ainsi de "
+"suite pour les six axes. Il y a une série de variables de ce genre pour chacun "
+"des décalages pièce."
+
+#. type: Plain text
+#: coordinates.txt:80
+msgid ""
+"Each of the graphical interfaces has a way to set values for these offsets. You "
+"can also set these values by editing the VAR file itself and then restarting "
+"LinuxCNC so that the LinuxCNC reads the new values however this is not the "
+"recommended way. G10, G92, G28.1, etc are better ways to affect variables. For "
+"our example let's directly edit the file so that G55 takes on the following "
+"values."
+msgstr ""
+"Chacune des interfaces graphiques offre un moyen de fixer les valeurs de ces "
+"décalages. Vous pouvez également définir ces valeurs en modifiant le fichier "
+"VAR lui-même, puis faire un [reset], pour que LinuxCNC lise les nouvelles "
+"valeurs. Pour notre exemple, nous allons éditer directement le fichier pour que "
+"G55 prenne les valeurs suivantes:"
+
+#. type: Plain text
+#: coordinates.txt:91
+msgid ""
+"[width=\"40%\",cols=\"^,^\",options=\"header\"] |=============== |Variable |"
+"Value |5241 |2.000000 |5242 |1.000000 |5243 |-2.000000 |5244 |0.000000 |5245 |"
+"0.000000 |5246 |0.000000 |==============="
+msgstr ""
+"[width=\"40%\",cols=\"^,^\",options=\"header\"]\n"
+"|==============\n"
+"|Variable|Valeur\n"
+"|5241 |2.000000\n"
+"|5242 |1.000000\n"
+"|5243 |-2.000000\n"
+"|5244 |0.000000\n"
+"|5245 |0.000000\n"
+"|5246 |0.000000\n"
+"|=============="
+
+#. type: Plain text
+#: coordinates.txt:95
+msgid ""
+"You should read this as moving the zero positions of G55 to X = 2 units, Y= 1 "
+"unit, and Z = -2 units away from the absolute zero position."
+msgstr ""
+"Vous pouvez voir que les positions zéro de G55 sont passées en X = 2, Y = 1, et "
+"Z = -2 éloignées donc de l'origine absolue (machine)."
+
+#. type: Plain text
+#: coordinates.txt:105
+msgid ""
+"Once there are values assigned, a call to G55 in a program block would shift "
+"the zero reference by the values stored. The following line would then move "
+"each axis to the new zero position. Unlike G53, G54 through G59.3 are modal "
+"commands. They will act on all blocks of code after one of them has been set. "
+"The program that might be run using fixture offsets would require only a single "
+"coordinate reference for each of the locations and all of the work to be done "
+"there. The following code is offered as an example of making a square using the "
+"G55 offsets that we set above."
+msgstr ""
+"Une fois que les valeurs sont assignées, un appel de G55 dans une ligne de "
+"programme décalera le point de référence zéro, l'origine, vers les valeurs "
+"enregistrées. La ligne suivante décalera chacun des axes vers sa nouvelle "
+"position d'origine. Contrairement à G53, les commandes G54 à G59.3 sont "
+"modales. Elles agissent sur toutes les lignes de G-code du programme après "
+"qu'une ait été rencontrée. Voyons le programme qui pourrait être écrit à l'aide "
+"de la figure <<fig:decalages-ilots, des décalages d'ilots>>, il suffira d'un "
+"seul point de référence pour chacune des pièces pour faire tout le travail. Le "
+"code suivant est proposé comme exemple pour faire un rectangle, il utilisera "
+"les décalages G55 que nous avons expliqué précédemment."
+
+#. type: Plain text
+#: coordinates.txt:116
+#, no-wrap
+msgid ""
+"G55 G0 X0 Y0 Z0\n"
+"G1 F2 Z-0.2000\n"
+"X1\n"
+"Y1\n"
+"X0\n"
+"Y0\n"
+"G0 Z0\n"
+"G54 X0 Y0 Z0\n"
+"M2\n"
+"----\n"
+msgstr ""
+"G55 G0 X0 Y0 Z0\n"
+"G1 F2 Z-0.2000\n"
+"X1\n"
+"Y1\n"
+"X0\n"
+"Y0\n"
+"G0 Z0\n"
+"G54 X0 Y0 Z0\n"
+"M2\n"
+"----\n"
+
+#. type: Plain text
+#: coordinates.txt:127
+msgid ""
+"But, you say, why is there a G54 in there near the end. Many programmers leave "
+"the G54 coordinate system with all zero values so that there is a modal code "
+"for the absolute machine based axis positions. This program assumes that we "
+"have done that and use the ending command as a command to machine zero. It "
+"would have been possible to use g53 and arrive at the same place but that "
+"command would not have been modal and any commands issued after it would have "
+"returned to using the G55 offsets because that coordinate system would still be "
+"in effect."
+msgstr ""
+"Mais, dites vous, pourquoi y a-t-il un G54 vers la fin? C'est une pratique "
+"courante de quitter le système de coordonnées G54 avec l'ensemble des valeurs "
+"d'axes à zéro afin de laisser un code modal basé sur les positions machine "
+"absolues. Nous le faisons avec cette commande qui met la machine à zéro. Il "
+"aurait été possible d'utiliser G53 et d'arriver au même endroit, mais la "
+"commande n'aurait pas été modale, les commandes suivantes auraient voulu "
+"retourner dans le système de coordonnées du G55 toujours actif."
+
+#. type: Plain text
+#: coordinates.txt:130
+msgid ""
+"// Note for some strange reason a single tab is required to make the "
+"following // ListingBlock format correctly."
+msgstr ""
+"// Note for some strange reason a single tab is required to make the following\n"
+"// ListingBlock format correctly."
+
+#. type: Plain text
+#: coordinates.txt:141
+#, no-wrap
+msgid ""
+"G54\tuse preset work coordinate system 1\n"
+"G55\tuse preset work coordinate system 2\n"
+"G56\tuse preset work coordinate system 3\n"
+"G57\tuse preset work coordinate system 4\n"
+"G58\tuse preset work coordinate system 5\n"
+"G59\tuse preset work coordinate system 6\n"
+"G59.1\tuse preset work coordinate system 7\n"
+"G59.2\tuse preset work coordinate system 8\n"
+"G59.3\tuse preset work coordinate system 9\n"
+"----\n"
+msgstr ""
+"G54\tutilise les réglages du système de coordonnées 1\n"
+"G55\tutilise les réglages du système de coordonnées 2\n"
+"G56\tutilise les réglages du système de coordonnées 3\n"
+"G57\tutilise les réglages du système de coordonnées 4\n"
+"G58\tutilise les réglages du système de coordonnées 5\n"
+"G59\tutilise les réglages du système de coordonnées 6\n"
+"G59.1\tutilise les réglages du système de coordonnées 7\n"
+"G59.2\tutilise les réglages du système de coordonnées 8\n"
+"G59.3\tutilise les réglages du système de coordonnées 9\n"
+"----\n"
+
+#. type: Plain text
+#: coordinates.txt:144
+msgid "=== Default coordinate system"
+msgstr "=== Système de coordonnées par défaut"
+
+#. type: Plain text
+#: coordinates.txt:153
+msgid ""
+"One other variable in the VAR file becomes important when we think about offset "
+"systems. This variable is named 5220. In the default files its value is set to "
+"1.00000. This means that when the LinuxCNC starts up it should use the first "
+"coordinate system as its default. If you set this to 9.00000 it would use the "
+"ninth offset system as its default for start up and reset. Any value other than "
+"an integer (decimal really)  between 1 and 9, or a missing 5220 variable will "
+"cause the LinuxCNC to revert to the default value of 1.00000 on start up."
+msgstr ""
+"Une autre variable dans le fichier VAR joue un rôle important dans les "
+"décalages, c'est la variable 5220. Dans les fichiers par défaut, sa valeur est "
+"fixée à 1.00000. Ce qui signifie que lorsque LinuxCNC démarre, il doit utiliser "
+"le premier système de coordonnées comme système par défaut. Si vous définissez "
+"celui-ci à 9.00000 le neuvième système décalé sera utilisé par défaut au "
+"démarrage du système et aux réinitialisations. Toute valeur autre qu'un entier "
+"compris entre 1 et 9, ou l'absence de la variable 5220, provoquera au démarrage "
+"le retour de LinuxCNC à la valeur par défaut de 1.00000."
+
+#. type: Plain text
+#: coordinates.txt:155
+msgid "=== Setting coordinate (fixture) offsets from G code"
+msgstr "=== Réglage des décalages pièce avec G10"
+
+#. type: Plain text
+#: coordinates.txt:158
+#, no-wrap
+msgid ""
+"The G10 L2x command can be used to set coordinate (fixture) offsets: \n"
+"  (these are just quick summaries, see the G code section for full details)\n"
+msgstr ""
+"La commande G10 L2x peut être utilisée pour modifier les valeurs des\n"
+"décalages d'un système de coordonnées pièce:\n"
+"(Nous donnons seulement ici un bref aperçu, se reporter aux sections du G-code\n"
+"pour une description complète).\n"
+
+#. type: Plain text
+#: coordinates.txt:161
+#, no-wrap
+msgid ""
+"* 'G10 L2  P(fixture 1-9)' - Set offset(s) to a value. Current position irrelevant. \n"
+"                         (see <<sec:G10-L2_,G10 L2>> for details)\n"
+msgstr ""
+"* 'G10 L2  P(pièce 1-9)' - Ajuste les valeurs d'offset. La position courante\n"
+"reste inchangée.\n"
+"    (voir la section <<sec:G10-L2, G10 L2>> pour les détails)\n"
+
+#. type: Plain text
+#: coordinates.txt:164
+#, no-wrap
+msgid ""
+"* 'G10 L20 P(fixture 1-9)' - Set offset(s) so current position becomes a value. \n"
+"                         (see <<sec:G10-L20,G10 L20>> for details)\n"
+msgstr ""
+"* 'G10 L20 P(pièce 1-9)' - Ajuste les valeurs d'offset de sorte que la position\n"
+"courante devienne la position donnée en paramètre.\n"
+"    (Voir la section <<sec:G10-L20,G10 L20>> pour les détails)\n"
+
+#. type: Plain text
+#: coordinates.txt:166
+msgid "== G92 Offsets[[sec:G92-Offsets]]"
+msgstr "== Décalages d'axes G92[[sec:G92-Decalages]]"
+
+#. type: Plain text
+#: coordinates.txt:168
+msgid "=== The G92 commands"
+msgstr "=== Les commandes G92"
+
+#. type: Plain text
+#: coordinates.txt:170
+msgid "This set of commands include;"
+msgstr "Ce jeu de commandes inclus;"
+
+#. type: Plain text
+#: coordinates.txt:173
+#, no-wrap
+msgid ""
+"* 'G92' - This command, when used with axis names, sets values to offset\n"
+"    variables.\n"
+msgstr ""
+"* 'G92' - Cette commande, utilisée avec des mots d'axes, fixe les valeurs des\n"
+"    variables de décalage.\n"
+
+#. type: Bullet: '* '
+#: coordinates.txt:175
+msgid "'G92.1' - This command sets zero values to the G92 variables."
+msgstr "'G92.1' - Cette commande met à zéro les valeurs des variables de G92."
+
+#. type: Plain text
+#: coordinates.txt:178
+#, no-wrap
+msgid ""
+"* 'G92.2' - This command suspends but does not zero out the G92\n"
+"    variables.\n"
+msgstr "* 'G92.2' - Cette commande suspend, sans les mettre à zéro, les variables de G92.\n"
+
+#. type: Bullet: '* '
+#: coordinates.txt:180
+msgid "'G92.3' - This command applies offset values that have been suspended."
+msgstr ""
+"'G92.3' - Cette commande applique les valeurs de décalage qui ont été "
+"suspendues."
+
+#. type: Plain text
+#: coordinates.txt:183
+msgid ""
+"When the commands are used as described above, they will work pretty much as "
+"you would expect."
+msgstr ""
+"Quand ces commandes sont utilisées comme décrit ci-dessus, elles fonctionnent "
+"parfaitement, comme espéré."
+
+#. type: Plain text
+#: coordinates.txt:188
+msgid ""
+"To make the current point, what ever it is, have the coordinates X0, Y0, and Z0 "
+"you would use G92 X0 Y0 Z0.  G92 *does not* work from absolute machine "
+"coordinates.  It works from *current location*."
+msgstr ""
+"Pour faire en sorte que le point actuel ait les coordonnées X0, Y0 et Z0 nous "
+"utiliserons G92 X0 Y0 Z0. G92 *ne fonctionne pas* depuis le système de "
+"coordonnées machine absolues. Il fonctionne à partir de *l'emplacement actuel*."
+
+#. type: Plain text
+#: coordinates.txt:196
+msgid ""
+"G92 also works from current location as modified by any other offsets that are "
+"in effect when the G92 command is invoked. While testing for differences "
+"between work offsets and actual offsets it was found that a G54 offset could "
+"cancel out a G92 and thus give the appearance that no offsets were in effect. "
+"However, the G92 was still in effect for all coordinates and did produce "
+"expected work offsets for the other coordinate systems."
+msgstr ""
+"G92 travaille également à partir d'un emplacement actuel déjà modifié par tout "
+"autre décalage actif au moment où la commande G92 est invoquée. Lors de tests "
+"des différences entre les décalages de travail et les décalages réels, il a été "
+"constaté qu'un décalage G54 pouvait annuler un G92 et ainsi, donner l'apparence "
+"qu'aucun décalage n'était actif. Toutefois, le G92 était toujours actif, pour "
+"toutes les coordonnées et il a produit les décalages attendus pour tous les "
+"autres systèmes de coordonnées."
+
+#. type: Plain text
+#: coordinates.txt:200
+msgid ""
+"It is a good practice to clear the G92 offsets at the end of their use with "
+"G92.1 or G92.2. When starting up LinuxCNC if any offsets are in the G92 "
+"variables they will be applied when an axis is homed."
+msgstr ""
+"Lors du démarrage de LinuxCNC, si des offsets existent dans les variables de "
+"G92, ils seront appliqués lors de la prise d'origine des axes concernés. Il est "
+"donc de bonne pratique de mettre les offsets de G92 à zéro par G92.1 ou un "
+"G92.2 à la fin de leur utilisation."
+
+#. type: Plain text
+#: coordinates.txt:202
+msgid "=== Setting G92 values"
+msgstr "=== Réglage de G92"
+
+#. type: Plain text
+#: coordinates.txt:204
+msgid "There are at least two ways to set G92 values."
+msgstr "Il y a au moins deux façons d'établir les valeurs de G92."
+
+#. type: Plain text
+#: coordinates.txt:208
+#, no-wrap
+msgid ""
+"* right mouse click on position displays of tkLinuxCNC will popup a window\n"
+"   into which you can type a value. \n"
+"* the G92 command\n"
+msgstr ""
+"* Par un clic droit de la souris sur les afficheurs de position de tklinuxcnc,\n"
+"   une fenêtre s'ouvre dans laquelle il est possible de saisir une valeur.\n"
+"* Par la commande G92.\n"
+
+#. type: Plain text
+#: coordinates.txt:211
+msgid ""
+"Both of these work from the current location of the axis to which the offset is "
+"to be applied."
+msgstr ""
+"Toutes les deux, fonctionnent depuis l'emplacement courant de l'axe auquel le "
+"déplacement doit être appliqué."
+
+#. type: Plain text
+#: coordinates.txt:216
+msgid ""
+"Issuing 'G92 X Y Z A B C U V W' does in fact set values to the G92 variables "
+"such that each axis takes on the value associated with its name.  These values "
+"are assigned to the current position of the machine axis.  These results "
+"satisfy paragraphs one and two of the NIST document."
+msgstr ""
+"Programmer 'G92 X Y Z A B C U V W' fixe les valeurs des variables de G92 de "
+"sorte que chaque axe prenne la valeur associée à son nom. Ces valeurs sont "
+"assignées à la position courante des axes. Ces résultats satisfont les "
+"paragraphes un et deux du document du NIST."
+
+#. type: Plain text
+#: coordinates.txt:220
+msgid ""
+"G92 commands work from current axis location and add and subtract correctly to "
+"give the current axis position the value assigned by the G92 command. The "
+"effects work even though previous offsets are in."
+msgstr ""
+"Les commandes G92 fonctionnent à partir de la position courante de l'axe, à "
+"laquelle elles ajoutent ou soustraient des valeurs pour donner à la position "
+"courante la valeur assignée par la commande G92. Elles prennent effet même si "
+"d'autres décalages sont déjà actifs."
+
+#. type: Plain text
+#: coordinates.txt:226
+msgid ""
+"So if the X axis is currently showing 2.0000 as its position a 'G92 X0' will "
+"set an offset of -2.0000 so that the current location of X becomes zero. A 'G92 "
+"X2' will set an offset of 0.0000 and the displayed position will not change. A "
+"'G92 X5.0000' will set an offset of 3.0000 so that the current displayed "
+"position becomes 5.0000."
+msgstr ""
+"Ainsi, si l'axe X est actuellement en position X=2.000, un 'G92 X0' fixera un "
+"décalage de -2.0000, de sorte que l'emplacement actuel de X devienne X=0.000. "
+"Un nouveau 'G92 X5.000' fixera un décalage de 3.000 et l'affichage indiquera "
+"une position courante X=5.000."
+
+#. type: Plain text
+#: coordinates.txt:228
+msgid "=== G92 Cautions"
+msgstr "=== Précautions avec G92 "
+
+#. type: Plain text
+#: coordinates.txt:233
+msgid ""
+"Sometimes the values of a G92 offset will remain in the VAR file. This can "
+"happen when a file is aborted during processing that has G92 offsets in effect. "
+"When this happens reset or a startup will cause them to become active again."
+msgstr ""
+"Parfois, les valeurs de décalage d'un G92 persistent à rester dans le fichier "
+"VAR, ce qui peut arriver à la suite de l'abandon d'un programme utilisant un "
+"décalage G92. Dans ce cas, une ré-initialisation ou un redémarrage peut les "
+"rendre de nouveau actives."
+
+#. type: Plain text
+#: coordinates.txt:235
+msgid "The variables are named:"
+msgstr "Les variables sont numérotées:"
+
+#. type: Plain text
+#: coordinates.txt:246
+msgid ""
+"[width=\"40%\",cols=\"^,^\",options=\"header\"] |=============== |Variable |"
+"Value |5211 | 0.000000 |5212 | 0.000000 |5213 | 0.000000 |5214 | 0.000000 |5215 "
+"| 0.000000 |5216 | 0.000000 |==============="
+msgstr ""
+"[width=\"40%\",cols=\"^,^\",options=\"header\"]\n"
+"|==============\n"
+"|Variable|Valeur\n"
+"|5211 | 0.000000\n"
+"|5212 | 0.000000\n"
+"|5213 | 0.000000\n"
+"|5214 | 0.000000\n"
+"|5215 | 0.000000\n"
+"|5216 | 0.000000\n"
+"|=============="
+
+#. type: Plain text
+#: coordinates.txt:251
+msgid ""
+"where 5211 is the X axis offset and so on. If you are seeing unexpected "
+"positions as the result of a commanded move, as a result of storing an offset "
+"in a previous program and not clearing them at the end then issue a G92.1 in "
+"the MDI window to clear the stored offsets."
+msgstr ""
+"où 5211 est le numéro du décalage de l'axe X et ainsi de suite. Si vous voyez "
+"des positions inattendues à la suite d'une commande de déplacement, résidu "
+"probable de l'enregistrement d'un décalage dans un programme précédent qui "
+"s'est terminé sans les effacer, une commande G92.1 dans la fenêtre MDI "
+"supprimera les décalages enregistrés."
+
+#. type: Plain text
+#: coordinates.txt:263
+msgid ""
+"If G92 values exist in the VAR file when LinuxCNC starts up, the G92 values in "
+"the var file will be applied to the values of the current location of each "
+"axis. If this is home position and home position is set as machine zero "
+"everything will be correct. Once home has been established using real machine "
+"switches, or by moving each axis to a known home position and issuing an axis "
+"home command, any G92 offsets will be applied. If you have a G92 X1 in effect "
+"when you home the X axis the DRO will read 'X: 1.000' instead of the expected "
+"'X: 0.000' because the G92 was applied to the machine origin. If you issue a "
+"G92.1 and the DRO now reads all zeros then you had a G92 offset in effect when "
+"you last ran LinuxCNC."
+msgstr ""
+"Si des valeurs G92 existent dans le fichier VAR quand LinuxCNC démarre, ces "
+"valeurs seront appliquées aux valeurs courantes des emplacements d'axe. Si "
+"c'est sa position d'origine et que l'origine est définie au zéro machine, tout "
+"sera correct. Une fois que l'origine machine a été établie en utilisant les "
+"contacts d'origine machine, ou en déplaçant chaque axe à une position connue, "
+"puis en envoyant la commande de prise d'origine de l'axe, tous les décalages "
+"G92 seront appliqués. Si un X1 G92 est actif lors de la prise d'origine machine "
+"de l'axe X, la visu affichera 'X: 1.000' au lieu du 'X: 0.000' attendu, c'est "
+"parce-que le G92 a été appliqué à l'origine machine. Si vous passez un G92.1 et "
+"que la visu affiche tout à zéro, alors c'est que vous avez encore l'effet de "
+"l'offset G92 de la dernière session de LinuxCNC."
+
+#. type: Plain text
+#: coordinates.txt:267
+msgid ""
+"Unless your intention is to use the same G92 offsets in the next program, the "
+"best practice is to issue a G92.1 at the end of any G Code files where you use "
+"G92 offsets."
+msgstr ""
+"Sauf si votre intention est d'utiliser les mêmes décalages G92 dans le prochain "
+"programme, la meilleure pratique consiste à envoyer un G92.1 à la fin de tout "
+"fichier de G-code dans lequel vous utilisez les décalages G92."
+
+#. type: Plain text
+#: coordinates.txt:269
+msgid "== Sample Program Using Offsets"
+msgstr "== Exemple de programme utilisant les décalages d'axes"
+
+#. type: Plain text
+#: coordinates.txt:273
+msgid ""
+"This sample engraving project mills a set of four .1 radius circles in roughly "
+"a star shape around a center circle. We can setup the individual circle pattern "
+"like this."
+msgstr ""
+"Cet exemple de projet de gravure, usine un jeu de quatre cercles de rayon .1 "
+"pouce dans une forme grossière d'étoile au centre du cercle. Nous pouvons "
+"configurer individuellement les formes de la façon suivante:"
+
+#. type: Plain text
+#: coordinates.txt:274 coordinates.txt:295
+#, no-wrap
+msgid "---------------------------------------------------------------------\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: coordinates.txt:281
+#, no-wrap
+msgid ""
+"G10 L2 P1 X0 Y0 Z0 (ensure that G54 is set to machine zero) \n"
+"G0 X-0.1 Y0 Z0\n"
+"G1 F1 Z-0.25\n"
+"G3 X-0.1 Y0 I0.1 J0\n"
+"G0 Z0\n"
+"M2\n"
+"---------------------------------------------------------------------\n"
+msgstr ""
+"G10 L2 P1 X0 Y0 Z0 (assure que G54 a mis la machine à zéro)\n"
+"G0 X-0.1 Y0 Z0\n"
+"G1 F1 Z-0.25\n"
+"G3 X-0.1 Y0 I0.1 J0\n"
+"G0 Z0\n"
+"M2\n"
+"----\n"
+
+#. type: Plain text
+#: coordinates.txt:285
+msgid ""
+"We can issue a set of commands to create offsets for the four other circles "
+"like this."
+msgstr ""
+"Nous pouvons émettre une série de commandes pour créer des décalages pour les "
+"quatre autres cercles comme cela."
+
+#. type: Plain text
+#: coordinates.txt:286
+#, no-wrap
+msgid "-----------------------------------------------------------\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: coordinates.txt:291
+#, no-wrap
+msgid ""
+"G10 L2 P2 X0.5 (offsets G55 X value by 0.5 inch) \n"
+"G10 L2 P3 X-0.5 (offsets G56 X value by -0.5 inch) \n"
+"G10 L2 P4 Y0.5 (offsets G57 Y value by 0.5 inch) \n"
+"G10 L2 P5 Y-0.5 (offsets G58 Y value by -0.5 inch) \n"
+"-----------------------------------------------------------\n"
+msgstr ""
+"G10 L2 P2 X0.5 (décalages G55 X la valeur de 0.5 pouces)\n"
+"G10 L2 P3 X-0.5 (décalages G56 X valeur de -0.5 pouces)\n"
+"G10 L2 P4 Y0.5 (décalages G57 valeur Y de 0.5 pouces)\n"
+"G10 L2 P5 Y-0.5 (décalages G58 valeur Y de -0.5 pouces)\n"
+"----\n"
+
+#. type: Plain text
+#: coordinates.txt:294
+msgid "We put these together in the following program:"
+msgstr "Nous mettons ces ensembles dans le programme suivant:"
+
+#. type: Plain text
+#: coordinates.txt:297
+msgid "(a program for milling five small circles in a diamond shape)"
+msgstr "(Un programme de fraisage de cinq petits cercles dans un losange)"
+
+#. type: Plain text
+#: coordinates.txt:303
+msgid ""
+"G10 L2 P1 X0 Y0 Z0 (ensure that G54 is machine zero)  G10 L2 P2 X0.5 (offsets "
+"G55 X value by 0.5 inch)  G10 L2 P3 X-0.5 (offsets G56 X value by -0.5 inch)  "
+"G10 L2 P4 Y0.5 (offsets G57 Y value by 0.5 inch)  G10 L2 P5 Y-0.5 (offsets G58 "
+"Y value by -0.5 inch)"
+msgstr ""
+"G10 L2 P1 X0 Y0 Z0 (assure que G54 a mis la machine à zéro)\n"
+"G10 L2 P2 X0.5 (décalages G55 X la valeur de 0.5 pouces)\n"
+"G10 L2 P3 X-0.5 (décalages G56 X la valeur de -0.5 pouces)\n"
+"G10 L2 P4 Y0.5 (décalages G57 X la valeur de 0.5 pouces)\n"
+"G10 L2 P5 Y-0.5 (décalages G58 X la valeur de -0.5 pouces)"
+
+#. type: Plain text
+#: coordinates.txt:308
+msgid "G54 G0 X-0.1 Y0 Z0 (center circle)  G1 F1 Z-0.25 G3 X-0.1 Y0 I0.1 J0 G0 Z0"
+msgstr ""
+"G54 G0 X-0.1 Y0 Z0 (cercle du centre)\n"
+"G1 F1 Z-0.25\n"
+"G3 X-0.1 Y0 I0.1 J0\n"
+"G0 Z0"
+
+#. type: Plain text
+#: coordinates.txt:313
+msgid ""
+"G55 G0 X-0.1 Y0 Z0 (first offset circle)  G1 F1 Z-0.25 G3 X-0.1 Y0 I0.1 J0 G0 Z0"
+msgstr ""
+"G55 G0 X-0.1 Y0 Z0 (premier cercle compensé)\n"
+"G1 F1 Z-0.25\n"
+"G3 X-0.1 Y0 I0.1 J0\n"
+"G0 Z0"
+
+#. type: Plain text
+#: coordinates.txt:318
+msgid ""
+"G56 G0 X-0.1 Y0 Z0 (second offset circle)  G1 F1 Z-0.25 G3 X-0.1 Y0 I0.1 J0 G0 "
+"Z0"
+msgstr ""
+"G56 G0 X-0.1 Y0 Z0 (deuxième cercle compensé)\n"
+"G1 F1 Z-0.25\n"
+"G3 X-0.1 Y0 I0.1 J0\n"
+"G0 Z0"
+
+#. type: Plain text
+#: coordinates.txt:323
+msgid ""
+"G57 G0 X-0.1 Y0 Z0 (third offset circle)  G1 F1 Z-0.25 G3 X-0.1 Y0 I0.1 J0 G0 Z0"
+msgstr ""
+"G57 G0 X-0.1 Y0 Z0 (troisième cercle compensé)\n"
+"G1 F1 Z-0.25\n"
+"G3 X-0.1 Y0 I0.1 J0\n"
+"G0 Z0"
+
+#. type: Plain text
+#: coordinates.txt:328
+msgid ""
+"G58 G0 X-0.1 Y0 Z0 (fourth offset circle)  G1 F1 Z-0.25 G3 X-0.1 Y0 I0.1 J0 G54 "
+"G0 X0 Y0 Z0"
+msgstr ""
+"G58 G0 X-0.1 Y0 Z0 (quatrième cercle compensé)\n"
+"G1 F1 Z-0.25\n"
+"G3 X-0.1 Y0 I0.1 J0\n"
+"G54 G0 X0 Y0 Z0"
+
+#. type: Plain text
+#: coordinates.txt:330
+#, no-wrap
+msgid ""
+"M2\n"
+"---------------------------------------------------------------------\n"
+msgstr ""
+"M2\n"
+"----\n"
+
+#. type: Plain text
+#: coordinates.txt:342
+msgid ""
+"Now comes the time when we might apply a set of G92 offsets to this program. "
+"You'll see that it is running in each case at Z0. If the mill were at the zero "
+"position, a G92 Z1.0000 issued at the head of the program would shift "
+"everything down an inch. You might also shift the whole pattern around in the "
+"XY plane by adding some X and Y offsets with G92. If you do this you should add "
+"a G92.1 command just before the m2 that ends the program. If you do not, other "
+"programs that you might run after this one will also use that G92 offset. "
+"Furthermore it would save the G92 values when you shut down the LinuxCNC and "
+"they will be recalled when you start up again."
+msgstr ""
+"Maintenant c'est le moment d'appliquer une série de décalages G92 à ce "
+"programme. Vous verrez que c'est fait dans chaque cas de Z0. Si la machine "
+"était à la position zéro, un G92 Z1.0000 placé en tête de programme le "
+"décalerait d'un pouce. Vous pouvez également modifier l'ensemble du dessin dans "
+"le plan XY en ajoutant quelques décalages x et y avec G92. Si vous faites cela, "
+"vous devez ajouter une commandeG92.1 juste avant le M2 qui termine le "
+"programme. Si vous ne le faites pas, les programmes que vous pourriez lancer "
+"après celui-ci, utiliseront également les décalages G92. En outre, cela "
+"permettrait d'éviter d'écrire les valeurs de G92 lorsque vous arrêtez LinuxCNC "
+"et donc, d'éviter de les recharger quand vous démarrez à nouveau le programme."

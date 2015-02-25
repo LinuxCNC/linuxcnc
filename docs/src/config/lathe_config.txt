@@ -1,4 +1,4 @@
-:toc:
+:lang: en
 
 = Lathe Configuration
 
