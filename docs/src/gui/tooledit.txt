@@ -1,8 +1,11 @@
+:lang: en
+
 = Tool Edit GUI
 
 [[cha:tooledit-gui]] (((Tool Edit GUI)))
 
 == Tool Edit Version Requirements
+
 [NOTE]
 The following configurable features for 'tooledit' are available in versions
 2.5.1 and later. In 2.5.0 the 'tooledit' gui is without the configurable
@@ -19,6 +22,7 @@ used by LinuxCNC can be updated with the ReloadTable button.
 This button is enabled only when the machine is ON and IDLE.
 
 == Column Sorting
+
 The tool table display can be sorted on any column in ascending
 order by clicking on the column header.  A second click sorts
 in descending order.  Column sorting requires that the machine
@@ -40,6 +44,7 @@ sudo update-alternatives --config wish   ;# select the option for wish8.5
 ----
 
 == Column Selection
+
 By default, the 'tooledit' program will display all possible
 tool table parameter columns.  Since few machines use all
 parameters, the columns displayed can be limited with the
@@ -60,6 +65,7 @@ TOOL_EDITOR = tooledit Z DIAM
 ----
 
 == Stand Alone Use
+
 The 'tooledit' program can also be invoked as a standalone
 program. For example, if the program is in the user PATH, typing
 'tooledit' will show the usage syntax:

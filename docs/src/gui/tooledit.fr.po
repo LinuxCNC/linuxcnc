@@ -1,0 +1,337 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-25 23:32+0100\n"
+"PO-Revision-Date: 2015-02-25 23:36+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: tooledit.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: tooledit.txt:4
+msgid "= Tool Edit GUI"
+msgstr "= Éditeur graphique de table d'outils"
+
+#. type: Plain text
+#: tooledit.txt:6
+msgid "[[cha:tooledit-gui]] (((Tool Edit GUI)))"
+msgstr "[[cha:editeur-tooledit]] (((IGU Tool Edit)))"
+
+#. type: Plain text
+#: tooledit.txt:8
+msgid "== Tool Edit Version Requirements"
+msgstr "== Versions requises pour l'éditeur d'outils"
+
+#. type: Plain text
+#: tooledit.txt:13
+msgid ""
+"[NOTE] The following configurable features for 'tooledit' are available in "
+"versions 2.5.1 and later. In 2.5.0 the 'tooledit' gui is without the "
+"configurable features."
+msgstr ""
+"[NOTE]\n"
+"Les éléments de tooledit modifiables décrits ici sont disponibles dans les "
+"versions 2.5.1 et suivantes. Dans la version 2.5.0, l'interface graphique ne "
+"permet pas ces ajustements."
+
+#. type: Plain text
+#: tooledit.txt:15
+msgid "image::images/tooledit.png[align=\"center\",width=640]"
+msgstr "image::images/tooledit_fr.png[align=\"left\",width=640]"
+
+#. type: Plain text
+#: tooledit.txt:23
+msgid ""
+"The 'tooledit' program can update the tool table file with edited changes by "
+"using the SaveFile button.  The SaveFile button updates the system file but "
+"a separate action is required to update the tool table data used by a "
+"running LinuxCNC instance.  With the axis GUI, both the file and the current "
+"tool table data used by LinuxCNC can be updated with the ReloadTable "
+"button.  This button is enabled only when the machine is ON and IDLE."
+msgstr ""
+"Le programme 'tooledit' rafraîchi le fichier de la table d'outils avec les "
+"changements édités puis enregistrés avec le bouton Enregistrer_Fichier.  Le "
+"bouton Enregistrer_Fichier met à jour le fichier système mais une action "
+"manuelle dans le menu Fichier -> Recharger la table d'outils est requise "
+"pour mettre à jour la table d'outils en cours d'utilisation par l'instance "
+"courante de LinuxCNC. Avec l'interface graphique Axis, il est toutefois "
+"possible, grâce au bouton Recharger Table, de rafraîchir le fichier tout en "
+"mettant à jour la table d'outils courante. Ce dernier bouton est disponible "
+"uniquement quand la machine est en marche et inactive."
+
+#. type: Plain text
+#: tooledit.txt:25
+msgid "== Column Sorting"
+msgstr "== Tri par colonne"
+
+#. type: Plain text
+#: tooledit.txt:30
+msgid ""
+"The tool table display can be sorted on any column in ascending order by "
+"clicking on the column header.  A second click sorts in descending order.  "
+"Column sorting requires that the machine is configured with the default tcl "
+"version >= 8.5."
+msgstr ""
+"Les outils de la table affichée peuvent être triés selon n'importe quelle "
+"colonne, par ordre croissant ou décroissant, en cliquant sur l'entête de la "
+"colonne. Un second clic inverse l'ordre de tri. Le tri par colonne nécessite "
+"une version de TCL/TK >= 8.5."
+
+#. type: Plain text
+#: tooledit.txt:32
+msgid "image::images/tooledit-sort.png[align=\"center\"]"
+msgstr "image::images/tooledit-sort_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: tooledit.txt:35
+#, no-wrap
+msgid ""
+"On Ubuntu Lucid 10.04 tcl/tk8.4 is the default.  You can add tcl/tk8.5 with\n"
+"the commands:\n"
+"----\n"
+msgstr ""
+"Sous Ubuntu Lucid 10.04 tcl/tk8.4 est installé par défaut. Il est possible\n"
+"d'ajouter tcl/tk8.5 avec la commande suivante:\n"
+"----\n"
+
+#. type: Plain text
+#: tooledit.txt:37
+#, no-wrap
+msgid ""
+"sudo apt-get install tcl8.5 tk8.5\n"
+"----\n"
+msgstr ""
+"sudo apt-get install tcl8.5 tk8.5\n"
+"----\n"
+
+#. type: Plain text
+#: tooledit.txt:41
+#, no-wrap
+msgid ""
+"Depending upon other applications installed on the system, it may be\n"
+"necessary to enable tcl/tk8.5 with the commands:\n"
+"----\n"
+msgstr ""
+"Si le tri ne fonctionne pas il peut être nécessaire d'activer tcl/tk8.5 avec\n"
+"les commandes:\n"
+"----\n"
+
+#. type: Plain text
+#: tooledit.txt:44
+#, no-wrap
+msgid ""
+"sudo update-alternatives --config tclsh  ;# select the option for tclsh8.5\n"
+"sudo update-alternatives --config wish   ;# select the option for wish8.5\n"
+"----\n"
+msgstr ""
+"sudo update-alternatives --config tclsh  ;# choisir l'option pour tclsh8.5\n"
+"sudo update-alternatives --config wish   ;# choisir l'option pour wish8.5\n"
+"----\n"
+
+#. type: Plain text
+#: tooledit.txt:47
+msgid "== Column Selection"
+msgstr "== Choix des colonnes"
+
+#. type: Plain text
+#: tooledit.txt:52
+msgid ""
+"By default, the 'tooledit' program will display all possible tool table "
+"parameter columns.  Since few machines use all parameters, the columns "
+"displayed can be limited with the following ini file setting:"
+msgstr ""
+"Par défaut, le programme tooledit affiche toutes les colonnes utilisables "
+"dans une table d'outils. Très peu de machines utilisent tous les paramètres, "
+"les colonnes affichées peuvent être limitées aux paramètres utilisés. Pour "
+"cela, passer une ligne de paramètre dans le fichier ini, comme ci-dessous:"
+
+#. type: Plain text
+#: tooledit.txt:54
+msgid "image::images/tooledit-columns.png[align=\"center\"]"
+msgstr "image::images/tooledit-columns_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: tooledit.txt:56
+#, no-wrap
+msgid ""
+".INI File Syntax\n"
+"----\n"
+msgstr ""
+".Syntaxe\n"
+"----\n"
+
+#. type: Plain text
+#: tooledit.txt:59
+#, no-wrap
+msgid ""
+"[DISPLAY]\n"
+"TOOL_EDITOR = tooledit column_name column_name ...\n"
+"----\n"
+msgstr ""
+"[DISPLAY]\n"
+"TOOL_EDITOR = tooledit nom_colonne nom_colonne ...\n"
+"----\n"
+
+#. type: Plain text
+#: tooledit.txt:62
+#, no-wrap
+msgid ""
+".Example for Z and DIAM columns\n"
+"----\n"
+msgstr ""
+".Exemple pour les colonnes Z et DIAM\n"
+"----\n"
+
+#. type: Plain text
+#: tooledit.txt:65
+#, no-wrap
+msgid ""
+"[DISPLAY]\n"
+"TOOL_EDITOR = tooledit Z DIAM\n"
+"----\n"
+msgstr ""
+"[DISPLAY]\n"
+"TOOL_EDITOR = tooledit Z DIAM\n"
+"----\n"
+
+#. type: Plain text
+#: tooledit.txt:68
+msgid "== Stand Alone Use"
+msgstr "== Utilisation en autonome"
+
+#. type: Plain text
+#: tooledit.txt:72
+msgid ""
+"The 'tooledit' program can also be invoked as a standalone program. For "
+"example, if the program is in the user PATH, typing 'tooledit' will show the "
+"usage syntax:"
+msgstr ""
+"Le programme tooledit peut aussi être invoqué comme un programme autonome.  "
+"Par exemple si le programme est dans le PATH de l'utilisateur, taper "
+"tooledit en suivant une des syntaxes suivantes selon le besoin:"
+
+#. type: Plain text
+#: tooledit.txt:74
+#, no-wrap
+msgid ""
+".Stand Alone\n"
+"----\n"
+msgstr ""
+".Tooledit en autonome\n"
+"----\n"
+
+#. type: Plain text
+#: tooledit.txt:79
+#, no-wrap
+msgid ""
+"tooledit\n"
+"Usage:\n"
+"tooledit filename\n"
+"tooledit [column_1 ... column_n] filename\n"
+"----\n"
+msgstr ""
+"tooledit\n"
+"Usage:\n"
+"tooledit nomfichier\n"
+"tooledit [colonne_1 ... colonne_n] nomfichier\n"
+"----\n"
+
+#. type: Plain text
+#: tooledit.txt:84
+msgid ""
+"To synchronize a standalone 'tooledit' with a running LinuxCNC application, "
+"the filename must resolve to the same [EMCIO]TOOL_TABLE filename specified "
+"in the LinuxCNC ini file."
+msgstr ""
+"Pour synchroniser un tooledit autonome avec l'application LinuxCNC courante, "
+"le nom de fichier doit être le même que celui spécifié par le paramètre "
+"[EMCIO]TOOL_TABLE dans le fichier ini."
+
+#. type: Plain text
+#: tooledit.txt:89
+msgid ""
+"When using the program 'tooledit' while LinuxCNC is running, gcode command "
+"execution or other programs may alter tool table data and the tool table "
+"file.  File changes are detected by 'tooledit' and a message is displayed:"
+msgstr ""
+"Lors de l'utilisation de tooledit pendant la marche de LinuxCNC, l'exécution "
+"d'un programme G-code ou d'un autre programme peut altérer les données de la "
+"table d'outils. Toute modification est alors détectée par tooledit qui "
+"affiche le message:"
+
+#. type: Plain text
+#: tooledit.txt:91
+#, no-wrap
+msgid "  Warning: File changed by another process\n"
+msgstr "  Attention: Fichier modifié par un autre process\n"
+
+#. type: Plain text
+#: tooledit.txt:94
+msgid ""
+"The 'tooledit' tool table display can be updated to read the modified file "
+"with the ReRead button."
+msgstr ""
+"L'affichage de la table d'outils dans tooledit peut être rafraîchi par le "
+"bouton Relire, pour relire le fichier modifié."
+
+#. type: Plain text
+#: tooledit.txt:96
+msgid "he tool table is specified in the ini file with an entry:"
+msgstr ""
+"Le nom de la table d'outils est spécifié dans le fichier ini par l'entrée:"
+
+#. type: Plain text
+#: tooledit.txt:98
+#, no-wrap
+msgid "  [EMCIO]TOOL_TABLE = tool_table_filename\n"
+msgstr "   [EMCIO]TOOL_TABLE = nom_fichier_table_\n"
+
+#. type: Plain text
+#: tooledit.txt:101
+msgid ""
+"The tool table file can be edited with any simple text editor (not a word "
+"processor)."
+msgstr ""
+"Le fichier de table d'outils est éditable avec n'importe quel simple éditeur "
+"de texte. (et non avec un traitement de texte)"
+
+#. type: Plain text
+#: tooledit.txt:104
+msgid ""
+"The axis GUI can optionally use an ini file setting to specify the tool "
+"editor program:"
+msgstr ""
+"L'interface graphique Axis peut optionnellement utiliser un paramètre du "
+"fichier ini pour spécifier quel éditeur doit être utilisé:"
+
+#. type: Plain text
+#: tooledit.txt:106
+#, no-wrap
+msgid "  [DISPLAY]TOOL_EDITOR = path_to_editor_program\n"
+msgstr "   [DISPLAY]TOOL_EDITOR = path_pour_éditeur\n"
+
+#. type: Plain text
+#: tooledit.txt:111
+msgid ""
+"By default, the program named 'tooledit' is used. This editor supports all "
+"tool table parameters, allows addition and deletion of tool entries, and "
+"performs a number of validity checks on parameter values."
+msgstr ""
+"Par défaut, le programme tooledit est utilisé. Cet éditeur supporte tous les "
+"paramètres de table d'outils, permet l'ajout ou l'effacement d'outils et "
+"fourni un certain nombre de contrôles de validité des paramètres introduits."
