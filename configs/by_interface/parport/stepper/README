@@ -1,5 +1,5 @@
 This configuration step is intended for basic stepper machines.
-You can have either standard pinout (LinuxCNC style) or xylotex pinout, by including either one of those 2 .hal files. Certainly you could make a new one which would suit your own custom cabling.
+You can have either standard pinout (Machinekit style) or xylotex pinout, by including either one of those 2 .hal files. Certainly you could make a new one which would suit your own custom cabling.
 
 There are 3 ini files, one for inch setups (stepper_in.ini) and one for metric setups (stepper_mm.ini). Additionally there is one (sim_inch.ini) which doesn't output steps to the parport but to the PC speaker. That way you can "hear" if it's running OK.
 

@@ -15,7 +15,7 @@
 # go directly to the BBB
 # At powerup the LVC541 enabl;e signals are pulled high, disabling the
 # drivers until
-# the BBB and LinuxCNC pull the enable signal low.
+# the BBB and Machinekit pull the enable signal low.
 #
 ########################################
 

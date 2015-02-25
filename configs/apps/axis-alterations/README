@@ -30,7 +30,7 @@ USER4 = G0 X15 Y15 Z15
 USER5 = G0 X20 Y20 Z20
 USER6 = G0 X25 Y25
 USER7 = G0 X30 Y30
-USER8 = $firefox "www.linuxcnc.org"
+USER8 = $firefox "www.machinekit.io"
 USER9 = $gedit
 NUMBERKEYS = YES
 
@@ -60,9 +60,9 @@ a program being started which safety screens etc are open, but still allow joggi
 Open Last File
 ~~~~~~~~~~~~~~
 
-Unless Linuxcnc is launched with a file in the command line,
+Unless Machinekit is launched with a file in the command line,
 or there is a file specified to be opened in the ini file or in the environment variable,
-the file that was open when linuxcnc was last closed, will be re-opened if the variable in the ini file is set.
+the file that was open when machinekit was last closed, will be re-opened if the variable in the ini file is set.
 
 [USER_COMMANDS]
 LOAD_LASTFILE = YES

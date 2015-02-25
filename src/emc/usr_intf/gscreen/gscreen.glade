@@ -1186,7 +1186,7 @@
                         <child>
                           <object class="GtkImage" id="image6">
                             <property name="visible">True</property>
-                            <property name="pixbuf">../gscreen/images/linuxcnc-wizard.gif</property>
+                            <property name="pixbuf">../gscreen/images/machinekit-wizard.gif</property>
                           </object>
                           <packing>
                             <property name="position">10</property>

@@ -41,7 +41,7 @@ if [ ! -z "$debug" ] ; then
 fi
 
 if $REALTIME status >/dev/null ; then
-  msg="$prog: LinuxCNC is active"
+  msg="$prog: Machinekit is active"
   echo "$msg"
   popup "$msg"
   exit 1

@@ -4,7 +4,7 @@ import hal
 # to load a completely custom glade screen.
 # The only things that really matters is that it's saved as a GTK builder project,
 # the toplevel window is caller window1 (The default name) and you connect a destroy
-# window signal else you can't close down linuxcnc 
+# window signal else you can't close down machinekit 
 
 # standard handler call
 def get_handlers(halcomp,builder,useropts,gscreen):
@@ -13,8 +13,8 @@ def get_handlers(halcomp,builder,useropts,gscreen):
 class HandlerClass:
 
     # This will be pretty standard to gain access to everything
-    # emc is for control and status of linuxcnc
-    # data is important data from gscreen and linuxcnc
+    # emc is for control and status of machinekit
+    # data is important data from gscreen and machinekit
     # widgets is all the widgets from the glade files
     # gscreen is for access to gscreens methods
     def __init__(self, halcomp,builder,useropts,gscreen):
@@ -36,7 +36,7 @@ class HandlerClass:
 
     # We don't want Gscreen to initialize it's regular widgets because this custom
     # screen doesn't have most of them. So we add this function call.
-    # Since this custom screen uses gladeVCP magic for its interaction with linuxcnc
+    # Since this custom screen uses gladeVCP magic for its interaction with machinekit
     # We don't add much to this function, but we do want the window to display.
     # init_show_window will do this
     def initialize_widgets(self):

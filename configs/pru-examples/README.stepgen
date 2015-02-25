@@ -13,12 +13,12 @@ remaining four values used for internal state (ie: step accumulator).  This
 usage is purly a convention at this point, and may be changed as required by
 any particular module.
 
-Currently, the code is not quite ready to launch LinuxCNC and hook to a
+Currently, the code is not quite ready to launch Machinekit and hook to a
 machine, but it is possible to perform interesting tests.
 
 General usage guidelines:
 
-* Build LinuxCNC for a BeagleBone, as usual.
+* Build Machinekit for a BeagleBone, as usual.
 
 * cd to the configs/pru-examples (where you found this file) and run make to
   build the PRU code

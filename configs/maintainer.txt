@@ -1,7 +1,7 @@
 maintainer.txt:
 
 General notes for the configs directory, root/configs.
-'root' refers to the toplevel of the linuxcnc git tree.
+'root' refers to the toplevel of the machinekit git tree.
 
 -------------------------------------------------------
 
@@ -9,12 +9,12 @@ The configs dir contains a hierarchy of configurations,
 each with one or more ini files, that are intended to:
 
   1) run as-is on a RIP (run-in-place) build
-  2) run when copied to a user ~/linuxcnc directory
+  2) run when copied to a user ~/machinekit directory
      by the configuration picker (pickconfig.tcl)
 
 Additionally, demonstration scripts identified by a file
-extension .demo, can run standalone to show linuxcnc-related
-functionality without requiring start-up of linuxcnc.
+extension .demo, can run standalone to show machinekit-related
+functionality without requiring start-up of machinekit.
 A configs directory should not contain both .ini and .demo
 files.
 
@@ -33,25 +33,25 @@ a .demo file is usable.
 -------------------------------------------------------
 
 The configuraton picker (pickconfig.tcl) walks through
-existing _user_ configurations in ~linuxcnc/configs and the
+existing _user_ configurations in ~machinekit/configs and the
 distribution's root/configs directory.  It presents both
 existing user configurations and sample configurations.
 When a sample configuration is selected the configuration
 picker:
 
-  1) creates a directory in ~/linuxcnc/configs for the
+  1) creates a directory in ~/machinekit/configs for the
      selected item and copies all relevant files and
      directories to the newly created directory.  When
      a name clash occurs, the picker appends a number
      to the directory name to make it distinct.
 
-  2) creates a directory ~/linuxcnc/nc_files (if it
+  2) creates a directory ~/machinekit/nc_files (if it
      does not exist).  It creates links in this directory
      to the system locations for examples and libraries
      (examples, ngcgui_lib, gladevcp_lib)
 
   3) edits all ini files being copied so that
-     [DISPLAY]PROGRAM_PREFIX = ~/linuxcnc/nc_files.
+     [DISPLAY]PROGRAM_PREFIX = ~/machinekit/nc_files.
 
 A similar process occurs for demonstration (.demo) files when
 directories for .demo files are copied (only when no file
@@ -109,8 +109,8 @@ Example:
 These conventions work because:
 
    1) Copied user configurations
-      have configs located in --------- ~/linuxcnc/configs/
-      and nc_files located as --------- ~/linuxcnc/nc_files/
+      have configs located in --------- ~/machinekit/configs/
+      and nc_files located as --------- ~/machinekit/nc_files/
 
       So if ini files always refer to root/nc_files as
         ../../nc_files

@@ -71,7 +71,7 @@ class INI:
             print >>file, "MIN_ANGULAR_VELOCITY = 0"
             print >>file, "MAX_ANGULAR_VELOCITY = %.2f" % self.d.amaxvel
 
-        print >>file, "INTRO_GRAPHIC = linuxcnc.gif"
+        print >>file, "INTRO_GRAPHIC = machinekit.gif"
         print >>file, "INTRO_TIME = 5"
         print >>file, "PROGRAM_PREFIX = %s" % os.path.expanduser("~/linuxcnc/nc_files")
         if self.d.units:

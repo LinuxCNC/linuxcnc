@@ -1,6 +1,6 @@
 This configuration is for my (petev) Bridgeport BOSS6. It shows how I used the boss_plc component. It is intended for servo machines running the Vitalsystems (www.vsi99.com) Motenc-100 or Motenc-Lite card.
 
-You can either have a standard pinout, or you could make a new one which would suit your own custom cabling. The changes are done in HAL (the Hardware Abstraction Layer), which is very flexible (read more about it at http://wiki.linuxcnc.org/)
+You can either have a standard pinout, or you could make a new one which would suit your own custom cabling. The changes are done in HAL (the Hardware Abstraction Layer), which is very flexible (read more about it at http://wiki.machinekit.io/)
 
 The standard configuration assumes a card installed with the board id jumper set at 0. If you get errors, try to adjust the jumper.
 
@@ -14,14 +14,14 @@ Detailed description:
 
 * hal files
 
--- boss.hal - this is the main hal file for the Motenc, it loads the motenc driver and sets up motion and IO links (like the pin number where the X limit switch is, or where the spindle start pin is connected), it is fairly well commented, so it should be easy to read / modify.  This servo setup is mostly for serious machines, so the ESTOP should really be planned / implemented properly (that means use an external ESTOP chain, and let LinuxCNC know about it, and let LinuxCNC interrupt the external chain too).  Read more about this in the wiki at http://wiki.linuxcnc.org/
+-- boss.hal - this is the main hal file for the Motenc, it loads the motenc driver and sets up motion and IO links (like the pin number where the X limit switch is, or where the spindle start pin is connected), it is fairly well commented, so it should be easy to read / modify.  This servo setup is mostly for serious machines, so the ESTOP should really be planned / implemented properly (that means use an external ESTOP chain, and let Machinekit know about it, and let Machinekit interrupt the external chain too).  Read more about this in the wiki at http://wiki.machinekit.org/
 
 * additional files
 
 -- boss.tbl - this is the tool table file, and it holds definitions for the tools used, along with tool sizes for compensation (tool length & tool diameter)
 
--- boss.var - the variables file. This file is used by the interpreter to save internal variables when LinuxCNC shuts down, and rereads them on the next startup.
+-- boss.var - the variables file. This file is used by the interpreter to save internal variables when Machinekit shuts down, and rereads them on the next startup.
 
-Further specific information can be found in the LinuxCNC wiki:
+Further specific information can be found in the Linuxcnc wiki:
 http://wiki.linuxcnc.org/
 

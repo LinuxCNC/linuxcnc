@@ -1,4 +1,4 @@
-#   This is a component of LinuxCNC
+#   This is a component of Machinekit
 #   Copyright 2014 Norbert Schechner <nieson@web.de>
 #
 #   This program is free software; you can redistribute it and/or modify

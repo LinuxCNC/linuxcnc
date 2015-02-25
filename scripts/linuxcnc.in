@@ -70,6 +70,9 @@ if test "xyes" = "x@RUN_IN_PLACE@"; then
 	export PYTHONPATH
 fi
 
+#PRELOAD_WORKAROUND=@PRELOAD_WORKAROUND@
+
+
 XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
 export XFILESEARCHPATH
 
@@ -85,7 +88,7 @@ program_available () {
 usage () {
 	P=${0##*/}
 	cat <<EOF
-$P: Run LINUXCNC
+$P: Run MACHINEKIT
 
 Usage:
 	$P [-d] [-v] [-V]
@@ -180,7 +183,7 @@ function ErrorCheck () {
             fi
 
             echo "\
-LinuxCNC terminated with an error.  You can find more information in the log:
+Machinekit terminated with an error.  You can find more information in the log:
     $HOME/linuxcnc_debug.txt
 and
     $HOME/linuxcnc_print.txt
@@ -240,11 +243,11 @@ export LINUXCNC_LANG_DIR
 export REALTIME
 export HALCMD
 
-[ -z $RUNTESTS ] && echo "LINUXCNC - $LINUXCNCVERSION" 
+[ -z $RUNTESTS ] && echo "MACHINEKIT - $LINUXCNCVERSION" 
 
 # was an inifile specified on the command line?
 if [ ! -z "$USE_LAST_INIFILE" ]; then
-    INIFILE=$($INIVAR -ini ~/.linuxcncrc -var LAST_CONFIG -sec PICKCONFIG 2>>$DEBUG_FILE)
+    INIFILE=$($INIVAR -ini ~/.machinekitrc -var LAST_CONFIG -sec PICKCONFIG 2>>$DEBUG_FILE)
     echo "Using previous inifile: $INIFILE" >> $PRINT_FILE
 fi
 
@@ -325,6 +328,26 @@ INIFILE=$(handle_includes $INIFILE)
 if [ $? -ne 0 ] ; then
     exit 1 ; # error
 fi
+if [ "$PREVINIFILE" != "$INIFILE" ]; then
+    trap "rm -f $INIFILE" 0 1 2 3 15; # Clean up the temporary file
+fi
+
+function handle_env () {
+    inifile=$1
+    outfile=`mktemp`; # Let the shell create a temporary file
+    echo -e "$(eval "echo -e \"`<$inifile`\"")" >> $outfile
+    cmp --silent $inifile $outfile
+    if [ $? -ne 0 ] ; then
+        echo $outfile ;# use the expanded file
+    else
+        rm -f $outfile 
+        echo $inifile ;# use the original file
+    fi
+    return 0 ;# ok
+}
+
+PREVINIFILE=$INIFILE
+INIFILE=$(handle_env $INIFILE)
 if [ "$PREVINIFILE" != "$INIFILE" ]; then
     trap "rm -f $INIFILE" 0 1 2 3 15; # Clean up the temporary file
 fi
@@ -499,7 +522,7 @@ function KillTaskWithTimeout() {
 ################################################################################
 function Cleanup() {
 
-    echo "Shutting down and cleaning up LinuxCNC..."
+    echo "Shutting down and cleaning up Machinekit..."
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of linuxcnc
     for KILL_TASK in xlinuxcnc ylinuxcnc linuxcncpanel keystick iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel; do
@@ -588,35 +611,35 @@ function LinuxcncRunning() {
 # 4. done with function definitions, execution resumes here
 ################################################################################
 
-# Name of lock file to check for that signifies that LinuxCNC is up,
+# Name of lock file to check for that signifies that Machinekit is up,
 # to prevent multiple copies of controller
 LOCKILE=/tmp/linuxcnc.lock
 
 # Check for lock file
 if LinuxcncRunning ; then
   if tty -s; then
-    echo -n "LinuxCNC is still running.  Restart it? [Y/n] "
+    echo -n "Machinekit is still running.  Restart it? [Y/n] "
     read input; [ -z $input ] && input=y
   else
     input=$(@WISH@ <<EOF
 wm wi .
-puts [tk_messageBox -title LinuxCNC -message "LinuxCNC is still running.  Restart it?" -type yesno]
+puts [tk_messageBox -title Machinekit -message "Machinekit is still running.  Restart it?" -type yesno]
 exit
 EOF
 )
   fi
   case $input in
     y|Y|yes)
-      echo Cleaning up old LinuxCNC...
+      echo Cleaning up old Machinekit...
       Cleanup other
     ;;
     *)
-      echo Not starting new LinuxCNC
+      echo Not starting new Machinekit
       exit 0
     ;;
   esac
 fi
-echo Starting LinuxCNC...
+echo Starting Machinekit...
 
 # trap ^C so that it's called if user interrupts script
 trap 'Cleanup ; exit 0' SIGINT SIGTERM
@@ -655,11 +678,11 @@ if [ "$img" != "" ] ; then
 fi
  
 ################################################################################
-# 4.2. Now we can finally start loading LinuxCNC
+# 4.2. Now we can finally start loading Machinekit
 ################################################################################
 
 # 4.3.1. Run linuxcncserver in background, always (it owns/creates the NML buffers)
-echo "Starting LinuxCNC server program: $EMCSERVER" >>$PRINT_FILE
+echo "Starting Machinekit server program: $EMCSERVER" >>$PRINT_FILE
 if ! program_available $EMCSERVER; then
     echo "Can't execute server program $EMCSERVER"
     Cleanup
@@ -682,7 +705,7 @@ export HAL_RTMOD_DIR=$LINUXCNC_RTLIB_DIR
 
 # 4.3.4. Run io in background if so defined in INI
 if [ "$EMCIO" != "" ] ; then
-        echo "Starting LinuxCNC IO program: $EMCIO" >>$PRINT_FILE
+        echo "Starting Machinekit IO program: $EMCIO" >>$PRINT_FILE
         if ! program_available $EMCIO ; then
                 echo "Can't execute IO program $EMCIO"
                 Cleanup
@@ -692,7 +715,7 @@ if [ "$EMCIO" != "" ] ; then
         $HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
         echo halcmd loadusr $EMCIO started
 else
-        echo "Skipping LinuxCNC IO program >>$PRINT_FILE"
+        echo "Skipping Machinekit IO program >>$PRINT_FILE"
 fi
 
 # 4.3.5. Run halui in background, if necessary
@@ -772,6 +795,12 @@ if ! program_available $EMCTASK ; then
     echo "Can't execute TASK program $EMCTASK"
     Cleanup
     exit 1
+fi
+
+# setup LD_PRELOAD  if deemed necessary by configure
+unset LD_PRELOAD
+if [ -n "$PRELOAD_WORKAROUND" ] ; then
+	export LD_PRELOAD=$PRELOAD_WORKAROUND
 fi
 
 $EMCTASK -ini "$INIFILE" &
