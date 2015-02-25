@@ -1456,6 +1456,12 @@ int do_loadusr_cmd(char *args[])
             nanosleep(&ts, NULL);
 	    /* check for program ending */
 	    retval = waitpid( pid, &status, WNOHANG );
+	    if (WIFEXITED(status) && WEXITSTATUS(status)) {
+	        halcmd_error("waitpid failed %s %s\n",prog_name,new_comp_name);
+	        ready = 0;
+	        exited = 1;
+	        break;
+	    }
 	    if ( retval != 0 ) {
 		exited = 1;
 	    }
