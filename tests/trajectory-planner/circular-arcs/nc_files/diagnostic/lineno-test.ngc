@@ -1,0 +1,19 @@
+G4 P1
+G20
+G90
+G0 Z1
+X0 Y0 
+M6 T1
+G54
+#1 = 1 (assign parameter #1 the value of 0)
+F25 (set a feed rate)
+o101 while [#1 LT 10]
+  G1 X0
+  G1 Y[#1/10] X1
+  #1 = [#1+1] (increment the test counter)
+o101 endwhile
+M2 (end program)
+
+M5
+M2
+
