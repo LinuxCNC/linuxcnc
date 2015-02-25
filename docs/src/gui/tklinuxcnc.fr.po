@@ -1,0 +1,732 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-25 11:04+0100\n"
+"PO-Revision-Date: 2015-02-25 11:29+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: tklinuxcnc.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: tklinuxcnc.txt:4
+msgid "= TkLinuxCNC GUI"
+msgstr "= L'interface graphique TkLinuxCNC"
+
+#. type: Plain text
+#: tklinuxcnc.txt:6
+msgid "[[cha:tklinuxcnc-gui]] (((TkLinuxCNC GUI)))"
+msgstr "[[cha:TkLinuxCNC]] (((TkLinuxCNC)))"
+
+#. type: Plain text
+#: tklinuxcnc.txt:8
+msgid "== Introduction"
+msgstr "== Introduction"
+
+#. type: Plain text
+#: tklinuxcnc.txt:14
+msgid ""
+"TkLinuxCNC(((tkLinuxCNC))) is one of the first graphical front-ends for "
+"LinuxCNC. It is written in Tcl and uses the Tk toolkit for the display. "
+"Being written in Tcl makes it very portable (it runs on a multitude of "
+"platforms). A separate backplot window can be displayed as shown."
+msgstr ""
+"TkLinuxCNC(((tklinuxcnc))) a été l'une des premières graphiques utilisateur "
+"pour LinuxCNC. Elle est écrite en Tcl et utilise le toolkit Tk pour "
+"l'affichage. Le fait d'être écrite en TCL la rend vraiment très portable "
+"(elle fonctionne sur de nombreuses plate-formes)."
+
+#. type: Plain text
+#: tklinuxcnc.txt:16
+msgid ".TkLinuxCNC Window[[cap:TkLinuxCNC-Window]]"
+msgstr ".L'affichage de TkLinuxCNC[[cap:affichage-TkLinuxCNC]]"
+
+#. type: Plain text
+#: tklinuxcnc.txt:18
+msgid "image::images/tkemc.png[align=\"center\"]"
+msgstr "image::images/tklinuxcnc_fr.png[]"
+
+#. type: Plain text
+#: tklinuxcnc.txt:20
+msgid "== Getting Started"
+msgstr "== Utiliser TkLinuxCNC"
+
+#. type: Plain text
+#: tklinuxcnc.txt:23
+msgid ""
+"To select TkLinuxCNC as the front-end for LinuxCNC, edit the .ini file. In "
+"the section '[DISPLAY]' change the 'DISPLAY' line to read"
+msgstr ""
+"Pour sélectionner l'interface graphique TkLinuxCNC avec LinuxCNC, éditer le "
+"fichier .ini et dans la section [DISPLAY] modifier l'affichage comme ci-"
+"dessous:"
+
+#. type: Plain text
+#: tklinuxcnc.txt:24
+#, no-wrap
+msgid "----\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: tklinuxcnc.txt:26
+#, no-wrap
+msgid ""
+"DISPLAY = tklinuxcnc\n"
+"----\n"
+msgstr ""
+"DISPLAY = tklinuxcnc\n"
+"----\n"
+
+#. type: Plain text
+#: tklinuxcnc.txt:30
+msgid ""
+"Then, start LinuxCNC and select that ini file. The sample configuration 'sim/"
+"tklinuxcnc/tklinuxcnc.ini' is already configured to use TkLinuxCNC as its "
+"front-end."
+msgstr ""
+"Puis, lancer LinuxCNC et choisir ce fichier ini. La configuration qui se "
+"trouve dans 'sim/tklinuxcnc/tklinuxcnc.ini' est déjà configurée pour "
+"utiliser TkLinuxCNC comme interface graphique."
+
+#. type: Plain text
+#: tklinuxcnc.txt:32
+msgid "=== A typical session with TkLinuxCNC"
+msgstr "=== Une session typique avec TkLinuxCNC"
+
+#. type: Plain text
+#: tklinuxcnc.txt:46
+#, no-wrap
+msgid ""
+". Start LinuxCNC and select a configuration file.\n"
+". Clear the 'E-STOP' condition and turn the machine on (by\n"
+" pressing F1 then F2).\n"
+". 'Home' each axis.\n"
+". Load the file to be milled.\n"
+". Put the stock to be milled on the table.\n"
+". Set the proper offsets for each axis by jogging and either homing\n"
+" again or right-clicking an axis name and entering an offset value.\n"
+" footnote:[For some of these actions it might be necessary to change the\n"
+" mode LinuxCNC is currently running in.]\n"
+". Run the program.\n"
+". To mill the same file again, return to step 6. To mill a different\n"
+" file, return to step 4. When you're done, exit LinuxCNC.\n"
+msgstr ""
+" . Lancer LinuxCNC et sélectionner un fichier de configuration.\n"
+" . Libérer 'l'Arrêt d'Urgence' et mettre la machine en marche\n"
+"   (en pressant F1 puis F2).\n"
+" . Faire 'l'Origine Machine' de chacun des axes.\n"
+" . Charger un fichier d'usinage.\n"
+" . Brider le brut à usiner sur la table.\n"
+" . Faire 'l'Origine Pièce' de chacun des axes, à\n"
+"   l'aide du jog ou en introduisant une valeur de décalage d'origine après\n"
+"   un clic droit sur le nom d'un axe.\n"
+" . Lancer le programme.\n"
+" . Pour refaire une autre pièce identique, reprendre à l'étape 6. Pour\n"
+"   usiner une pièce différente, reprendre à l'étape 4. Quand c'est\n"
+"   terminé, quitter LinuxCNC.\n"
+
+#. type: Plain text
+#: tklinuxcnc.txt:48
+msgid "== Elements of the TkLinuxCNC window"
+msgstr "== Éléments affichés par TkLinuxCNC"
+
+#. type: Plain text
+#: tklinuxcnc.txt:50
+msgid "The TkLinuxCNC window contains the following elements:"
+msgstr "La fenêtre TkLinuxCNC contient les éléments suivants:"
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:63
+msgid "A menubar that allows you to perform various actions"
+msgstr "Une barre de menu permettant diverses actions."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:63
+msgid ""
+"A set of buttons that allow you to change the current working mode, start/"
+"stop spindle and other relevant I/O"
+msgstr ""
+"Un jeu de boutons permettant d'agir sur le mode de travail, Marche/Arrêt de "
+"la broche et autres éléments."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:63
+msgid "Status bar for various offset related displays"
+msgstr "Une barre de statut pour l'affichage des différents offsets."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:63
+msgid "Coordinate display area"
+msgstr "Une zone d'affichage des coordonnées."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:63
+msgid ""
+"A set of sliders which control 'Jogging speed', 'Feed Override' , and "
+"'Spindle speed Override' which allow you to increase or decrease those "
+"settings"
+msgstr ""
+"Un jeu de curseurs pour contrôler la 'vitesse de jog', le 'Correcteur de "
+"vitesse d'avance' et le 'Correcteur de vitesse broche' qui permettent "
+"d'augmenter ou de diminuer ces vitesses."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:63
+msgid "Manual data input text box 'MDI'"
+msgstr "Une boîte d'entrée de données manuelles (MDI)"
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:63
+msgid "Status bar display with active G-codes, M-codes, F- and S-words"
+msgstr ""
+"Une barre de statut affichant les G-codes actifs, M-codes, mots F et S."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:63
+msgid "Interpreter related buttons"
+msgstr "Les boutons relatifs à l'interpréteur."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:63
+msgid "A text display area that shows the G-code source of the loaded file"
+msgstr "Une zone de texte montrant le G-code du programme chargé."
+
+#. type: Plain text
+#: tklinuxcnc.txt:65
+msgid "=== Main buttons"
+msgstr "=== Boutons principaux"
+
+#. type: Plain text
+#: tklinuxcnc.txt:67
+msgid "From left to right, the buttons are:"
+msgstr "Dans la première ligne de la gauche vers la droite et cycliquement:"
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:75
+msgid "Machine enable: 'ESTOP' > 'ESTOP RESET' > 'ON'"
+msgstr ""
+"Marche Machine: 'Arrêt d'Urgence' > 'Arrêt d'Urgence relâché' > 'Marche'. "
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:75
+msgid "Toggle mist coolant"
+msgstr "Bascule arrosage fluide/gouttelettes."
+
+#. type: Plain text
+#: tklinuxcnc.txt:75
+#, no-wrap
+msgid ""
+"* Decrease spindle speed\n"
+"*  Set spindle direction 'SPINDLE OFF' > 'SPINDLE FORWARD' .\n"
+" 'SPINDLE REVERSE'\n"
+"* Increase spindle speed\n"
+"* Abort\n"
+msgstr ""
+"* Broche moins vite.\n"
+"* Direction de rotation de la broche 'Arrêt broche' >\n"
+"   'Broche sens horaire' > 'Broche sens anti-horaire'.\n"
+"* Broche plus vite\n"
+"* Abandon\n"
+
+#. type: Plain text
+#: tklinuxcnc.txt:77
+msgid "then on the second line:"
+msgstr "puis dans la deuxième ligne:"
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:81
+msgid "Operation mode: 'MANUAL' > 'MDI' > 'AUTO'"
+msgstr "Mode de marche: 'MANUEL' > 'MDI' > 'AUTO'."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:81
+msgid "Toggle flood coolant"
+msgstr "Bascule d'arrosage."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:81
+msgid "Toggle spindle brake control"
+msgstr "Bascule du frein de broche."
+
+#. type: Plain text
+#: tklinuxcnc.txt:83
+msgid "=== Offset display status bar"
+msgstr "=== Barre de statut des différents offsets"
+
+#. type: Plain text
+#: tklinuxcnc.txt:87
+msgid ""
+"The Offset display status bar displays the currently selected tool (selected "
+"with Txx M6), the tool length offset (if active), and the work offsets (set "
+"by right-clicking the coordinates)."
+msgstr ""
+"Elle affiche, l'offset de rayon de l'outil courant (sélectionné avec Txx "
+"M6), l'offset éventuel de longueur d'outil si il est actif et les offsets de "
+"travail (ajustables par un clic droit sur les coordonnées)."
+
+#. type: Plain text
+#: tklinuxcnc.txt:89
+msgid "=== Coordinate Display Area"
+msgstr "=== Zone d'affichage des coordonnées"
+
+#. type: Plain text
+#: tklinuxcnc.txt:96
+msgid ""
+"The main part of the display shows the current position of the tool.  The "
+"color of the position readout depends on the state of the axis. If the axis "
+"is unhomed the axis will be displayed in yellow letters. Once homed it will "
+"be displayed in green letters. If there is an error with the current axis "
+"TkLinuxCNC will use red letter to show that. (for example if an hardware "
+"limit switch is tripped)."
+msgstr ""
+"La partie principale affiche la position courante de l'outil. La couleur "
+"varie selon l'état de l'axe. Si l'axe n'est pas référencé il est affiché en "
+"caractères jaunes. Si il est référencé il s'affiche en vert. Si il est en "
+"erreur, TkLinuxCNC l'affiche en rouge pour montrer un défaut. (par exemple "
+"si un contact de fin de course est activé)."
+
+#. type: Plain text
+#: tklinuxcnc.txt:109
+msgid ""
+"To properly interpret these numbers, refer to the radio boxes on the right. "
+"If the position is 'Machine', then the displayed number is in the machine "
+"coordinate system. If it is 'Relative', then the displayed number is in the "
+"offset coordinate system. Further down the choices can be 'actual' or "
+"'commanded'. Actual refers to the feedback coming from encoders (if you have "
+"a servo machine), and the 'commanded' refers to the position command send "
+"out to the motors. These values can differ for several reasons: Following "
+"error, deadband, encoder resolution, or step size. For instance, if you "
+"command a movement to X 0.0033 on your mill, but one step of your stepper "
+"motor is 0.00125, then the 'Commanded' position will be 0.0033 but the "
+"'Actual' position will be 0.0025 (2 steps) or 0.00375 (3 steps)."
+msgstr ""
+"Pour interpréter correctement les différentes valeurs, se référer aux "
+"boutons de droite. Si la position est 'Machine', alors la valeur affichée "
+"est en coordonnées machine. Si elle est 'Relative', la valeur affichée est "
+"en coordonnées pièce. Deux autres en dessous indiquent 'actuelle' ou "
+"'commandée'. Actuelle fait référence aux valeurs retournées par les codeurs "
+"(si la machine est équipée de servomoteurs) et 'commandée' fait référence à "
+"la position à atteindre envoyée aux moteurs. Ces valeurs peuvent différer "
+"pour certaines raisons: Erreur de suivi, bande morte, résolution d'encodeur "
+"ou taille de pas. Par exemple, si un mouvement est commandé vers X0.08 sur "
+"une fraiseuse, mais qu'un pas moteur fait 0.03, alors la position "
+"'Commandée' sera 0.03 mais la position 'Actuelle' sera soit 0.06 (2 pas) "
+"soit 0.09 (3 pas)."
+
+#. type: Plain text
+#: tklinuxcnc.txt:115
+msgid ""
+"Another set of radio buttons allows you to choose between 'joint' and "
+"'world' view. These make little sense on a normal type of machine (e.g.  "
+"trivial kinematics), but help on machines with non-trivial kinematics like "
+"robots or stewart platforms. (you can read more about kinematics in the "
+"Integrator Manual)."
+msgstr ""
+"Deux autres boutons permettent de choisir entre la vue 'Articulation' et la "
+"vue 'Globale'. Cela a peu de sens avec les machines de type normal "
+"(cinématiques triviales), mais se révèle très utile sur les machines avec "
+"des cinématiques non triviales telles que les robots ou plate-forme de "
+"Stewart. (Des informations plus complètes se trouvent dans le manuel de "
+"l'intégrateur)."
+
+#. type: Plain text
+#: tklinuxcnc.txt:117
+msgid "==== Backplot"
+msgstr "==== Parcours d'outil"
+
+#. type: Plain text
+#: tklinuxcnc.txt:120
+msgid ""
+"When the machine moves, it leaves a trail called the backplot. You can start "
+"the backplot window by selecting View→Backplot."
+msgstr ""
+"Quand la machine se déplace, elle laisse un tracé appelé parcours d'outil. "
+"La fenêtre d'affichage du parcours d'outil s'active via le menu Vues → "
+"Parcours d'outil."
+
+#. type: Plain text
+#: tklinuxcnc.txt:122
+msgid "=== Automatic control"
+msgstr "=== Contrôle en automatique"
+
+#. type: Plain text
+#: tklinuxcnc.txt:124
+msgid "==== Buttons for control"
+msgstr "==== Boutons de contrôle"
+
+#. type: Plain text
+#: tklinuxcnc.txt:127
+msgid ""
+"The buttons in the lower part of TkLinuxCNC are used to control the "
+"execution of a program:"
+msgstr ""
+"Les boutons de contrôle de la partie inférieure de TkLinuxCNC, visibles sur "
+"l'image ci-dessous, sont utilisés pour l'exécution du programme:"
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:136
+msgid "'Open' to load a program,"
+msgstr "'Ouvrir' pour charger un fichier."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:136
+msgid "'Verify' to check it for errors,"
+msgstr "'Vérifier' pour vérifier si il contient des erreurs."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:136
+msgid "'Run' to start the actual cutting,"
+msgstr "'Lancer' pour commencer l'usinage."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:136
+msgid "'Pause' to stop it while running,"
+msgstr "'Pause' pour stopper temporairement l'usinage."
+
+#. type: Bullet: '* '
+#: tklinuxcnc.txt:136
+msgid "'Resume' to resume an already paused program,"
+msgstr "'Reprise' pour reprendre un programme mis en pause."
+
+#. type: Plain text
+#: tklinuxcnc.txt:136
+#, no-wrap
+msgid ""
+"* 'Step' to advance one line in the program and 'Optional Stop' to toggle the\n"
+"optional stop switch (if the button is green the program execution will\n"
+"be stopped on any M1 encountered).\n"
+msgstr ""
+"* 'Arrêt optionnel' pour basculer l'arrêt optionnel M1, si ce bouton\n"
+"est vert l'exécution du programme est stoppée\n"
+"quand un code M1 est rencontré.\n"
+
+#. type: Plain text
+#: tklinuxcnc.txt:138
+msgid ".TkLinuxCNC Interpreter / program control[[cap:TkLinuxCNC-Interpreter]]"
+msgstr ".Interpréteur de TkLinuxCNC[[cap:TkLinuxCNC-Interpreteur]]"
+
+#. type: Plain text
+#: tklinuxcnc.txt:140
+msgid "image::images/tkemc-interp.png[align=\"center\"]"
+msgstr "image::images/tklinuxcnc_interp_fr.png[align=\"left\"]"
+
+#. type: Plain text
+#: tklinuxcnc.txt:142
+msgid "==== Text Program Display Area"
+msgstr "==== Zone texte d'affichage du programme"
+
+#. type: Plain text
+#: tklinuxcnc.txt:146
+msgid ""
+"When the program is running, the line currently being executed is "
+"highlighted in white. The text display will automatically scroll to show the "
+"current line."
+msgstr ""
+"Quand un programme est lancé, la ligne courante est affichée en surbrillance "
+"blanche. L'affichage du texte défile automatiquement pour montrer la ligne "
+"courante."
+
+#. type: Plain text
+#: tklinuxcnc.txt:148
+msgid "=== Manual Control"
+msgstr "=== Contrôle en manuel"
+
+#. type: Plain text
+#: tklinuxcnc.txt:150
+msgid "==== Implicit keys"
+msgstr "==== Touches implicites"
+
+#. type: Plain text
+#: tklinuxcnc.txt:156
+msgid ""
+"TkLinuxCNC allows you to manually move the machine. This action is known as "
+"'jogging'. First, select the axis to be moved by clicking it. Then, click "
+"and hold the '+' or '-' button depending on the desired direction of motion. "
+"The first four axes can also be moved by the keyboard arrow keys (X and Y), "
+"the PAGE UP and PAGE DOWN keys (Z) and the '[' and ']' keys (A/4th)."
+msgstr ""
+"TkLinuxCNC permet les déplacements manuels de la machine. Cette action "
+"s'appelle le 'jogging'. Premièrement, sélectionner l'axe à déplacer en "
+"cliquant dessus. Puis, cliquer et maintenir les boutons '+' ou '-' selon la "
+"direction du mouvement souhaité. Les quatre premiers axes peuvent aussi être "
+"déplacés à l'aide des touches fléchées pour les axes X et Y, Pg.up et Pg.dwn "
+"pour l'axe Z et les touches '[' et ']' pour l'axe A."
+
+#. type: Plain text
+#: tklinuxcnc.txt:162
+msgid ""
+"If 'Continuous' is selected, the motion will continue as long as the button "
+"or key is pressed. If another value is selected, the machine will move "
+"exactly the displayed distance each time the button is clicked or the key is "
+"pressed. The available values are: '1.0000, 0.1000, 0.0100, 0.0010, 0.0001'"
+msgstr ""
+"Si 'Continu' est activé, le mouvement sera continu tant que la touche sera "
+"pressée, si une valeur d'incrément est sélectionnée, le mobile se déplacera "
+"exactement de cette valeur à chaque appui sur la touche ou à chaque clic. "
+"Les valeurs disponibles sont: '1.0000 0.1000 0.0100 0.0010 0.0001'"
+
+#. type: Plain text
+#: tklinuxcnc.txt:168
+msgid ""
+"By pressing 'Home' or the HOME key, the selected axis will be homed.  "
+"Depending on your configuration, this may just set the axis value to be the "
+"absolute position 0.0, or it may make the machine move to a specific home "
+"location through use of 'home switches'. See the Integrator Manual for more "
+"information on homing."
+msgstr ""
+"En cliquant le bouton 'Origine' ou en pressant la touche Origine, l'axe "
+"actif est référencé sur son origine machine. Selon la configuration, la "
+"valeur de l'axe peut être simplement mise à la position absolue 0.0, ou la "
+"machine peut se déplacer vers un point spécifique matérialisé par le "
+"'contact d'origine'. Voir le manuel de configuration pour plus de détails "
+"sur les prises d'origine."
+
+#. type: Plain text
+#: tklinuxcnc.txt:173
+msgid ""
+"By pressing 'Override Limits', the machine will temporarily be permitted to "
+"jog outside the limits defined in the .ini file. (Note: if 'Override Limits' "
+"is active the button will be displayed using a red color)."
+msgstr ""
+"En cliquant le bouton 'Dépassement de limite', la machine permet un jog "
+"temporaire pour même si l'axe à franchi une limite d'axe fixée dans le "
+"fichier .ini. Noter que si 'Dépassement de limite' est activé il s'affiche "
+"en rouge."
+
+#. type: Plain text
+#: tklinuxcnc.txt:176
+msgid ""
+"[[cap:Override-Limits]] .TkLinuxCNC Override Limits & Jogging increments "
+"example"
+msgstr ""
+"[[cap:Override-Limits]] .Exemple de dépassement de limite et incréments de "
+"jog"
+
+#. type: Plain text
+#: tklinuxcnc.txt:178
+msgid "image::images/tkemc-override-limits.png[align=\"center\"]"
+msgstr "image::images/tkemc-override-limits.png[align=\"left\"]"
+
+#. type: Plain text
+#: tklinuxcnc.txt:180
+msgid "==== The Spindle group"
+msgstr "==== Le groupe de boutons 'Broche'"
+
+#. type: Plain text
+#: tklinuxcnc.txt:187
+msgid ""
+"The button on the first row selects the direction for the spindle to rotate: "
+"Counterclockwise, Stopped, Clockwise. The buttons next to it allow the user "
+"to increase or decrease the rotation speed. The button on the second row "
+"allows the spindle brake to be engaged or released.  Depending on your "
+"machine configuration, not all the items in this group may have an effect."
+msgstr ""
+"Le bouton central du dessus sélectionne le sens de rotation de la broche: "
+"Anti-horaire, Arrêt, Horaire. Les boutons fléchés augmentent ou diminuent la "
+"vitesse de rotation. Le bouton central du dessous permet d'engager ou de "
+"relâcher le frein de broche. Selon la configuration de la machine, les items "
+"de ce groupe ne sont peut être pas tous visibles."
+
+#. type: Plain text
+#: tklinuxcnc.txt:189
+msgid "==== The Coolant group"
+msgstr "==== Le groupe de boutons 'Arrosage'"
+
+#. type: Plain text
+#: tklinuxcnc.txt:193
+msgid ""
+"The two buttons allow the 'Mist' and 'Flood' coolants to be turned on and "
+"off. Depending on your machine configuration, not all the items in this "
+"group may appear."
+msgstr ""
+"Ces deux boutons permettent d'activer ou non les lubrifiants 'Gouttelettes' "
+"et 'Arrosage'. Selon la configuration de la machine, les éléments de ce "
+"groupe ne sont peut être pas tous visibles."
+
+#. type: Plain text
+#: tklinuxcnc.txt:195
+msgid "=== Code Entry"
+msgstr "=== Entrée manuelle de G-code (MDI)"
+
+#. type: Plain text
+#: tklinuxcnc.txt:199
+msgid ""
+"Manual Data Input (also called MDI), allows G-code programs to be entered "
+"manually, one line at a time. When the machine is not turned on, and not set "
+"to MDI mode, the code entry controls are unavailable."
+msgstr ""
+"L'entrée manuelle de données (aussi appelée MDI), permet d'entrer et  "
+"d'exécuter des lignes de G-code, une à la fois. Quand la machine n'est pas "
+"en marche ni mise en mode MDI, l'entrée de code n'est pas possible."
+
+#. type: Plain text
+#: tklinuxcnc.txt:201
+msgid ".The Code Entry tab[[cap:The-Code-Entry]]"
+msgstr ".Le champ de saisie des entrées manuelles[[cap:The-Code-Entry]]"
+
+#. type: Plain text
+#: tklinuxcnc.txt:203
+msgid "image::images/tkemc-mdi.png[align=\"center\"]"
+msgstr "image::images/tkemc-mdi.png[align=\"left\"]"
+
+#. type: Plain text
+#: tklinuxcnc.txt:205
+msgid "==== MDI:"
+msgstr "==== MDI:"
+
+#. type: Plain text
+#: tklinuxcnc.txt:208
+msgid ""
+"This allows you to enter a g-code command to be executed. Execute the "
+"command by pressing Enter."
+msgstr ""
+"Le mode MDI permet de saisir une commande en G-code, puis en pressant la "
+"touche 'Entrée', de l'exécuter."
+
+#. type: Plain text
+#: tklinuxcnc.txt:210
+msgid "==== Active G-Codes"
+msgstr "==== G-codes actifs"
+
+#. type: Plain text
+#: tklinuxcnc.txt:214
+msgid ""
+"This shows the 'modal codes' that are active in the interpreter. For "
+"instance, 'G54' indicates that the 'G54 offset' is applied to all "
+"coordinates that are entered."
+msgstr ""
+"Ce champs montre les 'codes modaux' actuellement actifs dans l'interpréteur. "
+"Par exemple, 'G54' indique que le système de coordonnées courant est celui "
+"de G54 et qu'il s'applique à toutes les coordonnées entrées."
+
+#. type: Plain text
+#: tklinuxcnc.txt:216
+msgid "=== Jog Speed"
+msgstr "=== Vitesse de Jog"
+
+#. type: Plain text
+#: tklinuxcnc.txt:221
+msgid ""
+"By moving this slider, the speed of jogs can be modified. The numbers above "
+"refer to axis units / second. The text box with the number is clickable. "
+"Once clicked a popup window will appear, allowing for a number to be entered."
+msgstr ""
+"En déplaçant ce curseur, la vitesse de jog peut être modifiée. Le nombre "
+"indique une vitesse en unités par minute. Le champs de texte est cliquable. "
+"Un clic ouvre un dialogue permettant d'entrer un nombre."
+
+#. type: Plain text
+#: tklinuxcnc.txt:223
+msgid "=== Feed Override"
+msgstr "=== Correcteur de vitesse d'avance travail"
+
+#. type: Plain text
+#: tklinuxcnc.txt:229
+msgid ""
+"By moving this slider, the programmed feed rate can be modified. For "
+"instance, if a program requests 'F60' and the slider is set to 120%, then "
+"the resulting feed rate will be 72. The text box with the number is "
+"clickable. Once clicked a popup window will appear, allowing for a number to "
+"be entered."
+msgstr ""
+"En déplaçant ce curseur, la vitesse d'avance travail peut être modifiée. Par "
+"exemple, si la vitesse d'avance travail du programme est 'F600'  et que le "
+"curseur est placé sur 120%, alors la vitesse d'avance travail sera de 720. "
+"Le champs de texte est cliquable. Un clic ouvre un dialogue permettant "
+"d'entrer un nombre."
+
+#. type: Plain text
+#: tklinuxcnc.txt:231
+msgid "=== Spindle speed Override"
+msgstr "=== Correcteur de vitesse de broche"
+
+#. type: Plain text
+#: tklinuxcnc.txt:240
+msgid ""
+"The spindle speed override slider works exactly like the feed override "
+"slider, but it controls to the spindle speed. If a program requested S500 "
+"(spindle speed 500 RPM), and the slider is set to 80%, then the resulting "
+"spindle speed will be 400 RPM. This slider has a minimum and maximum value "
+"defined in the ini file. If those are missing the slider is stuck at 100%. "
+"The text box with the number is clickable. Once clicked a popup window will "
+"appear, allowing for a number to be entered."
+msgstr ""
+"Le fonctionnement de ce curseur est le même que celui de la vitesse "
+"d'avance, mais il contrôle la vitesse de rotation de la broche. Si le "
+"programme demande S500 (broche à 500 tr/mn) et que le curseur est placé sur "
+"80%, alors la vitesse de broche résultante sera de 400 tr/mn. Le minimum et "
+"le maximum pour ce curseur sont définis dans le fichier ini. Par défaut le "
+"curseur est placé sur 100%. Le champs de texte est cliquable. Un clic ouvre "
+"un dialogue permettant d'entrer un nombre."
+
+#. type: Plain text
+#: tklinuxcnc.txt:242
+msgid "== Keyboard Controls"
+msgstr "== Raccourcis clavier"
+
+#. type: Plain text
+#: tklinuxcnc.txt:245
+msgid ""
+"Almost all actions in TkLinuxCNC can be accomplished with the keyboard.  "
+"Many of the shortcuts are unavailable when in MDI mode."
+msgstr ""
+"La plupart des actions de TkLinuxCNC peuvent être accomplies au clavier. "
+"Beaucoup des raccourcis clavier ne sont pas accessibles en mode MDI."
+
+#. type: Plain text
+#: tklinuxcnc.txt:248
+msgid ""
+"The most frequently used keyboard shortcuts are shown in the following table."
+msgstr ""
+"Les raccourcis clavier les plus fréquemment utilisés sont montrés dans la "
+"table ci-dessous."
+
+#. type: Plain text
+#: tklinuxcnc.txt:250
+msgid ".Most Common Keyboard Shortcuts[[cap:TkLinuxCNC-Common-Keyboard]]"
+msgstr ""
+".Les raccourcis clavier les plus utilisés[[cap:Raccourcis-clavier-frequents]]"
+
+#. type: Plain text
+#: tklinuxcnc.txt:268
+msgid ""
+"[width=\"75%\", options=\"header\", cols=\"1^,3<\"] |"
+"======================================== |Keystroke | Action Taken |F1 | "
+"Toggle Emergency Stop |F2 | Turn machine on/off |`, 1 .. 9, 0 | Set feed "
+"override from 0% to 100% |X, ` | Activate first axis |Y, 1 | Activate second "
+"axis |Z, 2 | Activate third axis |A, 3 | Activate fourth axis |Home | Send "
+"active axis Home |Left, Right | Jog first axis |Up, Down | Jog second axis |"
+"Pg Up, Pg Dn | Jog third axis |[, ] | Jog fourth axis |ESC | Stop execution |"
+"========================================"
+msgstr ""
+"[width=\"90%\", options=\"header\"]\n"
+"|========================================\n"
+"|Touche           | Action\n"
+"|F1               | Bascule de l'Arrêt d'Urgence\n"
+"|F2               | Marche/Arrêt machine\n"
+"|*, 1 .. 9, 0     | Correcteur vitesse d'avance 0% à 100%\n"
+"|X, *             | Active le premier axe\n"
+"|Y, 1             | Active le deuxième axe\n"
+"|Z, 2             | Active le troisième axe\n"
+"|A, 3             | Active le quatrième axe\n"
+"|Origine          | POM de l'axe actif\n"
+"|Gauche, Droite   | Jog du premier axe\n"
+"|Haut, Bas        | Jog du deuxième axe\n"
+"|Pg.prec, Pg.suiv | Jog du troisième axe\n"
+"|[, ]             | Jog du quatrième axe\n"
+"|Echap            | Arrête l'exécution\n"
+"|========================================"

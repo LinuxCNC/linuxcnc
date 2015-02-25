@@ -1,3 +1,5 @@
+:lang: en
+
 = TkLinuxCNC GUI
 
 [[cha:tklinuxcnc-gui]] (((TkLinuxCNC GUI)))
@@ -121,15 +123,19 @@ start the backplot window by selecting View→Backplot.
 ==== Buttons for control
 
 The buttons in the lower part of TkLinuxCNC are used to control the execution of a
-program: 'Open' to load a program, 'Verify' to
-check it for errors, 'Run' to start the actual cutting,
-'Pause' to stop it while running, 'Resume' to
-resume an already paused program, 'Step' to advance one line
-in the program and 'Optional Stop' to toggle the
+program:
+
+* 'Open' to load a program,
+* 'Verify' to check it for errors,
+* 'Run' to start the actual cutting,
+* 'Pause' to stop it while running,
+* 'Resume' to resume an already paused program,
+* 'Step' to advance one line in the program and 'Optional Stop' to toggle the
 optional stop switch (if the button is green the program execution will
 be stopped on any M1 encountered).
 
 .TkLinuxCNC Interpreter / program control[[cap:TkLinuxCNC-Interpreter]]
+
 image::images/tkemc-interp.png[align="center"]
 
 ==== Text Program Display Area
@@ -165,7 +171,8 @@ permitted to jog outside the limits defined in the .ini file. (Note: if
 'Override Limits' is active the button will be displayed using a red
 color).
 
-.TkLinuxCNC Override Limits & Jogging increments example[[cap:Override-Limits]]
+[[cap:Override-Limits]]
+.TkLinuxCNC Override Limits & Jogging increments example
 
 image::images/tkemc-override-limits.png[align="center"]
 
