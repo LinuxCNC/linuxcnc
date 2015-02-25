@@ -425,6 +425,8 @@ int main(int argc, char *argv[]) {
 
     printf("standalone motion\n");
 
+    rtapi_set_msg_level(RTAPI_MSG_ALL);
+
     joints = &emcmotDebug->joints[0];
     init_joints();
 
