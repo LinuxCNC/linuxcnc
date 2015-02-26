@@ -1,0 +1,16 @@
+Moveoff demo -- external controls wity pvyvcppanel
+
+----------------------------------------------------
+Moveoff_gui options:
+
+  onpause  -- offsets when program paused
+  external -- external controls in pyvcp panel
+
+Moveoff component installed and connected using:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+For additional info:
+
+   man moveoff  ------ moveoff component
+   man moveoff_gui --- moveoff sample gui
