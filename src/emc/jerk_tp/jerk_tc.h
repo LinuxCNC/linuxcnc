@@ -66,6 +66,16 @@ typedef struct {
     RIGIDTAP_STATE state;
 } PmRigidTap;
 
+enum state_type {
+  ACCEL_S0 = 0, // 0
+  ACCEL_S1,     // 1
+  ACCEL_S2,     // 2
+  ACCEL_S3,     // 3
+  ACCEL_S4,     // 4
+  ACCEL_S5,     // 5
+  ACCEL_S6      // 6
+};
+
 typedef struct {
     double cycle_time;
     double progress;        // where are we in the segment?  0..target
@@ -75,7 +85,17 @@ typedef struct {
     double jerk;            // the accelerate of accel
     double feed_override;   // feed override requested by user
     double maxvel;          // max possible vel (feed override stops here)
-    double currentvel;      // keep track of current step (vel * cycle_time)
+    double cur_vel;         // keep track of current step (vel * cycle_time)
+    double cur_accel;       // keep track of current acceleration
+
+    enum state_type accel_state;
+    enum state_type after_S0;
+    enum state_type after_S2;
+    enum state_type after_S4;
+    int cycles;
+    int s0_cycles;
+    int s1_cycles;
+    int s3_cycles;
     
     int id;                 // segment's serial number
 
@@ -89,6 +109,7 @@ typedef struct {
                             // TC_CIRCULAR (coords.circle) or
                             // TC_RIGIDTAP (coords.rigidtap)
     char active;            // this motion is being executed
+    char done;              // this motion is finished
     int canon_motion_type;  // this motion is due to which canon function?
     int blend_with_next;    // gcode requests continuous feed at the end of 
                             // this segment (g64 mode)
