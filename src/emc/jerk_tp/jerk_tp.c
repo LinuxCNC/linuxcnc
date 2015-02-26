@@ -260,7 +260,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
     double cycles_per_sec = 1.0/tc->cycle_time;
 	double j = tc->jerk*cycles_per_sec*cycles_per_sec*cycles_per_sec;
 	double a = tc->maxaccel*cycles_per_sec*cycles_per_sec;
-	double v = tc->maxvel*cycles_per_sec;
+	double v = tc->reqvel;
     double x = tc->target;
     double tj, ta, tv, tx, maxa, maxv1, maxv2, nj = j;
 
@@ -1313,7 +1313,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     tp->motionType = tc->canon_motion_type;
     emcmotStatus->distance_to_go = tc->target - tc->progress;
     tp->currentPos = primary_after;
-    emcmotStatus->current_vel = tc->cur_vel;
+    emcmotStatus->current_vel = tc->cur_vel / tc->cycle_time;
     emcmotStatus->requested_vel = tc->reqvel;
     emcmotStatus->enables_queued = tc->enables;
 // report our line number to the guis
