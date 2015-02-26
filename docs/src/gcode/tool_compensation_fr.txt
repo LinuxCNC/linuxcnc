@@ -123,8 +123,7 @@ L'éditeur d'outils peut également être utilisé pour mettre la table d'outils
 à jour. Après mise à jour, ne pas oublier de recharger la table dans la GUI,
 pour que les modifications soient effectives.
 
-=== Format de la table d'outils[[sec:Tool-Table-Format]] (((Format de la
-table d'outils)))
+=== Format de la table d'outils[[sec:Tool-Table-Format]]
 
 .Format de la table d'outils
 

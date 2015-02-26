@@ -1,3 +1,5 @@
+:lang: en
+
 = G Code Overview
 
 [[cha:g-code-overview]] (((G Code Overview)))
@@ -234,7 +236,7 @@ coordinate systems.
    running version. They are read-only.
 
 
-=== Numbered Parameters [[sub:numbered-parameters]]
+=== Numbered Parameters[[sub:numbered-parameters]]
 
 A numbered parameter is the pound character '#' followed by an
 integer between 1 and (currently) 5602 footnote:[The RS274/NGC interpreter
@@ -285,43 +287,40 @@ example '##2'  means the value of the parameter whose index is the
 5181-5189::
     "G30" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 
-5211-5219::
-    "G92" offset for X, Y, Z, A, B, C, U, V & W. Persistent.
-
 5210::
     1 if "G92" offset is currently applied, 0 otherwise. Persistent.
 
 5211-5219::
-    'G92' offset (X Y Z A B C U V W).
+    "G92" offset for X, Y, Z, A, B, C, U, V & W. Persistent.
 
 5220::
     Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 
-5221-5230::
+5221-5229::
     Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V, W & R. R denotes the XY rotation angle around the Z axis. Persistent.
 
-5241-5250::
+5241-5249::
     Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5261-5270::
+5261-5269::
     Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5281-5290::
+5281-5289::
     Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5301-5310::
+5301-5309::
     Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5321-5330::
+5321-5329::
     Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5341-5350::
+5341-5349::
     Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5361-5370::
+5361-5369::
     Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5381-5390::
+5381-5389::
     Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
 5399::
@@ -429,7 +428,7 @@ ends, and have these  values when the program is run again.
 
 The <<EXISTS-Function,'EXISTS' function>> tests whether a given named parameter exists.
 
-=== Predefined Named Parameters [[sec:Predefined-Named-Parameters]]
+=== Predefined Named Parameters[[sec:Predefined-Named-Parameters]]
 
 The following global read only named parameters are available to
 access internal state of the interpreter and machine state. They can
@@ -446,6 +445,7 @@ parameters>> can be added easily without changes to the source code.
 
 * `#<_motion_mode>` -
     Return the interpreter's current motion mode:
+
 [width="20%",options="header"]
 |========================================
 |Motion mode | return value
@@ -471,8 +471,10 @@ parameters>> can be added easily without changes to the source code.
 |G88| 880
 |G89| 890
 |========================================
+
 * `#<_plane>` -
     returns the value designating the current plane:
+
 [width="20%",options="header"]
 |========================================
 |Plane | return value
@@ -487,6 +489,7 @@ parameters>> can be added easily without changes to the source code.
 
 * `#<_ccomp>` -
     Status of cutter compensation. Return values:
+
 [width="20%",options="header"]
 |========================================
 |Mode | return value
@@ -521,6 +524,7 @@ parameters>> can be added easily without changes to the source code.
 
 * `#<_coord_system>` -
     Return index of the current coordinate system (G54..G59.3)
+
 [width="20%",options="header"]
 |========================================
 |Mode | return value
@@ -1273,14 +1277,5 @@ is written.
 |5161 | 0.0 
 |5162 | 0.0 
 |========================================
-
-
-
-
-
-
-
-
-
 
 

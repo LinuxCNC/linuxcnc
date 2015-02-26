@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2015-02-25 20:45+0100\n"
-"PO-Revision-Date: 2015-02-25 22:43+0100\n"
+"PO-Revision-Date: 2015-02-26 10:14+0100\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -331,9 +331,7 @@ msgstr ""
 #. type: Plain text
 #: tool_compensation.txt:123
 msgid "=== Tool Table Format (((Tool-Table-Format)))"
-msgstr ""
-"=== Format de la table d'outils[[sec:Tool-Table-Format]] (((Format de la "
-"table d'outils)))"
+msgstr "=== Format de la table d'outils[[sec:Tool-Table-Format]]"
 
 #. type: Plain text
 #: tool_compensation.txt:125

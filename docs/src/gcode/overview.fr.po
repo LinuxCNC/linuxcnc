@@ -1,0 +1,3311 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-02-26 22:39+0100\n"
+"PO-Revision-Date: 2015-02-26 23:59+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: overview.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: overview.txt:4
+msgid "= G Code Overview"
+msgstr "= Vue générale du langage G-codes de LinuxCNC"
+
+#. type: Plain text
+#: overview.txt:6
+msgid "[[cha:g-code-overview]] (((G Code Overview)))"
+msgstr "[[cha:Vue-generale-G-code]] (((Vue générale du G-code de LinuxCNC)))"
+
+#. type: Plain text
+#: overview.txt:14
+msgid ""
+":ini: {basebackend@docbook:'':ini} :hal: {basebackend@docbook:'':hal} :ngc: "
+"{basebackend@docbook:'':ngc} // begin a listing of ini/hal/ngc files like "
+"so: //[source,{ini}] //[source,{hal}] //[source,{ngc}]"
+msgstr ""
+":ini: {basebackend@docbook:'':ini}\n"
+":hal: {basebackend@docbook:'':hal}\n"
+":ngc: {basebackend@docbook:'':ngc}\n"
+"// begin a listing of ini/hal/ngc files like so:\n"
+"//[source,{ini}]\n"
+"//[source,{hal}]\n"
+"//[source,{ngc}]"
+
+#. type: Plain text
+#: overview.txt:16
+msgid "== Overview"
+msgstr "== Brève description du G-code de LinuxCNC"
+
+#. type: Plain text
+#: overview.txt:21
+msgid ""
+"The LinuxCNC G Code language is based on the RS274/NGC language. The G Code "
+"language is based on lines of code. Each line (also called a 'block') may "
+"include commands to do several different things. Lines of code may be "
+"collected in a file to make a program."
+msgstr ""
+"Le G-code utilisé par LinuxCNC est basé sur le langage RS274/NGC. Le langage "
+"G-code est basé sur des lignes de code. Chaque ligne (également appelée un "
+"'bloc') peut inclure des commandes pour faire produire diverses actions à la "
+"machine. Plusieurs lignes de code peuvent être regroupées dans un fichier "
+"pour créer un programme G-code."
+
+#. type: Plain text
+#: overview.txt:33
+msgid ""
+"A typical line of code consists of an optional line number at the beginning "
+"followed by one or more 'words'. A word consists of a letter followed by a "
+"number (or something that evaluates to a number). A word may either give a "
+"command or provide an argument to a command. For example, 'G1 X3' is a valid "
+"line of code with two words. 'G1' is a command meaning 'move in a straight "
+"line at the programmed feed rate to the programmed end point', and 'X3' "
+"provides an argument value (the value of X should be 3 at the end of the "
+"move).  Most LinuxCNC G Code commands start with either G or M (for General "
+"and Miscellaneous). The words for these commands are called 'G codes' and 'M "
+"codes.'"
+msgstr ""
+"Une ligne de code commence par un numéro de ligne optionnel, suivi par un ou "
+"plusieurs 'mots'. Un mot commence par une lettre suivie d'un nombre (ou "
+"quelque chose qui permet d'évaluer un nombre). Un mot peut, soit donner une "
+"commande, soit fournir un argument à une commande. Par exemple, 'G1 X3' est "
+"une ligne de code valide avec deux mots. 'G1' est une commande qui signifie "
+"'déplaces toi en ligne droite à la vitesse programmée' et 'X3' fournit la "
+"valeur d'argument (la valeur de X doit être 3 à la fin du mouvement). La "
+"plupart des commandes G-code commencent avec une lettre G ou M (G pour "
+"Général et M pour Miscellaneous (auxiliaire)). Les termes pour ces commandes "
+"sont 'G-codes' et 'M-codes.'"
+
+#. type: Plain text
+#: overview.txt:46
+msgid ""
+"The LinuxCNC language has no indicator for the start of a program. The "
+"Interpreter, however, deals with files. A single program may be in a single "
+"file, or a program may be spread across several files. A file may demarcated "
+"with percents in the following way. The first non-blank line of a file may "
+"contain nothing but a percent sign, '%', possibly surrounded by white space, "
+"and later in the file (normally at the end of the file) there may be a "
+"similar line. Demarcating a file with percents is optional if the file has "
+"an 'M2' or 'M30' in it, but is required if not. An error will be signaled if "
+"a file has a percent line at the beginning but not at the end. The useful "
+"contents of a file demarcated by percents stop after the second percent "
+"line. Anything after that is ignored."
+msgstr ""
+"Le langage de LinuxCNC n'a pas d'indicateur de début de programme. "
+"L'interpréteur cependant traite les fichiers. Un programme simple peut être "
+"en un seul fichier, mais il peut aussi être partagé sur plusieurs fichiers. "
+"Un fichier peut être délimité par le signe pour-cent de la manière suivante. "
+"La première ligne non vide d'un fichier peut contenir un signe '%' seul, "
+"éventuellement encadré d'espaces blancs, ensuite, à la fin du fichier on "
+"doit trouver une ligne similaire. Délimiter un fichier avec des % est "
+"facultatif si le fichier comporte un 'M2' ou un 'M30', mais est requis "
+"sinon. Une erreur sera signalée si un fichier a une ligne pour-cent au "
+"début, mais pas à la fin. Le contenu utile d'un fichier délimité par % "
+"s'arrête après la seconde ligne %. Tout le reste est ignoré."
+
+#. type: Plain text
+#: overview.txt:51
+msgid ""
+"The LinuxCNC G Code language has two commands ('M2' or 'M30'), either of "
+"which ends a program. A program may end before the end of a file. Lines of a "
+"file that occur after the end of a program are not to be executed. The "
+"interpreter does not even read them."
+msgstr ""
+"Le langage G-code de LinuxCNC prévoit les deux commandes ('M2' ou 'M30') "
+"pour finir un programme. Le programme peut se terminer avant la fin du "
+"fichier. Les lignes placées après la fin d'un programme ne seront pas "
+"exécutées. L'interpréteur ne les lit même pas."
+
+#. type: Plain text
+#: overview.txt:53
+msgid "== Format of a line"
+msgstr "== Format d'une ligne"
+
+#. type: Plain text
+#: overview.txt:57
+msgid ""
+"A permissible line of input code consists of the following, in order, with "
+"the restriction that there is a maximum (currently 256) to the number of "
+"characters allowed on a line."
+msgstr ""
+"Une ligne de G-code typique est construite de la façon suivante, dans "
+"l'ordre avec la restriction à un maximum de 256 caractères sur la même ligne."
+
+#. type: Plain text
+#: overview.txt:62
+msgid ""
+". an optional block delete character, which is a slash '/'.  . an optional "
+"line number.  . any number of words, parameter settings, and comments.  . an "
+"end of line marker (carriage return or line feed or both)."
+msgstr ""
+". Un caractère optionnel d'effacement de bloc, qui est la barre oblique "
+"'/'.\n"
+". Un numéro de ligne optionnel.\n"
+". Un nombre quelconque de mots, valeurs de paramètres et commentaires.\n"
+". Un caractère de fin de ligne (retour chariot ou saut de ligne ou les deux)."
+
+#. type: Plain text
+#: overview.txt:65
+msgid ""
+"Any input not explicitly allowed is illegal and will cause the Interpreter "
+"to signal an error."
+msgstr ""
+"Toute entrée non explicitement permise est illégale, elle provoquera un "
+"message d'erreur de l'interpréteur."
+
+#. type: Plain text
+#: overview.txt:70
+msgid ""
+"Spaces and tabs are allowed anywhere on a line of code and do not change the "
+"meaning of the line, except inside comments. This makes some strange-looking "
+"input legal. The line 'G0X +0. 12 34Y 7' is equivalent to 'G0 x+0.1234 Y7', "
+"for example."
+msgstr ""
+"Les espaces sont permis ainsi que les tabulations dans une ligne de code "
+"dont ils ne changent pas la signification, excepté dans les commentaires. "
+"Ceci peut donner d'étranges lignes, mais elles sont autorisées. La ligne "
+"'G0X +0. 12 34Y 7' est équivalente à 'G0 X+0.1234 Y7', par exemple."
+
+#. type: Plain text
+#: overview.txt:72
+msgid "Blank lines are allowed in the input. They are to be ignored."
+msgstr "Les lignes vides sont permises, elles seront ignorées."
+
+#. type: Plain text
+#: overview.txt:76
+msgid ""
+"Input is case insensitive, except in comments, i.e., any letter outside a "
+"comment may be in upper or lower case without changing the meaning of a line."
+msgstr ""
+"La casse des caractères est sans importance, excepté dans les commentaires. "
+"Toutes les lettres en dehors des commentaires peuvent donc être, "
+"indifféremment des majuscules ou des minuscules sans changer la "
+"signification de la ligne. "
+
+#. type: Plain text
+#: overview.txt:78
+msgid "== Block Delete [[sub:block-delete]] (((Block Delete)))"
+msgstr "== Saut de bloc[[sec:effacement-de-bloc]] (((Block Delete)))"
+
+#. type: Plain text
+#: overview.txt:83
+msgid ""
+"The optional block delete character the slash '/' when placed first on a "
+"line can be used by some user interfaces to skip lines of code when needed. "
+"In Axis the key combination Alt-m-/ toggles block delete on and off. When "
+"block delete is on any lines starting with the slash '/' are skipped."
+msgstr ""
+"Le caractère optionnel de saut de bloc est la barre oblique '/', quand il "
+"est placé en premier sur une ligne, il peut être utilisé par certaines "
+"interfaces utilisateur pour sauter, si besoin, des lignes de code. Dans "
+"Axis, la combinaison de touches 'Alt-m-/' est une bascule qui active ou "
+"désactive le saut de bloc. Quand le saut de bloc est actif, toutes les "
+"lignes commençant par '/' sont sautées."
+
+#. type: Plain text
+#: overview.txt:86
+msgid "== Line Number (((Line Number)))"
+msgstr "== Numéro de ligne (((Numéro de ligne)))"
+
+#. type: Plain text
+#: overview.txt:94
+msgid ""
+"A line number is the letter N followed by an unsigned integer, optionally "
+"followed by a period and another unsigned integer. For example, `N1234` and "
+"`N56.78` are valid line numbers. They may be repeated or used out of order, "
+"although normal practice is to avoid such usage. Line numbers may also be "
+"skipped, and that is normal practice. A line number is not required to be "
+"used, but must be in the proper place if used."
+msgstr ""
+"Un numéro de ligne commence par la lettre N suivie, généralement d'un nombre "
+"entier non signé, mais un entier suivi d'un point puis d'un autre entier est "
+"une forme admise. Par exemple, 'N1234' et 'N56.78' sont des N° de ligne "
+"valides. Les numéros de ligne peuvent se suivre, être répétés ou être dans "
+"le désordre, bien qu'une pratique normale évite ce genre d'usage. Les "
+"numéros de ligne peuvent être sautés, c'est une pratique normale. "
+"L'utilisation d'un numéro de ligne n'est pas obligatoire mais, si ils sont "
+"utilisés, il doivent être placés en début de ligne."
+
+#. type: Plain text
+#: overview.txt:97
+msgid "== Word (((Word)))"
+msgstr "== Les mots (((mots)))"
+
+#. type: Plain text
+#: overview.txt:99
+msgid "A word is a letter other than N followed by a real value."
+msgstr "Un mot est une lettre, autre que N, suivie d'un nombre réel."
+
+#. type: Plain text
+#: overview.txt:106
+msgid ""
+"Words may begin with any of the letters shown in the following Table.  The "
+"table includes N for completeness, even though, as defined above, line "
+"numbers are not words. Several letters (I, J, K, L, P, R) may have different "
+"meanings in different contexts.  Letters which refer to axis names are not "
+"valid on a machine which does not have the corresponding axis."
+msgstr ""
+"Les mots peuvent commencer avec l'une ou l'autre des lettres indiquées dans "
+"le tableau ci-dessous. Ce tableau inclus N pour être complet, même si, comme "
+"défini précédemment, les numéros de lignes ne sont pas des mots. Plusieurs "
+"lettres (I, J, K, L, P, R) peuvent avoir différentes significations dans des "
+"contextes différents. Les lettres qui se réfèrent aux noms d'axes ne sont "
+"pas valides sur une machine n'ayant pas les axes correspondants."
+
+#. type: Plain text
+#: overview.txt:108
+msgid ".Words and their meanings[[cap:Words-and-their]]"
+msgstr ".Les mots et leur signification[[sec:Les-mots-et-leur-significations]]"
+
+#. type: Plain text
+#: overview.txt:139
+msgid ""
+"[width=\"75%\", options=\"header\", cols=\"^1,<5\"] |"
+"======================================== |Letter | Meaning |A | A axis of "
+"machine |B | B axis of machine |C | C axis of machine |D | Tool radius "
+"compensation number |F | Feed rate |G | General function (See table <<cap:"
+"Modal-Groups,Modal Groups>>)  |H | Tool length offset index |I | X offset "
+"for arcs and G87 canned cycles |J | Y offset for arcs and G87 canned "
+"cycles .2+|K | Z offset for arcs and G87 canned cycles.  <| Spindle-Motion "
+"Ratio for G33 synchronized movements.  |L | generic parameter word for G10, "
+"M66 and others |M | Miscellaneous function (See table <<cap:Modal-Groups,"
+"Modal Groups>>)  |N | Line number .2+|P | Dwell time in canned cycles and "
+"with G4.  <| Key used with G10.  |Q | Feed increment in G73, G83 canned "
+"cycles |R | Arc radius or canned cycle plane |S | Spindle speed |T | Tool "
+"selection |U | U axis of machine |V | V axis of machine |W | W axis of "
+"machine |X | X axis of machine |Y | Y axis of machine |Z | Z axis of machine "
+"|========================================"
+msgstr ""
+"[width=\"100%\", options=\"header\",align=\"left\"]\n"
+"|========================================\n"
+"|Lettre | Signification\n"
+"|A      | Axe A de la machine\n"
+"|B      | Axe B de la machine\n"
+"|C      | Axe C de la machine\n"
+"|D      | Valeur de la compensation de rayon d'outil\n"
+"|F      | Vitesse d'avance travail\n"
+"|G      | Fonction Générale (voir la table des codes modaux)\n"
+"|H      | Index d'offset de longueur d'outil\n"
+"|I      | Décalage en X pour les arcs et dans les cycles préprogrammés G87\n"
+"|J      | Décalage en Y pour les arcs et dans les cycles préprogrammés G87\n"
+".2+|K      | Décalage en Z pour les arcs et dans les cycles préprogrammés "
+"G87\n"
+"<| Distance de déplacement par tour de broche avec G33\n"
+"|L\t\t| Paramètre générique pour pour G10, M66 et autres\n"
+"|M      | Fonction auxiliaire (voir la table des codes modaux)\n"
+"|N      | Numéro de ligne\n"
+".2+|P      | Temporisation utilisée dans les cycles de perçage et avec G4.\n"
+"<| Mot clé utilisé avec G10.\n"
+"|Q      | Incrément Delta en Z dans un cycle G73, G83\n"
+"|R      | Rayon d'arc ou plan de retrait dans un cycle préprogrammé\n"
+"|S      | Vitesse de rotation de la broche\n"
+"|T      | Numéro d'outil\n"
+"|U      | Axe U de la machine\n"
+"|V      | Axe V de la machine\n"
+"|W      | Axe W de la machine\n"
+"|X      | Axe X de la machine\n"
+"|Y      | Axe Y de la machine\n"
+"|Z      | Axe Z de la machine\n"
+"|========================================"
+
+#. type: Plain text
+#: overview.txt:142
+msgid "[[sub:Number]] == Number"
+msgstr "== Les nombres[[sec:Nombres]]"
+
+#. type: Plain text
+#: overview.txt:145
+msgid ""
+"The following rules are used for (explicit) numbers. In these rules a digit "
+"is a single character between 0 and 9."
+msgstr ""
+"Les règles suivantes sont employées pour des nombres (explicites). Dans ces "
+"règles un chiffre est un caractère simple compris entre 0 et 9."
+
+#. type: Plain text
+#: overview.txt:157
+#, no-wrap
+msgid ""
+"* A number consists of (1) an optional plus or minus sign, followed by\n"
+"   (2) zero to many digits, followed, possibly, by (3) one decimal point,\n"
+"   followed by (4) zero to many digits - provided that there is at least\n"
+"   one digit somewhere in the number.\n"
+"* There are two kinds of numbers: integers and decimals. An integer does\n"
+"   not have a decimal point in it; a decimal does.\n"
+"* Numbers may have any number of digits, subject to the limitation on\n"
+"   line length. Only about seventeen significant figures will be retained,\n"
+"   however (enough for all known applications).\n"
+"* A non-zero number with no sign as the first character is assumed to be\n"
+"   positive.\n"
+msgstr ""
+"* Un nombre commence par (1) un signe optionnel plus ou moins,\n"
+"   suivi de (2) zéro à plusieurs chiffres, pouvant être suivis par (3) un\n"
+"   point décimal, suivi de (4) zéro à plusieurs chiffres - à condition\n"
+"   qu'il y ait au moins un chiffre quelque part dans le nombre.\n"
+"* Il existe deux types de nombres: Les entiers et les décimaux, les entiers\n"
+"    n'ont pas de point décimal, les décimaux en ont un.\n"
+"* Les nombres peuvent avoir n'importe combien de chiffres, sous\n"
+"   réserve de la limitation de longueur d'une ligne. Seulement\n"
+"   dix-sept chiffres significatifs seront retenus, c'est toutefois\n"
+"   suffisant pour toutes les applications connues.\n"
+"* Un nombre non nul sans signe comme premier caractère est considéré être positif.\n"
+
+#. type: Plain text
+#: overview.txt:163
+msgid ""
+"Notice that initial (before the decimal point and the first non-zero digit) "
+"and trailing (after the decimal point and the last non-zero digit) zeros are "
+"allowed but not required. A number written with initial or trailing zeros "
+"will have the same value when it is read as if the extra zeros were not "
+"there."
+msgstr ""
+"Noter que les zéros non significatifs, devant ou derrière le point décimal "
+"d'un nombre, sont permis mais non requis. Lors de sa lecture, la valeur d'un "
+"nombre sera la même, qu'il comporte ou non des zéros non significatifs. "
+
+#. type: Plain text
+#: overview.txt:171
+msgid ""
+"Numbers used for specific purposes in RS274/NGC are often restricted to some "
+"finite set of values or some to some range of values. In many uses, decimal "
+"numbers must be close to integers; this includes the values of indexes (for "
+"parameters and carousel slot numbers, for example), M codes, and G codes "
+"multiplied by ten. A decimal number which is supposed be close to an integer "
+"is considered close enough if it is within 0.0001 of an integer."
+msgstr ""
+"Les nombres utilisés à des fins spécifiques en RS274/NGC sont souvent "
+"limités à un ensemble fini de valeurs ou d'une certaine plage de valeurs. "
+"Dans de nombreux cas, les nombres décimaux doivent être proches d'un nombre "
+"entier, cela comprend les valeurs d'index (pour les paramètres et les "
+"numéros de poche d'un carrousel, par exemple). Résultant d'une opération "
+"arithmétique, comme des M-codes ou des G-codes multipliés par dix. Un nombre "
+"décimal devant être proche d'un entier est considéré comme suffisamment "
+"proche si il est à 0,0001 d'un entier."
+
+#. type: Plain text
+#: overview.txt:176
+msgid "[[sec:parameters]] == Parameters (((Parameters)))"
+msgstr "== Paramètres[[sec:parametres]]"
+
+#. type: Plain text
+#: overview.txt:187
+msgid ""
+"The RS274/NGC language supports 'parameters' - what in other programming "
+"languages would be called 'variables'. There are several types of parameter "
+"of different purpose and appearance, each described in the following "
+"sections. The only value type supported by parameters is floating-point; "
+"there are no string, boolean or integer types in G-code like in other "
+"programming languages. However, logic expressions can be formulated with "
+"<<sec:Binary-Operators,boolean operators>> ( 'AND', 'OR', 'XOR', and the "
+"comparison operators 'EQ','NE','GT','GE','LT','LE'), and the 'MOD', 'ROUND', "
+"'FUP' and 'FIX' <<cap:Functions,operators>> support integer arithmetic."
+msgstr ""
+"Le langage RS274/NGC supporte les 'paramètres', qui sont appelés 'variables' "
+"dans d'autres langages de programmation. Il existe plusieurs types de "
+"paramètres ayant différents usages et différentes formes. Le seul type de "
+"nombre supporté par les paramètres est le flottant, il n'y a pas de string, "
+"pas de boolean ni d'entier dans le G-code comme dans d'autres langages de "
+"programmation. Toutefois, les expressions logiques peuvent être formulées "
+"avec <<sec:Operateurs-Binaires,les opérateurs booléens>> ('AND', 'OR', 'XOR' "
+"et les opérateurs de comparaison 'EQ', 'NE', 'GT', 'GE', 'LT', 'LE') ainsi "
+"que 'MOD', 'ROUND', 'FUP', 'FIX' et <<sec:Fonctions, les opérateurs>> qui "
+"supportent l'arithmétique entière."
+
+#. type: Plain text
+#: overview.txt:190
+msgid ""
+"Parameters differ in syntax, scope, behavior when not yet initialized, mode, "
+"persistence and intended use."
+msgstr ""
+"Les paramètres différent par leur syntaxe, leur portée, leur comportement "
+"quand ils ne sont pas encore initialisés, leur mode, leur persistance et "
+"l'usage pour lequel ils sont prévus."
+
+#. type: Plain text
+#: overview.txt:195
+msgid ""
+"Syntax:: There are three kinds of syntactic appearance: * 'numbered' - #4711 "
+"* 'named local' - #<localvalue> * 'named global' - #<_globalvalue>"
+msgstr ""
+"Syntaxes:: Il y a trois sortes d'apparences syntaxiques:\n"
+"* 'numéroté' -  #4711\n"
+"* 'nommé local' -  #<valeurlocale>\n"
+"* 'nommé global' - #<_valeurglobale>"
+
+#. type: Plain text
+#: overview.txt:203
+msgid ""
+"Scope:: The scope of a parameter is either global, or local within a "
+"subroutine. Subroutine parameters and local named variables have local "
+"scope. Global named parameters and numbered parameters starting from number "
+"31 are global in scope. RS274/NGC uses 'lexical scoping' - in a subroutine "
+"only the local variables defined therein, and any global variables are "
+"visible. The local variables of a calling procedure are not visible in a "
+"called procedure."
+msgstr ""
+"La portée:: La portée d'un paramètre est soit globale, soit locale à "
+"l'intérieur d'un sous-programme. Les paramètres de sous-programme et les "
+"paramètres nommés ont une portée locale. Les paramètres nommés globaux et "
+"les paramètres numérotés commencent par un nombre, exemple: 31 a une portée "
+"globale. RS274/NGC utilise une 'portée lexicale', dans un sous-programme, "
+"seules sont locales les variables qui y sont définies et toutes les "
+"variables globales y sont visibles. Les variables locales à un appel de "
+"procédure, ne sont pas visibles dans la procédure appelée."
+
+#. type: Plain text
+#: overview.txt:208
+#, no-wrap
+msgid ""
+"Behavior of uninitialized parameters::\n"
+" . unitialized global parameters, and unused subroutine parameters \n"
+"   return the value zero when used in an expression.\n"
+" . unitialized named parameters signal an error when used in an expression.\n"
+msgstr ""
+"Le comportement des paramètres non encore initialisés::\n"
+" . Les paramètres globaux non initialisés et les paramètres de sous-programmes\n"
+"   inutilisés, retournent la valeur zéro quand ils sont utilisés dans une expression.\n"
+" . Les paramètres nommés signalent une erreur quand ils sont utilisés dans une expression.\n"
+
+#. type: Plain text
+#: overview.txt:214
+msgid ""
+"Mode:: Most parameters are read/write and may be assigned to within an "
+"assignment statement.  However, for many predefined parameters this does not "
+"make sense, so they are are read-only - they may appear in expressions, but "
+"not on the left-hand side of an assignment statement."
+msgstr ""
+"Le mode:: La plupart des paramètres sont en lecture/écriture et peuvent être "
+"assignés dans une instruction d'affectation. Cependant, pour beaucoup de "
+"paramètres prédéfinis, cela n'a pas de sens, ils sont alors en lecture "
+"seule. Ils peuvent apparaître dans les expressions, mais pas sur le côté "
+"gauche d'une instruction d'affectation."
+
+#. type: Plain text
+#: overview.txt:224
+msgid ""
+"Persistence:: When LinuxCNC is shut down, volatile parameters lose their "
+"values. All parameters except numbered parameters in the current persistent "
+"range footnoteref:[persistent_range,The range of persistent parameters may "
+"change as development progresses. This range is currently 5161- 5390. It is "
+"defined in the '_required_parameters array' in file the src/emc/rs274ngc/"
+"interp_array.cc .] are volatile.  Persistent parameters are saved in the ."
+"var file and restored to their previous values when LinuxCNC is started "
+"again. Volatile numbered parameters are reset to zero."
+msgstr ""
+"La persistance:: Quand LinuxCNC s'arrête, les paramètres volatiles perdent "
+"leurs valeurs. Tous les paramètres sont volatiles, excepté les paramètres "
+"numérotés dans l'étendue courante de persistance footnote:[L'étendue de "
+"persistance courante des paramètres évolue en même temps qu'évolue le "
+"développement. Cette étendue est actuellement de 5161 à 5390. Elle est "
+"définie par '_required_parameters array' dans le fichier src/linuxcnc/"
+"rs274ngc/interp_array.cc .]. Les paramètres persistants sont enregistrés "
+"dans un fichier '.var' et restaurés à leurs valeurs précédentes quand "
+"LinuxCNC est relancé. Les paramètres numérotés volatiles sont remis à zéro."
+
+#. type: Plain text
+#: overview.txt:237
+#, no-wrap
+msgid ""
+"Intended Use::\n"
+" . user parameters:: numbered parameters in the range 31..5000, and named\n"
+"global and local parameters except predefined parameters. These are\n"
+"available for general-purpose storage of floating-point values, like\n"
+"intermediate results, flags etc, throughout program execution.  They\n"
+"are read/write (can be assigned a value).\n"
+" . <<sub:subroutine-parameters,subroutine parameters>> - these are used to hold the actual parameters\n"
+"passed to a subroutine. \n"
+" . <<sub:numbered-parameters,numbered parameters>> - most of these are used to access offsets of\n"
+"coordinate systems.\n"
+" . <<sub:system-parameters,system parameters>> - used to determine the current\n"
+"   running version. They are read-only.\n"
+msgstr ""
+"Utilisation prévue::\n"
+" . Paramètres utilisateur:: paramètres numérotés dans l'étendue 31 à 5000,\n"
+"paramètres nommés globaux et locaux excepté les paramètres prédéfinis. Sont\n"
+"disponibles pour une utilisation générale de stockage de valeurs flottantes,\n"
+"comme des résultats intermédiaires, des drapeaux, etc. durant l'exécution d'un\n"
+"programme. Ils sont en lecture/écriture (une valeur peut leur être attribuée).\n"
+" . <<sec:Parametres-sous-programme, Paramètres de sous-programme>> - Ils sont\n"
+"utilisés pour conserver les paramètres actuels passés à un sous-programme.\n"
+" . <<sec:Parametres-Numerotes,paramètres numérotés>> - la plupart de ces\n"
+"paramètres sont utilisés pour accéder aux offsets des systèmes de coordonnées.\n"
+" . <<sec:Predefined-Named-Parameters, paramètres nommés prédéfinis>> - utilisés pour\n"
+"déterminer l'état de l'interpréteur et de la machine, par exemple '#<_relative>'\n"
+"retourne 1 si G91 est actif et 0 si G90 est activé. Ils sont en lecture seule.\n"
+
+#. type: Plain text
+#: overview.txt:240
+msgid "=== Numbered Parameters[[sub:numbered-parameters]]"
+msgstr "=== Les paramètres numérotés[[sec:Parametres-Numerotes]]"
+
+#. type: Plain text
+#: overview.txt:250
+msgid ""
+"A numbered parameter is the pound character '#' followed by an integer "
+"between 1 and (currently) 5602 footnote:[The RS274/NGC interpreter maintains "
+"an array of numbered parameters. Its size is defined by the symbol "
+"`RS274NGC_MAX_PARAMETERS` in the file src/emc/rs274ngc/interp_internal.hh). "
+"This number of numerical parameters may also increase as development adds "
+"support for new parameters.  ].  The parameter is referred to by this "
+"integer, and its value is whatever number is stored in the parameter."
+msgstr ""
+"Un paramètre numéroté commence par le caractère '#' suivi par un entier "
+"compris entre 1 et (actuellement) 5602. Le paramètre est référencé par cet "
+"entier, sa valeur est celle stockée dans le paramètre."
+
+#. type: Plain text
+#: overview.txt:252
+#, no-wrap
+msgid ""
+"A value is stored in a parameter with the = operator; for example:\n"
+"----\n"
+msgstr ""
+"Une valeur est stockée dans un paramètre avec l'opérateur = par exemple:\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:254
+#, no-wrap
+msgid ""
+"#3 = 15 (set parameter 3 to 15)\n"
+"----\n"
+msgstr ""
+"#3 = 15 (la valeur 15 est stockée dans le paramètre numéro 3)\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:262
+#, no-wrap
+msgid ""
+"A parameter setting does not take\n"
+"effect until after all parameter values on the same line have been\n"
+"found. For example, if parameter 3 has been previously set to 15 and\n"
+" the line '#3=6 G1 X#3' is interpreted, a straight move to a point\n"
+"where X equals 15 will\n"
+"occur and the value of parameter 3 will be 6.\n"
+msgstr ""
+"La valeur d'un paramètre ne prendra pas effet tant que toutes\n"
+"les autres valeurs de paramètres sur la même ligne n'auront pas été trouvées.\n"
+"Par exemple, si le paramètre 3 a été fixé précédemment à 15, et que\n"
+"la ligne '#3=6 G1 X#3' est interprétée, un mouvement rectiligne jusqu'au\n"
+"point X=15 se produira et la valeur du paramètre 3 sera 6.\n"
+
+#. type: Plain text
+#: overview.txt:270
+#, no-wrap
+msgid ""
+"The '\\#'  character takes precedence over other operations, so that, for\n"
+" example, '\\#1+2' means the number found by adding 2 to the value of\n"
+"parameter 1, not \n"
+" the value found in parameter 3. Of course, '\\#[1+2]' does mean the\n"
+"value found in parameter 3. The '\\#' character may be repeated; for\n"
+"example '##2'  means the value of the parameter whose index is the\n"
+"(integer) value of parameter 2.\n"
+msgstr ""
+"Le caractère '\\#' a une précédence supérieure à celle des autres opérations, ainsi\n"
+"par exemple, '\\#1+2' signifie la valeur trouvée en ajoutant 2 à la valeur\n"
+"contenue dans le paramètre 1 et non la valeur trouvée dans le paramètre 3.\n"
+"Bien sûr, '\\#[1+2]' signifie la valeur trouvée dans le paramètre 3. Le\n"
+"caractère '\\#' peut être répété, par exemple '##2' signifie le paramètre dont\n"
+"le numéro est égal à la valeur entière trouvée dans le paramètre 2.\n"
+
+#. type: Plain text
+#: overview.txt:275
+#, no-wrap
+msgid ""
+"31-5000::\n"
+"    G-Code user parameters. These parameters are global in the G Code file,\n"
+"    and available for general use. Volatile.\n"
+msgstr ""
+"31 à 5000::\n"
+"    Paramètres des G-Code utilisateur. Ces paramètres sont globaux dans\n"
+"    le fichier G-code, et disponibles pour un usage général. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:279
+#, no-wrap
+msgid ""
+"5061-5069::\n"
+"    Coordinates of a \"G38.2\" Probe result - X, Y, Z, A, B, C, U, V & W.\n"
+"    Volatile.\n"
+msgstr ""
+"5061 à 5069::\n"
+"    Coordonnées d'un résultat de palpage 'G38.2' - X Y Z A B C U V W.\n"
+"    Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:283
+#, no-wrap
+msgid ""
+"5070::\n"
+"    \"G38\" probe result - 1 if success, 0 if probe failed to close. \n"
+"    Used with G38.3 and G38.5. Volatile.\n"
+msgstr ""
+"5070::\n"
+"    Résultat d'un palpage \"G38\" - 1 si succès, 0 si contact de sonde en défaut.\n"
+"    Utilisé avec G38.3 et G38.5. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:286
+#, no-wrap
+msgid ""
+"5161-5169::\n"
+"    \"G28\" Home for X, Y, Z, A, B, C, U, V & W. Persistent.\n"
+msgstr ""
+"5161 à 5169::\n"
+"    Origine 'G28' pour X Y Z A B C U V W. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:289
+#, no-wrap
+msgid ""
+"5181-5189::\n"
+"    \"G30\" Home for X, Y, Z, A, B, C, U, V & W. Persistent.\n"
+msgstr ""
+"5181 à 5189::\n"
+"    Origine 'G30' pour X Y Z A B C U V W. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:292
+#, no-wrap
+msgid ""
+"5210::\n"
+"    1 if \"G92\" offset is currently applied, 0 otherwise. Persistent.\n"
+msgstr ""
+"5210::\n"
+"    1 si le décalage 'G92' est couramment appliqué, 0 autrement. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:295
+#, no-wrap
+msgid ""
+"5211-5219::\n"
+"    \"G92\" offset for X, Y, Z, A, B, C, U, V & W. Persistent.\n"
+msgstr ""
+"5211 à 5219::\n"
+"    Décalage 'G92' pour X Y Z A B C U V W. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:298
+#, no-wrap
+msgid ""
+"5220::\n"
+"    Coordinate System number 1 - 9 for G54 - G59.3. Persistent.\n"
+msgstr ""
+"5220::\n"
+"    Système de coordonnées 1 à 9 pour G54 à G59.3. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:301
+#, no-wrap
+msgid ""
+"5221-5229::\n"
+"    Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V, W & R. R denotes the XY rotation angle around the Z axis. Persistent.\n"
+msgstr ""
+"5221 à 5229::\n"
+"    Système de coordonnées 1, G54 pour X Y Z A B C U V W R. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:304
+#, no-wrap
+msgid ""
+"5241-5249::\n"
+"    Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
+msgstr ""
+"5241 à 5249::\n"
+"    Système de coordonnées 2, G55 pour X Y Z A B C U V W R. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:307
+#, no-wrap
+msgid ""
+"5261-5269::\n"
+"    Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
+msgstr ""
+"5261 à 5269::\n"
+"    Système de coordonnées 3, G56 pour X Y Z A B C U V W R. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:310
+#, no-wrap
+msgid ""
+"5281-5289::\n"
+"    Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
+msgstr ""
+"5281 à 5289::\n"
+"    Système de coordonnées 4, G57 pour X Y Z A B C U V W R. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:313
+#, no-wrap
+msgid ""
+"5301-5309::\n"
+"    Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
+msgstr ""
+"5301 à 5309::\n"
+"    Système de coordonnées 5, G58 pour X Y Z A B C U V W R. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:316
+#, no-wrap
+msgid ""
+"5321-5329::\n"
+"    Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
+msgstr ""
+"5321 à 5329::\n"
+"    Système de coordonnées 6, G59 pour X Y Z A B C U V W R. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:319
+#, no-wrap
+msgid ""
+"5341-5349::\n"
+"    Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
+msgstr ""
+"5341 à 5349::\n"
+"    Système de coordonnées 7, G59.1 pour X Y Z A B C U V W R. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:322
+#, no-wrap
+msgid ""
+"5361-5369::\n"
+"    Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
+msgstr ""
+"5361 à 5369::\n"
+"    Système de coordonnées 8, G59.2 pour X Y Z A B C U V W R. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:325
+#, no-wrap
+msgid ""
+"5381-5389::\n"
+"    Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
+msgstr ""
+"5381 à 5389::\n"
+"    Système de coordonnées 9, G59.3 pour X Y Z A B C U V W R. Persistant.\n"
+
+#. type: Plain text
+#: overview.txt:328
+#, no-wrap
+msgid ""
+"5399::\n"
+"    Result of M66 - Check or wait for input. Volatile.\n"
+msgstr ""
+"5399::\n"
+"    Résultat de M66 - Surveille ou attends une entrée. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:331
+#, no-wrap
+msgid ""
+"5400::\n"
+"    Tool Number. Volatile.\n"
+msgstr ""
+"5400::\n"
+"    Numéro de l'outil courant. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:334
+#, no-wrap
+msgid ""
+"5401-5409::\n"
+"    Tool Offsets for X, Y, Z, A, B, C, U, V & W. Volatile.\n"
+msgstr ""
+"5401 à 5409::\n"
+"    Offset d'outil pour X Y Z A B C U V W. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:337
+#, no-wrap
+msgid ""
+"5410::\n"
+"    Tool Diameter. Volatile.\n"
+msgstr ""
+"5410::\n"
+"    Diamètre de l'outil courant. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:340
+#, no-wrap
+msgid ""
+"5411::\n"
+"    Tool Front Angle. Volatile.\n"
+msgstr ""
+"5411::\n"
+"    Angle frontal de l'outil courant. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:343
+#, no-wrap
+msgid ""
+"5412::\n"
+"    Tool Back Angle. Volatile.\n"
+msgstr ""
+"5412::\n"
+"    Angle arrière de l'outil courant. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:346
+#, no-wrap
+msgid ""
+"5413::\n"
+"    Tool Orientation. Volatile.\n"
+msgstr ""
+"5413::\n"
+"    Orientation de l'outil. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:351
+#, no-wrap
+msgid ""
+"5420-5428::\n"
+"    Current relative position in the active coordinate system including all\n"
+"    offsets and in the current program units for X, Y, Z, A, B, C, U, V & W,\n"
+"    volatile.\n"
+msgstr ""
+"5420 à 5428::\n"
+"    Position relative courante dans le système de coordonnées actif, incluant\n"
+"    tous les décalages et dans l'unité courante du programme pour\n"
+"    X Y Z A B C U V W. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:355
+#, no-wrap
+msgid ""
+"5599::\n"
+"   flag for controlling the output of (DEBUG,) statements.\n"
+"   1=output, 0=no output; default=1. Volatile.\n"
+msgstr ""
+"5599::\n"
+"   Drapeau pour contrôler la sortie d'état de (DEBUG,).\n"
+"   1=sortie, 0=sortie non; défaut=1. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:359
+#, no-wrap
+msgid ""
+"5600:: \n"
+"   toolchanger fault indicator. Used with the iocontrol-v2 component.\n"
+"   1: toolchanger faulted, 0: normal. Volatile.\n"
+msgstr ""
+"5600::\n"
+"   Indicateur de défaut du changeur d'outil. Utilisé avec le composant\n"
+"   iocontrol-v2. 1: erreur rencontrée, 0: normal. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:364
+#, no-wrap
+msgid ""
+"5601::\n"
+"   toolchanger fault code. Used with the iocontrol-v2 component.\n"
+"   Reflects the value of the `toolchanger-reason` HAL pin if a fault occured. \n"
+"   Volatile.\n"
+msgstr ""
+"5601::\n"
+"   Code de défaut du changeur d'outil. Utilisé avec le composant iocontrol-v2.\n"
+"   Reflète la valeur de la pin de Hal 'toolchanger-reason' si une erreur s'est\n"
+"   produite. Volatile.\n"
+
+#. type: Plain text
+#: overview.txt:368
+msgid "[[sub:subroutine-parameters]] === Subroutine Parameters"
+msgstr "=== Paramètres de sous-programme[[sec:Parametres-sous-programme]]"
+
+#. type: Plain text
+#: overview.txt:372
+#, no-wrap
+msgid ""
+"1-30::\n"
+"     Subroutine local parameters of call arguments. These parameters are\n"
+"    local to the subroutine. Volatile. See also the chapter on <<cha:O-Codes,O-Codes>>.\n"
+msgstr ""
+"1-30::\n"
+"   Paramètres d'appel d'arguments, locaux au sous-programme. Voir la\n"
+" section des <<cha:O-codes, O-codes>>.\n"
+
+#. type: Plain text
+#: overview.txt:376
+msgid "[[sub:Named-Parameters]] === Named Parameters"
+msgstr "=== Paramètres nommés[[sec:Parametres-Nommes]]"
+
+#. type: Plain text
+#: overview.txt:381
+msgid ""
+"Named parameters work like numbered parameters but are easier to read.  All "
+"parameter names are converted to lower case and have spaces and tabs "
+"removed, so '#<param>' and '#<P a R am >' refer to the same parameter. Named "
+"parameters must be enclosed with `< >` marks."
+msgstr ""
+"Les paramètres nommés fonctionnent comme les paramètres numérotés mais sont "
+"plus faciles à lire. Les paramètres nommés sont tous convertis en "
+"minuscules, les espaces et tabulations sont supprimés. Les paramètres nommés "
+"doivent être encadrés des signes '<' et '>'."
+
+#. type: Plain text
+#: overview.txt:388
+msgid ""
+"'#<named parameter here>' is a local named parameter. By default, a named "
+"parameter is local to the scope in which it is assigned. You can't access a "
+"local parameter outside of its subroutine - this is so that two subroutines "
+"can use the same parameter names without fear of one subroutine overwriting "
+"the values in another."
+msgstr ""
+"'#<Un paramètre nommé>' est un paramètre nommé local. Par défaut, un "
+"paramètre nommé est local à l'étendue dans laquelle il est assigné. L'accès "
+"à un paramètre local, en dehors de son sous-programme est impossible, de "
+"sorte que deux sous-programmes puissent utiliser le même nom de paramètre "
+"sans craindre qu'un des deux n'écrase la valeur de l'autre."
+
+#. type: Plain text
+#: overview.txt:394
+msgid ""
+"'#<_global named parameter here>' is a global named parameter. They are "
+"accessible from within called subroutines and may set values within "
+"subroutines that are accessible to the caller. As far as scope is concerned, "
+"they act just like regular numeric parameters. They are not stored in files."
+msgstr ""
+"'#<_un paramètre global>' est un paramètre nommé global. Noter le '_' qui "
+"les caractérise en début de nom. Ils sont accessibles depuis les sous-"
+"programmes appelés, et peuvent définir des valeurs dans tous les sous-"
+"programmes accessibles à l'appelant. En ce qui concerne la portée, ils "
+"agissent comme des paramètres numérotés. Ils ne sont pas enregistrés dans "
+"des fichiers."
+
+#. type: Plain text
+#: overview.txt:396
+msgid "Examples:"
+msgstr "Exemples:"
+
+#. type: Bullet: '* '
+#: overview.txt:398
+msgid "Declaration of named global variable"
+msgstr "Déclaration d'une variable nommée globale"
+
+#. type: Plain text
+#: overview.txt:399 overview.txt:405 overview.txt:411 overview.txt:875
+#: overview.txt:894
+#, no-wrap
+msgid "----\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: overview.txt:401
+#, no-wrap
+msgid ""
+"#<_endmill_dia> = 0.049 \n"
+"----\n"
+msgstr ""
+"#<_troisdents_dia> = 10.00\n"
+"----\n"
+
+#. type: Bullet: '* '
+#: overview.txt:404
+msgid "Reference to previously declared global variable"
+msgstr "Référence à la variable globale précédemment déclarée"
+
+#. type: Plain text
+#: overview.txt:407
+#, no-wrap
+msgid ""
+"#<_endmill_rad> = [#<_endmill_dia>/2.0] \n"
+"----\n"
+msgstr ""
+"#<_troisdents_rayon> = [#<_troisdents_dia>/2.0]\n"
+"----\n"
+
+#. type: Bullet: '* '
+#: overview.txt:410
+msgid "Mixed literal and named parameters"
+msgstr "Mélange de paramètres nommés et de valeurs littérales"
+
+#. type: Plain text
+#: overview.txt:413
+#, no-wrap
+msgid ""
+"o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]\n"
+"----\n"
+msgstr ""
+"o100 call [0.0] [0.0] [#<_decoupe_interieure>-#<_troisdents_dia>][#<_Zprofondeur>] [#<_vitesse>]\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:419
+msgid ""
+"Named parameters spring into existence when they are assigned a value for "
+"the first time. Local named parameters vanish when their scope is left: when "
+"a subroutine returns, all its local parameters are deleted and cannot be "
+"referred to anymore."
+msgstr ""
+"Les paramètres nommés apparaissent quand une valeur leur est assignée pour "
+"la première fois. Ils disparaissent lorsque leur portée d'application est "
+"quittée: au retour d'un sous-programme, tous ses paramètres locaux sont "
+"effacés et ne peuvent plus être référencés nulle part."
+
+#. type: Plain text
+#: overview.txt:424
+msgid ""
+"It is an error to use a non-existent named paramater within an expression, "
+"or at the right-hand side of an assignment. Printing the value of a non-"
+"existent named parameter with a DEBUG statement - like '(DEBUG, "
+"#<no_such_parameter>)' will display the string +++######+++."
+msgstr ""
+"C'est une erreur d'utiliser un paramètre nommé inexistant dans une "
+"expression, ou à la droite d'une assignation. Afficher la valeur d'un "
+"paramètre local inexistant dans un message d'état de DEBUG, comme '(DEBUG, "
+"#<parametre_introuvable>)' affichera la chaîne +++######+++."
+
+#. type: Plain text
+#: overview.txt:428
+msgid ""
+"Global parameters, as well as local parameters assigned to at the global "
+"level, retain their value once assigned even when the program ends, and have "
+"these values when the program is run again."
+msgstr ""
+"Les paramètres globaux, ainsi que les paramètres locaux assignés au niveau "
+"global, conservent leur valeur une fois assignée, même lorsque le programme "
+"se termine, ils auront toujours ces valeurs à la prochaine exécution du "
+"programme."
+
+#. type: Plain text
+#: overview.txt:430
+msgid ""
+"The <<EXISTS-Function,'EXISTS' function>> tests whether a given named "
+"parameter exists."
+msgstr ""
+"La <<Fonction-EXISTS,fonction 'EXISTS'>> teste si le paramètre nommé donné "
+"existe."
+
+#. type: Plain text
+#: overview.txt:432
+msgid "=== Predefined Named Parameters[[sec:Predefined-Named-Parameters]]"
+msgstr "=== Paramètres nommés prédéfinis[[sec:Predefined-Named-Parameters]]"
+
+#. type: Plain text
+#: overview.txt:438
+msgid ""
+"The following global read only named parameters are available to access "
+"internal state of the interpreter and machine state. They can be used in "
+"arbitrary expressions, for instance to control flow of the program with if-"
+"then-else statements. Note that <<sec:Adding-Predefined-Named-Parameters,new "
+"predefined named parameters>> can be added easily without changes to the "
+"source code."
+msgstr ""
+"Les paramètres globaux suivants sont disponibles en lecture seule, pour "
+"accéder aux états internes de l'interpréteur et de la machine. Ils peuvent "
+"être utilisés dans les expressions quelconques, par exemple pour contrôler "
+"le flux d'un programme avec les instructions 'if-then-else'."
+
+#. type: Bullet: '* '
+#: overview.txt:440
+msgid ""
+"`#<_vmajor>` - Major package version. If current version was 2.5.2 would "
+"return 2.5."
+msgstr ""
+"'#<_vmajor>' - Version majeure de LinuxCNC. Si la version courante est "
+"2.5.2, 2.5 est retourné."
+
+#. type: Bullet: '* '
+#: overview.txt:442
+msgid ""
+"`#<_vminor>` - Minor package version. If current version was 2.6.2 it would "
+"return 0.2."
+msgstr ""
+"'#<_vminor>' - Version mineure du LinuxCNC. Si la version courante est "
+"2.6.2, 0.2 est retourné."
+
+#. type: Plain text
+#: overview.txt:445
+#, no-wrap
+msgid ""
+"* `#<_line>` -\n"
+"    Sequence number. If running a G-Code file, this returns the current line number.\n"
+msgstr ""
+"* '#<_line>' -\n"
+"    Numéro de séquence. Si un fichier G-code est en cours, le numéro de la ligne courante est retourné.\n"
+
+#. type: Plain text
+#: overview.txt:448
+#, no-wrap
+msgid ""
+"* `#<_motion_mode>` -\n"
+"    Return the interpreter's current motion mode:\n"
+msgstr ""
+"* '#<_current_pocket>' -\n"
+"    Retourne le N° de poche de l'outil courant.\n"
+
+#. type: Plain text
+#: overview.txt:474
+msgid ""
+"[width=\"20%\",options=\"header\"] |======================================== "
+"|Motion mode | return value |G1| 10 |G2| 20 |G3| 30 |G33| 330 |G38.2| 382 |"
+"G38.3| 383 |G38.4| 384 |G38.5| 385 |G5.2| 52 |G73| 730 |G76| 760 |G80| 800 |"
+"G81| 810 |G82| 820 |G83| 830 |G84| 840 |G85| 850 |G86| 860 |G87| 870 |G88| "
+"880 |G89| 890 |========================================"
+msgstr ""
+"* '#<_motion_mode>' - \n"
+"    Retourne le mode mouvement courant de l'interpréteur:\n"
+"\n"
+"[width=\"20%\",options=\"header\",align=\"left\"]\n"
+"|========================================\n"
+"|Mode mouvement | Valeur retournée\n"
+"|G1| 10\n"
+"|G2| 20\n"
+"|G3| 30\n"
+"|G33| 330\n"
+"|G38.2| 382\n"
+"|G38.3| 383\n"
+"|G38.4| 384\n"
+"|G38.5| 385\n"
+"|G5.2| 52\n"
+"|G73| 730\n"
+"|G76| 760\n"
+"|G80| 800\n"
+"|G81| 810\n"
+"|G82| 820\n"
+"|G83| 830\n"
+"|G84| 840\n"
+"|G85| 850\n"
+"|G86| 860\n"
+"|G87| 870\n"
+"|G88| 880\n"
+"|G89| 890\n"
+"|========================================\n"
+"\n"
+"* '#<_plane>' - \n"
+"    Retourne une valeur désignant le plan courant:\n"
+"\n"
+"[width=\"20%\",options=\"header\",align=\"left\"]\n"
+"|========================================\n"
+"|Plan | Valeur retournée\n"
+"|G17| 170\n"
+"|G18| 180\n"
+"|G19| 190\n"
+"|G17.1| 171\n"
+"|G18.1| 181\n"
+"|G19.1| 191\n"
+"|========================================"
+
+#. type: Plain text
+#: overview.txt:477
+#, no-wrap
+msgid ""
+"* `#<_plane>` -\n"
+"    returns the value designating the current plane:\n"
+msgstr ""
+"* '#<_current_pocket>' -\n"
+"    Retourne le N° de poche de l'outil courant.\n"
+
+#. type: Plain text
+#: overview.txt:488
+msgid ""
+"[width=\"20%\",options=\"header\"] |======================================== "
+"|Plane | return value |G17| 170 |G18| 180 |G19| 190 |G17.1| 171 |G18.1| 181 |"
+"G19.1| 191 |========================================"
+msgstr ""
+"[width=\"30%\", options=\"header\",align=\"left\"]\n"
+"|========================================\n"
+"|N° de paramètre | Valeur du paramètre\n"
+"|5161 | 0.0\n"
+"|5162 | 0.0\n"
+"|========================================"
+
+#. type: Plain text
+#: overview.txt:492
+#, no-wrap
+msgid ""
+"* `#<_ccomp>` -\n"
+"    Status of cutter compensation. Return values:\n"
+msgstr ""
+"* '#<_ccomp>' - \n"
+"    Statut de la compensation d'outil. Retourne une valeur:\n"
+
+#. type: Plain text
+#: overview.txt:503
+msgid ""
+"[width=\"20%\",options=\"header\"] |======================================== "
+"|Mode | return value |G40 | 400 |G41 | 410 |G41.1| 411 |G41 | 410 |G42 | 420 "
+"|G42.1 | 421 |========================================"
+msgstr ""
+"* '#<_ccomp>' - \n"
+"    Statut de la compensation d'outil. Retourne une valeur:\n"
+"\n"
+"[width=\"20%\",options=\"header\",align=\"left\"]\n"
+"|========================================\n"
+"|Mode | Valeur retournée\n"
+"|G40 | 400\n"
+"|G41 | 410\n"
+"|G41.1| 411\n"
+"|G41 | 410\n"
+"|G42 | 420\n"
+"|G42.1 | 421\n"
+"|========================================"
+
+#. type: Plain text
+#: overview.txt:506
+#, no-wrap
+msgid ""
+"* `#<_metric>` -\n"
+"    Return 1 if G21 is on, else 0.\n"
+msgstr ""
+"* '#<_metric>' - \n"
+"    Retourne 1 si G21 est 'on', sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:509
+#, no-wrap
+msgid ""
+"* `#<_imperial>` -\n"
+"    Return 1 if G20 is on, else 0.\n"
+msgstr ""
+"* '#<_imperial>' - \n"
+"    Retourne 1 si G20 est 'on', sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:512
+#, no-wrap
+msgid ""
+"* `#<_absolute>` -\n"
+"    Return 1 if G90 is on, else 0.\n"
+msgstr ""
+"* '#<_absolute>' - \n"
+"    Retourne 1 si G90 est 'on', sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:515
+#, no-wrap
+msgid ""
+"* `#<_incremental>` -\n"
+"    Return 1 if G91 is on, else 0.\n"
+msgstr ""
+"* '#<_incremental>' - \n"
+"    Retourne 1 si G91 est 'on', sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:518
+#, no-wrap
+msgid ""
+"* `#<_inverse_time>` -\n"
+"    Return 1 if inverse feed mode (G93) is on, else 0.\n"
+msgstr ""
+"* '#<_inverse_time>' - \n"
+"    Retourne 1 si le mode inverse du temps (G93) est 'on', sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:521
+#, no-wrap
+msgid ""
+"* `#<_units_per_minute>` -\n"
+"    Return 1 if Units/minute feed mode (G94) is on, else 0.\n"
+msgstr ""
+"* '#<_units_per_minute>' - \n"
+"    Retourne 1 si le mode unités par minute (G94) est 'on', sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:524
+#, no-wrap
+msgid ""
+"* `#<_units_per_rev>` -\n"
+"    Return 1 if Units/revolution mode (G95) is on, else 0.\n"
+msgstr ""
+"* '#<_units_per_rev>' - \n"
+"    Retourne 1 si le mode Unités par tour (G95) est 'on', sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:527
+#, no-wrap
+msgid ""
+"* `#<_coord_system>` -\n"
+"    Return index of the current coordinate system (G54..G59.3)\n"
+msgstr ""
+"* '#<_coord_system>' -\n"
+"    Retourne l'index du système de coordonnées courant (G54 à G59.3).\n"
+
+#. type: Plain text
+#: overview.txt:541
+msgid ""
+"[width=\"20%\",options=\"header\"] |======================================== "
+"|Mode | return value |G54| 0 |G55| 1 |G56| 2 |G57| 3 |G58| 4 |G59| 5 |G59.1|"
+"6 |G59.2|7 |G59.3|8 |========================================"
+msgstr ""
+"[width=\"20%\",options=\"header\",align=\"left\"]\n"
+"|========================================\n"
+"|Mode | Valeur retournée\n"
+"|G54| 0\n"
+"|G55| 1\n"
+"|G56| 2\n"
+"|G57| 3\n"
+"|G58| 4\n"
+"|G59| 5\n"
+"|G59.1|6\n"
+"|G59.2|7\n"
+"|G59.3|8\n"
+"|========================================"
+
+#. type: Plain text
+#: overview.txt:544
+#, no-wrap
+msgid ""
+"* `#<_tool_offset>` -\n"
+"    Return 1 if tool offset (G43) is on, else 0.\n"
+msgstr ""
+"* '#<_tool_offset>' -\n"
+"    Retourne 1 si l'offset d'outil (G43) est 'on', sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:547
+#, no-wrap
+msgid ""
+"* `#<_retract_r_plane>` -\n"
+"    Return 1 if G98 is set, else 0.\n"
+msgstr ""
+"* '#<_retract_r_plane>' -\n"
+"    Retourne 1 si G98 est actif, sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:550
+#, no-wrap
+msgid ""
+"* `#<_retract_old_z>` -\n"
+"    Return 1 if G99 is on, else 0.\n"
+msgstr ""
+"* '#<_retract_old_z>' -\n"
+"    Retourne 1 si G99 est 'on', sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:553
+msgid "[[sub:system-parameters]] === System Parameters"
+msgstr "=== Paramètres système[[sec:Parametres-Systeme]]"
+
+#. type: Plain text
+#: overview.txt:556
+#, no-wrap
+msgid ""
+"* `#<_spindle_rpm_mode>` -\n"
+"    Return 1 if spindle rpm mode (G97) is on, else 0.\n"
+msgstr ""
+"* '#<_spindle_rpm_mode>' -\n"
+"    Retourne 1 si la broche est en mode tr/mn (G97), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:559
+#, no-wrap
+msgid ""
+"* `#<_spindle_css_mode>` -\n"
+"    Return 1 if constant surface speed mode (G96) is on, else 0.\n"
+msgstr ""
+"* '#<_spindle_css_mode>' -\n"
+"    Retourne 1 si la broche est en mode vitesse de coupe constante (G96), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:562
+#, no-wrap
+msgid ""
+"* `#<_ijk_absolute_mode>` -\n"
+"    Return 1 if Absolute Arc distance mode (G90.1) is on, else 0.\n"
+msgstr ""
+"* '#<_ijk_absolute_mode>' -\n"
+"    Retourne 1 si le mode de déplacement en arc est absolu (G90.1), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:565
+#, no-wrap
+msgid ""
+"* `#<_lathe_diameter_mode>` -\n"
+"    Return 1 if this is a lathe configuration and diameter (G7) mode is on, else 0.\n"
+msgstr ""
+"* '#<_lathe_diameter_mode>' -\n"
+"    Retourne 1 pour un tour configuré en mode diamètre (G7), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:568
+#, no-wrap
+msgid ""
+"* `#<_lathe_radius_mode>` -\n"
+"    Return 1 if this is a lathe configuration and radius (G8) mode is on, else 0.\n"
+msgstr ""
+"* '#<_lathe_radius_mode>' -\n"
+"    Retourne 1 pour un tour configuré en mode rayon (G8), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:571
+#, no-wrap
+msgid ""
+"* `#<_spindle_on>` -\n"
+"    Return 1 if spindle currently running (M3 or M4) else 0.\n"
+msgstr ""
+"* '#<_spindle_on>' -\n"
+"    Retourne 1 si la broche tourne (M3 ou M4 en cours), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:574
+#, no-wrap
+msgid ""
+"* `#<_spindle_cw>` -\n"
+"    Return 1 if spindle direction is clockwise (M3) else 0.\n"
+msgstr ""
+"* '#<_spindle_cw>' -\n"
+"    Retourne 1 si la broche est dans le sens horaire (M3), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:577
+#, no-wrap
+msgid ""
+"* `#<_mist>` -\n"
+"    Return 1 if mist (M7) is on.\n"
+msgstr ""
+"* '#<_mist>' -\n"
+"    Retourne 1 si l'arrosage par gouttelettes est activé (M7).\n"
+
+#. type: Plain text
+#: overview.txt:580
+#, no-wrap
+msgid ""
+"* `#<_flood>` -\n"
+"    Return 1 if flood (M8) is on.\n"
+msgstr ""
+"* '#<_flood>' -\n"
+"    Retourne 1 si l'arrosage fluide est activé (M8).\n"
+
+#. type: Plain text
+#: overview.txt:583
+#, no-wrap
+msgid ""
+"* `#<_speed_override>` -\n"
+"    Return 1 if feed override (M48 or M50 P1) is on, else 0.\n"
+msgstr ""
+"* '#<_speed_override>' -\n"
+"    Retourne 1 si un correcteur de vitesse est activé (M48 ou M50 P1), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:586
+#, no-wrap
+msgid ""
+"* `#<_feed_override>` -\n"
+"    Return 1 if feed override (M48 or M51 P1) is on, else 0.\n"
+msgstr ""
+"* '#<_feed_override>' -\n"
+"    Retourne 1 si un correcteur de vitesse d'avance est activé (M48 ou M51 P1), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:589
+#, no-wrap
+msgid ""
+"* `#<_adaptive_feed>` -\n"
+"    Return 1 if adaptive feed (M52 or M52 P1) is on, else 0.\n"
+msgstr ""
+"* '#<_adaptive_feed>' -\n"
+"    Retourne 1 si un correcteur de vitesse adaptative est activé (M52 ou M52 P1), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:592
+#, no-wrap
+msgid ""
+"* `#<_feed_hold>` -\n"
+"    Return 1 if feed hold switch is enabled (M53 P1), else 0.\n"
+msgstr ""
+"* '#<_feed_hold>' -\n"
+"    Retourne 1 si le contrôle de coupure vitesse est activé (M53 P1), sinon 0.\n"
+
+#. type: Plain text
+#: overview.txt:595
+#, no-wrap
+msgid ""
+"* `#<_feed>` -\n"
+"    Return the current feed value (F).\n"
+msgstr ""
+"* '#<_feed>' -\n"
+"    Retourne la valeur courante d'avance travail (F).\n"
+
+#. type: Plain text
+#: overview.txt:598
+#, no-wrap
+msgid ""
+"* `#<_rpm>` -\n"
+"    Return the current spindle speed (S).\n"
+msgstr ""
+"* '#<_rpm>' -\n"
+"    Retourne la valeur courante de vitesse broche (S).\n"
+
+#. type: Plain text
+#: overview.txt:601
+#, no-wrap
+msgid ""
+"* `#<_x>` -\n"
+"    Return current X coordinate. Same as #5420.\n"
+msgstr ""
+"* '#<_x>' -\n"
+"    Retourne la coordonnée machine courante en X. Identique à #5420.\n"
+
+#. type: Plain text
+#: overview.txt:604
+#, no-wrap
+msgid ""
+"* `#<_y>` -\n"
+"    Return current Y coordinate. Same as #5421.\n"
+msgstr ""
+"* '#<_y>' -\n"
+"    Retourne la coordonnée machine courante en Y. Identique à #5421.\n"
+
+#. type: Plain text
+#: overview.txt:607
+#, no-wrap
+msgid ""
+"* `#<_z>` -\n"
+"    Return current Z coordinate. Same as #5422.\n"
+msgstr ""
+"* '#<_z>' -\n"
+"    Retourne la coordonnée machine courante en Z. Identique à #5422.\n"
+
+#. type: Plain text
+#: overview.txt:610
+#, no-wrap
+msgid ""
+"* `#<_a>` -\n"
+"    Return current A coordinate. Same as #5423.\n"
+msgstr ""
+"* '#<_a>' -\n"
+"    Retourne la coordonnée machine courante en A. Identique à #5423.\n"
+
+#. type: Plain text
+#: overview.txt:613
+#, no-wrap
+msgid ""
+"* `#<_b>` -\n"
+"    Return current B coordinate. Same as #5424.\n"
+msgstr ""
+"* '#<_b>' -\n"
+"    Retourne la coordonnée machine courante en B. Identique à #5424.\n"
+
+#. type: Plain text
+#: overview.txt:616
+#, no-wrap
+msgid ""
+"* `#<_c>` -\n"
+"    Return current C coordinate. Same as #5425.\n"
+msgstr ""
+"* '#<_c>' -\n"
+"    Retourne la coordonnée machine courante en C. Identique à #5425.\n"
+
+#. type: Plain text
+#: overview.txt:619
+#, no-wrap
+msgid ""
+"* `#<_u>` -\n"
+"    Return current U coordinate. Same as #5426.\n"
+msgstr ""
+"* '#<_u>' -\n"
+"    Retourne la coordonnée machine courante en U. Identique à #5426.\n"
+
+#. type: Plain text
+#: overview.txt:622
+#, no-wrap
+msgid ""
+"* `#<_v>` -\n"
+"    Return current V coordinate. Same as #5427.\n"
+msgstr ""
+"* '#<_v>' -\n"
+"    Retourne la coordonnée machine courante en V. Identique à #5427.\n"
+
+#. type: Plain text
+#: overview.txt:625
+#, no-wrap
+msgid ""
+"* `#<_w>` -\n"
+"    Return current W coordinate. Same as #5428.\n"
+msgstr ""
+"* '#<_w>' -\n"
+"    Retourne la coordonnée machine courante en W. Identique à #5428.\n"
+
+#. type: Plain text
+#: overview.txt:628
+#, no-wrap
+msgid ""
+"* `#<_current_tool>` -\n"
+"    Return number of the current tool in spindle. Same as #5400.\n"
+msgstr ""
+"* '#<_current_tool>' -\n"
+"    Retourne le N° de l'outil courant monté dans la broche. Identique à #5400.\n"
+
+#. type: Plain text
+#: overview.txt:631
+#, no-wrap
+msgid ""
+"* `#<_current_pocket>` -\n"
+"    Return pocket number of the current tool.\n"
+msgstr ""
+"* '#<_current_pocket>' -\n"
+"    Retourne le N° de poche de l'outil courant.\n"
+
+#. type: Plain text
+#: overview.txt:634
+#, no-wrap
+msgid ""
+"* `#<_selected_tool>` -\n"
+"    Return number of the selected tool post a T code. Default -1.\n"
+msgstr ""
+"* '#<_selected_tool>' -\n"
+"    Retourne le N° de l'outil sélectionné par le mot T. Par défaut -1.\n"
+
+#. type: Plain text
+#: overview.txt:638
+#, no-wrap
+msgid ""
+"* `#<_selected_pocket>` -\n"
+"    Return number of the selected pocket post a T code. Default -1\n"
+"    (no pocket selected).\n"
+msgstr ""
+"* '#<_selected_pocket>' -\n"
+"    Retourne le N° de poche sélectionné par le mot T.\n"
+"    Par défaut -1 (pas de poche sélectionnée).\n"
+
+#. type: Plain text
+#: overview.txt:643
+#, no-wrap
+msgid ""
+"* `#<_value>` -  [[param:_value]]\n"
+"    Return value from the last O-word `return` or `endsub`.  Default\n"
+"    value 0 if no expression after `return` or `endsub`.  Initialized\n"
+"    to 0 on program start.\n"
+msgstr ""
+"* '#<_value>' -\n"
+"     [[param:_value]] Retourne la valeur du dernier O-code 'return' ou 'endsub'.\n"
+"    Valeur 0 par défaut si pas d'expression après 'return' ou 'endsub'.\n"
+"    Initialisé à 0 au démarrage du programme.\n"
+
+#. type: Plain text
+#: overview.txt:647
+#, no-wrap
+msgid ""
+"* `#<_value_returned>` -\n"
+"    1.0 if the last O-word `return` or `endsub` returned a value, 0\n"
+"    otherwise. Cleared by the next O-word call.\n"
+msgstr ""
+"* '#<_value_returned>' -\n"
+"    1.0 si le dernier O-code 'return' ou 'endsub' a retourné une valeur, 0\n"
+"    autrement. Effacé par le prochain appel à un O-code.\n"
+
+#. type: Plain text
+#: overview.txt:654
+#, no-wrap
+msgid ""
+"* `#<_task>` -\n"
+"    1.0 if the executing interpreter instance is part of milltask, 0.0\n"
+"    otherwise. Sometimes it is necessary to treat this case specially\n"
+"    to retain proper preview, for instance when testing the success of \n"
+"    a probe (G38.x) by inspecting #5070, which will always fail in the\n"
+"    preview interpreter (e.g. Axis).\n"
+msgstr ""
+"* '#<_task>' -\n"
+"    1.0 si l'instance en cours d'exécution par l'interpréteur fait\n"
+"    partie d'une tâche de fraisage, 0.0 autrement. Il est parfois nécessaire de\n"
+"    traiter ce cas particulier pour conserver un chemin d'outil propre, par exemple\n"
+"    quand on teste le succès d'une mesure au palpeur (G38.x), en examinant #5070,\n"
+"    ce qui ratait toujours dans le chemin d'outil de l'interpréteur (ex: Axis).\n"
+
+#. type: Plain text
+#: overview.txt:657
+#, no-wrap
+msgid ""
+"* `#<_call_level>` -\n"
+"    current nesting level of O-word procedures. For debugging.\n"
+msgstr ""
+"* '#<_call_level>' -\n"
+"    niveau d'imbrication actuel des procédures O-word. Pour le débogage.\n"
+
+#. type: Plain text
+#: overview.txt:661
+#, no-wrap
+msgid ""
+"* `#<_remap_level>` -\n"
+"    current level of the remap stack. Each remap in a block adds one\n"
+"    to the remap level. For debugging.\n"
+msgstr ""
+"* '#<_remap_level>' -\n"
+"    niveau actuel de la pile de remappage. Chaque remap dans un bloc,\n"
+"    ajoute un niveau dans la pile. Pour le débogage.\n"
+
+#. type: Plain text
+#: overview.txt:664
+msgid "[[sec:Expressions]] == Expressions"
+msgstr "== Expressions[[sec:Expressions]]"
+
+#. type: Plain text
+#: overview.txt:672
+msgid ""
+"An expression is a set of characters starting with a left bracket '[' and "
+"ending with a balancing right bracket ']' . In between the brackets are "
+"numbers, parameter values, mathematical operations, and other expressions. "
+"An expression is evaluated to produce a number. The expressions on a line "
+"are evaluated when the line is read, before anything on the line is "
+"executed. An example of an expression is '[1 + acos[0] - [#3 ** [4.0/2]]]'."
+msgstr ""
+"Une expression est un groupe de caractères commençant avec le crochet gauche "
+"'[' et se terminant avec le crocher droit ']' . Entre les crochets, on "
+"trouve des nombres, des valeurs de paramètre, des opérations mathématiques "
+"et d'autres expressions. Une expression est évaluée pour produire un nombre. "
+"Les expressions sur une ligne sont évaluées quand la ligne est lue et avant "
+"que quoi que ce soit, ne soit exécuté sur cette ligne. Un exemple "
+"d'expression: '[1 + acos[0] - [#3 ** [4.0/2]]]'."
+
+#. type: Plain text
+#: overview.txt:675
+msgid "[[sec:Binary-Operators]] == Binary Operators"
+msgstr "== Opérateurs binaires[[sec:Operateurs-Binaires]]"
+
+#. type: Plain text
+#: overview.txt:686
+#, no-wrap
+msgid ""
+"Binary operators only appear inside expressions. There are four basic\n"
+"mathematical operations: addition ('+'), subtraction ('-'),\n"
+"multiplication ('\\*'), and division ('/'). There are three logical\n"
+"operations: non-exclusive or ('OR'), exclusive or ('XOR'), and logical\n"
+"and ('AND'). The eighth operation is the modulus operation ('MOD'). The\n"
+"ninth operation is the 'power' operation ('**') of raising the number\n"
+"on the left of the operation to the power on \n"
+" the right. The relational operators are equality ('EQ'), inequality\n"
+"('NE'), strictly greater than ('GT'), greater than or equal to ('GE'),\n"
+"strictly less than ('LT'), and less than or equal to ('LE').\n"
+msgstr ""
+"Les opérateurs binaires ne se rencontrent que dans les expressions.\n"
+"Il y a quatre opérateurs mathématiques de base: addition (+), soustraction (-),\n"
+"multiplication (`*`) et division (`/`). Il y a trois opérateurs logiques: le ou (OR),\n"
+"le ou exclusif (XOR) et le et logique (AND). Le huitième opérateur est le\n"
+"modulo (MOD). Le neuvième opérateur est l'élévation à la puissance (`**`) qui\n"
+"élève le nombre situé à sa gauche à la puissance du nombre situé à sa droite.\n"
+"Les opérateurs de relation sont: égalité (EQ), non égalité (NE), strictement\n"
+"supérieur (GT), supérieur ou égal (GE), strictement inférieur (LT) et inférieur ou égal (LE).\n"
+
+#. type: Plain text
+#: overview.txt:697
+#, no-wrap
+msgid ""
+"The binary operations are divided into several groups according to\n"
+"their precedence. (see table  <<cap:Operator-Precedence,Operator-Precedence>>) If\n"
+"operations in different precedence groups are strung together (for\n"
+"example in the expression '[2.0 / 3 * 1.5 - 5.5 / 11.0]'), operations\n"
+"in a higher group are to be performed before operations\n"
+"in a lower group. If an expression contains more than one operation\n"
+" from the same group (such as the first '/' and '*'  in the example),\n"
+"the operation on the left is performed first. Thus,\n"
+" the example is equivalent to: '[ [ [2.0 / 3] * 1.5] - [5.5 / 11.0] ]' ,\n"
+"which is equivalent to to '[1.0 - 0.5]' , which is '0.5'.\n"
+msgstr ""
+"Les opérations binaires sont divisées en plusieurs groupes selon leur\n"
+"précédence. Si dans une opération se trouvent différents groupes de précédence,\n"
+"par exemple dans l'expression '[2.0 / 3 * 1.5 - 5.5 / 11.0]', les opérations du\n"
+"groupe supérieur seront effectuées avant celles \n"
+"des groupes inférieurs. Si une expression contient plusieurs opérations\n"
+"du même groupe (comme les premiers '/' et '*' dans l'exemple),\n"
+"l'opération de gauche est effectuée en premier.\n"
+"Notre exemple est équivalent à:\n"
+"'[\\[[2.0/3]*1.5]-[5.5/11.0]]', qui est équivalent à '[1.0-0.5]', le résultat est: '0.5'.\n"
+
+#. type: Plain text
+#: overview.txt:701
+msgid ""
+"The logical operations and modulus are to be performed on any real numbers, "
+"not just on integers. The number zero is equivalent to logical false, and "
+"any non-zero number is equivalent to logical true."
+msgstr ""
+"Les opérations logiques et le modulo sont exécutés sur des nombres réels et "
+"non pas seulement sur des entiers. Le zéro est équivalent à un état logique "
+"faux (FALSE), tout nombre différent de zéro est équivalent à un état logique "
+"vrai (TRUE)."
+
+#. type: Plain text
+#: overview.txt:703
+msgid ""
+".Operator Precedence[[cap:Operator-Precedence]](((operator precedence)))"
+msgstr ".Précédence des opérateurs[[sec:Precedence-des-operateurs]]"
+
+#. type: Plain text
+#: overview.txt:713
+msgid ""
+"[width=\"60%\", options=\"header\", cols=\"2*^\"] |"
+"======================================== |Operators | Precedence |** | "
+"'highest' |* / MOD | |+ - | |EQ NE GT GE LT LE | |AND OR XOR | 'lowest' |"
+"========================================"
+msgstr ""
+"[width=\"90%\", options=\"header\"]\n"
+"|========================================\n"
+"|Opérateurs        | Précédence\n"
+"|**                | 'haute'\n"
+"|* / MOD           | \n"
+"|+ -               | \n"
+"|EQ NE GT GE LT LE |\n"
+" |AND OR XOR        | 'basse'\n"
+"|========================================"
+
+#. type: Plain text
+#: overview.txt:715
+msgid "=== Equality and floating-point values"
+msgstr "=== Égalité des valeurs à virgule flottante"
+
+#. type: Plain text
+#: overview.txt:722
+msgid ""
+"The RS274/NGC language only supports floating-point values of finite "
+"precision.  Therefore, testing for equality or inequality of two floating-"
+"point values is inherently problematic. The interpreter solves this problem "
+"by considering values equal if their absolute difference is less than 0.0001 "
+"(this value is defined as `TOLERANCE_EQUAL` in src/emc/rs274ngc/"
+"interp_internal.hh)."
+msgstr ""
+"Le langage RS274/NGC ne supporte que les valeurs en virgule flottante ayant "
+"une précision finie. Par conséquent, tester l'égalité ou l'inégalité de deux "
+"valeurs à virgule flottante est problématique en soi. L'interpréteur résout "
+"ce problème en considérant les valeurs égales si leur différence absolue est "
+"inférieure à 0,0001 (cette valeur est définie comme 'TOLERANCE_EQUAL' dans "
+"src/emc/RS274NGC/interp_internal.hh)."
+
+#. type: Plain text
+#: overview.txt:725
+msgid "[[sub:Unary-Operation-Value]] == Functions[[sub:functions]]"
+msgstr "== Fonctions[[sec:Fonctions]] [[sec:Operations-unaires]]"
+
+#. type: Plain text
+#: overview.txt:735
+#, no-wrap
+msgid ""
+"A function is either 'ATAN' followed by one expression divided by\n"
+"another expression (for\n"
+" example 'ATAN[2]/[1+3]') or any other function name followed by an\n"
+"expression (for example 'SIN[90]'). The available functions are\n"
+"shown in table  <<cap:Functions,Functions>>.\n"
+" Arguments to unary operations which take angle measures ('COS', 'SIN',\n"
+"and 'TAN' ) are in degrees. Values returned by unary operations which\n"
+"return\n"
+"angle measures ('ACOS', 'ASIN', and 'ATAN') are also in degrees.\n"
+msgstr ""
+"Une fonction commence par son nom, comme 'ATAN', suivi par une\n"
+"expression divisée par une autre expression (par  exemple, 'ATAN[2]/[1+3]') ou\n"
+" tout autre nom de fonction suivi par une expression (par exemple 'SIN[90]').\n"
+"Les fonctions disponibles sont visibles le tableau ci-dessous. Les arguments\n"
+"pour les opérations unaires sur des angles ('COS', 'SIN' et 'TAN') sont en\n"
+"degrés. Les valeurs retournées par les opérations sur les angles\n"
+"('ACOS', 'ASIN' et 'ATAN') sont également en degrés.\n"
+
+#. type: Plain text
+#: overview.txt:737
+msgid ".Functions[[cap:Functions]]"
+msgstr ".Fonctions"
+
+#. type: Plain text
+#: overview.txt:756
+msgid ""
+"[width=\"75%\", options=\"header\", cols=\"^,<\"] |"
+"======================================== |Function Name | Function result |"
+"ATAN[Y]/[X] | Four quadrant inverse tangent |ABS[arg] | Absolute value |"
+"ACOS[arg] | Inverse cosine |ASIN[arg] | Inverse sine |COS[arg] | Cosine |"
+"EXP[arg] | e raised to the given power |FIX[arg] | Round down to integer |"
+"FUP[arg] | Round up to integer |ROUND[arg] | Round to nearest integer |"
+"LN[arg] | Base-e logarithm |SIN[arg] | Sine |SQRT[arg] | Square Root |"
+"TAN[arg] | Tangent |EXISTS[arg] | Check named Parameter |"
+"========================================"
+msgstr ""
+"[width=\"90%\", options=\"header\"]\n"
+"|========================================\n"
+"|Nom de fonction | Fonction\n"
+"|ATAN[Y]/[X] | Tangente quatre quadrants\n"
+"|ABS[arg] | Valeur absolue\n"
+"|ACOS[arg] | Arc cosinus\n"
+"|ASIN[arg] | Arc sinus\n"
+"|COS[arg] | Cosinus\n"
+"|EXP[arg] | Exposant\n"
+"|FIX[arg] | Arrondi à l'entier immédiatement inférieur\n"
+"|FUP[arg] | Arrondi à l'entier immédiatement supérieur\n"
+"|ROUND[arg] | Arrondi à l'entier le plus proche\n"
+"|LN[arg] | Logarithme Néperien\n"
+"|SIN[arg] | Sinus\n"
+"|SQRT[arg] | Racine carrée\n"
+"|TAN[arg] | Tangente\n"
+"|EXISTS[arg] | Vérifie l'existence d'un paramètre nommé\n"
+"|========================================"
+
+#. type: Plain text
+#: overview.txt:763
+msgid ""
+"The 'FIX' function rounds towards the left (less positive or more negative) "
+"on a number line, so that 'FIX[2.8] =2' and 'FIX[-2.8] = -3', for example. "
+"The 'FUP' operation rounds towards the right (more positive or less "
+"negative)  on a number line; 'FUP[2.8] = 3' and 'FUP[-2.8] = -2', for "
+"example."
+msgstr ""
+"La fonction 'FIX' arrondi un nombre vers la gauche, (moins positif ou plus "
+"négatif) par exemple, 'FIX[2.8]=2' et 'FIX[-2.8]=-3'. La fonction 'FUP' à "
+"l'inverse, arrondi un nombre vers la droite (plus positif ou moins négatif) "
+"par exemple, 'FUP[2.8]=3' et 'FUP[-2.8]=-2'."
+
+#. type: Plain text
+#: overview.txt:769
+msgid ""
+"[[EXISTS-Function]]The `EXISTS` function checks for the existence of a "
+"single named parameter. It takes only one named parameter and returns 1 if "
+"it exists and 0 if it does not exist. It is an error if you use a numbered "
+"parameter or an expression. Here is an example for the usage of the EXISTS "
+"function:"
+msgstr ""
+"[[Fonction-EXISTS]]La fonction 'EXISTS' vérifie l'existence d'un simple "
+"paramètre nommé. Elle reçoit le paramètre à vérifier en argument, elle "
+"retourne 1 si celui-ci existe et 0 sinon. C'est une erreur si un paramètre "
+"numéroté ou une expression est utilisé. Voici un exemple de l'utilisation de "
+"la fonction EXISTS:"
+
+#. type: Plain text
+#: overview.txt:771 overview.txt:999 overview.txt:1183
+#, no-wrap
+msgid ""
+"[source,{ngc}]\n"
+"---------------------------------------------------------------------\n"
+msgstr ""
+"[source,{ngc}]\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:779
+#, no-wrap
+msgid ""
+"o<test> sub\n"
+"o10 if [EXISTS[#<_global>]]\n"
+"    (debug, _global exists and has the value #<_global>)\n"
+"o10 else\n"
+"    (debug, _global does not exist)\n"
+"o10 endif\n"
+"o<test> endsub\n"
+msgstr ""
+"o<test> sub\n"
+"o10 if [EXISTS[#<_global>]]\n"
+"    (debug, _global existe et a la valeur #<_global>)\n"
+"o10 else\n"
+"    (debug, _global n'existe pas)\n"
+"o10 endifo\n"
+"<test> endsub\n"
+
+#. type: Plain text
+#: overview.txt:784
+#, no-wrap
+msgid ""
+"o<test> call\n"
+"#<_global> = 4711\n"
+"o<test> call\n"
+"m2\n"
+"---------------------------------------------------------------------\n"
+msgstr ""
+"o<test> call\n"
+"#<_global> = 4711\n"
+"o<test> call\n"
+"m2\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:787
+msgid "== Repeated Items"
+msgstr "== Répétitions d'items"
+
+#. type: Plain text
+#: overview.txt:791
+msgid ""
+"A line may have any number of G words, but two G words from the same modal "
+"group may not appear on the same line See the <<sec:Modal-Groups,Modal "
+"Groups>> Section for more information."
+msgstr ""
+"Une ligne peut contenir autant de mots G que voulu, mais un seul du même "
+"<<sec:Groupes-modaux, groupe modal>>."
+
+#. type: Plain text
+#: overview.txt:794
+msgid ""
+"A line may have zero to four M words. Two M words from the same modal group "
+"may not appear on the same line."
+msgstr ""
+"Une ligne peut avoir de zéro à quatre mots M. Mais pas deux mots M du même "
+"groupe modal."
+
+#. type: Plain text
+#: overview.txt:797
+msgid ""
+"For all other legal letters, a line may have only one word beginning with "
+"that letter."
+msgstr ""
+"Pour toutes les autres lettres autorisées, un seul mot commençant par cette "
+"lettre peut se trouver sur la même ligne."
+
+#. type: Plain text
+#: overview.txt:802
+msgid ""
+"If a parameter setting of the same parameter is repeated on a line, '#3=15 "
+"#3=6', for example, only the last setting will take effect.  It is silly, "
+"but not illegal, to set the same parameter twice on the same line."
+msgstr ""
+"Si plusieurs valeurs de paramètre se répètent sur la même ligne, par "
+"exemple: '#3=15 #3=6', seule la dernière valeur prendra effet. Il est "
+"absurde, mais pas illégal, de fixer le même paramètre deux fois sur la même "
+"ligne."
+
+#. type: Plain text
+#: overview.txt:807
+msgid ""
+"If more than one comment appears on a line, only the last one will be used; "
+"each of the other comments will be read and its format will be checked, but "
+"it will be ignored thereafter. It is expected that putting more than one "
+"comment on a line will be very rare."
+msgstr ""
+"Si plus d'un commentaire apparaît sur la même ligne, seul le dernier sera "
+"utilisé, chacun des autres sera lu et son format vérifié, mais il sera "
+"ignoré. Placer plusieurs commentaires sur la même ligne est très rare."
+
+#. type: Plain text
+#: overview.txt:809
+msgid "== Item order"
+msgstr "== Ordre des éléments"
+
+#. type: Plain text
+#: overview.txt:814
+msgid ""
+"The three types of item whose order may vary on a line (as given at the "
+"beginning of this section) are word, parameter setting, and comment. Imagine "
+"that these three types of item are divided into three groups by type."
+msgstr ""
+"Les trois types d'éléments dont l'ordre peut varier sur une ligne (comme "
+"indiqué au début de cette section) sont les mots, les valeurs de paramètres "
+"et les commentaires. Imaginez que ces trois types d'éléments sont divisés en "
+"trois groupes selon leur type."
+
+#. type: Plain text
+#: overview.txt:817
+msgid ""
+"The first group (the words) may be reordered in any way without changing the "
+"meaning of the line."
+msgstr ""
+"Dans le premier groupe les mots, peuvent être réarrangés dans n'importe quel "
+"ordre sans changer la signification de la ligne."
+
+#. type: Plain text
+#: overview.txt:825
+#, no-wrap
+msgid ""
+"If the second group (the parameter settings) is reordered, there will\n"
+"be no change in the meaning of the line unless the same parameter is\n"
+"set more than once. In this case, only the last setting of the\n"
+"parameter will take effect. For example, after the line '#3=15 #3=6'\n"
+"has been interpreted, the value of parameter 3 will be 6. If the\n"
+" order is reversed to '#3=6 #3=15' and the line is interpreted, the\n"
+"value of parameter 3 will be 15.\n"
+msgstr ""
+"Dans le second groupe les valeurs de paramètre, quelque soit leur arrangement,\n"
+"il n'y aura pas de changement dans la signification de la ligne sauf si le même\n"
+"paramètre est présent plusieurs fois. Dans ce cas, seule la dernière valeur\n"
+"prendra effet. Par exemple, quand la ligne '#3=15 #3=6' aura été interprétée,\n"
+"la valeur du paramètre 3 vaudra 6. Si l'ordre est inversé, '#3=6 #3=15' après\n"
+"interprétation, la valeur du paramètre 3 vaudra 15.\n"
+
+#. type: Plain text
+#: overview.txt:828
+msgid ""
+"If the third group (the comments) contains more than one comment and is "
+"reordered, only the last comment will be used."
+msgstr ""
+"Enfin dans le troisième groupe, les commentaires, si plusieurs commentaires "
+"sont présents sur une ligne, seul le dernier commentaire sera utilisé."
+
+#. type: Plain text
+#: overview.txt:836
+#, no-wrap
+msgid ""
+"If each group is kept in order or reordered without changing the\n"
+"meaning of the line, then the three groups may be interleaved in any\n"
+"way without changing the meaning of the line. For example, the line\n"
+"'g40 g1 #3=15 (foo) #4=-7.0' has five items and means exactly the\n"
+"same thing in any of the 120\n"
+" possible orders (such as '#4=-7.0 g1 #3=15 g40 (foo)') for the five\n"
+"items.\n"
+msgstr ""
+"Si chaque groupe est laissé, ou réordonné, dans l'ordre recommandé, la\n"
+"signification de la ligne ne changera pas, alors les trois groupes\n"
+"peuvent être entrecroisés n'importe comment sans changer la\n"
+"signification de la ligne. Par exemple, la ligne 'g40 g1 #3=15 (foo)\n"
+"#4=-7.0' à cinq items est signifiera exactement la même chose dans\n"
+"les 120 ordres d'arrangement possibles des cinq items comme '#4=-7.0 g1 #3=15\n"
+"g40 (foo)'.\n"
+
+#. type: Plain text
+#: overview.txt:838
+msgid "== Commands and Machine Modes"
+msgstr "== Commandes et modes machine"
+
+#. type: Plain text
+#: overview.txt:848
+msgid ""
+"Many commands cause the controller to change from one mode to another, and "
+"the mode stays active until some other command changes it implicitly or "
+"explicitly. Such commands are called 'modal'. For example, if coolant is "
+"turned on, it stays on until it is explicitly turned off. The G codes for "
+"motion are also modal. If a G1 (straight move) command is given on one line, "
+"for example, it will be executed again on the next line if one or more axis "
+"words is available on the line, unless an explicit command is given on that "
+"next line using the axis words or canceling motion."
+msgstr ""
+"En G-code, de nombreuses commandes produisent, d'un mode à un autre, quelque "
+"chose de différent au niveau de la machine, le mode reste actif jusqu'à ce "
+"qu'une autre commande ne le révoque, implicitement ou explicitement. Ces "
+"commandes sont appelées 'modales'. Par exemple, si l'arrosage est mis en "
+"marche, il y reste jusqu'à ce qu'il soit explicitement arrêté. Les G-codes "
+"pour les mouvements sont également modaux. Si, par exemple, une commande G1 "
+"(déplacement linéaire) se trouve sur une ligne, elle peut être utilisée sur "
+"la ligne suivante avec seulement un mot d'axe, tant qu'une commande "
+"explicite est donnée sur la ligne suivante en utilisant des axes ou un arrêt "
+"de mouvement."
+
+#. type: Plain text
+#: overview.txt:851
+msgid ""
+"'Non-modal' codes have effect only on the lines on which they occur.  For "
+"example, G4 (dwell) is non-modal."
+msgstr ""
+"Les codes 'non modaux' n'ont d'effet que sur la ligne ou ils se présentent. "
+"G4 (tempo) est non modal."
+
+#. type: Plain text
+#: overview.txt:854
+msgid "== Polar Coordinates (((Polar Coordinates)))"
+msgstr "== Coordonnées polaires (((coordonnées polaires)))"
+
+#. type: Plain text
+#: overview.txt:863
+msgid ""
+"Polar Coordinates can be used to specify the XY coordinate of a move.  The "
+"@n is the distance and ^n is the angle. The advantage of this is for things "
+"like bolt hole circles which can be done very simply by moving to a point in "
+"the center of the circle, setting the offset and then moving out to the "
+"first hole then run the drill cycle.  Polar Coordinates always are from the "
+"current XY zero position.  To shift the Polar Coordinates from machine zero "
+"use an offset or select a coordinate system."
+msgstr ""
+"Des coordonnées polaires peuvent être utilisées pour spécifier les "
+"coordonnées 'XY' d'un mouvement. Le signe @n donne la distance et le ^n "
+"donne l'angle. C'est avantageux pour les cercles de trous tangents qui "
+"peuvent alors être réalisés très simplement en donnant un point situé au "
+"centre du cercle, régler la compensation de rayon d'outil, déplacer l'outil "
+"vers le premier trou et lancer le cycle de perçage. Les coordonnées polaires "
+"partent toujours avec le zéro à la position courante. Pour décaler les "
+"coordonnées polaires depuis le zéro machine, utiliser le décalage pièce ou "
+"choisir le système de coordonnées machine."
+
+#. type: Plain text
+#: overview.txt:867
+msgid ""
+"In Absolute Mode the distance and angle is from the XY zero position and the "
+"angle starts with 0 on the X Positive axis and increases in a CCW direction "
+"about the Z axis. The code G1 @1^90 is the same as G1 Y1."
+msgstr ""
+"En mode absolu, la distance est donnée à partir de la position 'X0, Y0' et "
+"l'angle commence à '0' sur l'axe X positif et augmente dans la direction "
+"trigonométrique (anti-horaire) autour de l'axe Z. Le code 'G1 @1 ^90' fait "
+"la même chose que 'G1 Y1'."
+
+#. type: Plain text
+#: overview.txt:871
+msgid ""
+"In Relative Mode the distance and angle is also from the XY zero position "
+"but it is cumulative.  This can be confusing at first how this works in "
+"incremental mode."
+msgstr ""
+"En mode relatif, la distance et l'angle sont également donnés à partir de la "
+"position 'XY zéro', mais ils sont cumulatifs. Ce fonctionnement en mode "
+"incrémental peut être déroutant au début."
+
+#. type: Plain text
+#: overview.txt:874
+msgid ""
+"For example if you have the following program you might expect it to be a "
+"square pattern."
+msgstr ""
+"Par exemple: avec le programme suivant, vous vous attendez à obtenir une "
+"trajectoire carré."
+
+#. type: Plain text
+#: overview.txt:882
+#, no-wrap
+msgid ""
+"F100 G1 @.5 ^90 \n"
+"G91 @.5 ^90 \n"
+"@.5 ^90\n"
+"@.5 ^90\n"
+"@.5 ^90\n"
+"G90 G0 X0 Y0 M2\n"
+"----\n"
+msgstr ""
+"F100 G1 @.5 ^90 \n"
+"G91 @.5 ^90 \n"
+"@.5 ^90\n"
+"@.5 ^90\n"
+"@.5 ^90\n"
+"G90 G0 X0 Y0 M2\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:887
+msgid ""
+"You can see from the following figure that the output is not what you might "
+"expect. Because we added 0.5 to the distance each time the distance from the "
+"XY zero position increased with each line."
+msgstr ""
+"Vous pouvez voir sur la figure suivante que la sortie n'est pas celle à "
+"laquelle vous vous attendiez, parce-que avons ajouté 0.5 à la distance de la "
+"position XY zéro à chaque début de ligne. "
+
+#. type: Plain text
+#: overview.txt:889
+msgid ".Polar Spiral[[fig:Polar-Spiral]]"
+msgstr ".Spirale polaire[[fig:Spirale-polaire]]"
+
+#. type: Plain text
+#: overview.txt:891
+msgid "image::images/polar01.png[align=\"center\"]"
+msgstr "image::images/polar01.png[]"
+
+#. type: Plain text
+#: overview.txt:893
+msgid "The following code will produce our square pattern."
+msgstr "Le code suivant va produire notre modèle carré."
+
+#. type: Plain text
+#: overview.txt:901
+#, no-wrap
+msgid ""
+"F100 G1 @.5 ^90 \n"
+"G91 ^90\n"
+"^90\n"
+"^90\n"
+"^90\n"
+"G90 G0 X0 Y0 M2\n"
+"----\n"
+msgstr ""
+"F100 G1 @.5 ^90 \n"
+"G91 ^90\n"
+"^90\n"
+"^90\n"
+"^90\n"
+"G90 G0 X0 Y0 M2\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:905
+msgid ""
+"As you can see by only adding to the angle by 90 degrees each time the end "
+"point distance is the same for each line."
+msgstr ""
+"Comme vous pouvez le voir, en ajoutant seulement l'angle de 90 degrés à "
+"chaque ligne. La distance du point final est la même pour chaque ligne."
+
+#. type: Plain text
+#: overview.txt:907
+msgid ".Polar Square[[fig:Polar-Square]]"
+msgstr ".Carré polaire[[fig:Carre-polaire]]"
+
+#. type: Plain text
+#: overview.txt:909
+msgid "image::images/polar02.png[align=\"center\"]"
+msgstr "image::images/polar02.png[]"
+
+#. type: Plain text
+#: overview.txt:911
+msgid "It is an error if:"
+msgstr "C'est une erreur si:"
+
+#. type: Bullet: '* '
+#: overview.txt:914
+msgid "An incremental move is started at the origin"
+msgstr "Un mouvement incrémental est lancé à l'origine."
+
+#. type: Bullet: '* '
+#: overview.txt:914
+msgid "A mix of Polar and and X or Y words are used"
+msgstr "Un mélange de mots polaires et de mots X ou Y est utilisé."
+
+#. type: Plain text
+#: overview.txt:919
+msgid "[[sec:Modal-Groups]] == Modal Groups (((Modal Groups)))"
+msgstr "== Groupes modaux[[sec:Groupes-modaux]]"
+
+#. type: Plain text
+#: overview.txt:927
+msgid ""
+"Modal commands are arranged in sets called 'modal groups', and only one "
+"member of a modal group may be in force at any given time. In general, a "
+"modal group contains commands for which it is logically impossible for two "
+"members to be in effect at the same time - like measure in inches vs. "
+"measure in millimeters. A machining center may be in many modes at the same "
+"time, with one mode from each modal group being in effect. The modal groups "
+"are shown in the following Table."
+msgstr ""
+"Les commandes modales sont arrangées par lots appelés 'groupes modaux', à "
+"tout moment, un seul membre d'un groupe modal peut être actif. En général, "
+"un groupe modal contient des commandes pour lesquelles il est logiquement "
+"impossible que deux membres soient actifs simultanément, comme les unités en "
+"pouces et les unités en millimètres. Un centre d'usinage peut être dans "
+"plusieurs modes simultanément, si un seul mode pour chaque groupe est actif. "
+"Les groupes modaux sont visibles dans le tableau <<tbl:G-codes-modaux, ci-"
+"dessous>>."
+
+#. type: Plain text
+#: overview.txt:929
+msgid ".G-Code Modal Groups[[cap:Modal-Groups]]"
+msgstr ".Groupes modaux des G-codes[[tbl:G-codes-modaux]]"
+
+#. type: Plain text
+#: overview.txt:949
+#, no-wrap
+msgid ""
+"[width=\"100%\", cols=\"4,6\", options=\"header\"]\n"
+"|========================================\n"
+"|Modal Group Meaning                   | Member Words\n"
+"|Non-modal codes (Group 0)             | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, \n"
+".2+|Motion (Group 1)                   | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81\n"
+"                                       | G82, G83, G84, G85, G86, G87, G88, G89\n"
+"|Plane selection (Group 2)             | G17, G18, G19, G17.1, G18.1, G19.1\n"
+"|Distance Mode (Group 3)               | G90, G91\n"
+"|Arc IJK Distance Mode (Group 4)       | G90.1, G91.1\n"
+"|Feed Rate Mode (Group 5)              | G93, G94, G95\n"
+"|Units (Group 6)                       | G20, G21\n"
+"|Cutter Diameter Compensation (Group 7)| G40, G41, G42, G41.1, G42.1\n"
+"|Tool Length Offset (Group 8)          | G43, G43.1, G49\n"
+"|Canned Cycles Return Mode (Group 10)  | G98, G99\n"
+"|Coordinate System (Group 12)          | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3\n"
+"|Control Mode (Group 13)               | G61, G61.1, G64\n"
+"|Spindle Speed Mode (Group 14)         | G96, G97\n"
+"|Lathe Diameter Mode (Group 15)        | G7, G8\n"
+"|========================================\n"
+msgstr ""
+"[width=\"100%\", cols=\"4,6\", options=\"header\"]\n"
+"|==========================================================\n"
+"|Signification du groupe modal        | Mots G\n"
+"|Codes non modaux ('Groupe 0')| G4, G10, G28, G30, G53, G92, G92.1, G92.2, G92.3\n"
+".2+|Mouvements ('Groupe 1')      | G0, G1, G2, G3, G33, G38.x, G73, G80, G81,\n"
+"                             | G82, G83, G84, G85, G86, G87, G88, G89\n"
+"|Choix du plan de travail ('Groupe 2')| G17, G18, G19, G17.1, G18.1, G19.1\n"
+"|Mode déplacement ('Groupe 3')     | G90, G91\n"
+"|Mode déplacement en arc IJK ('Groupe 4') |G90.1, G91.1\n"
+"|Mode de vitesses ('Groupe 5')        | G93, G94, G95\n"
+"|Unités machine ('Groupe 6')          | G20, G21\n"
+"|Compensation de rayon d'outil ('Groupe 7')| G40, G41, G42, G41.1, G42.1\n"
+"|Compensation de longueur d'outil ('Groupe 8')| G43, G43.1, G49\n"
+"|Plan de retrait cycle de perçage ('Groupe 10')| G98, G99\n"
+"|Systèmes de coordonnées ('Groupe 12')| G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3\n"
+"|Mode contrôle de trajectoire ('Groupe 13') |G61, G61.1, G64\n"
+"|Mode contrôle vitesse broche ('Groupe 14') | G96, G97\n"
+"|Mode diamètre/rayon sur les tours ('Groupe 15') | G7, G8\n"
+"|==========================================================\n"
+
+#. type: Plain text
+#: overview.txt:951
+msgid ".M-Code Modal Groups[[tbl:m-modal-groups]]"
+msgstr ".Groupes modaux des M-codes[[tbl:M-codes-modaux]]"
+
+#. type: Plain text
+#: overview.txt:963
+#, no-wrap
+msgid ""
+"[width=\"80%\", cols=\"4,6\", options=\"header\"]\n"
+"|========================================\n"
+"|Modal Group Meaning           | Member Words\n"
+"|Stopping (Group 4)            | M0, M1, M2, M30, M60\n"
+"|I/O on/off (Group 5)          | M6 Tn\n"
+"|Tool Change (Group 6)         | M6 Tn\n"
+"|Spindle (Group 7)             | M3, M4, M5\n"
+"|Coolant (Group 8)             | (M7 M8 can both be on), M9\n"
+"|Override Switches (Group 9)   | M48, M49\n"
+"|User Defined (Group 10)       |M100-M199\n"
+"|========================================\n"
+msgstr ""
+"[width=\"100%\", cols=\"4,6\", options=\"header\"]\n"
+"|==========================================================\n"
+"|Signification du groupe modal        | Mots M\n"
+"|Types de fin de programme  ('Groupe 4') | M0, M1, M2, M30, M60\n"
+"|On/Off I/O ('Groupe 5')              | M6 Tn\n"
+"|Appel d'outil ('Groupe 6')           | M6 Tn\n"
+"|Commande de broche ('Groupe 7')      | M3, M4, M5, M19\n"
+"|Arrosages  ('Groupe 8')     | (M7, M8, peuvent être actifs simultanément), M9\n"
+"|Boutons de correction de vitesse ('Groupe 9')| M48, M49, M50, M51\n"
+"|Définis par l'utilisateur ('Groupe 10') | M100 à M199\n"
+"|==========================================================\n"
+
+#. type: Plain text
+#: overview.txt:969
+msgid ""
+"For several modal groups, when a machining center is ready to accept "
+"commands, one member of the group must be in effect. There are default "
+"settings for these modal groups. When the machining center is turned on or "
+"otherwise re-initialized, the default values are automatically in effect."
+msgstr ""
+"Pour plusieurs groupes modaux, quand la machine est prête à accepter des "
+"commandes, un membre du groupe doit être actif. Il y a des paramètres par "
+"défaut pour ces groupes modaux. Lorsque la machine est mise en marche ou ré-"
+"initialisées, les valeurs par défaut sont automatiquement actives."
+
+#. type: Plain text
+#: overview.txt:973
+msgid ""
+"Group 1, the first group on the table, is a group of G codes for motion. One "
+"of these is always in effect. That one is called the current motion mode."
+msgstr ""
+"Groupe 1, le premier groupe du tableau, est un groupe de G-codes pour les "
+"mouvements. À tout moment, un seul d'entre eux est actif. Il est appelé le "
+"mode de mouvement courant."
+
+#. type: Plain text
+#: overview.txt:981
+msgid ""
+"It is an error to put a G-code from group 1 and a G-code from group 0 on the "
+"same line if both of them use axis words. If an axis word-using G-code from "
+"group 1 is implicitly in effect on a line (by having been activated on an "
+"earlier line), and a group 0 G-code that uses axis words appears on the "
+"line, the activity of the group 1 G-code is suspended for that line. The "
+"axis word-using G-codes from group 0 are G10, G28, G30, and G92."
+msgstr ""
+"C'est une erreur que de mettre un G-code du groupe 1 et un G-code du groupe "
+"0 sur la même ligne si les deux utilisent les mêmes axes. Si un mot d'axe "
+"utilisant un G-code du groupe 1 est implicitement actif sur la ligne (en "
+"ayant été activé sur une ancienne ligne) et qu'un G-code du groupe 0 "
+"utilisant des mots d'axes apparaît sur la même ligne, l'activité du G-code "
+"du groupe 1 est révoquée pour le reste de la ligne. Les mots d'axes "
+"utilisant des G-codes du groupe 0 sont G10, G28, G30 et G92."
+
+#. type: Plain text
+#: overview.txt:984
+msgid ""
+"It is an error to include any unrelated words on a line with 'O-' flow "
+"control."
+msgstr ""
+"C'est une erreur d'inclure des mots sans rapport sur une ligne avec le "
+"contrôle de flux 'O-'."
+
+#. type: Plain text
+#: overview.txt:987
+msgid "[[sec:comments]] == Comments"
+msgstr "== Commentaires[[sec:Commentaires]]"
+
+#. type: Plain text
+#: overview.txt:993
+msgid ""
+"Comments can be added to lines of G code to help clear up the intention of "
+"the programmer. Comments can be embedded in a line using parentheses () or "
+"for the remainder of a line using a semi-colon. The semi-colon is not "
+"treated as the start of a comment when enclosed in parentheses."
+msgstr ""
+"Des commentaires peuvent être ajoutés aux lignes de G-code pour clarifier "
+"l'intention du programmeur. Les commentaires peuvent être placés sur une "
+"ligne en les encadrant par des parenthèses. Ils peuvent aussi occuper tout "
+"le reste de la ligne à partir d'un point virgule. Le point virgule n'est pas "
+"traité comme un début de commentaire si il se trouve entre deux parenthèses."
+
+#. type: Plain text
+#: overview.txt:997
+msgid ""
+"Comments may appear between words, but not between words and their "
+"corresponding parameter. So, 'S100(set speed)F200(feed)' is OK while "
+"'S(speed)100F(feed)' is not."
+msgstr ""
+"Les commentaires peuvent se trouver entre des mots, mais pas entre des mots "
+"et leur paramètre correspondant. Ainsi, 'S100(set speed)F200(feed)' est "
+"correct alors que 'S(speed)100F(feed)' ne l'est pas."
+
+#. type: Plain text
+#: overview.txt:1003
+#, no-wrap
+msgid ""
+"G0 (Rapid to start) X1 Y1\n"
+"G0 X1 Y1 (Rapid to start; but don't forget the coolant)\n"
+"M2 ; End of program.\n"
+"---------------------------------------------------------------------\n"
+msgstr ""
+"G0 (Rapide à démarrer.) X1 Y1\n"
+"G0 X1 Y1 (Rapide à démarrer; mais n'oubliez pas l'arrosage.)\n"
+"M2 ; Fin du programme.\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:1012
+msgid ""
+"There are several 'active' comments which look like comments but cause some "
+"action, like '(debug,..)' or '(print,..)'. If there are several comments on "
+"a line, only the last comment will be interpreted according to these rules. "
+"Hence, a normal comment following an active comment will in effect disable "
+"the active comment. For example, '(foo)  (debug,#1)' will print the value of "
+"parameter '#1', however '(debug,#1)(foo)' will not."
+msgstr ""
+"Il y a plusieurs commentaires 'actif' qui ressemblent à un commentaire mais "
+"qui produit certaines actions, comme '(debug,...)' ou '(print,...)',  "
+"expliqués plus loin. Si plusieurs commentaires se trouvent sur la même "
+"ligne, seul le dernier sera interprété selon les règles. Par conséquent, un "
+"commentaire normal suivant un commentaire actif aura pour effet de "
+"désactiver le commentaire actif. Par exemple, '(foo) (debug,#1)' affichera "
+"la valeur du paramètre '#1', mais '(debug,#1) (foo)' ne l'affichera pas."
+
+#. type: Plain text
+#: overview.txt:1015
+msgid ""
+"A comment introduced by a semicolon is by definition the last comment on "
+"that line, and will always be interpreted for active comment syntax."
+msgstr ""
+"Un commentaire commençant par un point virgule est par définition le dernier "
+"commentaire sur cette ligne et sera toujours interprété selon la syntaxe des "
+"commentaires actifs."
+
+#. type: Plain text
+#: overview.txt:1019
+msgid "[[sec:messages]] == Messages (((Messages)))"
+msgstr "== Messages[[sec:Messages]]"
+
+#. type: Plain text
+#: overview.txt:1027
+#, no-wrap
+msgid ""
+"* '(MSG,)' - displays message if 'MSG' appears after the left\n"
+"             parenthesis and before any other printing characters.\n"
+"             Variants of 'MSG' which include white space and lower case\n"
+"             characters are allowed. The rest of the characters before\n"
+"             the right parenthesis are considered to be a message.\n"
+"             Messages should be displayed on the message display device\n"
+"             of the user interface if provided.\n"
+msgstr ""
+"* '(MSG,)' - Un commentaire contient un message si 'MSG' apparaît après la\n"
+"            parenthèse ouvrante et avant tout autre caractère. Les variantes de\n"
+"            'MSG' qui incluent un espace blanc et des minuscules sont permises.\n"
+"            Le reste du texte avant la parenthèse fermante est considéré comme\n"
+"            un message. Les messages sont affichés sur la visu de l'interface\n"
+"            utilisateur.\n"
+
+#. type: Plain text
+#: overview.txt:1029
+#, no-wrap
+msgid ""
+".Message Example\n"
+"----\n"
+msgstr ""
+".Exemple de message\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:1031
+#, no-wrap
+msgid ""
+"(MSG, This is a message)\n"
+"----\n"
+msgstr ""
+"(MSG, Ceci est un message)\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:1036
+msgid "[[sec:probe-logging]] == Probe Logging (((Probe Logging)))"
+msgstr "== Enregistrement des mesures[[sec:Log-des-mesures]]"
+
+#. type: Plain text
+#: overview.txt:1041
+#, no-wrap
+msgid ""
+"* '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number\n"
+"                               coordinate consisting of XYZABCUVW of each\n"
+"                               successful straight probe in it.\n"
+"* '(PROBECLOSE)' - will close the open probelog file.\n"
+msgstr ""
+"* '(PROBEOPEN filename.txt)' - ouvrira le fichier 'filename.txt' et y\n"
+"                            enregistrera les 9 coordonnées de XYZABCUVW pour\n"
+"                            chacune des mesures réussie.\n"
+"* '(PROBECLOSE)'. - fermera le fichier de log palpeur.\n"
+
+#. type: Plain text
+#: overview.txt:1043
+msgid "For more information on probing see the <<sec:G38-probe,G38>> Section."
+msgstr ""
+"Voir la section <<sec:G38-x-Palpeur, sur la mesure au palpeur>> pour "
+"d'autres informations sur le palpage avec G38."
+
+#. type: Plain text
+#: overview.txt:1047
+msgid "[[sec:log]] == Logging (((Logging)))"
+msgstr "== Log général[[sec:Log-general]]"
+
+#. type: Plain text
+#: overview.txt:1050
+#, no-wrap
+msgid ""
+"* '(LOGOPEN,filename.txt)' - opens the named log file. If the file\n"
+"                             already exists, it is truncated.\n"
+msgstr ""
+"* '(LOGOPEN,filename.txt)' - Ouvre le fichier de log 'filename.txt'.\n"
+"                            Si le fichier existe déjà, il sera tronqué.\n"
+
+#. type: Plain text
+#: overview.txt:1053
+#, no-wrap
+msgid ""
+"* '(LOGAPPEND,filename)' - opens the named log file. If the file already\n"
+"                           exists, the data is appended.\n"
+msgstr ""
+"* '(LOGAPPEND,filename.txt)' - Ouvre le fichier de log 'filename.txt'.\n"
+"                            Si le fichier existe déjà, il sera ajoutées.\n"
+
+#. type: Bullet: '* '
+#: overview.txt:1055
+msgid "'(LOGCLOSE)' - closes an open log file."
+msgstr "'(LOGCLOSE)' - Si le fichier est ouvert, il sera fermé."
+
+#. type: Plain text
+#: overview.txt:1058
+#, no-wrap
+msgid ""
+"* '(LOG,)' - everything past the ',' is written to the log file if it is open.\n"
+"             Supports expansion of parameters as described below.\n"
+msgstr ""
+"* '(LOG,message)' - Le 'message' placé derrière la virgule est écrit dans\n"
+"                    le fichier de log si il est ouvert. Supporte l'extension\n"
+"                    des paramètres comme décrit plus loin.\n"
+
+#. type: Plain text
+#: overview.txt:1062
+msgid "[[sec:debug-messages]] == Debug Messages (((Debug Messages)))"
+msgstr "== Messages de débogage[[sec:Messages-debogage]]"
+
+#. type: Plain text
+#: overview.txt:1065
+#, no-wrap
+msgid ""
+"* '(DEBUG,)' - displays a message like '(MSG,)' with the addition of\n"
+"              special handling for comment parameters as described below.\n"
+msgstr ""
+"* '(DEBUG,commentaire)' sont traités de la même façon que ceux avec\n"
+"                        '(msg,reste du commentaire)' avec l'ajout de\n"
+"                        possibilités spéciales pour les paramètres, comme\n"
+"                        décrit plus loin.\n"
+
+#. type: Plain text
+#: overview.txt:1069
+msgid "[[sec:print-messages]] == Print Messages (((Print Messages)))"
+msgstr "== Messages print[[sec:print-messages]]"
+
+#. type: Plain text
+#: overview.txt:1072
+#, no-wrap
+msgid ""
+"* '(PRINT,)' - messages are output to 'stderr' with special handling\n"
+"               for comment parameters as described below.\n"
+msgstr ""
+"* '(PRINT,commentaire)' vont directement sur la sortie 'stderr' avec des\n"
+"                        possibilités spéciales pour les paramètres, comme\n"
+"                        décrit plus loin.\n"
+
+#. type: Plain text
+#: overview.txt:1074
+msgid "== Comment Parameters"
+msgstr "== Paramètres dans les commentaires"
+
+#. type: Plain text
+#: overview.txt:1077
+msgid ""
+"In the DEBUG, PRINT and LOG comments, the values of parameters in the "
+"message are expanded."
+msgstr ""
+"Dans les commentaires avec DEBUG, PRINT et LOG, les valeurs des paramètres "
+"dans le message sont étendues."
+
+#. type: Plain text
+#: overview.txt:1080
+msgid ""
+"For example: to print a named global variable to stderr (the default console "
+"window) add a line to your G code like..."
+msgstr ""
+"Par exemple: pour afficher le contenu d'une variable nommée globale sur la "
+"sortie stderr (la fenêtre de la console par défaut), ajouter une ligne au G-"
+"code comme..."
+
+#. type: Plain text
+#: overview.txt:1082
+#, no-wrap
+msgid ""
+".Parameters Example\n"
+"----\n"
+msgstr ""
+".Exemple de paramètres en commentaire\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:1085
+#, no-wrap
+msgid ""
+"(print,endmill dia = #<_endmill_dia>)\n"
+"(print,value of variable 123 is: #123)\n"
+"----\n"
+msgstr ""
+"(print,diamètre fraise 3 dents = #<_troisdents_dia>)\n"
+"(print,la valeur de la variable 123 est: #123)\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:1092
+msgid ""
+"Inside the above types of comments, sequences like '\\#123' are replaced by "
+"the value of the parameter 123. Sequences like '\\#<named parameter>' are "
+"replaced by the value of the named parameter. Named parameters will have "
+"white space removed from them. So, '\\#<named parameter>' will be converted "
+"to '#<namedparameter>'."
+msgstr ""
+"À l'intérieur de ces types de commentaires, les séquences comme '#123' sont "
+"remplacées par la valeur du paramètre 123. Les séquences comme '#<paramètre "
+"nommé>' sont remplacées par la valeur du paramètre nommé. Les espaces dans "
+"les noms des paramètres nommés seront supprimés, '#<parametre nomme>' "
+"deviendra '#<parametrenomme>'."
+
+#. type: Plain text
+#: overview.txt:1094
+msgid "== File Requirements"
+msgstr "== Exigences des fichiers"
+
+#. type: Plain text
+#: overview.txt:1098
+msgid ""
+"A G code file must contain one or more lines of G code and be terminated "
+"with a <<sec:M2-M30,Program End>>. Any G code past the program end is not "
+"evaluated."
+msgstr ""
+"Un programme G-code doit contenir une ou plusieurs lignes de G-code puis se "
+"terminer par un code de <<sec:M2-M30,fin de programme>>. Tout G-code, placé "
+"après ce code de fin de programme, sera ignoré."
+
+#. type: Plain text
+#: overview.txt:1103
+msgid ""
+"If a program end code is not used a pair of percent signs '%' with the first "
+"percent sign on the first line of the file followed by one or more lines of "
+"G code and a second percent sign. Any code past the second percent sign is "
+"not evaluated."
+msgstr ""
+"Si le programme n'utilise pas le G-code de fin de programme, une paire de "
+"signes pourcent '%' peut être utilisée. Le premier signe '%' doit dans ce "
+"cas se trouver sur la première ligne du fichier, suivi par une ou plusieurs "
+"lignes de G-code, puis du second signe '%'. Tout G-code placé après le "
+"second signe '%' sera ignoré."
+
+#. type: Plain text
+#: overview.txt:1107
+msgid ""
+"[NOTE] The file must be created with a text editor like Gedit and not a word "
+"processor like Open Office Word Processor."
+msgstr ""
+"[NOTE]Les fichiers de G-code doivent être créés avec un éditeur de texte "
+"comme Gedit et non avec un traitement de texte comme Open Office. "
+
+#. type: Plain text
+#: overview.txt:1109
+msgid "== File Size"
+msgstr "== Taille des fichiers"
+
+#. type: Plain text
+#: overview.txt:1118
+msgid ""
+"The interpreter and task are carefully written so that the only limit on "
+"part program size is disk capacity. The TkLinuxCNC and Axis interface both "
+"load the program text to display it to the user, though, so RAM becomes a "
+"limiting factor. In Axis, because the preview plot is drawn by default, the "
+"redraw time also becomes a practical limit on program size. The preview can "
+"be turned off in Axis to speed up loading large part programs. In Axis "
+"sections of the preview can be turned off using <<sub:axis-preview-control,"
+"preview control>> comments."
+msgstr ""
+"L'interpréteur et le gestionnaire de tâches ont été écrits, de sorte que la "
+"taille des fichiers n'est limité que par la capacité du disque dur. Les "
+"interfaces graphiques TkLinuxCNC et Axis affichent tous les deux le "
+"programme G-code à l'écran pour l'utilisateur, cependant, la RAM devient un "
+"facteur limitant. Dans Axis, parce-que l'aperçu du parcours d'outil est "
+"affiché par défaut, le rafraîchissement de l'écran devient une limite "
+"pratique à la taille des fichiers. Le tracé du parcours d'outil peut être "
+"désactivé dans Axis pour accélérer le chargement des fichiers conséquents. "
+"L'aperçu peut être désactivé en passant un <<sub:Commentaires-speciaux,"
+"commentaire spécial>>."
+
+#. type: Plain text
+#: overview.txt:1122
+msgid ""
+"[[sec:Order-of-Execution]] == G Code Order of Execution (((G Code Order of "
+"Execution)))"
+msgstr "== Ordre d'exécution[[sec:Ordre-d-execution]]"
+
+#. type: Plain text
+#: overview.txt:1125
+msgid ""
+"The order of execution of items on a line is defined not by the position of "
+"each item on the line, but by the following list:"
+msgstr ""
+"L'ordre d'exécution des éléments d'une ligne est défini, non pas par sa "
+"position dans la ligne mais par la liste suivante:"
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid ""
+"O-word commands (optionally followed by a comment but no other words allowed "
+"on the same line)"
+msgstr ""
+"Commandes O-code, optionnellement suivies d'un commentaire mais aucun "
+"autre    mot n'est permis sur la même ligne."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Comment (including message)"
+msgstr "Commentaire (message inclus)"
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Set feed rate mode (G93, G94)."
+msgstr "Positionnement du mode de vitesses (G93, G94)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Set feed rate (F)."
+msgstr "Réglage de la vitesse travail (F)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Set spindle speed (S)."
+msgstr "Réglage de la vitesse de rotation de la broche (S)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Select tool (T)."
+msgstr "Sélection de l'outil (T)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "HAL pin I/O (M62-M68)."
+msgstr "pin I/O de HAL (M62 à M68)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Change tool (M6) and Set Tool Number (M61)."
+msgstr "Appel d'outil (M6) et réglage du N° d'outil (M61)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Spindle on or off (M3, M4, M5)."
+msgstr "Marche/Arrêt broche (M3, M4, M5)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Save State (M70, M73), Restore State (M72), Invalidate State (M71)."
+msgstr ""
+"Enregistrer l'état (M70, M73), restaurer l'état (M72), invalider l'état "
+"(M71)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Coolant on or off (M7, M8, M9)."
+msgstr "Marche/Arrêt arrosages (M7, M8, M9)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Enable or disable overrides (M48, M49,M50,M51,M52,M53)."
+msgstr ""
+"Activation/Inhibition des correcteurs de vitesse (M48, M49, M50, M51, M52, "
+"M53)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "User-defined Commands (M100-M199)."
+msgstr "Commandes définies par l'opérateur (M100 à M199)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Dwell (G4)."
+msgstr "Temporisation (G4)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Set active plane (G17, G18, G19)."
+msgstr "Choix du plan de travail (G17, G18, G19)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Set length units (G20, G21)."
+msgstr "Choix des unités de longueur (G20, G21)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Cutter radius compensation on or off (G40, G41, G42)"
+msgstr ""
+"Activation/Désactivation de la compensation de rayon d'outil (G40, G41, G42)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Cutter length compensation on or off (G43, G49)"
+msgstr ""
+"Activation/Désactivation de la compensation de longueur d'outil (G43, G49)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid ""
+"Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, "
+"G59.3)."
+msgstr ""
+"Sélection du système de coordonnées (G54, G55, G56, G57, G58, G59, G59.1, "
+"G59.2, G59.3)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Set path control mode (G61, G61.1, G64)"
+msgstr "Réglage du mode de trajectoire (G61, G61.1, G64)"
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Set distance mode (G90, G91)."
+msgstr "Réglage du mode de déplacement (G90, G91)."
+
+#. type: Bullet: '* '
+#: overview.txt:1152
+msgid "Set retract mode (G98, G99)."
+msgstr "Réglage du mode de retrait (G98, G99)."
+
+#. type: Plain text
+#: overview.txt:1152
+#, no-wrap
+msgid ""
+"* Go to reference location (G28, G30) or change coordinate system \n"
+"   data (G10) or set axis offsets (G92, G92.1, G92.2, G94). \n"
+"* Perform motion (G0 to G3, G33, G38.x, G73, G76, G80 to G89), as modified (possibly) by G53. \n"
+"* Stop (M0, M1, M2, M30, M60).\n"
+msgstr ""
+"* Prise d'origine (G28, G30) ou établissement du système de\n"
+"   coordonnées (G10) ou encore, réglage des décalages d'axes (G92, G92.1, G92.2, G94).\n"
+"* Effectuer un mouvement (G0 à G3, G33, G80 à G89), tel que modifié\n"
+"   (éventuellement) par G53.\n"
+"* Arrêt (M0, M1, M2, M30, M60).\n"
+
+#. type: Plain text
+#: overview.txt:1155
+msgid "== G Code Best Practices (((G Code Best Practices)))"
+msgstr "== G-Code: Bonnes pratiques (((G-Code bonnes pratiques)))"
+
+#. type: Plain text
+#: overview.txt:1157
+msgid "=== Use an appropriate decimal precision"
+msgstr "=== Utiliser un nombre de décimales approprié"
+
+#. type: Plain text
+#: overview.txt:1160
+msgid ""
+"Use at least 3 digits after the decimal when milling in millimeters, and at "
+"least 4 digits after the decimal when milling in inches."
+msgstr ""
+"Utiliser au plus 3 chiffres après la virgule pour l'usinage en millimètres "
+"et au plus 4 chiffres après la virgule pour l'usinage en pouces."
+
+#. type: Plain text
+#: overview.txt:1162
+msgid "=== Use consistent white space"
+msgstr "=== Utiliser les espaces de façon cohérente"
+
+#. type: Plain text
+#: overview.txt:1166
+msgid ""
+"G-code is most legible when at least one space appears before words.  While "
+"it is permitted to insert white space in the middle of numbers, there is no "
+"reason to do so."
+msgstr ""
+"Le G-code est plus lisible quand au moins un espace apparaît avant les mots. "
+"S'il est permis d'insérer des espaces blancs au milieu des chiffres, il faut "
+"éviter de le faire."
+
+#. type: Plain text
+#: overview.txt:1168
+msgid "=== Use Center-format arcs"
+msgstr "=== Préférer le 'format centre' pour les arcs"
+
+#. type: Plain text
+#: overview.txt:1172
+msgid ""
+"Center-format arcs (which use 'I- J- K-' instead of 'R-' ) behave more "
+"consistently than R-format arcs, particularly for included angles near 180 "
+"or 360 degrees."
+msgstr ""
+"Les arcs en format centre (qui utilisent 'I- J- K-' au lieu de 'R-' ) se "
+"comportent de façon plus précise que ceux en format rayon, particulièrement "
+"pour des angles proche de 180 et 360 degrés."
+
+#. type: Plain text
+#: overview.txt:1174
+msgid "=== Put important modal settings at the top of the file"
+msgstr "=== Placer les codes modaux importants au début des programmes"
+
+#. type: Plain text
+#: overview.txt:1178
+msgid ""
+"When correct execution of your program depends on modal settings, be sure to "
+"set them at the beginning of the part program. Modes can carry over from "
+"previous programs and from the MDI commands."
+msgstr ""
+"Lorsque l'exécution correcte de votre programme dépend de paramètres modaux, "
+"n'oubliez pas de les mettre au début du programme. Des modes incorrects "
+"peuvent provenir d'un programme précédent ou depuis des entrées manuelles."
+
+#. type: Plain text
+#: overview.txt:1181
+msgid ""
+"As a good preventative measure, put a line similar to the following at the "
+"top of all your programs:"
+msgstr ""
+"Une bonne mesure préventive consiste à placer la ligne suivante au début de "
+"tous les programmes:"
+
+#. type: Plain text
+#: overview.txt:1185
+#, no-wrap
+msgid ""
+"    G17 G20 G40 G49 G54 G80 G90 G94 \n"
+"---------------------------------------------------------------------\n"
+msgstr ""
+"    G17 G21 G40 G49 G54 G80 G90 G94\n"
+"----\n"
+
+#. type: Plain text
+#: overview.txt:1190
+msgid ""
+"(XY plane, inch mode, cancel diameter compensation, cancel length offset, "
+"coordinate system 1, cancel motion, non-incremental motion, feed/minute mode)"
+msgstr ""
+"(plan XY, mode mm, annulation de la compensation de rayon, et de longueur, "
+"système de coordonnées numéro 1, arrêt des mouvements, déplacements absolus, "
+"mode vitesse/minute)"
+
+#. type: Plain text
+#: overview.txt:1195
+msgid ""
+"Perhaps the most critical modal setting is the distance units--If you do not "
+"include G20 or G21, then different machines will mill the program at "
+"different scales. Other settings, such as the return mode in canned cycles "
+"may also be important."
+msgstr ""
+"Peut-être que le code modal le plus important est le réglage des unités "
+"machine. Si les codes G20 ou G21, ne sont pas inclus, selon les machines "
+"l'échelle d'usinage sera différente. D'autres valeurs comme le plan de "
+"retrait des cycles de perçage peuvent être importantes."
+
+#. type: Plain text
+#: overview.txt:1197
+msgid "=== Don't put too many things on one line"
+msgstr "=== Ne pas mettre trop de choses sur une ligne"
+
+#. type: Plain text
+#: overview.txt:1200
+msgid ""
+"Ignore everything in Section <<sec:Order-of-Execution,Order of Execution>>, "
+"and instead write no line of code that is the slightest bit ambiguous."
+msgstr ""
+"Ignorer le contenu de la section <<sec:Ordre-d-execution, ordre "
+"d'exécution>> et ne pas écrire de ligne de code qui laisse la moindre "
+"ambiguïté. "
+
+#. type: Plain text
+#: overview.txt:1202
+msgid "=== Don't set & use a parameter on the same line"
+msgstr "=== Ne pas définir et utiliser un paramètre sur la même ligne"
+
+#. type: Plain text
+#: overview.txt:1206
+msgid ""
+"Don't use and set a parameter on the same line, even though the semantics "
+"are well defined. Updating a variable to a new value, such as '#1=[#1+#2]' "
+"is OK."
+msgstr ""
+"Ne pas 'utiliser' et 'définir' un paramètre sur la même ligne, même si la "
+"sémantique est bien définie. Mettre à jour une variable, à une nouvelle "
+"valeur, telle que '#1 = [#1 + #2]' est autorisé."
+
+#. type: Plain text
+#: overview.txt:1208
+msgid "=== Don't use line numbers"
+msgstr "=== Ne pas utiliser les numéros de ligne"
+
+#. type: Plain text
+#: overview.txt:1212
+msgid ""
+"Line numbers offer no benefits. When line numbers are reported in error "
+"messages, the numbers refer to the line number in the file, not the N-word "
+"value."
+msgstr ""
+"Les numéros de ligne n'apportent rien. Quand des numéros de ligne sont "
+"rapportés dans les messages d'erreur, ces numéros font référence aux numéros "
+"de lignes à l'intérieur du programme, pas aux valeurs des mots N."
+
+#. type: Plain text
+#: overview.txt:1214
+msgid "== Linear and Rotary Axis"
+msgstr "== Axes rotatifs et linéaires"
+
+#. type: Plain text
+#: overview.txt:1220
+msgid ""
+"Because the meaning of an F-word in feed-per-minute mode varies depending on "
+"which axes are commanded to move, and because the amount of material removed "
+"does not depend only on the feed rate, it may be easier to use G93 inverse "
+"time feed mode to achieve the desired material removal rate."
+msgstr ""
+"La signification du mot 'F-', exprimé en vitesse par minute, étant "
+"différente selon l'axe concerné par la commande de déplacement et parce-que "
+"la quantité de matière enlevée ne dépend pas seulement de la vitesse "
+"d'avance, il est facile d'utiliser le mode inverse du temps 'G93' pour "
+"atteindre la quantité de matériaux à enlever, souhaitée."
+
+#. type: Plain text
+#: overview.txt:1223
+msgid "== Common Error Messages"
+msgstr "== Messages d'erreur courants"
+
+#. type: Plain text
+#: overview.txt:1236
+#, no-wrap
+msgid ""
+"* 'G code out of range' - A G code greater than G99 was used, the scope of G\n"
+"   codes in LinuxCNC is 0 - 99. Not every number between 0 and 99 is a valid\n"
+"   G code.\n"
+"* 'Unknown g code used' - A G code was used that is not part of the LinuxCNC\n"
+"   G code language.\n"
+"* 'i,j,k word with no Gx to use it' - i, j and k words must be used on the same\n"
+"   line as the G code.\n"
+"* 'Cannot use axis values without a g code that uses them' - Axis values can\n"
+"   not be used on a line without either a modal G code in effect or a G code\n"
+"   on the same line.\n"
+"* 'File ended with no percent sign or program end' - Every G code file must\n"
+"   end in a M2 or M30 or be wrapped with the percent sign %.\n"
+msgstr ""
+"* 'G code hors d'étendue' - Un G-code supérieur à G99 a été utilisé. L'étendue\n"
+"    des G-codes dans LinuxCNC est comprise entre 0 et 99. Toutefois, les valeurs\n"
+"    entre 0 et 99 ne sont pas toutes celle d'un G-code valide.\n"
+"* 'Utilisation d'un G code inconnu' - Un G-code à été utilisé qui n'appartient\n"
+"    pas aux langage G-code de LinuxCNC.\n"
+"* 'Mot i, j, k sans Gx l'utilisant' - Les mots i, j et k doivent être utilisés\n"
+"    sur la même ligne que leur G-code.\n"
+"* 'Impossible d'employer des valeurs d'axe sans G code pour les utiliser' - Les\n"
+"    valeurs d'axe ne peuvent pas être utilisées sur une ligne sans qu'un G-code ne\n"
+"    se trouve sur la même ligne ou qu'un G-code modal soit actif.\n"
+"* 'Le fichier se termine sans signe pourcent ni fin de programme' - Tout fichier\n"
+"    G-code doit se terminer par un M2, un M30 ou être encadré par le signe '%'.\n"
+
+#. type: Plain text
+#: overview.txt:1240
+msgid "[appendix] = Numbered Parameters persistence [[var_file_format]]"
+msgstr "== Persistance des paramètres numérotés[[var_file_format]]"
+
+#. type: Plain text
+#: overview.txt:1246
+msgid ""
+"The values of parameters in the persistent range are retained over time, "
+"even if the machining center is powered down.  LinuxCNC uses a parameter "
+"file to ensure persistence. It is managed by the Interpreter. The "
+"Interpreter reads the file when it starts up, and writes the file when it "
+"exits."
+msgstr ""
+"Les valeurs des paramètres de la gamme persistante sont conservés au fil du "
+"temps, même si la machine est mise hors tension. LinuxCNC utilise un fichier "
+"de paramètres pour assurer la persistance. Il est géré par l'interpréteur. "
+"L'interpréteur lit le fichier quand il démarre, et écrit le fichier quand il "
+"s'arrête. "
+
+#. type: Plain text
+#: overview.txt:1249
+msgid ""
+"The format of a parameter file is shown in Table <<sec:format-parameter-file,"
+"Parameter File Format>>."
+msgstr ""
+"Le format du fichier de paramètres est visible sur la table ci-dessous."
+
+#. type: Plain text
+#: overview.txt:1257
+msgid ""
+"The Interpreter expects the file to have two columns. It skips any lines "
+"which do not contain exactly two numeric values. The first column is "
+"expected to contain an integer value (the parameter's number). The second "
+"column contains a floating point number (this parameter's last value). The "
+"value is represented as a double-precision floating point number inside the "
+"Interpreter, but a decimal point is not required in the file."
+msgstr ""
+"L'interpréteur attend un fichier à deux colonnes. Il saute toutes les lignes "
+"qui ne contiennent pas exactement deux valeurs numériques. La première "
+"colonne doit contenir un nombre entier (le N° du paramètre). La deuxième "
+"colonne contient un nombre à virgule flottante (la valeur du paramètre). La "
+"valeur est représentée comme un nombre à virgule flottante en double "
+"précision à l'intérieur de l'interpréteur, mais un point décimal n'est pas "
+"requis dans le fichier."
+
+#. type: Plain text
+#: overview.txt:1261
+msgid ""
+"Parameters in the user-defined range (31-5000) may be added to this file. "
+"Such parameters will be read by the Interpreter and written to the file as "
+"it exits."
+msgstr ""
+"Des paramètres dans l'étendue définie par l'utilisateur (31 à 5000) peuvent "
+"être ajoutés à ce fichier. Ces paramètres seront lus par l'interpréteur et "
+"écrits dans le fichier quand il s'arrête."
+
+#. type: Plain text
+#: overview.txt:1264
+msgid ""
+"Missing Parameters in the persistent range will be initialized to zero and "
+"written with their current values on the next save operation."
+msgstr ""
+"Les paramètres manquants dans la gamme persistante seront initialisés à zéro "
+"et écrits avec leurs valeurs courantes lors de la prochaine opération de "
+"sauvegarde."
+
+#. type: Plain text
+#: overview.txt:1268
+msgid ""
+"The parameter numbers must be arranged in ascending order. An `Parameter "
+"file out of order` error will be signaled if they are not in ascending order."
+msgstr ""
+"Les numéros de paramètres doivent être disposés dans l'ordre croissant. Un "
+"fichier de paramètre en désordre aboutira à une erreur si l'ordre n'est pas "
+"croissant."
+
+#. type: Plain text
+#: overview.txt:1271
+msgid ""
+"The original file is saved as a backup file when the new file is written."
+msgstr ""
+"Le fichier d'origine est enregistré comme backup lorsque le nouveau fichier "
+"est écrit. "
+
+#. type: Plain text
+#: overview.txt:1273
+msgid ".Parameter File Format[[sec:format-parameter-file]]"
+msgstr ".Format des fichiers de paramètres[[sec:format-parameter-file]]"
+
+#. type: Plain text
+#: overview.txt:1280
+msgid ""
+"[width=\"90%\", options=\"header\"] |"
+"======================================== |Parameter Number | Parameter Value "
+"|5161 | 0.0 |5162 | 0.0 |========================================"
+msgstr ""
+"[width=\"30%\", options=\"header\",align=\"left\"]\n"
+"|========================================\n"
+"|N° de paramètre | Valeur du paramètre\n"
+"|5161 | 0.0\n"
+"|5162 | 0.0\n"
+"|========================================"
