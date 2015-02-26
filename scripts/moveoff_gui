@@ -566,7 +566,21 @@ For info:\n$::MV(prog) --help | more"
 
   switch [is_connected $::m.move-enable sig] {
     not_connected {puts \
-      "$::MV(prog):$::m.move-enable not connected, Providing controls"}
+      "$::MV(prog):$::m.move-enable not connected, Providing controls"
+      set ::MV(control_move_enable 1)
+      foreach name {apply-offsets} {
+        if {[is_connected $::m.$name] != "not_connected"} {
+          return "Error: $pname is already connected"
+        }
+      }
+      foreach aname $::MV(axes) {
+        set idx $::MV($aname,idx)
+        set pname $::m.offset-in-${idx}
+        if {[is_connected $pname] != "not_connected"} {
+          return "Error: $pname is already connected"
+        }
+      }
+    }
     is_input {puts \
       "$::MV(prog):$::m.move-enable already connected <$sig>,Display Only"
       set ::MV(control_move_enable) 0
@@ -807,6 +821,12 @@ if ![info exists ::MV(top)] {
      usage "$errtxt"
   }
 
+  set errtxt [cross_reference]
+  if {"$errtxt" != ""} {
+     error_popup "cross_reference: $errtxt"
+     usage "$errtxt"
+  }
+
   set errtxt [verify_context]
   if {"$errtxt" != ""} {
     error_popup "verify_context:\n$errtxt"
@@ -814,12 +834,6 @@ if ![info exists ::MV(top)] {
     exit 1
   } else {
     puts "$::MV(prog):verify_context: ok"
-  }
-
-  set errtxt [cross_reference]
-  if {"$errtxt" != ""} {
-     error_popup "cross_reference: $errtxt"
-     usage "$errtxt"
   }
 
   set_restrictions_on_widgets ;# conditionally disable some controls
