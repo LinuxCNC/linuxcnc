@@ -570,7 +570,7 @@ For info:\n$::MV(prog) --help | more"
       set ::MV(control_move_enable 1)
       foreach name {apply-offsets} {
         if {[is_connected $::m.$name] != "not_connected"} {
-          return "Error: $pname is already connected"
+          return  "Error: $::M.$name is already connected"
         }
       }
       foreach aname $::MV(axes) {

@@ -114,8 +114,6 @@ proc thread_info {ay_name} {
     } else {
       return -code error "thread_info: motion-controller not found"
     }
-  } else {
-    return -code error "thread_info: motion-command-handler not found"
   }
 } ;# thread_info
 
