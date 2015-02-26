@@ -2791,6 +2791,13 @@ int Interp::gen_restore_cmd(int *current_g,
         return INTERP_ERROR;
     }
 
+    /* Now we clean up any G / M modes that should be reset when ending a
+     * program. Note that most of these mode states are based on logic in
+     * write_XXX functions.
+     */
+    // Force cancellation of tool compensation
+    saved_g[4] = G_40;
+
     //Mimic the order of restoration commands used elsewhere
     if (current_g[5] != saved_g[5]) {
         char buf[LINELEN];
@@ -2799,7 +2806,7 @@ int Interp::gen_restore_cmd(int *current_g,
     }
 
     int res_settings = gen_settings(current_settings, saved_settings, cmd);
-    int res_m = gen_m_codes(current_m, saved_m, cmd);
+    int res_m = 0;
     int res_g = gen_g_codes(current_g, saved_g, cmd);
 
     if (res_settings || res_m || res_g) {
@@ -2904,9 +2911,8 @@ int Interp::restore_settings(setup_pointer settings,
 int Interp::restore_from_tag(StateTag const &tag)
 {
 
-    if (tag.fields[GM_FIELD_LINE_NUMBER] < 1) {
+    if (!tag.is_valid()) {
         //Invalid line implies a bad tag, don't restore
-        //TODO More robust way to determine valid tags
         return INTERP_ERROR;
     }
 
@@ -2920,9 +2926,6 @@ int Interp::restore_from_tag(StateTag const &tag)
     // construct gcode from the state difference and execute
     // this assures appropriate canon commands are generated if needed -
     // just restoring interp variables is not enough
-
-    // G20/G21 switching is special - it is executed beforehand
-    // so restoring feed lateron is interpreted in the correct context
 
     int res_unpack = gen_restore_cmd((int *) _setup.active_g_codes,
             (int *) _setup.active_m_codes,
@@ -2945,7 +2948,7 @@ int Interp::restore_from_tag(StateTag const &tag)
             if (status != INTERP_OK) {
                 char currentError[LINELEN+1];
                 strcpy(currentError,getSavedError());
-                CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
+                CHKS(status, _("Failed to restore interp state on abort '%s': %s"), s, currentError);
             }
         }
         write_g_codes((block_pointer) NULL, &_setup);

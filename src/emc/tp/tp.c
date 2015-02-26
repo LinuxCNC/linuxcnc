@@ -53,9 +53,7 @@
 STATIC int tpComputeBlendVelocity(
         TP_STRUCT const * const tp,
         TC_STRUCT * const tc,
-        TC_STRUCT * const nexttc,
-        int planning,
-        double * const blend_vel);
+        TC_STRUCT * const nexttc);
 
 STATIC int tpCheckEndCondition(
         TP_STRUCT const * const tp,
@@ -1958,14 +1956,14 @@ int tpAddCircle(TP_STRUCT * const tp,
  * function updates the TC_STRUCT data with a safe blend velocity.
  */
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
-        TC_STRUCT * const tc, TC_STRUCT * const nexttc,
-        int planning, double * const v_parabolic) {
+        TC_STRUCT * const tc, TC_STRUCT * const nexttc)
+{
     /* Pre-checks for valid pointers */
     if (!nexttc || !tc) {
         return TP_ERR_FAIL;
     }
 
-    if (tc->term_cond != TC_TERM_COND_PARABOLIC && !planning) {
+    if (tc->term_cond != TC_TERM_COND_PARABOLIC) {
         return TP_ERR_NO_ACTION;
     }
 
@@ -1975,13 +1973,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
     // cap the blend velocity at the current requested speed (factoring in feed override)
     double target_vel_this;
     double target_vel_next;
-    if (planning) {
-        target_vel_this = tpGetMaxTargetVel(tp, tc);
-        target_vel_next = tpGetMaxTargetVel(tp, nexttc);
-    } else {
-        target_vel_this = tpGetRealTargetVel(tp, tc);
-        target_vel_next = tpGetRealTargetVel(tp, nexttc);
-    }
+    target_vel_this = tpGetRealTargetVel(tp, tc);
+    target_vel_next = tpGetRealTargetVel(tp, nexttc);
 
     double v_reachable_this = fmin(tpCalculateTriangleVel(tp,tc), target_vel_this);
     double v_reachable_next = fmin(tpCalculateTriangleVel(tp,nexttc), target_vel_next);
@@ -2008,7 +2001,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
     double v_blend_next = fmin(v_reachable_next, t_blend * acc_next);
 
     double theta;
-    if (tc->tolerance > 0 || planning) {
+    if (tc->tolerance > 0) {
         /* see diagram blend.fig.  T (blend tolerance) is given, theta
          * is calculated from dot(s1, s2)
          *
@@ -2036,23 +2029,10 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
             v_blend_this = fmin(v_blend_this, tblend_vel);
             v_blend_next = fmin(v_blend_next, tblend_vel);
         }
-
-    //Output blend velocity for reference if desired
-        if (v_parabolic) {
-            //Crude law of cosines
-
-            double vsq = pmSq(v_blend_this) + pmSq(v_blend_next) - 2.0 *
-                v_blend_this * v_blend_next * cos(2.0 * theta);
-            *v_parabolic = pmSqrt(vsq) / 2.0;
-        }
     }
-    //Store blend velocities for use during parabolic blending
-    if (!planning) {
-        tc->blend_vel = v_blend_this;
-        nexttc->blend_vel = v_blend_next;
-        tp_debug_print("v_blend_this = %f, v_blend_next = %f\n",
-		       v_blend_this,v_blend_next);
-    }
+
+    tc->blend_vel = v_blend_this;
+    nexttc->blend_vel = v_blend_next;
     return TP_ERR_OK;
 }
 
@@ -3077,7 +3057,7 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
 
     /* Parabolic blending */
 
-    tpComputeBlendVelocity(tp, tc, nexttc, false, NULL);
+    tpComputeBlendVelocity(tp, tc, nexttc);
     if (nexttc && tcIsBlending(tc)) {
         tpDoParabolicBlending(tp, tc, nexttc);
     } else {

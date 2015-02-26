@@ -173,11 +173,18 @@ int emcTaskHalt()
     return 0;
 }
 
+int emcTaskStateRestore()
+{
+    // Do NOT restore on MDI command
+    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
+        // Validity of state tag checked within restore function
+        pinterp->restore_from_tag(emcStatus->motion.traj.tag);
+    }
+    return 0;
+}
+
 int emcTaskAbort()
 {
-    //KLUDGE This will ONLY work with the RS274 interpreter, and is temporary
-    //FIXME FIXME add a virtual method to the base class
-    pinterp->restore_from_tag(emcStatus->motion.traj.tag);
     emcMotionAbort();
 
     // clear out the pending command
@@ -691,7 +698,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     }
     // If we get an error from trying to unpack from the motion state, always
     // use interp's internal state, so the active state is never out of date
-    if (res_state == INTERP_ERROR) {
+    if (emcStatus->task.mode != EMC_TASK_MODE_AUTO || res_state == INTERP_ERROR) {
         interp.active_g_codes(&stat->activeGCodes[0]);
         interp.active_m_codes(&stat->activeMCodes[0]);
         interp.active_settings(&stat->activeSettings[0]);
