@@ -18,12 +18,14 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
+#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <float.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "rtapi.h"
 #include "uspace_common.h"
@@ -303,16 +305,16 @@ void motion_set_vel(void) {
     emcmotCommand->vel = 0.987;
 }
 
-void motion_set_vel_limit(void) {
+void motion_set_vel_limit(double vel) {
     emcmotCommand->commandNum++;
     emcmotCommand->command = EMCMOT_SET_VEL_LIMIT;
-    emcmotCommand->vel = 10.0;
+    emcmotCommand->vel = vel;
 }
 
-void motion_set_acc(void) {
+void motion_set_acc(double acc) {
     emcmotCommand->commandNum++;
     emcmotCommand->command = EMCMOT_SET_ACC;
-    emcmotCommand->acc = 5.123;
+    emcmotCommand->acc = acc;
 }
 
 void motion_set_backlash(void) {
@@ -330,20 +332,21 @@ void motion_set_position_limits(void) {
     emcmotCommand->maxLimit = 10;
 }
 
-void motion_set_min_ferror(void) {
+void motion_set_min_ferror(int joint, double ferror) {
     emcmotCommand->commandNum++;
     emcmotCommand->command = EMCMOT_SET_MIN_FERROR;
-    emcmotCommand->axis = 0;
-    emcmotCommand->minFerror = 1.0;
+    emcmotCommand->axis = joint;
+    emcmotCommand->minFerror = ferror;
 }
 
-void motion_set_max_ferror(void) {
+void motion_set_max_ferror(int joint, double ferror) {
     emcmotCommand->commandNum++;
     emcmotCommand->command = EMCMOT_SET_MAX_FERROR;
-    emcmotCommand->axis = 0;
-    emcmotCommand->maxFerror = 1.0;
+    emcmotCommand->axis = joint;
+    emcmotCommand->maxFerror = ferror;
 }
 
+// FIXME
 void motion_enable(void) {
     // turn on the enable pin in HAL
     *emcmot_hal_data->enable = 1;
@@ -355,30 +358,30 @@ void motion_enable(void) {
     emcmotCommand->tail++;
 }
 
-void motion_activate_joint(void) {
+void motion_activate_joint(int joint) {
     emcmotCommand->commandNum++;
     emcmotCommand->command = EMCMOT_ACTIVATE_JOINT;
-    emcmotCommand->axis = 0;
+    emcmotCommand->axis = joint;
 }
 
-void motion_enable_amplifier(void) {
+void motion_enable_amplifier(int joint) {
     emcmotCommand->commandNum++;
     emcmotCommand->command = EMCMOT_ENABLE_AMPLIFIER;
-    emcmotCommand->axis = 0;
+    emcmotCommand->axis = joint;
 }
 
-void motion_set_joint_vel_limit(void) {
+void motion_set_joint_vel_limit(int joint, double vel_limit) {
     emcmotCommand->commandNum++;
     emcmotCommand->command = EMCMOT_SET_JOINT_VEL_LIMIT;
-    emcmotCommand->axis = 0;
-    emcmotCommand->vel = 10.0;
+    emcmotCommand->axis = joint;
+    emcmotCommand->vel = vel_limit;
 }
 
-void motion_set_joint_acc_limit(void) {
+void motion_set_joint_acc_limit(int joint, double acc_limit) {
     emcmotCommand->commandNum++;
     emcmotCommand->command = EMCMOT_SET_JOINT_ACC_LIMIT;
-    emcmotCommand->axis = 0;
-    emcmotCommand->acc = 10.0;
+    emcmotCommand->axis = joint;
+    emcmotCommand->acc = acc_limit;
 }
 
 void motion_set_motor_offset(void) {
@@ -388,42 +391,159 @@ void motion_set_motor_offset(void) {
     emcmotCommand->motor_offset = 0.0;
 }
 
-void motion_jog_incr(void) {
+void motion_jog_incr(int joint, double vel, double offset) {
     emcmotCommand->commandNum++;
     emcmotCommand->command = EMCMOT_JOG_INCR;
-    emcmotCommand->axis = 0;
-    emcmotCommand->vel = 5.0;
-    emcmotCommand->offset = 1.234;
+    emcmotCommand->axis = joint;
+    emcmotCommand->vel = vel;
+    emcmotCommand->offset = offset;
 }
 
 
 typedef void (*fptr)(void);
 
+
+//
+// Reads from the input file, performs the action indicated.
+//
+// Returns 0 on success.
+//
+// Returns -1 on failure, with errno set to indicate what went wrong:
+//     ENODATA: EOF on input
+//     EINVAL: invalid input
+//
+
+int handle_input(bool interactive, FILE *in) {
+    bool compound = false;
+    static int pass_count = 0;
+    static int pass_index = 0;
+
+    if (pass_count > 0) {
+        pass_index ++;
+        fprintf(stderr, "pass %d/%d\n", pass_index, pass_count);
+        if (pass_index == pass_count) {
+            pass_count = 0;
+        }
+        return 0;
+    }
+
+    if (interactive) {
+        printf("sam> ");
+    }
+
+    do {
+        char buffer[LINE_MAX];
+        char *line;
+
+        double d0, d1;
+        int i0;
+
+        line = fgets(buffer, sizeof(buffer), in);
+        if (line == NULL) {
+            if (interactive) {
+                printf("\n");
+            }
+            errno = ENODATA;
+            return -1;
+        }
+        if (line[strlen(line) - 1] != '\n') {
+            fprintf(stderr, "input line too long\n");
+            errno = EINVAL;
+            return -1;
+        }
+        line[strlen(line)-1] = '\0';
+
+        // trim leading white space
+        while (isspace(*line)) {
+            line ++;
+        }
+        if (*line == '\0') {
+            continue;
+        }
+
+        // ignore comments
+        if (*line == '#') {
+            continue;
+        }
+
+        // parse the line
+        if (sscanf(line, "SET_VEL_LIMIT %lf", &d0) == 1) {
+            fprintf(stderr, "set vel limit %f\n", d0);
+            motion_set_vel_limit(d0);
+
+        } else if (sscanf(line, "SET_ACC %lf", &d0) == 1) {
+            fprintf(stderr, "set acc %f\n", d0);
+            motion_set_acc(d0);
+
+        } else if (sscanf(line, "SET_MIN_FERROR joint=%d ferror=%lf", &i0, &d0) == 2) {
+            fprintf(stderr, "set min ferror joint=%d ferror=%lf\n", i0, d0);
+            motion_set_min_ferror(i0, d0);
+
+        } else if (sscanf(line, "SET_MAX_FERROR joint=%d ferror=%lf", &i0, &d0) == 2) {
+            fprintf(stderr, "set max ferror joint=%d ferror=%lf\n", i0, d0);
+            motion_set_max_ferror(i0, d0);
+
+        } else if (sscanf(line, "SET_JOINT_VEL_LIMIT joint=%d vel_limit=%lf", &i0, &d0) == 2) {
+            fprintf(stderr, "set joint vel limit joint=%d vel_limit=%lf\n", i0, d0);
+            motion_set_joint_vel_limit(i0, d0);
+
+        } else if (sscanf(line, "SET_JOINT_ACC_LIMIT joint=%d acc_limit=%lf", &i0, &d0) == 2) {
+            fprintf(stderr, "set joint acc limit joint=%d acc_limit=%lf\n", i0, d0);
+            motion_set_joint_acc_limit(i0, d0);
+
+        } else if (sscanf(line, "ACTIVATE_JOINT %d", &i0) == 1) {
+            fprintf(stderr, "activate joint %d\n", i0);
+            motion_activate_joint(i0);
+
+        } else if (strcmp(line, "ENABLE") == 0) {
+            fprintf(stderr, "enable\n");
+            motion_enable();
+
+        } else if (sscanf(line, "ENABLE_AMP %d", &i0) == 1) {
+            fprintf(stderr, "enable amplifier %d\n", i0);
+            motion_enable_amplifier(i0);
+
+        } else if (sscanf(line, "JOG_INCR joint=%d vel=%lf offset=%lf", &i0, &d0, &d1) == 3) {
+            fprintf(stderr, "jog incremental joint=%d vel=%lf offset=%lf\n", i0, d0, d1);
+            motion_jog_incr(i0, d0, d1);
+
+        } else if (strcmp(line, "pass") == 0) {
+            fprintf(stderr, "pass 1/1\n");
+            pass_count = 0;
+
+        } else if (sscanf(line, "pass %d", &i0) == 1) {
+            fprintf(stderr, "pass 1/%d\n", i0);
+            pass_index = 1;
+            pass_count = i0;
+
+        } else {
+            fprintf(stderr, "unknown input: %s\n", line);
+            errno = EINVAL;
+            return -1;
+        }
+    } while (compound);
+
+    return 0;
+}
+
+
 int main(int argc, char *argv[]) {
     int pass = 0;
 
-    int index;
-    fptr activities[] = {
-        // motion_set_num_axes,
-        // motion_set_vel,
-        motion_set_vel_limit,
-        motion_set_acc,
-        // motion_set_backlash,
-        // motion_set_position_limits,
-        motion_set_min_ferror,
-        motion_set_max_ferror,
-        motion_set_joint_vel_limit,
-        motion_set_joint_acc_limit,
-        motion_activate_joint,
-        // motion_set_motor_offset,
+    bool interactive = true;
+    FILE *in;
 
-        motion_enable,
-        motion_enable_amplifier,
-        motion_jog_incr,
-        NULL
-    };
-
-    printf("standalone motion\n");
+    if (argc == 1) {
+        // no input file specified on command-line, use stdin
+        in = stdin;
+    } else {
+        in = fopen(argv[1], "r");
+        if (in == NULL) {
+            fprintf(stderr, "error opening '%s': %s\n", argv[1], strerror(errno));
+            exit(1);
+        }
+        interactive = false;
+    }
 
     rtapi_set_msg_level(RTAPI_MSG_ALL);
 
@@ -434,16 +554,25 @@ int main(int argc, char *argv[]) {
 
     init_hal_mock();
 
-    index = 0;
-
     do {
-        if (
-            (emcmotCommand->commandNum == emcmotStatus->commandNumEcho)
-            && (activities[index] != NULL)
-        ) {
+        if (emcmotCommand->commandNum == emcmotStatus->commandNumEcho) {
+            int r;
+
             // Motion has caught up, do the next thing
-            activities[index]();
-            index++;
+            r = handle_input(interactive, in);
+            if (r != 0) {
+                if (errno == ENODATA) {
+                    // EOF on input, this is a normal terminating condition.
+                    exit(0);
+                }
+                if (!interactive) {
+                    // Other input error, handle_input() has logged something
+                    // informative already.
+                    exit(1);
+                }
+            }
+        } else {
+            fprintf(stderr, "WARNING: Motion did not echo command, pausing input\n");
         }
 
         update_joint_pos_fb();
@@ -460,10 +589,7 @@ int main(int argc, char *argv[]) {
         );
 
         pass ++;
-    } while(
-        (activities[index] != NULL)
-        || (emcmotStatus->current_vel > 0.000001)
-    );
+    } while(1);
 
     return 0;
 }
