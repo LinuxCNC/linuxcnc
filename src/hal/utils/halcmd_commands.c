@@ -1125,11 +1125,11 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 #endif
 
     if ( retval != 0 ) {
-	halcmd_error("insmod failed, returned %d\n"
+	halcmd_error("insmod for %s failed, returned %d\n"
 #if !defined(RTAPI_USPACE)
             "See the output of 'dmesg' for more information.\n"
 #endif
-        , retval );
+        , mod_name, retval );
 	return -1;
     }
     /* make the args that were passed to the module into a single string */
@@ -1456,14 +1456,13 @@ int do_loadusr_cmd(char *args[])
             nanosleep(&ts, NULL);
 	    /* check for program ending */
 	    retval = waitpid( pid, &status, WNOHANG );
-	    if (WIFEXITED(status) && WEXITSTATUS(status)) {
-	        halcmd_error("waitpid failed %s %s\n",prog_name,new_comp_name);
-	        ready = 0;
-	        exited = 1;
-	        break;
-	    }
 	    if ( retval != 0 ) {
-		exited = 1;
+		    exited = 1;
+	        if (WIFEXITED(status) && WEXITSTATUS(status)) {
+	            halcmd_error("waitpid failed %s %s\n",prog_name,new_comp_name);
+	            ready = 0;
+	            break;
+	        }
 	    }
 	    /* check for program becoming ready */
             rtapi_mutex_get(&(hal_data->mutex));
