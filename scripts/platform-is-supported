@@ -28,7 +28,7 @@ import re
 
 supported_oses = [ 'linux' ]
 supported_cpus = [ 'amd64', 'i386', 'arm' ]
-supported_kernel_flavors = [ 'rtai', 'rtpreempt', 'vanilla' ]
+supported_kernel_flavors = [ 'rtpreempt', 'vanilla' ]
 
 
 def detect_kernel_flavor(uname):
