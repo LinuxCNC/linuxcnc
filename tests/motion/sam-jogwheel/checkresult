@@ -136,7 +136,7 @@ def verify_velocity_trapezoid(trajectory, axis, pos, vel, acc):
     print "    found end of accel phase (max_accel=%f, vel=%f, index=%d)" % (max_accel, trajectory['vel'][i][axis], i)
 
     # sanity check: see if we attained cruise velocity
-    if fabs(trajectory['vel'][i][axis] - vel) < float_epsilon:
+    if fabs(trajectory['vel'][i][axis]) - fabs(vel) < float_epsilon:
         print "    attained cruise velocity"
     else:
         print "    did not attain cruise velocity"
