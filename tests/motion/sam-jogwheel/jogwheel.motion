@@ -1,0 +1,37 @@
+SET_VEL_LIMIT 150.0
+SET_ACC 750.0
+
+SET_MIN_FERROR joint=0 ferror=1.0
+SET_MAX_FERROR joint=0 ferror=1.0
+SET_JOINT_VEL_LIMIT joint=0 vel_limit=100.0
+SET_JOINT_ACC_LIMIT joint=0 acc_limit=500.0
+
+ACTIVATE_JOINT 0
+ENABLE_AMP 0
+
+SET_MIN_FERROR joint=1 ferror=1.0
+SET_MAX_FERROR joint=1 ferror=1.0
+SET_JOINT_VEL_LIMIT joint=1 vel_limit=145.0
+SET_JOINT_ACC_LIMIT joint=1 acc_limit=600.0
+
+ACTIVATE_JOINT 1
+ENABLE_AMP 1
+
+SET_MIN_FERROR joint=2 ferror=1.0
+SET_MAX_FERROR joint=2 ferror=1.0
+SET_JOINT_VEL_LIMIT joint=2 vel_limit=149.0
+SET_JOINT_ACC_LIMIT joint=2 acc_limit=1000.0
+
+ACTIVATE_JOINT 2
+ENABLE_AMP 2
+
+ENABLE
+
+JOG_INCR joint=0 vel=5.0 offset=0.123
+pass 10
+
+JOG_INCR joint=1 vel=9.0 offset=-0.200
+pass 10
+
+JOG_INCR joint=2 vel=100.0 offset=0.567
+pass 100

@@ -1,0 +1,195 @@
+#!/usr/bin/python
+
+import sys
+from math import *
+from copy import *
+
+
+float_epsilon = 1e-9  # mmm, floats
+
+
+def process_result_file(filename):
+    # this is in Hz
+    motion_frequency = 1000
+
+    result = open(filename, "r")
+    result_lines = result.readlines()
+    result.close()
+
+    pos=[]
+    for line in result_lines:
+        values = line.split()
+        pos.append([float(v) for v in values[1:]])
+
+    # compute velocity
+    vel = [ [ 0.0, 0.0, 0.0 ] ]
+    old_p = pos[0]
+    for p in pos[1:]:
+        v = []
+        for axis in range(len(p)):
+            v.append((p[axis] - old_p[axis]) * motion_frequency)
+        vel.append(v)
+        old_p = p
+
+    # compute accel
+    acc = [ [ 0.0, 0.0, 0.0 ] ]
+    old_v = vel[0]
+    for v in vel[1:]:
+        a = []
+        for axis in range(len(v)):
+            a.append((v[axis] - old_v[axis]) * motion_frequency)
+        acc.append(a)
+        old_v = v
+
+    min_pos = copy(pos[0])
+    max_pos = copy(pos[0])
+    for p in pos:
+        for axis in range(len(p)):
+            if p[axis] > max_pos[axis]: max_pos[axis] = p[axis]
+            if p[axis] < min_pos[axis]: min_pos[axis] = p[axis]
+
+    min_vel = copy(vel[0])
+    max_vel = copy(vel[0])
+    for v in vel:
+        for axis in range(len(v)):
+            if v[axis] > max_vel[axis]: max_vel[axis] = v[axis]
+            if v[axis] < min_vel[axis]: min_vel[axis] = v[axis]
+
+    min_acc = copy(acc[0])
+    max_acc = copy(acc[0])
+    for a in acc:
+        for axis in range(len(a)):
+            if a[axis] > max_acc[axis]: max_acc[axis] = a[axis]
+            if a[axis] < min_acc[axis]: min_acc[axis] = a[axis]
+
+    trajectory = {}
+    trajectory['pos'] = pos
+    trajectory['vel'] = vel
+    trajectory['acc'] = acc
+    trajectory['min_pos'] = min_pos
+    trajectory['max_pos'] = max_pos
+    trajectory['min_vel'] = min_vel
+    trajectory['max_vel'] = max_vel
+    trajectory['min_acc'] = min_acc
+    trajectory['max_acc'] = max_acc
+    trajectory['num-samples'] = len(pos)
+
+    return trajectory
+
+
+def verify_velocity_constraint(trajectory, axis, max_vel):
+    max_vel_observed = trajectory['vel'][0][axis]
+    min_vel_observed = trajectory['vel'][0][axis]
+    print "verifying axis %d max vel %f" % (axis, max_vel)
+    for i in range(len(trajectory['vel'])):
+        v = trajectory['vel'][i][axis]
+        if v > max_vel_observed: max_vel_observed = v
+        if v < min_vel_observed: min_vel_observed = v
+        if fabs(v) > (max_vel + float_epsilon):
+            print "    axis %d velocity %f violates max_vel constraint %f at index=%d" % (axis, v, max_vel, i)
+            sys.exit(1)
+    print "    max observed velocity: %f" % max_vel_observed
+    print "    min observed velocity: %f" % min_vel_observed
+
+
+def verify_acceleration_constraint(trajectory, axis, max_acc):
+    max_acc_observed = trajectory['acc'][0][axis]
+    min_acc_observed = trajectory['acc'][0][axis]
+    print "verifying axis %d max acc %f" % (axis, max_acc)
+    for i in range(len(trajectory['acc'])):
+        a = trajectory['acc'][i][axis]
+        if a > max_acc_observed: max_acc_observed = a
+        if a < min_acc_observed: min_acc_observed = a
+        if fabs(a) > (max_acc + float_epsilon):
+            print "    axis %d acceleration %f violates max_acc constraint %f at index=%d" % (axis, a, max_acc, i)
+            sys.exit(1)
+    print "    max observed acceleration: %f" % max_acc_observed
+    print "    min observed acceleration: %f" % min_acc_observed
+
+
+def verify_velocity_trapezoid(trajectory, axis, pos, vel, acc):
+    i = 0;
+
+    print "verifying velocity trapezoid (axis=%d, pos=%f, vel=%f, acc=%f)" % (axis, pos, vel, acc)
+
+    # phase 0: wait for motion to start
+    while i < trajectory['num-samples']:
+        if trajectory['acc'][i][axis] != 0:
+            break
+        i = i + 1
+    if i == trajectory['num-samples']:
+        print "    failed to find start of motion (index=%d)" % i
+        sys.exit(1)
+    print "    found start of accel phase (pos=%f, index=%d)" % (trajectory['pos'][i][axis], i)
+
+    # phase 1: full acceleration until either target velocity or deceleration 
+    max_accel = fabs(trajectory['acc'][i][axis])
+    while i < trajectory['num-samples']:
+        if fabs(trajectory['acc'][i][axis]) > max_accel:
+            max_accel = fabs(trajectory['acc'][i][axis])
+        if fabs(fabs(trajectory['acc'][i][axis]) - fabs(acc)) > float_epsilon:
+            break
+        i = i + 1
+    if i == trajectory['num-samples']:
+        print "    failed to find end of accel phase (index=%d)" % i
+        sys.exit(1)
+    print "    found end of accel phase (max_accel=%f, vel=%f, index=%d)" % (max_accel, trajectory['vel'][i][axis], i)
+
+    # sanity check: see if we attained cruise velocity
+    if fabs(trajectory['vel'][i][axis] - vel) < float_epsilon:
+        print "    attained cruise velocity"
+    else:
+        print "    did not attain cruise velocity"
+
+    # phase 2 (optional): cruise at target vel
+    while i < trajectory['num-samples']:
+        if fabs(fabs(trajectory['vel'][i][axis]) - fabs(vel)) > float_epsilon:
+            break
+        i = i + 1
+    if i == trajectory['num-samples']:
+        print "    failed to find end of cruise phase (index=%d)" % i
+        sys.exit(1)
+    print "    found end of cruise phase (index=%d)" % i
+
+    # phase 3: full deceleration
+    max_decel = fabs(trajectory['acc'][i][axis])
+    while i < trajectory['num-samples']:
+        if fabs(trajectory['acc'][i][axis]) > max_decel:
+            max_decel = fabs(trajectory['acc'][i][axis])
+        if fabs(trajectory['acc'][i][axis]) < float_epsilon:
+            break
+        i = i + 1
+    if i == trajectory['num-samples']:
+        print "    failed to find end of decel phase (index=%i)" % i
+        sys.exit(1)
+    print "    found end of decel phase (max_decel=%f, vel=%f, pos=%f, index=%i)" % (max_decel, trajectory['vel'][i][axis], trajectory['pos'][i][axis], i)
+
+    # sanity check: verify we're at the target location
+    if fabs(trajectory['pos'][i][axis] - pos) > float_epsilon:
+        print "    came to rest at unexpected location %f (index=%d)" % (trajectory['pos'][i][axis], i)
+        sys.exit(1)
+
+    # phase 4: stay at the target location
+    while i < trajectory['num-samples']:
+        if fabs(trajectory['pos'][i][axis] - pos) > float_epsilon:
+            print "    unexpected trailing motion (index=%d)" % i
+            sys.exit(1)
+        i = i + 1
+
+
+trajectory = process_result_file(sys.argv[1])
+
+verify_velocity_constraint(trajectory, axis=0, max_vel=100)
+verify_acceleration_constraint(trajectory, axis=0, max_acc=500)
+
+verify_velocity_constraint(trajectory, axis=1, max_vel=145)
+verify_acceleration_constraint(trajectory, axis=1, max_acc=600)
+
+verify_velocity_constraint(trajectory, axis=2, max_vel=150)
+verify_acceleration_constraint(trajectory, axis=2, max_acc=750)
+
+verify_velocity_trapezoid(trajectory, axis=0, pos=0.123, vel=5.0, acc=500)
+verify_velocity_trapezoid(trajectory, axis=1, pos=-0.2, vel=9.0, acc=600)
+verify_velocity_trapezoid(trajectory, axis=2, pos=0.567, vel=100.0, acc=750)
+
+sys.exit(0)
