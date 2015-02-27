@@ -275,7 +275,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 	v *= tc->feed_override;
 
     // maxa and maxv are 0
-    tx = 4.0*pow(x/(2*nj), 1.0/3.0);
+    tx = 4.0*pow(x/(2.0*nj), 1.0/3.0);
     tj = tx/4.0;
     //tj = ceil(tj*cycles_per_sec)/cycles_per_sec;
 
@@ -323,14 +323,14 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 		rtapi_print("  ceil(ta) = %.12f\n", ta);
 	}
 
-	if (ta <= 0.0) ta = 0.0;
+	if (ta <= 0.000001) ta = 0.0;
 
 	tv = (x - 2.0*nj*tj*tj*tj - 3.0*nj*tj*tj*ta - nj*tj*ta*ta)/v;
 	rtapi_print("5: tv = %.12f\n", tv);
 	//tv = ceil(tv*cycles_per_sec)/cycles_per_sec;
 	rtapi_print("6: ceil(tv) = %.12f\n", tv);
 	
-	if (tv <= 0.0) tv = 0.0;
+	if (tv <= 0.000001) tv = 0.0;
 	
 	double ctj = ceil(tj*cycles_per_sec)/cycles_per_sec;
 	double cta = ceil(ta*cycles_per_sec)/cycles_per_sec;
@@ -342,7 +342,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 	double est4 = jerk*(2.0*ctj*ctj*ctj + 3.0*ctj*ctj*cta + ctj*cta*cta + ctj*ctj*ctv + ctj*cta*ctv);
 	nj = jerk;
 
-	if (ta <= 0) {
+	if (ta <= 0.000001) {
 		tc->after_S0 = ACCEL_S2;
 		tc->after_S4 = ACCEL_S6;
 		tc->s1_cycles = 0;
