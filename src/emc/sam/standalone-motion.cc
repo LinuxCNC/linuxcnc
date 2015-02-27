@@ -139,7 +139,7 @@ void init_joints(void) {
 
 	/* init misc other stuff in joint structure */
 	joint->big_vel = 10.0 * joint->vel_limit;
-	joint->home_state = 0;
+	joint->home_state = HOME_IDLE;
 
 	/* init joint flags (reduntant, since flag = 0 */
 
@@ -169,115 +169,115 @@ void *xalloc(size_t s) {
 
 
 void init_hal_joint_mock(joint_hal_t *j) {
-    j->coarse_pos_cmd = xalloc(sizeof(hal_float_t));
-    j->joint_vel_cmd = xalloc(sizeof(hal_float_t));
-    j->backlash_corr = xalloc(sizeof(hal_float_t));
-    j->backlash_filt = xalloc(sizeof(hal_float_t));
-    j->backlash_vel = xalloc(sizeof(hal_float_t));
-    j->motor_offset = xalloc(sizeof(hal_float_t));
-    j->motor_pos_cmd = xalloc(sizeof(hal_float_t));
-    j->motor_pos_fb = xalloc(sizeof(hal_float_t));
-    j->joint_pos_cmd = xalloc(sizeof(hal_float_t));
-    j->joint_pos_fb = xalloc(sizeof(hal_float_t));
-    j->f_error = xalloc(sizeof(hal_float_t));
-    j->f_error_lim = xalloc(sizeof(hal_float_t));
+    j->coarse_pos_cmd = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->joint_vel_cmd = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->backlash_corr = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->backlash_filt = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->backlash_vel = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->motor_offset = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->motor_pos_cmd = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->motor_pos_fb = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->joint_pos_cmd = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->joint_pos_fb = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->f_error = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->f_error_lim = (hal_float_t*)xalloc(sizeof(hal_float_t));
 
-    j->free_pos_cmd = xalloc(sizeof(hal_float_t));
-    j->free_vel_lim = xalloc(sizeof(hal_float_t));
+    j->free_pos_cmd = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->free_vel_lim = (hal_float_t*)xalloc(sizeof(hal_float_t));
 
-    j->free_tp_enable = xalloc(sizeof(hal_bit_t));
-    j->kb_jog_active = xalloc(sizeof(hal_bit_t));
-    j->wheel_jog_active = xalloc(sizeof(hal_bit_t));
+    j->free_tp_enable = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->kb_jog_active = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->wheel_jog_active = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
 
-    j->active = xalloc(sizeof(hal_bit_t));
-    j->in_position = xalloc(sizeof(hal_bit_t));
-    j->error = xalloc(sizeof(hal_bit_t));
-    j->phl = xalloc(sizeof(hal_bit_t));
-    j->nhl = xalloc(sizeof(hal_bit_t));
-    j->homing = xalloc(sizeof(hal_bit_t));
-    j->homed = xalloc(sizeof(hal_bit_t));
-    j->f_errored = xalloc(sizeof(hal_bit_t));
-    j->faulted = xalloc(sizeof(hal_bit_t));
-    j->pos_lim_sw = xalloc(sizeof(hal_bit_t));
-    j->neg_lim_sw = xalloc(sizeof(hal_bit_t));
-    j->home_sw = xalloc(sizeof(hal_bit_t));
-    j->index_enable = xalloc(sizeof(hal_bit_t));
-    j->amp_fault = xalloc(sizeof(hal_bit_t));
-    j->amp_enable = xalloc(sizeof(hal_bit_t));
-    j->home_state = xalloc(sizeof(hal_s32_t));
+    j->active = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->in_position = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->error = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->phl = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->nhl = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->homing = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->homed = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->f_errored = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->faulted = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->pos_lim_sw = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->neg_lim_sw = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->home_sw = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->index_enable = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->amp_fault = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->amp_enable = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->home_state = (hal_s32_t*)xalloc(sizeof(hal_s32_t));
 
-    j->unlock = xalloc(sizeof(hal_bit_t));
-    j->is_unlocked = xalloc(sizeof(hal_bit_t));
+    j->unlock = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->is_unlocked = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
 
-    j->jog_counts = xalloc(sizeof(hal_s32_t));
-    j->jog_enable = xalloc(sizeof(hal_bit_t));
-    j->jog_scale = xalloc(sizeof(hal_float_t));
-    j->jog_vel_mode = xalloc(sizeof(hal_bit_t));
+    j->jog_counts = (hal_s32_t*)xalloc(sizeof(hal_s32_t));
+    j->jog_enable = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    j->jog_scale = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    j->jog_vel_mode = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
 }
 
 
 void init_hal_mock(void) {
-    emcmot_hal_data->probe_input = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->enable = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_index_enable = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_is_atspeed = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_revs = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->spindle_inhibit = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->adaptive_feed = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->feed_hold = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->feed_inhibit = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->motion_enabled = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->in_position = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->coord_mode = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->teleop_mode = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->coord_error = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->on_soft_limit = xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->probe_input = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->enable = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_index_enable = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_is_atspeed = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_revs = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->spindle_inhibit = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->adaptive_feed = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->feed_hold = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->feed_inhibit = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->motion_enabled = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->in_position = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->coord_mode = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->teleop_mode = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->coord_error = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->on_soft_limit = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
 
-    emcmot_hal_data->program_line = xalloc(sizeof(hal_s32_t));
-    emcmot_hal_data->motion_type = xalloc(sizeof(hal_s32_t));
-    emcmot_hal_data->current_vel = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->requested_vel = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->distance_to_go = xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->program_line = (hal_s32_t*)xalloc(sizeof(hal_s32_t));
+    emcmot_hal_data->motion_type = (hal_s32_t*)xalloc(sizeof(hal_s32_t));
+    emcmot_hal_data->current_vel = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->requested_vel = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->distance_to_go = (hal_float_t*)xalloc(sizeof(hal_float_t));
 
     for (int i = 0; i < EMCMOT_MAX_DIO; i ++) {
-        emcmot_hal_data->synch_do[i] = xalloc(sizeof(hal_bit_t));
-        emcmot_hal_data->synch_di[i] = xalloc(sizeof(hal_bit_t));
+        emcmot_hal_data->synch_do[i] = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+        emcmot_hal_data->synch_di[i] = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
     }
 
     for (int i = 0; i < EMCMOT_MAX_AIO; i ++) {
-        emcmot_hal_data->analog_input[i] = xalloc(sizeof(hal_float_t));
-        emcmot_hal_data->analog_output[i] = xalloc(sizeof(hal_float_t));
+        emcmot_hal_data->analog_input[i] = (hal_float_t*)xalloc(sizeof(hal_float_t));
+        emcmot_hal_data->analog_output[i] = (hal_float_t*)xalloc(sizeof(hal_float_t));
     }
 
-    emcmot_hal_data->spindle_on = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_forward = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_reverse = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_incr_speed = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_decr_speed = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_brake = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_speed_out = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->spindle_speed_out_rps = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->spindle_speed_out_abs = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->spindle_speed_out_rps_abs = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->spindle_speed_cmd_rps = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->spindle_speed_in = xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->spindle_on = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_forward = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_reverse = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_incr_speed = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_decr_speed = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_brake = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_speed_out = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->spindle_speed_out_rps = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->spindle_speed_out_abs = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->spindle_speed_out_rps_abs = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->spindle_speed_cmd_rps = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->spindle_speed_in = (hal_float_t*)xalloc(sizeof(hal_float_t));
 
-    emcmot_hal_data->spindle_orient_angle = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->spindle_orient_mode = xalloc(sizeof(hal_s32_t));
-    emcmot_hal_data->spindle_orient = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_locked = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_is_oriented = xalloc(sizeof(hal_bit_t));
-    emcmot_hal_data->spindle_orient_fault = xalloc(sizeof(hal_s32_t));
+    emcmot_hal_data->spindle_orient_angle = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->spindle_orient_mode = (hal_s32_t*)xalloc(sizeof(hal_s32_t));
+    emcmot_hal_data->spindle_orient = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_locked = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_is_oriented = (hal_bit_t*)xalloc(sizeof(hal_bit_t));
+    emcmot_hal_data->spindle_orient_fault = (hal_s32_t*)xalloc(sizeof(hal_s32_t));
 
-    emcmot_hal_data->tooloffset_x = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->tooloffset_y = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->tooloffset_z = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->tooloffset_a = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->tooloffset_b = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->tooloffset_c = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->tooloffset_u = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->tooloffset_v = xalloc(sizeof(hal_float_t));
-    emcmot_hal_data->tooloffset_w = xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->tooloffset_x = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->tooloffset_y = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->tooloffset_z = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->tooloffset_a = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->tooloffset_b = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->tooloffset_c = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->tooloffset_u = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->tooloffset_v = (hal_float_t*)xalloc(sizeof(hal_float_t));
+    emcmot_hal_data->tooloffset_w = (hal_float_t*)xalloc(sizeof(hal_float_t));
 
     for (int i = 0; i < EMCMOT_MAX_JOINTS; i ++) {
         init_hal_joint_mock(&emcmot_hal_data->joint[i]);
