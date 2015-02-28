@@ -103,6 +103,13 @@ Options for special cases:
     [-no_cancel_autoresume] (default: notused)
                               (useful for retraact offsets with simple)
                               (external control                       )
+    [-no_display]           (default: notused)
+                              (Use when both external controls and displays)
+                              (are in use (see Note))                      )
+
+Note: If the moveoff move-enable pin (mv.move-enable) is connected when
+      moveoff_gui is started, external controls are required and only
+      displays are provided.
 ----
 
 The moveoff_gui will provide a display and and control for

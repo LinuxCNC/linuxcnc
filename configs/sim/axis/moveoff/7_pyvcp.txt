@@ -1,5 +1,5 @@
-Moveoff demo -- external controls wity pvyvcppanel
-
+Moveoff demo -- external controls with pvyvcp panel
+                moveoff_gui display disabled
 ----------------------------------------------------
 Moveoff_gui options:
 
