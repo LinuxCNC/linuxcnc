@@ -385,17 +385,18 @@ class Private_Data:
         (   S.UNUSED_SSERIAL,S.A8I20_T,S.A8I20_R,S.A8I20_E,S.I7I64_T,S.I7I64_R,S.I7I64_E,S.I7I69_T,S.I7I69_R,S.I7I69_E,
             S.I7I70_T,S.I7I70_R,S.I7I70_E,S.I7I71_T,S.I7I71_R,S.I7I71_E,S.
             I7I76_M0_T,S.I7I76_M0_R,S.I7I76_M0_E,S.I7I76_M2_T,S.I7I76_M2_R,S.I7I76_M2_E,
-            S.I7I77_M0_T,S.I7I77_M0_R,S.I7I77_M0_E,S.I7I77_M3_T,S.I7I77_M3_R,S.I7I77_M3_E,S.I7I73_M0_T,S.I7I73_M0_R,S.I7I73_M0_E
+            S.I7I77_M0_T,S.I7I77_M0_R,S.I7I77_M0_E,S.I7I77_M3_T,S.I7I77_M3_R,S.I7I77_M3_E,S.I7I73_M0_T,S.I7I73_M0_R,S.I7I73_M0_E,
+S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3_E
         ) = self.hal_sserial_names = [
             "unused-sserial",
             "8i20-t","8i20-r","8i20-e","7i64-t","7i64-r","7i64-e","7i69-t","7i69-r","7i69-e","7i70-t","7i70-r","7i70-e",
             "7i71-t","7i71-r","7i71-e","7i76-m0-t","7i76-m0-r","7i76-m0-e", "7i76-m2-t","7i76-m2-r","7i76-m2-e",
             "7i77-m0-t","7i77-m0-r","7i77-m0-e","7i77-m3-t","7i77-m3-r","7i77-m3-e",
-            "7i73-m1-t","7i73-m1-r","7i73-m1-e"]
+            "7i73-m1-t","7i73-m1-r","7i73-m1-e","7i84-m0-t","7i84-m0-r","7i84-m0-e","7i84-m3-t","7i84-m3-r","7i84-m3-e"]
  
         self.human_sserial_names = [ [_("Unused Channel"),[]],[_("8i20 Amplifier Card"),[]],[ _("7i64 I/O Card"),[]],[ _("7i69 I/O Card"),[]],
                         [ _("7i70 I/O Card"),[]],[ _("7i71 I/O Card"),[]],[ _("7i76 Mode 0 I/O Card"),[]],[ _("7i76 Mode 2 I/O Card"),[]],
-                        [ _("7i77 Mode 0 I/O Card"),[]],[ _("7i77 Mode 3 I/O Card"),[]],[ _("7i73 Mode 1 Pendant Card"),[]] ]
+                        [ _("7i77 Mode 0 I/O Card"),[]],[ _("7i77 Mode 3 I/O Card"),[]],[ _("7i73 Mode 1 Pendant Card"),[]],[ _("7i84 Mode 1 I/O Card"),[]],[ _("7i84 Mode 3 I/O Card"),[]] ]
 
         (S.UNUSED_ANALOG_IN) = self.hal_analog_input_names = ["unused-analog-input"]
         self.human_analog_input_names = [ [_("Unused Analog In"),[]],[_("Custom Signals"),[]] ]
@@ -636,6 +637,36 @@ class Private_Data:
         [S.ENCA,2],[S.ENCA,3],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
     [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
     [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0] ],
+["7i84", "7i84-m0", 0,[_("7i84-I/O\nTB3"),_("7i84-I/O\nTB2"),"Not Used"], 0,0,0,0,0,0,0,0,
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOO,100],[S.GPIOO,100],
+        [S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOO,100],[S.GPIOO,100],
+        [S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0] ],
+["7i84", "7i84-m3", 0,[_("7i84-I/O-MPG\nTB3"),_("7i84-I/O\nTB2"),"Not Used"], 0,0,0,0,0,0,0,0,
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOO,100],[S.GPIOO,100],
+        [S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],
+        [S.ENCB,0],[S.ENCA,0],[S.ENCB,1],[S.ENCA,1],[S.GPIOI,100],[S.GPIOI,100],
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],
+        [S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOI,100],[S.GPIOO,100],[S.GPIOO,100],
+        [S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],[S.GPIOO,100],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0] ],
 ["error"]
  ]
         self.MESA_FIRMWAREDATA = []
