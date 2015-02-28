@@ -296,31 +296,31 @@ example '##2'  means the value of the parameter whose index is the
 5220::
     Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 
-5221-5229::
+5221-5230::
     Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V, W & R. R denotes the XY rotation angle around the Z axis. Persistent.
 
-5241-5249::
+5241-5250::
     Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5261-5269::
+5261-5270::
     Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5281-5289::
+5281-5290::
     Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5301-5309::
+5301-5310::
     Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5321-5329::
+5321-5330::
     Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5341-5349::
+5341-5350::
     Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5361-5369::
+5361-5370::
     Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
-5381-5389::
+5381-5390::
     Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V, W & R. Persistent.
 
 5399::

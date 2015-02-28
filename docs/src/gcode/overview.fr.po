@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2015-02-26 22:39+0100\n"
-"PO-Revision-Date: 2015-02-26 23:59+0100\n"
+"POT-Creation-Date: 2015-02-28 00:34+0100\n"
+"PO-Revision-Date: 2015-02-28 00:36+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French Translation Team\n"
 "Language: fr\n"
@@ -714,90 +714,90 @@ msgstr ""
 #: overview.txt:301
 #, no-wrap
 msgid ""
-"5221-5229::\n"
+"5221-5230::\n"
 "    Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V, W & R. R denotes the XY rotation angle around the Z axis. Persistent.\n"
 msgstr ""
-"5221 à 5229::\n"
+"5221 à 5230::\n"
 "    Système de coordonnées 1, G54 pour X Y Z A B C U V W R. Persistant.\n"
 
 #. type: Plain text
 #: overview.txt:304
 #, no-wrap
 msgid ""
-"5241-5249::\n"
+"5241-5250::\n"
 "    Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
 msgstr ""
-"5241 à 5249::\n"
+"5241 à 5250::\n"
 "    Système de coordonnées 2, G55 pour X Y Z A B C U V W R. Persistant.\n"
 
 #. type: Plain text
 #: overview.txt:307
 #, no-wrap
 msgid ""
-"5261-5269::\n"
+"5261-5270::\n"
 "    Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
 msgstr ""
-"5261 à 5269::\n"
+"5261 à 5270::\n"
 "    Système de coordonnées 3, G56 pour X Y Z A B C U V W R. Persistant.\n"
 
 #. type: Plain text
 #: overview.txt:310
 #, no-wrap
 msgid ""
-"5281-5289::\n"
+"5281-5290::\n"
 "    Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
 msgstr ""
-"5281 à 5289::\n"
+"5281 à 5290::\n"
 "    Système de coordonnées 4, G57 pour X Y Z A B C U V W R. Persistant.\n"
 
 #. type: Plain text
 #: overview.txt:313
 #, no-wrap
 msgid ""
-"5301-5309::\n"
+"5301-5310::\n"
 "    Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
 msgstr ""
-"5301 à 5309::\n"
+"5301 à 5310::\n"
 "    Système de coordonnées 5, G58 pour X Y Z A B C U V W R. Persistant.\n"
 
 #. type: Plain text
 #: overview.txt:316
 #, no-wrap
 msgid ""
-"5321-5329::\n"
+"5321-5330::\n"
 "    Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
 msgstr ""
-"5321 à 5329::\n"
+"5321 à 5330::\n"
 "    Système de coordonnées 6, G59 pour X Y Z A B C U V W R. Persistant.\n"
 
 #. type: Plain text
 #: overview.txt:319
 #, no-wrap
 msgid ""
-"5341-5349::\n"
+"5341-5350::\n"
 "    Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
 msgstr ""
-"5341 à 5349::\n"
+"5341 à 5350::\n"
 "    Système de coordonnées 7, G59.1 pour X Y Z A B C U V W R. Persistant.\n"
 
 #. type: Plain text
 #: overview.txt:322
 #, no-wrap
 msgid ""
-"5361-5369::\n"
+"5361-5370::\n"
 "    Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
 msgstr ""
-"5361 à 5369::\n"
+"5361 à 5370::\n"
 "    Système de coordonnées 8, G59.2 pour X Y Z A B C U V W R. Persistant.\n"
 
 #. type: Plain text
 #: overview.txt:325
 #, no-wrap
 msgid ""
-"5381-5389::\n"
+"5381-5390::\n"
 "    Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V, W & R. Persistent.\n"
 msgstr ""
-"5381 à 5389::\n"
+"5381 à 5390::\n"
 "    Système de coordonnées 9, G59.3 pour X Y Z A B C U V W R. Persistant.\n"
 
 #. type: Plain text

@@ -31,8 +31,8 @@ C'est une erreur si:
 
 * La valeur de S est négative.
 
-Comme décrit dans la section <<sec:G84-Taraudage-a-droite, sur le cycle de
-taraudage à droite>>, si un cycle de perçage 'G84' (taraudage) est actif et que
+Comme décrit dans la section <<sec:G84, sur le cycle de taraudage à droite>>, 
+si un cycle de perçage 'G84' (taraudage) est actif et que
 les potentiomètres de vitesse et d'avance sont autorisés, celui qui a le
 réglage le plus bas sera utilisé. La vitesse de rotation et d'avance resterons
 synchronisées. Dans ce cas, la vitesse peut différer de celle programmée, même

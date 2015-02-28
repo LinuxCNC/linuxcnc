@@ -292,31 +292,31 @@ le numéro est égal à la valeur entière trouvée dans le paramètre 2.
 5220::
     Système de coordonnées 1 à 9 pour G54 à G59.3. Persistant.
 
-5221 à 5229::
+5221 à 5230::
     Système de coordonnées 1, G54 pour X Y Z A B C U V W R. Persistant.
 
-5241 à 5249::
+5241 à 5250::
     Système de coordonnées 2, G55 pour X Y Z A B C U V W R. Persistant.
 
-5261 à 5269::
+5261 à 5270::
     Système de coordonnées 3, G56 pour X Y Z A B C U V W R. Persistant.
 
-5281 à 5289::
+5281 à 5290::
     Système de coordonnées 4, G57 pour X Y Z A B C U V W R. Persistant.
 
-5301 à 5309::
+5301 à 5310::
     Système de coordonnées 5, G58 pour X Y Z A B C U V W R. Persistant.
 
-5321 à 5329::
+5321 à 5330::
     Système de coordonnées 6, G59 pour X Y Z A B C U V W R. Persistant.
 
-5341 à 5349::
+5341 à 5350::
     Système de coordonnées 7, G59.1 pour X Y Z A B C U V W R. Persistant.
 
-5361 à 5369::
+5361 à 5370::
     Système de coordonnées 8, G59.2 pour X Y Z A B C U V W R. Persistant.
 
-5381 à 5389::
+5381 à 5390::
     Système de coordonnées 9, G59.3 pour X Y Z A B C U V W R. Persistant.
 
 5399::
