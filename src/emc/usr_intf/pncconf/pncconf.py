@@ -2254,10 +2254,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         # If initializing the Pport pages we don't want the signal calls to register here.
         # if we are working in here we don't want signal calls because of changes made in here
         # GTK supports signal blocking but then you can't assign signal block name references in GLADE -slaps head
+        if self._p.prepare_block or self.recursive_block: return
         if 'mesa' in pinname:
             ptype = '%stype'%pinname
             if not self.widgets[ptype].get_active_text() == _PD.pintype_gpio[0]: return
-        if self._p.prepare_block or self.recursive_block: return
         self.recursive_block = True
         SIG = self._p
         exclusive = {

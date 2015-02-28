@@ -2,15 +2,18 @@ Moveoff demo -- fixed retract on single axis (Z)
 
 Demo:
   1) Start application (axis gui)
-  2) The sim_pin gui simulates an external toggle
-     switch connected to the external_enable
-     signal.  This signal enables/disables offsets
-     when the machine is paused.
+  2) A pyvpcp panel includes a checkbutton
+     to enable fixed offsets on program
+     pause.
   3) Start program
   4) Pause program
   5) A moveoff_gui display (with no controls) will
-     appear showing the current Z offset
-  6) Toggle the sim_pin external_enable to 0 (OFF) to
+     appear showing the current Z offset.  If the
+     checkbtton was set to enable offsets, the
+     offset will be applied immediately.  If the
+     checkbutton was not set, enable the checkbutton
+     to apply the offset.
+  6) Toggle the checkbutton to OFF to
      remove the fixed offset and resume the program.
   7) The fixed offset will be removed after
      a delay to allow for spindle reactivation.
