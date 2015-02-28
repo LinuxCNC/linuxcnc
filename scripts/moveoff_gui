@@ -117,7 +117,7 @@ proc do_poll {} {
         }
     }
   }
-
+  
   set status_msg ""
   if {$at_limit} {
     set status_msg "Waypoint limit (Disable required)"; set bg orange
@@ -309,6 +309,14 @@ proc bump_offset {aname value} {
   hal setp $::m.offset-in-${idx} $::MV(offset,$aname)
 } ;# bump_offset
 
+proc toggle_enable_backtrack {args} {
+  if {$::MV(enable,backtrack)} {
+     hal setp $::m.backtrack-enable 1
+  } else {
+     hal setp $::m.backtrack-enable 0
+  }
+} ;# toggle_enable_backtrack
+
 proc toggle_enable_offsets {args} {
   if {$::MV(enable,offsets)} {
      hal setp $::m.move-enable 1
@@ -344,6 +352,20 @@ proc make_gui {} {
                             -variable ::MV(enable,offsets) \
                             -command toggle_enable_offsets]
     pack $::MV(button,enable) -side left -fill x -expand 1 -anchor w
+
+    if {[llength $::MV(axes)] > 1} {
+      set ::MV(enable,backtrack) 1
+      set ::MV(button,backtrack) [checkbutton $f1a.[qid] \
+                                 -text "Backtrack" \
+                                 -anchor e \
+                                 -variable ::MV(enable,backtrack) \
+                                 -command toggle_enable_backtrack]
+      pack $::MV(button,backtrack) -side left -fill x -expand 1 -anchor w
+    } else {
+      set ::MV(enable,backtrack) 0 ;# no backtrack for single axis
+    }
+    hal setp $::m.backtrack-enable $::MV(enable,backtrack)
+
     pack [label $f1.[qid] -text Increment:] -side left
     set ::MV(increment) [lindex $::MV(increments) 0] ;# default
     foreach inc $::MV(increments) {
@@ -500,11 +522,11 @@ proc set_defaults {} {
 
   set ::m mv ;# expected name of the moveoff component
               # (loadrt moveoff names=mv)
-  set ::MV(old,apply_offsets)   -1
-  set ::MV(old,enable,offsets)  -1
-  set ::MV(old,status_msg)      -1
-  set ::MV(old,waypoint_msg)    -1
-  set ::MV(offset,format)      "%g"
+  set ::MV(old,apply_offsets)    -1
+  set ::MV(old,enable,offsets)   -1
+  set ::MV(old,status_msg)       -1
+  set ::MV(old,waypoint_msg)     -1
+  set ::MV(offset,format)        "%g"
   set ::MV(current,format) $::MV(offset,format)
 
   # defaults:
@@ -568,7 +590,7 @@ For info:\n$::MV(prog) --help | more"
     not_connected {puts \
       "$::MV(prog):$::m.move-enable not connected, Providing controls"
       set ::MV(control_move_enable 1)
-      foreach name {apply-offsets} {
+      foreach name {apply-offsets backtrack-enable} {
         if {[is_connected $::m.$name] != "not_connected"} {
           return  "Error: $::M.$name is already connected"
         }
