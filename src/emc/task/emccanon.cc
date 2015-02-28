@@ -1878,7 +1878,7 @@ void ARC_FEED(int line_number,
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(v_max);
         linearMoveMsg.acc = toExtAcc(a_max);
-        linearMoveMsg.jerk = 1.0;
+        linearMoveMsg.jerk = axis_max_jerk[0];
         linearMoveMsg.indexrotary = -1;
         if(vel && a_max){
             interp_list.set_line_number(line_number);
@@ -1902,7 +1902,7 @@ void ARC_FEED(int line_number,
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(v_max);
         circularMoveMsg.acc = toExtAcc(a_max);
-        linearMoveMsg.jerk = 1.0;
+        circularMoveMsg.jerk = axis_max_jerk[0];
 
         //FIXME what happens if accel or vel is zero?
         // The end point is still updated, but nothing is added to the interp list
