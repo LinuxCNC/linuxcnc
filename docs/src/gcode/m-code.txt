@@ -1,3 +1,5 @@
+:lang: en
+
 = M Codes
 
 [[cha:m-codes]] (((M Codes)))

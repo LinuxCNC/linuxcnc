@@ -1,0 +1,1940 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-03-01 12:44+0100\n"
+"PO-Revision-Date: 2015-03-01 17:51+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: m-code.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: m-code.txt:4
+msgid "= M Codes"
+msgstr "= Les M-codes"
+
+#. type: Plain text
+#: m-code.txt:6
+msgid "[[cha:m-codes]] (((M Codes)))"
+msgstr "[[cha:M-codes]] (((Les M-codes)))"
+
+#. type: Plain text
+#: m-code.txt:10
+msgid ""
+":ini: {basebackend@docbook:'':ini} :hal: {basebackend@docbook:'':hal} :ngc: "
+"{basebackend@docbook:'':ngc}"
+msgstr ""
+":ini: {basebackend@docbook:'':ini}\n"
+":hal: {basebackend@docbook:'':hal}\n"
+":ngc: {basebackend@docbook:'':ngc}"
+
+#. type: Plain text
+#: m-code.txt:38
+#, no-wrap
+msgid ""
+"== M Code Quick Reference Table [[m-code-quick-reference]]\n"
+"[width=\"60%\", options=\"header\", cols=\"2^,5<\"]\n"
+"|========================================\n"
+"|Code                                          | Description\n"
+"|<<sec:M0-M1,M0 M1>>                           | Program Pause\n"
+"|<<sec:M2-M30,M2 M30>>                         | Program End\n"
+"|<<sec:M60, M60>>                              | Pallet Change Pause\n"
+"|<<sec:M3-M4-M5,M3 M4 M5>>                     | Spindle Control\n"
+"|<<sec:M6-Tool-Change,M6>>                     | Tool Change\n"
+"|<<sec:M7-M8-M9,M7 M8 M9>>                     | Coolant Control\n"
+"|<<sec:M19,M19>>                               | Orient Spindle\n"
+"|<<sec:M48-M49-Override,M48 M49>>              | Feed & Spindle Overrides Enable/Disable\n"
+"|<<sec:M50-Feed-Override,M50>>                 | Feed Override Control\n"
+"|<<sec:M51-Spindle-Override,M51>>              | Spindle Override Control\n"
+"|<<sec:M52-Adaptive-Feed-Control,M52>>         | Adaptive Feed Control\n"
+"|<<sec:M53-Feed-Stop-Control,M53>>             | Feed Stop Control\n"
+"|<<sec:M61-Set-Current-Tool-Number,M61>>       | Set Current Tool Number\n"
+"|<<sec:M62-M65,M62-M65>>                       | Output Control\n"
+"|<<sec:M66-Input-Control,M66>>                 | Input Control\n"
+"|<<sec:M67-Analog-Output,M67>>                 | Analog Output Control\n"
+"|<<sec:M68-Analog-Output,M68>>                 | Analog Output Control\n"
+"|<<sec:M70-Save-Modal-State,M70>>              | Save Modal State\n"
+"|<<sec:M71-Invalidate-Stored-Modal-State,M71>> | Invalidate Stored Modal State\n"
+"|<<sec:M72-Restore-Modal-State,M72>>           | Restore Modal State\n"
+"|<<sec:M73-Save-Autorestore-Modal-State,M73>>  | Save Autorestore Modal State\n"
+"|<<sec:M100-to-M199,M100-M199>>                | User Defined M-Codes \n"
+"|========================================\n"
+msgstr ""
+"== Table des M-codes [[m-code-quick-reference]]\n"
+"[width=\"60%\", options=\"header\", cols=\"2^,5<\",align=\"left\"]\n"
+"|=====================================================\n"
+"| Code                                          | Description\n"
+"|<<sec:M0-M1,M0 M1>>                            | Pause dans le programme\n"
+"|<<sec:M2-M30,M2 M30>>                          | Fin de programme\n"
+"|<<sec:M60,M60>>                                | Pause pour déchargement pièce\n"
+"|<<sec:M3-M4-M5,M3 M4 M5>>                      | Contrôle de la broche\n"
+"|<<sec:M6-Appel-Outil,M6>>                   | Appel d'outil\n"
+"|<<sec:M7-M8-M9,M7 M8 M9>>                      | Contrôle des lubrifiants\n"
+"|<<sec:M19,M19>>                                | Orientation de la broche\n"
+"|<<sec:M48-M49,M48 M49>>                          | Contrôle des correcteurs de vitesse\n"
+"|<<sec:M50,M50>>  | Contrôle du correcteur de vitesse travail\n"
+"|<<sec:M51,M51>>   | Contrôle du correcteur de vitesse de broche\n"
+"|<<sec:M52,M52>>          | Correcteur dynamique de vitesse d'avance\n"
+"|<<sec:M53,M53>>             | Contrôle de la coupure de vitesse\n"
+"|<<sec:M61,M61>>   | Correction du numéro de l'outil courant\n"
+"|<<sec:M62-a-M65,M62 à M65>> | Contrôle de sortie numérique\n"
+"|<<sec:M66,M66>>           | Contrôle d'entrée numérique et analogique\n"
+"|<<sec:M67,M67>>        | Contrôle sortie analogique synchronisée\n"
+"|<<sec:M68,M68>>        | Contrôle sortie analogique directe\n"
+"|<<sec:M70,M70>>               | Enregistre l'état modal\n"
+"|<<sec:M71,M71>>  | Invalide l'état modal enregistré\n"
+"|<<sec:M72,M72>>            | Restaure l'état modal\n"
+"|<<sec:M73,M73>>   | Enregistrement/auto-restauration de l'état modal\n"
+"|<<sec:M100-a-M199, M100 à M199 >>              | M-codes définis par l'utilisateur\n"
+"|=====================================================\n"
+
+#. type: Plain text
+#: m-code.txt:43
+msgid ""
+"[[sec:M0-M1]] == M0, M1 Program Pause (((M0 Program Pause)))(((M1 Program "
+"Optional Pause)))"
+msgstr ""
+"== M0, M1, pause dans le programme[[sec:M0-M1]]\n"
+"(((M0 M1 Pause)))"
+
+#. type: Plain text
+#: m-code.txt:48
+#, no-wrap
+msgid ""
+"* 'M0' - pause a running program temporarily. LinuxCNC remains\n"
+"         in the Auto Mode so MDI and other manual actions\n"
+"         are not enabled. Pressing the cycle start button\n"
+"         will restart the program at the following line.\n"
+msgstr ""
+"* 'M0' - Effectue une pause temporaire du programme en cours. LinuxCNC\n"
+"  reste en mode automatique afin que le MDI ou d'autres actions manuelles\n"
+"  ne puissent pas être activés. Presser le départ cycle relance le programme\n"
+"  à la ligne suivante.\n"
+
+#. type: Plain text
+#: m-code.txt:54
+#, no-wrap
+msgid ""
+"* 'M1' - pause a running program temporarily if the optional\n"
+"         stop switch is on. LinuxCNC remains in the Auto Mode\n"
+"         so MDI and other manual actions are not enabled.\n"
+"         Pressing the cycle start button\n"
+"         will restart the program at the following line.\n"
+msgstr ""
+"* 'M1' - Effectue une pause temporaire du programme en cours, si le commutateur\n"
+"  facultatif Stop est activé. LinuxCNC reste en mode automatique afin que le\n"
+"  MDI ou d'autres actions manuelles ne puissent pas être activés. Presser\n"
+"  le départ cycle relance le programme à la ligne suivante.\n"
+
+#. type: Plain text
+#: m-code.txt:60
+msgid ""
+"[NOTE] It is OK to program 'M0' and 'M1' in MDI mode, but the effect will "
+"probably not be noticeable, because normal behavior in MDI mode is to stop after "
+"each line of input anyway."
+msgstr ""
+"[NOTE]\n"
+"Il est permis de programmer 'M0' et 'M1' en mode données manuelles (MDI), mais "
+"l'effet ne sera probablement pas perceptible, puisque le comportement normal en "
+"mode MDI est de s'arrêter, de toute façon, à la fin de chaque ligne."
+
+#. type: Plain text
+#: m-code.txt:64
+msgid ""
+"[[sec:M2-M30]] == M2, M30 Program End (((M2 Program End)))(((M30 Program End)))"
+msgstr ""
+"== M2, M30, fin de programme[[sec:M2-M30]]\n"
+"(((M2 M30 Fin de programme)))"
+
+#. type: Plain text
+#: m-code.txt:67
+#, no-wrap
+msgid ""
+"* 'M2' - end the program. Pressing cycle start will\n"
+"         start the program at the beginning of the file.\n"
+msgstr ""
+"* 'M2' - Termine le programme. Presser le départ cycle après cette\n"
+"          commande relance le programme au début du fichier.\n"
+
+#. type: Plain text
+#: m-code.txt:71
+#, no-wrap
+msgid ""
+"* 'M30' - exchange pallet shuttles and end the program.\n"
+"          Pressing cycle start will start the program\n"
+"          at the beginning of the file.\n"
+msgstr ""
+"* 'M30' - Décharge le porte-pièce du chargeur et termine le programme.\n"
+"          Presser le départ cycle après cette commande relance le programme au début du fichier.\n"
+
+#. type: Plain text
+#: m-code.txt:73
+msgid "Both of these commands have the following effects:"
+msgstr "Les deux commandes précédentes produisent les effets suivants:"
+
+#. type: Plain text
+#: m-code.txt:84
+msgid ""
+". Change from Auto mode to MDI mode.  . Origin offsets are set to the default "
+"(like 'G54').  . Selected plane is set to XY plane (like 'G17').  . Distance mode "
+"is set to absolute mode (like 'G90').  . Feed rate mode is set to units per "
+"minute (like 'G94').  . Feed and speed overrides are set to ON (like 'M48').  . "
+"Cutter compensation is turned off (like 'G40').  . The spindle is stopped (like "
+"'M5').  . The current motion mode is set to feed (like 'G1').  . Coolant is "
+"turned off (like 'M9')."
+msgstr ""
+". Changement du mode automatique au mode MDI.\n"
+". Les décalages d'axes sont mis aux valeurs par défaut (comme avec 'G54').\n"
+". Le plan de travail actif devient XY (comme avec 'G17').\n"
+". Le mode de déplacement devient absolu (comme avec 'G90').\n"
+". La vitesse travail passe en unités par minute (comme avec 'G94').\n"
+". Les correcteurs de vitesse sont activés (comme avec 'M48').\n"
+". Les compensations d'outil sont désactivées (comme avec 'G40').\n"
+". La broche est arrêtée (comme avec 'M5').\n"
+". Le mode mouvement courant devient 'G1' (comme avec 'G1').\n"
+". Le lubrifiant est coupé (comme avec 'M9')."
+
+#. type: Plain text
+#: m-code.txt:89
+msgid ""
+"[NOTE] Lines of code after M2/M30 will not be executed.  Pressing cycle start "
+"will start the program at the beginning of the file."
+msgstr ""
+"[NOTE]\n"
+"Les lignes de code placées après un 'M2' ou un 'M30' ne sont pas exécutées."
+
+#. type: Plain text
+#: m-code.txt:93
+msgid "[[sec:M60]] == M60 Pallet Change Pause (((M60 Pallet Change Pause)))"
+msgstr ""
+"== M60, pause pour déchargement pièce[[sec:M60]]\n"
+"(((M60 Pause pour déchargement pièce)))"
+
+#. type: Plain text
+#: m-code.txt:98
+#, no-wrap
+msgid ""
+"* 'M60' - exchange pallet shuttles and then pause a running program\n"
+"          temporarily (regardless of the setting of the optional stop\n"
+"          switch). Pressing the cycle start button\n"
+"          will restart the program at the following line.\n"
+msgstr ""
+"* 'M60' - Procède au changement de porte-pièce avec le chargeur de pièces et\n"
+"          effectue une pause dans le programme en cours (quel que soit le\n"
+"          réglage du bouton d'arrêt facultatif). Presser ensuite le bouton\n"
+"          de départ cycle relance le programme à la ligne suivante.\n"
+
+#. type: Plain text
+#: m-code.txt:102
+msgid ""
+"[[sec:M3-M4-M5]] == M3, M4, M5 Spindle Control (((M3 Spindle CW)))(((M4 Spindle "
+"CCW)))(((M5 Spindle Stop)))"
+msgstr ""
+"== M3, M4, M5 Contrôle de la vitesse de broche[[sec:M3-M4-M5]]\n"
+"(((M3 M4 M5 Ctrl Broche)))"
+
+#. type: Bullet: '* '
+#: m-code.txt:106
+msgid "'M3' - start the spindle clockwise at the 'S' speed."
+msgstr "'M3' - Démarre la broche en sens horaire à la vitesse 'S'."
+
+#. type: Bullet: '* '
+#: m-code.txt:106
+msgid "'M4' - start the spindle counterclockwise at the 'S' speed."
+msgstr "'M4' - Démarre la broche en sens anti-horaire à la vitesse 'S'."
+
+#. type: Bullet: '* '
+#: m-code.txt:106
+msgid "'M5' - stop the spindle."
+msgstr "'M5' - Stoppe la rotation de la broche."
+
+#. type: Plain text
+#: m-code.txt:116
+msgid ""
+"It is OK to use 'M3' or 'M4' if the <<sec:S-spindle-speed,S>> spindle speed is "
+"set to zero. If this is done (or if the speed override switch is enabled and set "
+"to zero), the spindle will not start turning.  If, later, the spindle speed is "
+"set above zero (or the override switch is turned up), the spindle will start "
+"turning.  It is OK to use 'M3' or 'M4' when the spindle is already turning or to "
+"use 'M5' when the spindle is already stopped."
+msgstr ""
+"Il est permis d'utiliser 'M3' ou 'M4' si la vitesse de broche est à zéro. Si cela "
+"est fait (ou si le bouton du correcteur de vitesse est activé mais mis à zéro), "
+"la broche ne tournera pas. Si, plus tard la vitesse de broche est augmentée (ou "
+"que le correcteur de vitesse est augmenté), la broche va se mettre en rotation. "
+"Il est permis d'utiliser 'M3' ou 'M4' quand la broche est déjà en rotation ou "
+"d'utiliser 'M5' quand la broche est déjà arrêtée."
+
+#. type: Plain text
+#: m-code.txt:120
+msgid "[[sec:M6-Tool-Change]] == M6 Tool Change (((M6-Tool-Change)))"
+msgstr ""
+"== M6 Appel d'outil[[sec:M6-Appel-Outil]]\n"
+"(((M6 Appel d'outil)))"
+
+#. type: Plain text
+#: m-code.txt:122
+msgid "=== Manual Tool Change"
+msgstr "=== Changement d'outil manuel"
+
+#. type: Plain text
+#: m-code.txt:128
+msgid ""
+"If the HAL component hal_manualtoolchange is loaded, M6 will stop the spindle and "
+"prompt the user to change the tool based on the last 'T-' number programmed.  For "
+"more information on hal_manualtoolchange see the (<<sec:Manual-Tool-Change,Manual "
+"Tool Change>>) Section."
+msgstr ""
+"Si le composant de HAL, hal_manualtoolchange est chargé, 'M6' va arrêter la "
+"broche et inviter l'utilisateur à changer l'outil appelé par le dernier mot 'T' "
+"programmé. Pour plus d'informations sur hal_manualtoolchange voir la section sur "
+"le <<sec:Changement-D-Outil-Manuel,changement manuel d'outil>>."
+
+#. type: Plain text
+#: m-code.txt:130
+msgid "=== Tool Changer"
+msgstr "=== Changement d'outil"
+
+#. type: Plain text
+#: m-code.txt:135
+msgid ""
+"To change a tool in the spindle from the tool currently in the spindle to the "
+"tool most recently selected (using a T word - see Section <<sec:T-Select-Tool,"
+"Select Tool>>), program 'M6'.  When the tool change is complete:"
+msgstr ""
+"Pour changer l'outil, actuellement dans la broche, par un autre, nouvellement "
+"sélectionné en utilisant le mot T, voir la section <<sec:T-Choix-Outil, sur le "
+"choix de l'outil>>, programmer 'M6'. Un changement d'outil complet donnera:"
+
+#. type: Bullet: '* '
+#: m-code.txt:147
+msgid "The spindle will be stopped."
+msgstr "La rotation de la broche est arrêtée."
+
+#. type: Plain text
+#: m-code.txt:147
+#, no-wrap
+msgid ""
+"* The tool that was selected (by a T word on the same line or on any\n"
+"   line after the previous tool change) will be in the spindle.\n"
+"* If the selected tool was not in the spindle before the tool change,\n"
+"   the tool that was in the spindle (if there was one) will be placed\n"
+"   back into the tool changer magazine.\n"
+"* If configured in the .ini file some axis positions may move when a M6\n"
+"   is issued. See the EMCIO section of the Integrator's Manual for more\n"
+"   information on tool change options.\n"
+"* No other changes will be made. For example, coolant will continue to\n"
+"   flow during the tool change unless it has been turned off by an 'M9'.\n"
+msgstr ""
+"* L'outil qui a été sélectionné (par le mot T sur la même ligne ou sur\n"
+"  n'importe quelle ligne après le changement d'outil précédent),\n"
+"  sera placé dans la broche.\n"
+"  Le mot T est un nombre entier indiquant le\n"
+"  numéro de poche d'outil dans le carrousel (non son index).\n"
+"* Si l'outil sélectionné n'est pas déjà dans la broche avant le\n"
+"  changement d'outil, l'outil qui était dans la broche, s'il y en avait un,\n"
+"  va être replacé dans le magasin du changeur.\n"
+"* Si configurés dans le fichier ini, certains axes peuvent être déplacés\n"
+"  quand un M6 est émis. Voir la section EMCIO du manuel de configuration pour\n"
+"  d'autres informations sur le changement d'outil.\n"
+"* Aucune autre modification ne sera apportée. Par exemple, le lubrifiant\n"
+"  continue de couler durant le changement d'outil à moins qu'il ne soit\n"
+"  arrêté par 'M9'.\n"
+
+#. type: Plain text
+#: m-code.txt:151
+msgid ""
+"[WARNING] The tool length offset is not changed by 'M6', use 'G43' after the 'M6' "
+"to change the tool length offset."
+msgstr ""
+"[WARNING]\n"
+"La longueur d'outil n'est pas modifié par 'M6', utilisez un 'G43' après le 'M6' "
+"pour corriger la longueur d'outil."
+
+#. type: Plain text
+#: m-code.txt:160
+msgid ""
+"The tool change may include axis motion.  It is OK (but not useful) to program a "
+"change to the tool already in the spindle.  It is OK if there is no tool in the "
+"selected slot; in that case, the spindle will be empty after the tool change.  If "
+"slot zero was last selected, there will definitely be no tool in the spindle "
+"after a tool change. The tool changer will have to be setup to perform the tool "
+"change in hal and possibly classicladder."
+msgstr ""
+"Le changement d'outil peut inclure des mouvements d'axes pendant son exécution. "
+"Il est permis (mais inutile) de programmer un changement d'outil avec le même "
+"outil que celui qui est déjà dans la broche. Il est permis également, si il n'y a "
+"pas d'outil dans le slot sélectionné, dans ce cas, la broche sera vide après le "
+"changement d'outil. Si le slot zéro a été le dernier sélectionné, il n'y aura pas "
+"d'outil dans la broche après le changement. Le changeur d'outil devra être "
+"configuré dans hal et éventuellement classicladder pour effectuer le changement "
+"d'outil."
+
+#. type: Plain text
+#: m-code.txt:164
+msgid ""
+"[[sec:M7-M8-M9]] == M7, M8, M9 Coolant Control (((M7 Mist Coolant)))(((M8 Flood "
+"Coolant)))(((M9 Coolant Off)))"
+msgstr ""
+"== M7, M8, M9 Contrôle des lubrifiants[[sec:M7-M8-M9]]\n"
+"(((M7 M8 M9 Lubrifiants)))"
+
+#. type: Bullet: '* '
+#: m-code.txt:168
+msgid "'M7' - turn mist coolant on."
+msgstr "'M7' - Active la lubrification par gouttelettes."
+
+#. type: Bullet: '* '
+#: m-code.txt:168
+msgid "'M8' - turn flood coolant on."
+msgstr "'M8' - Active la lubrification fluide."
+
+#. type: Bullet: '* '
+#: m-code.txt:168
+msgid "'M9' - turn all coolant off."
+msgstr "'M9' - Coupe tous les lubrifiants."
+
+#. type: Plain text
+#: m-code.txt:171
+msgid ""
+"It is OK to use any of these commands, regardless of the current coolant state."
+msgstr ""
+"Il est toujours permis d'utiliser une de ces commandes, que les lubrifiants "
+"soient coupés ou non."
+
+#. type: Plain text
+#: m-code.txt:175
+msgid "[[sec:M19]] == M19 Orient Spindle (((M19 Orient Spindle)))"
+msgstr ""
+"== M19 Orientation de la broche[[sec:M19]]\n"
+"(((M19 Orientation de la broche)))"
+
+#. type: Bullet: '* '
+#: m-code.txt:177
+msgid "'M19 R- Q- [P-]'"
+msgstr "'M19 R- Q- [P-]'"
+
+#. type: Bullet: '* '
+#: m-code.txt:179
+msgid "'R' Position to rotate to from 0, valid range is 0-360 degrees"
+msgstr ""
+"'R' - Position à atteindre à partir de 0, cette valeur doit être comprise entre 0 "
+"et 360 degrés."
+
+#. type: Plain text
+#: m-code.txt:183
+#, no-wrap
+msgid ""
+"* 'Q' Number of seconds to wait until orient completes. If\n"
+"      motion.spindle.is_oriented does not become true within Q timeout\n"
+"      an error occurs.\n"
+msgstr ""
+"* 'Q' - Durée d'attente en secondes pour compléter l'orientation. Si\n"
+"        'motion.spindle.is_oriented' n'est pas devenue vraie dans le temps\n"
+"        imparti par Q, une erreur de timeout se produira.\n"
+
+#. type: Plain text
+#: m-code.txt:188
+#, no-wrap
+msgid ""
+"* 'P' Direction to rotate to position.\n"
+"** '0' rotate for smallest angular movement (default)\n"
+"** '1' always rotate clockwise (same as M3 direction)\n"
+"** '2' always rotate counterclockwise (same as M4 direction)\n"
+msgstr ""
+"* 'P' - Direction de rotation vers la position cible.\n"
+"** '0' - rotation pour petit mouvement angulaire (défaut)\n"
+"** '1' - rotation toujours en sens horaire (même direction qu'avec M3)\n"
+"** '2' - rotation toujours en sens anti-horaire (même direction qu'avec M4)\n"
+
+#. type: Plain text
+#: m-code.txt:191
+msgid "M19 is cleared by any of M3,M4,M5."
+msgstr "M19 est révoqué par M3, M4 ou M5."
+
+#. type: Plain text
+#: m-code.txt:194
+msgid ""
+"Spindle orientation requires a differential encoder with an index to sense the "
+"spindle shaft position and direction of rotation."
+msgstr ""
+"L'orientation de la broche nécessite un codeur de position avec index, indiquant "
+"la position de la broche ainsi que sa direction de rotation."
+
+#. type: Plain text
+#: m-code.txt:196
+msgid "INI Settings in the [RS274NGC] section."
+msgstr "Paramètres de réglage de la section [RS274NGC] du fichier ini."
+
+#. type: Plain text
+#: m-code.txt:198
+msgid "ORIENT_OFFSET = 0-360 (fixed offset in degrees added to M19 R word)"
+msgstr "ORIENT_OFFSET = 0 à 360 (offset fixe en degrés, ajouté au mot R de M19)"
+
+#. type: Plain text
+#: m-code.txt:200
+msgid "HAL Pins"
+msgstr "Pins de HAL"
+
+#. type: Plain text
+#: m-code.txt:204
+#, no-wrap
+msgid ""
+"* 'motion.spindle-orient-angle' (out float)\n"
+"Desired spindle orientation for M19. Value of the M19 R word parameter \n"
+"plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.\n"
+msgstr ""
+"* 'motion.spindle-orient-angle' (sortie float)\n"
+"  Orientation souhaitée pour M19. Valeur du mot R de M19, plus la valeur du\n"
+"  paramètre d'ini [RS274NGC]ORIENT_OFFSET.\n"
+
+#. type: Plain text
+#: m-code.txt:207
+#, no-wrap
+msgid ""
+"* 'motion.spindle-orient-mode' (out s32)\n"
+"Desired spindle rotation mode. Reflects M19 P parameter word, Default = 0\n"
+msgstr ""
+"* 'motion.spindle-orient-mode' (sortie s32)\n"
+"  Mode de rotation de la broche souhaité. Reflète le mot P de M19, Défaut = 0\n"
+
+#. type: Plain text
+#: m-code.txt:213
+#, no-wrap
+msgid ""
+"* 'motion.spindle-orient' (out bit)\n"
+"Indicates start of spindle orient cycle. Set by M19. Cleared by any of \n"
+"M3,M4,M5.\n"
+"  If spindle-orient-fault is not zero during spindle-orient true, the \n"
+"M19 command fails with an error message.\n"
+msgstr ""
+"* 'motion.spindle-orient' (sortie bit)\n"
+"  Indique le début du cycle d'orientation de la broche. Positionné par M19.\n"
+"  Remis à zéro par M3,M4 ou M5. Si 'spindle-orient-fault' n'est pas à zéro\n"
+"  alors que 'spindle-orient' est vraie la commande M19 échoue avec un message\n"
+"  d'erreur.\n"
+
+#. type: Plain text
+#: m-code.txt:219
+#, no-wrap
+msgid ""
+"* 'motion.spindle-is-oriented' (in bit)\n"
+"Acknowledge pin for spindle-orient. Completes orient cycle. If \n"
+"spindle-orient was true when spindle-is-oriented\n"
+"  was asserted, the spindle-orient pin is cleared and the spindle-locked \n"
+"pin is asserted. Also, the spindle-brake pin is asserted.\n"
+msgstr ""
+"* 'motion.spindle-is-oriented' (entrée bit)\n"
+"  Pin de confirmation de l'orientation de la broche. Termine le cycle\n"
+"  d'orientation. Si 'spindle-orient' est vraie quand 'spindle-is-oriented' est\n"
+"  activée, la pin 'spindle-orient' est mise à zéro et la pin 'spindle-locked'\n"
+"  est activée. La pin 'spindle-brake' est également activée.\n"
+
+#. type: Plain text
+#: m-code.txt:223
+#, no-wrap
+msgid ""
+"* 'motion.spindle-orient-fault' (in s32)\n"
+"  Fault code input for orient cycle. Any value other than zero will \n"
+"cause the orient cycle to abort.\n"
+msgstr ""
+"* 'motion.spindle-orient-fault' (entrée s32)\n"
+"  Entrée de code d'erreur pour le cycle d'orientation. Toute valeur, autre que\n"
+"  zéro, provoquera l'abandon du cycle d'orientation.\n"
+
+#. type: Plain text
+#: m-code.txt:226
+#, no-wrap
+msgid ""
+"* 'motion.spindle-locked' (out bit)\n"
+"Spindle orient complete pin. Cleared by any of M3,M4,M5.\n"
+msgstr ""
+"* 'motion.spindle-locked' (sortie bit)\n"
+"  Pin indiquant que le cycle de rotation est terminé. Désactivée par M3, M4 ou M5.\n"
+
+#. type: Plain text
+#: m-code.txt:231
+msgid ""
+"[[sec:M48-M49-Override]] == M48, M49 Speed and Feed Override Control (((M48, M49 "
+"Override Control)))"
+msgstr ""
+"== M48, M49 Correcteurs de vitesse[[sec:M48-M49]]\n"
+"(((M48, M49 Autoriser/Inhiber correcteurs)))"
+
+#. type: Bullet: '* '
+#: m-code.txt:234
+msgid "'M48' - enable the spindle speed and feed rate override controls."
+msgstr ""
+"'M48' - Autorise les curseurs de correction de vitesse de broche et celui de "
+"vitesse d'avance travail."
+
+#. type: Bullet: '* '
+#: m-code.txt:234
+msgid "'M49' - disable both controls."
+msgstr "'M49' - Inhibe les deux curseurs."
+
+#. type: Plain text
+#: m-code.txt:238
+msgid ""
+"It is OK to enable or disable the controls when they are already enabled or "
+"disabled.  See the <<sub:feed-rate,Feed Rate>> Section for more details."
+msgstr ""
+"Il est permis d'autoriser ou d'inhiber ces curseurs quand ils sont déjà autorisés "
+"ou inhibés. Voir la section sur la <<sec:F-Vitesse, vitesse d'avance travail>>."
+
+#. type: Plain text
+#: m-code.txt:242
+msgid ""
+"[[sec:M50-Feed-Override]] == M50 Feed Override Control (((M50 Feed Override "
+"Control)))"
+msgstr ""
+"== M50 Contrôle du correcteur de vitesse travail[[sec:M50]]\n"
+"(((M50 Contrôle du correcteur de vitesse travail)))"
+
+#. type: Plain text
+#: m-code.txt:246
+#, no-wrap
+msgid ""
+"* 'M50 <P1>' - enable the feed rate override control. The P1\n"
+"               is optional. \n"
+"* 'M50 P0' - disable the feed rate control.\n"
+msgstr ""
+"* 'M50 <P1>' - Autorise le curseur de correction de vitesse d'avance travail. Le\n"
+"  paramètre 'P1' est optionnel.\n"
+"* 'M50 P0' - Inhibe le curseur de correction d'avance travail.\n"
+
+#. type: Plain text
+#: m-code.txt:250
+msgid ""
+"While disabled the feed override will have no influence, and the motion will be "
+"executed at programmed feed rate.  (unless there is an adaptive feed rate "
+"override active)."
+msgstr ""
+"Quand il est inhibé, le curseur de correction de vitesse n'a plus aucune "
+"influence et les mouvements seront exécutés à la vitesse d'avance travail "
+"programmée. (à moins que ne soit actif un correcteur de vitesse adaptative)."
+
+#. type: Plain text
+#: m-code.txt:254
+msgid ""
+"[[sec:M51-Spindle-Override]] == M51 Spindle Speed Override Control (((M51 Spindle "
+"Speed Override)))"
+msgstr ""
+"== M51 Contrôle du correcteur de vitesse de broche[[sec:M51]] \n"
+"(((M51 Contrôle du correcteur de vitesse broche)))"
+
+#. type: Plain text
+#: m-code.txt:262
+#, no-wrap
+msgid ""
+"* 'M51 <P1>' - enable the spindle speed override control. The P1\n"
+"               is optional. \n"
+"* 'M51 P0' - disable the spindle speed override control program.\n"
+"             While disabled the spindle speed override will have\n"
+"             no influence, and the spindle speed will have the\n"
+"             exact program specified value of the S-word\n"
+"             (described in <<sec:S-spindle-speed,Spindle Speed>> Section).\n"
+msgstr ""
+"* 'M51 <P1>' - Autorise le curseur de correction de vitesse de la broche. Le\n"
+"paramètre 'P1' est facultatif.\n"
+"* 'M51 P0' - Inhibe le curseur de correction de vitesse de broche.\n"
+"Quand il est inhibé, le curseur de correction de vitesse de broche\n"
+"n'a plus aucune influence, et la broche tournera à la vitesse programmée,\n"
+"en utilisant le mot 'S' comme décrit dans la section <<sec:S-Broche, sur le\n"
+"réglage de la vitesse de broche>>.\n"
+
+#. type: Plain text
+#: m-code.txt:266
+msgid ""
+"[[sec:M52-Adaptive-Feed-Control]] == M52 Adaptive Feed Control (((M52 Adaptive "
+"Feed Control)))"
+msgstr ""
+"== M52 Contrôle de vitesse adaptative[[sec:M52]]\n"
+"(((M52 Contrôle vitesse adaptative)))"
+
+#. type: Bullet: '* '
+#: m-code.txt:269
+msgid "'M52 <P1>' - use an adaptive feed. The P1 is optional."
+msgstr "'M52 P1' - Utilise une vitesse adaptative. Le paramètre 'P1' est optionnel."
+
+#. type: Bullet: '* '
+#: m-code.txt:269
+msgid "'M52 P0' - stop using adaptive feed."
+msgstr "'M52 P0' - Cesse l'utilisation d'une vitesse adaptative."
+
+#. type: Plain text
+#: m-code.txt:275
+msgid ""
+"When adaptive feed is enabled, some external input value is used together with "
+"the user interface feed override value and the commanded feed rate to set the "
+"actual feed rate. In LinuxCNC, the HAL pin 'motion.adaptive-feed' is used for "
+"this purpose. Values on 'motion.adaptive-feed' should range from 0 (feed hold) to "
+"1 (full speed)."
+msgstr ""
+"Quand la vitesse adaptative est utilisée, certaines valeurs externes sont "
+"utilisées avec les correcteurs de vitesse de l'interface utilisateur et les "
+"vitesses programmées pour obtenir la vitesse travail. Dans LinuxCNC, la pin de "
+"HAL  'motion.adaptive-feed' est utilisée dans ce but. Les valeurs de 'motion."
+"adaptive-feed' doivent être comprises entre 0 (vitesse nulle) et 1 (pleine "
+"vitesse)."
+
+#. type: Plain text
+#: m-code.txt:279
+msgid ""
+"[[sec:M53-Feed-Stop-Control]] == M53 Feed Stop Control (((M53 Feed Stop Control)))"
+msgstr ""
+"== M53 Contrôle de la coupure de vitesse[[sec:M53]]\n"
+"(((M53 Contrôle coupure vitesse)))"
+
+#. type: Plain text
+#: m-code.txt:285
+#, no-wrap
+msgid ""
+"* 'M53 <P1>' - enable the feed stop switch. The P1 is optional.\n"
+"               Enabling the feed stop switch will allow motion to be\n"
+"               interrupted by means of the feed stop control. In LinuxCNC,\n"
+"               the HAL pin 'motion.feed-hold' is used for this purpose. A 'true'\n"
+"               value will cause the motion to stop when 'M53' is active.\n"
+msgstr ""
+"* 'M53 P1' - Autorise le bouton de coupure de vitesse. Le paramètre 'P1' est\n"
+"  optionnel. Autoriser la coupure de vitesse permet d'interrompre les mouvements\n"
+"  par le biais d'une coupure de vitesse. Dans LinuxCNC, la HAL pin\n"
+"  'motion.feed-hold' est utilisée pour cette fonctionnalité. Une valeur\n"
+"  de 1 provoque un arrêt des mouvements quand 'M53' est actif.\n"
+
+#. type: Plain text
+#: m-code.txt:288
+#, no-wrap
+msgid ""
+"* 'M53 P0' - disable the feed stop switch. The state of 'motion.feed-hold'\n"
+"             will have no effect on feed when M53 is not active.\n"
+msgstr ""
+"* 'M53 P0' - Inhibe le bouton de coupure de vitesse. L'état de\n"
+"  'motion.feed-hold' est sans effet sur la vitesse quand 'M53' est inhibé.\n"
+
+#. type: Plain text
+#: m-code.txt:293
+msgid ""
+"[[sec:M61-Set-Current-Tool-Number]] == M61 Set Current Tool Number (((M61 Set "
+"Current Tool Number)))"
+msgstr ""
+"== M61 Correction du numéro de l'outil courant[[sec:M61]]\n"
+"(((M61 Correction du numéro de l'outil courant)))"
+
+#. type: Plain text
+#: m-code.txt:297
+#, no-wrap
+msgid ""
+"* 'M61 Q-' - change the current tool number while in MDI or Manual mode.\n"
+"             One use is when you power up LinuxCNC with a tool currently in\n"
+"             the spindle you can set that tool number without doing a tool change.\n"
+msgstr ""
+"* 'M61 Q ' - Corrige le numéro de l'outil courant, en mode MDI ou après un\n"
+"  changement manuel d'outil dans la fenêtre de données manuelles. Au démarrage\n"
+"  de LinuxCNC avec un outil dans la broche, il est possible ainsi d'ajuster le\n"
+"  numéro de l'outil courant sans faire de changement d'outil.\n"
+
+#. type: Plain text
+#: m-code.txt:299
+msgid "It is an error if:"
+msgstr "C'est une erreur si:"
+
+#. type: Bullet: '* '
+#: m-code.txt:301
+msgid "Q- is not 0 or greater"
+msgstr "Q n'est pas égal où supérieur à 0"
+
+#. type: Plain text
+#: m-code.txt:305
+msgid "[[sec:M62-M65]] == M62 to M65 Output Control (((M62 to M65 Output Control)))"
+msgstr ""
+"== M62 à M65 Bits de sortie numérique[[sec:M62-a-M65]]\n"
+"(((M62 Contrôle un bit de sortie numérique)))"
+
+#. type: Plain text
+#: m-code.txt:308
+#, no-wrap
+msgid ""
+"* 'M62 P-' - turn on digital output synchronized with motion.\n"
+"             The P- word specifies the digital output number.\n"
+msgstr ""
+"* 'M62 P' - Active un bit de sortie numérique en synchronisme avec\n"
+"  un mouvement. Le mot P- spécifie le numéro du bit de sortie.\n"
+
+#. type: Plain text
+#: m-code.txt:311
+#, no-wrap
+msgid ""
+"* 'M63 P-' - turn off digital output synchronized with motion.\n"
+"             The P- word specifies the digital output number.\n"
+msgstr ""
+"* 'M63 P' - Désactive un bit de sortie numérique en synchronisme avec\n"
+"  un mouvement. Le mot P- spécifie le numéro du bit de sortie.\n"
+
+#. type: Plain text
+#: m-code.txt:314
+#, no-wrap
+msgid ""
+"* 'M64 P-' - turn on digital output immediately.\n"
+"             The P- word specifies the digital output number.\n"
+msgstr ""
+"* 'M64 P' - Active immédiatement un bit de sortie numérique.\n"
+"   Le mot P- spécifie le numéro du bit de sortie.\n"
+
+#. type: Plain text
+#: m-code.txt:317
+#, no-wrap
+msgid ""
+"* 'M65 P-' - turn off digital output immediately.\n"
+"             The P- word specifies the digital output number.\n"
+msgstr ""
+"* 'M65 P' - Désactive immédiatement un bit de sortie numérique.\n"
+"   Le mot P- spécifie le numéro du bit de sortie.\n"
+
+#. type: Plain text
+#: m-code.txt:322
+msgid ""
+"The P-word ranges from 0 to a default value of 3. If needed the the number of I/O "
+"can be increased by using the num_dio parameter when loading the motion "
+"controller. See the Integrator's Manual Configuration Section LinuxCNC and HAL "
+"section for more information."
+msgstr ""
+"Le mot P spécifie le numéro du bit de sortie numérique. Le mot P doit être "
+"compris entre 0 et une valeur par défaut de 3. Si nécessaire, le nombre des "
+"entrées/sorties peut être augmenté en utilisant le paramètre num_dio lors du "
+"chargement du contrôleur de mouvement. Voir le manuel de configuration, section "
+"'LinuxCNC et HAL', pour plus d'informations."
+
+#. type: Plain text
+#: m-code.txt:327
+msgid ""
+"The M62 & M63 commands will be queued. Subsequent commands referring to the same "
+"output number will overwrite the older settings. More than one output change can "
+"be specified by issuing more than one M62/M63 command."
+msgstr ""
+"Les commandes M62 et M63 seront mises en file d'attente. Toute nouvelle commande, "
+"destinée à un bit de sortie écrasera l'ancien réglage de ce bit. Plusieurs bits "
+"peuvent changer d'état simultanément par l'envoi de plusieurs commandes M62/M63."
+
+#. type: Plain text
+#: m-code.txt:332
+msgid ""
+"The actual change of the specified outputs will happen at the beginning of the "
+"next motion command. If there is no subsequent motion command, the queued output "
+"changes won't happen. It's best to always program a motion G code (G0, G1, etc) "
+"right after the M62/63."
+msgstr ""
+"Les nouveaux changements d'état des bits de sortie spécifiés, seront effectifs au "
+"début du prochain mouvement commandé. S'il n'y a pas de commande de mouvement "
+"ultérieur, les changements en attente n'auront pas lieu. Il est préférable de "
+"toujours programmer un G-code de mouvement (G0, G1, etc) juste après les M62/63."
+
+#. type: Plain text
+#: m-code.txt:336
+msgid ""
+"M64 & M65 happen immediately as they are received by the motion controller. They "
+"are not synchronized with movement, and they will break blending."
+msgstr ""
+"M64 et M65 produisent leur effet immédiatement après être reçus par le contrôleur "
+"de mouvement. Ils ne sont pas synchronisés avec un mouvement."
+
+#. type: Plain text
+#: m-code.txt:340
+msgid ""
+"[NOTE] M62-65 will not function unless the appropriate motion.digital-out-nn pins "
+"are connected in your hal file to outputs."
+msgstr ""
+"[NOTE]\n"
+"M62 à M66 ne seront opérationnels que si les pins motion.digital-out-nn "
+"appropriées sont connectées aux sorties dans le fichier HAL."
+
+#. type: Plain text
+#: m-code.txt:344
+msgid "[[sec:M66-Input-Control]] == M66 Wait on Input (((M66 Input Control)))"
+msgstr ""
+"== M66 Contrôle d'entrée numérique et analogique[[sec:M66]]\n"
+"(((M66 Contrôle d'entrée numérique et analogique)))"
+
+#. type: Plain text
+#: m-code.txt:345 m-code.txt:394 m-code.txt:419 m-code.txt:642 m-code.txt:699
+#, no-wrap
+msgid "----\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: m-code.txt:347
+#, no-wrap
+msgid ""
+"M66 P- | E- <L->\n"
+"----\n"
+msgstr ""
+"M66 P- | E- <L-> <Q->\n"
+"----\n"
+
+#. type: Bullet: '* '
+#: m-code.txt:361
+msgid "'P-' - specifies the digital input number from 0 to 3."
+msgstr "'P' - Spécifie le numéro d'un bit d'entrée numérique entre 0 et 3."
+
+#. type: Bullet: '* '
+#: m-code.txt:361
+msgid "'E-' - specifies the analog input number from 0 to 3."
+msgstr "'E' - Spécifie le numéro d'un bit d'entrée analogique entre 0 et 3."
+
+#. type: Plain text
+#: m-code.txt:361
+#, no-wrap
+msgid ""
+"* 'L-' - specifies the wait mode type.\n"
+"**   'Mode 0: IMMEDIATE' - no waiting, returns immediately.\n"
+"       The current value of the input is stored in parameter #5399\n"
+"**   'Mode 1: RISE' - waits for the selected input to perform a rise event.\n"
+"**   'Mode 2: FALL' - waits for the selected input to perform a fall event.\n"
+"**   'Mode 3: HIGH' - waits for the selected input to go to the HIGH state.\n"
+"**   'Mode 4: LOW' - waits for the selected input to go to the LOW state.\n"
+"* 'Q-' - specifies the timeout in seconds for waiting. If the timeout is\n"
+"         exceeded, the wait is interrupt, and the variable #5399 will be holding\n"
+"         the value -1. The Q value is ignored if the L-word is zero (IMMEDIATE).\n"
+"         A Q value of zero is an error if the L-word is non-zero.\n"
+msgstr ""
+"* 'L' - Spécifie le mode d'attente.\n"
+"** Mode 0: 'IMMEDIATE' - pas d'attente, retour immédiat, la valeur courante de\n"
+"    l'entrée est stockée dans le paramètre #5399\n"
+"** Mode 1: 'RISE'  attente d'un front montant sur l'entrée.\n"
+"** Mode 2: 'FALL'  attente d'un front descendant sur l'entrée.\n"
+"** Mode 3: 'HIGH'  attente d'un état logique HAUT sur l'entrée.\n"
+"** Mode 4: 'LOW'   attente d'un état logique BAS sur l'entrée.\n"
+"* 'Q' - Spécifie le délai d'attente, en secondes. Si le délai est\n"
+"    dépassé, l'attente est interrompue et la variable #5399 positionnée à -1.\n"
+"    La valeur de Q est ignorée si le mot L est zéro (IMMEDIATE).\n"
+"    Une valeur de Q à zéro est une erreur si le mot L n'est pas à zéro.\n"
+
+#. type: Bullet: '* '
+#: m-code.txt:363
+msgid "Mode 0 is the only one permitted for an analog input."
+msgstr "Le mode '0' est le seul autorisé pour une entrée analogique."
+
+#. type: Plain text
+#: m-code.txt:365
+#, no-wrap
+msgid ""
+".M66 Example Lines\n"
+"----\n"
+msgstr ""
+".Exemple de ligne avec M66\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:367
+#, no-wrap
+msgid ""
+"M66 P0 L3 Q5 (wait up to 5 seconds for digital input 0 to turn on)\n"
+"----\n"
+msgstr ""
+"M66 P0 L3 Q5 (attend jusqu'à 5 secondes la montée de l'entrée numérique 0)\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:371
+msgid ""
+"M66 wait on an input stops further execution of the program, until the selected "
+"event (or the programmed timeout) occurs."
+msgstr ""
+"M66 attend un nouvel événement sur une entrée ou la fin de l'exécution du "
+"programme, jusqu'à ce que l'événement sélectionné (ou le délai d'attente "
+"programmé) ne survienne."
+
+#. type: Plain text
+#: m-code.txt:376
+msgid ""
+"It is an error to program M66 with both a P-word and an E-word (thus selecting "
+"both an analog and a digital input).  In LinuxCNC these inputs are not monitored "
+"in real time and thus should not be used for timing-critical applications."
+msgstr ""
+"C'est également une erreur de programmer M66 avec les deux mots, un mot P- et un "
+"mot E- (ce qui reviendrait à sélectionner à la fois une entrée analogique et une "
+"numérique). Dans LinuxCNC, ces entrées ne sont pas suivies en temps réel, elles "
+"ne doivent donc pas être utilisées pour des applications pour lesquelles le temps "
+"est critique."
+
+#. type: Plain text
+#: m-code.txt:380 m-code.txt:410 m-code.txt:433
+msgid ""
+"The number of I/O can be increased by using the num_dio or num_aio parameter when "
+"loading the motion controller. See the Integrator's Manual, Core Components "
+"Section, Motion subsection, for more information."
+msgstr ""
+"Le nombre des entrées/sorties peut être augmenté en utilisant les paramètres "
+"num_dio ou num_aio lors du chargement du contrôleur de mouvement. Voir le Manuel "
+"de configuration pour plus d'informations, paragraphes \"LinuxCNC et HAL\"."
+
+#. type: Plain text
+#: m-code.txt:384
+msgid ""
+"[NOTE] M66 will not function unless the appropriate motion.digital-in-nn pins or "
+"motion.analog-in-nn pins are connected in your hal file to an input."
+msgstr ""
+"[NOTE]\n"
+"M66 ne sera opérationnel que si les pins motion.digital-in-nn ou motion.analog-in-"
+"nn appropriées sont connectées aux entrées dans le fichier HAL."
+
+#. type: Plain text
+#: m-code.txt:386
+#, no-wrap
+msgid ""
+".Example HAL Connection\n"
+"----\n"
+msgstr ""
+".Exemple de connection de Hal\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:388
+#, no-wrap
+msgid ""
+"net signal-name motion.digital-in-00 <= parport.0.pin10-in\n"
+"----\n"
+msgstr ""
+"net nom-signal motion.digital-in-00 <= parport.0.pin10-in\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:393
+msgid ""
+"[[sec:M67-Analog-Output]] == M67 Synchronized Analog Output (((M67 Analog Motion "
+"Output Control)))"
+msgstr ""
+"== M67 Contrôle de sortie analogique synchroniée[[sec:M67]]\n"
+"(((M67 Contrôle de sortie analogique synchronisée avec un mouvement)))"
+
+#. type: Plain text
+#: m-code.txt:396
+#, no-wrap
+msgid ""
+"M67 E- Q-\n"
+"----\n"
+msgstr ""
+"M67 E- Q-\n"
+"----\n"
+
+#. type: Bullet: '* '
+#: m-code.txt:400
+msgid "'M67' - set an analog output synchronized with motion."
+msgstr "'M67' - Contrôle une sortie analogique synchronisée avec un mouvement."
+
+#. type: Bullet: '* '
+#: m-code.txt:400 m-code.txt:425
+msgid "'E-' - output number ranging from 0 to 3."
+msgstr "'E' - Spécifie le numéro de la sortie, doit être compris entre 0 et 3."
+
+#. type: Bullet: '* '
+#: m-code.txt:400 m-code.txt:425
+msgid "'Q-' - is the value to set (set to 0 to turn off)."
+msgstr "'Q' - Spécifie la valeur à appliquer (mettre à 0 pour désactiver)."
+
+#. type: Plain text
+#: m-code.txt:406
+msgid ""
+"The actual change of the specified outputs will happen at the beginning of the "
+"next motion command. If there is no subsequent motion command, the queued output "
+"changes won't happen. It's best to always program a motion G code (G0, G1, etc) "
+"right after the M67. M67 functions the same as M62-63."
+msgstr ""
+"Les changements de valeur spécifiés, seront effectifs au début du prochain "
+"mouvement commandé. S'il n'y a pas de commande de mouvement ultérieur, les "
+"changements en attente n'auront pas lieu. Il est préférable de toujours "
+"programmer un G-code de mouvement (G0, G1, etc) juste après les M67. M67 "
+"fonctionne comme M62 à M63."
+
+#. type: Plain text
+#: m-code.txt:414
+msgid ""
+"[NOTE] M67 will not function unless the appropriate motion.analog-out-nn pins are "
+"connected in your hal file to outputs."
+msgstr ""
+"[NOTE]\n"
+"M67 ne sera opérationnel que si les pins motion.analog-out-nn appropriées sont "
+"connectées aux sorties dans le fichier HAL."
+
+#. type: Plain text
+#: m-code.txt:418
+msgid ""
+"[[sec:M68-Analog-Output]] == M68 Analog Output (((M68 Analog Aux Output Control)))"
+msgstr ""
+"== M68 Contrôle de sortie analogique directe[[sec:M68]]\n"
+"(((M68 Contrôle de sortie analogique directe)))"
+
+#. type: Plain text
+#: m-code.txt:421
+#, no-wrap
+msgid ""
+"M68 E- Q-\n"
+"----\n"
+msgstr ""
+"M68 E- Q-\n"
+"----\n"
+
+#. type: Bullet: '* '
+#: m-code.txt:425
+msgid "'M68' - set an analog output immediately."
+msgstr "'M68' - Contrôle directement une sortie analogique."
+
+#. type: Plain text
+#: m-code.txt:429
+msgid ""
+"M68 output happen immediately as they are received by the motion controller. They "
+"are not synchronized with movement, and they will break blending. M68 functions "
+"the same as M64-65."
+msgstr ""
+"M68 produit son effet immédiatement après être reçu par le contrôleur de "
+"mouvement. Il n'est pas synchronisé avec un mouvement. M68 fonctionne comme M64 à "
+"M65."
+
+#. type: Plain text
+#: m-code.txt:437
+msgid ""
+"[NOTE] M68 will not function unless the appropriate motion.analog-out-nn pins are "
+"connected in your hal file to outputs."
+msgstr ""
+"[NOTE]\n"
+"M68 ne sera opérationnel que si les pins motion.analog-out-nn appropriées "
+"sontconnectées aux sorties dans le fichier HAL."
+
+#. type: Plain text
+#: m-code.txt:440
+msgid ""
+"== M70 Save Modal State[[sec:M70-Save-Modal-State]] (((M70 Save Modal State)))"
+msgstr ""
+"== M70 Enregistrement de l'état modal courant[[sec:M70]]\n"
+"(((M70 Save Modal State)))"
+
+#. type: Plain text
+#: m-code.txt:444
+msgid ""
+"To explicitly save the modal state at the current call level, program 'M70'. Once "
+"modal state has been saved with 'M70', it can be restored to exactly that state "
+"by executing an 'M72'."
+msgstr ""
+"Pour enregistrer explicitement l'état modal au niveau de l'appel courant, "
+"programmer 'M70'. Une fois l'état modal enregistré avec 'M70', il peut être "
+"restauré exactement identique en exécutant un 'M72'."
+
+#. type: Plain text
+#: m-code.txt:448
+msgid ""
+"A pair of 'M70' and 'M72' instructions will typically be used to protect a "
+"program against inadvertant modal changes within subroutines."
+msgstr ""
+"Une paire d'instructions 'M70' et 'M72' est typiquement utilisée pour protéger un "
+"programme contre d'éventuels changements modaux pouvant se produire dans les sous-"
+"programmes."
+
+#. type: Plain text
+#: m-code.txt:451
+msgid "[[saved_state_by_M70]] The state saved consists of:"
+msgstr ""
+"[[saved_state_by_M70]]\n"
+"Les états enregistrés sont les suivants:"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "current G20/G21 settings (imperial/metric)"
+msgstr "unités machine courantes G20/G21 (po/mm)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "selected plane (G17/G18/G19 G17.1,G18.1,G19.1)"
+msgstr "plan de travail courant (G17/G18/G19 G17.1,G18.1,G19.1)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "status of cutter compensation (G40,G41,G42,G41.1,G42,1)"
+msgstr "statut de la compensation de rayon d'outil (G40,G41,G42,G41.1,G42,1)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "distance mode - relative/absolute (G90/G91)"
+msgstr "mode de déplacement - relatif/absolu (G90/G91)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "feed mode (G93/G94,G95)"
+msgstr "mode de vitesse (G93/G94,G95)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "current coordinate system (G54-G59.3)"
+msgstr "coordonnées système courantes (G54-G59.3)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "tool length compensation status (G43,G43.1,G49)"
+msgstr "statut de la compensation de longueur d'outil (G43,G43.1,G49)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "retract mode (G98,G99)"
+msgstr "options du plan de retrait (G98,G99)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "spindle mode (G96-css or G97-RPM)"
+msgstr "mode de contrôle de broche (G96-css ou G97-RPM)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "arc distance mode (G90.1, G91.1)"
+msgstr "mode de déplacement en arc (G90.1, G91.1)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "lathe radius/diameter mode (G7,G8)"
+msgstr "mode diamètre/rayon des tours (G7,G8)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "path control mode (G61, G61.1, G64)"
+msgstr "mode de contrôle de trajectoire (G61, G61.1, G64)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "current feed and speed ('F' and 'S' values)"
+msgstr "avance et vitesse broche courantes (valeurs 'F' et 'S')"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "spindle status (M3,M4,M5) - on/off and direction"
+msgstr "statut de la broche (M3,M4,M5) - on/off et direction"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "mist (M7) and flood (M8) status"
+msgstr "statut du lubrifiant (M7) et (M8)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "speed override (M51) and feed override (M50) settings"
+msgstr ""
+"réglages des correcteurs de vitesse broche (M51) et du correcteur de vitesse "
+"travail (M50)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "adaptive feed setting (M52)"
+msgstr "réglage du contrôle de vitesse adaptative (M52)"
+
+#. type: Bullet: '* '
+#: m-code.txt:470
+msgid "feed hold setting (M53)"
+msgstr "réglage du contrôle de la coupure de vitesse (M53)"
+
+#. type: Plain text
+#: m-code.txt:472
+msgid "Note that in particular, the motion mode (G1 etc) is NOT restored."
+msgstr ""
+"Noter qu'en particulier, les modes de mouvement (G1 etc) ne sont PAS restaurés."
+
+#. type: Plain text
+#: m-code.txt:474
+msgid "'current call level' means either:"
+msgstr "'Le niveau de l'appel courant' signifie:"
+
+#. type: Plain text
+#: m-code.txt:479
+#, no-wrap
+msgid ""
+" * executing in the main program. There is a single storage location\n"
+" for state at the main program level; if several 'M70' instructions\n"
+" are executed in turn, only the most recently saved state is restored\n"
+" when an 'M72' is executed.\n"
+msgstr ""
+" * Exécution dans le programme principal. Il n'y a qu'un seul emplacement de\n"
+"  stockage pour l'état modal au niveau du programme principal; si plusieurs\n"
+"  instructions 'M70' sont exécutées tour à tour, seul l'état enregistré le plus\n"
+"  récent est restauré quand un 'M72' est exécuté.\n"
+
+#. type: Plain text
+#: m-code.txt:484
+#, no-wrap
+msgid ""
+" * executing within a G-code subroutine. The state saved with 'M70'\n"
+" within a subroutine behaves exactly like a local named parameter - it\n"
+" can be referred to only within this subroutine invocation with an\n"
+" 'M72' and when the subroutine exits, the paramter goes away.\n"
+msgstr ""
+" * Exécution dans un sous-programme G-code. L'état enregistré par 'M70'\n"
+"  dans un sous-programme se comporte exactement comme un paramètre nommé local -\n"
+"  on ne peut s'y référer qu'à l'intérieur du sous-programme en invoquant un 'M72',\n"
+"  à la sortie du sous-programme, le paramètre disparaît.\n"
+
+#. type: Plain text
+#: m-code.txt:486
+msgid "A recursive invocation of a subroutine introduces a new call level."
+msgstr ""
+"Une invocation récursive d'un sous-programme introduit un nouveau niveau d'appel."
+
+#. type: Plain text
+#: m-code.txt:489
+msgid ""
+"== M71 Invalidate Stored Modal State[[sec:M71-Invalidate-Stored-Modal-State]] "
+"(((M71 Invalidate Stored Modal State)))"
+msgstr ""
+"== M71 Invalide l'état modal enregistré[[sec:M71]]\n"
+"(((M71 Invalidate Stored Modal State)))"
+
+#. type: Plain text
+#: m-code.txt:493
+msgid ""
+"<<saved_state_by_M70,Modal state saved with an 'M70'>> or by an <<sec:M73-Save-"
+"Autorestore-Modal-State, 'M73'>> at the current call level is invalidated (cannot "
+"be restored from anymore)."
+msgstr ""
+"<<saved_state_by_M70,L'état modal enregistré par 'M70'>> ou par <<sec:M73, "
+"'M73'>> au niveau de l'appel courant est invalidé (ne peut plus être restauré "
+"nulle part)."
+
+#. type: Plain text
+#: m-code.txt:495
+msgid "A subsequent 'M72' at the same call level will fail."
+msgstr "Un appel ultérieur à 'M72' sur le même niveau d'appel, échouera."
+
+#. type: Plain text
+#: m-code.txt:498
+msgid ""
+"If executed in a subroutine which protects modal state by an 'M73', a subsequent "
+"return or endsub will *not* restore modal state."
+msgstr ""
+"Si il est exécuté dans un sous-programme qui protège l'état modal par un 'M73', "
+"un 'return' ou 'endsub' ultérieur ne restaurera 'PAS' l'état modal."
+
+#. type: Plain text
+#: m-code.txt:501
+msgid ""
+"The usefulness of this feature is dubious. It should not be relied upon as it "
+"might go away."
+msgstr ""
+"L'utilité de ce dispositif est douteuse. Il ne devrait pas être invoqué quand il "
+"peut disparaître."
+
+#. type: Plain text
+#: m-code.txt:504
+msgid ""
+"== M72 Restore Modal State[[sec:M72-Restore-Modal-State]] (((M72 Restore Modal "
+"State)))"
+msgstr ""
+"== M72 Restauration de l'état modal enregistré[[sec:M72]]\n"
+"(((M72 Restore Modal State)))"
+
+#. type: Plain text
+#: m-code.txt:507
+msgid ""
+"<<saved_state_by_M70,Modal state saved with an 'M70'>> code can be restored by "
+"executing an 'M72'."
+msgstr ""
+"<<saved_state_by_M70,L'état modal enregistré par un 'M70'>> peut être restauré en "
+"exécutant un 'M72'."
+
+#. type: Plain text
+#: m-code.txt:513
+msgid ""
+"The handling of G20/G21 is specially treated as feeds are interpreted differently "
+"depending on G20/G21: if length units (mm/in) are about to be changed by the "
+"restore operation, 'M72 'will restore the distance mode first, and then all other "
+"state including feed to make sure the feed value is interpreted in the correct "
+"unit setting."
+msgstr ""
+"La gestion de G20/G21 reçoit un traitement particulier car les avances sont "
+"interprétées différemment selon G20/G21: si les unités de longueur (mm/po) "
+"doivent être modifiées par une opération de restauration, 'M72' va restaurer le "
+"mode distance en premier, puis ensuite tous les autres états, y compris les "
+"avances pour être sure que les valeurs d'avance soient interprétées selon un "
+"réglage d'unités correct."
+
+#. type: Plain text
+#: m-code.txt:516
+msgid ""
+"It is an error to execute an 'M72' with no previous 'M70' save operation at that "
+"level."
+msgstr ""
+"C'est une erreur d'exécuter 'M72' sans enregistrement précédent avec 'M70' à ce "
+"niveau."
+
+#. type: Plain text
+#: m-code.txt:521
+msgid ""
+"The following example demonstrates saving and explicitely restoring modal state "
+"around a subroutine call using 'M70' and 'M72'. Note that the 'imperialsub' "
+"subroutine is not \"aware\" of the M7x features and can be used unmodified:"
+msgstr ""
+"L'exemple suivant montre l'enregistrement puis la restauration de l'état modal "
+"autour de l'appel d'un sous-programme utilisant 'M70' et 'M72'. Noter que le sous-"
+"programme 'imperialsub' n'est pas \"au courant\" des caractéristiques de M7x et "
+"peut être utilisé non modifié:"
+
+#. type: Plain text
+#: m-code.txt:523 m-code.txt:575 m-code.txt:619
+#, no-wrap
+msgid ""
+"[source,{ngc}]\n"
+"---------------------------------------------------------------------\n"
+msgstr ""
+"[source,{ngc}]\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:527 m-code.txt:579
+msgid ""
+"O<showstate> sub (DEBUG, imperial=#<_imperial> absolute=#<_absolute> "
+"feed=#<_feed> rpm=#<_rpm>)  O<showstate> endsub"
+msgstr ""
+"O<showstate> sub\n"
+"(DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)\n"
+"O<showstate> endsub"
+
+#. type: Plain text
+#: m-code.txt:536
+msgid ""
+"O<imperialsub> sub g20 (imperial)  g91 (relative mode)  F5 (low feed)  S300 (low "
+"rpm)  (debug, in subroutine, state now:)  o<showstate> call O<imperialsub> endsub"
+msgstr ""
+"O<imperialsub> sub\n"
+"g20 (imperial)\n"
+"g91 (relative mode)\n"
+"F5 (low feed)\n"
+"S300 (low rpm)\n"
+"(debug, in subroutine, state now:)\n"
+"o<showstate> call\n"
+"O<imperialsub> endsub"
+
+#. type: Plain text
+#: m-code.txt:542
+msgid ""
+"; main program g21 (metric)  g90 (absolute)  f200 (fast speed)  S2500 (high rpm)"
+msgstr ""
+"; programme principal\n"
+"g21 (metric)\n"
+"g90 (absolute)\n"
+"f200 (fast speed)\n"
+"S2500 (high rpm)"
+
+#. type: Plain text
+#: m-code.txt:545
+msgid "(debug, in main, state now:)  o<showstate> call"
+msgstr ""
+"(debug, in main, state now:)\n"
+"o<showstate> call"
+
+#. type: Plain text
+#: m-code.txt:549
+msgid ""
+"M70 (save caller state in at global level)  O<imperialsub> call M72 (explicitely "
+"restore state)"
+msgstr ""
+"M70 (save caller state in at global level)\n"
+"O<imperialsub> call\n"
+"M72 (explicitely restore state)"
+
+#. type: Plain text
+#: m-code.txt:553
+#, no-wrap
+msgid ""
+"(debug, back in main, state now:)\n"
+"o<showstate> call\n"
+"m2\n"
+"---------------------------------------------------------------------\n"
+msgstr ""
+"(debug, back in main, state now:)\n"
+"o<showstate> call\n"
+"m2\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:557
+msgid ""
+"== M73 Save and Autorestore Modal State[[sec:M73-Save-Autorestore-Modal-State]] "
+"(((M73 Save and Autorestore Modal State)))"
+msgstr ""
+"== M73 Enregistrement/auto-restauration de l'état modal[[sec:M73]]\n"
+"(((M73 Save and Autorestore Modal State)))"
+
+#. type: Plain text
+#: m-code.txt:560
+msgid ""
+"To save modal state within a subroutine, and restore state on subroutine 'endsub' "
+"or any 'return' path, program 'M73'."
+msgstr ""
+"Pour enregistrer l'état modal à l'intérieur d'un sous-programme et restaurer cet "
+"état lors d'un 'endsub' ou autre 'return', programmer 'M73'."
+
+#. type: Plain text
+#: m-code.txt:563
+msgid ""
+"Aborting a running program in a subroutine which has an 'M73' operation will "
+"*not* restore state ."
+msgstr ""
+"En cas d'abandon d'un programme en cours d'exécution dans un sous-programme "
+"traitant un 'M73', l'état ne sera PAS restauré."
+
+#. type: Plain text
+#: m-code.txt:566
+msgid ""
+"Also, the normal end ('M2') of a main program which contains an 'M73' will *not* "
+"restore state."
+msgstr ""
+"En outre, la fin normale ('M2') d'un programme principal contenant un 'M73' ne "
+"restaurera pas l'état."
+
+#. type: Plain text
+#: m-code.txt:573
+msgid ""
+"The suggested use is at the beginning of a O-word subroutine as in the following "
+"example. Using 'M73' this way enables designing subroutines which need to modify "
+"modal state but will protect the calling program against inadvertant modal "
+"changes. Note the use of <<sec:Predefined-Named-Parameters, predefined named "
+"parameters>> in the 'showstate' subroutine."
+msgstr ""
+"L'utilisation suggérée consiste à placer au début d'un sous-programme, un O-code "
+"de sous-programme comme dans l'exemple ci-dessous. En utilisant 'M73', cette "
+"manière valide le design des sous-programmes qui doivent modifier l'état modal "
+"mais qui protège le programme appelant contre tout changement inopiné de l'état "
+"modal. Noter l'usage de <<sec:Parametres-Nommes, paramètres nommés>> dans le sous-"
+"programme 'showstate'."
+
+#. type: Plain text
+#: m-code.txt:588
+msgid ""
+"O<imperialsub> sub M73 (save caller state in current call context, restore on "
+"return or endsub)  g20 (imperial)  g91 (relative mode)  F5 (low feed)  S300 (low "
+"rpm)  (debug, in subroutine, state now:)  o<showstate> call"
+msgstr ""
+"O<imperialsub> sub\n"
+"M73 (save caller state in current call context, restore on return or endsub)\n"
+"g20 (imperial)\n"
+"g91 (relative mode)\n"
+"F5 (low feed)\n"
+"S300 (low rpm)\n"
+"(debug, in subroutine, state now:)\n"
+"o<showstate> call"
+
+#. type: Plain text
+#: m-code.txt:592
+msgid ""
+"; note - no M72 is needed here - the following endsub or an ; explicit 'return' "
+"will restore caller state O<imperialsub> endsub"
+msgstr ""
+"; note - M72 n'est pas utilisé ici - le endsub suivant ou un\n"
+"; 'return' explicite restaurera l'état de l'appelant\n"
+"O<imperialsub> endsub"
+
+#. type: Plain text
+#: m-code.txt:604
+#, no-wrap
+msgid ""
+"; main program\n"
+"g21 (metric)\n"
+"g90 (absolute)\n"
+"f200 (fast speed)\n"
+"S2500 (high rpm)\n"
+"(debug, in main, state now:)\n"
+"o<showstate> call\n"
+"o<imperialsub> call\n"
+"(debug, back in main, state now:)\n"
+"o<showstate> call\n"
+"m2\n"
+"---------------------------------------------------------------------\n"
+msgstr ""
+"; programme principal\n"
+"g21 (metric)\n"
+"g90 (absolute)\n"
+"f200 (fast speed)\n"
+"S2500 (high rpm)\n"
+"(debug, in main, state now:)\n"
+"o<showstate> call\n"
+"o<imperialsub> call\n"
+"(debug, back in main, state now:)\n"
+"o<showstate> call\n"
+"m2\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:607
+msgid ""
+"=== Selectively restoring modal state by testing predefined parameters [[sec:"
+"Selectively-restoring-modal-state]]"
+msgstr "== Restauration sélective de l'état modal"
+
+#. type: Plain text
+#: m-code.txt:610
+msgid ""
+"Executing an 'M72' or returning from a subroutine which contains an 'M73' will "
+"restore <<saved_state_by_M70,*all* modal state saved>>."
+msgstr ""
+"Exécuter un 'M72' ou au retour d'un sous-programme contenant un 'M73_ pour "
+"restaurer <<saved_state_by_M70,*tout* l'état modal enregistré>>."
+
+#. type: Plain text
+#: m-code.txt:617
+msgid ""
+"If only some aspects of modal state should be preserved, an alternative is the "
+"usage of <<sec:Predefined-Named-Parameters, predefined named parameters>>, local "
+"parameters and conditional statements. The idea is to remember the modes to be "
+"restored at the beginning of the subroutine, and restore these before exiting. "
+"Here is an example, based on snippet of 'nc_files/tool-length-probe.ngc':"
+msgstr ""
+"Si seulement certains aspects de l'état modal doivent être préservés, une "
+"alternative consiste a utiliser les <<sec:Predefined-Named-Parameters,paramètres "
+"nommés prédéfinis>>, paramètres locaux et états  conditionnels. L'idée est de "
+"rappeler les modes à restaurer au début du sous-programme et de restaurer ceux-ci "
+"avant de quitter. Voici un exemple, basé sur le programme 'nc_files/tool-length-"
+"probe.ngc':"
+
+#. type: Plain text
+#: m-code.txt:635
+#, no-wrap
+msgid ""
+"O<measure> sub   (measure reference tool)\n"
+";\n"
+"#<absolute> = #<_absolute>  (remember in local variable if G90 was set)\n"
+";\n"
+"g30 (above switch)\n"
+"g38.2 z0 f15 (measure)\n"
+"g91 g0z.2 (off the switch)\n"
+"#1000=#5063 (save reference tool length)\n"
+"(print,reference length is #1000)\n"
+";\n"
+"O<restore_abs> if [#<absolute>]\n"
+"    g90 (restore G90 only if it was set on entry:)\n"
+"O<restore_abs> endif\n"
+";\n"
+"O<measure> endsub\n"
+msgstr ""
+"O<measure> sub   (measure reference tool)\n"
+";\n"
+"#<absolute> = #<_absolute>  (remember in local variable if G90 was set)\n"
+";\n"
+"g30 (above switch)\n"
+"g38.2 z0 f15 (measure)\n"
+"g91 g0z.2 (off the switch)\n"
+"#1000=#5063 (save reference tool length)\n"
+"(print,reference length is #1000)\n"
+";\n"
+"O<restore_abs> if [#<absolute>]\n"
+"    g90 (restore G90 only if it was set on entry:)\n"
+"O<restore_abs> endif\n"
+";\n"
+"O<measure> endsub\n"
+
+#. type: Plain text
+#: m-code.txt:636
+#, no-wrap
+msgid "---------------------------------------------------------------------\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: m-code.txt:641
+msgid ""
+"[[sec:M100-to-M199]] == M100 to M199 User Defined Commands (((M100 to M199 User "
+"Defined Commands)))(((User Defined Commands M100-M199)))"
+msgstr ""
+"== M100 à M199 Commandes définies par l'utilisateur[[sec:M100-a-M199]]\n"
+"(((M100 à M199 M-codes définis par l'utilisateur)))"
+
+#. type: Plain text
+#: m-code.txt:644
+#, no-wrap
+msgid ""
+"M1-- <P- Q->\n"
+"----\n"
+msgstr ""
+"M1-- <P- Q->\n"
+"----\n"
+
+#. type: Bullet: '* '
+#: m-code.txt:649
+msgid "'M1--' - an integer in the range of 100 - 199."
+msgstr "'M1 --' - Un entier compris entre 100 et 199."
+
+#. type: Bullet: '* '
+#: m-code.txt:649
+msgid "'P-' - a number passed to the file as the first parameter."
+msgstr "'P' - Un nombre passé comme premier argument au programme externe."
+
+#. type: Bullet: '* '
+#: m-code.txt:649
+msgid "'Q-' - a number passed to the file as the second parameter."
+msgstr "'Q' - Un nombre passé comme second argument au programme externe."
+
+#. type: Plain text
+#: m-code.txt:653
+msgid ""
+"[NOTE] After creating a new 'M1nn' file you must restart the GUI so it is aware "
+"of the new file, otherwise you will get an 'Unkown m code' error."
+msgstr ""
+"[NOTE]\n"
+"Après la création d'un nouveau programme M1nn, l'interface graphique doit être "
+"redémarrée pour que le nouveau programme soit pris en compte, autrement une "
+"erreur 'M-code inconnu' surviendra."
+
+#. type: Plain text
+#: m-code.txt:660
+msgid ""
+"The external program named 'M100' through 'M199' (no extension and a capitol M)  "
+"is executed with the optional P and Q values as its two arguments.  Execution of "
+"the G code file pauses until the external program exits.  Any valid executable "
+"file can be used. The file must be located in the search path specificed in the "
+"ini file configuration. See the ini config section of the Integrators Manual for "
+"more information on search paths."
+msgstr ""
+"Le programme externe, nommé 'M100' à 'M199', (avec un 'M' majuscule et aucune "
+"extension) qui doit se trouver dans le répertoire pointé par la variable "
+"'[DISPLAY] PROGRAM_PREFIX' du fichier ini, sera exécuté avec les valeurs 'P-' et "
+"'Q-' comme étant ses deux arguments. L'exécution du fichier G-code courant "
+"passera en pause jusqu'à ce que le programme invoqué soit terminé. Tout fichier "
+"exécutable valide peut être utilisé. Le fichier doit se trouver dans le chemin "
+"spécifié dans le fichier ini de configuration. Voir la section sur le fichier de "
+"configuration dans le manuel."
+
+#. type: Plain text
+#: m-code.txt:666
+msgid ""
+"[WARNING] Do not use a word processor to create or edit the files. A word "
+"processor will leave unseen codes that will cause problems and may prevent a bash "
+"or python file from working. Use a text editor like Gedit in Ubuntu or Notepad++ "
+"in other operating systems to create or edit the files."
+msgstr ""
+"[WARNING]\n"
+"Ne pas utiliser un traitement de texte pour créer ou éditer ces fichiers. Un "
+"traitement de texte ajoute des caractères invisibles qui causent des problèmes et "
+"empêchent les scripts bash ou Python de fonctionner. Pour ces raisons, utiliser "
+"un éditeur de texte tel que Gedit dans Ubuntu ou le Notepad++ dans un autre OS."
+
+#. type: Plain text
+#: m-code.txt:668
+msgid "The error 'Unknown M code used' denotes one of the following"
+msgstr "Le message d'erreur 'M-code inconnu' signifie que"
+
+#. type: Bullet: '* '
+#: m-code.txt:674
+msgid "The specified User Defined Command does not exist"
+msgstr "La commande utilisateur spécifiée n'existe pas."
+
+#. type: Bullet: '* '
+#: m-code.txt:674
+msgid "The file is not an executable file"
+msgstr "Le fichier n'a pas été rendu exécutable."
+
+#. type: Bullet: '* '
+#: m-code.txt:674
+msgid "The file name has an extension"
+msgstr "Le nom du fichier comporte une extension."
+
+#. type: Bullet: '* '
+#: m-code.txt:674
+msgid "The file name does not follow this format M1nn where nn = 00 through 99"
+msgstr "Le nom du fichier ne suis pas le format suivant: M1nn où nn = 00 à 99."
+
+#. type: Bullet: '* '
+#: m-code.txt:674
+msgid "The file name used a lower case M"
+msgstr "Le nom de fichier utilise un 'm' minuscule."
+
+#. type: Plain text
+#: m-code.txt:680
+msgid ""
+"For example to open and close a collet closer that is controlled by a parallel "
+"port pin using a bash script file using M101 and M102. Create two files named "
+"M101 and M102. Set them as executable files (typically right click/properties/"
+"permissions) before running LinuxCNC. Make sure the parallel port pin is not "
+"connected to anything in a HAL file."
+msgstr ""
+"Exemple d'utilisation, dans un programme G-code, on doit ouvrir et fermer un "
+"mandrin automatique via une broche du port parallèle, on appellera respectivement "
+"M101 pour ouvrir le mandrin et M102 pour le fermer. Les deux scripts bash "
+"correspondants, appelés M101 et M102 seront créés avant le lancement de LinuxCNC "
+"puis rendus exécutables, par exemple par un clic droit puis 'propriétés → "
+"permissions → Exécution'. S'assurer que cette broche du port parallèle n'est pas "
+"déjà utilisée dans un fichier de HAL."
+
+#. type: Plain text
+#: m-code.txt:682
+#, no-wrap
+msgid ""
+".M101 Example File\n"
+"----\n"
+msgstr ""
+".Exemple de fichier pour M101\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:687
+#, no-wrap
+msgid ""
+"#!/bin/bash\n"
+"# file to turn on parport pin 14 to open the collet closer\n"
+"halcmd setp parport.0.pin-14-out True\n"
+"exit 0\n"
+"----\n"
+msgstr ""
+"#!/bin/bash\n"
+"# ce fichier met la broche 14 du port à 1 pour ouvrir le mandrin automatique\n"
+"halcmd setp parport.0.pin-14-out True\n"
+"exit 0----\n"
+
+#. type: Plain text
+#: m-code.txt:690
+#, no-wrap
+msgid ""
+".M102 Example File\n"
+"----\n"
+msgstr ""
+".Exemple de fichier pour M102\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:695
+#, no-wrap
+msgid ""
+"#!/bin/bash\n"
+"# file to turn off parport pin 14 to open the collet closer\n"
+"halcmd setp parport.0.pin-14-out False\n"
+"exit 0\n"
+"----\n"
+msgstr ""
+"#!/bin/bash\n"
+"# ce fichier met la broche 14 du port à 0 pour fermer le mandrin automatique\n"
+"halcmd setp parport.0.pin-14-out False\n"
+"exit 0----\n"
+
+#. type: Plain text
+#: m-code.txt:698
+msgid "To pass a variable to a M1nn file you use the P and Q option like this:"
+msgstr ""
+"Pour passer des variables à un fichier M1nn, utiliser les mots facultatifs P et Q "
+"de cette façon:"
+
+#. type: Plain text
+#: m-code.txt:701
+#, no-wrap
+msgid ""
+"M100 P123.456 Q321.654\n"
+"----\n"
+msgstr ""
+"M100 P123.456 Q321.654\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:704
+#, no-wrap
+msgid ""
+".M100 Example file\n"
+"----\n"
+msgstr ""
+".Exemple pour M100\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:711
+#, no-wrap
+msgid ""
+"#!/bin/bash\n"
+"voltage=$1\n"
+"feedrate=$2\n"
+"halcmd setp thc.voltage $voltage\n"
+"halcmd setp thc.feedrate $feedrate\n"
+"exit 0\n"
+"----\n"
+msgstr ""
+"#!/bin/bash\n"
+"tension=$1\n"
+"vitesse=$2\n"
+"halcmd setp thc.voltage $tension\n"
+"halcmd setp thc.feedrate $vitesse\n"
+"exit 0\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:716
+msgid ""
+"To display a graphic message and stop until the message window is closed use a "
+"graphic display program like Eye of Gnome to display the graphic file. When you "
+"close it the program will resume."
+msgstr ""
+"Pour ouvrir un message graphique et passer en pause jusqu'à ce que la fenêtre du "
+"message soit fermée, utiliser un programme comme 'Eye of Gnome' pour afficher le "
+"fichier graphique. Quand la fenêtre sera fermée, le programme reprendra."
+
+#. type: Plain text
+#: m-code.txt:718
+#, no-wrap
+msgid ""
+".M110 Example file\n"
+"----\n"
+msgstr ""
+".Exemple pour M110, affichage d'un graphique avec passage en pause\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:722
+#, no-wrap
+msgid ""
+"#!/bin/bash\n"
+"eog /home/john/linuxcnc/nc_files/message.png\n"
+"exit 0\n"
+"----\n"
+msgstr ""
+"#!/bin/bash\n"
+"eog /home/robert/linuxcnc/nc_files/message.png\n"
+"exit 0\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:726
+msgid ""
+"To display a graphic message and continue processing the G code file suffix an "
+"ampersand to the command."
+msgstr ""
+"Pour afficher un message graphique en continuant le traitement du fichier G-code, "
+"ajouter un caractère esperluette à la commande."
+
+#. type: Plain text
+#: m-code.txt:728
+#, no-wrap
+msgid ""
+".M110 Example display and keep going\n"
+"----\n"
+msgstr ""
+".Exemple pour M110, affichage d'un graphique sans passer en pause\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:732
+#, no-wrap
+msgid ""
+"#!/bin/bash\n"
+"eog /home/john/linuxcnc/nc_files/message.png &\n"
+"exit 0\n"
+"----\n"
+msgstr ""
+"#!/bin/bash\n"
+"eog /home/robert/linuxcnc/nc_files/message.png &\n"
+"exit 0\n"
+"----\n"
+
+#. type: Plain text
+#: m-code.txt:734
+msgid "// vim: set syntax=asciidoc:"
+msgstr "// vim: set syntax=asciidoc:"
