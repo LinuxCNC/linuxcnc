@@ -62,7 +62,6 @@ int num_aio = 4;
 long traj_period_nsec = 1000 * 1000;
 
 
-void reportError(const char *fmt, ...) __attribute__((format(printf,1,2)));
 void reportError(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
