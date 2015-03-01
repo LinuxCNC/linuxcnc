@@ -1,0 +1,894 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-03-01 21:32+0100\n"
+"PO-Revision-Date: 2015-03-01 22:48+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: o-code.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: o-code.txt:4
+msgid "= O Codes"
+msgstr "= Les O-codes"
+
+#. type: Plain text
+#: o-code.txt:6
+msgid "[[cha:O-Codes]] (((O Codes)))"
+msgstr "[[cha:O-codes]] (((O-codes)))"
+
+#. type: Plain text
+#: o-code.txt:11
+msgid ""
+"O-codes provide for flow control in NC programs. Each block has an associated "
+"number, which is the number used after O. Care must be taken to properly match "
+"the O-numbers. O codes use the letter 'O' not the number zero as the first "
+"character in the number like O100."
+msgstr ""
+"Les O-codes permettent le contrôle des flux dans les programmes NGC. Ils "
+"commencent par une lettre 'O', qu'il ne faut pas confondre avec le chiffre '0'. "
+"Chaque bloc est associé à un numéro, qui est la valeur utilisée juste après la "
+"lettre 'O'."
+
+#. type: Plain text
+#: o-code.txt:13
+#, no-wrap
+msgid ""
+".Numbering Example\n"
+"----\n"
+msgstr ""
+".Exemple de la numérotation\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:21
+#, no-wrap
+msgid ""
+"o100 sub\n"
+"(notice that the if-endif block uses a different number)\n"
+"  o110 if [#2 GT 5]\n"
+"    (some code here)\n"
+"  o110 endif\n"
+"  (some more code here)\n"
+"o100 endsub\n"
+"----\n"
+msgstr ""
+"o100 sub\n"
+"(noter que les blocs if - endif utilisent des numéros différents)\n"
+"  o110 if [#2 GT 5]\n"
+"    (du code ici)\n"
+"  o110 endif\n"
+"  (encore du code ici)\n"
+"o100 endsub\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:24
+msgid "The behavior is undefined if:"
+msgstr "Le comportement est indéfini si:"
+
+#. type: Bullet: '* '
+#: o-code.txt:28
+msgid "The same number is used for more than one block"
+msgstr "Le même nombre est utilisé pour plusieurs blocs"
+
+#. type: Bullet: '* '
+#: o-code.txt:28
+msgid "Other words are used on a line with an O- word"
+msgstr "D'autres mots sont utilisés sur une ligne contenant un mot O-."
+
+#. type: Bullet: '* '
+#: o-code.txt:28
+msgid "Comments are used on a line with an O-word"
+msgstr "Un commentaire est utilisé sur une ligne contenant un mot O-."
+
+#. type: Plain text
+#: o-code.txt:33
+msgid ""
+"[NOTE] Using the lower case o makes it easier to distinguish from a 0 that "
+"might have been mistyped. For example o100 is easier to see than O100 that it "
+"is not a 0."
+msgstr ""
+"[TIP]\n"
+"L'utilisation de la lettre 'o' minuscule facilite la distinction avec le "
+"chiffre '0' qui peut être tapé par erreur. Par exemple: o100 est plus facile à "
+"distinguer de 0100 que O100."
+
+#. type: Plain text
+#: o-code.txt:36
+msgid "The following statements cause an error message and abort the interpreter:"
+msgstr ""
+"Les états suivants provoquent un message d'erreur et abandonnent l'interpréteur:"
+
+#. type: Bullet: ' - '
+#: o-code.txt:45
+msgid "a `return` or `endsub` not within a sub defintion"
+msgstr "un `return` ou `endsub` ne contenant pas de définition sub"
+
+#. type: Bullet: ' - '
+#: o-code.txt:45
+msgid "a label on `repeat` which is defined elsewhere"
+msgstr "un label pour `repeat` qui déjà défini quelque part"
+
+#. type: Bullet: ' - '
+#: o-code.txt:45
+msgid "a label on `while` which is defińed elsewhere and not referring to a `do`"
+msgstr ""
+"un label pour `while` qui est déjà défini quelque part et ne faisant pas "
+"référence a un `do`"
+
+#. type: Bullet: ' - '
+#: o-code.txt:45
+msgid "a label on `if` defined elsewhere"
+msgstr "un label pour `if` défini quelque part"
+
+#. type: Bullet: ' - '
+#: o-code.txt:45
+msgid "a undefined label on `else` or `elseif`"
+msgstr "un label indéfini pour `else` ou `elseif`"
+
+#. type: Bullet: ' - '
+#: o-code.txt:45
+msgid "a label on `else`, `elseif` or `endif` not pointing to a matching `if`"
+msgstr "un label pour `else`, `elseif` ou `endif` ne correspondant pas à un `if`"
+
+#. type: Bullet: ' - '
+#: o-code.txt:45
+msgid ""
+"a label on `break` or `continue` which does not point to a matching `while` or "
+"`do`"
+msgstr ""
+"un label pour `break` ou `continue` ne correspondant pas à un `while` ou un `do`"
+
+#. type: Bullet: ' - '
+#: o-code.txt:45
+msgid ""
+"a label on `endrepeat` or `endwhile` no referring to a corresponding `while` or "
+"`repeat`"
+msgstr ""
+"un label pour `endrepeat` ou `endwhile` ne correspondant pas à un `while` ou un "
+"`repeat`"
+
+#. type: Plain text
+#: o-code.txt:48
+msgid ""
+"To make these errors non-fatal warnings on stderr, set bit 0x20 in the "
+"`[RS274NGC]FEATURE=` mask ini option."
+msgstr ""
+"Pour envoyer ces erreurs non-fatal sur stderr, positionner le bit 0x20 dans "
+"l'option de masque ini dans `[RS274NGC]FEATURE=`."
+
+#. type: Plain text
+#: o-code.txt:53
+msgid ""
+"[[sec:subroutines]] == Subroutines (((Subroutines)))  (((sub)))(((endsub)))"
+"(((return)))(((call)))"
+msgstr "== Sous-programmes[[sec:Sous-programmes]]"
+
+#. type: Plain text
+#: o-code.txt:57
+msgid ""
+"Subroutines extend from a 'O- sub' to an 'O- endsub' . The lines between 'O- "
+"sub' and 'O- endsub' are not executed until the subroutine is called with 'O- "
+"call'."
+msgstr ""
+"Les sous-programmes s'étendent d'un 'O- sub' à un 'O- endsub'. Les lignes, à "
+"l'intérieur du sous-programme (le corps du sous-programme), ne sont pas "
+"exécutées dans l'ordre, mais elles sont exécutées à chaque fois que le sous-"
+"programme est appelé avec un 'O- call'."
+
+#. type: Plain text
+#: o-code.txt:59
+#, no-wrap
+msgid ""
+".Subroutine Example\n"
+"----\n"
+msgstr ""
+".Exemple de sous-programme\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:66
+#, no-wrap
+msgid ""
+"o100 sub\n"
+"  G53 G0 X0 Y0 Z0 (rapid move to machine home)\n"
+"o100 endsub\n"
+"...\n"
+"o100 call (call the subroutine here)\n"
+"M2\n"
+"----\n"
+msgstr ""
+"o100 sub (sous-programme de mouvement rapide à l'origine)\n"
+"  G53 X0 Y0 Z0\n"
+"o100 endsub\n"
+"  (autres lignes)\n"
+"o100 call (ici, appel du sous-programme)\n"
+"M2\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:68
+msgid ""
+"See <<sec:G53-Move-in,G53>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for "
+"more information."
+msgstr ""
+"Voir <<sec:G53,mouvement G53>>, <<sec:G0,mouvement rapide G0>>, <<sec:M2-M30,"
+"fin de programme M2>>."
+
+#. type: Plain text
+#: o-code.txt:72
+msgid ""
+".O- Return Inside a subroutine, 'O- return' can be executed. This immediately "
+"returns to the calling code, just as though 'O- endsub' was encountered."
+msgstr ""
+".O- return\n"
+"À l'intérieur d'un sous-programme, 'O- return' peut être exécuté, pour "
+"retourner immédiatement au code appelant, comme si 'O- endsub' avait été "
+"rencontré."
+
+#. type: Plain text
+#: o-code.txt:74
+#, no-wrap
+msgid ""
+".O- Return Example\n"
+"----\n"
+msgstr ""
+".Exemple avec 'O- return'\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:81
+#, no-wrap
+msgid ""
+"o100 sub\n"
+"  o110 if [#2 GT 5] (test if parameter #2 is greater than 5)\n"
+"    o100 return (return to top of subroutine if test is true)\n"
+"  o110 endif\n"
+"  (some code here that only gets executed if parameter #2 is less than 5)\n"
+"o100 endsub\n"
+"----\n"
+msgstr ""
+"o100 sub\n"
+"  o110 if [#2 GT 5] (teste si le paramètre #2 est supérieur à 5)\n"
+"    o100 return (si le test est vrai, retourne au début du sous-programme)\n"
+"  o110 endif\n"
+"  (autre code ici, qui sera exécuté si le paramètre #2 est inférieur à 5)\n"
+"o100 endsub\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:83
+msgid ""
+"See the <<sec:Binary-Operators,Binary Operators>> & <<sec:parameters,"
+"Parameters>> sections for more information."
+msgstr ""
+"Voir <<sec:Operateurs-Binaires,les opérateurs binaires>>, <<sec:parametres,les "
+"paramètres>>."
+
+#. type: Plain text
+#: o-code.txt:93
+#, no-wrap
+msgid ""
+".O- Call\n"
+"'O- Call' takes up to 30 optional arguments, which are passed to the\n"
+"subroutine\n"
+" as '#1', '#2' , ..., #N. Parameters from #N+1 to #30 have the same\n"
+"value as in the\n"
+"calling context. On return from the subroutine, the values of\n"
+"parameters #1 through #30 (regardless of the number of arguments) will\n"
+"be restored to the values they had before the call. Parameters #1 - #30\n"
+"are local to the subroutine.\n"
+msgstr ""
+".O- call\n"
+"'O- call' peut prendre jusqu'à 30 arguments optionnels, qui sont\n"
+"passés au sous-programme comme '#1', '#2' , ..., '#N'. Les paramètres de #N+1 à\n"
+"#30 ont la même valeur dans le contexte de l'appel.\n"
+"Au retour du sous-programme, les valeurs des paramètres #1 jusqu'à #30\n"
+"(quel que soit le nombre d'arguments) sont restaurés aux valeurs qu'ils\n"
+"avaient avant l'appel.\n"
+
+#. type: Plain text
+#: o-code.txt:97
+msgid ""
+"Because '1 2 3' is parsed as the number 123, the parameters must be enclosed in "
+"square brackets. The following calls a subroutine with 3 arguments:"
+msgstr ""
+"Parce que '1 2 3' est analysé comme le nombre 123, les paramètres doivent être "
+"placés entre crochets. L'appel de sous-programme suivant, s'effectue avec 3 "
+"arguments:"
+
+#. type: Plain text
+#: o-code.txt:99
+#, no-wrap
+msgid ""
+".O- Call Example\n"
+"----\n"
+msgstr ""
+".Exemple d'appel 'O- call'\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:101
+#, no-wrap
+msgid ""
+"o200 call [1] [2] [3]\n"
+"----\n"
+msgstr ""
+"O200 call [1] [2] [3]\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:107
+msgid ""
+"Subroutine bodies may not be nested. They may only be called after they are "
+"defined. They may be called from other functions, and may call themselves "
+"recursively if it makes sense to do so. The maximum subroutine nesting level is "
+"10."
+msgstr ""
+"Les corps de sous-programme ne peuvent pas être imbriqués. Ils ne peuvent être "
+"appelés qu'après avoir été définis. Ils peuvent être appelés depuis d'autres "
+"fonctions et peuvent s'appeler eux même récursivement, s'il est judicieux de le "
+"faire. Le niveau maximum d'imbrication des sous-programmes est de 10."
+
+#. type: Plain text
+#: o-code.txt:112
+msgid ""
+"Subroutines do not have 'return values', but they may change the value of "
+"parameters above #30 and those changes will be visible to the calling code. "
+"Subroutines may also change the value of global named parameters."
+msgstr ""
+"Les sous-programmes n'ont pas de 'valeur de retour', mais ils peuvent changer "
+"la valeur des paramètres au dessus de #30 et ces changements sont visibles "
+"depuis le code appelant. Les sous-programmes peuvent aussi changer la valeur "
+"des paramètres nommés globaux."
+
+#. type: Plain text
+#: o-code.txt:116
+msgid ""
+"[[sec:looping]] == Looping (((Looping)))(((do)))(((while)))(((endwhile)))"
+"(((break)))(((continue)))"
+msgstr "== Boucles[[sec:Boucles]]"
+
+#. type: Plain text
+#: o-code.txt:122
+msgid ""
+"The 'while loop' has two structures: 'while/endwhile', and 'do/while'. In each "
+"case, the loop is exited when the 'while' condition evaluates to false. The "
+"difference is when the test condition is done. The 'do/while' loop runs the "
+"code in the loop then checks the test condition. The 'while/endwhile' loop does "
+"the test first."
+msgstr ""
+"La 'boucle while' a deux structures possibles: 'while - endwhile' et 'do - "
+"while'. Dans chaque cas, la boucle est quittée quand la condition du 'while' "
+"devient fausse. La différence se trouve en fin de test de la condition. La "
+"boucle 'do - while' exécute le code dans la boucle puis test la condition. La "
+"boucle 'while - endwhile' effectue le test d'abord."
+
+#. type: Plain text
+#: o-code.txt:124
+#, no-wrap
+msgid ""
+".While Endwhile Example\n"
+"----\n"
+msgstr ""
+".Exemple avec 'while - endwhile'\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:135
+#, no-wrap
+msgid ""
+"(draw a sawtooth shape)\n"
+"G0 X1 Y0 (move to start position)\n"
+"#1 = 1 (assign parameter #1 the value of 0)\n"
+"F25 (set a feed rate)\n"
+"o101 while [#1 LT 10]\n"
+"  G1 X0\n"
+"  G1 Y[#1/10] X1\n"
+"  #1 = [#1+1] (increment the test counter)\n"
+"o101 endwhile\n"
+"M2 (end program)\n"
+"----\n"
+msgstr ""
+"(dessine la forme d'une dent de scie)\n"
+"G0 X1 Y0 (déplacement en position de départ)\n"
+"#1 = 1 (assigne la valeur 1 au paramètre #1)\n"
+"F25 (fixe la vitesse d'avance travail)\n"
+"o101 while [#1 LT 10]\n"
+"  G1 X0\n"
+"  G1 Y[#1/10] X1\n"
+"  #1 = [#1+1] (incrémente le compteur de test)\n"
+"o101 endwhile\n"
+"M2 (fin de programme)\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:138
+#, no-wrap
+msgid ""
+".Do While Example\n"
+"----\n"
+msgstr ""
+".Exemple avec 'do - while'\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:152
+#, no-wrap
+msgid ""
+"#1 = 0 (assign parameter #1 the value of 0)\n"
+"o100 do\n"
+"  (debug, parameter 1 = #1)\n"
+"  o110 if [#1 EQ 2]\n"
+"    #1 = 3 (assign the value of 3 to parameter #1)\n"
+"    (msg, #1 has been assigned the value of 3)\n"
+"    o100 continue (skip to start of loop)\n"
+"  o110 endif\n"
+"  (some code here)\n"
+"  #1 = [#1 + 1] (increment the test counter)\n"
+"o100 while [#1 LT 3]\n"
+"(msg, Loop Done!)\n"
+"M2\n"
+"----\n"
+msgstr ""
+"#1 = 0 (assigne la valeur 0 au paramètre #1)\n"
+"o100 do\n"
+"  (debug, paramètre 1 = #1)\n"
+"  o110 if [#1 EQ 2]\n"
+"    #1 = 3 (assigne la valeur 3 au paramètre #1)\n"
+"    (msg, #1 s'est vu assigné la valeur 3)\n"
+"    o100 continue (saute au début de la boucle)\n"
+"  o110 endif\n"
+"  (le code d'usinage ici)\n"
+"  #1 = [#1 + 1] (incrémente le compteur de test)\n"
+"o100 while [#1 LT 3]\n"
+"(msg, boucle terminée)\n"
+"M2\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:159
+msgid ""
+"Inside a while loop, 'O- break' immediately exits the loop, and 'O- continue' "
+"immediately skips to the next evaluation of the 'while' condition. If it is "
+"still true, the loop begins again at the top. If it is false, it exits the loop."
+msgstr ""
+"À l'intérieur d'une boucle while, 'O- break', quitte immédiatement la boucle et "
+"'O- continue', saute immédiatement à la prochaine évaluation de la condition du "
+"'while'. Si elle est vraie, la boucle recommence au début. Si elle est fausse, "
+"la boucle est quittée."
+
+#. type: Plain text
+#: o-code.txt:163
+msgid ""
+"[[sec:conditional]] == Conditional (((Conditional: if, elseif, else, endif)))"
+"(((if)))(((else)))(((elseif)))(((endif)))"
+msgstr "== Conditionnel[[sec:Conditionnels]]"
+
+#. type: Plain text
+#: o-code.txt:167
+msgid ""
+"The 'if' conditional consists of a group of statements with the same 'o' number "
+"that start with 'if' and end with 'endif'. Optional 'elseif' and 'else' "
+"conditions may be between the starting 'if' and the ending 'endif'."
+msgstr ""
+"Le 'if' conditionnel exécute un groupe d'instructions avec le même nombre 'o' "
+"qui commence avec 'if' et se termine avec 'endif'. Les conditions optionnelles "
+"'elseif' et 'else' peuvent se trouver entre le 'if' et le 'endif'."
+
+#. type: Plain text
+#: o-code.txt:170
+msgid ""
+"If the 'if' conditional evaluates to true then the group of statements "
+"following the 'if' up to the next conditional line are executed."
+msgstr ""
+"Si la condition du 'if' est vraie, les instructions qui suivent le 'if' seront "
+"exécutées jusqu'à, au maximum, l'instruction conditionnelle suivante."
+
+#. type: Plain text
+#: o-code.txt:177
+msgid ""
+"If the 'if' conditional evaluates to false then the 'elseif' conditions are "
+"evaluated in order until one evaluates to true. If the 'elseif' condition is "
+"true then the statements following the 'elseif' up to the next conditional line "
+"are executed. If none of the 'if' or 'elseif' conditions evaluate to true then "
+"the statements following the 'else' are executed. When a condition is evaluated "
+"to true no more conditions are evaluated in the group."
+msgstr ""
+"Si la condition du 'if' est fausse, alors les instructions conditionnelles "
+"'elseif' suivantes seront évaluées l'une après l'autre. Si la condition du "
+"'elseif' est vraie alors les instructions suivant ce 'elseif' seront exécutées "
+"jusqu'à l'instruction conditionnelle suivante. Si aucune des conditions du 'if' "
+"ou du 'elseif' n'est vraie, alors les instructions suivant le 'else' seront "
+"exécutées. Quand une condition est vraie, les autres instructions "
+"conditionnelles du groupe ne sont plus évaluées."
+
+#. type: Plain text
+#: o-code.txt:179
+#, no-wrap
+msgid ""
+".If Endif Example\n"
+"----\n"
+msgstr ""
+".Exemple avec 'if - endif'\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:183
+#, no-wrap
+msgid ""
+"o101 if [#31 EQ 3] (if parameter #31 is equal to 3 set S2000)\n"
+"  S2000\n"
+"o101 endif\n"
+"----\n"
+msgstr ""
+"o102 if [#31 EQ 3] (si le paramètre #31 est égal à 3 alors S2000)\n"
+"    S2000\n"
+"o102 endif\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:186
+#, no-wrap
+msgid ""
+".If ElseIf Else EndIf Example\n"
+"----\n"
+msgstr ""
+".Exemple avec 'if - elseif - else - endif'\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:194
+#, no-wrap
+msgid ""
+"o102 if [#2 GT 5] (if parameter #2 is greater than 5 set F100)\n"
+"  F100\n"
+"o102 elseif [#2 LT 2] (else if parameter #2 is less than 2 set F200)\n"
+"  F200\n"
+"o102 else (else if parameter #2 is 2 through 5 set F150)\n"
+"  F150\n"
+"o102 endif\n"
+"----\n"
+msgstr ""
+"o102 if [#2 GT 5] (si le paramètre #2 est supérieur à 5 alors F100)\n"
+"  F100\n"
+"o102 elseif [#2 LT 2] (sinon si le paramètre #2 est inférieur à 2 alors F200)\n"
+"  F200\n"
+"o102 else (sinon le paramètre #2 vaut entre 2 et 5 alors F150)\n"
+"  F150\n"
+"o102 endif\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:198
+msgid ""
+"Several conditons may be tested for by 'elseif' statements until the 'else' "
+"path is finally executed if all preceding conditons are false:"
+msgstr ""
+"Plusieurs conditions peuvent être testées par les déclarations 'elseif', "
+"jusqu'à ce que le 'else' soit finalement exécuté si tous les conditions "
+"précédentes sont fausses:"
+
+#. type: Plain text
+#: o-code.txt:200
+#, no-wrap
+msgid ""
+".If Elseif Else Endif Example\n"
+"----\n"
+msgstr ""
+".Exemple avec 'If - Elseif - Else - Endif'\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:208
+#, no-wrap
+msgid ""
+"O102 if [#2 GT 5] (if parameter #2 is greater than 5 set F100)\n"
+"  F100\n"
+"O102 elseif [#2 LT 2] (else if parameter #2 less than 2 set F200)\n"
+"  F20\n"
+"O102 else (parameter #2 between 2 and 5)\n"
+"  F200\n"
+"O102 endif\n"
+"----\n"
+msgstr ""
+"O102 if [#2 GT 5] (si le paramètre #2 est plus grand que 5 alors F100)\n"
+"  F100\n"
+"O102 elseif [#2 LT 2] (sinon si le paramètre #2 est moins grand que 2 alors F200)\n"
+"  F20\n"
+"O102 else (paramètre #2 entre 2 et 5)\n"
+"  F200\n"
+"O102 endif\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:212
+msgid "[[sec:repeat]] == Repeat(((Repeat)))"
+msgstr "== Répétition[[sec:Repetitions]]"
+
+#. type: Plain text
+#: o-code.txt:217
+msgid ""
+"The 'repeat' will execute the statements inside of the repeat/endrepeat the "
+"specified number of times. The example shows how you might mill a diagonal "
+"series of shapes starting at the present position."
+msgstr ""
+"La répétition 'repeat', exécutera les blocs contenus entre 'repeat' et "
+"'endrepeat' le nombre de fois spécifié entre crochets. L'exemple suivant montre "
+"comment usiner une séries de 5 formes diagonales commençant à la position "
+"courante."
+
+#. type: Plain text
+#: o-code.txt:219
+#, no-wrap
+msgid ""
+".Repeat Example\n"
+"----\n"
+msgstr ""
+".Exemple avec 'repeat'\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:227
+#, no-wrap
+msgid ""
+"(Mill 5 diagonal shapes)\n"
+"G91 (Incremental mode)\n"
+"o103 repeat [5]\n"
+"... (insert milling code here)\n"
+"G0 X1 Y1 (diagonal move to next position)\n"
+"o103 endrepeat\n"
+"G90 (Absolute mode)\n"
+"----\n"
+msgstr ""
+"(Usine 5 formes diagonales)\n"
+"G91 (Mode incrémental)\n"
+"o103 repeat [5]\n"
+"    (insérer le code d'usinage ici)\n"
+"    G0 X1 Y1 (Mouvement en diagonale vers la position suivante)\n"
+"o103 endrepeat\n"
+"G90 (Mode absolu)\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:230
+msgid "== Indirection(((Indirection)))"
+msgstr ""
+"== Indirection\n"
+"(((Indirection)))"
+
+#. type: Plain text
+#: o-code.txt:232
+msgid "The O-number may be given by a parameter and/or calculation."
+msgstr "Le numéro de O- peut être donnée par un paramètre ou un calcul."
+
+#. type: Plain text
+#: o-code.txt:234
+#, no-wrap
+msgid ""
+".Indirection Example\n"
+"----\n"
+msgstr ""
+".Exemple d'indirection\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:236
+#, no-wrap
+msgid ""
+"o[#101+2] call\n"
+"----\n"
+msgstr ""
+"o[#101+2] call\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:240
+msgid ""
+".Computing values in O-words For more information on computing values see the "
+"following sections"
+msgstr ""
+".Calcul des valeurs dans les O-codes\n"
+"Voici un condensé des sections utiles aux calculs des O-codes:"
+
+#. type: Bullet: '* '
+#: o-code.txt:245
+msgid "<<sec:Parameters,Parameters>>"
+msgstr "<<sec:parametres, les paramètres>>"
+
+#. type: Bullet: '* '
+#: o-code.txt:245
+msgid "<<sec:Expressions,Expressions>>"
+msgstr "<<sec:Expressions, les expressions>>"
+
+#. type: Bullet: '* '
+#: o-code.txt:245
+msgid "<<sec:Binary-Operators,Binary Operators>>"
+msgstr "<<sec:Operateurs-Binaires, les opérateurs binaires>>"
+
+#. type: Bullet: '* '
+#: o-code.txt:245
+msgid "<<sub:functions,Functions>>"
+msgstr "<<sec:Fonctions, les fonctions>>"
+
+#. type: Plain text
+#: o-code.txt:247
+msgid "== Calling Files(((Calling Files)))"
+msgstr "== Appel de fichier"
+
+#. type: Plain text
+#: o-code.txt:253
+msgid ""
+"To call a separate file with a subroutine name the file the same as your call "
+"and include a sub and endsub in the file. The file must be in the directory "
+"pointed to by 'PROGRAM_PREFIX' or 'SUBROUTINE_PATH' in the ini file.  The file "
+"name can include *lowercase* letters, numbers, dash, and underscore only. A "
+"named subroutine file can contain only a single subroutine definition."
+msgstr ""
+"Pour appeler un fichier séparé avec un sous-programme, donner à ce fichier le "
+"même nom, il doit contenir un 'sub' et un 'endsub'. Le fichier appelé doit se "
+"trouver dans le répertoire pointé par la variable 'PROGRAM_PREFIX' ou "
+"'SUBROUTINE_PATH' du fichier ini. Les noms de fichiers ne peuvent inclure que "
+"des lettres *minuscules*, des chiffres, des points et des tirets bas. Un "
+"fichier de sous-programme nommé ne peut contenir qu'une seule définition de "
+"sous-programme."
+
+#. type: Plain text
+#: o-code.txt:255
+#, no-wrap
+msgid ""
+".Named File Example\n"
+"----\n"
+msgstr ""
+".Exemple: l'appel d'un fichier nommé\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:257
+#, no-wrap
+msgid ""
+"o<myfile> call\n"
+"----\n"
+msgstr ""
+"o<monfichier> call (appel un fichier nommé)\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:260
+#, no-wrap
+msgid ""
+".Numbered File Example\n"
+"----\n"
+msgstr ""
+".Exemple: l'appel d'un fichier numéroté\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:262
+#, no-wrap
+msgid ""
+"o123 call\n"
+"----\n"
+msgstr ""
+"o123 call (appel un fichier numéroté)\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:266
+msgid ""
+"In the called file you must include the oxxx sub and endsub and the file must "
+"be a valid file."
+msgstr ""
+"Dans le fichier appelé doit se touver le 'sub' et le 'endsub' correspondant à "
+"l'appel. Le fichier doit être un fichier valide."
+
+#. type: Plain text
+#: o-code.txt:268
+#, no-wrap
+msgid ""
+".Called File Example\n"
+"----\n"
+msgstr ""
+".Exemple: le fichier 'monfichier.ngc' appelé\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:274
+#, no-wrap
+msgid ""
+"(filename myfile.ngc)\n"
+"o<myfile> sub\n"
+"  (code here)\n"
+"o<myfile> endsub\n"
+"M2\n"
+"----\n"
+msgstr ""
+"o<monfichier> sub\n"
+"  (du code ici)\n"
+"o<monfichier> endsub\n"
+"M2\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:280
+msgid ""
+"[NOTE] The file names are lowercase letters only so 'o<MyFile>' is converted to "
+"'o<myfile>' by the interpreter. More information about the search path and "
+"options for the search path are in the INI Configuration Section."
+msgstr ""
+"[NOTE]\n"
+"Les noms de fichiers doivent être en lettres minuscules, ainsi 'o<MonFichier>' "
+"sera transformé en 'o<monfichier>' par l'interpréteur."
+
+#. type: Plain text
+#: o-code.txt:282
+msgid "== Subroutine return values(((Return Values)))"
+msgstr "== Valeurs de retour de sous-programme"
+
+#. type: Plain text
+#: o-code.txt:285
+msgid ""
+"Subroutines may optionally return a value by an optional expression at an "
+"'endsub' or 'return' statement."
+msgstr ""
+"Les sous-programmes peuvent, éventuellement, retourner une valeur par une "
+"expression optionnelle à la déclaration 'endsub' ou 'return'."
+
+#. type: Plain text
+#: o-code.txt:287
+#, no-wrap
+msgid ""
+".Return value example\n"
+"----\n"
+msgstr ""
+".Exemple de valeur avec Return\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:291
+#, no-wrap
+msgid ""
+"o123 return [#2 *5]\n"
+"...\n"
+"o123 endsub [3 * 4]\n"
+"----\n"
+msgstr ""
+"o123 return [#2 *5]\n"
+"...\n"
+"o123 endsub [3 * 4]\n"
+"----\n"
+
+#. type: Plain text
+#: o-code.txt:298
+msgid ""
+"A subroutine return value is stored in the '#<_value>' <<sec:Predefined-Named-"
+"Parameters, predefined named parameter>> , and the '#<_value_returned>' "
+"predefined parameter is set to 1, to indicate a value was returned. Both "
+"paramters are global, and are cleared just before the next subroutine call."
+msgstr ""
+"Une valeur de retour du sous-programme est stockée dans le <<sec:Predefined-"
+"Named-Parameters, paramètre nommé prédéfini>>, '#<_value>', la "
+"'#<_valeur_retournee>' du paramètre prédéfini passe à 1, ce qui indique qu'une "
+"valeur est retournée. Ces deux paramètres sont globaux, ils seront vidés juste "
+"avant le prochain appel du sous-programme."
+
+#. type: Plain text
+#: o-code.txt:299
+msgid "// vim: set syntax=asciidoc:"
+msgstr "// vim: set syntax=asciidoc:"

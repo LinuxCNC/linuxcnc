@@ -1,19 +1,15 @@
 :lang: fr
-:toc:
 
 = Les O-codes
 
 [[cha:O-codes]] (((O-codes)))
 
-== Utilisation des O-codes
+Les O-codes permettent le contrôle des flux dans les programmes NGC. Ils
+commencent par une lettre 'O', qu'il ne faut pas confondre avec le chiffre
+'0'. Chaque bloc est associé à un numéro, qui est la valeur utilisée juste
+après la lettre 'O'.
 
-Les O-codes permettent le contrôle de flux dans les programmes NGC.
-Ils commencent par une lettre *O*, qu'il ne faut pas confondre avec le
-chiffre *0*. Chaque bloc est associé à une adresse, qui est la valeur utilisée
-après la lettre *O*. Il faut prendre soin de bien faire correspondre les
-adresses des O-codes.
-
-.Exemple de numérotation
+.Exemple de la numérotation
 ----
 o100 sub
 (noter que les blocs if - endif utilisent des numéros différents)
@@ -31,40 +27,51 @@ Le comportement est indéfini si:
 * Un commentaire est utilisé sur une ligne contenant un mot O-.
 
 [TIP]
-L'utilisation de la lettre *o* minuscule facilite la distinction avec le
-chiffre *0* qui peut être tapé par erreur. Par exemple: +
-*+o100+* est plus facile à distinguer de *+0100+* que *+O100+*.
+L'utilisation de la lettre 'o' minuscule facilite la distinction avec le
+chiffre '0' qui peut être tapé par erreur. Par exemple: o100 est plus facile
+à distinguer de 0100 que O100.
 
-[[sec:Sous-programmes]]
-== Sous-programmes: *sub*, *endsub*, *return*, *call*
-(((Sous-programmes)))(((sub)))(((endsub)))(((return)))(((call)))
+Les états suivants provoquent un message d'erreur et abandonnent
+l'interpréteur:
 
-Les sous-programmes s'étendent d'un 'O- sub' à un 'O- endsub'. 
-Les lignes, à l'intérieur du sous-programme (le corps du
-sous-programme), ne sont pas exécutées dans l'ordre, mais 
-elles sont exécutées à chaque fois que le sous-programme 
-est appelé avec un 'O-call'.
+ - un `return` ou `endsub` ne contenant pas de définition sub
+ - un label pour `repeat` qui déjà défini quelque part
+ - un label pour `while` qui est déjà défini quelque part et ne faisant pas
+   référence a un `do`
+ - un label pour `if` défini quelque part
+ - un label indéfini pour `else` ou `elseif`
+ - un label pour `else`, `elseif` ou `endif` ne correspondant pas à un `if`
+ - un label pour `break` ou `continue` ne correspondant pas à un `while` ou
+   un `do`
+ - un label pour `endrepeat` ou `endwhile` ne correspondant pas à un `while`
+   ou un `repeat`
+    
+Pour envoyer ces erreurs non-fatal sur stderr, positionner le bit 0x20 dans
+l'option de masque ini dans `[RS274NGC]FEATURE=`.
+
+== Sous-programmes[[sec:Sous-programmes]]
+
+Les sous-programmes s'étendent d'un 'O- sub' à un 'O- endsub'. Les lignes, à
+l'intérieur du sous-programme (le corps du sous-programme), ne sont pas
+exécutées dans l'ordre, mais elles sont exécutées à chaque fois que le
+sous-programme est appelé avec un 'O- call'.
 
 .Exemple de sous-programme
 ----
-O100 sub (sous-programme de mouvement rapide à l'origine)
+o100 sub (sous-programme de mouvement rapide à l'origine)
   G53 X0 Y0 Z0
-O100 endsub
+o100 endsub
   (autres lignes)
-O100 call (ici, appel du sous-programme)
+o100 call (ici, appel du sous-programme)
 M2
 ----
-
-Pour plus de détails sur ces instructions voir:
-
-* <<sec:G53, mouvement G53>>,
-* <<sec:G0, mouvement rapide G0>>,
-* <<sec:M2-M30, fin de programme M2>>.
+Voir <<sec:G53,mouvement G53>>, <<sec:G0,mouvement rapide G0>>,
+<<sec:M2-M30,fin de programme M2>>.
 
 .O- return
-À l'intérieur d'un sous-programme, 'O- return' peut être exécuté,
-pour retourner immédiatement au code appelant,
-comme si 'O- endsub' avait été rencontré.
+À l'intérieur d'un sous-programme, 'O- return' peut être exécuté, pour
+retourner immédiatement au code appelant, comme si 'O- endsub' avait été
+rencontré.
 
 .Exemple avec 'O- return'
 ----
@@ -75,49 +82,44 @@ o100 sub
   (autre code ici, qui sera exécuté si le paramètre #2 est inférieur à 5)
 o100 endsub
 ----
-
-Voir également les sections:
-
-* <<sec:Operateurs-Binaires, les opérateurs binaires>>,
-* <<sec:parametres, les paramètres>>.
+Voir <<sec:Operateurs-Binaires,les opérateurs binaires>>,
+<<sec:parametres,les paramètres>>.
 
 .O- call
 'O- call' peut prendre jusqu'à 30 arguments optionnels, qui sont
-passés au sous-programme comme '#1', '#2' , ..., '#N'. Les paramètres de '#N+1' à
-'#30' ont la même valeur dans le contexte de l'appel. 
-Au retour du sous-programme, les valeurs des
-paramètres #1 jusqu'à #30 (quel que soit le nombre d'arguments) sont
-restaurés aux valeurs qu'ils avaient avant l'appel.
+passés au sous-programme comme '#1', '#2' , ..., '#N'. Les paramètres de #N+1 à
+#30 ont la même valeur dans le contexte de l'appel.
+Au retour du sous-programme, les valeurs des paramètres #1 jusqu'à #30
+(quel que soit le nombre d'arguments) sont restaurés aux valeurs qu'ils
+avaient avant l'appel.
 
-Parce que '1 2 3' est analysé comme le nombre 123, les paramètres
-doivent être placés entre crochets. L'appel de sous-programme suivant,
-s'effectue avec 3 arguments:
+Parce que '1 2 3' est analysé comme le nombre 123, les paramètres doivent
+être placés entre crochets. L'appel de sous-programme suivant, s'effectue
+avec 3 arguments:
 
-.Exemple d'appel 'O-'
+.Exemple d'appel 'O- call'
 ----
 O200 call [1] [2] [3]
 ----
 
-Les corps de sous-programme ne peuvent pas être imbriqués. Ils ne
-peuvent être appelés qu'après avoir été définis. Ils peuvent être
-appelés depuis d'autres fonctions et peuvent s'appeler eux même
-récursivement, s'il est judicieux de le faire. Le niveau maximum
-d'imbrication des sous-programmes est de 10.
+Les corps de sous-programme ne peuvent pas être imbriqués. Ils ne peuvent
+être appelés qu'après avoir été définis. Ils peuvent être appelés depuis
+d'autres fonctions et peuvent s'appeler eux même récursivement, s'il est
+judicieux de le faire. Le niveau maximum d'imbrication des sous-programmes
+est de 10.
 
 Les sous-programmes n'ont pas de 'valeur de retour', mais ils peuvent
-changer la valeur des paramètres au dessus de #30 et ces changements
-sont visibles depuis le code appelant. Les sous-programmes peuvent
-aussi changer la valeur des paramètres nommés globaux.
+changer la valeur des paramètres au dessus de #30 et ces changements sont
+visibles depuis le code appelant. Les sous-programmes peuvent aussi changer
+la valeur des paramètres nommés globaux.
 
-[[sec:Boucles]]
-== Boucles: *do*, *while*, *endwhile*, *break*, *continue*
-(((Boucles)))(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
+== Boucles[[sec:Boucles]]
 
-La boucle 'while' a deux structures possibles: 'while - endwhile' et 'do - while'.
-Dans chaque cas, la boucle est quittée quand la condition du 'while' devient
-fausse. La différence se trouve en fin de test de la condition. La boucle
-'do - while' exécute le code dans la boucle puis test la condition.
-La boucle 'while - endwhile' effectue le test d'abord.
+La 'boucle while' a deux structures possibles: 'while - endwhile' et 'do -
+while'. Dans chaque cas, la boucle est quittée quand la condition du 'while'
+devient fausse. La différence se trouve en fin de test de la condition. La
+boucle 'do - while' exécute le code dans la boucle puis test la
+condition. La boucle 'while - endwhile' effectue le test d'abord.
 
 .Exemple avec 'while - endwhile'
 ----
@@ -150,35 +152,35 @@ o100 while [#1 LT 3]
 M2
 ----
 
-À l'intérieur d'une boucle while, 'O- break', quitte immédiatement
-la boucle et 'O- continue', saute immédiatement à la prochaine
-évaluation de la condition du 'while'. Si elle est vraie, la boucle
-recommence au début. Si elle est fausse, la boucle est quittée.
 
-[[sec:Conditionnels]]
-== Conditionnel: *if*, *elseif*, *else*, *endif*
-(((Conditionnel: if, elseif, else, endif)))(((if)))(((else)))(((elseif)))(((endif)))
+À l'intérieur d'une boucle while, 'O- break', quitte immédiatement la boucle
+et 'O- continue', saute immédiatement à la prochaine évaluation de la
+condition du 'while'. Si elle est vraie, la boucle recommence au début. Si
+elle est fausse, la boucle est quittée.
 
-Le 'if' conditionnel exécute un groupe d'instructions avec le même nombre 'O'
-qui commence avec 'if' et se termine avec 'endif'. Les conditions optionnelles
-'elseif' et 'else' peuvent se trouver entre le 'if' et le 'endif'.
+== Conditionnel[[sec:Conditionnels]]
 
-Si la condition du 'if' est vraie, les instructions qui suivent le 'if' seront
-exécutées jusqu'à, au maximum, l'instruction conditionnelle suivante.
+Le 'if' conditionnel exécute un groupe d'instructions avec le même nombre
+'o' qui commence avec 'if' et se termine avec 'endif'. Les conditions
+optionnelles 'elseif' et 'else' peuvent se trouver entre le 'if' et le
+'endif'.
+
+Si la condition du 'if' est vraie, les instructions qui suivent le 'if'
+seront exécutées jusqu'à, au maximum, l'instruction conditionnelle suivante.
 
 Si la condition du 'if' est fausse, alors les instructions conditionnelles
 'elseif' suivantes seront évaluées l'une après l'autre. Si la condition du
-'elseif' est vraie alors les instructions suivant ce 'elseif' seront exécutées
-jusqu'à l'instruction conditionnelle suivante. Si aucune des conditions du 'if'
-ou du 'elseif' n'est vraie, alors les instructions suivant le 'else' seront
-exécutées. Quand une condition est vraie, les autres instructions
-conditionnelles du groupe ne sont plus évaluées.
+'elseif' est vraie alors les instructions suivant ce 'elseif' seront
+exécutées jusqu'à l'instruction conditionnelle suivante. Si aucune des
+conditions du 'if' ou du 'elseif' n'est vraie, alors les instructions
+suivant le 'else' seront exécutées. Quand une condition est vraie, les
+autres instructions conditionnelles du groupe ne sont plus évaluées.
 
 .Exemple avec 'if - endif'
 ----
-O102 if [#31 EQ 3] (si le paramètre #31 est égal à 3 alors S2000)
+o102 if [#31 EQ 3] (si le paramètre #31 est égal à 3 alors S2000)
     S2000
-O102 endif
+o102 endif
 ----
 
 .Exemple avec 'if - elseif - else - endif'
@@ -192,53 +194,66 @@ o102 else (sinon le paramètre #2 vaut entre 2 et 5 alors F150)
 o102 endif
 ----
 
-[[sec:Repetitions]]
-== Répétition: *Repeat*
-(((Repeat)))
+Plusieurs conditions peuvent être testées par les déclarations 'elseif',
+jusqu'à ce que le 'else' soit finalement exécuté si tous les conditions
+précédentes sont fausses:
+
+.Exemple avec 'If - Elseif - Else - Endif'
+----
+O102 if [#2 GT 5] (si le paramètre #2 est plus grand que 5 alors F100)
+  F100
+O102 elseif [#2 LT 2] (sinon si le paramètre #2 est moins grand que 2 alors F200)
+  F20
+O102 else (paramètre #2 entre 2 et 5)
+  F200
+O102 endif
+----
+
+== Répétition[[sec:Repetitions]]
 
 La répétition 'repeat', exécutera les blocs contenus entre 'repeat' et
-'endrepeat' le nombre de fois spécifié entre crochets. L'exemple
-suivant montre comment usiner une séries de 5 formes diagonales
-commençant à la position courante.
+'endrepeat' le nombre de fois spécifié entre crochets. L'exemple suivant
+montre comment usiner une séries de 5 formes diagonales commençant à la
+position courante.
 
 .Exemple avec 'repeat'
 ----
 (Usine 5 formes diagonales)
 G91 (Mode incrémental)
-O103 repeat [5]
+o103 repeat [5]
     (insérer le code d'usinage ici)
     G0 X1 Y1 (Mouvement en diagonale vers la position suivante)
-O103 endrepeat
+o103 endrepeat
 G90 (Mode absolu)
 ----
 
 == Indirection
 (((Indirection)))
 
-L'adresse de O- peut être donnée par un paramètre ou un calcul.
+Le numéro de O- peut être donnée par un paramètre ou un calcul.
 
 .Exemple d'indirection
 ----
-O[#101+2] call
+o[#101+2] call
 ----
 
 .Calcul des valeurs dans les O-codes
 Voici un condensé des sections utiles aux calculs des O-codes:
 
-* <<sec:parametres, les paramètres>>, 
-* <<sec:Expressions, les expressions>>, 
-* <<sec:Operateurs-Binaires, les opérateurs binaires>>, 
-* <<sec:Fonctions, les fonctions>>.
+* <<sec:parametres, les paramètres>>
+* <<sec:Expressions, les expressions>>
+* <<sec:Operateurs-Binaires, les opérateurs binaires>>
+* <<sec:Fonctions, les fonctions>>
 
 == Appel de fichier
-(((Appel de fichier)))
 
-Pour appeler un sous-programme par son nom, ce sous-programme doit contenir
-un 'sub' et un 'endsub'. Le fichier appelé doit se trouver dans le répertoire
-pointé par la variable 'PROGRAM_PREFIX' ou 'SUBROUTINE_PATH' du fichier ini.
-Les noms de fichiers ne peuvent inclure que des lettres *minuscules*, des
-chiffres, des points et des tirets bas. Un fichier de sous-programme nommé ne
-peut contenir qu'une seule définition de sous-programme.
+Pour appeler un fichier séparé avec un sous-programme, donner à ce fichier
+le même nom, il doit contenir un 'sub' et un 'endsub'. Le fichier appelé
+doit se trouver dans le répertoire pointé par la variable 'PROGRAM_PREFIX'
+ou 'SUBROUTINE_PATH' du fichier ini. Les noms de fichiers ne peuvent inclure
+que des lettres *minuscules*, des chiffres, des points et des tirets bas. Un
+fichier de sous-programme nommé ne peut contenir qu'une seule définition de
+sous-programme.
 
 .Exemple: l'appel d'un fichier nommé
 ----
@@ -250,10 +265,10 @@ o<monfichier> call (appel un fichier nommé)
 o123 call (appel un fichier numéroté)
 ----
 
-Dans le fichier appelé doit se touver le 'sub' et le 'endsub'
-correspondant à l'appel. Le fichier doit être un fichier valide.
+Dans le fichier appelé doit se touver le 'sub' et le 'endsub' correspondant
+à l'appel. Le fichier doit être un fichier valide.
 
-.Exemple: le fichier 'monfichier.ngc' appelé 
+.Exemple: le fichier 'monfichier.ngc' appelé
 ----
 o<monfichier> sub
   (du code ici)
@@ -262,7 +277,25 @@ M2
 ----
 
 [NOTE]
-Les noms de fichiers doivent être en lettres minuscules, ainsi 'o<MonFichier>'
-sera transformé en 'o<monfichier>' par l'interpréteur.
+Les noms de fichiers doivent être en lettres minuscules, ainsi
+'o<MonFichier>' sera transformé en 'o<monfichier>' par l'interpréteur.
+
+== Valeurs de retour de sous-programme
+
+Les sous-programmes peuvent, éventuellement, retourner une valeur par une
+expression optionnelle à la déclaration 'endsub' ou 'return'.
+
+.Exemple de valeur avec Return
+----
+o123 return [#2 *5]
+...
+o123 endsub [3 * 4]
+----
+
+Une valeur de retour du sous-programme est stockée dans le
+<<sec:Predefined-Named-Parameters, paramètre nommé prédéfini>>, '#<_value>',
+la '#<_valeur_retournee>' du paramètre prédéfini passe à 1, ce qui indique
+qu'une valeur est retournée. Ces deux paramètres sont globaux, ils seront
+vidés juste avant le prochain appel du sous-programme.
 
 // vim: set syntax=asciidoc:
