@@ -183,6 +183,7 @@ SUBDIRS := \
 	machinetalk/webtalk \
 	machinetalk/haltalk \
 	machinetalk/mkwrapper \
+	machinetalk/videoserver \
 	\
 	libnml/linklist \
 	libnml/cms \
@@ -968,6 +969,7 @@ install-python: install-dirs
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
 	$(FILE) ../share/fdm/thermistor_tables/*.txt $(DESTDIR)$(datadir)/fdm/thermistor_tables
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
+	$(EXE) ../bin/videoserver $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mkwrapper $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gremlin $(DESTDIR)$(bindir)
 	$(EXE) ../bin/lintini $(DESTDIR)$(bindir)
