@@ -939,9 +939,7 @@ M6 est programmé avec la variable [TOOL_CHANGE_AT_G30]=1 dans la section
 [EMCIO] du fichier ini.
 
 * 'G30' - effectue un mouvement en <<sec:G0,vitesse rapide>> de la position
-  courante à la position 'absolue' stockée dans les paramètres 5181 à
-  5186. Les valeurs stockées dans les paramètres font référence au système
-  de coordonnées absolues qui est le système de coordonnées machine.
+  courante à la position 'absolue' stockée dans les paramètres 5181 à 5186.
 
 * 'G30 axes' - effectue un déplacement en vitesse rapide depuis la position
   courante jusqu'à la position spécifiée par 'axes', y compris les

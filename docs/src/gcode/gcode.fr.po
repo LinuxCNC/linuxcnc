@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2015-02-28 23:13+0100\n"
-"PO-Revision-Date: 2015-02-28 23:14+0100\n"
+"POT-Creation-Date: 2015-03-01 10:29+0100\n"
+"PO-Revision-Date: 2015-03-01 10:31+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French Translation Team\n"
 "Language: fr\n"
@@ -2443,9 +2443,7 @@ msgid ""
 "'absolute' position of the values in parameters 5181-5186."
 msgstr ""
 "'G30' - effectue un mouvement en <<sec:G0,vitesse rapide>> de la position "
-"courante à la position 'absolue' stockée dans les paramètres 5181 à 5186. "
-"Les valeurs stockées dans les paramètres font référence au système de "
-"coordonnées absolues qui est le système de coordonnées machine."
+"courante à la position 'absolue' stockée dans les paramètres 5181 à 5186."
 
 #. type: Bullet: '* '
 #: gcode.txt:927
