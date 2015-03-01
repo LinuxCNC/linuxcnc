@@ -17,6 +17,10 @@
 
 #include "emcpos.h"		/* EmcPose */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
   The type of kinematics used.
   
@@ -100,5 +104,9 @@ extern int kinematicsHome(struct EmcPose * world,
 			  KINEMATICS_INVERSE_FLAGS * iflags);
 
 extern KINEMATICS_TYPE kinematicsType(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -238,8 +238,15 @@ extern struct emcmot_error_t *emcmotError;
 ************************************************************************/
 
 /* function definitions */
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern void emcmotCommandHandler(void *arg, long period);
 extern void emcmotController(void *arg, long period);
+#ifdef __cplusplus
+}
+#endif
+
 extern void emcmotSetCycleTime(unsigned long nsec);
 int setTrajCycleTime(double secs);
 int setServoCycleTime(double secs);
@@ -262,8 +269,14 @@ extern void refresh_jog_limits(emcmot_joint_t *joint);
 /* handles 'homed' flags, see command.c for details */
 extern void clearHomes(int joint_num);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern void emcmot_config_change(void);
 extern void reportError(const char *fmt, ...) __attribute((format(printf,1,2))); /* Use the rtapi_print call */
+#ifdef __cplusplus
+}
+#endif
 
  /* rtapi_get_time() returns a nanosecond value. In time, we should use a u64
     value for all calcs and only do the conversion to seconds when it is

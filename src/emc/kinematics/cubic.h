@@ -21,6 +21,10 @@
    a * x^3 + b * x^2 + c * x + d
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     double a;
     double b;
@@ -60,5 +64,9 @@ extern double cubicInterpolate(CUBIC_STRUCT * ci, double *x,	/* same as
 			       double *j);	/* jerk */
 extern int cubicNeedNextPoint(CUBIC_STRUCT * ci);
 extern int cubicDrain(CUBIC_STRUCT * ci);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif				/* CUBIC_H */
