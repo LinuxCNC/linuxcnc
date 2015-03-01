@@ -264,14 +264,13 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
     double x = tc->target;
     double tj, ta, tv, tx, maxa, maxv1, maxv2, nj = j;
 
-	rtapi_print("MOVE ID %d TYPE %d\n", tc->id, tc->motion_type);
-	rtapi_print("cmd vel [mm/s] = %.4f\n", v);
-	rtapi_print("cmd acc [mm/s^2] = %.4f\n", a);
-	rtapi_print("cmd jerk [mm/s^3] = %.4f\n", j);
+	rtapi_print("ID %d TYPE %d\n", tc->id, tc->motion_type);
+	rtapi_print("cmd vel [unit/s] = %.4f | [unit/min] = %.4f\n", v, v*60.0);
+	rtapi_print("cmd acc [unit/s^2] = %.4f\n", a);
+	rtapi_print("cmd jerk [unit/s^3] = %.4f\n", j);
 	rtapi_print("feed override = %.4f\n", tc->feed_override);
-	rtapi_print("scaled cmd vel [mm/s] = %.4f\n", v*tc->feed_override);
-	rtapi_print("target [mm] = %.4f\n", tc->target);
-	rtapi_print("cycle time [s] = %.6f\n", tc->cycle_time);
+	rtapi_print("scaled cmd vel [unit/s] = %.4f | [unit/min] = %.4f\n", v*tc->feed_override, v*tc->feed_override*60.0);
+	rtapi_print("target [unit] = %.4f\n", tc->target);
 	v *= tc->feed_override;
 
     // maxa and maxv are 0
@@ -288,7 +287,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 		tj = sqrt(v/nj);
 		rtapi_print("  tj = %.12f\n", tj);
 		//tj = ceil(tj*cycles_per_sec)/cycles_per_sec;
-		rtapi_print("  ceil(tj) = %.12f\n", tj);
+		//rtapi_print("  ceil(tj) = %.12f\n", tj);
 		nj = v/(tj*tj);
 		rtapi_print("  j = %.12f\n", nj);
 	}
@@ -299,7 +298,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 		tj = a/nj;
 		rtapi_print("  tj = %.12f\n", tj);
 		//tj = ceil(tj*cycles_per_sec)/cycles_per_sec;
-		rtapi_print("  ceil(tj) = %.12f\n", tj);
+		//rtapi_print("  ceil(tj) = %.12f\n", tj);
 		nj = a/tj;
 		rtapi_print("  j = %.12f\n", nj);
 	}
@@ -308,7 +307,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 		ta = -1.5*tj + 0.5*sqrt(tj*tj + (4.0*x)/(nj*tj));
 		rtapi_print("  ta = %.12f\n", ta);
 		//ta = ceil(ta*cycles_per_sec)/cycles_per_sec;
-		rtapi_print("  ceil(ta) = %.12f\n", ta);
+		//rtapi_print("  ceil(ta) = %.12f\n", ta);
 	} else {
 		ta = 0.0;
 		rtapi_print("  ta = %.12f\n", ta);
@@ -320,7 +319,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 		ta = v/a - tj;
 		rtapi_print("  ta = %.12f\n", ta);
 		//ta = ceil(ta*cycles_per_sec)/cycles_per_sec;
-		rtapi_print("  ceil(ta) = %.12f\n", ta);
+		//rtapi_print("  ceil(ta) = %.12f\n", ta);
 	}
 
 	if (ta <= 0.000001) ta = 0.0;
@@ -328,7 +327,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 	tv = (x - 2.0*nj*tj*tj*tj - 3.0*nj*tj*tj*ta - nj*tj*ta*ta)/v;
 	rtapi_print("5: tv = %.12f\n", tv);
 	//tv = ceil(tv*cycles_per_sec)/cycles_per_sec;
-	rtapi_print("6: ceil(tv) = %.12f\n", tv);
+	//rtapi_print("6: ceil(tv) = %.12f\n", tv);
 	
 	if (tv <= 0.000001) tv = 0.0;
 	
@@ -362,17 +361,14 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 	}
 	
     rtapi_print("================================\n");
-	rtapi_print("tj = %.12f %.12f\n", tj, ctj);
-	rtapi_print("ta = %.12f %.12f\n", ta, cta);
-	rtapi_print("tv = %.12f %.12f\n", tv, ctv);
+	rtapi_print("tj = %.12f %.6f %d\n", tj, ctj, tc->s0_cycles);
+	rtapi_print("ta = %.12f %.6f %d\n", ta, cta, tc->s1_cycles);
+	rtapi_print("tv = %.12f %.6f %d\n", tv, ctv, tc->s3_cycles);
 	rtapi_print("jerk = %.12f\n", jerk);
-	rtapi_print("est1 = %.12f\n", est1);
-	rtapi_print("est2 = %.12f\n", est2);
-	rtapi_print("est3 = %.12f\n", est3);
+//	rtapi_print("est1 = %.12f\n", est1);
+//	rtapi_print("est2 = %.12f\n", est2);
+//	rtapi_print("est3 = %.12f\n", est3);
 	rtapi_print("est4 = %.12f\n", est4);
-    rtapi_print("s0_cycles = %d\n", tc->s0_cycles);
-    rtapi_print("s1_cycles = %d\n", tc->s1_cycles);
-    rtapi_print("s3_cycles = %d\n", tc->s3_cycles);
     rtapi_print("================================\n");
 
 	tc->cycles = 0;
@@ -696,7 +692,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     return 0;
 }
 
-int debug1 = 1;
+int debug1 = 0;
 
 #define DEBUG_AVP(state) \
   do { \
@@ -758,6 +754,8 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc) {
 			DEBUG_AVP("S0");
             if (tc->cycles >= tc->s0_cycles) {
 //			DEBUG_AVP("S0");
+                rtapi_print("ID %d | STATE S0->S%d | CYCLES %d | ACC %.6f | VEL %.6f | PROGRESS %.6f\n", tc->id, tc->after_S0, tc->cycles, \
+                    tc->cur_accel/tc->cycle_time/tc->cycle_time, tc->cur_vel/tc->cycle_time, tc->progress);
 				tc->cycles = 0;
                 tc->accel_state = tc->after_S0;
                 break;
@@ -777,6 +775,8 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc) {
 			DEBUG_AVP("S1");
             if (tc->cycles >= tc->s1_cycles) {
 				//DEBUG_AVP("S1");
+                rtapi_print("ID %d | STATE S1->S2 | CYCLES %d | ACC %.6f | VEL %.6f | PROGRESS %.6f\n", tc->id, tc->cycles, \
+                    tc->cur_accel/tc->cycle_time/tc->cycle_time, tc->cur_vel/tc->cycle_time, tc->progress);
 				tc->cycles = 0;
                 tc->accel_state = ACCEL_S2;
                 break;
@@ -797,6 +797,10 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc) {
             tc->cycles++;
 			DEBUG_AVP("S2");
             if ((tc->cycles >= tc->s0_cycles)) {
+                rtapi_print("ID %d | STATE S2->S%d | CYCLES %d | ACC %.6f | VEL %.6f | PROGRESS %.6f\n", tc->id, tc->after_S2, tc->cycles, \
+                    tc->cur_accel/tc->cycle_time/tc->cycle_time, tc->cur_vel/tc->cycle_time, tc->progress);
+                rtapi_print("ID %d CURR VEL %.6f | REQ VEL %.6f | DIFF %.6f\n", tc->id, \
+                    tc->cur_vel/tc->cycle_time*60.0, tc->reqvel*60.0, (tc->reqvel - tc->cur_vel/tc->cycle_time)*60.0);
 				//DEBUG_AVP("S2");
 				tc->cur_accel = 0;
 				tc->cycles = 0;
@@ -816,6 +820,8 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc) {
 			DEBUG_AVP("S3");
             if (tc->cycles >= tc->s3_cycles) {
 				//DEBUG_AVP("S3");
+                rtapi_print("ID %d | STATE S3->S4 | CYCLES %d | ACC %.6f | VEL %.6f | PROGRESS %.6f\n", tc->id, tc->cycles, \
+                    tc->cur_accel/tc->cycle_time/tc->cycle_time, tc->cur_vel/tc->cycle_time, tc->progress);
 				tc->cycles = 0;
                 tc->accel_state = ACCEL_S4;
                 break;
@@ -837,6 +843,8 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc) {
 			DEBUG_AVP("S4");
             if (tc->cycles >= tc->s0_cycles) {
 			//DEBUG_AVP("S4");
+                rtapi_print("ID %d | STATE S4->S%d | CYCLES %d | ACC %.6f | VEL %.6f | PROGRESS %.6f\n", tc->id, tc->after_S4, tc->cycles, \
+                    tc->cur_accel/tc->cycle_time/tc->cycle_time, tc->cur_vel/tc->cycle_time, tc->progress);
 				tc->cycles = 0;
                 tc->accel_state = tc->after_S4;
                 break;
@@ -855,6 +863,8 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc) {
 			DEBUG_AVP("S5");
             if (tc->cycles >= tc->s1_cycles) {
 				//DEBUG_AVP("S5");
+                rtapi_print("ID %d | STATE S5->S6 | CYCLES %d | ACC %.6f | VEL %.6f | PROGRESS %.6f\n", tc->id, tc->cycles, \
+                    tc->cur_accel/tc->cycle_time/tc->cycle_time, tc->cur_vel/tc->cycle_time, tc->progress);
 				tc->cycles = 0;
                 tc->accel_state = ACCEL_S6;
                 break;
@@ -874,6 +884,10 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc) {
             tc->cycles++;
 			DEBUG_AVP("S6");
             if (tc->cycles >= tc->s0_cycles) {
+                rtapi_print("ID %d | STATE S6->END | CYCLES %d | ACC %.6f | VEL %.6f | PROGRESS %.6f\n", tc->id, tc->cycles, \
+                    tc->cur_accel/tc->cycle_time/tc->cycle_time, tc->cur_vel/tc->cycle_time, tc->progress);
+                rtapi_print("ID %d | END | TARGET %.12f | PROGRESS %.12f | OVERSHOOT %.12f\n", tc->id, tc->target, \
+                    tc->progress, tc->target - tc->progress);
 				//DEBUG_AVP("S6");
 				tc->cur_accel = 0;
 				tc->cur_vel = 0;
