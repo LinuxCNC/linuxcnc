@@ -29,6 +29,7 @@
 
 #include "rtapi.h"
 #include "uspace_common.h"
+#include "canon.hh"
 
 #include "mot_priv.h"
 #include "motion_debug.h"
@@ -398,6 +399,10 @@ void motion_jog_incr(int joint, double vel, double offset) {
     emcmotCommand->offset = offset;
 }
 
+void motion_use_length_units(CANON_UNITS unit) {
+    // Motion doesn't care about units
+}
+
 
 typedef void (*fptr)(void);
 
@@ -505,6 +510,13 @@ int handle_input(bool interactive, FILE *in) {
         } else if (sscanf(line, "JOG_INCR joint=%d vel=%lf offset=%lf", &i0, &d0, &d1) == 3) {
             fprintf(stderr, "jog incremental joint=%d vel=%lf offset=%lf\n", i0, d0, d1);
             motion_jog_incr(i0, d0, d1);
+
+        } else if (strcmp(line, "USE_LENGTH_UNITS(CANON_UNITS_MM)") == 0) {
+            fprintf(stderr, "use length units MM\n");
+            motion_use_length_units(CANON_UNITS_MM);
+        } else if (strcmp(line, "USE_LENGTH_UNITS(CANON_UNITS_INCHES)") == 0) {
+            fprintf(stderr, "use length units INCHES\n");
+            motion_use_length_units(CANON_UNITS_INCHES);
 
         } else if (strcmp(line, "pass") == 0) {
             fprintf(stderr, "pass 1/1\n");
