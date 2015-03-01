@@ -348,7 +348,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 	} else {
 		tc->after_S0 = ACCEL_S1;
 		tc->after_S4 = ACCEL_S5;
-		tc->s1_cycles = ceil(ta*cycles_per_sec) + 1;
+		tc->s1_cycles = ceil(ta*cycles_per_sec);
 	}
 
 	tc->s0_cycles = ceil(tj*cycles_per_sec);
@@ -358,6 +358,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 		tc->s3_cycles = ceil(tv*cycles_per_sec);
 	} else {
 		tc->after_S2 = ACCEL_S4;
+		tc->s3_cycles = 0;
 	}
 	
     rtapi_print("================================\n");
@@ -376,7 +377,7 @@ void prepareLimitedJerk(TC_STRUCT *tc) {
 
 int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel, 
                   double acc, double jerk, unsigned char enables) {
-    TC_STRUCT tc;
+    TC_STRUCT tc = {0};
     PmLine line_xyz;
     PmPose start_xyz, end_xyz;
     PmCartesian abc, uvw;
@@ -483,7 +484,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
 int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc, double jerk,
               unsigned char enables, char atspeed, int indexrotary)
 {
-    TC_STRUCT tc;
+    TC_STRUCT tc = {0};
     PmLine line_xyz, line_uvw, line_abc;
     PmPose start_xyz, end_xyz;
     PmPose start_uvw, end_uvw;
@@ -603,7 +604,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 		PmCartesian center, PmCartesian normal, int turn, int type,
                 double vel, double ini_maxvel, double acc, double jerk, unsigned char enables, char atspeed)
 {
-    TC_STRUCT tc;
+    TC_STRUCT tc = {0};
     PmLine line_uvw, line_abc;
     PmPose start_uvw, end_uvw;
     PmPose start_abc, end_abc;
