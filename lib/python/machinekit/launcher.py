@@ -6,12 +6,14 @@ import signal
 from machinekit import compat
 
 _processes = []
+_realtimeStarted = False
 
 
 # ends a running Machinekit session
 def end_session():
     stop_processes()
-    stop_realtime()
+    if _realtimeStarted:  # Stop realtime only when explicitely started
+        stop_realtime()
 
 
 # checks wheter a single command is available or not
@@ -44,9 +46,9 @@ def cleanup_session():
                 pids.append(pid)
 
     if pids != []:
+        stop_realtime()
         sys.stdout.write("cleaning up leftover session... ")
         sys.stdout.flush()
-        subprocess.check_call('realtime stop', shell=True)
         for pid in pids:
             try:
                 os.kill(pid, signal.SIGTERM)
@@ -152,6 +154,7 @@ def start_realtime():
     sys.stdout.flush()
     subprocess.check_call('realtime start', shell=True)
     sys.stdout.write('done\n')
+    _realtimeStarted = True
 
 
 # stops realtime
@@ -160,6 +163,7 @@ def stop_realtime():
     sys.stdout.flush()
     subprocess.check_call('realtime stop', shell=True)
     sys.stdout.write('done\n')
+    _realtimeStarted = False
 
 
 # rip the Machinekit environment
