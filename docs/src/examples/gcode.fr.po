@@ -1,0 +1,211 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-03-02 16:34+0100\n"
+"PO-Revision-Date: 2015-03-02 16:37+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: gcode.txt:2
+msgid ":lang en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: gcode.txt:4
+msgid "= G Code Examples"
+msgstr "= Exemples de fichiers G-Code"
+
+#. type: Plain text
+#: gcode.txt:8
+msgid ""
+"After you install LinuxCNC several sample files are placed in the /nc_files "
+"folder. Make sure the sample file is appropriate for your machine before "
+"running."
+msgstr ""
+"Après l'installation de LinuxCNC, plusieurs exemples de fichiers G-code se "
+"trouveront dans le répertoire /nc_files du dossier d'installation. Seuls "
+"les fichiers adaptés au type de la machine seront utilisables."
+
+#. type: Plain text
+#: gcode.txt:10
+msgid "== Mill Examples"
+msgstr "== Exemples pour une fraiseuse"
+
+#. type: Plain text
+#: gcode.txt:12
+msgid "=== Helical Hole Milling"
+msgstr "=== Fraisage hélicoïdal d'un orifice"
+
+#. type: Plain text
+#: gcode.txt:14 gcode.txt:20
+msgid "File Name: useful-subroutines.ngc"
+msgstr "Nom du fichier: useful-subroutines.ngc"
+
+#. type: Plain text
+#: gcode.txt:16
+msgid "Description: Subroutine for milling a hole using parameters."
+msgstr ""
+"Description: Programme pour usiner une poche ou un alésage avec utilisation "
+"des paramètres."
+
+#. type: Plain text
+#: gcode.txt:18
+msgid "=== Slotting"
+msgstr "=== Rainurage"
+
+#. type: Plain text
+#: gcode.txt:22
+msgid "Description: Subroutine for milling a slot using parameters."
+msgstr ""
+"Decription: Programme pour fraiser une rainure avec utilisation des "
+"paramètres."
+
+#. type: Plain text
+#: gcode.txt:24
+msgid "=== Grid Probe"
+msgstr "=== Palpage d'une grille rectangulaire de points"
+
+#. type: Plain text
+#: gcode.txt:26
+msgid "File Name: gridprobe.ngc"
+msgstr "Nom du fichier: gridprobe.ngc"
+
+#. type: Plain text
+#: gcode.txt:28 gcode.txt:38
+msgid "Description: Rectangular Probing"
+msgstr "Description: Relevé d'une grille rectangulaire de points au palpeur."
+
+#. type: Plain text
+#: gcode.txt:32
+msgid ""
+"This program repeatedly probes in a regular XY grid and writes the probed "
+"location to the file 'probe-results.txt' in the same directory as the .ini "
+"file."
+msgstr ""
+"Ce programme palpe de manière répétitive, en suivant une grille régulière "
+"en XY et écrit les points mesurés dans le fichier 'probe-results.txt' situé "
+"dans le même répertoire que le fichier .ini."
+
+#. type: Plain text
+#: gcode.txt:34
+msgid "=== Smart Probe"
+msgstr "=== Amélioration du palpage d'une grille rectangulaire de points"
+
+#. type: Plain text
+#: gcode.txt:36
+msgid "File Name: smartprobe.ngc"
+msgstr "Nom du fichier: smartprobe.ngc"
+
+#. type: Plain text
+#: gcode.txt:42
+msgid ""
+"This program repeatedly probes in a regular XY grid and writes the probed "
+"location to the file 'probe-results.txt' in the same directory as the .ini "
+"file. This is improved from the grid probe file."
+msgstr ""
+"Ce programme est une amélioration du précédent. Il palpe de manière "
+"répétitive, en suivant une grille régulière en XY et écrit les points "
+"mesurés dans le fichier 'probe-results.txt' situé dans le même répertoire "
+"que le fichier .ini."
+
+#. type: Plain text
+#: gcode.txt:44
+msgid "=== Tool Length Probe"
+msgstr "=== Mesure de longueur d'outil"
+
+#. type: Plain text
+#: gcode.txt:46
+msgid "File Name: tool-length-probe.ngc"
+msgstr "Nom du fichier: tool-lenght-probe.ngc"
+
+#. type: Plain text
+#: gcode.txt:48
+msgid "Description: Tool Length Probing"
+msgstr "Description: Mesure automatique de la longueur de l'outil."
+
+#. type: Plain text
+#: gcode.txt:53
+msgid ""
+"This program shows an example of how to measure tool lengths automatically "
+"using a switch hooked to the probe input. This is useful for machines "
+"without tool holders, where the length of a tool is different every time it "
+"is inserted."
+msgstr ""
+"Ce programme donne un exemple de la mesure automatique de longueur d'outil "
+"en utilisant un contact raccordé à l'entrée sonde. C'est très pratique pour "
+"une machine sans changeur d'outil, sur laquelle la longueur des outils est "
+"différente à chaque montage."
+
+#. type: Plain text
+#: gcode.txt:55
+msgid "=== Hole Probe"
+msgstr "=== Mesure d'un alésage au palpeur"
+
+#. type: Plain text
+#: gcode.txt:57
+msgid "File Name: probe-hole.ngc"
+msgstr "Nom du fichier: probe-hole.ngc"
+
+#. type: Plain text
+#: gcode.txt:59
+msgid "Description: Finding the Center and Diameter of a hole."
+msgstr "Description: Mesure le centre et le diamètre d'un alésage."
+
+#. type: Plain text
+#: gcode.txt:62
+msgid ""
+"The program demonstrates how to find the center of a hole, measure the hole "
+"diameter and record the results."
+msgstr ""
+"Ce programme montre comment trouver le centre d'un alésage, comment "
+"calculer son diamètre et enregistrer les mesures dans un fichier."
+
+#. type: Plain text
+#: gcode.txt:64
+msgid "=== Cutter Compensation"
+msgstr "=== Compensation de rayon d'outil"
+
+#. type: Plain text
+#: gcode.txt:66
+msgid "To be added"
+msgstr "a ajouter!"
+
+#. type: Plain text
+#: gcode.txt:68
+msgid "== Lathe Examples"
+msgstr "== Exemples pour un tour"
+
+#. type: Plain text
+#: gcode.txt:70
+msgid "=== Threading"
+msgstr "=== Filetage"
+
+#. type: Plain text
+#: gcode.txt:72
+msgid "File Name lathe-g76.ngc"
+msgstr "Nom du fichier: lathe-g76.ngc"
+
+#. type: Plain text
+#: gcode.txt:74
+msgid "Description: Facing, threading and parting off."
+msgstr "Description: Dressage, filetage et tronçonnage."
+
+#. type: Plain text
+#: gcode.txt:76
+msgid "This file shows an example of threading on a lathe using parameters."
+msgstr ""
+"Ce programme donne un exemple de filetage automatique sur un tour avec "
+"utilisation des paramètres. Il demande quelques adaptations pour "
+"fonctionner, ces adaptations seront un excellent exercice."
