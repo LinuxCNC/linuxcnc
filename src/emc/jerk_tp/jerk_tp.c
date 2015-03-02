@@ -1341,36 +1341,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     
     tcRunCycle(tp, tc);
     
-#ifdef SMLBLND
-    if ((tc->seamless_blend_mode == SMLBLND_ENABLE) && 
-            (tc->progress >= tc->target)) {
-        // update tc with nexttc
-        double next_vel;
-        double next_accel;
-        enum state_type next_accel_state;
-        double next_progress;
-
-        next_vel = tc->cur_vel;
-        next_accel = tc->cur_accel;
-        next_accel_state = tc->accel_state;
-        next_progress = tc->progress - tc->target;
-
-        tcqRemove(&tp->queue, 1);
-        tp->depth = tcqLen(&tp->queue);
-
-        // so get next move
-        tc = tcqItem(&tp->queue, 0, period);
-
-        tc->active = 1;
-        tc->cur_vel = next_vel;
-        tc->cur_accel = next_accel;
-        tc->accel_state = next_accel_state;
-        tc->progress = next_progress;
-        tp->activeDepth = 1;
-        tp->motionType = tc->canon_motion_type;
-        tc->blending = 0;
-    }
-#endif // SMLBLND
     primary_after = tcGetPos(tc);
     pmCartCartSub(&primary_after.tran, &primary_before.tran, 
             &primary_displacement.tran);
