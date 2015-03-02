@@ -1269,7 +1269,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     return None
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
-                    if "7i77" in (subboardname) or "7i76" in(subboardname):
+                    if "7i77" in (subboardname) or "7i76" in(subboardname)or "7i84" in(subboardname):
                         if ptype in(_PD.GPIOO,_PD.GPIOD):
                             comptype = "output"
                             if pinnum >15 and pinnum <24:
@@ -1804,7 +1804,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         elif keyword == '7I76':
             f_list = ['Unused','7i76']
         else:
-            f_list = ['Unused','7i73','7i69','8i20','7i64','7i71','7i70']
+            f_list = ['Unused','7i73','7i69','8i20','7i64','7i71','7i70','7i84']
         del self.d['%s_filter_list'%sserial][:]
         for i in(f_list):
             self.d['%s_filter_list'%sserial].append(i)
@@ -2254,10 +2254,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         # If initializing the Pport pages we don't want the signal calls to register here.
         # if we are working in here we don't want signal calls because of changes made in here
         # GTK supports signal blocking but then you can't assign signal block name references in GLADE -slaps head
+        if self._p.prepare_block or self.recursive_block: return
         if 'mesa' in pinname:
             ptype = '%stype'%pinname
             if not self.widgets[ptype].get_active_text() == _PD.pintype_gpio[0]: return
-        if self._p.prepare_block or self.recursive_block: return
         self.recursive_block = True
         SIG = self._p
         exclusive = {
@@ -3434,7 +3434,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     else:
                         widgettext = None
                     if sserialflag:
-                        if "7i77" in subboardname or "7i76" in subboardname:
+                        if "7i77" in subboardname or "7i76" in subboardname or "7i84" in subboardname:
                             if pin <16:
                                 self.widgets[complabel].set_text("%02d:"%(pin)) # sserial input
                             elif (pin >23 and pin < 40):
@@ -4089,6 +4089,15 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                         self.widgets[table].hide()
                                         table = BASE+"table1"
                                         self.widgets[table].hide()
+                                elif "7i84" in temp:
+                                    print 'ssname',temp,'sschannel#',channelnum
+                                    if 'Mode 3' in temp:
+                                        ssfirmname = "7i84-m3"
+                                    else:
+                                        ssfirmname = "7i84-m0"
+                                    self.d[BASE+"subboard"] = ssfirmname
+                                    self.widgets[table].hide()
+                                    self.widgets[BASE+'_tablabel'].set_text("7I84 I/O\n (SS# %d)"%channelnum)
                                 elif "8i20" in temp:
                                     self.d[BASE+"subboard"] = "8i20"
                                     self.widgets[table].hide()

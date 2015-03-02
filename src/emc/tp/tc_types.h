@@ -51,6 +51,18 @@ typedef enum {
 #define TC_ACCEL_TRAPZ 0
 #define TC_ACCEL_RAMP 1
 
+/**
+ * Spiral arc length approximation by quadratic fit.
+ */
+typedef struct {
+    double b0;                  /* 2nd order coefficient */
+    double b1;                  /* 1st order coefficient */
+    double total_planar_length; /* total arc length in plane */
+    int spiral_in;              /* flag indicating spiral is inward,
+                                   rather than outward */
+} SpiralArcLengthFit;
+
+
 /* structure for individual trajectory elements */
 
 typedef struct {
@@ -63,6 +75,7 @@ typedef struct {
     PmCircle xyz;
     PmCartLine abc;
     PmCartLine uvw;
+    SpiralArcLengthFit fit;
 } PmCircle9;
 
 typedef struct {
@@ -113,6 +126,7 @@ typedef struct {
 
     //Acceleration
     double maxaccel;        // accel calc'd by task
+    double acc_ratio_tan;// ratio between normal and tangential accel
     
     int id;                 // segment's serial number
 
@@ -154,6 +168,9 @@ typedef struct {
                             * after this will it take to slow to zero
                             * speed) */
     int finalized;
+
+    // Temporary status flags (reset each cycle)
+    int is_blending;
 } TC_STRUCT;
 
 #endif				/* TC_TYPES_H */

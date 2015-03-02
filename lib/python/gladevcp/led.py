@@ -23,6 +23,10 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                     5, 30, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'led_blink_rate' : ( gobject.TYPE_INT, 'Blink rate',  'Led blink rate (ms)',
                     0, 1000, 0, gobject.PARAM_READWRITE),
+        'led_shiny' : ( gobject.TYPE_BOOLEAN, 'Shiny', 'Makes the Led shiny',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'led_bicolor' : ( gobject.TYPE_BOOLEAN, 'Bi-Color', 'If the Led is shiny, true tells it that the (off) state is actually (on) and should be shiny too',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'blink_when_off' : ( gobject.TYPE_BOOLEAN, 'Blink when off', 'Choose to blink while in on state (No) or off state (Yes)',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'pick_color_on'  : ( gtk.gdk.Color.__gtype__, 'Pick on color',  "",
@@ -100,31 +104,124 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             w = self.allocation.width
             h = self.allocation.height
             cr.translate(w/2, h/2)
-            cr.rectangle(-self._dia, -self._dia, self._dia*2,self._dia*2)
+            cr.rectangle(-self._dia, -self._dia, self._dia*2, self._dia*2)
+            cr.stroke_preserve()
+            cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
+            #cr.fill()
+            cr.fill_preserve()
+            
+            # now make it shiny
+            if self.led_shiny:
+                #cr.rectangle(0, 0, w, h)
+                lg = cairo.LinearGradient(0, -self._dia, 0, self._dia)
+                lg.add_color_stop_rgba(0, color.red/65535., color.green/65535., color.blue/65535., alpha)
+                lg.add_color_stop_rgba(.4, 1, 1, 1, .75)
+                lg.add_color_stop_rgba(1, color.red/65535., color.green/65535., color.blue/65535., alpha)
+                #lg.add_color_stop_rgba(1, .6, .6, .6, .5)
+                cr.set_source(lg)
+                cr.fill()
+
         # oval led
         elif self.led_shape == 1:
-            self.set_size_request(self._dia*2+5, self._dia*2)
-            w = self.allocation.width
-            h = self.allocation.height
-            cr.translate(w/2, h/2)
-            cr.scale( 1, 0.7);
-            cr.arc(0, 0, self._dia, 0, 2*math.pi)
-        # round led
-        else:            
-            self.set_size_request(self._dia*2+5, self._dia*2+5)           
-            w = self.allocation.width
-            h = self.allocation.height
-            cr.translate(w/2, h/2)
-            lg2 = cairo.RadialGradient(0, 0, self._dia-2, 0, 0, self._dia+1)
-            lg2.add_color_stop_rgba(0.0, 0., 0., 0., 0.)
-            lg2.add_color_stop_rgba(.99, 0., 0., 0., 1.)
-            lg2.add_color_stop_rgba(1.0, 0., 0., 0., 0.)
-            cr.arc(0, 0, self._dia, 0, 2*math.pi)
-            cr.mask(lg2)
+            if self.led_shiny:
+                self.set_size_request(self._dia*2+5, self._dia*2)
+                w = self.allocation.width
+                h = self.allocation.height
+                cr.translate(w/2, h/2)
+                cr.scale( 1, 0.7);
 
-        cr.stroke_preserve()        
-        cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
-        cr.fill()    
+                radius = self._dia
+                linewidth = math.sqrt(radius) * 1.25
+                cr.set_line_width(linewidth)
+                
+                #cr.arc(0, 0, radius-(linewidth/4), 0, 2*math.pi)
+                cr.arc(0, 0, radius, 0, 2*math.pi)
+                r0 = cairo.RadialGradient(0, 0, radius-(linewidth/2), 0, 0, radius+(linewidth/2))
+                r0.add_color_stop_rgb(0, .75, .75, .75)
+                r0.add_color_stop_rgb(1.0, .15, .15, .15)
+                cr.set_source(r0)
+                cr.stroke_preserve()
+        
+                r1 = cairo.RadialGradient(0, 0, radius/8, 0, 0, radius)
+                r1.add_color_stop_rgb(0.4, color.red/65535., color.green/65535., color.blue/65535.)
+                r1.add_color_stop_rgb(0.95, color.red/65535.*0.85, color.green/65535.*0.85, color.blue/65535.*0.85)
+                r1.add_color_stop_rgb(1.0, color.red/65535., color.green/65535., color.blue/65535.)
+                cr.set_source(r1)
+                cr.fill()
+                
+                cr.arc(0, 0, radius, 0, 2*math.pi)
+                if self.is_on or self.led_bicolor:
+                    r2 = cairo.RadialGradient(0, 0, 0, 0, 0, radius)
+                    #r2 = cairo.RadialGradient(-radius/6, -radius/6, 0, -radius/6, -radius/6, radius)
+                else:
+                    r2 = cairo.RadialGradient(-radius/6, -radius/6, 0, -radius/6, -radius/6, radius/2 - radius/8)
+                r2.add_color_stop_rgba(0, 1, 1, 1, 1)
+                r2.add_color_stop_rgba(1, 1, 1, 1, 0)
+                cr.set_source(r2)
+                cr.fill()
+            else:
+                self.set_size_request(self._dia*2+5, self._dia*2)
+                w = self.allocation.width
+                h = self.allocation.height
+                cr.translate(w/2, h/2)
+                cr.scale( 1, 0.7);
+                cr.arc(0, 0, self._dia, 0, 2*math.pi)
+                cr.stroke_preserve()        
+                cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
+                cr.fill()
+            
+        # round led
+        else:
+            if self.led_shiny:
+                self.set_size_request(self._dia*2+5, self._dia*2+5)           
+                w = self.allocation.width
+                h = self.allocation.height
+                cr.translate(w/2, h/2)
+
+                radius = self._dia
+                linewidth = math.sqrt(radius) * 1.25
+                cr.set_line_width(linewidth)
+                
+                #cr.arc(0, 0, radius-(linewidth/4), 0, 2*math.pi)
+                cr.arc(0, 0, radius, 0, 2*math.pi)
+                r0 = cairo.RadialGradient(0, 0, radius-(linewidth/2), 0, 0, radius+(linewidth/2))
+                r0.add_color_stop_rgb(0, .75, .75, .75)
+                r0.add_color_stop_rgb(1.0, .15, .15, .15)
+                cr.set_source(r0)
+                cr.stroke_preserve()
+        
+                r1 = cairo.RadialGradient(0, 0, radius/8, 0, 0, radius)
+                r1.add_color_stop_rgb(0.4, color.red/65535., color.green/65535., color.blue/65535.)
+                r1.add_color_stop_rgb(0.95, color.red/65535.*0.85, color.green/65535.*0.85, color.blue/65535.*0.85)
+                r1.add_color_stop_rgb(1.0, color.red/65535., color.green/65535., color.blue/65535.)
+                cr.set_source(r1)
+                cr.fill()
+                
+                cr.arc(0, 0, radius, 0, 2*math.pi)
+                if self.is_on or self.led_bicolor:
+                    r2 = cairo.RadialGradient(0, 0, 0, 0, 0, radius)
+                    #r2 = cairo.RadialGradient(-radius/6, -radius/6, 0, -radius/6, -radius/6, radius)
+                else:
+                    r2 = cairo.RadialGradient(-radius/6, -radius/6, 0, -radius/6, -radius/6, radius/2 - radius/8)
+                r2.add_color_stop_rgba(0, 1, 1, 1, 1)
+                r2.add_color_stop_rgba(1, 1, 1, 1, 0)
+                cr.set_source(r2)
+                cr.fill()
+            else:
+                self.set_size_request(self._dia*2+5, self._dia*2+5)           
+                w = self.allocation.width
+                h = self.allocation.height
+                cr.translate(w/2, h/2)
+                lg2 = cairo.RadialGradient(0, 0, self._dia-2, 0, 0, self._dia+1)
+                lg2.add_color_stop_rgba(0.0, 0., 0., 0., 0.)
+                lg2.add_color_stop_rgba(.99, 0., 0., 0., 1.)
+                lg2.add_color_stop_rgba(1.0, 0., 0., 0., 0.)
+                cr.arc(0, 0, self._dia, 0, 2*math.pi)
+                cr.mask(lg2)
+                cr.stroke_preserve()        
+                cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
+                cr.fill()    
+
         return False
       
     # This sets the LED on or off color

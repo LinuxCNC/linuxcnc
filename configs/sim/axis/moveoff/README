@@ -27,6 +27,7 @@ Demonstration configs:
 3 always_local     always  local
 4 always_external  always  external (simulated)
 5 no_gui           NA      NA
+6 zretract         onpause pyvcp panel
 
 Declining usage (these will be deleted):
   moveoff_demo2    onpause local

@@ -6,12 +6,20 @@
 
 Halcmd is a command line tool for manipulating the HAL. There is a
 rather complete man page for halcmd, which will be installed if you
-have installed LinuxCNC from either source or a package. If you have
-compiled LinuxCNC for “run-in-place”, the man page is not installed, but it
-is accessible. From the main LinuxCNC directory, do:
+have installed LinuxCNC from either source or a package. The manpage
+provides usage info:
 
 ----
-man -M docs/man halcmd
+man halcmd
+----
+
+If you have compiled LinuxCNC for “run-in-place”, you must source
+the rip-environment script to make the man page available:
+
+----
+cd toplevel_directory_for_rip_build
+. scripts/rip-environment
+man halcmd
 ----
 
 The <<cha:HAL-tutorial,HAL Tutorial>> has a number of examples of halcmd
@@ -72,6 +80,27 @@ image::images/hal-meter01.png[]
 
 image::images/hal-meter02.png[]
 
+== Halshow[[sec:Halshow]](((halshow)))
+
+Halshow (see separate section for complete usage description)
+can be started from the command line to show details for selected
+components, pins, parameters, signals, functions, and threads of a running HAL.
+The WATCH tab provides a continuous display of selected pin, parameters, and
+signal items.  The File menu provides buttons to 1) save the watch items to
+a watch list and to load and existing watch list.  The watch list items can
+also be loaded automatically on startup.  For command line usage:
+----
+halshow --help
+Usage:
+  halshow [Options] [watchfile]
+  Options:
+           --help  (this help)
+
+Notes:
+       Create watchfile in halshow using: 'File/Save Watch List'
+       linuxcnc must be running for standalone usage
+----
+
 == Halscope[[sec:Halscope]]
 
 Halscope is an 'oscilloscope' for the HAL. It lets you capture the
@@ -79,4 +108,80 @@ value of pins, signals, and parameters as a function of time. Complete
 operating instructions should be located here eventually. For now,
 refer to section  <<sec:Tutorial-Halscope>> in the tutorial chapter,
 which explains the basics.
+
+The halscope File menu selector provides buttons to save a configuration
+or open a previously saved configuration.  When halscope is terminated,
+the last configuration is saved in a file named autosave.halscope.
+
+Configuration files may also be specified when starting halscope from
+the commandline.  Commandline help (-h) usage:
+----
+halscope -h
+Usage:
+  halscope [-h] [-i infile] [-o outfile] [num_samples]
+----
+
+== sim_pin[[sec:sim_pin]]
+sim_pin is a command line utility to display and update any number of
+writable pins, parameters or signals.  Usage:
+----
+sim_pin
+  Usage:
+         sim_pin name1 [name2 ...] &
+
+  Note:  linuxcnc must be running
+         A named item can specify a pin, param, or signal
+         The item must be writable, e.g.:
+            pin:    IN or I/O (and not connected to a signal)
+            param:  RW
+            signal: connected to a writable pin
+----
+For complete information, see the man page:
+----
+man sim_pin
+----
+Example (with LinuxCNC running):
+----
+halcmd loadrt mux2 names=example; halcmd net sig_example example.in0
+sim_pin example.sel example.in1 sig_example &
+----
+image::images/sim_pin.png[]
+
+== simulate_probe[[sec:simulate_probe]]
+simulate_probe is a simple gui to simulate activation of the pin
+motion.probe-input.  Usage:
+----
+simulate_probe &
+----
+
+image::images/simulate_probe.png[]
+
+== hal-histogram[[sec:hal-histogram]]
+hal-histogram is a command line utility to display histograms for hal pins.
+----
+Usage:
+   hal-histogram --help | -?
+or
+   hal-histogram [Options] [pinname]
+
+Options:
+  --minvalue  minvalue (minimum bin, default: 0)
+  --binsize   binsize  (binsize, default: 100)
+  --nbins     nbins    (number of bins, default: 50)
+
+  --logscale  0|1      (y axis log scale, default: 1)
+  --text      note     (text display, default: "" )
+  --show               (show count of undisplayed nbins, default off)
+  --verbose            (progress and debug, default off)
+
+Notes:
+  1) LinuxCNC (or another Hal application) must be running
+  2) If no pinname is specified, default is: motion-command-handler.time
+  3) This app may be opened for 5 pins
+  4) pintypes float, s32, u32, bit are supported
+  5) The pin must be associated with a thread supporting floating point
+     For a base thread, this may require using:
+     loadrt motmod ... base_thread_fp=1
+----
+image::images/hal-histogram.png[]
 

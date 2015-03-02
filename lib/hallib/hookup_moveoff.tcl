@@ -1,3 +1,5 @@
+# hallib procs:
+source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #
 # hookup_moveoff.tcl -- HALFILE to:
 #   1) disconnect initial pos-cmd and pos-fb pin connections
@@ -91,109 +93,6 @@ proc do_hal {args} {
   }
 } ;# do_hal
 
-proc find_thread_names {} {
-  # set ::HU(motion,threadname) ==> name of thread with motion-command-handler
-  # and populate ::HU for all thread items
-  set ans [hal show thread]
-  set lines [split $ans \n]
-  set header_len 2
-  set lines [lreplace $lines 0 [expr $header_len -1]]
-  set lines [lreplace $lines end end]
-  set remainder ""
-  set ct 0
-  foreach line $lines {
-    catch {unset f1 f2 f3 f4}
-    scan [lindex $lines $ct] \
-                "%s %s %s %s" \
-                 f1 f2 f3 f4
-    if ![info exists f3] {
-      set index $f1; set compname $f2
-      set ::HU($threadname,$compname)  $index
-      set ::HU($threadname,index,last) $index
-      if {"$compname" == "motion-command-handler"} {
-        set ::HU(motion-command-handler,threadname) $threadname
-        set ::HU(motion-command-handler,index)      $index
-      }
-      if {"$compname" == "motion-controller"} {
-        set ::HU(motion-controller,threadname) $threadname
-        set ::HU(motion-controller,index)      $index
-      }
-    } else {
-      set period $f1; set fp $f2; set threadname $f3
-      lappend ::HU(threadnames) $threadname
-      set ::HU($threadname,fp) $fp
-      set ::HU($threadname,period) $period
-    }
-    incr ct
-  }
-  if [info exists ::HU(motion-controller,threadname)] {
-    if [info exists ::HU(motion-command-handler,threadname)] {
-      if {   "$::HU(motion-controller,threadname)" \
-          != "$::HU(motion-command-handler,threadname)" \
-         } {
-        return -code error "find_thread_names: mot funcs on separate threads"
-        if {  $::HU(motion-command-handler,index) \
-            > $::HU(motion-controller,index) \
-           } {
-          return -code error "find_thread_names: mot funcs OUT-OF-SEQUENCE"
-        }
-      }
-      set ::HU(motion,threadname) $::HU(motion-controller,threadname)
-      return $::HU(motion,threadname)
-    } else {
-      return -code error "find_thread_names: motion-controller not found"
-    }
-  } else {
-    return -code error "find_thread_names: motion-command-handler not found"
-  }
-} ;# find_thread_names
-
-proc is_connected {result_name pinname } {
-  upvar $result_name ay
-  # use hal directly here for show
-  # elsewhere use do_hal to support testing with ::noexecute
-  set ans [hal show pin $pinname]
-  set lines [split $ans \n]
-  set sig ""
-  set sep ""
-  set ct [scan [lindex $lines 2] "%s %s %s %s %s %s %s" \
-                                 owner type dir val name sep sig]
-  if {$ct <0} {
-    return 0
-  }
-  set ay(owner)     $owner
-  set ay(type)      $type
-  set ay(direction) $dir
-  set ay(value)     $val
-  set ay(separator) $sep
-  set ay(signame)   $sig
-  return 1
-} ;# is_connected
-
-proc get_netlist {inpins_name outpin_name signame} {
-  upvar $inpins_name inpins
-  upvar $outpin_name outpin
-  # use hal directly here for show
-  # elsewhere use do_hal to support testing with ::noexecute
-  set ans [hal show sig $signame]
-  set lines [split $ans \n]
-  set header_len 3
-  set lines [lreplace $lines 0 [expr $header_len -1]]
-  set lines [lreplace $lines end end]
-  set ct 0
-  foreach line $lines {
-    scan [lindex $lines $ct] "%s %s" dir pinname
-    switch $dir {
-      "==>" {lappend inpins $pinname}
-      "<==" {lappend outpin $pinname}
-      default {return -code error "get_netlist: unrecognized <$line>"}
-    }
-    incr ct
-  }
-  if {[llength $inpins] == 0} { set inpins {} }
-  if {[llength $outpin] == 0} { set outpin {} }
-} ;# get_netlist
-
 proc setup_pinnames {} {
   # Note: works for standard names but a custom proc is needed
   #       here if the Hal alias command is used on the names
@@ -216,7 +115,7 @@ proc install_moveoff {} {
   set pnumber [expr 1 + $::HU(highest_joint_num)]
   do_hal loadrt moveoff personality=$pnumber names=$::m
 
-  set mot_thread $::HU(motion,threadname)
+  set mot_thread $::HU(motion-controller,threadname)
 
   if [info exists ::HU($mot_thread,motion-controller)] {
     set write_index [expr 1 + $::HU($mot_thread,motion-controller)]
@@ -240,9 +139,9 @@ proc install_moveoff {} {
 proc disconnect_pos_from_motion {a} {
   set pinname $::HU($a,pos,pinname)
   set inpins {}; set outpin {}
-  if [is_connected tmp $pinname] {
+  if [connection_info tmp $pinname] {
     if {$tmp(signame) != ""} {
-      get_netlist inpins outpin $tmp(signame)
+      get_netlist inpins outpin iopins $tmp(signame)
       set ::HU($a,pos,signame)  $tmp(signame)
       set ::HU($a,pos,inputs)   $inpins
       set ::HU($a,pos,output)   $outpin
@@ -256,9 +155,9 @@ proc disconnect_pos_from_motion {a} {
 proc disconnect_fb_to_motion {a} {
   set pinname $::HU($a,fb,pinname)
   set inpins {}; set outpin {}
-  if [is_connected tmp $pinname] {
+  if [connection_info tmp $pinname] {
     if {$tmp(signame) != ""} {
-      get_netlist inpins outpin     $tmp(signame)
+      get_netlist inpins outpin iopins $tmp(signame)
       set ::HU($a,fb,signame)       $tmp(signame)
       set ::HU($a,fb,inputs)        $inpins
       set ::HU($a,fb,output) $outpin
@@ -388,9 +287,9 @@ if [namespace exists ::tp] {
 }
 
 if [catch {
-  set ::HU(cmd) find_thread_names; eval $::HU(cmd)
-  set ::HU(cmd) setup_pinnames;    eval $::HU(cmd)
-  set ::HU(cmd) install_moveoff;   eval $::HU(cmd)
+  set ::HU(cmd) "thread_info ::HU"; eval $::HU(cmd)
+  set ::HU(cmd) setup_pinnames;     eval $::HU(cmd)
+  set ::HU(cmd) install_moveoff;    eval $::HU(cmd)
   foreach a $::HU(axes) {
     set ::HU(cmd) "disconnect_pos_from_motion $a"; eval $::HU(cmd)
     set ::HU(cmd) "disconnect_fb_to_motion    $a"; eval $::HU(cmd)

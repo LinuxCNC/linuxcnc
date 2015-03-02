@@ -1,5 +1,9 @@
 # xhc-hb04.tcl: HALFILE for xhc-hb04 pendant
 
+# library procs:
+set hallib_dir [exec linuxcnc_var HALLIB_DIR]
+source [file join $hallib_dir hal_procs_lib.tcl]
+
 # Usage:
 # In ini file, include:
 #   [HAL]
@@ -88,19 +92,6 @@ proc is_uniq {list_name} {
   }
   return 1 ;# unique
 } ;# is_uniq
-
-proc pin_exists {name} {
-  set line [lindex [split [show pin $name] \n] 2]
-  if {"$line" == ""} {
-    return 0 ;# fail
-  }
-  if [catch {scan $line "%d %s %s %s%s" owner type dir value pinname} msg] {
-     return 0 ;# fail
-  } else {
-     #puts stderr "OK:$owner $type $dir $value $pinname"
-     return 1 ;# ok
-  }
-} ;# pin_exists
 
 proc connect_pins {} {
   foreach bname [lsort [array names ::XHC_HB04_BUTTONS]] {
@@ -327,6 +318,10 @@ if { [namespace exists ::tp] && ([::tp::passnumber] == 0) } {
 }
 
 set cfg LIB:xhc-hb04-layout2.cfg ;# default
+
+if ![info exists ::HAL(HALUI)] {
+  err_exit "\[HAL\]HALUI is not set"
+}
 
 foreach name [array names ::XHC_HB04_CONFIG] {
   set ::XHC_HB04_CONFIG($name) [string trim $::XHC_HB04_CONFIG($name) "{}"]

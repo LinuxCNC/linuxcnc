@@ -52,7 +52,10 @@
  * the future.
  */
 typedef enum {
-    TP_ERR_RADIUS = -6,
+    TP_ERR_INVALID = -9,
+    TP_ERR_INPUT_TYPE = -8,
+    TP_ERR_TOLERANCE = -7,
+    TP_ERR_RADIUS_TOO_SMALL = -6,
     TP_ERR_GEOM = -5,
     TP_ERR_RANGE = -4,
     TP_ERR_MISSING_OUTPUT = -3,
@@ -63,6 +66,7 @@ typedef enum {
     TP_ERR_SLOWING,
     TP_ERR_STOPPED,
     TP_ERR_WAITING,
+    TP_ERR_ZERO_LENGTH,
     TP_ERR_LAST
 } tp_err_t;
 

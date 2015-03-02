@@ -1,0 +1,23 @@
+(Simple straight line case to test "perfect" tangent case)
+(Setup code)
+G20 G90 G64 G17
+(Test code begins here)
+
+O100 sub
+#1=0
+#2=0.0005
+G91
+o101 while [#1 LT 1000]
+  X[#2]
+  #1 = [#1+1] (increment the test counter)
+o101 endwhile
+O100 endsub
+
+G0 X0 Y0 Z0
+G1 X0 F999
+O100 call
+(M3 S2000)
+O100 call
+G90
+M2
+

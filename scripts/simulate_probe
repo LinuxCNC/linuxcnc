@@ -19,6 +19,7 @@ if [catch {hal setp motion.probe-input 0} msg] {
 }
 
 pack [label .l -width 20 -height 10 -bg lightgray -fg black \
+     -relief raised -bd 5 \
      -text "Push to simulate\nProbe touch"] \
      -fill both -expand 1
 bind .l <ButtonPress-1>   probetouch

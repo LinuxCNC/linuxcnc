@@ -1,5 +1,9 @@
 #!/usr/bin/tclsh
 
+# library procs:
+set hallib_dir [exec linuxcnc_var HALLIB_DIR]
+source [file join $hallib_dir hal_procs_lib.tcl]
+
 # A gui to demonstrate the use of the moveoff component for
 # applying Hal-only offsets.
 
@@ -164,10 +168,12 @@ proc do_poll {} {
   if {"$status_msg" != $::MV(old,status_msg)} {
     set ::MV(label,applied,text) $status_msg
     $::MV(label,applied) configure -state normal -bg $bg
-    if $offset_applied {
-      disallow_resume
-    } else {
-      allow_resume
+    if { !$::MV(opt,no_resume_inhibit) } {
+      if $offset_applied {
+        disallow_resume
+      } else {
+        allow_resume
+      }
     }
   }
 
@@ -229,10 +235,12 @@ proc resume_after_delay {} {
                     -font [list Helvetica $msg_fsize bold] \
        ] -side top -fill both
   set cancel_fsize [expr $::MV(font,size) + 8]
-  pack [button $t.b -text "Cancel Auto Resume" -bd 5 \
-                    -font [list Helvetica $cancel_fsize bold] \
-                    -command cancel_auto_resume \
-       ] -expand 1 -fill both
+  if !$::MV(opt,no_cancel_autoresume) {
+    pack [button $t.b -text "Cancel Auto Resume" -bd 5 \
+                      -font [list Helvetica $cancel_fsize bold] \
+                      -command cancel_auto_resume \
+         ] -expand 1 -fill both
+  }
   # use the same geometry as the toplevel for the popup:
   wm geometry $t [wm geometry $::MV(top)]
 
@@ -450,31 +458,12 @@ You probaly should resume in the main GUI"
   return
 } ;# bye
 
-proc bitpin_exists {pinname} {
-  if [catch {hal getp $pinname} msg ] {
-    if {[string first "not-found" $msg] < 0} {
-      return 0
-    } else {
-      return 1
-    }
-  } else {
-    return 1
-  }
+proc bitpin_exists {pattern} {
+  # return unique name iff unique bit pin matching pattern exists
+  set ans [string trim [hal list pin -tbit $pattern]]
+  if {[llength $ans] == 1} {return "$ans"}
+  return ""
 } ;# bitpin_exists
-
-proc is_connected {pinname {signame {} } } {
-  upvar $signame thesig
-  set ans [hal show pin $pinname]
-  set lines [split $ans \n]
-  set thesig ""
-  set sep ""
-  set ct [scan [lindex $lines 2] "%s %s %s %s %s %s %s" \
-                                 owner type dir val name sep thesig]
-  if {$ct <0}          {return not_connected}
-  if {"$sep" == "<=="} {return is_input}
-  if {"$sep" == "==>"} {return is_output}
-  return "not_connected"
-} ;# is_connected
 
 proc connect_pin_to_sig {pinname new_signame} {
   if {[is_connected $pinname existing_signame] != "not_connected"} {
@@ -492,15 +481,15 @@ proc connect_pin_to_sig {pinname new_signame} {
 } ;# connect_pin_to_sig
 
 proc disallow_resume {} {
-  if [info exists ::MV(resume-inhibit,pin)] {
-     hal setp $::MV(resume-inhibit,pin) 1
-  }
+  set resume_inhibit_pin [bitpin_exists *.resume-inhibit]
+  if {"$resume_inhibit_pin" == ""} return
+  hal setp $resume_inhibit_pin 1
 } ;# disallow_resume
 
 proc allow_resume {} {
-  if [info exists ::MV(resume-inhibit,pin)] {
-     hal setp $::MV(resume-inhibit,pin) 0
-  }
+  set resume_inhibit_pin [bitpin_exists *.resume-inhibit]
+  if {"$resume_inhibit_pin" == ""} return
+  hal setp $resume_inhibit_pin 0
 } ;# allow_resume
 
 proc set_defaults {} {
@@ -540,6 +529,7 @@ proc set_defaults {} {
   set ::MV(opt,noentry)                0
   set ::MV(opt,no_resume_inhibit)      0
   set ::MV(opt,no_pause_requirement)   0
+  set ::MV(opt,no_cancel_autoresume)   0
   set ::MV(resume,pulse,ms)          100
   set ::MV(resume,delay,sample,ms)   500
   set ::MV(resume,delay,secs)          5
@@ -557,12 +547,12 @@ proc verify_context {} {
   # return "" if ok, else errtxt
 
   if !$::MV(opt,no_pause_requirement) {
-    if ![bitpin_exists halui.program.is-paused] {
+    if {"" == [bitpin_exists halui.program.is-paused]} {
       return "linuxcnc and halui must be running\n
 For info:\n$::MV(prog) --help | more"
     }
   }
-  if ![bitpin_exists $::m.apply-offsets] {
+  if {"" == [bitpin_exists $::m.apply-offsets]} {
     return "moveoff component must be loaded with name: $::m"
   }
 
@@ -576,7 +566,21 @@ For info:\n$::MV(prog) --help | more"
 
   switch [is_connected $::m.move-enable sig] {
     not_connected {puts \
-      "$::MV(prog):$::m.move-enable not connected, Providing controls"}
+      "$::MV(prog):$::m.move-enable not connected, Providing controls"
+      set ::MV(control_move_enable 1)
+      foreach name {apply-offsets} {
+        if {[is_connected $::m.$name] != "not_connected"} {
+          return "Error: $pname is already connected"
+        }
+      }
+      foreach aname $::MV(axes) {
+        set idx $::MV($aname,idx)
+        set pname $::m.offset-in-${idx}
+        if {[is_connected $pname] != "not_connected"} {
+          return "Error: $pname is already connected"
+        }
+      }
+    }
     is_input {puts \
       "$::MV(prog):$::m.move-enable already connected <$sig>,Display Only"
       set ::MV(control_move_enable) 0
@@ -588,26 +592,6 @@ For info:\n$::MV(prog) --help | more"
     return "halui.program.resume is connected cannot use -autoresume <$sig>"
   }
 
-  if { !$::MV(opt,no_resume_inhibit) } {
-    set ans [hal show pin *.resume-inhibit]
-    set lines [split $ans \n]
-    set rest ""
-    if {[catch {
-
-      scan [lindex $lines 2] "%s %s %s %s %s %s" owner type dir value name rest
-      if {$type == "bit" && $dir == "IN"} {
-        if {[is_connected $name sig] != "not_connected"} {
-          puts "$::MV(prog):verify_context: <$name> already connected <$sig>"
-        } else {
-          set ::MV(resume-inhibit,pin) "$name"
-          puts "$::MV(prog):verify_context: using <$name> for resume-inhibit"
-        }
-      }
-
-    } msg ] }  {
-      puts "$::MV(prog):No pin named *.resume-inhibit"
-    }
-  }
   return ""
 } ;# verify_context
 
@@ -657,6 +641,9 @@ proc get_parms {} {
                           set ::argv [lreplace $::argv 0 0]
                          }
       -no_pause_requirement {set ::MV(opt,no_pause_requirement) 1
+                             set ::argv [lreplace $::argv 0 0]
+                            }
+      -no_cancel_autoresume {set ::MV(opt,no_cancel_autoresume) 1
                              set ::argv [lreplace $::argv 0 0]
                             }
       -debug {set ::MV(opt,debug) 1
@@ -762,6 +749,7 @@ proc usage { {errtxt ""} } {
                 noentry \
                 no_resume_inhibit \
                 no_pause_requirement \
+                no_cancel_autoresume \
                } {
     if $::MV(opt,$item) {
       set default_$item inuse
@@ -804,6 +792,9 @@ Options for special cases:
                               (do not use a resume-inhibit-pin)
     \[-no_pause_requirement\] (default: $default_no_pause_requirement)
                               (no check for halui.program.is-paused)
+    \[-no_cancel_autoresume\] (default: $default_no_cancel_autoresume)
+                              (useful for retraact offsets with simple)
+                              (external control                       )
 "
 #"vim
 
@@ -830,6 +821,12 @@ if ![info exists ::MV(top)] {
      usage "$errtxt"
   }
 
+  set errtxt [cross_reference]
+  if {"$errtxt" != ""} {
+     error_popup "cross_reference: $errtxt"
+     usage "$errtxt"
+  }
+
   set errtxt [verify_context]
   if {"$errtxt" != ""} {
     error_popup "verify_context:\n$errtxt"
@@ -837,12 +834,6 @@ if ![info exists ::MV(top)] {
     exit 1
   } else {
     puts "$::MV(prog):verify_context: ok"
-  }
-
-  set errtxt [cross_reference]
-  if {"$errtxt" != ""} {
-     error_popup "cross_reference: $errtxt"
-     usage "$errtxt"
   }
 
   set_restrictions_on_widgets ;# conditionally disable some controls

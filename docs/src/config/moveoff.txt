@@ -57,7 +57,8 @@ WAYPOINT_THRESHOLD =
 
 ----
 [APPLICATIONS]
-DELAY = 5
+# Note: a delay may be required if there are [HAL]POSTGUI_HALFILE dependencies
+DELAY = 0
 APP = moveoff_gui option1 option2 ...
 ----
 
@@ -67,38 +68,41 @@ For details on available Options, Use:
 $ moveoff_gui --help
 
 Usage:
-moveoff_gui [Options}
+moveoff_gui [Options]
 
 Options:
-   [--help | -? | -- -h ]  (This text)
+    [--help | -? | -- -h ]  (This text)
 
-   [-mode [onpause | always]]  (default: onpause)
-                                 (onpause: show gui when program paused)
-                                 (always:  show gui always)
+    [-mode [onpause | always]]  (default: onpause)
+                                  (onpause: show gui when program paused)
+                                  (always:  show gui always)
 
-   [-axes axisnames]       (default: xyz (no spaces))
-                             (letters from set of: x y z a b c u v w)
-                             (example: -axes z)
-                             (example: -axes xz)
-                             (example: -axes xyz)
-   [-inc incrementvalue]   (default: 0.001 0.01 0.10 1.0 )
-                             (specify one per -inc (up to 4) )
-                             (example: -inc 0.001 -inc 0.01 -inc 0.1 )
-   [-size integer]         (default: 14
-                             (Overall gui popup size is based on font size)
-   [-loc center|+x+y]      (default: center)
-                             (example: -loc +10+200)
-   [-autoresume]           (default: not used)
-                             (resume program when move-enable deasserted)
-   [-delay delay_secs]     (default: 5 (resume delay))
+    [-axes axisnames]       (default: xyz (no spaces))
+                              (letters from set of: x y z a b c u v w)
+                              (example: -axes z)
+                              (example: -axes xz)
+                              (example: -axes xyz)
+    [-inc incrementvalue]   (default: 0.001 0.01 0.10 1.0 )
+                              (specify one per -inc (up to 4) )
+                              (example: -inc 0.001 -inc 0.01 -inc 0.1 )
+    [-size integer]         (default: 14
+                              (Overall gui popup size is based on font size)
+    [-loc center|+x+y]      (default: center)
+                              (example: -loc +10+200)
+    [-autoresume]           (default: notused)
+                              (resume program when move-enable deasserted)
+    [-delay delay_secs]     (default: 5 (resume delay))
 
 Options for special cases:
-   [-noentry]              (default: not used)
-                             (don't create entry widgets)
-   [-no_resume_inhibit]    (default: not used)
-                             (do not use a resume-inhibit-pin)
-   [-no_pause_requirement] (default: not used)
-                             (no check for halui.program.is-paused)
+    [-noentry]              (default: notused)
+                              (don't create entry widgets)
+    [-no_resume_inhibit]    (default: notused)
+                              (do not use a resume-inhibit-pin)
+    [-no_pause_requirement] (default: notused)
+                              (no check for halui.program.is-paused)
+    [-no_cancel_autoresume] (default: notused)
+                              (useful for retraact offsets with simple)
+                              (external control                       )
 ----
 
 The moveoff_gui will provide a display and and control for

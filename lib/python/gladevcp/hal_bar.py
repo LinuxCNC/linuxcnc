@@ -71,6 +71,8 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         'text_template' : ( gobject.TYPE_STRING, 'Text template',
                 'Text template to display. Python formatting may be used for one variable',
                 "%s", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+        'shiny' : ( gobject.TYPE_BOOLEAN, 'Shiny', 'Makes the bar shiny',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
     _size_request = (20, 20)
@@ -246,6 +248,18 @@ class HAL_HBar(HAL_Bar):
         cr.fill()
         cr.restore()
 
+        # now make it shiny
+        if self.shiny:
+            cr.rectangle(0, 0, w, h)
+            lg = cairo.LinearGradient(0, 0, 0, h)
+            lg.add_color_stop_rgba(0, 0, 0, 0, .5)
+            lg.add_color_stop_rgba(.16, 1, 1, 1, .25)
+            lg.add_color_stop_rgba(.33, 1, 1, 1, .75)
+            lg.add_color_stop_rgba(.66, 1, 1, 1, .25)
+            lg.add_color_stop_rgba(1, 0, 0, 0, .5)
+            cr.set_source(lg)
+            cr.fill()
+
         # make target line
         if self.target_value > 0:
             set_color(self.target_color)
@@ -304,6 +318,18 @@ class HAL_VBar(HAL_Bar):
         cr.set_source(lg)
         cr.fill()
         cr.restore()
+        
+        # now make it shiny
+        if self.shiny:
+            cr.rectangle(0, 0, w, h)
+            lg = cairo.LinearGradient(0, 0, w, 0)
+            lg.add_color_stop_rgba(0, 0, 0, 0, .5)
+            lg.add_color_stop_rgba(.16, 1, 1, 1, .25)
+            lg.add_color_stop_rgba(.33, 1, 1, 1, .75)
+            lg.add_color_stop_rgba(.66, 1, 1, 1, .25)
+            lg.add_color_stop_rgba(1, 0, 0, 0, .5)
+            cr.set_source(lg)
+            cr.fill()
 
         # make target line
         if self.target_value > 0:

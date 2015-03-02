@@ -56,9 +56,37 @@
  */
 #define MAX_NESTED_REMAPS 10
 
+// English - Metric conversion (long number keeps error buildup down)
+#define MM_PER_INCH 25.4
+//#define INCH_PER_MM 0.039370078740157477
+
 /* numerical constants */
-#define TOLERANCE_INCH 0.0005
-#define TOLERANCE_MM (TOLERANCE_INCH * 25.4)
+
+/*****************************************************************************
+The default tolerance (if none tighter is specified in the ini file) should be:
+2 * 0.001 * sqrt(2) for inch, and 2 * 0.01 * sqrt(2) for mm.
+This would mean that any valid arc where the endpoints and/or centerpoint
+got rounded or truncated to 0.001 inch or 0.01 mm precision would be accepted.
+
+Tighter tolerance down to a minimum of 1 micron +- also accepted.
+******************************************************************************/
+
+#define CENTER_ARC_RADIUS_TOLERANCE_INCH (2 * 0.001 * M_SQRT2)
+#define MIN_CENTER_ARC_RADIUS_TOLERANCE_INCH 0.00004
+
+// Note: started from original tolerance and divided by 10 here (since that was originally done inside the interpreter)
+#define RADIUS_TOLERANCE_INCH 0.00005
+
+/* Equivalent metric constants */
+
+#define CENTER_ARC_RADIUS_TOLERANCE_MM (2 * 0.01 * M_SQRT2)
+#define MIN_CENTER_ARC_RADIUS_TOLERANCE_MM 0.001
+
+#define RADIUS_TOLERANCE_MM (RADIUS_TOLERANCE_INCH * MM_PER_INCH)
+
+// Modest relative error
+#define SPIRAL_RELATIVE_TOLERANCE 0.001
+
 /* angle threshold for concavity for cutter compensation, in radians */
 #define TOLERANCE_CONCAVE_CORNER 0.05  
 #define TOLERANCE_EQUAL 0.0001 /* two numbers compare EQ if the
@@ -74,10 +102,6 @@ static inline bool equal(double a, double b)
 
 // max number of m codes on one line
 #define MAX_EMS  4
-
-// English - Metric conversion (long number keeps error buildup down)
-#define MM_PER_INCH 25.4
-//#define INCH_PER_MM 0.039370078740157477
 
 // feed_mode
 enum feed_mode { UNITS_PER_MINUTE=0, INVERSE_TIME=1, UNITS_PER_REVOLUTION=2 };
@@ -663,6 +687,8 @@ typedef struct setup_struct
   FILE *file_pointer;           // file pointer for open NC code file
   bool flood;                 // whether flood coolant is on
   CANON_UNITS length_units;     // millimeters or inches
+  double center_arc_radius_tolerance_inch; // modify with ini setting
+  double center_arc_radius_tolerance_mm;   // modify with ini setting
   int line_length;              // length of line last read
   char linetext[LINELEN];       // text of most recent line read
   bool mist;                  // whether mist coolant is on

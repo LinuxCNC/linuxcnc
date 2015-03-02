@@ -9,20 +9,20 @@
 # This halfile should follow halfiles which loadrt the moveoff component
 #-----------------------------------------------------------------------
 
-# overall enable for the component:
-# 0 ==> external control of move-enable required
+# Overall enable for the component:
+# 0 ==> external control of mv.move-enable required
 setp mv.move-enable 0
 
-# an external app must connect the mv.move-enable pin
-# to control:
+# When the mv.move-enable pin is connected to a signal, moveoff_gui
+# will provide display but no controls.
+# An external app must connect the mv.move-enable pin to control:
 net external_enable    mv.move-enable
 
-# an external app must connect to the mv.offset-in-M pins
-# to control:
+# An external app must connect to the mv.offset-in-M pins to control:
 net external_offset_0 mv.offset-in-0
 net external_offset_1 mv.offset-in-1
 net external_offset_2 mv.offset-in-2
 
-# an external app may optionally connect the mv.backtrack-enable pin
+# An external app may optionally connect the mv.backtrack-enable pin
 # to manage backtracking:
 net external_backtrack_en mv.backtrack-enable
