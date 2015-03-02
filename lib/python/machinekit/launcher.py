@@ -55,6 +55,14 @@ def cleanup_session():
         sys.stdout.write('done\n')
 
 
+# starts a command, waits for termination and checks the output
+def check_process(command):
+    sys.stdout.write("running " + command.split(None, 1)[0] + "... ")
+    sys.stdout.flush()
+    subprocess.check_call(command, shell=True)
+    sys.stdout.write('done\n')
+
+
 # starts and registers a process
 def start_process(command, check=True, wait=1.0):
     sys.stdout.write("starting " + command.split(None, 1)[0] + "... ")
@@ -94,10 +102,13 @@ def stop_processes():
 
 
 # loads a HAL configuraton file
-def load_hal_file(filename):
+def load_hal_file(filename, ini=None):
     sys.stdout.write("loading " + filename + '... ')
     sys.stdout.flush()
-    subprocess.check_call('halcmd -f ' + filename, shell=True)
+    command = 'halcmd -f ' + filename
+    if ini is not None:
+        command += ' -i ' + ini
+    subprocess.check_call(command, shell=True)
     sys.stdout.write('done\n')
 
 
