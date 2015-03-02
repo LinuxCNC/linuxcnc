@@ -70,6 +70,7 @@ You will find the following INI files included, just to show the basics: +
 * gmoccapy_tool_sensor.ini
 * gmoccapy_with_user_tabs.ini
 * gmoccapy_messages.ini
+* gmoccapy_pendant.ini
  +
 The names should explain the main intention of the different INI Files. +
 
@@ -445,21 +446,34 @@ All sliders from gmoccapy can be connected to hardware encoder or hardware potme
 ''''
 To connect encoders the following pin are exported:
 
-* gmoccapy.max-vel-counts          =  HAL_S32  ;  (Maximal Velocity of the machine)
-* gmoccapy.jog-speed-counts        =  HAL_S32  ;  (Jog velocity)
-* gmoccapy.spindle-override-counts =  HAL_S32  ;  (spindle override)
-* gmoccapy.feed-override-counts    =  HAL_S32  ;  (feed override)
-* gmoccapy.reset-feed-override     =  HAL_BIT  ;  (reset the feed override to 100 %)
-* gmoccapy.reset-spindle-override  =  HAL_BIT  ;  (reset the spindle override to 100 %)
+* gmoccapy.jog-speed.counts               = HAL_S32  ;   Jog velocity
+* gmoccapy.jog-speed.count-enable         = HAL_BIT  ;   Must be True, to enable counts
+
+* gmoccapy.feed-override.counts           = HAL_S32  ;   feed override
+* gmoccapy.feed-override.count-enable     = HAL_BIT  ;   Must be True, to enable counts
+* gmoccapy.reset-feed-override            = HAL_BIT  ;   reset the feed override to 100 %
+
+* gmoccapy.spindle-override.counts        = HAL_S32  ;   spindle override
+* gmoccapy.spindle-override.count-enable  = HAL_BIT  ;   Must be True, to enable counts
+* gmoccapy.reset-spindle-override         = HAL_BIT  ;   reset the spindle override to 100 %
+
+* gmoccapy.max-velocity.counts            = HAL_S32  ;   Maximal Velocity of the machine
+* gmoccapy.max-velocity.count-enable      = HAL_BIT  ;   Must be True, to enable counts
 
 ''''
 To connect potmeters, use the following hal pin:
 
-* gmoccapy.analog-enable           = HAL_BIT   ;  Must be True, to allow analog inputs
-* gmoccapy.jog-vel-value           = HAL_FLOAT ;  To adjust the jog velocity slider
-* gmoccapy.max-vel-value           = HAL_FLOAT ;  To adjust the max velocity slider
-* gmoccapy.feed-override-value     = HAL_FLOAT ;  To adjust the feed override slider
-* gmoccapy.spindle-override-value  = HAL_FLOAT ;  To adjust the spindle override slider
+* gmoccapy.jog-speed.direct-value         = HAL_FLOAT ;  To adjust the jog velocity slider
+* gmoccapy.jog-speed.analog-enable        = HAL_BIT   ;  Must be True, to allow analog inputs
+
+* gmoccapy.feed-override.direct-value     = HAL_FLOAT ;  To adjust the feed override slider
+* gmoccapy.feed-override.analog-enable    = HAL_BIT   ;  Must be True, to allow analog inputs
+
+* gmoccapy.spindle-override.direct-value  = HAL_FLOAT ;  To adjust the spindle override slider
+* gmoccapy.spindle-override.analog-enable = HAL_BIT   ;  Must be True, to allow analog inputs
+
+* gmoccapy.max-velocity.direct-value      = HAL_FLOAT ;  To adjust the max velocity slider
+* gmoccapy.max-velocity.analog-enable     = HAL_BIT   ;  Must be True, to allow analog inputs
 
 The float pin do accept values from 0.0 to 1.0, being the percentage value you want to set the slider value.
 
