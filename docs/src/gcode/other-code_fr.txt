@@ -1,78 +1,89 @@
 :lang: fr
-:toc:
 
 = Les autres codes
 
 [[cha:Les-autres-codes]] (((Les autres codes)))
 
-[[sec:F-Vitesse]]
-== F: Réglage de la vitesse d'avance travail
+== F: Réglage de la vitesse d'avance travail[[sec:F-Vitesse]]
 (((F: Réglage de la vitesse d'avance travail)))
 
-Pour régler la vitesse d'avance, programmer 'F-'.
-L'application de la vitesse est telle que décrite dans l'aperçu global d'une
-machine numérique, section <<sub:Vitesse-d-avance,vitesse d'avance>>, à moins
-que le mode vitesse inverse du temps ne soit activé, dans ce cas, la vitesse est
-telle que décrite dans la section sur le choix des modes de <<sec:G93-G94-G95-Modes,vitesse>>.
+Pour régler la vitesse d'avance, programmer 'Fn', n étant la vitesse en
+unités machine (millimètres ou pouces) par minute.
 
-[[sec:S-Broche]]
-== S: Réglage de la vitesse de rotation de la broche
+L'application de la vitesse est telle que décrite dans l'aperçu global d'une
+machine numérique, section <<sub:Vitesse-d-avance,vitesse d'avance>>, à
+moins que le mode vitesse inverse du temps ne soit activé, dans ce cas, la
+vitesse est telle que décrite dans la section sur le choix des modes de
+<<sec:G93-G94-G95-Modes,vitesse>>.
+
+== S: Réglage de la vitesse de rotation de la broche[[sec:S-Broche]]
 (((S: Réglage de la vitesse de rotation de la broche)))
 
-Pour régler la vitesse en tours par minute (tr/mn) de la broche, programmer 'S-'.
-La broche va tourner à cette vitesse quand elle sera programmée pour tourner.
-Il est permis de programmer un mot 'S' que la broche tourne ou non.
-Si le potentiomètre de correction de vitesse broche est
-autorisé et n'est pas positionné sur 100%,
-la vitesse de broche sera différente de celle programmée.
-Il est permis de programmer 'S0', la broche ne tournera pas.
+'Sn' - régler la vitesse de la broche à 'n' tours par minute (tr/mn).
+
+La broche va tourner à cette vitesse quand un 'M3' ou un 'M4' est activé.
+Il est permis de programmer un mot S que la broche tourne ou non.  Si le
+curseur de correction de vitesse broche est autorisé et n'est pas positionné
+sur 100%, la vitesse de broche sera différente de celle programmée.  Il est
+permis de programmer 'S0', la broche ne tournera pas.
 
 C'est une erreur si:
 
 * La valeur de S est négative.
 
-Comme décrit dans la section <<sec:G84, sur le cycle de taraudage à droite>>, 
-si un cycle de perçage 'G84' (taraudage) est actif et que
-les potentiomètres de vitesse et d'avance sont autorisés, celui qui a le
-réglage le plus bas sera utilisé. La vitesse de rotation et d'avance resterons
-synchronisées. Dans ce cas, la vitesse peut différer de celle programmée, même
-si le potentiomètre de correction de vitesse travail est sur 100%.
+Comme décrit dans la section <<sec:G84,G84>>, si un cycle de taraudage 'G84'
+est actif et que les cuseurs de vitesse rapide et d'avance travail sont
+autorisés, celui qui a le réglage le plus bas sera utilisé. Les vitesses de
+rotation et d'avance resteront synchronisées. Dans ce cas, la vitesse peut
+différer de celle programmée, même si le curseur de correction de vitesse
+travail est sur 100%.
 
-[[sec:T-Choix-Outil]]
-== T: Choix de l'outil
+== T: Choix de l'outil[[sec:T-Choix-Outil]]
 (((T: Choix de l'outil)))
 
-Pour sélectionner un outil, programmer 'T-', où la valeur de 'T'
-correspond au numéro de la poche d'outil dans le carrousel. L'outil ne sera
-appelé et changé que quand un 'M6' sera programmé voir la section
-<<sec:M6-Appel-Outil, sur l'appel d'outil>>. Le mot 'T' peut apparaitre sur la
-même ligne que le 'M6' ou sur une ligne précédente. Il est permis, mais
-normalement inutile, qu'un mot T apparaisse à plus de deux lignes avant,
-sans changement d'outil. Le carrousel peut bouger, seulement le plus récent mot
-T ne prendra effet qu'au prochain changement d'outil. Il est permis de
-programmer 'T0', aucun outil ne sera sélectionné. C'est utile pour
-avoir la broche vide.
+'Tn' - préparation au changement d'outil, 'n' représente le prochain outil à
+monter.
+
+L'outil ne sera appelé et changé que quand un 'M6' sera programmé voir la
+section <<sec:M6-Appel-Outil, sur l'appel d'outil>>. Le mot T peut
+apparaitre sur la même ligne que le M6 ou sur une ligne précédente. Il est
+même permis, mais normalement inutile, qu'un mot T apparaisse à plus de deux
+lignes avant le changement d'outil. Seul le plus récent mot T prendra effet
+au prochain changement d'outil.
+
+NOTE: Quand LinuxCNC est configuré pour un changeur d'outil à positions
+fixes (voir les infos sur RANDOM_TOOLCHANGER dans la
+<<sub:Section-EMCIO,section EMCIO>>). Il est permis de programmer 'T0',
+aucun outil ne sera sélectionné.  C'est utile pour avoir la broche vide.
+
+NOTE: Qaund LinuxCNC est configuré pour un changeur d'outil à positions
+aléatoires (voir les infos sur RANDOM_TOOLCHANGER dans la
+<<sub:Section-EMCIO,section EMCIO>>).  'T0' ne demande aucun traitement
+spécial. T0 est un numéro d'outil valide comme les autres. T0 est utilisé
+sur les machines à changeur d'outil à positions aléatoires pour suivre une
+poche vide, de sorte que le changeur d'outil se comporte comme un changeur à
+positions fixes et décharge la broche.
 
 C'est une erreur si:
 
 * Un valeur négative de T est utilisée.
+
 * Une valeur de T supérieure au nombre de poches d'outils dans le
    carrousel est utilisée.
 
 Sur certaines machines, le carrousel se déplace lorsque le mot T est
 programmé, avec l'usinage en cours. Sur ces machines, programmer 'Tn',
-plusieurs lignes de texte avant le changement d'outil permet de gagner
-du temps. Une pratique de programmation courante pour ces types de
-machines, consiste à placer le mot T pour le prochain outil sur la
-ligne suivant le changement d'outil. Cela laisse au carrousel tout le
-temps pour se positionner.
+plusieurs lignes de texte avant le changement d'outil permet de gagner du
+temps. Une pratique de programmation courante pour ces types de machines,
+consiste à placer le mot T pour le prochain outil sur la ligne suivant le
+changement d'outil. Cela laisse au carrousel tout le temps pour se
+positionner.
 
-Les mouvements rapides qui suivent un T<n> n'apparaissent pas sur l'écran de
-parcours d'outil d'Axis, et ce jusqu'au prochain mouvement en vitesse travail
-Cela se remarque surtout sur les machines ayant de longues distances de
-déplacement lors du changement d'outil, comme les tours.
-Cela peut prêter à confusion au début.
-Pour contourner ce dysfonctionnement pour l'outil courant, ajouter un G1 sans
-mouvement juste après le T<n>.
+Les mouvements rapides qui suivent un Tn, n'apparaissent pas sur l'écran de
+parcours d'outil d'Axis et ce, jusqu'au prochain mouvement en vitesse
+travail.  Cela se remarque surtout sur les machines ayant de longues
+distances de déplacement lors du changement d'outil, comme les tours. Cela
+peut prêter à confusion au début. Pour contourner cet aléa pour l'outil
+courant, ajouter un G1 sans mouvement juste après le Tn.
 
 // vim: set syntax=asciidoc:

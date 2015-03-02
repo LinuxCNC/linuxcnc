@@ -1,0 +1,229 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-03-02 15:57+0100\n"
+"PO-Revision-Date: 2015-03-02 16:06+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: other-code.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: other-code.txt:4
+msgid "= Other Codes"
+msgstr "= Les autres codes"
+
+#. type: Plain text
+#: other-code.txt:6
+msgid "[[cha:other-codes]] (((Other Codes)))"
+msgstr "[[cha:Les-autres-codes]] (((Les autres codes)))"
+
+#. type: Plain text
+#: other-code.txt:10
+msgid "[[sec:F-feed-rate]] == F: Set Feed Rate (((F: Set Feed Rate)))"
+msgstr ""
+"== F: Réglage de la vitesse d'avance travail[[sec:F-Vitesse]]\n"
+"(((F: Réglage de la vitesse d'avance travail)))"
+
+#. type: Plain text
+#: other-code.txt:13
+msgid ""
+"'Fx' - set the feed rate to 'x'.  'x' is usually in machine units (inches or "
+"millimeters) per minute."
+msgstr ""
+"Pour régler la vitesse d'avance, programmer 'Fn', n étant la vitesse en unités "
+"machine (millimètres ou pouces) par minute."
+
+#. type: Plain text
+#: other-code.txt:18
+msgid ""
+"The application of the feed rate is as described in the <<sub:feed-rate,Feed "
+"Rate>> Section, unless inverse time feed rate mode is in effect, in which case "
+"the feed rate is as described in the <<sec:G93-G94-G95-Mode,G93 G94 G95>> "
+"Section."
+msgstr ""
+"L'application de la vitesse est telle que décrite dans l'aperçu global d'une "
+"machine numérique, section <<sub:Vitesse-d-avance,vitesse d'avance>>, à moins "
+"que le mode vitesse inverse du temps ne soit activé, dans ce cas, la vitesse "
+"est telle que décrite dans la section sur le choix des modes de <<sec:G93-G94-"
+"G95-Modes,vitesse>>."
+
+#. type: Plain text
+#: other-code.txt:22
+msgid "[[sec:S-spindle-speed]] == S: Set Spindle Speed (((S: Set Spindle Speed)))"
+msgstr ""
+"== S: Réglage de la vitesse de rotation de la broche[[sec:S-Broche]]\n"
+"(((S: Réglage de la vitesse de rotation de la broche)))"
+
+#. type: Plain text
+#: other-code.txt:24
+msgid "'Sx' - set the speed of the spindle to 'x' revolutions per minute (RPM)."
+msgstr "'Sn' - régler la vitesse de la broche à 'n' tours par minute (tr/mn)."
+
+#. type: Plain text
+#: other-code.txt:30
+msgid ""
+"The spindle will turn at that speed when a 'M3' or 'M4' is in effect.  It is OK "
+"to program an S word whether the spindle is turning or not.  If the speed "
+"override switch is enabled and not set at 100%, the speed will be different "
+"from what is programmed.  It is OK to program S0, the spindle will not turn if "
+"that is done."
+msgstr ""
+"La broche va tourner à cette vitesse quand un 'M3' ou un 'M4' est activé.  Il "
+"est permis de programmer un mot S que la broche tourne ou non.  Si le curseur "
+"de correction de vitesse broche est autorisé et n'est pas positionné sur 100%, "
+"la vitesse de broche sera différente de celle programmée.  Il est permis de "
+"programmer 'S0', la broche ne tournera pas."
+
+#. type: Plain text
+#: other-code.txt:32 other-code.txt:67
+msgid "It is an error if:"
+msgstr "C'est une erreur si:"
+
+#. type: Bullet: '* '
+#: other-code.txt:34
+msgid "the S number is negative."
+msgstr "La valeur de S est négative."
+
+#. type: Plain text
+#: other-code.txt:41
+msgid ""
+"As described in the <<sec:G84-Right-Hand-Tapping,G84>> Section, if a "
+"'G84' (tapping) canned cycle is active and the feed and speed override switches "
+"are enabled, the one set at the lower setting will take effect. The speed and "
+"feed rates will still be synchronized. In this case, the speed may differ from "
+"what is programmed, even if the speed override switch is set at 100%."
+msgstr ""
+"Comme décrit dans la section <<sec:G84,G84>>, si un cycle de taraudage 'G84' "
+"est actif et que les cuseurs de vitesse rapide et d'avance travail sont "
+"autorisés, celui qui a le réglage le plus bas sera utilisé. Les vitesses de "
+"rotation et d'avance resteront synchronisées. Dans ce cas, la vitesse peut "
+"différer de celle programmée, même si le curseur de correction de vitesse "
+"travail est sur 100%."
+
+#. type: Plain text
+#: other-code.txt:45
+msgid "[[sec:T-Select-Tool]] == T: Select Tool (((T: Select Tool)))"
+msgstr ""
+"== T: Choix de l'outil[[sec:T-Choix-Outil]]\n"
+"(((T: Choix de l'outil)))"
+
+#. type: Plain text
+#: other-code.txt:47
+msgid "'Tx' - prepare to change to tool 'x'."
+msgstr ""
+"'Tn' - préparation au changement d'outil, 'n' représente le prochain outil à "
+"monter."
+
+#. type: Plain text
+#: other-code.txt:53
+msgid ""
+"The tool is not changed until an 'M6' is programmed (see Section <<sec:M6-Tool-"
+"Change,M6>>). The T word may appear on the same line as the 'M6' or on a "
+"previous line. It is OK if T words appear on two or more lines with no tool "
+"change. Only the the most recent T word will take effect at the next tool "
+"change."
+msgstr ""
+"L'outil ne sera appelé et changé que quand un 'M6' sera programmé voir la "
+"section <<sec:M6-Appel-Outil, sur l'appel d'outil>>. Le mot T peut apparaitre "
+"sur la même ligne que le M6 ou sur une ligne précédente. Il est même permis, "
+"mais normalement inutile, qu'un mot T apparaisse à plus de deux lignes avant le "
+"changement d'outil. Seul le plus récent mot T prendra effet au prochain "
+"changement d'outil."
+
+#. type: Plain text
+#: other-code.txt:58
+msgid ""
+"NOTE: When LinuxCNC is configured for a nonrandom toolchanger (see the entry "
+"for RANDOM_TOOLCHANGER in the <<sub:EMCIO-Section,EMCIO Section>>), 'T0' gets "
+"special handling: no tool will be selected. This is useful if you want the "
+"spindle to be empty after a tool change."
+msgstr ""
+"NOTE: Quand LinuxCNC est configuré pour un changeur d'outil à positions fixes "
+"(voir les infos sur RANDOM_TOOLCHANGER dans la <<sub:Section-EMCIO,section "
+"EMCIO>>). Il est permis de programmer 'T0', aucun outil ne sera sélectionné.  "
+"C'est utile pour avoir la broche vide."
+
+#. type: Plain text
+#: other-code.txt:65
+msgid ""
+"NOTE: 'T0' When LinuxCNC is configured for a random toolchanger (see the entry "
+"for RANDOM_TOOLCHANGER in the <<sub:EMCIO-Section,EMCIO Section>>), 'T0' does "
+"not get any special treatment: T0 is a valid tool like any other.  It is "
+"customary to use T0 on a random toolchanger machine to track an empty pocket, "
+"so that it behaves like a nonrandom toolchanger machine and unloads the spindle."
+msgstr ""
+"NOTE: Qaund LinuxCNC est configuré pour un changeur d'outil à positions "
+"aléatoires (voir les infos sur RANDOM_TOOLCHANGER dans la <<sub:Section-EMCIO,"
+"section EMCIO>>).  'T0' ne demande aucun traitement spécial. T0 est un numéro "
+"d'outil valide comme les autres. T0 est utilisé sur les machines à changeur "
+"d'outil à positions aléatoires pour suivre une poche vide, de sorte que le "
+"changeur d'outil se comporte comme un changeur à positions fixes et décharge la "
+"broche."
+
+#. type: Bullet: '* '
+#: other-code.txt:69
+msgid "a negative T number is used,"
+msgstr "Un valeur négative de T est utilisée."
+
+#. type: Plain text
+#: other-code.txt:73
+#, no-wrap
+msgid ""
+"* T number is used that does not appear in the tool table file (with\n"
+"    the exception that T0 on nonrandom toolchangers *is* accepted,\n"
+"    as noted above).\n"
+msgstr ""
+"* Une valeur de T supérieure au nombre de poches d'outils dans le\n"
+"   carrousel est utilisée.\n"
+
+#. type: Plain text
+#: other-code.txt:80
+msgid ""
+"On some machines, the carousel will move when a T word is programmed, at the "
+"same time machining is occurring. On such machines, programming the T word "
+"several lines before a tool change will save time. A common programming "
+"practice for such machines is to put the T word for the next tool to be used on "
+"the line after a tool change. This maximizes the time available for the "
+"carousel to move."
+msgstr ""
+"Sur certaines machines, le carrousel se déplace lorsque le mot T est programmé, "
+"avec l'usinage en cours. Sur ces machines, programmer 'Tn', plusieurs lignes de "
+"texte avant le changement d'outil permet de gagner du temps. Une pratique de "
+"programmation courante pour ces types de machines, consiste à placer le mot T "
+"pour le prochain outil sur la ligne suivant le changement d'outil. Cela laisse "
+"au carrousel tout le temps pour se positionner."
+
+#. type: Plain text
+#: other-code.txt:86
+msgid ""
+"Rapid moves after a 'T<n>' will not show on the AXIS preview until after a feed "
+"move. This is for machines that travel long distances to change the tool like a "
+"lathe. This can be very confusing at first. To turn this feature off for the "
+"current tool program a G1 without any move after the 'T<n>'."
+msgstr ""
+"Les mouvements rapides qui suivent un Tn, n'apparaissent pas sur l'écran de "
+"parcours d'outil d'Axis et ce, jusqu'au prochain mouvement en vitesse travail.  "
+"Cela se remarque surtout sur les machines ayant de longues distances de "
+"déplacement lors du changement d'outil, comme les tours. Cela peut prêter à "
+"confusion au début. Pour contourner cet aléa pour l'outil courant, ajouter un "
+"G1 sans mouvement juste après le Tn."
+
+#. type: Plain text
+#: other-code.txt:87
+msgid "// vim: set syntax=asciidoc:"
+msgstr "// vim: set syntax=asciidoc:"

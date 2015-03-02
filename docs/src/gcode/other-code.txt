@@ -1,3 +1,5 @@
+:lang: en
+
 = Other Codes
 
 [[cha:other-codes]] (((Other Codes)))
