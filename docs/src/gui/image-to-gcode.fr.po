@@ -1,0 +1,539 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-03-02 17:17+0100\n"
+"PO-Revision-Date: 2015-03-02 17:31+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: image-to-gcode.txt:2
+msgid ":lang: en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: image-to-gcode.txt:4
+msgid "= Image to G Code"
+msgstr "= Image-to-gcode: Usiner un depth maps"
+
+#. type: Plain text
+#: image-to-gcode.txt:6
+msgid "[[cha:image-to-g-code]] (((Image to G Code)))"
+msgstr "[[cha:image-to-g-code]] (((Image to G Code)))"
+
+#. type: Plain text
+#: image-to-gcode.txt:8
+msgid "image::images/image-to-gcode.png[align=\"center\"]"
+msgstr "image::images/image-to-gcode.png[align=\"left\"]"
+
+#. type: Plain text
+#: image-to-gcode.txt:10
+msgid "== What is a depth map?"
+msgstr "== Qu'est-ce qu'un depth map?"
+
+#. type: Plain text
+#: image-to-gcode.txt:13
+msgid ""
+"A depth map is a greyscale image where the brightness of each pixel "
+"corresponds to the depth (or height) of the object at each point."
+msgstr ""
+"Il s'agit d'une image en échelle de gris dont la luminosité de chaque pixel "
+"corresponds à la profondeur (ou hauteur) de chaque point de l'objet."
+
+#. type: Plain text
+#: image-to-gcode.txt:15
+msgid "== Integrating image-to-gcode with the AXIS user interface"
+msgstr "== Intégrer image-to-gcode dans l'interface utilisateur d'AXIS"
+
+#. type: Plain text
+#: image-to-gcode.txt:19
+msgid ""
+"Add the following lines to the '[FILTER]' section of your .ini file to make "
+"AXIS automatically invoke image-to-gcode when you open a .png, .gif, or .jpg "
+"image"
+msgstr ""
+"Ajoutez les lignes suivantes dans la section: '[FILTER]' de votre fichier ."
+"ini pour qu'AXIS invoque automatiquement image-to-gcode à l'ouverture d'une "
+"image .png, .gif, ou .jpg:"
+
+#. type: Plain text
+#: image-to-gcode.txt:20 image-to-gcode.txt:35
+#, no-wrap
+msgid "----\n"
+msgstr "----\n"
+
+#. type: Plain text
+#: image-to-gcode.txt:25
+#, no-wrap
+msgid ""
+"PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image\n"
+"png = image-to-gcode\n"
+"gif = image-to-gcode\n"
+"jpg = image-to-gcode\n"
+"----\n"
+msgstr ""
+"PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image\n"
+"png = image-to-gcode\n"
+"gif = image-to-gcode\n"
+"jpg = image-to-gcode\n"
+"----\n"
+
+#. type: Plain text
+#: image-to-gcode.txt:29
+msgid ""
+"The standard 'sim/axis.ini' configuration file is already configured this "
+"way."
+msgstr ""
+"Le fichier de configuration: 'sim/axis.ini' est déjà configuré de cette "
+"façon."
+
+#. type: Plain text
+#: image-to-gcode.txt:31
+msgid "== Using image-to-gcode"
+msgstr "== Utilisation d'image-to-gcode"
+
+#. type: Plain text
+#: image-to-gcode.txt:34
+msgid ""
+"Start image-to-gcode either by opening an image file in AXIS, or by invoking "
+"image-to-gcode from the terminal, as follows:"
+msgstr ""
+"image-to-gcode peut être démarré soit en ouvrant une image dans AXIS, soit "
+"en invoquant image-to-gcode dans une console, de la manière suivante:"
+
+#. type: Plain text
+#: image-to-gcode.txt:37
+#, no-wrap
+msgid ""
+"image-to-gcode torus.png > torus.ngc\n"
+"----\n"
+msgstr ""
+"image-to-gcode torus.png > torus.ngc\n"
+"----\n"
+
+#. type: Plain text
+#: image-to-gcode.txt:45
+msgid ""
+"Verify all the settings in the right-hand column, then press OK to create "
+"the gcode. Depending on the image size and options chosen, this may take "
+"from a few seconds to a few minutes. If you are loading the image in AXIS, "
+"the gcode will automatically be loaded and previewed once image-to-gcode "
+"completes. In AXIS, hitting reload will show the image-to-gcode option "
+"screen again, allowing you to tweak them."
+msgstr ""
+"Ajustez les réglages dans la colonne de droite, puis pressez OK pour créer "
+"le G-code. Selon la taille de l'image et les options choisies, le traitement "
+"peut durer de quelques secondes à quelques minutes. Quand une image est "
+"chargée dans Axis, le G-code sera automatiquement chargé et visualisé dans "
+"AXIS une fois le traitement terminé. Dans AXIS, presser Recharger, pour "
+"afficher de nouveau l'écran d'options d' image-to-gcode, ainsi il est "
+"possible de travailler en boucle."
+
+#. type: Plain text
+#: image-to-gcode.txt:47
+msgid "== Option Reference"
+msgstr "== Les différentes options"
+
+#. type: Plain text
+#: image-to-gcode.txt:49
+msgid "=== Units"
+msgstr "=== Unités"
+
+#. type: Plain text
+#: image-to-gcode.txt:52
+msgid ""
+"Specifies whether to use G20 (inches) or G21 (mm) in the generated g-code "
+"and as the units for each option labeled '(units)'."
+msgstr ""
+"Spécifie quelle unité sera utilisée dans le G-code généré G20 (pouces) ou "
+"G21 (mm), ce sera également l'unité utilisée par toutes les options "
+"marquées: '(units)'."
+
+#. type: Plain text
+#: image-to-gcode.txt:54
+msgid "=== Invert Image"
+msgstr "=== Invert Image"
+
+#. type: Plain text
+#: image-to-gcode.txt:58
+msgid ""
+"If “no”, the black pixel is the lowest point and the white pixel is the "
+"highest point. If “yes”, the black pixel is the highest point and the white "
+"pixel is the lowest point."
+msgstr ""
+"Si 'no', le pixel noir sera le point le plus bas et le pixel blanc le point "
+"le plus haut. Si 'yes', le pixel noir sera le point le plus haut et le pixel "
+"blanc le point le plus bas."
+
+#. type: Plain text
+#: image-to-gcode.txt:60
+msgid "=== Normalize Image"
+msgstr "=== Normalize Image"
+
+#. type: Plain text
+#: image-to-gcode.txt:63
+msgid ""
+"If 'yes', the darkest pixel is remapped to black, the lightest pixel is "
+"remapped to white."
+msgstr ""
+"Si 'yes', le pixel le plus sombre est ramené au noir, le pixel le plus "
+"lumineux est ramené au blanc."
+
+#. type: Plain text
+#: image-to-gcode.txt:65
+msgid "=== Expand Image Border"
+msgstr "=== Expand Image Border"
+
+#. type: Plain text
+#: image-to-gcode.txt:70
+msgid ""
+"If 'None', the input image is used as-is, and details which are at the very "
+"edges of the image may be cut off. If 'White' or 'Black', then a border of "
+"pixels equal to the tool diameter is added on all sides, and details which "
+"are at the very edges of the images will not be cut off."
+msgstr ""
+"Si 'None', l'image chargée sera utilisée telle-quelle, les détails les plus "
+"aux bords de l'image pourraient être usinés. Si 'White' ou 'Black', alors "
+"une bordure de pixels égale au diamètre de l'outil sera ajoutée sur tout le "
+"pourtour pour éviter ce risque."
+
+#. type: Plain text
+#: image-to-gcode.txt:72
+msgid "=== Tolerance (units)"
+msgstr "=== Tolerance (unités)"
+
+#. type: Plain text
+#: image-to-gcode.txt:77
+msgid ""
+"When a series of points are within 'tolerance' of being a straight line, "
+"they are output as a straight line.  Increasing tolerance can lead to better "
+"contouring performance in LinuxCNC, but can also remove or blur small "
+"details in the image."
+msgstr ""
+"Quand une série de points est proche d'une ligne droite au point d'être dans "
+"la 'tolérance' , elle sera traitée comme une ligne droite en sortie. "
+"Augmenter la tolérance peut donner de meilleures performances de contourage "
+"avec LinuxCNC, mais peut aussi estomper ou gommer les détails les plus fins "
+"de l'image."
+
+#. type: Plain text
+#: image-to-gcode.txt:79
+msgid "=== Pixel Size (units)"
+msgstr "=== Pixel Size (unités)"
+
+#. type: Plain text
+#: image-to-gcode.txt:84
+msgid ""
+"One pixel in the input image will be this many units--usually this number is "
+"much smaller than 1.0. For instance, to mill a 2.5x2.5-inch object from a "
+"400x400 image file, use a pixel size of .00625, because 2.5 / 400 = .00625."
+msgstr ""
+"Il y a beaucoup d'unités pour un pixel dans l'image entrée. Habituellement "
+"ce nombre est beaucoup plus petit que 1.0. Par exemple, pour usiner un objet "
+"de 50x50mm depuis une image de 400x400 pixels, utiliser un 'pixel size' de "
+"0.125, parce que 50 / 400 = 0.125."
+
+#. type: Plain text
+#: image-to-gcode.txt:86
+msgid "=== Plunge Feed Rate (units per minute)"
+msgstr "=== Plunge Feed Rate (unités par minute)"
+
+#. type: Plain text
+#: image-to-gcode.txt:88
+msgid "The feed rate for the initial plunge movement."
+msgstr "Vitesse du mouvement de plongée initial."
+
+#. type: Plain text
+#: image-to-gcode.txt:90
+msgid "=== Feed Rate (units per minute)"
+msgstr "=== Feed Rate (unités par minute)"
+
+#. type: Plain text
+#: image-to-gcode.txt:92
+msgid "The feed rate for other parts of the path."
+msgstr "Vitesse d'avance travail pour le reste de l'usinage."
+
+#. type: Plain text
+#: image-to-gcode.txt:94
+msgid "=== Spindle Speed (RPM)"
+msgstr "=== Spindle Speed (RPM)"
+
+#. type: Plain text
+#: image-to-gcode.txt:96
+msgid "The spindle speed S code that should be put into the gcode file."
+msgstr "Vitesse de rotation de la broche, en tours/mn"
+
+#. type: Plain text
+#: image-to-gcode.txt:98
+msgid "=== Scan Pattern"
+msgstr "=== Scan Pattern"
+
+#. type: Plain text
+#: image-to-gcode.txt:100
+msgid "Possible scan patterns are:"
+msgstr "Modèles de balayage possibles:"
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:105
+msgid "Rows"
+msgstr "Rangées"
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:105
+msgid "Columns"
+msgstr "Colonnes"
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:105
+msgid "Rows, then Columns"
+msgstr "Rangées puis colonnes"
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:105
+msgid "Columns, then Rows"
+msgstr "Colonnes puis rangées"
+
+#. type: Plain text
+#: image-to-gcode.txt:107
+msgid "=== Scan Direction"
+msgstr "=== Scan Direction"
+
+#. type: Plain text
+#: image-to-gcode.txt:109
+msgid "Possible scan directions are:"
+msgstr "Directions de balayage possibles:"
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:118
+msgid ""
+"Positive: Start milling at a low X or Y axis value, and move towards a high "
+"X or Y axis value"
+msgstr ""
+"Positive: le fraisage commence à de petites valeurs de X ou Y et se poursuit "
+"avec des valeurs croissantes."
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:118
+msgid ""
+"Negative: Start milling at a high X or Y axis value, and move towards a low "
+"X or Y axis value"
+msgstr ""
+"Négative: le fraisage commence à des valeurs élevées de X ou Y et se "
+"poursuit avec des valeurs décroissantes."
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:118
+msgid ""
+"Alternating: Start on the same end of the X or Y axis travel that the last "
+"move ended on. This reduces the amount of traverse movements"
+msgstr ""
+"Alternative: le fraisage commence aux valeurs de X ou Y où s'est terminé le "
+"dernier mouvement. Cela réduit les déplacements 'en l'air'."
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:118
+msgid "Up Milling: Start milling at low points, moving towards high points"
+msgstr ""
+"Up Milling: le fraisage commence en points bas et se poursuit vers les "
+"points hauts."
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:118
+msgid "Down Milling: Start milling at high points, moving towards low points"
+msgstr ""
+"Down Milling: le fraisage commence en points hauts et se poursuit vers les "
+"points bas."
+
+#. type: Plain text
+#: image-to-gcode.txt:120
+msgid "=== Depth (units)"
+msgstr "=== Depth (unités)"
+
+#. type: Plain text
+#: image-to-gcode.txt:123
+msgid ""
+"The top of material is always at 'Z=0'. The deepest cut into the material is "
+"'Z=-depth.'"
+msgstr ""
+"Le dessus du bloc est toujours à 'Z=0'. La profondeur d'usinage dans le "
+"matériau est de 'Z=-depth'."
+
+#. type: Plain text
+#: image-to-gcode.txt:125
+msgid "=== Step Over (pixels)"
+msgstr "=== Step Over (pixels)"
+
+#. type: Plain text
+#: image-to-gcode.txt:131
+msgid ""
+"The distance between adjacent rows or columns. To find the number of pixels "
+"for a given units distance, compute 'distance/pixel size' and round to the "
+"nearest whole number. For example, if 'pixel size=.006' and the desired step "
+"over 'distance=.015', then use a Step Over of 2 or 3 pixels, because "
+"'.015/.006=2.5''.'"
+msgstr ""
+"Distance entre rangées ou colonnes adjacentes. Pour trouver le nombre en "
+"pixels pour une distance donnée en unités, calculer: 'distance/pixel size' "
+"et arrondir au nombre le plus proche. Par exemple: si 'pixel size=.006' et "
+"le pas souhaité sur la 'distance=.015', alors utilisez un Step Over de 2 ou "
+"3 pixels, parce que '.015/.006=2.5'."
+
+#. type: Plain text
+#: image-to-gcode.txt:133
+msgid "=== Tool Diameter"
+msgstr "=== Tool Diameter"
+
+#. type: Plain text
+#: image-to-gcode.txt:135
+msgid "The diameter of the cutting part of the tool."
+msgstr "Le diamètre du taillant de l'outil."
+
+#. type: Plain text
+#: image-to-gcode.txt:137
+msgid "=== Safety Height"
+msgstr "=== Safety Height"
+
+#. type: Plain text
+#: image-to-gcode.txt:140
+msgid ""
+"The height to move to for traverse movements. image-to-gcode always assumes "
+"the top of material is at 'Z=0'."
+msgstr ""
+"La hauteur de sécurité pour les mouvements en vitesse rapide. image-to-gcode "
+"considère toujours le dessus du matériau comme étant: 'Z=0'."
+
+#. type: Plain text
+#: image-to-gcode.txt:142
+msgid "=== Tool Type"
+msgstr "=== Tool Type"
+
+#. type: Plain text
+#: image-to-gcode.txt:144
+msgid "The shape of the cutting part of the tool. Possible tool shapes are:"
+msgstr "La forme du taillant de l'outil. Les formes possibles sont:"
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:149
+msgid "Ball End"
+msgstr "Hémisphèrique"
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:149
+msgid "Flat End"
+msgstr "Bout plat"
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:149
+msgid "45 degree “vee”"
+msgstr "Vé à 45 degrés"
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:149
+msgid "60 degree “vee”"
+msgstr "Vé à 60 degrés"
+
+#. type: Plain text
+#: image-to-gcode.txt:151
+msgid "=== Lace bounding"
+msgstr "=== Lace bounding"
+
+#. type: Plain text
+#: image-to-gcode.txt:155
+msgid ""
+"This controls whether areas that are relatively flat along a row or column "
+"are skipped. This option only makes sense when both rows and columns are "
+"being milled. Possible bounding options are:"
+msgstr ""
+"Contrôle si les zones relativement plates le long d'une colonne ou d'une "
+"rangée peuvent être ignorées. Ces options n'ont de sens que pour un fraisage "
+"dans les deux directions. Trois choix sont possibles:"
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:163
+msgid "None: Rows and columns are both fully milled."
+msgstr "None: toutes les rangées et les colonnes seront entièrement fraisées."
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:163
+msgid ""
+"Secondary: When milling in the second direction, areas that do not strongly "
+"slope in that direction are skipped."
+msgstr ""
+"Secondary: lors du fraisage dans la deuxième direction, les zones qui ne "
+"présentent pas une forte pente dans cette direction seront ignorées."
+
+#. type: Bullet: ' - '
+#: image-to-gcode.txt:163
+msgid ""
+"Full: When milling in the first direction, areas that strongly slope in the "
+"second direction are skipped. When milling in the second direction, areas "
+"that do not strongly slope in that direction are skipped."
+msgstr ""
+"Full: lors du fraisage dans la première direction, les zones qui présentent "
+"une forte pente dans la deuxième direction seront ignorées. Lors du fraisage "
+"dans la deuxième direction, les zones qui ne présentent pas une forte pente "
+"dans cette direction seront ignorées."
+
+#. type: Plain text
+#: image-to-gcode.txt:165
+msgid "=== Contact angle"
+msgstr "=== Contact angle"
+
+#. type: Plain text
+#: image-to-gcode.txt:169
+msgid ""
+"When 'Lace bounding' is not 'None', slopes greater than 'Contact angle' are "
+"considered to be 'strong' slopes, and slopes less than that angle are "
+"considered to be weak slopes."
+msgstr ""
+"Quand 'Lace bounding' n'est pas None, les pentes qui présentent une pente "
+"supérieure à 'Contact angle' seront considérées comme de 'fortes' pentes et "
+"celles en dessous de cet angle considérées comme de faible pentes."
+
+#. type: Plain text
+#: image-to-gcode.txt:171
+msgid "=== Roughing offset and depth per pass"
+msgstr "=== Offset d'ébauche et profondeur par passe d'ébauche"
+
+#. type: Plain text
+#: image-to-gcode.txt:181
+msgid ""
+"Image-to-gcode can optionally perform rouging passes. The depth of "
+"successive roughing passes is given by 'Roughing depth per pass'. For "
+"instance, entering 0.2 will perform the first roughing pass with a depth of "
+"0.2, the second roughing pass with a depth of 0.4, and so on until the full "
+"Depth of the image is reached. No part of any roughing pass will cut closer "
+"than Roughing Offset to the final part. The following figure shows a tall "
+"vertical feature being milled.  In this image, Roughing depth per pass is "
+"0.2 inches and roughing offset is 0.1 inches."
+msgstr ""
+"Image-to-gcode peut facultativement produire des passes d'ébauche. La "
+"profondeur des passes d'ébauche successives est fixée par 'Roughing depth "
+"per pass'. Par exemple, entrer 0.2 pour une première passe d'ébauche d'une "
+"profondeur de 0.2, la seconde passe d'ébauche aura une profondeur de 0.4 et "
+"ainsi de suite, jusqu'à-ce que la profondeur totale Depth de l'image soit "
+"atteinte. Aucune des passes d'ébauche n'usinera plus près de la partie "
+"finale que Roughing Offset. La figure  ci-dessous montre une grande "
+"profondeur verticale à usiner. Sur cette image, la profondeur des passes "
+"d'ébauche est de 0.2 pouces et Roughing Offset de 0.1 pouces."
+
+#. type: Plain text
+#: image-to-gcode.txt:183
+msgid ".Roughing passes and final pass[[roughing-passes]]"
+msgstr ".Passes d'ébauche[[cap:Passes-Ebauche]]"
+
+#. type: Plain text
+#: image-to-gcode.txt:185
+msgid "image::images/i2g-roughing.png[]"
+msgstr "image::images/i2g-roughing.png[]"

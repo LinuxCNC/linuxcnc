@@ -1,3 +1,5 @@
+:lang: en
+
 = Image to G Code
 
 [[cha:image-to-g-code]] (((Image to G Code)))

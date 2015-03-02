@@ -1,0 +1,276 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-03-02 18:02+0100\n"
+"PO-Revision-Date: 2015-03-02 18:57+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"Language-Team: French Translation Team\n"
+"X-Generator: Poedit 1.7.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. type: Plain text
+#: rs274ngc.txt:2
+msgid ":lang en"
+msgstr ":lang: fr"
+
+#. type: Plain text
+#: rs274ngc.txt:4
+msgid "= RS274/NGC Differences"
+msgstr "= Différences avec RS274/NGC"
+
+#. type: Plain text
+#: rs274ngc.txt:6
+msgid "[[cha:rs274ngc-programs]] (((RS274/NGC Programs)))"
+msgstr "[[cha:Programmation-rs274ngc]] (((Programmation RS274/NGC)))"
+
+#. type: Plain text
+#: rs274ngc.txt:8
+msgid "== Changes from RS274/NGC"
+msgstr "== Changements entre RS274/NGC et LinuxCNC"
+
+#. type: Plain text
+#: rs274ngc.txt:10
+msgid ".Differences that change the meaning of RS274/NGC programs"
+msgstr ".Différences qui changent le déroulement des programmes de RS274/NGC"
+
+#. type: Plain text
+#: rs274ngc.txt:12
+msgid "Location after a tool change::"
+msgstr "Position après un changement d'outil::"
+
+#. type: Plain text
+#: rs274ngc.txt:17
+msgid ""
+"In LinuxCNC, the machine does not return to its original position after a "
+"tool change. This change was made because the new tool might be longer than "
+"the old tool, and the move to the original machine position could therefore "
+"leave the tool tip too low."
+msgstr ""
+"Avec LinuxCNC, le mobile ne retourne pas sur la position de départ après un "
+"changement d'outil. Ce mode de fonctionnement est nécessaire, car un outil "
+"peut être plus long que l'outil précédent et dans ce cas un mouvement sur la "
+"position précédente placerait l'outil trop bas."
+
+#. type: Plain text
+#: rs274ngc.txt:19
+msgid "Offset parameters are ini file units::"
+msgstr "Les paramètres de décalage sont dans l'unité du fichier ini::"
+
+#. type: Plain text
+#: rs274ngc.txt:25
+msgid ""
+"In LinuxCNC, the values stored in parameters for the G28 and G30 home "
+"locations, the P1...P9 coordinate systems, and the G92 offset are in \"ini "
+"file units\". This change was made because otherwise the meaning of a "
+"location changed depending on whether G20 or G21 was active when G28, G30, "
+"G10 L2, or G92.3 is programmed."
+msgstr ""
+"Dans LinuxCNC, les valeurs mémorisées dans les paramètres pour les positions "
+"d'origine des commandes G28 et G30, les systèmes de coordonnées P1 à P9 et le "
+"décalage G92 sont dans l'unité du fichier ini.  Ce changement a été fait car "
+"la position d'un point change selon que G20 ou G21 était actif lors de la "
+"programmation d'un G28, G30, G10 L2 ou G92.3."
+
+#. type: Plain text
+#: rs274ngc.txt:27
+msgid "Tool table lengths/diameters are in ini file units::"
+msgstr "Table d'outils, longueur et diamètre sont dans l'unité du fichier ini::"
+
+#. type: Plain text
+#: rs274ngc.txt:36
+msgid ""
+"In LinuxCNC, the tool lengths (offsets) and diameters in the tool table are "
+"specified in ini file units only. This change was made because otherwise the "
+"length of a tool and its diameter would change based on whether G20 or G21 "
+"was active when initiating G43, G41, G42 modes. This made it impossible to "
+"run G code in the machine's non-native units, even when the G code was simple "
+"and well-formed (starting with G20 or G21, and didn't change units throughout "
+"the program), without changing the tool table."
+msgstr ""
+"Dans LinuxCNC, les longueurs d'outil (compensation) et les diamètres sont "
+"spécifiés seulement dans l'unité du fichier ini. Cela est nécessaire, car la "
+"longueur et le diamètre de l'outil changent selon que G20 ou G21 étaient "
+"actifs à l'initialisation des modes G43, G41, G42. Il était donc impossible "
+"de lancer un G-code avec des unités machines non natives, ceci même lorsque "
+"le G-code est simple et bien formé (débutant par G20 ou G21 et sans "
+"changement d'unité tout au long du programme) sans changer la table d'outils."
+
+#. type: Plain text
+#: rs274ngc.txt:38
+msgid "G84, G87 not implemented::"
+msgstr "G84, G87 ne sont pas implémentés::"
+
+#. type: Plain text
+#: rs274ngc.txt:41
+msgid ""
+"G84 and G87 are not currently implemented, but may be added to a future "
+"release of LinuxCNC."
+msgstr ""
+"G84 et G87 ne sont pour le moment pas implémentés. Ils le seront dans une "
+"version futur de LinuxCNC."
+
+#. type: Plain text
+#: rs274ngc.txt:43
+msgid "G28, G30 with axis words::"
+msgstr "G28, G30 avec des mots d'axe::"
+
+#. type: Plain text
+#: rs274ngc.txt:51
+msgid ""
+"When G28 or G30 is programmed with only some axis words present, LinuxCNC "
+"only moves the named axes. This is common on other machine controls. To move "
+"some axes to an intermediate point and then move all axes to the predefined "
+"point, write two lines of G code: + G0 X- Y- (axes to move to intermediate "
+"point) G28 (move all axes to predefined point)"
+msgstr ""
+"Lorsqu'un G28 ou un G30 est programmé avec seulement quelques mots d'axe "
+"présents, LinuxCNC déplace seulement les axes nommés. Ce comportement est "
+"commun aux contrôleurs de machine. Pour déplacer certains axes à un point "
+"intermédiaire, puis déplacer tous les axes à un point prédéfini, écrire deux "
+"lignes de G-code: G0 X- Y-   (déplace les axes au point intermédiaire) G28 "
+"(déplace tous les axes au point prédéfini)"
+
+#. type: Plain text
+#: rs274ngc.txt:53
+msgid "== Additions to RS274/NGC"
+msgstr "== Ajouts à RS274/NGC"
+
+#. type: Plain text
+#: rs274ngc.txt:55
+msgid ".Differences that do not change the meaning of RS274/NGC programs"
+msgstr ""
+".Différences qui ne changent pas le déroulement des programmes en RS274/NGC."
+
+#. type: Plain text
+#: rs274ngc.txt:57
+msgid "G33, G76 threading codes::"
+msgstr "Codes de filetage G33 et G76::"
+
+#. type: Plain text
+#: rs274ngc.txt:59
+msgid "These codes are not defined in RS274/NGC."
+msgstr "Ces codes ne sont pas définis dans RS274/NGC."
+
+#. type: Plain text
+#: rs274ngc.txt:61
+msgid "G38.2::"
+msgstr "G38.2::"
+
+#. type: Plain text
+#: rs274ngc.txt:64
+msgid ""
+"The probe tip is not retracted after a G38.2 movement. This retraction move "
+"may be added in a future release of LinuxCNC."
+msgstr "La pointe de la sonde n'est pas rétractée après un mouvement G38.2."
+
+#. type: Plain text
+#: rs274ngc.txt:66
+msgid "G38.3...G38.5::"
+msgstr "G38.3 à G38.5::"
+
+#. type: Plain text
+#: rs274ngc.txt:68 rs274ngc.txt:72 rs274ngc.txt:76 rs274ngc.txt:80
+msgid "These codes are not defined in RS274/NGC"
+msgstr "Ces codes ne sont pas définis dans RS274/NGC."
+
+#. type: Plain text
+#: rs274ngc.txt:70
+msgid "O-codes::"
+msgstr "Les O-codes::"
+
+#. type: Plain text
+#: rs274ngc.txt:74
+msgid "M50...M53 overrides::"
+msgstr "M50 à M53 Correcteurs de vitesse::"
+
+#. type: Plain text
+#: rs274ngc.txt:78
+msgid "M61..M66::"
+msgstr "M61 à M66::"
+
+#. type: Plain text
+#: rs274ngc.txt:82
+msgid "G43, G43.1::"
+msgstr "G43, G43.1::"
+
+#. type: Plain text
+#: rs274ngc.txt:97
+msgid ""
+"'Negative Tool Lengths' + The RS274/NGC spec says \"it is expected that\" all "
+"tool lengths will be positive. However, G43 works for negative tool lengths.  "
+"+ 'Lathe tools' + G43 tool length compensation can offset the tool in both "
+"the X and Z dimensions. This feature is primarily useful on lathes.  + "
+"'Dynamic tool lengths' + LinuxCNC allows specification of a computed tool "
+"length through G43.1 I K."
+msgstr ""
+"'Longueurs d'outil négatives'\n"
+"Les spécifications RS274/NGC précisent \"il est prévu que\" toutes les "
+"longueurs d'outils soient positives.Cependant, G43 fonctionne avec des "
+"longueurs d'outil négatives.\n"
+"'Outils de tournage'\n"
+"La compensation de longueur d'outil G43 peut compenser l'outil à la fois en X "
+"et en Z. Cette fonctionnalité est surtout utile sur les tours.\n"
+"'Longueurs d'Outil dynamiques'\n"
+"LinuxCNC permet la spécification d'une longueur d'outil calculée par G43.1 I "
+"K."
+
+#. type: Plain text
+#: rs274ngc.txt:99
+msgid "G41.1, G42.1::"
+msgstr "G41.1, G42.1 Compensation dynamique::"
+
+#. type: Plain text
+#: rs274ngc.txt:104
+msgid ""
+"LinuxCNC allows specification of a tool diameter and, if in lathe mode, "
+"orientation in the G code. The format is G41.1/G42.1 D L, where D is diameter "
+"and L (if specified) is the lathe tool orientation."
+msgstr ""
+"LinuxCNC permet dans le G-code, la spécification d'un diamètre d'outil et en "
+"mode tour, l'orientation est également spécifiée. Le format est G41.1/G42.1 D "
+"L, où D est le diamètre et L (si spécifié) est l'orientation de l'outil de "
+"tournage."
+
+#. type: Plain text
+#: rs274ngc.txt:106
+msgid "G43 without H word::"
+msgstr "G43 sans le mot H::"
+
+#. type: Plain text
+#: rs274ngc.txt:113
+msgid ""
+"In ngc, this is not allowed. In LinuxCNC, it sets length offsets for the "
+"currently loaded tool. If no tool is currently loaded, it is an error. This "
+"change was made so the user doesn't have to specify the tool number in two "
+"places for each tool change, and because it's consistent with the way G41/G42 "
+"work when the D word is not specified."
+msgstr ""
+"Ce code n'est pas permis en NGC. Dans LinuxCNC, il fixe la compensation de "
+"longueur pour l'outil actuellement chargé. Si aucun outil n'est actuellement "
+"chargé, c'est une erreur. Ceci a été fait afin que l'utilisateur n'ait pas à "
+"spécifier, pour chaque changement d'outil, le numéro d'outil à deux endroits "
+"et c'est cohérent avec la manière de fonctionner de G41/G42 quand le mot D "
+"n'est pas spécifié."
+
+#. type: Plain text
+#: rs274ngc.txt:115
+msgid "U, V, and W axes::"
+msgstr "U, V et W axes::"
+
+#. type: Plain text
+#: rs274ngc.txt:118
+msgid ""
+"LinuxCNC allows machines with up to 9 axes by defining an additional set of 3 "
+"linear axes known as U, V and W"
+msgstr ""
+"LinuxCNC admet des machines ayant jusqu'à 9 axes en définissant un ensemble "
+"supplémentaire de 3 axes linéaires, connus comme U, V et W."

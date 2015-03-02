@@ -1,3 +1,5 @@
+:lang en
+
 = RS274/NGC Differences
 
 [[cha:rs274ngc-programs]] (((RS274/NGC Programs)))
