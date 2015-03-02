@@ -642,6 +642,8 @@ extern "C" {
 	PmCartesian rTan;
 	PmCartesian rPerp;
 	PmCartesian rHelix;
+	PmCartesian utvIn;  /* unit tangent vector outward */
+	PmCartesian utvOut; /* unit tangent vector inward */
 	double radius;
 	double angle;
 	double spiral;

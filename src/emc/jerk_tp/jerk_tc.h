@@ -66,6 +66,12 @@ typedef struct {
     RIGIDTAP_STATE state;
 } PmRigidTap;
 
+enum smlblnd_type {
+  SMLBLND_INIT = 0, // 0
+  SMLBLND_ENABLE,   // 1
+  SMLBLND_DISABLE   // 2
+};
+
 enum state_type {
   ACCEL_S0 = 0, // 0
   ACCEL_S1,     // 1
@@ -80,6 +86,7 @@ typedef struct {
     double cycle_time;
     double progress;        // where are we in the segment?  0..target
     double target;          // segment length
+    double distance_to_go;  // distance to go for target target..0
     double reqvel;          // vel requested by F word, calc'd by task
     double maxaccel;        // accel calc'd by task
     double jerk;            // the accelerate of accel
@@ -96,7 +103,15 @@ typedef struct {
     int s0_cycles;
     int s1_cycles;
     int s3_cycles;
+    double tj;
+    double ta;
+    double tv;
     
+    enum smlblnd_type seamless_blend_mode;
+    double nexttc_target;
+    PmCartesian utvIn; // unit tangent vector inward
+    PmCartesian utvOut; // unit tangent vector outward
+
     int id;                 // segment's serial number
 
     union {                 // describes the segment's start and end positions
@@ -114,13 +129,11 @@ typedef struct {
     int blend_with_next;    // gcode requests continuous feed at the end of 
                             // this segment (g64 mode)
     int blending;           // segment is being blended into following segment
-    double blend_vel;       // velocity below which we should start blending
     double tolerance;       // during the blend at the end of this move, 
                             // stay within this distance from the path.
     int synchronized;       // spindle sync required for this move
     int velocity_mode;	    // TRUE if spindle sync is in velocity mode, FALSE if in position mode
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
-    double vel_at_blend_start;
     int sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
     char atspeed;           // wait for the spindle to be at-speed before starting this move

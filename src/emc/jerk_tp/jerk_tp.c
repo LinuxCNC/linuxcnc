@@ -26,6 +26,8 @@
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 
+#define SMLBLND
+
 int output_chan = 0;
 syncdio_t syncdio; //record tpSetDout's here
 
@@ -236,6 +238,7 @@ int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance)
 
     tp->termCond = cond;
     tp->tolerance = tolerance;
+    rtapi_print("TERM %d %f\n", cond, tolerance);
 
     return 0;
 }
@@ -431,8 +434,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     tc.cur_vel = 0.0;
     tc.cur_accel = 0.0;
     tc.blending = 0;
-    tc.blend_vel = 0.0;
-    tc.vel_at_blend_start = 0.0;
+    tc.seamless_blend_mode = SMLBLND_INIT;
 
     tc.coords.rigidtap.xyz = line_xyz;
     tc.coords.rigidtap.abc = abc;
@@ -553,8 +555,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     tc.cur_vel = 0.0;
     tc.cur_accel = 0.0;
     tc.blending = 0;
-    tc.blend_vel = 0.0;
-    tc.vel_at_blend_start = 0.0;
+    tc.seamless_blend_mode = SMLBLND_INIT;
 
     tc.coords.line.xyz = line_xyz;
     tc.coords.line.uvw = line_uvw;
@@ -577,6 +578,8 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
 	tc.syncdio.anychanged = 0;
     }
 
+    tc.utvIn = line_xyz.uVec;
+    tc.utvOut = line_xyz.uVec;
 
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
@@ -659,8 +662,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.cur_vel = 0.0;
     tc.cur_accel = 0.0;
     tc.blending = 0;
-    tc.blend_vel = 0.0;
-    tc.vel_at_blend_start = 0.0;
+    tc.seamless_blend_mode = SMLBLND_INIT;
 
     tc.motion_type = TC_CIRCULAR;
     tc.canon_motion_type = type;
@@ -680,6 +682,8 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 	tc.syncdio.anychanged = 0;
     }
 
+    tc.utvIn = tc.coords.circle.xyz.utvIn;
+    tc.utvOut = tc.coords.circle.xyz.utvOut;
 
     if (tcqPut(&tp->queue, tc) == -1) {
 	return -1;
@@ -904,6 +908,7 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc) {
         } // switch (tc->accel_state)
     } while (immediate_state);
 
+    tc->distance_to_go = tc->target - tc->progress;
     emcmot_hal_data->debug_s32_0 = tc->accel_state;
 }
 
@@ -1212,11 +1217,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
         nexttc->feed_override = emcmotStatus->net_feed_scale;
         prepareLimitedJerk(nexttc);
-
-        // honor accel constraint if we happen to make an acute angle with the
-        // above segment or the following one
-        if(tc->blend_with_next || nexttc->blend_with_next)
-            nexttc->maxaccel /= 2.0;
     }
 
 
@@ -1297,17 +1297,80 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         }
     }
 
-    // calculate the approximate peak velocity the nexttc will hit.
-    // we know to start blending it in when the current tc goes below
-    // this velocity...
+        // calculate the approximate peak velocity the nexttc will hit.
+        // we know to start blending it in when the current tc goes below
+        // this velocity...
+        
     if(nexttc && nexttc->maxaccel) {
-        /// FIXME add blending
+    #ifdef SMLBLND
+        /**
+         * TODO: 
+         * G64 Q[01] seamless blending:
+         * where Q1 means "enable seamless blending";
+         *       Q0 means "disable seamless blending"
+         **/
+        if (tc->seamless_blend_mode == SMLBLND_INIT) {
+            double dot;
+            double k;   /* curvature */
+            double ca;  /* centripetal acceleration */
+            double rv;  /* request velocity per cycleTime */
+            rv = tc->reqvel * tp->cycleTime;
+            if (rv > tc->maxvel) {
+                rv = tc->maxvel;
+            }
+            // pmCartCartDisp(tc->utvOut, nexttc->utvIn, &k);
+            pmCartCartDot(&tc->utvOut, &nexttc->utvIn, &dot);
+            k = acos(dot)/rv;
+            ca = k * rv * rv;
+            rtapi_print("BLEND %.6f %.6f | %.6f %.6f | DOT %.6f | k = %.6f | ca = %.6f | maxacc = %.6f\n", \
+                tc->utvOut.x, tc->utvOut.y, nexttc->utvIn.x, nexttc->utvIn.y, dot, k, ca, tc->maxaccel);
+            // SMLBLND is for XYZ motion only
+            if ((ca < tc->maxaccel) && (!tc->coords.line.xyz.tmag_zero) && (!nexttc->coords.line.xyz.tmag_zero)) {
+                // allow seamless blending, SMLBLND
+                // also, (nexttc->atspeed == 0)
+                tc->seamless_blend_mode = SMLBLND_ENABLE;
+                tc->nexttc_target = nexttc->target;
+            } else {
+                tc->seamless_blend_mode = SMLBLND_DISABLE;
+            }
+        }
+    #endif // SMLBLND
     }
 
     primary_before = tcGetPos(tc);
     
     tcRunCycle(tp, tc);
     
+#ifdef SMLBLND
+    if ((tc->seamless_blend_mode == SMLBLND_ENABLE) && 
+            (tc->progress >= tc->target)) {
+        // update tc with nexttc
+        double next_vel;
+        double next_accel;
+        enum state_type next_accel_state;
+        double next_progress;
+
+        next_vel = tc->cur_vel;
+        next_accel = tc->cur_accel;
+        next_accel_state = tc->accel_state;
+        next_progress = tc->progress - tc->target;
+
+        tcqRemove(&tp->queue, 1);
+        tp->depth = tcqLen(&tp->queue);
+
+        // so get next move
+        tc = tcqItem(&tp->queue, 0, period);
+
+        tc->active = 1;
+        tc->cur_vel = next_vel;
+        tc->cur_accel = next_accel;
+        tc->accel_state = next_accel_state;
+        tc->progress = next_progress;
+        tp->activeDepth = 1;
+        tp->motionType = tc->canon_motion_type;
+        tc->blending = 0;
+    }
+#endif // SMLBLND
     primary_after = tcGetPos(tc);
     pmCartCartSub(&primary_after.tran, &primary_before.tran, 
             &primary_displacement.tran);
@@ -1319,20 +1382,78 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     primary_displacement.v = primary_after.v - primary_before.v;
     primary_displacement.w = primary_after.w - primary_before.w;
 
-    if(nexttc) {
-        /// FIXME add blending
-    }
+    // blend criteria
+    if( (tc->blending && nexttc) || 
+            (nexttc &&
+                    (tc->seamless_blend_mode == SMLBLND_ENABLE) &&
+                    (tc->distance_to_go <= tc->tolerance) &&
+                    (nexttc->target >= (tc->distance_to_go * 2)))) {
 
-    tpToggleDIOs(tc); //check and do DIO changes
-    target = tcGetEndpoint(tc);
-    tp->motionType = tc->canon_motion_type;
-    emcmotStatus->distance_to_go = tc->target - tc->progress;
-    tp->currentPos = primary_after;
-    emcmotStatus->current_vel = tc->cur_vel / tc->cycle_time;
-    emcmotStatus->requested_vel = tc->reqvel;
-    emcmotStatus->enables_queued = tc->enables;
-// report our line number to the guis
-    tp->execId = tc->id;
+        // make sure we continue to blend this segment even when its 
+        // accel reaches 0 (at the very end)
+        tc->blending = 1;
+
+        // hack to show blends in axis
+        // tp->motionType = 0;
+
+        if(tc->cur_vel > nexttc->cur_vel) {
+            target = tcGetEndpoint(tc);
+            tp->motionType = tc->canon_motion_type;
+	    emcmotStatus->distance_to_go = tc->target - tc->progress;
+	    emcmotStatus->enables_queued = tc->enables;
+	    // report our line number to the guis
+	    tp->execId = tc->id;
+            emcmotStatus->requested_vel = tc->reqvel;
+        } else {
+	    tpToggleDIOs(nexttc); //check and do DIO changes
+            target = tcGetEndpoint(nexttc);
+            tp->motionType = nexttc->canon_motion_type;
+	    emcmotStatus->distance_to_go = nexttc->target - nexttc->progress;
+	    emcmotStatus->enables_queued = nexttc->enables;
+	    // report our line number to the guis
+	    tp->execId = nexttc->id;
+            emcmotStatus->requested_vel = nexttc->reqvel;
+        }
+
+        emcmotStatus->current_vel = (tc->cur_vel + nexttc->cur_vel) / tc->cycle_time;
+
+        secondary_before = tcGetPos(nexttc);
+        tcRunCycle(tp, nexttc);
+
+        secondary_after = tcGetPos(nexttc);
+        pmCartCartSub(&secondary_after.tran, &secondary_before.tran, 
+                &secondary_displacement.tran);
+        secondary_displacement.a = secondary_after.a - secondary_before.a;
+        secondary_displacement.b = secondary_after.b - secondary_before.b;
+        secondary_displacement.c = secondary_after.c - secondary_before.c;
+
+        secondary_displacement.u = secondary_after.u - secondary_before.u;
+        secondary_displacement.v = secondary_after.v - secondary_before.v;
+        secondary_displacement.w = secondary_after.w - secondary_before.w;
+
+        pmCartCartAdd(&tp->currentPos.tran, &primary_displacement.tran, 
+                &tp->currentPos.tran);
+        pmCartCartAdd(&tp->currentPos.tran, &secondary_displacement.tran, 
+                &tp->currentPos.tran);
+        tp->currentPos.a += primary_displacement.a + secondary_displacement.a;
+        tp->currentPos.b += primary_displacement.b + secondary_displacement.b;
+        tp->currentPos.c += primary_displacement.c + secondary_displacement.c;
+
+        tp->currentPos.u += primary_displacement.u + secondary_displacement.u;
+        tp->currentPos.v += primary_displacement.v + secondary_displacement.v;
+        tp->currentPos.w += primary_displacement.w + secondary_displacement.w;
+    } else {
+	tpToggleDIOs(tc); //check and do DIO changes
+        target = tcGetEndpoint(tc);
+        tp->motionType = tc->canon_motion_type;
+	emcmotStatus->distance_to_go = tc->target - tc->progress;
+        tp->currentPos = primary_after;
+        emcmotStatus->current_vel = tc->cur_vel / tc->cycle_time;
+        emcmotStatus->requested_vel = tc->reqvel;
+	emcmotStatus->enables_queued = tc->enables;
+	// report our line number to the guis
+	tp->execId = tc->id;
+    }
 
     emcmotStatus->dtg.tran.x = target.tran.x - tp->currentPos.tran.x;
     emcmotStatus->dtg.tran.y = target.tran.y - tp->currentPos.tran.y;

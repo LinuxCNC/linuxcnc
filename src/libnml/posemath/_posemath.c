@@ -1781,6 +1781,13 @@ int pmCircleInit(PmCircle * const circle,
     circle->spiral -= circle->radius;
     pmCartCartSub(&circle->rHelix, &rEnd, &circle->rHelix);
     pmCartUnit(&rEnd, &rEnd);
+
+    /* unit vector in plane of circle perpendicular to rEnd */
+    /* utvOut: unit tangent vector outward */
+    pmCartCartCross(&circle->normal, &rEnd, &circle->utvOut);
+    /* utvIn: unit tangent vector inward */
+    pmCartUnit(&circle->rPerp, &circle->utvIn);
+
     pmCartScalMult(&rEnd, circle->radius, &rEnd);
 
     /* Patch for error spiral end same as spiral center */
