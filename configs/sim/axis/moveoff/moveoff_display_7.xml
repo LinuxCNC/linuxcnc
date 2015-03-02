@@ -68,6 +68,7 @@ likelly to be suitable for a real machine
       </label>
       <number>
         <halpin>"x-offset-current"</halpin>
+        <format>"4.3f"</format>
         <fg>"red"</fg>
         <font>"bold"</font>
       </number>
@@ -97,6 +98,7 @@ likelly to be suitable for a real machine
       </label>
         <number>
         <halpin>"y-offset-current"</halpin>
+        <format>"4.3f"</format>
         <fg>"red"</fg>
         <font>"bold"</font>
       </number>
@@ -126,6 +128,7 @@ likelly to be suitable for a real machine
       </label>
       <number>
         <halpin>"z-offset-current"</halpin>
+        <format>"4.3f"</format>
         <fg>"red"</fg>
         <font>"bold"</font>
       </number>

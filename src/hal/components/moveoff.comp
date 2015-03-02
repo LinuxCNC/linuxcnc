@@ -88,7 +88,7 @@ with the gui provided as scripts/moveoff_gui:
 //"""" quote char for vim highlighting
 
 /*
-Copyright: 2014
+Copyright: 2014-2015
 Authors:   Dewey Garrett <dgarrett@panix.com>, Andy Pugh <bodgesoc@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
@@ -316,16 +316,28 @@ static hal_float_t  eps_in_use;
 static bool         move_in_progress = 0;
 static the_state    next_state;
 
+//compile time setting:
+static const bool   allow_backtrack_enable_change = 1;
+// 1 ==> backtrack-enable can be changed while enabled
+//       waypoints are always accumulated and waypoint_limit enforced
+// 0 ==> backtrack-enable is sampled only while IDLE
+//       if backtrack-enable == 0, no waypoints and no waypoint_limit
+//       (e.g., unlimited no. of offset samples)
+
 FUNCTION(read_inputs) {
     hal_float_t last,delta;
     int r;
     bool all_enables  = power_on && move_enable && apply_offsets;
 
-    backtrack = backtrack_enable; // change at any time
-                                  // controls auto-return
+    if (allow_backtrack_enable_change) {
+      backtrack = backtrack_enable;
+      // change at any time (controls auto-return)
+    }
+
     theperiod = period;
     now = rtapi_get_time();
     if (state == IDLE) {
+        backtrack = backtrack_enable; // ref: allow_backtrack_enable_change
         // allow changes only when IDLE for these inputs:
         move_threshold = waypoint_threshold;
         min_sample_interval = waypoint_sample_secs;
@@ -340,7 +352,7 @@ FUNCTION(read_inputs) {
         }
     }
 
-    if (1) { // always save waypoints
+    if (backtrack || allow_backtrack_enable_change) {
         int r;
         bool sufficient_movement_for_new_waypoint = 0;
 
@@ -501,7 +513,7 @@ FUNCTION(write_outputs) {
             input.old_out    = data.old_out[r];
             input.old_v      = data.old_v[r];
 
-            if (backtrack && waypoint_limit && (state == MOVE_AWAY) ) {
+            if ( waypoint_limit && (state == MOVE_AWAY) ) {
                 // no movement in MOVE_AWAY (require: remove enable)
             } else {
                 hal_float_t last_old = data.old_out[r];
@@ -523,7 +535,7 @@ FUNCTION(write_outputs) {
     }
 
     offset_applied = ! offset_removed(personality, data, eps_in_use);
-    if ( backtrack && !offset_applied ) {
+    if ( !offset_applied ) {
         // reset backtrack
         next_waypoint_index = 0;
         waypoint_limit = 0;
