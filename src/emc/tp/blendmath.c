@@ -1036,10 +1036,9 @@ int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const para
 
     blendGeom3Print(geom);
 
-    const double greediness = 0.5;
     //Nominal length restriction prevents gobbling too much of parabolic blends
-    param->L1 = fmin(prev_tc->target, prev_tc->nominal_length * greediness);
-    param->L2 = tc->target * greediness;
+    param->L1 = fmin(prev_tc->target, prev_tc->nominal_length * BLEND_DIST_FRACTION);
+    param->L2 = tc->target * BLEND_DIST_FRACTION;
     tp_debug_print("prev. nominal length = %f, next nominal_length = %f\n",
             prev_tc->nominal_length, tc->nominal_length);
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);

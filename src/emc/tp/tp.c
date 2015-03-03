@@ -706,8 +706,7 @@ STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_S
 {
     double acc_scaled = tpGetScaledAccel(tp, tc);
     //FIXME this is defined in two places!
-    const double BLEND_GREEDINESS = 0.5;
-    double triangle_vel = pmSqrt( acc_scaled * tc->target * BLEND_GREEDINESS);
+    double triangle_vel = pmSqrt( acc_scaled * tc->target * BLEND_DIST_FRACTION);
     double max_vel = tpGetMaxTargetVel(tp, tc);
     tp_debug_print("optimization initial vel for segment %d is %f\n", tc->id, triangle_vel);
     return fmin(triangle_vel, max_vel);
@@ -1556,10 +1555,21 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
-        //KLUDGE depends on optimization happening before cycle splitting
-        if (prev1_tc->progress / prev1_tc->target >= 0.5 && prev1_tc->splitting == 0) {
-            tp_debug_print("segment %d already started, progress is %f!\n",
-                    ind-1, prev1_tc->progress);
+
+        int progress_ratio = prev1_tc->progress / prev1_tc->target;
+        // can safely decelerate to halfway point of segment from 25% of segment
+        int cutoff_ratio = BLEND_DIST_FRACTION / 2.0;
+
+        if (progress_ratio >= cutoff_ratio) {
+            tp_debug_print("segment %d has moved past %f\% progress, cannot blend safely!\n",
+                    ind-1, cutoff_ratio * 100.0);
+            return TP_ERR_OK;
+        }
+
+        //Somewhat pedantic check for other conditions that would make blending unsafe
+        if (prev1_tc->splitting || prev1_tc->blending_next) {
+            tp_debug_print("segment %d is already blending, cannot optimize safely!\n",
+                    ind-1);
             return TP_ERR_OK;
         }
 
