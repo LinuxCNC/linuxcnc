@@ -20,6 +20,7 @@
 #include "emcpos.h"
 #include "emcmotcfg.h"
 
+#define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */
 typedef enum {
     TC_TERM_COND_STOP = 0,
