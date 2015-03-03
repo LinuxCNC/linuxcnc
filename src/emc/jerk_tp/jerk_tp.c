@@ -823,7 +823,12 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc) {
 
             tc->cycles++;
 			DEBUG_AVP("S3");
-            if (tc->cycles >= tc->s3_cycles) {
+            if (tc->feed_override < 0.000001) {
+                rtapi_print("ID %d | STATE S3 | CYCLES %d | ABORT\n", tc->id, tc->cycles);
+				tc->cycles = 0;
+                tc->accel_state = ACCEL_S4;
+                break;
+            } else if (tc->cycles >= tc->s3_cycles) {
 				//DEBUG_AVP("S3");
                 rtapi_print("ID %d | STATE S3->S4 | CYCLES %d | ACC %.6f | VEL %.6f | PROGRESS %.6f\n", tc->id, tc->cycles, \
                     tc->cur_accel/tc->cycle_time/tc->cycle_time, tc->cur_vel/tc->cycle_time, tc->progress);
@@ -896,7 +901,7 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc) {
 				//DEBUG_AVP("S6");
 				tc->cur_accel = 0;
 				tc->cur_vel = 0;
-				tc->progress = tc->target;
+				//tc->progress = tc->target;
 				tc->done = 1;
                 break;
 			}
