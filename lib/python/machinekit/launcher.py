@@ -105,9 +105,10 @@ def stop_processes():
 def load_hal_file(filename, ini=None):
     sys.stdout.write("loading " + filename + '... ')
     sys.stdout.flush()
-    command = 'halcmd -f ' + filename
+    command = 'halcmd'
     if ini is not None:
         command += ' -i ' + ini
+    command +=  ' -f ' + filename
     subprocess.check_call(command, shell=True)
     sys.stdout.write('done\n')
 
