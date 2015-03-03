@@ -1328,7 +1328,10 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     }
 
     // Store end of current move as new final goal of TP
-    tcGetEndpoint(tc, &tp->goalPos);
+    // KLUDGE: endpoint is garbage for rigid tap since it's supposed to retract past the start point.
+    if (tc->motion_type != TC_RIGIDTAP) {
+        tcGetEndpoint(tc, &tp->goalPos);
+    }
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
