@@ -221,7 +221,9 @@ int pmRotQuatConvert(PmRotationVector const * const r, PmQuaternion * const q)
 
 #ifdef PM_DEBUG
     /* make sure r is normalized */
-    if (0 != pmRotNorm(r, &r)) {
+    //FIXME breaks const promise
+    PmRotationVector r_raw = *r;
+    if (0 != pmRotNorm(&r_raw, r)) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError
 	    ("error: pmRotQuatConvert rotation vector not normalized\n");
@@ -325,7 +327,7 @@ int pmQuatRotConvert(PmQuaternion const * const q, PmRotationVector * const r)
     double sh;
 
 #ifdef PM_DEBUG
-    if (!pmQuatIsNorm(&q)) {
+    if (!pmQuatIsNorm(q)) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError("Bad quaternion in pmQuatRotConvert\n");
 #endif
@@ -356,7 +358,7 @@ int pmQuatRotConvert(PmQuaternion const * const q, PmRotationVector * const r)
 int pmQuatMatConvert(PmQuaternion const * const q, PmRotationMatrix * const m)
 {
 #ifdef PM_DEBUG
-    if (!pmQuatIsNorm(&q)) {
+    if (!pmQuatIsNorm(q)) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError("Bad quaternion in pmQuatMatConvert\n");
 #endif
@@ -1070,7 +1072,7 @@ int pmQuatAxisAngleMult(PmQuaternion const * const q, PmAxis axis, double angle,
     double sh, ch;
 
 #ifdef PM_DEBUG
-    if (!pmQuatIsNorm(&q)) {
+    if (!pmQuatIsNorm(q)) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError("error: non-unit quaternion in pmQuatAxisAngleMult\n");
 #endif
@@ -1275,7 +1277,7 @@ int pmMatMatMult(PmRotationMatrix const * const m1, PmRotationMatrix const * con
 int pmQuatQuatCompare(PmQuaternion const * const q1, PmQuaternion const * const q2)
 {
 #ifdef PM_DEBUG
-    if (!pmQuatIsNorm(&q1) || !pmQuatIsNorm(&q2)) {
+    if (!pmQuatIsNorm(q1) || !pmQuatIsNorm(q2)) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError("Bad quaternion in pmQuatQuatCompare\n");
 #endif
@@ -1358,7 +1360,7 @@ int pmQuatInv(PmQuaternion const * const q1, PmQuaternion * const qout)
     qout->z = -q1->z;
 
 #ifdef PM_DEBUG
-    if (!pmQuatIsNorm(&q1)) {
+    if (!pmQuatIsNorm(q1)) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError("Bad quaternion in pmQuatInv\n");
 #endif
@@ -1421,7 +1423,7 @@ int pmQuatQuatMult(PmQuaternion const * const q1, PmQuaternion const * const q2,
     }
 
 #ifdef PM_DEBUG
-    if (!pmQuatIsNorm(&q1) || !pmQuatIsNorm(&q2)) {
+    if (!pmQuatIsNorm(q1) || !pmQuatIsNorm(q2)) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError("Bad quaternion in pmQuatQuatMult\n");
 #endif
@@ -1445,7 +1447,7 @@ int pmQuatCartMult(PmQuaternion const * const q1, PmCartesian const * const v2, 
     vout->z = v2->z + 2.0 * (q1->s * c.z + q1->x * c.y - q1->y * c.x);
 
 #ifdef PM_DEBUG
-    if (!pmQuatIsNorm(&q1)) {
+    if (!pmQuatIsNorm(q1)) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError(&"Bad quaternion in pmQuatCartMult\n");
 #endif
@@ -1476,7 +1478,7 @@ int pmPoseInv(PmPose const * const p1, PmPose * const p2)
     int r1, r2;
 
 #ifdef PM_DEBUG
-    if (!pmQuatIsNorm(&p1.rot)) {
+    if (!pmQuatIsNorm(&p1->rot)) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError("Bad quaternion in pmPoseInv\n");
 #endif
@@ -1539,7 +1541,7 @@ int pmHomInv(PmHomogeneous const * const h1, PmHomogeneous * const h2)
     int r1, r2;
 
 #ifdef PM_DEBUG
-    if (!pmMatIsNorm(h1->rot)) {
+    if (!pmMatIsNorm(&h1->rot)) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError("Bad rotation matrix in pmHomInv\n");
 #endif
