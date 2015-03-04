@@ -184,20 +184,47 @@ proc wheel_setup {jogmode} {
   net pendant:jog-counts     <= xhc-hb04.jog.counts
   net pendant:jog-counts-neg <= xhc-hb04.jog.counts-neg
 
-  set anames {x y z a}
-  # xhc-hb04.cc hardcodes pin names as: x y z a
-  # herein: Use names in order of the [XHC_HB04_CONFIG]coords
-  #         specification in the inifile.
-  #         These pin names will be a little confusing when
-  #         using alternate axis sequences but the signal
-  #         names will align correctly.
-  #         With this method, any coord (xyzabcuvw) can be
-  #         controlled by the wheel (providing it exists)
+  set anames        {x y z a}
+  set available_idx {0 1 2 3}
+  # The pendant has fixed labels and displays for letters: x y z a
+  # and xhc-hb04.cc hardcodes pin names for these letters: x y z a
+  # Herein: Use label corresponding to coord if possible.
+  # Otherwise, use next available label. When this occurs,
+  # pin names will be a little confusing but the signal names will
+  # align correctly.
   #
-  set idx 0
+  # With this method, any coord (xyzabcuvw) can be controlled by
+  # the wheel (providing it exists)
+  #
+  set unassigned_coords {}
+
+  foreach coord $::XHC_HB04_CONFIG(coords) {
+    set i [lsearch $anames $coord]
+    if {$i >= 0} {
+      set i [lsearch $available_idx $i]
+      # use idx corresponding to coord
+      set use_idx($coord) [lindex $available_idx $i]
+      set available_idx   [lreplace $available_idx $i $i]
+    } else {
+      lappend unassigned_coords $coord
+    }
+  }
+  foreach coord $unassigned_coords {
+    # use next available_idx
+    set use_idx($coord) [lindex $available_idx 0] 
+    set available_idx   [lreplace $available_idx 0 0]
+  }
+
+  set mapmsg ""
   foreach coord $::XHC_HB04_CONFIG(coords) {
     set axno $::XHC_HB04_CONFIG($coord,axno)
-
+    set use_lbl($coord) [lindex $anames $use_idx($coord)] 
+    set idx $use_idx($coord)
+    if {"$use_lbl($coord)" != "$coord"} {
+      set mapmsg "$mapmsg\
+      coord: $coord is mapped to pendant label:\
+      $use_lbl($coord) index: $idx\n"
+    }
     setp pendant_util.coef$idx  $::XHC_HB04_CONFIG(coef,$idx)
     setp pendant_util.scale$idx [expr $kvalue * $::XHC_HB04_CONFIG(scale,$idx)]
 
@@ -207,6 +234,10 @@ proc wheel_setup {jogmode} {
     net pendant:pos-rel-$coord    halui.axis.$axno.pos-relative \
                                => xhc-hb04.$acoord.pos-relative
 
+    if ![pin_exists axis.$axno.jog-scale] {
+      err_exit "Not configured for coords = $::XHC_HB04_CONFIG(coords),\
+      missing axis.$axno.* pins"
+    }
     net pendant:jog-scale => axis.$axno.jog-scale
 
     net pendant:jog-counts                 => pendant_util.in$idx
@@ -231,8 +262,9 @@ proc wheel_setup {jogmode} {
         setp axis.$axno.jog-vel-mode 1
       }
     }
-
-    incr idx
+  }
+  if {"$mapmsg" != ""} {
+    puts "\n$::progname:\n$mapmsg"
   }
 
   switch $jogmode {
@@ -418,6 +450,9 @@ set ct 0; foreach coord {x y z a b c u v w} {
 if [info exists ::XHC_HB04_CONFIG(coords)] {
   if ![is_uniq $::XHC_HB04_CONFIG(coords)] {
     err_exit "coords must be unique, not: <$::XHC_HB04_CONFIG(coords)>"
+  }
+  if {[llength $::XHC_HB04_CONFIG(coords)] > 4} {
+    err_exit "max no.of coords is 4 <$::XHC_HB04_CONFIG(coords)>"
   }
 } else {
   set ::XHC_HB04_CONFIG(coords) {x y z a} ;# default
