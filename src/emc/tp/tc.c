@@ -688,10 +688,14 @@ int pmRigidTapInit(PmRigidTap * const tap,
 
 }
 
-int pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev)
+double pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev)
 {
     // allow 10 turns of the spindle to stop - we don't want to just go on forever
-    return tap->xyz.tmag + 10. * uu_per_rev;
+    double overrun = 10. * uu_per_rev;
+    double target = tap->xyz.tmag + overrun;
+    tp_debug_print("initial tmag = %.12g, added %.12g for overrun, target = %.12g\n",
+            tap->xyz.tmag, overrun,target);
+    return target;
 }
 
 /** Returns true if segment has ONLY rotary motion, false otherwise. */

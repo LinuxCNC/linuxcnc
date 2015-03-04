@@ -1564,7 +1564,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         int cutoff_ratio = BLEND_DIST_FRACTION / 2.0;
 
         if (progress_ratio >= cutoff_ratio) {
-            tp_debug_print("segment %d has moved past %f\% progress, cannot blend safely!\n",
+            tp_debug_print("segment %d has moved past %f percent progress, cannot blend safely!\n",
                     ind-1, cutoff_ratio * 100.0);
             return TP_ERR_OK;
         }
@@ -2258,7 +2258,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
 
     switch (tc->coords.rigidtap.state) {
         case TAPPING:
-            rtapi_print_msg(RTAPI_MSG_DBG, "TAPPING");
+            tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
                 // command reversal
 		set_spindle_speed(tp->shared,
@@ -2267,7 +2267,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
             }
             break;
         case REVERSING:
-            rtapi_print_msg(RTAPI_MSG_DBG, "REVERSING");
+            tc_debug_print("REVERSING\n");
             if (new_spindlepos < tp->old_spindlepos) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
@@ -2286,10 +2286,10 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
                 tc->coords.rigidtap.state = RETRACTION;
             }
             tp->old_spindlepos = new_spindlepos;
-            rtapi_print_msg(RTAPI_MSG_DBG, "Spindlepos = %f", new_spindlepos);
+            tc_debug_print("Spindlepos = %f\n", new_spindlepos);
             break;
         case RETRACTION:
-            rtapi_print_msg(RTAPI_MSG_DBG, "RETRACTION");
+            tc_debug_print("RETRACTION\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
 		set_spindle_speed(tp->shared,
 				  get_spindle_speed(tp->shared) * -1.0);
@@ -2297,7 +2297,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
             }
             break;
         case FINAL_REVERSAL:
-            rtapi_print_msg(RTAPI_MSG_DBG, "FINAL_REVERSAL");
+            tc_debug_print("FINAL_REVERSAL\n");
             if (new_spindlepos > tp->old_spindlepos) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
@@ -2315,7 +2315,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
             tp->old_spindlepos = new_spindlepos;
             break;
         case FINAL_PLACEMENT:
-            rtapi_print_msg(RTAPI_MSG_DBG, "FINAL_PLACEMENT\n");
+            tc_debug_print("FINAL_PLACEMENT\n");
             // this is a regular move now, it'll stop at target above.
             break;
     }
@@ -2599,7 +2599,8 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     if (segment_time < cutoff_time &&
             tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE &&
-            tc->term_cond == TC_TERM_COND_TANGENT)
+            tc->term_cond == TC_TERM_COND_TANGENT &&
+            tc->motion_type != TC_RIGIDTAP)
     {
         tp_debug_print("segment_time = %f, cutoff_time = %f, ramping\n",
                 segment_time, cutoff_time);
