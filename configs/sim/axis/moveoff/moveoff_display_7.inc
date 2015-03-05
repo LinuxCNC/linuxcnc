@@ -1,6 +1,6 @@
 [DISPLAY]
                 DISPLAY = axis
-                  PYVCP = fixed_offset.xml
+                  PYVCP = moveoff_display_7.xml
              CYCLE_TIME = 0.100
               HELP_FILE = doc/help.txt
         POSITION_OFFSET = RELATIVE

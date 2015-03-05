@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- this is an example, the values are not
+likelly to be suitable for a real machine
+-->
+<pyvcp>
+  <vbox>
+    <label>
+      <text>"Moveoff Offsets"</text>
+      <font>"bold"</font>
+    </label>
+    <checkbutton>
+      <halpin>"enable-offset"</halpin>
+      <text>"Enable Offsets"</text>
+      <anchor>"w"</anchor>
+      <initval>0</initval>
+      <relief>"ridge"</relief>
+      <bd>3</bd>
+    </checkbutton>
+
+  <vbox>
+    <relief>"sunken"</relief>
+    <bd>3</bd>
+    <hbox>
+      <led>
+        <halpin>"led-apply"</halpin>
+        <on_color>"red"</on_color>
+        <off_color>"gray"</off_color>
+        <size>15</size>
+      </led>
+      <label>
+        <text>"Paused"</text>
+      </label>
+    </hbox>
+
+    <hbox>
+      <led>
+        <halpin>"led-active"</halpin>
+        <on_color>"red"</on_color>
+        <off_color>"gray"</off_color>
+        <size>15</size>
+      </led>
+      <label>
+        <text>"Active"</text>
+      </label>
+    </hbox>
+  </vbox>
+
+  <vbox>
+    <relief>"sunken"</relief>
+    <bd>3</bd>
+    <label>
+      <text>"Requested X Offset:"</text>
+      <anchor>"w"</anchor>
+    </label>
+    <scale>
+      <halpin>"x-offset"</halpin>
+      <resolution>0.01</resolution>
+      <min_>0</min_>
+      <max_>10</max_>
+      <initval>0</initval>
+      <param_pin>1</param_pin>
+      <orient>HORIZONTAL</orient>
+    </scale>
+    <hbox>
+      <label>
+        <text>"Current X:"</text>
+        <anchor>"w"</anchor>
+      </label>
+      <number>
+        <halpin>"x-offset-current"</halpin>
+        <format>"4.3f"</format>
+        <fg>"red"</fg>
+        <font>"bold"</font>
+      </number>
+    </hbox>
+  </vbox>
+
+  <vbox>
+    <relief>"sunken"</relief>
+    <bd>3</bd>
+    <label>
+      <text>"Requested Y Offset:"</text>
+      <anchor>"w"</anchor>
+    </label>
+    <scale>
+      <halpin>"y-offset"</halpin>
+      <resolution>0.01</resolution>
+      <min_>0</min_>
+      <max_>10</max_>
+      <initval>0</initval>
+      <param_pin>1</param_pin>
+      <orient>HORIZONTAL</orient>
+    </scale>
+    <hbox>
+      <label>
+        <text>"Current Y:"</text>
+        <anchor>"w"</anchor>
+      </label>
+        <number>
+        <halpin>"y-offset-current"</halpin>
+        <format>"4.3f"</format>
+        <fg>"red"</fg>
+        <font>"bold"</font>
+      </number>
+    </hbox>
+  </vbox>
+
+  <vbox>
+    <relief>"sunken"</relief>
+    <bd>3</bd>
+    <label>
+      <text>"Requested Z Offset:"</text>
+      <anchor>"w"</anchor>
+    </label>
+    <scale>
+      <halpin>"z-offset"</halpin>
+      <resolution>0.01</resolution>
+      <min_>0</min_>
+      <max_>10</max_>
+      <initval>0</initval>
+      <param_pin>1</param_pin>
+      <orient>HORIZONTAL</orient>
+    </scale>
+    <hbox>
+      <label>
+        <text>"Current Z:"</text>
+        <anchor>"w"</anchor>
+      </label>
+      <number>
+        <halpin>"z-offset-current"</halpin>
+        <format>"4.3f"</format>
+        <fg>"red"</fg>
+        <font>"bold"</font>
+      </number>
+    </hbox>
+  </vbox>
+  
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>3</bd>
+    <checkbutton>
+      <halpin>"enable-backtrack"</halpin>
+      <text>"Enable Backtrack"</text>
+      <anchor>"w"</anchor>
+      <initval>0</initval>
+    </checkbutton>
+    <hbox>
+      <label>
+        <text>"Waypoint %:"</text>
+        <anchor>"w"</anchor>
+      </label>
+      <s32>
+        <halpin>"waypoint-percent-used"</halpin>
+        <fg>"red"</fg>
+        <font>"bold"</font>
+      </s32>
+    </hbox>
+    <hbox>
+      <led>
+        <halpin>"led-waypoint-limit"</halpin>
+        <on_color>"red"</on_color>
+        <off_color>"gray"</off_color>
+        <size>15</size>
+      </led>
+      <label>
+        <text>"Waypt imit"</text>
+      </label>
+    </hbox>
+  </vbox>
+
+  </vbox>
+</pyvcp>

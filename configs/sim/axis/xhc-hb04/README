@@ -52,7 +52,7 @@ As with real buttons, the synthesized buttons have hal pins named:
   etc.
 
 
-Additional hal pins are created by the xhc-hb04 driver and connected as required by the halfile included for the demo configurations. 
+Additional hal pins are created by the xhc-hb04 driver and connected as required by the halfile included for the demo configurations.
 
 A working and connected xhc-hb04 device is required for the demonstration configurations.  If not connected, the sim configs will start without pendant functionality.
 
@@ -139,12 +139,21 @@ A application named monitor-xhc-hb04 is included to monitor disconnects and reco
 (Note: when using require_pendant=1, disconnects are detected but reconnects are not supported)
 ----------------------------------
 
-An xhc-hb04 pendant can be added to existing configurations.
-  Edit existing configuration ini file to:
+Adding an xhc-hb04 to an existing configuration.
+
+Recommended procedure is to create a new configuration based
+on an existing configuration.
+
+  Copy all files from existing (working) configuration directory
+  to a new directory and edit the configuration ini file to:
     a) add [HAL]HALFILE = LIB:xhc-hb04.tcl
+       (this entry should follow other HALFILE entries)
     b) (optional) add [APPLICATIONS]APP = monitor-xhc-hb04
     c) add stanza [XHC-HB04_CONFIG]
     d) add stanza [XHC-HB04_BUTTONS]
     e) add or update stanza for [HALUI]
+
+   The entries in the new or updated stanzas should be
+   customized for your machine.
 
 See the demo ini files for more detailed examples.

@@ -52,7 +52,7 @@ extern emcmot_config_t *emcmotConfig;
 
 /** static function primitives (ugly but less of a pain than moving code around)*/
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * const nexttc, int planning, double * const blend_vel);
+        TC_STRUCT * const nexttc);
 
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT const * const nexttc);
 
@@ -638,6 +638,25 @@ STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * con
     tp_debug_print("triangle vel for segment %d is %f\n", tc->id, triangle_vel);
 
     return triangle_vel;
+}
+
+
+/**
+ * Handles the special case of blending into an unfinalized segment.
+ * The problem here is that the last segment in the queue can always be cut
+ * short by a blend to the next segment. However, we can only ever consume at
+ * most 1/2 of the segment. This function computes the worst-case final
+ * velocity the previous segment can have, if we want to exactly stop at the
+ * halfway point.
+ */
+STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_STRUCT * const tc)
+{
+    double acc_scaled = tpGetScaledAccel(tp, tc);
+    //FIXME this is defined in two places!
+    double triangle_vel = pmSqrt( acc_scaled * tc->target * BLEND_DIST_FRACTION);
+    double max_vel = tpGetMaxTargetVel(tp, tc);
+    tp_debug_print("optimization initial vel for segment %d is %f\n", tc->id, triangle_vel);
+    return fmin(triangle_vel, max_vel);
 }
 
 
@@ -1249,7 +1268,10 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     }
 
     // Store end of current move as new final goal of TP
-    tcGetEndpoint(tc, &tp->goalPos);
+    // KLUDGE: endpoint is garbage for rigid tap since it's supposed to retract past the start point.
+    if (tc->motion_type != TC_RIGIDTAP) {
+        tcGetEndpoint(tc, &tp->goalPos);
+    }
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
@@ -1463,10 +1485,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             tp_debug_print(" Reached end of queue in optimization\n");
             return TP_ERR_OK;
         }
-        if (!tc->finalized) {
-            tp_debug_print("Segment %d, type %d not finalized, continuing\n",tc->id,tc->motion_type);
-            continue;
-        }
 
         // stop optimizing if we hit a non-tangent segment (final velocity
         // stays zero)
@@ -1475,11 +1493,21 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
-        //Abort if a segment is already in progress, so that we don't step on
-        //split cycle calculation
-        if (prev1_tc->progress>0) {
-            tp_debug_print("segment %d already started, progress is %f!\n",
-                    ind-1, prev1_tc->progress);
+
+        int progress_ratio = prev1_tc->progress / prev1_tc->target;
+        // can safely decelerate to halfway point of segment from 25% of segment
+        int cutoff_ratio = BLEND_DIST_FRACTION / 2.0;
+
+        if (progress_ratio >= cutoff_ratio) {
+            tp_debug_print("segment %d has moved past %f percent progress, cannot blend safely!\n",
+                    ind-1, cutoff_ratio * 100.0);
+            return TP_ERR_OK;
+        }
+
+        //Somewhat pedantic check for other conditions that would make blending unsafe
+        if (prev1_tc->splitting || prev1_tc->blending_next) {
+            tp_debug_print("segment %d is already blending, cannot optimize safely!\n",
+                    ind-1);
             return TP_ERR_OK;
         }
 
@@ -1495,7 +1523,14 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             tc->finalvel = 0.0;
         }
 
-        tpComputeOptimalVelocity(tp, tc, prev1_tc);
+        if (!tc->finalized) {
+            tp_debug_print("Segment %d, type %d not finalized, continuing\n",tc->id,tc->motion_type);
+            // use worst-case final velocity that allows for up to 1/2 of a segment to be consumed.
+            prev1_tc->finalvel = fmin(prev1_tc->maxvel, tpCalculateOptimizationInitialVel(tp,tc));
+            tc->finalvel = 0.0;
+        } else {
+            tpComputeOptimalVelocity(tp, tc, prev1_tc);
+        }
 
         tc->active_depth = x - 2 - hit_peaks;
 #ifdef TP_OPTIMIZATION_LAZY
@@ -1866,14 +1901,14 @@ int tpAddCircle(TP_STRUCT * const tp,
  * function updates the TC_STRUCT data with a safe blend velocity.
  */
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
-        TC_STRUCT * const tc, TC_STRUCT * const nexttc,
-        int planning, double * const v_parabolic) {
+        TC_STRUCT * const tc, TC_STRUCT * const nexttc)
+{
     /* Pre-checks for valid pointers */
     if (!nexttc || !tc) {
         return TP_ERR_FAIL;
     }
 
-    if (tc->term_cond != TC_TERM_COND_PARABOLIC && !planning) {
+    if (tc->term_cond != TC_TERM_COND_PARABOLIC) {
         return TP_ERR_NO_ACTION;
     }
 
@@ -1883,13 +1918,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
     // cap the blend velocity at the current requested speed (factoring in feed override)
     double target_vel_this;
     double target_vel_next;
-    if (planning) {
-        target_vel_this = tpGetMaxTargetVel(tp, tc);
-        target_vel_next = tpGetMaxTargetVel(tp, nexttc);
-    } else {
-        target_vel_this = tpGetRealTargetVel(tp, tc);
-        target_vel_next = tpGetRealTargetVel(tp, nexttc);
-    }
+    target_vel_this = tpGetRealTargetVel(tp, tc);
+    target_vel_next = tpGetRealTargetVel(tp, nexttc);
 
     double v_reachable_this = fmin(tpCalculateTriangleVel(tp,tc), target_vel_this);
     double v_reachable_next = fmin(tpCalculateTriangleVel(tp,nexttc), target_vel_next);
@@ -1916,7 +1946,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
     double v_blend_next = fmin(v_reachable_next, t_blend * acc_next);
 
     double theta;
-    if (tc->tolerance > 0 || planning) {
+    if (tc->tolerance > 0) {
         /* see diagram blend.fig.  T (blend tolerance) is given, theta
          * is calculated from dot(s1, s2)
          *
@@ -1944,22 +1974,10 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
             v_blend_this = fmin(v_blend_this, tblend_vel);
             v_blend_next = fmin(v_blend_next, tblend_vel);
         }
-
-    //Output blend velocity for reference if desired
-        if (v_parabolic) {
-            //Crude law of cosines
-
-            double vsq = pmSq(v_blend_this) + pmSq(v_blend_next) - 2.0 *
-                v_blend_this * v_blend_next * cos(2.0 * theta);
-            *v_parabolic = pmSqrt(vsq) / 2.0;
-        }
     }
-    //Store blend velocities for use during parabolic blending
-    if (!planning) {
-        tc->blend_vel = v_blend_this;
-        nexttc->blend_vel = v_blend_next;
-        tp_debug_print("v_blend_this = %f, v_blend_next = %f\n",v_blend_this,v_blend_next);
-    }
+
+    tc->blend_vel = v_blend_this;
+    nexttc->blend_vel = v_blend_next;
     return TP_ERR_OK;
 }
 
@@ -2166,7 +2184,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
 
     switch (tc->coords.rigidtap.state) {
         case TAPPING:
-            rtapi_print_msg(RTAPI_MSG_DBG, "TAPPING");
+            tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
                 // command reversal
                 emcmotStatus->spindle.speed *= -1.0;
@@ -2174,7 +2192,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
             }
             break;
         case REVERSING:
-            rtapi_print_msg(RTAPI_MSG_DBG, "REVERSING");
+            tc_debug_print("REVERSING\n");
             if (new_spindlepos < old_spindlepos) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
@@ -2193,17 +2211,17 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
                 tc->coords.rigidtap.state = RETRACTION;
             }
             old_spindlepos = new_spindlepos;
-            rtapi_print_msg(RTAPI_MSG_DBG, "Spindlepos = %f", new_spindlepos);
+            tc_debug_print("Spindlepos = %f\n", new_spindlepos);
             break;
         case RETRACTION:
-            rtapi_print_msg(RTAPI_MSG_DBG, "RETRACTION");
+            tc_debug_print("RETRACTION\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
                 emcmotStatus->spindle.speed *= -1;
                 tc->coords.rigidtap.state = FINAL_REVERSAL;
             }
             break;
         case FINAL_REVERSAL:
-            rtapi_print_msg(RTAPI_MSG_DBG, "FINAL_REVERSAL");
+            tc_debug_print("FINAL_REVERSAL\n");
             if (new_spindlepos > old_spindlepos) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
@@ -2221,7 +2239,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
             old_spindlepos = new_spindlepos;
             break;
         case FINAL_PLACEMENT:
-            rtapi_print_msg(RTAPI_MSG_DBG, "FINAL_PLACEMENT\n");
+            tc_debug_print("FINAL_PLACEMENT\n");
             // this is a regular move now, it'll stop at target above.
             break;
     }
@@ -2457,6 +2475,7 @@ STATIC int tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
  * functions will detect that the prev. line is finalized and skip that blend
  * arc.
  */
+#if 0
 STATIC int tpHandleLowQueue(TP_STRUCT * const tp) {
 
     if (tcqLen(&tp->queue) > TP_QUEUE_THRESHOLD) {
@@ -2474,6 +2493,7 @@ STATIC int tpHandleLowQueue(TP_STRUCT * const tp) {
     }
 
 }
+#endif
 
 /**
  * "Activate" a segment being read for the first time.
@@ -2505,7 +2525,8 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     if (segment_time < cutoff_time &&
             tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE &&
-            tc->term_cond == TC_TERM_COND_TANGENT)
+            tc->term_cond == TC_TERM_COND_TANGENT &&
+            tc->motion_type != TC_RIGIDTAP)
     {
         tp_debug_print("segment_time = %f, cutoff_time = %f, ramping\n",
                 segment_time, cutoff_time);
@@ -2970,7 +2991,7 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
 
     /* Parabolic blending */
 
-    tpComputeBlendVelocity(tp, tc, nexttc, false, NULL);
+    tpComputeBlendVelocity(tp, tc, nexttc);
     if (nexttc && tcIsBlending(tc)) {
         tpDoParabolicBlending(tp, tc, nexttc);
     } else {
@@ -3020,7 +3041,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     /* If the queue empties enough, assume that the program is near the end.
      * This forces the last segment to be "finalized" to let the optimizer run.*/
-    tpHandleLowQueue(tp);
+    /*tpHandleLowQueue(tp);*/
 
     /* If we're aborting or pausing and the velocity has reached zero, then we
      * don't need additional planning and can abort here. */

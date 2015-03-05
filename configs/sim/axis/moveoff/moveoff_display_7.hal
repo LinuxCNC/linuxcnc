@@ -1,0 +1,28 @@
+# connections for pyvcp panel
+
+# connect to signals created by moveoff_external.hal
+# to inputs from pyvcp panel:
+net external_enable       <= pyvcp.enable-offset
+net external_offset_0     <= pyvcp.x-offset-f
+net external_offset_1     <= pyvcp.y-offset-f
+net external_offset_2     <= pyvcp.z-offset-f
+net external_backtrack_en <= pyvcp.enable-backtrack
+
+# connect signal provided by moveoff_gui to pyvcp led:
+net mvoff_gui:apply_offsets pyvcp.led-apply
+
+# connect for pyvcp status items:
+net led-offset-applied         mv.offset-applied        => pyvcp.led-active
+net led-waypoint-limeit        mv.waypoint-limit        => pyvcp.led-waypoint-limit
+net show_waypoint-percent-used mv.waypoint-percent-used => pyvcp.waypoint-percent-used
+
+# connect for pyvcp display of current offsets:
+net current_offset_0 <= mv.offset-current-0
+net current_offset_0 => pyvcp.x-offset-current
+
+net current_offset_1 <= mv.offset-current-1
+net current_offset_1 => pyvcp.y-offset-current
+
+net current_offset_2 <= mv.offset-current-2
+net current_offset_2 => pyvcp.z-offset-current
+

@@ -908,6 +908,13 @@ check_stuff ( "before command_handler()" );
             tpAbort(&emcmotDebug->tp);
             SET_MOTION_ERROR_FLAG(1);
             break;
+        } else if (res_addline != 0) {
+            //TODO make this hand-shake more explicit
+            //KLUDGE Non fatal error, need to restore state so that the next
+            //line properly handles at_speed
+            if (issue_atspeed) {
+                emcmotStatus->atspeed_next_feed = 1;
+            }
         } else {
 		SET_MOTION_ERROR_FLAG(0);
 		/* set flag that indicates all joints need rehoming, if any
@@ -945,20 +952,27 @@ check_stuff ( "before command_handler()" );
             }
 	    /* append it to the emcmotDebug->tp */
 	    tpSetId(&emcmotDebug->tp, emcmotCommand->id);
-	    int res_addcirc = 
-		tpAddCircle(&emcmotDebug->tp, emcmotCommand->pos,
+	    int res_addcircle = tpAddCircle(&emcmotDebug->tp, emcmotCommand->pos,
                             emcmotCommand->center, emcmotCommand->normal,
                             emcmotCommand->turn, emcmotCommand->motion_type,
                             emcmotCommand->vel, emcmotCommand->ini_maxvel,
                             emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed);
-        if (res_addcirc < 0) {
+        if (res_addcircle < 0) {
             reportError(_("can't add circular move at line %d, error code %d"),
-                    emcmotCommand->id, res_addcirc);
+                    emcmotCommand->id, res_addcircle);
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else {
+        } else if (res_addcircle != 0) {
+            //FIXME! This is a band-aid for a single issue, but there may be
+            //other consequences of non-fatal errors from AddXXX functions. We
+            //either need to fix the root cause (subtle position error after
+            //homing), or have a full restore here.
+            if (issue_atspeed) {
+                emcmotStatus->atspeed_next_feed = 1;
+            }
+        } else {
 		SET_MOTION_ERROR_FLAG(0);
 		/* set flag that indicates all joints need rehoming, if any
 		   joint is moved in joint mode, for machines with no forward

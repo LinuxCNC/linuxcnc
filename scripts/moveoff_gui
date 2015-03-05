@@ -89,7 +89,7 @@ proc do_poll {} {
 
   if {$apply_offsets != $::MV(old,apply_offsets)} {
     if {$apply_offsets} {
-      restore_using_save_loc $::MV(top)
+      if !$::MV(no_display) {restore_using_save_loc $::MV(top)}
       if {   $::MV(control_move_enable) \
           && $::MV(auto_enable_apply_offsets) \
          } {
@@ -241,8 +241,12 @@ proc resume_after_delay {} {
                       -command cancel_auto_resume \
          ] -expand 1 -fill both
   }
-  # use the same geometry as the toplevel for the popup:
-  wm geometry $t [wm geometry $::MV(top)]
+  if $::MV(no_display) {
+    # use window manager placement for auto resume cancel widget
+  } else {
+    # use the same geometry as the toplevel for the popup:
+    wm geometry $t [wm geometry $::MV(top)]
+  }
 
   set ::MV(resume,delay,remaining,ms) [expr 1000 *$::MV(resume,delay,secs)]
   after $::MV(resume,delay,sample,ms) pulse_resume_wait
@@ -272,7 +276,7 @@ proc pulse_resume_wait {} {
 proc cancel_auto_resume {} {
   catch {after cancel $::MV(resume,cancel,id)}
   clear_resume
-  restore_using_save_loc $::MV(top)
+  if !$::MV(no_display) {restore_using_save_loc $::MV(top)}
   # no competing app connected to $::m.move-enable
   if { $::MV(control_move_enable) } {
     set ::MV(enable,offsets) 1; hal setp $::m.move-enable 1
@@ -309,6 +313,14 @@ proc bump_offset {aname value} {
   hal setp $::m.offset-in-${idx} $::MV(offset,$aname)
 } ;# bump_offset
 
+proc toggle_enable_backtrack {args} {
+  if {$::MV(enable,backtrack)} {
+     hal setp $::m.backtrack-enable 1
+  } else {
+     hal setp $::m.backtrack-enable 0
+  }
+} ;# toggle_enable_backtrack
+
 proc toggle_enable_offsets {args} {
   if {$::MV(enable,offsets)} {
      hal setp $::m.move-enable 1
@@ -344,6 +356,20 @@ proc make_gui {} {
                             -variable ::MV(enable,offsets) \
                             -command toggle_enable_offsets]
     pack $::MV(button,enable) -side left -fill x -expand 1 -anchor w
+
+    if {[llength $::MV(axes)] > 1} {
+      set ::MV(enable,backtrack) 1
+      set ::MV(button,backtrack) [checkbutton $f1a.[qid] \
+                                 -text "Backtrack" \
+                                 -anchor e \
+                                 -variable ::MV(enable,backtrack) \
+                                 -command toggle_enable_backtrack]
+      pack $::MV(button,backtrack) -side left -fill x -expand 1 -anchor w
+    } else {
+      set ::MV(enable,backtrack) 0 ;# no backtrack for single axis
+    }
+    hal setp $::m.backtrack-enable $::MV(enable,backtrack)
+
     pack [label $f1.[qid] -text Increment:] -side left
     set ::MV(increment) [lindex $::MV(increments) 0] ;# default
     foreach inc $::MV(increments) {
@@ -495,16 +521,17 @@ proc allow_resume {} {
 proc set_defaults {} {
   # housekeeping:
   set ::MV(control_move_enable) 1
+  set ::MV(no_display)          0
   set ::MV(show,entry)          1
   set ::MV(show,increments)     1
 
   set ::m mv ;# expected name of the moveoff component
               # (loadrt moveoff names=mv)
-  set ::MV(old,apply_offsets)   -1
-  set ::MV(old,enable,offsets)  -1
-  set ::MV(old,status_msg)      -1
-  set ::MV(old,waypoint_msg)    -1
-  set ::MV(offset,format)      "%g"
+  set ::MV(old,apply_offsets)    -1
+  set ::MV(old,enable,offsets)   -1
+  set ::MV(old,status_msg)       -1
+  set ::MV(old,waypoint_msg)     -1
+  set ::MV(offset,format)        "%g"
   set ::MV(current,format) $::MV(offset,format)
 
   # defaults:
@@ -530,6 +557,7 @@ proc set_defaults {} {
   set ::MV(opt,no_resume_inhibit)      0
   set ::MV(opt,no_pause_requirement)   0
   set ::MV(opt,no_cancel_autoresume)   0
+  set ::MV(opt,no_display)             0
   set ::MV(resume,pulse,ms)          100
   set ::MV(resume,delay,sample,ms)   500
   set ::MV(resume,delay,secs)          5
@@ -567,10 +595,10 @@ For info:\n$::MV(prog) --help | more"
   switch [is_connected $::m.move-enable sig] {
     not_connected {puts \
       "$::MV(prog):$::m.move-enable not connected, Providing controls"
-      set ::MV(control_move_enable 1)
-      foreach name {apply-offsets} {
+      set ::MV(control_move_enable) 1
+      foreach name {apply-offsets backtrack-enable} {
         if {[is_connected $::m.$name] != "not_connected"} {
-          return "Error: $pname is already connected"
+          return  "Error: $::M.$name is already connected"
         }
       }
       foreach aname $::MV(axes) {
@@ -581,9 +609,14 @@ For info:\n$::MV(prog) --help | more"
         }
       }
     }
-    is_input {puts \
-      "$::MV(prog):$::m.move-enable already connected <$sig>,Display Only"
+    is_input {
       set ::MV(control_move_enable) 0
+      set msg "$::m.move-enable already connected <$sig>, no controls"
+      if $::MV(opt,no_display) {
+        set ::MV(no_display) 1
+        set msg "${msg}, no_display"
+      }
+      puts "$::MV(prog): $msg"
     }
     default {return "is_connected:move-enable unexpected"}
   }
@@ -646,6 +679,10 @@ proc get_parms {} {
       -no_cancel_autoresume {set ::MV(opt,no_cancel_autoresume) 1
                              set ::argv [lreplace $::argv 0 0]
                             }
+      -no_display           {set ::MV(opt,no_display) 1
+                             set ::argv [lreplace $::argv 0 0]
+                            }
+
       -debug {set ::MV(opt,debug) 1
               set ::argv [lreplace $::argv 0 0]
              }
@@ -750,6 +787,7 @@ proc usage { {errtxt ""} } {
                 no_resume_inhibit \
                 no_pause_requirement \
                 no_cancel_autoresume \
+                no_display \
                } {
     if $::MV(opt,$item) {
       set default_$item inuse
@@ -795,6 +833,13 @@ Options for special cases:
     \[-no_cancel_autoresume\] (default: $default_no_cancel_autoresume)
                               (useful for retraact offsets with simple)
                               (external control                       )
+    \[-no_display\]           (default: $default_no_display)
+                              (Use when both external controls and displays)
+                              (are in use (see Note))                      )
+
+Note: If the moveoff move-enable pin ($::m.move-enable) is connected when
+      $::MV(prog) is started, external controls are required and only
+      displays are provided.
 "
 #"vim
 
