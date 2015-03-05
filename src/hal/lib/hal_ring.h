@@ -54,11 +54,19 @@ typedef struct {
 // components do not make sense as owners since their lifetime
 // might be shorter than the ring
 
-int hal_ring_new(const char *name, int size, int spsize, int mode);
+int hal_ring_new(const char *name, int size, int sp_size, int mode);
+
+// printf-style version of the above
+int hal_ring_newf(int size, int sp_size, int mode, const char *fmt, ...)
+    __attribute__((format(printf,4,5)));
 
 // delete a ring buffer.
 // will fail if the refcount is > 0 (meaning the ring is still attached somewhere).
 int hal_ring_delete(const char *name);
+
+// printf-style version of the above
+int hal_ring_deletef(const char *fmt, ...)
+    __attribute__((format(printf,1,2)));
 
 // make an existing ringbuffer accessible to a component, or test for
 // existence and flags of a ringbuffer
@@ -77,12 +85,20 @@ int hal_ring_delete(const char *name);
 //
 int hal_ring_attach(const char *name, ringbuffer_t *rb, unsigned *flags);
 
+// printf-style version of the above
+int hal_ring_attachf(ringbuffer_t *rb, unsigned *flags, const char *fmt, ...)
+    __attribute__((format(printf,3,4)));
+
 // detach a ringbuffer. Decreases the reference count.
 int hal_ring_detach(const char *name, ringbuffer_t *rb);
+
+// printf-style version of the above
+int hal_ring_detachf(ringbuffer_t *rb, const char *fmt, ...)
+    __attribute__((format(printf,2,3)));
 
 // not part of public API. Use with HAL lock engaged.
 hal_ring_t *halpr_find_ring_by_name(const char *name);
 
 RTAPI_END_DECLS
 
-#endif /* HAL_RING_PRIV_H */
+#endif /* HAL_RING_H */

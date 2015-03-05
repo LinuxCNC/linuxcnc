@@ -9,11 +9,27 @@
 static hal_ring_t *alloc_ring_struct(void);
 static void free_ring_struct(hal_ring_t * p);
 static int next_ring_id(void);
+static int hal_ring_newfv(int size, int sp_size, int flags,
+			  const char *fmt, va_list ap);
+static int hal_ring_deletefv(const char *fmt, va_list ap);
+static int hal_ring_attachfv(ringbuffer_t *rb, unsigned *flags,
+			     const char *fmt, va_list ap);
+static int hal_ring_detachfv(ringbuffer_t *rb, const char *fmt, va_list ap);
 
 /***********************************************************************
 *                     Public HAL ring functions                        *
 ************************************************************************/
-int hal_ring_new(const char *name, int size, int sp_size, int flags)
+int hal_ring_newf(int size, int sp_size, int mode, const char *fmt, ...)
+{
+    va_list ap;
+    int ret;
+    va_start(ap, fmt);
+    ret = hal_ring_newfv(size, sp_size, mode, fmt, ap);
+    va_end(ap);
+    return ret;
+}
+
+int hal_ring_new(const char *name, int size, int sp_size, int mode)
 {
     hal_ring_t *rbdesc;
     int *prev, next, cmp, retval;
@@ -68,7 +84,7 @@ int hal_ring_new(const char *name, int size, int sp_size, int flags)
 	}
 
 	rbdesc->handle = rtapi_next_handle();
-	rbdesc->flags = flags;
+	rbdesc->flags = mode;
 	rbdesc->ring_id = ring_id;
 
 	// make total allocation fit ringheader, ringbuffer and scratchpad
@@ -142,6 +158,16 @@ int hal_ring_new(const char *name, int size, int sp_size, int flags)
 	}
 	// automatic unlock by scope exit
     }
+}
+
+int hal_ring_deletef(const char *fmt, ...)
+{
+    va_list ap;
+    int ret;
+    va_start(ap, fmt);
+    ret = hal_ring_deletefv(fmt, ap);
+    va_end(ap);
+    return ret;
 }
 
 int hal_ring_delete(const char *name)
@@ -251,6 +277,16 @@ int hal_ring_delete(const char *name)
 
 }
 
+int hal_ring_attachf(ringbuffer_t *rb, unsigned *flags, const char *fmt, ...)
+{
+    va_list ap;
+    int ret;
+    va_start(ap, fmt);
+    ret = hal_ring_attachfv(rb, flags, fmt, ap);
+    va_end(ap);
+    return ret;
+}
+
 int hal_ring_attach(const char *name, ringbuffer_t *rbptr,unsigned *flags)
 {
     hal_ring_t *rbdesc;
@@ -322,6 +358,16 @@ int hal_ring_attach(const char *name, ringbuffer_t *rbptr,unsigned *flags)
 	// hal mutex unlock happens automatically on scope exit
     }
     return 0;
+}
+
+int hal_ring_detachf(ringbuffer_t *rb, const char *fmt, ...)
+{
+    va_list ap;
+    int ret;
+    va_start(ap, fmt);
+    ret = hal_ring_detachfv(rb, fmt, ap);
+    va_end(ap);
+    return ret;
 }
 
 int hal_ring_detach(const char *name, ringbuffer_t *rbptr)
@@ -435,12 +481,75 @@ static void free_ring_struct(hal_ring_t * p)
     hal_data->ring_free_ptr = SHMOFF(p);
 }
 
+// varargs helpers
+static int hal_ring_newfv(int size, int sp_size, int flags,
+			  const char *fmt, va_list ap)
+{
+    char name[HAL_NAME_LEN + 1];
+    int sz;
+    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+    if(sz == -1 || sz > HAL_NAME_LEN) {
+        hal_print_msg(RTAPI_MSG_ERR,
+		      "%s: length %d too long for name starting '%s'\n",
+		      __FUNCTION__, sz, name);
+        return -ENOMEM;
+    }
+    return hal_ring_new(name, size, sp_size, flags);
+}
+
+
+static int hal_ring_deletefv(const char *fmt, va_list ap)
+{
+    char name[HAL_NAME_LEN + 1];
+    int sz;
+    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+    if(sz == -1 || sz > HAL_NAME_LEN) {
+        hal_print_msg(RTAPI_MSG_ERR,
+		      "%s: length %d too long for name starting '%s'\n",
+		      __FUNCTION__, sz, name);
+        return -ENOMEM;
+    }
+    return hal_ring_delete(name);
+}
+
+static int hal_ring_attachfv(ringbuffer_t *rb, unsigned *flags,
+			     const char *fmt, va_list ap)
+{
+    char name[HAL_NAME_LEN + 1];
+    int sz;
+    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+    if(sz == -1 || sz > HAL_NAME_LEN) {
+        hal_print_msg(RTAPI_MSG_ERR,
+		      "%s: length %d too long for name starting '%s'\n",
+		      __FUNCTION__, sz, name);
+        return -ENOMEM;
+    }
+    return hal_ring_attach(name, rb, flags);
+}
+
+static int hal_ring_detachfv(ringbuffer_t *rb, const char *fmt, va_list ap)
+{
+    char name[HAL_NAME_LEN + 1];
+    int sz;
+    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+    if(sz == -1 || sz > HAL_NAME_LEN) {
+        hal_print_msg(RTAPI_MSG_ERR,
+		      "%s: length %d too long for name starting '%s'\n",
+		      __FUNCTION__, sz, name);
+        return -ENOMEM;
+    }
+    return hal_ring_detach(name, rb);
+}
 
 #ifdef RTAPI
 
 EXPORT_SYMBOL(hal_ring_new);
+EXPORT_SYMBOL(hal_ring_newf);
 EXPORT_SYMBOL(hal_ring_delete);
-EXPORT_SYMBOL(hal_ring_detach);
+EXPORT_SYMBOL(hal_ring_deletef);
 EXPORT_SYMBOL(hal_ring_attach);
+EXPORT_SYMBOL(hal_ring_attachf);
+EXPORT_SYMBOL(hal_ring_detach);
+EXPORT_SYMBOL(hal_ring_detachf);
 
 #endif
