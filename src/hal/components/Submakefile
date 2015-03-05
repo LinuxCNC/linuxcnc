@@ -165,3 +165,11 @@ hal/components/conv_u32_bit.comp: hal/components/conv.comp.in hal/components/mkc
 hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@
+
+
+# build instructions for the delayline module
+obj-m += delayline.o
+# the list of parts
+delayline-objs := hal/components/delayline.o $(MATHSTUB)
+
+$(RTLIBDIR)/delayline$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(delayline-objs))
