@@ -459,6 +459,21 @@ static inline size_t record_write_space(const ringheader_t *h)
     return MAXIMUM(0, avail - (2 * RB_ALIGN));
 }
 
+/* helper for sizing a record mode ringbuffer
+ * given the size of an record, it will return the space used
+ * in the ring buffer, including any overhead and
+ * alignment requirements
+ *
+ * example: to hold 1000 records of struct foo a ringbuffer will need
+ * a size of at least record_space(sizeof(struct foo)) * 1000
+ *
+ * (to be on the safe side, add some headroom to that)
+ */
+static inline size_t record_space(size_t element)
+{
+    return size_aligned(element + sizeof(ring_size_t));
+}
+
 
 /* internal function */
 static inline ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t offset)
