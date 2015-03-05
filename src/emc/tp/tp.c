@@ -375,8 +375,12 @@ int tpClear(TP_STRUCT * const tp)
     tcqInit(&tp->queue);
     tp->queueSize = 0;
     tp->goalPos = tp->currentPos;
+    // Clear out status ID's
     tp->nextId = 0;
     tp->execId = 0;
+    tp->tc_completed = NULL;
+    struct state_tag_t tag = {0};
+    tp->execTag = tag;
     tp->motionType = 0;
     tp->termCond = TC_TERM_COND_PARABOLIC;
     tp->tolerance = 0.0;
