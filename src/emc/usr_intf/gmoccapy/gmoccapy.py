@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "  1.5.2"
+_RELEASE = "  1.5.2.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1101,9 +1101,10 @@ class gmoccapy( object ):
         self.widgets.chk_use_kb_on_edit.set_active( False )
         self.widgets.chk_use_kb_on_mdi.set_active( False )
         self.widgets.chk_use_kb_on_file_selection.set_active( False )
-
         self.widgets.frm_keyboard.set_sensitive( False )
         self.widgets.btn_show_kbd.set_sensitive( False )
+        self.widgets.btn_show_kbd.set_image( self.widgets.img_brake_macro )
+        self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "interrupt running macro" ) )
         self.widgets.btn_keyb.set_sensitive( False )
 
     def _kill_keyboard( self ):
@@ -1532,7 +1533,10 @@ class gmoccapy( object ):
         self._sensitize_widgets( widgetlist, True )
         for btn in self.macrobuttons:
             btn.set_sensitive( True )
-        self.widgets.btn_show_kbd.set_image( self.widgets.img_keyboard )
+        if self.onboard:
+            self.widgets.btn_show_kbd.set_image( self.widgets.img_keyboard )
+        else:
+            self.widgets.btn_show_kbd.set_image( self.widgets.img_brake_macro )
         self.widgets.btn_run.set_sensitive( True )
 
         if self.tool_change:
@@ -1805,6 +1809,8 @@ class gmoccapy( object ):
         for btn in self.macrobuttons:
             btn.set_sensitive( False )
         # we change the widget_image and use the button to interupt running macros
+        if not self.onboard:
+            self.widgets.btn_show_kbd.set_sensitive(True)
         self.widgets.btn_show_kbd.set_image( self.widgets.img_brake_macro )
         self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "interrupt running macro" ) )
         self.widgets.ntb_info.set_current_page( 0 )
@@ -2975,8 +2981,12 @@ class gmoccapy( object ):
             self.command.abort()
             for btn in self.macrobuttons:
                 btn.set_sensitive( True )
-            self.widgets.btn_show_kbd.set_image( self.widgets.img_keyboard )
-            self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "This button will show or hide the keyboard" ) )
+            if self.onboard:
+                self.widgets.btn_show_kbd.set_image( self.widgets.img_keyboard )
+                self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "This button will show or hide the keyboard" ) )
+            else:
+                self.widgets.btn_show_kbd.set_sensitive(False)
+                
         elif self.widgets.ntb_info.get_current_page() == 1:
             if self.log: self._add_alarm_entry( "btn_keyboard_clicked" )
             self.widgets.ntb_info.set_current_page( 0 )
