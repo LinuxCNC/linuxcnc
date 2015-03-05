@@ -6,16 +6,16 @@ o<g28> sub
 #504=38; probe selection io index
 #505=38; probe enable io index
 o100 if [EXISTS[#<x>] or EXISTS[#<y>] or EXISTS[#<z>] or EXISTS[#<a>]]
-    o110 if [EXISTS[#<x>]
+    o110 if [EXISTS[#<x>]]
         #500=1;
     o110 endif
-    o111 if [EXISTS[#<y>]
+    o111 if [EXISTS[#<y>]]
         #501=1;
     o111 endif
-    o112 if [EXISTS[#<z>]
+    o112 if [EXISTS[#<z>]]
         #502=1;
     o112 endif
-    o113 if [EXISTS[#<a>]
+    o113 if [EXISTS[#<a>]]
         #503=1
     o113 endif
 o100 else
