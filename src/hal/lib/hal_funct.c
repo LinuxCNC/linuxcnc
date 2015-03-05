@@ -11,6 +11,43 @@ static hal_funct_entry_t *alloc_funct_entry_struct(void);
 #ifdef RTAPI
 hal_funct_t *alloc_funct_struct(void);
 
+// varargs helper for hal_export_funct()
+static int hal_export_functfv(void (*funct) (void *, long),
+			      void *arg,
+			      int uses_fp,
+			      int reentrant,
+			      int comp_id,
+			      const char *fmt,
+			      va_list ap)
+{
+    char name[HAL_NAME_LEN + 1];
+    int sz;
+    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+    if(sz == -1 || sz > HAL_NAME_LEN) {
+        hal_print_msg(RTAPI_MSG_ERR,
+		      "%s: length %d too long for name starting '%s'\n",
+		      __FUNCTION__, sz, name);
+	return -ENOMEM;
+    }
+    return hal_export_funct(name, funct, arg, uses_fp, reentrant, comp_id);
+}
+
+// printf-style version of hal_export_funct
+int hal_export_functf(void (*funct) (void *, long),
+		      void *arg,
+		      int uses_fp,
+		      int reentrant,
+		      int comp_id,
+		      const char *fmt, ... )
+{
+    va_list ap;
+    int ret;
+    va_start(ap, fmt);
+    ret = hal_export_functfv(funct, arg, uses_fp, reentrant, comp_id, fmt, ap);
+    va_end(ap);
+    return ret;
+}
+
 int hal_export_funct(const char *name, void (*funct) (void *, long),
 		     void *arg, int uses_fp, int reentrant, int comp_id)
 {

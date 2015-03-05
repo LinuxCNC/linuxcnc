@@ -520,6 +520,7 @@ EXPORT_SYMBOL(hal_pin_float_new);
 EXPORT_SYMBOL(hal_pin_u32_new);
 EXPORT_SYMBOL(hal_pin_s32_new);
 EXPORT_SYMBOL(hal_pin_new);
+EXPORT_SYMBOL(hal_pin_newf);
 
 EXPORT_SYMBOL(hal_pin_bit_newf);
 EXPORT_SYMBOL(hal_pin_float_newf);
@@ -537,6 +538,7 @@ EXPORT_SYMBOL(hal_param_float_new);
 EXPORT_SYMBOL(hal_param_u32_new);
 EXPORT_SYMBOL(hal_param_s32_new);
 EXPORT_SYMBOL(hal_param_new);
+EXPORT_SYMBOL(hal_param_newf);
 
 EXPORT_SYMBOL(hal_param_bit_newf);
 EXPORT_SYMBOL(hal_param_float_newf);
@@ -552,6 +554,7 @@ EXPORT_SYMBOL(hal_param_set);
 EXPORT_SYMBOL(hal_set_constructor);
 
 EXPORT_SYMBOL(hal_export_funct);
+EXPORT_SYMBOL(hal_export_functf);
 
 EXPORT_SYMBOL(hal_create_thread);
 EXPORT_SYMBOL(hal_thread_delete);
@@ -576,6 +579,7 @@ EXPORT_SYMBOL(halpr_find_param_by_owner);
 EXPORT_SYMBOL(halpr_find_funct_by_owner);
 
 EXPORT_SYMBOL(halpr_find_pin_by_sig);
+EXPORT_SYMBOL(hal_print_msg);
 EXPORT_SYMBOL(hal_lasterror);
 
 #endif /* rtapi */

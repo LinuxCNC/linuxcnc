@@ -96,6 +96,20 @@ int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
     return ret;
 }
 
+// printf-style version of hal_param_new()
+int hal_param_newf(hal_type_t type,
+		   hal_param_dir_t dir,
+		   void * data_addr,
+		   int comp_id,
+		   const char *fmt, ...)
+{
+    va_list ap;
+    int ret;
+    va_start(ap, fmt);
+    ret = hal_param_newfv(type, dir, data_addr, comp_id, fmt, ap);
+    va_end(ap);
+    return ret;
+}
 
 /* this is a generic function that does the majority of the work. */
 
