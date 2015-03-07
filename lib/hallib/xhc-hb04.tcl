@@ -13,12 +13,12 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #
 #   [XHC-HB04_CONFIG]
 #   layout = 2       (required: 1|2 are supported)
-#   coords = x y z a (any unique four of xyzabcuvw)
+#   coords = x y z a (up to 4 unique letters from x y z a b c u v w)
 #   coefs  = 1 1 1 1 (optional, filter coefs, 0 < coef < 1, not usually reqd)
 #   scales = 1 1 1 1 (optional)
 #   threadname = servo-thread (optional)
 #   sequence = 1     (optional: 1|2)
-#   jogmode = normal (optional: normal|vnormal|plus-minus)
+#   jogmode = normal (optional: normal|vnormal|plus-minus(Experimental))
 #   require_pendant = yes (optional: yes|no)
 
 #   [XHC-HB04_BUTTONS]
@@ -47,7 +47,7 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #       Typically:
 #         (-s1) sequence 1 (1,10,100,1000) is ok for mm-based machines
 #         (-s2) sequence 2 (1,5,10,20)     is ok for inch-based machines
-#    4) jogmode==plus-minus implements halui plus-minus jogging which
+#    4) jogmode==plus-minus -- Experimental implementation for  halui plus-minus jogging which
 #       seems to work in both joint and world modes
 #       (tested on git master branch before integration of joints_axesN branch)
 #
@@ -64,7 +64,7 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #       World-mode (aka Teleop mode) only supports continuous jogging.
 
 #-----------------------------------------------------------------------
-# Copyright: 2014
+# Copyright: 2014-15
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -250,7 +250,7 @@ proc wheel_setup {jogmode} {
                                => axis.$axno.jog-enable
       }
       plus-minus {
-        # connect halui plus,minus pins
+        # (Experimental) connect halui plus,minus pins
         net pendant:jog-plus-$coord  <= xhc-hb04.jog.plus-$acoord  \
                                      => halui.jog.$axno.plus
         net pendant:jog-minus-$coord <= xhc-hb04.jog.minus-$acoord \
@@ -274,6 +274,7 @@ proc wheel_setup {jogmode} {
       # not used: xhc-hb04.jog.max-velocity
     }
     plus-minus {
+      # (Experimental)
       # Note: the xhc-hb04 driver manages xhc-hb04.jog.velocity
       net pendant:jog-max-velocity <= halui.max-velocity.value
       net pendant:jog-max-velocity => xhc-hb04.jog.max-velocity
@@ -424,12 +425,13 @@ if [catch {eval $cmd} msg] {
 }
 
 # jogmodes:
-#   normal: use motion pins:
+#   normal,vnormal: use motion pins:
 #               axis.N.jog-counts
 #               axis.N.jog-enable
 #               axis.N.jog-scale  (machine units per count)
+#               axis.N.jog-vel-mode
 
-#   plus-minus: use halui pins:
+#   plus-minus: use halui pins:   (Experimental)
 #               halui.jog.N.plus  (jog in + dir at jog-speed)
 #               halui.jog.N.minus (jog in - dir at jog-speed)
 #               halui.jog-speed   (applies to plus-minus jogging only)
