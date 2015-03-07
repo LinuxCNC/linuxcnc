@@ -127,7 +127,7 @@ proc connect_pins {} {
       }
     }
 
-    net pendant:$bname $fullbname => $thepin
+    net pendant:$bname <= $fullbname => $thepin
   }
 } ;# connect_pins
 
@@ -178,11 +178,11 @@ proc wheel_setup {jogmode} {
   net pendant:jog-prescale    <= xhc-hb04.jog.scale
   net pendant:jog-prescale    => pendant_util.divide-by-k-in
 
-  net pendant:jog-scale      <= pendant_util.divide-by-k-out
+  net pendant:jog-scale       <= pendant_util.divide-by-k-out
   #   pendant:jog-scale connects to each axis.$axno.jog-scale
 
-  net pendant:jog-counts     <= xhc-hb04.jog.counts
-  net pendant:jog-counts-neg <= xhc-hb04.jog.counts-neg
+  net pendant:wheel-counts     <= xhc-hb04.jog.counts
+  net pendant:wheel-counts-neg <= xhc-hb04.jog.counts-neg
 
   set anames        {x y z a}
   set available_idx {0 1 2 3}
@@ -211,27 +211,27 @@ proc wheel_setup {jogmode} {
   }
   foreach coord $unassigned_coords {
     # use next available_idx
-    set use_idx($coord) [lindex $available_idx 0] 
+    set use_idx($coord) [lindex $available_idx 0]
     set available_idx   [lreplace $available_idx 0 0]
   }
 
   set mapmsg ""
   foreach coord $::XHC_HB04_CONFIG(coords) {
     set axno $::XHC_HB04_CONFIG($coord,axno)
-    set use_lbl($coord) [lindex $anames $use_idx($coord)] 
+    set use_lbl($coord) [lindex $anames $use_idx($coord)]
     set idx $use_idx($coord)
     if {"$use_lbl($coord)" != "$coord"} {
       set mapmsg "$mapmsg\
-      coord: $coord is mapped to pendant label:\
+      coord: $coord is mapped to pendant switch/display:\
       $use_lbl($coord) index: $idx\n"
     }
     setp pendant_util.coef$idx  $::XHC_HB04_CONFIG(coef,$idx)
     setp pendant_util.scale$idx [expr $kvalue * $::XHC_HB04_CONFIG(scale,$idx)]
 
     set acoord [lindex $anames $idx]
-    net pendant:pos-$coord    halui.axis.$axno.pos-feedback \
+    net pendant:pos-$coord <= halui.axis.$axno.pos-feedback \
                            => xhc-hb04.$acoord.pos-absolute
-    net pendant:pos-rel-$coord    halui.axis.$axno.pos-relative \
+    net pendant:pos-rel-$coord <= halui.axis.$axno.pos-relative \
                                => xhc-hb04.$acoord.pos-relative
 
     if ![pin_exists axis.$axno.jog-scale] {
@@ -240,20 +240,20 @@ proc wheel_setup {jogmode} {
     }
     net pendant:jog-scale => axis.$axno.jog-scale
 
-    net pendant:jog-counts                 => pendant_util.in$idx
-    net pendant:jog-counts-$coord-filtered <= pendant_util.out$idx \
-                                           => axis.$axno.jog-counts
+    net pendant:wheel-counts                 => pendant_util.in$idx
+    net pendant:wheel-counts-$coord-filtered <= pendant_util.out$idx \
+                                             => axis.$axno.jog-counts
 
     switch $jogmode {
       normal - vnormal {
-        net pendant:jog-$coord    xhc-hb04.jog.enable-$acoord \
+        net pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
                                => axis.$axno.jog-enable
       }
       plus-minus {
         # connect halui plus,minus pins
-        net pendant:jog-plus-$coord     xhc-hb04.jog.plus-$acoord  \
+        net pendant:jog-plus-$coord  <= xhc-hb04.jog.plus-$acoord  \
                                      => halui.jog.$axno.plus
-        net pendant:jog-minus-$coord    xhc-hb04.jog.minus-$acoord \
+        net pendant:jog-minus-$coord <= xhc-hb04.jog.minus-$acoord \
                                      => halui.jog.$axno.minus
       }
     }
@@ -283,23 +283,28 @@ proc wheel_setup {jogmode} {
   }
 
   setp halui.feed-override.scale 0.01
-  net pendant:jog-counts  => halui.feed-override.counts
+  net pendant:wheel-counts  => halui.feed-override.counts
 
   setp halui.spindle-override.scale 0.01
-  net pendant:jog-counts  => halui.spindle-override.counts
+  net pendant:wheel-counts  => halui.spindle-override.counts
 
+  net pendant:feed-override-enable => halui.feed-override.count-enable \
+                                   <= xhc-hb04.jog.enable-feed-override
 
-  net pendant:jog-feed      halui.feed-override.count-enable \
-                         <= xhc-hb04.jog.enable-feed-override
-  net pendant:jog-feed2     halui.feed-override.value \
-                         => xhc-hb04.feed-override
+  net pendant:feed-override <= halui.feed-override.value \
+                            => xhc-hb04.feed-override
 
-  net pendant:jog-spindle   halui.spindle-override.count-enable
-  net pendant:jog-spindle   <= xhc-hb04.jog.enable-spindle-override
-  net pendant:jog-spindle2  halui.spindle-override.value \
-                         => xhc-hb04.spindle-override
-  net pendant:spindle-rps   motion.spindle-speed-cmd-rps \
-                         => xhc-hb04.spindle-rps
+  net pendant:feed-value <= motion.current-vel \
+                         => xhc-hb04.feed-value
+
+  net pendant:spindle-override-enable => halui.spindle-override.count-enable \
+                                      <= xhc-hb04.jog.enable-spindle-override
+
+  net pendant:spindle-override <= halui.spindle-override.value \
+                               => xhc-hb04.spindle-override
+
+  net pendant:spindle-rps <= motion.spindle-speed-out-rps-abs \
+                          => xhc-hb04.spindle-rps
 } ;# wheel_setup
 
 proc std_start_pause_button {} {
@@ -314,10 +319,13 @@ proc std_start_pause_button {} {
   net    pendant:is-running <= halui.program.is-running \
                             => pendant_util.is-running
 
-  net    pendant:program-resume pendant_util.resume => halui.program.resume
-  net    pendant:program-pause  pendant_util.pause => halui.program.pause
-  net    pendant:program-run    pendant_util.run => halui.program.run
-  net    pendant:program-run                     => halui.mode.auto
+  net    pendant:program-resume <= pendant_util.resume \
+                                => halui.program.resume
+  net    pendant:program-pause  <= pendant_util.pause \
+                                => halui.program.pause
+  net    pendant:program-run    <= pendant_util.run  \
+                                => halui.program.run \
+                                => halui.mode.auto
 } ;# std_start_pause_button
 
 proc popup_msg {msg} {
