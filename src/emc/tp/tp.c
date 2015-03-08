@@ -1559,9 +1559,9 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         }
 
 
-        int progress_ratio = prev1_tc->progress / prev1_tc->target;
+        double progress_ratio = prev1_tc->progress / prev1_tc->target;
         // can safely decelerate to halfway point of segment from 25% of segment
-        int cutoff_ratio = BLEND_DIST_FRACTION / 2.0;
+        double cutoff_ratio = BLEND_DIST_FRACTION / 2.0;
 
         if (progress_ratio >= cutoff_ratio) {
             tp_debug_print("segment %d has moved past %f percent progress, cannot blend safely!\n",
