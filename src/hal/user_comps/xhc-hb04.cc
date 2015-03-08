@@ -692,7 +692,8 @@ int read_ini_file(char *filename)
 static void Usage(char *name)
 {
 	fprintf(stderr, "%s version %s by Frederic RIBLE (frible@teaser.fr)\n", name, PACKAGE_VERSION);
-    fprintf(stderr, "Usage: %s [-I ini-file] [-h] [-H] [-s 1|2]\n", name);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Usage: %s [-I button-cfg-file] [-h] [-H] [-s n]\n", name);
     fprintf(stderr, " -I button-cfg-file: configuration file defining the MPG keyboard layout\n");
     fprintf(stderr, " -h: usage (this)\n");
     fprintf(stderr, " -H: run in real-time HAL mode (run in simulation mode by default)\n");
@@ -706,9 +707,9 @@ static void Usage(char *name)
     fprintf(stderr, "\n");
     fprintf(stderr, "Configuration file section format:\n");
     fprintf(stderr, "[XHC-HB04]\n");
-    fprintf(stderr, "BUTTON=XX:button-thename\n");
+    fprintf(stderr, "BUTTON=XN:button-thenameN\n");
     fprintf(stderr, "...\n");
-    fprintf(stderr, "    where XX=hexcode, thename=nameforbutton\n");
+    fprintf(stderr, "    where XN=hexcode, button-thenameN=nameforbutton\n");
 }
 
 int main (int argc,char **argv)
@@ -790,7 +791,8 @@ int main (int argc,char **argv)
 			perror("libusb_init");
 			return 1;
 		}
-		libusb_set_debug(ctx, 3);
+		libusb_set_debug(ctx, 2);
+		// use environmental variable LIBUSB_DEBUG if needed
 
 		printf("%s: waiting for XHC-HB04 device\n",modname);
 		*(xhc.hal->connected) = 0;

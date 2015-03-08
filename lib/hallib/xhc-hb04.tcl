@@ -13,12 +13,12 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #
 #   [XHC-HB04_CONFIG]
 #   layout = 2       (required: 1|2 are supported)
-#   coords = x y z a (any unique four of xyzabcuvw)
+#   coords = x y z a (up to 4 unique letters from x y z a b c u v w)
 #   coefs  = 1 1 1 1 (optional, filter coefs, 0 < coef < 1, not usually reqd)
 #   scales = 1 1 1 1 (optional)
 #   threadname = servo-thread (optional)
 #   sequence = 1     (optional: 1|2)
-#   jogmode = normal (optional: normal|vnormal|plus-minus)
+#   jogmode = normal (optional: normal|vnormal|plus-minus(Experimental))
 #   require_pendant = yes (optional: yes|no)
 
 #   [XHC-HB04_BUTTONS]
@@ -47,7 +47,7 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #       Typically:
 #         (-s1) sequence 1 (1,10,100,1000) is ok for mm-based machines
 #         (-s2) sequence 2 (1,5,10,20)     is ok for inch-based machines
-#    4) jogmode==plus-minus implements halui plus-minus jogging which
+#    4) jogmode==plus-minus -- Experimental implementation for  halui plus-minus jogging which
 #       seems to work in both joint and world modes
 #       (tested on git master branch before integration of joints_axesN branch)
 #
@@ -64,7 +64,7 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #       World-mode (aka Teleop mode) only supports continuous jogging.
 
 #-----------------------------------------------------------------------
-# Copyright: 2014
+# Copyright: 2014-15
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -127,7 +127,7 @@ proc connect_pins {} {
       }
     }
 
-    net pendant:$bname $fullbname => $thepin
+    net pendant:$bname <= $fullbname => $thepin
   }
 } ;# connect_pins
 
@@ -178,11 +178,11 @@ proc wheel_setup {jogmode} {
   net pendant:jog-prescale    <= xhc-hb04.jog.scale
   net pendant:jog-prescale    => pendant_util.divide-by-k-in
 
-  net pendant:jog-scale      <= pendant_util.divide-by-k-out
+  net pendant:jog-scale       <= pendant_util.divide-by-k-out
   #   pendant:jog-scale connects to each axis.$axno.jog-scale
 
-  net pendant:jog-counts     <= xhc-hb04.jog.counts
-  net pendant:jog-counts-neg <= xhc-hb04.jog.counts-neg
+  net pendant:wheel-counts     <= xhc-hb04.jog.counts
+  net pendant:wheel-counts-neg <= xhc-hb04.jog.counts-neg
 
   set anames        {x y z a}
   set available_idx {0 1 2 3}
@@ -211,27 +211,27 @@ proc wheel_setup {jogmode} {
   }
   foreach coord $unassigned_coords {
     # use next available_idx
-    set use_idx($coord) [lindex $available_idx 0] 
+    set use_idx($coord) [lindex $available_idx 0]
     set available_idx   [lreplace $available_idx 0 0]
   }
 
   set mapmsg ""
   foreach coord $::XHC_HB04_CONFIG(coords) {
     set axno $::XHC_HB04_CONFIG($coord,axno)
-    set use_lbl($coord) [lindex $anames $use_idx($coord)] 
+    set use_lbl($coord) [lindex $anames $use_idx($coord)]
     set idx $use_idx($coord)
     if {"$use_lbl($coord)" != "$coord"} {
       set mapmsg "$mapmsg\
-      coord: $coord is mapped to pendant label:\
+      coord: $coord is mapped to pendant switch/display:\
       $use_lbl($coord) index: $idx\n"
     }
     setp pendant_util.coef$idx  $::XHC_HB04_CONFIG(coef,$idx)
     setp pendant_util.scale$idx [expr $kvalue * $::XHC_HB04_CONFIG(scale,$idx)]
 
     set acoord [lindex $anames $idx]
-    net pendant:pos-$coord    halui.axis.$axno.pos-feedback \
+    net pendant:pos-$coord <= halui.axis.$axno.pos-feedback \
                            => xhc-hb04.$acoord.pos-absolute
-    net pendant:pos-rel-$coord    halui.axis.$axno.pos-relative \
+    net pendant:pos-rel-$coord <= halui.axis.$axno.pos-relative \
                                => xhc-hb04.$acoord.pos-relative
 
     if ![pin_exists axis.$axno.jog-scale] {
@@ -240,20 +240,20 @@ proc wheel_setup {jogmode} {
     }
     net pendant:jog-scale => axis.$axno.jog-scale
 
-    net pendant:jog-counts                 => pendant_util.in$idx
-    net pendant:jog-counts-$coord-filtered <= pendant_util.out$idx \
-                                           => axis.$axno.jog-counts
+    net pendant:wheel-counts                 => pendant_util.in$idx
+    net pendant:wheel-counts-$coord-filtered <= pendant_util.out$idx \
+                                             => axis.$axno.jog-counts
 
     switch $jogmode {
       normal - vnormal {
-        net pendant:jog-$coord    xhc-hb04.jog.enable-$acoord \
+        net pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
                                => axis.$axno.jog-enable
       }
       plus-minus {
-        # connect halui plus,minus pins
-        net pendant:jog-plus-$coord     xhc-hb04.jog.plus-$acoord  \
+        # (Experimental) connect halui plus,minus pins
+        net pendant:jog-plus-$coord  <= xhc-hb04.jog.plus-$acoord  \
                                      => halui.jog.$axno.plus
-        net pendant:jog-minus-$coord    xhc-hb04.jog.minus-$acoord \
+        net pendant:jog-minus-$coord <= xhc-hb04.jog.minus-$acoord \
                                      => halui.jog.$axno.minus
       }
     }
@@ -274,6 +274,7 @@ proc wheel_setup {jogmode} {
       # not used: xhc-hb04.jog.max-velocity
     }
     plus-minus {
+      # (Experimental)
       # Note: the xhc-hb04 driver manages xhc-hb04.jog.velocity
       net pendant:jog-max-velocity <= halui.max-velocity.value
       net pendant:jog-max-velocity => xhc-hb04.jog.max-velocity
@@ -283,23 +284,28 @@ proc wheel_setup {jogmode} {
   }
 
   setp halui.feed-override.scale 0.01
-  net pendant:jog-counts  => halui.feed-override.counts
+  net pendant:wheel-counts  => halui.feed-override.counts
 
   setp halui.spindle-override.scale 0.01
-  net pendant:jog-counts  => halui.spindle-override.counts
+  net pendant:wheel-counts  => halui.spindle-override.counts
 
+  net pendant:feed-override-enable => halui.feed-override.count-enable \
+                                   <= xhc-hb04.jog.enable-feed-override
 
-  net pendant:jog-feed      halui.feed-override.count-enable \
-                         <= xhc-hb04.jog.enable-feed-override
-  net pendant:jog-feed2     halui.feed-override.value \
-                         => xhc-hb04.feed-override
+  net pendant:feed-override <= halui.feed-override.value \
+                            => xhc-hb04.feed-override
 
-  net pendant:jog-spindle   halui.spindle-override.count-enable
-  net pendant:jog-spindle   <= xhc-hb04.jog.enable-spindle-override
-  net pendant:jog-spindle2  halui.spindle-override.value \
-                         => xhc-hb04.spindle-override
-  net pendant:spindle-rps   motion.spindle-speed-cmd-rps \
-                         => xhc-hb04.spindle-rps
+  net pendant:feed-value <= motion.current-vel \
+                         => xhc-hb04.feed-value
+
+  net pendant:spindle-override-enable => halui.spindle-override.count-enable \
+                                      <= xhc-hb04.jog.enable-spindle-override
+
+  net pendant:spindle-override <= halui.spindle-override.value \
+                               => xhc-hb04.spindle-override
+
+  net pendant:spindle-rps <= motion.spindle-speed-out-rps-abs \
+                          => xhc-hb04.spindle-rps
 } ;# wheel_setup
 
 proc std_start_pause_button {} {
@@ -314,10 +320,13 @@ proc std_start_pause_button {} {
   net    pendant:is-running <= halui.program.is-running \
                             => pendant_util.is-running
 
-  net    pendant:program-resume pendant_util.resume => halui.program.resume
-  net    pendant:program-pause  pendant_util.pause => halui.program.pause
-  net    pendant:program-run    pendant_util.run => halui.program.run
-  net    pendant:program-run                     => halui.mode.auto
+  net    pendant:program-resume <= pendant_util.resume \
+                                => halui.program.resume
+  net    pendant:program-pause  <= pendant_util.pause \
+                                => halui.program.pause
+  net    pendant:program-run    <= pendant_util.run  \
+                                => halui.program.run \
+                                => halui.mode.auto
 } ;# std_start_pause_button
 
 proc popup_msg {msg} {
@@ -416,12 +425,13 @@ if [catch {eval $cmd} msg] {
 }
 
 # jogmodes:
-#   normal: use motion pins:
+#   normal,vnormal: use motion pins:
 #               axis.N.jog-counts
 #               axis.N.jog-enable
 #               axis.N.jog-scale  (machine units per count)
+#               axis.N.jog-vel-mode
 
-#   plus-minus: use halui pins:
+#   plus-minus: use halui pins:   (Experimental)
 #               halui.jog.N.plus  (jog in + dir at jog-speed)
 #               halui.jog.N.minus (jog in - dir at jog-speed)
 #               halui.jog-speed   (applies to plus-minus jogging only)
