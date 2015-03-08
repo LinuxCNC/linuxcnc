@@ -2911,7 +2911,7 @@ int Interp::restore_settings(setup_pointer settings,
 int Interp::restore_from_tag(StateTag const &tag)
 {
 
-    if (!tag.is_valid()) {
+    if (!tag.is_valid() || !tag.flags[GM_FLAG_RESTORABLE]) {
         //Invalid line implies a bad tag, don't restore
         return INTERP_ERROR;
     }

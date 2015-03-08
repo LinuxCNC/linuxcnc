@@ -706,8 +706,7 @@ STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_S
 {
     double acc_scaled = tpGetScaledAccel(tp, tc);
     //FIXME this is defined in two places!
-    const double BLEND_GREEDINESS = 0.5;
-    double triangle_vel = pmSqrt( acc_scaled * tc->target * BLEND_GREEDINESS);
+    double triangle_vel = pmSqrt( acc_scaled * tc->target * BLEND_DIST_FRACTION);
     double max_vel = tpGetMaxTargetVel(tp, tc);
     tp_debug_print("optimization initial vel for segment %d is %f\n", tc->id, triangle_vel);
     return fmin(triangle_vel, max_vel);
@@ -1329,7 +1328,10 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     }
 
     // Store end of current move as new final goal of TP
-    tcGetEndpoint(tc, &tp->goalPos);
+    // KLUDGE: endpoint is garbage for rigid tap since it's supposed to retract past the start point.
+    if (tc->motion_type != TC_RIGIDTAP) {
+        tcGetEndpoint(tc, &tp->goalPos);
+    }
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
@@ -1556,10 +1558,21 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
-        //KLUDGE depends on optimization happening before cycle splitting
-        if (prev1_tc->progress / prev1_tc->target >= 0.5 && prev1_tc->splitting == 0) {
-            tp_debug_print("segment %d already started, progress is %f!\n",
-                    ind-1, prev1_tc->progress);
+
+        int progress_ratio = prev1_tc->progress / prev1_tc->target;
+        // can safely decelerate to halfway point of segment from 25% of segment
+        int cutoff_ratio = BLEND_DIST_FRACTION / 2.0;
+
+        if (progress_ratio >= cutoff_ratio) {
+            tp_debug_print("segment %d has moved past %f percent progress, cannot blend safely!\n",
+                    ind-1, cutoff_ratio * 100.0);
+            return TP_ERR_OK;
+        }
+
+        //Somewhat pedantic check for other conditions that would make blending unsafe
+        if (prev1_tc->splitting || prev1_tc->blending_next) {
+            tp_debug_print("segment %d is already blending, cannot optimize safely!\n",
+                    ind-1);
             return TP_ERR_OK;
         }
 
@@ -2245,7 +2258,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
 
     switch (tc->coords.rigidtap.state) {
         case TAPPING:
-            rtapi_print_msg(RTAPI_MSG_DBG, "TAPPING");
+            tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
                 // command reversal
 		set_spindle_speed(tp->shared,
@@ -2254,7 +2267,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
             }
             break;
         case REVERSING:
-            rtapi_print_msg(RTAPI_MSG_DBG, "REVERSING");
+            tc_debug_print("REVERSING\n");
             if (new_spindlepos < tp->old_spindlepos) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
@@ -2273,10 +2286,10 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
                 tc->coords.rigidtap.state = RETRACTION;
             }
             tp->old_spindlepos = new_spindlepos;
-            rtapi_print_msg(RTAPI_MSG_DBG, "Spindlepos = %f", new_spindlepos);
+            tc_debug_print("Spindlepos = %f\n", new_spindlepos);
             break;
         case RETRACTION:
-            rtapi_print_msg(RTAPI_MSG_DBG, "RETRACTION");
+            tc_debug_print("RETRACTION\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
 		set_spindle_speed(tp->shared,
 				  get_spindle_speed(tp->shared) * -1.0);
@@ -2284,7 +2297,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
             }
             break;
         case FINAL_REVERSAL:
-            rtapi_print_msg(RTAPI_MSG_DBG, "FINAL_REVERSAL");
+            tc_debug_print("FINAL_REVERSAL\n");
             if (new_spindlepos > tp->old_spindlepos) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
@@ -2302,7 +2315,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
             tp->old_spindlepos = new_spindlepos;
             break;
         case FINAL_PLACEMENT:
-            rtapi_print_msg(RTAPI_MSG_DBG, "FINAL_PLACEMENT\n");
+            tc_debug_print("FINAL_PLACEMENT\n");
             // this is a regular move now, it'll stop at target above.
             break;
     }
@@ -2586,7 +2599,8 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     if (segment_time < cutoff_time &&
             tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE &&
-            tc->term_cond == TC_TERM_COND_TANGENT)
+            tc->term_cond == TC_TERM_COND_TANGENT &&
+            tc->motion_type != TC_RIGIDTAP)
     {
         tp_debug_print("segment_time = %f, cutoff_time = %f, ramping\n",
                 segment_time, cutoff_time);

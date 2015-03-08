@@ -21,6 +21,7 @@
 #include "emcmotcfg.h"  // EMCMOT_MAX_DIO, EMCMOT_MAX_AIO
 #include "state_tag.h"
 
+#define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */
 typedef enum {
     TC_TERM_COND_STOP = 0,

@@ -76,7 +76,7 @@ int pmRigidTapInit(PmRigidTap * const tap,
         EmcPose const * const start,
         EmcPose const * const end);
 
-int pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev);
+double pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev);
 
 int tcInit(TC_STRUCT * const tc,
         int motion_type,
