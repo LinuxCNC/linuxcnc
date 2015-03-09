@@ -1718,7 +1718,7 @@ void ARC_FEED(int line_number,
 
     // KLUDGE: assumes 0,1,2 for X Y Z
     // Find normal axis
-    int norm_axis_ind = 2 + shift_ind % 3;
+    int norm_axis_ind = 3 + shift_ind % 3;
     // Find maximum velocities and accelerations for planar axes
     int axis1 = (norm_axis_ind + 1) % 3;
     int axis2 = (norm_axis_ind + 2) % 3;
