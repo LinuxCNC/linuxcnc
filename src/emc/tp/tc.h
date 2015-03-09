@@ -33,20 +33,16 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
 int tcGetIntersectionPoint(TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc, PmCartesian * const point);
 
-int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
-        PmCartesian const * const middle, PmCartesian const * const end,
-        double radius, PmCartesian * const circ_start, PmCartesian * const circ_end);
-
-int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
-        PmCartLine const * const line2, double radius,
-        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end);
+int tcCanConsume(TC_STRUCT const * const tc);
 
 int tcSetTermCond(TC_STRUCT * const tc, int term_cond);
+
 int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         PmCartesian const * const circ_start,
         PmCartesian const * const circ_end);
 
 int tcIsBlending(TC_STRUCT * const tc);
+
 
 int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc, double * const T_blend, double * const nominal_tolerance);
