@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "  1.5.2.1"
+_RELEASE = "  1.5.2.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -2821,8 +2821,12 @@ class gmoccapy( object ):
 
         rpm = self._check_spindle_range()
         # as the commanded value will be multiplied with speed override,
-        # we take care of that
-        rpm_out = rpm / self.stat.spindlerate
+        # we take care of that but we have to check for speed override 
+        # to not be zero to avoid division by zero error
+        try:
+            rpm_out = rpm / self.stat.spindlerate
+        except:
+            rpm_out = 0
         self.widgets.lbl_spindle_act.set_label( "S %s" % int( rpm ) )
         if self.log: self._add_alarm_entry( "Spindle set to %i rpm, mode is %s" % ( rpm, self.stat.task_mode ) )
 

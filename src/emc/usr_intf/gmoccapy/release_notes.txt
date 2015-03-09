@@ -1,3 +1,8 @@
+ver. 1.5.2.2
+- if a user did reduce spindle override to zero and switched on the 
+  spindle, gmoccapy produced a division by zero error. Fixed!
+  reported by "tekmobile"
+
 ver. 1.5.2.1
 - corrected a bug on btn_brake_macro, not beeing active if no virtual
   keyboard has been installed
