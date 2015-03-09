@@ -26,7 +26,10 @@
 */
 
 #if defined(BUILD_SYS_USER_DSO)
+
+#if defined(USERMODE_PCI)
 #include "userpci/module.h"
+#endif
 /*  For kernel modules (hm2_pci, hostmot2) to compile in usermode without lots
     of changes, the EXPORT_SYMBOL lines, below, need to be defined *ONLY* if
     there is actually an rtapi_app_* function in the code.  This is handeled 
