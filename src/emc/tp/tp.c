@@ -2251,9 +2251,28 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
  * Based on the specified trajectory segment tc, read its progress and status
  * flags. Then, update the emcmotStatus structure with this information.
  */
-STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const tc ) {
-    EmcPose target;
-    tcGetEndpoint(tc, &target);
+STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const tc ) {
+
+
+    if (!tp) {
+        return TP_ERR_FAIL;
+    }
+
+    if (!tc) {
+        // Assume that we have no active segment, so we should clear out the status fields
+        emcmotStatus->distance_to_go = 0;
+        emcmotStatus->enables_queued = emcmotStatus->enables_new;
+        emcmotStatus->requested_vel = 0;
+        emcmotStatus->current_vel = 0;
+        emcPoseZero(&emcmotStatus->dtg);
+
+        tp->motionType = 0;
+        tp->activeDepth = 0;
+        return TP_ERR_STOPPED;
+    }
+
+    EmcPose tc_pos;
+    tcGetEndpoint(tc, &tc_pos);
 
     tc_debug_print("tc id = %u canon_type = %u mot type = %u\n",
             tc->id, tc->canon_motion_type, tc->motion_type);
@@ -2266,7 +2285,8 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
     emcmotStatus->requested_vel = tc->reqvel;
     emcmotStatus->current_vel = tc->currentvel;
 
-    emcPoseSub(&target, &tp->currentPos, &emcmotStatus->dtg);
+    emcPoseSub(&tc_pos, &tp->currentPos, &emcmotStatus->dtg);
+    return TP_ERR_OK;
 }
 
 
@@ -2306,8 +2326,8 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * If the program ends, or we hit QUEUE STARVATION, do a soft reset on the trajectory planner.
  * TODO merge with tpClear?
  */
-STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp,
-        emcmot_status_t * const emcmotStatus) {
+STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp)
+{
 
     tcqInit(&tp->queue);
     tp->goalPos = tp->currentPos;
@@ -2316,9 +2336,10 @@ STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp,
     tp->aborting = 0;
     tp->execId = 0;
     tp->motionType = 0;
+
+    tpUpdateMovementStatus(tp, NULL);
+
     tpResume(tp);
-    // when not executing a move, use the current enable flags
-    emcmotStatus->enables_queued = emcmotStatus->enables_new;
 }
 
 /** Wrapper function to unlock rotary axes */
@@ -3027,7 +3048,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     //If we have a NULL pointer, then the queue must be empty, so we're done.
     if(!tc) {
-        tpHandleEmptyQueue(tp, emcmotStatus);
+        tpHandleEmptyQueue(tp);
         return TP_ERR_WAITING;
     }
 
