@@ -280,7 +280,33 @@ int hal_link(const char *pin_name, const char *sig_name)
 	if (( sig->readers == 0 ) && ( sig->writers == 0 ) && ( sig->bidirs == 0 )) {
 	    /* this is the first pin for this signal, copy value from pin's "dummy" field */
 	    data_addr = hal_shmem_base + sig->data_ptr;
-	    *((hal_data_u *)data_addr) = pin->dummysig;
+
+	    // assure proper typing on assignment, assigning a hal_data_u is
+	    // a surefire cause for memory corrupion as hal_data_u is larger
+	    // than hal_bit_t, hal_s32_t, and hal_u32_t - this works only for 
+	    // hal_float_t (!)
+	    // my old, buggy code:
+	    //*((hal_data_u *)data_addr) = pin->dummysig;
+
+	    switch (pin->type) {
+	    case HAL_BIT:
+		*((hal_bit_t *) data_addr) = pin->dummysig.b;
+		break;
+	    case HAL_S32:
+		*((hal_s32_t *) data_addr) = pin->dummysig.s;
+		break;
+	    case HAL_U32:
+		*((hal_u32_t *) data_addr) = pin->dummysig.u;
+		break;
+	    case HAL_FLOAT:
+		*((hal_float_t *) data_addr) = pin->dummysig.f;
+		break;
+	    default:
+		hal_print_msg(RTAPI_MSG_ERR,
+			      "HAL: BUG: pin '%s' has invalid type %d !!\n",
+			      pin->name, pin->type);
+		return -EINVAL;
+	    }
 	}
 
 	/* update the signal's reader/writer/bidir counts */
