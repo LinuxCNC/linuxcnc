@@ -1183,6 +1183,25 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
         return res_init;
     }
 
+    int coplanar1 = pmCartCartParallel(&geom.binormal,
+            &prev_tc->coords.circle.xyz.normal,
+            TP_ANGLE_EPSILON);
+
+    if (!coplanar1) {
+        tp_debug_print("aborting blend arc, arc id %d is not coplanar with binormal\n", prev_tc->id);
+        return TP_ERR_FAIL;
+    }
+
+    int coplanar2 = pmCartCartParallel(&geom.binormal,
+            &tc->coords.circle.xyz.normal,
+            TP_ANGLE_EPSILON);
+    if (!coplanar2) {
+        tp_debug_print("aborting blend arc, arc id %d is not coplanar with binormal\n", tc->id);
+        return TP_ERR_FAIL;
+    }
+
+
+
     int res_param = blendComputeParameters(&param);
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
     
