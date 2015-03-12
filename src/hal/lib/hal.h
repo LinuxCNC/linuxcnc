@@ -951,6 +951,32 @@ int hal_reference_vtable(const char *name, int version, void **vtable);
 // drops refcount
 int hal_unreference_vtable(int vtable_id);
 
+// call a usrfunct.
+// if the return value < 0, this signifies a HAL library error code.
+// if the return value is 0, and ureturn is not NULL,
+// the usrfunct's return value is stored in *ureturn.
+int hal_call_usrfunct(const char *name, const int argc, const char **argv, int *ureturn);
+
+// public instance API:
+
+// create named instance blob owned by a comp, returns instance ID
+// the instance id can be used in lieu of the comp_id params of
+// functs,pins and params.
+// the corrsponding parameter in the funct/pin/parm calls (formerly
+// comp_id) is now called owner_id, and can either originate from
+// a hal_init/hal_xinit call, or a hal_inst_create call.
+// returns < 0 on error.
+int hal_inst_create(const char *name,
+		    const int comp_id,
+		    const int size,
+		    void **inst_data);
+
+// delete a named instance.
+// unlinks & deletes all pins owned by this instance
+// deletes params owned by this instance
+// delf's and deletes functs expored by this instance
+// returns < 0 on error.
+int hal_inst_delete(const char *name);
 
 RTAPI_END_DECLS
 

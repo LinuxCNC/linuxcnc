@@ -227,6 +227,9 @@ typedef struct {
     int member_list_ptr;	/* list of member structs */
     int member_free_ptr;	/* list of free member structs */
 
+    int inst_list_ptr;          // list of active instance descriptors
+    int inst_free_ptr;          // list of freed instance descriptors
+
     double epsilon[MAX_EPSILON];
 } hal_data_t;
 
@@ -254,6 +257,19 @@ typedef struct {
     int userarg1;	        /* interpreted by using layer */
     int userarg2;	        /* interpreted by using layer */
 } hal_comp_t;
+
+// HAL instance data structure
+// An instance has a name, and a unique ID
+// it is owned by exactly one component pointed to by comp_ptr
+// it holds a void * to the instance data as required by the instance
+typedef struct {
+    int next_ptr;		// next instance in list
+    int comp_id;                // owning component
+    int inst_id;                // allocated by rtapi_next_handle()
+    int inst_data_ptr;          // offset of instance data in HAL shm segment
+    int inst_size;              // size of instdata blob
+    char name[HAL_NAME_LEN+1];  // well, the name
+} hal_inst_t;
 
 /** HAL 'pin' data structure.
     This structure contains information about a 'pin' object.
