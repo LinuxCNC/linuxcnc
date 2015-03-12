@@ -104,6 +104,11 @@ extern int do_waitexists_cmd(char *comp);
 extern int do_waitunbound_cmd(char *comp, char *tokens[]);
 //extern int do_unloadrem_cmd(char *comp, char *tokens[]);
 
+extern int do_callfunc_cmd(char *func, char *args[]);
+extern int do_newinst_cmd(const char *comp, const char *inst, char *args[]);
+extern int do_delinst_cmd(const char *inst);
+
+
 // shutdown the RTAPI stack
 extern int do_shutdown_cmd(void);
 // ping the RTAPI stack

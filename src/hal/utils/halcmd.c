@@ -244,6 +244,9 @@ struct halcmd_command halcmd_commands[] = {
     {"waitbound", FUNCT(do_waitbound_cmd), A_ONE| A_OPTIONAL  },
     {"waitexists", FUNCT(do_waitexists_cmd), A_ONE },
     {"waitunbound", FUNCT(do_waitunbound_cmd), A_ONE| A_OPTIONAL  },
+    {"newinst",  FUNCT(do_newinst_cmd),  A_TWO | A_PLUS },
+    {"delinst",  FUNCT(do_delinst_cmd),  A_ONE },
+    {"call",  FUNCT(do_callfunc_cmd),  A_ONE | A_PLUS },
 
 };
 int halcmd_ncommands = (sizeof(halcmd_commands) / sizeof(halcmd_commands[0]));

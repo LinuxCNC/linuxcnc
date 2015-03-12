@@ -793,6 +793,8 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         result = completion_matches_table(text, unlock_table, func);
     } else if(startswith(buffer, "addf ") && argno == 1) {
         result = func(text, funct_generator);
+    } else if(startswith(buffer, "call ") && argno == 1) {
+        result = func(text, funct_generator);
     } else if(startswith(buffer, "addf ") && argno == 2) {
         result = func(text, thread_generator);
     } else if(startswith(buffer, "delf ") && argno == 1) {
