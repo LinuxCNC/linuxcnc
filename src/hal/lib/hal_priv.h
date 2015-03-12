@@ -253,6 +253,12 @@ typedef struct {
     int pid;			     /* PID of component (user components only) */
     void *shmem_base;           /* base of shmem for this component */
     char name[HAL_NAME_LEN + 1];     /* component name */
+
+    hal_constructor_t ctor;     // NULL for non-instatiable legacy comps
+    hal_destructor_t dtor;      // may be NULL for a default destructor
+                                // the default dtor will deleted pin, params and functs
+                                // owned by a particular named instance
+
     int insmod_args;		/* args passed to insmod when loaded */
     int userarg1;	        /* interpreted by using layer */
     int userarg2;	        /* interpreted by using layer */
