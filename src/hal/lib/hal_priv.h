@@ -277,7 +277,7 @@ typedef struct {
 typedef struct {
     int next_ptr;		/* next pin in linked list */
     int data_ptr_addr;		/* address of pin data pointer */
-    int owner_ptr;		/* component that owns this pin */
+    int owner_id;		/* component that owns this pin */
     int signal;			/* signal to which pin is linked */
     hal_data_u dummysig;	/* if unlinked, data_ptr points here */
     int oldname;		/* old name if aliased, else zero */
@@ -313,13 +313,15 @@ typedef struct {
 typedef struct {
     int next_ptr;		/* next parameter in linked list */
     int data_ptr;		/* offset of parameter value */
-    int owner_ptr;		/* component that owns this signal */
+    int owner_id;		/* component that owns this signal */
     int oldname;		/* old name if aliased, else zero */
     hal_type_t type;		/* data type */
     hal_param_dir_t dir;	/* data direction */
     int handle;                // unique ID
     char name[HAL_NAME_LEN + 1];	/* parameter name */
 } hal_param_t;
+
+
 
 /** the HAL uses functions and threads to handle synchronization of
     code.  In general, most control systems need to read inputs,
@@ -340,7 +342,7 @@ typedef struct {
 typedef struct {
     int next_ptr;		/* next function in linked list */
     int uses_fp;		/* floating point flag */
-    int owner_ptr;		/* component that added this funct */
+    int owner_id;		/* component that added this funct */
     int reentrant;		/* non-zero if function is re-entrant */
     int users;			/* number of threads using function */
     void *arg;			/* argument for function */
