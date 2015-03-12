@@ -49,7 +49,7 @@ int hal_bind(const char *comp_name)
 	    return -EINVAL;
 	}
 	comp->state = COMP_BOUND;
-	comp->last_bound = (long int) time(NULL);; // XXX ugly
+	comp->last_bound = (long int) time(NULL);
     }
     return 0;
 }
@@ -87,7 +87,7 @@ int hal_unbind(const char *comp_name)
 	    return -EINVAL;
 	}
 	comp->state = COMP_UNBOUND;
-	comp->last_unbound = (long int) time(NULL);; // XXX ugly
+	comp->last_unbound = (long int) time(NULL);
     }
     return 0;
 }
