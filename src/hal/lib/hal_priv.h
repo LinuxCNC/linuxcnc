@@ -187,12 +187,7 @@ typedef struct {
     unsigned long mutex;	/* protection for linked lists, etc. */
 
     hal_s32_t shmem_avail;	/* amount of shmem left free */
-    constructor pending_constructor;
-			/* pointer to the pending constructor function */
-    char constructor_prefix[HAL_NAME_LEN+1];
-			        /* prefix of name for new instance */
-    char constructor_arg[HAL_NAME_LEN+1];
-			        /* prefix of name for new instance */
+
     int shmem_bot;		/* bottom of free shmem (first free byte) */
     int shmem_top;		/* top of free shmem (1 past last free) */
     int comp_list_ptr;		/* root of linked list of components */
@@ -254,7 +249,6 @@ typedef struct {
     int pid;			     /* PID of component (user components only) */
     void *shmem_base;           /* base of shmem for this component */
     char name[HAL_NAME_LEN + 1];     /* component name */
-    constructor make;
     int insmod_args;		/* args passed to insmod when loaded */
     int userarg1;	        /* interpreted by using layer */
     int userarg2;	        /* interpreted by using layer */
