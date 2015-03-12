@@ -289,6 +289,7 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
 
     // Used for arc-length to angle conversion with spiral segments
     double angle = 0.0;
+    int res_fit = TP_ERR_OK;
 
     switch (tc->motion_type){
         case TC_RIGIDTAP:
@@ -313,9 +314,9 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
                     &abc);
             break;
         case TC_CIRCULAR:
-            angle = pmCircleAngleFromProgress(&tc->coords.circle.xyz,
+            res_fit = pmCircleAngleFromProgress(&tc->coords.circle.xyz,
                     &tc->coords.circle.fit,
-                    progress);
+                    progress, &angle);
             pmCirclePoint(&tc->coords.circle.xyz,
                     angle,
                     &xyz);
@@ -335,8 +336,11 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             break;
     }
 
-    pmCartesianToEmcPose(&xyz, &abc, &uvw, pos);
-    return 0;
+    if (res_fit == TP_ERR_OK) {
+        // Don't touch pos unless we know the value is good
+        pmCartesianToEmcPose(&xyz, &abc, &uvw, pos);
+    }
+    return res_fit;
 }
 
 
