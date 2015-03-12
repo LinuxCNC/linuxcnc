@@ -225,7 +225,7 @@ create_rcomp(htself_t *self,  const pb::Component *pbcomp,
     if (pbcomp->has_userarg2()) arg2 = pbcomp->userarg2();
 
     // create the remote component
-    comp_id = hal_init_mode(cname, TYPE_REMOTE, arg1, arg2);
+    comp_id = hal_xinit(TYPE_REMOTE, arg1, arg2, NULL, NULL, cname);
     if (comp_id < 0) {
 	note_printf(self->tx, "hal_init_mode(%s): %s",
 		    cname, strerror(-comp_id));
