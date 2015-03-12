@@ -83,7 +83,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	/* initialize the signal value */
 	switch (type) {
 	case HAL_BIT:
-	    *((char *) data_addr) = 0;
+	    *((hal_bit_t *) data_addr) = 0;
 	    break;
 	case HAL_S32:
 	    *((hal_s32_t *) data_addr) = 0;
