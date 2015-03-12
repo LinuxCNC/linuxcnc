@@ -1801,25 +1801,6 @@ int pmCircleAngleFromProgress(PmCircle const * const circle,
     // Parameterize by total progress along helix
     double t = progress / s_end;
     return pmCircleAngleFromParam(circle, fit, t, angle);
-
-}
-
-
-/**
- * compute the total arc length of a circle segment.
- * Deprecated since adding the fit to PmCircle9
- */
-double pmCircleLength(PmCircle const * const circle)
-{
-
-    SpiralArcLengthFit fit;
-    //TODO store in circle init rather than recalculating each time
-    findSpiralArcLengthFit(circle, &fit);
-    double h2;
-    pmCartMagSq(&circle->rHelix, &h2);
-    double helical_length = pmSqrt(pmSq(fit.total_planar_length) + h2);
-
-    return helical_length;
 }
 
 
