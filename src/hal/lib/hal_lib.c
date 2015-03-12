@@ -147,12 +147,9 @@ static int init_hal_data(void);
 /** The 'hal_set_lock()' function sets locking based on one of the
     locking types defined in hal.h
 */
-int hal_set_lock(unsigned char lock_type) {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: set_lock called before init\n");
-	return -EINVAL;
-    }
+int hal_set_lock(unsigned char lock_type)
+{
+    CHECK_HALDATA();
     hal_data->lock = lock_type;
     return 0;
 }
@@ -161,12 +158,9 @@ int hal_set_lock(unsigned char lock_type) {
     locking types defined in hal.h
 */
 
-unsigned char hal_get_lock() {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: get_lock called before init\n");
-	return -EINVAL;
-    }
+unsigned char hal_get_lock()
+{
+    CHECK_HALDATA();
     return hal_data->lock;
 }
 
@@ -180,9 +174,7 @@ void halpr_autorelease_mutex(void *variable)
 	rtapi_mutex_give(&(hal_data->mutex));
     else
 	// programming error
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d BUG: halpr_autorelease_mutex called before hal_data inited\n",
-			rtapi_instance);
+	HALERR("BUG: halpr_autorelease_mutex called before hal_data inited");
 }
 
 
@@ -295,7 +287,7 @@ void rtapi_app_exit(void)
 	    /* and delete it */
 	    free_thread_struct(thread);
 	}
-    }
+}
 
     /* release RTAPI resources */
     retval = rtapi_shmem_delete(lib_mem_id, lib_module_id);
