@@ -229,6 +229,78 @@ extern void rtapi_print(const char *fmt, ...)
 extern void rtapi_print_msg(int level, const char *fmt, ...)
     __attribute__((format(printf,2,3)));
 
+// shorthand for reporting macros
+void rtapi_print_loc(const int level,
+		     const char *func,
+		     const int line,
+		     const char *topic,
+		     const char *fmt, ...)
+    __attribute__((format(printf,5,6)));
+
+
+// checking & logging shorthands
+#define RTAPIERR(fmt, ...)					\
+    rtapi_print_loc(RTAPI_MSG_ERR,__FUNCTION__,__LINE__,	\
+		    "RTAPI error:", fmt, ## __VA_ARGS__)
+
+#define RTAPIDBG(fmt, ...)					\
+    rtapi_print_loc(RTAPI_MSG_DBG,__FUNCTION__,__LINE__,	\
+		    "RTAPI:", fmt, ## __VA_ARGS__)
+#define RTAPIINFO(fmt, ...)					\
+    rtapi_print_loc(RTAPI_MSG_INFO,__FUNCTION__,__LINE__,	\
+		    "RTAPI info:", fmt, ## __VA_ARGS__)
+
+#define RTAPIWARN(fmt, ...)					\
+    rtapi_print_loc(RTAPI_MSG_WARN,__FUNCTION__,__LINE__,	\
+		    "RTAPI WARNING:", fmt, ## __VA_ARGS__)
+
+#define ULAPIERR(fmt, ...)					\
+    rtapi_print_loc(RTAPI_MSG_ERR,__FUNCTION__,__LINE__,	\
+		    "ULAPI error:", fmt, ## __VA_ARGS__)
+
+#define ULAPIDBG(fmt, ...)					\
+    rtapi_print_loc(RTAPI_MSG_DBG,__FUNCTION__,__LINE__,	\
+		    "ULAPI:", fmt, ## __VA_ARGS__)
+
+#define ULAPIWARN(fmt, ...)					\
+    rtapi_print_loc(RTAPI_MSG_WARN,__FUNCTION__,__LINE__,	\
+		    "ULAPI WARNING:", fmt, ## __VA_ARGS__)
+
+#define RTAPI_ASSERT(x)						\
+    do {							\
+	if (!(x)) {						\
+	    rtapi_print_loc(RTAPI_MSG_ERR,			\
+			    __FUNCTION__,__LINE__,		\
+			    "RTAPI error:",			\
+			    "ASSERTION VIOLATED: '%s'", #x);	\
+	}							\
+    } while(0)
+
+#define RTAPI_CHECK_STR(name)					\
+    do {							\
+	if ((name) == NULL) {					\
+	    rtapi_print_loc(RTAPI_MSG_ERR,			\
+			    __FUNCTION__, __LINE__,		\
+			    "RTAPI error:",			\
+			    "argument '" # name  "' is NULL");	\
+	    return -EINVAL;					\
+	}							\
+    } while(0)
+
+#define RTAPI_CHECK_STRLEN(name, len)				\
+    do {							\
+	CHECK_STR(name);					\
+	if (strlen(name) > len) {				\
+	    rtapi_print_loc(RTAPI_MSG_ERR,__FUNCTION__,		\
+			    __LINE__,				\
+			    "RTAPI error:",			\
+			    "argument '%s' too long (%d/%d)",	\
+			    name, strlen(name), len);		\
+	    return -EINVAL;					\
+	}							\
+    } while(0)
+
+
 /** Set the maximum level of message to print.  In userspace code,
     each component has its own independent message level.  In realtime
     code, all components share a single message level.  Returns 0 for
