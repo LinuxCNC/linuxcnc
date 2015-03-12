@@ -20,50 +20,28 @@ static void free_vtable_struct(hal_vtable_t *c);
 ************************************************************************/
 int hal_export_vtable(const char *name, int version, void *vtref, int comp_id)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: hal_export_vtable called before init\n");
-	return -EINVAL;
-    }
-    if (vtref == NULL) {
-	hal_print_msg(RTAPI_MSG_ERR,
-		      "HAL: ERROR: hal_export_vtable called with NULL vtable\n");
-	return -EINVAL;
-    }
-    if (!name) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: hal_export_vtable: NULL name\n");
-	return -EINVAL;
-    }
-    if (strlen(name) > HAL_NAME_LEN) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: vtable name '%s' is too long\n", name);
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_STRLEN(name, HAL_NAME_LEN);
+    CHECK_NULL(vtref);
+    CHECK_LOCK(HAL_LOCK_LOAD);
+
+    HALDBG("exporting vtable '%s' version=%d owner=%d at %p",
+	   name, version, comp_id, vtref);
+
     {
 	hal_vtable_t *vt __attribute__((cleanup(halpr_autorelease_mutex)));
 
 	rtapi_mutex_get(&(hal_data->mutex));
 
-	if (hal_data->lock & HAL_LOCK_LOAD)  {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: hal_export_vtable called while HAL locked\n");
-	    return -EPERM;
-	}
-
 	// make sure no such vtable name already exists
 	if ((vt = halpr_find_vtable_by_name(name, version)) != 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: vtable '%s' already exists\n", name);
+	    HALERR("vtable '%s' already exists", name);
 	    return -EEXIST;
 	}
 
 	// allocate a new vtable descriptor in the HAL shm segment
-	if ((vt = alloc_vtable_struct()) == NULL) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			  "HAL: ERROR: insufficient memory for vtable '%s'\n",
-			  name);
-	    return -ENOMEM;
-	}
+	if ((vt = alloc_vtable_struct()) == NULL)
+	    NOMEM("vtable '%s'",  name);
 
 	vt->refcount = 0;
 	vt->vtable  =  vtref;
@@ -81,8 +59,8 @@ int hal_export_vtable(const char *name, int version, void *vtref, int comp_id)
 	vt->next_ptr = hal_data->vtable_list_ptr;
 	hal_data->vtable_list_ptr = SHMOFF(vt);
 
-	hal_print_msg(RTAPI_MSG_DBG, "HAL: created vtable '%s' vtable=%p version=%d\n",
-		      vt->name, vt->vtable, vt->version);
+	HALDBG("created vtable '%s' vtable=%p version=%d",
+	       vt->name, vt->vtable, vt->version);
 
 	// automatic unlock by scope exit
 	return vt->handle;
@@ -92,30 +70,22 @@ int hal_export_vtable(const char *name, int version, void *vtref, int comp_id)
 
 int hal_remove_vtable(int vtable_id)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: hal_remove_vtable called before init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_LOAD);
+
     {
 	hal_vtable_t *vt __attribute__((cleanup(halpr_autorelease_mutex)));
 	rtapi_mutex_get(&(hal_data->mutex));
-	if (hal_data->lock & HAL_LOCK_LOAD)  {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: hal_remove_vtable called while HAL locked\n");
-	    return -EPERM;
-	}
 
 	// make sure no such vtable name already exists
 	if ((vt = halpr_find_vtable_by_id(vtable_id)) == NULL) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			  "HAL: ERROR: hal_remove_vtable(%d): vtable not found\n", vtable_id);
+	    HALERR("vtable %d not found", vtable_id);
 	    return -ENOENT;
 	}
 	// still referenced?
 	if (vt->refcount > 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			  "HAL: ERROR: hal_remove_vtable(%d): busy (refcount=%d)\n",
-			  vtable_id, vt->refcount);
+	    HALERR("vtable %d busy (refcount=%d)",
+		   vtable_id, vt->refcount);
 	    return -ENOENT;
 
 	}
@@ -126,8 +96,7 @@ int hal_remove_vtable(int vtable_id)
 	next = *prev;
 	while (1) {
 	    if (next == 0) {
-		hal_print_msg(RTAPI_MSG_ERR,
-			      "HAL: ERROR: vtable %d not found\n", vtable_id);
+		HALERR("vtable %d not found", vtable_id);
 		return -EINVAL;
 	    }
 	    c = SHMPTR(next);
@@ -139,9 +108,8 @@ int hal_remove_vtable(int vtable_id)
 	    next = *prev;
 	}
 	free_vtable_struct(vt);
-	hal_print_msg(RTAPI_MSG_DBG,
-		      "HAL: hal_remove_vtable(%d): vtable %s/%d removed\n",
-		      vtable_id, vt->name, vt->version);
+	HALDBG("vtable %s/%d version %d removed",
+	       vt->name, vtable_id,  vt->version);
 	return 0;
     }
 }
@@ -150,37 +118,19 @@ int hal_remove_vtable(int vtable_id)
 // increases refcount
 int hal_reference_vtable(const char *name, int version, void **vtableref)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-		      "HAL: ERROR: hal_reference_vtable called before init\n");
-	return -EINVAL;
-    }
-    if (vtableref == NULL) {
-	hal_print_msg(RTAPI_MSG_ERR,
-		      "HAL: ERROR: hal_reference_vtable called with NULL vtable\n");
-	return -EINVAL;
-    }
-    if (!name) {
-	hal_print_msg(RTAPI_MSG_ERR,
-		      "HAL: ERROR: hal_export_vtable: NULL name\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_STRLEN(name, HAL_NAME_LEN);
+    CHECK_NULL(vtableref);
+    CHECK_LOCK(HAL_LOCK_LOAD);
+
     {
 	hal_vtable_t *vt __attribute__((cleanup(halpr_autorelease_mutex)));
 
 	rtapi_mutex_get(&(hal_data->mutex));
 
-	if (hal_data->lock & HAL_LOCK_LOAD)  {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			  "HAL: ERROR: hal_reference_vtable called while HAL locked\n");
-	    return -EPERM;
-	}
-
 	// make sure no such vtable name already exists
 	if ((vt = halpr_find_vtable_by_name(name, version)) == NULL) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			  "HAL: ERROR: vtable '%s' version %d not found\n",
-			  name, version);
+	    HALERR("vtable '%s' version %d not found", name, version);
 	    return -ENOENT;
 	}
 
@@ -191,18 +141,16 @@ int hal_reference_vtable(const char *name, int version, void **vtableref)
 	int context = getpid(); // in per-process memory, no shareable code
 #endif
 	if (vt->context != context) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			  "HAL: ERROR: hal_reference_vtable(%s,%d): "
-			  "context mismatch - found context %d\n",
-			  name, version, vt->context);
+	    HALERR("vtable %s version %d: "
+		   "context mismatch - found context %d",
+		   name, version, vt->context);
 	    return -ENOENT;
 	}
 
 	vt->refcount += 1;
 	*vtableref = vt->vtable;
-	hal_print_msg(RTAPI_MSG_DBG,
-		      "HAL: hal_reference_vtable(%s,%d) found vtable=%p context=%d\n",
-		      vt->name, vt->version, vt->vtable, vt->context);
+	HALDBG("vtable %s,%d found vtable=%p context=%d",
+	       vt->name, vt->version, vt->vtable, vt->context);
 
 	// automatic unlock by scope exit
 	return vt->handle;
@@ -212,20 +160,14 @@ int hal_reference_vtable(const char *name, int version, void **vtableref)
 // drops refcount
 int hal_unreference_vtable(int vtable_id)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-		      "HAL: ERROR: hal_unreference_vtable called before init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
     {
 	hal_vtable_t *vt __attribute__((cleanup(halpr_autorelease_mutex)));
 	rtapi_mutex_get(&(hal_data->mutex));
 
 	// make sure no such vtable name already exists
 	if ((vt = halpr_find_vtable_by_id(vtable_id)) == NULL) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			  "HAL: ERROR: hal_unreference_vtable(id=%d) not found\n",
-			  vtable_id);
+	    HALERR("vtable %d not found", vtable_id);
 	    return -ENOENT;
 	}
 
@@ -236,17 +178,14 @@ int hal_unreference_vtable(int vtable_id)
 	int context = getpid(); // in per-process memory, no shareable code
 #endif
 	if (vt->context != context) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			  "HAL: ERROR: hal_unreference_vtable(%d) (name=%s): "
-			  "context mismatch - calling context %d vtable context %d\n",
-			  vtable_id, vt->name, context, vt->context);
+	    HALERR("vtable %s/%d: "
+		   "context mismatch - calling context %d vtable context %d",
+		   vt->name, vtable_id, context, vt->context);
 	    return -ENOENT;
 	}
 
 	vt->refcount -= 1;
-	hal_print_msg(RTAPI_MSG_DBG,
-		      "HAL: hal_unreference_vtable(%d) (name=%s) refcount=%d\n",
-		      vtable_id, vt->name, vt->refcount);
+	HALDBG("vtable %s/%d refcount=%d", vt->name, vtable_id, vt->refcount);
 
 	// automatic unlock by scope exit
 	return 0;
