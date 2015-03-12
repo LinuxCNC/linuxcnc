@@ -590,7 +590,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	assert(pbreq.rtapicmd().has_instance());
 
 	if (kernel_threads(flavor)) {
-	    int retval =  procfs_threadcmd("newthread %s %d %d %d",
+	    int retval =  procfs_cmd(PROCFS_RTAPICMD,"newthread %s %d %d %d",
 					   pbreq.rtapicmd().threadname().c_str(),
 					   pbreq.rtapicmd().threadperiod(),
 					   pbreq.rtapicmd().use_fp(),
@@ -626,7 +626,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	assert(pbreq.rtapicmd().has_instance());
 
 	if (kernel_threads(flavor)) {
-	    int retval =  procfs_threadcmd("delthread %s",
+	    int retval =  procfs_cmd(PROCFS_RTAPICMD, "delthread %s",
 					   pbreq.rtapicmd().threadname().c_str());
 	    pbreply.set_retcode(retval < 0 ? retval:0);
 	} else {

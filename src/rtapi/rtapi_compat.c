@@ -470,14 +470,14 @@ int run_module_helper(const char *format, ...)
 
 
 
-int procfs_threadcmd(const char *format, ...)
+int procfs_cmd(const char *path, const char *format, ...)
 {
     va_list args;
     int fd;
     int retval = 0;
-    char buffer[100];
+    char buffer[4096];
 
-    if ((fd = open(PROCFS_THREADCMD,O_WRONLY)) > -1) {
+    if ((fd = open(path,O_WRONLY)) > -1) {
 	int len;
 	va_start(args, format);
 	len = vsnprintf(buffer, sizeof(buffer), format, args);
