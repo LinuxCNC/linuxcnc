@@ -44,9 +44,8 @@ static int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
     int sz;
     sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
     if(sz == -1 || sz > HAL_NAME_LEN) {
-        hal_print_msg(RTAPI_MSG_ERR,
-	    "hal_param_newfv: length %d too long for name starting '%s'\n",
-	    sz, name);
+        HALERR("length %d invalid too long for name starting '%s'\n",
+	       sz, name);
 	return -ENOMEM;
     }
     return hal_param_new(name, type, dir, (void *) data_addr, comp_id);
@@ -120,31 +119,28 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
     hal_param_t *new, *ptr;
 
     if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: param_new called before init\n");
+	hal_print_error("%s: called before init", __FUNCTION__);
 	return -EINVAL;
     }
 
     if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");
+	hal_print_error("%s: param type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U3",
+			__FUNCTION__);
 	return -EINVAL;
     }
 
     if (dir != HAL_RO && dir != HAL_RW) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: param direction not one of HAL_RO, or HAL_RW\n");
+	hal_print_error("%s: param direction not one of HAL_RO, or HAL_RW",
+			__FUNCTION__);
 	return -EINVAL;
     }
 
     if (strlen(name) > HAL_NAME_LEN) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: parameter name '%s' is too long\n", name);
+	hal_print_error("%s: parameter name '%s' is too long", __FUNCTION__, name);
 	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: param_new called while HAL locked\n");
+	hal_print_error("%s: called while HAL locked", __FUNCTION__);
 	return -EPERM;
     }
     {
@@ -153,21 +149,21 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	/* get mutex before accessing shared data */
 	rtapi_mutex_get(&(hal_data->mutex));
 
-	hal_print_msg(RTAPI_MSG_DBG, "HAL: creating parameter '%s'\n", name);
+	HALDBG("creating parameter '%s'\n", name);
 
 	/* validate comp_id */
 	comp = halpr_find_comp_by_id(comp_id);
 	if (comp == 0) {
 	    /* bad comp_id */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: component %d not found\n", comp_id);
+	    HALERR("param '%s': owning component %d not found\n",
+		   name, owner_id);
 	    return -EINVAL;
 	}
+
 	/* validate passed in pointer - must point to HAL shmem */
 	if (! SHMCHK(data_addr)) {
 	    /* bad pointer */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: data_addr not in shared memory\n");
+	    HALERR("param '%s': data_addr not in shared memory\n", name);
 	    return -EINVAL;
 	}
 	if(comp->state > COMP_INITIALIZING) {
@@ -178,9 +174,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	/* allocate a new parameter structure */
 	new = alloc_param_struct();
 	if (new == 0) {
-	    /* alloc failed */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: insufficient memory for parameter '%s'\n", name);
+	    HALERR("param '%s': insufficient memory for parameter", name);
 	    return -ENOMEM;
 	}
 	/* initialize the structure */
@@ -211,8 +205,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	    if (cmp == 0) {
 		/* name already in list, can't insert */
 		free_param_struct(new);
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: duplicate parameter '%s'\n", name);
+		HALERR("duplicate parameter '%s'", name);
 		return -EINVAL;
 	    }
 	    /* didn't find it yet, look at next one */
@@ -251,19 +244,11 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 
     void *d_ptr;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: param_set called before init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_PARAMS);
+    CHECK_STRLEN(name, HAL_NAME_LEN);
 
-    if (hal_data->lock & HAL_LOCK_PARAMS)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: param_set called while HAL locked\n");
-	return -EPERM;
-    }
-
-    hal_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s'\n", name);
+    HALDBG("setting parameter '%s'\n", name);
 
     {
 	hal_param_t *param __attribute__((cleanup(halpr_autorelease_mutex)));
@@ -275,22 +260,18 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 	param = halpr_find_param_by_name(name);
 	if (param == 0) {
 	    /* parameter not found */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: parameter '%s' not found\n", name);
+	    HALERR("parameter '%s' not found\n", name);
 	    return -EINVAL;
 	}
 	/* found it, is type compatible? */
 	if (param->type != type) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: type mismatch setting param '%s'\n",
-			    name);
+	    HALERR("parameter '%s': type mismatch %d != %d\n",
+		   name, param->type, type);
 	    return -EINVAL;
 	}
 	/* is it read only? */
 	if (param->dir == HAL_RO) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: param '%s' is not writable\n",
-			    name);
+	    HALERR("parameter '%s': param is not writable\n", name);
 	    return -EINVAL;
 	}
 	/* everything is OK, set the value */
@@ -314,8 +295,8 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 	    break;
 	default:
 	    /* Shouldn't get here, but just in case... */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: bad type %d setting param\n", param->type);
+	    HALERR("parameter '%s': bad type %d setting param\n",
+		   name, param->type);
 	    return -EINVAL;
 	}
     }
@@ -327,21 +308,13 @@ int hal_param_alias(const char *param_name, const char *alias)
     int *prev, next, cmp;
     hal_param_t *param, *ptr;
 
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    CHECK_STRLEN(param_name, HAL_NAME_LEN);
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: param_alias called before init\n");
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: param_alias called while HAL locked\n");
-	return -EPERM;
-    }
     if (alias != NULL ) {
 	if (strlen(alias) > HAL_NAME_LEN) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: alias name '%s' is too long\n", alias);
+	    HALERR("alias name '%s' is too long\n", alias);
 	    return -EINVAL;
 	}
     }
@@ -355,8 +328,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	if (alias != NULL ) {
 	    param = halpr_find_param_by_name(alias);
 	    if ( param != NULL ) {
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: duplicate pin/alias name '%s'\n", alias);
+		HALERR("duplicate pin/alias name '%s'\n", alias);
 		return -EINVAL;
 	    }
 	}
@@ -368,8 +340,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	   to succeed since at least one struct is on the free list. */
 	oldname = halpr_alloc_oldname_struct();
 	if ( oldname == NULL ) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: insufficient memory for param_alias\n");
+	    HALERR("param '%s': insufficient memory for param_alias\n", param_name);
 	    return -EINVAL;
 	}
 	free_oldname_struct(oldname);
@@ -379,8 +350,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	while (1) {
 	    if (next == 0) {
 		/* reached end of list, not found */
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: param '%s' not found\n", param_name);
+		HALERR("param '%s': not found\n", param_name);
 		return -EINVAL;
 	    }
 	    param = SHMPTR(next);
