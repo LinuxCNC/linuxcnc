@@ -11,7 +11,7 @@ cdef class Signal:
             # the underlying HAL signal was deleted.
             raise RuntimeError("link: underlying HAL signal already deleted")
 
-    def __init__(self, char *name, type=HAL_TYPE_UNSPECIFIED):
+    def __init__(self, char *name, type=HAL_TYPE_UNSPECIFIED, init=None):
         hal_required()
         # if no type given, wrap existing signal
         if type == HAL_TYPE_UNSPECIFIED:
@@ -33,6 +33,8 @@ cdef class Signal:
 
         self._storage = <hal_data_u *>shmptr(self._sig.data_ptr)
         self._handle = self._sig.handle  # memoize for liveness check
+        if init:
+            self.set(init)
 
     def link(self, *pins):
         self._alive_check()

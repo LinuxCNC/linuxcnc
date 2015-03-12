@@ -8,4 +8,8 @@ cdef extern from "halcmd_rtapiapp.h":
     int rtapi_ping(int instance)
     int rtapi_newthread(int instance, const char *name, int period, int cpu, int use_fp)
     int rtapi_delthread(int instance, const char *name)
+    int rtapi_callfunc(int instance, const char *func, const char **args)
+    int rtapi_newinst(int instance, const char *comp, const char *instname, const char **args)
+    int rtapi_delinst(int instance, const char *instname)
+
     const char *rtapi_rpcerror()

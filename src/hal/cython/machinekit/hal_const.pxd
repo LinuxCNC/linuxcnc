@@ -3,8 +3,8 @@ cdef extern from "hal.h":
         TYPE_INVALID
         TYPE_RT
         TYPE_USER
-        TYPE_INSTANCE
         TYPE_REMOTE
+        TYPE_HALLIB
 
     ctypedef enum comp_state:
         COMP_INVALID
@@ -32,22 +32,13 @@ cdef extern from "hal.h":
         HAL_RO
         HAL_RW
 
-    ctypedef enum comp_type:
-        TYPE_INVALID
-        TYPE_RT
-        TYPE_USER
-        TYPE_INSTANCE
-        TYPE_REMOTE
-
-    ctypedef enum comp_state:
-        COMP_INVALID
-        COMP_INITIALIZING
-        COMP_UNBOUND
-        COMP_BOUND
-        COMP_READY
-
     ctypedef enum pinflag_t:
        PIN_DO_NOT_TRACK
+
+    ctypedef enum hal_funct_signature_t:
+       FS_LEGACY_THREADFUNC
+       FS_XTHREADFUNC
+       FS_USERLAND
 
 cdef extern from "hal_group.h":
     ctypedef enum report_phase:
