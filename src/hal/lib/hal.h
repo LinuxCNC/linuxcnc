@@ -204,6 +204,11 @@ enum comp_type  {
     TYPE_RT,
     TYPE_USER,
     TYPE_REMOTE,
+
+    // internal use only for initing the very first component, hal_lib
+    // which needs extra care since the HAL shm segment needs to be
+    // allocated
+    TYPE_HALLIB,
 };
 
 enum comp_state {
@@ -214,14 +219,32 @@ enum comp_state {
     COMP_READY
 };
 
-extern int hal_init_mode(const char *name, int mode, int userarg1, int userarg2);
+typedef int (*hal_constructor_t) (const char *name, const int argc, const char**argv);
+typedef int (*hal_destructor_t) (const char *name, void *inst, const int inst_size);
+
+int hal_xinit(const int type,
+	      const int userarg1,
+	      const int userarg2,
+	      const hal_constructor_t ctor,
+	      const hal_destructor_t dtor,
+	      const char *name);
+
+// printf-style version of hal_xinit
+int hal_xinitf(const int type,
+	      const int userarg1,
+	      const int userarg2,
+	      const hal_constructor_t ctor,
+	      const hal_destructor_t dtor,
+	      const char *fmt, ...)
+    __attribute__((format(printf,6,7)));
+
 
 // backwards compatibility:
 static inline int hal_init(const char *name) {
 #ifdef RTAPI
-    return hal_init_mode(name, TYPE_RT, 0, 0);
+    return hal_xinit(TYPE_RT, 0, 0, NULL, NULL, name);
 #else
-    return hal_init_mode(name, TYPE_USER, 0, 0);
+    return hal_xinit(TYPE_USER, 0, 0, NULL, NULL, name);
 #endif
 }
 
