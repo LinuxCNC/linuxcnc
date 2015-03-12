@@ -1616,7 +1616,7 @@ static int inst_count(hal_comp_t *comp)
     int n = 0;
     hal_inst_t *start = NULL, *inst;
 
-    while ((inst = halpr_find_inst_by_owner(comp, start)) != NULL) {
+    while ((inst = halpr_find_inst_by_owning_comp(comp->comp_id, start)) != NULL) {
 	start = inst;
 	n++;
     }
@@ -1720,7 +1720,7 @@ static void print_inst_info(char **patterns)
 
     while (next != 0) {
 	inst = SHMPTR(next);
-	comp = halpr_find_comp_by_id(inst->owner_id);
+	comp = halpr_find_comp_by_id(inst->comp_id);
 
 	if ( match(patterns, inst->name) ) {
 
