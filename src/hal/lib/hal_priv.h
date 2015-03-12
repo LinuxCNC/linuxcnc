@@ -94,6 +94,7 @@
 
 #include <rtapi.h>
 #include <rtapi_global.h>
+#include <hal_logging.h>
 
 #ifdef ULAPI
 #include <rtapi_compat.h>
