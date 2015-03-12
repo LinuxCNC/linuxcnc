@@ -26,7 +26,7 @@ int hal_init_mode(const char *name, int type, int userarg1, int userarg2)
 
     if (name == 0) {
 	hal_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no component name\n");
-	return -EINVAL;
+        return -EINVAL;
     }
     if (strlen(name) > HAL_NAME_LEN) {
 	hal_print_msg(RTAPI_MSG_ERR,
@@ -37,7 +37,7 @@ int hal_init_mode(const char *name, int type, int userarg1, int userarg2)
     // since this happens through the constructor
     hal_print_msg(RTAPI_MSG_DBG,
 		    "HAL: initializing component '%s' type=%d arg1=%d arg2=%d/0x%x\n",
-		    name, type, userarg1, userarg2, userarg2);
+	   name, type, userarg1, userarg2, userarg2);
     /* copy name to local vars, truncating if needed */
     rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_%s", name);
     rtapi_snprintf(hal_name, sizeof(hal_name), "%s", name);
@@ -46,8 +46,8 @@ int hal_init_mode(const char *name, int type, int userarg1, int userarg2)
     comp_id = rtapi_init(rtapi_name);
     if (comp_id < 0) {
 	hal_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: rtapi init failed\n");
-	return -EINVAL;
-    }
+	    return -EINVAL;
+	}
     // tag message origin field since ulapi autoload re-tagged them
     rtapi_set_logtag("hal_lib");
 #ifdef ULAPI
@@ -112,12 +112,9 @@ int hal_exit(int comp_id)
     int *prev, next;
     char name[HAL_NAME_LEN + 1];
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: exit called before init\n");
-	return -EINVAL;
-    }
-    hal_print_msg(RTAPI_MSG_DBG, "HAL: removing component %02d\n", comp_id);
+    CHECK_HALDATA();
+
+    HALDBG("removing component %d", comp_id);
 
     {
 	hal_comp_t *comp  __attribute__((cleanup(halpr_autorelease_mutex)));
@@ -129,8 +126,7 @@ int hal_exit(int comp_id)
 	next = *prev;
 	if (next == 0) {
 	    /* list is empty - should never happen, but... */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: component %d not found\n", comp_id);
+	    HALERR("no components defined");
 	    return -EINVAL;
 	}
 	comp = SHMPTR(next);
@@ -140,8 +136,7 @@ int hal_exit(int comp_id)
 	    next = *prev;
 	    if (next == 0) {
 		/* reached end of list without finding component */
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: component %d not found\n", comp_id);
+		HALERR("no such component with id %d", comp_id);
 		return -EINVAL;
 	    }
 	    comp = SHMPTR(next);
@@ -196,7 +191,7 @@ int hal_set_constructor(int comp_id, constructor make) {
 	hal_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
 	return -EINVAL;
-    }
+	}
 
     comp = SHMPTR(next);
     while (comp->comp_id != comp_id) {
@@ -225,8 +220,7 @@ int hal_ready(int comp_id) {
     next = hal_data->comp_list_ptr;
     if (next == 0) {
 	/* list is empty - should never happen, but... */
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: component %d not found\n", comp_id);
+	HALERR("BUG: no components defined - %d", comp_id);
 	return -EINVAL;
     }
 
@@ -236,16 +230,14 @@ int hal_ready(int comp_id) {
 	next = comp->next_ptr;
 	if (next == 0) {
 	    /* reached end of list without finding component */
-	    hal_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: component %d not found\n", comp_id);
+	    HALERR("component %d not found", comp_id);
 	    return -EINVAL;
 	}
 	comp = SHMPTR(next);
     }
     if(comp->state > COMP_INITIALIZING) {
-        hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: Component '%s' already ready (%d)\n",
-			comp->name, comp->state);
+	HALERR("component '%s' id %d already ready (state %d)",
+	       comp->name, comp->comp_id, comp->state);
         return -EINVAL;
     }
     comp->state = (comp->type == TYPE_REMOTE ?  COMP_UNBOUND : COMP_READY);
@@ -262,6 +254,7 @@ char *hal_comp_name(int comp_id)
     rtapi_mutex_give(&(hal_data->mutex));
     return result;
 }
+
 hal_comp_t *halpr_find_comp_by_name(const char *name)
 {
     int next;
@@ -337,6 +330,7 @@ static void free_comp_struct(hal_comp_t * comp)
 #endif /* RTAPI */
     hal_pin_t *pin;
     hal_param_t *param;
+    hal_inst_t *inst;
 
     /* can't delete the component until we delete its "stuff" */
     /* need to check for functs only if a realtime component */
