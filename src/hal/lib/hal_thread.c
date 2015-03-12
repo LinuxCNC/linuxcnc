@@ -411,35 +411,7 @@ void free_thread_struct(hal_thread_t * thread)
 	/* free the removed entry */
 	free_funct_entry_struct(funct_entry);
     }
-/*! \todo Another #if 0 */
-#if 0
-/* Currently these don't get created, so we don't have to worry
-   about deleting them.  They will come back when the HAL refactor
-   is done, at that time this code or something like it will be
-   needed.
-*/
-    /* need to delete <thread>.time and <thread>.tmax params */
-    rtapi_snprintf(time, sizeof(time), "%s.time", thread->name);
-    rtapi_snprintf(tmax, sizeof(tmax), "%s.tmax", thread->name);
-    /* search the parameter list for those parameters */
-    prev = &(hal_data->param_list_ptr);
-    next = *prev;
-    while (next != 0) {
-	param = SHMPTR(next);
-	/* does this param match either name? */
-	if ((strcmp(param->name, time) == 0)
-	    || (strcmp(param->name, tmax) == 0)) {
-	    /* yes, unlink from list */
-	    *prev = param->next_ptr;
-	    /* and delete it */
-	    free_param_struct(param);
-	} else {
-	    /* no match, try the next one */
-	    prev = &(param->next_ptr);
-	}
-	next = *prev;
-    }
-#endif
+
     thread->name[0] = '\0';
     /* add thread to free list */
     thread->next_ptr = hal_data->thread_free_ptr;
