@@ -2,7 +2,7 @@
 Package: machinekit-rt-preempt
 Architecture: any
 Depends: machinekit (= ${binary:Version}), ${shlibs:Depends},
-	linux-image-rt-${preempt-rt-ext}
+	linux-image-rt-${preempt-rt-ext} [!armhf]
 Provides:  machinekit-rt-threads
 Suggests: hostmot2-firmware-all [!armhf]
 Enhances: machinekit
