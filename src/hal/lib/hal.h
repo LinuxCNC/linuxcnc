@@ -203,7 +203,6 @@ enum comp_type  {
     TYPE_INVALID = 0,
     TYPE_RT,
     TYPE_USER,
-    TYPE_INSTANCE,
     TYPE_REMOTE,
 };
 
@@ -253,7 +252,6 @@ typedef struct {
 } hal_compstate_t;
 
 typedef struct {
-    //hal_data_u **value;
     void **value;
     int type;		/* data type */
     int dir;		/* pin direction */
@@ -953,18 +951,6 @@ int hal_reference_vtable(const char *name, int version, void **vtable);
 // drops refcount
 int hal_unreference_vtable(int vtable_id);
 
-
-
-/** HAL 'constructor' typedef
-    If it is not NULL, this points to a function which can construct a new
-    instance of its component.  Return value is >=0 for success,
-    <0 for error.
-*/
-typedef int(*constructor)(char *prefix, char *arg);
-
-/** hal_set_constructor() sets the constructor function for this component
-*/
-extern int hal_set_constructor(int comp_id, constructor make);
 
 RTAPI_END_DECLS
 
