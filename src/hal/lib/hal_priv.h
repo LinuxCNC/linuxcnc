@@ -468,20 +468,6 @@ extern hal_comp_t *halpr_alloc_comp_struct(void);
 */
 extern hal_comp_t *halpr_find_comp_by_id(int id);
 
-/** The 'find_xxx_by_owner()' functions find objects owned by a specific
-    component.  If 'start' is NULL, they start at the beginning of the
-    appropriate list, and return the first item owned by 'comp'.
-    Otherwise they assume that 'start' is the value returned by a prior
-    call, and return the next matching item.  If no match is found, they
-    return NULL.
-*/
-extern hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner,
-    hal_pin_t * start);
-extern hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,
-    hal_param_t * start);
-extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
-    hal_funct_t * start);
-
 /** 'find_pin_by_sig()' finds pin(s) that are linked to a specific signal.
     If 'start' is NULL, it starts at the beginning of the pin list, and
     returns the first pin that is linked to 'sig'.  Otherwise it assumes
@@ -493,6 +479,35 @@ extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 hal_vtable_t *halpr_find_vtable_by_name(const char *name, int version);
 hal_vtable_t *halpr_find_vtable_by_id(int vtable_id);
 
+// private instance API:
+// lookup
+hal_inst_t *halpr_find_inst_by_name(const char *name);
+
+// given the owner_id of pin, param or funct,
+// find the owning instance
+// succeeds only for pins, params, functs owned by a hal_inst_t
+// returns NULL for legacy code using comp_id for pins/params/functs
+hal_inst_t *halpr_find_inst_by_id(const int owner_id);
+
+// given the owner_id of pin, param or funct,
+// find the owning component regardless whether the object
+// was created by an instance id, or a comp id
+// always succeeds for pins, params, functs
+hal_comp_t *halpr_find_owning_comp(const int owner_id);
+
+// iterators - by instance id
+hal_pin_t *halpr_find_pin_by_instance(hal_inst_t *inst,
+				      hal_pin_t * start);
+hal_param_t *halpr_find_param_by_instance(hal_inst_t *inst,
+				      hal_param_t * start);
+hal_funct_t *halpr_find_funct_by_instance(hal_inst_t * inst,
+				      hal_funct_t * start);
+hal_inst_t *halpr_find_inst_by_owning_comp(const int comp_id, hal_inst_t *start);
+
+// iterators - by owner id, which can refer to either a comp or an instance
+hal_pin_t *halpr_find_pin_by_owner_id(const int owner_id, hal_pin_t * start);
+hal_param_t *halpr_find_param_by_owner_id(const int owner_id, hal_param_t * start);
+hal_funct_t *halpr_find_funct_by_owner(const int owner_id, hal_funct_t * start);
 
 // automatically release the local hal_data->mutex on scope exit.
 // if a local variable is declared like so:
