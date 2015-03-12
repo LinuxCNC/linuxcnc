@@ -943,9 +943,9 @@ extern int ulapi_loaded(void);
 #define LINUX_VERSION_CODE 0
 #endif
 
-#if defined(BUILD_SYS_USER_DSO) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #define RTAPI_STRINGIFY(x)    #x
 
+#if defined(BUILD_SYS_USER_DSO) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 
 #define RTAPI_MP_INT(var,descr)    \
   MODULE_PARM(var,"i");            \
@@ -970,6 +970,35 @@ extern int ulapi_loaded(void);
 #define RTAPI_MP_ARRAY_STRING(var,num,descr)       \
   MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "s");  \
   MODULE_PARM_DESC(var,descr);
+
+
+// instance parameters, userland
+// use different symnames to distinguish
+
+#define RTAPI_IP_INT(var,descr)    \
+  INSTANCE_PARM(var,"i");            \
+  INSTANCE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_LONG(var,descr)   \
+  INSTANCE_PARM(var,"l");            \
+  INSTANCE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_STRING(var,descr) \
+  INSTANCE_PARM(var,"s");            \
+  INSTANCE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_ARRAY_INT(var,num,descr)          \
+  INSTANCE_PARM(var,"1-" RTAPI_STRINGIFY(num) "i");  \
+  INSTANCE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_ARRAY_LONG(var,num,descr)         \
+  INSTANCE_PARM(var,"1-" RTAPI_STRINGIFY(num) "l");  \
+  INSTANCE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_ARRAY_STRING(var,num,descr)       \
+  INSTANCE_PARM(var,"1-" RTAPI_STRINGIFY(num) "s");  \
+  INSTANCE_PARM_DESC(var,descr);
+
 
 #else /* version 2.6 or later */
 
@@ -1001,6 +1030,42 @@ extern int ulapi_loaded(void);
   int __dummy_##var;                                     \
   module_param_array(var, charp, &(__dummy_##var), 0);  \
   MODULE_PARM_DESC(var,descr);
+
+// for kthreads, export params in
+// /sys/modules/<name>/parameters/<var>
+#define RTAPI_IP_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
+
+#define RTAPI_IP_INT(var,descr)    \
+  module_param(var, int, RTAPI_IP_MODE);       \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_LONG(var,descr)   \
+  module_param(var, long, RTAPI_IP_MODE);      \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_STRING(var,descr) \
+  module_param(var, charp, RTAPI_IP_MODE);     \
+  MODULE_PARM_DESC(var,descr);
+
+#ifdef _NOTYET
+
+// no param array support for instance params yet
+#define RTAPI_IP_ARRAY_INT(var,num,descr)                \
+  int __dummy_##var;                                     \
+  module_param_array(var, int, &(__dummy_##var), RTAPI_IP_MODE);     \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_ARRAY_LONG(var,num,descr)               \
+  int __dummy_##var;                                     \
+  module_param_array(var, long, &(__dummy_##var), RTAPI_IP_MODE);    \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_ARRAY_STRING(var,num,descr)             \
+  int __dummy_##var;                                     \
+  module_param_array(var, charp, &(__dummy_##var), RTAPI_IP_MODE);  \
+  MODULE_PARM_DESC(var,descr);
+
+#endif // _NOTYET
 
 #endif /* version < 2.6 */
 
