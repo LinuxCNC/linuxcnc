@@ -226,7 +226,7 @@ int hal_link(const char *pin_name, const char *sig_name)
 	}
         /* everything is OK, make the new link */
         data_ptr_addr = SHMPTR(pin->data_ptr_addr);
-	comp = SHMPTR(pin->owner_ptr);
+	comp = halpr_find_owning_comp(pin->owner_id);
 	data_addr = comp->shmem_base + sig->data_ptr;
 	*data_ptr_addr = data_addr;
 
