@@ -35,7 +35,7 @@ halpr_describe_component(hal_comp_t *comp, pb::Component *pbcomp)
     int next = hal_data->pin_list_ptr;
     while (next != 0) {
 	hal_pin_t *pin = (hal_pin_t *)SHMPTR(next);
-	hal_comp_t *owner = (hal_comp_t *) SHMPTR(pin->owner_ptr);
+	hal_comp_t *owner = halpr_find_comp_by_id(pin->owner_id);
 	if (owner->comp_id == comp->comp_id) {
 	    pb::Pin *pbpin = pbcomp->add_pin();
 	    halpr_describe_pin(pin, pbpin);
@@ -45,7 +45,7 @@ halpr_describe_component(hal_comp_t *comp, pb::Component *pbcomp)
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	hal_param_t *param = (hal_param_t *)SHMPTR(next);
-	hal_comp_t *owner = (hal_comp_t *) SHMPTR(param->owner_ptr);
+	hal_comp_t *owner = halpr_find_owning_comp(param->owner_id);
 	if (owner->comp_id == comp->comp_id) {
 	    pb::Param *pbparam = pbcomp->add_param();
 	    pbparam->set_name(param->name);
@@ -76,13 +76,14 @@ halpr_describe_ring(hal_ring_t *ring, pb::Ring *pbring)
 {
     pbring->set_name(ring->name);
     pbring->set_handle(ring->handle);
+    //FIXME use new attach function to query flags
     // XXX describing more detail would require a temporary attach.
     return 0;
 }
 
 int halpr_describe_funct(hal_funct_t *funct, pb::Function *pbfunct)
 {
-    hal_comp_t *owner = (hal_comp_t *) SHMPTR(funct->owner_ptr);
+    hal_comp_t *owner = halpr_find_owning_comp(funct->owner_id);
 
     pbfunct->set_name(funct->name);
     pbfunct->set_handle(funct->handle);
