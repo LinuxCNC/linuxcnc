@@ -20,11 +20,13 @@ static void legacy_funct(void *arg, long period)
     // measured in the calling library code)
 }
 
-// an extended RT thread functio, more useful arguments passed in:
+// an extended RT thread function, more useful arguments passed in:
 // extended thread functions can be addf'd like legacy functions, the right thing will happen
 // time observation for free!
-static int xthread_funct(const void *arg, const hal_funct_args_t *fa)
+static int xthread_funct(void *arg, const hal_funct_args_t *fa)
 {
+    long period __attribute__((unused))  = fa_period(fa);
+
     // the following accessors are available here:
 
     // fa_period(fa) - formerly 'long period'
@@ -73,7 +75,7 @@ int rtapi_app_main(void)
 	return -1;
 
     // exporting an extended thread function:
-    hal_xfunct_t xtf = {
+    hal_export_xfunct_args_t xtf = {
 	.type = FS_XTHREADFUNC,
 	.funct.x = xthread_funct,
 	.arg = "x-instance-data",
@@ -85,7 +87,7 @@ int rtapi_app_main(void)
 	return -1;
 
     // exporting a userland-callable thread function:
-    hal_xfunct_t uf = {
+    hal_export_xfunct_args_t uf = {
 	.type = FS_USERLAND,
 	.funct.u = usrfunct_demo,
 	.arg = "u-instance-data",
