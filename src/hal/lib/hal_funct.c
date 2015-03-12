@@ -59,7 +59,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: export_funct called before init\n");
 	return -EINVAL;
-    }
+}
 
     if (strlen(name) > HAL_NAME_LEN) {
 	hal_print_msg(RTAPI_MSG_ERR,
@@ -70,7 +70,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: export_funct called while HAL locked\n");
 	return -EPERM;
-    }
+}
 
     hal_print_msg(RTAPI_MSG_DBG, "HAL: exporting function '%s'\n", name);
 
@@ -159,23 +159,23 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     /* at this point we have a new function and can yield the mutex */
     rtapi_mutex_give(&(hal_data->mutex));
 
-    /* create a pin with the function's runtime in it */
+	/* create a pin with the function's runtime in it */
     if (hal_pin_s32_newf(HAL_OUT, &(new->runtime), comp_id,"%s.time",name)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	   "HAL: ERROR: fail to create pin '%s.time'\n", name);
-	return -EINVAL;
-    }
+	    return -EINVAL;
+	}
     *(new->runtime) = 0;
 
-    /* note that failure to successfully create the following params
-       does not cause the "export_funct()" call to fail - they are
-       for debugging and testing use only */
-    /* create a parameter with the function's maximum runtime in it */
+	/* note that failure to successfully create the following params
+	   does not cause the "export_funct()" call to fail - they are
+	   for debugging and testing use only */
+	/* create a parameter with the function's maximum runtime in it */
     rtapi_snprintf(buf, sizeof(buf), "%s.tmax", name);
     new->maxtime = 0;
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), comp_id);
 
-    /* create a parameter with the function's maximum runtime in it */
+	/* create a parameter with the function's maximum runtime in it */
     rtapi_snprintf(buf, sizeof(buf), "%s.tmax-increased", name);
     new->maxtime_increased = 0;
     hal_param_bit_new(buf, HAL_RO, &(new->maxtime_increased), comp_id);
@@ -320,61 +320,34 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *funct_entry;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: del_funct called before init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    CHECK_STR(funct_name);
+    CHECK_STR(thread_name);
 
-    if (hal_data->lock & HAL_LOCK_CONFIG) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: del_funct_from_thread called "
-			"while HAL is locked\n");
-	return -EPERM;
-    }
-
-    hal_print_msg(RTAPI_MSG_DBG,
-		    "HAL: removing function '%s' from thread '%s'\n",
-		    funct_name, thread_name);
+    HALDBG("removing function '%s' from thread '%s'", funct_name, thread_name);
     {
 	hal_thread_t *thread __attribute__((cleanup(halpr_autorelease_mutex)));
 
 	/* get mutex before accessing data structures */
 	rtapi_mutex_get(&(hal_data->mutex));
-	/* make sure we were given a function name */
-	if (funct_name == 0) {
-	    /* no name supplied */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: missing function name\n");
-	    return -EINVAL;
-	}
-	/* make sure we were given a thread name */
-	if (thread_name == 0) {
-	    /* no name supplied */
-	    hal_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing thread name\n");
-	    return -EINVAL;
-	}
+
 	/* search function list for the function */
 	funct = halpr_find_funct_by_name(funct_name);
 	if (funct == 0) {
-	    /* function not found */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: function '%s' not found\n", funct_name);
+	    HALERR("function '%s' not found", funct_name);
 	    return -EINVAL;
 	}
 	/* found the function, is it in use? */
 	if (funct->users == 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: function '%s' is not in use\n",
-			    funct_name);
+	    HALERR("function '%s' is not in use", funct_name);
 	    return -EINVAL;
 	}
 	/* search thread list for thread_name */
 	thread = halpr_find_thread_by_name(thread_name);
 	if (thread == 0) {
 	    /* thread not found */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: thread '%s' not found\n", thread_name);
+	    HALERR("thread '%s' not found", thread_name);
 	    return -EINVAL;
 	}
 	/* ok, we have thread and function, does thread use funct? */
@@ -383,9 +356,8 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	while (1) {
 	    if (list_entry == list_root) {
 		/* reached end of list, funct not found */
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: thread '%s' doesn't use %s\n",
-				thread_name, funct_name);
+		HALERR("thread '%s' doesn't use %s",
+		       thread_name, funct_name);
 		return -EINVAL;
 	    }
 	    funct_entry = (hal_funct_entry_t *) list_entry;
@@ -469,7 +441,7 @@ hal_funct_t *halpr_find_funct_by_name(const char *name)
 }
 
 hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
-    hal_funct_t * start)
+					  hal_funct_t * start)
 {
     int owner_ptr, next;
     hal_funct_t *funct;
