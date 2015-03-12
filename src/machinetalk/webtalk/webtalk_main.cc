@@ -57,7 +57,8 @@ mainloop( wtself_t *self)
     zloop_set_verbose (self->loop, self->cfg->debug & LLL_LOOP);
 
     zmq_pollitem_t signal_poller = { 0, self->signal_fd, ZMQ_POLLIN };
-    zloop_poller(self->loop, &signal_poller, handle_signal, self);
+    if (self->cfg->trap_signals)
+	zloop_poller(self->loop, &signal_poller, handle_signal, self);
 
     if ((self->wsctx = libwebsocket_create_context(&self->cfg->info)) == NULL) {
 	lwsl_err("libwebsocket_create_context failed\n");
@@ -106,8 +107,11 @@ zmq_init(wtself_t *self)
 {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    self->signal_fd = setup_signals(sigaction_handler, SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
-    assert(self->signal_fd > -1);
+    // ease debugging
+    if (self->cfg->trap_signals) {
+	self->signal_fd = setup_signals(sigaction_handler, SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
+	assert(self->signal_fd > -1);
+    }
 
     // suppress default handling of signals in zctx_new()
     // since we're using signalfd()
@@ -293,7 +297,7 @@ usage(void)
 }
 
 
-static const char *option_string = "hI:S:d:R:Fsw:X:p:C:K:P:";
+static const char *option_string = "hI:S:d:R:Fsw:X:p:C:K:P:G";
 static struct option long_options[] = {
     { "help", no_argument, 0, 'h'},
     { "ini", required_argument, 0, 'I'},
@@ -309,7 +313,7 @@ static struct option long_options[] = {
     { "stderr",  no_argument,        0, 's'},
     { "foreground",  no_argument,    0, 'F'},
     { "plugin", required_argument, 0, 'P'},
-
+    { "nosighdlr",   no_argument,    0, 'G'},
     {0,0,0,0}
 };
 
@@ -323,6 +327,7 @@ int main (int argc, char *argv[])
     conf.ipaddr = "127.0.0.1";
     conf.index_html = NULL;
     conf.info.port = PROXY_PORT;
+    conf.trap_signals = true;
 
     int logopt = LOG_NDELAY;
     int opt, retval;
@@ -339,6 +344,9 @@ int main (int argc, char *argv[])
 	    break;
 	case 'F':
 	    conf.foreground = true;
+	    break;
+	case 'G':
+	    conf.trap_signals = false;
 	    break;
 	case 's':
 	    conf.log_stderr = true;

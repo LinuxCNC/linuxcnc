@@ -113,6 +113,7 @@ static int foreground;
 static int debug;
 static int signal_fd;
 static bool interrupted;
+static bool trap_signals = true;
 int shmdrv_loaded;
 long page_size;
 static const char *progname;
@@ -877,8 +878,10 @@ static int mainloop(size_t  argc, char **argv)
     // block all signal delivery through signal handler
     // since we're using signalfd()
     // do this here so child threads inherit the sigmask
-    signal_fd = setup_signals(sigaction_handler, SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
-    assert(signal_fd > -1);
+    if (trap_signals) {
+	signal_fd = setup_signals(sigaction_handler, SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
+	assert(signal_fd > -1);
+    }
 
     // suppress default handling of signals in zctx_new()
     // since we're using signalfd()
@@ -944,7 +947,8 @@ static int mainloop(size_t  argc, char **argv)
     zloop_set_verbose(z_loop, debug);
 
     zmq_pollitem_t signal_poller = { 0, signal_fd, ZMQ_POLLIN };
-    zloop_poller (z_loop, &signal_poller, s_handle_signal, NULL);
+    if (trap_signals)
+	zloop_poller (z_loop, &signal_poller, s_handle_signal, NULL);
 
     zmq_pollitem_t command_poller = { z_command, 0, ZMQ_POLLIN };
     zloop_poller(z_loop, &command_poller, rtapi_request, NULL);
@@ -1188,6 +1192,7 @@ static void usage(int argc, char **argv)
 static struct option long_options[] = {
     {"help",  no_argument,          0, 'h'},
     {"foreground",  no_argument,    0, 'F'},
+    {"nosighdlr",   no_argument,    0, 'G'},
     {"instance", required_argument, 0, 'I'},
     {"ini",      required_argument, 0, 'i'},     // default: getenv(INI_FILE_NAME)
     {"drivers",   required_argument, 0, 'D'},
@@ -1216,12 +1221,15 @@ int main(int argc, char **argv)
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "hH:m:I:f:r:U:NFdR:n:i:",
+	c = getopt_long (argc, argv, "ShH:m:I:f:r:U:NFdR:n:i:",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
 
 	switch (c)	{
+	case 'G':
+	    trap_signals = false; // ease debugging with gdb
+	    break;
 
 	case 'd':
 	    debug++;
@@ -1280,6 +1288,9 @@ int main(int argc, char **argv)
 	    exit(0);
 	}
     }
+
+    if (trap_signals && (getenv("NOSIGHDLR") != NULL))
+	trap_signals = false;
 
     if (inifile && ((inifp = fopen(inifile,"r")) == NULL)) {
 	fprintf(stderr,"rtapi_app: cant open inifile '%s'\n", inifile);
