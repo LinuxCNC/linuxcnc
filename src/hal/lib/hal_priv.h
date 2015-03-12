@@ -345,14 +345,90 @@ typedef struct {
     that identify the functions connected to that thread.
 */
 
+// functs are now typed, according to the signature expected by
+// the function to be called.
+//
+// (1) legacy thread functions remain as-is: void (*funct) (void *, long)
+//     this is as traditionally exported by hal_export_funct() and is
+//     kept for backwards compatibility reasons even if severely limited.
+//
+// (2) there's an extended API for thread functions which exports more
+// interesting data to function, including actual invocation time
+// and other data permitting for better introspection. Those functs
+// can still be addf'd to a thread, but are called with a more flexible
+// signature.
+//
+// (3) functs can now also be called via userland action, for instance
+// by halcmd 'call compname funcname <optional args>'; that is - not by
+// a thread at all. These functs evidently have a signature which
+// is not compatible with threading (more like 'main(argc, argv)',
+// so they cannot be add'fd to a thread function.
+// However, as they are owned by a comp, they can be used for
+// creating/deleting component instances post-loading.
+
+typedef enum {
+    FS_LEGACY_THREADFUNC,  // legacy API
+    FS_XTHREADFUNC,        // extended API
+    FS_USERLAND,           // userland-callable, with argc/arv vector
+} hal_funct_signature_t;
+
+typedef struct hal_thread hal_thread_t;
+typedef struct hal_funct  hal_funct_t;
+
+// keeps values pertaining to thread invocation in a struct,
+// so a reference can be cheaply passed to the invoked funct
 typedef struct {
+    // actual invocation time of this thread cycle
+    // (i.e. before calling the first funct in chain)
+    long long int thread_start_time;
+
+    // invocation time of the current funct.
+    // accounts for the time being used by previous functs,
+    // without calling rtapi_get_clocks() yet once more
+    // (RTAPI thread_task already does this, so it's all about making an
+    // existing value accessible to the funct)
+    long long int start_time;
+
+    hal_thread_t  *thread; // descriptor of invoking thread, NULL with FS_USERLAND
+    hal_funct_t   *funct;  // descriptor of invoked funct
+
+    // argument vector for FS_USERLAND; 0/NULL for others
+    int argc;
+    const char **argv;
+} hal_funct_args_t ;
+
+// signatures
+typedef void (*legacy_funct_t) (void *, long);
+typedef int  (*xthread_funct_t) (void *, const hal_funct_args_t *);
+typedef int  (*userland_funct_t) (const hal_funct_args_t *);
+
+typedef union {
+    legacy_funct_t   l;       // FS_LEGACY_THREADFUNC
+    xthread_funct_t  x;       // FS_XTHREADFUNC
+    userland_funct_t u;       // FS_USERLAND
+} hal_funct_u;
+
+// hal_export_xfunc argument struct
+typedef struct {
+    hal_funct_signature_t type;
+    hal_funct_u funct;
+    void *arg;
+    int uses_fp;
+    int reentrant;
+    int owner_id;
+} hal_export_xfunct_args_t;
+
+int hal_export_xfunctf( const hal_export_xfunct_args_t *xf, const char *fmt, ...);
+
+typedef struct hal_funct {
     int next_ptr;		/* next function in linked list */
+    hal_funct_signature_t type; // drives call signature, addf
     int uses_fp;		/* floating point flag */
     int owner_id;		/* component that added this funct */
     int reentrant;		/* non-zero if function is re-entrant */
     int users;			/* number of threads using function */
     void *arg;			/* argument for function */
-    void (*funct) (void *, long);	/* ptr to function code */
+    hal_funct_u funct;          // ptr to function code
     int handle;                 // unique ID
     hal_s32_t* runtime;	        /* (pin) duration of last run, in nsec */
     hal_s32_t maxtime;		/* duration of longest run, in nsec */
@@ -362,12 +438,13 @@ typedef struct {
 
 typedef struct {
     hal_list_t links;		/* linked list data */
+    hal_funct_signature_t type;
     void *arg;			/* argument for function */
-    void (*funct) (void *, long);	/* ptr to function code */
+    hal_funct_u funct;     // ptr to function code
     int funct_ptr;		/* pointer to function */
 } hal_funct_entry_t;
 
-typedef struct {
+typedef struct hal_thread {
     int next_ptr;		/* next thread in linked list */
     int uses_fp;		/* floating point flag */
     long int period;		/* period of the thread, in nsec */
@@ -380,6 +457,33 @@ typedef struct {
     int handle;                 // unique ID
     char name[HAL_NAME_LEN + 1];	/* thread name */
 } hal_thread_t;
+
+
+// public accessors for hal_funct_args_t argument
+static inline long long int fa_start_time(const hal_funct_args_t *fa)
+ { return fa->start_time; }
+
+static inline long long int fa_thread_start_time(const hal_funct_args_t *fa)
+{ return fa->thread_start_time; }
+
+static inline long fa_period(const hal_funct_args_t *fa)
+{
+    if (fa->thread)
+	return fa->thread->period;
+    return 0;
+}
+
+static inline const char* fa_thread_name(const hal_funct_args_t *fa)
+{
+    if (fa->thread)
+	return fa->thread->name;
+    return "";
+}
+static inline const char* fa_funct_name(const hal_funct_args_t *fa) { return fa->funct->name; }
+
+static inline const int fa_argc(const hal_funct_args_t *fa) { return fa->argc; }
+static inline const char** fa_argv(const hal_funct_args_t *fa) { return fa->argv; }
+static inline const void * fa_arg(const hal_funct_args_t *fa) { return fa->funct->arg; }
 
 
 // represents a HAL vtable object
@@ -451,6 +555,7 @@ extern hal_sig_t *halpr_find_sig_by_name(const char *name);
 extern hal_param_t *halpr_find_param_by_name(const char *name);
 extern hal_thread_t *halpr_find_thread_by_name(const char *name);
 extern hal_funct_t *halpr_find_funct_by_name(const char *name);
+extern hal_inst_t *halpr_find_inst_by_name(const char *name);
 
 // observers needed in haltalk
 // I guess we better come up with generic iterators for this kind of thing
@@ -482,12 +587,11 @@ extern hal_comp_t *halpr_find_comp_by_id(int id);
 */
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 
+// vtable private API:
 hal_vtable_t *halpr_find_vtable_by_name(const char *name, int version);
 hal_vtable_t *halpr_find_vtable_by_id(int vtable_id);
 
 // private instance API:
-// lookup
-hal_inst_t *halpr_find_inst_by_name(const char *name);
 
 // given the owner_id of pin, param or funct,
 // find the owning instance
@@ -502,18 +606,21 @@ hal_inst_t *halpr_find_inst_by_id(const int owner_id);
 hal_comp_t *halpr_find_owning_comp(const int owner_id);
 
 // iterators - by instance id
-hal_pin_t *halpr_find_pin_by_instance(hal_inst_t *inst,
-				      hal_pin_t * start);
-hal_param_t *halpr_find_param_by_instance(hal_inst_t *inst,
-				      hal_param_t * start);
-hal_funct_t *halpr_find_funct_by_instance(hal_inst_t * inst,
-				      hal_funct_t * start);
+hal_pin_t *halpr_find_pin_by_instance_id(const int inst_id,
+					 const hal_pin_t * start);
+hal_param_t *halpr_find_param_by_instance_id(const int inst_id,
+					     const hal_param_t * start);
+hal_funct_t *halpr_find_funct_by_instance_id(const int inst_id,
+					     const hal_funct_t * start);
+
+// iterate over insts owned by a particular comp.
+// if comp_id < 0, return ALL instances, regardless which comp owns them.
 hal_inst_t *halpr_find_inst_by_owning_comp(const int comp_id, hal_inst_t *start);
 
 // iterators - by owner id, which can refer to either a comp or an instance
 hal_pin_t *halpr_find_pin_by_owner_id(const int owner_id, hal_pin_t * start);
 hal_param_t *halpr_find_param_by_owner_id(const int owner_id, hal_param_t * start);
-hal_funct_t *halpr_find_funct_by_owner(const int owner_id, hal_funct_t * start);
+hal_funct_t *halpr_find_funct_by_owner_id(const int owner_id, hal_funct_t * start);
 
 // automatically release the local hal_data->mutex on scope exit.
 // if a local variable is declared like so:
