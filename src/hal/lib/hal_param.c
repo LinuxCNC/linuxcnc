@@ -12,34 +12,13 @@ static hal_param_t *alloc_param_struct(void);
 *                       "PARAM" FUNCTIONS                              *
 ************************************************************************/
 
-/* wrapper functs for typed params - these call the generic funct below */
-
-int hal_param_bit_new(const char *name, hal_param_dir_t dir, hal_bit_t * data_addr,
-    int comp_id)
+static int hal_param_newfv(hal_type_t type,
+			   hal_param_dir_t dir,
+			   volatile void *data_addr,
+			   int owner_id,
+			   const char *fmt,
+			   va_list ap)
 {
-    return hal_param_new(name, HAL_BIT, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_float_new(const char *name, hal_param_dir_t dir, hal_float_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_u32_new(const char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_U32, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_s32_new(const char *name, hal_param_dir_t dir, hal_s32_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
-}
-
-static int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
-	void *data_addr, int comp_id, const char *fmt, va_list ap) {
     char name[HAL_NAME_LEN + 1];
     int sz;
     sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
@@ -48,49 +27,49 @@ static int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
 	       sz, name);
 	return -ENOMEM;
     }
-    return hal_param_new(name, type, dir, (void *) data_addr, comp_id);
+    return hal_param_new(name, type, dir, (void *) data_addr, owner_id);
 }
 
 int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
-    int comp_id, const char *fmt, ...)
+		       int owner_id, const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_BIT, dir, (void*)data_addr, comp_id, fmt, ap);
+    ret = hal_param_newfv(HAL_BIT, dir, (void*)data_addr, owner_id, fmt, ap);
     va_end(ap);
     return ret;
 }
 
 int hal_param_float_newf(hal_param_dir_t dir, hal_float_t * data_addr,
-    int comp_id, const char *fmt, ...)
+			 int owner_id, const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_FLOAT, dir, (void*)data_addr, comp_id, fmt, ap);
+    ret = hal_param_newfv(HAL_FLOAT, dir, (void*)data_addr, owner_id, fmt, ap);
     va_end(ap);
     return ret;
 }
 
 int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
-    int comp_id, const char *fmt, ...)
+		       int owner_id, const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_U32, dir, (void*)data_addr, comp_id, fmt, ap);
+    ret = hal_param_newfv(HAL_U32, dir, (void*)data_addr, owner_id, fmt, ap);
     va_end(ap);
     return ret;
 }
 
 int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
-    int comp_id, const char *fmt, ...)
+		       int owner_id, const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_S32, dir, (void*)data_addr, comp_id, fmt, ap);
+    ret = hal_param_newfv(HAL_S32, dir, (void*)data_addr, owner_id, fmt, ap);
     va_end(ap);
     return ret;
 }
@@ -98,22 +77,26 @@ int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
 // printf-style version of hal_param_new()
 int hal_param_newf(hal_type_t type,
 		   hal_param_dir_t dir,
-		   void * data_addr,
-		   int comp_id,
+		   volatile void * data_addr,
+		   int owner_id,
 		   const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_param_newfv(type, dir, data_addr, comp_id, fmt, ap);
+    ret = hal_param_newfv(type, dir, data_addr, owner_id, fmt, ap);
     va_end(ap);
     return ret;
 }
 
+
 /* this is a generic function that does the majority of the work. */
 
-int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *data_addr,
-		  int comp_id)
+int hal_param_new(const char *name,
+		  hal_type_t type,
+		  hal_param_dir_t dir,
+		  volatile void *data_addr,
+		  int owner_id)
 {
     int *prev, next, cmp;
     hal_param_t *new, *ptr;
@@ -152,7 +135,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	HALDBG("creating parameter '%s'\n", name);
 
 	/* validate comp_id */
-	comp = halpr_find_comp_by_id(comp_id);
+	comp = halpr_find_owning_comp(owner_id);
 	if (comp == 0) {
 	    /* bad comp_id */
 	    HALERR("param '%s': owning component %d not found\n",
@@ -166,9 +149,16 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	    HALERR("param '%s': data_addr not in shared memory\n", name);
 	    return -EINVAL;
 	}
-	if(comp->state > COMP_INITIALIZING) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: param_new called after hal_ready\n");
+
+	// this will be 0 for legacy comps which use comp_id
+	hal_inst_t *inst = halpr_find_inst_by_id(owner_id);
+	int inst_id = (inst ? inst->inst_id : 0);
+
+	// instances may create params post hal_ready
+	// never understood the restriction in the first place
+	if ((inst_id == 0) && (comp->state > COMP_INITIALIZING)) {
+	    HALERR("component '%s': %s called after hal_ready",
+		   name,  __FUNCTION__);
 	    return -EINVAL;
 	}
 	/* allocate a new parameter structure */
@@ -178,7 +168,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	    return -ENOMEM;
 	}
 	/* initialize the structure */
-	new->owner_ptr = SHMOFF(comp);
+	new->owner_id = owner_id;
 	new->data_ptr = SHMOFF(data_addr);
 	new->type = type;
 	new->dir = dir;
@@ -444,14 +434,12 @@ hal_param_t *halpr_find_param_by_name(const char *name)
     return 0;
 }
 
-hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,
-    hal_param_t * start)
+// find a param by owner id, which may refer to a instance or a comp
+hal_param_t *halpr_find_param_by_owner_id(const int owner_id, hal_param_t * start)
 {
-    int owner_ptr, next;
+    int next;
     hal_param_t *param;
 
-    /* get offset of 'owner' component */
-    owner_ptr = SHMOFF(owner);
     /* is this the first call? */
     if (start == 0) {
 	/* yes, start at beginning of param list */
@@ -462,7 +450,7 @@ hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,
     }
     while (next != 0) {
 	param = SHMPTR(next);
-	if (param->owner_ptr == owner_ptr) {
+	if (param->owner_id == owner_id) {
 	    /* found a match */
 	    return param;
 	}
@@ -492,7 +480,7 @@ hal_param_t *alloc_param_struct(void)
 	/* make sure it's empty */
 	p->next_ptr = 0;
 	p->data_ptr = 0;
-	p->owner_ptr = 0;
+	p->owner_id = 0;
 	p->type = 0;
 	p->name[0] = '\0';
     }
@@ -504,7 +492,7 @@ void free_param_struct(hal_param_t * p)
     /* clear contents of struct */
     if ( p->oldname != 0 ) free_oldname_struct(SHMPTR(p->oldname));
     p->data_ptr = 0;
-    p->owner_ptr = 0;
+    p->owner_id = 0;
     p->type = 0;
     p->name[0] = '\0';
     p->handle = -1;
