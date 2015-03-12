@@ -160,6 +160,17 @@ extern int _rtapi_next_handle(void);
 
 #include <stdarg.h>		/* va_start and va_end macros */
 
+/** Take the string pointed by 's', break it up in words and
+ *  make a NULL-delimited pointer array in 'av' of up to avsize-1 pointers,
+ *
+ *  Caller is responsible for allocation of av.
+ *  Return number of 'args'.
+ *  av[ac+1] will be set to NULL.
+ *
+ *  NB: this modifies s in-place.
+ */
+int rtapi_argvize(int avsize, char **av, char *s);
+
 /** 'rtapi_snprintf()' works like 'snprintf()' from the normal
     C library, except that it may not handle long longs.
     It is provided here because some RTOS kernels don't provide
