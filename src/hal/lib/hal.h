@@ -495,8 +495,14 @@ typedef enum {
     HAL_MEMBER_GROUP  = 13,
     HAL_MEMBER_PIN    = 14,
 
-    RING_RECORD       = 15,
-    RING_STREAM       = 16,
+    RING_RECORD       = 16,
+    RING_STREAM       = 17,
+
+    HAL_VTABLE        = 18,
+    HAL_INST          = 19,
+
+    RING_MULTIFRAME   = 20,
+
 } hal_object_type;
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
