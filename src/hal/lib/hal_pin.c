@@ -49,7 +49,7 @@ static int hal_pin_newfv(hal_type_t type, hal_pin_dir_t dir,
     if(sz == -1 || sz > HAL_NAME_LEN) {
         hal_print_msg(RTAPI_MSG_ERR,
 	    "hal_pin_newfv: length %d too long for name starting '%s'\n",
-	    sz, name);
+	       sz, name);
         return -ENOMEM;
     }
     return hal_pin_new(name, type, dir, data_ptr_addr, comp_id);
@@ -225,8 +225,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    if (cmp == 0) {
 		/* name already in list, can't insert */
 		free_pin_struct(new);
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: duplicate variable '%s'\n", name);
+		HALERR("duplicate pin '%s'", name);
 		return -EINVAL;
 	    }
 	    /* didn't find it yet, look at next one */
@@ -296,20 +295,13 @@ int hal_pin_alias(const char *pin_name, const char *alias)
     int *prev, next, cmp;
     hal_pin_t *pin, *ptr;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin_alias called before init\n");
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin_alias called while HAL locked\n");
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    CHECK_STRLEN(pin_name, HAL_NAME_LEN);
+
     if (alias != NULL ) {
 	if (strlen(alias) > HAL_NAME_LEN) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-	        "HAL: ERROR: alias name '%s' is too long\n", alias);
+	    HALERR("alias name '%s' is too long", alias);
 	    return -EINVAL;
 	}
     }
@@ -321,9 +313,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	if (alias != NULL ) {
 	    pin = halpr_find_pin_by_name(alias);
 	    if ( pin != NULL ) {
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: duplicate pin/alias name '%s'\n",
-				alias);
+		HALERR("duplicate pin/alias name '%s'", alias);
 		return -EINVAL;
 	    }
 	}
@@ -335,8 +325,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	   to succeed since at least one struct is on the free list. */
 	oldname = halpr_alloc_oldname_struct();
 	if ( oldname == NULL ) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: insufficient memory for pin_alias\n");
+	    HALERR("alias '%s': insufficient memory for pin_alias", pin_name);
 	    return -EINVAL;
 	}
 	free_oldname_struct(oldname);
@@ -347,8 +336,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	while (1) {
 	    if (next == 0) {
 		/* reached end of list, not found */
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: pin '%s' not found\n", pin_name);
+		HALERR("pin '%s' not found", pin_name);
 		return -EINVAL;
 	    }
 	    pin = SHMPTR(next);
