@@ -80,7 +80,6 @@ typedef struct {
     rtapi_msgheader_t hdr;
     char buf[RTPRINTBUFFERLEN];
 } rtapi_msg_t;
-
 void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 {
     int n;
