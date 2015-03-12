@@ -13,12 +13,14 @@ void *shmalloc_up(long int size);
 void *shmalloc_dn(long int size);
 void free_funct_entry_struct(hal_funct_entry_t * funct_entry);
 void free_funct_struct(hal_funct_t * funct);
+void free_inst_struct(hal_inst_t *inst);
 
 void hal_proc_clean(void);
 int hal_proc_init(void);
 
 void free_thread_struct(hal_thread_t * thread);
 extern int lib_module_id;
+extern int lib_mem_id;
 
 void free_param_struct(hal_param_t * param);
 
