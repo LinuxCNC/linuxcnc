@@ -209,6 +209,25 @@ static inline int emcPoseSub2fp(EmcPose const * const p1,
     return EMCPOSE_ERR_OK;
 }
 
+static inline int emcPoseZero2fp(hal_float_t ** const out)
+{
+#ifdef EMCPOSE_PEDANTIC
+    if (!pos) {
+        return EMCPOSE_ERR_INPUT_MISSING;
+    }
+#endif
+    *(out[0]) = 0.0;
+    *(out[1]) = 0.0;
+    *(out[2]) = 0.0;
+    *(out[3]) = 0.0;
+    *(out[4]) = 0.0;
+    *(out[5]) = 0.0;
+    *(out[6]) = 0.0;
+    *(out[7]) = 0.0;
+    *(out[8]) = 0.0;
+    return EMCPOSE_ERR_OK;
+}
+
 static inline void SetRotaryUnlock(tp_shared_t *ts,
 				   int axis,
 				   hal_bit_t unlock)

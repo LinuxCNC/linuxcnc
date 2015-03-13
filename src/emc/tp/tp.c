@@ -1559,9 +1559,9 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         }
 
 
-        int progress_ratio = prev1_tc->progress / prev1_tc->target;
+        double progress_ratio = prev1_tc->progress / prev1_tc->target;
         // can safely decelerate to halfway point of segment from 25% of segment
-        int cutoff_ratio = BLEND_DIST_FRACTION / 2.0;
+        double cutoff_ratio = BLEND_DIST_FRACTION / 2.0;
 
         if (progress_ratio >= cutoff_ratio) {
             tp_debug_print("segment %d has moved past %f percent progress, cannot blend safely!\n",
@@ -2327,9 +2327,28 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT  * const tp,
  * Based on the specified trajectory segment tc, read its progress and status
  * flags. Then, update upper level data through tp_shared_t.
  */
-STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const tc ) {
-    EmcPose target;
-    tcGetEndpoint(tc, &target);
+STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const tc ) {
+
+
+    if (!tp) {
+        return TP_ERR_FAIL;
+    }
+
+    if (!tc) {
+        // Assume that we have no active segment, so we should clear out the status fields
+        set_requested_vel(tp->shared, 0);
+        set_current_vel(tp->shared, 0);
+        set_distance_to_go(tp->shared, 0);
+
+        emcPoseZero2fp(tp->shared->dtg);
+
+        tp->motionType = 0;
+        tp->activeDepth = 0;
+        return TP_ERR_STOPPED;
+    }
+
+    EmcPose tc_pos;
+    tcGetEndpoint(tc, &tc_pos);
 
     tc_debug_print("tc id = %u canon_type = %u mot type = %u\n",
             tc->id, tc->canon_motion_type, tc->motion_type);
@@ -2341,7 +2360,8 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
     tp->execId = tc->id;
     set_requested_vel(tp->shared, tc->reqvel);
     set_current_vel(tp->shared,   tc->currentvel);
-    emcPoseSub2fp(&target, &tp->currentPos, tp->shared->dtg);
+    emcPoseSub2fp(&tc_pos, &tp->currentPos, tp->shared->dtg);
+    return TP_ERR_OK;
 }
 
 
@@ -2381,7 +2401,9 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * If the program ends, or we hit QUEUE STARVATION, do a soft reset on the trajectory planner.
  * TODO merge with tpClear?
  */
-STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp) {
+STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp)
+{
+
     tcqInit(&tp->queue);
     tp->goalPos = tp->currentPos;
     tp->done = 1;
@@ -2389,6 +2411,9 @@ STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp) {
     tp->aborting = 0;
     tp->execId = 0;
     tp->motionType = 0;
+
+    tpUpdateMovementStatus(tp, NULL);
+
     tpResume(tp);
     // when not executing a move, use the current enable flags
     set_enables_queued(tp->shared,
