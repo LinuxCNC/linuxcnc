@@ -269,6 +269,8 @@ class Data:
         self.feed_override = 1.0
         self.feed_override_inc = .05
         self.feed_override_max = 2.0
+        self.rapid_override = 1.0
+        self.rapid_override_max = 2.0
         self.spindle_override = 1.0
         self.spindle_override_inc = .05
         self.spindle_override_max = 1.2
@@ -2364,6 +2366,14 @@ class Gscreen:
             rate = self.data.feed_override + percent_rate
         if rate > self.data.feed_override_max: rate = self.data.feed_override_max
         self.emc.feed_override(rate)
+
+    def set_rapid_override(self,percent_rate,absolute=False):
+        if absolute:
+            rate = percent_rate
+        else:
+            rate = self.data.rapid_override + percent_rate
+        if rate > self.data.rapid_override_max: rate = self.data.rapid_override_max
+        self.emc.rapid_override(rate)
 
     def set_spindle_override(self,percent_rate,absolute=False):
         if absolute:
