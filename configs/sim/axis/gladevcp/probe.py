@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: sts=4 sw=4 et
-#    This is a component of Linuxcnc
+#    This is a component of Machinekit
 #    probe.py Copyright 2010 Michael Haberler
 #
 #
@@ -42,7 +42,7 @@ class EmcInterface(object):
             self.s = linuxcnc.stat();
             self.c = linuxcnc.command()
         except Exception, msg:
-            print "cant initialize EmcInterface: %s - LinuxCNC not running?" %(msg)
+            print "cant initialize EmcInterface: %s - Machinekit not running?" %(msg)
 
     def running(self,do_poll=True):
         if do_poll: self.s.poll()
@@ -56,7 +56,7 @@ class EmcInterface(object):
 
     def ensure_mode(self,m, *p):
         '''
-        If LinuxCNC is not already in one of the modes given, switch it to the first mode
+        If Machinekit is not already in one of the modes given, switch it to the first mode
         example:
         ensure_mode(linuxcnc.MODE_MDI)
         ensure_mode(linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI)

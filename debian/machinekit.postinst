@@ -20,3 +20,49 @@ chmod ugo+r /var/log/linuxcnc.log
 
 # restart the rsyslogd to start logging to /var/log/linuxcnc.conf 
 invoke-rc.d rsyslog restart
+
+# The rebranding from linuxcnc to machinekit is taken care of in src/configure for RIPs
+# /usr builds to package need it in postinst script
+# The first bit should not be needed, just belt and braces :)
+
+if [ -f "/usr/bin/linuxcnc" ]; then
+    if [ ! -f "/usr/bin/machinekit" ]; then
+	if [ ! -L "/usr/bin/machinekit" ]; then
+	    ln -s /usr/bin/linuxcnc /usr/bin/machinekit
+	    echo "Creating machinekit symlink"
+	fi
+    fi
+else
+    if [ -f "/usr/local/bin/linuxcnc" ]; then
+        if [ ! -f "/usr/local/bin/machinekit" ]; then
+	    if [ ! -L "/usr/local/bin/machinekit" ]; then
+		ln -s /usr/local/bin/linuxcnc /usr/local/bin/machinekit
+		echo "Creating machinekit symlink"
+	    fi
+        fi
+    fi
+fi
+
+if [ ! -d "$HOME/machinekit" ]; then
+    ## if already linuxcnc dir linlk to it
+    if [ -d "$HOME/linuxcnc" ]; then
+	ln -s $HOME/linuxcnc $HOME/machinekit
+	echo "Creating machinekit directory link"
+    else
+        mkdir -p $HOME/machinekit
+	echo "Creating machinekit directory"
+        chown -R $USER:$USER  $HOME/machinekit.
+    fi
+fi
+
+if [ ! -f "$HOME/.machinekitrc" ]; then
+    ## if already .linuxcncrc file link to it
+    if [ -f "$HOME/.linuxcncrc" ]; then
+	ln -s $HOME/.linuxcncrc $HOME/.machinekitrc
+	echo "Creating .machinekitrc link"
+    # else will be created by pickconfig when used
+    fi
+fi
+
+
+

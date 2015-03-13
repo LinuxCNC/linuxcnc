@@ -75,19 +75,19 @@ gettext.bindtextdomain(domain, LOCALEDIR)
 
 datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc","stepconf")
 main_datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc")
-wizard = os.path.join(datadir, "linuxcnc-wizard.gif")
+wizard = os.path.join(datadir, "machinekit-wizard.gif")
 if not os.path.isfile(wizard):
-    wizard = os.path.join(main_datadir, "linuxcnc-wizard.gif")
+    wizard = os.path.join(main_datadir, "machinekit-wizard.gif")
 if not os.path.isfile(wizard):
-    print "cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir)
+    print "cannot find machinekit-wizard.gif, looked in %s and %s" % (datadir, main_datadir)
     sys.exit(1)
 
 icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
-linuxcncicon = os.path.join(icondir, "linuxcncicon.png")
+linuxcncicon = os.path.join(icondir, "machinekiticon.png")
 if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
+    linuxcncicon = os.path.join("/etc/linuxcnc/machinekit-wizard.gif")
 if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/usr/share/linuxcnc/linuxcncicon.png")
+    linuxcncicon = os.path.join("/usr/share/linuxcnc/machinekiticon.png")
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):

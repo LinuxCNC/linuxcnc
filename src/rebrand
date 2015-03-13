@@ -1,0 +1,40 @@
+#!/bin/bash
+
+######################################################################
+# Initial setup for branding change to ensure existing dirs are found
+# and invocation can be made via 'machinekit'
+# $USERPREFIX is exported from autoconfig
+#####################################################################
+
+echo "USERPREFIX = $USERPREFIX"
+
+if [ ! -f "$USERPREFIX/scripts/machinekit" ]; then
+    if [ ! -L "$USERPREFIX/scripts/machinekit" ]; then
+        ln -s $USERPREFIX/scripts/linuxcnc $USERPREFIX/scripts/machinekit
+        echo "Creating machinekit symlink"
+    fi
+fi
+
+if [ ! -d "$HOME/machinekit" ]; then
+    ## if already linuxcnc dir linlk to it
+    if [ -d "$HOME/linuxcnc" ]; then
+	ln -s $HOME/linuxcnc $HOME/machinekit
+	echo "Creating machinekit directory link"
+    else
+        mkdir -p $HOME/machinekit
+	echo "Creating machinekit directory"
+        chown -R $USER:$USER  $HOME/machinekit 
+    fi
+fi
+
+if [ ! -f "$HOME/.machinekitrc" ]; then
+    ## if already .linuxcncrc file link to it
+    if [ -f "$HOME/.linuxcncrc" ]; then
+	ln -s $HOME/.linuxcncrc $HOME/.machinekitrc
+	echo "Creating .machinekitrc link"
+    # else will be created by pickconfig when used
+    fi
+fi
+
+
+

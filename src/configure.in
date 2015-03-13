@@ -1977,6 +1977,16 @@ else
     DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
 fi
 
+####################################
+# create dirs and links for re-brand
+####################################
+
+export USERPREFIX=$prefix
+
+./rebrand
+
+###################################
+
 AC_SUBST([RUN_IN_PLACE])
 AC_SUBST([DEFAULT_NMLFILE])
 AC_DEFINE_UNQUOTED(

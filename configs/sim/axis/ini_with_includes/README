@@ -13,7 +13,7 @@ Examples:
 #INCLUDE /home/myname/inc/filename.inc
 
 3) tilde file spec:
-#INCLUDE ~/linuxcnc/myincludes/filename.inc
+#INCLUDE ~/machinekit/myincludes/filename.inc
 
 Note:
 

@@ -100,21 +100,21 @@ def iceil(x):
     return int(math.ceil(x))
 
 datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc")
-wizard = os.path.join(datadir, "linuxcnc-wizard.gif")
+wizard = os.path.join(datadir, "machinekit-wizard.gif")
 if not os.path.isfile(wizard):
-    wizard = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
+    wizard = os.path.join("/etc/linuxcnc/machinekit-wizard.gif")
 if not os.path.isfile(wizard):
-    linuxcncicon = os.path.join("/usr/share/linuxcnc/linuxcnc-wizard.gif")
+    linuxcncicon = os.path.join("/usr/share/linuxcnc/machinekit-wizard.gif")
 if not os.path.isfile(wizard):
     wizdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
-    wizard = os.path.join(wizdir, "linuxcnc-wizard.gif")
+    wizard = os.path.join(wizdir, "machinekit-wizard.gif")
 
 icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
-linuxcncicon = os.path.join(icondir, "linuxcncicon.png")
+linuxcncicon = os.path.join(icondir, "machinekiticon.png")
 if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
+    linuxcncicon = os.path.join("/etc/linuxcnc/machinekit-wizard.gif")
 if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/usr/share/linuxcnc/linuxcncicon.png")
+    linuxcncicon = os.path.join("/usr/share/linuxcnc/machinekiticon.png")
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):
@@ -1361,7 +1361,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         print >>file, "MAX_FEED_OVERRIDE = %f"% self.max_feed_override
         print >>file, "MAX_SPINDLE_OVERRIDE = %f"% self.max_spindle_override
         print >>file, "MIN_SPINDLE_OVERRIDE = %f"% self.min_spindle_override
-        print >>file, "INTRO_GRAPHIC = linuxcnc.gif"
+        print >>file, "INTRO_GRAPHIC = machinekit.gif"
         print >>file, "INTRO_TIME = 5"
         print >>file, "PROGRAM_PREFIX = %s" % \
                                     os.path.expanduser("~/linuxcnc/nc_files")

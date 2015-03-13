@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------//
 // Description: stepgen.p                                               //
 // PRU code implementing step/dir generation and other functions of     //
-// hopeful use to off-load timing critical code from LinuxCNC HAL       //
+// hopeful use to off-load timing critical code from Machinekit HAL       //
 //                                                                      //
 // Author(s): Charles Steinkuehler                                      //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
@@ -10,7 +10,7 @@
 // 2012-Dec-27 Charles Steinkuehler                                     //
 //             Initial version                                          //
 //----------------------------------------------------------------------//
-// This file is part of LinuxCNC HAL                                    //
+// This file is part of Machinekit HAL                                    //
 //                                                                      //
 // Copyright (C) 2012  Charles Steinkuehler                             //
 //                     <charles AT steinkuehler DOT net>                //
@@ -39,8 +39,8 @@
 // codes, and the authors of this software can not, and do not, take    //
 // any responsibility for such compliance.                              //
 //                                                                      //
-// This code was written as part of the LinuxCNC project.  For more     //
-// information, go to www.linuxcnc.org.                                 //
+// This code was written as part of the Machinekit project.  For more     //
+// information, go to www.machinekit.io                                 //
 //----------------------------------------------------------------------//
 
 #include "pru_support/pru.h"

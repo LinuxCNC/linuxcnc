@@ -1,5 +1,5 @@
 [EMC]
 VERSION = 0.0
-MACHINE = LinuxCNC-expand includes demo
+MACHINE = Machinekit-expand includes demo
 DEBUG   = 0
 
