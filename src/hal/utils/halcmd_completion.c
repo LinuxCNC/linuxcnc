@@ -57,7 +57,7 @@ static const char *command_table[] = {
     "newring","delring","ringdump","ringwrite","ringread",
     "newcomp","newpin","ready","waitbound", "waitunbound", "waitexists",
     "log","shutdown","ping","newthread","delthread",
-    "sleep","vtable",
+    "sleep","vtable","autoload","newinst", "delinst",
     NULL,
 };
 
@@ -73,7 +73,7 @@ static const char *alias_table[] = {
 
 static const char *show_table[] = {
     "all", "alias", "comp", "pin", "sig", "param", "funct", "thread", "group", "member",
-    "ring", "eps","vtable",
+    "ring", "eps","vtable","inst",
     NULL,
 };
 
@@ -85,7 +85,7 @@ static const char *save_table[] = {
 
 static const char *list_table[] = {
     "comp", "alias", "pin", "sig", "param", "funct", "thread", "group", "member",
-    "ring",
+    "ring","inst",
     NULL
 };
 
@@ -366,6 +366,27 @@ static char *usrcomp_generator(const char *text, int state) {
 }
 
 
+// return names of loaded comps which are instantiable
+static char *icomp_generator(const char *text, int state) {
+    static int len;
+    static int next;
+    if(!state) {
+        next = hal_data->comp_list_ptr;
+        len = strlen(text);
+    }
+
+    while(next) {
+        hal_comp_t *comp = SHMPTR(next);
+        next = comp->next_ptr;
+        if(comp->type != TYPE_RT) continue;
+	if (comp->ctor == NULL) continue;
+	if(strncmp(text, comp->name, len) == 0)
+            return strdup(comp->name);
+    }
+    rl_attempted_completion_over = 1;
+    return NULL;
+}
+
 
 static char *comp_generator(const char *text, int state) {
     static int len;
@@ -612,6 +633,26 @@ static char *ring_generator(const char *text, int state) {
     }
     return NULL;
 }
+
+static char *inst_generator(const char *text, int state) {
+    static int len;
+    static int next;
+
+    if(!state) {
+        next = hal_data->inst_list_ptr;
+        len = strlen(text);
+    }
+
+    while(next) {
+        hal_inst_t *inst = SHMPTR(next);
+        next = inst->next_ptr;
+        if ( strncmp(text, inst->name, len) == 0 )
+            return strdup(inst->name);
+    }
+    return NULL;
+}
+
+
 static inline int isskip(int ch) {
     return isspace(ch) || ch == '=' || ch == '<' || ch == '>';
 }
@@ -657,6 +698,8 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         result = func(text, signal_generator);
     } else if(startswith(buffer, "delg ") && argno == 1) {
         result = func(text, group_generator);
+    } else if(startswith(buffer, "delinst ") && argno == 1) {
+        result = func(text, inst_generator);
     } else if(startswith(buffer, "delm ") && argno == 1) {
         result = func(text, group_generator);
     } else if(startswith(buffer, "delt ") && argno == 1) {
@@ -754,6 +797,8 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
                 result = func(text, thread_generator);
 	    } else if (startswith(n, "group")) {
                 result = func(text, group_generator);
+	    } else if (startswith(n, "inst")) {
+                result = func(text, inst_generator);
 	    } else if (startswith(n, "ring")) {
                 result = func(text, ring_generator);
             }
@@ -805,6 +850,8 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         result = completion_matches_table(text, command_table, func);
     } else if(startswith(buffer, "unloadusr ") && argno == 1) {
         result = func(text, usrcomp_generator);
+    } else if(startswith(buffer, "newinst ") && argno == 1) {
+        result = func(text, icomp_generator);
     } else if(startswith(buffer, "waitusr ") && argno == 1) {
         result = func(text, usrcomp_generator);
     } else if(startswith(buffer, "unloadrt ") && argno == 1) {

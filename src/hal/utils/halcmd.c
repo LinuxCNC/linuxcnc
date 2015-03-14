@@ -92,6 +92,7 @@ int prompt_mode = 0;	/* when getting input from stdin, print a prompt */
 int echo_mode = 0;
 char comp_name[HAL_NAME_LEN+1];	/* name for this instance of halcmd */
 flavor_ptr current_flavor;
+int autoload = 1;  // on newinst, if comp not loaded, loadrt it
 
 static void quit(int);
 
@@ -247,7 +248,7 @@ struct halcmd_command halcmd_commands[] = {
     {"newinst",  FUNCT(do_newinst_cmd),  A_TWO | A_PLUS },
     {"delinst",  FUNCT(do_delinst_cmd),  A_ONE },
     {"call",  FUNCT(do_callfunc_cmd),  A_ONE | A_PLUS },
-
+    {"autoload", FUNCT(do_autoload_cmd),  A_ONE | A_OPTIONAL },
 };
 int halcmd_ncommands = (sizeof(halcmd_commands) / sizeof(halcmd_commands[0]));
 

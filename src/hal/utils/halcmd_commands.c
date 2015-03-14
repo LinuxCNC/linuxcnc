@@ -86,6 +86,7 @@ static void print_funct_names(char **patterns);
 static void print_thread_names(char **patterns);
 static void print_group_names(char **patterns);
 static void print_ring_names(char **patterns);
+static void print_inst_names(char **patterns);
 static void print_eps_info(char **patterns);
 
 static void print_lock_status();
@@ -1028,6 +1029,8 @@ int do_list_cmd(char *type, char **patterns)
 	print_group_names(patterns);
     } else if (strcmp(type, "ring") == 0) {
 	print_ring_names(patterns);
+    } else if (strcmp(type, "inst") == 0) {
+	print_inst_names(patterns);
     } else {
 	halcmd_error("Unknown 'list' type '%s'\n", type);
 	return -1;
@@ -1055,6 +1058,42 @@ int do_status_cmd(char *type)
 	halcmd_error("Unknown 'status' type '%s'\n", type);
 	return -1;
     }
+    return 0;
+}
+
+// can this get any uglier?
+int yesno(const char *s)
+{
+    if (!s)
+	return -1;
+    if ((strcmp("1", s) == 0) ||
+	(strcasecmp("true", s) == 0) ||
+	(strcasecmp("yes", s) == 0))
+	return 1;
+    if ((strcmp("0", s) == 0) ||
+	(strcasecmp("false", s) == 0) ||
+	(strcasecmp("no", s) == 0))
+	return 0;
+
+    return -1;
+}
+
+
+extern int autoload;
+
+int do_autoload_cmd(char *what)
+{
+    if (!what) {
+	halcmd_output("component autoload on 'newinst' is %s\n",
+		      autoload ? "ON":"OFF");
+	return 0;
+    }
+    int val = yesno(what);
+    if (val < 0) {
+	    halcmd_error("value '%s' invalid for autoload (1 or 0)\n", what);
+	   return -EINVAL;
+    }
+    autoload = val;
     return 0;
 }
 
@@ -1621,7 +1660,6 @@ static int inst_count(hal_comp_t *comp)
 	n++;
     }
     return n;
-
 }
 
 static void print_comp_info(char **patterns)
@@ -3411,26 +3449,58 @@ int do_callfunc_cmd(char *func, char *args[])
     return 0;
 }
 
-bool is_loaded_and_instantiable(const char *comp)
+typedef enum {
+    CS_NOT_LOADED,
+    CS_NOT_RT,
+    CS_RTLOADED_NOT_INSTANTIABLE,
+    CS_RTLOADED_AND_INSTANTIABLE
+} cstatus_t;
+
+cstatus_t classify_comp(const char *comp)
 {
     hal_comp_t *c __attribute__((cleanup(halpr_autorelease_mutex)));
     rtapi_mutex_get(&(hal_data->mutex));
     c = halpr_find_comp_by_name(comp);
-    if (c == 0) {
-	halcmd_error("component '%s' not loaded\n", comp);
-	return 0;
-    }
+    if (c == 0)
+	return CS_NOT_LOADED;
+    if (c->type != TYPE_RT)
+	return CS_NOT_RT;
     if (c->ctor == NULL) {
-	halcmd_error("component '%s' is not instantiable\n", comp);
-	return 0;
+	return CS_RTLOADED_NOT_INSTANTIABLE;
     }
-    return 1;
+    return CS_RTLOADED_AND_INSTANTIABLE;
 }
 
-int do_newinst_cmd(const char *comp, const char *inst, char *args[])
+int do_newinst_cmd(char *comp, char *inst, char *args[])
 {
-    if (!is_loaded_and_instantiable(comp))
-	return -1;
+    cstatus_t status = classify_comp(comp);
+
+    switch (status) {
+    case CS_NOT_LOADED:
+	if (autoload) {
+	    char *argv[] = { NULL};
+	    int retval = do_loadrt_cmd(comp, argv);
+	    if (retval)
+		return retval;
+	    // recurse
+	    return do_newinst_cmd(comp, inst,  args);
+	    break;
+	}
+	halcmd_error("component '%s' not loaded\n", comp);
+	break;
+    case CS_NOT_RT:
+	halcmd_error("'%s' not an RT component\n", comp);
+	return -EINVAL;
+	break;
+    case  CS_RTLOADED_NOT_INSTANTIABLE:
+	halcmd_error("legacy component '%s' loaded, but not instantiable\n", comp);
+	return -EINVAL;
+	break;
+    case CS_RTLOADED_AND_INSTANTIABLE:
+	// we're good
+	break;
+    }
+
     int retval = rtapi_newinst(rtapi_instance, comp, inst, (const char **)args);
     if ( retval != 0 ) {
 	halcmd_error("rc=%d\n%s", retval, rtapi_rpcerror());
@@ -3439,17 +3509,18 @@ int do_newinst_cmd(const char *comp, const char *inst, char *args[])
     return 0;
 }
 
-int do_delinst_cmd(const char *inst)
+int do_delinst_cmd(char *inst)
 {
-    hal_inst_t *hi  __attribute__((cleanup(halpr_autorelease_mutex)));
-    rtapi_mutex_get(&(hal_data->mutex));
-    hi = halpr_find_inst_by_name(inst);
+    {
+	hal_inst_t *hi  __attribute__((cleanup(halpr_autorelease_mutex)));
+	rtapi_mutex_get(&(hal_data->mutex));
+	hi = halpr_find_inst_by_name(inst);
 
-    if (hi == NULL) {
-	halcmd_error("no such instance: '%s'\n", inst);
-	return -1;
+	if (hi == NULL) {
+	    halcmd_error("no such instance: '%s'\n", inst);
+	    return -1;
+	}
     }
-
     int retval = rtapi_delinst(rtapi_instance, inst);
     if ( retval != 0 ) {
 	halcmd_error("rc=%d\n%s", retval, rtapi_rpcerror());
@@ -3458,8 +3529,19 @@ int do_delinst_cmd(const char *inst)
     return 0;
 }
 
+static void print_inst_names(char **patterns)
+{
+    hal_inst_t *start  __attribute__((cleanup(halpr_autorelease_mutex))) = NULL, *inst;
+    rtapi_mutex_get(&(hal_data->mutex));
 
-
+    while ((inst = halpr_find_inst_by_owning_comp(-1, start)) != NULL) {
+	if ( match(patterns, inst->name) ) {
+	    halcmd_output("%s ", inst->name);
+	}
+	start = inst;
+    }
+    halcmd_output("\n");
+}
 
 int do_sleep_cmd(char *naptime)
 {
