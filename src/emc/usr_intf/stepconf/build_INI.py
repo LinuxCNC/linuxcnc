@@ -82,7 +82,10 @@ class INI:
             print >>file, "PYVCP = custompanel.xml"
         if self.d.axes == 2:
             print >>file, "LATHE = 1"
-
+        if self.d.axes == 3:
+            print >>file, "FOAM = 1"
+            print >>file, "GEOMETRY = XY;UZ"
+            print >>file, "OPEN_FILE = ./foam.ngc"
         print >>file
         print >>file, "[FILTER]"
         print >>file, "PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image"
@@ -101,7 +104,7 @@ class INI:
         print >>file, "[RS274NGC]"
         print >>file, "PARAMETER_FILE = linuxcnc.var"
 
-        base_period = self.ideal_period()
+        base_period = self.d.ideal_period()
 
         print >>file
         print >>file, "[EMCMOT]"
@@ -133,9 +136,12 @@ class INI:
         elif self.d.axes == 0:
             print >>file, "AXES = 3"
             print >>file, "COORDINATES = X Y Z"
-        else:
+        elif self.d.axes == 2:
             print >>file, "AXES = 3"
             print >>file, "COORDINATES = X Z"
+        elif self.d.axes == 3:
+            print >>file, "AXES = 8"
+            print >>file, "COORDINATES = X Y U V"
         if self.d.units:
             print >>file, "LINEAR_UNITS = mm"
         else:
@@ -150,17 +156,29 @@ class INI:
         print >>file, "CYCLE_TIME = 0.100"
         print >>file, "TOOL_TABLE = tool.tbl"
 
-        all_homes = self.a.home_sig("x") and self.a.home_sig("z")
-        if self.d.axes != 2: all_homes = all_homes and self.a.home_sig("y")
-        if self.d.axes == 4: all_homes = all_homes and self.a.home_sig("a")
+        if self.d.axes == 2: # XZ
+            all_homes = self.a.home_sig("x") and self.a.home_sig("z")
+        else:
+            all_homes = self.a.home_sig("x") and self.a.home_sig("y")
+            if self.d.axes == 3: # XYUV
+                all_homes = all_homes and self.a.home_sig("u") and self.a.home_sig("v")
+            elif self.d.axes == 0: # XYZ
+                all_homes = all_homes and self.a.home_sig("z")
+            elif self.d.axes == 1: # XYZA
+                all_homes = all_homes and self.a.home_sig("z") and self.a.home_sig("a")
 
         self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
-        if self.d.axes != 2:
+        if self.d.axes in(0,1): # xyz or xyza
             self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-        self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
-        if self.d.axes == 1:
+            self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
+        if self.d.axes == 1: # xyza
             self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
-
+        if self.d.axes == 2: # xZ
+            self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
+        if self.d.axes == 3: # xyuv
+            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
+            self.write_one_axis(file, 6, "u", "LINEAR", all_homes)
+            self.write_one_axis(file, 7, "v", "LINEAR", all_homes)
         file.close()
         self.d.add_md5sum(filename)
 
@@ -225,7 +243,12 @@ class INI:
             if inputs & ignore:
                 print >>file, "HOME_IGNORE_LIMITS = YES"
             if all_homes:
-                print >>file, "HOME_SEQUENCE = %s" % order[num]
+                if self.d.axes == 3: # XYUV
+                    if letter in('y','v'): hs = 1
+                    else: hs = 0
+                    print >>file, "HOME_SEQUENCE = %d"% hs
+                else:
+                    print >>file, "HOME_SEQUENCE = %s" % order[num]
         else:
             print >>file, "HOME_OFFSET = %s" % get("homepos")
 
@@ -252,30 +275,11 @@ class INI:
     def maxhz(self):
         return 1e9 / self.minperiod()
 
-    def ideal_period(self):
-        xhz = self.hz('x')
-        yhz = self.hz('y')
-        zhz = self.hz('z')
-        ahz = self.hz('a')
-        if self.d.axes == 1:
-            pps = max(xhz, yhz, zhz, ahz)
-        elif self.d.axes == 0:
-            pps = max(xhz, yhz, zhz)
-        else:
-            pps = max(xhz, zhz)
-        if self.a.doublestep():
-            base_period = 1e9 / pps
-        else:
-            base_period = .5e9 / pps
-        if base_period > 100000: base_period = 100000
-        if base_period < self.minperiod(): base_period = self.minperiod()
-        return int(base_period)
-
     def ideal_maxvel(self, scale):
         if self.a.doublestep():
-            return abs(.95 * 1e9 / self.ideal_period() / scale)
+            return abs(.95 * 1e9 / self.d.ideal_period() / scale)
         else:
-            return abs(.95 * .5 * 1e9 / self.ideal_period() / scale)
+            return abs(.95 * .5 * 1e9 / self.d.ideal_period() / scale)
 
     # Boiler code
     def __getitem__(self, item):

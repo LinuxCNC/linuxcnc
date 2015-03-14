@@ -11,6 +11,8 @@ PYTARGETS += ../bin/stepconf  ../lib/python/stepconf/__init__.py ../share/linuxc
 	../share/linuxcnc/stepconf/axisx.glade \
 	../share/linuxcnc/stepconf/axisy.glade \
 	../share/linuxcnc/stepconf/axisz.glade \
+	../share/linuxcnc/stepconf/axisu.glade \
+	../share/linuxcnc/stepconf/axisv.glade \
 	../share/linuxcnc/stepconf/axisa.glade \
 	../share/linuxcnc/stepconf/finished.glade
 
@@ -25,6 +27,8 @@ PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepco
 	emc/usr_intf/stepconf/axisx.glade \
 	emc/usr_intf/stepconf/axisy.glade \
 	emc/usr_intf/stepconf/axisz.glade \
+	emc/usr_intf/stepconf/axisu.glade \
+	emc/usr_intf/stepconf/axisv.glade \
 	emc/usr_intf/stepconf/axisa.glade \
 	emc/usr_intf/stepconf/finished.glade
 
@@ -86,6 +90,16 @@ PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepco
 	$(Q)cp -f $< $@
 
 ../share/linuxcnc/stepconf/axisz.glade: emc/usr_intf/stepconf/axisz.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/stepconf/axisu.glade: emc/usr_intf/stepconf/axisu.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/stepconf/axisv.glade: emc/usr_intf/stepconf/axisv.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
