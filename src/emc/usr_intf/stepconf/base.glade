@@ -23,6 +23,9 @@
       <row>
         <col id="0" translatable="yes">XZ (Lathe)</col>
       </row>
+      <row>
+        <col id="0" translatable="yes">XYUV (Foam)</col>
+      </row>
     </data>
   </object>
   <object class="GtkTable" id="base">
