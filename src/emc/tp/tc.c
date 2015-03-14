@@ -126,6 +126,25 @@ int tcGetIntersectionPoint(TC_STRUCT const * const prev_tc,
     return TP_ERR_OK;
 }
 
+
+/**
+ * Check if a segment can be consumed without disrupting motion or synced IO.
+ */
+int tcCanConsume(TC_STRUCT const * const tc)
+{
+    if (!tc) {
+        return false;
+    }
+
+    if (tc->syncdio.anychanged || tc->blend_prev || tc->atspeed) {
+        //TODO add other conditions here (for any segment that should not be consumed by blending
+        return false;
+    }
+
+    return true;
+
+}
+
 /**
  * Find the geometric tangent vector to a helical arc.
  * Unlike the acceleration vector, the result of this calculation is a vector

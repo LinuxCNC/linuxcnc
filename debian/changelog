@@ -4,6 +4,57 @@ linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
 
+linuxcnc (1:2.7.0~pre5) wheezy; urgency=low
+
+  * gmoccapy: fixed division by zero error on spindle
+  * gmoccapy: introduced frensh translation
+  * gmoccapy: bug in btn_brake_macro
+
+  * xhc-hb04 jog pendant: add man page, improve docs
+  * xhc-hb04.tcl: bugfix, new connect, sig names
+  * xhc-hb04.tcl: improve assign of coords to switch
+
+  * moveoff: allow_backtracking_enable_change
+  * moveoff: provide -no_display option
+  * moveoff: honor changes in backtrack-enable
+  * moveoff: verify non-connect of some pins
+  * moveoff: improve demo sample configs
+
+  * stepconf: fix missing parport reset commands
+
+  * pncconf: add the 7i84 daughter card as an option
+  * pncconf: add combobox filters to sserial and ss encoders
+  * pncconf: have the sserial tabs display subboard names
+  * pncconf: fix wrong auto-selection of last firmware
+  * pncconf: add support for 7i76e
+  * pncconf: add spindle vfd options
+  * pncconf: improve spindle data collection
+  * pncconf: fix calculation of STEPGEN_MAXVEL
+
+  * latency-histogram: include min,max,stddev
+
+  * hal-histogram: add a histogram utility for hal pins
+
+  * halcmd: report error correctly when loadrt fails in uspace
+
+  * halcompile: provide rtapi_math64.h
+
+  * fix velocity & acceleration values on non-G17 arcs
+  * fix rigid tapping/threading
+  * possible fix for non-zero displayed velocity when stopped
+
+  * motion: ensure that syncedIO is not disrupted
+  * motion: catch non-fatal error during new segment and ensure that atspeed is not ignored
+
+  * several internal fixes in the new trajectory planner
+  * tp: fixed spindle atspeed overrun due to prev line consumption
+  * tp: Improved handling of low-queue state
+
+  * hal_procs_lib.tcl: no error if thread not found
+  * hal_procs_lib.tcl: consolidate common procs
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 10 Mar 2015 08:46:32 -0600
+
 linuxcnc (1:2.7.0~pre4) wheezy; urgency=low
 
   * axis gui: fix transition to world mode

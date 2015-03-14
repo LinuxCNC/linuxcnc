@@ -1,3 +1,6 @@
+ver. 1.5.3
+- added a gscreen patch to search also in the user dir for themes
+
 ver. 1.5.2.2
 - if a user did reduce spindle override to zero and switched on the 
   spindle, gmoccapy produced a division by zero error. Fixed!

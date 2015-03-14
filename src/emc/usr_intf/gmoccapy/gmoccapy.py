@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "  1.5.2.2"
+_RELEASE = "  1.5.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -112,6 +112,7 @@ DATADIR = os.path.join( BASE, "share", "gmoccapy" )
 IMAGEDIR = os.path.join( DATADIR, "images" )
 XMLNAME = os.path.join( DATADIR, "gmoccapy.glade" )
 THEMEDIR = "/usr/share/themes"
+USERTHEMEDIR = os.path.join(os.path.expanduser("~"), ".themes")
 LOCALEDIR = os.path.join( BASE, "share", "locale" )
 
 # path to TCL for external programs eg. halshow
@@ -987,19 +988,31 @@ class gmoccapy( object ):
 
     def _init_themes( self ):
         # If there are themes then add them to combo box
-        if os.path.exists( THEMEDIR ):
-            model = self.widgets.theme_choice.get_model()
-            model.clear()
-            model.append( ( "Follow System Theme", ) )
-            temp = 0
-            names = os.listdir( THEMEDIR )
+        model = self.widgets.theme_choice.get_model()
+        model.clear()
+        model.append(("Follow System Theme",))
+        themes = []
+        if os.path.exists(USERTHEMEDIR):
+            names = os.listdir(USERTHEMEDIR)
             names.sort()
-            theme_name = self.prefs.getpref( "gtk_theme", "Follow System Theme", str )
-            for search, dirs in enumerate( names ):
-                model.append( ( dirs, ) )
-                if dirs == theme_name:
-                    temp = search + 1
-            self.widgets.theme_choice.set_active( temp )
+            for dirs in names:
+                sbdirs = os.listdir(os.path.join(USERTHEMEDIR, dirs))
+                if 'gtk-2.0' in sbdirs:
+                    themes.append(dirs)
+        if os.path.exists(THEMEDIR):
+            names = os.listdir(THEMEDIR)
+            names.sort()
+            for dirs in names:
+                sbdirs = os.listdir(os.path.join(THEMEDIR, dirs))
+                if 'gtk-2.0' in sbdirs:
+                    themes.append(dirs)
+        temp = 0
+        theme_name = self.prefs.getpref( "gtk_theme", "Follow System Theme", str )
+        for index,theme in enumerate(themes):
+            model.append((theme,))
+            if theme == theme_name:
+                temp = index + 1
+        self.widgets.theme_choice.set_active(temp)
         settings = gtk.settings_get_default()
         if not theme_name == "Follow System Theme":
             settings.set_string_property( "gtk-theme-name", theme_name, "" )
