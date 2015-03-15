@@ -21,18 +21,18 @@ loadrt not
 #
 
 # add functions to threads
-addf motion-command-handler 		        servo-thread
-addf motion-controller 		    	        servo-thread
-# addf hal_zed_gpio.write		            servo-thread
-addf hal_zed_gpio.read		                servo-thread
+addf motion-command-handler                 servo-thread
+addf motion-controller                      servo-thread
+# addf hal_zed_gpio.write                   servo-thread
+addf hal_zed_gpio.read                      servo-thread
 addf not.0                                  servo-thread
 
 # fake feedback from motor
-net xpos-cmd axis.0.motor-pos-cmd 	        => axis.0.motor-pos-fb
+net xpos-cmd axis.0.motor-pos-cmd           => axis.0.motor-pos-fb
 
 # emergency stop
 net estop                                   <= hal_zed_gpio.pin-00-in
-net estop 			                        => not.0.in
-net nestop 			                        <= not.0.out
-net nestop 			                        => iocontrol.0.emc-enable-in
+net estop                                   => not.0.in
+net nestop                                  <= not.0.out
+net nestop                                  => iocontrol.0.emc-enable-in
 
