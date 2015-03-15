@@ -38,8 +38,8 @@
    
  \par How to compile.
   In order to compile, this driver should be placed in the 
-  /linuxcnc/src/hal/drivers/ directory
-  in the the Makefile in the /linuxcnc/src directory add the following:
+  /machinekit/src/hal/drivers/ directory
+  in the the Makefile in the /machinekit/src directory add the following:
     ifeq ($(TARGET_PLATFORM), zedboard)
     obj-$(CONFIG_ZED_GPIO) += zed_gpio.o
     zed_gpio-objs := hal/drivers/zed_gpio.o
@@ -52,7 +52,7 @@
     endif
   in the '# build kernel RTAPI modules' section
 
-  in the the Makefile.in in the /linuxcnc/src directory add the following:
+  in the the Makefile.in in the /machinekit/src directory add the following:
     CONFIG_ZED_GPIO=m
   in the '# HAL drivers' section
 

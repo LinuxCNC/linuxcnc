@@ -1,9 +1,22 @@
+/********************************************************************
+* Description:  2FOC_status.h
+* This file is part of the ZedBoard CAN communication driver for 
+* the 2FOC board. This file provides the data structure of the
+* status/fault CAN packet provided by the 2FOC controller. 
+*
+* \author Claudio Lorini (claudio.lorini@iit.it)
+* License: GPL Version 2
+* Copyright (c) 2015.
+*
+********************************************************************/
 /**
-    \brief Image of the faults of the 2FOC
+ \brief Image of the status/fault of the 2FOC
+ \par Revision history:
+ \date 12.03.2015 ported to machinekit
 */
 
-#ifndef __FAULTS_H
-#define __FAULTS_H
+#ifndef __FOC_STATUS_H
+#define __FOC_STATUS_H
 
 //
 // Flags for various Errors of the System

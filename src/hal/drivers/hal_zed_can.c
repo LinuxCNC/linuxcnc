@@ -49,8 +49,8 @@
 
  \par How to compile.
   In order to compile, this driver should be placed in the 
-  /linuxcnc/src/hal/drivers/ directory
-  in the the Makefile in the /linuxcnc/src directory add the following:
+  /machinekit/src/hal/drivers/ directory
+  in the the Makefile in the /machinekit/src directory add the following:
     ifeq ($(TARGET_PLATFORM), zedboard)
     obj-$(CONFIG_HAL_ZED_CAN) += hal_zed_can.o
     hal_zed_can-objs := hal/drivers/hal_zed_can.o
@@ -63,7 +63,7 @@
     endif
   in the '# build kernel RTAPI modules' section
 
-  in the the Makefile.inc in the /linuxcnc/src directory add the following:
+  in the the Makefile.inc in the /machinekit/src directory add the following:
     CONFIG_HAL_ZED_CAN=m
   in the '# HAL drivers' section
 
@@ -107,7 +107,6 @@
 #include <linux/can/raw.h>
 
 #include "2FOC_status.h"
-#include "2FOC_faults.h"
 
 /** \brief maximum number of FOC channels */
 #define MAX_FOC_CHAN 8
@@ -224,7 +223,7 @@ static void send_setpoint(void *arg, long period)
     /* for each FOC axis */
     for (n = 0; n < num_chan; n++) {
 
-        // giva a fake feedback to linuxcnc
+        // giva a fake feedback to machinekit
         // *(foctxdata->feedback) = *(foctxdata->setpoint);
         
         // procede to periodic CAN data exchange only if FOC in 'enable operation'
@@ -675,7 +674,7 @@ int setup_2FOC_periodic()
         // rotor alignment completed 
         while ( 0 == (*(focrxdata->focstatus) & 0x00020000 ) );
   
-        // \todo Check anything possible before living control to linuxcnc:
+        // \todo Check anything possible before living control to machinekit:
         // - errors of any kind
         // - correct configuration (speed loop)
         // - 2FOC firmware version
