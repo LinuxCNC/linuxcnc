@@ -1,0 +1,38 @@
+#
+# Test Zedboard IO 
+#
+
+# 1:1 correspondence between joints and axes.
+loadrt trivkins
+loadrt tp 
+
+# parameters defined in test.ini (motmod) 
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
+
+# load/rt HAL module 
+# loadrt hal_zed_gpio module from the source trees (linuxcnc/src/hal/drivers/)
+loadrt hal_zed_gpio
+
+# signal inverter
+loadrt not
+
+# 
+# hal_zed_gpio.pin-00-in emergency button
+#
+
+# add functions to threads
+addf motion-command-handler                 servo-thread
+addf motion-controller                      servo-thread
+# addf hal_zed_gpio.write                   servo-thread
+addf hal_zed_gpio.read                      servo-thread
+addf not.0                                  servo-thread
+
+# fake feedback from motor
+net xpos-cmd axis.0.motor-pos-cmd           => axis.0.motor-pos-fb
+
+# emergency stop
+net estop                                   <= hal_zed_gpio.pin-00-in
+net estop                                   => not.0.in
+net nestop                                  <= not.0.out
+net nestop                                  => iocontrol.0.emc-enable-in
+

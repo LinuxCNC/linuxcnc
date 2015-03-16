@@ -1267,6 +1267,13 @@ obj-$(CONFIG_PEPPER) += pepper.o
 pepper-objs := hal/components/pepper.o $(MATHSTUB)
 endif
 
+ifdef TARGET_PLATFORM_ZEDBOARD
+obj-$(CONFIG_HAL_GPIO) += hal_zed_gpio.o
+hal_zed_gpio-objs := hal/drivers/hal_zed_gpio.o
+obj-$(CONFIG_HAL_CAN) += hal_zed_can.o
+hal_zed_can-objs := hal/drivers/hal_zed_can.o
+endif
+
 obj-m += hal_arm335xQEP.o
 hal_arm335xQEP-objs := hal/drivers/hal_arm335xQEP.o $(MATHSTUB)
 
@@ -1597,6 +1604,11 @@ endif
 ifdef TARGET_PLATFORM_RASPBERRY
 $(RTLIBDIR)/hal_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio-objs))
 $(RTLIBDIR)/hal_spi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_spi-objs))
+endif
+
+ifdef TARGET_PLATFORM_ZEDBOARD
+$(RTLIBDIR)/hal_zed_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_zed_gpio-objs))
+$(RTLIBDIR)/hal_zed_can$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_zed_can-objs))
 endif
 
 $(RTLIBDIR)/pci_8255$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pci_8255-objs))

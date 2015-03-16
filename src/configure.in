@@ -527,8 +527,9 @@ KSOURCE_LOCATION_HINTS=$(echo \
 # TARGET_PLATFORM_PC
 # TARGET_PLATFORM_BEAGLEBONE
 # TARGET_PLATFORM_RASPBERRY
+# TARGET_PLATFORM_ZEDBOARD
 #
-# Platforms. set by --with-platform-{pc,beaglebone,raspberry}
+# Platforms. set by --with-platform-{pc,beaglebone,raspberry,zedboard}
 # see Section 2.3 to enable other platforms, and 2.7 to AC_DEFINE it
 
 ARCHITECTURE=`$ARCHCMD`
@@ -551,9 +552,9 @@ XENO_CONFIG=
 ##############################################################################
 # Subsection 2.3                                                             #
 # Configure several basic features:                                          #
-# - some etc/linuxcnc/machinekit.ini  values
-# - the MKUUID instance UUID
-# - Platform (PC, Raspberry Pi, BeagleBone)                                  #
+# - some etc/linuxcnc/machinekit.ini  values                                 #
+# - the MKUUID instance UUID                                                 #
+# - Platform (PC, Raspberry Pi, BeagleBone, Zedboard)                        #
 # - Common shared memory driver                                              #
 # - Parport I/O mode (portable or inb/outb)                                  #
 # - emcweb UI                                                                #
@@ -664,6 +665,35 @@ AC_ARG_WITH(platform-raspberry,
 	esac
     ])
 
+AC_ARG_WITH(platform-zedboard,
+    [AS_HELP_STRING(
+        [--with-platform-zedboard],
+	[Build for Zedboard platform])],
+    [
+        case $with_platform_zedboard in
+	    (y*)
+	    	TARGET_PLATFORM_ZEDBOARD=true
+		platform_specified=true
+		platform_zedboard_reason="$cmdl_enab_msg"
+		;;
+	    (*)
+	    	TARGET_PLATFORM_ZEDBOARD=false
+		platform_zedboard_reason="$cmdl_disab_msg"
+		;;
+	esac
+    ],
+    [
+        case $host in
+	    (armv7l-*)
+	        TARGET_PLATFORM_ZEDBOARD=unk
+		;;
+	    (*)
+	    	TARGET_PLATFORM_ZEDBOARD=false
+		platform_zedboard_reason="$arch_disab_msg"
+		;;
+	esac
+    ])
+
 if $platform_specified; then
     # Platform was explicitly specified using --with-platform-*;
     # disable anything not explicitly specified
@@ -678,6 +708,10 @@ if $platform_specified; then
     if test $TARGET_PLATFORM_RASPBERRY = unk; then
 	TARGET_PLATFORM_RASPBERRY=false
 	platform_raspberry_reason="$cmdl_notspec_msg"
+    fi
+    if test $TARGET_PLATFORM_ZEDBOARD = unk; then
+	TARGET_PLATFORM_ZEDBOARD=false
+	platform_zedboard_reason="$cmdl_notspec_msg"
     fi
 else
     # Platform was not explicitly specified; enable anything
@@ -695,6 +729,10 @@ else
         TARGET_PLATFORM_RASPBERRY=true
 	platform_raspberry_reason="$arch_enab_msg"
     fi
+    if test $TARGET_PLATFORM_ZEDBOARD = unk; then
+        TARGET_PLATFORM_ZEDBOARD=true
+	platform_zedboard_reason="$arch_enab_msg"
+    fi
 fi
 
 # Print messages about what platforms are to be enabled or disabled
@@ -706,6 +744,9 @@ AC_MSG_RESULT([$platform_beaglebone_reason])
 
 AC_MSG_CHECKING(platform-raspberry)
 AC_MSG_RESULT([$platform_raspberry_reason])
+
+AC_MSG_CHECKING(platform-zedboard)
+AC_MSG_RESULT([$platform_zedboard_reason])
 
 # every Machinekit instance needs a unique ID, so generate here.
 # Can be changed later in etc/linuxcnc/machinekit.ini
@@ -1754,6 +1795,11 @@ if $TARGET_PLATFORM_RASPBERRY; then
 fi
 AC_SUBST(TARGET_PLATFORM_RASPBERRY,$target_platform_raspberry_val)
 
+if $TARGET_PLATFORM_ZEDBOARD; then
+   AC_DEFINE(TARGET_PLATFORM_ZEDBOARD, [], [build for Zedboard platform])
+   target_platform_zedboard_val=yes
+fi
+AC_SUBST(TARGET_PLATFORM_ZEDBOARD,$target_platform_zedboard_val)
 
 ############################################################
 # thread-specific -DDEFINE and Makefile.inc variables
