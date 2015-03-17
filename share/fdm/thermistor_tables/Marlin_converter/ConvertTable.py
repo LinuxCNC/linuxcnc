@@ -13,7 +13,7 @@ import string
 def v2R(value):
     return (4700.0*value)/(1024.0-value)
 
-parser = argparse.ArgumentParser(description='Converts a Marlin thermistor table to MachineKit thermistor table')
+parser = argparse.ArgumentParser(description='Converts a Marlin thermistor table to Machinekit thermistor table')
 parser.add_argument('-i', '--input', help='input file', required=True)
 parser.add_argument('-o', '--output', help='output file', required=True)
 
