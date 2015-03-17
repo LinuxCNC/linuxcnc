@@ -270,7 +270,8 @@ class Data:
         self.feed_override_inc = .05
         self.feed_override_max = 2.0
         self.rapid_override = 1.0
-        self.rapid_override_max = 2.0
+        self.rapid_override_inc = .05
+        self.rapid_override_max = 1.0
         self.spindle_override = 1.0
         self.spindle_override_inc = .05
         self.spindle_override_max = 1.2
