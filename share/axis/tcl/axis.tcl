@@ -1,4 +1,4 @@
-#    This is a component of AXIS, a front-end for LinuxCNC
+#    This is a component of AXIS, a front-end for Machinekit
 #    Copyright 2004, 2005, 2006, 2007, 2008, 2009
 #    Jeff Epler <jepler@unpythonic.net> and Chris Radek <chris@timeguy.com>
 #
@@ -182,7 +182,7 @@ setup_menu_accel .menu.machine end [_ "Ha_l Scope"]
 
 .menu.machine add command \
 	-command {exec linuxcnctop -ini $emcini &}
-setup_menu_accel .menu.machine end [_ "Sho_w LinuxCNC Status"]
+setup_menu_accel .menu.machine end [_ "Sho_w Machinekit Status"]
 
 .menu.machine add command \
 	-command {exec debuglevel -ini $emcini &}
@@ -1778,7 +1778,7 @@ text .about.message \
 	.about.message configure -cursor hand2
 	.about.message tag configure link -foreground red}
 .about.message tag bind link <ButtonPress-1><ButtonRelease-1> {launch_website}
-.about.message insert end [subst [_ "MachineKit/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with LinuxCNC.\n\nVisit the LinuxCNC web site: "]] {} {http://www.linuxcnc.org/} link
+.about.message insert end [subst [_ "Machinekit/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with Machinekit.\n\nVisit the Machinekit web site: "]] {} {http://www.machinekit.iog/} link
 .about.message configure -state disabled
 
 button .about.ok \
