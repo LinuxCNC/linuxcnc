@@ -151,7 +151,7 @@ proc title {node} {
   } else {
     set txt ""
   }
-  wm title . "[msgcat::mc "MachineKit Configuration Selector"] $txt"
+  wm title . "[msgcat::mc "Machinekit Configuration Selector"] $txt"
 }
 
 proc find_usable_nodes {startdir} {

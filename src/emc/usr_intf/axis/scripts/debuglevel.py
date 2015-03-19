@@ -19,7 +19,7 @@ s.poll()
 c = linuxcnc.command()
 
 t = Tkinter.Tk(className="LinuxCNCDebugLevel")
-t.wm_title(_("LinuxCNC Debug Level"))
+t.wm_title(_("Machinekit Debug Level"))
 t.wm_iconname(_("debuglevel"))
 t.wm_resizable(0, 0)
 
