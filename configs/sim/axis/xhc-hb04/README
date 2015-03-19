@@ -142,8 +142,8 @@ An xhc-hb04 pendant can be added to existing configurations.
   2) Edit existing configuration ini file to:
     a) add [HAL]HALFILE=xhc-hb04.tcl
     b) add [HAL]HALFILE=monitor_xhc-hb04.tcl
-    c) add stanza [XHC-HB04_CONFIG]
-    d) add stanza [XHC-HB04_BUTTONS]
+    c) add stanza [XHC_HB04_CONFIG]
+    d) add stanza [XHC_HB04_BUTTONS]
     e) add or update stanza for [HALUI]
 
 See the demo ini files for more detailed examples.
