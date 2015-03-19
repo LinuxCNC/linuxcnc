@@ -344,6 +344,7 @@ proc popup_msg {msg} {
 } ;# popup_msg
 
 proc err_exit {msg} {
+  popup_msg $msg
   puts stderr "\n$::progname: $msg\n"
   exit 1
 } ;# err_exit
@@ -362,6 +363,12 @@ set cfg LIB:xhc-hb04-layout2.cfg ;# default
 
 if ![info exists ::HAL(HALUI)] {
   err_exit "\[HAL\]HALUI is not set"
+}
+if {[array names ::XHC_HB04_CONFIG] == ""} {
+  err_exit "Missing stanza: \[XHC_HB04_CONFIG\]"
+}
+if {[array names ::XHC_HB04_BUTTONS] == ""} {
+  err_exit "Missing stanza: \[XHC_HB04_BUTTONS\]"
 }
 
 foreach name [array names ::XHC_HB04_CONFIG] {
