@@ -11,7 +11,7 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #   ...
 #   HALFILE = xhc-hb04.tcl
 #
-#   [XHC-HB04_CONFIG]
+#   [XHC_HB04_CONFIG]
 #   layout = 2       (required: 1|2 are supported)
 #   coords = x y z a (up to 4 unique letters from x y z a b c u v w)
 #   coefs  = 1 1 1 1 (optional, filter coefs, 0 < coef < 1, not usually reqd)
@@ -21,7 +21,7 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #   jogmode = normal (optional: normal|vnormal|plus-minus(Experimental))
 #   require_pendant = yes (optional: yes|no)
 
-#   [XHC-HB04_BUTTONS]
+#   [XHC_HB04_BUTTONS]
 #   name = pin  (connect button to hal pin)
 #   name = ""   (no connect button)
 #   special cases:

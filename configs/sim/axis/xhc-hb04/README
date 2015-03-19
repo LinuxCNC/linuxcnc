@@ -150,8 +150,8 @@ on an existing configuration.
     a) add [HAL]HALFILE = LIB:xhc-hb04.tcl
        (this entry should follow other HALFILE entries)
     b) (optional) add [APPLICATIONS]APP = monitor-xhc-hb04
-    c) add stanza [XHC-HB04_CONFIG]
-    d) add stanza [XHC-HB04_BUTTONS]
+    c) add stanza [XHC_HB04_CONFIG]
+    d) add stanza [XHC_HB04_BUTTONS]
     e) add or update stanza for [HALUI]
 
    The entries in the new or updated stanzas should be
