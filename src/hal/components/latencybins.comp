@@ -1,5 +1,5 @@
 component latencybins
-"""comp utility for scripts/latencyhistogram
+"""comp utility for scripts/latency-histogram
 
 Usage:
   Read availablebins pin for the number of bins available.
