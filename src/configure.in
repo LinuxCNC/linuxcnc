@@ -1466,7 +1466,7 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     fi
     XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
     # ldflags
-    flags="$($XENOMAI_THREADS_RTS --ldflags)"
+    flags="$($XENOMAI_THREADS_RTS --ldflags) -lrtdm"
     XENOMAI_THREADS_LDFLAGS="$XENOMAI_THREADS_LDFLAGS $flags"
     XENOMAI_KERNEL_THREADS_LDFLAGS="$XENOMAI_KERNEL_THREADS_LDFLAGS $flags"
 fi
