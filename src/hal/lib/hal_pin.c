@@ -240,8 +240,8 @@ void unlink_pin(hal_pin_t * pin)
 {
     hal_sig_t *sig;
     hal_comp_t *comp;
-    void *dummy_addr, **data_ptr_addr;
-    hal_data_u *sig_data_addr;
+    void **data_ptr_addr;
+    hal_data_u *dummy_addr, *sig_data_addr;
 
     /* is this pin linked to a signal? */
     if (pin->signal != 0) {
@@ -255,8 +255,26 @@ void unlink_pin(hal_pin_t * pin)
 
 	/* copy current signal value to dummy */
 	sig_data_addr = (hal_data_u *)(hal_shmem_base + sig->data_ptr);
-	dummy_addr = hal_shmem_base + SHMOFF(&(pin->dummysig));
-	*(hal_data_u *)dummy_addr = *sig_data_addr;
+	dummy_addr = (hal_data_u *)(hal_shmem_base + SHMOFF(&(pin->dummysig)));
+
+	switch (pin->type) {
+	case HAL_BIT:
+	    dummy_addr->b = sig_data_addr->b;
+	    break;
+	case HAL_S32:
+	    dummy_addr->s = sig_data_addr->s;
+	    break;
+	case HAL_U32:
+	    dummy_addr->u = sig_data_addr->u;
+	    break;
+	case HAL_FLOAT:
+	    dummy_addr->f = sig_data_addr->f;
+	    break;
+	default:
+	    hal_print_msg(RTAPI_MSG_ERR,
+			  "HAL: BUG: pin '%s' has invalid type %d !!\n",
+			  pin->name, pin->type);
+	}
 
 	/* update the signal's reader/writer counts */
 	if ((pin->dir & HAL_IN) != 0) {
