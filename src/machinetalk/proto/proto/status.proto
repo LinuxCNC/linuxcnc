@@ -1,6 +1,10 @@
+import "nanopb.proto";
 import "types.proto";
 import "preview.proto";
 import "emcclass.proto";
+
+// see README.msgid
+// msgid base: 1100
 
 package pb;
 
@@ -85,6 +89,10 @@ enum EmcPositionFeedbackType {
 }
 
 message EmcToolData {
+
+    option (nanopb_msgopt).msgid = 1100; // see README.msgid
+
+
     required int32          index       = 1;
     optional int32          id          = 2;
     optional double         xOffset     = 3;
@@ -103,6 +111,9 @@ message EmcToolData {
 }
 
 message EmcStatusMotionAxis {
+
+    option (nanopb_msgopt).msgid = 1101;
+
     required int32          index           = 1;
     optional bool           enabled         = 2;
     optional bool           fault           = 3;
@@ -122,6 +133,9 @@ message EmcStatusMotionAxis {
 }
 
 message EmcStatusConfigAxis {
+
+    option (nanopb_msgopt).msgid = 1102;
+
     required int32          index               = 1;
     optional EmcAxisType    axisType            = 2;
     optional double         backlash            = 3;
@@ -134,41 +148,65 @@ message EmcStatusConfigAxis {
 }
 
 message EmcProgramExtension {
+
+    option (nanopb_msgopt).msgid = 1103;
+
     required int32          index = 1;
     optional string         extension = 2;
 }
 
 message EmcStatusAnalogIO {
+
+    option (nanopb_msgopt).msgid = 1104;
+
     required int32          index = 1;
     optional double         value = 2;
 }
 
 message EmcStatusDigitalIO {
+
+    option (nanopb_msgopt).msgid = 1105;
+
     required int32          index = 1;
     optional bool           value = 2;
 }
 
 message EmcStatusLimit {
+
+    option (nanopb_msgopt).msgid = 1106;
+
     required int32          index = 1;
     optional int32          value = 2;
 }
 
 message EmcStatusGCode {
+
+    option (nanopb_msgopt).msgid = 1107;
+
     required int32          index = 1;
     optional int32          value = 2;
 }
 
 message EmcStatusMCode {
+
+    option (nanopb_msgopt).msgid = 1108;
+
     required int32          index = 1;
     optional int32          value = 2;
 }
 
 message EmcStatusSetting {
+
+    option (nanopb_msgopt).msgid = 1109;
+
     required int32          index = 1;
     optional double         value = 2;
 }
 
 message EmcStatusConfig {
+
+    option (nanopb_msgopt).msgid = 1110;
+
     optional double                     default_acceleration     = 1;
     optional double                     angular_units            = 2;
     optional int32                      axes                     = 3;
@@ -209,6 +247,9 @@ message EmcStatusConfig {
 }
 
 message EmcStatusMotion {
+
+    option (nanopb_msgopt).msgid = 1111;
+
     optional int32                  active_queue            = 1;
     optional Position               actual_position         = 2;
     optional bool                   adaptive_feed_enabled   = 3;
@@ -260,6 +301,9 @@ message EmcStatusMotion {
 }
 
 message EmcStatusIo {
+
+    option (nanopb_msgopt).msgid = 1112;
+
     optional bool           estop           = 1;
     optional bool           flood           = 2;
     optional bool           lube            = 3;
@@ -272,6 +316,9 @@ message EmcStatusIo {
 }
 
 message EmcStatusTask {
+
+    option (nanopb_msgopt).msgid = 1113;
+
     optional int32                  echo_serial_number  = 1;
     optional EmcTaskExecStateType   exec_state          = 2;
     optional string                 file                = 3;
@@ -284,6 +331,9 @@ message EmcStatusTask {
 }
 
 message EmcStatusInterp {
+
+    option (nanopb_msgopt).msgid = 1114;
+
     optional string                 command             = 1;
     repeated EmcStatusGCode         gcodes              = 2;
     optional EmcInterpStateType     interp_state        = 3;
@@ -293,6 +343,9 @@ message EmcStatusInterp {
 }
 
 message EmcCommandParameters {
+
+    option (nanopb_msgopt).msgid = 1115;
+
     optional uint32                 index       = 1;
     optional uint32                 debug_level = 2;
     optional int32                  line_number = 3;

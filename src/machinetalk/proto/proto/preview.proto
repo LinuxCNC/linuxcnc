@@ -1,5 +1,10 @@
 package pb;
 
+// see README.msgid
+// msgid base: 800
+import "nanopb.proto";
+
+
 // experimental axis/joint representation
 enum KinematicsType {
     KT_JOINT        = 1;
@@ -9,6 +14,9 @@ enum KinematicsType {
 }
 
 message Position {
+
+    option (nanopb_msgopt).msgid = 800; // see README.msgid
+
 
     optional double x = 3;
     optional double y = 4;
@@ -52,7 +60,10 @@ enum SourceType {
 };
 
 message Preview {
-    required PreviewOpType type        = 1;
+
+    option (nanopb_msgopt).msgid = 801;
+
+     required PreviewOpType type        = 1;
     optional int32         line_number = 2;
 
     // move dest pos/offset for PV_STRAIGHT_*, PV_RIGID_TAP, PV_SET_* _OFFSET

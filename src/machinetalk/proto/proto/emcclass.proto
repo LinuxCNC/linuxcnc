@@ -1,3 +1,8 @@
+import "nanopb.proto";
+
+// see README.msgid
+// msgid base: 300
+
 package pb;
 
 // this encoding method of encoding supports NULL values
@@ -5,12 +10,18 @@ package pb;
 // to discern whether a value was explicitly set or defaulted
 
 message PmCartesian {
+
+    option (nanopb_msgopt).msgid = 300; // see README.msgid
+
     optional double x = 10;
     optional double y = 20;
     optional double z = 30;
 };
 
 message EmcPose {
+
+    option (nanopb_msgopt).msgid = 301;
+
     required PmCartesian  tran = 10;
 
     optional double a = 20;

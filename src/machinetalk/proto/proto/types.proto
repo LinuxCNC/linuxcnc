@@ -1,4 +1,8 @@
 // fundamental types
+import "nanopb.proto";
+
+// see README.msgid
+// msgid base: 1400
 
 package pb;
 
