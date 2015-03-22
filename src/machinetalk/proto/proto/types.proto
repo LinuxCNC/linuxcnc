@@ -65,12 +65,19 @@ enum ObjectType {
     RING_RECORD       = 16;
     RING_STREAM       = 17;
 
-    VALUE             = 20;
-    INSTANCE          = 21;
-    ORIGINATOR        = 22;
-    NAMED_VALUE       = 25;
 
-    OT_ERROR          = 30;
+    HAL_VTABLE        = 18;
+    HAL_INST          = 19;
+
+    RING_MULTIFRAME   = 20;
+
+    // used at all?
+    VALUE             = 120;
+    INSTANCE          = 121;
+    ORIGINATOR        = 122;
+    NAMED_VALUE       = 125;
+
+    OT_ERROR          = 130;
 }
 
 enum RCS_STATUS {
@@ -317,6 +324,7 @@ enum ContainerType {
     MT_RTAPI_APP_CALLFUNC = 309;
 
     MT_RTAPI_APP_REPLY = 310;
+    MT_RTAPI_APP_DELINST= 311;
 
 
     // application discovery

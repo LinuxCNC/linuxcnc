@@ -21,4 +21,9 @@ message RTAPICommand {
     optional int32          threadperiod = 7;
     optional bool                use_fp  = 8;
     optional int32                  cpu  = 9;
+
+    optional string              comp    = 10;
+    optional string              func    = 11;
+    optional string             instname = 12;
+
 }

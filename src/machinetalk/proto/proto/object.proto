@@ -242,3 +242,29 @@ message ProtocolParameters  {
     optional sfixed32     group_timer  = 2;     // group default scan timer
     optional sfixed32     rcomp_timer  = 3;     // rcomp default scan timer
 }
+
+message Vtable {
+
+    option (nanopb_msgopt).msgid = 714;
+
+    optional string       name          = 1; //  [(nanopb).max_size = 41];
+    optional fixed32      context       = 2;
+    optional sfixed32     comp_id       = 4;
+    optional sfixed32     instance_id   = 5;
+    optional fixed32      handle        = 6;
+    optional sfixed32     refcount      = 7;
+    optional sfixed32     version       = 8;
+    optional fixed64      vtable        = 9;
+}
+
+message Inst {
+
+    option (nanopb_msgopt).msgid = 715;
+
+    optional string       name          = 1; //  [(nanopb).max_size = 41];
+    optional sfixed32     comp_id       = 2;
+    optional fixed32      inst_id       = 3;
+    optional fixed32      inst_size     = 4;
+    optional fixed64      vtable        = 5;
+}
+

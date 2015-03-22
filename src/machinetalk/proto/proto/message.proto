@@ -140,6 +140,8 @@ message Container {
     repeated Member      member    = 107  [(nanopb).type = FT_IGNORE];
     repeated Function    function  = 108  [(nanopb).type = FT_IGNORE];
     optional ProtocolParameters pparams = 109 [(nanopb).type = FT_IGNORE];
+    repeated Vtable      vtable    = 110  [(nanopb).type = FT_IGNORE];
+    repeated Inst        inst      = 111  [(nanopb).type = FT_IGNORE];
 
     // the app field is  included as a reply to
     // a MT_LIST_APPLICATIONS and

@@ -2,6 +2,7 @@ package pb;
 
 // see README.msgid
 // msgid base: 600
+
 import "emcclass.proto";
 import "nanopb.proto";
 
