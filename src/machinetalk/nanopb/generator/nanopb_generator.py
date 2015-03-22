@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 '''Generate header file for nanopb from a ProtoBuf FileDescriptorSet.'''
-nanopb_version = "nanopb-0.3.2"
+nanopb_version = "nanopb-0.3.3-dev"
 
 import sys
 
@@ -589,6 +589,9 @@ class OneOf(Field):
         self.name = oneof_desc.name
         self.ctype = 'union'
         self.fields = []
+        self.allocation = 'ONEOF'
+        self.default = None
+        self.rules = 'ONEOF'
 
     def add_field(self, field):
         if field.allocation == 'CALLBACK':
@@ -635,7 +638,6 @@ class OneOf(Field):
         return '\n'.join([f.tags() for f in self.fields])
 
     def pb_field_t(self, prev_field_name):
-        prev_field_name = prev_field_name or self.name
         result = ',\n'.join([f.pb_field_t(prev_field_name) for f in self.fields])
         return result
 
@@ -666,6 +668,9 @@ class Message:
         self.fields = []
         self.oneofs = {}
         no_unions = []
+
+        if message_options.msgid:
+            self.msgid = message_options.msgid
 
         if hasattr(desc, 'oneof_decl'):
             for i, f in enumerate(desc.oneof_decl):
@@ -854,7 +859,7 @@ def parse_file(fdesc, file_options):
         
         if message_options.skip_message:
             continue
-        
+   
         messages.append(Message(names, message, message_options))
         for enum in message.enum_type:
             enum_options = get_nanopb_suboptions(enum, message_options, names + enum.name)
@@ -1001,7 +1006,31 @@ def generate_header(dependencies, headername, enums, messages, extensions, optio
             identifier = '%s_size' % msg.name
             yield '#define %-40s %s\n' % (identifier, msize)
     yield '\n'
-    
+
+    yield '/* helper macros for message type ids if set with */\n'
+    yield '/* option (nanopb_msgopt).msgid = <id>; */\n\n'
+
+    yield '#ifdef PB_MSGID\n'
+    for msg in messages:
+        if hasattr(msg,'msgid'):
+            yield '#define PB_MSG_%d %s\n' % (msg.msgid, msg.name)
+    yield '\n'
+
+    symbol = make_identifier(headername.split('.')[0])
+    yield '#define %s_MESSAGES \\\n' % symbol
+
+    for msg in messages:
+        m = "-1"
+        msize = msg.encoded_size(messages)
+        if msize is not None:
+            m = msize
+        if hasattr(msg,'msgid'):
+            yield '\tPB_MSG(%d,%s,%s) \\\n' % (msg.msgid, m, msg.name)
+    yield '\n'
+
+    yield '#endif\n\n'
+
+
     yield '#ifdef __cplusplus\n'
     yield '} /* extern "C" */\n'
     yield '#endif\n'
@@ -1126,14 +1155,28 @@ def read_options_file(infile):
         [(namemask, options), ...]
     '''
     results = []
-    for line in infile:
+    for i, line in enumerate(infile):
         line = line.strip()
         if not line or line.startswith('//') or line.startswith('#'):
             continue
         
         parts = line.split(None, 1)
+        
+        if len(parts) < 2:
+            sys.stderr.write("%s:%d: " % (infile.name, i + 1) +
+                             "Option lines should have space between field name and options. " +
+                             "Skipping line: '%s'\n" % line)
+            continue
+        
         opts = nanopb_pb2.NanoPBOptions()
-        text_format.Merge(parts[1], opts)
+        
+        try:
+            text_format.Merge(parts[1], opts)
+        except Exception, e:
+            sys.stderr.write("%s:%d: " % (infile.name, i + 1) +
+                             "Unparseable option line: '%s'. " % line +
+                             "Error: %s\n" % str(e))
+            continue
         results.append((parts[0], opts))
 
     return results
