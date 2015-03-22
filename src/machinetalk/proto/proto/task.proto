@@ -36,28 +36,48 @@
 // MT_EMC_TASK_PLAN_REPLY	= 10530;
 
 import "types.proto";
+import "nanopb.proto";
+
+// see README.msgid
+// msgid base: 1200
 
 package pb;
 
 
 message TaskPlanExecute {
+
+    option (nanopb_msgopt).msgid = 1200; // see README.msgid
+
+
     optional string  command = 10; // "MDI"
     optional sfixed32  line   = 30;
 };
 
 message TaskPlanBlockDelete {
+
+    option (nanopb_msgopt).msgid = 1201;
+
     required bool state = 10;
 };
 
 message TaskPlanOptionalStop {
+
+    option (nanopb_msgopt).msgid = 1202;
+
     required bool state = 10;
 };
 
 message TaskPlanOpen {
+
+    option (nanopb_msgopt).msgid = 1203;
+
     required string  filename = 10;
 };
 
 message TaskPlanReply {
+
+    option (nanopb_msgopt).msgid = 1204;
+
     required ContainerType cmd = 10;
     optional string   errormsg = 20;
 };
@@ -65,11 +85,17 @@ message TaskPlanReply {
 
 // Ticket msgs
 message TaskReply {
+
+    option (nanopb_msgopt).msgid = 1205;
+
     required fixed32  ticket   = 10;
 };
 
 // signal completion of a particular ticket
 message TicketUpdate {
+
+    option (nanopb_msgopt).msgid = 1206;
+
     required fixed32  cticket  = 10;
     required RCS_STATUS  status   = 20;
     optional string text     = 30;

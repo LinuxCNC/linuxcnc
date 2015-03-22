@@ -1,8 +1,14 @@
 import "nanopb.proto";
+// see README.msgid
+// msgid base: 900
 
 package pb;
 
 message RTAPICommand {
+
+    option (nanopb_msgopt).msgid = 900; // see README.msgid
+
+
     required int32              instance = 1;
     optional string              modname = 2;
     optional int32           rt_msglevel = 3;
@@ -15,4 +21,9 @@ message RTAPICommand {
     optional int32          threadperiod = 7;
     optional bool                use_fp  = 8;
     optional int32                  cpu  = 9;
+
+    optional string              comp    = 10;
+    optional string              func    = 11;
+    optional string             instname = 12;
+
 }

@@ -1,6 +1,10 @@
 package pb;
 
+// see README.msgid
+// msgid base: 600
+
 import "emcclass.proto";
+import "nanopb.proto";
 
 // an uncleaned first transliteration
 
@@ -99,6 +103,9 @@ enum cmd_status_t {
 
 
 message MotionCommand {
+
+    option (nanopb_msgopt).msgid = 600; // see README.msgid
+
     required cmd_code_t command  = 10;
     required fixed32 commandNum = 20;	/* increment this for new command */
     optional double motor_offset = 30;  /* offset from joint to motor position */
@@ -152,6 +159,9 @@ message MotionCommand {
 
 
 message MotionStatus {
+
+    option (nanopb_msgopt).msgid = 601;
+
     required cmd_code_t     commandEcho = 10;	/* echo of input command */
     required fixed32        commandNumEcho = 20;	/* increment this for new command */
     required cmd_status_t commandStatus = 30;	/* result of most recent command */

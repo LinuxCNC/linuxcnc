@@ -1,5 +1,8 @@
 // everything we know about objects, including HAL objects
 
+// see README.msgid
+// msgid base: 700
+
 
 import "nanopb.proto";
 import "types.proto";
@@ -8,12 +11,18 @@ package pb;
 
 // describes a RTAPI/HAL/LinuxCNC instance
 message Instance {
+
+    option (nanopb_msgopt).msgid = 700; // see README.msgid
+
     optional string        name     = 1; //  [(nanopb).max_size = 41];
     optional sfixed32        id     = 2;
 }
 
 // a service, for announcement/response to ServiceRequest via zbeacon(7)
 message ServiceAnnouncement {
+
+    option (nanopb_msgopt).msgid = 701;
+
     required ServiceType              stype = 1;
     required fixed32                version = 2 [default = 0];
     required fixed32               instance = 3 [default = 0]; // RTAPI instance id
@@ -28,6 +37,9 @@ message ServiceAnnouncement {
 // a remote component
 // also used as a optional error detail
 message Originator {
+
+    option (nanopb_msgopt).msgid = 702;
+
     optional OriginType    origin   = 1;
     optional OriginDetail  detail   = 2;
     optional string        name     = 3; //   [(nanopb).max_size = 41];
@@ -36,6 +48,9 @@ message Originator {
 }
 
 message AnError {
+
+    option (nanopb_msgopt).msgid = 703;
+
     required sfixed32   error_code  = 1;
     optional Severity   severity    = 2;
     optional string     error_text  = 3;
@@ -46,6 +61,9 @@ message AnError {
 
 
 message Pin {
+
+    option (nanopb_msgopt).msgid = 704;
+
     optional ValueType   type       = 1;
     optional string      name       = 2; //    [(nanopb).max_size = 41];
     optional fixed32     handle     = 3;
@@ -67,6 +85,9 @@ message Pin {
 }
 
 message Signal {
+
+    option (nanopb_msgopt).msgid = 705;
+
     optional ValueType   type       = 1;
     optional string      name       = 2; //  [(nanopb).max_size = 41];
     optional fixed32     handle     = 3;
@@ -84,6 +105,9 @@ message Signal {
 }
 
 message Param {
+
+    option (nanopb_msgopt).msgid = 706;
+
     optional ValueType    type       = 1;
     optional string       name       = 2; //   [(nanopb).max_size = 41];
     optional fixed32      handle     = 3;
@@ -103,6 +127,9 @@ message Param {
 }
 
 message Function {
+
+    option (nanopb_msgopt).msgid = 707;
+
     optional string      name       = 1; //   [(nanopb).max_size = 41];
     optional fixed32     handle     = 2;
     optional fixed32     owner_id   = 3;
@@ -113,6 +140,9 @@ message Function {
 }
 
 message Thread {
+
+    option (nanopb_msgopt).msgid = 708;
+
     optional string      name       = 1; //   [(nanopb).max_size = 41];
     optional fixed32     handle     = 2;
     optional bool        uses_fp    = 3;
@@ -124,6 +154,9 @@ message Thread {
 }
 
 message Component {
+
+    option (nanopb_msgopt).msgid = 709;
+
     optional string      name           = 1; //   [(nanopb).max_size = 41];
     optional fixed32     ninst          = 2;
     optional sfixed32    comp_id        = 4;
@@ -147,6 +180,9 @@ message Component {
 }
 
 message Ring {
+
+    option (nanopb_msgopt).msgid = 710;
+
     optional string      name          = 1; //  [(nanopb).max_size = 41];
     optional fixed32      handle       = 2;
     optional sfixed32      owner       = 3;
@@ -161,6 +197,9 @@ message Ring {
 }
 
 message Member {
+
+    option (nanopb_msgopt).msgid = 711;
+
     optional ObjectType   mtype         = 1;
     optional sfixed32     userarg1      = 2;
     optional double       epsilon       = 3;
@@ -180,6 +219,9 @@ message Member {
 }
 
 message Group {
+
+    option (nanopb_msgopt).msgid = 712;
+
     optional string       name          = 1; //  [(nanopb).max_size = 41];
     optional fixed32      handle        = 2;
     optional sfixed32     userarg1      = 4;
@@ -193,7 +235,36 @@ message Group {
 // scan timer, keepalive timer etc
 
 message ProtocolParameters  {
+
+    option (nanopb_msgopt).msgid = 713;
+
     optional sfixed32     keepalive_timer  = 1; // group and rcomp ping interval sent by haltalk
     optional sfixed32     group_timer  = 2;     // group default scan timer
     optional sfixed32     rcomp_timer  = 3;     // rcomp default scan timer
 }
+
+message Vtable {
+
+    option (nanopb_msgopt).msgid = 714;
+
+    optional string       name          = 1; //  [(nanopb).max_size = 41];
+    optional fixed32      context       = 2;
+    optional sfixed32     comp_id       = 4;
+    optional sfixed32     instance_id   = 5;
+    optional fixed32      handle        = 6;
+    optional sfixed32     refcount      = 7;
+    optional sfixed32     version       = 8;
+    optional fixed64      vtable        = 9;
+}
+
+message Inst {
+
+    option (nanopb_msgopt).msgid = 715;
+
+    optional string       name          = 1; //  [(nanopb).max_size = 41];
+    optional sfixed32     comp_id       = 2;
+    optional fixed32      inst_id       = 3;
+    optional fixed32      inst_size     = 4;
+    optional fixed64      vtable        = 5;
+}
+

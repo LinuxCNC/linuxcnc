@@ -1,9 +1,15 @@
 import "nanopb.proto";
 import "value.proto";
 
+// see README.msgid
+// msgid base: 1000
+
 package pb;
 
 message RTAPI_Message {
+
+    option (nanopb_msgopt).msgid = 1000; // see README.msgid
+
 
     required int32 msglevel = 10; // [default = RTAPI_MSG_DBG];
 

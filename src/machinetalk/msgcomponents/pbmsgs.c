@@ -73,3 +73,26 @@ PB_DESCRIPTOR(LogMessage);
 /* PB_DESCRIPTOR(Test1); */
 /* PB_DESCRIPTOR(Test2); */
 /* PB_DESCRIPTOR(Test3); */
+
+// this likely supersedes the above exports, as it
+// contains a superset of pb_<message>_fields
+msginfo_t msginfo[] = {
+    CANON_MESSAGES	   \
+    CONFIG_MESSAGES	   \
+    EMCCLASS_MESSAGES	   \
+    LOG_MESSAGES	   \
+    MESSAGE_MESSAGES	   \
+    MOTCMDS_MESSAGES	   \
+    OBJECT_MESSAGES	   \
+    PREVIEW_MESSAGES	   \
+    RTAPICOMMAND_MESSAGES  \
+    STATUS_MESSAGES	   \
+    TASK_MESSAGES	   \
+    TEST_MESSAGES	   \
+    TYPES_MESSAGES	   \
+    VALUE_MESSAGES	   \
+    PB_MSGINFO_DELIMITER
+};
+
+EXPORT_SYMBOL(msginfo);
+

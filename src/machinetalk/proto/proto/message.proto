@@ -1,6 +1,9 @@
 // use a self-describing format as suggested in protobuf docs
 // and on the mailing list
 
+// see README.msgid
+// msgid base: 500
+
 package pb;
 
 
@@ -20,6 +23,8 @@ import "preview.proto";
 import "status.proto";
 
 message Container {
+
+    option (nanopb_msgopt).msgid = 500; // see README.msgid
 
     // see https://developers.google.com/protocol-buffers/docs/techniques#union
     // for the principles behind this encoding
@@ -135,6 +140,8 @@ message Container {
     repeated Member      member    = 107  [(nanopb).type = FT_IGNORE];
     repeated Function    function  = 108  [(nanopb).type = FT_IGNORE];
     optional ProtocolParameters pparams = 109 [(nanopb).type = FT_IGNORE];
+    repeated Vtable      vtable    = 110  [(nanopb).type = FT_IGNORE];
+    repeated Inst        inst      = 111  [(nanopb).type = FT_IGNORE];
 
     // the app field is  included as a reply to
     // a MT_LIST_APPLICATIONS and
@@ -208,6 +215,7 @@ message Container {
     optional EmcStatusInterp emc_status_interp = 604 [(nanopb).type = FT_IGNORE];
 
     optional EmcCommandParameters emc_command_params = 610  [(nanopb).type = FT_IGNORE];
+
 
     // less commonly used types
 
