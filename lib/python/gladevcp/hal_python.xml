@@ -9,6 +9,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class name="State_Sensitive_Table" generic-name="state_sensitive_table" title="State_Sensitive_table"/>
    <glade-widget-class name="HAL_ComboBox" generic-name="hal_combobox" title="HAL_ComboBox"/>
    <glade-widget-class name="HAL_Button" generic-name="hal_button" title="HAL_Button"/>
+   <glade-widget-class name="HALIO_Button" generic-name="halio_button" title="HALIO_Button"/>
    <glade-widget-class name="HAL_CheckButton" generic-name="hal_checkbutton" title="HAL_CheckButton"/>
    <glade-widget-class name="HAL_SpinButton" generic-name="hal_spinbutton" title="HAL_SpinButton"/>
    <glade-widget-class name="HAL_ToggleButton" generic-name="hal_togglebutton" title="HAL_ToggleButton"/>
@@ -131,6 +132,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_LED"/>
    <glade-widget-class-ref name="HAL_ComboBox"/>
    <glade-widget-class-ref name="HAL_Button"/>
+   <glade-widget-class-ref name="HALIO_Button"/>
    <glade-widget-class-ref name="HAL_SpinButton"/>
    <glade-widget-class-ref name="HAL_CheckButton"/>
    <glade-widget-class-ref name="HAL_ToggleButton"/>
