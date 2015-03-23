@@ -613,7 +613,7 @@ class HAL:
         if i: print >>file, "setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending)
         print >>file, "net %s => parport.%d.pin-%02d-out%s" % (signame, port, num, ending)
         if self.a.doublestep() and not fake:
-            if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP):
+            if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP, SIG.USTEP, SIG.VSTEP):
                 print >>file, "setp parport.0.pin-%02d-out-reset%s 1" % (num,ending)
 
     def min_lim_sig(self, axis):
