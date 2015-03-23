@@ -155,16 +155,16 @@ class Private_Data:
                             ]
 
         (   self.XSTEP, self.XDIR, self.YSTEP, self.YDIR,
-            self.ZSTEP, self.ZDIR, self.USTEP, self.UDIR,
-            self.VSTEP, self.VDIR, self.ASTEP, self.ADIR,
+            self.ZSTEP, self.ZDIR, self.ASTEP, self.ADIR,
+            self.USTEP, self.UDIR, self.VSTEP, self.VDIR,
             self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
             self.MIST, self.FLOOD, self.ESTOP, self.AMP,
             self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
             self.UNUSED_OUTPUT 
         ) = self.hal_output_names = [
             "xstep", "xdir", "ystep", "ydir",
-            "ustep", "udir", "vstep", "vdir",
             "zstep", "zdir", "astep", "adir",
+            "ustep", "udir", "vstep", "vdir",
             "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
             "coolant-mist", "coolant-flood", "estop-out", "xenable",
             "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
@@ -193,8 +193,8 @@ class Private_Data:
             "unused-input"]
 
         self.human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
-            _("Z Step"), _("Z Direction"),_("U Step"), _("U Direction"),
-            _("V Step"), _("V Direction"),_("A Step"), _("A Direction"),
+            _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
+            _("U Step"), _("U Direction"), _("V Step"), _("V Direction"),
             _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
             _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
             _("Charge Pump"),
