@@ -66,7 +66,7 @@ def show():
     label2.configure(text='Position: %s' % p)
     app.after(100, show)
 
-app = Tkinter.Tk(); app.wm_title('LinuxCNC Teach-In')
+app = Tkinter.Tk(); app.wm_title('Machinekit Teach-In')
 
 world = Tkinter.IntVar(app)
 

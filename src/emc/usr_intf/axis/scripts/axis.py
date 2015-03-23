@@ -1872,7 +1872,7 @@ class TclCommands(nf.TclCommands):
 
     def launch_website(event=None):
         import webbrowser
-        webbrowser.open("http://www.linuxcnc.org/")
+        webbrowser.open("http://www.machinekit.io/")
 
     def set_spindlerate(newval):
         global spindlerate_blackout
@@ -3053,7 +3053,7 @@ while s.axes == 0:
     statwait *= 2
     if statfail > 8:
         raise SystemExit, (
-            "A configuration error is preventing LinuxCNC from starting.\n"
+            "A configuration error is preventing Machinekit from starting.\n"
             "More information may be available when running from a terminal.")
     s.poll()
 

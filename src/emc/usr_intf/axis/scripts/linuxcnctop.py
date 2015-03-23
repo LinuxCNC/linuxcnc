@@ -99,7 +99,7 @@ def gui():
     from _tkinter import TclError
     root = Tkinter.Tk(className="LinuxCNCTop")
     rs274.options.install(root)
-    root.title(_("LinuxCNC Status"))
+    root.title(_("Machinekit Status"))
 
     t = Tkinter.Text()
     sb = Tkinter.Scrollbar(command=t.yview)
