@@ -76,10 +76,16 @@ static char logtag[TAGSIZE];
 // switch to exclusively using the ringbuffer from RT
 #define USE_MESSAGE_RING 1
 
+typedef struct {
+    rtapi_msgheader_t hdr;
+    char buf[RTPRINTBUFFERLEN];
+} rtapi_msg_t;
+
 void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 {
     int n;
-    rtapi_msgheader_t *msg;
+    rtapi_msg_t logmsg;
+
 #if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
     static pid_t rtapi_pid;
     if (rtapi_pid == 0)
@@ -92,38 +98,33 @@ void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 	if (!rtapi_message_buffer.header) {
 	    ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
 	}
-	if (rtapi_mutex_try(&rtapi_message_buffer.header->wmutex)) {
+	logmsg.hdr.origin = MSG_ORIGIN;
+#if defined(RTAPI) && defined(BUILD_SYS_KBUILD)
+	logmsg.hdr.pid = 0;
+#endif
+#if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
+	logmsg.hdr.pid =  rtapi_pid;
+#endif
+#if defined(ULAPI)
+	logmsg.hdr.pid  = getpid();
+#endif
+	logmsg.hdr.level = level;
+	logmsg.hdr.encoding = MSG_ASCII;
+	strncpy(logmsg.hdr.tag, logtag, sizeof(logmsg.hdr.tag));
+
+	// do format outside critical section
+	n = vsnprintf(logmsg.buf, RTPRINTBUFFERLEN, format, ap);
+
+	if (rtapi_message_buffer.header->use_wmutex &&
+	    rtapi_mutex_try(&rtapi_message_buffer.header->wmutex)) {
 	    global_data->error_ring_locked++;
 	    return;
 	}
-	// zero-copy write
-	// reserve space in ring:
-	if (record_write_begin(&rtapi_message_buffer,
-				     (void **) &msg, 
-				     sizeof(rtapi_msgheader_t) + RTPRINTBUFFERLEN)) {
-	    global_data->error_ring_full++;
-	    rtapi_mutex_give(&rtapi_message_buffer.header->wmutex);
-	    return;
-	}
-	msg->origin = MSG_ORIGIN;
-#if defined(RTAPI) && defined(BUILD_SYS_KBUILD)
-	msg->pid = 0;
-#endif
-#if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
-	msg->pid =  rtapi_pid;
-#endif
-#if defined(ULAPI)
-	msg->pid  = getpid();
-#endif
-	msg->level = level;
-	msg->encoding = MSG_ASCII;
-	strncpy(msg->tag, logtag, sizeof(msg->tag));
-
-	n = vsnprintf(msg->buf, RTPRINTBUFFERLEN, format, ap);
-	// commit write
-	record_write_end(&rtapi_message_buffer, (void *) msg,
+	// use copying writer to shorten criticial section
+	record_write(&rtapi_message_buffer, (void *) &logmsg,
 			       sizeof(rtapi_msgheader_t) + n + 1); // trailing zero
-	rtapi_mutex_give(&rtapi_message_buffer.header->wmutex);
+	if (rtapi_message_buffer.header->use_wmutex)
+	    rtapi_mutex_give(&rtapi_message_buffer.header->wmutex);
     }
 }
 
