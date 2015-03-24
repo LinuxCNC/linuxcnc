@@ -69,7 +69,7 @@
 #include "rtapi_heap_private.h"
 
 
-#define MESSAGE_RING_SIZE (4096 * 64)
+#define MESSAGE_RING_SIZE (4096 * 128)
 
 // the universally shared global structure
 typedef struct {

@@ -98,6 +98,7 @@ static int remote = 0;
 static const char *ipaddr = "127.0.0.1";
 static AvahiCzmqPoll *av_loop;
 static int full, locked;
+static size_t max_msgs, max_bytes; // stats
 
 // messages tend to come bunched together, e.g during startup and shutdown
 // poll faster if a message was read, and decay the poll timer up to msg_poll_max
@@ -522,6 +523,10 @@ static void
 cleanup_actions(void)
 {
     int retval;
+    size_t max_ringmem = max_bytes + max_msgs * 8; // includes record overhead
+    syslog_async(LOG_DEBUG,"log buffer hwm: %zu% (%zu msgs, %zu bytes out of %d)",
+		 (max_ringmem*100)/MESSAGE_RING_SIZE,
+		 max_msgs, max_ringmem, MESSAGE_RING_SIZE);
 
     if (global_data) {
 	if (global_data->rtapi_app_pid > 0) {
@@ -588,9 +593,13 @@ message_poll_cb(zloop_t *loop, int  timer_id, void *args)
 	locked = global_data->error_ring_locked;
     }
 
+    size_t n_msgs = 0, n_bytes = 0;
+
     while ((retval = record_read(&rtapi_msg_buffer,
 				 (const void **) &msg, &msg_size)) == 0) {
 	payload_length = msg_size - sizeof(rtapi_msgheader_t);
+	n_msgs++;
+	n_bytes += msg_size;
 
 	switch (msg->encoding) {
 	case MSG_ASCII:
@@ -647,11 +656,18 @@ message_poll_cb(zloop_t *loop, int  timer_id, void *args)
 	    // whine
 	}
 	record_shift(&rtapi_msg_buffer);
-	msg_poll = msg_poll_min;
+	msg_poll = msg_poll_min; // keep going quick
     }
+    // done - decay the timer
     msg_poll += msg_poll_inc;
     if (msg_poll > msg_poll_max)
 	msg_poll = msg_poll_max;
+
+    // update stats
+    if (n_msgs > max_msgs)
+	max_msgs = n_msgs;
+    if (n_bytes > max_bytes)
+	max_bytes = n_bytes;
 
     if (current_interval != msg_poll) {
 	zloop_timer_end(loop, polltimer_id);
