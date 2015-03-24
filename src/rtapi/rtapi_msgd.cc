@@ -97,15 +97,25 @@ static const char *service_uuid;
 static int remote = 0;
 static const char *ipaddr = "127.0.0.1";
 static AvahiCzmqPoll *av_loop;
+static int full, locked;
 
 // messages tend to come bunched together, e.g during startup and shutdown
 // poll faster if a message was read, and decay the poll timer up to msg_poll_max
 // if no messages are pending
 // this way we retrieve bunched messages fast without much overhead in idle times
 static int msg_poll_max = 200; // maximum msgq checking interval, mS
-static int msg_poll_min = 20;  // minimum msgq checking interval
-static int msg_poll_inc = 10;  // increment interval if no message read up to msg_poll_max
-static int msg_poll =     20;  // current delay; startup fast
+
+
+#ifdef FASTLOG
+static int msg_poll_min = 5;  // minimum msgq checking interval
+static int msg_poll_inc = 1;  // increment interval if no message read up to msg_poll_max
+static int msg_poll =     10;  // current delay; startup fast
+#else
+static int msg_poll_min = 10;  // minimum msgq checking interval
+static int msg_poll_inc = 5;  // increment interval if no message read up to msg_poll_max
+static int msg_poll =     10;  // current delay; startup fast
+#endif
+
 static int polltimer_id;      // as returned by zloop_timer()
 static int shutdowntimer_id;
 
@@ -567,6 +577,16 @@ message_poll_cb(zloop_t *loop, int  timer_id, void *args)
     zframe_t *z_pbframe;
     int current_interval = msg_poll;
 
+    if (global_data->error_ring_full > full) {
+	syslog_async(LOG_ERR, "msgd:%d: message ring overrun (full): %d messages lost",
+		     global_data->error_ring_full - full);
+	full = global_data->error_ring_full;
+    }
+    if (global_data->error_ring_locked > locked) {
+	syslog_async(LOG_ERR, "msgd:%d: message ring overrun (locked): %d messages lost",
+		     global_data->error_ring_locked - locked);
+	locked = global_data->error_ring_locked;
+    }
 
     while ((retval = record_read(&rtapi_msg_buffer,
 				 (const void **) &msg, &msg_size)) == 0) {
