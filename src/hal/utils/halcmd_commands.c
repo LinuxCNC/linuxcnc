@@ -782,7 +782,7 @@ int do_ptype_cmd(char *name)
     }   
     
     rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_error("parameter '%s' not found\n", name);
+    halcmd_error("pin or parameter '%s' not found\n", name);
     return -EINVAL;
 }
 
@@ -827,7 +827,7 @@ int do_getp_cmd(char *name)
     }   
     
     rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_error("parameter '%s' not found\n", name);
+    halcmd_error("pin or parameter '%s' not found\n", name);
     return -EINVAL;
 }
 
