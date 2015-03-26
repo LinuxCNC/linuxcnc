@@ -1101,7 +1101,7 @@ proc standalone_tooledit {args} {
     # expect ::argv == [colname colname ...] filename
     set columns "" ;# default use all columns
     set argct [llength $::argv]
-    switch $argct] {
+    switch $argct {
           0 {#notreached
              puts stderr "$::argv0: [_ "Missing filename"]";exit 1}
           1 {set filename $::argv}
