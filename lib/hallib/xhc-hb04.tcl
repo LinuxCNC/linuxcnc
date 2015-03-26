@@ -11,7 +11,7 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #   ...
 #   HALFILE = xhc-hb04.tcl
 #
-#   [XHC-HB04_CONFIG]
+#   [XHC_HB04_CONFIG]
 #   layout = 2       (required: 1|2 are supported)
 #   coords = x y z a (up to 4 unique letters from x y z a b c u v w)
 #   coefs  = 1 1 1 1 (optional, filter coefs, 0 < coef < 1, not usually reqd)
@@ -21,7 +21,7 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #   jogmode = normal (optional: normal|vnormal|plus-minus(Experimental))
 #   require_pendant = yes (optional: yes|no)
 
-#   [XHC-HB04_BUTTONS]
+#   [XHC_HB04_BUTTONS]
 #   name = pin  (connect button to hal pin)
 #   name = ""   (no connect button)
 #   special cases:
@@ -344,6 +344,7 @@ proc popup_msg {msg} {
 } ;# popup_msg
 
 proc err_exit {msg} {
+  popup_msg $msg
   puts stderr "\n$::progname: $msg\n"
   exit 1
 } ;# err_exit
@@ -362,6 +363,12 @@ set cfg LIB:xhc-hb04-layout2.cfg ;# default
 
 if ![info exists ::HAL(HALUI)] {
   err_exit "\[HAL\]HALUI is not set"
+}
+if {[array names ::XHC_HB04_CONFIG] == ""} {
+  err_exit "Missing stanza: \[XHC_HB04_CONFIG\]"
+}
+if {[array names ::XHC_HB04_BUTTONS] == ""} {
+  err_exit "Missing stanza: \[XHC_HB04_BUTTONS\]"
 }
 
 foreach name [array names ::XHC_HB04_CONFIG] {

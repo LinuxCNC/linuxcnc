@@ -294,19 +294,21 @@ OS: $::tcl_platform(osVersion) [exec hostname]" \
   xaxis
   $::HH(widget) axis configure y -logscale $::HH(y,logscale)
 
+  set nwid 9 ;# numbers width
+  set pwid 8 ;# pos numbers width
   #--------------------------------------------------------------------
   if $::HH(opt,show) {
     set f [frame $f1.extra -relief ridge -bd 1]
     pack $f -side top -anchor w -fill x -expand 1
     set e [entry $f.emin -textvariable ::HH(n,more) \
-         -state readonly -justify right -width 9]
+         -state readonly -justify right -width 3]
     pack $e -side left -anchor e
     pack [label $f.min -text "<--off-chart neg bin ct"] \
          -side left -anchor e
     set ::HH(widget,negbins) $e
 
     set e [entry $f.emax  -textvariable ::HH(p,more) \
-         -state readonly -justify right -width 9]
+         -state readonly -justify right -width 3]
     pack $e -side right -anchor e
     pack [label $f.max -text "off-chart pos bin ct-->"] \
          -side right -anchor e
@@ -321,29 +323,29 @@ OS: $::tcl_platform(osVersion) [exec hostname]" \
   set f [frame $f1.minmax -relief ridge -bd 1]
   pack $f -side top -anchor w -fill x -expand 1
 
-  pack [label $f.min -text "min"] \
-       -side left -anchor e
+  pack [label $f.min -width 6 -anchor e -text "Min:"] \
+       -side left
   set e [entry $f.emin -textvariable ::HH(input_min) \
-       -state readonly -justify right -width 9]
+       -state readonly -justify right -width $nwid]
   pack $e -side left -anchor e
 
-  pack [label $f.mean -text " mean:"] \
+  pack [label $f.mean -width 5 -anchor e -text "Mean:"] \
        -side left
   set e [entry $f.emean  -textvariable ::HH(mean) \
-       -state readonly -justify right -width 9]
+       -state readonly -justify right -width $nwid]
   pack $e -side left -anchor e
 
-  pack [label $f.sdev -text "  sdev:"] \
+  pack [label $f.sdev -width 5 -anchor e -text "  Sdev:"] \
        -side left
   set e [entry $f.esdev  -textvariable ::HH(sdev) \
-       -state readonly -justify right -width 9]
+       -state readonly -justify right -width $pwid]
   pack $e -side left -anchor e
 
+  pack [label $f.max -width 6 -anchor e -text "Max:"] \
+       -side left -anchor e
   set e [entry $f.emax  -textvariable ::HH(input_max) \
-       -state readonly -justify right -width 9]
+       -state readonly -justify right -width $nwid]
   pack $e -side right -anchor e
-  pack [label $f.max -text "max"] \
-       -side right -anchor e
 
   #--------------------------------------------------------------------
   set f [frame $f1.nbins -relief ridge -bd 1 ]
@@ -352,43 +354,41 @@ OS: $::tcl_platform(osVersion) [exec hostname]" \
   set ::HH(new,minvalue) $::HH(minvalue)
   set ::HH(new,binsize)  $::HH(binsize)
 
-  pack [label $f.lmin -text "Minvalue:" \
+  pack [label $f.lmin -width 6 -anchor e -text "minval:" \
        ] -side left
   pack [entry $f.emin -textvariable ::HH(new,minvalue) \
-       -width 6 -justify right \
+       -width $nwid -justify right \
        ] -side left -expand 0
 
-  pack [label $f.lmax -text " Binsize:" \
+  pack [label $f.lmax -width 5 -anchor e -text "bsize:" \
        ] -side left
   pack [entry $f.emax -textvariable ::HH(new,binsize) \
-       -width 6 -justify right \
-       ] -side left -expand 0
+       -width $nwid -justify right \
+       ] -side left -expand 1
 
-  pack [label $f.lbins -text " nBins:" \
-       ] -side left
+  pack [label $f.lbins -width 5 -anchor e -text "nbins:" \
+       ] -side left -expand 0
   pack [entry $f.ebins -textvariable ::HH(new,nbins) \
-       -width 3 -justify right \
-       ] -side left -expand 0
+       -width $pwid -justify right \
+       ] -side left -expand 1
 
-  pack [label $f.el -text " Maxvalue"] -side left -anchor e
+  pack [label $f.el -width 6 -anchor e -text " maxval:"] -side left -anchor e
   pack [entry $f.e -textvariable ::HH(maxvalue) \
-       -state readonly -justify right -width 6] \
-       -side left -anchor e
+       -state readonly -justify right -width $nwid] \
+       -side left -expand 1 -anchor e
 
 
   bind $f.emin  <Return> new_comp_settings
   bind $f.emax  <Return> new_comp_settings
   bind $f.ebins <Return> new_comp_settings
-  pack [button $f.update -text Update -command new_comp_settings \
-       -bd 2  -padx 0 -pady 0 \
-       ] -side left -fill x -expand 1
-
   #--------------------------------------------------------------------
   set f [frame ${w}bot -relief ridge  -bd 1]
   pack $f -side bottom -anchor w -fill x -expand 1
-  pack [button $f.b -padx 0 -pady 0  -text Restart -command reset_data ] \
+  pack [button $f.b -padx 0 -pady 0  -text Restart \
+       -command new_comp_settings] \
        -side left -anchor w
-  pack [checkbutton $f.c -text ylogscale -variable ::HH(y,logscale)] \
+  pack [checkbutton $f.c -anchor w -text ylogscale \
+       -variable ::HH(y,logscale)] \
        -side left
 
   pack [button $f.exit  -padx 0 -pady 0 -text Exit -command finish ] \
@@ -397,14 +397,11 @@ OS: $::tcl_platform(osVersion) [exec hostname]" \
   pack [entry $f.e -textvariable ::HH(elapsed) \
        -state readonly -justify right -width 6] \
        -side right -anchor e
-  pack [label $f.el -text "Elapsed Time:"] -side right -anchor e
-
-  set fg [frame $f.fg]
-  pack $fg  -side right -anchor center -fill none -expand 1
+  pack [label $f.el -anchor e -text "Elapsed Time:"] -side right -anchor e
 
   pack [button $f.sshot -padx 0 -pady 0 -text Screenshot \
        -command [list windowToFile .]] \
-       -side right -anchor center -fill none -expand 1
+       -side right -fill x -expand 1
 
   wm deiconify .
   wm resizable . 0 0
@@ -444,10 +441,14 @@ nsamples:$::HH(nsamples)"
   hal setp $::HH(instance).reset 1
   $::HH(widget,posbins) conf -fg black
   $::HH(widget,negbins) conf -fg black
-  set ::HH(pextra) 0
-  set ::HH(nextra) 0
-  set ::HH(p,more) 0
-  set ::HH(n,more) 0
+  set ::HH(input_min) ""
+  set ::HH(input_max) ""
+  set ::HH(mean) ""
+  set ::HH(sdev) ""
+  set ::HH(pextra) ""
+  set ::HH(nextra) ""
+  set ::HH(p,more) ""
+  set ::HH(n,more) ""
   after 100
   hal setp $::HH(instance).reset 0
   set ::HH(start) [clock seconds]
@@ -473,8 +474,10 @@ proc check_inputs {minvalue binsize nbins} {
     s32 -
     u32 -
     bit    {
-      if { ![is_int $minvalue] } { return "minvalue must be integer" }
-      if { ![is_int $binsize]  } { return "binsize must be integer" }
+      if { ![is_int $minvalue]} {
+        return "minvalue must be integer <$minvalue> for type $::HH(pintype)"
+      }
+      if { ![is_int $binsize] } {return "binsize must be integer <$binsize>"}
     }
   }
   return ""
@@ -501,6 +504,7 @@ proc new_comp_settings {} {
     if {"$::HH(new,$item)" != ""} {
       set ::HH($item)                $::HH(new,$item)
       hal setp $::HH(instance).$item $::HH($item)
+      set ::HH(new,$item)   [format %.3g $::HH(new,$item)]
     }
   }
   after 100
@@ -700,8 +704,8 @@ proc update_chart {} {
   set ::HH(pextra) [hal getp $::HH(instance).pextra]
   set ::HH(nextra) [hal getp $::HH(instance).nextra]
 
-  set ::HH(input_min) [hal getp $::HH(instance).input-min]
-  set ::HH(input_max) [hal getp $::HH(instance).input-max]
+  set ::HH(input_min) [format %.3g [hal getp $::HH(instance).input-min]]
+  set ::HH(input_max) [format %.3g [hal getp $::HH(instance).input-max]]
 
   set nsamples [format %u [hal getp $::HH(instance).nsamples]]
   set ::HH(nsamples) $nsamples
@@ -712,13 +716,13 @@ proc update_chart {} {
   set mean     [hal getp $::HH(instance).mean]
 # puts [format "m=%10.3f %8.3f s=%8.3f %d" \
 #                 $mean $variance $sdev $nsamples]
-  set ::HH(sdev) [format %.2f $sdev]
-  set ::HH(mean) [format %.2f $mean]
+  set ::HH(sdev) [format %.3g $sdev]
+  set ::HH(mean) [format %.3g $mean]
 
   set ::HH(p,more) [expr $pmore + $::HH(pextra)]
   set ::HH(n,more) [expr $nmore + $::HH(nextra)]
-  if {$::HH(p,more) == 1} {set ::HH(p,more) 1.1}
-  if {$::HH(n,more) == 1} {set ::HH(n,more) 1.1}
+  if {$::HH(p,more) == 1} {set ::HH(p,more) 1.1} ;# show as pip
+  if {$::HH(n,more) == 1} {set ::HH(n,more) 1.1} ;# show as pip
 
   set pcolor $::HH(color)
   set pmaxcolor white
@@ -748,8 +752,8 @@ proc update_chart {} {
   set nyd_max_pos $::HH(n,more)
 
   # display fmt
-  set ::HH(p,more) [format %.3g $::HH(p,more)]
-  set ::HH(n,more) [format %.3g $::HH(n,more)]
+  set ::HH(p,more) [format %.0f $::HH(p,more)] ;# clear pip
+  set ::HH(n,more) [format %.0f $::HH(n,more)] ;# clear pip
 
   $w element configure pmindata \
      -xdata [expr -0.5*$::HH(binsize) + $::HH(minvalue)] \
@@ -769,6 +773,7 @@ proc update_chart {} {
 } ;# update_chart
 
 proc is_int {v} {
+  set v [format %.30g $v] ;# first: expand if v is in exponential format
   if [catch {format %d $v}] { return 0 }
   return 1
 } ;# is_int
@@ -808,7 +813,7 @@ proc compute_maxvalue {} {
     exit 1
   }
   set maxvalue [expr $::HH(minvalue) + $::HH(binsize) * $::HH(nbins)]
-  return $maxvalue
+  return [format %.3g $maxvalue]
 } ;# compute_maxvalue
 
 proc monitor {} {

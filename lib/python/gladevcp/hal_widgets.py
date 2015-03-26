@@ -180,6 +180,22 @@ class HAL_Button(gtk.Button, _HalWidgetBase):
         self.connect("released", _f, False)
         self.emit("released")
 
+class HALIO_Button(gtk.ToggleButton, _HalWidgetBase):
+    __gtype_name__ = "HALIO_Button"
+
+    def _hal_init(self):
+        self.set_active(False)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IO)
+        def _f(w, data):
+            self.set_active(True)
+            self.hal_pin.set(data)
+        self.connect("pressed",  _f, True)
+        self.hal_pin.connect('value-changed', self.hal_update)
+
+    def hal_update(self, *a):
+        active = bool(self.hal_pin.get())
+        self.set_active(active)
+
 class HAL_CheckButton(gtk.CheckButton, _HalToggleBase):
     __gtype_name__ = "HAL_CheckButton"
 
