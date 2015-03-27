@@ -10,8 +10,21 @@ DISCLAIMER
     codes, and the authors of this software can not, and do not, take
     any responsibility for such compliance.
 
+What is Machinekit?
+-------------------
+
+Machinekit is a platform for machine control applications.
+
+Machinekit is portable across a wide range of hardware platforms
+and real-time environments, and delivers excellent performance at
+low cost. It is based on the HAL component architecture, an intuitive
+and easy to use circuit model that includes over 150 building blocks
+for digital logic, motion, control loops, signal processing, and hardware
+drivers. Machinekit supports local and networked UI options, including 
+ubiquitous platforms like phones or tablets.
+
 Getting Machinekit
------------------
+------------------
 
 The easiest way to get up-and-running is to install Debian Wheezy and get the
 binary packages. Please go to http://www.machinekit.io/docs/packages-debian/ for
@@ -23,18 +36,17 @@ The Build Process
 Refer to the http://www.machinekit.io/docs/building-from-source/ for information
 about building from source and running the software.
 
-Directory Layout
-----------------
+Documentation
+-------------
 
-The directory tree for LinuxCNC is documented in 'directory.map' in the
-top level directory.
+The Machinekit documentation set is evolving. Please see
+http://www.machinekit.io and http://github.com/machinekit/machinekit-docs
 
+History
+-------
 
-    COPYING - this software is released under the GPL,
-              with some parts under the LGPL
-
-Please also see the files at http://github.com/machinekit/machinekit-docs
-
-    README  - general information
-    AUTHORS - information about authors
-    NEWS    - latest news
+The open-source Machinekit project forked from the open-source LinuxCNC project
+(http://www.linuxcnc.org) in 2014. At the present time, identifiers such as
+'linuxcnc' and 'emc' (the antecedent of linuxcnc) still occur in various
+places. These occurrences are diminishing with time as the Machinekit codebase
+and Machinekit documentation evolve.
