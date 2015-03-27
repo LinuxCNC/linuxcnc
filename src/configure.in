@@ -2007,6 +2007,32 @@ AS_IF(
     ]
 )
 
+#
+# check for LTTNG
+# the lttng-ust package should be enough for now
+#
+AC_ARG_WITH(
+    [lttng],
+    [  --with-lttng                       Specify whether or not to use
+                                          the LTTNG tracing framework
+                                          (defaults to "no")],
+    [WITH_LTTNG=$withval],
+    [WITH_LTTNG=no]
+)
+
+AS_IF(
+    [test "x$WITH_LTTNG" = "xyes"],
+    [
+	PKG_CHECK_MODULES(LTTNG_UST, lttng-ust,
+	    [
+	      HAVE_LTTNG_UST=yes
+	      AC_DEFINE([HAVE_LTTNG_UST], [], [if lttng-ust support is available])
+	    ],
+	    [ AC_MSG_ERROR([package lttng-ust not found]) ]
+	    )
+    ]
+)
+AC_SUBST(HAVE_LTTNG_UST)
 
 ##############################################################################
 # Subsection 3.2 - define default dirs, these get used in a lot of places    #
