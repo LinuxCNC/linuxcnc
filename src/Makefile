@@ -468,7 +468,6 @@ clean: depclean modclean
 	-rm -rf objects
 	-rm -f $(TARGETS)
 	-rm -f $(GENERATED_MANPAGES)
-	-rm -f $(COPY_CONFIGS)
 	-rm -f ../rtlib/*.$(MODULE_EXT)
 	-rm -f hal/components/conv_*.comp
 
