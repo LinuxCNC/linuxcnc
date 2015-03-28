@@ -78,10 +78,11 @@ Optional configuration ini file items and the defaults values are:
 layout     = 2       (1: 16 buttons | 2: 18 buttons)
 coords     = x y z a (4 max)
 coefs      = 1 1 1 1 (filter coefs 0 < coef < 1)
+mpg_accels = 1 2 2 200 (mpg accelerations, reduced for jogging)
 scales     = 1 1 1 1 (plus/minus factors)
 threadname = servo-thread
 require_pendant = yes (yes | no)
-inch_or_mm = in (in | mm )
+inch_or_mm = in (in | mm for display icon)
 jogmode    = normal   (normal | vnormal | plus-minus)
 sequence   = 1        (1|2|3|4|5)
                       1: 0.001,0.010,0.100,1.000 (typ for mm machine)
@@ -150,10 +151,13 @@ on an existing configuration.
   to a new directory and edit the configuration ini file to:
     a) add [HAL]HALFILE = LIB:xhc-hb04.tcl
        (this entry should follow other HALFILE entries)
-    b) (optional) add [APPLICATIONS]APP = monitor-xhc-hb04
-    c) add stanza [XHC_HB04_CONFIG]
-    d) add stanza [XHC_HB04_BUTTONS]
-    e) add or update stanza for [HALUI]
+    b) (optional) add [APPLICATIONS]APP = xhc-hb04-accels
+       needed to use [XHC_HB04_CONFIG]mpg_accels
+    c) (optional) add [APPLICATIONS]APP = monitor-xhc-hb04
+       to monitor disconnects/connects of pendant
+    d) add stanza [XHC_HB04_CONFIG]
+    e) add stanza [XHC_HB04_BUTTONS]
+    f) add or update stanza for [HALUI]
 
    The entries in the new or updated stanzas should be
    customized for your machine.

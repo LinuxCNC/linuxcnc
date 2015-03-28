@@ -133,6 +133,19 @@ proc connect_pins {} {
 } ;# connect_pins
 
 proc wheel_setup {jogmode} {
+  if [info exists ::XHC_HB04_CONFIG(mpg_accels)] {
+    set idx 0
+    foreach g $::XHC_HB04_CONFIG(mpg_accels) {
+      set g1 $g
+      if {$g < 0} {
+         set g [expr -1 * $g]
+         puts stderr "$::progname: mpg_accel #$idx must be positive was:$g1, is:$g"
+      }
+      set ::XHC_HB04_CONFIG(accel,$idx) $g
+      incr idx
+    }
+  }
+
   # defaults if not in inifile:
   set ::XHC_HB04_CONFIG(coef,0) 1.0
   set ::XHC_HB04_CONFIG(coef,1) 1.0
@@ -173,7 +186,9 @@ proc wheel_setup {jogmode} {
   #   multiply the pendant_util.scale$idx by $kvalue
   # to manipulate the integer (s32) axis.N.jog-counts
 
-  set kvalue 1000000.0;
+  set kvalue 100.0; # allow fractional scales (.1, .01)
+                    # Note: larger values not advised as the
+                    #        jog-counts are type s32 (~ +/-2e9)
   setp pendant_util.k $kvalue
 
   net pendant:jog-prescale    <= xhc-hb04.jog.scale
@@ -184,6 +199,12 @@ proc wheel_setup {jogmode} {
 
   net pendant:wheel-counts     <= xhc-hb04.jog.counts
   net pendant:wheel-counts-neg <= xhc-hb04.jog.counts-neg
+
+  net pendant:is-manual <= halui.mode.is-manual
+  net pendant:is-manual => pendant_util.is-manual
+
+  net pendant:jogenable-off <= xhc-hb04.jog.enable-off
+  net pendant:jogenable-off => pendant_util.jogenable-off
 
   set anames        {x y z a}
   set available_idx {0 1 2 3}
@@ -245,6 +266,24 @@ proc wheel_setup {jogmode} {
     net pendant:wheel-counts-$coord-filtered <= pendant_util.out$idx \
                                              => axis.$axno.jog-counts
 
+    #-----------------------------------------------------------------------
+    # multiplexer for ini.N.max_acceleration
+    if [catch {set std_accel [set ::AXIS_[set axno](MAX_ACCELERATION)]} msg] {
+      err_exit "Error: missing \[AXIS_[set axno]\]MAX_ACCELERATION"
+    }
+    setp pendant_util.amux$idx-in0 $std_accel
+    if ![info exists ::XHC_HB04_CONFIG(accel,$idx)] {
+      set ::XHC_HB04_CONFIG(accel,$idx) $std_accel ;# if not specified
+    }
+    setp pendant_util.amux$idx-in1 $::XHC_HB04_CONFIG(accel,$idx)
+
+    # This signal is named using $axno so the connection can be made
+    # later when the ini pins have been created
+    net pendant:muxed-accel-$axno <= pendant_util.amux$idx-out
+    # a script running after task is started must connect:
+    # net pendant:muxed-accel-$axno => ini.$axno.max_acceleration
+
+    #-----------------------------------------------------------------------
     switch $jogmode {
       normal - vnormal {
         net pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
