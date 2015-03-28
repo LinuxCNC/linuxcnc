@@ -81,6 +81,7 @@ coefs      = 1 1 1 1 (filter coefs 0 < coef < 1)
 scales     = 1 1 1 1 (plus/minus factors)
 threadname = servo-thread
 require_pendant = yes (yes | no)
+inch_or_mm = in (in | mm )
 jogmode    = normal   (normal | vnormal | plus-minus)
 sequence   = 1        (1|2|3|4|5)
                       1: 0.001,0.010,0.100,1.000 (typ for mm machine)

@@ -20,6 +20,7 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #   sequence = 1     (optional: 1|2)
 #   jogmode = normal (optional: normal|vnormal|plus-minus(Experimental))
 #   require_pendant = yes (optional: yes|no)
+#   inch_or_mm = in  (optional: in|mm, default is mm)
 
 #   [XHC_HB04_BUTTONS]
 #   name = pin  (connect button to hal pin)
@@ -429,6 +430,14 @@ if [catch {eval $cmd} msg] {
   set msg "$msg \nFailing cmd:\n$cmd"
   popup_msg "$msg"
   return ;# not an exit
+}
+
+if ![info exists ::XHC_HB04_CONFIG(inch_or_mm)] {
+  set ::XHC_HB04_CONFIG(inch_or_mm) mm
+}
+switch -glob $::XHC_HB04_CONFIG(inch_or_mm) {
+  in*     {setp xhc-hb04.inch-icon 1}
+  default {}
 }
 
 # jogmodes:
