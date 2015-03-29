@@ -1,86 +1,195 @@
 /********************************************************************
-* Description:  zed_gpio.c
-* Test driver for the ZedBoard GPIO pins
+* Description:  hal_zed_gpio.c
+* Test driver for the ZedBoard GPIO pins for real time applications
 *
 * \author Claudio Lorini (claudio.lorini@iit.it)
 * License: GPL Version 2
-* Copyright (c) 2014.
+* Copyright (c) 2015.
 *
 * code derived from the hal_gpio.c by:
 * Author: Michael Haberler
 * License: GPL Version 2
 * Copyright (c) 2012.
 *
-* some code  taken from the bcm2835 library by:
-* Author: Mike McCauley (mikem@open.com.au)
-* Copyright (C) 2011 Mike McCauley    
-*
 ********************************************************************/
 
 /**
- \brief Test driver for the ZedBoard GPIO pins.
+ \brief Test driver for the ZedBoard GPIO pins for realtime applications.
 
  \details This driver profides a series of digital IO connected to the
-   PMods connectors JA1, JB1, JC1, JD1, JE1. The IO access uses the xilinx 
-   gpio driver.
-   This uncivilized method is an plain insult to optimization and performance
-   and goes like this: 
-   - export each IO pin writing in /sys/class/gpio/export the number <NN> 
-     of the IO to use. This create a file in the /sys/class/gpio/ directory 
-     for each pin.
-   - set the direction of the pin writing in /sys/class/gpio/gpio<NN>/direction 
-     'out' or 'in' according to direction.
-   - Access each IO pin writing/reading '0' or '1' characters to the 
-     /sys/class/gpio/gpio<NN>/value file. For unknown reasons, to read
-     from the gpio<NN> file you have each time to fopen() and fclose(). 
-     Continuous read from file returns EOF after the first read.
-     Fseek(), rewind() ecc... doesn't work. 
+   PMods connectors JA1, JB1, JC1, JD1, JE1 and Vita connector.
    
- \par How to compile.
-  In order to compile, this driver should be placed in the 
-  /machinekit/src/hal/drivers/ directory
-  in the the Makefile in the /machinekit/src directory add the following:
-    ifeq ($(TARGET_PLATFORM), zedboard)
-    obj-$(CONFIG_ZED_GPIO) += zed_gpio.o
-    zed_gpio-objs := hal/drivers/zed_gpio.o
-    endif
-  in the '# Subdirectory: hal/drivers' section
-
-  and add 
-    ifeq ($(TARGET_PLATFORM),zedboard)
-    $(RTLIBDIR)/zed_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(zed_gpio-objs))
-    endif
-  in the '# build kernel RTAPI modules' section
-
-  in the the Makefile.in in the /machinekit/src directory add the following:
-    CONFIG_ZED_GPIO=m
-  in the '# HAL drivers' section
+   In order to mantain rt performances the access to the peripheral is
+   done as a memory access to the xilinx-gpio peripheral.
+   Details of the pheripheral registers structure can be found in the 
+   following document:
+   ug585-Zynq-7000-TRM.pdf (pag.381, pag.1348)
 
  \par IO connection table:
-  IO0 JA1.1
-  IO1 JA1.2
-  ...
+    Pin assignment with CAN8 board (Vita)
+    55,56,57,58,59,60,61,62  - Led CAN      (out)
+    63,64,65,66,67,68,69,70  - DIP Switch 1 (in) 
+    71,72,73,74,75,76,77,78  - J8 Outputs   (out)
+    79,80,81,82,83,84,85     - J6 Inputs    (in)
+    86,87,88,89,90,91,92     - J7 Inputs    (in)
 
  \par Revision history:
- \date 22.01.2014 started development from hal_gpio.c files
+ \date  22.01.2014 started development from hal_gpio.c files
  \version 00
  \date  07.02.2014 compiled from source tree and loaded successfully
  \version 01
  \date  12.02.2014 Inputs working at last! 
  \version 02
+ \date  20.03.2015 Moved to a true rt implementation
+ \version 03
 
  \note
  \bug
+ \warning 
  \todo
- \warning
  \pre 
  \param 
  \return
 */
 
-#include "rtapi.h"         // rtapi_print_msg()
-#include "rtapi_bitops.h"  // RTAPI_BIT(n)    
-#include "rtapi_app.h"     // 
+#define IN 0
+#define OUT 1
+
+/**
+\brief Zynq gpio peripheral register mapping from ug585-Zynq-7000-TRM.pdf 
+*/
+
+/** \brief gpio peripheral base address */
+#define GPIO_BASE           0xE000A000 
+
+/** \breief This registers enables software to change the value being output.  
+Only data values with a corresponding deasserted mask bit will be changed.
+0: pin value is updated
+1: pin is masked */
+#define MASK_DATA_0_LSW     0x00000000 
+#define MASK_DATA_0_MSW     0x00000004 
+#define MASK_DATA_1_LSW     0x00000008 
+#define MASK_DATA_1_MSW     0x0000000C 
+#define MASK_DATA_2_LSW     0x00000010 
+#define MASK_DATA_2_MSW     0x00000014 
+#define MASK_DATA_3_LSW     0x00000018 
+#define MASK_DATA_3_MSW     0x0000001C 
+
+/** \breief This register controls the value being output when the GPIO 
+signal is configured as an output. All 32bits of this register are written 
+at one time. */
+#define DATA_0              0x00000040
+#define DATA_1              0x00000044
+#define DATA_2              0x00000048
+#define DATA_3              0x0000004C
+
+/** \breief This register enables software to observe the value on the device pin. 
+If the GPIO signal is configured as an output, then this would normally reflect 
+the value being driven on the output. Writes to this register are ignored.*/
+#define DATA_0_RO           0x00000060 // 00..31 [8:7] cannot be used as inputs, will always return 0 when read.
+#define DATA_1_RO           0x00000064 // 32..53 
+#define DATA_2_RO           0x00000068 // 54..85
+#define DATA_3_RO           0x0000006C // 86..117
+
+/** \breief This register controls whether the IO pin is acting as an input 
+or an output. Since the input logic is always enabled, this effectively 
+enables/disables the output driver.
+0: input
+1: output */
+#define DIRM_0              0x00000204 
+#define DIRM_1              0x00000244 
+#define DIRM_2              0x00000284
+#define DIRM_3              0x000002C4
+
+/** \breief When the IO is configured as an output, this controls whether 
+the output is enabled or not. When the output is disabled, the pin is tri-stated.
+0: disabled
+1: enabled */
+#define OEN_0               0x00000208
+#define OEN_1               0x00000248
+#define OEN_2               0x00000288
+#define OEN_3               0x000002C8
+
+/** \breief This register shows which bits are currently masked and which 
+are un-masked/enabled. This register is read only, so masks cannot be 
+changed here.
+0: interrupt source enabled
+1: interrupt source masked */
+#define INT_MASK_0          0x0000020C 
+#define INT_MASK_1          0x0000024C 
+#define INT_MASK_2          0x0000028C
+#define INT_MASK_3          0x000002CC 
+
+/** \breief This register is used to enable or unmask a GPIO input for 
+use as an interrupt source.Writing a 1 to any bit of this register enables/unmasks 
+that signal for interrupts. */
+#define INT_EN_0            0x00000210 
+#define INT_EN_1            0x00000250
+#define INT_EN_2            0x00000290
+#define INT_EN_3            0x000002D0 
+
+/** \breief This register is used to disable or mask a GPIO input for use 
+as an interrupt source. Writing a 1 to any bit of this register disables/masks 
+that signal for interrupts. */
+#define INT_DIS_0           0x00000214 
+#define INT_DIS_1           0x00000254
+#define INT_DIS_2           0x00000294
+#define INT_DIS_3           0x000002D4
+
+/** \breief This registers shows if an interrupt event has occurred or not. 
+Writing a 1 to a bit in this register clears the interrupt status for that bit. */
+#define INT_STAT_0          0x00000218
+#define INT_STAT_1          0x00000258
+#define INT_STAT_2          0x00000298
+#define INT_STAT_3          0x000002D8
+
+/** \breief This register controls whether the interrupt is edge sensitive 
+or level sensitive.
+0: level-sensitive
+1: edge-sensitive */
+#define INT_TYPE_0          0x0000021C
+#define INT_TYPE_1          0x0000025C
+#define INT_TYPE_2          0x0000029C
+#define INT_TYPE_3          0x000002DC
+
+/** \breief This register controls whether the interrupt is active-low or 
+active high (or falling-edge sensitive or rising-edge sensitive).
+0: active low or falling edge
+1: active high or rising edge */
+#define INT_POLARITY_0      0x00000220 
+#define INT_POLARITY_1      0x00000260
+#define INT_POLARITY_2      0x000002A0
+#define INT_POLARITY_3      0x000002E0 
+
+/** \breief If INT_TYPE is set to edge sensitive, then this register enables an 
+interrupt event on both rising and falling edges. This register is ignored if 
+INT_TYPE is set to level sensitive.
+0: trigger on single edge, using configured interrupt polarity
+1: trigger on both edges */
+#define INT_ANY_0           0x00000224 
+#define INT_ANY_1           0x00000264
+#define INT_ANY_2           0x000002A4
+#define INT_ANY_3           0x000002E4
+
+#include <unistd.h>
+#include <termios.h>
+#include <stropts.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+
+#include <sys/select.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/select.h>
+#include <sys/ioctl.h>
+
+#include "rtapi.h"
+#include "rtapi_bitops.h"
+#include "rtapi_app.h"
 #include "hal.h"
 
 #if !defined(BUILD_SYS_USER_DSO) 
@@ -90,15 +199,6 @@
     #error "This driver is for the Zedboard platform only"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <errno.h>
-
 MODULE_AUTHOR("Claudio Lorini");
 MODULE_DESCRIPTION("Driver for Zedboard GPIOs");
 MODULE_LICENSE("GPL");
@@ -106,207 +206,70 @@ MODULE_LICENSE("GPL");
 // RT component ID
 static int comp_id;
 
-// array of gpio access file descriptors
-static int *gpio_fd_map;
+// array of bits, used for input and output
+hal_bit_t **oport_data;
+hal_bit_t **iport_data;
 
-// number of available gpio
-static int ngpio;
+// number of available gp in
+static int ngpi = 7;
+// number of available gp out
+static int ngpo = 8;
 
-/*
-Pin assignment with CAN8 board (Vita)
-55,56,57,58,59,60,61,62  - Led CAN      (out)
-63,64,65,66,67,68,69,70  - DIP Switch 1 (in) 
-71,72,73,74,75,76,77,78  - J8 Outputs   (out)
-79,80,81,82,83,84,85     - J6 Inputs    (in)
-86,87,88,89,90,91,92     - J7 Inputs    (in)
-*/
+// pointer to start of GPIO pheriferal registers
+void *base;
 
-// Rev 01 Zedboard gpio assignment
-// I1..I7 
-static unsigned char gpio_list[] = {79,80,81,82,83,84,85};
-//
-static unsigned char *gpios;
-
-// port direction as string, 1=output 0=input
-static char *dir_list = "0"; // 00000000 -> I0, I1, I2, I3, I4, I5, I6, I7
-// port map as word
-static unsigned dir_map;
-RTAPI_MP_STRING(dir_list, "port direction, 1=output");
-
-// exclude list for gpios as string, 1=exclude 0=included
-static char *exclude_list = "0"; // 00000000 -> all used
-// exclude list word
-static unsigned exclude_map;
-RTAPI_MP_STRING(exclude_list, "exclude gpio, 1=dont use");
-
-// array of bits, used for both input and output
-hal_bit_t **port_data;
-
-// used for debug pourpouses
-hal_u32_t *dbg;
+// file descriptor for mem access
+int fd;
 
 /**
  \brief Write IO function exported to hal
- \pre ngpio must be initialized */
+ \pre ngpio and base must be initialized */
 static void write_port(void *arg, long period)
 {
     int n;
+    unsigned *RDATA_2 = base + DATA_2;
 
-    for (n = 0; n < ngpio; n++) {
-        // check if IO in exclusion list
-        if ( 0 != (exclude_map & RTAPI_BIT(n)) ) {
-            continue;
-        }
-        if ( 0 != (dir_map & RTAPI_BIT(n)) ) {
-            // n-th gpio is an output 
-            if (*(port_data[n])) { 
-                write(gpio_fd_map[n], "1", 2);
-// \todo controlli su scrittura files o anche no per performance
-            } 
-            else {
-                write(gpio_fd_map[n], "0", 2);
-// \todo controlli su scrittura files o anche no per performance
-            }
+    // *((unsigned *)(base + DATA_2)) = 6;
+
+    // J8 Outputs from 71 to 78 are on DATA_2 reg.
+    for (n = 0; n < ngpo; n++) {
+        if (0 == *(oport_data[n])) { 
+            RTAPI_BIT_CLEAR(RDATA_2, n+17);
+        } 
+        else {
+            RTAPI_BIT_SET(RDATA_2, n+17);
         }
     }
 }
 
 /**
  \brief Read IO function exported to hal
- \pre ngpio must be initialized 
- \bug the gpio file must be opne and closed each time, fseek or 
-   rewind doesn't work */
+ \pre ngpio must be initialized  */
 static void read_port(void *arg, long period)
 {
-    int n=0, resp;
-    static char value=0;
-    char buf[50]; 
+    int n=0;
+    unsigned *RDATA_2_RO = base + DATA_2_RO;
 
-    for (n = 0; n < ngpio; n++) {
-        // ignore if in exclusion list
-        if ( 0 != (exclude_map & RTAPI_BIT(n)) ) {
-            continue;
-        }
-        if ( 0 == (dir_map & RTAPI_BIT(n)) ) {
-            /// \todo can be optimized creating the filenames in an array once and for all in setup_gpio_access()
-            // inputs, filename to open is:
-            sprintf(buf, "/sys/class/gpio/gpio%d/value", gpio_list[n]);
-            gpio_fd_map[n] = open(buf, O_RDONLY|O_SYNC);
-            if ( gpio_fd_map[n] < 0 ) {
-                rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_GPIO: can't open /sys/class/gpio/gpio%d/value", gpio_list[n]);
-            }
-            // n-th gpio is an input 
-            resp = read(gpio_fd_map[n], &value, 1);
-            // less than 1 byte read from gpio-file 
-            if ( 1 != resp ) {
-                rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_GPIO: can't read from gpio file");
-            }
-            // '0'
-            if( 48 == value ) {
-                *port_data[n] = 0x0;
-            }
-            else {
-                *port_data[n] = 0x1;
-            }
+    // regvalue = *((unsigned *)(base + DATA_2_RO));
 
-            // close the file
-            close(gpio_fd_map[n]);
-        }
+    for (n = 0; n < ngpi; n++) {
+        *iport_data[n] = RTAPI_BIT_TEST(RDATA_2_RO, n+25);
     }
 }
 
 /**
- \brief Export and set direction of GPIOs
- \details For each GPIO in use the following operations should be performed:
-   - write in /sys/class/gpio/export the number <NN> of the IO to use
-   - write in /sys/class/gpio/gpio<NN>/direction 'out' or 'in' according to direction
-   - open the /sys/class/gpio/gpio<NN>/value file for read or write to access GPIO data 
+ \brief configrure GPIOs
+ \pre ngpio must be initialized first*/
+static void setup_gpio_access()
+{     
+    // set DATA_2 as 8 outputs J8 + 8 out LED
+    *((unsigned *)(base + DIRM_2)) = 0x01FE01FE;
+    // enable output drivers 
+    *((unsigned *)(base + OEN_2))  = 0x01FE01FE;
 
- \pre ngpio must be initialized first
- \return 
-   0: everything ok.
-   ....: failed to open gpio structures */
-static int  setup_gpio_access()
-{
-    int fd, i;   
-    char buf[50]; 
-    
-    // allocate space for file descriptors
-    gpio_fd_map = hal_malloc(ngpio * sizeof(int));
-// \todo controlli su allocazione memoria
-
-    // export gpios
-    if( ( fd = open("/sys/class/gpio/export", O_WRONLY|O_SYNC) ) >= 0 ) {  
-        for( i = 0 ; i < ngpio; i++ ) { 
-            // check if IO in exclusion list
-            if ( 1 == (exclude_map & RTAPI_BIT(i)) ) {
-                continue;
-            }
-            // if out of exclusion list export the pin
-            sprintf(buf, "%d", gpio_list[i]);       
-            if ( write(fd, buf, strlen(buf) ) != strlen(buf) ) {
-                rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_GPIO: can't write %d to /sys/class/gpio/export", gpio_list[i]);
-                return -EPERM;   
-            }
-        }
-        // close exports
-        close(fd);
-    }
-    else {
-        // unable to open gpio/export
-        rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_GPIO: can't open /sys/class/gpio/export \n");
-        return -EPERM;
-    }
-
-    // setup IO directions   
-    for( i = 0 ; i < ngpio; i++ ) { 
-        // check if IO in exclusion list
-        if ( 0 != (exclude_map & RTAPI_BIT(i)) ) {
-            continue;
-        }
-
-        // open the gpio direction files to set IO direction
-        sprintf(buf, "/sys/class/gpio/gpio%d/direction", gpio_list[i]);
-        fd = open(buf, O_WRONLY|O_SYNC);
-        if ( fd < 0 ) {
-            rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_GPIO: can't open /sys/class/gpio/gpio%d/direction", gpio_list[i]);
-            return -EPERM;
-        }
-        // setup pin direction
-        if ( 0 != (dir_map & RTAPI_BIT(i)) ) {
-            // out direction
-            if( write(fd, "out", 4) !=4 ) {
-                rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_GPIO: can't write 'out' to /sys/class/gpio/gpio%d/direction", gpio_list[i]);
-                return -EPERM;
-            } 
-            rtapi_print_msg(RTAPI_MSG_DBG,"HAL_ZED_GPIO: written 'out' to /sys/class/gpio/gpio%d/direction", gpio_list[i]);
-        } 
-        else {
-            // Set in direction
-            if( write(fd, "in", 3) != 3 ) {
-                rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_GPIO: can't write 'in' to /sys/class/gpio/gpio%d/direction", gpio_list[i]);
-                return -EPERM;
-            } 
-            rtapi_print_msg(RTAPI_MSG_DBG,"HAL_ZED_GPIO: written 'in' to /sys/class/gpio/gpio%d/direction", gpio_list[i]);
-        }
-        // close directions
-        close(fd);
-
-        // check pin direction
-        if ( 0 != (dir_map & RTAPI_BIT(i)) ) {
-            // outputs, files can be open once and left open
-            // prepare name of file to open for gpio
-            sprintf(buf, "/sys/class/gpio/gpio%d/value", gpio_list[i]);
-            // open as optput 
-            gpio_fd_map[i] = open(buf, O_WRONLY|O_SYNC);
-            if ( gpio_fd_map[i] < 0 ) {
-                rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_GPIO: can't open /sys/class/gpio/gpio%d/value", gpio_list[i]);
-                return -EPERM;
-            }
-        }
-        // else: for inputs the file must be opne and closed each access in read_port() 
-    }
-    return 0;
+    // enable update outputs 
+    *((unsigned *)(base + MASK_DATA_2_LSW)) = 0x0;
+    *((unsigned *)(base + MASK_DATA_2_MSW)) = 0x0;
 }
 
 /**
@@ -326,7 +289,7 @@ static int zynq_revision()
   
     if (!f) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: can't open %s: %d - %s\n",
-          path, errno, strerror(errno));
+        path, errno, strerror(errno));
         return -1;
     }
   
@@ -334,8 +297,8 @@ static int zynq_revision()
         if (!strncmp(line, rev_line, strlen(rev_line))) {
             s = strchr(line, ':');
             if (s && 1 == sscanf(s, ":%d", &rev)) {
-            fclose(f);
-            return rev;
+                fclose(f);
+                return rev;
             }
         }
     }
@@ -364,7 +327,6 @@ int rtapi_app_main(void)
     // save messaging level 
     static int msg_level;
     int n, retval = 0;
-    char *endptr;
     
     // save message level on entering 
     msg_level = rtapi_get_msg_level();
@@ -393,92 +355,68 @@ int rtapi_app_main(void)
     switch (rev) {
         case 01:
             rtapi_print_msg(RTAPI_MSG_INFO, "HAL_ZED_GPIO: Zedboard FPGA Revision 01\n");
-            gpios = gpio_list;
-            ngpio = sizeof(gpio_list);
+            ngpi = 7;
+            ngpo = 8;
         break;
 
         default:
-        rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: FPGA revision %d not (yet) supported\n", rev);
-        return -1;
+            rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: FPGA revision %d not (yet) supported\n", rev);
+            return -1;
         break;
     }
- 
-    // allocate space for port data
-    port_data = hal_malloc(ngpio * sizeof(void *));
-    if ( 0 == port_data ) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: hal_malloc() failed\n");
-    hal_exit(comp_id);
-    return -1;
+
+    // Open /dev/mem file
+    fd = open ("/dev/mem", O_RDWR);
+    if (fd < 1) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: Unable to open /dev/mem. Quitting.\n");
+        return -1;
     }
 
-    // check direction configuration
-    if ( 0 == dir_list ) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: no config string\n");
-    return -1;
-    }
-    
-    // pin direction
-    dir_map = strtoul(dir_list, &endptr,0);
-    if (*endptr) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: dir=%s - trailing garbage: '%s'\n",
-          dir_list, endptr);
-    return -1;
+    // mmap the device into memory 
+    {
+        unsigned page_addr, page_offset;
+        unsigned page_size=sysconf(_SC_PAGESIZE);
+
+        page_addr = (GPIO_BASE & (~(page_size-1)));
+        page_offset = GPIO_BASE - page_addr;
+        if (0 != page_offset){
+            rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: Pheripheral not aligned to page start! \n");
+            return -1;
+        }
+
+        base = mmap(NULL, page_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, page_addr);
     }
 
-    // check exclude list
-    if ( 0 == exclude_list ) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: no exclude string\n");
-    return -1;
-    }
-
-    // decode exclude list checking string format
-    exclude_map = strtoul(exclude_list, &endptr,0);
-    if (*endptr) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: exclude=%s - trailing garbage: '%s'\n",
-          exclude_list, endptr);
-    return -1;
+    // allocate space for IO port data
+    iport_data = hal_malloc(ngpi * sizeof(void *));
+    oport_data = hal_malloc(ngpo * sizeof(void *));
+    if (( 0 == iport_data ) || ( 0 == iport_data )){
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: hal_malloc() failed\n");
+        return -1;
     }
 
     // export and configure gpios
-    if ( 0 != setup_gpio_access() ) {
-      return -1;
-    }
+    setup_gpio_access();
 
     // try to init the component
     comp_id = hal_init("hal_zed_gpio");
     if (comp_id < 0) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: hal_init() failed\n");
-    return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: hal_init() failed\n");
+        return -1;
     }
 
-    // make available all gpios in hal eccept those in the exclude list
-    for (n = 0; n < ngpio; n++) {
-        if (exclude_map & RTAPI_BIT(n)) {
-            continue;
-        }
-        
-        if ( 0 != (dir_map & RTAPI_BIT(n)) ) {
-            // phisical output pin component have an input pin! yes, it's counterintuitive but correct. 
-        if ( (retval = hal_pin_bit_newf(HAL_IN, &port_data[n], comp_id, "hal_zed_gpio.pin-%02d-out", n) ) < 0) {
+    // make available all gpios in hal
+    for (n = 0; n < ngpo; n++) {
+        if ( (retval = hal_pin_bit_newf(HAL_IN, &oport_data[n], comp_id, "hal_zed_gpio.pin-%02d-out", n) ) < 0) {
             break;
-            } 
-        } 
-        else {
-            // same as above, input pins have output pins! he, he, he kindafunny.
-        if ( (retval = hal_pin_bit_newf(HAL_OUT, &port_data[n], comp_id, "hal_zed_gpio.pin-%02d-in", n) ) < 0) {
-            break;
-            }
         }
     }
-    
-    // allocate space for debug data
-    dbg = hal_malloc(sizeof(hal_u32_t));
-    // instantiate a debug port 
-    n = hal_param_u32_newf(HAL_RW, dbg, comp_id, "hal_zed_gpio.debug-io");
-    if(n != 0) return n;
-    *dbg=0xCACA;
-
-    // check for failed pin mapping
+    for (n = 0; n < ngpi; n++) {
+        if ( (retval = hal_pin_bit_newf(HAL_OUT, &iport_data[n], comp_id, "hal_zed_gpio.pin-%02d-in", n) ) < 0) {
+            break;
+        }
+    }
+    // check for failed gpio pin mapping
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: pin %d export failed with err=%i\n", n,retval);
         hal_exit(comp_id);
@@ -489,14 +427,14 @@ int rtapi_app_main(void)
     retval = hal_export_funct("hal_zed_gpio.write", write_port, 0, 0, 0, comp_id);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: write funct export failed\n");
-    hal_exit(comp_id);
-    return -1;
+        hal_exit(comp_id);
+        return -1;
     }
     retval = hal_export_funct("hal_zed_gpio.read", read_port, 0, 0, 0, comp_id);
     if (retval < 0) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: read funct export failed\n");
-    hal_exit(comp_id);
-    return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_GPIO: ERROR: read funct export failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
 
     // all operations succeded
@@ -510,39 +448,12 @@ int rtapi_app_main(void)
 }
 
 /** 
- \brief Exit component closing all gpio file descriptors 
+ \brief Exit component 
  \pre ngpio must be initialized */
 void rtapi_app_exit(void)
-{
-    int i, fd;
-    char buf[50];
-    
-    // close gpio output files
-    for( i = 0 ; i < ngpio; i++ ) { 
-    /// \todo only outputs files have to be closed, inputs are opened and closed each time
-        close(gpio_fd_map[i]);
-    }
-
-    // unexport gpios
-    if( ( fd = open("/sys/class/gpio/unexport", O_WRONLY|O_SYNC) ) >= 0 ) {  
-        for( i = 0 ; i < ngpio; i++ ) { 
-            // check if IO in exclusion list
-            if ( 0 != (exclude_map & RTAPI_BIT(i)) ) {
-                continue;
-            }
-            // if out of exclusion list unexport the pin
-            sprintf(buf, "%d", gpio_list[i]);       
-            if ( write(fd, buf, strlen(buf)) != strlen(buf) ) {
-                rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_GPIO: can't write %d to /sys/class/gpio/unexport", gpio_list[i]);
-            } 
-        }           
-        // close unexports
-        close(fd);
-    }
-    else {
-        // unable to open gpio/unexport
-        rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_GPIO: can't open /sys/class/gpio/unexport \n");
-    }
+{    
+    //close /dev/mem
+    close(fd);
 
     // notify clean termination
     rtapi_print_msg(RTAPI_MSG_INFO, "HAL_ZED_GPIO: component terminated successfully \n");
@@ -550,3 +461,214 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
+/**
+int main(int argc, char *argv[])
+{
+    int fd, nchar=0;
+    unsigned gpio_addr = 0;
+    int value = 0;
+    unsigned page_addr, page_offset;
+    unsigned page_size=sysconf(_SC_PAGESIZE);
+
+    printf("GPIO access through /dev/mem.\n");
+    
+    // Open /dev/mem file
+    fd = open ("/dev/mem", O_RDWR);
+    if (fd < 1) {
+        printf("Unable to open /dev/mem. Quitting.\n");
+        return -1;
+    }
+
+    // base address of the gpio peripheral
+    gpio_addr=GPIO_BASE;
+    // mmap the device into memory 
+    page_addr = (gpio_addr & (~(page_size-1)));
+    page_offset = gpio_addr - page_addr;
+
+    printf("Page size   %x\n", page_size);
+    printf("GPIO addr   %x\n", gpio_addr);
+    printf("Page addr   %x\n", page_addr);
+    printf("Page offset %x\n", page_offset);
+
+    base = mmap(NULL, page_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, page_addr);
+
+    // set DATA_2 as 8 outputs J8 + 8 out LED
+    *((unsigned *)(base + DIRM_2)) = 0x01FE01FE;
+    // enable output drivers 
+    *((unsigned *)(base + OEN_2))  = 0x01FE01FE;
+
+    // enable update outputs 
+    *((unsigned *)(base + MASK_DATA_2_LSW)) = 0x0;
+    *((unsigned *)(base + MASK_DATA_2_MSW)) = 0x0;
+
+    while(nchar == 0) {
+        value = *((unsigned *)(base + DATA_2_RO));
+
+        // mask enc A-B
+        value=value & 0x18000000;
+        switch(value){
+            case 0x00000000:   
+                *((unsigned *)(base + DATA_2)) = 6;
+            break;
+            case 0x08000000:   
+                *((unsigned *)(base + DATA_2)) = 2;
+            break;
+            case 0x18000000:   
+                *((unsigned *)(base + DATA_2)) = 0;
+            break;
+            case 0x10000000:   
+                *((unsigned *)(base + DATA_2)) = 4;
+            break;
+        }
+    }
+
+    munmap(base, page_size);
+
+    return 0;
+}
+*/
+/* 
+int main(int argc, char *argv[])
+{
+    int fd, nchar=0;
+    unsigned gpio_addr = 0;
+    int value = 0;
+    unsigned page_addr, page_offset;
+    void *base;
+    unsigned page_size=sysconf(_SC_PAGESIZE);
+
+    printf("GPIO access through /dev/mem.\n");
+    
+    // Open /dev/mem file
+    fd = open ("/dev/mem", O_RDWR);
+    if (fd < 1) {
+        printf("Unable to open /dev/mem. Quitting.\n");
+        return -1;
+    }
+
+    // base address of the gpio peripheral
+    gpio_addr=GPIO_BASE+DATA_2_RO;
+
+    // mmap the device into memory 
+    page_addr = (gpio_addr & (~(page_size-1)));
+    page_offset = gpio_addr - page_addr;
+
+    printf("Page size   %x\n", page_size);
+    printf("GPIO addr   %x\n", gpio_addr);
+    printf("Page addr   %x\n", page_addr);
+    printf("Page offset %x\n", page_offset);
+
+    base = mmap(NULL, page_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, page_addr);
+    
+    // set DATA_1 as 8 outputs 
+    *((unsigned *)(base + DIRM_2)) = 0x1FE;
+    // enable output drivers 
+    *((unsigned *)(base + OEN_2)) = 0x1FE;
+
+    // enable update outputs 
+    *((unsigned *)(base + MASK_DATA_2_LSW)) = 0x0;
+    *((unsigned *)(base + MASK_DATA_2_MSW)) = 0x0;
+
+    while(nchar == 0) {
+        nchar = _kbhit();
+
+        value = *((unsigned *)(base + DATA_2_RO));
+
+        // mask enc A-B
+        value=value & 0x18000000;
+        switch(value){
+            case 0x00000000:   
+                *((unsigned *)(base + DATA_2)) = 6;
+            break;
+            case 0x08000000:   
+                *((unsigned *)(base + DATA_2)) = 2;
+            break;
+            case 0x18000000:   
+                *((unsigned *)(base + DATA_2)) = 0;
+            break;
+            case 0x10000000:   
+                *((unsigned *)(base + DATA_2)) = 4;
+            break;
+        }
+    }
+
+    munmap(base, page_size);
+
+    return 0;
+}
+*/
+
+/*
+int main(int argc, char *argv[])
+{
+    int fd, nchar=0;
+    unsigned gpio_addr = 0;
+    int value = 0;
+    unsigned page_addr, page_offset;
+    void *base;
+    unsigned page_size=sysconf(_SC_PAGESIZE);
+
+    printf("GPIO access through /dev/mem.\n");
+    
+    // Open /dev/mem file
+    fd = open ("/dev/mem", O_RDWR);
+    if (fd < 1) {
+        printf("Unable to open /dev/mem. Quitting.\n");
+        return -1;
+    }
+
+    // base address of the gpio peripheral
+    gpio_addr=GPIO_BASE+DATA_2_RO;
+
+    // mmap the device into memory 
+    page_addr = (gpio_addr & (~(page_size-1)));
+    page_offset = gpio_addr - page_addr;
+
+    printf("Page size   %x\n", page_size);
+    printf("GPIO addr   %x\n", gpio_addr);
+    printf("Page addr   %x\n", page_addr);
+    printf("Page offset %x\n", page_offset);
+
+    base = mmap(NULL, page_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, page_addr);
+    
+    // set DATA_1 as 8 outputs 
+    *((unsigned *)(base + DIRM_2)) = 0x1FE;
+    // enable output drivers 
+    *((unsigned *)(base + OEN_2)) = 0x1FE;
+
+    // enable update outputs 
+    *((unsigned *)(base + MASK_DATA_0_LSW)) = 0x0;
+    *((unsigned *)(base + MASK_DATA_0_MSW)) = 0x0;
+    *((unsigned *)(base + MASK_DATA_1_LSW)) = 0x0;
+    *((unsigned *)(base + MASK_DATA_1_MSW)) = 0x0;
+    *((unsigned *)(base + MASK_DATA_2_LSW)) = 0x0;
+    *((unsigned *)(base + MASK_DATA_2_MSW)) = 0x0;
+
+    // cursor off
+    printf("\e[?25l");
+
+    while(nchar == 0) 
+    {
+        value = *((unsigned *)(base + DATA_2_RO));
+        printf("%08x",value);
+        nchar = _kbhit();
+
+        if(0 == (value & 0x02000000) ) {
+            printf("  \r");
+            // Write to LED
+            *((unsigned *)(base + DATA_2)) = 0;
+        } else {
+            printf(" F\r");
+            // Write to LED
+            *((unsigned *)(base + DATA_2)) = 0x1FE;
+        }
+    }
+
+    // cursor on");
+    printf("\e[?25h");
+        
+    munmap(base, page_size);
+
+    return 0;
+}
+*/
