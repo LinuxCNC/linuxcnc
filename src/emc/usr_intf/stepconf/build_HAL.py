@@ -387,7 +387,7 @@ class HAL:
 #******************
 
     def connect_axis(self, file, num, let):
-        axnum = "xyzabcuvx".index(let)
+        axnum = "xyzabcuvw".index(let)
         lat = self.d.latency
         print >>file
         print >>file, "setp stepgen.%d.position-scale [AXIS_%d]SCALE" % (num, axnum)
