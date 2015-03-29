@@ -870,10 +870,23 @@ class StepconfApp:
     def has_spindle_speed_control(self):
         d = self.d
         SIG = self._p
-        return SIG.PWM in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6, d.pin7,
+        pp1_check = SIG.PWM in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6, d.pin7,
             d.pin8, d.pin9, d.pin14, d.pin16, d.pin17) or \
                 SIG.PPR in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15) or \
-                SIG.PHA in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15) \
+                SIG.PHA in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15)
+        if pp1_check is True: return True
+        # now check port 2, which can be set to 'in' or 'out' mode: so can have
+        # other pins number to check then pp1
+        # output pins:
+        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
+            p = 'pp2_pin%d' % pin
+            if d[p] == SIG.PWM: return True
+        # input pins
+        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p = 'pp2_pin%d_in' % pin
+            if d[p] in (SIG.PPR, SIG.PHA): return True
+        # if we get to here - there are no spindle control signals
+        return False
 
     # for Axis page calculation updates
     def update_pps(self, axis):
