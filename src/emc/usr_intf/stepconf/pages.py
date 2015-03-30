@@ -671,7 +671,7 @@ class Pages:
         self.w['spindlefiltergain'].set_value(self.d.spindlefiltergain)
         self.w['usespindleatspeed'].set_active(self.d.usespindleatspeed)
 
-        if SIG.PHA in (self.d.pin10, self.d.pin11, self.d.pin12, self.d.pin13, self.d.pin15):
+        if self.a.has_spindle_encoder():
             self.w.spindlecpr.set_sensitive(1)
             self.w.spindlefiltergain.show()
             self.w.spindlefiltergainlabel.show()
