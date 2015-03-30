@@ -437,6 +437,7 @@ extern int emcTrajEnable();
 extern int emcTrajDisable();
 extern int emcTrajAbort();
 extern int emcTrajPause();
+extern int emcTrajReverse();
 extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
