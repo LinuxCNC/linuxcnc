@@ -107,6 +107,7 @@ extern "C" {
 	EMCMOT_DISABLE,		/* disable servos for active joints */
 
 	EMCMOT_PAUSE,		/* pause motion */
+	EMCMOT_REVERSE,		/* run reverse motion */
 	EMCMOT_RESUME,		/* resume motion */
 	EMCMOT_STEP,		/* resume motion until id encountered */
 	EMCMOT_FREE,		/* set mode to free (joint) motion */
