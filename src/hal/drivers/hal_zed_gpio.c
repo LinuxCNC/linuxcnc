@@ -52,9 +52,6 @@
  \return
 */
 
-#define IN 0
-#define OUT 1
-
 /**
 \brief Zynq gpio peripheral register mapping from ug585-Zynq-7000-TRM.pdf 
 */
@@ -172,21 +169,8 @@ INT_TYPE is set to level sensitive.
 #define INT_ANY_3           0x000002E4
 
 #include <unistd.h>
-#include <termios.h>
-#include <stropts.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <fcntl.h>
-
-#include <sys/select.h>
-#include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/select.h>
-#include <sys/ioctl.h>
-
 #include "rtapi.h"
 #include "rtapi_bitops.h"
 #include "rtapi_app.h"
@@ -448,8 +432,7 @@ int rtapi_app_main(void)
 }
 
 /** 
- \brief Exit component 
- \pre ngpio must be initialized */
+ \brief Exit component */
 void rtapi_app_exit(void)
 {    
     //close /dev/mem
@@ -461,214 +444,4 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
-/**
-int main(int argc, char *argv[])
-{
-    int fd, nchar=0;
-    unsigned gpio_addr = 0;
-    int value = 0;
-    unsigned page_addr, page_offset;
-    unsigned page_size=sysconf(_SC_PAGESIZE);
 
-    printf("GPIO access through /dev/mem.\n");
-    
-    // Open /dev/mem file
-    fd = open ("/dev/mem", O_RDWR);
-    if (fd < 1) {
-        printf("Unable to open /dev/mem. Quitting.\n");
-        return -1;
-    }
-
-    // base address of the gpio peripheral
-    gpio_addr=GPIO_BASE;
-    // mmap the device into memory 
-    page_addr = (gpio_addr & (~(page_size-1)));
-    page_offset = gpio_addr - page_addr;
-
-    printf("Page size   %x\n", page_size);
-    printf("GPIO addr   %x\n", gpio_addr);
-    printf("Page addr   %x\n", page_addr);
-    printf("Page offset %x\n", page_offset);
-
-    base = mmap(NULL, page_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, page_addr);
-
-    // set DATA_2 as 8 outputs J8 + 8 out LED
-    *((unsigned *)(base + DIRM_2)) = 0x01FE01FE;
-    // enable output drivers 
-    *((unsigned *)(base + OEN_2))  = 0x01FE01FE;
-
-    // enable update outputs 
-    *((unsigned *)(base + MASK_DATA_2_LSW)) = 0x0;
-    *((unsigned *)(base + MASK_DATA_2_MSW)) = 0x0;
-
-    while(nchar == 0) {
-        value = *((unsigned *)(base + DATA_2_RO));
-
-        // mask enc A-B
-        value=value & 0x18000000;
-        switch(value){
-            case 0x00000000:   
-                *((unsigned *)(base + DATA_2)) = 6;
-            break;
-            case 0x08000000:   
-                *((unsigned *)(base + DATA_2)) = 2;
-            break;
-            case 0x18000000:   
-                *((unsigned *)(base + DATA_2)) = 0;
-            break;
-            case 0x10000000:   
-                *((unsigned *)(base + DATA_2)) = 4;
-            break;
-        }
-    }
-
-    munmap(base, page_size);
-
-    return 0;
-}
-*/
-/* 
-int main(int argc, char *argv[])
-{
-    int fd, nchar=0;
-    unsigned gpio_addr = 0;
-    int value = 0;
-    unsigned page_addr, page_offset;
-    void *base;
-    unsigned page_size=sysconf(_SC_PAGESIZE);
-
-    printf("GPIO access through /dev/mem.\n");
-    
-    // Open /dev/mem file
-    fd = open ("/dev/mem", O_RDWR);
-    if (fd < 1) {
-        printf("Unable to open /dev/mem. Quitting.\n");
-        return -1;
-    }
-
-    // base address of the gpio peripheral
-    gpio_addr=GPIO_BASE+DATA_2_RO;
-
-    // mmap the device into memory 
-    page_addr = (gpio_addr & (~(page_size-1)));
-    page_offset = gpio_addr - page_addr;
-
-    printf("Page size   %x\n", page_size);
-    printf("GPIO addr   %x\n", gpio_addr);
-    printf("Page addr   %x\n", page_addr);
-    printf("Page offset %x\n", page_offset);
-
-    base = mmap(NULL, page_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, page_addr);
-    
-    // set DATA_1 as 8 outputs 
-    *((unsigned *)(base + DIRM_2)) = 0x1FE;
-    // enable output drivers 
-    *((unsigned *)(base + OEN_2)) = 0x1FE;
-
-    // enable update outputs 
-    *((unsigned *)(base + MASK_DATA_2_LSW)) = 0x0;
-    *((unsigned *)(base + MASK_DATA_2_MSW)) = 0x0;
-
-    while(nchar == 0) {
-        nchar = _kbhit();
-
-        value = *((unsigned *)(base + DATA_2_RO));
-
-        // mask enc A-B
-        value=value & 0x18000000;
-        switch(value){
-            case 0x00000000:   
-                *((unsigned *)(base + DATA_2)) = 6;
-            break;
-            case 0x08000000:   
-                *((unsigned *)(base + DATA_2)) = 2;
-            break;
-            case 0x18000000:   
-                *((unsigned *)(base + DATA_2)) = 0;
-            break;
-            case 0x10000000:   
-                *((unsigned *)(base + DATA_2)) = 4;
-            break;
-        }
-    }
-
-    munmap(base, page_size);
-
-    return 0;
-}
-*/
-
-/*
-int main(int argc, char *argv[])
-{
-    int fd, nchar=0;
-    unsigned gpio_addr = 0;
-    int value = 0;
-    unsigned page_addr, page_offset;
-    void *base;
-    unsigned page_size=sysconf(_SC_PAGESIZE);
-
-    printf("GPIO access through /dev/mem.\n");
-    
-    // Open /dev/mem file
-    fd = open ("/dev/mem", O_RDWR);
-    if (fd < 1) {
-        printf("Unable to open /dev/mem. Quitting.\n");
-        return -1;
-    }
-
-    // base address of the gpio peripheral
-    gpio_addr=GPIO_BASE+DATA_2_RO;
-
-    // mmap the device into memory 
-    page_addr = (gpio_addr & (~(page_size-1)));
-    page_offset = gpio_addr - page_addr;
-
-    printf("Page size   %x\n", page_size);
-    printf("GPIO addr   %x\n", gpio_addr);
-    printf("Page addr   %x\n", page_addr);
-    printf("Page offset %x\n", page_offset);
-
-    base = mmap(NULL, page_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, page_addr);
-    
-    // set DATA_1 as 8 outputs 
-    *((unsigned *)(base + DIRM_2)) = 0x1FE;
-    // enable output drivers 
-    *((unsigned *)(base + OEN_2)) = 0x1FE;
-
-    // enable update outputs 
-    *((unsigned *)(base + MASK_DATA_0_LSW)) = 0x0;
-    *((unsigned *)(base + MASK_DATA_0_MSW)) = 0x0;
-    *((unsigned *)(base + MASK_DATA_1_LSW)) = 0x0;
-    *((unsigned *)(base + MASK_DATA_1_MSW)) = 0x0;
-    *((unsigned *)(base + MASK_DATA_2_LSW)) = 0x0;
-    *((unsigned *)(base + MASK_DATA_2_MSW)) = 0x0;
-
-    // cursor off
-    printf("\e[?25l");
-
-    while(nchar == 0) 
-    {
-        value = *((unsigned *)(base + DATA_2_RO));
-        printf("%08x",value);
-        nchar = _kbhit();
-
-        if(0 == (value & 0x02000000) ) {
-            printf("  \r");
-            // Write to LED
-            *((unsigned *)(base + DATA_2)) = 0;
-        } else {
-            printf(" F\r");
-            // Write to LED
-            *((unsigned *)(base + DATA_2)) = 0x1FE;
-        }
-    }
-
-    // cursor on");
-    printf("\e[?25h");
-        
-    munmap(base, page_size);
-
-    return 0;
-}
-*/
