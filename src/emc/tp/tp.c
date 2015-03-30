@@ -2011,6 +2011,7 @@ STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_de
         }
     } else {
         double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
+        // Account for reverse run (flip sign if need be)
         double disp_sign = reverse_run ? -1 : 1;
         tc->progress += (disp_sign * displacement);
 
@@ -2073,7 +2074,7 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
 #endif
 
     /* Calculations for desired velocity based on trapezoidal profile */
-    double dx = tc->target - tc->progress;
+    double dx = tcGetDistanceToGo(tc, tp->reverse_run);
     double maxaccel = tpGetScaledAccel(tp, tc);
 
     double discr_term1 = pmSq(tc_finalvel);
@@ -2123,7 +2124,7 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
 {
     tc_debug_print("using ramped acceleration\n");
     // displacement remaining in this segment
-    double dx = tc->target - tc->progress;
+    double dx = tcGetDistanceToGo(tc, tp->reverse_run);
 
     if (!tc->blending_next) {
         tc->vel_at_blend_start = tc->currentvel;
@@ -2841,14 +2842,14 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
     tc->cycle_time = tp->cycleTime;
 
     //Initial guess at dt for next round
-    double dx = tc->target - tc->progress;
+    double dx = tcGetDistanceToGo(tc, tp->reverse_run);
     tc_debug_print("tpCheckEndCondition: dx = %e\n",dx);
 
     if (dx <= TP_POS_EPSILON) {
         //If the segment is close to the target position, then we assume that it's done.
         tp_debug_print("close to target, dx = %.12f\n",dx);
         //Force progress to land exactly on the target to prevent numerical errors.
-        tc->progress = tc->target;
+        tc->progress = tcGetTarget(tc, tp->reverse_run);
         tcSetSplitCycle(tc, 0.0, tc->currentvel);
         if (tc->term_cond == TC_TERM_COND_STOP || tc->term_cond == TC_TERM_COND_EXACT) {
             tc->remove = 1;
@@ -2924,7 +2925,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
     if (dt < TP_TIME_EPSILON) {
         //Close enough, call it done
         tc_debug_print("revised dt small, finishing tc\n");
-        tc->progress = tc->target;
+        tc->progress = tcGetTarget(tc, tp->reverse_run);
         tcSetSplitCycle(tc, 0.0, v_f);
     } else if (dt < tp->cycleTime ) {
         tc_debug_print(" corrected v_f = %f, a = %f\n", v_f, a);
