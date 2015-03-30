@@ -948,6 +948,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_SYNCH_TYPE:
@@ -1030,7 +1031,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
 		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 		case EMC_SPINDLE_SPEED_TYPE:
 		case EMC_SPINDLE_ORIENT_TYPE:
@@ -1056,6 +1057,7 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_RUN_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1134,6 +1136,7 @@ static int emcTaskPlan(void)
 		case EMC_SPINDLE_DECREASE_TYPE:
 		case EMC_SPINDLE_CONSTANT_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1289,6 +1292,7 @@ static int emcTaskPlan(void)
 		case EMC_SPINDLE_CONSTANT_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1382,6 +1386,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
@@ -2268,6 +2273,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
 	    emcStatus->task.task_paused = 1;
 	}
+	retval = 0;
+	break;
+
+    case EMC_TASK_PLAN_REVERSE_TYPE:
+	emcTrajReverse();
 	retval = 0;
 	break;
 
