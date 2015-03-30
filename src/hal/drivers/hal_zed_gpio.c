@@ -219,7 +219,7 @@ static void write_port(void *arg, long period)
     for (n = 0; n < ngpo; n++) {
         if (0 == *(oport_data[n])) { 
             RTAPI_BIT_CLEAR(RDATA_2, n+17);
-        } 
+        }
         else {
             RTAPI_BIT_SET(RDATA_2, n+17);
         }
