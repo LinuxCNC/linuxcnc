@@ -115,6 +115,7 @@ extern "C" {
 	EMCMOT_DEACTIVATE_JOINT,	/* make joint inactive */
 
 	EMCMOT_PAUSE,		/* pause motion */
+	EMCMOT_REVERSE,		/* run reverse motion */
 	EMCMOT_RESUME,		/* resume motion */
 	EMCMOT_STEP,		/* resume motion until id encountered */
 	EMCMOT_FREE,		/* set mode to free (joint) motion */
