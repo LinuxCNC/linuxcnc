@@ -440,7 +440,7 @@ class Pages:
             p = 'pin%dinv' % pin
             self.d[p] = self.w[p].get_active()
         self.d.ioaddr = self.w.ioaddr.get_text()
-        self.page_set_state('spindle',self.a.has_spindle_speed_control())
+        self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
 
     # pport1 callbacks
     def on_exclusive_check_pp1(self, widget):
@@ -495,7 +495,7 @@ class Pages:
             self.d[p] = self.w[p].get_active()
         self.d.pp2_direction = self.w.pp2_direction.get_active()
         self.d.ioaddr2 = self.w.ioaddr2.get_text()
-        self.page_set_state('spindle',self.a.has_spindle_speed_control())
+        self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
 
     # pport2 callbacks:
     def on_pp2_direction_changed(self,widget):
@@ -713,19 +713,23 @@ class Pages:
         self.w['usespindleatspeed'].set_active(self.d.usespindleatspeed)
 
         if self.a.has_spindle_encoder():
-            self.w.spindlecpr.set_sensitive(1)
+            self.w.spindlecpr.show()
+            self.w.spindlecprlabel.show()
             self.w.spindlefiltergain.show()
             self.w.spindlefiltergainlabel.show()
             self.w.spindlenearscale.show()
             self.w.usespindleatspeed.show()
             self.w.spindlenearscaleunitlabel.show()
         else:
-            self.w.spindlecpr.set_sensitive(0)
+            self.w.spindlecpr.hide()
+            self.w.spindlecprlabel.hide()
             self.w.spindlefiltergain.hide()
             self.w.spindlefiltergainlabel.hide()
             self.w.spindlenearscale.hide()
             self.w.usespindleatspeed.hide()
             self.w.spindlenearscaleunitlabel.hide()
+
+        self.w.output.set_sensitive(self.a.has_spindle_speed_control())
 
     def spindle_finish(self):
         self.d.spindlecarrier = float(self.w.spindlecarrier.get_text())

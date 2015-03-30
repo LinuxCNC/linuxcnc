@@ -957,9 +957,6 @@ class StepconfApp:
             p = 'pp2_pin%d' % pin
             if d[p] == SIG.PWM: return True
 
-        # check for encoder signals (in either pp1 or pp2)
-        if self.has_spindle_encoder() is True: return True
-
         # if we get to here - there are no spindle control signals
         return False
 
