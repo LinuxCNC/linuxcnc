@@ -468,7 +468,6 @@ clean: depclean modclean
 	-rm -rf objects
 	-rm -f $(TARGETS)
 	-rm -f $(GENERATED_MANPAGES)
-	-rm -f $(COPY_CONFIGS)
 	-rm -f ../rtlib/*.$(MODULE_EXT)
 	-rm -f hal/components/conv_*.comp
 
@@ -597,6 +596,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/latency-histogram $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/moveoff_gui $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/hal-histogram $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/xhc-hb04-accels $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/pyvcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/gladevcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)

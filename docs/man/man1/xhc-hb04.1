@@ -3,9 +3,9 @@
 xhc-hb04 \- User-space HAL component for the xhc-hb04 pendant.
 
 .SH DESCRIPTION
-xhc-hb04 is a userspace HAL component that supports a common
-USB pendant that provides a number of pushbuttons, a manual pulse
-generator (jog wheel), and a selector switch for the wheel.
+The xhc-hb04 component supports a common USB pendant that provides a
+number of pushbuttons, a manual pulse generator (mpg or jog wheel),
+and a selector switch for the wheel.
 .PP
 There are at least two hardware versions -- one with 16 buttons and
 a more common one with 18 buttons.  The information herein is based
@@ -26,7 +26,7 @@ a machine configured as XYZA, the pins can be assigned independently
 as required in a HAL configuration.
 
 .SH UDEV
-The xhc-hb04 program needs permission for reading the pendant's
+The xhc-hb04 executable needs permission for reading the pendant's
 USB device.  Debian package installs (debs) handle this automatically
 but Run-In-Place (RIP) builds may need a udev rules file.  This file
 should be created (using sudo and a text editor) as:
@@ -52,15 +52,15 @@ $ xhc-hb04 [options]
 
 .SH Options
 .TP
--h    list command line options and exit
+\fB-h\fR    list command line options and exit
 .TP
--I button-cfg-file (see below for file format)
+\fB-I button-cfg-file\fR (see below for file format)
 .TP
--H    run in real-time HAL mode (simulation mode is default)
+\fB-H\fR    run in real-time HAL mode (simulation mode is default)
 .TP
--x    wait for pendant detection before creating HAL pins.
+\fB-x\fR    wait for pendant detection before creating HAL pins.
 .TP
--s n  n is one of the following stepsize sequences
+\fB-s n\fR  n is one of the following stepsize sequences
 .PP
       1: 1,10,100,1000 (default)
       2: 1,5,10,20
@@ -116,7 +116,7 @@ in the xhc-hb04 (loadusr) command.
 stepsize to the next lower stepsize in the stepsize sequence specified
 in the xhc-hb04 (loadusr) command.
 
-.SH Input Pins (to the pendant Lcd display)
+.SH Input Pins (to the pendant LCD display)
 .TP
 (float in) \fIxhc-hb04.[xyza].pos-absolute\fR Absolule position display.
 (typically connect to: halui.axis.N.pos-feedback). The LCD display
@@ -150,6 +150,8 @@ order to display as percent, require: 0 <= pinvalue <= 655)
 and multiplied by 60 in order to display as RPMs,
 require: 0 <= pinvalue <= 1092 (65520 RPM) (typically connect to:
 motion.spindle-speed-out-rps-abs)
+.TP
+(bit in) \fIxhc-hb04.inch-icon\fR Use inch icon (default is mm)
 
 .SH Output Pins (Status)
 .TP
@@ -275,10 +277,12 @@ The settings available include:
   1) specify button-cfg-file for standard layout1 or layout2
   2) select axes (up to 4 axes from set of x y z a b c u v w)
   3) implement per-axis filtering coeficients
-  3) implement per-axis scale factors
-  4) select normal or velocity based jog modes
-  5) select stepsize sequence
-  6) option to require pendant on startup
+  4) implement per-axis acceleration for mpg jogging
+  5) implement per-axis scale settings
+  6) select normal or velocity based jog modes
+  7) select stepsize sequence
+  8) option to initialize pin for inch or mm display icon
+  9) option to require pendant on startup
 .PP
 The sim configs illustrate button connections that:
   1) connect pendant stepsize-up button to the step input pin.

@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "rtapi.h"
 #include "inihal.hh"
 
-static int debug=1;
+static int debug=0;
 static int comp_id;
 extern value_inihal_data old_inihal_data;
 

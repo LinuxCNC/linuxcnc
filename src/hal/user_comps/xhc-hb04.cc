@@ -60,6 +60,7 @@ typedef enum {
 #define NB_MAX_BUTTONS 32
 
 #define STEPSIZE_BYTE 35
+#define FLAGS_BYTE    36
 
 // the defines below were found for an 18 button device
 // bit 'or' patterns for STEPSIZE_BYTE
@@ -130,6 +131,7 @@ typedef struct {
 	hal_bit_t *sleeping;
 	hal_bit_t *connected;
 	hal_bit_t *require_pendant;
+	hal_bit_t *inch_icon;
 	hal_bit_t *zero_x;
 	hal_bit_t *zero_y;
 	hal_bit_t *zero_z;
@@ -251,6 +253,11 @@ void xhc_display_encode(xhc_t *xhc, unsigned char *data, int len)
 	default:   //stepsize not supported on the display:
 			   buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_0; break;
 	}
+
+    buf[FLAGS_BYTE] = 0;
+    if (*(xhc->hal->inch_icon)) {
+        buf[FLAGS_BYTE] |= 0x80;
+    }
 
 	// Multiplex to 6 USB transactions
 
@@ -635,6 +642,7 @@ static void hal_setup()
     r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->stepsize_down), hal_comp_id, "%s.stepsize-down", modname);
     r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->stepsize), hal_comp_id, "%s.stepsize", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->require_pendant), hal_comp_id, "%s.require_pendant", modname);
+    r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->inch_icon), hal_comp_id, "%s.inch-icon", modname);
 
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_off), hal_comp_id, "%s.jog.enable-off", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_x), hal_comp_id, "%s.jog.enable-x", modname);
