@@ -3075,7 +3075,8 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     // Run split cycle update with remaining time in nexttc
     // KLUDGE: use next cycle after nextc to prevent velocity dip (functions fail gracefully w/ NULL)
-    TC_STRUCT *next2tc = tcqItem(&tp->queue, 2);
+    int queue_dir_step = tp->reverse_run ? -1 : 1;
+    TC_STRUCT *next2tc = tcqItem(&tp->queue, queue_dir_step*2);
 
     tpUpdateCycle(tp, nexttc, next2tc);
 
