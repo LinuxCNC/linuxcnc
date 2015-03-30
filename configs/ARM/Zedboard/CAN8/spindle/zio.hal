@@ -85,14 +85,11 @@ setp updown.0.min                           0
 setp updown.0.wrap                          1
 
 # PWM out to the spindle
-# net encA 				    => hal_zed_gpio.pin-00-out 	    
-net PWM pwmgen.0.pwm			    => hal_zed_gpio.pin-00-out 	    
-
+net PWM pwmgen.0.pwm			            => hal_zed_gpio.pin-00-out 	    
 # max speed in RPM
-setp pwmgen.0.scale 			    24000 
-
+setp pwmgen.0.scale 			            24000
 net sp-speed-cmd motion.spindle-speed-out   => pwmgen.0.value
-net sp-on 	motion.spindle-on 	    => pwmgen.0.enable
+net sp-on 	motion.spindle-on 	            => pwmgen.0.enable
 
 
 
