@@ -3274,6 +3274,8 @@ int tpResume(TP_STRUCT * const tp)
         return TP_ERR_FAIL;
     }
     tp->pausing = 0;
+    //FIXME Is this call ignored with non-zero velocity? If so, it will cause a crash
+    tpSetRunDir(&emcmotDebug->tp, TC_DIR_FORWARD);
     return TP_ERR_OK;
 }
 
@@ -3357,6 +3359,19 @@ int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned cha
     else
         tp->syncdio.dios[index] = -1;
     return TP_ERR_OK;
+}
+
+int tpSetRunDir(TP_STRUCT * const tp, tc_direction_t dir)
+{
+    switch (dir) {
+        case TC_DIR_FORWARD:
+        case TC_DIR_REVERSE:
+            tp->reverse_run = dir;
+            return TP_ERR_OK;
+        default:
+            rtapi_print_msg(RTAPI_MSG_ERR,"Invalid direction flag in SetRunDir");
+            return TP_ERR_FAIL;
+    }
 }
 
 
