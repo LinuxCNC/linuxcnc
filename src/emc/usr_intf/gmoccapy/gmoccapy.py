@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "  1.5.3"
+_RELEASE = "  1.5.3.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1602,7 +1602,8 @@ class gmoccapy( object ):
         self.widgets.tbtn_on.set_image( self.widgets.img_machine_off )
         self.widgets.tbtn_on.set_sensitive( True )
         self.widgets.ntb_jog.set_sensitive( True )
-        self.widgets.hbox_jog.set_sensitive( False )
+        self.widgets.tbl_jog_btn.set_sensitive( False )
+        self.widgets.vbtb_jog_incr.set_sensitive( False )
         self.widgets.hbox_jog_vel.set_sensitive( False )
         self.widgets.chk_ignore_limits.set_sensitive( True )
         self._check_limits()
@@ -1611,7 +1612,7 @@ class gmoccapy( object ):
         if self.log: self._add_alarm_entry( "State Off" )
         self._add_alarm_entry( "state_off" )
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "hbox_jog_vel", "hbox_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_spindle_100", "scl_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
@@ -1833,7 +1834,7 @@ class gmoccapy( object ):
 
     def _update_widgets( self, state ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
-                      "hbox_jog_vel", "hbox_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_spindle_100", "scl_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
