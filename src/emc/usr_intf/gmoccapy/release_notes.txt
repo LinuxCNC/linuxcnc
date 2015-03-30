@@ -1,3 +1,7 @@
+ver. 1.5.3.1
+- solved a bug in widget handling, not enabling the ignore limits checkbox,
+  being on a limit switch
+
 ver. 1.5.3
 - added a gscreen patch to search also in the user dir for themes
 
