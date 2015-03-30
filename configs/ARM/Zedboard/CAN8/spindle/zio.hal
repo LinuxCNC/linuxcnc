@@ -1,5 +1,5 @@
 #
-# Test Zedboard IO as encoder for jog movments
+# Test Zedboard IO for spindle speed control with encoder
 #
 
 # 1:1 correspondence between joints and axes.
@@ -18,6 +18,8 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 # hal_zed_gpio.pin-01-in select axis
 # hal_zed_gpio.pin-02-in A channel
 # hal_zed_gpio.pin-03-in B channel
+#
+# hal_zed_gpio.pin-01-out PWM
 #
 
 # loadrt hal_zed_gpio module
@@ -81,4 +83,16 @@ net jog-x axis.0.jog-enable                 <= select8.0.out0
 setp updown.0.max                           0
 setp updown.0.min                           0
 setp updown.0.wrap                          1
+
+# PWM out to the spindle
+# net encA 				    => hal_zed_gpio.pin-00-out 	    
+net PWM pwmgen.0.pwm			    => hal_zed_gpio.pin-00-out 	    
+
+# max speed in RPM
+setp pwmgen.0.scale 			    24000 
+
+net sp-speed-cmd motion.spindle-speed-out   => pwmgen.0.value
+net sp-on 	motion.spindle-on 	    => pwmgen.0.enable
+
+
 
