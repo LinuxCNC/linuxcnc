@@ -2521,6 +2521,7 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
     tc->remove = 0;
     tc->is_blending = 0;
     tc->splitting = 0;
+    tc->cycle_time = tp->cycleTime;
     //Velocities are by definition zero for a non-active segment
     tc->currentvel = 0.0;
     tc->term_vel = 0.0;
