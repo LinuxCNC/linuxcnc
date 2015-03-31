@@ -302,9 +302,9 @@ hal_bit_t emcmotGetRotaryIsUnlocked(int axis) {
   index is valid from 0 to num_dio <= EMCMOT_MAX_DIO, defined in emcmotcfg.h
   
 */
-void emcmotDioWrite(int index, hal_bit_t value)
+void emcmotDioWrite(unsigned int index, hal_bit_t value)
 {
-    if ((index >= num_dio) || (index < 0)) {
+    if (index >= num_dio) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_dio/EMCMOT_MAX_DIO=%d)\n", index,num_dio, EMCMOT_MAX_DIO);
     } else {
 	*(emcmot_hal_data->synch_do[index]) = value;
@@ -321,9 +321,9 @@ void emcmotDioWrite(int index, hal_bit_t value)
   RS274NGC doesn't support it now, only defined/used in emccanon.cc
   
 */
-void emcmotAioWrite(int index, hal_float_t value)
+void emcmotAioWrite(unsigned int index, hal_float_t value)
 {
-    if ((index >= num_aio) || (index < 0)) {
+    if (index >= num_aio) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_aio/EMCMOT_MAX_AIO=%d)\n", index, num_aio, EMCMOT_MAX_AIO);
     } else {
         *(emcmot_hal_data->analog_output[index]) = value;

@@ -371,7 +371,7 @@ int tpCreate(TP_STRUCT * const tp, int _queueSize, TC_STRUCT * const tcSpace,
  */
 int tpClearDIOs(TP_STRUCT * const tp) {
     //XXX: All IO's will be flushed on next synced aio/dio! Is it ok?
-    int i;
+    unsigned int i;
     tp->syncdio.anychanged = 0;
     tp->syncdio.dio_mask = 0ull;
     tp->syncdio.aio_mask = 0ull;
@@ -2228,7 +2228,7 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
 void tpToggleDIOs(TP_STRUCT const * const tp,
 		  TC_STRUCT * const tc) {
 
-    int i=0;
+    unsigned int i = 0;
     if (tc->syncdio.anychanged != 0) { // we have DIO's to turn on or off
         for (i=0; i < get_num_dio(tp->shared); i++) {
             if (!(tc->syncdio.dio_mask & (1ull << i))) continue;
@@ -3319,7 +3319,7 @@ int tpActiveDepth(TP_STRUCT * const tp)
     return tp->activeDepth;
 }
 
-int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double end) {
+int tpSetAout(TP_STRUCT * const tp, unsigned int index, double start, double end) {
     if (0 == tp) {
         return TP_ERR_FAIL;
     }
@@ -3329,7 +3329,7 @@ int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double en
     return TP_ERR_OK;
 }
 
-int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned char end) {
+int tpSetDout(TP_STRUCT * const tp, unsigned int index, unsigned char start, unsigned char end) {
     if (0 == tp) {
         return TP_ERR_FAIL;
     }

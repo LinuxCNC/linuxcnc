@@ -82,10 +82,10 @@ typedef int (*tcqFull_t)(TC_QUEUE_STRUCT const * const tcq);
 //gets called when a new tc is taken from the queue. it checks and toggles all needed DIO's
 typedef void (*tpToggleDIOs_t)(TP_STRUCT const * const tp,TC_STRUCT * tc);
 
-typedef int (*tpSetAout_t)(TP_STRUCT * tp, unsigned char index, double start, double end);
+typedef int (*tpSetAout_t)(TP_STRUCT * tp, unsigned int index, double start, double end);
 
  //gets called to place DIO toggles on the TC queue
-typedef int (*tpSetDout_t)(TP_STRUCT * tp, int index, unsigned char start, unsigned char end);
+typedef int (*tpSetDout_t)(TP_STRUCT * tp, unsigned int index, unsigned char start, unsigned char end);
 
 // for jog-while-paused:
 typedef int (*tpIsPaused_t)(TP_STRUCT * tp);

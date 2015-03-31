@@ -464,9 +464,9 @@ extern int emcMotionInit();
 extern int emcMotionHalt();
 extern int emcMotionAbort();
 extern int emcMotionSetDebug(int debug);
-extern int emcMotionSetAout(unsigned char index, double start, double end,
+extern int emcMotionSetAout(unsigned int index, double start, double end,
                             unsigned char now);
-extern int emcMotionSetDout(unsigned char index, unsigned char start,
+extern int emcMotionSetDout(unsigned int index, unsigned char start,
 			    unsigned char end, unsigned char now);
 
 extern int emcMotionUpdate(EMC_MOTION_STAT * stat);

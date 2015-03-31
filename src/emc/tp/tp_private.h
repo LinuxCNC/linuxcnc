@@ -74,9 +74,9 @@ int tpSetSpindleSync(TP_STRUCT * tp, double sync, int wait);
 
 void tpToggleDIOs(TP_STRUCT const * const tp,TC_STRUCT * tc); //gets called when a new tc is taken from the queue. it checks and toggles all needed DIO's
 
-int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
+int tpSetAout(TP_STRUCT * tp, unsigned int index, double start, double end);
 
-int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end); //gets called to place DIO toggles on the TC queue
+int tpSetDout(TP_STRUCT * tp, unsigned int index, unsigned char start, unsigned char end); //gets called to place DIO toggles on the TC queue
 
 // for jog-while-paused:
 int tpIsPaused(TP_STRUCT * tp);
