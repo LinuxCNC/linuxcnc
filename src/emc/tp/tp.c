@@ -2528,8 +2528,10 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
     // done with this move
     if (tp->reverse_run) {
         int res_backstep = tcqBackStep(&tp->queue);
-        //This error should be a silent failure since we've simply run out of reverse history
-        /*if (res_backstep) rtapi_print_msg(RTAPI_MSG_ERR,"Got error %d from tcqBackStep!\n", res_backstep);*/
+        if (res_backstep) {
+            // We can't step back any more, so pause the TP in preparation for probable direction switch
+            tpPause(tp);
+        }
 
     } else {
         int res_pop = tcqPop(&tp->queue);
