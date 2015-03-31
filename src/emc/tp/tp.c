@@ -2527,7 +2527,7 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
     //TODO make progress to match target?
     // done with this move
     if (tp->reverse_run) {
-        int res_backstep = tcqBackStep(&tp->queue);
+        tcqBackStep(&tp->queue);
         tp_debug_print("Finished reverse run of tc id %d\n", tc->id);
     } else {
         int res_pop = tcqPop(&tp->queue);
@@ -2639,6 +2639,11 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     if (!tp) {
         return TP_ERR_MISSING_INPUT;
+    }
+
+    if (tp->reverse_run && (tc->motion_type == TC_RIGIDTAP || tc->synchronized != TC_SYNC_NONE)) {
+        //Can't activate a segment with synced motion in reverse
+        return TP_ERR_INVALID;
     }
 
     /* Based on the INI setting for "cutoff frequency", this calculation finds
@@ -3188,12 +3193,9 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         return TP_ERR_WAITING;
     }
 
-    if(!tc->active) {
-        int res = tpActivateSegment(tp, tc);
-        // Need to wait to continue motion, end planning here
-        if (res == TP_ERR_WAITING) {
-            return TP_ERR_WAITING;
-        }
+    int res_activate = tpActivateSegment(tp, tc);
+    if (res_activate != TP_ERR_OK ) {
+        return res_activate;
     }
 
     // Preprocess rigid tap move (handles threading direction reversals)
