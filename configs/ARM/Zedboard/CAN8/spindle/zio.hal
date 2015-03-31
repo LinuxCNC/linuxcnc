@@ -15,7 +15,6 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 # GPIO connections:
 # hal_zed_gpio.pin-00-in emergency button
 #
-# hal_zed_gpio.pin-01-in select axis
 # hal_zed_gpio.pin-02-in A channel
 # hal_zed_gpio.pin-03-in B channel
 #
@@ -31,15 +30,11 @@ loadrt not
 # encoder
 loadrt encoder                              num_chan=1
 
-# 
-loadrt updown                               count=1
-
-#
-loadrt select8                              count=1
-
 # PWM generator for output test
 loadrt pwmgen output_type=0
 
+#
+loadrt conv_s32_float
 
 # add functions to threads
 addf motion-command-handler                 servo-thread
@@ -49,10 +44,9 @@ addf hal_zed_gpio.read                      servo-thread
 addf not.0                                  servo-thread
 addf encoder.update-counters                servo-thread
 addf encoder.capture-position               servo-thread
-addf updown.0                               servo-thread
-addf select8.0                              servo-thread
 addf pwmgen.make-pulses                     servo-thread
 addf pwmgen.update                          servo-thread
+addf conv-s32-float.0                       servo-thread
 
 # fake feedback from motor
 net xpos-cmd axis.0.motor-pos-cmd           => axis.0.motor-pos-fb
@@ -67,29 +61,15 @@ net nestop                                  => iocontrol.0.emc-enable-in
 net encA encoder.0.phase-A                  <= hal_zed_gpio.pin-02-in
 net encB encoder.0.phase-B                  <= hal_zed_gpio.pin-03-in
 
-
-net enc-counts encoder.0.counts             => axis.0.jog-counts
-setp axis.0.jog-scale                       0.10
-setp axis.0.jog-vel-mode                    0
-
-# ???
-net jog-button updown.0.countup             <= hal_zed_gpio.pin-01-in
-net jog-choice updown.0.count               => select8.0.sel
-
-# enable jog
-net jog-x axis.0.jog-enable                 <= select8.0.out0
-
-# loop from axis 'min' to axis 'max'
-setp updown.0.max                           0
-setp updown.0.min                           0
-setp updown.0.wrap                          1
-
-# PWM out to the spindle
-net PWM pwmgen.0.pwm			            => hal_zed_gpio.pin-00-out 	    
+# PWM 
 # max speed in RPM
-setp pwmgen.0.scale 			            24000
-net sp-speed-cmd motion.spindle-speed-out   => pwmgen.0.value
-net sp-on 	motion.spindle-on 	            => pwmgen.0.enable
-
-
+setp pwmgen.0.scale                         4000
+setp pwmgen.0.pwm-freq                      10
+# PWM out to the spindle
+net PWM pwmgen.0.pwm                        => hal_zed_gpio.pin-00-out         
+# activate PWM when !e-stop
+net nestop                                  => pwmgen.0.enable
+# 
+net enc-counts encoder.0.counts             => conv-s32-float.0.in  
+net enc-counts-f conv-s32-float.0.out       => pwmgen.0.value
 
