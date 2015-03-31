@@ -2528,16 +2528,12 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
     // done with this move
     if (tp->reverse_run) {
         int res_backstep = tcqBackStep(&tp->queue);
-        if (res_backstep) {
-            // We can't step back any more, so pause the TP in preparation for probable direction switch
-            tpPause(tp);
-        }
-
+        tp_debug_print("Finished reverse run of tc id %d\n", tc->id);
     } else {
         int res_pop = tcqPop(&tp->queue);
         if (res_pop) rtapi_print_msg(RTAPI_MSG_ERR,"Got error %d from tcqPop!\n", res_pop);
+        tp_debug_print("Finished tc id %d\n", tc->id);
     }
-    tp_debug_print("Finished tc id %d\n", tc->id);
 
     return TP_ERR_OK;
 }
