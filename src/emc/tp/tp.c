@@ -264,7 +264,7 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
     /* If we're stepping, then it doesn't matter what the optimization says, we want to end at a stop.
      * If the term_cond gets changed out from under us, detect this and force final velocity to zero
      */
-    if (emcmotDebug->stepping || tc->term_cond != TC_TERM_COND_TANGENT) {
+    if (emcmotDebug->stepping || tc->term_cond != TC_TERM_COND_TANGENT || tp->reverse_run) {
         return 0.0;
     } 
     
@@ -2155,8 +2155,8 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
             tc_target_vel, tc_finalvel, tc->maxvel);
     tc_debug_print("          currentvel = %f, fs = %f, tc = %f, term = %d\n",
             tc->currentvel, tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
-    tc_debug_print("          acc = %f,T = %f, P = %f\n", acc,
-            tc->target, tc->progress);
+    tc_debug_print("          acc = %f, T = %f, DTG = %.12g\n", acc,
+            tcGetTarget(tc,tp->reverse_run), tcGetDistanceToGo(tc,tp->reverse_run));
     tc_debug_print("          motion type %d\n", tc->motion_type);
 
     if (tc->on_final_decel) {
@@ -2636,7 +2636,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
      * */
     double cutoff_time = 1.0 / (fmax(emcmotConfig->arcBlendRampFreq, TP_TIME_EPSILON));
 
-    double length = tc->target - tc->progress;
+    double length = tcGetDistanceToGo(tc, tp->reverse_run);
     // Given what velocities we can actually reach, estimate the total time for the segment under ramp conditions
     double segment_time = 2.0 * length / (tc->currentvel + fmin(tc->finalvel,tpGetRealTargetVel(tp,tc)));
 
@@ -3033,7 +3033,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     tp_debug_print("tc id %d splitting\n",tc->id);
     //Shortcut tc update by assuming we arrive at end
-    tc->progress = tc->target;
+    tc->progress = tcGetTarget(tc,tp->reverse_run);
     //Get displacement from prev. position
     EmcPose displacement;
     tcGetPos(tc, &displacement);
