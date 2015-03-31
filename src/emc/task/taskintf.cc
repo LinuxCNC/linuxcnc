@@ -1354,7 +1354,7 @@ int emcMotionSetDebug(int debug)
     @parameter	start	value set at start of motion
     @parameter	end	value set at end of motion
 */
-int emcMotionSetAout(unsigned char index, double start, double end, unsigned char now)
+int emcMotionSetAout(unsigned int index, double start, double end, unsigned char now)
 {
     emcmotCommand.command = EMCMOT_SET_AOUT;
     emcmotCommand.now = now;
@@ -1377,7 +1377,7 @@ int emcMotionSetAout(unsigned char index, double start, double end, unsigned cha
     @parameter	start	value set at start of motion
     @parameter	end	value set at end of motion
 */
-int emcMotionSetDout(unsigned char index, unsigned char start,
+int emcMotionSetDout(unsigned int index, unsigned char start,
 		     unsigned char end, unsigned char now)
 {
     emcmotCommand.command = EMCMOT_SET_DOUT;

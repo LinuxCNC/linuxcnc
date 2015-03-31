@@ -1920,7 +1920,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_MOTION_SET_AOUT_TYPE:
-	retval = emcMotionSetAout(((EMC_MOTION_SET_AOUT *) cmd)->index,
+	retval = emcMotionSetAout((unsigned int)(((EMC_MOTION_SET_AOUT *) cmd)->index), /* widening of the index data type */
 				  ((EMC_MOTION_SET_AOUT *) cmd)->start,
 				  ((EMC_MOTION_SET_AOUT *) cmd)->end,
 				  ((EMC_MOTION_SET_AOUT *) cmd)->now);
