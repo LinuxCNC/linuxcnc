@@ -193,8 +193,13 @@ STATIC int tpGetMachineActiveLimit(double * const act_limit, PmCartesian const *
 STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
     //All reasons to disable feed override go here
-    if (tp->pausing || tp->aborting) {
-        tc_debug_print("pausing or aborting\n");
+    bool pausing = tp->pausing && tc->synchronized == TC_SYNC_NONE;
+    bool aborting = tp->aborting;
+    if (pausing)  {
+        tc_debug_print("pausing\n");
+        return 0.0;
+    } else if (aborting) {
+        tc_debug_print("aborting\n");
         return 0.0;
     } else if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE ||
             tc->synchronized == TC_SYNC_POSITION ) {
