@@ -2489,7 +2489,7 @@ STATIC int tpGetRotaryIsUnlocked(int axis) {
  * Finally, get the next move in the queue.
  */
 STATIC int tpCompleteSegment(TP_STRUCT * const tp,
-        TC_STRUCT const * const tc) {
+        TC_STRUCT * const tc) {
 
     if (tp->spindle.waiting_for_atspeed == tc->id) {
         return TP_ERR_FAIL;
@@ -2515,11 +2515,24 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
         }
     }
 
+    //Clear status flags associated since segment is done
+    //TODO stuff into helper function?
+    tc->active = 0;
+    tc->remove = 0;
+    tc->is_blending = 0;
+    tc->splitting = 0;
+    //Velocities are by definition zero for a non-active segment
+    tc->currentvel = 0.0;
+    tc->term_vel = 0.0;
+    //TODO make progress to match target?
     // done with this move
     if (tp->reverse_run) {
-        tcqBackStep(&tp->queue);
+        int res_backstep = tcqBackStep(&tp->queue);
+        if (res_backstep) rtapi_print_msg(RTAPI_MSG_ERR,"Got error %d from tcqBackStep!\n", res_backstep);
+
     } else {
-        tcqPop(&tp->queue);
+        int res_pop = tcqPop(&tp->queue);
+        if (res_pop) rtapi_print_msg(RTAPI_MSG_ERR,"Got error %d from tcqPop!\n", res_pop);
     }
     tp_debug_print("Finished tc id %d\n", tc->id);
 
