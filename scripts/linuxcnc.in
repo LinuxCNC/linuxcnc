@@ -329,12 +329,12 @@ function split_app_items () {
 }
 
 function run_applications () {
+    NUM=1
+    APPFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var APP -sec APPLICATIONS -num $NUM 2> /dev/null`
+    if [ -z "$APPFILE" ] ; then return ; fi
     DEFAULT_APPLICATION_DELAY=0
     GetFromIni DELAY APPLICATIONS
     DELAY=${retval:-$DEFAULT_APPLICATION_DELAY}
-
-    NUM=1
-    APPFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var APP -sec APPLICATIONS -num $NUM 2> /dev/null`
     while [ -n "$APPFILE" ] ; do
        split_app_items $APPFILE # --> app_name app_args
        # try all explicit specifications before trying PATH
