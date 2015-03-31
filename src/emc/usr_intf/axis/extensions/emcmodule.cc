@@ -67,6 +67,7 @@
 #define LOCAL_AUTO_PAUSE (1)
 #define LOCAL_AUTO_RESUME (2)
 #define LOCAL_AUTO_STEP (3)
+#define LOCAL_AUTO_REVERSE (4)
 
 /* This definition of offsetof avoids the g++ warning
  * 'invalid offsetof from non-POD type'.
@@ -1174,6 +1175,7 @@ static PyObject *emcauto(pyCommandChannel *s, PyObject *o) {
     int fn;
     EMC_TASK_PLAN_RUN run;
     EMC_TASK_PLAN_PAUSE pause;
+    EMC_TASK_PLAN_REVERSE reverse;
     EMC_TASK_PLAN_RESUME resume;
     EMC_TASK_PLAN_STEP step;
 
@@ -1185,6 +1187,9 @@ static PyObject *emcauto(pyCommandChannel *s, PyObject *o) {
         switch(fn) {
         case LOCAL_AUTO_PAUSE:
             emcSendCommand(s, pause);
+            break;
+        case LOCAL_AUTO_REVERSE:
+            emcSendCommand(s, reverse);
             break;
         case LOCAL_AUTO_RESUME:
             emcSendCommand(s, resume);
