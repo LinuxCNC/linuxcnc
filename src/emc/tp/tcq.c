@@ -171,7 +171,7 @@ int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
     return 0;
 }
 
-#define TCQ_REVERSE_MARGIN 10
+#define TCQ_REVERSE_MARGIN 20
 
 int tcqPop(TC_QUEUE_STRUCT * const tcq)
 {
@@ -249,7 +249,6 @@ int tcqBackStep(TC_QUEUE_STRUCT * const tcq)
 
     // start == end means that queue is empty
 
-    /*int fempty = (tcq->start == tcq->end);*/
     int rempty = (tcq->start == tcq->rend);
     if ( rempty && !tcq->allFull) {	
         return -1;
@@ -299,9 +298,8 @@ TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
 /*!
  * \def TC_QUEUE_MARGIN
  * sets up a margin at the end of the queue, to reduce effects of race conditions
- * NOTE: upped this value to give a reverse history margin
  */
-#define TC_QUEUE_MARGIN 30
+#define TC_QUEUE_MARGIN (TCQ_REVERSE_MARGIN+20)
 
 /*! tcqFull() function
  *
