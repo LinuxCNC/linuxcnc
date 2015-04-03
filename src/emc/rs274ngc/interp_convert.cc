@@ -4376,6 +4376,9 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     STOP_SPEED_FEED_SYNCH();
     // after the RIGID_TAP cycle we'll be in the same spot
   } else if (move == G_76) {
+    CHKS(((settings->spindle_turning != CANON_CLOCKWISE) &&
+           (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
+          _("Spindle not turning in G76"));
     CHKS((settings->AA_current != AA_end || 
          settings->BB_current != BB_end || 
          settings->CC_current != CC_end ||
