@@ -1,3 +1,43 @@
+linuxcnc (1:2.7.0~pre6) wheezy; urgency=low
+
+  * remove a useless warning message at linuxcnc startup
+
+  * axis: Use a preferred form of "switch" (closes: SF#411)
+
+  * gscreen: check the user directory for GTK2 themes
+  * gscreen: added rapid override
+
+  * gmoccapy: fix a bug in ignore limits
+  * gmoccapy: include user dir in search for themes
+
+  * xhc-hb04: support lower accels for mpg jogging
+  * xhc-hb04: add pin for in or mm icon
+  * xhc-hb04: err_exit for missing inifile stanzas
+  * xhc-hb04 sim configs: typo fix
+
+  * gladevcp: -H will now load hal tcl files as well as plain hal files
+  * gladevcp: add HALIO_Button widget
+
+  * stepconf: fix check for spindle encoder signals for pp2
+  * stepconf: fix check for spindle signals for pp2
+
+  * tooledit: fix a typo
+
+  * hal-histogram: minor display improvements
+  * latencybins.comp: fix ref to using script name
+
+  * docs: fix latency-histogram.png image
+  * docs: fix hal_pin_new() and hal_param_new() manpages
+
+  * halcmd: clarify a getp error message
+
+  * interp: verify that spindle is turning for G76
+  * tp: fix for pause during spindle synced motion regression from 2.6
+  * fix a type error with arcBlendGapCycles
+  * hal: fix fatal memory corruption bug on linking pin to a signal
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Thu, 09 Apr 2015 20:22:33 -0600
+
 linuxcnc (1:2.7.0~pre5) wheezy; urgency=low
 
   * gmoccapy: fixed division by zero error on spindle
