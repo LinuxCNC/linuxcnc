@@ -1,0 +1,60 @@
+Source: linuxcnc
+Section: misc
+Priority: extra
+Maintainer: Sebastian Kuzminsky <seb@highlab.com>
+Build-Depends: debhelper (>= 6)
+Standards-Version: 2.1.0
+
+Package: @MAIN_PACKAGE_NAME@-deps
+Architecture: all
+Depends: build-essential, @KERNEL_HEADERS@,
+    @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@,
+    tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev,
+    libxaw7-dev, libncurses-dev, libreadline-dev,
+    python, python-dev, python-tk, python-lxml,
+    libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
+    libgtk2.0-dev,
+    gettext, autoconf, libboost-python-dev,
+    netcat, libmodbus-dev (>= 3.0), libusb-1.0-0-dev, procps, psmisc,
+    python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+    ${misc:Depends},
+    yapps2-runtime,
+    tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
+    python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+    ${python:Depends}, ${misc:Depends},
+    python@PYTHON_VERSION@-tk,
+    python@PYTHON_VERSION@-gnome2 | python-gnome2,
+    python@PYTHON_VERSION@-glade2 | python-glade2,
+    python@PYTHON_VERSION@-numpy | python-numpy,
+    python@PYTHON_VERSION@-imaging | python-imaging,
+    python@PYTHON_VERSION@-imaging-tk | python-imaging-tk,
+    python-gtksourceview2,
+    python-vte,
+    python-gst0.10,
+    python-xlib, python-gtkglext1, python-configobj,
+    tclreadline, procps, psmisc, module-init-tools | kmod, tclx
+Section: libs
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This metapackage depends on the files needed to build and run your own
+ LinuxCNC, except packages needed to build the documentation.
+
+Package: @MAIN_PACKAGE_NAME@-doc-deps
+Depends:
+    linuxcnc-deps,
+    asciidoc (>= 8.5), source-highlight, dblatex (>= 0.2.12), xsltproc, groff,
+    texlive-lang-cyrillic, texlive-lang-french,
+    texlive-lang-spanish, texlive-lang-german,
+    graphviz, inkscape
+Architecture: all
+Section: libs
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This metapackage depends on the files needed to build the documentation
+ of LinuxCNC

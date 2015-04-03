@@ -31,41 +31,60 @@ Usage:
     $P -a
         If the currently running kernel has realtime extensions, use it.
         Otherwise use any available realtime kernel it can find.
+
+    $P -d ...
+	Prepare a package "linuxcnc-deps" with the necessary dependencies
+	to build and run linuxcnc
 EOF
 }
 
 cd "${0%/*}"
 
-if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
-    usage
-    if [ $# -ne 1 ]; then
-        exit 1
-    fi
-    exit 0
+CONTROL=control.in
+RULES=rules.in
+TARGET=""
+ALLDEPS=false
+while getopts "hard" opt; do
+    case "$opt" in
+    (h) usage; exit 0 ;;
+    (a)
+        TARGET="$(uname -r)"
+        if [ ! -d "/usr/realtime-$TARGET" ]; then
+            TARGET=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
+            if [ -z "$TARGET" ]; then
+                echo "no realtime kernels found!"
+                exit 1
+            fi
+        fi ;;
+    (r) TARGET="$(uname -r)" ;;
+    (d) CONTROL=control-alldeps.in RULES=rules-alldeps.in ALLDEPS=true ;;
+    (*)  usage; exit 1 ;;
+    esac
+done
+shift $(($OPTIND-1))
+
+if $ALLDEPS && test ! -x /usr/bin/dpkg-buildpackage; then
+    echo "You must install build-essential before building the dependenc package"
+    exit 1
 fi
 
-if [ $1 = "-r" ]; then
-    set -- `uname -r`
-elif [ $1 = "-a" ]; then
-    KERNEL="$(uname -r)"
-    if [ ! -d "/usr/realtime-$KERNEL" ]; then
-        KERNEL=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
-        if [ -z "$KERNEL" ]; then
-            echo "no realtime kernels found!"
-            exit 1
-        fi
-    fi
-    set -- $KERNEL
+echo "CONTROL=$CONTROL"
+if [ -z "$TARGET" ]; then TARGET="$1"; fi
+if [ -z "$TARGET" ]; then TARGET="$(uname -r)"; fi
+
+if [ "$TARGET" = "sim" ]; then TARGET=uspace; fi
+
+if [ "$TARGET" != "uspace" -a ! -d "/usr/realtime-$TARGET" ]; then
+    echo "$TARGET does not appear to be a realtime kernel, selecting 'uspace'"
+    TARGET=uspace
 fi
 
-TARGET=$1
-
-MODULE_PATH=usr/realtime-$1/modules/linuxcnc
+MODULE_PATH=usr/realtime-$TARGET/modules/linuxcnc
 MODULE_EXT=.ko
-KERNEL_DEPENDS=linux-image-$1,rtai-modules-$1
-KERNEL_HEADERS=linux-headers-$1
+KERNEL_DEPENDS=linux-image-$TARGET,rtai-modules-$TARGET
+KERNEL_HEADERS=linux-headers-$TARGET
 EXTRA_FILES="usr/bin/linuxcnc_module_helper"
-KERNEL_VERSION=$1
+KERNEL_VERSION=$TARGET
 DRIVERS=drivers.files.in
 PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
 PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
@@ -87,57 +106,58 @@ fi
 
 case $DISTRIB_NAME in
 Ubuntu-14.04) # Trusty Tahr
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
+	EXTRA_BUILD_DOC=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils EXTRA_BUILD=module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.6
 	;;
 Ubuntu-12.10) # Quantal Quetzal
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
+	EXTRA_BUILD_DOC=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils EXTRA_BUILD=module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-12.04) # Precise Pangolin LTS
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
+	EXTRA_BUILD_DOC=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils EXTRA_BUILD=module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-11.04) # natty
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
+	EXTRA_BUILD_DOC=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils EXTRA_BUILD=module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-10.04)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
+	EXTRA_BUILD_DOC=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils EXTRA_BUILD=module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-9.10)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,module-init-tools
+	EXTRA_BUILD_DOC=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish EXTRA_BUILD=module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-8.04)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,module-init-tools
+	EXTRA_BUILD_DOC=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish EXTRA_BUILD=module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.4
 	;;
 Debian-testing)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,kmod
+	EXTRA_BUILD_DOC=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils EXTRA_BUILD=kmod
 	TCLTK_VERSION=8.6
         ;;
 Debian-8.*)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,kmod
+	EXTRA_BUILD_DOC=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils EXTRA_BUILD=kmod
 	TCLTK_VERSION=8.6
         ;;
 Debian-7.*)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,kmod
+	EXTRA_BUILD_DOC=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+        EXTRA_BUILD=kmod,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Debian-6.0*)
-	EXTRA_BUILD=dvipng,module-init-tools
+	EXTRA_BUILD_DOC=dvipng EXTRA_BUILD=module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Debian-5.0*)
-	EXTRA_BUILD=dvipng,module-init-tools
+	EXTRA_BUILD_DOC=dvipng EXTRA_BUILD=module-init-tools
 	TCLTK_VERSION=8.4
 	;;
 *)
         echo "unknown distribution: $DISTRIB_NAME"
         echo "configuration may be wrong!"
-	EXTRA_BUILD=dvipng,kmod
+	EXTRA_BUILD_DOC=dvipng EXTRA_BUILD=kmod
 	TCLTK_VERSION=8.4
 	;;
 esac
@@ -186,6 +206,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
     -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
     -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
+    -e "s|@EXTRA_BUILD_DOC@|$EXTRA_BUILD_DOC|g" \
     -e "s|@EXTRA_RECOMMENDS@|$EXTRA_RECOMMENDS|g" \
     -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
     -e "s|@OTHER_MAIN_PACKAGE_NAME@|$OTHER_MAIN_PACKAGE_NAME|g" \
@@ -199,7 +220,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     $*
 }
 
-subst control.in > control
+subst $CONTROL > control
 
 if [ "$TARGET" == "uspace" ]; then
     cp linuxcnc-dev.files.in linuxcnc-uspace-dev.files
@@ -208,7 +229,7 @@ else
     echo "$MODULE_PATH/Module.symvers" >> linuxcnc-dev.files
 fi
 
-subst rules.in > rules; chmod +x rules
+subst $RULES > rules; chmod +x rules
 
 if [ -f $EXTRAS/linuxcnc.files ]; then
     subst linuxcnc.files.in $DRIVERS $EXTRAS/linuxcnc.files > $MAIN_PACKAGE_NAME.files
@@ -226,4 +247,18 @@ for P in $DOCS_PACKAGES; do
 done
 
 rm -f ../build-stamp
-echo "successfully configured for '$DISTRIB_NAME'-'$TARGET'.."
+
+if $ALLDEPS; then
+    cd ..
+    dpkg-buildpackage -b -uc || exit $?
+    echo
+    echo
+    echo
+    echo "You may now install the above-named -deps package with e.g.,"
+    echo "   sudo dpkg -i ../linuxcnc-*-deps_*_all.deb"
+    echo "which will report a failure if it depends on packages not yet installed"
+    echo "to install those packages, execute"
+    echo "   sudo apt-get -f install --no-install-recommends"
+else
+    echo "successfully configured for '$DISTRIB_NAME'-'$TARGET'.."
+fi
