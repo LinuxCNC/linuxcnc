@@ -168,6 +168,10 @@ class emc_control:
         def feed_override(self, f):
                 if self.masked: return
                 self.emccommand.feedrate(f)
+                
+        def rapid_override(self, f):
+                if self.masked: return
+                self.emccommand.rapidrate(f)
 
         def spindle_override(self, s):
                 if self.masked: return
