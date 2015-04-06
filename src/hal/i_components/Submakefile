@@ -1,0 +1,68 @@
+HALICOMPDIR= hal/i_components
+
+HALICOMP_SUBMAKEFILE= $(HALICOMPDIR)/Submakefile
+
+
+ifeq ($(BUILD_KBUILD),yes)
+ICOMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard \
+	$(BASEPWD)/$(HALICOMPDIR)/*.icomp ))
+include $(patsubst %.icomp, $(BASEPWD)/halcomp-srcs/%.mak, $(ICOMPS))
+else
+ICOMPS := $(sort $(wildcard $(HALICOMPDIR)/*.icomp))
+
+ICOMP_MANPAGES := $(patsubst $(HALICOMPDIR)/%.icomp, ../man/man9/%.9icomp, \
+	$(ICOMPS))
+
+
+i_manpages: $(ICOMP_MANPAGES)
+TARGETS += i_manpages
+.PHONY: i_manpages
+
+ifeq ($(TRIVIAL_BUILD)+$(BUILD_THREAD_MODULES),no+yes)
+-include $(patsubst %.icomp, $(BASEPWD)/halcomp-srcs/%.mak,\
+	$(ICOMPS))
+endif # TRIVIAL_BUILD == no
+endif
+
+
+ifeq ($(BUILD_THREAD_MODULES),yes)
+obj-m += \
+	$(patsubst hal/i_components/%.icomp, %.o, $(ICOMPS))
+endif
+
+ICOMP_MANPAGES := $(patsubst $(HALICOMPDIR)/%.icomp, ../man/man9/%.9icomp, \
+	$(ICOMPS))
+
+$(ICOMP_MANPAGES): ../man/man9/%.9icomp: $(HALICOMPDIR)/%.icomp ../bin/instcomp
+	$(ECHO) Making icomp manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/instcomp --document -o $@ $<
+
+ifeq ($(BUILD_ALL_FLAVORS),yes)
+# .c and .mak files are identical for all flavors
+#
+# in the top-level make, build them once in a common location
+halcomp-srcs/%.c: %.icomp ../bin/instcomp
+	$(ECHO) "Preprocessing $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/instcomp --require-license -o $@ $<
+
+halcomp-srcs/%.mak: %.icomp $(HALICOMP_SUBMAKEFILE)
+	$(ECHO) "Creating $(notdir $@)"
+	$(ECHO) "Creating $@"
+	@mkdir -p $(dir $@)
+	$(Q)echo "$(notdir $*)-objs := halcomp-srcs/$*.o" > $@.tmp
+	$(Q)echo "\$$(RTLIBDIR)/$(notdir $*)\$$(MODULE_EXT): \\" >> $@.tmp
+	$(Q)echo "    \$$(OBJDIR)/halcomp-srcs/$*.o" >> $@.tmp
+	$(Q)mv -f $@.tmp $@
+
+# Generate .c and .mak files before the modules target
+modules: $(patsubst %.icomp, halcomp-srcs/%.c, \
+	$(ICOMPS) )
+modules: $(patsubst %.icomp, halcomp-srcs/%.mak, \
+	$(ICOMPS))
+endif # BUILD_ALL_FLAVORS == yes
+
+clean: clean-icomp-manpages
+clean-icomp-manpages:
+	-rm -f $(ICOMP_MANPAGES)
