@@ -36,3 +36,5 @@ author "Jeff Epler <jepler@unpythonic.net>";
 ;;
 value += (in - value) * gain;
 out = (int)(__s64)(value * scale);
+	
+return 0;

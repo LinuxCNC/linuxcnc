@@ -63,16 +63,19 @@ license "GPL";
 ;;
 #include <rtapi_math.h>
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
+double target_angle;
+double latched_position;
 
-    double target_angle;
-    double latched_position;
-
-    if (enable) {
-	if (enable ^ last_enable) {       // positive edge on enable
+    if (enable) 
+        {
+    	if (enable ^ last_enable) 
+    	    {       // positive edge on enable
             latched_position = position; // sample now
             target_angle =  angle/360.0;
-            switch (mode) {
+            switch (mode) 
+                {
             case 0: // shortest move
                 command = floor(latched_position+0.5-target_angle) + target_angle;
                 break;
@@ -82,9 +85,11 @@ FUNCTION(_) {
             case 2: // always ccw
                 command = floor(latched_position-target_angle) + target_angle ;
                 break;
-	    }
-	}
-	poserr = (position - command) * 360.0;
-    }
+	            }
+	        }
+	    poserr = (position - command) * 360.0;
+        }
     last_enable = enable;
+    	
+	return 0;
 }

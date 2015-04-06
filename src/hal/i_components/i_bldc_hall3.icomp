@@ -237,7 +237,7 @@ FUNCTION(_){
         "Only step patterns 0-47 are allowed, you have requested pattern %i\n",
         pattern);
         pattern = 0;
-        return;
+        return 0;
     }
 
     i  = (pattern << 3) + (hall1 << 2) + (hall2 << 1) + hall3;
@@ -256,4 +256,6 @@ FUNCTION(_){
     if (P[i] & 010) C_value = V;
     else if (P[i] & 001) C_value = -V;
     else C_value = 0;
+    
+	return 0;
 }

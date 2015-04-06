@@ -707,15 +707,15 @@ static int comp_id;
     print >>f, "    if (inst_id < 0)\n        return -1;\n"
 
     print >>f, "// here ip is guaranteed to point to a blob of HAL memory of size sizeof(struct inst_data)."
-    print >>f, "    hal_print_msg(RTAPI_MSG_ERR,\"%s inst=%s argc=%d\",__FUNCTION__, name, argc);\n"
+    print >>f, "    hal_print_msg(RTAPI_MSG_DBG,\"%s inst=%s argc=%d\",__FUNCTION__, name, argc);\n"
     print >>f, "// Debug print of params and values"
     for name, mptype, value in instanceparams:
         if (mptype == 'int'):
-            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: int instance param: %s=%d\",__FUNCTION__,"
+            strg = "    hal_print_msg(RTAPI_MSG_DBG,\"%s: int instance param: %s=%d\",__FUNCTION__,"
             strg += "\"%s\", %s);" % (to_c(name), to_c(name))
             print >>f, strg
         else:
-            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: string instance param: %s=%s\",__FUNCTION__,"
+            strg = "    hal_print_msg(RTAPI_MSG_DBG,\"%s: string instance param: %s=%s\",__FUNCTION__,"
             strg += "\"%s\", %s);" % (to_c(name), to_c(name))
             print >>f, strg
 
@@ -732,9 +732,9 @@ static int comp_id;
             print >>f, "        return k;\n"
 
     print >>f, "    if(r == 0)"
-    print >>f, "        hal_print_msg(RTAPI_MSG_ERR,\"%s - instance %s creation SUCCESSFUL\",__FUNCTION__, name);"
+    print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation SUCCESSFUL\",__FUNCTION__, name);"
     print >>f, "    else"
-    print >>f, "        hal_print_msg(RTAPI_MSG_ERR,\"%s - instance %s creation ABORTED\",__FUNCTION__, name);"
+    print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation ABORTED\",__FUNCTION__, name);"
     print >>f, "    return r;\n}"
 
 ##############################  rtapi_app_main  ######################################################
@@ -743,11 +743,11 @@ static int comp_id;
     print >>f, "// Debug print of params and values"
     for name, mptype, value in instanceparams:
         if (mptype == 'int'):
-            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: int instance param: %s=%d\",__FUNCTION__,"
+            strg = "    hal_print_msg(RTAPI_MSG_DBG,\"%s: int instance param: %s=%d\",__FUNCTION__,"
             strg += "\"%s\", %s);" % (to_c(name), to_c(name))
             print >>f, strg
         else:
-            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: string instance param: %s=%s\",__FUNCTION__,"
+            strg = "    hal_print_msg(RTAPI_MSG_DBG,\"%s: string instance param: %s=%s\",__FUNCTION__,"
             strg += "\"%s\", %s);" % (to_c(name), to_c(name))
             print >>f, strg
 
@@ -802,15 +802,15 @@ static int comp_id;
     print >>f, "//   destructor returns"
     print >>f, "static int delete(const char *name, void *inst, const int inst_size)\n{\n"
 
-    print >>f, "    hal_print_msg(RTAPI_MSG_ERR,\"%s inst=%s size=%d %p\\n\", __FUNCTION__, name, inst_size, inst);"
+    print >>f, "    hal_print_msg(RTAPI_MSG_DBG,\"%s inst=%s size=%d %p\\n\", __FUNCTION__, name, inst_size, inst);"
     print >>f, "// Debug print of params and values"
     for name, mptype, value in instanceparams:
         if (mptype == 'int'):
-            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: int instance param: %s=%d\",__FUNCTION__,"
+            strg = "    hal_print_msg(RTAPI_MSG_DBG,\"%s: int instance param: %s=%d\",__FUNCTION__,"
             strg += "\"%s\", %s);" % (to_c(name), to_c(name))
             print >>f, strg
         else:
-            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: string instance param: %s=%s\",__FUNCTION__,"
+            strg = "    hal_print_msg(RTAPI_MSG_DBG,\"%s: string instance param: %s=%s\",__FUNCTION__,"
             strg += "\"%s\", %s);" % (to_c(name), to_c(name))
             print >>f, strg
 

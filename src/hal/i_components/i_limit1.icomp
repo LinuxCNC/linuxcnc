@@ -6,9 +6,12 @@ param rw float max_=1e20;
 function _;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     double tmp = in;
     if(tmp < min_) tmp = min_;
     if(tmp > max_) tmp = max_;
     out = tmp;
+    	
+	return 0;
 }

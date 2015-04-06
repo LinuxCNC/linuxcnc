@@ -25,7 +25,8 @@ license "GPL";
 #define K3 (0.707106781186547)  /* 1/sqrt(2) */
 #define rev2rad (6.283185308)   /* 2 * pi */
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     double xr, yr, rads, costheta, sintheta;
 
     // rotate it
@@ -39,4 +40,6 @@ FUNCTION(_) {
     a =  xr +  K3*h;
     b = -K1*xr + K2*yr + K3*h;
     c = -K1*xr - K2*yr + K3*h;
+	
+	return 0;
 }

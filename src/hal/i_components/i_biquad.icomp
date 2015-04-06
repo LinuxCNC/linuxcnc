@@ -116,6 +116,8 @@ FUNCTION(_)
         s1 = in * n1 - out * d1 + s2;
         s2 = in * n2 - out * d2;
     }
+    	
+	return 0;
 }
 
 

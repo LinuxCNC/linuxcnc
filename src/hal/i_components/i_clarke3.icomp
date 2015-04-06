@@ -28,10 +28,13 @@ license "GPL";
 #define K3 (0.577350269189626)  /* 1/sqrt(3) */
 #define K4 (0.471404520791032)  /* sqrt(2)/3 */
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     x = K1*a - K2*(b+c);
     y = K3*(b-c);
     h = K4*(a+b+c);
+	
+	return 0;
 }
 
 
@@ -40,9 +43,12 @@ FUNCTION(_) {
 #define K2 (1.0/3.0)
 #define K3 1.154700538  /* 2/sqrt(3) */
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     x = K1 * a - K2 * (b - c);
     y = K3 * (b - c);
     h = K1 * (a + b + c);
+	
+	return 0;
 }
 #endif

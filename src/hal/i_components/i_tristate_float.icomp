@@ -8,4 +8,9 @@ function _  "If \\fBenable\\fR is TRUE, copy \\fBin\\fR to \\fBout\\fR.";
 license "GPL";
 ;;
 
-FUNCTION(_) { if(enable) out = in_; }
+FUNCTION(_) 
+{ 
+    if(enable) out = in_; 
+	
+	return 0;
+}

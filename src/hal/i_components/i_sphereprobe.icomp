@@ -18,7 +18,8 @@ function _ nofp "update probe-out based on inputs";
 #undef abs
 int abs(int x) { if(x < 0) return -x; else return x; }
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     __u64 dx = abs(px-cx), dy=abs(py-cy), dz=abs(pz-cz);
     __u64 d2 = dx*dx + dy*dy;
     __u64 r2 = (__s64)r*(__s64)r;
@@ -28,4 +29,6 @@ FUNCTION(_) {
         d2 += dz*dz;
         probe_out = d2 <= r2;
     }
+    	
+	return 0;
 }

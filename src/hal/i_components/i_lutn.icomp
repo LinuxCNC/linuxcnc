@@ -31,6 +31,8 @@ int shift = 0;
 	    shift += (1 << i);
 
     out = (functn & (1 << shift)) != 0;
+    	
+	return 0;
 }
 
 EXTRA_INST_SETUP()

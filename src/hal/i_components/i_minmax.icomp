@@ -6,10 +6,13 @@ pin out float min_;
 function _;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     if(reset) { max_ = min_ = in; }
     else {
         if(in > max_) max_ = in;
         if(in < min_) min_ = in;
     }
+    	
+	return 0;
 }

@@ -43,13 +43,14 @@ variable int running;
 function _;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     int i,num = 0;
     int internal[4];
 
     if(suppress_no_input) {
         if (sel(0) + sel(1) + sel(2) + sel(3) == 0) {
-            return;
+            return 0;
         }
     }
     if (use_graycode) {
@@ -73,16 +74,18 @@ FUNCTION(_) {
             if (delaytime < debounce_time) {
                 delaytime += fperiod;
                 elapsed = delaytime;
-                return;
+                return 0;
             }else{
             running = 0;
             lastnum = num;
             out_s = out_f = in(num);
-            return;
+            return 0;
             }
         }
     }
     /* select the output */
     out_s = out_f = in(num);
+    	
+	return 0;
 
 }

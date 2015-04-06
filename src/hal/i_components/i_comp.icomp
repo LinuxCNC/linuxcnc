@@ -15,17 +15,25 @@ and it is wise to always set \\fBhyst\\fR if you intend to use equal """;
 function _ fp "Update the comparator";
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     double tmp = in1 - in0;
     double halfhyst = 0.5 * hyst;
 
-    if(tmp < -halfhyst) {
-	out = 0;
-	equal = 0;
-    } else if(tmp > halfhyst){
-	out = 1;
-	equal = 0;
-    } else {
-	equal = 1;
-    }
+    if(tmp < -halfhyst) 
+        {
+    	out = 0;
+	    equal = 0;
+        } 
+    else if(tmp > halfhyst)
+        {
+    	out = 1;
+	    equal = 0;
+        } 
+    else 
+        {
+    	equal = 1;
+        }
+    	
+	return 0;
 }

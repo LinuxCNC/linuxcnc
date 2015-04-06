@@ -19,3 +19,5 @@ out_or = (in0 | in1);
 out_nor = ~out_or;
 out_xor = (in0 ^ in1);
 out_xnor = ~out_xor;
+
+return 0;

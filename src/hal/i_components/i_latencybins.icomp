@@ -108,3 +108,5 @@ if (index < 0) {
   pbinvalue = -1;
   nbinvalue = -1;
 }
+	
+return 0;

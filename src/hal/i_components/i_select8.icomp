@@ -5,7 +5,8 @@ pin out bit out#[8] "Output bits.  If enable is set and the sel input is between
 function _ nofp;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
 	hal_s32_t temp_sel;
 	int i, temp_enable;
 	temp_sel = sel;
@@ -16,4 +17,6 @@ FUNCTION(_) {
 		else
 			out(i)=1;
 	}
+    	
+	return 0;
 }

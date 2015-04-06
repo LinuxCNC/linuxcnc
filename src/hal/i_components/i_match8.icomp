@@ -20,7 +20,8 @@ pin out bit out "true only if in is true and a[m] matches b[m] for m = 0 thru 7"
 function _ nofp;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     int tmp = 0;
 
     if ( !in ) goto nomatch;
@@ -35,4 +36,6 @@ FUNCTION(_) {
     tmp = 1;
 nomatch:
     out = tmp;
+    	
+	return 0;
 }

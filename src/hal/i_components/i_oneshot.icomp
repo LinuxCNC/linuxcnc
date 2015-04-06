@@ -46,13 +46,15 @@ typedef struct {
     char old_in;
 } internal;
 
-EXTRA_INST_SETUP(){
+EXTRA_INST_SETUP()
+{
     data.timer = 0.0;
     data.old_in = 0;
     return 0;
 }
 
-FUNCTION(_){
+FUNCTION(_)
+{
     int new, old, trigger;
 
     new = in;
@@ -85,4 +87,6 @@ FUNCTION(_){
 	out = 0;
 	out_not = 1;
     }
+    	
+	return 0;
 }

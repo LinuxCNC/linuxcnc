@@ -27,3 +27,5 @@ license "GPL";
 double tmp = in;
 out = (tmp - old) / (period * 1e-9);
 old = tmp;
+	
+	return 0;

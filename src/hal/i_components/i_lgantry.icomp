@@ -97,7 +97,8 @@ variable int   prev_home[pincount] = 0;
 variable int   curr_home[pincount] = 0;
 variable float pos_fb_target[pincount] = 0.0;
 ;;
-FUNCTION(read) {
+FUNCTION(read) 
+{
     int i;
     int previous_home;
 
@@ -147,9 +148,12 @@ FUNCTION(read) {
         }
     }
     position_fb = joint_pos_fb(fb_joint) + offset[fb_joint];
+    	
+	return 0;
 }
 
-FUNCTION(write) {
+FUNCTION(write) 
+{
     int i;
     float delta;
 
@@ -187,4 +191,6 @@ FUNCTION(write) {
         joint_pos_cmd(i) = position_cmd - offset[i];
         joint_offset(i) = offset[i];
     }
+    	
+	return 0;
 }

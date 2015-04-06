@@ -90,7 +90,8 @@ function _;
 
 #include "rtapi_math.h"
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     // convert encoder velocity to volts
     volts = (encoder_vel - scale_offset) * vel_scale;
     if(volts < 0){volts = 0;} // make sure volts is not negative
@@ -135,4 +136,6 @@ FUNCTION(_) {
         z_pos_out = z_pos_in;
         z_fb_out = z_pos_in; // keep axis motor position fb from being confused
     }
+    	
+	return 0;
 }

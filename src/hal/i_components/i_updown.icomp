@@ -15,7 +15,8 @@ license "GPL";
 
 ;;
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
 	hal_s32_t temp_count = count;
 	if (first) {
 		oldup=countup;
@@ -45,4 +46,6 @@ FUNCTION(_) {
 	count = temp_count;
 	oldup = countup;
 	olddown = countdown;
+	
+	return 0;
 }

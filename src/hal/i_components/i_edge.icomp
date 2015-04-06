@@ -32,29 +32,41 @@ function _ nofp "Produce output pulses from input edges";
 license "GPL";
 ;;
 
-FUNCTION(_){
+FUNCTION(_)
+{
     int new_in = in;
-    if (time_left_ns > 0) {
+    if (time_left_ns > 0) 
+        {
         time_left_ns -= period;
-    }
-    if ( !first ) {
+        }
+    if ( !first ) 
+        {
         int rise = new_in && !last_in;
         int fall = !new_in && last_in;
         int desired_edge =
             both ? rise || fall
                     : in_edge ? fall : rise;
-        if(desired_edge) {
+        if(desired_edge) 
+            {
             time_left_ns = out_width_ns;
             out = 1;
-        } else if(time_left_ns > 0) {
+            } 
+        else if(time_left_ns > 0) 
+            {
             out = 1;
-        } else {
+            } 
+        else 
+            {
             time_left_ns = 0;
             out = 0;
-        }
-    } else {
+            }
+        } 
+    else 
+        {
         first = 0;
-    }
+        }
     last_in = new_in;
     out_invert = !out;
+	
+	return 0;
 }

@@ -19,7 +19,8 @@ typedef struct {
     double old_v;	/* previous 1st derivative */
 } limit3_data;
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     double lin, lout, dt, in_v, min_v, max_v, ramp_a, avg_v, err, dv, dp;
     double min_out, max_out, match_time, est_in, est_out;
 
@@ -35,7 +36,7 @@ FUNCTION(_) {
     if(load) {
 	data.old_in = data.old_out = out = lin;
 	data.old_v = 0;
-	return;
+	return 0;
     }
 
     /* calculate input derivative */
@@ -92,4 +93,6 @@ FUNCTION(_) {
     data.old_out = lout;
     data.old_in = lin;
     out = lout;
+	
+	return 0;
 }

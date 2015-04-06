@@ -8,3 +8,5 @@ function _ nofp "If \\fBenable\\fR is TRUE, copy \\fBin\\fR to \\fBout\\fR.";
 license "GPL";
 ;;
 if(enable) out = in_;
+	
+return 0;

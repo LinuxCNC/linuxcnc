@@ -39,4 +39,6 @@ FUNCTION(_) {
 
     if (tmp < 0) is_negative = 1;
     else is_negative = 0;
+    	
+	return 0;
 }

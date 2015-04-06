@@ -10,9 +10,13 @@ notes "If \\fBmax\\fR <= \\fBmin\\fR then the behavior is undefined.";
 function _;
 license "GPL";
 ;;
-FUNCTION(_) {
-  double tmp = in;
-  under = (tmp <= min_);
-  over = (tmp >= max_);
-  out = !(over || under);
+FUNCTION(_) 
+{
+    double tmp = in;
+    under = (tmp <= min_);
+    over = (tmp >= max_);
+    out = !(over || under);
+  	
+	return 0;
+  
 }
