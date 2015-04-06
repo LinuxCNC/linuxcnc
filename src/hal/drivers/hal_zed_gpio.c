@@ -315,14 +315,14 @@ int rtapi_app_main(void)
     // save message level on entering 
     msg_level = rtapi_get_msg_level();
     
-    /* setup messaging level in:
+    /* force messaging level in:
     RTAPI_MSG_NONE,
     RTAPI_MSG_ERR,
     RTAPI_MSG_WARN,
     RTAPI_MSG_INFO,
     RTAPI_MSG_DBG,
-    RTAPI_MSG_ALL */
-    rtapi_set_msg_level(RTAPI_MSG_ALL);
+    RTAPI_MSG_ALL 
+    rtapi_set_msg_level(RTAPI_MSG_ALL); */
 
     // check Zynq revision 
     if ((zrev = zynq_revision()) < 0) {
@@ -426,7 +426,7 @@ int rtapi_app_main(void)
     hal_ready(comp_id);
 
     // return to previous mesaging level
-    rtapi_set_msg_level(msg_level);
+    // rtapi_set_msg_level(msg_level);
 
     return 0;
 }
