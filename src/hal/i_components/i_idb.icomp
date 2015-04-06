@@ -18,4 +18,6 @@ FUNCTION(_)
 	out=in-amount;
     else if (in>0.0)
 	out=in+amount;
+		
+	return 0;
 }

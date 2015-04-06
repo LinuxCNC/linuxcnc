@@ -7,7 +7,10 @@ author "andy pugh";
 function _ nofp;
 ;;
 unsigned int mask;
-out = in;
-for(mask = in >> 1 ; mask != 0 ; mask = mask >> 1){
-    out ^= mask;
-}
+    out = in;
+    for(mask = in >> 1 ; mask != 0 ; mask = mask >> 1)
+        {
+        out ^= mask;
+        }
+	
+    return 0;

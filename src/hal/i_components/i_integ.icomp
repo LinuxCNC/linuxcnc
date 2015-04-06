@@ -9,9 +9,12 @@ pin in float min_ = -1e20;
 function _;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     if(reset) out = 0;
     else out = out + gain * in * fperiod;
     if (out > max_) out = max_;
     if (out < min_) out = min_;
+    	
+	return 0;
 }

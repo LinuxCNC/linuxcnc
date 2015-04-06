@@ -16,10 +16,12 @@ Otherwise,
 function _ nofp;
 license "GPL";
 ;;
-FUNCTION(_) {
-    if (( in0 && !in1 ) || ( in1 && !in0 )) {
-	out = 1;
-    } else {
-	out = 0;
-    }
+FUNCTION(_) 
+{
+    if (( in0 && !in1 ) || ( in1 && !in0 )) 
+    	out = 1;
+    else 
+    	out = 0;
+    	
+	return 0;
 }

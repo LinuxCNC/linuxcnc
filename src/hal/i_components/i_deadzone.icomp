@@ -8,7 +8,8 @@ function _ "Update \\fBout\\fR based on \\fBin\\fR and the parameters.";
 
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     double th2 = threshhold / 2;
     double lo = center - th2;
     double hi = center + th2;
@@ -17,4 +18,6 @@ FUNCTION(_) {
     if(in_ < lo) out = in_ + th2;
     else if(in_ > hi) out = in_ - th2;
     else out = center;
+    	
+	return 0;
 }

@@ -23,7 +23,8 @@ license "GPL v2";
 ;;
 #define MINIMUM(x, y) (((x) > (y))?(y):(x))
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     if (enable) {
 	if (brake) {
 	    // motor DC brake
@@ -48,4 +49,6 @@ FUNCTION(_) {
 	down = 0;
 	enable_out = 0;
     }
+    	
+	return 0;
 }

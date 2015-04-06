@@ -154,7 +154,8 @@ typedef enum {
     HELD_TOO_LONG
 } state_t;
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     int new_in = in;
 
     if (1 == invert_input) {
@@ -383,4 +384,6 @@ FUNCTION(_) {
     }
 
     state = click_state;
+    	
+	return 0;
 }

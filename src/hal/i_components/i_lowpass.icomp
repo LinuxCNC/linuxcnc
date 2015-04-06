@@ -7,9 +7,12 @@ function _;
 license "GPL";
 notes "The effect of a specific \\fBgain\\fR value is dependent on the period of the function that \\fBlowpass.\\fIN\\fR is added to";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     if(load)
 	out = in;
     else
 	out += (in - out) * gain;
+		
+	return 0;
 }

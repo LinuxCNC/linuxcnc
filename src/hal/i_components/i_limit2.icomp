@@ -20,12 +20,15 @@ static inline double clamp(double v, double sub, double sup) {
 }
 #endif
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     double tmp = in;
     double maxdelta = maxv * fperiod;
     tmp = clamp(tmp, min_, max_);
-    if(load) { out = data.old_out = tmp; return; }
+    if(load) { out = data.old_out = tmp; return 0; }
     tmp = clamp(tmp, data.old_out - maxdelta, data.old_out + maxdelta);
     data.old_out = tmp;
     out = tmp;
+	
+	return 0;
 }

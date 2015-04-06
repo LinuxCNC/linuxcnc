@@ -6,5 +6,16 @@ license "GPL";
 
 ;;
 
-FUNCTION(increment) { count++; }
-FUNCTION(reset) { count=0; }
+FUNCTION(increment) 
+{ 
+    count++; 
+
+   	return 0;
+}
+
+FUNCTION(reset) 
+{ 
+    count=0; 
+    	
+	return 0;
+}

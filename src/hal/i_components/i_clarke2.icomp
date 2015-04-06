@@ -27,7 +27,10 @@ license "GPL";
 #define K1 (0.577350269189626)  /* 1/sqrt(3) */
 #define K2 (1.154700538379250)  /* 2/sqrt(3) */
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     x = a;
     y = K1*a + K2*b;
+    	
+	return 0;
 }

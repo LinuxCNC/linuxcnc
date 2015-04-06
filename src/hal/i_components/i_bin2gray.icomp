@@ -6,4 +6,5 @@ license "GPL";
 author "andy pugh";
 function _ nofp;
 ;;
-out = (in >> 1) ^ in;
+    out = (in >> 1) ^ in;
+    return 0;

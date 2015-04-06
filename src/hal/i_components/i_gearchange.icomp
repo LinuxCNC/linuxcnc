@@ -22,7 +22,8 @@ param rw bit reverse = 0 "Set to 1 to reverse the spindle in second gear";
 function _;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     hal_float_t temp_in = speed_in;
     hal_float_t sign=1;
     /* Assume that the output device is scaled so that gear 1 is "Pass-through" */
@@ -43,4 +44,6 @@ FUNCTION(_) {
 	dir_out = dir_in;
     }
     speed_out = sign*temp_in;
+    	
+	return 0;
 }

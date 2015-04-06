@@ -19,7 +19,8 @@ variable int to_state=0;
 function _;
 license "GPL";
 ;;
-FUNCTION(_)  {
+FUNCTION(_)  
+{
 if (in!=old_in) /* a toggle has occurred */ {
     if (is_on) {   /* turn OFF if it's on */
         on=0;
@@ -40,4 +41,7 @@ else {
     }
 }
 old_in=in;
+	
+return 0;
+
 }

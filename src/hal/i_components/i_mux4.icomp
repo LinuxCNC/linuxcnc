@@ -27,7 +27,8 @@ pin in float in3;
 function _;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     if(sel1) {
         if(sel0) out = in3;
         else out = in2;
@@ -35,4 +36,6 @@ FUNCTION(_) {
         if(sel0) out = in1;
         else out = in0;
     }
+    	
+	return 0;
 }

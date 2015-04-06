@@ -30,5 +30,16 @@ pin out float fb_out "The feedback output value";
 license "GPL";
 ;;
 
-FUNCTION(update_feedback) { fb_out = fb_in - offset; }
-FUNCTION(update_output)   { out = in + offset; }
+FUNCTION(update_feedback) 
+{ 
+    fb_out = fb_in - offset;
+    	
+	return 0; 
+}
+
+FUNCTION(update_output)   
+{ 
+    out = in + offset;
+    	
+	return 0; 
+}

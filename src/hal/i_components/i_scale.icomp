@@ -6,6 +6,9 @@ pin out float out "out = in * gain + offset";
 function _;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     out = in * gain + offset;
+    	
+	return 0;
 }

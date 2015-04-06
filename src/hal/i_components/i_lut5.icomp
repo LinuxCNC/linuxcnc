@@ -137,7 +137,8 @@ _
 license "GPL";
 ;;
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     int shift = 0;
     if(in_0) shift += 1;
     if(in_1) shift += 2;
@@ -146,4 +147,6 @@ FUNCTION(_) {
     if(in_4) shift += 16;
 
     out = (function & (1<<shift)) != 0;
+    	
+	return 0;
 }

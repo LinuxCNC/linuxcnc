@@ -93,7 +93,8 @@ function _;
 
 #include "rtapi_math.h"
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     if(enable){
         float min_velocity = requested_vel -(requested_vel*(1/velocity_tol));
         if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}
@@ -136,4 +137,6 @@ FUNCTION(_) {
         z_pos_out = z_pos_in;
         z_fb_out = z_pos_in; // keep axis motor position fb from being confused
     }
+    	
+	return 0;
 }

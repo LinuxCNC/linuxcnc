@@ -12,7 +12,8 @@ function _;
 license "GPL";
 ;;
 #include "rtapi_math.h"
-FUNCTION(_) {
+FUNCTION(_) 
+{
 	double in1 = in1_, in2 = in2_;
 	if(in1 < 0) {
 		in1 = -in1;
@@ -22,4 +23,6 @@ FUNCTION(_) {
 		out = 1;
 	else
 		out = 0;
+		
+	return 0;
 }

@@ -62,24 +62,19 @@ FUNCTION(_)
     if (position < 0) position = top_position;
     if (position > top_position) position = 0;
 
-    for (i = 0 ; i < pincount; i++){
+    for (i = 0 ; i < pincount; i++)
+        {
         bit(i) = (i == position);
-    }
+        }
+    	
+	return 0;
 
 }
 
-EXTRA_INST_SETUP(){
-//    pincount = cfg[extra_arg];
+EXTRA_INST_SETUP()
+{
     top_position = pincount - 1;
     return 0;
 }
 
-//int get_count(void){
-//    int i;
-//    for (i=0; cfg[i] != 0 && i < MAX_COUNT; i++){}
-//    if (i == 0){
-//        cfg[0] = 4;
-//        i = 1;
-//    }
-//    return i;
-//}
+

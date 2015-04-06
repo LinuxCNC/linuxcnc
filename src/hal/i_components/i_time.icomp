@@ -81,7 +81,8 @@ function _;
 
 #include "rtapi_math.h"
 
-FUNCTION(_) {
+FUNCTION(_) 
+{
     __u32 totalseconds;
     if(start && !old_start) totalnsec = 0;
 
@@ -93,4 +94,7 @@ FUNCTION(_) {
 	hours = (totalseconds / 3600);
 	}
 	old_start = start;
+		
+	return 0;
+	
 }

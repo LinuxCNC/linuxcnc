@@ -11,7 +11,8 @@ variable float delta;
 function _;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     if (enable ^ prev_enable) { // edge
 	if (enable) {  // positive edge
 	    mean = 0;
@@ -27,4 +28,6 @@ FUNCTION(_) {
 	variance = m2/(n-1);
     }
     prev_enable = enable;
+    	
+	return 0;
 }

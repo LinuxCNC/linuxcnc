@@ -4,6 +4,9 @@ param rw float value;
 function _;
 license "GPL";
 ;;
-FUNCTION(_) {
+FUNCTION(_) 
+{
     out = value;
+	
+	return 0;
 }
