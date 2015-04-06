@@ -1,0 +1,61 @@
+log rt 5
+log user 0
+
+loadrt threads name1=fast period1=100000
+loadrt i_and2
+loadrt i_or2
+loadrt i_not
+loadrt i_mux2
+loadrt i_mux4
+
+loadrt sampler depth=1000 cfg=bbbff
+loadusr -Wn halsampler halsampler -N halsampler -n 16
+
+loadrt streamer depth=32 cfg=bbbb
+
+newinst i_and2 i_and2new
+newinst i_or2 i_or2new
+newinst i_not i_notnew
+newinst i_mux2 i_mux2new
+newinst i_mux4 i_mux4new
+
+net a streamer.0.pin.0
+net b streamer.0.pin.1
+net c streamer.0.pin.2
+net d streamer.0.pin.3
+
+net a i_and2new.in0
+net b i_and2new.in1
+net n0 i_and2new.out sampler.0.pin.0
+
+net a i_or2new.in0
+net b i_or2new.in1
+net n1 i_or2new.out sampler.0.pin.1
+
+net a i_notnew.in
+net n2 i_notnew.out sampler.0.pin.2
+
+net a i_mux2new.sel
+net n3 i_mux2new.out sampler.0.pin.3
+setp i_mux2new.in0 1
+setp i_mux2new.in1 2
+
+net a i_mux4new.sel0
+net b i_mux4new.sel1
+net n4 i_mux4new.out sampler.0.pin.4
+setp i_mux4new.in0 3
+setp i_mux4new.in1 4
+setp i_mux4new.in2 5
+setp i_mux4new.in3 6
+
+addf streamer.0 fast
+addf i_and2new.funct fast
+addf i_or2new.funct fast
+addf i_notnew.funct fast
+addf i_mux2new.funct fast
+addf i_mux4new.funct fast
+addf sampler.0 fast
+
+loadusr -w sh runstreamer
+start
+waitusr  -i halsampler

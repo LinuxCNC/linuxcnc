@@ -1,0 +1,26 @@
+loadrt threads name1=fast period1=100000
+loadrt near
+newinst i_near i_near0
+newinst i_near i_near1
+
+setp i_near0.scale 1.5
+setp i_near1.difference 1.5
+
+loadrt sampler depth=1000 cfg=ffbb
+loadusr -Wn halsampler halsampler -N halsampler -n 122
+
+loadrt streamer depth=256 cfg=ff
+
+net in1 streamer.0.pin.0 => i_near0.in1 i_near1.in1 sampler.0.pin.0
+net in2 streamer.0.pin.1 => i_near0.in2 i_near1.in2 sampler.0.pin.1
+net outa i_near0.out => sampler.0.pin.2
+net outb i_near1.out => sampler.0.pin.3
+
+addf streamer.0 fast
+addf i_near0.funct fast
+addf i_near1.funct fast
+addf sampler.0 fast
+
+loadusr -w sh runstreamer
+start
+waitusr -i  halsampler
