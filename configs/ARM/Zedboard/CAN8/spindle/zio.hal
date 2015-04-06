@@ -1,0 +1,74 @@
+#
+# Test Zedboard IO for spindle speed PWM control with encoder
+#
+
+#
+# GPIO connections:
+# hal_zed_gpio.pin-00-in emergency button
+#
+# hal_zed_gpio.pin-02-in A channel
+# hal_zed_gpio.pin-03-in B channel
+#
+# hal_zed_gpio.pin-01-out PWM
+#
+
+# 1:1 correspondence between joints and axes.
+loadrt trivkins
+loadrt tp 
+
+# parameters defined in test.ini (motmod) 
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
+
+# loadrt hal_zed_gpio module
+loadrt hal_zed_gpio
+
+# signal inverter
+loadrt not
+
+# encoder
+loadrt encoder                              num_chan=1
+
+# PWM generator for output test
+loadrt pwmgen                               output_type=0
+
+#
+loadrt conv_s32_float
+
+# add functions to threads
+addf motion-command-handler                 servo-thread
+addf motion-controller                      servo-thread
+addf hal_zed_gpio.write                     servo-thread
+addf hal_zed_gpio.read                      servo-thread
+addf not.0                                  servo-thread
+addf encoder.update-counters                servo-thread
+addf encoder.capture-position               servo-thread
+addf pwmgen.make-pulses                     servo-thread
+addf pwmgen.update                          servo-thread
+addf conv-s32-float.0                       servo-thread
+
+# fake feedback from motor
+net xpos-cmd axis.0.motor-pos-cmd           => axis.0.motor-pos-fb
+
+# emergency stop
+net estop                                   <= hal_zed_gpio.pin-00-in
+net estop                                   => not.0.in
+net nestop                                  <= not.0.out
+net nestop                                  => iocontrol.0.emc-enable-in
+
+# connect inputs to the encoder
+net encA encoder.0.phase-A                  <= hal_zed_gpio.pin-02-in
+net encB encoder.0.phase-B                  <= hal_zed_gpio.pin-03-in
+
+# PWM 
+# max speed in RPM
+setp pwmgen.0.scale                         4000
+setp pwmgen.0.pwm-freq                      10
+# PWM out to the spindle
+net PWM pwmgen.0.pwm                        => hal_zed_gpio.pin-00-out         
+# activate PWM when !e-stop
+net nestop                                  => pwmgen.0.enable
+
+# connect encoder counts to PWM
+net enc-counts encoder.0.counts             => conv-s32-float.0.in  
+net enc-counts-f conv-s32-float.0.out       => pwmgen.0.value
+
