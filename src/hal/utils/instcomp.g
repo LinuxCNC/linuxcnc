@@ -16,7 +16,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import os, sys, tempfile, shutil, getopt, time
+#    Adapted and rewritten in part for instantiatable components
+#    ArcEye March 2015 <arceyeATmgwareDOTcoDOTuk>
+
+import os, sys, tempfile, shutil, getopt, time, fnmatch
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
@@ -30,6 +33,7 @@ parser Hal:
     token PARAMDIRECTION: "rw|r"
     token PINDIRECTION: "in|out|io"
     token TYPE: "float|bit|signed|unsigned|u32|s32"
+    token MPTYPE: "int|string"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token STARREDNAME: "[*]*[a-zA-Z_][a-zA-Z0-9_]*"
     token HALNAME: "[#a-zA-Z_][-#a-zA-Z0-9_.]*"
@@ -37,17 +41,19 @@ parser Hal:
     token NUMBER: "0x[0-9a-fA-F]+|[+-]?[0-9]+"
     token STRING: "\"(\\.|[^\\\"])*\""
     token HEADER: "<.*?>"
-    token POP: "[-()+*/]|&&|\\|\\||personality|==|&|!=|<|<=|>|>="
+    token POP: "[-()+*/]|&&|\\|\\||==|&|!=|<|<=|>|>="
     token TSTRING: "\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
 
     rule File: ComponentDeclaration Declaration* "$" {{ return True }}
     rule ComponentDeclaration:
         "component" NAME OptString";" {{ comp(NAME, OptString); }}
     rule Declaration:
-        "pin" PINDIRECTION TYPE HALNAME OptArray OptSAssign OptPersonality OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptSAssign, OptPersonality) }}
-      | "param" PARAMDIRECTION TYPE HALNAME OptArray OptSAssign OptPersonality OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptSAssign, OptPersonality) }}
+        "pin" PINDIRECTION TYPE HALNAME OptArrayIndex OptSAssign OptString ";"  {{ pin(HALNAME, TYPE, OptArrayIndex, PINDIRECTION, OptString, OptSAssign) }}
+      | "param" PARAMDIRECTION TYPE HALNAME OptArrayIndex OptSAssign OptString ";" {{ param(HALNAME, TYPE, OptArrayIndex, PARAMDIRECTION, OptString, OptSAssign) }}
+      | "instanceparam" MPTYPE HALNAME OptSAssign OptString ";" {{ instanceparam(HALNAME, MPTYPE, OptString, OptSAssign) }}
+      | "moduleparam" MPTYPE HALNAME OptSAssign OptString ";" {{ moduleparam(HALNAME, MPTYPE, OptString, OptSAssign) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
-      | "variable" NAME STARREDNAME OptSimpleArray OptAssign ";" {{ variable(NAME, STARREDNAME, OptSimpleArray, OptAssign) }}
+      | "variable" NAME STARREDNAME OptArrayIndex OptSAssign ";" {{ variable(NAME, STARREDNAME, OptArrayIndex, OptSAssign) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
       | "see_also" String ";"   {{ see_also(String) }}
       | "notes" String ";"   {{ notes(String) }}
@@ -62,39 +68,45 @@ parser Hal:
     rule String: TSTRING {{ return eval(TSTRING) }}
             | STRING {{ return eval(STRING) }}
 
-    rule OptPersonality: "if" Personality {{ return Personality }}
-            | {{ return None }}
-    rule Personality: {{ pp = [] }} (PersonalityPart {{ pp.append(PersonalityPart) }} )* {{ return " ".join(pp) }}
-    rule PersonalityPart: NUMBER {{ return NUMBER }}
-            | POP {{ return POP }}
     rule OptSimpleArray: "\[" NUMBER "\]" {{ return int(NUMBER) }}
             | {{ return 0 }}
-    rule OptArray: "\[" NUMBER OptArrayPersonality "\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
+
+    rule OptArray: "\[" NUMBER "\]" {{ return int(NUMBER) }}
             | {{ return 0 }}
-    rule OptArrayPersonality: ":" Personality {{ return Personality }}
+
+    rule OptArrayIndex: "\[" SValue "\]" {{ return SValue }}
             | {{ return None }}
+
     rule OptString: TSTRING {{ return eval(TSTRING) }}
             | STRING {{ return eval(STRING) }}
             | {{ return '' }}
+
     rule OptAssign: "=" Value {{ return Value; }}
                 | {{ return None }}
+
     rule OptSAssign: "=" SValue {{ return SValue; }}
                 | {{ return None }}
+
     rule OptFP: "fp" {{ return 1 }} | "nofp" {{ return 0 }} | {{ return 1 }}
+
     rule Value: "yes" {{ return 1 }} | "no" {{ return 0 }}
                 | "true" {{ return 1 }} | "false" {{ return 0 }}
                 | "TRUE" {{ return 1 }} | "FALSE" {{ return 0 }}
                 | NAME {{ return NAME }}
                 | FPNUMBER {{ return float(FPNUMBER.rstrip("f")) }}
                 | NUMBER {{ return int(NUMBER,0) }}
+
     rule SValue: "yes" {{ return "yes" }} | "no" {{ return "no" }}
                 | "true" {{ return "true" }} | "false" {{ return "false" }}
                 | "TRUE" {{ return "TRUE" }} | "FALSE" {{ return "FALSE" }}
                 | NAME {{ return NAME }}
                 | FPNUMBER {{ return FPNUMBER }}
                 | NUMBER {{ return NUMBER }}
+                | STRING {{ return STRING}}
+
     rule OptValue: Value {{ return Value }}
                 | {{ return 1 }}
+
     rule OptSValue: SValue {{ return SValue }}
                 | {{ return 1 }}
 %%
@@ -106,7 +118,7 @@ mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 # names.  That includes not only global variables and functions, but also
 # HAL pins & parameters, because comp adds #defines with the names of HAL
 # pins & params.
-reserved_names = [ 'comp_id', 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
+reserved_names = [ 'comp_id', 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'extra_inst_setup', 'extra_inst_cleanup']
 
 def _parse(rule, text, filename=None):
     global P, S
@@ -131,10 +143,10 @@ deprmap = {'s32': 'signed', 'u32': 'unsigned'}
 deprecated = ['s32', 'u32']
 
 def initialize():
-    global functions, params, pins, options, comp_name, names, docs, variables
+    global functions, params, instanceparams, moduleparams, pins, options, comp_name, names, docs, variables
     global modparams, includes
 
-    functions = []; params = []; pins = []; options = {}; variables = []
+    functions = []; params = []; instanceparams = []; moduleparams = []; pins = []; options = {}; variables = []
     modparams = []; docs = []; includes = [];
     comp_name = None
 
@@ -190,22 +202,40 @@ def check_name_ok(name):
     if name in names:
         Error("Duplicate item name %s" % name)
 
-def pin(name, type, array, dir, doc, value, personality):
+def pin(name, type, array, dir, doc, value):
     checkarray(name, array)
     type = type2type(type)
     check_name_ok(name)
-    docs.append(('pin', name, type, array, dir, doc, value, personality))
+    docs.append(('pin', name, type, array, dir, doc, value))
     names[name] = None
-    pins.append((name, type, array, dir, value, personality))
+    pins.append((name, type, array, dir, value))
 
-def param(name, type, array, dir, doc, value, personality):
+def param(name, type, array, dir, doc, value):
     checkarray(name, array)
     type = type2type(type)
     check_name_ok(name)
-    docs.append(('param', name, type, array, dir, doc, value, personality))
+    docs.append(('param', name, type, array, dir, doc, value))
     names[name] = None
-    params.append((name, type, array, dir, value, personality))
+    params.append((name, type, array, dir, value))
 
+def instanceparam(name, type, doc, value):
+    type = type2type(type)
+    check_name_ok(name)
+    docs.append(('instanceparam', name, type, doc, value))
+    names[name] = None
+    instanceparams.append((name, type, value))
+##################################################################
+##  These are rt module params, there is currently little purpose
+##  in their usage, but left in for future options since the base
+##  module could be a working rt module if required
+
+def moduleparam(name, type, doc, value):
+    type = type2type(type)
+    check_name_ok(name)
+    docs.append(('moduleparam', name, type, doc, value))
+    names[name] = None
+    moduleparams.append((name, type, value))
+##################################################################
 def function(name, fp, doc):
     check_name_ok(name)
     docs.append(('funct', name, fp, doc))
@@ -237,14 +267,41 @@ def removeprefix(s,p):
 def to_hal(name):
     name = re.sub("#+", lambda m: "%%0%dd" % len(m.group(0)), name)
     return name.replace("_", "-").rstrip("-").rstrip(".")
+
 def to_c(name):
     name = re.sub("[-._]*#+", "", name)
     name = name.replace("#", "").replace(".", "_").replace("-", "_")
     return re.sub("_+", "_", name)
 
+def to_noquotes(name):
+    name = name.replace("\"", "")
+    return name
+
+
+##################### Start ########################################
+
 def prologue(f):
-    print >> f, "/* Autogenerated by %s on %s -- do not edit */" % (
+
+    if options.get("userspace"):
+        raise SystemExit, "instcomp does not support userspace components"
+
+    if not functions :
+        raise SystemExit, """\
+                        Component code must declare a function. \
+                        For single functions the default  \
+                        function _; declaration is fine. \
+                        Multiple functions must be uniquely named."""
+
+    if options.get("singleton"):
+        print " 'option singleton' has no effect in a instantiated component"
+        print " each new instance is a stand alone unit anyway."
+        print " If your code relies upon only one possible instance being created,"
+        print " you should write for and compile with the comp tool, not instcomp."
+
+    print >> f, "\n/* Autogenerated by %s on %s -- do not edit */\n" % (
         sys.argv[0], time.asctime())
+
+
     print >> f, """\
 #include "rtapi.h"
 #ifdef RTAPI
@@ -253,9 +310,32 @@ def prologue(f):
 #include "rtapi_string.h"
 #include "rtapi_errno.h"
 #include "hal.h"
+#include "hal_priv.h"
 
 static int comp_id;
 """
+##  pincount, maxpins and iprefix are reserved instanceparam names
+##
+    global have_iprefix
+    have_iprefix = False
+    global iprefix_string
+    iprefix_string = ""
+
+    global maxpins
+    maxpins = 0
+    global have_maxpins
+    have_maxpins = False
+
+    global numpins
+    numpins = 0
+    global have_numpins
+    have_numpins = False
+    # lists of array size specifiers and values
+    iplist = []
+    ipvlist = []
+
+    print >>f, "static char *compname = \"%s\";\n" % (comp_name)
+
     for name in includes:
         print >>f, "#include %s" % name
 
@@ -285,15 +365,11 @@ static int comp_id;
     has_data = options.get("data")
 
     has_array = False
-    has_personality = False
-    for name, type, array, dir, value, personality in pins:
+    for name, type, array, dir, value in pins:
         if array: has_array = True
-        if isinstance(array, tuple): has_personality = True
-        if personality: has_personality = True
-    for name, type, array, dir, value, personality in params:
+    for name, type, array, dir, value in params:
         if array: has_array = True
-        if isinstance(array, tuple): has_personality = True
-        if personality: has_personality = True
+
     for type, name, default, doc in modparams:
         decl = mp_decl_map[type]
         if decl:
@@ -303,55 +379,198 @@ static int comp_id;
             print >>f, "%s(%s, %s);" % (decl, name, q(doc))
 
     print >>f
-    print >>f, "struct __comp_state {"
-    print >>f, "    struct __comp_state *_next;"
-    if has_personality:
-        print >>f, "    int _personality;"
 
-    for name, type, array, dir, value, personality in pins:
+###  Get the values from the instanceparams ############################################################
+
+    for name, mptype, value in instanceparams:
+        if (name == 'pincount') or (name == 'maxpincount') or (name == 'iprefix'):
+            if name == 'pincount':
+                if value != None:
+                    numpins = int(value)
+                    have_numpins = True
+                    iplist.append(name)
+                    ipvlist.append(int(value))
+
+            if name == 'maxpincount':
+                if value != None:
+                    maxpins = int(value)
+                    have_maxpins = True
+                    iplist.append(name)
+                    ipvlist.append(int(value))
+
+            if name == 'iprefix':
+                if value != None:
+                    iprefix_string = to_noquotes(value)
+                    have_iprefix = True
+
+        ## int instanceparams could be used an array size specifiers, so store them in iplist
+        else :
+            if (mptype == 'int'):
+                iplist.append(name)
+                if value == None: v = 0
+                else: v = int(value)
+                ipvlist.append(v)
+
+############################################################################################################
+##  Helper functions
+
+    def StrIsInt(s):
+        try:
+            int(s)
+            return True
+        except ValueError:
+            return False
+
+    def get_varval(array):
+        m = 0
+        q = 0
+        global maxpins
+        if (len(iplist)) :
+            while (m < len(iplist)) :
+                if iplist[m] == array :
+                    q = ipvlist[m]
+                    if have_maxpins and q > maxpins:
+                        q = maxpins
+                    return q
+                else :
+                    if StrIsInt(array) :
+                        q = int(array)
+                        if q > maxpins :
+                            q = maxpins
+                        return q
+                m += 1
+
+    def setmax(array) :
+        m = 0
+        q = 0
+        global maxpins
+        if array == None : return
+        if (len(iplist)) :
+            while (m < len(iplist)) :
+                # if initialiser is name string
+                if iplist[m] == array :
+                    if ipvlist[m] > maxpins :
+                        maxpins = ipvlist[m]
+                # or if it is just an int
+                else :
+                    if StrIsInt(array) :
+                        q = int(array)
+                        if q > maxpins :
+                            maxpins = q
+                m += 1
+
+##############################################################################
+#  Set maxpins to highest value used as array size specifier
+#  All arrays are set to this size, allowing any <= values in instances
+#  preventing any array overruns
+##############################################################################
+
+#  if numpins and or maxpins specified
+    if have_numpins and (not have_maxpins) :
+        maxpins = numpins
+        have_maxpins = True
+    if numpins > maxpins :
+        numpins = maxpins
+
+#  if value of any array sizing param is higher than maxpins - reset maxpins
+    for name, type, array, dir, value in pins:
+        setmax(array)
+
+    for name, type, array, dir, value in params:
+        setmax(array)
+
+    for type, name, array, value in variables:
+        setmax(array)
+
+    if maxpins :
+        have_maxpins = True
+
+############################  RTAPI_IP / MP declarations ########################
+
+    for name, mptype, value in instanceparams:
+        if (mptype == 'int'):
+            if value == None: v = 0
+            else: v = value
+            print >>f, "static %s %s = %d;" % (mptype, to_c(name), int(v))
+            print >>f, "RTAPI_IP_INT(%s, \"Instance integer param '%s'\");\n" % (to_c(name), to_c(name))
+        else:
+            if value == None: strng = "\"\\0\"";
+            else: strng = value
+            print >>f, "static char *%s = %s;" % (to_c(name), strng)
+            print >>f, "RTAPI_IP_STRING(%s, \"Instance string param '%s'\");\n" % (to_c(name), to_c(name))
+
+#  Still process these but don't advertise them
+
+    for name, mptype, value in moduleparams:
+        if (mptype == 'int'):
+            if value == None: v = 0
+            else: v = value
+            print >>f, "static %s %s = %d;" % (mptype, to_c(name), int(v))
+            print >>f, "RTAPI_MP_INT(%s, \"Module integer param '%s'\");\n" % (to_c(name), to_c(name))
+        else:
+            if value == None: strng = "\"\\0\"";
+            else: strng = value
+            print >>f, "static char *%s = %s;" % (to_c(name), strng)
+            print >>f, "RTAPI_MP_STRING(%s, \"Module string param '%s'\");\n" % (to_c(name), to_c(name))
+
+################ struct declaration ##########################
+
+
+
+    print >>f, "struct inst_data\n    {"
+
+    for name, type, array, dir, value in pins:
         if array:
-            if isinstance(array, tuple): array = array[0]
-            print >>f, "    hal_%s_t *%s[%s];" % (type, to_c(name), array)
+            print >>f, "    hal_%s_t *%s[%s];" % (type, to_c(name), maxpins )
         else:
             print >>f, "    hal_%s_t *%s;" % (type, to_c(name))
         names[name] = 1
 
-    for name, type, array, dir, value, personality in params:
+    for name, type, array, dir, value in params:
         if array:
-            if isinstance(array, tuple): array = array[0]
-            print >>f, "    hal_%s_t %s[%s];" % (type, to_c(name), array)
+            print >>f, "    hal_%s_t %s[%s];" % (type, to_c(name), maxpins)
         else:
             print >>f, "    hal_%s_t %s;" % (type, to_c(name))
         names[name] = 1
 
+
     for type, name, array, value in variables:
         if array:
-            print >>f, "    %s %s[%d];\n" % (type, name, array)
+            print >>f, "    %s %s[%d];" % (type, name, maxpins )
         else:
-            print >>f, "    %s %s;\n" % (type, name)
+            print >>f, "    %s %s;" % (type, name)
     if has_data:
         print >>f, "    void *_data;"
 
-    print >>f, "};"
+    print >>f, "    };"
 
-    if options.get("userspace"):
-        print >>f, "#include <stdlib.h>"
-
-    print >>f, "struct __comp_state *__comp_inst=0;"
-    print >>f, "struct __comp_state *__comp_first_inst=0, *__comp_last_inst=0;"
+############## extra headers and forward defines of functions  ##########################
 
     print >>f
+
+    if have_maxpins:
+        print >>f, "static int maxpins __attribute__((unused)) = %d;" % int(maxpins)
+    else:
+        print >>f, "static int maxpins __attribute__((unused)) = %d;" % int(numpins)
+    # make sure this exists for later test with strlen(iprefix)
+    if (not have_iprefix):
+        print >>f, "static char *iprefix = \"\";"
+
     for name, fp in functions:
         if names.has_key(name):
             Error("Duplicate item name: %s" % name)
-        print >>f, "static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name)
+        print >>f, "static int %s(void *arg, const hal_funct_args_t *fa);\n" % to_c(name)
         names[name] = 1
+    data = options.get('data')
 
-    print >>f, "static int __comp_get_data_size(void);"
-    if options.get("extra_setup"):
-        print >>f, "static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg);"
-    if options.get("extra_cleanup"):
-        print >>f, "static void extra_cleanup(void);"
+    print >>f, "static int instantiate(const char *name, const int argc, const char**argv);\n"
+
+    print >>f, "static int delete(const char *name, void *inst, const int inst_size);\n"
+
+    if options.get("extra_inst_setup"):
+        print >>f, "static int extra_inst_setup(struct inst_data* ip, const char *name, int argc, const char**argv);\n"
+    if options.get("extra_inst_cleanup"):
+        print >>f, "static void extra_inst_cleanup(void);\n"
 
     if not options.get("no_convenience_defines"):
         print >>f, "#undef TRUE"
@@ -364,264 +583,294 @@ static int comp_id;
         print >>f, "#define false (0)"
 
     print >>f
-    if has_personality:
-        print >>f, "static int export(char *prefix, long extra_arg, long personality) {"
-    else:
-        print >>f, "static int export(char *prefix, long extra_arg) {"
-    if len(functions) > 0:
-        print >>f, "    char buf[HAL_NAME_LEN + 1];"
-    print >>f, "    int r = 0;"
-    if has_array:
-        print >>f, "    int j = 0;"
-    print >>f, "    int sz = sizeof(struct __comp_state) + __comp_get_data_size();"
-    print >>f, "    struct __comp_state *inst = hal_malloc(sz);"
-    print >>f, "    memset(inst, 0, sz);"
-    if has_data:
-        print >>f, "    inst->_data = (char*)inst + sizeof(struct __comp_state);"
-    if has_personality:
-        print >>f, "    inst->_personality = personality;"
-    if options.get("extra_setup"):
-        print >>f, "    r = extra_setup(inst, prefix, extra_arg);"
-	print >>f, "    if(r != 0) return r;"
-        # the extra_setup() function may have changed the personality
-        if has_personality:
-            print >>f, "    personality = inst->_personality;"
-    for name, type, array, dir, value, personality in pins:
-        if personality:
-            print >>f, "if(%s) {" % personality
-        if array:
-            if isinstance(array, tuple): array = array[1]
-            print >>f, "    for(j=0; j < (%s); j++) {" % array
-            print >>f, "        r = hal_pin_%s_newf(%s, &(inst->%s[j]), comp_id," % (
-                type, dirmap[dir], to_c(name))
-            print >>f, "            \"%%s%s\", prefix, j);" % to_hal("." + name)
-            print >>f, "        if(r != 0) return r;"
-            if value is not None:
-                print >>f, "    *(inst->%s[j]) = %s;" % (to_c(name), value)
-            print >>f, "    }"
-        else:
-            print >>f, "    r = hal_pin_%s_newf(%s, &(inst->%s), comp_id," % (
-                type, dirmap[dir], to_c(name))
-            print >>f, "        \"%%s%s\", prefix);" % to_hal("." + name)
-            print >>f, "    if(r != 0) return r;"
-            if value is not None:
-                print >>f, "    *(inst->%s) = %s;" % (to_c(name), value)
-        if personality:
-            print >>f, "}"
 
-    for name, type, array, dir, value, personality in params:
-        if personality:
-            print >>f, "if(%s) {" % personality
+###################################  funct()  #######################################
+
+    print >>f, "static int funct(const void *arg, const hal_funct_args_t *fa)\n{"
+    print >>f, "long period __attribute__((unused)) = fa_period(fa);\n"
+
+    print >>f, "    // the following accessors are available here:"
+    print >>f, "    // fa_period(fa) - formerly 'long period'"
+    print >>f, "    // fa_thread_start_time(fa): _actual_ start time of thread invocation"
+    print >>f, "    // fa_start_time(fa): _actual_ start time of function invocation"
+    print >>f, "    // fa_thread_name(fa): name of the calling thread (char *)"
+    print >>f, "    // fa_funct_name(fa): name of the this called function (char *)"
+    print >>f, "    return 0;\n}\n"
+
+
+
+###########################  export_halobjs()  ######################################################
+
+    print >>f, "static int export_halobjs(struct inst_data *ip, int owner_id, const char *name)\n{"
+
+    print >>f, "    char buf[HAL_NAME_LEN + 1];"
+    print >>f, "    int r = 0;"
+    print >>f, "    int j __attribute__((unused)) = 0;"
+    print >>f, "    int z __attribute__((unused)) = 0;"
+
+    if has_data:
+        print >>f, "    ip->_data = (char*)ip + sizeof(struct inst_data);"
+
+    for name, type, array, dir, value in pins:
         if array:
-            if isinstance(array, tuple): array = array[1]
-            print >>f, "    for(j=0; j < %s; j++) {" % array
-            print >>f, "        r = hal_param_%s_newf(%s, &(inst->%s[j]), comp_id," % (
-                type, dirmap[dir], to_c(name))
-            print >>f, "            \"%%s%s\", prefix, j);" % to_hal("." + name)
+            print >>f, "    z = %s;" % array
+            print >>f, "    if(z > maxpins)\n       z = maxpins;"
+            print >>f, "    for(j=0; j < z; j++)\n        {"
+            print >>f, "        r = hal_pin_%s_newf(%s, &(ip->%s[j]), owner_id," % (type, dirmap[dir], to_c(name))
+            print >>f, "            \"%%s%s\", name, j);" % to_hal("." + name)
             print >>f, "        if(r != 0) return r;"
             if value is not None:
-                print >>f, "    inst->%s[j] = %s;" % (to_c(name), value)
-            print >>f, "    }"
+                print >>f, "    *(ip->%s[j]) = %s;" % (to_c(name), value)
+            print >>f, "        }\n"
         else:
-            print >>f, "    r = hal_param_%s_newf(%s, &(inst->%s), comp_id," % (
-                type, dirmap[dir], to_c(name))
-            print >>f, "        \"%%s%s\", prefix);" % to_hal("." + name)
+            print >>f, "    r = hal_pin_%s_newf(%s, &(ip->%s), owner_id," % (type, dirmap[dir], to_c(name))
+            print >>f, "            \"%%s%s\", name);" % to_hal("." + name)
+            print >>f, "    if(r != 0) return r;\n"
             if value is not None:
-                print >>f, "    inst->%s = %s;" % (to_c(name), value)
-            print >>f, "    if(r != 0) return r;"
-        if personality:
-            print >>f, "}"
+                print >>f, "    *(ip->%s) = %s;" % (to_c(name), value)
+
+    for name, type, array, dir, value in params:
+        if array:
+            print >>f, "    z = %s;" % array
+            print >>f, "    if(z > maxpins)\n       z = maxpins;"
+            print >>f, "    for(j=0; j < z; j++)\n        {"
+            print >>f, "        r = hal_param_%s_newf(%s, &(ip->%s[j]), owner_id," % (type, dirmap[dir], to_c(name))
+            print >>f, "            \"%%s%s\", name, j);" % to_hal("." + name)
+            print >>f, "        if(r != 0) return r;"
+            if value is not None:
+                print >>f, "    ip->%s[j] = %s;" % (to_c(name), value)
+            print >>f, "        }\n"
+        else:
+            print >>f, "    r = hal_param_%s_newf(%s, &(ip->%s), owner_id," % (type, dirmap[dir], to_c(name))
+            print >>f, "            \"%%s%s\", name);" % to_hal("." + name)
+            if value is not None:
+                print >>f, "    ip->%s = %s;" % (to_c(name), value)
+            print >>f, "    if(r != 0) return r;\n"
 
     for type, name, array, value in variables:
         if value is None: continue
         if array:
-            print >>f, "    for(j=0; j < %s; j++) {" % array
-            print >>f, "        inst->%s[j] = %s;" % (name, value)
-            print >>f, "    }"
+            print >>f, "    z = %s;"  % array
+            print >>f, "    if(z > maxpins)\n       z = maxpins;"
+            print >>f, "    for(j=0; j < z; j++)\n       {"
+            print >>f, "        ip->%s[j] = %s;" % (name, value)
+            print >>f, "        }\n"
         else:
-            print >>f, "    inst->%s = %s;" % (name, value)
+            print >>f, "    ip->%s = %s;" % (name, value)
 
+# TODO
+#     need to insert the funct name and make required number of calls
+#     use 'functions' to get the names
+# for name, fp in functions:
+#        if names.has_key(name):
+#            Error("Duplicate item name: %s" % name)
+#        print >>f, "static int %s(void *arg, const hal_funct_args_t *fa);\n" % to_c(name)
     for name, fp in functions:
-        print >>f, "    rtapi_snprintf(buf, sizeof(buf), \"%%s%s\", prefix);"\
-            % to_hal("." + name)
-        print >>f, "    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, %s, 0, comp_id);" % (
-            to_c(name), int(fp))
-        print >>f, "    if(r != 0) return r;"
-    print >>f, "    if(__comp_last_inst) __comp_last_inst->_next = inst;"
-    print >>f, "    __comp_last_inst = inst;"
-    print >>f, "    if(!__comp_first_inst) __comp_first_inst = inst;"
+        print >>f, "    // exporting an extended thread function:"
+        print >>f, "    hal_export_xfunct_args_t %s_xf = " % to_c(name)
+        print >>f, "        {"
+        print >>f, "        .type = FS_XTHREADFUNC,"
+        print >>f, "        .funct.x = %s," % to_c(name)
+        print >>f, "        .arg = ip,"
+        print >>f, "        .uses_fp = %d," % int(fp)
+        print >>f, "        .reentrant = 0,"
+        print >>f, "        .owner_id = owner_id"
+        print >>f, "        };\n"
+
+#        print >>f, "    %s_xf.uses_fp = %d;" % ( to_c(name), int(fp))
+        strng =  "    rtapi_snprintf(buf, sizeof(buf),\"%s."
+        if (name == "" or name == "_" or name == " ") :
+            strng += "funct\", name);"
+        else :
+            strng += "%s.funct\", name);" % (to_hal(name))
+        print >>f, strng
+
+        print >>f, "    r = hal_export_xfunctf(&%s_xf, buf, name);" % to_c(name)
+        print >>f, "    if(r != 0)\n        return r;"
+
     print >>f, "    return 0;"
     print >>f, "}"
 
-    if options.get("count_function"):
-        print >>f, "static int get_count(void);"
 
-    if options.get("rtapi_app", 1):
-        if options.get("constructable") and not options.get("singleton"):
-            print >>f, "static int export_1(char *prefix, char *argstr) {"
-            print >>f, "    int arg = simple_strtol(argstr, NULL, 0);"
-            print >>f, "    return export(prefix, arg);"
-            print >>f, "}"
-        if not options.get("singleton") and not options.get("count_function") :
-            print >>f, "static int default_count=%s, count=0;" \
-                % options.get("default_count", 1)
-            print >>f, "char *names[16] = {0,};"
-            if not options.get("userspace"):
-                print >>f, "RTAPI_MP_INT(count, \"number of %s\");" % comp_name
-                print >>f, "RTAPI_MP_ARRAY_STRING(names, 16, \"names of %s\");" % comp_name
 
-        if has_personality:
-            init1 = str(int(options.get('default_personality', 0)))
-            init = ",".join([init1] * 16)
-            print >>f, "static int personality[16] = {%s};" % init
-            print >>f, "RTAPI_MP_ARRAY_INT(personality, 16, \"personality of each %s\");" % comp_name
-        print >>f, "int rtapi_app_main(void) {"
-        print >>f, "    int r = 0;"
-        if not options.get("singleton"):
-            print >>f, "    int i;"
-        if options.get("count_function"):
-            print >>f, "    int count = get_count();"
+###########################  instantiate() ###############################################################
 
-        print >>f, "    comp_id = hal_init(\"%s\");" % comp_name
-        print >>f, "    if(comp_id < 0) return comp_id;"
+    print >>f, "\n// constructor - init all HAL pins, params, funct etc here"
+    print >>f, "static int instantiate(const char *name, const int argc, const char**argv)\n{"
+    print >>f, "struct inst_data *ip;"
+    print >>f, "int r;"
+    if options.get("extra_inst_setup"):
+            print >>f, "int k;"
+    print >>f, "\n// allocate a named instance, and some HAL memory for the instance data"
+    print >>f, "int inst_id = hal_inst_create(name, comp_id, sizeof(struct inst_data), (void **)&ip);\n"
 
-        if options.get("singleton"):
-            if has_personality:
-                print >>f, "    r = export(\"%s\", 0, personality[0]);" % \
-                        to_hal(removeprefix(comp_name, "hal_"))
-            else:
-                print >>f, "    r = export(\"%s\", 0);" % \
-                        to_hal(removeprefix(comp_name, "hal_"))
-        elif options.get("count_function"):
-            print >>f, "    for(i=0; i<count; i++) {"
-            print >>f, "        char buf[HAL_NAME_LEN + 1];"
-            print >>f, "        rtapi_snprintf(buf, sizeof(buf), " \
-                                        "\"%s.%%d\", i);" % \
-                    to_hal(removeprefix(comp_name, "hal_"))
-            if has_personality:
-                print >>f, "        r = export(buf, i, personality[i%16]);"
-            else:
-                print >>f, "        r = export(buf, i);"
-	    print >>f, "    }"
-	else:
-            print >>f, "    if(count && names[0]) {"
-            print >>f, "        rtapi_print_msg(RTAPI_MSG_ERR," \
-                            "\"count= and names= are mutually exclusive\\n\");"
-            print >>f, "        return -EINVAL;"
-            print >>f, "    }"
-            print >>f, "    if(!count && !names[0]) count = default_count;"
-            print >>f, "    if(count) {"
-            print >>f, "        for(i=0; i<count; i++) {"
-            print >>f, "            char buf[HAL_NAME_LEN + 1];"
-            print >>f, "            rtapi_snprintf(buf, sizeof(buf), " \
-                                        "\"%s.%%d\", i);" % \
-                    to_hal(removeprefix(comp_name, "hal_"))
-            if has_personality:
-                print >>f, "        r = export(buf, i, personality[i%16]);"
-            else:
-                print >>f, "        r = export(buf, i);"
-            print >>f, "            if(r != 0) break;"
-            print >>f, "       }"
-            print >>f, "    } else {"
-            print >>f, "        for(i=0; names[i]; i++) {"
-            if has_personality:
-                print >>f, "        r = export(names[i], i, personality[i%16]);"
-            else:
-                print >>f, "        r = export(names[i], i);"
-            print >>f, "            if(r != 0) break;"
-            print >>f, "       }"
-            print >>f, "    }"
+    print >>f, "    if (inst_id < 0)\n        return -1;\n"
 
-        if options.get("constructable") and not options.get("singleton"):
-            print >>f, "    hal_set_constructor(comp_id, export_1);"
-        print >>f, "    if(r) {"
-	if options.get("extra_cleanup"):
-            print >>f, "    extra_cleanup();"
-        print >>f, "        hal_exit(comp_id);"
-        print >>f, "    } else {"
-        print >>f, "        hal_ready(comp_id);"
-        print >>f, "    }"
-        print >>f, "    return r;"
-        print >>f, "}"
+    print >>f, "// here ip is guaranteed to point to a blob of HAL memory of size sizeof(struct inst_data)."
+    print >>f, "    hal_print_msg(RTAPI_MSG_ERR,\"%s inst=%s argc=%d\",__FUNCTION__, name, argc);\n"
+    print >>f, "// Debug print of params and values"
+    for name, mptype, value in instanceparams:
+        if (mptype == 'int'):
+            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: int instance param: %s=%d\",__FUNCTION__,"
+            strg += "\"%s\", %s);" % (to_c(name), to_c(name))
+            print >>f, strg
+        else:
+            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: string instance param: %s=%s\",__FUNCTION__,"
+            strg += "\"%s\", %s);" % (to_c(name), to_c(name))
+            print >>f, strg
 
-        print >>f
-        print >>f, "void rtapi_app_exit(void) {"
-	if options.get("extra_cleanup"):
-            print >>f, "    extra_cleanup();"
-        print >>f, "    hal_exit(comp_id);"
-        print >>f, "}"
+    print >>f, "\n// These pins - params - functs will be owned by the instance, and can be separately exited with delinst"
+#    To get param updates have to test in C code not this script, for iprefix
+    print >>f, "    if(strlen(iprefix))"
+    print >>f, "        r = export_halobjs(ip, inst_id, iprefix);"
+    print >>f, "    else"
+    print >>f, "        r = export_halobjs(ip, inst_id, name);"
+    if options.get("extra_inst_setup"):
+            print >>f, "    // if the extra_inst_setup returns non zero will abort module creation"
+            print >>f, "    k = extra_inst_setup(ip, name, argc, argv);\n"
+            print >>f, "    if(k != 0)"
+            print >>f, "        return k;\n"
 
-    if options.get("userspace"):
-        print >>f, "static void user_mainloop(void);"
-        if options.get("userinit"):
-            print >>f, "static void userinit(int argc, char **argv);"
-        print >>f, "int argc=0; char **argv=0;"
-        print >>f, "int main(int argc_, char **argv_) {"
-        print >>f, "    argc = argc_; argv = argv_;"
-        print >>f
-        if options.get("userinit", 0):
-            print >>f, "    userinit(argc, argv);"
-        print >>f
-        print >>f, "    if(rtapi_app_main() < 0) return 1;"
-        print >>f, "    user_mainloop();"
-        print >>f, "    rtapi_app_exit();"
-        print >>f, "    return 0;"
-        print >>f, "}"
+    print >>f, "    if(r == 0)"
+    print >>f, "        hal_print_msg(RTAPI_MSG_ERR,\"%s - instance %s creation SUCCESSFUL\",__FUNCTION__, name);"
+    print >>f, "    else"
+    print >>f, "        hal_print_msg(RTAPI_MSG_ERR,\"%s - instance %s creation ABORTED\",__FUNCTION__, name);"
+    print >>f, "    return r;\n}"
+
+##############################  rtapi_app_main  ######################################################
+
+    print >>f, "\nint rtapi_app_main(void)\n{"
+    print >>f, "// Debug print of params and values"
+    for name, mptype, value in instanceparams:
+        if (mptype == 'int'):
+            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: int instance param: %s=%d\",__FUNCTION__,"
+            strg += "\"%s\", %s);" % (to_c(name), to_c(name))
+            print >>f, strg
+        else:
+            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: string instance param: %s=%s\",__FUNCTION__,"
+            strg += "\"%s\", %s);" % (to_c(name), to_c(name))
+            print >>f, strg
+
+    print >>f, "    // to use default destructor, use NULL instead of delete"
+    print >>f, "    comp_id = hal_xinit(TYPE_RT, 0, 0, instantiate, delete, compname);"
+    print >>f, "    if (comp_id < 0)"
+    print >>f, "        return -1;\n"
+
+    print >>f, "    // exporting an extended thread function:"
+    print >>f, "    hal_export_xfunct_args_t xtf = "
+    print >>f, "        {"
+    print >>f, "        .type = FS_XTHREADFUNC,"
+    print >>f, "        .funct.x = (void *) funct,"
+    print >>f, "        .arg = \"x-instance-data\","
+    print >>f, "        .uses_fp = 0,"
+    print >>f, "        .reentrant = 0,"
+    print >>f, "        .owner_id = comp_id"
+    print >>f, "        };\n"
+
+    print >>f, "    if (hal_export_xfunctf(&xtf,\"%s.funct\", compname))"
+    print >>f, "        return -1;"
+
+    print >>f, "    hal_ready(comp_id);\n"
+
+
+
+    print >>f, "    return 0;\n}\n"
+
+###############################  rtapi_app_exit()  #####################################################
+
+    print >>f, "void rtapi_app_exit(void)\n{"
+    if options.get("extra_inst_cleanup"):
+            print >>f, "    extra_inst_cleanup();"
+    print >>f, "    hal_exit(comp_id);"
+    print >>f, "}\n"
+
+
+#########################   delete()  ####################################################################
+
+    print >>f, "// custom destructor - normally not needed"
+    print >>f, "// pins, params, and functs are automatically deallocated regardless if a"
+    print >>f, "// destructor is used or not (see below)"
+    print >>f, "//"
+    print >>f, "// some objects like vtables, rings, threads are not owned by a component"
+    print >>f, "// interaction with such objects may require a custom destructor for"
+    print >>f, "// cleanup actions"
+    print >>f, "// NB: if a customer destructor is used, it is called"
+    print >>f, "// - after the instance's functs have been removed from their respective threads"
+    print >>f, "//   (so a thread funct call cannot interact with the destructor any more)"
+    print >>f, "// - any pins and params of this instance are still intact when the destructor is"
+    print >>f, "//   called, and they are automatically destroyed by the HAL library once the"
+    print >>f, "//   destructor returns"
+    print >>f, "static int delete(const char *name, void *inst, const int inst_size)\n{\n"
+
+    print >>f, "    hal_print_msg(RTAPI_MSG_ERR,\"%s inst=%s size=%d %p\\n\", __FUNCTION__, name, inst_size, inst);"
+    print >>f, "// Debug print of params and values"
+    for name, mptype, value in instanceparams:
+        if (mptype == 'int'):
+            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: int instance param: %s=%d\",__FUNCTION__,"
+            strg += "\"%s\", %s);" % (to_c(name), to_c(name))
+            print >>f, strg
+        else:
+            strg = "    hal_print_msg(RTAPI_MSG_ERR,\"%s: string instance param: %s=%s\",__FUNCTION__,"
+            strg += "\"%s\", %s);" % (to_c(name), to_c(name))
+            print >>f, strg
+
+    print >>f, "    return 0;\n"
+    print >>f, "}\n"
+
+######################  preliminary defines before user FUNCTION(_) ######################################
+
+    print >>f
+ #   print >>f, "struct inst_data *ip;\n"
 
     print >>f
     if not options.get("no_convenience_defines"):
         print >>f, "#undef FUNCTION"
-        print >>f, "#define FUNCTION(name) static void name(struct __comp_state *__comp_inst, long period)"
-        print >>f, "#undef EXTRA_SETUP"
-        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg)"
-        print >>f, "#undef EXTRA_CLEANUP"
-        print >>f, "#define EXTRA_CLEANUP() static void extra_cleanup(void)"
+        print >>f, "#define FUNCTION(name) static int name(void *arg, const hal_funct_args_t *fa)"
+        if options.get("extra_inst_setup"):
+            print >>f, "// if the extra_inst_setup returns non zero it will abort the module creation"
+            print >>f, "#undef EXTRA_INST_SETUP"
+            print >>f, "#define EXTRA_INST_SETUP() static int extra_inst_setup(struct inst_data *ip, const char *name, int argc, const char**argv)"
+        if options.get("extra_inst_cleanup"):
+            print >>f, "#undef EXTRA_INST_CLEANUP"
+            print >>f, "#define EXTRA_INST_CLEANUP() static void extra_inst_cleanup(void)"
         print >>f, "#undef fperiod"
         print >>f, "#define fperiod (period * 1e-9)"
-        for name, type, array, dir, value, personality in pins:
+        for name, type, array, dir, value in pins:
             print >>f, "#undef %s" % to_c(name)
             if array:
                 if dir == 'in':
-                    print >>f, "#define %s(i) (0+*(__comp_inst->%s[i]))" % (to_c(name), to_c(name))
+                    print >>f, "#define %s(i) (0+*(ip->%s[i]))" % (to_c(name), to_c(name))
                 else:
-                    print >>f, "#define %s(i) (*(__comp_inst->%s[i]))" % (to_c(name), to_c(name))
+                    print >>f, "#define %s(i) (*(ip->%s[i]))" % (to_c(name), to_c(name))
             else:
                 if dir == 'in':
-                    print >>f, "#define %s (0+*__comp_inst->%s)" % (to_c(name), to_c(name))
+                    print >>f, "#define %s (0+*ip->%s)" % (to_c(name), to_c(name))
                 else:
-                    print >>f, "#define %s (*__comp_inst->%s)" % (to_c(name), to_c(name))
-        for name, type, array, dir, value, personality in params:
+                    print >>f, "#define %s (*ip->%s)" % (to_c(name), to_c(name))
+        for name, type, array, dir, value in params:
             print >>f, "#undef %s" % to_c(name)
             if array:
-                print >>f, "#define %s(i) (__comp_inst->%s[i])" % (to_c(name), to_c(name))
+                print >>f, "#define %s(i) (ip->%s[i])" % (to_c(name), to_c(name))
             else:
-                print >>f, "#define %s (__comp_inst->%s)" % (to_c(name), to_c(name))
+                print >>f, "#define %s (ip->%s)" % (to_c(name), to_c(name))
 
         for type, name, array, value in variables:
             name = name.replace("*", "")
             print >>f, "#undef %s" % name
-            print >>f, "#define %s (__comp_inst->%s)" % (name, name)
+            print >>f, "#define %s (ip->%s)" % (name, name)
 
         if has_data:
             print >>f, "#undef data"
-            print >>f, "#define data (*(%s*)(__comp_inst->_data))" % options['data']
-        if has_personality:
-            print >>f, "#undef personality"
-            print >>f, "#define personality (__comp_inst->_personality)"
+            print >>f, "#define data (*(%s*)(ip->_data))" % options['data']
 
-        if options.get("userspace"):
-            print >>f, "#undef FOR_ALL_INSTS"
-            print >>f, "#define FOR_ALL_INSTS() for(__comp_inst = __comp_first_inst; __comp_inst; __comp_inst = __comp_inst->_next)"
     print >>f
     print >>f
+
+#########################  Epilogue - FUNCTION(_) printed in direct from file ################
 
 def epilogue(f):
     data = options.get('data')
     print >>f
-    if data:
-        print >>f, "static int __comp_get_data_size(void) { return sizeof(%s); }" % data
-    else:
-        print >>f, "static int __comp_get_data_size(void) { return 0; }"
 
 INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC, MODINC = range(7)
 modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc", "print-modinc")
@@ -637,26 +886,6 @@ def find_modinc():
             modinc = e
             return e
     raise SystemExit, "Unable to locate Makefile.modinc"
-
-def build_usr(tempdir, filename, mode, origfilename):
-    binname = os.path.basename(os.path.splitext(filename)[0])
-
-    makefile = os.path.join(tempdir, "Makefile")
-    f = open(makefile, "w")
-    print >>f, "%s: %s" % (binname, filename)
-    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
-        options.get("extra_compile_args", ""),
-        options.get("extra_link_args", ""))
-    print >>f, "include %s" % find_modinc()
-    f.close()
-    result = os.system("cd %s && make -S %s" % (tempdir, binname))
-    if result != 0:
-        raise SystemExit, os.WEXITSTATUS(result) or 1
-    output = os.path.join(tempdir, binname)
-    if mode == INSTALL:
-        shutil.copy(output, os.path.join(BASE, "bin", binname))
-    elif mode == COMPILE:
-        shutil.copy(output, os.path.join(os.path.dirname(origfilename),binname))
 
 def build_rt(tempdir, filename, mode, origfilename):
     objname = os.path.basename(os.path.splitext(filename)[0] + ".o")
@@ -683,6 +912,8 @@ def build_rt(tempdir, filename, mode, origfilename):
         else:
             raise SystemExit, "Unable to copy module from temporary directory"
 
+######################  docs man pages etc  ###########################################
+
 def finddoc(section=None, name=None):
     for item in docs:
         if ((section == None or section == item[0]) and
@@ -706,10 +937,8 @@ def to_hal_man_unnumbered(s):
 
 
 def to_hal_man(s):
-    if options.get("singleton"):
-        s = "%s.%s" % (comp_name, s)
-    else:
-        s = "%s.\\fIN\\fB.%s" % (comp_name, s)
+#    s = "%s.\\fIN\\fB.%s" % (comp_name, s)
+    s = "%s.%s" % (comp_name, s)
     s = s.replace("_", "-")
     s = s.rstrip("-")
     s = s.rstrip(".")
@@ -718,22 +947,16 @@ def to_hal_man(s):
     return s
 
 def document(filename, outfilename):
+    #return
+    ## don't process docs for now
+
     if outfilename is None:
         outfilename = os.path.splitext(filename)[0] + ".9comp"
 
     a, b = parse(filename)
     f = open(outfilename, "w")
 
-    has_personality = False
-    for name, type, array, dir, value, personality in pins:
-        if personality: has_personality = True
-        if isinstance(array, tuple): has_personality = True
-    for name, type, array, dir, value, personality in params:
-        if personality: has_personality = True
-        if isinstance(array, tuple): has_personality = True
-
-    print >>f, ".TH %s \"9\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
-        comp_name.upper(), time.strftime("%F"))
+    print >>f, ".TH %s \"9\" \"%s\" \"Machinekit Documentation\" \"HAL Component\"" % (comp_name.upper(), time.strftime("%F"))
     print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
 
     print >>f, ".SH NAME\n"
@@ -751,45 +974,33 @@ def document(filename, outfilename):
 
 
     print >>f, ".SH SYNOPSIS"
-    if options.get("userspace"):
-        print >>f, ".B %s" % comp_name
+    if rest:
+        print >>f, rest
     else:
-        if rest:
-            print >>f, rest
-        else:
-            print >>f, ".HP"
-            if options.get("singleton") or options.get("count_function"):
-                if has_personality:
-                    print >>f, ".B loadrt %s personality=\\fIP\\fB" % comp_name,
-                else:
-                    print >>f, ".B loadrt %s" % comp_name,
-            else:
-                if has_personality:
-                    print >>f, ".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP,P,...\\fB]" % comp_name,
-                else:
-                    print >>f, ".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]]" % comp_name,
+        print >>f, ".HP"
+        print >>f, ".B loadrt %s" % comp_name
+        print >>f, ".HP"
+        print >>f, ".B newinst %s <newinstname> [ pincount=\\fIN\\fB | iprefix=\\fIprefix\\fB ]" % comp_name
+        print >>f, ".B                          [instanceparamX=\\fIX\\fB | argX=\\fIX\\fB ]"
+        for type, name, default, doc in modparams:
+            print >>f, "[%s=\\fIN\\fB]" % name,
+        print >>f
+
+        hasparamdoc = False
+        for type, name, default, doc in modparams:
+            if doc: hasparamdoc = True
+
+        if hasparamdoc:
+            print >>f, ".RS 4"
             for type, name, default, doc in modparams:
-                print >>f, "[%s=\\fIN\\fB]" % name,
-            print >>f
-
-            hasparamdoc = False
-            for type, name, default, doc in modparams:
-                if doc: hasparamdoc = True
-
-            if hasparamdoc:
-                print >>f, ".RS 4"
-                for type, name, default, doc in modparams:
-                    print >>f, ".TP"
-                    print >>f, "\\fB%s\\fR" % name,
-                    if default:
-                        print >>f, "[default: %s]" % default
-                    else:
-                        print >>f
-                    print >>f, doc
-                print >>f, ".RE"
-
-        if options.get("constructable") and not options.get("singleton"):
-            print >>f, ".PP\n.B newinst %s \\fIname\\fB" % comp_name
+                print >>f, ".TP"
+                print >>f, "\\fB%s\\fR" % name,
+                if default:
+                    print >>f, "[default: %s]" % default
+                else:
+                    print >>f
+                print >>f, doc
+            print >>f, ".RE"
 
     doc = finddoc('descr')
     if doc and doc[1]:
@@ -800,7 +1011,10 @@ def document(filename, outfilename):
         print >>f, ".SH FUNCTIONS"
         for _, name, fp, doc in finddocs('funct'):
             print >>f, ".TP"
-            print >>f, "\\fB%s\\fR" % to_hal_man(name),
+            if name != None and name != "_":
+                print >>f, "\\fB<newinstname>.%s.funct\\fR"  % name ,
+            else :
+                print >>f, "\\fB<newinstname>.funct\\fR" ,
             if fp:
                 print >>f, "(requires a floating-point thread)"
             else:
@@ -809,18 +1023,13 @@ def document(filename, outfilename):
 
     lead = ".TP"
     print >>f, ".SH PINS"
-    for _, name, type, array, dir, doc, value, personality in finddocs('pin'):
+    for _, name, type, array, dir, doc, value in finddocs('pin'):
         print >>f, lead
         print >>f, ".B %s\\fR" % to_hal_man(name),
         print >>f, type, dir,
         if array:
             sz = name.count("#")
-            if isinstance(array, tuple):
-                print >>f, " (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]),
-            else:
-                print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
-        if personality:
-            print >>f, " [if %s]" % personality,
+            print >>f, " (%s=%s..%s)" % ("M" * sz, "0" * sz , array),
         if value:
             print >>f, "\\fR(default: \\fI%s\\fR)" % value
         else:
@@ -834,18 +1043,46 @@ def document(filename, outfilename):
     lead = ".TP"
     if params:
         print >>f, ".SH PARAMETERS"
-        for _, name, type, array, dir, doc, value, personality in finddocs('param'):
+        for _, name, type, array, dir, doc, value in finddocs('param'):
             print >>f, lead
             print >>f, ".B %s\\fR" % to_hal_man(name),
             print >>f, type, dir,
             if array:
                 sz = name.count("#")
-                if isinstance(array, tuple):
-                    print >>f, " (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]),
-                else:
-                    print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
-            if personality:
-                print >>f, " [if %s]" % personality,
+                print >>f, " (%s=%s..%s)" % ("M" * sz, "0" * sz , array),
+            if value:
+                print >>f, "\\fR(default: \\fI%s\\fR)" % value
+            else:
+                print >>f, "\\fR"
+            if doc:
+                print >>f, doc
+                lead = ".TP"
+            else:
+                lead = ".TQ"
+
+
+    if instanceparams:
+        print >>f, ".SH INST_PARAMETERS"
+        for _, name, type, doc, value in finddocs('instanceparam'):
+            print >>f, lead
+            print >>f, ".B %s\\fR" % name,
+            print >>f, type,
+            if value:
+                print >>f, "\\fR(default: \\fI%s\\fR)" % value
+            else:
+                print >>f, "\\fR"
+            if doc:
+                print >>f, doc
+                lead = ".TP"
+            else:
+                lead = ".TQ"
+
+    if moduleparams:
+        print >>f, ".SH MODULE_PARAMETERS"
+        for _, name, type, doc, value in finddocs('moduleparam'):
+            print >>f, lead
+            print >>f, ".B %s\\fR" % name,
+            print >>f, type,
             if value:
                 print >>f, "\\fR(default: \\fI%s\\fR)" % value
             else:
@@ -885,45 +1122,68 @@ def process(filename, mode, outfilename):
             else:
                 outfilename = os.path.join(tempdir,
                     os.path.splitext(os.path.basename(filename))[0] + ".c")
-
+        # a contains before '\n;;\n' and b after
         a, b = parse(filename)
         f = open(outfilename, "w")
 
-        if options.get("userinit") and not options.get("userspace"):
-            print >> sys.stderr, "Warning: comp '%s' sets 'userinit' without 'userspace', ignoring" % filename
-
-        if options.get("userspace"):
-            if functions:
-                raise SystemExit, "Userspace components may not have functions"
         if not pins:
             raise SystemExit, "Component must have at least one pin"
         prologue(f)
         lineno = a.count("\n") + 3
 
-        if options.get("userspace"):
-            if functions:
-                raise SystemExit, "May not specify functions with a userspace component."
+        #   parse the remainder of the file to add the function prelims
+        have_func = False
+        insert = False
+
+        if "FUNCTION" in b:
+            c = ""
+            f.write("#line %d \"%s\"\n" % (lineno, filename))
+            linelist = b.split("\n")
+            z = len(linelist)
+            y = 0
+            while(y < z) :
+                q = linelist[y]
+                if have_func :
+                    if "{" in q:
+                        have_func = False
+                        insert = True
+                else :
+                    if "FUNCTION" in q and not "{" in q:
+                        have_func = True
+                    else :
+                        if "FUNCTION" in q and "{" in q:
+                            insert = True
+                if insert :
+                    g,h = q.split("{")
+                    c += g
+                    c += "{"
+                    c += "\nlong period __attribute__((unused)) = fa_period(fa);\n"
+                    c += "struct inst_data *ip = arg;\n\n"
+                    c += h
+                    insert = False
+                else :
+                    c += q
+                    c += "\n"
+
+                y = y + 1
+
+            f.write(c)
+
+        # if the code is loose because there is just one function
+        elif len(functions) == 1:
+            f.write("FUNCTION(%s)\n{\n" % functions[0][0])
+            f.write("long period __attribute__((unused)) = fa_period(fa);\n")
+            f.write("struct inst_data *ip = arg;\n\n")
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             f.write(b)
+            f.write("}\n")
         else:
-            if not functions or "FUNCTION" in b:
-                f.write("#line %d \"%s\"\n" % (lineno, filename))
-                f.write(b)
-            elif len(functions) == 1:
-                f.write("FUNCTION(%s) {\n" % functions[0][0])
-                f.write("#line %d \"%s\"\n" % (lineno, filename))
-                f.write(b)
-                f.write("}\n")
-            else:
-                raise SystemExit, "Must use FUNCTION() when more than one function is defined"
+            raise SystemExit, "Must use FUNCTION() when more than one function is defined"
         epilogue(f)
         f.close()
 
         if mode != PREPROCESS:
-            if options.get("userspace"):
-                build_usr(tempdir, outfilename, mode, filename)
-            else:
-                build_rt(tempdir, outfilename, mode, filename)
+            build_rt(tempdir, outfilename, mode, filename)
 
     finally:
         shutil.rmtree(tempdir)
@@ -934,12 +1194,12 @@ def usage(exitval=0):
 Usage:
            %(name)s [--compile|--preprocess|--document|--view-doc] compfile...
     [sudo] %(name)s [--install|--install-doc] compfile...
-           %(name)s --compile --userspace cfile...
-    [sudo] %(name)s --install --userspace cfile...
-    [sudo] %(name)s --install --userspace pyfile...
            %(name)s --print-modinc
 """ % {'name': os.path.basename(sys.argv[0])}
     raise SystemExit, exitval
+
+
+#####################################  main  ##################################
 
 def main():
     global require_license
@@ -957,7 +1217,7 @@ def main():
 
     for k, v in opts:
         if k in ("-u", "--userspace"):
-            userspace = True
+            raise SystemExit, "instcomp does not support userspace components"
         if k in ("-i", "--install"):
             mode = INSTALL
         if k in ("-c", "--compile"):
@@ -994,9 +1254,9 @@ def main():
     for f in args:
         try:
             basename = os.path.basename(os.path.splitext(f)[0])
-            if f.endswith(".comp") and mode == DOCUMENT:
+            if f.endswith(".icomp") and mode == DOCUMENT:
                 document(f, outfile)
-            elif f.endswith(".comp") and mode == VIEWDOC:
+            elif f.endswith(".icomp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
                     outfile = os.path.join(tempdir, basename + ".9comp")
@@ -1004,14 +1264,14 @@ def main():
                     os.spawnvp(os.P_WAIT, "man", ["man", outfile])
                 finally:
                     shutil.rmtree(tempdir)
-            elif f.endswith(".comp") and mode == INSTALLDOC:
+            elif f.endswith(".icomp") and mode == INSTALLDOC:
                 manpath = os.path.join(BASE, "share/man/man9")
                 if not os.path.isdir(manpath):
                     manpath = os.path.join(BASE, "man/man9")
                 outfile = os.path.join(manpath, basename + ".9comp")
                 print "INSTALLDOC", outfile
                 document(f, outfile)
-            elif f.endswith(".comp"):
+            elif f.endswith(".icomp"):
                 process(f, mode, outfile)
             elif f.endswith(".py") and mode == INSTALL:
                 lines = open(f).readlines()
@@ -1027,10 +1287,7 @@ def main():
                 tempdir = tempfile.mkdtemp()
                 try:
                     shutil.copy(f, tempdir)
-                    if userspace:
-                        build_usr(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
-                    else:
-                        build_rt(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
+                    build_rt(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
                 finally:
                     shutil.rmtree(tempdir)
             else:
