@@ -1,15 +1,6 @@
 #
-# Test Zedboard IO for spindle speed control with encoder
+# Test Zedboard IO for spindle speed PWM control with encoder
 #
-
-# 1:1 correspondence between joints and axes.
-loadrt trivkins
-loadrt tp 
-
-# parameters defined in test.ini (motmod) 
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
-
-# load/rt HAL module 
 
 #
 # GPIO connections:
@@ -21,6 +12,13 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 # hal_zed_gpio.pin-01-out PWM
 #
 
+# 1:1 correspondence between joints and axes.
+loadrt trivkins
+loadrt tp 
+
+# parameters defined in test.ini (motmod) 
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
+
 # loadrt hal_zed_gpio module
 loadrt hal_zed_gpio
 
@@ -31,7 +29,7 @@ loadrt not
 loadrt encoder                              num_chan=1
 
 # PWM generator for output test
-loadrt pwmgen output_type=0
+loadrt pwmgen                               output_type=0
 
 #
 loadrt conv_s32_float
@@ -69,7 +67,8 @@ setp pwmgen.0.pwm-freq                      10
 net PWM pwmgen.0.pwm                        => hal_zed_gpio.pin-00-out         
 # activate PWM when !e-stop
 net nestop                                  => pwmgen.0.enable
-# 
+
+# connect encoder counts to PWM
 net enc-counts encoder.0.counts             => conv-s32-float.0.in  
 net enc-counts-f conv-s32-float.0.out       => pwmgen.0.value
 
