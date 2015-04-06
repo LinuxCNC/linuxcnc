@@ -203,6 +203,7 @@ SUBDIRS := \
 	\
 	hal/lib \
 	hal/components \
+	hal/i_components \
 	hal/vtable-example \
 	hal/userfunct-example \
 	hal/drivers \
@@ -1088,6 +1089,7 @@ ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/lib/Submakefile
 include $(BASEPWD)/machinetalk/Submakefile
 include $(BASEPWD)/hal/components/Submakefile
+include $(BASEPWD)/hal/i_components/Submakefile
 include $(BASEPWD)/hal/vtable-example/Submakefile
 include $(BASEPWD)/hal/userfunct-example/Submakefile
 include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
