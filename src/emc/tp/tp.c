@@ -2157,6 +2157,7 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
             tc->currentvel, tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
     tc_debug_print("          acc = %f, T = %f, DTG = %.12g\n", acc,
             tcGetTarget(tc,tp->reverse_run), tcGetDistanceToGo(tc,tp->reverse_run));
+    tc_debug_print("          reverse_run = %d\n", tp->reverse_run);
     tc_debug_print("          motion type %d\n", tc->motion_type);
 
     if (tc->on_final_decel) {
@@ -2940,7 +2941,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
 
     //Assume no split time unless we find otherwise
     tc->cycle_time = tp->cycleTime;
-
     //Initial guess at dt for next round
     double dx = tcGetDistanceToGo(tc, tp->reverse_run);
     tc_debug_print("tpCheckEndCondition: dx = %e\n",dx);
@@ -2950,11 +2950,16 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         tp_debug_print("close to target, dx = %.12f\n",dx);
         //Force progress to land exactly on the target to prevent numerical errors.
         tc->progress = tcGetTarget(tc, tp->reverse_run);
-        tcSetSplitCycle(tc, 0.0, tc->currentvel);
-        if (tc->term_cond == TC_TERM_COND_STOP || tc->term_cond == TC_TERM_COND_EXACT) {
+
+        if (!tp->reverse_run) {
+            tcSetSplitCycle(tc, 0.0, tc->currentvel);
+        }
+        if (tc->term_cond == TC_TERM_COND_STOP || tc->term_cond == TC_TERM_COND_EXACT || tp->reverse_run) {
             tc->remove = 1;
         }
         return TP_ERR_OK;
+    } else if (tp->reverse_run) {
+        return TP_ERR_NO_ACTION;
     } else if (tc->term_cond == TC_TERM_COND_STOP || tc->term_cond == TC_TERM_COND_EXACT) {
         return TP_ERR_NO_ACTION;
     }
