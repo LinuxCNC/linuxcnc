@@ -2058,10 +2058,8 @@ class TclCommands(nf.TclCommands):
         s.poll()
         if not s.paused:
             return
-        if s.task_mode not in (linuxcnc.MODE_AUTO):
+        if s.task_mode != linuxcnc.MODE_AUTO:
             return
-        ensure_mode(linuxcnc.MODE_AUTO)
-        c.auto(linuxcnc.AUTO_RESUME)
 
         ensure_mode(linuxcnc.MODE_AUTO)
         c.auto(linuxcnc.AUTO_REVERSE)
@@ -2070,10 +2068,8 @@ class TclCommands(nf.TclCommands):
         s.poll()
         if not s.paused:
             return
-        if s.task_mode not in (linuxcnc.MODE_AUTO):
+        if s.task_mode != linuxcnc.MODE_AUTO:
             return
-        ensure_mode(linuxcnc.MODE_AUTO)
-        c.auto(linuxcnc.AUTO_RESUME)
 
         ensure_mode(linuxcnc.MODE_AUTO)
         c.auto(linuxcnc.AUTO_FORWARD)
