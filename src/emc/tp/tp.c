@@ -2810,7 +2810,7 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_MISSING_INPUT;
     }
 
-    if (tp->reverse_run && (tc->motion_type == TC_RIGIDTAP || tc->synchronized != TC_SYNC_NONE)) {
+    if (tp->reverse_run && (tc->motion_type == TC_RIGIDTAP || tc->synchronized != TC_SYNC_NONE || tc->atspeed)) {
         //Can't activate a segment with synced motion in reverse
         return TP_ERR_INVALID;
     }
