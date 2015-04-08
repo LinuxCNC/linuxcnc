@@ -36,6 +36,9 @@
 #include <stdlib.h>		/* exit() */
 #include <grp.h>                // getgroups
 
+#include <elf.h>                // get_rpath()
+#include <link.h>
+
 // really in nucleus/heap.h but we rather get away with minimum include files
 #ifndef XNHEAP_DEV_NAME
 #define XNHEAP_DEV_NAME  "/dev/rtheap"
@@ -487,4 +490,24 @@ int procfs_cmd(const char *path, const char *format, ...)
 	return retval;
     } else
 	return -ENOENT;
+}
+
+
+const char *rtapi_get_rpath(void)
+{
+  const ElfW(Dyn) *dyn = _DYNAMIC;
+  const ElfW(Dyn) *rpath = NULL;
+  const char *strtab = NULL;
+  for (; dyn->d_tag != DT_NULL; ++dyn) {
+    if (dyn->d_tag == DT_RPATH) {
+      rpath = dyn;
+    } else if (dyn->d_tag == DT_STRTAB) {
+      strtab = (const char *)dyn->d_un.d_val;
+    }
+  }
+
+  if (strtab != NULL && rpath != NULL) {
+      return strdup(strtab + rpath->d_un.d_val);
+  }
+  return NULL;
 }
