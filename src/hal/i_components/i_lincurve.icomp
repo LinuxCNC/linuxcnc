@@ -62,7 +62,7 @@ FUNCTION(_)
     out_ = ( y_val(i) + f) * (y_val(i+1) - y_val(i) ) ;
     out_io = out_;
     	
-	return 0;
+return 0;
 }
 
 EXTRA_INST_SETUP(){

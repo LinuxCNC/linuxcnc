@@ -10,12 +10,12 @@ FUNCTION(increment)
 { 
     count++; 
 
-   	return 0;
+return 0;
 }
 
 FUNCTION(reset) 
 { 
     count=0; 
     	
-	return 0;
+return 0;
 }

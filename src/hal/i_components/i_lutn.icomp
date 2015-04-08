@@ -32,7 +32,7 @@ int shift = 0;
 
     out = (functn & (1 << shift)) != 0;
     	
-	return 0;
+return 0;
 }
 
 EXTRA_INST_SETUP()
@@ -42,5 +42,5 @@ int x;
     for(x = 0; x < argc; x++)
         hal_print_msg(RTAPI_MSG_ERR,"argv[%d] = %s", x, argv[x]);
 
-    return 0;
+return 0;
 }

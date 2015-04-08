@@ -12,5 +12,5 @@ FUNCTION(_)
 {
     out = in0 * gain0 + in1 * gain1 + offset;
     	
-	return 0;
+return 0;
 }

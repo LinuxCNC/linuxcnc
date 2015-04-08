@@ -34,12 +34,12 @@ FUNCTION(update_feedback)
 { 
     fb_out = fb_in - offset;
     	
-	return 0; 
+return 0; 
 }
 
 FUNCTION(update_output)   
 { 
     out = in + offset;
     	
-	return 0; 
+return 0; 
 }

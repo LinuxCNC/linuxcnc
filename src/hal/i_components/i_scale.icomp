@@ -10,5 +10,5 @@ FUNCTION(_)
 {
     out = in * gain + offset;
     	
-	return 0;
+return 0;
 }

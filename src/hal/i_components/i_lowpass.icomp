@@ -14,5 +14,5 @@ FUNCTION(_)
     else
 	out += (in - out) * gain;
 		
-	return 0;
+return 0;
 }

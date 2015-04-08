@@ -32,5 +32,5 @@ FUNCTION(_)
     x = a;
     y = K1*a + K2*b;
     	
-	return 0;
+return 0;
 }

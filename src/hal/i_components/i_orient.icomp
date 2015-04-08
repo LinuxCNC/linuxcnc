@@ -91,5 +91,5 @@ double latched_position;
         }
     last_enable = enable;
     	
-	return 0;
+return 0;
 }

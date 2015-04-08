@@ -14,5 +14,5 @@ FUNCTION(_)
         if(in < min_) min_ = in;
     }
     	
-	return 0;
+return 0;
 }

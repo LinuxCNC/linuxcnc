@@ -36,5 +36,5 @@ FUNCTION(_)
         prev_in1 = in1;
         }
     	
-	return 0;
+return 0;
 }

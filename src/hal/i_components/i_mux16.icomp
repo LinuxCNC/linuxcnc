@@ -86,6 +86,6 @@ FUNCTION(_)
     /* select the output */
     out_s = out_f = in(num);
     	
-	return 0;
+return 0;
 
 }
