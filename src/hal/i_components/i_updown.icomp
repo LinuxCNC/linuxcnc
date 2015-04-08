@@ -47,5 +47,5 @@ FUNCTION(_)
 	oldup = countup;
 	olddown = countdown;
 	
-	return 0;
+return 0;
 }

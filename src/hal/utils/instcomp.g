@@ -19,7 +19,7 @@
 #    Adapted and rewritten in part for instantiatable components
 #    ArcEye March 2015 <arceyeATmgwareDOTcoDOTuk>
 
-import os, sys, tempfile, shutil, getopt, time, fnmatch
+import os, sys, tempfile, shutil, getopt, time, re
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
@@ -354,7 +354,7 @@ static int comp_id;
     for v in docs:
         if not v: continue
         v = ":".join(map(str, v))
-        print >>f, "MODULE_INFO(linuxcnc, %s);" % q(v)
+        print >>f, "MODULE_INFO(machinekit, %s);" % q(v)
         license = finddoc('license')
     if license and license[1]:
         print >>f, "MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0]
@@ -1122,21 +1122,28 @@ def process(filename, mode, outfilename):
             else:
                 outfilename = os.path.join(tempdir,
                     os.path.splitext(os.path.basename(filename))[0] + ".c")
-        # a contains before '\n;;\n' and b after
         a, b = parse(filename)
         f = open(outfilename, "w")
 
         if not pins:
             raise SystemExit, "Component must have at least one pin"
+        if not "return" in b:
+            raise SystemExit, """ \
+            Function code must return with an integer value.
+           The default is 0, other values are for future use to
+           describe error states and improve debugging
+           """
         prologue(f)
         lineno = a.count("\n") + 3
 
         #   parse the remainder of the file to add the function prelims
         have_func = False
         insert = False
-
         if "FUNCTION" in b:
             c = ""
+            q = ""
+            r = ""
+            s = ""
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             linelist = b.split("\n")
             z = len(linelist)
@@ -1164,19 +1171,19 @@ def process(filename, mode, outfilename):
                 else :
                     c += q
                     c += "\n"
-
                 y = y + 1
 
             f.write(c)
 
         # if the code is loose because there is just one function
+        # TODO parse for returns
         elif len(functions) == 1:
             f.write("FUNCTION(%s)\n{\n" % functions[0][0])
             f.write("long period __attribute__((unused)) = fa_period(fa);\n")
             f.write("struct inst_data *ip = arg;\n\n")
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             f.write(b)
-            f.write("}\n")
+            f.write("\n}\n")
         else:
             raise SystemExit, "Must use FUNCTION() when more than one function is defined"
         epilogue(f)

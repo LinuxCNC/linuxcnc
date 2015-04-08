@@ -68,5 +68,5 @@ FUNCTION(_)
     last_in = new_in;
     out_invert = !out;
 	
-	return 0;
+return 0;
 }

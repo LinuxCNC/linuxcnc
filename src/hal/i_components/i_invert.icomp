@@ -39,5 +39,5 @@ FUNCTION(_)
     else
 	out = 1/tmp;
 		
-	return 0;
+return 0;
 }

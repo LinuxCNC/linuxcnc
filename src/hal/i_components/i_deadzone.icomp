@@ -19,5 +19,5 @@ FUNCTION(_)
     else if(in_ > hi) out = in_ - th2;
     else out = center;
     	
-	return 0;
+return 0;
 }

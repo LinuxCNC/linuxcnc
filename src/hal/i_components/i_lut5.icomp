@@ -148,5 +148,5 @@ FUNCTION(_)
 
     out = (function & (1<<shift)) != 0;
     	
-	return 0;
+return 0;
 }

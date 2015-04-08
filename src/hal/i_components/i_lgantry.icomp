@@ -149,7 +149,7 @@ FUNCTION(read)
     }
     position_fb = joint_pos_fb(fb_joint) + offset[fb_joint];
     	
-	return 0;
+return 0;
 }
 
 FUNCTION(write) 
@@ -192,5 +192,5 @@ FUNCTION(write)
         joint_offset(i) = offset[i];
     }
     	
-	return 0;
+return 0;
 }

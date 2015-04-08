@@ -67,7 +67,7 @@ FUNCTION(_)
         bit(i) = (i == position);
         }
     	
-	return 0;
+return 0;
 
 }
 
