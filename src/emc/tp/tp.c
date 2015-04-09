@@ -384,6 +384,7 @@ int tpClear(TP_STRUCT * const tp)
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
     tp->pausing = 0;
+    tp->reverse_run = 0;
     tp->synchronized = 0;
     tp->uu_per_rev = 0.0;
     emcmotStatus->spindleSync = 0;
@@ -2564,6 +2565,7 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         tp->execId = 0;
         tp->motionType = 0;
         tp->synchronized = 0;
+        tp->reverse_run = 0;
         tp->spindle.waiting_for_index = MOTION_INVALID_ID;
         tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
         emcmotStatus->spindleSync = 0;
