@@ -478,10 +478,17 @@ static void process_inputs(void)
     }
 
     // Handle case of negative adaptive feed
-    // Original behavior: clip at 0
-    if ( tmp < 0.0 ) {
+    if ( tmp < 0.0 && emcmotDebug->tp.reverse_run == TC_DIR_FORWARD) {
+        // User commands feed in reverse direction, but we're not running in reverse yet
+        tpSetRunDir(&emcmotDebug->tp, TC_DIR_REVERSE);
 	    tmp = 0.0;
-	}
+	} else if (tmp > 0.0 && emcmotDebug->tp.reverse_run == TC_DIR_REVERSE ) {
+        // User commands feed in forward direction, but we're running in reverse
+        tpSetRunDir(&emcmotDebug->tp, TC_DIR_FORWARD);
+	    tmp = 0.0;
+    }
+    //Otherwise, if direction and sign match, we're ok
+
 	scale *= tmp;
     }
     if ( enables & FH_ENABLED ) {

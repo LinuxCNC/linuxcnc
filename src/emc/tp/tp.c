@@ -3395,5 +3395,17 @@ int tpSetRunDir(TP_STRUCT * const tp, tc_direction_t dir)
     }
 }
 
+int tpIsMoving(TP_STRUCT const * const tp)
+{
+
+    //TODO may be better to explicitly check velocities on the first 2 segments, but this is messy
+    if (emcmotStatus->current_vel != 0) {
+        return true;
+    } else if (tp->spindle.waiting_for_index != MOTION_INVALID_ID || tp->spindle.waiting_for_atspeed != MOTION_INVALID_ID) {
+        return true;
+    }
+    return false;
+}
+
 
 // vim:sw=4:sts=4:et:
