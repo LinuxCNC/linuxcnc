@@ -56,5 +56,6 @@ int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double en
 int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned char end); //gets called to place DIO toggles on the TC queue
 
 int tpSetRunDir(TP_STRUCT * const tp, tc_direction_t dir);
+int tpIsMoving(TP_STRUCT const * const tp);
 
 #endif				/* TP_H */

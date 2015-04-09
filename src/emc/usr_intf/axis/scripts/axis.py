@@ -2285,8 +2285,6 @@ class TclCommands(nf.TclCommands):
 
     def task_reverse(*event):
         s.poll()
-        if not s.paused:
-            return
         if s.task_mode != linuxcnc.MODE_AUTO:
             return
 
@@ -2295,8 +2293,6 @@ class TclCommands(nf.TclCommands):
 
     def task_forward(*event):
         s.poll()
-        if not s.paused:
-            return
         if s.task_mode != linuxcnc.MODE_AUTO:
             return
 
