@@ -1805,6 +1805,7 @@ static void output_to_hal(void)
     *(emcmot_hal_data->spindle_brake) = (emcmotStatus->spindle.brake != 0) ? 1 : 0;
     
     *(emcmot_hal_data->program_line) = emcmotStatus->id;
+    *(emcmot_hal_data->tp_reverse) = emcmotStatus->reverse_run;
     *(emcmot_hal_data->motion_type) = emcmotStatus->motionType;
     *(emcmot_hal_data->distance_to_go) = emcmotStatus->distance_to_go;
     if(GET_MOTION_COORD_FLAG()) {
@@ -1965,6 +1966,8 @@ static void update_status(void)
     emcmotStatus->depth = tpQueueDepth(&emcmotDebug->tp);
     emcmotStatus->activeDepth = tpActiveDepth(&emcmotDebug->tp);
     emcmotStatus->id = tpGetExecId(&emcmotDebug->tp);
+    //KLUDGE add an API call for this
+    emcmotStatus->reverse_run = emcmotDebug->tp.reverse_run;
     emcmotStatus->motionType = tpGetMotionType(&emcmotDebug->tp);
     emcmotStatus->queueFull = tcqFull(&emcmotDebug->tp.queue);
 

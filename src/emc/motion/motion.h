@@ -675,7 +675,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int overrideLimitMask;	/* non-zero means one or more limits ignored */
 				/* 1 << (joint-num*2) = ignore neg limit */
 				/* 2 << (joint-num*2) = ignore pos limit */
-
+    int reverse_run;
 
 	/* static status-- only changes upon input commands, e.g., config */
 	double vel;		/* scalar max vel */
