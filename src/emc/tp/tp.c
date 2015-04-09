@@ -2647,7 +2647,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     if (tp->reverse_run && (tc->motion_type == TC_RIGIDTAP || tc->synchronized != TC_SYNC_NONE || tc->atspeed)) {
         //Can't activate a segment with synced motion in reverse
-        return TP_ERR_INVALID;
+        return TP_ERR_REVERSE_EMPTY;
     }
 
     /* Based on the INI setting for "cutoff frequency", this calculation finds
@@ -3297,8 +3297,6 @@ int tpResume(TP_STRUCT * const tp)
         return TP_ERR_FAIL;
     }
     tp->pausing = 0;
-    //FIXME Is this call ignored with non-zero velocity? If so, it will cause a crash
-    /*tpSetRunDir(&emcmotDebug->tp, TC_DIR_FORWARD);*/
     return TP_ERR_OK;
 }
 
