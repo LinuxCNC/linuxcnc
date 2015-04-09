@@ -13,7 +13,7 @@
 
 ==== before you had to know in advance how many copies of a comp you need:
 
-loadrt or2 count=2
+ loadrt or2 count=2
 
 and that was it, you need one more - go back to the loadrt statement
 and fix it, wherever that was
