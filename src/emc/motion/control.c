@@ -469,9 +469,17 @@ static void process_inputs(void)
     if ( enables & AF_ENABLED ) {
 	/* read and clamp (0.0 to 1.0) adaptive feed HAL pin */
 	tmp = *emcmot_hal_data->adaptive_feed;
+
+    // Clip range to +/- 1.0
 	if ( tmp > 1.0 ) {
 	    tmp = 1.0;
-	} else if ( tmp < 0.0 ) {
+	} else if (tmp < -1.0) {
+        tmp = -1.0;
+    }
+
+    // Handle case of negative adaptive feed
+    // Original behavior: clip at 0
+    if ( tmp < 0.0 ) {
 	    tmp = 0.0;
 	}
 	scale *= tmp;
