@@ -1,0 +1,72 @@
+component i_lincurve "one-dimensional lookup table";
+
+description
+"""Performs a 1-dimensional lookup and interpolation. The x-val
+parameters must be monotonic, though identical adjacent values are allowed.
+(for example 0,0,0,10) for a 4-element curve.
+
+For input values less than the x-val-00 breakpoint the y-val-00 is returned.
+For x greater than the largest x-val-NN the yval corresponding to x-max is
+returned (ie, no extrapolation is performed.)
+
+Sample usage: loadrt lincurve-inst
+              newinst lincurve newone pincount=4 iprefix=lincurve4
+for a 4-element curve.
+
+The axis breakpoints should be set in the lincurve.x-val-NN parameters using
+"setp", as should the corresponding y values.
+""";
+
+param rw float x-val-##[pincount] "axis breakpoints";
+param rw float y-val-##[pincount] "output values to be interpolated";
+
+pin in float in_ "The input value";
+pin out float out_ "The output value";
+pin io float out-io "The output value, compatible with PID gains";
+
+variable unsigned i = 0;
+
+option extra_inst_setup 1;
+
+instanceparam int maxpincount = 16;
+
+instanceparam int pincount = 4;
+
+instanceparam string iprefix = "lincurve4";
+
+author "Andy Pugh";
+license "GPL";
+
+function _;
+
+;;
+
+FUNCTION(_)
+{
+    double f, x;
+    x = in_;
+    if (x >= x_val(pincount-1)) {
+        out_ = y_val(pincount-1);
+        out_io = out_;
+        return 0;
+    }
+    if (x <= x_val(0)) {
+        out_ = y_val(0);
+        out_io = out_;
+        return 0;
+    }
+    while (x > x_val(i+1)) { i++;}
+    while (x < (x_val(i))) { i--;}
+
+    f = (x - x_val(i)) / ( x_val(i+1) - x_val(i) ) ;
+    out_ = ( y_val(i) + f) * (y_val(i+1) - y_val(i) ) ;
+    out_io = out_;
+    	
+return 0;
+}
+
+EXTRA_INST_SETUP(){
+//	if (pincount > 16) pincount = 16;
+	if (pincount < 2) pincount = 2;
+	return 0;
+}

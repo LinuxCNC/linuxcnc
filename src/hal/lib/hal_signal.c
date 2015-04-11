@@ -20,35 +20,21 @@ int hal_signal_new(const char *name, hal_type_t type)
     int *prev, next, cmp;
     hal_sig_t *new, *ptr;
 
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    CHECK_STRLEN(name, HAL_NAME_LEN);
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: signal_new called before init\n");
-	return -EINVAL;
-    }
-
-    if (strlen(name) > HAL_NAME_LEN) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: signal name '%s' is too long\n", name);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: signal_new called while HAL is locked\n");
-	return -EPERM;
-    }
     {
 	void *data_addr  __attribute__((cleanup(halpr_autorelease_mutex)));
 
 	/* get mutex before accessing shared data */
 	rtapi_mutex_get(&(hal_data->mutex));
 
-	hal_print_msg(RTAPI_MSG_DBG, "HAL: creating signal '%s'\n", name);
+	HALDBG("creating signal '%s'", name);
 
 	/* check for an existing signal with the same name */
 	if (halpr_find_sig_by_name(name) != 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: duplicate signal '%s'\n", name);
+	    HALERR("duplicate signal '%s'", name);
 	    return -EINVAL;
 	}
 	/* allocate memory for the signal value */
@@ -66,8 +52,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	    data_addr = shmalloc_up(sizeof(hal_float_t));
 	    break;
 	default:
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: illegal signal type %d'\n", type);
+	    HALERR("signal '%s': illegal signal type %d'", name, type);
 	    return -EINVAL;
 	    break;
 	}
@@ -75,15 +60,13 @@ int hal_signal_new(const char *name, hal_type_t type)
 	new = alloc_sig_struct();
 	if ((new == 0) || (data_addr == 0)) {
 	    /* alloc failed */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: insufficient memory for signal '%s'\n",
-			    name);
+	    HALERR("insufficient memory for signal '%s'", name);
 	    return -ENOMEM;
 	}
 	/* initialize the signal value */
 	switch (type) {
 	case HAL_BIT:
-	    *((char *) data_addr) = 0;
+	    *((hal_bit_t *) data_addr) = 0;
 	    break;
 	case HAL_S32:
 	    *((hal_s32_t *) data_addr) = 0;
@@ -105,6 +88,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	new->bidirs = 0;
 	new->handle = rtapi_next_handle();
 	rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
+
 	/* search list for 'name' and insert new structure */
 	prev = &(hal_data->sig_list_ptr);
 	next = *prev;
@@ -135,17 +119,11 @@ int hal_signal_delete(const char *name)
 
     int *prev, next;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: signal_delete called before init\n");
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: signal_delete called while HAL locked\n");
-	return -EPERM;
-    }
-    hal_print_msg(RTAPI_MSG_DBG, "HAL: deleting signal '%s'\n", name);
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    CHECK_STRLEN(name, HAL_NAME_LEN);
+
+    HALDBG("deleting signal '%s'", name);
 
     {
 	hal_sig_t *sig  __attribute__((cleanup(halpr_autorelease_mutex)));
@@ -160,10 +138,9 @@ int hal_signal_delete(const char *name)
 	    if (strcmp(sig->name, name) == 0) {
 		hal_group_t *grp = halpr_find_group_of_member(name);
 		if (grp) {
-		    hal_print_msg(RTAPI_MSG_ERR,
-				    "HAL: ERROR: cannot delete signal '%s'"
-				    " since it is member of group '%s'\n",
-				    name, grp->name);
+		    HALERR("cannot delete signal '%s'"
+			   " since it is member of group '%s'",
+			   name, grp->name);
 		    return -EINVAL;
 		}
 		/* this is the right signal, unlink from list */
@@ -179,8 +156,7 @@ int hal_signal_delete(const char *name)
 	}
     }
     /* if we get here, we didn't find a match */
-    hal_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: signal '%s' not found\n",
-		    name);
+    HALERR("signal '%s' not found",  name);
     return -EINVAL;
 }
 
@@ -191,29 +167,13 @@ int hal_link(const char *pin_name, const char *sig_name)
     hal_comp_t *comp;
     void **data_ptr_addr, *data_addr;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: link called before init\n");
-	return -EINVAL;
-    }
 
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: link called while HAL locked\n");
-	return -EPERM;
-    }
-    /* make sure we were given a pin name */
-    if (pin_name == 0) {
-	hal_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: pin name not given\n");
-	return -EINVAL;
-    }
-    /* make sure we were given a signal name */
-    if (sig_name == 0) {
-	hal_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: signal name not given\n");
-	return -EINVAL;
-    }
-    hal_print_msg(RTAPI_MSG_DBG,
-		    "HAL: linking pin '%s' to '%s'\n", pin_name, sig_name);
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    CHECK_STRLEN(pin_name, HAL_NAME_LEN);
+    CHECK_STRLEN(sig_name, HAL_NAME_LEN);
+
+    HALDBG("linking pin '%s' to '%s'", pin_name, sig_name);
 
     {
 	hal_pin_t *pin  __attribute__((cleanup(halpr_autorelease_mutex)));
@@ -225,55 +185,48 @@ int hal_link(const char *pin_name, const char *sig_name)
 	pin = halpr_find_pin_by_name(pin_name);
 	if (pin == 0) {
 	    /* not found */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: pin '%s' not found\n", pin_name);
+	    HALERR("pin '%s' not found", pin_name);
 	    return -EINVAL;
 	}
 	/* locate the signal */
 	sig = halpr_find_sig_by_name(sig_name);
 	if (sig == 0) {
 	    /* not found */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: signal '%s' not found\n", sig_name);
+	    HALERR("signal '%s' not found", sig_name);
 	    return -EINVAL;
 	}
 	/* found both pin and signal, are they already connected? */
 	if (SHMPTR(pin->signal) == sig) {
-	    hal_print_msg(RTAPI_MSG_WARN,
-			    "HAL: Warning: pin '%s' already linked to '%s'\n", pin_name, sig_name);
+	    HALWARN("pin '%s' already linked to '%s'", pin_name, sig_name);
 	    return 0;
 	}
 	/* is the pin connected to something else? */
 	if(pin->signal) {
 	    sig = SHMPTR(pin->signal);
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: pin '%s' is linked to '%s', cannot link to '%s'\n",
-			    pin_name, sig->name, sig_name);
+	    HALERR("pin '%s' is linked to '%s', cannot link to '%s'",
+		   pin_name, sig->name, sig_name);
 	    return -EINVAL;
 	}
 	/* check types */
 	if (pin->type != sig->type) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: type mismatch '%s' <- '%s'\n", pin_name, sig_name);
+	    HALERR("type mismatch '%s' <- '%s'", pin_name, sig_name);
 	    return -EINVAL;
 	}
 	/* linking output pin to sig that already has output or I/O pins? */
 	if ((pin->dir == HAL_OUT) && ((sig->writers > 0) || (sig->bidirs > 0 ))) {
 	    /* yes, can't do that */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: signal '%s' already has output or I/O pin(s)\n", sig_name);
+	    HALERR("signal '%s' already has output or I/O pin(s)", sig_name);
 	    return -EINVAL;
 	}
 	/* linking bidir pin to sig that already has output pin? */
 	if ((pin->dir == HAL_IO) && (sig->writers > 0)) {
 	    /* yes, can't do that */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: signal '%s' already has output pin\n", sig_name);
+	    HALERR("signal '%s' already has output pin", sig_name);
 	    return -EINVAL;
 	}
-	/* everything is OK, make the new link */
-	data_ptr_addr = SHMPTR(pin->data_ptr_addr);
-	comp = SHMPTR(pin->owner_ptr);
+        /* everything is OK, make the new link */
+        data_ptr_addr = SHMPTR(pin->data_ptr_addr);
+	comp = halpr_find_owning_comp(pin->owner_id);
 	data_addr = comp->shmem_base + sig->data_ptr;
 	*data_ptr_addr = data_addr;
 
@@ -328,26 +281,10 @@ int hal_link(const char *pin_name, const char *sig_name)
 int hal_unlink(const char *pin_name)
 {
 
-
-    // preliminary checks are done before locking
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: unlink called before init\n");
-	return -EINVAL;
-    }
-
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: unlink called while HAL locked\n");
-	return -EPERM;
-    }
-    /* make sure we were given a pin name */
-    if (pin_name == 0) {
-	hal_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: pin name not given\n");
-	return -EINVAL;
-    }
-    hal_print_msg(RTAPI_MSG_DBG,
-		    "HAL: unlinking pin '%s'\n", pin_name);
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    CHECK_STRLEN(pin_name, HAL_NAME_LEN);
+    HALDBG("unlinking pin '%s'", pin_name);
 
     {
 	hal_pin_t *pin __attribute__((cleanup(halpr_autorelease_mutex)));
@@ -360,8 +297,7 @@ int hal_unlink(const char *pin_name)
 
 	if (pin == 0) {
 	    /* not found */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: pin '%s' not found\n", pin_name);
+	    HALERR("pin '%s' not found", pin_name);
 	    return -EINVAL;
 	}
 

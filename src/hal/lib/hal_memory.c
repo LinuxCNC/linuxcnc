@@ -12,8 +12,7 @@ void *hal_malloc(long int size)
     void *retval;
 
     if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: hal_malloc called before init\n");
+	HALERR("hal_malloc called before init");
 	return 0;
     }
     /* get the mutex */
@@ -24,8 +23,7 @@ void *hal_malloc(long int size)
     rtapi_mutex_give(&(hal_data->mutex));
     /* check return value */
     if (retval == 0) {
-	hal_print_msg(RTAPI_MSG_DBG,
-	    "HAL: hal_malloc() can't allocate %ld bytes\n", size);
+	HALDBG("hal_malloc() can't allocate %ld bytes", size);
     }
     return retval;
 }

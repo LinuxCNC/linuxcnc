@@ -108,6 +108,12 @@ endif
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
+../bin/instcomp: ../bin/%: objects/hal/utils/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
 ../bin/yapps: ../bin/%: hal/utils/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
@@ -115,6 +121,12 @@ endif
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
 TARGETS += ../bin/comp
+objects/%.py: %.g ../bin/yapps
+	@mkdir -p $(dir $@)
+	$(Q)../bin/yapps $< $@
+
+
+TARGETS += ../bin/instcomp
 objects/%.py: %.g ../bin/yapps
 	@mkdir -p $(dir $@)
 	$(Q)../bin/yapps $< $@

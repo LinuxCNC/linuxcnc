@@ -1,0 +1,98 @@
+component i_limit3 "Limit the output signal to fall between min and max, limit its slew rate to less than maxv per second, and limit its second derivative to less than maxa per second squared.  When the signal is a position, this means that the position, velocity, and acceleration are limited.";
+pin in float in;
+pin out float out;
+pin in bit load "When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv and maxa";
+pin in float min_=-1e20;
+pin in float max_=1e20;
+pin in float maxv=1e20;
+pin in float maxa=1e20;
+option data limit3_data;
+function _;
+license "GPL";
+;;
+
+#include "rtapi_math.h"
+
+typedef struct {
+    double old_in;	/* previous input */
+    double old_out;	/* previous output */
+    double old_v;	/* previous 1st derivative */
+} limit3_data;
+
+FUNCTION(_) 
+{
+    double lin, lout, dt, in_v, min_v, max_v, ramp_a, avg_v, err, dv, dp;
+    double min_out, max_out, match_time, est_in, est_out;
+
+    /* apply first order limit */
+    lin = in;
+    if ( lin < min_ ) {
+	lin = min_;
+    }
+    if ( lin > max_ ) {
+	lin = max_;
+    }
+
+    if(load) {
+	data.old_in = data.old_out = out = lin;
+	data.old_v = 0;
+	return 0;
+    }
+
+    /* calculate input derivative */
+    dt = period * 0.000000001;
+    in_v = (lin - data.old_in) / dt;
+    /* determine v and out that can be reached in one period */
+    min_v = data.old_v - maxa * dt;
+    if ( min_v < -maxv ) {
+	min_v = -maxv;
+    }
+    max_v = data.old_v + maxa * dt;
+    if ( max_v > maxv ) {
+	max_v = maxv;
+    }
+    min_out = data.old_out + min_v * dt;
+    max_out = data.old_out + max_v * dt;
+    if ( ( lin >= min_out ) && ( lin <= max_out ) && ( in_v >= min_v ) && ( in_v <= max_v ) ) {
+	/* we can follow the command without hitting a limit */
+	lout = lin;
+	data.old_v = ( lout - data.old_out ) / dt;
+    } else {
+	/* can't follow commanded path while obeying limits */
+	/* determine which way we need to ramp to match v */
+	if ( in_v > data.old_v ) {
+	    ramp_a = maxa;
+	} else {
+	    ramp_a = -maxa;
+	}
+	/* determine how long the match would take */
+	match_time = ( in_v - data.old_v ) / ramp_a;
+	/* where we will be at the end of the match */
+	avg_v = ( in_v + data.old_v + ramp_a * dt ) * 0.5;
+	est_out = data.old_out + avg_v * match_time;
+	/* calculate the expected command position at that time */
+	est_in = data.old_in + in_v * match_time;
+	/* calculate position error at that time */
+	err = est_out - est_in;
+	/* calculate change in final position if we ramp in the
+	   opposite direction for one period */
+	dv = -2.0 * ramp_a * dt;
+	dp = dv * match_time;
+	/* decide what to do */
+	if ( fabs(err+dp*2.0) < fabs(err) ) {
+	    ramp_a = -ramp_a;
+	}
+	if ( ramp_a < 0.0 ) {
+	    lout = min_out;
+	    data.old_v = min_v;
+	} else {
+	    lout = max_out;
+	    data.old_v = max_v;
+	}
+    }
+    data.old_out = lout;
+    data.old_in = lin;
+    out = lout;
+	
+return 0;
+}

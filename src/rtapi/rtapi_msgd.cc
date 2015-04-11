@@ -97,6 +97,7 @@ static const char *service_uuid;
 static int remote = 0;
 static const char *ipaddr = "127.0.0.1";
 static AvahiCzmqPoll *av_loop;
+static bool trap_signals = true;
 static int full, locked;
 static size_t max_msgs, max_bytes; // stats
 
@@ -705,6 +706,7 @@ static struct option long_options[] = {
     { "svcuuid", required_argument, 0, 'R'},
     { "interfaces", required_argument, 0, 'n'},
     { "shmdrv_opts", required_argument, 0, 'o'},
+    { "nosighdlr",   no_argument,    0, 'G'},
 
     {0, 0, 0, 0}
 };
@@ -731,11 +733,14 @@ int main(int argc, char **argv)
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "hI:sFf:i:SU:W:u:r:n:T:M:",
+	c = getopt_long (argc, argv, "GhI:sFf:i:SU:W:u:r:n:T:M:",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
 	switch (c)	{
+	case 'G':
+	    trap_signals = false; // ease debugging with gdb
+	    break;
 	case 'F':
 	    foreground++;
 	    break;
@@ -800,6 +805,10 @@ int main(int argc, char **argv)
 	    exit(0);
 	}
     }
+
+    if (trap_signals && (getenv("NOSIGHDLR") != NULL))
+	trap_signals = false;
+
     if (inifile && ((inifp = fopen(inifile,"r")) == NULL)) {
 	fprintf(stderr,"msgd: cant open inifile '%s'\n", inifile);
     }
@@ -981,8 +990,10 @@ int main(int argc, char **argv)
     dup2(fd, STDIN_FILENO);
     close(fd);
 
-    signal_fd = setup_signals(sigaction_handler, SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
-    assert(signal_fd > -1);
+    if (trap_signals) {
+	signal_fd = setup_signals(sigaction_handler, SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
+	assert(signal_fd > -1);
+    }
 
     // suppress default handling of signals in zctx_new()
     // since we're using signalfd()
@@ -1062,7 +1073,8 @@ int main(int argc, char **argv)
     }
 
     zmq_pollitem_t signal_poller =  { 0, signal_fd,   ZMQ_POLLIN };
-    zloop_poller (loop, &signal_poller, s_handle_signal, NULL);
+    if (trap_signals)
+	zloop_poller (loop, &signal_poller, s_handle_signal, NULL);
 
     if (logpub) {
 	zmq_pollitem_t logpub_poller = { logpub, 0, ZMQ_POLLIN };

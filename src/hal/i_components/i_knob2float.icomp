@@ -1,0 +1,62 @@
+//   This is a component for Machinekit
+//   Copyright 2007 John Kasunich <jmkasunich AT sourceforge DOT net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+component i_knob2float "Convert counts (probably from an encoder) to a float value";
+
+pin in s32 counts "Counts";
+pin in bit enable "When TRUE, output is controlled by count, when FALSE, output is fixed";
+pin in float scale "Amount of output change per count";
+pin out float out "Output value";
+
+param rw float max_out=1.0 "Maximum output value, further increases in count will be ignored";
+param rw float min_out=0.0 "Minimum output value, further decreases in count will be ignored";
+
+option data knob2float_data;
+
+function _;
+license "GPL";
+;;
+
+typedef struct {
+    long old_counts;
+    double old_out;
+} knob2float_data;
+
+FUNCTION(_) 
+{
+    long delta_counts;
+    double tmp_out;
+
+    if ( min_out > max_out ) {
+	min_out = max_out;
+    }
+    delta_counts = counts - data.old_counts;
+    if ( enable ) {
+	tmp_out = data.old_out + delta_counts * scale;
+	if ( tmp_out > max_out ) {
+	    data.old_out = max_out;
+	} else if ( tmp_out < min_out ) {
+	    data.old_out = min_out;
+	} else {
+	    data.old_out = tmp_out;
+	}
+    }
+    out = data.old_out;
+    data.old_counts += delta_counts;
+    	
+return 0;
+}

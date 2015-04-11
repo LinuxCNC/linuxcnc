@@ -1,0 +1,35 @@
+component i_flipflop "D type flip-flop";
+pin in bit data_ "data input";
+pin in bit clk "clock, rising edge writes data to out";
+pin in bit set "when true, force out true";
+pin in bit reset "when true, force out false; overrides set";
+pin io bit out "output";
+option data flipflop_data;
+
+function _ nofp;
+license "GPL";
+;;
+
+typedef struct { int oldclk; } flipflop_data;
+
+FUNCTION(_) 
+{
+int c;
+
+    c = clk;
+    if ( reset ) 
+        {
+    	out = 0;
+        } 
+    else if ( set ) 
+        {
+	    out = 1;
+        } 
+    else if ( c && ! data.oldclk ) 
+        {
+    	out = data_;
+        }
+    data.oldclk = c;
+    	
+	return 0;
+}

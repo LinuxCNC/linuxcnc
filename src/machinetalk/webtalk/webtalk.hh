@@ -189,6 +189,7 @@ typedef struct wtconf {
     char *www_dir;
     unsigned ifIndex;
     int remote;
+    bool trap_signals;
 } wtconf_t;
 
 typedef struct wtself {

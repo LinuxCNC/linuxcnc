@@ -1,0 +1,80 @@
+/*******************************************************************************
+
+Machinekit HAL component to implement Multistate toggle switch
+Authors ArcEye 15122011 schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org
+License GPL
+Copyright 2011
+
+example Hal linkages required:-
+################################
+loadrt multiswitch cfg=4,6,8
+addf multiswitch.0 servo-thread
+...
+net toggle-switch multiswitch.0.toggle <= parport.N.pin-nn-out
+net state1 multiswitch.0.state1 => parport.N.pin-nn-in
+net state1 multiswitch.0.state2 => parport.N.pin-nn-in
+net state1 multiswitch.0.state3 => parport.N.pin-nn-in
+
+If you require an "all off" state, then make the component one bit oversize and
+don't connect the extra pin.
+
+*******************************************************************************/
+
+component i_multiswitch           """This component toggles between a specified number of output bits""";
+
+pin in bit up = false           "Receives signal to toggle up";
+pin in bit down = false         "Receives signal to toggle down";
+
+param rw unsigned top-position  "Number of positions";
+param rw signed position      "Current state (may be set in the HAL)";
+
+pin out bit bit-##[pincount] = false       "Output bits";
+
+instanceparam int maxpincount = 32;
+
+instanceparam int pincount = 6;
+
+instanceparam string iprefix = "mswitch6";
+
+
+function _ ;
+option extra_inst_setup yes;
+//option count_function yes;
+
+variable int old_up = 0;
+variable int old_down = 0;
+
+author "ArcEye arceye@mgware.co.uk / Andy Pugh andy@bodgesoc.org";
+license "GPL2";
+;;
+
+
+FUNCTION(_)
+{
+    int i;
+
+    // debounce
+    if (up && !old_up) { position++; }
+    if (down && !old_down) { position--;}
+    old_up = up;
+    old_down = down;
+
+    if (position < 0) position = top_position;
+    if (position > top_position) position = 0;
+
+    for (i = 0 ; i < pincount; i++)
+        {
+        bit(i) = (i == position);
+        }
+    	
+return 0;
+
+}
+
+EXTRA_INST_SETUP()
+{
+    top_position = pincount - 1;
+    return 0;
+}
+
+

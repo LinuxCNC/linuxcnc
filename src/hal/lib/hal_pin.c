@@ -13,88 +13,64 @@ static hal_pin_t *alloc_pin_struct(void);
 *                        "PIN" FUNCTIONS                               *
 ************************************************************************/
 
-/* wrapper functs for typed pins - these call the generic funct below */
-
-int hal_pin_bit_new(const char *name, hal_pin_dir_t dir,
-    hal_bit_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_BIT, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_float_new(const char *name, hal_pin_dir_t dir,
-    hal_float_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_FLOAT, dir, (void **) data_ptr_addr,
-	comp_id);
-}
-
-int hal_pin_u32_new(const char *name, hal_pin_dir_t dir,
-    hal_u32_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_U32, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
-    hal_s32_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
-}
-
-static int hal_pin_newfv(hal_type_t type, hal_pin_dir_t dir,
-    void ** data_ptr_addr, int comp_id, const char *fmt, va_list ap)
+int hal_pin_newfv(hal_type_t type,
+		  hal_pin_dir_t dir,
+		  void ** data_ptr_addr,
+		  int owner_id,
+		  const char *fmt,
+		  va_list ap)
 {
     char name[HAL_NAME_LEN + 1];
     int sz;
     sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
     if(sz == -1 || sz > HAL_NAME_LEN) {
-        hal_print_msg(RTAPI_MSG_ERR,
-	    "hal_pin_newfv: length %d too long for name starting '%s'\n",
-	    sz, name);
+        HALERR("length %d invalid for name starting '%s'",
+	       sz, name);
         return -ENOMEM;
     }
-    return hal_pin_new(name, type, dir, data_ptr_addr, comp_id);
+    return hal_pin_new(name, type, dir, data_ptr_addr, owner_id);
 }
 
 int hal_pin_bit_newf(hal_pin_dir_t dir,
-    hal_bit_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+    hal_bit_t ** data_ptr_addr, int owner_id, const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_BIT, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
+    ret = hal_pin_newfv(HAL_BIT, dir, (void**)data_ptr_addr, owner_id, fmt, ap);
     va_end(ap);
     return ret;
 }
 
 int hal_pin_float_newf(hal_pin_dir_t dir,
-    hal_float_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+    hal_float_t ** data_ptr_addr, int owner_id, const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_FLOAT, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
+    ret = hal_pin_newfv(HAL_FLOAT, dir, (void**)data_ptr_addr, owner_id, fmt, ap);
     va_end(ap);
     return ret;
 }
 
 int hal_pin_u32_newf(hal_pin_dir_t dir,
-    hal_u32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+    hal_u32_t ** data_ptr_addr, int owner_id, const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_U32, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
+    ret = hal_pin_newfv(HAL_U32, dir, (void**)data_ptr_addr, owner_id, fmt, ap);
     va_end(ap);
     return ret;
 }
 
 int hal_pin_s32_newf(hal_pin_dir_t dir,
-    hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+    hal_s32_t ** data_ptr_addr, int owner_id, const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_S32, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
+    ret = hal_pin_newfv(HAL_S32, dir, (void**)data_ptr_addr, owner_id, fmt, ap);
     va_end(ap);
     return ret;
 }
@@ -103,13 +79,13 @@ int hal_pin_s32_newf(hal_pin_dir_t dir,
 int hal_pin_newf(hal_type_t type,
 		 hal_pin_dir_t dir,
 		 void ** data_ptr_addr,
-		 int comp_id,
+		 int owner_id,
 		 const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_pin_newfv(type, dir, data_ptr_addr, comp_id, fmt, ap);
+    ret = hal_pin_newfv(type, dir, data_ptr_addr, owner_id, fmt, ap);
     va_end(ap);
     return ret;
 }
@@ -117,46 +93,32 @@ int hal_pin_newf(hal_type_t type,
 /* this is a generic function that does the majority of the work. */
 
 int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
-    void **data_ptr_addr, int comp_id)
+		    void **data_ptr_addr, int owner_id)
 {
     int *prev, next, cmp;
     hal_pin_t *new, *ptr;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin_new called before init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_LOAD);
+    CHECK_STRLEN(name, HAL_NAME_LEN);
 
     if(*data_ptr_addr)
     {
-        hal_print_msg(RTAPI_MSG_ERR,
-            "HAL: ERROR: pin_new(%s) called with already-initialized memory\n",
-            name);
+	HALERR("pin '%s': called with already-initialized memory", name);
     }
     if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");
+	HALERR("pin '%s': pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32 (%d)",
+	       name, type);
 	return -EINVAL;
     }
 
     if(dir != HAL_IN && dir != HAL_OUT && dir != HAL_IO) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO\n");
+	HALERR("pin '%s': pin direction not one of HAL_IN, HAL_OUT, or HAL_IO (%d)",
+	       name, dir);
 	return -EINVAL;
-    }
-    if (strlen(name) > HAL_NAME_LEN) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin name '%s' is too long\n", name);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_LOAD)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin_new called while HAL locked\n");
-	return -EPERM;
     }
 
-    hal_print_msg(RTAPI_MSG_DBG, "HAL: creating pin '%s'\n", name);
+    HALDBG("creating pin '%s'", name);
 
     {
 	hal_comp_t *comp  __attribute__((cleanup(halpr_autorelease_mutex)));
@@ -165,23 +127,30 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	rtapi_mutex_get(&(hal_data->mutex));
 
 	/* validate comp_id */
-	comp = halpr_find_comp_by_id(comp_id);
+	comp = halpr_find_owning_comp(owner_id);
 	if (comp == 0) {
 	    /* bad comp_id */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: component %d not found\n", comp_id);
+	    HALERR("pin '%s': owning component %d not found",
+		   name, owner_id);
 	    return -EINVAL;
 	}
+
 	/* validate passed in pointer - must point to HAL shmem */
 	if (! SHMCHK(data_ptr_addr)) {
 	    /* bad pointer */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: data_ptr_addr not in shared memory\n");
+	    HALERR("pin '%s': data_ptr_addr not in shared memory", name);
 	    return -EINVAL;
 	}
-	if(comp->state > COMP_INITIALIZING) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: pin_new called after hal_ready (%d)\n", comp->state);
+
+	// this will be 0 for legacy comps which use comp_id
+	hal_inst_t *inst = halpr_find_inst_by_id(owner_id);
+	int inst_id = (inst ? inst->inst_id : 0);
+
+	// instances may create pins post hal_ready
+	if ((inst_id == 0) && (comp->state > COMP_INITIALIZING)) {
+	    // legacy error message. Never made sense.. why?
+	    HALERR("pin '%s': hal_pin_new called after hal_ready (%d)",
+		   name, comp->state);
 	    return -EINVAL;
 	}
 
@@ -189,13 +158,12 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	new = alloc_pin_struct();
 	if (new == 0) {
 	    /* alloc failed */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: insufficient memory for pin '%s'\n", name);
+	    HALERR("insufficient memory for pin '%s'", name);
 	    return -ENOMEM;
 	}
 	/* initialize the structure */
 	new->data_ptr_addr = SHMOFF(data_ptr_addr);
-	new->owner_ptr = SHMOFF(comp);
+	new->owner_id = owner_id;
 	new->type = type;
 	new->dir = dir;
 	new->signal = 0;
@@ -225,8 +193,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    if (cmp == 0) {
 		/* name already in list, can't insert */
 		free_pin_struct(new);
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: duplicate variable '%s'\n", name);
+		HALERR("duplicate pin '%s'", name);
 		return -EINVAL;
 	    }
 	    /* didn't find it yet, look at next one */
@@ -249,7 +216,7 @@ void unlink_pin(hal_pin_t * pin)
 	sig = SHMPTR(pin->signal);
 	/* make pin's 'data_ptr' point to its dummy signal */
 	data_ptr_addr = SHMPTR(pin->data_ptr_addr);
-	comp = SHMPTR(pin->owner_ptr);
+	comp = halpr_find_owning_comp(pin->owner_id);
 	dummy_addr = comp->shmem_base + SHMOFF(&(pin->dummysig));
 	*data_ptr_addr = dummy_addr;
 
@@ -296,20 +263,13 @@ int hal_pin_alias(const char *pin_name, const char *alias)
     int *prev, next, cmp;
     hal_pin_t *pin, *ptr;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin_alias called before init\n");
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin_alias called while HAL locked\n");
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    CHECK_STRLEN(pin_name, HAL_NAME_LEN);
+
     if (alias != NULL ) {
 	if (strlen(alias) > HAL_NAME_LEN) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-	        "HAL: ERROR: alias name '%s' is too long\n", alias);
+	    HALERR("alias name '%s' is too long", alias);
 	    return -EINVAL;
 	}
     }
@@ -321,9 +281,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	if (alias != NULL ) {
 	    pin = halpr_find_pin_by_name(alias);
 	    if ( pin != NULL ) {
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: duplicate pin/alias name '%s'\n",
-				alias);
+		HALERR("duplicate pin/alias name '%s'", alias);
 		return -EINVAL;
 	    }
 	}
@@ -335,8 +293,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	   to succeed since at least one struct is on the free list. */
 	oldname = halpr_alloc_oldname_struct();
 	if ( oldname == NULL ) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: insufficient memory for pin_alias\n");
+	    HALERR("alias '%s': insufficient memory for pin_alias", pin_name);
 	    return -EINVAL;
 	}
 	free_oldname_struct(oldname);
@@ -347,8 +304,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	while (1) {
 	    if (next == 0) {
 		/* reached end of list, not found */
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: pin '%s' not found\n", pin_name);
+		HALERR("pin '%s' not found", pin_name);
 		return -EINVAL;
 	    }
 	    pin = SHMPTR(next);
@@ -443,13 +399,12 @@ hal_pin_t *halpr_find_pin_by_name(const char *name)
     return 0;
 }
 
-hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner, hal_pin_t * start)
+// find a pin by owner id, which may refer to a instance or a comp
+hal_pin_t *halpr_find_pin_by_owner_id(const int owner_id, hal_pin_t * start)
 {
-    int owner_ptr, next;
+    int next;
     hal_pin_t *pin;
 
-    /* get offset of 'owner' component */
-    owner_ptr = SHMOFF(owner);
     /* is this the first call? */
     if (start == 0) {
 	/* yes, start at beginning of pin list */
@@ -460,7 +415,7 @@ hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner, hal_pin_t * start)
     }
     while (next != 0) {
 	pin = SHMPTR(next);
-	if (pin->owner_ptr == owner_ptr) {
+	if (pin->owner_id == owner_id) {
 	    /* found a match */
 	    return pin;
 	}
@@ -518,7 +473,7 @@ static hal_pin_t *alloc_pin_struct(void)
 	/* make sure it's empty */
 	p->next_ptr = 0;
 	p->data_ptr_addr = 0;
-	p->owner_ptr = 0;
+	p->owner_id = 0;
 	p->type = 0;
 	p->dir = 0;
 	p->signal = 0;
@@ -537,7 +492,8 @@ void free_pin_struct(hal_pin_t * pin)
     /* clear contents of struct */
     if ( pin->oldname != 0 ) free_oldname_struct(SHMPTR(pin->oldname));
     pin->data_ptr_addr = 0;
-    pin->owner_ptr = 0;
+    pin->owner_id = 0;
+    //    pin->instance_ptr = 0;
     pin->type = 0;
     pin->dir = 0;
     pin->signal = 0;

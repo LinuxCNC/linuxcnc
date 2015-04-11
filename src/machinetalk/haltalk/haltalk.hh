@@ -127,6 +127,7 @@ typedef struct htconf {
     unsigned ifIndex;
     char *service_uuid;
     int remote;
+    bool trap_signals;
 } htconf_t;
 
 typedef struct htself {

@@ -132,7 +132,7 @@ static void z_shutdown(void)
     fprintf(stderr, "preview: socket shutdown\n");
     if (n_containers > 0)
     {
-        fprintf(stderr, "preview: %zu containers %zu preview msgs %zu bytes  avg=%d bytes/container\n",
+        fprintf(stderr, "preview: %zu containers %zu preview msgs %zu bytes  avg=%zu bytes/container\n",
             n_containers, n_messages, n_bytes, n_bytes/n_containers);
     }
     zctx_destroy(&z_context);

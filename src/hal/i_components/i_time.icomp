@@ -1,0 +1,100 @@
+component i_time "Time on in Hours, Minutes, Seconds";
+
+description
+"""
+Time
+
+When the time.N.start bit goes true the cycle timer resets and starts
+to time until time.N.start goes false. If you connect time.N.start to
+halui.is-running as a cycle timer it will reset during a pause. See
+the example connections below to keep the timer timing during a pause.
+
+Time returns the hours, minutes, and seconds that time.N.start is true.
+
+Sample pyVCP code to display the hours:minutes:seconds.
+
+<pyvcp>
+  <hbox>
+  <label>
+    <text>"Cycle Time"</text>
+    <font>("Helvetica",14)</font>
+  </label>
+  <u32>
+      <halpin>"time-hours"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"2d"</format>
+  </u32>
+  <label>
+    <text>":"</text>
+    <font>("Helvetica",14)</font>
+  </label>
+  <u32>
+      <halpin>"time-minutes"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"2d"</format>
+  </u32>
+  <label>
+    <text>":"</text>
+    <font>("Helvetica",14)</font>
+  </label>
+  <u32>
+      <halpin>"time-seconds"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"2d"</format>
+  </u32>
+  </hbox>
+</pyvcp>
+
+In your post-gui.hal file you might use the following to connect it up
+
+ loadrt time
+ loadrt not
+ addf time.0 servo-thread
+ addf not.0 servo-thread
+ net prog-running not.0.in <= halui.program.is-idle
+ net cycle-timer time.0.start <= not.0.out
+ net cycle-seconds pyvcp.time-seconds <= time.0.seconds
+ net cycle-minutes pyvcp.time-minutes <= time.0.minutes
+ net cycle-hours pyvcp.time-hours <= time.0.hours
+
+""";
+
+author "John Thornton";
+
+license "GPL";
+
+// Input Pins
+pin in bit start "Timer On";
+
+// Output Pins
+pin out u32 seconds "Seconds";
+pin out u32 minutes "Minutes";
+pin out u32 hours "Hours";
+
+// Global Variables
+variable double totalnsec;
+variable int old_start;
+
+function _;
+
+;;
+
+#include "rtapi_math.h"
+
+FUNCTION(_) 
+{
+    __u32 totalseconds;
+    if(start && !old_start) totalnsec = 0;
+
+    if(start){
+    totalnsec = totalnsec + period;
+    totalseconds = totalnsec * 0.000000001;
+    seconds = totalseconds % 60;
+	minutes = (totalseconds / 60) % 60;
+	hours = (totalseconds / 3600);
+	}
+	old_start = start;
+		
+return 0;
+	
+}

@@ -26,7 +26,7 @@ int rtapi_app_main(void)
 {
     int retval;
 
-    comp_id = hal_init_mode(name, TYPE_REMOTE, 0, 0);
+    comp_id = hal_xinit(TYPE_REMOTE, 0, 0, NULL, NULL, name);
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: ERROR: hal_init_remote() failed: %d\n",

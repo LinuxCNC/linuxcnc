@@ -19,32 +19,12 @@ static void free_member_struct(hal_member_t * member);
 
 int hal_group_new(const char *name, int arg1, int arg2)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: group_new called before init\n"
-			, rtapi_instance);
-	return -EINVAL;
-    }
-    if (!name) {
-        hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: group_new() called with NULL name\n",
-			rtapi_instance);
-    }
-    if (strlen(name) > HAL_NAME_LEN) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: group name '%s' is too long\n",
-			rtapi_instance, name);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_LOAD)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: group_new called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_STRLEN(name, HAL_NAME_LEN);
+    CHECK_LOCK(HAL_LOCK_LOAD);
 
-    hal_print_msg(RTAPI_MSG_DBG, "HAL:%d creating group '%s' arg1=%d arg2=%d/0x%x\n",
-		    rtapi_instance, name, arg1, arg2, arg2);
+    HALDBG("creating group '%s' arg1=%d arg2=%d/0x%x",
+	   name, arg1, arg2, arg2);
 
     {
 	hal_group_t *new, *chan;
@@ -57,20 +37,14 @@ int hal_group_new(const char *name, int arg1, int arg2)
 	/* validate group name */
 	chan = halpr_find_group_by_name(name);
 	if (chan != 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL:%d ERROR: group '%s' already defined\n",
-			    rtapi_instance, name);
+	    HALERR("group '%s' already defined", name);
 	    return -EINVAL;
 	}
 	/* allocate a new group structure */
 	new = alloc_group_struct();
-	if (new == 0) {
-	    /* alloc failed */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL:%d ERROR: insufficient memory for group '%s'\n",
-			    rtapi_instance, name);
-	    return -ENOMEM;
-	}
+	if (new == 0)
+	    NOMEM("group '%s'", name);
+
 	/* initialize the structure */
 	new->userarg1 = arg1;
 	new->userarg2 = arg2;
@@ -104,28 +78,11 @@ int hal_group_new(const char *name, int arg1, int arg2)
 
 int hal_group_delete(const char *name)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: group_delete called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-    if (name == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: group_delete: name is NULL\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_STR(name);
+    CHECK_LOCK(HAL_LOCK_CONFIG);
 
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: group_delete called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
-
-    hal_print_msg(RTAPI_MSG_DBG, "HAL:%d deleting group '%s'\n",
-		    rtapi_instance, name);
+    HALDBG("deleting group '%s'", name);
 
     // this block is protected by hal_data->mutex with automatic
     // onlock on scope exit
@@ -144,9 +101,8 @@ int hal_group_delete(const char *name)
 		/* this is the right group */
 		// verify it is unreferenced, and fail if not:
 		if (group->refcount) {
-		    hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: cannot delete group '%s' (still used: %d)\n",
-				    rtapi_instance, name, group->refcount);
+		    HALERR("cannot delete group '%s' (still used: %d)",
+				       name, group->refcount);
 		    return -EBUSY;
 		}
 		/* unlink from list */
@@ -161,10 +117,7 @@ int hal_group_delete(const char *name)
 	    prev = &(group->next_ptr);
 	    next = *prev;
 	}
-	/* if we get here, we didn't find a match */
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: group_delete: no such group '%s'\n",
-			rtapi_instance, name);
+	HALERR("group_delete: no such group '%s'", name);
 	return -EINVAL;
     }
 }
@@ -204,26 +157,9 @@ int halpr_foreach_group(const char *groupname,
     int nvisited = 0;
     int result;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_group called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_group called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
-#if 0
-    if (groupname == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_group(): name is NULL\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-#endif
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+
     /* search for the group */
     next = hal_data->group_list_ptr;
     while (next != 0) {
@@ -276,13 +212,10 @@ static int resolve_members( int *nvisited, int level, hal_group_t **groups,
 	    if (flags & RESOLVE_NESTED_GROUPS) {
 		if (level >= MAX_NESTED_GROUPS) {
 		    // dump stack & bail
-		    hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: maximum group nesting exceeded for '%s'\n",
-				    rtapi_instance, groups[0]->name);
+		    HALERR("maximum group nesting exceeded for '%s'",
+			   groups[0]->name);
 		    while (level) {
-			hal_print_msg(RTAPI_MSG_ERR,
-					"\t%d: %s\n",
-					level, groups[level]->name);
+			HALERR("\t%d: %s", level, groups[level]->name);
 			level--;
 		    }
 		    return -EINVAL;
@@ -323,26 +256,9 @@ int halpr_foreach_member(const char *groupname,
     int next;
     hal_group_t *groupstack[MAX_NESTED_GROUPS+1], *grp;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_member called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_member called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
-
-    if (groupname == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_member(): name is NULL\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    CHECK_STR(groupname);
 
     /* search for the group */
     next = hal_data->group_list_ptr;
@@ -411,9 +327,8 @@ hal_group_t *halpr_find_group_of_member(const char *name)
 
 		sig = SHMPTR(member->sig_member_ptr);
 		if (strcmp(name, sig->name) == 0) {
-		    hal_print_msg(RTAPI_MSG_DBG,
-				    "HAL:%d  find_group_of_member(%s): found signal in group '%s'\n",
-				    rtapi_instance, name, group->name);
+		    HALDBG("find_group_of_member(%s): found signal in group '%s'",
+			   name, group->name);
 		    return group;
 		}
 		nextm = member->next_ptr;
@@ -421,9 +336,8 @@ hal_group_t *halpr_find_group_of_member(const char *name)
 	    if (member->group_member_ptr) { // a nested group
 		tgrp = SHMPTR(member->group_member_ptr);
 		if (strcmp(name, tgrp->name) == 0) {
-		    hal_print_msg(RTAPI_MSG_DBG,
-				    "HAL:%d  find_group_of_member(%s): found group in group '%s'\n",
-				    rtapi_instance, name, group->name);
+		    HALDBG("find_group_of_member(%s): found group in group '%s'",
+			   name, group->name);
 		    return group;
 		}
 		nextm = member->next_ptr;
@@ -437,43 +351,19 @@ hal_group_t *halpr_find_group_of_member(const char *name)
 int hal_member_new(const char *group, const char *member,
 		   int arg1, int eps_index)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_new called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-    if (!group) {
-        hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_new() called with NULL group\n",
-			rtapi_instance);
-    }
-    if (!member) {
-        hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_new() called with NULL member\n",
-			rtapi_instance);
-    }
-    if (strlen(member) > HAL_NAME_LEN) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member name '%s' is too long\n",
-			rtapi_instance, member);
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_LOAD);
+    CHECK_STRLEN(group, HAL_NAME_LEN);
+    CHECK_STRLEN(member, HAL_NAME_LEN);
+
     if (!strcmp(member, group)) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_new(): cannot nest group '%s' as member '%s'\n",
-			rtapi_instance, group, member);
+	HALERR("member_new(): cannot nest group '%s' as member '%s'",
+	       group, member);
 	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_LOAD)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_new called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
     }
 
-    hal_print_msg(RTAPI_MSG_DBG, "HAL:%d creating member '%s' arg1=%d epsilon[%d]=%f\n",
-		    rtapi_instance, member, arg1, eps_index, hal_data->epsilon[eps_index]);
+    HALDBG("creating member '%s' arg1=%d epsilon[%d]=%f",
+	   member, arg1, eps_index, hal_data->epsilon[eps_index]);
 
     {
 	hal_group_t *grp __attribute__((cleanup(halpr_autorelease_mutex)));
@@ -488,36 +378,27 @@ int hal_member_new(const char *group, const char *member,
 	/* validate group name */
 	grp = halpr_find_group_by_name(group);
 	if (!grp) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL:%d ERROR: member_new(): undefined group '%s'\n",
-			    rtapi_instance, group);
+	    HALERR("undefined group '%s'", group);
 	    return -EINVAL;
 	}
 
 	// TBD: handle remote signal case
 	if ((sig = halpr_find_sig_by_name(member)) != NULL) {
-	    hal_print_msg(RTAPI_MSG_DBG,"HAL:%d adding signal '%s' to group '%s'\n",
-			    rtapi_instance, member, group);
+	    HALDBG("adding signal '%s' to group '%s'",  member, group);
 	    goto found;
 	}
 	if ((mgrp = halpr_find_group_by_name(member)) != NULL) {
-	    hal_print_msg(RTAPI_MSG_DBG,"HAL:%d adding nested group '%s' to group '%s'\n",
-			    rtapi_instance, member, group);
+	    HALDBG("adding nested group '%s' to group '%s'", member, group);
 	    goto found;
 	}
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_new(): undefined member '%s'\n",
-			rtapi_instance, member);
+	HALERR("undefined member '%s'", member);
 	return -EINVAL;
 
     found:
 	/* allocate a new member structure */
 	new = alloc_member_struct();
 	if (new == 0) {
-	    /* alloc failed */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL:%d ERROR: insufficient memory for member '%s'\n",
-			    rtapi_instance, member);
+	    NOMEM("member '%s'", member);
 	    return -ENOMEM;
 	}
 	/* initialize the structure */
@@ -547,18 +428,16 @@ int hal_member_new(const char *group, const char *member,
 	    if (ptr->sig_member_ptr) {
 		sig = SHMPTR(ptr->sig_member_ptr);
 		if (strcmp(member, sig->name) == 0) {
-		    hal_print_msg(RTAPI_MSG_ERR,
-				    "HAL:%d ERROR: member_new(): group '%s' already has signal member '%s'\n",
-				    rtapi_instance, group, sig->name);
+		    HALERR("group '%s' already has signal member '%s'",
+			   group, sig->name);
 		    return -EINVAL;
 		}
 	    }
 	    if (ptr->group_member_ptr) {
 		mgrp = SHMPTR(ptr->group_member_ptr);
 		if (strcmp(member, mgrp->name) == 0) {
-		    hal_print_msg(RTAPI_MSG_ERR,
-				    "HAL:%d ERROR: member_new(): group '%s' already has group member '%s'\n",
-				    rtapi_instance, group, mgrp->name);
+		    HALERR("group '%s' already has group member '%s'",
+			   group, mgrp->name);
 		    return -EINVAL;
 		}
 	    }
@@ -572,34 +451,11 @@ int hal_member_new(const char *group, const char *member,
 
 int hal_member_delete(const char *group, const char *member)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_delete called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-    if(!group) {
-        hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_delete() called with NULL group\n",
-			rtapi_instance);
-    }
-    if(!member) {
-        hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_delete() called with NULL member\n",
-			rtapi_instance);
-    }
-    if (strlen(member) > HAL_NAME_LEN) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member name '%s' is too long\n",
-			rtapi_instance, member);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_LOAD)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_delete called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_LOAD);
+    CHECK_STRLEN(group, HAL_NAME_LEN);
+    CHECK_STRLEN(member, HAL_NAME_LEN);
+
     {
 	hal_group_t *grp __attribute__((cleanup(halpr_autorelease_mutex)));
 	hal_member_t  *mptr;
@@ -612,21 +468,16 @@ int hal_member_delete(const char *group, const char *member)
 	/* validate group name */
 	grp = halpr_find_group_by_name(group);
 	if (!grp) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL:%d ERROR: member_new(): undefined group '%s'\n",
-			    rtapi_instance, group);
+	    HALERR("undefined group '%s'", group);
 	    return -EINVAL;
 	}
 
 	sig = halpr_find_sig_by_name(member);
 	if (!sig) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL:%d ERROR: member_delete(): undefined member '%s'\n",
-			    rtapi_instance, member);
+	    HALERR("undefined member '%s'", member);
 	    return -EINVAL;
 	}
-	hal_print_msg(RTAPI_MSG_DBG,"HAL:%d deleting signal '%s' from group '%s'\n",
-			rtapi_instance,  member, group);
+	HALDBG("deleting signal '%s' from group '%s'",  member, group);
 
 	/* delete member structure */
 	prev = &(grp->member_ptr);
@@ -647,9 +498,8 @@ int hal_member_delete(const char *group, const char *member)
 	    next = *prev;
 	}
 	// pin or signal did exist but was not a group member */
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: member_delete(): signal '%s' exists but not member of '%s'\n",
-			rtapi_instance, member, group);
+	HALERR("signal '%s' exists but not member of '%s'",
+	       member, group);
 	return 0;
     }
 }
@@ -673,15 +523,6 @@ static int cgroup_init_members_cb(int level, hal_group_t **groups, hal_member_t 
 {
     hal_compiled_group_t *tc = cb_data;
 
-#if 0
-    hal_sig_t *sig;
-
-    sig = SHMPTR(member->sig_member_ptr);
-    if ((sig->writers + sig->bidirs) == 0)
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d WARNING: group '%s': member signal '%s' has no updater\n",
-			rtapi_instance, groups[0]->name, sig->name);
-#endif
     tc->member[tc->mbr_index] = member;
     tc->mbr_index++;
     if ((member->userarg1 & MEMBER_MONITOR_CHANGE) ||
@@ -699,16 +540,16 @@ int halpr_group_compile(const char *name, hal_compiled_group_t **cgroup)
     hal_compiled_group_t *tc;
     hal_group_t *grp;
 
+    CHECK_STR(name);
+
     if ((grp = halpr_find_group_by_name(name)) == NULL) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: hal_group_compile(%s): no such group\n",
-			rtapi_instance, name);
+	HALERR("no such group '%s'", name);
 	return -EINVAL;
     }
 
     // a compiled group is a userland memory object
     if ((tc = malloc(sizeof(hal_compiled_group_t))) == NULL)
-	return -ENOMEM;
+	NOMEM("hal_compiled_group");
 
     memset(tc, 0, sizeof(hal_compiled_group_t));
 
@@ -716,12 +557,11 @@ int halpr_group_compile(const char *name, hal_compiled_group_t **cgroup)
     // this fills sets the n_members and n_monitored fields
     result = halpr_foreach_member(name, cgroup_size_cb,
 				  tc, RESOLVE_NESTED_GROUPS);
-    hal_print_msg(RTAPI_MSG_DBG,
-		    "HAL:%d hal_group_compile(%s): %d signals %d monitored\n",
-		    rtapi_instance, name, tc->n_members, tc->n_monitored );
+    HALDBG("hal_group_compile(%s): %d signals %d monitored",
+	   name, tc->n_members, tc->n_monitored );
     if ((tc->member =
 	 malloc(sizeof(hal_member_t  *) * tc->n_members )) == NULL)
-	return -ENOMEM;
+	NOMEM("%d hal_members",  tc->n_members);
 
     tc->mbr_index = 0;
     tc->mon_index = 0;
@@ -736,9 +576,8 @@ int halpr_group_compile(const char *name, hal_compiled_group_t **cgroup)
     // definition will never trigger a report:
     if ((grp->userarg2 & (GROUP_REPORT_ON_CHANGE|GROUP_REPORT_CHANGED_MEMBERS)) &&
 	(tc->n_monitored  == 0)) {
-	hal_print_msg(RTAPI_MSG_ERR,
-		 "HAL:%d hal_group_compile(%s): changed-monitored group with no members to check\n",
-			rtapi_instance, name);
+	HALERR("changed-monitored group '%s' with no members to check",
+	       name);
 	return -EINVAL;
     }
 
@@ -777,7 +616,8 @@ int hal_cgroup_apply(hal_compiled_group_t *cg, int handle, hal_type_t type, hal_
     hal_data_u *dp;
     hal_member_t *member;
 
-    assert(cg->magic ==  CGROUP_MAGIC);
+    HAL_ASSERT(cg->magic ==  CGROUP_MAGIC);
+
     // handles (value references) run from 0..cc->n_pin-1
     if ((handle < 0) || (handle > cg->n_members-1))
 	return -ERANGE;
@@ -787,15 +627,12 @@ int hal_cgroup_apply(hal_compiled_group_t *cg, int handle, hal_type_t type, hal_
     dp = SHMPTR(sig->data_ptr);
 
     if (sig->writers > 0)
-	hal_print_msg(RTAPI_MSG_WARN,
-			"HAL:%d WARNING: group '%s': member signal '%s' already has updater\n",
-			rtapi_instance, cg->group->name, sig->name);
+	HALWARN("group '%s': member signal '%s' already has updater",
+		cg->group->name, sig->name);
 
     switch (type) {
     case HAL_TYPE_UNSPECIFIED:
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d BUG: hal_cgroup_apply(): invalid HAL type %d\n",
-			rtapi_instance, type);
+	HAL_ASSERT(type != HAL_TYPE_UNSPECIFIED);
 	return -EINVAL;
     case HAL_BIT:
 	dp->b = value.b;
@@ -823,7 +660,7 @@ int hal_cgroup_match(hal_compiled_group_t *cg)
     hal_s32_t halu32;
     hal_float_t halfloat,delta;
 
-    assert(cg->magic ==  CGROUP_MAGIC);
+    HAL_ASSERT(cg->magic ==  CGROUP_MAGIC);
 
     // scan for changes if needed
     monitor = (cg->group->userarg2 & (GROUP_REPORT_ON_CHANGE|GROUP_REPORT_CHANGED_MEMBERS))
@@ -874,9 +711,8 @@ int hal_cgroup_match(hal_compiled_group_t *cg)
 		}
 		break;
 	    default:
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL:%d BUG: detect_changes(%s): invalid type for signal %s: %d\n",
-				rtapi_instance, cg->group->name, sig->name, sig->type);
+		HALERR("BUG: detect_changes(%s): invalid type for signal %s: %d",
+		       cg->group->name, sig->name, sig->type);
 		return -EINVAL;
 	    }
 	    m++;

@@ -1,0 +1,27 @@
+component i_bitslice "";
+
+pin in u32 in           "The input value";
+pin out bit out-##[pincount];
+
+instanceparam int maxpincount = 32;
+
+instanceparam int pincount = 16;
+
+instanceparam string iprefix = "";
+
+
+author "Andy Pugh";
+license "GPL2+";
+function _ nofp;
+;;
+
+
+FUNCTION(_)
+{
+int i;
+    for (i = 0; i < pincount ; i++)
+        out(i) = (in >> i)&1;
+	
+return 0;
+
+}

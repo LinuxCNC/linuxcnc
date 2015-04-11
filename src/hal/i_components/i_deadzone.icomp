@@ -1,0 +1,23 @@
+component i_deadzone "Return the center if within the threshold";
+param rw float center = 0.0 "The center of the dead zone";
+param rw float threshhold = 1.0 "The dead zone is \\fBcenter\\fR \\(+- (\\fBthreshhold\\fR/2)";
+pin in float in;
+pin out float out;
+
+function _ "Update \\fBout\\fR based on \\fBin\\fR and the parameters.";
+
+license "GPL";
+;;
+FUNCTION(_) 
+{
+    double th2 = threshhold / 2;
+    double lo = center - th2;
+    double hi = center + th2;
+    double in_ = in;
+
+    if(in_ < lo) out = in_ + th2;
+    else if(in_ > hi) out = in_ - th2;
+    else out = center;
+    	
+return 0;
+}

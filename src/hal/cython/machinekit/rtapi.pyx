@@ -181,6 +181,26 @@ class RTAPIcommand:
         if r:
             raise RuntimeError("rtapi_unloadrt '%s' failed: %s" % (name,strerror(-r)))
 
+    def newinst(self, *args, instance=0):
+        cdef char** argv
+        cdef char *name
+
+        if len(args) < 2:
+            raise RuntimeError("newinst needs at least module and instance name as argument")
+        comp = args[0]
+        instname = args[1]
+        argv = _to_argv(args[2:])
+        r = rtapi_newinst( instance, comp, instname, <const char **>argv)
+        free(argv)
+        if r:
+            raise RuntimeError("rtapi_newinst '%s' failed: %s" % (args,strerror(-r)))
+
+    def delinst(self, char *instname, instance=0):
+        r = rtapi_delinst( instance, instname)
+        if r:
+            raise RuntimeError("rtapi_delinst '%s' failed: %s" % (instname,strerror(-r)))
+
+
 # default module to connect to RTAPI:
 __rtapimodule = None
 cdef rtapi_required():

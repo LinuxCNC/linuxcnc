@@ -53,6 +53,7 @@ extern int do_linksp_cmd(char *signal, char *pin);
 extern int do_start_cmd();
 extern int do_stop_cmd();
 extern int do_help_cmd(char *command);
+extern int do_autoload_cmd(char *command);
 extern int do_lock_cmd(char *command);
 extern int do_log_cmd(char *type, char *level);
 extern int do_unlock_cmd(char *command);
@@ -103,6 +104,11 @@ extern int do_waitbound_cmd(char *comp, char *tokens[]);
 extern int do_waitexists_cmd(char *comp);
 extern int do_waitunbound_cmd(char *comp, char *tokens[]);
 //extern int do_unloadrem_cmd(char *comp, char *tokens[]);
+
+extern int do_callfunc_cmd(char *func, char *args[]);
+extern int do_newinst_cmd(char *comp, char *inst, char *args[]);
+extern int do_delinst_cmd(char *inst);
+
 
 // shutdown the RTAPI stack
 extern int do_shutdown_cmd(void);

@@ -86,19 +86,19 @@ extern long int simple_strtol(const char *nptr, char **endptr, int base);
 
 
 // simple interface to hal_create_thread()/hal_thread_delete()
-// through /proc/rtapi/hal/threadcmd (kernel threadstyles only)
+// through /proc/rtapi/hal/rtapicmd (kernel threadstyles only)
 //
 // to start a thread, write 'newthread' <threadname> <period> <fp> <cpu>'
 // example:
-//    echo newthread servo-thread 1000000 1 -1 >/proc/rtapi/hal/threadcmd
+//    echo newthread servo-thread 1000000 1 -1 >/proc/rtapi/hal/rtapicmd
 //
 // to delete a thread, write 'delthread <threadname>'
-//    echo delthread servo-thread >/proc/rtapi/hal/threadcmd
+//    echo delthread servo-thread >/proc/rtapi/hal/rtapicmd
 //
 // HAL return values are reflected in the return value to write()
 //
-#define PROCFS_THREADCMD "/proc/rtapi/hal/threadcmd"
-extern int procfs_threadcmd(const char *format, ...);
+#define PROCFS_RTAPICMD "/proc/rtapi/hal/rtapicmd"
+extern int procfs_cmd(const char *path, const char *format, ...);
 
 // kernel tests in rtapi_compat.c
 extern int kernel_is_xenomai();

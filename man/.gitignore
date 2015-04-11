@@ -7,7 +7,7 @@ cat3/
 cat9/
 
 man1/linuxcnc.1
-
+man9/*.9icomp
 man9/abs.9
 man9/abs_s32.9
 man9/and2.9

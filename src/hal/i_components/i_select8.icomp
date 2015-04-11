@@ -1,0 +1,22 @@
+component i_select8 "8-bit binary match detector";
+param rw bit enable = TRUE "Set enable to FALSE to cause all outputs to be set FALSE";
+pin in s32 sel "The number of the output to set TRUE.  All other outputs well be set FALSE";
+pin out bit out#[8] "Output bits.  If enable is set and the sel input is between 0 and 7, then the corresponding output bit will be set true";
+function _ nofp;
+license "GPL";
+;;
+FUNCTION(_) 
+{
+	hal_s32_t temp_sel;
+	int i, temp_enable;
+	temp_sel = sel;
+	temp_enable = enable;
+	for (i=0;i<8;i++) {
+		if (!temp_enable || temp_sel!=i)
+			out(i)=0;
+		else
+			out(i)=1;
+	}
+    	
+return 0;
+}

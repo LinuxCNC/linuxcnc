@@ -114,7 +114,7 @@ typedef struct {
     __u32   userflags : 27;  // not interpreted by ringbuffer code
 
     __s32   refcount;        // number of referencing entities (modules, threads..)
-    __s32   reader, writer;  // HAL module id's - informational
+    __s32   reader, writer;  // HAL comp or instance id's - informational
     __s32   reader_instance, writer_instance; // RTAPI instance id's
     rtapi_atomic_type rmutex, wmutex; // optional use - if used by multiple readers/writers
     size_t  trailer_size;   // sizeof(ringtrailer_t) + scratchpad size

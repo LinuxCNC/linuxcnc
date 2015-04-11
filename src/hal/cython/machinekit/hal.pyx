@@ -25,8 +25,17 @@ class InternalError(Exception):
     pass
 
 
-TYPE_USER = hal_const.TYPE_USER
-TYPE_REMOTE = hal_const.TYPE_REMOTE
+TYPE_INVALID = hal_const.TYPE_INVALID
+TYPE_RT   =    hal_const.TYPE_RT
+TYPE_USER =    hal_const.TYPE_USER
+TYPE_REMOTE =  hal_const.TYPE_REMOTE
+TYPE_HALLIB =  hal_const.TYPE_HALLIB
+
+COMP_INVALID = hal_const.COMP_INVALID
+COMP_INITIALIZING = hal_const.COMP_INITIALIZING
+COMP_UNBOUND = hal_const.COMP_UNBOUND
+COMP_BOUND = hal_const.COMP_BOUND
+COMP_READY = hal_const.COMP_READY
 
 HAL_FLOAT = hal_const.HAL_FLOAT
 HAL_S32   = hal_const.HAL_S32
@@ -39,6 +48,11 @@ HAL_OUT = hal_const.HAL_OUT
 HAL_IO  = hal_const.HAL_IO
 HAL_DIR_UNSPECIFIED = hal_const.HAL_DIR_UNSPECIFIED
 
+HAL_RO  = hal_const.HAL_RO
+HAL_RW  = hal_const.HAL_RW
+
+PIN_DO_NOT_TRACK = hal_const.PIN_DO_NOT_TRACK
+
 REPORT_BEGIN = hal_const.REPORT_BEGIN
 REPORT_SIGNAL = hal_const.REPORT_SIGNAL
 REPORT_PIN = hal_const.REPORT_PIN
@@ -47,14 +61,8 @@ REPORT_END = hal_const.REPORT_END
 TYPE_INVALID = hal_const.TYPE_INVALID
 TYPE_RT = hal_const.TYPE_RT
 TYPE_USER = hal_const.TYPE_USER
-TYPE_INSTANCE = hal_const.TYPE_INSTANCE
 TYPE_REMOTE = hal_const.TYPE_REMOTE
 
-COMP_INVALID = hal_const.COMP_INVALID
-COMP_INITIALIZING = hal_const.COMP_INITIALIZING
-COMP_UNBOUND = hal_const.COMP_UNBOUND
-COMP_BOUND = hal_const.COMP_BOUND
-COMP_READY = hal_const.COMP_READY
 
 RINGTYPE_RECORD = ring_const.RINGTYPE_RECORD
 RINGTYPE_MULTIPART = ring_const.RINGTYPE_MULTIPART
@@ -73,6 +81,8 @@ include "hal_pindict.pyx"
 include "hal_signal.pyx"
 include "hal_component.pyx"
 include "hal_compdict.pyx"
+include "hal_inst.pyx"
+include "hal_instdict.pyx"
 include "hal_threads.pyx"
 include "hal_funct.pyx"
 include "hal_sigdict.pyx"
@@ -90,7 +100,7 @@ cdef hal_required():
     if not _comps:
         # dummy comp for connecting to HAL
         p = "machinekit::hal%d" % getpid()
-        id = hal_init_mode(p, TYPE_USER, 0,0)
+        id = hal_xinit(TYPE_USER, 0, 0, NULL, NULL, p)
         if hal_data == NULL:
             raise RuntimeError("cant connect to HAL - realtime not running?")
         hal_ready(id)

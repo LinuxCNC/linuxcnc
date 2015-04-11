@@ -1,0 +1,46 @@
+component i_lutn "";
+
+    // Input Pins
+pin in bit in-##[pincount];
+pin out bit out;
+
+instanceparam int maxpincount = 5;
+
+instanceparam int pincount = 2;
+
+instanceparam string iprefix = "lut2";
+
+instanceparam int functn = 0;
+
+option extra_inst_setup;
+
+license "GPL";
+
+function _;
+;;
+
+
+FUNCTION(_)
+{
+int i;
+ip = arg;
+int shift = 0;
+
+    for (i = 0; i < pincount; i++)
+	if (in(i))
+	    shift += (1 << i);
+
+    out = (functn & (1 << shift)) != 0;
+    	
+return 0;
+}
+
+EXTRA_INST_SETUP()
+{
+int x;
+
+    for(x = 0; x < argc; x++)
+        hal_print_msg(RTAPI_MSG_ERR,"argv[%d] = %s", x, argv[x]);
+
+return 0;
+}

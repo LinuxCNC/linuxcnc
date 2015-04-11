@@ -1,0 +1,22 @@
+setexact_for_test_suite_only
+
+loadrt sampler cfg=f depth=4096
+loadusr -Wn halsampler halsampler -N halsampler -t -n 800
+
+loadrt i_limit3
+newinst i_limit3 i_limit3n
+
+loadrt threads name1=t period1=1000000
+setp i_limit3n.maxv 500.000000
+setp i_limit3n.maxa 1000
+setp i_limit3n.max 160
+
+net n0 i_limit3n.out sampler.0.pin.0
+
+addf i_limit3n.funct t
+addf sampler.0 t
+
+setp i_limit3n.in 500
+
+start
+waitusr -i  halsampler

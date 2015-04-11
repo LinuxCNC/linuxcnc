@@ -1,0 +1,196 @@
+/******************************************************************************
+ *
+ * Copyright (C) 2014 Charles Steinkuehler (charles AT steinkuehler DOT net)
+ * Modified 2015 by Alexander Roessler (mail AT roessler DOT systems)
+ *
+ *
+ * This module allows multiple drive motors (joints) to be connected to a
+ * single motion axis.  This is useful for gantry style machines if you don't
+ * want to use gantrykins
+ *
+ ******************************************************************************
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ *
+ * THE AUTHORS OF THIS PROGRAM ACCEPT ABSOLUTELY NO LIABILITY FOR
+ * ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
+ * TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
+ * harming persons must have provisions for completely removing power
+ * from all motors, etc, before persons enter any danger area.  All
+ * machinery must be designed to comply with local and national safety
+ * codes, and the authors of this software can not, and do not, take
+ * any responsibility for such compliance.
+ *
+ * This code was written as part of the Machinkit project.  For more
+ * information, go to www.machinekit.io
+ *
+ ******************************************************************************/
+
+component i_lgantry "Machinekit HAL component for driving multiple joints from a single axis";
+pin out float joint.##.pos-cmd [pincount] "Per-joint commanded position";
+pin in  float joint.##.pos-fb  [pincount] "Per-joint position feedback";
+pin in  bit   joint.##.home    [pincount] "Per-joint home switch";
+pin in  float joint.##.home-offset [pincount] "Per-joint home offset for fine tuning";
+pin out float joint.##.offset  [pincount] "(debugging) Per-joint offset value, updated when homing";
+pin in  float position-cmd "Commanded position from motion";
+pin out float position-fb "Position feedback to motion";
+pin in  bit   homing "Axis homing state from motion";
+pin out bit   home "Combined home signal, true if all joint home inputs are true";
+pin out bit   limit "Combined limit signal, true if any joint home input is true";
+pin in  float search-vel "HOME_SEARCH_VEL from ini file";
+function read  fp "Update position-fb and home/limit outputs based on joint values";
+function write fp "Update joint pos-cmd outputs based on position-cmd in";
+
+instanceparam int maxpincount = 7;
+
+instanceparam int pincount = 7;
+
+instanceparam string iprefix = "lgantry7";
+
+description """
+Drives multiple physical motors (joints) from a single axis input
+.LP
+The `pincount' value is the number of joints to control.  Two is typical, but
+up to seven is supported (a three joint setup has been tested with hardware).
+.LP
+All controlled joints track the commanded position (with a per-joint offset)
+unless in the process of latching.  Latching is when the commanded position is
+moving away the from the homing switches (as determined by the sign of search-vel),
+the joint home switches are not all in the same state and homing is active.  When the system is
+latching and a joint home switch deactivates, the command value sent to that joint
+is "frozen" and the joint offset value is updated instead.  Once all home
+switches are deactivated, there are no more adjustments made to the offset values
+and all joints run in lock-step once more.
+.LP
+For best results, set HOME_SEARCH_VEL and HOME_LATCH_VEL to the opposite direction
+and as slow as practical.  When a joint home switch trips, the commanded
+velocity will drop immediately from HOME_SEARCH_VEL to zero, with no limit on
+accleration.
+.LP
+The latching gantry component is the opposite of the normal gantry component. It
+makes sense to use it with home switches that have a reproduceable deactivation hysteresis.
+.LP
+Using the per joint home-offset input it is possible add a small offset when latching.
+This makes it possible to adjust small differences in the endstop positions of the gantry setup.
+.LP
+The homing input must be connected to the axis homing output motion in order to enable
+the gantry component. When the axis is not homing latching will not be activated.
+""";
+license "GPL";
+variable float offset[pincount] = 0.0;
+variable float prev_cmd = 0.0;
+variable int   fb_joint = 0;
+variable int   prev_home[pincount] = 0;
+variable int   curr_home[pincount] = 0;
+variable float pos_fb_target[pincount] = 0.0;
+;;
+FUNCTION(read) 
+{
+    int i;
+    int previous_home;
+
+    // Save previous home state
+    previous_home = home;
+
+    // Prepare home and limit
+    home = !previous_home;
+    limit = 0;
+
+    // All other joints, if configured
+    for (i = 0; i < pincount; i++) {
+        // check to see if machine is in home state
+        if(previous_home == 0) {
+            // Once all joints are within proximity of homing switches,
+            // the home sequence begins
+            curr_home[i] = joint_home(i);
+            home &= curr_home[i];
+            // Stash per joint home state for next cycle
+            prev_home[i] = curr_home[i];
+        }
+        else {
+            // Use the offset to introduce a additional per joint calibration value
+            // target offset is calculated when home state changes
+            if (prev_home[i] != joint_home(i)) {
+                prev_home[i] = joint_home(i);
+                pos_fb_target[i] = joint_pos_fb(i) + joint_home_offset(i);
+            }
+            // Once all joints come out of proximity, reset home switch
+            // so machine will run normal again.
+            curr_home[i] = joint_home(i) | (joint_pos_fb(i) < pos_fb_target[i]);
+            home |= curr_home[i];
+        }
+        limit |= joint_home(i);
+    }
+
+    // Joint used for feedback is 'sticky', but we have to switch to
+    // track active joints or motion gets upset with the sudden
+    // stop.  Feedback joint used will be the first joint that is NOT
+    // within proximity of the homing switch when not in home mode.
+    // Feedback joint will use the first joint that IS in proximity of
+    // homing switch.
+    for (i = 0; i < pincount; i++) {
+        if (joint_home(i) == home) {
+            fb_joint = i;
+            break;
+        }
+    }
+    position_fb = joint_pos_fb(fb_joint) + offset[fb_joint];
+    	
+return 0;
+}
+
+FUNCTION(write) 
+{
+    int i;
+    float delta;
+
+    // When homing is not active we will not change the offsets
+    if (homing) {
+        // Determine if we're moving in the same direction as home search
+
+        // First calculate the direction we're moving now
+        delta = position_cmd - prev_cmd;
+
+        // Stash current commanded position for next time
+        prev_cmd = position_cmd;
+
+        // Then multiply our delta value by the search velocity
+        // If the signs match and neither is zero, the result will be positive
+        // indicate we are moving towards home.  Otherwise, the result will be
+        // zero or negative.
+        //
+        // If we're moving towards home and all home switches are not closed
+        if ((((delta * search_vel) > 0) && (home == 0)) || (home == 1)) {
+            // Check each joint to see if it's home switch is active
+            for (i = 0; i < pincount; i++) {
+                // If home switch is active but system not in home mode,
+                // update offset, not pos_cmd so the other joints can catch up
+                // When home, this happens when home switch is inactive
+                if (curr_home[i] != home) {
+                    offset[i] += delta;
+                }
+            }
+        }
+    }
+
+    // Update each joint's commanded position
+    for (i = 0; i < pincount; i++) {
+        joint_pos_cmd(i) = position_cmd - offset[i];
+        joint_offset(i) = offset[i];
+    }
+    	
+return 0;
+}

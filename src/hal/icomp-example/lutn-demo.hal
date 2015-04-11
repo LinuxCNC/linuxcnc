@@ -1,0 +1,67 @@
+newsig in0 bit
+newsig in1 bit
+
+loadrt lutn
+newinst lutn or2.0  inputs=2 function=0xe
+newinst lutn and2.0 inputs=2 function=0x8
+
+net in0 and2.0.in0 or2.0.in0
+net in1 and2.0.in1 or2.0.in1
+
+newthread servo 1000000 fp
+addf or2.0.funct 	servo
+addf and2.0.funct 	servo
+start
+
+show sig in0 in1
+show pin or2.0.out and2.0.out
+
+sets in0 1
+show sig in0 in1
+show pin or2.0.out and2.0.out
+
+sets in1 1
+show sig in0 in1
+show pin or2.0.out and2.0.out
+
+sets in0 0
+show sig in0 in1
+show pin or2.0.out and2.0.out
+
+sets in1 0
+show sig in0 in1
+show pin or2.0.out and2.0.out
+
+
+
+
+
+
+
+# show pin or2.0.out and2.0.out
+# show pin
+
+# setp or2.0.in0 0
+# setp or2.0.in1 1
+
+# show pin or2.0.out
+
+# setp or2.0.in1 0
+# show pin or2.0.out
+
+# show pin and2.0*
+
+# setp and2.0.in0 1
+# show pin and2.0.out
+
+# setp and2.0.in1 1
+# show pin and2.0.out
+
+# setp and2.0.in1 0
+# show pin and2.0.out
+
+# delinst or2.0
+# show pin
+
+# delinst and2.0
+# show pin

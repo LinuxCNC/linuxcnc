@@ -8,18 +8,9 @@ int halpr_foreach_comp(const char *name,
     int nvisited = 0;
     int result;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_comp called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_comp called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+
     /* search for the comp */
     next = hal_data->comp_list_ptr;
     while (next != 0) {
@@ -62,18 +53,9 @@ int halpr_foreach_sig(const char *name,
     int nvisited = 0;
     int result;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_sig called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_sig called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+
     /* search for the sig */
     next = hal_data->sig_list_ptr;
     while (next != 0) {
@@ -115,18 +97,9 @@ int halpr_foreach_thread(const char *name,
     int nvisited = 0;
     int result;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_thread called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_thread called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+
     /* search for the thread */
     next = hal_data->thread_list_ptr;
     while (next != 0) {
@@ -168,18 +141,9 @@ int halpr_foreach_funct(const char *name,
     int nvisited = 0;
     int result;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_funct called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_funct called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+
     /* search for the funct */
     next = hal_data->funct_list_ptr;
     while (next != 0) {
@@ -221,18 +185,9 @@ int halpr_foreach_ring(const char *name,
     int nvisited = 0;
     int result;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_ring called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_ring called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+
     /* search for the ring */
     next = hal_data->ring_list_ptr;
     while (next != 0) {
@@ -266,8 +221,6 @@ int halpr_foreach_ring(const char *name,
     return nvisited;
 }
 
-// forgotten
-
 int halpr_foreach_pin(const char *name,
 		      hal_pin_callback_t callback, void *cb_data)
 {
@@ -276,18 +229,9 @@ int halpr_foreach_pin(const char *name,
     int nvisited = 0;
     int result;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_pin called before init\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d ERROR: halpr_foreach_pin called while HAL locked\n",
-			rtapi_instance);
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+
     /* search for the pin */
     next = hal_data->pin_list_ptr;
     while (next != 0) {
@@ -318,5 +262,138 @@ int halpr_foreach_pin(const char *name,
 	next = pin->next_ptr;
     }
     /* if we get here, we ran through all the pins, so return count */
+    return nvisited;
+}
+
+int halpr_foreach_param(const char *name,
+		      hal_param_callback_t callback, void *cb_data)
+{
+    hal_param_t *param;
+    int next;
+    int nvisited = 0;
+    int result;
+
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+
+    /* search for the param */
+    next = hal_data->param_list_ptr;
+    while (next != 0) {
+	param = SHMPTR(next);
+	if (!name || (strcmp(param->name, name)) == 0) {
+	    nvisited++;
+	    /* this is the right param */
+	    if (callback) {
+		result = callback(param, cb_data);
+		if (result < 0) {
+		    // callback signalled an error, pass that back up.
+		    return result;
+		} else if (result > 0) {
+		    // callback signalled 'stop iterating'.
+		    // pass back the number of visited params.
+		    return nvisited;
+		} else {
+		    // callback signalled 'OK to continue'
+		    // fall through
+		}
+	    } else {
+		// null callback passed in,
+		// just count params
+		// nvisited already bumped above.
+	    }
+	}
+	/* no match, try the next one */
+	next = param->next_ptr;
+    }
+    /* if we get here, we ran through all the params, so return count */
+    return nvisited;
+}
+
+
+int halpr_foreach_vtable(const char *name,
+		      hal_vtable_callback_t callback, void *cb_data)
+{
+    hal_vtable_t *vtable;
+    int next;
+    int nvisited = 0;
+    int result;
+
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+
+    /* search for the vtable */
+    next = hal_data->vtable_list_ptr;
+    while (next != 0) {
+	vtable = SHMPTR(next);
+	if (!name || (strcmp(vtable->name, name)) == 0) {
+	    nvisited++;
+	    /* this is the right vtable */
+	    if (callback) {
+		result = callback(vtable, cb_data);
+		if (result < 0) {
+		    // callback signalled an error, pass that back up.
+		    return result;
+		} else if (result > 0) {
+		    // callback signalled 'stop iterating'.
+		    // pass back the number of visited vtables.
+		    return nvisited;
+		} else {
+		    // callback signalled 'OK to continue'
+		    // fall through
+		}
+	    } else {
+		// null callback passed in,
+		// just count vtables
+		// nvisited already bumped above.
+	    }
+	}
+	/* no match, try the next one */
+	next = vtable->next_ptr;
+    }
+    /* if we get here, we ran through all the vtables, so return count */
+    return nvisited;
+}
+
+int halpr_foreach_inst(const char *name,
+		      hal_inst_callback_t callback, void *cb_data)
+{
+    hal_inst_t *inst;
+    int next;
+    int nvisited = 0;
+    int result;
+
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+
+    /* search for the inst */
+    next = hal_data->inst_list_ptr;
+    while (next != 0) {
+	inst = SHMPTR(next);
+	if (!name || (strcmp(inst->name, name)) == 0) {
+	    nvisited++;
+	    /* this is the right inst */
+	    if (callback) {
+		result = callback(inst, cb_data);
+		if (result < 0) {
+		    // callback signalled an error, pass that back up.
+		    return result;
+		} else if (result > 0) {
+		    // callback signalled 'stop iterating'.
+		    // pass back the number of visited insts.
+		    return nvisited;
+		} else {
+		    // callback signalled 'OK to continue'
+		    // fall through
+		}
+	    } else {
+		// null callback passed in,
+		// just count insts
+		// nvisited already bumped above.
+	    }
+	}
+	/* no match, try the next one */
+	next = inst->next_ptr;
+    }
+    /* if we get here, we ran through all the insts, so return count */
     return nvisited;
 }

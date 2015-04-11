@@ -80,7 +80,6 @@ typedef struct {
     rtapi_msgheader_t hdr;
     char buf[RTPRINTBUFFERLEN];
 } rtapi_msg_t;
-
 void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 {
     int n;
@@ -231,6 +230,29 @@ void rtapi_print_msg(int level, const char *fmt, ...) {
 	va_end(args);
     }
 }
+#define RTAPIPRINTBUFFERLEN 256
+static char _rtapi_logmsg[RTAPIPRINTBUFFERLEN];
+
+void rtapi_print_loc(const int level,
+		     const char *func,
+		     const int line,
+		     const char *topic,
+		     const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+
+    const char *pfmt = "%s:%d %s ";
+    rtapi_snprintf(_rtapi_logmsg, RTAPIPRINTBUFFERLEN, pfmt,
+		   func  == NULL ? "(nil)" : func,
+		   line,
+		   topic == NULL ? "" : topic);
+    int n = strlen(_rtapi_logmsg);
+
+    vsnprintf(_rtapi_logmsg + n, RTAPIPRINTBUFFERLEN - n, fmt, args);
+    rtapi_print_msg(level, _rtapi_logmsg);
+    va_end(args);
+}
 
 int rtapi_snprintf(char *buf, unsigned long int size,
 		   const char *fmt, ...) {
@@ -262,6 +284,76 @@ const char *rtapi_get_logtag(void) {
     return logtag;
 }
 
+/* $Id: argvize.c,v 1.1.1.1 2006/06/29 06:43:26 cpu Exp $ */
+
+/*
+ * Copyright (c) 2000-2002 Opsycon AB  (www.opsycon.se)
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by Opsycon AB.
+ * 4. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ */
+
+// see rtapi.h for usage information
+int rtapi_argvize(int avsize, char **av, char *s)
+{
+	char **pav = av, c;
+	int ac;
+
+	for (ac = 0; ac < avsize - 1; ac++) {
+		/* step over cntrls and spaces */
+		while (*s && *s <= ' ')
+			s++;
+
+		if (!*s)
+			break;
+
+		c = *s;
+		/* if it's a quote skip forward */
+		if (c == '\'' || c == '"') {
+			if (pav)
+				*pav++ = ++s;
+			while (*s && *s != c)
+				s++;
+			if (*s)
+				*s++ = 0;
+		} else {		/* find end of word */
+			if (pav)
+				*pav++ = s;
+			while (' ' < *s)
+				s++;
+		}
+
+		if (*s)
+			*s++ = 0;
+	}
+	*pav = NULL;
+	return (ac);
+}
+
 
 #ifdef RTAPI
 EXPORT_SYMBOL(rtapi_get_msg_handler);
@@ -270,8 +362,10 @@ EXPORT_SYMBOL(rtapi_print_msg);
 EXPORT_SYMBOL(rtapi_print);
 EXPORT_SYMBOL(rtapi_snprintf);
 EXPORT_SYMBOL(rtapi_vsnprintf);
+EXPORT_SYMBOL(rtapi_argvize);
 EXPORT_SYMBOL(rtapi_set_msg_level);
 EXPORT_SYMBOL(rtapi_get_msg_level);
 EXPORT_SYMBOL(rtapi_set_logtag);
 EXPORT_SYMBOL(rtapi_get_logtag);
+EXPORT_SYMBOL(rtapi_print_loc);
 #endif

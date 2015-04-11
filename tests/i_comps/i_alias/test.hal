@@ -1,0 +1,8 @@
+loadrt i_and2
+newinst i_and2 i_and2new
+alias pin i_and2new.in0 something
+alias pin i_and2new.in1 somethingelse
+alias pin i_and2new.out anotherthing
+unalias pin somethingelse
+unalias pin i_and2new.out
+list pin

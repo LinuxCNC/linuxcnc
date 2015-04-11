@@ -1,0 +1,142 @@
+component i_thcud "Torch Height Control Up/Down Input";
+
+description
+"""
+Torch Height Control
+This THC takes either an up or a down input from a THC
+
+If enabled and torch is on and X + Y velocity is within tolerance of set speed
+allow the THC to offset the Z axis as needed to maintain voltage.
+
+If enabled and torch is off and the Z axis is moving up remove any correction
+at a rate not to exceed the rate of movement of the Z axis.
+
+If enabled and torch is off and there is no correction
+pass the Z position and feed back untouched.
+
+If not enabled pass the Z position and feed back untouched.
+
+Physical Connections typical
+paraport.0.pin-12-in <= THC controller Plasma Up
+paraport.0.pin-13-in <= THC controller Plasma Down
+parport.0.pin-15-in  <= Plasma Torch Arc Ok Signal
+parport.0.pin-16-out => Plasma Torch Start Arc Contacts
+
+HAL Plasma Connections
+thc.torch-up <= paraport.0.pin-12-in
+thc.torch-down <= paraport.0.pin-13-in
+motion.spindle-on => parport.0.pin-16-out (start the arc)
+thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
+
+HAL Motion Connections
+thc.requested-vel <= motion.requested-vel
+thc.current-vel <= motion.current-vel
+
+Pyvcp Connections
+In the xml file you need something like:
+
+<checkbutton>
+  <text>"THC Enable"</text>
+  <halpin>"thc-enable"</halpin>
+</checkbutton>
+<spinbox>
+  <width>"5"</width>
+  <halpin>"vel-tol"</halpin>
+  <min_>.01</min_>
+  <max_>1</max_>
+  <resolution>0.01</resolution>
+  <initval>0.2</initval>
+  <format>"1.2f"</format>
+  <font>("Arial",10)</font>
+</spinbox>
+
+Connect the Pyvcp pins in the postgui.hal file like this:
+
+net thc-enable thcud.enable <= pyvcp.thc-enable
+
+""";
+
+author "John Thornton";
+
+license "GPLv2 or greater";
+
+option singleton yes;
+
+// Input Pins
+pin in bit torch_up "Connect to an input pin";
+pin in bit torch_down "Connect to input pin";
+pin in float current_vel "Connect to motion.current-vel";
+pin in float requested_vel "Connect to motion.requested-vel";
+pin in bit torch_on "Connect to motion.spindle-on";
+pin in bit arc_ok "Arc Ok from Plasma Torch";
+pin in bit enable "Enable the THC, if not enabled Z position is passed through";
+pin in float z_pos_in "Z Motor Position Command in from axis.n.motor-pos-cmd";
+
+// Output Pins
+pin out float z_pos_out "Z Motor Position Command Out";
+pin out float z_fb_out "Z Position Feedback to Axis";
+pin out float cur_offset "The Current Offset";
+pin out bit vel_status "When the THC thinks we are at requested speed";
+pin out bit removing_offset "Pin for testing";
+
+// Parameters
+param rw float velocity_tol "The deviation percent from planned velocity";
+param rw float correction_vel "The Velocity to move Z to correct";
+
+// Global Variables
+variable float offset;
+variable float last_z_in;
+
+function _;
+
+;;
+
+#include "rtapi_math.h"
+
+FUNCTION(_) 
+{
+    if(enable){
+        float min_velocity = requested_vel -(requested_vel*(1/velocity_tol));
+        if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}
+        else {vel_status =0;}
+
+        if(torch_on && arc_ok && vel_status){ // allow correction
+            if(torch_down){
+                offset -= correction_vel;
+            }
+            if(torch_up){
+                offset += correction_vel;
+            }
+            last_z_in = 0;
+        }
+        if(!torch_on){ // remove any offset
+            float z_diff;
+            z_diff = z_pos_in - last_z_in;
+            if(z_diff > 0 && offset != 0){ // torch is moving up
+                removing_offset = 1;
+                if(offset > 0){ // positive offset
+                    if(offset > z_diff){ // remove some
+                        offset -= z_diff;
+                    }
+                    else {offset = 0;}
+                }
+                if(offset < 0){ // negative offset
+                    if(offset < z_diff){ // remove some
+                        offset += z_diff;
+                    }
+                    else {offset = 0;}
+                }
+            }
+            else {removing_offset = 0;}
+            last_z_in = z_pos_in;
+        }
+        z_pos_out = z_pos_in + offset;
+        z_fb_out = z_pos_in; // keep axis motor position fb from being confused
+    }
+    if(!enable){
+        z_pos_out = z_pos_in;
+        z_fb_out = z_pos_in; // keep axis motor position fb from being confused
+    }
+    	
+return 0;
+}

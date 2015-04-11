@@ -1,4 +1,6 @@
-this code is by Pavel Shramov, 2014
+
+
+The record and multiframe ringbuffer code is by Pavel Shramov, 2014
 License: MIT
 
 see http://psha.org.ru/cgit/psha/emc2.git/commit/?h=wip-cython&id=7137c5f8874948541de1aa796c9e8c1b2f8f7fb8

@@ -482,10 +482,10 @@ int _rtapi_wait_hook(void) {
 
 	ts->flavor.rtpreempt.wait_errors++;
 
+#ifndef RTAPI_POSIX
 	rtapi_exception_detail_t detail = {0};
 	detail.task_id = task_id(task);
 
-#ifndef RTAPI_POSIX
 	if (rt_exception_handler)
 	    rt_exception_handler(RTP_DEADLINE_MISSED, &detail, ts);
 #endif

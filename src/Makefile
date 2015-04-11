@@ -203,7 +203,9 @@ SUBDIRS := \
 	\
 	hal/lib \
 	hal/components \
+	hal/i_components \
 	hal/vtable-example \
+	hal/userfunct-example \
 	hal/drivers \
 	hal/user_comps/devices \
 	hal/user_comps/mb2hal \
@@ -493,17 +495,18 @@ HEADERS := \
     emc/rs274ngc/interp_base.hh \
     emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
-    hal/lib/hal.h \
-    hal/lib/hal_priv.h \
-    hal/lib/hal_list.h \
-    hal/lib/hal_internal.h \
-    hal/lib/hal_parport.h \
-    hal/lib/hal_group.h \
-    hal/lib/hal_ring.h \
-    hal/lib/hal_rcomp.h \
-    hal/lib/hal_iter.h \
-    hal/lib/vtable.h \
     hal/lib/config_module.h \
+    hal/lib/hal_group.h \
+    hal/lib/hal.h \
+    hal/lib/hal_internal.h \
+    hal/lib/hal_iter.h \
+    hal/lib/hal_list.h \
+    hal/lib/hal_logging.h \
+    hal/lib/hal_parport.h \
+    hal/lib/hal_priv.h \
+    hal/lib/hal_rcomp.h \
+    hal/lib/hal_ring.h \
+    hal/lib/vtable.h \
     hal/drivers/hal_gpiomap.h \
     hal/drivers/hal_spi.h \
     libnml/buffer/locmem.hh \
@@ -1086,7 +1089,9 @@ ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/lib/Submakefile
 include $(BASEPWD)/machinetalk/Submakefile
 include $(BASEPWD)/hal/components/Submakefile
+include $(BASEPWD)/hal/i_components/Submakefile
 include $(BASEPWD)/hal/vtable-example/Submakefile
+include $(BASEPWD)/hal/userfunct-example/Submakefile
 include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
 include $(BASEPWD)/rtapi/Submakefile
 include $(BASEPWD)/rtapi/shmdrv/Submakefile
@@ -1461,6 +1466,19 @@ motmod-objs += emc/motion/dbuf.o
 motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
+# obj-m += vtexport.o
+# vtexport-objs := hal/vtable-example/vtexport.o
+# vtexport-objs += hal/vtable-example/vcode.o
+
+obj-m += icomp.o
+icomp-objs := hal/icomp-example/icomp.o
+
+obj-m += lutn.o
+lutn-objs := hal/icomp-example/lutn.o
+
+obj-m += ufdemo.o
+ufdemo-objs := hal/userfunct-example/ufdemo.o
+
 obj-m += tp.o
 tp-objs := $(addprefix emc/tp/, \
 	tc.o 		\
@@ -1474,7 +1492,9 @@ tp-objs := $(addprefix emc/tp/, \
 	libnml/posemath/_posemath.o \
 	libnml/posemath/sincos.o $(MATHSTUB)
 
+
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
+
 
 # USER_DSO module building
 # (don't build when 'BUILD_ALL_FLAVORS' or 'BUILD_THREADS_MODULES' are set;
@@ -1638,6 +1658,9 @@ $(RTLIBDIR)/scarakins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(scarakins-objs))
 $(RTLIBDIR)/hal_gm$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gm-objs))
 
 $(RTLIBDIR)/tp$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(tp-objs))
+$(RTLIBDIR)/ufdemo$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(ufdemo-objs))
+$(RTLIBDIR)/icomp$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(icomp-objs))
+$(RTLIBDIR)/lutn$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(lutn-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))
@@ -1655,7 +1678,6 @@ endif  # build kernel RTAPI modules
 NOTAGSIN := \
 	depends \
 	objects \
-	machinetalk/ring \
 	machinetalk/generated \
 	machinetalk/nanopb
 

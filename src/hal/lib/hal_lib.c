@@ -61,8 +61,6 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private decls */
-#include "hal_ring.h"		/* HAL ringbuffer decls */
-#include "hal_group.h"		/* HAL group decls */
 #include "hal_internal.h"
 
 #include "rtapi_string.h"
@@ -93,7 +91,7 @@ MODULE_LICENSE("GPL");
 char *hal_shmem_base = 0;
 hal_data_t *hal_data = 0;
 int lib_module_id = -1; 	/* RTAPI module ID for library module */
-static int lib_mem_id = -1;	/* RTAPI shmem ID for library module */
+int lib_mem_id = -1;	/* RTAPI shmem ID for library module */
 
 // the global data segment contains vital instance information and
 // the error message ringbuffer, so all HAL entities attach it
@@ -121,14 +119,6 @@ static int lib_mem_id = -1;	/* RTAPI shmem ID for library module */
 /* These functions are used internally by this file.  The code is at
    the end of the file.  */
 
-/** init_hal_data() initializes the entire HAL data structure, only
-    if the structure has not already been initialized.  (The init
-    is done by the first HAL component to be loaded.
-*/
-static int init_hal_data(void);
-
-
-
 /** The alloc_xxx_struct() functions allocate a structure of the
     appropriate type and return a pointer to it, or 0 if they fail.
     They attempt to re-use freed structs first, if none are
@@ -149,12 +139,9 @@ static int init_hal_data(void);
 /** The 'hal_set_lock()' function sets locking based on one of the
     locking types defined in hal.h
 */
-int hal_set_lock(unsigned char lock_type) {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: set_lock called before init\n");
-	return -EINVAL;
-    }
+int hal_set_lock(unsigned char lock_type)
+{
+    CHECK_HALDATA();
     hal_data->lock = lock_type;
     return 0;
 }
@@ -163,12 +150,9 @@ int hal_set_lock(unsigned char lock_type) {
     locking types defined in hal.h
 */
 
-unsigned char hal_get_lock() {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: get_lock called before init\n");
-	return -EINVAL;
-    }
+unsigned char hal_get_lock()
+{
+    CHECK_HALDATA();
     return hal_data->lock;
 }
 
@@ -182,9 +166,7 @@ void halpr_autorelease_mutex(void *variable)
 	rtapi_mutex_give(&(hal_data->mutex));
     else
 	// programming error
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d BUG: halpr_autorelease_mutex called before hal_data inited\n",
-			rtapi_instance);
+	HALERR("BUG: halpr_autorelease_mutex called before hal_data inited");
 }
 
 
@@ -193,300 +175,74 @@ void halpr_autorelease_mutex(void *variable)
 ************************************************************************/
 
 #ifdef RTAPI
-/* these functions are called when the hal_lib module is insmod'ed
-   or rmmod'ed.
-*/
 
+extern int hal_exit_threads(void); // in hal_thread.c
+
+
+/* these functions are called when the hal_lib RT module is insmod'ed
+   or rmmod'ed, or the respective userland DSO is loaded and
+   initialized by rtapi_app.
+*/
 
 int rtapi_app_main(void)
 {
-    int retval;
-    void *mem;
-
     rtapi_switch = rtapi_get_handle();
-    hal_print_msg(RTAPI_MSG_DBG,
-		    "HAL_LIB:%d loading RT support gd=%pp\n",rtapi_instance,global_data);
 
-    /* do RTAPI init */
-    lib_module_id = rtapi_init("HAL_LIB");
-    if (lib_module_id < 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL_LIB:%d ERROR: rtapi init failed\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
+    // sanity: these must have been inited before by the
+    // respective rtapi.so/.ko module
+    CHECK_NULL(rtapi_switch);
+    CHECK_NULL(global_data);
 
-    // paranoia
-    if (global_data == NULL) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL_LIB:%d ERROR: global_data == NULL\n",
-			rtapi_instance);
-	return -EINVAL;
-    }
+    HALDBG("initializing RT hal_lib support");
 
-    /* get HAL shared memory block from RTAPI */
-    lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, global_data->hal_size);
+    int retval = hal_xinit(TYPE_HALLIB, 0, 0, NULL, NULL, "hal_lib");
 
-    if (lib_mem_id < 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL_LIB:%d ERROR: could not open shared memory\n",
-			rtapi_instance);
-	rtapi_exit(lib_module_id);
-	return -EINVAL;
-    }
-    /* get address of shared memory area */
-    retval = rtapi_shmem_getptr(lib_mem_id, &mem, 0);
-
-    if (retval < 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL_LIB:%d ERROR: could not access shared memory\n",
-			rtapi_instance);
-	rtapi_exit(lib_module_id);
-	return -EINVAL;
-    }
-    /* set up internal pointers to shared mem and data structure */
-    hal_shmem_base = (char *) mem;
-    hal_data = (hal_data_t *) mem;
-    /* perform a global init if needed */
-    retval = init_hal_data();
-
-    if ( retval ) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL_LIB:%d ERROR: could not init shared memory\n",
-			rtapi_instance);
-	rtapi_exit(lib_module_id);
-	return -EINVAL;
-    }
-
-    retval = hal_proc_init();
-
-    if ( retval ) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL_LIB: ERROR:%d could not init /proc files\n",
-			rtapi_instance);
-	rtapi_exit(lib_module_id);
-	return -EINVAL;
-    }
-
-    /* done */
-    hal_print_msg(RTAPI_MSG_DBG,
-		    "HAL_LIB:%d kernel lib installed successfully\n",
-		    rtapi_instance);
-    return 0;
+    HALDBG("RT hal_lib support initialized rc=%d", retval);
+    return retval;
 }
 
 void rtapi_app_exit(void)
 {
-    int retval;
-
-    hal_print_msg(RTAPI_MSG_DBG,
-		    "HAL_LIB:%d removing RT support\n",rtapi_instance);
+    HALDBG("removing RT hal_lib support");
     hal_proc_clean();
-
-    {
-	hal_thread_t *thread __attribute__((cleanup(halpr_autorelease_mutex)));
-
-	/* grab mutex before manipulating list */
-	rtapi_mutex_get(&(hal_data->mutex));
-	/* must remove all threads before unloading this module */
-	while (hal_data->thread_list_ptr != 0) {
-	    /* point to a thread */
-	    thread = SHMPTR(hal_data->thread_list_ptr);
-	    /* unlink from list */
-	    hal_data->thread_list_ptr = thread->next_ptr;
-	    /* and delete it */
-	    free_thread_struct(thread);
-	}
-    }
-
-    /* release RTAPI resources */
-    retval = rtapi_shmem_delete(lib_mem_id, lib_module_id);
-    if (retval) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL_LIB:%d rtapi_shmem_delete(%d,%d) failed: %d\n",
-			rtapi_instance, lib_mem_id, lib_module_id, retval);
-    }
-
-    retval = rtapi_exit(lib_module_id);
-    if (retval) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL_LIB:%d rtapi_exit(%d) failed: %d\n",
-			rtapi_instance, lib_module_id, retval);
-    }
-    /* done */
-    hal_print_msg(RTAPI_MSG_DBG,
-		    "HAL_LIB:%d RT support removed successfully\n",
-		    rtapi_instance);
+    hal_exit_threads();
+    hal_exit(lib_module_id);
+    HALDBG("RT hal_lib support removed successfully");
 }
-
 #endif /* RTAPI */
 
-/* see the declarations of these functions (near top of file) for
-   a description of what they do.
-*/
-
-static int init_hal_data(void)
-{
-
-    /* has the block already been initialized? */
-    if (hal_data->version != 0) {
-	/* yes, verify version code */
-	if (hal_data->version == HAL_VER) {
-	    return 0;
-	} else {
-	    hal_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: version code mismatch\n");
-	    return -1;
-	}
-    }
-    /* no, we need to init it, grab the mutex unconditionally */
-    rtapi_mutex_try(&(hal_data->mutex));
-
-    // some heaps contain garbage, like xenomai
-    memset(hal_data, 0, global_data->hal_size);
-
-    /* set version code so nobody else init's the block */
-    hal_data->version = HAL_VER;
-
-    /* initialize everything */
-    hal_data->comp_list_ptr = 0;
-    hal_data->pin_list_ptr = 0;
-    hal_data->sig_list_ptr = 0;
-    hal_data->param_list_ptr = 0;
-    hal_data->funct_list_ptr = 0;
-    hal_data->thread_list_ptr = 0;
-    hal_data->vtable_list_ptr = 0;
-    hal_data->base_period = 0;
-    hal_data->threads_running = 0;
-    hal_data->oldname_free_ptr = 0;
-    hal_data->comp_free_ptr = 0;
-    hal_data->pin_free_ptr = 0;
-    hal_data->sig_free_ptr = 0;
-    hal_data->param_free_ptr = 0;
-    hal_data->funct_free_ptr = 0;
-    hal_data->vtable_free_ptr = 0;
-    hal_data->pending_constructor = 0;
-    hal_data->constructor_prefix[0] = 0;
-    list_init_entry(&(hal_data->funct_entry_free));
-    hal_data->thread_free_ptr = 0;
-    hal_data->exact_base_period = 0;
-
-    hal_data->group_list_ptr = 0;
-    hal_data->member_list_ptr = 0;
-    hal_data->ring_list_ptr = 0;
-
-    hal_data->group_free_ptr = 0;
-    hal_data->member_free_ptr = 0;
-    hal_data->ring_free_ptr = 0;
-
-    RTAPI_ZERO_BITMAP(&hal_data->rings, HAL_MAX_RINGS);
-    // silly 1-based shm segment id allocation FIXED
-    // yeah, 'user friendly', how could one possibly think zero might be a valid id
-    RTAPI_BIT_SET(hal_data->rings,0);
-
-    /* set up for shmalloc_xx() */
-    hal_data->shmem_bot = sizeof(hal_data_t);
-    hal_data->shmem_top = global_data->hal_size;
-    hal_data->lock = HAL_LOCK_NONE;
-
-    int i;
-    for (i = 0; i < MAX_EPSILON; i++)
-	hal_data->epsilon[i] = 0.0;
-    hal_data->epsilon[0] = DEFAULT_EPSILON;
-
-    /* done, release mutex */
-    rtapi_mutex_give(&(hal_data->mutex));
-    return 0;
-}
-
 /***********************************************************************
-*                     HAL data segment attach & detach                 *
+*               ULAPI hal_lib support                                  *
 *                                                                      *
-* in place to work around a purported RTAI issue with shared memory    *
 ************************************************************************/
 
 #ifdef ULAPI
 
-// this is now delayed to first hal_init() in this process
-int hal_rtapi_attach()
-{
-    int retval;
-    void *mem;
-    char rtapi_name[RTAPI_NAME_LEN + 1];
+// ULAPI-side initialisation happens only once the first comp is
+// initialized. See hal_xinit().
 
-    if (lib_mem_id < 0) {
-	hal_print_msg(RTAPI_MSG_DBG, "HAL: initializing hal_lib\n");
-	rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_LIB_%d", (int)getpid());
-	lib_module_id = rtapi_init(rtapi_name);
-	if (lib_module_id < 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not not initialize RTAPI - realtime not started?\n");
-	    return -EINVAL;
-	}
-
-	if (global_data == NULL) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: RTAPI shutting down - exiting\n");
-	    exit(1);
-	}
-
-	/* get HAL shared memory block from RTAPI */
-	lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, global_data->hal_size);
-	if (lib_mem_id < 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not open shared memory\n");
-	    rtapi_exit(lib_module_id);
-	    return -EINVAL;
-	}
-	/* get address of shared memory area */
-	retval = rtapi_shmem_getptr(lib_mem_id, &mem, 0);
-	if (retval < 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not access shared memory\n");
-	    rtapi_exit(lib_module_id);
-	    return -EINVAL;
-	}
-	/* set up internal pointers to shared mem and data structure */
-        hal_shmem_base = (char *) mem;
-        hal_data = (hal_data_t *) mem;
-	/* perform a global init if needed */
-	retval = init_hal_data();
-	if ( retval ) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not init shared memory\n");
-	    rtapi_exit(lib_module_id);
-	    return -EINVAL;
-	}
-    }
-    return 0;
-}
-
-int hal_rtapi_detach()
-{
-    /* release RTAPI resources */
-    if (lib_mem_id > -1) {
-	// if they were actually initialized
-	rtapi_shmem_delete(lib_mem_id, lib_module_id);
-	rtapi_exit(lib_module_id);
-
-	lib_mem_id = 0;
-	lib_module_id = -1;
-	hal_shmem_base = NULL;
-	hal_data = NULL;
-    }
-    return 0;
-}
-
-// ULAPI-side cleanup. Called at shared library unload time as
-// a destructor.
+// ULAPI-side cleanup:
+// Exit the HAL library component, which in turn
+// releases the HAL shared memory segment.
+//
+// Called at shared library unload time as a destructor.
 static void  __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void)
 {
-    // detach the HAL data segment
-    hal_rtapi_detach();
+    // exit the HAL library component (hal_lib%d % pid)
+    if (lib_module_id > -1)
+	hal_exit(lib_module_id);
+
     // shut down ULAPI
     ulapi_cleanup();
 }
 #endif
+
+
+/***********************************************************************
+*               logging                                                *
+*                                                                      *
+************************************************************************/
+
 #define HALPRINTBUFFERLEN 1024
 static char _hal_errmsg[HALPRINTBUFFERLEN];
 
@@ -500,7 +256,19 @@ void hal_print_msg(int level, const char *fmt, ...)
     va_end(args);
 }
 
-const char *hal_lasterror()
+void hal_print_error(const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    const char *prefix = "HAL error: ";
+    strncpy(_hal_errmsg, prefix, sizeof(_hal_errmsg));
+
+    vsnprintf(_hal_errmsg + strlen(_hal_errmsg), HALPRINTBUFFERLEN, fmt, args);
+    rtapi_print_msg(RTAPI_MSG_ERR, _hal_errmsg);
+    va_end(args);
+}
+
+const char *hal_lasterror(void)
 {
     return _hal_errmsg;
 }
@@ -508,37 +276,45 @@ const char *hal_lasterror()
 #ifdef RTAPI
 /* only export symbols when we're building a realtime module */
 
+// ------------ public API:  ------------
+// hal_comp.c:
 EXPORT_SYMBOL(hal_init);
-EXPORT_SYMBOL(hal_init_mode);
+EXPORT_SYMBOL(hal_xinit);
+EXPORT_SYMBOL(hal_xinitf);
 EXPORT_SYMBOL(hal_ready);
 EXPORT_SYMBOL(hal_exit);
-EXPORT_SYMBOL(hal_malloc);
 EXPORT_SYMBOL(hal_comp_name);
+
+// hal_memory.c:
+EXPORT_SYMBOL(hal_malloc);
+
+// hal_pin.c:
+EXPORT_SYMBOL(hal_pin_new);
+EXPORT_SYMBOL(hal_pin_newf);
 
 EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);
 EXPORT_SYMBOL(hal_pin_u32_new);
 EXPORT_SYMBOL(hal_pin_s32_new);
-EXPORT_SYMBOL(hal_pin_new);
-EXPORT_SYMBOL(hal_pin_newf);
 
 EXPORT_SYMBOL(hal_pin_bit_newf);
 EXPORT_SYMBOL(hal_pin_float_newf);
 EXPORT_SYMBOL(hal_pin_u32_newf);
 EXPORT_SYMBOL(hal_pin_s32_newf);
 
-
 EXPORT_SYMBOL(hal_signal_new);
 EXPORT_SYMBOL(hal_signal_delete);
 EXPORT_SYMBOL(hal_link);
 EXPORT_SYMBOL(hal_unlink);
 
+// hal_param.c:
+EXPORT_SYMBOL(hal_param_new);
+EXPORT_SYMBOL(hal_param_newf);
+
 EXPORT_SYMBOL(hal_param_bit_new);
 EXPORT_SYMBOL(hal_param_float_new);
 EXPORT_SYMBOL(hal_param_u32_new);
 EXPORT_SYMBOL(hal_param_s32_new);
-EXPORT_SYMBOL(hal_param_new);
-EXPORT_SYMBOL(hal_param_newf);
 
 EXPORT_SYMBOL(hal_param_bit_newf);
 EXPORT_SYMBOL(hal_param_float_newf);
@@ -551,35 +327,50 @@ EXPORT_SYMBOL(hal_param_u32_set);
 EXPORT_SYMBOL(hal_param_s32_set);
 EXPORT_SYMBOL(hal_param_set);
 
-EXPORT_SYMBOL(hal_set_constructor);
-
+// hal_funct.c:
 EXPORT_SYMBOL(hal_export_funct);
 EXPORT_SYMBOL(hal_export_functf);
-
-EXPORT_SYMBOL(hal_create_thread);
-EXPORT_SYMBOL(hal_thread_delete);
-
+EXPORT_SYMBOL(hal_export_xfunctf);
 EXPORT_SYMBOL(hal_add_funct_to_thread);
 EXPORT_SYMBOL(hal_del_funct_from_thread);
+EXPORT_SYMBOL(hal_call_usrfunct);
 
+// hal_thread.c:
+EXPORT_SYMBOL(hal_create_thread);
+EXPORT_SYMBOL(hal_thread_delete);
 EXPORT_SYMBOL(hal_start_threads);
 EXPORT_SYMBOL(hal_stop_threads);
 
+// hal_inst.c:
+EXPORT_SYMBOL(hal_inst_create);
+EXPORT_SYMBOL(hal_inst_delete);
+
+// hal_lib.c:
+EXPORT_SYMBOL(hal_print_msg);
+EXPORT_SYMBOL(hal_print_error);
+EXPORT_SYMBOL(hal_lasterror);
 EXPORT_SYMBOL(hal_shmem_base);
+
+// ------------ private API:  ------------
+//  found in their respective source files:
 EXPORT_SYMBOL(halpr_find_comp_by_name);
 EXPORT_SYMBOL(halpr_find_pin_by_name);
 EXPORT_SYMBOL(halpr_find_sig_by_name);
 EXPORT_SYMBOL(halpr_find_param_by_name);
 EXPORT_SYMBOL(halpr_find_thread_by_name);
 EXPORT_SYMBOL(halpr_find_funct_by_name);
+EXPORT_SYMBOL(halpr_find_inst_by_name);
+
+EXPORT_SYMBOL(halpr_find_owning_comp);
+
+EXPORT_SYMBOL(halpr_find_pin_by_instance_id);
+EXPORT_SYMBOL(halpr_find_param_by_instance_id);
+EXPORT_SYMBOL(halpr_find_funct_by_instance_id);
+EXPORT_SYMBOL(halpr_find_inst_by_owning_comp);
+
+EXPORT_SYMBOL(halpr_find_inst_by_id);
 EXPORT_SYMBOL(halpr_find_comp_by_id);
 
-EXPORT_SYMBOL(halpr_find_pin_by_owner);
-EXPORT_SYMBOL(halpr_find_param_by_owner);
-EXPORT_SYMBOL(halpr_find_funct_by_owner);
-
 EXPORT_SYMBOL(halpr_find_pin_by_sig);
-EXPORT_SYMBOL(hal_print_msg);
-EXPORT_SYMBOL(hal_lasterror);
 
 #endif /* rtapi */

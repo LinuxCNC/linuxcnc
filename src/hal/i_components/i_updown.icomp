@@ -1,0 +1,51 @@
+component i_updown "Counts up or down, with optional limits and wraparound behavior";
+pin in bit countup "Increment count when this pin goes from 0 to 1";
+pin in bit countdown "Decrement count when this pin goes from 0 to 1";
+pin in bit reset "Reset count when this pin goes from 0 to 1";
+pin out s32 count "The current count";
+param rw bit clamp "If TRUE, then clamp the output to the min and max parameters.";
+param rw bit wrap "If TRUE, then wrap around when the count goes above or below the min and max parameters.  Note that wrap implies (and overrides) clamp.";
+param rw s32 max = 0x7FFFFFFF "If clamp or wrap is set, count will never exceed this number";
+param rw s32 min "If clamp or wrap is set, count will never be less than this number";
+variable int oldup;
+variable int olddown;
+variable int first = 1;
+function _ nofp "Process inputs and update count if necessary";
+license "GPL";
+
+;;
+
+FUNCTION(_) 
+{
+	hal_s32_t temp_count = count;
+	if (first) {
+		oldup=countup;
+		olddown=countdown;
+		first=0;
+	}
+	if ((!oldup) && (countup)) { // positive edge, count up
+		temp_count++;
+	}
+	if ((!olddown) && (countdown)) { // positive edge, count down
+		temp_count--;
+	}
+	if (reset) {
+		temp_count=0;
+	}
+	if (wrap) {
+		if (temp_count > max)
+			temp_count = min;
+		else if (temp_count < min)
+			temp_count = max;
+	} else if (clamp) {
+		if (temp_count > max)
+			temp_count = max;
+		else if (temp_count < min)
+			temp_count = min;
+	}
+	count = temp_count;
+	oldup = countup;
+	olddown = countdown;
+	
+return 0;
+}

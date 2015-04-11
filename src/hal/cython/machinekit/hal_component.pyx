@@ -13,7 +13,7 @@ cdef class Component:
         global _comps
         self._itemdict = dict()
         if not wrap:
-            id = hal_init_mode(name, mode, userarg1, userarg2)
+            id = hal_xinit(mode, userarg1, userarg2, NULL, NULL, name)
             if id < 0:
                 raise RuntimeError("Failed to create component '%s': %d - %s" % (name,id, hal_lasterror()))
             _comps.append(id)  # to exit list
@@ -46,18 +46,22 @@ cdef class Component:
             raise KeyError("component %s: nonexistent pin %s" % (self._comp.name, name))
 
     def pins(self):
+        ''' return names of all pins owned by this component, which includes all instance pins'''
         cdef hal_pin_t *p
         cdef list names
         names = []
         p = NULL
 
         with HALMutex():
-            p = halpr_find_pin_by_owner(self._comp, p)
+            p = halpr_find_pin_by_owner_id(self._comp.comp_id, p)
             while p != NULL:
                 names.append(p.name)
-                p = halpr_find_pin_by_owner(self._comp, p)
+                p = halpr_find_pin_by_owner_id(self._comp.comp_id, p)
 
         return names
+
+
+
 
     def exit(self):
         if self._cc != NULL:
@@ -112,6 +116,15 @@ cdef class Component:
     property state:
         def __get__(self): return self._comp.state
 
+    property has_ctor:
+        def __get__(self): return self._comp.ctor != NULL
+
+    property instantiable: # same as has_ctor
+        def __get__(self): return self._comp.ctor != NULL
+
+    property has_dtor:
+        def __get__(self): return self._comp.dtor != NULL
+
     property last_update:
         def __get__(self): return self._comp.last_update
         def __set__(self,int value):  self._comp.last_update = value
@@ -131,7 +144,6 @@ cdef class Component:
     property userarg2:
         def __get__(self): return self._comp.userarg2
         def __set__(self, int value): self._comp.userarg2 = value
-
 
     def changed(self,  userdata=None, report_all=False):
         if self._cc == NULL:

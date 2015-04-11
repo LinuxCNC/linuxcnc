@@ -1,0 +1,44 @@
+component i_toggle "'push-on, push-off' from momentary pushbuttons";
+pin in bit in "button input";
+pin io bit out "on/off output";
+param rw u32 debounce = 2 "debounce delay in periods";
+option data toggle_data;
+
+function _ nofp;
+license "GPL";
+;;
+
+typedef struct {
+    int debounce_cntr;
+    int debounced;
+} toggle_data;
+
+FUNCTION(_) 
+{
+
+    if (( debounce < 1 ) || ( debounce > 10000 )) {
+	/* set a sane value, we don't want 2 million second delays */
+	debounce = 2;
+    }
+    if ( in ) {
+	/* pressed */
+	data.debounce_cntr++;
+	if ( data.debounce_cntr >= debounce ) {
+	    data.debounce_cntr = debounce;
+	    if ( data.debounced == 0 ) {
+		/* toggle output */
+		out = !out;
+	    }
+	    data.debounced = 1;
+	}
+    } else {
+	/* not pressed */
+	data.debounce_cntr--;
+	if ( data.debounce_cntr <= 0 ) {
+	    data.debounce_cntr = 0;
+	    data.debounced = 0;
+	}
+    }
+    	
+return 0;
+}

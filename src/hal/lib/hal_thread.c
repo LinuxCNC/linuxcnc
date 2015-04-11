@@ -16,45 +16,62 @@ static hal_thread_t *alloc_thread_struct(void);
 */
 static void thread_task(void *arg)
 {
-    hal_thread_t *thread;
-    hal_funct_t *funct;
+    hal_thread_t *thread = arg;
     hal_funct_entry_t *funct_root, *funct_entry;
-    long long int start_time, end_time;
-    long long int thread_start_time;
+    long long int end_time;
 
-    thread = arg;
+    // thread execution times collected here, doubles as
+    // param struct for xthread functs
+    hal_funct_args_t fa = {
+	.thread = thread,
+	.argc = 0,
+	.argv = NULL,
+    };
+
     while (1) {
 	if (hal_data->threads_running > 0) {
 	    /* point at first function on function list */
 	    funct_root = (hal_funct_entry_t *) & (thread->funct_list);
 	    funct_entry = SHMPTR(funct_root->links.next);
 	    /* execution time logging */
-	    start_time = rtapi_get_clocks();
-	    end_time = start_time;
-	    thread_start_time = start_time;
+	    fa.start_time = rtapi_get_clocks();
+	    end_time = fa.start_time;
+	    fa.thread_start_time = fa.start_time;
+
 	    /* run thru function list */
 	    while (funct_entry != funct_root) {
+		/* point to function structure */
+		fa.funct = SHMPTR(funct_entry->funct_ptr);
+
 		/* call the function */
-		funct_entry->funct(funct_entry->arg, thread->period);
+		switch (funct_entry->type) {
+		case FS_LEGACY_THREADFUNC:
+		    funct_entry->funct.l(funct_entry->arg, thread->period);
+		    break;
+		case FS_XTHREADFUNC:
+		    funct_entry->funct.x(funct_entry->arg, &fa);
+		    break;
+		default:
+		    // bad - a mistyped funct
+		    ;
+		}
 		/* capture execution time */
 		end_time = rtapi_get_clocks();
-		/* point to function structure */
-		funct = SHMPTR(funct_entry->funct_ptr);
 		/* update execution time data */
-		*(funct->runtime) = (hal_s32_t)(end_time - start_time);
-		if ( *(funct->runtime) > funct->maxtime) {
-		    funct->maxtime = *(funct->runtime);
-		    funct->maxtime_increased = 1;
+		*(fa.funct->runtime) = (hal_s32_t)(end_time - fa.start_time);
+		if ( *(fa.funct->runtime) > fa.funct->maxtime) {
+		    fa.funct->maxtime = *(fa.funct->runtime);
+		    fa.funct->maxtime_increased = 1;
 		} else {
-		    funct->maxtime_increased = 0;
+		    fa.funct->maxtime_increased = 0;
 		}
 		/* point to next next entry in list */
 		funct_entry = SHMPTR(funct_entry->links.next);
 		/* prepare to measure time for next funct */
-		start_time = end_time;
+		fa.start_time = end_time;
 	    }
 	    /* update thread execution time */
-	    thread->runtime = (hal_s32_t)(end_time - thread_start_time);
+	    thread->runtime = (hal_s32_t)(end_time - fa.thread_start_time);
 	    if (thread->runtime > thread->maxtime) {
 		thread->maxtime = thread->runtime;
 	    }
@@ -66,7 +83,6 @@ static void thread_task(void *arg)
 
 // HAL threads - public API
 
-
 int hal_create_thread(const char *name, unsigned long period_nsec,
 		      int uses_fp, int cpu_id)
 {
@@ -74,35 +90,17 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
     int retval, n;
     hal_thread_t *new, *tptr;
     long prev_period, curr_period;
-    /*! \todo Another #if 0 */
-#if 0
-    char buf[HAL_NAME_LEN + 1];
-#endif
 
-    hal_print_msg(RTAPI_MSG_DBG,
-		    "HAL: creating thread %s, %ld nsec\n", name, period_nsec);
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: create_thread called before init\n");
-	return -EINVAL;
-    }
+    CHECK_STRLEN(name, HAL_NAME_LEN);
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    HALDBG("creating thread %s, %ld nsec", name, period_nsec);
+
     if (period_nsec == 0) {
 	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: create_thread called "
-			"with period of zero\n");
+			"with period of zero");
 	return -EINVAL;
-    }
-
-    if (strlen(name) > HAL_NAME_LEN) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: thread name '%s' is too long\n", name);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: create_thread called while"
-			" HAL is locked\n");
-	return -EPERM;
     }
     {
 	int  cmp  __attribute__((cleanup(halpr_autorelease_mutex)));
@@ -117,8 +115,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 	    cmp = strcmp(tptr->name, name);
 	    if (cmp == 0) {
 		/* name already in list, can't insert */
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: duplicate thread name %s\n", name);
+		HALERR("duplicate thread name %s", name);
 		return -EINVAL;
 	    }
 	    /* didn't find it yet, look at next one */
@@ -128,8 +125,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 	new = alloc_thread_struct();
 	if (new == 0) {
 	    /* alloc failed */
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: ERROR: insufficient memory to create thread\n");
+	    HALERR("insufficient memory to create thread");
 	    return -ENOMEM;
 	}
 	/* initialize the structure */
@@ -146,16 +142,14 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 		/* not running, start it */
 		curr_period = rtapi_clock_set_period(period_nsec);
 		if (curr_period < 0) {
-		    hal_print_msg(RTAPI_MSG_ERR,
-				    "HAL_LIB: ERROR: clock_set_period returned %ld\n",
+		    HALERR("clock_set_period returned %ld",
 				    curr_period);
 		    return -EINVAL;
 		}
 	    }
 	    /* make sure period <= desired period (allow 1% roundoff error) */
 	    if (curr_period > (period_nsec + (period_nsec / 100))) {
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL_LIB: ERROR: clock period too long: %ld\n", curr_period);
+		HALERR("clock period too long: %ld", curr_period);
 		return -EINVAL;
 	    }
 	    if(hal_data->exact_base_period) {
@@ -175,17 +169,15 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 	    prev_priority = tptr->priority;
 	}
 	if ( period_nsec < hal_data->base_period) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL_LIB: ERROR: new thread period %ld is less than clock period %ld\n",
-			    period_nsec, hal_data->base_period);
+	    HALERR("new thread period %ld is less than clock period %ld",
+		   period_nsec, hal_data->base_period);
 	    return -EINVAL;
 	}
 	/* make period an integer multiple of the timer period */
 	n = (period_nsec + hal_data->base_period / 2) / hal_data->base_period;
 	new->period = hal_data->base_period * n;
 	if ( new->period < prev_period ) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL_LIB: ERROR: new thread period %ld is less than existing thread period %ld\n",
+	    HALERR("new thread period %ld is less than existing thread period %ld",
 			    period_nsec, prev_period);
 	    return -EINVAL;
 	}
@@ -200,16 +192,14 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 				uses_fp,
 				new->name, new->cpu_id);
 	if (retval < 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL_LIB: could not create task for thread %s\n", name);
+	    HALERR("could not create task for thread %s", name);
 	    return -EINVAL;
 	}
 	new->task_id = retval;
 	/* start task */
 	retval = rtapi_task_start(new->task_id, new->period);
 	if (retval < 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL_LIB: could not start task for thread %s: %d\n", name, retval);
+	    HALERR("could not start task for thread %s: %d", name, retval);
 	    return -EINVAL;
 	}
 	/* insert new structure at head of list */
@@ -222,22 +212,9 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
     /* init time logging variables */
     new->runtime = 0;
     new->maxtime = 0;
-    /*! \todo Another #if 0 */
-#if 0
-    /* These params need to be re-visited when I refactor HAL.  Right
-       now they cause problems - they can no longer be owned by the calling
-       component, and they can't be owned by the hal_lib because it isn't
-       actually a component.
-    */
-    /* create a parameter with the thread's runtime in it */
-    rtapi_snprintf(buf, sizeof(buf), "%s.time", name);
-    hal_param_s32_new(buf, HAL_RO, &(new->runtime), lib_module_id);
-    /* create a parameter with the thread's maximum runtime in it */
-    rtapi_snprintf(buf, sizeof(buf), "%s.tmax", name);
-    hal_param_s32_new(buf, HAL_RW, &(new->maxtime), lib_module_id);
-#endif
-    hal_print_msg(RTAPI_MSG_DBG, "HAL: thread %s id %d created prio=%d\n",
-		    name, new->task_id, new->priority);
+
+    HALDBG("thread %s id %d created prio=%d",
+	   name, new->task_id, new->priority);
     return 0;
 }
 
@@ -245,18 +222,11 @@ extern int hal_thread_delete(const char *name)
 {
     int *prev, next;
 
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: thread_delete called before init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_CONFIG);
+    CHECK_STR(name);
 
-    if (hal_data->lock & HAL_LOCK_CONFIG) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: thread_delete called while HAL is locked\n");
-	return -EPERM;
-    }
-    hal_print_msg(RTAPI_MSG_DBG, "HAL: deleting thread '%s'\n", name);
+    HALDBG("deleting thread '%s'", name);
     {
 	hal_thread_t *thread __attribute__((cleanup(halpr_autorelease_mutex)));
 
@@ -281,54 +251,58 @@ extern int hal_thread_delete(const char *name)
 	}
     }
     /* if we get here, we didn't find a match */
-    hal_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: thread '%s' not found\n",
-		    name);
+    HALERR("thread '%s' not found",   name);
     return -EINVAL;
 }
 
+// internal use from hal_lib.c:rtapi_app_exit() only
+int hal_exit_threads(void)
+{
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_RUN);
+
+    hal_data->threads_running = 0;
+    {
+	hal_thread_t *thread __attribute__((cleanup(halpr_autorelease_mutex)));
+
+	rtapi_mutex_get(&(hal_data->mutex));
+
+	while (hal_data->thread_list_ptr != 0) {
+	    /* point to a thread */
+	    thread = SHMPTR(hal_data->thread_list_ptr);
+	    /* unlink from list */
+	    hal_data->thread_list_ptr = thread->next_ptr;
+	    /* and delete it */
+	    free_thread_struct(thread);
+	}
+	// all threads stopped & deleted
+    }
+    HALDBG("all threads exited");
+    return 0;
+}
 #endif /* RTAPI */
 
 
 int hal_start_threads(void)
 {
-    /* a trivial function for a change! */
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: start_threads called before init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_RUN);
 
-    if (hal_data->lock & HAL_LOCK_RUN) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: start_threads called while HAL is locked\n");
-	return -EPERM;
-    }
-
-
-    hal_print_msg(RTAPI_MSG_DBG, "HAL: starting threads\n");
+    HALDBG("starting threads");
     hal_data->threads_running = 1;
     return 0;
 }
 
 int hal_stop_threads(void)
 {
-    /* wow, two in a row! */
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: stop_threads called before init\n");
-	return -EINVAL;
-    }
-
-    if (hal_data->lock & HAL_LOCK_RUN) {
-	hal_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: stop_threads called while HAL is locked\n");
-	return -EPERM;
-    }
+    CHECK_HALDATA();
+    CHECK_LOCK(HAL_LOCK_RUN);
 
     hal_data->threads_running = 0;
-    hal_print_msg(RTAPI_MSG_DBG, "HAL: threads stopped\n");
+    HALDBG("threads stopped");
     return 0;
 }
+
 
 hal_thread_t *halpr_find_thread_by_name(const char *name)
 {
@@ -383,12 +357,6 @@ void free_thread_struct(hal_thread_t * thread)
 {
     hal_funct_entry_t *funct_entry;
     hal_list_t *list_root, *list_entry;
-/*! \todo Another #if 0 */
-#if 0
-    int *prev, next;
-    char time[HAL_NAME_LEN + 1], tmax[HAL_NAME_LEN + 1];
-    hal_param_t *param;
-#endif
 
     /* if we're deleting a thread, we need to stop all threads */
     hal_data->threads_running = 0;
@@ -411,35 +379,7 @@ void free_thread_struct(hal_thread_t * thread)
 	/* free the removed entry */
 	free_funct_entry_struct(funct_entry);
     }
-/*! \todo Another #if 0 */
-#if 0
-/* Currently these don't get created, so we don't have to worry
-   about deleting them.  They will come back when the HAL refactor
-   is done, at that time this code or something like it will be
-   needed.
-*/
-    /* need to delete <thread>.time and <thread>.tmax params */
-    rtapi_snprintf(time, sizeof(time), "%s.time", thread->name);
-    rtapi_snprintf(tmax, sizeof(tmax), "%s.tmax", thread->name);
-    /* search the parameter list for those parameters */
-    prev = &(hal_data->param_list_ptr);
-    next = *prev;
-    while (next != 0) {
-	param = SHMPTR(next);
-	/* does this param match either name? */
-	if ((strcmp(param->name, time) == 0)
-	    || (strcmp(param->name, tmax) == 0)) {
-	    /* yes, unlink from list */
-	    *prev = param->next_ptr;
-	    /* and delete it */
-	    free_param_struct(param);
-	} else {
-	    /* no match, try the next one */
-	    prev = &(param->next_ptr);
-	}
-	next = *prev;
-    }
-#endif
+
     thread->name[0] = '\0';
     /* add thread to free list */
     thread->next_ptr = hal_data->thread_free_ptr;
