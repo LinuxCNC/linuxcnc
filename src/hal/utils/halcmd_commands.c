@@ -63,6 +63,7 @@
 #include <math.h>
 #include <czmq.h>
 
+extern char *logpath;
 
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
@@ -1111,9 +1112,9 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 
     retval = rtapi_loadrt(rtapi_instance, mod_name, (const char **)args);
     if ( retval != 0 ) {
-	halcmd_error("insmod failed, returned %d\n"
-		     "See the log and output of 'dmesg' for more information.\n"
-		     , retval );
+	halcmd_error("insmod failed, returned %d:\n%s\n"
+		     "See %s for more information.\n",
+		     retval, rtapi_rpcerror(), logpath);
 	return -1;
     }
     /* make the args that were passed to the module into a single string */
@@ -1352,9 +1353,13 @@ static int unloadrt_comp(char *mod_name)
     int retval;
 
     retval = rtapi_unloadrt(rtapi_instance, mod_name);
-    /* print success message */
-    halcmd_info("Realtime module '%s' unloaded rc=%d\n",
-		mod_name, retval);
+    if (retval < 0) {
+	halcmd_error("error unloading realtime module '%s': rc=%d\n",mod_name, retval);
+	halcmd_error("%s\n",rtapi_rpcerror());
+    } else {
+	halcmd_info("Realtime module '%s' unloaded\n",
+		    mod_name);
+    }
     return retval;
 }
 
