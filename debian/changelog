@@ -1,4 +1,4 @@
-machinekit (0.1.1) wheezy; urgency=low
+machinekit (0.1.1-1) wheezy; urgency=low
 
   * Reworked debian/configure, #215
   * Velocity-controlled extrusion, #213
