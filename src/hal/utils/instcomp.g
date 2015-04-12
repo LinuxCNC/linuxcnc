@@ -658,13 +658,6 @@ static int comp_id;
         else:
             print >>f, "    ip->%s = %s;" % (name, value)
 
-# TODO
-#     need to insert the funct name and make required number of calls
-#     use 'functions' to get the names
-# for name, fp in functions:
-#        if names.has_key(name):
-#            Error("Duplicate item name: %s" % name)
-#        print >>f, "static int %s(void *arg, const hal_funct_args_t *fa);\n" % to_c(name)
     for name, fp in functions:
         print >>f, "    // exporting an extended thread function:"
         print >>f, "    hal_export_xfunct_args_t %s_xf = " % to_c(name)
@@ -677,7 +670,6 @@ static int comp_id;
         print >>f, "        .owner_id = owner_id"
         print >>f, "        };\n"
 
-#        print >>f, "    %s_xf.uses_fp = %d;" % ( to_c(name), int(fp))
         strng =  "    rtapi_snprintf(buf, sizeof(buf),\"%s."
         if (name == "" or name == "_" or name == " ") :
             strng += "funct\", name);"
@@ -720,7 +712,7 @@ static int comp_id;
             print >>f, strg
 
     print >>f, "\n// These pins - params - functs will be owned by the instance, and can be separately exited with delinst"
-#    To get param updates have to test in C code not this script, for iprefix
+
     print >>f, "    if(strlen(iprefix))"
     print >>f, "        r = export_halobjs(ip, inst_id, iprefix);"
     print >>f, "    else"
@@ -772,8 +764,6 @@ static int comp_id;
 
     print >>f, "    hal_ready(comp_id);\n"
 
-
-
     print >>f, "    return 0;\n}\n"
 
 ###############################  rtapi_app_exit()  #####################################################
@@ -818,9 +808,6 @@ static int comp_id;
     print >>f, "}\n"
 
 ######################  preliminary defines before user FUNCTION(_) ######################################
-
-    print >>f
- #   print >>f, "struct inst_data *ip;\n"
 
     print >>f
     if not options.get("no_convenience_defines"):
@@ -932,24 +919,18 @@ def to_hal_man_unnumbered(s):
     s = s.rstrip("-")
     s = s.rstrip(".")
     s = re.sub("#+", lambda m: "\\fI" + "M" * len(m.group(0)) + "\\fB", s)
-    # s = s.replace("-", "\\-")
     return s
 
 
 def to_hal_man(s):
-#    s = "%s.\\fIN\\fB.%s" % (comp_name, s)
     s = "%s.%s" % (comp_name, s)
     s = s.replace("_", "-")
     s = s.rstrip("-")
     s = s.rstrip(".")
     s = re.sub("#+", lambda m: "\\fI" + "M" * len(m.group(0)) + "\\fB", s)
-    # s = s.replace("-", "\\-")
     return s
 
 def document(filename, outfilename):
-    #return
-    ## don't process docs for now
-
     if outfilename is None:
         outfilename = os.path.splitext(filename)[0] + ".9comp"
 
@@ -1136,14 +1117,13 @@ def process(filename, mode, outfilename):
         prologue(f)
         lineno = a.count("\n") + 3
 
-        #   parse the remainder of the file to add the function prelims
+################   parse the remainder of the file to add the function prelims  #####
+
         have_func = False
         insert = False
         if "FUNCTION" in b:
             c = ""
             q = ""
-            r = ""
-            s = ""
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             linelist = b.split("\n")
             z = len(linelist)
@@ -1176,7 +1156,6 @@ def process(filename, mode, outfilename):
             f.write(c)
 
         # if the code is loose because there is just one function
-        # TODO parse for returns
         elif len(functions) == 1:
             f.write("FUNCTION(%s)\n{\n" % functions[0][0])
             f.write("long period __attribute__((unused)) = fa_period(fa);\n")
