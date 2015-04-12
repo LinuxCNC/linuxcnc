@@ -16,7 +16,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifndef _PBUTIL_HH_INCLUDED
+#define _PBUTIL_HH_INCLUDED
+
 #include <machinetalk/generated/message.pb.h>
+#include <string>
 
 // for repeated string field creation (Container.note, Container.argv)
 typedef ::google::protobuf::RepeatedPtrField< ::std::string> pbstringarray_t;
@@ -34,3 +38,8 @@ int send_pbcontainer(const std::string &dest, pb::Container &c, void *socket);
 #define MAX_NOTESIZE 4096
 int
 note_printf(pb::Container &c, const char *fmt, ...);
+
+// fold a RepeatedPtrField into a std::string, separated by delim
+std::string pbconcat(const pbstringarray_t &args, const std::string &delim = " ");
+
+#endif // _PBUTIL_HH_INCLUDED
