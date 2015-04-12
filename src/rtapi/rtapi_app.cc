@@ -71,7 +71,6 @@
 #include <pbutil.hh>  // note_printf(pb::Container &c, const char *fmt, ...)
 
 using namespace google::protobuf;
-typedef ::google::protobuf::RepeatedPtrField< ::std::string> pbstringarray_t;
 
 #include "rtapi.h"
 #include "rtapi_global.h"
@@ -234,7 +233,6 @@ static int do_module_args(void *module,
         }
         string param_name(s, 0, idx);
         string param_value(s, idx+1);
-
         void *item = DLSYM<void*>(module,
 				  symprefix +
 				  "address_" +
@@ -345,15 +343,6 @@ static int do_kmodinst_args(const string &comp,
     return 0;
 }
 
-static void pbconcat(string &s, const pbstringarray_t &args)
-{
-    for (int i = 0; i < args.size(); i++) {
-	s += args.Get(i);
-	if (i < args.size()-1)
-	    s += " ";
-    }
-}
-
 static const char **pbargv(const pbstringarray_t &args)
 {
     const char **argv, **s;
@@ -370,14 +359,14 @@ static inline bool kernel_threads(flavor_ptr f) {
     return (f->flags & FLAVOR_KERNEL_BUILD) != 0;
 }
 
+
 static void usrfunct_error(const int retval,
 			   const string &func,
 			   pbstringarray_t args,
 			   pb::Container &pbreply)
 {
     if (retval >= 0) return;
-    string s;
-    pbconcat(s, args);
+    string s = pbconcat(args);
     note_printf(pbreply, "hal_call_usrfunct(%s,%s) failed: %d - %s",
 		func.c_str(), s.c_str(), retval, strerror(-retval));
 }
@@ -407,8 +396,7 @@ static int do_newinst_cmd(int instance,
 
 
     if (kernel_threads(flavor)) {
-	string s;
-	pbconcat(s, args);
+	string s = pbconcat(args);
 	retval = do_kmodinst_args(comp,args,pbreply);
 	if (retval) return retval;
 	return procfs_cmd(PROCFS_RTAPICMD,"call newinst %s %s %s",
@@ -430,8 +418,7 @@ static int do_newinst_cmd(int instance,
 	    return -1;
 	}
 	dlerror();
-	string s;
-	pbconcat(s, args);
+	string s = pbconcat(args);
 
 	pbstringarray_t kvpairs, leftovers;
 
@@ -501,8 +488,7 @@ static int do_callfunc_cmd(int instance,
     int retval = -1;
 
     if (kernel_threads(flavor)) {
-	string s;
-	pbconcat(s, args);
+	string s = pbconcat(args);
 	return procfs_cmd(PROCFS_RTAPICMD,"call %s %s", func.c_str(), s.c_str());
     } else {
 	if (call_usrfunct == NULL) {
@@ -524,6 +510,7 @@ static int do_callfunc_cmd(int instance,
 }
 
 
+
 static int do_load_cmd(int instance,
 		       string name,
 		       pbstringarray_t args,
@@ -536,12 +523,10 @@ static int do_load_cmd(int instance,
 
     if (w == NULL) {
 	if (kernel_threads(flavor)) {
-	    string cmdargs;
-	    pbconcat(cmdargs, args);
+	    string cmdargs = pbconcat(args);
 	    retval = run_module_helper("insert %s %s", name.c_str(), cmdargs.c_str());
 	    if (retval) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "couldnt insmod %s - see dmesg\n",
-				name.c_str());
+		note_printf(reply, "couldnt insmod %s - see dmesg\n", name.c_str());
 	    } else {
 		modules[name] = (void *) -1;  // so 'if (modules[name])' works
 		loading_order.push_back(name);
@@ -554,6 +539,12 @@ static int do_load_cmd(int instance,
 	    if (!module) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n",
 				name.c_str(), dlerror());
+		const char *rpath = rtapi_get_rpath();
+		note_printf(reply, "%s: dlopen: %s",
+			    __FUNCTION__,dlerror());
+		note_printf(reply, "rpath=%s",	rpath == NULL ? "" : rpath);
+		if (rpath)
+		    free((void *)rpath);
 		return -1;
 	    }
 	    // retrieve the address of rtapi_switch_struct
@@ -572,8 +563,8 @@ static int do_load_cmd(int instance,
 	    /// XXX handle arguments
 	    int (*start)(void) = DLSYM<int(*)(void)>(module, "rtapi_app_main");
 	    if(!start) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlsym: %s\n",
-				name.c_str(), dlerror());
+		note_printf(reply, "%s: dlsym: %s\n",
+			    name.c_str(), dlerror());
 		return -1;
 	    }
 	    int result;
@@ -584,8 +575,8 @@ static int do_load_cmd(int instance,
 	    // need to call rtapi_app_main with as root
 	    // RT thread creation and hardening requires this
 	    if ((result = start()) < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app_main(%s): %d %s\n",
-				name.c_str(), result, strerror(-result));
+		note_printf(reply, "rtapi_app_main(%s): %d %s\n",
+			    name.c_str(), result, strerror(-result));
 		modules.erase(modules.find(name));
 		return result;
 	    }
@@ -596,25 +587,25 @@ static int do_load_cmd(int instance,
 	    return 0;
 	}
     } else {
-	rtapi_print_msg(RTAPI_MSG_ERR, "%s: already loaded\n", name.c_str());
+	note_printf(reply, "%s: already loaded\n", name.c_str());
 	return -1;
     }
 }
 
-static int do_unload_cmd(int instance, string name)
+ static int do_unload_cmd(int instance, string name, pb::Container &reply)
 {
     void *w = modules[name];
     int retval = 0;
 
     if (w == NULL) {
-        // rtapi_print_msg(RTAPI_MSG_ERR, "unload: '%s' not loaded\n",
-	// 		name.c_str());
+	note_printf(reply, "unload: '%s' not loaded\n",
+		    name.c_str());
 	return -1;
     } else {
 	if (kernel_threads(flavor)) {
 	    retval = run_module_helper("remove %s", name.c_str());
 	    if (retval) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "couldnt rmmod %s - see dmesg\n",
+		note_printf(reply,  "couldnt rmmod %s - see dmesg\n",
 				name.c_str());
 		return retval;
 	    } else {
@@ -637,10 +628,11 @@ static int do_unload_cmd(int instance, string name)
 // shut down the stack in reverse loading order
 static void exit_actions(int instance)
 {
+    pb::Container reply;
     size_t index = loading_order.size() - 1;
     for(std::vector<std::string>::reverse_iterator rit = loading_order.rbegin();
 	rit != loading_order.rend(); ++rit, --index) {
-	do_unload_cmd(instance, *rit);
+	do_unload_cmd(instance, *rit, reply);
     }
 }
 
@@ -690,10 +682,11 @@ static int init_actions(int instance)
 	    m = strtok(NULL,  "\t ");
 	}
     }
-    pb::Container c;
-    if ((retval =  do_load_cmd(instance, "rtapi", pbstringarray_t(),c)))
+    pb::Container reply;
+    retval =  do_load_cmd(instance, "rtapi", pbstringarray_t(), reply);
+    if (retval)
 	return retval;
-    if ((retval = do_load_cmd(instance, "hal_lib", pbstringarray_t(), c)))
+    if ((retval = do_load_cmd(instance, "hal_lib", pbstringarray_t(), reply)))
 	return retval;
 
     if (!kernel_threads(flavor)) {
@@ -855,7 +848,8 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	assert(pbreq.rtapicmd().has_instance());
 
 	pbreply.set_retcode(do_unload_cmd(pbreq.rtapicmd().instance(),
-					  pbreq.rtapicmd().modname()));
+					  pbreq.rtapicmd().modname(),
+					  pbreply));
 	break;
 
     case pb::MT_RTAPI_APP_LOG:
