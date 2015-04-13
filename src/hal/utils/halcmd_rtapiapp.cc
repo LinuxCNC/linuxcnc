@@ -6,6 +6,7 @@
 #include "ll-zeroconf.hh"
 #include "mk-zeroconf.hh"
 #include "mk-zeroconf-types.h"
+#include "pbutil.hh"
 #include <avahi-common/malloc.h>
 
 
@@ -35,10 +36,11 @@ int rtapi_rpc(void *socket, pb::Container &tx, pb::Container &rx)
 				    zframe_size (reply)) ? 0 : -1;
     //    assert(retval == 0);
     zframe_destroy(&reply);
-
-    errormsg = "";
-    for (int i = 0; i < rx.note_size(); i++)
-	errormsg += rx.note(i) + "\n";
+    if (rx.note_size())
+	errormsg = pbconcat(rx.note(), "\n");
+    //errormsg = rx.note(0); // simplify - one line only
+    else
+	errormsg = "";
     return retval;
 }
 

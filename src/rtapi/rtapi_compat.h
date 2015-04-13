@@ -162,6 +162,14 @@ extern int module_path(char *result, const char *basename);
 
 extern int get_rtapi_config(char *result, const char *param, int n);
 
+// diagnostics: retrieve the rpath this binary was linked with
+//
+// returns malloc'd memory - caller MUST free returned string if non-null
+// example:  cc -g -Wall -Wl,-rpath,/usr/local/lib -Wl,-rpath,/usr/lib foo.c -o foo
+// rtapi_get_rpath() will return "/usr/local/lib:/usr/lib"
+
+extern const char *rtapi_get_rpath(void);
+
 SUPPORT_END_DECLS
 
 #endif // MODULE
