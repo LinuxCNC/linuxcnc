@@ -30,7 +30,7 @@ AC_DEFUN([AC_PYTHON_MODULE],[
     fi
     PYTHON_NAME=`basename $PYTHON`
     AC_MSG_CHECKING($PYTHON_NAME module: $1)
-	$PYTHON -c "import $1" 2>/dev/null
+	$PYTHON -c "import $1"
 	if test $? -eq 0;
 	then
 		AC_MSG_RESULT(yes)
