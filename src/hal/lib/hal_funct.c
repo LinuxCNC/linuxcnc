@@ -173,7 +173,7 @@ static int hal_export_xfunctfv(const hal_export_xfunct_args_t *xf, const char *f
 	/* create a parameter with the function's maximum runtime in it */
 	nf->maxtime_increased = 0;
 	hal_param_bit_newf(HAL_RO, &(nf->maxtime_increased), xf->owner_id,
-			    "%s.tmax-increased", name);
+			    "%s.tmax-inc", name);
 	break;
     case FS_USERLAND: // no timing pins/params
 	;
