@@ -2904,6 +2904,8 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
     emcmotStatus->tcqlen = tcqLen(&tp->queue);
     // Set default value for requested speed
     emcmotStatus->requested_vel = 0.0;
+    //FIXME test if we can do this safely
+    emcmotStatus->current_vel = 0.0;
     return TP_ERR_OK;
 }
 
@@ -3399,9 +3401,11 @@ int tpIsMoving(TP_STRUCT const * const tp)
 {
 
     //TODO may be better to explicitly check velocities on the first 2 segments, but this is messy
-    if (emcmotStatus->current_vel != 0) {
+    if (emcmotStatus->current_vel >= TP_VEL_EPSILON ) {
+        tp_debug_print("TP moving, current_vel = %.16g\n", emcmotStatus->current_vel);
         return true;
     } else if (tp->spindle.waiting_for_index != MOTION_INVALID_ID || tp->spindle.waiting_for_atspeed != MOTION_INVALID_ID) {
+        tp_debug_print("TP moving, waiting for index or atspeed\n");
         return true;
     }
     return false;
