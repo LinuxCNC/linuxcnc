@@ -30,6 +30,7 @@
 
 #include <stdint.h>
 #include <termios.h>
+#include <limits.h>
 
 #define MAX_DATA_LENGTH 		246
 #define MAX_QUERY_LENGTH 		55
@@ -89,7 +90,6 @@
 #define MEMORY_PARITY_ERROR 	-8
 
 #define PORT_FAILURE 			-11
-#define PATH_MAX				64
 
 typedef struct _modbus_param_t {
 	char device[PATH_MAX];		/* Device: "/dev/ttyS0" */
@@ -123,11 +123,19 @@ typedef struct _modbus_data_t {
 } modbus_data_t;
 
 
+void modbus_init(modbus_param_t *mb_param, const char *device,
+                     int baud, const char *parity, int data_bit,
+                     int stop_bit);
+
+void modbus_close(modbus_param_t *mb_param);
 
 void modbus_init_rtu(modbus_param_t *mb_param, const char *device,
                      int baud, const char *parity, int data_bit,
                      int stop_bit);
 
+int modbus_connect(modbus_param_t *mb_param);
+
+int hy_modbus(modbus_param_t *mb_param, modbus_data_t *mb_data);
 
 
 #endif  /* HY_MODBUS_H */
