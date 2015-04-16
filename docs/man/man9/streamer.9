@@ -113,6 +113,17 @@ is true, and can be reset by the
 .B setp
 command.
 
+.TP
+\fBstreamer.\fIN\fB.clock\fR bit input
+Clock for data as specified by the clock-mode pin
+.TP
+\fBstreamer.\fIN\fB.clock-mode\fR s32 input
+Defines behavior of clock pin:
+  0 (\fBdefault\fR) free run at every iteration
+  1 clock on falling edge of clock pin
+  2 clock on rising edge of clock pin
+  3 clock on any edge of clock pin
+
 .SH "SEE ALSO"
 .BR halstreamer (1)
 .BR sampler (9)
