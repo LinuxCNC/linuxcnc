@@ -245,9 +245,6 @@ static int modbus_send(modbus_param_t *mb_param, uint8_t *query, int query_lengt
 	unsigned short s_crc;
 	int i;
 	
-	unsigned char data;
-  
-	
 	/* calculate the CRC */
 	s_crc = crc16(query, query_length);
       
@@ -331,9 +328,6 @@ int receive_msg(modbus_param_t *mb_param, int msg_length_computed,
 	int length_to_read;
 	unsigned char *p_msg;
 
-	unsigned char read_data;
-	int i;
-	
 	if (mb_param->debug)
 		printf("waiting for message (%d bytes)...\n", 
 				msg_length_computed);

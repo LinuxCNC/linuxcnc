@@ -530,8 +530,6 @@ int main(int argc, char **argv)
 	modbus_param_t mb_param;
 	modbus_data_t mb_data;
 	haldata_t *haldata;
-	int data_in;
-	int data_out;
 	int hal_comp_id;
 	struct timespec loop_timespec, remaining;
 	int baud, bits, stopbits;
