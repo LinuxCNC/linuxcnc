@@ -38,7 +38,7 @@ def cleanup_session():
     pids = []
     commands = ['configserver', 'halcmd', 'haltalk', 'webtalk', 'rtapi']
     process = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
-    out, err = process.communicate()
+    out, _ = process.communicate()
     for line in out.splitlines():
         for command in commands:
             if command in line:
@@ -110,7 +110,7 @@ def load_hal_file(filename, ini=None):
     command = 'halcmd'
     if ini is not None:
         command += ' -i ' + ini
-    command +=  ' -f ' + filename
+    command += ' -f ' + filename
     subprocess.check_call(command, shell=True)
     sys.stdout.write('done\n')
 
@@ -223,6 +223,8 @@ def register_exit_handler():
 
 
 def _exitHandler(signum, frame):
+    del signum  # unused
+    del frame  # unused
     end_session()
     sys.exit(0)
 
