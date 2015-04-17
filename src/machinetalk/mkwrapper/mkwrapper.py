@@ -1803,7 +1803,7 @@ class LinuxCNCWrapper():
 
     def add_pparams(self):
         parameters = ProtocolParameters()
-        parameters.keepalive_timer = self.pingInterval * 1000
+        parameters.keepalive_timer = int(self.pingInterval * 1000.0)
         self.txStatus.pparams.MergeFrom(parameters)
 
     def poll(self):
