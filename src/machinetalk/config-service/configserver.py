@@ -18,8 +18,11 @@ from types_pb2 import *
 
 
 class ConfigServer:
-    def __init__(self, context, appDirs=[], topdir=".",
+    def __init__(self, context, appDirs=None, topdir=".",
                  ip="", svcUuid=None, debug=False, name=None, ipInName=True):
+        if appDirs is None:
+            appDirs = []
+
         self.appDirs = appDirs
         self.ip = ip
         self.name = name
@@ -29,7 +32,7 @@ class ConfigServer:
         self.cfg = ConfigParser.ConfigParser()
 
         for rootdir in self.appDirs:
-            for root, subFolders, files in os.walk(rootdir):
+            for root, _, files in os.walk(rootdir):
                 if 'description.ini' in files:
                     inifile = os.path.join(root, 'description.ini')
                     cfg = ConfigParser.ConfigParser()
@@ -181,6 +184,8 @@ shutdown = False
 
 
 def _exitHandler(signum, frame):
+    del signum  # ignored
+    del frame  # ignored
     global shutdown
     shutdown = True
 
