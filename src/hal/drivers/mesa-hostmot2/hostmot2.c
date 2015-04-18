@@ -82,6 +82,9 @@ static void hm2_read(void *void_hm2, long period) {
 
     hm2_tram_read(hm2);
     if ((*hm2->llio->io_error) != 0) return;
+    hm2_finish_read(hm2);
+    if ((*hm2->llio->io_error) != 0) return;
+
     hm2_watchdog_process_tram_read(hm2);
     hm2_ioport_gpio_process_tram_read(hm2);
     hm2_encoder_process_tram_read(hm2, period);
@@ -1426,6 +1429,11 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     r = hm2_tram_read(hm2);
+    if (r != 0) {
+        goto fail1;
+    }
+
+    r = hm2_finish_read(hm2);
     if (r != 0) {
         goto fail1;
     }
