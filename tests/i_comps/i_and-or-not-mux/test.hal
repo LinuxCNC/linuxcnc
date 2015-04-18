@@ -2,11 +2,6 @@ log rt 5
 log user 0
 
 loadrt threads name1=fast period1=100000
-loadrt i_and2
-loadrt i_or2
-loadrt i_not
-loadrt i_mux2
-loadrt i_mux4
 
 loadrt sampler depth=1000 cfg=bbbff
 loadusr -Wn halsampler halsampler -N halsampler -n 16
@@ -49,11 +44,11 @@ setp i_mux4new.in2 5
 setp i_mux4new.in3 6
 
 addf streamer.0 fast
-addf i_and2new.funct fast
-addf i_or2new.funct fast
-addf i_notnew.funct fast
-addf i_mux2new.funct fast
-addf i_mux4new.funct fast
+addf i_and2new fast
+addf i_or2new fast
+addf i_notnew fast
+addf i_mux2new fast
+addf i_mux4new fast
 addf sampler.0 fast
 
 loadusr -w sh runstreamer

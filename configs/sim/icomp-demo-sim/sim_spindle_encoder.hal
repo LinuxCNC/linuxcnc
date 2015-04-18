@@ -38,8 +38,8 @@ setp near_speed.difference 10
 net spindle-speed-cmd => near_speed.in1
 net spindle-at-speed near_speed.out motion.spindle-at-speed
 
-addf limit_speed.funct servo-thread
-addf spindle_mass.funct servo-thread
-addf near_speed.funct servo-thread
+addf limit_speed servo-thread
+addf spindle_mass servo-thread
+addf near_speed servo-thread
 
 addf sim_spindle servo-thread

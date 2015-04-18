@@ -670,12 +670,7 @@ static int comp_id;
         print >>f, "        .owner_id = owner_id"
         print >>f, "        };\n"
 
-        strng =  "    rtapi_snprintf(buf, sizeof(buf),\"%s."
-        if (name == "" or name == "_" or name == " ") :
-            strng += "funct\", name);"
-        else :
-            strng += "%s.funct\", name);" % (to_hal(name))
-        print >>f, strng
+        print >>f, "    rtapi_snprintf(buf, sizeof(buf),\"%s\", name);"
 
         print >>f, "    r = hal_export_xfunctf(&%s_xf, buf, name);" % to_c(name)
         print >>f, "    if(r != 0)\n        return r;"

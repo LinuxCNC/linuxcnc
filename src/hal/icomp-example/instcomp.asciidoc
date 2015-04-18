@@ -95,13 +95,10 @@ eg
 
 == Instance creation
 
-*'loadrt i_somecomponent'*
-
-Loads the component base making it ready for instantiation
 
 *'newinst i_somecomponent somecomp <iprefix=""> <pincount=0> <other_instanceparam=> extra_arg1 extra_arg2 ......'*
 
-Creates a new instance of i_somecomponent called somecomp
+Loads i_somecomponent and creates a new instance of i_somecomponent called somecomp
 
 If iprefix is supplied, it overrules any iprefix set in the .comp file and is the prefix for all pin, param and thread names for that instance.
 
@@ -116,7 +113,7 @@ eg
 
 then
 
-*'addf somecomp8.funct servo-thread'*
+*'addf somecomp8 servo-thread'*
 
 adds the function to a thread
 

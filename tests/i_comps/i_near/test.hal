@@ -1,5 +1,4 @@
 loadrt threads name1=fast period1=100000
-loadrt near
 newinst i_near i_near0
 newinst i_near i_near1
 
@@ -17,8 +16,8 @@ net outa i_near0.out => sampler.0.pin.2
 net outb i_near1.out => sampler.0.pin.3
 
 addf streamer.0 fast
-addf i_near0.funct fast
-addf i_near1.funct fast
+addf i_near0 fast
+addf i_near1 fast
 addf sampler.0 fast
 
 loadusr -w sh runstreamer

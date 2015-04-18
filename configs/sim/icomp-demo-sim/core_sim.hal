@@ -31,15 +31,15 @@ addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 
 # link the differentiator functions into the code
-addf ddt_x.funct servo-thread
-addf ddt_xv.funct servo-thread
-addf ddt_y.funct servo-thread
-addf ddt_yv.funct servo-thread
-addf ddt_z.funct servo-thread
-addf ddt_zv.funct servo-thread
+addf ddt_x servo-thread
+addf ddt_xv servo-thread
+addf ddt_y servo-thread
+addf ddt_yv servo-thread
+addf ddt_z servo-thread
+addf ddt_zv servo-thread
 
-addf vel_xy.funct servo-thread
-addf vel_xyz.funct servo-thread
+addf vel_xy servo-thread
+addf vel_xyz servo-thread
 
 # create HAL signals for position commands from motion module
 # loop position commands back to motion module feedback

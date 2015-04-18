@@ -4,7 +4,6 @@ loadrt sampler cfg=ff depth=350
 loadusr -Wn halsampler halsampler -N halsampler -n 7
 
 loadrt streamer cfg=f depth=350
-loadrt i_abs
 loadrt threads name1=fast period1=300000
 
 newinst i_abs abstest
@@ -13,7 +12,7 @@ net in streamer.0.pin.0 => sampler.0.pin.0 abstest.in
 net out abstest.out => sampler.0.pin.1
 
 addf streamer.0 fast
-addf abstest.funct fast
+addf abstest fast
 addf sampler.0 fast
 
 loadusr -w sh runstreamer

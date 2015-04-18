@@ -1,9 +1,7 @@
 loadrt sampler cfg=bb depth=100
 loadusr -Wn halsampler halsampler -N halsampler -t -n 64
 
-loadrt i_timedelay
 newinst i_timedelay i_td0
-loadrt i_not
 newinst i_not i_not0
 
 loadrt threads name1=thread period1=1953125
@@ -17,8 +15,8 @@ setp i_td0.off-delay 0.0166015625
 net square i_not0.out => i_td0.in sampler.0.pin.0
 net delayed i_td0.out => i_not0.in sampler.0.pin.1
 
-addf i_not0.funct thread
-addf i_td0.funct thread
+addf i_not0 thread
+addf i_td0 thread
 addf sampler.0 thread
 
 start

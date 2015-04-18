@@ -15,15 +15,15 @@ newinst i_wcomp wcomp_zhome
 
 # add comparators to servo thread so they will be evaluated
 # every servo period
-addf wcomp_xmin.funct servo-thread
-addf wcomp_xmax.funct servo-thread
-addf wcomp_xhome.funct servo-thread
-addf wcomp_ymin.funct servo-thread
-addf wcomp_ymax.funct servo-thread
-addf wcomp_yhome.funct servo-thread
-addf wcomp_zmin.funct servo-thread
-addf wcomp_zmax.funct servo-thread
-addf wcomp_zhome.funct servo-thread
+addf wcomp_xmin servo-thread
+addf wcomp_xmax servo-thread
+addf wcomp_xhome servo-thread
+addf wcomp_ymin servo-thread
+addf wcomp_ymax servo-thread
+addf wcomp_yhome servo-thread
+addf wcomp_zmin servo-thread
+addf wcomp_zmax servo-thread
+addf wcomp_zhome servo-thread
 
 # connect position feedback from step generators
 # to window comparators
