@@ -1291,7 +1291,7 @@ void hm2_led_cleanup(hostmot2_t *hm2);
 //
 
 int hm2_raw_setup(hostmot2_t *hm2);
-void hm2_raw_read(hostmot2_t *hm2);
+void hm2_raw_queue_read(hostmot2_t *hm2);
 void hm2_raw_write(hostmot2_t *hm2);
 
 
