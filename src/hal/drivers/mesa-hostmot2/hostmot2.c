@@ -128,6 +128,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
+    hm2_finish_write(hm2);
 }
 
 
@@ -1461,6 +1462,10 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         goto fail1;
     }
 
+    r = hm2_finish_write(hm2);
+    if (r != 0) {
+        goto fail1;
+    }
 
     //
     // final check for comm errors

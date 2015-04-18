@@ -1081,6 +1081,7 @@ int hm2_register_tram_write_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 si
 int hm2_allocate_tram_regions(hostmot2_t *hm2);
 int hm2_tram_read(hostmot2_t *hm2);
 int hm2_tram_write(hostmot2_t *hm2);
+int hm2_finish_write(hostmot2_t *hm2);
 void hm2_tram_cleanup(hostmot2_t *hm2);
 
 
