@@ -1181,7 +1181,8 @@ void hm2_tp_pwmgen_cleanup(hostmot2_t *hm2);
 void hm2_tp_pwmgen_write(hostmot2_t *hm2);
 void hm2_tp_pwmgen_force_write(hostmot2_t *hm2);
 void hm2_tp_pwmgen_prepare_tram_write(hostmot2_t *hm2);
-void hm2_tp_pwmgen_read(hostmot2_t *hm2);
+void hm2_tp_pwmgen_queue_read(hostmot2_t *hm2);
+void hm2_tp_pwmgen_process_read(hostmot2_t *hm2);
 
 
 //

@@ -83,6 +83,7 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_tram_read(hm2);
     if ((*hm2->llio->io_error) != 0) return;
     hm2_raw_queue_read(hm2);
+    hm2_tp_pwmgen_queue_read(hm2);
     hm2_finish_read(hm2);
     if ((*hm2->llio->io_error) != 0) return;
 
@@ -96,7 +97,7 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_absenc_process_tram_read(hm2, period);
     //UARTS need to be explicity handled by an external component
 
-    hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
+    hm2_tp_pwmgen_process_read(hm2); // check the status of the fault bit
     hm2_dpll_process_tram_read(hm2, period);
 }
 
