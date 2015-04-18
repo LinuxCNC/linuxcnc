@@ -46,6 +46,7 @@ struct RtapiApp
     virtual int task_start(int task_id, unsigned long period_nsec) = 0;
     virtual int task_pause(int task_id) = 0;
     virtual int task_resume(int task_id) = 0;
+    virtual int task_self() = 0;
     virtual void wait() = 0;
     virtual unsigned char do_inb(unsigned int port) = 0;
     virtual void do_outb(unsigned char value, unsigned int port) = 0;
