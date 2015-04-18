@@ -540,6 +540,7 @@ void hm2_ioport_gpio_read(hostmot2_t *hm2) {
     // this should never happen - what's an AnyIO board without IO?
     if (hm2->ioport.num_instances <= 0) return;
 
+    // llio->read is OK here, as this function is not used by hm2_eth
     hm2->llio->read(
         hm2->llio,
         hm2->ioport.data_addr,
