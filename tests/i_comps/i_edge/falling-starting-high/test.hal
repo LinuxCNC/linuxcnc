@@ -1,7 +1,6 @@
 setexact_for_test_suite_only
 
 loadrt threads name1=fast period1=100000
-loadrt i_edge
 newinst i_edge i_edgenew
 
 loadrt sampler cfg=bbb depth=500
@@ -14,7 +13,7 @@ net out        i_edgenew.out        => sampler.0.pin.1
 net out-invert i_edgenew.out-invert => sampler.0.pin.2
 
 addf streamer.0 fast
-addf i_edgenew.funct     fast
+addf i_edgenew     fast
 addf sampler.0  fast
 
 # look for falling edges

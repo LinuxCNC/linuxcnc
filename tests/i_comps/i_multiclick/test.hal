@@ -1,7 +1,6 @@
 
 loadrt threads name1=millisecond period1=1000000
 
-loadrt i_multiclick
 newinst i_multiclick i_mc1
 newinst i_multiclick i_mc2
 
@@ -42,8 +41,8 @@ net state.1 i_mc2.state => sampler.0.pin.19
 
 
 addf streamer.0    millisecond
-addf i_mc1.funct  millisecond
-addf i_mc2.funct  millisecond
+addf i_mc1  millisecond
+addf i_mc2  millisecond
 addf sampler.0     millisecond
 
 

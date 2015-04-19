@@ -1,8 +1,7 @@
 loadrt threads
-loadrt i_ilowpass
 newinst i_ilowpass i_ilowpassn
 
-addf i_ilowpassn.funct thread1
+addf i_ilowpassn thread1
 setp i_ilowpassn.scale 100000
 setp i_ilowpassn.in 21474
 setp i_ilowpassn.gain 1
