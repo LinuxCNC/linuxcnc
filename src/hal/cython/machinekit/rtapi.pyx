@@ -204,6 +204,12 @@ class RTAPIcommand:
         comp = args[0]
         instname = args[1]
         argv = _to_argv(args[2:])
+
+        if comp not in hal.components:
+             rtapi_loadrt(instance, comp, <const char **>argv)
+        if instname in hal.instances:
+            raise RuntimeError('instance with name ' + instname + ' already exists')
+
         r = rtapi_newinst( instance, comp, instname, <const char **>argv)
         free(argv)
         if r:
