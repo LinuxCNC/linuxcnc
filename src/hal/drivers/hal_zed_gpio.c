@@ -168,6 +168,7 @@ INT_TYPE is set to level sensitive.
 #define INT_ANY_2           0x000002A4
 #define INT_ANY_3           0x000002E4
 
+#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
