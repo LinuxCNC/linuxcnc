@@ -712,14 +712,7 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
     //
 
     if (e->prev_control & HM2_ENCODER_LATCH_ON_INDEX) {
-        rtapi_u32 latch_ctrl;
-
-        hm2->llio->read(
-            hm2->llio,
-            hm2->encoder.latch_control_addr + (instance * sizeof(rtapi_u32)),
-            &latch_ctrl,
-            sizeof(rtapi_u32)
-        );
+        rtapi_u32 latch_ctrl = hm2->encoder.read_control_reg[instance];
 
         if (0 == (latch_ctrl & HM2_ENCODER_LATCH_ON_INDEX)) {
             // hm2 reports index event occurred
@@ -736,14 +729,7 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
             *e->hal.pin.index_enable = 0;
         }
     } else if(e->prev_control & HM2_ENCODER_LATCH_ON_PROBE) {
-        rtapi_u32 latch_ctrl;
-
-        hm2->llio->read(
-            hm2->llio,
-            hm2->encoder.latch_control_addr + (instance * sizeof(rtapi_u32)),
-            &latch_ctrl,
-            sizeof(rtapi_u32)
-        );
+        rtapi_u32 latch_ctrl = hm2->encoder.read_control_reg[instance];
 
         if (0 == (latch_ctrl & HM2_ENCODER_LATCH_ON_PROBE)) {
             // hm2 reports probe event occurred

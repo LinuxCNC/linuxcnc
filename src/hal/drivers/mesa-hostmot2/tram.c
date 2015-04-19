@@ -145,8 +145,8 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
 }
 
 
+static rtapi_u32 tram_read_iteration = 0;
 int hm2_tram_read(hostmot2_t *hm2) {
-    static rtapi_u32 tram_read_iteration = 0;
     struct rtapi_list_head *ptr;
 
     rtapi_list_for_each(ptr, &hm2->tram_read_entries) {
@@ -157,19 +157,23 @@ int hm2_tram_read(hostmot2_t *hm2) {
             return -EIO;
         }
     }
-
-    if (!hm2->llio->queue_read(hm2->llio, 0, NULL, -1)) {
-        HM2_ERR("TRAM read error finishing read! iter=%u)\n",
-            tram_read_iteration);
-    }
     tram_read_iteration ++;
 
     return 0;
 }
 
+int hm2_finish_read(hostmot2_t *hm2) {
+    if (!hm2->llio->queue_read(hm2->llio, 0, NULL, -1)) {
+        HM2_ERR("error finishing read! iter=%u)\n",
+            tram_read_iteration);
+        return -EIO;
+    }
+    return 0;
+}
 
+
+static rtapi_u32 tram_write_iteration = 0;
 int hm2_tram_write(hostmot2_t *hm2) {
-    static rtapi_u32 tram_write_iteration = 0;
     struct rtapi_list_head *ptr;
 
     rtapi_list_for_each(ptr, &hm2->tram_write_entries) {
@@ -180,12 +184,17 @@ int hm2_tram_write(hostmot2_t *hm2) {
             return -EIO;
         }
     }
-
-    if (!hm2->llio->queue_write(hm2->llio, 0, NULL, -1)) {
-        HM2_ERR("TRAM write error finishing write! iter=%u)\n",
-            tram_write_iteration);
-    }
     tram_write_iteration ++;
+
+    return 0;
+}
+
+int hm2_finish_write(hostmot2_t *hm2) {
+    if (!hm2->llio->queue_write(hm2->llio, 0, NULL, -1)) {
+        HM2_ERR("error finishing write! iter=%u)\n",
+            tram_write_iteration);
+        return -EIO;
+    }
 
     return 0;
 }

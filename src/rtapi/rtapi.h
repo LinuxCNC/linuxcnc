@@ -468,8 +468,8 @@ RTAPI_BEGIN_DECLS
 */
     extern int rtapi_task_pause(int task_id);
 
-/** 'rtapi_task_self()' returns the task ID of the current task.
-    Call only from a realtime task.
+/** 'rtapi_task_self()' returns the task ID of the current task or -EINVAL.
+    May be called from init/cleanup code, and from within realtime tasks.
 */
     extern int rtapi_task_self(void);
 

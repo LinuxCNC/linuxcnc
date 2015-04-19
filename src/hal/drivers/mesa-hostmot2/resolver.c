@@ -357,6 +357,7 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
     }
 }
 
+// This function needs to be modified so that it does not call llio->read, which hurts performance on hm2-eth
 void hm2_resolver_write(hostmot2_t *hm2, long period){
     //This function needs to handle comms handshaking, so is written as a state machine
     static int state = 0;

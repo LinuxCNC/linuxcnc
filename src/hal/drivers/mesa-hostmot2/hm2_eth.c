@@ -364,6 +364,15 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
     if (size == 0) return 1;
     read_cnt++;
 
+    if(rtapi_task_self() >= 0) {
+        static bool printed = false;
+        if(!printed) {
+            LL_PRINT("ERROR: used llio->read in realtime task (addr=0x%04x)\n", addr);
+            LL_PRINT("This causes additional network packets which hurts performance\n");
+            printed = true;
+        }
+    }
+
     LBP16_INIT_PACKET4(read_packet, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr & 0xFFFF);
 
     send = eth_socket_send(sockfd, (void*) &read_packet, sizeof(read_packet), 0);
@@ -428,7 +437,12 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
     return 1;
 }
 
+static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size);
+
 static int hm2_eth_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+    if(rtapi_task_self() >= 0)
+        return hm2_eth_enqueue_write(this, addr, buffer, size);
+
     int send;
     static struct {
         lbp16_cmd_addr wr_packet;
