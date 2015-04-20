@@ -190,7 +190,9 @@ class Mklauncher:
                     if not launcher.running:  # update running value
                         launcher.running = True
                         launcher.ClearField('stdout')
+                        launcher.returncode = 0
                         txLauncher.running = True
+                        txLauncher.returncode = 0
                         modified = True
                     # read stdout
                     while True:
