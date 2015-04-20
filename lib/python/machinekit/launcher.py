@@ -51,7 +51,7 @@ def cleanup_session():
         sys.stdout.flush()
         for pid in pids:
             try:
-                os.kill(pid, signal.SIGTERM)
+                os.killpg(pid, signal.SIGTERM)
             except OSError:
                 pass
         sys.stdout.write('done\n')
@@ -69,7 +69,7 @@ def check_process(command):
 def start_process(command, check=True, wait=1.0):
     sys.stdout.write("starting " + command.split(None, 1)[0] + "... ")
     sys.stdout.flush()
-    process = subprocess.Popen(command, shell=True)
+    process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
     process.command = command
     if check:
         sleep(wait)
@@ -87,7 +87,7 @@ def stop_process(command):
         if command == processCommand:
             sys.stdout.write('stopping ' + command + '... ')
             sys.stdout.flush()
-            process.kill()
+            os.killpg(process.pid, signal.SIGTERM)
             process.wait()
             sys.stdout.write('done\n')
 
@@ -98,7 +98,7 @@ def stop_processes():
         sys.stdout.write('stopping ' + process.command.split(None, 1)[0]
                          + '... ')
         sys.stdout.flush()
-        process.terminate()
+        os.killpg(process.pid, signal.SIGTERM)
         process.wait()
         sys.stdout.write('done\n')
 
