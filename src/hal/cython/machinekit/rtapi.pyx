@@ -134,6 +134,14 @@ cdef char ** _to_argv(args):
     ret[l] =  NULL # zero-terminate
     return ret
 
+import sys
+import os
+from machinekit import hal
+if sys.version_info >= (3, 0):
+    import configparser
+else:
+    import ConfigParser as configparser
+
 class RTAPIcommand:
     ''' connect to the rtapi_app RT demon to pass commands '''
 
@@ -143,8 +151,14 @@ class RTAPIcommand:
         cdef char* c_uri = uri
         if uri == "":
             c_uri = NULL
-        if uuid == "" and uri == "":
-            raise RuntimeError("need either a uuid=<uuid> or uri=<uri> parameter")
+        if uuid == "" and uri == "":  # try to get the uuid from the ini
+            cfg = configparser.ConfigParser()
+            cfg.read(os.getenv("MACHINEKIT_INI"))
+            try:
+                uuid = cfg.get("MACHINEKIT", "MKUUID")
+            except configparser.NoSectionError or configparser.NoOptionError:
+                raise RuntimeError("need either a uuid=<uuid> or uri=<uri> parameter")
+            c_uuid = uuid
         r = rtapi_connect(instance, c_uri, c_uuid)
         if r:
             raise RuntimeError("cant connect to rtapi: %s" % strerror(-r))
@@ -190,6 +204,12 @@ class RTAPIcommand:
         comp = args[0]
         instname = args[1]
         argv = _to_argv(args[2:])
+
+        if comp not in hal.components:
+             rtapi_loadrt(instance, comp, <const char **>argv)
+        if instname in hal.instances:
+            raise RuntimeError('instance with name ' + instname + ' already exists')
+
         r = rtapi_newinst( instance, comp, instname, <const char **>argv)
         free(argv)
         if r:
