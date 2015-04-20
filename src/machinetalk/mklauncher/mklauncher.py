@@ -273,23 +273,31 @@ class Mklauncher:
 
     def start_process(self, index):
         launcher = self.container.launcher[index]
-        command = launcher.command
         workdir = launcher.workdir
         shell = launcher.shell
-        process = subprocess.Popen(command,
-                                   shell=shell,
-                                   cwd=workdir,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT,
-                                   stdin=subprocess.PIPE)
+        command = launcher.command
+        if shell is False:
+            command = command.split(' ')
+        try:
+            process = subprocess.Popen(command,
+                                       shell=shell,
+                                       cwd=workdir,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT,
+                                       stdin=subprocess.PIPE,
+                                       preexec_fn=os.setsid)
+        except OSError as e:
+            return False, str(e)
         process.command = command
         # set the O_NONBLOCK flag of stdout file descriptor:
         flags = fcntl.fcntl(process.stdout, fcntl.F_GETFL)  # get current stdout flags
         fcntl.fcntl(process.stdout, fcntl.F_SETFL, flags | os.O_NONBLOCK)
         self.processes[index] = process
+        return True, ''
 
     def stop_process(self, index):
-        self.processes[index].terminate()
+        pid = self.processes[index].pid
+        os.killpg(pid, signal.SIGTERM)
 
     def write_stdin_process(self, index, data):
         self.processes[index].stdin.write(data)
@@ -318,7 +326,10 @@ class Mklauncher:
                 if index >= len(self.container.launcher):
                     self.send_command_wrong_index()
                 else:
-                    self.start_process(index)
+                    success, note = self.start_process(index)
+                    if not success:
+                        self.txCommand.note.append(note)
+                        self.send_command_msg(MT_ERROR)
             else:
                 self.send_command_wrong_params()
 
