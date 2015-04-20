@@ -1,0 +1,154 @@
+#!/usr/bin/python
+# encoding: utf-8 
+# vim: set sw=4 sts=4 et:
+
+'''
+A machinekit/LinuxCNC user module for Replicape hardware config
+
+Configure the steppers on Replicape A4/A4A through HAL
+Driver mode pins are connected through a bit shifter and
+hence accessible with SPI.  Current limit is through an DAC chip.
+
+The settings are populated when the "enable" pin is turned on
+
+The following pins are exported
+* enable
+  Enable the steppers
+* stepper.x.microstepping
+  Microstepping settings for steppers 0 to 5.
+  Value is treated as 1/2^x, e.g. 5 means 1/32 microstepping mode.
+* stepper.x.decay
+  True for slow decay
+* stepper.x.current
+  Current settings for steppers 0 to 5.
+  Value is treated as current in Amps
+
+Copyright (C) 2013 Sam Wong
+GNU GPL Version 2.0 or (at your option) any later version
+'''
+
+import argparse
+import glob
+import sys
+import time
+
+import hal
+from spi import SPI
+
+parser = argparse.ArgumentParser(description='HAL component to configure Replicape hardware')
+parser.add_argument('-n','--name', help='HAL component name',required=True)
+args = parser.parse_args()
+
+# Initialize SPI
+spi2_0 = None
+spi2_1 = None
+
+# Load SPI module
+try:
+    # init the SPI for the DAC
+    try:
+        spi2_0 = SPI((0, 0))
+    except IOError:
+        spi2_0 = SPI((1, 0))
+    spi2_0.mode = 1
+
+    # Init the SPI for the serial to parallel
+    try:
+        spi2_1 = SPI((0, 1))
+    except IOError:
+        spi2_1 = SPI((1, 1))
+    spi2_1.mode = 0
+except IOError:
+    print("Unable to set up SPI")
+    exit(-1)
+
+# Initialize HAL
+h = hal.component(args.name)
+enablePin = h.newpin("enable", hal.HAL_BIT, hal.HAL_IN)
+
+N = 5 # We have 5 steppers
+microsteppingPins = [None] * N
+decayPins = [None] * N
+currentPins = [None] * N
+
+vRef = 3.3
+rSense = 0.1
+
+for i in range(0,N):
+    microsteppingPins[i] = h.newparam(("stepper.%d.microstepping" % i), hal.HAL_U32, hal.HAL_RW)
+    decayPins[i] = h.newparam(("stepper.%d.decay" % i), hal.HAL_BIT, hal.HAL_RW)
+    currentPins[i] = h.newparam(("stepper.%d.current" % i), hal.HAL_FLOAT, hal.HAL_RW)
+h.ready()
+
+'''
+The bits in the shift register are as follows (Rev A4) :
+Bit - name   - init val 
+D0 = -       = Don't Care
+D1 = MODE2   = 0  
+D2 = MODE1   = 0
+D3 = MODE0   = 0
+D4 = nENABLE = 0  - Enabled
+D5 = DECAY   = 0  - Slow decay 
+D6 = nSLEEP  = 1  - Not sleeping 
+D7 = nRESET  = 1  - Not in reset mode
+'''
+
+def commit():
+    ''' Turn on the stepper chips '''
+
+    # Writing the current
+    for i in range(0,N):
+        vOut = currentPins[i].value * 5.0 * rSense
+        dacVal = int((vOut * 256.0) / vRef)
+        spi2_0.write([                          \
+            (dacVal & 0xF0) >> 4 | (i << 4),    \
+            (dacVal & 0x0F) << 4])
+    spi2_0.write([0xA0, 0xFF]) # Commits to output
+
+    # Writing the modes
+    bytes = []
+    for i in range(0,N):
+        state = decayPins[i].value << 5 | \
+                ((microsteppingPins[i].value & 0x04) >> 2) << 1 | \
+                ((microsteppingPins[i].value & 0x02) >> 1) << 2 | \
+                ((microsteppingPins[i].value & 0x01) >> 0) << 3 | \
+                0 << 4 | 1 << 6 | 1 << 7
+        bytes.append(state)
+    # Reverse the writting orders due to serial chain sequence
+    spi2_1.write(bytes[::-1]) 
+
+def reset():
+    ''' Reset the stepper chip '''
+    bytes = []
+    for i in range(0,N):
+        state = 1 << 4 | 0 << 6 | 0 << 7
+        bytes.append(state)
+    # Reverse the writting orders due to serial chain sequence
+    spi2_1.write(bytes[::-1]) 
+    
+def turnOff():
+    ''' Turn off all stepper chips '''
+    bytes = []
+    for i in range(0,N):
+        state = 1 << 4 | 0 << 6 | 1 << 7
+        bytes.append(state)
+    # Reverse the writting orders due to serial chain sequence
+    spi2_1.write(bytes[::-1]) 
+
+try:
+    oldEnable = False
+    reset()
+    while (True):
+        enable = enablePin.value
+        if (enable and not oldEnable):
+            commit()
+        if (oldEnable and not enable):
+            turnOff()
+        oldEnable = enable
+
+        time.sleep(0.05)
+except BaseException as e:
+    reset()
+    print(("exiting HAL component %s: %s") % (args.name, e))
+    h.exit()
+
