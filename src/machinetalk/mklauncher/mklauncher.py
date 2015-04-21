@@ -55,7 +55,11 @@ class Mklauncher:
             'description': '',
             'image': '',
             'shell': 'false',
-            'workdir': '.'
+            'workdir': '.',
+            'type': '',
+            'manufacturer': '',
+            'model': '',
+            'variant': ''
         }
 
         index = 0
@@ -70,7 +74,16 @@ class Mklauncher:
                         launcher.Clear()
                         launcher.index = index
                         index += 1
+                        # descriptive data
                         launcher.name = cfg.get(section, 'name')
+                        launcher.description = cfg.get(section, 'description')
+                        info = MachineInfo()
+                        info.type = cfg.get(section, 'type')
+                        info.manufacturer = cfg.get(section, 'manufacturer')
+                        info.model = cfg.get(section, 'model')
+                        info.variant = cfg.get(section, 'variant')
+                        launcher.info.MergeFrom(info)
+                        # command data
                         launcher.command = cfg.get(section, 'command')
                         launcher.shell = cfg.getboolean(section, 'shell')
                         workdir = cfg.get(section, 'workdir')
@@ -79,6 +92,7 @@ class Mklauncher:
                         launcher.workdir = os.path.normpath(workdir)
                         launcher.returncode = 0
                         launcher.running = False
+                        # storing the image file
                         imageFile = cfg.get(section, 'image')
                         if imageFile is not '':
                             if not os.path.isabs(imageFile):
@@ -297,9 +311,13 @@ class Mklauncher:
         self.processes[index] = process
         return True, ''
 
-    def stop_process(self, index):
+    def terminate_process(self, index):
         pid = self.processes[index].pid
         os.killpg(pid, signal.SIGTERM)
+
+    def kill_process(self, index):
+        pid = self.processes[index].pid
+        os.killpg(pid, signal.SIGKILL)
 
     def write_stdin_process(self, index, data):
         self.processes[index].stdin.write(data)
@@ -335,14 +353,23 @@ class Mklauncher:
             else:
                 self.send_command_wrong_params()
 
-        elif self.rx.type == MT_LAUNCHER_STOP:
+        elif self.rx.type == MT_LAUNCHER_TERMINATE:
             if self.rx.HasField('index'):
                 index = self.rx.index
                 if index >= len(self.container.launcher) \
                    or index not in self.processes:
                     self.send_command_wrong_index()
                 else:
-                    self.stop_process(index)
+                    self.terminate_process(index)
+
+        elif self.rx.type == MT_LAUNCHER_KILL:
+            if self.rx.HasField('index'):
+                index = self.rx.index
+                if index >= len(self.container.launcher) \
+                   or index not in self.processes:
+                    self.send_command_wrong_index()
+                else:
+                    self.kill_process(index)
 
         elif self.rx.type == MT_LAUNCHER_WRITE_STDIN:
             if self.rx.HasField('index') \
