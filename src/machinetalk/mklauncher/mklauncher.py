@@ -10,7 +10,6 @@ import math
 import subprocess
 import fcntl
 
-import ConfigParser
 from machinekit import service
 from machinekit import config
 
@@ -18,6 +17,11 @@ from message_pb2 import Container
 from config_pb2 import *
 from types_pb2 import *
 from object_pb2 import ProtocolParameters
+
+if sys.version_info >= (3, 0):
+    import configparser
+else:
+    import ConfigParser as configparser
 
 
 def printError(msg):
@@ -67,7 +71,7 @@ class Mklauncher:
             for root, _, files in os.walk(rootDir):
                 if iniName in files:
                     iniFile = os.path.join(root, iniName)
-                    cfg = ConfigParser.ConfigParser(configDefaults)
+                    cfg = configparser.ConfigParser(configDefaults)
                     cfg.read(iniFile)
                     launcher = Launcher()
                     for section in cfg.sections():
@@ -432,7 +436,7 @@ def main():
         sys.stderr.write("MACHINEKIT_INI " + mkini + " does not exist\n")
         sys.exit(1)
 
-    mki = ConfigParser.ConfigParser()
+    mki = configparser.ConfigParser()
     mki.read(mkini)
     uuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
