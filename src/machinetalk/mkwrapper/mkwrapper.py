@@ -29,6 +29,7 @@ from config_pb2 import *
 from types_pb2 import *
 from status_pb2 import *
 from preview_pb2 import *
+from motcmds_pb2 import *
 from object_pb2 import ProtocolParameters
 
 
@@ -540,14 +541,14 @@ class LinuxCNCWrapper():
             self.status.config.axis_mask = 0
             self.status.config.cycle_time = 0.0
             self.status.config.debug = 0
-            self.status.config.kinematics_type = 0
+            self.status.config.kinematics_type = KINEMATICS_IDENTITY
             self.status.config.linear_units = 0.0
             self.status.config.max_acceleration = 0.0
             self.status.config.max_velocity = 0.0
-            self.status.config.program_units = 0
+            self.status.config.program_units = CANON_UNITS_INCHES
             self.status.config.default_velocity = 0.0
-            self.status.config.position_offset = 0
-            self.status.config.position_feedback = 0
+            self.status.config.position_offset = EMC_CONFIG_RELATIVE_OFFSET
+            self.status.config.position_feedback = EMC_CONFIG_ACTUAL_FEEDBACK
             self.status.config.max_feed_override = 0.0
             self.status.config.min_feed_override = 0.0
             self.status.config.max_spindle_override = 0.0
@@ -567,7 +568,7 @@ class LinuxCNCWrapper():
             self.status.config.arcdivision = 0
             self.status.config.no_force_homing = False
             self.status.config.remote_path = ""
-            self.status.config.time_units = 0
+            self.status.config.time_units = TIME_UNITS_MINUTE
             self.status.config.name = ""
             self.configFirstrun = False
 
@@ -782,7 +783,7 @@ class LinuxCNCWrapper():
             if len(self.status.config.axis) == index:
                 self.status.config.axis.add()
                 self.status.config.axis[index].index = index
-                self.status.config.axis[index].axisType = 0
+                self.status.config.axis[index].axisType = EMC_AXIS_LINEAR
                 self.status.config.axis[index].backlash = 0.0
                 self.status.config.axis[index].max_ferror = 0.0
                 self.status.config.axis[index].max_position_limit = 0.0
@@ -1053,14 +1054,14 @@ class LinuxCNCWrapper():
 
         if self.taskFirstrun:
             self.status.task.echo_serial_number = 0
-            self.status.task.exec_state = 0
+            self.status.task.exec_state = EMC_TASK_EXEC_ERROR
             self.status.task.file = ""
             self.status.task.input_timeout = False
             self.status.task.optional_stop = False
             self.status.task.read_line = 0
-            self.status.task.task_mode = 0
+            self.status.task.task_mode = EMC_TASK_MODE_MANUAL
             self.status.task.task_paused = 0
-            self.status.task.task_state = 0
+            self.status.task.task_state = EMC_TASK_STATE_ESTOP
             self.taskFirstrun = False
 
         if (self.status.task.echo_serial_number != stat.echo_serial_number):
@@ -1120,7 +1121,7 @@ class LinuxCNCWrapper():
 
         if self.interpFirstrun:
             self.status.interp.command = ""
-            self.status.interp.interp_state = 0
+            self.status.interp.interp_state = EMC_TASK_INTERP_IDLE
             self.status.interp.interpreter_errcode = 0
             self.interpFirstrun = False
 
@@ -1226,7 +1227,7 @@ class LinuxCNCWrapper():
             self.status.motion.feed_hold_enabled = False
             self.status.motion.feed_override_enabled = False
             self.status.motion.feedrate = 0.0
-            self.status.motion.g5x_index = 0
+            self.status.motion.g5x_index = ORIGIN_G54
             self.status.motion.g5x_offset.MergeFrom(self.zero_position())
             self.status.motion.g92_offset.MergeFrom(self.zero_position())
             self.status.motion.id = 0
@@ -1235,7 +1236,7 @@ class LinuxCNCWrapper():
             self.status.motion.joint_position.MergeFrom(self.zero_position())
             self.status.motion.motion_line = 0
             self.status.motion.motion_type = 0
-            self.status.motion.motion_mode = 0
+            self.status.motion.motion_mode = EMC_TRAJ_MODE_FREE
             self.status.motion.paused = False
             self.status.motion.position.MergeFrom(self.zero_position())
             self.status.motion.probe_tripped = False
@@ -1252,7 +1253,7 @@ class LinuxCNCWrapper():
             self.status.motion.spindle_override_enabled = False
             self.status.motion.spindle_speed = 0.0
             self.status.motion.spindlerate = 0.0
-            self.status.motion.state = 0
+            self.status.motion.state = UNINITIALIZED_STATUS
             self.status.motion.max_velocity = 0.0
             self.status.motion.max_acceleration = 0.0
             self.motionFirstrun = False
