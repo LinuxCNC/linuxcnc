@@ -397,10 +397,12 @@ class Mklauncher:
                     self.write_stdin_process(index, name)
 
         elif self.rx.type == MT_LAUNCHER_CALL:
-            pass
+            self.txCommand.note.append("process call not allowed")
+            self.send_command_msg(MT_ERROR)
 
         elif self.rx.type == MT_LAUNCHER_SHUTDOWN:
-            pass
+            self.txCommand.note.append("shutdown not allowed")
+            self.send_command_msg(MT_ERROR)
 
         else:
             self.txCommand.note.append("unknown command")
