@@ -50,6 +50,7 @@ class Mklauncher:
         self.launcherFullUpdate = False
 
         self.processes = {}  # for processes mapped to launcher
+        self.terminating = set()  # set of terminating processes
 
         # Create launcher configuration structure
         iniName = 'launcher.ini'
@@ -96,6 +97,7 @@ class Mklauncher:
                         launcher.workdir = os.path.normpath(workdir)
                         launcher.returncode = 0
                         launcher.running = False
+                        launcher.terminating = False
                         # storing the image file
                         imageFile = cfg.get(section, 'image')
                         if imageFile is not '':
@@ -198,6 +200,12 @@ class Mklauncher:
         modified = False
         for launcher in self.container.launcher:
             index = launcher.index
+
+            terminating = False
+            if index in self.terminating:
+                terminating = True
+                self.terminating.remove(index)
+
             if index in self.processes:
                 txLauncher = Launcher()  # new pb message for tx
                 txLauncher.index = index
@@ -206,9 +214,7 @@ class Mklauncher:
                 returncode = process.returncode
                 if returncode is None:
                     if not launcher.running:  # update running value
-                        launcher.running = True
-                        launcher.ClearField('stdout')
-                        launcher.returncode = 0
+                        launcher.ClearField('stdout')  # clear stdout for new processes
                         txLauncher.running = True
                         txLauncher.returncode = 0
                         modified = True
@@ -220,19 +226,21 @@ class Mklauncher:
                             stdoutLine = StdoutLine()
                             stdoutLine.index = index
                             stdoutLine.line = line
-                            launcher.stdout.add().CopyFrom(stdoutLine)
                             txLauncher.stdout.add().MergeFrom(stdoutLine)
                             modified = True
                         except IOError:  # process of no new line
                             break
+                    # send termination status
+                    if terminating:
+                        txLauncher.terminating = True
                 else:
-                    launcher.returncode = returncode
-                    launcher.running = False
                     txLauncher.returncode = returncode
                     txLauncher.running = False
+                    txLauncher.terminating = False
                     modified = True
                     self.processes.pop(index, None)  # remove from watchlist
                 if modified:
+                    launcher.MergeFrom(txLauncher)
                     self.txContainer.launcher.add().MergeFrom(txLauncher)
 
         if self.launcherFullUpdate:
@@ -318,10 +326,12 @@ class Mklauncher:
     def terminate_process(self, index):
         pid = self.processes[index].pid
         os.killpg(pid, signal.SIGTERM)
+        self.terminating.add(index)
 
     def kill_process(self, index):
         pid = self.processes[index].pid
         os.killpg(pid, signal.SIGKILL)
+        self.terminating.add(index)
 
     def write_stdin_process(self, index, data):
         self.processes[index].stdin.write(data)
