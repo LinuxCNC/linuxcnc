@@ -2321,35 +2321,6 @@ class LinuxCNCWrapper():
             self.linuxcncErrors.append(str(e))
 
 
-def choose_ip(pref):
-    '''
-    given an interface preference list, return a tuple (interface, IPv4)
-    or None if no match found
-    If an interface has several IPv4 addresses, the first one is picked.
-    pref is a list of interface names or prefixes:
-
-    pref = ['eth0','usb3']
-    or
-    pref = ['wlan','eth', 'usb']
-    '''
-
-    # retrieve list of network interfaces
-    interfaces = netifaces.interfaces()
-
-    # find a match in preference oder
-    for p in pref:
-        for i in interfaces:
-            if i.startswith(p):
-                ifcfg = netifaces.ifaddresses(i)
-                # we want the first IPv4 address
-                try:
-                    ip = ifcfg[netifaces.AF_INET][0]['addr']
-                except KeyError:
-                    continue
-                return (i, ip)
-    return None
-
-
 shutdown = False
 
 
@@ -2398,7 +2369,7 @@ def main():
         print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
         iface = ['lo', '127.0.0.1']
     else:
-        iface = choose_ip(prefs)
+        iface = config.choose_interface(prefs)
         if not iface:
             sys.stderr.write("failed to determine preferred interface (preference = %s)\n" % prefs)
             sys.exit(1)
