@@ -7,7 +7,7 @@
 # ########################################
 
 # Launch the setup script to make sure hardware setup looks good
-loadusr -w ../setup.bridge.sh
+loadusr -w ./setup.bridge.sh
 
 
 # ###################################
@@ -18,11 +18,13 @@ loadusr -w ../setup.bridge.sh
 loadrt trivkins
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # load low-level drivers
 loadrt hal_bb_gpio output_pins=107,224,226 input_pins=108,109,110,114,117,118
-loadrt [PRUCONF](DRIVER) prucode=$(LINUXCNC_HOME)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG)
+loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG)
 loadrt pid num_chan=2
 loadrt limit1 count=2
 loadrt pepper count=2
@@ -31,7 +33,7 @@ loadrt pepper count=2
 # Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
 # t = Thermistor table (only epcos_B57560G1104 or 1 supported for now)
 # a = analog input channel
-loadusr -Wn Therm ../ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
+loadusr -Wn Therm ./ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 
 # ################################################
 # THREADS
@@ -130,6 +132,7 @@ setp [PRUCONF](DRIVER).stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 setp [PRUCONF](DRIVER).stepgen.01.steppin          0x4E
 # P8.15 GPIO1_15
 setp [PRUCONF](DRIVER).stepgen.01.dirpin           0x4F
+
 
 # ################
 # Z [2] Axis

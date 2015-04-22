@@ -27,7 +27,7 @@ loadrt hal_bb_gpio output_pins=107,126,224,226 input_pins=108,109,110,114,117,11
 loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG)
 loadrt pid num_chan=2
 loadrt limit1 count=2
-loadrt pepper
+loadrt pepper count=1
 
 
 # Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
