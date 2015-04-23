@@ -230,6 +230,7 @@ message Group {
     repeated Member       member        = 7;  // list of signals or group names
 }
 
+
 // ProtocolParameters tells a peer entity about key
 // constants pertaining to the protocol, for instance
 // scan timer, keepalive timer etc

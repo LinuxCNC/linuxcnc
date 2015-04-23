@@ -37,3 +37,42 @@ message Application {
     repeated File         file          = 5;
     // config params go here
 }
+
+message StdoutLine {
+
+    option (nanopb_msgopt).msgid = 202;
+
+    required int32  index = 1;
+    optional string line  = 2;
+}
+
+message MachineInfo {
+
+    option (nanopb_msgopt).msgid = 203;
+
+    optional string     type            = 1; // type of the machine, e.g. FDM, CNC, ...
+    optional string     manufacturer    = 2; // manufacturer of the machine
+    optional string     model           = 3; // machine model
+    optional string     variant         = 4; // variant of the machine
+}
+
+// message for mklauncher
+message Launcher {
+
+    option (nanopb_msgopt).msgid = 204;
+
+    required int32        index          = 1;  // index is necessary to access repeated
+    optional string       name           = 2;  // visible name
+    optional string       description    = 3;  // description of the config
+    optional File         image          = 4;  // image representing the configuration
+    optional MachineInfo  info           = 5;  // information about the machine
+
+    optional bool         running        = 6;  // indicates whether the config is running or not
+    optional bool         terminating    = 7;  // indicates if a terminations signal was sent to the process
+    optional string       command        = 8;  // configuration start command
+    optional bool         shell          = 9;  // if the configuration command is executed in a shell
+    repeated StdoutLine   stdout         = 10; // stdout output of the command
+    optional int32        returncode     = 11; // return code of the command
+    optional string       workdir        = 12; // working dir of the command
+
+}

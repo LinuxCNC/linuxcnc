@@ -3,12 +3,16 @@ import "nanopb.proto";
 import "emcclass.proto";
 import "types.proto";
 
+// see README.msgid
+// msgid base: 1500
+
 package pb;
 
 
 // a value for 'passing around'.
 
 message Value {
+    option (nanopb_msgopt).msgid = 1500; // see README.msgid
 
     required ValueType   type = 10;
     // actual values
