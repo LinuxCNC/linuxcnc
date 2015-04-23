@@ -1,0 +1,242 @@
+// use a self-describing format as suggested in protobuf docs
+// and on the mailing list
+
+// see README.msgid
+// msgid base: 500
+
+package pb;
+
+
+import "nanopb.proto";
+import "types.proto";
+import "object.proto";
+import "log.proto";
+import "motcmds.proto";
+//import "test.proto";
+import "task.proto";
+import "canon.proto";
+import "value.proto";
+import "rtapicommand.proto";
+import "rtapi_message.proto";
+import "config.proto";
+import "preview.proto";
+import "status.proto";
+
+message Container {
+
+    option (nanopb_msgopt).msgid = 500; // see README.msgid
+
+    // see https://developers.google.com/protocol-buffers/docs/techniques#union
+    // for the principles behind this encoding
+
+    required ContainerType type = 1;
+
+    // 2, 3 reserved for repeated Pin, Signal - see below; those are high-frequency
+
+    // protobuf-encoded submessages
+    // tags with values in the range 1 through 15 take one byte to encode
+    // so place the frequently used compound messages here
+    optional sfixed64 tsc = 7;  // rtapi_get_time
+
+    // if Container.type == MT_RTMESSAGE, only the RTMessage array is filled in
+    // individual messages are tagged again with RTMessage.type
+    // this is an optimization which allows messagbus to deserialize/serialize
+    // on behalf of RT components
+
+    repeated Preview       preview        = 8   [(nanopb).type = FT_IGNORE];
+
+    optional MotionCommand motcmd         = 9;
+    optional MotionStatus  motstat        = 10;
+    optional bytes         legacy_motcmd  = 11  [(nanopb).type = FT_IGNORE];  // emcmot_command_t wrapped in PB
+    optional bytes         legacy_motstat = 12  [(nanopb).type = FT_IGNORE];  // emcmot_status_t wrapped in PB
+
+    optional RTAPI_Message rtapi_message  = 13;
+    optional TaskReply     task_reply     = 14  [(nanopb).type = FT_IGNORE];
+    optional TicketUpdate  ticket_update  = 15;
+
+    // tags in the range 16 through 2047 take two bytes.
+    // various blobs and less frequently used messages
+
+    optional bytes         syslog         = 18  [(nanopb).type = FT_IGNORE];  // RFC5424 syslog(3) encoding
+    optional bytes         legacy_nml     = 19  [(nanopb).type = FT_IGNORE];  // legacy NML container
+    optional bytes       legacy_motconfig = 20  [(nanopb).type = FT_IGNORE];  // emcmot_config_t wrapped in PB
+
+    // timestamps: as per struct timespec
+    // obtain with clock_gettime(CLOCK_REALTIME, &spec);
+    optional int32              tv_sec    = 21;  // can be used with ctime(3)
+    optional int32              tv_nsec   = 22;
+
+
+
+    // this is for messages going over pub/sub streams and wind up in JSON frames
+    // duplicating the topic here allows us to drop the topic frame
+    optional string                 topic = 23;
+
+    optional bool          reply_required = 24; // force a response even if OK
+
+    // interpreter status updates, MT_INTERP_STAT
+    optional InterpreterStateType interp_state = 25  [(nanopb).type = FT_IGNORE];
+    optional string               interp_name = 26;
+
+    // this is an or of bits in ReplyType:
+    optional int32                   rsvp = 30;  // if/how to answer
+    optional ContainerType    in_reply_to = 33;
+
+    optional RCS_STATUS       rcs_status =  35;
+    optional StatusType            status = 40;
+
+    optional int32                 serial = 45;  // legacy command serials
+    optional int32           reply_serial = 50;  // echoes the legacy command serial
+
+    optional int32                 ticket = 55;  // command serials
+    optional int32           reply_ticket = 60;  // echoes the legacy command serial
+
+    // Credit based flow control: http://hintjens.com/blog:15
+    optional int32               sequence = 62;  // running count used by producero
+    optional int32                 credit = 65;  // updated by consumer
+
+    // legacy line number as conveyed on interplist
+    // to be replaced by source context
+    optional int32            line_number = 66;
+
+    // used with MT_MESSAGEBUS_NO_DESTINATION
+    optional string                  name = 67  [(nanopb).type = FT_IGNORE];  // faulty messagebus destination
+    repeated string                  note = 68;  // easy tack-on for debugging
+    optional int32                retcode = 69;  // all purpose integer return code
+
+    // generalized error descriptor
+    //    optional AnError                error = 70  [(nanopb).type = FT_IGNORE];
+
+    // uuid helps distinguish server instances
+    optional bytes                  uuid  = 72  [(nanopb).type = FT_IGNORE];
+
+    optional bool                   trace = 75;  // log from intermediaries
+
+    optional int32               instance = 77;  // RTAPI instance if nonzero
+
+    // where is this coming from:
+    //    optional Originator            origin = 80;
+
+    // generalized polymorphic argument list
+    repeated Value                value   = 85  [(nanopb).type = FT_IGNORE];  //  [(nanopb).max_count = 20];
+
+    optional RTAPICommand           rtapicmd = 86 [(nanopb).type = FT_IGNORE];
+
+
+    // a reply may carry several service announcements:
+    repeated ServiceAnnouncement  service_announcement = 88  [(nanopb).type = FT_IGNORE];
+
+   //  // string argv-type vector; used in MT_RTAPI_APP_* and possibly others
+   //  repeated string                 argv =  86;  //  [(nanopb).max_count = 20];
+
+    // remote comp description for MT_HALCOMP_CREATE: [comp, pins*]
+    repeated Component   comp      = 100  [(nanopb).type = FT_IGNORE];
+    repeated Pin         pin       = 2    [(nanopb).type = FT_IGNORE];  // high frequency - use single byte tag
+    repeated Signal      signal    = 3    [(nanopb).type = FT_IGNORE];  // high frequency - use single byte tag
+    repeated Param       param     = 103  [(nanopb).type = FT_IGNORE];
+    repeated Thread      thread    = 104  [(nanopb).type = FT_IGNORE];
+    repeated Ring        ring      = 105  [(nanopb).type = FT_IGNORE];
+    repeated Group       group     = 106  [(nanopb).type = FT_IGNORE];
+    repeated Member      member    = 107  [(nanopb).type = FT_IGNORE];
+    repeated Function    function  = 108  [(nanopb).type = FT_IGNORE];
+    optional ProtocolParameters pparams = 109 [(nanopb).type = FT_IGNORE];
+    repeated Vtable      vtable    = 110  [(nanopb).type = FT_IGNORE];
+    repeated Inst        inst      = 111  [(nanopb).type = FT_IGNORE];
+
+    // the app field is  included as a reply to
+    // a MT_LIST_APPLICATIONS and
+    // MT_RETRIEVE_APPLICATION message
+    repeated Application app       = 120  [(nanopb).type = FT_IGNORE];
+
+    // the launcher field is reported by
+    // a MT_LAUNCHER_FULL_UPDATE
+    // or a MT_LAUNCHER_INCREMENTAL_UPDATE message
+    repeated Launcher launcher = 130 [(nanopb).type = FT_IGNORE];
+    optional int32    index    = 131 [(nanopb).type = FT_IGNORE];
+
+    // // miscellanous typed objects
+    // optional string        ascii          = 140;
+    // optional bytes         unicode        = 141;
+    // optional string        gcode          = 142;
+    // optional string        python         = 143;
+    // optional bytes         pickle         = 144;
+    // optional string        tcl            = 145;
+    // optional string        xml            = 146;
+    // optional string        json           = 147;
+    // optional bytes         jpeg           = 148;
+    // optional bytes         png            = 149;
+    // optional bytes         tiff           = 150;
+    // optional bytes         postscript     = 151;
+    // optional bytes         svg            = 152;
+
+    // infrequent compound messages
+    //optional bytes         wou            = 160;  // Arais Wishbone-over-USB
+    optional LogMessage    log_message    = 87   [(nanopb).type = FT_IGNORE];
+
+    // taskplan (interpreter command) messages
+    optional TaskPlanExecute     tpexecute     = 200  [(nanopb).type = FT_IGNORE];
+    optional TaskPlanBlockDelete tpblockdelete  = 201  [(nanopb).type = FT_IGNORE];
+    optional TaskPlanOptionalStop tpoptionalstop  = 202  [(nanopb).type = FT_IGNORE];
+    optional TaskPlanOpen         tpopen     = 203  [(nanopb).type = FT_IGNORE];
+
+    // interpreter reply
+    optional TaskPlanReply taskplan_reply       = 210  [(nanopb).type = FT_IGNORE];
+
+    // canon messages
+    optional Emc_Traj_Set_G5x                 traj_set_g5x = 300;
+    optional Emc_Traj_Set_G92                 traj_set_g92 = 310;
+    optional Emc_Traj_Set_Rotation       traj_set_rotation = 320;
+    optional Emc_Traj_Linear_Move         traj_linear_move = 330;
+    optional Emc_Traj_Probe                     traj_probe = 340;
+    optional Emc_Traj_Circular_Move     traj_circular_move = 350;
+    optional Emc_Traj_Rigid_Tap             traj_rigid_tap = 360;
+    optional Emc_Traj_Set_Term_Cond     traj_set_term_cond = 370;
+    optional Emc_Traj_Set_Spindlesync traj_set_spindlesync = 380;
+    optional Emc_Traj_Delay                     traj_delay = 390;
+    optional Emc_Spindle_On                     spindle_on = 400;
+    optional Emc_Spindle_Speed               spindle_speed = 410;
+    optional Emc_Spindle_Orient             spindle_orient = 420;
+    optional Emc_Spindle_Wait_Orient_Complete spindle_wait_orient_complete = 430;
+    optional Emc_Tool_Set_Offset tool_set_offet = 440;
+    optional Emc_Traj_Set_Offset traj_set_offset = 450;
+    optional Emc_Tool_Prepare tool_prepare = 460;
+    optional Emc_Tool_Set_Number tool_set_number = 470;
+    optional Emc_Traj_Set_Fo_Enable traj_set_fo_enable = 480;
+    optional Emc_Traj_Set_So_Enable traj_set_so_enable = 490;
+    optional Emc_Traj_Set_Fh_Enable traj_set_fh_enable = 500;
+    optional Emc_Motion_Adaptive motion_adaptive = 510;
+    optional Emc_Operator_Display operator_display = 520;
+    optional Emc_Operator_Text operator_text = 530;
+    optional Emc_Operator_Error operator_error = 540;
+    optional Emc_Motion_Set_Dout motion_set_dout = 550;
+    optional Emc_Motion_Set_Aout motion_set_aout = 560;
+    optional Emc_Aux_Input_Wait aux_input_wait = 570;
+    optional Emc_Exec_Plugin_Ca1l exec_plugin_call = 580;
+    optional Emc_Io_Plugin_Call io_plugin_call = 590;
+
+    optional EmcStatusConfig emc_status_config = 600 [(nanopb).type = FT_IGNORE];
+    optional EmcStatusMotion emc_status_motion = 601 [(nanopb).type = FT_IGNORE];
+    optional EmcStatusIo emc_status_io = 602 [(nanopb).type = FT_IGNORE];
+    optional EmcStatusTask emc_status_task = 603 [(nanopb).type = FT_IGNORE];
+    optional EmcStatusInterp emc_status_interp = 604 [(nanopb).type = FT_IGNORE];
+
+    optional EmcCommandParameters emc_command_params = 610  [(nanopb).type = FT_IGNORE];
+
+    // less commonly used types
+
+    // // firmware types. Add as needed
+    // optional bytes         pru_firmware   = 2048;
+
+    // // Mesanet firmware types: 3000 - 4000
+    // optional bytes         mesa_5i20_firmware   = 3000;
+
+    // // test message range: 5000-5100 - never used by core code
+    // optional Test1         test1          = 5001;
+    // optional Test2         test2          = 5002;
+    // optional Test3         test3          = 5003;
+
+
+    // NB: do not use the numbers 19000 though 19999
+    // they are reserved for the Protocol Buffers implementation
+    // protoc will complain
+}

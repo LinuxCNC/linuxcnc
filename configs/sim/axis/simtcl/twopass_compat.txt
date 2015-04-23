@@ -1,1 +1,0 @@
-twopass_compat -- verifies compatibility with the existing ".hal" files of sim/axis.ini

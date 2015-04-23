@@ -1,3 +1,0 @@
-loadrt stepgen step_type="2,2,2"
-list param *maxaccel
-list pin *maxaccel

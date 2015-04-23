@@ -1,6 +1,0 @@
-INCLUDES += emc/tp
-
-../include/%.h: ./emc/tp/%.h
-	cp $^ $@
-../include/%.hh: ./emc/tp/%.hh
-	cp $^ $@

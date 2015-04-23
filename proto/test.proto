@@ -1,0 +1,41 @@
+// use any of the below for testing and experimentation.
+
+import "emcclass.proto";
+import "nanopb.proto";
+
+package pb;
+
+// see README.msgid
+// msgid base: 1300
+
+enum TestOpType {
+    LINE            = 10;
+    CIRCLE          = 20;
+};
+
+
+message Test1 {
+
+    option (nanopb_msgopt).msgid = 1300; // see README.msgid
+
+    // minimum params to encode line or circle
+    required TestOpType            op = 10;
+    required EmcPose             end = 20;
+    optional PmCartesian      center = 30;
+    optional PmCartesian      normal = 40;
+    optional int32               turn = 50;
+}
+
+
+message Test2 {
+
+    option (nanopb_msgopt).msgid = 1301;
+
+}
+
+
+message Test3 {
+
+    option (nanopb_msgopt).msgid = 1302;
+
+}

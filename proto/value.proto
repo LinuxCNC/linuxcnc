@@ -1,0 +1,41 @@
+import "nanopb.proto";
+
+import "emcclass.proto";
+import "types.proto";
+
+// see README.msgid
+// msgid base: 1500
+
+package pb;
+
+
+// a value for 'passing around'.
+
+message Value {
+    option (nanopb_msgopt).msgid = 1500; // see README.msgid
+
+    required ValueType   type = 10;
+    // actual values
+
+    // One of the following must be filled in,
+    // depending on type.
+
+    // scalars
+    optional bool    halbit   = 100;
+    optional double  halfloat = 101;
+    optional sfixed32  hals32   = 102;
+    optional fixed32  halu32   = 103;
+
+    optional bytes     v_bytes  = 120;
+    optional sfixed32  v_int32  = 130;
+    optional sfixed64  v_int64  = 140;
+    optional fixed32   v_uint32 = 150;
+    optional fixed64   v_uint64 = 160;
+    optional double    v_double = 170;
+    optional string    v_string = 180   [(nanopb).max_size = 41];
+    optional bool      v_bool   = 190;
+
+    // compound types
+    optional PmCartesian       carte   = 200;
+    optional EmcPose           pose    = 220;
+}

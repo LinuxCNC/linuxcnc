@@ -1,0 +1,283 @@
+import "nanopb.proto";
+
+// see README.msgid
+// msgid base: 100
+
+import "types.proto";
+import "emcclass.proto";
+import "motcmds.proto";
+
+package pb;
+
+// communicated by message type only since no params:
+// Emc_Start_Change
+// Emc_Tool_Load
+// Emc_Tool_Unload
+// Emc_Spindle_Off
+// Emc_Flood_On
+// Emc_Flood_Off
+// Emc_Coolant_Mist_Off
+// Emc_Coolant_Mist_on
+// EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG
+// EMC_TASK_PLAN_PAUSE
+// EMC_TASK_PLAN_OPTIONAL_STOP
+// EMC_TASK_PLAN_END
+
+message Emc_Traj_Set_G5x {
+
+    option (nanopb_msgopt).msgid = 100; // see README.msgid
+
+    required EmcPose         origin = 10;
+    required OriginIndex   g5x_index = 20;
+}
+
+message Emc_Traj_Set_G92 {
+
+    option (nanopb_msgopt).msgid = 101;
+
+    required EmcPose         origin = 10;
+}
+
+message Emc_Traj_Set_Rotation {
+
+    option (nanopb_msgopt).msgid = 102;
+
+    required double    rotation = 10;
+}
+
+message Emc_Traj_Linear_Move {
+
+    option (nanopb_msgopt).msgid = 103;
+
+    required MotionType   type = 10;
+    required EmcPose      end = 20;
+    required double        vel = 30;
+    required double ini_maxvel = 40;
+    required double        acc = 50;
+    required bool    feed_mode = 60;
+    required int32 indexrotary = 70;
+}
+
+message Emc_Traj_Probe {
+
+    option (nanopb_msgopt).msgid = 104;
+
+    required MotionType    type = 10;
+    required EmcPose       pos = 20;
+    required double         vel = 30;
+    required double  ini_maxvel = 40;
+    required double         acc = 50;
+    required uint32 probe_type  = 60;
+}
+
+message Emc_Traj_Circular_Move {
+
+    option (nanopb_msgopt).msgid = 105;
+
+    required MotionType    type = 10;   // redundant - identified by message type
+    required EmcPose        end = 20;
+    required PmCartesian center = 25;
+    required PmCartesian normal = 27;
+    required double          vel = 30;
+    required double   ini_maxvel = 40;
+    required double          acc = 50;
+    required bool      feed_mode = 60;
+    required int32            turn = 70;
+}
+
+message Emc_Traj_Rigid_Tap {
+
+    option (nanopb_msgopt).msgid = 106;
+
+    required EmcPose      pos = 20;
+    required double        vel = 30;
+    required double ini_maxvel = 40;
+    required double        acc = 50;
+}
+
+message Emc_Traj_Set_Term_Cond {
+
+    option (nanopb_msgopt).msgid = 107;
+
+    required TermConditionType cond = 10;
+    required double       tolerance = 20;
+}
+
+message Emc_Traj_Set_Spindlesync {
+
+    option (nanopb_msgopt).msgid = 108;
+
+    required double   feed_per_revolution = 10;
+    required bool           velocity_mode = 20;
+}
+
+message Emc_Traj_Delay {
+
+    option (nanopb_msgopt).msgid = 109;
+
+    required double   delay = 10;
+}
+
+message Emc_Spindle_On {
+
+    option (nanopb_msgopt).msgid = 110;
+
+    required double   speed   = 10 [ default = 0.0];
+    required double   factor  = 20 [ default = 0.0];
+    required double   xoffset = 30 [ default = 0.0];
+}
+
+message Emc_Spindle_Speed {
+
+    option (nanopb_msgopt).msgid = 111;
+
+    required double   speed   = 10;
+    required double   factor  = 20;
+    required double   xoffset = 30;
+}
+
+message Emc_Spindle_Orient {
+
+    option (nanopb_msgopt).msgid = 112;
+
+    required double        orientation = 10;
+    required CanonDirection       mode = 20;
+}
+
+message Emc_Spindle_Wait_Orient_Complete {
+
+    option (nanopb_msgopt).msgid = 113;
+
+    required double timeout = 10;
+}
+
+message Emc_Tool_Set_Offset {
+
+    option (nanopb_msgopt).msgid = 114;
+
+    required int32       pocket = 10;
+    required int32       toolno = 15;
+    required EmcPose    offset = 20;
+    required double    diameter = 30;
+    required double  frontangle = 40;
+    required double   backangle = 50;
+    required int32  orientation = 60;
+}
+
+message Emc_Traj_Set_Offset {
+
+    option (nanopb_msgopt).msgid = 115;
+
+    required EmcPose    offset = 10;
+}
+
+message Emc_Tool_Prepare {
+
+    option (nanopb_msgopt).msgid = 116;
+
+    required int32 pocket = 10;
+    required int32 tool   = 20;
+}
+
+message Emc_Tool_Set_Number {
+
+    option (nanopb_msgopt).msgid = 117;
+
+    required int32 tool   = 10;
+}
+
+message Emc_Traj_Set_Fo_Enable {
+
+    option (nanopb_msgopt).msgid = 118;
+
+    required bool mode   = 10;
+}
+
+message Emc_Traj_Set_So_Enable {
+
+    option (nanopb_msgopt).msgid = 119;
+
+    required bool mode   = 10;
+}
+
+message Emc_Traj_Set_Fh_Enable {
+
+    option (nanopb_msgopt).msgid = 120;
+
+    required bool mode   = 10;
+}
+
+message Emc_Motion_Adaptive {
+
+    option (nanopb_msgopt).msgid = 121;
+
+    required bool status  = 10;
+}
+
+message Emc_Operator_Display {
+
+    option (nanopb_msgopt).msgid = 122;
+
+    required int32    id    = 10;
+    required string display = 20;
+}
+
+message Emc_Operator_Text {
+
+    option (nanopb_msgopt).msgid = 123;
+
+    required int32    id    = 10;
+    required string    text = 20;
+}
+
+message Emc_Operator_Error {
+
+    option (nanopb_msgopt).msgid = 124;
+
+    required int32    id   = 10;
+    required string  error = 20;
+}
+
+message Emc_Motion_Set_Dout {
+
+    option (nanopb_msgopt).msgid = 125;
+
+    required uint32    index = 10;
+    required bool      start = 20;
+    required bool      end   = 30;
+    required bool      now   = 40;
+}
+
+message Emc_Motion_Set_Aout {
+
+    option (nanopb_msgopt).msgid = 126;
+
+    required uint32    index = 10;
+    required double    start = 20;
+    required double    end   = 30;
+    required bool      now   = 40;
+}
+
+message Emc_Aux_Input_Wait {
+
+    option (nanopb_msgopt).msgid = 127;
+
+    required uint32         index = 10;
+    required InputType input_type = 20;
+    required WaitType   wait_type = 30;
+    required double      timeout  = 40;
+}
+
+message Emc_Exec_Plugin_Ca1l {
+
+    option (nanopb_msgopt).msgid = 128;
+
+    required bytes   call = 20;
+}
+
+message Emc_Io_Plugin_Call {
+
+    option (nanopb_msgopt).msgid = 129;
+
+    required bytes  call = 20;
+}

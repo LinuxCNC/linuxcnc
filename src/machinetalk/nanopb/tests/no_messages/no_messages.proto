@@ -1,7 +1,0 @@
-/* Test that a file without any messages works. */
-
-enum Test {
-    First = 1;
-}
-
-

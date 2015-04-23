@@ -1,5 +1,0 @@
-low_graphics
-
-Configs which don't use opengl or other graphics features
-
-These configs are useful for isolating probems with video card compatibility.

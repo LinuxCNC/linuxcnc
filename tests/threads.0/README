@@ -1,8 +1,0 @@
-Tests that threads run in the right order and with the right frequency.
-
-This test will fail with Posix threads unless the rtapi_app_posix binary is
-given the right capabilities.
-
-See https://github.com/mhaberler/linuxcnc/commit/25b12625b347a2626b104348dcf24692e8bf6933 .
-
-

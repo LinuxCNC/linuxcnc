@@ -1,0 +1,53 @@
+import "nanopb.proto";
+
+// see README.msgid
+// msgid base: 300
+
+package pb;
+
+// this encoding method of encoding supports NULL values
+// using code needs to inspect the has_<name> property
+// to discern whether a value was explicitly set or defaulted
+
+message PmCartesian {
+
+    option (nanopb_msgopt).msgid = 300; // see README.msgid
+
+    optional double x = 10;
+    optional double y = 20;
+    optional double z = 30;
+};
+
+message EmcPose {
+
+    option (nanopb_msgopt).msgid = 301;
+
+    required PmCartesian  tran = 10;
+
+    optional double a = 20;
+    optional double b = 30;
+    optional double c = 40;
+    optional double u = 50;
+    optional double v = 60;
+    optional double w = 70;
+};
+
+// this encoding method requires all fields to be set
+// or serialisation fails; NULL values not supported:
+
+// message PmCartesian {
+//     required double x = 10;
+//     required double y = 20;
+//     required double z = 30;
+// };
+
+// message EmcPose {
+//     required PmCartesian  tran = 10;
+
+//     required double a = 20;
+//     required double b = 30;
+//     required double c = 40;
+//     required double u = 50;
+//     required double v = 60;
+//     required double w = 70;
+// };

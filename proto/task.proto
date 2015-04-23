@@ -1,0 +1,102 @@
+// interpreter protocol messages
+
+
+// for the following commands the message type in Container is sufficient
+// so no submessage needed:
+
+// MT_EMC_TASK_INIT_TYPE		= 10501;
+// MT_EMC_TASK_ABORT_TYPE		= 10503;
+// MT_EMC_TASK_PLAN_CLOSE_TYPE		= 10514;
+// MT_EMC_TASK_PLAN_INIT_TYPE		= 10515;
+// MT_EMC_TASK_HALT_TYPE		= 10502;
+// MT_EMC_TASK_PLAN_SYNCH_TYPE		= 10516;
+// MT_EMC_TASK_PLAN_RESET_TYPE	= 10520;
+
+// the following commands contain submessages:
+// MT_EMC_TASK_PLAN_EXECUTE_TYPE		= 10509; // TaskPlanExecute
+// MT_EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE	= 10518; // TaskPlanBlockDelete
+// MT_EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE	= 10517; // TaskPlanOptionalStop
+// MT_EMC_TASK_PLAN_OPEN_TYPE		        = 10506; // TaskPlanOpen
+
+
+// unlcear usage:
+
+// MT_EMC_TASK_SET_MODE_TYPE		= 10504;
+// MT_EMC_TASK_SET_STATE_TYPE		= 10505;
+// MT_EMC_TASK_PLAN_RUN_TYPE		= 10507;
+// MT_EMC_TASK_PLAN_READ_TYPE		= 10508;
+// MT_EMC_TASK_PLAN_PAUSE_TYPE		= 10510;
+// MT_EMC_TASK_PLAN_STEP_TYPE		= 10511;
+// MT_EMC_TASK_PLAN_RESUME_TYPE		= 10512;
+// MT_EMC_TASK_PLAN_END_TYPE		= 10513;
+// MT_EMC_TASK_PLAN_OPTIONAL_STOP_TYPE		= 10519;
+// MT_EMC_TASK_STAT_TYPE		= 10599;
+
+// interpreter reply to a command:
+// MT_EMC_TASK_PLAN_REPLY	= 10530;
+
+import "types.proto";
+import "nanopb.proto";
+
+// see README.msgid
+// msgid base: 1200
+
+package pb;
+
+
+message TaskPlanExecute {
+
+    option (nanopb_msgopt).msgid = 1200; // see README.msgid
+
+
+    optional string  command = 10; // "MDI"
+    optional sfixed32  line   = 30;
+};
+
+message TaskPlanBlockDelete {
+
+    option (nanopb_msgopt).msgid = 1201;
+
+    required bool state = 10;
+};
+
+message TaskPlanOptionalStop {
+
+    option (nanopb_msgopt).msgid = 1202;
+
+    required bool state = 10;
+};
+
+message TaskPlanOpen {
+
+    option (nanopb_msgopt).msgid = 1203;
+
+    required string  filename = 10;
+};
+
+message TaskPlanReply {
+
+    option (nanopb_msgopt).msgid = 1204;
+
+    required ContainerType cmd = 10;
+    optional string   errormsg = 20;
+};
+
+
+// Ticket msgs
+message TaskReply {
+
+    option (nanopb_msgopt).msgid = 1205;
+
+    required fixed32  ticket   = 10;
+};
+
+// signal completion of a particular ticket
+message TicketUpdate {
+
+    option (nanopb_msgopt).msgid = 1206;
+
+    required fixed32  cticket  = 10;
+    required RCS_STATUS  status   = 20;
+    optional string text     = 30;
+};

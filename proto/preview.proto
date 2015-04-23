@@ -1,0 +1,115 @@
+package pb;
+
+// see README.msgid
+// msgid base: 800
+import "nanopb.proto";
+
+
+// experimental axis/joint representation
+enum KinematicsType {
+    KT_JOINT        = 1;
+    KT_TRIVKINS     = 2;
+    KT_DELTA        = 3;
+    // and so forth
+}
+
+message Position {
+
+    option (nanopb_msgopt).msgid = 800; // see README.msgid
+
+
+    optional double x = 3;
+    optional double y = 4;
+    optional double z = 5;
+    optional double a = 6;
+    optional double b = 7;
+    optional double c = 8;
+    optional double u = 9;
+    optional double v = 10;
+    optional double w = 11;
+}
+
+
+enum PreviewOpType {
+    PV_STRAIGHT_PROBE     = 1;
+    PV_RIGID_TAP          = 2;
+    PV_STRAIGHT_FEED      = 3;
+    PV_ARC_FEED           = 4;
+    PV_STRAIGHT_TRAVERSE  = 5;
+    PV_SET_G5X_OFFSET     = 6;
+    PV_SET_G92_OFFSET     = 7;
+    PV_SET_XY_ROTATION    = 8;
+    PV_SELECT_PLANE       = 9;
+    PV_SET_TRAVERSE_RATE  = 10;
+    PV_SET_FEED_RATE      = 11;
+    PV_CHANGE_TOOL        = 12;
+    PV_CHANGE_TOOL_NUMBER = 13;
+    PV_DWELL              = 14;
+    PV_MESSAGE            = 15;
+    PV_COMMENT            = 16;
+    PV_USE_TOOL_OFFSET    = 17;
+    PV_SET_PARAMS         = 18; // kins, axismask, angle_units, length_units
+    PV_SET_FEED_MODE      = 19;
+    PV_SOURCE_CONTEXT     = 20;
+}
+
+enum SourceType {
+    ST_NGC_FILE           = 1; // an NGC filename
+    ST_NGC_STRING         = 2; // an MDI string
+    ST_PYTHON_METHOD      = 3;
+};
+
+message Preview {
+
+    option (nanopb_msgopt).msgid = 801;
+
+     required PreviewOpType type        = 1;
+    optional int32         line_number = 2;
+
+    // move dest pos/offset for PV_STRAIGHT_*, PV_RIGID_TAP, PV_SET_* _OFFSET
+    // _position for PV_ARC_FEED, PV_USE_TOOL_OFFSET
+    optional Position      pos         = 3;
+
+    // for PV_ARC_FEED only:
+    optional double        first_end = 4;
+    optional double       second_end = 5;
+    optional double       first_axis = 6;
+    optional double      second_axis = 7;
+    optional int32          rotation = 8;
+    optional double   axis_end_point = 9;
+
+    // for PV_SET_XY_ROTATION:
+    optional double     xy_rotation = 10;
+
+    // for PV_SELECT_PLANE:
+    optional int32            plane = 11;
+
+    // for PV_SET_TRAVERSE_RATE, PV_SET_FEED_RATE
+    optional double            rate = 12;
+
+    // PV_SET_FEED_MODE
+    optional int32        feed_mode = 13;
+
+    // PV_DWELL
+    optional double            time = 14;
+
+    // PV_COMMENT, PV_MESSAGE
+    optional string            text = 15;
+
+    // rarely used:
+    optional double         angular_units     = 101;
+    optional double         length_units      = 102;
+    optional int32          probetype         = 103;
+    optional KinematicsType kins              = 104 [ default = KT_JOINT ];
+    optional int32          axismask          = 105;
+    optional int32          g5_index          = 106;
+
+    //  PV_CHANGE_TOOL, PV_CHANGE_TOOL_NUMBER
+    optional int32          pocket            = 107;
+
+    // PV_SOURCE_CONTEXT
+    optional SourceType    stype = 110;
+    optional string        filename = 111;   // an NGC
+    optional string        cmdstring = 112;  // an MDI command
+    optional int32         call_level = 113; // call stack depth
+}

@@ -1,0 +1,17 @@
+package pb;
+// see README.msgid
+// msgid base: 400
+
+import "nanopb.proto";
+import "types.proto";
+
+message LogMessage {
+
+    option (nanopb_msgopt).msgid = 400; // see README.msgid
+
+    required MsgOrigin origin  = 10;
+    required int32        pid  = 20;
+    required MsgLevel   level  = 30;
+    required string       tag  = 40; //  [(nanopb).max_size = 20];
+    required string      text  = 50; //  [(nanopb).max_size = 100];
+}

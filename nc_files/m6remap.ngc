@@ -1,6 +1,0 @@
-O<m6remap> sub
-(DEBUG, executing in M69 in m6remap O-word sub)
-M69
-(DEBUG, done)
-O<m6remap> endsub
-m2
