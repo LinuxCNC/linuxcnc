@@ -1,7 +1,7 @@
 Moveoff demo -- fixed retract on single axis (Z)
 
 Demo:
-  1) Start application (axis gui)
+  1) Start linuxcnc using the 6_zretract config
   2) A pyvpcp panel includes a checkbutton
      to enable fixed offsets on program
      pause.
@@ -31,7 +31,7 @@ The ini file sets:
   2) state of the external-enable signal at starup
   3) autoresume delay interval
   4) location and size of the moveoff_gui display
-   
+
 ----------------------------------------------------
 Moveoff_gui options:
 
