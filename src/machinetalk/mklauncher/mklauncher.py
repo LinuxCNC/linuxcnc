@@ -9,6 +9,7 @@ import signal
 import math
 import subprocess
 import fcntl
+import shlex
 
 from machinekit import service
 from machinekit import config
@@ -305,7 +306,7 @@ class Mklauncher:
         shell = launcher.shell
         command = launcher.command
         if shell is False:
-            command = command.split(' ')
+            command = shlex.split(command)
         try:
             process = subprocess.Popen(command,
                                        shell=shell,
