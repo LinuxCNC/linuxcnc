@@ -89,11 +89,10 @@ setp [PRUCONF](DRIVER).stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.00.step_type       0
-# P8.43 PRU1.out2
+# P8.12 GPIO44
 setp [PRUCONF](DRIVER).stepgen.00.steppin         0x4C
-# P8.44 PRU1.out4
+# P8.11 GPIO45
 setp [PRUCONF](DRIVER).stepgen.00.dirpin          0x4D
-
 
 # ################
 # Y [1] Axis
@@ -128,9 +127,9 @@ setp [PRUCONF](DRIVER).stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.01.step_type       0
-# P8.42 PRU1.out5
+# P8.16 GPIO46
 setp [PRUCONF](DRIVER).stepgen.01.steppin         0x4E
-# P8.39 PRU1.out6
+# P8.15 GPIO47
 setp [PRUCONF](DRIVER).stepgen.01.dirpin          0x4F
 
 
@@ -167,9 +166,9 @@ setp [PRUCONF](DRIVER).stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.02.step_type       0
-# P8.27 PRU1.out8
+# P9.15 GPIO48
 setp [PRUCONF](DRIVER).stepgen.02.steppin         0x50
-# P8.29 PRU1.out9
+# P9.23 GPIO49
 setp [PRUCONF](DRIVER).stepgen.02.dirpin          0x51
 
 
@@ -206,9 +205,9 @@ setp [PRUCONF](DRIVER).stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.03.step_type       0
-# P8.30 GPIO2.25
+# P9.22 GPIO2
 setp [PRUCONF](DRIVER).stepgen.03.steppin         0x22
-# P8.21 GPIO1.30
+# P9.21 GPIO3
 setp [PRUCONF](DRIVER).stepgen.03.dirpin          0x23
 
 
