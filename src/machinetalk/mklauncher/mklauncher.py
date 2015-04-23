@@ -190,6 +190,7 @@ class Mklauncher:
         self.commandService.unpublish()
 
     def stop(self):
+        self.terminate_processes()
         self.shutdown.set()
 
     def add_pparams(self):
@@ -334,6 +335,10 @@ class Mklauncher:
         pid = self.processes[index].pid
         os.killpg(pid, signal.SIGKILL)
         self.terminating.add(index)
+
+    def terminate_processes(self):
+        for index in self.processes.keys():
+            self.terminate_process(index)
 
     def write_stdin_process(self, index, data):
         self.processes[index].stdin.write(data)
