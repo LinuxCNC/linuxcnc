@@ -86,6 +86,8 @@ build-stamp: debian/control
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
 	cd src && ./configure --prefix=/usr \
+	    --build=$(DEB_BUILD_MULTIARCH) \
+	    --host=$(DEB_HOST_MULTIARCH) \
 	    $(THREADS_POSIX) \
 	    $(THREADS_RT_PREEMPT) \
 	    $(THREADS_XENOMAI) \
@@ -106,6 +108,8 @@ clean: debian/control debian/substvars
 
 	cd src && ./autogen.sh
 	cd src && ./configure --prefix=/usr \
+	    --build=$(DEB_BUILD_MULTIARCH) \
+	    --host=$(DEB_HOST_MULTIARCH) \
 	    $(THREADS_POSIX) \
 	    $(THREADS_RT_PREEMPT) \
 	    $(THREADS_XENOMAI) \
