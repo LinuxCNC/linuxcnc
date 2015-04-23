@@ -220,14 +220,15 @@ class Mklauncher:
                         txLauncher.returncode = 0
                         modified = True
                     # read stdout
+                    stdoutIndex = len(launcher.stdout)
                     while True:
                         try:
                             line = process.stdout.readline()
-                            index = len(launcher.stdout)
                             stdoutLine = StdoutLine()
-                            stdoutLine.index = index
+                            stdoutLine.index = stdoutIndex
                             stdoutLine.line = line
                             txLauncher.stdout.add().MergeFrom(stdoutLine)
+                            stdoutIndex += 1
                             modified = True
                         except IOError:  # process of no new line
                             break
