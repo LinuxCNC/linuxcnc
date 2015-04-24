@@ -7,6 +7,8 @@
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
 // Major Changes:                                                       //
+// 2015-Apr    Charles Steinkuehler                                     //
+//             Merge DECAMUX support                                    //
 // 2013-May    Charles Steinkuehler                                     //
 //             Split into several files                                 //
 //             Altered main loop to support a linked list of tasks      //
@@ -50,8 +52,6 @@
 MODE_WAIT:
 .enter WAIT_SCOPE
 
-#define DECAMUX T
-
 .struct wait_state
     .u32    GPIO0_Clr_Addr
     .u32    GPIO1_Clr_Addr
@@ -86,7 +86,7 @@ MODE_WAIT:
 
     XIN     10, State, SIZE( State)          // Pull the GPIO addresses from first scratchpad
 
-#ifdef DECA_MUX
+#ifdef DECAMUX
 
 .assign pepper1_shadow, State.PEPPER1_GPIO0, *, State_PEPPER1
 .assign pepper2_shadow, State.PEPPER2_GPIO0, *, State_PEPPER2

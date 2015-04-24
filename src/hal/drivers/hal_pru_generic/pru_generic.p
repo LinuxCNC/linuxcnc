@@ -7,6 +7,8 @@
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
 // Major Changes:                                                       //
+// 2015-Apr    Charles Steinkuehler                                     //
+//             Merge DECAMUX support                                    //
 // 2013-May    Charles Steinkuehler                                     //
 //             Split into several files                                 //
 //             Altered main loop to support a linked list of tasks      //
@@ -198,8 +200,8 @@ START:
     MOV     GState.State_Reg1, GPIO1 + GPIO_CLEARDATAOUT
     MOV     GState.State_Reg2, GPIO2 + GPIO_CLEARDATAOUT
     MOV     GState.State_Reg3, GPIO3 + GPIO_CLEARDATAOUT
-#define DECA_MUX T
-#ifdef DECA_MUX
+
+#ifdef DECAMUX
     ZERO    &GState.State_Reg4, 12
     // setup masks for PEPPER signals in GPIO0 & GPIO1
     MOV     GState.State_Reg6.w0, 0x003c            // bits 2,3,4 & 5 for GPIO0 mask (w0)
