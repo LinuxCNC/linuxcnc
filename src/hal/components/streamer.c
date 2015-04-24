@@ -95,7 +95,7 @@ typedef struct {
     hal_s32_t *underruns;	/* pin: number of underruns */
     hal_bit_t *clock;		/* pin: clock input */
     hal_s32_t *clock_mode;	/* pin: clock mode */
-    hal_s32_t *myclockedge;	/* clock edge detector */
+    int myclockedge;	        /* clock edge detector */
 } streamer_t;
 
 /* other globals */
@@ -200,7 +200,8 @@ static void update(void *arg, long period)
     /* point at streamer struct in HAL shmem */
     str = arg;
     /* keep last two clock states to get all possible clock edges */
-    *str->myclockedge=((*str->myclockedge<<1) | (*(str->clock) & 1)) & 3;
+    int myclockedge =
+        str->myclockedge=((str->myclockedge<<1) | (*(str->clock) & 1)) & 3;
     /* are we enabled? - generate doclock if enabled and right mode  */
     doclk=0;
     if ( *(str->enable) ) {
@@ -211,19 +212,19 @@ static void update(void *arg, long period)
                    break;
              /* clock-mode 1 means enabled & falling edge */
              case 1:
-                   if ( *str->myclockedge!=2) {
+                   if ( myclockedge!=2) {
                          doclk=0;
                    }
                    break;
              /* clock-mode 2 means enabled & rising edge */
              case 2:
-                   if ( *str->myclockedge!=1) {
+                   if ( myclockedge!=1) {
                          doclk=0;
                    }
                    break;
              /* clock-mode 3 means enabled & both edges */
              case 3:
-                   if ((*str->myclockedge==0) | ( *str->myclockedge==3)) {
+                   if ((myclockedge==0) | ( myclockedge==3)) {
                          doclk=0;
                    }
                    break;
