@@ -90,6 +90,7 @@ include "hal_epsilon.pyx"
 include "hal_net.pyx"
 include "hal_ring.pyx"
 include "hal_group.pyx"
+include "hal_loadusr.pyx"
 
 # list of component ID's to hal_exit() on unloading the module
 cdef list _comps = []
