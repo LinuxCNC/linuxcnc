@@ -46,6 +46,35 @@ cdef class Signal:
                 if r:
                     raise RuntimeError("Failed to link pin %s to %s: %s" % (p, self._sig.name, hal_lasterror()))
 
+    def __iadd__(self, pins):
+        self._alive_check()
+        if not hasattr(pins, '__iter__'):
+            pins = [pins]
+        for pin in pins:
+            if isinstance(pin, str):
+                pin = Pin(pin)
+            elif not isinstance(pin, Pin):
+                raise TypeError('linking of %s to signal %s not possible' %
+                                (str(pin), self.name))
+
+            net(self, pin)  # net is more verbose than link
+        return self
+
+    def __isub__(self, pins):
+        if not hasattr(pins, '__iter__'):
+            pins = [pins]
+        for pin in pins:
+            if isinstance(pin, str):
+                pin = Pin(pin)
+            if not isinstance(pin, Pin):
+                raise TypeError('unlinking of %s from signal %s not possible' %
+                                (str(pin), self.name))
+            if pin.signame != self.name:
+                raise RuntimeError('cannot unlink: pin %s is not linked to signal %s' %
+                                   (pin.name, self.name))
+            pin.unlink()
+        return self
+
     def delete(self):
         # this will cause a handle mismatch if later operating on a deleted signal wrapper
         r = hal_signal_delete(self._sig.name)
