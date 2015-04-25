@@ -104,7 +104,14 @@ MODULE_LICENSE("GPL");
 /** This structure contains the runtime data for the component.
 */
 
-#define NR_AXES (5)
+#define NR_AXES (5)             /* axes per PEPPER board */
+
+static int count = 1;           /* number of PEPPER boards */
+RTAPI_MP_INT( count, "number of PEPPER boards attached");
+
+static int debug = 0;
+RTAPI_MP_INT( debug, "debug level");
+
 
 typedef enum {
     eSlowDecay = 0,
@@ -118,10 +125,9 @@ typedef struct {
     hal_s32_t active_decay;     /* parameter: input */
     hal_s32_t idle_current;     /* parameter: input */
     hal_s32_t idle_decay;       /* parameter: input */
-} axis_config_struct;
+} axis_config_t;
 
 typedef struct {
-
     hal_bit_t* io_ena_in;               /* pin: input */
     hal_bit_t* io_ena_out;              /* pin: output */
     hal_bit_t* stepper_ena_in[ NR_AXES];/* pin: input */
@@ -130,8 +136,9 @@ typedef struct {
 
     hal_bit_t no_store;                 /* parameter: input */
     hal_s32_t cycle_time;               /* parameter: input */
-    axis_config_struct axis_config[ NR_AXES];
+    hal_s32_t num_axes;                 /* parameter: output */
 
+    axis_config_t (*axis_config)[];
 } hal_pepper_t;
 
 #define NR_ITEMS( x) (sizeof((x)) / sizeof(*(x)))
@@ -148,7 +155,7 @@ static int comp_id;             /* component ID */
 
 static int  pepper_export( hal_pepper_t* addr, const char* prefix);
 static void pepper_update( void *arg, long period);
-static int  pepper_spi_prepare( hal_pepper_t* data);
+static int  pepper_spi_prepare( hal_pepper_t* data, int board_nr);
 static int  pepper_spi_next_bit( int* spi_data);
 
 /***********************************************************************
@@ -160,6 +167,17 @@ int rtapi_app_main( void)
 {
     const char prefix[] = "pepper";
 
+    if (debug) {
+        rtapi_print_msg( RTAPI_MSG_ERR, "PEPPER: INFO: number of boards: %d\n", count);
+    }
+
+    /* validate number of boards */
+    if (count < 1 || count > 2) {
+        rtapi_print_msg( RTAPI_MSG_ERR,
+            "PEPPER: ERROR: invalid board count: %d\n", count);
+        return -1;
+    }
+
     /* connect to the HAL */
     comp_id = hal_init( "pepper");
     if (comp_id < 0) {
@@ -170,7 +188,17 @@ int rtapi_app_main( void)
     /* allocate shared memory for pepper data */
     pepper_data = hal_malloc( sizeof( hal_pepper_t));
     if (pepper_data == 0) {
-        rtapi_print_msg( RTAPI_MSG_ERR, "PEPPER: ERROR: hal_malloc() failed\n");
+        rtapi_print_msg( RTAPI_MSG_ERR, "PEPPER: ERROR: hal_malloc(1) failed\n");
+        hal_exit( comp_id);
+        return -1;
+    }
+
+    pepper_data->num_axes = count * NR_AXES;
+
+    /* allocate shared memory for pepper data */
+    pepper_data->axis_config = hal_malloc( pepper_data->num_axes * sizeof( axis_config_t));
+    if (pepper_data->axis_config == 0) {
+        rtapi_print_msg( RTAPI_MSG_ERR, "PEPPER: ERROR: hal_malloc(2) failed\n");
         hal_exit( comp_id);
         return -1;
     }
@@ -207,6 +235,7 @@ static void pepper_update( void *arg, long period)
     static int enable_sck = 0;
     static int spindle_mosi = 0;
     static long delay = 0;
+    static int board_nr = 0;
 
     if (delay > 0 && period > 0 && delay > period) {
         delay -= period;
@@ -229,6 +258,7 @@ static void pepper_update( void *arg, long period)
      *    If needed, start a SPI transfer cycle.
      */
                 state = 5;
+                board_nr = 0;
                 break;
             } else {
                 state = 1;
@@ -266,10 +296,10 @@ static void pepper_update( void *arg, long period)
      *    Keep io_ena asserted for a short while
      *    to be able to create a falling edge.
      */
-        rtapi_print_msg( RTAPI_MSG_INFO, "PEPPER: configuring Pepper stepper drivers\n");
-        pepper_spi_prepare( pepper);
+        rtapi_print_msg( RTAPI_MSG_INFO, "PEPPER: configuring Pepper stepper drivers for board %d\n", board_nr);
+        pepper_spi_prepare( pepper, board_nr);
         io_ena = 1;
-        delay = 50000000UL;	// long time active, like BeBoPr sw
+        delay = 50000000UL;     // long time active, like BeBoPr sw
         ++state;
         break;
 
@@ -343,12 +373,17 @@ static void pepper_update( void *arg, long period)
         io_ena = 1;
         enable_sck = 0;
         spindle_mosi = 0;
+        delay = 250000UL;
+
+        if (++board_nr * NR_AXES < pepper->num_axes) {
+            state = 5;
+        } else {
 /* disabling allows one to experiment with settings */
 #if 0
-        init_done = 1;
+            init_done = 1;
 #endif
-        delay = 250000UL;
-        state = 1;
+            state = 1;
+        }
         break;
 
     default:
@@ -417,45 +452,53 @@ static int pepper_export( hal_pepper_t* addr, const char* prefix)
     }
     addr->cycle_time = 0;       // unknown value
 
-    for (i = 0 ; i < NR_ITEMS( addr->axis_config) ; ++i) {
+    retval = hal_param_s32_newf( HAL_RO, &(addr->num_axes), comp_id, "%s.num_axes", prefix);
+    if (retval != 0) {
+        return retval;
+    }
 
+    for (i = 0 ; i < addr->num_axes ; ++i) {
+
+        axis_config_t* aci = &(*(addr->axis_config))[ i];
         char buf[ HAL_NAME_LEN + 1];
+
         rtapi_snprintf( buf, sizeof( buf), "%s.axis.%d", prefix, i);
-        retval = hal_param_s32_newf( HAL_RW, &(addr->axis_config[ i].micro_step),
+
+        retval = hal_param_s32_newf( HAL_RW, &(aci->micro_step),
                                 comp_id, "%s.micro-step", buf);
         if (retval != 0) {
             return retval;
         }
 
-        retval = hal_param_s32_newf( HAL_RW, &(addr->axis_config[ i].active_current),
+        retval = hal_param_s32_newf( HAL_RW, &(aci->active_current),
                                 comp_id, "%s.active-current", buf);
         if (retval != 0) {
             return retval;
         }
 
-        retval = hal_param_s32_newf( HAL_RW, &(addr->axis_config[ i].active_decay),
+        retval = hal_param_s32_newf( HAL_RW, &(aci->active_decay),
                                 comp_id, "%s.active-decay", buf);
         if (retval != 0) {
             return retval;
         }
 
-        retval = hal_param_s32_newf( HAL_RW, &(addr->axis_config[ i].idle_current),
+        retval = hal_param_s32_newf( HAL_RW, &(aci->idle_current),
                                 comp_id, "%s.idle-current", buf);
         if (retval != 0) {
             return retval;
         }
 
-        retval = hal_param_s32_newf( HAL_RW, &(addr->axis_config[ i].idle_decay),
+        retval = hal_param_s32_newf( HAL_RW, &(aci->idle_decay),
                                 comp_id, "%s.idle-decay", buf);
         if (retval != 0) {
             return retval;
         }
 
-        addr->axis_config[ i].micro_step     = 8;
-        addr->axis_config[ i].active_current = 8;
-        addr->axis_config[ i].active_decay   = 8;
-        addr->axis_config[ i].idle_current   = 8;
-        addr->axis_config[ i].idle_decay     = 8;
+        aci->micro_step     = 8;        // 1:8 microstep
+        aci->active_current = 6;        // 0.6 A peak current
+        aci->active_decay   = 1;        // fast decay
+        aci->idle_current   = 3;        // 0.3 A hold current
+        aci->idle_decay     = 1;        // fast decay
     }
 
     /* export processing function */
@@ -520,6 +563,7 @@ static union pepper_config_union {
     struct __attribute__ ((__packed__)) {
         struct spi_header_struct header;
         uint8_t no_store   : 1;
+        uint8_t address    : 7;
         struct ms_struct ms;
         struct ena_struct ena[ 4];
         uint16_t check;
@@ -547,7 +591,7 @@ static int byte_ix = 0;
 static int bit_cnt = 0;
 static int spi_busy = 0;
 
-static int pepper_spi_prepare( hal_pepper_t* data)
+static int pepper_spi_prepare( hal_pepper_t* data, int board_nr)
 {
     // set header and version info, clear checksum field
     cfg.header.sync     = 0xba51;
@@ -556,18 +600,20 @@ static int pepper_spi_prepare( hal_pepper_t* data)
     cfg.header.command  = 0xc0;
     cfg.check    = 0;
     cfg.no_store = data->no_store;
+    cfg.address  = board_nr + 1;
     // set stepper driver mode select fields
-    cfg.ms.x = get_mode_bits( data->axis_config[ 0].micro_step);
-    cfg.ms.y = get_mode_bits( data->axis_config[ 1].micro_step);
-    cfg.ms.z = get_mode_bits( data->axis_config[ 2].micro_step);
-    cfg.ms.a = get_mode_bits( data->axis_config[ 3].micro_step);
-    cfg.ms.b = get_mode_bits( data->axis_config[ 4].micro_step);
+    cfg.ms.x = get_mode_bits( (*data->axis_config)[ board_nr * NR_AXES + 0].micro_step);
+    cfg.ms.y = get_mode_bits( (*data->axis_config)[ board_nr * NR_AXES + 1].micro_step);
+    cfg.ms.z = get_mode_bits( (*data->axis_config)[ board_nr * NR_AXES + 2].micro_step);
+    cfg.ms.a = get_mode_bits( (*data->axis_config)[ board_nr * NR_AXES + 3].micro_step);
+    cfg.ms.b = get_mode_bits( (*data->axis_config)[ board_nr * NR_AXES + 4].micro_step);
     // set all enable state registers
     int i, j;
     for (j = 0 ; j < 4 ; ++j) { // all four enable states
         struct ena_struct* es = &cfg.ena[ j];
 
         for (i = 0 ; i < 5 ; ++i) {     // all five axes
+            axis_config_t* daci = &(*data->axis_config)[ board_nr * NR_AXES + i];
             struct ena_reg_struct* ers = NULL;
 
             switch (i) {
@@ -578,19 +624,19 @@ static int pepper_spi_prepare( hal_pepper_t* data)
             case 4: ers = &es->b; break;
             }
             if (j == 0) {       // enable mode 0
-                unsigned int hold_current = data->axis_config[ i].idle_current;
+                unsigned int hold_current = daci->idle_current;
                 if (hold_current > 0) {
                     ers->pwm = hold_current;
                     ers->ena = 1;
                 } else {
-                    ers->pwm = data->axis_config[ i].active_current;
+                    ers->pwm = daci->active_current;
                     ers->ena = 0;
                 }
-                ers->decay = data->axis_config[ i].idle_decay;
+                ers->decay = daci->idle_decay;
             } else {            // enable modes 1,2&3
-                ers->pwm = data->axis_config[ i].active_current;
+                ers->pwm = daci->active_current;
                 ers->ena = 1;
-                ers->decay = data->axis_config[ i].active_decay;
+                ers->decay = daci->active_decay;
             }
         }
     }

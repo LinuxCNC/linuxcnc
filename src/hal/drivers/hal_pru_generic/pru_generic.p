@@ -7,6 +7,8 @@
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
 // Major Changes:                                                       //
+// 2015-Apr    Charles Steinkuehler                                     //
+//             Merge DECAMUX support                                    //
 // 2013-May    Charles Steinkuehler                                     //
 //             Split into several files                                 //
 //             Altered main loop to support a linked list of tasks      //
@@ -198,7 +200,16 @@ START:
     MOV     GState.State_Reg1, GPIO1 + GPIO_CLEARDATAOUT
     MOV     GState.State_Reg2, GPIO2 + GPIO_CLEARDATAOUT
     MOV     GState.State_Reg3, GPIO3 + GPIO_CLEARDATAOUT
+
+#ifdef DECAMUX
+    ZERO    &GState.State_Reg4, 12
+    // setup masks for PEPPER signals in GPIO0 & GPIO1
+    MOV     GState.State_Reg6.w0, 0x003c            // bits 2,3,4 & 5 for GPIO0 mask (w0)
+    MOV     GState.State_Reg6.w2, 0x03f0            // bits 12,13,14,15,16 & 17 for GPIO1 mask (w1)
+    XOUT    10, GState.State_Reg0, 28
+#else
     XOUT    10, GState.State_Reg0, 16
+#endif
     ZERO    &GState.State_Reg0, 16
 
     LDI     GState.TaskTable, #TASKTABLE                // Base address of jump tables
