@@ -125,7 +125,6 @@ long page_size;
 static const char *progname;
 static const char *z_uri;
 static int z_port;
-static pb::Container command, reply;
 static uuid_t process_uuid;
 static char process_uuid_str[40];
 static register_context_t *rtapi_publisher;
@@ -526,7 +525,7 @@ static int do_load_cmd(int instance,
 	    string cmdargs = pbconcat(args);
 	    retval = run_module_helper("insert %s %s", name.c_str(), cmdargs.c_str());
 	    if (retval) {
-		note_printf(reply, "couldnt insmod %s - see dmesg\n", name.c_str());
+		note_printf(pbreply, "couldnt insmod %s - see dmesg\n", name.c_str());
 	    } else {
 		modules[name] = (void *) -1;  // so 'if (modules[name])' works
 		loading_order.push_back(name);
@@ -537,12 +536,14 @@ static int do_load_cmd(int instance,
 		    PATH_MAX);
 	    module = modules[name] = dlopen(module_name, RTLD_GLOBAL |RTLD_NOW);
 	    if (!module) {
-		rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n",
-				name.c_str(), dlerror());
+		string errmsg(dlerror());
+
+		// rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n",
+		// 		name.c_str(), errmsg.c_str());
 		const char *rpath = rtapi_get_rpath();
-		note_printf(reply, "%s: dlopen: %s",
-			    __FUNCTION__,dlerror());
-		note_printf(reply, "rpath=%s",	rpath == NULL ? "" : rpath);
+		note_printf(pbreply, "%s: dlopen: %s",
+			    __FUNCTION__, errmsg.c_str());
+		note_printf(pbreply, "rpath=%s",	rpath == NULL ? "" : rpath);
 		if (rpath)
 		    free((void *)rpath);
 		return -1;
@@ -563,7 +564,7 @@ static int do_load_cmd(int instance,
 	    /// XXX handle arguments
 	    int (*start)(void) = DLSYM<int(*)(void)>(module, "rtapi_app_main");
 	    if(!start) {
-		note_printf(reply, "%s: dlsym: %s\n",
+		note_printf(pbreply, "%s: dlsym: %s\n",
 			    name.c_str(), dlerror());
 		return -1;
 	    }
@@ -575,7 +576,7 @@ static int do_load_cmd(int instance,
 	    // need to call rtapi_app_main with as root
 	    // RT thread creation and hardening requires this
 	    if ((result = start()) < 0) {
-		note_printf(reply, "rtapi_app_main(%s): %d %s\n",
+		note_printf(pbreply, "rtapi_app_main(%s): %d %s\n",
 			    name.c_str(), result, strerror(-result));
 		modules.erase(modules.find(name));
 		return result;
@@ -587,7 +588,7 @@ static int do_load_cmd(int instance,
 	    return 0;
 	}
     } else {
-	note_printf(reply, "%s: already loaded\n", name.c_str());
+	note_printf(pbreply, "%s: already loaded\n", name.c_str());
 	return -1;
     }
 }
