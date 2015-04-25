@@ -1,8 +1,8 @@
 # #######################################
 #
-# HAL file for BeagleBone + BeBoPr cape with 4 steppers
+# HAL file for BeBoPr++ with TAKE-5 (5 steppers modules)
 #
-# Derived from example hm2-stepper config
+# Derived from BeBoPr++ config
 #
 # ########################################
 
@@ -24,7 +24,7 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 
 
 # load low-level drivers
-loadrt hal_bb_gpio output_pins=107,126,217,218,224,226 input_pins=108,109,110,114,117,118
+loadrt hal_bb_gpio output_pins=107,126,224,226 input_pins=108,109,110,114,117,118
 loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG)
 loadrt pid num_chan=2
 loadrt limit1 count=2
@@ -93,6 +93,7 @@ setp [PRUCONF](DRIVER).stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 setp [PRUCONF](DRIVER).stepgen.00.steppin         0x4C
 # P8.11 GPIO45
 setp [PRUCONF](DRIVER).stepgen.00.dirpin          0x4D
+
 
 # ################
 # Y [1] Axis
@@ -210,6 +211,44 @@ setp [PRUCONF](DRIVER).stepgen.03.steppin         0x22
 # P9.21 GPIO3
 setp [PRUCONF](DRIVER).stepgen.03.dirpin          0x23
 
+# ################
+# B [4] Axis (2nd Extruder)
+# ################
+
+# axis enable chain
+newsig emcmot.04.enable bit
+sets emcmot.04.enable FALSE
+
+net emcmot.04.enable <= axis.4.amp-enable-out
+net emcmot.04.enable => [PRUCONF](DRIVER).stepgen.04.enable
+
+
+# position command and feedback
+net emcmot.04.pos-cmd <= axis.4.motor-pos-cmd
+net emcmot.04.pos-cmd => [PRUCONF](DRIVER).stepgen.04.position-cmd
+
+net motor.04.pos-fb <= [PRUCONF](DRIVER).stepgen.04.position-fb
+net motor.04.pos-fb => axis.4.motor-pos-fb
+
+
+# timing parameters
+setp [PRUCONF](DRIVER).stepgen.04.dirsetup        [AXIS_4]DIRSETUP
+setp [PRUCONF](DRIVER).stepgen.04.dirhold         [AXIS_4]DIRHOLD
+
+setp [PRUCONF](DRIVER).stepgen.04.steplen         [AXIS_4]STEPLEN
+setp [PRUCONF](DRIVER).stepgen.04.stepspace       [AXIS_4]STEPSPACE
+
+setp [PRUCONF](DRIVER).stepgen.04.position-scale  [AXIS_4]SCALE
+
+setp [PRUCONF](DRIVER).stepgen.04.maxvel          [AXIS_4]STEPGEN_MAX_VEL
+setp [PRUCONF](DRIVER).stepgen.04.maxaccel        [AXIS_4]STEPGEN_MAX_ACC
+
+#setp [PRUCONF](DRIVER).stepgen.04.step_type       0
+# P9.18 GPIO0_4
+setp [PRUCONF](DRIVER).stepgen.04.steppin         0x24
+# P9.17 GPIO0_5
+setp [PRUCONF](DRIVER).stepgen.04.dirpin          0x25
+
 
 # ##################################################
 # Standard I/O - EStop, Enables, Limit Switches, Etc
@@ -222,15 +261,18 @@ net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
 net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 
-# Axis enable signals
-net emcmot.00.enable => bb_gpio.p9.out-18
-setp bb_gpio.p9.out-18.invert 1
-net emcmot.01.enable => bb_gpio.p9.out-17
-setp bb_gpio.p9.out-17.invert 1
-net emcmot.02.enable => bb_gpio.p9.out-26
+# Axes enable signal (should or all enable outputs? for now use only one)
+net emcmot.00.enable => bb_gpio.p9.out-26
 setp bb_gpio.p9.out-26.invert 1
-net emcmot.03.enable => bb_gpio.p9.out-24
-setp bb_gpio.p9.out-24.invert 1
+
+#net emcmot.01.enable => bb_gpio.p9.out-17
+#setp bb_gpio.p9.out-17.invert 1
+#net emcmot.02.enable => bb_gpio.p9.out-26
+#setp bb_gpio.p9.out-26.invert 1
+#net emcmot.03.enable => bb_gpio.p9.out-24
+#setp bb_gpio.p9.out-24.invert 1
+#net emcmot.04.enable => bb_gpio.p9.out-24 FIXME
+#setp bb_gpio.p9.out-24.invert 1 FIXME
 
 # Machine power (BeBoPr Enable)
 # Enable tied to system Reset_n line (P9.10)
@@ -321,3 +363,4 @@ setp pid.1.Dgain  0.0
 setp pid.1.maxerrorI 1.0
 setp pid.1.bias    0.5
 setp pid.1.enable   1
+
