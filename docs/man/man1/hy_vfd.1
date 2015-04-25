@@ -1,0 +1,232 @@
+.\" Copyright (c) 2015 Sebastian Kuzminsky <seb@highlab.com>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH hy_vfd "1" "April 25, 2015" "Huanyang VFD" "LinuxCNC Documentation"
+
+.SH NAME
+\fBhy_vfd\fR - HAL userspace component for Huanyang VFDs
+
+.SH SYNOPSIS
+.B hy_vfd
+.RI [OPTIONS]
+.br
+
+.SH DESCRIPTION
+This component connects the Huanyang VFD to the LinuxCNC HAL via a serial
+(RS-485) Modbus connection.
+.PP
+The Huanyang VFD must be configured via the face plate user interface
+to accept serial communications:
+.B
+.IP PD001\ =\ 2
+Set register PD001 (source of run commands) to 2 (communication port).
+.B
+.IP PD002\ =\ 2
+Set register PD002 (source of operating frequency) to 2 (communication
+port).
+.B
+.IP PD005
+.br
+Set register PD005 (max frequency) according to motor specs.  This is
+the maximum frequency of the motor's power supply, in Hz.
+.B
+.IP PD011
+.br
+Set register PD011 (min frequency) according to motor specs.  This is
+the minimum frequency of the motor's power supply, in Hz.
+.B
+.IP PD141
+.br
+Set register PD141 (rated motor voltage) according to motor name plate.
+This is the motor's maximum voltage, in Volts.
+.B
+.IP PD142
+.br
+Set register PD142 (rated motor current) according to motor name plate.
+This is the motor's maximum current, in Amps.
+.B
+.IP PD144
+.br
+Set register PD144 (rated motor revolutions) according to motor name
+plate.  This is the motor's max speed in RPM.
+.B
+.IP PD163\ =\ 1
+Set register PD163 (communication address) to 1.  This matches the
+default in the hy_vfd driver, change this if your setup has special needs.
+.B
+.IP PD164\ =\ 2
+Set register PD164 (baud rate) to 2 (19200 bps).  This matches the
+default in the hy_vfd driver, change this if your setup has special needs.
+.B
+.IP PD165\ =\ 3
+Set register PD165 (communication data method) to 3 (8n1 RTU).
+This matches the default in the hy_vfd driver, change this if your
+setup has special needs.  Note that the hy_vfd driver only supports RTU
+communication, not ASCII.
+.PP
+Consult the Huanyang instruction manual for details on using the face
+plate to program the VFDs registers, and alternative values for the
+above registers.
+.SH OPTIONS
+.B
+.IP -d,\ --device\ <path>
+(default /dev/ttyS0) Set the name of the serial device node to use.
+.B
+.IP -g,\ --debug
+Turn on debug messages. Note that if there are serial errors, this may
+become annoying.  Debug mode will cause all modbus messages to be printed
+in hex on the terminal.
+.B
+.IP -n,\ --name\ <string>
+(default hy_vfd) Set the name of the HAL module. The HAL comp name will be
+set to <string>, and all pin and parameter names will begin with <string>.
+.B
+.IP -b,\ --bits\ <n>
+(default 8) Set number of data bits to <n>, where n must be from 5
+to 8 inclusive.  This must match the setting in register PD165 of the
+Huanyang VFD.
+.B
+.IP -p,\ --parity\ [even,odd,none]
+(default odd) Set serial parity to even, odd, or none.  This must match
+the setting in register PD165 of the Huanyang VFD.
+.B
+.IP -r,\ --rate\ <n>
+(default 38400) Set baud rate to <n>. It is an error if the rate is
+not one of the following: 110, 300, 600, 1200, 2400, 4800, 9600, 19200,
+38400, 57600, 115200.  This must match the setting in register PD164 of
+the Huanyang VFD.
+.B
+.IP -s,\ --stopbits\ [1,2]
+(default 1) Set serial stop bits to 1 or 2.  This must match the setting
+in register PD165 of the HuanyangVFD.
+.B
+.IP -t,\ --target\ <n>
+(default 1) Set MODBUS target (slave) number. This must match the device
+number you set on the Hyanyang VFD in register PD163.
+.B
+.SH PINS
+.B
+.IP <name>.enable
+(bit, in) Enable communication from the hy_vfd driver to the VFD.
+.B
+.IP <name>.SetF
+(float, out)
+.B
+.IP <name>.OutF
+(float, out)
+.B
+.IP <name>.OutA
+(float, out)
+.B
+.IP <name>.Rott
+(float, out)
+.B
+.IP <name>.DCV
+(float, out)
+.B
+.IP <name>.ACV
+(float, out)
+.B
+.IP <name>.Cont
+(float, out)
+.B
+.IP <name>.Tmp
+(float, out)
+.B
+.IP <name>.spindle-fwd
+(bit, in)
+.B
+.IP <name>.spindle-rev
+(bin, in)
+.B
+.IP <name>.spindle-on
+(bin, in)
+.B
+.IP <name>.CNTR
+(float, out)
+.B
+.IP <name>.CNST
+(float, out)
+.B
+.IP <name>.CNST-run
+(bit, out)
+.B
+.IP <name>.CNST-jog
+(bit, out)
+.B
+.IP <name>.CNST-command-rf
+(bit, out)
+.B
+.IP <name>.CNST-running
+(bit, out)
+.B
+.IP <name>.CNST-jogging
+(bit, out)
+.B
+.IP <name>.CNST-running-rf
+(bit, out)
+.B
+.IP <name>.CNST-bracking
+(bit, out)
+.B
+.IP <name>.CNST-track-start
+(bit, out)
+.B
+.IP <name>.speed-command
+(float, in)
+.B
+.IP <name>.frequency-command
+(float, out)
+.B
+.IP <name>.max-freq
+(float, out)
+.B
+.IP <name>.freq-lower-limit
+(float, out)
+.B
+.IP <name>.rated-motor-voltage
+(float, out)
+.B
+.IP <name>.rated-motor-current
+(float, out)
+.B
+.IP <name>.rated-motor-rev
+(float, out)
+.B
+.IP <name>.modbus-ok
+(bit, out)
+
+.SH PARAMETERS
+.B
+.IP <name>.error-count
+(s32, RW)
+.B
+.IP <name>.retval
+(float, RW)
+
+.SH AUTHOR
+Sebastian Kuzminsky
+
+.SH LICENSE
+GPL
