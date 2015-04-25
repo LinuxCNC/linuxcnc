@@ -156,11 +156,10 @@ static struct option long_options[] = {
 		{"stopbits", 1, 0, 's'},
 		{"target", 1, 0, 't'},
 		{"verbose", 0, 0, 'v'},
-		{"modbus-debug", 0, 0, 'M'},
 		{0,0,0,0}
 };
 
-static char *option_string = "b:d:hn:p:r:s:t:vgM";
+static char *option_string = "b:d:hn:p:r:s:t:vg";
 
 static char *bitstrings[] = {"5", "6", "7", "8", NULL};
 static char *paritystrings[] = {"even", "odd", "none", NULL};
@@ -197,9 +196,6 @@ void usage(int argc, char **argv) {
 			"-d or --device <path> (default /dev/ttyS0)\n"
 			"    Set the name of the serial device node to use\n"
 			"-g or --debug\n"
-			"    Turn on debugging messages.  This will also set the verbose flag.  Debug mode will cause\n"
-			"    all modbus messages to be printed in hex on the terminal.\n"
-			"-M or --debug\n"
 			"    Turn on debugging messages.  This will also set the verbose flag.  Debug mode will cause\n"
 			"    all modbus messages to be printed in hex on the terminal.\n"
 			"-n or --name <string> (default hy_vfd)\n"
@@ -570,9 +566,6 @@ int main(int argc, char **argv)
 		case 'g':
 			debug = 1;
 			//verbose = 1;
-			break;
-		case 'M':
-			//modbus_debug = 1;
 			break;
 		case 'n':   // module base name
 			if (strlen(optarg) > HAL_NAME_LEN-20) {
