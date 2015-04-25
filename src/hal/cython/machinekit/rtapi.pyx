@@ -136,7 +136,7 @@ cdef char ** _to_argv(args):
 
 import sys
 import os
-from machinekit import hal
+from machinekit import hal, config
 if sys.version_info >= (3, 0):
     import configparser
 else:
@@ -152,8 +152,15 @@ class RTAPIcommand:
         if uri == "":
             c_uri = NULL
         if uuid == "" and uri == "":  # try to get the uuid from the ini
+            mkconfig = config.Config()
+            mkini = os.getenv("MACHINEKIT_INI")
+            if mkini is None:
+                mkini = mkconfig.MACHINEKIT_INI
+            if not os.path.isfile(mkini):
+                raise RuntimeError("MACHINEKIT_INI " + mkini + " does not exist")
+
             cfg = configparser.ConfigParser()
-            cfg.read(os.getenv("MACHINEKIT_INI"))
+            cfg.read(mkini)
             try:
                 uuid = cfg.get("MACHINEKIT", "MKUUID")
             except configparser.NoSectionError or configparser.NoOptionError:
