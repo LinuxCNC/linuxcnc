@@ -11,6 +11,8 @@
 
 
 #include <machinetalk/generated/message.pb.h>
+#include <google/protobuf/text_format.h>
+
 using namespace google::protobuf;
 
 static pb::Container command, reply;
@@ -19,13 +21,22 @@ static zctx_t *z_context;
 static void *z_command;
 static int timeout = 5000;
 static std::string errormsg;
+int proto_debug;
 
 int rtapi_rpc(void *socket, pb::Container &tx, pb::Container &rx)
 {
     zframe_t *request = zframe_new (NULL, tx.ByteSize());
     assert(request);
     assert(tx.SerializeWithCachedSizesToArray(zframe_data (request)));
-
+    if (proto_debug) {
+	string buffer;
+	if (TextFormat::PrintToString(tx, &buffer)) {
+	    fprintf(stderr, "%s:%d:%s: request ---->\n%s%s\n",
+		    __FILE__,__LINE__,__FUNCTION__,
+		    buffer.c_str(),
+		    std::string(20,'=').c_str());
+	}
+    }
     assert (zframe_send (&request, socket, 0) == 0);
     zframe_t *reply = zframe_recv (socket);
     if (reply == NULL) {
@@ -34,11 +45,18 @@ int rtapi_rpc(void *socket, pb::Container &tx, pb::Container &rx)
     }
     int retval =  rx.ParseFromArray(zframe_data (reply),
 				    zframe_size (reply)) ? 0 : -1;
-    //    assert(retval == 0);
+   if (proto_debug) {
+	string buffer;
+	if (TextFormat::PrintToString(rx, &buffer)) {
+	    fprintf(stderr, "%s:%d:%s: <---- reply\n%s%s\n",
+		    __FILE__,__LINE__,__FUNCTION__,
+		    buffer.c_str(),
+		    std::string(20,'=').c_str());
+	}
+    }
     zframe_destroy(&reply);
     if (rx.note_size())
 	errormsg = pbconcat(rx.note(), "\n");
-    //errormsg = rx.note(0); // simplify - one line only
     else
 	errormsg = "";
     return retval;

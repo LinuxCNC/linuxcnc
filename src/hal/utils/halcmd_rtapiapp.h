@@ -23,6 +23,7 @@ extern "C" {
 		      const char *instname);
     const char *rtapi_rpcerror(void);
 
+    extern int proto_debug;
 #ifdef __cplusplus
 }
 #endif
