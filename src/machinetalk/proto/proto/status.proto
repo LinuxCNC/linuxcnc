@@ -2,6 +2,10 @@ import "nanopb.proto";
 import "types.proto";
 import "preview.proto";
 import "emcclass.proto";
+import "motcmds.proto";
+
+// see README.msgid
+// msgid base: 1100
 
 // see README.msgid
 // msgid base: 1100
@@ -277,7 +281,7 @@ message EmcStatusMotion {
     optional Position               joint_position          = 26;
     repeated EmcStatusLimit         limit                   = 27;
     optional int32                  motion_line             = 28;
-    optional EmcTrajectoryModeType  motion_type             = 29;
+    optional MotionType             motion_type             = 29;
     optional EmcTrajectoryModeType  motion_mode             = 30;
     optional bool                   paused                  = 31;
     optional Position               position                = 32;

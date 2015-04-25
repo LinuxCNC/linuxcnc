@@ -10,6 +10,7 @@ import "nanopb.proto";
 
 // add _ to avoid collision with macros in emc/nml_intf/motion_typesh
 enum MotionType {
+    _EMC_MOTION_TYPE_NONE = 0; // sometimes also 0 is reported
     _EMC_MOTION_TYPE_TRAVERSE = 1;
     _EMC_MOTION_TYPE_FEED = 2;
     _EMC_MOTION_TYPE_ARC = 3;

@@ -148,6 +148,12 @@ message Container {
     // MT_RETRIEVE_APPLICATION message
     repeated Application app       = 120  [(nanopb).type = FT_IGNORE];
 
+    // the launcher field is reported by
+    // a MT_LAUNCHER_FULL_UPDATE
+    // or a MT_LAUNCHER_INCREMENTAL_UPDATE message
+    repeated Launcher launcher = 130 [(nanopb).type = FT_IGNORE];
+    optional int32    index    = 131 [(nanopb).type = FT_IGNORE];
+
     // // miscellanous typed objects
     // optional string        ascii          = 140;
     // optional bytes         unicode        = 141;
@@ -215,7 +221,6 @@ message Container {
     optional EmcStatusInterp emc_status_interp = 604 [(nanopb).type = FT_IGNORE];
 
     optional EmcCommandParameters emc_command_params = 610  [(nanopb).type = FT_IGNORE];
-
 
     // less commonly used types
 
