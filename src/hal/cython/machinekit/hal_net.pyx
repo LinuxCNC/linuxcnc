@@ -24,6 +24,9 @@ def net(signame,*pinnames):
     writer_name = None
     bidir_name = None
 
+    if isinstance(signame, Signal):
+        signame = signame.name
+
     s = None
     if signame in signals: #  pre-existing net type
         s = signals[signame]
@@ -40,6 +43,9 @@ def net(signame,*pinnames):
 
     pinlist = []
     for n in pinnames:
+        if isinstance(n, Pin):
+            n = n.name
+
         w = pins[n]       # get wrappers - will raise KeyError if pin dont exist
 
         if w.linked:
