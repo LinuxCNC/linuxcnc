@@ -63,7 +63,7 @@
 #include <math.h>
 #include <czmq.h>
 
-extern char *logpath;
+const char *logpath = "/var/log/linuxcnc.log";
 
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
