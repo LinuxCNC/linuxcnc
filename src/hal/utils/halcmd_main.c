@@ -67,8 +67,7 @@ static int propose_completion(char *all, char *fragment, int start);
 
 static const char *inifile;
 static FILE *inifp;
-const char *logpath = "/var/log/linuxcnc.log";
-
+extern char *logpath;
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
