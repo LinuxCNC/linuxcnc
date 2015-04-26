@@ -2884,36 +2884,11 @@ fi
 LIBS="$X_LIBS $temp_LIBS"
 
 AC_PATH_PROG(XGETTEXT,xgettext,none)
-XGETTEXT_TCL_WORKS=no
-if test "$XGETTEXT" = "none"; then
-   AC_MSG_ERROR(install gettext 0.14.5 or above)
-else
-   AC_MSG_CHECKING(for xgettext tcl bug)
-   set -- $(xgettext --version | head -1)
-   version=$4
-   set -- $(echo $4 | tr . " ")
-   if test ${1-0} -gt 0 -o \( ${1-0} -eq 0 -a \( ${2-0} -gt 14 -o \( ${2-0} -eq 14 -a ${3-0} -ge 5 \) \) \)
-   then
-	XGETTEXT_TCL_WORKS=yes
-	AC_MSG_RESULT(xgettext version $version OK)
-    else
-	AC_MSG_RESULT(xgettext version $version buggy -- need at least 0.14.5)
-        AC_MSG_ERROR(install xgettext 0.14.5 or above)
-   fi
+AC_PATH_PROG(MSGFMT,msgfmt,none)
+if test "$MSGFMT" = none -o "$XGETTEXT" = none; then
+   AC_MSG_ERROR(install gettext)
 fi
 AC_SUBST(XGETTEXT)
-
-AC_PATH_PROG(MSGFMT,msgfmt,none)
-if test "$MSGFMT" = "none"; then
-   AC_MSG_ERROR(install gettext 0.14.5 or above)
-else
-    AC_MSG_CHECKING(for --tcl support in msgfmt)
-    if $MSGFMT --tcl -l de -d /tmp /dev/null > /dev/null 2>&1; then
-        AC_MSG_RESULT(yes)
-    else
-        AC_MSG_ERROR(install xgettext 0.14.5 or above)
-    fi
-fi
 AC_SUBST(MSGFMT)
 
 AC_MSG_CHECKING(for Python support)

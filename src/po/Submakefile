@@ -1,19 +1,19 @@
 ../share/locale/%/LC_MESSAGES/linuxcnc.mo: po/%.po
 	$(ECHO) Compiling localized message catalog $@
 	@mkdir -p $(dir $@)
-	$(Q)msgfmt -o $@ $<
+	$(Q)$(MSGFMT) -o $@ $<
 
 ../share/locale/%/LC_MESSAGES/gmoccapy.mo: po/gmoccapy/%.po
 	$(ECHO) Compiling localized gmoccapy message catalog $@
 	@mkdir -p $(dir $@)
-	$(Q)msgfmt -o $@ $<
+	$(Q)$(MSGFMT) -o $@ $<
 
 # the touch is because for po/zh_CN.po, msgfmt --tcl creates
 # objects/zh_cn.po and on the next invocation make would try again to
 # create zh_CN.po
 objects/%.msg: po/%.po
 	$(ECHO) Compiling localized message catalog $@
-	$(Q)msgfmt --tcl -d objects -l $* $< && touch $@
+	$(Q)$(MSGFMT) --tcl -d objects -l $* $< && touch $@
 
 MO_FILES := $(patsubst po/%.po, %/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
 MO_FILES += $(patsubst po/gmoccapy/%.po, %/LC_MESSAGES/gmoccapy.mo, $(wildcard po/gmoccapy/*.po))
