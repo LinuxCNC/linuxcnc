@@ -158,7 +158,15 @@ AC_CANONICAL_HOST  # $host, host_cpu, host_vendor, and host_os
 AC_CANONICAL_BUILD  # $build, build_cpu, build_vendor, and build_os
 
 # locate pkg-config, including cross-compiler variations
-AC_CHECK_TOOL(PKG_CONFIG, pkg-config)
+if test "$cross_compiling" = yes; then
+   AC_CHECK_TOOL(PKG_CONFIG, pkg-config)
+else
+   # The multi-arch version can choke on non-multi-arch packages, since it
+   # (intentionally) doesn't look in `/usr/lib/pkgconfig`.
+   AC_CHECK_PROGS(PKG_CONFIG, pkg-config)
+   dnl Avoid PKG_CHECK_MODULES re-checking
+   ac_cv_env_PKG_CONFIG_set=set
+fi
 AC_CONFIG_MACRO_DIR(/usr/share/aclocal)
 
 
