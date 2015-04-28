@@ -3,14 +3,16 @@ Section: misc
 Priority: extra
 Maintainer: John Morris <john@dovetail-automata.com>
 Build-Depends: debhelper (>= 6),
-    autoconf (>= 2.63), automake, bwidget, libboost-python-dev, libgl1-mesa-dev,
+    autoconf (>= 2.63), automake, libboost-python-dev, libgl1-mesa-dev,
     libglu1-mesa-dev, libgtk2.0-dev, libmodbus-dev (>= 3.0),
     libncurses-dev, libreadline-dev, libusb-1.0-0-dev, libxmu-dev,
-    libxmu-headers, python, cython (>= 0.19), python-support,
+    libxmu-headers, python (>= 2.6.6-3~), python-dev (>= 2.6.6-3~),
+    cython (>= 0.19), dh-python,
     pkg-config, psmisc, python-tk, libxaw7-dev, libboost-serialization-dev,
-    libzmq4-dev (>= 4.0.4),
-    libczmq-dev (>= 2.2.0), libjansson-dev (>= 2.5), libwebsockets-dev (>= 2.2),
-    python-zmq (>= 14.3), procps, kmod,
+    libzmq3-dev (>= 4.0.4) | libzmq4-dev (>= 4.0.4),
+    libczmq-dev (>= 2.2.0), libjansson-dev (>= 2.5),
+    libwebsockets-dev (>= 1.2.2),
+    python-zmq (>= 14.0.1), procps, kmod,
     liburiparser-dev, libssl-dev, python-setuptools,
     uuid-dev, uuid-runtime, libavahi-client-dev,
     libprotobuf-dev (>= 2.4.1), protobuf-compiler (>= 2.4.1),
@@ -23,7 +25,7 @@ Package: machinekit-dev
 Architecture: any
 Depends: make, g++, @TCL_TK_BUILD_DEPS@,
     python (>= 2.6), python (<< 2.8),
-    ${python:Depends}, ${misc:Depends},
+    ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
     machinekit (= ${binary:Version}),
     yapps2-runtime
 Section: libs
@@ -41,17 +43,12 @@ Replaces: linuxcnc
 Architecture: any
 Depends: ${shlibs:Depends}, machinekit-rt-threads, @TCL_TK_DEPS@,
     bwidget (>= 1.7), libtk-img (>=1.13),
-    python (>= 2.6), python (<< 2.8),
+    python (= ${python:Versions}),
     ${python:Depends}, ${misc:Depends},
-    python${python-version}-tk,
-    python${python-version}-gnome2 | python-gnome2,
-    python${python-version}-glade2 | python-glade2,
-    python${python-version}-numpy | python-numpy,
-    python${python-version}-imaging,
-    python${python-version}-imaging-tk | python-imaging-tk,
-    python-gtksourceview2,
-    python-vte,
-    python-xlib, python-gtkglext1, python-configobj,
+    python-tk, python-imaging, python-imaging-tk,
+    python-gnome2, python-glade2,
+    python-numpy, python-gtksourceview2,
+    python-vte, python-xlib, python-gtkglext1, python-configobj,
     python-zmq, python-protobuf (>= 2.4.1), python-gst0.10,
     python-avahi, python-netifaces, python-simplejson, python-pyftpdlib,
     tclreadline, bc, procps, psmisc, module-init-tools | kmod

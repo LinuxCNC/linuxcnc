@@ -37,31 +37,17 @@ THREADS_RTAI_KERNEL = --without-rtai-kernel
 #
 # Multiples should be space-separated
 #
+DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
 #HEADERS_XENOMAI_KERNEL_i386 = --with-xenomai-kernel-sources=""
 #HEADERS_XENOMAI_KERNEL_amd64 = --with-xenomai-kernel-sources=""
 #HEADERS_RTAI_KERNEL_amd64 = --with-rtai-kernel-sources=""
 #HEADERS_RTAI_KERNEL_i386 = --with-rtai-kernel-sources=""
 
-#
-# debian/substvars contains variable definitions used to fill in
-# debian/control file variables.
-
-PYTHON_VERSION := $(shell python -c \
-	'import sys; print "%d.%d" % sys.version_info[:2]')
-
+# Parallel make
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
-endif
-
-debian/substvars: debian/control
-	> debian/substvars
-	echo "python-version=$(PYTHON_VERSION)" >> debian/substvars
-# PREEMPT_RT kernels don't have easily derivable names
-ifeq ($(DEB_HOST_ARCH),amd64)
-	echo "preempt-rt-ext=amd64" >> debian/substvars
-else ifeq ($(DEB_HOST_ARCH),i386)
-	echo "preempt-rt-ext=686-pae" >> debian/substvars
 endif
 
 
@@ -86,6 +72,8 @@ build-stamp: debian/control
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
 	cd src && ./configure --prefix=/usr \
+	    --build=$(DEB_BUILD_MULTIARCH) \
+	    --host=$(DEB_HOST_MULTIARCH) \
 	    $(THREADS_POSIX) \
 	    $(THREADS_RT_PREEMPT) \
 	    $(THREADS_XENOMAI) \
@@ -99,13 +87,15 @@ build-stamp: debian/control
 	cd src && $(MAKE) $(MAKEFLAGS)
 	touch build-stamp
 
-clean: debian/control debian/substvars
+clean: debian/control
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
 
 	cd src && ./autogen.sh
 	cd src && ./configure --prefix=/usr \
+	    --build=$(DEB_BUILD_MULTIARCH) \
+	    --host=$(DEB_HOST_MULTIARCH) \
 	    $(THREADS_POSIX) \
 	    $(THREADS_RT_PREEMPT) \
 	    $(THREADS_XENOMAI) \
@@ -167,7 +157,7 @@ binary-indep: build install
 # We have nothing to do by default.
 
 # Build architecture-dependent files here.
-binary-arch: build install debian/substvars
+binary-arch: build install
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs
@@ -179,11 +169,11 @@ binary-arch: build install debian/substvars
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml \
 	    -X.tbl -X.xml -Xsample-configs
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_
-	dh_pysupport
+	dh_python2 --ignore-shebangs --no-guessing-versions
 	dh_makeshlibs
 	dh_installdeb
 
-	# delete files that should be in machinekit-dev package
+#	# delete files that should be in machinekit-dev package
 	rm -f debian/machinekit/usr/bin/comp
 	rm -f debian/machinekit/usr/share/man/man1/comp.1.gz
 	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.modinc
@@ -192,7 +182,7 @@ binary-arch: build install debian/substvars
 	cat debian/machinekit/DEBIAN/shlibs debian/shlibs.pre > \
 	    debian/shlibs.local
 	dh_shlibdeps -l debian/machinekit/usr/lib
-	dh_gencontrol -- -Tdebian/substvars
+	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
 
