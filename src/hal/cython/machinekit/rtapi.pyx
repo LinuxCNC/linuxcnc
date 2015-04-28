@@ -204,7 +204,7 @@ class RTAPIcommand:
         if r:
             raise RuntimeError("rtapi_unloadrt '%s' failed: %s" % (name,strerror(-r)))
 
-    def newinst(self, *args, instance=0):
+    def newinst(self, *args, instance=0, **kwargs):
         cdef char** argv
         cdef char *name
 
@@ -212,6 +212,8 @@ class RTAPIcommand:
             raise RuntimeError("newinst needs at least module and instance name as argument")
         comp = args[0]
         instname = args[1]
+        for key in kwargs.keys():
+            args +=('%s=%s' % (key, str(kwargs[key])), )
         argv = _to_argv(args[2:])
 
         if comp not in hal.components:
