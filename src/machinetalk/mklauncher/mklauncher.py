@@ -10,6 +10,7 @@ import math
 import subprocess
 import fcntl
 import shlex
+import socket
 
 from machinekit import service
 from machinekit import config
@@ -31,13 +32,14 @@ def printError(msg):
 
 class Mklauncher:
     def __init__(self, context, launcherDirs=None, topDir='.',
-                 ip='', svcUuid=None, debug=False, name=None, ipInName=True,
-                 pollInterval=0.5, pingInterval=2.0):
+                 host='', svcUuid=None, debug=False, name=None, hostInName=True,
+                 pollInterval=0.5, pingInterval=2.0, loopback=False):
         if launcherDirs is None:
             launcherDirs = []
 
         self.launcherDirs = launcherDirs
-        self.ip = ip
+        self.host = host
+        self.loopback = loopback
         self.name = name
         self.debug = debug
         self.shutdown = threading.Event()
@@ -127,31 +129,39 @@ class Mklauncher:
         self.txCommand = Container()
         self.topDir = topDir
         self.context = context
-        self.baseUri = "tcp://" + self.ip
+        self.baseUri = "tcp://"
+        if self.loopback:
+            self.baseUri += '127.0.0.1'
+        else:
+            self.baseUri += '*'
         self.launcherSocket = context.socket(zmq.XPUB)
         self.launcherSocket.setsockopt(zmq.XPUB_VERBOSE, 1)
         self.launcherPort = self.launcherSocket.bind_to_random_port(self.baseUri)
         self.launcherDsname = self.launcherSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
+        self.launcherDsname = self.launcherDsname.replace('0.0.0.0', self.host)
         self.commandSocket = context.socket(zmq.DEALER)
         self.commandPort = self.commandSocket.bind_to_random_port(self.baseUri)
         self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
+        self.commandDsname = self.commandDsname.replace('0.0.0.0', self.host)
 
         if self.name is None:
             self.name = 'Machinekit Launcher'
-        if ipInName:
-            self.name = self.name + ' on ' + self.ip
+        if hostInName:
+            self.name += ' on ' + self.host
         self.launcherService = service.Service(type='launcher',
                                    svcUuid=svcUuid,
                                    dsn=self.launcherDsname,
                                    port=self.launcherPort,
-                                   ip=self.ip,
+                                   host=self.host,
                                    name=self.name,
+                                   loopback=self.loopback,
                                    debug=self.debug)
         self.commandService = service.Service(type='launchercmd',
                                    svcUuid=svcUuid,
                                    dsn=self.commandDsname,
                                    port=self.commandPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
 
         self.publish()
@@ -459,43 +469,32 @@ def main():
     mki.read(mkini)
     uuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
-    prefs = mki.get("MACHINEKIT", "INTERFACES").split()
 
     if remote == 0:
         print("Remote communication is deactivated, configserver will use the loopback interfaces")
         print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
-        iface = ['lo', '127.0.0.1']
-    else:
-        iface = config.choose_interface(prefs)
-        if not iface:
-            sys.stderr.write("failed to determine preferred interface (preference = %s)\n" % prefs)
-            sys.exit(1)
 
     if debug:
-        print(("announcing mklauncher on " + str(iface)))
+        print(("announcing mklauncher"))
 
     context = zmq.Context()
     context.linger = 0
 
     register_exit_handler()
 
-    mklauncher = None
-
-    #try:
+    hostname = socket.gethostname().split('.')[0] + '.local.'
     mklauncher = Mklauncher(context,
                             svcUuid=uuid,
                             topDir='.',
-                            ip=iface[1],
+                            host=hostname,
                             launcherDirs=args.dirs,
                             name=args.name,
-                            ipInName=bool(args.suppress_ip),
+                            hostInName=bool(args.suppress_ip),
+                            loopback=(not remote),
                             debug=debug)
 
     while mklauncher.running and not check_exit():
         time.sleep(1)
-    # except Exception as e:
-    #    print('exception:')
-    #    print(e)
 
     if debug:
         print('stopping threads')
