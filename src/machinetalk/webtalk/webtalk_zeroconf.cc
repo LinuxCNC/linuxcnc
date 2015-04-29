@@ -25,12 +25,19 @@ wt_zeroconf_announce(wtself_t *self)
     char name[255];
     char dsn[255];
     char puuid[40];
+    char hostname[PATH_MAX];
+
     uuid_unparse(self->process_uuid, puuid);
 
-    snprintf(name,sizeof(name), "Machinekit on %s", self->cfg->ipaddr);
-    snprintf(dsn,sizeof(dsn), "http%s://%s:%d%s",
+    if (gethostname(hostname, sizeof(hostname)) < 0) {
+	syslog_async(LOG_ERR, "%s: gethostname() failed ?! %s\n",
+		     self->cfg->progname, strerror(errno));
+	return -1;
+    }
+    snprintf(name,sizeof(name), "Machinekit on %s.local", hostname);
+    snprintf(dsn, sizeof(dsn), "http%s://%s.local.:%d%s",
 	     self->cfg->use_ssl ? "s" : "",
-	     self->cfg->ipaddr,
+	     hostname,
 	     self->cfg->info.port,
 	     self->cfg->index_html);
 

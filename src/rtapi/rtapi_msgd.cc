@@ -1050,6 +1050,15 @@ int main(int argc, char **argv)
     }
 
     if (logpub && remote) {
+	char hostname[PATH_MAX];
+	char uri[PATH_MAX];
+
+	if (gethostname(hostname, sizeof(hostname)) < 0) {
+	    syslog_async(LOG_ERR, "%s: gethostname() failed ?! %s\n",
+			 progname, strerror(errno));
+	    exit(1);
+	}
+	snprintf(uri,sizeof(uri), "tcp://%s.local.:%d",hostname, logpub_port);
 
 	if (!(av_loop = avahi_czmq_poll_new(loop))) {
 	    syslog_async(LOG_ERR, "%s: zeroconf: Failed to create avahi event loop object.",
@@ -1057,12 +1066,12 @@ int main(int argc, char **argv)
 	    exit(1);
 	}
 	char name[255];
-	snprintf(name,sizeof(name), "Log service on %s pid %d", ipaddr, getpid());
+	snprintf(name,sizeof(name), "Log service on %s.local pid %d", hostname, getpid());
 	logpub_publisher = zeroconf_service_announce(name,
 						     MACHINEKIT_DNSSD_SERVICE_TYPE,
 						     LOG_DNSSD_SUBTYPE,
 						     logpub_port,
-						     (char *)dsn,
+						     remote ? uri : (char *)dsn,
 						     service_uuid,
 						     process_uuid_str,
 						     "log",

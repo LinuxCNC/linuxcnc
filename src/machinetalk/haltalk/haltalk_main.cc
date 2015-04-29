@@ -199,8 +199,8 @@ zmq_init(htself_t *self)
     zsocket_set_linger (self->z_halrcmd, 0);
     zsocket_set_identity (self->z_halrcmd, self->cfg->modname);
 
-    self->z_halrcomp_port = zsocket_bind(self->z_halrcmd, self->cfg->command);
-    assert (self->z_halrcomp_port > -1);
+    self->z_halrcmd_port = zsocket_bind(self->z_halrcmd, self->cfg->command);
+    assert (self->z_halrcmd_port > -1);
     self->z_halrcmd_dsn = zsocket_last_endpoint (self->z_halrcmd);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: talking HALComannd on '%s'",

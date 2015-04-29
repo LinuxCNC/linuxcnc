@@ -316,14 +316,26 @@ static int mb_zeroconf_announce(msgbusd_self_t *self)
 {
     char name[100];
     char puuid[40];
-    uuid_unparse(self->process_uuid, puuid);
+    char hostname[PATH_MAX];
+    char uri[PATH_MAX];
 
-    snprintf(name,sizeof(name), "Messagebus command service on %s pid %d",
-	     self->ipaddr, getpid());
+    uuid_unparse(self->process_uuid, puuid);
+    if (gethostname(hostname, sizeof(hostname)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: gethostname() failed ?! %s\n",
+			progname, strerror(errno));
+	return -1;
+    }
+    if (self->remote)
+	snprintf(uri,sizeof(uri), "tcp://%s.local.:%d",hostname, self->command_port);
+
+    snprintf(name,sizeof(name), "Messagebus command service on %s.local pid %d",
+	     hostname, getpid());
     self->command_publisher = zeroconf_service_announce(name,
 							MACHINEKIT_DNSSD_SERVICE_TYPE,
 							MSGBUSCMD_DNSSD_SUBTYPE,
 							self->command_port,
+							self->remote ? uri :
 							(char *)self->command_dsn,
 							self->service_uuid,
 							self->process_uuid_str,
@@ -337,12 +349,16 @@ static int mb_zeroconf_announce(msgbusd_self_t *self)
 	return -1;
     }
 
-    snprintf(name,sizeof(name), "Messagebus response service on %s pid %d",
-	     self->ipaddr, getpid());
+    if (self->remote)
+	snprintf(uri,sizeof(uri), "tcp://%s.local.:%d",hostname, self->response_port);
+    snprintf(name,sizeof(name), "Messagebus response service on %s.local pid %d",
+	     hostname, getpid());
+
     self->response_publisher = zeroconf_service_announce(name,
 							 MACHINEKIT_DNSSD_SERVICE_TYPE,
 							 MSGBUSRESP_DNSSD_SUBTYPE,
 							 self->response_port,
+							 self->remote ? uri :
 							 (char *)self->response_dsn,
 							 self->service_uuid,
 							 self->process_uuid_str,
