@@ -182,13 +182,15 @@ class RTAPIcommand:
         if r:
             raise RuntimeError("rtapi_delthread failed:  %s" % strerror(-r))
 
-    def loadrt(self,*args, instance=0):
+    def loadrt(self,*args, instance=0, **kwargs):
         cdef char** argv
         cdef char *name
 
         if len(args) < 1:
             raise RuntimeError("loadrt needs at least the module name as argument")
         name = args[0]
+        for key in kwargs.keys():
+            args +=('%s=%s' % (key, str(kwargs[key])), )
         argv = _to_argv(args[1:])
         r = rtapi_loadrt( instance, name, <const char **>argv)
         free(argv)
@@ -202,7 +204,7 @@ class RTAPIcommand:
         if r:
             raise RuntimeError("rtapi_unloadrt '%s' failed: %s" % (name,strerror(-r)))
 
-    def newinst(self, *args, instance=0):
+    def newinst(self, *args, instance=0, **kwargs):
         cdef char** argv
         cdef char *name
 
@@ -210,6 +212,8 @@ class RTAPIcommand:
             raise RuntimeError("newinst needs at least module and instance name as argument")
         comp = args[0]
         instname = args[1]
+        for key in kwargs.keys():
+            args +=('%s=%s' % (key, str(kwargs[key])), )
         argv = _to_argv(args[2:])
 
         if comp not in hal.components:
