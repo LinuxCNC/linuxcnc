@@ -7,6 +7,7 @@ import threading
 import signal
 import time
 import argparse
+import socket
 
 import ConfigParser
 from machinekit import service
@@ -19,12 +20,14 @@ from types_pb2 import *
 
 class ConfigServer:
     def __init__(self, context, appDirs=None, topdir=".",
-                 ip="", svcUuid=None, debug=False, name=None, ipInName=True):
+                 host='', svcUuid=None, debug=False, name=None, 
+                 hostInName=True, loopback=False):
         if appDirs is None:
             appDirs = []
 
         self.appDirs = appDirs
-        self.ip = ip
+        self.host = host
+        self.loopback = loopback
         self.name = name
         self.debug = debug
         self.shutdown = threading.Event()
@@ -54,21 +57,27 @@ class ConfigServer:
         self.tx = Container()
         self.topdir = topdir
         self.context = context
-        self.baseUri = "tcp://" + self.ip
+        self.baseUri = "tcp://"
+        if self.loopback:
+            self.baseUri += '127.0.0.1'
+        else:
+            self.baseUri += '*'
         self.socket = context.socket(zmq.ROUTER)
         self.port = self.socket.bind_to_random_port(self.baseUri)
         self.dsname = self.socket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
+        self.dsname = self.dsname.replace('0.0.0.0', self.host)
 
         if self.name is None:
             self.name = "Machinekit"
-        if ipInName:
-            self.name = self.name + " on " + self.ip
+        if hostInName:
+            self.name += ' on ' + self.host
         self.service = service.Service(type='config',
                                    svcUuid=svcUuid,
                                    dsn=self.dsname,
                                    port=self.port,
-                                   ip=self.ip,
+                                   host=self.host,
                                    name=self.name,
+                                   loopback=self.loopback,
                                    debug=self.debug)
 
         self.publish()
@@ -224,20 +233,13 @@ def main():
     mki.read(mkini)
     uuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
-    prefs = mki.get("MACHINEKIT", "INTERFACES").split()
 
     if remote == 0:
         print("Remote communication is deactivated, configserver will use the loopback interfaces")
         print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
-        iface = ['lo', '127.0.0.1']
-    else:
-        iface = config.choose_interface(prefs)
-        if not iface:
-            sys.stderr.write("failed to determine preferred interface (preference = %s)\n" % prefs)
-            sys.exit(1)
 
     if debug:
-        print(("announcing configserver on " + str(iface)))
+        print(("announcing configserver"))
 
     context = zmq.Context()
     context.linger = 0
@@ -247,14 +249,16 @@ def main():
     configService = None
 
     try:
+        hostname = socket.gethostname().split('.')[0] + '.local.'
         configService = ConfigServer(context,
-                       svcUuid=uuid,
-                       topdir=".",
-                       ip=iface[1],
-                       appDirs=args.dirs,
-                       name=args.name,
-                       ipInName=bool(args.suppress_ip),
-                       debug=debug)
+                                     svcUuid=uuid,
+                                     topdir=".",
+                                     host=hostname,
+                                     appDirs=args.dirs,
+                                     name=args.name,
+                                     hostInName=bool(args.suppress_ip),
+                                     loopback=(not remote),
+                                     debug=debug)
 
         while configService.running and not check_exit():
             time.sleep(1)
