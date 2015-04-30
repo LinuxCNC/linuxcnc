@@ -16,10 +16,12 @@ int hal_inst_create(const char *name, const int comp_id, const int size,
     CHECK_STR(name);
 
     {
-	hal_inst_t *inst  __attribute__((cleanup(halpr_autorelease_mutex)));
+
+	WITH_HAL_MUTEX();
+
+	hal_inst_t *inst;
 	hal_comp_t *comp;
 	void *m = NULL;
-	rtapi_mutex_get(&(hal_data->mutex));
 
 	// comp must exist
 	if ((comp = halpr_find_comp_by_id(comp_id)) == 0) {
@@ -78,8 +80,9 @@ int hal_inst_delete(const char *name)
     CHECK_STR(name);
 
     {
-	hal_inst_t *inst  __attribute__((cleanup(halpr_autorelease_mutex)));
-	rtapi_mutex_get(&(hal_data->mutex));
+	WITH_HAL_MUTEX();
+
+	hal_inst_t *inst;
 
 	// inst must exist
 	if ((inst = halpr_find_inst_by_name(name)) == NULL) {

@@ -632,6 +632,26 @@ hal_funct_t *halpr_find_funct_by_owner_id(const int owner_id, hal_funct_t * star
 // NB: make sure the mutex is actually held in the using code when leaving scope!
 void halpr_autorelease_mutex(void *variable);
 
+
+// scope protection macro for simplified usage
+// use like so:
+// { // begin criticial region
+//    WITH_HAL_MUTEX();
+//    .. in criticial region
+//    any scope exit will release the HAL mutex
+// }
+#ifndef __PASTE
+#define __PASTE(a,b)	a##b
+#endif
+#define _WITH_HAL_MUTEX(unique)						\
+    int __PASTE(__scope_protector_,unique)				\
+	 __attribute__((cleanup(halpr_autorelease_mutex)));		\
+	 rtapi_mutex_get(&(hal_data->mutex));
+
+#define WITH_HAL_MUTEX() _WITH_HAL_MUTEX(__LINE__)
+
+
+
 /** The 'shmalloc_xx()' functions allocate blocks of shared memory.
     Each function allocates a block that is 'size' bytes long.
     If 'size' is 3 or more, the block is aligned on a 4 byte
