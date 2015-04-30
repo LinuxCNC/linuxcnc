@@ -44,6 +44,7 @@
 #include "halcmd.h"
 #include "halcmd_commands.h"
 #include "halcmd_completion.h"
+#include "halcmd_rtapiapp.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -102,7 +103,7 @@ int main(int argc, char **argv)
     keep_going = 0;
     /* start parsing the command line, options first */
     while(1) {
-        c = getopt(argc, argv, "+RCfi:kqQsvVhu:U:");
+        c = getopt(argc, argv, "+RCfi:kqQsvVhu:U:P");
         if(c == -1) break;
         switch(c) {
             case 'R':
@@ -151,6 +152,9 @@ int main(int argc, char **argv)
 		break;
 	    case 'f':
                 filemode = 1;
+		break;
+	    case 'P':
+                proto_debug = 1;
 		break;
 
 
