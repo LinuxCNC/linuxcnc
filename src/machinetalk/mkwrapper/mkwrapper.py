@@ -74,10 +74,11 @@ class CustomFTPHandler(FTPHandler):
 
 class FileService(threading.Thread):
 
-    def __init__(self, iniFile=None, ip="", svcUuid=None,
-                debug=False):
+    def __init__(self, iniFile=None, host='', svcUuid=None,
+                loopback=False, debug=False):
         self.debug = debug
-        self.ip = ip
+        self.host = host
+        self.loopback = loopback
         self.shutdown = threading.Event()
         self.running = False
 
@@ -92,13 +93,14 @@ class FileService(threading.Thread):
             sys.exit(1)
 
         self.filePort = getFreePort()
-        self.fileDsname = "ftp://" + self.ip + ":" + str(self.filePort)
+        self.fileDsname = "ftp://" + self.host + ":" + str(self.filePort)
 
         self.fileService = service.Service(type='file',
                                    svcUuid=svcUuid,
                                    dsn=self.fileDsname,
                                    port=self.filePort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
 
         #FTP
@@ -116,7 +118,7 @@ class FileService(threading.Thread):
         self.handler.banner = "welcome to the GCode file service"
 
         # Instantiate FTP server class and listen on some address
-        self.address = (self.ip, self.filePort)
+        self.address = (self.host, self.filePort)
         self.server = FTPServer(self.address, self.handler)
 
         # set a limit for connections
@@ -259,11 +261,12 @@ class LinuxCNCWrapper():
     def preview_error(self, error, line):
         self.linuxcncErrors.append(error + "\non line " + str(line))
 
-    def __init__(self, context, ip,
+    def __init__(self, context, host='', loopback=False,
                 iniFile=None, svcUuid=None,
                 pollInterval=None, pingInterval=2, debug=False):
         self.debug = debug
-        self.ip = ip
+        self.host = host
+        self.loopback = loopback
         self.pingInterval = pingInterval
         self.shutdown = threading.Event()
         self.running = False
@@ -352,23 +355,31 @@ class LinuxCNCWrapper():
         self.txCommand = Container()   # Command socket - ROUTER-DEALER
         self.txError = Container()     # Error socket - PUB-SUB
         self.context = context
-        self.baseUri = "tcp://" + self.ip
+        self.baseUri = "tcp://"
+        if self.loopback:
+            self.baseUri += '127.0.0.1'
+        else:
+            self.baseUri += '*'
         self.statusSocket = context.socket(zmq.XPUB)
         self.statusSocket.setsockopt(zmq.XPUB_VERBOSE, 1)
         self.statusPort = self.statusSocket.bind_to_random_port(self.baseUri)
         self.statusDsname = self.statusSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
+        self.statusDsname = self.statusDsname.replace('0.0.0.0', self.host)
         self.errorSocket = context.socket(zmq.XPUB)
         self.errorSocket.setsockopt(zmq.XPUB_VERBOSE, 1)
         self.errorPort = self.errorSocket.bind_to_random_port(self.baseUri)
         self.errorDsname = self.errorSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
+        self.errorDsname = self.errorDsname.replace('0.0.0.0', self.host)
         self.commandSocket = context.socket(zmq.DEALER)
         self.commandPort = self.commandSocket.bind_to_random_port(self.baseUri)
         self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
-
+        self.commandDsname = self.commandDsname.replace('0.0.0.0', self.host)
         self.preview = Preview(parameterFile=self.interpParameterFile,
                                debug=self.debug)
         (self.previewDsname, self.previewstatusDsname) = \
-        self.preview.bind(self.baseUri + ':*', self.baseUri + ':*')
+            self.preview.bind(self.baseUri + ':*', self.baseUri + ':*')
+        self.previewDsname = self.previewDsname.replace('0.0.0.0', self.host)
+        self.previewstatusDsname = self.previewstatusDsname.replace('0.0.0.0', self.host)
         self.preview.register_error_callback(self.preview_error)
         self.previewPort = urlparse(self.previewDsname).port
         self.previewstatusPort = urlparse(self.previewstatusDsname).port
@@ -377,31 +388,36 @@ class LinuxCNCWrapper():
                                    svcUuid=svcUuid,
                                    dsn=self.statusDsname,
                                    port=self.statusPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
         self.errorService = service.Service(type='error',
                                    svcUuid=svcUuid,
                                    dsn=self.errorDsname,
                                    port=self.errorPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
         self.commandService = service.Service(type='command',
                                    svcUuid=svcUuid,
                                    dsn=self.commandDsname,
                                    port=self.commandPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
         self.previewService = service.Service(type='preview',
                                    svcUuid=svcUuid,
                                    dsn=self.previewDsname,
                                    port=self.previewPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
         self.previewstatusService = service.Service(type='previewstatus',
                                    svcUuid=svcUuid,
                                    dsn=self.previewstatusDsname,
                                    port=self.previewstatusPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
 
         self.publish()
@@ -2362,20 +2378,13 @@ def main():
     mki.read(mkini)
     mkUuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
-    prefs = mki.get("MACHINEKIT", "INTERFACES").split()
 
     if remote == 0:
         print("Remote communication is deactivated, mkwrapper will use the loopback interfaces")
         print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
-        iface = ['lo', '127.0.0.1']
-    else:
-        iface = config.choose_interface(prefs)
-        if not iface:
-            sys.stderr.write("failed to determine preferred interface (preference = %s)\n" % prefs)
-            sys.exit(1)
 
     if debug:
-        print(("announcing mkwrapper on " + str(iface)))
+        print("announcing mkwrapper")
 
     context = zmq.Context()
     context.linger = 0
@@ -2385,14 +2394,20 @@ def main():
     fileService = None
     mkwrapper = None
     try:
-        fileService = FileService(iniFile=iniFile, svcUuid=mkUuid, ip=iface[1],
-                                 debug=debug)
+        hostname = socket.gethostname().split('.')[0] + '.local.'
+        fileService = FileService(iniFile=iniFile,
+                                  svcUuid=mkUuid,
+                                  host=hostname,
+                                  loopback=(not remote),
+                                  debug=debug)
         fileService.start()
 
-        mkwrapper = LinuxCNCWrapper(context, ip=iface[1],
-                                 iniFile=iniFile,
-                                 svcUuid=mkUuid,
-                                 debug=debug)
+        mkwrapper = LinuxCNCWrapper(context,
+                                    host=hostname,
+                                    loopback=(not remote),
+                                    iniFile=iniFile,
+                                    svcUuid=mkUuid,
+                                    debug=debug)
 
         while fileService.running and mkwrapper.running and not check_exit():
             time.sleep(1)

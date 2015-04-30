@@ -10,7 +10,7 @@ class ZeroconfService:
     """
 
     def __init__(self, name, port, stype="_http._tcp", subtype=None,
-                 domain="", host="", text=""):
+                 domain="", host="", text="", loopback=False):
         self.name = name
         self.stype = stype
         self.domain = domain
@@ -18,21 +18,27 @@ class ZeroconfService:
         self.port = port
         self.text = text
         self.subtype = subtype
+        self.loopback = loopback
+        self.group = None
 
     def publish(self):
         bus = dbus.SystemBus()
         server = dbus.Interface(
-                         bus.get_object(
-                                 avahi.DBUS_NAME,
-                                 avahi.DBUS_PATH_SERVER),
-                        avahi.DBUS_INTERFACE_SERVER)
+            bus.get_object(
+                avahi.DBUS_NAME,
+                avahi.DBUS_PATH_SERVER),
+            avahi.DBUS_INTERFACE_SERVER)
 
         g = dbus.Interface(
-                    bus.get_object(avahi.DBUS_NAME,
-                                   server.EntryGroupNew()),
-                    avahi.DBUS_INTERFACE_ENTRY_GROUP)
+            bus.get_object(avahi.DBUS_NAME,
+                           server.EntryGroupNew()),
+            avahi.DBUS_INTERFACE_ENTRY_GROUP)
 
-        g.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, dbus.UInt32(0),
+        iface = avahi.IF_UNSPEC
+        if self.loopback:
+            iface = 0
+
+        g.AddService(iface, avahi.PROTO_UNSPEC, dbus.UInt32(0),
                      self.name, self.stype, self.domain, self.host,
                      dbus.UInt16(self.port), self.text)
 
@@ -54,23 +60,24 @@ class Service:
     """A simple class to publish a Machinekit network service using zeroconf.
     """
 
-    def __init__(self, type, svcUuid, dsn, port, name=None, ip=None,
-                debug=False):
+    def __init__(self, type, svcUuid, dsn, port, name=None, host=None,
+                loopback=False, debug=False):
         self.dsn = dsn
         self.svcUuid = svcUuid
         self.type = type
         self.port = port
         self.name = name
-        self.ip = ip
+        self.host = host
+        self.loopback = loopback
         self.debug = debug
 
         self.stype = '_machinekit._tcp'
-        self.subtype = '_' + self.type + '._sub.' + self.stype
+        self.subtype = '_%s._sub.%s' % (self.type, self.stype)
 
         if name is None:
             pid = os.getpid()
-            self.name = self.type.title() \
-            + ' on ' + self.ip + ' pid ' + str(pid)
+            self.name = '%s on %s pid %i' % \
+                        (self.type.title(), self.host, pid)
 
         me = uuid.uuid1()
         self.statusTxtrec = [str('dsn=' + self.dsn),
@@ -87,7 +94,8 @@ class Service:
         self.statusService = ZeroconfService(self.name, self.port,
                                             stype=self.stype,
                                             subtype=self.subtype,
-                                            text=self.statusTxtrec)
+                                            text=self.statusTxtrec,
+                                            loopback=self.loopback)
 
     def publish(self):
         self.statusService.publish()
