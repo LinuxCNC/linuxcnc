@@ -406,8 +406,8 @@ $(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
 	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
 ifeq ($(TRIVIAL_BUILD),no)
-configure config.h.in: configure.in
-	@echo "*** configure.in has changed ***" >&2
+configure config.h.in: configure.ac
+	@echo "*** configure.ac has changed ***" >&2
 	@echo "Not running autoconf to avoid tainting universal build" >&2
 	@echo "Please investigate or start from scratch:" >&2
 	@echo "./autogen.sh && ./configure --your-configure-args..." >&2
