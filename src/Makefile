@@ -183,6 +183,7 @@ SUBDIRS := \
 	machinetalk/webtalk \
 	machinetalk/haltalk \
 	machinetalk/mkwrapper \
+	machinetalk/mklauncher \
 	machinetalk/videoserver \
 	\
 	libnml/linklist \
@@ -975,6 +976,7 @@ install-python: install-dirs
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
 	$(EXE) ../bin/videoserver $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mkwrapper $(DESTDIR)$(bindir)
+	$(EXE) ../bin/mklauncher $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gremlin $(DESTDIR)$(bindir)
 	$(EXE) ../bin/lintini $(DESTDIR)$(bindir)
 	$(EXE) ../bin/teach-in $(DESTDIR)$(bindir)
