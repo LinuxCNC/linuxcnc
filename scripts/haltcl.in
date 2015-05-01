@@ -22,6 +22,10 @@ if {   [llength $argv] > 0 \
     set argv [lrange $argv 2 end]
 }
 
+if {[llength $argv] > 0 && [lindex $argv 0] == "-r"} {
+    hal halcmd_is_halrun
+    set argv [lrange $argv 1 end]
+}
     
 proc setp {p v} {
     set v [uplevel [list expr $v]]

@@ -22,6 +22,7 @@
 
 Tcl_Interp *target_interp = NULL;
 static int pending_cr = 0;
+static bool tcl_lives;
 
 static void halError(Tcl_Interp *interp, int result) {
     // Usually, halcmd leaves a good string message via halcmd_error()
@@ -74,6 +75,13 @@ static int halCmd(ClientData cd, Tcl_Interp *interp, int argc, const char **argv
         return TCL_OK;
     }
 
+    if(strcmp(argv[1], "halcmd_is_halrun") == 0)
+    {
+        halcmd_is_halrun = ! halcmd_is_halrun;
+        Tcl_ResetResult(interp);
+        return TCL_OK;
+    }
+
     target_interp = interp;
     pending_cr = 0;
     result = halcmd_parse_cmd((char **)argv+1);
@@ -82,6 +90,11 @@ static int halCmd(ClientData cd, Tcl_Interp *interp, int argc, const char **argv
     if(result == 0) return TCL_OK;
     halError(interp, result);
     return TCL_ERROR;
+}
+
+static void exiting(ClientData unused)
+{
+    tcl_lives = false;
 }
 
 int Hal_Init(Tcl_Interp *interp) {
@@ -97,9 +110,12 @@ int Hal_Init(Tcl_Interp *interp) {
         return TCL_ERROR;
     }
 
+    Tcl_CreateExitHandler(exiting, NULL);
+
     Tcl_CreateCommand(interp, "hal", halCmd, 0, halExit);
 
     Tcl_PkgProvide(interp, "Hal", "1.0");
+    tcl_lives = true;
     return TCL_OK;
 }
 
@@ -115,6 +131,7 @@ void halcmd_output(const char *format, ...) {
     va_start(ap, format);
     vsnprintf(buf, BUFFERLEN, format, ap);
     va_end(ap);
+    if(!tcl_lives) return;
 
     if(pending_cr) 
 	Tcl_AppendResult(target_interp, "\n", NULL);
@@ -136,6 +153,7 @@ void halcmd_error(const char *format, ...) {
     va_start(ap, format);
     vsnprintf(buf, BUFFERLEN, format, ap);
     va_end(ap);
+    if(!tcl_lives) {fprintf( stderr, "%s\n", buf); return; }
 
     if(pending_cr) 
 	Tcl_AppendResult(target_interp, "\n", NULL);
@@ -157,6 +175,7 @@ void halcmd_warning(const char *format, ...) {
     va_start(ap, format);
     vsnprintf(buf, BUFFERLEN, format, ap);
     va_end(ap);
+    if(!tcl_lives) return;
 
     if(pending_cr) 
 	Tcl_AppendResult(target_interp, "\n", NULL);
@@ -178,6 +197,8 @@ void halcmd_info(const char *format, ...) {
     va_start(ap, format);
     vsnprintf(buf, BUFFERLEN, format, ap);
     va_end(ap);
+
+    if(!tcl_lives) return;
 
     if(pending_cr) 
 	Tcl_AppendResult(target_interp, "\n", NULL);
