@@ -145,7 +145,7 @@ if $HAVEFILE ; then
   fi
 fi
 
-if [ ! -z "$INTERACTIVE" ]; then $INTERACTIVE; fi
+if [ ! -z "$INTERACTIVE" ]; then exec $INTERACTIVE -r; fi
 
 halcmd stop || result=$?
 halcmd unload all || result=$?
