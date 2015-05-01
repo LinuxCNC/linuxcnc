@@ -29,3 +29,6 @@ PYI18NSRCS += emc/usr_intf/gmoccapy/gmoccapy.py $(patsubst %,emc/usr_intf/gmocca
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
 
+clean: gmoccapy-clean
+gmoccapy-clean:
+	rm -rf ../lib/python/gmoccapy

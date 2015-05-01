@@ -51,15 +51,13 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 endif
 
 debian/control: debian/configure
-	@echo rebuilding debian/control
-#	# if debian/configure has already been run, re-run; else error out
-	if test -f debian/configure.cmdline; then \
-	    bash debian/configure.cmdline; \
-	else \
+#	# if debian/configure has not been run, error out
+	if ! test -f debian/configure.cmdline; then \
 	    @echo "Please run debian/configure" \
 	        "to generate the debian/control file."; \
 	    false; \
 	fi
+	@echo rebuilding debian/control
 
 
 build: build-arch build-indep
@@ -91,6 +89,9 @@ clean: debian/control
 	dh_testroot
 	rm -f build-stamp
 
+#	# Only run configure if the tree looks dirty. Running
+#	# ./configure in qemu is expensive.
+ifneq ($(wildcard src/configure src/Makefile.inc),)
 	cd src && ./autogen.sh
 	cd src && ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
@@ -106,10 +107,41 @@ clean: debian/control
 	    --mandir=/usr/share/man \
 	    --enable-emcweb
 	cd src && $(MAKE) clean -s
-	rm -f Makefile.inc
-	rm -f src/config.log src/config.status
+#	# Manually remove things left by './configure'
+	rm -f \
+	    lib/python/machinekit/config.py \
+	    lib/python/nf.py \
+	    man/man1/linuxcnc.1 \
+	    scripts/check-build-vs-configure-sha \
+	    scripts/gen-rtapi.ini.sh \
+	    scripts/gen-rtapi.ini.sh.in \
+	    scripts/halrun \
+	    scripts/haltcl \
+	    scripts/linuxcnc \
+	    scripts/linuxcnc_var \
+	    scripts/linuxcncmkdesktop \
+	    scripts/machinekit.ini.tmpl \
+	    scripts/realtime \
+	    scripts/rip-environment \
+	    share/applications/linuxcnc-latency.desktop \
+	    share/applications/linuxcnc.desktop \
+	    share/desktop-directories/cnc.directory \
+	    share/menus/CNC.menu \
+	    src/Makefile.inc \
+	    src/Makefile.modinc \
+	    src/aclocal.m4 \
+	    src/config.h \
+	    src/config.h.in \
+	    src/config.log \
+	    src/config.status \
+	    src/configure \
+	    src/machinekitcfg.py-tmp \
+	    tcl/linuxcnc.tcl
+	rm -rf src/autom4te.cache
+endif
 
-	dh_clean debian/control debian/machinekit-*-kernel-*.install
+#	# Remove package artifacts
+	dh_clean
 
 install: build
 	dh_testdir

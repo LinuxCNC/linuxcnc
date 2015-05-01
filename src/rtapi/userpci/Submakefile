@@ -23,3 +23,7 @@ hostmot2-objs +=			  \
     rtapi/userpci/string.o
 endif
 
+
+clean: userpci-clean
+userpci-clean:
+	rm -rf ../include/userpci

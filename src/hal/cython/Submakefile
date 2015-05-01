@@ -89,3 +89,9 @@ TARGETS += ../lib/python/machinekit/shmcommon.so
 
 $(HALNGDIR)/machinekit/%.c: $(addprefix $(HALNGDIR)/machinekit/, %.pyx %.pxd)
 	$(CYTHON) -o $@ $<
+
+clean: cython-clean
+cython-clean:
+	for f in compat hal rtapi shmcommon; do \
+	    rm -f hal/cython/machinekit/$$f.c; \
+	done

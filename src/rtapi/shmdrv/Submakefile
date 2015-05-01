@@ -86,3 +86,8 @@ USERSRCS += $(MUTEXWATCH_SRCS)
 TARGETS += ../bin/mutexwatch
 
 endif # BUILD_EXAMPLES
+
+
+clean: shmdrv-clean
+shmdrv-clean:
+	rm -rf ../include/shmdrv

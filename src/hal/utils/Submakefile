@@ -134,3 +134,7 @@ TARGETS += ../bin/instcomp
 objects/%.py: %.g ../bin/yapps
 	@mkdir -p $(dir $@)
 	$(Q)../bin/yapps $< $@
+
+clean: hal-utils-clean
+hal-utils-clean:
+	rm -f ../bin/yapps ../lib/python/yapps/*.pyc

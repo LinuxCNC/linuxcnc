@@ -138,8 +138,10 @@ TARGETS += ../lib/webtalk/plugins/pbzws.o
 
 endif
 
+clean: webtalk-clean
 webtalk-clean:
-	-rm -f \
-	machinetalk/webtalk/zws.pb.cc \
-	machinetalk/webtalk/zws.pb.h \
-	../lib/python/zws_pb2.py
+	rm -f \
+	    machinetalk/webtalk/zws.pb.cc \
+	    machinetalk/webtalk/zws.pb.h \
+	    ../lib/python/zws_pb2.py
+	rm -rf ../lib/webtalk

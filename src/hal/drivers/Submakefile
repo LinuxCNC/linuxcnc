@@ -30,6 +30,7 @@ pluto_clean:
 	    pluto_servo_firmware/pluto_servo.tan.rpt \
 	    pluto_servo_firmware/pluto_servo.tan.summary \
 	    pluto_servo_firmware/undo_redo.txt
+	rm -f hal/drivers/pluto_*_rbf.h
 
 # The kernel's build system won't know how to rebuild generated files
 # so modules must depend on them explicitly

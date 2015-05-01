@@ -81,3 +81,7 @@ po/linuxcnc.pot: $(PYI18NSRCS)
 .PHONY: install-locale
 install-locale: $(addprefix $(DESTDIR)$(localedir)/, $(MO_FILES))
 install-kernel-indep: install-locale
+
+clean: po-clean
+po-clean:
+	rm -rf ../share/locale
