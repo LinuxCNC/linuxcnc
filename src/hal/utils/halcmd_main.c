@@ -93,7 +93,7 @@ int main(int argc, char **argv)
     keep_going = 0;
     /* start parsing the command line, options first */
     while(1) {
-        c = getopt(argc, argv, "+RCfi:kqQsvVhe");
+        c = getopt(argc, argv, "+RCfi:kqQsvVher");
         if(c == -1) break;
         switch(c) {
             case 'R':
@@ -165,6 +165,9 @@ int main(int argc, char **argv)
                 }
                 if (comp_id >= 0) halcmd_shutdown();
                 exit(0);
+                break;
+            case 'r':
+                halcmd_is_halrun = ! halcmd_is_halrun;
                 break;
 #ifndef NO_INI
 	    case 'i':

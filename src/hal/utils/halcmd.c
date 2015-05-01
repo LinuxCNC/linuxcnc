@@ -87,6 +87,7 @@ int halcmd_done = 0;		/* used to break out of processing loop */
 int scriptmode = 0;	/* used to make output "script friendly" (suppress headers) */
 int echo_mode = 0;
 char comp_name[HAL_NAME_LEN+1];	/* name for this instance of halcmd */
+bool halcmd_is_halrun = false;
 
 static void quit(int);
 
@@ -123,7 +124,14 @@ int halcmd_startup(int quiet) {
 void halcmd_shutdown(void) {
     /* tell the signal handler we might have the mutex */
     hal_flag = 1;
+    if(halcmd_is_halrun) {
+        do_stop_cmd();
+        do_unload_cmd("all");
+    }
     hal_exit(comp_id);
+    if(halcmd_is_halrun) {
+        system(LINUXCNC_REALTIME_SCRIPT " unload");
+    }
 }
 
 /* parse_cmd() decides which command has been invoked, gathers any

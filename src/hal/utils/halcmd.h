@@ -85,6 +85,8 @@ struct halcmd_command {
 extern struct halcmd_command halcmd_commands[];
 extern int halcmd_ncommands;
 
+extern bool halcmd_is_halrun;
+
 extern FILE *halcmd_inifile;
 
 #define MAX_TOK 20
