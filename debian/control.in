@@ -24,8 +24,7 @@ Standards-Version: 2.1.0
 Package: machinekit-dev
 Architecture: any
 Depends: make, g++, @TCL_TK_BUILD_DEPS@,
-    python (>= 2.6), python (<< 2.8),
-    ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
+    ${shlibs:Depends}, ${misc:Depends},
     machinekit (= ${binary:Version}),
     yapps2-runtime
 Section: libs
@@ -43,7 +42,6 @@ Replaces: linuxcnc
 Architecture: any
 Depends: ${shlibs:Depends}, machinekit-rt-threads, @TCL_TK_DEPS@,
     bwidget (>= 1.7), libtk-img (>=1.13),
-    python (= ${python:Versions}),
     ${python:Depends}, ${misc:Depends},
     python-tk, python-imaging, python-imaging-tk,
     python-gnome2, python-glade2,
