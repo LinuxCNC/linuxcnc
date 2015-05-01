@@ -177,6 +177,6 @@ cdef _new_sig(char *name, int type):
         raise TypeError("new_sig: %s - invalid type %d " % (name, type))
     return Signal(name, type)
 
-def new_sig(name,type):
+def newsig(name,type):
     _new_sig(name,type)
     return signals[name] # add to sigdict

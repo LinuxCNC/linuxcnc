@@ -29,7 +29,7 @@ def test_component_creation():
     c2.ready()
 
 def test_net_existing_signal_with_bad_type():
-    hal.new_sig("f", hal.HAL_FLOAT)
+    hal.newsig("f", hal.HAL_FLOAT)
     try:
         hal.net("f", "c1.s32out")
         raise "should not happen"
@@ -54,13 +54,13 @@ def test_net_pin2pin():
 
 
 def test_net_existing_signal():
-    hal.new_sig("s32", hal.HAL_S32)
+    hal.newsig("s32", hal.HAL_S32)
 
     assert hal.pins["c1.s32out"].linked == False
     hal.net("s32", "c1.s32out")
     assert hal.pins["c1.s32out"].linked == True
 
-    hal.new_sig("s32too", hal.HAL_S32)
+    hal.newsig("s32too", hal.HAL_S32)
     try:
         hal.net("s32too", "c1.s32out")
         raise "should not happen"
@@ -69,28 +69,28 @@ def test_net_existing_signal():
 
     del hal.signals["s32"]
 
-def test_new_sig():
-    floatsig1 = hal.new_sig("floatsig1", hal.HAL_FLOAT)
+def test_newsig():
+    floatsig1 = hal.newsig("floatsig1", hal.HAL_FLOAT)
     try:
-        hal.new_sig("floatsig1", hal.HAL_FLOAT)
+        hal.newsig("floatsig1", hal.HAL_FLOAT)
         # RuntimeError: Failed to create signal floatsig1: HAL: ERROR: duplicate signal 'floatsig1'
         raise "should not happen"
     except RuntimeError:
         pass
     try:
-        hal.new_sig(32423 *32432, hal.HAL_FLOAT)
+        hal.newsig(32423 *32432, hal.HAL_FLOAT)
         raise "should not happen"
     except TypeError:
         pass
 
     try:
-        hal.new_sig(None, hal.HAL_FLOAT)
+        hal.newsig(None, hal.HAL_FLOAT)
         raise "should not happen"
     except TypeError:
         pass
 
     try:
-        hal.new_sig("badtype", 1234)
+        hal.newsig("badtype", 1234)
         raise "should not happen"
     except TypeError:
         pass
