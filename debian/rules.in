@@ -50,7 +50,6 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
 endif
 
-
 debian/control: debian/configure
 	@echo rebuilding debian/control
 #	# if debian/configure has already been run, re-run; else error out
@@ -84,7 +83,7 @@ build-stamp: debian/control
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    --enable-emcweb
-	cd src && $(MAKE) $(MAKEFLAGS)
+	cd src && $(MAKE) $(MAKEFLAGS) V=$(DH_VERBOSE)
 	touch build-stamp
 
 clean: debian/control
@@ -120,7 +119,7 @@ install: build
 # start the install
 	mkdir -p debian/tmp
 	(cd debian/extras && cp -a * ../tmp)
-	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
+	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
 	rm debian/tmp/usr/share/applications/linuxcnc-usermanual*.desktop
