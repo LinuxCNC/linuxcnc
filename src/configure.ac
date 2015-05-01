@@ -139,7 +139,7 @@ AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(EGREP, egrep)
 AC_PATH_PROG(ARCHCMD, arch)
 
-AC_PROG_CC([gcc])
+AC_PROG_CC
 AC_SUBST([CROSS_COMPILING],[$cross_compiling])
 dnl Put a plausible default for CC_FOR_BUILD in Makefile.inc.in
 if test "$cross_compiling" = yes; then

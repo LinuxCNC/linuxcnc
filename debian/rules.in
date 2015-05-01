@@ -16,10 +16,7 @@
 
 # For cross-compiling
 include /usr/share/dpkg/architecture.mk
-ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
-	CC=gcc
-else
-	CC=$(DEB_HOST_GNU_TYPE)-gcc
+ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
 	set DEB_BUILD_OPTIONS=nocheck 
 endif
 # Uncomment this to turn on verbose mode.
@@ -68,7 +65,8 @@ build-stamp: debian/control
 
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
-	cd src && ./configure --prefix=/usr \
+	cd src && env CC=$(CC) CXX=$(CXX) \
+	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
 	    --host=$(DEB_HOST_MULTIARCH) \
 	    $(THREADS_POSIX) \
@@ -93,7 +91,8 @@ clean: debian/control
 #	# ./configure in qemu is expensive.
 ifneq ($(wildcard src/configure src/Makefile.inc),)
 	cd src && ./autogen.sh
-	cd src && ./configure --prefix=/usr \
+	cd src && env CC=$(CC) CXX=$(CXX) \
+	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
 	    --host=$(DEB_HOST_MULTIARCH) \
 	    $(THREADS_POSIX) \
