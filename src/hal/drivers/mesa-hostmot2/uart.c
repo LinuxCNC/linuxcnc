@@ -262,6 +262,7 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
     }
 }
 
+// This function needs to be modified so that it does not call llio->read, which hurts performance on hm2-eth
 EXPORT_SYMBOL_GPL(hm2_uart_read);
 int hm2_uart_read(char *name, unsigned char data[])
 {

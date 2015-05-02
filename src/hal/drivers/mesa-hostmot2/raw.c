@@ -105,10 +105,10 @@ int hm2_raw_setup(hostmot2_t *hm2) {
 
 
 
-void hm2_raw_read(hostmot2_t *hm2) {
+void hm2_raw_queue_read(hostmot2_t *hm2) {
     if (hm2->config.enable_raw == 0) return;
 
-    hm2->llio->read(
+    hm2->llio->queue_read(
         hm2->llio,
         *hm2->raw->hal.pin.read_address & 0xffff,
         (void *)hm2->raw->hal.pin.read_data,

@@ -274,7 +274,10 @@ def main():
         window.window.maximize()
 
     if opts.halfile:
-        cmd = ["halcmd", "-f", opts.halfile]
+        if opts.halfile[-4:] == ".tcl":
+            cmd = ["haltcl", opts.halfile]
+        else:
+            cmd = ["halcmd", "-f", opts.halfile]
         res = subprocess.call(cmd, stdout=sys.stdout, stderr=sys.stderr)
         if res:
             print >> sys.stderr, "'%s' exited with %d" %(' '.join(cmd), res)

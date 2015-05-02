@@ -83,6 +83,16 @@ maximum is 9).
 Use of the names= option for naming is \\fBrequired\\fR for compatibilty
 with the gui provided as scripts/moveoff_gui:
   loadrt moveoff names=\\fBmv\\fR personality=number_of_joints
+
+\\fBman moveoff_gui\\fR for more information
+
+.SH EXAMPLES
+Example simulator configs that demonstrate the moveoff component and a simple gui
+(scripts/moveoff_gui) are located in configs/sim/axis/moveoff. The axis gui is
+used for the demonstrations and the configs can be adapted for other guis like
+touchy and gscreen.  An example with the touchy gui is provided in
+configs/sim/touchy/ngcgui/.
+
 """;
 
 //"""" quote char for vim highlighting
@@ -111,7 +121,7 @@ pin in  bit move_enable   "Enable offsets (Enabling requires apply-offset TRUE a
 pin in  bit apply_offsets "Enable offsets (Enabling requires move-enable TRUE also)";
 pin in  bit backtrack-enable = 1 "Enable backtrack on auto-return";
 
-pin in  float epsilon=0.0005 "When enablin pins are deactivated, return to un-offsetted position within epsilon units.  Warning: values that are too small in value may cause overshoot,  A minimum value of 0.0001 is \\fBsilently enforced\\fR";
+pin in  float epsilon=0.0005 "When enabling pins are deactivated, return to un-offsetted position within epsilon units.  Warning: values that are too small in value may cause overshoot,  A minimum value of 0.0001 is \\fBsilently enforced\\fR";
 pin in float waypoint-threshold = 0.02 "Minimum distance (in a single axis) for a new waypoint";
 pin in float waypoint-sample-secs = 0.02 "Minimum sample interval (in seconds) for a new waypoint";
 

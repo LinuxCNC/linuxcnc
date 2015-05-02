@@ -1080,7 +1080,9 @@ int hm2_register_tram_read_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 siz
 int hm2_register_tram_write_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 size, rtapi_u32 **buffer);
 int hm2_allocate_tram_regions(hostmot2_t *hm2);
 int hm2_tram_read(hostmot2_t *hm2);
+int hm2_finish_read(hostmot2_t *hm2);
 int hm2_tram_write(hostmot2_t *hm2);
+int hm2_finish_write(hostmot2_t *hm2);
 void hm2_tram_cleanup(hostmot2_t *hm2);
 
 
@@ -1179,7 +1181,8 @@ void hm2_tp_pwmgen_cleanup(hostmot2_t *hm2);
 void hm2_tp_pwmgen_write(hostmot2_t *hm2);
 void hm2_tp_pwmgen_force_write(hostmot2_t *hm2);
 void hm2_tp_pwmgen_prepare_tram_write(hostmot2_t *hm2);
-void hm2_tp_pwmgen_read(hostmot2_t *hm2);
+void hm2_tp_pwmgen_queue_read(hostmot2_t *hm2);
+void hm2_tp_pwmgen_process_read(hostmot2_t *hm2);
 
 
 //
@@ -1289,7 +1292,7 @@ void hm2_led_cleanup(hostmot2_t *hm2);
 //
 
 int hm2_raw_setup(hostmot2_t *hm2);
-void hm2_raw_read(hostmot2_t *hm2);
+void hm2_raw_queue_read(hostmot2_t *hm2);
 void hm2_raw_write(hostmot2_t *hm2);
 
 

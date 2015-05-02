@@ -82,6 +82,11 @@ static void hm2_read(void *void_hm2, long period) {
 
     hm2_tram_read(hm2);
     if ((*hm2->llio->io_error) != 0) return;
+    hm2_raw_queue_read(hm2);
+    hm2_tp_pwmgen_queue_read(hm2);
+    hm2_finish_read(hm2);
+    if ((*hm2->llio->io_error) != 0) return;
+
     hm2_watchdog_process_tram_read(hm2);
     hm2_ioport_gpio_process_tram_read(hm2);
     hm2_encoder_process_tram_read(hm2, period);
@@ -92,9 +97,8 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_absenc_process_tram_read(hm2, period);
     //UARTS need to be explicity handled by an external component
 
-    hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
+    hm2_tp_pwmgen_process_read(hm2); // check the status of the fault bit
     hm2_dpll_process_tram_read(hm2, period);
-    hm2_raw_read(hm2);
 }
 
 
@@ -128,6 +132,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
+    hm2_finish_write(hm2);
 }
 
 
@@ -1429,6 +1434,11 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         goto fail1;
     }
 
+    r = hm2_finish_read(hm2);
+    if (r != 0) {
+        goto fail1;
+    }
+
     // set HAL gpio input pins based on FPGA pins
     hm2_ioport_gpio_process_tram_read(hm2);
 
@@ -1461,6 +1471,10 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         goto fail1;
     }
 
+    r = hm2_finish_write(hm2);
+    if (r != 0) {
+        goto fail1;
+    }
 
     //
     // final check for comm errors

@@ -187,9 +187,12 @@ force_write:
 //
 // Read the fault bit for each instance
 //
-void hm2_tp_pwmgen_read(hostmot2_t *hm2) {
+void hm2_tp_pwmgen_queue_read(hostmot2_t *hm2) {
+    hm2->llio->queue_read(hm2->llio, hm2->tp_pwmgen.enable_addr, hm2->tp_pwmgen.enable_reg, (hm2->tp_pwmgen.num_instances * sizeof(rtapi_u32)));
+}
+
+void hm2_tp_pwmgen_process_read(hostmot2_t *hm2) {
     int i;
-    hm2->llio->read(hm2->llio, hm2->tp_pwmgen.enable_addr, hm2->tp_pwmgen.enable_reg, (hm2->tp_pwmgen.num_instances * sizeof(rtapi_u32)));
     for (i = 0 ; i < hm2->tp_pwmgen.num_instances ; i++) {
         *hm2->tp_pwmgen.instance[i].hal.pin.fault
             = (hm2->tp_pwmgen.enable_reg[i] & 2);

@@ -63,6 +63,16 @@ One function is created per FIFO, numbered from zero.
     HAL pins but found no fresh data in the FIFO.  It increments whenever
     *empty* is true, and can be reset by the *setp* command.
 
+*streamer*._N_.*clock bit input::
+    Clock for data as specified by the clock-mode pin
+
+*streamer*._N_.*clock-mode s32 input::
+    Defines behavior of clock pin:
+
+      * 0 (*default*) free run at every iteration
+      * 1 clock on falling edge of clock pin
+      * 2 clock on rising edge of clock pin
+      * 3 clock on any edge of clock pin
 
 == SEE ALSO
 *halstreamer*(1) *sampler*(9) *halsampler*(1)

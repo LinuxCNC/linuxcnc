@@ -25,4 +25,4 @@ For additional info, see the manpages:
 
    man sim_pin  ------ utility for setting pins
    man moveoff  ------ moveoff component
-   man moveoff_gui --- moveoff sample gui       
+   man moveoff_gui --- moveoff sample gui

@@ -130,6 +130,17 @@ packets out eth1.
 .SH BUGS
 At this time, only a single board is supported.
 
+Some hostmot2 functions such uart are coded in a way that causes additional
+latency when used with hm2_eth.
+
+The HAL pins for the LEDs are called CR01..CR04, but the silkscreens are
+CR3..CR6.  Depending on the FPGA firmware, the LEDs may initially be under
+control of the ethernet engine.  This can be changed until power cycle with
+
+.EX
+elbpcom 01D914000000
+.EE
+
 .SH SEE ALSO
 
 hostmot2(9)

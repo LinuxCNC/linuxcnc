@@ -519,6 +519,7 @@ struct Posix : RtapiApp
     int task_start(int task_id, unsigned long period_nsec);
     int task_pause(int task_id);
     int task_resume(int task_id);
+    int task_self();
     void wait();
     unsigned char do_inb(unsigned int port);
     void do_outb(unsigned char value, unsigned int port);
@@ -879,6 +880,12 @@ int Posix::task_resume(int) {
     return -ENOSYS;
 }
 
+int Posix::task_self() {
+    struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
+    if(!task) return -EINVAL;
+    return task - task_array;
+}
+
 static bool ts_less(const struct timespec &ta, const struct timespec &tb) {
     if(ta.tv_sec < tb.tv_sec) return 1;
     if(ta.tv_sec > tb.tv_sec) return 0;
@@ -983,6 +990,11 @@ int rtapi_task_pause(int task_id)
 int rtapi_task_resume(int task_id)
 {
     return App().task_resume(task_id);
+}
+
+int rtapi_task_self()
+{
+    return App().task_self();
 }
 
 void rtapi_wait(void)
