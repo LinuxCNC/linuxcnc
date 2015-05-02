@@ -764,6 +764,7 @@ int main(int argc, char **argv)
 	// wait until EMC and AXIS is ready, ie enable bit is set
 	while (!*(haldata->enable)){
 		// do nothing until enabled
+                usleep(10*1000);
 	}
 	
 	// read the VFD setup parameters
