@@ -518,7 +518,7 @@ int main(int argc, char **argv)
 	baud = 19200;
 	bits = 8;
 	stopbits = 1;
-	debug = TRUE;
+	debug = FALSE;
 	device = "/dev/ttyS0";
 	parity = "even";
 	slave = 1;
