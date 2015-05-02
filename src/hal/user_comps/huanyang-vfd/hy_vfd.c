@@ -137,6 +137,10 @@ typedef struct {
 } haldata_t;
 
 static int done;
+static void quit_signal_handler(int sig) {
+    done = 1;
+}
+
 char *modname = "hy_vfd";
 
 static struct option long_options[] = {
@@ -603,8 +607,11 @@ int main(int argc, char **argv)
 		printf("%s: device='%s', baud=%d, bits=%d, parity='%s', stopbits=%d, address=%d, debug=%d, PID=%d\n",
 				modname,device, baud, bits, parity, stopbits, slave, debug, getpid());
 	}
-	
-	
+
+        /* SIGTERM and SIGINT trigger a clean shutdown */
+        signal(SIGINT, quit_signal_handler);
+        signal(SIGTERM, quit_signal_handler);
+
 	/* Assume 19.2k E-8-1 serial settings, device 1 */
 	modbus_init(&mb_param, device, baud, parity, bits, stopbits);
 	mb_param.debug = debug;
