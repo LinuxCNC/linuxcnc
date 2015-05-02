@@ -215,7 +215,7 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	int retval;
 	int CNTR, old_CNTR;
 	int CNST;
-	hal_float_t hzcalc;
+	hal_float_t hz_per_rpm;
 	int freq_comp;
 	int freq, old_freq;
 	
@@ -231,8 +231,8 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 		freq_comp = 0;	
 	}
 
-	hzcalc = 50 / *(haldata->rated_motor_rev);
-	freq =  abs((int)((*(haldata->speed_command)+freq_comp)*hzcalc*100));
+	hz_per_rpm = *haldata->max_freq / *(haldata->rated_motor_rev);
+	freq =  abs((int)((*(haldata->speed_command)+freq_comp)*hz_per_rpm*100));
 	
 	// limit the frequency to the max and min as setup in the VFD
 	if (freq > *(haldata->max_freq)*100)
