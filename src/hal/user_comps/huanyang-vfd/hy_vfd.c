@@ -33,7 +33,6 @@
 #include <errno.h>
 #include <getopt.h>
 #include <math.h>
-#include <signal.h>
 #include "rtapi.h"
 #include "hal.h"
 #include "hy_modbus.h"
