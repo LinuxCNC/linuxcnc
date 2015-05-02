@@ -604,8 +604,8 @@ AC_ARG_WITH(platform-pc,
 	esac
     ],
     [
-        case $host in
-	    (i?86-* | x86_64-*)
+        case $host_cpu in
+	    (i?86 | x86_64)
 	        TARGET_PLATFORM_PC=unk
 		;;
 	    (*)
@@ -633,8 +633,8 @@ AC_ARG_WITH(platform-beaglebone,
 	esac
     ],
     [
-        case $host in
-	    (armv7l-*)
+        case $host_cpu in
+	    (arm*)
 	        TARGET_PLATFORM_BEAGLEBONE=unk
 		;;
 	    (*)
@@ -662,8 +662,8 @@ AC_ARG_WITH(platform-raspberry,
 	esac
     ],
     [
-        case $host in
-	    (armv7l-*)
+        case $host_cpu in
+	    (arm*)
 	        TARGET_PLATFORM_RASPBERRY=unk
 		;;
 	    (*)
@@ -691,8 +691,8 @@ AC_ARG_WITH(platform-zedboard,
 	esac
     ],
     [
-        case $host in
-	    (armv7l-*)
+        case $host_cpu in
+	    (arm*)
 	        TARGET_PLATFORM_ZEDBOARD=unk
 		;;
 	    (*)
