@@ -24,9 +24,6 @@
 #error This is intended as a userspace component only.
 #endif
 
-#define DEBUG
-//#undef DEBUG
-
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
