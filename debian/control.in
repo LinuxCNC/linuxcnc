@@ -5,7 +5,7 @@ Maintainer: Sebastian Kuzminsky <seb@highlab.com>
 Build-Depends: debhelper (>= 6),
     @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@,
     tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev,
-    libxaw7-dev, libncurses-dev, libreadline-dev,
+    libxaw7-dev, libncurses-dev, @LIBREADLINE_DEV@,
     asciidoc (>= 8.5), source-highlight, dblatex (>= 0.2.12), xsltproc, groff,
     python, python-dev, python-support, python-tk, python-lxml,
     libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
