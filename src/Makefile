@@ -667,7 +667,7 @@ modules:  $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp
 	$(PYTHON) modsilent.py $(MAKE) \
 	    -C $(KERNELDIR) \
 	    SUBDIRS=$(BASEPWD)/$(OBJDIR) \
-	    CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
+	    CC="$(CC)" KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
 	cp $(OBJDIR)/Module.symvers $(OBJDIR)/*$(MODULE_EXT) $(RTLIBDIR)
 endif  # BUILD_SYS == 'kbuild'
 

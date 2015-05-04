@@ -65,7 +65,7 @@ build-stamp: debian/control
 
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
-	cd src && env CC=$(CC) CXX=$(CXX) \
+	cd src && env CC="$(CC)" CXX="$(CXX)" \
 	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
 	    --host=$(DEB_HOST_MULTIARCH) \
@@ -79,7 +79,7 @@ build-stamp: debian/control
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    --enable-emcweb
-	cd src && $(MAKE) $(MAKEFLAGS) V=$(DH_VERBOSE)
+	cd src && $(MAKE) $(MAKEFLAGS) V=$(DH_VERBOSE) CCACHE_DIR=$(CCACHE_DIR)
 	touch build-stamp
 
 clean: debian/control
@@ -91,7 +91,7 @@ clean: debian/control
 #	# ./configure in qemu is expensive.
 ifneq ($(wildcard src/configure src/Makefile.inc),)
 	cd src && ./autogen.sh
-	cd src && env CC=$(CC) CXX=$(CXX) \
+	cd src && env CC="$(CC)" CXX="$(CXX)" \
 	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
 	    --host=$(DEB_HOST_MULTIARCH) \

@@ -96,7 +96,7 @@ modules:
 	    -C $(KERNELDIR) \
 	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" \
 	    SUBDIRS=`pwd` \
-	    CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
+	    CC="$(CC)" KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
 
 clean:
 	rm *.ko *.mod.c *.o
