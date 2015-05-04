@@ -2125,10 +2125,6 @@ fi
 # Paths in config.h should be reduced to one:  EMC2_SYSTEM_CONFIG_DIR.
 # This should contain the .ini file that points to everything else.
 
-# this timestamp has the same format as the gcc __DATE__ macro for easier comparison
-CONFIG_DATE=$(date "+%b %e %Y %T")
-AC_SUBST([CONFIG_DATE])
-
 # do this here since substituted into files
 # needed below after substitution
 MACHINEKIT_INI="$EMC2_SYSTEM_CONFIG_DIR/machinekit.ini"
@@ -2143,7 +2139,6 @@ AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc fi
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
 AC_DEFINE_UNQUOTED([GIT_VERSION], "$GIT_VERSION", [Git version tag])
 AC_DEFINE_UNQUOTED([GIT_CONFIG_SHA], "$GIT_CONFIG_SHA", [SHA valid when configure was run])
-AC_DEFINE_UNQUOTED([CONFIG_DATE], "$CONFIG_DATE", [date when configure was run])
 
 AC_SUBST([EMC2_SYSTEM_CONFIG_DIR])
 AC_SUBST([EMC2_BIN_DIR])
@@ -2162,9 +2157,6 @@ AC_SUBST([EMC2_LATENCY_SCRIPT])
 AC_SUBST([EMC2_LATENCYPLOT_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
-
-CONFIG_DATE=$(date)
-AC_SUBST([CONFIG_DATE])
 
 
 ##############################################################################

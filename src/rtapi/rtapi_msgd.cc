@@ -973,7 +973,7 @@ int main(int argc, char **argv)
 		 GOOGLE_PROTOBUF_VERSION / 1000000,
 		 (GOOGLE_PROTOBUF_VERSION / 1000) % 1000,
 		 GOOGLE_PROTOBUF_VERSION % 1000);
-    syslog_async(LOG_INFO,"configured: %s sha=%s", CONFIG_DATE, GIT_CONFIG_SHA);
+    syslog_async(LOG_INFO,"configured: sha=%s", GIT_CONFIG_SHA);
     syslog_async(LOG_INFO,"built:      %s %s sha=%s",  __DATE__, __TIME__, GIT_BUILD_SHA);
     if (strcmp(GIT_CONFIG_SHA,GIT_BUILD_SHA))
 	syslog_async(LOG_WARNING, "WARNING: git SHA's for configure and build do not match!");
