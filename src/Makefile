@@ -272,8 +272,7 @@ TODEPS = $(patsubst %.cc,depends/%$(2).d,$(patsubst %.c,depends/%$(2).d,$(1)))
 #-not sure, something fishy here -mah
 #TODEPS = $(patsubst %.cc,objects/%.d,$(patsubst %.c,objects/%.d,$(1)))
 
-TOOBJSDEPS = $(call TOOBJS,$(1),$(2)) $(call TODEPS, $(1),$(2)) \
-	$(patsubst %.cc,%$(2).ii,$(patsubst %.c,%$(2).i,$(1)))
+TOOBJSDEPS = $(call TOOBJS,$(1),$(2)) $(call TODEPS, $(1),$(2))
 
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 -include $(wildcard $(SUBMAKEFILES))
@@ -398,15 +397,6 @@ $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
-
-# Rules to make .i (preprocessed) files
-$(sort $(patsubst %.c,%.i,$(CUSERSRCS))): %.i: %.c
-	$(ECHO) Preprocessing $< to $@
-	$(Q)$(CC) -dD $(CFLAGS) $(EXTRAFLAGS) -E $< -o $@
-
-$(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
-	$(ECHO) Preprocessing $< to $@
-	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
 ifeq ($(TRIVIAL_BUILD),no)
 configure config.h.in: configure.ac
