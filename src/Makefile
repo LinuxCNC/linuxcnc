@@ -164,6 +164,8 @@ default: configs userspace modules
 # Print 'entering' all the time
 MAKEFLAGS += w
 
+INCLUDE_PREFIX = .
+
 # Create the variables with := so that subsequent += alterations keep it
 # as a "substitute at assignment time" variable
 TARGETS :=
@@ -1087,6 +1089,9 @@ ifneq ($(KERNELRELEASE),)
 # KERNELRELEASE is non-empty, therefore we are building modules using
 # the "kbuild" system.
 #
+INCLUDE_PREFIX = $(BASEPWD)
+
+
 # When the Submakefile is included in the kbuild Makefile, the
 # module's obj-m and foo-objs definitions may remain in the Submakefile
 include $(BASEPWD)/hal/lib/Submakefile
@@ -1107,30 +1112,30 @@ endif # KERNELRELEASE non-empty
 
 EXTRA_CFLAGS = $(RTFLAGS) \
 	-D__MODULE__ \
-	-I$(BASEPWD) \
-	-I$(BASEPWD)/libnml/linklist \
-	-I$(BASEPWD)/libnml/cms \
-	-I$(BASEPWD)/libnml/rcs \
-	-I$(BASEPWD)/libnml/inifile \
-	-I$(BASEPWD)/libnml/os_intf \
-	-I$(BASEPWD)/libnml/nml \
-	-I$(BASEPWD)/libnml/buffer \
-	-I$(BASEPWD)/libnml/posemath \
-	-I$(BASEPWD)/protobuf/nanopb \
-	-I$(BASEPWD)/rtapi \
-	-I$(BASEPWD)/hal/lib \
-	-I$(BASEPWD)/emc/nml_intf \
-	-I$(BASEPWD)/emc/kinematics \
-	-I$(BASEPWD)/emc/motion \
-	-I$(BASEPWD)/emc/tp \
-	-I$(BASEPWD)/machinetalk/nanopb \
+	-I$(INCLUDE_PREFIX) \
+	-I$(INCLUDE_PREFIX)/libnml/linklist \
+	-I$(INCLUDE_PREFIX)/libnml/cms \
+	-I$(INCLUDE_PREFIX)/libnml/rcs \
+	-I$(INCLUDE_PREFIX)/libnml/inifile \
+	-I$(INCLUDE_PREFIX)/libnml/os_intf \
+	-I$(INCLUDE_PREFIX)/libnml/nml \
+	-I$(INCLUDE_PREFIX)/libnml/buffer \
+	-I$(INCLUDE_PREFIX)/libnml/posemath \
+	-I$(INCLUDE_PREFIX)/protobuf/nanopb \
+	-I$(INCLUDE_PREFIX)/rtapi \
+	-I$(INCLUDE_PREFIX)/hal/lib \
+	-I$(INCLUDE_PREFIX)/emc/nml_intf \
+	-I$(INCLUDE_PREFIX)/emc/kinematics \
+	-I$(INCLUDE_PREFIX)/emc/motion \
+	-I$(INCLUDE_PREFIX)/emc/tp \
+	-I$(INCLUDE_PREFIX)/machinetalk/nanopb \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
 	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	$(call cc-option,-mieee-fp) \
 	$(KERNEL_MATH_CFLAGS)
 
 ifdef TARGET_PLATFORM_BEAGLEBONE
-EXTRA_CFLAGS += -I$(BASEPWD)/hal/support/pru
+EXTRA_CFLAGS += -I$(INCLUDE_PREFIX)/hal/support/pru
 endif
 ifeq ($(BUILD_SYS),kbuild)
 EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560) $(call cc-option,-Wno-declaration-after-statement)
