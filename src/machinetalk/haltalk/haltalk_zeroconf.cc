@@ -81,7 +81,7 @@ ht_zeroconf_announce(htself_t *self)
     snprintf(name,sizeof(name),  "HAL Rcommand service on %s.local pid %d", hostname, getpid());
 
     if (self->cfg->remote)
-	snprintf(uri,sizeof(uri), "tcp://%s.local.:%d",hostname, self->z_rcomp_port);
+	snprintf(uri,sizeof(uri), "tcp://%s.local.:%d",hostname, self->z_halrcmd_port);
 
     self->halrcmd_publisher = zeroconf_service_announce(name,
 							MACHINEKIT_DNSSD_SERVICE_TYPE,
@@ -94,7 +94,7 @@ ht_zeroconf_announce(htself_t *self)
 							"halrcmd", NULL,
 							self->av_loop);
     if (self->halrcmd_publisher == NULL) {
-	syslog_async(LOG_ERR, "%s: failed to start zeroconf HAL Rcomp publisher\n",
+	syslog_async(LOG_ERR, "%s: failed to start zeroconf HAL Rcommand publisher\n",
 		     self->cfg->progname);
 	return -1;
     }
