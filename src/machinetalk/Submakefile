@@ -358,4 +358,7 @@ TARGETS += $(MT_INSTALL_INCS)
 TARGETS += $(NANOPROTOCLIB) $(NANOPROTOCLIB).0 \
 	$(PROTOCXXLIB) $(PROTOCXXLIB).0
 
-
+clean: machinetalk-clean
+machinetalk-clean:
+	rm -rf machinetalk/generated ../include/machinetalk
+	rm -f ../lib/python/nanopb_pb2.pyc

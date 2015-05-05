@@ -16,10 +16,7 @@
 
 # For cross-compiling
 include /usr/share/dpkg/architecture.mk
-ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
-	CC=gcc
-else
-	CC=$(DEB_HOST_GNU_TYPE)-gcc
+ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
 	set DEB_BUILD_OPTIONS=nocheck 
 endif
 # Uncomment this to turn on verbose mode.
@@ -50,17 +47,14 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
 endif
 
-
 debian/control: debian/configure
-	@echo rebuilding debian/control
-#	# if debian/configure has already been run, re-run; else error out
-	if test -f debian/configure.cmdline; then \
-	    bash debian/configure.cmdline; \
-	else \
+#	# if debian/configure has not been run, error out
+	if ! test -f debian/configure.cmdline; then \
 	    @echo "Please run debian/configure" \
 	        "to generate the debian/control file."; \
 	    false; \
 	fi
+	@echo rebuilding debian/control
 
 
 build: build-arch build-indep
@@ -71,7 +65,8 @@ build-stamp: debian/control
 
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
-	cd src && ./configure --prefix=/usr \
+	cd src && env CC="$(CC)" CXX="$(CXX)" \
+	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
 	    --host=$(DEB_HOST_MULTIARCH) \
 	    $(THREADS_POSIX) \
@@ -84,7 +79,7 @@ build-stamp: debian/control
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    --enable-emcweb
-	cd src && $(MAKE) $(MAKEFLAGS)
+	cd src && $(MAKE) $(MAKEFLAGS) V=$(DH_VERBOSE) CCACHE_DIR=$(CCACHE_DIR)
 	touch build-stamp
 
 clean: debian/control
@@ -92,8 +87,12 @@ clean: debian/control
 	dh_testroot
 	rm -f build-stamp
 
+#	# Only run configure if the tree looks dirty. Running
+#	# ./configure in qemu is expensive.
+ifneq ($(wildcard src/configure src/Makefile.inc),)
 	cd src && ./autogen.sh
-	cd src && ./configure --prefix=/usr \
+	cd src && env CC="$(CC)" CXX="$(CXX)" \
+	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
 	    --host=$(DEB_HOST_MULTIARCH) \
 	    $(THREADS_POSIX) \
@@ -107,10 +106,41 @@ clean: debian/control
 	    --mandir=/usr/share/man \
 	    --enable-emcweb
 	cd src && $(MAKE) clean -s
-	rm -f Makefile.inc
-	rm -f src/config.log src/config.status
+#	# Manually remove things left by './configure'
+	rm -f \
+	    lib/python/machinekit/config.py \
+	    lib/python/nf.py \
+	    man/man1/linuxcnc.1 \
+	    scripts/check-build-vs-configure-sha \
+	    scripts/gen-rtapi.ini.sh \
+	    scripts/gen-rtapi.ini.sh.in \
+	    scripts/halrun \
+	    scripts/haltcl \
+	    scripts/linuxcnc \
+	    scripts/linuxcnc_var \
+	    scripts/linuxcncmkdesktop \
+	    scripts/machinekit.ini.tmpl \
+	    scripts/realtime \
+	    scripts/rip-environment \
+	    share/applications/linuxcnc-latency.desktop \
+	    share/applications/linuxcnc.desktop \
+	    share/desktop-directories/cnc.directory \
+	    share/menus/CNC.menu \
+	    src/Makefile.inc \
+	    src/Makefile.modinc \
+	    src/aclocal.m4 \
+	    src/config.h \
+	    src/config.h.in \
+	    src/config.log \
+	    src/config.status \
+	    src/configure \
+	    src/machinekitcfg.py-tmp \
+	    tcl/linuxcnc.tcl
+	rm -rf src/autom4te.cache
+endif
 
-	dh_clean debian/control debian/machinekit-*-kernel-*.install
+#	# Remove package artifacts
+	dh_clean
 
 install: build
 	dh_testdir
@@ -120,7 +150,7 @@ install: build
 # start the install
 	mkdir -p debian/tmp
 	(cd debian/extras && cp -a * ../tmp)
-	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
+	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
 	rm debian/tmp/usr/share/applications/linuxcnc-usermanual*.desktop

@@ -10,3 +10,7 @@
 
 PYTARGETS += ../bin/pncconf ../share/linuxcnc/pncconf.glade
 PYI18NSRCS += emc/usr_intf/pncconf/pncconf.py emc/usr_intf/pncconf/pncconf.glade
+
+clean: pncconf-clean
+pncconf-clean:
+	rm -rf ../share/emc

@@ -27,3 +27,7 @@ TARGETS += ../lib/libpyplugin.so.0
 	cp $^ $@
 ../include/%.hh: ./emc/pythonplugin/%.hh
 	cp $^ $@
+
+clean: pythonplugin-clean
+pythonplugin-clean:
+	rm -f ../lib/libpyplugin.so*
