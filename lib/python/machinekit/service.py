@@ -76,14 +76,14 @@ class Service:
 
         if name is None:
             pid = os.getpid()
-            self.name = '%s on %s pid %i' % \
+            self.name = '%s service on %s pid %i' % \
                         (self.type.title(), self.host, pid)
 
         me = uuid.uuid1()
         self.statusTxtrec = [str('dsn=' + self.dsn),
                              str('uuid=' + self.svcUuid),
-                             str('service=' + self.type),
-                             str('instance=' + str(me))]
+                             str('instance=' + str(me)),
+                             str('service=' + self.type)]
 
         if self.debug:
             print(('service: ' + 'dsname = ' + self.dsn +
