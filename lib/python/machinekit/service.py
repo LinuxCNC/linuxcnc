@@ -38,13 +38,13 @@ class ZeroconfService:
         if self.loopback:
             iface = 0
 
-        g.AddService(iface, avahi.PROTO_UNSPEC, dbus.UInt32(0),
+        g.AddService(iface, avahi.PROTO_INET, dbus.UInt32(0),
                      self.name, self.stype, self.domain, self.host,
                      dbus.UInt16(self.port), self.text)
 
         if self.subtype:
-            g.AddServiceSubtype(avahi.IF_UNSPEC,
-                                avahi.PROTO_UNSPEC,
+            g.AddServiceSubtype(iface,
+                                avahi.PROTO_INET,
                                 dbus.UInt32(0),
                                 self.name, self.stype, self.domain,
                                 self.subtype)
