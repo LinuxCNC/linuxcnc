@@ -290,58 +290,126 @@ static int proc_read_instance(char *page, char **start, off_t off,
     RTAPI implementation.
 */
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
+#else
+static const struct file_operations status_file_fops = {
+     .read = proc_read_status,
+};
+
+static const struct file_operations modules_file_fops = {
+     .read = proc_read_modules,
+};
+
+static const struct file_operations tasks_file_fops = {
+     .read = proc_read_tasks,
+};
+
+static const struct file_operations shmem_file_fops = {
+     .read = proc_read_shmem,
+};
+
+static const struct file_operations debug_file_fops = {
+     .read  = proc_read_debug,
+     .write = proc_write_debug,
+};
+
+static const struct file_operations instance_file_fops = {
+     .read  = proc_read_instance,
+};
+#endif
+
 static int proc_init(void)
 {
     /* create the rtapi directory "/proc/rtapi" */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     rtapi_dir = create_proc_entry("rtapi", S_IFDIR, NULL);
+#else
+    rtapi_dir = proc_create("rtapi", S_IFDIR, NULL, NULL);
+#endif
     if (rtapi_dir == 0) {
 	return -1;
     }
 
     /* create read only file "/proc/rtapi/status" */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     status_file = create_proc_entry("status", S_IRUGO, rtapi_dir);
+#else
+    status_file = proc_create("status", S_IRUGO, rtapi_dir, &status_file_fops);
+#endif
     if (status_file == NULL) {
 	return -1;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     status_file->read_proc = proc_read_status;
+#endif
 
     /* create read only file "/proc/rtapi/modules" */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     modules_file = create_proc_entry("modules", S_IRUGO, rtapi_dir);
+#else
+    modules_file = proc_create("modules", S_IRUGO, rtapi_dir, &modules_file_fops);
+#endif
     if (modules_file == NULL) {
 	return -1;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     modules_file->read_proc = proc_read_modules;
+#endif
 
     /* create read only file "/proc/rtapi/tasks" */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     tasks_file = create_proc_entry("tasks", S_IRUGO, rtapi_dir);
+#else
+    tasks_file = proc_create("tasks", S_IRUGO, rtapi_dir, &tasks_file_fops);
+#endif
     if (tasks_file == NULL) {
 	return -1;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     tasks_file->read_proc = proc_read_tasks;
+#endif
 
     /* create read only file "/proc/rtapi/shmem" */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     shmem_file = create_proc_entry("shmem", S_IRUGO, rtapi_dir);
+#else
+    shmem_file = proc_create("shmem", S_IRUGO, rtapi_dir, &shmem_file_fops);
+#endif
     if (shmem_file == NULL) {
 	return -1;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     shmem_file->read_proc = proc_read_shmem;
+#endif
 
     /* create read/write file "/proc/rtapi/debug" */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     debug_file = create_proc_entry("debug", S_IRUGO | S_IWUGO, rtapi_dir);
+#else
+    debug_file = proc_create("debug", S_IRUGO | S_IWUGO, rtapi_dir, &debug_file_fops);
+#endif
     if (debug_file == NULL) {
 	return -1;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     debug_file->data = NULL;
     debug_file->read_proc = proc_read_debug;
     debug_file->write_proc = proc_write_debug;
+#endif
 
     /* create read/write file "/proc/rtapi/instance" */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     instance_file = create_proc_entry("instance", S_IRUGO, rtapi_dir);
+#else
+    instance_file = proc_create("instance", S_IRUGO, rtapi_dir, &instance_file_fops);
+#endif
     if (instance_file == NULL) {
 	return -1;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     instance_file->data = NULL;
     instance_file->read_proc = proc_read_instance;
+#endif
 
     return 0;
 }
