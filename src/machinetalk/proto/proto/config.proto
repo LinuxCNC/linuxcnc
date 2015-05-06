@@ -71,7 +71,7 @@ message Launcher {
     optional bool         terminating    = 7;  // indicates if a terminations signal was sent to the process
     optional string       command        = 8;  // configuration start command
     optional bool         shell          = 9;  // if the configuration command is executed in a shell
-    repeated StdoutLine   stdout         = 10; // stdout output of the command
+    repeated StdoutLine   output         = 10; // stdout output of the command
     optional int32        returncode     = 11; // return code of the command
     optional string       workdir        = 12; // working dir of the command
 
