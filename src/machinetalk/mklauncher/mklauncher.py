@@ -226,22 +226,24 @@ class Mklauncher:
                 returncode = process.returncode
                 if returncode is None:
                     if not launcher.running:  # update running value
-                        launcher.ClearField('stdout')  # clear stdout for new processes
+                        if len(launcher.output) > 0:
+                            launcher.ClearField('output')  # clear output for new processes
+                            self.launcherFullUpdate = True  # request a full update
                         txLauncher.running = True
                         txLauncher.returncode = 0
                         modified = True
                     # read stdout
-                    stdoutIndex = len(launcher.stdout)
+                    stdoutIndex = len(launcher.output)
                     while True:
                         try:
                             line = process.stdout.readline()
                             stdoutLine = StdoutLine()
                             stdoutLine.index = stdoutIndex
                             stdoutLine.line = line
-                            txLauncher.stdout.add().MergeFrom(stdoutLine)
+                            txLauncher.output.add().MergeFrom(stdoutLine)
                             stdoutIndex += 1
                             modified = True
-                        except IOError:  # process of no new line
+                        except IOError:  # process has no new line
                             break
                     # send termination status
                     if terminating:
