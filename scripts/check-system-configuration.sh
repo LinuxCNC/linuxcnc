@@ -176,6 +176,7 @@ check-shmdrv() {
     echo
     echo "          Hint:"
     echo "            $ sudo cp rtapi/shmdrv/shmdrv.rules $udev_conf"
+    echo "            $ sudo udevadm trigger"
     echo
     return 1
 }
