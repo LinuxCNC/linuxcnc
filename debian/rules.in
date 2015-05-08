@@ -46,6 +46,15 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
 endif
+# Only set 'CC' if explicitly defined in environment; otherwise 'make'
+# chooses CC=cc and CXX=g++ for defaults
+ifneq ($(origin CC),default)
+    COMPILE_ENV += CC="$(CC)"
+endif
+ifneq ($(origin CXX),default)
+    COMPILE_ENV += CXX="$(CXX)"
+endif
+
 
 debian/control: debian/configure
 #	# if debian/configure has not been run, error out
@@ -65,7 +74,7 @@ build-stamp: debian/control
 
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
-	cd src && env CC="$(CC)" CXX="$(CXX)" \
+	cd src && env $(COMPILE_ENV) \
 	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
 	    --host=$(DEB_HOST_MULTIARCH) \
@@ -79,7 +88,7 @@ build-stamp: debian/control
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    --enable-emcweb
-	cd src && $(MAKE) $(MAKEFLAGS) V=$(DH_VERBOSE) CCACHE_DIR=$(CCACHE_DIR)
+	cd src && $(MAKE) $(COMPILE_ENV) $(MAKEFLAGS) V=$(DH_VERBOSE)
 	touch build-stamp
 
 clean: debian/control
@@ -91,7 +100,7 @@ clean: debian/control
 #	# ./configure in qemu is expensive.
 ifneq ($(wildcard src/configure src/Makefile.inc),)
 	cd src && ./autogen.sh
-	cd src && env CC="$(CC)" CXX="$(CXX)" \
+	cd src && env $(COMPILE_ENV) \
 	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
 	    --host=$(DEB_HOST_MULTIARCH) \
