@@ -34,6 +34,8 @@ wt_zeroconf_announce(wtself_t *self)
 		     self->cfg->progname, strerror(errno));
 	return -1;
     }
+    strtok(hostname, "."); // get rid of the domain name
+    
     snprintf(name,sizeof(name), "Machinekit on %s.local", hostname);
     snprintf(dsn, sizeof(dsn), "http%s://%s.local.:%d%s",
 	     self->cfg->use_ssl ? "s" : "",
