@@ -27,8 +27,8 @@ def test_runthread():
     cpe = hal.Pin("charge-pump.enable")
     cpe.set(0)
 
-    rt.newthread("fast",1000000, use_fp=True)
-    rt.newthread("slow",100000000, use_fp=True)
+    rt.newthread("fast",1000000, fp=True)
+    rt.newthread("slow",100000000, fp=True)
     hal.addf("ringread","fast")
     hal.addf("ringwrite","slow")
     hal.addf("charge-pump","slow")

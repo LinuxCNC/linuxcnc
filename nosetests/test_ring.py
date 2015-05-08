@@ -32,7 +32,7 @@ def test_rtapi_connect():
 
 def test_loadrt_ringwrite():
     rt.loadrt("ringwrite","ring=ring1")
-    rt.newthread("servo-thread",1000000,use_fp=True)
+    rt.newthread("servo-thread",1000000,fp=True)
     hal.addf("ringwrite","servo-thread")
     hal.start_threads()
     time.sleep(1) # let rt thread write a bit to ring
