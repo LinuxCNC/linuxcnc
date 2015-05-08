@@ -705,7 +705,8 @@ clean: depclean modclean
 	for flav in $(BUILD_THREAD_FLAVORS); do \
 	    rm -rf ../lib/$$flav; \
 	done
-	-rm -rf ../rtlib ../libexec ../etc
+	-rm -rf ../rtlib ../libexec
+	rm -f ../etc/linuxcnc/rtapi.ini
 	-rm -f $(COPY_CONFIGS)
 	-rm -f $(RTLIBDIR)/*.$(MODULE_EXT)
 	-rm -f hal/components/conv_*.comp
