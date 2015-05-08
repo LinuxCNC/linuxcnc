@@ -1058,6 +1058,8 @@ int main(int argc, char **argv)
 			 progname, strerror(errno));
 	    exit(1);
 	}
+    strtok(hostname, "."); // get rid of the domain name
+    
 	snprintf(uri,sizeof(uri), "tcp://%s.local.:%d",hostname, logpub_port);
 
 	if (!(av_loop = avahi_czmq_poll_new(loop))) {

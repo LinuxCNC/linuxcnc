@@ -326,6 +326,8 @@ static int mb_zeroconf_announce(msgbusd_self_t *self)
 			progname, strerror(errno));
 	return -1;
     }
+    strtok(hostname, "."); // get rid of the domain name
+
     if (self->remote)
 	snprintf(uri,sizeof(uri), "tcp://%s.local.:%d",hostname, self->command_port);
 

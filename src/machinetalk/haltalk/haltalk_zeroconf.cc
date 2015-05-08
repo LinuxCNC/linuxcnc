@@ -36,6 +36,7 @@ ht_zeroconf_announce(htself_t *self)
 
     // use mDNS addressing if running over TCP:
     // construct a URI of the form 'tcp://<hostname>.local.:<portnumber>'
+    strtok(hostname, "."); // get rid of the domain name
 
     if (self->cfg->remote)
 	snprintf(uri,sizeof(uri), "tcp://%s.local.:%d",hostname, self->z_group_port);
