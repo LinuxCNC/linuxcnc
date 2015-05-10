@@ -673,7 +673,9 @@ MODULE_SOURCE_DIRS = emc hal libnml rtapi workaround machinetalk
 MODULE_SOURCES = Makefile* config* modsilent.py
 $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp:
 	mkdir -p $(OBJDIR)
-	cp -rlf $(MODULE_SOURCE_DIRS) $(OBJDIR)
+	# hard-link contents of $(MODULE_SOURCE_DIRS) to # $(OBJDIR)
+	# never follow symbolic links
+	cp -rlfd $(MODULE_SOURCE_DIRS) $(OBJDIR)
 	cp -lf $(MODULE_SOURCES) $(OBJDIR)
 ifeq ($(BUILD_SYS),kbuild)
 	# kbuild needs a full copy of this tree with
