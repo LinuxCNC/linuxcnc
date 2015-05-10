@@ -1,6 +1,6 @@
 #!/usr/bin/tclsh
 
-# This [APPLICATIONS]APP script is used by the library
+# This [APPLICATIONS]APP script is used with the library
 # halfile: LIB:xhc-hb04.tcl to connect ini hal pins:
 # ini.N.max_acceleration.  These ini hal pins are not
 # available until task is started.

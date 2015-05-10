@@ -75,21 +75,22 @@ This HALFILE entry should follow other HALFILE entries.
 Optional configuration ini file items and the defaults values are:
 
 [XHC_HB04_CONFIG]
-layout     = 2       (1: 16 buttons | 2: 18 buttons)
-coords     = x y z a (4 max)
-coefs      = 1 1 1 1 (filter coefs 0 < coef < 1)
-mpg_accels = 1 2 2 200 (mpg accelerations, reduced for jogging)
-scales     = 1 1 1 1 (plus/minus factors)
-threadname = servo-thread
-require_pendant = yes (yes | no)
-inch_or_mm = in (in | mm for display icon)
-jogmode    = normal   (normal | vnormal | plus-minus)
-sequence   = 1        (1|2|3|4|5)
-                      1: 0.001,0.010,0.100,1.000 (typ for mm machine)
-                      2: 0.001,0.005,0.010,0.020 (typ for inch machine)
-                      3: 0.001,0.010,0.100
-                      4: 0.001,0.005,0.010,0.020,0.050,0.100
-                      5: 0.001,0.010,0.050,0.100,1.000
+threadname = servo-thread (optional, default: servo-thread)
+layout     = 2            (optional, 1: 16 buttons | 2: 18 buttons, default: 2)
+coords     = x y z a      (optional, 4 max, default: x y z a)
+coefs      = 1 1 1 1      (optional, filter coefs 0 < coef < 1, default: 1 1 1 1)
+mpg_accels = 1 2 2 200    (optional: reduced mpg accelerations for jogging)
+                          (          requires: [APPLICATIONS]APP = xhc-hb04-accels)
+scales     = 1 1 1 1      (optional, plus/minus factors, default: 1 1 1 1)
+require_pendant = yes     (optional, yes | no, default: yes)
+inch_or_mm = in           (optional, in | mm for display icon, default: mm)
+jogmode    = normal       (optional, normal | vnormal | plus-minus, default: normal)
+sequence   = 1            (optional, 1 | 2 | 3 | 4 | 5, default: 1)
+                           1: 0.001,0.010,0.100,1.000 (typ for mm machine)
+                           2: 0.001,0.005,0.010,0.020 (typ for inch machine)
+                           3: 0.001,0.010,0.100
+                           4: 0.001,0.005,0.010,0.020,0.050,0.100
+                           5: 0.001,0.010,0.050,0.100,1.000
 
 The filter coefs can be used to slow the response to wheel steps but are usually not needed since the xhc-hb04 component implements smoothing.
 
@@ -141,26 +142,60 @@ A application named monitor-xhc-hb04 is included to monitor disconnects and reco
 
 (Note: when using require_pendant=1, disconnects are detected but reconnects are not supported)
 ----------------------------------
+See the manpage for xhc-hb04 for details on the xhc-hb04 component
+----------------------------------
 
+The demo ini files are examples using the axis gui in a simulator configuration.
+These files use #INCLUDE directives to include files for the basic machine
+and for the pendant layout.
+
+For example, the organization for the xhc-hb04-layout2.ini file is:
+
+   #INCLUDE inch_base.inc     | Conventional items for an inch based sim
+   #INCLUDE layout2.inc       | All button items ([XHC_HB04_BUTTONS],[HALUI])
+
+   [EMC]                      | Machine identifier
+   MACHINE =                  |
+
+   [HAL]                      | HAL items
+   HALFILE =                  |
+   ...                        |
+   HALFILE =                  |
+   HALFILE = LIB:xhc-hb04.tcl | xhc-hb04 configuration script
+   HALUI   = halui            | Halui specifier
+
+   [XHC_HB04_CONFIG]          | All config items used by LIB:xhc-hb04.tcl
+   layout =                   |
+   coords =                   |
+   coefs =                    |
+   scales =                   |
+   jogmode =                  |
+   sequence =                 |
+   require_pendant =          |
+   inch_or_mm =               |
+   mpg_accels =               |
+
+   [APPLICATIONS]             | Optional auxiliary scripts
+   APP = xhc-hb04-accels      | For [XHC_HB04_CONFIG]mpg_accels
+   APP = monitor-xhc-hb04     | Connection monitor script
+
+----------------------------------
 Adding an xhc-hb04 to an existing configuration.
 
-Recommended procedure is to create a new configuration based
-on an existing configuration.
+Recommended procedure is to create a new configuration based on an existing configuration.
 
-  Copy all files from existing (working) configuration directory
+  Copy all files from an existing (working) configuration directory
   to a new directory and edit the configuration ini file to:
     a) add [HAL]HALFILE = LIB:xhc-hb04.tcl
        (this entry should follow other HALFILE entries)
     b) (optional) add [APPLICATIONS]APP = xhc-hb04-accels
-       needed to use [XHC_HB04_CONFIG]mpg_accels
+       in order to use [XHC_HB04_CONFIG]mpg_accels
     c) (optional) add [APPLICATIONS]APP = monitor-xhc-hb04
        to monitor disconnects/connects of pendant
-    d) add stanza [XHC_HB04_CONFIG]
-    e) add stanza [XHC_HB04_BUTTONS]
-    f) add or update stanza for [HALUI]
+    d) add stanza [XHC_HB04_CONFIG] to configure pendant
+    e) include stanzas [XHC_HB04_BUTTONS] and [HALUI] to
+       define button actions (these may be in a separate
+       #INCLUDE file -- see the demo examples)
 
-   The entries in the new or updated stanzas should be
-   customized for your machine.
+   The entries in the new or updated stanzas should be customized for your machine.
 
-See the demo ini files for more detailed examples.
-See the manpage for xhc-hb04 for details on the xhc-hb04 component
