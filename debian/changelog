@@ -1,3 +1,34 @@
+linuxcnc (1:2.6.8) precise; urgency=low
+
+  * Axis GUI: Fix regression of control disabling, SF#423
+  * Axis GUI: Use a preferred form of "switch" (closes: SF#411)
+
+  * gmoccapy GUI: bug in ignore limits solved
+  * gmoccapy GUI: search also in the users dir for themes
+  * gmoccapy GUI: fixed division by zero error on spindle
+  * gmoccapy GUI: introduced french translation
+  * gmoccapy GUI: bug in btn_brake_macro
+
+  * tooledit: fix a typo/bug in a switch statement
+
+  * stepconf: fix check for spindle encoder signals for pp2
+  * stepconf: fix check for spindle signals for pp2
+
+  * xhc-hb04 sim configs: typo fix
+
+  * emccalib.tcl: allow whitespace on detected setp lines
+
+  * halcmd: err msg applies pins or params
+  * hal: fix fatal memory corruption bug on linking pin to a signal
+  * hal: fix a dubious type cast
+
+  * docs: fix hal_pin_new() and hal_param_new() manpages
+
+  * packaging: depend on a GPLv2 version of readline
+  * build system: clean up cache files
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 10 May 2015 13:37:22 -0600
+
 linuxcnc (1:2.6.7) precise; urgency=low
 
   * axis gui: fix transition to world mode
