@@ -89,7 +89,7 @@ class FileService(threading.Thread):
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
             self.directory = os.path.expanduser(self.directory)
         except linuxcnc.error as detail:
-            printError(detail)
+            printError(str(detail))
             sys.exit(1)
 
         self.filePort = getFreePort()
@@ -341,7 +341,7 @@ class LinuxCNCWrapper():
                 self.command.program_open(filePath)
 
         except linuxcnc.error as detail:
-            printError(detail)
+            printError(str(detail))
             sys.exit(1)
 
         if self.pingInterval > 0:
@@ -1839,7 +1839,7 @@ class LinuxCNCWrapper():
                         self.ping_error()
 
             except linuxcnc.error as detail:
-                printError("error", detail)
+                printError(str(detail))
                 self.stop()
 
             if (self.pingCount == self.pingRatio):
