@@ -118,7 +118,7 @@ class FileService(threading.Thread):
         self.handler.banner = "welcome to the GCode file service"
 
         # Instantiate FTP server class and listen on some address
-        self.address = (self.host, self.filePort)
+        self.address = ('', self.filePort)
         self.server = FTPServer(self.address, self.handler)
 
         # set a limit for connections
