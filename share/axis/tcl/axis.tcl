@@ -1946,14 +1946,15 @@ set INTERP_WAITING 4
 set TRAJ_MODE_FREE 1
 set KINEMATICS_IDENTITY 1
 
-set manual [concat [winfo children $_tabs_manual.axes] \
+set manualgroup [concat [winfo children $_tabs_manual.axes] \
     $_tabs_manual.jogf.zerohome.home \
     $_tabs_manual.jogf.jog.jogminus \
     $_tabs_manual.jogf.jog.jogplus \
     $_tabs_manual.spindlef.cw $_tabs_manual.spindlef.ccw \
     $_tabs_manual.spindlef.stop $_tabs_manual.spindlef.brake \
-    $_tabs_manual.flood $_tabs_manual.mist $_tabs_mdi.command \
-    $_tabs_mdi.go $_tabs_mdi.history]
+    $_tabs_manual.flood $_tabs_manual.mist]
+
+set mdigroup [concat $_tabs_mdi.command $_tabs_mdi.go $_tabs_mdi.history]
 
 proc disable_group {ws} { foreach w $ws { $w configure -state disabled } }
 proc enable_group {ws} { foreach w $ws { $w configure -state normal } }
@@ -2069,20 +2070,19 @@ proc update_state {args} {
         set ::position [concat [_ "Position:"] $coord_str $display_str]
     }
 
-    if {$::task_state == $::STATE_ON} {
-	if {$::interp_state == $::INTERP_IDLE} {
-	    if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
-		set_mode_from_tab
-	    }
-	    enable_group $::manual
-	}
-	if {$::queued_mdi_commands < $::max_queued_mdi_commands } {
-	    enable_group $::manual
-	} else {
-	    disable_group $::manual
-	}
+    if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE} {
+        if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
+            set_mode_from_tab
+        }
+        enable_group $::manualgroup
     } else {
-        disable_group $::manual
+        disable_group $::manualgroup
+    }
+
+    if {$::task_state == $::STATE_ON && $::queued_mdi_commands < $::max_queued_mdi_commands } {
+        enable_group $::mdigroup
+    } else {
+        disable_group $::mdigroup
     }
 
     if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE &&
