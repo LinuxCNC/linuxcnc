@@ -7,7 +7,6 @@ from stat import *
 import subprocess
 import threading
 import socket
-import netifaces
 import argparse
 
 import ConfigParser
@@ -32,11 +31,12 @@ class VideoDevice:
 
 class VideoServer(threading.Thread):
 
-    def __init__(self, uri, inifile, ip="", svc_uuid=None, debug=False):
+    def __init__(self, inifile, host='', loopback=False,
+                 svc_uuid=None, debug=False):
         threading.Thread.__init__(self)
         self.inifile = inifile
-        self.ip = ip
-        self.uri = uri
+        self.host = host
+        self.loopback = loopback
         self.svc_uuid = svc_uuid
         self.debug = debug
 
@@ -73,9 +73,15 @@ class VideoServer(threading.Thread):
         port = sock.getsockname()[1]
         sock.close()
 
+        baseUri = 'tcp://'
+        if self.loopback:
+            baseUri += '127.0.0.1'
+        else:
+            baseUri += '*'
+
         videoDevice.port = port
-        videoDevice.dsname = self.uri + self.ip + ':' + str(videoDevice.port)
-        videoDevice.zmqUri = self.uri + self.ip + ':' + str(videoDevice.port)
+        videoDevice.zmqUri = '%s:%i' % (baseUri, videoDevice.port)
+        videoDevice.dsname = videoDevice.zmqUri.replace('*', self.host)
 
         if self.debug:
             print ((
@@ -104,7 +110,8 @@ class VideoServer(threading.Thread):
                                   svcUuid=self.svc_uuid,
                                   dsn=videoDevice.dsname,
                                   port=videoDevice.port,
-                                  ip=self.ip,
+                                  host=self.host,
+                                  loopback=self.loopback,
                                   debug=self.debug)
             videoDevice.service.publish()
         except Exception as e:
@@ -136,36 +143,6 @@ class VideoServer(threading.Thread):
                     continue
                 self.stopVideo(n)
 
-
-def choose_ip(pref):
-    '''
-    given an interface preference list, return a tuple (interface, ip)
-    or None if no match found
-    If an interface has several ip addresses, the first one is picked.
-    pref is a list of interface names or prefixes:
-
-    pref = ['eth0','usb3']
-    or
-    pref = ['wlan','eth', 'usb']
-    '''
-
-    # retrieve list of network interfaces
-    interfaces = netifaces.interfaces()
-
-    # find a match in preference oder
-    for p in pref:
-        for i in interfaces:
-            if i.startswith(p):
-                ifcfg = netifaces.ifaddresses(i)
-                # we want the first ip address
-                try:
-                    ip = ifcfg[netifaces.AF_INET][0]['addr']
-                except KeyError:
-                    continue
-                return (i, ip)
-    return None
-
-
 def main():
     parser = argparse.ArgumentParser(description='Videoserver provides a webcam interface for Machinetalk')
     parser.add_argument('-i', '--ini', help='INI file', default='video.ini')
@@ -188,27 +165,20 @@ def main():
     mki.read(mkini)
     mkUuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
-    prefs = mki.get("MACHINEKIT", "INTERFACES").split()
 
     if remote == 0:
         print("Remote communication is deactivated, videoserver will use the loopback interfaces")
         print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
-        iface = ['lo', '127.0.0.1']
-    else:
-        iface = choose_ip(prefs)
-        if not iface:
-            sys.stderr.write("failed to determine preferred interface (preference = %s)" % prefs)
-            sys.exit(1)
 
     if debug:
-        print (("announcing videoserver on " + str(iface)))
+        print ("announcing videoserver")
 
-    uri = "tcp://"
-
-    video = VideoServer(uri, args.ini,
-                       svc_uuid=mkUuid,
-                       ip=iface[1],
-                       debug=debug)
+    hostname = socket.gethostname().split('.')[0] + '.local.'
+    video = VideoServer(args.ini,
+                        svc_uuid=mkUuid,
+                        host=hostname,
+                        loopback=(not remote),
+                        debug=debug)
     video.setDaemon(True)
     video.start()
 
