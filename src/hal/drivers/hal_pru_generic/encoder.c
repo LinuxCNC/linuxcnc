@@ -166,15 +166,12 @@ const PRU_encoder_LUT_t Counter_LUT = { {
 void hpg_encoder_read_chan(hal_pru_generic_t *hpg, int instance, int channel) {
     u16 reg_count;
     s32 reg_count_diff;
-    s32 prev_rawcounts;
 
     hpg_encoder_instance_t *inst;
     hpg_encoder_channel_instance_t *e;
 
     inst = &hpg->encoder.instance[instance];
     e    = &hpg->encoder.instance[instance].chan[channel];
-
-    prev_rawcounts = *e->hal.pin.rawcounts;
 
     // sanity check
     if (*(e->hal.pin.scale) == 0.0) {
