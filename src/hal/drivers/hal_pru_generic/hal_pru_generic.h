@@ -111,23 +111,21 @@ typedef struct {
             hal_s32_t       *test1;
             hal_s32_t       *test2;
             hal_s32_t       *test3;
+
+            hal_float_t     *position_scale;
+            hal_float_t     *maxvel;
+            hal_float_t     *maxaccel;
+
+            hal_u32_t       *steplen;
+            hal_u32_t       *stepspace;
+            hal_u32_t       *dirsetup;
+            hal_u32_t       *dirhold;
+
+            hal_u32_t       *steppin;
+            hal_u32_t       *dirpin;
+
+            hal_bit_t       *stepinv;
         } pin;
-
-        struct {
-            hal_float_t     position_scale;
-            hal_float_t     maxvel;
-            hal_float_t     maxaccel;
-
-            hal_u32_t       steplen;
-            hal_u32_t       stepspace;
-            hal_u32_t       dirsetup;
-            hal_u32_t       dirhold;
-
-            hal_u32_t       steppin;
-            hal_u32_t       dirpin;
-
-            hal_bit_t       stepinv;
-        } param;
 
     } hal;
 
@@ -165,10 +163,9 @@ typedef struct {
 
     hal_float_t     *hal_out1;
     hal_float_t     *hal_out2;
-
-    // HAL Parameters
-    hal_u32_t       hal_pin1;
-    hal_u32_t       hal_pin2;
+    
+    hal_u32_t       *hal_pin1;
+    hal_u32_t       *hal_pin2;
 
 } hpg_deltasig_instance_t;
 
@@ -180,18 +177,15 @@ typedef struct {
 typedef struct {
 
     PRU_pwm_output_t    pru;
-    
+
     struct {
 
         struct {
             hal_float_t *value;
             hal_bit_t   *enable;
+            hal_float_t *scale;
+            hal_u32_t   *pin;
         } pin;
-
-        struct {
-            hal_float_t scale;
-            hal_u32_t   pin;
-        } param;
 
     } hal;
 
@@ -209,8 +203,8 @@ typedef struct {
     // Instance-wide HAL variables
     struct {
         struct {
-            hal_u32_t   pwm_period;
-        } param;
+            hal_u32_t   *pwm_period;
+        } pin;
     } hal;
 
     u32 written_pwm_period;
@@ -244,22 +238,19 @@ typedef struct {
             hal_bit_t   *latch_enable;
             hal_bit_t   *latch_polarity;
             hal_bit_t   *quadrature_error;
+            hal_float_t *scale;
+            hal_u32_t   *A_pin;
+            hal_bit_t   *A_invert;
+            hal_u32_t   *B_pin;
+            hal_bit_t   *B_invert;
+            hal_u32_t   *index_pin;
+            hal_bit_t   *index_invert;
+            hal_bit_t   *index_mask;
+            hal_bit_t   *index_mask_invert;
+            hal_u32_t   *counter_mode;
+            hal_bit_t   *filter;
+            hal_float_t *vel_timeout;
         } pin;
-
-        struct {
-            hal_float_t scale;
-            hal_u32_t   A_pin;
-            hal_bit_t   A_invert;
-            hal_u32_t   B_pin;
-            hal_bit_t   B_invert;
-            hal_u32_t   index_pin;
-            hal_bit_t   index_invert;
-            hal_bit_t   index_mask;
-            hal_bit_t   index_mask_invert;
-            hal_u32_t   counter_mode;
-            hal_bit_t   filter;
-            hal_float_t vel_timeout;
-        } param;
 
     } hal;
 
@@ -322,8 +313,8 @@ typedef struct {
 
     struct {
         struct {
-            hal_u32_t   pru_busy_pin;
-        } param;
+            hal_u32_t  * pru_busy_pin;
+        } pin;
     } hal;
 
     u32 *pru_data;              // ARM pointer to mapped PRU data memory
