@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "  1.5.3.1"
+_RELEASE = "  1.5.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -3031,6 +3031,8 @@ class gmoccapy( object ):
         if self.log: self._add_alarm_entry( "btn_back_clicked" )
         if self.widgets.ntb_button.get_current_page() == 6:  # edit mode, go back to auto_buttons
             self.widgets.ntb_button.set_current_page( 2 )
+            if self.widgets.tbtn_fullsize_preview1.get_active():
+                self.widgets.vbx_jog.set_visible(False)
         elif self.widgets.ntb_button.get_current_page() == 8:  # File selection mode
             self.widgets.ntb_button.set_current_page( 2 )
         else:  # else we go to main button on manual
@@ -3749,6 +3751,8 @@ class gmoccapy( object ):
         width -= self.widgets.box_right.allocation.width
         width -= self.widgets.box_left.allocation.width
         self.widgets.vbx_jog.set_size_request( width, -1 )
+        if not self.widgets.vbx_jog.get_visible():
+            self.widgets.vbx_jog.set_visible(True)
         self.widgets.gcode_view.set_sensitive( True )
         self.widgets.gcode_view.grab_focus()
         if self.widgets.chk_use_kb_on_edit.get_active():

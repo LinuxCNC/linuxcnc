@@ -21,13 +21,13 @@ Automatic Login and pick a user name from the list (that would be you).
 To have LinuxCNC start automatically with your config after turning on the
 computer go to 'System > Preferences > Sessions > Startup Applications',
 click Add. Browse to your config and select the .ini file. When the file
-picker dialog closes, add emc and a space in front of the path to your
+picker dialog closes, add linuxcnc and a space in front of the path to your
 .ini file.
 
 Example:
 
 ----
-emc /home/mill/emc2/config/mill/mill.ini
+linuxcnc /home/mill/linuxcnc/config/mill/mill.ini
 ----
 
 == Man Pages[[sec:Man-Pages]]
@@ -137,11 +137,11 @@ To move up two levels in the terminal window type:
 cd ../..
 ----
 
-To move down to the emc2/configs subdirectory in the terminal window
+To move down to the linuxcnc/configs subdirectory in the terminal window
 type:
 
 ----
-cd emc2/configs
+cd linuxcnc/configs
 ----
 
 === Listing files in a directory
@@ -171,7 +171,7 @@ syntax is:
 find starting-directory parameters actions
 ----
 
-For example to find all the .ini files in your emc2 directory you
+For example to find all the .ini files in your linuxcnc directory you
 first need to use the pwd command to find out the directory. +
 Open a new terminal window and type:
 
