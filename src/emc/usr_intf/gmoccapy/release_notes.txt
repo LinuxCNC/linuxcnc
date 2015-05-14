@@ -1,3 +1,7 @@
+ver. 1.5.4.1
+- changed fullsize preview button in manual mode to new position
+  to be the same place in auto and manual mode.
+
 ver. 1.5.4
 - changing in auto mode, being in fullsize preview to edit page leaded
   to blank screen, I corrected that bug.
