@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "  1.5.4"
+_RELEASE = "  1.5.4.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -328,7 +328,7 @@ class gmoccapy( object ):
         # to hal pins, so the user can conect them to hardware buttons
         self.h_tabs = []
         tab_main = [( 0, "btn_homing" ), ( 1, "btn_touch" ), ( 3, "btn_tool" ),
-                    ( 7, "tbtn_fullsize_preview" ), ( 9, "btn_exit" )
+                    ( 8, "tbtn_fullsize_preview" ), ( 9, "btn_exit" )
         ]
         self.h_tabs.append( tab_main )
 
@@ -2732,7 +2732,7 @@ class gmoccapy( object ):
             self.widgets.vbx_jog.show()
             if not self.widgets.chk_show_dro.get_active():
                 self.widgets.gremlin.set_property( "enable_dro", False )
-
+        
 # =========================================================
 # this are hal-tools copied from gsreen function
     def on_btn_show_hal_clicked( self, widget, data = None ):
