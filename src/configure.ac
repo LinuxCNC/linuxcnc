@@ -2930,11 +2930,11 @@ if test "$BUILD_PYTHON" = "yes"; then
     if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
 	AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
 	AC_MSG_ERROR([Python requires use of Tcl $PYTHON_TCL_VERSION and Tk $PYTHON_TK_VERSION.
-Install this version and specify --with-tclConfig and --with-tkConfig if necessary])
+Install this version and specify --with-tcl and --with-tk if necessary])
     fi
     if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
 	AC_MSG_RESULT([Tk mismatch: $TK_VERSION vs $PYTHON_TK_VERSION])
-	AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tkConfig if necessary"])
+	AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tk if necessary"])
     fi
     AC_MSG_RESULT([$PYTHON_TK_VERSION])
 

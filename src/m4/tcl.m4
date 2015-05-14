@@ -33,7 +33,7 @@ AC_DEFUN([SC_PATH_TCLCONFIG], [
 	# we reset no_tcl in case something fails here
 	no_tcl=true
 	AC_ARG_WITH(tcl,
-	    AC_HELP_STRING([--with-tcl],
+	    AC_HELP_STRING([--with-tcl=DIR],
 		[directory containing tcl configuration (tclConfig.sh)]),
 	    with_tclconfig="${withval}")
 	AC_MSG_CHECKING([for Tcl configuration])
@@ -165,7 +165,7 @@ AC_DEFUN([SC_PATH_TKCONFIG], [
 	# we reset no_tk in case something fails here
 	no_tk=true
 	AC_ARG_WITH(tk,
-	    AC_HELP_STRING([--with-tk],
+	    AC_HELP_STRING([--with-tk=DIR],
 		[directory containing tk configuration (tkConfig.sh)]),
 	    with_tkconfig="${withval}")
 	AC_MSG_CHECKING([for Tk configuration])
