@@ -1,3 +1,7 @@
+ver. 1.5.4
+- changing in auto mode, being in fullsize preview to edit page leaded
+  to blank screen, I corrected that bug.
+
 ver. 1.5.3.1
 - solved a bug in widget handling, not enabling the ignore limits checkbox,
   being on a limit switch
