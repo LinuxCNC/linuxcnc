@@ -76,7 +76,7 @@ static int
 process_ping(htself_t *self, const std::string &from,  void *socket)
 {
     self->tx.set_type( pb::MT_PING_ACKNOWLEDGE);
-    self->tx.set_uuid(&self->process_uuid, sizeof(uuid_t));
+    self->tx.set_uuid(&self->netopts.proc_uuid, sizeof(uuid_t));
     return send_pbcontainer(from, self->tx, socket);
 }
 
@@ -313,7 +313,7 @@ process_rcomp_bind(htself_t *self, const std::string &from,
 
     // assume failure until proven otherwise
     self->tx.set_type( pb::MT_HALRCOMP_BIND_REJECT);
-    self->tx.set_uuid(&self->process_uuid, sizeof(uuid_t));
+    self->tx.set_uuid(&self->netopts.proc_uuid, sizeof(uuid_t));
 
     // fail if comp.name not present
     if (!pbcomp->has_name()) {
@@ -424,7 +424,7 @@ process_rcomp_bind(htself_t *self, const std::string &from,
 	hal_comp_t *comp = halpr_find_comp_by_name(cname);
 	assert(comp != NULL);
 	self->tx.set_type(pb::MT_HALRCOMP_BIND_CONFIRM);
-	self->tx.set_uuid(&self->process_uuid, sizeof(uuid_t));
+	self->tx.set_uuid(&self->netopts.proc_uuid, sizeof(uuid_t));
 	retval = halpr_describe_component(comp, c);
 	assert(retval == 0);
     }

@@ -48,8 +48,8 @@
 #include <syslog_async.h>
 
 #include "halitem.h"
+#include "mk-service.hh"
 #include "mk-zeroconf.hh"
-#include "select_interface.h"
 
 #include <machinetalk/generated/message.pb.h>
 namespace gpb = google::protobuf;
@@ -103,37 +103,39 @@ typedef compmap_t::iterator compmap_iterator;
 typedef std::unordered_map<int, halitem_t *> itemmap_t;
 typedef itemmap_t::iterator itemmap_iterator;
 
+#define NSVCS  3
+enum {
+    SVC_HALGROUP=0,
+    SVC_HALRCOMP,
+    SVC_HALRCMD,
+};
+
 typedef struct htconf {
     const char *progname;
     const char *inifile;
     const char *section;
     const char *modname;
-    const char *interface;
-    const char *ipaddr;
-    const char *halgroup;
-    const char *halrcomp;
-    const char *command;
-    const char *interfaces;
+
+#ifdef NOTYET
     const char *bridgecomp;
     const char *bridgecomp_cmduri;
     const char *bridgecomp_updateuri;
     int bridge_target_instance;
+#endif
 
-    int paranoid; // extensive runtime checks - may be costly
     int debug;
     int default_group_timer; // msec
     int default_rcomp_timer; // msec
     int keepalive_timer; // msec; disabled if zero
-    unsigned ifIndex;
-    char *service_uuid;
-    int remote;
     bool trap_signals;
 } htconf_t;
 
 typedef struct htself {
     htconf_t *cfg;
-    uuid_t    process_uuid;      // server instance (this process)
-    uuid_t    svc_uuid;  // service instance (set of running server processes)
+
+    mk_netopts_t netopts;
+    mk_socket_t mksock[NSVCS];
+
     int       comp_id;
     int       signal_fd;
     bool      interrupted;
@@ -142,27 +144,9 @@ typedef struct htself {
     pb::Container rx; // any ParseFrom.. function does a Clear() first
     pb::Container tx; // tx must be Clear()'d after or before use
 
-    AvahiCzmqPoll *av_loop;
-    register_context_t *halgroup_publisher;
-    register_context_t *halrcomp_publisher;
-    register_context_t *halrcmd_publisher;
 
-    zctx_t   *z_context;
-    zloop_t  *z_loop;
-
-    void       *z_halgroup;
-    int        z_group_port;
-    const char *z_halgroup_dsn;
     groupmap_t groups;
-
-    void       *z_halrcomp;
-    const char *z_halrcomp_dsn;
-    int        z_rcomp_port;
     compmap_t  rcomps;
-
-    void       *z_halrcmd;
-    const char *z_halrcmd_dsn;
-    int        z_halrcmd_port;
     itemmap_t  items;
 
     htbridge_t *bridge;
@@ -182,10 +166,6 @@ int release_comps(htself_t *self);
 int handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg);
 int handle_rcomp_timer(zloop_t *loop, int timer_id, void *arg);
 int ping_comps(htself_t *self);
-
-// haltalk_zeroconf.cc:
-int ht_zeroconf_announce(htself_t *self);
-int ht_zeroconf_withdraw(htself_t *self);
 
 // haltalk_command.cc:
 int handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg);

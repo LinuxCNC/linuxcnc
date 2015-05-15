@@ -61,14 +61,14 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 
 		group_t *g = gi->second;
 		self->tx.set_type(pb::MT_HALGROUP_FULL_UPDATE);
-		self->tx.set_uuid(self->process_uuid, sizeof(self->process_uuid));
+		self->tx.set_uuid(self->netopts.proc_uuid, sizeof(self->netopts.proc_uuid));
 		self->tx.set_serial(g->serial++);
 		describe_parameters(self);
 		describe_group(self, gi->first.c_str(), gi->first.c_str(), poller->socket);
 
 		// if first subscriber: activate scanning
 		if (g->timer_id < 0) { // not scanning
-		    g->timer_id = zloop_timer(self->z_loop, g->msec,
+		    g->timer_id = zloop_timer(loop, g->msec,
 					      0, handle_group_timer, (void *)g);
 		    assert(g->timer_id > -1);
 		    rtapi_print_msg(RTAPI_MSG_DBG,
@@ -87,7 +87,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	    if (gi != self->groups.end()) {
 		group_t *g = gi->second;
 		self->tx.set_type(pb::MT_HALGROUP_FULL_UPDATE);
-		self->tx.set_uuid(self->process_uuid, sizeof(self->process_uuid));
+		self->tx.set_uuid(self->netopts.proc_uuid, sizeof(self->netopts.proc_uuid));
 		self->tx.set_serial(g->serial++);
 		describe_parameters(self);
 		describe_group(self, gi->first.c_str(), gi->first.c_str(), poller->socket);
@@ -98,7 +98,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 
 		// if first subscriber: activate scanning
 		if (g->timer_id < 0) { // not scanning
-		    g->timer_id = zloop_timer(self->z_loop, g->msec,
+		    g->timer_id = zloop_timer(loop, g->msec,
 					      0, handle_group_timer, (void *)g);
 		    assert(g->timer_id > -1);
 		    rtapi_print_msg(RTAPI_MSG_DBG,
@@ -117,7 +117,8 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		     g != self->groups.end(); g++) {
 		    note_printf(self->tx, "    %s", g->first.c_str());
 		}
-		int retval = send_pbcontainer(topic, self->tx, self->z_halgroup);
+		int retval = send_pbcontainer(topic, self->tx,
+					      self->mksock[SVC_HALGROUP].socket);
 		assert(retval == 0);
 	    }
 	}
@@ -131,7 +132,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		rtapi_print_msg(RTAPI_MSG_DBG,
 				"%s: group %s stop scanning, tid=%d",
 				self->cfg->progname, topic, g->timer_id);
-		int retval = zloop_timer_end (self->z_loop, g->timer_id);
+		int retval = zloop_timer_end (loop, g->timer_id);
 		assert(retval == 0);
 		g->timer_id = -1;
 	    }
@@ -280,7 +281,8 @@ group_report_cb(int phase, hal_compiled_group_t *cgroup,
 	break;
 
     case REPORT_END: // finalize & send
-	retval = send_pbcontainer(cgroup->group->name, self->tx, self->z_halgroup);
+	retval = send_pbcontainer(cgroup->group->name, self->tx,
+				  self->mksock[SVC_HALGROUP].socket);
 	assert(retval == 0);
 
 #if JSON_TIMING
@@ -309,7 +311,8 @@ int ping_groups(htself_t *self)
 {
     for (groupmap_iterator g = self->groups.begin(); g != self->groups.end(); g++) {
 	self->tx.set_type(pb::MT_PING);
-	int retval = send_pbcontainer(g->first.c_str(), self->tx, self->z_halgroup);
+	int retval = send_pbcontainer(g->first.c_str(), self->tx,
+				      self->mksock[SVC_HALGROUP].socket);
 	assert(retval == 0);
     }
     return 0;
