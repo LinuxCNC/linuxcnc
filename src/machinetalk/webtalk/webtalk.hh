@@ -66,9 +66,8 @@ enum wt_log_levels {
 
 #include <inifile.h>
 #include <syslog_async.h>
-
+#include "mk-service.hh"
 #include "mk-zeroconf.hh"
-#include "select_interface.h"
 
 #include <machinetalk/generated/message.pb.h>
 namespace gpb = google::protobuf;
@@ -175,11 +174,14 @@ typedef struct wtconf {
     const char *progname;
     const char *inifile;
     const char *section;
-    const char *interfaces;
-    const char *interface;
-    const char *ipaddr;
     int debug;
+
+
+#if 0
     char *service_uuid;
+    int remote;
+    unsigned ifIndex;
+#endif
     bool foreground;
     bool log_stderr;
     bool use_ssl;
@@ -187,14 +189,13 @@ typedef struct wtconf {
     struct lws_context_creation_info info;
     char *index_html; // path to announce
     char *www_dir;
-    unsigned ifIndex;
-    int remote;
     bool trap_signals;
+    int ipv6;
+    int rtapi_instance;
 } wtconf_t;
 
 typedef struct wtself {
     wtconf_t *cfg;
-    uuid_t process_uuid;      // server instance (this process)
     int signal_fd;
     bool interrupted;
     pid_t pid;
@@ -202,15 +203,15 @@ typedef struct wtself {
     pb::Container rx; // any ParseFrom.. function does a Clear() first
     pb::Container tx; // tx must be Clear()'d after or before use
 
-    zctx_t *ctx;
-    zloop_t *loop;
-
     zlist_t *policies;
     struct libwebsocket_context *wsctx;
     int service_timer;
 
-    AvahiCzmqPoll *av_loop;
-    register_context_t *www_publisher;
+    mk_netopts_t netopts;
+    // the zeromq socket in mksock is not used in webtalk,
+    // just the related parameters in mk_socket for
+    // announcing the http/https service:
+    mk_socket_t mksock;
     zservice_t zswww;
 
 } wtself_t;

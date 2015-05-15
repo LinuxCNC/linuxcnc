@@ -10,7 +10,6 @@ MT_INSTALL_INCS +=  machinetalk/webtalk/webtalk.hh
 
 EXPERIMENTAL := -DEXPERIMENTAL_ZWS_SUPPORT=1
 WEBTALK_SRCS :=  $(addprefix $(WEBTALK_DIR)/, \
-	webtalk_zeroconf.cc 	\
 	webtalk_wsproxy.cc	\
 	webtalk_defaultpolicy.cc	\
 	webtalk_jsonpolicy.cc	\

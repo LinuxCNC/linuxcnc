@@ -76,7 +76,9 @@ int register_zmq_poller(zws_session_t *wss)
     wss->pollitem.socket =  wss->socket;
     wss->pollitem.fd = 0;
     wss->pollitem.events =  ZMQ_POLLIN;
-    assert(zloop_poller (self->loop, &wss->pollitem, zmq_socket_readable, wss) == 0);
+    int retval = zloop_poller (self->netopts.z_loop, &wss->pollitem,
+			       zmq_socket_readable, wss);
+    assert(retval == 0);
     return 0;
 }
 
@@ -283,11 +285,11 @@ callback_http(struct libwebsocket_context *context,
 	    int retval;
 
 	    // the two/from WS pair pipe
-	    wss->wsq_out = zsocket_new (self->ctx, ZMQ_PAIR);
+	    wss->wsq_out = zsocket_new (self->netopts.z_context, ZMQ_PAIR);
 	    assert (wss->wsq_out);
 	    zsocket_bind (wss->wsq_out, "inproc://wsq-%p", wss);
 
-	    wss->wsq_in = zsocket_new (self->ctx, ZMQ_PAIR);
+	    wss->wsq_in = zsocket_new (self->netopts.z_context, ZMQ_PAIR);
 	    assert (wss->wsq_in);
 	    zsocket_connect (wss->wsq_in, "inproc://wsq-%p", wss);
 
@@ -295,7 +297,7 @@ callback_http(struct libwebsocket_context *context,
 	    wss->wsqin_pollitem.socket =  wss->wsq_in;
 	    wss->wsqin_pollitem.fd = 0;
 	    wss->wsqin_pollitem.events =  ZMQ_POLLIN;
-	    assert(zloop_poller (self->loop, &wss->wsqin_pollitem,
+	    assert(zloop_poller (self->netopts.z_loop, &wss->wsqin_pollitem,
 				 wsqin_socket_readable, wss) == 0);
 	    wss->wsqin_poller_active = true;
 
@@ -323,7 +325,7 @@ callback_http(struct libwebsocket_context *context,
 		// the  wsq_in poller was disabled, so good to reenable now.
 		// since we're ready to take more
 
-		assert(zloop_poller (self->loop, &wss->wsqin_pollitem,
+		assert(zloop_poller (self->netopts.z_loop, &wss->wsqin_pollitem,
 				     wsqin_socket_readable, wss) == 0);
 		wss->wsqin_poller_active = true;
 	    }
@@ -362,7 +364,7 @@ callback_http(struct libwebsocket_context *context,
 		    // otherwise this is hammered by zmq readable callbacks because
 		    // of pending frames in the wsq_in pipe
 
-		    zloop_poller_end (self->loop, &wss->wsqin_pollitem);
+		    zloop_poller_end (self->netopts.z_loop, &wss->wsqin_pollitem);
 		    wss->wsqin_poller_active = false;
 		    libwebsocket_callback_on_writable(context, wsi);
 		    break;
@@ -388,13 +390,13 @@ callback_http(struct libwebsocket_context *context,
 	    // stop watching and destroy the zmq sockets
 
 	    if (wss->pollitem.socket != NULL)
-		zloop_poller_end (self->loop, &wss->pollitem);
-	    zloop_poller_end (self->loop, &wss->wsqin_pollitem);
+		zloop_poller_end (self->netopts.z_loop, &wss->pollitem);
+	    zloop_poller_end (self->netopts.z_loop, &wss->wsqin_pollitem);
 
 	    if (wss->socket != NULL)
-		zsocket_destroy (self->ctx, wss->socket);
-	    zsocket_destroy (self->ctx, wss->wsq_in);
-	    zsocket_destroy (self->ctx, wss->wsq_out);
+		zsocket_destroy (self->netopts.z_context, wss->socket);
+	    zsocket_destroy (self->netopts.z_context, wss->wsq_in);
+	    zsocket_destroy (self->netopts.z_context, wss->wsq_out);
 
 	    uriFreeQueryListA(wss->queryList);
 	    uriFreeUriMembersA(&wss->u);
@@ -421,17 +423,18 @@ callback_http(struct libwebsocket_context *context,
 	{
 	    short zevents = poll2zmq(pa->events);
 	    zmq_pollitem_t additem = { 0, pa->fd, zevents };
-	    assert(zloop_poller (self->loop, &additem, libws_socket_readable, context) == 0);
+	    assert(zloop_poller (self->netopts.z_loop, &additem,
+				 libws_socket_readable, context) == 0);
 
 	    if (zevents & ZMQ_POLLERR) // dont remove poller on POLLERR
-		zloop_set_tolerant (self->loop, &additem);
+		zloop_set_tolerant (self->netopts.z_loop, &additem);
 	}
 	break;
 
     case LWS_CALLBACK_DEL_POLL_FD:
 	{
 	    zmq_pollitem_t delitem = { 0, pa->fd, 0 };
-	    zloop_poller_end (self->loop, &delitem);
+	    zloop_poller_end (self->netopts.z_loop, &delitem);
 	}
 	break;
 
@@ -442,14 +445,14 @@ callback_http(struct libwebsocket_context *context,
 
 	    // remove existing poller
 	    zmq_pollitem_t item = { 0, pa->fd, 0 };
-	    zloop_poller_end (self->loop, &item);
+	    zloop_poller_end (self->netopts.z_loop, &item);
 
 	    // insert new poller with current event mask
 	    item.events = poll2zmq(pa->events);
 
-	    assert(zloop_poller (self->loop, &item, libws_socket_readable, context) == 0);
+	    assert(zloop_poller (self->netopts.z_loop, &item, libws_socket_readable, context) == 0);
 	    if (item.events & ZMQ_POLLERR) // dont remove poller on POLLERR
-		zloop_set_tolerant (self->loop, &item);
+		zloop_set_tolerant (self->netopts.z_loop, &item);
 	}
 	break;
 
