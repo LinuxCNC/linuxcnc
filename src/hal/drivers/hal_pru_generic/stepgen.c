@@ -130,12 +130,12 @@ void hpg_stepgen_read(hal_pru_generic_t *hpg, long l_period_ns) {
         *(hpg->stepgen.instance[i].hal.pin.test3) = acc;
 
         // those tricky users are always trying to get us to divide by zero
-        if (fabs(hpg->stepgen.instance[i].hal.param.position_scale) < 1e-6) {
-            if (hpg->stepgen.instance[i].hal.param.position_scale >= 0.0) {
-                hpg->stepgen.instance[i].hal.param.position_scale = 1.0;
+        if (fabs(*(hpg->stepgen.instance[i].hal.pin.position_scale)) < 1e-6) {
+            if (*(hpg->stepgen.instance[i].hal.pin.position_scale) >= 0.0) {
+                *(hpg->stepgen.instance[i].hal.pin.position_scale) = 1.0;
                 HPG_ERR("stepgen %d position_scale is too close to 0, resetting to 1.0\n", i);
             } else {
-                hpg->stepgen.instance[i].hal.param.position_scale = -1.0;
+                *(hpg->stepgen.instance[i].hal.pin.position_scale) = -1.0;
                 HPG_ERR("stepgen %d position_scale is too close to 0, resetting to -1.0\n", i);
             }
         }
@@ -158,7 +158,7 @@ void hpg_stepgen_read(hal_pru_generic_t *hpg, long l_period_ns) {
         // note that it's important to use "subcounts/65536.0" instead of just
         // "counts" when computing position_fb, because position_fb needs sub-count
         // precision
-        *(hpg->stepgen.instance[i].hal.pin.position_fb) = ((double)hpg->stepgen.instance[i].subcounts / 65536.0) / hpg->stepgen.instance[i].hal.param.position_scale;
+        *(hpg->stepgen.instance[i].hal.pin.position_fb) = ((double)hpg->stepgen.instance[i].subcounts / 65536.0) / *(hpg->stepgen.instance[i].hal.pin.position_scale);
 
         hpg->stepgen.instance[i].prev_accumulator = acc;
 
@@ -202,16 +202,16 @@ static void hpg_stepgen_instance_position_control(hal_pru_generic_t *hpg, long l
     // If maxaccel is not zero, the user has specified a maxaccel and we
     // adhere to that.
     if (velocity_error > 0.0) {
-        if (s->hal.param.maxaccel == 0) {
+        if (*(s->hal.pin.maxaccel) == 0) {
             match_accel = -velocity_error / f_period_s;
         } else {
-            match_accel = -s->hal.param.maxaccel;
+            match_accel = -*(s->hal.pin.maxaccel);
         }
     } else if (velocity_error < 0.0) {
-        if (s->hal.param.maxaccel == 0) {
+        if (*(s->hal.pin.maxaccel) == 0) {
             match_accel = velocity_error / f_period_s;
         } else {
-            match_accel = s->hal.param.maxaccel;
+            match_accel = *(s->hal.pin.maxaccel);
         }
     } else {
         match_accel = 0;
@@ -245,11 +245,11 @@ static void hpg_stepgen_instance_position_control(hal_pru_generic_t *hpg, long l
         velocity_cmd = ff_vel - (0.5 * error_at_match / f_period_s);
 
         // apply accel limits?
-        if (s->hal.param.maxaccel > 0) {
-            if (velocity_cmd > (*(s->hal.pin.velocity_fb) + (s->hal.param.maxaccel * f_period_s))) {
-                velocity_cmd =  *(s->hal.pin.velocity_fb) + (s->hal.param.maxaccel * f_period_s);
-            } else if (velocity_cmd < (*(s->hal.pin.velocity_fb) - (s->hal.param.maxaccel * f_period_s))) {
-                velocity_cmd = *s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s);
+        if (*(s->hal.pin.maxaccel) > 0) {
+            if (velocity_cmd > (*(s->hal.pin.velocity_fb) + (*(s->hal.pin.maxaccel) * f_period_s))) {
+                velocity_cmd =  *(s->hal.pin.velocity_fb) + (*(s->hal.pin.maxaccel) * f_period_s);
+            } else if (velocity_cmd < (*(s->hal.pin.velocity_fb) - (*(s->hal.pin.maxaccel) * f_period_s))) {
+                velocity_cmd = *s->hal.pin.velocity_fb - (*(s->hal.pin.maxaccel) * f_period_s);
             }
         }
 
@@ -305,30 +305,30 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
         double max_steps_per_s = 1.0e9 / min_ns_per_step;
 
 
-        physical_maxvel = max_steps_per_s / fabs(s->hal.param.position_scale);
+        physical_maxvel = max_steps_per_s / fabs(*(s->hal.pin.position_scale));
         physical_maxvel = force_precision(physical_maxvel);
 
-        if (s->hal.param.maxvel < 0.0) {
+        if (*(s->hal.pin.maxvel) < 0.0) {
             HPG_ERR("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
-            s->hal.param.maxvel = fabs(s->hal.param.maxvel);
+            *(s->hal.pin.maxvel) = fabs(*(s->hal.pin.maxvel));
         }
 
-        if (s->hal.param.maxvel > physical_maxvel) {
+        if (*(s->hal.pin.maxvel) > physical_maxvel) {
             HPG_ERR("stepgen.%02d.maxvel is too big for current step timings & position-scale, clipping to max possible\n", i);
-            s->hal.param.maxvel = physical_maxvel;
+            *(s->hal.pin.maxvel) = physical_maxvel;
         }
 
-        if (s->hal.param.maxvel == 0.0) {
+        if (*(s->hal.pin.maxvel) == 0.0) {
             maxvel = physical_maxvel;
         } else {
-            maxvel = s->hal.param.maxvel;
+            maxvel = *(s->hal.pin.maxvel);
         }
     }
 
     // maxaccel may not be negative
-    if (s->hal.param.maxaccel < 0.0) {
+    if (*(s->hal.pin.maxaccel) < 0.0) {
         HPG_ERR("stepgen.%02d.maxaccel < 0, setting to its absolute value\n", i);
-        s->hal.param.maxaccel = fabs(s->hal.param.maxaccel);
+        *(s->hal.pin.maxaccel) = fabs(*(s->hal.pin.maxaccel));
     }
 
 
@@ -338,11 +338,11 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
     } else {
         // velocity-mode control is easy
         new_vel = *s->hal.pin.velocity_cmd;
-        if (s->hal.param.maxaccel > 0.0) {
-            if (((new_vel - *s->hal.pin.velocity_fb) / f_period_s) > s->hal.param.maxaccel) {
-                new_vel = *(s->hal.pin.velocity_fb) + (s->hal.param.maxaccel * f_period_s);
-            } else if (((new_vel - *s->hal.pin.velocity_fb) / f_period_s) < -s->hal.param.maxaccel) {
-                new_vel = *(s->hal.pin.velocity_fb) - (s->hal.param.maxaccel * f_period_s);
+        if (*(s->hal.pin.maxaccel) > 0.0) {
+            if (((new_vel - *s->hal.pin.velocity_fb) / f_period_s) > *(s->hal.pin.maxaccel)) {
+                new_vel = *(s->hal.pin.velocity_fb) + (*(s->hal.pin.maxaccel) * f_period_s);
+            } else if (((new_vel - *s->hal.pin.velocity_fb) / f_period_s) < -*(s->hal.pin.maxaccel)) {
+                new_vel = *(s->hal.pin.velocity_fb) - (*(s->hal.pin.maxaccel) * f_period_s);
             }
         }
     }
@@ -356,7 +356,7 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
 
     *s->hal.pin.velocity_fb = (hal_float_t)new_vel;
 
-    steps_per_sec_cmd = new_vel * s->hal.param.position_scale;
+    steps_per_sec_cmd = new_vel * *(s->hal.pin.position_scale);
     s->pru.rate = steps_per_sec_cmd * (double)0x08000000 * (double) hpg->config.pru_period * 1e-9;
     
     // clip rate just to be safe...should be limited by code above
@@ -371,192 +371,166 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
 
 int export_stepgen(hal_pru_generic_t *hpg, int i)
 {
-    char name[HAL_NAME_LEN + 1];
     int r;
 
     // Pins
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-cmd", hpg->config.halname, i);
-    r = hal_pin_float_new(name, HAL_IN, &(hpg->stepgen.instance[i].hal.pin.position_cmd), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.position_cmd), hpg->config.comp_id, "%s.stepgen.%02d.position-cmd", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'position-cmd', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.velocity-cmd", hpg->config.halname, i);
-    r = hal_pin_float_new(name, HAL_IN, &(hpg->stepgen.instance[i].hal.pin.velocity_cmd), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.velocity_cmd), hpg->config.comp_id, "%s.stepgen.%02d.velocity-cmd", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'velocity-cmd', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.velocity-fb", hpg->config.halname, i);
-    r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.velocity_fb), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.velocity_fb), hpg->config.comp_id, "%s.stepgen.%02d.velocity-fb", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'velocity-fb', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-fb", hpg->config.halname, i);
-    r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.position_fb), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.position_fb), hpg->config.comp_id, "%s.stepgen.%02d.position-fb", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'position-fb', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.counts", hpg->config.halname, i);
-    r = hal_pin_s32_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.counts), hpg->config.comp_id);
+    r = hal_pin_s32_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.counts), hpg->config.comp_id, "%s.stepgen.%02d.counts", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'counts', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.enable", hpg->config.halname, i);
-    r = hal_pin_bit_new(name, HAL_IN, &(hpg->stepgen.instance[i].hal.pin.enable), hpg->config.comp_id);
+    r = hal_pin_bit_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.enable), hpg->config.comp_id, "%s.stepgen.%02d.enable", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'enable', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.control-type", hpg->config.halname, i);
-    r = hal_pin_bit_new(name, HAL_IN, &(hpg->stepgen.instance[i].hal.pin.control_type), hpg->config.comp_id);
+    r = hal_pin_bit_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.control_type), hpg->config.comp_id, "%s.stepgen.%02d.control-type", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'control-type', aborting\n", i);
         return r;
     }
 
     // debug pins
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_pos_minus_prev_cmd", hpg->config.halname, i);
-    r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_pos_minus_prev_cmd), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_pos_minus_prev_cmd), hpg->config.comp_id, "%s.stepgen.%02d.dbg_pos_minus_prev_cmd", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'dbg_pos_minus_prev_cmd', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_ff_vel", hpg->config.halname, i);
-    r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_ff_vel), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_ff_vel), hpg->config.comp_id, "%s.stepgen.%02d.dbg_ff_vel", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'dbg_ff_vel', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_s_to_match", hpg->config.halname, i);
-    r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_s_to_match), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_s_to_match), hpg->config.comp_id, "%s.stepgen.%02d.dbg_s_to_match", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'dbg_s_to_match', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_vel_error", hpg->config.halname, i);
-    r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_vel_error), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_vel_error), hpg->config.comp_id, "%s.stepgen.%02d.dbg_vel_error", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'dbg_vel_error', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_err_at_match", hpg->config.halname, i);
-    r = hal_pin_float_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_err_at_match), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_err_at_match), hpg->config.comp_id, "%s.stepgen.%02d.dbg_err_at_match", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'dbg_err_at_match', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_step_rate", hpg->config.halname, i);
-    r = hal_pin_s32_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_step_rate), hpg->config.comp_id);
+    r = hal_pin_s32_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.dbg_step_rate), hpg->config.comp_id, "%s.stepgen.%02d.dbg_step_rate", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'dbg_step_rate', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test1", hpg->config.halname, i);
-    r = hal_pin_s32_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.test1), hpg->config.comp_id);
+    r = hal_pin_s32_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.test1), hpg->config.comp_id, "%s.stepgen.%02d.test1", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'test1', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test2", hpg->config.halname, i);
-    r = hal_pin_s32_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.test2), hpg->config.comp_id);
+    r = hal_pin_s32_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.test2), hpg->config.comp_id, "%s.stepgen.%02d.test2", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'test2', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.test3", hpg->config.halname, i);
-    r = hal_pin_s32_new(name, HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.test3), hpg->config.comp_id);
+    r = hal_pin_s32_newf(HAL_OUT, &(hpg->stepgen.instance[i].hal.pin.test3), hpg->config.comp_id, "%s.stepgen.%02d.test3", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding pin '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'test3', aborting\n", i);
         return r;
     }
 
-    // Parameters
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-scale", hpg->config.halname, i);
-    r = hal_param_float_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.position_scale), hpg->config.comp_id);
+    // param pins
+
+    r = hal_pin_float_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.position_scale), hpg->config.comp_id, "%s.stepgen.%02d.position-scale", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding param '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'position-scale', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxvel", hpg->config.halname, i);
-    r = hal_param_float_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.maxvel), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.maxvel), hpg->config.comp_id, "%s.stepgen.%02d.maxvel", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding param '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'maxvel', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxaccel", hpg->config.halname, i);
-    r = hal_param_float_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.maxaccel), hpg->config.comp_id);
+    r = hal_pin_float_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.maxaccel), hpg->config.comp_id, "%s.stepgen.%02d.maxaccel", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding param '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'maxaccel', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.steplen", hpg->config.halname, i);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.steplen), hpg->config.comp_id);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.steplen), hpg->config.comp_id, "%s.stepgen.%02d.steplen", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding param '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'steplen', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.stepspace", hpg->config.halname, i);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.stepspace), hpg->config.comp_id);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.stepspace), hpg->config.comp_id, "%s.stepgen.%02d.stepspace", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding param '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'stepspace', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirsetup", hpg->config.halname, i);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.dirsetup), hpg->config.comp_id);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.dirsetup), hpg->config.comp_id, "%s.stepgen.%02d.dirsetup", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding param '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'dirsetup', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirhold", hpg->config.halname, i);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.dirhold), hpg->config.comp_id);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.dirhold), hpg->config.comp_id, "%s.stepgen.%02d.dirhold", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding param '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'dirhold', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.steppin", hpg->config.halname, i);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.steppin), hpg->config.comp_id);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.steppin), hpg->config.comp_id, "%s.stepgen.%02d.steppin", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding param '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'steppin', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirpin", hpg->config.halname, i);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.dirpin), hpg->config.comp_id);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.dirpin), hpg->config.comp_id, "%s.stepgen.%02d.dirpin", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding param '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'dirpin', aborting\n", i);
         return r;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.stepinvert", hpg->config.halname, i);
-    r = hal_param_bit_new(name, HAL_RW, &(hpg->stepgen.instance[i].hal.param.stepinv), hpg->config.comp_id);
+    r = hal_pin_bit_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.stepinv), hpg->config.comp_id, "%s.stepgen.%02d.stepinvert", hpg->config.halname, i);
     if (r < 0) {
-        HPG_ERR("Error adding param '%s', aborting\n", name);
+        HPG_ERR("stepgen %02d: Error adding pin 'stepinvert', aborting\n", i);
         return r;
     }
 
@@ -568,16 +542,16 @@ int export_stepgen(hal_pru_generic_t *hpg, int i)
     *(hpg->stepgen.instance[i].hal.pin.enable) = 0;
     *(hpg->stepgen.instance[i].hal.pin.control_type) = 0;
 
-    hpg->stepgen.instance[i].hal.param.position_scale = 1.0;
-    hpg->stepgen.instance[i].hal.param.maxvel = 0.0;
-    hpg->stepgen.instance[i].hal.param.maxaccel = 1.0;
+    *(hpg->stepgen.instance[i].hal.pin.position_scale) = 1.0;
+    *(hpg->stepgen.instance[i].hal.pin.maxvel) = 0.0;
+    *(hpg->stepgen.instance[i].hal.pin.maxaccel) = 1.0;
 
     hpg->stepgen.instance[i].subcounts = 0;
 
-    hpg->stepgen.instance[i].hal.param.steplen   = ceil((double)DEFAULT_DELAY / (double)hpg->config.pru_period);
-    hpg->stepgen.instance[i].hal.param.stepspace = ceil((double)DEFAULT_DELAY / (double)hpg->config.pru_period);
-    hpg->stepgen.instance[i].hal.param.dirsetup  = ceil((double)DEFAULT_DELAY / (double)hpg->config.pru_period);
-    hpg->stepgen.instance[i].hal.param.dirhold   = ceil((double)DEFAULT_DELAY / (double)hpg->config.pru_period);
+    *(hpg->stepgen.instance[i].hal.pin.steplen)   = ceil((double)DEFAULT_DELAY / (double)hpg->config.pru_period);
+    *(hpg->stepgen.instance[i].hal.pin.stepspace) = ceil((double)DEFAULT_DELAY / (double)hpg->config.pru_period);
+    *(hpg->stepgen.instance[i].hal.pin.dirsetup)  = ceil((double)DEFAULT_DELAY / (double)hpg->config.pru_period);
+    *(hpg->stepgen.instance[i].hal.pin.dirhold)   = ceil((double)DEFAULT_DELAY / (double)hpg->config.pru_period);
 
     hpg->stepgen.instance[i].written_steplen = 0;
     hpg->stepgen.instance[i].written_stepspace = 0;
@@ -591,10 +565,10 @@ int export_stepgen(hal_pru_generic_t *hpg, int i)
     hpg->stepgen.instance[i].prev_accumulator = 0;
     hpg->stepgen.instance[i].old_position_cmd = *(hpg->stepgen.instance[i].hal.pin.position_cmd);
 
-    hpg->stepgen.instance[i].hal.param.steppin = PRU_DEFAULT_PIN;
-    hpg->stepgen.instance[i].hal.param.dirpin  = PRU_DEFAULT_PIN;
+    *( hpg->stepgen.instance[i].hal.pin.steppin) = PRU_DEFAULT_PIN;
+    *(hpg->stepgen.instance[i].hal.pin.dirpin)  = PRU_DEFAULT_PIN;
 
-    hpg->stepgen.instance[i].hal.param.stepinv = 0;
+    *(hpg->stepgen.instance[i].hal.pin.stepinv) = 0;
 
     return 0;
 }
@@ -641,13 +615,13 @@ void hpg_stepgen_update(hal_pru_generic_t *hpg, long l_period_ns) {
 
     for (i = 0; i < hpg->stepgen.num_instances; i ++) {
         // Update shadow of PRU control registers
-        if ((hpg->stepgen.instance[i].hal.param.steppin != hpg->stepgen.instance[i].written_steppin) ||
-            (hpg->stepgen.instance[i].hal.param.dirpin  != hpg->stepgen.instance[i].written_dirpin)  )
+        if ((*(hpg->stepgen.instance[i].hal.pin.steppin) != hpg->stepgen.instance[i].written_steppin) ||
+            (*(hpg->stepgen.instance[i].hal.pin.dirpin)  != hpg->stepgen.instance[i].written_dirpin)  )
         {
-            hpg->stepgen.instance[i].pru.task.hdr.dataX = fixup_pin(hpg->stepgen.instance[i].hal.param.steppin);
-            hpg->stepgen.instance[i].pru.task.hdr.dataY = fixup_pin(hpg->stepgen.instance[i].hal.param.dirpin);
-            hpg->stepgen.instance[i].written_steppin    = hpg->stepgen.instance[i].hal.param.steppin;
-            hpg->stepgen.instance[i].written_dirpin     = hpg->stepgen.instance[i].hal.param.dirpin;
+            hpg->stepgen.instance[i].pru.task.hdr.dataX = fixup_pin(*(hpg->stepgen.instance[i].hal.pin.steppin));
+            hpg->stepgen.instance[i].pru.task.hdr.dataY = fixup_pin(*(hpg->stepgen.instance[i].hal.pin.dirpin));
+            hpg->stepgen.instance[i].written_steppin    = *(hpg->stepgen.instance[i].hal.pin.steppin);
+            hpg->stepgen.instance[i].written_dirpin     = *(hpg->stepgen.instance[i].hal.pin.dirpin);
         }
 
         if (*(hpg->stepgen.instance[i].hal.pin.enable) == 0) {
@@ -662,17 +636,17 @@ void hpg_stepgen_update(hal_pru_generic_t *hpg, long l_period_ns) {
         PRU_task_stepdir_t *pru = (PRU_task_stepdir_t *) ((u32) hpg->pru_data + (u32) hpg->stepgen.instance[i].task.addr);
 
         // Update timing parameters if changed
-        if ((hpg->stepgen.instance[i].hal.param.dirsetup  != hpg->stepgen.instance[i].written_dirsetup ) ||
-            (hpg->stepgen.instance[i].hal.param.dirhold   != hpg->stepgen.instance[i].written_dirhold  ) ||
-            (hpg->stepgen.instance[i].hal.param.steplen   != hpg->stepgen.instance[i].written_steplen  ) ||
-            (hpg->stepgen.instance[i].hal.param.stepspace != hpg->stepgen.instance[i].written_stepspace) ||
-            (hpg->stepgen.instance[i].hal.param.stepinv   != hpg->stepgen.instance[i].written_stepinv  ) )
+        if ((*(hpg->stepgen.instance[i].hal.pin.dirsetup)  != hpg->stepgen.instance[i].written_dirsetup ) ||
+            (*(hpg->stepgen.instance[i].hal.pin.dirhold)   != hpg->stepgen.instance[i].written_dirhold  ) ||
+            (*(hpg->stepgen.instance[i].hal.pin.steplen)   != hpg->stepgen.instance[i].written_steplen  ) ||
+            (*(hpg->stepgen.instance[i].hal.pin.stepspace) != hpg->stepgen.instance[i].written_stepspace) ||
+            (*(hpg->stepgen.instance[i].hal.pin.stepinv)   != hpg->stepgen.instance[i].written_stepinv  ) )
         {
-            hpg->stepgen.instance[i].pru.dirsetup   = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.dirsetup);
-            hpg->stepgen.instance[i].pru.dirhold    = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.dirhold);
-            hpg->stepgen.instance[i].pru.steplen    = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.steplen);
-            hpg->stepgen.instance[i].pru.stepspace  = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.stepspace);
-            hpg->stepgen.instance[i].pru.stepinv    =                 hpg->stepgen.instance[i].hal.param.stepinv;
+            hpg->stepgen.instance[i].pru.dirsetup   = ns2periods(hpg, *(hpg->stepgen.instance[i].hal.pin.dirsetup));
+            hpg->stepgen.instance[i].pru.dirhold    = ns2periods(hpg, *(hpg->stepgen.instance[i].hal.pin.dirhold));
+            hpg->stepgen.instance[i].pru.steplen    = ns2periods(hpg, *(hpg->stepgen.instance[i].hal.pin.steplen));
+            hpg->stepgen.instance[i].pru.stepspace  = ns2periods(hpg, *(hpg->stepgen.instance[i].hal.pin.stepspace));
+            hpg->stepgen.instance[i].pru.stepinv    =                 *(hpg->stepgen.instance[i].hal.pin.stepinv);
 
             // Send new value(s) to the PRU
             pru->dirsetup   = hpg->stepgen.instance[i].pru.dirsetup;
@@ -682,11 +656,11 @@ void hpg_stepgen_update(hal_pru_generic_t *hpg, long l_period_ns) {
             pru->stepinv    = hpg->stepgen.instance[i].pru.stepinv;
 
             // Stash values written
-            hpg->stepgen.instance[i].written_dirsetup  = hpg->stepgen.instance[i].hal.param.dirsetup;
-            hpg->stepgen.instance[i].written_dirhold   = hpg->stepgen.instance[i].hal.param.dirhold;
-            hpg->stepgen.instance[i].written_steplen   = hpg->stepgen.instance[i].hal.param.steplen;
-            hpg->stepgen.instance[i].written_stepspace = hpg->stepgen.instance[i].hal.param.stepspace;
-            hpg->stepgen.instance[i].written_stepinv   = hpg->stepgen.instance[i].hal.param.stepinv;
+            hpg->stepgen.instance[i].written_dirsetup  = *(hpg->stepgen.instance[i].hal.pin.dirsetup);
+            hpg->stepgen.instance[i].written_dirhold   = *(hpg->stepgen.instance[i].hal.pin.dirhold);
+            hpg->stepgen.instance[i].written_steplen   = *(hpg->stepgen.instance[i].hal.pin.steplen);
+            hpg->stepgen.instance[i].written_stepspace = *(hpg->stepgen.instance[i].hal.pin.stepspace);
+            hpg->stepgen.instance[i].written_stepinv   = *(hpg->stepgen.instance[i].hal.pin.stepinv);
         }
 
         // Update control word if changed
@@ -710,14 +684,14 @@ void hpg_stepgen_force_write(hal_pru_generic_t *hpg) {
 
         hpg->stepgen.instance[i].pru.task.hdr.mode  = eMODE_STEP_DIR;
         hpg->stepgen.instance[i].pru.task.hdr.len   = 0;
-        hpg->stepgen.instance[i].pru.task.hdr.dataX = fixup_pin(hpg->stepgen.instance[i].hal.param.steppin);
-        hpg->stepgen.instance[i].pru.task.hdr.dataY = fixup_pin(hpg->stepgen.instance[i].hal.param.dirpin);
+        hpg->stepgen.instance[i].pru.task.hdr.dataX = fixup_pin(*(hpg->stepgen.instance[i].hal.pin.steppin));
+        hpg->stepgen.instance[i].pru.task.hdr.dataY = fixup_pin(*(hpg->stepgen.instance[i].hal.pin.dirpin));
         hpg->stepgen.instance[i].pru.task.hdr.addr  = hpg->stepgen.instance[i].task.next;
         hpg->stepgen.instance[i].pru.rate           = 0;
-        hpg->stepgen.instance[i].pru.steplen        = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.steplen);
-        hpg->stepgen.instance[i].pru.dirhold        = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.dirhold);
-        hpg->stepgen.instance[i].pru.stepspace      = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.stepspace);
-        hpg->stepgen.instance[i].pru.dirsetup       = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.dirsetup);
+        hpg->stepgen.instance[i].pru.steplen        = ns2periods(hpg, *(hpg->stepgen.instance[i].hal.pin.steplen));
+        hpg->stepgen.instance[i].pru.dirhold        = ns2periods(hpg, *(hpg->stepgen.instance[i].hal.pin.dirhold));
+        hpg->stepgen.instance[i].pru.stepspace      = ns2periods(hpg, *(hpg->stepgen.instance[i].hal.pin.stepspace));
+        hpg->stepgen.instance[i].pru.dirsetup       = ns2periods(hpg, *(hpg->stepgen.instance[i].hal.pin.dirsetup));
         hpg->stepgen.instance[i].pru.accum          = 0;
         hpg->stepgen.instance[i].pru.pos            = 0;
         hpg->stepgen.instance[i].pru.reserved[0]    = 0;

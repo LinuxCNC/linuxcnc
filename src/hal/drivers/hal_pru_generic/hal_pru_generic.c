@@ -526,25 +526,23 @@ void pru_shutdown(int pru)
 }
 
 int hpg_wait_init(hal_pru_generic_t *hpg) {
-    char name[HAL_NAME_LEN + 1];
     int r;
 
     hpg->wait.task.addr = pru_malloc(hpg, sizeof(hpg->wait.pru));
 
     pru_task_add(hpg, &(hpg->wait.task));
 
-    rtapi_snprintf(name, sizeof(name), "%s.pru_busy_pin", hpg->config.name);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->hal.param.pru_busy_pin), hpg->config.comp_id);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->hal.pin.pru_busy_pin), hpg->config.comp_id, "%s.pru_busy_pin", hpg->config.name);
     if (r != 0) { return r; }
 
-    hpg->hal.param.pru_busy_pin = 0x80;
+    *(hpg->hal.pin.pru_busy_pin) = 0x80;
 
     return 0;
 }
 
 void hpg_wait_force_write(hal_pru_generic_t *hpg) {
     hpg->wait.pru.task.hdr.mode = eMODE_WAIT;
-    hpg->wait.pru.task.hdr.dataX = hpg->hal.param.pru_busy_pin;
+    hpg->wait.pru.task.hdr.dataX = *(hpg->hal.pin.pru_busy_pin);
     hpg->wait.pru.task.hdr.dataY = 0x00;
     hpg->wait.pru.task.hdr.addr = hpg->wait.task.next;
 
@@ -556,8 +554,8 @@ void hpg_wait_force_write(hal_pru_generic_t *hpg) {
 }
 
 void hpg_wait_update(hal_pru_generic_t *hpg) {
-    if (hpg->wait.pru.task.hdr.dataX != hpg->hal.param.pru_busy_pin)
-        hpg->wait.pru.task.hdr.dataX = hpg->hal.param.pru_busy_pin;
+    if (hpg->wait.pru.task.hdr.dataX != *(hpg->hal.pin.pru_busy_pin))
+        hpg->wait.pru.task.hdr.dataX = *(hpg->hal.pin.pru_busy_pin);
 
     PRU_task_wait_t *pru = (PRU_task_wait_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task.addr);
     *pru = hpg->wait.pru;
