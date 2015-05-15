@@ -34,6 +34,7 @@ typedef struct {
     AvahiProtocol proto; //  AVAHI_PROTO_INET6,  AVAHI_PROTO_INET, AVAHI_PROTO_UNSPEC
     int port;
     const char *type;
+    const char *uri_fmt;
     AvahiStringList *subtypes;
     AvahiIfIndex interface; // usually AVAHI_IF_UNSPEC
     AvahiStringList *txt;   // must contain uuid=<instance uuid>

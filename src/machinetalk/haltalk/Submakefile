@@ -5,7 +5,6 @@ HALTALK_SRCS :=  $(addprefix $(HALTALK_DIR)/, \
 	haltalk_rcomp.cc 	\
 	haltalk_command.cc 	\
 	haltalk_introspect.cc 	\
-	haltalk_zeroconf.cc 	\
 	haltalk_bridge.cc 	\
 	haltalk_main.cc)
 

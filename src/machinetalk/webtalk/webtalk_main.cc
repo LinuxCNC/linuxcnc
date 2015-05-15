@@ -18,7 +18,6 @@
 
 #include "webtalk.hh"
 #include <setup_signals.h>
-#include <select_interface.h>
 #include <inihelp.hh>
 
 // configuration defaults
@@ -54,31 +53,38 @@ static int
 mainloop( wtself_t *self)
 {
     int retval;
-    zloop_set_verbose (self->loop, self->cfg->debug & LLL_LOOP);
+    zloop_set_verbose (self->netopts.z_loop, self->cfg->debug & LLL_LOOP);
 
     zmq_pollitem_t signal_poller = { 0, self->signal_fd, ZMQ_POLLIN };
     if (self->cfg->trap_signals)
-	zloop_poller(self->loop, &signal_poller, handle_signal, self);
+	zloop_poller(self->netopts.z_loop, &signal_poller, handle_signal, self);
 
     if ((self->wsctx = libwebsocket_create_context(&self->cfg->info)) == NULL) {
 	lwsl_err("libwebsocket_create_context failed\n");
 	return -1;
     }
-
-    // announce only after bind succeeded
-    retval = wt_zeroconf_announce(self);
-    if (retval) exit(retval);
-
     if (self->cfg->service_timer > 0)
-	self->service_timer = zloop_timer(self->loop, self->cfg->service_timer,
-					  0, service_timer_callback, self->wsctx);
+	self->service_timer = zloop_timer(self->netopts.z_loop,
+					  self->cfg->service_timer,
+					  0,
+					  service_timer_callback,
+					  self->wsctx);
+
+    // announce only after websocket successfulled created
+    if (mk_announce(&self->netopts, &self->mksock,
+		    "Machinekit", self->cfg->index_html))
+	return -1;
+    syslog_async(LOG_DEBUG, "%s: talking Machinekit %s on '%s'",
+		 self->cfg->progname, self->mksock.tag,
+		 self->mksock.announced_uri);
+
 
     do {
-	retval = zloop_start(self->loop);
+	retval = zloop_start(self->netopts.z_loop);
     } while  (!(retval || self->interrupted));
 
     if (self->service_timer)
-	zloop_timer_end (self->loop, self->service_timer);
+	zloop_timer_end (self->netopts.z_loop, self->service_timer);
 
     libwebsocket_context_destroy(self->wsctx);
 
@@ -102,6 +108,7 @@ static void sigaction_handler(int sig, siginfo_t *si, void *uctx)
     kill(getpid(), sig);
     sleep(1);
 }
+
 static int
 zmq_init(wtself_t *self)
 {
@@ -109,7 +116,8 @@ zmq_init(wtself_t *self)
 
     // ease debugging
     if (self->cfg->trap_signals) {
-	self->signal_fd = setup_signals(sigaction_handler, SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
+	self->signal_fd = setup_signals(sigaction_handler,
+					SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
 	assert(self->signal_fd > -1);
     }
 
@@ -118,18 +126,26 @@ zmq_init(wtself_t *self)
     // must happen before zctx_new()
     zsys_handler_set(NULL);
 
-    self->ctx= zctx_new ();
-    assert(self->ctx);
+    mk_netopts_t *np = &self->netopts;
 
-    self->loop = zloop_new();
-    assert (self->loop);
+    np->z_context = zctx_new ();
+    assert(np->z_context);
 
-    // register Avahi poll adapter
-    if (!(self->av_loop = avahi_czmq_poll_new(self->loop))) {
-	syslog_async(LOG_ERR, "%s: zeroconf: Failed to create avahi event loop object.",
-		     conf.progname);
-	return -1;
-    }
+    np->z_loop = zloop_new();
+    assert (np->z_loop);
+
+    np->rundir = RUNDIR;
+    np->rtapi_instance = self->cfg->rtapi_instance;
+
+    np->av_loop = avahi_czmq_poll_new(np->z_loop);
+    assert(np->av_loop);
+
+    mk_socket_t *ms = &self->mksock;
+    ms->dnssd_type = self->cfg->use_ssl ? "_https._tcp" : "_http._tcp";
+    ms->dnssd_subtype = NULL;
+    ms->tag =  self->cfg->use_ssl ? "https" : "http";
+    ms->port =  self->cfg->info.port;
+
     return 0;
 }
 
@@ -146,64 +162,6 @@ wt_hello(wtconf_t *cfg)
 		 (GOOGLE_PROTOBUF_VERSION / 1000) % 1000,
 		 GOOGLE_PROTOBUF_VERSION % 1000,
 		 lws_get_library_version());
-}
-
-// pull global values from MACHINEKIT_INI
-static int
-read_global_config(wtconf_t *conf)
-{
-    const char *s, *mkinifile;
-    const char *mkini = "MACHINEKIT_INI";
-    FILE *inifp;
-    uuid_t uutmp;
-
-    if ((mkinifile = getenv(mkini)) == NULL) {
-	syslog_async(LOG_ERR, "%s: FATAL - '%s' missing in environment\n",
-		     conf->progname, mkini);
-	return -1;
-    }
-    if ((inifp = fopen(mkinifile,"r")) == NULL) {
-	syslog_async(LOG_ERR, "%s: cant open inifile '%s'\n",
-		     conf->progname,mkinifile);
-    }
-
-    str_inidefault(&conf->service_uuid, inifp, "MKUUID", "MACHINEKIT");
-
-    if (conf->service_uuid == NULL) {
-	syslog_async(LOG_ERR,
-		     "%s: no service UUID (-R <uuid> or MACHINEKIT_INI [MACHINEKIT]MKUUID) present\n",
-		     conf->progname);
-	    return -1;
-    }
-    if (uuid_parse(conf->service_uuid, uutmp)) {
-	syslog_async(LOG_ERR,
-		     "%s: service UUID: syntax error: '%s'",
-		     conf->progname,conf->service_uuid);
-	return -1;
-    }
-    iniFindInt(inifp, "REMOTE", "MACHINEKIT", &conf->remote);
-    if (conf->remote && (conf->interfaces == NULL)) {
-	if ((s = iniFind(inifp, "INTERFACES", "MACHINEKIT"))) {
-
-	    char ifname[LINELEN], ip[LINELEN];
-
-	    // pick a preferred interface
-	    if (parse_interface_prefs(s,  ifname, ip, &conf->ifIndex) == 0) {
-		conf->interface = strdup(ifname);
-		conf->ipaddr = strdup(ip);
-		syslog_async(LOG_INFO, "%s %s: using preferred interface %s/%s\n",
-			     conf->progname, mkini,
-			     conf->interface, conf->ipaddr);
-	    } else {
-		syslog_async(LOG_ERR, "%s %s: INTERFACES='%s'"
-			     " - cant determine preferred interface, using %s/%s\n",
-			     conf->progname, mkini, s,
-			     conf->interface, conf->ipaddr);
-	    }
-	}
-    }
-    fclose(inifp);
-    return 0;
 }
 
 // this is pathetic. We need a decent library solution for config/arg/environmnt handling.
@@ -223,8 +181,21 @@ read_config(wtconf_t *conf)
 	return 0;
 
     iniFindInt(inifp, "DEBUG", conf->section, &conf->debug);
+    iniFindInt(inifp, "IPV6", conf->section, &conf->ipv6);
     iniFindInt(inifp, "PORT", conf->section, &conf->info.port);
-    iniFindInt(inifp, "OPTIONS", conf->section, (int *) &conf->info.options);
+    flag = 0;
+    iniFindInt(inifp, "REQUIRE_VALID_OPENSSL_CLIENT_CERT", conf->section, &flag);
+    if (flag) conf->info.options |= LWS_SERVER_OPTION_REQUIRE_VALID_OPENSSL_CLIENT_CERT;
+    flag = 0;
+    iniFindInt(inifp, "SKIP_SERVER_CANONICAL_NAME", conf->section, &flag);
+    if (flag) conf->info.options |= LWS_SERVER_OPTION_SKIP_SERVER_CANONICAL_NAME;
+    flag = 0;
+    iniFindInt(inifp, "ALLOW_NON_SSL_ON_SSL_PORT", conf->section, &flag);
+    if (flag) conf->info.options |= LWS_SERVER_OPTION_ALLOW_NON_SSL_ON_SSL_PORT;
+    flag = 0;
+    iniFindInt(inifp, "DISABLE_OS_CA_CERTS", conf->section, &flag);
+    if (flag) conf->info.options |= LWS_SERVER_OPTION_DISABLE_OS_CA_CERTS;
+
     iniFindInt(inifp, "EXTENSIONS",  conf->section, &flag);
     if (flag) conf->info.extensions = libwebsocket_get_internal_extensions();
     iniFindInt(inifp, "TIMER", conf->section, &conf->service_timer);
@@ -297,7 +268,7 @@ usage(void)
 }
 
 
-static const char *option_string = "hI:S:d:R:Fsw:X:p:C:K:P:G";
+static const char *option_string = "hI:S:d:R:Fsw:X:p:C:K:P:";
 static struct option long_options[] = {
     { "help", no_argument, 0, 'h'},
     { "ini", required_argument, 0, 'I'},
@@ -313,7 +284,6 @@ static struct option long_options[] = {
     { "stderr",  no_argument,        0, 's'},
     { "foreground",  no_argument,    0, 'F'},
     { "plugin", required_argument, 0, 'P'},
-    { "nosighdlr",   no_argument,    0, 'G'},
     {0,0,0,0}
 };
 
@@ -324,10 +294,14 @@ int main (int argc, char *argv[])
     conf.section  = "WEBTALK";
     conf.info.gid = -1;
     conf.info.uid = -1;
-    conf.ipaddr = "127.0.0.1";
     conf.index_html = NULL;
     conf.info.port = PROXY_PORT;
-    conf.trap_signals = true;
+    // ease debugging with gdb - disable all signal handling
+    conf.trap_signals = (getenv("NOSIGHDLR") == NULL);
+
+    wtself_t self = {0};
+    self.cfg = &conf;
+    self.pid = getpid();
 
     int logopt = LOG_NDELAY;
     int opt, retval;
@@ -345,9 +319,6 @@ int main (int argc, char *argv[])
 	case 'F':
 	    conf.foreground = true;
 	    break;
-	case 'G':
-	    conf.trap_signals = false;
-	    break;
 	case 's':
 	    conf.log_stderr = true;
 	    logopt |= LOG_PERROR;
@@ -360,7 +331,10 @@ int main (int argc, char *argv[])
 
     openlog_async(conf.progname, logopt , SYSLOG_FACILITY);
 
-    if (read_global_config(&conf))
+    // generic binding & announcement parameters
+    // from $MACHINEKIT_INI
+    self.netopts.rundir = RUNDIR;
+    if (mk_getnetopts(&self.netopts))
 	exit(1);
 
     if (read_config(&conf))
@@ -395,7 +369,7 @@ int main (int argc, char *argv[])
 	    conf.index_html = optarg;
 	    break;
 	case 'R':
-	    conf.service_uuid = optarg;
+	    self.netopts.service_uuid = optarg;
 	    break;
 	case 'P':
 	    zlist_append(plugins, strdup(optarg));
@@ -433,10 +407,7 @@ int main (int argc, char *argv[])
     }
     wt_hello(&conf);
 
-    wtself_t self = {0};
-    self.cfg = &conf;
-    self.pid = getpid();
-    uuid_generate_time(self.process_uuid);
+
     gettimeofday(&tv_start, NULL);
 
     lws_set_log_level(self.cfg->debug, lwsl_emit_wtlog);
@@ -460,11 +431,11 @@ int main (int argc, char *argv[])
 
     mainloop(&self);
 
-    wt_zeroconf_withdraw(&self);
+    mk_withdraw(&self.mksock);
     // probably should run zloop here until deregister complete
 
     // shutdown zmq context
-    zctx_destroy(&self.ctx);
+    zctx_destroy(&self.netopts.z_context);
 
     exit(0);
 }

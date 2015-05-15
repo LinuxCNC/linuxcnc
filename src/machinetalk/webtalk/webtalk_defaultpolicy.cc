@@ -68,11 +68,15 @@ int default_policy(wtself_t *self,
 		}
 		q = q->next;
 	    }
-	    wss->socket = zsocket_new (self->ctx, wss->socket_type);
+	    wss->socket = zsocket_new (self->netopts.z_context, wss->socket_type);
 	    if (wss->socket == NULL) {
 		lwsl_err("%s %d: cant create ZMQ socket: %s\n",
 			 __func__, fd, strerror(errno));
 		return -1;
+	    }
+	    if (self->cfg->ipv6) {
+		zsocket_set_ipv6 (wss->socket, 1);
+		assert (zsocket_ipv6 (wss->socket) == 1);
 	    }
 	    if ((wss->socket_type == ZMQ_DEALER) || (wss->socket_type == ZMQ_ROUTER)) {
 		if (identity) {
@@ -109,7 +113,7 @@ int default_policy(wtself_t *self,
 
 			const char *service = q->value + strlen(MKPREFIX);
 
-			if (self->cfg->remote) {
+			if (self->netopts.remote) {
 			    lwsl_uri("%s %d: doing zeroconf lookup '%s'\n", __func__, fd,service);
 			    uri = zerconf_dsn(self,service);
 			    if (uri == NULL)
@@ -117,7 +121,7 @@ int default_policy(wtself_t *self,
 			} else {
 			    // assume a local IPC socket
 			    snprintf(ipcuri, sizeof(ipcuri),ZMQIPC_FORMAT,
-				     RUNDIR, 0, service, self->cfg->service_uuid);
+				     RUNDIR, 0, service, self->netopts.service_uuid);
 			    uri = ipcuri;
 			}
 
@@ -129,7 +133,7 @@ int default_policy(wtself_t *self,
 			} else {
 			    lwsl_uri("%s %d: connect to %s type %d (%s)\n",
 				     __func__, fd, uri, wss->socket_type,
-				     self->cfg->remote ? "zeroconf resolved" : "local IPC");
+				     self->netopts.remote ? "zeroconf resolved" : "local IPC");
 			    destcount++;
 			}
 		    } else {
@@ -242,7 +246,7 @@ static const char *zerconf_dsn(wtself_t *self, const char *service)
     const char   *result = NULL;
 
     snprintf(subtype, sizeof(subtype), "_%s._sub._machinekit._tcp", service);
-    snprintf(match, sizeof(match), "uuid=%s", self->cfg->service_uuid);
+    snprintf(match, sizeof(match), "uuid=%s", self->netopts.service_uuid);
 
     zresolve_t res = {0};
     res.proto =	 AVAHI_PROTO_UNSPEC;

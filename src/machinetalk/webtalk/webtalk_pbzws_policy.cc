@@ -115,7 +115,10 @@ pbzws_policy(wtself_t *server,
 	case zws::MT_SOCKET:
 	    wss->socket_type = self->pzf->stype();
 	    wss->socket = zsocket_new (server->ctx, wss->socket_type);
-
+	    if (self->cfg->ipv6) {
+		zsocket_set_ipv6 (wss->socket, 1);
+		assert (zsocket_ipv6 (wss->socket) == 1);
+	    }
 	    switch(self->pzf->sec()) {
 	    case zws::SM_ZMQ_PLAIN:
 		zsocket_set_plain_username (wss->socket, self->pzf->user().c_str());

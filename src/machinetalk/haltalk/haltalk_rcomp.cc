@@ -73,21 +73,21 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		// not found, publish an error message on this topic
 		self->tx.set_type(pb::MT_HALRCOMP_ERROR);
 		note_printf(self->tx, "component '%s' does not exist", topic);
-		retval = send_pbcontainer(topic, self->tx, self->z_halrcomp);
+		retval = send_pbcontainer(topic, self->tx, self->mksock[SVC_HALRCOMP].socket);
 		assert(retval == 0);
 
 	    } else {
 		// compiled component found, schedule a full update
 		rcomp_t *g = self->rcomps[topic];
 		self->tx.set_type(pb::MT_HALRCOMP_FULL_UPDATE);
-		self->tx.set_uuid(self->process_uuid, sizeof(self->process_uuid));
+		self->tx.set_uuid(self->netopts.proc_uuid, sizeof(self->netopts.proc_uuid));
 		self->tx.set_serial(g->serial++);
 		describe_parameters(self);
 		describe_comp(self, topic, topic, poller->socket);
 
 		// first subscriber - activate scanning
 		if (g->timer_id < 0) { // not scanning
-		    g->timer_id = zloop_timer(self->z_loop, g->msec, 0,
+		    g->timer_id = zloop_timer(self->netopts.z_loop, g->msec, 0,
 					      handle_rcomp_timer, (void *)g);
 		    assert(g->timer_id > -1);
 		    rtapi_print_msg(RTAPI_MSG_DBG,
@@ -115,7 +115,7 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		if (g->timer_id > -1) {  // currently scanning
 		    rtapi_print_msg(RTAPI_MSG_DBG, "%s: stop scanning comp %s, tid=%d",
 				    self->cfg->progname, topic, g->timer_id);
-		    retval = zloop_timer_end (self->z_loop, g->timer_id);
+		    retval = zloop_timer_end (loop, g->timer_id);
 		    assert(retval == 0);
 		    g->timer_id = -1;
 		}
@@ -303,7 +303,7 @@ int comp_report_cb(int phase,  hal_compiled_comp_t *cc,
 	break;
 
     case REPORT_END: // finalize & send
-	retval = send_pbcontainer(cc->comp->name, self->tx, self->z_halrcomp);
+	retval = send_pbcontainer(cc->comp->name, self->tx, self->mksock[SVC_HALRCOMP].socket);
 	assert(retval == 0);
 	break;
     }
@@ -337,7 +337,8 @@ int ping_comps(htself_t *self)
     for (compmap_iterator c = self->rcomps.begin();
 	 c != self->rcomps.end(); c++) {
 	self->tx.set_type(pb::MT_PING);
-	int retval = send_pbcontainer(c->first.c_str(), self->tx, self->z_halrcomp);
+	int retval = send_pbcontainer(c->first.c_str(), self->tx,
+				      self->mksock[SVC_HALRCOMP].socket);
 	assert(retval == 0);
     }
     return 0;

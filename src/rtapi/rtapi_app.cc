@@ -83,7 +83,6 @@ using namespace google::protobuf;
 #include "mk-backtrace.h"
 #include "setup_signals.h"
 #include "mk-zeroconf.hh"
-#include "select_interface.h"
 
 #define BACKGROUND_TIMER 1000
 

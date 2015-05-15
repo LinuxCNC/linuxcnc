@@ -11,9 +11,9 @@ TARGETS += $(addprefix ../include/, \
 	ll-zeroconf.hh   \
 	mk-zeroconf-types.h \
 	mk-zeroconf.hh    \
+	mk-service.hh    \
 	pb-linuxcnc.h   \
 	pbutil.hh       \
-	select_interface.h \
 	setup_signals.h \
 	mk-backtrace.h \
 	syslog_async.h )
@@ -22,13 +22,13 @@ TARGETS += $(addprefix ../include/, \
 LIBMTALK_SRCS := $(addprefix $(LIBMTALK_DIR)/, \
 	pbutil.cc \
 	inihelp.cc \
-	select_interface.c \
 	czmq-watch.c \
 	setup_signals.c \
 	syslog_async.c \
 	ll_zeroconf_register.cc \
 	zeroconf_resolve.cc \
 	mk_zeroconf.cc \
+	mk_service.cc \
 	mk_backtrace.c \
 	json2pb.cc)
 
@@ -40,8 +40,8 @@ SYSLOGASYNC_LDFLAGS :=
 PB2JSONLIB_CCXFLAGS :=  -g -O3 -shared -Wall -fPIC  $(PROTOBUF_CFLAGS) $(JANSSON_CFLAGS)
 PB2JSONLIB_LDFLAGS := $(PROTOCXXLIB) $(JANSSON_LIBS)
 
-LIBMTALK_CXXFLAGS := -DULAPI $(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS)
-LIBMTALK_LDFLAGS := $(PROTOBUF_LIBS) $(CZMQ_LIBS)
+LIBMTALK_CXXFLAGS := -DULAPI $(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS) $(UUID_CFLAGS)
+LIBMTALK_LDFLAGS := $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(UUID_LIBS)
 
 $(call TOOBJSDEPS, $(LIBMTALK_SRCS)) : EXTRAFLAGS=-fPIC -g -O3 \
 	$(LIBMTALK_CXXFLAGS) \

@@ -38,6 +38,10 @@ static void publish_reply(AvahiEntryGroup *g,
 
 static void register_stuff(register_context_t *rctx)
 {
+
+    const char *name = avahi_client_get_host_name_fqdn(rctx->client);
+    syslog_async(LOG_DEBUG, "%s: actual hostname as announced by avahi='%s'", __FUNCTION__, name);
+
     if (!rctx->group) {
         if (!(rctx->group = avahi_entry_group_new(rctx->client,
 						  publish_reply,
@@ -49,6 +53,12 @@ static void register_stuff(register_context_t *rctx)
         }
     }
     if (avahi_entry_group_is_empty(rctx->group)) {
+	// fill in the dsn= txt record interpolated with actual hostname
+	// condtional with uri_fmt set since not needed for http/https
+	if (rctx->service->uri_fmt)
+	    rctx->service->txt = avahi_string_list_add_printf(rctx->service->txt,
+							      rctx->service->uri_fmt, name);
+
 	// Register our service
         if (avahi_entry_group_add_service_strlst(rctx->group,
 						 rctx->service->interface,

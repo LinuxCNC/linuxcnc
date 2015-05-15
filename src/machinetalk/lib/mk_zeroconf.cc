@@ -14,16 +14,16 @@ register_context_t *zeroconf_service_announce(const char *name,
 					      const char *process_uuid,
 					      const char *tag,
 					      const char *path,
+					      const int protocol,
 					      AvahiCzmqPoll *av_loop)
 {
     zservice_t *zs = (zservice_t *) calloc(sizeof(zservice_t), 1);
     zs->name = name;
-    zs->proto =  AVAHI_PROTO_INET;
+    zs->proto = protocol;
     zs->interface = AVAHI_IF_UNSPEC;
     zs->type = type;
     zs->port = port;
-    if (dsn)
-	zs->txt = avahi_string_list_add_printf(zs->txt, "dsn=%s", dsn);
+    zs->uri_fmt = dsn;
     zs->txt = avahi_string_list_add_printf(zs->txt, "uuid=%s", service_uuid);
     if (process_uuid)
 	zs->txt = avahi_string_list_add_printf(zs->txt, "instance=%s", process_uuid);
@@ -33,8 +33,6 @@ register_context_t *zeroconf_service_announce(const char *name,
 	zs->subtypes = avahi_string_list_add_printf(zs->subtypes,"%s%s", subtype, type);
     if (path)
 	zs->txt = avahi_string_list_add_printf(zs->txt, "path=%s", path);
-
-
     return ll_zeroconf_register(zs, av_loop);
 }
 
