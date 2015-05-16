@@ -234,8 +234,6 @@ include::hal/components.txt[]
 
 include::hal/rtcomps.txt[]
 
-include::hal/parallel_port.txt[]
-
 include::hal/hal-examples.txt[]
 
 include::hal/comp.txt[]
