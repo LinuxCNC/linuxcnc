@@ -113,6 +113,7 @@ DOC_SRCS_EN := \
 	remap/structure.txt \
 	Master_Getting_Started.txt \
 	getting-started/index.txt \
+	Master_Documentation.txt \
 	Master_User.txt \
 	Master_HAL.txt \
 	Master_Integrator.txt \
@@ -294,6 +295,7 @@ MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MA
 
 PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started.pdf \
+	LinuxCNC_Documentation.pdf \
 	LinuxCNC_User_Manual.pdf \
 	LinuxCNC_HAL_Manual.pdf \
 	LinuxCNC_Integrator_Manual.pdf \
@@ -402,6 +404,8 @@ $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pd
 $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 	@ln -f $< $@
@@ -617,6 +621,7 @@ docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_fr.pdf
