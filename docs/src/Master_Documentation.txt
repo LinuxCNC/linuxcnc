@@ -60,6 +60,8 @@ include::gui/keystick.txt[]
 
 include::gcode/coordinates.txt[]
 
+include::gcode/overview.txt[]
+
 include::gcode/gcode.txt[]
 
 include::gcode/m-code.txt[]
