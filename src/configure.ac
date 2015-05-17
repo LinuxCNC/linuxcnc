@@ -1561,7 +1561,14 @@ if test "$with_rtai_kernel" != no; then
         # a configured kernel source directory with .config file
 	AC_MSG_CHECKING([usability of RTAI utility, $RTAI_KERNEL_THREADS_RTS])
 	if test -x $RTAI_KERNEL_THREADS_RTS -a \
-	    -f $($RTAI_KERNEL_THREADS_RTS --linux-dir 2>/dev/null)/.config; then
+	     -f $($RTAI_KERNEL_THREADS_RTS -o --linux-dir 2>/dev/null)/.config
+	then
+	    # ShabbyX-style `rtai-config`
+	    RTAI_KERNEL_THREADS_RTS="$RTAI_KERNEL_THREADS_RTS -o"
+	    AC_MSG_RESULT(yes)
+	elif test -x $RTAI_KERNEL_THREADS_RTS -a \
+	     -f $($RTAI_KERNEL_THREADS_RTS --linux-dir 2>/dev/null)/.config
+	then
 	    AC_MSG_RESULT(yes)
 	else
 	    RTAI_KERNEL_THREADS_RTS=''
