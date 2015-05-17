@@ -1,4 +1,3 @@
 usr/share/applications/linuxcnc-gettingstarted.desktop
-usr/share/applications/linuxcnc-halmanual.desktop
-usr/share/applications/linuxcnc-integratormanual.desktop
-usr/share/applications/linuxcnc-usermanual.desktop
+usr/share/applications/linuxcnc-documentation.desktop
+
