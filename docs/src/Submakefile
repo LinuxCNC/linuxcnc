@@ -401,8 +401,6 @@ $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
-	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_User_Manual_es.pdf: $(DOC_SRCDIR)/Master_User_es.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
