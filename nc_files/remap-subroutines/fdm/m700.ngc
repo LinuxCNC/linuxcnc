@@ -1,4 +1,4 @@
-o<m600> sub
+o<m700> sub
 #500=41; filament area index
 #501=1; synchronized
 #502=#500
@@ -12,4 +12,4 @@ o101 if [#501 EQ 1]
 o101 else
     M68 E#502 Q#<P>
 o101 endif
-o<m600> end sub
+o<m700> end sub
