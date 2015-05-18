@@ -1,5 +1,6 @@
 # components
 loadrt threads name1=fast period1=100000 
+#loadrt __fast  (not loaded by loadrt, no args saved)
 loadrt stepgen step_type=0 
 loadrt sampler cfg=bb depth=4096 
 # pin aliases
@@ -10,6 +11,7 @@ newsig unlinked bit
 net dir stepgen.0.dir => sampler.0.pin.0
 net step stepgen.0.step => sampler.0.pin.1
 # parameter values
+setp fast.tmax            0
 setp sampler.0.tmax            0
 setp stepgen.0.dirhold   0x00000001
 setp stepgen.0.dirsetup   0x00000001
