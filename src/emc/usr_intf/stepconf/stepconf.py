@@ -1326,6 +1326,16 @@ class StepconfApp:
             if inv:
                 halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
                     % {'pin': pin})
+        if self.d.number_pports > 1:
+            if self.d.pp2_direction:# Input option
+                out_list =(1,14,16,17)
+            else:
+                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+            for pin in (out_list):
+                inv = getattr(self.d, "pp2_pin%dinv" % pin)
+                if inv:
+                    halrun.write("setp parport.1.pin-%(pin)02d-out-invert 1\n"
+                    % {'pin': pin})
         if debug:
             halrun.write("loadusr halmeter sig cmd -g 275 415\n")
 
