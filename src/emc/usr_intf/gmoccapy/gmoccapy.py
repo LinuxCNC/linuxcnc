@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "  1.5.4.1"
+_RELEASE = "  1.5.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -563,6 +563,7 @@ class gmoccapy( object ):
             self.widgets["Combi_DRO_%s" % axis].set_property( "dtg_color", gtk.gdk.color_parse( self.dtg_color ) )
             self.widgets["Combi_DRO_%s" % axis].set_property( "homed_color", gtk.gdk.color_parse( self.homed_color ) )
             self.widgets["Combi_DRO_%s" % axis].set_property( "unhomed_color", gtk.gdk.color_parse( self.unhomed_color ) )
+            self.widgets["Combi_DRO_%s" % axis].set_property( "actual", self.dro_actual)
 
         self.widgets.adj_start_spindle_RPM.set_value( self.spindle_start_rpm )
         self.widgets.gcode_view.set_sensitive( False )
@@ -634,6 +635,7 @@ class gmoccapy( object ):
             self.widgets.Combi_DRO_y.set_property( "dtg_color", gtk.gdk.color_parse( self.dtg_color ) )
             self.widgets.Combi_DRO_y.set_property( "homed_color", gtk.gdk.color_parse( self.homed_color ) )
             self.widgets.Combi_DRO_y.set_property( "unhomed_color", gtk.gdk.color_parse( self.unhomed_color ) )
+            self.widgets.Combi_DRO_y.set_property( "actual", self.dro_actual)
 
             # For gremlin we don"t need the following button
             if self.backtool_lathe:
@@ -690,6 +692,7 @@ class gmoccapy( object ):
         self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
         self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
         self.feed_override_max = self.get_ini_info.get_max_feed_override()
+        self.dro_actual = self.get_ini_info.get_position_feedback_actual()
 
         # set the slider limmits
         self.widgets.adj_max_vel.configure( self.stat.max_velocity * 60, 0.0,
@@ -883,6 +886,7 @@ class gmoccapy( object ):
         rbt0.set_property( "draw_indicator", False )
         rbt0.show()
         rbt0.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
+        rbt0.__name__ = "rbt0"
         self.incr_rbt_list.append( rbt0 )
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
@@ -894,7 +898,9 @@ class gmoccapy( object ):
             rbt.set_property( "draw_indicator", False )
             rbt.show()
             rbt.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
+            rbt.__name__ = "rbt%d" % ( item )
             self.incr_rbt_list.append( rbt )
+        self.active_increment = "rbt0"
 
     def _check_screen2( self ):
         # second screen
@@ -1051,6 +1057,7 @@ class gmoccapy( object ):
         self.widgets.gremlin.set_property( "view", view )
         self.widgets.gremlin.set_property( "metric_units", int( self.stat.linear_units ) )
         self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
+        self.widgets.gremlin.set_property( "use_commanded", not self.dro_actual)
 
     # init the function to hide the cursor
     def _init_hide_cursor( self ):
@@ -1863,7 +1870,7 @@ class gmoccapy( object ):
 
         # get the keyname
         keyname = gtk.gdk.keyval_name( event.keyval )
-        # print("pressed key = ",keyname
+        #print("pressed key = ",keyname)
 
         # estop with F1 shold work every time
         # so should also escape aboart actions
@@ -1874,6 +1881,7 @@ class gmoccapy( object ):
             self.command.abort()
             return True
 
+        #print self.last_key_event[0] ,self.last_key_event[1]
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
         if self.last_key_event[0] == keyname and self.last_key_event[1] == signal:
             return True
@@ -1905,6 +1913,32 @@ class gmoccapy( object ):
         if not self.widgets.chk_use_kb_shortcuts.get_active():
             print( "Settings say: do not use keyboard shortcuts, aboart" )
             return
+
+        # F3 should change to manual mode
+        if keyname == "F3" and signal:
+            self.command.mode(linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
+            # we need to leave here, otherwise the check for jogging 
+            # only allowed in manual mode will finish the sub
+            self.last_key_event = keyname, signal
+            return True
+
+        # F5 should change to mdi mode
+        if keyname == "F5" and signal:
+            self.command.mode(linuxcnc.MODE_MDI)
+            self.command.wait_complete()        
+            # we need to leave here, otherwise the check for jogging 
+            # only allowed in manual mode will finish the sub
+            self.last_key_event = keyname, signal
+            return True
+
+        # Only in MDI mode the RETURN key should execute a command
+        if keyname == "Return" and signal and self.stat.task_mode == linuxcnc.MODE_MDI:
+            #print("Got enter in MDI")
+            self.widgets.hal_mdihistory.submit() 
+            # we need to leave here, otherwise the check for jogging 
+            # only allowed in manual mode will finish the sub
+            return True
 
         # Only in manual mode jogging with keyboard is allowed
         # in this case we do not return true, otherwise entering code in MDI history
@@ -1985,6 +2019,25 @@ class gmoccapy( object ):
                 self.on_btn_jog_pressed( widget, fast )
             else:
                 self.on_btn_jog_released( widget )
+        elif keyname == "I" or keyname == "i":
+            if signal:
+                # The active button name is hold in self.active_increment
+                if keyname == "I":
+                    # so lets increment it by one
+                    rbt = int(self.active_increment[-1]) + 1
+                    # we check if we are still in the allowed limit
+                    if rbt > len(self.jog_increments) - 1: # begining from zero
+                        rbt = 0
+                else: # must be "i"
+                    # so lets reduce it by one
+                    rbt = int(self.active_increment[-1]) - 1
+                    # we check if we are still in the allowed limit
+                    if rbt < 0:
+                        rbt = len(self.jog_increments) - 1 # begining from zero
+                # we set the corresponding button active
+                self.incr_rbt_list[rbt].set_active(True)
+                # and we have to update all pin and variables
+                self.on_increment_changed(self.incr_rbt_list[rbt], self.jog_increments[rbt])
         else:
             print( "This key has not been implemented yet" )
             print "Key %s (%d) was pressed" % ( keyname, event.keyval ), signal, self.last_key_event
@@ -2013,6 +2066,7 @@ class gmoccapy( object ):
         else:
             self.distance = self._parse_increment( data )
         self.halcomp["jog-increment"] = self.distance
+        self.active_increment = widget.__name__
 
     def _from_internal_linear_unit( self, v, unit = None ):
         if unit is None:
