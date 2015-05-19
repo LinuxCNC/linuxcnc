@@ -1283,14 +1283,14 @@ AC_ARG_WITH(rt-preempt,
 AC_ARG_WITH(xenomai,
     [AS_HELP_STRING([--with-xenomai],
         [build Xenomai userland threads])],
-    [xenomai_from_cmdline=yes
+    [xenomai_from_cmdline=$withval
      test $withval = yes && all_flavors_default=no],
     [with_xenomai=check])
 
 AC_ARG_WITH(xenomai-kernel,
     [AS_HELP_STRING([--with-xenomai-kernel],
         [build Xenomai kernel-space realtime threads (deprecated)])],
-    [xenomai_from_cmdline=yes
+    [xenomai_kernel_from_cmdline=$withval
      test $withval = yes && all_flavors_default=no],
     [with_xenomai_kernel=check])
 # XENOMAI_THREADS_RTS:  locate the 'xeno-config' executable
@@ -1485,8 +1485,11 @@ test -z "$XENOMAI_THREADS_RTS" && with_xenomai=no
 if test $with_xenomai = yes; then
     BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai"
     with_userland_rt_threads=yes
+elif test "$xenomai_from_cmdline" = yes; then
+    AC_MSG_ERROR([Requested '--with-xenomai', but unable to configure])
 fi
 AC_MSG_RESULT($with_xenomai)
+
 
 AC_MSG_CHECKING(whether to build Xenomai kernel threads)
 if test "$with_xenomai_kernel" = check; then
@@ -1500,6 +1503,8 @@ test -z "$xenomai_kernels" && with_xenomai_kernel=no
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai_kernel=no
 if test $with_xenomai_kernel = yes; then
      BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai-kernel"
+elif test "$xenomai_kernel_from_cmdline" = yes; then
+    AC_MSG_ERROR([Requested '--with-xenomai-kernel', but unable to configure])
 fi
 AC_MSG_RESULT($with_xenomai_kernel)
 
