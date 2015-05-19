@@ -35,9 +35,9 @@ huge   = 1.0e+300,
 tiny   = 1.0e-300;
 
 #ifdef __STDC__
-	double scalbn (double x, int n)
+	double rtapi_scalbn (double x, int n)
 #else
-	double scalbn (x,n)
+	double rtapi_scalbn (x,n)
 	double x; int n;
 #endif
 {

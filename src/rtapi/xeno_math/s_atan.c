@@ -86,9 +86,9 @@ one   = 1.0,
 huge   = 1.0e300;
 
 #ifdef __STDC__
-	double atan(double x)
+	double rtapi_atan(double x)
 #else
-	double atan(x)
+	double rtapi_atan(x)
 	double x;
 #endif
 {

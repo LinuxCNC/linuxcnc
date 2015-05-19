@@ -211,9 +211,10 @@ endif
 
 $(RTLIBDIR)/rtapi$(MODULE_EXT): EXTRA_LDFLAGS += $(RT_LDFLAGS)
 
+$(RTLIBDIR)/rtapi$(MODULE_EXT): EXTRA_LDFLAGS += -lrtapi_math
+
 # rule for kernel module, moved from src/Makefile
 $(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
-
 
 endif # BUILD_THREAD_MODULES
 

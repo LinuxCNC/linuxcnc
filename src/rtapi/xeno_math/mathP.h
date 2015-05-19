@@ -17,8 +17,10 @@
 #ifndef _MATH_PRIVATE_H_
 #define _MATH_PRIVATE_H_
 
-#include <linux/types.h>
+#include <sys/types.h>
 #include <asm/byteorder.h>
+
+int libm_errno;
 
 #define __P(args) args
 
@@ -57,12 +59,12 @@ struct exception  {
    to change the hardware FPU exception settings).  */
 extern _LIB_VERSION_TYPE _LIB_VERSION;
 
-extern double scalbn (double x, int n);
-extern int finite(double x);
-extern double copysign(double x, double y);
+extern double rtapi_scalbn (double x, int n);
+extern int rtapi_finite(double x);
+extern double rtapi_copysign(double x, double y);
 extern double __kernel_standard(double x, double y, int type);
-extern double rint(double x);
-extern double cbrt(double x);
+extern double rtapi_rint(double x);
+extern double rtapi_cbrt(double x);
 
 /* The original fdlibm code used statements like:
 	n0 = ((*(int*)&one)>>29)^1;		* index of high word *
@@ -83,7 +85,11 @@ extern double cbrt(double x);
  * big endian.
  */
 
-#if defined( __BIG_ENDIAN) || defined(__arm__)
+#if ( RTAPI_BIG_ENDIAN ) && ( RTAPI_LITTLE_ENDIAN )
+#error "Cannot have both Big and Little Endian"
+#endif
+
+#if RTAPI_BIG_ENDIAN || defined(__arm__)
 
 typedef union 
 {
@@ -97,7 +103,7 @@ typedef union
 
 #endif
 
-#if defined(__LITTLE_ENDIAN) && !defined(__arm__)
+#if RTAPI_LITTLE_ENDIAN && !defined(__arm__)
 
 typedef union 
 {

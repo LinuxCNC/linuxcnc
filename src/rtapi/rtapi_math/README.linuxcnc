@@ -1,0 +1,9 @@
+this is adapted from the RTAI math library and massaged to compile
+only with rtapi_math.h includes
+
+# EXTRA_CFLAGS += -I/usr/include -ffast-math -mhard-float \
+# 	$(KERNEL_MATH_CFLAGS) \
+# 	-D_IEEE_LIBM \
+# 	-D_ISOC99_SOURCE \
+# 	-D_SVID_SOURCE \
+# 	-I$(BASEPWD)

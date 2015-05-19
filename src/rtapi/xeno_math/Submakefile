@@ -1,13 +1,5 @@
-ifeq ($(BUILD_SYS),kbuild)
 
-ccflags-y := 	$(KERNEL_MATH_CFLAGS) \
-	-D_IEEE_LIBM \
-	-D_ISOC99_SOURCE \
-	-D_SVID_SOURCE
-
-obj-m += xeno_math.o
-xeno_math-objs := rtapi/xeno_math/libm.o
-xeno_math-objs += rtapi/xeno_math/s_floor.o
+xeno_math-objs := rtapi/xeno_math/s_floor.o
 xeno_math-objs += rtapi/xeno_math/e_pow.o
 xeno_math-objs += rtapi/xeno_math/w_pow.o
 xeno_math-objs += rtapi/xeno_math/s_fabs.o
@@ -37,7 +29,34 @@ xeno_math-objs += rtapi/xeno_math/s_finite.o
 xeno_math-objs += rtapi/xeno_math/s_rint.o
 xeno_math-objs += rtapi/xeno_math/powidf.o
 
+ifeq ($(BUILD_SYS),kbuild)
+
+obj-m += xeno_math.o
+
+ccflags-y := 	$(KERNEL_MATH_CFLAGS) \
+	-D_IEEE_LIBM \
+	-D_ISOC99_SOURCE \
+	-D_SVID_SOURCE
+
+xeno_math-objs += rtapi/xeno_math/libm.o
+
 $(RTLIBDIR)/xeno_math$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(xeno_math-objs))
 
-endif
+else
 
+ccflags-y := 	$(CFLAGS) \
+	-D_IEEE_LIBM \
+	-D_ISOC99_SOURCE \
+	-D_SVID_SOURCE
+
+$(RTLIBDIR)/rtapi$(MODULE_EXT): CFLAGS = $(ccflags-y)
+
+rtapi-objs += $(xeno_math-objs)
+
+#	-fno-builtin \
+
+#obj-m += xeno_math.o
+#$(RTLIBDIR)/xeno_math$(MODULE_EXT): CFLAGS = $(ccflags-y)
+#$(RTLIBDIR)/xeno_math$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(xeno_math-objs))
+
+endif

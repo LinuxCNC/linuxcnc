@@ -1,0 +1,63 @@
+ccflags-extra := -D_IEEE_LIBM \
+	-D_ISOC99_SOURCE \
+	-D_DEFAULT_SOURCE \
+	-O2 \
+	-Werror
+
+INCLUDES += rtapi
+
+LIBRMSRCS := rtapi/rtapi_math/s_floor.c
+LIBRMSRCS += rtapi/rtapi_math/e_pow.c
+LIBRMSRCS += rtapi/rtapi_math/w_pow.c
+LIBRMSRCS += rtapi/rtapi_math/s_fabs.c
+LIBRMSRCS += rtapi/rtapi_math/e_sqrt.c
+LIBRMSRCS += rtapi/rtapi_math/w_sqrt.c
+LIBRMSRCS += rtapi/rtapi_math/s_ceil.c
+LIBRMSRCS += rtapi/rtapi_math/e_acos.c
+LIBRMSRCS += rtapi/rtapi_math/w_acos.c
+LIBRMSRCS += rtapi/rtapi_math/e_asin.c
+LIBRMSRCS += rtapi/rtapi_math/w_asin.c
+LIBRMSRCS += rtapi/rtapi_math/s_tan.c
+LIBRMSRCS += rtapi/rtapi_math/k_tan.c
+LIBRMSRCS += rtapi/rtapi_math/s_atan.c
+LIBRMSRCS += rtapi/rtapi_math/w_atan2.c
+LIBRMSRCS += rtapi/rtapi_math/e_atan2.c
+LIBRMSRCS += rtapi/rtapi_math/s_sin.c
+LIBRMSRCS += rtapi/rtapi_math/k_sin.c
+LIBRMSRCS += rtapi/rtapi_math/s_cos.c
+LIBRMSRCS += rtapi/rtapi_math/k_cos.c
+LIBRMSRCS += rtapi/rtapi_math/e_rem_pio2.c
+LIBRMSRCS += rtapi/rtapi_math/k_rem_pio2.c
+LIBRMSRCS += rtapi/rtapi_math/s_scalbn.c
+LIBRMSRCS += rtapi/rtapi_math/k_standard.c
+LIBRMSRCS += rtapi/rtapi_math/s_cbrt.c
+LIBRMSRCS += rtapi/rtapi_math/s_copysign.c
+LIBRMSRCS += rtapi/rtapi_math/s_finite.c
+LIBRMSRCS += rtapi/rtapi_math/s_rint.c
+LIBRMSRCS += rtapi/rtapi_math/powidf.c
+LIBRMSRCS += rtapi/rtapi_math/e_hypot.c
+LIBRMSRCS += rtapi/rtapi_math/w_hypot.c
+LIBRMSRCS += rtapi/rtapi_math/e_fmod.c
+LIBRMSRCS += rtapi/rtapi_math/w_fmod.c
+LIBRMSRCS += rtapi/rtapi_math/s_fabs.c
+LIBRMSRCS += rtapi/rtapi_math/s_rint.c
+LIBRMSRCS += rtapi/rtapi_math/s_fminmax.c
+
+USERSRCS += $(LIBRMSRCS)
+
+$(call TOOBJSDEPS, $(LIBRMSRCS)) : EXTRAFLAGS=-fPIC $(ccflags-extra)
+
+TARGETS += ../lib/librtapi_math.so
+
+../lib/librtapi_math.so: $(call TOOBJS,$(LIBRMSRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+
+
+../include/%.h: ./rtapi/%.h
+	cp  $^ $@
+
+../include/%.hh: ./rtapi/%.hh
+	cp  $^ $@
