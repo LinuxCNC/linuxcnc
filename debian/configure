@@ -135,7 +135,7 @@ do_xenomai_kernel() {
     echo "debian/control:  Added Xenomai kernel threads ${KVER}" >&2
     echo "                 with Build-Depends:" >&2
     echo "    libxenomai-dev" >&2
-    rules_enable_threads xenomai_kernel
+    rules_enable_threads xenomai-kernel
     XENOMAI_KERNEL_HEADERS+=" ${KVER}"
     HAVE_FLAVOR=true
 }
@@ -159,7 +159,7 @@ do_rtai_kernel() {
     echo "debian/control:  Added RTAI kernel threads ${KVER}" >&2
     echo "                 with Build-Depends:" >&2
     echo "    librtai-dev" >&2
-    rules_enable_threads rtai_kernel
+    rules_enable_threads rtai-kernel
     RTAI_KERNEL_HEADERS+=" ${KVER}"
     HAVE_FLAVOR=true
 }
