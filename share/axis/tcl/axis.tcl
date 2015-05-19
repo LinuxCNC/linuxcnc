@@ -1982,6 +1982,7 @@ proc update_title {args} {
 }
 
 proc update_state {args} {
+    set mytest "Hooray!"
     switch $::task_state \
         $::STATE_ESTOP { set ::task_state_string [_ "ESTOP"] } \
         $::STATE_ESTOP_RESET { set ::task_state_string [_ "OFF"] } \
