@@ -251,7 +251,7 @@ void hal_print_msg(int level, const char *fmt, ...)
     va_list args;
     va_start(args, fmt);
 
-    vsnprintf(_hal_errmsg, HALPRINTBUFFERLEN, fmt, args);
+    rtapi_vsnprintf(_hal_errmsg, HALPRINTBUFFERLEN, fmt, args);
     rtapi_print_msg(level, _hal_errmsg);
     va_end(args);
 }
@@ -263,7 +263,8 @@ void hal_print_error(const char *fmt, ...)
     const char *prefix = "HAL error: ";
     strncpy(_hal_errmsg, prefix, sizeof(_hal_errmsg));
 
-    vsnprintf(_hal_errmsg + strlen(_hal_errmsg), HALPRINTBUFFERLEN, fmt, args);
+    rtapi_vsnprintf(_hal_errmsg + strlen(_hal_errmsg), HALPRINTBUFFERLEN,
+		    fmt, args);
     rtapi_print_msg(RTAPI_MSG_ERR, _hal_errmsg);
     va_end(args);
 }
