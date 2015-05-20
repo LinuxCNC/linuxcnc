@@ -425,15 +425,16 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@mkdir -p $(dir $@)
 	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
-ST := style=\" \
-    list-style-type: none; \
+SA := <li><a onclick=\"return toggle('man_
+SB := ')\"><img id=\"man_
+SC := _image\" src=\"plus.png\" style=\"border:0;margin-right:5px;vertical-align:middle;\" />
+
+SD := <div id=\"man_
+SE := \" style=\"display:none; \
     -moz-column-width: 25ex; \
     -moz-column-gap: 4ex; \
-    -webkit-column-width: 25ex; \
-    -webkit-column-gap: 4ex; \
-    column-width: 25ex; \
-    column-gap: 4ex; \
-\"
+    -webkit-column-width: \
+    25ex; -webkit-column-gap: 4ex;\">
 
 #
 # This function appends a section to the "manpages" HTML fragment called
@@ -443,7 +444,9 @@ ST := style=\" \
 #
 ADD_HTML_MANPAGES = \
 	@echo "Adding manpages: man$(strip $(1)): $(strip $(2))"; \
-	echo "<A NAME=\"man$(strip $(1))\"><LI>$(strip $(2))<UL $(ST)>" >> objects/index.incl; \
+	echo "$(SA)$(strip $(1))$(SB)$(strip $(1))$(SC)$(strip $(2))</a>" >> objects/index.incl; \
+	echo "$(SD)$(strip $(1))$(SE)" >> objects/index.incl; \
+	echo "<UL>" >> objects/index.incl; \
 	for HTML_FILE in $(filter %.$(strip $(1)).html, $(MAN_HTML_TARGETS)); do \
 		BASENAME=$$(basename $$HTML_FILE .html); \
 		echo "<LI><A HREF=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$$BASENAME</A>"; \
