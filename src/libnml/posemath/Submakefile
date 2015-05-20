@@ -4,7 +4,7 @@ $(call TOOBJSDEPS, $(POSEMATHSRCS)) : EXTRAFLAGS=-fPIC
 USERSRCS += $(POSEMATHSRCS) 
 TARGETS += ../lib/libposemath.so ../lib/libposemath.so.0
 
-../lib/libposemath.so.0: $(call TOOBJS,$(POSEMATHSRCS))
+../lib/libposemath.so.0: $(call TOOBJS,$(POSEMATHSRCS)) ../lib/librtapi_math.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@

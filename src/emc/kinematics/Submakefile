@@ -14,7 +14,10 @@ $(DELTAMODULE): $(call TOOBJS, $(DELTAMODULESRCS))
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIBS)
 PYTARGETS += $(DELTAMODULE)
 
-../bin/genserkins: $(call TOOBJS, $(GENSERKINSSRCS)) ../lib/liblinuxcnchal.so ../lib/libposemath.so
+../bin/genserkins: $(call TOOBJS, $(GENSERKINSSRCS)) \
+	../lib/liblinuxcnchal.so \
+	../lib/libposemath.so \
+	../lib/librtapi_math.so
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/genserkins
