@@ -379,7 +379,7 @@ static int export_delayline(int n)
     size_t rbsize = record_space(sample_size) * max_delay[n] * RB_HEADROOM;
 
     // create the delay queue
-    snprintf(buf, HAL_NAME_LEN, "%s.samples", names[n]);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.samples", names[n]);
     if ((retval = hal_ring_new(buf, rbsize,
 			       sizeof(hal_delayline_t), ALLOC_HALMEM))) {
 	hal_print_msg(RTAPI_MSG_ERR,
@@ -446,18 +446,21 @@ static int export_delayline(int n)
 	}
 	hd->pintype[i] = type;
 	switch (type) {
-		case HAL_BIT:
-			str_type = "bit";
-			break;
-		case HAL_FLOAT:
-			str_type = "flt";
-			break;
-		case HAL_U32:
-			str_type = "u32";
-			break;
-		case HAL_S32:
-			str_type = "s32";
-			break;
+	case HAL_BIT:
+	    str_type = "bit";
+	    break;
+	case HAL_FLOAT:
+	    str_type = "flt";
+	    break;
+	case HAL_U32:
+	    str_type = "u32";
+	    break;
+	case HAL_S32:
+	    str_type = "s32";
+	    break;
+	case HAL_TYPE_UNSPECIFIED:
+	    // do nothing
+	    break;
 	}
 	// create pins of type as requested
 	if (((retval = hal_pin_newf(type,
