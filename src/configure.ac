@@ -1088,10 +1088,10 @@ check_rtai_kernel_source() {
 
 
     # look for rt_daemonize (older RTAI) or rtai_irq_handler (at least
-    # RTAI 4.0.0+) function definition
+    # RTAI 4.0) or rtai_syscall_hook (RTAI 4.1) function definition
     AC_MSG_CHECKING(if $ksrc_dir is an RTAI kernel)
     if test -f "$ksrc_dir/Module.symvers" && \
-            grep -q '\(rt_daemonize\|rtai_irq_handler\)' \
+            grep -q '\(rt_daemonize\|rtai_irq_handler\|rtai_syscall_hook\)' \
             "$ksrc_dir/Module.symvers"; then
         AC_MSG_RESULT([yes])
         return 0
@@ -1603,6 +1603,17 @@ if test $with_rtai_kernel = yes; then
     BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rtai-kernel"
 fi
 AC_MSG_RESULT($with_rtai_kernel)
+if test $with_rtai_kernel = yes; then
+    AC_MSG_CHECKING(RTAI version)
+    if grep -q rt_free_timers $RTAI_KERNEL_THREADS_EXTRA_SYMBOLS; then
+        RTAI_VERSION=401
+	AC_MSG_RESULT(4.1 or greater)
+    else
+        RTAI_VERSION=400
+	AC_MSG_RESULT(4.0 or earlier)
+    fi
+fi
+
 ##############################################################################
 # Subsection 2.6                                                             #
 # Hardware driver detection                                                  #
@@ -1887,6 +1898,9 @@ AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
 AC_SUBST([RTAI_KERNEL_THREADS_RTDIR],[$RTAI_KERNEL_THREADS_RTDIR])
 AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_KMODS],
 	"_cfg_flavor_extra_kmods(rtai-kernel)")
+if test -n "$RTAI_VERSION"; then
+    AC_DEFINE_UNQUOTED([RTAI_VERSION],$RTAI_VERSION,"RTAI version")
+fi
 
 
 # while we are at it, drop a git scent mark

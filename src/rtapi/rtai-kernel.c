@@ -20,7 +20,11 @@ extern rtapi_exception_handler_t rt_exception_handler;
 #ifdef RTAPI
 void _rtapi_module_timer_stop(void) {
     stop_rt_timer();
+#if RTAI_VERSION <= 400
     rt_free_timer();
+#else
+    rt_free_timers();
+#endif
 }
 
 
@@ -119,8 +123,13 @@ int _rtapi_task_new_hook(task_data *task, int task_id) {
     if (retval) return retval;
 
     /* request to handle traps in the new task */
+#if RTAI_VERSION <= 400
     for(v=0; v<HAL_NR_FAULTS; v++)
         rt_set_task_trap_handler(ostask_array[task_id], v, _rtapi_trap_handler);
+#else
+    for(v=0; v<IPIPE_NR_FAULTS; v++)
+        rt_set_task_trap_handler(ostask_array[task_id], v, _rtapi_trap_handler);
+#endif
 
     return 0;
 }
