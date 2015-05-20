@@ -30,8 +30,10 @@
 
 /* rtapi_time.c */
 #define HAVE_RTAPI_MODULE_TIMER_STOP
-#define HAVE_RTAPI_GET_TIME_HOOK
 #define HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
+#ifdef RTAPI  // no rt_get_cpu_time_ns() in RTAI userland
+#define HAVE_RTAPI_GET_TIME_HOOK
+#endif
 
 /* rtapi_task.c */
 
