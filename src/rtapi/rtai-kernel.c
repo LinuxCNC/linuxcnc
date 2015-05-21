@@ -38,7 +38,6 @@ void _rtapi_delay_hook(long int nsec)
 {
      udelay(nsec / 1000);
 }
-#endif  /* RTAPI */
 
 long long int _rtapi_get_time_hook(void) {
     //struct timeval tv;
@@ -61,6 +60,7 @@ long long int _rtapi_get_time_hook(void) {
     */
     return rt_get_cpu_time_ns();
 }
+#endif  /* RTAPI */
 
 
 /***********************************************************************
