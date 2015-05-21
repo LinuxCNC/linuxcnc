@@ -104,17 +104,16 @@ void rtapi_proc_read_status_hook(char *page, char **start, off_t off,
 				 int count, int *eof, void *data);
 #endif
 
-static int proc_read_status(char *page, char **start, off_t off,
-    int count, int *eof, void *data)
+PROC_READ_FUN(proc_read_status)
 {
     PROC_PRINT_VARS;
     PROC_PRINT("******* RTAPI STATUS ********\n");
     PROC_PRINT("   RT Modules = %i\n", rtapi_data->rt_module_count);
     PROC_PRINT("   UL Modules = %i\n", rtapi_data->ul_module_count);
     PROC_PRINT("        Tasks = %i/%i\n", rtapi_data->task_count,
-	RTAPI_MAX_TASKS);
+	       RTAPI_MAX_TASKS);
     PROC_PRINT("Shared memory = %i/%i\n", rtapi_data->shmem_count,
-	RTAPI_MAX_SHMEMS);
+	       RTAPI_MAX_SHMEMS);
     PROC_PRINT("default RT task CPU = %i\n", rtapi_data->rt_cpu);
     if (rtapi_data->timer_running) {
 	PROC_PRINT(" Timer status = Running\n");
@@ -122,15 +121,12 @@ static int proc_read_status(char *page, char **start, off_t off,
     } else {
 	PROC_PRINT(" Timer status = Stopped\n");
     }
-#ifdef HAVE_RTAPI_READ_STATUS_HOOK
-    rtapi_proc_read_status_hook(page, start, off, count, eof, data);
-#endif
     PROC_PRINT("\n");
     PROC_PRINT_DONE;
 }
+PROC_READ_OPEN_OPS(status_file_fops, proc_read_status);
 
-static int proc_read_modules(char *page, char **start, off_t off,
-    int count, int *eof, void *data)
+PROC_READ_FUN(proc_read_modules)
 {
     int n;
     char *state_str;
@@ -157,9 +153,9 @@ static int proc_read_modules(char *page, char **start, off_t off,
     PROC_PRINT("\n");
     PROC_PRINT_DONE;
 }
+PROC_READ_OPEN_OPS(modules_file_fops, proc_read_modules);
 
-static int proc_read_tasks(char *page, char **start, off_t off,
-    int count, int *eof, void *data)
+PROC_READ_FUN(proc_read_tasks)
 {
     int n;
     char *state_str;
@@ -198,9 +194,9 @@ static int proc_read_tasks(char *page, char **start, off_t off,
     PROC_PRINT("\n");
     PROC_PRINT_DONE;
 }
+PROC_READ_OPEN_OPS(tasks_file_fops, proc_read_tasks);
 
-static int proc_read_shmem(char *page, char **start, off_t off,
-    int count, int *eof, void *data)
+PROC_READ_FUN(proc_read_shmem)
 {
     int n;
 
@@ -211,44 +207,45 @@ static int proc_read_shmem(char *page, char **start, off_t off,
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
 	if (shmem_array[n].key != 0) {
 	    PROC_PRINT("%02d  %2d/%-2d  %-10d  %-10lu\n",
-		n, shmem_array[n].rtusers, shmem_array[n].ulusers,
-		shmem_array[n].key, shmem_array[n].size);
+		       n, shmem_array[n].rtusers, shmem_array[n].ulusers,
+		       shmem_array[n].key, shmem_array[n].size);
 	}
     }
     PROC_PRINT("\n");
     PROC_PRINT_DONE;
 }
+PROC_READ_OPEN_OPS(shmem_file_fops, proc_read_shmem);
 
-static int proc_read_debug(char *page, char **start, off_t off,
-    int count, int *eof, void *data)
+PROC_READ_FUN(proc_read_debug)
 {
     PROC_PRINT_VARS;
     PROC_PRINT("******* RTAPI MESSAGES ******\n");
     PROC_PRINT("  Message Level  = RT:%i User:%i\n", 
 	       global_data->rt_msg_level,global_data->user_msg_level);
     PROC_PRINT("RT ERROR messages = %s\n",
-	global_data->rt_msg_level >= RTAPI_MSG_ERR ? "ON" : "OFF");
+	       global_data->rt_msg_level >= RTAPI_MSG_ERR ? "ON" : "OFF");
     PROC_PRINT("WARNING messages = %s\n",
-	global_data->rt_msg_level >= RTAPI_MSG_WARN ? "ON" : "OFF");
+	       global_data->rt_msg_level >= RTAPI_MSG_WARN ? "ON" : "OFF");
     PROC_PRINT("   INFO messages = %s\n",
-	global_data->rt_msg_level >= RTAPI_MSG_INFO ? "ON" : "OFF");
+	       global_data->rt_msg_level >= RTAPI_MSG_INFO ? "ON" : "OFF");
     PROC_PRINT("  DEBUG messages = %s\n",
-	global_data->rt_msg_level >= RTAPI_MSG_DBG ? "ON" : "OFF");
+	       global_data->rt_msg_level >= RTAPI_MSG_DBG ? "ON" : "OFF");
 
     PROC_PRINT("User  ERROR messages = %s\n",
-	global_data->user_msg_level >= RTAPI_MSG_ERR ? "ON" : "OFF");
+	       global_data->user_msg_level >= RTAPI_MSG_ERR ? "ON" : "OFF");
     PROC_PRINT("WARNING messages = %s\n",
-	global_data->user_msg_level >= RTAPI_MSG_WARN ? "ON" : "OFF");
+	       global_data->user_msg_level >= RTAPI_MSG_WARN ? "ON" : "OFF");
     PROC_PRINT("   INFO messages = %s\n",
-	global_data->user_msg_level >= RTAPI_MSG_INFO ? "ON" : "OFF");
+	       global_data->user_msg_level >= RTAPI_MSG_INFO ? "ON" : "OFF");
     PROC_PRINT("  DEBUG messages = %s\n",
-	global_data->user_msg_level >= RTAPI_MSG_DBG ? "ON" : "OFF");
+	       global_data->user_msg_level >= RTAPI_MSG_DBG ? "ON" : "OFF");
     PROC_PRINT("\n");
     PROC_PRINT_DONE;
 }
 
-static int proc_write_debug(struct file *file,
-    const char *buffer, unsigned long count, void *data)
+static ssize_t proc_write_debug(struct file *file,
+				const char __user *buffer, size_t count,
+				loff_t *data)
 {
     char c;
     int msg_level;
@@ -274,14 +271,15 @@ static int proc_write_debug(struct file *file,
        really only used the first byte */
     return count;
 }
+PROC_READ_WRITE_OPEN_OPS(debug_file_fops, proc_read_debug, proc_write_debug)
 
-static int proc_read_instance(char *page, char **start, off_t off,
-    int count, int *eof, void *data)
+PROC_READ_FUN(proc_read_instance)
 {
     PROC_PRINT_VARS;
     PROC_PRINT("%i\n", rtapi_instance);
     PROC_PRINT_DONE;
 }
+PROC_READ_OPEN_OPS(instance_file_fops, proc_read_instance);
 
 /** proc_init() initializes the /proc filesystem entries,
     creating the directory and files, and linking them
@@ -290,126 +288,36 @@ static int proc_read_instance(char *page, char **start, off_t off,
     RTAPI implementation.
 */
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-#else
-static const struct file_operations status_file_fops = {
-     .read = proc_read_status,
-};
-
-static const struct file_operations modules_file_fops = {
-     .read = proc_read_modules,
-};
-
-static const struct file_operations tasks_file_fops = {
-     .read = proc_read_tasks,
-};
-
-static const struct file_operations shmem_file_fops = {
-     .read = proc_read_shmem,
-};
-
-static const struct file_operations debug_file_fops = {
-     .read  = proc_read_debug,
-     .write = proc_write_debug,
-};
-
-static const struct file_operations instance_file_fops = {
-     .read  = proc_read_instance,
-};
-#endif
-
 static int proc_init(void)
 {
     /* create the rtapi directory "/proc/rtapi" */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    rtapi_dir = create_proc_entry("rtapi", S_IFDIR, NULL);
-#else
-    rtapi_dir = proc_create("rtapi", S_IFDIR, NULL, NULL);
-#endif
-    if (rtapi_dir == 0) {
+    rtapi_dir = CREATE_PROC_ENTRY("rtapi",S_IFDIR,NULL,NULL);
+    if (rtapi_dir == 0)
 	return -1;
-    }
 
     /* create read only file "/proc/rtapi/status" */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    status_file = create_proc_entry("status", S_IRUGO, rtapi_dir);
-#else
-    status_file = proc_create("status", S_IRUGO, rtapi_dir, &status_file_fops);
-#endif
-    if (status_file == NULL) {
-	return -1;
-    }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    status_file->read_proc = proc_read_status;
-#endif
+    status_file = \
+	CREATE_PROC_ENTRY("status",S_IRUGO,rtapi_dir,&status_file_fops);
 
     /* create read only file "/proc/rtapi/modules" */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    modules_file = create_proc_entry("modules", S_IRUGO, rtapi_dir);
-#else
-    modules_file = proc_create("modules", S_IRUGO, rtapi_dir, &modules_file_fops);
-#endif
-    if (modules_file == NULL) {
-	return -1;
-    }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    modules_file->read_proc = proc_read_modules;
-#endif
+    modules_file = \
+	CREATE_PROC_ENTRY("modules",S_IRUGO,rtapi_dir,&modules_file_fops);
 
     /* create read only file "/proc/rtapi/tasks" */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    tasks_file = create_proc_entry("tasks", S_IRUGO, rtapi_dir);
-#else
-    tasks_file = proc_create("tasks", S_IRUGO, rtapi_dir, &tasks_file_fops);
-#endif
-    if (tasks_file == NULL) {
-	return -1;
-    }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    tasks_file->read_proc = proc_read_tasks;
-#endif
+    tasks_file = \
+	CREATE_PROC_ENTRY("tasks",S_IRUGO,rtapi_dir,&tasks_file_fops);
 
     /* create read only file "/proc/rtapi/shmem" */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    shmem_file = create_proc_entry("shmem", S_IRUGO, rtapi_dir);
-#else
-    shmem_file = proc_create("shmem", S_IRUGO, rtapi_dir, &shmem_file_fops);
-#endif
-    if (shmem_file == NULL) {
-	return -1;
-    }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    shmem_file->read_proc = proc_read_shmem;
-#endif
+    shmem_file = \
+	CREATE_PROC_ENTRY("shmem",S_IRUGO,rtapi_dir,&shmem_file_fops);
 
     /* create read/write file "/proc/rtapi/debug" */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    debug_file = create_proc_entry("debug", S_IRUGO | S_IWUGO, rtapi_dir);
-#else
-    debug_file = proc_create("debug", S_IRUGO | S_IWUGO, rtapi_dir, &debug_file_fops);
-#endif
-    if (debug_file == NULL) {
-	return -1;
-    }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    debug_file->data = NULL;
-    debug_file->read_proc = proc_read_debug;
-    debug_file->write_proc = proc_write_debug;
-#endif
+    debug_file = \
+	CREATE_PROC_ENTRY("debug",S_IRUGO|S_IWUGO,rtapi_dir,&debug_file_fops);
 
-    /* create read/write file "/proc/rtapi/instance" */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    instance_file = create_proc_entry("instance", S_IRUGO, rtapi_dir);
-#else
-    instance_file = proc_create("instance", S_IRUGO, rtapi_dir, &instance_file_fops);
-#endif
-    if (instance_file == NULL) {
-	return -1;
-    }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    instance_file->data = NULL;
-    instance_file->read_proc = proc_read_instance;
-#endif
+    /* create read only file "/proc/rtapi/instance" */
+    instance_file = \
+	CREATE_PROC_ENTRY("instance",S_IRUGO,rtapi_dir,&instance_file_fops);
 
     return 0;
 }

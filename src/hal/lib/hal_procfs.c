@@ -59,8 +59,8 @@ static struct proc_dir_entry *hal_rtapicmd = 0;
 // HAL return values are reflected in the return value to write()
 //
 // NB: this should be move to an iocontrol, procfs doesnt cut it
-static int proc_write_rtapicmd(struct file *file,
-        const char *buffer, unsigned long count, void *data)
+static ssize_t proc_write_rtapicmd(struct file *file,
+        const char __user *buffer, size_t count, loff_t *data)
 {
     char cmd[20], name[HAL_NAME_LEN + 1];
     unsigned long period;
@@ -130,8 +130,7 @@ void hal_proc_clean(void) {
     hal_dir = hal_rtapicmd = 0;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-#else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 static const struct file_operations proc_file_fops = {
  .write = proc_write_rtapicmd,
 };
@@ -141,20 +140,17 @@ int hal_proc_init(void) {
     if(!rtapi_dir) return 0;
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     hal_dir = create_proc_entry("hal", S_IFDIR, rtapi_dir);
-#else
-    hal_dir = proc_create("hal", S_IFDIR, rtapi_dir, NULL);
-#endif
     if(!hal_dir) { hal_proc_clean(); return -1; }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     hal_rtapicmd = create_proc_entry("rtapicmd", 0666, hal_dir);
-#else
-    hal_rtapicmd = proc_create("rtapicmd", 0666, hal_dir, &proc_file_fops);
-#endif
     if(!hal_rtapicmd) { hal_proc_clean(); return -1; }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     hal_rtapicmd->data = NULL;
     hal_rtapicmd->read_proc = NULL;
     hal_rtapicmd->write_proc = proc_write_rtapicmd;
+#else
+    hal_dir = proc_create("hal", S_IFDIR, rtapi_dir, NULL);
+    if(!hal_dir) { hal_proc_clean(); return -1; }
+    hal_rtapicmd = proc_create("rtapicmd", 0666, hal_dir, &proc_file_fops);
+    if(!hal_rtapicmd) { hal_proc_clean(); return -1; }
 #endif
     return 0;
 }
