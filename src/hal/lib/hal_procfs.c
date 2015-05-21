@@ -13,8 +13,35 @@
 #endif
 
 #ifdef CONFIG_PROC_FS
+#include <linux/version.h>
 #include <linux/proc_fs.h>
 #include <linux/string.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
+#else
+// proc_dir_entry is private in Linux 3.10+, so re-define it here
+struct proc_dir_entry {
+  unsigned int low_ino;
+  umode_t mode;
+  nlink_t nlink;
+  kuid_t uid;
+  kgid_t gid;
+  loff_t size;
+  const struct inode_operations *proc_iops;
+  const struct file_operations *proc_fops;
+  struct proc_dir_entry *next, *parent, *subdir;
+  void *data;
+  atomic_t count;         /* use count */
+  atomic_t in_use;        /* number of callers into module in progress; */
+  /* negative -> it's going away RSN */
+  struct completion *pde_unload_completion;
+  struct list_head pde_openers;   /* who did ->open, but not ->release */
+  spinlock_t pde_unload_lock; /* proc_fops checks and pde_users bumps */
+  u8 namelen;
+  char name[];
+};
+#endif
+
 extern struct proc_dir_entry *rtapi_dir;
 static struct proc_dir_entry *hal_dir = 0;
 static struct proc_dir_entry *hal_rtapicmd = 0;
@@ -32,8 +59,8 @@ static struct proc_dir_entry *hal_rtapicmd = 0;
 // HAL return values are reflected in the return value to write()
 //
 // NB: this should be move to an iocontrol, procfs doesnt cut it
-static int proc_write_rtapicmd(struct file *file,
-        const char *buffer, unsigned long count, void *data)
+static ssize_t proc_write_rtapicmd(struct file *file,
+        const char __user *buffer, size_t count, loff_t *data)
 {
     char cmd[20], name[HAL_NAME_LEN + 1];
     unsigned long period;
@@ -103,8 +130,15 @@ void hal_proc_clean(void) {
     hal_dir = hal_rtapicmd = 0;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
+static const struct file_operations proc_file_fops = {
+ .write = proc_write_rtapicmd,
+};
+#endif
+
 int hal_proc_init(void) {
     if(!rtapi_dir) return 0;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     hal_dir = create_proc_entry("hal", S_IFDIR, rtapi_dir);
     if(!hal_dir) { hal_proc_clean(); return -1; }
     hal_rtapicmd = create_proc_entry("rtapicmd", 0666, hal_dir);
@@ -112,6 +146,12 @@ int hal_proc_init(void) {
     hal_rtapicmd->data = NULL;
     hal_rtapicmd->read_proc = NULL;
     hal_rtapicmd->write_proc = proc_write_rtapicmd;
+#else
+    hal_dir = proc_create("hal", S_IFDIR, rtapi_dir, NULL);
+    if(!hal_dir) { hal_proc_clean(); return -1; }
+    hal_rtapicmd = proc_create("rtapicmd", 0666, hal_dir, &proc_file_fops);
+    if(!hal_rtapicmd) { hal_proc_clean(); return -1; }
+#endif
     return 0;
 }
 #else

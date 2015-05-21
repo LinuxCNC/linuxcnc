@@ -61,7 +61,11 @@
 
 // dlopen() these shared libraries
 #define LIBXENOMAI "libxenomai.so"
+#ifdef XENOMAI_V2
 #define LIBNATIVE "libnative.so"
+#else
+#define LIBNATIVE "libalchemy.so"
+#endif
 // and dig for LIBNATIVE_SYM
 #define LIBNATIVE_SYM "rt_task_create"
 

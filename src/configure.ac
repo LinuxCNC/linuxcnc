@@ -1088,10 +1088,10 @@ check_rtai_kernel_source() {
 
 
     # look for rt_daemonize (older RTAI) or rtai_irq_handler (at least
-    # RTAI 4.0.0+) function definition
+    # RTAI 4.0) or rtai_syscall_hook (RTAI 4.1) function definition
     AC_MSG_CHECKING(if $ksrc_dir is an RTAI kernel)
     if test -f "$ksrc_dir/Module.symvers" && \
-            grep -q '\(rt_daemonize\|rtai_irq_handler\)' \
+            grep -q '\(rt_daemonize\|rtai_irq_handler\|rtai_syscall_hook\)' \
             "$ksrc_dir/Module.symvers"; then
         AC_MSG_RESULT([yes])
         return 0
@@ -1396,11 +1396,22 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
         # the variable; then --ldflags should return something
         # containing the string '-lnative'
 	AC_MSG_CHECKING([usability of xenomai utility, $XENOMAI_THREADS_RTS])
-	if test -x $XENOMAI_THREADS_RTS -a \
-	    -n "$($XENOMAI_THREADS_RTS --skin=native --ldflags 2>/dev/null | \
-	        grep .lnative)"; then
-	    XENOMAI_THREADS_RTS="$XENOMAI_THREADS_RTS --skin=native"
-	    AC_MSG_RESULT(yes)
+	if test -x $XENOMAI_THREADS_RTS; then
+	    # Check for Xenomai v.2 or v.3
+	    case $(xeno-config --version) in
+	        2.*)
+		    XENOMAI_SKIN=native
+		    XENOMAI_V2=true
+		    AC_MSG_RESULT(yes (v2))
+		    ;;
+		3.*)
+		    XENOMAI_SKIN=alchemy
+		    XENOMAI_V2=false
+		    with_xenomai_kernel=no  # No more xenomai kthreads in v3
+		    AC_MSG_RESULT(yes (v3))
+		    ;;
+	    esac
+	    XENOMAI_THREADS_RTS="$XENOMAI_THREADS_RTS --skin=$XENOMAI_SKIN"
 	else
 	    XENOMAI_THREADS_RTS=''
 	    AC_MSG_RESULT(no)
@@ -1424,35 +1435,25 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
 	XENOMAI_KERNEL_THREADS_RTS="$XENOMAI_THREADS_RTS"
     fi
 fi
-# XENOMAI_THREADS_RTFLAGS:  test runtime library & get flags
+
 if test -n "$XENOMAI_THREADS_RTS"; then
-    AC_MSG_CHECKING(Xenomai runtime library)
-    CFLAGS_hold=$CFLAGS
-    CFLAGS="$CFLAGS "`$XENOMAI_THREADS_RTS --cflags`
-    LIBS_hold=$LIBS
-    LIBS="$LIBS "`$XENOMAI_THREADS_RTS --ldflags`
-    AC_LINK_IFELSE([AC_LANG_PROGRAM(
-    [[
-	#include <native/task.h>
-	#include <native/timer.h>
-	RT_TASK demo_task;
-	RTIME now;
-    ]],
-    [[
-	rt_task_create(&demo_task, "trivial", 0, 99, 0);
-	rt_task_set_periodic(NULL, TM_NOW, 1000000000);
-	rt_timer_read();
-    ]])],
-    [AC_MSG_RESULT(works)],
-    [
-	AC_MSG_RESULT(failed)
-	with_xenomai=no
-	with_xenomai_kernel=no
-    ])
-    LIBS=$LIBS_hold
-    CFLAGS=$CFLAGS_hold
+    # XENOMAI_THREADS_RTFLAGS:  test runtime library & get flags
+    LIBS_hold="$LIBS"
+    CFLAGS_hold="$CFLAGS"
+    CPPFLAGS_hold="$CPPFLAGS"
+    LIBS="$LIBS $($XENOMAI_THREADS_RTS --ldflags)"
+    CFLAGS="$CFLAGS $($XENOMAI_THREADS_RTS --cflags)"
+    CPPFLAGS="$CPPFLAGS $($XENOMAI_THREADS_RTS --cflags)"
+    AC_CHECK_LIB($XENOMAI_SKIN, rt_task_create,,
+        with_xenomai=no; with_xenomai_kernel=no)
+    AC_CHECK_HEADER($XENOMAI_SKIN/task.h,,
+        with_xenomai=no; with_xenomai_kernel=no)
+    LIBS="$LIBS_hold"
+    CFLAGS="$CFLAGS_hold"
+    CPPFLAGS="$CPPFLAGS_hold"
+fi
 
-
+if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
     flags="$($XENOMAI_THREADS_RTS --cflags)"
     # Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
     # on all arches but x86_64; this causes missing symbols without
@@ -1474,7 +1475,7 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     fi
     XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
     # ldflags
-    flags="$($XENOMAI_THREADS_RTS --ldflags) -lrtdm"
+    flags="$($XENOMAI_THREADS_RTS --ldflags)"
     XENOMAI_THREADS_LDFLAGS="$XENOMAI_THREADS_LDFLAGS $flags"
     XENOMAI_KERNEL_THREADS_LDFLAGS="$XENOMAI_KERNEL_THREADS_LDFLAGS $flags"
 fi
@@ -1507,37 +1508,6 @@ elif test "$xenomai_kernel_from_cmdline" = yes; then
     AC_MSG_ERROR([Requested '--with-xenomai-kernel', but unable to configure])
 fi
 AC_MSG_RESULT($with_xenomai_kernel)
-
-# check whether the gcc-multilib problem exists
-# see http://gcc.gnu.org/ml/gcc/2012-02/msg00314.html
-if test $with_xenomai_kernel = yes -a -x /usr/bin/lsb_release &&
-    test "$(lsb_release -cs)" = precise; then
-    CFLAGS_save="$CFLAGS"
-    CFLAGS="-nostdinc -I/usr/include"
-    MULTILIB_HACK="/usr/include/$(gcc -print-multiarch)"
-    AC_MSG_CHECKING(for the precise multilib bug)
-    AC_COMPILE_IFELSE(
-        [ AC_LANG_PROGRAM([[#include "math.h"]],[]) ],
-	[
-	    PRECISE_MULTILIB_BUG=""
-	    AC_MSG_RESULT(not found)
-	],
-	[
-	    export C_INCLUDE_PATH=$MULTILIB_HACK
-	    AC_COMPILE_IFELSE(
-		[
-		    AC_LANG_PROGRAM([[#include "math.h"]],[])
-		],
-		[
-		    PRECISE_MULTILIB_BUG="C_INCLUDE_PATH=$MULTILIB_HACK"
-		    AC_MSG_RESULT(found)
-		],
-		AC_MSG_ERROR([unexpected result checking "math.h"]))
-	    unset C_INCLUDE_PATH
-	]
-    )
-    CFLAGS="$CFLAGS_save"
-fi
 
 
 ##############################################################################
@@ -1633,6 +1603,17 @@ if test $with_rtai_kernel = yes; then
     BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rtai-kernel"
 fi
 AC_MSG_RESULT($with_rtai_kernel)
+if test $with_rtai_kernel = yes; then
+    AC_MSG_CHECKING(RTAI version)
+    if grep -q rt_free_timers $RTAI_KERNEL_THREADS_EXTRA_SYMBOLS; then
+        RTAI_VERSION=401
+	AC_MSG_RESULT(4.1 or greater)
+    else
+        RTAI_VERSION=400
+	AC_MSG_RESULT(4.0 or earlier)
+    fi
+fi
+
 ##############################################################################
 # Subsection 2.6                                                             #
 # Hardware driver detection                                                  #
@@ -1856,6 +1837,13 @@ AC_SUBST([RT_PREEMPT_THREADS_RTDIR],[])
 AC_SUBST([RT_PREEMPT_THREADS_RTS],[])
 AC_SUBST([RT_PREEMPT_THREADS_EXTRA_KMODS],[])
 
+# Xenomai general settings
+if test "$XENOMAI_V2" = true; then
+    AC_DEFINE([XENOMAI_V2],[],[Xenomai v.2])
+fi
+AC_DEFINE_UNQUOTED([XENOMAI_SKIN],$XENOMAI_SKIN,
+	[Xenomai skin ('native' for v2, 'alchemy' for v3)])
+
 # Xenomai userland settings
 if test "$with_xenomai" = yes; then
     AC_DEFINE([HAVE_XENOMAI_THREADS],[],[Build Xenomai userland threads])
@@ -1910,6 +1898,9 @@ AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
 AC_SUBST([RTAI_KERNEL_THREADS_RTDIR],[$RTAI_KERNEL_THREADS_RTDIR])
 AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_KMODS],
 	"_cfg_flavor_extra_kmods(rtai-kernel)")
+if test -n "$RTAI_VERSION"; then
+    AC_DEFINE_UNQUOTED([RTAI_VERSION],$RTAI_VERSION,"RTAI version")
+fi
 
 
 # while we are at it, drop a git scent mark
