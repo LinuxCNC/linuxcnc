@@ -125,7 +125,7 @@ fi
 AC_SUBST(AUTODIRS)
 
 # internationalisation package name:
-PACKAGE="linuxcnc"
+PACKAGE="machinekit"
 AC_SUBST([PACKAGE])
 
 if test -f ../VERSION; then
@@ -1927,13 +1927,30 @@ AC_SUBST([EMC2_HOME])
 
 ##############################################################################
 # Section 3                                                                  #
-# aditional checking                                                         #
+# additional checking, ensure gcc > 4.4                                      #
 # Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
 # Subsection 3.2 - define default dirs                                       #
 # Subsection 3.3 - check for GTK                                             #
 # Subsection 3.4 - check for utility programs needed to build and run EMC    #
 # Subsection 3.5 - check for programs needed to build documentation          #
 ##############################################################################
+
+### ensure suficient adherence to C11 standard to allow forward declaration
+### of typedefs etc - >= gcc-4.6
+
+GCC_VERSION=$(gcc -dumpversion)
+MAJ_VERSION=4
+MIN_VERSION=6
+MAJOR_VERSION=${GCC_VERSION:0:1}
+MINOR_VERSION=${GCC_VERSION:2:1}
+
+if (($MAJOR_VERSION == $MAJ_VERSION))
+then
+    if (($MINOR_VERSION < $MIN_VERSION))
+    then
+        AC_MSG_ERROR([gcc version = $GCC_VERSION, requires 4.6 or higher])
+    fi
+fi
 
 
 ##############################################################################
@@ -2092,7 +2109,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_LATENCY_SCRIPT=$EMC2_HOME/scripts/latency-test
     EMC2_SCRIPT=$EMC2_HOME/scripts/emc
     EMC2_SUFFIX=" (run-in-place)"
-    EMC2_ICON=$EMC2_HOME/linuxcncicon.png
+    EMC2_ICON=$EMC2_HOME/machinekiticon.png
     EMC2_BIN_DIR=$EMC2_HOME/bin
     EMC2_LIBEXEC_DIR=$EMC2_HOME/libexec
     EMC2_TCL_DIR=$EMC2_HOME/tcl
@@ -2101,7 +2118,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_PO_DIR=$EMC2_HOME/share/locale
     EMC2_HELP_DIR=$EMC2_HOME/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
-    LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:$EMC2_HOME/configs"
+    LINUXCNC_CONFIG_PATH="~/machinekit/configs:$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
     REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
@@ -2112,14 +2129,14 @@ else
     EMC2_LATENCY_SCRIPT=$EMC2_BIN_DIR/latency-test
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
     EMC2_SUFFIX=""
-    EMC2_ICON=linuxcncicon
+    EMC2_ICON=machinekiticon
     EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
     EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
     EMC2_LANG_DIR=${prefix}/share/linuxcnc/tcl/msgs
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
     EMC2_RTLIB_DIR=${prefix}/lib/linuxcnc
-    LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:${sysconfdir}/linuxcnc/configs:$(fe "$datadir")/linuxcnc/examples/sample-configs"
+    LINUXCNC_CONFIG_PATH="~/machinekit/configs:${sysconfdir}/linuxcnc/configs:$(fe "$datadir")/linuxcnc/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=${bindir}/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
@@ -3095,12 +3112,12 @@ offbold () {
 echo ""
 echo ""
 echo "######################################################################"
-echo "#                LinuxCNC - Enhanced Machine Controller              #"
+echo "#                Machinekit - Enhanced Machine Controller            #"
 echo "######################################################################"
 echo "#                                                                    #"
-echo "#   LinuxCNC is a software system for computer control of machine    #"
+echo "#   Machinekit is a software system for computer control of machine  #"
 echo "#   tools such as milling machines. LinuxCNC is released under the   #"
-echo "#   GPL.  Check out http://www.linuxcnc.org/ for more details.       #"
+echo "#   GPL.  Check out http://www.machinekit.io for more details.       #"
 echo "#                                                                    #"
 echo "#                                                                    #"
 echo "#   It seems that ./configure completed successfully.                #"
@@ -3120,9 +3137,9 @@ else
 bold
 echo "#   warning: If you already have an installed linuxcnc, this will    #"
 echo "#         replace an existing installation.  If you have installed   #"
-echo "#         a linuxcnc package, this will damage the package.          #"
+echo "#         a machinekit package, this will damage the package.        #"
 offbold
-echo "#   hint: To test a self-built version of linuxcnc without damaging  #"
+echo "#   hint: To test a self-built version of machinekit without damaging#"
 echo "#         the package version, don't specify a --prefix              #"
 echo "#                                                                    #"
 echo "#   Next compile by typing                                           #"
@@ -3132,7 +3149,7 @@ echo "#         sudo make install                                          #"
 fi
 echo "#                                                                    #"
 echo "#   To run the software type                                         #"
-echo "#         linuxcnc                                                   #"
+echo "#         machinekit                                                 #"
 echo "#                                                                    #"
 echo "######################################################################"
 echo ""

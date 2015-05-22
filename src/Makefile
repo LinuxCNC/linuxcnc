@@ -205,8 +205,8 @@ SUBDIRS := \
 	rtapi/userpci \
 	\
 	hal/lib \
-	hal/components \
 	hal/i_components \
+	hal/components \
 	hal/vtable-example \
 	hal/userfunct-example \
 	hal/drivers \
@@ -1089,8 +1089,8 @@ INCLUDE_PREFIX = $(BASEPWD)
 # module's obj-m and foo-objs definitions may remain in the Submakefile
 include $(BASEPWD)/hal/lib/Submakefile
 include $(BASEPWD)/machinetalk/Submakefile
-include $(BASEPWD)/hal/components/Submakefile
 include $(BASEPWD)/hal/i_components/Submakefile
+include $(BASEPWD)/hal/components/Submakefile
 include $(BASEPWD)/hal/vtable-example/Submakefile
 include $(BASEPWD)/hal/userfunct-example/Submakefile
 include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
@@ -1183,8 +1183,6 @@ endif
 # Subdirectory: hal/components
 obj-$(CONFIG_BOSS_PLC) += boss_plc.o
 boss_plc-objs := hal/components/boss_plc.o $(MATHSTUB)
-obj-$(CONFIG_DEBOUNCE) += debounce.o
-debounce-objs := hal/components/debounce.o $(MATHSTUB)
 obj-$(CONFIG_ENCODER) += encoder.o
 encoder-objs := hal/components/encoder.o $(MATHSTUB)
 obj-$(CONFIG_COUNTER) += counter.o
@@ -1203,8 +1201,6 @@ obj-$(CONFIG_PWMGEN) += pwmgen.o
 pwmgen-objs := hal/components/pwmgen.o $(MATHSTUB)
 obj-$(CONFIG_SIGGEN) += siggen.o
 siggen-objs := hal/components/siggen.o $(MATHSTUB)
-obj-$(CONFIG_PID) += pid.o
-pid-objs := hal/components/pid.o $(MATHSTUB)
 obj-$(CONFIG_AT_PID) += at_pid.o
 at_pid-objs := hal/components/at_pid.o $(MATHSTUB)
 obj-$(CONFIG_PID) += threads.o
@@ -1474,8 +1470,9 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 obj-m += icomp.o
 icomp-objs := hal/icomp-example/icomp.o
 
-obj-m += lutn.o
-lutn-objs := hal/icomp-example/lutn.o
+# clashes with component in i_components
+#obj-m += lutn.o
+#lutn-objs := hal/icomp-example/lutn.o
 
 obj-m += ufdemo.o
 ufdemo-objs := hal/userfunct-example/ufdemo.o
@@ -1567,7 +1564,6 @@ ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 #$(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
 $(RTLIBDIR)/classicladder_rt$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(classicladder_rt-objs))
 $(RTLIBDIR)/boss_plc$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(boss_plc-objs))
-$(RTLIBDIR)/debounce$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(debounce-objs))
 $(RTLIBDIR)/encoder$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder-objs))
 $(RTLIBDIR)/counter$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(counter-objs))
 $(RTLIBDIR)/encoder_ratio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratio-objs))
@@ -1579,7 +1575,6 @@ $(RTLIBDIR)/freqgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(freqgen-objs))
 $(RTLIBDIR)/pwmgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pwmgen-objs))
 $(RTLIBDIR)/siggen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(siggen-objs))
 $(RTLIBDIR)/at_pid$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(at_pid-objs))
-$(RTLIBDIR)/pid$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pid-objs))
 $(RTLIBDIR)/threads$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(threads-objs))
 $(RTLIBDIR)/supply$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(supply-objs))
 $(RTLIBDIR)/sim_encoder$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(sim_encoder-objs))
