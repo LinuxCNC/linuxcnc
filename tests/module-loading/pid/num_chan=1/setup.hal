@@ -1,4 +1,4 @@
 
-loadrt pid num_chan=1
+loadrt pid
 show pin
 
