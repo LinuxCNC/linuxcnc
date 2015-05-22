@@ -7,6 +7,7 @@
 MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("test component for HAL instantiation API");
 MODULE_LICENSE("GPL");
+RTAPI_TAG(HAL, HC_INSTANTIABLE);
 
 static int comp_id;
 static char *compname = "icomp";
