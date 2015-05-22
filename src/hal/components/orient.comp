@@ -55,7 +55,7 @@ net orient-mode   motion.spindle-orient-mode  orient.mode
 .br
 net orient-enable motion.spindle-orient       orient.enable orient-pid.enable
 .br
-net spindle-in-pos  orient.in-position motion.spindle-is-oriented
+net spindle-in-pos  orient.is-oriented motion.spindle-is-oriented
 .br
 net spindle-pos    ...encoder..position orient.position orient-pid.feedback
 .br
@@ -72,10 +72,10 @@ FUNCTION(_) {
 
     double target_angle;
     double latched_position;
-    in_position = 0; // spindle.is-oriented inhibits spindle.orient
+    is_oriented = 0; // spindle.is-oriented inhibits spindle.orient
     if (enable) {
        if (enable ^ last_enable) {     // positive edge on enable
-            in_position = 0;
+           is_oriented = 0;
             debounce = 0;
             latched_position = position; // sample now
             target_angle =  angle/360.0;
@@ -93,7 +93,7 @@ FUNCTION(_) {
        }
        poserr = (position - command) * 360.0;
        debounce += (fabs(poserr) < tolerance && debounce <=100);
-       in_position = (debounce > 100);
+       is_oriented = (debounce > 100);
     }
     last_enable = enable;
 }
