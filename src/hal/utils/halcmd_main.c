@@ -86,6 +86,8 @@ int main(int argc, char **argv)
     char *uri = NULL; // NULL - use service discovery
     char *service_uuid = NULL; // must have a global uuid
 
+    autoloading = false;  // flag to check where a do_loadrt_cmd() is coming from
+
     inifile = getenv("MACHINEKIT_INI");
     /* use default if not specified by user */
     if (inifile == NULL) {
