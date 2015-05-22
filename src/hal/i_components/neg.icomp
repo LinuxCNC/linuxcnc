@@ -1,0 +1,12 @@
+component neg "Changes the sign of a floating point value";
+pin in float in;
+pin out float out;
+function _ fp;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    out = -in;
+
+return 0;
+}

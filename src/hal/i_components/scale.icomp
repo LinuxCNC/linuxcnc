@@ -1,0 +1,14 @@
+component scale "Machinekit HAL component that applies a scale and offset to its input";
+pin in float in;
+pin in float gain;
+pin in float offset;
+pin out float out "out = in * gain + offset";
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    out = in * gain + offset;
+
+return 0;
+}

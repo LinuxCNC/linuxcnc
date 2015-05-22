@@ -1,0 +1,23 @@
+component and2 "Two-input AND gate";
+pin in bit in0;
+pin in bit in1;
+pin out bit out """\
+\\fBout\\fR is computed from the value of \\fBin0\\fR and \\fBin1\\fR according to the following rule:
+.RS
+.TP
+\\fBin0=TRUE in1=TRUE\\fB
+\\fBout=TRUE\\fR
+.TP
+Otherwise,
+\\fBout=FALSE\\fR
+.RE"""
+;
+function _ nofp;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    out = in0 && in1;
+
+return 0;
+}
