@@ -75,10 +75,6 @@ extern double rtapi_floor(double);
 #define rtapi_isinf(x) ({ double v=((x)); !isnan(v) && isnan(v-v); })
 #endif
 
-#ifdef __i386__
-#include "rtapi_math_i386.h"
-#endif
-
 #include "rtapi_byteorder.h"
 
 // adapted from ieee754.h

@@ -559,7 +559,6 @@ HEADERS := \
     rtapi/rtapi_int.h \
     rtapi/rtapi_limits.h \
     rtapi/rtapi_math.h \
-    rtapi/rtapi_math_i386.h \
     rtapi/rtapi_math64.h \
     rtapi/rtapi_common.h \
     rtapi/rtapi_exception.h \
