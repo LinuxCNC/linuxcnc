@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
@@ -76,12 +76,12 @@ double Interp::find_arc_length(double x1,        //!< X-coordinate of start poin
   double radius;
   double theta;                 /* amount of turn of arc in radians */
 
-  radius = hypot((center_x - x1), (center_y - y1));
+  radius = rtapi_hypot((center_x - x1), (center_y - y1));
   theta = find_turn(x1, y1, center_x, center_y, turn, x2, y2);
   if (z2 == z1)
-    return (radius * fabs(theta));
+    return (radius * rtapi_fabs(theta));
   else
-    return hypot((radius * theta), (z2 - z1));
+    return rtapi_hypot((radius * theta), (z2 - z1));
 }
 
 
@@ -96,8 +96,8 @@ int Interp::unwrap_rotary(double *r, double sign_of, double commanded, double cu
     int neg = copysign(1.0, sign_of) < 0.0;
     CHKS((sign_of <= -360.0 || sign_of >= 360.0), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), sign_of, axis);
     
-    double d = floor(current/360.0);
-    result = fabs(commanded) + (d*360.0);
+    double d = rtapi_floor(current/360.0);
+    result = rtapi_fabs(commanded) + (d*360.0);
     if(!neg && result < current) result += 360.0;
     if(neg && result > current) result -= 360.0;
     *r = result;
@@ -264,21 +264,21 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
         if(block->radius_flag && block->theta_flag) {
             CHKS((block->x_flag || block->y_flag), _("Cannot specify X or Y words with polar coordinate"));
-            *px = block->radius * cos(D2R(block->theta));
-            *py = block->radius * sin(D2R(block->theta));
+            *px = block->radius * rtapi_cos(D2R(block->theta));
+            *py = block->radius * rtapi_sin(D2R(block->theta));
         } else if(block->radius_flag) {
             double theta;
             CHKS((block->x_flag || block->y_flag), _("Cannot specify X or Y words with polar coordinate"));
             CHKS((*py == 0 && *px == 0), _("Must specify angle in polar coordinate if at the origin"));
-            theta = atan2(*py, *px);
-            *px = block->radius * cos(theta);
-            *py = block->radius * sin(theta);
+            theta = rtapi_atan2(*py, *px);
+            *px = block->radius * rtapi_cos(theta);
+            *py = block->radius * rtapi_sin(theta);
         } else  if(block->theta_flag) {
             double radius;
             CHKS((block->x_flag || block->y_flag), _("Cannot specify X or Y words with polar coordinate"));
-            radius = hypot(*py, *px);
-            *px = radius * cos(D2R(block->theta));
-            *py = radius * sin(D2R(block->theta));
+            radius = rtapi_hypot(*py, *px);
+            *px = radius * rtapi_cos(D2R(block->theta));
+            *py = radius * rtapi_sin(D2R(block->theta));
         }
 
         if(block->z_flag) {
@@ -336,20 +336,20 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             double radius, theta;
             CHKS((block->x_flag || block->y_flag), _("Cannot specify X or Y words with polar coordinate"));
             CHKS((*py == 0 && *px == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin"));
-            theta = atan2(*py, *px);
-            radius = hypot(*py, *px) + block->radius;
-            *px = radius * cos(theta);
-            *py = radius * sin(theta);
+            theta = rtapi_atan2(*py, *px);
+            radius = rtapi_hypot(*py, *px) + block->radius;
+            *px = radius * rtapi_cos(theta);
+            *py = radius * rtapi_sin(theta);
         }
 
         if(block->theta_flag) {
             double radius, theta;
             CHKS((block->x_flag || block->y_flag), _("Cannot specify X or Y words with polar coordinate"));
             CHKS((*py == 0 && *px == 0), _("G91 motion with polar coordinates is indeterminate when at the origin"));
-            theta = atan2(*py, *px) + D2R(block->theta);
-            radius = hypot(*py, *px);
-            *px = radius * cos(theta);
-            *py = radius * sin(theta);
+            theta = rtapi_atan2(*py, *px) + D2R(block->theta);
+            radius = rtapi_hypot(*py, *px);
+            *px = radius * rtapi_cos(theta);
+            *py = radius * rtapi_sin(theta);
         }
 
         // and only XZ affects Z.
@@ -654,12 +654,12 @@ double Interp::find_straight_length(double x2,   //!< X-coordinate of end point
   )
 {
 #define tiny 1e-7
-    if ( (fabs(x1-x2) > tiny) || (fabs(y1-y2) > tiny) || (fabs(z1-z2) > tiny) )
-        return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2) + pow((z2 - z1), 2));
-    else if ( (fabs(u_1-u_2) > tiny) || (fabs(v_1-v_2) > tiny) || (fabs(w_1-w_2) > tiny) )
-        return sqrt(pow((u_2 - u_1), 2) + pow((v_2 - v_1), 2) + pow((w_2 - w_1), 2));
+    if ( (rtapi_fabs(x1-x2) > tiny) || (rtapi_fabs(y1-y2) > tiny) || (rtapi_fabs(z1-z2) > tiny) )
+        return rtapi_sqrt(rtapi_pow((x2 - x1), 2) + rtapi_pow((y2 - y1), 2) + rtapi_pow((z2 - z1), 2));
+    else if ( (rtapi_fabs(u_1-u_2) > tiny) || (rtapi_fabs(v_1-v_2) > tiny) || (rtapi_fabs(w_1-w_2) > tiny) )
+        return rtapi_sqrt(rtapi_pow((u_2 - u_1), 2) + rtapi_pow((v_2 - v_1), 2) + rtapi_pow((w_2 - w_1), 2));
     else
-        return sqrt(pow((AA_2 - AA_1), 2) + pow((BB_2 - BB_1), 2) + pow((CC_2 - CC_1), 2));
+        return rtapi_sqrt(rtapi_pow((AA_2 - AA_1), 2) + rtapi_pow((BB_2 - BB_1), 2) + rtapi_pow((CC_2 - CC_1), 2));
 }
 
 /****************************************************************************/
@@ -690,8 +690,8 @@ double Interp::find_turn(double x1,      //!< X-coordinate of start point
 
   if (turn == 0)
     return 0.0;
-  alpha = atan2((y1 - center_y), (x1 - center_x));
-  beta = atan2((y2 - center_y), (x2 - center_x));
+  alpha = rtapi_atan2((y1 - center_y), (x1 - center_x));
+  beta = rtapi_atan2((y2 - center_y), (x2 - center_x));
   if (turn > 0) {
     if (beta <= alpha)
       beta = (beta + (2 * M_PIl));

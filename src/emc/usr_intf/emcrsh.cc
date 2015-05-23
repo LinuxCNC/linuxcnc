@@ -22,7 +22,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <ctype.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
@@ -1980,7 +1980,7 @@ static cmdResponseType getProgramCodes(char *s, connectionRecType *context)
     }
   sprintf(buf, "F%.0f ", emcStatus->task.activeSettings[1]);
   strcat(context->outBuf, buf);
-  sprintf(buf, "S%.0f", fabs(emcStatus->task.activeSettings[2]));
+  sprintf(buf, "S%.0f", rtapi_fabs(emcStatus->task.activeSettings[2]));
   strcat(context->outBuf, buf);
   return rtNoError;
 }
@@ -2238,7 +2238,7 @@ static cmdResponseType getFeedOverride(char *s, connectionRecType *context)
   const char *pFeedOverride = "FEED_OVERRIDE %d";
   int percent;
   
-  percent = (int)floor(emcStatus->motion.traj.scale * 100.0 + 0.5);
+  percent = (int)rtapi_floor(emcStatus->motion.traj.scale * 100.0 + 0.5);
   sprintf(context->outBuf, pFeedOverride, percent);
   return rtNoError;
 }
@@ -2256,7 +2256,7 @@ static cmdResponseType getSpindleOverride(char *s, connectionRecType *context)
   const char *pSpindleOverride = "SPINDLE_OVERRIDE %d";
   int percent;
   
-  percent = (int)floor(emcStatus->motion.traj.spindle_scale * 100.0 + 0.5);
+  percent = (int)rtapi_floor(emcStatus->motion.traj.spindle_scale * 100.0 + 0.5);
   sprintf(context->outBuf, pSpindleOverride, percent);
   return rtNoError;
 }

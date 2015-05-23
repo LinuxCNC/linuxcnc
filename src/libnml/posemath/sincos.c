@@ -34,8 +34,8 @@
 
 void sincos(double x, double *sx, double *cx)
 {
-    *sx = sin(x);
-    *cx = cos(x);
+    *sx = rtapi_sin(x);
+    *cx = rtapi_cos(x);
 }
 
 #endif

@@ -26,7 +26,7 @@ function _;
 license "GPL";
 ;;
 
-#include <rtapi_math.h>
+#include "rtapi_math.h"
 
 FUNCTION(_)
 {

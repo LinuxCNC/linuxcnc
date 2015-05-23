@@ -20,7 +20,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <ctype.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <sys/types.h>
 
 #include "rcs.hh"
@@ -778,7 +778,7 @@ int sendSpindleForward()
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
     if (emcStatus->task.activeSettings[2] != 0) {
-	emc_spindle_on_msg.speed = fabs(emcStatus->task.activeSettings[2]);
+	emc_spindle_on_msg.speed = rtapi_fabs(emcStatus->task.activeSettings[2]);
     } else {
 	emc_spindle_on_msg.speed = +500;
     }
@@ -798,7 +798,7 @@ int sendSpindleReverse()
     EMC_SPINDLE_ON emc_spindle_on_msg;
     if (emcStatus->task.activeSettings[2] != 0) {
 	emc_spindle_on_msg.speed =
-	    -1 * fabs(emcStatus->task.activeSettings[2]);
+	    -1 * rtapi_fabs(emcStatus->task.activeSettings[2]);
     } else {
 	emc_spindle_on_msg.speed = -500;
     }

@@ -31,7 +31,7 @@
     information, go to www.linuxcnc.org.
 */
 
-#include <math.h>
+#include "rtapi_math.h"
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -469,7 +469,7 @@ static int select_trace(int x, int y) {
     int n;
     scope_disp_t *disp = &(ctrl_usr->disp);
 
-    min_dist = hypot(disp->width, disp->height) / 100.;
+    min_dist = rtapi_hypot(disp->width, disp->height) / 100.;
     if(min_dist < 5) min_dist = 5;
     target = -1;
 
@@ -569,7 +569,7 @@ static void middle_drag(int dx) {
 static double snap(int y) {
     scope_disp_t *disp = &(ctrl_usr->disp);
     double new_position = y * 1.0 / disp->height;
-    double mod = fmod(new_position, 0.05);
+    double mod = rtapi_fmod(new_position, 0.05);
     if(mod > .045) new_position = new_position + (.05-mod);
     if(mod < .005) new_position = new_position - mod;
     return new_position;
@@ -653,7 +653,7 @@ static double dot(struct pt *a, struct pt *b) {
 }
 
 static double mag(struct pt *p) {
-    return hypot(p->x, p->y);
+    return rtapi_hypot(p->x, p->y);
 }
 
 static double distance_point_line(int x, int y, int x1, int y1, int x2, int y2) {
@@ -720,7 +720,7 @@ void draw_triggerline(int chan_num, int highlight) {
 	chan->vert_offset;
 
     int y1 = (fp_level-yfoffset) * yscale + ypoffset;
-    double dx = hypot(disp->width, disp->height) * .01;
+    double dx = rtapi_hypot(disp->width, disp->height) * .01;
     double dy = dx * 1.3;
     if(dx < 5) dx = 5;
     if(dy < dx + 1) dy = dx + 1;

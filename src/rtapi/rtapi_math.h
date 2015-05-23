@@ -19,6 +19,11 @@
 #include "rtapi.h"  /* Because of all the rtapi refs */
 #include <float.h>  /* DBL_MAX and other FP goodies */
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 extern double rtapi_sin(double);
 extern double rtapi_cos(double);
 extern double rtapi_tan(double);
@@ -31,15 +36,24 @@ extern double rtapi_acos(double);
 extern double rtapi_pow(double, double);
 extern double rtapi_fmin(double, double);
 extern double rtapi_fmax(double, double);
+extern double rtapi_fmod(double, double);
+extern double rtapi_hypot(double, double);
+extern double rtapi_rint(double);
 
 extern double rtapi_ceil(double);
 extern double rtapi_floor(double);
+
+#ifdef __cplusplus
+}
+#endif
 
 #define rtapi_frexp(p,q) __builtin_frexp((p),(q))
 #define rtapi_isnan(x) __builtin_isnan((x))
 #define rtapi_signbit(x) __builtin_signbit((x))
 
+#ifndef M_PIl
 #define M_PIl		3.1415926535897932384626433832795029L  /* pi */
+#endif
 #ifndef M_PI
 #define M_PI		3.1415926535897932384626433832795029   /* pi */
 #endif

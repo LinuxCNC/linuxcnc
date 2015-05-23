@@ -24,7 +24,7 @@ extern int libm_errno;
 #if defined(BUILD_SYS_KBUILD)
 #define	WRITE2(u,v) printk("%.*s",v,u)
 #else
-#define WRITE2(u,v) rtapi_print("%.*s",v,u)
+#define WRITE2(u,v) (v)//rtapi_print("%.*s",v,u)
 #endif
 
 #ifdef __STDC__

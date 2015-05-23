@@ -20,7 +20,7 @@
 #include <stdlib.h>		// memset()
 #include <string.h>		// strncpy()
 #include <time.h>		// time_t, time()
-#include <math.h>		// floor()
+#include "rtapi_math.h"		// floor()
 #include "linklist.hh"          // LinkedList
 #include "physmem.hh"           // PHYSMEM_HANDLE
 
@@ -95,7 +95,7 @@ void CMS::setup_diag_proc_info()
     if (!cmsdiag_timebias_set) {
 	cmsdiag_timebias_set = 1;
 	time_t ttime = time(NULL);
-	cmsdiag_timebias = floor(etime() - ttime);
+	cmsdiag_timebias = rtapi_floor(etime() - ttime);
     }
 }
 

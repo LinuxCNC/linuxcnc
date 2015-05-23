@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
@@ -846,14 +846,14 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
     if(block->radius_flag)
         radius = block->radius;
     else
-        radius = hypot(settings->current_y, settings->current_x);
+        radius = rtapi_hypot(settings->current_y, settings->current_x);
     if(block->theta_flag)
         theta = D2R(block->theta);
     else
-        theta = atan2(settings->current_y, settings->current_x);
+        theta = rtapi_atan2(settings->current_y, settings->current_x);
     if(block->radius_flag || block->theta_flag) {
-        aa = radius * cos(theta);
-        bb = radius * sin(theta);
+        aa = radius * rtapi_cos(theta);
+        bb = radius * rtapi_sin(theta);
     } else {
         aa = block->x_flag ? block->x_number : settings->current_x;
         bb = block->y_flag ? block->y_number : settings->current_y;

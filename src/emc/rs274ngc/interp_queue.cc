@@ -12,7 +12,7 @@
 #include <boost/python.hpp>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
@@ -573,12 +573,12 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
         switch(q.type) {
         case QARC_FEED:
             double r1, r2, l1, l2;
-            r1 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
+            r1 = rtapi_hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
                        q.data.arc_feed.end2 - q.data.arc_feed.center2);
             l1 = q.data.arc_feed.original_turns;
             q.data.arc_feed.end1 = x;
             q.data.arc_feed.end2 = y;
-            r2 = hypot(x - q.data.arc_feed.center1,
+            r2 = rtapi_hypot(x - q.data.arc_feed.center1,
                        y - q.data.arc_feed.center2);
             l2 = find_turn(endpoint[0], endpoint[1],
                            q.data.arc_feed.center1, q.data.arc_feed.center2,
@@ -586,9 +586,9 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                            x, y);
             if(debug_qc) printf("moving endpoint of arc lineno %d old sweep %f new sweep %f\n", q.data.arc_feed.line_number, l1, l2);
 
-            if(fabs(r1-r2) > .01) 
+            if(rtapi_fabs(r1-r2) > .01) 
                 ERS(_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2);
-            if(l1 && endpoint_valid && fabs(l2) > fabs(l1) + (settings->length_units == CANON_UNITS_MM? .0254 : .001)) {
+            if(l1 && endpoint_valid && rtapi_fabs(l2) > rtapi_fabs(l1) + (settings->length_units == CANON_UNITS_MM? .0254 : .001)) {
                 ERS(_("Arc move in concave corner cannot be reached by the tool without gouging"));
             }
             q.data.arc_feed.end1 = x;
@@ -613,7 +613,10 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             }
             
             dot = x1 * x2 + y1 * y2; // not normalized; we only care about the angle
-            if(debug_qc) printf("moving endpoint of traverse old dir %f new dir %f dot %f endpoint_valid %d\n", atan2(y1,x1), atan2(y2,x2), dot, endpoint_valid);
+            if(debug_qc)
+                printf("moving endpoint of traverse old dir %f new dir %f dot %f endpoint_valid %d\n",
+                       rtapi_atan2(y1,x1), rtapi_atan2(y2,x2),
+                       dot, endpoint_valid);
 
             if(endpoint_valid && dot<0) {
                 // oops, the move is the wrong way.  this means the
@@ -652,7 +655,10 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             }
 
             dot = x1 * x2 + y1 * y2;
-            if(debug_qc) printf("moving endpoint of feed old dir %f new dir %f dot %f endpoint_valid %d\n", atan2(y1,x1), atan2(y2,x2), dot, endpoint_valid);
+            if(debug_qc)
+                printf("moving endpoint of feed old dir %f new dir %f dot %f endpoint_valid %d\n",
+                       rtapi_atan2(y1,x1), rtapi_atan2(y2,x2),
+                       dot, endpoint_valid);
 
             if(endpoint_valid && dot<0) {
                 // oops, the move is the wrong way.  this means the

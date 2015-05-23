@@ -15,19 +15,19 @@ license "GPL";
 function _;
 
 ;;
-#include <rtapi_math.h>
+#include "rtapi_math.h"
 
 
 FUNCTION(_) {
    double old_position = position_fb;
    double new_position = position_fb + velocity_cmd * fperiod * scale;
 
-   if(index_enable && (floor(old_position) != floor(new_position))) {
+   if(index_enable && (rtapi_floor(old_position) != rtapi_floor(new_position))) {
        index_enable = false;
        if(velocity_cmd < 0)
-           new_position = new_position - ceil(new_position);
+           new_position = new_position - rtapi_ceil(new_position);
        else
-           new_position = new_position - floor(new_position);
+           new_position = new_position - rtapi_floor(new_position);
    }
    position_fb = new_position;
 }

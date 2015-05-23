@@ -73,7 +73,7 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 #include <float.h>
-#include <rtapi_math.h>
+#include "rtapi_math.h"
 #include <rtapi_string.h>
 
 /* module information */
@@ -257,11 +257,11 @@ static void calc_siggen(void *arg, long period)
     /* tmp1 is angle in radians */
     tmp1 = siggen->index * (2.0 * 3.1415927);
     /* get sine, apply scaling and offset, and write to output */
-    *(siggen->sine) = (sin(tmp1) * *(siggen->amplitude)) + *(siggen->offset);
+    *(siggen->sine) = (rtapi_sin(tmp1) * *(siggen->amplitude)) + *(siggen->offset);
 
     /* generate the cosine wave output */
     /* get cosine, apply scaling and offset, and write to output */
-    *(siggen->cosine) = (cos(tmp1) * *(siggen->amplitude)) + *(siggen->offset);
+    *(siggen->cosine) = (rtapi_cos(tmp1) * *(siggen->amplitude)) + *(siggen->offset);
     /* done */
 }
 

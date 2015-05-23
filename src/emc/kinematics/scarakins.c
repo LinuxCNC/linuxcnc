@@ -89,7 +89,7 @@ int kinematicsForward(const double * joint,
     double a0, a1, a3;
     double x, y, z, c;
 
-/* convert joint angles to radians for sin() and cos() */
+/* convert joint angles to radians for rtapi_sin() and rtapi_cos() */
 
     a0 = joint[0] * ( PM_PI / 180 );
     a1 = joint[1] * ( PM_PI / 180 );
@@ -99,8 +99,8 @@ int kinematicsForward(const double * joint,
     a1 = a1 + a0;
     a3 = a3 + a1;
 
-    x = D2*cos(a0) + D4*cos(a1) + D6*cos(a3);
-    y = D2*sin(a0) + D4*sin(a1) + D6*sin(a3);
+    x = D2*rtapi_cos(a0) + D4*rtapi_cos(a1) + D6*rtapi_cos(a3);
+    y = D2*rtapi_sin(a0) + D4*rtapi_sin(a1) + D6*rtapi_sin(a3);
     z = D1 + D3 - joint[2] - D5;
     c = a3;
 	
@@ -138,8 +138,8 @@ int kinematicsInverse(const EmcPose * world,
     a3 = c * ( PM_PI / 180 );
 
     /* center of end effector (correct for D6) */
-    xt = x - D6*cos(a3);
-    yt = y - D6*sin(a3);
+    xt = x - D6*rtapi_cos(a3);
+    yt = y - D6*rtapi_sin(a3);
 
     /* horizontal distance (squared) from end effector centerline
 	to main column centerline */
@@ -148,20 +148,20 @@ int kinematicsInverse(const EmcPose * world,
     cc = (rsq - D2*D2 - D4*D4) / (2*D2*D4);
     if(cc < -1) cc = -1;
     if(cc > 1) cc = 1;
-    q1 = acos(cc);
+    q1 = rtapi_acos(cc);
 
     if (*iflags)
 	q1 = -q1;
 
     /* angle to end effector */
-    q0 = atan2(yt, xt);
+    q0 = rtapi_atan2(yt, xt);
 
     /* end effector coords in inner arm coord system */
-    xt = D2 + D4*cos(q1);
-    yt = D4*sin(q1);
+    xt = D2 + D4*rtapi_cos(q1);
+    yt = D4*rtapi_sin(q1);
 
     /* inner arm angle */
-    q0 = q0 - atan2(yt, xt);
+    q0 = q0 - rtapi_atan2(yt, xt);
 
     /* q0 and q1 are still in radians. convert them to degrees */
     q0 = q0 * (180 / PM_PI);

@@ -222,7 +222,7 @@ static int emcWaitCommandComplete(int serial_number, RCS_STAT_CHANNEL *s, double
                 return s->get_address()->status;
            }
         }
-        esleep(fmin(timeout - (now - start), EMC_COMMAND_DELAY));
+        esleep(rtapi_fmin(timeout - (now - start), EMC_COMMAND_DELAY));
     } while (etime() - start < timeout);
     return -1;
 }
@@ -1541,7 +1541,7 @@ static PyTypeObject Error_Type = {
 
 static void rotate_z(double pt[3], double a) {
     double theta = a * M_PI / 180;
-    double c = cos(theta), s = sin(theta);
+    double c = cos(theta), s = rtapi_sin(theta);
     double tx, ty;
     tx = pt[0] * c - pt[1] * s;
     ty = pt[0] * s + pt[1] * c;
@@ -1551,7 +1551,7 @@ static void rotate_z(double pt[3], double a) {
 
 static void rotate_y(double pt[3], double a) {
     double theta = a * M_PI / 180;
-    double c = cos(theta), s = sin(theta);
+    double c = cos(theta), s = rtapi_sin(theta);
     double tx, tz;
     tx = pt[0] * c - pt[2] * s;
     tz = pt[0] * s + pt[2] * c;
@@ -1561,7 +1561,7 @@ static void rotate_y(double pt[3], double a) {
 
 static void rotate_x(double pt[3], double a) {
     double theta = a * M_PI / 180;
-    double c = cos(theta), s = sin(theta);
+    double c = cos(theta), s = rtapi_sin(theta);
     double tx, tz;
     tx = pt[1] * c - pt[2] * s;
     tz = pt[1] * s + pt[2] * c;
@@ -1610,10 +1610,10 @@ static void glvertex9(const double pt[9], const char *geometry) {
 static void line9(const double p1[9], const double p2[9], const char *geometry) {
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
         double dc = max3(
-            fabs(p2[3] - p1[3]),
-            fabs(p2[4] - p1[4]),
-            fabs(p2[5] - p1[5]));
-        int st = (int)ceil(max(10, dc/10));
+            rtapi_fabs(p2[3] - p1[3]),
+            rtapi_fabs(p2[4] - p1[4]),
+            rtapi_fabs(p2[5] - p1[5]));
+        int st = (int)rtapi_ceil(max(10, dc/10));
         int i;
 
         for(i=1; i<=st; i++) {
@@ -1632,10 +1632,10 @@ static void line9b(const double p1[9], const double p2[9], const char *geometry)
     glvertex9(p1, geometry);
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
         double dc = max3(
-            fabs(p2[3] - p1[3]),
-            fabs(p2[4] - p1[4]),
-            fabs(p2[5] - p1[5]));
-        int st = (int)ceil(max(10, dc/10));
+            rtapi_fabs(p2[3] - p1[3]),
+            rtapi_fabs(p2[4] - p1[4]),
+            rtapi_fabs(p2[5] - p1[5]));
+        int st = (int)rtapi_ceil(max(10, dc/10));
         int i;
 
         for(i=1; i<=st; i++) {
@@ -1842,11 +1842,11 @@ static inline bool colinear(float xa, float ya, float za, float xb, float yb, fl
     double dx1 = xa-xb, dx2 = xb-xc;
     double dy1 = ya-yb, dy2 = yb-yc;
     double dz1 = za-zb, dz2 = zb-zc;
-    double dp = sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
-    double dq = sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
-    if( fabs(dp) < tiny || fabs(dq) < tiny ) return true;
+    double dp = rtapi_sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
+    double dq = rtapi_sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
+    if( rtapi_fabs(dp) < tiny || rtapi_fabs(dq) < tiny ) return true;
     double dot = (dx1*dx2 + dy1*dy2 + dz1*dz2) / dp / dq;
-    if( fabs(1-dot) < epsilon) return true;
+    if( rtapi_fabs(1-dot) < epsilon) return true;
     return false;
 }
 

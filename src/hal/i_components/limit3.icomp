@@ -77,7 +77,7 @@ FUNCTION(_)
 	dv = -2.0 * ramp_a * dt;
 	dp = dv * match_time;
 	/* decide what to do */
-	if ( fabs(err+dp*2.0) < fabs(err) ) {
+	if ( rtapi_fabs(err+dp*2.0) < rtapi_fabs(err) ) {
 	    ramp_a = -ramp_a;
 	}
 	if ( ramp_a < 0.0 ) {

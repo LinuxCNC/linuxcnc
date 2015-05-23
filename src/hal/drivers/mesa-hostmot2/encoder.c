@@ -931,7 +931,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 if (dT_clocks > 0) {
                     // we know the encoder velocity is not faster than this
                     vel = dS_pos_units / dT_s;
-                    if (fabs(vel) < fabs(*e->hal.pin.velocity)) {
+                    if (rtapi_fabs(vel) < rtapi_fabs(*e->hal.pin.velocity)) {
                         *e->hal.pin.velocity = vel;
                     }
                 }

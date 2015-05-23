@@ -79,7 +79,7 @@ void hpg_pwmgen_handle_pwm_period(hal_pru_generic_t *hpg, int i) {
         hpg->pwmgen.instance[i].pru.period = pwm_pru_periods - 1;
     } else {
         // prescale required
-        hpg->pwmgen.instance[i].pru.prescale = ceil((double) pwm_pru_periods / 65535.0);
+        hpg->pwmgen.instance[i].pru.prescale = rtapi_ceil((double) pwm_pru_periods / 65535.0);
         hpg->pwmgen.instance[i].pru.period = (pwm_pru_periods / hpg->pwmgen.instance[i].pru.prescale) - 1;
     }
 }
@@ -208,7 +208,7 @@ void hpg_pwmgen_update(hal_pru_generic_t *hpg) {
 
             scaled_value = *hpg->pwmgen.instance[i].out[j].hal.pin.value / *(hpg->pwmgen.instance[i].out[j].hal.pin.scale);
 
-            abs_duty_cycle = fabs(scaled_value);
+            abs_duty_cycle = rtapi_fabs(scaled_value);
             if (abs_duty_cycle > 1.0) abs_duty_cycle = 1.0;
 
             // duty_cycle goes from 0.0 to 1.0, and needs to be cover the range of 0 to pwm_period, inclusive

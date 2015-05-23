@@ -33,11 +33,12 @@
 // user must include a math.h-type header first
 // Inspired by Marlin delta firmware and https://gist.github.com/kastner/5279172
 #include "emcpos.h"
+#include "rtapi_math.h"
 
 static double L, R, J0off, J1off, J2off;
 static double Ax, Ay, Bx, By, Cx, Cy, L2;
 
-#define SQ3    (sqrt(3))
+#define SQ3    (rtapi_sqrt(3))
 
 #define SIN_60 (SQ3/2)
 #define COS_60 (.5)
@@ -70,9 +71,9 @@ static void set_geometry(double r_, double l_, double j0off_, double j1off_, dou
 static int kinematics_inverse(const EmcPose *pos, double *joints)
 {
     double x = pos->tran.x, y = pos->tran.y, z = pos->tran.z;
-    joints[0] = (z + sqrt(L2 - sq(Ax-x) - sq(Ay-y))) + J0off;
-    joints[1] = (z + sqrt(L2 - sq(Bx-x) - sq(By-y))) + J1off;
-    joints[2] = (z + sqrt(L2 - sq(Cx-x) - sq(Cy-y))) + J2off;
+    joints[0] = (z + rtapi_sqrt(L2 - sq(Ax-x) - sq(Ay-y))) + J0off;
+    joints[1] = (z + rtapi_sqrt(L2 - sq(Bx-x) - sq(By-y))) + J1off;
+    joints[2] = (z + rtapi_sqrt(L2 - sq(Cx-x) - sq(Cy-y))) + J2off;
     joints[3] = pos->a;
     joints[4] = pos->b;
     joints[5] = pos->c;
@@ -80,7 +81,7 @@ static int kinematics_inverse(const EmcPose *pos, double *joints)
     joints[7] = pos->v;
     joints[8] = pos->w;
 
-    return isnan(joints[0]) || isnan(joints[1]) || isnan(joints[2])
+    return rtapi_isnan(joints[0]) || rtapi_isnan(joints[1]) || rtapi_isnan(joints[2])
 	? -1 : 0;
 }
 
@@ -110,7 +111,7 @@ static int kinematics_forward(const double *joints, EmcPose *pos)
     double discr = b*b - 4.0*a*c;
     if (discr < 0) return -1; // non-existing point
 
-    double z = -0.5*(b+sqrt(discr))/a;
+    double z = -0.5*(b+rtapi_sqrt(discr))/a;
     pos->tran.z = z;
     pos->tran.x = (a1*z + b1)/den;
     pos->tran.y = (a2*z + b2)/den;

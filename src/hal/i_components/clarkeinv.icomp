@@ -13,7 +13,7 @@ pin out float c "three phase output vector";
 function _;
 license "GPL";
 ;;
-#include <rtapi_math.h>
+#include "rtapi_math.h"
 
 /* for the details, google "clarke transform", or see section 3 of
    http://focus.ti.com/lit/an/bpra048/bpra048.pdf and/or appendix B of
@@ -31,8 +31,8 @@ FUNCTION(_)
 
     // rotate it
     rads = theta * rev2rad;
-    costheta = cos(rads);
-    sintheta = sin(rads);
+    costheta = rtapi_cos(rads);
+    sintheta = rtapi_sin(rads);
     xr = x * costheta - y * sintheta;
     yr = x * sintheta + y * costheta;
 

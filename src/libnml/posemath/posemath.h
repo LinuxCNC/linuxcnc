@@ -684,7 +684,7 @@ extern "C" {
 
 /* quicky macros */
 
-#define pmClose(a, b, eps) ((fabs((a) - (b)) < (eps)) ? 1 : 0)
+#define pmClose(a, b, eps) ((rtapi_fabs((a) - (b)) < (eps)) ? 1 : 0)
 #define pmSq(x) ((x)*(x))
 
 #ifdef TO_DEG
