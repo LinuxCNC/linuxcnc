@@ -47,7 +47,7 @@ void __xeno_math_exit(void)
 
 #if 0
 double __ieee754_pow(double x, double y);
-double pow(double x, double y)
+double rtapi_pow(double x, double y)
 {
     return  __ieee754_pow(x,y);
 }
@@ -57,20 +57,25 @@ double pow(double x, double y)
 module_init(__xeno_math_init);
 module_exit(__xeno_math_exit);
 
-EXPORT_SYMBOL(sin);
-EXPORT_SYMBOL(cos);
-EXPORT_SYMBOL(tan);
-EXPORT_SYMBOL(sqrt);
-EXPORT_SYMBOL(fabs);
-EXPORT_SYMBOL(atan);
-EXPORT_SYMBOL(atan2);
-EXPORT_SYMBOL(asin);
-EXPORT_SYMBOL(acos);
-EXPORT_SYMBOL(pow);
+EXPORT_SYMBOL(rtapi_sin);
+EXPORT_SYMBOL(rtapi_cos);
+EXPORT_SYMBOL(rtapi_tan);
+EXPORT_SYMBOL(rtapi_sqrt);
+EXPORT_SYMBOL(rtapi_fabs);
+EXPORT_SYMBOL(rtapi_atan);
+EXPORT_SYMBOL(rtapi_atan2);
+EXPORT_SYMBOL(rtapi_asin);
+EXPORT_SYMBOL(rtapi_acos);
+EXPORT_SYMBOL(rtapi_pow);
+EXPORT_SYMBOL(rtapi_fmin);
+EXPORT_SYMBOL(rtapi_fmax);
+EXPORT_SYMBOL(rtapi_fmod);
+EXPORT_SYMBOL(rtapi_hypot);
+EXPORT_SYMBOL(rtapi_rint);
 
-EXPORT_SYMBOL(ceil);
-EXPORT_SYMBOL(floor);
-EXPORT_SYMBOL(cbrt);
+EXPORT_SYMBOL(rtapi_ceil);
+EXPORT_SYMBOL(rtapi_floor);
+EXPORT_SYMBOL(rtapi_cbrt);
 
 
 EXPORT_SYMBOL(__powidf2);
