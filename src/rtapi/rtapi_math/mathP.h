@@ -17,7 +17,11 @@
 #ifndef _MATH_PRIVATE_H_
 #define _MATH_PRIVATE_H_
 
+#if defined(BUILD_SYS_KBUILD)
+#include <linux/types.h>
+#else
 #include <sys/types.h>
+#endif
 #include "rtapi_byteorder.h"
 
 int libm_errno;
