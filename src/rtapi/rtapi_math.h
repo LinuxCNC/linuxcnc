@@ -42,6 +42,7 @@ extern double rtapi_rint(double);
 
 extern double rtapi_ceil(double);
 extern double rtapi_floor(double);
+extern double rtapi_cbrt(double);
 
 #ifdef __cplusplus
 }
