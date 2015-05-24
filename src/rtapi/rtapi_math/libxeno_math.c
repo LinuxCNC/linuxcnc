@@ -28,6 +28,7 @@
 
 _LIB_VERSION_TYPE _LIB_VERSION = _IEEE_;
 
+int libm_errno;
 
 MODULE_LICENSE("GPL");
 

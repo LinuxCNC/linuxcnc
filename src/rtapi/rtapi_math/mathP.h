@@ -24,8 +24,6 @@
 #endif
 #include "rtapi_byteorder.h"
 
-int libm_errno;
-
 #define __P(args) args
 
 /* Support for various different standard error handling behaviors.  */
