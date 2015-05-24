@@ -20,7 +20,6 @@ static char rcsid[] = "$NetBSD: k_standard.c,v 1.6 1995/05/10 20:46:35 jtc Exp $
 extern int libm_errno;
 
 #if defined(BUILD_SYS_KBUILD)
-#include <linux/errno.h>
 #include <linux/kernel.h>
 #define	WRITE2(u,v) printk("%.*s",v,u)
 #else

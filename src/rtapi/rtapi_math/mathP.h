@@ -61,12 +61,7 @@ struct exception  {
    to change the hardware FPU exception settings).  */
 extern _LIB_VERSION_TYPE _LIB_VERSION;
 
-extern double rtapi_scalbn (double x, int n);
-extern int rtapi_finite(double x);
-extern double rtapi_copysign(double x, double y);
 extern double __kernel_standard(double x, double y, int type);
-extern double rtapi_rint(double x);
-extern double rtapi_cbrt(double x);
 
 /* The original fdlibm code used statements like:
 	n0 = ((*(int*)&one)>>29)^1;		* index of high word *

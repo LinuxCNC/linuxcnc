@@ -73,6 +73,9 @@ EXPORT_SYMBOL(rtapi_fmax);
 EXPORT_SYMBOL(rtapi_fmod);
 EXPORT_SYMBOL(rtapi_hypot);
 EXPORT_SYMBOL(rtapi_rint);
+EXPORT_SYMBOL(rtapi_scalbn);
+EXPORT_SYMBOL(rtapi_finite);
+EXPORT_SYMBOL(rtapi_copysign);
 
 EXPORT_SYMBOL(rtapi_ceil);
 EXPORT_SYMBOL(rtapi_floor);

@@ -16,13 +16,16 @@
 #ifndef RTAPI_MATH_H
 #define RTAPI_MATH_H
 
-#include "rtapi.h"  /* Because of all the rtapi refs */
+#include "rtapi_byteorder.h"  /* Using the bytorder to specify the ieee types */
+#include "rtapi_errno.h" /* Using the error codes */
 #include <float.h>  /* DBL_MAX and other FP goodies */
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+extern int libm_errno;
 
 extern double rtapi_sin(double);
 extern double rtapi_cos(double);
@@ -39,6 +42,9 @@ extern double rtapi_fmax(double, double);
 extern double rtapi_fmod(double, double);
 extern double rtapi_hypot(double, double);
 extern double rtapi_rint(double);
+extern double rtapi_scalbn(double, int);
+extern int rtapi_finite(double);
+extern double rtapi_copysign(double, double);
 
 extern double rtapi_ceil(double);
 extern double rtapi_floor(double);
