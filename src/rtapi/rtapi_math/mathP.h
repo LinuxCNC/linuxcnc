@@ -17,7 +17,7 @@
 #ifndef _MATH_PRIVATE_H_
 #define _MATH_PRIVATE_H_
 
-#if defined(BUILD_SYS_KBUILD)
+#ifdef MODULE
 #include <linux/types.h>
 #else
 #include <sys/types.h>
