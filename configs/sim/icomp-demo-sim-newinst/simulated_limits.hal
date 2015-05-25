@@ -1,0 +1,85 @@
+# HAL config file to simulate limit switches using window comparators
+#
+# first install nine comparators
+# loadrt wcomp names=wcomp_xmin,wcomp_xmax,wcomp_xhome,wcomp_ymin,wcomp_ymax,wcomp_yhome,wcomp_zmin,wcomp_zmax,wcomp_zhome
+newinst i_wcomp wcomp_xmin
+newinst i_wcomp wcomp_xmax
+newinst i_wcomp wcomp_xhome
+newinst i_wcomp wcomp_ymin
+newinst i_wcomp wcomp_ymax
+newinst i_wcomp wcomp_yhome
+newinst i_wcomp wcomp_zmin
+newinst i_wcomp wcomp_zmax
+newinst i_wcomp wcomp_zhome
+
+
+# add comparators to servo thread so they will be evaluated
+# every servo period
+addf wcomp_xmin servo-thread
+addf wcomp_xmax servo-thread
+addf wcomp_xhome servo-thread
+addf wcomp_ymin servo-thread
+addf wcomp_ymax servo-thread
+addf wcomp_yhome servo-thread
+addf wcomp_zmin servo-thread
+addf wcomp_zmax servo-thread
+addf wcomp_zhome servo-thread
+
+# connect position feedback from step generators
+# to window comparators
+net Xpos-fb => wcomp_xmin.in
+net Xpos-fb => wcomp_xmax.in
+net Xpos-fb => wcomp_xhome.in
+net Ypos-fb => wcomp_ymin.in
+net Ypos-fb => wcomp_ymax.in
+net Ypos-fb => wcomp_yhome.in
+net Zpos-fb => wcomp_zmin.in
+net Zpos-fb => wcomp_zmax.in
+net Zpos-fb => wcomp_zhome.in
+
+# connect simulated switch outputs to motion controller
+net Xminlim wcomp_xmin.out => axis.0.neg-lim-sw-in
+net Xmaxlim wcomp_xmax.out => axis.0.pos-lim-sw-in
+net Xhome wcomp_xhome.out => axis.0.home-sw-in
+
+net Yminlim wcomp_ymin.out => axis.1.neg-lim-sw-in
+net Ymaxlim wcomp_ymax.out => axis.1.pos-lim-sw-in
+net Yhome wcomp_yhome.out => axis.1.home-sw-in
+
+net Zminlim wcomp_zmin.out => axis.2.neg-lim-sw-in
+net Zmaxlim wcomp_zmax.out => axis.2.pos-lim-sw-in
+net Zhome wcomp_zhome.out => axis.2.home-sw-in
+
+# configure the points at which the simulated switches trip
+# X axis first
+# set min limit switch to trip at -10.2, release at -1000
+setp wcomp_xmin.max -10.2
+setp wcomp_xmin.min -1000
+# set max limit switch to trip at +10.2, release at +10.21
+setp wcomp_xmax.min 10.20
+setp wcomp_xmax.max 10.21
+# set home switch to trip at 9.5 and release at 9.75
+setp wcomp_xhome.min 9.5
+setp wcomp_xhome.max 9.75
+
+# Y axis
+# set min limit switch to trip at -10.2, release at -1000
+setp wcomp_ymin.max -10.2
+setp wcomp_ymin.min -1000
+# set max limit switch to trip at +10.2, release at +10.21
+setp wcomp_ymax.min 10.20
+setp wcomp_ymax.max 10.21
+# set home switch to trip at 9.5 and release at 9.75
+setp wcomp_yhome.min 9.5
+setp wcomp_yhome.max 9.75
+
+# Z axis
+# set min limit switch to trip at -2.1, release at -1000
+setp wcomp_zmin.max -2.1
+setp wcomp_zmin.min -1000
+# set max limit switch to trip at +4.05,release at +5
+setp wcomp_zmax.min 4.05
+setp wcomp_zmax.max 5
+# set home switch to trip at 3.9 and release at 4.1
+setp wcomp_zhome.min 3.9
+setp wcomp_zhome.max 4.1

@@ -42,6 +42,9 @@
 #include "halcmd.h"
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#define MAX_ARGS 20 // max number of args to automatic instantiation by names
+
 extern int do_addf_cmd(char *funct, char *thread, char *tokens[]);
 extern int do_alias_cmd(char *pinparam, char *name, char *alias);
 extern int do_unalias_cmd(char *pinparam, char *name);
@@ -109,6 +112,9 @@ extern int do_callfunc_cmd(char *func, char *args[]);
 extern int do_newinst_cmd(char *comp, char *inst, char *args[]);
 extern int do_delinst_cmd(char *inst);
 
+extern bool module_loaded(char *mod_name);
+extern bool inst_name_exists(char *name);
+extern int get_tags(char *mod_name);
 
 // shutdown the RTAPI stack
 extern int do_shutdown_cmd(void);
@@ -123,4 +129,7 @@ pid_t hal_systemv_nowait(char *const argv[]);
 int hal_systemv(char *const argv[]);
 
 extern int scriptmode, comp_id;
+
+bool autoloading;
+
 #endif

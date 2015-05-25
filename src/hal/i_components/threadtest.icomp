@@ -1,0 +1,21 @@
+component threadtest "Machinekit HAL component for testing thread behavior";
+pin out unsigned count;
+function increment nofp;
+function reset nofp;
+license "GPL";
+
+;;
+
+FUNCTION(increment)
+{
+    count++;
+
+return 0;
+}
+
+FUNCTION(reset)
+{
+    count=0;
+
+return 0;
+}

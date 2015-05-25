@@ -11,6 +11,8 @@
  *                     <fenn AT users DOT sourceforge DOT net>
  *                     Stephen Wille Padnos
  *                     <swpadnos AT users DOT sourceforge DOT net>
+ *                     Mick Grant - instantiated component loading
+ *                     <arceye AT mgware DOT co DOT uk>
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of version 2 of the GNU General
@@ -39,6 +41,7 @@
 
 #include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_compat.h"
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"	/* private HAL decls */
 #include "hal_ring.h"	        /* ringbuffer declarations */
@@ -109,6 +112,8 @@ static void save_nets(FILE *dst, int arrows);
 static void save_params(FILE *dst);
 static void save_threads(FILE *dst);
 static void print_help_commands(void);
+
+static int inst_count(hal_comp_t *comp);
 
 static int tmatch(int req_type, int type) {
     return req_type == -1 || type == req_type;
@@ -189,24 +194,24 @@ int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
 	/* first pin not found*/
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("pin '%s' not found\n", first_pin_name);
-	return -EINVAL; 
+	return -EINVAL;
     } else if (second_pin == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("pin '%s' not found\n", second_pin_name);
-	return -EINVAL; 
+	return -EINVAL;
     }
-    
+
     /* give the mutex, as the other functions use their own mutex */
     rtapi_mutex_give(&(hal_data->mutex));
-    
-    /* check that both pins have the same type, 
+
+    /* check that both pins have the same type,
        don't want to create a sig, which after that won't be usefull */
     if (first_pin->type != second_pin->type) {
 	halcmd_error("pins '%s' and '%s' not of the same type\n",
                 first_pin_name, second_pin_name);
-	return -EINVAL; 
+	return -EINVAL;
     }
-	
+
     /* now create the signal */
     retval = hal_signal_new(first_pin_name, first_pin->type);
 
@@ -357,7 +362,7 @@ int do_alias_cmd(char *pinparam, char *name, char *alias) {
     } else {
         halcmd_error("alias failed\n");
     }
-    return retval;	
+    return retval;
 }
 
 int do_unalias_cmd(char *pinparam, char *name) {
@@ -375,7 +380,7 @@ int do_unalias_cmd(char *pinparam, char *name) {
     } else {
         halcmd_error("unalias failed\n");
     }
-    return retval;	
+    return retval;
 }
 int do_delf_cmd(char *func, char *thread) {
     int retval;
@@ -401,11 +406,11 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
 	bidirs = sig->bidirs;
     }
 
-    if(writers || bidirs) 
+    if(writers || bidirs)
     {
         hal_pin_t *pin;
         int next;
-        for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr) 
+        for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr)
         {
             pin = SHMPTR(next);
             if(SHMPTR(pin->signal) == sig && pin->dir == HAL_OUT)
@@ -699,7 +704,7 @@ int do_ptype_cmd(char *name)
     hal_param_t *param;
     hal_pin_t *pin;
     hal_type_t type;
-    
+
     rtapi_print_msg(RTAPI_MSG_DBG, "getting parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -712,7 +717,7 @@ int do_ptype_cmd(char *name)
         rtapi_mutex_give(&(hal_data->mutex));
         return 0;
     }
-        
+
     /* not found, search pin list for name */
     pin = halpr_find_pin_by_name(name);
     if(pin) {
@@ -721,8 +726,8 @@ int do_ptype_cmd(char *name)
         halcmd_output("%s\n", data_type2(type));
         rtapi_mutex_give(&(hal_data->mutex));
         return 0;
-    }   
-    
+    }
+
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_error("parameter '%s' not found\n", name);
     return -EINVAL;
@@ -736,7 +741,7 @@ int do_getp_cmd(char *name)
     hal_sig_t *sig;
     hal_type_t type;
     void *d_ptr;
-    
+
     rtapi_print_msg(RTAPI_MSG_DBG, "getting parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -750,7 +755,7 @@ int do_getp_cmd(char *name)
         rtapi_mutex_give(&(hal_data->mutex));
         return 0;
     }
-        
+
     /* not found, search pin list for name */
     pin = halpr_find_pin_by_name(name);
     if(pin) {
@@ -766,8 +771,8 @@ int do_getp_cmd(char *name)
         halcmd_output("%s\n", data_value2((int) type, d_ptr));
         rtapi_mutex_give(&(hal_data->mutex));
         return 0;
-    }   
-    
+    }
+
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_error("parameter '%s' not found\n", name);
     return -EINVAL;
@@ -885,7 +890,7 @@ int do_log_cmd(char *type, char *level)
     int ivalue;
 
     if (type == NULL) {
-	halcmd_output("RTAPI message level:  RT:%d User:%d\n", 
+	halcmd_output("RTAPI message level:  RT:%d User:%d\n",
 		  global_data->rt_msg_level, global_data->user_msg_level);
 	return 0;
     }
@@ -899,7 +904,7 @@ int do_log_cmd(char *type, char *level)
 	    return -EINVAL;
 	}
 	return 0;
-    } 
+    }
     ivalue = strtol(level, &lp, 0);
     if ((*lp != '\0') && (!isspace(*lp))) {
 	/* invalid chars in string */
@@ -1098,17 +1103,79 @@ int do_autoload_cmd(char *what)
     return 0;
 }
 
-int do_loadrt_cmd(char *mod_name, char *args[])
-{
-    char arg_string[MAX_CMD_LEN+1];
-    int  n=0, retval;
-    hal_comp_t *comp;
-    char *cp1;
+//////////////////////////////////////////////////////////////////////////////
+// helper functions to check if base module is loaded and what instances exist
 
-    if (hal_get_lock()&HAL_LOCK_LOAD) {
-	halcmd_error("HAL is locked, loading of modules is not permitted\n");
-	return -EPERM;
+
+bool module_loaded(char *mod_name)
+{
+    CHECK_HALDATA();
+    CHECK_STR(mod_name);
+    {
+	WITH_HAL_MUTEX();
+        hal_comp_t *comp = halpr_find_comp_by_name(mod_name);
+        return (comp != NULL);
     }
+}
+
+
+bool inst_name_exists(char *name)
+{
+    CHECK_HALDATA();
+    CHECK_STR(name);
+    {
+	WITH_HAL_MUTEX();
+
+	hal_inst_t *ins  = halpr_find_inst_by_name(name);
+	return (ins != NULL);
+    }
+}
+
+
+int get_tags(char *mod_name)
+{
+    char modpath[PATH_MAX];
+    int result = 0, n = 0;
+    char *cp1 = "";
+
+    flavor_ptr flavor = flavor_byid(global_data->rtapi_thread_flavor);
+
+    if (kernel_threads(flavor)) {
+	if (module_path(modpath, mod_name) < 0) {
+	    halcmd_error("cant determine module_path for %s ?\n", mod_name);
+	    return -1;
+	}
+    } else {
+	if (get_rtapi_config(modpath,"RTLIB_DIR",PATH_MAX) != 0) {
+	    halcmd_error("cant get  RTLIB_DIR ?\n");
+	    return -1;
+	}
+	strcat(modpath,"/");
+	strcat(modpath, flavor->name);
+	strcat(modpath,"/");
+	strcat(modpath,mod_name);
+	strcat(modpath, flavor->mod_ext);
+    }
+    const char **caps = get_caps(modpath);
+
+    char **p = (char **)caps;
+    while (p && *p && strlen(*p)) {
+	cp1 = *p++;
+	if (strncmp(cp1,"HAL=", 4) == 0) {
+	    n = strtol(&cp1[4], NULL, 10);
+	    result |=  n ;
+	}
+    }
+    free(caps);
+    return result;
+}
+
+
+int loadrt(char *mod_name, char *args[])
+{
+    char *cp1;
+    int n, retval;
+    char arg_string[MAX_CMD_LEN+1];
 
     retval = rtapi_loadrt(rtapi_instance, mod_name, (const char **)args);
     if ( retval != 0 ) {
@@ -1117,37 +1184,177 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 		     retval, rtapi_rpcerror(), logpath);
 	return -1;
     }
-    /* make the args that were passed to the module into a single string */
+
+    // make the args that were passed to the module into a single string
     n = 0;
     arg_string[0] = '\0';
     while ( args[n] && args[n][0] != '\0' ) {
 	strncat(arg_string, args[n++], MAX_CMD_LEN);
 	strncat(arg_string, " ", MAX_CMD_LEN);
     }
-    /* allocate HAL shmem for the string */
+    // allocate HAL shmem for the string
     cp1 = hal_malloc(strlen(arg_string)+1);
     if ( cp1 == NULL ) {
 	halcmd_error("failed to allocate memory for module args\n");
 	return -1;
     }
-    /* copy string to shmem */
+    // copy string to shmem
     strcpy (cp1, arg_string);
-    /* get mutex before accessing shared data */
-    rtapi_mutex_get(&(hal_data->mutex));
-    /* search component list for the newly loaded component */
-    comp = halpr_find_comp_by_name(mod_name);
-    if (comp == 0) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	halcmd_error("module '%s' not loaded\n", mod_name);
-	return -EINVAL;
+    {
+	WITH_HAL_MUTEX();
+
+	// search component list for the newly loaded component
+	hal_comp_t *comp = halpr_find_comp_by_name(mod_name);
+	if (comp == NULL) {
+	    halcmd_error("module '%s' not loaded\n", mod_name);
+	    return -EINVAL;
+        }
+	// link args to comp struct
+	comp->insmod_args = SHMOFF(cp1);
     }
-    /* link args to comp struct */
-    comp->insmod_args = SHMOFF(cp1);
-    rtapi_mutex_give(&(hal_data->mutex));
-    /* print success message */
+    // print success message
     halcmd_info("Realtime module '%s' loaded\n", mod_name);
     return 0;
 }
+
+
+
+
+int do_loadrt_cmd(char *mod_name, char *args[])
+{
+    char arg_string[MAX_CMD_LEN+1];
+    char arg_section[MAX_CMD_LEN+1];
+    char buff[MAX_CMD_LEN+1];
+    int  n = 0, x = 0, w = 0, p = 0, retval;
+    bool instantiable = false, singleton = false;
+    char *cp1, *cp2;
+    char *argv[] = { NULL};
+    // MAX_ARGS defined in halcmd_commands.h - currently 20
+    char *list[MAX_ARGS] = {"\0",};
+    int list_index = 0;
+
+    if (hal_get_lock() & HAL_LOCK_LOAD) {
+	halcmd_error("HAL is locked, loading of modules is not permitted\n");
+	return -EPERM;
+    }
+
+    retval = get_tags(mod_name);
+    if(retval == -1) {
+	halcmd_error("Error in module tags search");
+	return retval;
+    }  else {
+	if((retval & HC_INSTANTIABLE) == HC_INSTANTIABLE )
+	    instantiable = true;
+	// extra test for other tags below
+	if((retval & HC_SINGLETON) == HC_SINGLETON)
+	    singleton = true;
+    }
+    // if new component and not a call from do_newinst_cmd()
+    if (instantiable && !autoloading) {
+	// we only process arg[0]
+	if (args[0] != NULL && strlen(args[0])) {
+	    strcpy(arg_string, args[0]);
+	    //// count=N  ////////////////
+	    if ((strncmp(arg_string, "count=", 6) == 0) && !singleton) {
+		strcpy(arg_section, &arg_string[6]);
+		n = strtol(arg_section, &cp1, 10);
+		if (n > 0) {
+		    // check if already loaded, if not load it
+		    if (!module_loaded(mod_name)) {
+			if((retval = (loadrt(mod_name, argv))) )
+			    return retval;
+		    }
+		    for(int y = 0, v = 0; y < n; y++ , v++) {
+			sprintf(buff, "%s.%d", mod_name, v);
+			while(inst_name_exists(buff))
+			    sprintf(buff, "%s.%d", mod_name, ++v);
+			retval = do_newinst_cmd(mod_name, buff, argv);
+			if ( retval != 0 )
+			    return retval;
+		    }
+		} else {
+		    halcmd_error("Invalid value to count= parameter\n");
+		    return -1;
+		}
+	    }
+	    //// names="..."  ////////////////
+	    else if ((strncmp(arg_string, "names=", 6) == 0) && !singleton) {
+		strcpy(arg_section, &arg_string[6]);
+		cp1 = strtok(arg_section, ",");
+		list_index = 0;
+		while( cp1 != NULL ) {
+		    cp2 = (char *) malloc(strlen(cp1) + 1);
+		    strcpy(cp2, cp1);
+		    list[list_index++] = cp2;
+		    cp1 = strtok(NULL, ",");
+		}
+		if (list_index) {
+		    if (!module_loaded(mod_name)) {
+			if ((retval = (loadrt(mod_name, argv)))) {
+			    for(p = 0; p < list_index; p++)
+				free(list[p]);
+			    return retval;
+			}
+		    }
+		    for (w = 0; w < list_index; w++) {
+			if (inst_name_exists(list[w])) {
+			    halcmd_error("\nA named instance '%s' already exists\n", list[w]);
+			    for( p = 0; p < list_index; p++)
+				free(list[p]);
+			    return -1;
+			}
+			retval = do_newinst_cmd(mod_name, list[w], argv);
+			if ( retval != 0 ) {
+			    for( p = 0; p < list_index; p++)
+				free(list[p]);
+			    return retval;
+			}
+		    }
+		    for(p = 0; p < list_index; p++)
+			free(list[p]);
+		}
+	    } else {
+		// invalid parameter
+		halcmd_error("\nInvalid argument '%s' to instantiated component\n"
+			     "NB. Use of personality or cfg is deprecated\n"
+			     "Singleton components cannot have multiple instances\n\n", args[x]);
+		return -1;
+	    }
+	} else {
+	    //// no args so equates to count=1
+	    // if no args just create a single instance with default number 0, unless singleton.
+	    if (!module_loaded(mod_name)) {
+		if((retval = (loadrt(mod_name, argv))) )
+		    return retval;
+	    }
+	    w = 0;
+	    if (singleton) {
+		sprintf(buff, "%s", mod_name);
+		hal_comp_t *existing_comp = halpr_find_comp_by_name(mod_name);
+		if (inst_name_exists(buff) || inst_count(existing_comp)) {
+		    halcmd_error("\nError singleton component '%s' already exists\n", buff);
+		    return -1;
+		}
+	    } else {
+		sprintf(buff, "%s.%d", mod_name, w);
+		while(inst_name_exists(buff))
+		    sprintf(buff, "%s.%d", mod_name, ++w);
+	    }
+	    retval = do_newinst_cmd(mod_name, buff, argv);
+	    if ( retval != 0 ) {
+		halcmd_error("rc=%d\n%s", retval, rtapi_rpcerror());
+		return retval;
+	    }
+	}
+    } else {
+	/////////////////////  legacy components  /////////////////////////////////////////////////////
+        return( retval = loadrt(mod_name, args) );
+    }
+    autoloading = false;
+    return 0;
+}
+
+
 
 int do_delsig_cmd(char *mod_name)
 {
@@ -1578,7 +1785,7 @@ int do_waitusr_cmd(char *arg1, char *arg2)
 	flag = arg1;
     }
     if (flag) {
-	if (!strcmp(flag, "-i")) 
+	if (!strcmp(flag, "-i"))
 	    ignore = 1;
 	else {
 	    halcmd_error("invalid flag for waitusr: '%s'\n", flag);
@@ -1871,7 +2078,7 @@ static void print_pin_info(int type, char **patterns)
 			      pin_data_dir((int) pin->dir),
 			      data_value2((int) pin->type, dptr),
 			      pin->name);
-	    } 
+	    }
 	    if (sig == 0) {
 		halcmd_output("\n");
 	    } else {
@@ -2026,7 +2233,7 @@ static void print_param_info(int type, char **patterns)
 			      param_data_dir((int) param->dir),
 			      data_value2((int) param->type, SHMPTR(param->data_ptr)),
 			      param->name);
-	    } 
+	    }
 	}
 	next = param->next_ptr;
     }
@@ -2111,7 +2318,7 @@ static void print_funct_info(char **patterns)
 		    (long)fptr->funct.l,
 		    (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO"),
 		    fptr->users, fptr->name);
-	    } 
+	    }
 	}
 	next = fptr->next_ptr;
     }
@@ -2216,7 +2423,7 @@ static void print_thread_info(char **patterns)
 		/* print the function info */
 		fentry = (hal_funct_entry_t *) list_entry;
 		funct = SHMPTR(fentry->funct_ptr);
-		/* scriptmode only uses one line per thread, which contains: 
+		/* scriptmode only uses one line per thread, which contains:
 		   thread period, FP flag, name, then all functs separated by spaces  */
 		if (scriptmode == 0) {
 		    halcmd_output("                 %2d %s\n", n, funct->name);
@@ -2356,16 +2563,16 @@ static void print_lock_status()
 
     halcmd_output("HAL locking status:\n");
     halcmd_output("  current lock value %d (%02x)\n", lock, lock);
-    
-    if (lock == HAL_LOCK_NONE) 
+
+    if (lock == HAL_LOCK_NONE)
 	halcmd_output("  HAL_LOCK_NONE - nothing is locked\n");
-    if (lock & HAL_LOCK_LOAD) 
+    if (lock & HAL_LOCK_LOAD)
 	halcmd_output("  HAL_LOCK_LOAD    - loading of new components is locked\n");
-    if (lock & HAL_LOCK_CONFIG) 
+    if (lock & HAL_LOCK_CONFIG)
 	halcmd_output("  HAL_LOCK_CONFIG  - link and addf is locked\n");
-    if (lock & HAL_LOCK_PARAMS) 
+    if (lock & HAL_LOCK_PARAMS)
 	halcmd_output("  HAL_LOCK_PARAMS  - setting params is locked\n");
-    if (lock & HAL_LOCK_RUN) 
+    if (lock & HAL_LOCK_RUN)
 	halcmd_output("  HAL_LOCK_RUN     - running/stopping HAL is locked\n");
 }
 
@@ -2413,7 +2620,7 @@ static void print_mem_status()
     hal_param_t *param;
 
     halcmd_output("HAL memory status\n");
-    halcmd_output("  used/total shared memory:   %ld/%d\n", 
+    halcmd_output("  used/total shared memory:   %ld/%d\n",
 		  (long)(global_data->hal_size - hal_data->shmem_avail),
 		  global_data->hal_size);
     // count components
@@ -2471,7 +2678,7 @@ static void print_mem_status()
     active = count_list(hal_data->ring_list_ptr);
     recycled = count_list(hal_data->ring_free_ptr);
     halcmd_output("  active/deleted rings:       %d/%d\n", active, recycled);
-    halcmd_output("RTAPI message level:  RT:%d User:%d\n", 
+    halcmd_output("RTAPI message level:  RT:%d User:%d\n",
 		  global_data->rt_msg_level, global_data->user_msg_level);
 }
 
@@ -3463,56 +3670,94 @@ typedef enum {
 
 cstatus_t classify_comp(const char *comp)
 {
-    hal_comp_t *c __attribute__((cleanup(halpr_autorelease_mutex)));
-    rtapi_mutex_get(&(hal_data->mutex));
-    c = halpr_find_comp_by_name(comp);
-    if (c == 0)
-	return CS_NOT_LOADED;
-    if (c->type != TYPE_RT)
-	return CS_NOT_RT;
-    if (c->ctor == NULL) {
-	return CS_RTLOADED_NOT_INSTANTIABLE;
+    CHECK_HALDATA();
+    CHECK_STR(comp);
+    {
+	WITH_HAL_MUTEX();
+	hal_comp_t *c = halpr_find_comp_by_name(comp);
+	if (c == NULL)
+	    return CS_NOT_LOADED;
+	if (c->type != TYPE_RT)
+	    return CS_NOT_RT;
+	if (c->ctor == NULL)
+	    return CS_RTLOADED_NOT_INSTANTIABLE;
     }
     return CS_RTLOADED_AND_INSTANTIABLE;
 }
 
 int do_newinst_cmd(char *comp, char *inst, char *args[])
 {
+    int retval;
     cstatus_t status = classify_comp(comp);
+    char *argv[] = { NULL};
+    bool singleton = false;
 
     switch (status) {
     case CS_NOT_LOADED:
 	if (autoload) {
-	    char *argv[] = { NULL};
-	    int retval = do_loadrt_cmd(comp, argv);
+	    // flag to prevent do_loadrt_cmd() trying to create an instance too
+	    autoloading = true;
+	    retval = do_loadrt_cmd(comp, argv);
+	    autoloading = false;
 	    if (retval)
 		return retval;
-	    // recurse
 	    return do_newinst_cmd(comp, inst,  args);
 	    break;
 	}
 	halcmd_error("component '%s' not loaded\n", comp);
 	break;
+
     case CS_NOT_RT:
 	halcmd_error("'%s' not an RT component\n", comp);
 	return -EINVAL;
 	break;
+
     case  CS_RTLOADED_NOT_INSTANTIABLE:
 	halcmd_error("legacy component '%s' loaded, but not instantiable\n", comp);
 	return -EINVAL;
 	break;
+
     case CS_RTLOADED_AND_INSTANTIABLE:
 	// we're good
 	break;
     }
 
-    int retval = rtapi_newinst(rtapi_instance, comp, inst, (const char **)args);
-    if ( retval != 0 ) {
+    if (hal_get_lock() & HAL_LOCK_LOAD) {
+        halcmd_error("HAL is locked, loading of modules is not permitted\n");
+        return -EPERM;
+    }
+
+    retval = get_tags(comp);
+    if (retval == -1) {
+        halcmd_error("Error in module tags search");
+        return retval;
+    } else {
+        if ((retval & HC_SINGLETON) == HC_SINGLETON)
+            singleton = true;
+    }
+
+    //  If a singleton is created via a direct loadrt, it will have the same name
+    //  as the component.  If created by newinst, it could have any name.
+    //  Try to prevent more than one singleton being created using newinst afterwards.
+    if (singleton) {
+	WITH_HAL_MUTEX();
+        hal_comp_t *existing_comp = halpr_find_comp_by_name(comp);
+        if (inst_name_exists(comp) || inst_count(existing_comp)) {
+	    halcmd_error("Singleton components cannot have multiple instances\n\n");
+	    return -1;
+	}
+    }
+
+    retval = rtapi_newinst(rtapi_instance, comp, inst, (const char **)args);
+    if (retval) {
 	halcmd_error("rc=%d\n%s", retval, rtapi_rpcerror());
 	return retval;
     }
     return 0;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 
 int do_delinst_cmd(char *inst)
 {
@@ -3646,7 +3891,7 @@ static void save_signals(FILE *dst, int only_unlinked)
 
     fprintf(dst, "# signals\n");
     rtapi_mutex_get(&(hal_data->mutex));
-    
+
     for( next = hal_data->sig_list_ptr; next; next = sig->next_ptr) {
 	sig = SHMPTR(next);
         if(only_unlinked && (sig->readers || sig->writers)) continue;
@@ -3690,7 +3935,7 @@ static void save_nets(FILE *dst, int arrow)
 
     fprintf(dst, "# nets\n");
     rtapi_mutex_get(&(hal_data->mutex));
-    
+
     for (next = hal_data->sig_list_ptr; next != 0; next = sig->next_ptr) {
 	sig = SHMPTR(next);
         if(arrow == 3) {
@@ -3703,14 +3948,14 @@ static void save_nets(FILE *dst, int arrow)
             fprintf(dst, "net %s", sig->name);
 
             /* Step 1: Output pin, if any */
-            
+
             for(pin = halpr_find_pin_by_sig(sig, 0); pin;
                     pin = halpr_find_pin_by_sig(sig, pin)) {
                 if(pin->dir != HAL_OUT) continue;
                 fprintf(dst, " %s", pin->name);
                 state = 1;
             }
-            
+
             /* Step 2: I/O pins, if any */
             for(pin = halpr_find_pin_by_sig(sig, 0); pin;
                     pin = halpr_find_pin_by_sig(sig, pin)) {

@@ -20,15 +20,13 @@ All instantiable components are named to differentiate them from normal componen
 
 The component files have the extension *'.icomp'*
 
-The component is prefixed with *i_*
-
 eg
 
-*'i_ddt.icomp'*  is the component file
+*'ddt.icomp'*  is the component file
 
 produces a component called
 
-*'i_ddt'*
+*'ddt'*
 
 == Definitions
 
@@ -86,30 +84,23 @@ The following accessors are available within the function:
         fa_funct_name(fa): name of the this called function (char *)"
 
 
-The function will have the suffix *funct*
-
-eg
-
-*'i_ddt.funct'*
-
-
 == Instance creation
 
 
-*'newinst i_somecomponent somecomp <iprefix=""> <pincount=0> <other_instanceparam=> extra_arg1 extra_arg2 ......'*
+*'newinst somecomponent somenewname <iprefix=""> <pincount=0> <other_instanceparam=> extra_arg1 extra_arg2 ......'*
 
-Loads i_somecomponent and creates a new instance of i_somecomponent called somecomp
+Loads somecomponent and creates a new instance of somecomponent called somenewname
 
 If iprefix is supplied, it overrules any iprefix set in the .comp file and is the prefix for all pin, param and thread names for that instance.
 
-Thus a component i_xor_inst that returns the xor value of a value passed to its IN pins, in its OUT pins, could be instantiated
-as i_xor2, i_xor4, i_xor6 etc by setting the iprefix to the name reflecting its use and setting pincount to the relevant number
+Thus a component xor that returns the xor value of a value passed to its IN pins, in its OUT pins, could be instantiated
+as xor2, xor4, xor6 etc by setting the iprefix to the name reflecting its use and setting pincount to the relevant number
 
 Generally however it will be easier just to name the instance relevantly and leave the instanceparam iprefix empty in the .icomp file
 
 eg
 
-*'newinst i_somecomponent somecomp8 pincount=8'*
+*'newinst somecomponent somenewcomp8 pincount=8'*
 
 then
 
@@ -117,9 +108,46 @@ then
 
 adds the function to a thread
 
+
+== Backwards compatability
+
+halcmd has been modified so that loadrt will work as previously, but with the new instantiated components.
+
+Thus existing configs will still work for the most part using loadrt (see Notes below)
+
+This includes the sim configs included with machinekit
+
+The singleton component is supported by changes to halcmd, which will prevent more than one instance being loaded
+
+Notes
+
+The parameters accepted are count=number. or names=name1,name2......
+
+The parameters cfg= or personality= are deprecated and have no meaning with instantiated components
+
+Those parameters will still work with the few legacy components that use them so heavily or in such a convoluted / obfuscated fashion, that they have not been converted to instantiable components
+
+At present those components are:
+
+bldc.comp
+
+logic.comp
+
+Other components not converted, are those from C sources and those integral to the system and only ever intended to be loaded once per session
+
+examples are:
+
+stepgen
+
+threads
+
+See the src/hal/components directory for the remaining legacy components
+
+
 == Reserved declarations etc.
 
 === 'pincount'
+
 is the reserved instance parameter name, which can be used as a numerator and index for arrays
 
 Setting in the comp file:-
@@ -140,29 +168,41 @@ for( x = 0; x < pincount; x++)
     }
 
 === 'maxpincount'
+
 is the reserved instance parameter name, which sets the maximum pins allowed to be created
+
+*If any arrays of pins are used, maxpincount MUST BE SET to ensure array bounds are set by instcomp*
 
 It can only be set in the icomp header itself and cannot be altered
 
 If it is not set in the icomp file, it will be computed based upon the highest array size specifier given
 or pincount, whichever is greater
 
-eg.
+Example 1.
 
-*'instanceparam int maxpincount = 32;'*
+*pin bit inval-##[pincount];*
+
+*'instanceparam int maxpincount = 16;'*
 
 *'instanceparam int pincount = 8;'*
 
-will create a default number of 8 in pins, up to a max of 32
-If maxpincount is not set in the comp file, the maxpincount will be set to 8.
+Thereafter a default creation of an instance will have 8 pins <component>.inval-00 to inval-07
 
-If pincount is supplied as an argument to the newinst call,
+Example 1a.
 
-it overrules the preset number of pins in arrays using 'pinprefix' as an index,
+In the same component, if pincount is supplied as an argument to the newinst call,
+
+it overrules the preset number of pins in arrays using 'pincount' as an index,
 
 up to a maximum (maxpincount) which was set in the .comp file and fixed when the component base was compiled
 
+*newinst <component> newname pincount=16*
+
+will result in a new instance of the component called newname, with 16 pins .inval-00 to .inval-15
+
+
 === 'iprefix'
+
 is the reserved instance parameter name, which sets the prefix to the new instance name
 
 example as previous in Instance Creation
@@ -180,7 +220,7 @@ You can the parse and act upon extra arguments passed before the component is se
 
 A return value other than zero from this function will abort instance creation.
 
-See the i_lutn example
+See the lutn example
 
 
 == Syntax and Options differences
@@ -189,18 +229,16 @@ Some syntax and options are deprecated.
 
 *   *'personality'* has no meaning in these components, since instances are created singly and externally rather than within the component
 
-*   *'singleton'*  likewise not used, as all instances are single, but there can be multiple numbers of them
+*   *'cfg'*         A parameter used with personality, no longer used
 
-    If your component must only have one instance in existence, use the comp compiler, there is no point in using instcomp.
+*   *'count'*       Preserved for backward compability with simple loadrt commands, see Backward Compatability section above, but not used by the component itself or with newinst commands
 
-    If you declare it you will get a warning but compilation will continue
-
-*   *'count'*     Not used for the same reason as personality, only one instance is created at a time
-
-*   *'names'*     Just a synonym for count really, same comments apply
+*   *'names'*       Just a synonym for count really, same comments apply
 
 *   *'userspace'*  No support for userspace at this time, use the comp / halcompile compiler
 
+*   *'data'*       Any data to be preserved between polls to the component can be stored in variables in the declaration section of the icomp (below the pin declarations).
+Use of typedefed structs accessed via a void *_data pointer are no longer supported
 
 == Options
 
@@ -220,6 +258,9 @@ The differing options are:
 * *'instanceparam [int / string] param_name = <value>'*
     Instanceparams that may be passed to the component at newinst
     If value not set, will be set to 0 or "\0" respectively
+
+*   *'singleton'*   will only allow one instance to be loaded anywhere within a single session
+    This is contrary to the basic premise of instantiated components, but implemented for compatibility
 
 == Restrictions
 
@@ -263,7 +304,7 @@ Same syntax and options as comp, just use instcomp instead.
 Best form of explanation, below are 3 components demonstrating the
 differing option usages etc.
 
-=== i_constant
+=== constant
 
 Note this component is no different to the standard component.
 The C code that is created is different and allows instantiation
@@ -272,7 +313,7 @@ preset an iprefix for the default pin numbers, it all looks the same
 
 [source,c]
 ----
-component i_constant_inst "Use a parameter to set the value of a pin";
+component constant "Use a parameter to set the value of a pin";
 pin out float out;
 param rw float value;
 
@@ -284,7 +325,7 @@ FUNCTION(_) {
 }
 ----
 
-=== i_multiswitch
+=== multiswitch
 
 This component uses an array of bit pins indexed with pincount
 Maximum number of pins are 32 and the default is 6,
@@ -296,7 +337,7 @@ before entering the main loop
 [source,c]
 
 ----
-component i_multiswitch_inst           """This component toggles between a specified number of output bits""";
+component multiswitch           """This component toggles between a specified number of output bits""";
 
 pin in bit up = false           "Receives signal to toggle up";
 pin in bit down = false         "Receives signal to toggle down";
@@ -349,7 +390,7 @@ EXTRA_INST_SETUP(){
 
 ----
 
-=== i_lutn
+=== lutn
 
 This component has the same instanceparam features as before,
 with an extra instanceparam defined - functn which takes a hex value
@@ -367,7 +408,7 @@ through the argc / argv mechanism and printed in extra_inst_setup()
 
 
 
-component i_lutn "instantiable lookup table component with configurable number of pins";
+component lutn "instantiable lookup table component with configurable number of pins";
 
     // Input Pins
 pin in bit in-##[pincount];

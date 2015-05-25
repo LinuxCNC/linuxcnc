@@ -1,0 +1,8 @@
+
+axis_mm.ini
+
+Demo of using instantiated components from a simple newinst <compname> command
+This demo adds nothing special,
+the standard axis and axis_mm sims work normally with instantiated components now
+
+

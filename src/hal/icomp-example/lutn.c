@@ -6,7 +6,6 @@
 // halcmd newinst lutn or2.0  inputs=2 function=0xe
 
 
-//
 // # src/hal/icomp-example$ python lut5.py -n2 'i0 & i1'
 // # expression = i0 & i1
 // #in: i4 i3 i2 i1 i0 out weight
@@ -33,6 +32,7 @@
 MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("instantiable lookup table component with configurable number of pins");
 MODULE_LICENSE("GPL");
+RTAPI_TAG(HAL,HC_INSTANTIABLE);
 
 static int comp_id;
 static char *compname = "lutn";

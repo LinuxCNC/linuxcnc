@@ -1,0 +1,15 @@
+component mux2 "Select from one of two input values";
+pin in bit sel;
+pin out float out "Follows the value of in0 if sel is FALSE, or in1 if sel is TRUE";
+pin in float in1;
+pin in float in0;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    if(sel) out = in1;
+    else out = in0;
+
+return 0;
+}

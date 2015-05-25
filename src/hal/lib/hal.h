@@ -1066,6 +1066,15 @@ int hal_inst_create(const char *name,
 // returns < 0 on error.
 int hal_inst_delete(const char *name);
 
+// HAL-specific capabilities. Extend as needed.
+// capabilities are intended to be added to a binary (a.out, .so, .ko)
+// with RTAPI_TAG(HAL, cap1]cap2 ...);
+
+#define HC_INSTANTIABLE 1
+#define HC_SINGLETON 2
+#define HC_SOMEFEATURE  3
+
+
 RTAPI_END_DECLS
 
 #endif /* HAL_H */
