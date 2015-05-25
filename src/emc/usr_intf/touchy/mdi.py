@@ -286,9 +286,13 @@ class mdi_control:
             self.set_text("L10", 1)
         self.next(0)
         self.set_text("P%d" % tool, 2)
-        self.next(0)
-        self.next(0)
-        self.next(0)
+        self.next(0) # go to first axis
+        if ('X' in self.mdi.axes and
+            'Y' in self.mdi.axes and
+            'Z' in self.mdi.axes):
+            # this is fairly mill-like, so go to Z
+            self.next(0)
+            self.next(0)
 
     def set_origin(self, system):
         self.g(0)
@@ -298,3 +302,8 @@ class mdi_control:
         self.next(0)
         self.set_text("P%d" % system, 2)
         self.next(0)
+        if ('X' in self.mdi.axes and
+            'Z' in self.mdi.axes and
+            not 'Y' in self.mdi.axes):
+            # this is fairly lathe-like, so go to Z
+            self.next(0)
