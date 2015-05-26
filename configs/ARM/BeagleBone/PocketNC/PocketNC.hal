@@ -415,7 +415,7 @@ setp spindleScale.gain 0.005
 setp spindleScale.offset 0.035
 net spindleSpeedDummy motion.spindle-speed-out
 net spindleSpeed motion.spindle-speed-out-rps => spindleScale.in
-net spindlePwm spindleScale.out => hal_pru_generic.pwmgen.00.out.00.value
+net spindlePwm spindleScale.out => hpg.pwmgen.00.out.00.value
 
 net spindleAtSpeed <= bb_gpio.p8.in-22
 net spindleAtSpeed => motion.spindle-at-speed
@@ -434,22 +434,22 @@ newsig bed.temp.set  float
 newsig bed.temp.meas float
 
 
-setp hal_pru_generic.pwmgen.00.pwm_period       10000000
+setp hpg.pwmgen.00.pwm_period       10000000
 
 # J2 E0 Heater PRU1.out1
-setp hal_pru_generic.pwmgen.00.out.00.pin       0x37
-setp hal_pru_generic.pwmgen.00.out.00.enable    1
-##setp hal_pru_generic.pwmgen.00.out.00.value     0.0
+setp hpg.pwmgen.00.out.00.pin       0x37
+setp hpg.pwmgen.00.out.00.enable    1
+##setp hpg.pwmgen.00.out.00.value     0.0
 
 # J3 E1 Heater PRU1.out0
-#setp hal_pru_generic.pwmgen.00.out.01.pin       0x36
-#setp hal_pru_generic.pwmgen.00.out.01.enable    1
-#setp hal_pru_generic.pwmgen.00.out.01.value     0.0
+#setp hpg.pwmgen.00.out.01.pin       0x36
+#setp hpg.pwmgen.00.out.01.enable    1
+#setp hpg.pwmgen.00.out.01.value     0.0
 
 # J4 Bed Heater GPIO2.16
-#setp hal_pru_generic.pwmgen.00.out.02.pin       0x52
-#setp hal_pru_generic.pwmgen.00.out.02.enable    1
-#setp hal_pru_generic.pwmgen.00.out.02.value     0.0
+#setp hpg.pwmgen.00.out.02.pin       0x52
+#setp hpg.pwmgen.00.out.02.enable    1
+#setp hpg.pwmgen.00.out.02.value     0.0
 
 # PID for Extruder 0 temperature control
 net e0.temp.meas    <= Therm.temp0
@@ -461,7 +461,7 @@ net e0.temp.set     => pid.0.command
 net e0.heater  <= pid.0.output
 #net e0.heater  => limit1.0.in
 #net e0.heaterl <= limit1.0.out
-#net e0.heaterl => hal_pru_generic.pwmgen.00.out.00.value
+#net e0.heaterl => hpg.pwmgen.00.out.00.value
 
 # Limit heater PWM to positive values
 # PWM mimics hm2 implementation, which generates output for negative values
@@ -477,7 +477,7 @@ net bed.temp.set     => pid.1.command
 #net bed.heater  <= pid.1.output
 #net bed.heater  => limit1.1.in
 #net bed.heaterl <= limit1.1.out
-#net bed.heaterl => hal_pru_generic.pwmgen.00.out.02.value
+#net bed.heaterl => hpg.pwmgen.00.out.02.value
 
 # Limit heater PWM to positive values
 # PWM mimics hm2 implementation, which generates output for negative values
