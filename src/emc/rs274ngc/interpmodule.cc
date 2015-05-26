@@ -108,11 +108,11 @@ static const char *get_filename(Interp &i) { return i._setup.filename; };
 static const char *get_linetext(Interp &i) { return i._setup.linetext; };
 
 // those are exposed here because they look useful for regression testing
-static bool __equal(double a, double b) { return fabs(a - b) < TOLERANCE_EQUAL; }
+static bool __equal(double a, double b) { return rtapi_fabs(a - b) < TOLERANCE_EQUAL; }
 // see interp_convert.cc
 static bool is_near_int(double value) {
     int i = (int)(value + .5);
-    return fabs(i - value) < .0001;
+    return rtapi_fabs(i - value) < .0001;
 }
 static int nearest_int(double value) { return (int)(value + .5); }
 

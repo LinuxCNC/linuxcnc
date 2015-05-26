@@ -58,7 +58,7 @@ if (deadband >= 0.99) deadband = 0.99;
 else if (deadband <= 0.) deadband = 0.;
 
 p = power - 1.;
-a = -1./(pow(deadband,p)-1.);
+a = -1./(rtapi_pow(deadband,p)-1.);
 b = 1. - a;
 alin = -scale/(deadband-1);
 clin = 1.*(scale+offset-alin);
@@ -70,12 +70,12 @@ else if ((in > deadband) && (in < 1.))
     {
 	if (power == 1.) out=alin*in + clin;
 	else {
-		if (inverse == 0) out = scale*(a*pow(in,power) + b*in) + offset;
+		if (inverse == 0) out = scale*(a*rtapi_pow(in,power) + b*in) + offset;
 		else {
 			xm = (deadband+1)/2;
 			ym = alin*xm + clin;
 			xinv = 2*xm-in;
-			yinv = scale*(a*pow(xinv,power) + b*xinv) + offset;
+			yinv = scale*(a*rtapi_pow(xinv,power) + b*xinv) + offset;
 			out =2*ym-yinv;
 		     }
 	     }
@@ -84,12 +84,12 @@ else if ((in < (-1.*deadband)) && (in > -1.))
     {
 	if (power == 1.) out=-1.*(alin*-1.*in + clin);
 	else {
-		if (inverse == 0) out = -1*(scale*(a*pow((-1.*in),power) - b*in) + offset);
+		if (inverse == 0) out = -1*(scale*(a*rtapi_pow((-1.*in),power) - b*in) + offset);
 		else {
 			xm = (deadband+1)/2;
 			ym = alin*xm + clin;
 			xinv = 2*xm+in;
-			yinv = scale*(a*pow(xinv,power) + b*xinv) + offset;
+			yinv = scale*(a*rtapi_pow(xinv,power) + b*xinv) + offset;
 			out =-2*ym-yinv;
 		     }
 	     }
@@ -99,5 +99,5 @@ else out = 0.;
 return 0;
 
 
-// out = scale*(a*pow(in,power) + b*in) + offset;
+// out = scale*(a*rtapi_pow(in,power) + b*in) + offset;
 }

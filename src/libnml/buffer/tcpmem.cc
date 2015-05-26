@@ -25,7 +25,7 @@ extern "C" {
 #include <sys/socket.h>
 #include <sys/time.h>           /* struct timeval */
 #include <netdb.h>
-#include <math.h>		/* fmod() */
+#include "rtapi_math.h"		/* fmod() */
 
 #ifdef __cplusplus
 }
@@ -460,7 +460,7 @@ void TCPMEM::reconnect()
 	if (EINPROGRESS == errno) {
 
 	    tm.tv_sec = (long) timeout;
-	    tm.tv_sec = (long) (fmod(timeout, 1.0) * 1e6);
+	    tm.tv_sec = (long) (rtapi_fmod(timeout, 1.0) * 1e6);
 	    FD_ZERO(&fds);
 	    FD_SET(socket_fd, &fds);
 	    start_time = etime();
@@ -479,7 +479,7 @@ void TCPMEM::reconnect()
 		    return;
 		}
 		tm.tv_sec = (long) timeleft;
-		tm.tv_sec = (long) (fmod(timeleft, 1.0) * 1e6);
+		tm.tv_sec = (long) (rtapi_fmod(timeleft, 1.0) * 1e6);
 	    }
 
 	    if (-1 == socket_ret) {
@@ -582,7 +582,7 @@ void TCPMEM::reconnect()
 		FD_SET(write_socket_fd, &fds);
 		start_time = etime();
 		tm.tv_sec = (long) timeout;
-		tm.tv_sec = (long) (fmod(timeout, 1.0) * 1e6);
+		tm.tv_sec = (long) (rtapi_fmod(timeout, 1.0) * 1e6);
 		while (!(socket_ret = select(write_socket_fd + 1,
 			    (fd_set *) NULL, &fds, (fd_set *) NULL, &tm))) {
 		    FD_SET(write_socket_fd, &fds);
@@ -596,7 +596,7 @@ void TCPMEM::reconnect()
 			return;
 		    }
 		    tm.tv_sec = (long) timeleft;
-		    tm.tv_sec = (long) (fmod(timeleft, 1.0) * 1e6);
+		    tm.tv_sec = (long) (rtapi_fmod(timeleft, 1.0) * 1e6);
 		}
 		if (-1 == socket_ret) {
 		    rcs_print_error("select error: %d -- %s\n", errno,

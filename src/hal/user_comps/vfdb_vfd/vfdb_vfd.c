@@ -54,7 +54,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <getopt.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <signal.h>
 #include <stdarg.h>
 
@@ -383,8 +383,8 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 retry:
     // set frequency register
     hzcalc = haldata->motor_nameplate_hz / haldata->motor_nameplate_RPM;
-    freq_reg =  (int)round(fabs((*(haldata->speed_command) * hzcalc * 100.0)));
-    freq_cap =  (int)round(fabs((haldata->rpm_limit * hzcalc * 100)));
+    freq_reg =  (int)rtapi_rint(rtapi_fabs((*(haldata->speed_command) * hzcalc * 100.0)));
+    freq_cap =  (int)rtapi_rint(rtapi_fabs((haldata->rpm_limit * hzcalc * 100)));
 
     // limit frequency to frequency set via max-rpm
     if (freq_reg > freq_cap)
@@ -545,7 +545,7 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
         {
             float speed_error;
             speed_error = (*haldata->RPM / *haldata->speed_command) - 1.0;
-            if (fabs(speed_error) > haldata->speed_tolerance) {
+            if (rtapi_fabs(speed_error) > haldata->speed_tolerance) {
                 *haldata->at_speed = 0;
             } else {
                 *haldata->at_speed = 1;

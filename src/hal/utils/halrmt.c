@@ -289,7 +289,7 @@
 #include <errno.h>
 #include <time.h>
 #include <string.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

@@ -33,7 +33,7 @@ extern int instance_no; // exported from cms.cc
 */
 
 #include <sys/sem.h>		/* struct sembuf */
-#include <math.h>		/* fmod() */
+#include "rtapi_math.h"		/* fmod() */
 #include <signal.h>
 #include <sys/time.h>
 

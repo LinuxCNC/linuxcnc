@@ -33,7 +33,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <ctype.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>
@@ -730,7 +730,7 @@ static int getStats()
       pch = strtok(NULL, delims);
       pch = strtok(NULL, delims);
       sscanf(pch, "%f", &tempr);
-      temp = (int)floor(tempr);
+      temp = (int)rtapi_floor(tempr);
       cpuUsed = widgetSetInt(40, temp, cpuUsed);
       temp = 100 - temp;
       cpuFree = widgetSetInt(39, temp, cpuFree);
@@ -1466,7 +1466,7 @@ static void slowLoop()
       }
     }
 
-  feedOverride = (int)floor(emcStatus->motion.traj.scale * 100.0 + 0.5);
+  feedOverride = (int)rtapi_floor(emcStatus->motion.traj.scale * 100.0 + 0.5);
   if (feedOverride != oldFeedOverride) {
     menuSetInt("Run", "feed_slider", feedOverride);
     oldFeedOverride = feedOverride;

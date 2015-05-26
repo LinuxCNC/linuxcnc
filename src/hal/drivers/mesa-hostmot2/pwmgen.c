@@ -587,7 +587,7 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
 
         scaled_value = *hm2->pwmgen.instance[i].hal.pin.value / hm2->pwmgen.instance[i].hal.param.scale;
 
-        abs_duty_cycle = fabs(scaled_value);
+        abs_duty_cycle = rtapi_fabs(scaled_value);
         if (abs_duty_cycle > 1.0) abs_duty_cycle = 1.0;
 
         // duty_cycle goes from 0.0 to 1.0, and needs to be puffed out to pwm_bits (if it's pwm) or 12 (if it's pdm)

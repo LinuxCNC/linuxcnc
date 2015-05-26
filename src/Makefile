@@ -188,6 +188,8 @@ SUBDIRS := \
 	machinetalk/mklauncher \
 	machinetalk/videoserver \
 	\
+	rtapi/rtapi_math \
+	\
 	libnml/linklist \
 	libnml/cms \
 	libnml/rcs \
@@ -557,7 +559,6 @@ HEADERS := \
     rtapi/rtapi_int.h \
     rtapi/rtapi_limits.h \
     rtapi/rtapi_math.h \
-    rtapi/rtapi_math_i386.h \
     rtapi/rtapi_math64.h \
     rtapi/rtapi_common.h \
     rtapi/rtapi_exception.h \
@@ -1096,9 +1097,8 @@ include $(BASEPWD)/hal/userfunct-example/Submakefile
 include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
 include $(BASEPWD)/rtapi/Submakefile
 include $(BASEPWD)/rtapi/shmdrv/Submakefile
-include $(BASEPWD)/rtapi/xeno_math/Submakefile
+include $(BASEPWD)/rtapi/rtapi_math/Submakefile
 endif # KERNELRELEASE non-empty
-
 
 # $(BASEPWD) is used here, instead of relative paths, because that's
 # what kbuild seems to require
@@ -1517,7 +1517,7 @@ $(RTLIBDIR)/%.so:
 	    `xargs -r0n1 echo -G < $(OBJDIR)/$*.exp | grep -ve '^-G $$' | \
 	        sort -u` $(OBJDIR)/$*.tmp; fi
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ $(OBJDIR)/$*.tmp \
-	    -lm $(EXTRA_LDFLAGS)
+	$(EXTRA_LDFLAGS)
 
 $(sort $(RTDEPS)): $(DEPDIR)/%.d: %.c
 	@mkdir -p $(dir $@)

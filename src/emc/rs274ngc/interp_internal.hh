@@ -84,7 +84,7 @@
 
 static inline bool equal(double a, double b)
 {
-    return (fabs(a - b) < TOLERANCE_EQUAL);
+    return (rtapi_fabs(a - b) < TOLERANCE_EQUAL);
 }
 
 
@@ -916,18 +916,18 @@ macros totally crash-proof. If the function call stack is deeper than
        if(radius_increment) { \
            double radius, theta; \
            CHKS((bb == 0 && aa == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin")); \
-           theta = atan2(bb, aa); \
-           radius = hypot(bb, aa) + radius_increment; \
-           aa = radius * cos(theta); \
-           bb = radius * sin(theta); \
+           theta = rtapi_atan2(bb, aa); \
+           radius = rtapi_hypot(bb, aa) + radius_increment; \
+           aa = radius * rtapi_cos(theta); \
+           bb = radius * rtapi_sin(theta); \
        } \
        if(theta_increment) { \
            double radius, theta; \
            CHKS((bb == 0 && aa == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin")); \
-           theta = atan2(bb, aa) + theta_increment; \
-           radius = hypot(bb, aa); \
-           aa = radius * cos(theta); \
-           bb = radius * sin(theta); \
+           theta = rtapi_atan2(bb, aa) + theta_increment; \
+           radius = rtapi_hypot(bb, aa); \
+           aa = radius * rtapi_cos(theta); \
+           bb = radius * rtapi_sin(theta); \
        } \
        cycle_traverse(block, plane, aa, bb, current_cc); \
        if (old_cc != r) \

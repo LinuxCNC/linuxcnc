@@ -16,7 +16,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
@@ -658,7 +658,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     comp_get_current(settings, &cx, &cy, &cz);
 
-    CHKS((hypot((end_x - cx), (end_y - cy)) <= tool_radius),
+    CHKS((rtapi_hypot((end_x - cx), (end_y - cy)) <= tool_radius),
          _("Radius of cutter compensation entry arc is not greater than the tool radius"));
 
     if (block->r_flag) {
@@ -679,10 +679,10 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     // the tool will end up in gamma direction from the programmed arc endpoint
     if TOOL_INSIDE_ARC(side, turn) {
         // tool inside the arc: ends up toward the center
-        gamma = atan2((center_y - end_y), (center_x - end_x));
+        gamma = rtapi_atan2((center_y - end_y), (center_x - end_x));
     } else {
         // outside: away from the center
-        gamma = atan2((end_y - center_y), (end_x - center_x));
+        gamma = rtapi_atan2((end_y - center_y), (end_x - center_x));
     }
 
     settings->cutter_comp_firstmove = false;
@@ -690,8 +690,8 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     comp_set_programmed(settings, end_x, end_y, end_z);
 
     // move endpoint to the compensated position.  This changes the radius and center.
-    end_x += tool_radius * cos(gamma); 
-    end_y += tool_radius * sin(gamma); 
+    end_x += tool_radius * rtapi_cos(gamma); 
+    end_y += tool_radius * rtapi_sin(gamma); 
 
     /* To find the new center:
        imagine a right triangle ABC with A being the endpoint of the
@@ -701,21 +701,21 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
        itself.  We need to find a new center for the compensated arc
        (point B). */
 
-    double b_len = hypot(cy - end_y, cx - end_x) / 2.0;
-    double AB_ang = atan2(center_y - end_y, center_x - end_x);
-    double A_ang = atan2(cy - end_y, cx - end_x) - AB_ang;
+    double b_len = rtapi_hypot(cy - end_y, cx - end_x) / 2.0;
+    double AB_ang = rtapi_atan2(center_y - end_y, center_x - end_x);
+    double A_ang = rtapi_atan2(cy - end_y, cx - end_x) - AB_ang;
 
-    CHKS((fabs(cos(A_ang)) < TOLERANCE_EQUAL), NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
+    CHKS((rtapi_fabs(rtapi_cos(A_ang)) < TOLERANCE_EQUAL), NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
   
-    double c_len = b_len/cos(A_ang);
+    double c_len = b_len/rtapi_cos(A_ang);
 
     // center of the arc is c_len from end in direction AB
-    center_x = end_x + c_len * cos(AB_ang);
-    center_y = end_y + c_len * sin(AB_ang);
+    center_x = end_x + c_len * rtapi_cos(AB_ang);
+    center_y = end_y + c_len * rtapi_sin(AB_ang);
 
     /* center to endpoint distances matched before - they still should. */
-    CHKS((fabs(hypot(center_x-end_x,center_y-end_y) - 
-              hypot(center_x-cx,center_y-cy)) > spiral_abs_tolerance),
+    CHKS((rtapi_fabs(rtapi_hypot(center_x-end_x,center_y-end_y) - 
+              rtapi_hypot(center_x-cx,center_y-cy)) > spiral_abs_tolerance),
         NCE_BUG_IN_TOOL_RADIUS_COMP);
 
     // need this move for lathes to move the tool origin first.  otherwise, the arc isn't an arc.
@@ -836,10 +836,10 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     side = settings->cutter_comp_side;
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
-    arc_radius = hypot((centerx - end_x), (centery - end_y));
-    theta = atan2(cy - opy, cx - opx);
+    arc_radius = rtapi_hypot((centerx - end_x), (centery - end_y));
+    theta = rtapi_atan2(cy - opy, cx - opx);
     theta = (side == LEFT) ? (theta - M_PI_2l) : (theta + M_PI_2l);
-    delta = atan2(centery - opy, centerx - opx);
+    delta = rtapi_atan2(centery - opy, centerx - opx);
     alpha = (move == G_3) ? (delta - M_PI_2l) : (delta + M_PI_2l);
     beta = (side == LEFT) ? (theta - alpha) : (alpha - theta);
 
@@ -848,28 +848,28 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
         // we are cutting inside the arc
-        gamma = atan2((centery - end_y), (centerx - end_x));
+        gamma = rtapi_atan2((centery - end_y), (centerx - end_x));
         CHKS((arc_radius <= tool_radius),
             NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
     } else {
-        gamma = atan2((end_y - centery), (end_x - centerx));
+        gamma = rtapi_atan2((end_y - centery), (end_x - centerx));
         delta = (delta + M_PIl);
     }
 
     // move arc endpoint to the compensated position
-    new_end_x = end_x + tool_radius * cos(gamma);
-    new_end_y = end_y + tool_radius * sin(gamma);
+    new_end_x = end_x + tool_radius * rtapi_cos(gamma);
+    new_end_y = end_y + tool_radius * rtapi_sin(gamma);
 
     if (beta < -small || 
         beta > M_PIl + small ||
         // special detection for convex corner on tangent arc->arc (like atop the middle of "m" shape)
         // or tangent line->arc (atop "h" shape)
-        (fabs(beta - M_PIl) < small && !TOOL_INSIDE_ARC(side, turn))
+        (rtapi_fabs(beta - M_PIl) < small && !TOOL_INSIDE_ARC(side, turn))
         ) {
         // concave
         if (qc().front().type != QARC_FEED) {
             // line->arc
-            double cy = arc_radius * sin(beta - M_PI_2l);
+            double cy = arc_radius * rtapi_sin(beta - M_PI_2l);
             double toward_nominal;
             double dist_from_center;
             double angle_from_center;
@@ -881,9 +881,9 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 double l = toward_nominal / dist_from_center;
                 CHKS((l > 1.0 || l < -1.0), _("Arc move in concave corner cannot be reached by the tool without gouging"));
                 if(turn > 0) {
-                    angle_from_center = theta + asin(l);
+                    angle_from_center = theta + rtapi_asin(l);
                 } else {
-                    angle_from_center = theta - asin(l);
+                    angle_from_center = theta - rtapi_asin(l);
                 }
             } else {
                 dist_from_center = arc_radius + tool_radius; 
@@ -891,20 +891,20 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 double l = toward_nominal / dist_from_center;
                 CHKS((l > 1.0 || l < -1.0), _("Arc move in concave corner cannot be reached by the tool without gouging"));
                 if(turn > 0) {
-                    angle_from_center = theta + M_PIl - asin(l);
+                    angle_from_center = theta + M_PIl - rtapi_asin(l);
                 } else {
-                    angle_from_center = theta + M_PIl + asin(l);
+                    angle_from_center = theta + M_PIl + rtapi_asin(l);
                 }
             }          
           
-            midx = centerx + dist_from_center * cos(angle_from_center);
-            midy = centery + dist_from_center * sin(angle_from_center);
+            midx = centerx + dist_from_center * rtapi_cos(angle_from_center);
+            midy = centery + dist_from_center * rtapi_sin(angle_from_center);
 
             CHP(move_endpoint_and_flush(settings, midx, midy));
         } else {
             // arc->arc
             struct arc_feed &prev = qc().front().data.arc_feed;
-            double oldrad = hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
+            double oldrad = rtapi_hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
             double newrad;
             if TOOL_INSIDE_ARC(side, turn) {
                 newrad = arc_radius - tool_radius;
@@ -913,14 +913,14 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
             }
               
             double arc_cc, pullback, cc_dir, a;
-            arc_cc = hypot(prev.center2 - centery, prev.center1 - centerx);
+            arc_cc = rtapi_hypot(prev.center2 - centery, prev.center1 - centerx);
 
             CHKS((oldrad == 0 || arc_cc == 0), _("Arc to arc motion is invalid because the arcs have the same center"));
             a = (SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc);
             
             CHKS((a > 1.0 || a < -1.0), (_("Arc to arc motion makes a corner the compensated tool can't fit in without gouging")));
-            pullback = acos(a);
-            cc_dir = atan2(centery - prev.center2, centerx - prev.center1);
+            pullback = rtapi_acos(a);
+            cc_dir = rtapi_atan2(centery - prev.center2, centerx - prev.center1);
 
             double dir;
             if TOOL_INSIDE_ARC(side, prev.turn) {
@@ -935,8 +935,8 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                     dir = cc_dir + pullback;
             }
           
-            midx = prev.center1 + oldrad * cos(dir);
-            midy = prev.center2 + oldrad * sin(dir);
+            midx = prev.center1 + oldrad * rtapi_cos(dir);
+            midy = prev.center2 + oldrad * rtapi_sin(dir);
           
             CHP(move_endpoint_and_flush(settings, midx, midy));
         }
@@ -945,8 +945,8 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                          new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
     } else if (beta > small) {           /* convex, two arcs needed */
-        midx = opx + tool_radius * cos(delta);
-        midy = opy + tool_radius * sin(delta);
+        midx = opx + tool_radius * rtapi_cos(delta);
+        midy = opy + tool_radius * rtapi_sin(delta);
         dequeue_canons(settings);
         enqueue_ARC_FEED(settings, block->line_number, 
                          0.0, // doesn't matter since we won't move this arc's endpoint
@@ -1606,8 +1606,8 @@ nine coordinate systems. Axis offsets are initialized to zero.
 void Interp::rotate(double *x, double *y, double theta) {
     double xx, yy;
     double t = D2R(theta);
-    xx = *x * cos(t) - *y * sin(t); 
-    yy = *x * sin(t) + *y * cos(t);
+    xx = *x * rtapi_cos(t) - *y * rtapi_sin(t); 
+    yy = *x * rtapi_sin(t) + *y * rtapi_cos(t);
     *x = xx;
     *y = yy;
 }
@@ -1847,7 +1847,7 @@ convex corners.
  */
 static int is_near_int(int *result, double value) {
     *result = (int)(value + .5);
-    return fabs(*result - value) < .0001;
+    return rtapi_fabs(*result - value) < .0001;
 }
 
 int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutter is on (LEFT or RIGHT)
@@ -4150,7 +4150,7 @@ int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
     } else { /* G_96 */
         settings->spindle_mode = CONSTANT_SURFACE;
 	if(block->d_flag)
-	    enqueue_SET_SPINDLE_MODE(fabs(block->d_number_float));
+	    enqueue_SET_SPINDLE_MODE(rtapi_fabs(block->d_number_float));
 	else
 	    enqueue_SET_SPINDLE_MODE(1e30);
     }
@@ -4681,11 +4681,11 @@ int Interp::convert_threading_cycle(block_pointer block,
 	boring = 1;
 
     double safe_x = start_x;
-    double full_dia_depth = fabs(i_number);
-    double start_depth = fabs(i_number) + fabs(j_number);
-    double cut_increment = fabs(j_number);
-    double full_threadheight = fabs(k_number);
-    double end_depth = fabs(k_number) + fabs(i_number);
+    double full_dia_depth = rtapi_fabs(i_number);
+    double start_depth = rtapi_fabs(i_number) + rtapi_fabs(j_number);
+    double cut_increment = rtapi_fabs(j_number);
+    double full_threadheight = rtapi_fabs(k_number);
+    double end_depth = rtapi_fabs(k_number) + rtapi_fabs(i_number);
 
     double pitch = block->p_number;
     double compound_angle = block->q_number;
@@ -4701,7 +4701,7 @@ int Interp::convert_threading_cycle(block_pointer block,
     double taper_dist = block->e_flag? block->e_number: 0.0;
     if(taper_dist < 0.0) taper_dist = 0.0;
     double taper_pitch = taper_dist > 0.0? 
-	pitch * hypot(taper_dist, full_threadheight)/taper_dist: pitch;
+	pitch * rtapi_hypot(taper_dist, full_threadheight)/taper_dist: pitch;
 
     if(end_z > start_z) taper_dist = -taper_dist;
 
@@ -4714,20 +4714,20 @@ int Interp::convert_threading_cycle(block_pointer block,
     double depth, zoff;
     int pass = 1;
 
-    double target_z = end_z + fabs(k_number) * tan(compound_angle);
+    double target_z = end_z + rtapi_fabs(k_number) * rtapi_tan(compound_angle);
 
     depth = start_depth;
-    zoff = (depth - full_dia_depth) * tan(compound_angle);
+    zoff = (depth - full_dia_depth) * rtapi_tan(compound_angle);
     while (depth < end_depth) {
 	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y, 
 		       start_z, zoff, taper_dist, entry_taper, exit_taper, 
 		       taper_pitch, pitch, full_threadheight, target_z);
-        depth = full_dia_depth + cut_increment * pow(++pass, 1.0/degression);
-        zoff = (depth - full_dia_depth) * tan(compound_angle);
+        depth = full_dia_depth + cut_increment * rtapi_pow(++pass, 1.0/degression);
+        zoff = (depth - full_dia_depth) * rtapi_tan(compound_angle);
     } 
     // full specified depth now
     depth = end_depth;
-    zoff = (depth - full_dia_depth) * tan(compound_angle);
+    zoff = (depth - full_dia_depth) * rtapi_tan(compound_angle);
     // cut at least once -- more if spring cuts.
     for(int i = 0; i<spring_cuts+1; i++) {
 	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y, 
@@ -4798,15 +4798,15 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     double cx, cy, cz;
 
     comp_get_current(settings, &cx, &cy, &cz);
-    distance = hypot((px - cx), (py - cy));
+    distance = rtapi_hypot((px - cx), (py - cy));
 
     CHKS(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
     CHKS((distance <= radius), _("Length of cutter compensation entry move is not greater than the tool radius"));
 
-    alpha = atan2(py - cy, px - cx) + (side == LEFT ? M_PIl/2. : -M_PIl/2.);
+    alpha = rtapi_atan2(py - cy, px - cx) + (side == LEFT ? M_PIl/2. : -M_PIl/2.);
 
-    end_x = (px + (radius * cos(alpha)));
-    end_y = (py + (radius * sin(alpha)));
+    end_x = (px + (radius * rtapi_cos(alpha)));
+    end_y = (py + (radius * rtapi_sin(alpha)));
 
     // with these moves we don't need to record the direction vector.
     // they cannot get reversed because they are guaranteed to be long
@@ -4816,13 +4816,13 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
 
     if (move == G_0) {
         enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 
-                                  cos(alpha), sin(alpha), 0, 
+                                  rtapi_cos(alpha), rtapi_sin(alpha), 0, 
                                   end_x, end_y, pz,
                                   AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
     else if (move == G_1) {
         enqueue_STRAIGHT_FEED(settings, block->line_number, 
-                              cos(alpha), sin(alpha), 0,
+                              rtapi_cos(alpha), rtapi_sin(alpha), 0,
                               end_x, end_y, pz,
                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
     } else
@@ -4952,8 +4952,8 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         // some XY motion
         side = settings->cutter_comp_side;
         radius = settings->cutter_comp_radius;      /* will always be positive */
-        theta = atan2(cy - opy, cx - opx);
-        alpha = atan2(py - opy, px - opx);
+        theta = rtapi_atan2(cy - opy, cx - opx);
+        alpha = rtapi_atan2(py - opy, px - opx);
 
         if (side == LEFT) {
             if (theta < alpha)
@@ -4967,10 +4967,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             gamma = -M_PI_2l;
         } else
             ERS(NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
-        end_x = (px + (radius * cos(alpha + gamma)));
-        end_y = (py + (radius * sin(alpha + gamma)));
-        mid_x = (opx + (radius * cos(alpha + gamma)));
-        mid_y = (opy + (radius * sin(alpha + gamma)));
+        end_x = (px + (radius * rtapi_cos(alpha + gamma)));
+        end_y = (py + (radius * rtapi_sin(alpha + gamma)));
+        mid_x = (opx + (radius * rtapi_cos(alpha + gamma)));
+        mid_y = (opy + (radius * rtapi_sin(alpha + gamma)));
     
         if ((beta < -small) || (beta > (M_PIl + small))) {
             concave = 1;
@@ -4986,8 +4986,8 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             concave = 1;
         } else {
             concave = 0;
-            mid_x = (opx + (radius * cos(alpha + gamma)));
-            mid_y = (opy + (radius * sin(alpha + gamma)));
+            mid_x = (opx + (radius * rtapi_cos(alpha + gamma)));
+            mid_y = (opy + (radius * rtapi_sin(alpha + gamma)));
         }
 
         if (!concave && (beta > small)) {       /* ARC NEEDED */
@@ -5021,11 +5021,11 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 // half the angle of the inside corner
                 double halfcorner = (beta + M_PIl) / 2.0;
                 CHKS((halfcorner == 0.0), (_("Zero degree inside corner is invalid for cutter compensation")));
-                retreat = radius / tan(halfcorner);
+                retreat = radius / rtapi_tan(halfcorner);
                 // move back along the compensated path
                 // this should replace the endpoint of the previous move
-                mid_x = cx + retreat * cos(theta + gamma);
-                mid_y = cy + retreat * sin(theta + gamma);
+                mid_x = cx + retreat * rtapi_cos(theta + gamma);
+                mid_y = cy + retreat * rtapi_sin(theta + gamma);
                 // we actually want to move the previous line's endpoint here.  That's the same as 
                 // discarding that line and doing this one instead.
                 CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
@@ -5033,16 +5033,16 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 // arc->line
                 // beware: the arc we saved is the compensated one.
                 arc_feed prev = qc().front().data.arc_feed;
-                double oldrad = hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
+                double oldrad = rtapi_hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
                 double oldrad_uncomp;
 
                 // new line's direction
-                double base_dir = atan2(py - opy, px - opx);
+                double base_dir = rtapi_atan2(py - opy, px - opx);
                 double theta;
                 double phi;
 
                 theta = (prev.turn > 0) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
-                phi = atan2(prev.center2 - opy, prev.center1 - opx);
+                phi = rtapi_atan2(prev.center2 - opy, prev.center1 - opx);
                 if TOOL_INSIDE_ARC(side, prev.turn) {
                     oldrad_uncomp = oldrad + radius;
                 } else {
@@ -5051,7 +5051,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 
                 double alpha = theta - phi;
                 // distance to old arc center perpendicular to the new line
-                double d = oldrad_uncomp * cos(alpha);
+                double d = oldrad_uncomp * rtapi_cos(alpha);
                 double d2;
                 double angle_from_center;
 
@@ -5060,20 +5060,20 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                     double l = d2/oldrad;
                     CHKS((l > 1.0 || l < -1.0), _("Arc to straight motion makes a corner the compensated tool can't fit in without gouging"));
                     if(prev.turn > 0)
-                        angle_from_center = - acos(l) + theta + M_PIl;
+                        angle_from_center = - rtapi_acos(l) + theta + M_PIl;
                     else
-                        angle_from_center = acos(l) + theta + M_PIl;
+                        angle_from_center = rtapi_acos(l) + theta + M_PIl;
                 } else {
                     d2 = d + radius;
                     double l = d2/oldrad;
                     CHKS((l > 1.0 || l < -1.0), _("Arc to straight motion makes a corner the compensated tool can't fit in without gouging"));
                     if(prev.turn > 0)
-                        angle_from_center = acos(l) + theta + M_PIl;
+                        angle_from_center = rtapi_acos(l) + theta + M_PIl;
                     else
-                        angle_from_center = - acos(l) + theta + M_PIl;
+                        angle_from_center = - rtapi_acos(l) + theta + M_PIl;
                 }
-                mid_x = prev.center1 + oldrad * cos(angle_from_center);
-                mid_y = prev.center2 + oldrad * sin(angle_from_center);
+                mid_x = prev.center1 + oldrad * rtapi_cos(angle_from_center);
+                mid_y = prev.center2 + oldrad * rtapi_sin(angle_from_center);
                 CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
             }
         } else {

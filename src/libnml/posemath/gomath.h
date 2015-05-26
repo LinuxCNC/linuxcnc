@@ -71,23 +71,23 @@ extern go_real go_cbrt(go_real x);
 #define GO_TO_RAD(deg) ((deg)*0.0174532925199432952)
 
 /*! How close translational quantities must be to be equal. */
-#define GO_TRAN_CLOSE(x,y) (fabs((x)-(y)) < GO_REAL_EPSILON)
+#define GO_TRAN_CLOSE(x,y) (rtapi_fabs((x)-(y)) < GO_REAL_EPSILON)
 /*! How small a translational quantity must be to be zero. */
-#define GO_TRAN_SMALL(x) (fabs(x) < GO_REAL_EPSILON)
+#define GO_TRAN_SMALL(x) (rtapi_fabs(x) < GO_REAL_EPSILON)
 
 /*! How close rotational quantities must be to be equal. */
-#define GO_ROT_CLOSE(x,y) (fabs((x)-(y)) < GO_REAL_EPSILON)
+#define GO_ROT_CLOSE(x,y) (rtapi_fabs((x)-(y)) < GO_REAL_EPSILON)
 /*! How small a rotational quantity must be to be zero. */
-#define GO_ROT_SMALL(x) (fabs(x) < GO_REAL_EPSILON)
+#define GO_ROT_SMALL(x) (rtapi_fabs(x) < GO_REAL_EPSILON)
 
 /*! How close general quantities must be to be equal. Use this when
   you have something other than translational or rotational quantities,
   otherwise use one of \a GO_TRAN,ROT_CLOSE. */
-#define GO_CLOSE(x,y) (fabs((x)-(y)) < GO_REAL_EPSILON)
+#define GO_CLOSE(x,y) (rtapi_fabs((x)-(y)) < GO_REAL_EPSILON)
 /*! How small a general quantity must be to be zero. Use this when
   you have something other than a translational or rotational quantity,
   otherwise use one of \a GO_TRAN,ROT_SMALL. */
-#define GO_SMALL(x) (fabs(x) < GO_REAL_EPSILON)
+#define GO_SMALL(x) (rtapi_fabs(x) < GO_REAL_EPSILON)
 
 /*! A point or vector in Cartesian coordinates. */
 typedef struct {

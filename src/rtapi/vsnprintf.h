@@ -37,7 +37,7 @@ values (or floating point).
 #include <stdarg.h>
 #include <stddef.h>
 #include <rtapi_ctype.h>
-#include <rtapi_math.h>
+#include "rtapi_math.h"
 #include <rtapi_string.h>
 
 /* we use this so that we can do without the string library */

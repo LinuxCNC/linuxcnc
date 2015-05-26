@@ -18,7 +18,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
@@ -132,7 +132,7 @@ int Interp::read_atan(char *line,        //!< string: line of RS274/NGC code bei
   CHKS((line[*counter] != '['),
       NCE_LEFT_BRACKET_MISSING_AFTER_SLASH_WITH_ATAN);
   CHP(read_real_expression(line, counter, &argument2, parameters));
-  *double_ptr = atan2(*double_ptr, argument2);  /* value in radians */
+  *double_ptr = rtapi_atan2(*double_ptr, argument2);  /* value in radians */
   *double_ptr = ((*double_ptr * 180.0) / M_PIl);   /* convert to degrees */
   return INTERP_OK;
 }
@@ -523,10 +523,10 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
   *counter = (*counter + 1);
   CHP(read_real_value(line, counter, &value_read, parameters));
   value_read = (10.0 * value_read);
-  value = (int) floor(value_read);
+  value = (int) rtapi_floor(value_read);
 
   if ((value_read - value) > 0.999)
-    value = (int) ceil(value_read);
+    value = (int) rtapi_ceil(value_read);
   else if ((value_read - value) > 0.001)
     ERS(NCE_G_CODE_OUT_OF_RANGE);
 
@@ -739,9 +739,9 @@ int Interp::read_integer_value(char *line,       //!< string: line of RS274/NGC 
   double float_value;
 
   CHP(read_real_value(line, counter, &float_value, parameters));
-  *integer_ptr = (int) floor(float_value);
+  *integer_ptr = (int) rtapi_floor(float_value);
   if ((float_value - *integer_ptr) > 0.9999) {
-    *integer_ptr = (int) ceil(float_value);
+    *integer_ptr = (int) rtapi_ceil(float_value);
   } else if ((float_value - *integer_ptr) > 0.0001)
     ERS(NCE_NON_INTEGER_VALUE_FOR_INTEGER);
   return INTERP_OK;
@@ -2701,9 +2701,9 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
   else
     CHP(read_real_number(line, counter, double_ptr));
 
-  CHKS(isnan(*double_ptr),
+  CHKS(rtapi_isnan(*double_ptr),
           _("Calculation resulted in 'not a number'"));
-  CHKS(isinf(*double_ptr),
+  CHKS(rtapi_isinf(*double_ptr),
           _("Calculation resulted in 'infinity'"));
 
   return INTERP_OK;

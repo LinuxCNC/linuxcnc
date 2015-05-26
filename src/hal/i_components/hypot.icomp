@@ -6,11 +6,11 @@ pin out float out "out = sqrt(in0^2 + in1^2 + in2^2)";
 function _;
 license "GPL";
 ;;
-#include <rtapi_math.h>
+#include "rtapi_math.h"
 FUNCTION(_)
 {
     double a = in0, b = in1, c = in2;
-    out = sqrt(a*a + b*b + c*c);
+    out = rtapi_sqrt(a*a + b*b + c*c);
 
-	return 0;
+    return 0;
 }

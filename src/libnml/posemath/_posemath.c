@@ -89,7 +89,7 @@ void pmPerror(const char *s)
 #endif /* PM_PRINT_ERROR */
 
 /* fuzz checker */
-#define IS_FUZZ(a,fuzz) (fabs(a) < (fuzz) ? 1 : 0)
+#define IS_FUZZ(a,fuzz) (rtapi_fabs(a) < (fuzz) ? 1 : 0)
 
 /* Pose Math Basis Functions */
 
@@ -98,7 +98,7 @@ void pmPerror(const char *s)
 double pmSqrt(double x)
 {
     if (x > 0.0) {
-	return sqrt(x);
+	return rtapi_sqrt(x);
     }
 
     if (x > SQRT_FUZZ) {
@@ -117,17 +117,17 @@ int pmCartSphConvert(PmCartesian const * const v, PmSpherical * const s)
 {
     double _r;
 
-    s->theta = atan2(v->y, v->x);
+    s->theta = rtapi_atan2(v->y, v->x);
     s->r = pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z));
     _r = pmSqrt(pmSq(v->x) + pmSq(v->y));
-    s->phi = atan2(_r, v->z);
+    s->phi = rtapi_atan2(_r, v->z);
 
     return pmErrno = 0;
 }
 
 int pmCartCylConvert(PmCartesian const * const v, PmCylindrical * const c)
 {
-    c->theta = atan2(v->y, v->x);
+    c->theta = rtapi_atan2(v->y, v->x);
     c->r = pmSqrt(pmSq(v->x) + pmSq(v->y));
     c->z = v->z;
 
@@ -138,10 +138,10 @@ int pmSphCartConvert(PmSpherical const * const s, PmCartesian * const v)
 {
     double _r;
 
-    _r = s->r * sin(s->phi);
-    v->z = s->r * cos(s->phi);
-    v->x = _r * cos(s->theta);
-    v->y = _r * sin(s->theta);
+    _r = s->r * rtapi_sin(s->phi);
+    v->z = s->r * rtapi_cos(s->phi);
+    v->x = _r * rtapi_cos(s->theta);
+    v->y = _r * rtapi_sin(s->theta);
 
     return pmErrno = 0;
 }
@@ -149,15 +149,15 @@ int pmSphCartConvert(PmSpherical const * const s, PmCartesian * const v)
 int pmSphCylConvert(PmSpherical const * const s, PmCylindrical * const c)
 {
     c->theta = s->theta;
-    c->r = s->r * cos(s->phi);
-    c->z = s->r * sin(s->phi);
+    c->r = s->r * rtapi_cos(s->phi);
+    c->z = s->r * rtapi_sin(s->phi);
     return pmErrno = 0;
 }
 
 int pmCylCartConvert(PmCylindrical const * const c, PmCartesian * const v)
 {
-    v->x = c->r * cos(c->theta);
-    v->y = c->r * sin(c->theta);
+    v->x = c->r * rtapi_cos(c->theta);
+    v->y = c->r * rtapi_sin(c->theta);
     v->z = c->z;
     return pmErrno = 0;
 }
@@ -166,7 +166,7 @@ int pmCylSphConvert(PmCylindrical const * const c, PmSpherical * const s)
 {
     s->theta = c->theta;
     s->r = pmSqrt(pmSq(c->r) + pmSq(c->z));
-    s->phi = atan2(c->z, c->r);
+    s->phi = rtapi_atan2(c->z, c->r);
     return pmErrno = 0;
 }
 
@@ -341,7 +341,7 @@ int pmQuatRotConvert(PmQuaternion const * const q, PmRotationVector * const r)
     sh = pmSqrt(pmSq(q->x) + pmSq(q->y) + pmSq(q->z));
 
     if (sh > QSIN_FUZZ) {
-	r->s = 2.0 * atan2(sh, q->s);
+	r->s = 2.0 * rtapi_atan2(sh, q->s);
 	r->x = q->x / sh;
 	r->y = q->y / sh;
 	r->z = q->z / sh;
@@ -462,7 +462,7 @@ int pmMatQuatConvert(PmRotationMatrix const * const m, PmQuaternion * const q)
 
     q->s = 0.5 * pmSqrt(1.0 + m->x.x + m->y.y + m->z.z);
 
-    if (fabs(q->s) > QS_FUZZ) {
+    if (rtapi_fabs(q->s) > QS_FUZZ) {
 	q->x = (m->y.z - m->z.y) / (a = 4 * q->s);
 	q->y = (m->z.x - m->x.z) / a;
 	q->z = (m->x.y - m->y.x) / a;
@@ -501,19 +501,19 @@ int pmMatQuatConvert(PmRotationMatrix const * const m, PmQuaternion * const q)
 
 int pmMatZyzConvert(PmRotationMatrix const * const m, PmEulerZyz * const zyz)
 {
-    zyz->y = atan2(pmSqrt(pmSq(m->x.z) + pmSq(m->y.z)), m->z.z);
+    zyz->y = rtapi_atan2(pmSqrt(pmSq(m->x.z) + pmSq(m->y.z)), m->z.z);
 
-    if (fabs(zyz->y) < ZYZ_Y_FUZZ) {
+    if (rtapi_fabs(zyz->y) < ZYZ_Y_FUZZ) {
 	zyz->z = 0.0;
 	zyz->y = 0.0;		/* force Y to 0 */
-	zyz->zp = atan2(-m->y.x, m->x.x);
-    } else if (fabs(zyz->y - PM_PI) < ZYZ_Y_FUZZ) {
+	zyz->zp = rtapi_atan2(-m->y.x, m->x.x);
+    } else if (rtapi_fabs(zyz->y - PM_PI) < ZYZ_Y_FUZZ) {
 	zyz->z = 0.0;
 	zyz->y = PM_PI;		/* force Y to 180 */
-	zyz->zp = atan2(m->y.x, -m->x.x);
+	zyz->zp = rtapi_atan2(m->y.x, -m->x.x);
     } else {
-	zyz->z = atan2(m->z.y, m->z.x);
-	zyz->zp = atan2(m->y.z, -m->x.z);
+	zyz->z = rtapi_atan2(m->z.y, m->z.x);
+	zyz->zp = rtapi_atan2(m->y.z, -m->x.z);
     }
 
     return pmErrno = 0;
@@ -521,19 +521,19 @@ int pmMatZyzConvert(PmRotationMatrix const * const m, PmEulerZyz * const zyz)
 
 int pmMatZyxConvert(PmRotationMatrix const * const m, PmEulerZyx * const zyx)
 {
-    zyx->y = atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));
+    zyx->y = rtapi_atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));
 
-    if (fabs(zyx->y - (2 * PM_PI)) < ZYX_Y_FUZZ) {
+    if (rtapi_fabs(zyx->y - (2 * PM_PI)) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
 	zyx->y = (2 * PM_PI);	/* force it */
-	zyx->x = atan2(m->y.x, m->y.y);
-    } else if (fabs(zyx->y + (2 * PM_PI)) < ZYX_Y_FUZZ) {
+	zyx->x = rtapi_atan2(m->y.x, m->y.y);
+    } else if (rtapi_fabs(zyx->y + (2 * PM_PI)) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
 	zyx->y = -(2 * PM_PI);	/* force it */
-	zyx->x = -atan2(m->y.z, m->y.y);
+	zyx->x = -rtapi_atan2(m->y.z, m->y.y);
     } else {
-	zyx->z = atan2(m->x.y, m->x.x);
-	zyx->x = atan2(m->y.z, m->z.z);
+	zyx->z = rtapi_atan2(m->x.y, m->x.x);
+	zyx->x = rtapi_atan2(m->y.z, m->z.z);
     }
 
     return pmErrno = 0;
@@ -541,19 +541,19 @@ int pmMatZyxConvert(PmRotationMatrix const * const m, PmEulerZyx * const zyx)
 
 int pmMatRpyConvert(PmRotationMatrix const * const m, PmRpy * const rpy)
 {
-    rpy->p = atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));
+    rpy->p = rtapi_atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));
 
-    if (fabs(rpy->p - (2 * PM_PI)) < RPY_P_FUZZ) {
-	rpy->r = atan2(m->y.x, m->y.y);
+    if (rtapi_fabs(rpy->p - (2 * PM_PI)) < RPY_P_FUZZ) {
+	rpy->r = rtapi_atan2(m->y.x, m->y.y);
 	rpy->p = (2 * PM_PI);	/* force it */
 	rpy->y = 0.0;
-    } else if (fabs(rpy->p + (2 * PM_PI)) < RPY_P_FUZZ) {
-	rpy->r = -atan2(m->y.z, m->y.y);
+    } else if (rtapi_fabs(rpy->p + (2 * PM_PI)) < RPY_P_FUZZ) {
+	rpy->r = -rtapi_atan2(m->y.z, m->y.y);
 	rpy->p = -(2 * PM_PI);	/* force it */
 	rpy->y = 0.0;
     } else {
-	rpy->r = atan2(m->y.z, m->z.z);
-	rpy->y = atan2(m->x.y, m->x.x);
+	rpy->r = rtapi_atan2(m->y.z, m->z.z);
+	rpy->y = rtapi_atan2(m->x.y, m->x.x);
     }
 
     return pmErrno = 0;
@@ -584,13 +584,13 @@ int pmZyzMatConvert(PmEulerZyz  const * const zyz, PmRotationMatrix * const m)
     double sa, sb, sg;
     double ca, cb, cg;
 
-    sa = sin(zyz->z);
-    sb = sin(zyz->y);
-    sg = sin(zyz->zp);
+    sa = rtapi_sin(zyz->z);
+    sb = rtapi_sin(zyz->y);
+    sg = rtapi_sin(zyz->zp);
 
-    ca = cos(zyz->z);
-    cb = cos(zyz->y);
-    cg = cos(zyz->zp);
+    ca = rtapi_cos(zyz->z);
+    cb = rtapi_cos(zyz->y);
+    cg = rtapi_cos(zyz->zp);
 
     m->x.x = ca * cb * cg - sa * sg;
     m->y.x = -ca * cb * sg - sa * cg;
@@ -644,13 +644,13 @@ int pmZyxMatConvert(PmEulerZyx  const * const zyx, PmRotationMatrix * const m)
     double sa, sb, sg;
     double ca, cb, cg;
 
-    sa = sin(zyx->z);
-    sb = sin(zyx->y);
-    sg = sin(zyx->x);
+    sa = rtapi_sin(zyx->z);
+    sb = rtapi_sin(zyx->y);
+    sg = rtapi_sin(zyx->x);
 
-    ca = cos(zyx->z);
-    cb = cos(zyx->y);
-    cg = cos(zyx->x);
+    ca = rtapi_cos(zyx->z);
+    cb = rtapi_cos(zyx->y);
+    cg = rtapi_cos(zyx->x);
 
     m->x.x = ca * cb;
     m->y.x = ca * sb * sg - sa * cg;
@@ -714,13 +714,13 @@ int pmRpyMatConvert(PmRpy  const * const rpy, PmRotationMatrix * const m)
     double sa, sb, sg;
     double ca, cb, cg;
 
-    sa = sin(rpy->y);
-    sb = sin(rpy->p);
-    sg = sin(rpy->r);
+    sa = rtapi_sin(rpy->y);
+    sb = rtapi_sin(rpy->p);
+    sg = rtapi_sin(rpy->r);
 
-    ca = cos(rpy->y);
-    cb = cos(rpy->p);
-    cg = cos(rpy->r);
+    ca = rtapi_cos(rpy->y);
+    cb = rtapi_cos(rpy->p);
+    cg = rtapi_cos(rpy->r);
 
     m->x.x = ca * cb;
     m->y.x = ca * sb * sg - sa * cg;
@@ -777,8 +777,8 @@ int pmHomPoseConvert(PmHomogeneous const * const h, PmPose * const p)
 
 int pmCartCartCompare(PmCartesian const * const v1, PmCartesian const * const v2)
 {
-    if (fabs(v1->x - v2->x) >= V_FUZZ ||
-	fabs(v1->y - v2->y) >= V_FUZZ || fabs(v1->z - v2->z) >= V_FUZZ) {
+    if (rtapi_fabs(v1->x - v2->x) >= V_FUZZ ||
+	rtapi_fabs(v1->y - v2->y) >= V_FUZZ || rtapi_fabs(v1->z - v2->z) >= V_FUZZ) {
 	return 0;
     }
 
@@ -943,9 +943,9 @@ int pmCartUnit(PmCartesian const * const v, PmCartesian * const vout)
 int pmCartAbs(PmCartesian const * const v, PmCartesian * const vout)
 {
 
-    vout->x = fabs(v->x);
-    vout->y = fabs(v->y);
-    vout->z = fabs(v->z);
+    vout->x = rtapi_fabs(v->x);
+    vout->y = rtapi_fabs(v->y);
+    vout->z = rtapi_fabs(v->z);
 
     return pmErrno = 0;
 }
@@ -1159,8 +1159,8 @@ int pmRotScalDiv(PmRotationVector const * const r, double s, PmRotationVector * 
 
 int pmRotIsNorm(PmRotationVector const * const r)
 {
-    if (fabs(r->s) < RS_FUZZ ||
-	fabs(pmSqrt(pmSq(r->x) + pmSq(r->y) + pmSq(r->z))) - 1.0 < UNIT_VEC_FUZZ)
+    if (rtapi_fabs(r->s) < RS_FUZZ ||
+	rtapi_fabs(pmSqrt(pmSq(r->x) + pmSq(r->y) + pmSq(r->z))) - 1.0 < UNIT_VEC_FUZZ)
     {
 	return 1;
     }
@@ -1174,7 +1174,7 @@ int pmRotNorm(PmRotationVector const * const r, PmRotationVector * const rout)
 
     size = pmSqrt(pmSq(r->x) + pmSq(r->y) + pmSq(r->z));
 
-    if (fabs(r->s) < RS_FUZZ) {
+    if (rtapi_fabs(r->s) < RS_FUZZ) {
 	rout->s = 0.0;
 	rout->x = 0.0;
 	rout->y = 0.0;
@@ -1284,16 +1284,16 @@ int pmQuatQuatCompare(PmQuaternion const * const q1, PmQuaternion const * const 
     }
 #endif
 
-    if (fabs(q1->s - q2->s) < Q_FUZZ &&
-	fabs(q1->x - q2->x) < Q_FUZZ &&
-	fabs(q1->y - q2->y) < Q_FUZZ && fabs(q1->z - q2->z) < Q_FUZZ) {
+    if (rtapi_fabs(q1->s - q2->s) < Q_FUZZ &&
+	rtapi_fabs(q1->x - q2->x) < Q_FUZZ &&
+	rtapi_fabs(q1->y - q2->y) < Q_FUZZ && rtapi_fabs(q1->z - q2->z) < Q_FUZZ) {
 	return 1;
     }
 
     /* note (0, x, y, z) = (0, -x, -y, -z) */
-    if (fabs(q1->s) >= QS_FUZZ ||
-	fabs(q1->x + q2->x) >= Q_FUZZ ||
-	fabs(q1->y + q2->y) >= Q_FUZZ || fabs(q1->z + q2->z) >= Q_FUZZ) {
+    if (rtapi_fabs(q1->s) >= QS_FUZZ ||
+	rtapi_fabs(q1->x + q2->x) >= Q_FUZZ ||
+	rtapi_fabs(q1->y + q2->y) >= Q_FUZZ || rtapi_fabs(q1->z + q2->z) >= Q_FUZZ) {
 	return 0;
     }
 
@@ -1373,7 +1373,7 @@ int pmQuatInv(PmQuaternion const * const q1, PmQuaternion * const qout)
 
 int pmQuatIsNorm(PmQuaternion const * const q1)
 {
-    return (fabs(pmSq(q1->s) + pmSq(q1->x) + pmSq(q1->y) + pmSq(q1->z) - 1.0) <
+    return (rtapi_fabs(pmSq(q1->s) + pmSq(q1->x) + pmSq(q1->y) + pmSq(q1->z) - 1.0) <
 	UNIT_QUAT_FUZZ);
 }
 
@@ -1801,7 +1801,7 @@ int pmCircleInit(PmCircle * const circle,
     } else if (dot < -1.0) {
         circle->angle = PM_PI;
     } else {
-        circle->angle = acos(dot);
+        circle->angle = rtapi_acos(dot);
     }
     /* now angle is in range 0..PI . Check if cross is antiparallel to
        normal. If so, true angle is between PI..2PI. Need to subtract from
@@ -1879,8 +1879,8 @@ int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * con
 #endif
 
     /* compute components rel to center */
-    pmCartScalMult(&circle->rTan, cos(angle), &par);
-    pmCartScalMult(&circle->rPerp, sin(angle), &perp);
+    pmCartScalMult(&circle->rTan, rtapi_cos(angle), &par);
+    pmCartScalMult(&circle->rPerp, rtapi_sin(angle), &perp);
 
     /* add to get radius vector rel to center */
     pmCartCartAdd(&par, &perp, point);

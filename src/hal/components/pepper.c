@@ -79,7 +79,7 @@
 */
 
 #include <float.h>
-#include <rtapi_math.h>
+#include "rtapi_math.h"
 #include <rtapi_string.h>
 #include <stdint.h>
 

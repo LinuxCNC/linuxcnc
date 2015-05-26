@@ -746,7 +746,7 @@ static void process_inputs(void)
 	}
 	/* calculate following error */
 	joint->ferror = joint->pos_cmd - joint->pos_fb;
-	abs_ferror = fabs(joint->ferror);
+	abs_ferror = rtapi_fabs(joint->ferror);
 	/* update maximum ferror if needed */
 	if (abs_ferror > joint->ferror_high_mark) {
 	    joint->ferror_high_mark = abs_ferror;
@@ -755,7 +755,7 @@ static void process_inputs(void)
 	/* calculate following error limit */
 	if (joint->vel_limit > 0.0) {
 	    joint->ferror_limit =
-		joint->max_ferror * fabs(joint->vel_cmd) / joint->vel_limit;
+		joint->max_ferror * rtapi_fabs(joint->vel_cmd) / joint->vel_limit;
 	} else {
 	    joint->ferror_limit = 0;
 	}
@@ -1327,16 +1327,16 @@ static void get_pos_cmds(long period)
 		       overshoot */
 		    pos_err = joint->free_pos_cmd - joint->pos_cmd;
 		    /* positive and negative errors require some sign flipping to
-		       avoid sqrt(negative) */
+		       avoid rtapi_sqrt(negative) */
 		    if (pos_err > tiny_dp) {
 			vel_req =
-			    -max_dv + sqrt(2.0 * joint->acc_limit * pos_err +
+			    -max_dv + rtapi_sqrt(2.0 * joint->acc_limit * pos_err +
 			    max_dv * max_dv);
 			/* mark joint active */
 			joint->free_tp_active = 1;
 		    } else if (pos_err < -tiny_dp) {
 			vel_req =
-			    max_dv - sqrt(-2.0 * joint->acc_limit * pos_err +
+			    max_dv - rtapi_sqrt(-2.0 * joint->acc_limit * pos_err +
 			    max_dv * max_dv);
 			/* mark joint active */
 			joint->free_tp_active = 1;
@@ -1534,14 +1534,14 @@ static void get_pos_cmds(long period)
 	    (emcmotDebug->teleop_data.desiredVel.c -
 	    emcmotDebug->teleop_data.currentVel.c) /
 	    servo_period;
-	if (fabs(emcmotDebug->teleop_data.desiredAccel.a) > accell_mag) {
-	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccel.a);
+	if (rtapi_fabs(emcmotDebug->teleop_data.desiredAccel.a) > accell_mag) {
+	    accell_mag = rtapi_fabs(emcmotDebug->teleop_data.desiredAccel.a);
 	}
-	if (fabs(emcmotDebug->teleop_data.desiredAccel.b) > accell_mag) {
-	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccel.b);
+	if (rtapi_fabs(emcmotDebug->teleop_data.desiredAccel.b) > accell_mag) {
+	    accell_mag = rtapi_fabs(emcmotDebug->teleop_data.desiredAccel.b);
 	}
-	if (fabs(emcmotDebug->teleop_data.desiredAccel.c) > accell_mag) {
-	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccel.c);
+	if (rtapi_fabs(emcmotDebug->teleop_data.desiredAccel.c) > accell_mag) {
+	    accell_mag = rtapi_fabs(emcmotDebug->teleop_data.desiredAccel.c);
 	}
 	
 	/* accell_mag should now hold the max accell */
@@ -1992,7 +1992,7 @@ static void output_to_hal(void)
     *(emcmot_hal_data->coord_error) = GET_MOTION_ERROR_FLAG();
     *(emcmot_hal_data->on_soft_limit) = emcmotStatus->on_soft_limit;
     if(emcmotStatus->spindle.css_factor) {
-	double denom = fabs(emcmotStatus->spindle.xoffset - emcmotStatus->carte_pos_cmd.tran.x);
+	double denom = rtapi_fabs(emcmotStatus->spindle.xoffset - emcmotStatus->carte_pos_cmd.tran.x);
 	double speed;
         double maxpositive;
         if(denom > 0) speed = emcmotStatus->spindle.css_factor / denom;
@@ -2000,7 +2000,7 @@ static void output_to_hal(void)
 
 	speed = speed * emcmotStatus->net_spindle_scale;
 
-        maxpositive = fabs(emcmotStatus->spindle.speed);
+        maxpositive = rtapi_fabs(emcmotStatus->spindle.speed);
         // cap speed to G96 D...
         if(speed < -maxpositive)
             speed = -maxpositive;
@@ -2013,8 +2013,8 @@ static void output_to_hal(void)
 	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
 	*(emcmot_hal_data->spindle_speed_out_rps) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale / 60.;
     }
-	*(emcmot_hal_data->spindle_speed_out_abs) = fabs(*(emcmot_hal_data->spindle_speed_out));
-	*(emcmot_hal_data->spindle_speed_out_rps_abs) = fabs(*(emcmot_hal_data->spindle_speed_out_rps));
+	*(emcmot_hal_data->spindle_speed_out_abs) = rtapi_fabs(*(emcmot_hal_data->spindle_speed_out));
+	*(emcmot_hal_data->spindle_speed_out_rps_abs) = rtapi_fabs(*(emcmot_hal_data->spindle_speed_out_rps));
     *(emcmot_hal_data->spindle_speed_cmd_rps) = emcmotStatus->spindle.speed / 60.;
     *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_forward) = (*emcmot_hal_data->spindle_speed_out > 0) ? 1 : 0;
@@ -2031,7 +2031,7 @@ static void output_to_hal(void)
     } else if(GET_MOTION_TELEOP_FLAG()) {
         PmCartesian t = emcmotDebug->teleop_data.currentVel.tran;
         *(emcmot_hal_data->requested_vel) = 0.0;
-        emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = sqrt(t.x * t.x + t.y * t.y + t.z * t.z);
+        emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = rtapi_sqrt(t.x * t.x + t.y * t.y + t.z * t.z);
     } else {
         int i;
         double v2 = 0.0;
@@ -2039,7 +2039,7 @@ static void output_to_hal(void)
             if(GET_JOINT_ACTIVE_FLAG(&(joints[i])) && joints[i].free_tp_active)
                 v2 += joints[i].vel_cmd * joints[i].vel_cmd;
         if(v2 > 0.0)
-            emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = sqrt(v2);
+            emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = rtapi_sqrt(v2);
         else
             emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = 0.0;
         *(emcmot_hal_data->requested_vel) = 0.0;

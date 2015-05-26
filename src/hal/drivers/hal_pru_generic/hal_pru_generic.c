@@ -287,7 +287,7 @@ static void hpg_read(void *void_hpg, long period) {
 }
 
 u16 ns2periods(hal_pru_generic_t *hpg, hal_u32_t ns) {
-    u16 p = ceil((double)ns / (double)hpg->config.pru_period);
+    u16 p = rtapi_ceil((double)ns / (double)hpg->config.pru_period);
     return p;
 }
 

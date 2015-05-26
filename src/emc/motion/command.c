@@ -738,7 +738,7 @@ check_stuff ( "before command_handler()" );
 		joint->free_pos_cmd = joint->min_jog_limit;
 	    }
 	    /* set velocity of jog */
-	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    joint->free_vel_lim = rtapi_fabs(emcmotCommand->vel);
 	    /* lock out other jog sources */
 	    joint->kb_jog_active = 1;
 	    /* and let it go */
@@ -813,7 +813,7 @@ check_stuff ( "before command_handler()" );
 	    /* set target position */
 	    joint->free_pos_cmd = tmp1;
 	    /* set velocity of jog */
-	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    joint->free_vel_lim = rtapi_fabs(emcmotCommand->vel);
 	    /* lock out other jog sources */
 	    joint->kb_jog_active = 1;
 	    /* and let it go */
@@ -875,7 +875,7 @@ check_stuff ( "before command_handler()" );
 		joint->free_pos_cmd = joint->min_jog_limit;
 	    }
 	    /* set velocity of jog */
-	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    joint->free_vel_lim = rtapi_fabs(emcmotCommand->vel);
 	    /* lock out other jog sources */
 	    joint->kb_jog_active = 1;
 	    /* and let it go */
@@ -1524,14 +1524,14 @@ check_stuff ( "before command_handler()" );
 		double velmag;
 		emcmotDebug->teleop_data.desiredVel = emcmotCommand->pos;
 		pmCartMag(&emcmotDebug->teleop_data.desiredVel.tran, &velmag);
-		if (fabs(emcmotDebug->teleop_data.desiredVel.a) > velmag) {
-		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.a);
+		if (rtapi_fabs(emcmotDebug->teleop_data.desiredVel.a) > velmag) {
+		    velmag = rtapi_fabs(emcmotDebug->teleop_data.desiredVel.a);
 		}
-		if (fabs(emcmotDebug->teleop_data.desiredVel.b) > velmag) {
-		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.b);
+		if (rtapi_fabs(emcmotDebug->teleop_data.desiredVel.b) > velmag) {
+		    velmag = rtapi_fabs(emcmotDebug->teleop_data.desiredVel.b);
 		}
-		if (fabs(emcmotDebug->teleop_data.desiredVel.c) > velmag) {
-		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.c);
+		if (rtapi_fabs(emcmotDebug->teleop_data.desiredVel.c) > velmag) {
+		    velmag = rtapi_fabs(emcmotDebug->teleop_data.desiredVel.c);
 		}
 		if (velmag > emcmotConfig->limitVel) {
 		    pmCartScalMult(&emcmotDebug->teleop_data.desiredVel.tran,

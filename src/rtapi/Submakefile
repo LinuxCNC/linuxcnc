@@ -166,7 +166,8 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcncshm.so \
 	../lib/libmtalk.so.0 \
-	../lib/liblinuxcnc-pb2++.so.0
+	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/librtapi_math.so
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR) $(RTAPI_APP_RPATH) \
@@ -213,7 +214,6 @@ $(RTLIBDIR)/rtapi$(MODULE_EXT): EXTRA_LDFLAGS += $(RT_LDFLAGS)
 
 # rule for kernel module, moved from src/Makefile
 $(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
-
 
 endif # BUILD_THREAD_MODULES
 

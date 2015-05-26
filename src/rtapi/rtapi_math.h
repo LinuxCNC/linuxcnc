@@ -16,31 +16,51 @@
 #ifndef RTAPI_MATH_H
 #define RTAPI_MATH_H
 
-#include "rtapi.h"  /* Because of all the rtapi refs */
+#include "rtapi_byteorder.h"  /* Using the bytorder to specify the ieee types */
+#include "rtapi_errno.h" /* Using the error codes */
 #include <float.h>  /* DBL_MAX and other FP goodies */
 
-#if defined(RTAPI) && !defined(BUILD_SYS_USER_DSO)
-extern double sin(double);
-extern double cos(double);
-extern double tan(double);
-extern double sqrt(double);
-extern double fabs(double);
-extern double atan(double);
-extern double atan2(double, double);
-extern double asin(double);
-extern double acos(double);
-extern double pow(double, double);
-extern double fmin(double, double);
-extern double fmax(double, double);
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-extern double ceil(double);
-extern double floor(double);
+extern int libm_errno;
 
-#define frexp(p,q) __builtin_frexp((p),(q))
-#define isnan(x) __builtin_isnan((x))
-#define signbit(x) __builtin_signbit((x))
+extern double rtapi_sin(double);
+extern double rtapi_cos(double);
+extern double rtapi_tan(double);
+extern double rtapi_sqrt(double);
+extern double rtapi_fabs(double);
+extern double rtapi_atan(double);
+extern double rtapi_atan2(double, double);
+extern double rtapi_asin(double);
+extern double rtapi_acos(double);
+extern double rtapi_pow(double, double);
+extern double rtapi_fmin(double, double);
+extern double rtapi_fmax(double, double);
+extern double rtapi_fmod(double, double);
+extern double rtapi_hypot(double, double);
+extern double rtapi_rint(double);
+extern double rtapi_scalbn(double, int);
+extern int rtapi_finite(double);
+extern double rtapi_copysign(double, double);
 
+extern double rtapi_ceil(double);
+extern double rtapi_floor(double);
+extern double rtapi_cbrt(double);
+
+#ifdef __cplusplus
+}
+#endif
+
+#define rtapi_frexp(p,q) __builtin_frexp((p),(q))
+#define rtapi_isnan(x) __builtin_isnan((x))
+#define rtapi_signbit(x) __builtin_signbit((x))
+
+#ifndef M_PIl
 #define M_PIl		3.1415926535897932384626433832795029L  /* pi */
+#endif
 #ifndef M_PI
 #define M_PI		3.1415926535897932384626433832795029   /* pi */
 #endif
@@ -57,17 +77,9 @@ extern double floor(double);
 #endif /* __GNUC_PREREQ */
 
 #if __GNUC_PREREQ(4,4)
-#define isinf(x) __builtin_isinf((x))
+#define rtapi_isinf(x) __builtin_isinf((x))
 #else
-#define isinf(x) ({ double v=((x)); !isnan(v) && isnan(v-v); })
-#endif
-
-#ifdef __i386__
-#include "rtapi_math_i386.h"
-#endif
-
-#else
-#include <math.h>
+#define rtapi_isinf(x) ({ double v=((x)); !isnan(v) && isnan(v-v); })
 #endif
 
 #include "rtapi_byteorder.h"

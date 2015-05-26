@@ -63,7 +63,8 @@
 #include <time.h>
 #include <fnmatch.h>
 #include <limits.h>			/* PATH_MAX */
-#include <math.h>
+#include "rtapi_math.h"
+#include <math.h> /* floorl */
 #include <czmq.h>
 
 const char *logpath = "/var/log/linuxcnc.log";

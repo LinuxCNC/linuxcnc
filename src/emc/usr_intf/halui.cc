@@ -20,7 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <math.h>
+#include "rtapi_math.h"
 
 #include "hal.h"		/* access to HAL functions/definitions */
 #include "rtapi.h"		/* rtapi_print_msg */
@@ -1255,7 +1255,7 @@ static int sendSpindleForward()
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
     if (emcStatus->task.activeSettings[2] != 0) {
-	emc_spindle_on_msg.speed = fabs(emcStatus->task.activeSettings[2]);
+	emc_spindle_on_msg.speed = rtapi_fabs(emcStatus->task.activeSettings[2]);
     } else {
 	emc_spindle_on_msg.speed = +1;
     }
@@ -1269,7 +1269,7 @@ static int sendSpindleReverse()
     EMC_SPINDLE_ON emc_spindle_on_msg;
     if (emcStatus->task.activeSettings[2] != 0) {
 	emc_spindle_on_msg.speed =
-	    -1 * fabs(emcStatus->task.activeSettings[2]);
+	    -1 * rtapi_fabs(emcStatus->task.activeSettings[2]);
     } else {
 	emc_spindle_on_msg.speed = -1;
     }
@@ -1871,7 +1871,7 @@ static void check_hal_changes()
 
     // if the jog-speed changes while in a continuous jog, we want to
     // re-start the jog with the new speed
-    if (fabs(old_halui_data.jog_speed - new_halui_data.jog_speed) > 0.00001) {
+    if (rtapi_fabs(old_halui_data.jog_speed - new_halui_data.jog_speed) > 0.00001) {
         old_halui_data.jog_speed = new_halui_data.jog_speed;
         jog_speed_changed = 1;
     } else {
@@ -1905,7 +1905,7 @@ static void check_hal_changes()
 	}
 
 	floatt = new_halui_data.jog_analog[joint];
-	bit = (fabs(floatt) > new_halui_data.jog_deadband);
+	bit = (rtapi_fabs(floatt) > new_halui_data.jog_deadband);
 	if ((floatt != old_halui_data.jog_analog[joint]) || (bit && jog_speed_changed)) {
 	    if (bit)
 		sendJogCont(joint,(new_halui_data.jog_speed) * (new_halui_data.jog_analog[joint]));

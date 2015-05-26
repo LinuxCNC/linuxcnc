@@ -32,9 +32,9 @@ static PmCartesian s2r(double r, double t, double p) {
     PmCartesian c;
     t = d2r(t), p = d2r(p);
 
-    c.x = r * sin(p) * cos(t);
-    c.y = r * sin(p) * sin(t);
-    c.z = r * cos(p);
+    c.x = r * rtapi_sin(p) * rtapi_cos(t);
+    c.y = r * rtapi_sin(p) * rtapi_sin(t);
+    c.z = r * rtapi_cos(p);
 
     return c;
 }

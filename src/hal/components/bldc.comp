@@ -391,7 +391,7 @@ variable int force_trap = 0;
 
 ;;
 
-#include <rtapi_math.h>
+#include "rtapi_math.h"
 #define MAX_CHAN 8
 #define NUM_TAG 8
 
@@ -476,7 +476,7 @@ FUNCTION(_) {
     if (rev) V = -value;
     else V = value;
     out_dir = (V < 0);
-    out_abs = fabs(V);
+    out_abs = rtapi_fabs(V);
     // Would expect to set "out" here too, but some modes need to over-ride it.
 
     if ((personality & 0x05) == 4){
@@ -511,7 +511,7 @@ FUNCTION(_) {
 
         case 0x00: // Dumb VFD mode, just set the angle with no feedback
             phase_angle += (frequency * period / 1000000000.0);
-            phase_angle -= floor(phase_angle);
+            phase_angle -= rtapi_floor(phase_angle);
             rotor_angle = phase_angle;
             break;
 
@@ -542,10 +542,10 @@ FUNCTION(_) {
 
             for (i = 0 ; phases[i] != ph && i<8 ; i++) {}
             rotor_angle = angles[i];
-            rotor_angle -= floor(rotor_angle);
+            rotor_angle -= rtapi_floor(rotor_angle);
             if (out_dir) phase_angle = rotor_angle + 0.25;
             else phase_angle = rotor_angle - 0.25;
-            phase_angle -= floor(phase_angle);
+            phase_angle -= rtapi_floor(phase_angle);
             
             if (! (ph & old_ph)){ hall_error = 1;}
             if (pattern != old_pattern){hall_error = 0;}
@@ -559,10 +559,10 @@ FUNCTION(_) {
                 else{
                     rotor_angle = (angles[i] + angles[i + 1])/2;
                 }
-                rotor_angle -= floor(rotor_angle);
+                rotor_angle -= rtapi_floor(rotor_angle);
                 if (out_dir) phase_angle = rotor_angle - 0.25;
                 else phase_angle = rotor_angle + 0.25;
-                phase_angle -= floor(phase_angle);
+                phase_angle -= rtapi_floor(phase_angle);
                 offset_measured = long_rawcounts - rotor_angle * ( 2 * scale/poles);
                 // And now we are homed, switch to sinusoidal drive
                 in_type = 0x02;
@@ -585,10 +585,10 @@ FUNCTION(_) {
 
             for (i = 0 ; gray_b[i] != ph && i<16 ; i++) {}
             rotor_angle = gray_a[i] + 0.03125;
-            rotor_angle -= floor(rotor_angle);
+            rotor_angle -= rtapi_floor(rotor_angle);
             if (out_dir) phase_angle = rotor_angle - 0.25;
             else phase_angle = rotor_angle + 0.25;
-            phase_angle -= floor(phase_angle);
+            phase_angle -= rtapi_floor(phase_angle);
 
             if (force_trap) break;
 
@@ -600,10 +600,10 @@ FUNCTION(_) {
                 else{
                     rotor_angle = gray_a[i + 1];
                 }
-                rotor_angle -= floor(rotor_angle);
+                rotor_angle -= rtapi_floor(rotor_angle);
                 if (out_dir) phase_angle = rotor_angle - 0.25;
                 else phase_angle = rotor_angle + 0.25;
-                phase_angle -= floor(phase_angle);
+                phase_angle -= rtapi_floor(phase_angle);
                 offset_measured = long_rawcounts - rotor_angle * ( 2 * scale/poles);
                 // And now we are homed, switch to sinusoidal drive
                 in_type = 0x02;
@@ -639,10 +639,10 @@ FUNCTION(_) {
                                    * (counter - absc[i-1]) / (absc[i] - absc[i-1]));
                 phase_angle = (th_a[i-1] + (th_a[i] - th_a[i-1])
                                * (counter - absc[i-1]) / (absc[i] - absc[i-1]));
-                phase_angle -= floor(phase_angle);
+                phase_angle -= rtapi_floor(phase_angle);
                 counter -= fperiod;
                 rotor_angle = phase_angle - (drive_offset/360.0);
-                rotor_angle -= floor(rotor_angle);
+                rotor_angle -= rtapi_floor(rotor_angle);
             }
             else {
                 rtapi_print_msg(RTAPI_MSG_ERR, "An error has occurred in the "
@@ -663,9 +663,9 @@ FUNCTION(_) {
             if (! init_done){
                 if (initvalue < 0) rotor_angle -= period / 1000000000.0;
                     else rotor_angle += period / 1000000000.0;
-                rotor_angle -= floor(rotor_angle);
+                rotor_angle -= rtapi_floor(rotor_angle);
                 phase_angle = rotor_angle;
-                V = fabs(initvalue);
+                V = rtapi_fabs(initvalue);
             }
             break;
 
@@ -678,9 +678,9 @@ FUNCTION(_) {
             lagcomped_counts = long_rawcounts + ((long_rawcounts - old_long_rawcounts)/2);
             rotor_angle = (double)((lagcomped_counts - offset_measured 
                                     - encoder_offset)* poles/2)/scale;
-            rotor_angle -= floor(rotor_angle);
+            rotor_angle -= rtapi_floor(rotor_angle);
             phase_angle = rotor_angle + lead;
-            phase_angle -= floor(phase_angle);
+            phase_angle -= rtapi_floor(phase_angle);
             break;
 
         case 0x03:
@@ -736,7 +736,7 @@ FUNCTION(_) {
     if (force_trap) {trap = 1;} // forced trapezoidal mode
 
     out = V;
-    out_abs = fabs(V);
+    out_abs = rtapi_fabs(V);
 
     switch (out_type){
         case 0: // Default; 3-wire sinusoidal or trapezoidal
@@ -755,8 +755,8 @@ FUNCTION(_) {
             }
             else
             {
-                sintheta = sin(phase_angle * pi2);
-                costheta = cos(phase_angle * pi2);
+                sintheta = rtapi_sin(phase_angle * pi2);
+                costheta = rtapi_cos(phase_angle * pi2);
                 A_value = out_abs * costheta;
                 B_value = out_abs * (costheta * cos120 + sintheta * sin120);
                 C_value = out_abs * (costheta * cos120 - sintheta * sin120);
@@ -792,8 +792,8 @@ FUNCTION(_) {
             }
             else
             {
-                sintheta = sin(phase_angle * pi2);
-                costheta = cos(phase_angle * pi2);
+                sintheta = rtapi_sin(phase_angle * pi2);
+                costheta = rtapi_cos(phase_angle * pi2);
                 if (costheta >=0){
                     A_high = out_abs * costheta; A_low = 0;}
                 else {

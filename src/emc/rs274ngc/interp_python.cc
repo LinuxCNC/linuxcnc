@@ -23,7 +23,7 @@ namespace bp = boost::python;
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>

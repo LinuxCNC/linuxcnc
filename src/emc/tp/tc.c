@@ -434,10 +434,10 @@ int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
     if (T2 == 0) {
         T2 = tc->nominal_length * tolerance_ratio;
     }
-    *nominal_tolerance = fmin(T1,T2);
+    *nominal_tolerance = rtapi_fmin(T1,T2);
     //Blend tolerance is the limit of what we can reach by blending alone,
     //consuming half a segment or less (parabolic equivalent)
-    double blend_tolerance = fmin(fmin(*nominal_tolerance, 
+    double blend_tolerance = rtapi_fmin(rtapi_fmin(*nominal_tolerance, 
                 prev_tc->nominal_length * tolerance_ratio),
             tc->nominal_length * tolerance_ratio);
     *T_blend = blend_tolerance;

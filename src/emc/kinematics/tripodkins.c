@@ -162,7 +162,7 @@ int kinematicsForward(const double * joints,
     /* triangle inequality violated */
     return -1;
   }
-  Dz = sqrt(Dz);
+  Dz = rtapi_sqrt(Dz);
   if (*fflags) {
     Dz = -Dz;
   }
@@ -193,9 +193,9 @@ int kinematicsInverse(const EmcPose * pos,
 #define Dy (pos->tran.y)
 #define Dz (pos->tran.z)
 
-  AD = sqrt(sq(Dx) + sq(Dy) + sq(Dz));
-  BD = sqrt(sq(Dx - Bx) + sq(Dy) + sq(Dz));
-  CD = sqrt(sq(Dx - Cx) + sq(Dy - Cy) + sq(Dz));
+  AD = rtapi_sqrt(sq(Dx) + sq(Dy) + sq(Dz));
+  BD = rtapi_sqrt(sq(Dx - Bx) + sq(Dy) + sq(Dz));
+  CD = rtapi_sqrt(sq(Dx - Cx) + sq(Dy - Cy) + sq(Dz));
 
   *fflags = 0;
   if (Dz < 0.0) {

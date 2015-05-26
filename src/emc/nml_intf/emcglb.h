@@ -16,7 +16,7 @@
 #define EMCGLB_H
 
 #include "config.h"             /* LINELEN */
-#include "math.h"		/* M_PI */
+#include "rtapi_math.h"		/* M_PI */
 #include "emcmotcfg.h"          /* EMCMOT_MAX_DIO */
 #include "debugflags.h"
 

@@ -22,7 +22,7 @@
 #include "rtapi_app.h"
 #include "hal.h"
 
-#include <math.h>
+#include "rtapi_math.h"
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -317,12 +317,12 @@ static void update(void *arg, long period) {
 			spi->maxaccel[i] = 0.0;
 		} else {
 			/* parameter is non-zero, compare to max_accl */
-			if ((spi->maxaccel[i] * fabs(spi->scale[i])) > max_accl) {
+			if ((spi->maxaccel[i] * rtapi_fabs(spi->scale[i])) > max_accl) {
 				/* parameter is too high, lower it */
-				spi->maxaccel[i] = max_accl / fabs(spi->scale[i]);
+				spi->maxaccel[i] = max_accl / rtapi_fabs(spi->scale[i]);
 			} else {
 				/* lower limit to match parameter */
-				max_accl = spi->maxaccel[i] * fabs(spi->scale[i]);
+				max_accl = spi->maxaccel[i] * rtapi_fabs(spi->scale[i]);
 			}
 		}
 
@@ -358,7 +358,7 @@ static void update(void *arg, long period) {
 
 		if (match_time < dt) {
 			/* we can match velocity in one period */
-			if (fabs(est_err) < 0.0001) {
+			if (rtapi_fabs(est_err) < 0.0001) {
 				/* after match the position error will be acceptable */
 				/* so we just do the velocity match */
 				new_vel = vel_cmd;
@@ -378,7 +378,7 @@ static void update(void *arg, long period) {
 			dv = -2.0 * match_accl * dt;
 			dp = dv * match_time;
 			/* decide which way to ramp */
-			if (fabs(est_err + dp * 2.0) < fabs(est_err)) {
+			if (rtapi_fabs(est_err + dp * 2.0) < rtapi_fabs(est_err)) {
 				match_accl = -match_accl;
 			}
 			/* and do it */

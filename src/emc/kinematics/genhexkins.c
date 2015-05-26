@@ -465,13 +465,13 @@ int kinematicsForward(const double * joints,
     /* determine value of conv_error (used to determine if no convergence) */
     conv_err = 0.0;
     for (i = 0; i < NUM_STRUTS; i++) {
-      conv_err += fabs(StrutLengthDiff[i]);
+      conv_err += rtapi_fabs(StrutLengthDiff[i]);
     }
 
     /* enter loop to determine if a strut needs another iteration */
     iterate = 0;			/*assume iteration is done */
     for (i = 0; i < NUM_STRUTS; i++) {
-      if (fabs(StrutLengthDiff[i]) > conv_criterion) {
+      if (rtapi_fabs(StrutLengthDiff[i]) > conv_criterion) {
 	iterate = 1;
       }
     }

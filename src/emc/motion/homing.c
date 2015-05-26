@@ -60,7 +60,7 @@ static void home_start_move(emcmot_joint_t * joint, double vel)
     } else {
 	joint->free_pos_cmd = joint->pos_cmd - 2.0 * joint_range;
     }
-    joint->free_vel_lim = fabs(vel);
+    joint->free_vel_lim = rtapi_fabs(vel);
     /* start the move */
     joint->free_tp_enable = 1;
 }
@@ -715,7 +715,7 @@ void do_homing(void)
 		/* do the move at max speed */
 		/* if home_vel is set (>0) then we use that, otherwise we rapid there */
 		if (joint->home_final_vel > 0) {
-		    joint->free_vel_lim = fabs(joint->home_final_vel);
+		    joint->free_vel_lim = rtapi_fabs(joint->home_final_vel);
 		    /* clamp on max vel for this joint */
 		    if (joint->free_vel_lim > joint->vel_limit)
 			joint->free_vel_lim = joint->vel_limit;

@@ -19,7 +19,7 @@
 #include <string.h>		/* strerror */
 #include <stdlib.h>		/* memset() */
 #include <errno.h>		/* errno */
-#include <math.h>		/* fabs() */
+#include "rtapi_math.h"		/* fabs() */
 #include <sys/socket.h>		/* send(), recv(), socket(), accept(),
 				   bind(), listen() */
 #include <sys/time.h>		/* struct timeval */
@@ -53,7 +53,7 @@ int sendn(int fd, const void *vptr, int n, int _flags, double _timeout)
     nleft = n;
     start_time = etime();
     while (nleft > 0) {
-	if (fabs(_timeout) > 1E-6) {
+	if (rtapi_fabs(_timeout) > 1E-6) {
 	    if (_timeout > 0) {
                 double timeleft;
 		timeleft = start_time + _timeout - etime();

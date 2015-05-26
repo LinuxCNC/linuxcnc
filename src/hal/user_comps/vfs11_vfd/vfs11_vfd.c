@@ -54,7 +54,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <getopt.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <signal.h>
 #include <stdarg.h>
 

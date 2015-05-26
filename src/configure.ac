@@ -215,10 +215,10 @@ AC_DEFUN([_cfg_flavor_params],
 	 [[rt-preempt],[1],[user-dso],[rt-preempt],[.so],[.so],[0]],
 	 [[xenomai],[2],[user-dso],[xenomai],[.so],[.so],[FLAVOR_DOES_IO]],
 	 [[xenomai-kernel],[3],[kbuild],[xenomai-kernel],[.ko],[.so],dnl
-[FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],[xeno_math]],
+[FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],[rtapi_math]],
 	 [[rtai-kernel],[4],[kbuild],[rtai-kernel],[.ko],[.so],dnl
 [FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],dnl
-[rtai_hal rtai_sched xeno_math]]])
+[rtai_hal rtai_sched rtapi_math]]])
 
 
 dnl #--------------------------------------------------------#
@@ -289,7 +289,7 @@ AC_DEFUN([_cfg_flavor_flags],
 
 dnl _cfg_flavor_extra_kmods(flavor):  extra kernel modules to load for kthreads
 dnl   for use in rtapi.ini
-dnl   _cfg_flavor_extra_kmods(xenomai-kernel) => xeno_math
+dnl   _cfg_flavor_extra_kmods(xenomai-kernel) => rtapi_math
 AC_DEFUN([_cfg_flavor_tuple_extra_kmods],[$8])
 AC_DEFUN([_cfg_flavor_extra_kmods],
 	[m4_foreach([flav],[_cfg_flavor_params],
@@ -2628,7 +2628,7 @@ AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
 LIBS_hold=$LIBS
-LIBS="$LIBS -lm -lrt"
+LIBS="$LIBS -lrt"
 
 AC_CHECK_FUNCS(clock_getres)
 
