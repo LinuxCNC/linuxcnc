@@ -23,10 +23,6 @@
 #define d2r(d) ((d)*PM_PI/180.0)
 #define r2d(r) ((r)*180.0/PM_PI)
 
-#ifndef rtapi_hypot
-#define rtapi_hypot(a,b) (rtapi_sqrt((a)*(a)+(b)*(b)))
-#endif
-
 struct haldata {
     hal_float_t *pivot_length;
 } *haldata;
