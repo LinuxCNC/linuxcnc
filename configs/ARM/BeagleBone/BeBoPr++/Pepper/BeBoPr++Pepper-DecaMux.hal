@@ -24,7 +24,7 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 
 # load low-level drivers
 loadrt hal_bb_gpio output_pins=107,224,226 input_pins=108,109,110,114,117,118
-loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG)
+loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
 loadrt pid num_chan=2
 loadrt limit1 count=2
 loadrt pepper count=2
@@ -39,7 +39,7 @@ loadusr -Wn Therm ./ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 # THREADS
 # ################################################
 
-addf [PRUCONF](DRIVER).capture-position   servo-thread
+addf hpg.capture-position                 servo-thread
 addf bb_gpio.read                         base-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
@@ -47,7 +47,7 @@ addf pid.0.do-pid-calcs                   servo-thread
 addf pid.1.do-pid-calcs                   servo-thread
 addf limit1.0                             servo-thread
 addf limit1.1                             servo-thread
-addf [PRUCONF](DRIVER).update             servo-thread
+addf hpg.update                           servo-thread
 addf bb_gpio.write                        base-thread
 addf pepper.update			  base-thread      
 
@@ -65,34 +65,34 @@ newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 
 net emcmot.00.enable <= axis.0.amp-enable-out 
-net emcmot.00.enable => [PRUCONF](DRIVER).stepgen.00.enable
+net emcmot.00.enable => hpg.stepgen.00.enable
 
 
 # position command and feedback
 net emcmot.00.pos-cmd <= axis.0.motor-pos-cmd
-net emcmot.00.pos-cmd => [PRUCONF](DRIVER).stepgen.00.position-cmd
+net emcmot.00.pos-cmd => hpg.stepgen.00.position-cmd
 
-net motor.00.pos-fb <= [PRUCONF](DRIVER).stepgen.00.position-fb
+net motor.00.pos-fb <= hpg.stepgen.00.position-fb
 net motor.00.pos-fb => axis.0.motor-pos-fb
 
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.00.dirsetup        [AXIS_0]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.00.dirhold         [AXIS_0]DIRHOLD
+setp hpg.stepgen.00.dirsetup        [AXIS_0]DIRSETUP
+setp hpg.stepgen.00.dirhold         [AXIS_0]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.00.steplen         [AXIS_0]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.00.stepspace       [AXIS_0]STEPSPACE
+setp hpg.stepgen.00.steplen         [AXIS_0]STEPLEN
+setp hpg.stepgen.00.stepspace       [AXIS_0]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.00.position-scale  [AXIS_0]SCALE
+setp hpg.stepgen.00.position-scale  [AXIS_0]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
+setp hpg.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
+setp hpg.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
-#setp [PRUCONF](DRIVER).stepgen.00.step_type       0
+#setp hpg.stepgen.00.step_type       0
 # P8.12 GPIO1_12
-setp [PRUCONF](DRIVER).stepgen.00.steppin          0x4C
+setp hpg.stepgen.00.steppin          0x4C
 # P8.11 GPIO1_13
-setp [PRUCONF](DRIVER).stepgen.00.dirpin           0x4D
+setp hpg.stepgen.00.dirpin           0x4D
 
 
 # ################
@@ -104,34 +104,34 @@ newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 
 net emcmot.01.enable <= axis.1.amp-enable-out 
-net emcmot.01.enable => [PRUCONF](DRIVER).stepgen.01.enable
+net emcmot.01.enable => hpg.stepgen.01.enable
 
 
 # position command and feedback
 net emcmot.01.pos-cmd <= axis.1.motor-pos-cmd
-net emcmot.01.pos-cmd => [PRUCONF](DRIVER).stepgen.01.position-cmd
+net emcmot.01.pos-cmd => hpg.stepgen.01.position-cmd
 
-net motor.01.pos-fb <= [PRUCONF](DRIVER).stepgen.01.position-fb
+net motor.01.pos-fb <= hpg.stepgen.01.position-fb
 net motor.01.pos-fb => axis.1.motor-pos-fb
 
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.01.dirsetup        [AXIS_1]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.01.dirhold         [AXIS_1]DIRHOLD
+setp hpg.stepgen.01.dirsetup        [AXIS_1]DIRSETUP
+setp hpg.stepgen.01.dirhold         [AXIS_1]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.01.steplen         [AXIS_1]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.01.stepspace       [AXIS_1]STEPSPACE
+setp hpg.stepgen.01.steplen         [AXIS_1]STEPLEN
+setp hpg.stepgen.01.stepspace       [AXIS_1]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.01.position-scale  [AXIS_1]SCALE
+setp hpg.stepgen.01.position-scale  [AXIS_1]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
+setp hpg.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
+setp hpg.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
-#setp [PRUCONF](DRIVER).stepgen.01.step_type       0
+#setp hpg.stepgen.01.step_type       0
 # P8.16 GPIO1_14
-setp [PRUCONF](DRIVER).stepgen.01.steppin          0x4E
+setp hpg.stepgen.01.steppin          0x4E
 # P8.15 GPIO1_15
-setp [PRUCONF](DRIVER).stepgen.01.dirpin           0x4F
+setp hpg.stepgen.01.dirpin           0x4F
 
 
 # ################
@@ -143,34 +143,34 @@ newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 
 net emcmot.02.enable <= axis.2.amp-enable-out 
-net emcmot.02.enable => [PRUCONF](DRIVER).stepgen.02.enable
+net emcmot.02.enable => hpg.stepgen.02.enable
 
 
 # position command and feedback
 net emcmot.02.pos-cmd <= axis.2.motor-pos-cmd
-net emcmot.02.pos-cmd => [PRUCONF](DRIVER).stepgen.02.position-cmd
+net emcmot.02.pos-cmd => hpg.stepgen.02.position-cmd
 
-net motor.02.pos-fb <= [PRUCONF](DRIVER).stepgen.02.position-fb
+net motor.02.pos-fb <= hpg.stepgen.02.position-fb
 net motor.02.pos-fb => axis.2.motor-pos-fb
 
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.02.dirsetup        [AXIS_2]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.02.dirhold         [AXIS_2]DIRHOLD
+setp hpg.stepgen.02.dirsetup        [AXIS_2]DIRSETUP
+setp hpg.stepgen.02.dirhold         [AXIS_2]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.02.steplen         [AXIS_2]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.02.stepspace       [AXIS_2]STEPSPACE
+setp hpg.stepgen.02.steplen         [AXIS_2]STEPLEN
+setp hpg.stepgen.02.stepspace       [AXIS_2]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.02.position-scale  [AXIS_2]SCALE
+setp hpg.stepgen.02.position-scale  [AXIS_2]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
+setp hpg.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
+setp hpg.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
-#setp [PRUCONF](DRIVER).stepgen.02.step_type       0
+#setp hpg.stepgen.02.step_type       0
 # P9.15 GPIO1_16
-setp [PRUCONF](DRIVER).stepgen.02.steppin          0x50
+setp hpg.stepgen.02.steppin          0x50
 # P9.23 GPIO1_17
-setp [PRUCONF](DRIVER).stepgen.02.dirpin           0x51
+setp hpg.stepgen.02.dirpin           0x51
 
 
 # ################
@@ -182,34 +182,34 @@ newsig emcmot.03.enable bit
 sets emcmot.03.enable FALSE
 
 net emcmot.03.enable <= axis.3.amp-enable-out 
-net emcmot.03.enable => [PRUCONF](DRIVER).stepgen.03.enable
+net emcmot.03.enable => hpg.stepgen.03.enable
 
 
 # position command and feedback
 net emcmot.03.pos-cmd <= axis.3.motor-pos-cmd
-net emcmot.03.pos-cmd => [PRUCONF](DRIVER).stepgen.03.position-cmd
+net emcmot.03.pos-cmd => hpg.stepgen.03.position-cmd
 
-net motor.03.pos-fb <= [PRUCONF](DRIVER).stepgen.03.position-fb
+net motor.03.pos-fb <= hpg.stepgen.03.position-fb
 net motor.03.pos-fb => axis.3.motor-pos-fb
 
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.03.dirsetup        [AXIS_3]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.03.dirhold         [AXIS_3]DIRHOLD
+setp hpg.stepgen.03.dirsetup        [AXIS_3]DIRSETUP
+setp hpg.stepgen.03.dirhold         [AXIS_3]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.03.steplen         [AXIS_3]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.03.stepspace       [AXIS_3]STEPSPACE
+setp hpg.stepgen.03.steplen         [AXIS_3]STEPLEN
+setp hpg.stepgen.03.stepspace       [AXIS_3]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.03.position-scale  [AXIS_3]SCALE
+setp hpg.stepgen.03.position-scale  [AXIS_3]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
+setp hpg.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
+setp hpg.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 
-#setp [PRUCONF](DRIVER).stepgen.03.step_type       0
+#setp hpg.stepgen.03.step_type       0
 # P9.22 GPIO0_2
-setp [PRUCONF](DRIVER).stepgen.03.steppin          0x22
+setp hpg.stepgen.03.steppin          0x22
 # P9.21 GPIO0_3
-setp [PRUCONF](DRIVER).stepgen.03.dirpin           0x23
+setp hpg.stepgen.03.dirpin           0x23
 
 
 # ################
@@ -221,34 +221,34 @@ newsig emcmot.04.enable bit
 sets emcmot.04.enable FALSE
 
 net emcmot.04.enable <= axis.4.amp-enable-out 
-net emcmot.04.enable => [PRUCONF](DRIVER).stepgen.04.enable
+net emcmot.04.enable => hpg.stepgen.04.enable
 
 
 # position command and feedback
 net emcmot.04.pos-cmd <= axis.4.motor-pos-cmd
-net emcmot.04.pos-cmd => [PRUCONF](DRIVER).stepgen.04.position-cmd
+net emcmot.04.pos-cmd => hpg.stepgen.04.position-cmd
 
-net motor.04.pos-fb <= [PRUCONF](DRIVER).stepgen.04.position-fb
+net motor.04.pos-fb <= hpg.stepgen.04.position-fb
 net motor.04.pos-fb => axis.4.motor-pos-fb
 
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.04.dirsetup        [AXIS_4]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.04.dirhold         [AXIS_4]DIRHOLD
+setp hpg.stepgen.04.dirsetup        [AXIS_4]DIRSETUP
+setp hpg.stepgen.04.dirhold         [AXIS_4]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.04.steplen         [AXIS_4]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.04.stepspace       [AXIS_4]STEPSPACE
+setp hpg.stepgen.04.steplen         [AXIS_4]STEPLEN
+setp hpg.stepgen.04.stepspace       [AXIS_4]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.04.position-scale  [AXIS_4]SCALE
+setp hpg.stepgen.04.position-scale  [AXIS_4]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.04.maxvel          [AXIS_4]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.04.maxaccel        [AXIS_4]STEPGEN_MAX_ACC
+setp hpg.stepgen.04.maxvel          [AXIS_4]STEPGEN_MAX_VEL
+setp hpg.stepgen.04.maxaccel        [AXIS_4]STEPGEN_MAX_ACC
 
-#setp [PRUCONF](DRIVER).stepgen.04.step_type       0
+#setp hpg.stepgen.04.step_type       0
 # P9.18 GPIO0_4
-setp [PRUCONF](DRIVER).stepgen.04.steppin          0x24
+setp hpg.stepgen.04.steppin          0x24
 # P9.17 GPIO0_5
-setp [PRUCONF](DRIVER).stepgen.04.dirpin           0x25
+setp hpg.stepgen.04.dirpin           0x25
 
 
 # ################
@@ -260,34 +260,34 @@ newsig emcmot.05.enable bit
 sets emcmot.05.enable FALSE
 
 net emcmot.05.enable <= axis.5.amp-enable-out 
-net emcmot.05.enable => [PRUCONF](DRIVER).stepgen.05.enable
+net emcmot.05.enable => hpg.stepgen.05.enable
 
 
 # position command and feedback
 net emcmot.05.pos-cmd <= axis.5.motor-pos-cmd
-net emcmot.05.pos-cmd => [PRUCONF](DRIVER).stepgen.05.position-cmd
+net emcmot.05.pos-cmd => hpg.stepgen.05.position-cmd
 
-net motor.05.pos-fb <= [PRUCONF](DRIVER).stepgen.05.position-fb
+net motor.05.pos-fb <= hpg.stepgen.05.position-fb
 net motor.05.pos-fb => axis.5.motor-pos-fb
 
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.05.dirsetup        [AXIS_5]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.05.dirhold         [AXIS_5]DIRHOLD
+setp hpg.stepgen.05.dirsetup        [AXIS_5]DIRSETUP
+setp hpg.stepgen.05.dirhold         [AXIS_5]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.05.steplen         [AXIS_5]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.05.stepspace       [AXIS_5]STEPSPACE
+setp hpg.stepgen.05.steplen         [AXIS_5]STEPLEN
+setp hpg.stepgen.05.stepspace       [AXIS_5]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.05.position-scale  [AXIS_5]SCALE
+setp hpg.stepgen.05.position-scale  [AXIS_5]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.05.maxvel          [AXIS_5]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.05.maxaccel        [AXIS_5]STEPGEN_MAX_ACC
+setp hpg.stepgen.05.maxvel          [AXIS_5]STEPGEN_MAX_VEL
+setp hpg.stepgen.05.maxaccel        [AXIS_5]STEPGEN_MAX_ACC
 
-#setp [PRUCONF](DRIVER).stepgen.05.step_type       0
+#setp hpg.stepgen.05.step_type       0
 # P8.12 GPIO1_12
-setp [PRUCONF](DRIVER).stepgen.05.steppin          0x8C
+setp hpg.stepgen.05.steppin          0x8C
 # P8.11 GPIO1_13
-setp [PRUCONF](DRIVER).stepgen.05.dirpin           0x8D
+setp hpg.stepgen.05.dirpin           0x8D
 
 
 # ################
@@ -299,34 +299,34 @@ newsig emcmot.06.enable bit
 sets emcmot.06.enable FALSE
 
 net emcmot.06.enable <= axis.6.amp-enable-out 
-net emcmot.06.enable => [PRUCONF](DRIVER).stepgen.06.enable
+net emcmot.06.enable => hpg.stepgen.06.enable
 
 
 # position command and feedback
 net emcmot.06.pos-cmd <= axis.6.motor-pos-cmd
-net emcmot.06.pos-cmd => [PRUCONF](DRIVER).stepgen.06.position-cmd
+net emcmot.06.pos-cmd => hpg.stepgen.06.position-cmd
 
-net motor.06.pos-fb <= [PRUCONF](DRIVER).stepgen.06.position-fb
+net motor.06.pos-fb <= hpg.stepgen.06.position-fb
 net motor.06.pos-fb => axis.6.motor-pos-fb
 
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.06.dirsetup        [AXIS_6]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.06.dirhold         [AXIS_6]DIRHOLD
+setp hpg.stepgen.06.dirsetup        [AXIS_6]DIRSETUP
+setp hpg.stepgen.06.dirhold         [AXIS_6]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.06.steplen         [AXIS_6]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.06.stepspace       [AXIS_6]STEPSPACE
+setp hpg.stepgen.06.steplen         [AXIS_6]STEPLEN
+setp hpg.stepgen.06.stepspace       [AXIS_6]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.06.position-scale  [AXIS_6]SCALE
+setp hpg.stepgen.06.position-scale  [AXIS_6]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.06.maxvel          [AXIS_6]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.06.maxaccel        [AXIS_6]STEPGEN_MAX_ACC
+setp hpg.stepgen.06.maxvel          [AXIS_6]STEPGEN_MAX_VEL
+setp hpg.stepgen.06.maxaccel        [AXIS_6]STEPGEN_MAX_ACC
 
-#setp [PRUCONF](DRIVER).stepgen.06.step_type       0
+#setp hpg.stepgen.06.step_type       0
 # P8.16 GPIO1_14
-setp [PRUCONF](DRIVER).stepgen.06.steppin          0x8E
+setp hpg.stepgen.06.steppin          0x8E
 # P8.15 GPIO1_15
-setp [PRUCONF](DRIVER).stepgen.06.dirpin           0x8F
+setp hpg.stepgen.06.dirpin           0x8F
 
 
 # ################
@@ -338,34 +338,34 @@ newsig emcmot.07.enable bit
 sets emcmot.07.enable FALSE
 
 net emcmot.07.enable <= axis.7.amp-enable-out 
-net emcmot.07.enable => [PRUCONF](DRIVER).stepgen.07.enable
+net emcmot.07.enable => hpg.stepgen.07.enable
 
 
 # position command and feedback
 net emcmot.07.pos-cmd <= axis.7.motor-pos-cmd
-net emcmot.07.pos-cmd => [PRUCONF](DRIVER).stepgen.07.position-cmd
+net emcmot.07.pos-cmd => hpg.stepgen.07.position-cmd
 
-net motor.07.pos-fb <= [PRUCONF](DRIVER).stepgen.07.position-fb
+net motor.07.pos-fb <= hpg.stepgen.07.position-fb
 net motor.07.pos-fb => axis.7.motor-pos-fb
 
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.07.dirsetup        [AXIS_7]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.07.dirhold         [AXIS_7]DIRHOLD
+setp hpg.stepgen.07.dirsetup        [AXIS_7]DIRSETUP
+setp hpg.stepgen.07.dirhold         [AXIS_7]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.07.steplen         [AXIS_7]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.07.stepspace       [AXIS_7]STEPSPACE
+setp hpg.stepgen.07.steplen         [AXIS_7]STEPLEN
+setp hpg.stepgen.07.stepspace       [AXIS_7]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.07.position-scale  [AXIS_7]SCALE
+setp hpg.stepgen.07.position-scale  [AXIS_7]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.07.maxvel          [AXIS_7]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.07.maxaccel        [AXIS_7]STEPGEN_MAX_ACC
+setp hpg.stepgen.07.maxvel          [AXIS_7]STEPGEN_MAX_VEL
+setp hpg.stepgen.07.maxaccel        [AXIS_7]STEPGEN_MAX_ACC
 
-#setp [PRUCONF](DRIVER).stepgen.07.step_type       0
+#setp hpg.stepgen.07.step_type       0
 # P9.15 GPIO1_16
-setp [PRUCONF](DRIVER).stepgen.07.steppin          0x90
+setp hpg.stepgen.07.steppin          0x90
 # P9.23 GPIO1_17
-setp [PRUCONF](DRIVER).stepgen.07.dirpin           0x91
+setp hpg.stepgen.07.dirpin           0x91
 
 
 # ################
@@ -377,34 +377,34 @@ newsig emcmot.08.enable bit
 sets emcmot.08.enable FALSE
 
 net emcmot.08.enable <= axis.8.amp-enable-out 
-net emcmot.08.enable => [PRUCONF](DRIVER).stepgen.08.enable
+net emcmot.08.enable => hpg.stepgen.08.enable
 
 
 # position command and feedback
 net emcmot.08.pos-cmd <= axis.8.motor-pos-cmd
-net emcmot.08.pos-cmd => [PRUCONF](DRIVER).stepgen.08.position-cmd
+net emcmot.08.pos-cmd => hpg.stepgen.08.position-cmd
 
-net motor.08.pos-fb <= [PRUCONF](DRIVER).stepgen.08.position-fb
+net motor.08.pos-fb <= hpg.stepgen.08.position-fb
 net motor.08.pos-fb => axis.8.motor-pos-fb
 
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.08.dirsetup        [AXIS_8]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.08.dirhold         [AXIS_8]DIRHOLD
+setp hpg.stepgen.08.dirsetup        [AXIS_8]DIRSETUP
+setp hpg.stepgen.08.dirhold         [AXIS_8]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.08.steplen         [AXIS_8]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.08.stepspace       [AXIS_8]STEPSPACE
+setp hpg.stepgen.08.steplen         [AXIS_8]STEPLEN
+setp hpg.stepgen.08.stepspace       [AXIS_8]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.08.position-scale  [AXIS_8]SCALE
+setp hpg.stepgen.08.position-scale  [AXIS_8]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.08.maxvel          [AXIS_8]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.08.maxaccel        [AXIS_8]STEPGEN_MAX_ACC
+setp hpg.stepgen.08.maxvel          [AXIS_8]STEPGEN_MAX_VEL
+setp hpg.stepgen.08.maxaccel        [AXIS_8]STEPGEN_MAX_ACC
 
-#setp [PRUCONF](DRIVER).stepgen.08.step_type       0
+#setp hpg.stepgen.08.step_type       0
 # P9.22 GPIO0_2
-setp [PRUCONF](DRIVER).stepgen.08.steppin          0x62
+setp hpg.stepgen.08.steppin          0x62
 # P9.21 GPIO0_3
-setp [PRUCONF](DRIVER).stepgen.08.dirpin           0x63
+setp hpg.stepgen.08.dirpin           0x63
 
 
 ## ################
@@ -416,34 +416,34 @@ setp [PRUCONF](DRIVER).stepgen.08.dirpin           0x63
 #sets emcmot.09.enable FALSE
 #
 #net emcmot.09.enable <= axis.9.amp-enable-out 
-#net emcmot.09.enable => [PRUCONF](DRIVER).stepgen.09.enable
+#net emcmot.09.enable => hpg.stepgen.09.enable
 #
 #
 ## position command and feedback
 #net emcmot.09.pos-cmd <= axis.9.motor-pos-cmd
-#net emcmot.09.pos-cmd => [PRUCONF](DRIVER).stepgen.09.position-cmd
+#net emcmot.09.pos-cmd => hpg.stepgen.09.position-cmd
 #
-#net motor.09.pos-fb <= [PRUCONF](DRIVER).stepgen.09.position-fb
+#net motor.09.pos-fb <= hpg.stepgen.09.position-fb
 #net motor.09.pos-fb => axis.9.motor-pos-fb
 #
 #
 ## timing parameters
-#setp [PRUCONF](DRIVER).stepgen.09.dirsetup        [AXIS_9]DIRSETUP
-#setp [PRUCONF](DRIVER).stepgen.09.dirhold         [AXIS_9]DIRHOLD
+#setp hpg.stepgen.09.dirsetup        [AXIS_9]DIRSETUP
+#setp hpg.stepgen.09.dirhold         [AXIS_9]DIRHOLD
 #
-#setp [PRUCONF](DRIVER).stepgen.09.steplen         [AXIS_9]STEPLEN
-#setp [PRUCONF](DRIVER).stepgen.09.stepspace       [AXIS_9]STEPSPACE
+#setp hpg.stepgen.09.steplen         [AXIS_9]STEPLEN
+#setp hpg.stepgen.09.stepspace       [AXIS_9]STEPSPACE
 #
-#setp [PRUCONF](DRIVER).stepgen.09.position-scale  [AXIS_9]SCALE
+#setp hpg.stepgen.09.position-scale  [AXIS_9]SCALE
 #
-#setp [PRUCONF](DRIVER).stepgen.09.maxvel          [AXIS_9]STEPGEN_MAX_VEL
-#setp [PRUCONF](DRIVER).stepgen.09.maxaccel        [AXIS_9]STEPGEN_MAX_ACC
+#setp hpg.stepgen.09.maxvel          [AXIS_9]STEPGEN_MAX_VEL
+#setp hpg.stepgen.09.maxaccel        [AXIS_9]STEPGEN_MAX_ACC
 #
-##setp [PRUCONF](DRIVER).stepgen.09.step_type       0
+##setp hpg.stepgen.09.step_type       0
 ## P9.18 GPIO0_4
-#setp [PRUCONF](DRIVER).stepgen.09.steppin          0x64
+#setp hpg.stepgen.09.steppin          0x64
 ## P9.17 GPIO0_5
-#setp [PRUCONF](DRIVER).stepgen.09.dirpin           0x65
+#setp hpg.stepgen.09.dirpin           0x65
 #
 
 # ##################################################
@@ -553,27 +553,27 @@ newsig bed.temp.set  float
 newsig bed.temp.meas float
 
 
-setp hal_pru_generic.pwmgen.00.pwm_period       10000000
+setp hpg.pwmgen.00.pwm_period       10000000
 
 # J2 E0 Heater T10 GPIO0.23 P8.13
-setp hal_pru_generic.pwmgen.00.out.00.pin       0x37
-setp hal_pru_generic.pwmgen.00.out.00.enable    1
-setp hal_pru_generic.pwmgen.00.out.00.value     0.0
+setp hpg.pwmgen.00.out.00.pin       0x37
+setp hpg.pwmgen.00.out.00.enable    1
+setp hpg.pwmgen.00.out.00.value     0.0
 
 # J3 E1 Heater U10 GPIO0.22 P8.19
-setp hal_pru_generic.pwmgen.00.out.01.pin       0x36
-setp hal_pru_generic.pwmgen.00.out.01.enable    1
-setp hal_pru_generic.pwmgen.00.out.01.value     0.0
+setp hpg.pwmgen.00.out.01.pin       0x36
+setp hpg.pwmgen.00.out.01.enable    1
+setp hpg.pwmgen.00.out.01.value     0.0
 
 # J4 Bed Heater U14 GPIO1.18 P9.14
-setp hal_pru_generic.pwmgen.00.out.02.pin       0x52
-setp hal_pru_generic.pwmgen.00.out.02.enable    1
-setp hal_pru_generic.pwmgen.00.out.02.value     0.0
+setp hpg.pwmgen.00.out.02.pin       0x52
+setp hpg.pwmgen.00.out.02.enable    1
+setp hpg.pwmgen.00.out.02.value     0.0
 
 ## DECAMUX clock signal U18 GPIO1.28 P9.12
-#setp hal_pru_generic.pwmgen.00.out.03.pin       0x5C
-#setp hal_pru_generic.pwmgen.00.out.03.enable    1
-#setp hal_pru_generic.pwmgen.00.out.03.value     0.0
+#setp hpg.pwmgen.00.out.03.pin       0x5C
+#setp hpg.pwmgen.00.out.03.enable    1
+#setp hpg.pwmgen.00.out.03.value     0.0
 
 # PID for Extruder 0 temperature control
 net e0.temp.meas    <= Therm.temp0
@@ -585,7 +585,7 @@ net e0.temp.set     => pid.0.command
 net e0.heater  <= pid.0.output
 net e0.heater  => limit1.0.in
 net e0.heaterl <= limit1.0.out
-net e0.heaterl => hal_pru_generic.pwmgen.00.out.00.value
+net e0.heaterl => hpg.pwmgen.00.out.00.value
 
 # Limit heater PWM to positive values
 # PWM mimics hm2 implementation, which generates output for negative values
@@ -601,7 +601,7 @@ net bed.temp.set     => pid.1.command
 net bed.heater  <= pid.1.output
 net bed.heater  => limit1.1.in
 net bed.heaterl <= limit1.1.out
-net bed.heaterl => hal_pru_generic.pwmgen.00.out.02.value
+net bed.heaterl => hpg.pwmgen.00.out.02.value
 
 # Limit heater PWM to positive values
 # PWM mimics hm2 implementation, which generates output for negative values
