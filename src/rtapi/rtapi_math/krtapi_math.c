@@ -1,5 +1,5 @@
 /*
-   wrapper for xeno_math exported functions
+   wrapper for rtapi_math kernel module exported functions
 
    Copyright (C) 2013 Michael Haberler <license@mah.priv.at>
 
@@ -32,15 +32,15 @@ int libm_errno;
 
 MODULE_LICENSE("GPL");
 
-int __xeno_math_init(void)
+int __rtapi_math_init(void)
 {
-    printk(KERN_INFO "Xenomai math [xeno_math] loaded\n");
+    printk(KERN_INFO "Xenomai math [rtapi_math] loaded\n");
     return 0;
 }
 
-void __xeno_math_exit(void)
+void __rtapi_math_exit(void)
 {
-    printk(KERN_INFO "Xenomai math [xeno_math]: unloaded.\n");
+    printk(KERN_INFO "Xenomai math [rtapi_math]: unloaded.\n");
 }
 
 
@@ -55,8 +55,8 @@ double rtapi_pow(double x, double y)
 #endif
 
 
-module_init(__xeno_math_init);
-module_exit(__xeno_math_exit);
+module_init(__rtapi_math_init);
+module_exit(__rtapi_math_exit);
 
 EXPORT_SYMBOL(rtapi_sin);
 EXPORT_SYMBOL(rtapi_cos);
