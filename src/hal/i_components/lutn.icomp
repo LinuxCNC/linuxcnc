@@ -8,8 +8,6 @@ instanceparam int maxpincount = 5;
 
 instanceparam int pincount = 2;
 
-instanceparam string iprefix = "lut2";
-
 instanceparam int functn = 0;
 
 option extra_inst_setup;

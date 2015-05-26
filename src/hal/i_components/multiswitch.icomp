@@ -34,9 +34,6 @@ instanceparam int maxpincount = 32;
 
 instanceparam int pincount = 6;
 
-instanceparam string iprefix = "mswitch6";
-
-
 function _ ;
 option extra_inst_setup yes;
 //option count_function yes;

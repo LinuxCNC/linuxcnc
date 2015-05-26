@@ -7,9 +7,6 @@ instanceparam int maxpincount = 32;
 
 instanceparam int pincount = 16;
 
-instanceparam string iprefix = "";
-
-
 author "Andy Pugh";
 license "GPL2+";
 function _ nofp;
