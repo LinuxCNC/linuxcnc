@@ -87,19 +87,11 @@ else
 fi
 
 case $DISTRIB_NAME in
-Ubuntu-14.04) # Trusty Tahr
+Ubuntu-14.04|LinuxMint-17.*) # Trusty Tahr (LTS)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools
 	TCLTK_VERSION=8.6
 	;;
-Ubuntu-12.10) # Quantal Quetzal
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,libgnomeprintui2.2-dev
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-12.04) # Precise Pangolin LTS
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,libgnomeprintui2.2-dev
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-11.04) # natty
+Ubuntu-11.04|Ubuntu-12.04|Ubuntu-12.10) # Natty Narwhal, Precise Pangolin (LTS), Quantal Quetzal
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
