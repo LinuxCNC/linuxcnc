@@ -32,8 +32,6 @@ instanceparam int maxpincount = 16;
 
 instanceparam int pincount = 4;
 
-instanceparam string iprefix = "lincurve4";
-
 author "Andy Pugh";
 license "GPL";
 
