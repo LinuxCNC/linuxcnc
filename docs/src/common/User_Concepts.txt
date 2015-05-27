@@ -302,3 +302,5 @@ of the tool and limit switches.
 
 .Lathe Configuration
 image::images/lathe-diagram.png[align="center"]
+
+// vim: set syntax=asciidoc:
