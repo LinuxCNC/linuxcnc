@@ -35,8 +35,8 @@ halpr_describe_component(hal_comp_t *comp, pb::Component *pbcomp)
     int next = hal_data->pin_list_ptr;
     while (next != 0) {
 	hal_pin_t *pin = (hal_pin_t *)SHMPTR(next);
-	hal_comp_t *owner = halpr_find_comp_by_id(pin->owner_id);
-	if (owner->comp_id == comp->comp_id) {
+	hal_comp_t *owner = halpr_find_owning_comp(pin->owner_id);
+	if ((owner != NULL) && (owner->comp_id == comp->comp_id)) {
 	    pb::Pin *pbpin = pbcomp->add_pin();
 	    halpr_describe_pin(pin, pbpin);
 	}
@@ -46,7 +46,7 @@ halpr_describe_component(hal_comp_t *comp, pb::Component *pbcomp)
     while (next != 0) {
 	hal_param_t *param = (hal_param_t *)SHMPTR(next);
 	hal_comp_t *owner = halpr_find_owning_comp(param->owner_id);
-	if (owner->comp_id == comp->comp_id) {
+	if ((owner != NULL) && (owner->comp_id == comp->comp_id)) {
 	    pb::Param *pbparam = pbcomp->add_param();
 	    pbparam->set_name(param->name);
 	    pbparam->set_type((pb::ValueType) param->type);
@@ -83,11 +83,15 @@ halpr_describe_ring(hal_ring_t *ring, pb::Ring *pbring)
 
 int halpr_describe_funct(hal_funct_t *funct, pb::Function *pbfunct)
 {
+    int id;
     hal_comp_t *owner = halpr_find_owning_comp(funct->owner_id);
-
+    if (owner == NULL)
+	id = -1;
+    else
+	id = owner->comp_id;
+    pbfunct->set_owner_id(id);
     pbfunct->set_name(funct->name);
     pbfunct->set_handle(funct->handle);
-    pbfunct->set_owner_id(owner->comp_id);
     pbfunct->set_users(funct->users);
     pbfunct->set_runtime(*(funct->runtime));
     pbfunct->set_maxtime(funct->maxtime);
