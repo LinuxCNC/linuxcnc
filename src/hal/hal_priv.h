@@ -298,10 +298,11 @@ typedef struct {
     long int period;		/* period of the thread, in nsec */
     int priority;		/* priority of the thread */
     int task_id;		/* ID of the task that runs this thread */
-    hal_s32_t runtime;		/* duration of last run, in nsec */
-    hal_s32_t maxtime;		/* duration of longest run, in nsec */
+    hal_s32_t* runtime;	/* (pin) duration of last run, in nsec */
+    hal_s32_t maxtime;	/* (param) duration of longest run, in nsec */
     hal_list_t funct_list;	/* list of functions to run */
     char name[HAL_NAME_LEN + 1];	/* thread name */
+    int comp_id;
 } hal_thread_t;
 
 /* IMPORTANT:  If any of the structures in this file are changed, the
@@ -329,6 +330,7 @@ typedef struct {
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
 #define HAL_VER   0x0000000D	/* version code */
 #define HAL_SIZE  (75*4096)
+#define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
 
 /* These pointers are set by hal_init() to point to the shmem block
    and to the master data structure. All access should use these

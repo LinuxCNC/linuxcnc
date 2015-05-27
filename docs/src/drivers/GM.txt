@@ -205,7 +205,7 @@ gm.<nr of card>.read
 											pulses in order to calculate velocity. It greatly reduces 
 											quantization noise as compared to simply differentiating 
 											the position output. When the measured velocity is below 
-											min-velocity-estimate, the velocity output is 0.
+											min-speed-estimate, the velocity output is 0.
 |========================================
 
 ==== Parameters

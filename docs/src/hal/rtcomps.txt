@@ -445,7 +445,7 @@ halcmd: unloadrt encoder
    noise as compared
    to simply differentiating the 'position' output. When the magnitude
    of the true velocity is below
-   min-velocity-estimate, the velocity output is 0.
+   min-speed-estimate, the velocity output is 0.
 * 'encoder.<chan>.x4-mode (bit, I/O) (default: TRUE)' - Enables
    times-4 mode. When true, the counter counts each edge of
    the quadrature waveform (four counts per full cycle). When false, it

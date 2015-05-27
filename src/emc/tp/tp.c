@@ -173,7 +173,7 @@ STATIC int tpGetMachineActiveLimit(double * const act_limit, PmCartesian const *
 STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
     //All reasons to disable feed override go here
-    bool pausing = tp->pausing && tc->synchronized == TC_SYNC_NONE;
+    bool pausing = tp->pausing && (tc->synchronized == TC_SYNC_NONE || tc->synchronized == TC_SYNC_VELOCITY);
     bool aborting = tp->aborting;
     if (pausing)  {
         tc_debug_print("pausing\n");
