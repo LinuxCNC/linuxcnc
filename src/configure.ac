@@ -2683,7 +2683,6 @@ EOFOUTER
 # so testing is done by finding tclConfig.sh and tkConfig.sh                 #
 # if the search fails the traditional check is done                          #
 ##############################################################################
-export DEB_HOST_MULTIARCH=${host_cpu}-${host_os}
 SC_PATH_TCLCONFIG
 SC_LOAD_TCLCONFIG
 TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
