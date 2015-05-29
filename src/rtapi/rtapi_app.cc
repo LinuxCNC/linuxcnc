@@ -515,7 +515,7 @@ static int do_load_cmd(int instance,
 
     if (w == NULL) {
 	if (kernel_threads(flavor)) {
-	    string cmdargs = pbconcat(args);
+	    string cmdargs = pbconcat(args, " ", "'");
 	    retval = run_module_helper("insert %s %s", name.c_str(), cmdargs.c_str());
 	    if (retval) {
 		note_printf(pbreply, "couldnt insmod %s - see dmesg\n", name.c_str());
