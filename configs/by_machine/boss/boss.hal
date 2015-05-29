@@ -11,7 +11,7 @@ loadrt tp
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # PID module, for four PID loops
-loadrt pid num_chan=4
+loadrt pid count=4
 
 # Install motenc driver.
 loadrt hal_motenc
@@ -21,7 +21,7 @@ loadrt boss_plc
 
 # Install debounce filters for operator console (cycle hold/start,
 # limit override, spindle increase/decrease/status).
-loadrt debounce cfg="7"
+loadrt debounce
 
 # Add functions to servo thread so they will be evaluated
 # every servo period.

@@ -31,7 +31,11 @@ loadrt hal_parport cfg="0x0378_in"
 #     This adds together the 5 bits (with bit 4 being equal to 13)
 #     and outputs the sum as an S32
 #
-loadrt weighted_sum wsum_sizes=5
+#   This is not actually used, but if it was, would be like this
+
+#   Create a weighted sum component with 5 in pins and
+#   5 weight pins
+#   newinst weighted_sum wsum pincount=5
 
 # I/O Mapping - Physical I/O points to driver pins
 # --------------------------------------------------------
@@ -102,7 +106,7 @@ loadrt encoder num_chan=1
 
 # PID loops: 3 for axis control and one for spindle orient
 #
-loadrt pid num_chan=4
+loadrt pid count=4
 
 # classicladder for machine logic
 # (load the realtime portion)
@@ -112,7 +116,8 @@ loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=20 numMonost
 loadusr -w classicladder --nogui demo_mazak.clp
 
 # load debounce to handle the pushbuttons on the operator panels
-loadrt debounce cfg="8"
+# not connected to anything in this sample
+loadrt debounce 
 setp debounce.0.delay 3
 
 # -----------------------------------------------

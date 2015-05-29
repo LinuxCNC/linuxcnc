@@ -34,7 +34,7 @@ loadrt tp
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # standard components
-loadrt pid num_chan=3
+loadrt pid count=3
 
 # only the 7i43 needs this, but it doesnt hurt the others
 loadrt probe_parport

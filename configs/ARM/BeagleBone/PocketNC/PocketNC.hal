@@ -28,7 +28,7 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 #loadrt hal_bb_gpio output_pins=107,126,211,212,218,224,226 input_pins=108,109,110,114,117,118,122
 loadrt hal_bb_gpio output_pins=211,212,218,224 input_pins=107,108,109,110,114,117,118,119,122,126,213,216
 loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
-loadrt pid num_chan=2
+loadrt pid count=2
 loadrt limit1 count=2
 
 # Spindle math
