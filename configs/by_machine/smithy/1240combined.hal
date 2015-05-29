@@ -33,7 +33,7 @@ loadrt charge_pump
 setp charge-pump.enable TRUE
 
 # load and configure the spindle speed PID
-loadrt pid num_chan=1
+loadrt pid count=1
 setp pid.0.Pgain 0.1
 setp pid.0.Igain 100.0
 setp pid.0.Dgain 0.0
@@ -180,7 +180,7 @@ net chargepump hm2_5i20.0.gpio.022.out charge-pump.out
 # Safety Relay Monitoring Contacts
 net estop-enable hm2_5i20.0.gpio.037.in iocontrol.0.emc-enable-in
 # Run Switch
-loadrt debounce cfg=1
+loadrt debounce
 setp debounce.0.delay 1000
 net key-on hm2_5i20.0.gpio.039.in_not debounce.0.0.in
 net machine-on debounce.0.0.out hm2_5i20.0.sserial.port-0.run hm2_5i20.0.8i20.0.0.amp_enable halui.machine.on

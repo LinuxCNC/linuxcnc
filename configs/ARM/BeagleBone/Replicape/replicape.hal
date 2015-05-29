@@ -24,7 +24,7 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 # load low-level drivers
 loadrt hal_bb_gpio output_pins= input_pins=923,925,916,918,911,913
 loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
-loadrt pid num_chan=2
+loadrt pid count=2
 loadrt limit1 count=2
 loadrt mux2 count=2
 loadrt and2 count=2

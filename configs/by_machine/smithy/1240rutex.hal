@@ -6,7 +6,7 @@ loadrt stepgen step_type=0,0,0
 loadrt match8 count=1
 # Used to filter out spurious limit switch signals
 # THIS IS VERY BAD & SHOULD BE FIXED IN HARDWARE!!!
-loadrt debounce cfg=1
+loadrt debounce
 setp debounce.0.delay 2
 loadrt hal_parport cfg="0x378"
 

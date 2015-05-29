@@ -8,7 +8,7 @@ loadrt hal_gm
 # trajectory planner
 loadrt tp
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
-loadrt pid num_chan=3
+loadrt pid count=3
 loadrt not
 
 loadusr halmeter

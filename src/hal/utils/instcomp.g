@@ -662,7 +662,7 @@ static int comp_id;
         print >>f, "        };\n"
 
         strng = " rtapi_snprintf(buf, sizeof(buf),\"%s"
-        if (len(functions) == 1):
+        if (len(functions) == 1) and name == "_":
             strng += "\", name);"
         else :
             strng += ".%s\", name);" % (to_hal(name))
