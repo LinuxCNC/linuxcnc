@@ -40,6 +40,6 @@ int
 note_printf(pb::Container &c, const char *fmt, ...);
 
 // fold a RepeatedPtrField into a std::string, separated by delim
-std::string pbconcat(const pbstringarray_t &args, const std::string &delim = " ");
+std::string pbconcat(const pbstringarray_t &args, const std::string &delim = " ", const std::string &quote = "");
 
 #endif // _PBUTIL_HH_INCLUDED

@@ -97,11 +97,11 @@ note_printf(pb::Container &c, const char *fmt, ...)
     return n;
 }
 
-std::string pbconcat(const pbstringarray_t &args, const std::string &delim)
+std::string pbconcat(const pbstringarray_t &args, const std::string &delim, const std::string &quote)
 {
     std::string s;
     for (int i = 0; i < args.size(); i++) {
-	s += args.Get(i);
+	s += quote + args.Get(i) + quote;
 	if (i < args.size()-1)
 	    s += delim;
     }
