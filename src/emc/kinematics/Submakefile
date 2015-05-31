@@ -17,7 +17,7 @@ PYTARGETS += $(DELTAMODULE)
 ../bin/genserkins: $(call TOOBJS, $(GENSERKINSSRCS)) \
 	../lib/liblinuxcnchal.so \
 	../lib/libposemath.so \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/genserkins

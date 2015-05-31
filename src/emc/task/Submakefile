@@ -7,7 +7,7 @@ USERSRCS += $(EMCSVRSRCS)
 	../lib/liblinuxcnc.a \
 	../lib/libnml.so.0 \
 	../lib/liblinuxcncini.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/linuxcncsvr
@@ -40,7 +40,7 @@ USERSRCS += $(MILLTASKSRCS)
 	../lib/libposemath.so.0 \
 	../lib/liblinuxcnchal.so.0 \
 	../lib/libpyplugin.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) -o $@ $^ $(LDFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
 TARGETS += ../bin/milltask

@@ -58,7 +58,7 @@ TARGETS += ../tcl/linuxcnc.so
 	../lib/liblinuxcnc.a \
 	../lib/libnml.so.0 \
 	../lib/liblinuxcncini.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lpthread
 TARGETS += ../bin/linuxcncrsh
@@ -67,7 +67,7 @@ TARGETS += ../bin/linuxcncrsh
 	../lib/liblinuxcnc.a \
 	../lib/libnml.so.0 \
 	../lib/liblinuxcncini.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lpthread
 TARGETS += ../bin/schedrmt
@@ -76,7 +76,7 @@ TARGETS += ../bin/schedrmt
 	../lib/liblinuxcnc.a \
 	../lib/libnml.so.0 \
 	../lib/liblinuxcncini.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/linuxcnclcd
@@ -87,7 +87,7 @@ TARGETS += ../bin/linuxcnclcd
 	../lib/liblinuxcncini.so.0 \
 	../lib/libnml.so.0 \
 	../lib/liblinuxcnchal.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/halui
@@ -97,7 +97,7 @@ ifeq "$(HAVE_NCURSES)" "yes"
 	../lib/liblinuxcnc.a \
 	../lib/libnml.so.0 \
 	../lib/liblinuxcncini.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(KEYSTICKLIBS)
 TARGETS += ../bin/keystick
@@ -109,7 +109,7 @@ $(call TOOBJSDEPS,$(XEMCSRCS)): EXTRAFLAGS = $(CFLAGS_X)
 	../lib/liblinuxcnc.a \
 	../lib/libnml.so.0 \
 	../lib/liblinuxcncini.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(XLIBS)
 TARGETS += ../bin/xlinuxcnc
@@ -120,7 +120,7 @@ ifeq "$(BUILD_EMCWEB)" "yes"
 	../lib/liblinuxcnc.a \
 	../lib/libnml.so.0 \
 	../lib/liblinuxcncini.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) $(BOOST_LDFLAGS) -o $@ $(ULFLAGS) $^ \
 	    $(BOOST_SERIALIZATION_LIB) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB) \

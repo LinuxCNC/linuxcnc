@@ -7,7 +7,7 @@ VFDB_LIBS = $(LIBMODBUS_LIBS)
 $(call TOOBJSDEPS, $(VFDB_SRCS)) : EXTRAFLAGS += $(VFDB_CFLAGS)
 
 USERSRCS += $(VFDB_SRCS)
-../bin/vfdb_vfd: $(call TOOBJS, $(VFDB_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/librtapi_math.so
+../bin/vfdb_vfd: $(call TOOBJS, $(VFDB_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(VFDB_LIBS) 
 
