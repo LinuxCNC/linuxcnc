@@ -22,7 +22,7 @@ LIBREADLINE=-lreadline
 	../lib/liblinuxcnchal.so.0 \
 	../lib/liblinuxcncini.so.0 \
 	../lib/libpyplugin.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) $(PROFILE_LDFLAGS) \
 	-o $@ $^ $(ULFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON) $(LIBREADLINE)

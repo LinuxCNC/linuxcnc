@@ -42,7 +42,7 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	../lib/liblinuxcncini.so \
 	../lib/libpyplugin.so \
 	../lib/liblinuxcnchal.so.0 \
-	../lib/librtapi_math.so
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
