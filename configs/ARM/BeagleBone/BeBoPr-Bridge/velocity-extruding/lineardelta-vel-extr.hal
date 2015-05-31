@@ -50,7 +50,8 @@ loadrt invert count=1
 loadrt mux4 count=1
 loadrt oneshot count=1
 loadrt ddt count=4
-loadrt lincurve count=1 personality=3
+#loadrt lincurve count=1 personality=3
+newinst lincurve lincurve.0 pincount=3
 loadrt lineardeltajointscartesian count=1
 
 
