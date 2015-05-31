@@ -16,7 +16,8 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 
 loadrt hal_bb_gpio output_pins=113,116 input_pins=108,114,115,117,118
 loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
-loadrt gantry count=1 personality=2
+#loadrt gantry count=1 personality=2
+newinst gantry gantry.0 pincount=2
 
 addf hpg.capture-position                 servo-thread
 addf bb_gpio.read                         servo-thread
