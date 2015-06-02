@@ -14,6 +14,8 @@ cdef class Component:
         global _comps
         self._itemdict = dict()
         if not wrap:
+            if name in components:
+                raise RuntimeError("component with name '%s' already exists" % name)
             id = hal_xinit(mode, userarg1, userarg2, NULL, NULL, name)
             if id < 0:
                 raise RuntimeError("Failed to create component '%s': %d - %s" % (name,id, hal_lasterror()))
