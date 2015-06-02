@@ -3,7 +3,6 @@ import os
 import sys
 from stat import *
 import zmq
-import netifaces
 import threading
 import time
 import math

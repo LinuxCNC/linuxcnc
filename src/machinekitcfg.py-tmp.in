@@ -16,39 +16,32 @@
 # Author: Michael Haberler <license AT mah DOT priv DOT at>
 # License: GPL Version 2 or later
 # Copyright (c) 2013 All rights reserved.
-import netifaces
+import sys
+if sys.version_info >= (3, 0):
+    import configparser
+else:
+    import ConfigParser as configparser
 
-rtstyles =  ['xenomai-kernel', 'xenomai',
-             'rt-preempt', 'rtai', 'posix']
+_cfg = None  # global ConfigParser object
 
 
-def choose_interface(pref):
-    '''
-    given an interface preference list, return a tuple (interface, ip)
-    or None if no match found
-    If an interface has several ip addresses, the first one is picked.
-    pref is a list of interface names or prefixes:
+# loads a ini file to the config
+def load_ini(iniName):
+    global _cfg
+    if _cfg is None:
+        _cfg = configparser.ConfigParser()
+    _cfg.read(iniName)
 
-    pref = ['eth0','usb3']
-    or
-    pref = ['wlan','eth', 'usb']
-    '''
 
-    # retrieve list of network interfaces
-    interfaces = netifaces.interfaces()
-
-    # find a match in preference oder
-    for p in pref:
-        for i in interfaces:
-            if i.startswith(p):
-                ifcfg = netifaces.ifaddresses(i)
-                # we want the first ip address
-                try:
-                    ip = ifcfg[netifaces.AF_INET][0]['addr']
-                except KeyError:
-                    continue
-                return (i, ip)
-    return None
+# find a config entry, compatible to linuxcnc.ini
+# note: the module acts as singleton
+def find(section, option, default=None):
+    if _cfg is None:
+        return default
+    try:
+        return _cfg.get(section, option)
+    except configparser.NoOptionError:
+        return default
 
 
 class Config(object):
