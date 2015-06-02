@@ -250,3 +250,18 @@ atexit.register(_atexit)
 
 (lambda s=__import__('signal'):
      s.signal(s.SIGTERM, s.default_int_handler))()
+
+# global RTAPIcommand to use in HAL config files
+__rtapicmd = None
+def init_RTAPI(**kwargs):
+    global __rtapicmd
+    if not __rtapicmd:
+        __rtapicmd = RTAPIcommand(**kwargs)
+        for method in dir(__rtapicmd):
+            if callable(getattr(__rtapicmd, method)) and method is not '__init__':
+                setattr(sys.modules[__name__], method, getattr(__rtapicmd, method))
+    else:
+        raise RuntimeError('RTAPIcommand already initialized')
+    if not __rtapicmd:
+        raise RuntimeError('unable to initialize RTAPIcommand - realtime not running?')
+
