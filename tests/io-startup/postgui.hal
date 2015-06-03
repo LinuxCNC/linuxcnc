@@ -1,0 +1,4 @@
+
+net tool-number <= iocontrol.0.tool-number
+net tool-number <= test-ui.tool-number
+
