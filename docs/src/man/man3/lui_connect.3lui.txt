@@ -1,0 +1,18 @@
+lui_connect(3lui)
+=================
+:doctype: manpage
+:man manual: LinuxCNC Documentation
+:man source: LinuxCNC
+
+
+NAME
+----
+lui_connect - connect a lui_t handle to LinuxCNC
+
+SYNOPSIS
+--------
+*void lui_connect(lui_t lui);*
+
+DESCRIPTION
+-----------
+*lui_connect*() connects a lui handle, returned by *lui_new*(), to LinuxCNC.
