@@ -91,13 +91,6 @@ The following accessors are available within the function:
 
 Loads somecomponent and creates a new instance of somecomponent called somenewname
 
-If iprefix is supplied, it overrules any iprefix set in the .comp file and is the prefix for all pin, param and thread names for that instance.
-
-Thus a component xor that returns the xor value of a value passed to its IN pins, in its OUT pins, could be instantiated
-as xor2, xor4, xor6 etc by setting the iprefix to the name reflecting its use and setting pincount to the relevant number
-
-Generally however it will be easier just to name the instance relevantly and leave the instanceparam iprefix empty in the .icomp file
-
 eg
 
 *'newinst somecomponent somenewcomp8 pincount=8'*
@@ -107,6 +100,12 @@ then
 *'addf somecomp8 servo-thread'*
 
 adds the function to a thread
+
+If you just want a component with the default number of pins, you can either
+
+*newinst componentname newcomponentname*
+
+for a single named component instance with default pin numbers (if applicable)
 
 
 == Backwards compatability
@@ -150,9 +149,15 @@ See the src/hal/components directory for the remaining legacy components
 
 is the reserved instance parameter name, which can be used as a numerator and index for arrays
 
-Setting in the comp file:-
+If it is set the options MAXCOUNT and DEFAULTCOUNT must be set too, as below
 
 *'instanceparam int pincount = 8;'*
+
+*option MAXCOUNT 16;*
+
+*option DEFAULTCOUNT 8;*
+
+(The pincount value should be the same as the DEFAULTCOUNT)
 
 It can be used directly in the icomp file header as an array index size specifier
 
@@ -160,31 +165,33 @@ eg
 
 pin in float in-##[pincount];
 
-or in the function
+Within your code, in the function body, a local copy within the instance struct is used to get this value
 
-for( x = 0; x < pincount; x++)
+for( x = 0; x < localpincount; x++)
     {
     // do stuff
     }
 
-=== 'maxpincount'
+=== MAXCOUNT
 
-is the reserved instance parameter name, which sets the maximum pins allowed to be created
+this option sets the maximum pins allowed to be created
 
-*If any arrays of pins are used, maxpincount MUST BE SET to ensure array bounds are set by instcomp*
+*If any arrays of pins are used, MAXCOUNT MUST BE SET to ensure array bounds are set by instcomp*
 
 It can only be set in the icomp header itself and cannot be altered
 
-If it is not set in the icomp file, it will be computed based upon the highest array size specifier given
-or pincount, whichever is greater
+If it or DEFAULTCOUNT is not set in an icomp file which uses pincount, an error will be thrown
+
 
 Example 1.
 
 *pin bit inval-##[pincount];*
 
-*'instanceparam int maxpincount = 16;'*
-
 *'instanceparam int pincount = 8;'*
+
+*option MAXCOUNT 16;*
+
+*option DEFAULTCOUNT 8;*
 
 Thereafter a default creation of an instance will have 8 pins <component>.inval-00 to inval-07
 
@@ -200,12 +207,6 @@ up to a maximum (maxpincount) which was set in the .comp file and fixed when the
 
 will result in a new instance of the component called newname, with 16 pins .inval-00 to .inval-15
 
-
-=== 'iprefix'
-
-is the reserved instance parameter name, which sets the prefix to the new instance name
-
-example as previous in Instance Creation
 
 == Extra args
 
@@ -262,6 +263,10 @@ The differing options are:
 *   *'singleton'*   will only allow one instance to be loaded anywhere within a single session
     This is contrary to the basic premise of instantiated components, but implemented for compatibility
 
+*   *'option MAXCOUNT'*
+
+*   *'option DEFAULTCOUNT'*  As explained above
+
 == Restrictions
 
 Though HAL permits a pin, a parameter, and a function to have the same
@@ -286,12 +291,7 @@ problems include:
 
 * 'function'
 
-* 'iprefix'
-
 * 'pincount'
-
-* 'maxpincount'
-
 
 
 == Compiling
@@ -329,7 +329,6 @@ FUNCTION(_) {
 
 This component uses an array of bit pins indexed with pincount
 Maximum number of pins are 32 and the default is 6,
-with a default iprefix which reflects this
 
 extra_inst_setup is used, but just for initialisation of values
 before entering the main loop
@@ -347,11 +346,11 @@ param rw signed position      "Current state (may be set in the HAL)";
 
 pin out bit bit-##[pincount] = false       "Output bits";
 
-instanceparam int maxpincount = 32;
-
 instanceparam int pincount = 6;
 
-instanceparam string iprefix = "mswitch6";
+option MAXCOUNT 16;
+
+option DEFAULTCOUNT 6;
 
 function _ ;
 option extra_inst_setup yes;
@@ -377,14 +376,14 @@ FUNCTION(_)
     if (position < 0) position = top_position;
     if (position > top_position) position = 0;
 
-    for (i = 0 ; i < pincount; i++){
+    for (i = 0 ; i < localpincount; i++){
         bit(i) = (i == position);
     }
 
 }
 
 EXTRA_INST_SETUP(){
-    top_position = pincount - 1;
+    top_position = localpincount - 1;
     return 0;
 }
 
@@ -414,11 +413,11 @@ component lutn "instantiable lookup table component with configurable number of 
 pin in bit in-##[pincount];
 pin out bit out;
 
-instanceparam int maxpincount = 5;
-
 instanceparam int pincount = 2;
 
-instanceparam string iprefix = "lut2";
+option MAXCOUNT 5;
+
+option DEFAULTCOUNT 2;
 
 instanceparam int functn = 0;
 
@@ -436,9 +435,9 @@ FUNCTION(_)
 int i;
 int shift = 0;
 
-    for (i = 0; i < pincount; i++)
-	if (in(i))
-	    shift += (1 << i);
+    for (i = 0; i < localpincount; i++)
+    if (in(i))
+        shift += (1 << i);
 
     out = (functn & (1 << shift)) != 0;
 }
