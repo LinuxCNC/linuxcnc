@@ -47,11 +47,10 @@ pin io s32 weight##[pincount] "The weight of the input of weighted summer ##. Th
 
 pin io s32 offset;
 
-
-instanceparam int maxpincount = 16;
-
 instanceparam int pincount = 8;
 
+option MAXCOUNT 16;
+option DEFAULTCOUNT 8;
 
 
 
@@ -68,7 +67,7 @@ int b, running_total;
 	if (!hold) 
 		{
 		running_total = offset;
-		for (b=0 ; b < pincount ; b++) 
+		for (b=0 ; b < localpincount ; b++) 
 			{
 			if (in(b)) 
 				running_total += weight(b);

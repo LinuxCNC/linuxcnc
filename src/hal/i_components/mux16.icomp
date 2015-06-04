@@ -46,11 +46,7 @@ pin out s32 out_s;
 
 param r float elapsed "Current value of the internal debounce timer\n for debugging.";
 param r s32 selected "Current value of the internal selection variable after conversion\n for debugging";
-pin in float in##[pincount] "array of selectable outputs";
-
-instanceparam int maxpincount = 16;
-
-instanceparam int pincount = 16;
+pin in float in##[16] "array of selectable outputs";
 
 variable double delaytime;
 variable int lastnum;

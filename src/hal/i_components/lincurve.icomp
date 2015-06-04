@@ -28,9 +28,10 @@ variable unsigned i = 0;
 
 option extra_inst_setup 1;
 
-instanceparam int maxpincount = 16;
-
 instanceparam int pincount = 4;
+
+option MAXCOUNT 16;
+option DEFAULTCOUNT 4;
 
 author "Andy Pugh";
 license "GPL";
@@ -43,8 +44,8 @@ FUNCTION(_)
 {
     double f, x;
     x = in_;
-    if (x >= x_val(pincount-1)) {
-        out_ = y_val(pincount-1);
+    if (x >= x_val(localpincount-1)) {
+        out_ = y_val(localpincount-1);
         out_io = out_;
         return 0;
     }
@@ -64,7 +65,7 @@ return 0;
 }
 
 EXTRA_INST_SETUP(){
-//	if (pincount > 16) pincount = 16;
-	if (pincount < 2) pincount = 2;
+//	if (localpincount > 16) localpincount = 16;
+	if (localpincount < 2) localpincount = 2;
 	return 0;
 }

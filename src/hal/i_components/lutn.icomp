@@ -4,9 +4,10 @@ component lutn "";
 pin in bit in-##[pincount];
 pin out bit out;
 
-instanceparam int maxpincount = 5;
-
 instanceparam int pincount = 2;
+
+option MAXCOUNT 5;
+option DEFAULTCOUNT 2;
 
 instanceparam int functn = 0;
 
@@ -24,7 +25,7 @@ int i;
 ip = arg;
 int shift = 0;
 
-    for (i = 0; i < pincount; i++)
+    for (i = 0; i < localpincount; i++)
 	if (in(i))
 	    shift += (1 << i);
 

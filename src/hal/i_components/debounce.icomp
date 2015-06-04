@@ -7,9 +7,10 @@ param rw s32 #.state[pincount];
 
 param rw s32 delay = 5;
 
-instanceparam int maxpincount = 16;
-
 instanceparam int pincount = 8;
+
+option MAXCOUNT 16;
+option DEFAULTCOUNT 8;
 
 license "GPL";
 
@@ -28,7 +29,7 @@ int n;
         delay = 1;
 
     // loop through filters
-    for (n = 0; n < pincount; n++)
+    for (n = 0; n < localpincount; n++)
         {
         if(_in(n))
             {

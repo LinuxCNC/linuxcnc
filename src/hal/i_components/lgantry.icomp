@@ -54,9 +54,12 @@ pin in  float search-vel "HOME_SEARCH_VEL from ini file";
 function read  fp "Update position-fb and home/limit outputs based on joint values";
 function write fp "Update joint pos-cmd outputs based on position-cmd in";
 
-instanceparam int maxpincount = 7;
-
-instanceparam int pincount = 7;
+variable float offset[pincount] = 0.0;
+variable float prev_cmd = 0.0;
+variable int   fb_joint = 0;
+variable int   prev_home[pincount] = 0;
+variable int   curr_home[pincount] = 0;
+variable float pos_fb_target[pincount] = 0.0;
 
 description """
 Drives multiple physical motors (joints) from a single axis input
@@ -88,18 +91,19 @@ The homing input must be connected to the axis homing output motion in order to 
 the gantry component. When the axis is not homing latching will not be activated.
 """;
 license "GPL";
-variable float offset[pincount] = 0.0;
-variable float prev_cmd = 0.0;
-variable int   fb_joint = 0;
-variable int   prev_home[pincount] = 0;
-variable int   curr_home[pincount] = 0;
-variable float pos_fb_target[pincount] = 0.0;
+
+instanceparam int pincount = 7;
+
+option MAXCOUNT 7;
+option DEFAULTCOUNT 7;
+
 ;;
+
+
 FUNCTION(read)
 {
     int i;
     int previous_home;
-
     // Save previous home state
     previous_home = home;
 
@@ -108,7 +112,7 @@ FUNCTION(read)
     limit = 0;
 
     // All other joints, if configured
-    for (i = 0; i < pincount; i++) {
+    for (i = 0; i < localpincount; i++) {
         // check to see if machine is in home state
         if(previous_home == 0) {
             // Once all joints are within proximity of homing switches,
@@ -139,7 +143,7 @@ FUNCTION(read)
     // within proximity of the homing switch when not in home mode.
     // Feedback joint will use the first joint that IS in proximity of
     // homing switch.
-    for (i = 0; i < pincount; i++) {
+    for (i = 0; i < localpincount; i++) {
         if (joint_home(i) == home) {
             fb_joint = i;
             break;
@@ -173,7 +177,7 @@ FUNCTION(write)
         // If we're moving towards home and all home switches are not closed
         if ((((delta * search_vel) > 0) && (home == 0)) || (home == 1)) {
             // Check each joint to see if it's home switch is active
-            for (i = 0; i < pincount; i++) {
+            for (i = 0; i < localpincount; i++) {
                 // If home switch is active but system not in home mode,
                 // update offset, not pos_cmd so the other joints can catch up
                 // When home, this happens when home switch is inactive
@@ -185,7 +189,7 @@ FUNCTION(write)
     }
 
     // Update each joint's commanded position
-    for (i = 0; i < pincount; i++) {
+    for (i = 0; i < localpincount; i++) {
         joint_pos_cmd(i) = position_cmd - offset[i];
         joint_offset(i) = offset[i];
     }
