@@ -94,8 +94,35 @@ cdef class _Pin:
     property dir:
         def __get__(self): return self._pin.dir
 
-    def link(self, sig):
-        net(sig, self)  # net is more verbose than link
+    def link(self, arg):
+        # check if we have a signal
+        if isinstance(arg, Signal) \
+           or (isinstance(arg, str) and (arg in signals)):
+            net(arg, self)  # net is more verbose than link
+            return self.signal
+
+        # we got a pin or list of pins
+        pins = arg
+        if not (self.dir == HAL_OUT or self.dir == HAL_IO):
+            raise RuntimeError('pin must be out or io to create a signal')
+
+        if not hasattr(pins, '__iter__'):
+            pins = [pins]
+        for pin in pins:
+            if isinstance(pin, str):
+                pin = Pin(pin)
+            elif not isinstance(pin, Pin):
+                raise TypeError('linking of %s to signal %s not possible' %
+                                (str(pin), self.name))
+            if not self.signal:
+                signame = self.name.replace('.', '-')
+                net(signame, self)
+
+            net(self.signal, pin)  # net is more verbose than link
+        return self.signal
+
+    def __iadd__(self, pins):
+        return self.link(pins)
 
     def unlink(self):
         r = hal_unlink(self._pin.name)
@@ -133,7 +160,6 @@ cdef class _Pin:
             # a pin we allocated storage for
             return hal2py(self._pin.type, self._storage[0])
 
-    
 
 class Pin(_Pin):
     def __init__(self, *args, init=None,eps=0):
