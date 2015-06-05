@@ -30,6 +30,16 @@ include::common/User_Concepts.txt[]
 
 include::gcode/machining_center.txt[]
 
+include::getting-started/Running-LinuxCNC.txt[]
+
+include::getting-started/stepper_quickstart.txt[]
+
+include::getting-started/stepconf.txt[]
+
+include::getting-started/pncconf.txt[]
+
+include::getting-started/Linux_FAQ.txt[]
+
 include::lathe/lathe-user.txt[]
 
 :leveloffset: 1
