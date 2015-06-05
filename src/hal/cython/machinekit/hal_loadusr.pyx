@@ -22,7 +22,7 @@ def loadusr(command, wait=False, wait_name=None, wait_timeout=5.0, shell=False):
             raise RuntimeError(command + ' exited with return code ' + str(ret))
         # check if component exists
         if (wait_name is not None) and (wait_name in components):
-            return
+            return components[wait_name]
         # check for timeout
         if timeout >= wait_timeout:
             p.kill()
