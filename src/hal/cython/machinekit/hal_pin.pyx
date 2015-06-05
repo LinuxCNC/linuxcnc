@@ -1,6 +1,30 @@
 from .hal_priv cimport MAX_EPSILON, hal_data_u
 from .hal_util cimport shmptr, pin_linked, linked_signal
 
+
+def describe_hal_type(haltype):
+    if haltype == HAL_FLOAT:
+        return 'float'
+    elif haltype == HAL_BIT:
+        return 'bit'
+    elif haltype == HAL_U32:
+        return 'u32'
+    elif haltype == HAL_S32:
+        return 's32'
+    else:
+        return 'unknown'
+
+def describe_hal_dir(haldir):
+    if haldir == HAL_IN:
+        return 'in'
+    elif haldir == HAL_OUT:
+        return 'out'
+    elif haldir == HAL_IO:
+        return 'io'
+    else:
+        return 'unknown'
+
+
 cdef class _Pin:
     cdef hal_data_u **_storage
     cdef hal_pin_t *_pin
@@ -134,4 +158,6 @@ class Pin(_Pin):
     def get(self): raise NotImplementedError("Pin is write-only")
 
     def __repr__(self):
-        return "<hal.Pin %s %s %s >" % self.names[self]
+        return "<hal.Pin %s %s %s>" % (self.name,
+                                        describe_hal_type(self.type),
+                                        describe_hal_dir(self.dir))
