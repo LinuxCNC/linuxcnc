@@ -28,6 +28,7 @@ def net(signame,*pinnames):
         signame = signame.name
 
     s = None
+    writer = None
     if signame in signals: #  pre-existing net type
         s = signals[signame]
         writers = s.writers
@@ -70,20 +71,22 @@ def net(signame,*pinnames):
 
         if w.dir == HAL_OUT:
             if writers:
-              raise TypeError("net: signal '%s' can not add writer pin '%s', "
-                              "it already has %s pin '%s" %
-                              (signame, w.name, _pindir(writer.dir),writer.name))
-
-            if bidirs:
-              raise TypeError("net: signal '%s' can not add bidir pin '%s', "
-                              "it already has %s pin '%s" %
-                              (signame, w.name, _pindir(bidir.dir),bidir.name))
+                if not writer:
+                    writer = pins[s.writername]
+                raise TypeError("net: signal '%s' can not add writer pin '%s', "
+                                "it already has %s pin '%s" %
+                                (signame, w.name, _pindir(writer.dir), writer.name))
             writer = w
             writers += 1
 
         if w.dir == HAL_IO:
             if writers:
-                raise RuntimeError("net: IO direction error")
+                if not writer:
+                    writer = pins[s.writername]
+                raise TypeError("net: signal '%s' can not add writer pin '%s', "
+                                "it already has %s pin '%s" %
+                                (signame, w.name, _pindir(writer.dir), writer.name))
+
             bidir = w
             bidirs += 1
 
