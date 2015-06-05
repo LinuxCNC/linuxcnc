@@ -25,6 +25,25 @@ else:
 _cfg = None  # global ConfigParser object
 
 
+# type guessing helpers from http://stackoverflow.com/questions/7019283/automatically-type-cast-parameters-in-python
+def __boolify(s):
+    if s == 'True' or s == 'true':
+        return True
+    if s == 'False' or s == 'false':
+        return False
+    raise ValueError('Not Boolean Value!')
+
+
+def __estimateType(var):
+    '''guesses the str representation of the variables type'''
+    for caster in (__boolify, int, float, str):
+        try:
+            return caster(var)
+        except ValueError:
+            pass
+    return var
+
+
 # loads a ini file to the config
 def load_ini(iniName):
     global _cfg
@@ -39,8 +58,8 @@ def find(section, option, default=None):
     if _cfg is None:
         return default
     try:
-        return _cfg.get(section, option)
-    except configparser.NoOptionError:
+        return __estimateType(_cfg.get(section, option))
+    except configparser.NoOptionError or configparser.NoSectionError:
         return default
 
 
