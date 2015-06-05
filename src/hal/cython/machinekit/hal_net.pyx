@@ -19,13 +19,32 @@ cdef _haltype(int type):
     return _typedict.get(type, "HAL_TYPE_UNSPECIFIED")
 
 
-def net(signame,*pinnames):
+def net(sig,*pinnames):
     cdef int writers = 0, bidirs = 0, t = HAL_TYPE_UNSPECIFIED
     writer_name = None
     bidir_name = None
 
-    if isinstance(signame, Signal):
-        signame = signame.name
+    signame = None
+    if isinstance(sig, Pin) \
+       or (isinstance(sig, str) and (sig in pins)):
+        pin = sig
+        if isinstance(sig, str):
+            pin = pins[sig]
+
+        if not (pin.dir == HAL_OUT or pin.dir == HAL_IO):
+            raise RuntimeError('net: pin must have dir HAL_OUT or HAL_IO to create a signal')
+
+        if not pin.signal:
+            signame = pin.name.replace('.', '-')
+            net(signame, pin)
+        signame = pin.signal.name
+
+    elif isinstance(sig, Signal):
+        signame = sig.name
+    elif isinstance(sig, str):
+        signame = sig
+    else:
+        raise TypeError("net: first argument must be a signal or pin")
 
     s = None
     writer = None

@@ -98,28 +98,10 @@ cdef class _Pin:
         # check if we have a signal
         if isinstance(arg, Signal) \
            or (isinstance(arg, str) and (arg in signals)):
-            net(arg, self)  # net is more verbose than link
-            return self.signal
+            return net(arg, self)  # net is more verbose than link
 
         # we got a pin or list of pins
-        pins = arg
-        if not (self.dir == HAL_OUT or self.dir == HAL_IO):
-            raise RuntimeError('pin must be out or io to create a signal')
-
-        if not hasattr(pins, '__iter__'):
-            pins = [pins]
-        for pin in pins:
-            if isinstance(pin, str):
-                pin = Pin(pin)
-            elif not isinstance(pin, Pin):
-                raise TypeError('linking of %s to signal %s not possible' %
-                                (str(pin), self.name))
-            if not self.signal:
-                signame = self.name.replace('.', '-')
-                net(signame, self)
-
-            net(self.signal, pin)  # net is more verbose than link
-        return self.signal
+        return net(self, arg)
 
     def __iadd__(self, pins):
         return self.link(pins)
