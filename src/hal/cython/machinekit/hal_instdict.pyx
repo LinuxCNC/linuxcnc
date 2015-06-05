@@ -34,6 +34,9 @@ cdef class Instances:
     def __getitem__(self, char *name):
         hal_required()
 
+        if isinstance(name, int):
+            return inst_names()[name]
+
         if name in self.insts:
             return self.insts[name]
         cdef hal_inst_t *p
@@ -46,6 +49,8 @@ cdef class Instances:
         return inst
 
     def __contains__(self, arg):
+        if isinstance(arg, Instance):
+            arg = arg.name
         try:
             self.__getitem__(arg)
             return True
@@ -59,5 +64,12 @@ cdef class Instances:
     def __call__(self):
         hal_required()
         return inst_names()
+
+    def __repr__(self):
+        hal_required()
+        instdict = {}
+        for name in inst_names():
+            instdict[name] = self[name]
+        return str(instdict)
 
 instances = Instances()
