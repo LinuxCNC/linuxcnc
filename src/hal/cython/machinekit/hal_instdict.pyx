@@ -32,6 +32,8 @@ cdef class Instances:
         self.insts = dict()
 
     def __getitem__(self, char *name):
+        hal_required()
+
         if name in self.insts:
             return self.insts[name]
         cdef hal_inst_t *p
