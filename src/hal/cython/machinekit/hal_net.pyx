@@ -91,6 +91,9 @@ def net(signame,*pinnames):
 
     for p in pinlist:
         #print >> sys.stderr, "------ net: link", p.name, signame
-        p.link(signame)
+        r = hal_link(p.name, signame)
+        if r:
+            raise RuntimeError("Failed to link pin %s to %s: %d - %s" %
+                               (p.name, signame, r, hal_lasterror()))
 
     return s

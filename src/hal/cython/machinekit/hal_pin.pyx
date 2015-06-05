@@ -95,12 +95,8 @@ cdef class _Pin:
         def __get__(self): return self._pin.dir
 
     def link(self, sig):
-        if isinstance(sig, Signal):
-            sig = sig.name
-        r = hal_link(self._pin.name, sig)
-        if r:
-            raise RuntimeError("Failed to link pin %s to %s: %d - %s" %
-                               (self._pin.name, sig, r, hal_lasterror()))
+        net(sig, self)  # net is more verbose than link
+
     def unlink(self):
         r = hal_unlink(self._pin.name)
         if r:
@@ -136,6 +132,8 @@ cdef class _Pin:
         else:
             # a pin we allocated storage for
             return hal2py(self._pin.type, self._storage[0])
+
+    
 
 class Pin(_Pin):
     def __init__(self, *args, init=None,eps=0):
