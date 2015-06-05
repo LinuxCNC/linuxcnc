@@ -217,6 +217,8 @@ class RTAPIcommand:
         if r:
             raise RuntimeError("rtapi_loadrt '%s' failed: %s" % (args,strerror(-r)))
 
+        return hal.components[name]
+
     def unloadrt(self,char *name, int instance=0):
         if name == NULL:
             raise RuntimeError("unloadrt needs at least the module name as argument")
@@ -260,6 +262,8 @@ class RTAPIcommand:
         free(argv)
         if r:
             raise RuntimeError("rtapi_newinst '%s' failed: %s" % (args,strerror(-r)))
+
+        return hal.instances[instname]
 
     def delinst(self, char *instname, instance=0):
         r = rtapi_delinst( instance, instname)
