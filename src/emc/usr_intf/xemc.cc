@@ -130,11 +130,6 @@ static int emcErrorNmlGet()
   return retval;
 }
 
-static void printError(const char *error)
-{
-  printf("%s\n", error);
-}
-
 static int updateStatus()
 {
   NMLTYPE type;
@@ -241,35 +236,6 @@ static int updateError()
 
 #define EMC_COMMAND_TIMEOUT 1.0 // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.1 // how long to sleep between checks
-
-static int emcCommandWaitDone()
-{
-    double end;
-    for (end = 0.0; end < EMC_COMMAND_TIMEOUT; end += EMC_COMMAND_DELAY) {
-	updateStatus();
-	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
-
-	if (serial_diff < 0) {
-	    continue;
-	}
-
-	if (serial_diff > 0) {
-	    return 0;
-	}
-
-	if (emcStatus->status == RCS_DONE) {
-	    return 0;
-	}
-
-	if (emcStatus->status == RCS_ERROR) {
-	    return -1;
-	}
-
-	esleep(EMC_COMMAND_DELAY);
-    }
-
-    return -1;
-}
 
 static int emcCommandSend(RCS_CMD_MSG & cmd)
 {
