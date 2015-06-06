@@ -157,6 +157,10 @@ cdef class Signal:
             self._alive_check()
             return self._sig.handle
 
+    def __repr__(self):
+        return "<hal.Signal %s %s>" % (self.name,
+                                       describe_hal_type(self.type))
+
 
 cdef modifier_name(hal_sig_t *sig, int dir):
      cdef hal_pin_t *pin

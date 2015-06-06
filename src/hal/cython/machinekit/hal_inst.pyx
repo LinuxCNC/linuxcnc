@@ -38,4 +38,28 @@ cdef class Instance:
     property comp_id:
         def __get__(self): return self._inst.comp_id
 
+    def pins(self):
+        ''' return a list of Pin objects owned by this instance'''
+        cdef hal_pin_t *p
+        p = NULL
+
+        pinnames = []
+        with HALMutex():
+            p = halpr_find_pin_by_owner_id(self._inst.inst_id, p)
+            while p != NULL:
+                pinnames.append(p.name)
+                p = halpr_find_pin_by_owner_id(self._inst.inst_id, p)
+
+        pinlist = []
+        for n in pinnames:
+            pinlist.append(pins[n])
+        return pinlist
+
+    def pin(self, name, base=None):
+        ''' return component Pin object, base does not need to be supplied if pin name matches component name '''
+        if base == None:
+            base = self.name
+        return Pin('%s.%s' % (base, name))
+
+
     # TODO: add a bufferview of the shm area

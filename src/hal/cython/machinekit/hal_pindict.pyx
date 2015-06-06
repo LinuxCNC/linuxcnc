@@ -32,7 +32,12 @@ cdef class Pins:
     def __cinit__(self):
         self.pins = dict()
 
-    def __getitem__(self, char *name):
+    def __getitem__(self, name):
+        hal_required()
+
+        if isinstance(name, int):
+            return pin_names()[name]
+
         if name in self.pins:
             return self.pins[name]
         cdef hal_pin_t *p
@@ -45,6 +50,8 @@ cdef class Pins:
         return pin
 
     def __contains__(self, arg):
+        if isinstance(arg, Pin):
+            arg = arg.name
         try:
             self.__getitem__(arg)
             return True
@@ -58,5 +65,12 @@ cdef class Pins:
     def __call__(self):
         hal_required()
         return pin_names()
+
+    def __repr__(self):
+        hal_required()
+        pindict = {}
+        for name in pin_names():
+            pindict[name] = self[name]
+        return str(pindict)
 
 pins = Pins()

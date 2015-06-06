@@ -19,15 +19,35 @@ cdef _haltype(int type):
     return _typedict.get(type, "HAL_TYPE_UNSPECIFIED")
 
 
-def net(signame,*pinnames):
+def net(sig,*pinnames):
     cdef int writers = 0, bidirs = 0, t = HAL_TYPE_UNSPECIFIED
     writer_name = None
     bidir_name = None
 
-    if isinstance(signame, Signal):
-        signame = signame.name
+    signame = None
+    if isinstance(sig, Pin) \
+       or (isinstance(sig, str) and (sig in pins)):
+        pin = sig
+        if isinstance(sig, str):
+            pin = pins[sig]
+
+        if not (pin.dir == HAL_OUT or pin.dir == HAL_IO):
+            raise RuntimeError('net: pin must have dir HAL_OUT or HAL_IO to create a signal')
+
+        if not pin.signal:
+            signame = pin.name.replace('.', '-')
+            net(signame, pin)
+        signame = pin.signal.name
+
+    elif isinstance(sig, Signal):
+        signame = sig.name
+    elif isinstance(sig, str):
+        signame = sig
+    else:
+        raise TypeError("net: first argument must be a signal or pin")
 
     s = None
+    writer = None
     if signame in signals: #  pre-existing net type
         s = signals[signame]
         writers = s.writers
@@ -42,11 +62,17 @@ def net(signame,*pinnames):
         raise RuntimeError("net: at least one pin name expected")
 
     pinlist = []
-    for n in pinnames:
-        if isinstance(n, Pin):
-            n = n.name
+    for names in pinnames:
+        if not hasattr(names, '__iter__'):
+            names = [names]
+        for pin in names:
+            if isinstance(pin, str):
+                pin = pins[pin]  # get wrappers - will raise KeyError if pin dont exist
+            elif not isinstance(pin, Pin):
+                RuntimeError('net: Can only link pins to signals')
+            pinlist.append(pin)
 
-        w = pins[n]       # get wrappers - will raise KeyError if pin dont exist
+    for w in pinlist:
 
         if w.linked:
             if w.signame == signame:  # already on same signal
@@ -64,24 +90,24 @@ def net(signame,*pinnames):
 
         if w.dir == HAL_OUT:
             if writers:
-              raise TypeError("net: signal '%s' can not add writer pin '%s', "
-                              "it already has %s pin '%s" %
-                              (signame, w.name, _pindir(writer.dir),writer.name))
-
-            if bidirs:
-              raise TypeError("net: signal '%s' can not add bidir pin '%s', "
-                              "it already has %s pin '%s" %
-                              (signame, w.name, _pindir(bidir.dir),bidir.name))
+                if not writer:
+                    writer = pins[s.writername]
+                raise TypeError("net: signal '%s' can not add writer pin '%s', "
+                                "it already has %s pin '%s" %
+                                (signame, w.name, _pindir(writer.dir), writer.name))
             writer = w
             writers += 1
 
         if w.dir == HAL_IO:
             if writers:
-                raise RuntimeError("net: IO direction error")
+                if not writer:
+                    writer = pins[s.writername]
+                raise TypeError("net: signal '%s' can not add writer pin '%s', "
+                                "it already has %s pin '%s" %
+                                (signame, w.name, _pindir(writer.dir), writer.name))
+
             bidir = w
             bidirs += 1
-
-        pinlist.append(w)
 
     if not s:
         s = Signal(signame, t)
@@ -91,6 +117,9 @@ def net(signame,*pinnames):
 
     for p in pinlist:
         #print >> sys.stderr, "------ net: link", p.name, signame
-        p.link(signame)
+        r = hal_link(p.name, signame)
+        if r:
+            raise RuntimeError("Failed to link pin %s to %s: %d - %s" %
+                               (p.name, signame, r, hal_lasterror()))
 
     return s

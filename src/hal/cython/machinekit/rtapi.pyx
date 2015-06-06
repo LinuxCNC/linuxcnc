@@ -142,6 +142,26 @@ if sys.version_info >= (3, 0):
 else:
     import ConfigParser as configparser
 
+# enums for classify_comp
+CS_NOT_LOADED = 0
+CS_NOT_RT = 1
+CS_RTLOADED_NOT_INSTANTIABLE = 2
+CS_RTLOADED_AND_INSTANTIABLE = 3
+
+autoload = True  #  autoload components on newinst
+
+# classifies a component for newinst
+def classify_comp(comp):
+    if not comp in hal.components:
+        return CS_NOT_LOADED
+    c = hal.components[comp]
+    if c.type is not hal.TYPE_RT:
+        return CS_NOT_RT
+    if not c.has_ctor:
+        return CS_RTLOADED_NOT_INSTANTIABLE
+    return CS_RTLOADED_AND_INSTANTIABLE
+
+
 class RTAPIcommand:
     ''' connect to the rtapi_app RT demon to pass commands '''
 
@@ -197,6 +217,8 @@ class RTAPIcommand:
         if r:
             raise RuntimeError("rtapi_loadrt '%s' failed: %s" % (args,strerror(-r)))
 
+        return hal.components[name]
+
     def unloadrt(self,char *name, int instance=0):
         if name == NULL:
             raise RuntimeError("unloadrt needs at least the module name as argument")
@@ -206,6 +228,7 @@ class RTAPIcommand:
 
     def newinst(self, *args, instance=0, **kwargs):
         cdef char** argv
+        cdef char** tmpArgv
         cdef char *name
 
         if len(args) < 2:
@@ -216,15 +239,31 @@ class RTAPIcommand:
             args +=('%s=%s' % (key, str(kwargs[key])), )
         argv = _to_argv(args[2:])
 
-        if comp not in hal.components:
-             rtapi_loadrt(instance, comp, <const char **>argv)
+        status = classify_comp(comp)
+        if status is CS_NOT_LOADED:
+            if autoload:  # flag to prevent creating a new instance
+                tmpArgv = _to_argv([])
+                rtapi_loadrt(instance, comp, <const char **>tmpArgv)
+            else:
+                raise RuntimeError("component '%s' not loaded\n" % comp)
+        elif status is CS_NOT_RT:
+            raise RuntimeError("'%s' not an RT component\n" % comp)
+        elif status is CS_RTLOADED_NOT_INSTANTIABLE:
+            raise RuntimeError("legacy component '%s' loaded, but not instantiable\n" % comp)
+        elif status is CS_RTLOADED_AND_INSTANTIABLE:
+            pass  # good
+
+        #TODO check singleton
+
         if instname in hal.instances:
             raise RuntimeError('instance with name ' + instname + ' already exists')
 
-        r = rtapi_newinst( instance, comp, instname, <const char **>argv)
+        r = rtapi_newinst(instance, comp, instname, <const char **>argv)
         free(argv)
         if r:
             raise RuntimeError("rtapi_newinst '%s' failed: %s" % (args,strerror(-r)))
+
+        return hal.instances[instname]
 
     def delinst(self, char *instname, instance=0):
         r = rtapi_delinst( instance, instname)
@@ -250,3 +289,18 @@ atexit.register(_atexit)
 
 (lambda s=__import__('signal'):
      s.signal(s.SIGTERM, s.default_int_handler))()
+
+# global RTAPIcommand to use in HAL config files
+__rtapicmd = None
+def init_RTAPI(**kwargs):
+    global __rtapicmd
+    if not __rtapicmd:
+        __rtapicmd = RTAPIcommand(**kwargs)
+        for method in dir(__rtapicmd):
+            if callable(getattr(__rtapicmd, method)) and method is not '__init__':
+                setattr(sys.modules[__name__], method, getattr(__rtapicmd, method))
+    else:
+        raise RuntimeError('RTAPIcommand already initialized')
+    if not __rtapicmd:
+        raise RuntimeError('unable to initialize RTAPIcommand - realtime not running?')
+

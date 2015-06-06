@@ -1,6 +1,30 @@
 from .hal_priv cimport MAX_EPSILON, hal_data_u
 from .hal_util cimport shmptr, pin_linked, linked_signal
 
+
+def describe_hal_type(haltype):
+    if haltype == HAL_FLOAT:
+        return 'float'
+    elif haltype == HAL_BIT:
+        return 'bit'
+    elif haltype == HAL_U32:
+        return 'u32'
+    elif haltype == HAL_S32:
+        return 's32'
+    else:
+        return 'unknown'
+
+def describe_hal_dir(haldir):
+    if haldir == HAL_IN:
+        return 'in'
+    elif haldir == HAL_OUT:
+        return 'out'
+    elif haldir == HAL_IO:
+        return 'io'
+    else:
+        return 'unknown'
+
+
 cdef class _Pin:
     cdef hal_data_u **_storage
     cdef hal_pin_t *_pin
@@ -70,13 +94,18 @@ cdef class _Pin:
     property dir:
         def __get__(self): return self._pin.dir
 
-    def link(self, sig):
-        if isinstance(sig, Signal):
-            sig = sig.name
-        r = hal_link(self._pin.name, sig)
-        if r:
-            raise RuntimeError("Failed to link pin %s to %s: %d - %s" %
-                               (self._pin.name, sig, r, hal_lasterror()))
+    def link(self, arg):
+        # check if we have a signal
+        if isinstance(arg, Signal) \
+           or (isinstance(arg, str) and (arg in signals)):
+            return net(arg, self)  # net is more verbose than link
+
+        # we got a pin or list of pins
+        return net(self, arg)
+
+    def __iadd__(self, pins):
+        return self.link(pins)
+
     def unlink(self):
         r = hal_unlink(self._pin.name)
         if r:
@@ -113,6 +142,7 @@ cdef class _Pin:
             # a pin we allocated storage for
             return hal2py(self._pin.type, self._storage[0])
 
+
 class Pin(_Pin):
     def __init__(self, *args, init=None,eps=0):
         if len(args) == 1: # wrapped existing pin
@@ -134,4 +164,6 @@ class Pin(_Pin):
     def get(self): raise NotImplementedError("Pin is write-only")
 
     def __repr__(self):
-        return "<hal.Pin %s %s %s >" % self.names[self]
+        return "<hal.Pin %s %s %s>" % (self.name,
+                                        describe_hal_type(self.type),
+                                        describe_hal_dir(self.dir))
