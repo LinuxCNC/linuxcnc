@@ -714,26 +714,6 @@ static int feedOverrideDelayCount = FEED_OVERRIDE_DELAY_COUNT;
 
 // command sending functions
 
-static int sendMachineOn()
-{
-  EMC_TASK_SET_STATE state_msg;
-
-  state_msg.state = EMC_TASK_STATE_ON;
-  emcCommandSend(state_msg);
-
-  return 0;
-}
-
-static int sendMachineOff()
-{
-  EMC_TASK_SET_STATE state_msg;
-
-  state_msg.state = EMC_TASK_STATE_OFF;
-  emcCommandSend(state_msg);
-
-  return 0;
-}
-
 static int sendManual()
 {
   EMC_TASK_SET_MODE mode_msg;
@@ -2593,10 +2573,10 @@ static void keyPressAction(unsigned int state, unsigned int keycode)
   case KEY_F2:
     // estop toggle
     if (emcStatus->task.state == EMC_TASK_STATE_ESTOP_RESET) {
-      sendMachineOn();
+      lui_machine_on(lui);
     }
     else {
-      sendMachineOff();
+      lui_machine_off(lui);
     }
     break;
 
@@ -3283,11 +3263,11 @@ static void stateMenuSelect(Widget w, XtPointer client_data, XtPointer call_data
     // case 2 is separator
 
   case 3:
-    sendMachineOn();
+    lui_machine_on(lui);
     break;
 
   case 4:
-    sendMachineOff();
+    lui_machine_off(lui);
     break;
 
   default:
