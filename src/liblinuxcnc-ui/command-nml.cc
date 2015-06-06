@@ -25,8 +25,8 @@
 
 
 int lui_send_nml_command_and_wait(lui_t *lui, RCS_CMD_MSG &nml_command) {
-    nml_command.serial_number = ++lui->nml_serial_number;
-    lui->command_nml->write(nml_command);
+    lui->command_nml->write(&nml_command);
+    lui->nml_serial_number = nml_command.serial_number;
     return lui_command_wait(lui);
 }
 
@@ -53,11 +53,14 @@ int lui_command_wait(lui_t *lui) {
 
 
 //
-// Wait for our current serial number to be echoed back from Task,
-// indicating that Task received our message.
+// Wait for the most recent command sent to be to be acknowledged by Task,
+// indicating that Task received the message.
 //
 int lui_command_wait_received(lui_t *lui) {
     struct timeval end, now;
+    int serial_number;
+
+    serial_number = lui->nml_serial_number;
 
     gettimeofday(&now, NULL);
     timeradd(&now, &lui->command_nml_receive_timeout, &end);
@@ -65,7 +68,7 @@ int lui_command_wait_received(lui_t *lui) {
     do {
 	lui_status_nml_update(lui);
 
-	if (lui->status->echo_serial_number == lui->nml_serial_number) {
+	if (lui->status->echo_serial_number >= serial_number) {
 	    return 0;
 	}
 
@@ -79,9 +82,12 @@ int lui_command_wait_received(lui_t *lui) {
 
 
 //
-// Wait for Task's status to be "Done", indicating it's finished doing
-// something.  We use this as an imperfect proxy for "Task is finished
-// executing the command indicated  by our current serial number".
+// Wait for Task to acknowledge receipt of the most recent command sent,
+// then wait for Task's status to be "Done", indicating it's finished doing
+// something.
+//
+// We use this as an imperfect proxy for "Task is finished executing the
+// command indicated  by our current serial number".
 //
 int lui_command_wait_done(lui_t *lui) {
     int r;
