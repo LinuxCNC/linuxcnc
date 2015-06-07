@@ -7,7 +7,7 @@ pin in  float angle       "orient target position in degrees, 0 <= angle < 360";
 pin out float command     "target spindle position, input to PID command";
 pin out float poserr      "in degrees - aid for PID tuning";
 pin out bit is-oriented   "This pin goes high when poserr < tolerance. Use to drive motion.spindle-is-oriented";
-pin in float tolerance    "The tolerance in degrees for considering the align completed";
+pin in float tolerance = 0.5  "The tolerance in degrees for considering the align completed";
 
 variable int   last_enable = 0;
 variable int    debounce = 0; // to prevent the in-position triggering with the spindle moving
@@ -61,7 +61,8 @@ net spindle-pos    ...encoder..position orient.position orient-pid.feedback
 .br
 net orient-command orient.command orient-pid.command
 .br
-
+net spindle-in-pos orient.0.is-oriented => motion.spindle-is-oriented
+.br
 """;
 
 license "GPL";
