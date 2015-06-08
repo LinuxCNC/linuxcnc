@@ -18,19 +18,37 @@
 //
 
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/time.h>
 
 #include "linuxcnc-ui-private.h"
 
-lui_t *lui_new(void) {
-    lui_t *lui;
-    lui = (lui_t*)calloc(1, sizeof(lui_t));
-    if (lui == NULL) {
-        return NULL;
-    }
 
-    lui->command_nml_receive_timeout.tv_sec = 5;
-    lui->command_nml_receive_timeout.tv_usec = 0;
+//
+// Wait for our current serial number to be echoed back from Task,
+// indicating that Task received our message.
+//
+// lui calls this after each time it sends a message to Task, before
+// returning to the caller.
+//
+int lui_command_nml_wait_received(lui_t *lui) {
+    struct timeval end, now;
 
-    return lui;
+    gettimeofday(&now, NULL);
+    timeradd(&now, &lui->command_nml_receive_timeout, &end);
+
+    do {
+	lui_status_nml_update(lui);
+
+	if (lui->status->echo_serial_number == lui->nml_serial_number) {
+	    return 0;
+	}
+
+	usleep(1000);
+        gettimeofday(&now, NULL);
+    } while (timercmp(&now, &end, <));
+
+    // timeout
+    return -1;
 }
 
