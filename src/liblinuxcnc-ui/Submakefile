@@ -3,6 +3,7 @@ LIBLINUXCNC_UI_SRC := \
     liblinuxcnc-ui/free.cc \
     liblinuxcnc-ui/connect.cc \
     liblinuxcnc-ui/command-nml-wait-received.cc \
+    liblinuxcnc-ui/status-nml-update.cc
 
 USERSRCS += $(LIBLINUXCNC_UI_SRC)
 TARGETS += ../lib/liblinuxcnc-ui.so ../lib/liblinuxcnc-ui.so.0
