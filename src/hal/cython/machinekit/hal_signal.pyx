@@ -19,9 +19,12 @@ cdef class Signal:
             with HALMutex():
                 self._sig = halpr_find_sig_by_name(name)
                 if self._sig == NULL:
-                    raise RuntimeError("signal %s does not exist" % name)
+                    raise RuntimeError("signal '%s' does not exist" % name)
 
         else:
+            if name in signals:
+                raise RuntimeError("Failed to create signal: a signal with the name '%s' already exists" % name)
+
             r = hal_signal_new(name, type)
             if r:
                 raise RuntimeError("Failed to create signal %s: %s" % (name, hal_lasterror()))
@@ -39,12 +42,7 @@ cdef class Signal:
     def link(self, *pins):
         self._alive_check()
         for p in pins:
-            if isinstance(p, Pin):
-                p.link(self._sig.name)
-            else:
-                r = hal_link(self._p, self._sig.name)
-                if r:
-                    raise RuntimeError("Failed to link pin %s to %s: %s" % (p, self._sig.name, hal_lasterror()))
+            net(self._sig.name, p)
 
     def __iadd__(self, pins):
         self._alive_check()
