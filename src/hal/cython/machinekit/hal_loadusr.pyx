@@ -3,10 +3,22 @@ import subprocess
 import shlex
 import time
 
-def loadusr(command, wait=False, wait_name=None, wait_timeout=5.0, shell=False):
+def loadusr(command, wait=False, wait_name=None, wait_timeout=5.0, shell=False, **kwargs):
     cmd = command
+
+    for key in kwargs.keys():  # pass arguments using kwargs
+        arg = kwargs[key]
+        prefix = '--'
+        if len(key) == 1:  # single length arguments have single prefix
+            prefix = '-'
+        if isinstance(arg, bool):  # boolean is store_true type argument
+            if arg is True:
+                cmd += ' %s%s' % (prefix, key)
+        else:
+            cmd += ' %s%s %s' % (prefix, key, str(arg))
+
     if not shell:
-        cmd = shlex.split(command)  # correctly split the command
+        cmd = shlex.split(cmd)  # correctly split the command
     p = subprocess.Popen(cmd, shell=shell)
 
     wait = wait or (wait_name is not None)
