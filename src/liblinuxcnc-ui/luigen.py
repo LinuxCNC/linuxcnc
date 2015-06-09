@@ -37,7 +37,7 @@ class LuiBase:
         self.deprecated = " (deprecated)" if deprecated else ""
     def do_makefile(self, fd):
         print >>fd, """\
-manpages: ../docs/man/man3/lui_%(fname)s.3lui
+GENERATED_MANPAGES += ../docs/man/man3/lui_%(fname)s.3lui
 ../docs/man/man3/lui_%(fname)s.3lui: $(LUIGEN)
 \t$(LUIGEN) manfile $@ %(fname)s
 
