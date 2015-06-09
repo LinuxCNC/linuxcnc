@@ -164,8 +164,9 @@ cdef class Signal:
             return self._sig.handle
 
     def __repr__(self):
-        return "<hal.Signal %s %s>" % (self.name,
-                                       describe_hal_type(self.type))
+        return "<hal.Signal %s %s %s>" % (self.name,
+                                          describe_hal_type(self.type),
+                                          self.get())
 
 
 cdef modifier_name(hal_sig_t *sig, int dir):

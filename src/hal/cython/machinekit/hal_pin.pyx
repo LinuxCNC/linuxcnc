@@ -164,6 +164,7 @@ class Pin(_Pin):
     def get(self): raise NotImplementedError("Pin is write-only")
 
     def __repr__(self):
-        return "<hal.Pin %s %s %s>" % (self.name,
-                                        describe_hal_type(self.type),
-                                        describe_hal_dir(self.dir))
+        return "<hal.Pin %s %s %s %s>" % (self.name,
+                                          describe_hal_type(self.type),
+                                          describe_hal_dir(self.dir),
+                                          self.get())
