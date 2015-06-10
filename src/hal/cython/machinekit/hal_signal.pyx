@@ -11,7 +11,7 @@ cdef class Signal:
             # the underlying HAL signal was deleted.
             raise RuntimeError("link: underlying HAL signal already deleted")
 
-    def __init__(self, char *name, type=HAL_TYPE_UNSPECIFIED, init=None):
+    def __init__(self, char *name, type=HAL_TYPE_UNSPECIFIED, init=None, wrap=True):
         hal_required()
         # if no type given, wrap existing signal
         if type == HAL_TYPE_UNSPECIFIED:
@@ -19,12 +19,23 @@ cdef class Signal:
             with HALMutex():
                 self._sig = halpr_find_sig_by_name(name)
                 if self._sig == NULL:
-                    raise RuntimeError("signal %s does not exist" % name)
+                    raise RuntimeError("signal '%s' does not exist" % name)
 
         else:
-            r = hal_signal_new(name, type)
-            if r:
-                raise RuntimeError("Failed to create signal %s: %s" % (name, hal_lasterror()))
+            if name in signals:
+                if not wrap:
+                    raise RuntimeError("Failed to create signal: "
+                                       "a signal with the name '%s' already exists" % name)
+                signal = signals[name]
+                if signal.type is not type:
+                    raise RuntimeError("Failed to create signal: "
+                                       "type of existing signal '%s' does not match type '%s'" \
+                                       % (describe_hal_type(signal.type),
+                                          describe_hal_type(type)))
+            else:
+                r = hal_signal_new(name, type)
+                if r:
+                    raise RuntimeError("Failed to create signal %s: %s" % (name, hal_lasterror()))
 
             with HALMutex():
                 self._sig = halpr_find_sig_by_name(name)
@@ -39,12 +50,7 @@ cdef class Signal:
     def link(self, *pins):
         self._alive_check()
         for p in pins:
-            if isinstance(p, Pin):
-                p.link(self._sig.name)
-            else:
-                r = hal_link(self._p, self._sig.name)
-                if r:
-                    raise RuntimeError("Failed to link pin %s to %s: %s" % (p, self._sig.name, hal_lasterror()))
+            net(self._sig.name, p)
 
     def __iadd__(self, pins):
         self._alive_check()
@@ -158,8 +164,9 @@ cdef class Signal:
             return self._sig.handle
 
     def __repr__(self):
-        return "<hal.Signal %s %s>" % (self.name,
-                                       describe_hal_type(self.type))
+        return "<hal.Signal %s %s %s>" % (self.name,
+                                          describe_hal_type(self.type),
+                                          self.get())
 
 
 cdef modifier_name(hal_sig_t *sig, int dir):
@@ -179,7 +186,7 @@ cdef modifier_name(hal_sig_t *sig, int dir):
 cdef _new_sig(char *name, int type):
     if not valid_type(type):
         raise TypeError("new_sig: %s - invalid type %d " % (name, type))
-    return Signal(name, type)
+    return Signal(name, type, wrap=False)
 
 def newsig(name,type):
     _new_sig(name,type)

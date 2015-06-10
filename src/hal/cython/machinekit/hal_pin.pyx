@@ -95,13 +95,14 @@ cdef class _Pin:
         def __get__(self): return self._pin.dir
 
     def link(self, arg):
-        # check if we have a signal
-        if isinstance(arg, Signal) \
-           or (isinstance(arg, str) and (arg in signals)):
-            return net(arg, self)  # net is more verbose than link
+        # check if we have a pin or a list of pins
+        if isinstance(arg, Pin) \
+           or (isinstance(arg, str) and (arg in pins)) \
+           or hasattr(arg, '__iter__'):
+            return net(self, arg)  # net is more verbose than link
 
-        # we got a pin or list of pins
-        return net(self, arg)
+        # we got a signal or a new signal
+        return net(arg, self)
 
     def __iadd__(self, pins):
         return self.link(pins)
@@ -164,6 +165,7 @@ class Pin(_Pin):
     def get(self): raise NotImplementedError("Pin is write-only")
 
     def __repr__(self):
-        return "<hal.Pin %s %s %s>" % (self.name,
-                                        describe_hal_type(self.type),
-                                        describe_hal_dir(self.dir))
+        return "<hal.Pin %s %s %s %s>" % (self.name,
+                                          describe_hal_type(self.type),
+                                          describe_hal_dir(self.dir),
+                                          self.get())
