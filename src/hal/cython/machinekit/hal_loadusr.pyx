@@ -22,15 +22,19 @@ def loadusr(command, wait=False, wait_name=None, wait_timeout=5.0, shell=False, 
     p = subprocess.Popen(cmd, shell=shell)
 
     wait = wait or (wait_name is not None)
+
     if not wait:
         return
+
+    if wait_name is None:
+        wait_name = command.split(' ')[0]  # guess the name
 
     timeout = 0.0
     while True:
         p.poll()
         # check if process is alive
         ret = p.returncode
-        if ret is not None and ret != 0:
+        if ret is not None:
             raise RuntimeError(command + ' exited with return code ' + str(ret))
         # check if component exists
         if (wait_name is not None) and (wait_name in components):
