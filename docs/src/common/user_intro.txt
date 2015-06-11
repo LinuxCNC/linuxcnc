@@ -2,14 +2,6 @@
 
 [[cha:linuxcnc-user-introduction]] (((LinuxCNC User Introduction)))
 
-== This Manual
-
-The focus of this manual is on 'using' LinuxCNC. It is intended to be used
-once LinuxCNC is installed and configured. For standard installations see
-the Getting Started Guide for step by step instructions to get you up
-and going. For detailed information on installation and configuration
-of LinuxCNC see the Integrator Manual.
-
 == How LinuxCNC Works[[how-LinuxCNC-works]]
 
 The Enhanced Machine Controller (LinuxCNC) is a lot more than just another
@@ -98,8 +90,8 @@ image::images/keystick.png[align="center"]
    ran from the configuration picker.
 
 * 'halui' - a HAL based user interface which allows to control LinuxCNC
-   using knobs and switches. See the Integrators manual for more information
-   on halui.
+   using knobs and switches.
+   See the <<cha:hal-user-interface, HALUI chapter>> for more information.
 
 * 'linuxcncrsh' - a telnet based user interface which allows commands to
    be sent to LinuxCNC from remote computers.
@@ -120,7 +112,7 @@ image::images/axis-pyvcp.png[align="center"]
 
 image::images/axis-gladevcp.png[align="center"]
 
-See the Integrators manual for more information on Virtual Control Panels.
+See the <<cha:pyvcp,PyVCP chapter>> and the<<cha:glade-vcp,GladeVCP chapter>> for more information on Virtual Control Panels.
 
 == Languages
 
