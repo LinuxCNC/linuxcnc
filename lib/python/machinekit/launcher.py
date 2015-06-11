@@ -150,6 +150,7 @@ def install_comp(filename):
 
 # starts realtime
 def start_realtime():
+    global _realtimeStarted
     sys.stdout.write("starting realtime...")
     sys.stdout.flush()
     subprocess.check_call('realtime start', shell=True)
@@ -159,6 +160,7 @@ def start_realtime():
 
 # stops realtime
 def stop_realtime():
+    global _realtimeStarted
     sys.stdout.write("stopping realtime... ")
     sys.stdout.flush()
     subprocess.check_call('realtime stop', shell=True)
