@@ -183,11 +183,11 @@ cdef modifier_name(hal_sig_t *sig, int dir):
      return None
 
 
-cdef _new_sig(char *name, int type):
+cdef _newsig(char *name, int type, init=None):
     if not valid_type(type):
-        raise TypeError("new_sig: %s - invalid type %d " % (name, type))
-    return Signal(name, type, wrap=False)
+        raise TypeError("newsig: %s - invalid type %d " % (name, type))
+    return Signal(name, type, init=init, wrap=False)
 
-def newsig(name,type):
-    _new_sig(name,type)
+def newsig(name, type, init=None):
+    _newsig(name, type, init)
     return signals[name] # add to sigdict
