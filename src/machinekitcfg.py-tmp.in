@@ -59,7 +59,7 @@ def find(section, option, default=None):
         return default
     try:
         return __estimateType(_cfg.get(section, option))
-    except configparser.NoOptionError or configparser.NoSectionError:
+    except (configparser.NoOptionError, configparser.NoSectionError):
         return default
 
 
