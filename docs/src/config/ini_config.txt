@@ -289,8 +289,8 @@ The following [DISPLAY] items are for the AXIS interface only, many of them are 
     selecting "File > Edit tool table..." in Axis). Other valid
     entries are "gedit", "gnome-terminal -e vim", and "gvim".
 
-* 'PYVCP = /filename.xml' - The PyVCP panel description file. See the PyVCP section for more
-    information.
+* 'PYVCP = /filename.xml' - The PyVCP panel description file. See the 
+    <<cha:pyvcp,PyVCP Chapter>> for more information.
 
 * 'LATHE = 1' - This displays in lathe mode with a top view and with Radius and
     Diameter on the DRO.
@@ -520,8 +520,8 @@ Section.
 
 * 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Execute the tcl file 'texample.tcl'
     at start up with arg1, arg2, etc as ::argv list.  Files with a .tcl suffix are
-    processed as above but use haltcl for processing  See the section on HALTCL for
-    more information.
+    processed as above but use haltcl for processing  See the 
+    <<cha:haltcl,HALTCL Chapter>> for more information.
 
 * 'HALFILE = LIB:sys_example.hal' - Execute the system library file 'sys_example.hal'
     at start up.
@@ -566,7 +566,6 @@ Example:
 ----
 TWOPASS = nodelete verbose
 ----
-See the section on TWOPASS for more information.
 
 Some GUIs support halfiles that are processed after the GUI is started in order
 to connect hal pins that are created by the GUI.  When using a postgui halfile with
@@ -1322,8 +1321,8 @@ image::images/encoder-scale.png[align="center"]
 
 * 'TOOL_CHANGE_AT_G30 = 1' -
     The machine is moved to reference point defined by parameters
-    5181-5186 for G30 if the value is 1. For more information on G30 and
-    Parameters see the G Code Manual.
+    5181-5186 for G30 if the value is 1. For more information see the
+    <<sec:parameters,Parameters Section and the <<sec:G30-G30_1,G30 Section>>.
 
 * 'RANDOM_TOOLCHANGER = 1' -
     This is for machines that cannot place the tool back into the pocket
