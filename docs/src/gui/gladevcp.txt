@@ -1645,7 +1645,8 @@ Direct program control::
     [widget name].set_foreground_color("yellow")
     [widget name].mark_active("G55")
         Allows you to directly set a row to highlight.
-        (eg in case you wish to use your own navigation controls. See Gmoccapy 
+        (eg in case you wish to use your own navigation controls.
+        See <<cha:gmoccapy,Gmoccapy Chapter>>
     [widget name].selection_mask = ("Tool","Rot","G5x")
         These rows are NOT selectable in edit mode.
     [widget name].set_names([['G54','Default'],["G55","Vice1"],['Rot','Rotational']])
