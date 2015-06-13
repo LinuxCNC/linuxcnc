@@ -455,14 +455,14 @@ then find the PWM values that give 1600 RPM (40%) and 2800 RPM (70%).
 image::images/stepconf-advanced.png[align="center"]
 
 * 'Include Halui' - This will add the Halui user interface component. See the
-Integrator Manual for more information on Halui.
+<<cha:hal-user-interface,HALUI Chapter>> for more information on.
 
 * 'Include pyVCP' - This option adds the pyVCP panel base file or a sample file
-to work on. See the Integrator Manual for more information on pyVCP.
+to work on. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 
 * 'Include ClassicLadder PLC' - This option will add the ClassicLadder PLC
-(Programmable Logic Controller). See the Integrator Manual for more information
-on ClassicLadder.
+(Programmable Logic Controller). See the
+<<cha:classicladder-programming,Classicladder Chapter>> for more information.
 
 * 'Onscreen Prompt For Tool Change' - If this box is checked, LinuxCNC will
 pause and prompt you to change the tool when 'M6' is encountered. This feature
