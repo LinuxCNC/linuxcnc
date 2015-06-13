@@ -150,6 +150,7 @@ These pins, parameters, and functions are created by the realtime
     from the F=n setting in the G Code file. No feed overrides or any other
     adjustments are applied to this pin.
 
+[[sec:motion-spindle]]
 * 'motion.spindle-at-speed' - 
      (bit, in) Motion will pause until this pin is TRUE, under the
     following conditions: before the first feed move after each spindle
