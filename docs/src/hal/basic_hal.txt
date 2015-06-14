@@ -2,7 +2,7 @@
 
 [[cha:basic-hal-reference]] (((Basic HAL Reference)))
 
-== HAL Commands [[sec:Hal-Commands]]
+== HAL Commands [[sec:hal-commands]]
 
 More detailed information can be found in the man page for halcmd: run
 'man halcmd' in a terminal window.
@@ -256,7 +256,7 @@ More information can be found in the HAL manual or the man pages for
 halrun.
 
 
-== HAL Data [[sec:Hal-Data]]
+== HAL Data [[sec:hal-data]]
 
 === Bit (((Bit)))
 

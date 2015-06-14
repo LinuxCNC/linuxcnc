@@ -215,8 +215,8 @@ HAL shuts down when the panel is closed.
 == Widgets
 
 HAL signals come in two variants, bits and numbers. Bits are off/on
-signals. Numbers can be 'float', 's32' or 'u32'. For more information
-on HAL data types see the HAL manual. The PyVCP widget 
+signals. Numbers can be 'float', 's32' or 'u32'. For more information on HAL
+data types see the <<sec:hal-data,HAL Data>> section. The PyVCP widget 
 can either display the value of the signal with an indicator widget, or
 modify the signal value with a control widget. Thus there are four
 classes of PyVCP widgets that you can connect to a HAL signal. A fifth
@@ -303,7 +303,7 @@ Common Colors (colors with numbers indicate shades of that color)
 HAL pins provide a means to 'connect' the widget to something. Once
 you create a HAL pin for your widget you can 'connect' it to another
 HAL pin with a 'net' command in a .hal file. For more information on
-the 'net' command see the HAL Commands section of the HAL manual. 
+the 'net' command see the <<sec:hal-commands,HAL Commands>> section.
 
 === Label
 

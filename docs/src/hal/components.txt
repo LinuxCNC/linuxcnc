@@ -51,7 +51,8 @@ motion:: (((motion)))Accepts NML motion commands, interacts with HAL in realtime
 
 axis:: (((axis)))Accepts NML motion commands, interacts with HAL in realtime.
 
-classicladder:: (((classicladder)))Realtime software PLC based on ladder logic. See Classic Ladder manual for more information.
+classicladder:: (((classicladder)))Realtime software PLC based on ladder logic.
+See <<cha:classicladder,ClassicLadder>> chapter for more information.
 
 gladevcp:: (((gladevcp)))Displays Virtual Control Panels built with GTK/Glade.
 
