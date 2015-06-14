@@ -13,7 +13,7 @@ best results from LinuxCNC.
 
 If you are using the AXIS display, 
 have Axis display your lathe tools properly. 
-See the <<ha:ini-configuration,INI Configuration>> section for more details.
+See the <<cha:ini-configuration,INI Configuration>> section for more details.
 
 To set up AXIS for Lathe Mode.
 

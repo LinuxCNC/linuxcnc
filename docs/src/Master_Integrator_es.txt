@@ -48,9 +48,9 @@ include::config/stepper.txt[]
 
 :leveloffset: 1
 
-include::hal/pyvcp.txt[]
+include::gui/pyvcp.txt[]
 
-include::hal/pyvcp_examples.txt[]
+include::gui/pyvcp_examples.txt[]
 
 include::gui/gladevcp.txt[]
 

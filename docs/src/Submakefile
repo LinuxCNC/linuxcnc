@@ -97,8 +97,8 @@ DOC_SRCS_EN := \
 	hal/halui_examples.txt \
 	hal/intro.txt \
 	hal/parallel_port.txt \
-	hal/pyvcp.txt \
-	hal/pyvcp_examples.txt \
+	gui/pyvcp.txt \
+	gui/pyvcp_examples.txt \
 	hal/rtcomps.txt \
 	hal/tools.txt \
 	hal/tutorial.txt \
@@ -174,8 +174,8 @@ DOC_SRCS_FR := \
 	hal/halui_fr.txt \
 	hal/intro_fr.txt \
 	hal/parallel_port_fr.txt \
-	hal/pyvcp_fr.txt \
-	hal/pyvcp_examples_fr.txt \
+	gui/pyvcp_fr.txt \
+	gui/pyvcp_examples_fr.txt \
 	hal/rtcomps_fr.txt \
 	hal/tutorial_fr.txt \
 	install/Latency_Test_fr.txt \
@@ -250,8 +250,8 @@ DOC_SRCS_ES := \
 	hal/halui_examples_es.txt \
 	hal/intro_es.txt \
 	hal/parallel_port_es.txt \
-	hal/pyvcp_es.txt \
-	hal/pyvcp_examples_es.txt \
+	gui/pyvcp_es.txt \
+	gui/pyvcp_examples_es.txt \
 	hal/rtcomps_es.txt \
 	hal/tools_es.txt \
 	hal/tutorial_es.txt \
