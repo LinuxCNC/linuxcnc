@@ -1,5 +1,5 @@
-component and "N input AND gate";
-description """\ \\fBout\\fR is computed from the result of logic AND applied
+component orn "N input OR gate";
+description """\ \\fBout\\fR is computed from the result of logic or applied
 to all input pins. """;
 
 // Input Pins
@@ -22,12 +22,12 @@ function _ nofp;
 FUNCTION(_)
 {
     int n;
-    hal_bit_t value = 1;
+    hal_bit_t value = 0;
 
     // loop through inputs
     for (n = 0; n < localpincount; n++)
     {
-        value = value && in_(n);
+        value = value || in_(n);
     }
     out = value;
 
