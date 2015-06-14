@@ -493,7 +493,7 @@ in the Glade 'General' section have an associated mouse-over tool tip.
 
 HAL signals come in two variants, bits and numbers. Bits are off/on
 signals. Numbers can be "float", "s32" or "u32". For more information
-on HAL data types see the <<sec:Hal-Data,HAL manual>>. The GladeVcp
+on HAL data types see the <<sec:hal-data,HAL manual>>. The GladeVcp
 widgets can either display the value of the signal with an indicator
 widget, or modify the signal value with a control widget. Thus there
 are four classes of GladeVcp widgets that you can connect to a HAL
