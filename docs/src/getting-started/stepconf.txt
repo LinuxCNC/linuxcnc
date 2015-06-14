@@ -462,7 +462,7 @@ to work on. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 
 * 'Include ClassicLadder PLC' - This option will add the ClassicLadder PLC
 (Programmable Logic Controller). See the
-<<cha:classicladder-programming,Classicladder Chapter>> for more information.
+<<cha:classicladder,Classicladder Chapter>> for more information.
 
 * 'Onscreen Prompt For Tool Change' - If this box is checked, LinuxCNC will
 pause and prompt you to change the tool when 'M6' is encountered. This feature

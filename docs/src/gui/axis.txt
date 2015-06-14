@@ -115,7 +115,7 @@ Some menu items might be grayed out depending on how you have your
 * 'Reload tool table' - After editing the tool table you must reload it.
 
 * 'Ladder editor' - If you have loaded Classic Ladder you can edit it from
-   here. See the <<cha:classicladder-programming,Classicladder Chapter>>
+   here. See the <<cha:classicladder,Classicladder Chapter>>
    for more information.
 
 * 'Quit' - 
