@@ -127,7 +127,7 @@ def load_bbio_file(filename):
 # installs a comp RT component
 def install_comp(filename):
     install = True
-    base = os.path.splitext(os.path.basename(filename))[0]
+    base, ext = os.path.splitext(os.path.basename(filename))
     flavor = compat.default_flavor()
     moduleDir = compat.get_rtapi_config("RTLIB_DIR")
     moduleName = flavor.name + '/' + base + flavor.mod_ext
@@ -139,17 +139,25 @@ def install_comp(filename):
             install = False
 
     if install is True:
+        if ext == '.icomp':
+            cmdBase = 'instcomp'
+        else:
+            cmdBase = 'comp'
         sys.stdout.write("installing " + filename + '... ')
         sys.stdout.flush()
         if os.access(moduleDir, os.W_OK):  # if we have write access we might not need sudo
-            subprocess.check_call('comp --install ' + filename, shell=True)
+            cmd = '%s --install %s' % (cmdBase, filename)
         else:
-            subprocess.check_call('sudo comp --install ' + filename, shell=True)
+            cmd = 'sudo %s --install %s' % (cmdBase, filename)
+
+        subprocess.check_call(cmd, shell=True)
+
         sys.stdout.write('done\n')
 
 
 # starts realtime
 def start_realtime():
+    global _realtimeStarted
     sys.stdout.write("starting realtime...")
     sys.stdout.flush()
     subprocess.check_call('realtime start', shell=True)
@@ -159,6 +167,7 @@ def start_realtime():
 
 # stops realtime
 def stop_realtime():
+    global _realtimeStarted
     sys.stdout.write("stopping realtime... ")
     sys.stdout.flush()
     subprocess.check_call('realtime stop', shell=True)

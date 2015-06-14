@@ -53,7 +53,6 @@ def net(sig,*pinnames):
         writers = s.writers
         bidirs = s.bidirs
         t = s.type
-        assert writers + bidirs < 2
 
     if signame in pins:
         raise TypeError("net: '%s' is a pin - first argument must be a signal name" % signame)
