@@ -958,7 +958,7 @@ Typically (but not always):
     put in the INI file with a minimum of trouble.
 
 [[sub:Homing-related-items]]
-==== Homing
+.Homing
 
 These parameters are Homing related, for a better explanation read the
 <<cha:homing-configuration,Homing Configuration>> Chapter.
@@ -1024,7 +1024,7 @@ These parameters are Homing related, for a better explanation read the
 
 
 [[sub:Servo-related-items]]
-==== Servo
+.Servo
 
 These parameters are relevant to axes controlled by servos.
 
@@ -1220,7 +1220,7 @@ image::images/encoder-scale.png[align="center"]
 
 
 [[sub:Stepper-related-items]]
-==== Stepper
+.Stepper
 
 These parameters are relevant to axes controlled by steppers.
 

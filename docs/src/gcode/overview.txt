@@ -363,7 +363,7 @@ example '##2'  means the value of the parameter whose index is the
    Reflects the value of the `toolchanger-reason` HAL pin if a fault occured. 
    Volatile.
 
-= Numbered Parameters persistence
+== Numbered Parameters persistence
 [[var_file_format]]
 
 The values of parameters in the persistent range are retained over

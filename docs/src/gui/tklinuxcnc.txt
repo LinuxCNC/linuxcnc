@@ -140,7 +140,7 @@ show the current line.
 
 === Manual Control
 
-==== Implicit keys
+.Implicit keys
 
 TkLinuxCNC allows you to manually move the machine. This action is known as
 'jogging'. First, select the axis to be moved by clicking it. Then,
@@ -169,7 +169,7 @@ color).
 
 image::images/tkemc-override-limits.png[align="center"]
 
-==== The Spindle group
+.The Spindle group
 
 The button on the first row selects the direction for the spindle to
 rotate: Counterclockwise, Stopped, Clockwise. The buttons next to it
@@ -178,7 +178,7 @@ on the second row allows the spindle brake to be engaged or released.
 Depending on your machine configuration, not all the items in this
 group may have an effect.
 
-==== The Coolant group
+.The Coolant group
 
 The two buttons allow the 'Mist' and 'Flood' coolants to be turned on
 and off. Depending on your machine configuration, not all the items in
@@ -194,12 +194,12 @@ on, and not set to MDI mode, the code entry controls are unavailable.
 
 image::images/tkemc-mdi.png[align="center"]
 
-==== MDI:
+.MDI:
 
 This allows you to enter a g-code command to be executed. Execute the
 command by pressing Enter.
 
-==== Active G-Codes
+.Active G-Codes
 
 This shows the 'modal codes' that are active in the interpreter. For
 instance, 'G54' indicates that the 'G54 offset' is applied to all

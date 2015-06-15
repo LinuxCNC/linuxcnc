@@ -60,7 +60,7 @@ Generally, the behavior of a remapped code may be defined in the following ways:
 - you define a O-word subroutine which implements the desired behavior
 - alternatively, you may employ a Python function which extends the interpreter's behavior.
 
-==== How to glue things together
+.How to glue things together
 M- and G-codes, and O-words subroutine calls have some fairly different syntax.
 
 O-word procedures, for example, take positional parameters
@@ -87,7 +87,7 @@ access into interpreter internal data structures to achieve the
 required effect. Doing the glue code in - again - 'C/C\+\+' would be an
 inflexible and therefore unsatisfactory solution.
 
-==== How Embedded Python fits in
+.How Embedded Python fits in
 
 To make a simple situation easy and a complex situation solvable, the
 glue issue is addressed as follows:
@@ -105,7 +105,7 @@ Python will likely find it easier to write remapped codes, glue,
 O-word procedures etc in pure Python, without resorting to the
 somewhat cumbersome RS274NGC language at all.
 
-==== A Word on Embedded Python
+.A Word on Embedded Python
 
 Many people are familiar with 'extending' the Python interpreter by
 'C/C\+\+' modules, and this is heavily used in LinuxCNC to access Task,
@@ -411,7 +411,7 @@ assigned a value).
 
 Optional word parameters may be tested for presence by the `EXISTS(#<word>)` idiom.
 
-==== Example for named parameter passing to NGC procedures
+.Example for named parameter passing to NGC procedures
 
 Assume the code is defined as
 
@@ -2374,14 +2374,14 @@ results.
 
 
 
-==== Interpreter action on a Tx command [[remap::interpreter-action-on-T]]
+.Interpreter action on a Tx command [[remap::interpreter-action-on-T]]
 
 All the interpreter does is evaluate the toolnumber paramter, looks up
 its corresponding pocket, remembers it in the `selected_pocket`
 variable for later, and  queues a canon command
 (SELECT_POCKET). See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
 
-==== Task action on SELECT_POCKET
+.Task action on SELECT_POCKET
 
 When task gets around to handle a SELECT_POCKET, it sends a
 EMC_TOOL_PREPARE message to the iocontrol process, which handles most
@@ -2392,7 +2392,7 @@ complete the changer positioning operation, which is not necessary IMO
 - it defeats the idea that changer preparation and code execution can
 proceed in parallel.
 
-==== Iocontrol action on EMC_TOOL_PREPARE
+.Iocontrol action on EMC_TOOL_PREPARE
 
 When iocontrol sees the select pocket command, it does the related HAL
 pin wiggling - it sets the "tool-prep-number" pin to indicate which
@@ -2403,7 +2403,7 @@ When the changer responds by asserting "tool-prepared", it considers
 the prepare phase to be completed and signals task to
 continue. (again, this 'wait' istn strictly necessary IMO)
 
-==== Building the prolog and epilog for Tx
+.Building the prolog and epilog for Tx
 
 See the Python functions `prepare_prolog` and `prepare_epilog` in 
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
@@ -2421,7 +2421,7 @@ Even if you are not familiar with C, I suggest you look at the
 'Interp::convert_tool_change' code in
 'src/emc/rs274/interp_convert.cc'.
 
-==== Interpreter action on a M6 command [[remap::interpreter-action-on-M6]]
+.Interpreter action on a M6 command [[remap::interpreter-action-on-M6]]
 When the interpreter sees an M6, it:
 
 . checks whether a T command has already been executed (test
@@ -2444,12 +2444,12 @@ parameter. CHANGE_TOOL will:
 . signal to task to stop calling the interpreter for readahead by
 returning INTERP_EXECUTE_FINISH since M6 is a queue buster.
 
-==== What task does when it sees a CHANGE_TOOL command
+.What task does when it sees a CHANGE_TOOL command
 Again, not much more than passing the buck to iocontrol by sending it
 an EMC_TOOL_LOAD message, and waiting until iocontrol has done its
 thing.
 
-==== Iocontrol action on EMC_TOOL_LOAD [[remap::iocontrol-action-on-load]]
+.Iocontrol action on EMC_TOOL_LOAD [[remap::iocontrol-action-on-load]]
 
 . it asserts the "tool-change" pin
 . it waits for the "tool-changed" pin to become active
@@ -2474,7 +2474,7 @@ needed, among it the changed tool table.
 From there on, the interpreter has complete  knowledge of the world
 model and continues with read ahead.
 
-==== Building the prolog and epilog for M6
+.Building the prolog and epilog for M6
 See the Python functions `change_prolog` and `change_epilog` in 
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
@@ -2482,7 +2482,7 @@ See the Python functions `change_prolog` and `change_epilog` in
 M61 requires a non-negative `Q`parameter (tool number). If zero, this
 means 'unload tool', else 'set current tool number to Q'. 
 
-==== Building the replacement for M61
+.Building the replacement for M61
 An example Python redefinition for M61 can be found in the
 `set_tool_number` function in 
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.

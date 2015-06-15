@@ -266,7 +266,7 @@ evaluated as a Python expression.
 
 The examples below show a mix of formats.
 
-==== Comments
+.Comments
 
 To add a comment use the xml syntax for a comment.
 
@@ -275,12 +275,12 @@ To add a comment use the xml syntax for a comment.
 <!-- My Comment -->
 -----------------------------
 
-==== Editing the XML file
+.Editing the XML file
 
 Edit the XML file with a text editor. In most cases you can right
 click on the file and select 'open with text editor' or similar.
 
-==== Colors
+.Colors
 
 Colors can be specified using the X11 rgb colors by name 'gray75' or
 hex '#0000ff'. A complete list is located here
@@ -298,7 +298,7 @@ Common Colors (colors with numbers indicate shades of that color)
  - purple and purple1 - 4
  - gray and gray0 - 100
 
-==== HAL Pins
+.HAL Pins
 
 HAL pins provide a means to 'connect' the widget to something. Once
 you create a HAL pin for your widget you can 'connect' it to another
@@ -367,7 +367,7 @@ will be on_color when the halpin is true, and off_color otherwise.
 * '<disabled_color>' - 
     sets the color of the LED when the pin is disabled.
 
-==== Round LED
+.Round LED
 
 [source,xml]
 ---------------------------------------
@@ -383,7 +383,7 @@ The above code produced this example.
 
 image::images/pyvcp_led.png[]
 
-==== Rectangle LED
+.Rectangle LED
 
 This is a variant of the 'led' widget.
 
@@ -425,7 +425,7 @@ button is released. Buttons can use the following formatting options
 * '<bg>"color"</bg>' - 
     the color of the button
 
-==== Text Button
+.Text Button
 
 A text button controls a 'bit' halpin. The halpin is false until the
 button is pressed then it is true. The button is a momentary button.
@@ -449,7 +449,7 @@ The above code produced this example.
 
 image::images/pyvcp_button.png[]
 
-==== Checkbutton
+.Checkbutton
 
 A checkbutton controls a bit halpin. The halpin will be set True when the button is checked, and false when the button is unchecked. The checkbutton is a toggle type button.
 The Checkbuttons may be set initially as TRUE or FALSE the initval field
@@ -476,7 +476,7 @@ to keep the checkbuttons aligned.
 
 image::images/pyvcp_checkbutton.png[]
 
-==== Radiobutton
+.Radiobutton
 
 A radiobutton will set one of the halpins true. The other pins are set
 false.
@@ -510,7 +510,7 @@ Number displays can use the following formatting options
 * <padx>n</padx> where 'n' is the amount of extra horizontal extra space
 * <pady>n</pady> where 'n' is the amount of extra vertical extra space
 
-==== Number
+.Number
 
 The number widget displays the value of a float signal.
 
@@ -539,7 +539,7 @@ really big Number widget you could specify:
 * '<format>' -  is a 'C-style' format specified that determines how 
 the number is displayed.
 
-==== s32 Number
+.s32 Number
 
 The s32 number widget displays the value of a s32 number. The syntax
 is the same as 'number' except the name which is <s32>. Make sure the
@@ -559,12 +559,12 @@ The above code produced this example.
 
 image::images/pyvcp_s32.png[]
 
-==== u32 Number
+.u32 Number
 
 The u32 number widget displays the value of a u32 number. The syntax
 is the same as 'number' except the name which is <u32>.
 
-==== Bar
+.Bar
 
 A bar widget displays the value of a FLOAT signal both graphically
 using a bar display and numerically.
@@ -590,7 +590,7 @@ The above code produced this example.
 
 image::images/pyvcp_bar.png[]
 
-==== Meter
+.Meter
 
 Meter displays the value of a FLOAT signal using a traditional dial
 indicator.
@@ -618,7 +618,7 @@ image::images/pyvcp_meter.png[]
 
 === Number Inputs
 
-==== Spinbox
+.Spinbox
 
 Spinbox controls a FLOAT pin. You increase or decrease the value of
 the pin by either pressing on the arrows, or pointing at the spinbox
@@ -644,7 +644,7 @@ The above code produced this example.
 
 image::images/pyvcp_spinbox.png[]
 
-==== Scale
+.Scale
 
 Scale controls a float or a s32 pin. You increase or decrease the
 value of the pin be either dragging the slider, or pointing at the
@@ -685,7 +685,7 @@ The above code produced this example.
 
 image::images/pyvcp_scale.png[]
 
-==== Dial
+.Dial
 
 The Dial outputs a HAL float and reacts to both mouse wheel and
 dragging. Double left click to increase the resolution and double right
@@ -716,7 +716,7 @@ The above code produced this example.
 
 image::images/pyvcp_dial.png[]
 
-==== Jogwheel
+.Jogwheel
 
 Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts
 up or down as the wheel is turned, either by dragging in a circular
@@ -742,7 +742,7 @@ the same size. The images must be in the same directory as your ini
 file (or in the current directory if running from the command line with
 halrun/halcmd).
 
-==== Image Bit
+.Image Bit
 
 The 'image_bit' toggles between two images by setting the halpin to
 true or false.
@@ -763,7 +763,7 @@ and REV is displayed when 'selectimage' is true.
 
 image:images/pyvcp_image01.png[] image:images/pyvcp_image02.png[]
 
-==== Image u32
+.Image u32
 
 The 'image_u32' is the same as 'image_bit' except you have essentially
 an unlimited number of images and you 'select' the image by setting the
@@ -793,7 +793,7 @@ max unless there is a negative min.
 Containers are widgets that contain other widgets. Containers are used
 to group other widgets.
 
-==== Borders
+.Borders
 
 Container borders are specified with two tags used together. The
 <relief> tag specifies the type of border and the <bd> specifies the
@@ -840,7 +840,7 @@ The above code produced this example.
 
 image::images/pyvcp_borders.png[]
 
-==== Hbox
+.Hbox
 
 Use an Hbox when you want to stack widgets horizontally 
 next to each other.
@@ -868,7 +868,7 @@ For details of how fill, anchor, and expand behave, refer to
 the Tk 'pack' manual page, 'pack(3tk)'. By default, 'fill="y"', 
 'anchor="center"', 'expand="yes"'.
 
-==== Vbox
+.Vbox
 
 Use a Vbox when you want to stack widgets vertically on top of each
 other.
@@ -896,7 +896,7 @@ re-sized. For details of how fill, anchor, and expand behave, refer to
 the Tk 'pack' manual page, 'pack(3tk)'. By default, 'fill="x"',
 'anchor="center"', 'expand="yes"'.
 
-==== Labelframe
+.Labelframe
 
 A labelframe is a frame with a groove and a label at the upper-left
 corner.
@@ -916,7 +916,7 @@ The above code produced this example.
 
 image::images/pyvcp_labelframe.png[]
 
-==== Table
+.Table
 
 A table is a container that allows layout in a grid of rows and
 columns. Each row is started by a '<tablerow/>'  tag. A contained
@@ -959,7 +959,7 @@ The above code produced this example.
 
 image::images/pyvcp_table.png[]
 
-==== Tabs
+.Tabs
 
 A tabbed interface can save quite a bit of space.
 
