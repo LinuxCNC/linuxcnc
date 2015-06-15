@@ -72,6 +72,7 @@ If the number of analog I/O needed is more than the default of 4 you
 can add up to 16 analog I/O by using the num_aio option when loading
 motmod.
 
+[[sec:motion-pins]]
 === Pins (((motion (HAL pins))))
 
 These pins, parameters, and functions are created by the realtime
@@ -150,7 +151,6 @@ These pins, parameters, and functions are created by the realtime
     from the F=n setting in the G Code file. No feed overrides or any other
     adjustments are applied to this pin.
 
-[[sec:motion-spindle]]
 * 'motion.spindle-at-speed' - 
      (bit, in) Motion will pause until this pin is TRUE, under the
     following conditions: before the first feed move after each spindle
