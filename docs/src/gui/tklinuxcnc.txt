@@ -111,14 +111,14 @@ trivial kinematics), but help on machines with non-trivial kinematics
 like robots or stewart platforms. (you can read more about kinematics
 in the Integrator Manual).
 
-==== Backplot
+.Backplot
 
 When the machine moves, it leaves a trail called the backplot. You can
 start the backplot window by selecting View→Backplot.
 
 === Automatic control
 
-==== Buttons for control
+.Buttons for control
 
 The buttons in the lower part of TkLinuxCNC are used to control the execution of a
 program: 'Open' to load a program, 'Verify' to
@@ -132,7 +132,7 @@ be stopped on any M1 encountered).
 .TkLinuxCNC Interpreter / program control[[cap:TkLinuxCNC-Interpreter]]
 image::images/tkemc-interp.png[align="center"]
 
-==== Text Program Display Area
+.Text Program Display Area
 
 When the program is running, the line currently being executed is
 highlighted in white. The text display will automatically scroll to
