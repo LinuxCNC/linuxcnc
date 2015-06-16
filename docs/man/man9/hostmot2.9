@@ -12,7 +12,6 @@ See the config modparam section below for Mesa card configuration. Typically
 hostmot2 is loaded with no parameters unless debugging is required.
 .HP
 .B loadrt hostmot2 [debug_idrom=\fIN\fB] [debug_module_descriptors=\fIN\fB] [debug_pin_descriptors=\fIN\fB] [debug_modules=\fIN\fB]
-.RS
 .TP
 \fBdebug_idrom\fR [default: 0]
 Developer/debug use only!  Enable debug logging of the HostMot2
@@ -29,9 +28,8 @@ Pin Descriptors.
 \fBdebug_modules\fR [default: 0]
 Developer/debug use only!  Enable debug logging of the HostMot2
 Modules used.
-.RE
-.SH DESCRIPTION
 
+.SH DESCRIPTION
 hostmot2 is a device driver that interfaces the Mesa HostMot2 firmware
 to the LinuxCNC HAL.  This driver by itself does nothing, the boards
 that actually run the firmware require their own drivers before anything
@@ -115,7 +113,7 @@ The valid entries in the format string are:
  [sserial_port_\fI0\fB=\fI00000000\fB]
  [num_leds=\fIN\fB]
  [enable_raw]
-.RS
+
 .TP
 \fBfirmware\fR [optional]
 Load the firmware specified by F into the FPGA on this board.  If no
@@ -222,7 +220,6 @@ pins for all the LEDs will be created. If N=0 then no pins will be added.
 If specified, this turns on a raw access mode, whereby a user can peek and
 poke the firmware from HAL.  See Raw Mode below.
 
-.RE
 .SH dpll
 The hm2dpll module has pins like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll\fR"
 It is likely that the pin-count will decrease in the future and that some pins
