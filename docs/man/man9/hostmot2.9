@@ -278,9 +278,9 @@ Prescale factor for the rate generator. Default 1.
 .SH encoder
 
 Encoders have names like 
-"hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.encoder.\fI<Instance>\fR".
+"hm2_\fI<BoardType>.<BoardNum>.encoder.<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 encoder
-instance number.  There are 'num_encoders' instances, starting with 00.
+instance number.  There are "num_encoders" instances, starting with 00.
 
 So, for example, the HAL pin that has the current position of the second
 encoder of the first 5i20 board is: hm2_5i20.0.encoder.01.position (this
