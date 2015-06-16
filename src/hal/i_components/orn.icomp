@@ -1,0 +1,35 @@
+component orn "N input OR gate";
+description """\ \\fBout\\fR is computed from the result of logic or applied
+to all input pins. """;
+
+// Input Pins
+pin in bit in#.[pincount];
+pin out bit out;
+
+instanceparam int pincount = 8;
+
+option MAXCOUNT 16;
+option DEFAULTCOUNT 2;
+
+license "GPL";
+
+author "Alexander Roessler";
+
+function _ nofp;
+;;
+
+
+FUNCTION(_)
+{
+    int n;
+    hal_bit_t value = 0;
+
+    // loop through inputs
+    for (n = 0; n < localpincount; n++)
+    {
+        value = value || in_(n);
+    }
+    out = value;
+
+    return 0;
+}

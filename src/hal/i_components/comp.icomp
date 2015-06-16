@@ -3,8 +3,7 @@ pin in float in0 "Inverting input to the comparator";
 pin in float in1 "Non-inverting input to the comparator";
 pin out bit out "Normal output. True when \\fBin1\\fR > \\fBin0\\fR (see parameter \\fBhyst\\fR for details)";
 pin out bit equal "Match output.  True when difference between \\fBin1\\fR and \\fBin0\\fR is less than \\fBhyst\\fR/2";
-
-param rw float hyst=0.0 """Hysteresis of the comparator (default 0.0)
+pin in float hyst=0.0 """Hysteresis of the comparator (default 0.0)
 
 With zero hysteresis, the output is true when \\fBin1\\fR > \\fBin0\\fR.  With nonzero
 hysteresis, the output switches on and off at two different values,

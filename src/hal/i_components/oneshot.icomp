@@ -30,9 +30,9 @@ pin out bit out_not "Active low pulse";
 pin in float width=0 "Pulse width in seconds";
 pin out float time_left "Time left in current output pulse";
 
-param rw bit retriggerable=TRUE "Allow additional edges to extend pulse";
-param rw bit rising=TRUE "Trigger on rising edge";
-param rw bit falling=FALSE "Trigger on falling edge";
+pin in bit retriggerable=TRUE "Allow additional edges to extend pulse";
+pin in bit rising=TRUE "Trigger on rising edge";
+pin in bit falling=FALSE "Trigger on falling edge";
 
 variable double timer;
 variable char old_in;
