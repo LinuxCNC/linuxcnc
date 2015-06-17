@@ -389,7 +389,7 @@ static int comp_id;
 ###  Get the values from the instanceparams ############################################################
 
     for name, mptype, value in instanceparams:
-        if (name == 'pincount') or (name == 'maxpincount') or (name == 'iprefix'):
+        if (name == 'pincount') or (name == 'iprefix'):
             if name == 'pincount':
                 if value != None:
                     numpins = int(value)
@@ -490,6 +490,8 @@ static int comp_id;
     else:
         if numpins > maxpins :
             numpins = maxpins
+    mp = int(options.get("MAXCOUNT" , 1) )
+    if maxpins < mp: maxpins = mp
 
 ############################  RTAPI_IP / MP declarations ########################
 
