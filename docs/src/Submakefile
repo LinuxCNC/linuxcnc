@@ -4,9 +4,6 @@
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
-# oh man..
-HL_DIR=/usr/share/source-highlight
-LANG_MAP=$(HL_DIR)/lang.map
 LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
@@ -539,11 +536,6 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	done
 	touch $@
 
-# rebuild source-highlight/local/lang.map if needed - note this will cause a major rebuild
-# unsure how to do this as Submakefile -mah
-$(LOC_LANG_MAP): $(wildcard $(LOC_HL_DIR)/*.lang) $(LANG_MAP)
-	(cd $(LOC_HL_DIR); make all)
-
 # Define a target-specific variable called STYLES_SCRIPTS_DIR, which has
 # the relative path from this html target to the root of the generated
 # document tree (docs/html in the git repo).  This is where the CSS files
@@ -647,8 +639,6 @@ docclean:
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
 	-rm -f .htmldoc-stamp
 	-rm -f .html-images-stamp
-# unsure how to do this as Submakefile: -mah
-	-(cd $(LOC_HL_DIR); make clean)
 
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
