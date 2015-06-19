@@ -47,7 +47,7 @@ ccflags-y := 	$(KERNEL_MATH_CFLAGS) \
 
 $(RTLIBDIR)/rtapi_math$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi_math-objs))
 
-else
+endif
 
 LIBRMSRCS := rtapi/rtapi_math/s_floor.c
 LIBRMSRCS += rtapi/rtapi_math/e_pow.c
@@ -103,5 +103,3 @@ $(LIBRM).0: $(call TOOBJS,$(LIBRMSRCS))
 	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 USERSRCS += $(LIBRMSRCS)
 TARGETS += $(LIBRM) $(LIBRM).0
-
-endif
