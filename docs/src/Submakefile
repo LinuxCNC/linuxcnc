@@ -46,7 +46,7 @@ DOC_SRCS_EN := \
 	config/stepper.txt \
 	drivers/AX5214H.txt \
 	drivers/VFS11.txt \
-        drivers/GM.txt \
+	drivers/GM.txt \
 	drivers/GS2.txt \
 	drivers/hostmot2.txt \
 	drivers/motenc.txt \
@@ -69,9 +69,18 @@ DOC_SRCS_EN := \
 	gcode/overview.txt \
 	gcode/rs274ngc.txt \
 	gcode/tool_compensation.txt \
+	getting-started/About-LinuxCNC.txt \
+	getting-started/Getting-LinuxCNC.txt \
+	getting-started/Linux_FAQ.txt \
+	getting-started/pncconf.txt \
+	getting-started/Running-LinuxCNC.txt \
+	getting-started/stepconf.txt \
+	getting-started/stepper_quickstart.txt \
+	getting-started/System_Requirements.txt \
+	getting-started/Updating_LinuxCNC.txt \
 	gui/selector.txt \
 	gui/axis.txt \
-        gui/gmoccapy.txt \
+	gui/gmoccapy.txt \
 	gui/gladevcp.txt \
 	gui/gscreen.txt \
 	gui/halui.txt \
@@ -448,6 +457,7 @@ ADD_HTML_MANPAGES = \
 		BASENAME=$$(basename $$HTML_FILE .html); \
 		echo "<LI><A HREF=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$$BASENAME</A>"; \
 	done >> objects/index.incl; \
+	echo "<p>Man pages can also be viewed in a terminal by typing man and the name of component.</p>" >> objects/index.incl; \
 	echo "</UL><BR>" >> objects/index.incl
 
 objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
