@@ -26,10 +26,12 @@ return false;
 <!-- Even though this template file will open in a browser do not open it in a browser it to test changes
      open the /html/index.html file in your browser after building the documents
      If this is the .html file do not edit it, edit the .tmpl file then build the documents -->
-<H1>LinuxCNC</H1>
+<div style="text-align: center"><img src="linuxcnc-logo-chips.png" width="175" /></div>
+
 <p>This documentation is for version <strong>@VERSION@</strong>.
 <A HREF="index_es.html">Espa&ntilde;ol</A> <A HREF="index_fr.html">Fran&ccedil;ais</A>
 </p>
+
 <UL>
 <LI><a href="http://linuxcnc.org">Home Page</a>  *  
 <A href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki Community</A>  *  
@@ -50,8 +52,8 @@ return false;
 <li><a onclick="return toggle('sec2')"><img id="sec2_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Configuration Wizards</a>
 	<div id="sec2" style="display:none;">
 		<UL>
-			<LI><A HREF="getting-started/stepconf.html">Stepper Configuration Wizard</A>
-			<LI><A HREF="getting-started/pncconf.html">Mesa Configuration Wizard</A>
+			<LI><A class="tooltips" HREF="getting-started/stepconf.html">Stepper Configuration Wizard<span>For Parallel Port Stepper Machine</span></A>
+			<LI><A class="tooltips" HREF="getting-started/pncconf.html">Mesa Configuration Wizard<span>For Mesa Servo &amp; Stepper Machines</span></A>
 		</UL>
 	</div>
 
@@ -95,22 +97,17 @@ return false;
 		</UL>
 	</div>
 
-		<li><a onclick="return toggle('sec6')"><img id="sec6_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />General Integrator Information</a>
+		<li><a onclick="return toggle('sec6')"><img id="sec6_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Configuration</a>
 	<div id="sec6" style="display:none;">
 		<UL>
 			<LI><A HREF="common/Integrator_Concepts.html">Integrator Concepts</A>
 			<LI><A HREF="install/Latency_Test.html">Latency Test</A>
 			<LI><A HREF="common/starting-emc.html">Starting LinuxCNC</A>
 			<LI><A HREF="motion/tweaking_steppers.html">Stepper Tuning</A>
-		</UL>
-	</div>
-		<li><a onclick="return toggle('sec7')"><img id="sec7_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Configuration</a>
-	<div id="sec7" style="display:none;">
-		<UL>
 			<LI><A HREF="config/ini_config.html">INI Configuration</A>
 			<LI><A HREF="config/ini_homing.html">Homing Configuration</A>
 			<LI><A HREF="config/lathe_config.html">Lathe Configuration</A>
-			<LI><A HREF="hal/haltcl.html">HAL TCL Files</A>
+
 			<LI><A HREF="config/stepper.html">Stepper Configuration</A>
 			<LI><A HREF="common/Stepper_Diagnostics.html">Stepper Diagnostics</A>
 		</UL>
@@ -126,8 +123,8 @@ return false;
 		<li><a onclick="return toggle('sec9')"><img id="sec9_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />User Interface Programming</a>
 	<div id="sec9" style="display:none;">
 		<UL>
-			<LI><A HREF="gui/halui.html">HAL User Interface</A>
-			<LI><A HREF="hal/halui_examples.html">HAL UI examples</A>
+			<LI><A class="tooltips" HREF="gui/halui.html">HALUI<span>HAL User Interface</span></A>
+			<LI><A HREF="hal/halui_examples.html">HALUI examples</A>
 			<LI><A HREF="common/python-interface.html">Python Interface</A>
 		</UL>
 	</div>
@@ -148,8 +145,10 @@ return false;
 			<LI><A HREF="drivers/VFS11.html">VFS11 Driver</A>
 		</UL>
 	</div>
-		<li><a onclick="return toggle('sec11')"><img id="sec11_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Classicladder Programmable Logic Controller</a>
+		<li><a onclick="return toggle('sec11')"><img id="sec11_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Classicladder</a>
 	<div id="sec11" style="display:none;">
+	Classicladder is a software PLC (Programmable Logic Controller) built
+	into LinuxCNC.
 		<UL>
 			<LI><A HREF="ladder/ladder_intro.html">Classicladder Introduction</A>
 			<LI><A HREF="ladder/classic_ladder.html">ClassicLadder Programming</A>
@@ -175,23 +174,23 @@ return false;
 			<LI><A HREF="hal/components.html">HAL Component List</A>
 			<LI><A HREF="hal/rtcomps.html">HAL Component Descriptions</A>
 			<LI><A HREF="hal/halshow.html">Halshow</A>
+			<LI><A HREF="hal/hal-examples.html">HAL Examples</A>
+			<LI><A HREF="hal/comp.html">HAL Component Generator</A>
+			<LI><A HREF="hal/haltcl.html">HAL TCL Files</A>
+			<LI><A HREF="hal/halmodule.html">Creating Userspace Python Components</A>
+			<LI><A HREF="hal/canonical-devices.html">Canonical Device Interfaces</A>
+			<LI><A HREF="hal/tools.html">HAL Tools</A>
 		</UL>
 	</div>
 		<li><a onclick="return toggle('sec14')"><img id="sec14_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Advanced Topics</a>
 	<div id="sec14" style="display:none;">
 		<UL>
-			<LI><A HREF="hal/hal-examples.html">HAL Examples</A>
-			<LI><A HREF="hal/comp.html">HAL Component Generator</A>
-			<LI><A HREF="hal/halmodule.html">Creating Userspace Python Components</A>
-			<LI><A HREF="hal/canonical-devices.html">Canonical Device Interfaces</A>
-			<LI><A HREF="hal/tools.html">HAL Tools</A>
 			<LI><A HREF="motion/kinematics.html">Kinematics</A>
 			<LI><A HREF="motion/pid_theory.html">PID theory</A>
 			<LI><A HREF="remap/structure.html">Remap: Extending LinuxCNC</A>
 			<LI><A HREF="config/moveoff.html">Moveoff Component</A>
 		</UL>
 	</div>
-
 		<li><a onclick="return toggle('sec15')"><img id="sec15_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Developer Information</a>
 	<div id="sec15" style="display:none;">
 	<UL>
