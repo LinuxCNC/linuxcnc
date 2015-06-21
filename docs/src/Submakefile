@@ -78,7 +78,6 @@ DOC_SRCS_EN := \
 	getting-started/stepper_quickstart.txt \
 	getting-started/System_Requirements.txt \
 	getting-started/Updating_LinuxCNC.txt \
-	gui/selector.txt \
 	gui/axis.txt \
 	gui/gmoccapy.txt \
 	gui/gladevcp.txt \
