@@ -1584,7 +1584,8 @@ It is an error if:
 .HAL Connections
 The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
 spindle must be connected in your HAL file before G76 will work.
-See the Integrators Manual for more information on spindle synchronized motion.
+See the <<sec:motion-pins, spindle>> pins in the Motion section for more
+information.
 
 .Technical Info
 The G76 canned cycle is based on the G33 Spindle Synchronized Motion. For more

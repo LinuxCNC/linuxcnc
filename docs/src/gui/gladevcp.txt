@@ -493,7 +493,7 @@ in the Glade 'General' section have an associated mouse-over tool tip.
 
 HAL signals come in two variants, bits and numbers. Bits are off/on
 signals. Numbers can be "float", "s32" or "u32". For more information
-on HAL data types see the <<sec:Hal-Data,HAL manual>>. The GladeVcp
+on HAL data types see the <<sec:hal-data,HAL manual>>. The GladeVcp
 widgets can either display the value of the signal with an indicator
 widget, or modify the signal value with a control widget. Thus there
 are four classes of GladeVcp widgets that you can connect to a HAL
@@ -546,24 +546,24 @@ from a 'GtkObject', and eventually a 'GObject'.
 HAL Widgets also have a few HAL-specific Python attributes:
 
 hal_pin::
-	 the underlying HAL pin Python object in case the widget has a
-	 single pin type
+   the underlying HAL pin Python object in case the widget has a
+   single pin type
 
 hal_pin_s, hal_pin_f::
-	 the S32 and float pins of the 'HAL_Spinbutton' and
-	 'HAL_ComboBox' widgets - note these widgets do not have a
-	 'hal_pin' attribute!
+   the S32 and float pins of the 'HAL_Spinbutton' and
+   'HAL_ComboBox' widgets - note these widgets do not have a
+   'hal_pin' attribute!
 
 hal_pin_scale::
-	the float input pin of 'HAL_ProgressBar' widget representing
-	the maximum absolute value of input. 
+  the float input pin of 'HAL_ProgressBar' widget representing
+  the maximum absolute value of input. 
  
 The are several HAL-specific methods of HAL Widgets, but the only
 relevant method is:
 
 <halpin>.get():: 
-	Retrieve the value of the current HAL pin, where '<halpin>' is
-	the applicable HAL pin name listed above.
+  Retrieve the value of the current HAL pin, where '<halpin>' is
+  the applicable HAL pin name listed above.
 
 
 === Setting pin and widget values
@@ -635,17 +635,16 @@ image:images/button.png[]
 .
 
 [TIP]
-======================================
 Defining radio button groups in Glade:
-
++
 - decide on default active button
-
++
 - in the other button's 'General→Group' select the default active
 button's name in the 'Choose a Radio Button in this project' dialog.
-
++
 See +configs/apps/gladevcp/by-widget/+ for a GladeVCP applications
 and UI file for working with radio buttons.
-======================================
+
 
 [[gladevcp:HAL_Scales]]
 === Scales
@@ -670,9 +669,9 @@ image:images/hscale.png[]
 HAL SpinButton is derived from GtkSpinButton and holds two pins:
 
 <widgetname>-f::
-	 out FLOAT pin
+   out FLOAT pin
 <widgetname>-s::
-	 out S32 pin
+   out S32 pin
 
 To be useful, Spinbuttons need an adjustment value like scales,
 see above.
@@ -696,18 +695,18 @@ By double clicking the left or right button the scale factor can be increased or
  * left Double Click  = x10 scale
  * Right Double Click = /10 scale
 
-====
+----
 Hal_Dial exports it's count value as hal pins:
 
 <widgetname>::
-	 out S32 pin
+   out S32 pin
 <widgetname>-scaled::
-	 out FLOAT pin
+   out FLOAT pin
 <widgetname>-delta-scaled::
-	 out FLOAT pin
-====
+   out FLOAT pin
+----
 It has the following properties:
-=====
+
 cpr::
     Sets the Counts per Revolution, allowed values are in the range from 25 to 360 +
     default = 100
@@ -737,10 +736,10 @@ scale_adjustable::
 scale::
     Set this to scale the counts. +
     default = 1.0
-=====
+
 
 Direct program control::
-======
+
     There are ways to directly control the widget using Python.
 
     Using goobject to set the above listed properties:
@@ -774,7 +773,7 @@ Direct program control::
             def [count function name](widget, count,scale,delta_scale):
         This will return: the widget, the current count, scale and delta scale of that widget.
 
-====== 
+
 Example Hal_Dial:
 
 image::images/Hal_Dial.png[] 
@@ -792,16 +791,16 @@ or you push the left mouse button and move the cursor in circular direction to i
  * Wheel down       = reduce counts
 
 As moving the mouse the drag and drob way may be faster than the widget can update itself, you may loose counts turning to fast.
-It is recommended to use the mouse wheel, and only for very rough movements the drag and drob way.
-====
+It is recommended to use the mouse wheel, and only for very rough movements the drag and drop way.
+
 JogWheel exports it's count value as hal pin:
 
 <widgetname>-s::
-	 out S32 pin
-====
+   out S32 pin
+
 
 It has the following properties:
-=====
+
 size::
     Sets the size in pixel of the widget, allowed values are in the range of 100 to 500
     default = 200
@@ -812,10 +811,10 @@ show_counts::
     Set this to False, if you want to hide the counts display in the middle of the widget.
 label::
     Set the content of the label witch may be shown over the counts value. The purpose is to give the user an idea about the usage of that jogwheel. If the label given is longer than 12 Characters, it will be cut to 12 Characters.
-=====
+
 
 Direct program control::
-======
+
     There a couple ways to directly control the widget using Python.
 
     Using goobject to set the above listed properties:
@@ -828,7 +827,7 @@ Direct program control::
         Will return the counts value as integer
         [widget name].set_label("string")
         Sets the label content with "string"
-======  
+
 Example JogWheel:
 
 image::images/JogWheel.png[]
@@ -840,17 +839,17 @@ HAL_Label is a simple widget based on GtkLabel which represents a HAL
 pin value in a user-defined format.
 
 label_pin_type::
-	The pin's HAL type  (0:S32, 1:float, 2:U32), see also the tooltip
-	on 'General→HAL pin type '(note this is different from PyVCP which has
-	three label widgets, one for each type).
+  The pin's HAL type  (0:S32, 1:float, 2:U32), see also the tooltip
+  on 'General→HAL pin type '(note this is different from PyVCP which has
+  three label widgets, one for each type).
 
 text_template::
-	Determines the text displayed - a Python
-	format string to convert the pin value to text. Defaults to +%s+ (values
-	are converted by the str() function) but may contain any legit as an
-	argument to Pythons format() method. +
-	Example: +Distance: %.03f+ will display the text and the pin value with
-	3 fractional digits padded with zeros for a FLOAT pin.
+  Determines the text displayed - a Python
+  format string to convert the pin value to text. Defaults to +%s+ (values
+  are converted by the str() function) but may contain any legit as an
+  argument to Pythons format() method. +
+  Example: +Distance: %.03f+ will display the text and the pin value with
+  3 fractional digits padded with zeros for a FLOAT pin.
 
 [[gladevcp:HAL_Table]]
 === Containers: HAL_HideTable HAL_Table State_Sensitive_Table and HAL_HBox
@@ -931,16 +930,16 @@ The HAL_ProgressBar is derived from gtk.ProgressBar and has two float
 HAL input pins:
 
 <widgetname>::
-	the current value to be displayed
+  the current value to be displayed
 <widgetname>-scale::
-	the maximum absolute value of input
+  the maximum absolute value of input
 
 It has the following properties:
 
 scale::
-	value scale. set maximum absolute value of input. Same as
-	setting the <widgetname>.scale pin. A float, range from
-	-2^24 to +2^24.
+  value scale. set maximum absolute value of input. Same as
+  setting the <widgetname>.scale pin. A float, range from
+  -2^24 to +2^24.
 green_limit::
       green zone limit lower limit
 yellow_limit::
@@ -965,14 +964,14 @@ value from a dropdown list.
 It exports two HAL pins:
 
  <widgetname>-f::
-		  the current value, type FLOAT
+      the current value, type FLOAT
  <widgetname>-s::
-		  the current value, type S32
+      the current value, type S32
 
 It has the following property which can be set in Glade:
 
 column::
-	 the column index, type S32, defaults to -1, range from -1..100 .
+   the column index, type S32, defaults to -1, range from -1..100 .
 
 In default mode this widgets sets the pins to the index of the chosen
 list entry. So if your widget has three labels, it may only assume
@@ -1275,7 +1274,7 @@ By clicking on the DRO the Order of the DRO will toggle around. +
 In Relative Mode the actual coordinate system will be displayed.
 
 It has the following properties:
-====
+
 joint_number::
     Used to select which axis (technically which joint) is displayed. +
     On a trivialkins machine (mill, lathe, router) axis vrs. joint number are: +
@@ -1327,10 +1326,9 @@ font_size::
     The font size of the big numbers, the small ones will be 2.5 times smaller,
     the value must be an integer in the range of 8 to 96, +
     default is 25
-====
 
 Direct program control::
-======
+
 Using goobject to set the above listed properties:
 
     [widget name].set_property(property,value)
@@ -1368,9 +1366,9 @@ There are several python methods to control the widget:
     [widget name].set_order(order)
         sets the order of the DRO, mainly used to maintain them consistent
         order = list object, must be one of
-	        ["Rel", "Abs", "DTG"]
-	        ["DTG", "Rel", "Abs"]
-	        ["Abs", "DTG", "Rel"]
+          ["Rel", "Abs", "DTG"]
+          ["DTG", "Rel", "Abs"]
+          ["Abs", "DTG", "Rel"]
         Default = ["Rel", "Abs", "DTG"]
 
     [widget name].get_position()
@@ -1378,10 +1376,10 @@ There are several python methods to control the widget:
         the order is independent of the order shown on the DRO
         and will be given as [Absolute , relative , DTG]
         Absolute = the machine coordinates, depends on the actual property
-	               will give actual or commanded position
+                 will give actual or commanded position
         Relative = will be the coordinates of the actual coordinate system
         DTG = the distance to go, will mostly be 0, as this function should not be used
-	          while the machine is moving, because of time delays
+            while the machine is moving, because of time delays
 
 The widget will emit the following signals:
 
@@ -1416,8 +1414,6 @@ There are some information you can get through commands, witch may be of ineters
     [widget name].machine_units
         0 if Imperial, 1 if Metric
 
-======
-
 Example, Three Combi_DRO in a window +
 X = Relative Mode +
 Y = Absolute Mode +
@@ -1431,7 +1427,7 @@ image::images/combi_dro.png[]
 This is touch screen friendly widget to select a file and to change directories.
 
 The widget has the following properties:
-====
+
 
 icon_size::
     Sets the size of the displayed icon. +
@@ -1463,10 +1459,10 @@ sortorder::
     3 = FILEFIRST (show the files first, then the folders), +
     Default = 2 = FOLDERFIRST
 
-====
+
 
 Direct program control::
-======
+
 Using goobject to set the above listed properties:
 
     [widget name].set_property(property,Value)
@@ -1526,7 +1522,6 @@ The widget will emit the following signals:
         This signal is Emmit, when the exit button has been pressed to close the IconView
         mostly needed if the application is started as stand alone.
 
-======
 
 Example:
 
@@ -1645,7 +1640,8 @@ Direct program control::
     [widget name].set_foreground_color("yellow")
     [widget name].mark_active("G55")
         Allows you to directly set a row to highlight.
-        (eg in case you wish to use your own navigation controls. See Gmoccapy 
+        (eg in case you wish to use your own navigation controls.
+        See <<cha:gmoccapy,Gmoccapy Chapter>>
     [widget name].selection_mask = ("Tool","Rot","G5x")
         These rows are NOT selectable in edit mode.
     [widget name].set_names([['G54','Default'],["G55","Vice1"],['Rot','Rotational']])
@@ -2008,7 +2004,7 @@ The overall approach is as follows:
    connects them to the widget tree
  - the main event loop is run.
 
-==== The simple handler model
+.The simple handler model
 
 For simple tasks it's sufficient to define functions named after the
 Glade signal handlers. These will be called when the corresponding
@@ -2033,7 +2029,7 @@ Note communication between handlers has to go through global
 variables, which does not scale well and is positively un-pythonic.
 This is why we came up with the class-based handler model.
 
-==== The class-based handler model
+.The class-based handler model
 
 The idea here is: handlers are linked to class methods. The underlying
 class(es) are instantiated and inspected during GladeVCP startup and
@@ -2061,7 +2057,7 @@ def get_handlers(halcomp,builder,useropts):
 Now, 'on_this_signal' will be available as signal handler to your
 widget tree.
 
-==== The get_handlers protocol
+.The get_handlers protocol
 
 If during module inspection GladeVCP finds a function `get_handlers`,
 it calls it as follows:
@@ -2180,7 +2176,7 @@ type int, float, bool or string).
 This mechanism uses the popular '.ini' file format to save and reload
 persistent attributes.
 
-==== Persistence, program versions and the signature check
+.Persistence, program versions and the signature check
 
 Imagine renaming, adding or deleting widgets in Glade:
 an .ini file lying around from a previous program version, or an
@@ -2250,14 +2246,14 @@ self.defaults.
 After this incantation, you can use the following IniFil methods:
 
 ini.save_state(obj)::
-	 saves objs's attributes as per IniFil.vars
-	 dictionary and the widget state as described in IniFile.widgets in
-	 self.defaults
+   saves objs's attributes as per IniFil.vars
+   dictionary and the widget state as described in IniFile.widgets in
+   self.defaults
 ini.create_default_ini()::
-	 create a .ini file with default values
+   create a .ini file with default values
 ini.restore_state(obj)::
-	restore HAL out pins and obj's attributes as
-   	saved/initialized to default as above
+  restore HAL out pins and obj's attributes as
+     saved/initialized to default as above
 
 === Saving the state on Gladvcp shutdown
 
@@ -2396,15 +2392,15 @@ class HandlerClass:
         self.meter.queue_draw() # force a widget redraw
 
     def __init__(self, halcomp,builder,useropts):
-	self.builder = builder
+  self.builder = builder
 
         # hal pin with change callback.
         # When the pin's value changes the callback is executed.
         self.max_value = hal_glib.GPin(halcomp.newpin('max-value',  hal.HAL_FLOAT, hal.HAL_IN))
         self.max_value.connect('value-changed', self._on_max_value_change)
 
-	inifile = linuxcnc.ini(os.getenv("INI_FILE_NAME"))
-	mmin = float(inifile.find("METER", "MIN") or 0.0)
+  inifile = linuxcnc.ini(os.getenv("INI_FILE_NAME"))
+  mmin = float(inifile.find("METER", "MIN") or 0.0)
         self.meter = self.builder.get_object('meter')
         self.meter.min = mmin
 

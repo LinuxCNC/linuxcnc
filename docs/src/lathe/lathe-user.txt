@@ -13,9 +13,9 @@ best results from LinuxCNC.
 
 If you are using the AXIS display, 
 have Axis display your lathe tools properly. 
-See the INI Configuration section of the Integrator Manual for 
-more details but you will probably want to make an entry like this 
-to set up AXIS for Lathe Mode. 
+See the <<cha:ini-configuration,INI Configuration>> section for more details.
+
+To set up AXIS for Lathe Mode.
 
 ---------------------------------------
 [DISPLAY]
@@ -174,7 +174,7 @@ the tool is used in your program.
 
 Spindle synchronized motion requires a quadrature encoder connected
 to the spindle with one index pulse per revolution. See the motion
-man page and Spindle Control Example in integrators manual for more
+man page and the <<cha:spindle-control,Spindle Control Example>> for more
 information.
 
 .Threading

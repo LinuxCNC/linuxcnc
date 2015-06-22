@@ -104,7 +104,7 @@ halcmd: loadrt siggen
 Now that the module is loaded, it is time to introduce 'halcmd' , the
 command line tool used to configure the HAL. This tutorial will
 introduce some halcmd features, for a more complete description try
-'man halcmd', or see the reference in <<sec:Hal-Commands,Hal Commands>>
+'man halcmd', or see the reference in <<sec:hal-commands,Hal Commands>>
 section of this document. The first
 halcmd feature is the 'show' command. This command displays information
 about the current state of the HAL. To show all installed components:

@@ -8,16 +8,101 @@ After installation, LinuxCNC starts just like any other Linux program:
 run it from the terminal by issuing the command 'linuxcnc',
 or select it in the Applications - CNC menu.
 
-== Configuration Selector
+[[sec:config-launcher]] (((Configuration Launcher)))
 
-By default, the Configuration Selector dialog 
-is shown when you first run LinuxCNC. 
-Your own personalized configurations are shown at the top of the list, 
-followed by sample configurations. 
-Because each sample configuration is for a different type of hardware interface, 
-almost all will not run without the hardware installed. 
-The configurations listed under the category 'sim' run entirely 
-without attached hardware.
+== Configuration Launcher
+
+When starting LinuxCNC from the CNC menu or from the command line without
+specifiying an ini file the Configuration Selector dialog starts.
+
+The Configuration Selector dialog allows the user to pick one of their
+existing configurations (My Configurations) or select a new one (from the Sample Configurations) to be copied to their home directory. Copied configurations
+will appear under My Configurations on the next invocation of the Configuration
+Selector.
+
+The Configuration Selector offers a selection of configurations
+organized:
+
+* 'My Configurations' - User configurations located in ~/linuxcnc/configs
+
+* 'Sample Configurations' - Sample configurations, when selected are copied to
+    ~/linuxcnc/configs. Once you copy a sample configuration if you use the
+    launcher pick it from 'My Configurations'
+
+** 'sim' - Configurations that include simulated hardware. These can be used
+   for testing or learning how LinuxCNC works.
+
+** 'by_interface' - Configurations organized by GUI.
+
+** 'by_machine' - Configurations organized by machine.
+
+** 'apps' - Applications that do not require starting linuxcnc but may be
+   useful for testing or trying applications like <<cha:pyvcp,PyVCP>> or
+   <<cha:glade-vcp,GladeVCP>>.
+
+** 'attic' - Obsolete or historical configurations.
+
+
+The sim configurations are often the most useful starting point for
+new users and are organized around supported guis:
+
+* axis - Keyboard and Mouse Gui
+* gmoccapy - Touch Screen Gui
+* gscreen - Touch Screen Gui
+* low_graphics - Keyboard Gui
+* tklinuxcnc - Keyboard and Mouse Gui(no longer maintained)
+* touchy - Touch Screen Gui
+
+A gui configuration directory may contain subdirectories with
+configurations that illustrate special situations or the embedding
+of other applications.
+
+The by_interface configurations are organized around common, supported
+interfaces like:
+
+* general mechatronics
+* mesa
+* parport
+* pico
+* pluto
+* servotogo
+* vigilant
+* vitalsystems
+
+Related hardware may be required to use these configurations as
+starting points for a system.
+
+
+The by_machine configurations are organized around complete, known
+systems like:
+
+* boss
+* cooltool
+* sherline
+* smithy
+* tormach
+
+A complete system may be required to use these configurations.
+
+The apps items are typically 1) utilities that don't require
+starting linuxcnc or 2) demonstrations of applications that can
+be used with linuxcnc:
+
+* info - creates a file with system information that may be useful for
+  problem diagnosis.
+* gladevcp - Example gladevcp applications.
+* halrun  - Starts halrun in an terminal.
+* latency - Applications to investigate latency
+** latency-test - standard test
+** latency-plot - stripchart
+** latency-histogram - histogram
+* parport - Applications to test parport.
+* pyvcp - Example pyvcp applications.
+* xhc-hb04 - Applications to test an xhc-hb04 USB wireless MPG
+
+[NOTE]
+Under the Apps directory, only applications that are usefully modified
+by the user are offered for copying to the user's directory.
 
 .LinuxCNC Configuration Selector[[cap:LinuxCNC-Configuration-Selector]]
 

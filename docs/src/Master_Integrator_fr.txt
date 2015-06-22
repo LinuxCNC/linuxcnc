@@ -29,8 +29,8 @@ include::config/stepper_fr.txt[]
 :leveloffset: 0
 = Interfaces graphiques utilisateur
 :leveloffset: 1
-include::hal/pyvcp_fr.txt[]
-include::hal/pyvcp_examples_fr.txt[]
+include::gui/pyvcp_fr.txt[]
+include::gui/pyvcp_examples_fr.txt[]
 include::gui/gladevcp_fr.txt[]
 :leveloffset: 0
 

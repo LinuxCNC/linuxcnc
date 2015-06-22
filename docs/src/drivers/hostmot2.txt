@@ -653,6 +653,7 @@ which I/O pin belongs to which output run dmesg as described above.
     pins. Only full GPIO pins and I/O pins used as outputs by active module
     instances have this parameter.
 
+[[sec:hm2-encoder]]
 == Encoder
 
 Encoders have names like

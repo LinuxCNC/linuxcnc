@@ -2,27 +2,66 @@
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/html;charset=utf-8">
-<TITLE> LinuxCNC Documentation - HTML version </TITLE>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<TITLE>LinuxCNC</TITLE>
+<link rel="stylesheet" type="text/css" href="index.css">
+<script type="text/javascript">
+function toggle(a){
+var e=document.getElementById(a);
+var i = document.getElementById(a + '_image');
+if(!e)return true;
+if(e.style.display=="none"){
+e.style.display="block"
+i.src = 'minus.png';
+} else {
+e.style.display="none"
+i.src = 'plus.png';
+}
+return false;
+}
+</script>
 </HEAD>
 <BODY>
 
 <!-- Even though this template file will open in a browser do not open it in a browser it to test changes
      open the /html/index.html file in your browser after building the documents
      If this is the .html file do not edit it, edit the .tmpl file then build the documents -->
+<div style="text-align: center"><img src="linuxcnc-logo-chips.png" width="175" /></div>
 
-<p>This documentation refers to LinuxCNC version <strong>@VERSION@</strong>.</p>
+<p>This documentation is for version <strong>@VERSION@</strong>.
+<A HREF="index_es.html">Espa&ntilde;ol</A> <A HREF="index_fr.html">Fran&ccedil;ais</A>
+</p>
+
 <UL>
-<LI>Other languages available: <A HREF="index_es.html">Espa&ntilde;ol</A> <A HREF="index_fr.html">Fran&ccedil;ais</A>
+<LI><a href="http://linuxcnc.org">Home Page</a>  *  
+<A href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki Community</A>  *  
+<A HREF="gcode.html">G Code Quick Reference</A>
 <p></p>
-<LI><A HREF="common/overleaf.html">LinuxCNC Document Overleaf</A>
-<LI><A HREF="gcode.html">LinuxCNC G Code Quick Reference</A>
-<LI><A HREF="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">LinuxCNC Wiki Community</A>
+<LI><A HREF="common/overleaf.html">LinuxCNC Document Overview</A>
 <p></p>
-<LI><a href="getting-started/index.html">Getting Started with LinuxCNC</a> (<a href="getting-started/index-fr.html">fr</a>) (<a href="getting-started/index-es.html">es</a>)
-<p></p>
-<LI><a name="User Manual"></a>Using LinuxCNC
-	<UL>
-	<LI><A name="General User Information"></A>General User Information
+<li><a onclick="return toggle('sec1')"><img id="sec1_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Getting Started with LinuxCNC</a>
+	<div id="sec1" style="display:none;">
+		<UL>
+			<LI><A HREF="getting-started/About-LinuxCNC.html">About LinuxCNC</A>
+			<LI><A HREF="getting-started/System_Requirements.html">System Requirements</A>
+			<LI><A HREF="getting-started/Getting-LinuxCNC.html">Getting LinuxCNC</A>
+			<LI><A HREF="getting-started/Running-LinuxCNC.html">Configuration Launcher</A>
+			<LI><A HREF="getting-started/Updating-LinuxCNC.html">Updating LinuxCNC</A>
+			<LI><A HREF="getting-started/Linux_FAQ.html">Linux FAQ</A> 
+		</UL>
+	</div>
+
+<li><a onclick="return toggle('sec2')"><img id="sec2_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Configuration Wizards</a>
+	<div id="sec2" style="display:none;">
+		<UL>
+			<LI><A class="tooltips" HREF="getting-started/stepconf.html">Stepper Configuration Wizard<span>For Parallel Port Stepper Machine</span></A>
+			<LI><A class="tooltips" HREF="getting-started/pncconf.html">Mesa Configuration Wizard<span>For Mesa Servo &amp; Stepper Machines</span></A>
+		</UL>
+	</div>
+
+
+	<li><a onclick="return toggle('sec3')"><img id="sec3_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />General User Information</a>
+	<div id="sec3" style="display:none;">
 		<UL>
 			<LI><A HREF="common/userforeword.html">User Foreword</A>
 			<LI><A HREF="common/user_intro.html">LinuxCNC User Introduction</A>
@@ -30,17 +69,21 @@
 			<LI><A HREF="gcode/machining_center.html">CNC Machine Overview</A>
 			<LI><A HREF="lathe/lathe-user.html">Lathe User Information</A>
 		</UL>
-		<LI><A name="User Interfaces"></A>User Interfaces
+	</div>
+	<li><a onclick="return toggle('sec4')"><img id="sec4_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />User Interfaces</a>
+	<div id="sec4" style="display:none;">
 		<UL>
 			<LI><A HREF="gui/axis.html">Axis GUI</A>
-                        <LI><A HREF="gui/gmoccapy.html">gmoccapy</A>
+			<LI><A HREF="gui/gmoccapy.html">gmoccapy</A>
 			<LI><A HREF="gui/touchy.html">Touchy GUI</A>
 			<LI><A HREF="gui/ngcgui.html">NGCGUI</A>
 			<LI><A HREF="gui/tklinuxcnc.html">TkLinuxCNC GUI</A>
 			<LI><A HREF="gui/mini.html">Mini GUI</A>
 			<LI><A HREF="gui/keystick.html">Keystick GUI</A>
 		</UL>
-	<LI><A name="G code Programming"></A>G code Programming
+	</div>
+		<li><a onclick="return toggle('sec5')"><img id="sec5_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />G code Programming</a>
+	<div id="sec5" style="display:none;">
 		<UL>
 			<LI><A HREF="gcode/coordinates.html">Coordinate System</A>
 			<LI><A HREF="gcode/tool_compensation.html">Tool Compensation</A>
@@ -54,41 +97,41 @@
 			<LI><A HREF="gui/image-to-gcode.html">Image to G Code</A>
 			<LI><A HREF="gcode/rs274ngc.html">RS274/NGC Differences</A>
 		</UL>
-	</UL>
-<p></p>
-<LI><a name="Integrator Manual"></a>Configuring LinuxCNC
-	<UL>
-	<LI><A name="General Integrator Information"></A>General Integrator Information
+	</div>
+
+		<li><a onclick="return toggle('sec6')"><img id="sec6_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Configuration</a>
+	<div id="sec6" style="display:none;">
 		<UL>
 			<LI><A HREF="common/Integrator_Concepts.html">Integrator Concepts</A>
 			<LI><A HREF="install/Latency_Test.html">Latency Test</A>
 			<LI><A HREF="common/starting-emc.html">Starting LinuxCNC</A>
 			<LI><A HREF="motion/tweaking_steppers.html">Stepper Tuning</A>
-		</UL>
-	<LI><A name="Configuration"></A>Configuration
-		<UL>
 			<LI><A HREF="config/ini_config.html">INI Configuration</A>
 			<LI><A HREF="config/ini_homing.html">Homing Configuration</A>
 			<LI><A HREF="config/lathe_config.html">Lathe Configuration</A>
-			<LI><A HREF="hal/haltcl.html">HAL TCL Files</A>
+			<LI><A HREF="config/stepper_quickstart.html">Stepper Quick Start</A>
 			<LI><A HREF="config/stepper.html">Stepper Configuration</A>
 			<LI><A HREF="common/Stepper_Diagnostics.html">Stepper Diagnostics</A>
 		</UL>
-
-	<LI><A name="Virtual Control Panels"></A>Virtual Control Panels
+		<li><a onclick="return toggle('sec8')"><img id="sec8_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Virtual Control Panels</a>
+	<div id="sec8" style="display:none;">
 		<UL>
-			<LI><A HREF="hal/pyvcp.html">Python Virtual Control Panel</A>
-			<LI><A HREF="hal/pyvcp_examples.html">PyVCP Examples</A>
+			<LI><A HREF="gui/pyvcp.html">Python Virtual Control Panel</A>
+			<LI><A HREF="gui/pyvcp_examples.html">PyVCP Examples</A>
 			<LI><A HREF="gui/gladevcp.html">Glade Virtual Control Panel</A>
 			<LI><A HREF="gui/gscreen.html">Gscreen</A>
 		</UL>
-	<LI><A name="User Interface Programming"></A>User Interface Programming
+	</div>
+		<li><a onclick="return toggle('sec9')"><img id="sec9_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />User Interface Programming</a>
+	<div id="sec9" style="display:none;">
 		<UL>
-			<LI><A HREF="gui/halui.html">HAL User Interface</A>
-			<LI><A HREF="hal/halui_examples.html">HAL UI examples</A>
+			<LI><A class="tooltips" HREF="gui/halui.html">HALUI<span>HAL User Interface</span></A>
+			<LI><A HREF="hal/halui_examples.html">HALUI examples</A>
 			<LI><A HREF="common/python-interface.html">Python Interface</A>
 		</UL>
-	<LI><A name="Hardware Drivers"></A>Hardware Drivers
+	</div>
+		<li><a onclick="return toggle('sec10')"><img id="sec10_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Hardware Drivers</a>
+	<div id="sec10" style="display:none;">
 		<UL>
 			<LI><A HREF="hal/parallel_port.html">Parallel Port Driver</A>
 			<LI><A HREF="drivers/AX5214H.html">AX5214H Driver</A>
@@ -103,44 +146,55 @@
 			<LI><A HREF="drivers/shuttlexpress.html">ShuttleXpress Driver</A>
 			<LI><A HREF="drivers/VFS11.html">VFS11 Driver</A>
 		</UL>
-	<LI><A name="Classicladder PLC"></A>Classicladder PLC (Programmable Logic Controller)
+	</div>
+		<li><a onclick="return toggle('sec11')"><img id="sec11_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Classicladder</a>
+	<div id="sec11" style="display:none;">
+	Classicladder is a software PLC (Programmable Logic Controller) built
+	into LinuxCNC.
 		<UL>
 			<LI><A HREF="ladder/ladder_intro.html">Classicladder Introduction</A>
 			<LI><A HREF="ladder/classic_ladder.html">ClassicLadder Programming</A>
 			<LI><A HREF="ladder/ladder_examples.html">ClassicLadder Examples</A>
 		</UL>
-	<LI><A name="Hardware Examples"></A>Hardware Examples
+	</div>
+		<li><a onclick="return toggle('sec12')"><img id="sec12_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Hardware Examples</a>
+	<div id="sec12" style="display:none;">
 		<UL>
 			<LI><A HREF="examples/pci_parallel_port.html">PCI Parallel Port Example</A>
 			<LI><A HREF="examples/spindle.html">Spindle Control Example</A>
 			<LI><A HREF="examples/mpg.html">MPG Example</A>
 			<LI><A HREF="examples/gs2_example.html">GS2 Example</A>
 		</UL>
-	<LI><A name="Hardware Abstract Layer"></A>HAL: the Hardware Abstract Layer
+	</div>
+		<li><a onclick="return toggle('sec13')"><img id="sec13_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Hardware Abstract Layer</a>
+	<div id="sec13" style="display:none;">
 		<UL>
 			<LI><A HREF="hal/intro.html">HAL Introduction</A>
-			<LI><A HREF="hal/tutorial.html">HAL Tutorial</A>
-			<LI><A HREF="hal/basic_hal.html">Basic HAL Reference</A>
+			<LI><A HREF="hal/basic_hal.html">Basic HAL Tutorial</A>
+			<LI><A HREF="hal/tutorial.html">Advanced HAL Tutorial</A>
 			<LI><A HREF="config/emc2hal.html">Core HAL Components</A>
 			<LI><A HREF="hal/components.html">HAL Component List</A>
 			<LI><A HREF="hal/rtcomps.html">HAL Component Descriptions</A>
 			<LI><A HREF="hal/halshow.html">Halshow</A>
-		</UL>
-	<LI><A name="Advanced Topics"></A>Advanced Topics
-		<UL>
 			<LI><A HREF="hal/hal-examples.html">HAL Examples</A>
 			<LI><A HREF="hal/comp.html">HAL Component Generator</A>
+			<LI><A HREF="hal/haltcl.html">HAL TCL Files</A>
 			<LI><A HREF="hal/halmodule.html">Creating Userspace Python Components</A>
 			<LI><A HREF="hal/canonical-devices.html">Canonical Device Interfaces</A>
 			<LI><A HREF="hal/tools.html">HAL Tools</A>
+		</UL>
+	</div>
+		<li><a onclick="return toggle('sec14')"><img id="sec14_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Advanced Topics</a>
+	<div id="sec14" style="display:none;">
+		<UL>
 			<LI><A HREF="motion/kinematics.html">Kinematics</A>
 			<LI><A HREF="motion/pid_theory.html">PID theory</A>
 			<LI><A HREF="remap/structure.html">Remap: Extending LinuxCNC</A>
 			<LI><A HREF="config/moveoff.html">Moveoff Component</A>
 		</UL>
-	</UL>
-<p></p>
-<LI><a name="Developer Manual"></a>Developer Information
+	</div>
+		<li><a onclick="return toggle('sec15')"><img id="sec15_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Developer Information</a>
+	<div id="sec15" style="display:none;">
 	<UL>
 	<LI><A HREF="hal/general_ref.html">General Reference</A>
 	<LI><A HREF="code/Code_Notes.html">Code Notes</A>
@@ -148,14 +202,12 @@
 	<LI><A HREF="code/Style_Guide.html">Style Guide</A>
 	<LI><A HREF="code/Contributing-to-LinuxCNC.html">Contributing to LinuxCNC</A>
 	</UL>
-<p></p>
-<LI><a name="Glossary, Copyright"></a>Glossary, Copyright
-	<UL>	
+	</div>
+		<li><a onclick="return toggle('sec16')"><img id="sec16_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Glossary, Copyright</a>
+	<div id="sec16" style="display:none;">
+	<UL>
 	<LI><A HREF="common/emc-history.html">LinuxCNC History</A>
 	<LI><A HREF="common/Glossary.html">Glossary</A>
 	<LI><A HREF="common/GPLD_Copyright.html">Copyright and Documentation License</A>
 	</UL>
-<p></p>
-<p>The following Manual Pages can be viewed locally in a terminal by typing in
-man name of component. For example man axis-remote.</p>
-<p></p>
+	</div>

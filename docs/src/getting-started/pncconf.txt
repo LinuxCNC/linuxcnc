@@ -747,11 +747,13 @@ Use Encoder Index For Home::
 
 Use Compensation File::
     Allows specifying a Comp filename and type.
-    Allows sophisticated compensation. See Manual.
+    Allows sophisticated compensation. See <<sub:AXIS-section,AXIS Section>>
+    of the INI Chapter.
 
 Use Backlash Compensation::
     Allows setting of simple backlash compensation. Can 
-    not be used with Compensation File. See Manual.
+    not be used with Compensation File. See <<sub:AXIS-section,AXIS Section>>
+    of the INI Chapter.
 
 .AXIS Help Diagram
 
@@ -804,7 +806,8 @@ set for the encoder count / gearing used.
 * If you are using a single input for a spindle encoder you must add the line:
 setp    hm2_7i43.0.encoder.00.counter-mode 1
 (changing the board name and encoder number to your requirements) into a custom 
-HAL file. See the Hostmot2 section on encoders for more info about counter mode.
+HAL file. See the <<sec:hm2-encoder,Encoders Section>> in Hostmot2 for more
+info about counter mode.
 
  
 
@@ -814,15 +817,17 @@ This allows setting of HALUI commands and loading of classicladder and sample
 ladder programs.
 If you selected GLADE VCP options such as for zeroing axis, there will be 
 commands showing.
-See the manual about info on HALUI for using custom halcmds.
+See the <<cha:hal-user-interface,HALUI Chapter>>for more info on using custom
+halcmds.
 There are several ladder program options.
 The Estop program allows an external ESTOP switch or the GUI frontend to throw 
 an Estop. It also has a timed lube pump signal.
 The Z auto touch-off is with a touch-off plate, the GLADE VCP touch-off button 
-and special HALUI commands to set the current
-user origin to zero and rapid clear.
+and special HALUI commands to set the current user origin to zero and rapid
+clear.
 The serial modbus program is basically a blank template program that sets up 
-classicladder for serial modbus. See the classicladder section in the manual.
+classicladder for serial modbus. See the
+<<cha:classicladder,Classicladder Chapter>> in the manual.
   
 .Advanced Options
 

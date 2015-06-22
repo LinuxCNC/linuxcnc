@@ -4,9 +4,6 @@
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
-# oh man..
-HL_DIR=/usr/share/source-highlight
-LANG_MAP=$(HL_DIR)/lang.map
 LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
@@ -49,7 +46,7 @@ DOC_SRCS_EN := \
 	config/stepper.txt \
 	drivers/AX5214H.txt \
 	drivers/VFS11.txt \
-        drivers/GM.txt \
+	drivers/GM.txt \
 	drivers/GS2.txt \
 	drivers/hostmot2.txt \
 	drivers/motenc.txt \
@@ -72,9 +69,17 @@ DOC_SRCS_EN := \
 	gcode/overview.txt \
 	gcode/rs274ngc.txt \
 	gcode/tool_compensation.txt \
-	gui/selector.txt \
+	getting-started/About-LinuxCNC.txt \
+	getting-started/Getting-LinuxCNC.txt \
+	getting-started/Linux_FAQ.txt \
+	getting-started/pncconf.txt \
+	getting-started/Running-LinuxCNC.txt \
+	getting-started/stepconf.txt \
+	getting-started/stepper_quickstart.txt \
+	getting-started/System_Requirements.txt \
+	getting-started/Updating_LinuxCNC.txt \
 	gui/axis.txt \
-        gui/gmoccapy.txt \
+	gui/gmoccapy.txt \
 	gui/gladevcp.txt \
 	gui/gscreen.txt \
 	gui/halui.txt \
@@ -97,8 +102,8 @@ DOC_SRCS_EN := \
 	hal/halui_examples.txt \
 	hal/intro.txt \
 	hal/parallel_port.txt \
-	hal/pyvcp.txt \
-	hal/pyvcp_examples.txt \
+	gui/pyvcp.txt \
+	gui/pyvcp_examples.txt \
 	hal/rtcomps.txt \
 	hal/tools.txt \
 	hal/tutorial.txt \
@@ -113,9 +118,7 @@ DOC_SRCS_EN := \
 	remap/structure.txt \
 	Master_Getting_Started.txt \
 	getting-started/index.txt \
-	Master_User.txt \
-	Master_HAL.txt \
-	Master_Integrator.txt \
+	Master_Documentation.txt \
 	Master_Developer.txt
 
 DOC_SRCS_FR := \
@@ -176,8 +179,8 @@ DOC_SRCS_FR := \
 	hal/halui_fr.txt \
 	hal/intro_fr.txt \
 	hal/parallel_port_fr.txt \
-	hal/pyvcp_fr.txt \
-	hal/pyvcp_examples_fr.txt \
+	gui/pyvcp_fr.txt \
+	gui/pyvcp_examples_fr.txt \
 	hal/rtcomps_fr.txt \
 	hal/tutorial_fr.txt \
 	install/Latency_Test_fr.txt \
@@ -252,8 +255,8 @@ DOC_SRCS_ES := \
 	hal/halui_examples_es.txt \
 	hal/intro_es.txt \
 	hal/parallel_port_es.txt \
-	hal/pyvcp_es.txt \
-	hal/pyvcp_examples_es.txt \
+	gui/pyvcp_es.txt \
+	gui/pyvcp_examples_es.txt \
 	hal/rtcomps_es.txt \
 	hal/tools_es.txt \
 	hal/tutorial_es.txt \
@@ -294,9 +297,7 @@ MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MA
 
 PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started.pdf \
-	LinuxCNC_User_Manual.pdf \
-	LinuxCNC_HAL_Manual.pdf \
-	LinuxCNC_Integrator_Manual.pdf \
+	LinuxCNC_Documentation.pdf \
 	LinuxCNC_Developer_Manual.pdf \
 	LinuxCNC_Manual_Pages.pdf \
 	)
@@ -403,7 +404,7 @@ $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
+$(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_User_Manual_es.pdf: $(DOC_SRCDIR)/Master_User_es.pdf
 	@ln -f $< $@
@@ -429,15 +430,16 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@mkdir -p $(dir $@)
 	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
-ST := style=\" \
-    list-style-type: none; \
+SA := <li><a onclick=\"return toggle('man_
+SB := ')\"><img id=\"man_
+SC := _image\" src=\"plus.png\" style=\"border:0;margin-right:5px;vertical-align:middle;\" />
+
+SD := <div id=\"man_
+SE := \" style=\"display:none; \
     -moz-column-width: 25ex; \
     -moz-column-gap: 4ex; \
-    -webkit-column-width: 25ex; \
-    -webkit-column-gap: 4ex; \
-    column-width: 25ex; \
-    column-gap: 4ex; \
-\"
+    -webkit-column-width: \
+    25ex; -webkit-column-gap: 4ex;\">
 
 #
 # This function appends a section to the "manpages" HTML fragment called
@@ -447,11 +449,14 @@ ST := style=\" \
 #
 ADD_HTML_MANPAGES = \
 	@echo "Adding manpages: man$(strip $(1)): $(strip $(2))"; \
-	echo "<A NAME=\"man$(strip $(1))\"><LI>$(strip $(2))<UL $(ST)>" >> objects/index.incl; \
+	echo "$(SA)$(strip $(1))$(SB)$(strip $(1))$(SC)$(strip $(2))</a>" >> objects/index.incl; \
+	echo "$(SD)$(strip $(1))$(SE)" >> objects/index.incl; \
+	echo "<UL>" >> objects/index.incl; \
 	for HTML_FILE in $(filter %.$(strip $(1)).html, $(MAN_HTML_TARGETS)); do \
 		BASENAME=$$(basename $$HTML_FILE .html); \
 		echo "<LI><A HREF=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$$BASENAME</A>"; \
 	done >> objects/index.incl; \
+	echo "<p>Man pages can also be viewed in a terminal by typing man and the name of component.</p>" >> objects/index.incl; \
 	echo "</UL><BR>" >> objects/index.incl
 
 objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
@@ -540,11 +545,6 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	done
 	touch $@
 
-# rebuild source-highlight/local/lang.map if needed - note this will cause a major rebuild
-# unsure how to do this as Submakefile -mah
-$(LOC_LANG_MAP): $(wildcard $(LOC_HL_DIR)/*.lang) $(LANG_MAP)
-	(cd $(LOC_HL_DIR); make all)
-
 # Define a target-specific variable called STYLES_SCRIPTS_DIR, which has
 # the relative path from this html target to the root of the generated
 # document tree (docs/html in the git repo).  This is where the CSS files
@@ -617,13 +617,11 @@ docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Developer_Manual.pdf
@@ -631,7 +629,6 @@ docclean:
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_SRCDIR)/*/*.html
-	-rm -f $(DOC_DIR)/html/*.png
 	-rm -f $(DOC_DIR)/html/code/*.*
 	-rm -f $(DOC_DIR)/html/common/images/*.*
 	-rm -f $(DOC_DIR)/html/config/images/*.*
@@ -651,8 +648,6 @@ docclean:
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
 	-rm -f .htmldoc-stamp
 	-rm -f .html-images-stamp
-# unsure how to do this as Submakefile: -mah
-	-(cd $(LOC_HL_DIR); make clean)
 
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))

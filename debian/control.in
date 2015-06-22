@@ -52,7 +52,7 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     python-gst0.10,
     python-xlib, python-gtkglext1, python-configobj,
     tclreadline, procps, psmisc, module-init-tools | kmod, tclx,
-    mesa-utils
+    mesa-utils, blt
 Description: PC based motion controller for real-time Linux
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic

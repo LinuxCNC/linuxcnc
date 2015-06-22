@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=
+Type=Application
+Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Documentation.pdf
+Icon=gnome-help
+X-GNOME-DocPath=
+Terminal=false
+Name=LinuxCNC Documentation
+Comment=The LinuxCNC Manual
+StartupNotify=false
+Categories=X-CNC;
+GenericName=

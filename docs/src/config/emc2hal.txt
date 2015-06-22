@@ -72,6 +72,7 @@ If the number of analog I/O needed is more than the default of 4 you
 can add up to 16 analog I/O by using the num_aio option when loading
 motmod.
 
+[[sec:motion-pins]]
 === Pins (((motion (HAL pins))))
 
 These pins, parameters, and functions are created by the realtime
@@ -247,7 +248,7 @@ These pins, parameters, and functions are created by the realtime
 * `motion.spindle-lock` -
 	(bit, out) Spindle orient complete pin. Cleared by any of M3,M4,M5. 
 
-==== HAL pin usage for M19 orient spindle
+.HAL pin usage for M19 orient spindle
 
 Conceptually the spindle is in one of the following modes:
 

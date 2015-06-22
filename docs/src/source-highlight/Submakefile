@@ -1,45 +1,43 @@
 # the source-highlight language defs and lang.map dir
 HL_DIR=/usr/share/source-highlight
-DEPS=$(wildcard $(HL_DIR)/*)
 
-LOC_HL_DIR=.
+LOC_HL_DIR=../docs/src/source-highlight
+LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 # languages for which we provide our own .lang files
 # this includes overriding languages listed in HL_DIR
-EMCLANGS=$(wildcard *.lang)
+EMCLANGS=$(wildcard $(LOC_HL_DIR)/*.lang)
 
 # grep arg to suppress user defined langs already in lang.map
 GREPARG= $(patsubst %, -e %,$(EMCLANGS))
 
 # examples
-PDF_TARGETS := $(patsubst %.txt, %.pdf, $(wildcard *.txt))
-HTML_TARGETS := $(patsubst %.txt, %.html ,$(wildcard *.txt))
+SOURCE_HIGHLIGHT_PDF_TARGETS := $(patsubst %.txt, %.pdf, $(wildcard $(LOC_HL_DIR)/*.txt))
+SOURCE_HIGHLIGHT_HTML_TARGETS := $(patsubst %.txt, %.html ,$(wildcard $(LOC_HL_DIR)/*.txt))
 
 # tests with HTML output without going through asciidoc
 TEST_SRCS := hal-test.hal ini-test.ini ngc-test.ngc
 TEST_TARGETS := hal-test.html ini-test.html ngc-test.html
 
 
-TARGET=local/lang.map
+TARGET=$(LOC_HL_DIR)/local/lang.map
 ASCIIDOC_ARGS=-a source_highlight_dir=local -f emc-langs-source-highlight.conf
 
-all:	$(TARGET)
-
-$(TARGET): $(EMCLANGS) $(DEPS)
+$(TARGET): $(EMCLANGS) $(HL_DIR)/lang.map
 ifeq (,$(findstring lang.map,$(wildcard $(HL_DIR)/*)))#
 	$(error $(HL_DIR)/lang.map does not exist - are you sure \
 	the 'source-highlight'  package is installed?)
 endif
-	rm -rf local
-	cp -r $(HL_DIR) local
-	mv local/lang.map local/lang.map.dist
-	cp *.lang local
-	grep -v $(GREPARG) local/lang.map.dist >$(TARGET)
+	rm -rf $(LOC_HL_DIR)/local
+	cp -r $(HL_DIR) $(LOC_HL_DIR)/local
+	mv $(LOC_HL_DIR)/local/lang.map $(LOC_HL_DIR)/local/lang.map.dist
+	cp $(LOC_HL_DIR)/*.lang $(LOC_HL_DIR)/local
+	grep -v $(GREPARG) $(LOC_HL_DIR)/local/lang.map.dist >$(TARGET)
 	for i in $(EMCLANGS); do \
-             echo `basename $$i .lang` '=' $$i >>$(TARGET) ; \
+             echo `basename $$i .lang` '=' `basename $$i` >>$(TARGET) ; \
         done
 
-examples: $(TARGET) $(HTML_TARGETS) $(PDF_TARGETS) tests
+examples: $(TARGET) $(SOURCE_HIGHLIGHT_HTML_TARGETS) $(SOURCE_HIGHLIGHT_PDF_TARGETS) tests
 
 
 tests: 	$(TARGET) $(TEST_TARGETS)
@@ -54,11 +52,12 @@ tests: 	$(TARGET) $(TEST_TARGETS)
 %.html:	%.hal
 	source-highlight --data-dir=local --input $< --output $@
 
-clean:
-	-rm -rf local $(HTML_TARGETS) $(PDF_TARGETS) $(TEST_TARGETS)
+docclean: clean-source-highlight
+clean-source-highlight:
+	-rm -rf local $(SOURCE_HIGHLIGHT_HTML_TARGETS) $(SOURCE_HIGHLIGHT_PDF_TARGETS) $(TEST_TARGETS)
 
-$(PDF_TARGETS):  %.pdf: %.txt
+$(SOURCE_HIGHLIGHT_PDF_TARGETS):  %.pdf: %.txt
 	a2x -v -f pdf $<
 
-$(HTML_TARGETS): %.html: %.txt
+$(SOURCE_HIGHLIGHT_HTML_TARGETS): %.html: %.txt
 	asciidoc $(ASCIIDOC_ARGS) -v  $<

@@ -60,7 +60,7 @@ Generally, the behavior of a remapped code may be defined in the following ways:
 - you define a O-word subroutine which implements the desired behavior
 - alternatively, you may employ a Python function which extends the interpreter's behavior.
 
-==== How to glue things together
+.How to glue things together
 M- and G-codes, and O-words subroutine calls have some fairly different syntax.
 
 O-word procedures, for example, take positional parameters
@@ -87,7 +87,7 @@ access into interpreter internal data structures to achieve the
 required effect. Doing the glue code in - again - 'C/C\+\+' would be an
 inflexible and therefore unsatisfactory solution.
 
-==== How Embedded Python fits in
+.How Embedded Python fits in
 
 To make a simple situation easy and a complex situation solvable, the
 glue issue is addressed as follows:
@@ -105,7 +105,7 @@ Python will likely find it easier to write remapped codes, glue,
 O-word procedures etc in pure Python, without resorting to the
 somewhat cumbersome RS274NGC language at all.
 
-==== A Word on Embedded Python
+.A Word on Embedded Python
 
 Many people are familiar with 'extending' the Python interpreter by
 'C/C\+\+' modules, and this is heavily used in LinuxCNC to access Task,
@@ -411,7 +411,7 @@ assigned a value).
 
 Optional word parameters may be tested for presence by the `EXISTS(#<word>)` idiom.
 
-==== Example for named parameter passing to NGC procedures
+.Example for named parameter passing to NGC procedures
 
 Assume the code is defined as
 
@@ -437,7 +437,7 @@ M2
 - executing `M400 P123` will display `P word=123.000000`
 - executing `M400 P123 Q456` will display `P word=123.000000` and `Q word set: 456.000000`
 
-==== Example for positional parameter passing to NGC procedures
+.Example for positional parameter passing to NGC procedures
 
 Assume the code is defined as
 
@@ -460,7 +460,7 @@ NB: you lose the capability to distinguish more than one optional
 parameter word, and you cannot tell whether an optional parameter was
 present but had the value 0, or was not present at all.
 
-==== Simple example for named parameter passing to a Python function
+.Simple example for named parameter passing to a Python function
 
 It's possible to define new codes 'without' any NGC procedure. Here's
 a simple first example, a more complex one can be found in the next
@@ -497,7 +497,7 @@ with Python remapping functions, it make no sense to have Python
 prolog or epilog functions since it's executing a Python function in
 the first place.
 
-====  Advanced example: Remapped codes in pure Python
+.Advanced example: Remapped codes in pure Python
 
 The `interpreter` and `emccanon` modules expose most of the Interpreter
 and some Canon internals, so many things which  so far required coding in
@@ -1347,7 +1347,7 @@ Python code is called from NGC in the following situations:
 - during execution of a remapped code: any `prolog=`, `python=` and
   `epilog=` handlers.
 
-==== Calling O-word Python subroutines  [[remap:Python-O-word-procs]]
+.Calling O-word Python subroutines  [[remap:Python-O-word-procs]]
 Arguments:
 
 `self`::
@@ -1365,7 +1365,7 @@ def mysub(self, *args):
     for a in args:
 	print a
 ---------------------------------------------------------------------
-==== Return values of O-word Python subroutines
+.Return values of O-word Python subroutines
 Just as NGC procedures may return values, so do O-word Python
 subroutines. They are expected to either:
 
@@ -1390,7 +1390,7 @@ are available:
 
 See also `tests/interp/value-returned` for an example.
 
-==== Calling conventions for 'prolog=' and 'epilog=' subroutines
+.Calling conventions for 'prolog=' and 'epilog=' subroutines
 
 Arguments are:
 
@@ -1429,7 +1429,7 @@ an error message, abort the program'. Works like `(abort, msg)`.
 
 .
 
-==== Calling conventions for 'python=' subroutines
+.Calling conventions for 'python=' subroutines
 
 Arguments are:
 
@@ -1464,7 +1464,7 @@ to suspend execution with the following statement:
 	the interpreter to continue. At this point the function is
 	resumed at the statement following the `yield ..` statement.
 
-==== Dealing with queue-buster: Probe, Tool change and waiting for a HAL pin
+.Dealing with queue-buster: Probe, Tool change and waiting for a HAL pin
 
 
 Queue busters interrupt a procedure at the point where such an
@@ -1510,7 +1510,7 @@ NGC code is executed from Python when:
 The prolog handler does not call the handler, but it prepares its call
 environment, for instance by setting up predefined local parameters.
 
-==== Inserting parameters in a prolog, and retrieving  them in an epilog
+.Inserting parameters in a prolog, and retrieving  them in an epilog
 
 Conceptually a prolog and an epilog execute at the same call level
 like the O-word procedure, that is: after the subroutine call is set
@@ -1567,7 +1567,7 @@ m2
 `self.params()` returns a list of all variable names currently defined.
 Since `myname` is local, it goes away after the epilog finishes.
 
-==== Calling the interpreter from Python
+.Calling the interpreter from Python
 
 You can recursively call the interpreter from Python code as follows:
 
@@ -1590,7 +1590,7 @@ commands or a procedure call and advanced introspection into the
 procedure, and passing of local named parameters is not needed. The
 recursive call feature is fragile.
 
-==== Interpreter Exception during execute()
+.Interpreter Exception during execute()
 
 if `interpreter.throw_exceptions` is nonzero (default 1), and self.execute() returns an error, the exception
 `InterpreterException` is raised. InterpreterException has the
@@ -1616,7 +1616,7 @@ interpreter.throw_exceptions = 1
 ---------------------------------------------------------------------
 // NOTE: to iterate is human, to recurse: divine.
 
-==== Canon
+.Canon
 The canon layer is practically all free functions. Example:
 [source,python]
 ---------------------------------------------------------------------
@@ -1709,7 +1709,7 @@ following routines:
 
 These wrap a NGC procedure for Tx Tool Prepare.
 
-==== Actions of +prepare_prolog+
+.Actions of +prepare_prolog+
 
 The following parameters are made visible to the NGC procedure:
 
@@ -1728,7 +1728,7 @@ Note that unless you set the `[EMCIO] RANDOM_TOOLCHANGER=1` parameter,
 tool and pocket number are identical, and the pocket number from the
 tool table is ignored. This is currently a restriction.
 
-==== Actions of +prepare_epilog+
+.Actions of +prepare_epilog+
 
 - The NGC procedure is expected to return a positive value, otherwise
   and error message containing the return value is given and the
@@ -1747,7 +1747,7 @@ tool table is ignored. This is currently a restriction.
 
 These wrap a NGC procedure for M6 Tool Change. 
 
-==== Actions of +change_prolog+
+.Actions of +change_prolog+
 
 * The following three steps are applicable only if the `iocontrol-v2`
 component is used:
@@ -1770,7 +1770,7 @@ Then, the following parameters are exported to the NGC procedure:
 - `#<selected_pocket>` : the selected tool's pocket number
 
 
-==== Actions of +change_epilog+
+.Actions of +change_epilog+
 
 * The NGC procedure is expected to return a positive value, otherwise
   and error message containing the return value is given and the
@@ -1821,7 +1821,7 @@ axis words give in the block, see below.
 //sec:Cycle-Sticky-Words
 //sec:Canned-Cycle-Errors
 //sec:Retract-Mode
-==== Actions of +cycle_prolog+
+.Actions of +cycle_prolog+
 * Determine whether the words passed in from the current block fulfill
 the conditions outlined under <<sec:Canned-Cycle-Errors,Canned Cycle
 Errors>>.
@@ -1841,7 +1841,7 @@ parameters, which is retained across several invocations.
 parameters.
 * export the set of sticky parameters to the NGC procedure.
 
-==== Actions of +cycle_epilog+
+.Actions of +cycle_epilog+
 * Determine if the current code was in fact a cycle, if so:
 ** retain the current motion mode so a continuation line without a
 motion code will execute the same motion code.
@@ -2337,7 +2337,7 @@ procedure, you need to replicate those internal actions of the
 interpreter which together result in a complete replacement of the
 existing code. The prolog and epilog code is the place to do this.
 
-==== How tool information is communicated
+.How tool information is communicated
 Several processes are 'interested' in tool information: task and its
 interpreter, as well as the user interface. Also, the 'halui' process.
 
@@ -2374,14 +2374,14 @@ results.
 
 
 
-==== Interpreter action on a Tx command [[remap::interpreter-action-on-T]]
+.Interpreter action on a Tx command [[remap::interpreter-action-on-T]]
 
 All the interpreter does is evaluate the toolnumber paramter, looks up
 its corresponding pocket, remembers it in the `selected_pocket`
 variable for later, and  queues a canon command
 (SELECT_POCKET). See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
 
-==== Task action on SELECT_POCKET
+.Task action on SELECT_POCKET
 
 When task gets around to handle a SELECT_POCKET, it sends a
 EMC_TOOL_PREPARE message to the iocontrol process, which handles most
@@ -2392,7 +2392,7 @@ complete the changer positioning operation, which is not necessary IMO
 - it defeats the idea that changer preparation and code execution can
 proceed in parallel.
 
-==== Iocontrol action on EMC_TOOL_PREPARE
+.Iocontrol action on EMC_TOOL_PREPARE
 
 When iocontrol sees the select pocket command, it does the related HAL
 pin wiggling - it sets the "tool-prep-number" pin to indicate which
@@ -2403,7 +2403,7 @@ When the changer responds by asserting "tool-prepared", it considers
 the prepare phase to be completed and signals task to
 continue. (again, this 'wait' istn strictly necessary IMO)
 
-==== Building the prolog and epilog for Tx
+.Building the prolog and epilog for Tx
 
 See the Python functions `prepare_prolog` and `prepare_epilog` in 
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
@@ -2421,7 +2421,7 @@ Even if you are not familiar with C, I suggest you look at the
 'Interp::convert_tool_change' code in
 'src/emc/rs274/interp_convert.cc'.
 
-==== Interpreter action on a M6 command [[remap::interpreter-action-on-M6]]
+.Interpreter action on a M6 command [[remap::interpreter-action-on-M6]]
 When the interpreter sees an M6, it:
 
 . checks whether a T command has already been executed (test
@@ -2444,12 +2444,12 @@ parameter. CHANGE_TOOL will:
 . signal to task to stop calling the interpreter for readahead by
 returning INTERP_EXECUTE_FINISH since M6 is a queue buster.
 
-==== What task does when it sees a CHANGE_TOOL command
+.What task does when it sees a CHANGE_TOOL command
 Again, not much more than passing the buck to iocontrol by sending it
 an EMC_TOOL_LOAD message, and waiting until iocontrol has done its
 thing.
 
-==== Iocontrol action on EMC_TOOL_LOAD [[remap::iocontrol-action-on-load]]
+.Iocontrol action on EMC_TOOL_LOAD [[remap::iocontrol-action-on-load]]
 
 . it asserts the "tool-change" pin
 . it waits for the "tool-changed" pin to become active
@@ -2474,7 +2474,7 @@ needed, among it the changed tool table.
 From there on, the interpreter has complete  knowledge of the world
 model and continues with read ahead.
 
-==== Building the prolog and epilog for M6
+.Building the prolog and epilog for M6
 See the Python functions `change_prolog` and `change_epilog` in 
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
@@ -2482,7 +2482,7 @@ See the Python functions `change_prolog` and `change_epilog` in
 M61 requires a non-negative `Q`parameter (tool number). If zero, this
 means 'unload tool', else 'set current tool number to Q'. 
 
-==== Building the replacement for M61
+.Building the replacement for M61
 An example Python redefinition for M61 can be found in the
 `set_tool_number` function in 
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.

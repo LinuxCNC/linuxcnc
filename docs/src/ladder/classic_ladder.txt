@@ -1,6 +1,6 @@
 = Classicladder Programming
 
-[[cha:classicladder-programming]] (((Classicladder Programming)))
+[[cha:classicladder]] (((Classicladder)))
 
 == Ladder Concepts
 
@@ -607,7 +607,7 @@ If you use a N.C. contact with a N.C. coil the logic
 will work (when the coil is energized the contact will be closed) but
 that is really hard to follow!
 
-==== JUMP COIL
+.JUMP COIL
 
 A JUMP COIL is used to 'JUMP' to another section, like a goto in BASIC
 programming language.
@@ -623,7 +623,7 @@ where to go.
 When placing a JUMP COIL, add it in the rightmost position and change
 the label to the rung you want to JUMP to.
 
-==== CALL COIL
+.CALL COIL
 
 A CALL COIL is used to go to a subroutine section then return, like a
 gosub in BASIC programming language.

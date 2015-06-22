@@ -175,7 +175,6 @@ static bool wait_for_pendant_before_HAL = false;
 
 struct libusb_transfer *transfer_in  = NULL;
 unsigned char in_buf[32];
-void cb_transfer_in(struct libusb_transfer *transfer);
 void setup_asynch_transfer(libusb_device_handle *dev_handle);
 
 extern "C" const char *
@@ -503,7 +502,7 @@ void cb_response_in(struct libusb_transfer *transfer)
 			}
 	}
 
-	setup_asynch_transfer(transfer->dev_handle);
+	libusb_submit_transfer(transfer);
 }
 
 void setup_asynch_transfer(libusb_device_handle *dev_handle)

@@ -74,7 +74,7 @@ Gscreen looks for the handler file, if found it will look for specific function 
 If adding widgets you can set up signal calls from the GLADE editor to call routines you have written in the handler file. In this way you can have custom behaviour.
 Handler routines can call Gscreen's default routines, either before or after running it's own code. In this way you can tack on extra behaviour such as adding a sound
 
-Please see the gladevcp write-up about the basics to gladeVCP handler files - Gscreen uses a very similar technique
+Please see the <<cha:glade-vcp,Gladevcp Chapter>> about the basics to gladeVCP handler files - Gscreen uses a very similar technique
 
 === Hey I can build a gladeVCP panel!
 Gscreen is just a big complicated gladeVCP panel, with a bunch of python code to control it. +

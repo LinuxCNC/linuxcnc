@@ -1,6 +1,6 @@
 = Spindle Control
 
-[[cha:Spindle-Control]] (((Spindle Control)))
+[[cha:spindle-control]] (((Spindle Control)))
 
 == 0-10v Spindle Speed (((0-10v Spindle Speed)))
 
@@ -162,7 +162,8 @@ footnote:[In this example, we will assume that some encoders have already
 been issued to axes/joints 0, 1, and 2. So the next encoder available for us
 to attach to the spindle would be number 3. Your situation may differ.]
 footnote:[The HAL encoder index-enable is an exception to the rule in that
-it behaves as both an input and an output, see manual for details]
+it behaves as both an input and an output, see the 
+<<sec:Encoder,Encoder Section>> for details]
 footnote:[It is because we selected 'non-quadrature simple counting...' above
 that we can get away with 'quadrature' counting without having any 
 B quadrature input.] 

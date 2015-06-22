@@ -1,11 +1,12 @@
-
 = Getting LinuxCNC
+
+[[cha:getting-linuxcnc]] (((Getting LinuxCNC)))
 
 This section describes the recommended way to download
 and make a fresh install of LinuxCNC.  There are also
 <<_alternate_install_methods,Alternate Install Methods>> for the
 adventurous.  If you have an existing install that you want to upgrade,
-go to the <<_updating_linuxcnc,Updating LinuxCNC>> section instead.
+go to the <<cha:updating-linuxcnc,Updating LinuxCNC>> section instead.
 
 Fresh installs of LinuxCNC are most easily created using the Live/Install
 Image.  This is a hybrid ISO filesystem image that can be written to a
