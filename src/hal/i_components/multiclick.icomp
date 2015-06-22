@@ -57,25 +57,24 @@ pin and no fifth click followed it.""";
 // for debugging
 pin out s32 state;
 
-
-param rw bit invert_input = FALSE
+pin io bit invert_input = FALSE
 """If FALSE (the default), clicks start with rising edges.  If TRUE,
 clicks start with falling edges.""";
 
-param rw u32 max_hold_ns  = 250000000
+pin io u32 max_hold_ns  = 250000000
 """If the input is held down longer than this, it's not part of a
 multi-click.  (Default 250,000,000 ns, 250 ms.)""";
 
-param rw u32 max_space_ns = 250000000
+pin io u32 max_space_ns = 250000000
 """If the input is released longer than this, it's not part of a
 multi-click.  (Default 250,000,000 ns, 250 ms.)""";
 
-param rw u32 output_hold_ns = 100000000
+pin io u32 output_hold_ns = 100000000
 """Positive pulses on the output pins last this long.  (Default
 100,000,000 ns, 100 ms.)""";
 
 
-variable int click_state = 0;  // wish i could have an enum type here
+variable hal_s32_t click_state = 0;  // wish i could have an enum type here
 
 
 //
@@ -87,8 +86,8 @@ variable int click_state = 0;  // wish i could have an enum type here
 // exceeds the timeout, the state machine resets.
 //
 
-variable unsigned timer;
-variable unsigned timeout;
+variable hal_u32_t timer;
+variable hal_u32_t timeout;
 
 
 //
@@ -103,17 +102,17 @@ variable unsigned timeout;
 // X+1 click).
 //
 
-variable unsigned single_click_hold_timer;
-variable unsigned single_click_only_hold_timer;
+variable hal_u32_t single_click_hold_timer;
+variable hal_u32_t single_click_only_hold_timer;
 
-variable unsigned double_click_hold_timer;
-variable unsigned double_click_only_hold_timer;
+variable hal_u32_t double_click_hold_timer;
+variable hal_u32_t double_click_only_hold_timer;
 
-variable unsigned triple_click_hold_timer;
-variable unsigned triple_click_only_hold_timer;
+variable hal_u32_t triple_click_hold_timer;
+variable hal_u32_t triple_click_only_hold_timer;
 
-variable unsigned quadruple_click_hold_timer;
-variable unsigned quadruple_click_only_hold_timer;
+variable hal_u32_t quadruple_click_hold_timer;
+variable hal_u32_t quadruple_click_only_hold_timer;
 
 
 description """A click is defined as a rising edge on the 'in' pin,
@@ -156,7 +155,7 @@ typedef enum {
 
 FUNCTION(_)
 {
-    int new_in = in;
+    hal_bit_t new_in = in;
 
     if (1 == invert_input) {
         new_in = !new_in;

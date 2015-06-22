@@ -51,10 +51,10 @@ pin in  float search-vel "HOME_SEARCH_VEL from ini file";
 function read  fp "Update position-fb and home/limit outputs based on joint values";
 function write fp "Update joint pos-cmd outputs based on position-cmd in";
 
-variable float offset[7] = 0.0;
-variable float prev_cmd = 0.0;
-variable int   fb_joint = 0;
-variable int   latching = 0;
+variable hal_float_t offset[7] = 0.0;
+variable hal_float_t prev_cmd = 0.0;
+variable hal_s32_t   fb_joint = 0;
+variable hal_bit_t   latching = 0;
 
 instanceparam int pincount = 7;
 
@@ -88,7 +88,7 @@ license "GPL";
 
 
 FUNCTION(read) {
-    int i=1;
+    hal_s32_t i=1;
 
     // First (or only) joint
     home=joint_home(0);
@@ -137,8 +137,8 @@ FUNCTION(read) {
 }
 
 FUNCTION(write) {
-    int i;
-    float delta;
+    hal_s32_t i;
+    hal_float_t delta;
 
     // Determine if we're moving in the same direction as home search
 

@@ -22,7 +22,7 @@ pin in bit in2;
 pin in bit in3;
 pin out bit out;
 
-param rw bit invert;
+pin io bit invert;
 
 function _ nofp;
 
@@ -34,7 +34,7 @@ MODULE_DESCRIPTION("'Majority of 3' block for EMC HAL");
 
 FUNCTION(_)
 {
-    int sum = 0;
+    hal_s32_t sum = 0;
     if (in1) sum++;
     if (in2) sum++;
     if (in3) sum++;

@@ -72,8 +72,8 @@ pin out u32 minutes "Minutes";
 pin out u32 hours "Hours";
 
 // Global Variables
-variable double totalnsec;
-variable int old_start;
+variable long totalnsec;
+variable hal_bit_t old_start;
 
 function _;
 
@@ -83,15 +83,16 @@ function _;
 
 FUNCTION(_)
 {
-    __u32 totalseconds;
-    if(start && !old_start) totalnsec = 0;
+    hal_u32_t totalseconds;
+    if(start && !old_start) 
+		totalnsec = 0.0;
 
     if(start){
     totalnsec = totalnsec + period;
-    totalseconds = totalnsec * 0.000000001;
+    totalseconds = (hal_u32_t)(totalnsec / 1e9);
     seconds = totalseconds % 60;
 	minutes = (totalseconds / 60) % 60;
-	hours = (totalseconds / 3600);
+	hours = totalseconds / 3600;
 	}
 	old_start = start;
 

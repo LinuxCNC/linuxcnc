@@ -6,7 +6,7 @@ pin out bit ok_out;
 pin out bit fault_out;
 pin out bit watchdog;
 function _ nofp;
-variable int old_reset;
+variable hal_bit_t old_reset;
 
 license "GPL";
 ;;

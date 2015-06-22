@@ -5,7 +5,7 @@ pin in bit in_2;
 pin in bit in_3;
 pin in bit in_4;
 pin out bit out;
-param rw u32 function;
+pin io u32 function;
 function _ nofp;
 description """
 .B lut5
@@ -139,7 +139,7 @@ license "GPL";
 
 FUNCTION(_)
 {
-    int shift = 0;
+    hal_s32_t shift = 0;
     if(in_0) shift += 1;
     if(in_1) shift += 2;
     if(in_2) shift += 4;

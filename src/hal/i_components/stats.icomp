@@ -5,9 +5,9 @@ pin in bit enable "";
 pin out float mean;
 pin out float variance;
 pin out u32 n;
-variable int prev_enable;
-variable float m2;
-variable float delta;
+variable hal_bit_t prev_enable;
+variable hal_float_t m2;
+variable hal_float_t delta;
 function _;
 license "GPL";
 ;;
@@ -23,9 +23,9 @@ FUNCTION(_)
     if (enable) {
 	n += 1;
 	delta = in - mean;
-	mean = mean + delta/n;
+	mean = mean + (hal_float_t)delta/n;
 	m2 = m2 + delta * (in - mean);
-	variance = m2/(n-1);
+	variance = m2/(hal_float_t)(n-1);
     }
     prev_enable = enable;
 

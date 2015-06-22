@@ -19,13 +19,13 @@ component ddt "Compute the derivative of the input function";
 pin in float in;
 pin out float out;
 
-variable double old;
+variable hal_float_t old;
 
 function _;
 license "GPL";
 ;;
-double tmp = in;
-out = (tmp - old) / (period * 1e-9);
+hal_float_t tmp = in;
+out = (tmp - old) / (hal_float_t)(period * 1e-9);
 old = tmp;
 
 return 0;

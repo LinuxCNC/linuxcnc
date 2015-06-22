@@ -22,11 +22,11 @@ pin in bit enable "When TRUE, output is controlled by count, when FALSE, output 
 pin in float scale "Amount of output change per count";
 pin out float out "Output value";
 
-param rw float max_out=1.0 "Maximum output value, further increases in count will be ignored";
-param rw float min_out=0.0 "Minimum output value, further decreases in count will be ignored";
+pin io float max_out=1.0 "Maximum output value, further increases in count will be ignored";
+pin io float min_out=0.0 "Minimum output value, further decreases in count will be ignored";
 
-variable long old_counts;
-variable double old_out;
+variable hal_s32_t old_counts;
+variable hal_s32_t old_out;
 
 function _;
 license "GPL";
@@ -34,15 +34,15 @@ license "GPL";
 
 FUNCTION(_)
 {
-    long delta_counts;
-    double tmp_out;
+    hal_float_t delta_counts;
+    hal_float_t tmp_out;
 
     if ( min_out > max_out ) {
 	min_out = max_out;
     }
-    delta_counts = counts - old_counts;
+    delta_counts = ( (hal_float_t) counts - old_counts);
     if ( enable ) {
-	tmp_out = old_out + delta_counts * scale;
+	tmp_out = old_out + (hal_float_t)delta_counts * scale;
 	if ( tmp_out > max_out ) {
 	    old_out = max_out;
 	} else if ( tmp_out < min_out ) {

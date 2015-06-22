@@ -54,12 +54,12 @@ pin in  float search-vel "HOME_SEARCH_VEL from ini file";
 function read  fp "Update position-fb and home/limit outputs based on joint values";
 function write fp "Update joint pos-cmd outputs based on position-cmd in";
 
-variable float offset[pincount] = 0.0;
-variable float prev_cmd = 0.0;
-variable int   fb_joint = 0;
-variable int   prev_home[pincount] = 0;
-variable int   curr_home[pincount] = 0;
-variable float pos_fb_target[pincount] = 0.0;
+variable hal_float_t offset[pincount] = 0.0;
+variable hal_float_t prev_cmd = 0.0;
+variable hal_s32_t   fb_joint = 0;
+variable hal_s32_t   prev_home[pincount] = 0;
+variable hal_s32_t   curr_home[pincount] = 0;
+variable hal_float_t pos_fb_target[pincount] = 0.0;
 
 description """
 Drives multiple physical motors (joints) from a single axis input
@@ -102,8 +102,8 @@ option DEFAULTCOUNT 7;
 
 FUNCTION(read)
 {
-    int i;
-    int previous_home;
+    hal_s32_t i;
+    hal_s32_t previous_home;
     // Save previous home state
     previous_home = home;
 
@@ -156,8 +156,8 @@ return 0;
 
 FUNCTION(write)
 {
-    int i;
-    float delta;
+    hal_s32_t i;
+    hal_float_t delta;
 
     // When homing is not active we will not change the offsets
     if (homing) {

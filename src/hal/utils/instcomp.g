@@ -540,6 +540,7 @@ static int comp_id;
             print >>f, "    hal_%s_t %s[%s];" % (type, to_c(name), maxpins)
         else:
             print >>f, "    hal_%s_t %s;" % (type, to_c(name))
+        print "Warning deprecated type: param pin hal_%s_t %s should be replaced with an \"pin io\" of same type" % (type, to_c(name))
         names[name] = 1
 
 

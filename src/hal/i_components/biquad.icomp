@@ -46,19 +46,19 @@ coefficients to be calculated according to parameters";
 pin out bit valid = 0 "When false, indicates an error occured when caclulating \
 filter coefficients.";
 
-param rw u32 type_ = 0 "Filter type determines the type of filter \
+pin io u32 type_ = 0 "Filter type determines the type of filter \
 coefficients calculated. When 0, coefficients must be loaded directly. When 1, \
 a low pass filter is created. When 2, a notch filter is created.";
-param rw float f0 = 250.0 "The corner frequency of the filter.";
-param rw float Q = 0.7071 "The Q of the filter.";
+pin io float f0 = 250.0 "The corner frequency of the filter.";
+pin io float Q = 0.7071 "The Q of the filter.";
 
-param rw float d1 = 0.0 "1st-delayed denominator coef";
-param rw float d2 = 0.0 "2nd-delayed denominator coef";
-param rw float n0 = 1.0 "non-delayed numerator coef";
-param rw float n1 = 0.0 "1st-delayed numerator coef";
-param rw float n2 = 0.0 "2nd-delayed numerator coef";
-param rw float s1 = 0.0;
-param rw float s2 = 0.0;
+pin io float d1 = 0.0 "1st-delayed denominator coef";
+pin io float d2 = 0.0 "2nd-delayed denominator coef";
+pin io float n0 = 1.0 "non-delayed numerator coef";
+pin io float n1 = 0.0 "1st-delayed numerator coef";
+pin io float n2 = 0.0 "2nd-delayed numerator coef";
+pin io float s1 = 0.0;
+pin io float s2 = 0.0;
 
 variable hal_bit_t lastEnable;
 
@@ -122,14 +122,14 @@ Biquad_CalcCoeffs(void *arg, unsigned long period)
 {
 struct inst_data *ip = arg;
 
-    double                      sampleRate, w0, alpha;
-    double                      b0, b1, b2, a0, a1, a2;
+    hal_float_t sampleRate, w0, alpha;
+    hal_float_t b0, b1, b2, a0, a1, a2;
 
     // If not direct coefficient loading.
     if(type_ != TYPE_DIRECT){
         valid = 0;
 
-        sampleRate = 1.0 / (period * 1e-9);
+        sampleRate = (hal_float_t) (1.0 / (period * 1e-9));
 
         if((f0 > sampleRate / 2.0) || (Q > 2.0) || (Q < 0.5))
             return;

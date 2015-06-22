@@ -7,7 +7,7 @@ pin in  float angle       "orient target position in degrees, 0 <= angle < 360";
 pin out float command     "target spindle position, input to PID command";
 pin out float poserr      "in degrees - aid for PID tuning";
 
-variable int   last_enable = 0;
+variable hal_bit_t   last_enable = 0;
 
 option fp yes;
 
@@ -65,8 +65,8 @@ license "GPL";
 
 FUNCTION(_)
 {
-double target_angle;
-double latched_position;
+hal_float_t target_angle;
+hal_float_t latched_position;
 
     if (enable)
         {

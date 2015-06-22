@@ -74,15 +74,15 @@ pin out float volts "The Calculated Volts";
 pin out bit vel_status "When the THC thinks we are at requested speed";
 
 // Parameters
-param rw float vel_scale "The scale to convert the Velocity signal to Volts";
-param rw float scale_offset "The offset of the velocity input at 0 volts";
-param rw float velocity_tol "The deviation percent from planned velocity";
-param rw float voltage_tol "The deviation of Tip Voltage before correction takes place";
-param rw float correction_vel "The amount of change in user units per period to move Z to correct";
+pin io float vel_scale "The scale to convert the Velocity signal to Volts";
+pin io float scale_offset "The offset of the velocity input at 0 volts";
+pin io float velocity_tol "The deviation percent from planned velocity";
+pin io float voltage_tol "The deviation of Tip Voltage before correction takes place";
+pin io float correction_vel "The amount of change in user units per period to move Z to correct";
 
 // Global Variables
-variable float offset;
-variable float last_z_in;
+variable hal_float_t offset;
+variable hal_float_t last_z_in;
 
 function _;
 
@@ -94,11 +94,11 @@ FUNCTION(_)
 {
     // convert encoder velocity to volts
     volts = (encoder_vel - scale_offset) * vel_scale;
-    if(volts < 0){volts = 0;} // make sure volts is not negative
+    if(volts < 0.0){volts = 0.0;} // make sure volts is not negative
 
     if(enable){
-        float min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
-        if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}
+        hal_float_t min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
+        if(current_vel > 0.0 && current_vel >= min_velocity){vel_status = 1;}
         else {vel_status =0;}
 
         if(torch_on && arc_ok && vel_status){ // allow correction
@@ -108,23 +108,23 @@ FUNCTION(_)
             if((volts - voltage_tol) < volts_requested){
                 offset += correction_vel;
             }
-            last_z_in = 0;
+            last_z_in = 0.0;
         }
         if(!torch_on){ // remove any offset
-            float z_diff;
+            hal_float_t z_diff;
             z_diff = z_pos_in - last_z_in;
-            if(z_diff > 0 && offset != 0){ // torch is moving up
-                if(offset > 0){ // positive offset
+            if(z_diff > 0.0 && offset != 0.0){ // torch is moving up
+                if(offset > 0.0){ // positive offset
                     if(offset > z_diff){ // remove some
                         offset -= z_diff;
                     }
-                    else {offset = 0;}
+                    else {offset = 0.0;}
                 }
-                if(offset < 0){ // negative offset
+                if(offset < 0.0){ // negative offset
                     if(offset < z_diff){ // remove some
                         offset += z_diff;
                     }
-                    else {offset = 0;}
+                    else {offset = 0.0;}
                 }
             }
             last_z_in = z_pos_in;

@@ -16,7 +16,7 @@ pin out float A-value "Output amplitude for phase A";
 pin out float B-value "Output amplitude for phase B";
 pin out float C-value "Output amplitude for phase C";
 
-param rw unsigned pattern=25
+pin io u32 pattern=25
 """Commutation pattern to use, from 0 to 47. Default is type 25.
 Every plausible combination is included. The table shows the excitation pattern
 along the top, and the pattern code on the left hand side. The table entries

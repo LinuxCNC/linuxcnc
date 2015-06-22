@@ -132,11 +132,11 @@ pin out float errorD "Derivative of error";
 pin out float commandD "Derivative of the command";
 pin out float commandDD "2nd derivative of the command";
 // variables
-variable float prev_error = 0.0;
-variable float prev_cmd = 0.0;
-variable float prev_fb = 0.0;
-variable float limit_state = 0.0;
-variable char prev_ie;
+variable hal_float_t prev_error = 0.0;
+variable hal_float_t prev_cmd = 0.0;
+variable hal_float_t prev_fb = 0.0;
+variable hal_float_t limit_state = 0.0;
+variable hal_bit_t prev_ie;
 // function
 function do_pid_calcs fp;
 // options
@@ -147,11 +147,11 @@ author "John Kasunich";
 ;;
 
 FUNCTION(do_pid_calcs) {
-    double tmp1, tmp2;
-    double periodfp, periodrecip;
+    hal_float_t tmp1, tmp2;
+    hal_float_t periodfp, periodrecip;
 
     /* precalculate some timing constants */
-    periodfp = (double)period * 0.000000001;
+    periodfp = (hal_float_t)period * 0.000000001;
     periodrecip = 1.0 / periodfp;
     /* calculate the error */
     if((!(prev_ie && !index_enable)) &&
@@ -289,7 +289,7 @@ FUNCTION(do_pid_calcs) {
     /* set 'saturated' outputs */
     if(limit_state) {
         saturated = 1;
-        saturated_s += period * 1e-9;
+        saturated_s += (hal_float_t) period * 1e-9;
         if(saturated_count != 2147483647)
             saturated_count += 1;
     } else {

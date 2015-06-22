@@ -17,7 +17,7 @@ pin out bit   enable-out "output to enable both half-bridges";
 pin in  bit   enable "let motor free run if false";
 pin in  bit   brake  "brake motor if true; needs enable to be true";
 
-param rw float maxout = 1.0 "limit for the up and down pins";
+pin io float maxout = 1.0 "limit for the up and down pins";
 function _ fp;
 license "GPL v2";
 ;;
