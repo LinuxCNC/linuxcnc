@@ -365,13 +365,17 @@ int receive_msg(modbus_param_t *mb_param, int msg_length_computed,
 			printf("read return = [%.2X] bytes",read_ret);
 			printf("\n");
 		}
-		
+
 		if (read_ret == -1) {
-            error_treat(mb_param, PORT_SOCKET_FAILURE,
-                        "Read port/socket failure");
-            return PORT_SOCKET_FAILURE;
+                    error_treat(mb_param, PORT_SOCKET_FAILURE, "Read port/socket failure");
+                    return PORT_SOCKET_FAILURE;
 		}
-		
+
+		if (read_ret == 0) {
+                    error_treat(mb_param, PORT_SOCKET_FAILURE, "Short read");
+                    return PORT_SOCKET_FAILURE;
+		}
+
 		/* sum bytes received */
 		(*msg_length) += read_ret;
 		if (mb_param->debug) {
