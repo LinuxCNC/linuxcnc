@@ -319,6 +319,7 @@ typedef struct {
     struct {
         hal_u32_t *sample_frequency;
         hal_u32_t *skew;
+        hal_s32_t *dpll_timer_num;
     } pin;
 } hm2_encoder_module_global_t;
 
@@ -336,6 +337,7 @@ typedef struct {
     rtapi_u32 written_sample_frequency;
     int has_skew;
     rtapi_u32 written_skew;
+    uint32_t desired_dpll_timer_reg, written_dpll_timer_reg;
 
     // hw registers
     rtapi_u32 counter_addr;
@@ -354,6 +356,8 @@ typedef struct {
     rtapi_u32 prev_timestamp_count_reg;
 
     rtapi_u32 filter_rate_addr;
+
+    rtapi_u32 dpll_timer_num_addr;
 } hm2_encoder_t;
 
 //

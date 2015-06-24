@@ -377,6 +377,23 @@ reporting the upper bound of the encoder velocity, which can be accurately
 guessed.  This parameter specifies how long to wait for the next pulse,
 before reporting the encoder stopped.  This parameter is in seconds.
 
+.TP
+(s32 r/w) hm2_XiXX.N.encoder.MM.timer-num (default: -1)
+Sets the hm2dpll timer instance to be used to latch encoder counts.  A setting
+of -1 does not latch encoder counts.  A setting of 0 latches at the same time
+as the main hostmot2 write.  A setting of 1..4 uses a time offset from the main
+hostmot2 write according to the dpll's timer-us setting.
+
+Typically, timer-us should be a negative number with a magnitude larger than
+the largest latency (e.g., -100 for a system with mediocre latency, -50 for a
+system with good latency).
+
+If no DPLL module is present in the FPGA firmware, or if the encoder module
+does not support DPLL, then this pin is not created.
+
+When available, this feature should typically be enabled.  Doing so generally
+reduces following errors.
+
 .SH Synchronous Serial Interface (SSI)
 (Not to be confused with the Smart Serial Interface)
 
