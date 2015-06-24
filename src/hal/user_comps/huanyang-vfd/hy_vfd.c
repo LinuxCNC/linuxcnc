@@ -772,7 +772,18 @@ int main(int argc, char **argv)
 	}
 	
 	// read the VFD setup parameters
-	retval = read_setup(&mb_param, &mb_data, haldata);
+        do {
+            retval = read_setup(&mb_param, &mb_data, haldata);
+            if (retval != 0) {
+                fprintf(stderr, "error reading setup from VFD, retrying\n");
+                usleep(100 * 1000);
+            }
+            if (done) {
+                // killed by signal
+                exit(0);
+            }
+        } while (retval != 0);
+
 	// here's the meat of the program.  loop until done (which may be never)
 	while (done==0) {
 		
