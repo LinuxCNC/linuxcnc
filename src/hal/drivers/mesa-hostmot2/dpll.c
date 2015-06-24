@@ -139,7 +139,7 @@ void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period){
 
 void hm2_dpll_write(hostmot2_t *hm2, long period) {
     hm2_dpll_pins_t *pins;
-    double period_us = period / 1000;
+    double period_us = period / 1000.;
     rtapi_u32 buff;
     static int init_counter = 0;
     
