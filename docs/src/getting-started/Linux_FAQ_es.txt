@@ -24,12 +24,12 @@ de encender el equipo valla a 'System > Preferences > Sessions > Startup Applica
 seleccione la opcion agregar nuevo.
 Valla a su carpeta de configuración y
 seleccione el archivo .ini. Cuando el cuadro de dialogo selector de
-archivos se cierra, añadir emc y un espacio al frente de la ruta a su archivo .ini.
+archivos se cierra, añadir linuxcnc y un espacio al frente de la ruta a su archivo .ini.
 
 Ejemplo:
 
 ----
-emc /home/mill/emc2/config/mill/mill.ini
+linuxcnc /home/mill/linuxcnc/config/mill/mill.ini
 ----
 
 == Páginas de manual [[sec:Man-Pages]]
@@ -144,10 +144,10 @@ Para subir dos niveles en la terminal tecle:
 cd ../..
 ----
 
-Para desplazarse hacia abajo hacia el subdirectorio emc2/configs en la terminal tecle:
+Para desplazarse hacia abajo hacia el subdirectorio linuxcnc/configs en la terminal tecle:
 
 ----
-cd emc2/configs
+cd linuxcnc/configs
 ----
 
 === Listado e los archivos en un directorio
@@ -177,7 +177,7 @@ La sintaxis básica es la siguiente:
 find directorio-inicio parametros acciones
 ----
 
-Por ejemplo para encontrar todos los archivos .ini en el directorio de EMC2
+Por ejemplo para encontrar todos los archivos .ini en el directorio de linuxcnc
 primero tiene que usar el comando pwd para ver el directorio. + abra una ventana
 terminal y escriba.
 
@@ -194,7 +194,7 @@ y pwd podría devolver el siguiente resultado:
 Con esta información se pondrá el comando conjunto de esta manera:
 
 ----
-find /home/joe/emc2 -name \*.ini -print
+find /home/joe/linuxcnc -name \*.ini -print
 ----
 
 El -name es el nombre del archivo que se busca y -print muestra

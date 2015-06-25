@@ -298,7 +298,8 @@ EMBED_TAB_LOCATION = name_of_location - where the embeded page is located
 The EMBED_TAB_LOCATION specifier is not used for the axis gui.  While
 pyngcgui can be embedded in axis, integration is more complete when using
 ngcgui (using TKPKG = Ngcgui 1.0).  To specify the EMBED_TAB_LOCATION
-for other guis, see the example ini files.
+for other guis, see the <<sub:DISPLAY-section,DISPLAY Section>> of the INI
+Configuration Chapter.
 
 [NOTE]
   The truetype tracer gui front-end is not currently available for gladevcp
@@ -507,7 +508,7 @@ Note:    The entries: EMBED_TAB_NAME,EMBED_TAB_COMMAND,EMBED_TAB_LOCATION
 
 Item:    [DISPLAY]EMBED_TAB_COMMAND = programname followed by arguments
 Example: [DISPLAY]EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui
-Note:    For gladevcp applications, see the man page for gladevcp
+Note:    For gladevcp applications, see the <<cha:glade-vcp,GladeVCP Chapter>>
 
 Item:    [DISPLAY]EMBED_TAB_LOCATION = name_of_location
 Example: [DISPLAY]EMBED_TAB_LOCATION = notebook_main

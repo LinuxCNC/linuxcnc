@@ -1847,11 +1847,34 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
     while (next_thread != 0) {
       tptr = SHMPTR(next_thread);
       if (strncmp(pattern, tptr->name, len) == 0) {
+        char name[HAL_NAME_LEN+1];
+        hal_pin_t* pin;
+        hal_sig_t* sig;
+        void* dptr;
+        unsigned int runtime_pin_value;
+
+        snprintf(name, sizeof(name), "%s.time",tptr->name);
+        pin = halpr_find_pin_by_name(name);
+        if (pin) {
+            if (pin->signal != 0) {
+                sig = SHMPTR(pin->signal);
+                dptr = SHMPTR(sig->data_ptr);
+            } else {
+                sig = 0;
+                dptr = &(pin->dummysig);
+            }
+            runtime_pin_value = (int)*(int*)dptr;
+        } else {
+            runtime_pin_value = 0;
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                 "unexpected: cannot find time pin for %s thread",tptr->name);
+        }
+
         sprintf(context->outBuf, "THREAD %s %11d %s %d %d",
 	  tptr->name, 
 	  (unsigned int)tptr->period, 
 	  (tptr->uses_fp ? "YES" : "NO "),  
-	  (unsigned int)tptr->runtime, 
+	  runtime_pin_value,
 	  (unsigned int)tptr->maxtime);
 	sockWrite(context);
         list_root = &(tptr->funct_list);
@@ -3373,7 +3396,7 @@ void *readClient(void *arg)
     if (!memchr(str, 0x0d, strlen(str))) continue;
     if ((context->echo == 1) && (context->linked == 1)) {
       ret = write(context->cliSock, &buf, strlen(buf));
-      if (ret != 0) {
+      if (ret < 0) {
         goto finished;
       }
     }

@@ -122,7 +122,7 @@ If the HAL component hal_manualtoolchange is loaded,
 M6 will stop the spindle and prompt the user to change the tool
 based on the last 'T-' number programmed.
 For more information on hal_manualtoolchange see
-the (<<sec:Manual-Tool-Change,Manual Tool Change>>) Section.
+the <<sec:Manual-Tool-Change,Manual Tool Change>> section.
 
 === Tool Changer
 
@@ -138,7 +138,7 @@ When the tool change is complete:
    the tool that was in the spindle (if there was one) will be placed
    back into the tool changer magazine.
 * If configured in the .ini file some axis positions may move when a M6
-   is issued. See the EMCIO section of the Integrator's Manual for more
+   is issued. See the <<sub:EMCIO-Section,EMCIO section>> for more
    information on tool change options.
 * No other changes will be made. For example, coolant will continue to
    flow during the tool change unless it has been turned off by an 'M9'.
@@ -315,8 +315,8 @@ It is an error if:
 
 The P-word ranges from 0 to a default value of 3. If needed the the
 number of I/O can be increased by using the num_dio parameter when loading
-the motion controller. See the Integrator's Manual Configuration Section LinuxCNC and
-HAL section for more information.
+the motion controller. See the <<sec:motion,Motion Section>> for more
+finformation.
 
 The M62 & M63 commands will be queued. Subsequent commands referring
 to the same output number will overwrite the older settings. More than
@@ -373,8 +373,8 @@ inputs are not monitored in real time and thus should not be used for
 timing-critical applications.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
-when loading the motion controller. See the Integrator's Manual, Core 
-Components Section, Motion subsection, for more information.
+when loading the motion controller. See the <<sec:motion,Motion Section>>
+for more information.
 
 [NOTE]
 M66 will not function unless the appropriate motion.digital-in-nn pins or
@@ -403,8 +403,8 @@ program a motion G code (G0, G1, etc) right after the M67. M67 functions
 the same as M62-63.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
-when loading the motion controller. See the Integrator's Manual, Core 
-Components Section, Motion subsection, for more information. 
+when loading the motion controller. See the <<sec:motion,Motion Section>> for
+more information. 
 
 [NOTE]
 M67 will not function unless the appropriate motion.analog-out-nn pins are
@@ -426,8 +426,8 @@ controller. They are not synchronized with movement, and they will
 break blending. M68 functions the same as M64-65.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
-when loading the motion controller. See the Integrator's Manual, Core 
-Components Section, Motion subsection, for more information.
+when loading the motion controller. See the <<sec:motion,Motion Section>> for
+more information.
 
 [NOTE]
 M68 will not function unless the appropriate motion.analog-out-nn pins are
@@ -653,8 +653,8 @@ The external program named 'M100' through 'M199' (no extension and a capitol M)
 is executed with the optional P and Q values as its two arguments.
 Execution of the G code file pauses until the external program exits.
 Any valid executable file can be used. The file must be located in the search
-path specificed in the ini file configuration. See the ini config section of
-the Integrators Manual for more information on search paths.
+path specificed in the ini file configuration. See the 
+<<sub:DISPLAY-section,Display Section>> for more information on search paths.
 
 [WARNING]
 Do not use a word processor to create or edit the files. A word processor

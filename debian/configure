@@ -69,6 +69,7 @@ KERNEL_VERSION=$1
 DRIVERS=drivers.files.in
 PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
 PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
+LIBREADLINE_DEV=libreadline-gplv2-dev
 
 # hope this works on other systems too
 DISTRIB_NAME=
@@ -86,52 +87,47 @@ else
 fi
 
 case $DISTRIB_NAME in
-Ubuntu-14.04) # Trusty Tahr
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
+Ubuntu-14.04|LinuxMint-17.*) # Trusty Tahr (LTS)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools
 	TCLTK_VERSION=8.6
 	;;
-Ubuntu-12.10) # Quantal Quetzal
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-12.04) # Precise Pangolin LTS
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-11.04) # natty
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
+Ubuntu-11.04|Ubuntu-12.04|Ubuntu-12.10) # Natty Narwhal, Precise Pangolin (LTS), Quantal Quetzal
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-10.04)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
+        LIBREADLINE_DEV=libreadline5-dev
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-9.10)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,module-init-tools
+        LIBREADLINE_DEV=libreadline5-dev
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-8.04)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,module-init-tools
+        LIBREADLINE_DEV=libreadline5-dev
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.4
 	;;
 Debian-testing)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,kmod
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.6
         ;;
 Debian-8.*)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,kmod
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.6
         ;;
 Debian-7.*)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,kmod
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Debian-6.0*)
-	EXTRA_BUILD=dvipng,module-init-tools
+	EXTRA_BUILD=dvipng,module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.5
 	;;
 Debian-5.0*)
-	EXTRA_BUILD=dvipng,module-init-tools
+	EXTRA_BUILD=dvipng,module-init-tools,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.4
 	;;
 *)
@@ -186,6 +182,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
     -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
     -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
+    -e "s|@LIBREADLINE_DEV@|$LIBREADLINE_DEV|g" \
     -e "s|@EXTRA_RECOMMENDS@|$EXTRA_RECOMMENDS|g" \
     -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
     -e "s|@OTHER_MAIN_PACKAGE_NAME@|$OTHER_MAIN_PACKAGE_NAME|g" \

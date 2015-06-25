@@ -1,0 +1,275 @@
+:lversion: {sys: cat ../VERSION}
+LinuxCNC V{lversion}, {localdate}
+=================================
+:lang: en
+
+Contents
+========
+
+:masterdir: {indir}
+
+image::common/images/emc2-intro.*[]
+
+The LinuxCNC Team
+
+include::common/overleaf.txt[]
+
+= Using LinuxCNC
+
+:leveloffset: 1
+
+= General Info
+
+:leveloffset: 2
+
+include::common/userforeword.txt[]
+
+include::common/user_intro.txt[]
+
+include::common/User_Concepts.txt[]
+
+include::gcode/machining_center.txt[]
+
+include::getting-started/Running-LinuxCNC.txt[]
+
+include::getting-started/stepper_quickstart.txt[]
+
+include::getting-started/stepconf.txt[]
+
+include::getting-started/pncconf.txt[]
+
+include::getting-started/Linux_FAQ.txt[]
+
+include::lathe/lathe-user.txt[]
+
+:leveloffset: 1
+
+= User Interfaces
+
+:leveloffset: 2
+
+include::gui/axis.txt[]
+
+include::gui/gmoccapy.txt[]
+
+include::gui/ngcgui.txt[]
+
+include::gui/touchy.txt[]
+
+include::gui/tklinuxcnc.txt[]
+
+include::gui/mini.txt[]
+
+include::gui/keystick.txt[]
+
+:leveloffset: 1
+
+= Programming
+
+:leveloffset: 2
+
+include::gcode/coordinates.txt[]
+
+include::gcode/overview.txt[]
+
+include::gcode/gcode.txt[]
+
+include::gcode/m-code.txt[]
+
+include::gcode/o-code.txt[]
+
+include::gcode/other-code.txt[]
+
+include::examples/gcode.txt[]
+
+include::gcode/rs274ngc.txt[]
+
+include::gui/image-to-gcode.txt[]
+
+:leveloffset: 1
+
+= Tool Compensation
+
+:leveloffset: 2
+
+include::gcode/tool_compensation.txt[]
+
+include::gui/tooledit.txt[]
+
+:leveloffset: 0
+
+= Configuration
+
+:leveloffset: 1
+
+= General Info
+
+:leveloffset: 2
+
+include::common/Integrator_Concepts.txt[]
+
+include::install/Latency_Test.txt[]
+
+include::common/starting-emc.txt[]
+
+include::motion/tweaking_steppers.txt[]
+
+include::common/Stepper_Diagnostics.txt[]
+
+:leveloffset: 1
+
+= Configuration
+
+:leveloffset: 2
+
+include::config/ini_config.txt[]
+
+include::config/ini_homing.txt[]
+
+include::config/lathe_config.txt[]
+
+include::hal/haltcl.txt[]
+
+include::remap/structure.txt[]
+
+include::config/moveoff.txt[]
+
+include::config/stepper.txt[]
+
+:leveloffset: 1
+
+= Control Panels
+
+:leveloffset: 2
+
+include::gui/pyvcp.txt[]
+
+include::gui/pyvcp_examples.txt[]
+
+include::gui/gladevcp.txt[]
+
+include::gui/gscreen.txt[]
+
+:leveloffset: 1
+
+= User Interfaces
+
+:leveloffset: 2
+
+include::gui/halui.txt[]
+
+include::hal/halui_examples.txt[]
+
+include::common/python-interface.txt[]
+
+:leveloffset: 1
+
+= Drivers
+
+:leveloffset: 2
+
+include::hal/parallel_port.txt[]
+
+include::drivers/AX5214H.txt[]
+
+include::drivers/GS2.txt[]
+
+include::drivers/hostmot2.txt[]
+
+include::drivers/motenc.txt[]
+
+include::drivers/opto22.txt[]
+
+include::drivers/pico_ppmc.txt[]
+
+include::drivers/pluto_p.txt[]
+
+include::drivers/servo_to_go.txt[]
+
+include::drivers/shuttlexpress.txt[]
+
+include::drivers/GM.txt[]
+
+include::drivers/VFS11.txt[]
+
+:leveloffset: 1
+
+= Driver Examples
+
+:leveloffset: 2
+
+include::examples/pci_parallel_port.txt[]
+
+include::examples/spindle.txt[]
+
+include::examples/mpg.txt[]
+
+include::examples/gs2_example.txt[]
+
+:leveloffset: 1
+
+= PLC
+
+:leveloffset: 2
+
+include::ladder/ladder_intro.txt[]
+
+include::ladder/classic_ladder.txt[]
+
+include::ladder/ladder_examples.txt[]
+
+:leveloffset: 1
+
+= HAL
+
+:leveloffset: 2
+
+include::hal/intro.txt[]
+
+include::hal/basic_hal.txt[]
+
+include::hal/tutorial.txt[]
+
+include::hal/general_ref.txt[]
+
+include::config/emc2hal.txt[]
+
+include::hal/canonical-devices.txt[]
+
+include::hal/tools.txt[]
+
+include::hal/halshow.txt[]
+
+include::hal/components.txt[]
+
+include::hal/rtcomps.txt[]
+
+include::hal/hal-examples.txt[]
+
+include::hal/comp.txt[]
+
+include::hal/halmodule.txt[]
+
+
+:leveloffset: 1
+
+= Advanced Topics
+
+:leveloffset: 2
+
+include::motion/kinematics.txt[]
+
+include::motion/pid_theory.txt[]
+
+:leveloffset: 1
+
+:leveloffset: 0
+
+include::common/Glossary.txt[]
+
+include::common/GPLD_Copyright.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+

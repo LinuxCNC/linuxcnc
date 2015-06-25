@@ -5,12 +5,11 @@ Maintainer: Sebastian Kuzminsky <seb@highlab.com>
 Build-Depends: debhelper (>= 6),
     @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@,
     tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev,
-    libxaw7-dev, libncurses-dev, libreadline-dev,
+    libxaw7-dev, libncurses-dev, @LIBREADLINE_DEV@,
     asciidoc (>= 8.5), source-highlight, dblatex (>= 0.2.12), xsltproc, groff,
     python, python-dev, python-support, python-tk, python-lxml,
     libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
-    libgtk2.0-dev, libgnomeprintui2.2-dev,
-    gettext, autoconf, libboost-python-dev,
+    libgtk2.0-dev, gettext, autoconf, libboost-python-dev,
     texlive-lang-cyrillic, texlive-lang-french,
     texlive-lang-spanish, texlive-lang-german, netcat,
     libmodbus-dev (>= 3.0), libusb-1.0-0-dev, procps, psmisc,
@@ -52,7 +51,8 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     python-vte,
     python-gst0.10,
     python-xlib, python-gtkglext1, python-configobj,
-    tclreadline, procps, psmisc, module-init-tools | kmod, tclx
+    tclreadline, procps, psmisc, module-init-tools | kmod, tclx,
+    mesa-utils, blt
 Description: PC based motion controller for real-time Linux
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic

@@ -179,7 +179,7 @@ proc makeIniTune {} {
         $haltext config -state normal
         $haltext delete 1.0 end
         if {[catch {open $fname} programin]} {
-            return
+            continue
         } else {
             $haltext insert end [read $programin]
             catch {close $programin}

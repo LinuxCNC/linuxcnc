@@ -39,6 +39,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.buf.connect('changed', self.update_iter)
         self.set_buffer(self.buf)
         self.lm = gtksourceview.LanguageManager()
+        self.sm = gtksourceview.StyleSchemeManager()
         if 'EMC2_HOME' in os.environ:
             path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-2.0/language-specs/')
             self.lm.set_search_path(self.lm.get_search_path() + [path])
@@ -64,9 +65,16 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         # if none, set to default
         # lang = the lang file to set
         if path == None:
-            path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-2.0/language-specs/')
-        self.lm.set_search_path(path)
+            if 'EMC2_HOME' in os.environ:
+                path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-2.0/language-specs/')
+        if path:
+            self.lm.set_search_path(path)
         self.buf.set_language(self.lm.get_language(lang))
+        
+    def set_style_scheme(self, style, path = None):
+        if path:
+            self.sm.set_search_path(path)
+        self.buf.set_style_scheme(self.sm.get_scheme(style))
 
     def get_filename(self):
         return self.filename

@@ -301,7 +301,7 @@ In order to use test this axis you have to manually enable the axis if this
 is required. If your driver has a charge pump you will have to bypass it.
 Test this axis does not react to limit switch inputs. Use with caution.
 
-==== Finding Maximum Velocity[[finding-maximum-velocity]](((Finding Maximum Velocity)))
+.Finding Maximum Velocity[[finding-maximum-velocity]](((Finding Maximum Velocity)))
 
 Begin with a low Acceleration
 // comment out latexmath until a fix is found for the html docs
@@ -345,7 +345,7 @@ Once you have found a speed at which the axis does not stall or lose steps
 during this testing procedure, reduce it by 10% and use that as the axis
 'Maximum Velocity'.
 
-==== Finding Maximum Acceleration[[finding-maximum-acceleration]](((Finding Maximum Acceleration)))
+.Finding Maximum Acceleration[[finding-maximum-acceleration]](((Finding Maximum Acceleration)))
 
 With the Maximum Velocity you found in the previous step,
 enter the acceleration value to test.
@@ -455,14 +455,14 @@ then find the PWM values that give 1600 RPM (40%) and 2800 RPM (70%).
 image::images/stepconf-advanced.png[align="center"]
 
 * 'Include Halui' - This will add the Halui user interface component. See the
-Integrator Manual for more information on Halui.
+<<cha:hal-user-interface,HALUI Chapter>> for more information on.
 
 * 'Include pyVCP' - This option adds the pyVCP panel base file or a sample file
-to work on. See the Integrator Manual for more information on pyVCP.
+to work on. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 
 * 'Include ClassicLadder PLC' - This option will add the ClassicLadder PLC
-(Programmable Logic Controller). See the Integrator Manual for more information
-on ClassicLadder.
+(Programmable Logic Controller). See the
+<<cha:classicladder,Classicladder Chapter>> for more information.
 
 * 'Onscreen Prompt For Tool Change' - If this box is checked, LinuxCNC will
 pause and prompt you to change the tool when 'M6' is encountered. This feature

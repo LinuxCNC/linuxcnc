@@ -773,11 +773,16 @@ int main(int argc, char *argv[])
     /* set status values to 'normal' */
     emcioStatus.aux.estop = 1; //estop=1 means to emc that ESTOP condition is met
     emcioStatus.tool.pocketPrepped = -1;
-    emcioStatus.tool.toolInSpindle = 0;
+    if (random_toolchanger) {
+        emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolTable[0].toolno;
+    } else {
+        emcioStatus.tool.toolInSpindle = 0;
+    }
     emcioStatus.coolant.mist = 0;
     emcioStatus.coolant.flood = 0;
     emcioStatus.lube.on = 0;
     emcioStatus.lube.level = 1;
+    *(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle;
 
     while (!done) {
 	// check for inputs from HAL (updates emcioStatus)

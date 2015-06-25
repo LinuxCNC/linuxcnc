@@ -62,13 +62,13 @@ The AXIS window contains the following elements:
 * 'Feed Override' - which allows you to scale
  the speed of programmed motions. The default maximum is 120% 
  and can be set to a different
- value in the ini file. See the Integrator Manual for more information
- on this setting.
+ value in the ini file. See the <<sub:DISPLAY-section,Display Section>> of the
+ INI file for more information.
 * 'Spindle Override' - which allows you to
  scale the spindle speed up or down.
 * 'Jog Speed' - which allows you to set the jog speed
- within the limits set in the ini file. See the Integrator Manual for
- more information on the ini file.
+ within the limits set in the ini file. See the 
+ <<sub:DISPLAY-section,Display Section>> of the INI file for more information.
 * 'Max Velocity' - which allows you to restrict the maximum velocity of all
  programmed motions (except spindle synchronized motion).
 * A text display area that shows the loaded G-Code.
@@ -83,19 +83,20 @@ The AXIS window contains the following elements:
 
 Some menu items might be grayed out depending on how you have your
 .ini file configured. For more information on configuration see the
-Integrator Manual.
+<<cha:ini-configuration,INI Chapter>>.
 
 .File Menu
 
 * 'Open...' - Opens a standard dialog box to open a g code file to load in AXIS. If
     you have configured LinuxCNC to use a filter program you can also open it
-    up. See the Integrator manual for more information on filter programs.
+    up. See the <<sub:FILTER-Section,FILTER Section>> of the INI configuration
+    for more information.
 
 * 'Recent Files' - Displays a list of recently opened files.
 
-* 'Edit...' - Open the current g code file for editing if you have an editor
-    configured in your ini file. See the Integrator Manual for more
-    information on specifying an editor to use.
+* 'Edit...' - Open the current G code file for editing if you have an editor
+    configured in your ini file. See the <<sub:DISPLAY-section,DISPLAY Section>>
+    for more information on specifying an editor to use.
 
 * 'Reload' - Reload the current g code file. If you edited it you must reload it
     for the changes to take affect. If you stop a file and want to start
@@ -114,7 +115,8 @@ Integrator Manual.
 * 'Reload tool table' - After editing the tool table you must reload it.
 
 * 'Ladder editor' - If you have loaded Classic Ladder you can edit it from
-   here. See the Integrator Manual on setting up Classic Ladder
+   here. See the <<cha:classicladder,Classicladder Chapter>>
+   for more information.
 
 * 'Quit' - 
     Terminates the current LinuxCNC session.
@@ -526,8 +528,8 @@ the machine will move exactly the displayed distance
 each time the button is clicked or the key is pressed. 
 By default, the available values are '0.1000, 0.0100, 0.0010, 0.0001'
 
-See the Configure section of the Integrator Manual for 
-more information on setting the increments.
+See the <<sub:DISPLAY-section,DISPLAY Section>> for more information on setting
+the increments.
 
 .Homing
 
@@ -547,7 +549,8 @@ configuration the 'Home' button will set the current selected axis
 current position to be the absolute position 0 for that axis and will
 set the 'is-homed' bit for that axis.
 
-See the Integrator Manual for more information on homing.
+See the <<cha:homing-configuration,Homing Configuration Chapter>> for more
+information.
 
 .Touch Off
 
@@ -821,8 +824,8 @@ image:images/axis-lathe-tool.png[align="center"]
 == Advanced Configuration
 
 For more information on ini file settings that can change how AXIS
-works see the INI File/Sections/[DISPLAY] Section of Configuration
-chapter in the Integrator manual.
+works see the <<sub:DISPLAY-section,Display Section>> of the INI 
+Configuration Chapter.
 
 === Program Filters
 
@@ -938,15 +941,16 @@ help2.append(("Control-Q", "Quit"))
 The menu options File > Edit... and File > Edit Tool Table... become
 available after defining the editor in the ini section [DISPLAY].
 Useful values include EDITOR=gedit and EDITOR=gnome-terminal -e vim.
-For more information, see the DISPLAY section of the INI Configuration
-Chapter in the Integrator Manual.
+For more information, see the <<sub:DISPLAY-section,Display Section>>
+of the INI Configuration Chapter.
 
 === Virtual Control Panel
 (((Virtual Control Panel)))
 
 AXIS can display a custom virtual control panel in the right-hand
 pane. You can program buttons, indicators, data displays and more. For
-more information, see the Integrator Manual.
+more information, see the <<cha:pyvcp,PyVCP Chapter>> and the 
+<<cha:glade-vcp,GladeVCP Chapter>>.
 
 === Axis Preview Control
 [[sub:axis-preview-control]](((Axis Preview Control)))

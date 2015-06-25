@@ -363,6 +363,48 @@ example '##2'  means the value of the parameter whose index is the
    Reflects the value of the `toolchanger-reason` HAL pin if a fault occured. 
    Volatile.
 
+== Numbered Parameters persistence
+[[var_file_format]]
+
+The values of parameters in the persistent range are retained over
+time, even if the machining center is powered down.  LinuxCNC uses a
+parameter file to ensure persistence. It is managed by the
+Interpreter. The Interpreter reads the file when it starts up, and
+writes the file when it exits.
+
+The format of a parameter file is shown in Table
+<<sec:format-parameter-file,Parameter File Format>>. 
+
+The Interpreter expects the file to have two columns. It skips any
+lines which do not contain exactly two numeric values. The first
+column is expected to contain an integer value (the parameter's
+number). The second column contains a floating point number (this
+parameter's last value). The value is represented as a
+double-precision floating point number inside the Interpreter, but a
+decimal point is not required in the file.
+
+Parameters in the user-defined range (31-5000) may be added to this
+file. Such parameters will be read by the Interpreter and written to
+the file as it exits.
+
+Missing Parameters in the persistent range will be initialized to zero
+and written with their current values on the next save operation.
+
+The parameter numbers must be arranged in ascending order. An
+`Parameter file out of order` error  will be signaled if they are  not in
+ascending order. 
+
+The original file is saved as a backup file when the new file
+is written. 
+
+.Parameter File Format[[sec:format-parameter-file]]
+
+[width="90%", options="header"]
+|========================================
+|Parameter Number | Parameter Value 
+|5161 | 0.0 
+|5162 | 0.0 
+|========================================
 
 [[sub:subroutine-parameters]]
 === Subroutine Parameters
@@ -1230,49 +1272,6 @@ material removal rate.
 * 'File ended with no percent sign or program end' - Every G code file must
    end in a M2 or M30 or be wrapped with the percent sign %.
 
-[appendix]
-= Numbered Parameters persistence
-[[var_file_format]]
-
-The values of parameters in the persistent range are retained over
-time, even if the machining center is powered down.  LinuxCNC uses a
-parameter file to ensure persistence. It is managed by the
-Interpreter. The Interpreter reads the file when it starts up, and
-writes the file when it exits.
-
-The format of a parameter file is shown in Table
-<<sec:format-parameter-file,Parameter File Format>>. 
-
-The Interpreter expects the file to have two columns. It skips any
-lines which do not contain exactly two numeric values. The first
-column is expected to contain an integer value (the parameter's
-number). The second column contains a floating point number (this
-parameter's last value). The value is represented as a
-double-precision floating point number inside the Interpreter, but a
-decimal point is not required in the file.
-
-Parameters in the user-defined range (31-5000) may be added to this
-file. Such parameters will be read by the Interpreter and written to
-the file as it exits.
-
-Missing Parameters in the persistent range will be initialized to zero
-and written with their current values on the next save operation.
-
-The parameter numbers must be arranged in ascending order. An
-`Parameter file out of order` error  will be signaled if they are  not in
-ascending order. 
-
-The original file is saved as a backup file when the new file
-is written. 
-
-.Parameter File Format[[sec:format-parameter-file]]
-
-[width="90%", options="header"]
-|========================================
-|Parameter Number | Parameter Value 
-|5161 | 0.0 
-|5162 | 0.0 
-|========================================
 
 
 

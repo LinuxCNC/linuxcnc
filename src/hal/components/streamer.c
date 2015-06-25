@@ -53,6 +53,18 @@
     information, go to www.linuxcnc.org.
 */
 
+
+/* Notes:
+ * streamer.N.cur-depth, streamer.N.empty and streamer.N.underruns are
+ * updated even if streamer.N.enabled is set to false.
+ *
+ * clock and clock_mode pins are provided to enable clocking.
+ * The clock input pin actions are controlled by the clock_mode pin value:
+ *   0: freerun at every loop (default)
+ *   1: clock by falling edge
+ *   2: clock by rising edge
+ *   3: clock by any edge
+ */
 #include "rtapi.h"              /* RTAPI realtime OS API */
 #include "rtapi_app.h"          /* RTAPI realtime module decls */
 #include "hal.h"                /* HAL public API decls */
@@ -81,6 +93,9 @@ typedef struct {
     hal_bit_t *empty;		/* pin: underrun flag */
     hal_bit_t *enable;		/* pin: enable streaming */
     hal_s32_t *underruns;	/* pin: number of underruns */
+    hal_bit_t *clock;		/* pin: clock input */
+    hal_s32_t *clock_mode;	/* pin: clock mode */
+    int myclockedge;	        /* clock edge detector */
 } streamer_t;
 
 /* other globals */
@@ -180,14 +195,42 @@ static void update(void *arg, long period)
     fifo_t *fifo;
     pin_data_t *pptr;
     shmem_data_t *dptr;
-    int tmpin, tmpout, n;
+    int tmpin, tmpout, n, doclk;
 
     /* point at streamer struct in HAL shmem */
     str = arg;
-    /* are we enabled? */
-    if ( ! *(str->enable) ) {
-	/* no, done */
-	return;
+    /* keep last two clock states to get all possible clock edges */
+    int myclockedge =
+        str->myclockedge=((str->myclockedge<<1) | (*(str->clock) & 1)) & 3;
+    /* are we enabled? - generate doclock if enabled and right mode  */
+    doclk=0;
+    if ( *(str->enable) ) {
+       doclk=1;
+       switch (*str->clock_mode) {
+             /* clock-mode 0 means do clock if enabled */
+             case 0:
+                   break;
+             /* clock-mode 1 means enabled & falling edge */
+             case 1:
+                   if ( myclockedge!=2) {
+                         doclk=0;
+                   }
+                   break;
+             /* clock-mode 2 means enabled & rising edge */
+             case 2:
+                   if ( myclockedge!=1) {
+                         doclk=0;
+                   }
+                   break;
+             /* clock-mode 3 means enabled & both edges */
+             case 3:
+                   if ((myclockedge==0) | ( myclockedge==3)) {
+                         doclk=0;
+                   }
+                   break;
+             default:
+                   break;
+       }
     }
     /* HAL pins are right after the streamer_t struct in HAL shmem */
     pptr = (pin_data_t *)(str+1);
@@ -200,9 +243,12 @@ static void update(void *arg, long period)
     tmpout = fifo->out;
     if ( tmpout == tmpin ) {
         /* fifo empty - log it */
-	(*str->underruns)++;
 	*(str->empty) = 1;
 	*(str->curr_depth) = 0;
+	/* increase underrun only for valid clock*/
+	if (doclk==1){
+	(*str->underruns)++;
+	}
 	/* done - output pins retain current values */
 	return;
     }
@@ -213,6 +259,10 @@ static void update(void *arg, long period)
 	tmpin += fifo->depth;
     }
     *(str->curr_depth) = tmpin - tmpout;
+    /* don't preceed if there are no valid clock*/
+    if (doclk==0){
+       return;
+    }
     /* make ptr to first data item of the current fifo record */
     dptr += tmpout * fifo->num_pins;
     /* copy data from fifo to HAL pins */
@@ -343,11 +393,29 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 	    "STREAMER: ERROR: 'underruns' pin export failed\n");
 	return -EIO;
     }
+
+    retval = hal_pin_bit_newf(HAL_IN, &(str->clock), comp_id,
+	"streamer.%d.clock", num);
+    if (retval != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "STREAMER: ERROR: 'clock' pin export failed\n");
+	return -EIO;
+    }
+
+    retval = hal_pin_s32_newf(HAL_IN, &(str->clock_mode), comp_id,
+	"streamer.%d.clock-mode", num);
+    if (retval != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "STREAMER: ERROR: 'clock_mode' pin export failed\n");
+	return -EIO;
+    }
+
     /* init the standard pins and params */
     *(str->empty) = 1;
     *(str->enable) = 1;
     *(str->curr_depth) = 0;
     *(str->underruns) = 0;
+    *(str->clock_mode) = 0;
     /* HAL pins are right after the streamer_t struct in HAL shmem */
     pptr = (pin_data_t *)(str+1);
     usefp = 0;

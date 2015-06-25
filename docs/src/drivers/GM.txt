@@ -184,7 +184,7 @@ Hal pins are updated by function:
 gm.<nr of card>.read
 ----
 
-==== Pins
+.Pins
 
 .Encoder pins[[table:encoder-pins]](((encoder-pins)))
 
@@ -205,10 +205,10 @@ gm.<nr of card>.read
 											pulses in order to calculate velocity. It greatly reduces 
 											quantization noise as compared to simply differentiating 
 											the position output. When the measured velocity is below 
-											min-velocity-estimate, the velocity output is 0.
+											min-speed-estimate, the velocity output is 0.
 |========================================
 
-==== Parameters
+.Parameters
 
 .Encoder parameters[[table:encoder-parameters]](((encoder-parameters)))
 
@@ -246,7 +246,7 @@ gm.<nr of card>.read
 											  encoder will produce a position of 0.5 units.
 |========================================
 
-==== HAL example
+.HAL example
 
 Setting encoder module of axis 0 to receive 500 CPR quadrature encoder signal and use reset to round position.
 
@@ -296,7 +296,7 @@ gm.<nr of card>.write
 
 <<<
 
-==== Pins
+.Pins
 
 .Stepgen module pins[[table:stepgen-pins]](((stepgen-pins)))
 
@@ -310,7 +310,7 @@ gm.<nr of card>.write
 | .velocity-cmd      | (float, In)        | Commanded velocity in position units per second. Used in velocity mode only.
 |========================================
 
-==== Parameters
+.Parameters
 
 .Stepgen module parameters[[table:stepgen-parameters]](((stepgen-parameters)))
 
@@ -343,7 +343,7 @@ For evaluating the appropriate values see the timing diagrams below:
 
 image::images/GM_RefSignals.png[align="center", scaledwidth="70%"]
 
-==== HAL example
+.HAL example
 
 Setting stepgen module of axis 0 to generate 1000 step pulse per position unit:
 
@@ -381,7 +381,7 @@ Hal pins are updated by function:
 gm.<nr of card>.read
 ----
 
-==== Pins
+.Pins
 
 .Enable and Fault signal pins[[table:enable-pins]](((enable-pins)))
 
@@ -423,7 +423,7 @@ gm.<nr of card>.write
 
 <<<
 
-==== Pins
+.Pins
 
 .Axis DAC pins[[table:dac-pins]](((dac-pins)))
 
@@ -435,7 +435,7 @@ gm.<nr of card>.write
 | .value  | (float, In)         | Value of DAC output in Volts.
 |========================================
 
-==== Parameters
+.Parameters
 
 .Axis DAC parameters[[table:dac-parameters]](((dac-parameters)))
 
@@ -736,7 +736,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 ,where <modul ID> is form 00 to 15.
 
-==== Pins
+.Pins
 
 .Relay output module pins[[table:rs485-relay-pins]](((rs485-relay-pins)))
 
@@ -746,7 +746,7 @@ gm.<nr. of card>.rs485.<modul ID>
 | .relay-<0-7>        | (bit, Out)         | Output pin for relay
 |========================================
 
-==== Parameters
+.Parameters
 
 .Relay output module parameters[[table:rs485-relay-parameters]](((rs485-relay-parameters)))
 
@@ -756,7 +756,7 @@ gm.<nr. of card>.rs485.<modul ID>
 | .invert-relay-<0-7> | (bit, R/W)         | Negate relay output pin
 |========================================
 
-==== HAL example
+.HAL example
 
 ----
 gm.0.rs485.0.relay-0 # First relay of the node.
@@ -785,7 +785,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 ,where <modul ID> is form 00 to 15.
 
-==== Pins
+.Pins
 
 .Digital input output module pins[[table:rs485-input-pins]](((rs485-input-pins)))
 
@@ -796,7 +796,7 @@ gm.<nr. of card>.rs485.<modul ID>
 | .in-not-<0-7>       | (bit, Out)         | Negated input pin
 |========================================
 
-==== HAL example
+.HAL example
 
 ----
 gm.0.rs485.0.in-0 # First input of the node.
@@ -825,7 +825,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 ,where <modul ID> is form 00 to 15.
 
-==== Pins
+.Pins
 
 .DAC & ADC module pins[[table:rs485-dacadc-pins]](((rs485-dacadc-pins)))
 
@@ -838,7 +838,7 @@ gm.<nr. of card>.rs485.<modul ID>
 | .dac-<0-3>          | (float, In)        | Value of DAC output in Volts.
 |========================================
 
-==== Parameters
+.Parameters
 
 .DAC & ADC module parameters[[table:rs485-dacadc-parameters]](((rs485-dacadc-parameters)))
 
@@ -854,7 +854,7 @@ gm.<nr. of card>.rs485.<modul ID>
 | .dac-low-limit-<0-3>  | (float, R/W)       | Minimum output voltage of the hardware in volts. 
 |========================================
 
-==== HAL example
+.HAL example
 
 ----
 gm.0.rs485.0.adc-0 # First analogue channel of the node.
@@ -883,7 +883,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 ,where <modul ID> is form 00 to 15. Note that on the Teach Pendant module it cannot be changed, and pre-programmed as zero. Upon request it can be delivered with firmware pre-programmed different ID.
 
-==== Pins
+.Pins
 
 .Teach Pendant module pins[[table:rs485-teachpendant-pins]](((rs485-teachpendant-pins)))
 
@@ -899,7 +899,7 @@ gm.<nr. of card>.rs485.<modul ID>
 | .in-not-<0-7>       | (bit, Out)         | Negated input pin
 |========================================
 
-==== Parameters
+.Parameters
 
 .Teach Pendant module parameters[[table:rs485-teachpendant-parameters]](((rs485-teachpendant-parameters)))
 
@@ -913,7 +913,7 @@ gm.<nr. of card>.rs485.<modul ID>
 | .enc-position-scale   | (float, R/W)       | Scale in per length unit.
 |========================================
 
-==== HAL example
+.HAL example
 
 ----
 gm.0.rs485.0.adc-0 # First analogue channel of the node.
@@ -929,7 +929,7 @@ gm.0.rs485.0.adc-0 # First analogue channel of the node.
 
 The revision number in this section refers to the revision of the GM6-PCI card device.
 
-==== Rev. 1.2
+.Rev. 1.2
 
 *  Error:
 The PCI card do not boot, when Axis 1. END B switch is active (low).

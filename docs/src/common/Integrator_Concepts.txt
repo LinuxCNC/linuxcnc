@@ -57,7 +57,7 @@ time from the end of the step pulse to the changing direction pin is
 5+16=21 us , and we don't have to worry about the drive stepping the
 wrong direction because of latency.
 
-For more information on stepgen see the stepgen section of the HAL manual. 
+For more information on stepgen see the <<sec:Stepgen,stepgen section>>. 
 
 === Step Timing
 

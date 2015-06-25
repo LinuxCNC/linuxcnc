@@ -20,8 +20,8 @@ ARC_BLEND_OPTIMIZATION_DEPTH = 50 +
 ARC_BLEND_GAP_CYCLES = 4 +
 ARC_BLEND_RAMP_FREQ = 100
 
-For more information on the Trajectory Panner ini options see the Integrators
-Manual.
+For more information on the Trajectory Panner ini options see the
+<<sub:TRAJ-section, Trajectory Section>> in the INI chapter.
 
 Trajectory planning, in general, is the means by which LinuxCNC follows the
 path specified by your G Code program, while still operating within the
@@ -99,8 +99,8 @@ The trajectory control commands are as follows:
     following compromise. The blend tolerance can be changed throughout the
     program as necessary. Beware that a specification of G64 P0 has the
     same effect as G64 alone (above), which is necessary for backward
-    compatibility for old G Code programs. See the G Code Chapter for more
-    information on G64 P- Q-.
+    compatibility for old G Code programs. See the <<sec:G64,G64 section>>
+    of the G code chapter.
 
 * 'Blending without tolerance' - The controlled point will touch each specified movement at at least
     one point. The machine will never move at such a speed that it cannot
@@ -243,9 +243,9 @@ found in the Integrator Manual.
 == Tool Changes
 
 There are several options when doing manual tool changes. See the
-[EMCIO] section of the Integrator Manual for information on
-configuration of these options. Also see the G28 and G30 section of the
-User Manual.
+<<sub:EMCIO-Section,[EMCIO] section>> for information on configuration
+of these options. Also see the <<sec:G28-G28_1,G28>> and <<sec:G30-G30_1,G30>>
+section of the G code chapter.
 
 == Coordinate Systems
 
@@ -314,3 +314,5 @@ of the tool and limit switches.
 
 .Lathe Configuration
 image::images/lathe-diagram.png[align="center"]
+
+// vim: set syntax=asciidoc:

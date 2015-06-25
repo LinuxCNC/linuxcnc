@@ -2,7 +2,7 @@
 
 [[cha:basic-hal-reference]] (((Basic HAL Reference)))
 
-== HAL Commands [[sec:Hal-Commands]]
+== HAL Commands [[sec:hal-commands]]
 
 More detailed information can be found in the man page for halcmd: run
 'man halcmd' in a terminal window.
@@ -209,7 +209,7 @@ The following commands are depreciated and may be removed from future
 versions. Any new configuration should use the <<sub:net,'net'>> command.
 These commands are included so older configurations will still work.
 
-==== linksp
+.linksp
 
 The command 'linksp' creates a 'connection' between a signal and one
 pin.
@@ -223,7 +223,7 @@ linksp X-step parport.0.pin-02-out
 
 The 'linksp' command has been superseded by the 'net' command.
 
-==== linkps
+.linkps
 
 The command 'linkps' creates a 'connection' between one pin and one
 signal. It is the same as linksp but the arguments are reversed.
@@ -238,7 +238,7 @@ linkps parport.0.pin-02-out X-Step
 
 The 'linkps' command has been superseded by the 'net' command.
 
-==== newsig
+.newsig
 
 the command 'newsig' creates a new HAL signal by the name <signame>
 and the data type of <type>. Type must be 'bit', 's32', 'u32' or
@@ -256,7 +256,7 @@ More information can be found in the HAL manual or the man pages for
 halrun.
 
 
-== HAL Data [[sec:Hal-Data]]
+== HAL Data [[sec:hal-data]]
 
 === Bit (((Bit)))
 

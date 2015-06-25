@@ -61,11 +61,12 @@ Configuration files include
 
 * 'VAR' (((VAR))) The var file is a way for the interpreter to save some
     values from one run to the next. These values are saved from one run to
-    another but not always saved immediately. See the Parameters section of
-    the G Code Manual for information on what each parameter is.
+    another but not always saved immediately. See the
+    <<sec:parameters,Parameters>> section for information on what each
+    parameter is.
 
-* 'TBL' (((TBL))) The tbl file saves tool information. See the User Manual
-    Tool File section for more info.
+* 'TBL' (((TBL))) The tbl file saves tool information. See the
+    <<sec:tool-table,Tool Table>> section for more info.
 
 * 'NML' (((NML))) The nml file configures the communication channels used by
     the LinuxCNC. It is normally setup to run all of the communication within a

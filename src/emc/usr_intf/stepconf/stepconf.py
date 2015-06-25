@@ -1240,8 +1240,7 @@ class StepconfApp:
         if debug:
             halrun.write("echo\n")
         axnum = "xyza".index(axis)
-        step = axis + "step"
-        dir = axis + "dir"
+
         halrun.write("""
             loadrt steptest
             loadrt stepgen step_type=0
@@ -1271,8 +1270,10 @@ class StepconfApp:
             halrun.write( "addf parport.0.write fast\n")
         if self.d.number_pports>2:
             halrun.write( "addf parport.0.write fast\n")
-        step_pin,dummy = self.find_output(step)
-        dir_pin,dummy = self.find_output(dir)
+        temp = self.find_output(axis +'step')
+        step_pin = temp[0][0]
+        temp = self.find_output(axis +'dir')
+        dir_pin = temp[0][0] 
         halrun.write("""
             addf stepgen.capture-position slow
             addf steptest.0 slow
@@ -1308,13 +1309,15 @@ class StepconfApp:
             """ % {
                 'resettime': self.d['steptime']
             })
-        amp,amp_port = self.find_output(SIG.AMP)
-        if amp:
+        amp_signals = self.find_output(SIG.AMP)
+        for pin in amp_signals:
+            amp,amp_port = pin
             halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 1\n"
                 % {'enablepin': amp,'portnum': amp_port})
 
-        estop,e_port = self.find_output(SIG.ESTOP)
-        if estop:
+        estop_signals = self.find_output(SIG.ESTOP)
+        for pin in estop_signals:
+            estop,e_port = pin
             halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 1\n"
                 % {'estoppin': estop,'portnum': e_port})
 
@@ -1322,7 +1325,17 @@ class StepconfApp:
             inv = getattr(self.d, "pin%dinv" % pin)
             if inv:
                 halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
-                    % {'pin': pin}) 
+                    % {'pin': pin})
+        if self.d.number_pports > 1:
+            if self.d.pp2_direction:# Input option
+                out_list =(1,14,16,17)
+            else:
+                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+            for pin in (out_list):
+                inv = getattr(self.d, "pp2_pin%dinv" % pin)
+                if inv:
+                    halrun.write("setp parport.1.pin-%(pin)02d-out-invert 1\n"
+                    % {'pin': pin})
         if debug:
             halrun.write("loadusr halmeter sig cmd -g 275 415\n")
 
@@ -1384,10 +1397,16 @@ class StepconfApp:
         result = self.w.dialog1.run()
         self.w.dialog1.hide()
         
-        if amp:
-            halrun.write("""setp parport.%d.pin-%02d-out 0\n""" % (amp_port,amp))
-        if estop:
-            halrun.write("""setp parport.%d.pin-%02d-out 0\n""" % (e_port,estop))
+        if amp_signals:
+            for pin in amp_signals:
+                amp,amp_port = pin
+                halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 0\n"
+                % {'enablepin': amp,'portnum': amp_port})
+        if estop_signals:
+            for pin in estop_signals:
+                estop,e_port = pin
+                halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 0\n"
+                % {'estoppin': estop,'portnum': e_port})
 
         time.sleep(.001)
         halrun.close()
@@ -1455,22 +1474,23 @@ class StepconfApp:
         return None
 
     def find_output(self, output):
+        found_list = []
         out_list = set((1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 16, 17))
         port = 0
         for i in out_list:
             pin = self.d["pin%d" % i]
             inv = self.d["pin%dinv" % i]
-            if pin == output: return i,port
+            if pin == output: found_list.append((i,port))
         if self.d.number_pports > 1:
             port = 1
             if self.d.pp2_direction:# Input option
                 out_list =(1,14,16,17)
             else:
                 out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
-            for pin in (out_list):
-                p = 'pp2_pin%d' % pin
-                if pin == output: return i,port
-        return None,None
+            for i in (out_list):
+                pin = self.d['pp2_pin%d' % i]
+                if pin == output: found_list.append((i,port))
+        return found_list
 
     def doublestep(self, steptime=None):
         if steptime is None: steptime = self.d.steptime

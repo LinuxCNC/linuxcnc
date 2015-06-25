@@ -129,7 +129,7 @@ SUBDIRS := \
     \
     po \
     \
-    ../docs/src \
+    ../docs/src ../docs/src/source-highlight \
 
 
 

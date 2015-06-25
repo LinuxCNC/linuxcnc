@@ -111,14 +111,14 @@ trivial kinematics), but help on machines with non-trivial kinematics
 like robots or stewart platforms. (you can read more about kinematics
 in the Integrator Manual).
 
-==== Backplot
+.Backplot
 
 When the machine moves, it leaves a trail called the backplot. You can
 start the backplot window by selecting View→Backplot.
 
 === Automatic control
 
-==== Buttons for control
+.Buttons for control
 
 The buttons in the lower part of TkLinuxCNC are used to control the execution of a
 program: 'Open' to load a program, 'Verify' to
@@ -132,7 +132,7 @@ be stopped on any M1 encountered).
 .TkLinuxCNC Interpreter / program control[[cap:TkLinuxCNC-Interpreter]]
 image::images/tkemc-interp.png[align="center"]
 
-==== Text Program Display Area
+.Text Program Display Area
 
 When the program is running, the line currently being executed is
 highlighted in white. The text display will automatically scroll to
@@ -140,7 +140,7 @@ show the current line.
 
 === Manual Control
 
-==== Implicit keys
+.Implicit keys
 
 TkLinuxCNC allows you to manually move the machine. This action is known as
 'jogging'. First, select the axis to be moved by clicking it. Then,
@@ -158,7 +158,7 @@ By pressing 'Home' or the HOME key, the selected axis will be homed.
 Depending on your configuration, this may just set the axis value to be
 the absolute position 0.0, or it may make the machine move to a
 specific home location through use of 'home switches'. See the
-Integrator Manual for more information on homing.
+<<cha:homing-configuration,Homing Chapter>> for more information.
 
 By pressing 'Override Limits', the machine will temporarily be
 permitted to jog outside the limits defined in the .ini file. (Note: if
@@ -169,7 +169,7 @@ color).
 
 image::images/tkemc-override-limits.png[align="center"]
 
-==== The Spindle group
+.The Spindle group
 
 The button on the first row selects the direction for the spindle to
 rotate: Counterclockwise, Stopped, Clockwise. The buttons next to it
@@ -178,7 +178,7 @@ on the second row allows the spindle brake to be engaged or released.
 Depending on your machine configuration, not all the items in this
 group may have an effect.
 
-==== The Coolant group
+.The Coolant group
 
 The two buttons allow the 'Mist' and 'Flood' coolants to be turned on
 and off. Depending on your machine configuration, not all the items in
@@ -194,12 +194,12 @@ on, and not set to MDI mode, the code entry controls are unavailable.
 
 image::images/tkemc-mdi.png[align="center"]
 
-==== MDI:
+.MDI:
 
 This allows you to enter a g-code command to be executed. Execute the
 command by pressing Enter.
 
-==== Active G-Codes
+.Active G-Codes
 
 This shows the 'modal codes' that are active in the interpreter. For
 instance, 'G54' indicates that the 'G54 offset' is applied to all

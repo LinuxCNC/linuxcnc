@@ -12,7 +12,6 @@ See the config modparam section below for Mesa card configuration. Typically
 hostmot2 is loaded with no parameters unless debugging is required.
 .HP
 .B loadrt hostmot2 [debug_idrom=\fIN\fB] [debug_module_descriptors=\fIN\fB] [debug_pin_descriptors=\fIN\fB] [debug_modules=\fIN\fB]
-.RS
 .TP
 \fBdebug_idrom\fR [default: 0]
 Developer/debug use only!  Enable debug logging of the HostMot2
@@ -29,9 +28,8 @@ Pin Descriptors.
 \fBdebug_modules\fR [default: 0]
 Developer/debug use only!  Enable debug logging of the HostMot2
 Modules used.
-.RE
-.SH DESCRIPTION
 
+.SH DESCRIPTION
 hostmot2 is a device driver that interfaces the Mesa HostMot2 firmware
 to the LinuxCNC HAL.  This driver by itself does nothing, the boards
 that actually run the firmware require their own drivers before anything
@@ -115,7 +113,7 @@ The valid entries in the format string are:
  [sserial_port_\fI0\fB=\fI00000000\fB]
  [num_leds=\fIN\fB]
  [enable_raw]
-.RS
+
 .TP
 \fBfirmware\fR [optional]
 Load the firmware specified by F into the FPGA on this board.  If no
@@ -222,7 +220,6 @@ pins for all the LEDs will be created. If N=0 then no pins will be added.
 If specified, this turns on a raw access mode, whereby a user can peek and
 poke the firmware from HAL.  See Raw Mode below.
 
-.RE
 .SH dpll
 The hm2dpll module has pins like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll\fR"
 It is likely that the pin-count will decrease in the future and that some pins
@@ -238,16 +235,18 @@ Pins:
 .TP
 (float, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.NN.timer-us
 This pin sets the triggering offset of the associated timer. There are 4 timers
-numbered 01 to 04, represented by the NN digits in the pin name. 
-The units are micro-seconds. Negative numbers indicate that the trigger should
-occur prior to the main hostmot2 write. It is anticipated that this value will
-be calculated from the known bit-count and data-rate of the functions to be
-triggered. Alternatively you can just keep making the number more negative
-until the over-run error bit in the encoder goes false. 
-The default value is set to 100uS, enough time for approximately 50 bits to be
-transmitted at 500kHz. For very critical systems it may be worth reducing this 
-until errors appear, and for very long bit-length or slow encoders it will need
-to be increased. 
+numbered 01 to 04, represented by the NN digits in the pin name.  The units are
+micro-seconds.  Generally the value will be negative, so that some action is
+undertaken by the fpga prior to the execution of the main hostmot2 read.
+
+For stepgen and quadrature encoders, the value needs to be more than the
+maximum variation between read times.  -100 will suffice for most systems, and
+-50 will work on systems with good performance and latency.
+
+For serial encoders, the value also needs to include the time it takes to
+transfer the absolute encoder position.  For instance, if 50 bits must be read
+at 500kHz then subtract an additional 50/500kHz = 100uS to get a starting value
+of -200.
 
 .TP
 (float, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.base-freq-khz
@@ -277,9 +276,10 @@ Prescale factor for the rate generator. Default 1.
 
 .SH encoder
 
-Encoders have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.encoder.\fI<Instance>\fR".
+Encoders have names like 
+""hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.encoder.\fI<Instance>\fR".".
 "Instance" is a two-digit number that corresponds to the HostMot2 encoder
-instance number.  There are 'num_encoders' instances, starting with 00.
+instance number.  There are "num_encoders" instances, starting with 00.
 
 So, for example, the HAL pin that has the current position of the second
 encoder of the first 5i20 board is: hm2_5i20.0.encoder.01.position (this
@@ -376,6 +376,23 @@ can wait several iterations for the next pulse to arrive, all the while
 reporting the upper bound of the encoder velocity, which can be accurately
 guessed.  This parameter specifies how long to wait for the next pulse,
 before reporting the encoder stopped.  This parameter is in seconds.
+
+.TP
+(s32 r/w) hm2_XiXX.N.encoder.MM.timer-num (default: -1)
+Sets the hm2dpll timer instance to be used to latch encoder counts.  A setting
+of -1 does not latch encoder counts.  A setting of 0 latches at the same time
+as the main hostmot2 write.  A setting of 1..4 uses a time offset from the main
+hostmot2 write according to the dpll's timer-us setting.
+
+Typically, timer-us should be a negative number with a magnitude larger than
+the largest latency (e.g., -100 for a system with mediocre latency, -50 for a
+system with good latency).
+
+If no DPLL module is present in the FPGA firmware, or if the encoder module
+does not support DPLL, then this pin is not created.
+
+When available, this feature should typically be enabled.  Doing so generally
+reduces following errors.
 
 .SH Synchronous Serial Interface (SSI)
 (Not to be confused with the Smart Serial Interface)
@@ -477,7 +494,7 @@ This parameter sets the SSI clock frequency. The units are kHz, so 500 will give
 a clock frequency of 500,000 Hz. 
 
 .TP 
-(u32 r/w) hm2_XiXX.N.ssi.MM.timer-num
+(s32 r/w) hm2_XiXX.N.ssi.MM.timer-num
 This parameter allocates the SSI module to a specific hm2dpll timer instance.
 This pin is only of use in firmwares which contain a hm2dpll function and will
 default to 1 in cases where there is such a function, and 0 if there is not. 
@@ -552,7 +569,8 @@ a Fanuc Aa64 encoder. The pins created are:
  hm2_XiXX.N.fanuc.MM.valid-not           Inverted version
 
 .SH resolver
-Resolvers have names like hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.resolver.\fI<Instance>\fR.
+Resolvers have names like 
+hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.resolver.\fI<Instance>\fR.
 <Instance is a 2-digit number, which for the 7i49 board will be between 00 and
 05. This function only works with the Mesa Resolver interface boards (of which
 the 7i49 is the only example at the time of writing). This board uses an SPI
@@ -643,7 +661,8 @@ retained.
 
 .SH pwmgen
 
-pwmgens have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.pwmgen.\fI<Instance>\fR".
+pwmgens have names like
+"hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.pwmgen.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 pwmgen
 instance number.  There are 'num_pwmgens' instances, starting with 00.
 
@@ -807,7 +826,8 @@ is 1kHz. Defaults to 20kHz.
 
 .SH stepgen
 
-stepgens have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.stepgen.\fI<Instance>\fR".
+stepgens have names like
+"hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.stepgen.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 stepgen
 instance number.  There are 'num_stepgens' instances, starting with 00.
 
@@ -933,6 +953,23 @@ table-data-0 = 0x00000001 would set stepgen pin 0 (always called "Step" in
 the dmesg output) on the first phase of the step sequence, and table-data-4 =
 0x20000000 would set stepgen pin 6 ("Table5Pin" in the dmesg output) on the 16th
 stage of the step sequence. 
+
+.TP
+(s32 r/w) hm2_XiXX.N.stepgen.MM.timer-num (default: -1)
+Sets the hm2dpll timer instance to be used to latch stepgen counts.  A setting
+of -1 does not latch encoder counts.  A setting of 0 latches at the same time
+as the main hostmot2 write.  A setting of 1..4 uses a time offset from the main
+hostmot2 write according to the dpll's timer-us setting.
+
+Typically, timer-us should be a negative number with a magnitude larger than
+the largest latency (e.g., -100 for a system with mediocre latency, -50 for a
+system with good latency).
+
+If no DPLL module is present in the FPGA firmware, or if the stepgen module
+does not support DPLL, then this pin is not created.
+
+When available, this feature should typically be enabled.  Doing so generally
+reduces following errors.
 
 .SH Smart Serial Interface
 

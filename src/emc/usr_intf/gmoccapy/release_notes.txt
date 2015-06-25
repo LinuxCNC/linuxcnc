@@ -1,3 +1,22 @@
+ver. 1.5.5
+- gmoccapy will take notice of the settings 
+  "DISPLAY", "POSITION_FEEDBACK" in the INI File and 
+  set the DRO accordingly (Code basis from Steffen)
+- Added keyboard shortcut F3 to change to manual mode
+- Added keyboard shortcut F5 to change to MDI Mode
+- Added keyboard shortcut "Enter" for MDI Mode to 
+  submit the selected command
+- Added keyboard shortcut "i" and "I" to switch 
+  jog increments forward and backwards like in axis
+
+ver. 1.5.4.1
+- changed fullsize preview button in manual mode to new position
+  to be the same place in auto and manual mode.
+
+ver. 1.5.4
+- changing in auto mode, being in fullsize preview to edit page leaded
+  to blank screen, I corrected that bug.
+
 ver. 1.5.3.1
 - solved a bug in widget handling, not enabling the ignore limits checkbox,
   being on a limit switch

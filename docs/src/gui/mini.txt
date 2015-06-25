@@ -108,7 +108,8 @@ The menu includes each of the following sections and subsections.
     
 ** 'Relative_Position' - sets the main position displays to show the current position
         including any offsets like part zeros that are active. For more 
-        information on offsets see the chapter on coordinate systems.
+        information on offsets see the 
+        <<cha:coordinate-system,Coordinate System Chapter>>.
 
 * 'Info' - lets you see a number of active things by writing their values into
     the MESSAGE pad.
@@ -127,7 +128,7 @@ The menu includes each of the following sections and subsections.
     
 ** 'Active_G-Codes' - will write a list of all of the modal program codes that are active
         whenever this item is selected. For more information about modal
-        codes see the introductory part programming chapter.
+        codes see the <<sec:Modal-Groups,Modal Groups>> section.
 
 * 'Help' - opens a text window pop in that displays the contents of the help file.
 
@@ -289,9 +290,9 @@ test sets of program lines by entering one block, waiting for that
 motion to end, and then enter the next block. Below the entry window, 
 there is a listing of all of the current modal codes. This listing can 
 be very handy. I often forget to enter a g00 before I command a motion. 
-If nothing happens I look down there to see if g80 is in effect. G80 
-stops any motion. If it's there I remember to issue a block like g00 x0 
-y0 z0. In MDI you are entering text from the keyboard so none of the 
+If nothing happens I look down there to see if G80 is in effect. G80 
+stops any motion. If it's there I remember to issue a block like G00 X0 
+Y0 Z0. In MDI you are entering text from the keyboard so none of the 
 main keys work for commands to the running machine. [F1] will Estop the 
 control. 
 ***********************************************************************
