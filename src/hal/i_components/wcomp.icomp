@@ -12,7 +12,7 @@ license "GPL";
 ;;
 FUNCTION(_)
 {
-    double tmp = in;
+    hal_float_t tmp = in;
     under = (tmp <= min_);
     over = (tmp >= max_);
     out = !(over || under);

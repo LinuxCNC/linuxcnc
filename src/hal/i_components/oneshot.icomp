@@ -34,8 +34,8 @@ pin in bit retriggerable=TRUE "Allow additional edges to extend pulse";
 pin in bit rising=TRUE "Trigger on rising edge";
 pin in bit falling=FALSE "Trigger on falling edge";
 
-variable double timer;
-variable char old_in;
+variable hal_float_t timer;
+variable hal_bit_t old_in;
 
 option extra_inst_setup yes;
 
@@ -52,7 +52,7 @@ EXTRA_INST_SETUP()
 
 FUNCTION(_)
 {
-    int new, old, trigger;
+    hal_bit_t new, trigger, old;
 
     new = in;
     old = old_in;
@@ -68,7 +68,7 @@ FUNCTION(_)
 	    trigger = 0;
 	}
 	/* decrement timer */
-	timer -= period * 0.000000001;
+	timer -= (hal_float_t) ( period * 0.000000001 );
 	if ( timer < 0.0 ) timer = 0.0;
     }
     if ( trigger ) {

@@ -6,7 +6,6 @@ pin out bit out-##[pincount];
 instanceparam int pincount = 16;
 
 option MAXCOUNT 32;
-option DEFAULTCOUNT 16;
 
 author "Andy Pugh";
 license "GPL2+";
@@ -16,7 +15,7 @@ function _ nofp;
 
 FUNCTION(_)
 {
-int i;
+hal_s32_t i;
     for (i = 0; i < localpincount ; i++)
         out(i) = (in >> i)&1;
 

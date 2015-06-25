@@ -10,7 +10,6 @@ pin io s32 delay = 5;
 instanceparam int pincount = 8;
 
 option MAXCOUNT 16;
-option DEFAULTCOUNT 8;
 
 license "GPL";
 

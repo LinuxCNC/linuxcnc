@@ -59,7 +59,6 @@ variable hal_bit_t   latching = 0;
 instanceparam int pincount = 7;
 
 option MAXCOUNT 7;
-option DEFAULTCOUNT 7;
 
 description """
 Drives multiple physical motors (joints) from a single axis input

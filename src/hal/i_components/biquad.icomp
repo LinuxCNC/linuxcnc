@@ -129,7 +129,7 @@ struct inst_data *ip = arg;
     if(type_ != TYPE_DIRECT){
         valid = 0;
 
-        sampleRate = (hal_float_t) (1.0 / (period * 1e-9));
+        sampleRate = (1.0 / ((hal_float_t)period * 1e-9)); 
 
         if((f0 > sampleRate / 2.0) || (Q > 2.0) || (Q < 0.5))
             return;

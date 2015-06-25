@@ -31,7 +31,6 @@ option extra_inst_setup 1;
 instanceparam int pincount = 4;
 
 option MAXCOUNT 16;
-option DEFAULTCOUNT 4;
 
 author "Andy Pugh";
 license "GPL";

@@ -8,7 +8,7 @@ license "GPL";
 ;;
 FUNCTION(_)
 {
-    double tmp = in;
+    hal_float_t tmp = in;
     if(tmp < min_) tmp = min_;
     if(tmp > max_) tmp = max_;
     out = tmp;

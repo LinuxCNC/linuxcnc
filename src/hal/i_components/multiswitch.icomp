@@ -33,7 +33,6 @@ pin out bit bit-##[pincount] = false       "Output bits";
 instanceparam int pincount = 6;
 
 option MAXCOUNT 32;
-option DEFAULTCOUNT 6;
 
 function _ ;
 option extra_inst_setup yes;

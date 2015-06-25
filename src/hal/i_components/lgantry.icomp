@@ -95,7 +95,6 @@ license "GPL";
 instanceparam int pincount = 7;
 
 option MAXCOUNT 7;
-option DEFAULTCOUNT 7;
 
 ;;
 

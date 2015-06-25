@@ -7,7 +7,6 @@ pin out bit out;
 instanceparam int pincount = 2;
 
 option MAXCOUNT 5;
-option DEFAULTCOUNT 2;
 
 instanceparam int functn = 0;
 
@@ -21,9 +20,9 @@ function _;
 
 FUNCTION(_)
 {
-int i;
+hal_u32_t i;
 ip = arg;
-int shift = 0;
+hal_u32_t shift = 0;
 
     for (i = 0; i < localpincount; i++)
 	if (in(i))

@@ -33,7 +33,7 @@ FUNCTION(_)
 	    enable_out = 1;
 	} else {
 	    // normal forward/reverse operation
-	    double negcmd = command * - 1.0;
+	    hal_float_t negcmd = command * - 1.0;
 	    if (command < 0.0) {
 		up = 0;
 		down = MINIMUM(negcmd, maxout);
