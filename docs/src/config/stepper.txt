@@ -1,8 +1,8 @@
 = Stepper Configuration
 
-[[stepper-config]] (((Stepper Configuration)))
+[[cha:stepper-config]] (((Stepper Configuration)))
 
-== Introduction[[sec:Introduction]]
+== Introduction
 
 The preferred way to set up a standard stepper machine is with the
 Step Configuration Wizard. See the 
@@ -25,7 +25,9 @@ Most of this chapter is based on the sample config released along with
 LinuxCNC. The config is called stepper(((stepper))), and usually it is
 found in '/etc/emc2/sample-configs/stepper'.
 
-== Maximum step rate[[sec:Maximum-step-rate]](((step rate)))
+[[sec:Maximum-step-rate]](((step rate)))
+
+== Maximum step rate
 
 With software step generation, the maximum step rate is one step per
 two BASE_PERIODs for step-and-direction output. The maximum requested
@@ -48,7 +50,9 @@ is acceptable, then consider using hardware step generation (such as
 with the LinuxCNC-supported Universal Stepper Controller, Mesa cards, and
 others.)
 
-== Pinout[[sec:Pinout]](((pinout)))
+[[sec:Pinout]](((pinout)))
+
+== Pinout
 
 One of the major flaws in LinuxCNC was that you couldn't specify the pinout
 without recompiling the source code. LinuxCNC is far more flexible, and now
@@ -73,7 +77,9 @@ either standard_pinout.hal or xylotex_pinout.hal. These are two files
 that instruct the HAL how to link the various signals & pins. Further
 on we'll investigate the standard_pinout.hal.
 
-=== standard_pinout.hal[[sub:standard_pinout.hal]](((standard pinout))) 
+[[sub:standard_pinout.hal]](((standard pinout)))
+
+=== standard_pinout.hal
 
 This file contains several HAL commands, and usually looks like this:
 
@@ -160,7 +166,9 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 The lines starting with '#' are comments, and their only purpose is to
 guide the reader through the file.
 
-=== Overview[[sub:Overview-standard_pinout.hal]]
+[[sub:Overview-standard_pinout.hal]]
+
+=== Overview
 
 There are a couple of operations that get executed when the
 standard_pinout.hal gets executed/interpreted:
@@ -175,7 +183,9 @@ standard_pinout.hal gets executed/interpreted:
 * Further I/O signals get connected (estop loopback, toolchanger loopback)
 * A spindle-on signal gets defined and linked to a parport pin
 
-=== Changing the standard_pinout.hal[[sub:Changing-standard_pinout.hal]]
+[[sub:Changing-standard_pinout.hal]]
+
+=== Changing the standard_pinout.hal
 
 If you want to change the standard_pinout.hal file, all you need is a
 text editor. Open the file and locate the parts you want to change.
@@ -201,7 +211,9 @@ or basically any other 'out' pin you like.
 Hint: make sure you don't have more than one signal connected to the
 same pin.
 
-=== Changing polarity of a signal[[sub:Changing-the-polarity]](((signal polarity)))
+[[sub:Changing-the-polarity]](((signal polarity)))
+
+=== Changing polarity of a signal
 
 If external hardware expects an “active low” signal, set the
 corresponding '-invert' parameter. For instance, to invert the spindle
@@ -211,7 +223,9 @@ control signal:
 setp parport.0.pin-09-invert TRUE
 ----
 
-=== Adding PWM Spindle Speed Control[[sub:PWM-Spindle-Speed]](((spindle speed control)))
+[[sub:PWM-Spindle-Speed]](((spindle speed control)))
+
+=== Adding PWM Spindle Speed Control
 
 If your spindle can be controlled by a PWM signal, use the 'pwmgen'
 component to create the signal:
@@ -231,7 +245,9 @@ This assumes that the spindle controller's response to PWM is simple:
 PWM required to get the spindle to turn, follow the example in the
 'nist-lathe' sample configuration to use a 'scale' component.
 
-=== Adding an enable signal[[sub:Adding-enable-signal]](((enable signal)))
+[[sub:Adding-enable-signal]](((enable signal)))
+
+=== Adding an enable signal
 
 Some amplifiers (drives) require an enable signal before they accept
 and command movement of the motors. For this reason there are already

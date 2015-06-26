@@ -17,7 +17,7 @@ in the following table. Two basic conditions exist, SEARCH_VEL and LATCH_VEL
 are the same sign or they are opposite signs. For a more detailed description
 of what each configuration parameter does, see the following section.
 
-.Homing Sequences[[fig:motion-homing-sequence-diagram]]
+.Homing Sequences
 
 image::images/emc2-motion-homing-diag.png[align="center"]
 
