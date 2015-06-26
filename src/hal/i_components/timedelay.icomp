@@ -10,7 +10,7 @@ pin in float off-delay = 0.5 """The time, in seconds, for which \\fBin\\fR must 
 \\fBfalse\\fR before \\fBout\\fR becomes \\fBfalse\\fR""";
 
 pin out float elapsed "Current value of the internal timer";
-variable double timer;
+variable hal_float_t timer;
 
 function _;
 

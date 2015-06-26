@@ -9,7 +9,7 @@ license "GPL";
 #include "rtapi_math.h"
 FUNCTION(_)
 {
-    double a = in0, b = in1, c = in2;
+    hal_float_t a = in0, b = in1, c = in2;
     out = rtapi_sqrt(a*a + b*b + c*c);
 
     return 0;

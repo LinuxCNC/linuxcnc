@@ -1,10 +1,10 @@
 component toggle "'push-on, push-off' from momentary pushbuttons";
 pin in bit in "button input";
 pin io bit out "on/off output";
-param rw u32 debounce = 2 "debounce delay in periods";
+pin io u32 debounce = 2 "debounce delay in periods";
 
-variable int debounce_cntr;
-variable int debounced;
+variable hal_u32_t debounce_cntr;
+variable hal_bit_t debounced;
 
 function _ nofp;
 license "GPL";

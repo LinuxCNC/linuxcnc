@@ -25,7 +25,7 @@ function _;
 license "GPL";
 ;;
 FUNCTION(_) {
-    double tmp = in;
+    hal_float_t tmp = in;
     if ( tmp >= 0.0 ) {
 	sign = 0;
 	out = tmp;

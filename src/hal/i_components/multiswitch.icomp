@@ -25,22 +25,21 @@ component multiswitch           """This component toggles between a specified nu
 pin in bit up = false           "Receives signal to toggle up";
 pin in bit down = false         "Receives signal to toggle down";
 
-param rw unsigned top-position  "Number of positions";
-param rw signed position      "Current state (may be set in the HAL)";
+pin io u32 top-position  "Number of positions";
+pin io s32 position      "Current state (may be set in the HAL)";
 
 pin out bit bit-##[pincount] = false       "Output bits";
 
 instanceparam int pincount = 6;
 
 option MAXCOUNT 32;
-option DEFAULTCOUNT 6;
 
 function _ ;
 option extra_inst_setup yes;
 //option count_function yes;
 
-variable int old_up = 0;
-variable int old_down = 0;
+variable hal_s32_t old_up = 0;
+variable hal_s32_t old_down = 0;
 
 author "ArcEye arceye@mgware.co.uk / Andy Pugh andy@bodgesoc.org";
 license "GPL2";
@@ -49,7 +48,7 @@ license "GPL2";
 
 FUNCTION(_)
 {
-    int i;
+    hal_s32_t i;
 
     // debounce
     if (up && !old_up) { position++; }

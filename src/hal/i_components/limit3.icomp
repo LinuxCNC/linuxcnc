@@ -7,9 +7,9 @@ pin in float max_=1e20;
 pin in float maxv=1e20;
 pin in float maxa=1e20;
 
-variable double old_in;	/* previous input */
-variable double old_out;	/* previous output */
-variable double old_v;	/* previous 1st derivative */
+variable hal_float_t old_in;    /* previous input */
+variable hal_float_t old_out;   /* previous output */
+variable hal_float_t old_v; /* previous 1st derivative */
 
 function _;
 license "GPL";
@@ -19,8 +19,8 @@ license "GPL";
 
 FUNCTION(_)
 {
-    double lin, lout, dt, in_v, min_v, max_v, ramp_a, avg_v, err, dv, dp;
-    double min_out, max_out, match_time, est_in, est_out;
+    hal_float_t lin, lout, dt, in_v, min_v, max_v, ramp_a, avg_v, err, dv, dp;
+    hal_float_t min_out, max_out, match_time, est_in, est_out;
 
     /* apply first order limit */
     lin = in;
@@ -33,12 +33,12 @@ FUNCTION(_)
 
     if(load) {
 	old_in = old_out = out = lin;
-	old_v = 0;
+	old_v = 0.0;
 	return 0;
     }
 
     /* calculate input derivative */
-    dt = period * 0.000000001;
+    dt = (hal_float_t) period * 0.000000001;
     in_v = (lin - old_in) / dt;
     /* determine v and out that can be reached in one period */
     min_v = old_v - maxa * dt;

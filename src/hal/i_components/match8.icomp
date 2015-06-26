@@ -22,7 +22,7 @@ license "GPL";
 ;;
 FUNCTION(_)
 {
-    int tmp = 0;
+    hal_bit_t tmp = 0;
 
     if ( !in ) goto nomatch;
     if (( a0 && !b0 ) || ( !a0 && b0 )) goto nomatch;

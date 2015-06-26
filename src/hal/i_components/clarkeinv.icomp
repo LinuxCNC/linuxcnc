@@ -27,7 +27,7 @@ license "GPL";
 
 FUNCTION(_)
 {
-    double xr, yr, rads, costheta, sintheta;
+    hal_float_t xr, yr, rads, costheta, sintheta;
 
     // rotate it
     rads = theta * rev2rad;

@@ -16,8 +16,8 @@ license "GPL";
 ;;
 FUNCTION(_)
 {
-    double tmp = in1 - in0;
-    double halfhyst = 0.5 * hyst;
+    hal_float_t tmp = in1 - in0;
+    hal_float_t halfhyst = 0.5 * hyst;
 
     if(tmp < -halfhyst)
         {

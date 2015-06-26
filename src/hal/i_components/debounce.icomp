@@ -3,14 +3,13 @@ component debounce "Debounce filter for Machinekit HAL";
     // Input Pins
 pin in bit #.in[pincount];
 pin out bit #.out[pincount];
-param rw s32 #.state[pincount];
+pin io s32 #.state[pincount];
 
-param rw s32 delay = 5;
+pin io s32 delay = 5;
 
 instanceparam int pincount = 8;
 
 option MAXCOUNT 16;
-option DEFAULTCOUNT 8;
 
 license "GPL";
 
@@ -22,7 +21,7 @@ function _;
 
 FUNCTION(_)
 {
-int n;
+hal_s32_t n;
 
     // first make sure delay is sane
     if (delay < 0)

@@ -4,7 +4,7 @@ pin in bit clk "clock, rising edge writes data to out";
 pin in bit set "when true, force out true";
 pin in bit reset "when true, force out false; overrides set";
 pin io bit out "output";
-variable int oldclk;
+variable hal_bit_t oldclk;
 
 function _ nofp;
 license "GPL";
@@ -12,8 +12,7 @@ license "GPL";
 
 FUNCTION(_)
 {
-int c;
-
+hal_bit_t c;
     c = clk;
     if ( reset )
         {

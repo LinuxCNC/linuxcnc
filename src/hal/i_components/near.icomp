@@ -1,8 +1,8 @@
 component near "Determine whether two values are roughly equal.";
 pin in float in1_;
 pin in float in2_;
-param rw float scale=1;
-param rw float difference=0;
+pin io float scale=1.0;
+pin io float difference=0.0;
 pin out bit out """
 \\fBout\\fR is true if \\fBin1\\fR and \\fBin2\\fR are within a factor of
 \\fBscale\\fR (i.e., for in1 positive, in1/scale <= in2 <= in1*scale), OR
@@ -14,8 +14,8 @@ license "GPL";
 #include "rtapi_math.h"
 FUNCTION(_)
 {
-	double in1 = in1_, in2 = in2_;
-	if(in1 < 0) {
+	hal_float_t in1 = in1_, in2 = in2_;
+	if(in1 < 0.0) {
 		in1 = -in1;
 		in2 = -in2;
 	}

@@ -16,7 +16,7 @@ pin out float A-value "Output amplitude for phase A";
 pin out float B-value "Output amplitude for phase B";
 pin out float C-value "Output amplitude for phase C";
 
-param rw unsigned pattern=25
+pin io u32 pattern=25
 """Commutation pattern to use, from 0 to 47. Default is type 25.
 Every plausible combination is included. The table shows the excitation pattern
 along the top, and the pattern code on the left hand side. The table entries
@@ -179,7 +179,7 @@ function _ "Interpret Hall sensor patterns and set 3-phase amplitudes";
 
 /*dir H1 H2 H3 pattern
 000  001  010  011  100  101  110  111 */
-static unsigned int P[]={
+static hal_u32_t P[]={
 024, 014, 000, 012, 021, 000, 041, 042,
 014, 024, 012, 000, 000, 021, 042, 041,
 024, 000, 014, 012, 021, 041, 000, 042,
@@ -230,8 +230,8 @@ static unsigned int P[]={
 042, 012, 000, 014, 041, 000, 021, 024};
 
 FUNCTION(_){
-    int i;
-    double V;
+    hal_u32_t i;
+    hal_float_t V;
     if (pattern > 47){
         rtapi_print_msg(RTAPI_MSG_ERR,
         "Only step patterns 0-47 are allowed, you have requested pattern %i\n",

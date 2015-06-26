@@ -338,14 +338,6 @@ static int comp_id;
 
     names = {}
 
-    if ( ((options.get("MAXCOUNT")) and (options.get("DEFAULTCOUNT")))) :
-        have_count = True
-
-    if options.get("MAXCOUNT"):
-        print >>f, "#define MAXCOUNT %d" % options.get("MAXCOUNT" , 1)
-    if options.get("DEFAULTCOUNT"):
-        print >>f, "#define DEFAULTCOUNT %d" % options.get("DEFAULTCOUNT" , 1)
-
     def q(s):
         s = s.replace("\\", "\\\\")
         s = s.replace("\"", "\\\"")
@@ -396,11 +388,6 @@ static int comp_id;
                     have_numpins = True
                     iplist.append(name)
                     ipvlist.append(int(value))
-                if(not have_count):
-                    raise SystemExit, """\
-                        If a component uses the pincount parameter
-                        to set array sizes
-                        both MAXCOUNT and DEFAULTCOUNT must be set.\n"""
             if name == 'iprefix':
                 if value != None:
                     iprefix_string = to_noquotes(value)
@@ -413,6 +400,16 @@ static int comp_id;
                 if value == None: v = 0
                 else: v = int(value)
                 ipvlist.append(v)
+
+###  Now set max and default pincount sizes  ###############################################################
+
+    if have_numpins :  # if pincount being used
+        if (not options.get("MAXCOUNT")) :
+            option("MAXCOUNT", numpins)
+        print >>f, "#define MAXCOUNT %d" % options.get("MAXCOUNT" , 1)
+        option("DEFAULTCOUNT", numpins)
+        print >>f, "#define DEFAULTCOUNT %d\n" % options.get("DEFAULTCOUNT" , 1)
+        have_count = True
 
 ############################################################################################################
 ##  Helper functions
@@ -540,6 +537,7 @@ static int comp_id;
             print >>f, "    hal_%s_t %s[%s];" % (type, to_c(name), maxpins)
         else:
             print >>f, "    hal_%s_t %s;" % (type, to_c(name))
+        print "Warning deprecated type: param pin hal_%s_t %s should be replaced with an \"pin io\" of same type" % (type, to_c(name))
         names[name] = 1
 
 

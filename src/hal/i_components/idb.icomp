@@ -2,7 +2,7 @@ component idb "Inverse Deadband";
 
 pin in float in "Input";
 pin out float out "Output";
-param rw float amount;
+pin io float amount;
 
 function _ ;
 

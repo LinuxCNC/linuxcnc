@@ -20,13 +20,13 @@ pin in bit in;
 pin out bit out "Goes high when the desired edge is seen on 'in'";
 pin out bit out_invert "Goes low when the desired edge is seen on 'in'";
 
-param rw bit both=FALSE "If TRUE, selects both edges.  Otherwise, selects one edge according to in-edge";
-param rw bit in_edge=TRUE "If both is FALSE, selects the one desired edge: TRUE means falling, FALSE means rising";
-param rw signed out_width_ns=0 "Time in nanoseconds of the output pulse";
+pin io bit both=FALSE "If TRUE, selects both edges.  Otherwise, selects one edge according to in-edge";
+pin io bit in_edge=TRUE "If both is FALSE, selects the one desired edge: TRUE means falling, FALSE means rising";
+pin io s32 out_width_ns=0 "Time in nanoseconds of the output pulse";
 
-param r signed time_left_ns "Time left in this output pulse";
-param r bit last_in "Previous input value";
-variable int first = 1;
+pin out s32 time_left_ns "Time left in this output pulse";
+pin out bit last_in "Previous input value";
+variable hal_s32_t first = 1;
 
 function _ nofp "Produce output pulses from input edges";
 license "GPL";
@@ -34,16 +34,16 @@ license "GPL";
 
 FUNCTION(_)
 {
-    int new_in = in;
+    hal_bit_t new_in = in;
     if (time_left_ns > 0)
         {
         time_left_ns -= period;
         }
     if ( !first )
         {
-        int rise = new_in && !last_in;
-        int fall = !new_in && last_in;
-        int desired_edge =
+        hal_bit_t rise = new_in && !last_in;
+        hal_bit_t fall = !new_in && last_in;
+        hal_bit_t desired_edge =
             both ? rise || fall
                     : in_edge ? fall : rise;
         if(desired_edge)

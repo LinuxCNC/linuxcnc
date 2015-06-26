@@ -50,9 +50,6 @@ pin io s32 offset;
 instanceparam int pincount = 8;
 
 option MAXCOUNT 16;
-option DEFAULTCOUNT 8;
-
-
 
 license "GPL";
 
@@ -62,7 +59,7 @@ function process_wsums fp;
 
 FUNCTION(process_wsums)
 {
-int b, running_total;
+hal_s32_t b, running_total;
     
 	if (!hold) 
 		{

@@ -9,8 +9,8 @@ pin io float deadband "The \\fBout\\fR will be zero if \\fBin1\\fR is between -\
 function _;
 license "GPL";
 ;;
-double prev_in0 = 0;
-double prev_in1 = 0;
+hal_float_t prev_in0 = 0;
+hal_float_t prev_in1 = 0;
 FUNCTION(_)
 {
     if (deadband < 1e-12)

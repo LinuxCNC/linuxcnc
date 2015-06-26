@@ -25,6 +25,10 @@ Usage:
    The latency pin outputs the instantaneous latency.
 
 Maintainers note: hardcoded for MAXBINNUMBER==1000
+
+NB.  Since there is no hal_64_t yet, this component has been left 'as is'
+using __64 type etc
+ArcEye 22062015
 """;
 
 pin in  s32 maxbinnumber = 1000;  // MAXBINNUMBER
@@ -44,20 +48,20 @@ pin out s32 availablebins = 1000; // MAXBINNUMBER
 
 function _ nofp;
 variable __s64  last_timer = 0;
-variable int    last_binmax = 0;
-variable int    first = 1;
-variable int    pbins[1001]; // MAXBINNUMBER+1
-variable int    nbins[1001]; // MAXBINNUMBER+1
-variable int    binmax = 0;
+variable hal_s32_t    last_binmax = 0;
+variable hal_s32_t    first = 1;
+variable hal_s32_t    pbins[1001]; // MAXBINNUMBER+1
+variable hal_s32_t    nbins[1001]; // MAXBINNUMBER+1
+variable hal_s32_t    binmax = 0;
 
 license "GPL";
 ;;
 
 __s64     now = rtapi_get_time();
-__s32   lat32 = (__s32)(now - last_timer - period);
+hal_s32_t lat32 = (__s32)(now - last_timer - period);
                 //(2^31-1)*1nS = 2.147 seconds max
 
-int i;
+hal_s32_t i;
 
 last_timer = now;
 

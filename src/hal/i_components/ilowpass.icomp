@@ -18,23 +18,23 @@ pin in s32 in;
 pin out s32 out """\\fBout\\fR tracks \\fBin\\fR*\\fBscale\\fR through a low-pass
 filter of \\fBgain\\fR per period.""";
 
-param rw float scale = 1024 """A scale factor applied to the output
+pin io float scale = 1024.0 """A scale factor applied to the output
 value of the low-pass filter.""";
 
-param rw float gain = .5 """Together with the period, sets the rate at
+pin io float gain = 0.5 """Together with the period, sets the rate at
 which the output changes.  Useful range is between 0 and 1, with higher
 values causing the input value to be tracked more quickly.  For
 instance, a setting of 0.9 causes the output value to go 90% of the way
 towards the input value in each period""";
 
-variable double value;
+variable hal_float_t value = 0.0;
 
 function _ "Update the output based on the input and parameters";
 
 license "GPL";
 author "Jeff Epler <jepler@unpythonic.net>";
 ;;
-value += (in - value) * gain;
-out = (int)(__s64)(value * scale);
+value += ((hal_float_t)in - value) * gain;
+out = (hal_s32_t)(__s64)(value * scale);
 
 return 0;

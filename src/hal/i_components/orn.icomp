@@ -6,10 +6,9 @@ to all input pins. """;
 pin in bit in#.[pincount];
 pin out bit out;
 
-instanceparam int pincount = 8;
+instanceparam int pincount = 2;
 
 option MAXCOUNT 16;
-option DEFAULTCOUNT 2;
 
 license "GPL";
 
@@ -21,7 +20,7 @@ function _ nofp;
 
 FUNCTION(_)
 {
-    int n;
+    hal_s32_t n;
     hal_bit_t value = 0;
 
     // loop through inputs
