@@ -1,0 +1,28 @@
+o<m710> sub
+#500=45; jog velocity index
+#501=46; jog length index
+#502=12; jog trigger index
+#503=13; jog continuous index
+#504=14; jog direction index
+o100 if [EXISTS[#<q>]]
+    o110 if [#<q> LT 0]
+        M68 E#500 Q[#<q> * -1]; inverse velocity
+        M64 P#504
+    o110 else
+        M68 E#500 Q#<q>; velocity
+        M65 P#504
+    o110 endif
+o100 endif
+o101 if [EXISTS[#<p>]]
+    M68 E#501 Q#<p>; length
+o101 endif
+o102 if [EXISTS[#<e>]]
+    o112 if [#<e> EQ 1]; trigger continuous
+        M64 P#503
+    o112 else
+        M65 P#503
+    o112 endif
+o102 else
+    M64 P#502
+o102 endif
+o<m710> end sub

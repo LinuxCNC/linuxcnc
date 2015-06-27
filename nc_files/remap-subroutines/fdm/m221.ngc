@@ -1,0 +1,4 @@
+o<m221> sub
+#500=49 ; extrude scale index
+M68 E#500 Q#<P>
+o<m221> endsub

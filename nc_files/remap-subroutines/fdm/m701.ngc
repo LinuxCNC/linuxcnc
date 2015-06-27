@@ -1,0 +1,15 @@
+o<m701> sub
+#500=42; line width index
+#501=1; synchronized
+#502=#500
+o100 if [EXISTS[#<i>]]
+    o110 if [#<i> EQ 1]
+        #501=0
+    o110 endif
+o100 endif
+o101 if [#501 EQ 1]
+    M67 E#502 Q#<P>
+o101 else
+    M68 E#502 Q#<P>
+o101 endif
+o<m701> end sub
