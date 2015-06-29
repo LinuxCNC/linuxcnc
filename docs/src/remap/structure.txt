@@ -169,7 +169,7 @@ The first method is preferred for parameters of dynamic nature, , like
 positions. You need to define which words on the current block have
 any meaning for your new code, and specify how that is passed to the
 NGC procedure. Any easy way is to use the
-<<remap:argspec-parameter,argspec statement>>. A custom prolog might
+<<_the_argspec_parameter,argspec statement>>. A custom prolog might
 provide better error messages.
 
 Using to ini file variables is most useful for referring to setup
@@ -277,7 +277,7 @@ keyword-value pairs and currently are:
 	`modalgroup=` option is ignored.
 
 `argspec=`'<argspec>'::
-	See <<remap:argspec-parameter, description of the argspec
+	See <<_the_argspec_parameter, description of the argspec
 	parameter options>>. Optional.
 
 `ngc=`'<ngc_basename>'::
@@ -347,9 +347,7 @@ Note that if all you want to achieve is to call some Python code from
 G-code, there is the somewhat easier way of
 <<remap:Python-O-word-procs, calling Python functions like O-word procedures>>.
 
-[[remap:argspec-parameter]]
-
-=== The 'argspec' parameter
+=== The argspec parameter
 
 The argument specification (keyword `argspec`) describes required and
 optional words to be passed to an ngc procedure, as well as optional
@@ -1818,7 +1816,7 @@ executed again with the new parameter words merged into the set of the
 paramters given in the first invocation.
 
 These routines are designed to work in conjunction with an
-<<remap:argspec-parameter,`argspec=<words>` parameter>>. While this is
+<<_the_argspec_parameter,`argspec=<words>` parameter>>. While this is
 easy to use, in a realistic scenario you would avoid argspec and do a
 more thorough investigation of the block manually in order to give better
 error messages.
