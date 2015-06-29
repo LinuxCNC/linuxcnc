@@ -1,5 +1,5 @@
 component match8 "8-bit binary match detector";
-pin in bit in = TRUE "cascade input - if false, output is false regardless of other inputs";
+pin in bit in = true "cascade input - if false, output is false regardless of other inputs";
 pin in bit a0;
 pin in bit a1;
 pin in bit a2;
@@ -22,7 +22,7 @@ license "GPL";
 ;;
 FUNCTION(_)
 {
-    hal_bit_t tmp = 0;
+    hal_bit_t tmp = false;
 
     if ( !in ) goto nomatch;
     if (( a0 && !b0 ) || ( !a0 && b0 )) goto nomatch;
@@ -33,7 +33,7 @@ FUNCTION(_)
     if (( a5 && !b5 ) || ( !a5 && b5 )) goto nomatch;
     if (( a6 && !b6 ) || ( !a6 && b6 )) goto nomatch;
     if (( a7 && !b7 ) || ( !a7 && b7 )) goto nomatch;
-    tmp = 1;
+    tmp = true;
 nomatch:
     out = tmp;
 

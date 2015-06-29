@@ -40,10 +40,10 @@ H(z) = (n0 + n1z-1 + n2z-2) / (1+ d1z-1 + d2z-2)""";
 
 pin in float in "Filter input.";
 pin out float out "Filter output.";
-pin in bit enable = 0 "Filter enable. When false, the in is passed to out \
+pin in bit enable = false "Filter enable. When false, the in is passed to out \
 without any filtering. A transition from false to true causes filter \
 coefficients to be calculated according to parameters";
-pin out bit valid = 0 "When false, indicates an error occured when caclulating \
+pin out bit valid = false "When false, indicates an error occured when caclulating \
 filter coefficients.";
 
 pin io u32 type_ = 0 "Filter type determines the type of filter \
@@ -89,7 +89,7 @@ typedef enum {
 
 EXTRA_INST_SETUP()
 {
-    lastEnable = 0;
+    lastEnable = false;
 
     return(0);
 }
@@ -127,7 +127,7 @@ struct inst_data *ip = arg;
 
     // If not direct coefficient loading.
     if(type_ != TYPE_DIRECT){
-        valid = 0;
+        valid = false;
 
         sampleRate = (1.0 / ((hal_float_t)period * 1e-9)); 
 
@@ -163,5 +163,5 @@ struct inst_data *ip = arg;
         s1 = s2 = 0.0;
     }
 
-    valid = 1;
+    valid = true;
 }

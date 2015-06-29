@@ -22,18 +22,18 @@ FUNCTION(_)
 	debounce_cntr++;
 	if ( debounce_cntr >= debounce ) {
 	    debounce_cntr = debounce;
-	    if ( debounced == 0 ) {
+	    if (!debounced ) {
 		/* toggle output */
 		out = !out;
 	    }
-	    debounced = 1;
+	    debounced = true;
 	}
     } else {
 	/* not pressed */
 	debounce_cntr--;
 	if ( debounce_cntr <= 0 ) {
 	    debounce_cntr = 0;
-	    debounced = 0;
+	    debounced = false;
 	}
     }
 

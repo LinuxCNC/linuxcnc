@@ -20,9 +20,9 @@ FUNCTION(_)
 		in2 = -in2;
 	}
 	if((scale > 1 && in1/scale <= in2 && in2 <= in1*scale) || rtapi_fabs(in1-in2) <= difference)
-		out = 1;
+		out = true;
 	else
-		out = 0;
+		out = false;
 
 return 0;
 }

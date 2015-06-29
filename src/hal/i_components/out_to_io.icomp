@@ -1,8 +1,8 @@
 component out_to_io "converts a signal driven by an out pin to a change sensitive io signal";
 pin in u32 in_u32 = 0;
 pin in s32 in_s32 = 0;
-pin in float in_float = 0;
-pin in bit in_bit = 0;
+pin in float in_float = 0.0;
+pin in bit in_bit = false;
 pin io u32 out_u32;
 pin io s32 out_s32;
 pin io float out_float;

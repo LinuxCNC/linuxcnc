@@ -26,9 +26,6 @@ Usage:
 
 Maintainers note: hardcoded for MAXBINNUMBER==1000
 
-NB.  Since there is no hal_64_t yet, this component has been left 'as is'
-using __64 type etc
-ArcEye 22062015
 """;
 
 pin in  s32 maxbinnumber = 1000;  // MAXBINNUMBER

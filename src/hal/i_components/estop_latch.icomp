@@ -20,8 +20,8 @@ FUNCTION(_)
 	    if ( reset && !old_reset )
 	        {
 	    /* got a rising edge, indicate "OK" on outputs */
-	        ok_out = 1;
-	        fault_out = 0;
+	        ok_out = true;
+	        fault_out = false;
 	        }
 	    if( ok_out )
 	        {
@@ -32,8 +32,8 @@ FUNCTION(_)
     else
         {
 	/* fault condition exists, trip */
-	    ok_out = 0;
-	    fault_out = 1;
+	    ok_out = false;
+	    fault_out = true;
         }
     /* store state of reset input for next pass (for edge detect) */
     old_reset = reset;

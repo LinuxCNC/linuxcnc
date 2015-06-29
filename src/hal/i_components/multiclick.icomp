@@ -57,8 +57,8 @@ pin and no fifth click followed it.""";
 // for debugging
 pin out s32 state;
 
-pin io bit invert_input = FALSE
-"""If FALSE (the default), clicks start with rising edges.  If TRUE,
+pin io bit invert_input = false
+"""If false (the default), clicks start with rising edges.  If true,
 clicks start with falling edges.""";
 
 pin io u32 max_hold_ns  = 250000000
@@ -157,7 +157,7 @@ FUNCTION(_)
 {
     hal_bit_t new_in = in;
 
-    if (1 == invert_input) {
+    if (invert_input) {
         new_in = !new_in;
     }
 
@@ -175,7 +175,7 @@ FUNCTION(_)
             single_click_hold_timer -= period;
         } else {
             single_click_hold_timer = 0;
-            single_click = 0;
+            single_click = false;
         }
     }
 
@@ -184,7 +184,7 @@ FUNCTION(_)
             single_click_only_hold_timer -= period;
         } else {
             single_click_only_hold_timer = 0;
-            single_click_only = 0;
+            single_click_only = false;
         }
     }
 
@@ -193,7 +193,7 @@ FUNCTION(_)
             double_click_hold_timer -= period;
         } else {
             double_click_hold_timer = 0;
-            double_click = 0;
+            double_click = false;
         }
     }
 
@@ -202,7 +202,7 @@ FUNCTION(_)
             double_click_only_hold_timer -= period;
         } else {
             double_click_only_hold_timer = 0;
-            double_click_only = 0;
+            double_click_only = false;
         }
     }
 
@@ -211,7 +211,7 @@ FUNCTION(_)
             triple_click_hold_timer -= period;
         } else {
             triple_click_hold_timer = 0;
-            triple_click = 0;
+            triple_click = false;
         }
     }
 
@@ -220,7 +220,7 @@ FUNCTION(_)
             triple_click_only_hold_timer -= period;
         } else {
             triple_click_only_hold_timer = 0;
-            triple_click_only = 0;
+            triple_click_only = false;
         }
     }
 
@@ -229,7 +229,7 @@ FUNCTION(_)
             quadruple_click_hold_timer -= period;
         } else {
             quadruple_click_hold_timer = 0;
-            quadruple_click = 0;
+            quadruple_click = false;
         }
     }
 
@@ -238,7 +238,7 @@ FUNCTION(_)
             quadruple_click_only_hold_timer -= period;
         } else {
             quadruple_click_only_hold_timer = 0;
-            quadruple_click_only = 0;
+            quadruple_click_only = false;
         }
     }
 
@@ -249,7 +249,7 @@ FUNCTION(_)
 
     switch (click_state) {
         case IDLE: {
-            if (1 == new_in) {
+            if (new_in) {
                 click_state = SAW_FIRST_RISING_EDGE;
                 timer = 0;
                 timeout = max_hold_ns;
@@ -258,18 +258,18 @@ FUNCTION(_)
         }
 
         case SAW_FIRST_RISING_EDGE: {
-            if (0 == new_in) {
+            if (!new_in) {
                 click_state = SAW_FIRST_CLICK;
                 timer = 0;
                 timeout = max_space_ns;
-                single_click = 1;
+                single_click = true;
                 single_click_hold_timer = output_hold_ns;
             }
             break;
         }
 
         case SAW_FIRST_CLICK: {
-            if (1 == new_in) {
+            if (new_in) {
                 click_state = SAW_SECOND_RISING_EDGE;
                 timer = 0;
                 timeout = max_hold_ns;
@@ -278,18 +278,18 @@ FUNCTION(_)
         }
 
         case SAW_SECOND_RISING_EDGE: {
-            if (0 == new_in) {
+            if (!new_in) {
                 click_state = SAW_SECOND_CLICK;
                 timer = 0;
                 timeout = max_space_ns;
-                double_click = 1;
+                double_click = true;
                 double_click_hold_timer = output_hold_ns;
             }
             break;
         }
 
         case SAW_SECOND_CLICK: {
-            if (1 == new_in) {
+            if (new_in) {
                 click_state = SAW_THIRD_RISING_EDGE;
                 timer = 0;
                 timeout = max_hold_ns;
@@ -298,18 +298,18 @@ FUNCTION(_)
         }
 
         case SAW_THIRD_RISING_EDGE: {
-            if (0 == new_in) {
+            if (!new_in) {
                 click_state = SAW_THIRD_CLICK;
                 timer = 0;
                 timeout = max_space_ns;
-                triple_click = 1;
+                triple_click = true;
                 triple_click_hold_timer = output_hold_ns;
             }
             break;
         }
 
         case SAW_THIRD_CLICK: {
-            if (1 == new_in) {
+            if (new_in) {
                 click_state = SAW_FOURTH_RISING_EDGE;
                 timer = 0;
                 timeout = max_hold_ns;
@@ -318,27 +318,27 @@ FUNCTION(_)
         }
 
         case SAW_FOURTH_RISING_EDGE: {
-            if (0 == new_in) {
+            if (!new_in) {
                 // four clicks is the most we look for, and we just saw it,
                 // so we're done now
                 click_state = SAW_FOURTH_CLICK;
                 timer = 0;
                 timeout = max_space_ns;
-                quadruple_click = 1;
+                quadruple_click = true;
                 quadruple_click_hold_timer = output_hold_ns;
             }
             break;
         }
 
         case SAW_FOURTH_CLICK: {
-            if (1 == new_in) {
+            if (new_in) {
                 click_state = HELD_TOO_LONG;
             }
             break;
         }
 
         case HELD_TOO_LONG: {
-            if (0 == new_in) {
+            if (!new_in) {
                 click_state = IDLE;
             }
             break;
@@ -351,29 +351,29 @@ FUNCTION(_)
     }
 
     if ((click_state != IDLE) && (click_state != HELD_TOO_LONG) && (timer > timeout)) {
-        if (1 == new_in) {
+        if (new_in) {
             click_state = HELD_TOO_LONG;
         } else {
             // timeout after some activity on the input line, trigger one
             // of the "only" outputs if appropriate
             switch (click_state) {
                 case SAW_FIRST_CLICK: {
-                    single_click_only = 1;
+                    single_click_only = true;
                     single_click_only_hold_timer = output_hold_ns;
                     break;
                 }
                 case SAW_SECOND_CLICK: {
-                    double_click_only = 1;
+                    double_click_only = true;
                     double_click_only_hold_timer = output_hold_ns;
                     break;
                 }
                 case SAW_THIRD_CLICK: {
-                    triple_click_only = 1;
+                    triple_click_only = true;
                     triple_click_only_hold_timer = output_hold_ns;
                     break;
                 }
                 case SAW_FOURTH_CLICK: {
-                    quadruple_click_only = 1;
+                    quadruple_click_only = true;
                     quadruple_click_only_hold_timer = output_hold_ns;
                     break;
                 }

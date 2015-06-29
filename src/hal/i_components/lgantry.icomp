@@ -108,7 +108,7 @@ FUNCTION(read)
 
     // Prepare home and limit
     home = !previous_home;
-    limit = 0;
+    limit = false;
 
     // All other joints, if configured
     for (i = 0; i < localpincount; i++) {

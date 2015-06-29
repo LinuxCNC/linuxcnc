@@ -21,7 +21,7 @@ pin io float power = 2.0;
 pin io float deadband = 0.0;
 pin io float scale = 1.0;
 pin io float offset = 0.0;
-pin io bit inverse = 0;
+pin io bit inverse = false;
 
 description """
 The component \\fBjoyhandle\\fR uses the following formula for a non linear joypad movements:
