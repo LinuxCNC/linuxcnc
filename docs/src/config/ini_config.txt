@@ -842,15 +842,15 @@ small, tight corners, since you're limited by cornering acceleration.
     and will begin at 0 each time LinuxCNC is started. This can help on smaller
     machines without home switches.
 
-* 'NO_FORCE_HOMING = 1' - The default behavior is for LinuxCNC to force the user to home the machine
-    before any MDI command or a program is run. Normally, only jogging is
-    allowed before homing. Setting NO_FORCE_HOMING = 1 allows the user to
-    make MDI moves and run programs without homing the machine first.
-    Interfaces without homing ability will need to have this option set to 1.
+* 'NO_FORCE_HOMING = 1' - The default behavior is for LinuxCNC to force the
+   user to home the machine before any MDI command or a program is run.
+   Normally, only jogging is allowed before homing. Setting NO_FORCE_HOMING
+   = 1 allows the user to make MDI moves and run programs without homing the
+   machine first. Interfaces without homing ability will need to have this
+   option set to 1.
 
 [WARNING]
-Using this will allow the machine to go beyond the soft limits
-while in operation. It is not generally desirable to allow this.
+LinuxCNC will not know your axis travel limits when using 'NO_FORCE_HOMING = 1'.
 
 [[sub:AXIS-section]](((AXIS (inifile section))))
 

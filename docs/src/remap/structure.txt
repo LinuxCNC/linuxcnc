@@ -1468,7 +1468,7 @@ to suspend execution with the following statement:
 `yield INTERP_EXECUTE_FINISH`::
        This signals task to stop read ahead, execute all
        queued operations, execute the 'queue-buster' operation, 
-       synchronize interpreter state with machine state, and th	en signal
+       synchronize interpreter state with machine state, and then signal
 	the interpreter to continue. At this point the function is
 	resumed at the statement following the `yield ..` statement.
 
