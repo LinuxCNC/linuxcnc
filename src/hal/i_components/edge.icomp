@@ -20,13 +20,13 @@ pin in bit in;
 pin out bit out "Goes high when the desired edge is seen on 'in'";
 pin out bit out_invert "Goes low when the desired edge is seen on 'in'";
 
-pin io bit both=FALSE "If TRUE, selects both edges.  Otherwise, selects one edge according to in-edge";
-pin io bit in_edge=TRUE "If both is FALSE, selects the one desired edge: TRUE means falling, FALSE means rising";
+pin io bit both=false "If true, selects both edges.  Otherwise, selects one edge according to in-edge";
+pin io bit in_edge=true "If both is false, selects the one desired edge: true means falling, false means rising";
 pin io s32 out_width_ns=0 "Time in nanoseconds of the output pulse";
 
 pin out s32 time_left_ns "Time left in this output pulse";
 pin out bit last_in "Previous input value";
-variable hal_s32_t first = 1;
+variable hal_bit_t first = true;
 
 function _ nofp "Produce output pulses from input edges";
 license "GPL";
@@ -53,17 +53,17 @@ FUNCTION(_)
             }
         else if(time_left_ns > 0)
             {
-            out = 1;
+            out = true;
             }
         else
             {
             time_left_ns = 0;
-            out = 0;
+            out = false;
             }
         }
     else
         {
-        first = 0;
+        first = false;
         }
     last_in = new_in;
     out_invert = !out;

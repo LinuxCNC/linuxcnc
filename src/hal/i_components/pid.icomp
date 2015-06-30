@@ -99,7 +99,7 @@ description """
     threads and execute at different rates.
 """;
 
-pin in bit enable = 0 "Enable/disabled the PID loop";
+pin in bit enable = false "Enable/disabled the PID loop";
 pin in float command = 0.0 "Commanded value";
 pin in float command_deriv = 0.0 "Derivative command input";
 pin in float feedback = 0.0 "Feedback input";
@@ -124,8 +124,8 @@ pin in float maxerrorD = 0.0 "Limit on error differentiator";
 pin in float maxcmdD = 0.0 "Limit on command differentiator";
 pin in float maxcmdDD = 0.0 "Limit on command 2nd derivative";
 pin in float maxoutput = 0.0 "Limit on output value";
-pin in bit index_enable = 0 "Index enable";
-pin in bit error_previous_target = 0 "Error previous target";
+pin in bit index_enable = false "Index enable";
+pin in bit error_previous_target = false "Error previous target";
 // debug
 pin out float errorI "Integral of error";
 pin out float errorD "Derivative of error";
@@ -182,10 +182,10 @@ FUNCTION(do_pid_calcs) {
     } else if (tmp1 < -deadband) {
         tmp1 += deadband;
     } else {
-        tmp1 = 0;
+        tmp1 = 0.0;
     }
     /* do integrator calcs only if enabled */
-    if (enable != 0) {
+    if (enable) {
         /* if output is in limit, don't let integrator wind up */
         if ( ( tmp1 * limit_state ) <= 0.0 ) {
             /* compute integral term */
@@ -201,7 +201,7 @@ FUNCTION(do_pid_calcs) {
         }
     } else {
         /* not enabled, reset integrator */
-        errorI = 0;
+        errorI = 0.0;
     }
 #if 0
     /* DEBUG: compute command and feedback derivatives to dummysigs */
@@ -259,7 +259,7 @@ FUNCTION(do_pid_calcs) {
         }
     }
     /* do output calcs only if enabled */
-    if (enable != 0) {
+    if (enable) {
     /* calculate the output value */
     tmp1 =
         bias + Pgain * tmp1 + Igain * errorI +
@@ -288,12 +288,12 @@ FUNCTION(do_pid_calcs) {
 
     /* set 'saturated' outputs */
     if(limit_state) {
-        saturated = 1;
+        saturated = true;
         saturated_s += (hal_float_t) period * 1e-9;
         if(saturated_count != 2147483647)
             saturated_count += 1;
     } else {
-        saturated = 0;
+        saturated = false;
         saturated_s = 0.0;
         saturated_count = 0;
     }

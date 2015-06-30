@@ -28,26 +28,26 @@ FUNCTION(_)
     if (enable) {
 	if (brake) {
 	    // motor DC brake
-	    up = 0;
-	    down = 0;
-	    enable_out = 1;
+	    up = 0.0;
+	    down = 0.0;
+	    enable_out = true;
 	} else {
 	    // normal forward/reverse operation
 	    hal_float_t negcmd = command * - 1.0;
 	    if (command < 0.0) {
-		up = 0;
+		up = 0.0;
 		down = MINIMUM(negcmd, maxout);
 	    } else {
 		up = MINIMUM(command, maxout);
-		down = 0;
+		down = 0.0;
 	    }
-	    enable_out = 1;
+	    enable_out = true;
 	}
     } else {
 	// let motor run freely
-	up = 0;
-	down = 0;
-	enable_out = 0;
+	up = 0.0;
+	down = 0.0;
+	enable_out = false;
     }
 
 	return 0;

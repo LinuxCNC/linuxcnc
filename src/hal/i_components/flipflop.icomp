@@ -16,11 +16,11 @@ hal_bit_t c;
     c = clk;
     if ( reset )
         {
-	out = 0;
+	out = false;
         }
     else if ( set )
         {
-        out = 1;
+        out = true;
         }
     else if ( c && ! oldclk )
         {

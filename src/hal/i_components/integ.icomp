@@ -11,7 +11,7 @@ license "GPL";
 ;;
 FUNCTION(_)
 {
-    if(reset) out = 0;
+    if(reset) out = 0.0;
     else out = out + gain * in * fperiod;
     if (out > max_) out = max_;
     if (out < min_) out = min_;

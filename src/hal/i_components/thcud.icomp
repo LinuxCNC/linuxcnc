@@ -97,8 +97,8 @@ FUNCTION(_)
 {
     if(enable){
         hal_float_t min_velocity = requested_vel -(requested_vel*(1.0 /velocity_tol));
-        if(current_vel > 0.0 && current_vel >= min_velocity){vel_status = 1;}
-        else {vel_status =0;}
+        if(current_vel > 0.0 && current_vel >= min_velocity){vel_status = true;}
+        else {vel_status = false;}
 
         if(torch_on && arc_ok && vel_status){ // allow correction
             if(torch_down){
@@ -113,7 +113,7 @@ FUNCTION(_)
             hal_float_t z_diff;
             z_diff = z_pos_in - last_z_in;
             if(z_diff > 0.0 && offset != 0.0){ // torch is moving up
-                removing_offset = 1;
+                removing_offset = true;
                 if(offset > 0){ // positive offset
                     if(offset > z_diff){ // remove some
                         offset -= z_diff;
@@ -127,7 +127,7 @@ FUNCTION(_)
                     else {offset = 0.0;}
                 }
             }
-            else {removing_offset = 0;}
+            else {removing_offset = false;}
             last_z_in = z_pos_in;
         }
         z_pos_out = z_pos_in + offset;

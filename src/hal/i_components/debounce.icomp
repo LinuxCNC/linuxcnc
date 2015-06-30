@@ -36,14 +36,14 @@ hal_s32_t n;
             if (_state(n) < delay)
                 _state(n)++;
             else
-                _out(n) = 1;
+                _out(n) = true;
             }
         else
             {
             if (_state(n) > 0)
                 _state(n)--;
             else
-                _out(n) = 0;
+                _out(n) = false;
             }
         }
     return 0;

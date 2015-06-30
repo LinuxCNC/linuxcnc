@@ -15,7 +15,7 @@ pin in  bit is_on;
 pin out bit on;
 pin out bit off;
 variable hal_bit_t old_in;
-variable hal_bit_t to_state=0;
+variable hal_bit_t to_state=false;
 function _;
 license "GPL";
 ;;
@@ -23,21 +23,21 @@ FUNCTION(_)
 {
 if (in!=old_in) /* a toggle has occurred */ {
     if (is_on) {   /* turn OFF if it's on */
-        on=0;
-        off=1;
-        to_state=0;
+        on=false;
+        off=true;
+        to_state=false;
     }
     else if (!is_on) { /* turn ON if it's off */
-        on=1;
-        off=0;
-        to_state=1;
+        on=true;
+        off=false;
+        to_state=true;
     }
 }
 else {
 /* reset pins when we see the desired state */
     if (to_state==is_on) {
-        on=0;
-        off=0;
+        on=false;
+        off=false;
     }
 }
 old_in=in;

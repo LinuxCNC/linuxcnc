@@ -99,7 +99,7 @@ FUNCTION(_)
     if(enable){
         hal_float_t min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
         if(current_vel > 0.0 && current_vel >= min_velocity){vel_status = 1;}
-        else {vel_status =0;}
+        else {vel_status = false;}
 
         if(torch_on && arc_ok && vel_status){ // allow correction
             if((volts + voltage_tol) > volts_requested){

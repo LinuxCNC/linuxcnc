@@ -21,17 +21,17 @@ FUNCTION(_)
 
     if(tmp < -halfhyst)
         {
-	out = 0;
-	    equal = 0;
+	out = false;
+	    equal = false;
         }
     else if(tmp > halfhyst)
         {
-	out = 1;
-	    equal = 0;
+	out = true;
+	    equal = false;
         }
     else
         {
-	equal = 1;
+	equal = true;
         }
 
 	return 0;

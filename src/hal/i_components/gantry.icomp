@@ -54,7 +54,7 @@ function write fp "Update joint pos-cmd outputs based on position-cmd in";
 variable hal_float_t offset[7] = 0.0;
 variable hal_float_t prev_cmd = 0.0;
 variable hal_s32_t   fb_joint = 0;
-variable hal_bit_t   latching = 0;
+variable hal_bit_t   latching = false;
 
 instanceparam int pincount = 7;
 
@@ -96,9 +96,9 @@ FUNCTION(read) {
     // All other joints, if configured
     while (i < localpincount) {
         // Check to see if machine is in latching state
-        if(latching==0)
+        if(!latching)
         {
-            // Don't asset home until all joints hit their home switches
+            // Don't assert home until all joints hit their home switches
             home  &= joint_home(i);
         }
         else
@@ -120,9 +120,9 @@ FUNCTION(read) {
     // track active joints or motion gets upset with the sudden
     // stop.  If all joints are not homed, but the current joint used
     // for feedback is, find a joint that's still active
-    if ((joint_home(fb_joint) == 1) && (home == 0)) {
+    if ((joint_home(fb_joint) ) && (home == 0)) {
         for (i=0; i < localpincount; i++) {
-            if (joint_home(i) == 0) {
+            if (!joint_home(i)) {
                 position_fb = joint_pos_fb(i) + offset[i];
                 fb_joint = i;
                 break;
@@ -158,7 +158,7 @@ FUNCTION(write) {
         for (i=0; i < localpincount; i++) {
             // If home switch is active, update offset, not pos_cmd
             // so the other joints can catch up
-            if (joint_home(i)==1) {
+            if (joint_home(i)) {
                 offset[i] += delta;
             }
         }

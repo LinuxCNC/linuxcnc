@@ -6,22 +6,22 @@ pin out bit out """\
 to the following rule:
 .RS
 .TP
-\\fBin0=TRUE in1=FALSE\\fR
+\\fBin0=true in1=false\\fR
 .TQ
-\\fBin0=FALSE in1=TRUE\\fR
-\\fBout=TRUE\\fR
+\\fBin0=false in1=true\\fR
+\\fBout=true\\fR
 .TP
 Otherwise,
-\\fBout=FALSE\\fR""";
+\\fBout=false\\fR""";
 function _ nofp;
 license "GPL";
 ;;
 FUNCTION(_)
 {
     if (( in0 && !in1 ) || ( in1 && !in0 ))
-	out = 1;
+	out = true;
     else
-	out = 0;
+	out = false;
 
 return 0;
 }

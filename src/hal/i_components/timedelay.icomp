@@ -23,12 +23,12 @@ if(in_ != out) {
     elapsed = timer;
     if(in_) {
         if(timer >= on_delay) {
-            out = 1;
+            out = true;
             timer = 0.0;
         }
     } else {
         if(timer >= off_delay) {
-            out = 0;
+            out = false;
             timer = 0.0;
         }
     }

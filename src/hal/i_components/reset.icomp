@@ -44,20 +44,20 @@ pin io  s32     out_s32      = 0    "Signed 32 bit integer output value";
 pin in  s32     reset_s32    = 0    "Signed 32 bit integer reset value";
 pin io  float   out_float    = 0.0  "Float output value";
 pin in  float   reset_float  = 0.0  "Float reset value";
-pin io  bit     out_bit      = 0    "Bit integer output value";
-pin in  bit     reset_bit    = 0    "Bit reset value";
-pin in  bit     retriggerable = 1   "Allow additional edges to reset";
-pin in  bit     rising        = 1   "Trigger on rising edge";
-pin in  bit     falling       = 0   "Trigger on falling edge";
+pin io  bit     out_bit      = false  "Bit integer output value";
+pin in  bit     reset_bit    = false  "Bit reset value";
+pin in  bit     retriggerable = true  "Allow additional edges to reset";
+pin in  bit     rising        = true  "Trigger on rising edge";
+pin in  bit     falling       = false "Trigger on falling edge";
 function _  fp "Update the output value";
 description """
 Component to reset IO signals.
 """;
 license "GPL";
-variable hal_bit_t last_trigger = 0;
+variable hal_bit_t last_trigger = false;
 ;;
 FUNCTION(_) {
-    if (((rising && (trigger == 1)) || (falling && (trigger == 0)))
+    if (((rising && (trigger)) || (falling && (!trigger)))
        && (trigger != last_trigger))
     {
         out_u32 = reset_u32;

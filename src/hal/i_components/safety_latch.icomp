@@ -65,7 +65,7 @@ pin out s32 count = 0 "Current count";
 pin out bit error_out = false "Error output";
 pin out bit ok_out = true "Ok output";
 
-variable hal_bit_t last_reset = 0;
+variable hal_bit_t last_reset = false;
 
 function _ nofp;
 license "GPL";

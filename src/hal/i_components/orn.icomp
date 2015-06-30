@@ -21,7 +21,7 @@ function _ nofp;
 FUNCTION(_)
 {
     hal_s32_t n;
-    hal_bit_t value = 0;
+    hal_bit_t value = false;
 
     // loop through inputs
     for (n = 0; n < localpincount; n++)

@@ -579,10 +579,9 @@ static int comp_id;
         print >>f, "static void extra_inst_cleanup(void);\n"
 
     if not options.get("no_convenience_defines"):
+# capitalised defines removed to enforce lowercase C boolean values
         print >>f, "#undef TRUE"
-        print >>f, "#define TRUE (1)"
         print >>f, "#undef FALSE"
-        print >>f, "#define FALSE (0)"
         print >>f, "#undef true"
         print >>f, "#define true (1)"
         print >>f, "#undef false"

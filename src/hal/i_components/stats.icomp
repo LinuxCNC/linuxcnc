@@ -15,7 +15,7 @@ FUNCTION(_)
 {
     if (enable ^ prev_enable) { // edge
 	if (enable) {  // positive edge
-	    mean = 0;
+	    mean = 0.0;
 	    n = 0;
 	    m2 = 0.0;
 	}
