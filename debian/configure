@@ -147,7 +147,7 @@ case $TARGET in
 	TARGET=uspace
         MODULE_PATH=usr/lib/linuxcnc/modules
 	MODULE_EXT=.so
-	KERNEL_DEPENDS=libudev-dev
+	KERNEL_DEPENDS=libudev-dev,iptables
 	KERNEL_HEADERS=
 	KERNEL_VERSION=uspace
 	DRIVERS=
