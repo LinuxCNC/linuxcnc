@@ -19,7 +19,6 @@ man axis (or perhaps 'man 1 axis' if your system requires it.)
 axis:: AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface.
 axis-remote:: AXIS Remote Interface.
 comp:: Build, compile and install LinuxCNC HAL components.
-emc:: LinuxCNC (The Enhanced Machine Controller).
 gladevcp:: Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets.
 gs2:: HAL userspace component for Automation Direct GS2 VFD's.
 halcmd:: Manipulate the Enhanced Machine Controller HAL from the command line.
@@ -31,6 +30,7 @@ halstreamer:: Stream file data into HAL in real time.
 halui:: Observe HAL pins and command LinuxCNC through NML.
 io:: Accepts NML I/O commands, interacts with HAL in userspace.
 iocontrol:: Accepts NML I/O commands, interacts with HAL in userspace.
+linuxcnc:: LinuxCNC (The Enhanced Machine Controller).
 pyvcp:: Virtual Control Panel for LinuxCNC.
 shuttlexpress:: control HAL pins with the ShuttleXpress device made by Contour Design.
 
