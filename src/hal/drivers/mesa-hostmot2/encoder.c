@@ -169,6 +169,19 @@ static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
     hm2->encoder.written_sample_frequency = *hm2->encoder.hal->pin.sample_frequency;
 }
 
+static void hm2_encoder_set_dpll_timer_if_present(hostmot2_t *hm2) {
+    if(!hm2->encoder.dpll_timer_num_addr) return;
+
+    uint32_t data = hm2->encoder.desired_dpll_timer_reg;
+    hm2->llio->write(hm2->llio, hm2->encoder.dpll_timer_num_addr,
+        &data, sizeof(data));
+    hm2->encoder.written_dpll_timer_reg = data;
+}
+
+static void hm2_encoder_force_write_dpll_timer(hostmot2_t *hm2) {
+    hm2_encoder_set_dpll_timer_if_present(hm2);
+}
+
 void hm2_encoder_write(hostmot2_t *hm2) {
     int i;
 
@@ -189,6 +202,19 @@ void hm2_encoder_write(hostmot2_t *hm2) {
         if (*hm2->encoder.hal->pin.skew != hm2->encoder.written_skew) {
             goto force_write;
         }
+    }
+
+    if(hm2->encoder.dpll_timer_num_addr) {
+        int32_t dpll_timer_num = *hm2->encoder.hal->pin.dpll_timer_num;
+        if(dpll_timer_num < -1 || dpll_timer_num > 4) dpll_timer_num = -1;
+        if(dpll_timer_num == -1)
+            hm2->encoder.desired_dpll_timer_reg = 0;
+        else
+            hm2->encoder.desired_dpll_timer_reg =
+                (dpll_timer_num << 12) | (1 << 15);
+        if(hm2->encoder.desired_dpll_timer_reg
+                != hm2->encoder.written_dpll_timer_reg)
+            goto force_write;
     }
 
     return;
@@ -224,6 +250,7 @@ void hm2_encoder_force_write(hostmot2_t *hm2) {
     );
 
     hm2_encoder_set_filter_rate_and_skew(hm2);
+    hm2_encoder_force_write_dpll_timer(hm2);
 }
 
 
@@ -320,6 +347,15 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->encoder.timestamp_div_addr = md->base_address + (2 * md->register_stride);
     hm2->encoder.timestamp_count_addr = md->base_address + (3 * md->register_stride);
     hm2->encoder.filter_rate_addr = md->base_address + (4 * md->register_stride);
+    if(hm2->dpll_module_present) {
+        int dpll_timer_num_addr = md->base_address + (5 * md->register_stride);
+        uint32_t data = 0;
+        hm2->llio->write(hm2->llio, dpll_timer_num_addr, &data, sizeof(data));
+        hm2->llio->read(hm2->llio, dpll_timer_num_addr, &data, sizeof(data));
+
+        if(data == 0)
+            hm2->encoder.dpll_timer_num_addr = dpll_timer_num_addr;
+    }
 
     // it's important that the TSC gets read *before* the C&T registers below
     r = hm2_register_tram_read_region(hm2, hm2->encoder.timestamp_count_addr, sizeof(rtapi_u32), &hm2->encoder.timestamp_count_reg);
@@ -375,6 +411,14 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
             hm2->encoder.has_skew = 1;
+        }
+        if(hm2->encoder.dpll_timer_num_addr) {
+            r = hal_pin_s32_newf(HAL_IN, &(hm2->encoder.hal->pin.dpll_timer_num), hm2->llio->comp_id, "%s.encoder.timer-number", hm2->llio->name);
+            if (r < 0) {
+                HM2_ERR("error adding pin %s, aborting\n", name);
+                goto fail1;
+            }
+            *(hm2->encoder.hal->pin.dpll_timer_num) = -1;
         }
 
         for (i = 0; i < hm2->encoder.num_instances; i ++) {

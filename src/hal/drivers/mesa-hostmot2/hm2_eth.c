@@ -111,9 +111,21 @@ static int shell(char *command) {
     else return status;
 }
 
-// Assume we can use iptables if this chain exists
-static bool _use_iptables() {
-    if(geteuid() != 0) return 0;
+static int eshellf(char *fmt, ...) {
+    char commandbuf[1024];
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(commandbuf, sizeof(commandbuf), fmt, ap);
+    va_end(ap);
+
+    int res = shell(commandbuf);
+    if(res == EXIT_SUCCESS) return 0;
+
+    LL_PRINT("ERROR: Failed to execute '%s'\n", commandbuf);
+    return -EINVAL;
+}
+
+static bool chain_exists() {
     int result =
         shell(IPTABLES" -n -L "CHAIN" > /dev/null 2>&1");
     return result == EXIT_SUCCESS;
@@ -121,7 +133,23 @@ static bool _use_iptables() {
 
 static int iptables_state = -1;
 static bool use_iptables() {
-    if(iptables_state == -1) iptables_state = _use_iptables();
+    if(iptables_state == -1) {
+        if(geteuid() != 0) return (iptables_state = 0);
+        if(!chain_exists()) {
+            int res = shell("/sbin/iptables -N " CHAIN);
+            if(res != EXIT_SUCCESS) {
+                LL_PRINT("ERROR: Failed to create iptables chain "CHAIN);
+                return (iptables_state = 0);
+            }
+        }
+        // now add a jump to our chain at the start of the OUTPUT chain if it isn't in the chain already
+        int res = shell("/sbin/iptables -C OUTPUT -j " CHAIN " || /sbin/iptables -I OUTPUT 1 -j " CHAIN);
+        if(res != EXIT_SUCCESS) {
+            LL_PRINT("ERROR: Failed to insert rule in OUTPUT chain");
+            return (iptables_state = 0);
+        }
+        return (iptables_state = 1);
+    }
     return iptables_state;
 }
 
@@ -224,6 +252,9 @@ static int install_iptables(int sockfd) {
     res = install_iptables_rule(
         "-o %s -j REJECT --reject-with icmp-admin-prohibited",
         ifbuf);
+    if(res < 0) return res;
+
+    res = eshellf("/sbin/sysctl -q net.ipv6.conf.%s.disable_ipv6=1", ifbuf);
     if(res < 0) return res;
 
     return 0;

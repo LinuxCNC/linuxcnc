@@ -73,6 +73,13 @@ When true, \fBcounts\fR and \fBposition\fR are reset to zero on the next
 rising edge of \fBPhase-Z\fR.  At the same time, \fBindex-enable\fR is reset
 to zero to indicate that the rising edge has occurred.
 .TP
+\fBencoder.\fIN\fB.min-speed-estimate\fR float in (default: 1.0)
+Determine the minimum speed at which \fBvelocity\fR will be
+estimated as nonzero and \fBpostition-interpolated\fR will be interpolated.
+The units of \fBmin-speed-estimate\fR are the same as the units of
+\fBvelocity\fR.  Setting this parameter too low will cause it to take a long
+time for \fBvelocity\fR to go to 0 after encoder pulses have stopped arriving.
+.TP
 \fBencoder.\fIN\fB.phase-A\fR bit in
 Quadrature input for encoder channel \fIN\fR.
 .TP
@@ -87,7 +94,7 @@ Position in scaled units (see \fBposition-scale\fR)
 .TP
 \fBencoder.\fIN\fB.position-interpolated\fR float out
 Position in scaled units, interpolated between encoder counts.  Only valid when
-velocity is approximately constant and above \fBmin-velocity-estimate\fR.  Do
+velocity is approximately constant and above \fBmin-speed-estimate\fR.  Do
 not use for position control.
 .TP
 \fBencoder.\fIN\fB.position-scale\fR float i/o
@@ -107,7 +114,7 @@ When true, \fBcounts\fR and \fBposition\fR are reset to zero immediately.
 Velocity in scaled units per second.  \fBencoder\fR uses an algorithm that
 greatly reduces quantization noise as compared to simply differentiating the
 \fBposition\fR output.  When the magnitude of the true velocity is below
-\fRmin-velocity-estimate\fR, the \fRvelocity\fR output is 0.
+\fRmin-speed-estimate\fR, the \fRvelocity\fR output is 0.
 .TP
 \fBencoder.\fIN\fB.x4-mode\fR bit i/o
 Enables times-4 mode.  When true (the default), the counter counts each edge
@@ -136,16 +143,5 @@ default), it counts in quadrature mode.
 Maximum number of CPU cycles it took to execute this function.
 
 .SH PARAMETERS
-Parameter names for num_chan= specifier are:
-    \fBencoder.\fIN\fB.the_parameter_name\fR
-.TP
-Parameter names for names= specifier are:
-    \fBnameN\fB.the_parameter_name\fR
-.TP
-\fBencoder.\fIN\fB.min-velocity-estimate\fR float rw (default: 1.0)
-Determine the minimum true velocity magnitude at which \fBvelocity\fR will be
-estimated as nonzero and \fBpostition-interpolated\fR will be interpolated.
-The units of \fBmin-velocity-estimate\fR are the same as the units of
-\fBvelocity\fR.  Setting this parameter too low will cause it to take a long
-time for \fBvelocity\fR to go to 0 after encoder pulses have stopped arriving.
+The encoder component has no HAL Parameters.
 

@@ -77,8 +77,8 @@ Private IPv4 address space.
 One common alternative is PC address 10.10.10.1, hostmot2 address 10.10.10.10.
 
 Use of the dedicated ethernet interface while linuxcnc is running can cause
-violation of realtime guarantees.  The steps below mitigate most accidental
-causes of interference.
+violation of realtime guarantees.  hm2_eth will automatically mitigate most
+accidental causes of interference.
 
 .SS Configure network with static address
 Add these lines to the file /etc/network/interfaces to configure eth1 with a
@@ -90,42 +90,17 @@ iface eth1 inet static
     address 192.168.1.1
 .EE
 
-.SS Disable IPv6 on the dedicated interface
-By default, Linux may transmit IPv6 packets on all interfaces, even if they are
-not explicitly configured with global IPv6 addresses.  In /etc/sysctl.conf,
-disable ipv6 on eth1 by adding this line:
+.SH NOTES
+hm2_eth uses an iptables chain called "hm2-eth-rules-output" to control access
+to the network interface while hal is running.  The chain is created if it does
+not exist, and a jump to it is inserted at the beginning of the OUTPUT chain if
+it is not there already.  If you have an existing iptables setup, you can insert
+a direct jump from OUTPUT to hm2-eth-rules-output in an order appropriate to
+your local network.
 
-.EX
-net.ipv6.conf.eth1.disable_ipv6=1
-.EE
-
-.B Note:
-Simply setting 'ipv6' to 'ignore' in the GUI network tools does not eliminate
-the link-local ipv6 address.  Use the sysctl.conf method even if you otherwise
-use the GUI to configure the dedicated interface.
-
-.SS Configure iptables for exclusive access
-
-Install the package "iptables-persistent" and put this in the file
-/etc/iptables/rules.v4 (remove leading whitespace from every line):
-
-.EX
-*filter
-:OUTPUT ACCEPT [0:0]
-:hm2-eth-rules-output - [0:0]
--A OUTPUT -j hm2-eth-rules-output
-COMMIT
-.EE
-
-If this configuration is present, then when hm2_eth loads it will
-add rules restricting use of the interface to only its own UDP socket;
-at (normal) exit, it will remove the rules.  You can manually clear the rules
-with \fBsudo iptables -F hm2-eth-rules-output\fR.
-
-If you already use iptables, create an empty chain named "hm2-eth-rules-output"
-(you must use this name; it is hardcoded in hm2_eth), and place a call to this
-rule early in the OUTPUT chain, before any rules that could potentially pass
-packets out eth1.
+At (normal) exit, hm2_eth will remove the rules.  After a crash, you can
+manually clear the rules with \fBsudo iptables -F hm2-eth-rules-output\fR;
+the rules are also removed by a reboot.
 
 .SH BUGS
 At this time, only a single board is supported.
