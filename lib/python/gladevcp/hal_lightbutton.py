@@ -109,7 +109,6 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         self.font_size = 10
         self.font_on_color = gtk.gdk.Color('black')
         self.font_off_color = gtk.gdk.Color('black')
-        self.need_size_update = False
         self.create_enable_pin = False
         
         self.active = False
@@ -309,9 +308,10 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             self.set_on_text(value)
         elif name in self.__gproperties.keys():
             setattr(self, name, value)
-            self.need_size_update = True
             if name in ['font_face', 'font_bold', 'font_size']:
                 self.update_font()
+            if name == 'border_width':
+                self.update_widget_size()
             self.queue_draw()
         else:
             raise AttributeError('unknown property %s' % property.name)
