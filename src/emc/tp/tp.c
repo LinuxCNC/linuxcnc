@@ -3131,6 +3131,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
      */
     tc = tcqItem(&tp->queue, 0);
     nexttc = tcqItem(&tp->queue, 1);
+    // Hack to force nexttc to be finalized if it hasn't been already. Since
+    // nextc isn't officially activated yet, we have to do this step here
+    // (rather than just calling tpActivateSegment).
+    tcFinalizeLength(nexttc);
 
     //Set GUI status to "zero" state
     tpUpdateInitialStatus(tp);

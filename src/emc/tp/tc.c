@@ -642,7 +642,6 @@ int tcFinalizeLength(TC_STRUCT * const tc)
 {
     //Apply velocity corrections
     if (!tc) {
-        tp_debug_print("Missing prev_tc in finalize!\n");
         return TP_ERR_FAIL;
     }
 
