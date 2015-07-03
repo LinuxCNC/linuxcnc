@@ -412,7 +412,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
                 self.set_prime(event.x, event.y)
                 self.rotateOrTranslate(event.x, event.y)
         # 5 = left rotate, middle zoom,   right move
-        else:
+        elif self.mouse_btn_mode == 5:
             if button1:    
                 if shift:
                     self.continueZoom(event.y)
@@ -423,6 +423,17 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
                 self.continueZoom(event.y)
             elif button3:
                 self.translateOrRotate(event.x, event.y)
+        # 6 = left move, middle zoom, right zoom (no rotate - for 2D plasma machines)
+        elif self.mouse_btn_mode == 6:
+            if button1:
+                if shift:
+                    self.continueZoom(event.y)
+                elif not cancel:
+                    self.translateOrRotate(event.x, event.y)
+            elif button2:
+                self.continueZoom(event.y)
+            elif button3:
+                self.continueZoom(event.y)
 
     def scroll(self, widget, event):
         if not self.use_default_controls:return
