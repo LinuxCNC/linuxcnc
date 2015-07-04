@@ -38,7 +38,7 @@ DOC_SRCS_EN := \
 	common/User_Concepts.txt \
 	common/userforeword.txt \
 	common/user_intro.txt \
-	config/emc2hal.txt \
+	config/core-components.txt \
 	config/ini_config.txt \
 	config/ini_homing.txt \
 	config/lathe_config.txt \

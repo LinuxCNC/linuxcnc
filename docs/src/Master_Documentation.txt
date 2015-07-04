@@ -232,7 +232,7 @@ include::hal/tutorial.txt[]
 
 include::hal/general_ref.txt[]
 
-include::config/emc2hal.txt[]
+include::config/core-components.txt[]
 
 include::hal/canonical-devices.txt[]
 
