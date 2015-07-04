@@ -302,13 +302,15 @@ output type selected:
 .Parameters
 
 * '(float) pwmgen.<chan>.scale' - Scaling factor to convert 'value'
-   from arbitrary units to duty cycle.
+   from arbitrary units to duty cycle. For example if scale is set to 4000
+   and the input value passed to the pwmgen.<chan>.value is 4000 then it will
+   be 100% duty-cycle (always on). If the value is 2000 then it will be a 50%
+   25Hz square wave.
 * '(float) pwmgen.<chan>.pwm-freq' - Desired PWM frequency, in Hz.
-   If 0.0, generates PDM instead of
-    PWM. If set higher than internal limits, next call of 'update_freq()'
-   will set it to the internal limit. If non-zero, and 'dither' is false,
-   next call of 'update_freq()' will set it to the nearest integer
-   multiple of the 'make_pulses()' function period.
+   If 0.0, generates PDM instead of PWM. If set higher than internal limits,
+   next call of 'update_freq()' will set it to the internal limit. If non-zero,
+   and 'dither' is false, next call of 'update_freq()' will set it to the
+   nearest integer multiple of the 'make_pulses()' function period.
 * '(bit) pwmgen.<chan>.dither-pwm' - If true, enables dithering to
    achieve average PWM frequencies or
    duty cycles that are unobtainable with pure PWM. If false, both the PWM
@@ -328,18 +330,23 @@ The component exports two functions. Each function acts on all of the
 PWM generators - running different generators in different threads is
 not supported.
 
-* '(funct) pwmgen.make-pulses' - High speed function to generate PWM
-   waveforms (no floating point).
-* '(funct) pwmgen.update' - Low speed function to scale and limit
-   value and handle other parameters.
-
-The high speed function 'pwmgen.make-pulses' should be run in a very
-fast thread, from 10 to 50 us depending on the
-capabilities of the computer. That thread's period determines the
-maximum PWM carrier frequency, as well as the resolution of the PWM or
-PDM signals. The other function can be called at a much lower rate.
+* '(funct) pwmgen.make-pulses' - High speed function to generate PWM waveforms
+  (no floating point). The high speed function 'pwmgen.make-pulses' should be
+  run in the base (fastest) thread, from 10 to 50 us depending on the
+  capabilities of the computer. That thread's period determines the maximum PWM
+  carrier frequency, as well as the resolution of the PWM or PDM signals. If
+  the base thread is 50,000nS then every 50uS the module decides if it is time
+  to change the state of the output. At 50% duty cycle and 25Hz PWM frequency
+  this means that the output changes state every (1 / 25) seconds / 50uS * 50%
+  = 400 iterations. This also means that you have a 800 possible duty cycle
+  values (without dithering)
+* '(funct) pwmgen.update' - Low speed function to scale and limit value and
+  handle other parameters. This is the function of the module that does the
+  more complicated mathematics to work out how many base-periods the output
+  should be high for, and how many it should be low for.
 
 [[sec:Encoder]]
+
 == Encoder(((encoder)))
 
 This component provides software based counting of signals from
