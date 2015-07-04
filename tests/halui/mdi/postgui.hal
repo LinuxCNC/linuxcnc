@@ -15,3 +15,12 @@ net Xpos => python-ui.joint-0-position
 net Ypos => python-ui.joint-1-position
 net Zpos => python-ui.joint-2-position
 
+net halui-mode-is-manual <= halui.mode.is-manual
+net halui-mode-is-manual => python-ui.is-manual
+
+net halui-mode-is-auto <= halui.mode.is-auto
+net halui-mode-is-auto => python-ui.is-auto
+
+net halui-mode-is-mdi <= halui.mode.is-mdi
+net halui-mode-is-mdi => python-ui.is-mdi
+
