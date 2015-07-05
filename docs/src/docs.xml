@@ -16,9 +16,9 @@
 <doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
 
 <doc name="common_overleaf" title="Overleaf Text"/>
-<doc name="common_userforeword" title="Foreword"/>
-<doc name="common_user_intro" title="Introduction"/>
-<doc name="common_User_Concepts" title="Important User Concepts"/>
+<doc name="common_user-foreword" title="Foreword"/>
+<doc name="common_user-intro" title="Introduction"/>
+<doc name="common_user-concepts" title="Important User Concepts"/>
 <doc name="gui_axis" title="GUI: Axis"/>
 <doc name="gui_touchy" title="GUI: Touchy"/>
 <doc name="gui_ngcgui" title="GUI: NGCGUI"/>
@@ -35,7 +35,7 @@
 <doc name="gcode_rs274ngc" title="RS-274/NGC Gcode"/>
 <doc name="examples_gcode" title="Gcode Examples"/>
 <doc name="gui_image-to-gcode" title="Image to Gcode"/>
-<doc name="common_Glossary" title="Glossary"/>
+<doc name="common_glossary" title="Glossary"/>
 <doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
 
 <doc name="common_overleaf" title="Overleaf Text"/>
@@ -46,7 +46,6 @@
 <doc name="hal_basic_hal" title="Basic HAL Info"/>
 <doc name="hal_halshow" title="Halshow"/>
 <doc name="hal_components" title="HAL Components"/>
-<doc name="hal_rtcomps" title="Realtime Components"/>
 <doc name="hal_parallel_port" title="Parallel Port Drivers"/>
 <doc name="gui_halui" title="HAL User Interface"/>
 <doc name="hal_hal-examples" title="HAL Examples"/>
@@ -64,12 +63,12 @@
 <doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
 
 <doc name="common_overleaf" title="Overleaf Text"/>
-<doc name="common_Integrator_Concepts" title="Important Integrator Concepts"/>
+<doc name="common_integrator-concepts" title="Important Integrator Concepts"/>
 <doc name="install_Latency_Test" title="Latency Test"/>
-<doc name="config_ini_config" title="Basic Configuration"/>
-<doc name="config_ini_homing" title="Homing Configuration"/>
-<doc name="config_lathe_config" title="Lathe Configuration"/>
-<doc name="config_emc2hal" title="EMC2 interface to HAL"/>
+<doc name="config_ini-config" title="Basic Configuration"/>
+<doc name="config_ini-homing" title="Homing Configuration"/>
+<doc name="config_lathe-config" title="Lathe Configuration"/>
+<doc name="config_core-components" title="EMC2 interface to HAL"/>
 <doc name="config_stepper" title="Stepper Configuration"/>
 <doc name="hal_pyvcp" title="Python Virtual Control Panels (pyVCP)"/>
 <doc name="hal_pyvcp_examples" title="pyVCP Examples"/>
@@ -85,17 +84,17 @@
 <doc name="examples_spindle" title="Spindle Example"/>
 <doc name="examples_mpg" title="MPG Example"/>
 <doc name="examples_gs2_example" title="GS2 Example"/>
-<doc name="common_Stepper_Diagnostics" title="Stepper Quickstart"/>
+<doc name="common_stepper-diagnostics" title="Stepper Quickstart"/>
 <doc name="common_Linux_FAQ" title="Linux FAQ"/>
-<doc name="common_Glossary" title="Glossary"/>
-<doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
+<doc name="common_glossary" title="Glossary"/>
+<doc name="common_gpld-copyright" title="Copyright and Documentation License"/>
 
 <doc name="common_overleaf" title="Overleaf Text"/>
-<doc name="code_Code_Notes" title="Code Notes"/>
-<doc name="code_NML_Messages" title="NML Messages"/>
-<doc name="code_Style_Guide" title="Style Guide"/>
+<doc name="code_code-notes" title="Code Notes"/>
+<doc name="code_nml-messages" title="NML Messages"/>
+<doc name="code_style-guide" title="Style Guide"/>
 <doc name="common_Glossary" title="Glossary"/>
-<doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
+<doc name="common_gpld-copyright" title="Copyright and Documentation License"/>
 
 <doc name="xref" title="Cross Reference Index"/>
 </docgroup>
@@ -112,7 +111,7 @@
 <doc name="config/pncconf_es.html" title="L'assistant de configuration PncConf (pour les machines utilisant Mesa)"/>
 <doc name="config/copy_and_run_es.html" title="Copier et exécuter"/>
 <doc name="common/Linux_FAQ_es.html" title="Petite FAQ Linux"/>
-<doc name="common/GPLD_Copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
+<doc name="common/gpld-copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 
 <doc name="common/overleaf.html" title="Texte de la page couverture (en anglais)"/>
 <doc name="common/userforeword_es.html" title="Avant-propos"/>
@@ -189,9 +188,9 @@
 <doc name="common/GPLD_Copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 
 <doc name="common/overleaf.html" title="Texte de la page couverture (en anglais)"/>
-<doc name="code/Code_Notes.html" title="Notes sur le code (en anglais)"/>
-<doc name="code/NML_Messages.html" title="Messages LNM (en anglais)"/>
-<doc name="code/Style_Guide.html" title="Guide de style (en anglais)"/>
+<doc name="code/code-notes.html" title="Notes sur le code (en anglais)"/>
+<doc name="code/nml-messages.html" title="Messages LNM (en anglais)"/>
+<doc name="code/style-guide.html" title="Guide de style (en anglais)"/>
 <doc name="common/Glossary.html" title="Glossaire (en anglais)"/>
 <doc name="common/GPLD_Copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 	
@@ -271,10 +270,10 @@
 <doc name="common/Stepper_Diagnostics_fr.html" title="Diagnostic des moteurs pas &agrave; pas"/>
 <doc name="common/Updating_linuxcnc_fr.html" title="Mises &agrave; jour de LinuxCNC"/>
 
-<doc name="code/Code_Notes.html" title="Notes sur le code (en anglais)"/>
-<doc name="code/NML_Messages.html" title="Messages LNM (en anglais)"/>
-<doc name="code/Style_Guide.html" title="Guide de style (en anglais)"/>
-<doc name="common/Glossary.html" title="Glossaire (en anglais)"/>
+<doc name="code/code-notes.html" title="Notes sur le code (en anglais)"/>
+<doc name="code/nml-messages.html" title="Messages LNM (en anglais)"/>
+<doc name="code/style-guide.html" title="Guide de style (en anglais)"/>
+<doc name="common/glossary.html" title="Glossaire (en anglais)"/>
 <doc name="common/GPLD_Copyright_fr.html" title="Copyright et Licence de la documentation"/>
 	
 <doc name="./xref_fr.html" title="Index"/>

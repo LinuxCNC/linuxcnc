@@ -23,27 +23,28 @@ endif
 
 ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS_EN := \
-	code/Code_Notes.txt \
-	code/Style_Guide.txt \
-	code/NML_Messages.txt \
-	code/Contributing-to-LinuxCNC.txt \
+	code/code-notes.txt \
+	code/style-guide.txt \
+	code/nml-messages.txt \
+	code/contributing-to-linuxcnc.txt \
 	common/emc-history.txt \
-	common/Glossary.txt \
-	common/GPLD_Copyright.txt \
-	common/Integrator_Concepts.txt \
+	common/glossary.txt \
+	common/gpld-copyright.txt \
+	common/integrator-concepts.txt \
 	common/overleaf.txt \
 	common/python-interface.txt \
-	common/starting-emc.txt \
-	common/Stepper_Diagnostics.txt \
-	common/User_Concepts.txt \
-	common/userforeword.txt \
-	common/user_intro.txt \
+	common/starting-linuxcnc.txt \
+	common/stepper-diagnostics.txt \
+	common/user-concepts.txt \
+	common/user-foreword.txt \
+	common/user-intro.txt \
 	config/core-components.txt \
-	config/ini_config.txt \
-	config/ini_homing.txt \
-	config/lathe_config.txt \
+	config/ini-config.txt \
+	config/ini-homing.txt \
+	config/lathe-config.txt \
 	config/moveoff.txt \
 	config/stepper.txt \
+	config/stepper-quickstart.txt \
 	drivers/AX5214H.txt \
 	drivers/VFS11.txt \
 	drivers/GM.txt \
@@ -75,7 +76,6 @@ DOC_SRCS_EN := \
 	getting-started/pncconf.txt \
 	getting-started/Running-LinuxCNC.txt \
 	getting-started/stepconf.txt \
-	getting-started/stepper_quickstart.txt \
 	getting-started/System_Requirements.txt \
 	getting-started/Updating_LinuxCNC.txt \
 	gui/axis.txt \
@@ -203,7 +203,7 @@ DOC_SRCS_ES := \
 	getting-started/Linux_FAQ_es.txt \
 	getting-started/Running-LinuxCNC_es.txt \
 	getting-started/stepconf_es.txt \
-	getting-started/stepper_quickstart_es.txt \
+	config/stepper_quickstart_es.txt \
 	getting-started/System_Requirements_es.txt \
 
 DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES)

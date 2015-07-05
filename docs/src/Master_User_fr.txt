@@ -44,7 +44,7 @@ include::lathe/lathe-user_fr.txt[]
 include::gcode/rs274ngc_fr.txt[]
 include::gui/image-to-gcode_fr.txt[]
 include::common/Glossary_fr.txt[]
-include::common/GPLD_Copyright.txt[]
+include::common/gpld-copyright.txt[]
 
 // = Index
 

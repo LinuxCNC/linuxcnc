@@ -15,17 +15,17 @@ include::common/overleaf.txt[]
 
 :leveloffset: 1
 
-include::code/Code_Notes.txt[]
+include::code/code-notes.txt[]
 
-include::code/NML_Messages.txt[]
+include::code/nml-messages.txt[]
 
-include::code/Style_Guide.txt[]
+include::code/style-guide.txt[]
 
-include::code/Contributing-to-LinuxCNC.txt[]
+include::code/contributing-to-linuxcnc.txt[]
 
-include::common/Glossary.txt[]
+include::common/glossary.txt[]
 
-include::common/GPLD_Copyright.txt[]
+include::common/gpld-copyright.txt[]
 
 // vim: set syntax=asciidoc:
 

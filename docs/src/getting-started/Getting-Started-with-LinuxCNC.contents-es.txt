@@ -10,8 +10,6 @@ include::Updating_LinuxCNC_es.txt[]
 
 include::Running-LinuxCNC_es.txt[]
 
-include::stepper_quickstart_es.txt[]
-
 include::stepconf_es.txt[]
 
 include::pncconf_es.txt[]
