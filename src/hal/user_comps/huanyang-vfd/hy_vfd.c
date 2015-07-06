@@ -356,7 +356,7 @@ int read_setup(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 
 
 	if (mb_param->debug) {
-		printf("read_data: reading setup parameters:\n");
+		printf("read_setup: reading setup parameters:\n");
 	}
 
 	mb_data->function = FUNCTION_READ;
@@ -388,7 +388,7 @@ int read_setup(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	*(haldata->rated_motor_rev) = mb_data->ret_data;
 	
 	if (mb_param->debug) {
-		printf("read_data: read setup parameters - OK.\n");
+		printf("read_setup: read setup parameters - OK.\n");
 	}
 			
 	retval = 0;
