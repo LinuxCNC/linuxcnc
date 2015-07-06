@@ -41,9 +41,9 @@
 <doc name="common_overleaf" title="Overleaf Text"/>
 <doc name="hal_intro" title="Introduction"/>
 <doc name="hal_tutorial" title="HAL Advanced Tutorial"/>
-<doc name="hal_general_ref" title="General Reference"/>
+<doc name="hal_general-ref" title="General Reference"/>
 <doc name="hal_tools" title="HAL Tools"/>
-<doc name="hal_basic_hal" title="Basic HAL Info"/>
+<doc name="hal_basic-hal" title="Basic HAL Info"/>
 <doc name="hal_halshow" title="Halshow"/>
 <doc name="hal_components" title="HAL Components"/>
 <doc name="hal_parallel_port" title="Parallel Port Drivers"/>
@@ -71,7 +71,7 @@
 <doc name="config_core-components" title="EMC2 interface to HAL"/>
 <doc name="config_stepper" title="Stepper Configuration"/>
 <doc name="hal_pyvcp" title="Python Virtual Control Panels (pyVCP)"/>
-<doc name="hal_pyvcp_examples" title="pyVCP Examples"/>
+<doc name="hal_pyvcp-examples" title="pyVCP Examples"/>
 <doc name="gui_gladevcp" title="Glade Virtual Control Panel"/>
 <doc name="gui_gscreen" title="Gscreen"/>
 <doc name="motion_kinematics" title="Kinematics"/>

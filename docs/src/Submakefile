@@ -90,31 +90,31 @@ DOC_SRCS_EN := \
 	gui/tklinuxcnc.txt \
 	gui/tooledit.txt \
 	gui/touchy.txt \
-	hal/basic_hal.txt \
+	hal/basic-hal.txt \
 	hal/canonical-devices.txt \
 	hal/comp.txt \
 	hal/components.txt \
-	hal/general_ref.txt \
+	hal/general-ref.txt \
 	hal/hal-examples.txt \
 	hal/halmodule.txt \
 	hal/halshow.txt \
 	hal/haltcl.txt \
-	hal/halui_examples.txt \
+	hal/halui-examples.txt \
 	hal/intro.txt \
-	hal/parallel_port.txt \
+	hal/parallel-port.txt \
 	gui/pyvcp.txt \
-	gui/pyvcp_examples.txt \
+	gui/pyvcp-examples.txt \
 	hal/rtcomps.txt \
 	hal/tools.txt \
 	hal/tutorial.txt \
-	install/Latency_Test.txt \
-	ladder/classic_ladder.txt \
-	ladder/ladder_examples.txt \
-	ladder/ladder_intro.txt \
+	install/latency-test.txt \
+	ladder/classic-ladder.txt \
+	ladder/ladder-examples.txt \
+	ladder/ladder-intro.txt \
 	lathe/lathe-user.txt \
 	motion/kinematics.txt \
-	motion/pid_theory.txt \
-	motion/tweaking_steppers.txt \
+	motion/pid-theory.txt \
+	motion/tweaking-steppers.txt \
 	remap/remap.txt \
 	Master_Getting_Started.txt \
 	getting-started/index.txt \
