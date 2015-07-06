@@ -765,6 +765,10 @@ int main(int argc, char **argv)
 	while (!*(haldata->enable)){
 		// do nothing until enabled
                 usleep(10*1000);
+                if (done) {
+                    // killed by signal
+                    exit(0);
+                }
 	}
 	
 	// read the VFD setup parameters
