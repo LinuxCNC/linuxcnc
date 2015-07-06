@@ -1,0 +1,16 @@
+This is an example to show 'profile recording and replay' ("in principle") as discussed on emc-users, 'G71 lathe roughing cycle'
+
+
+
+linuxcnc list-recorder.ini
+
+hit run and see what happens.
+
+To understand how things fit together:
+
+- see the REMAP statements in cycle.ini
+- python/remap.py contains the Python glue
+- python/recorder.py is 'the profile recorder'
+
+
+ps: if the self.execute("some gcode") call fails, the error message is less than helpful. This can be fixed.

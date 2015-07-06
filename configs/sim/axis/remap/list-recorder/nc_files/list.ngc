@@ -1,0 +1,37 @@
+; http://www.bpuk.org/linuxcnc/test.ngc
+; G18 G21 G91.1
+; T02 M06 G43
+; S2000 M03
+; (Bottom to top, right to left)
+; (G1 X30 Z5 F1000)
+; G0 X25 Z1.0 (Start Position before commanding the cycle)
+; G71 P1 Q8 D0.5 F900 J1 L1 I0.5 K0.5
+
+; N1 G0 X5
+; N2 G1 Z-10
+; N3 G3 X10 Z-15 R5.5
+; N4 G1 Z-20
+; N5 G2 X15 Z-25 R5.5
+; N6 G1 X18
+; N7 G1 X20 Z-28
+; N8 G1 X25
+; M2
+
+; record in profile 47
+G0.1 Q47 X5 (foo)
+G1.1 Q47 Z-10
+G3.1 Q47 X10 Z-15 R5.5
+G1.1 Q47 Z-20
+G2.1 Q47 X15 Z-25 R5.5
+G1.1 Q47 X18
+G1.1 Q47 X20 Z-28
+G1.1 Q47 X25
+
+; print profile 47
+m201 q47 
+
+f100
+; execute profile 47
+M202 q47
+
+m2
