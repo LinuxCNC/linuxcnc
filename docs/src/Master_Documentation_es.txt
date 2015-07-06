@@ -130,7 +130,7 @@ include::config/lathe-config.txt[]
 
 include::hal/haltcl.txt[]
 
-include::remap/structure.txt[]
+include::remap/remap.txt[]
 
 include::config/moveoff.txt[]
 
