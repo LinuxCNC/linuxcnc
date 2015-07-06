@@ -88,8 +88,8 @@ typedef struct {
 	hal_float_t	*Cont;
 	hal_float_t *Tmp;					// Temperature (to be confirmed)
 	
-	hal_bit_t *spindle_fwd;				// spindle forward input
-	hal_bit_t *spindle_rev;				// spindle reverse input
+	hal_bit_t *spindle_forward;			// spindle forward input
+	hal_bit_t *spindle_reverse;			// spindle reverse input
 	hal_bit_t *spindle_on;				// spinlde on input
 	hal_float_t *CNTR;					// stores the status of the control request
 	hal_float_t *CNST;					// stores the response of the control request
@@ -224,9 +224,9 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	mb_data->function = WRITE_FREQ_DATA;
 	mb_data->parameter = 0x00;
 	
-	if ((*(haldata->spindle_fwd) && !*(haldata->spindle_rev)) && *(haldata->spindle_on)) {
+	if ((*(haldata->spindle_forward) && !*(haldata->spindle_reverse)) && *(haldata->spindle_on)) {
 		freq_comp = 1;
-	} else if ((*(haldata->spindle_rev) && !*(haldata->spindle_fwd)) && *(haldata->spindle_on)) {
+	} else if ((*(haldata->spindle_reverse) && !*(haldata->spindle_forward)) && *(haldata->spindle_on)) {
 		freq_comp = -1;
 	} else {
 		freq_comp = 0;	
@@ -257,9 +257,9 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	mb_data->function = WRITE_CONTROL_DATA;
 	mb_data->parameter = 0x00;
 	
-	if ((*(haldata->spindle_fwd) && !*(haldata->spindle_rev)) && *(haldata->spindle_on)) {
+	if ((*(haldata->spindle_forward) && !*(haldata->spindle_reverse)) && *(haldata->spindle_on)) {
 		CNTR = CONTROL_Run_Fwd;
-	} else if ((*(haldata->spindle_rev) && !*(haldata->spindle_fwd)) && (*haldata->spindle_on)) {
+	} else if ((*(haldata->spindle_reverse) && !*(haldata->spindle_forward)) && (*haldata->spindle_on)) {
 		CNTR = CONTROL_Run_Rev;
 	} else {
 		CNTR = CONTROL_Stop;	
@@ -678,9 +678,9 @@ int main(int argc, char **argv)
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->Tmp), hal_comp_id, "%s.Tmp", modname);
 	if (retval!=0) goto out_closeHAL;
 	
-	retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_fwd), hal_comp_id, "%s.spindle-fwd", modname);
+	retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_forward), hal_comp_id, "%s.spindle-forward", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_rev), hal_comp_id, "%s.spindle-rev", modname);
+	retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_reverse), hal_comp_id, "%s.spindle-reverse", modname);
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_on), hal_comp_id, "%s.spindle-on", modname);
 	if (retval!=0) goto out_closeHAL;
@@ -753,8 +753,8 @@ int main(int argc, char **argv)
 	*(haldata->Cont) = 0;
 	*(haldata->Tmp) = 0;
 	
-	*(haldata->spindle_fwd) = 0;
-	*(haldata->spindle_rev) = 0;
+	*(haldata->spindle_forward) = 0;
+	*(haldata->spindle_reverse) = 0;
 	*(haldata->spindle_on) = 0;
 	*(haldata->freq_cmd) = 0;
 	*(haldata->CNTR) = 0;
