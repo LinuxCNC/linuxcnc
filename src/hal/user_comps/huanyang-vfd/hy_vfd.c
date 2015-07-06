@@ -116,12 +116,13 @@ typedef struct {
 	
 	hal_float_t *max_rpm;				// calculated based on VFD max frequency setup parameter
 
-	
+        hal_float_t     *spindle_speed_fb;   // (out) reports current spindle speed
+        hal_bit_t       *spindle_at_speed;   // (out) True when spindle is on and at commanded speed
+        hal_float_t     *spindle_at_speed_tolerance;  // (in)
 
 	hal_float_t	retval;
 	hal_s32_t	errorcount;
 	hal_float_t	looptime;
-	//hal_float_t	speed_tolerance;   		// unused?
 	//hal_float_t	motor_nameplate_hz;		// speeds are scaled in Hz, not RPM
 	//hal_float_t	motor_nameplate_RPM;	// nameplate RPM at default Hz
 	//hal_float_t	rpm_limit;				// do-not-exceed output frequency
@@ -432,7 +433,23 @@ int read_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *halda
 		printf("Out_F = [%.2X]", mb_data->ret_data);
 		printf("\n");
 	}
-			
+
+        if (
+            *haldata->spindle_on
+            && (fabs(*haldata->speed_command) > 0.0)
+            && (*haldata->Set_F > 0.0)
+        ) {
+            *haldata->spindle_speed_fb = (*haldata->Out_F / *haldata->max_freq) * *haldata->rated_motor_rev;
+            if (fabs(1 - (*haldata->spindle_speed_fb / *haldata->speed_command)) < *haldata->spindle_at_speed_tolerance) {
+                *haldata->spindle_at_speed = 1;
+            } else {
+                *haldata->spindle_at_speed = 0;
+            }
+        } else {
+            *haldata->spindle_speed_fb = 0.0;
+            *haldata->spindle_at_speed = 0;
+        }
+
 	mb_data->data = STATUS_OutA;
 	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
 		goto failed;		
@@ -714,6 +731,15 @@ int main(int argc, char **argv)
 	retval = hal_param_float_newf(HAL_RW, &(haldata->retval), hal_comp_id, "%s.retval", modname);
 	if (retval!=0) goto out_closeHAL;
 
+	retval = hal_pin_float_newf(HAL_OUT, &(haldata->spindle_speed_fb), hal_comp_id, "%s.spindle-speed-fb", modname);
+	if (retval!=0) goto out_closeHAL;
+
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->spindle_at_speed), hal_comp_id, "%s.spindle-at-speed", modname);
+	if (retval!=0) goto out_closeHAL;
+
+	retval = hal_pin_float_newf(HAL_IN, &(haldata->spindle_at_speed_tolerance), hal_comp_id, "%s.spindle-at-speed-tolerance", modname);
+	if (retval!=0) goto out_closeHAL;
+
 	/* make default data match what we expect to use */
 
 	*(haldata->enable) = 0;
@@ -742,12 +768,15 @@ int main(int argc, char **argv)
 
 	*(haldata->modbus_ok) = 0;
 
+	*haldata->spindle_speed_fb = 0.0;
+	*haldata->spindle_at_speed = 0;
+	*haldata->spindle_at_speed_tolerance = 0.02;
+
 	mb_data.slave = slave;
 	haldata->errorcount = 0;
 	haldata->looptime = 0.1;
 
 	
-	//haldata->speed_tolerance = 0.01;  	//output frequency within 1% of target frequency
 	//haldata->motor_nameplate_hz = 50;	// folks in The Colonies typically would use 60Hz and 1730 rpm
 	//haldata->motor_nameplate_RPM = 1410;
 	//haldata->rpm_limit = MAX_RPM;

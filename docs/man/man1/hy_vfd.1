@@ -196,6 +196,20 @@ number you set on the Hyanyang VFD in register PD163.
 .IP <name>.speed-command
 (float, in)
 .B
+.IP <name>.spindle-speed-fb
+(float, out) Current spindle speed as reported by Huanyang VFD.
+.B
+.IP <name>.spindle-at-speed-tolerance
+(float, in) Spindle speed error tolerance.  If the actual spindle
+speed is within .spindle-at-speed-tolerance of the commanded speed,
+then the .spindle-at-speed pin will go True.  The
+default .spindle-at-speed-tolerance is 0.02, which means the actual
+speed must be within 2% of the commanded spindle speed.
+.B
+.IP <name>.spindle-at-speed
+(bit, out) True when the current spindle speed is within
+.spindle-at-speed-tolerance of the commanded speed.
+.B
 .IP <name>.frequency-command
 (float, out)
 .B
