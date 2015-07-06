@@ -1,19 +1,19 @@
 :leveloffset: 1
 
-include::About-LinuxCNC.txt[]
+include::about-linuxcnc.txt[]
 
-include::System_Requirements.txt[]
+include::system-requirements.txt[]
 
-include::Getting-LinuxCNC.txt[]
+include::getting-linuxcnc.txt[]
 
-include::Updating_LinuxCNC.txt[]
+include::updating-linuxcnc.txt[]
 
-include::Running-LinuxCNC.txt[]
+include::running-linuxcnc.txt[]
 
 include::stepconf.txt[]
 
 include::pncconf.txt[]
 
-include::Linux_FAQ.txt[]
+include::linux-faq.txt[]
 
 // vim: set syntax=asciidoc:

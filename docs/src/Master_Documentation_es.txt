@@ -28,15 +28,15 @@ include::common/user-intro.txt[]
 
 include::common/user-concepts.txt[]
 
-include::gcode/machining_center.txt[]
+include::gcode/machining-center.txt[]
 
-include::getting-started/Running-LinuxCNC.txt[]
+include::getting-started/running-linuxcnc.txt[]
 
 include::getting-started/stepconf.txt[]
 
 include::getting-started/pncconf.txt[]
 
-include::getting-started/Linux_FAQ.txt[]
+include::getting-started/linux-faq.txt[]
 
 include::lathe/lathe-user.txt[]
 
@@ -70,7 +70,7 @@ include::gcode/coordinates.txt[]
 
 include::gcode/overview.txt[]
 
-include::gcode/gcode.txt[]
+include::gcode/g-code.txt[]
 
 include::gcode/m-code.txt[]
 
@@ -90,7 +90,7 @@ include::gui/image-to-gcode.txt[]
 
 :leveloffset: 2
 
-include::gcode/tool_compensation.txt[]
+include::gcode/tool-compensation.txt[]
 
 include::gui/tooledit.txt[]
 
@@ -170,9 +170,9 @@ include::common/python-interface.txt[]
 
 include::hal/parallel_port.txt[]
 
-include::drivers/AX5214H.txt[]
+include::drivers/ax5214h.txt[]
 
-include::drivers/GS2.txt[]
+include::drivers/gs2.txt[]
 
 include::drivers/hostmot2.txt[]
 
@@ -180,17 +180,17 @@ include::drivers/motenc.txt[]
 
 include::drivers/opto22.txt[]
 
-include::drivers/pico_ppmc.txt[]
+include::drivers/pico-ppmc.txt[]
 
-include::drivers/pluto_p.txt[]
+include::drivers/pluto-p.txt[]
 
-include::drivers/servo_to_go.txt[]
+include::drivers/servo-to-go.txt[]
 
 include::drivers/shuttlexpress.txt[]
 
-include::drivers/GM.txt[]
+include::drivers/gm.txt[]
 
-include::drivers/VFS11.txt[]
+include::drivers/vfs11.txt[]
 
 :leveloffset: 1
 
@@ -198,13 +198,13 @@ include::drivers/VFS11.txt[]
 
 :leveloffset: 2
 
-include::examples/pci_parallel_port.txt[]
+include::examples/pci-parallel-port.txt[]
 
 include::examples/spindle.txt[]
 
 include::examples/mpg.txt[]
 
-include::examples/gs2_example.txt[]
+include::examples/gs2-example.txt[]
 
 :leveloffset: 1
 

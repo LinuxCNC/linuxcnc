@@ -45,39 +45,39 @@ DOC_SRCS_EN := \
 	config/moveoff.txt \
 	config/stepper.txt \
 	config/stepper-quickstart.txt \
-	drivers/AX5214H.txt \
-	drivers/VFS11.txt \
-	drivers/GM.txt \
-	drivers/GS2.txt \
+	drivers/ax5214h.txt \
+	drivers/vfs11.txt \
+	drivers/gm.txt \
+	drivers/gs2.txt \
 	drivers/hostmot2.txt \
 	drivers/motenc.txt \
 	drivers/opto22.txt \
-	drivers/pico_ppmc.txt \
-	drivers/pluto_p.txt \
-	drivers/servo_to_go.txt \
+	drivers/pico-ppmc.txt \
+	drivers/pluto-p.txt \
+	drivers/servo-to-go.txt \
 	drivers/shuttlexpress.txt \
 	examples/gcode.txt \
-	examples/gs2_example.txt \
+	examples/gs2-example.txt \
 	examples/mpg.txt \
-	examples/pci_parallel_port.txt \
+	examples/pci-parallel-port.txt \
 	examples/spindle.txt \
 	gcode/coordinates.txt \
-	gcode/gcode.txt \
-	gcode/machining_center.txt \
+	gcode/g-code.txt \
+	gcode/machining-center.txt \
 	gcode/m-code.txt \
 	gcode/o-code.txt \
 	gcode/other-code.txt \
 	gcode/overview.txt \
 	gcode/rs274ngc.txt \
-	gcode/tool_compensation.txt \
-	getting-started/About-LinuxCNC.txt \
-	getting-started/Getting-LinuxCNC.txt \
-	getting-started/Linux_FAQ.txt \
+	gcode/tool-compensation.txt \
+	getting-started/about-linuxcnc.txt \
+	getting-started/getting-linuxcnc.txt \
+	getting-started/linux-faq.txt \
 	getting-started/pncconf.txt \
-	getting-started/Running-LinuxCNC.txt \
+	getting-started/running-linuxcnc.txt \
 	getting-started/stepconf.txt \
-	getting-started/System_Requirements.txt \
-	getting-started/Updating_LinuxCNC.txt \
+	getting-started/system-requirements.txt \
+	getting-started/updating-linuxcnc.txt \
 	gui/axis.txt \
 	gui/gmoccapy.txt \
 	gui/gladevcp.txt \

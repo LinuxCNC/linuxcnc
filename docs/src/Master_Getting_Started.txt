@@ -12,13 +12,13 @@ image::common/images/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-include::getting-started/About-LinuxCNC.txt[]
+include::getting-started/about-linuxcnc.txt[]
 
-include::getting-started/System_Requirements.txt[]
+include::getting-started/system-requirements.txt[]
 
-include::getting-started/Getting-LinuxCNC.txt[]
+include::getting-started/getting-linuxcnc.txt[]
 
-include::getting-started/Updating_LinuxCNC.txt[]
+include::getting-started/updating-linuxcnc.txt[]
 
 include::common/gpld-copyright.txt[]
 

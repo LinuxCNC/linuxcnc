@@ -28,7 +28,7 @@
 <doc name="common_machining_center" title="Machining Center Info"/>
 <doc name="gcode_overview" title="Gcode Overview"/>
 <doc name="gcode_coordinates" title="Gcode Coordinates"/>
-<doc name="gcode_tool_compensation" title="Gcode Tool Compensation"/>
+<doc name="gcode_tool-compensation" title="Gcode Tool Compensation"/>
 <doc name="gcode_main" title="The EMC2 Gcode Language"/>
 <doc name="gcode_mill_canned" title="Gcode Mill Canned Cycle Examples"/>
 <doc name="lathe_lathe-user" title="Lathe User Information"/>
@@ -51,16 +51,16 @@
 <doc name="hal_hal-examples" title="HAL Examples"/>
 <doc name="hal_comp" title="Comp: a tool for creating HAL components"/>
 <doc name="hal_halmodule" title="Creating Userspace Python Components with the 'hal' module"/>
-<doc name="drivers_AX5214H" title="AX5214H Driver"/>
-<doc name="drivers_GS2" title="GS2 Driver"/>
+<doc name="drivers_ax5214h" title="AX5214H Driver"/>
+<doc name="drivers_gs2" title="GS2 Driver"/>
 <doc name="drivers_hostmot2" title="HostMot2 Driver"/>
 <doc name="drivers_motenc" title="Motenc Driver"/>
 <doc name="drivers_opto22" title="Opto22 Driver"/>
-<doc name="drivers_pico_ppmc" title="Pico PPMC Driver"/>
-<doc name="drivers_pluto_p" title="Pluto-P Driver"/>
-<doc name="drivers_servo_to_go" title="Servo-To-Go Driver"/>
-<doc name="drivers_GM" title="General Mechatronics GM6-PCI Driver"/>
-<doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
+<doc name="drivers_pico-ppmc" title="Pico PPMC Driver"/>
+<doc name="drivers_pluto-p" title="Pluto-P Driver"/>
+<doc name="drivers_servo-to-go" title="Servo-To-Go Driver"/>
+<doc name="drivers_gm" title="General Mechatronics GM6-PCI Driver"/>
+<doc name="common_gpld-copyright" title="Copyright and Documentation License"/>
 
 <doc name="common_overleaf" title="Overleaf Text"/>
 <doc name="common_integrator-concepts" title="Important Integrator Concepts"/>
@@ -80,10 +80,10 @@
 <doc name="ladder_ladder_intro" title="Ladder Introduction"/>
 <doc name="ladder_classic_ladder" title="ClassicLadder"/>
 <doc name="ladder_ladder_examples" title="ClassicLadder Examples"/>
-<doc name="examples_pci_parallel_port" title="PCI Parallel Port"/>
+<doc name="examples_pci-parallel-port" title="PCI Parallel Port"/>
 <doc name="examples_spindle" title="Spindle Example"/>
 <doc name="examples_mpg" title="MPG Example"/>
-<doc name="examples_gs2_example" title="GS2 Example"/>
+<doc name="examples_gs2-example" title="GS2 Example"/>
 <doc name="common_stepper-diagnostics" title="Stepper Quickstart"/>
 <doc name="common_Linux_FAQ" title="Linux FAQ"/>
 <doc name="common_glossary" title="Glossary"/>
