@@ -1,0 +1,88 @@
+
+############### Control Panel hal pins #################### 
+
+# ControlPanel.estop         =   out  =  bool
+# ControlPanel.on            =   out  =  bool
+# ControlPanel.off           =   out  =  bool
+# ControlPanel.manual        =   out  =  bool
+# ControlPanel.mdi           =   out  =  bool
+# ControlPanel.auto          =   out  =  bool
+
+# ControlPanel.is-estoped    =   in   =  bool
+# ControlPanel.is-on         =   in   =  bool
+# ControlPanel.is-off        =   in   =  bool
+# ControlPanel.is-manual     =   in   =  bool
+# ControlPanel.is-mdi        =   in   =  bool
+# ControlPanel.is-auto       =   in   =  bool
+
+# unfortunately we have in sim_core.hal
+# # estop loopback
+# net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+# So we have to unconnect the pin firts with
+
+unlinkp iocontrol.0.user-enable-out
+unlinkp iocontrol.0.emc-enable-in
+
+# Hook up ControlPanel pins using the net command
+
+net estop       Panel.estop      =>  iocontrol.0.emc-enable-in
+net on          Panel.on         =>  halui.machine.on
+net off         Panel.off        =>  halui.machine.off
+ 
+net manual      Panel.manual  =>  luminos.mode.manual
+net mdi         Panel.mdi     =>  luminos.mode.mdi
+net auto        Panel.auto    =>  luminos.mode.auto
+
+net led_manual_h  halui.mode.is-manual  =>  Panel.led-manual
+net led_mdi_h     halui.mode.is-mdi     =>  Panel.led-mdi
+net led_auto_h    halui.mode.is-auto    =>  Panel.led-auto
+
+net led_manual  luminos.mode.is-manual  =>  Panel.led-manual-lumi
+net led_mdi     luminos.mode.is-mdi     =>  Panel.led-mdi-lumi
+net led_auto    luminos.mode.is-auto    =>  Panel.led-auto-lumi
+
+net jog-0       Panel.jog-inc-0     =>   luminos.jog.jog-inc-0
+net jog-1       Panel.jog-inc-1     =>   luminos.jog.jog-inc-1
+net jog-2       Panel.jog-inc-2     =>   luminos.jog.jog-inc-2
+net jog-3       Panel.jog-inc-3     =>   luminos.jog.jog-inc-3
+net jog-4       Panel.jog-inc-4     =>   luminos.jog.jog-inc-4
+net jog-5       Panel.jog-inc-5     =>   luminos.jog.jog-inc-5
+
+net incr        luminos.jog.jog-increment       =>  Panel.jog-increment
+
+net jog-x       Panel.jog-x-minus    =>  luminos.jog.jog-0-minus
+net jog+x       Panel.jog-x-plus     =>  luminos.jog.jog-0-plus
+net jog-y       Panel.jog-y-minus    =>  luminos.jog.jog-1-minus
+net jog+y       Panel.jog-y-plus     =>  luminos.jog.jog-1-plus
+net jog-z       Panel.jog-z-minus    =>  luminos.jog.jog-2-minus
+net jog+z       Panel.jog-z-plus     =>  luminos.jog.jog-2-plus
+net jog-c       Panel.jog-4-minus    =>  luminos.jog.jog-5-minus
+net jog+c       Panel.jog-4-plus     =>  luminos.jog.jog-5-plus
+net jog-w       Panel.jog-5-minus    =>  luminos.jog.jog-8-minus
+net jog+w       Panel.jog-5-plus     =>  luminos.jog.jog-8-plus
+
+net jog-jog      Panel.jog-vel-counts      => luminos.jog.jog-speed-counts
+net jog-max-vel  Panel.max-vel-counts      => luminos.jog.max-vel-counts 
+#net feed-or      Panel.feed-override-counts     => luminos.override.feed-override-counts 
+#net spindle-or   Panel.spindle-override-counts  => luminos.spindle.override-counts 
+
+#net jog-vel     luminos.jog.jog-velocity   =>   Panel.jog-vel-bar
+#net max-vel     luminos.jog.max-velocity   =>   Panel.max-vel-bar
+
+#net jog        Panel.main-jogwheel => axis.0.jog-counts => axis.1.jog-counts => axis.2.jog-counts
+#net axis-0     Panel.axis-0  =>  axis.0.jog-enable
+#net axis-1     Panel.axis-1  =>  axis.1.jog-enable
+#net axis-2     Panel.axis-2  =>  axis.2.jog-enable
+#net axis-4     Panel.axis-3  =>  axis.5.jog-enable
+#net axis-5     Panel.axis-4  =>  axis.8.jog-enable
+
+net error       luminos.error   =>   Panel.error
+net del_mes     Panel.delete-message   =>   luminos.delete-message
+
+net spl-for     Panel.forward   =>  luminos.spindle.forward
+net spl-rev     Panel.reverse   =>  luminos.spindle.reverse
+net spl-stop    Panel.stop      =>  luminos.spindle.stop
+
+   
+
+

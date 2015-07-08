@@ -1,0 +1,18 @@
+###################################################################
+#        moccapy_postgui.hal file from Norbert Schechner          #
+###################################################################
+
+#net spindle-speed-limited luminos.spindle_feedback_bar
+#net spindle-at-speed      luminos.spindle_at_speed_led
+
+# the unlink pin commands are only used, because they are connected 
+# in core_sim.hal and we use this file to simulate
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+
+net tool-change      luminos.tool.toolchange-change   <=  iocontrol.0.tool-change 
+net tool-changed     luminos.tool.toolchange-changed  <=  iocontrol.0.tool-changed
+net tool-prep-number luminos.tool.toolchange-number   <=  iocontrol.0.tool-prep-number
+
+net tooloffset-z  luminos.tool.tooloffset-z  <=  motion.tooloffset.z
+

@@ -1,0 +1,1292 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <child>
+      <object class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkTable" id="tbl_basic">
+            <property name="visible">True</property>
+            <property name="n_rows">3</property>
+            <property name="n_columns">3</property>
+            <child>
+              <object class="GtkToggleButton" id="tbtn_estop">
+                <property name="width_request">64</property>
+                <property name="height_request">64</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="active">True</property>
+                <child>
+                  <object class="GtkImage" id="img_emergency">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="pixbuf">../../../share/gmoccapy/images/estopred.png</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="x_options">GTK_SHRINK</property>
+                <property name="y_options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="tbtn_on">
+                <property name="width_request">64</property>
+                <property name="height_request">64</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <child>
+                  <object class="GtkImage" id="img_machine_off">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="pixbuf">../../../share/gmoccapy/images/machine_off.png</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
+                <property name="x_options">GTK_SHRINK</property>
+                <property name="y_options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioButton" id="rbt_manual">
+                <property name="width_request">56</property>
+                <property name="height_request">56</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">True</property>
+                <property name="image">img_manual</property>
+                <property name="active">True</property>
+                <property name="draw_indicator">False</property>
+              </object>
+              <packing>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_SHRINK</property>
+                <property name="y_options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioButton" id="rbt_mdi">
+                <property name="width_request">56</property>
+                <property name="height_request">56</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="image">img_mdi</property>
+                <property name="draw_indicator">False</property>
+                <property name="group">rbt_manual</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_SHRINK</property>
+                <property name="y_options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioButton" id="rbt_auto">
+                <property name="width_request">56</property>
+                <property name="height_request">56</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="image">img_auto</property>
+                <property name="draw_indicator">False</property>
+                <property name="group">rbt_manual</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_SHRINK</property>
+                <property name="y_options">GTK_SHRINK</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="lbl_space">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame" id="frm_mode">
+                <property name="visible">True</property>
+                <property name="label_xalign">0.5</property>
+                <child>
+                  <object class="GtkAlignment" id="ali_mode">
+                    <property name="visible">True</property>
+                    <property name="top_padding">3</property>
+                    <property name="bottom_padding">3</property>
+                    <property name="left_padding">3</property>
+                    <property name="right_padding">3</property>
+                    <child>
+                      <object class="GtkTable" id="tbl_mode">
+                        <property name="visible">True</property>
+                        <property name="n_rows">3</property>
+                        <property name="n_columns">4</property>
+                        <property name="homogeneous">True</property>
+                        <child>
+                          <object class="GtkLabel" id="lbl_manual">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Manual</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="lbl_mdi">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">MDI</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="lbl_auto">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Auto</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led-manual">
+                            <property name="visible">True</property>
+                            <property name="led_size">7</property>
+                            <property name="on_color">green</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led-mdi">
+                            <property name="visible">True</property>
+                            <property name="led_size">7</property>
+                            <property name="on_color">green</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led-auto">
+                            <property name="visible">True</property>
+                            <property name="led_size">7</property>
+                            <property name="on_color">green</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="lbl_space1">
+                            <property name="visible">True</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="lbl_halui">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">halui</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="lbl_luminos">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">luminos</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led-auto-lumi">
+                            <property name="visible">True</property>
+                            <property name="led_size">7</property>
+                            <property name="on_color">green</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led-mdi-lumi">
+                            <property name="visible">True</property>
+                            <property name="led_size">7</property>
+                            <property name="on_color">green</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led-manual-lumi">
+                            <property name="visible">True</property>
+                            <property name="led_size">7</property>
+                            <property name="on_color">green</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel" id="label1">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Modde&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="right_attach">3</property>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+                <property name="x_options">GTK_SHRINK</property>
+                <property name="y_options">GTK_SHRINK</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frm_jog_incr">
+            <property name="visible">True</property>
+            <property name="label_xalign">0.5</property>
+            <child>
+              <object class="GtkAlignment" id="ali_jo_incr">
+                <property name="visible">True</property>
+                <property name="top_padding">3</property>
+                <property name="bottom_padding">3</property>
+                <property name="left_padding">3</property>
+                <property name="right_padding">3</property>
+                <child>
+                  <object class="GtkTable" id="tbl_jog_incr">
+                    <property name="visible">True</property>
+                    <property name="n_rows">2</property>
+                    <property name="n_columns">6</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <object class="HAL_RadioButton" id="jog-inc-0">
+                        <property name="label" translatable="yes">0</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">False</property>
+                      </object>
+                      <packing>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_RadioButton" id="jog-inc-1">
+                        <property name="label" translatable="yes">1</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">False</property>
+                        <property name="group">jog-inc-0</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_RadioButton" id="jog-inc-2">
+                        <property name="label" translatable="yes">2</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">False</property>
+                        <property name="group">jog-inc-0</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">3</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_RadioButton" id="jog-inc-3">
+                        <property name="label" translatable="yes">3</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">False</property>
+                        <property name="group">jog-inc-0</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">3</property>
+                        <property name="right_attach">4</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_RadioButton" id="jog-inc-4">
+                        <property name="label" translatable="yes">4</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">False</property>
+                        <property name="group">jog-inc-0</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">4</property>
+                        <property name="right_attach">5</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Label" id="jog-increment">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">incrementvalue</property>
+                        <property name="text_template">%.4f</property>
+                        <property name="label_pin_type">1</property>
+                        <attributes>
+                          <attribute name="style" value="normal"/>
+                          <attribute name="weight" value="bold"/>
+                          <attribute name="scale" value="1.500000"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="right_attach">6</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_RadioButton" id="jog-inc-5">
+                        <property name="label" translatable="yes">5</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="xalign">0.47999998927116394</property>
+                        <property name="draw_indicator">False</property>
+                        <property name="group">jog-inc-0</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">5</property>
+                        <property name="right_attach">6</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="label3">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">&lt;b&gt;Increments&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frm_jogging">
+            <property name="visible">True</property>
+            <property name="label_xalign">0.5</property>
+            <child>
+              <object class="GtkAlignment" id="ali_jogging">
+                <property name="visible">True</property>
+                <property name="top_padding">3</property>
+                <property name="bottom_padding">3</property>
+                <property name="left_padding">3</property>
+                <property name="right_padding">3</property>
+                <child>
+                  <object class="GtkTable" id="table1">
+                    <property name="visible">True</property>
+                    <property name="n_rows">3</property>
+                    <property name="n_columns">6</property>
+                    <child>
+                      <object class="HAL_Button" id="jog-x-minus">
+                        <property name="label" translatable="yes">X-</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="jog-x-plus">
+                        <property name="label" translatable="yes">X+</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">3</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="jog-y-minus">
+                        <property name="label" translatable="yes">Y-</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="jog-y-plus">
+                        <property name="label" translatable="yes">Y+</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="jog-4-plus">
+                        <property name="label" translatable="yes">4+</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">4</property>
+                        <property name="right_attach">5</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="jog-5-plus">
+                        <property name="label" translatable="yes">5+</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="yalign">0.47999998927116394</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">5</property>
+                        <property name="right_attach">6</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="jog-5-minus">
+                        <property name="label" translatable="yes">5-</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="yalign">0.47999998927116394</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">5</property>
+                        <property name="right_attach">6</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="jog-4-minus">
+                        <property name="label" translatable="yes">4-</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="yalign">0.47999998927116394</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">4</property>
+                        <property name="right_attach">5</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="jog-z-plus">
+                        <property name="label" translatable="yes">Z+</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">3</property>
+                        <property name="right_attach">4</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="jog-z-minus">
+                        <property name="label" translatable="yes">Z-</property>
+                        <property name="width_request">36</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="yalign">0.47999998927116394</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">3</property>
+                        <property name="right_attach">4</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="label4">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">&lt;b&gt;Jog Button&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frm_speed_contro">
+            <property name="visible">True</property>
+            <property name="label_xalign">0.5</property>
+            <child>
+              <object class="GtkAlignment" id="ali_speed_control">
+                <property name="visible">True</property>
+                <property name="top_padding">3</property>
+                <property name="bottom_padding">3</property>
+                <property name="left_padding">3</property>
+                <property name="right_padding">3</property>
+                <child>
+                  <object class="GtkTable" id="table2">
+                    <property name="visible">True</property>
+                    <property name="n_rows">3</property>
+                    <property name="n_columns">4</property>
+                    <property name="column_spacing">2</property>
+                    <child>
+                      <object class="GtkLabel" id="lbl_jog_vel">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Jog Vel</property>
+                      </object>
+                      <packing>
+                        <property name="right_attach">2</property>
+                        <property name="x_options">GTK_SHRINK | GTK_FILL</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="JogWheel" id="jog-vel-counts">
+                        <property name="visible">True</property>
+                        <property name="size">100</property>
+                        <property name="label">Jog. Vel</property>
+                      </object>
+                      <packing>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="JogWheel" id="max-vel-counts">
+                        <property name="visible">True</property>
+                        <property name="size">100</property>
+                        <property name="label">Max. Vel</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">4</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="lbl_max_vel">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Max. Velocity</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">4</property>
+                        <property name="x_options">GTK_SHRINK | GTK_FILL</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_HBar" id="jog-vel-bar">
+                        <property name="height_request">10</property>
+                        <property name="visible">True</property>
+                        <property name="z2_color">#ffff00000000</property>
+                        <property name="z0_color">#0000ffff0000</property>
+                        <property name="max">10041</property>
+                        <property name="bg_color">#bebebebebebe</property>
+                        <property name="z1_color">#ffffffff0000</property>
+                        <property name="z0_border">0.25</property>
+                        <property name="target_color">#a0a02020f0f0</property>
+                        <property name="z1_border">0.75</property>
+                      </object>
+                      <packing>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_HBar" id="max-vel-bar">
+                        <property name="height_request">10</property>
+                        <property name="visible">True</property>
+                        <property name="z2_color">#ffff00000000</property>
+                        <property name="z0_color">#0000ffff0000</property>
+                        <property name="max">14190</property>
+                        <property name="bg_color">#bebebebebebe</property>
+                        <property name="z1_color">#ffffffff0000</property>
+                        <property name="z0_border">0.25</property>
+                        <property name="target_color">#a0a02020f0f0</property>
+                        <property name="z1_border">0.75</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">4</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="label5">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">&lt;b&gt;Speed Control&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox1">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkFrame" id="frm_others">
+                <property name="visible">True</property>
+                <property name="label_xalign">0.5</property>
+                <child>
+                  <object class="GtkAlignment" id="ali_others">
+                    <property name="visible">True</property>
+                    <property name="top_padding">3</property>
+                    <property name="bottom_padding">3</property>
+                    <property name="left_padding">3</property>
+                    <property name="right_padding">3</property>
+                    <child>
+                      <object class="GtkTable" id="tbl_spindle">
+                        <property name="visible">True</property>
+                        <property name="n_rows">3</property>
+                        <property name="n_columns">3</property>
+                        <property name="column_spacing">3</property>
+                        <property name="row_spacing">3</property>
+                        <property name="homogeneous">True</property>
+                        <child>
+                          <object class="HAL_RadioButton" id="reverse">
+                            <property name="label" translatable="yes">rev.</property>
+                            <property name="width_request">36</property>
+                            <property name="height_request">36</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">False</property>
+                            <property name="group">stop</property>
+                          </object>
+                          <packing>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_RadioButton" id="stop">
+                            <property name="label" translatable="yes">stop</property>
+                            <property name="width_request">36</property>
+                            <property name="height_request">36</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">False</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_RadioButton" id="forward">
+                            <property name="label" translatable="yes">forw.</property>
+                            <property name="width_request">36</property>
+                            <property name="height_request">36</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">False</property>
+                            <property name="group">stop</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Button" id="decrease">
+                            <property name="label" translatable="yes">-</property>
+                            <property name="width_request">36</property>
+                            <property name="height_request">36</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Button" id="increase">
+                            <property name="label" translatable="yes">+</property>
+                            <property name="width_request">36</property>
+                            <property name="height_request">36</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Button" id="reset">
+                            <property name="label" translatable="yes">100</property>
+                            <property name="width_request">36</property>
+                            <property name="height_request">36</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel" id="label6">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Spindle&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame" id="frm_cooling">
+                <property name="visible">True</property>
+                <property name="label_xalign">0.5</property>
+                <child>
+                  <object class="GtkAlignment" id="ali_cooling">
+                    <property name="visible">True</property>
+                    <property name="top_padding">3</property>
+                    <property name="bottom_padding">3</property>
+                    <property name="left_padding">3</property>
+                    <property name="right_padding">3</property>
+                    <child>
+                      <object class="GtkTable" id="tbl_cooling">
+                        <property name="visible">True</property>
+                        <property name="n_rows">2</property>
+                        <property name="row_spacing">3</property>
+                        <property name="homogeneous">True</property>
+                        <child>
+                          <object class="HAL_Button" id="coolant">
+                            <property name="label" translatable="yes">cool</property>
+                            <property name="width_request">36</property>
+                            <property name="height_request">36</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Button" id="mist">
+                            <property name="label" translatable="yes">mist</property>
+                            <property name="width_request">36</property>
+                            <property name="height_request">36</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_SHRINK</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel" id="lbl_frm_cooling">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">&lt;b&gt;cooling&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frm_prog">
+            <property name="visible">True</property>
+            <property name="label_xalign">0.5</property>
+            <child>
+              <object class="GtkAlignment" id="ali_prog">
+                <property name="visible">True</property>
+                <property name="top_padding">3</property>
+                <property name="bottom_padding">3</property>
+                <property name="left_padding">3</property>
+                <property name="right_padding">3</property>
+                <child>
+                  <object class="GtkTable" id="table4">
+                    <property name="visible">True</property>
+                    <property name="n_columns">3</property>
+                    <property name="column_spacing">3</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <object class="HAL_Button" id="aboart">
+                        <property name="label" translatable="yes">stop</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="run">
+                        <property name="label" translatable="yes">run</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="pause">
+                        <property name="label" translatable="yes">pause</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="lbl_frm_prog">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">&lt;b&gt;Program&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frm_run_feed">
+            <property name="visible">True</property>
+            <property name="label_xalign">0.5</property>
+            <child>
+              <object class="GtkAlignment" id="ali_run_feed">
+                <property name="visible">True</property>
+                <property name="top_padding">3</property>
+                <property name="bottom_padding">3</property>
+                <property name="left_padding">3</property>
+                <property name="right_padding">3</property>
+                <child>
+                  <object class="GtkTable" id="tbl_run_feed">
+                    <property name="visible">True</property>
+                    <property name="n_columns">2</property>
+                    <property name="column_spacing">3</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <object class="HAL_Button" id="start-feed">
+                        <property name="label" translatable="yes">start</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="x_options">GTK_EXPAND | GTK_SHRINK</property>
+                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="stop-feed">
+                        <property name="label" translatable="yes">stop</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="x_options">GTK_EXPAND | GTK_SHRINK</property>
+                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="lbl_frm_run_feed">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">&lt;b&gt;Feed on/off&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frm_debug_signals">
+            <property name="visible">True</property>
+            <property name="label_xalign">0.5</property>
+            <child>
+              <object class="GtkAlignment" id="ali_debug_signals">
+                <property name="visible">True</property>
+                <property name="top_padding">5</property>
+                <property name="bottom_padding">5</property>
+                <property name="left_padding">5</property>
+                <property name="right_padding">5</property>
+                <child>
+                  <object class="GtkTable" id="tbl_debug_signals">
+                    <property name="visible">True</property>
+                    <property name="n_columns">3</property>
+                    <child>
+                      <object class="HAL_Button" id="delete-message">
+                        <property name="label" translatable="yes">delete-
+message</property>
+                        <property name="width_request">56</property>
+                        <property name="height_request">56</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_LED" id="error">
+                        <property name="visible">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="help">
+                        <property name="label" translatable="yes">help</property>
+                        <property name="width_request">42</property>
+                        <property name="height_request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">3</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="label2">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">&lt;b&gt;Debug Signals&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">7</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkImage" id="img_emergency_off">
+    <property name="width_request">48</property>
+    <property name="height_request">48</property>
+    <property name="visible">True</property>
+    <property name="pixbuf">../../../share/gmoccapy/images/E-Stop.gif</property>
+  </object>
+  <object class="GtkImage" id="img_machine_on">
+    <property name="width_request">48</property>
+    <property name="height_request">48</property>
+    <property name="visible">True</property>
+    <property name="pixbuf">../../../share/gmoccapy/images/machine_on.png</property>
+  </object>
+  <object class="GtkImage" id="img_manual">
+    <property name="width_request">48</property>
+    <property name="height_request">48</property>
+    <property name="visible">True</property>
+    <property name="pixbuf">../../../share/gmoccapy/images/manual_mode.png</property>
+  </object>
+  <object class="GtkImage" id="img_mdi">
+    <property name="width_request">48</property>
+    <property name="height_request">48</property>
+    <property name="visible">True</property>
+    <property name="pixbuf">../../../share/gmoccapy/images/mdi_mode.png</property>
+  </object>
+  <object class="GtkImage" id="img_auto">
+    <property name="width_request">48</property>
+    <property name="height_request">48</property>
+    <property name="visible">True</property>
+    <property name="pixbuf">../../../share/gmoccapy/images/auto_mode.png</property>
+  </object>
+</interface>

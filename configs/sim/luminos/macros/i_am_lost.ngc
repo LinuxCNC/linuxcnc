@@ -1,0 +1,24 @@
+; Testfile I am Lost
+; will jog to machine cero and set all axis to cero
+
+O<i_am_lost> sub
+
+G17
+G21
+G54
+G61
+G40
+G49
+G80
+G90
+
+(MSG, Will now move to machine cero)
+G53 G0 X0 Y0 Z0
+(MSG, will now set all axis to cero)
+G10 L20 P0 X0 Y0 Z0
+(MSG, all done)
+
+
+O<i_am_lost> endsub
+
+M2

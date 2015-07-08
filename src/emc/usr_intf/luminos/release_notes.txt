@@ -1,0 +1,3 @@
+ver. 0.0.1
+- beginning with development of luminos
+  gmoccapy - industrial
