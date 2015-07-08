@@ -123,7 +123,7 @@ int _rtapi_task_new_hook(task_data *task, int task_id) {
     if (retval) return retval;
 
     /* request to handle traps in the new task */
-#if RTAI_VERSION <= 400
+#ifdef HAL_NR_FAULTS
     for(v=0; v<HAL_NR_FAULTS; v++)
         rt_set_task_trap_handler(ostask_array[task_id], v, _rtapi_trap_handler);
 #else
