@@ -173,7 +173,7 @@ def main():
     if debug:
         print ("announcing videoserver")
 
-    hostname = socket.gethostname().split('.')[0] + '.local.'
+    hostname = '%(fqdn)s'  # replaced by service announcement
     video = VideoServer(args.ini,
                         svc_uuid=mkUuid,
                         host=hostname,
