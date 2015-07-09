@@ -957,7 +957,6 @@ RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
 RTDEPS := $(sort $(RTOBJS:.o=.d))
 
-IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@

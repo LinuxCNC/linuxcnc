@@ -113,8 +113,6 @@ $(foreach mod,$(patsubst %.o,%,$(obj-m)),\
 	$(ECHO) Compiling realtime $<
 	$(Q)$(CC) -o $@ $(EXTRA_CFLAGS) -c $<
 
-IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
-
 .PHONY: %.so
 %.so:
 	$(ECHO) Linking $@
