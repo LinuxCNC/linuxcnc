@@ -2393,7 +2393,7 @@ def main():
     fileService = None
     mkwrapper = None
     try:
-        hostname = socket.gethostname().split('.')[0] + '.local.'
+        hostname = '%(fqdn)s'  # replaced by service announcement
         fileService = FileService(iniFile=iniFile,
                                   svcUuid=mkUuid,
                                   host=hostname,

@@ -34,13 +34,18 @@ class ZeroconfService:
                            server.EntryGroupNew()),
             avahi.DBUS_INTERFACE_ENTRY_GROUP)
 
+        # insert fqdn in announcement
+        fqdn = str(server.GetHostNameFqdn())
+        text = [t % {'fqdn': fqdn} for t in self.text]
+        name = self.name % {'fqdn': fqdn}
+
         iface = avahi.IF_UNSPEC
         if self.loopback:
             iface = 0
 
         g.AddService(iface, avahi.PROTO_INET, dbus.UInt32(0),
-                     self.name, self.stype, self.domain, self.host,
-                     dbus.UInt16(self.port), self.text)
+                     name, self.stype, self.domain, self.host,
+                     dbus.UInt16(self.port), text)
 
         if self.subtype:
             g.AddServiceSubtype(iface,

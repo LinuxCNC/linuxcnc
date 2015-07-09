@@ -10,7 +10,6 @@ import math
 import subprocess
 import fcntl
 import shlex
-import socket
 
 from machinekit import service
 from machinekit import config
@@ -484,7 +483,7 @@ def main():
 
     register_exit_handler()
 
-    hostname = socket.gethostname().split('.')[0] + '.local.'
+    hostname = '%(fqdn)s'  # replaced by service announcement
     mklauncher = Mklauncher(context,
                             svcUuid=uuid,
                             topDir='.',

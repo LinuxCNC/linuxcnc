@@ -7,7 +7,6 @@ import threading
 import signal
 import time
 import argparse
-import socket
 
 import ConfigParser
 from machinekit import service
@@ -249,7 +248,7 @@ def main():
     configService = None
 
     try:
-        hostname = socket.gethostname().split('.')[0] + '.local.'
+        hostname = '%(fqdn)s'  # replaced by service announcement
         configService = ConfigServer(context,
                                      svcUuid=uuid,
                                      topdir=".",
