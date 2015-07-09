@@ -51,7 +51,7 @@ class ZeroconfService:
             g.AddServiceSubtype(iface,
                                 avahi.PROTO_INET,
                                 dbus.UInt32(0),
-                                self.name, self.stype, self.domain,
+                                name, self.stype, self.domain,
                                 self.subtype)
 
         g.Commit()
