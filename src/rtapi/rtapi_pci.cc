@@ -45,7 +45,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
+#endif
 #include <sys/mman.h>
 #include <sys/utsname.h>
 #include <time.h>
