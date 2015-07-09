@@ -991,10 +991,6 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(Q)$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KERNELDIR)/include $(EXTRA_CFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
-
-../rtlib/%.o:
-	$(ECHO) Linking $@
-	$(Q)ld -r -static -S $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
 endif
 
 ifneq "$(filter normal uspace,$(BUILD_SYS))" ""
