@@ -313,7 +313,7 @@ hal_float_t  prevCmdD, lerror, loutput;
 
     if(state != STATE_PID){
         Pid_AutoTune(arg, period);
-        return;
+        return 0;
     }
 
     // Calculate the error.
@@ -338,7 +338,7 @@ hal_float_t  prevCmdD, lerror, loutput;
         // Switch to tuning mode.
         state = STATE_TUNE_IDLE;
 
-        return;
+        return 0;
     }
 
     // Precalculate some timing constants.
@@ -412,7 +412,7 @@ hal_float_t  prevCmdD, lerror, loutput;
         output = 0;
         limitState = 0;
 
-        return;
+        return 0;
     }
 
     // If output is in limit, don't let integrator wind up.
