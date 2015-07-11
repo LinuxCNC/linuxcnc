@@ -264,6 +264,7 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
         v_target_next = tpGetRealTargetVel(tp, nexttc);
     }
 
+    tc_debug_print("v_target_next = %f\n",v_target_next);
     // Limit final velocity to minimum of this and next target velocities
     double v_target = fmin(v_target_this, v_target_next);
     double finalvel = fmin(tc->finalvel, v_target);
@@ -1280,7 +1281,7 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
-    tp_debug_print("Adding TC id %d of type %d\n",tc->id,tc->motion_type);
+    tp_debug_print("Adding TC id %d of type %d, total length %0.08f\n",tc->id,tc->motion_type,tc->target);
 
     return TP_ERR_OK;
 }
@@ -1443,6 +1444,7 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
 
     //Reduce max velocity to match sample rate
     double sample_maxvel = tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES);
+    tp_info_print(" target dist = %f, sample_maxvel = %f\n",tc->target, sample_maxvel);
     tc->maxvel = fmin(tc->maxvel, sample_maxvel);
 
     tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f, capped target = %f\n",
@@ -1479,7 +1481,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
      * length may change if a new line is added to the queue.*/
 
     for (x = 1; x < emcmotConfig->arcBlendOptDepth + 2; ++x) {
-        tp_info_print("==== Optimization step %d ====\n",x-2);
+        tp_info_print("==== Optimization step %d ====\n",x);
 
         // Update the pointers to the trajectory segments in use
         ind = len-x;
