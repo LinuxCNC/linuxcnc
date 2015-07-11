@@ -142,6 +142,7 @@ int ini_hal_init(void)
     MAKE_S32_PIN(traj_arc_blend_optimization_depth,HAL_IN);
     MAKE_FLOAT_PIN(traj_arc_blend_gap_cycles,HAL_IN);
     MAKE_FLOAT_PIN(traj_arc_blend_ramp_freq,HAL_IN);
+    MAKE_FLOAT_PIN(traj_arc_blend_tangent_kink_ratio,HAL_IN);
 
     hal_ready(comp_id);
     return 0;
@@ -159,6 +160,7 @@ int ini_hal_init_pins()
     INIT_PIN(traj_arc_blend_optimization_depth);
     INIT_PIN(traj_arc_blend_gap_cycles);
     INIT_PIN(traj_arc_blend_ramp_freq);
+    INIT_PIN(traj_arc_blend_tangent_kink_ratio);
 
     for (int idx = 0; idx < EMCMOT_MAX_JOINTS; idx++) {
         INIT_PIN(backlash[idx]);
@@ -229,6 +231,7 @@ int check_ini_hal_items()
         || CHANGED(traj_arc_blend_optimization_depth)
         || CHANGED(traj_arc_blend_gap_cycles)
         || CHANGED(traj_arc_blend_ramp_freq)
+        || CHANGED(traj_arc_blend_tangent_kink_ratio)
        ) {
         if (debug) SHOW_CHANGE_ARC_BLEND()
         UPDATE(traj_arc_blend_enable);
@@ -236,11 +239,13 @@ int check_ini_hal_items()
         UPDATE(traj_arc_blend_optimization_depth);
         UPDATE(traj_arc_blend_gap_cycles);
         UPDATE(traj_arc_blend_ramp_freq);
+        UPDATE(traj_arc_blend_tangent_kink_ratio);
         if (0 != emcSetupArcBlends(old_inihal_data.traj_arc_blend_enable
                                   ,old_inihal_data.traj_arc_blend_fallback_enable
                                   ,old_inihal_data.traj_arc_blend_optimization_depth
                                   ,old_inihal_data.traj_arc_blend_gap_cycles
                                   ,old_inihal_data.traj_arc_blend_ramp_freq
+                                  ,old_inihal_data.traj_arc_blend_tangent_kink_ratio
                                   )) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcSetupArcBlends\n");
