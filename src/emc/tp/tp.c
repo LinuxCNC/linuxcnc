@@ -762,6 +762,7 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
     // find "helix" length for target
     double length;
     arcLength(&blend_tc->coords.arc.xyz, &length);
+    tp_info_print("blend tc length = %f\n",length);
     blend_tc->target = length;
     blend_tc->nominal_length = length;
 
@@ -1507,11 +1508,6 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     //Limit tc's target velocity to avoid creating "humps" in the velocity profile
     prev1_tc->finalvel = vs_back;
 
-    //Reduce max velocity to match sample rate
-    double sample_maxvel = tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES);
-    tp_info_print(" target dist = %f, sample_maxvel = %f\n",tc->target, sample_maxvel);
-    tc->maxvel = rtapi_fmin(tc->maxvel, sample_maxvel);
-
     tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f, capped target = %f\n",
             prev1_tc->finalvel, tc->finalvel, tc->target_vel);
 
@@ -1714,10 +1710,6 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         prev_tc->maxaccel *= a_ratio;
         tc->maxaccel *= a_ratio;
 
-        //TODO remove this, possibly redundant with optimization
-        //Clip maximum velocity by sample rate
-        prev_tc->maxvel = rtapi_fmin(prev_tc->maxvel, prev_tc->target /
-                tp->cycleTime / TP_MIN_SEGMENT_CYCLES);
         return TP_ERR_OK;
     } else {
         tp_debug_print("Kink acceleration too high, not tangent\n");
@@ -1848,10 +1840,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
         return TP_ERR_ZERO_LENGTH;
     }
     tc.nominal_length = tc.target;
-
-    //Reduce max velocity to match sample rate
-    double sample_maxvel = tc.target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES);
-    tc.maxvel = rtapi_fmin(tc.maxvel, sample_maxvel);
 
     // For linear move, set rotary axis settings 
     tc.indexrotary = indexrotary;
@@ -2107,6 +2095,7 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp,
             tc->currentvel, tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
     tc_debug_print("          acc = %f,T = %f, P = %f\n", acc,
             tc->target, tc->progress);
+    tc_debug_print("          motion type %d\n", tc->motion_type);
 
     if (tc->on_final_decel) {
         rtapi_print(" on final decel\n");
@@ -2828,7 +2817,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
     // Run cycle update with stored cycle time
     int res_accel = 1;
-    double acc, vel_desired;
+    double acc=0, vel_desired=0;
     
     // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
     // Also, don't ramp up for parabolic blends

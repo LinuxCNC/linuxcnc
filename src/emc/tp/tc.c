@@ -658,6 +658,13 @@ int tcFinalizeLength(TC_STRUCT * const tc)
     if (tc->motion_type == TC_CIRCULAR) {
         tc->maxvel = pmCircleActualMaxVel(&tc->coords.circle.xyz, tc->maxvel, tc->maxaccel, parabolic);
     }
+
+    //Reduce max velocity to match sample rate
+    //Assume that cycle time is valid here
+    double sample_maxvel = tc->target / tc->cycle_time;
+    tp_debug_print("sample_maxvel = %f\n",sample_maxvel);
+    tc->maxvel = fmin(tc->maxvel, sample_maxvel);
+
     tc->finalized = 1;
     return TP_ERR_OK;
 }
