@@ -12,7 +12,7 @@ as it presents HAL Pins for the most common needs. Please find more information 
 and can be adapted to nearly every need, because gmoccapy supports embedded tabs and side panels. 
 As a good example for that see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma]'
 
-'It has support for integrated onboard keyboard (onboard or matchbox-keyboard), so there is no need for a 
+'It has support for integrated virtual keyboard (onboard or matchbox-keyboard), so there is no need for a 
 hardware keyboard or mouse, but it can also be used with that hardware. Gmoccapy offers a separate settings 
 page to configure most settings of the GUI without editing files.'
 
@@ -20,8 +20,8 @@ page to configure most settings of the GUI without editing files.'
 so there is no need to translate unneeded stuff. The files are placed in */src/po/gmoccapy*. 
 Just copy the gmoccapy.pot file to something like fr.po and translate that file with gtranslator or poedit. 
 After a make you got the GUI in your preferenced language. Please publish your translation, so it can be included in the
-oficial packages and be published to other users. 
-At the Moment it is available in English, German, Spanish, Polish and Serbian. 
+official packages and be published to other users. 
+At the Moment it is available in English, German, Spanish, Polish, Serbian and Hungarian. 
 Feel free to help me to introduce more languages, *nieson@web.de*.
 If you need help, don't hesitate to ask.'
 
@@ -61,16 +61,15 @@ You will find the following INI files included, just to show the basics: +
  +
 * gmoccapy.ini
 * gmoccapy_4_axis.ini
-* gmoccapy_jog_wheels.ini
 * gmoccapy_lathe.ini
 * gmoccapy_lathe_imperial.ini
 * gmoccapy_left_panel.ini
 * gmoccapy_right_panel.ini
+* gmoccapy_messages.ini
+* gmoccapy_pendant.ini
 * gmoccapy_sim_hardware_button.ini
 * gmoccapy_tool_sensor.ini
 * gmoccapy_with_user_tabs.ini
-* gmoccapy_messages.ini
-* gmoccapy_pendant.ini
  +
 The names should explain the main intention of the different INI Files. +
 
