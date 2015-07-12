@@ -323,7 +323,9 @@ might not be needed in your setup.  The relative path specifier ../../nc_files/g
 is constructed to work with directories copied by the configuration picker and when
 using a run-in-place setup.
 
-=== Integrating into Axis as a tab next to DRO and Preview
+[[sec:embeding-tab]]
+
+=== Embeding as a Tab
 
 To do so, edit your .ini file and add to the DISPLAY and HAL sections of ini
 file as follows:

@@ -29,8 +29,12 @@ de su computadora responder a una solicitud de procesamiento. Algunos
 Hardware pueden interrumpir el procesamiento lo que puede traducirse 
 a la perdida de algunos pasos cuando se opera una maquina CNC. Esto 
 es la primer cosa que se requiere hacer posterior a la instalación.
+
+////
+Put this link back when the latency-test-es.txt is translated.
 Siga las instrucciones de la sección <<cha:latency-test,here>> Para correr
 La prueba de latencia.
+////
 
 [[sec:Sherline]]
 == Sherline

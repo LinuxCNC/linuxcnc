@@ -106,6 +106,10 @@ pulse. If false, LinuxCNC will latch on either the rising or falling edge of
 the home switch (depending on the signs of HOME_SEARCH_VEL and
 HOME_LATCH_VEL). The default value is NO.
 
+[NOTE]
+HOME_USE_INDEX requires connections in your hal file to axis.n.index-enable
+from the encoder.n.index-enable.
+
 === HOME_OFFSET (((HOME OFFSET)))
 
 Contains the location of the home switch or index pulse, in joint
@@ -117,20 +121,21 @@ of the current point to HOME_OFFSET. The default value is zero.
 === HOME (((HOME)))
 
 The position that the joint will go to upon completion of the homing
-sequence. After detecting the index pulse, and setting the coordinate
-of that point to HOME_OFFSET, LinuxCNC makes a move to HOME as the final
-step of the homing process. The default value is zero. Note that even
-if this parameter is the same as HOME_OFFSET, the joint will slightly
-overshoot the latched position as it stops. Therefore there will always
-be a small move at this time (unless HOME_SEARCH_VEL is zero, and the
-entire search/latch stage was skipped). This final move will be made at
-the joint's maximum velocity. Since the joint is now homed, there should
-be no risk of crashing the machine, and a rapid move is the quickest
-way to finish the homing sequence. footnote:[The distinction between
-'home_offset' and 'home' is that 'home_offset' first establishes the 
-scale location on the machine by applying the 'home_offset' value to 
-the location where home was found, and then 'home' says where 
-the joint should move to on that scale.]
+sequence. After detecting the home switch or home switch then index pulse
+(depending on configuation), and setting the coordinate of that point to
+HOME_OFFSET, LinuxCNC makes a move to HOME as the final step of the homing
+process. The default value is zero. Note that even if this parameter is the
+same as HOME_OFFSET, the joint will slightly overshoot the latched position as
+it stops. Therefore there will always be a small move at this time (unless
+HOME_SEARCH_VEL is zero, and the entire search/latch stage was skipped). This
+final move will be made at the joint's maximum velocity unless HOME_FINAL has
+been set.
+
+[NOTE]
+The distinction between 'home_offset' and 'home' is that 'home_offset' first
+establishes the scale location on the machine by applying the 'home_offset'
+value to the location where home was found, and then 'home' says where the
+joint should move to on that scale.]
 
 === HOME_IS_SHARED (((HOME IS SHARED)))
 

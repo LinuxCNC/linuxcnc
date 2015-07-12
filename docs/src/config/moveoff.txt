@@ -1,8 +1,87 @@
 = Moveoff Component
 
+[[cha:moveoff]]
+
 The moveoff Hal component is a Hal-only method
 for implementing offsets.  See the manpage (man moveoff)
 for the IMPORTANT limitations and warnings.
+
+The moveoff component is used to offset joint positions using custom Hal
+connections.  Implementing an offset-while-program-is-paused functionality is
+supported with appropriate connections for the input pins.  Nine joints are
+supported.
+
+The axis offset pin values (offset-in-M) are continuously applied (respecting
+limits on value, velocity, and acceleration) to the output pins
+(offset-current-M, pos-plusoffset-M, fb-minusoffset-M) when both enabling input
+pins (apply-offsets and move-enable) are TRUE.  The two enabling inputs are
+anded internally.   A 'warning pin' is set and a message issued if the
+apply-offsets pin is deasserted while offsets are applied.  The warning pin
+remains TRUE until the offsets are removed or the apply-offsets pin is set.
+
+Typically, the move-enable pin is connected to external controls and the
+apply-offsets pin is connected to halui.program.is-paused (for offsets only
+while paused) or set to TRUE (for continuously applied offsets).
+
+Applied offsets are 'automatically returned' to zero (respecting limits)
+when either of the enabling inputs is deactivated.  The zero value
+tolerance is specified by the epsilon input pin value.
+
+Waypoints are recorded when the moveoff componenent is enabled.  Waypoints are
+managed with the waypoint-sample-secs and waypoint-threshold pins.  When the
+backtrack-enable pin is TRUE, the auto-return path follows the recorded
+waypoints.  When the memory available for waypoints is exhausted, offsets are
+frozen and the waypoint-limit pin is asserted.  This restriction applies
+regardless of the state of the backtrack-enable pin.  An enabling pin must be
+deasserted to allow a return to the original (non-offset position).
+
+Backtracking through waypoints results in 'slower' movement rates as the
+moves are point-to-point respecting velocity and acceleration settings.  The
+velocity and acceleration limit pins can be managed dynamically to control
+offsets at all times.
+
+When backtrack-enable is FALSE, the auto-return move is *NOT*
+coordinated, each axis returns to zero at its own rate.  If a controlled path
+is wanted in this condition, each axis should be manually returned to zero
+before deasserting an enabling pin.
+
+The waypoint-sample-secs, waypoint-threshold, and epsilon pins are evaluated
+only when the component is idle.
+
+The offsets-applied output pin is provided to indicate the current state to a
+GUI so that program resumption can be managed.  If the offset(s) are non-zero
+when the apply-offsets pin is deasserted (for example when resuming a program
+when offsetting during a pause), offsets are returned to zero (respecting
+limits) and an 'Error' message is issued.
+
+[CAUTION]
+If offsets are enabled and applied and the machine is turned off for any
+reason, any 'external' Hal logic that manages the enabling pins and the
+offset-in-M inputs is responsible for their state when the machine is
+subsequently turned on again.
+
+This Hal-only means of offsetting is typically not known to LinuxCNC
+nor available in GUI preview displays. *No protection is provided* for
+offset moves that exceed soft limits managed by LinuxCNC. Since soft limits
+are not honored, an offset move may encounter hard limits (or *CRASH* if
+there are no limit switches). Use of the offset-min-M and offset-max-M inputs
+to limit travel is recommended. Triggering a hard limit will turn off
+the machine -- see *Caution* above.
+
+The offset-in-M values may be set with inifile settings, controlled by a GUI,
+or managed by other Hal components and connections.  Fixed values may be
+appropriate in simple cases where the direction and amount of offset is
+well-defined but a control method is required to deactivate an enabling
+pin in order to return offsets to zero.  GUIs may provide means for users to
+set, increment, decrement, and accumulate offset values for each axis and may
+set offset-in-M values to zero before deasserting an enabling pin.
+
+The default values for accel, vel, min, max, epsilon, waypoint-sample-secs, and
+waypoint-threshold may not be suitable for any particular application.  This
+Hal component is unaware of limits enforced elsewhere by LinuxCNC.
+Users should test usage in a simulator application and understand all
+hazards before use on hardware.
+
 
 Sim configurations that demonstrate the component and a
 gui (moveoff_gui) are located in:
