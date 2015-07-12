@@ -137,7 +137,20 @@ STATIC int tpRotaryMotionCheck(TP_STRUCT const * const tp, TC_STRUCT const * con
  * These functions return the "actual" values of things like a trajectory
  * segment's feed override, while taking into account the status of tp itself.
  */
-STATIC int tpGetMachineAccelBounds(TP_STRUCT const * const tp, PmCartesian  * const acc_bound)
+
+
+/**
+ * Wrapper to bounds-check the tangent kink ratio from HAL.
+ */
+STATIC double tpGetTangentKinkRatio() {
+    const double max_ratio = 0.7071;
+    const double min_ratio = 0.001;
+
+    return rtapi_fmax(rtapi_fmin(emcmotConfig->arcBlendTangentKinkRatio,max_ratio),min_ratio);
+}
+
+
+STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound)
 {
     if (!acc_bound) {
         return TP_ERR_FAIL;
@@ -819,8 +832,9 @@ STATIC int tpCheckTangentPerformance(TP_STRUCT const * const tp,
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
         // Finally, reduce acceleration proportionally to prevent violations during "kink"
-        tpAdjustAccelForTangent(tp, tc, emcmotConfig->arcBlendTangentKinkRatio);
-        tpAdjustAccelForTangent(tp, prev_tc, emcmotConfig->arcBlendTangentKinkRatio);
+        const double kink_ratio = tpGetTangentKinkRatio();
+        tpAdjustAccelForTangent(tp, tc, kink_ratio);
+        tpAdjustAccelForTangent(tp, prev_tc, kink_ratio);
         return TP_ERR_NO_ACTION;
     }
     return TP_ERR_OK;
@@ -1764,8 +1778,9 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         acc_scale_max /= BLEND_ACC_RATIO_NORMAL;
     }
 
-    if (acc_scale_max < emcmotConfig->arcBlendTangentKinkRatio) {
-        tp_debug_print(" Kink acceleration within %g, treating as tangent\n", emcmotConfig->arcBlendTangentKinkRatio);
+    const double kink_ratio = tpGetTangentKinkRatio();
+    if (acc_scale_max < kink_ratio) {
+        tp_debug_print(" Kink acceleration within %g, treating as tangent\n", kink_ratio);
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
         tc->kink_vel = v_max;
         tpAdjustAccelForTangent(tp, tc, acc_scale_max);
@@ -1773,10 +1788,10 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
         return TP_ERR_OK;
     } else {
-        tc->kink_vel = v_max * emcmotConfig->arcBlendTangentKinkRatio / acc_scale_max;
+        tc->kink_vel = v_max * kink_ratio / acc_scale_max;
         tp_debug_print("Kink acceleration scale %f above %f, kink vel = %f, blend arc may be faster\n",
                 acc_scale_max,
-                emcmotConfig->arcBlendTangentKinkRatio,
+                kink_ratio,
                 tc->kink_vel);
         //FIXME need to scale tangential acceleration down if this is the case
         return TP_ERR_NO_ACTION;
