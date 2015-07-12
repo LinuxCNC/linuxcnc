@@ -244,7 +244,7 @@ e.set_state(linuxcnc.STATE_ON)
 e.set_mode(linuxcnc.MODE_MANUAL)
 print "running MDI command 0"
 h['mdi-0'] = 1
-wait_for_joint_to_stop_at(0, 0);
+wait_for_joint_to_stop_at(0, -1);
 wait_for_joint_to_stop_at(1, 0);
 wait_for_joint_to_stop_at(2, 0);
 h['mdi-0'] = 0
@@ -279,7 +279,7 @@ wait_for_task_mode(linuxcnc.MODE_MDI)
 
 print "running MDI command 0"
 h['mdi-0'] = 1
-wait_for_joint_to_stop_at(0, 0);
+wait_for_joint_to_stop_at(0, -1);
 wait_for_joint_to_stop_at(1, 0);
 wait_for_joint_to_stop_at(2, 0);
 h['mdi-0'] = 0
