@@ -203,7 +203,10 @@ if test "$RTS" = uspace ; then
 
   AC_MSG_CHECKING([whether to enable userspace PCI access])
   AC_ARG_ENABLE(userspace-pci,
-      [ --disable-userspace-pci                  If libudev is unavailable],
+      AS_HELP_STRING(
+        [--disable-userspace-pci],
+        [Disable userspace PCI access (use this if libudev is unavailable).],
+      ),
       [
 	case "$enableval" in
 	(Y*|y*)
