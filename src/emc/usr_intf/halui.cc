@@ -419,9 +419,10 @@ static NML *emcErrorBuffer = 0;
 // the serial number to use.
 static int emcCommandSerialNumber = 0;
 
-// default value for timeout, 0 means wait forever
-// use same timeout value as in tkemc & mini
-static double receiveTimeout = 1.;
+// how long to wait for Task to report that it has received our command
+static double receiveTimeout = 2.0;
+
+// how long to wait for Task to finish running our command
 static double doneTimeout = 60.;
 
 static void quit(int sig)
