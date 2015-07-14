@@ -540,14 +540,20 @@ static int updateStatus()
 {
     NMLTYPE type;
 
-    if (0 == emcStatus || 0 == emcStatusBuffer
-	|| !emcStatusBuffer->valid()) {
+    if (0 == emcStatus || 0 == emcStatusBuffer) {
+        rtapi_print("halui: %s: no status buffer\n", __func__);
+        return -1;
+    }
+
+    if (!emcStatusBuffer->valid()) {
+        rtapi_print("halui: %s: status buffer is not valid\n", __func__);
 	return -1;
     }
 
     switch (type = emcStatusBuffer->peek()) {
     case -1:
 	// error on CMS channel
+        rtapi_print("halui: %s: error peeking status buffer\n", __func__);
 	return -1;
 	break;
 
@@ -556,6 +562,7 @@ static int updateStatus()
 	break;
 
     default:
+        rtapi_print("halui: %s: unknown error peeking status buffer\n", __func__);
 	return -1;
 	break;
     }
@@ -599,6 +606,7 @@ static int emcCommandSend(RCS_CMD_MSG & cmd)
 {
     // write command
     if (emcCommandBuffer->write(&cmd)) {
+        rtapi_print("halui: %s: error writing to Task\n", __func__);
         return -1;
     }
     emcCommandSerialNumber = cmd.serial_number;
@@ -616,6 +624,7 @@ static int emcCommandSend(RCS_CMD_MSG & cmd)
 	esleep(EMC_COMMAND_DELAY);
     }
 
+    rtapi_print("halui: %s: no echo from Task after %.3f seconds\n", __func__, receiveTimeout);
     return -1;
 }
 
@@ -1121,15 +1130,22 @@ static int sendMdiCommand(int n)
 
     // switch to MDI mode if needed
     if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
-	if (sendMdi() || updateStatus()) {
+	if (sendMdi() != 0) {
+            rtapi_print("halui: %s: failed to Set Mode MDI\n", __func__);
+            return -1;
+	}
+	if (updateStatus() != 0) {
+            rtapi_print("halui: %s: failed to update status\n", __func__);
 	    return -1;
 	}
 	if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
+            rtapi_print("halui: %s: switched mode, but got %d instead of mdi\n", __func__, emcStatus->task.mode);
 	    return -1;
 	}
     }
     strcpy(emc_task_plan_execute_msg.command, mdi_commands[n]);
     if (emcCommandSend(emc_task_plan_execute_msg)) {
+        rtapi_print("halui: %s: failed to send mdi command %d\n", __func__, n);
 	return -1;
     }
     halui_sent_mdi = 1;
