@@ -609,7 +609,7 @@ static int harden_rt()
     }
 #endif
 
-    struct sigaction sig_act;
+    struct sigaction sig_act = {};
     // enable realtime
     if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
     {
