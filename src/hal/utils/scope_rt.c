@@ -95,7 +95,10 @@ int rtapi_app_main(void)
     shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, shm_size);
     if (shm_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SCOPE: ERROR: failed to get shared memory\n");
+	    "SCOPE RT: ERROR: failed to get shared memory (key=0x%x, size=%lu)\n",
+            SCOPE_SHM_KEY,
+            shm_size
+        );
 	hal_exit(comp_id);
 	return -1;
     }
