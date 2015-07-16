@@ -1044,6 +1044,7 @@ All the axis words are optional, except that at least one must be used.
 ----
 G90 (set absolute mode)
 G0 X1.000 Y1.000 Z0.100 (rapid move to starting position)
+S100 M3 (turn on the spindle, 100 RPM)
 G33.1 Z-0.750 K0.05 (rigid tap a 20 TPI thread 0.750 deep)
 M2 (end program)
 ----

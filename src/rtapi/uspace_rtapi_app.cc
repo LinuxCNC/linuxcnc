@@ -438,7 +438,7 @@ int main(int argc, char **argv) {
             fprintf(stderr,
                 "Refusing to run as root without fallback UID specified\n"
                 "To run under a debugger with I/O, use e.g.,\n"
-                "    sudo env RTAPI_UID=`id -u` gdb rtapi_app\n");
+                "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb rtapi_app\n");
             exit(1);
         }
         setreuid(fallback_uid, 0);
@@ -609,7 +609,7 @@ static int harden_rt()
     }
 #endif
 
-    struct sigaction sig_act;
+    struct sigaction sig_act = {};
     // enable realtime
     if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
     {
