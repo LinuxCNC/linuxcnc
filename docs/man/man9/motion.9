@@ -138,7 +138,19 @@ When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed ra
 
 .TP
 \fBmotion.feed-inhibit\fR IN BIT 
-When this bit is TRUE, the feed rate is set and held to 0. This will be delayed during spindle synch moves till the end of the move. 
+When this pin is TRUE, machine motion is inhibited (this includes jogs,
+programmed feeds, and programmed rapids, aka traverse moves).
+
+If the machine is performing a spindle synchronized move when this
+pin goes TRUE, the spindle synchronized motion will finish, and any
+following moves will be inhibited (this is to prevent damage to the
+machine, the tool, or the work piece).
+
+If the machine is in the middle of a (non-spindle synchronized) move
+when this pin goes TRUE, the machine will decelerate to a stop at the
+maximum allowed acceleration rate.
+
+Motion resumes when this pin goes FALSE.
 
 .TP
 \fBmotion.in-position\fR OUT BIT
