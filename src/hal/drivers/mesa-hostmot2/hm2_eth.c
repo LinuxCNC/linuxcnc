@@ -589,6 +589,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         LL_PRINT("ERROR: receiving packet: %s\n", strerror(errno));
 
     board = &boards[boards_count];
+    board->llio.private = board;
     board->llio.split_read = true;
 
     if (strncmp(board_name, "7I80DB-16", 9) == 0) {
@@ -660,8 +661,27 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "XC6SLX9";
         board->llio.num_leds = 4;
     } else {
-        LL_PRINT("Unrecognized ethernet board found: %.16s\n", board_name);
-        return -ENODEV;
+        LL_PRINT("Unrecognized ethernet board found: %.16s -- port names will be wrong\n", board_name);
+        strncpy(llio_name, board_name, 4);
+        llio_name[1] = tolower(llio_name[1]);
+
+        // this is a layering violation.  it would be nice if special values
+        // (such as 0 or -1) could be passed here and the layer which can
+        // legitimately read idroms would read the values and store them, but
+        // that wasn't trivial to do.
+        rtapi_u32 read_data;
+        hm2_eth_read(&board->llio, HM2_ADDR_IDROM_OFFSET, &read_data, 4);
+        unsigned int idrom_address = read_data & 0xffff;
+        hm2_idrom_t idrom;
+        hm2_eth_read(&board->llio, idrom_address, &idrom, sizeof(idrom));
+
+        board->llio.num_ioport_connectors = idrom.io_ports;
+        board->llio.pins_per_connector = idrom.port_width;
+        int i;
+        for(i=0; i<board->llio.num_ioport_connectors; i++)
+            board->llio.ioport_connector_name[i] = "??";
+        board->llio.fpga_part_number = "??";
+        board->llio.num_leds = 0;
     }
 
     LL_PRINT("discovered %.*s\n", 16, board_name);
@@ -669,7 +689,6 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_%.*s.%d", (int)strlen(llio_name), llio_name, llio_idx(llio_name));
 
     board->llio.comp_id = comp_id;
-    board->llio.private = board;
 
     board->llio.read = hm2_eth_read;
     board->llio.write = hm2_eth_write;
