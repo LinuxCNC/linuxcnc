@@ -546,6 +546,26 @@ class LinuxCNCWrapper():
             del txPosition
             return False, None
 
+    def update_proto_value(self, obj, txObj, prop, value):
+        if getattr(obj, prop) != value:
+            setattr(obj, prop, value)
+            setattr(txObj, prop, value)
+            return True
+        return False
+
+    def update_proto_float(self, obj, txObj, prop, value):
+        if self.notEqual(getattr(obj, prop), value):
+            setattr(obj, prop, value)
+            setattr(txObj, prop, value)
+            return True
+        return False
+
+    def update_config_value(self, prop, value):
+        return self.update_proto_value(self.status.config, self.statusTx.config, prop, value)
+
+    def update_config_float(self, prop, value):
+        return self.update_proto_float(self.status.config, self.statusTx.config, prop, value)
+
     def update_config(self, stat):
         modified = False
 
@@ -589,21 +609,20 @@ class LinuxCNCWrapper():
 
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
             txExtension = EmcProgramExtension()
-            for index, extension in enumerate(extensions):
+            for index, extensionValue in enumerate(extensions):
                 txExtension.Clear()
-                extensionModified = False
+                extModified = False
 
                 if len(self.status.config.program_extension) == index:
                     self.status.config.program_extension.add()
                     self.status.config.program_extension[index].index = index
                     self.status.config.program_extension[index].extension = ""
 
-                if self.status.config.program_extension[index].extension != extension:
-                    self.status.config.program_extension[index].extension = extension
-                    txExtension.extension = extension
-                    extensionModified = True
+                extension = self.status.config.program_extension[index]
+                extModified |= self.update_proto_value(extension, txExtension,
+                                                       'extension', extensionValue)
 
-                if extensionModified:
+                if extModified:
                     txExtension.index = index
                     self.statusTx.config.program_extension.add().CopyFrom(txExtension)
                     modified = True
@@ -614,140 +633,74 @@ class LinuxCNCWrapper():
                 positionOffset = EMC_CONFIG_MACHINE_OFFSET
             else:
                 positionOffset = EMC_CONFIG_RELATIVE_OFFSET
-            if (self.status.config.position_offset != positionOffset):
-                self.status.config.position_offset = positionOffset
-                self.statusTx.config.position_offset = positionOffset
-                modified = True
+            modified |= self.update_config_value('position_offset', positionOffset)
 
             positionFeedback = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'ACTUAL'
             if positionFeedback == 'COMMANDED':
                 positionFeedback = EMC_CONFIG_COMMANDED_FEEDBACK
             else:
                 positionFeedback = EMC_CONFIG_ACTUAL_FEEDBACK
-            if (self.status.config.position_feedback != positionFeedback):
-                self.status.config.position_feedback = positionFeedback
-                self.statusTx.config.position_feedback = positionFeedback
-                modified = True
+            modified |= self.update_config_value('position_feedback', positionFeedback)
 
-            maxFeedOverride = float(self.ini.find('DISPLAY', 'MAX_FEED_OVERRIDE') or 1.2)
-            if (self.status.config.max_feed_override != maxFeedOverride):
-                self.status.config.max_feed_override = maxFeedOverride
-                self.statusTx.config.max_feed_override = maxFeedOverride
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MAX_FEED_OVERRIDE') or 1.2)
+            modified |= self.update_config_value('max_feed_override', value)
 
-            minFeedOverride = float(self.ini.find('DISPLAY', 'MIN_FEED_OVERRIDE') or 0.5)
-            if (self.status.config.min_feed_override != minFeedOverride):
-                self.status.config.min_feed_override = minFeedOverride
-                self.statusTx.config.min_feed_override = minFeedOverride
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MIN_FEED_OVERRIDE') or 0.5)
+            modified |= self.update_config_value('min_feed_override', value)
 
-            maxSpindleOverride = float(self.ini.find('DISPLAY', 'MAX_SPINDLE_OVERRIDE') or 1.0)
-            if (self.status.config.max_spindle_override != maxSpindleOverride):
-                self.status.config.max_spindle_override = maxSpindleOverride
-                self.statusTx.config.max_spindle_override = maxSpindleOverride
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MAX_SPINDLE_OVERRIDE') or 1.0)
+            modified |= self.update_config_value('max_spindle_override', value)
 
-            minSpindleOverride = float(self.ini.find('DISPLAY', 'MIN_SPINDLE_OVERRIDE') or 0.5)
-            if (self.status.config.min_spindle_override != minSpindleOverride):
-                self.status.config.min_spindle_override = minSpindleOverride
-                self.statusTx.config.min_spindle_override = minSpindleOverride
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MIN_SPINDLE_OVERRIDE') or 0.5)
+            modified |= self.update_config_value('min_spindle_override', value)
 
-            defaultSpindleSpeed = float(self.ini.find('DISPLAY', 'DEFAULT_SPINDLE_SPEED') or 1)
-            if (self.status.config.default_spindle_speed != defaultSpindleSpeed):
-                self.status.config.default_spindle_speed = defaultSpindleSpeed
-                self.statusTx.config.default_spindle_speed = defaultSpindleSpeed
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'DEFAULT_SPINDLE_SPEED') or 1)
+            modified |= self.update_config_value('default_spindle_speed', value) 
 
-            defaultLinearVelocity = float(self.ini.find('DISPLAY', 'DEFAULT_LINEAR_VELOCITY') or 0.25)
-            if (self.status.config.default_linear_velocity != defaultLinearVelocity):
-                self.status.config.default_linear_velocity = defaultLinearVelocity
-                self.statusTx.config.default_linear_velocity = defaultLinearVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'DEFAULT_LINEAR_VELOCITY') or 0.25)
+            modified |= self.update_config_value('default_linear_velocity', value)
 
-            minVelocity = float(self.ini.find('DISPLAY', 'MIN_VELOCITY') or 0.01)
-            if (self.status.config.min_velocity != minVelocity):
-                self.status.config.min_velocity = minVelocity
-                self.statusTx.config.min_velocity = minVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MIN_VELOCITY') or 0.01)
+            modified |= self.update_config_value('min_velocity', value)
 
-            maxLinearVelocity = float(self.ini.find('DISPLAY', 'MAX_LINEAR_VELOCITY') or 1.00)
-            if (self.status.config.max_linear_velocity != maxLinearVelocity):
-                self.status.config.max_linear_velocity = maxLinearVelocity
-                self.statusTx.config.max_linear_velocity = maxLinearVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MAX_LINEAR_VELOCITY') or 1.00)
+            modified |= self.update_config_value('max_linear_velocity', value)
 
-            minLinearVelocity = float(self.ini.find('DISPLAY', 'MIN_LINEAR_VELOCITY') or 0.01)
-            if (self.status.config.min_linear_velocity != minLinearVelocity):
-                self.status.config.min_linear_velocity = minLinearVelocity
-                self.statusTx.config.min_linear_velocity = minLinearVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MIN_LINEAR_VELOCITY') or 0.01)
+            modified |= self.update_config_value('min_linear_velocity', value)
 
-            defaultAngularVelocity = float(self.ini.find('DISPLAY', 'DEFAULT_ANGULAR_VELOCITY') or 0.25)
-            if (self.status.config.default_angular_velocity != defaultAngularVelocity):
-                self.status.config.default_angular_velocity = defaultAngularVelocity
-                self.statusTx.config.default_angular_velocity = defaultAngularVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'DEFAULT_ANGULAR_VELOCITY') or 0.25)
+            modified |= self.update_config_value('default_angular_velocity', value)
 
-            maxAngularVelocity = float(self.ini.find('DISPLAY', 'MAX_ANGULAR_VELOCITY') or 1.00)
-            if (self.status.config.max_angular_velocity != maxAngularVelocity):
-                self.status.config.max_angular_velocity = maxAngularVelocity
-                self.statusTx.config.max_angular_velocity = maxAngularVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MAX_ANGULAR_VELOCITY') or 1.00)
+            modified |= self.update_config_value('max_angular_velocity', value)
 
-            minAngularVelocity = float(self.ini.find('DISPLAY', 'MIN_ANGULAR_VELOCITY') or 0.01)
-            if (self.status.config.min_angular_velocity != minAngularVelocity):
-                self.status.config.min_angular_velocity = minAngularVelocity
-                self.statusTx.config.min_angular_velocity = minAngularVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MIN_ANGULAR_VELOCITY') or 0.01)
+            modified |= self.update_config_value('min_angular_velocity', value)
 
-            increments = self.ini.find('DISPLAY', 'INCREMENTS') or ''
-            if (self.status.config.increments != increments):
-                self.status.config.increments = increments
-                self.statusTx.config.increments = increments
-                modified = True
+            value = self.ini.find('DISPLAY', 'INCREMENTS') or ''
+            modified |= self.update_config_value('increments', value)
 
-            grids = self.ini.find('DISPLAY', 'GRIDS') or ''
-            if (self.status.config.grids != grids):
-                self.status.config.grids = grids
-                self.statusTx.config.grids = grids
-                modified = True
+            value = self.ini.find('DISPLAY', 'GRIDS') or ''
+            modified |= self.update_config_value('grids', value)
 
-            lathe = bool(self.ini.find('DISPLAY', 'LATHE') or False)
-            if (self.status.config.lathe != lathe):
-                self.status.config.lathe = lathe
-                self.statusTx.config.lathe = lathe
-                modified = True
+            value = bool(self.ini.find('DISPLAY', 'LATHE') or False)
+            modified |= self.update_config_value('lathe', value)
 
-            geometry = self.ini.find('DISPLAY', 'GEOMETRY') or ''
-            if (self.status.config.geometry != geometry):
-                self.status.config.geometry = geometry
-                self.statusTx.config.geometry = geometry
-                modified = True
+            value = self.ini.find('DISPLAY', 'GEOMETRY') or ''
+            modified |= self.update_config_value('geometry', value)
 
-            arcdivision = int(self.ini.find('DISPLAY', 'ARCDIVISION') or 64)
-            if (self.status.config.arcdivision != arcdivision):
-                self.status.config.arcdivision = arcdivision
-                self.statusTx.config.arcdivision = arcdivision
-                modified = True
+            value = int(self.ini.find('DISPLAY', 'ARCDIVISION') or 64)
+            modified |= self.update_config_value('arcdivision', value)
 
-            noForceHoming = bool(self.ini.find('TRAJ', 'NO_FORCE_HOMING') or False)
-            if (self.status.config.no_force_homing != noForceHoming):
-                self.status.config.no_force_homing = noForceHoming
-                self.statusTx.config.no_force_homing = noForceHoming
-                modified = True
+            value = bool(self.ini.find('TRAJ', 'NO_FORCE_HOMING') or False)
+            modified |= self.update_config_value('no_force_homing', value)
 
-            maxVelocity = float(self.ini.find('TRAJ', 'MAX_VELOCITY') or 5.0)
-            if (self.status.config.max_velocity != maxVelocity):
-                self.status.config.max_velocity = maxVelocity
-                self.statusTx.config.max_velocity = maxVelocity
-                modified = True
+            value = float(self.ini.find('TRAJ', 'MAX_VELOCITY') or 5.0)
+            modified |= self.update_config_value('max_velocity', value)
 
-            maxAcceleration = float(self.ini.find('TRAJ', 'MAX_ACCELERATION') or 20.0)
-            if (self.status.config.max_acceleration != maxAcceleration):
-                self.status.config.max_acceleration = maxAcceleration
-                self.statusTx.config.max_acceleration = maxAcceleration
-                modified = True
+            value = float(self.ini.find('TRAJ', 'MAX_ACCELERATION') or 20.0)
+            modified |= self.update_config_value('max_acceleration', value)
 
             timeUnits = str(self.ini.find('DISPLAY', 'TIME_UNITS') or 'min')
             if (timeUnits in ['min', 'minute']):
@@ -756,39 +709,19 @@ class LinuxCNCWrapper():
                 timeUnitsConverted = TIME_UNITS_SECOND
             else:
                 timeUnitsConverted = TIME_UNITS_MINUTE
-            if (self.status.config.time_units != timeUnitsConverted):
-                self.status.config.time_units = timeUnitsConverted
-                self.statusTx.config.time_units = timeUnitsConverted
-                modified = True
+            modified |= self.update_config_value('time_units', timeUnitsConverted)
 
-            if (self.status.config.remote_path != self.directory):
-                self.status.config.remote_path = self.directory
-                self.statusTx.config.remote_path = self.directory
-                modified = True
-           
+            modified |= self.update_config_value('remote_path', self.directory)
+
             name = str(self.ini.find('EMC', 'MACHINE') or '')
-            if (self.status.config.name != name):
-                self.status.config.name = name
-                self.statusTx.config.name = name
-                modified = True
+            modified |= self.update_config_value('name', name)
 
-        if self.notEqual(self.status.config.default_acceleration, stat.acceleration):
-            self.status.config.default_acceleration = stat.acceleration
-            self.statusTx.config.default_acceleration = stat.acceleration
-            modified = True
-
-        if self.notEqual(self.status.config.angular_units, stat.angular_units):
-            self.status.config.angular_units = stat.angular_units
-            self.statusTx.config.angular_units = stat.angular_units
-            modified = True
-
-        if (self.status.config.axes != stat.axes):
-            self.status.config.axes = stat.axes
-            self.statusTx.config.axes = stat.axes
-            modified = True
+        modified |= self.update_config_float('default_acceleration', stat.acceleration)
+        modified |= self.update_config_float('angular_units', stat.angular_units)
+        modified |= self.update_config_value('axes', stat.axes)
 
         txAxis = EmcStatusConfigAxis()
-        for index, axis in enumerate(stat.axis):
+        for index, statAxis in enumerate(stat.axis):
             txAxis.Clear()
             axisModified = False
 
@@ -806,47 +739,24 @@ class LinuxCNCWrapper():
                 self.status.config.axis[index].min_position_limit = 0.0
                 self.status.config.axis[index].units = 0.0
                 self.status.config.axis[index].home_sequence = -1
+                self.status.config.axis[index].max_velocity = 0.0
+                self.status.config.axis[index].max_acceleration = 0.0
 
-            if self.status.config.axis[index].axisType != axis['axisType']:
-                self.status.config.axis[index].axisType = axis['axisType']
-                txAxis.axisType = axis['axisType']
-                axisModified = True
+            axis = self.status.config.axis[index]
+            axisModified |= self.update_proto_value(axis, txAxis, 'axisType', statAxis['axisType'])
 
-            if self.notEqual(self.status.config.axis[index].backlash, axis['backlash']):
-                self.status.config.axis[index].backlash = axis['backlash']
-                txAxis.backlash = axis['backlash']
-                axisModified = True
+            for name in ['backlash', 'max_ferror', 'max_position_limit',
+                         'min_ferror', 'min_position_limit', 'units']:
+                axisModified |= self.update_proto_float(axis, txAxis, name, statAxis[name])
 
-            if self.notEqual(self.status.config.axis[index].max_ferror, axis['max_ferror']):
-                self.status.config.axis[index].max_ferror = axis['max_ferror']
-                txAxis.max_ferror = axis['max_ferror']
-                axisModified = True
+            value = int(self.ini.find('AXIS_' + str(index), 'HOME_SEQUENCE') or -1)
+            axisModified |= self.update_proto_value(axis, txAxis, 'home_sequence', value)
 
-            if self.notEqual(self.status.config.axis[index].max_position_limit, axis['max_position_limit']):
-                self.status.config.axis[index].max_position_limit = axis['max_position_limit']
-                txAxis.max_position_limit = axis['max_position_limit']
-                axisModified = True
+            value = float(self.ini.find('AXIS_' + str(index), 'MAX_VELOCITY') or 0.0)
+            axisModified |= self.update_proto_value(axis, txAxis, 'max_velocity', value)
 
-            if self.notEqual(self.status.config.axis[index].min_ferror, axis['min_ferror']):
-                self.status.config.axis[index].min_ferror = axis['min_ferror']
-                txAxis.min_ferror = axis['min_ferror']
-                axisModified = True
-
-            if self.notEqual(self.status.config.axis[index].min_position_limit, axis['min_position_limit']):
-                self.status.config.axis[index].min_position_limit = axis['min_position_limit']
-                txAxis.min_position_limit = axis['min_position_limit']
-                axisModified = True
-
-            if self.notEqual(self.status.config.axis[index].units, axis['units']):
-                self.status.config.axis[index].units = axis['units']
-                txAxis.units = axis['units']
-                axisModified = True
-
-            homeSequence = int(self.ini.find('AXIS_' + str(index), 'HOME_SEQUENCE') or -1)
-            if (self.status.config.axis[index].home_sequence != homeSequence):
-                self.status.config.axis[index].home_sequence = homeSequence
-                txAxis.home_sequence = homeSequence
-                modified = True
+            value = float(self.ini.find('AXIS_' + str(index), 'MAX_ACCELERATION') or 0.0)
+            axisModified |= self.update_proto_value(axis, txAxis, 'max_acceleration', value)
 
             if axisModified:
                 txAxis.index = index
@@ -855,40 +765,13 @@ class LinuxCNCWrapper():
 
         del txAxis
 
-        if (self.status.config.axis_mask != stat.axis_mask):
-            self.status.config.axis_mask = stat.axis_mask
-            self.statusTx.config.axis_mask = stat.axis_mask
-            modified = True
-
-        if self.notEqual(self.status.config.cycle_time, stat.cycle_time):
-            self.status.config.cycle_time = stat.cycle_time
-            self.statusTx.config.cycle_time = stat.cycle_time
-            modified = True
-
-        if (self.status.config.debug != stat.debug):
-            self.status.config.debug = stat.debug
-            self.statusTx.config.debug = stat.debug
-            modified = True
-
-        if (self.status.config.kinematics_type != stat.kinematics_type):
-            self.status.config.kinematics_type = stat.kinematics_type
-            self.statusTx.config.kinematics_type = stat.kinematics_type
-            modified = True
-
-        if self.notEqual(self.status.config.linear_units, stat.linear_units):
-            self.status.config.linear_units = stat.linear_units
-            self.statusTx.config.linear_units = stat.linear_units
-            modified = True
-
-        if (self.status.config.program_units != stat.program_units):
-            self.status.config.program_units = stat.program_units
-            self.statusTx.config.program_units = stat.program_units
-            modified = True
-
-        if self.notEqual(self.status.config.default_velocity, stat.velocity):
-            self.status.config.default_velocity = stat.velocity
-            self.statusTx.config.default_velocity = stat.velocity
-            modified = True
+        modified |= self.update_config_value('axis_mask', stat.axis_mask)
+        modified |= self.update_config_float('cycle_time', stat.cycle_time)
+        modified |= self.update_config_value('debug', stat.debug)
+        modified |= self.update_config_value('kinematics_type', stat.kinematics_type)
+        modified |= self.update_config_float('linear_units', stat.linear_units)
+        modified |= self.update_config_value('program_units', stat.program_units)
+        modified |= self.update_config_float('default_velocity', stat.velocity)
 
         if self.configFullUpdate:
             self.add_pparams()
