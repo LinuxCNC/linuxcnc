@@ -325,6 +325,8 @@ class LinuxCNCWrapper():
                     if program is not "":
                         self.programExtensions[extension] = program
 
+            # initialize total line count
+            self.totalLines = 0
             # If specified in the ini, try to open the  default file
             openFile = self.ini.find('DISPLAY', 'OPEN_FILE') or ""
             openFile = openFile.strip('"')  # quote signs are allowed
@@ -335,6 +337,7 @@ class LinuxCNCWrapper():
                 shutil.copy(openFile, filePath)
                 if self.debug:
                     print(str("loading default file " + openFile))
+                filePath = self.preprocess_program(filePath)
                 self.command.mode(linuxcnc.MODE_AUTO)
                 self.command.wait_complete()
                 self.command.program_open(filePath)
@@ -482,13 +485,16 @@ class LinuxCNCWrapper():
                 if retcode:
                     raise subprocess.CalledProcessError(retcode, '', output=err)
                 outFile.close()
-                return newFileName
+                filePath = newFileName
             except IOError as e:
                 self.linuxcncErrors.append(str(e))
                 return ''
             except subprocess.CalledProcessError as e:
                 self.linuxcncErrors.append(e.output)
                 return ''
+        # get number of lines
+        with open(filePath) as f:
+            self.totalLines = sum(1 for line in f)
         return filePath
 
     def notEqual(self, a, b):
@@ -565,6 +571,9 @@ class LinuxCNCWrapper():
 
     def update_config_float(self, prop, value):
         return self.update_proto_float(self.status.config, self.statusTx.config, prop, value)
+
+    def update_task_value(self, prop, value):
+        return self.update_proto_value(self.status.task, self.statusTx.task, prop, value)
 
     def update_config(self, stat):
         modified = False
@@ -960,52 +969,15 @@ class LinuxCNCWrapper():
             self.status.task.task_mode = EMC_TASK_MODE_MANUAL
             self.status.task.task_paused = 0
             self.status.task.task_state = EMC_TASK_STATE_ESTOP
+            self.status.task.total_lines = 0
             self.taskFirstrun = False
 
-        if (self.status.task.echo_serial_number != stat.echo_serial_number):
-            self.status.task.echo_serial_number = stat.echo_serial_number
-            self.statusTx.task.echo_serial_number = stat.echo_serial_number
-            modified = True
+        for name in ['echo_serial_number', 'exec_state', 'file',
+                     'input_timeout', 'optional_stop', 'read_line',
+                     'task_mode', 'task_paused', 'task_state']:
+            modified |= self.update_task_value(name, getattr(stat, name))
 
-        if (self.status.task.exec_state != stat.exec_state):
-            self.status.task.exec_state = stat.exec_state
-            self.statusTx.task.exec_state = stat.exec_state
-            modified = True
-
-        if (self.status.task.file != stat.file):
-            self.status.task.file = stat.file
-            self.statusTx.task.file = stat.file
-            modified = True
-
-        if (self.status.task.input_timeout != stat.input_timeout):
-            self.status.task.input_timeout = stat.input_timeout
-            self.statusTx.task.input_timeout = stat.input_timeout
-            modified = True
-
-        if (self.status.task.optional_stop != stat.optional_stop):
-            self.status.task.optional_stop = stat.optional_stop
-            self.statusTx.task.optional_stop = stat.optional_stop
-            modified = True
-
-        if (self.status.task.read_line != stat.read_line):
-            self.status.task.read_line = stat.read_line
-            self.statusTx.task.read_line = stat.read_line
-            modified = True
-
-        if (self.status.task.task_mode != stat.task_mode):
-            self.status.task.task_mode = stat.task_mode
-            self.statusTx.task.task_mode = stat.task_mode
-            modified = True
-
-        if (self.status.task.task_paused != stat.task_paused):
-            self.status.task.task_paused = stat.task_paused
-            self.statusTx.task.task_paused = stat.task_paused
-            modified = True
-
-        if (self.status.task.task_state != stat.task_state):
-            self.status.task.task_state = stat.task_state
-            self.statusTx.task.task_state = stat.task_state
-            modified = True
+        modified |= self.update_task_value('total_lines', self.totalLines)
 
         if self.taskFullUpdate:
             self.add_pparams()
