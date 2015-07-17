@@ -48,9 +48,6 @@ static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
 int _rtapi_task_self_hook(void);
 
-#endif  /* RTAPI */
-
-#define MODULE_OFFSET		32768
 
 typedef struct {
     int deleted;
@@ -70,6 +67,7 @@ typedef struct {
 } extra_task_data_t;
 
 extra_task_data_t extra_task_data[RTAPI_MAX_TASKS + 1];
+#endif  /* RTAPI */
 
 #ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
 long long int _rtapi_get_clocks_hook(void)
@@ -81,7 +79,6 @@ long long int _rtapi_get_clocks_hook(void)
 
 #endif
 
-#ifdef ULAPI
 
 int _rtapi_init(const char *modname) {
     return _rtapi_next_handle();
@@ -92,63 +89,8 @@ int _rtapi_exit(int module_id) {
     return 0;
 }
 
-#else /* RTAPI */
 
-int _rtapi_init(const char *modname) {
-    int n, module_id = -ENOMEM;
-    module_data *module;
-
-    /* say hello */
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: initing module %s\n", modname);
-
-    /* get the mutex */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    /* find empty spot in module array */
-    n = 1;
-    while ((n <= RTAPI_MAX_MODULES) && (module_array[n].state != NO_MODULE)) {
-	n++;
-    }
-    if (n > RTAPI_MAX_MODULES) {
-	/* no room */
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit %d\n",
-			n);
-	return -EMFILE;
-    }
-    /* we have space for the module */
-    module_id = n + MODULE_OFFSET;
-    module = &(module_array[n]);
-    /* update module data */
-    module->state = REALTIME;
-    if (modname != NULL) {
-	/* use name supplied by caller, truncating if needed */
-	rtapi_snprintf(module->name, RTAPI_NAME_LEN, "%s", modname);
-    } else {
-	/* make up a name */
-	rtapi_snprintf(module->name, RTAPI_NAME_LEN, "ULMOD%03d", module_id);
-    }
-    rtapi_data->ul_module_count++;
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module '%s' loaded, ID: %d\n",
-	module->name, module_id);
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    return module_id;
-}
-
-int _rtapi_exit(int module_id) {
-    module_id -= MODULE_OFFSET;
-
-    if (module_id < 0 || module_id >= RTAPI_MAX_MODULES)
-	return -1;
-    /* Remove the module from the module_array. */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    module_array[module_id].state = NO_MODULE;
-    rtapi_print_msg(RTAPI_MSG_DBG,
-		    "rtapi_exit: freed module slot %d, was %s\n",
-		    module_id, module_array[module_id].name);
-    rtapi_mutex_give(&(rtapi_data->mutex));
-
-    return 0;
-}
+#ifdef RTAPI
 
 static inline int task_id(task_data *task) {
     return (int)(task - task_array);
@@ -157,7 +99,6 @@ static inline int task_id(task_data *task) {
 /***********************************************************************
 *                           RT thread statistics update                *
 ************************************************************************/
-#ifdef RTAPI
 int _rtapi_task_update_stats_hook(void)
 {
     int task_id = _rtapi_task_self_hook();
@@ -197,7 +138,6 @@ int _rtapi_task_update_stats_hook(void)
 
     return task_id;
 }
-#endif
 
 static void _rtapi_advance_time(struct timespec *tv, unsigned long ns,
 			       unsigned long s) {
@@ -317,9 +257,7 @@ static int realtime_set_affinity(task_data *task) {
     return 0;
 }
 
-#ifdef RTAPI
 extern rtapi_exception_handler_t rt_exception_handler;
-#endif
 
 static int realtime_set_priority(task_data *task) {
     struct sched_param schedp;
@@ -521,4 +459,4 @@ int _rtapi_task_self_hook(void) {
     return -EINVAL;
 }
 
-#endif /* ULAPI/RTAPI */
+#endif /* RTAPI */
