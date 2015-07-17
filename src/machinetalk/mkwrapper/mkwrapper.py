@@ -566,14 +566,56 @@ class LinuxCNCWrapper():
             return True
         return False
 
+    def update_proto_list(self, obj, txObj, txObjItem, prop, values, default):
+        modified = False
+        for index, value in enumerate(values):
+            txObjItem.Clear()
+            objModified = False
+
+            if len(obj) == index:
+                obj.add()
+                obj[index].index = index
+                setattr(obj[index], prop, default)
+
+            objItem = obj[index]
+            objModified |= self.update_proto_value(objItem, txObjItem, prop, value)
+
+            if objModified:
+                txObjItem.index = index
+                txObj.add().CopyFrom(txObjItem)
+                modified = True
+
+        return modified
+
+    def update_proto_position(self, obj, txObj, prop, value):
+        modified, txPosition = self.check_position(getattr(obj, prop), value)
+        if modified:
+            getattr(obj, prop).MergeFrom(txPosition)
+            getattr(txObj, prop).CopyFrom(txPosition)
+
+        del txPosition
+        return modified
+
     def update_config_value(self, prop, value):
         return self.update_proto_value(self.status.config, self.statusTx.config, prop, value)
 
     def update_config_float(self, prop, value):
         return self.update_proto_float(self.status.config, self.statusTx.config, prop, value)
 
+    def update_io_value(self, prop, value):
+        return self.update_proto_value(self.status.io, self.statusTx.io, prop, value)
+
     def update_task_value(self, prop, value):
         return self.update_proto_value(self.status.task, self.statusTx.task, prop, value)
+
+    def update_interp_value(self, prop, value):
+        return self.update_proto_value(self.status.interp, self.statusTx.interp, prop, value)
+
+    def update_motion_value(self, prop, value):
+        return self.update_proto_value(self.status.motion, self.statusTx.motion, prop, value)
+
+    def update_motion_float(self, prop, value):
+        return self.update_proto_float(self.status.motion, self.statusTx.motion, prop, value)
 
     def update_config(self, stat):
         modified = False
@@ -617,25 +659,12 @@ class LinuxCNCWrapper():
             self.configFirstrun = False
 
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
-            txExtension = EmcProgramExtension()
-            for index, extensionValue in enumerate(extensions):
-                txExtension.Clear()
-                extModified = False
-
-                if len(self.status.config.program_extension) == index:
-                    self.status.config.program_extension.add()
-                    self.status.config.program_extension[index].index = index
-                    self.status.config.program_extension[index].extension = ""
-
-                extension = self.status.config.program_extension[index]
-                extModified |= self.update_proto_value(extension, txExtension,
-                                                       'extension', extensionValue)
-
-                if extModified:
-                    txExtension.index = index
-                    self.statusTx.config.program_extension.add().CopyFrom(txExtension)
-                    modified = True
-            del txExtension
+            txObjItem = EmcProgramExtension()
+            obj = self.status.config.program_extension
+            txObj = self.statusTx.config.program_extension
+            modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                               'extension', extensions, '')
+            del txObjItem
 
             positionOffset = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'RELATIVE'
             if positionOffset == 'MACHINE':
@@ -725,9 +754,15 @@ class LinuxCNCWrapper():
             name = str(self.ini.find('EMC', 'MACHINE') or '')
             modified |= self.update_config_value('name', name)
 
+        for name in ['axis_mask', 'debug', 'kinematics_type', 'program_units',
+                     'axes']:
+            modified |= self.update_config_value(name, getattr(stat, name))
+
+        for name in ['cycle_time', 'linear_units', 'angular_units']:
+            modified |= self.update_config_float(name, getattr(stat, name))
+
         modified |= self.update_config_float('default_acceleration', stat.acceleration)
-        modified |= self.update_config_float('angular_units', stat.angular_units)
-        modified |= self.update_config_value('axes', stat.axes)
+        modified |= self.update_config_float('default_velocity', stat.velocity)
 
         txAxis = EmcStatusConfigAxis()
         for index, statAxis in enumerate(stat.axis):
@@ -774,14 +809,6 @@ class LinuxCNCWrapper():
 
         del txAxis
 
-        modified |= self.update_config_value('axis_mask', stat.axis_mask)
-        modified |= self.update_config_float('cycle_time', stat.cycle_time)
-        modified |= self.update_config_value('debug', stat.debug)
-        modified |= self.update_config_value('kinematics_type', stat.kinematics_type)
-        modified |= self.update_config_float('linear_units', stat.linear_units)
-        modified |= self.update_config_value('program_units', stat.program_units)
-        modified |= self.update_config_float('default_velocity', stat.velocity)
-
         if self.configFullUpdate:
             self.add_pparams()
             self.send_config(self.status.config, MT_EMCSTAT_FULL_UPDATE)
@@ -803,56 +830,19 @@ class LinuxCNCWrapper():
             self.status.io.tool_offset.MergeFrom(self.zero_position())
             self.ioFirstrun = False
 
-        if (self.status.io.estop != stat.estop):
-            self.status.io.estop = stat.estop
-            self.statusTx.io.estop = stat.estop
-            modified = True
+        for name in ['estop', 'flood', 'lube', 'lube_level', 'mist',
+                     'pocket_prepped', 'tool_in_spindle']:
+            modified |= self.update_io_value(name, getattr(stat, name))
 
-        if (self.status.io.flood != stat.flood):
-            self.status.io.flood = stat.flood
-            self.statusTx.io.flood = stat.flood
-            modified = True
-
-        if (self.status.io.lube != stat.lube):
-            self.status.io.lube = stat.lube
-            self.statusTx.io.lube = stat.lube
-            modified = True
-
-        if (self.status.io.lube_level != stat.lube_level):
-            self.status.io.lube_level = stat.lube_level
-            self.statusTx.io.lube_level = stat.lube_level
-            modified = True
-
-        if (self.status.io.mist != stat.mist):
-            self.status.io.mist = stat.mist
-            self.statusTx.io.mist = stat.mist
-            modified = True
-
-        if (self.status.io.pocket_prepped != stat.pocket_prepped):
-            self.status.io.pocket_prepped = stat.pocket_prepped
-            self.statusTx.io.pocket_prepped = stat.pocket_prepped
-            modified = True
-
-        if (self.status.io.tool_in_spindle != stat.tool_in_spindle):
-            self.status.io.tool_in_spindle = stat.tool_in_spindle
-            self.statusTx.io.tool_in_spindle = stat.tool_in_spindle
-            modified = True
-
-        positionModified = False
-        txPosition = None
-        positionModified, txPosition = self.check_position(self.status.io.tool_offset, stat.tool_offset)
-        if positionModified:
-            self.status.io.tool_offset.MergeFrom(txPosition)
-            self.statusTx.io.tool_offset.CopyFrom(txPosition)
-            modified = True
-        del txPosition
+        modified |= self.update_proto_position(self.status.io, self.statusTx.io,
+                                               'tool_offset', stat.tool_offset)
 
         txToolResult = EmcToolData()
-        for index, toolResult in enumerate(stat.tool_table):
+        for index, statToolResult in enumerate(stat.tool_table):
             txToolResult.Clear()
-            toolResultModified = False
+            resultModified = False
 
-            if (toolResult.id == -1) and (index > 0):  # last tool in table
+            if (statToolResult.id == -1) and (index > 0):  # last tool in table
                 break
 
             if len(self.status.io.tool_table) == index:
@@ -873,77 +863,23 @@ class LinuxCNCWrapper():
                 self.status.io.tool_table[index].backangle = 0.0
                 self.status.io.tool_table[index].orientation = 0
 
-            if self.status.io.tool_table[index].id != toolResult.id:
-                self.status.io.tool_table[index].id = toolResult.id
-                txToolResult.id = toolResult.id
-                toolResultModified = True
+            toolResult = self.status.io.tool_table[index]
 
-            if self.notEqual(self.status.io.tool_table[index].xOffset, toolResult.xoffset):
-                self.status.io.tool_table[index].xOffset = toolResult.xoffset
-                txToolResult.xOffset = toolResult.xoffset
-                toolResultModified = True
+            for name in ['id', 'orientation']:
+                value = getattr(statToolResult, name)
+                resultModified |= self.update_proto_value(toolResult, txToolResult,
+                                                          name, value)
+            for name in ['diameter', 'frontangle', 'backangle']:
+                value = getattr(statToolResult, name)
+                resultModified |= self.update_proto_float(toolResult, txToolResult,
+                                                          name, value)
 
-            if self.notEqual(self.status.io.tool_table[index].yOffset, toolResult.yoffset):
-                self.status.io.tool_table[index].yOffset = toolResult.yoffset
-                txToolResult.yOffset = toolResult.yoffset
-                toolResultModified = True
+            for axis in ['x', 'y', 'z', 'a', 'b', 'c', 'u', 'v', 'w']:
+                value = getattr(statToolResult, axis + 'offset')
+                resultModified |= self.update_proto_float(toolResult, txToolResult,
+                                                          axis + 'Offset', value)
 
-            if self.notEqual(self.status.io.tool_table[index].zOffset, toolResult.zoffset):
-                self.status.io.tool_table[index].zOffset = toolResult.zoffset
-                txToolResult.zOffset = toolResult.zoffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].aOffset, toolResult.aoffset):
-                self.status.io.tool_table[index].aOffset = toolResult.aoffset
-                txToolResult.aOffset = toolResult.aoffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].bOffset, toolResult.boffset):
-                self.status.io.tool_table[index].bOffset = toolResult.boffset
-                txToolResult.bOffset = toolResult.boffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].cOffset, toolResult.coffset):
-                self.status.io.tool_table[index].cOffset = toolResult.coffset
-                txToolResult.cOffset = toolResult.coffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].uOffset, toolResult.uoffset):
-                self.status.io.tool_table[index].uOffset = toolResult.uoffset
-                txToolResult.uOffset = toolResult.uoffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].vOffset, toolResult.voffset):
-                self.status.io.tool_table[index].vOffset = toolResult.voffset
-                txToolResult.vOffset = toolResult.voffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].wOffset, toolResult.woffset):
-                self.status.io.tool_table[index].wOffset = toolResult.woffset
-                txToolResult.wOffset = toolResult.woffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].diameter, toolResult.diameter):
-                self.status.io.tool_table[index].diameter = toolResult.diameter
-                txToolResult.diameter = toolResult.diameter
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].frontangle, toolResult.frontangle):
-                self.status.io.tool_table[index].frontangle = toolResult.frontangle
-                txToolResult.frontangle = toolResult.frontangle
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].backangle, toolResult.backangle):
-                self.status.io.tool_table[index].backangle = toolResult.backangle
-                txToolResult.backangle = toolResult.backangle
-                toolResultModified = True
-
-            if self.status.io.tool_table[index].orientation != toolResult.orientation:
-                self.status.io.tool_table[index].orientation = toolResult.orientation
-                txToolResult.orientation = toolResult.orientation
-                toolResultModified = True
-
-            if toolResultModified:
+            if resultModified:
                 txToolResult.index = index
                 self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
                 modified = True
@@ -995,83 +931,29 @@ class LinuxCNCWrapper():
             self.status.interp.interpreter_errcode = 0
             self.interpFirstrun = False
 
-        if (self.status.interp.command != stat.command):
-            self.status.interp.command = stat.command
-            self.statusTx.interp.command = stat.command
-            modified = True
+        for name in ['command', 'interp_state', 'interpreter_errcode']:
+            modified |= self.update_interp_value(name, getattr(stat, name))
 
-        txStatusGCode = EmcStatusGCode()
-        for index, gcode in enumerate(stat.gcodes):
-            txStatusGCode.Clear()
-            gcodeModified = False
+        txObjItem = EmcStatusGCode()
+        obj = self.status.interp.gcodes
+        txObj = self.statusTx.interp.gcodes
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.gcodes, 0)
+        del txObjItem
 
-            if len(self.status.interp.gcodes) == index:
-                self.status.interp.gcodes.add()
-                self.status.interp.gcodes[index].index = index
-                self.status.interp.gcodes[index].value = 0
+        txObjItem = EmcStatusMCode()
+        obj = self.status.interp.mcodes
+        txObj = self.statusTx.interp.mcodes
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.mcodes, 0)
+        del txObjItem
 
-            if self.status.interp.gcodes[index].value != gcode:
-                self.status.interp.gcodes[index].value = gcode
-                txStatusGCode.value = gcode
-                gcodeModified = True
-
-            if gcodeModified:
-                txStatusGCode.index = index
-                self.statusTx.interp.gcodes.add().CopyFrom(txStatusGCode)
-                modified = True
-        del txStatusGCode
-
-        if (self.status.interp.interp_state != stat.interp_state):
-            self.status.interp.interp_state = stat.interp_state
-            self.statusTx.interp.interp_state = stat.interp_state
-            modified = True
-
-        if (self.status.interp.interpreter_errcode != stat.interpreter_errcode):
-            self.status.interp.interpreter_errcode = stat.interpreter_errcode
-            self.statusTx.interp.interpreter_errcode = stat.interpreter_errcode
-            modified = True
-
-        txStatusMCode = EmcStatusMCode()
-        for index, mcode in enumerate(stat.mcodes):
-            txStatusMCode.Clear()
-            mcodeModified = False
-
-            if len(self.status.interp.mcodes) == index:
-                self.status.interp.mcodes.add()
-                self.status.interp.mcodes[index].index = index
-                self.status.interp.mcodes[index].value = 0
-
-            if self.status.interp.mcodes[index].value != mcode:
-                self.status.interp.mcodes[index].value = mcode
-                txStatusMCode.value = mcode
-                mcodeModified = True
-
-            if mcodeModified:
-                txStatusMCode.index = index
-                self.statusTx.interp.mcodes.add().CopyFrom(txStatusMCode)
-                modified = True
-        del txStatusMCode
-
-        txStatusSetting = EmcStatusSetting()
-        for index, setting in enumerate(stat.settings):
-            txStatusSetting.Clear()
-            settingModified = False
-
-            if len(self.status.interp.settings) == index:
-                self.status.interp.settings.add()
-                self.status.interp.settings[index].index = index
-                self.status.interp.settings[index].value = 0.0
-
-            if self.notEqual(self.status.interp.settings[index].value, setting):
-                self.status.interp.settings[index].value = setting
-                txStatusSetting.value = setting
-                settingModified = True
-
-            if settingModified:
-                txStatusSetting.index = index
-                self.statusTx.interp.settings.add().CopyFrom(txStatusSetting)
-                modified = True
-        del txStatusSetting
+        txObjItem = EmcStatusSetting()
+        obj = self.status.interp.settings
+        txObj = self.statusTx.interp.settings
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.settings, 0.0)
+        del txObjItem
 
         if self.interpFullUpdate:
             self.add_pparams()
@@ -1128,69 +1010,65 @@ class LinuxCNCWrapper():
             self.status.motion.max_acceleration = 0.0
             self.motionFirstrun = False
 
-        if (self.status.motion.active_queue != stat.active_queue):
-            self.status.motion.active_queue = stat.active_queue
-            self.statusTx.motion.active_queue = stat.active_queue
-            modified = True
+        for name in ['active_queue', 'adaptive_feed_enabled', 'block_delete',
+                     'current_line', 'enabled', 'feed_hold_enabled',
+                     'feed_override_enabled', 'g5x_index', 'id', 'inpos',
+                     'motion_line', 'motion_type', 'motion_mode', 'paused',
+                     'probe_tripped', 'probe_val', 'probing', 'queue',
+                     'queue_full', 'spindle_brake', 'spindle_direction',
+                     'spindle_enabled', 'spindle_increasing',
+                     'spindle_override_enabled', 'state']:
+            modified |= self.update_motion_value(name, getattr(stat, name))
 
-        positionModified = False
-        txPosition = None
-        positionModified, txPosition = self.check_position(self.status.motion.actual_position, stat.actual_position)
-        if positionModified:
-            self.status.motion.actual_position.MergeFrom(txPosition)
-            self.statusTx.motion.actual_position.CopyFrom(txPosition)
-            modified = True
-        del txPosition
+        for name in ['current_vel', 'delay_left', 'distance_to_go',
+                     'feedrate', 'rotation_xy', 'spindle_speed',
+                     'spindlerate', 'max_acceleration', 'max_velocity']:
+            modified |= self.update_motion_float(name, getattr(stat, name))
 
-        if (self.status.motion.adaptive_feed_enabled != stat.adaptive_feed_enabled):
-            self.status.motion.adaptive_feed_enabled = stat.adaptive_feed_enabled
-            self.statusTx.motion.adaptive_feed_enabled = stat.adaptive_feed_enabled
-            modified = True
+        for name in ['actual_position', 'dtg', 'g5x_offset', 'g92_offset',
+                     'joint_actual_position', 'joint_position', 'position',
+                     'probed_position']:
+            modified |= self.update_proto_position(self.status.motion,
+                                                   self.statusTx.motion,
+                                                   name, getattr(stat, name))
 
-        txAin = EmcStatusAnalogIO()
-        for index, ain in enumerate(stat.ain):
-            txAin.Clear()
-            ainModified = False
+        txObjItem = EmcStatusAnalogIO()
+        obj = self.status.motion.ain
+        txObj = self.statusTx.motion.ain
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.ain, 0.0)
+        del txObjItem
 
-            if len(self.status.motion.ain) == index:
-                self.status.motion.ain.add()
-                self.status.motion.ain[index].index = index
-                self.status.motion.ain[index].value = 0.0
+        txObjItem = EmcStatusAnalogIO()
+        obj = self.status.motion.aout
+        txObj = self.statusTx.motion.aout
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.aout, 0.0)
+        del txObjItem
 
-            if self.notEqual(self.status.motion.ain[index].value, ain):
-                self.status.motion.ain[index].value = ain
-                txAin.value = ain
-                ainModified = True
+        txObjItem = EmcStatusDigitalIO()
+        obj = self.status.motion.din
+        txObj = self.statusTx.motion.din
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.din, False)
+        del txObjItem
 
-            if ainModified:
-                txAin.index = index
-                self.statusTx.motion.ain.add().CopyFrom(txAin)
-                modified = True
-        del txAin
+        txObjItem = EmcStatusDigitalIO()
+        obj = self.status.motion.dout
+        txObj = self.statusTx.motion.dout
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.dout, False)
+        del txObjItem
 
-        txAout = EmcStatusAnalogIO()
-        for index, aout in enumerate(stat.aout):
-            txAout.Clear()
-            aoutModified = False
-
-            if len(self.status.motion.aout) == index:
-                self.status.motion.aout.add()
-                self.status.motion.aout[index].index = index
-                self.status.motion.aout[index].value = 0.0
-
-            if self.notEqual(self.status.motion.aout[index].value, aout):
-                self.status.motion.aout[index].value = aout
-                txAout.value = aout
-                aoutModified = True
-
-            if aoutModified:
-                txAout.index = index
-                self.statusTx.motion.aout.add().CopyFrom(txAout)
-                modified = True
-        del txAout
+        txObjItem = EmcStatusLimit()
+        obj = self.status.motion.limit
+        txObj = self.statusTx.motion.limit
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.limit, False)
+        del txObjItem
 
         txAxis = EmcStatusMotionAxis()
-        for index, axis in enumerate(stat.axis):
+        for index, statAxis in enumerate(stat.axis):
             txAxis.Clear()
             axisModified = False
 
@@ -1216,361 +1094,24 @@ class LinuxCNCWrapper():
                 self.status.motion.axis[index].override_limits = False
                 self.status.motion.axis[index].velocity = 0.0
 
-            if self.status.motion.axis[index].enabled != axis['enabled']:
-                self.status.motion.axis[index].enabled = axis['enabled']
-                txAxis.enabled = axis['enabled']
-                axisModified = True
+            axis = self.status.motion.axis[index]
+            for name in ['enabled', 'fault', 'homed', 'homing',
+                         'inpos', 'max_hard_limit', 'max_soft_limit',
+                         'min_hard_limit', 'min_soft_limit',
+                         'override_limits']:
+                axisModified |= self.update_proto_value(axis, txAxis,
+                                                        name, statAxis[name])
 
-            if self.status.motion.axis[index].fault != axis['fault']:
-                self.status.motion.axis[index].fault = axis['fault']
-                txAxis.fault = axis['fault']
-                axisModified = True
-
-            if self.notEqual(self.status.motion.axis[index].ferror_current, axis['ferror_current']):
-                self.status.motion.axis[index].ferror_current = axis['ferror_current']
-                txAxis.ferror_current = axis['ferror_current']
-                axisModified = True
-
-            if self.notEqual(self.status.motion.axis[index].ferror_highmark, axis['ferror_highmark']):
-                self.status.motion.axis[index].ferror_highmark = axis['ferror_highmark']
-                txAxis.ferror_highmark = axis['ferror_highmark']
-                axisModified = True
-
-            if self.status.motion.axis[index].homed != axis['homed']:
-                self.status.motion.axis[index].homed = axis['homed']
-                txAxis.homed = axis['homed']
-                axisModified = True
-
-            if self.status.motion.axis[index].homing != axis['homing']:
-                self.status.motion.axis[index].homing = axis['homing']
-                txAxis.homing = axis['homing']
-                axisModified = True
-
-            if self.status.motion.axis[index].inpos != axis['inpos']:
-                self.status.motion.axis[index].inpos = axis['inpos']
-                txAxis.inpos = axis['inpos']
-                axisModified = True
-
-            if self.notEqual(self.status.motion.axis[index].input, axis['input']):
-                self.status.motion.axis[index].input = axis['input']
-                txAxis.input = axis['input']
-                axisModified = True
-
-            if self.status.motion.axis[index].max_hard_limit != axis['max_hard_limit']:
-                self.status.motion.axis[index].max_hard_limit = axis['max_hard_limit']
-                txAxis.max_hard_limit = axis['max_hard_limit']
-                axisModified = True
-
-            if self.status.motion.axis[index].max_soft_limit != axis['max_soft_limit']:
-                self.status.motion.axis[index].max_soft_limit = axis['max_soft_limit']
-                txAxis.max_soft_limit = axis['max_soft_limit']
-                axisModified = True
-
-            if self.status.motion.axis[index].min_hard_limit != axis['min_hard_limit']:
-                self.status.motion.axis[index].min_hard_limit = axis['min_hard_limit']
-                txAxis.min_hard_limit = axis['min_hard_limit']
-                axisModified = True
-
-            if self.status.motion.axis[index].min_soft_limit != axis['min_soft_limit']:
-                self.status.motion.axis[index].min_soft_limit = axis['min_soft_limit']
-                txAxis.min_soft_limit = axis['min_soft_limit']
-                axisModified = True
-
-            if self.notEqual(self.status.motion.axis[index].output, axis['output']):
-                self.status.motion.axis[index].output = axis['output']
-                txAxis.output = axis['output']
-                axisModified = True
-
-            if self.status.motion.axis[index].override_limits != axis['override_limits']:
-                self.status.motion.axis[index].override_limits = axis['override_limits']
-                txAxis.override_limits = axis['override_limits']
-                axisModified = True
-
-            if self.notEqual(self.status.motion.axis[index].velocity, axis['velocity']):
-                self.status.motion.axis[index].velocity = axis['velocity']
-                txAxis.velocity = axis['velocity']
-                axisModified = True
+            for name in ['ferror_current', 'ferror_highmark', 'input',
+                         'output', 'velocity']:
+                axisModified |= self.update_proto_float(axis, txAxis,
+                                                        name, statAxis[name])
 
             if axisModified:
                 txAxis.index = index
                 self.statusTx.motion.axis.add().CopyFrom(txAxis)
                 modified = True
         del txAxis
-
-        if (self.status.motion.block_delete != stat.block_delete):
-            self.status.motion.block_delete = stat.block_delete
-            self.statusTx.motion.block_delete = stat.block_delete
-            modified = True
-
-        if (self.status.motion.current_line != stat.current_line):
-            self.status.motion.current_line = stat.current_line
-            self.statusTx.motion.current_line = stat.current_line
-            modified = True
-
-        if self.notEqual(self.status.motion.current_vel, stat.current_vel):
-            self.status.motion.current_vel = stat.current_vel
-            self.statusTx.motion.current_vel = stat.current_vel
-            modified = True
-
-        if self.notEqual(self.status.motion.delay_left, stat.delay_left):
-            self.status.motion.delay_left = stat.delay_left
-            self.statusTx.motion.delay_left = stat.delay_left
-            modified = True
-
-        txDin = EmcStatusDigitalIO()
-        for index, din in enumerate(stat.din):
-            txDin.Clear()
-            dinModified = False
-
-            if len(self.status.motion.din) == index:
-                self.status.motion.din.add()
-                self.status.motion.din[index].index = index
-                self.status.motion.din[index].value = False
-
-            if self.status.motion.din[index].value != din:
-                self.status.motion.din[index].value = din
-                txDin.value = din
-                dinModified = True
-
-            if dinModified:
-                txDin.index = index
-                self.statusTx.motion.din.add().CopyFrom(txDin)
-                modified = True
-        del txDin
-
-        if self.notEqual(self.status.motion.distance_to_go, stat.distance_to_go):
-            self.status.motion.distance_to_go = stat.distance_to_go
-            self.statusTx.motion.distance_to_go = stat.distance_to_go
-            modified = True
-
-        txDout = EmcStatusDigitalIO()
-        for index, dout in enumerate(stat.dout):
-            txDout.Clear()
-            doutModified = False
-
-            if len(self.status.motion.dout) == index:
-                self.status.motion.dout.add()
-                self.status.motion.dout[index].index = index
-                self.status.motion.dout[index].value = False
-
-            if self.status.motion.dout[index].value != dout:
-                self.status.motion.dout[index].value = dout
-                txDout.value = dout
-                doutModified = True
-
-            if doutModified:
-                txDout.index = index
-                self.statusTx.motion.dout.add().CopyFrom(txDout)
-                modified = True
-        del txDout
-
-        positionModified, txPosition = self.check_position(self.status.motion.dtg, stat.dtg)
-        if positionModified:
-            self.status.motion.dtg.MergeFrom(txPosition)
-            self.statusTx.motion.dtg.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        if (self.status.motion.enabled != stat.enabled):
-            self.status.motion.enabled = stat.enabled
-            self.statusTx.motion.enabled = stat.enabled
-            modified = True
-
-        if (self.status.motion.feed_hold_enabled != stat.feed_hold_enabled):
-            self.status.motion.feed_hold_enabled = stat.feed_hold_enabled
-            self.statusTx.motion.feed_hold_enabled = stat.feed_hold_enabled
-            modified = True
-
-        if (self.status.motion.feed_override_enabled != stat.feed_override_enabled):
-            self.status.motion.feed_override_enabled = stat.feed_override_enabled
-            self.statusTx.motion.feed_override_enabled = stat.feed_override_enabled
-            modified = True
-
-        if self.notEqual(self.status.motion.feedrate, stat.feedrate):
-            self.status.motion.feedrate = stat.feedrate
-            self.statusTx.motion.feedrate = stat.feedrate
-            modified = True
-
-        if (self.status.motion.g5x_index != stat.g5x_index):
-            self.status.motion.g5x_index = stat.g5x_index
-            self.statusTx.motion.g5x_index = stat.g5x_index
-            modified = True
-
-        positionModified, txPosition = self.check_position(self.status.motion.g5x_offset, stat.g5x_offset)
-        if positionModified:
-            self.status.motion.g5x_offset.MergeFrom(txPosition)
-            self.statusTx.motion.g5x_offset.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        positionModified, txPosition = self.check_position(self.status.motion.g92_offset, stat.g92_offset)
-        if positionModified:
-            self.status.motion.g92_offset.MergeFrom(txPosition)
-            self.statusTx.motion.g92_offset.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        if (self.status.motion.id != stat.id):
-            self.status.motion.id = stat.id
-            self.statusTx.motion.id = stat.id
-            modified = True
-
-        if (self.status.motion.inpos != stat.inpos):
-            self.status.motion.inpos = stat.inpos
-            self.statusTx.motion.inpos = stat.inpos
-            modified = True
-
-        positionModified, txPosition = self.check_position(self.status.motion.joint_actual_position, stat.joint_actual_position)
-        if positionModified:
-            self.status.motion.joint_actual_position.MergeFrom(txPosition)
-            self.statusTx.motion.joint_actual_position.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        positionModified, txPosition = self.check_position(self.status.motion.joint_position, stat.joint_position)
-        if positionModified:
-            self.status.motion.joint_position.MergeFrom(txPosition)
-            self.statusTx.motion.joint_position.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        txLimit = EmcStatusLimit()
-        for index, limit in enumerate(stat.limit):
-            txLimit.Clear()
-            limitModified = False
-
-            if index == stat.axes:
-                break
-
-            if len(self.status.motion.limit) == index:
-                self.status.motion.limit.add()
-                self.status.motion.limit[index].index = index
-                self.status.motion.limit[index].value = False
-
-            if self.status.motion.limit[index].value != limit:
-                self.status.motion.limit[index].value = limit
-                txLimit.value = limit
-                limitModified = True
-
-            if limitModified:
-                txLimit.index = index
-                self.statusTx.motion.limit.add().CopyFrom(txLimit)
-                modified = True
-        del txLimit
-
-        if (self.status.motion.motion_line != stat.motion_line):
-            self.status.motion.motion_line = stat.motion_line
-            self.statusTx.motion.motion_line = stat.motion_line
-            modified = True
-
-        if (self.status.motion.motion_type != stat.motion_type):
-            self.status.motion.motion_type = stat.motion_type
-            self.statusTx.motion.motion_type = stat.motion_type
-            modified = True
-
-        if (self.status.motion.motion_mode != stat.motion_mode):
-            self.status.motion.motion_mode = stat.motion_mode
-            self.statusTx.motion.motion_mode = stat.motion_mode
-            modified = True
-
-        if (self.status.motion.paused != stat.paused):
-            self.status.motion.paused = stat.paused
-            self.statusTx.motion.paused = stat.paused
-            modified = True
-
-        positionModified, txPosition = self.check_position(self.status.motion.position, stat.position)
-        if positionModified:
-            self.status.motion.position.MergeFrom(txPosition)
-            self.statusTx.motion.position.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        if (self.status.motion.probe_tripped != stat.probe_tripped):
-            self.status.motion.probe_tripped = stat.probe_tripped
-            self.statusTx.motion.probe_tripped = stat.probe_tripped
-            modified = True
-
-        if (self.status.motion.probe_val != stat.probe_val):
-            self.status.motion.probe_val = stat.probe_val
-            self.statusTx.motion.probe_val = stat.probe_val
-            modified = True
-
-        positionModified, txPosition = self.check_position(self.status.motion.probed_position, stat.probed_position)
-        if positionModified:
-            self.status.motion.probed_position.MergeFrom(txPosition)
-            self.statusTx.motion.probed_position.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        if (self.status.motion.probing != stat.probing):
-            self.status.motion.probing = stat.probing
-            self.statusTx.motion.probing = stat.probing
-            modified = True
-
-        if (self.status.motion.queue != stat.queue):
-            self.status.motion.queue = stat.queue
-            self.statusTx.motion.queue = stat.queue
-            modified = True
-
-        if (self.status.motion.queue_full != stat.queue_full):
-            self.status.motion.queue_full = stat.queue_full
-            self.statusTx.motion.queue_full = stat.queue_full
-            modified = True
-
-        if self.notEqual(self.status.motion.rotation_xy, stat.rotation_xy):
-            self.status.motion.rotation_xy = stat.rotation_xy
-            self.statusTx.motion.rotation_xy = stat.rotation_xy
-            modified = True
-
-        if (self.status.motion.spindle_brake != stat.spindle_brake):
-            self.status.motion.spindle_brake = stat.spindle_brake
-            self.statusTx.motion.spindle_brake = stat.spindle_brake
-            modified = True
-
-        if (self.status.motion.spindle_direction != stat.spindle_direction):
-            self.status.motion.spindle_direction = stat.spindle_direction
-            self.statusTx.motion.spindle_direction = stat.spindle_direction
-            modified = True
-
-        if (self.status.motion.spindle_enabled != stat.spindle_enabled):
-            self.status.motion.spindle_enabled = stat.spindle_enabled
-            self.statusTx.motion.spindle_enabled = stat.spindle_enabled
-            modified = True
-
-        if (self.status.motion.spindle_increasing != stat.spindle_increasing):
-            self.status.motion.spindle_increasing = stat.spindle_increasing
-            self.statusTx.motion.spindle_increasing = stat.spindle_increasing
-            modified = True
-
-        if (self.status.motion.spindle_override_enabled != stat.spindle_override_enabled):
-            self.status.motion.spindle_override_enabled = stat.spindle_override_enabled
-            self.statusTx.motion.spindle_override_enabled = stat.spindle_override_enabled
-            modified = True
-
-        if self.notEqual(self.status.motion.spindle_speed, stat.spindle_speed):
-            self.status.motion.spindle_speed = stat.spindle_speed
-            self.statusTx.motion.spindle_speed = stat.spindle_speed
-            modified = True
-
-        if self.notEqual(self.status.motion.spindlerate, stat.spindlerate):
-            self.status.motion.spindlerate = stat.spindlerate
-            self.statusTx.motion.spindlerate = stat.spindlerate
-            modified = True
-
-        if (self.status.motion.state != stat.state):
-            self.status.motion.state = stat.state
-            self.statusTx.motion.state = stat.state
-            modified = True
-
-        if self.notEqual(self.status.motion.max_acceleration, stat.max_acceleration):
-            self.status.motion.max_acceleration = stat.max_acceleration
-            self.statusTx.motion.max_acceleration = stat.max_acceleration
-            modified = True
-
-        if self.notEqual(self.status.motion.max_velocity, stat.max_velocity):
-            self.status.motion.max_velocity = stat.max_velocity
-            self.statusTx.motion.max_velocity = stat.max_velocity
-            modified = True
 
         if self.motionFullUpdate:
             self.add_pparams()
