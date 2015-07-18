@@ -1641,7 +1641,7 @@ STATIC int tpAdjustAccelForTangent(TP_STRUCT const * const tp,
             rtapi_print_msg(RTAPI_MSG_ERR,"Can't have acceleration scale %f > 1.0\n",normal_acc_scale);
             return TP_ERR_FAIL;
         }
-        double a_reduction_ratio = pmSqrt(1.0 - pmSq(normal_acc_scale));
+        double a_reduction_ratio = 1.0 - normal_acc_scale;
         tp_debug_print(" acceleration reduction ratio is %f\n", a_reduction_ratio);
         tc->maxaccel *= a_reduction_ratio;
         return TP_ERR_OK;
