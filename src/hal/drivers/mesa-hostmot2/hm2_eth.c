@@ -539,32 +539,37 @@ static int hm2_eth_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, 
     return 1;  // success
 }
 
+static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
+    int send;
+    long long t0, t1;
+    hm2_eth_t *board = this->private;
+
+    board->write_cnt++;
+    t0 = rtapi_get_time();
+    send = eth_socket_send(board->sockfd, (void*) &board->write_packet, board->write_packet_size, 0);
+    if(send < 0) {
+        LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
+        return 0;
+    }
+    t1 = rtapi_get_time();
+    LL_PRINT_IF(debug, "enqueue_write(%d) : PACKET SEND [SIZE: %d | TIME: %llu]\n", board->write_cnt, send, t1 - t0);
+    board->write_packet_ptr = &board->write_packet;
+    board->write_packet_size = 0;
+    return 1;
+}
+
 static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     hm2_eth_t *board = this->private;
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
-    if (size == -1) {
-        int send;
-        long long t0, t1;
+    lbp16_cmd_addr *packet = (lbp16_cmd_addr *) board->write_packet_ptr;
 
-        board->write_cnt++;
-        t0 = rtapi_get_time();
-        send = eth_socket_send(board->sockfd, (void*) &board->write_packet, board->write_packet_size, 0);
-        if(send < 0)
-            LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
-        t1 = rtapi_get_time();
-        LL_PRINT_IF(debug, "enqueue_write(%d) : PACKET SEND [SIZE: %d | TIME: %llu]\n", board->write_cnt, send, t1 - t0);
-        board->write_packet_ptr = &board->write_packet;
-        board->write_packet_size = 0;
-    } else {
-        lbp16_cmd_addr *packet = (lbp16_cmd_addr *) board->write_packet_ptr;
-
-        LBP16_INIT_PACKET4_PTR(packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr);
-        board->write_packet_ptr += sizeof(*packet);
-        memcpy(board->write_packet_ptr, buffer, size);
-        board->write_packet_ptr += size;
-        board->write_packet_size += (sizeof(*packet) + size);
-    }
+    // XXX this is missing a check for exceeding the maximum packet size!
+    LBP16_INIT_PACKET4_PTR(packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr);
+    board->write_packet_ptr += sizeof(*packet);
+    memcpy(board->write_packet_ptr, buffer, size);
+    board->write_packet_ptr += size;
+    board->write_packet_size += (sizeof(*packet) + size);
     return 1;
 }
 
@@ -696,6 +701,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     board->llio.send_queued_reads = hm2_eth_send_queued_reads;
     board->llio.receive_queued_reads = hm2_eth_receive_queued_reads;
     board->llio.queue_write = hm2_eth_enqueue_write;
+    board->llio.send_queued_writes = hm2_eth_send_queued_writes;
 
     ret = hm2_register(&board->llio, config[boards_count]);
     if (ret != 0) {

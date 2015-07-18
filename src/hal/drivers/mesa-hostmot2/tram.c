@@ -201,7 +201,8 @@ int hm2_tram_write(hostmot2_t *hm2) {
 }
 
 int hm2_finish_write(hostmot2_t *hm2) {
-    if (!hm2->llio->queue_write(hm2->llio, 0, NULL, -1)) {
+    if (!hm2->llio->send_queued_writes) return 0;
+    if (!hm2->llio->send_queued_writes(hm2->llio)) {
         HM2_ERR("error finishing write! iter=%u)\n",
             tram_write_iteration);
         return -EIO;

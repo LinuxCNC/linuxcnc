@@ -94,7 +94,14 @@ struct hm2_lowlevel_io_struct {
     int (*queue_read)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
     int (*send_queued_reads)(hm2_lowlevel_io_t *self);
     int (*receive_queued_reads)(hm2_lowlevel_io_t *self);
+
+    // similarly, it is useful to divide the work of bulk writes into two groups
+    //   * queueing the writes
+    //   * actually performing the writes
+    // these routines are optional; the llio may either provide both of them, or neither
+    // (in which case a dummy implementation of ->queue_write delegates to ->write)
     int (*queue_write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
+    int (*send_queued_writes)(hm2_lowlevel_io_t *self);
     // 
     // This is a HAL parameter allocated and added to HAL by hostmot2.
     // 
