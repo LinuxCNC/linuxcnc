@@ -1689,9 +1689,10 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     tp_debug_print("this tangent vector: %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
 
     double dot = -1.0;
-    const double SHARP_CORNER_THRESHOLD = 0.99;
+    const double SHARP_CORNER_DEG = 2.0;
+    const double SHARP_CORNER_THRESHOLD = cos(PM_PI * (1.0 - SHARP_CORNER_DEG / 180.0));
     pmCartCartDot(&prev_tan, &this_tan, &dot);
-    if (dot < -SHARP_CORNER_THRESHOLD) {
+    if (dot < SHARP_CORNER_THRESHOLD) {
         tp_debug_print("Found sharp corner\n");
         tcSetTermCond(prev_tc, TC_TERM_COND_STOP);
         return TP_ERR_FAIL;
