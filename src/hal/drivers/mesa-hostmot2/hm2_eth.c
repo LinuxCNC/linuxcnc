@@ -438,8 +438,8 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
       read_packet.addr_lo, read_packet.addr_hi, size);
     t1 = rtapi_get_time();
     do {
-        rtapi_delay(READ_PCK_DELAY_NS);
         recv = eth_socket_recv(board->sockfd, (void*) &tmp_buffer, size, 0);
+        if(recv < 0) rtapi_delay(READ_PCK_DELAY_NS);
         t2 = rtapi_get_time();
         i++;
     } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
@@ -455,42 +455,58 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
     return 1;  // success
 }
 
+static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
+    hm2_eth_t *board = this->private;
+    int send;
+
+    board->read_cnt++;
+    send = eth_socket_send(board->sockfd, (void*) &board->queue_packets, sizeof(lbp16_cmd_addr)*board->queue_reads_count, 0);
+    if(send < 0) {
+        LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
+        return 0;
+    }
+    return 1;
+}
+
+static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
+    hm2_eth_t *board = this->private;
+    int recv, i = 0;
+    rtapi_u8 tmp_buffer[board->queue_buff_size];
+    long long t1, t2;
+    t1 = rtapi_get_time();
+    do {
+        errno = 0;
+        recv = eth_socket_recv(board->sockfd, (void*) &tmp_buffer, board->queue_buff_size, 0);
+        if(recv < 0) rtapi_delay(READ_PCK_DELAY_NS);
+        t2 = rtapi_get_time();
+        i++;
+    } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
+    if(recv != board->queue_buff_size) {
+        LL_PRINT("enqueue_read ERROR: reading packet: recv() -> %d %s (expected to read %d bytes)\n", recv, strerror(errno), board->queue_buff_size);
+        return 0;
+    }
+    LL_PRINT_IF(debug, "enqueue_read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, recv, i, t2 - t1);
+
+    for (i = 0; i < board->queue_reads_count; i++) {
+        memcpy(board->queue_reads[i].buffer, &tmp_buffer[board->queue_reads[i].from], board->queue_reads[i].size);
+    }
+
+    board->queue_reads_count = 0;
+    board->queue_buff_size = 0;
+    return 1;
+}
+
 static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     hm2_eth_t *board = this->private;
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
-    if (size == -1) {
-        int send, recv, i = 0;
-        long long t1, t2;
-        rtapi_u8 tmp_buffer[board->queue_buff_size];
-
-        board->read_cnt++;
-        send = eth_socket_send(board->sockfd, (void*) &board->queue_packets, sizeof(lbp16_cmd_addr)*board->queue_reads_count, 0);
-        if(send < 0)
-            LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
-        t1 = rtapi_get_time();
-        do {
-            rtapi_delay(READ_PCK_DELAY_NS);
-            recv = eth_socket_recv(board->sockfd, (void*) &tmp_buffer, board->queue_buff_size, 0);
-            t2 = rtapi_get_time();
-            i++;
-        } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
-        LL_PRINT_IF(debug, "enqueue_read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, recv, i, t2 - t1);
-
-        for (i = 0; i < board->queue_reads_count; i++) {
-            memcpy(board->queue_reads[i].buffer, &tmp_buffer[board->queue_reads[i].from], board->queue_reads[i].size);
-        }
-
-        board->queue_reads_count = 0;
-        board->queue_buff_size = 0;
-    } else {
-        LBP16_INIT_PACKET4(board->queue_packets[board->queue_reads_count], CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
-        board->queue_reads[board->queue_reads_count].buffer = buffer;
-        board->queue_reads[board->queue_reads_count].size = size;
-        board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
-        board->queue_reads_count++;
-        board->queue_buff_size += size;
-    }
+    // XXX this is missing a check for exceeding the maximum packet size!
+    LBP16_INIT_PACKET4(board->queue_packets[board->queue_reads_count], CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
+    board->queue_reads[board->queue_reads_count].buffer = buffer;
+    board->queue_reads[board->queue_reads_count].size = size;
+    board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
+    board->queue_reads_count++;
+    board->queue_buff_size += size;
     return 1;
 }
 
@@ -573,6 +589,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         LL_PRINT("ERROR: receiving packet: %s\n", strerror(errno));
 
     board = &boards[boards_count];
+    board->llio.split_read = true;
 
     if (strncmp(board_name, "7I80DB-16", 9) == 0) {
         strncpy(llio_name, board_name, 4);
@@ -657,6 +674,8 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     board->llio.read = hm2_eth_read;
     board->llio.write = hm2_eth_write;
     board->llio.queue_read = hm2_eth_enqueue_read;
+    board->llio.send_queued_reads = hm2_eth_send_queued_reads;
+    board->llio.receive_queued_reads = hm2_eth_receive_queued_reads;
     board->llio.queue_write = hm2_eth_enqueue_write;
 
     ret = hm2_register(&board->llio, config[boards_count]);

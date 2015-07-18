@@ -144,10 +144,14 @@ static int queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, in
     return 1;
 }
 
+static int send_queued_reads(hm2_lowlevel_io_t *llio) {
+    hm2_spi_t *this = (hm2_spi_t*) llio;
+    return do_pending(this);
+}
+
 static int queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     if(size == 0) return 0;
-    if(size == -1) return do_pending(this);
     if(size % 4) return -EINVAL;
 
     int wsize = size / 4;
@@ -292,6 +296,7 @@ static int probe(char *dev, int rate) {
     board->llio.read = do_read;
     board->llio.write = do_write;
     board->llio.queue_read = queue_read;
+    board->llio.send_queued_reads = send_queued_reads;
     board->llio.queue_write = queue_write;
 
     r = hm2_register(&board->llio, config[nboards]);
