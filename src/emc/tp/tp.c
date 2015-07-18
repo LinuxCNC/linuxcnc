@@ -779,7 +779,13 @@ STATIC int tpCheckTangentPerformance(TP_STRUCT const * const tp,
         tpAdjustAccelForTangent(tp, tc, kink_ratio);
         tpAdjustAccelForTangent(tp, prev_tc, kink_ratio);
         return TP_ERR_NO_ACTION;
+    } else {
+        tp_debug_print("segment maxvel %f is greater than kink_vel %f, using blend arc\n",
+                blend_tc->maxvel, tc->kink_vel);
+        // Since we get near-exact tangency with the blend arc, throw out the kink velocity since it's not relevant
+        tc->kink_vel = -1.0;
     }
+
     return TP_ERR_OK;
 }
 
@@ -1729,7 +1735,6 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
                 acc_scale_max,
                 kink_ratio,
                 tc->kink_vel);
-        //FIXME need to scale tangential acceleration down if this is the case
         return TP_ERR_NO_ACTION;
     }
 

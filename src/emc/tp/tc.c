@@ -545,7 +545,7 @@ int tcSetupMotion(TC_STRUCT * const tc,
     // Initial guess at target velocity is just the requested velocity
     tc->target_vel = vel;
     // TO be filled in by tangent calculation, negative = invalid (KLUDGE)
-    tc->kink_vel = -1;
+    tc->kink_vel = -1.0;
 
     return TP_ERR_OK;
 }
