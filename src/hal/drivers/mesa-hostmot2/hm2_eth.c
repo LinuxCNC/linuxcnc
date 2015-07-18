@@ -284,7 +284,7 @@ static int install_iptables_perinterface(const char *ifbuf) {
     return 0;
 }
 
-static int fetch_hwaddr(int sockfd, unsigned char buf[6]) {
+static int fetch_hwaddr(const char *board_ip, int sockfd, unsigned char buf[6]) {
     lbp16_cmd_addr packet;
     unsigned char response[6];
     LBP16_INIT_PACKET4(packet, 0x4983, 0x0002);
@@ -300,8 +300,8 @@ static int fetch_hwaddr(int sockfd, unsigned char buf[6]) {
     // eeprom order is backwards from arp AF_LOCAL order
     for(i=0; i<6; i++) buf[i] = response[5-i];
 
-    LL_PRINT("Hardware address: %02x:%02x:%02x:%02x:%02x:%02x\n",
-        buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+    LL_PRINT("%s: Hardware address: %02x:%02x:%02x:%02x:%02x:%02x\n",
+        board_ip, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
 
     return 0;
 }
@@ -360,9 +360,9 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
 
     board->req.arp_ha.sa_family = AF_LOCAL;
     board->req.arp_flags = ATF_PERM | ATF_COM;
-    ret = fetch_hwaddr( board->sockfd, (void*)&board->req.arp_ha.sa_data );
+    ret = fetch_hwaddr( board_ip, board->sockfd, (void*)&board->req.arp_ha.sa_data );
     if(ret < 0) {
-        LL_PRINT("ERROR: Could not retrieve mac address\n");
+        LL_PRINT("ERROR: %s: Could not retrieve mac address\n", board_ip);
         return ret;
     }
 
