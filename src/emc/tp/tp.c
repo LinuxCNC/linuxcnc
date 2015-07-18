@@ -657,7 +657,12 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
 STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     //Compute peak velocity for blend calculations
     double acc_scaled = tpGetScaledAccel(tp, tc);
-    double triangle_vel = pmSqrt( acc_scaled * tc->target);
+    double length = tc->target;
+    if (!tc->finalized) {
+        // blending may remove up to 1/2 of the segment
+        length /= 2.0;
+    }
+    double triangle_vel = pmSqrt( acc_scaled * length);
     tp_debug_print("triangle vel for segment %d is %f\n", tc->id, triangle_vel);
 
     return triangle_vel;
@@ -1762,7 +1767,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         tp_debug_print(" queue empty\n");
         return TP_ERR_FAIL;
     }
-    if (prev_tc->progress > 0.0) {
+    if (prev_tc->progress > prev_tc->target / 2.0) {
         tp_debug_print(" prev_tc progress = %f, aborting arc\n", prev_tc->progress);
         return TP_ERR_FAIL;
     }
@@ -3127,10 +3132,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
      */
     tc = tcqItem(&tp->queue, 0);
     nexttc = tcqItem(&tp->queue, 1);
-    // Hack to force nexttc to be finalized if it hasn't been already. Since
-    // nextc isn't officially activated yet, we have to do this step here
-    // (rather than just calling tpActivateSegment).
-    tcFinalizeLength(nexttc);
 
     //Set GUI status to "zero" state
     tpUpdateInitialStatus(tp);
