@@ -1725,19 +1725,19 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     }
     //If we have ABCUVW movement, then don't check for tangency
     if (tpRotaryMotionCheck(tp, tc) || tpRotaryMotionCheck(tp, prev_tc)) {
-        tp_debug_print("found rotary axis motion, aborting tangent check\n");
-        return TP_ERR_NO_ACTION;
+        tp_debug_print("found rotary axis motion\n");
+        return TP_ERR_FAIL;
     }
 
     if (get_arcBlendOptDepth(tp->shared) < 2) {
-        tp_debug_print("Optimization depth %d too low, ignoring any tangents\n",
+        tp_debug_print("Optimization depth %d too low for tangent optimization\n",
                 get_arcBlendOptDepth(tp->shared));
-        return TP_ERR_NO_ACTION;
+        return TP_ERR_FAIL;
     }
 
     if (prev_tc->term_cond == TC_TERM_COND_STOP) {
-        tp_debug_print("Found exact stop condition, skipping tangent check\n");
-        return TP_ERR_NO_ACTION;
+        tp_debug_print("Found exact stop condition\n");
+        return TP_ERR_FAIL;
     }
 
     PmCartesian prev_tan, this_tan;
@@ -1745,13 +1745,21 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     int res_endtan = tcGetEndTangentUnitVector(prev_tc, &prev_tan);
     int res_starttan = tcGetStartTangentUnitVector(tc, &this_tan);
     if (res_endtan || res_starttan) {
-        tp_debug_print("Got %d and %d from tangent vector calc, aborting tangent check\n",
+        tp_debug_print("Got %d and %d from tangent vector calc\n",
                 res_endtan, res_starttan);
     }
 
     tp_debug_print("prev tangent vector: %f %f %f\n", prev_tan.x, prev_tan.y, prev_tan.z);
     tp_debug_print("this tangent vector: %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
 
+    double dot = -1.0;
+    const double SHARP_CORNER_THRESHOLD = 0.99;
+    pmCartCartDot(&prev_tan, &this_tan, &dot);
+    if (dot < -SHARP_CORNER_THRESHOLD) {
+        tp_debug_print("Found sharp corner\n");
+        tcSetTermCond(prev_tc, TC_TERM_COND_STOP);
+        return TP_ERR_FAIL;
+    }
 
     // Calculate instantaneous acceleration required for change in direction
     // from v1 to v2, assuming constant speed
@@ -1832,7 +1840,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_FAIL;
     }
     if (prev_tc->progress > prev_tc->target / 2.0) {
-        tp_debug_print(" prev_tc progress = %f, aborting arc\n", prev_tc->progress);
+        tp_debug_print(" prev_tc progress (%f) is too large, aborting blend arc\n", prev_tc->progress);
         return TP_ERR_FAIL;
     }
 
@@ -1842,6 +1850,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     switch (res_tan) {
         // Abort blend arc creation in these cases
         case TP_ERR_FAIL:
+            tp_debug_print(" tpSetupTangent failed, aborting blend arc\n");
         case TP_ERR_OK:
             return res_tan;
             break;
