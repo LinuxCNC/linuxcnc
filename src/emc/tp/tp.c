@@ -3194,10 +3194,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             time_elapsed,
             mag, emcmotStatus->current_vel);
 
-    tc_debug_print("tp_displacement = %.12e %.12e %.12e\n",
+    tc_debug_print("tp_displacement = %.12e %.12e %.12e time = %.12e\n",
             disp.tran.x,
             disp.tran.y,
-            disp.tran.z);
+            disp.tran.z,
+            time_elapsed);
 #endif
 
     // If TC is complete, remove it from the queue.
