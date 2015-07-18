@@ -2646,42 +2646,6 @@ STATIC int tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
     return TP_ERR_OK;
 }
 
-/**
- * Finalize the length of a segment and re-run optimization.
- * This function is a kludgy fix for the problem of finalizing the very last
- * segment in a program. Since the last segment is never blending with a "next"
- * segment, it's never marked as finalized. 
- *
- * @param tp trajectory planner struct pointer
- * @param tc segment to check for finalized length
- *
- * Usage: call this function on a near-future segment in tpRunCycle (at least 2
- * segments ahead of the "current" segment). If we detect that tc is not
- * finalized, then force it to be finalized and re-run optimization. 
- *
- * If this isn't actually the end (say we have queue starvation), the blend arc
- * functions will detect that the prev. line is finalized and skip that blend
- * arc.
- */
-#if 0
-STATIC int tpHandleLowQueue(TP_STRUCT * const tp) {
-
-    if (tcqLen(&tp->queue) > TP_QUEUE_THRESHOLD) {
-        return TP_ERR_NO_ACTION;
-    }
-
-    TC_STRUCT *tc_last;
-    tc_last = tcqLast(&tp->queue);
-
-    if(TP_ERR_OK == tcFinalizeLength(tc_last)) {
-        tpRunOptimization(tp);
-        return TP_ERR_OK;
-    } else {
-        return TP_ERR_NO_ACTION;
-    }
-
-}
-#endif
 
 /**
  * "Activate" a segment being read for the first time.
