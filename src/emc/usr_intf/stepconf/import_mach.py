@@ -111,34 +111,34 @@ if xActive == '1':
   if xDirInvert == "1":
     dInvert[xDirPin] = 'True'
   xmlTag = dom.getElementsByTagName('M0Max')[0].toxml()
-  xmaxlim = int(float(str(xmlTag.replace('<M0Max>','').replace('</M0Max>',''))))
+  xmaxlim = float(str(xmlTag.replace('<M0Max>','').replace('</M0Max>','')))
   xmlTag = dom.getElementsByTagName('M0Min')[0].toxml()
-  xminlim = int(float(str(xmlTag.replace('<M0Min>','').replace('</M0Min>',''))))
+  xminlim = float(str(xmlTag.replace('<M0Min>','').replace('</M0Min>','')))
   try:
     xmlTag = dom.getElementsByTagName('Steps0')[0].toxml()
     xscale = float(xmlTag.replace('<Steps0>','').replace('</Steps0>',''))
-    xleadscrew = str(xscale / 200)
+    xleadscrew = float(xscale / 200)
   except IndexError:
     errors +=  "No X Axis Scale was found!\n"
-    xleadscrew = '0.0'
+    xleadscrew = 0.0
   try:
     xmlTag = dom.getElementsByTagName('Vel0')[0].toxml()
-    xmaxvel = str(float(xmlTag.replace('<Vel0>','').replace('</Vel0>','')))
+    xmaxvel = float(xmlTag.replace('<Vel0>','').replace('</Vel0>',''))
   except IndexError:
     errors +=  "No X Axis Max Velocity was found!\n"
-    xmaxvel = '0.0'
+    xmaxvel = 0.0
   try:
     xmlTag = dom.getElementsByTagName('Acc0')[0].toxml()
-    xmaxacc = str(float(xmlTag.replace('<Acc0>','').replace('</Acc0>','')))
+    xmaxacc = float(xmlTag.replace('<Acc0>','').replace('</Acc0>',''))
   except IndexError:
     errors +=  "No X Axis Acceleration was found!\n"
-    xmaxacc = '0.0'
+    xmaxacc = 0.0
 else:
-  xmaxlim = '0.0'
-  xminlim = '0.0'
-  xleadscrew = '1.0'
-  xmaxvel = '0.0'
-  xmaxacc = '0.0'
+  xmaxlim = 0.0
+  xminlim = 0.0
+  xleadscrew = 1.0
+  xmaxvel = 0.0
+  xmaxacc = 0.0
 
 # Y Axis
 xmlTag = dom.getElementsByTagName('Motor1Active')[0].toxml()
@@ -159,34 +159,34 @@ if yActive == '1':
   if yDirInvert == "1":
     dInvert[yDirPin] = 'True'
   xmlTag = dom.getElementsByTagName('M1Max')[0].toxml()
-  ymaxlim = int(float(str(xmlTag.replace('<M1Max>','').replace('</M1Max>',''))))
+  ymaxlim = float(str(xmlTag.replace('<M1Max>','').replace('</M1Max>','')))
   xmlTag = dom.getElementsByTagName('M1Min')[0].toxml()
-  yminlim = int(float(str(xmlTag.replace('<M1Min>','').replace('</M1Min>',''))))
+  yminlim = float(str(xmlTag.replace('<M1Min>','').replace('</M1Min>','')))
   try:
     xmlTag = dom.getElementsByTagName('Steps1')[0].toxml()
     yscale = float(xmlTag.replace('<Steps1>','').replace('</Steps1>',''))
-    yleadscrew = str(yscale / 200)
+    yleadscrew = float(yscale / 200)
   except IndexError:
     errors +=  "No Y Axis Scale was found!\n"
-    yleadscrew = '0.0'
+    yleadscrew = 0.0
   try:
     xmlTag = dom.getElementsByTagName('Vel1')[0].toxml()
-    ymaxvel = str(float(xmlTag.replace('<Vel1>','').replace('</Vel1>','')))
+    ymaxvel = float(xmlTag.replace('<Vel1>','').replace('</Vel1>',''))
   except IndexError:
     errors +=  "No Y Axis Max Velocity was found!\n"
-    ymaxvel = '0.0'
+    ymaxvel = 0.0
   try:
     xmlTag = dom.getElementsByTagName('Acc1')[0].toxml()
-    ymaxacc = str(float(xmlTag.replace('<Acc1>','').replace('</Acc1>','')))
+    ymaxacc = float(xmlTag.replace('<Acc1>','').replace('</Acc1>',''))
   except IndexError:
     errors +=  "No Y Axis Acceleration was found!\n"
-    ymaxacc = '0.0'
+    ymaxacc = 0.0
 else:
-  ymaxlim = '0.0'
-  yminlim = '0.0'
-  yleadscrew = '1.0'
-  ymaxvel = '0.0'
-  ymaxacc = '0.0'
+  ymaxlim = 0.0
+  yminlim = 0.0
+  yleadscrew = 1.0
+  ymaxvel = 0.0
+  ymaxacc = 0.0
 
 # Z Axis
 xmlTag = dom.getElementsByTagName('Motor2Active')[0].toxml()
@@ -207,34 +207,34 @@ if zActive == '1':
   if zDirInvert == "1":
     dInvert[zStepPin] = 'True'
   xmlTag = dom.getElementsByTagName('M2Max')[0].toxml()
-  zmaxlim = int(float(str(xmlTag.replace('<M2Max>','').replace('</M2Max>',''))))
+  zmaxlim = float(str(xmlTag.replace('<M2Max>','').replace('</M2Max>','')))
   xmlTag = dom.getElementsByTagName('M2Min')[0].toxml()
-  zminlim = int(float(str(xmlTag.replace('<M2Min>','').replace('</M2Min>',''))))
+  zminlim = float(str(xmlTag.replace('<M2Min>','').replace('</M2Min>','')))
   try:
     xmlTag = dom.getElementsByTagName('Steps2')[0].toxml()
     zscale = float(xmlTag.replace('<Steps2>','').replace('</Steps2>',''))
-    zleadscrew = str(zscale / 200)
+    zleadscrew = float(zscale / 200)
   except IndexError:
     errors +=  "No Z Axis Scale was found!\n"
-    zleadscrew = '0.0'
+    zleadscrew = 0.0
   try:
     xmlTag = dom.getElementsByTagName('Vel2')[0].toxml()
-    zmaxvel = str(float(xmlTag.replace('<Vel2>','').replace('</Vel2>','')))
+    zmaxvel = float(xmlTag.replace('<Vel2>','').replace('</Vel2>',''))
   except IndexError:
     errors +=  "No Z Axis Max Velocity was found!\n"
-    zmaxvel = '0.0'
+    zmaxvel = 0.0
   try:
     xmlTag = dom.getElementsByTagName('Acc2')[0].toxml()
-    zmaxacc = str(float(xmlTag.replace('<Acc2>','').replace('</Acc2>','')))
+    zmaxacc = float(xmlTag.replace('<Acc2>','').replace('</Acc2>',''))
   except IndexError:
     errors +=  "No Z Axis Acceleration was found!\n"
-    zmaxacc = '0.0'
+    zmaxacc = 0.0
 else:
-  zmaxlim = '0.0'
-  zmaxlim = '0.0'
-  zleadscrew = '1.0'
-  zmaxvel = '0.0'
-  zmaxacc = '0.0'
+  zmaxlim = 0.0
+  zmaxlim = 0.0
+  zleadscrew = 1.0
+  zmaxvel = 0.0
+  zmaxacc = 0.0
 
 # A Axis
 xmlTag = dom.getElementsByTagName('Motor3Active')[0].toxml()
@@ -255,10 +255,9 @@ if aActive == '1':
   if aDirInvert == "1":
     dInvert[aDirPin] = 'True'
   xmlTag = dom.getElementsByTagName('M3Max')[0].toxml()
-  amaxlim = int(float(str(xmlTag.replace('<M3Max>','').replace('</M3Max>','')).rstrip('.')))
-  print amaxlim
+  amaxlim = float(str(xmlTag.replace('<M3Max>','').replace('</M3Max>','')).rstrip('.'))
   xmlTag = dom.getElementsByTagName('M3Min')[0].toxml()
-  aminlim = int(float(str(xmlTag.replace('<M3Min>','').replace('</M3Min>','')).rstrip('.')))
+  aminlim = float(str(xmlTag.replace('<M3Min>','').replace('</M3Min>','')).rstrip('.'))
   try:
     xmlTag = dom.getElementsByTagName('Steps3')[0].toxml()
     ascale = float(xmlTag.replace('<Steps3>','').replace('</Steps3>',''))
@@ -270,24 +269,24 @@ if aActive == '1':
     xmlTag = dom.getElementsByTagName('Vel3')[0].toxml()
     amaxvel = str(xmlTag.replace('<Vel3>','').replace('</Vel3>',''))
     amaxvel = amaxvel.rsplit(".",1)
-    amaxvel = amaxvel[0]
+    amaxvel = float(amaxvel[0])
   except IndexError:
     errors +=  "No A Axis Max Velocity was found!\n"
-    amaxvel = '0'
+    amaxvel = 0.0
   try:
     xmlTag = dom.getElementsByTagName('Acc3')[0].toxml()
     amaxacc = str(xmlTag.replace('<Acc3>','').replace('</Acc3>',''))
     amaxacc = amaxacc.rsplit(".",1)
-    amaxacc = amaxacc[0]
+    amaxacc = float(amaxacc[0])
   except IndexError:
     errors +=  "No A Axis Acceleration was found!\n"
-    amaxacc = '0'
+    amaxacc = 0.0
 else:
-  amaxlim = '0'
-  aminlim = '0'
-  aleadscrew = '1'
-  amaxvel = '0'
-  amaxacc = '0'
+  amaxlim = 0.0
+  aminlim = 0.0
+  aleadscrew = 1.0
+  amaxvel = 0.0
+  amaxacc = 0.0
 
 
 # open the stepconf file for writing
@@ -300,11 +299,11 @@ sc.write('  <property name="ahomesw" type="int" value="0"/>\n')
 sc.write('  <property name="ahomevel" type="float" value="0"/>\n')
 sc.write('  <property name="alatchdir" type="int" value="0"/>\n')
 sc.write('  <property name="aleadscrew" type="float" value="%f"/>\n'%aleadscrew)
-sc.write('  <property name="amaxacc" type="int" value="' + amaxacc + '"/>\n')
-sc.write('  <property name="amaxlim" type="int" value="%d"/>\n'% amaxlim)
-sc.write('  <property name="amaxvel" type="int" value="%s"/>\n'% amaxvel)
+sc.write('  <property name="amaxacc" type="float" value="%f"/>\n'% amaxacc)
+sc.write('  <property name="amaxlim" type="float" value="%f"/>\n'% amaxlim)
+sc.write('  <property name="amaxvel" type="float" value="%s"/>\n'% amaxvel)
 sc.write('  <property name="amicrostep" type="int" value="1"/>\n')
-sc.write('  <property name="aminlim" type="int" value="%d"/>\n'% aminlim)
+sc.write('  <property name="aminlim" type="float" value="%f"/>\n'% aminlim)
 sc.write('  <property name="apulleyden" type="int" value="1"/>\n')
 sc.write('  <property name="apulleynum" type="int" value="1"/>\n')
 sc.write('  <property name="ascale" type="int" value="0"/>\n')
@@ -397,12 +396,12 @@ sc.write('  <property name="xhomepos" type="float" value="0.0"/>\n')
 sc.write('  <property name="xhomesw" type="float" value="0.0"/>\n')
 sc.write('  <property name="xhomevel" type="float" value="0.05"/>\n')
 sc.write('  <property name="xlatchdir" type="int" value="0"/>\n')
-sc.write('  <property name="xleadscrew" type="float" value="' + xleadscrew + '"/>\n')
-sc.write('  <property name="xmaxacc" type="float" value="' + xmaxacc + '"/>\n')
-sc.write('  <property name="xmaxlim" type="float" value="%d"/>\n'% xmaxlim)
+sc.write('  <property name="xleadscrew" type="float" value="%f"/>\n'% xleadscrew)
+sc.write('  <property name="xmaxacc" type="float" value="%f"/>\n'% xmaxacc)
+sc.write('  <property name="xmaxlim" type="float" value="%f"/>\n'% xmaxlim)
 sc.write('  <property name="xmaxvel" type="float" value="1.0"/>\n')
 sc.write('  <property name="xmicrostep" type="float" value="1.0"/>\n')
-sc.write('  <property name="xminlim" type="float" value="%d"/>\n'% xminlim)
+sc.write('  <property name="xminlim" type="float" value="%f"/>\n'% xminlim)
 sc.write('  <property name="xpulleyden" type="float" value="1.0"/>\n')
 sc.write('  <property name="xpulleynum" type="float" value="1.0"/>\n')
 sc.write('  <property name="xscale" type="float" value="0.0"/>\n')
@@ -411,12 +410,12 @@ sc.write('  <property name="yhomepos" type="float" value="0.0"/>\n')
 sc.write('  <property name="yhomesw" type="float" value="0.0"/>\n')
 sc.write('  <property name="yhomevel" type="float" value="0.05"/>\n')
 sc.write('  <property name="ylatchdir" type="int" value="0"/>\n')
-sc.write('  <property name="yleadscrew" type="float" value="' + yleadscrew + '"/>\n')
-sc.write('  <property name="ymaxacc" type="float" value="' + ymaxacc + '"/>\n')
-sc.write('  <property name="ymaxlim" type="float" value="%d"/>\n'% ymaxlim)
+sc.write('  <property name="yleadscrew" type="float" value="%f"/>\n'% xleadscrew)
+sc.write('  <property name="ymaxacc" type="float" value="%f"/>\n'% ymaxacc)
+sc.write('  <property name="ymaxlim" type="float" value="%f"/>\n'% ymaxlim)
 sc.write('  <property name="ymaxvel" type="float" value="1.0"/>\n')
 sc.write('  <property name="ymicrostep" type="float" value="1.0"/>\n')
-sc.write('  <property name="yminlim" type="float" value="%d"/>\n'% yminlim)
+sc.write('  <property name="yminlim" type="float" value="%f"/>\n'% yminlim)
 sc.write('  <property name="ypulleyden" type="float" value="1.0"/>\n')
 sc.write('  <property name="ypulleynum" type="float" value="1.0"/>\n')
 sc.write('  <property name="yscale" type="float" value="8000.0"/>\n')
@@ -425,12 +424,12 @@ sc.write('  <property name="zhomepos" type="float" value="0.0"/>\n')
 sc.write('  <property name="zhomesw" type="float" value="0.0"/>\n')
 sc.write('  <property name="zhomevel" type="float" value="0.05"/>\n')
 sc.write('  <property name="zlatchdir" type="int" value="0"/>\n')
-sc.write('  <property name="zleadscrew" type="float" value="' + zleadscrew + '"/>\n')
-sc.write('  <property name="zmaxacc" type="float" value="' + zmaxacc + '"/>\n')
-sc.write('  <property name="zmaxlim" type="float" value="%d"/>\n'%zmaxlim)
+sc.write('  <property name="zleadscrew" type="float" value="%f"/>\n'% zleadscrew)
+sc.write('  <property name="zmaxacc" type="float" value="%f"/>\n'% zmaxacc)
+sc.write('  <property name="zmaxlim" type="float" value="%f"/>\n'%zmaxlim)
 sc.write('  <property name="zmaxvel" type="float" value="1.0"/>\n')
 sc.write('  <property name="zmicrostep" type="float" value="1.0"/>\n')
-sc.write('  <property name="zminlim" type="float" value="%d"/>\n'%xminlim)
+sc.write('  <property name="zminlim" type="float" value="%f"/>\n'%xminlim)
 sc.write('  <property name="zpulleyden" type="float" value="1.0"/>\n')
 sc.write('  <property name="zpulleynum" type="float" value="1.0"/>\n')
 sc.write('  <property name="zscale" type="float" value="8000.0"/>\n')
