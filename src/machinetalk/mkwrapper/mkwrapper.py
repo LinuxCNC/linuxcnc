@@ -1355,6 +1355,10 @@ class LinuxCNCWrapper():
             if self.rx.type == MT_PING:
                 self.send_command_msg(MT_PING_ACKNOWLEDGE)
 
+            elif self.rx.type == MT_SHUTDOWN:
+                self.send_command_msg(MT_CONFIRM_SHUTDOWN)
+                self.stop()  # trigger the shutdown event
+
             elif self.rx.type == MT_EMC_TASK_ABORT:
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':

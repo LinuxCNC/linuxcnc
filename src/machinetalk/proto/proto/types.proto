@@ -215,8 +215,8 @@ enum ContainerType {
     // MT_OFFER          = 30;
     // MT_CONFIRM_OFFER  = 35;
     // MT_DISPLAY_MESSAGE = 40;
-    // MT_SHUTDOWN        = 45;
-    // MT_CONFIRM_SHUTDOWN = 50;
+    MT_SHUTDOWN         = 45;
+    MT_CONFIRM_SHUTDOWN = 50;
 
     // identification of individual RTMessage submessages
     // field Container.rtmessage

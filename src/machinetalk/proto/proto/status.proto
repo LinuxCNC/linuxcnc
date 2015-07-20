@@ -148,6 +148,7 @@ message EmcStatusConfigAxis {
     optional int32          home_sequence       = 9;
     optional double         max_acceleration    = 10;
     optional double         max_velocity        = 11;
+    optional string         increments          = 12;
 }
 
 message EmcProgramExtension {
