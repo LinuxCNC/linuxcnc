@@ -43,6 +43,9 @@ PROTOBUFJS_GEN := js
 # the proto2js compiler
 PROTOJS := $(shell which proto2js)
 
+# pkg-config
+PKG_CONFIG := $(shell which pkg-config)
+
 # proto2js options - namespace
 #PROTOBUFJS_OPT := -commonjs=pb
 # http://en.wikipedia.org/wiki/Asynchronous_module_definition
