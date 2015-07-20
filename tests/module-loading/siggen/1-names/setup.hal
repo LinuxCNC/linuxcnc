@@ -1,4 +1,0 @@
-
-loadrt siggen names=siggen0
-show pin
-

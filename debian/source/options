@@ -1,2 +1,0 @@
-# Compress .orig files with bzip2
-compression = "bzip2"

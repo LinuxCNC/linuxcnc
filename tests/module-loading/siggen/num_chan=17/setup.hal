@@ -1,4 +1,0 @@
-
-loadrt siggen num_chan=17
-show pin
-

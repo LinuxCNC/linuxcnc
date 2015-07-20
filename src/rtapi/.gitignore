@@ -1,8 +1,0 @@
-# ignore ulapi.so build artifacts
-# - symlink hack to build separate ulapi.so per flavor
-/posix
-/rt-preempt
-/xenomai
-/rtai-kernel
-/xenomai-kernel
-/.flavor-*-link-create-stamp

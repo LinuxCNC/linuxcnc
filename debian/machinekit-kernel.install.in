@@ -1,4 +1,0 @@
-lib/modules/@KVER@/linuxcnc/Module.symvers
-lib/modules/@KVER@/linuxcnc/*.ko
-usr/lib/linuxcnc/ulapi-@FLAVOR@.so
-usr/libexec/linuxcnc/rtapi_app_@FLAVOR@

@@ -1,6 +1,0 @@
-###################################################################
-#        moccapy_postgui.hal file from Norbert Schechner          #
-###################################################################
-
-net spindle-speed-limited => vcp_box.hal_meter1
-

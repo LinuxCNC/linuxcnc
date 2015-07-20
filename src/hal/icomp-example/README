@@ -1,3 +1,0 @@
-demonstrates the HAL instantiation API
-
-doubles as unit test - see nosetests/unittest_icomp.py

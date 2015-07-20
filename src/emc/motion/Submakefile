@@ -1,6 +1,0 @@
-INCLUDES += emc/motion
-
-../include/%.h: ./emc/motion/%.h
-	cp $^ $@
-../include/%.hh: ./emc/motion/%.hh
-	cp $^ $@
