@@ -203,6 +203,7 @@ void hpg_pwmgen_update(hal_pru_generic_t *hpg) {
 
             if (*hpg->pwmgen.instance[i].out[j].hal.pin.enable == 0) {
                 hpg->pwmgen.instance[i].out[j].pru.value = 0;
+                out[j] = hpg->pwmgen.instance[i].out[j].pru;
                 continue;
             }
 
