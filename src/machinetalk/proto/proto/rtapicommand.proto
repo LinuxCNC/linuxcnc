@@ -2,9 +2,6 @@ import "nanopb.proto";
 // see README.msgid
 // msgid base: 900
 
-// see README.msgid
-// msgid base: 900
-
 package pb;
 
 message RTAPICommand {

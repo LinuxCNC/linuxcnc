@@ -7,9 +7,6 @@ import "motcmds.proto";
 // see README.msgid
 // msgid base: 1100
 
-// see README.msgid
-// msgid base: 1100
-
 package pb;
 
 enum EmcTaskExecStateType {
