@@ -48,12 +48,26 @@ def test_net_match_nonexistant_signals():
 
 
 def test_net_pin2pin():
+    # out to in is okay
+    hal.net("c1.s32out", "c2.s32in")
+    assert hal.pins["c1.s32out"].linked is True
+    assert hal.pins["c2.s32in"].linked is True
+    assert 'c1-s32out' in hal.signals
+
+    # cleanup
+    hal.pins["c1.s32out"].unlink()
+    hal.pins["c2.s32in"].unlink()
+    del hal.signals['c1-s32out']
+
     try:
-        hal.net("c1.s32out", "c2.s32out")
-        #TypeError: net: 'c1.s32out' is a pin - first argument must be a signal name
-        raise "should not happen"
+        hal.net("c2.s32out", "c1.s32out")
+        # TypeError: net: signal 'c2-s32out' can not add writer pin 'c1.s32out', it already has HAL_OUT pin 'c2.s32out
     except TypeError:
         pass
+
+    # cleanup
+    hal.pins["c2.s32out"].unlink()
+    del hal.signals['c2-s32out']
 
 
 def test_net_existing_signal():
@@ -111,10 +125,27 @@ def test_check_net_args():
     except TypeError:
         pass
 
+    # single pin argument
     try:
         hal.net("c1.s32out")
-        # TypeError: net: 'c1.s32out' is a pin - first argument must be a signal name
-    except TypeError:
+        # RuntimeError: net: at least one pin name expected
+    except RuntimeError:
+        pass
+
+    # single signal argument
+    try:
+        hal.net("noexiste")
+        # RuntimeError: net: at least one pin name expected
+    except RuntimeError:
+        pass
+
+    # two signals
+    hal.newsig('sig1', hal.HAL_FLOAT)
+    hal.newsig('sig2', hal.HAL_FLOAT)
+    try:
+        hal.net('sig1', 'sig2')
+        # NameError: no such pin: sig2
+    except NameError:
         pass
 
     assert "noexiste" not in hal.signals
