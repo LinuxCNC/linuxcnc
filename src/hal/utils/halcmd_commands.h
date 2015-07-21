@@ -114,7 +114,6 @@ extern int do_delinst_cmd(char *inst);
 
 extern bool module_loaded(char *mod_name);
 extern bool inst_name_exists(char *name);
-extern int get_tags(char *mod_name);
 
 // shutdown the RTAPI stack
 extern int do_shutdown_cmd(void);
@@ -130,6 +129,6 @@ int hal_systemv(char *const argv[]);
 
 extern int scriptmode, comp_id;
 
-bool autoloading;
+// bool autoloading;
 
 #endif

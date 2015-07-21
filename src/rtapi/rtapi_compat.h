@@ -192,6 +192,11 @@ const char **get_caps(const char *const fname);
 const char *get_cap(const char *const fname, const char *cap);
 
 
+// given a module name and the flavor set, return the integer
+// capability mask of tags.
+int rtapi_get_tags(const char *mod_name);
+
+
 SUPPORT_END_DECLS
 
 #endif // MODULE
