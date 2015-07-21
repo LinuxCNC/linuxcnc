@@ -1,4 +1,3 @@
-
 = Obteniendo LinuxCNC
 
 == Descarga Normal

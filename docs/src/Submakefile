@@ -198,13 +198,13 @@ DOC_SRCS_FR := \
 	Master_Integrator_fr.txt \
 
 DOC_SRCS_ES := \
-	getting-started/About-LinuxCNC_es.txt \
-	getting-started/Getting-LinuxCNC_es.txt \
-	getting-started/Linux_FAQ_es.txt \
-	getting-started/Running-LinuxCNC_es.txt \
-	getting-started/stepconf_es.txt \
-	config/stepper_quickstart_es.txt \
-	getting-started/System_Requirements_es.txt \
+	getting-started/about-linuxcnc-es.txt \
+	getting-started/getting-linuxcnc-es.txt \
+	getting-started/linux-faq-es.txt \
+	getting-started/running-linuxcnc-es.txt \
+	getting-started/stepconf-es.txt \
+	config/stepper-quickstart-es.txt \
+	getting-started/system-requirements-es.txt \
 
 DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES)
 

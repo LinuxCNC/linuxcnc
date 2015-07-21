@@ -108,7 +108,7 @@ include::common/integrator-concepts.txt[]
 
 include::install/latency-test.txt[]
 
-include::common/starting-emc_es.txt[]
+include::common/starting-linuxcnc.txt[]
 
 include::motion/tweaking-steppers.txt[]
 
