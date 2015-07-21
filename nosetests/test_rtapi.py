@@ -33,7 +33,7 @@ def test_rtapi_connect():
 
 def test_loadrt_or2():
     global rt
-    rt.loadrt("or2")
+    rt.newinst("or2", "or2.0")
     rt.newthread("servo-thread", 1000000, fp=True)
     hal.addf("or2.0", "servo-thread")
     hal.start_threads()
