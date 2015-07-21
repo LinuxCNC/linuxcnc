@@ -1571,7 +1571,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         // stays zero)
         if (prev1_tc->term_cond != TC_TERM_COND_TANGENT) {
             tp_debug_print("Found non-tangent segment, stopping optimization\n");
-            return TP_ERR_OK;
+            continue;
         }
 
 
