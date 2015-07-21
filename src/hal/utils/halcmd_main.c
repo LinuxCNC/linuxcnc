@@ -86,8 +86,6 @@ int main(int argc, char **argv)
     char *uri = NULL; // NULL - use service discovery
     char *service_uuid = NULL; // must have a global uuid
 
-    //autoloading = false;  // flag to check where a do_loadrt_cmd() is coming from
-
     inifile = getenv("MACHINEKIT_INI");
     /* use default if not specified by user */
     if (inifile == NULL) {
@@ -158,8 +156,6 @@ int main(int argc, char **argv)
 	    case 'P':
                 proto_debug = 1;
 		break;
-
-
 	    case 'C':
                 cl = getenv("COMP_LINE");
                 cw = getenv("COMP_POINT");
