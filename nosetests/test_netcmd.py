@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 from nose import with_setup
 from machinekit.nosetests.realtime import setup_module,teardown_module
 from machinekit.nosetests.support import fnear
@@ -37,6 +38,7 @@ def test_net_existing_signal_with_bad_type():
     except TypeError:
         pass
     del hal.signals["f"]
+    assert 'f' not in hal.signals
 
 
 def test_net_match_nonexistant_signals():
@@ -58,6 +60,7 @@ def test_net_pin2pin():
     hal.pins["c1.s32out"].unlink()
     hal.pins["c2.s32in"].unlink()
     del hal.signals['c1-s32out']
+    assert 'c1-s32out' not in hal.signals
 
     try:
         hal.net("c2.s32out", "c1.s32out")
@@ -68,6 +71,7 @@ def test_net_pin2pin():
     # cleanup
     hal.pins["c2.s32out"].unlink()
     del hal.signals['c2-s32out']
+    assert 'c2-s32out' not in hal.signals
 
 
 def test_net_existing_signal():
@@ -85,6 +89,7 @@ def test_net_existing_signal():
         pass
 
     del hal.signals["s32"]
+    assert 's32' not in hal.signals
 
 
 def test_newsig():
@@ -120,17 +125,29 @@ def test_check_net_args():
     except TypeError:
         pass
 
+    assert 'c1-s32out' not in hal.signals
+
     try:
         hal.net(None, "c1.s32out")
     except TypeError:
         pass
 
+    assert 'c1-s32out' not in hal.signals
+
     # single pin argument
+    assert hal.pins["c1.s32out"].linked is False
+
     try:
         hal.net("c1.s32out")
         # RuntimeError: net: at least one pin name expected
     except RuntimeError:
         pass
+
+    # XXX die beiden gehen daneben:
+    # der pin wird trotz runtime error gelinkt und das signal erzeugt:
+    # offensichtlich hal_net.pyx:39 vor dem test in hal_net.pyx:60
+    assert hal.pins["c1.s32out"].linked is False
+    assert 'c1-s32out' not in hal.signals
 
     # single signal argument
     try:
