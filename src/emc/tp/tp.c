@@ -1549,6 +1549,8 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     //TODO make lookahead depth configurable from the INI file
 
     int hit_peaks = 0;
+    // Flag that says we've hit at least 1 non-tangent segment
+    bool hit_non_tangent = false;
 
     /* Starting at the 2nd to last element in the queue, work backwards towards
      * the front. We can't do anything with the very last element because its
@@ -1570,10 +1572,16 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         // stop optimizing if we hit a non-tangent segment (final velocity
         // stays zero)
         if (prev1_tc->term_cond != TC_TERM_COND_TANGENT) {
-            tp_debug_print("Found non-tangent segment, stopping optimization\n");
-            continue;
+            if (hit_non_tangent) {
+                // 2 or more non-tangent segments means we're past where the optimizer can help
+                tp_debug_print("Found 2nd non-tangent segment, stopping optimization\n");
+                return TP_ERR_OK;
+            } else  {
+                tp_debug_print("Found first non-tangent segment, contining\n");
+                hit_non_tangent = true;
+                continue;
+            }
         }
-
 
         double progress_ratio = prev1_tc->progress / prev1_tc->target;
         // can safely decelerate to halfway point of segment from 25% of segment
