@@ -104,15 +104,15 @@ static unsigned char table_crc_lo[] = {
 	Function to treat comms errors
 	
 **************************************************************************/
-static void error_treat(modbus_param_t *mb_param, int code, const char *string)
+static void error_treat(hycomm_param_t *hc_param, int code, const char *string)
 {
-	if (!mb_param->print_errors)
+	if (!hc_param->print_errors)
 		return;
 	
     printf("\nERROR %s (%d)\n", string, code);
 	
 	/* flush the port */
-    tcflush(mb_param->fd, TCIOFLUSH);
+    tcflush(hc_param->fd, TCIOFLUSH);
 
 }
 
@@ -146,7 +146,7 @@ static unsigned short crc16(unsigned char *buffer,
 	
 **************************************************************************/
 
-static int check_crc16(modbus_param_t *mb_param, uint8_t *msg,
+static int check_crc16(hycomm_param_t *hc_param, uint8_t *msg,
                        const int msg_length)
 {
 	int ret;
@@ -165,7 +165,7 @@ static int check_crc16(modbus_param_t *mb_param, uint8_t *msg,
 					"invalid crc received %0X - crc_calc %0X", 
 					crc_received, crc_calc);
 			ret = INVALID_CRC;
-			error_treat(mb_param, ret, s_error);
+			error_treat(hc_param, ret, s_error);
 	}
 
 	return ret;
@@ -181,7 +181,7 @@ static int check_crc16(modbus_param_t *mb_param, uint8_t *msg,
 	
 **************************************************************************/
 
-static unsigned int compute_response_length(modbus_param_t *mb_param, 
+static unsigned int compute_response_length(hycomm_param_t *hc_param, 
 					  uint8_t *query)
 {
 	int resp_length;
@@ -238,7 +238,7 @@ static unsigned int compute_response_length(modbus_param_t *mb_param,
  
 **************************************************************************/  
   
-static int modbus_send(modbus_param_t *mb_param, uint8_t *query, int query_length )  
+static int hycomm_send(hycomm_param_t *hc_param, uint8_t *query, int query_length )  
 {  
 	int ret;
 
@@ -252,22 +252,22 @@ static int modbus_send(modbus_param_t *mb_param, uint8_t *query, int query_lengt
 	query[query_length++] = s_crc >> 8;  
     query[query_length++] = s_crc & 0x00FF;  
     
-	if (mb_param->debug)
+	if (hc_param->debug)
 	{
-		printf("Modbus query = ");
+		printf("hycomm query = ");
 		for (i = 0; i < query_length; i++)
 			printf("[%.2X]", query[i]);
 		printf("\n");
 	}
 	
 	/* write the query to the fd */
-	ret = write(mb_param->fd, query, query_length);
+	ret = write(hc_param->fd, query, query_length);
 
 	/* Return the number of bytes written (0 to n)
 	or PORT_SOCKET_FAILURE on error */
 	if ((ret == -1) || (ret != query_length))
 	{
-		error_treat(mb_param, ret, "Write port/socket failure");
+		error_treat(hc_param, ret, "Write port/socket failure");
 		ret = PORT_FAILURE;
 	}
 	
@@ -287,14 +287,14 @@ static int modbus_send(modbus_param_t *mb_param, uint8_t *query, int query_lengt
   
 #define WAIT_DATA()                                                                \
 {                                                                                  \
-    while ((select_ret = select(mb_param->fd+1, &rfds, NULL, NULL, &tv)) == -1) {  \
+    while ((select_ret = select(hc_param->fd+1, &rfds, NULL, NULL, &tv)) == -1) {  \
             if (errno == EINTR) {                                                  \
                     printf("A non blocked signal was caught\n");                   \
                     /* Necessary after an error */                                 \
                     FD_ZERO(&rfds);                                                \
-                    FD_SET(mb_param->fd, &rfds);                                   \
+                    FD_SET(hc_param->fd, &rfds);                                   \
             } else {                                                               \
-                    error_treat(mb_param, SELECT_FAILURE, "Select failure");       \
+                    error_treat(hc_param, SELECT_FAILURE, "Select failure");       \
                     return SELECT_FAILURE;                                         \
             }                                                                      \
     }                                                                              \
@@ -309,7 +309,7 @@ static int modbus_send(modbus_param_t *mb_param, uint8_t *query, int query_lengt
   
 /*********************************************************************** 
  
-	Function to monitor for the reply from the modbus slave. 
+	Function to monitor for the reply from the hycomm slave. 
 	This function blocks for timeout seconds if there is no reply. 
  
 	Returns a negative number is an error occured.
@@ -318,7 +318,7 @@ static int modbus_send(modbus_param_t *mb_param, uint8_t *query, int query_lengt
 	
 ***********************************************************************/  
   
-int receive_msg(modbus_param_t *mb_param, int msg_length_computed,
+int receive_msg(hycomm_param_t *hc_param, int msg_length_computed,
 						uint8_t *msg, int *msg_length)
 {  
   	int select_ret;
@@ -328,20 +328,20 @@ int receive_msg(modbus_param_t *mb_param, int msg_length_computed,
 	int length_to_read;
 	unsigned char *p_msg;
 
-	if (mb_param->debug)
+	if (hc_param->debug)
 		printf("waiting for message (%d bytes)...\n", 
 				msg_length_computed);
 
 	/* add a file descriptor to the set */
 	FD_ZERO(&rfds);  
-    FD_SET(mb_param->fd, &rfds); 
+    FD_SET(hc_param->fd, &rfds); 
 	
 	/* wait for a response */
 	tv.tv_sec = 0;
 	tv.tv_usec = TIME_OUT_BEGIN_OF_FRAME; 
 
 	length_to_read = msg_length_computed;
-	if (mb_param->debug) {
+	if (hc_param->debug) {
 		printf("length to read = %d", length_to_read);
 		printf("\n");
 	}
@@ -349,7 +349,7 @@ int receive_msg(modbus_param_t *mb_param, int msg_length_computed,
 	select_ret = 0;
 	WAIT_DATA();
    
-	//if (mb_param->debug) {
+	//if (hc_param->debug) {
 	//	printf("we received something on the port");
 	//	printf("\n");
 	//}
@@ -360,31 +360,31 @@ int receive_msg(modbus_param_t *mb_param, int msg_length_computed,
 		  
 	while (select_ret) /* loop to receive data until end of msg	or time out */
 	{
-		read_ret = read(mb_param->fd, p_msg, length_to_read);
-		if (mb_param->debug) {
+		read_ret = read(hc_param->fd, p_msg, length_to_read);
+		if (hc_param->debug) {
 			printf("read return = [%.2X] bytes",read_ret);
 			printf("\n");
 		}
 
 		if (read_ret == -1) {
-                    error_treat(mb_param, PORT_SOCKET_FAILURE, "Read port/socket failure");
+                    error_treat(hc_param, PORT_SOCKET_FAILURE, "Read port/socket failure");
                     return PORT_SOCKET_FAILURE;
 		}
 
 		if (read_ret == 0) {
-                    error_treat(mb_param, PORT_SOCKET_FAILURE, "Short read");
+                    error_treat(hc_param, PORT_SOCKET_FAILURE, "Short read");
                     return PORT_SOCKET_FAILURE;
 		}
 
 		/* sum bytes received */
 		(*msg_length) += read_ret;
-		if (mb_param->debug) {
+		if (hc_param->debug) {
 			printf("msg_length = [%.2X]", *msg_length);
 			printf("\n");
 		}
 		
 		/* Display the hex code of each character received */
-		if (mb_param->debug) {
+		if (hc_param->debug) {
 			int i;
 			printf("characters received =");
 			for (i= 0; i < read_ret; i++)
@@ -403,7 +403,7 @@ int receive_msg(modbus_param_t *mb_param, int msg_length_computed,
 				/* Message is incomplete */
 				length_to_read = msg_length_computed - (*msg_length);
 		 	
-		 		if (mb_param->debug) {
+		 		if (hc_param->debug) {
 				printf("message was incomplete, length still to read = [%.2X]", length_to_read);
 				printf("\n");
 				}
@@ -442,7 +442,7 @@ int receive_msg(modbus_param_t *mb_param, int msg_length_computed,
  
 **********************************************************************/  
   
-static int modbus_check_response(modbus_param_t *mb_param,  
+static int hycomm_check_response(hycomm_param_t *hc_param,  
 						uint8_t *query, uint8_t *response)  
 {  
     int response_length_computed;
@@ -450,20 +450,20 @@ static int modbus_check_response(modbus_param_t *mb_param,
 	int crc_check;
 	int ret;
   
-	response_length_computed = compute_response_length(mb_param, query);
-	if (mb_param->debug) {
+	response_length_computed = compute_response_length(hc_param, query);
+	if (hc_param->debug) {
 		printf("response_length_computed = %d", response_length_computed);
 		printf("\n");
 	}
 	
-    ret = receive_msg(mb_param, response_length_computed, 
+    ret = receive_msg(hc_param, response_length_computed, 
 					  response, &response_length);  
 						 
 	if (ret == 0) {
 		
 		/* good response so check the CRC*/
-		crc_check = check_crc16(mb_param, response, response_length);
-				if (mb_param->debug) {
+		crc_check = check_crc16(hc_param, response, response_length);
+				if (hc_param->debug) {
 			printf("crc check = %.2d", crc_check);
 			printf("\n");
 		}
@@ -471,13 +471,13 @@ static int modbus_check_response(modbus_param_t *mb_param,
 		if (crc_check != 0)
 			return crc_check;
 			
-		if (mb_param->debug) {
+		if (hc_param->debug) {
 			printf("we received a message of [%.2X] bytes, with a valid crc", response_length);
 			printf("\n");
 		}
 				
 	} else if (ret == COMM_TIME_OUT) {
-		error_treat(mb_param, ret, "Communication time out");
+		error_treat(hc_param, ret, "Communication time out");
 		return ret;
 	} else {
 		return ret;
@@ -489,43 +489,43 @@ static int modbus_check_response(modbus_param_t *mb_param,
 /*********************************************************************** 
  
     The following functions construct the required query into 
-    a modbus query packet. 
+    a hycomm query packet. 
  
 ***********************************************************************/  
   
-int build_query(modbus_data_t *mb_data, unsigned char *query )  
+int build_query(hycomm_data_t *hc_data, unsigned char *query )  
 {  
 	/* build Hunayang request packet based on function code and return the 
 	packet length (less CRC - 2 bytes) */
 	
-	switch (mb_data->function)
+	switch (hc_data->function)
 	{
 		case FUNCTION_READ:
 		case FUNCTION_WRITE:
-			query[0] = mb_data->slave;
-			query[1] = mb_data->function;
+			query[0] = hc_data->slave;
+			query[1] = hc_data->function;
 			query[2] = 0x03;
-			query[3] = mb_data->parameter;
-			query[4] = mb_data->data >> 8;
-			query[5] = mb_data->data & 0x00FF;		
+			query[3] = hc_data->parameter;
+			query[4] = hc_data->data >> 8;
+			query[5] = hc_data->data & 0x00FF;		
 			return 6;
 			break;
 		
 		case WRITE_CONTROL_DATA:
 		case READ_CONTROL_STATUS:
-			query[0] = mb_data->slave;
-			query[1] = mb_data->function;
+			query[0] = hc_data->slave;
+			query[1] = hc_data->function;
 			query[2] = 0x01;
-			query[3] = mb_data->data & 0x00FF;
+			query[3] = hc_data->data & 0x00FF;
 			return 4;
 			break;	 
 		
 		case WRITE_FREQ_DATA:
-			query[0] = mb_data->slave;
-			query[1] = mb_data->function;
+			query[0] = hc_data->slave;
+			query[1] = hc_data->function;
 			query[2] = 0x02;
-			query[3] = mb_data->data >> 8; 
-			query[4] = mb_data->data & 0x00FF;
+			query[3] = hc_data->data >> 8; 
+			query[4] = hc_data->data & 0x00FF;
 			return 5;
 		break;	
 		
@@ -552,13 +552,13 @@ int build_query(modbus_data_t *mb_data, unsigned char *query )
   
 /************************************************************************ 
  
-    hy_modbus 
+    hy_comm 
  
-    sends and receives "modbus" messages to and from a Huanyang VFD 
+    sends and receives "hycomm" messages to and from a Huanyang VFD 
      
 *************************************************************************/  
 
-int hy_modbus(modbus_param_t *mb_param, modbus_data_t *mb_data)
+int hy_comm(hycomm_param_t *hc_param, hycomm_data_t *hc_data)
 {
 	int query_length;
 	int query_ret;
@@ -569,64 +569,64 @@ int hy_modbus(modbus_param_t *mb_param, modbus_data_t *mb_data)
 	unsigned char response[MAX_PACKET_SIZE];
 	
 	/* build the request query */
-	query_length = build_query(mb_data, query);
-	if (mb_param->debug) {
+	query_length = build_query(hc_data, query);
+	if (hc_param->debug) {
 		printf("\n");
 		printf("query_length = %d", query_length);
 		printf("\n");
 	} 
 	
 	/* add CRC to the query and send */
-	query_ret = modbus_send(mb_param, query, query_length);
-	if (mb_param->debug) {
+	query_ret = hycomm_send(hc_param, query, query_length);
+	if (hc_param->debug) {
 		printf("query_ret = %d", query_ret);
 		printf("\n");
 	} 
 	
 	if (query_ret > 0){
 		/* query was sent so get the response from the VFD */
-		response_ret = modbus_check_response(mb_param, query, response);
+		response_ret = hycomm_check_response(hc_param, query, response);
 		
 		if (response_ret == 0) {
 		
 			msg_function_code = response[1];
-			if (mb_param->debug) {
+			if (hc_param->debug) {
 				printf("the message function code is = [%.2X]", msg_function_code);
 				printf("\n");
 			}
 			
 			/* check that the returned function code is the same as the query */
-			if (msg_function_code != mb_data->function)
+			if (msg_function_code != hc_data->function)
 				return ILLEGAL_FUNCTION;
 							
 			/* the returned data length */
-			mb_data->ret_length = response[2];
+			hc_data->ret_length = response[2];
 		
 			switch (msg_function_code)
 			{
 				case FUNCTION_READ:
 				case FUNCTION_WRITE:
-					mb_data->ret_parameter = response[3];
-					if (mb_data->ret_length == 2) {
-						mb_data->ret_data = response[4];
+					hc_data->ret_parameter = response[3];
+					if (hc_data->ret_length == 2) {
+						hc_data->ret_data = response[4];
 					} else {
-						mb_data->ret_data = response[4] << 8 | response[5];
+						hc_data->ret_data = response[4] << 8 | response[5];
 					}
 					break;
 					
 				case WRITE_CONTROL_DATA:
-					mb_data->ret_parameter = 0x00;
-					mb_data->ret_data = response[3];
+					hc_data->ret_parameter = 0x00;
+					hc_data->ret_data = response[3];
 					break;
 					
 				case READ_CONTROL_STATUS:
-					mb_data->ret_parameter = response[3];
-					mb_data->ret_data = response[4] << 8 | response[5];
+					hc_data->ret_parameter = response[3];
+					hc_data->ret_data = response[4] << 8 | response[5];
 					break;
 					
 				case WRITE_FREQ_DATA:
-					mb_data->ret_parameter = response[3];
-					mb_data->ret_data = response[3] << 8 | response[4];
+					hc_data->ret_parameter = response[3];
+					hc_data->ret_data = response[3] << 8 | response[4];
 					break;	
 					
 				default:
@@ -635,10 +635,10 @@ int hy_modbus(modbus_param_t *mb_param, modbus_data_t *mb_data)
 			}
 					
 		
-			if (mb_param->debug) {
-				printf("response parameter = [%.2X]", mb_data->ret_parameter);
+			if (hc_param->debug) {
+				printf("response parameter = [%.2X]", hc_data->ret_parameter);
 				printf("\n");
-				printf("response data = [%.4X]", mb_data->ret_data);
+				printf("response data = [%.4X]", hc_data->ret_data);
 				printf("\n");
 			}
 		}
@@ -653,7 +653,7 @@ int hy_modbus(modbus_param_t *mb_param, modbus_data_t *mb_data)
 
 /************************************************************************ 
  
-	Initializes the modbus_param_t structure for RTU
+	Initializes the hycomm_param_t structure for RTU
 	- device: "/dev/ttyS0"
 	- baud:   9600, 19200, 57600, 115200, etc
 	- parity: "even", "odd" or "none" 
@@ -662,17 +662,17 @@ int hy_modbus(modbus_param_t *mb_param, modbus_data_t *mb_data)
  
 **************************************************************************/  
   
-void modbus_init(modbus_param_t *mb_param, const char *device,
+void hycomm_init(hycomm_param_t *hc_param, const char *device,
                      int baud, const char *parity, int data_bit,
                      int stop_bit)
 {
-        memset(mb_param, 0, sizeof(modbus_param_t));
-        strcpy(mb_param->device, device);
-        mb_param->baud = baud;
-        strcpy(mb_param->parity, parity);
-        mb_param->debug = FALSE;
-        mb_param->data_bit = data_bit;
-        mb_param->stop_bit = stop_bit;
+        memset(hc_param, 0, sizeof(hycomm_param_t));
+        strcpy(hc_param->device, device);
+        hc_param->baud = baud;
+        strcpy(hc_param->parity, parity);
+        hc_param->debug = FALSE;
+        hc_param->data_bit = data_bit;
+        hc_param->stop_bit = stop_bit;
 }  
 
 
@@ -682,12 +682,12 @@ void modbus_init(modbus_param_t *mb_param, const char *device,
  
 **************************************************************************/ 
 
-void modbus_close(modbus_param_t *mb_param)
+void hycomm_close(hycomm_param_t *hc_param)
 {
-        if (tcsetattr(mb_param->fd, TCSANOW, &(mb_param->old_tios)) < 0)
+        if (tcsetattr(hc_param->fd, TCSANOW, &(hc_param->old_tios)) < 0)
                 perror("tcsetattr");
 
-        close(mb_param->fd);
+        close(hc_param->fd);
 }
   
   
@@ -697,14 +697,14 @@ void modbus_close(modbus_param_t *mb_param)
  
 **************************************************************************/  
 
-int modbus_connect(modbus_param_t *mb_param)
+int hycomm_connect(hycomm_param_t *hc_param)
 {
         struct termios tios;
         speed_t speed;
 
-        if (mb_param->debug) {
+        if (hc_param->debug) {
                 printf("Opening %s at %d bauds (%s)\n",
-                       mb_param->device, mb_param->baud, mb_param->parity);
+                       hc_param->device, hc_param->baud, hc_param->parity);
         }
 
         /* The O_NOCTTY flag tells UNIX that this program doesn't want
@@ -715,23 +715,23 @@ int modbus_connect(modbus_param_t *mb_param)
            Timeouts are ignored in canonical input mode or when the
            NDELAY option is set on the file via open or fcntl */
 
-        mb_param->fd = open(mb_param->device, O_RDWR | O_NOCTTY | O_NDELAY);
+        hc_param->fd = open(hc_param->device, O_RDWR | O_NOCTTY | O_NDELAY);
 
-        if (mb_param->fd < 0) {
+        if (hc_param->fd < 0) {
                 perror("open");
                 printf("ERROR Can't open the device %s (errno %d)\n",
-                       mb_param->device, errno);
+                       hc_param->device, errno);
                 return -1;
         }
 
         /* Save */
-        tcgetattr(mb_param->fd, &(mb_param->old_tios));
+        tcgetattr(hc_param->fd, &(hc_param->old_tios));
         memset(&tios, 0, sizeof(struct termios));
 
         /* C_ISPEED     Input baud (new interface)
            C_OSPEED     Output baud (new interface)
         */
-        switch (mb_param->baud) {
+        switch (hc_param->baud) {
         case 110:
                 speed = B110;
                 break;
@@ -768,7 +768,7 @@ int modbus_connect(modbus_param_t *mb_param)
         default:
                 speed = B9600;
                 printf("WARNING Unknown baud rate %d for %s (B9600 used)\n",
-                       mb_param->baud, mb_param->device);
+                       hc_param->baud, hc_param->device);
         }
 
         /* Set the baud rate */
@@ -789,7 +789,7 @@ int modbus_connect(modbus_param_t *mb_param)
            CSIZE        Bit mask for data bits
         */
         tios.c_cflag &= ~CSIZE;
-        switch (mb_param->data_bit) {
+        switch (hc_param->data_bit) {
         case 5:
                 tios.c_cflag |= CS5;
                 break;
@@ -806,16 +806,16 @@ int modbus_connect(modbus_param_t *mb_param)
         }
 
         /* Stop bit (1 or 2) */
-        if (mb_param->stop_bit == 1)
+        if (hc_param->stop_bit == 1)
                 tios.c_cflag &=~ CSTOPB;
         else /* 2 */
                 tios.c_cflag |= CSTOPB;
 
         /* PARENB       Enable parity bit
            PARODD       Use odd parity instead of even */
-        if (strncmp(mb_param->parity, "none", 4) == 0) {
+        if (strncmp(hc_param->parity, "none", 4) == 0) {
                 tios.c_cflag &=~ PARENB;
-        } else if (strncmp(mb_param->parity, "even", 4) == 0) {
+        } else if (strncmp(hc_param->parity, "even", 4) == 0) {
                 tios.c_cflag |= PARENB;
                 tios.c_cflag &=~ PARODD;
         } else {
@@ -881,7 +881,7 @@ int modbus_connect(modbus_param_t *mb_param)
            IUCLC        Map uppercase to lowercase
            IMAXBEL      Echo BEL on input line too long
         */
-        if (strncmp(mb_param->parity, "none", 4) == 0) {
+        if (strncmp(hc_param->parity, "none", 4) == 0) {
                 tios.c_iflag &= ~INPCK;
         } else {
                 tios.c_iflag |= INPCK;
@@ -943,7 +943,7 @@ int modbus_connect(modbus_param_t *mb_param)
         tios.c_cc[VMIN] = 0;
         tios.c_cc[VTIME] = 0;
 
-        if (tcsetattr(mb_param->fd, TCSANOW, &tios) < 0) {
+        if (tcsetattr(hc_param->fd, TCSANOW, &tios) < 0) {
                 perror("tcsetattr\n");
                 return -1;
         }

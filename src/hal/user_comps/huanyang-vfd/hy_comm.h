@@ -70,7 +70,7 @@
 /***********************************************************************
 
 	 Note: All functions used for sending or receiving data via
-	       modbus return these return values.
+	       hycomm return these return values.
 
 
 	Returns:	string_length if OK
@@ -91,7 +91,7 @@
 
 #define PORT_FAILURE 			-11
 
-typedef struct _modbus_param_t {
+typedef struct _hycomm_param_t {
 	char device[PATH_MAX];		/* Device: "/dev/ttyS0" */
 	int print_errors;			/* whether or not to print errors.  0=no print, 1=print */
 	int baud;					/* Bauds: 19200 */
@@ -101,10 +101,10 @@ typedef struct _modbus_param_t {
 	struct termios old_tios;	/* Save old termios settings */
 	int fd;						/* Descriptor (tty or socket) */
 	int debug;					/* Flag debug */
-} modbus_param_t;
+} hycomm_param_t;
 
 
-/* Initializes the modbus_param_t structure for RTU.
+/* Initializes the hycomm_param_t structure for RTU.
    - device: "/dev/ttyS0"
    - baud:   9600, 19200, 57600, 115200, etc
    - parity: "even", "odd" or "none" 
@@ -112,7 +112,7 @@ typedef struct _modbus_param_t {
    - stop_bits: 1, 2
 */
 
-typedef struct _modbus_data_t {
+typedef struct _hycomm_data_t {
 	unsigned char slave;			/* slave address */
 	unsigned char function;			/* function code */
 	unsigned char parameter;		/* PDxxx paramter */
@@ -120,22 +120,22 @@ typedef struct _modbus_data_t {
 	unsigned char ret_length;		/* length of data returned from slave */
 	unsigned char ret_parameter;	/* parameter returned from slave */
 	int ret_data;					/* Data returned from slave */
-} modbus_data_t;
+} hycomm_data_t;
 
 
-void modbus_init(modbus_param_t *mb_param, const char *device,
+void hycomm_init(hycomm_param_t *hc_param, const char *device,
                      int baud, const char *parity, int data_bit,
                      int stop_bit);
 
-void modbus_close(modbus_param_t *mb_param);
+void hycomm_close(hycomm_param_t *hc_param);
 
-void modbus_init_rtu(modbus_param_t *mb_param, const char *device,
+void hycomm_init_rtu(hycomm_param_t *hc_param, const char *device,
                      int baud, const char *parity, int data_bit,
                      int stop_bit);
 
-int modbus_connect(modbus_param_t *mb_param);
+int hycomm_connect(hycomm_param_t *hc_param);
 
-int hy_modbus(modbus_param_t *mb_param, modbus_data_t *mb_data);
+int hy_comm(hycomm_param_t *hc_param, hycomm_data_t *hc_data);
 
 
 #endif  /* HY_COMM_H */

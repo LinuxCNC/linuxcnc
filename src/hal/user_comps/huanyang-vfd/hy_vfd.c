@@ -38,7 +38,7 @@
 #include "hy_comm.h"
 
 
-#define MODBUS_MIN_OK		10
+#define HYCOMM_MIN_OK		10
 
 
 // bits in Status Data
@@ -68,7 +68,7 @@
 
 
 
-int modbus_ok;						// set modbus-ok bit if last MODBUS_OK transactions went well
+int hycomm_ok;						// set hycomm-ok bit if last HYCOMM_OK transactions went well
 int debug;
 int slave = 1;
 
@@ -112,7 +112,7 @@ typedef struct {
 	hal_float_t *rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
 	hal_float_t *rated_motor_rev;		// PD144 Set value corresponds to RPM at 50Hz
 	
-	hal_bit_t	*modbus_ok;				// the last MODBUS_OK transactions returned successfully
+	hal_bit_t	*hycomm_ok;				// the last HYCOMM_OK transactions returned successfully
 	
 	hal_float_t *max_rpm;				// calculated based on VFD max frequency setup parameter
 
@@ -134,7 +134,7 @@ typedef struct {
 	//hal_bit_t	old_dir;
 	//hal_bit_t	old_err_reset;
 	//hal_u32_t	old_cmd1_reg;				// copy of last write to FA00
-	//hal_u32_t	failed_reg;				// remember register for failed modbus transaction - aids debugging
+	//hal_u32_t	failed_reg;				// remember register for failed hycomm transaction - aids debugging
 } haldata_t;
 
 static int done;
@@ -194,7 +194,7 @@ void usage(int argc, char **argv) {
 			"-d or --device <path> (default /dev/ttyS0)\n"
 			"    Set the name of the serial device node to use\n"
 			"-g or --debug\n"
-			"    Turn on debugging messages.  Debug mode will cause all modbus messages\n"
+			"    Turn on debugging messages.  Debug mode will cause all hycomm messages\n"
                         "    to be printed in hex on the terminal.\n"
 			"-n or --name <string> (default hy_vfd)\n"
 			"    Set the name of the HAL module.  The HAL comp name will be set to <string>, and all pin\n"
@@ -207,11 +207,11 @@ void usage(int argc, char **argv) {
 			"-s or --stopbits {1,2} (default 1)\n"
 			"    Set serial stop bits to 1 or 2\n"
 			"-t or --target <n> (default 1)\n"
-			"    Set MODBUS target (slave) number.  This must match the device number you set on the Huanyang VFD.\n"
+			"    Set HYCOMM target (slave) number.  This must match the device number you set on the Huanyang VFD.\n"
         );
 }
 
-int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *haldata)
+int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *haldata)
 {
 	int retval;
 	int CNTR, old_CNTR;
@@ -221,8 +221,8 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	int freq, old_freq;
 	
 	// calculate and set frequency register, limit the freqency (upper and lower to VFD set parameters
-	mb_data->function = WRITE_FREQ_DATA;
-	mb_data->parameter = 0x00;
+	hc_data->function = WRITE_FREQ_DATA;
+	hc_data->parameter = 0x00;
 	
 	if ((*(haldata->spindle_forward) && !*(haldata->spindle_reverse)) && *(haldata->spindle_on)) {
 		freq_comp = 1;
@@ -245,8 +245,8 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	
 	if (freq != old_freq) {
 		// commanded frequency has changed
-		mb_data->data = freq;
-		if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+		hc_data->data = freq;
+		if ((retval = hy_comm(hc_param, hc_data)) != 0)
 			goto failed;
 		*(haldata->freq_cmd)  =  freq; 
 	}
@@ -254,8 +254,8 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	
 	
 	// update the control register
-	mb_data->function = WRITE_CONTROL_DATA;
-	mb_data->parameter = 0x00;
+	hc_data->function = WRITE_CONTROL_DATA;
+	hc_data->parameter = 0x00;
 	
 	if ((*(haldata->spindle_forward) && !*(haldata->spindle_reverse)) && *(haldata->spindle_on)) {
 		CNTR = CONTROL_Run_Fwd;
@@ -266,17 +266,17 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	}
 	
 	old_CNTR = *(haldata->CNTR);
-	mb_data->data = old_CNTR;
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->data = old_CNTR;
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;
 	if (CNTR != old_CNTR) {
 		// CNTR register needs to be updated
-		mb_data->data = CNTR;
+		hc_data->data = CNTR;
 		*(haldata->CNTR) = CNTR;
 	}
 
 	
-	CNST = mb_data->ret_data;
+	CNST = hc_data->ret_data;
 	*(haldata->CNST) = CNST;
 	
 	if ((CNST & CONTROL_Run) != 0) {
@@ -333,7 +333,7 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	return retval;
 
 	failed:
-	if (mb_param->debug) {
+	if (hc_param->debug) {
 		printf("write_data: FAILED\n");
 	}
 	haldata->retval = retval;
@@ -342,7 +342,7 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	return retval;	
 }
 
-int read_setup(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *haldata)
+int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *haldata)
 {
 	int retval;
 	
@@ -350,45 +350,45 @@ int read_setup(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	if (haldata == NULL)
 		return -1;
 	/* but we can signal an error if the other params are null */
-	if (mb_param==NULL) {
+	if (hc_param==NULL) {
 		haldata->errorcount++;
 		return -1;
 	}
 
 
-	if (mb_param->debug) {
+	if (hc_param->debug) {
 		printf("read_setup: reading setup parameters:\n");
 	}
 
-	mb_data->function = FUNCTION_READ;
-	mb_data->data = 0x0000;
+	hc_data->function = FUNCTION_READ;
+	hc_data->data = 0x0000;
 
-	mb_data->parameter = 5; // PD005 Max Operating Freqency
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->parameter = 5; // PD005 Max Operating Freqency
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->max_freq) = mb_data->ret_data * 0.01;
+	*(haldata->max_freq) = hc_data->ret_data * 0.01;
 	
-	mb_data->parameter = 11; // PD011 Frequency Lower Limit
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->parameter = 11; // PD011 Frequency Lower Limit
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->freq_lower_limit) = mb_data->ret_data * 0.01;
+	*(haldata->freq_lower_limit) = hc_data->ret_data * 0.01;
 
-	mb_data->parameter = 141; // PD141 Rated Motor Voltage
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->parameter = 141; // PD141 Rated Motor Voltage
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->rated_motor_voltage) = mb_data->ret_data * 0.1;
+	*(haldata->rated_motor_voltage) = hc_data->ret_data * 0.1;
 	
-	mb_data->parameter = 142; // PD142 Rated Motor Current
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->parameter = 142; // PD142 Rated Motor Current
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->rated_motor_current) = mb_data->ret_data * 0.1;
+	*(haldata->rated_motor_current) = hc_data->ret_data * 0.1;
 	
-	mb_data->parameter = 144; // PD144 Rated Motor Rev
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->parameter = 144; // PD144 Rated Motor Rev
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->rated_motor_rev) = mb_data->ret_data;
+	*(haldata->rated_motor_rev) = hc_data->ret_data;
 	
-	if (mb_param->debug) {
+	if (hc_param->debug) {
 		printf("read_setup: read setup parameters - OK.\n");
 	}
 			
@@ -397,7 +397,7 @@ int read_setup(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	return retval;
 
 	failed:
-	if (mb_param->debug) {
+	if (hc_param->debug) {
 		printf("read_setup: FAILED\n");
 	}
 	haldata->retval = retval;
@@ -407,30 +407,30 @@ int read_setup(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 }
 
 
-int read_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *haldata)
+int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *haldata)
 {
 	int retval;
 
 	// Read the Status Data registers
 	
-	mb_data->function = READ_CONTROL_STATUS;
-	mb_data->parameter = 0x00;
+	hc_data->function = READ_CONTROL_STATUS;
+	hc_data->parameter = 0x00;
 
-	mb_data->data = STATUS_SetF;
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->data = STATUS_SetF;
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->Set_F) = mb_data->ret_data * 0.01;
-	if (mb_param->debug) {
-		printf("Set_F = [%.2X]", mb_data->ret_data);
+	*(haldata->Set_F) = hc_data->ret_data * 0.01;
+	if (hc_param->debug) {
+		printf("Set_F = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
 			
-	mb_data->data = STATUS_OutF;
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->data = STATUS_OutF;
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->Out_F) = mb_data->ret_data * 0.01;
-	if (mb_param->debug) {
-		printf("Out_F = [%.2X]", mb_data->ret_data);
+	*(haldata->Out_F) = hc_data->ret_data * 0.01;
+	if (hc_param->debug) {
+		printf("Out_F = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
 
@@ -450,57 +450,57 @@ int read_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *halda
             *haldata->spindle_at_speed = 0;
         }
 
-	mb_data->data = STATUS_OutA;
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->data = STATUS_OutA;
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->Out_A) = mb_data->ret_data * 0.1;
-	if (mb_param->debug) {
-		printf("Out_A = [%.2X]", mb_data->ret_data);
+	*(haldata->Out_A) = hc_data->ret_data * 0.1;
+	if (hc_param->debug) {
+		printf("Out_A = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
 	
-	mb_data->data = STATUS_RoTT;
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->data = STATUS_RoTT;
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->RoTT) = mb_data->ret_data;
-	if (mb_param->debug) {
-		printf("RoTT = [%.2X]", mb_data->ret_data);
+	*(haldata->RoTT) = hc_data->ret_data;
+	if (hc_param->debug) {
+		printf("RoTT = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
 	
-	mb_data->data = STATUS_DCV;
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->data = STATUS_DCV;
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->DCV) = mb_data->ret_data;
-	if (mb_param->debug) {
-		printf("DCV = [%.2X]", mb_data->ret_data);
+	*(haldata->DCV) = hc_data->ret_data;
+	if (hc_param->debug) {
+		printf("DCV = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
 	
-	mb_data->data = STATUS_ACV;
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->data = STATUS_ACV;
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->ACV) = mb_data->ret_data;
-	if (mb_param->debug) {
-		printf("ACV = [%.2X]", mb_data->ret_data);
+	*(haldata->ACV) = hc_data->ret_data;
+	if (hc_param->debug) {
+		printf("ACV = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
 	
-	mb_data->data = STATUS_Cont;
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->data = STATUS_Cont;
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->Cont) = mb_data->ret_data;
-	if (mb_param->debug) {
-		printf("Cont = [%.2X]", mb_data->ret_data);
+	*(haldata->Cont) = hc_data->ret_data;
+	if (hc_param->debug) {
+		printf("Cont = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
 	
-	mb_data->data = STATUS_Tmp;
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
+	hc_data->data = STATUS_Tmp;
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->Tmp) = mb_data->ret_data;
-	if (mb_param->debug) {
-		printf("Tmp = [%.2X]", mb_data->ret_data);
+	*(haldata->Tmp) = hc_data->ret_data;
+	if (hc_param->debug) {
+		printf("Tmp = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
 	
@@ -510,7 +510,7 @@ int read_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *halda
 	return retval;
 
 	failed:
-	if (mb_param->debug) {
+	if (hc_param->debug) {
 		printf("read_data: FAILED\n");
 	}
 	haldata->retval = retval;
@@ -523,8 +523,8 @@ int read_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *halda
 int main(int argc, char **argv)
 {
 	int retval;
-	modbus_param_t mb_param;
-	modbus_data_t mb_data;
+	hycomm_param_t hc_param;
+	hycomm_data_t hc_data;
 	haldata_t *haldata;
 	int hal_comp_id;
 	struct timespec loop_timespec, remaining;
@@ -603,7 +603,7 @@ int main(int argc, char **argv)
 			}
 			stopbits = atoi(stopstrings[argindex]);
 			break;
-		case 't':   // target number (MODBUS ID), default 1
+		case 't':   // target number (HYCOMM ID), default 1
 			argvalue = strtol(optarg, &endarg, 10);
 			if ((*endarg != '\0') || (argvalue < 1) || (argvalue > 254)) {
 				printf("hy_vfd: ERROR: invalid slave number: %s\n", optarg);
@@ -630,12 +630,12 @@ int main(int argc, char **argv)
         signal(SIGTERM, quit_signal_handler);
 
 	/* Assume 19.2k E-8-1 serial settings, device 1 */
-	modbus_init(&mb_param, device, baud, parity, bits, stopbits);
-	mb_param.debug = debug;
-	mb_param.print_errors = 1;
+	hycomm_init(&hc_param, device, baud, parity, bits, stopbits);
+	hc_param.debug = debug;
+	hc_param.print_errors = 1;
 	
 	/* the open has got to work, or we're out of business */
-	if (((retval = modbus_connect(&mb_param))!=0) || done) {
+	if (((retval = hycomm_connect(&hc_param))!=0) || done) {
 		printf("%s: ERROR: couldn't open serial device\n", modname);
 		goto out_noclose;
 	}
@@ -722,7 +722,7 @@ int main(int argc, char **argv)
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_rev), hal_comp_id, "%s.rated-motor-rev", modname);
 	if (retval!=0) goto out_closeHAL;
 
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->modbus_ok), hal_comp_id, "%s.modbus-ok", modname); 
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->hycomm_ok), hal_comp_id, "%s.hycomm-ok", modname); 
 	if (retval!=0) goto out_closeHAL;
 	
 	retval = hal_param_s32_newf(HAL_RW, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
@@ -766,13 +766,13 @@ int main(int argc, char **argv)
 	*(haldata->rated_motor_current) = 0;
 	*(haldata->rated_motor_rev) = 0;
 
-	*(haldata->modbus_ok) = 0;
+	*(haldata->hycomm_ok) = 0;
 
 	*haldata->spindle_speed_fb = 0.0;
 	*haldata->spindle_at_speed = 0;
 	*haldata->spindle_at_speed_tolerance = 0.02;
 
-	mb_data.slave = slave;
+	hc_data.slave = slave;
 	haldata->errorcount = 0;
 	haldata->looptime = 0.1;
 
@@ -788,7 +788,7 @@ int main(int argc, char **argv)
 	//haldata->failed_reg = 0;
 
 	hal_ready(hal_comp_id);
-	mb_data.slave = slave;
+	hc_data.slave = slave;
 	
 	// wait until EMC and AXIS is ready, ie enable bit is set
 	while (!*(haldata->enable)){
@@ -802,7 +802,7 @@ int main(int argc, char **argv)
 	
 	// read the VFD setup parameters
         do {
-            retval = read_setup(&mb_param, &mb_data, haldata);
+            retval = read_setup(&hc_param, &hc_data, haldata);
             if (retval != 0) {
                 fprintf(stderr, "error reading setup from VFD, retrying\n");
                 usleep(100 * 1000);
@@ -818,26 +818,26 @@ int main(int argc, char **argv)
 		
 		if (*(haldata->enable)) {	
 			// Read inputs
-			if (read_data(&mb_param, &mb_data, haldata) < 0) {
-				modbus_ok = 0;
+			if (read_data(&hc_param, &hc_data, haldata) < 0) {
+				hycomm_ok = 0;
 			} else {
-				modbus_ok++;
+				hycomm_ok++;
 			}
 			
 			// Set outputs
-			if (write_data(&mb_param, &mb_data, haldata) < 0) {
-				modbus_ok = 0;
+			if (write_data(&hc_param, &hc_data, haldata) < 0) {
+				hycomm_ok = 0;
 			} else {
-				modbus_ok++;
+				hycomm_ok++;
 			}
 		}
 		
 
 		
-		if (modbus_ok > MODBUS_MIN_OK) {
-			*(haldata->modbus_ok) = 1;
+		if (hycomm_ok > HYCOMM_MIN_OK) {
+			*(haldata->hycomm_ok) = 1;
 		} else {
-			*(haldata->modbus_ok) = 0;
+			*(haldata->hycomm_ok) = 0;
 		}
 
 	    
@@ -855,7 +855,7 @@ int main(int argc, char **argv)
 	out_closeHAL:
 	hal_exit(hal_comp_id);
 	out_close:
-	modbus_close(&mb_param);
+	hycomm_close(&hc_param);
 	out_noclose:
 	return retval;
 }

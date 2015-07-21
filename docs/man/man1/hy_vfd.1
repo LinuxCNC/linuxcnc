@@ -34,7 +34,7 @@
 
 .SH DESCRIPTION
 This component connects the Huanyang VFD to the LinuxCNC HAL via a serial
-(RS-485) Modbus connection.
+(RS-485) connection.
 .PP
 The Huanyang VFD must be configured via the face plate user interface
 to accept serial communications:
@@ -95,8 +95,8 @@ above registers.
 .B
 .IP -g,\ --debug
 Turn on debug messages. Note that if there are serial errors, this may
-become annoying.  Debug mode will cause all modbus messages to be printed
-in hex on the terminal.
+become annoying.  Debug mode will cause all serial communication messages
+to be printed in hex on the terminal.
 .B
 .IP -n,\ --name\ <string>
 (default hy_vfd) Set the name of the HAL module. The HAL comp name will be
@@ -122,7 +122,7 @@ the Huanyang VFD.
 in register PD165 of the HuanyangVFD.
 .B
 .IP -t,\ --target\ <n>
-(default 1) Set MODBUS target (slave) number. This must match the device
+(default 1) Set HYCOMM target (slave) number. This must match the device
 number you set on the Hyanyang VFD in register PD163.
 .B
 .SH PINS
@@ -228,7 +228,7 @@ speed must be within 2% of the commanded spindle speed.
 .IP <name>.rated-motor-rev
 (float, out)
 .B
-.IP <name>.modbus-ok
+.IP <name>.hycomm-ok
 (bit, out)
 
 .SH PARAMETERS
