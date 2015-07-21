@@ -206,7 +206,7 @@ void usage(int argc, char **argv) {
 			"-s or --stopbits {1,2} (default 1)\n"
 			"    Set serial stop bits to 1 or 2\n"
 			"-t or --target <n> (default 1)\n"
-			"    Set MODBUS target (slave) number.  This must match the device number you set on the VF-S11.\n"
+			"    Set MODBUS target (slave) number.  This must match the device number you set on the Huanyang VFD.\n"
         );
 }
 
