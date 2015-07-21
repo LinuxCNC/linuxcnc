@@ -1,4 +1,4 @@
-/*      hy_modbus.c  
+/*      hy_comm.c
  
    By S.Alford
  
@@ -36,7 +36,7 @@
 #include <fcntl.h>
 #include "rtapi.h"
 
-#include "hy_modbus.h"   
+#include "hy_comm.h"
  
 
  /* Table of CRC values for high-order byte */

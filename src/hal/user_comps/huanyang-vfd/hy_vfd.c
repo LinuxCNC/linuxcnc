@@ -35,7 +35,7 @@
 #include <math.h>
 #include "rtapi.h"
 #include "hal.h"
-#include "hy_modbus.h"
+#include "hy_comm.h"
 
 
 #define MODBUS_MIN_OK		10

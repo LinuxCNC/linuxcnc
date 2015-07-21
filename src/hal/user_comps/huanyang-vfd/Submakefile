@@ -1,4 +1,4 @@
-HY_VFD_SRCS = hal/user_comps/huanyang-vfd/hy_vfd.c hal/user_comps/huanyang-vfd/hy_modbus.c
+HY_VFD_SRCS = hal/user_comps/huanyang-vfd/hy_vfd.c hal/user_comps/huanyang-vfd/hy_comm.c
 HY_VFD_CFLAGS = $(GLIB_CFLAGS)
 HY_VFD_LIBS = $(GLIB_LIBS) -lpthread
 

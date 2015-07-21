@@ -1,4 +1,4 @@
-/* 		hy_modbus.h
+/* 		hy_comm.h
 
    By S.Alford
  
@@ -25,8 +25,8 @@
  */
 
 
-#ifndef HY_MODBUS_H
-#define HY_MODBUS_H
+#ifndef HY_COMM_H
+#define HY_COMM_H
 
 #include <stdint.h>
 #include <termios.h>
@@ -138,4 +138,4 @@ int modbus_connect(modbus_param_t *mb_param);
 int hy_modbus(modbus_param_t *mb_param, modbus_data_t *mb_data);
 
 
-#endif  /* HY_MODBUS_H */
+#endif  /* HY_COMM_H */
