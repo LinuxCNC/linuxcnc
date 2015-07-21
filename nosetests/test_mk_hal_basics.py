@@ -63,7 +63,7 @@ def test_pin_attributes():
     assert len(n) == 1
     # access properties through wrapper:
     global p
-    p = hal.Pin(n[0])
+    p = n[0]
     assert p.name == fqpname
     assert p.type == hal.HAL_S32
     assert p.dir == hal.HAL_OUT
