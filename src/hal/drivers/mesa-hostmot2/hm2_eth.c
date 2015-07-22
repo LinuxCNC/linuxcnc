@@ -588,11 +588,15 @@ static int hm2_eth_probe(hm2_eth_t *board) {
 
     LBP16_INIT_PACKET4(read_packet, CMD_READ_BOARD_INFO_ADDR16_INCR(16/2), 0);
     send = eth_socket_send(board->sockfd, (void*) &read_packet, sizeof(read_packet), 0);
-    if(send < 0)
+    if(send < 0) {
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
+        return -errno;
+    }
     recv = eth_socket_recv(board->sockfd, (void*) &board_name, 16, 0);
-    if(recv < 0)
+    if(recv < 0) {
         LL_PRINT("ERROR: receiving packet: %s\n", strerror(errno));
+        return -errno;
+    }
 
     board = &boards[boards_count];
     board->llio.private = board;
