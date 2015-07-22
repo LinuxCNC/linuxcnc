@@ -715,10 +715,6 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     }
     boards_count++;
 
-    int val = fcntl(board->sockfd, F_GETFL);
-    val = val | O_NONBLOCK;
-    fcntl(board->sockfd, F_SETFL, val);
-
     return 0;
 }
 
