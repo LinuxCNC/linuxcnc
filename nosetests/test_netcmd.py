@@ -103,6 +103,7 @@ def test_net_existing_signal():
 
 
 def test_newsig():
+    l.log()
     hal.newsig("floatsig1", hal.HAL_FLOAT)
     try:
         hal.newsig("floatsig1", hal.HAL_FLOAT)
