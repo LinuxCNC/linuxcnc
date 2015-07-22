@@ -793,6 +793,25 @@ class LinuxCNCWrapper():
                 self.status.config.axis[index].home_sequence = -1
                 self.status.config.axis[index].max_velocity = 0.0
                 self.status.config.axis[index].max_acceleration = 0.0
+                self.status.config.axis[index].increments = ""
+
+                axis = self.status.config.axis[index]
+                axisName = 'AXIS_%i' % index
+                value = int(self.ini.find(axisName, 'HOME_SEQUENCE') or -1)
+                axisModified |= self.update_proto_value(axis, txAxis,
+                                                        'home_sequence', value)
+
+                value = float(self.ini.find(axisName, 'MAX_VELOCITY') or 0.0)
+                axisModified |= self.update_proto_value(axis, txAxis,
+                                                        'max_velocity', value)
+
+                value = float(self.ini.find(axisName, 'MAX_ACCELERATION') or 0.0)
+                axisModified |= self.update_proto_value(axis, txAxis,
+                                                        'max_acceleration', value)
+
+                value = self.ini.find(axisName, 'INCREMENTS') or ''
+                axisModified |= self.update_proto_value(axis, txAxis,
+                                                        'increments', value)
 
             axis = self.status.config.axis[index]
             axisModified |= self.update_proto_value(axis, txAxis, 'axisType', statAxis['axisType'])
@@ -800,15 +819,6 @@ class LinuxCNCWrapper():
             for name in ['backlash', 'max_ferror', 'max_position_limit',
                          'min_ferror', 'min_position_limit', 'units']:
                 axisModified |= self.update_proto_float(axis, txAxis, name, statAxis[name])
-
-            value = int(self.ini.find('AXIS_' + str(index), 'HOME_SEQUENCE') or -1)
-            axisModified |= self.update_proto_value(axis, txAxis, 'home_sequence', value)
-
-            value = float(self.ini.find('AXIS_' + str(index), 'MAX_VELOCITY') or 0.0)
-            axisModified |= self.update_proto_value(axis, txAxis, 'max_velocity', value)
-
-            value = float(self.ini.find('AXIS_' + str(index), 'MAX_ACCELERATION') or 0.0)
-            axisModified |= self.update_proto_value(axis, txAxis, 'max_acceleration', value)
 
             if axisModified:
                 txAxis.index = index
