@@ -79,8 +79,9 @@ DOC_SRCS_EN := \
 	getting-started/system-requirements.txt \
 	getting-started/updating-linuxcnc.txt \
 	gui/axis.txt \
-	gui/gmoccapy.txt \
 	gui/gladevcp.txt \
+	gui/gmoccapy.txt \
+	gui/gmoccapy-hu.txt \
 	gui/gscreen.txt \
 	gui/halui.txt \
 	gui/image-to-gcode.txt \
