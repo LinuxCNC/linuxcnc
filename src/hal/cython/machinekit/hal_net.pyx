@@ -24,6 +24,9 @@ def net(sig,*pinnames):
     writer_name = None
     bidir_name = None
 
+    if len(pinnames) == 0:
+        raise RuntimeError("net: at least one pin name expected")
+
     signame = None
     if isinstance(sig, Pin) \
        or (isinstance(sig, str) and (sig in pins)):
@@ -56,9 +59,6 @@ def net(sig,*pinnames):
 
     if signame in pins:
         raise TypeError("net: '%s' is a pin - first argument must be a signal name" % signame)
-
-    if len(pinnames) == 0:
-        raise RuntimeError("net: at least one pin name expected")
 
     pinlist = []
     for names in pinnames:
