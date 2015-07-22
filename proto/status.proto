@@ -248,6 +248,7 @@ message EmcStatusConfig {
     optional string                     remote_path              = 35;
     optional EmcTimeUnitsType           time_units               = 36;
     optional string                     name                     = 37;
+    repeated EmcStatusUserCommand       user_command             = 38;
 }
 
 message EmcStatusMotion {
@@ -366,4 +367,12 @@ message EmcCommandParameters {
     optional EmcTrajectoryModeType  traj_mode = 102;
     optional EmcPose                pose = 103;
     optional EmcToolData            tool_data = 104;
+}
+
+message EmcStatusUserCommand {
+
+    option (nanopb_msgopt).msgid = 1116;
+
+    required int32          index = 1;
+    optional string         command = 2;
 }
