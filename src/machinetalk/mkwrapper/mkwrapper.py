@@ -666,6 +666,14 @@ class LinuxCNCWrapper():
                                                'extension', extensions, '')
             del txObjItem
 
+            commands = self.ini.findall("DISPLAY", "USER_COMMAND")
+            txObjItem = EmcStatusUserCommand()
+            obj = self.status.config.user_command
+            txObj = self.statusTx.config.user_command
+            modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                               'command', commands, '')
+            del txObjItem
+
             positionOffset = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'RELATIVE'
             if positionOffset == 'MACHINE':
                 positionOffset = EMC_CONFIG_MACHINE_OFFSET
