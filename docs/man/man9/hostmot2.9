@@ -29,6 +29,15 @@ Pin Descriptors.
 \fBdebug_modules\fR [default: 0]
 Developer/debug use only!  Enable debug logging of the HostMot2
 Modules used.
+.TP
+\fBuse_serial_numbers\fR [default: 0]
+When creating HAL pins for smart-serial devices name the pins by the board serial
+number rather than which board and port they are connected to. 
+With this option set to 1 pins will have names like \fBhm2_8i20.1234.current\fR rather than
+\fBhm2_5i23.0.8i20.0.1.current\fR. The identifier consists of the last 4 digits of the board
+serial number, which is normally on a sticker on the board. 
+This will make configs less portable, but does mean that boards can be re-connected less
+carefully. 
 .RE
 .SH DESCRIPTION
 
