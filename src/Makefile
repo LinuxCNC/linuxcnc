@@ -85,6 +85,14 @@ endif
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
+suggest-rip-environment = ( \
+	BIN=`readlink -f ../bin`; \
+	ENV=`readlink -f ../scripts/rip-environment`; \
+	case "$$PATH" in \
+		$$BIN:*|*:$$BIN:*) ;; \
+		*) $(VECHO) "To set up the shell environment so that commands like 'linuxcnc'"; $(VECHO) "refer to this run-in-place directory, exceute"; $(VECHO) "    . $$ENV"; $(VECHO) "in your shell." ;; \
+	esac; )
+
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
@@ -95,6 +103,7 @@ ifneq ($(BUILD_SYS),uspace)
 else
 	@if [ -f ../bin/rtapi_app ]; then if ! [ `stat -c %u ../bin/rtapi_app` -eq 0 -a -u ../bin/rtapi_app ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place with access to hardware."; fi; fi
 endif
+	$(Q)$(suggest-rip-environment)
 endif
 
 
@@ -486,6 +495,7 @@ else
 	chown root ../bin/pci_read
 	chmod 4750 ../bin/pci_read
 endif
+	$(Q)$(suggest-rip-environment)
 
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
