@@ -584,7 +584,7 @@ It is perfectly OK to set an output HAL pin's value with
 +halcomp[pinname] = value+ provided this HAL pin is not associated with a
 widget, that is, has been created by the
 +hal_glib.GPin(halcomp.newpin(<name>,<type>,<direction>)+ method (see
-GladeVCP Programming for an example).
+<<gladevcp:GladeVCP_Programming,GladeVCP Programming>> for an example).
 
 [[gladevcp::hal-pin-changed_signal]]
 === The hal-pin-changed signal
