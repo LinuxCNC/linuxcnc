@@ -71,6 +71,7 @@
 #include "streamer.h"		/* decls and such for fifos */
 #include "rtapi_errno.h"
 #include "rtapi_string.h"
+#include "rtapi_atomic.h"
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -239,7 +240,7 @@ static void update(void *arg, long period)
     /* fifo data area is right after the fifo_t struct in shmem */
     dptr = (shmem_data_t *)(fifo+1);
     /* find the next block of data in the fifo */
-    tmpin = fifo->in;
+    tmpin = atomic_load_explicit(&fifo->in, memory_order_acquire);
     tmpout = fifo->out;
     if ( tmpout == tmpin ) {
         /* fifo empty - log it */
@@ -295,7 +296,7 @@ static void update(void *arg, long period)
         tmpout = 0;
     }
     /* store new value of out */
-    fifo->out = tmpout;
+    atomic_store_explicit(&fifo->out, tmpout, memory_order_release);
 }
 
 /***********************************************************************
