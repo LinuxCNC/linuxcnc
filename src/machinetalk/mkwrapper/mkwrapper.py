@@ -44,27 +44,11 @@ def getFreePort():
     return port
 
 
-# Handle uploaded files to delete them after program exit
-uploadedFiles = set()
-
-
-def addUploadedFile(file):
-    global uploadedFiles
-    uploadedFiles.add(file)
-
-
-def clearUploadedFiles():
-    global uploadedFiles
-    for uploadedFile in uploadedFiles:
-        os.remove(uploadedFile)
-    uploadedFiles = set()
-
-
 class CustomFTPHandler(FTPHandler):
 
     def on_file_received(self, file):
         # do something when a file has been received
-        addUploadedFile(file)
+        pass  # TODO inform client about new file
 
     def on_incomplete_file_received(self, file):
         # remove partially uploaded files
@@ -132,9 +116,6 @@ class FileService(threading.Thread):
             sys.exit(1)
 
         threading.Thread.__init__(self)
-
-    def __del__(self):
-        clearUploadedFiles()
 
     def run(self):
         self.running = True
