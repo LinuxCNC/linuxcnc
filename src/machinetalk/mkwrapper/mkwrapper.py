@@ -91,7 +91,7 @@ class FileService(threading.Thread):
         self.authorizer = DummyAuthorizer()
 
         # anonymous user has full read write access
-        self.authorizer.add_anonymous(self.directory, perm="lradw")
+        self.authorizer.add_anonymous(self.directory, perm="lredwm")
 
         # Instantiate FTP handler class
         self.handler = CustomFTPHandler
