@@ -4,20 +4,46 @@
 
 == How LinuxCNC Works[[how-LinuxCNC-works]]
 
-The Enhanced Machine Controller (LinuxCNC) is a lot more than just another
-CNC mill program. It can control machine tools, robots, or
-other automated devices. It can control servo motors, stepper motors,
-relays, and other devices related to machine tools.
+When you start LinuxCNC from the CNC menu or by typing 'linuxcnc'
+in the terminal the LinuxCNC script starts the
+<<cha:starting-linuxcnc,Configuration Selector>>. When you pick a configuration
+LinuxCNC reads the <<cha:ini-configuration,INI file>> then loads the 
+<<cha:basic-hal-reference,HAL files>> in the order that they are listed in the
+INI file.
 
-There are four main components to the LinuxCNC software: 
+When you create a configuration with the
+<<cha:stepconf-wizard,Stepper Configuration Wizard>> or
+<<cha:pncconf-wizard,Mesa Hardware Wizard>> or by picking a sample
+configuration from the Configuration Selector LinuxCNC creates some directories
+and files in your user directory. In the following example the name of the
+configuration is 'My Lathe'.
+
+. linuxcnc
+.. configs
+... My_Lathe
+.... My_Lathe.ini (this is read by the linuxcnc script)
+.... My_Lathe.hal (this hal file is loaded before the gui)
+.... post_gui.hal (this hal file is loaded after the gui)
+.... linuxcnc.var (stores the <<(sec:parameters,parameters>>)
+.... linuxcnc.var.bak (a backup parameter file)
+.... tool.tbl (the tool table file)
+.. nc_files
+... *.ngc (G code files)
+
+There can be other directorys and files in a configuration but the above is
+usually the minimum files used.
+
+LinuxCNC can control machine tools, robots, or other automated devices. It can
+control servo motors, stepper motors, relays, and other devices related to
+motion control. LinuxCNC can control up to 9 axes in coordinated motion.
+
+There are five main components to the LinuxCNC software: 
 
 * a motion controller (EMCMOT)
 * a discrete I/O controller (EMCIO)
 * a task executor which coordinates them (EMCTASK)
-* and one of several graphical user interfaces. 
-
-In addition there is a layer called HAL (Hardware Abstraction Layer) 
-which allows configuration of LinuxCNC without the need of recompiling.
+* a graphical user interface.
+* a hardware abstraction layer (HAL)
 
 .Simple LinuxCNC Controlled Machine[[fig:Typical_machine]]
 
@@ -32,7 +58,7 @@ stepper drives move the stepper motors. The LinuxCNC system can also run servo
 motors via servo interface cards or by using an extended parallel port
 to connect with external control boards. As we examine each of the
 components that make up an LinuxCNC system we will remind the reader of
-this typical machine. 
+this typical machine.
 
 == Graphical User Interfaces[[sub:Graphical-User-Interfaces]]
 

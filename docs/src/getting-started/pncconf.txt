@@ -1,8 +1,6 @@
 = Mesa Configuration Wizard
 
-[[cha:PNCconf-wizard]]
-(((Point n Click Configuration Wizard)))
-(((Mesa Configuration Wizard)))
+[[cha:pncconf-wizard]](((Mesa Configuration Wizard)))
 
 PNCconf is made to help build configurations that utilize specific Mesa 
 'Anything I/O' products. 
