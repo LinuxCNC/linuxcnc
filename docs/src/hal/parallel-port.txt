@@ -48,7 +48,7 @@ used. 'SPP' mode is most likely to work.
 
 No other combinations are supported, and a port cannot be changed from
 input to output once the driver is installed. The
-<<fig:Parport-block-diag,Parport Block Diagram>> shows two block diagrams,
+<<fig:parport-block-diag,Parport Block Diagram>> shows two block diagrams,
 one showing the driver when the data group is configured for output, and one
 showing it configured for input.  For 'x' mode, refer to the pin listing of
 'halcmd show pin' for pin direction assignment.
@@ -162,7 +162,7 @@ start LinuxCNC.
 
 
 
-[[fig:Parport-block-diag]]
+[[fig:parport-block-diag]]
 
 .Parport Block Diagram
 
