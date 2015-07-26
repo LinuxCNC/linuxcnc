@@ -162,6 +162,8 @@ include::hal/halui-examples.txt[]
 
 include::common/python-interface.txt[]
 
+include::gui/vismach.txt[]
+
 :leveloffset: 1
 
 = Drivers
