@@ -644,3 +644,41 @@ const char *get_cap(const char *const fname, const char *cap)
     free(cv);
     return NULL;
 }
+
+int rtapi_get_tags(const char *mod_name)
+{
+    char modpath[PATH_MAX];
+    int result = 0, n = 0;
+    char *cp1 = "";
+
+    flavor_ptr flavor = default_flavor();
+
+    if (kernel_threads(flavor)) {
+	if (module_path(modpath, mod_name) < 0) {
+	    perror("module_path");
+	    return -1;
+	}
+    } else {
+	if (get_rtapi_config(modpath,"RTLIB_DIR",PATH_MAX) != 0) {
+	    perror("cant get  RTLIB_DIR ?\n");
+	    return -1;
+	}
+	strcat(modpath,"/");
+	strcat(modpath, flavor->name);
+	strcat(modpath,"/");
+	strcat(modpath,mod_name);
+	strcat(modpath, flavor->mod_ext);
+    }
+    const char **caps = get_caps(modpath);
+
+    char **p = (char **)caps;
+    while (p && *p && strlen(*p)) {
+	cp1 = *p++;
+	if (strncmp(cp1,"HAL=", 4) == 0) {
+	    n = strtol(&cp1[4], NULL, 10);
+	    result |=  n ;
+	}
+    }
+    free(caps);
+    return result;
+}

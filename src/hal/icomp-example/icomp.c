@@ -53,13 +53,16 @@ static struct comp_data *export_observer_pins(int owner_id, const char *name);
 
 
 // thread function - equivalent to FUNCTION(_) in comp
-static void funct(void *arg, long period)
+// see lutn.c:lut() for discussion of the extended API and its advantages
+static int funct(void *arg, const hal_funct_args_t *fa)
 {
     // use the instance pointer passed in halinst_export_funct()
     struct inst_data *ip = arg;
 
     *(ip->out) = *(ip->in);
     ip->iter++;
+
+    return 0; // extended thread functs return a value
 }
 
 // init HAL objects
@@ -78,10 +81,17 @@ static int export_halobjs(struct inst_data *ip, int owner_id, const char *name)
     if (hal_pin_s32_newf(HAL_OUT, &ip->prefix_len, owner_id, "%s.prefix_len", name))
 	return -1;
 
-    // export a thread function, passing the pointer to the instance's HAL memory blob
-    if (hal_export_functf(funct, ip, 0, 0, owner_id, "%s.funct", name))
-	return -1;
-    return 0;
+    // exporting '<instname>.funct' as an extended thread function
+    // see lutn.c for a discussion of advantages
+    hal_export_xfunct_args_t xfunct_args = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = funct,
+        .arg = ip,  // the instance's HAL memory blob
+        .uses_fp = 1,
+        .reentrant = 0,
+        .owner_id = owner_id
+    };
+    return hal_export_xfunctf(&xfunct_args, "%s.funct", name);
 }
 
 // constructor - init all HAL pins, params, funct etc here
@@ -96,12 +106,14 @@ static int instantiate(const char *name, const int argc, const char**argv)
     if (inst_id < 0)
 	return -1;
 
-    // here ip is guaranteed to point to a blob of HAL memory of size sizeof(struct inst_data).
+    // here ip is guaranteed to point to a blob of HAL memory
+    // of size sizeof(struct inst_data).
     HALERR("inst=%s argc=%d\n", name, argc);
     HALERR("instance parms: repeat=%d prefix='%s'", repeat, prefix);
     HALERR("module parms: answer=%d text='%s'", answer, text);
 
-    // these pins/params/functs will be owned by the instance, and can be separately exited
+    // these pins/params/functs will be owned by the instance,
+    // and can be separately exited 'halcmd delinst <instancename>'
     int retval = export_halobjs(ip, inst_id, name);
 
     // unittest: echo instance parameters into observer pins
@@ -112,12 +124,15 @@ static int instantiate(const char *name, const int argc, const char**argv)
     return retval;
 }
 
-// custom destructor - normally not needed
-// pins, params, and functs are automatically deallocated regardless if a
-// destructor is used or not (see below)
+// custom destructor
+// pins, params, and functs are automatically deallocated by hal_exit(comp_id)
+// regardless if a destructor is used or not (see below), so usually it is not
+// needed
 //
-// some objects like vtables, rings, threads are not owned by a component
-// interaction with such objects may require a custom destructor for
+// however, some objects like vtables, rings, threads, signals are not owned by
+// a component, hence cannot be automatically exited by hal_exit() even if desired
+//
+// interaction with such objects may require a custom destructor like below for
 // cleanup actions
 
 // NB: if a customer destructor is used, it is called
@@ -145,25 +160,25 @@ int rtapi_app_main(void)
     // to use default destructor, use NULL instead of delete
     comp_id = hal_xinit(TYPE_RT, 0, 0, instantiate, delete, compname);
     if (comp_id < 0)
-	return -1;
+	return comp_id;
 #if 0
+    // this is how an 'instance' would have been done in the legacy way
     struct inst_data *ip = hal_malloc(sizeof(struct inst_data));
-
-    // traditional behavior: these pins/params/functs will be owned by the component
-    // NB: this 'instance' cannot be exited
+    // these pins/params/functs will be owned by the component
+    // NB: this 'instance' cannot be exited, and no new one created on the fly
     if (export_halobjs(ip, comp_id, "foo"))
 	return -1;
 #endif
-    // unittest only
+    // unittest only, see nosetests/unittest_instbindings.py and
+    //    nosetests/unittest_icomp.py
+    // purpose: echo module params into observer pins
+    // (cant set pins to strings, so just echo the string length)
     if ((cd = export_observer_pins(comp_id, compname)) == NULL)
 	return -1;
-
-    hal_ready(comp_id);
-
-    // unittest only: echo module params into observer pins
-    // (cant set pins to strings, so just echo the string length)
     *(cd->answer_value) = answer;
     *(cd->text_len) = strlen(text);
+
+    hal_ready(comp_id);
     return 0;
 }
 

@@ -63,7 +63,7 @@ cdef class Signals:
 
     def __delitem__(self, char *name):
         hal_required()
-
+        del self.sigs[name]
         r = hal_signal_delete(name)
         if r:
             raise RuntimeError("hal_signal_delete %s failed: %d %s" % (name, r, hal_lasterror()))
