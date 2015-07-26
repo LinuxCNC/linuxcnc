@@ -337,7 +337,12 @@ void free_inst_struct(hal_inst_t * inst)
 	//NB - pins, params etc still intact
 	// this instance is owned by this comp, call destructor
 	HALDBG("calling custom destructor(%s,%s)", comp->name, inst->name);
+
+	// for the time being (until the halg_ API is fully merged), unlock HAL
+	// while calling the dtor
+	rtapi_mutex_give(&(hal_data->mutex));
 	comp->dtor(inst->name, SHMPTR(inst->inst_data_ptr), inst->inst_size);
+	rtapi_mutex_get(&(hal_data->mutex));
     }
 #endif /* RTAPI */
 
