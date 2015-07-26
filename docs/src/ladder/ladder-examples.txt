@@ -14,7 +14,7 @@ counter preset the counter reset is triggered and the value is now 0.
 The underflow output %Q2 will set the counter value at the preset when
 counting backwards.
 
-.Wrapping Counter[[fig:Wrapping-Counter]]
+.Wrapping Counter
 
 image::images/wrapping-counter.png[align="center"]
 
@@ -29,7 +29,7 @@ duration of the time setting. Using a normally closed contact %TM0.Q
 the output of the timer blocks any further inputs from reaching our
 output until it times out.
 
-.Reject Extra Pulse[[fig:Reject-Extra-Pulse]]
+.Reject Extra Pulse
 
 image::images/extra-pulse-reject.png[align="center"]
 

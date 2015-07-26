@@ -45,7 +45,7 @@ There are five main components to the LinuxCNC software:
 * a graphical user interface.
 * a hardware abstraction layer (HAL)
 
-.Simple LinuxCNC Controlled Machine[[fig:Typical_machine]]
+.Simple LinuxCNC Controlled Machine
 
 image::images/whatstep1.png[align="center"]
 
@@ -68,19 +68,19 @@ interfaces:
 
 * <<cha:axis-gui,'Axis'>>, the standard GUI interface.
 
-.Axis GUI[[fig:The-Axis-GUI]]
+.Axis GUI
 
 image::images/axis-2.5.png[align="center"]
 
 * <<cha:gmoccapy,'gmoccapy'>>, A industrial like GUI.
 
-.Gmoccapy[[fig:Gmoccapy]]
+.Gmoccapy
 
 image::images/gmoccapy_4_axis.png[align="center"]
 
 * <<cha:touchy-gui,'Touchy'>>, a touch screen GUI.
 
-.Touchy GUI[[fig:touchy-gui]]
+.Touchy GUI
 
 image::images/touchy.png[align="center"]
 
@@ -88,26 +88,26 @@ image::images/touchy.png[align="center"]
    programming of G code. It also supports concatenation of subroutine files
    to enable you to build a complete G code file without programming.
 
-.NGCGUI GUI embedded into Axis[[fig:ngcgui-gui]]
+.NGCGUI GUI embedded into Axis
 
 image::images/ngcgui.png[align="center"]
 
 * <<cha:mini-gui,'Mini'>>, a Tcl/Tk-based GUI 
 
-.The Mini GUI[[fig:The-Mini-GUI]]
+.The Mini GUI
 
 image::images/mini.png[align="center"]
 
 * <<cha:tklinuxcnc-gui,'TkLinuxCNC'>>, a Tcl/Tk-based GUI
 
-.The TkLinuxCNC GUI[[fig:The-TkLinuxCNC-GUI]]
+.The TkLinuxCNC GUI
 
 image::images/tkemc.png[align="center"]
 
 * <<cha:keystick-gui,'Keystick'>>, a character-based screen graphics program
   suitable for minimal installations (without the X server running).
 
-.The Keystick GUI[[fig:The-Keystick-GUI]]
+.The Keystick GUI
 
 image::images/keystick.png[align="center"]
 
@@ -127,14 +127,14 @@ image::images/keystick.png[align="center"]
 * 'PyVCP' a python based virtual control panel that can be added to the
    Axis GUI or be stand alone.
 
-.PyVCP with Axis[[fig:pyvcp-with-axis]]
+.PyVCP with Axis
 
 image::images/axis-pyvcp.png[align="center"]
 
 * 'GladeVCP' - a glade based virtual control panel that can be added to
    the Axis GUI or be stand alone.
 
-.GladeVCP with Axis[[fig:gladevcp-with-axis]]
+.GladeVCP with Axis
 
 image::images/axis-gladevcp.png[align="center"]
 

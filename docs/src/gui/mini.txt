@@ -22,7 +22,7 @@ Operators Manual.]
 
 == Screen layout
 
-.Mini Display for a Running LinuxCNC[[fig:runmini]]
+.Mini Display for a Running LinuxCNC
 
 image::images/mini02.png[align="center"]
 
