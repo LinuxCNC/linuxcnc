@@ -26,8 +26,8 @@ timeout = 50.0
 interval = 0.1
 
 try:
-    c = hal.Ring("pbring.0.in")
-    r = hal.Ring("pbring.0.out")
+    c = hal.Ring("first.in")
+    r = hal.Ring("first.out")
 except Exception,e:
     print e
 
