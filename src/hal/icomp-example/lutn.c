@@ -50,8 +50,20 @@ RTAPI_IP_INT(function, "lookup function - see man lut5");
 static int inputs = 0;
 RTAPI_IP_INT(inputs, "number of input pins, in0..inN");
 
-static void lutn(void *arg, long period)
+static void lutn(void *arg, const hal_funct_args_t *fa)
 {
+    // using the extended thread function export call makes the following
+    // context visible here:
+    //   fa_period(fa)            the period parameter in the legacy signature
+    //   fa_start_time(fa)        the start time of this function
+    //   fa_thread_start_time(fa) the start time of the first function in the funct chain
+    //   fa_thread_name(fa)       the name of the calling thread
+    //   fa_funct_name(fa)        the name of this funct
+    // otherwise it is fully backwards compatible.
+    // This makes - among others - timing data available 'for free' if needed.
+    // see hal_export_xfunctf() below for the usage difference to hal_export_functf().
+
+    // pointer to the instance data blob, as allocated by hal_inst_create()
     struct inst_data *ip = arg;
 
     int shift = 0, i;
@@ -68,8 +80,6 @@ static int instantiate_lutn(const char *name,
 {
     struct inst_data *ip;
     int i, inst_id;
-
-
 
     if ((inputs < 1) || (inputs > 5)) {
 	hal_print_msg(RTAPI_MSG_ERR,
@@ -102,9 +112,20 @@ static int instantiate_lutn(const char *name,
 	    return -1;
     if (hal_pin_bit_newf(HAL_OUT, &(ip->out), inst_id, "%s.out", name))
 	return -1;
-   if (hal_export_functf(lutn, ip, 0, 0, inst_id, "%s.funct", name))
-	return -1;
-    return 0;
+
+    // exporting 'lutn' as an extended thread function
+    // this has the advantage of better context exposure in the thread function
+    // (e.g thread and funct name, timing information etc)
+    // it is fully backwards compatible and the recommened way of doing an export
+    hal_export_xfunct_args_t xfunct_args = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = write,
+        .arg = ip,
+        .uses_fp = 0,
+        .reentrant = 0,
+        .owner_id = inst_id
+    };
+    return hal_export_xfunctf(xfunct_args, "%s.funct", name))
 }
 
 
@@ -112,7 +133,7 @@ int rtapi_app_main(void)
 {
     comp_id = hal_xinit(TYPE_RT, 0, 0, instantiate_lutn, NULL, compname);
     if (comp_id < 0)
-	return -1;
+	return comp_id;
 
     hal_ready(comp_id);
     return 0;
