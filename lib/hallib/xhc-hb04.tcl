@@ -1,8 +1,7 @@
 # xhc-hb04.tcl: HALFILE for xhc-hb04 pendant
 
 # library procs:
-set hallib_dir [exec linuxcnc_var HALLIB_DIR]
-source [file join $hallib_dir hal_procs_lib.tcl]
+source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 
 # Usage:
 # In ini file, include:
@@ -399,7 +398,8 @@ if { [namespace exists ::tp] && ([::tp::passnumber] == 0) } {
   puts "$::progname: suppressing messages in twopass pass0"
 }
 
-set cfg LIB:xhc-hb04-layout2.cfg ;# default
+set libtag "LIB:"
+set cfg ${libtag}xhc-hb04-layout2.cfg ;# default
 
 if ![info exists ::HAL(HALUI)] {
   err_exit "\[HAL\]HALUI is not set"
@@ -417,8 +417,8 @@ foreach name [array names ::XHC_HB04_CONFIG] {
 
 if [info exists ::XHC_HB04_CONFIG(layout)] {
   switch ${::XHC_HB04_CONFIG(layout)} {
-    1 {set cfg LIB:xhc-hb04-layout1.cfg}
-    2 {set cfg LIB:xhc-hb04-layout2.cfg}
+    1 {set cfg ${libtag}xhc-hb04-layout1.cfg}
+    2 {set cfg ${libtag}xhc-hb04-layout2.cfg}
     default {
       set msg "Nonstandard layout:<$::XHC_HB04_CONFIG(layout)>"
       set cfg $::XHC_HB04_CONFIG(layout)
@@ -429,13 +429,8 @@ if [info exists ::XHC_HB04_CONFIG(layout)] {
   }
 }
 
-set libtag "LIB:"
-# test for LIB:filename
-if {[string first "LIB:" $cfg] == 0} {
-   set cfg [string range $cfg [string len $libtag] end]
-   set cfg [file join $::env(HALLIB_DIR) $cfg]
-   puts "$::progname: LIB file: $cfg"
-}
+# .cfg files use same search path as halfiles
+set cfg [find_file_in_hallib_path $cfg]
 
 if ![file exists $cfg] {
   set msg "Cannot find file: <$cfg>\nCannot configure pendant\n"
