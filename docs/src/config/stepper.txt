@@ -25,8 +25,6 @@ Most of this chapter is based on the sample config released along with
 LinuxCNC. The config is called stepper(((stepper))), and usually it is
 found in '/etc/emc2/sample-configs/stepper'.
 
-[[sec:Maximum-step-rate]](((step rate)))
-
 == Maximum step rate
 
 With software step generation, the maximum step rate is one step per
@@ -49,8 +47,6 @@ If no valid combination of BASE_PERIOD, INPUT_SCALE, and MAX_VELOCITY
 is acceptable, then consider using hardware step generation (such as
 with the LinuxCNC-supported Universal Stepper Controller, Mesa cards, and
 others.)
-
-[[sec:Pinout]](((pinout)))
 
 == Pinout
 
@@ -77,9 +73,7 @@ either standard_pinout.hal or xylotex_pinout.hal. These are two files
 that instruct the HAL how to link the various signals & pins. Further
 on we'll investigate the standard_pinout.hal.
 
-[[sub:standard_pinout.hal]](((standard pinout)))
-
-=== standard_pinout.hal
+=== Standard Pinout HAL
 
 This file contains several HAL commands, and usually looks like this:
 
@@ -166,8 +160,6 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 The lines starting with '#' are comments, and their only purpose is to
 guide the reader through the file.
 
-[[sub:Overview-standard_pinout.hal]]
-
 === Overview
 
 There are a couple of operations that get executed when the
@@ -182,8 +174,6 @@ standard_pinout.hal gets executed/interpreted:
    parport
 * Further I/O signals get connected (estop loopback, toolchanger loopback)
 * A spindle-on signal gets defined and linked to a parport pin
-
-[[sub:Changing-standard_pinout.hal]]
 
 === Changing the standard_pinout.hal
 
@@ -211,8 +201,6 @@ or basically any other 'out' pin you like.
 Hint: make sure you don't have more than one signal connected to the
 same pin.
 
-[[sub:Changing-the-polarity]](((signal polarity)))
-
 === Changing polarity of a signal
 
 If external hardware expects an “active low” signal, set the
@@ -222,8 +210,6 @@ control signal:
 ----
 setp parport.0.pin-09-invert TRUE
 ----
-
-[[sub:PWM-Spindle-Speed]](((spindle speed control)))
 
 === Adding PWM Spindle Speed Control
 
@@ -245,8 +231,6 @@ This assumes that the spindle controller's response to PWM is simple:
 PWM required to get the spindle to turn, follow the example in the
 'nist-lathe' sample configuration to use a 'scale' component.
 
-[[sub:Adding-enable-signal]](((enable signal)))
-
 === Adding an enable signal
 
 Some amplifiers (drives) require an enable signal before they accept
@@ -265,31 +249,7 @@ when one axis faults, all the other drives will be disabled as well, so
 having only one enable signal / pin for all drives is a common
 practice.
 
-=== External ESTOP button(((ESTOP)))
+=== External ESTOP button
 
-As you can see in the <<sub:standard_pinout.hal,standard_pinout.hal>> file 
-by default the stepper configuration assumes no external ESTOP button.
-footnote:[An extensive explanation of hooking up ESTOP circuitry is explained
-in the wiki.linuxcnc.org and elsewhere in the Integrator Manual]
-
-To add a simple external button you need to replace the line:
-
-----
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
-----
-
-with
-
-----
-net estop-loop parport.0.pin-01-in iocontrol.0.emc-enable-in
-----
-
-This assumes an ESTOP switch connected to pin 01 on the parport. As
-long as the switch will stay pushedfootnote:[make sure you use a
-maintained switch for ESTOP.], LinuxCNC will be in the ESTOP state. 
-When the external button gets 
-released LinuxCNC will immediately switch to the ESTOP-RESET state, and all
-you need to do is switch to Machine On(((machine on))) and you'll be
-able to continue your work with LinuxCNC. 
-
-
+The standard_pinout.hal file assumes no external ESTOP button. For more 
+information on an external E-Stop see the estop_latch man page.
