@@ -650,9 +650,16 @@ static int harden_rt()
     sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
 
     int fd = open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);
+    if (fd < 0) {
+        rtapi_print_msg(RTAPI_MSG_WARN, "failed to open /dev/cpu_dma_latency: %s\n", strerror(errno));
+    }
     setfsuid(getuid());
     if(fd >= 0) {
-        write(fd, "\0\0\0\0", 4);
+        int r;
+        r = write(fd, "\0\0\0\0", 4);
+        if (r != 4) {
+            rtapi_print_msg(RTAPI_MSG_WARN, "failed to write to /dev/cpu_dma_latency: %s\n", strerror(errno));
+        }
         // deliberately leak fd until program exit
     }
     return 0;

@@ -184,7 +184,13 @@ class Pages:
         self.w.createsimconfig.set_active(self.d.sim_hardware)
 
     def start_finish(self):
-        if not self.w.createconfig.get_active():
+        if self.w.importmach.get_active():
+            print 'Import Mach config'
+            from stepconf import import_mach
+            self.d.load('/tmp/temp.stepconf', self)
+            if not debug:
+                os.remove('/tmp/temp.stepconf')
+        elif not self.w.createconfig.get_active():
             filter = gtk.FileFilter()
             filter.add_pattern("*.stepconf")
             filter.set_name(_("LinuxCNC 'stepconf' configuration files"))

@@ -41,14 +41,14 @@ Up to 3 boards may be used in one system.
 
 The following connectors can be found on the GM6-PCI card:
 
-.GM6-PCI card connectors and LEDs(((pci-card connectors)))[[fig:PCI-card-connectors]]
+.GM6-PCI card connectors and LEDs(((pci-card connectors)))
 
 image::images/GM_PCIpinout.png[align="center",scaledwidth="70%"]
 
 
 == I/O connectors
 
-.Pin numbering of GPIO connectors(((pin-numbering-gpio)))[[fig:pin-numbering-gpio]]
+.Pin numbering of GPIO connectors(((pin-numbering-gpio)))
 
 image::images/GM_IOpinout.png[align="center"]
 
@@ -113,7 +113,7 @@ gm.<nr of card>.read
 
 == Axis connectors
 
-.Pin numbering of axis connectors(((pin-numbering-axis)))[[fig:pin-numbering-axis]]
+.Pin numbering of axis connectors(((pin-numbering-axis)))
 
 image::images/GM_AXISpinout.png[align="center"]
 
@@ -145,7 +145,7 @@ Axis modules can be found in the System integration manual.
 For evaluating the appropriate servo-drive structure the modules 
 have to be connected as the following block diagram shows:
 
-.Servo axis interfaces(((axis-iterface)))[[fig:axis-iterface]]
+.Servo axis interfaces(((axis-iterface)))
 
 image::images/GM_AxisInterface.png[align="center", scaledwidth="100%"]
 
@@ -339,7 +339,7 @@ gm.<nr of card>.write
 
 For evaluating the appropriate values see the timing diagrams below:
 
-.Reference signal timing diagrams(((refsig-timing-diagram)))[[fig:refsig-timing-diagram]]
+.Reference signal timing diagrams(((refsig-timing-diagram)))
 
 image::images/GM_RefSignals.png[align="center", scaledwidth="70%"]
 
@@ -563,7 +563,7 @@ Watchdog timer overrun causes the set of power-enable to low in hardware.
 
 == End-, homing- and E-stop switches
 
-.Pin numbering of homing & end switch connector(((pin-numbering-endsw)))[[fig:pin-numbering-endsw]]
+.Pin numbering of homing & end switch connector(((pin-numbering-endsw)))
 
 image::images/GM_ENDSWpinout.png[align="center"]
 
@@ -698,7 +698,7 @@ The modules on the bus have to be connected in serial topology, with
 termination resistors on the end. The start of the topology is the PCI 
 card, and the end is the last module.
 
-.Connecting the RS485 nodes to the GM6-PCI card(((connecting-rs485)))[[fig:connecting-rs485]]
+.Connecting the RS485 nodes to the GM6-PCI card(((connecting-rs485)))
 
 image::images/GM_RS485topology.png[align="center", scaledwidth="60%"]
 

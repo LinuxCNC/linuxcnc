@@ -33,6 +33,7 @@
 
 #include <rtapi_slab.h>
 #include <rtapi_ctype.h>
+#include <rtapi_list.h>
 
 #include "rtapi.h"
 #include "rtapi_app.h"
@@ -43,7 +44,38 @@
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
 #include "hm2_eth.h"
-#include "lbp16.h"
+
+struct kvlist {
+    struct rtapi_list_head list;
+    char key[16];
+    int value;
+};
+
+static struct rtapi_list_head board_num;
+static struct rtapi_list_head ifnames;
+
+static int *kvlist_lookup(struct rtapi_list_head *head, const char *name) {
+    struct rtapi_list_head *ptr;
+    rtapi_list_for_each(ptr, head) {
+        struct kvlist *ent = rtapi_list_entry(ptr, struct kvlist, list);
+        if(strncmp(name, ent->key, sizeof(ent->key)) == 0) return &ent->value;
+    }
+    struct kvlist *ent = rtapi_kzalloc(sizeof(struct kvlist), RTAPI_GPF_KERNEL);
+    strncpy(ent->key, name, sizeof(ent->key));
+    rtapi_list_add(&ent->list, head);
+    return &ent->value;
+}
+
+static void kvlist_free(struct rtapi_list_head *head) {
+    struct rtapi_list_head *orig_head = head;
+    for(head = head->next; head != orig_head;) {
+        struct rtapi_list_head *ptr = head;
+        head = head->next;
+        struct kvlist *ent = rtapi_list_entry(ptr, struct kvlist, list);
+        rtapi_list_del(ptr);
+        rtapi_kfree(ent);
+    }
+}
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Geszkiewicz");
@@ -52,8 +84,8 @@ MODULE_DESCRIPTION("Driver for HostMot2 on the 7i80 Anything I/O board from Mesa
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-7i80");
 #endif
 
-static char *board_ip;
-RTAPI_MP_STRING(board_ip, "ip address of ethernet board(s)");
+static char *board_ip[MAX_ETH_BOARDS];
+RTAPI_MP_ARRAY_STRING(board_ip, MAX_ETH_BOARDS, "ip address of ethernet board(s)");
 
 static char *config[MAX_ETH_BOARDS];
 RTAPI_MP_ARRAY_STRING(config, MAX_ETH_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
@@ -61,7 +93,6 @@ RTAPI_MP_ARRAY_STRING(config, MAX_ETH_BOARDS, "config string for the AnyIO board
 int debug = 0;
 RTAPI_MP_INT(debug, "Developer/debug use only!  Enable debug logging.");
 
-static hm2_eth_t boards[MAX_ETH_BOARDS];
 static int boards_count = 0;
 
 int comm_active = 0;
@@ -73,26 +104,10 @@ static int comp_id;
 #define RECV_TIMEOUT_US 10
 #define READ_PCK_DELAY_NS 10000
 
-static int sockfd = -1;
-static struct sockaddr_in local_addr;
-static struct sockaddr_in server_addr;
-
-static lbp16_cmd_addr read_packet;
-
-read_queue_entry_t queue_reads[MAX_ETH_READS];
-lbp16_cmd_addr queue_packets[MAX_ETH_READS];
-int queue_reads_count = 0;
-int queue_buff_size = 0;
-
-static rtapi_u8 write_packet[1400];
-void *write_packet_ptr = &write_packet;
-int write_packet_size = 0;
-int read_cnt = 0;
-int write_cnt = 0;
+static hm2_eth_t boards[MAX_ETH_BOARDS];
 
 /// ethernet io functions
 
-struct arpreq req;
 static int eth_socket_send(int sockfd, const void *buffer, int len, int flags);
 static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 
@@ -163,10 +178,18 @@ static char* inet_ntoa_buf(struct in_addr in, char *buf, size_t n) {
     return buf;
 }
 
-static char* fetch_ifname(struct sockaddr_in srcaddr, char *buf, size_t n) {
+static char* fetch_ifname(int sockfd, char *buf, size_t n) {
+    struct sockaddr_in srcaddr;
     struct ifaddrs *ifa, *it;
 
-    if(getifaddrs(&ifa) < 0) return NULL;
+    socklen_t addrlen = sizeof(srcaddr);
+    int res = getsockname(sockfd, &srcaddr, &addrlen);
+    if(res < 0) return NULL;
+
+    if(getifaddrs(&ifa) < 0) {
+        perror("getifaddrs");
+        return NULL;
+    }
 
     for(it=ifa; it; it=it->ifa_next) {
         struct sockaddr_in *ifaddr = (struct sockaddr_in*)it->ifa_addr;
@@ -218,10 +241,9 @@ static int install_iptables_rule(const char *fmt, ...) {
     return -EINVAL;
 }
 
-static int install_iptables(int sockfd) {
+static int install_iptables_board(int sockfd) {
     struct sockaddr_in srcaddr, dstaddr;
     char srchost[16], dsthost[16]; // enough for 255.255.255.255\0
-    char ifbuf[64]; // more than enough for eth0
 
     socklen_t addrlen = sizeof(srcaddr);
     int res = getsockname(sockfd, &srcaddr, &addrlen);
@@ -237,16 +259,18 @@ static int install_iptables(int sockfd) {
         ntohs(dstaddr.sin_port),
         inet_ntoa_buf(srcaddr.sin_addr, srchost, sizeof(srchost)),
         ntohs(srcaddr.sin_port));
-    if(res < 0) return res;
+    return res;
+}
 
+static int install_iptables_perinterface(const char *ifbuf) {
     // without this rule, 'ping' spews a lot of messages like
     //    From 192.168.1.1 icmp_seq=5 Packet filtered
     // many times for each ping packet sent.  With this rule,
     // ping prints 'ping: sendmsg: Operation not permitted' once
     // per second.
-    res = install_iptables_rule(
+    int res = install_iptables_rule(
         "-o %s -p icmp -j DROP",
-        fetch_ifname(srcaddr, ifbuf, sizeof(ifbuf)));
+        ifbuf);
     if(res < 0) return res;
 
     res = install_iptables_rule(
@@ -260,7 +284,7 @@ static int install_iptables(int sockfd) {
     return 0;
 }
 
-static int fetch_hwaddr(int sockfd, unsigned char buf[6]) {
+static int fetch_hwaddr(const char *board_ip, int sockfd, unsigned char buf[6]) {
     lbp16_cmd_addr packet;
     unsigned char response[6];
     LBP16_INIT_PACKET4(packet, 0x4983, 0x0002);
@@ -276,38 +300,34 @@ static int fetch_hwaddr(int sockfd, unsigned char buf[6]) {
     // eeprom order is backwards from arp AF_LOCAL order
     for(i=0; i<6; i++) buf[i] = response[5-i];
 
-    LL_PRINT("Hardware address: %02x:%02x:%02x:%02x:%02x:%02x\n",
-        buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+    LL_PRINT("%s: Hardware address: %02x:%02x:%02x:%02x:%02x:%02x\n",
+        board_ip, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
 
     return 0;
 }
 
-static int init_net(void) {
+static int init_board(hm2_eth_t *board, const char *board_ip) {
     int ret;
 
-    sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
-    if (sockfd < 0) {
+    board->sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
+    if (board->sockfd < 0) {
         LL_PRINT("ERROR: can't open socket: %s\n", strerror(errno));
         return -errno;
     }
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(LBP16_UDP_PORT);
-    server_addr.sin_addr.s_addr = inet_addr(board_ip);
+    board->server_addr.sin_family = AF_INET;
+    board->server_addr.sin_port = htons(LBP16_UDP_PORT);
+    board->server_addr.sin_addr.s_addr = inet_addr(board_ip);
 
-    local_addr.sin_family      = AF_INET;
-    local_addr.sin_addr.s_addr = INADDR_ANY;
+    board->local_addr.sin_family      = AF_INET;
+    board->local_addr.sin_addr.s_addr = INADDR_ANY;
 
-    ret = connect(sockfd, (struct sockaddr *) &server_addr, sizeof(struct sockaddr_in));
+    ret = connect(board->sockfd, (struct sockaddr *) &board->server_addr, sizeof(struct sockaddr_in));
     if (ret < 0) {
         LL_PRINT("ERROR: can't connect: %s\n", strerror(errno));
         return -errno;
     }
 
-    if(use_iptables()) {
-        LL_PRINT("Using iptables for exclusive access to network interface\n")
-        // firewall has to be open in order to successfully arp the board
-        clear_iptables();
-    } else {
+    if(!use_iptables()) {
         LL_PRINT(\
 "WARNING: Unable to restrict other access to the hm2-eth device.\n"
 "This means that other software using the same network interface can violate\n"
@@ -318,58 +338,60 @@ static int init_net(void) {
     timeout.tv_sec = 0;
     timeout.tv_usec = RECV_TIMEOUT_US;
 
-    ret = setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
+    ret = setsockopt(board->sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
         LL_PRINT("ERROR: can't set socket option: %s\n", strerror(errno));
         return -errno;
     }
 
     timeout.tv_usec = SEND_TIMEOUT_US;
-    setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
+    setsockopt(board->sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
         LL_PRINT("ERROR: can't set socket option: %s\n", strerror(errno));
         return -errno;
     }
 
-    memset(&req, 0, sizeof(req));
+    memset(&board->req, 0, sizeof(board->req));
     struct sockaddr_in *sin;
 
-    sin = (struct sockaddr_in *) &req.arp_pa;
+    sin = (struct sockaddr_in *) &board->req.arp_pa;
     sin->sin_family = AF_INET;
     sin->sin_addr.s_addr = inet_addr(board_ip);
 
-    req.arp_ha.sa_family = AF_LOCAL;
-    req.arp_flags = ATF_PERM | ATF_COM;
-    ret = fetch_hwaddr( sockfd, (void*)&req.arp_ha.sa_data );
+    board->req.arp_ha.sa_family = AF_LOCAL;
+    board->req.arp_flags = ATF_PERM | ATF_COM;
+    ret = fetch_hwaddr( board_ip, board->sockfd, (void*)&board->req.arp_ha.sa_data );
     if(ret < 0) {
-        LL_PRINT("ERROR: Could not retrieve mac address\n");
+        LL_PRINT("ERROR: %s: Could not retrieve mac address\n", board_ip);
         return ret;
     }
 
-    ret = ioctl(sockfd, SIOCSARP, &req);
+    ret = ioctl(board->sockfd, SIOCSARP, &board->req);
     if(ret < 0) {
         perror("ioctl SIOCSARP");
-        req.arp_flags &= ~ATF_PERM;
+        board->req.arp_flags &= ~ATF_PERM;
         return -errno;
     }
 
     if(use_iptables())
     {
-        ret = install_iptables(sockfd);
+        ret = install_iptables_board(board->sockfd);
         if(ret < 0) return ret;
     }
+
+    board->write_packet_ptr = board->write_packet;
 
     return 0;
 }
 
-static int close_net(void) {
+static int close_board(hm2_eth_t *board) {
     if(use_iptables()) clear_iptables();
 
-    if(req.arp_flags & ATF_PERM) {
-        int ret = ioctl(sockfd, SIOCDARP, &req);
+    if(board->req.arp_flags & ATF_PERM) {
+        int ret = ioctl(board->sockfd, SIOCDARP, &board->req);
         if(ret < 0) perror("ioctl SIOCDARP");
     }
-    int ret = shutdown(sockfd, SHUT_RDWR);
+    int ret = shutdown(board->sockfd, SHUT_RDWR);
     if (ret < 0)
         LL_PRINT("ERROR: can't close socket: %s\n", strerror(errno));
 
@@ -387,13 +409,14 @@ static int eth_socket_recv(int sockfd, void *buffer, int len, int flags) {
 /// hm2_eth io functions
 
 static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+    hm2_eth_t *board = this->private;
     int send, recv, i = 0;
     rtapi_u8 tmp_buffer[size + 4];
     long long t1, t2;
 
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
-    read_cnt++;
+    board->read_cnt++;
 
     if(rtapi_task_self() >= 0) {
         static bool printed = false;
@@ -404,25 +427,27 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
         }
     }
 
+    lbp16_cmd_addr read_packet;
+
     LBP16_INIT_PACKET4(read_packet, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr & 0xFFFF);
 
-    send = eth_socket_send(sockfd, (void*) &read_packet, sizeof(read_packet), 0);
+    send = eth_socket_send(board->sockfd, (void*) &read_packet, sizeof(read_packet), 0);
     if(send < 0)
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
-    LL_PRINT_IF(debug, "read(%d) : PACKET SENT [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", read_cnt, read_packet.cmd_hi, read_packet.cmd_lo,
+    LL_PRINT_IF(debug, "read(%d) : PACKET SENT [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", board->read_cnt, read_packet.cmd_hi, read_packet.cmd_lo,
       read_packet.addr_lo, read_packet.addr_hi, size);
     t1 = rtapi_get_time();
     do {
-        rtapi_delay(READ_PCK_DELAY_NS);
-        recv = eth_socket_recv(sockfd, (void*) &tmp_buffer, size, 0);
+        recv = eth_socket_recv(board->sockfd, (void*) &tmp_buffer, size, 0);
+        if(recv < 0) rtapi_delay(READ_PCK_DELAY_NS);
         t2 = rtapi_get_time();
         i++;
     } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
 
     if (recv == 4) {
-        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [DATA: %08X | SIZE: %d | TRIES: %d | TIME: %llu]\n", read_cnt, *tmp_buffer, recv, i, t2 - t1);
+        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [DATA: %08X | SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, *tmp_buffer, recv, i, t2 - t1);
     } else {
-        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", read_cnt, recv, i, t2 - t1);
+        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, recv, i, t2 - t1);
     }
     if (recv < 0)
         return 0;
@@ -430,41 +455,58 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
     return 1;  // success
 }
 
+static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
+    hm2_eth_t *board = this->private;
+    int send;
+
+    board->read_cnt++;
+    send = eth_socket_send(board->sockfd, (void*) &board->queue_packets, sizeof(lbp16_cmd_addr)*board->queue_reads_count, 0);
+    if(send < 0) {
+        LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
+        return 0;
+    }
+    return 1;
+}
+
+static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
+    hm2_eth_t *board = this->private;
+    int recv, i = 0;
+    rtapi_u8 tmp_buffer[board->queue_buff_size];
+    long long t1, t2;
+    t1 = rtapi_get_time();
+    do {
+        errno = 0;
+        recv = eth_socket_recv(board->sockfd, (void*) &tmp_buffer, board->queue_buff_size, 0);
+        if(recv < 0) rtapi_delay(READ_PCK_DELAY_NS);
+        t2 = rtapi_get_time();
+        i++;
+    } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
+    if(recv != board->queue_buff_size) {
+        LL_PRINT("enqueue_read ERROR: reading packet: recv() -> %d %s (expected to read %d bytes)\n", recv, strerror(errno), board->queue_buff_size);
+        return 0;
+    }
+    LL_PRINT_IF(debug, "enqueue_read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, recv, i, t2 - t1);
+
+    for (i = 0; i < board->queue_reads_count; i++) {
+        memcpy(board->queue_reads[i].buffer, &tmp_buffer[board->queue_reads[i].from], board->queue_reads[i].size);
+    }
+
+    board->queue_reads_count = 0;
+    board->queue_buff_size = 0;
+    return 1;
+}
+
 static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+    hm2_eth_t *board = this->private;
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
-    if (size == -1) {
-        int send, recv, i = 0;
-        long long t1, t2;
-        rtapi_u8 tmp_buffer[queue_buff_size];
-
-        read_cnt++;
-        send = eth_socket_send(sockfd, (void*) &queue_packets, sizeof(lbp16_cmd_addr)*queue_reads_count, 0);
-        if(send < 0)
-            LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
-        t1 = rtapi_get_time();
-        do {
-            rtapi_delay(READ_PCK_DELAY_NS);
-            recv = eth_socket_recv(sockfd, (void*) &tmp_buffer, queue_buff_size, 0);
-            t2 = rtapi_get_time();
-            i++;
-        } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
-        LL_PRINT_IF(debug, "enqueue_read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", read_cnt, recv, i, t2 - t1);
-
-        for (i = 0; i < queue_reads_count; i++) {
-            memcpy(queue_reads[i].buffer, &tmp_buffer[queue_reads[i].from], queue_reads[i].size);
-        }
-
-        queue_reads_count = 0;
-        queue_buff_size = 0;
-    } else {
-        LBP16_INIT_PACKET4(queue_packets[queue_reads_count], CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
-        queue_reads[queue_reads_count].buffer = buffer;
-        queue_reads[queue_reads_count].size = size;
-        queue_reads[queue_reads_count].from = queue_buff_size;
-        queue_reads_count++;
-        queue_buff_size += size;
-    }
+    // XXX this is missing a check for exceeding the maximum packet size!
+    LBP16_INIT_PACKET4(board->queue_packets[board->queue_reads_count], CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
+    board->queue_reads[board->queue_reads_count].buffer = buffer;
+    board->queue_reads[board->queue_reads_count].size = size;
+    board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
+    board->queue_reads_count++;
+    board->queue_buff_size += size;
     return 1;
 }
 
@@ -482,63 +524,78 @@ static int hm2_eth_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, 
 
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
-    write_cnt++;
+    hm2_eth_t *board = this->private;
+    board->write_cnt++;
 
     memcpy(packet.tmp_buffer, buffer, size);
     LBP16_INIT_PACKET4(packet.wr_packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr & 0xFFFF);
 
-    send = eth_socket_send(sockfd, (void*) &packet, sizeof(lbp16_cmd_addr) + size, 0);
+    send = eth_socket_send(board->sockfd, (void*) &packet, sizeof(lbp16_cmd_addr) + size, 0);
     if(send < 0)
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
-    LL_PRINT_IF(debug, "write(%d): PACKET SENT [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", write_cnt, packet.wr_packet.cmd_hi, packet.wr_packet.cmd_lo,
+    LL_PRINT_IF(debug, "write(%d): PACKET SENT [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", board->write_cnt, packet.wr_packet.cmd_hi, packet.wr_packet.cmd_lo,
       packet.wr_packet.addr_lo, packet.wr_packet.addr_hi, size);
 
     return 1;  // success
 }
 
-static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
-    if (comm_active == 0) return 1;
-    if (size == 0) return 1;
-    if (size == -1) {
-        int send;
-        long long t0, t1;
+static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
+    int send;
+    long long t0, t1;
+    hm2_eth_t *board = this->private;
 
-        write_cnt++;
-        t0 = rtapi_get_time();
-        send = eth_socket_send(sockfd, (void*) &write_packet, write_packet_size, 0);
-        if(send < 0)
-            LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
-        t1 = rtapi_get_time();
-        LL_PRINT_IF(debug, "enqueue_write(%d) : PACKET SEND [SIZE: %d | TIME: %llu]\n", write_cnt, send, t1 - t0);
-        write_packet_ptr = &write_packet;
-        write_packet_size = 0;
-    } else {
-        lbp16_cmd_addr *packet = (lbp16_cmd_addr *) write_packet_ptr;
-
-        LBP16_INIT_PACKET4_PTR(packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr);
-        write_packet_ptr += sizeof(*packet);
-        memcpy(write_packet_ptr, buffer, size);
-        write_packet_ptr += size;
-        write_packet_size += (sizeof(*packet) + size);
+    board->write_cnt++;
+    t0 = rtapi_get_time();
+    send = eth_socket_send(board->sockfd, (void*) &board->write_packet, board->write_packet_size, 0);
+    if(send < 0) {
+        LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
+        return 0;
     }
+    t1 = rtapi_get_time();
+    LL_PRINT_IF(debug, "enqueue_write(%d) : PACKET SEND [SIZE: %d | TIME: %llu]\n", board->write_cnt, send, t1 - t0);
+    board->write_packet_ptr = &board->write_packet;
+    board->write_packet_size = 0;
     return 1;
 }
 
-static int hm2_eth_probe() {
+static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+    hm2_eth_t *board = this->private;
+    if (comm_active == 0) return 1;
+    if (size == 0) return 1;
+    lbp16_cmd_addr *packet = (lbp16_cmd_addr *) board->write_packet_ptr;
+
+    // XXX this is missing a check for exceeding the maximum packet size!
+    LBP16_INIT_PACKET4_PTR(packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr);
+    board->write_packet_ptr += sizeof(*packet);
+    memcpy(board->write_packet_ptr, buffer, size);
+    board->write_packet_ptr += size;
+    board->write_packet_size += (sizeof(*packet) + size);
+    return 1;
+}
+
+static int llio_idx(const char *llio_name) {
+    int *idx = kvlist_lookup(&board_num, llio_name);
+    return (*idx)++;
+}
+
+static int hm2_eth_probe(hm2_eth_t *board) {
+    lbp16_cmd_addr read_packet;
+
     int ret, send, recv;
     char board_name[16] = {0, };
     char llio_name[16] = {0, };
-    hm2_eth_t *board;
 
     LBP16_INIT_PACKET4(read_packet, CMD_READ_BOARD_INFO_ADDR16_INCR(16/2), 0);
-    send = eth_socket_send(sockfd, (void*) &read_packet, sizeof(read_packet), 0);
+    send = eth_socket_send(board->sockfd, (void*) &read_packet, sizeof(read_packet), 0);
     if(send < 0)
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
-    recv = eth_socket_recv(sockfd, (void*) &board_name, 16, 0);
+    recv = eth_socket_recv(board->sockfd, (void*) &board_name, 16, 0);
     if(recv < 0)
         LL_PRINT("ERROR: receiving packet: %s\n", strerror(errno));
 
     board = &boards[boards_count];
+    board->llio.private = board;
+    board->llio.split_read = true;
 
     if (strncmp(board_name, "7I80DB-16", 9) == 0) {
         strncpy(llio_name, board_name, 4);
@@ -609,21 +666,42 @@ static int hm2_eth_probe() {
         board->llio.fpga_part_number = "XC6SLX9";
         board->llio.num_leds = 4;
     } else {
-        LL_PRINT("No ethernet board found\n");
-        return -ENODEV;
+        LL_PRINT("Unrecognized ethernet board found: %.16s -- port names will be wrong\n", board_name);
+        strncpy(llio_name, board_name, 4);
+        llio_name[1] = tolower(llio_name[1]);
+
+        // this is a layering violation.  it would be nice if special values
+        // (such as 0 or -1) could be passed here and the layer which can
+        // legitimately read idroms would read the values and store them, but
+        // that wasn't trivial to do.
+        rtapi_u32 read_data;
+        hm2_eth_read(&board->llio, HM2_ADDR_IDROM_OFFSET, &read_data, 4);
+        unsigned int idrom_address = read_data & 0xffff;
+        hm2_idrom_t idrom;
+        hm2_eth_read(&board->llio, idrom_address, &idrom, sizeof(idrom));
+
+        board->llio.num_ioport_connectors = idrom.io_ports;
+        board->llio.pins_per_connector = idrom.port_width;
+        int i;
+        for(i=0; i<board->llio.num_ioport_connectors; i++)
+            board->llio.ioport_connector_name[i] = "??";
+        board->llio.fpga_part_number = "??";
+        board->llio.num_leds = 0;
     }
 
     LL_PRINT("discovered %.*s\n", 16, board_name);
 
-    rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_%.*s.%d", (int)strlen(llio_name), llio_name, boards_count);
+    rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_%.*s.%d", (int)strlen(llio_name), llio_name, llio_idx(llio_name));
 
     board->llio.comp_id = comp_id;
-    board->llio.private = board;
 
     board->llio.read = hm2_eth_read;
     board->llio.write = hm2_eth_write;
     board->llio.queue_read = hm2_eth_enqueue_read;
+    board->llio.send_queued_reads = hm2_eth_send_queued_reads;
+    board->llio.receive_queued_reads = hm2_eth_receive_queued_reads;
     board->llio.queue_write = hm2_eth_enqueue_write;
+    board->llio.send_queued_writes = hm2_eth_send_queued_writes;
 
     ret = hm2_register(&board->llio, config[boards_count]);
     if (ret != 0) {
@@ -632,48 +710,85 @@ static int hm2_eth_probe() {
     }
     boards_count++;
 
-    int val = fcntl(sockfd, F_GETFL);
+    int val = fcntl(board->sockfd, F_GETFL);
     val = val | O_NONBLOCK;
-    fcntl(sockfd, F_SETFL, val);
+    fcntl(board->sockfd, F_SETFL, val);
 
     return 0;
 }
 
 int rtapi_app_main(void) {
-    int ret;
+    RTAPI_INIT_LIST_HEAD(&ifnames);
+    RTAPI_INIT_LIST_HEAD(&board_num);
+
+    int ret, i;
 
     LL_PRINT("loading Mesa AnyIO HostMot2 ethernet driver version " HM2_ETH_VERSION "\n");
 
     ret = hal_init(HM2_LLIO_NAME);
     if (ret < 0)
-        goto error0;
+        return ret;
     comp_id = ret;
 
-    ret = init_net();
-    if (ret < 0)
-        goto error1;
+    if(use_iptables()) clear_iptables();
 
+    for(i = 0, ret = 0; ret == 0 && i<MAX_ETH_BOARDS && board_ip[i] && *board_ip[i]; i++) {
+        ret = init_board(&boards[i], board_ip[i]);
+        if(ret < 0) board_ip[i] = 0;
+    }
+
+    if (ret < 0)
+        goto error;
+
+    int num_boards = i;
     comm_active = 1;
 
-    ret = hm2_eth_probe();
+    for(i = 0; i<num_boards; i++)
+    {
+        ret = hm2_eth_probe(&boards[i]);
 
-    if (ret < 0)
-        goto error1;
+        if (ret < 0)
+            goto error;
+    }
+
+    for(i = 0; i<num_boards; i++) {
+        char ifbuf[64]; // more than enough for eth0
+        char *ifptr = fetch_ifname(boards[i].sockfd, ifbuf, sizeof(ifbuf));
+        if(!ifptr) {
+            LL_PRINT("failed to retrieve interface name for board");
+            continue;
+        } 
+        int *added = kvlist_lookup(&ifnames, ifptr);
+        if(*added) continue;
+        install_iptables_perinterface(ifptr);
+        *added = 1;
+    }
 
     hal_ready(comp_id);
 
     return 0;
 
-error1:
-    close_net();
-error0:
+error:
+    for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
+        close_board(&boards[i]);
+    if(use_iptables()) clear_iptables();
+    kvlist_free(&board_num);
+    kvlist_free(&ifnames);
     hal_exit(comp_id);
     return ret;
 }
 
 void rtapi_app_exit(void) {
+    int i;
     comm_active = 0;
-    close_net();
+    for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
+        close_board(&boards[i]);
+
+    if(use_iptables()) clear_iptables();
+
+    kvlist_free(&board_num);
+    kvlist_free(&ifnames);
+
     hal_exit(comp_id);
     LL_PRINT("HostMot2 ethernet driver unloaded\n");
 }

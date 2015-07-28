@@ -362,7 +362,7 @@ G0 X0 Y0
 G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
 ----
 
-.G2 Example[[fig:G2-Example]]
+.G2 Example
 
 image::images/g2.png[align="center"]
 
@@ -380,7 +380,7 @@ G2 X0 Y1 I1 J0.5 F25 (clockwise arc in the XY plane)
 G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 ----
 
-.G2-G3 Example[[fig:G2-G3-Example]]
+.G2-G3 Example
 
 image::images/g2-3.png[align="center"]
 
@@ -1491,7 +1491,7 @@ It is an error if:
 G76 P- Z- I- J- R- K- Q- H- E- L-
 ----
 
-.G76 Threading[[fig:G76-Threading]]
+.G76 Threading
 
 image::images/g76-threads.png[align="center"]
 
@@ -1608,7 +1608,7 @@ is completed. You can see the entry path on the right from the Q29.5
 and the exit path on the left from the L2 E0.045. The white lines
 are the cutting moves.
 
-.G76 Example[[fig:G76-Threading-Example]]
+.G76 Example
 
 image::images/g76-01.png[align="center"]
 

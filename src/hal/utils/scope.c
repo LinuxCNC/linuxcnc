@@ -162,7 +162,7 @@ int main(int argc, gchar * argv[])
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SCOPE: ERROR: failed to get shared memory (key=0x%x, size=%lu)\n",
             SCOPE_SHM_KEY,
-            sizeof(scope_shm_control_t)
+            (unsigned long)sizeof(scope_shm_control_t)
         );
 	hal_exit(comp_id);
 	return -1;

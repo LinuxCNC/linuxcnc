@@ -4,22 +4,48 @@
 
 == How LinuxCNC Works[[how-LinuxCNC-works]]
 
-The Enhanced Machine Controller (LinuxCNC) is a lot more than just another
-CNC mill program. It can control machine tools, robots, or
-other automated devices. It can control servo motors, stepper motors,
-relays, and other devices related to machine tools.
+When you start LinuxCNC from the CNC menu or by typing 'linuxcnc'
+in the terminal the LinuxCNC script starts the
+<<cha:starting-linuxcnc,Configuration Selector>>. When you pick a configuration
+LinuxCNC reads the <<cha:ini-configuration,INI file>> then loads the 
+<<cha:basic-hal-reference,HAL files>> in the order that they are listed in the
+INI file.
 
-There are four main components to the LinuxCNC software: 
+When you create a configuration with the
+<<cha:stepconf-wizard,Stepper Configuration Wizard>> or
+<<cha:pncconf-wizard,Mesa Hardware Wizard>> or by picking a sample
+configuration from the Configuration Selector LinuxCNC creates some directories
+and files in your user directory. In the following example the name of the
+configuration is 'My Lathe'.
+
+. linuxcnc
+.. configs
+... My_Lathe
+.... My_Lathe.ini (this is read by the linuxcnc script)
+.... My_Lathe.hal (this hal file is loaded before the gui)
+.... post_gui.hal (this hal file is loaded after the gui)
+.... linuxcnc.var (stores the <<(sec:parameters,parameters>>)
+.... linuxcnc.var.bak (a backup parameter file)
+.... tool.tbl (the tool table file)
+.. nc_files
+... *.ngc (G code files)
+
+There can be other directorys and files in a configuration but the above is
+usually the minimum files used.
+
+LinuxCNC can control machine tools, robots, or other automated devices. It can
+control servo motors, stepper motors, relays, and other devices related to
+motion control. LinuxCNC can control up to 9 axes in coordinated motion.
+
+There are five main components to the LinuxCNC software: 
 
 * a motion controller (EMCMOT)
 * a discrete I/O controller (EMCIO)
 * a task executor which coordinates them (EMCTASK)
-* and one of several graphical user interfaces. 
+* a graphical user interface.
+* a hardware abstraction layer (HAL)
 
-In addition there is a layer called HAL (Hardware Abstraction Layer) 
-which allows configuration of LinuxCNC without the need of recompiling.
-
-.Simple LinuxCNC Controlled Machine[[fig:Typical_machine]]
+.Simple LinuxCNC Controlled Machine
 
 image::images/whatstep1.png[align="center"]
 
@@ -32,7 +58,7 @@ stepper drives move the stepper motors. The LinuxCNC system can also run servo
 motors via servo interface cards or by using an extended parallel port
 to connect with external control boards. As we examine each of the
 components that make up an LinuxCNC system we will remind the reader of
-this typical machine. 
+this typical machine.
 
 == Graphical User Interfaces[[sub:Graphical-User-Interfaces]]
 
@@ -42,19 +68,19 @@ interfaces:
 
 * <<cha:axis-gui,'Axis'>>, the standard GUI interface.
 
-.Axis GUI[[fig:The-Axis-GUI]]
+.Axis GUI
 
 image::images/axis-2.5.png[align="center"]
 
 * <<cha:gmoccapy,'gmoccapy'>>, A industrial like GUI.
 
-.Gmoccapy[[fig:Gmoccapy]]
+.Gmoccapy
 
 image::images/gmoccapy_4_axis.png[align="center"]
 
 * <<cha:touchy-gui,'Touchy'>>, a touch screen GUI.
 
-.Touchy GUI[[fig:touchy-gui]]
+.Touchy GUI
 
 image::images/touchy.png[align="center"]
 
@@ -62,26 +88,26 @@ image::images/touchy.png[align="center"]
    programming of G code. It also supports concatenation of subroutine files
    to enable you to build a complete G code file without programming.
 
-.NGCGUI GUI embedded into Axis[[fig:ngcgui-gui]]
+.NGCGUI GUI embedded into Axis
 
 image::images/ngcgui.png[align="center"]
 
 * <<cha:mini-gui,'Mini'>>, a Tcl/Tk-based GUI 
 
-.The Mini GUI[[fig:The-Mini-GUI]]
+.The Mini GUI
 
 image::images/mini.png[align="center"]
 
 * <<cha:tklinuxcnc-gui,'TkLinuxCNC'>>, a Tcl/Tk-based GUI
 
-.The TkLinuxCNC GUI[[fig:The-TkLinuxCNC-GUI]]
+.The TkLinuxCNC GUI
 
 image::images/tkemc.png[align="center"]
 
 * <<cha:keystick-gui,'Keystick'>>, a character-based screen graphics program
   suitable for minimal installations (without the X server running).
 
-.The Keystick GUI[[fig:The-Keystick-GUI]]
+.The Keystick GUI
 
 image::images/keystick.png[align="center"]
 
@@ -101,14 +127,14 @@ image::images/keystick.png[align="center"]
 * 'PyVCP' a python based virtual control panel that can be added to the
    Axis GUI or be stand alone.
 
-.PyVCP with Axis[[fig:pyvcp-with-axis]]
+.PyVCP with Axis
 
 image::images/axis-pyvcp.png[align="center"]
 
 * 'GladeVCP' - a glade based virtual control panel that can be added to
    the Axis GUI or be stand alone.
 
-.GladeVCP with Axis[[fig:gladevcp-with-axis]]
+.GladeVCP with Axis
 
 image::images/axis-gladevcp.png[align="center"]
 

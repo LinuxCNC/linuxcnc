@@ -1184,6 +1184,20 @@ See man setsserial for the current way to set smart-serial eeprom parameters.
 
 .SH FUNCTIONS
 .TP
+\fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.read-request\fR
+On boards with long turn around time for reads (at the time of writing, this
+applies only to ethernet boards), this function sends a read request.  When
+multiple boards are used, this can reduce the servo thread execution time.  In
+this case, the appropriate thread order would be
+.EX
+addf hm2_7i80.0.read-request
+addf hm2_7i80.1.read-request
+addf hm2_7i80.0.read
+addf hm2_7i80.1.read
+.EE
+which causes the read request to be sent to board 1 before waiting for the
+response to the read request to arrive from board 0.
+.TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.read\fR
 This reads the encoder counters, stepgen feedbacks, and GPIO input pins
 from the FPGA.

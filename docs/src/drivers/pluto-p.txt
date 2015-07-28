@@ -160,7 +160,7 @@ This driver features:
 
 * 'VCC' - +3.3V regulated DC
 
-.Pluto-Servo Pinout(((pluto-servo pinout)))[[fig:Pluto-Servo-Pinout]]
+.Pluto-Servo Pinout(((pluto-servo pinout)))
 
 image::images/pluto-pinout.png[align="center"]
 
@@ -258,7 +258,7 @@ inputs, and 6 general-purpose outputs--the layout on this header is
 different than the layout of a standard 26-pin ribbon cable to DB25
 connector.
 
-.Pluto-Step Pinout[[fig:Pluto-Step-Pinout]](((pluto-step pinout)))
+.Pluto-Step Pinout (((pluto-step pinout)))
 
 image::images/pluto-step-pinout.png[align="center"]
 
@@ -279,7 +279,7 @@ are the same as for the software stepgen component, except that
 'dirtime' which should be the maximum of the two, and that the same
 step timings are always applied to all channels.
 
-.Pluto-Step Timings[[fig:Pluto-Step-Timings]](((pluto-step timings)))
+.Pluto-Step Timings (((pluto-step timings)))
 
 image::images/pluto_step_waveform.png[align="center"]
 

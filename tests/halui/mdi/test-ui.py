@@ -172,7 +172,7 @@ def introspect():
 
 
 def wait_for_joint_to_stop_at(joint, target):
-    timeout = 5.0
+    timeout = 10.0
     tolerance = 0.0001
 
     start = time.time()
@@ -205,6 +205,21 @@ def wait_for_task_mode(target):
     sys.exit(1)
 
 
+def wait_for_halui_mode(pin_name):
+    timeout = 5.0
+
+    start = time.time()
+
+    while ((time.time() - start) < timeout):
+        if h[pin_name]:
+            print "halui reports mode", pin_name
+            return
+        time.sleep(0.1)
+    print "timeout waiting for halui to report mode", pin_name
+    sys.exit(1)
+
+
+
 #
 # set up pins
 # shell out to halcmd to make nets to halui and motion
@@ -220,6 +235,10 @@ h.newpin("mdi-3", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-0-position", hal.HAL_FLOAT, hal.HAL_IN)
 h.newpin("joint-1-position", hal.HAL_FLOAT, hal.HAL_IN)
 h.newpin("joint-2-position", hal.HAL_FLOAT, hal.HAL_IN)
+
+h.newpin("is-manual", hal.HAL_BIT, hal.HAL_IN)
+h.newpin("is-auto", hal.HAL_BIT, hal.HAL_IN)
+h.newpin("is-mdi", hal.HAL_BIT, hal.HAL_IN)
 
 h.ready() # mark the component as 'ready'
 
@@ -244,6 +263,7 @@ e.set_state(linuxcnc.STATE_ON)
 
 log("setting mode to Manual")
 e.set_mode(linuxcnc.MODE_MANUAL)
+wait_for_halui_mode('is-manual')
 log("running MDI command 0")
 h['mdi-0'] = 1
 wait_for_joint_to_stop_at(0, -1);
@@ -251,9 +271,11 @@ wait_for_joint_to_stop_at(1, 0);
 wait_for_joint_to_stop_at(2, 0);
 h['mdi-0'] = 0
 wait_for_task_mode(linuxcnc.MODE_MANUAL)
+wait_for_halui_mode('is-manual')
 
 log("setting mode to Auto")
 e.set_mode(linuxcnc.MODE_AUTO)
+wait_for_halui_mode('is-auto')
 log("running MDI command 1")
 h['mdi-1'] = 1
 wait_for_joint_to_stop_at(0, 1);
@@ -261,9 +283,11 @@ wait_for_joint_to_stop_at(1, 0);
 wait_for_joint_to_stop_at(2, 0);
 h['mdi-1'] = 0
 wait_for_task_mode(linuxcnc.MODE_AUTO)
+wait_for_halui_mode('is-auto')
 
 log("setting mode to MDI")
 e.set_mode(linuxcnc.MODE_MDI)
+wait_for_halui_mode('is-mdi')
 log("running MDI command 2")
 h['mdi-2'] = 1
 wait_for_joint_to_stop_at(0, 1);
@@ -272,6 +296,7 @@ wait_for_joint_to_stop_at(2, 0);
 h['mdi-2'] = 0
 e.s.poll()
 wait_for_task_mode(linuxcnc.MODE_MDI)
+wait_for_halui_mode('is-mdi')
 
 log("running MDI command 3")
 h['mdi-3'] = 1
@@ -280,6 +305,7 @@ wait_for_joint_to_stop_at(1, 2);
 wait_for_joint_to_stop_at(2, 3);
 h['mdi-3'] = 0
 wait_for_task_mode(linuxcnc.MODE_MDI)
+wait_for_halui_mode('is-mdi')
 
 log("running MDI command 0")
 h['mdi-0'] = 1
@@ -288,6 +314,7 @@ wait_for_joint_to_stop_at(1, 0);
 wait_for_joint_to_stop_at(2, 0);
 h['mdi-0'] = 0
 wait_for_task_mode(linuxcnc.MODE_MDI)
+wait_for_halui_mode('is-mdi')
 
 
 sys.exit(0)

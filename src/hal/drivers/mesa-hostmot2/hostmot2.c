@@ -74,7 +74,7 @@ static int comp_id;
 // functions exported to LinuxCNC
 //
 
-static void hm2_read(void *void_hm2, long period) {
+static void hm2_read_request(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
 
     // if there are comm problems, wait for the user to fix it
@@ -84,6 +84,19 @@ static void hm2_read(void *void_hm2, long period) {
     if ((*hm2->llio->io_error) != 0) return;
     hm2_raw_queue_read(hm2);
     hm2_tp_pwmgen_queue_read(hm2);
+    if ((*hm2->llio->io_error) != 0) return;
+    hm2_queue_read(hm2);
+    hm2->llio->read_requested = true;
+}
+
+static void hm2_read(void *void_hm2, long period) {
+    hostmot2_t *hm2 = void_hm2;
+
+    if(!hm2->llio->read_requested) hm2_read_request(void_hm2, period);
+    hm2->llio->read_requested = false;
+
+    // if there are comm problems, wait for the user to fix it
+    if ((*hm2->llio->io_error) != 0) return;
     hm2_finish_read(hm2);
     if ((*hm2->llio->io_error) != 0) return;
 
@@ -1020,13 +1033,13 @@ static void hm2_release_device(struct rtapi_device *dev) {
 
 static int dummy_queue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr,
         void *buffer, int size) {
-    if(size != -1) return this->write(this, addr, buffer, size);
+    if(size >= 0) return this->write(this, addr, buffer, size);
     return 1; // success
 }
 
 static int dummy_queue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr,
         void *buffer, int size) {
-    if(size != -1) return this->read(this, addr, buffer, size);
+    if(size >= 0) return this->read(this, addr, buffer, size);
     return 1; // success
 }
 
@@ -1434,6 +1447,11 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         goto fail1;
     }
 
+    hm2_queue_read(hm2);
+    if (r != 0) {
+        goto fail1;
+    }
+
     r = hm2_finish_read(hm2);
     if (r != 0) {
         goto fail1;
@@ -1505,6 +1523,15 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     {
         char name[HAL_NAME_LEN + 1];
 
+        if(hm2->llio->split_read) {
+            rtapi_snprintf(name, sizeof(name), "%s.read-request", hm2->llio->name);
+            r = hal_export_funct(name, hm2_read_request, hm2, 1, 0, hm2->llio->comp_id);
+            if (r != 0) {
+                HM2_ERR("error %d exporting read function %s\n", r, name);
+                r = -EINVAL;
+                goto fail1;
+            }
+        }
         rtapi_snprintf(name, sizeof(name), "%s.read", hm2->llio->name);
         r = hal_export_funct(name, hm2_read, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {

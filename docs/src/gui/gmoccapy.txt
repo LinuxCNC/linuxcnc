@@ -556,6 +556,7 @@ NOTE: Messages or user infos will not affect the gmoccapy.error pin, but the gmo
 pin will delete the last message if no error is shown!  
 
 === User Created Message HAL Pins [[sub:User_Created_Message_HAL_Pins]]
+
 gmoccapy may react to external errors, using 3 different user messages: +
 All are HAL_BIT pin. +
 
@@ -573,6 +574,34 @@ All are HAL_BIT pin. +
 
 * gmoccapy.messages.okdialog
 * gmoccapy.messages.okdialog-waiting
+
+To add user created message you need to add the message to the INI file in the
+[DISPLAY] section. Here are a couple of examples.
+
+----
+MESSAGE_BOLDTEXT = LUBE SYSTEM FAULT
+MESSAGE_TEXT = LUBE FAULT
+MESSAGE_TYPE = okdialog
+MESSAGE_PINNAME = lube-fault
+
+MESSAGE_BOLDTEXT = NONE
+MESSAGE_TEXT = X SHEAR PIN BROKEN
+MESSAGE_TYPE = status
+MESSAGE_PINNAME = xpin
+----
+
+To 'connect' new pins to and input you need to do this in the postgui HAL file.
+Here are some example connections that have the signal connected to an input
+some place else in the HAL file.
+
+----
+net gmoccapy-lube-fault gmoccapy.messages.lube-fault
+net gmoccapy-lube-fault-waiting gmoccapy.messages.lube-fault-waiting
+net gmoccapy-xpin gmoccapy.messages.xpin
+----
+
+For more information on HAL files and the net command see the
+<<cha:basic-hal-reference,Basic HAL Reference>>.
 
 === Spindle feedback pins
 There are two pins for spindle feedback

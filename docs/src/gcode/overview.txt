@@ -923,7 +923,7 @@ You can see from the following figure that the output is not what you
 might expect. Because we added 0.5 to the distance each time the 
 distance from the XY zero position increased with each line.
 
-.Polar Spiral[[fig:Polar-Spiral]]
+.Polar Spiral
 
 image::images/polar01.png[align="center"]
 
@@ -941,7 +941,7 @@ G90 G0 X0 Y0 M2
 As you can see by only adding to the angle by 90 degrees each time the
 end point distance is the same for each line.
 
-.Polar Square[[fig:Polar-Square]]
+.Polar Square
 
 image::images/polar02.png[align="center"]
 

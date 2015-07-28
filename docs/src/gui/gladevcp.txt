@@ -7,8 +7,6 @@
 // - restructure faq/troubleshooting/notes section
 // - check wiki vs docs
 // - check other gladevcp docs branch against this
-// - when emc action widgets are renamed then re-brand this chapter
-
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -17,7 +15,6 @@
 //[source,{ini}]
 //[source,{hal}]
 //[source,{ngc}]
-
 
 == What is GladeVCP?
 
@@ -241,7 +238,7 @@ or start a new one by just running the +glade+ command from the shell.
 - When asked for unsaved Preferences, just accept the defaults and hit 'Close'.
 - From 'Toplevel' (left pane), pick 'Window' (first icon) as top level window, which
 by default will be named 'window1'. Do not change this name - GladeVCP relies on it.
-- In the left tab, scroll down and expand  'HAL Python' and 'EMC Actions'.
+- In the left tab, scroll down and expand  'HAL Python' and 'VCP Actions'.
 - add a container like a HAL_Box or a HAL_Table from 'HAL Python' to the frame
 - pick and place some elements like LED, button, etc. within a container
 
@@ -587,7 +584,7 @@ It is perfectly OK to set an output HAL pin's value with
 +halcomp[pinname] = value+ provided this HAL pin is not associated with a
 widget, that is, has been created by the
 +hal_glib.GPin(halcomp.newpin(<name>,<type>,<direction>)+ method (see
-GladeVCP Programming for an example).
+<<gladevcp:GladeVCP_Programming,GladeVCP Programming>> for an example).
 
 [[gladevcp::hal-pin-changed_signal]]
 === The hal-pin-changed signal
@@ -1714,12 +1711,12 @@ image:images/small-screenshot.png[]
 
 == Action Widgets reference
 
-GladeVcp includes a collection of "canned actions" called EMC Action
+GladeVcp includes a collection of "canned actions" called VCP Action
 Widgets for the Glade user interface editor. Other than HAL widgets,
-which interact with HAL pins, EMC Actions interact with LinuxCNC and the
+which interact with HAL pins, VCP Actions interact with LinuxCNC and the
 G-code interpreter.
 
-EMC Action Widgets are derived from the Gtk.Action widget. The Action
+VCP Action Widgets are derived from the Gtk.Action widget. The Action
 widget in a nutshell:
 
  - it is an object available in Glade
@@ -1732,19 +1729,19 @@ widget in a nutshell:
  -  it provides an easy way to execute commands without resorting to
    Python programming.
 
-The appearance of EMC Actions in Glade is roughly as follows:
+The appearance of VCP Actions in Glade is roughly as follows:
 
-image::images/emc-actions.png[]
+image::images/vcp-actions.png[]
 
 Tooltip hovers provide a description.
 
 
-=== EMC Action widgets
+=== VCP Action widgets
 
-EMC Action widgets are one-shot type widgets. They implement a single action and
+VCP Action widgets are one-shot type widgets. They implement a single action and
 are for use in simple buttons, menu entries or radio/check groups.
 
-=== EMC ToggleAction widgets
+=== VCP ToggleAction widgets
 
 These are bi-modal widgets. They implement two actions or use a second
 (usually pressed) state to indicate that currently an action is
@@ -1784,7 +1781,7 @@ Action_MDI Toggle does, which remains disabled until command complete.
 Open it in Glade and study how it's done. Start Axis, and then start
 this from a terminal window with `gladevcp whoareyou.ui`. See the
 +hal_action_mdi1+ Action and it's +MDI command+ property - this just
-executes +(MSG, "Hi, I'm an EMC_Action_MDI")+ so there should be a
+executes +(MSG, "Hi, I'm an VCP_Action_MDI")+ so there should be a
 message popup in Axis like so:
 
 image::images/whoareyou.png[]
@@ -1846,7 +1843,7 @@ other handler.
 
 Here's an example how a feed value might be saved and restored by such
 handlers (note that LinuxCNC command and status channels are available as
-+self.linuxcnc+ and +self.stat+ through the EMC_ActionBase class:
++self.linuxcnc+ and +self.stat+ through the VCP_ActionBase class:
 
 [source,python]
 ----------------------------------

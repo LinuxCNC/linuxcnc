@@ -1,3 +1,5 @@
+[[cha:halmodule]]
+
 = Creating Userspace Python Components
 
 == Basic usage

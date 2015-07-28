@@ -742,6 +742,8 @@ class StepconfApp:
         self.d.load_preferences()
         self.p.initialize()
         window.show()
+        #self.w.xencoderscale.realize()
+        self.origbg = self.w.xsteprev.style.bg[gtk.STATE_NORMAL]
 
     def build_base(self):
         base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
@@ -979,7 +981,7 @@ class StepconfApp:
     # for Axis page calculation updates
     def update_pps(self, axis):
         def get(n): return float(self.w[axis + n].get_text())
-
+        self.axis_sanity_test(axis)
         try:
             pitch = get("leadscrew")
             if self.d.units == 1 or axis == 'a': pitch = 1./pitch
@@ -1004,6 +1006,19 @@ class StepconfApp:
             self.w[axis + "scale"].set_text("")
             self.p.set_buttons_sensitive(0,0)
             self.w[axis + "axistest"].set_sensitive(0)
+
+    def axis_sanity_test(self,axis):
+        def get(n): return float(self.w[axis + n].get_text())
+        datalist = ('steprev','microstep','pulleynum','pulleyden','leadscrew',
+                    'maxvel','maxacc')
+        for i in datalist:
+            try:
+                a=get(i)
+                if a <= 0:raise ValueError
+            except:
+                self.w[axis+i].modify_base(gtk.STATE_NORMAL, self.w[axis+i].get_colormap().alloc_color("red"))
+            else:
+                self.w[axis+i].modify_base(gtk.STATE_NORMAL, self.origbg)
 
     # pport functions
     # disallow some signal combinations
