@@ -2032,7 +2032,6 @@ int tpAddCircle(TP_STRUCT * const tp,
 
     // Update tc target with existing circular segment
     tc.target = pmCircle9Target(&tc.coords.circle);
-    tcClampVelocityByLength(&tc);
     if (tc.target < TP_POS_EPSILON) {
         return TP_ERR_FAIL;
     }
@@ -2040,8 +2039,7 @@ int tpAddCircle(TP_STRUCT * const tp,
     tc.nominal_length = tc.target;
 
     //Reduce max velocity to match sample rate
-    double sample_maxvel = tc.target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES);
-    tc.maxvel = rtapi_fmin(tc.maxvel, sample_maxvel);
+    tcClampVelocityByLength(&tc);
 
     double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc, false);
 
