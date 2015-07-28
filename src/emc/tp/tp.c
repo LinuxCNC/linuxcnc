@@ -1434,6 +1434,9 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
             &end);
     tc.target = pmRigidTapTarget(&tc.coords.rigidtap, tp->uu_per_rev);
 
+    // Force exact stop mode after rigid tapping regardless of TP setting
+    tcSetTermCond(&tc, TC_TERM_COND_STOP);
+
     TC_STRUCT *prev_tc;
     //Assume non-zero error code is failure
     prev_tc = tcqLast(&tp->queue);
