@@ -44,7 +44,6 @@
 #undef TP_SHOW_BLENDS
 
 #define TP_OPTIMIZATION_LAZY
-#define TP_PEDANTIC
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -228,13 +227,8 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
 /**
  * Get the worst-case target velocity for a segment based on the trajectory planner state.
  */
-STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
-#ifdef TP_PEDANTIC
-    if (!tp || !tc) {
-        return TP_ERR_MISSING_INPUT;
-    }
-#endif
-
+STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc)
+{
     double max_scale = emcmotConfig->maxFeedScale;
     if (tc->is_blending) {
         //KLUDGE: Don't allow feed override to keep blending from overruning max velocity
