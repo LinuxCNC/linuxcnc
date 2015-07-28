@@ -46,7 +46,6 @@
 
 #define TP_SHOW_BLENDS
 #define TP_OPTIMIZATION_LAZY
-#define TP_PEDANTIC
 
 
 /** static function primitives (ugly but less of a pain than moving code around)*/
