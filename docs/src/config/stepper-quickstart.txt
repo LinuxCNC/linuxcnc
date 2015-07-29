@@ -1,6 +1,6 @@
-= Stepper Quickstart
-
 [[cha:stepper-quickstart]] (((Stepper Quickstart)))
+
+= Stepper Quickstart
 
 This section assumes you have done a standard install from the Live
 CD. After installation it is recommended that you connect the computer
@@ -15,17 +15,17 @@ which could cause missed steps when running a CNC machine. This is the
 first thing you need to do. Follow the instructions  
 <<latency-test,here>> to run the latency test.
 
-[[sec:Sherline]]
+[[sec:sherline]](((Sherline)))
+
 == Sherline
-(((Sherline)))
 
 If you have a Sherline several predefined configurations are provided.
 This is on the main menu CNC/EMC then pick the Sherline configuration
 that matches yours and save a copy.
 
-[[sec:Xylotex]]
+[[sec:xylotex]](((Xylotex)))
+
 == Xylotex
-(((Xylotex)))
 
 If you have a Xylotex you can skip the following sections and go
 straight to the <<cha:stepconf-wizard,Stepper Config Wizard>>.

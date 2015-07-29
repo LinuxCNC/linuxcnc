@@ -860,9 +860,9 @@ int Interp::init()
           if(NULL != (inistring = inifile.Find("LOG_FILE", "RS274NGC")))
           {
 	      if ((log_file = fopen(inistring, "a"))  == NULL) {
+		  log_file = stderr;
 		  logDebug( "(%d): Unable to open log file:%s, using stderr",
 			  getpid(), inistring);
-		  log_file = stderr;
 	      }
           } else {
 	      log_file = stderr;

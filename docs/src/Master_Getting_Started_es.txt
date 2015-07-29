@@ -19,7 +19,7 @@ include::getting-started/system-requirements-es.txt[]
 
 include::getting-started/getting-linuxcnc-es.txt[]
 
-include::getting-started/Updating_LinuxCNC.txt[]
+include::getting-started/updating-linuxcnc-es.txt[]
 
 include::common/gpld-copyright.txt[]
 
