@@ -298,7 +298,7 @@ EMBED_TAB_LOCATION = name_of_location - where the embeded page is located
 The EMBED_TAB_LOCATION specifier is not used for the axis gui.  While
 pyngcgui can be embedded in axis, integration is more complete when using
 ngcgui (using TKPKG = Ngcgui 1.0).  To specify the EMBED_TAB_LOCATION
-for other guis, see the <<sub:DISPLAY-section,DISPLAY Section>> of the INI
+for other guis, see the <<sec:display-section,DISPLAY Section>> of the INI
 Configuration Chapter.
 
 [NOTE]

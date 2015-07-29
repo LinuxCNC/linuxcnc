@@ -1,6 +1,6 @@
-= Mesa Configuration Wizard
-
 [[cha:pncconf-wizard]](((Mesa Configuration Wizard)))
+
+= Mesa Configuration Wizard
 
 PNCconf is made to help build configurations that utilize specific Mesa 
 'Anything I/O' products. 
@@ -745,12 +745,12 @@ Use Encoder Index For Home::
 
 Use Compensation File::
     Allows specifying a Comp filename and type.
-    Allows sophisticated compensation. See <<sub:AXIS-section,AXIS Section>>
+    Allows sophisticated compensation. See <<sec:axis-section,AXIS Section>>
     of the INI Chapter.
 
 Use Backlash Compensation::
     Allows setting of simple backlash compensation. Can 
-    not be used with Compensation File. See <<sub:AXIS-section,AXIS Section>>
+    not be used with Compensation File. See <<sec:axis-section,AXIS Section>>
     of the INI Chapter.
 
 .AXIS Help Diagram

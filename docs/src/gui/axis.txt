@@ -62,13 +62,13 @@ The AXIS window contains the following elements:
 * 'Feed Override' - which allows you to scale
  the speed of programmed motions. The default maximum is 120% 
  and can be set to a different
- value in the ini file. See the <<sub:DISPLAY-section,Display Section>> of the
+ value in the ini file. See the <<sec:display-section,Display Section>> of the
  INI file for more information.
 * 'Spindle Override' - which allows you to
  scale the spindle speed up or down.
 * 'Jog Speed' - which allows you to set the jog speed
  within the limits set in the ini file. See the 
- <<sub:DISPLAY-section,Display Section>> of the INI file for more information.
+ <<sec:display-section,Display Section>> of the INI file for more information.
 * 'Max Velocity' - which allows you to restrict the maximum velocity of all
  programmed motions (except spindle synchronized motion).
 * A text display area that shows the loaded G-Code.
@@ -89,13 +89,13 @@ Some menu items might be grayed out depending on how you have your
 
 * 'Open...' - Opens a standard dialog box to open a g code file to load in AXIS. If
     you have configured LinuxCNC to use a filter program you can also open it
-    up. See the <<sub:FILTER-Section,FILTER Section>> of the INI configuration
+    up. See the <<sec:filter-section,FILTER Section>> of the INI configuration
     for more information.
 
 * 'Recent Files' - Displays a list of recently opened files.
 
 * 'Edit...' - Open the current G code file for editing if you have an editor
-    configured in your ini file. See the <<sub:DISPLAY-section,DISPLAY Section>>
+    configured in your ini file. See the <<sec:display-section,DISPLAY Section>>
     for more information on specifying an editor to use.
 
 * 'Reload' - Reload the current g code file. If you edited it you must reload it
@@ -528,7 +528,7 @@ the machine will move exactly the displayed distance
 each time the button is clicked or the key is pressed. 
 By default, the available values are '0.1000, 0.0100, 0.0010, 0.0001'
 
-See the <<sub:DISPLAY-section,DISPLAY Section>> for more information on setting
+See the <<sec:display-section,DISPLAY Section>> for more information on setting
 the increments.
 
 .Homing
@@ -824,7 +824,7 @@ image:images/axis-lathe-tool.png[align="center"]
 == Advanced Configuration
 
 For more information on ini file settings that can change how AXIS
-works see the <<sub:DISPLAY-section,Display Section>> of the INI 
+works see the <<sec:display-section,Display Section>> of the INI 
 Configuration Chapter.
 
 === Program Filters
@@ -941,7 +941,7 @@ help2.append(("Control-Q", "Quit"))
 The menu options File > Edit... and File > Edit Tool Table... become
 available after defining the editor in the ini section [DISPLAY].
 Useful values include EDITOR=gedit and EDITOR=gnome-terminal -e vim.
-For more information, see the <<sub:DISPLAY-section,Display Section>>
+For more information, see the <<sec:display-section,Display Section>>
 of the INI Configuration Chapter.
 
 === Virtual Control Panel
