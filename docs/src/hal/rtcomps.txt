@@ -189,7 +189,7 @@ image::images/stepgen-type2-4.png[align="center"]
 .Four-Phase Step Types
 (((Four Phase)))
 
-image::images/stepgen-type5-10.png[align="center", width=800]
+image::images/stepgen-type5-10.png[align="center"]
 
 .Five-Phase Step Types
 (((Five Phase)))
