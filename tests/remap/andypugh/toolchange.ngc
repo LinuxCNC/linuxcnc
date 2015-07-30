@@ -1,0 +1,31 @@
+
+o<toolchange> sub
+
+; only unload the tool if there is a tool in the spindle
+; This assumes that the carousel is already aligned correctly. 
+; It is important to unload the tool before shutting down the machine. 
+
+O100 IF [#<tool_in_spindle> GT 0]
+    G53 G0 Z -1
+    
+    M64 P2 ; move arm in
+
+    ; comment this out to make it pass
+    M66 P2 L3 Q5 ; wait for arm-in = true
+    O104 if [#5399 LT 0]
+        (abort, failed to move arm in)
+    O104 endif
+
+O100 ENDIF
+
+G53 G0 Z0
+
+O200 IF [#<selected_tool> GT 0]
+
+    G53 G0 Z-1 ; pick up the tool
+
+O200 ENDIF 
+
+o<toolchange> endsub [1]
+
+M2

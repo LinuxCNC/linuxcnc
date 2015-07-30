@@ -1,0 +1,4 @@
+
+net arm <= motion.digital-out-02
+net arm => motion.digital-in-02
+
