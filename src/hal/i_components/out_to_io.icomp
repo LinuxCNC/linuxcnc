@@ -9,7 +9,7 @@ pin io float out_float;
 pin io bit out_bit;
 
 variable hal_u32_t last_u32 = 1;
-variable hal_u32_t last_s32 = 1;
+variable hal_s32_t last_s32 = 1;
 variable hal_u32_t last_float = 1;
 variable hal_u32_t last_bit = 1;
 

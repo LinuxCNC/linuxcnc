@@ -381,7 +381,7 @@ int hal_ccomp_match(hal_compiled_comp_t *cc)
     int i, nchanged = 0;
     hal_bit_t halbit;
     hal_s32_t hals32;
-    hal_s32_t halu32;
+    hal_u32_t halu32;
     hal_float_t halfloat,delta;
     hal_pin_t *pin;
     hal_sig_t *sig;
