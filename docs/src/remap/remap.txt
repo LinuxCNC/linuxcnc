@@ -1,6 +1,6 @@
-= Remap Extending G code
+[[cha:remap]](((Remap Extending G code)))
 
-[[cha:remap]]
+= Remap Extending G code
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -95,7 +95,7 @@ glue issue is addressed as follows:
 - for simple situations, a built-in glue procedure (`argspec`) covers most
 common parameter passing requirements
 - for remapping T,M6,M61,S,F there is some standard Python glue which should
-cover most situations, see <<sec:Standard-glue,Standard Glue>>
+cover most situations, see <<remap:standard-glue,Standard Glue>>
 - for more complex situations, one can write your own Python glue to implement
 new behavior.
 
@@ -145,7 +145,7 @@ existing code to use your remapping setup.
 - the current set of unused M-codes open to user definition can be found
 <<remap:unallocated-m-codes,here>>,
 - unallocated G-codes are listed <<remap:unallocated-g-codes,here>>.
-- Existing codes which may be remapped are listed <<sec:remappable-codes,here>>.
+- Existing codes which may be remapped are listed <<remap:remappable-codes,here>>.
 
 [[remap:parameter-handling]]
 
@@ -306,7 +306,7 @@ keyword-value pairs and currently are:
 	module. Optional.
 
 The `python`, `prolog` and `epilog` options require the Python
-Interpreter plugin to be  <<remap:embedded-Python,configured>>, and
+Interpreter plugin to be <<remap:embedded-python,configured>>, and
 appropriate Python functions to be defined there so they can be
 referred to with these options.
 
@@ -345,7 +345,7 @@ all of them make sense. The following combinations are useful idioms:
 
 Note that if all you want to achieve is to call some Python code from
 G-code, there is the somewhat easier way of
-<<remap:Python-O-word-procs, calling Python functions like O-word procedures>>.
+<<remap:python-o-word-procs, calling Python functions like O-word procedures>>.
 
 === The argspec parameter
 
@@ -495,7 +495,7 @@ Try this with out with:
   g88.6 x1 y2 z3 p33 (a comment here)
 
 You'll notice the gradual introduction of the embedded Python
-environment - see <<sec:Programming-Embedded-Python,here>> for details.  Note that
+environment - see <<remap:programming-embedded-python,here>> for details.  Note that
 with Python remapping functions, it make no sense to have Python
 prolog or epilog functions since it's executing a Python function in
 the first place.
@@ -638,11 +638,11 @@ $ linuxcnc xxx.ini
 === Overview
 
 If you are unfamiliar with LinuxCNC internals, first read the
-<<remap::how-tool-change-currently-works, How tool change currently
+<<remap:how-tool-change-currently-works, How tool change currently
 works>> section (dire but necessary).
 
 Note than when remapping an existing code, we completely disable
-<<remap::interpreter-action-on-M6,this codes' built in functionality>>
+<<remap:interpreter-action-on-m6,this codes' built in functionality>>
 of the interpreter. 
 
 So our remapped code will need to do a bit more
@@ -653,7 +653,7 @@ needed to keep the interpreter and task happy.
 However, this does *not* affect the processing of
 tool change-related commands in task and iocontrol. This means when we
 execute <<remap:send-tool-load-msg,step 6b>> this will still cause
-<<remap::iocontrol-action-on-load,iocontrol to do its thing>>.
+<<remap:iocontrol-action-on-load,iocontrol to do its thing>>.
 
 Decisions, decisions:
 
@@ -747,7 +747,7 @@ an O-word procedure, but other than that things 'should continue to
 work'.
 
 So what our O-word procedure would do is to replace the steps
-<<remap::interpreter-action-on-M6,outlined here>>. Looking through
+<<remap:interpreter-action-on-m6,outlined here>>. Looking through
 these steps you'll find that NGC code can be used for most of them,
 but not all. So the stuff NGC cant handle will be done in Python prolog
 and epilog functions.
@@ -758,7 +758,7 @@ To convey the idea, we just replace the built in M6 semantics with our
 own. Once that works, you may go ahead and place any actions you see
 fit into the O-word procedure.
 
-Going through the <<remap::interpreter-action-on-M6,steps>>, we find:
+Going through the <<remap:interpreter-action-on-m6,steps>>, we find:
 
 . check for T command already executed - *execute in Python prolog*
 . check for cutter compensation being active - *execute in Python prolog*
@@ -864,7 +864,7 @@ pins. When we finally execute the `CHANGE_TOOL()` command, all
 movements and HAL interactions are already completed.
 
 Normally only now iocontrol would do its thing as outlined
-<<remap::iocontrol-action-on-load,here>>. However, we don't need the
+<<remap:iocontrol-action-on-load,here>>. However, we don't need the
 HAL pin wiggling anymore - all iocontrol is left to do is to accept
 we're done with prepare and change.
 
@@ -944,7 +944,7 @@ when extending built in codes.
 
 === Specifying the T (prepare) replacement
 
-If you're confident with the  <<remap::interpreter-action-on-T,default
+If you're confident with the  <<remap:interpreter-action-on-t,default
 implementation>>, you wouldn't need to do this. But remapping is also a
 way to work around deficiencies in the current implementation, for
 instance to not block until the "tool-prepared" pin is set.
@@ -1108,7 +1108,7 @@ o100 if [..] (some error condition)
 o100 endif
 ---------------------------------------------------------------------
 NB: ini and HAL variable expansion need explicit enabling with
-<<sub:ini-features,FEATURE>>.
+<<remap:ini-features,FEATURE>>.
 
 If more fine grained recovery action is needed, use the idiom
 laid out in the previous example:
@@ -1162,7 +1162,7 @@ code, but no new G-code, the previous G code is re-executed with the
 parameters changed accordingly.
 
 An example: Assume you have `G84.3` defined as remapped G code cycle
-with the following ini segment (see <<sec::cycle-stdglue,here>> for
+with the following ini segment (see <<sec:cycle-stdglue,here>> for
 a detailed description of +cycle_prolog+ and +cycle_epilog+):
 
 [source,{ini}]
@@ -1197,7 +1197,7 @@ See 'configs/sim/axis/remap/cycle' for a complete example of this
 feature. It contains two cycles, one with an NGC procedure like above,
 and a cycle example using just Python.
 
-[[remap:embedded-Python]]
+[[remap:embedded-python]]
 
 == Configuring  Embedded Python
 
@@ -1233,7 +1233,7 @@ configured, and hence has its own section `PYTHON` in the ini file.
 `PYTHON_TASK`='[0|1]'::
 	Start the Python task plug in. Experimental. See xxx.
 
-[[remap::executing-Python-statements]]
+[[remap::executing-python-statements]]
 
 === Executing Python statements from the interpreter
 
@@ -1254,7 +1254,7 @@ The `emcStatus` structure is accessible, too:
   ;py,from emctask import *
   ;py,print emcstat.io.aux.estop
 
-[[sec:Programming-Embedded-Python]]
+[[remap:programming-embedded-python]]
 
 == Programming Embedded Python in the RS274NGC Interpreter
 
@@ -1276,7 +1276,7 @@ The namespace is expected to be laid out as follows:
 `namedparams`::
 	Python funtcions int this module extend or redefine the namespace of
 	predefined named parameters, see
-	<<sec:Adding-Predefined-Named-Parameters,adding predefined parameters>>.
+	<<remap:adding-predefined-named-parameters,adding predefined parameters>>.
 
 `task`::
 	Task-related callables are expected here.
@@ -1334,7 +1334,7 @@ If there are setup or cleanup actions which are to happen only in the
 milltask Interpreter instance (as opposed to the interpreter instance
 which sits in the `gcode` Python module and serves preview/progress
 display purposes but nothing else), this can be tested for by
-<<sec:axis-preview-and-remapped-code-execution,evaluating
+<<remap:axis-preview-and-remapped-code-execution,evaluating
 'self.task'>>.
 
 An example use of `__init__` and `__delete__` can be found in
@@ -1353,7 +1353,7 @@ Python code is called from NGC in the following situations:
 - during execution of a remapped code: any `prolog=`, `python=` and
   `epilog=` handlers.
 
-[[remap:Python-O-word-procs]]
+[[remap:python-o-word-procs]]
 
 .Calling O-word Python subroutines
 
@@ -1657,11 +1657,11 @@ The following modules are built in:
 	Not present when using the `gcode` module used for user
 	interfaces - only present in the milltask instance of the interpreter.
 
-[[sec:Adding-Predefined-Named-Parameters]]
+[[remap:adding-predefined-named-parameters]]
 
 == Adding Predefined Named Parameters
 
-The interpreter comes with a set of <<sec:Predefined-Named-Parameters,predefined named parameters>> for
+The interpreter comes with a set of predefined named parameters for
 accessing internal state from the NGC language level. These parameters
 are read-only and global, and hence cannot be assigned to.
 
@@ -1707,7 +1707,7 @@ all of the interpreter internal state is accessible from Python, so
 arbitrary predicates may be defined this way. For a slightly more
 advanced example, see `tests/remap/predefined-named-params`.
 
-[[sec:Standard-glue]]
+[[remap:standard-glue]]
 
 == Standard Glue routines
 
@@ -1805,7 +1805,7 @@ fault. An informational message is displayed and the epilog continues.
   executed.
 * The new tool parameters (offsets, diameter etc) are set.
 
-[[sec::cycle-stdglue]]
+[[sec:cycle-stdglue]]
 
 === G code Cycles: +cycle_prolog+ and +cycle_epilog+
 
@@ -1951,7 +1951,7 @@ image::images/debug_embedded_python.png[Debugging with Eclipse]
 
 See the Python code in `configs/sim/axis/remap/getting-started/python` for details.
 
-[[sec:axis-preview-and-remapped-code-execution]]
+[[remap:axis-preview-and-remapped-code-execution]]
 
 == Axis Preview and Remapped code execution
 
@@ -1993,7 +1993,7 @@ Within Embedded Python, the task instance can be checked for by
 testing 'self.task' - this will be 1 in the milltask instance, and 0
 in the preview instance(s).
 
-[[sec:remappable-codes]]
+[[remap:remappable-codes]]
 
 == Remappable Codes
 
@@ -2357,7 +2357,7 @@ returned. Task makes sure to synchronize the world model, and continue
 parsing and execution as long as there is still a procedure executing
 (call_level > 0).
 
-[[remap::how-tool-change-currently-works]]
+[[remap:how-tool-change-currently-works]]
 
 === How tool change currently works
 
@@ -2388,7 +2388,7 @@ processes just consult this structure. The interpreter holds actually
 a local copy of the tool table.
 
 For the curious, the current emcStatus structure can be accessed by
-<<remap::executing-Python-statements,Python statements>>. The
+<<remap::executing-python-statements,Python statements>>. The
 interpreter's perception of the tool currently loaded for instance is
 accessed by:
 
@@ -2407,7 +2407,7 @@ results.
 
 === How Tx (Prepare Tool) works
 
-[[remap::interpreter-action-on-T]]
+[[remap:interpreter-action-on-t]]
 
 .Interpreter action on a Tx command
 
@@ -2455,7 +2455,7 @@ Even if you are not familiar with C, I suggest you look at the
 'Interp::convert_tool_change' code in
 'src/emc/rs274/interp_convert.cc'.
 
-[[remap::interpreter-action-on-M6]]
+[[remap:interpreter-action-on-m6]]
 
 .Interpreter action on a M6 command
 
@@ -2488,7 +2488,7 @@ Again, not much more than passing the buck to iocontrol by sending it
 an EMC_TOOL_LOAD message, and waiting until iocontrol has done its
 thing.
 
-[[remap::iocontrol-action-on-load]]
+[[remap:iocontrol-action-on-load]]
 
 .Iocontrol action on EMC_TOOL_LOAD
 
@@ -2529,7 +2529,7 @@ An example Python redefinition for M61 can be found in the
 `set_tool_number` function in 
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
-[[sub:ini-features]](((Enabling optional features)))
+[[remap:ini-features]](((Enabling optional features)))
 
 == Optional Interpreter features: ini file configuration
 
