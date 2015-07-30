@@ -499,7 +499,7 @@ typedef __u64 ireal_t __attribute__((aligned(8))); // integral type as wide as r
 typedef union {
     hal_bit_t b;
     hal_s32_t s;
-    hal_s32_t u;
+    hal_u32_t u;
     hal_float_t f;
 } hal_data_u;
 

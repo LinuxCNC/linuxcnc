@@ -657,7 +657,7 @@ int hal_cgroup_match(hal_compiled_group_t *cg)
     hal_sig_t *sig;
     hal_bit_t halbit;
     hal_s32_t hals32;
-    hal_s32_t halu32;
+    hal_u32_t halu32;
     hal_float_t halfloat,delta;
 
     HAL_ASSERT(cg->magic ==  CGROUP_MAGIC);
