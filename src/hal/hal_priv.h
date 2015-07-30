@@ -122,7 +122,7 @@ RTAPI_BEGIN_DECLS
 typedef union {
     hal_bit_t b;
     hal_s32_t s;
-    hal_s32_t u;
+    hal_u32_t u;
     hal_float_t f;
 } hal_data_u;
 
