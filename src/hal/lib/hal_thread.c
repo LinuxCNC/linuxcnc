@@ -83,20 +83,20 @@ static void thread_task(void *arg)
 
 // HAL threads - public API
 
-int hal_create_thread(const char *name, unsigned long period_nsec,
-		      int uses_fp, int cpu_id)
+int hal_create_xthread(const hal_threadargs_t *args)
 {
     int next, prev_priority;
     int retval, n;
     hal_thread_t *new, *tptr;
     long prev_period, curr_period;
 
-    CHECK_STRLEN(name, HAL_NAME_LEN);
+    CHECK_NULL(args);
+    CHECK_STRLEN(args->name, HAL_NAME_LEN);
     CHECK_HALDATA();
     CHECK_LOCK(HAL_LOCK_CONFIG);
-    HALDBG("creating thread %s, %ld nsec", name, period_nsec);
+    HALDBG("creating thread %s, %ld nsec", args->name, args->period_nsec);
 
-    if (period_nsec == 0) {
+    if (args->period_nsec == 0) {
 	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: create_thread called "
 			"with period of zero");
@@ -112,10 +112,10 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 	next = hal_data->thread_list_ptr;
 	while (next != 0) {
 	    tptr = SHMPTR(next);
-	    cmp = strcmp(tptr->name, name);
+	    cmp = strcmp(tptr->name, args->name);
 	    if (cmp == 0) {
 		/* name already in list, can't insert */
-		HALERR("duplicate thread name %s", name);
+		HALERR("duplicate thread name %s", args->name);
 		return -EINVAL;
 	    }
 	    /* didn't find it yet, look at next one */
@@ -129,10 +129,10 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 	    return -ENOMEM;
 	}
 	/* initialize the structure */
-	new->uses_fp = uses_fp;
-	new->cpu_id = cpu_id;
+	new->uses_fp = args->uses_fp;
+	new->cpu_id = args->cpu_id;
 	new->handle = rtapi_next_handle();
-	rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
+	rtapi_snprintf(new->name, sizeof(new->name), "%s", args->name);
 	/* have to create and start a task to run the thread */
 	if (hal_data->thread_list_ptr == 0) {
 	    /* this is the first thread created */
@@ -140,7 +140,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 	    curr_period = rtapi_clock_set_period(0);
 	    if (curr_period == 0) {
 		/* not running, start it */
-		curr_period = rtapi_clock_set_period(period_nsec);
+		curr_period = rtapi_clock_set_period(args->period_nsec);
 		if (curr_period < 0) {
 		    HALERR("clock_set_period returned %ld",
 				    curr_period);
@@ -148,12 +148,12 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 		}
 	    }
 	    /* make sure period <= desired period (allow 1% roundoff error) */
-	    if (curr_period > (period_nsec + (period_nsec / 100))) {
+	    if (curr_period > (args->period_nsec + (args->period_nsec / 100))) {
 		HALERR("clock period too long: %ld", curr_period);
 		return -EINVAL;
 	    }
 	    if(hal_data->exact_base_period) {
-		hal_data->base_period = period_nsec;
+		hal_data->base_period = args->period_nsec;
 	    } else {
 		hal_data->base_period = curr_period;
 	    }
@@ -168,17 +168,17 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 	    prev_period = tptr->period;
 	    prev_priority = tptr->priority;
 	}
-	if ( period_nsec < hal_data->base_period) {
+	if ( args->period_nsec < hal_data->base_period) {
 	    HALERR("new thread period %ld is less than clock period %ld",
-		   period_nsec, hal_data->base_period);
+		   args->period_nsec, hal_data->base_period);
 	    return -EINVAL;
 	}
 	/* make period an integer multiple of the timer period */
-	n = (period_nsec + hal_data->base_period / 2) / hal_data->base_period;
+	n = (args->period_nsec + hal_data->base_period / 2) / hal_data->base_period;
 	new->period = hal_data->base_period * n;
 	if ( new->period < prev_period ) {
 	    HALERR("new thread period %ld is less than existing thread period %ld",
-			    period_nsec, prev_period);
+		   args->period_nsec, prev_period);
 	    return -EINVAL;
 	}
 	/* make priority one lower than previous */
@@ -189,17 +189,17 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 				new->priority,
 				lib_module_id,
 				global_data->hal_thread_stack_size,
-				uses_fp,
+				args->uses_fp,
 				new->name, new->cpu_id);
 	if (retval < 0) {
-	    HALERR("could not create task for thread %s", name);
+	    HALERR("could not create task for thread %s", args->name);
 	    return -EINVAL;
 	}
 	new->task_id = retval;
 	/* start task */
 	retval = rtapi_task_start(new->task_id, new->period);
 	if (retval < 0) {
-	    HALERR("could not start task for thread %s: %d", name, retval);
+	    HALERR("could not start task for thread %s: %d", args->name, retval);
 	    return -EINVAL;
 	}
 	/* insert new structure at head of list */
@@ -214,8 +214,20 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
     new->maxtime = 0;
 
     HALDBG("thread %s id %d created prio=%d",
-	   name, new->task_id, new->priority);
+	   args->name, new->task_id, new->priority);
     return 0;
+}
+
+// HAL threads - legacy API
+int hal_create_thread(const char *name, unsigned long period_nsec,
+		      int uses_fp, int cpu_id) {
+    hal_threadargs_t args = {
+	.name = name,
+	.period_nsec = period_nsec,
+	.uses_fp = uses_fp,
+	.cpu_id = cpu_id,
+    };
+    return hal_create_xthread(&args);
 }
 
 extern int hal_thread_delete(const char *name)

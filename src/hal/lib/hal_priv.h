@@ -444,6 +444,18 @@ typedef struct {
     int funct_ptr;		/* pointer to function */
 } hal_funct_entry_t;
 
+// argument struct for hal_create_xthread()
+typedef struct {
+    const char *name;
+    unsigned long period_nsec;
+    int uses_fp;
+    int cpu_id;
+    rtapi_thread_flags_t flags;
+} hal_threadargs_t;
+
+// extended arguments version of hal_create_thread().
+int hal_create_xthread(const hal_threadargs_t *args);
+
 typedef struct hal_thread {
     int next_ptr;		/* next thread in linked list */
     int uses_fp;		/* floating point flag */
@@ -455,6 +467,7 @@ typedef struct hal_thread {
     hal_list_t funct_list;	/* list of functions to run */
     int cpu_id;                 /* cpu to bind on, or -1 */
     int handle;                 // unique ID
+    rtapi_thread_flags_t flags;             // eg Posix, nowait
     char name[HAL_NAME_LEN + 1];	/* thread name */
 } hal_thread_t;
 

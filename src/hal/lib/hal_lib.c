@@ -337,6 +337,7 @@ EXPORT_SYMBOL(hal_del_funct_from_thread);
 EXPORT_SYMBOL(hal_call_usrfunct);
 
 // hal_thread.c:
+EXPORT_SYMBOL(hal_create_xthread);
 EXPORT_SYMBOL(hal_create_thread);
 EXPORT_SYMBOL(hal_thread_delete);
 EXPORT_SYMBOL(hal_start_threads);
