@@ -238,15 +238,21 @@ void _rtapi_task_wrapper(void * task_id_hack) {
 
     ostask_self[task_id]  = rt_task_self();
 
-    if ((ret = rt_task_set_periodic(NULL, TM_NOW, task->ratio * period)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"ERROR: rt_task_set_periodic(%d,%s) failed %d %s\n",
-			task_id, task->name, ret, strerror(-ret));
-	// really nothing one can realistically do here,
-	// so just enable forensics
-	abort();
-    }
+    // starting the thread with the TF_NOWAIT flag implies it is not periodic
+    // https://github.com/machinekit/machinekit/issues/237#issuecomment-126590880
+    // NB this assumes rtapi_wait() is NOT called on this thread any more
+    // see thread_task() where this is handled for now
 
+    if (!(task->flags & TF_NOWAIT)) {
+	if ((ret = rt_task_set_periodic(NULL, TM_NOW, task->ratio * period)) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "ERROR: rt_task_set_periodic(%d,%s) failed %d %s\n",
+			    task_id, task->name, ret, strerror(-ret));
+	    // really nothing one can realistically do here,
+	    // so just enable forensics
+	    abort();
+	}
+    }
 #ifdef USE_SIGXCPU
     // required to enable delivery of the SIGXCPU signal
     rt_task_set_mode(0, T_WARNSW, NULL);
@@ -298,8 +304,15 @@ int _rtapi_task_start_hook(task_data *task, int task_id) {
 	uses_fpu = T_FPU;
 #endif
 
+    // optionally start as relaxed thread - meaning defacto a standard Linux thread
+    // without RT features
+    // see https://xenomai.org/pipermail/xenomai/2015-July/034745.html and
+    // https://github.com/machinekit/machinekit/issues/237#issuecomment-126590880
+
+    int prio = (task->flags & TF_NONRT) ? 0 :task->prio;
+
     if ((retval = rt_task_create (&ostask_array[task_id], task->name, 
-				  task->stacksize, task->prio, 
+				  task->stacksize, prio,
 				  uses_fpu | which_cpu | T_JOINABLE)
 	 ) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
