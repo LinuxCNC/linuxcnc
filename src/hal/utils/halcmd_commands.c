@@ -2391,7 +2391,7 @@ static void print_thread_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Realtime Threads (flavor: %s) :\n",  current_flavor->name);
-	halcmd_output("     Period  FP     Name               (     Time, Max-Time )\n");
+	halcmd_output("     Period  FP     Name               (     Time, Max-Time ) flags\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next_thread = hal_data->thread_list_ptr;
@@ -2400,8 +2400,15 @@ static void print_thread_info(char **patterns)
 	if ( match(patterns, tptr->name) ) {
 		/* note that the scriptmode format string has no \n */
 		// TODO FIXME add thread runtime and max runtime to this print
-	    halcmd_output(((scriptmode == 0) ? "%11ld  %-3s  %20s ( %8ld, %8ld )\n" : "%ld %s %s %ld %ld"),
-		tptr->period, (tptr->uses_fp ? "YES" : "NO"), tptr->name, (long)tptr->runtime, (long)tptr->maxtime);
+	    char flags[100];
+	    snprintf(flags, sizeof(flags),"%s%s",
+		     tptr->flags & TF_NONRT ? "posix ":"",
+		     tptr->flags & TF_NOWAIT ? "nowait":"");
+
+	    halcmd_output(((scriptmode == 0) ? "%11ld  %-3s  %20s ( %8ld, %8ld ) %s\n" : "%ld %s %s %ld %ld %s"),
+		tptr->period, (tptr->uses_fp ? "YES" : "NO"), tptr->name,
+			  (long)tptr->runtime,
+			  (long)tptr->maxtime,  flags);
 
 	    list_root = &(tptr->funct_list);
 	    list_entry = list_next(list_root);
@@ -4067,9 +4074,7 @@ int do_newthread_cmd(char *name, char *period, char *args[])
     int cpu = -1;
     const char *s;
     int per = atoi(period);
-
-    if (per < 10000)
-	halcmd_warning("a period < 10uS is unlikely to work\n");
+    int flags = 0;
 
     for (i = 0; ((s = args[i]) != NULL) && strlen(s); i++) {
 	if (sscanf(s, "cpu=%d", &cpu) == 1)
@@ -4078,8 +4083,20 @@ int do_newthread_cmd(char *name, char *period, char *args[])
 	    use_fp = true;
 	if (strcmp(s, "nofp") == 0)
 	    use_fp = false;
+	if (strcmp(s, "posix") == 0)
+	    flags |= TF_NONRT;
+	if (strcmp(s, "nowait") == 0)
+	    flags |= TF_NOWAIT;
     }
-    retval = rtapi_newthread(rtapi_instance, name, per, cpu, (int)use_fp);
+
+    if ((per < 10000) && !(flags & TF_NOWAIT))
+	halcmd_warning("a period < 10uS is unlikely to work\n");
+    if ((flags & (TF_NOWAIT|TF_NONRT)) == TF_NOWAIT){
+	halcmd_error("specifying 'nowait' without 'posix' will likely lock up RT\n");
+	return -EINVAL;
+    }
+
+    retval = rtapi_newthread(rtapi_instance, name, per, cpu, (int)use_fp, flags);
     if (retval)
 	halcmd_error("%s\n",rtapi_rpcerror());
 
