@@ -27,6 +27,7 @@ static void thread_task(void *arg)
 	.argc = 0,
 	.argv = NULL,
     };
+    bool do_wait = ((thread->flags & TF_NOWAIT) == 0);
 
     while (1) {
 	if (hal_data->threads_running > 0) {
@@ -77,7 +78,8 @@ static void thread_task(void *arg)
 	    }
 	}
 	/* wait until next period */
-	rtapi_wait();
+	if (do_wait)
+	    rtapi_wait();
     }
 }
 
@@ -94,7 +96,10 @@ int hal_create_xthread(const hal_threadargs_t *args)
     CHECK_STRLEN(args->name, HAL_NAME_LEN);
     CHECK_HALDATA();
     CHECK_LOCK(HAL_LOCK_CONFIG);
-    HALDBG("creating thread %s, %ld nsec", args->name, args->period_nsec);
+    HALDBG("creating thread %s, %ld nsec fp=%d\n",
+	   args->name,
+	   args->period_nsec,
+	   args->uses_fp);
 
     if (args->period_nsec == 0) {
 	hal_print_msg(RTAPI_MSG_ERR,
@@ -132,6 +137,7 @@ int hal_create_xthread(const hal_threadargs_t *args)
 	new->uses_fp = args->uses_fp;
 	new->cpu_id = args->cpu_id;
 	new->handle = rtapi_next_handle();
+	new->flags = args->flags;
 	rtapi_snprintf(new->name, sizeof(new->name), "%s", args->name);
 	/* have to create and start a task to run the thread */
 	if (hal_data->thread_list_ptr == 0) {
@@ -183,14 +189,21 @@ int hal_create_xthread(const hal_threadargs_t *args)
 	}
 	/* make priority one lower than previous */
 	new->priority = rtapi_prio_next_lower(prev_priority);
+
 	/* create task - owned by library module, not caller */
-	retval = rtapi_task_new(thread_task,
-				new,
-				new->priority,
-				lib_module_id,
-				global_data->hal_thread_stack_size,
-				args->uses_fp,
-				new->name, new->cpu_id);
+
+	rtapi_task_args_t rargs = {
+	    .taskcode = thread_task,
+	    .arg = new,
+	    .prio = new->priority,
+	    .owner = lib_module_id,
+	    .stacksize = global_data->hal_thread_stack_size,
+	    .uses_fp = new->uses_fp,
+	    .cpu_id =new->cpu_id,
+	    .name = new->name,
+	    .flags = new->flags,
+	};
+	retval = rtapi_task_new(&rargs);
 	if (retval < 0) {
 	    HALERR("could not create task for thread %s", args->name);
 	    return -EINVAL;
@@ -226,6 +239,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 	.period_nsec = period_nsec,
 	.uses_fp = uses_fp,
 	.cpu_id = cpu_id,
+	.flags = 0,
     };
     return hal_create_xthread(&args);
 }
