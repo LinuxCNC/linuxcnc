@@ -512,6 +512,7 @@ namespace
 struct Posix : RtapiApp
 {
     Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
+        pthread_once(&key_once, init_key);
         if(do_thread_lock)
             pthread_mutex_init(&thread_lock, 0);
     }
@@ -527,6 +528,12 @@ struct Posix : RtapiApp
     static void *wrapper(void *arg);
     bool do_thread_lock;
     pthread_mutex_t thread_lock;
+
+    static pthread_once_t key_once;
+    static pthread_key_t key;
+    static void init_key(void) {
+        pthread_key_create(&key, NULL);
+    }
 };
 
 static void signal_handler(int sig, siginfo_t *si, void *uctx)
@@ -842,11 +849,8 @@ static void advance_clock(struct timespec &result, const struct timespec &src, u
 
 #define RTAPI_CLOCK (CLOCK_MONOTONIC)
 
-static pthread_once_t key_once = PTHREAD_ONCE_INIT;
-static pthread_key_t key;
-static void init_key(void) {
-    pthread_key_create(&key, NULL);
-}
+pthread_once_t Posix::key_once = PTHREAD_ONCE_INIT;
+pthread_key_t Posix::key;
 
 void *Posix::wrapper(void *arg)
 {
@@ -861,7 +865,6 @@ void *Posix::wrapper(void *arg)
   rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %lu ratio=%u\n",
 	  task, task->period, task->ratio);
 
-  pthread_once(&key_once, init_key);
   pthread_setspecific(key, arg);
 
   Posix &papp = reinterpret_cast<Posix&>(App());

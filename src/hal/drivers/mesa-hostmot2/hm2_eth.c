@@ -406,6 +406,15 @@ static int eth_socket_recv(int sockfd, void *buffer, int len, int flags) {
     return recv(sockfd, buffer, len, flags);
 }
 
+static int eth_socket_recv_loop(int sockfd, void *buffer, int len, int flags, long timeout) {
+    long long end = rtapi_get_clocks() + timeout;
+    int result;
+    do {
+        result = eth_socket_recv(sockfd, buffer, len, flags);
+    } while(result < 0 && rtapi_get_clocks() < end);
+    return result;
+}
+
 /// hm2_eth io functions
 
 static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
@@ -438,6 +447,7 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
       read_packet.addr_lo, read_packet.addr_hi, size);
     t1 = rtapi_get_time();
     do {
+        errno = 0;
         recv = eth_socket_recv(board->sockfd, (void*) &tmp_buffer, size, 0);
         if(recv < 0) rtapi_delay(READ_PCK_DELAY_NS);
         t2 = rtapi_get_time();
@@ -587,11 +597,16 @@ static int hm2_eth_probe(hm2_eth_t *board) {
 
     LBP16_INIT_PACKET4(read_packet, CMD_READ_BOARD_INFO_ADDR16_INCR(16/2), 0);
     send = eth_socket_send(board->sockfd, (void*) &read_packet, sizeof(read_packet), 0);
-    if(send < 0)
+    if(send < 0) {
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
-    recv = eth_socket_recv(board->sockfd, (void*) &board_name, 16, 0);
-    if(recv < 0)
+        return -errno;
+    }
+    recv = eth_socket_recv_loop(board->sockfd, (void*) &board_name, 16, 0,
+                200 * 1000 * 1000);
+    if(recv < 0) {
         LL_PRINT("ERROR: receiving packet: %s\n", strerror(errno));
+        return -errno;
+    }
 
     board = &boards[boards_count];
     board->llio.private = board;
@@ -709,10 +724,6 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         return ret;
     }
     boards_count++;
-
-    int val = fcntl(board->sockfd, F_GETFL);
-    val = val | O_NONBLOCK;
-    fcntl(board->sockfd, F_SETFL, val);
 
     return 0;
 }
