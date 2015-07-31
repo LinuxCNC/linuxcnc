@@ -287,24 +287,28 @@ static void *realtime_thread(void *arg) {
     extra_task_data[task_id(task)].tid = (pid_t) syscall(SYS_gettid);
 
     rtapi_print_msg(RTAPI_MSG_INFO,
-		    "RTAPI: task '%s' at %p period = %d ratio=%d id=%d TID=%d\n",
+		    "RTAPI: task '%s' at %p"
+		    " period = %d ratio=%d id=%d TID=%d, %s scheduling\n",
 		    task->name,
 		    task, task->period, task->ratio,
-		    task_id(task), extra_task_data[task_id(task)].tid);
+		    task_id(task), extra_task_data[task_id(task)].tid,
+		    (task->flags & TF_NONRT) ? "non-RT" : "RT");
 
     if (realtime_set_affinity(task))
 	goto error;
-    if (realtime_set_priority(task)) {
+    if (!(task->flags & TF_NONRT)) {
+	if (realtime_set_priority(task)) {
 #ifdef RTAPI_POSIX // This requires privs - tell user how to obtain them
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-			"to get non-preemptive scheduling with POSIX threads,");
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-			"you need to run 'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-			"your might have to install setcap (e.g.'sudo apt-get install libcap2-bin') to do this.");
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "to get non-preemptive scheduling with POSIX threads,");
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "you need to run 'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "your might have to install setcap (e.g.'sudo apt-get install libcap2-bin') to do this.");
 #else
-	goto error;
+	    goto error;
 #endif
+	}
     }
 
     /* We're done initializing. Open the barrier. */
