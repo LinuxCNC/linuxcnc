@@ -22,6 +22,9 @@
 #-----------------------------------------------------------------------
 
 # library procs:
+# Note: use linuxcnc_var script since this program can be
+#       started without using the linuxcnc script and
+#       ::env(HALLIB_DIR) will not exist.
 source [file join [exec linuxcnc_var HALLIB_DIR] hal_procs_lib.tcl]
 
 proc threadname_for_pin {pinname} {

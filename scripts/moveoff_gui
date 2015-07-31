@@ -1,6 +1,9 @@
 #!/usr/bin/tclsh
 
-# library procs:
+# library procs
+# Note: use linuxcnc_var script since this program can be
+#       started without using the linuxcnc script and
+#       ::env(HALLIB_DIR) will not exist
 set hallib_dir [exec linuxcnc_var HALLIB_DIR]
 source [file join $hallib_dir hal_procs_lib.tcl]
 
