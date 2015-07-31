@@ -567,6 +567,29 @@ extern long long int _rtapi_get_clocks(void);
     Call these functions only from within init/cleanup code, not from
     realtime tasks.
 */
+
+typedef void (*taskcode_t) (void*);
+
+typedef enum {
+    TF_NONRT  = RTAPI_BIT(0),   // into low-prio class, no RT prio
+    TF_NOWAIT  = RTAPI_BIT(1),  // skip rtapi_wait() in thread_task
+
+} rtapi_thread_flags_t;
+
+// argument structure for rtapi_task_new():
+typedef struct {
+    taskcode_t taskcode;
+    void *arg;
+    int prio;
+    int owner;
+    unsigned long int stacksize;
+    int uses_fp;
+    char *name;
+    int cpu_id;
+    rtapi_thread_flags_t flags;             // eg Posix, nowait
+} rtapi_task_args_t;
+
+
 typedef int (*rtapi_prio_highest_lowest_t)(void);
 #define rtapi_prio_highest()			\
     rtapi_switch->rtapi_prio_highest()
@@ -613,16 +636,11 @@ extern int _rtapi_prio_next_lower(int prio);
 #define RTAPI_NO_FP   0
 #define RTAPI_USES_FP 1
 
-typedef int (*rtapi_task_new_t)(void (*) (void *), void *,
-				int, int, unsigned long int,
-				int, char *, int);
-#define rtapi_task_new(taskcode, arg, prio, owner, stacksize, uses_fp, \
-		       name, cpu_id)				       \
-    rtapi_switch->rtapi_task_new(taskcode, arg, prio, owner, stacksize, \
-				uses_fp, name, cpu_id)
-extern int _rtapi_task_new(void (*taskcode) (void *), void *arg,
-			      int prio, int owner, unsigned long int stacksize, 
-			      int uses_fp, char *name, int cpu_id);
+typedef int (*rtapi_task_new_t)(const rtapi_task_args_t *args);
+
+#define rtapi_task_new(args)				       \
+    rtapi_switch->rtapi_task_new(args)
+extern int _rtapi_task_new(const rtapi_task_args_t *args);
 
 /** 'rtapi_task_delete()' deletes a task.  'task_id' is a task ID
     from a previous call to rtapi_task_new().  It frees memory

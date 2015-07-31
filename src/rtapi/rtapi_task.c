@@ -110,11 +110,10 @@ int _rtapi_prio_next_lower(int prio) {
 int _rtapi_task_new_hook(task_data *task, int task_id);
 #endif
 
-int _rtapi_task_new(void (*taskcode) (void*), void *arg,
-		   int prio, int owner, unsigned long int stacksize, 
-		   int uses_fp, char *name, int cpu_id) {
+
+int _rtapi_task_new(const rtapi_task_args_t *args) {
     int task_id;
-    int retval = 0;
+    int __attribute__((__unused__)) retval = 0;
     task_data *task;
 
     /* get the mutex */
@@ -122,11 +121,18 @@ int _rtapi_task_new(void (*taskcode) (void*), void *arg,
 
 #ifdef MODULE
     /* validate owner */
-    if ((owner < 1) || (owner > RTAPI_MAX_MODULES)) {
+    if ((args->owner < 1) || (args->owner > RTAPI_MAX_MODULES)) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -EINVAL;
     }
-    if (module_array[owner].state != REALTIME) {
+    if (module_array[args->owner].state != REALTIME) {
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	return -EINVAL;
+    }
+    if ((args->flags & (TF_NONRT|TF_NOWAIT)) != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"task '%s' : nowait/posix flags not supported with kthreads\n",
+			args->name);
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -EINVAL;
     }
@@ -147,14 +153,21 @@ int _rtapi_task_new(void (*taskcode) (void*), void *arg,
 
     // if requested priority is invalid, release lock and return error
 
-    if (PRIO_LT(prio,_rtapi_prio_lowest()) ||
-	PRIO_GT(prio,_rtapi_prio_highest())) {
+    if (PRIO_LT(args->prio,_rtapi_prio_lowest()) ||
+	PRIO_GT(args->prio,_rtapi_prio_highest())) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"New task  %d  '%s:%d': invalid priority %d "
 			"(highest=%d lowest=%d)\n",
-			task_id, name, rtapi_instance, prio,
+			task_id, args->name, rtapi_instance, args->prio,
 			_rtapi_prio_highest(),
 			_rtapi_prio_lowest());
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	return -EINVAL;
+    }
+
+    if ((args->flags & (TF_NOWAIT|TF_NONRT)) == TF_NOWAIT) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"task '%s' : nowait flag invalid for RT thread\n",
+			args->name);
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -EINVAL;
     }
@@ -162,28 +175,27 @@ int _rtapi_task_new(void (*taskcode) (void*), void *arg,
     // task slot found; reserve it and release lock
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "Creating new task %d  '%s:%d': "
-		    "req prio %d (highest=%d lowest=%d) stack=%lu\n",
-		    task_id, name, rtapi_instance, prio,
+		    "req prio %d (highest=%d lowest=%d) stack=%lu fp=%d flags=%d\n",
+		    task_id, args->name, rtapi_instance, args->prio,
 		    _rtapi_prio_highest(),
 		    _rtapi_prio_lowest(),
-		    stacksize);
+		    args->stacksize, args->uses_fp, args->flags);
     task->magic = TASK_MAGIC;
 
     /* fill out task structure */
-    if(stacksize < MIN_STACKSIZE) stacksize = MIN_STACKSIZE;
-    task->owner = owner;
-    task->arg = arg;
-    task->stacksize = stacksize;
-    task->taskcode = taskcode;
-    task->prio = prio;
-    task->uses_fp = uses_fp;
-    /*  hopefully this works for userland thread systems too  */
-    task->cpu = cpu_id > -1 ? cpu_id : rtapi_data->rt_cpu;
-    rtapi_print_msg(RTAPI_MSG_DBG,
-		    "Task CPU:  %d\n", task->cpu);
-    /*    task->cpu = cpu_id;  */
+    task->owner = args->owner;
+    task->arg = args->arg;
+    task->stacksize = (args->stacksize < MIN_STACKSIZE) ? MIN_STACKSIZE : args->stacksize;
+    task->taskcode = args->taskcode;
+    task->prio = args->prio;
+    task->flags = args->flags;
+    task->uses_fp = args->uses_fp;
+    task->cpu = args->cpu_id > -1 ? args->cpu_id : rtapi_data->rt_cpu;
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "Task CPU:  %d\n", task->cpu);
+
     rtapi_snprintf(task->name, sizeof(task->name), 
-	     "%s:%d", name, rtapi_instance);
+	     "%s:%d", args->name, rtapi_instance);
     task->name[sizeof(task->name) - 1] = '\0';
 
 #ifdef MODULE
@@ -241,7 +253,7 @@ int _rtapi_task_new(void (*taskcode) (void*), void *arg,
     /* announce the birth of a brand new baby task */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"RTAPI: task %02d installed by module %02d, priority %d, code: %p\n",
-	task_id, task->owner, task->prio, taskcode);
+	task_id, task->owner, task->prio, args->taskcode);
 
     return task_id;
 }
