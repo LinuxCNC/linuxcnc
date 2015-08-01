@@ -1736,7 +1736,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     double acc_scale_max = pmCartAbsMax(&acc_scale);
     //KLUDGE lumping a few calculations together here
     if (prev_tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_CIRCULAR) {
-        acc_scale_max /= BLEND_ACC_RATIO_NORMAL;
+        acc_scale_max /= BLEND_ACC_RATIO_TANGENTIAL;
     }
 
     const double kink_ratio = tpGetTangentKinkRatio();
