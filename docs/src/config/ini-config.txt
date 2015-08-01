@@ -537,6 +537,9 @@ Section.
     HALFILES are found using a search.  If the named file is found in the directory
     containing the ini file, it is used.  If the named file is not found in this
     ini file directory, a search is made using a system library of halfiles.
+    A HALFILE may also be specifed as an absolute path (when the name starts with
+    a '/' character).  Absolute paths are not recommended as their use may limit
+    relocation of configurations.
 
 * 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Execute the tcl file 'texample.tcl'
     at start up with arg1, arg2, etc as ::argv list.  Files with a .tcl suffix are
