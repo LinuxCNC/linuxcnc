@@ -1,13 +1,9 @@
+[[cha:canonical-device-interfaces]]
+
 = Canonical Device Interfaces
 
-.Note
-*********************************************************************
-By version 2.1, the HAL drivers should have all been updated to 
-match these specs. Send an email if you spot any problems. 
-********************************************************************* 
-
-[[cha:Canonical-Device-Interfaces]]
 == Introduction
+
 The following sections show the pins, parameters, and functions that 
 are supplied by “canonical devices”. All HAL device drivers should 
 supply the same pins and parameters, and implement the same behavior.
@@ -17,7 +13,7 @@ defined for a canonical device. The `<device-name>`, `<device-num>`,
 and `<chan-num>` fields are set based on the characteristics of the 
 real device.
 
-== Digital Input[[sec:CanonDigIn]]
+== Digital Input
 
 The canonical digital input (I/O type field: `digin`) is quite simple.
 
@@ -34,7 +30,7 @@ The canonical digital input (I/O type field: `digin`) is quite simple.
 
  - (funct) *read* -- Read hardware and set `in` and `in-not` HAL pins.
 
-== Digital Output[[sec:CanonDigOut]]
+== Digital Output
 
 The canonical digital output (I/O type field: `digout`) is also very
 simple.

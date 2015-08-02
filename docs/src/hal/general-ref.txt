@@ -94,7 +94,7 @@ The individual fields are:
     high and active low inputs. For most io-types, there is a standard set
     of pins and parameters, (referred to as the “canonical interface”) that
     the driver should implement. The canonical interfaces are described in
-    the <<cha:Canonical-Device-Interfaces,Canonical Device Interfaces>>
+    the <<cha:canonical-device-interfaces,Canonical Device Interfaces>>
     chapter.
 
 .Examples

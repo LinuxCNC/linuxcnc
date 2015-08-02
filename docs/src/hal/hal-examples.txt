@@ -1,3 +1,5 @@
+[[cha:hal-examples]](((HAL Examples)))
+
 = HAL Examples
 
 All of these examples assume you are starting with a stepconf based

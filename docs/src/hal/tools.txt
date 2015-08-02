@@ -24,7 +24,7 @@ cd toplevel_directory_for_rip_build
 man halcmd
 ----
 
-The <<cha:HAL-tutorial,HAL Tutorial>> has a number of examples of halcmd
+The <<cha:hal-tutorial,HAL Tutorial>> has a number of examples of halcmd
 usage, and is a good tutorial for halcmd.
 
 [[sec:halmeter]](((Halmeter)))
@@ -61,7 +61,7 @@ window. The item name will be displayed in the title bar instead of
 under the value, and there will be no buttons. Useful when you want a
 lot of meters in a small amount of screen space.
 
-Refer to <<sec:Tutorial-Halmeter,Halmeter Tutorial>> section for more
+Refer to <<sec:tutorial-halmeter,Halmeter Tutorial>> section for more
 information.
 
 Halmeter can be loaded from a terminal or from Axis. Halmeter is
@@ -112,7 +112,7 @@ Notes:
 Halscope is an 'oscilloscope' for the HAL. It lets you capture the
 value of pins, signals, and parameters as a function of time. Complete
 operating instructions should be located here eventually. For now,
-refer to section  <<sec:Tutorial-Halscope>> in the tutorial chapter,
+refer to section  <<sec:tutorial-halscope>> in the tutorial chapter,
 which explains the basics.
 
 The halscope File menu selector provides buttons to save a configuration

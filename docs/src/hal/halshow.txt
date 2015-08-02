@@ -1,6 +1,6 @@
-= Halshow
+[[cha:halshow]](((Halshow)))
 
-[[cha:halshow]] (((Halshow)))
+= Halshow
 
 The script halshow can help you find your way around a running HAL.
 This is a very specialized system and it must connect to a working HAL.
