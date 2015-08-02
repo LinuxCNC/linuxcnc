@@ -71,7 +71,7 @@ net encoder-counts => axis.2.jog-counts
 ----
 
 If the machine is capable of high acceleration to smooth out the moves
-for each click of the MPG use the <<ilowpass,ilowpass>> component to
+for each click of the MPG use the <<sec:ilowpass,ilowpass>> component to
 limit the acceleration.
 
 .jog.hal with ilowpass

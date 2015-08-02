@@ -1,6 +1,6 @@
-= halcompile: The HAL Component Generator
+[[cha:hal-component-generator]] (((HAL Component Generator)))
 
-[[cha:halcompile-hal-component-generator]] (((halcompile HAL Component Generator)))
+= The HAL Component Generator
 
 == Introduction
 
@@ -456,9 +456,7 @@ If a '.comp' file is a driver for hardware, it may be placed in
 'linuxcnc/src/hal/drivers' and will be built unless LinuxCNC is
 configured as a userspace simulator.
 
-[[sec:Compiling-realtime-components]]
 == Compiling realtime components outside the source tree
-(((Compiling realtime components outside the source tree)))
 
 'halcompile' can process, compile, and install a realtime component
 in a single step, placing 'rtexample.ko' in the LinuxCNC realtime

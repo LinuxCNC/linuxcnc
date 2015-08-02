@@ -89,7 +89,7 @@ not shell commands.
 
 For the first example, we will use a HAL component called 'siggen',
 which is a simple signal generator. A complete description of the
-'siggen' component can be found in the <<sec:Siggen,Siggen>> section of
+'siggen' component can be found in the <<sec:siggen,Siggen>> section of
 this Manual.
 It is a realtime component, implemented as a Linux kernel module. To
 load 'siggen' use the HAL command 'loadrt'.

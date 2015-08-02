@@ -1,6 +1,6 @@
-= Stepper Configuration
-
 [[cha:stepper-config]] (((Stepper Configuration)))
+
+= Stepper Configuration
 
 == Introduction
 
@@ -165,7 +165,7 @@ guide the reader through the file.
 There are a couple of operations that get executed when the
 standard_pinout.hal gets executed/interpreted:
 
-* The Parport driver gets loaded (see the <<cha:Parport,Parport Chapter>>
+* The Parport driver gets loaded (see the <<cha:parport,Parport Chapter>>
    for details)
 * The read & write functions of the parport driver get assigned to the
    base thread footnote:[the fastest thread in the LinuxCNC setup, usually the

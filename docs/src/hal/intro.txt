@@ -1,6 +1,6 @@
-= HAL Introduction
-
 [[cha:hal-introduction]] (((HAL Introduction)))
+
+= HAL Introduction
 
 HAL(((HAL))) stands for Hardware Abstraction Layer. At the highest
 level, it is simply a way to allow a number of 'building blocks' to be
@@ -122,7 +122,7 @@ controller is what HAL is all about. If you are comfortable with the
 idea of interconnecting hardware black boxes, you will probably have
 little trouble using HAL to interconnect software black boxes.
 
-== HAL Concepts[[sec:HAL-Concepts]]
+== HAL Concepts
 
 This section is a glossary that defines key HAL terms but it is a bit
 different than a traditional glossary because these terms are not
@@ -222,7 +222,7 @@ pins, the other to take data from the HAL pins and write it to the
 physical output pins. Both of these functions are part of the parport
 driver.
 
-== HAL components[[sec:Intro-HAL-components]]
+== HAL components
 
 Each HAL component is a piece of software with well-defined inputs,
 outputs, and behavior, that can be installed and interconnected as
@@ -230,7 +230,7 @@ needed. This section lists some of the available components and a brief
 description of what each does. Complete details for each component are
 available later in this document.
 
-=== External Programs with HAL hooks[[sub:ExternalPrograms]]
+=== External Programs with HAL hooks
 
 motion::
      (((motion))) A realtime module that accepts NML
@@ -251,26 +251,26 @@ halui::
     commands, it is intended to work as a full User Interface using
     external knobs & switches 
 
-=== Internal Components[[sub:InternalComponents]]
+=== Internal Components
 
 stepgen::
-     Software step pulse generator with position loop. See section <<sec:Stepgen>>(((stepgen)))
+     Software step pulse generator with position loop. See section <<sec:stepgen>>(((stepgen)))
 
 encoder::
-     Software based encoder counter. See section <<sec:Encoder>>(((encoder)))
+     Software based encoder counter. See section <<sec:encoder>>(((encoder)))
 
 pid::
-     Proportional/Integral/Derivative control loops. See section <<sec:PID>>(((pid)))
+     Proportional/Integral/Derivative control loops. See section <<sec:pid>>
 
 siggen::
      A sine/cosine/triangle/square wave generator for testing.
-    See section <<sec:Siggen>>(((siggen)))
+    See section <<sec:siggen>>
 
 supply::
      a simple source for testing(((supply)))
 
 
-=== Hardware Drivers[[sub:HardwareDrivers]](((Hardware Drivers)))
+=== Hardware Drivers
 
 hal_ax5214h::
      (((hal-ax5214h))) A driver for the Axiom Measurement & Control AX5241H
@@ -297,7 +297,7 @@ hal_stg::
 hal_vti::
     (((hal-vti))) Vigilant Technologies PCI ENCDAC-4 controller
 
-=== Tools and Utilities[[sub:ToolsUtilities]]
+=== Tools and Utilities
 
 halcmd::
      (((halcmd))) Command line tool for configuration and tuning. See
@@ -315,7 +315,7 @@ halscope::
 
 Each of these building blocks is described in detail in later chapters.
 
-== Timing Issues In HAL[[sec:Timing-Issues]]
+== Timing Issues In HAL
 
 Unlike the physical wiring models between black boxes that we have
 said that HAL is based upon, simply connecting two pins with a
