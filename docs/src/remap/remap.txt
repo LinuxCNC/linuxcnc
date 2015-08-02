@@ -1149,8 +1149,6 @@ these settings back on when the program is resumed.
 For a complete example doing just that, see
 'configs/sim/axis/remap/extend-builtins/', which adapts M1 as laid out above.
 
-[[remap:G-code-cycles]]
-
 == Creating new G-code cycles
 
 A G-code cycle as used here is meant to behave as follows:
@@ -1162,7 +1160,7 @@ code, but no new G-code, the previous G code is re-executed with the
 parameters changed accordingly.
 
 An example: Assume you have `G84.3` defined as remapped G code cycle
-with the following ini segment (see <<sec:cycle-stdglue,here>> for
+with the following ini segment (see <<remap:cycle-stdglue,here>> for
 a detailed description of +cycle_prolog+ and +cycle_epilog+):
 
 [source,{ini}]
@@ -1233,7 +1231,7 @@ configured, and hence has its own section `PYTHON` in the ini file.
 `PYTHON_TASK`='[0|1]'::
   Start the Python task plug in. Experimental. See xxx.
 
-[[remap::executing-python-statements]]
+[[remap:executing-python-statements]]
 
 === Executing Python statements from the interpreter
 
@@ -1805,7 +1803,7 @@ fault. An informational message is displayed and the epilog continues.
   executed.
 * The new tool parameters (offsets, diameter etc) are set.
 
-[[sec:cycle-stdglue]]
+[[remap:cycle-stdglue]]
 
 === G code Cycles: +cycle_prolog+ and +cycle_epilog+
 
@@ -2388,7 +2386,7 @@ processes just consult this structure. The interpreter holds actually
 a local copy of the tool table.
 
 For the curious, the current emcStatus structure can be accessed by
-<<remap::executing-python-statements,Python statements>>. The
+<<remap:executing-python-statements,Python statements>>. The
 interpreter's perception of the tool currently loaded for instance is
 accessed by:
 
