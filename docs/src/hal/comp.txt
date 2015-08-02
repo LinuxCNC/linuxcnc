@@ -15,7 +15,9 @@ For instance, when coded in C, a simple component such as "ddt" is around 80
 lines of code. The equivalent component is very short when written using the
 'halcompile' preprocessor:
 
-.Simple Component Example [[code:simple-comp-example]]
+[[code:simple-comp-example]]
+
+.Simple Component Example
 ----
 component ddt "Compute the derivative of the input function";
 pin in float in;

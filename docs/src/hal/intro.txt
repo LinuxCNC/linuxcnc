@@ -88,7 +88,7 @@ changes as needed.
 
 This document is aimed at people who already know how to do this kind
 of hardware system integration, but who do not know how to connect the
-hardware to LinuxCNC. See the <<sec:Remote-Start-Example,Remote Start
+hardware to LinuxCNC. See the <<sec:halui-remote-start,Remote Start
 Example>> section in the HAL UI Examples documentation.
 
 image::images/remote-start.png[]
@@ -301,17 +301,17 @@ hal_vti::
 
 halcmd::
      (((halcmd))) Command line tool for configuration and tuning. See
-    section <<sec:Halcmd>> 
+    section <<sec:halcmd>> 
 
 halgui::
     GUI tool for configuration and tuning (not implemented yet).
 
 halmeter::
-     (((halmeter))) A handy multimeter for HAL signals. See section <<sec:Halmeter>>. 
+     (((halmeter))) A handy multimeter for HAL signals. See section <<sec:halmeter>>. 
 
 halscope::
      (((halscope))) A full featured digital storage oscilloscope for HAL
-    signals. See section <<sec:Halscope>>. 
+    signals. See the <<sec:halscope,Halscope>> section.
 
 Each of these building blocks is described in detail in later chapters.
 

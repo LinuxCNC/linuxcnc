@@ -24,7 +24,9 @@ At the left of its display as shown in figure is a tree view, somewhat like
 you might see with some file browsers. At the right is a tabbed notebook with
 tabs for show and watch.
 
-.Halshow Layout[[cap:halshow-layout]]
+[[cap:halshow-layout]]
+
+.Halshow Layout
 
 image::images/halshow-1.png[align="center"]
 

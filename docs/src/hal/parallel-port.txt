@@ -158,10 +158,6 @@ slot you put them into, so if you like to \'get under the hood'
 and re-arrange things, be sure to check these values before you
 start LinuxCNC.
 
-
-
-
-
 [[fig:parport-block-diag]]
 
 .Parport Block Diagram

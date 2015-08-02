@@ -1,4 +1,4 @@
-[[cha:HAL-components]] (((HAL Components)))
+[[cha:hal-components]] (((HAL Components)))
 
 = HAL Components
 
@@ -34,7 +34,9 @@ linuxcnc:: LinuxCNC (The Enhanced Machine Controller).
 pyvcp:: Virtual Control Panel for LinuxCNC.
 shuttlexpress:: control HAL pins with the ShuttleXpress device made by Contour Design.
 
-== Realtime Components List[[sec:realtime-components]]
+[[sec:realtime-components]]
+
+== Realtime Components List
 
 Some of these will have expanded descriptions from the man pages. Some
 will have limited descriptions. All of the components have man pages.
