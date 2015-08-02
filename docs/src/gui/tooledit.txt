@@ -1,8 +1,9 @@
-= Tool Edit GUI
-
 [[cha:tooledit-gui]] (((Tool Edit GUI)))
 
+= Tool Edit GUI
+
 == Tool Edit Version Requirements
+
 [NOTE]
 The following configurable features for 'tooledit' are available in versions
 2.5.1 and later. In 2.5.0 the 'tooledit' gui is without the configurable

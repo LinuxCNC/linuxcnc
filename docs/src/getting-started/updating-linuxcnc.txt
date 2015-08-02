@@ -1,6 +1,6 @@
-= Updating LinuxCNC
-
 [[cha:updating-linuxcnc]] (((Updating LinuxCNC)))
+
+= Updating LinuxCNC
 
 This section describes how to upgrade LinuxCNC to version 2.7 from
 version 2.6.  It assumes that you have an existing 2.6 install that you

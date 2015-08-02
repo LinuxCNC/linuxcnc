@@ -1,12 +1,12 @@
-= Linux FAQ 
-
 [[cha:linux-faq]] (((Linux FAQ)))
+
+= Linux FAQ
 
 These are some basic Linux commands and techniques for new to Linux
 users. More complete information can be found on the web or by using
 the man pages.
 
-== Automatic Login (((Automatic Login)))
+== Automatic Login
 
 When you install LinuxCNC with the Ubuntu LiveCD the default is to have to
 log in each time you turn the computer on. To enable automatic login go
@@ -16,7 +16,7 @@ have your password that you used for the install to gain access to the
 Login Window Preferences window. In the Security tab check off Enable
 Automatic Login and pick a user name from the list (that would be you).
 
-== Automatic Startup (((Automatic Startup)))
+== Automatic Startup
 
 To have LinuxCNC start automatically with your config after turning on the
 computer go to 'System > Preferences > Sessions > Startup Applications',
@@ -30,9 +30,7 @@ Example:
 linuxcnc /home/mill/linuxcnc/config/mill/mill.ini
 ----
 
-== Man Pages[[sec:Man-Pages]]
-
-(((Man Pages)))
+== Man Pages
 
 Man pages are automatically generated manual pages in most cases. Man
 pages are usually available for most programs and commands in Linux.
@@ -68,9 +66,7 @@ The resulting text file will be located in the home directory if you
 did not change directories when you opened up the terminal window and
 it will be named mymod.txt or what ever you named it.
 
-== Editing a Root File[[sec:Editing-a-Root-File]]
-
-(((Editing a Root File)))
+== Editing a Root File
 
 When you open the file browser and you see the Owner of the file is
 root you must do extra steps to edit that file. Editing some root files
@@ -79,8 +75,6 @@ can open and view most root files, but they will open in 'read only'
 mode.
 
 === The Command Line Way
-
-(((sudo gedit)))
 
 Open up 'Applications > Accessories > Terminal'.
 
@@ -94,8 +88,6 @@ Open the file with File > Open > Edit
 
 === The GUI Way
 
-(((gksudo)))
-
  . Right click on the desktop and select Create Launcher
  . Type a name in like sudo edit
  . Type 'gksudo "gnome-open %u"' as the command and save the launcher to
@@ -108,11 +100,9 @@ In Ubuntu you can become root by typing in "sudo -i" in a terminal
 window then typing in your password. Be careful, because you can really 
 foul things up as root if you don't know what you're doing. 
 
-== Terminal Commands[[sec:Terminal-Commands]]
+== Terminal Commands
 
-(((Terminal Commands)))
-
-=== Working Directory (((Working Directory)))(((pwd)))
+=== Working Directory
 
 To find out the path to the present working directory in the terminal
 window type:
@@ -122,8 +112,6 @@ pwd
 ----
 
 === Changing Directories
-
-(((Changing Directories)))(((cd)))
 
 To move up one level in the terminal window type:
 
@@ -146,8 +134,6 @@ cd linuxcnc/configs
 
 === Listing files in a directory
 
-(((Listing files in a directory)))(((dir)))(((ls)))
-
 To view a list of all the files and subdirectories in the terminal window type: 
 
 ----
@@ -161,8 +147,6 @@ ls
 ----
 
 === Finding a File
-
-(((Finding a File)))(((find)))
 
 The find command can be a bit confusing to a new Linux user. The basic
 syntax is:
@@ -198,8 +182,6 @@ The backslash is needed to escape the shell meta-characters. See the find
 man page for more information on find.
 
 === Searching for Text
-
-(((Searching for Text)))(((grep)))
 
 ----
 grep -irl 'text to search for' *

@@ -1,4 +1,4 @@
-[[cha:vismach]]
+[[cha:vismach]](((Vismach)))
 
 = Vismach
 
