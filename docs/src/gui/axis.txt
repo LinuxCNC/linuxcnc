@@ -1,14 +1,14 @@
-= AXIS GUI
-
 [[cha:axis-gui]] (((Axis GUI)))
+
+= AXIS GUI
 
 == Introduction
 
-AXIS(((AXIS))) is a graphical front-end for LinuxCNC which features a live
-preview and backplot. It is written in Python(((Python))) and uses
-Tk(((Tk))) and OpenGL(((OpenGL))) to display its user interface.
+AXIS is a graphical front-end for LinuxCNC which features a live
+preview and backplot. It is written in Python and uses
+Tk and OpenGL to display its user interface.
 
-.AXIS Window[[cap:AXIS-Window]]
+.AXIS Window
 
 image::images/axis-2.5.png[align="center"]
 
@@ -79,8 +79,6 @@ The AXIS window contains the following elements:
 
 === Menu Items
 
-[[sec:axis-menu]] (((Axis Menu)))
-
 Some menu items might be grayed out depending on how you have your
 .ini file configured. For more information on configuration see the
 <<cha:ini-configuration,INI Chapter>>.
@@ -121,7 +119,9 @@ Some menu items might be grayed out depending on how you have your
 * 'Quit' - 
     Terminates the current LinuxCNC session.
 
-.Machine Menu [[sub:axis-machine-menu]]
+[[sub:axis-machine-menu]]
+
+.Machine Menu
 
 * 'Toggle Emergency Stop F1' - Change the state of the Emergency Stop.
 
@@ -181,7 +181,7 @@ Do not use 'Run From Selected Line' if your g code program contains subroutines.
 
 * 'Zero Coordinate System' - Clear (set to zero) a chosen offset.
 
-[[sec:tool-touch-off]] (((Tool Touch Off)))
+[[axis:tool-touch-off]] (((Tool Touch Off)))
 
 * 'Tool touch off to workpiece' - When performing Touch Off, the value
 entered is relative to the current workpiece ('G5x') coordinate system,
@@ -418,7 +418,7 @@ and the program requires 3.83 inches of X travel.
 To move the program so it's within the machine's travel in this case, 
 jog to the left and Touch Off X again.
 
-.Soft Limit[[cap:Soft-Limit]]
+.Soft Limit
 
 image::images/axis-outofrange.png[align="center"]
 
@@ -487,7 +487,7 @@ When the program is running, the line currently being executed is
 highlighted in red. If no line has been selected by the user, 
 the text display will automatically scroll to show the current line.
 
-.Current and Selected Lines[[cap:Current-and-Selected]]
+.Current and Selected Lines
 
 image::images/axis-currentandselected.png[align="center"]
 
@@ -560,7 +560,7 @@ specified value. Expressions may be entered using the rules for
 rs274ngc programs, except that variables may not be referred to. The
 resulting value is shown as a number.
 
-.Touch Off[[cap:Touch-Off]]
+.Touch Off
 
 image::images/touchoff.png[align="center"]
 
@@ -604,7 +604,7 @@ MDI allows G-code commands to be entered manually.
 When the machine is not turned on, or when a program is
 running, the MDI controls are unavailable.
 
-.The MDI tab[[cap:The-MDI-tab]]
+.The MDI tab
 
 image::images/axis-mdi.png[align="center"]
 
@@ -672,7 +672,7 @@ to 0% - 100%.
 
 The most frequently used keyboard shortcuts are shown in the following Table 
 
-.Most Common Keyboard Shortcuts[[cap:Most-Common-Keyboard]]
+.Most Common Keyboard Shortcuts
 
 [width="80%", options="header", cols="^,<,^"]
 |====================================================================
@@ -711,7 +711,7 @@ AXIS includes a program called 'linuxcnctop' which shows some of the
 details of LinuxCNC's state. You can run this program by invoking Machine >
 Show LinuxCNC Status
 
-.LinuxCNC Status Window[[cap:LinuxCNC-Status-Window]]
+.LinuxCNC Status Window
 
 image::images/axis-emc-status.png[align="center"]
 
@@ -752,9 +752,9 @@ commands to a running AXIS. The available commands are shown by running
 ('--ping'), loading a file by name, reloading the currently loaded
 file ('--reload'), and making AXIS exit ('--quit').
 
-[[sec:Manual-Tool-Change]]
+[[sec:manual-tool-change]](((Manual Tool Change)))
+
 == Manual Tool Change
-(((Manual Tool Change)))
 
 LinuxCNC includes a userspace HAL component called 'hal_manualtoolchange',
 which shows a window prompt telling you what tool is expected when a
@@ -779,7 +779,7 @@ This can be very confusing to most users.
 To turn this feature off for the current tool change 
 program a G1 with no move after the T<n>.
 
-.The Manual Toolchange Window[[cap:The-Manual-Toolchange]]
+.The Manual Toolchange Window
 
 image::images/manual-tool-change.png[align="center"]
 
@@ -817,7 +817,7 @@ Pressing 'V' zooms out to show the entire file, if one is loaded.
 
 When in lathe mode, the shape of the loaded tool (if any) is shown.
 
-.Lathe Tool Shape[[cap:Lathe-Tool-Shape]]
+.Lathe Tool Shape
 
 image:images/axis-lathe-tool.png[align="center"]
 
@@ -862,7 +862,7 @@ treated as g-code. One such example script is available at
 'nc_files/holecircle.py'. This script creates g-code for drilling a
 series of holes along the circumference of a circle.
 
-.Circular Holes[[cap:Circular-Holes]]
+.Circular Holes
 
 image::images/holes.png[align="center"]
 
@@ -909,7 +909,7 @@ this causes the built-in options to be created at the option level
 'widgetDefault', so that X Resources (which are level 'userDefault')
 can override them.
 
-=== Physical jog wheels[[sub:Physical-jog-wheels]]
+=== Physical jog wheels
 
 To improve the interaction of AXIS with physical jog wheels, the axis
 currently selected in the GUI is also reported on a pin with a name
@@ -952,8 +952,9 @@ pane. You can program buttons, indicators, data displays and more. For
 more information, see the <<cha:pyvcp,PyVCP Chapter>> and the 
 <<cha:glade-vcp,GladeVCP Chapter>>.
 
+[[axis:preview-control]](((Axis Preview Control)))
+
 === Axis Preview Control
-[[sub:axis-preview-control]](((Axis Preview Control)))
 
 Special comments can be inserted into the G Code file to control how
 the preview of AXIS behaves. In the case where you want to limit the

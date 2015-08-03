@@ -257,7 +257,7 @@ User Manual.
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP, see the
-<<sec:embeding-tab,embedding a tab>> section of the GladeVCP Chapter.
+<<gladevcp:embeding-tab,embedding a tab>> section of the GladeVCP Chapter.
 
 * 'EMBED_TAB_NAME=GladeVCP demo'
 

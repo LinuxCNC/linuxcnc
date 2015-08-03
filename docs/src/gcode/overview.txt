@@ -1153,7 +1153,7 @@ becomes a limiting factor. In Axis, because the preview plot is drawn
 by default, the redraw time also becomes a practical limit on program
 size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
-<<sub:axis-preview-control,preview control>> comments.
+<<axis:preview-control,preview control>> comments.
 
 [[sec:Order-of-Execution]]
 == G Code Order of Execution

@@ -24,7 +24,7 @@ DRO display the correct Z position and a G43 command will be issued so
 the new tool Z length will be in effect. Tool table touch off is only
 available when a tool is loaded with 'Tn M6'.
 
-.Touch Off Tool Table[[cap:Touch-Off-Tool]]
+.Touch Off Tool Table
 
 image::images/ToolTable-TouchOff.png[align="center"]
 

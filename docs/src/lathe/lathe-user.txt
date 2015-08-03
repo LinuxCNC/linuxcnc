@@ -88,7 +88,7 @@ setting the material Z zero you have 'Touch off to material' selected.
 For more information on the G codes used for tools see
 <<sec:M6-Tool-Change,M6>>, <<sec:T-Select-Tool,Tn>>, and <<sec:G43,G43>>.
 For more information on tool touch off options in Axis see 
-<<sec:tool-touch-off,Tool Touch Off>>.
+<<axis:tool-touch-off,Tool Touch Off>>.
 
 === X Touch Off
 
