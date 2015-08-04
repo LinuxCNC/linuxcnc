@@ -189,7 +189,7 @@ int rtapi_ping(int instance)
     return reply.retcode();
 }
 
-int rtapi_newthread(int instance, const char *name, int period, int cpu, int use_fp)
+int rtapi_newthread(int instance, const char *name, int period, int cpu, int use_fp, int flags)
 {
     pb::RTAPICommand *cmd;
     command.Clear();
@@ -200,6 +200,7 @@ int rtapi_newthread(int instance, const char *name, int period, int cpu, int use
     cmd->set_threadperiod(period);
     cmd->set_cpu(cpu);
     cmd->set_use_fp(use_fp);
+    cmd->set_flags(flags);
 
     int retval = rtapi_rpc(z_command, command, reply);
     if (retval)

@@ -156,6 +156,7 @@ typedef struct {
     void (*taskcode) (void *);	/* task code */
     void *arg;			/* task argument */
     int cpu;
+    rtapi_thread_flags_t flags;
 } task_data;
 
 typedef struct {
