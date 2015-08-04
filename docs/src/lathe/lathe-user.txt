@@ -86,7 +86,7 @@ table using the Touch Off window. If you have a tool turret you normally
 have 'Touch off to fixture' selected when setting up your turret. When
 setting the material Z zero you have 'Touch off to material' selected.
 For more information on the G codes used for tools see
-<<sec:M6-Tool-Change,M6>>, <<sec:T-Select-Tool,Tn>>, and <<gcode:g43,G43>>.
+<<mcode:m6,M6>>, <<sec:T-Select-Tool,Tn>>, and <<gcode:g43,G43>>.
 For more information on tool touch off options in Axis see 
 <<axis:tool-touch-off,Tool Touch Off>>.
 

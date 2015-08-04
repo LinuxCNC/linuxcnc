@@ -1,6 +1,6 @@
-= Tool Compensation
-
 [[cha:tool-compensation]] (((Tool Compensation)))
+
+= Tool Compensation
 
 == Tool Length Offsets
 
@@ -50,9 +50,8 @@ The G10 L1/L10/L11 commands can be used to set tool table offsets:
 // === Mill Format Tool Files
 
 // The “mill format” of a tool file is shown in Table 
-// <<cap:Sample-Tool-File>>.
 
-// .Sample Tool File (mill format)[[cap:Sample-Tool-File]]
+// .Sample Tool File (mill format)
 
 // [width="90%", options="header"]
 // |========================================
@@ -234,7 +233,9 @@ The 'Comment' column may optionally be used to describe the tool. Any
 type of description is OK. This column is for the benefit of human
 readers only. The comment must be preceded by a semicolon. 
 
-=== [[sec:Tool-Changers]] Tool Changers
+[[sec:tool-changers]]
+
+=== Tool Changers
 
 LinuxCNC supports three types of tool changers: 'manual', 'random location'
 and 'fixed location'. Information about configuring an LinuxCNC tool changer
@@ -268,8 +269,8 @@ changed LinuxCNC rewrites the pocket number to keep track of where the tools
 are. T can be any number but P must be a number that makes sense for
 the machine.
 
-
 [[sec:cutter-compensation]]
+
 == Cutter Compensation
 
 Cutter Compensation allows the programmer to program the tool
@@ -291,7 +292,7 @@ move will stop short so to not gouge the part. The following figure
 shows how the compensated move will stop at different points depending
 on the next move.
 
-.Compensation End Point[[cap:Compensation-End-Point]]
+.Compensation End Point
 
 image::images/comp-path.png[align="center"]
 
@@ -317,7 +318,7 @@ of X0 in this case. If you were to program a profile and the end is at
 X0 the resulting profile would leave a bump due to the offset of the
 entry move.
 
-.Entry Move[[cap:Entry-Move]]
+.Entry Move
 
 image::images/comp02.png[]
 
@@ -340,13 +341,13 @@ Rapid moves may be programed while compensation is turned on.
 
 .Outside Profile
 
-.Outside Profile[[cap:Outside-Profile]]
+.Outside Profile
 
 image::images/outside-comp.png[]
 
 .Inside Profile
 
-.Inside Profile[[cap:Inside-Profile]]
+.Inside Profile
 
 image::images/inside-comp.png[]
 

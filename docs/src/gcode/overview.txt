@@ -168,9 +168,9 @@ which is supposed be close to an integer is considered close enough if
 it is within 0.0001 of an integer.
 
 
-[[sec:parameters]]
+[[sec:parameters]](((Parameters)))
+
 == Parameters
-(((Parameters)))
 
 The RS274/NGC language supports 'parameters' - what in other
 programming languages would be called 'variables'. There are several
@@ -1133,7 +1133,7 @@ will be converted to '#<namedparameter>'.
 == File Requirements
 
 A G code file must contain one or more lines of G code and be terminated
-with a <<sec:M2-M30,Program End>>. Any G code past the program end
+with a <<mcode:m2-m30,Program End>>. Any G code past the program end
 is not evaluated. 
 
 If a program end code is not used a pair of percent signs '%' with the first

@@ -37,7 +37,7 @@ It is an error if:
 'Tx' - prepare to change to tool 'x'.
 
 The tool is not changed until an 'M6' is programmed (see Section
-<<sec:M6-Tool-Change,M6>>). The T word may appear on the same line as the
+<<mcode:m6,M6>>). The T word may appear on the same line as the
 'M6' or on a previous line. It is OK if T words appear on two or more
 lines with no tool change. Only the the most recent T word will take
 effect at the next tool change.

@@ -137,7 +137,7 @@ G90 (set absolute distance mode)
 G0 X1 Y-2.3 (Rapid linear move from current location to X1 Y-2.3)
 M2 (end program)
 ----
-* See <<gcode:g90-g91,G90>> & <<sec:M2-M30,M2>> sections for more information.
+* See <<gcode:g90-g91,G90>> & <<mcode:m2-m30,M2>> sections for more information.
 
 If cutter compensation is active, the motion will differ from
 the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
@@ -176,7 +176,7 @@ Z-2.3 (linear move at same feed rate from current position to Z-2.3)
 Z1 F25 (linear move at a feed rate of 25 from current position to Z1)
 M2 (end program)
 ----
-* See <<gcode:g90-g91,G90>> & <<sec:F-feed-rate,F>> & <<sec:M2-M30,M2>> sections
+* See <<gcode:g90-g91,G90>> & <<sec:F-feed-rate,F>> & <<mcode:m2-m30,M2>> sections
 for more information.
 
 If cutter compensation is active, the motion will differ from
@@ -764,7 +764,7 @@ G10 L10 P1 Z1.5 (set the current position for Z to be 1.5)
 G43 (reload the tool length offsets from the changed tool table)
 M2 (end program)
 ----
-* See <<sec:T-Select-Tool,T>> & <<sec:M6-Tool-Change,M6>>, and
+* See <<sec:T-Select-Tool,T>> & <<mcode:m6,M6>>, and
   <<gcode:g43,G43>>/<<gcode:g43.1,G43.1>> sections for more information.
 
 It is an error if:
@@ -988,7 +988,7 @@ G0 X1.25 (rapid move tool away from work)
 Z0.1 (rapid move to starting Z position)
 M2 (end program)
 ----
-* See <<gcode:g90-g91,G90>> & <<gcode:g0,G0>> & <<sec:M2-M30,M2>> sections for more information.
+* See <<gcode:g90-g91,G90>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections for more information.
 
 It is an error if:
 
@@ -1046,7 +1046,7 @@ S100 M3 (turn on the spindle, 100 RPM)
 G33.1 Z-0.750 K0.05 (rigid tap a 20 TPI thread 0.750 deep)
 M2 (end program)
 ----
-* See <<gcode:g90-g91,G90>> & <<gcode:g0,G0>> & <<sec:M2-M30,M2>> sections for more information.
+* See <<gcode:g90-g91,G90>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections for more information.
 
 It is an error if:
 
@@ -1136,7 +1136,7 @@ G40 (turn compensation off)
 G0 X1.6 (linear move longer than current cutter diameter)
 M2 (end program)
 ----
-See <<gcode:g0,G0>> & <<sec:M2-M30,M2>> sections for more information.
+See <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections for more information.
 
 It is an error if:
 
@@ -1165,7 +1165,7 @@ redundant and need not be supplied), but it may be any valid tool number.
 [NOTE]
 'G41/G42 D0' is a little special.  Its behavior is different on
 random tool changer machines and nonrandom tool changer machines
-(see the <<sec:Tool-Changers,Tool Changers>> section).  On nonrandom
+(see the <<mcode:m6,Tool Change>> section).  On nonrandom
 tool changer machines, 'G41/G42 D0' applies the TLO of the tool currently
 in the spindle, or a TLO of 0 if no tool is in the spindle.  On random
 tool changer machines, 'G41/G42 D0' applies the TLO of the tool T0 defined
@@ -1240,7 +1240,7 @@ that axis's endpoint is the compensated location.
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random
 tool changer machines and nonrandom tool changer machines (see the
-<<sec:Tool-Changers,Tool Changers>> section).  On nonrandom tool changer
+<<sec:tool-changers,Tool Changers>> section).  On nonrandom tool changer
 machines, 'G43 H0' applies the TLO of the tool currently in the spindle,
 or a TLO of 0 if no tool is in the spindle.  On random tool changer
 machines, 'G43 H0' applies the TLO of the tool T0 defined in the tool
@@ -1282,7 +1282,7 @@ T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows 
 G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z1.250)
 M2 (end program)
 ----
-* See <<gcode:g90-g91,G90>> & <<sec:T-Select-Tool,T>> & <<sec:M6-Tool-Change,M6>>
+* See <<gcode:g90-g91,G90>> & <<sec:T-Select-Tool,T>> & <<mcode:m6,M6>>
   sections for more information.
 
 It is an error if:

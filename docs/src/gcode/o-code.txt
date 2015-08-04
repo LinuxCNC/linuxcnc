@@ -61,7 +61,7 @@ o100 endsub
 o100 call (call the subroutine here)
 M2
 ----
-See <<gcode:g53,G53>> & <<gcode:g0,G0>> & <<sec:M2-M30,M2>> sections for more
+See <<gcode:g53,G53>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections for more
 information.
 
 .O- Return
@@ -237,7 +237,7 @@ o[#101+2] call
 .Computing values in O-words
 For more information on computing values see the following sections
 
-* <<sec:Parameters,Parameters>>
+* <<sec:parameters,Parameters>>
 * <<sec:Expressions,Expressions>>
 * <<sec:Binary-Operators,Binary Operators>>
 * <<sub:functions,Functions>>
