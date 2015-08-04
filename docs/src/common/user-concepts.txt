@@ -98,7 +98,7 @@ The trajectory control commands are as follows:
     following compromise. The blend tolerance can be changed throughout the
     program as necessary. Beware that a specification of G64 P0 has the
     same effect as G64 alone (above), which is necessary for backward
-    compatibility for old G Code programs. See the <<sec:G64,G64 section>>
+    compatibility for old G Code programs. See the <<gcode:g64,G64 section>>
     of the G code chapter.
 
 * 'Blending without tolerance' - The controlled point will touch each specified
@@ -204,7 +204,7 @@ running a G-Code file and left in a different state than when you
 started your LinuxCNC session. The best practice is to set the defaults
 needed for the job in the preamble of your G-Code file and not assume
 that the defaults have not changed. Printing out the G-Code
-<<quick-reference-table,Quick Reference>> page can help you remember
+<<gcode:quick-reference-table,Quick Reference>> page can help you remember
 what each one is.
 
 === Feed Rate
@@ -243,7 +243,7 @@ found in the Integrator Manual.
 
 There are several options when doing manual tool changes. See the
 <<sec:emcio-section,[EMCIO] section>> for information on configuration
-of these options. Also see the <<sec:G28-G28_1,G28>> and <<sec:G30-G30_1,G30>>
+of these options. Also see the <<gcode:g28-g28.1,G28>> and <<gcode:g30-g30.1,G30>>
 section of the G code chapter.
 
 == Coordinate Systems

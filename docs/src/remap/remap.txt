@@ -1827,12 +1827,9 @@ REMAP=G<somecode> argspec=xyzabcuvwqplr prolog=cycle_prolog ngc=<ngc procedure> 
 This will permit +cycle_prolog+ to determine the compatibility of any
 axis words give in the block, see below.
 
-//sec:Cycle-Sticky-Words
-//sec:Canned-Cycle-Errors
-//sec:Retract-Mode
 .Actions of +cycle_prolog+
 * Determine whether the words passed in from the current block fulfill
-the conditions outlined under <<sec:Canned-Cycle-Errors,Canned Cycle
+the conditions outlined under <<gcode:canned-cycle-errors,Canned Cycle
 Errors>>.
 ** export the axis words as +<x>+, +#<y>+ etc; fail if axis words from
 different groups (XYZ) (UVW) are used together, or any of (ABC) is given.

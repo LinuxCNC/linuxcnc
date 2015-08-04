@@ -165,7 +165,7 @@ The rate at which the controlled point or the axes move is nominally a
 steady rate which may be set by the user. In the Interpreter, the
 interpretation of the feed rate is as follows unless 'inverse time
 feed' or 'feed per revolution' modes are being used see Section 
-<<sec:G93-G94-G95-Mode,G93 G94 G95>>.
+<<gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>.
 
  .  If any of XYZ are moving, F is in units per minute in the XYZ
    cartesian system, and all other axes (ABCUVW) move so as to start and
@@ -200,7 +200,7 @@ specific units. Spindle speed is measured in revolutions per minute.
 The positions of rotational axes are measured in degrees. Feed rates
 are expressed in current length units per minute, or degrees per
 minute, or length units per spindle revolution, as described in Section 
-<<sec:G93-G94-G95-Mode,G93 G94 G95>>. 
+<<gcode:g93-g94-g95,G93 G94 G95>>. 
 
 === Current Position
 
@@ -246,7 +246,7 @@ follows the programmed path as exactly as possible, slowing or stopping
 if necessary at sharp corners of the path. In continuous mode, sharp
 corners of the path may be rounded slightly so that the feed rate may
 be kept up (but by no more than the tolerance, if specified). See
-Sections <<sec:G61-G61_1,G61/G61.1>> and <<sec:G64,G64>>.
+Sections <<gcode:g61-g61.1,G61/G61.1>> and <<gcode:g64,G64>>.
 
 == Interpreter Interaction with Switches
 

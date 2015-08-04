@@ -411,7 +411,8 @@ is written.
 
 1-30::
      Subroutine local parameters of call arguments. These parameters are
-    local to the subroutine. Volatile. See also the chapter on <<cha:O-Codes,O-Codes>>.
+    local to the subroutine. Volatile. See also the chapter on
+    <<cha:o-codes,O-Codes>>.
 
 
 [[sub:Named-Parameters]]
@@ -1078,7 +1079,7 @@ on that line, and will always be interpreted for active comment syntax.
                                successful straight probe in it.
 * '(PROBECLOSE)' - will close the open probelog file.
 
-For more information on probing see the <<sec:G38-probe,G38>> Section.
+For more information on probing see the <<gcode:g38.n,G38>> Section.
 
 [[sec:log]]
 == Logging

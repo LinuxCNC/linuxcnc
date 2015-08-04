@@ -1,6 +1,6 @@
-= O Codes
+[[cha:o-codes]](((O Codes)))
 
-[[cha:O-Codes]] (((O Codes)))
+= O Codes
 
 O-codes provide for flow control in NC programs. Each block has an
 associated number, which is the number used after O. Care must be taken
@@ -44,10 +44,9 @@ interpreter:
 To make these errors non-fatal  warnings on stderr, set bit 0x20 in
 the `[RS274NGC]FEATURE=` mask ini option. 
 
-[[sec:subroutines]]
-== Subroutines
 (((Subroutines)))
-(((sub)))(((endsub)))(((return)))(((call)))
+
+== Subroutines
 
 Subroutines extend from a 'O- sub' to an 'O- endsub' . The lines
 between 'O- sub' and 'O- endsub' are not executed until
@@ -62,7 +61,8 @@ o100 endsub
 o100 call (call the subroutine here)
 M2
 ----
-See <<sec:G53-Move-in,G53>> & <<sec:G0,G0>> & <<sec:M2-M30,M2>> sections for more information.
+See <<gcode:g53,G53>> & <<gcode:g0,G0>> & <<sec:M2-M30,M2>> sections for more
+information.
 
 .O- Return
 Inside a subroutine, 'O- return' can be executed. This immediately
@@ -108,9 +108,9 @@ of parameters above #30 and those changes will be visible to the
 calling code. Subroutines may also change the value of global named
 parameters.
 
-[[sec:looping]]
+(((Subroutines, Looping)))
+
 == Looping
-(((Looping)))(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
 
 The 'while loop' has two structures: 'while/endwhile', and 'do/while'. In
 each case, the loop is exited when the 'while' condition evaluates to
@@ -155,9 +155,9 @@ continue' immediately skips to the next evaluation of the 'while'
 condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
 
-[[sec:conditional]]
+(((Subroutines, Conditional Loops)))
+
 == Conditional
-(((Conditional: if, elseif, else, endif)))(((if)))(((else)))(((elseif)))(((endif)))
 
 The 'if' conditional consists of a group of statements with the same 'o' number
 that start with 'if' and end with 'endif'. Optional 'elseif' and 'else' conditions
@@ -205,8 +205,9 @@ O102 else (parameter #2 between 2 and 5)
 O102 endif
 ----
 
-[[sec:repeat]]
-== Repeat(((Repeat)))
+(((Subroutines, Repeat Loop)))
+
+== Repeat
 
 The 'repeat' will execute the statements inside of the
 repeat/endrepeat the specified number of times. The example shows how

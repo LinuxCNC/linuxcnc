@@ -1,8 +1,8 @@
+[[cha:hal-user-interface]](((HAL User Interface)))
+
 = HAL User Interface
 
-[[cha:hal-user-interface]] (((HAL User Interface)))
-
-== Introduction[[sec:HaluiIntroduction]]
+== Introduction
 
 Halui is a HAL based user interface for LinuxCNC, it connects HAL pins to
 NML commands. Most of the functionality (buttons, indicators etc.) that
@@ -23,7 +23,6 @@ file. Make sure you use the actual path to your ini file.
 loadusr halui -ini /path/to/inifile.ini
 ----
 
-[[sec:Halui-pin-reference]]
 == Halui pin reference
 
 .Abort
@@ -171,9 +170,7 @@ be true.
 * 'halui.max-velocity.value' (float, out) - is the maximum linear velocity 
    in machine units per second. 
 
-[[sub:MDI]]
 .MDI
-(((MDI)))
 
 Sometimes the user wants to add more complicated tasks to be performed 
 by the activation of a HAL pin. This is possible using the following 

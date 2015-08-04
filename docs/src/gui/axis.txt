@@ -187,14 +187,14 @@ Do not use 'Run From Selected Line' if your g code program contains subroutines.
 entered is relative to the current workpiece ('G5x') coordinate system,
 as modified by the axis offset ('G92').  When the Touch Off is complete,
 the Relative coordinate for the chosen axis will become the value entered.
-See <<sec:G10-L10,G10 L10>> in the G code chapter.
+See <<gcode:g10-l10,G10 L10>> in the G code chapter.
 
 * 'Tool touch off to fixture' - When performing Touch Off, the value entered
 is relative to the ninth ('G59.3') coordinate system, with the axis offset
 ('G92') ignored.  This is useful when there is a tool touch-off fixture at a
 fixed location on the machine, with the ninth ('G59.3') coordinate system set
 such that the tip of a zero-length tool is at the fixture's origin when the
-Relative coordinates are 0.  See <<sec:G10-L11,G10 L11>> in the G code chapter.
+Relative coordinates are 0.  See <<gcode:g10-l11,G10 L11>> in the G code chapter.
 
 .View Menu
 

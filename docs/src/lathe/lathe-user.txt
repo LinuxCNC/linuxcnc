@@ -86,7 +86,7 @@ table using the Touch Off window. If you have a tool turret you normally
 have 'Touch off to fixture' selected when setting up your turret. When
 setting the material Z zero you have 'Touch off to material' selected.
 For more information on the G codes used for tools see
-<<sec:M6-Tool-Change,M6>>, <<sec:T-Select-Tool,Tn>>, and <<sec:G43,G43>>.
+<<sec:M6-Tool-Change,M6>>, <<sec:T-Select-Tool,Tn>>, and <<gcode:g43,G43>>.
 For more information on tool touch off options in Axis see 
 <<axis:tool-touch-off,Tool Touch Off>>.
 
@@ -179,19 +179,19 @@ information.
 
 .Threading
 The G76 threading cycle is used for both internal and external threads.
-For more information see the <<sec:G76-Threading-Canned,G76>> Section.
+For more information see the <<gcode:g76,G76>> Section.
 
 .Constant Surface Speed
 CSS or Constant Surface Speed uses the machine X origin modified
 by the tool X offset to compute the spindle speed in RPM. CSS will
 track changes in tool offsets. The X machine origin should be when the
 reference tool (the one with zero offset) is at the center of rotation.
-For more information see the <<sec:G96-G97-Spindle,G96>> Section.
+For more information see the <<gcode:g96-g97,G96>> Section.
 
 .Feed per Revolution
 Feed per revolution will move the Z axis by the F amount per revolution.
 This is not for threading, use G76 for threading.
-For more information see the <<sec:G93-G94-G95-Mode,G95>> Section.
+For more information see the <<gcode:g93-g94-g95,G95>> Section.
 
 == Arcs
 

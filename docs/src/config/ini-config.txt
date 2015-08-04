@@ -1339,7 +1339,8 @@ image::images/encoder-scale.png[align="center"]
 * 'TOOL_CHANGE_AT_G30 = 1' -
     The machine is moved to reference point defined by parameters
     5181-5186 for G30 if the value is 1. For more information see the
-    <<sec:parameters,Parameters Section and the <<sec:G30-G30_1,G30 Section>>.
+    <<sec:parameters,Parameters Section and the
+    <<gcode:g30-g30.1,G30 Section>>.
 
 * 'RANDOM_TOOLCHANGER = 1' -
     This is for machines that cannot place the tool back into the pocket

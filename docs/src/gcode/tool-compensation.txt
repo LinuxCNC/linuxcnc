@@ -33,15 +33,16 @@ image::images/ToolTable-TouchOff.png[align="center"]
 The G10 L1/L10/L11 commands can be used to set tool table offsets:
 
 * 'G10 L1  Pn' - Set offset(s) to a value. Current position irrelevant. 
-                      (see <<sec:G10-L1_,G10 L1>> for details)
+                      (see <<gcode:g10-l1,G10 L1>> for details)
 
 * 'G10 L10 Pn' - Set offset(s) so current position w/ fixture 1-8 becomes a value. 
-                      (see <<sec:G10-L10,G10 L10>> for details)
+                      (see <<gcode:g10-l10,G10 L10>> for details)
 
 * 'G10 L11 Pn' - Set offset(s) so current position w/ fixture 9 becomes a value. 
-                      (see <<sec:G10-L11,G10 L11>> for details)
+                      (see <<gcode:g10-l11,G10 L11>> for details)
 
 [[sec:tool-table]]
+
 == Tool Table
 
 // carried over from machining_center.txt for salvage -mah
