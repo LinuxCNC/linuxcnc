@@ -125,9 +125,9 @@ long int _rtapi_clock_set_period(long int nsecs) {
 
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "RTAPI: clock_set_period requested: %ld  actual: %ld  "
-		    "counts requested: %d  actual: %d\n",
+		    "counts requested: %llu  actual: %d\n",
 		    nsecs, rtapi_data->timer_period,
-		    (int)counts, (int)got_counts);
+		    (unsigned long long)counts, (int)got_counts);
 
     rtapi_data->timer_running = 1;
     max_delay = rtapi_data->timer_period / 4;
