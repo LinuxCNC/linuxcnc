@@ -73,6 +73,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"                /* HAL public API decls */
 #include "streamer.h"
+#include "rtapi_atomic.h"
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -225,14 +226,14 @@ int main(int argc, char **argv)
     fifo = shmem_ptr;
     data = fifo->data;
     while ( samples != 0 ) {
-	while ( fifo->in == fifo->out ) {
+	while ( atomic_load_explicit(&fifo->in, memory_order_acquire) == fifo->out ) {
             /* fifo empty, sleep for 10mS */
 	    delay.tv_sec = 0;
 	    delay.tv_nsec = 10000000;
 	    nanosleep(&delay,NULL);
 	}
 	/* make pointer to fifo entry */
-	tmpout = fifo->out;
+        tmpout = atomic_load_explicit(&fifo->out, memory_order_acquire);
 	newout = tmpout + 1;
 	if ( newout >= fifo->depth ) {
 	    newout = 0;
@@ -244,13 +245,13 @@ int main(int argc, char **argv)
 	}
 	/* and read sample number */
 	this_sample = dptr->u;
-	if ( fifo->out != tmpout ) {
+	if ( atomic_load_explicit(&fifo->out, memory_order_acquire) != tmpout ) {
 	    /* the sample was overwritten while we were reading it */
 	    /* so ignore it */
 	    continue;
 	} else {
 	    /* update 'out' for next sample */
-	    fifo->out = newout;
+            atomic_store_explicit(&fifo->out, newout, memory_order_release);
 	}
 	if ( this_sample != ++(fifo->last_sample) ) {
 	    printf ( "overrun\n" );

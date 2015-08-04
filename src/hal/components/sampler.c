@@ -59,6 +59,7 @@
 #include "streamer.h"		/* decls and such for fifos */
 #include "rtapi_errno.h"
 #include "rtapi_string.h"
+#include "rtapi_atomic.h"
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -203,14 +204,14 @@ static void sample(void *arg, long period)
     if ( newin >= fifo->depth ) {
 	newin = 0;
     }
-    tmpout = fifo->out;
+    tmpout = atomic_load_explicit(&fifo->out, memory_order_acquire);
     if ( newin == tmpout ) {
 	/* fifo is full, need to overwrite the oldest data */
 	tmpout++;
 	if ( tmpout >= fifo->depth ) {
 	    tmpout = 0;
 	}
-	fifo->out = tmpout;
+	atomic_store_explicit(&fifo->out, tmpout, memory_order_release);
         /* log the overrun */
 	(*samp->overruns)++;
 	*(samp->full) = 1;
@@ -247,7 +248,7 @@ static void sample(void *arg, long period)
     /* store sample number at the end of the fifo record */
     dptr->u = (*samp->sample_num)++;
     /* update fifo pointer */
-    fifo->in = newin;
+    atomic_store_explicit(&fifo->in, newin, memory_order_release);
     /* calculate current depth */
     if ( newin < tmpout ) {
 	newin += fifo->depth;
