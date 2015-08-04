@@ -25,5 +25,6 @@ message RTAPICommand {
     optional string              comp    = 10;
     optional string              func    = 11;
     optional string             instname = 12;
+    optional int32                flags  = 13;
 
 }
