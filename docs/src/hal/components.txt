@@ -1,8 +1,8 @@
+[[cha:hal-components]] (((HAL Components)))
+
 = HAL Components
 
-[[cha:HAL-components]] (((HAL Components)))
-
-== Commands and Userspace Components[[sec:Commands-and-Userspace-Components]]
+== Commands and Userspace Components
 
 All of the commands in the following list have man pages. 
 Some will have expanded descriptions, some will have limited descriptions. 
@@ -34,7 +34,9 @@ linuxcnc:: LinuxCNC (The Enhanced Machine Controller).
 pyvcp:: Virtual Control Panel for LinuxCNC.
 shuttlexpress:: control HAL pins with the ShuttleXpress device made by Contour Design.
 
-== Realtime Components List[[sec:Realtime-Components]]
+[[sec:realtime-components]]
+
+== Realtime Components List
 
 Some of these will have expanded descriptions from the man pages. Some
 will have limited descriptions. All of the components have man pages.
@@ -45,7 +47,7 @@ get additional information in a terminal window.
 If the component requires a floating point thread that is usually the slower
 servo-thread.
 
-=== Core LinuxCNC components[[sec:Realtime-Components-core]] ===
+=== Core LinuxCNC components
 
 motion:: (((motion)))Accepts NML motion commands, interacts with HAL in realtime.
 
@@ -58,7 +60,7 @@ gladevcp:: (((gladevcp)))Displays Virtual Control Panels built with GTK/Glade.
 
 threads:: (((threads)))Creates hard realtime HAL threads.
 
-=== Logic and bitwise components[[sec:Realtime-Components-logic]]
+=== Logic and Bitwise components
 
 and2:: (((and2)))Two-input AND gate. For out to be true both inputs must be true.
 
@@ -68,7 +70,7 @@ or2:: (((or2)))Two-input OR gate.
 
 xor2:: (((xor2)))Two-input XOR (exclusive OR) gate.
 
-debounce:: (((debounce)))Filter noisy digital inputs. <<sec:Debounce, Description>>
+debounce:: (((debounce)))Filter noisy digital inputs. <<sec:debounce, Description>>
 
 edge:: (((edge)))Edge detector.
 
@@ -84,7 +86,7 @@ match8:: (((match8)))8-bit binary match detector.
 
 select8:: (((select8)))8-bit binary match detector.
 
-=== Arithmetic and float-components[[sec:Realtime-Components-float]] ===
+=== Arithmetic and float-components
 
 abs:: [[sub:abs]](((abs)))Compute the absolute value and sign of the input signal.
 
@@ -97,7 +99,7 @@ constant:: (((constant)))Use a parameter to set the value of a pin.
 sum2:: (((sum2)))Sum of two inputs (each with a gain) and an offset.
 
 counter:: (((counter)))Counts input pulses (deprecated).
-Use the <<sec:Encoder, encoder>> component. 
+Use the <<sec:encoder, encoder>> component. 
 
 updown:: (((updown)))Counts up or down, with optional limits and wraparound behavior.
 
@@ -150,9 +152,7 @@ maj3:: (((maj3)))Compute the majority of 3 inputs.
 
 scale:: (((scale)))Applies a scale and offset to its input.
 
-=== Type conversion[[sec:Realtime-Components-typeconvert]] ===
-
-
+=== Type conversion
 
 conv_bit_s32:: (((conv_bit_s32)))Convert a value from bit to s32.
 
@@ -174,9 +174,7 @@ conv_u32_float:: (((conv_u32_float)))Convert a value from u32 to float.
 
 conv_u32_s32:: (((conv_u32_s32)))Convert a value from u32 to s32.
 
-=== Hardware drivers[[sec:Realtime-Components-hwdrivers]] ===
-
-
+=== Hardware Drivers
 
 hm2_7i43:: (((hm2_7i43)))HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with
 HostMot2.
@@ -198,9 +196,7 @@ thc:: (((torch height control)))Torch Height Control using a Mesa THC card.
 
 serport:: (((serport)))Hardware driver for the digital I/O bits of the 8250 and 16550 serial port.
 
-=== Kinematics[[sec:Realtime-Components-kins]] ===
-
-
+=== Kinematics
 
 kins:: (((kins)))kinematics definitions for LinuxCNC.
 
@@ -230,23 +226,19 @@ rotatekins:: (((rotatekins)))The X and Y axes are rotated 45 degrees compared to
 
 scarakins:: (((scarakins)))Kinematics for SCARA-type robots.
 
-=== Motor control[[sec:Realtime-Components-motor]] ===
-
-
+=== Motor control
 
 at_pid:: (((at_pid)))Proportional/integral/derivative controller with auto tuning.
 
-pid:: (((pid)))Proportional/integral/derivative controller. <<sec:PID,Description>>
+pid:: Proportional/integral/derivative controller. <<sec:pid,Description>>
 
-pwmgen:: (((pwmgen)))Software PWM/PDM generation. <<sec:PWMgen,Description>>
+pwmgen:: (((pwmgen)))Software PWM/PDM generation. <<sec:pwmgen,Description>>
 
-encoder:: (((encoder)))Software counting of quadrature encoder signals. <<sec:Encoder,Description>>.
+encoder:: (((encoder)))Software counting of quadrature encoder signals. <<sec:encoder,Description>>.
 
-stepgen:: (((stepgen)))Software step pulse generation. <<sec:Stepgen,Description>>.
+stepgen:: (((stepgen)))Software step pulse generation. <<sec:stepgen,Description>>.
 
-=== BLDC and 3-phase motor control[[sec:Realtime-Components-bldc]] ===
-
-
+=== BLDC and 3-phase motor control
 
 bldc_hall3:: (((bldc_hall3)))3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors.
 
@@ -256,9 +248,7 @@ clarke3:: (((clarke3)))Clarke (3 phase to cartesian) transform.
 
 clarkeinv:: (((clarkeinv)))Inverse Clarke transform.
 
-=== Other[[sec:Realtime-Components-other]] ===
-
-
+=== Other
 
 charge_pump:: (((charge_pump)))Creates a square-wave for the 'charge pump' input of some controller boards.
 The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. To calculate the frequency of the output 1/(period time in seconds x 2) = hz. For example if you have a base period of 100,000ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 hz or 5 Khz.
@@ -271,7 +261,9 @@ feedcomp:: (((feedcomp)))Multiply the input by the ratio of current velocity to 
 
 gearchange:: (((gearchange)))Select from one of two speed ranges.
 
-ilowpass:: [[ilowpass]] (((ilowpass)))While it may find other applications,
+[[sec:ilowpass]] (((ilowpass)))
+
+ilowpass:: While it may find other applications,
 this component was written to create smoother motion while jogging with an MPG.
 +
 In a machine with high acceleration, a short jog can behave almost like a step
@@ -292,9 +284,9 @@ sample_hold:: (((sample_hold)))Sample and Hold.
 
 sampler:: (((sampler)))Sample data from HAL in real time.
 
-siggen:: (((siggen)))Signal generator. <<sec:Siggen,Description>>.
+siggen:: Signal generator. <<sec:siggen,Description>>.
 
-sim_encoder:: (((sim_encoder)))Simulated quadrature encoder. <<sec:Simulated-Encoder,Description>>.
+sim_encoder:: (((sim_encoder)))Simulated quadrature encoder. <<sec:simulated-encoder,Description>>.
 
 sphereprobe:: (((sphereprobe)))Probe a pretend hemisphere.
 

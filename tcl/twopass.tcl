@@ -60,6 +60,8 @@ namespace eval ::tp {
 
 set ::TP(combine_addfs) 0 ;# alternate 1 ==> all addfs at end of pass1
 
+# library procs:
+source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #--------------------------------------------------------------------------
 proc ::tp::passnumber {} {
   return $::TP(passnumber)
@@ -285,31 +287,7 @@ proc ::tp::prep_the_files {} {
     foreach file_plus_args $::HAL(HALFILE) {
       set f [lindex $file_plus_args 0]          ;# the file
       set f_argv [lrange $file_plus_args 1 end] ;# possibly has args
-      set foundmsg ""
-      # test for LIB:filename
-      if {[string first "LIB:" $f] == 0} {
-         set explicit_file_in_hallib \
-            [string range $f [string len $libtag] end]
-         if {"$explicit_file_in_hallib" == ""} {
-           puts "twopass:ILLFORMED LIB:file:<$f>"
-         }
-         set explicit_file_in_hallib \
-            [file join $::env(HALLIB_DIR) $explicit_file_in_hallib]
-         if [file readable $explicit_file_in_hallib] {
-           set foundfile $explicit_file_in_hallib
-           set foundmsg "Found LIB file:$explicit_file_in_hallib"
-         }
-      } else {
-        foreach pathdir [split $::env(HALLIB_PATH) :] {
-          set foundfile [file join $pathdir $f]
-          if [file readable $foundfile] {
-             set foundmsg "Found file:$foundfile"
-             break
-          }
-        }
-      }
-      if [file isdirectory $foundfile] {set foundmsg ""}
-      if {"$foundmsg" == ""} {
+      if [catch {set foundfile [find_file_in_hallib_path $f]} msg] {
         puts "twopass:CANNOT FIND FILE FOR:$f"
         if [info exists ::env(PRINT_FILE)] {
            set fd [open $::env(PRINT_FILE) a]
@@ -318,7 +296,7 @@ proc ::tp::prep_the_files {} {
         }
         exit 1
       }
-      puts "twopass:$foundmsg"
+      puts "twopass:found $foundfile"
       set f $foundfile
 
       # convert to a temporary tcl file if necessary

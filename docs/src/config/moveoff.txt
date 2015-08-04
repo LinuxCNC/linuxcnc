@@ -92,28 +92,46 @@ gui (moveoff_gui) are located in:
 
 == Modifying an existing configuration
 
-An existing configuration can be modified to use moveoff_gui
-as follows:
+A system-provided halfile (LIB:hookup_moveoff.tcl) can be used to adapt an
+existing configuration to use the moveoff component.  Additional ini file
+settings support the use of a simple gui (moveoff_gui) for controlling offsets.
 
-. Make inifile entries for HALUI and LIB:hookup_moveoff.tcl.
-  The entry for hookup_moveoff.tcl should follow HALFILES
-  that connect the pins for axis.N.motor-pos-cmd, axis.N.motor-pos-fb,
-  and components connected to these pins (pids and encoders
-  typically).
+When the system halfile (LIB:hookup_moveoff.tcl) is properly specified in
+a configuration ini file, it will:
+
+. Disconnect the original axis.N.motor-pos-cmd and axis.N.motor-pos-fb pin
+  connections
+. Load (loadrt) the moveoff component (using the name mv) with a personality
+  set to accomodate all axes identified in the ini file
+. Add (addf) the moveoff component functions in the required sequence
+. Reconnect the axis.N.motor-pos-cmd and axis.N.motor-pos-fb pins to use
+  the moveoff component
+. Set the moveoff component operating parameters and limits for each axis
+  in accordance with additional ini file settings
+
+Modify an existing configuration as follows:
+
+Make sure there is an ini file entry for [HAL]HALUI and create a new
+[HAL]HALFILE entry for LIB:hookup_moveoff.tcl.
+The entry for LIB:hookup_moveoff.tcl should follow all HALFILE= entries
+for halfiles that connect the pins for axis.N.motor-pos-cmd,
+axis.N.motor-pos-fb, and any components connected to these pins (pid
+and encoder components in a servo system for instance).
 
 ----
 [HAL]
-HALUI = halui
+HALUI   = halui
+HALFILE = existing_configuration_halfile_1
 ...
+HALFILE = existing_configuration_halfile_n
 HALFILE = LIB:hookup_moveoff.tcl
 ----
 
-. Add inifile entries for the per-axis settings for
-  each axis in use (If an entry is not defined, the
-  corresponding entry from the [AXIS_n} section
-  will be used, if no entry is found, then the moveoff
-  component default is used(NOT RECOMMENDED)):
-
+Add ini file entries for the per-axis settings for each axis in use (if an
+entry is not defined, the corresponding entry from the [AXIS_n] section will be
+used, if no entry is found, then the moveoff component default will be used.
+Note: Using component defaults or [AXIS_n] section values for per-axis offset
+settings is NOT recommended.
 ----
 [MOVEOFF_n]
 MAX_LIMIT =
@@ -122,9 +140,8 @@ MAX_VELOCITY =
 MAX_ACCELERATION =
 ----
 
-. Add inifile entries for moveoff component settings
-  (omit to use moveoff defaults):
-
+Add ini file entries for moveoff component settings
+(omit to use moveoff defaults):
 ----
 [MOVEOFF]
 EPSILON =
@@ -132,17 +149,90 @@ WAYPOINT_SAMPLE_SECS =
 WAYPOINT_THRESHOLD =
 ----
 
-. Add inifile entries to start the gui:
+The moveoff_gui is used to make additional required connections and provide
+a popup gui to:
 
+. Provide a control togglebutton to Enable/Disable offsets
+. Provide a control togglebutton to Enable/Disable backtracking
+. Provide control pushbuttons to Increment/Decrement/Zero each axis offset
+. Display each axis offset current value
+. Display current offset status (disabled, active, removing, etc)
+
+The provided control buttons are optional depending upon the state of
+the moveoff component move-enable pin.  Both a display and controls
+for enabling offsetting are provided if the pin mv.move-enable
+is NOT connected when the moveoff_gui is started.  For this case,
+the moveoff_gui manages the moveoff component move-enable pin
+(named mv.move-enable) as well as the offsets (mv.move-offset-in-M)
+and the backtracking enable (mv.backtrack-enable)
+
+If the mv.move-enable pin IS connected when the moveoff_gui
+is started, the moveoff_gui will provide a display but NO controls.
+This mode supports configurations that use a jog wheel or other methods
+of controlling the offset inputs and the enable pins (mv.offset-in-M,
+mv.move-enable, mv.backtrack-enable).
+
+The moveoff_gui makes the required connections for the moveoff component pins:
+mv.power_on and mv.apply-offsets.  The mv.power_on pin is connected to the
+motion.motion-enabled pin (a new signal is automatically created if necessary).
+The mv.apply-offsets is connected to halui.program.is-paused or set to 1
+depending upon the command line option -mode [ onpause | always ].  A new signal
+is automatically created if necessary.
+
+To use the moveoff_gui, add an entry in the ini file [APPLICATIONS]
+section as follows:
 ----
 [APPLICATIONS]
-# Note: a delay may be required if there are [HAL]POSTGUI_HALFILE dependencies
+# Note: a delay (specified in seconds) may be required if connections
+# are made using postgui halfiles ([HAL]POSTGUI_HALFILE=)
 DELAY = 0
 APP = moveoff_gui option1 option2 ...
 ----
 
-For details on available Options, Use:
+When the halfile LIB:hookup_moveoff.tcl is used to load and connect the
+moveoff component, the mv.move-enable pin will not be connected and
+local controls provided by the moveoff_gui will be used.  This is the 
+simplest method to test or demonstrate the moveoff component when
+modifying an existing ini configuration.
 
+To enable external controls while using the moveoff_gui display
+for offset values and status, halfiles that follow LIB:hookup_moveoff.tcl
+must make additional connections.  For example, the supplied demonstration
+configs (configs/sim/axis/moveoff/*.ini) use a simple system halfile
+(named LIB:moveoff_external.hal) to connect the mv.move-enable,mv.offset-in-M,
+and mv.bactrack-enable pins to signals:
+----
+[HAL]
+HALUI = halui
+...
+HALFILE = LIB:hookup_moveoff.tcl
+HALFILE = LIB:moveoff_external.hal
+----
+
+The connections made by LIB:moveoff_external.hal (for a three axis
+configuration) are:
+----
+net external_enable    mv.move-enable
+
+net external_offset_0 mv.offset-in-0
+net external_offset_1 mv.offset-in-1
+net external_offset_2 mv.offset-in-2
+
+net external_backtrack_en mv.backtrack-enable
+----
+
+These signals (external_enable, external_offset_M, external_backtrack_en) may
+be managed by subsequent HALFILES (including POSTGUI_HALFILEs) to provide 
+customized control of the component while using the moveoff_gui display
+for current offset values and offset status.
+
+The moveoff_gui is configured with command line options.  For details
+on the operation of moveoff_gui, see the man page:
+----
+$ man moveoff_gui
+----
+For a brief listing of command line options for moveoff_gui, use the command
+line help option:
 ----
 $ moveoff_gui --help
 
@@ -189,30 +279,4 @@ Options for special cases:
 Note: If the moveoff move-enable pin (mv.move-enable) is connected when
       moveoff_gui is started, external controls are required and only
       displays are provided.
-----
-
-The moveoff_gui will provide a display and and control for
-enabling offsetting if the pin mv.move-enable is NOT connected
-when moveoff_gui is started.
-
-If the mv.move-enable pin is connected when moveoff_gui
-is started, the gui will provide a display but no controls.
-This mode supports Hal connections for a jog wheel or other
-methods of controlling the enable and offset input pins
-(mv.move-enable, mv.offset-M, mv.backtrack-enable).
-
-If the halfile LIB:hookup_moveoff.tcl is used to load and connect the
-moveoff component, the mv.move-enable pin is not connected and
-local controls provided by moveoff_gui will be used.  To enable external
-controls, subsequent halfiles should connect the mv.move-enable pin.
-For example, the configs/sim/* demo configurations use a simple halfile
-to connect the mv.move-enable,mv.offset-in-M, and  mv.bactrack-enable
-pins to signals:
-
-----
-[HAL]
-HALUI = halui
-...
-HALFILE = LIB:hookup_moveoff.tcl
-HALFILE = LIB:moveoff_external.hal
 ----

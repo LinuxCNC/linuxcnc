@@ -163,7 +163,7 @@ been issued to axes/joints 0, 1, and 2. So the next encoder available for us
 to attach to the spindle would be number 3. Your situation may differ.]
 footnote:[The HAL encoder index-enable is an exception to the rule in that
 it behaves as both an input and an output, see the 
-<<sec:Encoder,Encoder Section>> for details]
+<<sec:encoder,Encoder Section>> for details]
 footnote:[It is because we selected 'non-quadrature simple counting...' above
 that we can get away with 'quadrature' counting without having any 
 B quadrature input.] 

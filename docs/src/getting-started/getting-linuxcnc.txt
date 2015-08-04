@@ -1,6 +1,6 @@
-= Getting LinuxCNC
-
 [[cha:getting-linuxcnc]] (((Getting LinuxCNC)))
+
+= Getting LinuxCNC
 
 This section describes the recommended way to download
 and make a fresh install of LinuxCNC.  There are also

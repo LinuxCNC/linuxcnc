@@ -1,8 +1,8 @@
-= HAL Component Descriptions
-
 [[cha:realtime-components]] (((Realtime Components)))
 
-[[sec:Stepgen]] (((stepgen)))
+= HAL Component Descriptions
+
+[[sec:stepgen]] (((stepgen)))
 
 == Stepgen
 
@@ -218,7 +218,7 @@ the thread periond in
 nanoseconds. The other two functions can be called at a much lower
 rate.
 
-[[sec:PWMgen]] (((pwmgen)))
+[[sec:pwmgen]] (((PWMgen)))
 
 == PWMgen
 
@@ -340,7 +340,7 @@ not supported.
   more complicated mathematics to work out how many base-periods the output
   should be high for, and how many it should be low for.
 
-[[sec:Encoder]](((encoder)))
+[[sec:encoder]](((encoder)))
 
 == Encoder
 
@@ -472,7 +472,7 @@ not supported.
 * '(funct) encoder.capture-position' - Low speed function to update
    latches and scale position.
 
-[[sec:PID]](((pid)))
+[[sec:pid]](((PID)))
 
 == PID
 
@@ -601,7 +601,9 @@ comments at the beginning of 'emc2/src/hal/components/pid.c' , and of
 course to the code itself. The loop calculations are in the C
 function 'calc_pid()'.
 
-== Simulated Encoder[[sec:Simulated-Encoder]](((sim-encoder)))
+[[sec:simulated-encoder]](((Simulated Encoder)))
+
+== Simulated Encoder
 
 The simulated encoder is exactly that. It produces quadrature pulses
 with an index pulse, at a speed controlled by a HAL pin. Mostly useful
@@ -655,7 +657,7 @@ simulated encoders.
 * '(funct) sim-encoder.update-speed' - Low speed function to read
    'speed', do scaling, and set up 'make-pulses'.
 
-[[sec:Debounce]] (((debounce)))
+[[sec:debounce]] (((debounce)))
 
 == Debounce
 
@@ -730,7 +732,7 @@ updated from different threads at different periods.
 
 * '(funct) debounce.<G>' - Updates all filters in group '<G>'.
 
-[[sec:Siggen]](((siggen)))
+[[sec:siggen]](((Siggen)))
 
 == Siggen
 

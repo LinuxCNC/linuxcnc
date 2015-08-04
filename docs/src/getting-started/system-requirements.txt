@@ -1,6 +1,6 @@
-= System Requirements
-
 [[cha:system-requirements]] (((System Requirements)))
+
+= System Requirements
 
 == Minimum Requirements (((Minimum Requirements)))
 

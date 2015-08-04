@@ -353,6 +353,7 @@ HEADERS := \
     libnml/rcs/rcsversion.h \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
+    rtapi/rtapi_atomic.h \
     rtapi/rtapi_bitops.h \
     rtapi/rtapi_bool.h \
     rtapi/rtapi_byteorder.h \

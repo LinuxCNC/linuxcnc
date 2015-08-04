@@ -758,15 +758,25 @@ else
           if [ ! -r $foundfile ] ; then
               echo "CANNOT READ LIB:file:$foundfile"
           fi
-          foundmsg="Found LIB:file:$foundfile"
+          foundmsg="Found file(LIB): $foundfile"
         else
-          for pathdir in $HALLIB_PATH ; do
-            foundfile=$pathdir/$CFGFILE
-            if [ -r $foundfile ] ; then
-              foundmsg="Found file:$foundfile" # first in HALLIB_PATH
-              break
-            fi
-          done
+          if [ "${CFGFILE:0:1}" = "/" ] ; then
+            foundfile=$CFGFILE ;# absolute path specified
+            foundmsg="Found file(ABS): $foundfile"
+          else 
+            for pathdir in $HALLIB_PATH ; do
+              foundfile=$pathdir/$CFGFILE
+              if [ -r $foundfile ] ; then
+                # use first file found in HALLIB_PATH
+                if [ "${pathdir:0:1}" = "." ] ; then
+                  foundmsg="Found file(REL): $foundfile"
+                else
+                  foundmsg="Found file(lib): $foundfile"
+                fi
+                break
+              fi
+            done
+          fi
         fi
         [ -d $foundfile ] && foundmsg=""
         IFS=$saveIFS

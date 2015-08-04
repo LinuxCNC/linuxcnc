@@ -1,6 +1,6 @@
-= Python Virtual Control Panel
-
 [[cha:pyvcp]] (((Python Virtual Control Panel)))
+
+= Python Virtual Control Panel
 
 == Introduction
 
@@ -72,6 +72,7 @@ action available to Python programs. Only use PyVCP .xml files from a
 source that you trust.
 
 [[sec:pyvcp-with-axis]]
+
 == AXIS
 
 Since AXIS uses the same GUI toolkit (Tkinter) as PyVCP, it is

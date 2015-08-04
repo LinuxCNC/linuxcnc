@@ -1,6 +1,6 @@
-= gmoccapy
-
 [[cha:gmoccapy]] (((gmoccapy)))
+
+= gmoccapy
 
 == Introduction
 
@@ -75,13 +75,13 @@ The names should explain the main intention of the different INI Files. +
 
 If you use an existing configuration of your machine, just edit your INI according to this document. +
 
-IMPORTANT: If you want to use <<sub:MACROS,MACROS>>, don't forget to set the path to your macros or 
+IMPORTANT: If you want to use <<gmoccapy:macros,MACROS>>, don't forget to set the path to your macros or 
 subroutines folder as described below.
 
 So let us take a closer look to the the INI file and what you need to include 
 to use gmoccapy on your machine: +
 
-=== The DISPLAY Section [[sub:the_display_section]]
+=== The DISPLAY Section [[gmoccapy:display-section]]
 
  [DISPLAY]
  DISPLAY = gmoccapy
@@ -106,7 +106,8 @@ The most important part is to tell LinuxCNC to use gmoccapy, editing the [DISPLA
 
 The line PREFERENCE_FILE_PATH gives the location and name of the preferences file to be used.
 In most cases this line will not be needed, it is used by gmoccapy to store your settings of the GUI, 
-like themes, DRO units, colors, and keyboard settings, etc., see <<sub:The_settings_page,SETTINGS>> for more details. 
+like themes, DRO units, colors, and keyboard settings, etc., see
+<<gmoccapy:settings-page,SETTINGS>> for more details. 
 
 [NOTE]
 ===========================================================
@@ -122,7 +123,8 @@ Sets the default linear velocity in machine units per second.
 If no value is given, a value of 15 will be applied.
 If you don't set max linear velocity, the default linear velocity will be reduced to the default value max linear velocity (60)
 
-If you don't set max velocity in TRAJ, it may be reduced as well see <<sub:The_TRAJ_Section,TRAY section>> 
+If you don't set max velocity in TRAJ, it may be reduced as well see
+<<gmoccapy:traj-section,TRAY section>> 
 ===========================================================
 ''''
  MAX_LINEAR_VELOCITY = 166.666
@@ -150,7 +152,7 @@ the first line set the screen layout to control a lathe.
 The second line is optional and will switch the X axis in a way you need for a back tool lathe.
 Also the keyboard shortcuts will react in a different way.
 
-TIP: See also <<sub:LATHE_specific_section, LATHE specific section>> 
+TIP: See also <<gmoccapy:lathe-section, LATHE specific section>> 
 
 ''''
  PROGRAM_PREFIX = ../../nc_files/
@@ -300,16 +302,22 @@ Detailed information about the markup language can be found at https://developer
  MESSAGE_PINNAME = okdialog
 ****
 
-The specific hal pin conventions for these can be found under the <<sub:User_Created_Message_HAL_Pins, User Messages hal pin section>>
+The specific hal pin conventions for these can be found under the
+<<gmoccapy:user-created-message, User Messages>>  hal pin section.
 
-=== The RS274NGC Section [[sub:RS274NGC]]
+[[gmocappy:rs274ngc]]
+
+=== The RS274NGC Section
 
  [RS274NGC]
  SUBROUTINE_PATH = macros
 
 sets the path to search for macros and other subroutines.
 
-=== The MACRO Section [[sub:MACROS]]
+[[gmoccapy:macros]]
+
+=== The MACRO Section
+
 You can add macros to gmoccapy, similar to touchy's way. +
 A macro is nothing else than a ngc-file. You are able to execute complete + 
 CNC programs in MDI mode, by just pushing one button. +
@@ -336,7 +344,7 @@ So the macro '*i_am_lost*' will call the file '*i_am_lost.ngc*'. +
 * the name of the file need to be the same as the name mentioned in the macro line, just with the ngc extension
 * The file must contain a subroutine like so: '*O<i_am_lost> sub*', the name of the sub must match exactly (*case sensitive*) the name of the macro
 * the file must end with an endsub '*O<i_am_lost> endsub*' followed by an '*M2*' command
-* the files need to be placed in a folder specified in your INI file in the RS274NGC section (see <<sub:RS274NGC,RS274NGC>>)
+* the files need to be placed in a folder specified in your INI file in the RS274NGC section (see <<gmocappy:rs274ngc,RS274NGC>>)
 ****
 
 The code in between sub and endsub will be executed by pushing the corresponding macro button.
@@ -383,7 +391,9 @@ after pushing the '*execute macro button*', you will be asked to enter the value
 
 image::images/gmoccapy_getting_macro_info.png[align="left"]
 
-=== The TRAJ Section [[sub:The_TRAJ_Section]]
+[[gmoccapy:traj-section]]
+
+=== The TRAJ Section
 
  MAX_VELOCITY = 230.000
 
@@ -474,7 +484,7 @@ The float pin do accept values from 0.0 to 1.0, being the percentage value you w
 
 WARNING: If you use both connection types, do not connect the same slider to both pin, as the influences between the two has not been tested! Different sliders may be connected to the one or other hal connection type.
 
-IMPORTANT: Please be aware, that for the jog velocity depends on the turtle button state, it will lead to different slider scales depending on the mode (turtle or rabbit). Please take also a look to <<sub:Jog_Vel_and_Turtle-Jog,jog velocities and turtle-jog hal pin>> for more details.
+IMPORTANT: Please be aware, that for the jog velocity depends on the turtle button state, it will lead to different slider scales depending on the mode (turtle or rabbit). Please take also a look to <<gmoccapy:jog-velocity,jog velocities and turtle-jog hal pin>> for more details.
 
 .Example
 ****
@@ -511,9 +521,12 @@ for a "C" axis you will see:
 * gmoccapy.jog-c-plus
 * gmoccapy.jog-c-minus
 
-=== jog velocities and turtle-jog hal pin [[sub:Jog_Vel_and_Turtle-Jog]]
+[[gmoccapy:jog-velocity]]
+
+=== jog velocities and turtle-jog hal pin
+
 The jog velocity can be selected with the corresponding slider. +
-The scale of the slider will be modified if the turtle button (the one showing a rabbit or a turtle) has been toggled. If the button is not visible, it might have been disabled on the <<sub:turtle_jog,settings page>>. If the button shows the rabbit-icon, the scale is from min to max machine velocity. If it shows the turtle, the scale will reach only 1/20 of max velocity by default. The used divider can be set on the <<sub:turtle_jog,settings page>>.
+The scale of the slider will be modified if the turtle button (the one showing a rabbit or a turtle) has been toggled. If the button is not visible, it might have been disabled on the <<gmoccapy:turtle-jog,settings page>>. If the button shows the rabbit-icon, the scale is from min to max machine velocity. If it shows the turtle, the scale will reach only 1/20 of max velocity by default. The used divider can be set on the <<gmoccapy:turtle-jog,settings page>>.
 
 So using a touch screen it is much easier to select smaller velocities. 
 
@@ -535,7 +548,10 @@ If you have 6 increments in your hal you will get *7* pins:
 
 jog-inc-0 is unchangeable and will represent continuous jogging.
 
-=== hardware unlock pin [[sub:hardware_unlock_pin]]
+[[gmoccapy:hardware-unlock]]
+
+=== hardware unlock pin
+
 to be able to use a key switch to unlock the settings page the following pin is exported.
 
 * gmoccapy.unlock-settings
@@ -555,7 +571,9 @@ delete the first error and reset the gmoccapy.error pin to False after the last 
 NOTE: Messages or user infos will not affect the gmoccapy.error pin, but the gmoccapy.delete-message 
 pin will delete the last message if no error is shown!  
 
-=== User Created Message HAL Pins [[sub:User_Created_Message_HAL_Pins]]
+[[gmoccapy:user-created-message]]
+
+=== User Created Message HAL Pins
 
 gmoccapy may react to external errors, using 3 different user messages: +
 All are HAL_BIT pin. +
@@ -689,17 +707,19 @@ sending an G43 after any tool change, *but not in auto mode!*
 
 IMPORTANT: So writing a program makes you responsible to include an G43 after each tool change!
 
-== Auto Tool Measurement [[sub:Auto_Tool_Measurement]]
+[[gmoccapy:auto-tool-measurement]]
+
+== Auto Tool Measurement
 
 Gmoccapy offers an integrated auto tool measurement. +
 To use this feature, you will need to do some additional settings and you may want to use the 
 offered hal pin to get values in your own ngc remap procedure.
 
 IMPORTANT: Before starting the first test, do not forget to enter the Probe height and probe velocities 
-on the settings page! See <<sub:Tool_Measurement_Setup,Settings Page Tool Measurement>>
+on the settings page! See <<gmoccapy:tool-measurement,Settings Page Tool Measurement>>
 
 It might be also a good idea to take a look at the tool measurement video:
-see <<sub:Tool_Measurement_Videos,tool measurement related videos>>
+see <<gmoccapy:tool-measurement-videos,tool measurement related videos>>
 
 Tool Measurement in gmoccapy is done a little bit different to many other GUI. + 
 You should follow theese steps:
@@ -785,9 +805,9 @@ Copy 'remap.py'     to your 'config_dir/python' folder +
 Copy 'stdglue.py'   to your 'config_dir/python' folder +
 
 from 'your_linuxcnc-dev_directory/configs/sim/gmoccapy/macros' +
-copy 'on_abort.ngc' to the directory specified as SUBROUTINE_PATH see <<sub:RS274NGC, RS274NGC Section>> +
+copy 'on_abort.ngc' to the directory specified as SUBROUTINE_PATH see <<gmocappy:rs274ngc, RS274NGC Section>> +
 from 'your_linuxcnc-dev_directory/configs/sim/gmoccapy/macros' +
-copy 'change.ngc' to the directory specified as SUBROUTINE_PATH see <<sub:RS274NGC, RS274NGC Section>> +
+copy 'change.ngc' to the directory specified as SUBROUTINE_PATH see <<gmocappy:rs274ngc, RS274NGC Section>> +
 open 'change.ngc' with a editor and uncomment the following lines (49 and 50): +
 
  F #<_hal[gmoccapy.probevel]>
@@ -822,13 +842,16 @@ In your postgui.hal file add:
  net tool-prep-loop         iocontrol.0.tool-prepare      <=   iocontrol.0.tool-prepared
 -------
 
-== The settings page [[sub:The_settings_page]]
+[[gmoccapy:settings-page]]
+
+== The Settings Page
+
 To enter the page you will have to click on:
 
 image::images/gmoccapy_settings_button.png[align="left"]
 
 and give an unlock code, witch is *123* as default. If you want to change it at this time you will
-have to edit the hidden preference file, see <<sub:the_display_section,the display section>> for details.
+have to edit the hidden preference file, see <<gmoccapy:display-section,the display section>> for details.
 
 The page looks at the moment like so:
 
@@ -1022,7 +1045,7 @@ So everybody can select whether to use them or not.
 
 Default is to use keyboard shortcuts.
 
-Please take care if you use a lathe, than the shortcuts will be different. See <<sub:LATHE_specific_section,the Lathe section>>
+Please take care if you use a lathe, than the shortcuts will be different. See <<gmoccapy:lathe-section,the Lathe section>>
 
  * Arrow Left = X minus
  * Arrow Right = X plus
@@ -1036,7 +1059,8 @@ Please take care if you use a lathe, than the shortcuts will be different. See <
 
  * ESC = Abort 
 
-There are additional keys for message handling, see <<sub:Message_behavior_and_appearance,Message behavior and appearance>>
+There are additional keys for message handling, see 
+<<gmoccapy:message-behavior,Message behavior and appearance>>
  * WINDOWS = Delete last message
  * <STRG><SPACE> = Delete all messages
 
@@ -1046,7 +1070,7 @@ you have three options to unlock the settings page:
 
 * use unlock code (the user must give a code to get in)
 * Do not use unlock code (There will be no security check, not recommended)
-* Use hal pin to unlock  (hardware pin must be high to unlock the settings, see <<sub:hardware_unlock_pin, hardware unlock pin>>
+* Use hal pin to unlock  (hardware pin must be high to unlock the settings, see <<gmoccapy:hardware-unlock, hardware unlock pin>>
 
 Default is use unlock code (default = *123*)
 
@@ -1060,22 +1084,28 @@ the main screen. It is no error giving wrong values. If you give a maximum of 20
  MIN = 0
  MAX = 6000
 
-.Turtle Jog [[sub:turtle_jog]]
+[[gmoccapy:turtle-jog]]
+
+.Turtle Jog
+
 This settings will have influence on the jog velocities.
 
 * 'hide turtle jog button' will hide the button right of the jog velocity slider, if you hide this button, please take care that it shows the rabbit icon, otherwise you will not be able to jog faster than the turtle jog velocity, which is calculated using the turtle jog factor.
 * 'Turtle jog factor' sets the scale to apply for turtle jog mode. If you set a factor of 20, the max jog velocity will be 1/20 of max velocity of the machine if in turtle mode (button pressed, showing the turtle)
 
-NOTE: This button can be activated using the <<sub:Jog_Vel_and_Turtle-Jog,turtle-jog>> hal pin. 
+NOTE: This button can be activated using the <<gmoccapy:jog-velocity,turtle-jog>> hal pin. 
 
 === Advanced Settings 
 
 image::images/gmoccapy_settings_advanced.png[align="left"]
 
-.Tool Measurement [[sub:Tool_Measurement_Setup]]
+[[gmoccapy:tool-measurement]]
+
+.Tool Measurement
+
 If this part is not sensitive, you do not have a valid INI file configuration to use tool measurement.
 
-Please check <<sub:Auto_Tool_Measurement, Auto Tool Measurement>>
+Please check <<gmoccapy:auto-tool-measurement, Auto Tool Measurement>>
 
 * Use auto tool measurement : If checked, after each tool change, a tool measurement will be done, 
 the result will be stored in the tool table and an G43 will be executed after the change.
@@ -1115,7 +1145,10 @@ You can do that by checking the checkbox, that will hide: +
  * column of 4'th axis in the offsetpage
  * column of 4'th axis in the tolleditor
 
-.Message behavior and appearance [[sub:Message_behavior_and_appearance]]
+[[gmoccapy:message-behavior]]
+
+.Message behavior and appearance
+
 This will display small popup windows displaying the message or error text, the behavior is very similar 
 to the one axis uses. You can delete a specific message, by clicking on it's close button, if you want 
 to delete the last one, just hit the WINDOWS key on your keyboard, or delete all messages 
@@ -1145,10 +1178,13 @@ lines in the code before the starting line. So errors or crashes are very probab
 Default is disable run from line
 
 .Log Actions
-If this button is active, nearly every button press or relevant action of LinuxCNC will be logged in the ALARM history.
-This is very useful for debugging.  
+If this button is active, nearly every button press or relevant action of
+LinuxCNC will be logged in the ALARM history. This is very useful for debugging.
 
-== LATHE specific section [[sub:LATHE_specific_section]]
+[[gmoccapy:lathe-section]]
+
+== LATHE specific section
+
 If in the INI File LATHE = 1 is given, the GUI will change its appearance to the special needs for a lathe.
 Mainly the Y axis will be hidden and the jog buttons will be arranged in a different order.
 
@@ -1216,7 +1252,10 @@ English Hardware Button = http://www.youtube.com/watch?v=ItVWJBK9WFA
 === User Tabs
 English User Tabs = http://www.youtube.com/watch?v=rG1zmeqXyZI 
 
-=== Tool_Measurement_Video [[sub:Tool_Measurement_Videos]]
+[[gmoccapy:tool-measurement-videos]]
+
+=== Tool_Measurement_Video
+
 English Auto Tool Measurement Simmulation = http://youtu.be/rrkMw6rUFdk +
 English Auto Tool Measurement Screen = http://youtu.be/Z2ULDj9dzvk +
 English Auto Tool Measurement Machine = http://youtu.be/1arucCaDdX4 +

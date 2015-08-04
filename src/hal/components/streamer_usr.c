@@ -68,6 +68,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"                /* HAL public API decls */
 #include "streamer.h"
+#include "rtapi_atomic.h"
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -213,7 +214,8 @@ int main(int argc, char **argv)
 	    newin = 0;
 	}
 	/* wait until there is space in the buffer */
-	while ( newin == fifo->out ) {
+	while ( newin == atomic_load_explicit(&fifo->out,
+                memory_order_acquire) ) {
             /* fifo full, sleep for 10mS */
 	    delay.tv_sec = 0;
 	    delay.tv_nsec = 10000000;
@@ -282,7 +284,7 @@ int main(int argc, char **argv)
 		abort the program.  Right now it skips the line. */
 	} else {
 	    /* good data, keep it */
-	    fifo->in = newin;
+	    atomic_store_explicit(&fifo->in, newin, memory_order_release);
 	}
 	line++;
     }
