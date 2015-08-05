@@ -107,7 +107,6 @@ typedef struct {
 	hal_float_t *speed_command;			// spindle speed command from EMC
 	hal_float_t	*freq_cmd;				// calculated frequency command
 
-	hal_float_t *base_freq;				// PD004 Base Frequency
 	hal_float_t *max_freq;				// PD005 Max Operating Freqency
 	hal_float_t *freq_lower_limit;		// PD011 Freqency Lower Limit
 	hal_float_t *rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
@@ -360,11 +359,6 @@ int read_setup(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	mb_data->function = FUNCTION_READ;
 	mb_data->data = 0x0000;
 
-	mb_data->parameter = 4; // PD004 Base Freqency
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
-		goto failed;		
-	*(haldata->base_freq) = mb_data->ret_data * 0.01;
-	
 	mb_data->parameter = 5; // PD005 Max Operating Freqency
 	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
 		goto failed;		
@@ -694,8 +688,6 @@ int main(int argc, char **argv)
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_cmd), hal_comp_id, "%s.frequency-command", modname);
 	if (retval!=0) goto out_closeHAL;
 	
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->base_freq), hal_comp_id, "%s.base-freq", modname);
-	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->max_freq), hal_comp_id, "%s.max-freq", modname);
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_lower_limit), hal_comp_id, "%s.freq-lower-limit", modname);
@@ -736,7 +728,6 @@ int main(int argc, char **argv)
 	*(haldata->CNTR) = 0;
 	*(haldata->CNST) = 0;
 	
-	*(haldata->base_freq) = 0;
 	*(haldata->max_freq) = 0;
 	*(haldata->freq_lower_limit) = 0;
 	*(haldata->rated_motor_voltage) = 0;
