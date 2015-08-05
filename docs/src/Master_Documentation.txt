@@ -8,11 +8,15 @@ Contents
 
 :masterdir: {indir}
 
+= Introduction
+
 image::common/images/emc2-intro.*[]
 
-The LinuxCNC Team
-
 include::common/overleaf.txt[]
+
+The LinuxCNC History
+
+include::common/emc-history.txt[]
 
 = Using LinuxCNC
 
