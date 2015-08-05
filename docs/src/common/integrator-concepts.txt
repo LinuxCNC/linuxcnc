@@ -1,6 +1,6 @@
-= Integrator Concepts
+[[cha:integrator-concepts]](((Integrator Concepts)))
 
-[[cha:integrator-concepts]] (((Integrator Concepts)))
+= Integrator Concepts
 
 == Stepper Systems
 

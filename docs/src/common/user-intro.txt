@@ -1,8 +1,8 @@
+[[cha:linuxcnc-user-introduction]](((LinuxCNC User Introduction)))
+
 = LinuxCNC User Introduction
 
-[[cha:linuxcnc-user-introduction]] (((LinuxCNC User Introduction)))
-
-== How LinuxCNC Works[[how-LinuxCNC-works]]
+== How LinuxCNC Works
 
 When you start LinuxCNC from the CNC menu or by typing 'linuxcnc'
 in the terminal the LinuxCNC script starts the
@@ -60,7 +60,7 @@ to connect with external control boards. As we examine each of the
 components that make up an LinuxCNC system we will remind the reader of
 this typical machine.
 
-== Graphical User Interfaces[[sub:Graphical-User-Interfaces]]
+== Graphical User Interfaces
 
 A user interface is the part of the LinuxCNC that the machine tool
 operator interacts with. The LinuxCNC comes with several types of user
@@ -148,7 +148,7 @@ and when you start up LinuxCNC it comes up in that language. If your
 language has not been translated contact a developer on the IRC or the
 mailing list if you can assist in the translation.
 
-== Thinking Like a Machine Operator[[sec:Thinking-Operator]]
+== Thinking Like a Machine Operator
 
 This book will not even pretend that it can teach you to run a mill or
 a lathe. Becoming a machinist takes time and hard work. An author once
@@ -167,7 +167,7 @@ will help you become a good operator of the LinuxCNC system. You will need
 some information right up front here so that the following pages will
 make sense to you.
 
-== Modes of Operation[[sub:Modes-of-Operation]]
+== Modes of Operation
 
 When LinuxCNC is running, there are three different major modes used
 for inputting commands. These are 'Manual', 'Auto',

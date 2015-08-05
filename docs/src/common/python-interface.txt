@@ -1,4 +1,4 @@
-[[cha:python-interface]] (((Python Interface)))
+[[cha:python-interface]](((Python Interface)))
 
 = Python Interface
 
@@ -70,7 +70,7 @@ for x in dir(s):
 ---------------------------------------------------------------------
 
 Linuxcnc uses the default compiled-in path to the NML configuration
-file unless overridden, see <<sec:Python-reading-ini-values,Reading
+file unless overridden, see <<python:reading-ini-values,Reading
 ini file values>> for an example.
 
 
@@ -102,7 +102,7 @@ reflects [TRAJ] AXES ini value.
 
 *axis*:: '(returns tuple of dicts)' -
 reflecting current axis values. See
-<<sec:The-Axis-dictionary,The axis dictionary>>.
+<<sec:the-axis-dictionary,The axis dictionary>>.
 
 *axis_mask*:: '(returns integer)' -
 mask of axis available as defined by [TRAJ] COORDINATES in the ini
@@ -356,7 +356,7 @@ are integers and the rest are floats.
 *velocity*:: '(returns float)' -
 default  velocity. reflects [TRAJ] DEFAULT_VELOCITY.
 
-=== The `axis` dictionary [[sec:The-Axis-dictionary]]
+=== The `axis` dictionary [[sec:the-axis-dictionary]]
 
 The axis configuration and status values are available through a list
 of per-axis dictionaries. Here's an example how to access an attribute
@@ -687,7 +687,7 @@ if error:
 ---------------------------------------------------------------------
 
 
-== Reading ini file values [[sec:Python-reading-ini-values]]
+== Reading ini file values [[python:reading-ini-values]]
 
 Here's an example for reading values from an ini file through the
 `linuxcnc.ini` object:

@@ -1,6 +1,6 @@
-= Lathe User Information
+[[cha:lathe-user-information]](((Lathe User Information)))
 
-[[cha:lathe-user-information]] (((Lathe User Information)))
+= Lathe User Information
 
 This chapter attempts to bring together all the lathe specific
 information and is currently under construction.
@@ -59,7 +59,7 @@ with the center line angle of each orientation and
 info on FRONTANGLE and BACKANGLE.
 The FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+.
 
-.Lathe Tool Orientations[[cap:Lathe-Tool-Orientations]]
+.Lathe Tool Orientations
 
 image::images/tool_positions.png[]
 

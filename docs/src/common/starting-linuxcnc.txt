@@ -1,4 +1,4 @@
-[[cha:starting-linuxcnc]] (((Starting LinuxCNC)))
+[[cha:starting-linuxcnc]](((Starting LinuxCNC)))
 
 = Starting LinuxCNC
 
@@ -22,7 +22,7 @@ GladeVCP objects with HAL pins you must use the postgui HAL file to make any
 connections to those pins. See the <<sec:hal-section,[HAL]>> section of the
 INI configuration for more information.
 
-[[sub:configuration-selector]] 
+[[sub:configuration-selector]]
 
 === Configuration Selector
 

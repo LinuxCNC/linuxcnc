@@ -1,6 +1,6 @@
-= General Mechatronics Driver
+[[cha:gm-driver]](((General Mechatronics Driver)))
 
-[[cha:gm-driver]] (((General Mechatronics Driver)))
+= General Mechatronics Driver
 
 General Mechatronics GM6-PCI card based motion control system
 
@@ -52,7 +52,7 @@ image::images/GM_PCIpinout.png[align="center",scaledwidth="70%"]
 
 image::images/GM_IOpinout.png[align="center"]
 
-.Pinout of GPIO connectors[[table:gpio-pinout]](((gpio-pinout)))
+.Pinout of GPIO connectors
 
 [width="40%", options="header", cols="5*^"]
 |========================================
@@ -90,7 +90,7 @@ gm.<nr of card>.read
 
 === Pins
 
-.GPIO pins[[table:gpio-pins]](((gpio-pins)))
+.GPIO pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -102,7 +102,7 @@ gm.<nr of card>.read
 
 === Parameters
 
-.GPIO parameters[[table:gpio-parameters]](((gpio-parameters)))
+.GPIO parameters
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -117,7 +117,7 @@ gm.<nr of card>.read
 
 image::images/GM_AXISpinout.png[align="center"]
 
-.Pinout of axis connectors[[table:axis-pinout]](((axis-pinout)))
+.Pinout of axis connectors
 
 [width="40%", cols="^1,<4"]
 |========================================
@@ -186,7 +186,7 @@ gm.<nr of card>.read
 
 .Pins
 
-.Encoder pins[[table:encoder-pins]](((encoder-pins)))
+.Encoder pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -210,7 +210,7 @@ gm.<nr of card>.read
 
 .Parameters
 
-.Encoder parameters[[table:encoder-parameters]](((encoder-parameters)))
+.Encoder parameters
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -298,7 +298,7 @@ gm.<nr of card>.write
 
 .Pins
 
-.Stepgen module pins[[table:stepgen-pins]](((stepgen-pins)))
+.Stepgen module pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -312,7 +312,7 @@ gm.<nr of card>.write
 
 .Parameters
 
-.Stepgen module parameters[[table:stepgen-parameters]](((stepgen-parameters)))
+.Stepgen module parameters
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -383,7 +383,7 @@ gm.<nr of card>.read
 
 .Pins
 
-.Enable and Fault signal pins[[table:enable-pins]](((enable-pins)))
+.Enable and Fault signal pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -425,7 +425,7 @@ gm.<nr of card>.write
 
 .Pins
 
-.Axis DAC pins[[table:dac-pins]](((dac-pins)))
+.Axis DAC pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -437,7 +437,7 @@ gm.<nr of card>.write
 
 .Parameters
 
-.Axis DAC parameters[[table:dac-parameters]](((dac-parameters)))
+.Axis DAC parameters
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -500,7 +500,7 @@ gm.<nr of card>.write
 
 === Pins
 
-.CAN module pins[[table:can-pins]](((can-pins)))
+.CAN module pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -512,7 +512,7 @@ gm.<nr of card>.write
 
 === Parameters
 
-.CAN module parameters[[table:can-parameters]](((can-parameters)))
+.CAN module parameters
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -530,7 +530,7 @@ gm.<nr of card>.read
 
 === Pins
 
-.Watchdog pins[[table:watchdog-pins]](((watchdog-pins)))
+.Watchdog pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -542,7 +542,7 @@ Watchdog timer overrun causes the set of power-enable to low in hardware.
 
 === Parameters
 
-.Watchdog parameters[[table:watchdog-parameters]](((watchdog-parameters)))
+.Watchdog parameters
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -567,7 +567,7 @@ Watchdog timer overrun causes the set of power-enable to low in hardware.
 
 image::images/GM_ENDSWpinout.png[align="center"]
 
-.End- and homing switch connector pinout[[table:end-and-homing-switch-connector-pinout]](((end-and-homing-switch-connector-pinout)))
+.End- and homing switch connector pinout
 
 [width="100%", options="header", cols="2*^.^1,11*^.^2"]
 |========================================
@@ -603,7 +603,7 @@ gm.<nr of card>.read
 
 === Pins
 
-.End- and homing switch pins[[table:end-and-homing-switch-pins]](((end-and-homing-switch-pins)))
+.End- and homing switch pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -618,7 +618,7 @@ gm.<nr of card>.read
 
 === Parameters
 
-.E-stop switch parameters[[table:e-stop-switch-parameters]](((e-stop-switch-parameters)))
+.E-stop switch parameters
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -738,7 +738,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 .Pins
 
-.Relay output module pins[[table:rs485-relay-pins]](((rs485-relay-pins)))
+.Relay output module pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -748,7 +748,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 .Parameters
 
-.Relay output module parameters[[table:rs485-relay-parameters]](((rs485-relay-parameters)))
+.Relay output module parameters
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -787,7 +787,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 .Pins
 
-.Digital input output module pins[[table:rs485-input-pins]](((rs485-input-pins)))
+.Digital input output module pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -827,7 +827,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 .Pins
 
-.DAC & ADC module pins[[table:rs485-dacadc-pins]](((rs485-dacadc-pins)))
+.DAC & ADC module pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -840,7 +840,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 .Parameters
 
-.DAC & ADC module parameters[[table:rs485-dacadc-parameters]](((rs485-dacadc-parameters)))
+.DAC & ADC module parameters
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -885,7 +885,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 .Pins
 
-.Teach Pendant module pins[[table:rs485-teachpendant-pins]](((rs485-teachpendant-pins)))
+.Teach Pendant module pins
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -901,7 +901,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 .Parameters
 
-.Teach Pendant module parameters[[table:rs485-teachpendant-parameters]](((rs485-teachpendant-parameters)))
+.Teach Pendant module parameters
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -921,7 +921,6 @@ gm.0.rs485.0.adc-0 # First analogue channel of the node.
 # .rs485.0 - Select node with address 0 on the RS485 bus
 # .adc-0   - Select the first analogue input of the module
 ----
-
 
 == Errata
 
