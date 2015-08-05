@@ -125,6 +125,39 @@ in register PD165 of the HuanyangVFD.
 (default 1) Set HYCOMM target (slave) number. This must match the device
 number you set on the Hyanyang VFD in register PD163.
 .B
+.IP -F,\ --max-frequency\ <n>
+(default: read from VFD) If specified, program register PD005 of the VFD
+with the specified max frequency of <n> Hz (and use the same max frequency
+in the hy_vfd driver).  If not specified, read the max frequency to use
+from register PD005 of the VFD.
+.B
+.IP -f,\ --min-frequency\ <n>
+(default: read from VFD) If specified, program register PD011 of the
+VFD with the specified minimum frequency of <n> Hz (and use the same
+minimum frequency in the hy_vfd driver).  If not specified, read the
+minimum frequency to use from register PD011 of the VFD.
+.B
+.IP -V,\ --motor-voltage\ <n>
+(default: read from VFD) If specified, program register PD141 of the VFD
+with the specified max motor voltage of <n> Volts.  If not specified,
+read the max motor voltage from register PD141 of the VFD.
+.B
+.IP -I,\ --motor-current\ <n>
+(default: read from VFD) If specified, program register PD142 of the
+VFD with the specified max motor current of <n> Amps.  If not specified,
+read the max motor current from register PD142 of the VFD.
+.B
+.IP -V,\ --motor-speed\ <n>
+(default: read from VFD) If specified, program register PD144 of the
+VFD with the specified max motor speed of <n> RPM (and use the same max
+motor speed in the hy_vfd driver).  If not specified, read the max motor
+speed from register PD144 of the VFD.  \fBNote:\fR The Huanyang VFD can
+not store or report max motor speeds greater than 9999 RPM.  If a max
+motor speed of greater than 9999 RPM is needed, you must supply it using
+this command-line argument.  The VFD will be programmed with 1/10th of
+this max speed, which will cause the VFD display to show 1/10th of the
+actual speed of the motor.
+.B
 .SH PINS
 .B
 .IP <name>.enable
