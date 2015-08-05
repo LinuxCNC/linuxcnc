@@ -77,7 +77,7 @@ o100 sub
   (some code here that only gets executed if parameter #2 is less than 5)
 o100 endsub
 ----
-See the <<sec:Binary-Operators,Binary Operators>> & <<sec:parameters,Parameters>> sections for more information.
+See the <<sec:binary-operators,Binary Operators>> & <<sec:parameters,Parameters>> sections for more information.
 
 .O- Call
 'O- Call' takes up to 30 optional arguments, which are passed to the
@@ -238,8 +238,8 @@ o[#101+2] call
 For more information on computing values see the following sections
 
 * <<sec:parameters,Parameters>>
-* <<sec:Expressions,Expressions>>
-* <<sec:Binary-Operators,Binary Operators>>
+* <<sec:expressions,Expressions>>
+* <<sec:binary-operators,Binary Operators>>
 * <<sub:functions,Functions>>
 
 == Calling Files(((Calling Files)))
@@ -290,7 +290,7 @@ o123 endsub [3 * 4]
 ----
 
 A subroutine return value is stored in the '#<_value>'
-<<sec:Predefined-Named-Parameters, predefined named parameter>> , and
+<<sec:predefined-named-parameters, predefined named parameter>> , and
 the '#<_value_returned>' predefined parameter is set to 1, to indicate
 a value was returned. Both paramters are global, and are cleared just
 before the next subroutine call.

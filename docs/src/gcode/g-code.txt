@@ -162,7 +162,7 @@ It is an error if:
 G1 axes
 -------------------
 
-For linear (straight line) motion at programed <<sec:F-feed-rate,feed rate>>
+For linear (straight line) motion at programed <<sec:set-feed-rate,feed rate>>
 (for cutting or not), program 'G1 'axes'', where all the axis words are
 optional. The 'G1' is optional if the current motion mode is 'G1'. This will
 produce coordinated linear motion to the destination point at the current feed
@@ -176,7 +176,7 @@ Z-2.3 (linear move at same feed rate from current position to Z-2.3)
 Z1 F25 (linear move at a feed rate of 25 from current position to Z1)
 M2 (end program)
 ----
-* See <<gcode:g90-g91,G90>> & <<sec:F-feed-rate,F>> & <<mcode:m2-m30,M2>> sections
+* See <<gcode:g90-g91,G90>> & <<sec:set-feed-rate,F>> & <<mcode:m2-m30,M2>> sections
 for more information.
 
 If cutter compensation is active, the motion will differ from
@@ -203,7 +203,7 @@ G2 or G3 offsets <P-> (full circles)
 
 A circular or helical arc is specified using either 'G2' (clockwise
 arc) or 'G3' (counterclockwise arc) at the current 
-<<sec:F-feed-rate,feed rate>>. The direction (CW, CCW) is as viewed from the
+<<sec:set-feed-rate,feed rate>>. The direction (CW, CCW) is as viewed from the
 positive end of the axis about which the circular motion occurs.
 
 The axis of the circle or helix must be parallel to the
@@ -319,7 +319,7 @@ G2 or G3 <Y- Z- X- J- K- P->
 
 It is an error if:
 
-* No feed rate is set with the <<sec:F-feed-rate,F>> word.
+* No feed rate is set with the <<sec:set-feed-rate,F>> word.
 
 * No offsets are programmed.
 
@@ -764,7 +764,7 @@ G10 L10 P1 Z1.5 (set the current position for Z to be 1.5)
 G43 (reload the tool length offsets from the changed tool table)
 M2 (end program)
 ----
-* See <<sec:T-Select-Tool,T>> & <<mcode:m6,M6>>, and
+* See <<sec:select-tool,T>> & <<mcode:m6,M6>>, and
   <<gcode:g43,G43>>/<<gcode:g43.1,G43.1>> sections for more information.
 
 It is an error if:
@@ -1086,7 +1086,7 @@ The tool in the spindle must be a probe or contact a probe switch.
 
 In response to this command, the machine moves the controlled point
 (which should be at the center of the probe ball) in a straight line at the
-current <<sec:F-feed-rate,feed rate>> toward the programmed point.
+current <<sec:set-feed-rate,feed rate>> toward the programmed point.
 In inverse time feed mode, the feed rate is such that the whole motion
 from the current point to the programmed point would take the specified time.
 The move stops (within machine acceleration limits)
@@ -1282,7 +1282,7 @@ T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows 
 G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z1.250)
 M2 (end program)
 ----
-* See <<gcode:g90-g91,G90>> & <<sec:T-Select-Tool,T>> & <<mcode:m6,M6>>
+* See <<gcode:g90-g91,G90>> & <<sec:select-tool,T>> & <<mcode:m6,M6>>
   sections for more information.
 
 It is an error if:
@@ -1431,7 +1431,7 @@ between speed and accuracy. The P- tolerance means that the actual path
 will be no more than P- away from the programmed endpoint. The velocity
 will be reduced if needed to maintain the path. In addition, when you
 activate G64 P- Q- it turns on the 'naive cam detector'; when there are
-a series of linear XYZ feed moves at the same <<sec:F-feed-rate,feed rate>>
+a series of linear XYZ feed moves at the same <<sec:set-feed-rate,feed rate>>
 that are less than Q- away from being collinear, they are collapsed into a
 single linear move. On G2/G3 moves in the G17 (XY) plane when the maximum
 deviation of an arc from a straight line is less than the G64 P-
@@ -1472,7 +1472,7 @@ This cycle takes a Q number which represents a 'delta' increment along the Z axi
    ** If the current Z position is below the R position, The Z axis does a
    <<gcode:g0,rapid move>> to the R position.
    ** Move to the X Y coordinates
- . Move the Z-axis only at the current <<sec:F-feed-rate,feed rate>> downward
+ . Move the Z-axis only at the current <<sec:set-feed-rate,feed rate>> downward
    by delta or to the Z position, whichever is less deep.
  . Rapid up a bit.
  . Repeat steps 2 and 3 until the Z position is reached at step 2.
@@ -1547,7 +1547,7 @@ thread. For a 45 degree taper program E the same as K
 * 'L-' - Specifies which ends of the thread get the taper. Program 'L0' for no
 taper (the default), 'L1' for entry taper, 'L2' for exit taper, or 'L3'
 for both entry and exit tapers. Entry tapers will pause at the drive line to
-synchronize with the index pulse then move at the <<sec:F-feed-rate,feed rate>>
+synchronize with the index pulse then move at the <<sec:set-feed-rate,feed rate>>
 in to the beginning of the taper. No entry taper and the tool will rapid to the
 cut depth then synchronize and begin the cut.
 
@@ -1869,7 +1869,7 @@ The cycle functions as follows:
  . Preliminary motion, as described in the
    <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
 
-. Move the Z-axis at the current <<sec:F-feed-rate,feed rate>> to the Z
+. Move the Z-axis at the current <<sec:set-feed-rate,feed rate>> to the Z
   position.
 
 . The Z-axis does a <<gcode:g0,rapid move>> to clear Z.
@@ -1901,7 +1901,7 @@ The following moves take place:
 
 . a rapid move move parallel to the Z-axis to (Z2.8).
 
-. move parallel to the Z-axis at the <<sec:F-feed-rate,feed rate>> to (Z1.5)
+. move parallel to the Z-axis at the <<sec:set-feed-rate,feed rate>> to (Z1.5)
 
 . a rapid move parallel to the Z-axis to (Z3)
 
@@ -1931,7 +1931,7 @@ The first repeat consists of 3 moves.
 
 . a <<gcode:g0,rapid move>> parallel to the XY-plane to (X5, Y7)
 
-. move parallel to the Z-axis at the <<sec:F-feed-rate,feed rate>> to (Z4.2)
+. move parallel to the Z-axis at the <<sec:set-feed-rate,feed rate>> to (Z4.2)
 
 . a rapid move parallel to the Z-axis to (X5, Y7, Z4.8) 
 
@@ -2011,7 +2011,7 @@ the hole.
 
  . Preliminary motion, as described in the
    <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
- . Move the Z-axis at the current <<sec:F-feed-rate,feed rate>> to the Z position.
+ . Move the Z-axis at the current <<sec:set-feed-rate,feed rate>> to the Z position.
  . Dwell for the P number of seconds.
  . The Z-axis does a <<gcode:g0,rapid move>> to clear Z.
 
@@ -2040,7 +2040,7 @@ of retracts during the drilling operation.
 
  . Preliminary motion, as described in the
    <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
- . Move the Z-axis at the current <<sec:F-feed-rate,feed rate>> downward by
+ . Move the Z-axis at the current <<sec:set-feed-rate,feed rate>> downward by
    delta or to the Z position, whichever is less deep. 
  . Rapid move back out to the retract plane specified by the R word.
  . Rapid move back down to the current hole bottom, backed off a bit.
@@ -2069,7 +2069,7 @@ for drilling or milling.
 
  . Preliminary motion, as described in the
    <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
- . Move the Z-axis only at the current <<sec:F-feed-rate,feed rate>> to the Z
+ . Move the Z-axis only at the current <<sec:set-feed-rate,feed rate>> to the Z
    position.
  . Retract the Z-axis at the current feed rate to the R plane if it is lower 
  than the initial Z.
@@ -2088,7 +2088,7 @@ for the number of seconds to dwell.
 
  . Preliminary motion, as described in the
    <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
- . Move the Z-axis only at the current <<sec:F-feed-rate,feed rate>> to the Z
+ . Move the Z-axis only at the current <<sec:set-feed-rate,feed rate>> to the Z
    position.
  . Dwell for the P number of seconds.
  . Stop the spindle turning.
@@ -2122,7 +2122,7 @@ where P specifies the number of seconds to dwell.
 
  . Preliminary motion, as described in the
    <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
- . Move the Z-axis only at the current <<sec:F-feed-rate,feed rate>> to the Z
+ . Move the Z-axis only at the current <<sec:set-feed-rate,feed rate>> to the Z
    position.
  . Dwell for the P number of seconds. 
  . Retract the Z-axis at the current feed rate to clear Z. 

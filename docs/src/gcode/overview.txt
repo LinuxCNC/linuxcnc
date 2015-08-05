@@ -1,6 +1,6 @@
-= G Code Overview
+[[cha:g-code-overview]](((G Code Overview)))
 
-[[cha:g-code-overview]] (((G Code Overview)))
+= G Code Overview
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -72,7 +72,9 @@ Input is case insensitive, except in comments, i.e., any letter
 outside a comment may be in upper or lower case without changing the
 meaning of a line.
 
-== Block Delete [[sub:block-delete]] (((Block Delete)))
+[[sub:block-delete]](((Block Delete)))
+
+== Block Delete
 
 The optional block delete character the slash '/' when placed first on a line
 can be used by some user interfaces to skip lines of code when needed. In Axis
@@ -102,7 +104,7 @@ though, as defined above, line numbers are not words. Several letters
 Letters which refer to axis names are not valid on a machine which does
 not have the corresponding axis.
 
-.Words and their meanings[[cap:Words-and-their]]
+.Words and their meanings
 
 [width="75%", options="header", cols="^1,<5"]
 |========================================
@@ -112,14 +114,14 @@ not have the corresponding axis.
 |C | C axis of machine
 |D | Tool radius compensation number
 |F | Feed rate
-|G | General function (See table  <<cap:Modal-Groups,Modal Groups>>)
+|G | General function (See table  <<cap:modal-groups,Modal Groups>>)
 |H | Tool length offset index
 |I | X offset for arcs and G87 canned cycles
 |J | Y offset for arcs and G87 canned cycles
 .2+|K | Z offset for arcs and G87 canned cycles.
 <| Spindle-Motion Ratio for G33 synchronized movements.
 |L | generic parameter word for G10, M66 and others
-|M | Miscellaneous function (See table  <<cap:Modal-Groups,Modal Groups>>)
+|M | Miscellaneous function (See table  <<cap:modal-groups,Modal Groups>>)
 |N | Line number
 .2+|P | Dwell time in canned cycles and with G4.
 <| Key used with G10.
@@ -135,7 +137,6 @@ not have the corresponding axis.
 |Z | Z axis of machine
 |========================================
 
-[[sub:Number]]
 == Number
 
 The following rules are used for (explicit) numbers. In these rules a
@@ -178,10 +179,10 @@ types of parameter of different purpose and appearance, each described
 in the following sections. The only value type supported by parameters
 is floating-point; there are no string, boolean or integer types in
 G-code like in other programming languages. However, logic expressions
-can be formulated with <<sec:Binary-Operators,boolean operators>>
+can be formulated with <<sec:binary-operators,boolean operators>>
 ( 'AND', 'OR', 'XOR', and the comparison operators
 'EQ','NE','GT','GE','LT','LE'), and the 'MOD', 'ROUND', 'FUP' and
-'FIX' <<cap:Functions,operators>> support integer arithmetic.
+'FIX' <<sub:functions,operators>> support integer arithmetic.
 
 Parameters differ in syntax, scope, behavior when not yet
 initialized, mode, persistence and intended use.
@@ -233,8 +234,9 @@ coordinate systems.
  . <<sub:system-parameters,system parameters>> - used to determine the current
    running version. They are read-only.
 
+[[sub:numbered-parameters]]
 
-=== Numbered Parameters [[sub:numbered-parameters]]
+=== Numbered Parameters
 
 A numbered parameter is the pound character '#' followed by an
 integer between 1 and (currently) 5602 footnote:[The RS274/NGC interpreter
@@ -364,7 +366,6 @@ example '##2'  means the value of the parameter whose index is the
    Volatile.
 
 == Numbered Parameters persistence
-[[var_file_format]]
 
 The values of parameters in the persistent range are retained over
 time, even if the machining center is powered down.  LinuxCNC uses a
@@ -392,21 +393,24 @@ and written with their current values on the next save operation.
 
 The parameter numbers must be arranged in ascending order. An
 `Parameter file out of order` error  will be signaled if they are  not in
-ascending order. 
+ascending order.
 
 The original file is saved as a backup file when the new file
-is written. 
+is written.
 
-.Parameter File Format[[sec:format-parameter-file]]
+[[sec:format-parameter-file]]
+
+.Parameter File Format
 
 [width="90%", options="header"]
 |========================================
-|Parameter Number | Parameter Value 
-|5161 | 0.0 
-|5162 | 0.0 
+|Parameter Number | Parameter Value
+|5161 | 0.0
+|5162 | 0.0
 |========================================
 
 [[sub:subroutine-parameters]]
+
 === Subroutine Parameters
 
 1-30::
@@ -414,8 +418,6 @@ is written.
     local to the subroutine. Volatile. See also the chapter on
     <<cha:o-codes,O-Codes>>.
 
-
-[[sub:Named-Parameters]]
 === Named Parameters
 
 Named parameters work like numbered parameters but are easier to read.
@@ -470,9 +472,11 @@ Global parameters, as well as local parameters assigned to at the
 global level, retain their value once assigned even when the program
 ends, and have these  values when the program is run again.
 
-The <<EXISTS-Function,'EXISTS' function>> tests whether a given named parameter exists.
+The <<sub:functions,'EXISTS' function>> tests whether a given named parameter exists.
 
-=== Predefined Named Parameters [[sec:Predefined-Named-Parameters]]
+[[sec:predefined-named-parameters]]
+
+=== Predefined Named Parameters
 
 The following global read only named parameters are available to
 access internal state of the interpreter and machine state. They can
@@ -589,6 +593,7 @@ can be added easily without changes to the source code.
     Return 1 if G99 is on, else 0.
 
 [[sub:system-parameters]]
+
 === System Parameters
 
 * `#<_spindle_rpm_mode>` -
@@ -676,7 +681,7 @@ can be added easily without changes to the source code.
     Return number of the selected pocket post a T code. Default -1
     (no pocket selected).
 
-* `#<_value>` -  [[param:_value]]
+* `#<_value>` -
     Return value from the last O-word `return` or `endsub`.  Default
     value 0 if no expression after `return` or `endsub`.  Initialized
     to 0 on program start.
@@ -699,7 +704,8 @@ can be added easily without changes to the source code.
     current level of the remap stack. Each remap in a block adds one
     to the remap level. For debugging.
 
-[[sec:Expressions]]
+[[sec:expressions]]
+
 == Expressions
 
 An expression is a set of characters starting with a left bracket '['
@@ -710,7 +716,8 @@ produce a number. The expressions on a line are evaluated when the line
 is read, before anything on the line is executed. An example of an
 expression is '[1 + acos[0] - [#3 ** [4.0/2]]]'.
 
-[[sec:Binary-Operators]]
+[[sec:binary-operators]]
+
 == Binary Operators
 
 Binary operators only appear inside expressions. There are four basic
@@ -724,10 +731,9 @@ on the left of the operation to the power on
 ('NE'), strictly greater than ('GT'), greater than or equal to ('GE'),
 strictly less than ('LT'), and less than or equal to ('LE').
 
-The binary operations are divided into several groups according to
-their precedence. (see table  <<cap:Operator-Precedence,Operator-Precedence>>) If
-operations in different precedence groups are strung together (for
-example in the expression '[2.0 / 3 * 1.5 - 5.5 / 11.0]'), operations
+The binary operations are divided into several groups according to their
+precedence. If operations in different precedence groups are strung together
+(for example in the expression '[2.0 / 3 * 1.5 - 5.5 / 11.0]'), operations
 in a higher group are to be performed before operations
 in a lower group. If an expression contains more than one operation
  from the same group (such as the first '/' and '*'  in the example),
@@ -739,7 +745,7 @@ The logical operations and modulus are to be performed on any real
 numbers, not just on integers. The number zero is equivalent to logical
 false, and any non-zero number is equivalent to logical true.
 
-.Operator Precedence[[cap:Operator-Precedence]](((operator precedence)))
+.Operator Precedence
 
 [width="60%", options="header", cols="2*^"]
 |========================================
@@ -760,20 +766,18 @@ solves this problem by considering values equal if their absolute
 difference is less than 0.0001 (this value is defined as
 `TOLERANCE_EQUAL` in src/emc/rs274ngc/interp_internal.hh).
 
-[[sub:Unary-Operation-Value]]
-== Functions[[sub:functions]]
+[[sub:functions]]
 
-A function is either 'ATAN' followed by one expression divided by
-another expression (for
- example 'ATAN[2]/[1+3]') or any other function name followed by an
-expression (for example 'SIN[90]'). The available functions are
-shown in table  <<cap:Functions,Functions>>.
- Arguments to unary operations which take angle measures ('COS', 'SIN',
-and 'TAN' ) are in degrees. Values returned by unary operations which
-return
-angle measures ('ACOS', 'ASIN', and 'ATAN') are also in degrees.
+== Functions
 
-.Functions[[cap:Functions]]
+A function is either 'ATAN' followed by one expression divided by another
+expression (for example 'ATAN[2]/[1+3]') or any other function name followed
+by an expression (for example 'SIN[90]'). The available functions are shown in
+following table. Arguments to unary operations which take angle measures
+('COS', 'SIN', and 'TAN' ) are in degrees. Values returned by unary operations
+which return angle measures ('ACOS', 'ASIN', and 'ATAN') are also in degrees.
+
+.Functions
 
 [width="75%", options="header", cols="^,<"]
 |========================================
@@ -801,7 +805,7 @@ example. The 'FUP'  operation rounds towards the right (more positive
 or less negative)
 on a number line; 'FUP[2.8] = 3' and 'FUP[-2.8] = -2', for example.
 
-[[EXISTS-Function]]The `EXISTS` function checks for the existence of a single named
+The `EXISTS` function checks for the existence of a single named
 parameter. It takes only one named parameter and returns 1 if it
 exists and 0 if it does not exist. It is an error if you use a
 numbered parameter or an expression. Here is an example for the usage
@@ -827,7 +831,7 @@ m2
 
 A line may have any number of G words, but two G words from the same
 modal group may not appear on the
-same line See the <<sec:Modal-Groups,Modal Groups>> Section for more information.
+same line See the <<sec:modal-groups,Modal Groups>> Section for more information.
 
 A line may have zero to four M words. Two M words from the same modal
 group may not appear on the same line.
@@ -952,10 +956,9 @@ It is an error if:
 * An incremental move is started at the origin
 * A mix of Polar and and X or Y words are used
 
+[[sec:modal-groups]](((Modal Groups)))
 
-[[sec:Modal-Groups]]
 == Modal Groups
-(((Modal Groups)))
 
 Modal commands are arranged in sets called 'modal groups', and only
 one member of a modal group may be in force at any given time. In
@@ -965,7 +968,7 @@ measure in inches vs. measure in millimeters. A machining center may be
 in many modes at the same time, with one mode from each modal group
 being in effect. The modal groups are shown in the following Table.
 
-.G-Code Modal Groups[[cap:Modal-Groups]]
+.G-Code Modal Groups[[cap:modal-groups]]
 
 [width="100%", cols="4,6", options="header"]
 |========================================
@@ -987,7 +990,7 @@ being in effect. The modal groups are shown in the following Table.
 |Lathe Diameter Mode (Group 15)        | G7, G8
 |========================================
 
-.M-Code Modal Groups[[tbl:m-modal-groups]]
+.M-Code Modal Groups
 
 [width="80%", cols="4,6", options="header"]
 |========================================
@@ -1023,6 +1026,7 @@ It is an error to include any unrelated words on a line with 'O-' flow
 control.
 
 [[sec:comments]]
+
 == Comments
 
 Comments can be added to lines of G code to help clear up the
@@ -1053,9 +1057,7 @@ comment will in effect disable the active comment. For example, '(foo)
 A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
 
-[[sec:messages]]
 == Messages
-(((Messages)))
 
 * '(MSG,)' - displays message if 'MSG' appears after the left
              parenthesis and before any other printing characters.
@@ -1070,9 +1072,9 @@ on that line, and will always be interpreted for active comment syntax.
 (MSG, This is a message)
 ----
 
-[[sec:probe-logging]]
-== Probe Logging
 (((Probe Logging)))
+
+== Probe Logging
 
 * '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
                                coordinate consisting of XYZABCUVW of each
@@ -1081,9 +1083,9 @@ on that line, and will always be interpreted for active comment syntax.
 
 For more information on probing see the <<gcode:g38.n,G38>> Section.
 
-[[sec:log]]
-== Logging
 (((Logging)))
+
+== Logging
 
 * '(LOGOPEN,filename.txt)' - opens the named log file. If the file
                              already exists, it is truncated.
@@ -1096,16 +1098,16 @@ For more information on probing see the <<gcode:g38.n,G38>> Section.
 * '(LOG,)' - everything past the ',' is written to the log file if it is open.
              Supports expansion of parameters as described below.
 
-[[sec:debug-messages]]
-== Debug Messages
 (((Debug Messages)))
+
+== Debug Messages
 
 * '(DEBUG,)' - displays a message like '(MSG,)' with the addition of
               special handling for comment parameters as described below.
 
-[[sec:print-messages]]
-== Print Messages
 (((Print Messages)))
+
+== Print Messages
 
 * '(PRINT,)' - messages are output to 'stderr' with special handling
                for comment parameters as described below.
@@ -1156,9 +1158,9 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 <<axis:preview-control,preview control>> comments.
 
-[[sec:Order-of-Execution]]
+[[sec:order-of-execution]](((G Code Order of Execution)))
+
 == G Code Order of Execution
-(((G Code Order of Execution)))
 
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
@@ -1235,7 +1237,7 @@ canned cycles may also be important.
 
 === Don't put too many things on one line
 
-Ignore everything in Section <<sec:Order-of-Execution,Order of Execution>>, and instead
+Ignore everything in Section <<sec:order-of-execution,Order of Execution>>, and instead
 write no line of code that is the slightest bit ambiguous.
 
 === Don't set & use a parameter on the same line

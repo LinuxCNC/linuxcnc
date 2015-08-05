@@ -103,7 +103,7 @@ at the beginning of the file.
 * 'M4' - start the spindle counterclockwise at the 'S' speed.
 * 'M5' - stop the spindle.
 
-It is OK to use 'M3' or 'M4' if the <<sec:S-spindle-speed,S>>
+It is OK to use 'M3' or 'M4' if the <<sec:set-spindle-speed,S>>
 spindle speed is set to zero. If this is done
 (or if the speed override switch is enabled and set to zero),
 the spindle will not start turning.
@@ -129,7 +129,7 @@ the <<sec:manual-tool-change,Manual Tool Change>> section.
 
 To change a tool in the spindle from the tool currently in the spindle
 to the tool most recently selected (using a T word - see Section
-<<sec:T-Select-Tool,Select Tool>>), program 'M6'.
+<<sec:select-tool,Select Tool>>), program 'M6'.
 When the tool change is complete:
 
 * The spindle will be stopped. 
@@ -256,7 +256,7 @@ and the motion will be executed at programmed feed rate.
              While disabled the spindle speed override will have
              no influence, and the spindle speed will have the
              exact program specified value of the S-word
-             (described in <<sec:S-spindle-speed,Spindle Speed>> Section).
+             (described in <<sec:set-spindle-speed,Spindle Speed>> Section).
 
 [[mcode:m52]](((M52 Adaptive Feed Control)))
 
@@ -571,7 +571,7 @@ The suggested use is at the beginning of a O-word subroutine as in the
 following example. Using 'M73' this way enables designing subroutines
 which need to modify modal state but will protect the calling program
 against inadvertant modal changes. Note the use of
-<<sec:Predefined-Named-Parameters, predefined named parameters>> in
+<<sec:predefined-named-parameters, predefined named parameters>> in
 the 'showstate' subroutine.
 
 [source,{ngc}]
@@ -612,7 +612,7 @@ Executing an 'M72' or returning from a subroutine which contains an
 'M73' will restore <<mcode:m70-saved-state,*all* modal state saved>>.
 
 If only some aspects of modal state should be preserved, an
-alternative is the usage of <<sec:Predefined-Named-Parameters,
+alternative is the usage of <<sec:predefined-named-parameters,
 predefined named parameters>>, local parameters and conditional
 statements. The idea is to remember the modes to be restored at the
 beginning of the subroutine, and restore these before exiting. Here is

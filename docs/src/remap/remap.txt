@@ -200,11 +200,11 @@ the reference section.
 
 === Execution sequencing
 
-Executable G-code words are classified into <<sec:Modal-Groups,modal
+Executable G-code words are classified into <<sec:modal-groups,modal
 groups>>, which also defines their relative execution behavior.
 
 If a  G-code block  contains several executable words on a line, these
-words are executed in a predefined <<sec:Order-of-Execution, order of
+words are executed in a predefined <<sec:order-of-execution, order of
 execution>>, not in the order they appear in block.
 
 When you define a new executable code, the interpreter does not yet
@@ -232,13 +232,13 @@ In a nutshell, this means:
   execution with an error.
 
 - when an `M400` code is encountered, execute `myprocedure.ngc`  along
-the other <<sec:Modal-Groups,modal group>> 10 M-codes as per
-<<sec:Order-of-Execution, order of execution>>.
+the other <<sec:modal-groups,modal group>> 10 M-codes as per
+<<sec:order-of-execution, order of execution>>.
 
 - the value of `P`, and `Q` are available in the procedure as local
    named parameters. The may be referred to  as `#<P>` and `#<Q>`. The
    procedure may test whether the `Q` word was present with the
-   <<EXISTS-Function,`EXISTS`>> built in function.
+   <<sub:functions,`EXISTS`>> built in function.
 
 The file `myprocedure.ngc` is expected to exists in the `[DISPLAY]NC_FILES` or
 `[RS274NGC]SUBROUTINE_PATH` directory.
@@ -1978,7 +1978,7 @@ preview further movements. Also, there is no point in displaying a
 
 The way to address this issue is to test in your procedure whether it
 executes in preview or execution mode. This can be checked for by
-testing the `#<_task>` <<sec:Predefined-Named-Parameters, predefined
+testing the `#<_task>` <<sec:predefined-named-parameters, predefined
 named parameter>> - it will be 1 during actual execution and 0 during
 preview. See
 'configs/sim/axis/remap/manual-toolchange-with-tool-length-switch/nc_subroutines/manual_change.ngc'
@@ -2310,7 +2310,7 @@ One or several 'words' may be present on an NGC 'block' if they are
 compatible (some are mutually exclusive and must be on different
 lines).  The execution model however prescribes a strict ordering of
 execution of codes, regardless of their appearance on the source line
-(<<sec:Order-of-Execution, G-Code Order of Execution>>).
+(<<sec:order-of-execution, G-Code Order of Execution>>).
 
 === Parsing
 

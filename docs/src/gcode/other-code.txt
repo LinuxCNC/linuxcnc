@@ -1,10 +1,10 @@
-= Other Codes
-
 [[cha:other-codes]] (((Other Codes)))
 
-[[sec:F-feed-rate]]
+= Other Codes
+
+[[sec:set-feed-rate]](((F: Set Feed Rate)))
+
 == F: Set Feed Rate
-(((F: Set Feed Rate)))
 
 'Fx' - set the feed rate to 'x'.  'x' is usually in machine units
 (inches or millimeters) per minute.
@@ -14,9 +14,9 @@ The application of the feed rate is as described in the
 mode is in effect, in which case the feed rate is as described in the
 <<gcode:g93-g94-g95,G93 G94 G95>> Section.
 
-[[sec:S-spindle-speed]]
+[[sec:set-spindle-speed]](((S: Set Spindle Speed)))
+
 == S: Set Spindle Speed
-(((S: Set Spindle Speed)))
 
 'Sx' - set the speed of the spindle to 'x' revolutions per minute (RPM).
 
@@ -30,9 +30,10 @@ It is an error if:
 
 * the S number is negative.
 
-[[sec:T-Select-Tool]]
+[[sec:select-tool]](((T: Select Tool)))
+
 == T: Select Tool
-(((T: Select Tool)))
+
 
 'Tx' - prepare to change to tool 'x'.
 

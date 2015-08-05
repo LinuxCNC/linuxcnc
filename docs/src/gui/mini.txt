@@ -130,7 +130,7 @@ The menu includes each of the following sections and subsections.
     
 ** 'Active_G-Codes' - will write a list of all of the modal program codes that are active
         whenever this item is selected. For more information about modal
-        codes see the <<sec:Modal-Groups,Modal Groups>> section.
+        codes see the <<sec:modal-groups,Modal Groups>> section.
 
 * 'Help' - opens a text window pop in that displays the contents of the help file.
 
