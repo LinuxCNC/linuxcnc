@@ -72,10 +72,10 @@ DOC_SRCS_EN := \
 	gcode/tool-compensation.txt \
 	getting-started/about-linuxcnc.txt \
 	getting-started/getting-linuxcnc.txt \
-	getting-started/linux-faq.txt \
-	getting-started/pncconf.txt \
+	common/linux-faq.txt \
+	config/pncconf.txt \
 	getting-started/running-linuxcnc.txt \
-	getting-started/stepconf.txt \
+	config/stepconf.txt \
 	getting-started/system-requirements.txt \
 	getting-started/updating-linuxcnc.txt \
 	gui/axis.txt \
@@ -91,7 +91,7 @@ DOC_SRCS_EN := \
 	gui/tklinuxcnc.txt \
 	gui/tooledit.txt \
 	gui/touchy.txt \
-    gui/vismach.txt \
+	gui/vismach.txt \
 	hal/basic-hal.txt \
 	hal/canonical-devices.txt \
 	hal/comp.txt \
@@ -119,7 +119,6 @@ DOC_SRCS_EN := \
 	motion/tweaking-steppers.txt \
 	remap/remap.txt \
 	Master_Getting_Started.txt \
-	getting-started/index.txt \
 	Master_Documentation.txt \
 	Master_Developer.txt
 
@@ -202,9 +201,9 @@ DOC_SRCS_FR := \
 DOC_SRCS_ES := \
 	getting-started/about-linuxcnc-es.txt \
 	getting-started/getting-linuxcnc-es.txt \
-	getting-started/linux-faq-es.txt \
+	common/linux-faq-es.txt \
 	getting-started/running-linuxcnc-es.txt \
-	getting-started/stepconf-es.txt \
+	config/stepconf-es.txt \
 	config/stepper-quickstart-es.txt \
 	getting-started/system-requirements-es.txt \
 

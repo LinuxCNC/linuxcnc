@@ -1,4 +1,0 @@
-= Primeros pasos
-
-include::Getting-Started-with-LinuxCNC.contents-es.txt[]
-
