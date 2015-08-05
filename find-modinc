@@ -1,0 +1,23 @@
+#!/bin/sh
+
+comp="$(which comp)"
+
+if ! [ -x "$comp" ]; then
+    echo 'The required program "comp" could not be found' 1>&2
+    exit 1
+fi
+
+bindir="`dirname $comp`"
+prefix="`dirname $bindir`"
+
+for site in src etc/linuxcnc /etc/linuxcnc share/linuxcnc; do
+    modinc="$site/Makefile.modinc"
+    fullpath="`(cd $prefix; readlink -f $modinc)`"
+    if [ -f "$fullpath" ]; then
+        echo "$fullpath"
+        exit 0
+    fi
+done
+
+echo 'The required file "Makefile.modinc" could not be found' 1>&2
+exit 1
