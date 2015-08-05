@@ -112,7 +112,6 @@ typedef struct {
 	hal_float_t *freq_lower_limit;		// PD011 Freqency Lower Limit
 	hal_float_t *rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
 	hal_float_t *rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
-	hal_float_t *motor_pole_number;		// PF143 Number of motor poles
 	hal_float_t *rated_motor_rev;		// PD144 Set value corresponds to RPM at 50Hz
 	
 	hal_bit_t	*modbus_ok;				// the last MODBUS_OK transactions returned successfully
@@ -385,11 +384,6 @@ int read_setup(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
 		goto failed;		
 	*(haldata->rated_motor_current) = mb_data->ret_data * 0.1;
-	
-	mb_data->parameter = 143; // PD143 Motor Pole Number
-	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
-		goto failed;		
-	*(haldata->motor_pole_number) = mb_data->ret_data;
 	
 	mb_data->parameter = 144; // PD144 Rated Motor Rev
 	if ((retval = hy_modbus(mb_param, mb_data)) != 0)
@@ -710,8 +704,6 @@ int main(int argc, char **argv)
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_current), hal_comp_id, "%s.rated-motor-current", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->motor_pole_number), hal_comp_id, "%s.motor-pole-number", modname);
-	if (retval!=0) goto out_closeHAL;	
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_rev), hal_comp_id, "%s.rated-motor-rev", modname);
 	if (retval!=0) goto out_closeHAL;
 
@@ -749,7 +741,6 @@ int main(int argc, char **argv)
 	*(haldata->freq_lower_limit) = 0;
 	*(haldata->rated_motor_voltage) = 0;
 	*(haldata->rated_motor_current) = 0;
-	*(haldata->motor_pole_number) = 0;
 	*(haldata->rated_motor_rev) = 0;
 
 	*(haldata->modbus_ok) = 0;
