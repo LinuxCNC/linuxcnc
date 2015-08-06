@@ -422,7 +422,7 @@ static int emcCommandSerialNumber = 100000;
 
 // default value for timeout, 0 means wait forever
 // use same timeout value as in tkemc & mini
-static double receiveTimeout = 1.;
+static double receiveTimeout = 5.0;
 static double doneTimeout = 60.;
 
 static void quit(int sig)
