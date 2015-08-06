@@ -26,11 +26,13 @@ include::common/emc-history.txt[]
 
 :leveloffset: 2
 
-include::common/user-foreword.txt[]
+include::user/user-foreword.txt[]
 
-include::common/user-intro.txt[]
+include::user/user-intro.txt[]
 
-include::common/user-concepts.txt[]
+include::user/user-concepts.txt[]
+
+include::user/starting-linuxcnc.txt[]
 
 include::gcode/machining-center.txt[]
 
@@ -108,15 +110,13 @@ include::gui/tooledit.txt[]
 
 :leveloffset: 2
 
-include::common/integrator-concepts.txt[]
+include::config/integrator-concepts.txt[]
 
 include::install/latency-test.txt[]
 
-include::common/starting-linuxcnc.txt[]
-
 include::motion/tweaking-steppers.txt[]
 
-include::common/stepper-diagnostics.txt[]
+include::config/stepper-diagnostics.txt[]
 
 :leveloffset: 1
 
@@ -164,7 +164,7 @@ include::gui/halui.txt[]
 
 include::hal/halui-examples.txt[]
 
-include::common/python-interface.txt[]
+include::config/python-interface.txt[]
 
 include::gui/vismach.txt[]
 
