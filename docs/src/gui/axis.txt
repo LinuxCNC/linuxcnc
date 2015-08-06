@@ -960,3 +960,43 @@ preview on certain parts that are already working OK).
 This display can be useful in the Axis preview when (debug,message)
 comments are not displayed.
 
+
+=== Axisui Pins
+
+Axis has Hal pins to indicate which jog radio button is selected in the
+'Manual Control' tab.
+
+----
+Type  Dir    Name
+bit   OUT    axisui.jog.x
+bit   OUT    axisui.jog.y
+bit   OUT    axisui.jog.z
+bit   OUT    axisui.jog.a
+bit   OUT    axisui.jog.b
+bit   OUT    axisui.jog.c
+bit   OUT    axisui.jog.u
+bit   OUT    axisui.jog.v
+bit   OUT    axisui.jog.w
+----
+
+Axis has a Hal pin to indicate the jog increment selected on the 'Manual Tab'.
+----
+Type  Dir    Name
+float OUT               axisui.jog.increment
+----
+
+Axis has Hal input pins to clear the pop up notifications for errors and
+information.
+
+----
+Type  Dir    Name
+bit   IN     axisui.notifications-clear
+bit   IN     axisui.notifications-clear-error
+bit   IN     axisui.notifications-clear-info
+----
+
+Axis has a Hal input pin that disables/enables the 'Pause/Resume' funtion.
+----
+Type  Dir    Name
+bit   IN     axisui.resume-inhibit
+----
