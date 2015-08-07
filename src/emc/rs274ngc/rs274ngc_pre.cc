@@ -522,7 +522,8 @@ int Interp::execute(const char *command, int line_number)
 {
     int status;
 
-    _setup.sequence_number = line_number;
+    if(command && line_number)
+        _setup.sequence_number = line_number;
     status = Interp::execute(command);
     if (status > INTERP_MIN_ERROR) {
 	unwind_call(status, __FILE__,__LINE__,__FUNCTION__);
