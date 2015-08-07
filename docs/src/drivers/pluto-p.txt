@@ -1,11 +1,10 @@
-= Pluto P Driver
+[[cha:pluto-p-driver]](((Pluto P Driver)))
 
-[[cha:pluto-p-driver]] (((Pluto P Driver)))
+= Pluto P Driver
 
 == General Info
 
-The Pluto-P is a FPGA board featuring the
-ACEX1K(((ACEX1K))) chip from Altera.
+The Pluto-P is a FPGA board featuring the ACEX1K chip from Altera.
 
 === Requirements
 
@@ -106,7 +105,7 @@ Some additional information about it is available from
 http://www.knjn.com/FPGA-Parallel.html[KNJC LLC]
 and from http://emergent.unpy.net/01165081407[the developer's blog].
 
-== Pluto Servo[[sec:pluto-servo]](((pluto-servo)))
+== Pluto Servo
 
 The pluto_servo system is suitable for control of a 4-axis CNC mill
 with servo motors, a 3-axis mill with PWM spindle control, a lathe with
@@ -164,7 +163,7 @@ This driver features:
 
 image::images/pluto-pinout.png[align="center"]
 
-.Pluto-Servo Alternate Pin Functions[[table:Pluto-Servo-Alternate-Pin]](((pluto-servo alternate pin functions)))
+.Pluto-Servo Alternate Pin Functions
 
 [width="90%", options="header"]
 |========================================

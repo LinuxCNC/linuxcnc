@@ -20,6 +20,8 @@ include::getting-started/getting-linuxcnc.txt[]
 
 include::getting-started/updating-linuxcnc.txt[]
 
+include::common/glossary.txt[]
+
 include::common/gpld-copyright.txt[]
 
 // vim: set syntax=asciidoc:

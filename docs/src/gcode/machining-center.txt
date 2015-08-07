@@ -1,6 +1,6 @@
-= CNC Machine Overview
-
 [[cha:cnc-machine-overview]] (((CNC Machine Overview)))
+
+= CNC Machine Overview
 
 This section gives a brief description of how a CNC machine is viewed
 from the input and output ends of the Interpreter.
@@ -57,31 +57,21 @@ not be controlled by the CNC software.
 If a CNC machine has components to provide mist coolant and/or flood
 coolant they can be controlled by G codes.
 
-[[sub:Feed-and-Speed]]
 === Feed and Speed Override
-
-(((feed override)))
-(((spindle speed override)))
 
 A CNC machine can have separate feed and speed override controls,
 which let the operator specify that the actual feed rate or spindle
 speed used in machining at some percentage of the programmed rate.
 
-[[sub:Block-Delete-Switch]]
 === Block Delete Switch
 
-(((optional block delete)))
-
 A CNC machine can have a block delete switch. See the
-<<sub:Block-Delete-Switch-Interaction,Block Delete>> Section.
+<<sub:block-delete-switch,Block Delete>> Section.
 
-[[sub:Optional-Program-Stop]]
 === Optional Program Stop Switch
 
-(((optional program stop)))
-
 A CNC machine can have an optional program stop switch. See the 
-<<sub:Optional-Program-Stop-Interaction,Optional Program Stop>> Section.
+<<sub:optional-program-stop,Optional Program Stop>> Section.
 
 == Control and Data Components
 
@@ -115,10 +105,7 @@ of view of someone standing next to the machine. footnote:[If the
 parallelism requirement is violated, the system builder will
 have to say how to distinguish clockwise from counterclockwise.]
 
-[[sub:Controlled-Point]]
 === Controlled Point
-
-(((controlled point)))
 
 The controlled point is the point whose position and rate of motion
 are controlled. When the tool length offset is zero (the default
@@ -134,7 +121,6 @@ controlled point is either at the tool tip or slightly outside it
 (where the perpendicular, axis-aligned lines touched by the 'front' and
 'side' of the tool intersect).
 
-[[sub:Coordinate-Linear-Motion]]
 === Coordinated Linear Motion
 
 To drive a tool along a specified path, a machining center must often
@@ -156,16 +142,15 @@ feed rate, or at traverse rate, or it may be synchronized to the
 spindle rotation. If physical limits on axis speed make the desired
 rate unobtainable, all axes are slowed to maintain the desired path.
 
+[[sub:feed-rate]](((Feed Rate)))
 
-=== [[sub:feed-rate]]Feed Rate
-
-(((feed rate)))
+=== Feed Rate
 
 The rate at which the controlled point or the axes move is nominally a
 steady rate which may be set by the user. In the Interpreter, the
 interpretation of the feed rate is as follows unless 'inverse time
 feed' or 'feed per revolution' modes are being used see Section 
-<<sec:G93-G94-G95-Mode,G93 G94 G95>>.
+<<gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>.
 
  .  If any of XYZ are moving, F is in units per minute in the XYZ
    cartesian system, and all other axes (ABCUVW) move so as to start and
@@ -180,7 +165,7 @@ feed' or 'feed per revolution' modes are being used see Section
 
 Flood coolant and mist coolant may each be turned on independently.
 The RS274/NGC language turns them off together see Section 
-<<sec:M7-M8-M9,M7 M8 M9>>.
+<<mcode:m7-m8-m9,M7 M8 M9>>.
 
 === Dwell (((dwell)))
 
@@ -188,7 +173,7 @@ A machining center may be commanded to dwell (i.e., keep all axes
 unmoving) for a specific amount of time. The most common use of dwell
 is to break and clear chips, so the spindle is usually turning during a
 dwell. Regardless of the Path Control Mode (see Section 
-<<sec:Path-Control-Mode,Path Control>>) the machine will stop exactly at the end of
+<<sec:path-control-mode,Path Control>>) the machine will stop exactly at the end of
 the previous programmed move, as though it was in exact path mode.
 
 === Units (((units)))
@@ -200,7 +185,7 @@ specific units. Spindle speed is measured in revolutions per minute.
 The positions of rotational axes are measured in degrees. Feed rates
 are expressed in current length units per minute, or degrees per
 minute, or length units per spindle revolution, as described in Section 
-<<sec:G93-G94-G95-Mode,G93 G94 G95>>. 
+<<gcode:g93-g94-g95,G93 G94 G95>>. 
 
 === Current Position
 
@@ -213,7 +198,6 @@ any axis motion if any of several events take place:
  . Tool length offset is changed.
  . Coordinate system offsets are changed. 
 
-[[sub:Selected-Plane]]
 === Selected Plane
 
 There is always a 'selected plane', which must be the XY-plane, the
@@ -233,10 +217,9 @@ A machining center may be commanded to change tools.
 
 The two pallets may be exchanged by command.
 
-[[sec:Path-Control-Mode]]
-=== Path Control Mode
+[[sec:path-control-mode]](((Path Control Mode)))
 
-(((path control mode)))
+=== Path Control Mode
 
 The machining center may be put into any one of three path control
 modes: (1) exact stop mode, (2) exact path mode, or (3) continuous mode
@@ -246,7 +229,7 @@ follows the programmed path as exactly as possible, slowing or stopping
 if necessary at sharp corners of the path. In continuous mode, sharp
 corners of the path may be rounded slightly so that the feed rate may
 be kept up (but by no more than the tolerance, if specified). See
-Sections <<sec:G61-G61_1,G61/G61.1>> and <<sec:G64,G64>>.
+Sections <<gcode:g61-g61.1,G61/G61.1>> and <<gcode:g64,G64>>.
 
 == Interpreter Interaction with Switches
 
@@ -254,7 +237,7 @@ The Interpreter interacts with several switches. This section
 describes the interactions in more detail. In no case does the
 Interpreter know what the setting of any of these switches is.
 
-=== Feed and Speed Override Switches[[feed-interaction]]
+=== Feed and Speed Override Switches
 
 The Interpreter will interpret RS274/NGC commands which enable 'M48'
 or disable 'M49' the feed and speed override switches. For certain
@@ -265,28 +248,25 @@ switches are disabled automatically.
 LinuxCNC reacts to the speed and feed override settings when these
 switches are enabled.
 
-See the <<sec:M48-M49-Override,M48 M49 Override>> section for more
+See the <<mcode:m48-m49,M48 M49 Override>> section for more
 information.
 
-[[sub:Block-Delete-Switch-Interaction]]
-=== Block Delete Switch
+[[sub:block-delete-switch]]
 
-(((block delete)))
+=== Block Delete Switch
 
 If the block delete switch is on, lines of G code which start
 with a slash (the block delete character) are not interpreted. If the
 switch is off, such lines are interpreted. Normally the block delete
 switch should be set before starting the NGC program.
 
-[[sub:Optional-Program-Stop-Interaction]]
-=== Optional Program Stop Switch
+[[sub:optional-program-stop]]
 
-(((optional program stop)))
+=== Optional Program Stop Switch
 
 If this switch is on and an M1 code is encountered, program execution
 is paused.
 
-[[sub:Tool-Table]]
 == Tool Table
 
 A tool table is required to use the Interpreter. The file tells which 
@@ -317,10 +297,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 For more information on the specifics of the tool table format, 
 see the <<sec:tool-table,Tool Table Format>> Section. 
 
-[[sec:Parameters]]
 == Parameters
-
-(((parameters)))
 
 In the RS274/NGC language view, a machining center maintains an array
 of numerical parameters defined by a system definition
@@ -364,7 +341,7 @@ file read by the Interpreter will be included in the file it writes as
 it exits. The original file is saved as a backup file when the new file
 is written. Comments are not preserved when the file is written.
 
-.Parameter File Format[[cap:Parameter-File-Format]]
+.Parameter File Format
 
 [width="75%", options="header", cols="^,^,<"]
 |========================================

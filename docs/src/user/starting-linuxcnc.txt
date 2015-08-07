@@ -1,41 +1,38 @@
+[[cha:starting-linuxcnc]](((Starting LinuxCNC)))
+
 = Starting LinuxCNC
 
-[[cha:starting-linuxcnc]] (((Starting LinuxCNC)))
+== Running LinuxCNC
 
-////
-ATTENTION TRANSLATORS before translating this document copy the base document
-into this copy to get the latest version. Untranslated documents are not kept
-up to date with the English documents. 
-
-Do not translate anchors or links, translate only the text of a link after the
-comma.
-Anchor [[anchor-name]]
-Link <<anchor-name,text after the comma can be translated>>
-
-Make sure the documents build after translating.
-////
-
-== Files
-
-LinuxCNC is started with the script file emc. 
+LinuxCNC is started with the script file 'linuxcnc'.
 
 ----
-usage: emc [options] [<ini-file>]
-
-options:
-    -v = verbose - prints info as it works
-    -d = echos script commands to screen for debugging
+linuxcnc [options] [<ini-file>]
 ----
-  
-The emc script file reads the ini file and starts emc. The ini file
-[HAL] section specifies the order of loading up HAL files if more than
-one is used. Once the HAL=xxx.hal files are loaded then the GUI is loaded
-then the POSTGUI=.xxx.hal file is loaded. If you create pyvcp objects
-with HAL pins you must use the postgui HAL file to make any connections
-to those pins.
 
-If no ini file is passed to the emc script it loads the configuration 
-selector so you can choose a sample configuration.
+.linuxcnc script options
+* '-v' = verbose - prints info as it works
+* '-d' = echoes script commands to screen for debugging
+
+If the linuxcnc script is passed an ini file it reads the ini file and starts
+LinuxCNC. The ini file [HAL] section specifies the order of loading up HAL
+files if more than one is used. Once the HAL=xxx.hal files are loaded then the
+GUI is loaded then the POSTGUI=.xxx.hal file is loaded. If you create PyVCP or
+GladeVCP objects with HAL pins you must use the postgui HAL file to make any
+connections to those pins. See the <<sec:hal-section,[HAL]>> section of the
+INI configuration for more information.
+
+[[sub:configuration-selector]]
+
+=== Configuration Selector
+
+If no ini file is passed to the linuxcnc script it loads the configuration 
+selector so you can choose and save a sample configuration. Once a sample
+configuration has been saved it can be modified to suit your application.
+
+.Configuration Selector
+
+image::images/configuration-selector.png[align="center"]
 
 == Files Used for Configuration
 
@@ -63,18 +60,19 @@ Configuration files include
 
 * 'VAR' (((VAR))) The var file is a way for the interpreter to save some
     values from one run to the next. These values are saved from one run to
-    another but not always saved immediately. See the Parameters section of
-    the G Code Manual for information on what each parameter is.
+    another but not always saved immediately. See the
+    <<sec:parameters,Parameters>> section for information on what each
+    parameter is.
 
-* 'TBL' (((TBL))) The tbl file saves tool information. See the User Manual
-    Tool File section for more info.
+* 'TBL' (((TBL))) The tbl file saves tool information. See the
+    <<sec:tool-table,Tool Table>> section for more info.
 
 * 'NML' (((NML))) The nml file configures the communication channels used by
     the LinuxCNC. It is normally setup to run all of the communication within a
     single computer but can be modified to communicate between several
     computers.
 
-* 'emcrc' (((.emcrc))) This file saves user specific information and is created
+* 'linuxcncrc' (((.linuxcncrc))) This file saves user specific information and is created
     to save the name of the directory when the user first selects an LinuxCNC
     configuration.footnote:[Usually this file is in the users home
     directory (e.g. /home/user/ )]
@@ -118,12 +116,16 @@ and their names since when you add (or remove) a component, you
 must find and update the single loadrt directive applicable to
 the component.
 
-TWOPASS processing is enabled by including an ini file parameter:
+TWOPASS processing is enabled by including an ini file parameter in
+the [HAL] section:
 
 ----
-[HAL]TWOPASS=anything
+[HAL]
+
+TWOPASS = anystring
 ----
 
+Where "anystring" can be any non-null string.
 With this setting, you can have multiple specifications like:
 
 ----
@@ -135,7 +137,20 @@ loadrt and2 names=ad
 ----
 
 These commands can appear in different HALFILES.  The HALFILES
-are processed in their order of ther appearance in the ini file.
+are processed in the order of their appearance in the ini file.
+
+The TWOPASS option can be specified with options to add output for
+debugging (verbose) and to prevent deletion of temporary files (nodelete).
+The options are separated with commas.
+
+Example:
+
+----
+[HAL]
+
+TWOPASS = on,verbose,nodelete
+----
+
 
 With TWOPASS processing, all [HAL]HALFILES are first read and
 multiple appearances of loadrt directives for each module are
@@ -153,7 +168,7 @@ executed in the order of appearance with other commands during
 this second pass.
 
 While you can use either the count= or names= options, they are
-mutually exclusive only one type can  be specified for a
+mutually exclusive -- only one type can  be specified for a
 given module.
 
 TWOPASS processing is most effective when using the names=
@@ -180,5 +195,32 @@ common logic components that are the glue of many hal configurations.
 
 User-created comps that use the comp utility automatically
 support the names= option as well.  In addition to comps generated
-with the comp utility, a few others comps like the encoder and
-pid also support the names=option.
+with the comp utility, numerous other comps support the names=option.
+Comps that support names= option include: at_pid, encoder,
+encoder_ratio, pid, siggen, and sim_encoder.
+
+Twopass processing occurs before the loading of a gui.  When using a 
+[HAL]POSTGUI_HALFILE, it is convenient to place all the loadrt
+statements for components needed in a halfile that is loaded earlier.
+
+Example of a HAL section when using a POSTGUI_HALFILE :
+----
+[HAL]
+
+TWOPASS = on
+HALFILE = core_sim.hal
+HALFILE = sim_spindle_encoder.hal
+HALFILE = axis_manualtoolchange.hal
+HALFILE = simulated_home.hal
+HALFILE = load_for_postgui.hal  <-- loadrt lines for components in postgui.hal
+
+POSTGUI_HALFILE = postgui.hal
+HALUI = halui
+
+----
+
+Examples of TWOPASS usage for a simulator are included in the directories:
+
+   configs/sim/axis/twopass/
+
+   configs/sim/axis/simtcl/

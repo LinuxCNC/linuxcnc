@@ -257,7 +257,7 @@ User Manual.
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP, see the
-<<sec:embeding-tab,embedding a tab>> section of the GladeVCP Chapter.
+<<gladevcp:embeding-tab,embedding a tab>> section of the GladeVCP Chapter.
 
 * 'EMBED_TAB_NAME=GladeVCP demo'
 
@@ -446,7 +446,7 @@ if __name__ == "__main__":
 
 * 'ORIENT_OFFSET = 0' -
     (((ORIENT OFFSET ))) A float value added to the R word parameter
-    of an <<sec:M19,M19 Orient Spindle>> operation. Used to define an arbitrary
+    of an <<mcode:m19,M19 Orient Spindle>> operation. Used to define an arbitrary
     zero position regardless of encoder mount orientation.
 
 * 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' -
@@ -1339,7 +1339,8 @@ image::images/encoder-scale.png[align="center"]
 * 'TOOL_CHANGE_AT_G30 = 1' -
     The machine is moved to reference point defined by parameters
     5181-5186 for G30 if the value is 1. For more information see the
-    <<sec:parameters,Parameters Section and the <<sec:G30-G30_1,G30 Section>>.
+    <<sec:parameters,Parameters Section and the
+    <<gcode:g30-g30.1,G30 Section>>.
 
 * 'RANDOM_TOOLCHANGER = 1' -
     This is for machines that cannot place the tool back into the pocket

@@ -1,10 +1,10 @@
-= ShuttleXpress
+[[cha:shuttlexpress]](((ShuttleXpress)))
 
-[[cha:shuttlexpress]] (((ShuttleXpress)))
+= ShuttleXpress
 
 == Description
 
-shuttlexpress is a userspace HAL component that interfaces Contour Design’s ShuttleXpress device with LinuxCNC’s HAL. The ShuttleXpress has five momentary buttons, a 10 counts/revolution jog wheel with detents, and a 15-position spring-loaded outer wheel that returns to center when released.
+Shuttlexpress is a userspace HAL component that interfaces Contour Design’s ShuttleXpress device with LinuxCNC’s HAL. The ShuttleXpress has five momentary buttons, a 10 counts/revolution jog wheel with detents, and a 15-position spring-loaded outer wheel that returns to center when released.
 
 If it is started without command-line arguments, it will probe all /dev/hidraw* device files for ShuttleXpress devices, and use all devices found. If it is started with command-line arguments, only will only probe the devices specified.
 

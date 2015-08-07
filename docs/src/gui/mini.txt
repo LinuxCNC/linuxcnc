@@ -1,10 +1,12 @@
-= MINI GUI
+[[cha:mini-gui]](((Mini GUI)))
 
-[[cha:mini-gui]] (((Mini GUI)))
+= MINI GUI
 
 == Introduction
 
-.The Mini Graphical Interface (upon starting)[[fig:startmini]]
+[[mini:start-mini]]
+
+.The Mini Graphical Interface
 
 image::images/mini01.png[align="center"]
 
@@ -128,7 +130,7 @@ The menu includes each of the following sections and subsections.
     
 ** 'Active_G-Codes' - will write a list of all of the modal program codes that are active
         whenever this item is selected. For more information about modal
-        codes see the <<sec:Modal-Groups,Modal Groups>> section.
+        codes see the <<sec:modal-groups,Modal Groups>> section.
 
 * 'Help' - opens a text window pop in that displays the contents of the help file.
 
@@ -161,7 +163,7 @@ buttons. A keyboard <i> or <I> will switch from continuous jog to
 incremental jog. Pressing that key again will toggle the increment size
 through the available sizes.
 
-.Manual Mode Buttons[[cap:Manual-Mode-Buttons]]
+.Manual Mode Buttons
 
 image::images/miniman.png[align="center"]
 
@@ -173,7 +175,7 @@ be simpler to operate if it didn't use a machine home position.
 This button will zero out any offsets and will home all axes right 
 where they are.
 
-Axis focus is important here. Notice in <<fig:startmini,startup figure>>
+Axis focus is important here. Notice in <<mini:start-mini,startup figure>>
 that in manual mode you see a line or 'groove' around the X axis to 
 highlight its position display. This groove says that X is the active 
 axis. It will be the target for jog moves made with the 'plus' and 
@@ -224,7 +226,7 @@ For example, the numbers above the qwerty keys are bound to feed rate
 override. The 0 sets 100%, 9 sets 90% and such. Other keys work much 
 the same as they do with the tkLinuxCNC graphical interface. 
 
-.Auto Mode[[cap:Auto-Mode]]
+.Auto Mode
 
 image::images/miniauto.png[align="center"]
 
@@ -428,7 +430,7 @@ described in detail below.
 
 === Program Editor
 
-.Mini Text Editor[[cap:Mini-Text-Editor]]
+.Mini Text Editor
 
 image::images/miniedit.png[align="center"]
 
@@ -447,9 +449,9 @@ load if the LinuxCNC is in Auto mode. If you have been running a file and
 find that you need to edit it, that file will be placed in the editor
 when you click on the editor button on the top menu.
 
-=== Backplot Display(((backplot)))
+=== Backplot Display
 
-.Minis Backplotter[[cap:Minis-Backplotter]]
+.Mini Backplotter
 
 image::images/minibkplot.png[align="center"]
 
@@ -486,7 +488,7 @@ diameter values here and they become effective when you press the
 begin to run a program. You can't change tool offsets while the program
 is running or when the program is paused.
 
-.Mini Tool Display[[cap:Mini-Tool-Display]]
+.Mini Tool Display
 
 image::images/minitool.png[align="center"]
 
@@ -507,7 +509,7 @@ coordinate system is selected along the left hand side of the window.
 Once you have selected a coordinate system you can enter values or move
 an axis to a teach position. 
 
-.Mini Offset Display[[cap:Mini-Offset-Display]]
+.Mini Offset Display
 
 image::images/minioffsets.png[align="center"]
 

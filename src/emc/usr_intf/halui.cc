@@ -420,7 +420,7 @@ static NML *emcErrorBuffer = 0;
 static int emcCommandSerialNumber = 0;
 
 // how long to wait for Task to report that it has received our command
-static double receiveTimeout = 2.0;
+static double receiveTimeout = 5.0;
 
 // how long to wait for Task to finish running our command
 static double doneTimeout = 60.;

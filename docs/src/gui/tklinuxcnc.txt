@@ -1,16 +1,16 @@
-= TkLinuxCNC GUI
-
 [[cha:tklinuxcnc-gui]] (((TkLinuxCNC GUI)))
+
+= TkLinuxCNC GUI
 
 == Introduction
 
-TkLinuxCNC(((tkLinuxCNC))) is one of the first graphical front-ends
+TkLinuxCNC is one of the first graphical front-ends
 for LinuxCNC. It is written in Tcl and uses the Tk toolkit
 for the display. Being written in Tcl makes it very portable (it runs on a
 multitude of platforms). A separate backplot window can be displayed as
 shown.
 
-.TkLinuxCNC Window[[cap:TkLinuxCNC-Window]]
+.TkLinuxCNC Window
 
 image::images/tkemc.png[align="center"]
 
@@ -129,7 +129,7 @@ in the program and 'Optional Stop' to toggle the
 optional stop switch (if the button is green the program execution will
 be stopped on any M1 encountered).
 
-.TkLinuxCNC Interpreter / program control[[cap:TkLinuxCNC-Interpreter]]
+.TkLinuxCNC Interpreter / program control
 image::images/tkemc-interp.png[align="center"]
 
 .Text Program Display Area
@@ -165,7 +165,7 @@ permitted to jog outside the limits defined in the .ini file. (Note: if
 'Override Limits' is active the button will be displayed using a red
 color).
 
-.TkLinuxCNC Override Limits & Jogging increments example[[cap:Override-Limits]]
+.TkLinuxCNC Override Limits & Jogging increments example
 
 image::images/tkemc-override-limits.png[align="center"]
 
@@ -190,7 +190,7 @@ Manual Data Input (also called MDI), allows G-code programs to be
 entered manually, one line at a time. When the machine is not turned
 on, and not set to MDI mode, the code entry controls are unavailable.
 
-.The Code Entry tab[[cap:The-Code-Entry]]
+.The Code Entry tab
 
 image::images/tkemc-mdi.png[align="center"]
 
@@ -239,7 +239,7 @@ Many of the shortcuts are unavailable when in MDI mode.
 The most frequently used keyboard shortcuts are shown in the
 following table.
 
-.Most Common Keyboard Shortcuts[[cap:TkLinuxCNC-Common-Keyboard]]
+.Most Common Keyboard Shortcuts
 
 [width="75%", options="header", cols="1^,3<"]
 |========================================

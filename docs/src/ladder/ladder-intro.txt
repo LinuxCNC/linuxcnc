@@ -1,6 +1,6 @@
-= Classicladder Introduction
+[[cha:classicladder-introduction]](((Classicladder Introduction)))
 
-[[cha:classicladder-introduction]] (((Classicladder Introduction)))
+= Classicladder Introduction
 
 == History
 

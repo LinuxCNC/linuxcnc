@@ -1,4 +1,4 @@
-[[cha:mpg-pendant]]
+[[cha:mpg-pendant]](((MPG Pendant)))
 
 = MPG Pendant
 

@@ -60,6 +60,7 @@ int ini_hal_init_pins(void);
     FIELD(hal_s32_t,traj_arc_blend_optimization_depth) \
     FIELD(hal_float_t,traj_arc_blend_gap_cycles) \
     FIELD(hal_float_t,traj_arc_blend_ramp_freq) \
+    FIELD(hal_float_t,traj_arc_blend_tangent_kink_ratio) \
 \
     ARRAY(hal_float_t,backlash,EMCMOT_MAX_JOINTS) \
     ARRAY(hal_float_t,min_limit,EMCMOT_MAX_JOINTS) \

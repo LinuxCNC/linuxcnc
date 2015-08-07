@@ -1,10 +1,10 @@
-= Other Codes
-
 [[cha:other-codes]] (((Other Codes)))
 
-[[sec:F-feed-rate]]
+= Other Codes
+
+[[sec:set-feed-rate]](((F: Set Feed Rate)))
+
 == F: Set Feed Rate
-(((F: Set Feed Rate)))
 
 'Fx' - set the feed rate to 'x'.  'x' is usually in machine units
 (inches or millimeters) per minute.
@@ -12,11 +12,11 @@
 The application of the feed rate is as described in the
 <<sub:feed-rate,Feed Rate>> Section, unless inverse time feed rate
 mode is in effect, in which case the feed rate is as described in the
-<<sec:G93-G94-G95-Mode,G93 G94 G95>> Section.
+<<gcode:g93-g94-g95,G93 G94 G95>> Section.
 
-[[sec:S-spindle-speed]]
+[[sec:set-spindle-speed]](((S: Set Spindle Speed)))
+
 == S: Set Spindle Speed
-(((S: Set Spindle Speed)))
 
 'Sx' - set the speed of the spindle to 'x' revolutions per minute (RPM).
 
@@ -30,21 +30,15 @@ It is an error if:
 
 * the S number is negative.
 
-As described in the <<sec:G84-Right-Hand-Tapping,G84>> Section, if a 'G84'
-(tapping) canned cycle is active and the feed and speed override
-switches are enabled, the one set at the lower setting will take
-effect. The speed and feed rates will still be synchronized. In this
-case, the speed may differ from what is programmed, even if the speed
-override switch is set at 100%.
+[[sec:select-tool]](((T: Select Tool)))
 
-[[sec:T-Select-Tool]]
 == T: Select Tool
-(((T: Select Tool)))
+
 
 'Tx' - prepare to change to tool 'x'.
 
 The tool is not changed until an 'M6' is programmed (see Section
-<<sec:M6-Tool-Change,M6>>). The T word may appear on the same line as the
+<<mcode:m6,M6>>). The T word may appear on the same line as the
 'M6' or on a previous line. It is OK if T words appear on two or more
 lines with no tool change. Only the the most recent T word will take
 effect at the next tool change.

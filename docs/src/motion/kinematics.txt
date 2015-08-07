@@ -1,6 +1,6 @@
-= Kinematics
-
 [[cha:kinematics]] (((Kinematics)))
+
+= Kinematics
 
 == Introduction
 
@@ -97,7 +97,7 @@ To illustrate the above, we will analyze a simple kinematics called
 bipod (a simplified version of the tripod, which is a simplified
 version of the hexapod).
 
-.Bipod setup[[cap:Bipod-setup]]
+.Bipod setup
 
 image::images/bipod.png[]
 
@@ -117,7 +117,6 @@ and BD, and by the Cartesian coordinates Dx, Dy.
 The job of the kinematics is to transform from joint lengths (AD, BD)
 to Cartesian coordinates (Dx, Dy) and vice-versa.
 
-[[sub:Forward-transformation]]
 === Forward transformation
 
 To transform from joint space into Cartesian space we will use some
@@ -175,7 +174,6 @@ pos->tran.y = sqrt(y2);
 return 0;
 ----
 
-[[sub:Inverse-transformation]]
 === Inverse transformation
 
 The inverse kinematics is lots easier in our example, as we can write

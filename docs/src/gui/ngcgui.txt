@@ -1,6 +1,6 @@
-= NGCGUI
+[[cha:ngcgui]](((NGCGUI)))
 
-[[cha:ngcgui]] (((NGCGUI)))
+= NGCGUI
 
 image::images/ngcgui.png[]
 
@@ -608,7 +608,7 @@ An NGCGUI-compatible subfile contains a single subroutine definition. The name
 of the subroutine must be the same as the filename (not including the .ngc
 suffix). LinuxCNC supports named or numbered subroutines, but only named
 subroutines are compatible with NGCGUI. For more information see the
-<<cha:O-Codes,O-Codes>> Chapter.
+<<cha:o-codes,O-Codes>> Chapter.
 
 The first non-comment line should be a sub statement.
 The last non-comment line should be a endsub statement.

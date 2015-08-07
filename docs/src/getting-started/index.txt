@@ -1,4 +1,0 @@
-= Getting Started with LinuxCNC
-
-include::Getting-Started-with-LinuxCNC.contents.txt[]
-

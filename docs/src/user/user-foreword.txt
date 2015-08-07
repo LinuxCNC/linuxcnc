@@ -1,6 +1,6 @@
-= User Foreword
+[[cha:user-foreword]](((User Foreword)))
 
-[[cha:user-foreword]] (((User Foreword)))
+= User Foreword
 
 LinuxCNC is modular and flexible. These attributes lead many to see it as
 a confusing jumble of little things and wonder why it is the way it is.
