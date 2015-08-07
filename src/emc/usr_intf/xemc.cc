@@ -248,7 +248,7 @@ static int updateError()
   return 0;
 }
 
-#define EMC_COMMAND_TIMEOUT 1.0 // how long to wait until timeout
+#define EMC_COMMAND_TIMEOUT 5.0 // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.1 // how long to sleep between checks
 
 static int emcCommandWaitDone()
