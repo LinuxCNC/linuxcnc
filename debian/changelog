@@ -1,3 +1,77 @@
+linuxcnc (1:2.7.0~pre7) wheezy; urgency=low
+
+  * docs now use expanding/collapsing layout
+  * docs: lots of fixes and cleanup
+  * docs: fix incorrect image width in pdf docs
+  * docs: add info on Vismach
+  * docs: hm2 Smart-serial boards can have HAL pins identified by board serial numbers
+  * docs: update G33.1 example to include S100 M3
+  * docs: document motion.feed-inhibit better
+  * docs: better usage info & manpage for moveoff_gui
+  * docs: G64 now optionally takes Q
+  * docs: add info on index-enable and home
+  * docs: add info and links on embedding tabs
+  * docs: fix bugs in encoder.9 manpage
+  * docs: improve documentation of timers in hostmot2 manpage
+  * docs: include the manpage pdf in linuxcnc-doc-en.deb
+  * docs: improve G92.1 and G92.2 descriptions
+
+  * axis: Fix regression of control disabling, bug #423
+  * touchy: fix Set Tool/Origin defaults on lathes
+  * gmoccapy: several new keyboard shortcuts
+  * gmoccapy: new place for full size preview button
+  * gmoccapy: bug in fullsize / edit change
+  * gmoccapy: add Hungarian translation
+  * gladeVCP: Add new HAL_LightButton widget
+  * gremlin: Add another mouse mode 6: l-move, m-zoom, r-zoom
+  * halscope: report shm key when rtapi_shmem_new() fails
+  * halui: better error reporting
+  * UIs: better tolerance for task latency
+  * halcmd now supports 32 tokens per line (up from 20)
+  * xhc-hb04: fix a memory leak
+  * Calibration dialog: fix finding of halfiles with tunable variables
+  * moveoff: add gladevcp demo
+  * streamer: add clock and clock-mode pins
+  * add a driver for the Huanyang VFD
+  * vismach: work around a bug in mesa
+  * add a carousel toolchanger component and a vismach sample config
+
+  * stepconf: add support for importing Mach3(tm) config files
+  * stepconf: fix invert of signals on pp2 during axis test
+  * stepconf: fix multiple picked outputs in axis test being ignored
+  * pncconf: fix sserial combobox not selectable
+
+  * hm2 ethernet: improved startup behavior
+  * hm2 ethernet: support multiple fpga ethernet boards
+  * hm2 ethernet: make unrecognized boards work
+  * hm2 ethernet: do iptables and sysctl configuration automatically
+  * hm2: don't overload queue_write's length argument (internal cleanup)
+  * hm2: support split reads
+  * hm2: avoid losing negative velocity commands on arm
+  * hm2: enable encoder dpll (when supported by firmware)
+  * add elpbcom, a program to communicate directly with mesa ethernet cards
+
+  * add missing memory barriers for ARM
+
+  * uspace: ensure that the thread-specific key is initialized
+  * uspace: must advise user to set RTAPI_FIFO_PATH
+  * uspace: fix uninitialized bytes in syscall sigaction
+
+  * halcompile: fix parsing of >> and <<
+
+  * task: fix a bug in sequence number tracking
+  * task: warn when dropping queued mdi commands
+
+  * interp: log messages to stderr as intended, instead of crashing
+  * canon: fix constraint violations with rotated g18/g19 arcs (bug #430)
+
+  * io: initialize the tool-in-spindle info correctly
+
+  * trajectory planner: pausing during G95 fix
+  * trajectory planner: fix some bugs and constraint violations
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Thu, 13 Aug 2015 08:52:48 -0600
+
 linuxcnc (1:2.7.0~pre6) wheezy; urgency=low
 
   * remove a useless warning message at linuxcnc startup
