@@ -920,7 +920,7 @@ class AsciiSTL:
             # OpenGL isn't ready yet in __init__ so the display list
             # is created during the first draw
             self.list = glGenLists(1)
-            glNewList(self.list, GL_COMPILE_AND_EXECUTE)
+            glNewList(self.list, GL_COMPILE)
             glBegin(GL_TRIANGLES)
             for n, t in self.d:
                 glNormal3f(*n)
@@ -930,8 +930,7 @@ class AsciiSTL:
             glEnd()
             glEndList()
             del self.d
-        else:
-            glCallList(self.list)
+        glCallList(self.list)
 
 class AsciiOBJ:
     def __init__(self, filename=None, data=None):
