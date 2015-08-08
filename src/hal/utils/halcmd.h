@@ -87,7 +87,7 @@ extern int halcmd_ncommands;
 
 extern FILE *halcmd_inifile;
 
-#define MAX_TOK 20
+#define MAX_TOK 32
 #define MAX_CMD_LEN 1024
 #define MAX_EXPECTED_SIGS 999
 
