@@ -24,14 +24,14 @@ function change(el)
 {
   if ( el.value === "Expand All" ){
     el.value = "Collapse All";
-    for (var i=0;i<14;i++){
+    for (var i=0;i<13;i++){
       document.getElementById("sec" + i).style.display = '';
       document.getElementById("sec" + i + '_image').src = 'minus.png';
     }
   }
   else {
     el.value = "Expand All";
-    for (var i=0;i<14;i++){
+    for (var i=0;i<13;i++){
       document.getElementById("sec" + i).style.display = 'none';
       document.getElementById("sec" + i + '_image').src = 'plus.png';
     }
