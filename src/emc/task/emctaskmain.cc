@@ -675,6 +675,8 @@ interpret_again:
 
 static void mdi_execute_abort(void)
 {
+    int queued_mdi_commands;
+
     // XXX: Reset needed?
     if (mdi_execute_wait || mdi_execute_next)
         emcTaskPlanReset();
@@ -682,7 +684,12 @@ static void mdi_execute_abort(void)
     mdi_execute_wait = 0;
     mdi_execute_next = 0;
 
+    queued_mdi_commands = mdi_execute_queue.len();
+    if (queued_mdi_commands > 0) {
+        rcs_print("mdi_execute_abort: dropping %d queued MDI commands\n", queued_mdi_commands);
+    }
     mdi_execute_queue.clear();
+
     emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
 }
 
