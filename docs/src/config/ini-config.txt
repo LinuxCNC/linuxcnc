@@ -13,7 +13,7 @@ A typical INI file follows a rather simple layout that includes;
 Each of these elements is separated on single lines. Each end of line
 or newline character creates a new element.
 
-(((Comments, INI File)))
+(((INI File, Comments)))
 
 === Comments
 
@@ -182,11 +182,9 @@ included file may not include additional files.  The recommended file extension
 is .inc.  Do not use a file extension of .ini for included files.
 
 
-(((INI File Section))))
-
 == INI File Sections
 
-[[sec:emc-section]]
+[[sec:emc-section]](((INI File, EMC Section)))
 
 === [EMC] Section
 
@@ -204,49 +202,50 @@ is .inc.  Do not use a file extension of .ini for included files.
     terminal. Debug flags are usually only useful to developers. See
     src/emc/nml_intf/debugflags.h for other settings.
 
-[[sec:display-section]](((DISPLAY (inifile section))))
+[[sec:display-section]](((INI File, DISPLAY Section)))
 
 === [DISPLAY] Section
 
 Different user interface programs use different options, and not every
 option is supported by every user interface. The main two interfaces
-for LinuxCNC are AXIS and Touchy. There are several newer interfaces, 
+for LinuxCNC are AXIS and Touchy. There are several newer interfaces,
 like gmoccapy and gscreen. Axis is an interface for use with normal
-computer and monitor, Touchy is for use with touch screens. Gmoccapy 
-can be used both ways and offers also many connections for hardware controls. 
+computer and monitor, Touchy is for use with touch screens. Gmoccapy
+can be used both ways and offers also many connections for hardware controls.
 Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-    may include: 'axis',(((axis))) 'touchy',(((touchy))) 'gmoccapy',(((gmoccapy))) 'gscreen',(((gscreen))) 'keystick',(((keystick)))
-    'mini',(((mini))) 'tklinuxcnc',(((tkLinuxCNC))) 'xemc',(((xemc)))
+   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'keystick',
+   'mini', 'tklinuxcnc', 'xemc',
 
-* 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE) to show when the user
-    interface starts. The RELATIVE coordinate system reflects the G92 and
-    G5x coordinate offsets currently in effect.
+* 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
+  to show when the user interface starts. The RELATIVE coordinate system
+  reflects the G92 and G5x coordinate offsets currently in effect.
 
-* 'POSITION_FEEDBACK = ACTUAL' - The coordinate value (COMMANDED or ACTUAL) to show when the user
-    interface starts. The COMMANDED position is the ideal position
-    requested by LinuxCNC. The ACTUAL position is the feedback position of the
-    motors.
+* 'POSITION_FEEDBACK = ACTUAL' - The coordinate value (COMMANDED or ACTUAL)
+  to show when the user interface starts. The COMMANDED position is the ideal
+  position requested by LinuxCNC. The ACTUAL position is the feedback position
+  of the motors.
 
-* 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select. 1.2 means 120% of the
-    programmed feed rate.
+* 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
+  1.2 means 120% of the programmed feed rate.
 
-* 'MIN_SPINDLE_OVERRIDE = 0.5' - The minimum spindle override the user may select. 0.5 means 50% of the
-    programmed spindle speed. (This is useful as it's dangerous to run a
-    program with a too low spindle speed).
+* 'MIN_SPINDLE_OVERRIDE = 0.5' - The minimum spindle override the user may
+  select. 0.5 means 50% of the programmed spindle speed. (This is used to
+  set the minimum spindle speed).
 
-* 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may select. 1.0 means 100% of
-    the programmed spindle speed.
+* 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may
+  select. 1.0 means 100% of the programmed spindle speed.
 
-* 'DEFAULT_SPINDLE_SPEED = 100' - The default spindle RPM when the spindle is started in manual mode.
-    This is not the minimum speed. In AXIS this defaults to 1 RPM if this setting is not present.
+* 'DEFAULT_SPINDLE_SPEED = 100' - The default spindle RPM when the spindle
+  is started in manual mode. This is not the minimum speed. In AXIS this
+  defaults to 1 RPM if this setting is not present.
 
-* 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for g-code files
-    and the location for user-defined M-codes. This location is searched for
-    the file name before the subroutine path and user M path if specified
-    in the [RS274NGC] section.
+* 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for g-code
+  files and the location for user-defined M-codes. This location is searched
+  for the file name before the subroutine path and user M path if specified
+  in the [RS274NGC] section.
 
 * 'INTRO_GRAPHIC = emc2.gif' - The image shown on the splash screen.
 
@@ -345,7 +344,7 @@ The following [DISPLAY] item is used by the TKLinuxCNC interface only.
 
 * 'HELP_FILE = tklinucnc.txt' - Path to help file.
 
-[[sec:filter-section]](((ini [FILTER] Section)))
+[[sec:filter-section]](((INI File, FILTER Section)))
 
 === [FILTER] Section
 
@@ -435,7 +434,7 @@ if __name__ == "__main__":
    main(sys.argv[1:])
 ----
 
-[[sec:rs274ngc-section]](((RS274NGC (inifile section))))
+[[sec:rs274ngc-section]](((INI File, RS274NGC Section)))
 
 === [RS274NGC] Section
 
@@ -445,7 +444,7 @@ if __name__ == "__main__":
     between runs). 
 
 * 'ORIENT_OFFSET = 0' -
-    (((ORIENT OFFSET ))) A float value added to the R word parameter
+    (((ORIENT OFFSET))) A float value added to the R word parameter
     of an <<mcode:m19,M19 Orient Spindle>> operation. Used to define an arbitrary
     zero position regardless of encoder mount orientation.
 
@@ -489,7 +488,7 @@ The first executable M1xx found in the search is used for each M1xx.
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
 
-[[sec:emcmot-section]](((EMCMOT (inifile section))))
+[[sec:emcmot-section]](((INI File, EMCMOT Section)))
 
 === [EMCMOT] Section
 
@@ -507,7 +506,7 @@ Section.
 * 'TRAJ_PERIOD = 100000' - This is the 'Trajectory Planner' task period in
   nanoseconds.
 
-[[sec:task-section]](((TASK (inifile section))))
+[[sec:task-section]](((INI File, TASK Section)))
 
 === [TASK] Section
 
@@ -524,7 +523,7 @@ Section.
     executing a pause instruction, and when accepting a command from a user
     interface. There is usually no need to change this number.
 
-[[sec:hal-section]](((HAL (inifile section))))
+[[sec:hal-section]](((INI File, HAL Section)))
 
 === [HAL] section
 
@@ -627,7 +626,7 @@ POSTGUI_HALFILE = the_postgui_file.hal
 * 'HALUI = halui' - adds the HAL user interface pins. For more information see
    the <<cha:hal-user-interface,HAL User Interface>> chapter.
 
-[[sec:halui-section]](((HALUI (inifile section))))
+[[sec:halui-section]](((INI File, HALUI Section)))
 
 === [HALUI] section
 
@@ -635,7 +634,7 @@ POSTGUI_HALFILE = the_postgui_file.hal
      An MDI command can be executed by using halui.mdi-command-00. Increment
     the number for each command listed in the [HALUI] section.
 
-[[sec:applications-section]](((APPLICATIONS (inifile section))))
+[[sec:applications-section]](((INI File, APPLICATIONS Section)))
 
 === [APPLICATIONS] Section
 
@@ -673,7 +672,7 @@ gui-dependent actions (like creating gui-specific hal pins).
 
   APP = halscope -i my.halscope
 
-[[sec:traj-section]](((TRAJ (inifile section))))
+[[sec:traj-section]](((INI File, TRAJ Section)))
 
 === [TRAJ] Section
 
@@ -864,7 +863,7 @@ small, tight corners, since you're limited by cornering acceleration.
 [WARNING]
 LinuxCNC will not know your axis travel limits when using 'NO_FORCE_HOMING = 1'.
 
-[[sec:axis-section]](((AXIS (inifile section))))
+[[sec:axis-section]](((INI File, AXIS Section)))
 
 === [AXIS_<num>] Section
 
@@ -970,14 +969,7 @@ Typically (but not always):
     slower speeds. The maximum allowable following error will always be
     greater than MIN_FERROR. This prevents small following errors for
     stationary axes from inadvertently aborting motion. Small following
-    errors will always be present due to vibration, etc. The following
-    polarity values determine how inputs are interpreted and how outputs
-    are applied. They can usually be set via trial-and-error since there
-    are only two possibilities. The LinuxCNC Servo Axis Calibration utility
-    program (in the AXIS interface menu Machine/Calibration and in TkLinuxCNC it
-    is under Setting/Calibration) can be used to set these and more
-    interactively and verify their results so that the proper values can be
-    put in the INI file with a minimum of trouble.
+    errors will always be present due to vibration, etc.
 
 .Homing
 
@@ -1144,7 +1136,7 @@ image::images/encoder-counts-math.png[align="center"]
     
 // latexmath:[$\frac{volt}{mu\, s^{2}}$].
 
-* 'OUTPUT_SCALE = 1.000' -
+* 'OUTPUT_SCALE = 1.000' - 
 
 * 'OUTPUT_OFFSET = 0.000' - These two values are the scale and offset factors for
     the axis output to the motor amplifiers.
@@ -1227,7 +1219,7 @@ For a linear axis one machine unit will be equal to
 the setting of LINEAR_UNITS.
 For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
 A second number, if specified, is ignored.
-For example, on a 2000 counts per rev encoder(((encoder))), and 10
+For example, on a 2000 counts per rev encoder, and 10
 revs/inch gearing, and desired units of inch, we
 have:
 
@@ -1278,7 +1270,7 @@ For a linear axis one machine unit will be equal to
 the setting of LINEAR_UNITS.
 For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
 A second number, if specified, is ignored.
-For example, on a 2000 counts per rev encoder(((encoder))), and 10
+For example, on a 2000 counts per rev encoder, and 10
 revs/inch gearing, and desired units of inch, we
 have: 
 
@@ -1303,7 +1295,7 @@ image::images/encoder-scale.png[align="center"]
     STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
 
 
-[[sec:emcio-section]](((EMCIO (inifile section))))
+[[sec:emcio-section]](((INI File, EMCIO Section)))
 
 === [EMCIO] Section
 

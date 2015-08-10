@@ -1,4 +1,4 @@
-[[cha:mini-gui]](((Mini GUI)))
+[[cha:mini-gui]](((GUI,Mini)))
 
 = MINI GUI
 
