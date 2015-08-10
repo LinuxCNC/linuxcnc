@@ -1,0 +1,251 @@
+component carousel """Orient a toolchanger carousel using various encoding schemes
+
+.B loadrt toolchange pockets=\\fIN\\fR[,\\fIN\\fR]
+.B encoding=\\fIssss\\fR[,\\fIsss\\fR]\\fB
+.B num_sense=\\fIN\\fR[,\\fIN\\fR]
+.B bidirectional=\\fIN\\fR[,\\fIN]
+
+.RS 4
+.TP
+\\fBpockets\\fR The number of pockets in each toolchanger.
+Use up to 8 numbers separated by commas to create multiple carousel components.
+.TP
+\\fBencoding\\fR The position encoding.
+gray, binary, index or single. Default = 'gray'
+.TP
+\\fBnum_sense\\fR The number of position sense pins.
+Default = 4.
+.TP
+\\fBdir\\fR Set to 1 for unidirectional or  2 for bidirectional operation.
+Default = bidirectional
+.RE""";
+
+description """This component is intended to help operate various types of
+carousel-type toolchangers. 
+The component can be configured to operate with binary or gray-coded position 
+feedback, with an individual sensor for each tool position or with a sensor at each
+tool position and a separate index.
+
+At the moment it is best-suited to Geneva-mechanism type systems where the
+motor is either on or off.
+Both unidirectional and bidirectional systems are supported. 
+
+The number of carousel component instances created depends on the number of
+entries in the 'pockets' modparam. For example
+
+.B loadrt carousel pockets=10,10,8
+
+Would create 3 carousel instances with 10, 10 and 8 pockets. The other 
+parameters are optional. If absent then defaults will be used. Any missing
+entry will assume the previous value.
+
+When the enable pin is set to true the component will immediately set the 
+"active" pin to true and then (for a bidirectional instance) calculate the
+shortest path to the requested pocket number. The appropriate motor direction
+output pin will then be set.
+
+The component will monitor the carousel position and, when the correct position
+is reached, set the motor-control pins to 0, set "active" to 0 and set "ready"
+to 1.
+
+In index mode the behaviour is slightly different the first time that the "enable"
+pin is set; the carousel will rotate forwards when first enabled until 
+both the index and pulse inputs are true. If there is no pulse line at the
+index position then a HAL "or2" function can be used to allow the index sensor
+to toggle both inputs. Setting "enable" low does not halt the homing move, so if
+homing on first tool change is not needed then the enable pin can be toggled by
+an axis homing pin or a script. 
+""";
+
+pin in  signed pocket-number "The pocket to move to when the .enable pin goes high";
+pin in  bit    enable "Set this pin high to start movement. Setting it low will stop movement";
+pin out bit    active "indicates that the component is active";
+pin out bit    ready "This pin goes high when the carousel is in-position";
+pin in  bit    sense-# [32:personality] """Carousel position feedback pins. In 'index' mode there 
+will be only 2 pins. sense-0 is the index and sense-1 is the pocket sensor.""";
+pin out bit    motor-fwd "Indicates the motor should run forwards (bigger numbers)";
+pin out bit    motor-rev "Indicates the motor should run reverse.";
+pin out signed current-position "This pin indicates the current position feedback";
+
+param r  signed   state = 0 "Current component state";
+param r  bit    homing  = 0 "Shows that homing is in progress. Only used for index mode";
+param r  bit    homed = 0 "Shows that homing is complete. Only used in index mode";
+
+option count_function;
+option extra_setup;
+
+license "GPL";
+author "andy pugh";
+
+variable int inst_sense;
+variable int inst_dir;
+variable int inst_pockets;
+variable int inst_code;
+variable int old_index = 0;
+
+function _ nofp;
+
+;;
+
+int default_pockets = 8;
+int default_code = 'G';
+int default_dir = 2;
+int default_sense = 4;
+
+#define MAX_CHAN 8
+static int pockets[MAX_CHAN] = {-1};
+RTAPI_MP_ARRAY_INT(pockets, MAX_CHAN, "The number of pockets in each carousel")
+static char *encoding[MAX_CHAN];
+RTAPI_MP_ARRAY_STRING(encoding, MAX_CHAN, "Position feedback type")
+static int dir[MAX_CHAN] = {-1};
+RTAPI_MP_ARRAY_INT(dir, MAX_CHAN, 
+                    "set to 2 if the carousel is bidirectional")
+static int num_sense[MAX_CHAN] = {-1};
+RTAPI_MP_ARRAY_INT(num_sense, MAX_CHAN, "The number of sense pins to create")
+
+
+FUNCTION(_){
+    int i;
+    int p = 0;
+    unsigned int mask;
+
+    switch inst_code{
+    case 'G': // Gray Code
+        for (i = 0; i < inst_sense ; i++) {
+            p += sense(i) << i;
+        }
+        for(mask = p >> 1 ; mask != 0 ; mask = mask >> 1){
+            p ^= mask;
+        }
+        break;
+    case 'B': // Straight Binary
+        for (i = 0; i < inst_sense ; i++) {
+            p += sense(i) << i;
+        }
+        break;
+    case 'S': // individual sensors
+        for (i = inst_sense - 1; sense(i) == 0 && i > 0 ; i--) {}
+        p = i;
+        break;
+    case 'I': // index + position.
+        p = current_position;
+        if (homed){
+            if ( !old_index && sense(1)){
+                if (motor_fwd){
+                    p += 1;
+                    if (p > inst_pockets) p -= inst_pockets;
+                }
+                if (motor_rev) {
+                    p -= 1;
+                    if (p < 1) p += inst_pockets;
+                }
+            }
+            old_index = sense(1);
+        }
+        break;
+    }
+
+    current_position = p;
+
+    switch (state){
+    case 0: // waiting at start
+        if (! enable) return ;
+        active = 1;
+        if (inst_code == 'I' && ! homed){
+            state = 10;
+            break;
+        }
+        state = 1;
+        ready = 0;
+    case 1: // choose direction
+        if (pocket_number < 1 || pocket_number > inst_pockets) return;
+        if (inst_dir == 2){
+            if (current_position < pocket_number){
+                if (pocket_number - current_position > (inst_pockets / 2)) {
+                    motor_fwd = 0;
+                    motor_rev = 1;
+                } else {
+                    motor_fwd = 1;
+                    motor_rev = 0;
+                }
+            } else {
+                if (current_position - pocket_number > (inst_pockets / 2)) {
+                    motor_fwd = 1;
+                    motor_rev = 0;
+                } else {
+                    motor_fwd = 0;
+                    motor_rev = 1;
+                }
+            }
+        } else {
+            motor_fwd = 1;
+            motor_rev = 0;
+        }
+        state = 2;
+    case 2: // moving
+        if ((current_position != pocket_number) && enable) return;
+        motor_fwd = 0;
+        motor_rev = 0;
+        state = 3;
+        active = 0;
+        if (enable) ready = 1;
+    case 3: //waiting for enable to go false
+        if (enable) return;
+        state = 0;
+        break;
+    case 10: // start of homing
+        homed = 0;
+        homing = 1;
+        motor_fwd = 1;
+        motor_rev = 0;
+        state = 11;
+    case 11: // waiting for index & pulse
+        if  ( (! old_index) && (sense(0) && sense(1)) ){ // index found
+            p = 1;
+            homed = 1;
+            homing = 0;
+            active = 0;
+            state = 0;
+        }
+        old_index = (sense(0) && sense(1));
+        break; // So that we don't see the tool1 pulse twice
+    }
+}
+
+EXTRA_SETUP(){
+    if (pockets[extra_arg] > 0) default_pockets = pockets[extra_arg];
+    if (encoding[extra_arg] == NULL) {
+        //it's already default_code
+    } else if (strncmp(encoding[extra_arg], "binary", 6) == 0) {
+        default_code = 'B';
+    } else if (strncmp(encoding[extra_arg], "single", 6) == 0) {
+        default_code = 'S';
+    } else if (strncmp(encoding[extra_arg], "index", 5) == 0) {
+        default_code = 'I';
+    }
+
+    if (dir[extra_arg] > 0)  default_dir = (dir[extra_arg] > 1)? 2:1;
+    
+    if (default_code == 'I') {
+        default_sense = 2;
+    } else if (num_sense[extra_arg] > 0 ) {
+        default_sense = num_sense[extra_arg];
+    }
+    
+    inst_pockets = default_pockets;
+    inst_code = default_code;
+    inst_dir = default_dir;
+    inst_sense = default_sense;
+
+    if (inst_code == 'S' && inst_sense < inst_pockets) inst_sense = inst_pockets;
+    personality = inst_sense;
+
+    return 0;
+}
+
+int get_count(void){
+    int i;
+    for (i = 0; pockets[i] != 0 && i < MAX_CHAN; i++){}
+    if (i == 0) return 1 ;
+    return i;
+}

@@ -1,0 +1,78 @@
+
+o<toolchange> sub
+
+M19 R0  ;align the spindle
+
+; only unload the tool if there is a tool in the spindle
+; This assumes that the carousel is already aligned correctly. 
+; It is important to unload the tool before shutting down the machine. 
+
+O100 IF [#<tool_in_spindle> GT 0]
+    G53 G0 Z -100
+    
+    M64 P2 ; move arm in
+    M66 P2 L3 Q5 ; wait for arm-in = true
+    O104 if [#5399 LT 0]
+        (abort, failed to move arm in)
+    O104 endif
+
+    M64 P3 ; release tool
+    M66 P3 L3 Q2 ; wait for tool-released = true
+    O105 if [#5399 LT 0]
+        (abort, failed to release tool)
+    O105 endif
+
+O100 ENDIF
+
+    G53 G0 Z0
+
+O200 IF [#<selected_tool> GT 0]
+
+    M65 P1 ; unlock carousel
+    M66 P1 L4 Q1 ; wait for locked=false
+    O106 if [#5399 LT 0]
+        (abort, failed to unlock carousel)
+    O106 endif
+
+    M68 E0 Q#<selected_pocket> ;set the carousel to move to the right pocket
+
+    M64 P0 ; start carousel
+    G4 P2
+    M66 P0 L3 Q60 ; wait for carousel finished
+    O107 if [#5399 LT 0]
+        (abort, failed to align carousel)
+    O107 endif
+    M65 P0; stop carousel
+    M64 P1 ; lock carousel
+    M66 P1 L3 Q1 ; wait for locked=true
+    O108 if [#5399 LT 0]
+        (abort, failed to lock carousel)
+    O108 endif
+
+    M64 P2 ; move arm in (might already be in)
+    M66 P2 L3 Q5 ; wait for arm-in = true
+    O109 if [#5399 LT 0]
+        (abort, failed to move arm in)
+    O109 endif
+
+    G53 G0 Z-100 ; pick up the tool
+
+O200 ENDIF 
+
+M65 P3 ; clamp tool
+M66 P3 L4 Q2 ; wait for tool-released = false
+O110 if [#5399 LT 0]
+    (abort, failed to clamp tool)
+O110 endif
+
+M65 P2 ; move arm back out
+M66 P4 L3 Q5 ; wait for arm-out = true
+O111 if [#5399 LT 0]
+    (abort, failed to move arm in)
+O111 endif
+
+
+o<toolchange> endsub [1]
+
+
+M2
