@@ -45,17 +45,19 @@ downloads and efficiently transfers large files with small modifications
 downloading the image using the <<_normal_download,Normal Download>>
 method.
 
-zsync in Linux::
-    Install zsync using your favourite package management
-    application such as Synaptic or, by running `sudo apt-get install
-    zsync` in a terminal.  Then run this command to download (in a
-    terminal): `zsync http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync`
+.zsync in Linux
 
-zsync in Windows::
-    There is a Windows port of zsync.  It works as a
-    console application, just like the Linux version, so
-    get out that Command Prompt.  It can be downloaded from:
-    https://www.assembla.com/spaces/zsync-windows/documents
+Install zsync using your favourite package management
+application such as Synaptic or, by running `sudo apt-get install
+zsync` in a terminal.  Then run this command to download (in a
+terminal): `zsync http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync`
+
+.zsync in Windows
+
+There is a Windows port of zsync.  It works as a
+console application, just like the Linux version, so
+get out that Command Prompt.  It can be downloaded from:
+https://www.assembla.com/spaces/zsync-windows/documents
 
 
 === Verify the image
@@ -69,13 +71,11 @@ md5sum: 3aa031895ac74a81d0639b09cd812c22
 sha256sum: c47d8c8432b710f0c28f6b98389af6ad4c429d024501335e95a2646a894f45e9
 -----
 
-Verify md5sum on Windows or Mac::
-+
+.Verify md5sum on Windows or Mac
+
 Windows and Mac OS X do not come with an md5sum program, but there are
 alternatives.  More information can be found at:
-+
-https://help.ubuntu.com/community/HowToMD5SUM
-
+https://help.ubuntu.com/community/HowToMD5SUM[How To MD5SUM]
 
 == Write the image to a bootable device
 
@@ -83,41 +83,39 @@ The LinuxCNC Live/Install Image is a hybrid ISO image which can be written
 directly to a USB storage device (flash drive) or a DVD and used to boot
 a computer.  The image is too large to fit on a CD.
 
-Writing the image to a USB storage device in Linux::
-    * Connect a USB storage device (for example a flash drive or thumb
-      drive type device).
-    * Determine the device file corresponding to the USB flash drive.
-      This information can be found in the output of `dmesg` after
-      connecting the device.  `/proc/partitions` may also be helpful.
-    * Use the `dd` command to write the image to your USB storage device.
-      For example, if your storage device showed up as `/dev/sde`,
-      then use this command:
-      +
+.Writing the image to a USB storage device in Linux
+* Connect a USB storage device (for example a flash drive or thumb
+  drive type device).
+* Determine the device file corresponding to the USB flash drive.
+  This information can be found in the output of `dmesg` after
+  connecting the device.  `/proc/partitions` may also be helpful.
+* Use the `dd` command to write the image to your USB storage device.
+  For example, if your storage device showed up as `/dev/sde`,
+  then use this command:+
 -----
 dd if=linuxcnc-2.7-wheezy.iso of=/dev/sde
 -----
 
-Writing the image to a DVD in Linux::
+.Writing the image to a DVD in Linux
 
- . Insert a blank DVD into your burner. A 'CD/DVD Creator' or
-   'Choose Disc Type' window will pop up. 
-   Close this, as we will not be using it.
- . Browse to the downloaded image in the file browser.
- . Right click on the ISO image file and choose Write to Disc.
- . Select the write speed.  It is
-   recommended that you write at the lowest possible speed.
- . Start the burning process.
- . If a 'choose a file name for the disc image' window pops up, just pick OK.
+. Insert a blank DVD into your burner. A 'CD/DVD Creator' or
+ 'Choose Disc Type' window will pop up. 
+ Close this, as we will not be using it.
+. Browse to the downloaded image in the file browser.
+. Right click on the ISO image file and choose Write to Disc.
+. Select the write speed.  It is
+ recommended that you write at the lowest possible speed.
+. Start the burning process.
+. If a 'choose a file name for the disc image' window pops up, just pick OK.
 
-Writing the image to a DVD in Windows::
+.Writing the image to a DVD in Windows
 
- . Download and install Infra Recorder, a free and open source image
-   burning program: http://infrarecorder.org/
- . Insert a blank CD in the drive and select Do nothing or Cancel if an
-   auto-run dialog pops up.
- . Open Infra Recorder, and select the 
-   'Actions' menu, then 'Burn image'.
-
+. Download and install Infra Recorder, a free and open source image
+ burning program: http://infrarecorder.org/
+. Insert a blank CD in the drive and select Do nothing or Cancel if an
+ auto-run dialog pops up.
+. Open Infra Recorder, and select the 
+ 'Actions' menu, then 'Burn image'.
 
 == Testing LinuxCNC
 
@@ -134,11 +132,9 @@ a sim configuration to try out.
 To see if your computer is suitable for software step pulse generation
 run the Latency Test as shown <<latency-test,here>>.
 
-
 == Installing LinuxCNC
 
 To install LinuxCNC from the LiveCD select 'Install (Graphical)' at bootup.
-
 
 == Updates to LinuxCNC (((Updates to LinuxCNC)))
 
@@ -147,15 +143,14 @@ to LinuxCNC when you go on line and allow you to easily upgrade with no
 Linux knowledge needed.
 It is OK to upgrade everything except the operating system when asked to.
 
-WARNING: Do not upgrade the operating system if promped to do so.
-
+[WARNING]
+Do not upgrade the operating system if promped to do so.
 
 == Install Problems
 
 In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it cannot recognize the hard drive 
 during the boot up.
-
 
 == Alternate Install Methods
 
@@ -182,9 +177,9 @@ kernel flavors, etc), new installs are supported on following platforms:
 The RTAI kernels are available for download from the linuxcnc.org
 debian archive.  The apt source is:
 
-    * Debian Wheezy: `deb http://linuxcnc.org wheezy base`
-    * Ubuntu Precise: `deb http://linuxcnc.org precise base`
-    * Ubuntu Lucid: `deb http://linuxcnc.org lucid base`
+* Debian Wheezy: `deb http://linuxcnc.org wheezy base`
+* Ubuntu Precise: `deb http://linuxcnc.org precise base`
+* Ubuntu Lucid: `deb http://linuxcnc.org lucid base`
 
 The Preempt-RT kernels are available from the regular debian.org archive,
 as part of Debian Wheezy.  No special apt source is needed.  The packages
@@ -219,7 +214,6 @@ are called `linux-image-rt-amd64` and `linux-image-rt-686-pae`.
 * Run `sudo apt-get install linuxcnc-uspace`.
 
 * Machine away!
-
 
 === Installing on Ubuntu Precise
 
