@@ -102,8 +102,8 @@ as the 'L number', and so on for any other letter.
 |<<sec:G90-G91,G90 G91>>            |Distance Mode
 |<<sec:G90_1-G91_1,G90.1 G91.1>>    |Arc Distance Mode
 |<<sec:G92,G92>>                    |Coordinate System Offset
-|<<sec:G92_1-G92_2,G92.1 G92.2>>    |Cancel Coordinate System Offsets
-|<<sec:G92_3,G92.3>>                |Restore Axis Offsets
+|<<sec:G92_1-G92_2,G92.1 G92.2>>    |Cancel G92 Offsets
+|<<sec:G92_3,G92.3>>                |Restore G92 Offsets
 |<<sec:G93-G94-G95-Mode,G93 G94 G95>> |Feed Modes
 |<<sec:G96-G97-Spindle,G96>>        |Constant Surface Speed
 |<<sec:G96-G97-Spindle,G97>>        |RPM Mode
@@ -2215,16 +2215,20 @@ See the <<sec:G92-Offsets,Offsets>> Section for more information.
 See the <<sec:parameters,Parameters>> Section for more information.
 
 [[sec:G92_1-G92_2]]
-== G92.1, G92.2 Reset Coordinate System Offsets
+== G92.1, G92.2 Reset G92 Offsets
 
-* 'G92.1' - reset axis offsets to zero and set <<sub:numbered-parameters,parameters>>
+* 'G92.1' - reset G92 offsets to zero and set <<sub:numbered-parameters,parameters>>
   5211 - 5219 to zero.
-* 'G92.2' - reset axis offsets to zero.
+* 'G92.2' - reset G92 offsets to zero.
+
+[NOTE]
+G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets
+in G code use either <<sec:G10-L2_,G10 L2>> or <<sec:G10-L20,G10 L20>>.
 
 [[sec:G92_3]]
-== G92.3 Restore Axis Offsets
+== G92.3 Restore G92 Offsets
 
-* 'G92.3' - set the axis offset to the values saved in parameters 5211 to 5219
+* 'G92.3' - set the G92 offset to the values saved in parameters 5211 to 5219
 
 You can set axis offsets in one program and use the same offsets in
 another program. Program 'G92' in the first program. This will set
