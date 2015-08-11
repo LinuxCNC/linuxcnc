@@ -284,6 +284,35 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
 
+linuxcnc (1:2.6.9) wheezy; urgency=low
+
+  * docs: update G33.1 example to include S100 M3
+  * docs: document motion.feed-inhibit better
+  * docs: update encoder.9 manpage
+  * docs: improve haltcl docs
+  * docs: misc minor fixes & improvements
+
+  * UIs: tolerate task latency better
+  * touchy: Fix Set Tool/Origin defaults on lathes
+  * gmoccapy: introduced hungarian translation
+  * gmoccapy: several new keyboard shortcuts
+  * gmoccapy: new place for full size preview button
+  * gmoccapy: bug in fullsize / edit change
+  * hal_glib: do not emit signal file changed on remap
+  * vismach: work around a bug in mesa
+
+  * hm2: Smart-serial boards can have HAL pins identified by board serial numbers
+
+  * interp: don't set an invalid sequence number
+  * interp: log messages to stderr as intended, instead of crashing
+
+  * task: warn if the main loop takes too long
+  * task: warn when dropping queued mdi commands
+
+  * io: initialize the tool-in-spindle info correctly
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 08 Aug 2015 16:00:57 -0600
+
 linuxcnc (1:2.6.8) precise; urgency=low
 
   * Axis GUI: Fix regression of control disabling, SF#423
