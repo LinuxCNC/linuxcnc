@@ -341,19 +341,10 @@ int receive_msg(hycomm_param_t *hc_param, int msg_length_computed,
 	tv.tv_usec = TIME_OUT_BEGIN_OF_FRAME; 
 
 	length_to_read = msg_length_computed;
-	if (hc_param->debug) {
-		printf("length to read = %d", length_to_read);
-		printf("\n");
-	}
-						
+
 	select_ret = 0;
 	WAIT_DATA();
    
-	//if (hc_param->debug) {
-	//	printf("we received something on the port");
-	//	printf("\n");
-	//}
-			
 	/* read the message */
     (*msg_length) = 0;
     p_msg = msg;	
@@ -361,11 +352,6 @@ int receive_msg(hycomm_param_t *hc_param, int msg_length_computed,
 	while (select_ret) /* loop to receive data until end of msg	or time out */
 	{
 		read_ret = read(hc_param->fd, p_msg, length_to_read);
-		if (hc_param->debug) {
-			printf("read return = [%.2X] bytes",read_ret);
-			printf("\n");
-		}
-
 		if (read_ret == -1) {
                     error_treat(hc_param, PORT_SOCKET_FAILURE, "Read port/socket failure");
                     return PORT_SOCKET_FAILURE;
@@ -376,21 +362,17 @@ int receive_msg(hycomm_param_t *hc_param, int msg_length_computed,
                     return PORT_SOCKET_FAILURE;
 		}
 
+                if (hc_param->debug) {
+                    int i;
+                    printf("read %d bytes: ", read_ret);
+                    for (i = 0; i < read_ret; i ++) {
+                        printf(" 0x%02x", p_msg[i]);
+                    }
+                    printf("\n");
+                }
+
 		/* sum bytes received */
 		(*msg_length) += read_ret;
-		if (hc_param->debug) {
-			printf("msg_length = [%.2X]", *msg_length);
-			printf("\n");
-		}
-		
-		/* Display the hex code of each character received */
-		if (hc_param->debug) {
-			int i;
-			printf("characters received =");
-			for (i= 0; i < read_ret; i++)
-				printf("[%.2X]", p_msg[i]);
-			printf("\n");
-		}
 		
 		if ((*msg_length) < msg_length_computed) {
 			/* We can receive a shorter message than msg_length_computed as
@@ -428,6 +410,15 @@ int receive_msg(hycomm_param_t *hc_param, int msg_length_computed,
 		}
 		
 	}
+
+        if (hc_param->debug) {
+            int i;
+            printf("returning %d byte message: ", *msg_length);
+            for (i = 0; i < *msg_length; i ++) {
+                printf(" 0x%02x", msg[i]);
+            }
+            printf("\n");
+        }
 
 	/* OK */
 	return 0;
