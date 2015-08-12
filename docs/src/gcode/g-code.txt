@@ -2221,7 +2221,7 @@ See the <<sec:parameters,Parameters>> Section for more information.
 
 [NOTE]
 G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets
-in G code use either <<sec:g10-l2,G10 L2>> or <<sec:g10-l20,G10 L20>>.
+in G code use either <<gcode:g10-l2,G10 L2>> or <<gcode:g10-l20,G10 L20>>.
 
 [[gcode:g92.3]](((G92.3 Restore G92 Offsets)))
 
