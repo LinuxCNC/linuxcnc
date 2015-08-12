@@ -377,8 +377,8 @@ int receive_msg(hycomm_param_t *hc_param, int msg_length_computed,
 		if ((*msg_length) < msg_length_computed) {
 			/* We can receive a shorter message than msg_length_computed as
 		  		some functions return one byte in the data feild. Check against
-				the received data length stored in p_msg[2] */
-			if (*msg_length == p_msg[2]+5) {
+				the received data length stored in msg[2] */
+			if ((*msg_length >= 2) && (*msg_length == msg[2]+5)) {
 				/* we have received the whole message */
 				length_to_read = 0;
 			} else {			
