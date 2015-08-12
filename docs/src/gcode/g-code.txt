@@ -100,8 +100,8 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g90-g91,G90 G91>>          |Distance Mode
 |<<gcode:g90.1-g91.1,G90.1 G91.1>>  |Arc Distance Mode
 |<<gcode:g92,G92>>                  |Coordinate System Offset
-|<<gcode:g92.1-g92.2,G92.1 G92.2>>  |Cancel Coordinate System Offsets
-|<<gcode:g92.3,G92.3>>              |Restore Axis Offsets
+|<<gcode:g92.1-g92.2,G92.1 G92.2>>  |Cancel G92 Offsets
+|<<gcode:g92.3,G92.3>>              |Restore G92 Offsets
 |<<gcode:g93-g94-g95,G93 G94 G95>>  |Feed Modes
 |<<gcode:g96-g97,G96>>              |Spindle Control Mode
 |<<gcode:g98-g99,G98 G99>>          |Canned Cycle Z Retract Mode 
@@ -2213,17 +2213,21 @@ See the <<sec:parameters,Parameters>> Section for more information.
 
 [[gcode:g92.1-g92.2]]
 
-== G92.1, G92.2 Reset Coordinate System Offsets
+== G92.1, G92.2 Reset G92 Offsets
 
-* 'G92.1' - reset axis offsets to zero and set <<sub:numbered-parameters,parameters>>
+* 'G92.1' - reset G92 offsets to zero and set <<sub:numbered-parameters,parameters>>
   5211 - 5219 to zero.
-* 'G92.2' - reset axis offsets to zero.
+* 'G92.2' - reset G92 offsets to zero.
 
-[[gcode:g92.3]](((G92.3 Restore Axis Offsets)))
+[NOTE]
+G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets
+in G code use either <<sec:G10-L2_,G10 L2>> or <<sec:G10-L20,G10 L20>>.
 
-== G92.3 Restore Axis Offsets
+[[gcode:g92.3]](((G92.3 Restore G92 Offsets)))
 
-* 'G92.3' - set the axis offset to the values saved in parameters 5211 to 5219
+== G92.3 Restore G92 Offsets
+
+* 'G92.3' - set the G92 offset to the values saved in parameters 5211 to 5219
 
 You can set axis offsets in one program and use the same offsets in
 another program. Program 'G92' in the first program. This will set
