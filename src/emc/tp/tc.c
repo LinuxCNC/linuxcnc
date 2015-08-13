@@ -679,7 +679,7 @@ int tcClampVelocityByLength(TC_STRUCT * const tc)
     //Assume that cycle time is valid here
     double sample_maxvel = tc->target / tc->cycle_time;
     tp_debug_print("sample_maxvel = %f\n",sample_maxvel);
-    tc->maxvel = fmin(tc->maxvel, sample_maxvel);
+    tc->maxvel = rtapi_fmin(tc->maxvel, sample_maxvel);
     return TP_ERR_OK;
 }
 
