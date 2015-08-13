@@ -145,7 +145,7 @@ STATIC double tpGetTangentKinkRatio() {
     const double max_ratio = 0.7071;
     const double min_ratio = 0.001;
 
-    return rtapi_fmax(rtapi_fmin(emcmotConfig->arcBlendTangentKinkRatio,max_ratio),min_ratio);
+    return rtapi_fmax(rtapi_fmin(get_arcBlendTangentKinkRatio(tp->shared),max_ratio),min_ratio);
 }
 
 

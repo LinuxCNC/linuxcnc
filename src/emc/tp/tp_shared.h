@@ -136,6 +136,9 @@ static inline hal_float_t get_arcBlendRampFreq(tp_shared_t *ts)
 static inline void set_arcBlendRampFreq(tp_shared_t *ts, hal_float_t n)
 { *(ts->arcBlendRampFreq) = n; }
 
+static inline hal_float_t get_arcBlendTangentKinkRatio(tp_shared_t *ts)
+{ return *(ts->arcBlendTangentKinkRatio); }
+
 static inline void dioWrite(tp_shared_t *ts, unsigned int index, char value)
 { if (ts->dioWrite) ts->dioWrite(index, value); }
 static inline void aioWrite(tp_shared_t *ts, unsigned int index, double value)
