@@ -1735,6 +1735,7 @@ check_stuff ( "before command_handler()" );
             emcmotConfig->arcBlendOptDepth = emcmotCommand->arcBlendOptDepth;
             emcmotConfig->arcBlendGapCycles = emcmotCommand->arcBlendGapCycles;
             emcmotConfig->arcBlendRampFreq = emcmotCommand->arcBlendRampFreq;
+            emcmotConfig->arcBlendTangentKinkRatio = emcmotCommand->arcBlendTangentKinkRatio;
             break;
 
 	}			/* end of: command switch */

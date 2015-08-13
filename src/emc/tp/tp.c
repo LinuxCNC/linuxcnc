@@ -78,6 +78,9 @@ STATIC inline double tpGetMaxTargetVel(
         TC_STRUCT const * const tc);
 
 
+STATIC int tpAdjustAccelForTangent(TP_STRUCT const * const,
+        TC_STRUCT * const tc,
+        double normal_acc_scale);
 /**
  * @section tpcheck Internal state check functions.
  * These functions compartmentalize some of the messy state checks.
@@ -794,6 +797,36 @@ STATIC int tcSetLineXYZ(TC_STRUCT * const tc, PmCartLine const * const line)
 }
 
 
+
+/**
+ * Compare performance of blend arc and equivalent tangent speed.
+ * If we can go faster by assuming the segments are already tangent (and
+ * slowing down some), then prefer this over using the blend arc. This is
+ * mostly useful for some odd arc-to-arc cases where the blend arc becomes very
+ * short (and therefore slow).
+ */
+STATIC int tpCheckTangentPerformance(TP_STRUCT const * const tp,
+        TC_STRUCT * const prev_tc,
+        TC_STRUCT * const tc,
+        TC_STRUCT * const blend_tc)
+{
+    tcFinalizeLength(blend_tc);
+    if (blend_tc->maxvel < tc->kink_vel) {
+        tp_debug_print("segment maxvel %f is less than kink_vel %f, falling back to simple tangent\n",
+                blend_tc->maxvel, tc->kink_vel);
+
+        // Fall back to tangent, using kink_vel as final velocity
+        tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+
+        // Finally, reduce acceleration proportionally to prevent violations during "kink"
+        tpAdjustAccelForTangent(tp, tc, emcmotConfig->arcBlendTangentKinkRatio);
+        tpAdjustAccelForTangent(tp, prev_tc, emcmotConfig->arcBlendTangentKinkRatio);
+        return TP_ERR_NO_ACTION;
+    }
+    return TP_ERR_OK;
+}
+
+
 STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
     tp_debug_print("-- Starting LineArc blend arc --\n");
@@ -926,6 +959,10 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     if (res_tangent < 0) {
         tp_debug_print("failed tangent check, aborting arc...\n");
         return TP_ERR_FAIL;
+    }
+
+    if (tpCheckTangentPerformance(tp, prev_tc, tc, blend_tc) == TP_ERR_NO_ACTION) {
+        return TP_ERR_NO_ACTION;
     }
 
     tp_debug_print("Passed all tests, updating segments\n");
@@ -1081,6 +1118,10 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         return TP_ERR_FAIL;
     }
 
+    if (tpCheckTangentPerformance(tp, prev_tc, tc, blend_tc) == TP_ERR_NO_ACTION) {
+        return TP_ERR_NO_ACTION;
+    }
+
     tp_debug_print("Passed all tests, updating segments\n");
 
     tcSetCircleXYZ(prev_tc, &circ1_temp);
@@ -1228,6 +1269,10 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
         return TP_ERR_FAIL;
     }
 
+    if (tpCheckTangentPerformance(tp, prev_tc, tc, blend_tc) == TP_ERR_NO_ACTION) {
+        return TP_ERR_NO_ACTION;
+    }
+
     tp_debug_print("Passed all tests, updating segments\n");
 
     tcSetCircleXYZ(prev_tc, &circ1_temp);
@@ -1294,6 +1339,10 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_req,
             param.v_plan, param.a_max);
     blend_tc->target_vel = param.v_actual;
+
+    if (tpCheckTangentPerformance(tp, prev_tc, tc, blend_tc) == TP_ERR_NO_ACTION) {
+        return TP_ERR_NO_ACTION;
+    }
 
     int retval = TP_ERR_FAIL;
 
@@ -1494,8 +1543,11 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     // Find the reachable velocity of prev1_tc, moving forwards in time
 
     double vf_limit_this = tc->maxvel;
-    //Limit the PREVIOUS velocity by how much we can overshoot into
     double vf_limit_prev = prev1_tc->maxvel;
+    if (prev1_tc->kink_vel >=0 ) {
+        vf_limit_prev = rtapi_fmin(vf_limit_prev, prev1_tc->kink_vel);
+    }
+    //Limit the PREVIOUS velocity by how much we can overshoot into
     double vf_limit = rtapi_fmin(vf_limit_this, vf_limit_prev);
 
     if (vs_back >= vf_limit ) {
@@ -1620,6 +1672,20 @@ STATIC double pmCartAbsMax(PmCartesian const * const v)
     return rtapi_fmax(rtapi_fmax(rtapi_fabs(v->x),rtapi_fabs(v->y)),rtapi_fabs(v->z));
 }
 
+STATIC int tpAdjustAccelForTangent(TP_STRUCT const * const tp,
+        TC_STRUCT * const tc,
+        double normal_acc_scale)
+{
+        if (normal_acc_scale >= 1.0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,"Can't have acceleration scale %f > 1.0\n",normal_acc_scale);
+            return TP_ERR_FAIL;
+        }
+        double a_reduction_ratio = pmSqrt(1.0 - pmSq(normal_acc_scale));
+        tp_debug_print(" acceleration reduction ratio is %f\n", a_reduction_ratio);
+        tc->maxaccel *= a_reduction_ratio;
+        return TP_ERR_OK;
+}
+
 /**
  * Check for tangency between the current segment and previous segment.
  * If the current and previous segment are tangent, then flag the previous
@@ -1692,27 +1758,27 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
             acc_scale.z);
 
     //FIXME this ratio is arbitrary, should be more easily tunable
-    const double acc_scale_threshold = 0.1;
-
     double acc_scale_max = pmCartAbsMax(&acc_scale);
     //KLUDGE lumping a few calculations together here
     if (prev_tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_CIRCULAR) {
         acc_scale_max /= BLEND_ACC_RATIO_NORMAL;
     }
 
-    if (acc_scale_max < acc_scale_threshold) {
-        tp_debug_print(" Kink acceleration within %g, treating as tangent\n", acc_scale_threshold);
+    if (acc_scale_max < emcmotConfig->arcBlendTangentKinkRatio) {
+        tp_debug_print(" Kink acceleration within %g, treating as tangent\n", emcmotConfig->arcBlendTangentKinkRatio);
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-        //Calculate actual normal acceleration during tangent transition
-        double a_ratio = 1.0 - acc_scale_max;
-        tp_debug_print(" acceleration reduction ratio is %f\n", a_ratio);
-
-        prev_tc->maxaccel *= a_ratio;
-        tc->maxaccel *= a_ratio;
+        tc->kink_vel = v_max;
+        tpAdjustAccelForTangent(tp, tc, acc_scale_max);
+        tpAdjustAccelForTangent(tp, prev_tc, acc_scale_max);
 
         return TP_ERR_OK;
     } else {
-        tp_debug_print("Kink acceleration too high, not tangent\n");
+        tc->kink_vel = v_max * emcmotConfig->arcBlendTangentKinkRatio / acc_scale_max;
+        tp_debug_print("Kink acceleration scale %f above %f, kink vel = %f, blend arc may be faster\n",
+                acc_scale_max,
+                emcmotConfig->arcBlendTangentKinkRatio,
+                tc->kink_vel);
+        //FIXME need to scale tangential acceleration down if this is the case
         return TP_ERR_NO_ACTION;
     }
 
@@ -1840,6 +1906,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
         return TP_ERR_ZERO_LENGTH;
     }
     tc.nominal_length = tc.target;
+    tcClampVelocityByLength(&tc);
 
     // For linear move, set rotary axis settings 
     tc.indexrotary = indexrotary;
@@ -1920,6 +1987,7 @@ int tpAddCircle(TP_STRUCT * const tp,
 
     // Update tc target with existing circular segment
     tc.target = pmCircle9Target(&tc.coords.circle);
+    tcClampVelocityByLength(&tc);
     if (tc.target < TP_POS_EPSILON) {
         return TP_ERR_FAIL;
     }

@@ -125,6 +125,7 @@ typedef struct {
     double currentvel;      // keep track of current step (vel * cycle_time)
     double finalvel;        // velocity to aim for at end of segment
     double term_vel;        // actual velocity at termination of segment
+    double kink_vel;        // Temporary way to store our calculation of maximum velocity we can handle if this segment is declared tangent with the next
 
     //Acceleration
     double maxaccel;        // accel calc'd by task
