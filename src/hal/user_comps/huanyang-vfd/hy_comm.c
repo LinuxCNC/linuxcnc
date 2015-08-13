@@ -342,7 +342,6 @@ int receive_msg(hycomm_param_t *hc_param, int msg_length_computed,
 
 	length_to_read = msg_length_computed;
 
-	select_ret = 0;
 	WAIT_DATA();
    
 	/* read the message */
