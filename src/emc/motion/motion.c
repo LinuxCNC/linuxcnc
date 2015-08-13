@@ -1397,6 +1397,7 @@ static int init_shared(tp_shared_t *tps,
     tps->arcBlendOptDepth = &cfg->arcBlendOptDepth;
     tps->arcBlendEnable = &cfg->arcBlendEnable;
     tps->arcBlendRampFreq = &cfg->arcBlendRampFreq;
+    tps->arcBlendTangentKinkRatio = &cfg->arcBlendTangentKinkRatio;
     tps->arcBlendFallbackEnable = &cfg->arcBlendFallbackEnable;
     tps->maxFeedScale = &cfg->maxFeedScale;
 

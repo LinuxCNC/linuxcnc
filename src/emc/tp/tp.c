@@ -138,18 +138,7 @@ STATIC int tpRotaryMotionCheck(TP_STRUCT const * const tp, TC_STRUCT const * con
  */
 
 
-/**
- * Wrapper to bounds-check the tangent kink ratio from HAL.
- */
-STATIC double tpGetTangentKinkRatio() {
-    const double max_ratio = 0.7071;
-    const double min_ratio = 0.001;
-
-    return rtapi_fmax(rtapi_fmin(get_arcBlendTangentKinkRatio(tp->shared),max_ratio),min_ratio);
-}
-
-
-STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound)
+STATIC int tpGetMachineAccelBounds(TP_STRUCT const * const tp, PmCartesian  * const acc_bound)
 {
     if (!acc_bound) {
         return TP_ERR_FAIL;
@@ -836,7 +825,7 @@ STATIC int tpCheckTangentPerformance(TP_STRUCT const * const tp,
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
         // Finally, reduce acceleration proportionally to prevent violations during "kink"
-        const double kink_ratio = tpGetTangentKinkRatio();
+        const double kink_ratio = get_arcBlendTangentKinkRatio(tp->shared);
         tpAdjustAccelForTangent(tp, tc, kink_ratio);
         tpAdjustAccelForTangent(tp, prev_tc, kink_ratio);
         return TP_ERR_NO_ACTION;
@@ -1764,7 +1753,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
     double dot = -1.0;
     const double SHARP_CORNER_DEG = 2.0;
-    const double SHARP_CORNER_THRESHOLD = cos(PM_PI * (1.0 - SHARP_CORNER_DEG / 180.0));
+    const double SHARP_CORNER_THRESHOLD = rtapi_cos(PM_PI * (1.0 - SHARP_CORNER_DEG / 180.0));
     pmCartCartDot(&prev_tan, &this_tan, &dot);
     if (dot < SHARP_CORNER_THRESHOLD) {
         tp_debug_print("Found sharp corner\n");
@@ -1808,7 +1797,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         acc_scale_max /= BLEND_ACC_RATIO_TANGENTIAL;
     }
 
-    const double kink_ratio = tpGetTangentKinkRatio();
+    const double kink_ratio = get_arcBlendTangentKinkRatio(tp->shared);
     if (acc_scale_max < kink_ratio) {
         tp_debug_print(" Kink acceleration within %g, treating as tangent\n", kink_ratio);
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
