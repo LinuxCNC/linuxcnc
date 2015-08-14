@@ -76,7 +76,7 @@ class mdi:
             'G43.1' : [_('Tool length offset immediate'), 'A'],
             'G43.2' : [_('Tool length offset additional'), 'H'],
             'G53' : [_('Motion in unoffset coordinates'), 'G', 'A', 'F'],
-            'G64' : [_('Continuous mode'), 'P'],
+            'G64' : [_('Continuous mode'), 'P', 'Q'],
             'G76' : [_('Thread'), 'Z', 'P', 'I', 'J', 'K', 'R', 'Q', 'H', 'E', 'L'],
             'G81' : [_('Drill'), 'A', 'R', 'L', 'F'],
             'G82' : [_('Drill with dwell'), 'A', 'R', 'L', 'P', 'F'],
