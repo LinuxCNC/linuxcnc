@@ -359,10 +359,10 @@ SC := _image\" src=\"plus.png\" style=\"border:0;margin-right:5px;vertical-align
 
 SD := <div id=\"man_
 SE := \" style=\"display:none; \
-    -moz-column-width: 25ex; \
-    -moz-column-gap: 4ex; \
-    -webkit-column-width: \
-    25ex; -webkit-column-gap: 4ex;\">
+	-moz-column-width: 25ex; \
+	-moz-column-gap: 4ex; \
+	-webkit-column-width: \
+	25ex; -webkit-column-gap: 4ex;\">
 
 #
 # This function appends a section to the "manpages" HTML fragment called
@@ -377,10 +377,10 @@ ADD_HTML_MANPAGES = \
 	echo "<UL>" >> objects/index.incl; \
 	for HTML_FILE in $(filter %.$(strip $(1)).html, $(MAN_HTML_TARGETS)); do \
 		BASENAME=$$(basename $$HTML_FILE .html); \
-		echo "<LI><A HREF=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$$BASENAME</A>"; \
+		echo "<LI><A HREF=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$${BASENAME%.*}</A>"; \
 	done >> objects/index.incl; \
-	echo "<p>Man pages can also be viewed in a terminal by typing man and the name of component.</p>" >> objects/index.incl; \
 	echo "</UL><BR>" >> objects/index.incl
+
 
 objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	rm -f $@

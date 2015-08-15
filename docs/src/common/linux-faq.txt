@@ -30,14 +30,17 @@ Example:
 linuxcnc /home/mill/linuxcnc/config/mill/mill.ini
 ----
 
+[[faq:man-pages]]
+
 == Man Pages
 
-Man pages are automatically generated manual pages in most cases. Man
-pages are usually available for most programs and commands in Linux.
+A man page (short for manual page) is a form of software documentation
+usually found on a Unix or Unix-like operating system like Linux.
 
 To view a man page open up a terminal window by going to 'Applications >
-Accessories > Terminal'. For example if you wanted to find out something
-about the find command in the terminal window type:
+Accessories > Terminal'. Some Linux desktops support 'Ctrl + Alt + t' to
+open a terminal. For example if you wanted to find out something about the
+find command in the terminal window type:
 
 ----
 man find
@@ -45,6 +48,11 @@ man find
 
 Use the Page Up and Page Down keys to view the man page and the Q key
 to quit viewing.
+
+[NOTE]
+Viewing the man page from the terminal may not get the expeced man page.
+For example if you type in man abs you will get the C abs not the LinuxCNC
+abs. It is best to view the LinuxCNC man pages in the HTML documents.
 
 == List Modules
 
