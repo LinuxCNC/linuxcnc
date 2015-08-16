@@ -38,4 +38,6 @@ a:hover.tooltips span {
   margin-left: 15px;
   z-index: 999;
 }
-
+h3 {
+  text-align: center;
+}

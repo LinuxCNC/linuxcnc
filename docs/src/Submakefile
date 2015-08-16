@@ -355,7 +355,7 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 
 SA := <li><a onclick=\"return toggle('man_
 SB := ')\"><img id=\"man_
-SC := _image\" src=\"plus.png\" style=\"border:0;margin-right:5px;vertical-align:middle;\" />
+SC := _image\" src=\"plus.png\" alt="plus" style=\"border:0;margin-right:5px;vertical-align:middle;\">
 
 SD := <div id=\"man_
 SE := \" style=\"display:none; \
@@ -374,12 +374,12 @@ ADD_HTML_MANPAGES = \
 	@echo "Adding manpages: man$(strip $(1)): $(strip $(2))"; \
 	echo "$(SA)$(strip $(1))$(SB)$(strip $(1))$(SC)$(strip $(2))</a>" >> objects/index.incl; \
 	echo "$(SD)$(strip $(1))$(SE)" >> objects/index.incl; \
-	echo "<UL>" >> objects/index.incl; \
+	echo "<ul>" >> objects/index.incl; \
 	for HTML_FILE in $(filter %.$(strip $(1)).html, $(MAN_HTML_TARGETS)); do \
 		BASENAME=$$(basename $$HTML_FILE .html); \
-		echo "<LI><A HREF=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$${BASENAME%.*}</A>"; \
+		echo "<li><A HREF=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$${BASENAME%.*}</A>"; \
 	done >> objects/index.incl; \
-	echo "</UL><BR>" >> objects/index.incl
+	echo "</ul></div>" >> objects/index.incl
 
 
 objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
