@@ -1,5 +1,7 @@
 ul {
 list-style-type: none;
+margin-top: 0;
+margin-bottom: 0;
 }
 /* enable tooltips popups
 <a class="tooltips" href=http>Link<span>Tooltip</span></a>*/
@@ -40,4 +42,11 @@ a:hover.tooltips span {
 }
 h3 {
   text-align: center;
+}
+body{
+  padding-left: 60px;
+}
+p {
+  margin-top: 0em;
+  margin-bottom: 0em;
 }
