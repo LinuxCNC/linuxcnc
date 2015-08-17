@@ -455,6 +455,13 @@ class Gscreen:
             self.xml = gtk.Builder()
             self.xml.set_translation_domain(domain) # for locale translations
             self.xml.add_from_file(xmlname)
+            # this is a fix for themeing - it sets the widgets style name to 
+            # the widget id name. You can over ride it later with:
+            # self.widgets.<OBJECT NAME>.set_name('<STYLE NAME>')
+            for o in self.xml.get_objects():
+                if isinstance(o, gtk.Widget):
+                    name = gtk.Buildable.get_name(o)
+                    if name: o.set_name(name)
         except:
             print _("**** Gscreen GLADE ERROR:    With main screen xml file: %s"% xmlname)
             sys.exit(0)
@@ -560,6 +567,17 @@ class Gscreen:
         settings = gtk.settings_get_default()
         settings.props.gtk_button_images = True
         self.data.system_theme = settings.get_property("gtk-theme-name")
+        # check for a local theme gtkrc file
+        localtheme = os.path.join(CONFIGPATH,'%s_theme'%self.skinname)
+        if os.path.exists(localtheme):
+            self.data.local_theme = 'Link to %s_theme'% self.skinname
+            # create systemlink because one can't store themes in an arbitrary folder.
+            if not os.path.exists(userthemedir+'/%s'%self.data.local_theme):
+                os.symlink(localtheme,userthemedir+'/%s'%self.data.local_theme)
+            settings = gtk.settings_get_default()
+            settings.set_string_property("gtk-theme-name", self.data.local_theme, "")
+        else:
+            self.data.local_theme = None
 
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
@@ -966,28 +984,51 @@ class Gscreen:
         # If there are themes then add them to combo box
         model = self.widgets.theme_choice.get_model()
         model.clear()
+        # add the default system theme
         model.append(("Follow System Theme",))
+        # if there is a local custom theme add it
+        if self.data.local_theme:
+            model.append(("Local Config Theme",))
         themes = []
+        # add user themes
         if os.path.exists(userthemedir):
             names = os.listdir(userthemedir)
             names.sort()
             for dirs in names:
-                sbdirs = os.listdir(os.path.join(userthemedir, dirs))
-                if 'gtk-2.0' in sbdirs:
-                    themes.append(dirs)
+                # don't add local custom themes
+                if 'Link' in dirs:
+                    continue
+                try:
+                    sbdirs = os.listdir(os.path.join(userthemedir, dirs))
+                    if 'gtk-2.0' in sbdirs:
+                        themes.append(dirs)
+                except:
+                    pass
+        # add system themes
         if os.path.exists(themedir):
             names = os.listdir(themedir)
             names.sort()
             for dirs in names:
-                sbdirs = os.listdir(os.path.join(themedir, dirs))
-                if 'gtk-2.0' in sbdirs:
-                    themes.append(dirs)
+                try:
+                    sbdirs = os.listdir(os.path.join(themedir, dirs))
+                    if 'gtk-2.0' in sbdirs:
+                        themes.append(dirs)
+                except:
+                    pass
+        # add names to the combobox model
         temp = 0
         for index,theme in enumerate(themes):
             model.append((theme,))
             if theme == self.data.theme_name:
                 temp = index+1
         self.widgets.theme_choice.set_active(temp)
+
+        # set combobox selection and use new theme
+        if self.data.local_theme is not None:
+            self.widgets.theme_choice.set_active(1)
+            self.data.theme_name = self.data.local_theme
+        else:
+            self.data.theme_name = "Follow System Theme"
         settings = gtk.settings_get_default()
         if not self.data.theme_name == "Follow System Theme":
             settings.set_string_property("gtk-theme-name", self.data.theme_name, "")
@@ -3382,9 +3423,11 @@ class Gscreen:
 
     def change_theme(self, theme):
         self.prefs.putpref('gtk_theme', theme, str)
-        if theme == None:return
-        if theme == "Follow System Theme":
+        if theme == 'Local Config Theme':
+                theme = self.data.local_theme
+        elif theme == "Follow System Theme":
             theme = self.data.system_theme
+        if theme == None: return
         settings = gtk.settings_get_default()
         settings.set_string_property("gtk-theme-name", theme, "")
 
