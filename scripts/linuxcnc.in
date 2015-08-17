@@ -57,7 +57,7 @@ if [ ! -d "$HOME/machinekit" ]; then
     else
         mkdir -p $HOME/machinekit
 	echo "Creating machinekit directory"
-        chown -R $USER:$USER $HOME/machinekit.
+        chown -R $USER:$USER $HOME/machinekit
     fi
 fi
 
