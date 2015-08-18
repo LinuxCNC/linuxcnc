@@ -2980,6 +2980,11 @@ int Interp::restore_from_tag(StateTag const &tag)
         return INTERP_ERROR;
     }
 
+	// clear queue buster sflags, otherwise the command won't be executed - Tormach *dpr 8/17/15
+	_setup.input_flag = false;
+	_setup.toolchange_flag = false;
+	_setup.probe_flag = false;
+
     // linearize state
     write_g_codes((block_pointer) NULL, &_setup);
     write_m_codes((block_pointer) NULL, &_setup);
