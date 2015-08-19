@@ -1,17 +1,19 @@
 loadrt or2 names=or2_0
-loadrt comp names=comp_x,comp_y,comp_z
+loadrt comp names=comp_x,comp_y,comp_z,probe
 
 net Xhomeswpos => comp_x.in0
 net Yhomeswpos => comp_y.in0
 net Zhomeswpos => comp_z.in0
+net probesurface => probe.in1
 
 sets Xhomeswpos 1
 sets Yhomeswpos .5
 sets Zhomeswpos 2
+sets probesurface 0
 
 net Xpos => comp_x.in1
 net Ypos => comp_y.in1
-net Zpos => comp_z.in1
+net Zpos => comp_z.in1 probe.in0
 
 setp comp_x.hyst .02
 setp comp_y.hyst .02
@@ -24,9 +26,11 @@ net Zhomesw <= comp_z.out
 net Xhomesw => or2_0.in0
 net Zhomesw => or2_0.in1
 net XZhomesw or2_0.out => axis.0.home-sw-in axis.2.home-sw-in
+net simprobe probe.out => motion.probe-input
 
 addf comp_x servo-thread
 addf comp_y servo-thread
 addf comp_z servo-thread
+addf probe servo-thread
 
 addf or2_0 servo-thread

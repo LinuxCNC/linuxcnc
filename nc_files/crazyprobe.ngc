@@ -1,0 +1,12 @@
+g20
+g10l2p1z.1
+g0x0y0
+g0z0
+
+o100 repeat[100]
+g38.2z-1f20
+(debug,#5063)
+g0z0
+o100 endrepeat
+
+m2
