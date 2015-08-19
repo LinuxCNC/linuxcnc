@@ -108,11 +108,22 @@ def stop_processes():
 def load_hal_file(filename, ini=None):
     sys.stdout.write("loading " + filename + '... ')
     sys.stdout.flush()
-    command = 'halcmd'
-    if ini is not None:
-        command += ' -i ' + ini
-    command += ' -f ' + filename
-    subprocess.check_call(command, shell=True)
+
+    _, ext = os.path.splitext(filename)
+    if ext == '.py':
+        from machinekit import rtapi
+        if not rtapi.__rtapicmd:
+            rtapi.init_RTAPI()
+        if ini is not None:
+            from machinekit import config
+            config.load_ini(ini)
+        execfile(filename)
+    else:
+        command = 'halcmd'
+        if ini is not None:
+            command += ' -i ' + ini
+        command += ' -f ' + filename
+        subprocess.check_call(command, shell=True)
     sys.stdout.write('done\n')
 
 
