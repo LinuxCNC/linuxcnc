@@ -7,6 +7,7 @@ from machinekit import compat
 
 _processes = []
 _realtimeStarted = False
+_exiting = False
 
 
 # ends a running Machinekit session
@@ -234,8 +235,12 @@ def register_exit_handler():
 def _exitHandler(signum, frame):
     del signum  # unused
     del frame  # unused
-    end_session()
-    sys.exit(0)
+    global _exiting
+
+    if not _exiting:
+        _exiting = True  # prevent double execution
+        end_session()
+        sys.exit(0)
 
 
 # set the Machinekit debug level
