@@ -119,6 +119,8 @@ window type:
 pwd
 ----
 
+[[faq:cd]]
+
 === Changing Directories
 
 To move up one level in the terminal window type:

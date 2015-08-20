@@ -60,6 +60,8 @@ include::gui/ngcgui.txt[]
 
 include::gui/touchy.txt[]
 
+include::gui/gscreen.txt[]
+
 include::gui/tklinuxcnc.txt[]
 
 include::gui/mini.txt[]
