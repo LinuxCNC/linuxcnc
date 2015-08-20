@@ -169,4 +169,22 @@ the following ways:
   component.
 
 
+=== Huanyang VFD driver
+
+LinuxCNC 2.7 includes a driver for the Huanyang family of VFDs.  This
+driver is based on an out-of-tree driver by "scotta" and "alan_3301"
+at CNCZone.com, and curated by Benjamin Brockhaus.  This new driver
+talks to the same hardware as the original driver, but has a slightly
+different HAL interface:
+
+[options="header"]
+|===================================================================
+| Original hy-vfd driver   | New LinuxCNC hy-vfd driver
+| hy_vfd.fwd               | hy_vfd.forward
+| hy_vfd.rev               | hy_vfd.reverse
+| hy_vfd.modbus-ok         | hy_vfd..hycomm-ok
+| hy_vfd.motor-pole-number | (removed)
+| hy_vfd.base-freq         | (removed)
+|===================================================================
+
 // vim: set syntax=asciidoc:
