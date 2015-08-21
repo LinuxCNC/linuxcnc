@@ -182,7 +182,7 @@ different HAL interface:
 | Original hy-vfd driver   | New LinuxCNC hy-vfd driver
 | hy_vfd.fwd               | hy_vfd.forward
 | hy_vfd.rev               | hy_vfd.reverse
-| hy_vfd.modbus-ok         | hy_vfd..hycomm-ok
+| hy_vfd.modbus-ok         | hy_vfd.hycomm-ok
 | hy_vfd.motor-pole-number | (removed)
 | hy_vfd.base-freq         | (removed)
 |===================================================================
