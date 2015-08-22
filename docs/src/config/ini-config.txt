@@ -580,30 +580,14 @@ Connections made using a POSTGUI_HALFILE are not checked.
     names= names used are unique on each use).  In the second pass (pass1), the
     HALFILES are reread and all commands except the previously executed load commands
     are executed.
-+
-The TWOPASS item can be activated with any non-null string including the keywords verbose
-and nodelete. The verbose keyword causes printing of details to stdout.  The nodelete keyword
-preserves temporary files in /tmp.
-Example:
-----
-TWOPASS = nodelete verbose
-----
 
-Some GUIs support halfiles that are processed after the GUI is started in order
-to connect hal pins that are created by the GUI.  When using a postgui halfile with
-TWOPASS processing, include all loadrt items for components added by postgui halfiles
-in a separate halfile that is processed before the GUI.  The addf commands can also
-be included in the file.
-Example:
-----
-[HAL]
-HALFILE = file_1.hal
-...
-HALFILE = file_n.hal
-HALFILE = file_with_all_loads_for_postgui.hal
-...
-POSTGUI_HALFILE = the_postgui_file.hal
-----
+* 'TWOPASS = nodelete verbose' - The TWOPASS feature can be activated with any
+  non-null string including the keywords verbose and nodelete. The verbose
+  keyword causes printing of details to stdout. The nodelete keyword preserves
+  temporary files in /tmp.
++
+For more information see the <<cha:hal-twopass,Hal TWOPASS>> chapter.
+
 * 'HALCMD = command' - Execute 'command' as a single HAL command.
    If 'HALCMD' is specified multiple times, the commands are executed in the order
     they appear in the ini file. 'HALCMD' lines are executed after all

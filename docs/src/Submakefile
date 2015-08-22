@@ -105,6 +105,7 @@ DOC_SRCS_EN := \
 	hal/rtcomps.txt \
 	hal/tools.txt \
 	hal/tutorial.txt \
+	hal/twopass.txt \
 	install/latency-test.txt \
 	ladder/classic-ladder.txt \
 	ladder/ladder-examples.txt \

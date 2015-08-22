@@ -14,9 +14,9 @@ INI file.
 When you create a configuration with the
 <<cha:stepconf-wizard,Stepper Configuration Wizard>> or
 <<cha:pncconf-wizard,Mesa Hardware Wizard>> or by picking a sample
-configuration from the Configuration Selector LinuxCNC creates some directories
-and files in your user directory. In the following example the name of the
-configuration is 'My Lathe'.
+configuration from the <<cha:starting-linuxcnc,Configuration Selector>>
+LinuxCNC creates some directories and files in your user directory. In the
+following example the name of the configuration is 'My Lathe'.
 
 * linuxcnc
 ** configs
@@ -24,7 +24,7 @@ configuration is 'My Lathe'.
 **** My_Lathe.ini (this is read by the linuxcnc script)
 **** My_Lathe.hal (this hal file is loaded before the gui)
 **** post_gui.hal (this hal file is loaded after the gui)
-**** linuxcnc.var (stores the <<(sec:parameters,parameters>>)
+**** linuxcnc.var (stores the <<sec:parameters,parameters>>)
 **** linuxcnc.var.bak (a backup parameter file)
 **** tool.tbl (the tool table file)
 ** nc_files

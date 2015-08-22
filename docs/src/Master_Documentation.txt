@@ -236,6 +236,8 @@ include::hal/intro.txt[]
 
 include::hal/basic-hal.txt[]
 
+include::hal/twopass.txt[]
+
 include::hal/tutorial.txt[]
 
 include::hal/general-ref.txt[]
