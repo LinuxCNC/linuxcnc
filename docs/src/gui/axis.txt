@@ -179,7 +179,8 @@ Do not use 'Run From Selected Line' if your g code program contains subroutines.
 
 * 'Unhoming' - Unhome one or all axes.
 
-* 'Zero Coordinate System' - Clear (set to zero) a chosen offset.
+* 'Zero Coordinate System' - Set all offsets to zero in the coordinate
+  system chosen.
 
 [[axis:tool-touch-off]] (((Axis, Tool Touch Off)))
 
@@ -198,45 +199,46 @@ Relative coordinates are 0.  See <<gcode:g10-l11,G10 L11>> in the G code chapter
 
 .View Menu
 
-.It's all in your point of view
-*******************************************************************************
-The AXIS display pick menu 'View' refers to 'Top', 'Front', and 'Side' views. 
-These terms are correct if the CNC machine has its Z axis vertical, with 
-positive Z up. This is true for vertical mills, which is probably the most 
-popular application, and also true for almost all EDM machines, and even 
-vertical turret lathes, where the part is turning below the tool. 
+* 'Top View' - The Top View (or Z view) displays the G code looking along the
+  Z axis from positive to negative. This view is best for looking at X & Y.
 
-The terms 'Top', 'Front', and 'Side' might be confusing however, in other 
-CNC machines, such as a standard lathe, where the Z axis is horizontal, or 
-a horizontal mill, again where the Z axis is horizontal, or even an inverted 
-vertical turret lathe, where the part is turning above the tool, and the Z axis 
-positive direction is down! 
+* 'Rotated Top View' - The Rotated Top View (or rotated Z view) also displays
+  the G code looking along the Z axis from positive to negative. But sometimes
+  it's convenient to display the X & Y axes rotated 90 degrees to fit the
+  display better. This view is also best for looking at X & Y. 
 
-Just remember that positive Z axis is (almost) always away from the part. 
-So be familiar with your machine's design and interpret the display as needed.  
-*******************************************************************************
+* 'Side View' - The Side View (or X view) displays the G code looking along
+  the X axis from positive to negative. This view is best for looking at Y & Z.
 
-* 'Top View' - The Top View (or Z view) displays the G code looking along the Z axis from 
-    positive to negative. This view is best for looking at X & Y. 
+* 'Front View' - The Front View (or Y view) displays the G code looking along
+  the Y axis from negative to positive. This view is best for looking at X & Z.
 
-* 'Rotated Top View' - The Rotated Top View (or rotated Z view) also displays the G code looking 
-    along the Z axis from positive to negative. But sometimes it's convenient 
-    to display the X & Y axes rotated 90 degrees to fit the display better. 
-    This view is also best for looking at X & Y. 
+* 'Perspective View' - The Perspective View (or P view) displays the G code
+  looking at the part from an adjustable point of view, defaulting to X+, Y-,
+  Z+. The position is adjustable using the mouse and the drag/rotate selector.
+  This view is a compromise view, and while it does do a good job of trying to
+  show three (to nine!) axes on a two-dimensional display, there will often be
+  some feature that is hard to see, requiring a change in viewpoint. This view
+  is best when you would like to see all three (to nine) axes at once.
 
-* 'Side View' - The Side View (or X view) displays the G code looking along the X axis from 
-    positive to negative. This view is best for looking at Y & Z. 
+.Point of View
+****
+The AXIS display pick menu 'View' refers to 'Top', 'Front', and 'Side' views.
+These terms are correct if the CNC machine has its Z axis vertical, with
+positive Z up. This is true for vertical mills, which is probably the most
+popular application, and also true for almost all EDM machines, and even
+vertical turret lathes, where the part is turning below the tool.
 
-* 'Front View' - The Front View (or Y view) displays the G code looking along the Y axis from 
-    negative to positive. This view is best for looking at X & Z. 
+The terms 'Top', 'Front', and 'Side' might be confusing however, in other
+CNC machines, such as a standard lathe, where the Z axis is horizontal, or
+a horizontal mill, again where the Z axis is horizontal, or even an inverted
+vertical turret lathe, where the part is turning above the tool, and the Z axis
+positive direction is down!
 
-* 'Perspective View' - The Perspective View (or P view) displays the G code looking at the part from 
-    an adjustable point of view, defaulting to X+, Y-, Z+. The position is 
-    adjustable using the mouse and the drag/rotate selector. This view is a 
-    compromise view, and while it does do a good job of trying to show three 
-    (to nine!) axes on a two-dimensional display, there will often be some 
-    feature that is hard to see, requiring a change in viewpoint. This view 
-    is best when you would like to see all three (to nine) axes at once. 
+Just remember that positive Z axis is (almost) always away from the part.
+So be familiar with your machine's design and interpret the display as needed.
+****
+
 
 * 'Display Inches' - Set the AXIS display scaling for inches. 
 
@@ -351,36 +353,29 @@ From left to right in the Axis display, the toolbar buttons (keyboard shortcuts 
 
 .Coordinate Display
 
-In the upper-left corner of the program display is the coordinate display. 
-It shows the position of the machine. 
-To the left of the axis name, an origin symbol is shown 
-if the axis has been homed. 
+In the upper-left corner of the program display is the coordinate position
+display for each axis. To the right of the number an origin symbol
+image:images/axis-homed.png[] is shown if the axis has been homed.
 
-image:images/axis-homed.png[] 
+A limit symbol image:images/axis-limit.png[] is shown on the right side of the
+coordinate position number if the axis is on one of its limit switches.
 
-A limit symbol is shown if the axis is on one of its limit switches.
-
-image:images/axis-limit.png[]
-
-To properly interpret these numbers, refer to the 'Position:'
-indicator in the status bar. If the position is 'Absolute', then the
+To properly interpret the coordinate position numbers, refer to the 'Position:'
+indicator in the status bar. If the position is 'Machine Actual', then the
 displayed number is in the machine coordinate system. If it is
-'Relative', then the displayed number is in the offset coordinate
-system. When the coordinates displayed are relative and an offset has
-been set, the display will include a cyan 'machine origin' marker. 
+'Relative Actual', then the displayed number is in the offset coordinate
+system. When the coordinates displayed are relative and an offset has been set,
+the display will include a cyan 'machine origin'
+image:images/axis-machineorigin.png[] marker.
 
-image:images/axis-machineorigin.png[]
-
-If the position is 'Commanded', then it is the ideal position 
---for instance, the exact coordinate given in a 'G0' command. 
-If it is 'Actual', then it is the position 
-the machine has actually moved to. 
-These values can differ for several reasons:
-Following error, dead band, encoder resolution, or step size. 
-For instance, if you command a movement to X 0.0033 on your mill, 
-but one step of your stepper motor or one encoder count is 0.00125, 
-then the 'Commanded' position might be 0.0033, 
-but the 'Actual' position will be 0.0025 (2 steps) or 0.00375 (3 steps).
+If the position is 'Commanded', then the exact coordinate given in a G code
+command is displayed. If it is 'Actual', then it is the position the machine
+has actually moved to. These values can be different from commanded postition
+due to following error, dead band, encoder resolution, or step size. For
+instance, if you command a movement to X 0.0033 on your mill, but one step of
+your stepper motor or one encoder count is 0.00125, then the 'Commanded'
+position might be 0.0033, but the 'Actual' position will be 0.0025 (2 steps)
+or 0.00375 (3 steps).
 
 .Preview Plot
 
@@ -415,8 +410,6 @@ the maximum X travel is 1.88,
 and the program requires 3.83 inches of X travel.  
 To move the program so it's within the machine's travel in this case, 
 jog to the left and Touch Off X again.
-
-.Soft Limit
 
 image::images/axis-outofrange.png[align="center"]
 
