@@ -10,7 +10,7 @@ with a wheel/MPG and a few buttons and switches.
 
 .Touchy
 
-image::images/touchy.png[]
+image::images/touchy.png[align="center"]
 
 == Panel Configuration
 
