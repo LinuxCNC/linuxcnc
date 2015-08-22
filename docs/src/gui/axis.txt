@@ -10,7 +10,7 @@ Tk and OpenGL to display its user interface.
 
 .AXIS Window
 
-image::images/axis-2.5.png[align="center"]
+image::images/axis.png[align="center"]
 
 == Getting Started
 

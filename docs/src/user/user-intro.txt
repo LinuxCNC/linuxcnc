@@ -66,51 +66,35 @@ A user interface is the part of the LinuxCNC that the machine tool
 operator interacts with. The LinuxCNC comes with several types of user
 interfaces:
 
-* <<cha:axis-gui,'Axis'>>, the standard GUI interface.
+<<cha:axis-gui,'Axis'>>, the standard keyboard GUI interface.
 
-.Axis GUI
+image::../gui/images/axis.png[align="center"]
 
-image::images/axis-2.5.png[align="center"]
+<<cha:touchy-gui,'Touchy'>>, a touch screen GUI.
 
-* <<cha:gmoccapy,'gmoccapy'>>, A industrial like GUI.
+image::../gui/images/touchy.png[align="center"]
 
-.Gmoccapy
+<<cha:gscreen,'Gscreen'>>, a configurable base touch screen GUI.
 
-image::images/gmoccapy_4_axis.png[align="center"]
+image::../gui/images/gscreen-mill.png[align="center"]
 
-* <<cha:touchy-gui,'Touchy'>>, a touch screen GUI.
+<<cha:gmoccapy,'gmoccapy'>>, a touch screen GUI based on Gscreen.
 
-.Touchy GUI
+image::../gui/images/gmoccapy_3_axis.png[align="center"]
 
-image::images/touchy.png[align="center"]
-
-* <<cha:ngcgui,'NGCGUI'>>, a subroutine GUI that provides 'fill in the blanks'
+<<cha:ngcgui,'NGCGUI'>>, a subroutine GUI that provides 'fill in the blanks'
    programming of G code. It also supports concatenation of subroutine files
-   to enable you to build a complete G code file without programming.
+   to enable you to build a complete G code file without programming. The
+   following screen shot shows NGCGUI imbedded into Axis.
 
-.NGCGUI GUI embedded into Axis
+image::../gui/images/ngcgui.png[align="center"]
 
-image::images/ngcgui.png[align="center"]
-
-* <<cha:mini-gui,'Mini'>>, a Tcl/Tk-based GUI 
-
-.The Mini GUI
-
-image::images/mini.png[align="center"]
-
-* <<cha:tklinuxcnc-gui,'TkLinuxCNC'>>, a Tcl/Tk-based GUI
-
-.The TkLinuxCNC GUI
-
-image::images/tkemc.png[align="center"]
-
-* <<cha:keystick-gui,'Keystick'>>, a character-based screen graphics program
+<<cha:keystick-gui,'Keystick'>>, a character-based screen graphics program
   suitable for minimal installations (without the X server running).
 
-.The Keystick GUI
+image::../gui/images/keystick.png[align="center"]
 
-image::images/keystick.png[align="center"]
-
+=== Additional Features
 
 * 'Xemc', an X-Windows program. A simulator configuration of Xemc can be 
    ran from the configuration picker.
@@ -129,14 +113,14 @@ image::images/keystick.png[align="center"]
 
 .PyVCP with Axis
 
-image::images/axis-pyvcp.png[align="center"]
+image::../gui/images/axis-pyvcp.png[align="center"]
 
 * 'GladeVCP' - a glade based virtual control panel that can be added to
    the Axis GUI or be stand alone.
 
 .GladeVCP with Axis
 
-image::images/axis-gladevcp.png[align="center"]
+image::../gui/images/axis-gladevcp.png[align="center"]
 
 See the <<cha:pyvcp,PyVCP chapter>> and the<<cha:glade-vcp,GladeVCP chapter>> for more information on Virtual Control Panels.
 
