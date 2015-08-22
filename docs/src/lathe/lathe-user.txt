@@ -2,9 +2,6 @@
 
 = Lathe User Information
 
-This chapter attempts to bring together all the lathe specific
-information and is currently under construction.
-
 == Lathe Mode
 
 If your CNC machine is a lathe, there are some specific changes you 
@@ -34,6 +31,9 @@ must program that in the preamble of each gcode file or
 # g-code modal codes (modes) that the interpreter is initialized with on startup
 RS274NGC_STARTUP_CODE = G18 G20 G90
 ---------------------------------------
+
+If your using Gmoccapy then see the
+<<gmoccapy:lathe-section,the Gmoccapy Lathe section>>.
 
 == Lathe Tool Table [[sec:lathe-tool-table]]
 
