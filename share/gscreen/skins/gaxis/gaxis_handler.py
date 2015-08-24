@@ -46,15 +46,6 @@ class HandlerClass:
     def on_scale_jog_value_changed(self,widget):
         self.gscreen.set_jog_rate(absolute=widget.get_value())
 
-    def on_scale_fo_value_changed(self,widget):
-        self.gscreen.set_feed_override((widget.get_value()/100),True)
-
-    def on_scale_so_value_changed(self,widget):
-        self.gscreen.set_spindle_override((widget.get_value()/100),True)
-
-    def on_scale_mv_value_changed(self,widget):
-        self.gscreen.set_velocity_override((widget.get_value()/100),True)
-
     def on_jog_speed_changed(self,widget):
         self.data.current_jogincr_index = widget.get_active()
 
@@ -89,7 +80,6 @@ class HandlerClass:
 
     # erase the ready-to-home message on statusbar
     def on_hal_status_all_homed(self,widget):
-        print "all-homed"
         self.data.all_homed = True
         self.widgets.statusbar1.remove_message(self.gscreen.statusbar_id,self.gscreen.homed_status_message)
 
@@ -123,9 +113,6 @@ class HandlerClass:
                 self.widgets[i[0]].connect(i[1], self.gscreen[i[2]],i[3])
         self.widgets.toolbutton_run.connect("toggled",self.on_toolbutton_run_toggled)
         self.widgets.scale_jog.connect("value_changed",self.on_scale_jog_value_changed)
-        self.widgets.scale_fo.connect("value_changed",self.on_scale_fo_value_changed)
-        self.widgets.scale_so.connect("value_changed",self.on_scale_so_value_changed)
-        self.widgets.scale_mv.connect("value_changed",self.on_scale_mv_value_changed)
         self.widgets.menuitem5.connect("activate",self.on_show_alarm_page)
         self.widgets.show_dro.connect('toggled',self.on_gremlin_radiobutton_toggled)
         self.widgets.show_offsets.connect('toggled',self.on_gremlin_radiobutton_toggled)
@@ -160,19 +147,13 @@ class HandlerClass:
         self.gscreen.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
         self.gscreen.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")
         for num,i in enumerate(self.data.jog_increments):
-            print i
             self.widgets.jog_speed.append_text(i)
             if i == "continuous":
                 self.data.current_jogincr_index = num
                 self.widgets.jog_speed.set_active(num)
         self.gscreen.set_dro_units(self.data.dro_units)
-        self.widgets.adjustment_mv.set_value(self.data.maxvelocity*100)
         self.widgets.adjustment_jog.set_upper(self.data.jog_rate_max)
         self.widgets.adjustment_jog.set_value(self.data.jog_rate)
-        self.widgets.adjustment_fo.set_upper(self.data.feed_override_max*100)
-        self.widgets.adjustment_fo.set_value(self.data.feed_override*100)
-        self.widgets.adjustment_so.set_upper(self.data.spindle_override_max*100)
-        self.widgets.adjustment_so.set_value(self.data.spindle_override*100)
         self.widgets.notebook_debug.set_show_tabs(False)
         #self.gscreen.keylookup.add_conversion('F4','TEST2','on_keycall_POWER')
         self.widgets.show_dro.set_active(True)
@@ -203,7 +184,6 @@ class HandlerClass:
             return True
     def on_keycall_INCREMENTS(self,state,SHIFT,CNTRL,ALT):
         if state and self.data._MAN in self.check_mode(): # manual mode required
-            print 'hi'
             if SHIFT:
                 self.gscreen.set_jog_increments(index_dir = -1)
             else:
