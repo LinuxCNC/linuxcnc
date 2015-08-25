@@ -60,7 +60,6 @@ int _rtapi_init(const char *modname) {
 }
 
 int _rtapi_exit(int module_id) {
-  munlockall();
   return 0;
 }
 
