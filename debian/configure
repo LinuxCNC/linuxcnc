@@ -133,7 +133,7 @@ Debian-5.0*)
 *)
         echo "unknown distribution: $DISTRIB_NAME"
         echo "configuration may be wrong!"
-	EXTRA_BUILD=dvipng,kmod
+	EXTRA_BUILD=dvipng,kmod,libgnomeprintui2.2-dev
 	TCLTK_VERSION=8.4
 	;;
 esac
