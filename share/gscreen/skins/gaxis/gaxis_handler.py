@@ -158,6 +158,11 @@ class HandlerClass:
         #self.gscreen.keylookup.add_conversion('F4','TEST2','on_keycall_POWER')
         self.widgets.show_dro.set_active(True)
 
+        # name widgets for theme visual control
+        # with a modified theme gtkrc file these widgets can be visually modified
+        self.widgets.button_estop.get_child().set_name('button_estop')
+        self.widgets.button_machine_on.get_child().set_name('button_machine_on')
+
     # If we need extra HAL pins here is where we do it.
     # Note you must import hal at the top of this script to build the pins here. or:
     # For gaxis there is only jog pins so we call gscreen to
@@ -219,6 +224,7 @@ class HandlerClass:
     # In this case we wish to call Gscreen's default function for units button update
     def periodic(self):
         self.gscreen.update_units_button_label()
+
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):
