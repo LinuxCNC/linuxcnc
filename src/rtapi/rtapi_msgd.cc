@@ -62,6 +62,7 @@ using namespace std;
 
 #include <czmq.h>
 #include <mk-service.hh>
+#include <libwebsockets.h>  // version tags only
 
 #include <google/protobuf/text_format.h>
 #include <machinetalk/generated/message.pb.h>
@@ -941,12 +942,24 @@ int main(int argc, char **argv)
     int major, minor, patch;
     zmq_version (&major, &minor, &patch);
     syslog_async(LOG_DEBUG,
-		 "ØMQ=%d.%d.%d czmq=%d.%d.%d protobuf=%d.%d.%d\n",
+		 "ØMQ=%d.%d.%d czmq=%d.%d.%d protobuf=%d.%d.%d libwebsockets=%s %s\n",
 		 major, minor, patch,
 		 CZMQ_VERSION_MAJOR, CZMQ_VERSION_MINOR,CZMQ_VERSION_PATCH,
 		 GOOGLE_PROTOBUF_VERSION / 1000000,
 		 (GOOGLE_PROTOBUF_VERSION / 1000) % 1000,
-		 GOOGLE_PROTOBUF_VERSION % 1000);
+ 		 GOOGLE_PROTOBUF_VERSION % 1000,
+#ifdef LWS_LIBRARY_VERSION
+		 LWS_LIBRARY_VERSION,
+#else
+		 "<no version symbol>",
+#endif
+#ifdef LWS_BUILD_HASH
+		 LWS_BUILD_HASH
+#else
+		 ""
+#endif
+		 );
+
     syslog_async(LOG_INFO,"configured: sha=%s", GIT_CONFIG_SHA);
     syslog_async(LOG_INFO,"built:      %s %s sha=%s",  __DATE__, __TIME__, GIT_BUILD_SHA);
     if (strcmp(GIT_CONFIG_SHA,GIT_BUILD_SHA))
