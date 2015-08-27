@@ -586,8 +586,8 @@ them to the same color).
     <bgcolor>"grey"</bgcolor>
     <fillcolor>"red"</fillcolor>
     <range1>0,100,"green"</range1>
-    <range2>101,135,"orange"</range1>
-    <range3>136, 150,"red"</range1>
+    <range2>101,135,"orange"</range2>
+    <range3>136, 150,"red"</range3>
 </bar>
 ---------------------------------------
 
