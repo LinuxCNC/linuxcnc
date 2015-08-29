@@ -86,11 +86,6 @@ if distributor == 'Ubuntu':
         print "release is too old!"
         sys.exit(1)
 
-if distributor == 'Debian':
-    if release_major >= 8:
-        print "Debian Jessie is not supported yet!"
-        sys.exit(1)
-
 if kernel_flavor != 'rtai' and kernel_flavor != 'vanilla':
     print "unsupported kernel flavor"
     sys.exit(1)
