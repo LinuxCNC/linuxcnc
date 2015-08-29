@@ -1,4 +1,4 @@
-#!/usr/bin/wish8.5
+#!/usr/bin/wish
 
 # Notes:
 # notusing y axis title because it coredumps with X BadMatch with wish8.5

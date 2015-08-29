@@ -105,6 +105,7 @@ DOC_SRCS_EN := \
 	hal/rtcomps.txt \
 	hal/tools.txt \
 	hal/tutorial.txt \
+	hal/twopass.txt \
 	install/latency-test.txt \
 	ladder/classic-ladder.txt \
 	ladder/ladder-examples.txt \
@@ -353,16 +354,15 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@mkdir -p $(dir $@)
 	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
-SA := <li><a onclick=\"return toggle('man_
+SA := <p><a onclick=\"return toggle('man_
 SB := ')\"><img id=\"man_
-SC := _image\" src=\"plus.png\" style=\"border:0;margin-right:5px;vertical-align:middle;\" />
+SC := _image\" src=\"plus.png\" alt=\"plus\" style=\"border:0;margin-right:5px;vertical-align:middle\"/>
 
 SD := <div id=\"man_
-SE := \" style=\"display:none; \
-    -moz-column-width: 25ex; \
-    -moz-column-gap: 4ex; \
-    -webkit-column-width: \
-    25ex; -webkit-column-gap: 4ex;\">
+SE := \" style=\"-moz-column-width: 25ex; \
+	-moz-column-gap: 4ex; \
+	-webkit-column-width: \
+	25ex; -webkit-column-gap: 4ex;\">
 
 #
 # This function appends a section to the "manpages" HTML fragment called
@@ -372,15 +372,15 @@ SE := \" style=\"display:none; \
 #
 ADD_HTML_MANPAGES = \
 	@echo "Adding manpages: man$(strip $(1)): $(strip $(2))"; \
-	echo "$(SA)$(strip $(1))$(SB)$(strip $(1))$(SC)$(strip $(2))</a>" >> objects/index.incl; \
+	echo "$(SA)$(strip $(1))$(SB)$(strip $(1))$(SC)$(strip $(2))</a></p>" >> objects/index.incl; \
 	echo "$(SD)$(strip $(1))$(SE)" >> objects/index.incl; \
-	echo "<UL>" >> objects/index.incl; \
+	echo "<ul>" >> objects/index.incl; \
 	for HTML_FILE in $(filter %.$(strip $(1)).html, $(MAN_HTML_TARGETS)); do \
 		BASENAME=$$(basename $$HTML_FILE .html); \
-		echo "<LI><A HREF=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$$BASENAME</A>"; \
+		echo "<li><a href=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$${BASENAME%.*}</a></li>"; \
 	done >> objects/index.incl; \
-	echo "<p>Man pages can also be viewed in a terminal by typing man and the name of component.</p>" >> objects/index.incl; \
-	echo "</UL><BR>" >> objects/index.incl
+	echo "</ul></div>" >> objects/index.incl
+
 
 objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	rm -f $@

@@ -4,11 +4,6 @@
 
 == Tool Edit Version Requirements
 
-[NOTE]
-The following configurable features for 'tooledit' are available in versions
-2.5.1 and later. In 2.5.0 the 'tooledit' gui is without the configurable
-features.
-
 image::images/tooledit.png[align="center",width=640]
 
 The 'tooledit' program can update the tool table file with

@@ -9,21 +9,16 @@ Step Configuration Wizard. See the
 <<cha:stepconf-wizard,Stepper Configuration Wizard>> Chapter.
 
 This chapter describes some of the more common settings for manually
-setting up a stepper based system. Because of the various possibilities
-of configuring LinuxCNC, it is very hard to document them all, and keep
-this document relatively short.
-
-The most common LinuxCNC usage is for stepper based systems. These systems
-are using stepper motors with drives that accept step & direction
-signals.
+setting up a stepper based system. These systems are using stepper motors
+with drives that accept step & direction signals.
 
 It is one of the simpler setups, because the motors run open-loop (no
 feedback comes back from the motors), yet the system needs to be
 configured properly so the motors don't stall or lose steps.
 
-Most of this chapter is based on the sample config released along with
-LinuxCNC. The config is called stepper(((stepper))), and usually it is
-found in '/etc/emc2/sample-configs/stepper'.
+Most of this chapter is based on a sample config released along with
+LinuxCNC. The config is called stepper_inch, and can be found by running the
+<<cha:running-emc,Configuration Picker>>.
 
 == Maximum step rate
 

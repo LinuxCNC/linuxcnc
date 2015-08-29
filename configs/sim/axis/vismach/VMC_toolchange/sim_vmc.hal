@@ -1,0 +1,157 @@
+# HAL config file for vismach simulation of a VMC
+# This is quite a complex HAL file, and it is very unlikely any of it will be relevant to a real machine. 
+# All the HAL functions here are related to making the Vismach model look like a real machine to the other HAL files
+# ie, this creates things like limit switches which would be driven by real hardware on a real machine. 
+
+# load the vismach model
+loadusr -W ./vmcgui
+
+loadrt wcomp names=xlim,ylim,zlim,armsw,drawsw,locksw
+loadrt mux2 names=armpos,drawpos,lockpos,mux2.0
+loadrt mux4 names=cardir
+loadrt sum2 names=carpos,spindlepos
+loadrt limit2 names=armlim,drawlim,locklim,spindlelim
+
+addf xlim servo-thread
+addf ylim servo-thread
+addf zlim servo-thread 
+
+addf carpos servo-thread
+addf cardir servo-thread
+
+setp xlim.max 301
+setp xlim.min -301
+setp ylim.max 1
+setp ylim.min -201
+setp zlim.max 1
+setp zlim.min -401
+
+net x-pos-lim xlim.over
+net x-neg-lim xlim.under
+net y-pos-lim ylim.over
+net y-neg-lim ylim.under
+net z-pos-lim zlim.over
+net z-neg-lim zlim.under
+
+net x-pos xlim.in vmcgui.X
+net y-pos ylim.in vmcgui.Y
+net z-pos zlim.in vmcgui.Z
+
+#simulated arm
+setp vmcgui.arm -20
+addf armpos servo-thread
+addf armlim servo-thread
+addf armsw servo-thread
+setp armpos.in0 -20
+setp armpos.in1 5
+net arm-act armpos.sel
+net arm-set armpos.out armlim.in
+net arm-pos armlim.out armsw.in vmcgui.arm
+setp armlim.max 5
+setp armlim.min -20
+setp armlim.maxv 10
+setp armsw.max 4
+setp armsw.min -19
+net arm-out armsw.under
+net arm-in armsw.over
+
+#simulated carousel with 5 Gray-coded outputs
+setp cardir.in0 0
+setp cardir.in1 0.001
+setp cardir.in2 -0.001
+setp cardir.in3 0
+net car-fwd cardir.sel0
+net car-rev cardir.sel1
+net car-dir cardir.out carpos.in0
+net car-pos carpos.out carpos.in1 vmcgui.carousel
+loadrt conv_float_u32
+addf conv-float-u32.0 servo-thread
+net car-pos conv-float-u32.0.in 
+loadrt bin2gray
+addf bin2gray.0 servo-thread
+net sim-pocket-u conv-float-u32.0.out bin2gray.0.in
+loadrt bitslice personality=5
+addf bitslice.0 servo-thread
+net graycode bin2gray.0.out bitslice.0.in
+
+net bit0 bitslice.0.out-00
+net bit1 bitslice.0.out-01
+net bit2 bitslice.0.out-02
+net bit3 bitslice.0.out-03
+net bit4 bitslice.0.out-04
+
+# pulse and index output variant (untidy modmaths)
+loadrt conv_s32_float count=2
+loadrt conv_float_s32 count=3
+loadrt near count=3
+loadrt scale
+addf conv-s32-float.0 servo-thread
+addf conv-float-s32.0 servo-thread
+addf conv-s32-float.1 servo-thread
+addf conv-float-s32.1 servo-thread
+addf scale.0 servo-thread
+addf near.1 servo-thread
+addf near.2 servo-thread
+net car-pos conv-float-s32.0.in
+net car-pos-int conv-float-s32.0.out conv-s32-float.0.in
+net car-pos-float conv-s32-float.0.out near.1.in2
+net car-pos near.1.in1
+net pulse near.1.out
+setp near.1.difference 0.01
+setp scale.0.gain 0.1
+setp scale.0.offset -1 # to show-off index homing
+net car-pos scale.0.in
+net car-pos-div10 scale.0.out conv-float-s32.1.in
+net car-pos-div10-int conv-float-s32.1.out conv-s32-float.1.in
+net car-pos-div10-float conv-s32-float.1.out near.2.in2
+net car-pos-div10 near.2.in1
+net index near.2.out
+setp near.2.difference 0.009
+
+#simulated spindle
+addf spindlepos servo-thread
+addf spindlelim servo-thread
+setp spindlelim.max 1000
+setp spindlelim.min -1000
+setp spindlelim.maxv 100
+net spindle-cmd spindlelim.in
+net spindle-vel spindlelim.out spindlepos.in0
+setp spindlepos.gain0 .00001666
+setp spindlepos.in1 0
+net spindle-pos spindlepos.out spindlepos.in1 vmcgui.spindle
+
+#simulated drawbar
+setp vmcgui.drawbar 5
+addf drawpos servo-thread
+addf drawlim servo-thread
+addf drawsw servo-thread
+setp drawpos.in0 5
+setp drawpos.in1 0
+net tool-release drawpos.sel
+net draw-set drawpos.out drawlim.in
+setp drawlim.max 5
+setp drawlim.min 0
+setp drawlim.maxv 10
+net draw-pos drawlim.out drawsw.in vmcgui.drawbar
+setp drawsw.max 4
+setp drawsw.min 1
+net tool-locked drawsw.over
+net tool-released drawsw.under
+
+#simulated carousel lock
+setp vmcgui.lock 5
+addf lockpos servo-thread
+addf locklim servo-thread
+addf locksw servo-thread
+setp lockpos.in0 0
+setp lockpos.in1 5
+net car-lock lockpos.sel
+net lock-set lockpos.out locklim.in
+setp locklim.max 5
+setp locklim.min 0
+setp locklim.maxv 10
+net lock-pos locklim.out locksw.in vmcgui.lock
+setp locksw.max 4
+setp locksw.min 1
+net car-locked locksw.over
+net car-released locksw.under

@@ -1,6 +1,6 @@
-= Running LinuxCNC
-
 [[cha:running-emc]] (((Running LinuxCNC)))
+
+= Running LinuxCNC
 
 == Invoking LinuxCNC
 

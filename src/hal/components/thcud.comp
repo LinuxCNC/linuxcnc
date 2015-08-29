@@ -16,39 +16,51 @@ pass the Z position and feed back untouched.
 
 If not enabled pass the Z position and feed back untouched.
 
-Physical Connections typical
-paraport.0.pin-12-in <= THC controller Plasma Up 
-paraport.0.pin-13-in <= THC controller Plasma Down
-parport.0.pin-15-in  <= Plasma Torch Arc Ok Signal
-parport.0.pin-16-out => Plasma Torch Start Arc Contacts
+Typical Physical Connections using a Parallel Port
+.br
+Parallel Pin 12 <= THC controller Plasma Up
+.br
+Parallel Pin 13 <= THC controller Plasma Down
+.br
+Parallel Pin 15  <= Plasma Torch Arc Ok Signal
+.br
+Parallel Pin 16 => Plasma Torch Start Arc Contacts
 
 HAL Plasma Connections
-thc.torch-up <= paraport.0.pin-12-in
-thc.torch-down <= paraport.0.pin-13-in
-motion.spindle-on => parport.0.pin-16-out (start the arc)
-thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
+.br
+net torch-up thc.torch-up <= paraport.0.pin-12-in
+.br
+net torch-down thc.torch-down <= paraport.0.pin-13-in
+.br
+net torch-on motion.spindle-on => parport.0.pin-16-out (start the arc)
+.br
+net are-ok thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
 
 HAL Motion Connections
-thc.requested-vel <= motion.requested-vel
-thc.current-vel <= motion.current-vel
+.br
+net requested-vel thc.requested-vel <= motion.requested-vel
+.br
+net current-vel thc.current-vel <= motion.current-vel
 
 Pyvcp Connections
 In the xml file you need something like:
 
-<checkbutton>
-  <text>"THC Enable"</text>
-  <halpin>"thc-enable"</halpin>
-</checkbutton>
-<spinbox>
-  <width>"5"</width>
-  <halpin>"vel-tol"</halpin>
-  <min_>.01</min_>
-  <max_>1</max_>
-  <resolution>0.01</resolution>
-  <initval>0.2</initval>
-  <format>"1.2f"</format>
-  <font>("Arial",10)</font>
-</spinbox>
+  <pyvcp>
+  <checkbutton>
+    <text>"THC Enable"</text>
+    <halpin>"thc-enable"</halpin>
+  </checkbutton>
+  <spinbox>
+    <width>"5"</width>
+    <halpin>"vel-tol"</halpin>
+    <min_>.01</min_>
+    <max_>1</max_>
+    <resolution>0.01</resolution>
+    <initval>0.2</initval>
+    <format>"1.2f"</format>
+    <font>("Arial",10)</font>
+  </spinbox>
+  </pyvcp>
 
 Connect the Pyvcp pins in the postgui.hal file like this:
 
