@@ -106,6 +106,36 @@ or after running it's own code. In this way you can tack on extra behavior
 such as adding a sound. Please see the <<cha:glade-vcp,GladeVCP Chapter>> for
 the basics to GladeVCP handler files. Gscreen uses a very similar technique.
 
+.Themes
+
+Gscreen uses the PyGTK toolkit to display the screen.
+Pygtk is the Python language binding to GTK.
+GTK supports 'themes'.
+Themes are a way to modify the look and feel of the widgets on the screen.
+For instance the color or size of buttons and sliders can be changed using
+themes.
+There are many GTK2 themes available on the web.
+Themes can also be customized to modifiy visuals of particular named widgets.
+This ties the theme file to the glade file more tightly.
+Some of the sample screen skins allow the user to select any of the themes on 
+the system. The sample 'gscreen' is an example.
+Some will load the theme that is the same name in the config file. The sample 
+'gscreen-gaxis' is an example. This is done by putting the theme folder in the
+ config folder that has the INI and HAL files and naming it: SCREENNAME_theme
+(SCREENNAME being the base name of the files eg. gaxis_theme)
+Inside this folder is another folder call gtk-2.0, inside that is the theme 
+files. If you add this file, Gscreen will default to this theme on start up.
+gscreen-gaxis has a sample custom theme that looks for certain named widgets 
+and changes the visual behaivor of those specific widgets. The Estop and 
+machine-on buttons use different colors then the rest of the buttons so that
+they stand out. This is done in the handler file by giving them specific names
+an by adding specific commands in the theme's gtkrc file.
+For some info on GTK2 theming (The sample theme uses the pixmap theme engine) See:
+
+https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkThemes[GTK Themes]
+
+https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkEngines/PixmapEngine[Pixmap Theme Engine]
+
 === Build a GladeVCP Panel
 
 Gscreen is just a big complicated GladeVCP panel, with python code to control
