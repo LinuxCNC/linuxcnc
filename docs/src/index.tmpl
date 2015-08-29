@@ -7,7 +7,7 @@
 <title>LinuxCNC</title>
 <link rel="stylesheet" type="text/css" href="index.css" />
 <script type="text/javascript">
-
+//<![CDATA[
 var sections = [['sec0', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6',
    'sec7', 'sec8', 'sec9', 'sec10','sec11','sec12','sec13', 'sec14'],
    ['man_1', 'man_9','man_3hal', 'man_3rtapi', 'man_3hm2', 'man_3']];
@@ -38,9 +38,9 @@ function toggle(sec){
 }
 
 function toggle_section(a){
-  if (a.id === "doc"){var s = 0;}
-  if (a.id === "man"){var s = 1;}
-  if (a.value === "Expand Documents" || a.value === "Expand Man Pages"){
+  if (a.id.substring(0,3) === "doc"){var s = 0;}
+  if (a.id.substring(0,3) === "man"){var s = 1;}
+  if (a.value.substring(0,6) === "Expand"){
     for (var i in sections[s]){
       document.getElementById(sections[s][i]).style.display = 'block';
       document.getElementById(sections[s][i] + '_image').src = 'minus.png';
@@ -76,6 +76,7 @@ function setup_page(){
     }
   }
 }
+//]]>
 </script>
 </head>
 <body onload="return setup_page()">
@@ -96,8 +97,8 @@ function setup_page(){
 <a href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki Community</a>  *  
 <a href="gcode.html">G Code Quick Reference</a></p>
 </div>
-<p><input type="button" id="doc" value="Expand Documents" onclick="return toggle_section(this);"/>
-   <input type="button" id="doc" value="Collapse Documents" onclick="return toggle_section(this);"/></p>
+<p><input type="button" id="docExpand" value="Expand Documents" onclick="return toggle_section(this);"/>
+   <input type="button" id="docCollapse" value="Collapse Documents" onclick="return toggle_section(this);"/></p>
 <p><a onclick="return toggle('sec0')"><img id="sec0_image" src="plus.png" alt="plus" style="border:0; margin-right:5px; vertical-align:middle;"/>Getting Started with LinuxCNC</a></p>
 
 <div id="sec0">
@@ -291,5 +292,5 @@ into LinuxCNC.
 <div style="margin-top: 0em; margin-bottom: 1em; line-height: 150%">
 <p>For more information about man pages see the <a href="common/linux-faq.html">Linux FAQ</a></p>
 </div>
-<p><input type="button" id="man" value="Expand Man Pages" onclick="return toggle_section(this);"/>
-   <input type="button" id="man" value="Collapse Man Pages" onclick="return toggle_section(this);"/></p>
+<p><input type="button" id="manExpand" value="Expand Man Pages" onclick="return toggle_section(this);"/>
+   <input type="button" id="manCollapse" value="Collapse Man Pages" onclick="return toggle_section(this);"/></p>
