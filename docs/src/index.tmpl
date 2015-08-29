@@ -7,72 +7,78 @@
 <title>LinuxCNC</title>
 <link rel="stylesheet" type="text/css" href="index.css" />
 <script type="text/javascript">
-function toggle(a){
-var e=document.getElementById(a);
-var i = document.getElementById(a + '_image');
-if(!e)return true;
-if(e.style.display=="none"){
-e.style.display="block"
-i.src = 'minus.png';
-} else {
-e.style.display="none"
-i.src = 'plus.png';
-}
-return false;
-}
 
-function collapseall()
-{
-  expanddoc('Collapse Documents');
-  expandman('Collapse Man Pages');
+var sections = [['sec0', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6',
+   'sec7', 'sec8', 'sec9', 'sec10','sec11','sec12','sec13', 'sec14'],
+   ['man_1', 'man_9','man_3hal', 'man_3rtapi', 'man_3hm2', 'man_3']];
+
+function storeOK() { // Check for HTML5 Local Storage
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
 }
 
-function expanddoc(el)
-{
-  var sections = ['sec0', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6',
-                  'sec7', 'sec8', 'sec9', 'sec10','sec11','sec12','sec13',
-                  'sec14'];
-
-  if ( el.value === "Expand Documents" ){
-    el.value = "Collapse Documents";
-    for (var i in sections){
-      document.getElementById(sections[i]).style.display = 'block';
-      document.getElementById(sections[i] + '_image').src = 'minus.png';
-    }
+function toggle(sec){
+  var e = document.getElementById(sec);
+  var i = document.getElementById(sec + '_image');
+  if(!e)return true;
+  if(e.style.display=="none"){
+    e.style.display="block"
+    i.src = 'minus.png';
+    if (storeOK()){localStorage.setItem(sec, "block");}
   }
   else {
-    el.value = "Expand Documents";
-    for (var i in sections){
-      document.getElementById(sections[i]).style.display = 'none';
-      document.getElementById(sections[i] + '_image').src = 'plus.png';
+    e.style.display="none"
+    i.src = 'plus.png';
+    if (storeOK()){localStorage.setItem(sec, "none");}
+  }
+  return false;
+}
+
+function toggle_section(a){
+  if (a.id === "doc"){var s = 0;}
+  if (a.id === "man"){var s = 1;}
+  if (a.value === "Expand Documents" || a.value === "Expand Man Pages"){
+    for (var i in sections[s]){
+      document.getElementById(sections[s][i]).style.display = 'block';
+      document.getElementById(sections[s][i] + '_image').src = 'minus.png';
+      if (storeOK()){localStorage.setItem(sections[s][i], "block");}
+    }
+  }
+  else{
+    for (var i in sections[s]){
+      document.getElementById(sections[s][i]).style.display = 'none';
+      document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+      if (storeOK()){localStorage.setItem(sections[s][i], "none");}
     }
   }
 }
 
-function expandman(el)
-{
-  var sections = ['man_1', 'man_9','man_3hal', 'man_3rtapi',
-                  'man_3hm2', 'man_3'];
-
-  if ( el.value === "Expand Man Pages" ){
-    el.value = "Collapse Man Pages";
-    for (var i in sections){
-      document.getElementById(sections[i]).style.display = 'block';
-      document.getElementById(sections[i] + '_image').src = 'minus.png';
-    }
-  }
-  else {
-    el.value = "Expand Man Pages";
-    for (var i in sections){
-      document.getElementById(sections[i]).style.display = 'none';
-      document.getElementById(sections[i] + '_image').src = 'plus.png';
+function setup_page(){
+  for (var s in sections){
+    for (var i in sections[s]){
+      if (localStorage.getItem(sections[s][i]) != null){
+        if (localStorage.getItem(sections[s][i]) === "block"){
+          document.getElementById(sections[s][i]).style.display = 'block';
+          document.getElementById(sections[s][i] + '_image').src = 'minus.png';
+        }
+        else{
+          document.getElementById(sections[s][i]).style.display = 'none';
+          document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+        }
+      }
+      else{
+        document.getElementById(sections[s][i]).style.display = 'none';
+        document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+      }
     }
   }
 }
-
 </script>
 </head>
-<body onload="return collapseall()">
+<body onload="return setup_page()">
 
 <!-- Even though this template file will open in a browser do not open it in a browser it to test changes
      open the /html/index.html file in your browser after building the documents
@@ -90,7 +96,8 @@ function expandman(el)
 <a href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki Community</a>  *  
 <a href="gcode.html">G Code Quick Reference</a></p>
 </div>
-<p><input type="button" value="Expand Documents" onclick="return expanddoc(this);"/></p>
+<p><input type="button" id="doc" value="Expand Documents" onclick="return toggle_section(this);"/>
+   <input type="button" id="doc" value="Collapse Documents" onclick="return toggle_section(this);"/></p>
 <p><a onclick="return toggle('sec0')"><img id="sec0_image" src="plus.png" alt="plus" style="border:0; margin-right:5px; vertical-align:middle;"/>Getting Started with LinuxCNC</a></p>
 
 <div id="sec0">
@@ -284,4 +291,5 @@ into LinuxCNC.
 <div style="margin-top: 0em; margin-bottom: 1em; line-height: 150%">
 <p>For more information about man pages see the <a href="common/linux-faq.html">Linux FAQ</a></p>
 </div>
-<p><input type="button" value="Expand Man Pages" onclick="return expandman(this);"/></p>
+<p><input type="button" id="man" value="Expand Man Pages" onclick="return toggle_section(this);"/>
+   <input type="button" id="man" value="Collapse Man Pages" onclick="return toggle_section(this);"/></p>
