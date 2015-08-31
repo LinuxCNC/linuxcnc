@@ -12,7 +12,7 @@ from that point rather than having to take account of the location at
 which the casting or block will be held during the machining.
 
 This chapter introduces you to offsets as they are used by the LinuxCNC.
-These include;
+These include:
 
 * machine coordinates (G53) 
 * nine fixture offsets (G54-G59.3) 
