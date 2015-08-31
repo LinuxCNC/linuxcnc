@@ -173,7 +173,7 @@ the <return> or <enter> key on the keyboard.
 
 Some motion control commands are available and will cause the same
 changes in motion in all modes. These include 'abort',
-'estop', and 'feed rate override').
+'estop', and 'feed rate override'.
 Commands like these should be self explanatory.
 
 The AXIS user interface hides some of the distinctions between Auto
