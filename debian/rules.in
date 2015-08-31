@@ -106,7 +106,7 @@ binary-arch: build install
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app
-	dh_pysupport
+	@PYTHON_PACKAGING@
 	dh_makeshlibs
 	dh_installdeb
 	cat debian/@MAIN_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
