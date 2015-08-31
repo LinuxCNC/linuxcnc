@@ -27,6 +27,7 @@ from hal_meter import HAL_Meter
 from hal_gremlin import HAL_Gremlin
 from hal_graph import HAL_Graph
 from hal_lightbutton import HAL_LightButton
+from overridewidget import Override
 
 from jogwheel import JogWheel
 from hal_dial import Hal_Dial
