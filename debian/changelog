@@ -1,3 +1,47 @@
+linuxcnc (1:2.7.0) wheezy; urgency=low
+
+  * docs: add jessie rtpreempt install instructions
+  * docs: clean up Gscreen GUI docs and add to html and pdf
+  * docs: make the Hungarian translation of Gmoccapy stand out better
+  * docs: update the GFDL blurb
+  * docs: fix html validation errors
+  * docs: make the html docs remember what was open
+  * docs: fix typo in pyvcp example
+  * docs: add missing pyvcp parameter and misc clean up
+  * docs: remove note about 2.5.0
+  * docs: refresh Axis GUI screenshot
+  * docs: fix a copy/paste error in hy-vfd manpage
+  * docs: add hy-vfd HAL interface change to "Updating LinuxCNC" docs
+  * docs: remove tool tips from html landing page
+  * docs: fix html landing page for non-javascript browsers
+  * docs: fix expand/collapse in html docs
+  * docs: fix a broken link in Spanish Master Document
+  * docs: misc minor cleanups
+
+  * touchy: G64 now takes optional Q
+  * gscreen: add info about theme support to docs
+  * gscreen: add a local theme suited to touchscreens
+  * gscreen: add local theme capability
+  * gaxis: name some widgets so the theme can see them
+  * gaxis: use Override widgets for overrides
+  * gladevcp: add override slider widget
+  * add support for TCL halfiles in [HAL]POSTGUI_HALFILE ini settings
+
+  * hostmot2: remove pet_watchdog hal function, as per the prophecy
+  * hostmot2: change default dpll time constant to avoid
+    following errors from ntp
+
+  * thcud: fix manpage formatting
+  * thc component: add pin to show current offset
+
+  * latency-plot: don't depend on a specific wish interpreter
+
+  * packaging: switch to dh_python2 on Jessie and later
+  * packaging: libgnomeprintui2.2 is not available on Debian Jessie
+  * packaging: allow sample configs in /usr/share/doc/linuxcnc/examples to run
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 05 Sep 2015 14:15:27 -0600
+
 linuxcnc (1:2.7.0~pre7) wheezy; urgency=low
 
   * docs now use expanding/collapsing layout
