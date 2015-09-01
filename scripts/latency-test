@@ -71,12 +71,12 @@ EOF
 
 cat > lat.xml <<EOF
 <pyvcp>
-<title title="LinuxCNC / HAL Latency Test"/>
+<title title="Machinekit / HAL Latency Test"/>
 <axisoptions/>
 <table>
 <tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
 <text>
-"""Let this test run for a few minutes, then note the maximum Jitter.  You will use it while configuring linuxcnc.
+"""Let this test run for a few minutes, then note the maximum Jitter.  You will use it while configuring machinekit.
 
 While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
 </text>
@@ -116,12 +116,12 @@ EOF
 
 cat > lat.xml <<EOF
 <pyvcp>
-<title title="LinuxCNC / HAL Latency Test"/>
+<title title="Machinekit / HAL Latency Test"/>
 <axisoptions/>
 <table>
 <tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
 <text>
-"""Let this test run for a few minutes, then note the maximum Jitter.  You will use it while configuring linuxcnc.
+"""Let this test run for a few minutes, then note the maximum Jitter.  You will use it while configuring machinekit.
 
 While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
 </text>
