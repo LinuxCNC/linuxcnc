@@ -61,7 +61,7 @@ net y2pos-cmd gantry.0.joint.01.pos-cmd => hpg.stepgen.02.position-cmd
 net y2pos-fb  gantry.0.joint.01.pos-fb  <= hpg.stepgen.02.position-fb
 net ypos-cmd  gantry.0.position-cmd     <= axis.1.motor-pos-cmd
 net ypos-fb   gantry.0.position-fb      => axis.1.motor-pos-fb
-net yenable axis.1.amp-enable-out => hpg.stepgen.01.enable [PRUCONF](DRIVER).stepgen.02.enable
+net yenable axis.1.amp-enable-out => hpg.stepgen.01.enable hpg.stepgen.02.enable
 setp gantry.0.search-vel [AXIS_1]HOME_SEARCH_VEL
 
 # y1-axis
