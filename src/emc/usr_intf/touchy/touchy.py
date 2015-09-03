@@ -836,6 +836,9 @@ if __name__ == "__main__":
 	postgui_halfile,inifile = touchy.postgui(hwg)
 	print "TOUCHY postgui filename:",postgui_halfile
 	if postgui_halfile:
-		res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
+		if postgui_halfile.lower().endswith('.tcl'):
+			res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",inifile, postgui_halfile])
+		else
+			res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
 		if res: raise SystemExit, res
 	gtk.main()
