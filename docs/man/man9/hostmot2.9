@@ -268,10 +268,14 @@ Indicates the phase eror of the DPLL. If the number cycles by a large amount
 it is likely that the PLL has failed to achieve lock and adjustments will need
 to be made. 
 .TP
-(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.time-const"
-The filter time-constant for the PLL. Default 40960 (0xA000)
+(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.time-const
+The filter time-constant for the PLL.  The default value is a compromise
+between insensitivity to single-cycle variations and being resilient to changes
+to the Linux CLOCK_MONOTONIC timescale, which can instantly change by up to
+±500ppm from its nominal value, usually by timekeeping software like ntpd and
+ntpdate. Default 2000 (0x7d0)
 .TP
-(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.plimit"
+(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.plimit
 Sets the phase adjustment limit of the PLL. If the value is zero then the PLL
 will free-run at the base frequency independent of the servo thread rate. This
 is probably not what you want. Default 4194304 (0x400000) Units not known...
