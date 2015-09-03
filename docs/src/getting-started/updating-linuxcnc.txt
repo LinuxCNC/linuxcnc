@@ -138,8 +138,7 @@ require changes to your machine configuration.
 === Hostmot2 Watchdog
 
 The Hostmot2 watchdog now gets handled by the hm2 `write` Hal function.
-There is no longer any need to run the hm2 `pet-watchdog` Hal function.
-The `pet-watchdog` function will be removed before the 2.7.0 release.
+Remove any `addf` lines that refer to the `pet_watchdog` function.
 
 === Hostmot2 dpll
 
