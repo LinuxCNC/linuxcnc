@@ -1523,7 +1523,7 @@ $(sort $(RTDEPS)): $(DEPDIR)/%.d: %.c
 		$(DEBUG) $(EXTRA_CFLAGS) $<)
 
 # Rules to make .o (object) files
-$(sort $(RTOBJS)) : $(OBJDIR)/%.o : %.c
+$(sort $(RTOBJS)) : $(OBJDIR)/%.o : %.c $(DEPDIR)/%.d
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
