@@ -1,3 +1,6 @@
+TODO: announce new version
+- add filetype check for postgui_halfile (based on file ending)
+
 ver. 1.5.5
 - gmoccapy will take notice of the settings 
   "DISPLAY", "POSITION_FEEDBACK" in the INI File and 
