@@ -22,7 +22,7 @@ TEST_PATTERN=0
 while [ ! -z "${Error[$TEST_PATTERN]}" ]; do
     export TEST_PATTERN
     halrun -f broken-load-test.hal >halrun-stdout 2>halrun-stderr
-    ./check-dmesg "${Error[$TEST_PATTERN]}" || result=$?
+    ./check-dmesg "${Error[$TEST_PATTERN]}" || exit $?
     TEST_PATTERN=$(($TEST_PATTERN+1))
 done
 
