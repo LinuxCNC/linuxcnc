@@ -553,7 +553,8 @@ int emcSetupArcBlends(int arcBlendEnable,
         int arcBlendFallbackEnable,
         int arcBlendOptDepth,
         int arcBlendGapCycles,
-        double arcBlendRampFreq);
+        double arcBlendRampFreq,
+        double arcBlendTangentKinkRatio);
 
 extern int emcUpdate(EMC_STAT * stat);
 // full EMC status

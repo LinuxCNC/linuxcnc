@@ -1558,7 +1558,8 @@ int emcSetupArcBlends(int arcBlendEnable,
         int arcBlendFallbackEnable,
         int arcBlendOptDepth,
         int arcBlendGapCycles,
-        double arcBlendRampFreq) {
+        double arcBlendRampFreq,
+        double arcBlendTangentKinkRatio) {
 
     emcmotCommand.command = EMCMOT_SETUP_ARC_BLENDS;
     emcmotCommand.arcBlendEnable = arcBlendEnable;
@@ -1566,6 +1567,7 @@ int emcSetupArcBlends(int arcBlendEnable,
     emcmotCommand.arcBlendOptDepth = arcBlendOptDepth;
     emcmotCommand.arcBlendGapCycles = arcBlendGapCycles;
     emcmotCommand.arcBlendRampFreq = arcBlendRampFreq;
+    emcmotCommand.arcBlendTangentKinkRatio = arcBlendTangentKinkRatio;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

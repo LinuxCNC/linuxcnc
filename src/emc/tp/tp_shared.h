@@ -2,6 +2,7 @@
 #define _TP_SHARED_H
 
 #include "hal.h"
+#include "rtapi_math.h"
 #include "emcpose.h"
 
 typedef void (*emcmotDioWrite_t)(unsigned int index, hal_bit_t   value);
@@ -27,6 +28,7 @@ typedef struct tp_shared_t {
     hal_bit_t   *arcBlendEnable;
     hal_float_t *arcBlendRampFreq;
     hal_bit_t   *arcBlendFallbackEnable;
+    hal_float_t *arcBlendTangentKinkRatio;
     hal_float_t *maxFeedScale;
     hal_float_t *net_feed_scale;
 
@@ -135,6 +137,13 @@ static inline hal_float_t get_arcBlendRampFreq(tp_shared_t *ts)
 { return *(ts->arcBlendRampFreq); }
 static inline void set_arcBlendRampFreq(tp_shared_t *ts, hal_float_t n)
 { *(ts->arcBlendRampFreq) = n; }
+
+static inline hal_float_t get_arcBlendTangentKinkRatio(tp_shared_t *ts)
+{ 
+    const double max_ratio = 0.7071;
+    const double min_ratio = 0.001;
+    return rtapi_fmax(rtapi_fmin(*(ts->arcBlendTangentKinkRatio), max_ratio), min_ratio);
+}
 
 static inline void dioWrite(tp_shared_t *ts, unsigned int index, char value)
 { if (ts->dioWrite) ts->dioWrite(index, value); }

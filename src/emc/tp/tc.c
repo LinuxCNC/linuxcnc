@@ -552,6 +552,8 @@ int tcSetupMotion(TC_STRUCT * const tc,
     tc->reqvel = vel;
     // Initial guess at target velocity is just the requested velocity
     tc->target_vel = vel;
+    // To be filled in by tangent calculation, negative = invalid (KLUDGE)
+    tc->kink_vel = -1.0;
 
     return TP_ERR_OK;
 }
@@ -642,7 +644,6 @@ int tcFinalizeLength(TC_STRUCT * const tc)
 {
     //Apply velocity corrections
     if (!tc) {
-        tp_debug_print("Missing prev_tc in finalize!\n");
         return TP_ERR_FAIL;
     }
 
@@ -659,7 +660,26 @@ int tcFinalizeLength(TC_STRUCT * const tc)
     if (tc->motion_type == TC_CIRCULAR) {
         tc->maxvel = pmCircleActualMaxVel(&tc->coords.circle.xyz, tc->maxvel, tc->maxaccel, parabolic);
     }
+
+    tcClampVelocityByLength(tc);
+
     tc->finalized = 1;
+    return TP_ERR_OK;
+}
+
+
+int tcClampVelocityByLength(TC_STRUCT * const tc)
+{
+    //Apply velocity corrections
+    if (!tc) {
+        return TP_ERR_FAIL;
+    }
+
+    //Reduce max velocity to match sample rate
+    //Assume that cycle time is valid here
+    double sample_maxvel = tc->target / tc->cycle_time;
+    tp_debug_print("sample_maxvel = %f\n",sample_maxvel);
+    tc->maxvel = rtapi_fmin(tc->maxvel, sample_maxvel);
     return TP_ERR_OK;
 }
 
