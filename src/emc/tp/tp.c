@@ -1512,8 +1512,7 @@ STATIC blend_type_t tpCheckBlendArcType(TP_STRUCT const * const tp,
  * acceleration) will speed up and slow down to reach their target velocity,
  * creating "humps" in the velocity profile.
  */
-STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp,
-        TC_STRUCT const * const tc,
+STATIC int tpComputeOptimalVelocity(TC_STRUCT const * const tc,
         TC_STRUCT * const prev1_tc)
 {
     //Calculate the maximum starting velocity vs_back of segment tc, given the
@@ -1639,7 +1638,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             prev1_tc->finalvel = fmin(prev1_tc->maxvel, tpCalculateOptimizationInitialVel(tp,tc));
             tc->finalvel = 0.0;
         } else {
-            tpComputeOptimalVelocity(tp, tc, prev1_tc);
+            tpComputeOptimalVelocity(tc, prev1_tc);
         }
 
         tc->active_depth = x - 2 - hit_peaks;
