@@ -305,7 +305,7 @@ void emcmotController(void *arg, long period)
 static void process_inputs(void)
 {
     int joint_num, spindle_num;
-    double abs_ferror, tmp, scale;
+    double abs_ferror, scale;
     joint_hal_t *joint_data;
     emcmot_joint_t *joint;
     unsigned char enables;
@@ -337,29 +337,33 @@ static void process_inputs(void)
         }
     }
     if ( enables & AF_ENABLED ) {
-	/* read and clamp (0.0 to 1.0) adaptive feed HAL pin */
-	tmp = *emcmot_hal_data->adaptive_feed;
-
-    // Clip range to +/- 1.0
-	if ( tmp > 1.0 ) {
-	    tmp = 1.0;
-	} else if (tmp < -1.0) {
-        tmp = -1.0;
-    }
-
-    // Handle case of negative adaptive feed
-    if ( tmp < 0.0 && emcmotDebug->coord_tp.reverse_run == TC_DIR_FORWARD) {
-        // User commands feed in reverse direction, but we're not running in reverse yet
-        tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_REVERSE);
-	    tmp = 0.0;
-	} else if (tmp > 0.0 && emcmotDebug->coord_tp.reverse_run == TC_DIR_REVERSE ) {
-        // User commands feed in forward direction, but we're running in reverse
-        tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_FORWARD);
-	    tmp = 0.0;
-    }
-    //Otherwise, if direction and sign match, we're ok
-
-	scale *= tmp;
+        /* read and clamp adaptive feed HAL pin */
+        double adaptive_feed_in = *emcmot_hal_data->adaptive_feed;
+        // Clip range to +/- 1.0
+        if ( adaptive_feed_in > 1.0 ) {
+            adaptive_feed_in = 1.0;
+        } else if (adaptive_feed_in < -1.0) {
+            adaptive_feed_in = -1.0;
+        }
+        // Handle case of negative adaptive feed
+        // Actual scale factor is always positive by default
+        double adaptive_feed_out = fabs(adaptive_feed_in);
+        // Case 1: positive to negative direction change
+        if ( adaptive_feed_in < 0.0 && emcmotDebug->coord_tp.reverse_run == TC_DIR_FORWARD) {
+            // User commands feed in reverse direction, but we're not running in reverse yet
+            if (tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_REVERSE) != TP_ERR_OK) {
+                // Need to decelerate to a stop first
+                adaptive_feed_out = 0.0;
+            }
+        } else if (adaptive_feed_in > 0.0 && emcmotDebug->coord_tp.reverse_run == TC_DIR_REVERSE ) {
+            // User commands feed in forward direction, but we're running in reverse
+            if (tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_FORWARD) != TP_ERR_OK) {
+                // Need to decelerate to a stop first
+                adaptive_feed_out = 0.0;
+            }
+        }
+        //Otherwise, if direction and sign match, we're ok
+        scale *= adaptive_feed_out;
     }
     if ( enables & FH_ENABLED ) {
 	/* read feed hold HAL pin */
