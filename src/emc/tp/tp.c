@@ -307,8 +307,7 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
     tc_debug_print("v_target_next = %f\n",v_target_next);
     // Limit final velocity to minimum of this and next target velocities
     double v_target = fmin(v_target_this, v_target_next);
-    double finalvel = fmin(tc->finalvel, v_target);
-    return finalvel;
+    return fmin(tc->finalvel, v_target);
 }
 
 /**
