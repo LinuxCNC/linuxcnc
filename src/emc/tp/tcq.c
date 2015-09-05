@@ -171,7 +171,7 @@ int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
     return 0;
 }
 
-#define TCQ_REVERSE_MARGIN 20
+#define TCQ_REVERSE_MARGIN 100
 
 int tcqPop(TC_QUEUE_STRUCT * const tcq)
 {
