@@ -62,7 +62,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp);
 
 STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, int inc_id);
 
-STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc);
+STATIC inline double tcGetMaxTargetVel(TC_STRUCT const * const tc, double vLimit);
 
 STATIC int tpAdjustAccelForTangent(TP_STRUCT const * const,
         TC_STRUCT * const tc,
@@ -220,14 +220,14 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
     /*tc_debug_print("Initial v_target = %f\n",v_target);*/
 
     // Get the maximum allowed target velocity, and make sure we're below it
-    return fmin(v_target * tpGetFeedScale(tp,tc), tpGetMaxTargetVel(tp, tc));
+    return fmin(v_target * tpGetFeedScale(tp,tc), tcGetMaxTargetVel(tc, tp->vLimit));
 }
 
 
 /**
  * Get the worst-case target velocity for a segment based on the trajectory planner state.
  */
-STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc)
+STATIC inline double tcGetMaxTargetVel(TC_STRUCT const * const tc, double vLimit)
 {
     double max_scale = emcmotConfig->maxFeedScale;
     if (tc->is_blending) {
@@ -246,7 +246,7 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
      */
     if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
         /*tc_debug_print("Cartesian velocity limit active\n");*/
-        v_max_target = fmin(v_max_target,tp->vLimit);
+        v_max_target = fmin(v_max_target, vLimit);
     }
 
     // Clip maximum velocity by the segment's own maximum velocity
@@ -646,11 +646,11 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
 
 
 /**
- * Find the "peak" velocity a segment can acheive if its velocity profile is triangular.
+ * Find the "peak" velocity a segment can achieve if its velocity profile is triangular.
  * This is used to estimate blend velocity, though by itself is not enough
  * (since requested velocity and max velocity could be lower).
  */
-STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+STATIC double tcCalculateTriangleVel(TC_STRUCT * const tc) {
     //Compute peak velocity for blend calculations
     double acc_scaled = tcGetScaledAccel(tc);
     double length = tc->target;
@@ -678,7 +678,7 @@ STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_S
     double acc_scaled = tcGetScaledAccel(tc);
     //FIXME this is defined in two places!
     double triangle_vel = pmSqrt( acc_scaled * tc->target * BLEND_DIST_FRACTION);
-    double max_vel = tpGetMaxTargetVel(tp, tc);
+    double max_vel = tcGetMaxTargetVel(tc, tp->vLimit);
     tp_debug_print("optimization initial vel for segment %d is %f\n", tc->id, triangle_vel);
     return fmin(triangle_vel, max_vel);
 }
@@ -2047,8 +2047,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
     target_vel_this = tpGetRealTargetVel(tp, tc);
     target_vel_next = tpGetRealTargetVel(tp, nexttc);
 
-    double v_reachable_this = fmin(tpCalculateTriangleVel(tp,tc), target_vel_this);
-    double v_reachable_next = fmin(tpCalculateTriangleVel(tp,nexttc), target_vel_next);
+    double v_reachable_this = fmin(tcCalculateTriangleVel(tc), target_vel_this);
+    double v_reachable_next = fmin(tcCalculateTriangleVel(nexttc), target_vel_next);
 
     /* Compute the maximum allowed blend time for each segment.
      * This corresponds to the minimum acceleration that will just barely reach
