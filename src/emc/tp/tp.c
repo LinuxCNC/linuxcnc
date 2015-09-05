@@ -3386,6 +3386,11 @@ int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned cha
 
 int tpSetRunDir(TP_STRUCT * const tp, tc_direction_t dir)
 {
+    // Can't change direction while moving
+    if (tpIsMoving(tp)) {
+        return TP_ERR_FAIL;
+    }
+
     switch (dir) {
         case TC_DIR_FORWARD:
         case TC_DIR_REVERSE:
