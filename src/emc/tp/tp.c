@@ -278,15 +278,13 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
     tc_debug_print("v_target_next = %f\n",v_target_next);
     // Limit final velocity to minimum of this and next target velocities
     double v_target = fmin(v_target_this, v_target_next);
-    double finalvel = fmin(tc->finalvel, v_target);
-    return finalvel;
+    return fmin(tc->finalvel, v_target);
 }
 
 /**
  * Get acceleration for a tc based on the trajectory planner state.
  */
-STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp,
-        TC_STRUCT const * const tc) {
+STATIC inline double tcGetScaledAccel(TC_STRUCT const * const tc) {
     double a_scale = tc->maxaccel;
     /* Parabolic blending conditions: If the next segment or previous segment
      * has a parabolic blend with this one, acceleration is scaled down by 1/2
@@ -654,7 +652,7 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
  */
 STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     //Compute peak velocity for blend calculations
-    double acc_scaled = tpGetScaledAccel(tp, tc);
+    double acc_scaled = tcGetScaledAccel(tc);
     double length = tc->target;
     if (!tc->finalized) {
         // blending may remove up to 1/2 of the segment
@@ -677,7 +675,7 @@ STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * con
  */
 STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 {
-    double acc_scaled = tpGetScaledAccel(tp, tc);
+    double acc_scaled = tcGetScaledAccel(tc);
     //FIXME this is defined in two places!
     double triangle_vel = pmSqrt( acc_scaled * tc->target * BLEND_DIST_FRACTION);
     double max_vel = tpGetMaxTargetVel(tp, tc);
@@ -1520,7 +1518,7 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp,
 {
     //Calculate the maximum starting velocity vs_back of segment tc, given the
     //trajectory parameters
-    double acc_this = tpGetScaledAccel(tp, tc);
+    double acc_this = tcGetScaledAccel(tc);
 
     // Find the reachable velocity of tc, moving backwards in time
     double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
@@ -2040,8 +2038,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
         return TP_ERR_NO_ACTION;
     }
 
-    double acc_this = tpGetScaledAccel(tp, tc);
-    double acc_next = tpGetScaledAccel(tp, nexttc);
+    double acc_this = tcGetScaledAccel(tc);
+    double acc_next = tcGetScaledAccel(nexttc);
 
     // cap the blend velocity at the current requested speed (factoring in feed override)
     double target_vel_this;
@@ -2198,7 +2196,7 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
 
     /* Calculations for desired velocity based on trapezoidal profile */
     double dx = tcGetDistanceToGo(tc, tp->reverse_run);
-    double maxaccel = tpGetScaledAccel(tp, tc);
+    double maxaccel = tcGetScaledAccel(tc);
 
     double discr_term1 = pmSq(tc_finalvel);
     double discr_term2 = maxaccel * (2.0 * dx - tc->currentvel * tc->cycle_time);
@@ -2276,7 +2274,7 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
     double acc_final = dv / dt;
 
     // Saturate estimated acceleration against maximum allowed by segment
-    double acc_max = tpGetScaledAccel(tp, tc);
+    double acc_max = tcGetScaledAccel(tc);
 
     // Output acceleration and velocity for position update
     *acc = saturate(acc_final, acc_max);
@@ -2790,7 +2788,7 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         double errorvel;
         spindle_vel = (tp->spindle.revs - oldrevs) / tp->cycleTime;
         target_vel = spindle_vel * tc->uu_per_rev;
-        errorvel = pmSqrt(fabs(pos_error) * tpGetScaledAccel(tp,tc));
+        errorvel = pmSqrt(fabs(pos_error) * tcGetScaledAccel(tc));
         if(pos_error<0) {
             errorvel *= -1.0;
         }
@@ -3002,7 +3000,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
 
     //If this is a valid acceleration, then we're done. If not, then we solve
     //for v_f and dt given the max acceleration allowed.
-    double a_max = tpGetScaledAccel(tp,tc);
+    double a_max = tcGetScaledAccel(tc);
 
     //If we exceed the maximum acceleration, then the dt estimate is too small.
     double a = a_f;
