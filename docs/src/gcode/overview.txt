@@ -1173,6 +1173,7 @@ position of each item on the line, but by the following list:
 * Stop (M0, M1, M2, M30, M60).
 
 (((G Code Best Practices)))
+
 == G Code Best Practices
 
 === Use an appropriate decimal precision
