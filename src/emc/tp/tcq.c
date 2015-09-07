@@ -45,20 +45,14 @@ static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)
  */
 int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size, TC_STRUCT * const tcSpace)
 {
-    if (_size <= 0 || 0 == tcq) {
-	return -1;
-    } else {
+    if (!tcq || !tcSpace || _size < 1) {
+        return -1;
+    }
 	tcq->queue = tcSpace;
 	tcq->size = _size;
-	tcq->_len = 0;
-	tcq->start = tcq->end = 0;
-	tcq->allFull = 0;
+    tcqInit(tcq);
 
-	if (0 == tcq->queue) {
-	    return -1;
-	}
 	return 0;
-    }
 }
 
 /*! tcqDelete() function
@@ -103,6 +97,7 @@ int tcqInit(TC_QUEUE_STRUCT * const tcq)
     tcq->_len = 0;
     tcq->start = tcq->end = 0;
     tcq->rend = 0;
+    tcq->_rlen = 0;
     tcq->allFull = 0;
 
     return 0;
