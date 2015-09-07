@@ -1101,6 +1101,8 @@ are replaced by the value of the named parameter. Named parameters
 will have white space removed from them. So, '\#<named parameter>'
 will be converted to '#<namedparameter>'.
 
+[[sec:file-requirements]]
+
 == File Requirements
 
 A G code file must contain one or more lines of G code and be terminated
@@ -1111,6 +1113,13 @@ If a program end code is not used a pair of percent signs '%' with the first
 percent sign on the first line of the file followed by one or more lines of
 G code and a second percent sign. Any code past the second percent sign is not
 evaluated.
+
+[WARNING]
+Using % to wrap a G code file will not do the same thing as using a program
+end. The machine will be in what ever state the program left it in using %,
+the spindle and coolant may still be on and things like G90/91 are left as the
+last program set them. If you don't use a proper preamble the next program
+could start in a dangerous condition.
 
 [NOTE]
 The file must be created with a text editor like Gedit and not a word
