@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=
 Encoding=UTF-8
-Name=LinuxCNC Integrator Manual (French)
+Name=French Integrator Manual
 Type=Application
 Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Integrator_Manual_fr.pdf
-Icon=gnome-help
+Icon=linuxcncicon
 X-GNOME-DocPath=
 Terminal=false
-Comment=Advanced configuration hints (French)
+Comment=Configuration Information 
 StartupNotify=false
 Categories=X-CNC;
 GenericName[en_US]=
