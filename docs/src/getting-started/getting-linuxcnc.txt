@@ -62,13 +62,15 @@ https://www.assembla.com/spaces/zsync-windows/documents
 
 === Verify the image
 
+(This step is unnecessary if you used zsync)
+
 After downloading, verify the checksum of the image to ensure integrity.
 In a terminal, run `md5sum linuxcnc-2.7-wheezy.iso` or `sha256sum
 linuxcnc-2.7-wheezy.iso`, and compare to these checksums:
 
 -----
-md5sum: 3aa031895ac74a81d0639b09cd812c22
-sha256sum: c47d8c8432b710f0c28f6b98389af6ad4c429d024501335e95a2646a894f45e9
+md5sum: 978ca074c51194e72f93e8c8d7110cfa
+sha256sum: a3c29850cbc44da7b1ecdbe584a915f158c0b84428acfbcf3271df85c24e34aa
 -----
 
 .Verify md5sum on Windows or Mac
