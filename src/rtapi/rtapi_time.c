@@ -26,11 +26,7 @@
 #include "rtapi_common.h"	// these functions
 
 #ifndef MODULE  // kernel threads systems have own timer functions
-#  ifdef RTAPI
 #    include <time.h>		// clock_getres(), clock_gettime()
-#  else  /* ULAPI */
-#    include <sys/time.h>	// gettimeofday()
-#  endif /* RTAPI */
 #endif
 
 
@@ -162,22 +158,12 @@ long long int _rtapi_get_time_hook(void);
 long long int _rtapi_get_time(void) {
     return _rtapi_get_time_hook();
 }
-#elif defined(RTAPI)
+#else
 long long int _rtapi_get_time(void) {
 
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return ts.tv_sec * 1000000000LL + ts.tv_nsec;
-}
-
-#else /* ULAPI */
-long long _rtapi_get_time(void)
-{
-	struct timeval tv;
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"ulapi get_time\n");
-	gettimeofday(&tv, 0);
-	return tv.tv_sec * 1000000000LL + tv.tv_usec * 1000;
 }
 #endif /* HAVE_RTAPI_GET_TIME_HOOK */
 
