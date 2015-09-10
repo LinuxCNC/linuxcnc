@@ -20,10 +20,11 @@
 
 #ifdef __KERNEL__
 #include <asm/io.h>
-#else
+#elif defined(__i386) || defined(__x86_64)
 #include <sys/io.h>
 #endif
 
+#if defined(__i386) || defined(__x86_64)
 #define rtapi_inb inb
 #define rtapi_inw inw
 #define rtapi_inl inl
@@ -31,5 +32,13 @@
 #define rtapi_outb outb
 #define rtapi_outw outw
 #define rtapi_outl outl
+#else
+#define rtapi_inb(x) (0)
+#define rtapi_inw(x) (0)
+#define rtapi_inl(x) (0)
+#define rtapi_outb(x,y) ((void)0)
+#define rtapi_outw(x,y) ((void)0)
+#define rtapi_outl(x,y) ((void)0)
+#endif
 
 #endif

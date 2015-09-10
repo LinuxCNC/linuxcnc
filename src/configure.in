@@ -1120,6 +1120,8 @@ AH_TOP([/********************************************************************
 #define INCH_PER_MM (1.0/25.4)
 ])
 
+AC_CHECK_HEADERS([sys/io.h])
+
 AH_VERBATIM([_GNU_SOURCE],
 [/* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE

@@ -15,6 +15,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "config.h"
+
 #include <sys/fsuid.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -35,7 +37,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
+#endif
 #include <sys/resource.h>
 #include <sys/mman.h>
 #include <malloc.h>
@@ -933,12 +937,18 @@ void Posix::wait() {
 
 unsigned char Posix::do_inb(unsigned int port)
 {
+#ifdef HAVE_SYS_IO_H
     return inb(port);
+#else
+    return 0;
+#endif
 }
 
 void Posix::do_outb(unsigned char val, unsigned int port)
 {
+#ifdef HAVE_SYS_IO_H
     return outb(val, port);
+#endif
 }
 
 int rtapi_prio_highest(void)
