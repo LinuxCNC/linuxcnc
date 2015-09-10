@@ -62,13 +62,15 @@ https://www.assembla.com/spaces/zsync-windows/documents
 
 === Verify the image
 
+(This step is unnecessary if you used zsync)
+
 After downloading, verify the checksum of the image to ensure integrity.
 In a terminal, run `md5sum linuxcnc-2.7-wheezy.iso` or `sha256sum
 linuxcnc-2.7-wheezy.iso`, and compare to these checksums:
 
 -----
-md5sum: 3aa031895ac74a81d0639b09cd812c22
-sha256sum: c47d8c8432b710f0c28f6b98389af6ad4c429d024501335e95a2646a894f45e9
+md5sum: 978ca074c51194e72f93e8c8d7110cfa
+sha256sum: a3c29850cbc44da7b1ecdbe584a915f158c0b84428acfbcf3271df85c24e34aa
 -----
 
 .Verify md5sum on Windows or Mac
@@ -165,6 +167,8 @@ kernel flavors, etc), new installs are supported on following platforms:
 [options="header"]
 |===================================================================
 | Distribution   | Architecture | kernel     | Typical use
+| Debian Jessie  | amd64 & i386 | Preempt-RT | machine control & simulation
+| Debian Jessie  | amd64 & i386 | vanilla    | simulation only
 | Debian Wheezy  | i386         | RTAI       | machine control & simulation
 | Debian Wheezy  | amd64 & i386 | Preempt-RT | machine control & simulation
 | Debian Wheezy  | amd64 & i386 | vanilla    | simulation only
@@ -181,32 +185,33 @@ debian archive.  The apt source is:
 * Ubuntu Precise: `deb http://linuxcnc.org precise base`
 * Ubuntu Lucid: `deb http://linuxcnc.org lucid base`
 
-The Preempt-RT kernels are available from the regular debian.org archive,
-as part of Debian Wheezy.  No special apt source is needed.  The packages
-are called `linux-image-rt-amd64` and `linux-image-rt-686-pae`.
+The Preempt-RT kernels are available for Debian Wheezy from the
+regular debian.org archive, and for Debian Jessie from the debian.org
+jessie-backports archive.  The packages are called `linux-image-rt-amd64`
+and `linux-image-rt-686-pae`.
 
 
-=== Installing on Debian Wheezy (with Preempt-RT kernel)
+=== Installing on Debian Wheezy and Debian Jessie (with Preempt-RT kernel)
 
-* Install Debian Wheezy (Debian version 7), either i386 or amd64.
-  You can download the installer here:
-  https://www.debian.org/CD/http-ftp/#stable
+* Install Debian Wheezy (Debian version 7) or Debian Jessie (Debian version 8),
+  either i386 or amd64.  You can download the installer here:
+  https://www.debian.org/releases/
 
 * Run `sudo apt-get update` followed by `sudo apt-get dist-upgrade` to
-  bring the machine up to date with the latest packages in Debian Wheezy.
+  bring the machine up to date with the latest packages.
 
 * Install the Preempt-RT kernel and modules by running: `sudo
   apt-get install linux-image-rt-amd64` or `sudo apt-get install
   linux-image-rt-686-pae`.
 
 * Reboot, and make sure you boot into the Preempt-RT kernel. When you
-  log in, verify that `uname -r` says 3.2.0-4-rt-686-pae.
+  log in, verify that `uname -v` includes `PREEMPT` and `RT`.
 
 * Add the LinuxCNC Archive Signing Key to your apt keyring by running
   `sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 8f374fef`
 
 * Add a new apt source that looks like this: `deb http://linuxcnc.org/
-  wheezy base 2.7-uspace`
+  wheezy base 2.7-uspace` or `deb http://linuxcnc.org/ jessie base 2.7-uspace`
 
 * Run `sudo apt-get update` again to fetch the package list from
   linuxcnc.org.
@@ -214,6 +219,7 @@ are called `linux-image-rt-amd64` and `linux-image-rt-686-pae`.
 * Run `sudo apt-get install linuxcnc-uspace`.
 
 * Machine away!
+
 
 === Installing on Ubuntu Precise
 

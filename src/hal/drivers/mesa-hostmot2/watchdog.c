@@ -30,21 +30,6 @@
 
 
 
-// this is the function exported to HAL
-// it keeps the watchdog from biting us for a while
-static void hm2_pet_watchdog(void *void_hm2, long period_ns) {
-    hostmot2_t *hm2 = void_hm2;
-    static int print_warning = 1;
-
-    if (print_warning) {
-        HM2_PRINT("The hm2 pet_watchdog function is no longer needed.\n");
-        HM2_PRINT("It will be removed before LinuxCNC 2.7.\n");
-        HM2_PRINT("The hm2 write function now pets the watchdog.\n");
-        print_warning = 0;
-    }
-}
-
-
 void hm2_watchdog_process_tram_read(hostmot2_t *hm2) {
     // if there is no watchdog, then there's nothing to do
     if (hm2->watchdog.num_instances == 0) return;
@@ -178,21 +163,6 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
         r = -EINVAL;
         goto fail1;
     }
-
-
-    // the function
-    {
-        char name[HAL_NAME_LEN + 1];
-
-        rtapi_snprintf(name, sizeof(name), "%s.pet_watchdog", hm2->llio->name);
-        r = hal_export_funct(name, hm2_pet_watchdog, hm2, 0, 0, hm2->llio->comp_id);
-        if (r != 0) {
-            HM2_ERR("error %d exporting pet_watchdog function %s\n", r, name);
-            r = -EINVAL;
-            goto fail1;
-        }
-    }
-
 
     //
     // initialize the watchdog

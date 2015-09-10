@@ -11,18 +11,6 @@ before attempting to run a CNC machine with g code.
 
 === Trajectory Planning
 
-[WARNING]
-The new Trajectory Planner (TP) is on by default. +
-If you have no TP settings in your [TRAJ] section - LinuxCNC defaults to: +
-ARC_BLEND_ENABLE = 1 +
-ARC_BLEND_FALLBACK_ENABLE = 0 +
-ARC_BLEND_OPTIMIZATION_DEPTH = 50 +
-ARC_BLEND_GAP_CYCLES = 4 +
-ARC_BLEND_RAMP_FREQ = 100
-
-For more information on the Trajectory Panner ini options see the
-<<sec:traj-section, Trajectory Section>> in the INI chapter.
-
 Trajectory planning, in general, is the means by which LinuxCNC follows the
 path specified by your G Code program, while still operating within the
 limits of your machinery.
@@ -46,6 +34,9 @@ The basic acceleration and deceleration described above is not complex
 and there is no compromise to be made. In the INI file the specified
 machine constraints such as maximum axis velocity and axis acceleration
 must be obeyed by the trajectory planner.
+
+For more information on the Trajectory Panner ini options see the
+<<sec:traj-section, Trajectory Section>> in the INI chapter.
 
 === Path Following
 

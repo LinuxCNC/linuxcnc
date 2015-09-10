@@ -74,14 +74,14 @@ meaning of a line.
 
 [[sub:block-delete]](((Block Delete)))
 
-== Block Delete
+=== Block Delete
 
 The optional block delete character the slash '/' when placed first on a line
 can be used by some user interfaces to skip lines of code when needed. In Axis
 the key combination Alt-m-/ toggles block delete on and off. When block delete
 is on any lines starting with the slash '/' are skipped.
 
-== Line Number
+=== Line Number
 (((Line Number)))
 
 A line number is the letter N followed by an unsigned integer,
@@ -92,8 +92,7 @@ such usage. Line numbers may also be skipped, and that is normal
 practice. A line number is not required to be used, but must be in the
 proper place if used.
 
-== Word
-(((Word)))
+=== Word
 
 A word is a letter other than N followed by a real value.
 
@@ -137,7 +136,7 @@ not have the corresponding axis.
 |Z | Z axis of machine
 |====
 
-== Number
+=== Number
 
 The following rules are used for (explicit) numbers. In these rules a
 digit is a single character between 0 and 9.
@@ -348,7 +347,7 @@ example '##2'  means the value of the parameter whose index is the
    Reflects the value of the 'toolchanger-reason' HAL pin if a fault occured.
    Volatile.
 
-== Numbered Parameters Persistence
+.Numbered Parameters Persistence
 
 The values of parameters in the persistent range are retained over
 time, even if the machining center is powered down. LinuxCNC uses a
@@ -509,7 +508,6 @@ can be added easily without changes to the source code.
 |G19.1| 191
 |====
 
-
 * '#<_ccomp>' -
     Status of cutter compensation. Return values:
 [width="20%",options="header"]
@@ -546,6 +544,7 @@ can be added easily without changes to the source code.
 
 * '#<_coord_system>' -
     Return index of the current coordinate system (G54..G59.3)
+
 [width="20%",options="header"]
 |====
 |Mode | return value
@@ -734,7 +733,7 @@ false, and any non-zero number is equivalent to logical true.
 |AND OR XOR | 'lowest'
 |====
 
-=== Equality and floating-point values
+== Equality and floating-point values
 
 The RS274/NGC language only supports floating-point values of finite
 precision. Therefore, testing for equality or inequality of two
@@ -865,8 +864,9 @@ axis words or canceling motion.
 'Non-modal' codes have effect only on the lines on which they occur.
 For example, G4 (dwell) is non-modal.
 
-== Polar Coordinates
 (((Polar Coordinates)))
+
+== Polar Coordinates
 
 Polar Coordinates can be used to specify the XY coordinate of a move.
 The @n is the distance and ^n is the angle. The advantage of this is
@@ -1101,6 +1101,8 @@ are replaced by the value of the named parameter. Named parameters
 will have white space removed from them. So, '\#<named parameter>'
 will be converted to '#<namedparameter>'.
 
+[[sec:file-requirements]]
+
 == File Requirements
 
 A G code file must contain one or more lines of G code and be terminated
@@ -1111,6 +1113,13 @@ If a program end code is not used a pair of percent signs '%' with the first
 percent sign on the first line of the file followed by one or more lines of
 G code and a second percent sign. Any code past the second percent sign is not
 evaluated.
+
+[WARNING]
+Using % to wrap a G code file will not do the same thing as using a program
+end. The machine will be in what ever state the program left it in using %,
+the spindle and coolant may still be on and things like G90/91 are left as the
+last program set them. If you don't use a proper preamble the next program
+could start in a dangerous condition.
 
 [NOTE]
 The file must be created with a text editor like Gedit and not a word
@@ -1164,26 +1173,27 @@ position of each item on the line, but by the following list:
 * Stop (M0, M1, M2, M30, M60).
 
 (((G Code Best Practices)))
+
 == G Code Best Practices
 
-=== Use an appropriate decimal precision
+* Use an appropriate decimal precision
 
 Use at least 3 digits after the decimal when milling in millimeters,
 and at least 4 digits after the decimal when milling in inches.
 
-=== Use consistent white space
+* Use consistent white space
 
 G-code is most legible when at least one space appears before words.
 While it is permitted to insert white space in the middle of numbers,
 there is no reason to do so.
 
-=== Use Center-format arcs
+* Use Center-format arcs
 
 Center-format arcs (which use 'I- J- K-' instead of 'R-' ) behave more
 consistently than R-format arcs, particularly for
 included angles near 180 or 360 degrees.
 
-=== Put important modal settings at the top of the file
+* Put important modal settings at the top of the file
 
 When correct execution of your program depends on modal settings, be
 sure to set them at the beginning of the part program. Modes can carry
@@ -1206,18 +1216,18 @@ do not include G20 or G21, then different machines will mill the
 program at different scales. Other settings, such as the return mode in
 canned cycles may also be important.
 
-=== Don't put too many things on one line
+* Don't put too many things on one line
 
 Ignore everything in Section <<sec:order-of-execution,Order of Execution>>, and instead
 write no line of code that is the slightest bit ambiguous.
 
-=== Don't set & use a parameter on the same line
+* Don't set & use a parameter on the same line
 
 Don't use and set a parameter on the same line, even though the
 semantics are well defined. Updating a variable to a new value, such as
 '#1=[#1+#2]' is OK.
 
-=== Don't use line numbers
+* Don't use line numbers
 
 Line numbers offer no benefits. When line numbers are reported in
 error messages, the numbers refer to the line number in the file, not

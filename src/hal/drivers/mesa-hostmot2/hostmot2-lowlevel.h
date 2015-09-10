@@ -140,8 +140,8 @@ struct hm2_lowlevel_io_struct {
     const char *fpga_part_number;
 
     // the llio can set this to TRUE (non-zero) or to FALSE (zero)
-    // if FALSE, the hostmot2 driver will export only global read() and write() functions (and pet_watchdog())
-    // if TRUE, the hostmot2 driver will export those three functions and also read_gpio() and write_gpio()
+    // if FALSE, the hostmot2 driver will export only global read() and write() functions
+    // if TRUE, the hostmot2 driver will also export read_gpio() and write_gpio()
     int threadsafe;
 
     void *private;  // for the low-level driver to hang their struct on

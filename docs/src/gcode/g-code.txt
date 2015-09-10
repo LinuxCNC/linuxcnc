@@ -2207,7 +2207,7 @@ program a G92.2 (to remove them - they are still stored).
 See the <<cha:coordinate-system,Coordinate System>> Section for an
 overview of coordinate systems.
 
-See the <<sec:G92-Offsets,Offsets>> Section for more information.
+See the <<sec:g92-offsets,Offsets>> Section for more information.
 
 See the <<sec:parameters,Parameters>> Section for more information.
 
