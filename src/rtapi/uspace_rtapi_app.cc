@@ -219,22 +219,31 @@ static int do_load_cmd(string name, vector<string> args) {
         void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_NOW);
         if(!module) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
+            modules.erase(name);
             return -1;
         }
 	/// XXX handle arguments
         int (*start)(void) = DLSYM<int(*)(void)>(module, "rtapi_app_main");
         if(!start) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlsym: %s\n", name.c_str(), dlerror());
+            dlclose(module);
+            modules.erase(name);
             return -1;
         }
         int result;
 
         result = do_comp_args(module, args);
-        if(result < 0) { dlclose(module); return -1; }
+        if(result < 0) {
+            dlclose(module);
+            modules.erase(name);
+            return -1;
+        }
 
         if ((result=start()) < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: rtapi_app_main: %s (%d)\n",
                 name.c_str(), strerror(-result), result);
+            dlclose(module);
+            modules.erase(name);
 	    return result;
         } else {
             instance_count ++;
