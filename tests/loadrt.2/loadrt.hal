@@ -1,0 +1,7 @@
+loadrt or2
+loadrt streamer                 # this fails, streamer needs depth= and cfg= params
+loadrt streamer depth=10 cfg=f  # this should work
+loadrt and2
+
+list funct
+list pin
