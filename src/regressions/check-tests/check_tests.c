@@ -21,6 +21,7 @@ static struct affinity a;
 #include "hal-suite.h"
 #include "atomic-suite.h"
 #include "ring-suite.h"
+#include "triple-buffer-suite.h"
 #ifdef HAVE_CK
 #include "ck-suite.h"
 #endif
@@ -99,6 +100,7 @@ int main(int argc, char **argv)
     s = hal_suite();
     sr = srunner_create(s);
     srunner_set_fork_status (sr, CK_NOFORK);
+    srunner_add_suite(sr, triple_buffer_suite());
     srunner_add_suite(sr, clock_suite());
     srunner_add_suite(sr, rtapi_suite());
     srunner_add_suite(sr, atomic_suite());

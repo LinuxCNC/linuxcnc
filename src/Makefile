@@ -660,6 +660,7 @@ HEADERS := \
     rtapi/rtapi_heap.h \
     rtapi/rtapi_heap_private.h \
     rtapi/ring.h \
+    rtapi/triple-buffer.h \
     rtapi/multiframe.h \
     rtapi/rtapi_mbarrier.h \
     rtapi/$(THREADS_SOURCE).h \
