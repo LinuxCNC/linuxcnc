@@ -91,30 +91,49 @@ RTAPI_MP_ARRAY_INT(output_type, 8, "output types for up to 8 channels");
 
 
 typedef struct {
-    long period;		/* length of PWM period, ns */
-    long high_time;		/* desired high time, ns */
-    long period_timer;		/* timer for PWM period */
-    long high_timer;		/* timer for high time */
-    unsigned char curr_output;	/* current state of output */
-    unsigned char output_type;
-    unsigned char pwm_mode;
-    unsigned char direction;
+    // per-instance config data, not changed by functs
+    struct config {
+	unsigned char output_type;
+    } cfg;
+
+    // make_pulses() private state
+    struct mp_state {
+	long period_timer;		// timer for PWM period
+	unsigned char curr_output;	// current state of output
+	long high_timer;		// timer for high time
+    } mp;
+
+    // update() private state
+    struct upd_state {
+	hal_bit_t   *enable;		/* pin for enable signal */
+	hal_float_t *value;		/* command value */
+	hal_float_t *scale;		/* pin: scaling from value to duty cycle */
+	hal_float_t *pwm_freq;	        /* pin: (max) output frequency in Hz */
+	hal_bit_t   *dither_pwm;        /* 0 = pure PWM, 1 = dithered PWM */
+	hal_float_t *min_dc;       	/* pin: minimum duty cycle */
+	hal_float_t *max_dc;	        /* pin: maximum duty cycle */
+	hal_float_t *curr_dc;	        /* pin: current duty cycle */
+	hal_float_t *offset;	        /* pin: offset: this is added to duty cycle */
+
+	double old_scale;		/* stored scale value */
+	double scale_recip;		/* reciprocal value used for scaling */
+	double old_pwm_freq;	        /* used to detect changes */
+	double periods_recip;	        /* reciprocal */
+	int periods;		        /* number of periods in PWM cycle */
+    } upd;
+
+    // shared between make_pulses() and update()
+    // requiring coordination
+    struct shared_state {
+	unsigned char pwm_mode;  // m:r u:rw
+	long high_time;		 // m:r u:w desired high time, ns
+	unsigned char direction; // m:r u:w
+	long period;		 // m:r u:rw length of PWM period, ns
+    } ss;
+
+    // out pins are only written to so defacto unshared
     hal_bit_t *out[2];		/* pins for output signals */
 
-    hal_bit_t *enable;		/* pin for enable signal */
-    hal_float_t *value;		/* command value */
-    hal_float_t *scale;		/* pin: scaling from value to duty cycle */
-    hal_float_t *offset;	/* pin: offset: this is added to duty cycle */
-    double old_scale;		/* stored scale value */
-    double scale_recip;		/* reciprocal value used for scaling */
-    hal_float_t *pwm_freq;	/* pin: (max) output frequency in Hz */
-    double old_pwm_freq;	/* used to detect changes */
-    int periods;		/* number of periods in PWM cycle */
-    double periods_recip;	/* reciprocal */
-    hal_bit_t *dither_pwm;	/* 0 = pure PWM, 1 = dithered PWM */
-    hal_float_t *min_dc;	/* pin: minimum duty cycle */
-    hal_float_t *max_dc;	/* pin: maximum duty cycle */
-    hal_float_t *curr_dc;	/* pin: current duty cycle */
 } pwmgen_t;
 
 /* ptr to array of pwmgen_t structs in shared memory, 1 per channel */
@@ -233,97 +252,101 @@ void rtapi_app_exit(void)
 
 static void make_pulses(void *arg, long period)
 {
-    pwmgen_t *pwmgen;
+    pwmgen_t *self;
     int n;
 
     /* store period for use in update() function */
     periodns = period;
     /* point to pwmgen data structures */
-    pwmgen = arg;
+    self = arg;
     for (n = 0; n < num_chan; n++) {
 
-	switch ( pwmgen->pwm_mode ) {
+	struct config *cfg = &self->cfg;
+	struct mp_state *mp = &self->mp;
+	struct shared_state *ss = &self->ss;
+
+	switch ( ss->pwm_mode ) {
 
 	case PWM_PURE:
-	    if ( pwmgen->curr_output ) {
+	    if ( mp->curr_output ) {
 		/* current state is high, update cumlative high time */
-		pwmgen->high_timer += periodns;
+		mp->high_timer += periodns;
 		/* have we been high long enough? */
-		if ( pwmgen->high_timer >= pwmgen->high_time ) {
+		if ( mp->high_timer >= ss->high_time ) {
 		    /* yes, terminate the high time */
-		    pwmgen->curr_output = 0;
+		    mp->curr_output = 0;
 		}
 	    }
 	    /* update period timer */
-	    pwmgen->period_timer += periodns;
+	    mp->period_timer += periodns;
 	    /* have we reached the end of a period? */
-	    if ( pwmgen->period_timer >= pwmgen->period ) {
+	    if ( mp->period_timer >= ss->period ) {
 		/* reset both timers to zero for jitter-free output */
-		pwmgen->period_timer = 0;
-		pwmgen->high_timer = 0;
+		mp->period_timer = 0;
+		mp->high_timer = 0;
 		/* start the next period */
-		if ( pwmgen->high_time > 0 ) {
-		    pwmgen->curr_output = 1;
+		if ( ss->high_time > 0 ) {
+		    mp->curr_output = 1;
 		}
 	    }
 	    break;
 	case PWM_DITHER:
-	    if ( pwmgen->curr_output ) {
+	    if ( mp->curr_output ) {
 		/* current state is high, update cumlative high time */
-		pwmgen->high_timer -= periodns;
+		mp->high_timer -= periodns;
 		/* have we been high long enough? */
-		if ( pwmgen->high_timer <= 0 ) {
+		if ( mp->high_timer <= 0 ) {
 		    /* yes, terminate the high time */
-		    pwmgen->curr_output = 0;
+		    mp->curr_output = 0;
 		}
 	    }
 	    /* update period timer */
-	    pwmgen->period_timer += periodns;
+	    mp->period_timer += periodns;
 	    /* have we reached the end of a period? */
-	    if ( pwmgen->period_timer >= pwmgen->period ) {
+	    if ( mp->period_timer >= ss->period ) {
 		/* update both timers, retain remainder from last period */
 		/* this allows dithering for finer resolution */
-		pwmgen->period_timer -= pwmgen->period;
-		pwmgen->high_timer += pwmgen->high_time;
+		mp->period_timer -= ss->period;
+		mp->high_timer += ss->high_time;
 		/* start the next period */
-		if ( pwmgen->high_timer > 0 ) {
-		    pwmgen->curr_output = 1;
+		if ( mp->high_timer > 0 ) {
+		    mp->curr_output = 1;
 		}
 	    }
 	    break;
 	case PWM_PDM:
 	    /* add desired high time to running total */
-	    pwmgen->high_timer += pwmgen->high_time;
-	    if ( pwmgen->curr_output ) {
+	    mp->high_timer += ss->high_time;
+	    if ( mp->curr_output ) {
 		/* current state is high, subtract actual high time */
-		pwmgen->high_timer -= periodns;
+		mp->high_timer -= periodns;
 	    }
-	    if ( pwmgen->high_timer > 0 ) {
-		pwmgen->curr_output = 1;
+	    if ( mp->high_timer > 0 ) {
+		mp->curr_output = 1;
 	    } else {
-		pwmgen->curr_output = 0;
+		mp->curr_output = 0;
 	    }
 	    break;
 	case PWM_DISABLED:
 	default:
 	    /* disabled, drive output off and zero accumulator */
-	    pwmgen->curr_output = 0;
-	    pwmgen->high_timer = 0;
-	    pwmgen->period_timer = 0;
+	    mp->curr_output = 0;
+	    mp->high_timer = 0;
+	    mp->period_timer = 0;
 	    break;
 	}
 	/* generate output, based on output type */
-	if (pwmgen->output_type < 2) {
+	if (cfg->output_type < 2) {
 	    /* PWM (and maybe DIR) output */
 	    /* DIR is set by update(), we only do PWM */
-	    *(pwmgen->out[PWM_PIN]) = pwmgen->curr_output;
+	    *(self->out[PWM_PIN]) = mp->curr_output;
 	} else {
 	    /* UP and DOWN output */
-	    *(pwmgen->out[UP_PIN]) = pwmgen->curr_output & ~pwmgen->direction;
-	    *(pwmgen->out[DOWN_PIN]) = pwmgen->curr_output & pwmgen->direction;
+	    *(self->out[UP_PIN]) = mp->curr_output & ~ss->direction;
+	    *(self->out[DOWN_PIN]) = mp->curr_output & ss->direction;
 	}
 	/* move on to next PWM generator */
-	pwmgen++;
+	self++;
     }
     /* done */
 }
@@ -332,91 +355,95 @@ static void update(void *arg, long period)
 {
 	static long oldperiodns=-1;
 
-    pwmgen_t *pwmgen;
+    pwmgen_t *self;
     int n, high_periods;
     unsigned char new_pwm_mode;
     double tmpdc, outdc;
 
     /* update the PWM generators */
-    pwmgen = arg;
+    self = arg;
     for (n = 0; n < num_chan; n++) {
+
+	struct config *cfg = &self->cfg;
+	struct upd_state *upd = &self->upd;
+	struct shared_state *ss = &self->ss;
 
 	/* validate duty cycle limits, both limits must be between
 	   0.0 and 1.0 (inclusive) and max must be greater then min */
-	if ( *(pwmgen->max_dc) > 1.0 ) {
-	    *(pwmgen->max_dc) = 1.0;
+	if ( *(upd->max_dc) > 1.0 ) {
+	    *(upd->max_dc) = 1.0;
 	}
-	if ( *(pwmgen->min_dc) > *(pwmgen->max_dc) ) {
-	    *(pwmgen->min_dc) = *(pwmgen->max_dc);
+	if ( *(upd->min_dc) > *(upd->max_dc) ) {
+	    *(upd->min_dc) = *(upd->max_dc);
 	}
-	if ( *(pwmgen->min_dc) < 0.0 ) {
-	    *(pwmgen->min_dc) = 0.0;
+	if ( *(upd->min_dc) < 0.0 ) {
+	    *(upd->min_dc) = 0.0;
 	}
-	if ( *(pwmgen->max_dc) < *(pwmgen->min_dc) ) {
-	    *(pwmgen->max_dc) = *(pwmgen->min_dc);
+	if ( *(upd->max_dc) < *(upd->min_dc) ) {
+	    *(upd->max_dc) = *(upd->min_dc);
 	}
 	/* do scale calcs only when scale changes */
-	if ( *(pwmgen->scale) != pwmgen->old_scale ) {
+	if ( *(upd->scale) != upd->old_scale ) {
 	    /* get ready to detect future scale changes */
-	    pwmgen->old_scale = *(pwmgen->scale);
+	    upd->old_scale = *(upd->scale);
 	    /* validate the new scale value */
-	    if ((*(pwmgen->scale) < 1e-20)
-		&& (*(pwmgen->scale) > -1e-20)) {
+	    if ((*(upd->scale) < 1e-20)
+		&& (*(upd->scale) > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		*(pwmgen->scale) = 1.0;
+		*(upd->scale) = 1.0;
 	    }
 	    /* we will need the reciprocal */
-	    pwmgen->scale_recip = 1.0 / *(pwmgen->scale);
+	    upd->scale_recip = 1.0 / *(upd->scale);
 	}
-	if ( *(pwmgen->enable) == 0 ) {
+	if ( *(upd->enable) == 0 ) {
 	    new_pwm_mode = PWM_DISABLED;
-	} else if ( *(pwmgen->pwm_freq) == 0 ) {
+	} else if ( *(upd->pwm_freq) == 0 ) {
 	    new_pwm_mode = PWM_PDM;
-	} else if ( *(pwmgen->dither_pwm) != 0 ) {
+	} else if ( *(upd->dither_pwm) != 0 ) {
 	    new_pwm_mode = PWM_DITHER;
 	} else {
 	    new_pwm_mode = PWM_PURE;
 	}
 	/* force recalc if max_freq is changed */
-	if ( *(pwmgen->pwm_freq) != pwmgen->old_pwm_freq ) {
-	    pwmgen->pwm_mode = PWM_DISABLED;
+	if ( *(upd->pwm_freq) != upd->old_pwm_freq ) {
+	    ss->pwm_mode = PWM_DISABLED;
 	}
 	/* do the period calcs when mode, pwm_freq, or periodns changes */
-	if ( ( pwmgen->pwm_mode != new_pwm_mode )
+	if ( ( ss->pwm_mode != new_pwm_mode )
 		|| ( periodns != oldperiodns ) ) {
 	    /* disable output during calcs */
-	    pwmgen->pwm_mode = PWM_DISABLED;
+	    ss->pwm_mode = PWM_DISABLED;
 	    /* validate max_freq */
-	    if ( *(pwmgen->pwm_freq) <= 0.0 ) {
+	    if ( *(upd->pwm_freq) <= 0.0 ) {
 		/* zero or negative means PDM mode */
-		*(pwmgen->pwm_freq) = 0.0;
-		pwmgen->period = periodns;
+		*(upd->pwm_freq) = 0.0;
+		ss->period = periodns;
 	    } else {
 		/* positive means PWM mode */
-		if ( *(pwmgen->pwm_freq) < 0.5 ) {
+		if ( *(upd->pwm_freq) < 0.5 ) {
  		    /* min freq is 0.5 Hz (2 billion nsec period) */
-		    *(pwmgen->pwm_freq) = 0.5;
-		} else if ( *(pwmgen->pwm_freq) > ((1e9/2.0) / periodns) ) {
+		    *(upd->pwm_freq) = 0.5;
+		} else if ( *(upd->pwm_freq) > ((1e9/2.0) / periodns) ) {
 		    /* max freq is 2 base periods */
-		    *(pwmgen->pwm_freq) = (1e9/2.0) / periodns;
+		    *(upd->pwm_freq) = (1e9/2.0) / periodns;
 		}
 		if ( new_pwm_mode == PWM_PURE ) {
 		    /* period must be integral multiple of periodns */
-		    pwmgen->periods = (( 1e9 / *(pwmgen->pwm_freq) ) / periodns ) + 0.5;
-		    pwmgen->periods_recip = 1.0 / pwmgen->periods;
-		    pwmgen->period = pwmgen->periods * periodns;
+		    upd->periods = (( 1e9 / *(upd->pwm_freq) ) / periodns ) + 0.5;
+		    upd->periods_recip = 1.0 / upd->periods;
+		    ss->period = upd->periods * periodns;
 		    /* actual max freq after rounding */
-		    *(pwmgen->pwm_freq) = 1.0e9 / pwmgen->period;
+		    *(upd->pwm_freq) = 1.0e9 / ss->period;
 		} else {
-		    pwmgen->period = 1.0e9 / *(pwmgen->pwm_freq);
+		    ss->period = 1.0e9 / *(upd->pwm_freq);
 		}
 	    }
 	    /* save freq to detect changes */
-	    pwmgen->old_pwm_freq = *(pwmgen->pwm_freq);
+	    upd->old_pwm_freq = *(upd->pwm_freq);
 	}
 	/* convert value command to duty cycle */
-	tmpdc = *(pwmgen->value) * pwmgen->scale_recip + *(pwmgen->offset);
-	if ( pwmgen->output_type == 0 ) {
+	tmpdc = *(upd->value) * upd->scale_recip + *(upd->offset);
+	if ( cfg->output_type == 0 ) {
 	    /* unidirectional mode, no negative output */
 	    if ( tmpdc < 0.0 ) {
 		tmpdc = 0.0;
@@ -424,45 +451,45 @@ static void update(void *arg, long period)
 	}
 	/* limit the duty cycle */
 	if (tmpdc >= 0.0) {
-	    if ( tmpdc > *(pwmgen->max_dc) ) {
-		tmpdc = *(pwmgen->max_dc);
-	    } else if ( tmpdc < *(pwmgen->min_dc) ) {
-		tmpdc = *(pwmgen->min_dc);
+	    if ( tmpdc > *(upd->max_dc) ) {
+		tmpdc = *(upd->max_dc);
+	    } else if ( tmpdc < *(upd->min_dc) ) {
+		tmpdc = *(upd->min_dc);
 	    }
-	    pwmgen->direction = 0;
+	    ss->direction = 0;
 	    outdc = tmpdc;
 	} else {
-	    if ( tmpdc < -*(pwmgen->max_dc) ) {
-		tmpdc = -*(pwmgen->max_dc);
-	    } else if ( tmpdc > -*(pwmgen->min_dc) ) {
-		tmpdc = -*(pwmgen->min_dc);
+	    if ( tmpdc < -*(upd->max_dc) ) {
+		tmpdc = -*(upd->max_dc);
+	    } else if ( tmpdc > -*(upd->min_dc) ) {
+		tmpdc = -*(upd->min_dc);
 	    }
-	    pwmgen->direction = 1;
+	    ss->direction = 1;
 	    outdc = -tmpdc;
 	}
 	if ( new_pwm_mode == PWM_PURE ) {
 	    /* round to nearest pure PWM duty cycle */
-	    high_periods = (pwmgen->periods * outdc) + 0.5;
-	    pwmgen->high_time = high_periods * periodns;
+	    high_periods = (upd->periods * outdc) + 0.5;
+	    ss->high_time = high_periods * periodns;
 	    /* save rounded value to curr_dc param */
 	    if ( tmpdc >= 0 ) {
-		*(pwmgen->curr_dc) = high_periods * pwmgen->periods_recip;
+		*(upd->curr_dc) = high_periods * upd->periods_recip;
 	    } else {
-		*(pwmgen->curr_dc) = -high_periods * pwmgen->periods_recip;
+		*(upd->curr_dc) = -high_periods * upd->periods_recip;
 	    }
 	} else {
-	    pwmgen->high_time = ( pwmgen->period * outdc ) + 0.5;
+	    ss->high_time = ( ss->period * outdc ) + 0.5;
 	    /* save duty cycle to curr_dc param */
-	    *(pwmgen->curr_dc) = tmpdc;
+	    *(upd->curr_dc) = tmpdc;
 	}
 	/* if using PWM/DIR outputs, set DIR pin */
-	if ( pwmgen->output_type == 1 ) {
-	    *(pwmgen->out[DIR_PIN]) = pwmgen->direction;
+	if ( cfg->output_type == 1 ) {
+	    *(self->out[DIR_PIN]) = ss->direction;
 	}
 	/* save new mode */
-	pwmgen->pwm_mode = new_pwm_mode;
+	ss->pwm_mode = new_pwm_mode;
 	/* move on to next channel */
-	pwmgen++;
+	self++;
     }
     oldperiodns = periodns;
     /* done */
@@ -485,54 +512,54 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export paramameters */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->scale), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.scale), comp_id,
 	    "pwmgen.%d.scale", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->offset), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.offset), comp_id,
 	    "pwmgen.%d.offset", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IO, &(addr->dither_pwm), comp_id,
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->upd.dither_pwm), comp_id,
 	    "pwmgen.%d.dither-pwm", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->pwm_freq), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.pwm_freq), comp_id,
 	    "pwmgen.%d.pwm-freq", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->min_dc), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.min_dc), comp_id,
 	    "pwmgen.%d.min-dc", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->max_dc), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.max_dc), comp_id,
 	    "pwmgen.%d.max-dc", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->curr_dc), comp_id,
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->upd.curr_dc), comp_id,
 	    "pwmgen.%d.curr-dc", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pins */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.enable), comp_id,
 	    "pwmgen.%d.enable", num);
     if (retval != 0) {
 	return retval;
     }
-    *(addr->enable) = 0;
-    retval = hal_pin_float_newf(HAL_IN, &(addr->value), comp_id,
+    *(addr->upd.enable) = 0;
+    retval = hal_pin_float_newf(HAL_IN, &(addr->upd.value), comp_id,
 	    "pwmgen.%d.value", num);
     if (retval != 0) {
 	return retval;
     }
-    *(addr->value) = 0.0;
+    *(addr->upd.value) = 0.0;
     if (output_type == 2) {
 	/* export UP/DOWN pins */
 	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[UP_PIN]), comp_id,
@@ -569,25 +596,34 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
 	    *(addr->out[DIR_PIN]) = 0;
 	}
     }
-    /* set default pin values */
-    *(addr->scale) = 1.0;
-    *(addr->offset) = 0.0;
-    *(addr->dither_pwm) = 0;
-    *(addr->pwm_freq) = 0;
-    *(addr->min_dc) = 0.0;
-    *(addr->max_dc) = 1.0;
-    *(addr->curr_dc) = 0.0;
+
     /* init other fields */
-    addr->period = 50000;
-    addr->high_time = 0;
-    addr->period_timer = 0;
-    addr->high_timer = 0;
-    addr->curr_output = 0;
-    addr->output_type = output_type;
-    addr->pwm_mode = PWM_DISABLED;
-    addr->direction = 0;
-    addr->old_scale = *(addr->scale) + 1.0;
-    addr->old_pwm_freq = -1;
+
+    addr->cfg.output_type = output_type;
+
+    // update() state, including pins
+    *(addr->upd.scale) = 1.0;
+    *(addr->upd.offset) = 0.0;
+    *(addr->upd.dither_pwm) = 0;
+    *(addr->upd.pwm_freq) = 0;
+    *(addr->upd.min_dc) = 0.0;
+    *(addr->upd.max_dc) = 1.0;
+    *(addr->upd.curr_dc) = 0.0;
+    addr->upd.old_scale = *(addr->upd.scale) + 1.0;
+    addr->upd.old_pwm_freq = -1;
+
+    // shared state
+    addr->ss.high_time = 0;
+    addr->ss.pwm_mode = PWM_DISABLED;
+    addr->ss.direction = 0;
+    addr->ss.period = 50000;
+
+    // make_pulses state
+    addr->mp.period_timer = 0;
+    addr->mp.curr_output = 0;
+    addr->mp.high_timer = 0;
+
+
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
