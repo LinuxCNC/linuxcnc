@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  ********************************************************************/
 
-// basic atomic load/store/increment operations
+// basic atomic load/store/CAS/increment operations
 // memory barrier primitives - see https://www.kernel.org/doc/Documentation/memory-barriers.txt
 
 
@@ -33,6 +33,11 @@
 // use concurrencykit.org primitives
 #include <ck_pr.h>
 
+static inline void rtapi_store_u8(hal_u8_t *target, hal_u8_t value)
+{
+     ck_pr_store_8(target, value);
+}
+
 static inline void rtapi_store_u32(hal_u32_t *target, hal_u32_t value)
 {
      ck_pr_store_32(target, value);
@@ -46,6 +51,11 @@ static inline void rtapi_store_s32(hal_s32_t *target, hal_s32_t value)
 static inline void rtapi_store_ptr(void **target, void *value)
 {
     ck_pr_store_ptr(target, value);
+}
+
+static inline hal_u8_t rtapi_load_u8(const hal_u8_t *target)
+{
+    return ck_pr_load_8(target);
 }
 
 static inline hal_u32_t rtapi_load_u32(const hal_u32_t *target)
@@ -67,6 +77,11 @@ static inline void * rtapi_load_ptr(void **target)
 static inline void rtapi_add_s32(hal_s32_t *target, const hal_s32_t delta)
 {
     ck_pr_faa_int(target, delta);
+}
+
+static inline void rtapi_add_u32(hal_u32_t *target, const hal_u32_t delta)
+{
+    ck_pr_faa_uint(target, delta);
 }
 
 #if defined(CK_F_PR_LOAD_64)
@@ -99,6 +114,11 @@ static inline void rtapi_inc_u64(hal_u64_t *target)
     ck_pr_inc_64(target);
 }
 #endif
+
+static inline bool rtapi_cas_u8(hal_u8_t *target, hal_u8_t old_value, hal_u8_t new_value)
+{
+     return ck_pr_cas_8(target, old_value, new_value);
+}
 
 static inline bool rtapi_cas_u32(hal_u32_t *target, hal_u32_t old_value, hal_u32_t new_value)
 {
@@ -171,6 +191,14 @@ static inline int rtapi_cas_u64(hal_u64_t *target, hal_u64_t old_value, hal_u64_
 
 #if !defined(HAVE_CK)
 // use gcc intrinsics
+
+static inline hal_u8_t rtapi_load_u8(const hal_u8_t *target)
+{
+    hal_u8_t v;
+    __atomic_load(target, &v, RTAPI_MEMORY_MODEL);
+    return v;
+}
+
 static inline hal_u32_t rtapi_load_u32(const hal_u32_t *target)
 {
     hal_u32_t v;
@@ -192,11 +220,15 @@ static inline void * rtapi_load_ptr(const void *target)
     return v;
 }
 
-static inline void rtapi_store_u32(hal_u32_t *target, hal_u32_t value)
+static inline void rtapi_store_u8(hal_u8_t *target, hal_u8_t value)
 {
     __atomic_store(target, &value, RTAPI_MEMORY_MODEL);
 }
 
+static inline void rtapi_store_u32(hal_u32_t *target, hal_u32_t value)
+{
+    __atomic_store(target, &value, RTAPI_MEMORY_MODEL);
+}
 
 static inline void rtapi_store_s32(hal_s32_t *target, hal_s32_t value)
 {
@@ -214,6 +246,18 @@ static inline void rtapi_add_s32(hal_s32_t *target, const hal_s32_t delta)
     __atomic_add_fetch (target, delta, RTAPI_MEMORY_MODEL);
 }
 
+
+static inline void rtapi_add_u32(hal_u32_t *target, const hal_u32_t delta)
+{
+    __atomic_add_fetch (target, delta, RTAPI_MEMORY_MODEL);
+}
+
+static inline int rtapi_cas_u8(hal_u8_t *target, hal_u8_t old_value, hal_u8_t new_value)
+{
+    return __atomic_compare_exchange_n (target, &old_value, new_value, 1,
+					RTAPI_MEMORY_MODEL, RTAPI_MEMORY_MODEL);
+}
+
 static inline int rtapi_cas_u32(hal_u32_t *target, hal_u32_t old_value, hal_u32_t new_value)
 {
     return __atomic_compare_exchange_n (target, &old_value, new_value, 1,
@@ -229,6 +273,6 @@ static inline int rtapi_cas_s32(hal_s32_t *target, hal_s32_t old_value, hal_s32_
 #define	rtapi_smp_mb()  __sync_synchronize()
 #define	rtapi_smp_wmb() __sync_synchronize()
 #define	rtapi_smp_rmb() __sync_synchronize()
-#endif
+#endif  // !defined(HAVE_CK)
 
 #endif // _RTAPI_ATOMICS_H
