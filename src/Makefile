@@ -1304,6 +1304,8 @@ obj-$(CONFIG_MUX_GENERIC) += mux_generic.o
 mux_generic-objs := hal/components/mux_generic.o $(MATHSTUB)
 obj-$(CONFIG_PWMGEN) += pwmgen.o
 pwmgen-objs := hal/components/pwmgen.o $(MATHSTUB)
+obj-$(CONFIG_PWMGEN) += pwmgen-v2.o
+pwmgen-v2-objs := hal/components/pwmgen-v2.o $(MATHSTUB)
 obj-$(CONFIG_SIGGEN) += siggen.o
 siggen-objs := hal/components/siggen.o $(MATHSTUB)
 obj-$(CONFIG_PID) += threads.o
@@ -1766,6 +1768,7 @@ $(RTLIBDIR)/matrix_kb$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(matrix_kb-objs))
 $(RTLIBDIR)/mux_generic$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(mux_generic-objs))
 $(RTLIBDIR)/freqgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(freqgen-objs))
 $(RTLIBDIR)/pwmgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pwmgen-objs))
+$(RTLIBDIR)/pwmgen-v2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pwmgen-v2-objs))
 $(RTLIBDIR)/siggen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(siggen-objs))
 $(RTLIBDIR)/at_pid$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(at_pid-objs))
 $(RTLIBDIR)/threads$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(threads-objs))
