@@ -5,10 +5,10 @@
 *
 * Author: John Kasunich
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2006 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 /** This file, 'pwmgen.c', is a HAL component that generates
     Pulse Width Modulation or Pulse Density Modulation signals in
@@ -21,7 +21,7 @@
     responsible for actually generating the PWM/PDM signals.  It
     must be executed in a fast thread to reduce pulse jitter and
     improve resolution.  The other function, pwmgen.update, is
-    normally called from a much slower thread.  It reads the 
+    normally called from a much slower thread.  It reads the
     command and sets internal variables used by 'pwm.make-pulses'.
     'update' uses floating point, 'make-pulses' does not.
 
@@ -30,7 +30,7 @@
 
     All signals from this module have fixed polarity (active high)
     If the driver needs the opposite polarity, the signals can be
-    inverted using parameters exported by the hardware driver(s) 
+    inverted using parameters exported by the hardware driver(s)
     such as ParPort.
 
 
@@ -126,9 +126,10 @@ typedef struct {
     // requiring coordination
     struct shared_state {
 	unsigned char pwm_mode;  // m:r u:rw
+	long period;		 // m:r u:rw length of PWM period, ns
+
 	long high_time;		 // m:r u:w desired high time, ns
 	unsigned char direction; // m:r u:w
-	long period;		 // m:r u:rw length of PWM period, ns
     } ss;
 
     // out pins are only written to so defacto unshared
@@ -245,7 +246,7 @@ void rtapi_app_exit(void)
     to the desired duty cycle to accumulator.  When the accumulator
     is greater than zero, the output goes high (if permitted by the
     maximum frequency).  When the output is high, a larger value is
-    subtracted from the accumulator.  As a result, it oscillates 
+    subtracted from the accumulator.  As a result, it oscillates
     around zero to generate PWM or PDM, based on the values that are
     added and subtracted.
 */
@@ -421,7 +422,7 @@ static void update(void *arg, long period)
 	    } else {
 		/* positive means PWM mode */
 		if ( *(upd->pwm_freq) < 0.5 ) {
- 		    /* min freq is 0.5 Hz (2 billion nsec period) */
+		    /* min freq is 0.5 Hz (2 billion nsec period) */
 		    *(upd->pwm_freq) = 0.5;
 		} else if ( *(upd->pwm_freq) > ((1e9/2.0) / periodns) ) {
 		    /* max freq is 2 base periods */
