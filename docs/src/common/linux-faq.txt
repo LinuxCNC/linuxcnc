@@ -206,10 +206,10 @@ get the text where each occourance of the "text to search for" is found.
 The * is a wild card for search all files. See the grep man page for more
 information.
 
-=== Bootup Messages
+=== Diagnostic Messages
 
-To view the bootup messages use "dmesg" from the command window. To
-save the bootup messages to a file use the redirection operator, like
+To view the diagnostic messages use "dmesg" from the command window. To
+save the diagnostic messages to a file use the redirection operator '>', like
 this:
 
 ----
