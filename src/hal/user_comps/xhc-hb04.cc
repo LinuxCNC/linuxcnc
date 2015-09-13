@@ -197,14 +197,14 @@ void xhc_display_encode(xhc_t *xhc, unsigned char *data, int len)
 	*p++ = 0xFD;
 	*p++ = 0x0C;
 
-	if (xhc->axis == axis_a) p += xhc_encode_float((int)rtapi_rint(1000 * *(xhc->hal->a_wc)) / 1000, p);
-	else p += xhc_encode_float((int)rtapi_rint(1000 * *(xhc->hal->x_wc)) / 1000, p);
-	p += xhc_encode_float((int)rtapi_rint(1000 * *(xhc->hal->y_wc)) / 1000, p);
-	p += xhc_encode_float((int)rtapi_rint(1000 * *(xhc->hal->z_wc)) / 1000, p);
-	if (xhc->axis == axis_a) p += xhc_encode_float((int)rtapi_rint(1000 * *(xhc->hal->a_mc)) / 1000, p);
-	else p += xhc_encode_float((int)rtapi_rint(1000 * *(xhc->hal->x_mc)) / 1000, p);
-	p += xhc_encode_float((int)rtapi_rint(1000 * *(xhc->hal->y_mc)) / 1000, p);
-	p += xhc_encode_float((int)rtapi_rint(1000 * *(xhc->hal->z_mc)) / 1000, p);
+	if (xhc->axis == axis_a) p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->a_wc)) / 1000, p);
+	else p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->x_wc)) / 1000, p);
+	p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->y_wc)) / 1000, p);
+	p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->z_wc)) / 1000, p);
+	if (xhc->axis == axis_a) p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->a_mc)) / 1000, p);
+	else p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->x_mc)) / 1000, p);
+	p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->y_mc)) / 1000, p);
+	p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->z_mc)) / 1000, p);
 	p += xhc_encode_s16((int)rtapi_rint(100.0 * *(xhc->hal->feedrate_override)), p);
 	p += xhc_encode_s16((int)rtapi_rint(100.0 * *(xhc->hal->spindle_override)), p);
 	p += xhc_encode_s16((int)rtapi_rint(60.0 * *(xhc->hal->feedrate)), p);
@@ -388,7 +388,7 @@ void cb_response_in(struct libusb_transfer *transfer)
 		xhc.button_code = in_buf[1];
 		xhc.axis = (xhc_axis_t)in_buf[3];
 
-		*(xhc.hal->jog_counts) += ((char)in_buf[4]);
+		*(xhc.hal->jog_counts) += ((signed char)in_buf[4]);
 		*(xhc.hal->jog_counts_neg) = - *(xhc.hal->jog_counts);
 		*(xhc.hal->jog_enable_off) = (xhc.axis == axis_off);
 		*(xhc.hal->jog_enable_x) = (xhc.axis == axis_x);
