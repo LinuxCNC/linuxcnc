@@ -69,7 +69,8 @@ This is the motor's maximum current, in Amps.
 .IP PD144
 .br
 Set register PD144 (rated motor revolutions) according to motor name
-plate.  This is the motor's max speed in RPM.
+plate.  This is the motor's speed in RPM at 50 Hz.  Note: This is not the
+motor's max speed (unless the max motor frequency happens to be 50 Hz)!
 .B
 .IP PD163\ =\ 1
 Set register PD163 (communication address) to 1.  This matches the
@@ -148,15 +149,13 @@ VFD with the specified max motor current of <n> Amps.  If not specified,
 read the max motor current from register PD142 of the VFD.
 .B
 .IP -S,\ --motor-speed\ <n>
-(default: read from VFD) If specified, program register PD144 of the
-VFD with the specified max motor speed of <n> RPM (and use the same max
-motor speed in the hy_vfd driver).  If not specified, read the max motor
-speed from register PD144 of the VFD.  \fBNote:\fR The Huanyang VFD can
-not store or report max motor speeds greater than 9999 RPM.  If a max
-motor speed of greater than 9999 RPM is needed, you must supply it using
-this command-line argument.  The VFD will be programmed with 1/10th of
-this max speed, which will cause the VFD display to show 1/10th of the
-actual speed of the motor.
+(default: compute from value read from VFD P144) This command-line
+argument is the motor's max speed.  If specified, compute the motor's
+speed at 50 Hz from this argument and from the motor's max frequency
+(from the --max-frequency argument or from P011 if --max-frequency is
+not specified) and program register PD144 of the VFD.  If not specified,
+read the motor's speed at 50 Hz from register P144 of the VFD, and use
+that and the max frequency to compute the motor's max speed.
 .B
 .SH PINS
 .B
