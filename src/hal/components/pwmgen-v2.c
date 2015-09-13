@@ -8,8 +8,14 @@
 *
 * Copyright (c) 2006 All rights reserved.
 *
-* Last change:
+* Last change:  Michael Haberler 9/2015
+*
+*   SMP-safe - does not assume priority scheduling any more
+*   sanitized paramter passing - no shared state, atomic
+*   passing of the complete parameter set
+*   instantiable - supports an arbitrary number of instances
 ********************************************************************/
+
 /** This file, 'pwmgen.c', is a HAL component that generates
     Pulse Width Modulation or Pulse Density Modulation signals in
     software.  Since the timing granularity of a software based
@@ -69,17 +75,21 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "triple-buffer.h"
 #include "hal.h"		/* HAL public API decls */
+#include "hal_priv.h"           // SHMPTR,SHMOFF
+#include "hal_list.h"
 #include "hal_logging.h"
 
-#define MAX_CHAN 8
+#define TRACE_TB  // trace parameter passing operations
 
-/* module information */
-MODULE_AUTHOR("John Kasunich");
+MODULE_AUTHOR("John Kasunich, Michael Haberler");
 MODULE_DESCRIPTION("PWM/PDM Generator for EMC HAL");
 MODULE_LICENSE("GPL");
-#define MAX_OUTPUT_TYPE 2
-int output_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-RTAPI_MP_ARRAY_INT(output_type, 8, "output types for up to 8 channels");
+
+RTAPI_TAG(HAL,HC_INSTANTIABLE);
+RTAPI_TAG(HAL,HC_SMP_SAFE);
+
+static int output_type = -1;
+RTAPI_IP_INT(output_type, "output type ,0:single, 1:pwm/direction, 2:up/down");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -93,13 +103,16 @@ RTAPI_MP_ARRAY_INT(output_type, 8, "output types for up to 8 channels");
 
 // parameter set for make_pulses()
 struct mp_params {
-    unsigned char pwm_mode;
-    long pwm_period;	        // length of PWM period, ns
-    long high_time;	        // desired high time, ns
+    hal_s32_t     pwm_period;	        // length of PWM period, ns
+    hal_s32_t     high_time;	        // desired high time, ns
     unsigned char direction;
+    unsigned char pwm_mode;
 };
 
 typedef struct {
+    hal_list_t  list;                  // list of instances
+    int inst_id;
+
     // per-instance config data, not changed by functs
     struct config {
 	unsigned char output_type;
@@ -107,10 +120,10 @@ typedef struct {
 
     // make_pulses() private state
     struct mp_state {
-	struct mp_params *mp;           // currently valid set of make_pulses params
-	long period_timer;		// timer for PWM period
-	unsigned char curr_output;	// current state of output
-	long high_timer;		// timer for high time
+	struct mp_params *mp;           // current make_pulses params
+	hal_s32_t        period_timer;	// timer for PWM period
+	unsigned char    curr_output;	// current state of output
+	hal_s32_t        high_timer;	// timer for high time
     } mp;
 
     // update() private state
@@ -135,9 +148,9 @@ typedef struct {
 	hal_float_t old_max_dc;
 	hal_float_t old_offset;
 
-	double scale_recip;		/* reciprocal value used for scaling */
-	double periods_recip;	        /* reciprocal */
-	int periods;		        /* number of periods in PWM cycle */
+	double     scale_recip;		/* reciprocal value used for scaling */
+	double    periods_recip;        /* reciprocal */
+	hal_s32_t periods;	        /* number of periods in PWM cycle */
     } upd;
 
     // triple buffer for param messages update() -> make_pulses()
@@ -149,8 +162,7 @@ typedef struct {
 
 } pwmgen_t;
 
-/* ptr to array of pwmgen_t structs in shared memory, 1 per channel */
-static pwmgen_t *pwmgen_array;
+static  hal_list_t head;
 
 #define PWM_PIN		0	/* output phase used for PWM signal */
 #define DIR_PIN		1	/* output phase used for DIR signal */
@@ -159,88 +171,60 @@ static pwmgen_t *pwmgen_array;
 
 /* other globals */
 static int comp_id;		/* component ID */
-static int num_chan;		/* number of pwm generators configured */
-static long periodns;		/* makepulses function period in nanosec */
+static long periodns = -1;	/* makepulses function period in nanosec */
+
+static const char *compname = "pwmgen-v2";
+static const char *prefix = "pwmgen"; // less surprises on funct names
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
-
-static int export_pwmgen(int num, pwmgen_t * addr, int output_type);
-static void make_pulses(void *arg, long period);
-static void update(void *arg, long period);
+static int export_pwmgen(const char *name, pwmgen_t * addr, const int output_type);
+static int make_pulses(void *arg, const hal_funct_args_t *fa);
+static int update(void *arg, const hal_funct_args_t *fa);
+static int instantiate_pwmgen(const char *name, const int argc,
+			      const char**argv);
+static int delete_pwmgen(const char *name, void *inst, const int inst_size);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
-
 int rtapi_app_main(void)
 {
-    int n, retval;
+    int retval;
+    dlist_init_entry(&head);
 
-    for (n = 0; n < MAX_CHAN && output_type[n] != -1 ; n++) {
-	if ((output_type[n] > MAX_OUTPUT_TYPE) || (output_type[n] < 0)) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PWMGEN: ERROR: bad output type '%i', channel %i\n",
-		output_type[n], n);
-	    return -1;
-	} else {
-	    num_chan++;
-	}
-    }
-    if (num_chan == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PWMGEN: ERROR: no channels configured\n");
-	return -1;
-    }
-    /* periodns will be set to the proper value when 'make_pulses()' runs for
-       the first time.  We load a default value here to avoid glitches at
-       startup */
-    periodns = -1;
-    /* have good config info, connect to the HAL */
-    comp_id = hal_init("pwmgen");
-    if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "PWMGEN: ERROR: hal_init() failed\n");
-	return -1;
-    }
-    /* allocate shared memory for generator data */
-    pwmgen_array = hal_malloc(num_chan * sizeof(pwmgen_t));
-    if (pwmgen_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PWMGEN: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    /* export all the variables for each PWM generator */
-    for (n = 0; n < num_chan; n++) {
-	/* export all vars */
-	retval = export_pwmgen(n, &(pwmgen_array[n]), output_type[n]);
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PWMGEN: ERROR: pwmgen %d var export failed\n", n);
-	    hal_exit(comp_id);
-	    return -1;
-	}
-    }
-    /* export functions */
-    retval = hal_export_funct("pwmgen.make-pulses", make_pulses,
-	pwmgen_array, 0, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PWMGEN: ERROR: makepulses funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    retval = hal_export_funct("pwmgen.update", update,
-	pwmgen_array, 1, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PWMGEN: ERROR: update funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"PWMGEN: installed %d PWM/PDM generators\n", num_chan);
+    if ((comp_id = hal_xinit(TYPE_RT, 0, 0,
+			     instantiate_pwmgen,
+			     delete_pwmgen,
+			     compname)) < 0)
+	return comp_id;
+
+    hal_export_xfunct_args_t u = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = update,
+        .arg = &head,
+        .uses_fp = 1,
+        .reentrant = 0,
+        .owner_id = comp_id
+    };
+    if ((retval = hal_export_xfunctf(&u,
+				     "%s.update",
+				     prefix)) < 0)
+	return retval;
+
+    hal_export_xfunct_args_t mp = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = make_pulses,
+        .arg = &head,
+        .uses_fp = 0,
+        .reentrant = 0,
+        .owner_id = comp_id
+    };
+    if ((retval = hal_export_xfunctf(&mp,
+				     "%s.make-pulses",
+				     prefix)) < 0)
+	return retval;
     hal_ready(comp_id);
     return 0;
 }
@@ -248,6 +232,44 @@ int rtapi_app_main(void)
 void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
+}
+
+static int instantiate_pwmgen(const char *name,
+			      const int argc,
+			      const char**argv)
+{
+    pwmgen_t *p;
+
+    int retval = hal_inst_create(name, comp_id, sizeof(pwmgen_t), (void **)&p);
+    if (retval < 0)
+	return retval;
+
+    p->inst_id = retval;
+    if ((retval = export_pwmgen(name, p, output_type)) != 0)
+	HALFAIL_RC(retval, "%s: ERROR: export(%s) failed", compname, name);
+
+    // append to instance list
+    dlist_init_entry(&p->list);
+    dlist_add_after(&p->list, &head);
+    return 0;
+}
+
+static int delete_pwmgen(const char *name, void *inst, const int inst_size)
+{
+    pwmgen_t *p = inst;
+
+    // disable PWM outputs
+    if (p->cfg.output_type < 2) {
+	    *(p->out[PWM_PIN]) = 0;
+    } else {
+	// up/down: drive both outputs low
+	*(p->out[UP_PIN]) = 0;
+	*(p->out[DOWN_PIN]) = 0;
+    }
+
+    // delete from instance list
+    dlist_remove_entry(&p->list);
+    return 0;
 }
 
 /***********************************************************************
@@ -263,29 +285,33 @@ void rtapi_app_exit(void)
     added and subtracted.
 */
 
-static void make_pulses(void *arg, long period)
+static int make_pulses(void *arg, const hal_funct_args_t *fa)
 {
+    hal_list_t *insts = arg;
     pwmgen_t *self;
-    int n;
 
-    /* store period for use in update() function */
-    periodns = period;
-    /* point to pwmgen data structures */
-    self = arg;
-    for (n = 0; n < num_chan; n++) {
+    // foreach pwmgen instance: generate output(s)
+    dlist_for_each_entry(self, insts, list) {
 
 	struct config *cfg = &self->cfg;
 	struct mp_state *mp = &self->mp;
 
 	if (rtapi_tb_new_snap(&self->tb)) {
-	    HALDBG("SNAP");
-	    // new parameter set
+	    // new parameter set available, fetch it
 	    self->mp.mp = &self->tb_state[rtapi_tb_snap(&self->tb)];
-	    HALDBG("SNAP pwm_mode=%d pwm_period=%ld high_time=%ld direction=%d",
+
+#ifdef TRACE_TB
+	    HALDBG("SNAP inst=%d pwm_mode=%d pwm_period=%d high_time=%d direction=%d",
+		   self->inst_id,
 		   self->mp.mp->pwm_mode,
 		   self->mp.mp->pwm_period,
 		   self->mp.mp->high_time,
 		   self->mp.mp->direction);
+#endif
+	    // store period for use in update() function - activates
+	    // parameter calculation
+	    // no need to do this every thread cycle
+	    periodns = fa_period(fa);
 	}
 
 	struct mp_params *mparams = self->mp.mp;
@@ -315,6 +341,7 @@ static void make_pulses(void *arg, long period)
 		}
 	    }
 	    break;
+
 	case PWM_DITHER:
 	    if ( mp->curr_output ) {
 		/* current state is high, update cumlative high time */
@@ -339,6 +366,7 @@ static void make_pulses(void *arg, long period)
 		}
 	    }
 	    break;
+
 	case PWM_PDM:
 	    /* add desired high time to running total */
 	    mp->high_timer += mparams->high_time;
@@ -352,6 +380,7 @@ static void make_pulses(void *arg, long period)
 		mp->curr_output = 0;
 	    }
 	    break;
+
 	case PWM_DISABLED:
 	default:
 	    /* disabled, drive output off and zero accumulator */
@@ -360,6 +389,7 @@ static void make_pulses(void *arg, long period)
 	    mp->period_timer = 0;
 	    break;
 	}
+
 	/* generate output, based on output type */
 	if (cfg->output_type < 2) {
 	    /* PWM (and maybe DIR) output */
@@ -370,21 +400,19 @@ static void make_pulses(void *arg, long period)
 	    *(self->out[UP_PIN]) = mp->curr_output & ~mparams->direction;
 	    *(self->out[DOWN_PIN]) = mp->curr_output & mparams->direction;
 	}
-	/* move on to next PWM generator */
-	self++;
     }
-    /* done */
+    return 0;
 }
 
-static void update(void *arg, long period)
+static int update(void *arg,  const hal_funct_args_t *fa)
 {
+    hal_list_t *insts = arg;
     pwmgen_t *self;
-    int n, high_periods;
+    int high_periods;
     double tmpdc, outdc;
 
-    /* update the PWM generators */
-    self = arg;
-    for (n = 0; n < num_chan; n++) {
+    // foreach pwmgen instance: update the PWM parameters
+    dlist_for_each_entry(self, insts, list) {
 
 	struct config *cfg = &self->cfg;
 	struct upd_state *upd = &self->upd;
@@ -404,9 +432,9 @@ static void update(void *arg, long period)
 	    *(upd->max_dc) = *(upd->min_dc);
 	}
 
-	// dont do anything until we have the thread period from make_pulses
+	// cop out until we know the thread period from make_pulses
 	if (periodns < 0)
-	    return;
+	    return 0;
 
 	// change-detect the driving pins
 #define TRACK(name)  (*(upd->name) != upd->old_##name) ? upd->old_##name = *(upd->name), true : false
@@ -421,11 +449,11 @@ static void update(void *arg, long period)
 	changed |= TRACK(offset);
 #undef TRACK
 	if (!changed)
-	    return;
+	    continue;
 
 	// compute a new parameter set
 
-	// get a handle on currently active param buffer
+	// get a handle on the currently unused param buffer
 	struct mp_params *uparams =  &self->tb_state[rtapi_tb_write(&self->tb)];
 
 	/* validate the new scale value */
@@ -524,18 +552,18 @@ static void update(void *arg, long period)
 	    *(self->out[DIR_PIN]) = uparams->direction;
 	}
 
-	HALDBG("FLIP");
+	// all fields in mp_params now set
 
+#ifdef TRACE_TB
+	HALDBG("FLIP");
+#endif
         // write barrier before we flip the index
 	rtapi_smp_wmb();
 
-	// all fields in mp_params set, flip:
+	// flip the write index
 	rtapi_tb_flip_writer(&self->tb);
-
-	/* move on to next channel */
-	self++;
     }
-    /* done */
+    return 0;
 }
 
 
@@ -543,7 +571,7 @@ static void update(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
+static int export_pwmgen(const char *name, pwmgen_t * addr, const int output_type)
 {
     int retval, msg;
 
@@ -556,49 +584,49 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
 
     /* export paramameters */
     retval = hal_pin_float_newf(HAL_IO, &(addr->upd.scale), comp_id,
-	    "pwmgen.%d.scale", num);
+	    "%s.scale", name);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->upd.offset), comp_id,
-	    "pwmgen.%d.offset", num);
+	    "%s.offset", name);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_IO, &(addr->upd.dither_pwm), comp_id,
-	    "pwmgen.%d.dither-pwm", num);
+	    "%s.dither-pwm", name);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->upd.pwm_freq), comp_id,
-	    "pwmgen.%d.pwm-freq", num);
+	    "%s.pwm-freq", name);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->upd.min_dc), comp_id,
-	    "pwmgen.%d.min-dc", num);
+	    "%s.min-dc", name);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IO, &(addr->upd.max_dc), comp_id,
-	    "pwmgen.%d.max-dc", num);
+	    "%s.max-dc", name);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_OUT, &(addr->upd.curr_dc), comp_id,
-	    "pwmgen.%d.curr-dc", num);
+	    "%s.curr-dc", name);
     if (retval != 0) {
 	return retval;
     }
     /* export pins */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.enable), comp_id,
-	    "pwmgen.%d.enable", num);
+	    "%s.enable", name);
     if (retval != 0) {
 	return retval;
     }
     *(addr->upd.enable) = 0;
     retval = hal_pin_float_newf(HAL_IN, &(addr->upd.value), comp_id,
-	    "pwmgen.%d.value", num);
+	    "%s.value", name);
     if (retval != 0) {
 	return retval;
     }
@@ -606,14 +634,14 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     if (output_type == 2) {
 	/* export UP/DOWN pins */
 	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[UP_PIN]), comp_id,
-		"pwmgen.%d.up", num);
+		"%s.up", name);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* init the pin */
 	*(addr->out[UP_PIN]) = 0;
 	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[DOWN_PIN]), comp_id,
-		"pwmgen.%d.down", num);
+		"%s.down", name);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -622,7 +650,7 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     } else {
 	/* export PWM pin */
 	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[PWM_PIN]), comp_id,
-		"pwmgen.%d.pwm", num);
+		"%s.pwm", name);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -631,7 +659,7 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
 	if ( output_type == 1 ) {
 	    /* export DIR pin */
 	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[DIR_PIN]), comp_id,
-		    "pwmgen.%d.dir", num);
+		    "%s.dir", name);
 	    if (retval != 0) {
 		return retval;
 	    }
