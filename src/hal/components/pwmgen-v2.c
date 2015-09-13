@@ -67,7 +67,9 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "triple-buffer.h"
 #include "hal.h"		/* HAL public API decls */
+#include "hal_logging.h"
 
 #define MAX_CHAN 8
 
@@ -89,6 +91,13 @@ RTAPI_MP_ARRAY_INT(output_type, 8, "output types for up to 8 channels");
 #define PWM_DITHER 2
 #define PWM_PDM 3
 
+// parameter set for make_pulses()
+struct mp_params {
+    unsigned char pwm_mode;
+    long pwm_period;	        // length of PWM period, ns
+    long high_time;	        // desired high time, ns
+    unsigned char direction;
+};
 
 typedef struct {
     // per-instance config data, not changed by functs
@@ -98,6 +107,7 @@ typedef struct {
 
     // make_pulses() private state
     struct mp_state {
+	struct mp_params *mp;           // currently valid set of make_pulses params
 	long period_timer;		// timer for PWM period
 	unsigned char curr_output;	// current state of output
 	long high_timer;		// timer for high time
@@ -115,22 +125,24 @@ typedef struct {
 	hal_float_t *curr_dc;	        /* pin: current duty cycle */
 	hal_float_t *offset;	        /* pin: offset: this is added to duty cycle */
 
-	double old_scale;		/* stored scale value */
+	// tracking values of in or io pins
+	hal_bit_t   old_enable;
+	hal_bit_t   old_dither_pwm;
+	hal_float_t old_value;
+	hal_float_t old_scale;
+	hal_float_t old_pwm_freq;
+	hal_float_t old_min_dc;
+	hal_float_t old_max_dc;
+	hal_float_t old_offset;
+
 	double scale_recip;		/* reciprocal value used for scaling */
-	double old_pwm_freq;	        /* used to detect changes */
 	double periods_recip;	        /* reciprocal */
 	int periods;		        /* number of periods in PWM cycle */
     } upd;
 
-    // shared between make_pulses() and update()
-    // requiring coordination
-    struct shared_state {
-	unsigned char pwm_mode;  // m:r u:rw
-	long pwm_period;		 // m:r u:rw length of PWM period, ns
-
-	long high_time;		 // m:r u:w desired high time, ns
-	unsigned char direction; // m:r u:w
-    } ss;
+    // triple buffer for param messages update() -> make_pulses()
+    TB_FLAG_FAST(tb);
+    struct mp_params tb_state[3];
 
     // out pins are only written to so defacto unshared
     hal_bit_t *out[2];		/* pins for output signals */
@@ -264,16 +276,28 @@ static void make_pulses(void *arg, long period)
 
 	struct config *cfg = &self->cfg;
 	struct mp_state *mp = &self->mp;
-	struct shared_state *ss = &self->ss;
 
-	switch ( ss->pwm_mode ) {
+	if (rtapi_tb_new_snap(&self->tb)) {
+	    HALDBG("SNAP");
+	    // new parameter set
+	    self->mp.mp = &self->tb_state[rtapi_tb_snap(&self->tb)];
+	    HALDBG("SNAP pwm_mode=%d pwm_period=%ld high_time=%ld direction=%d",
+		   self->mp.mp->pwm_mode,
+		   self->mp.mp->pwm_period,
+		   self->mp.mp->high_time,
+		   self->mp.mp->direction);
+	}
+
+	struct mp_params *mparams = self->mp.mp;
+
+	switch ( mparams->pwm_mode ) {
 
 	case PWM_PURE:
 	    if ( mp->curr_output ) {
 		/* current state is high, update cumlative high time */
 		mp->high_timer += periodns;
 		/* have we been high long enough? */
-		if ( mp->high_timer >= ss->high_time ) {
+		if ( mp->high_timer >= mparams->high_time ) {
 		    /* yes, terminate the high time */
 		    mp->curr_output = 0;
 		}
@@ -281,12 +305,12 @@ static void make_pulses(void *arg, long period)
 	    /* update period timer */
 	    mp->period_timer += periodns;
 	    /* have we reached the end of a period? */
-	    if ( mp->period_timer >= ss->pwm_period ) {
+	    if ( mp->period_timer >= mparams->pwm_period ) {
 		/* reset both timers to zero for jitter-free output */
 		mp->period_timer = 0;
 		mp->high_timer = 0;
 		/* start the next period */
-		if ( ss->high_time > 0 ) {
+		if ( mparams->high_time > 0 ) {
 		    mp->curr_output = 1;
 		}
 	    }
@@ -304,11 +328,11 @@ static void make_pulses(void *arg, long period)
 	    /* update period timer */
 	    mp->period_timer += periodns;
 	    /* have we reached the end of a period? */
-	    if ( mp->period_timer >= ss->pwm_period ) {
+	    if ( mp->period_timer >= mparams->pwm_period ) {
 		/* update both timers, retain remainder from last period */
 		/* this allows dithering for finer resolution */
-		mp->period_timer -= ss->pwm_period;
-		mp->high_timer += ss->high_time;
+		mp->period_timer -= mparams->pwm_period;
+		mp->high_timer += mparams->high_time;
 		/* start the next period */
 		if ( mp->high_timer > 0 ) {
 		    mp->curr_output = 1;
@@ -317,7 +341,7 @@ static void make_pulses(void *arg, long period)
 	    break;
 	case PWM_PDM:
 	    /* add desired high time to running total */
-	    mp->high_timer += ss->high_time;
+	    mp->high_timer += mparams->high_time;
 	    if ( mp->curr_output ) {
 		/* current state is high, subtract actual high time */
 		mp->high_timer -= periodns;
@@ -343,8 +367,8 @@ static void make_pulses(void *arg, long period)
 	    *(self->out[PWM_PIN]) = mp->curr_output;
 	} else {
 	    /* UP and DOWN output */
-	    *(self->out[UP_PIN]) = mp->curr_output & ~ss->direction;
-	    *(self->out[DOWN_PIN]) = mp->curr_output & ss->direction;
+	    *(self->out[UP_PIN]) = mp->curr_output & ~mparams->direction;
+	    *(self->out[DOWN_PIN]) = mp->curr_output & mparams->direction;
 	}
 	/* move on to next PWM generator */
 	self++;
@@ -354,11 +378,8 @@ static void make_pulses(void *arg, long period)
 
 static void update(void *arg, long period)
 {
-	static long oldperiodns=-1;
-
     pwmgen_t *self;
     int n, high_periods;
-    unsigned char new_pwm_mode;
     double tmpdc, outdc;
 
     /* update the PWM generators */
@@ -367,7 +388,6 @@ static void update(void *arg, long period)
 
 	struct config *cfg = &self->cfg;
 	struct upd_state *upd = &self->upd;
-	struct shared_state *ss = &self->ss;
 
 	/* validate duty cycle limits, both limits must be between
 	   0.0 and 1.0 (inclusive) and max must be greater then min */
@@ -383,65 +403,79 @@ static void update(void *arg, long period)
 	if ( *(upd->max_dc) < *(upd->min_dc) ) {
 	    *(upd->max_dc) = *(upd->min_dc);
 	}
-	/* do scale calcs only when scale changes */
-	if ( *(upd->scale) != upd->old_scale ) {
-	    /* get ready to detect future scale changes */
-	    upd->old_scale = *(upd->scale);
-	    /* validate the new scale value */
-	    if ((*(upd->scale) < 1e-20)
-		&& (*(upd->scale) > -1e-20)) {
-		/* value too small, divide by zero is a bad thing */
-		*(upd->scale) = 1.0;
-	    }
-	    /* we will need the reciprocal */
-	    upd->scale_recip = 1.0 / *(upd->scale);
+
+	// dont do anything until we have the thread period from make_pulses
+	if (periodns < 0)
+	    return;
+
+	// change-detect the driving pins
+#define TRACK(name)  (*(upd->name) != upd->old_##name) ? upd->old_##name = *(upd->name), true : false
+	bool changed = false;
+	changed |= TRACK(enable);
+	changed |= TRACK(dither_pwm);
+	changed |= TRACK(value);
+	changed |= TRACK(scale);
+	changed |= TRACK(pwm_freq);
+	changed |= TRACK(min_dc);
+	changed |= TRACK(max_dc);
+	changed |= TRACK(offset);
+#undef TRACK
+	if (!changed)
+	    return;
+
+	// compute a new parameter set
+
+	// get a handle on currently active param buffer
+	struct mp_params *uparams =  &self->tb_state[rtapi_tb_write(&self->tb)];
+
+	/* validate the new scale value */
+	if ((*(upd->scale) < 1e-20)
+	    && (*(upd->scale) > -1e-20)) {
+	    /* value too small, divide by zero is a bad thing */
+	    *(upd->scale) = 1.0;
 	}
+	/* we will need the reciprocal */
+	upd->scale_recip = 1.0 / *(upd->scale);
+
+	// set pwm_mode:
 	if ( *(upd->enable) == 0 ) {
-	    new_pwm_mode = PWM_DISABLED;
+	    uparams->pwm_mode = PWM_DISABLED;
 	} else if ( *(upd->pwm_freq) == 0 ) {
-	    new_pwm_mode = PWM_PDM;
+	    uparams->pwm_mode = PWM_PDM;
 	} else if ( *(upd->dither_pwm) != 0 ) {
-	    new_pwm_mode = PWM_DITHER;
+	    uparams->pwm_mode = PWM_DITHER;
 	} else {
-	    new_pwm_mode = PWM_PURE;
+	    uparams->pwm_mode = PWM_PURE;
 	}
-	/* force recalc if max_freq is changed */
-	if ( *(upd->pwm_freq) != upd->old_pwm_freq ) {
-	    ss->pwm_mode = PWM_DISABLED;
-	}
-	/* do the period calcs when mode, pwm_freq, or periodns changes */
-	if ( ( ss->pwm_mode != new_pwm_mode )
-		|| ( periodns != oldperiodns ) ) {
-	    /* disable output during calcs */
-	    ss->pwm_mode = PWM_DISABLED;
-	    /* validate max_freq */
-	    if ( *(upd->pwm_freq) <= 0.0 ) {
-		/* zero or negative means PDM mode */
-		*(upd->pwm_freq) = 0.0;
-		ss->pwm_period = periodns;
-	    } else {
-		/* positive means PWM mode */
-		if ( *(upd->pwm_freq) < 0.5 ) {
-		    /* min freq is 0.5 Hz (2 billion nsec period) */
-		    *(upd->pwm_freq) = 0.5;
-		} else if ( *(upd->pwm_freq) > ((1e9/2.0) / periodns) ) {
-		    /* max freq is 2 base periods */
-		    *(upd->pwm_freq) = (1e9/2.0) / periodns;
-		}
-		if ( new_pwm_mode == PWM_PURE ) {
-		    /* period must be integral multiple of periodns */
-		    upd->periods = (( 1e9 / *(upd->pwm_freq) ) / periodns ) + 0.5;
-		    upd->periods_recip = 1.0 / upd->periods;
-		    ss->pwm_period = upd->periods * periodns;
-		    /* actual max freq after rounding */
-		    *(upd->pwm_freq) = 1.0e9 / ss->pwm_period;
-		} else {
-		    ss->pwm_period = 1.0e9 / *(upd->pwm_freq);
-		}
+
+	// set pwm_period:
+	/* validate max_freq */
+	if ( *(upd->pwm_freq) <= 0.0 ) {
+	    /* zero or negative means PDM mode */
+	    *(upd->pwm_freq) = 0.0;
+	    uparams->pwm_period = periodns;
+	} else {
+	    /* positive means PWM mode */
+	    if ( *(upd->pwm_freq) < 0.5 ) {
+		/* min freq is 0.5 Hz (2 billion nsec period) */
+		*(upd->pwm_freq) = 0.5;
+	    } else if ( *(upd->pwm_freq) > ((1e9/2.0) / periodns) ) {
+		/* max freq is 2 base periods */
+		*(upd->pwm_freq) = (1e9/2.0) / periodns;
 	    }
-	    /* save freq to detect changes */
-	    upd->old_pwm_freq = *(upd->pwm_freq);
+	    if ( uparams->pwm_mode == PWM_PURE ) {
+		/* period must be integral multiple of periodns */
+		upd->periods = (( 1e9 / *(upd->pwm_freq) ) / periodns ) + 0.5;
+		upd->periods_recip = 1.0 / upd->periods;
+		uparams->pwm_period = upd->periods * periodns;
+		/* actual max freq after rounding */
+		*(upd->pwm_freq) = 1.0e9 / uparams->pwm_period;
+	    } else {
+		uparams->pwm_period = 1.0e9 / *(upd->pwm_freq);
+	    }
 	}
+
+	// set direction
 	/* convert value command to duty cycle */
 	tmpdc = *(upd->value) * upd->scale_recip + *(upd->offset);
 	if ( cfg->output_type == 0 ) {
@@ -457,7 +491,7 @@ static void update(void *arg, long period)
 	    } else if ( tmpdc < *(upd->min_dc) ) {
 		tmpdc = *(upd->min_dc);
 	    }
-	    ss->direction = 0;
+	    uparams->direction = 0;
 	    outdc = tmpdc;
 	} else {
 	    if ( tmpdc < -*(upd->max_dc) ) {
@@ -465,13 +499,15 @@ static void update(void *arg, long period)
 	    } else if ( tmpdc > -*(upd->min_dc) ) {
 		tmpdc = -*(upd->min_dc);
 	    }
-	    ss->direction = 1;
+	    uparams->direction = 1;
 	    outdc = -tmpdc;
 	}
-	if ( new_pwm_mode == PWM_PURE ) {
+
+	// set high_time
+	if ( uparams->pwm_mode == PWM_PURE ) {
 	    /* round to nearest pure PWM duty cycle */
 	    high_periods = (upd->periods * outdc) + 0.5;
-	    ss->high_time = high_periods * periodns;
+	    uparams->high_time = high_periods * periodns;
 	    /* save rounded value to curr_dc param */
 	    if ( tmpdc >= 0 ) {
 		*(upd->curr_dc) = high_periods * upd->periods_recip;
@@ -479,20 +515,26 @@ static void update(void *arg, long period)
 		*(upd->curr_dc) = -high_periods * upd->periods_recip;
 	    }
 	} else {
-	    ss->high_time = ( ss->pwm_period * outdc ) + 0.5;
+	    uparams->high_time = ( uparams->pwm_period * outdc ) + 0.5;
 	    /* save duty cycle to curr_dc param */
 	    *(upd->curr_dc) = tmpdc;
 	}
 	/* if using PWM/DIR outputs, set DIR pin */
 	if ( cfg->output_type == 1 ) {
-	    *(self->out[DIR_PIN]) = ss->direction;
+	    *(self->out[DIR_PIN]) = uparams->direction;
 	}
-	/* save new mode */
-	ss->pwm_mode = new_pwm_mode;
+
+	HALDBG("FLIP");
+
+        // write barrier before we flip the index
+	rtapi_smp_wmb();
+
+	// all fields in mp_params set, flip:
+	rtapi_tb_flip_writer(&self->tb);
+
 	/* move on to next channel */
 	self++;
     }
-    oldperiodns = periodns;
     /* done */
 }
 
@@ -599,10 +641,21 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     }
 
     /* init other fields */
-
     addr->cfg.output_type = output_type;
 
-    // update() state, including pins
+    // set triple buffer initial state
+    rtapi_tb_init(&addr->tb);
+
+
+    // supply startup params to make_pulses
+    struct mp_params *p =  &addr->tb_state[rtapi_tb_write(&addr->tb)];
+    p->high_time = 0;
+    p->pwm_mode = PWM_DISABLED;
+    p->direction = 0;
+    p->pwm_period = 50000;
+    rtapi_tb_flip_writer(&addr->tb); // commit
+
+    // update() private state, including pins
     *(addr->upd.scale) = 1.0;
     *(addr->upd.offset) = 0.0;
     *(addr->upd.dither_pwm) = 0;
@@ -610,20 +663,14 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     *(addr->upd.min_dc) = 0.0;
     *(addr->upd.max_dc) = 1.0;
     *(addr->upd.curr_dc) = 0.0;
-    addr->upd.old_scale = *(addr->upd.scale) + 1.0;
+    addr->upd.old_scale = *(addr->upd.scale) + 1.0; // trigger change detection
     addr->upd.old_pwm_freq = -1;
 
-    // shared state
-    addr->ss.high_time = 0;
-    addr->ss.pwm_mode = PWM_DISABLED;
-    addr->ss.direction = 0;
-    addr->ss.pwm_period = 50000;
 
-    // make_pulses state
+    // make_pulses private state
     addr->mp.period_timer = 0;
     addr->mp.curr_output = 0;
     addr->mp.high_timer = 0;
-
 
     /* restore saved message level */
     rtapi_set_msg_level(msg);
