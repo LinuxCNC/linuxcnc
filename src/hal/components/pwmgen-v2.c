@@ -126,7 +126,7 @@ typedef struct {
     // requiring coordination
     struct shared_state {
 	unsigned char pwm_mode;  // m:r u:rw
-	long period;		 // m:r u:rw length of PWM period, ns
+	long pwm_period;		 // m:r u:rw length of PWM period, ns
 
 	long high_time;		 // m:r u:w desired high time, ns
 	unsigned char direction; // m:r u:w
@@ -281,7 +281,7 @@ static void make_pulses(void *arg, long period)
 	    /* update period timer */
 	    mp->period_timer += periodns;
 	    /* have we reached the end of a period? */
-	    if ( mp->period_timer >= ss->period ) {
+	    if ( mp->period_timer >= ss->pwm_period ) {
 		/* reset both timers to zero for jitter-free output */
 		mp->period_timer = 0;
 		mp->high_timer = 0;
@@ -304,10 +304,10 @@ static void make_pulses(void *arg, long period)
 	    /* update period timer */
 	    mp->period_timer += periodns;
 	    /* have we reached the end of a period? */
-	    if ( mp->period_timer >= ss->period ) {
+	    if ( mp->period_timer >= ss->pwm_period ) {
 		/* update both timers, retain remainder from last period */
 		/* this allows dithering for finer resolution */
-		mp->period_timer -= ss->period;
+		mp->period_timer -= ss->pwm_period;
 		mp->high_timer += ss->high_time;
 		/* start the next period */
 		if ( mp->high_timer > 0 ) {
@@ -418,7 +418,7 @@ static void update(void *arg, long period)
 	    if ( *(upd->pwm_freq) <= 0.0 ) {
 		/* zero or negative means PDM mode */
 		*(upd->pwm_freq) = 0.0;
-		ss->period = periodns;
+		ss->pwm_period = periodns;
 	    } else {
 		/* positive means PWM mode */
 		if ( *(upd->pwm_freq) < 0.5 ) {
@@ -432,11 +432,11 @@ static void update(void *arg, long period)
 		    /* period must be integral multiple of periodns */
 		    upd->periods = (( 1e9 / *(upd->pwm_freq) ) / periodns ) + 0.5;
 		    upd->periods_recip = 1.0 / upd->periods;
-		    ss->period = upd->periods * periodns;
+		    ss->pwm_period = upd->periods * periodns;
 		    /* actual max freq after rounding */
-		    *(upd->pwm_freq) = 1.0e9 / ss->period;
+		    *(upd->pwm_freq) = 1.0e9 / ss->pwm_period;
 		} else {
-		    ss->period = 1.0e9 / *(upd->pwm_freq);
+		    ss->pwm_period = 1.0e9 / *(upd->pwm_freq);
 		}
 	    }
 	    /* save freq to detect changes */
@@ -479,7 +479,7 @@ static void update(void *arg, long period)
 		*(upd->curr_dc) = -high_periods * upd->periods_recip;
 	    }
 	} else {
-	    ss->high_time = ( ss->period * outdc ) + 0.5;
+	    ss->high_time = ( ss->pwm_period * outdc ) + 0.5;
 	    /* save duty cycle to curr_dc param */
 	    *(upd->curr_dc) = tmpdc;
 	}
@@ -617,7 +617,7 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     addr->ss.high_time = 0;
     addr->ss.pwm_mode = PWM_DISABLED;
     addr->ss.direction = 0;
-    addr->ss.period = 50000;
+    addr->ss.pwm_period = 50000;
 
     // make_pulses state
     addr->mp.period_timer = 0;
