@@ -40,6 +40,105 @@ typedef int Py_ssize_t;
     } \
 } while(0)
 
+PyObject *to_python(bool b) {
+    return PyBool_FromLong(b);
+}
+
+PyObject *to_python(unsigned u) {
+    if(u < LONG_MAX) return PyInt_FromLong(u);
+    return PyLong_FromUnsignedLong(u);
+}
+
+PyObject *to_python(int u) {
+    return PyInt_FromLong(u);
+}
+
+PyObject *to_python(double d) {
+    return PyFloat_FromDouble(d);
+}
+
+bool from_python(PyObject *o, double *d) {
+    if(PyFloat_Check(o)) {
+        *d = PyFloat_AsDouble(o);
+        return true;
+    } else if(PyInt_Check(o)) {
+        *d = PyInt_AsLong(o);
+        return true;
+    } else if(PyLong_Check(o)) {
+        *d = PyLong_AsDouble(o);
+        return !PyErr_Occurred();
+    }
+
+    PyObject *tmp = PyNumber_Float(o);
+    if(!tmp) {
+        PyErr_Format(PyExc_TypeError, "Number expected, not %s",
+                o->ob_type->tp_name);
+        return false;
+    }
+
+    *d = PyFloat_AsDouble(tmp);
+    Py_DECREF(tmp);
+    return true;
+}
+
+bool from_python(PyObject *o, uint32_t *u) {
+    PyObject *tmp = 0;
+    long long l;
+    if(PyInt_Check(o)) {
+        l = PyInt_AsLong(o);
+        goto got_value;
+    }
+
+    tmp = PyLong_Check(o) ? o : PyNumber_Long(tmp);
+    if(!tmp) goto fail;
+
+    int overflow;
+    l = PyLong_AsLongLongAndOverflow(tmp, &overflow);
+    if(overflow) goto fail;
+
+got_value:
+    if(l < 0 || l != (uint32_t)l) {
+        PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
+        goto fail;
+    }
+
+    *u = l;
+    if(tmp != o) Py_XDECREF(tmp);
+    return true;
+fail:
+    if(tmp != o) Py_XDECREF(tmp);
+    return false;
+}
+
+bool from_python(PyObject *o, int32_t *i) {
+    PyObject *tmp = 0;
+    long long l;
+    if(PyInt_Check(o)) {
+        l = PyInt_AsLong(o);
+        goto got_value;
+    }
+
+    tmp = PyLong_Check(o) ? o : PyNumber_Long(tmp);
+    if(!tmp) goto fail;
+
+    int overflow;
+    l = PyLong_AsLongLongAndOverflow(tmp, &overflow);
+    if(overflow) goto fail;
+
+got_value:
+    if(l != (int32_t)l) {
+        PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
+        goto fail;
+    }
+
+    *i = l;
+    if(tmp != o) Py_XDECREF(tmp);
+    return true;
+fail:
+    if(tmp != o) Py_XDECREF(tmp);
+    return false;
+}
+
 union paramunion {
     hal_bit_t b;
     hal_u32_t u32;
@@ -153,8 +252,6 @@ static void pyhal_delete(PyObject *_self) {
 }
 
 static int pyhal_write_common(halitem *pin, PyObject *value) {
-    int is_int = PyInt_Check(value);
-    long intval = is_int ? PyInt_AsLong(value) : -1;
     if(!pin) return -1;
 
     if(pin->is_pin) {
@@ -162,52 +259,24 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
             case HAL_BIT:
                 *pin->u->pin.b = PyObject_IsTrue(value);
                 break;
-            case HAL_FLOAT:
-                if(PyFloat_Check(value)) 
-                    *pin->u->pin.f = PyFloat_AsDouble(value);
-                else if(is_int)
-                    *pin->u->pin.f = intval;
-                else if(PyLong_Check(value)) {
-                    double fval = PyLong_AsDouble(value);
-                    if(PyErr_Occurred()) return -1;
-                    *pin->u->pin.f = fval;
-                } else {
-                    PyErr_Format(PyExc_TypeError,
-                            "Integer or float expected, not %s",
-                            value->ob_type->tp_name);
-                    return -1;
-                }
-                break;
-            case HAL_U32: {
-                if(is_int) {
-                    if(intval < 0) goto rangeerr;
-                    if(intval != (rtapi_s32)intval) goto rangeerr;
-                    *pin->u->pin.u32 = intval;
-                    break;
-                }
-                if(!PyLong_Check(value)) {
-                    PyErr_Format(PyExc_TypeError,
-                            "Integer or long expected, not %s",
-                            value->ob_type->tp_name);
-                    return -1;
-                } 
-                unsigned long uintval = PyLong_AsUnsignedLong(value);
-                if(uintval != (rtapi_u32)uintval) goto rangeerr;
-                if(PyErr_Occurred()) return -1;
-                *pin->u->pin.u32 = uintval;
+            case HAL_FLOAT: {
+                double tmp;
+                if(!from_python(value, &tmp)) return -1;
+                *pin->u->pin.f = tmp;
                 break;
             }
-            case HAL_S32:
-                if(is_int) {
-                    if(intval != (rtapi_s32)intval) goto rangeerr;
-                    *pin->u->pin.s32 = intval;
-                } else if(PyLong_Check(value)) {
-                    intval = PyLong_AsLong(value);
-                    if(PyErr_Occurred()) return -1;
-                    if(intval != (rtapi_s32)intval) goto rangeerr;
-                    *pin->u->pin.u32 = intval;
-                }
+            case HAL_U32: {
+                uint32_t tmp;
+                if(!from_python(value, &tmp)) return -1;
+                *pin->u->pin.u32 = tmp;
                 break;
+            }
+            case HAL_S32: {
+                int32_t tmp;
+                if(!from_python(value, &tmp)) return -1;
+                *pin->u->pin.s32 = tmp;
+                break;
+            }
             default:
                 PyErr_Format(pyhal_error_type, "Invalid pin type %d", pin->type);
         }
@@ -216,73 +285,46 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
             case HAL_BIT:
                 pin->u->param.b = PyObject_IsTrue(value);
                 break;
-            case HAL_FLOAT:
-                if(PyFloat_Check(value)) 
-                    pin->u->param.f = PyFloat_AsDouble(value);
-                else if(is_int)
-                    pin->u->param.f = intval;
-                else {
-                    PyErr_Format(PyExc_TypeError,
-                            "Integer or float expected, not %s",
-                            value->ob_type->tp_name);
-                    return -1;
-                }
+            case HAL_FLOAT: {
+                int32_t tmp;
+                if(!from_python(value, &tmp)) return -1;
+                pin->u->param.f = tmp;
                 break;
+            }
             case HAL_U32: {
-                unsigned long uintval;
-                if(is_int) {
-                    if(intval < 0) goto rangeerr;
-                    if(intval != (rtapi_s32)intval) goto rangeerr;
-                    pin->u->param.u32 = intval;
-                    break;
-                }
-                if(!PyLong_Check(value)) {
-                    PyErr_Format(PyExc_TypeError,
-                            "Integer or long expected, not %s",
-                            value->ob_type->tp_name);
-                    return -1;
-                }
-                uintval = PyLong_AsUnsignedLong(value);
-                if(PyErr_Occurred()) return -1;
-                if(uintval != (rtapi_u32)uintval) goto rangeerr;
-                pin->u->param.u32 = uintval;
+                uint32_t tmp;
+                if(!from_python(value, &tmp)) return -1;
+                pin->u->param.u32 = tmp;
                 break;
             }
             case HAL_S32:
-                if(!is_int) goto typeerr;
-                if(intval != (rtapi_s32)intval) goto rangeerr;
-                pin->u->param.s32 = intval;
+                int32_t tmp;
+                if(!from_python(value, &tmp)) return -1;
+                pin->u->param.s32 = tmp;
                 break;
             default:
                 PyErr_Format(pyhal_error_type, "Invalid pin type %d", pin->type);
         }
     }
     return 0;
-typeerr:
-    PyErr_Format(PyExc_TypeError, "Integer expected, not %s",
-            value->ob_type->tp_name);
-    return -1;
-rangeerr:
-    PyErr_Format(PyExc_OverflowError, "Value %ld out of range for pin", intval);
-    return -1;
 }
 
 static PyObject *pyhal_read_common(halitem *item) {
     if(!item) return NULL;
     if(item->is_pin) {
         switch(item->type) {
-            case HAL_BIT: return PyBool_FromLong(*(item->u->pin.b));
-            case HAL_U32: return PyLong_FromUnsignedLong(*(item->u->pin.u32));
-            case HAL_S32: return PyInt_FromLong(*(item->u->pin.s32));
-            case HAL_FLOAT: return PyFloat_FromDouble(*(item->u->pin.f));
+            case HAL_BIT: return to_python(*(item->u->pin.b));
+            case HAL_U32: return to_python(*(item->u->pin.u32));
+            case HAL_S32: return to_python(*(item->u->pin.s32));
+            case HAL_FLOAT: return to_python(*(item->u->pin.f));
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     } else {
         switch(item->type) {
-            case HAL_BIT: return PyBool_FromLong(item->u->param.b);
-            case HAL_U32: return PyLong_FromUnsignedLong(item->u->param.u32);
-            case HAL_S32: return PyInt_FromLong(item->u->param.s32);
-            case HAL_FLOAT: return PyFloat_FromDouble(item->u->param.f);
+            case HAL_BIT: return to_python(item->u->param.b);
+            case HAL_U32: return to_python(item->u->param.u32);
+            case HAL_S32: return to_python(item->u->param.s32);
+            case HAL_FLOAT: return to_python(item->u->param.f);
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     }
