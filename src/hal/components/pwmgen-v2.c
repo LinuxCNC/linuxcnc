@@ -107,6 +107,7 @@ struct mp_params {
     hal_s32_t     high_time;	        // desired high time, ns
     unsigned char direction;
     unsigned char pwm_mode;
+    hal_bit_t     jitter_correct;
 };
 
 typedef struct {
@@ -129,6 +130,7 @@ typedef struct {
     // update() private state
     struct upd_state {
 	hal_bit_t   *enable;		/* pin for enable signal */
+	hal_bit_t   *jitter_correct;	// use actual cycle time for turnoff decision
 	hal_float_t *value;		/* command value */
 	hal_float_t *scale;		/* pin: scaling from value to duty cycle */
 	hal_float_t *pwm_freq;	        /* pin: (max) output frequency in Hz */
@@ -141,6 +143,7 @@ typedef struct {
 	// tracking values of in or io pins
 	hal_bit_t   old_enable;
 	hal_bit_t   old_dither_pwm;
+	hal_bit_t   old_jitter_correct;
 	hal_float_t old_value;
 	hal_float_t old_scale;
 	hal_float_t old_pwm_freq;
@@ -301,12 +304,13 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 	    self->mp.mp = &self->tb_state[rtapi_tb_snap(&self->tb)];
 
 #ifdef TRACE_TB
-	    HALDBG("SNAP inst=%d pwm_mode=%d pwm_period=%d high_time=%d direction=%d",
+	    HALDBG("SNAP inst=%d pwm_mode=%d pwm_period=%d high_time=%d direction=%d jc=%d",
 		   self->inst_id,
 		   self->mp.mp->pwm_mode,
 		   self->mp.mp->pwm_period,
 		   self->mp.mp->high_time,
-		   self->mp.mp->direction);
+		   self->mp.mp->direction,
+		   self->mp.mp->jitter_correct);
 #endif
 	    // store period for use in update() function - activates
 	    // parameter calculation
@@ -316,12 +320,14 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 
 	struct mp_params *mparams = self->mp.mp;
 
+	hal_s32_t delta_t = (self->mp.mp->jitter_correct) ? fa_current_period(fa) : periodns;
+
 	switch ( mparams->pwm_mode ) {
 
 	case PWM_PURE:
 	    if ( mp->curr_output ) {
 		/* current state is high, update cumlative high time */
-		mp->high_timer += periodns;
+		mp->high_timer += delta_t;
 		/* have we been high long enough? */
 		if ( mp->high_timer >= mparams->high_time ) {
 		    /* yes, terminate the high time */
@@ -329,7 +335,7 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 		}
 	    }
 	    /* update period timer */
-	    mp->period_timer += periodns;
+	    mp->period_timer += delta_t;
 	    /* have we reached the end of a period? */
 	    if ( mp->period_timer >= mparams->pwm_period ) {
 		/* reset both timers to zero for jitter-free output */
@@ -345,7 +351,7 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 	case PWM_DITHER:
 	    if ( mp->curr_output ) {
 		/* current state is high, update cumlative high time */
-		mp->high_timer -= periodns;
+		mp->high_timer -= delta_t;
 		/* have we been high long enough? */
 		if ( mp->high_timer <= 0 ) {
 		    /* yes, terminate the high time */
@@ -353,7 +359,7 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 		}
 	    }
 	    /* update period timer */
-	    mp->period_timer += periodns;
+	    mp->period_timer += delta_t;
 	    /* have we reached the end of a period? */
 	    if ( mp->period_timer >= mparams->pwm_period ) {
 		/* update both timers, retain remainder from last period */
@@ -372,7 +378,7 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 	    mp->high_timer += mparams->high_time;
 	    if ( mp->curr_output ) {
 		/* current state is high, subtract actual high time */
-		mp->high_timer -= periodns;
+		mp->high_timer -= delta_t;
 	    }
 	    if ( mp->high_timer > 0 ) {
 		mp->curr_output = 1;
@@ -447,6 +453,7 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 	changed |= TRACK(min_dc);
 	changed |= TRACK(max_dc);
 	changed |= TRACK(offset);
+	changed |= TRACK(jitter_correct);
 #undef TRACK
 	if (!changed)
 	    continue;
@@ -551,6 +558,7 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 	if ( cfg->output_type == 1 ) {
 	    *(self->out[DIR_PIN]) = uparams->direction;
 	}
+	uparams->jitter_correct = *(upd->jitter_correct);
 
 	// all fields in mp_params now set
 
@@ -625,6 +633,12 @@ static int export_pwmgen(const char *name, pwmgen_t * addr, const int output_typ
 	return retval;
     }
     *(addr->upd.enable) = 0;
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.jitter_correct), comp_id,
+	    "%s.jitter_correct", name);
+    if (retval != 0) {
+	return retval;
+    }
+    *(addr->upd.enable) = 0;
     retval = hal_pin_float_newf(HAL_IN, &(addr->upd.value), comp_id,
 	    "%s.value", name);
     if (retval != 0) {
@@ -691,6 +705,7 @@ static int export_pwmgen(const char *name, pwmgen_t * addr, const int output_typ
     *(addr->upd.min_dc) = 0.0;
     *(addr->upd.max_dc) = 1.0;
     *(addr->upd.curr_dc) = 0.0;
+    *(addr->upd.jitter_correct) = 0;
     addr->upd.old_scale = *(addr->upd.scale) + 1.0; // trigger change detection
     addr->upd.old_pwm_freq = -1;
 
