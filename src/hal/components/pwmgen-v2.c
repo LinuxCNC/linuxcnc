@@ -79,7 +79,8 @@
 #include "hal_list.h"
 #include "hal_logging.h"
 
-#define TRACE_TB  // trace parameter passing operations
+#define TRACE_TB       // trace parameter passing operations
+#define VERBOSE_SETUP  // pin creation
 
 MODULE_AUTHOR("John Kasunich, Michael Haberler");
 MODULE_DESCRIPTION("PWM/PDM Generator for EMC HAL");
@@ -129,16 +130,16 @@ typedef struct {
 
     // update() private state
     struct upd_state {
-	hal_bit_t   *enable;		/* pin for enable signal */
-	hal_bit_t   *jitter_correct;	// use actual cycle time for turnoff decision
-	hal_float_t *value;		/* command value */
-	hal_float_t *scale;		/* pin: scaling from value to duty cycle */
-	hal_float_t *pwm_freq;	        /* pin: (max) output frequency in Hz */
-	hal_bit_t   *dither_pwm;        /* 0 = pure PWM, 1 = dithered PWM */
-	hal_float_t *min_dc;       	/* pin: minimum duty cycle */
-	hal_float_t *max_dc;	        /* pin: maximum duty cycle */
-	hal_float_t *curr_dc;	        /* pin: current duty cycle */
-	hal_float_t *offset;	        /* pin: offset: this is added to duty cycle */
+	bit_pin_ptr   enable;		/* pin for enable signal */
+	bit_pin_ptr   jitter_correct;	// use actual cycle time for turnoff decision
+	float_pin_ptr value;		/* command value */
+	float_pin_ptr scale;		/* pin: scaling from value to duty cycle */
+	float_pin_ptr pwm_freq;	        /* pin: (max) output frequency in Hz */
+	bit_pin_ptr   dither_pwm;       /* 0 = pure PWM, 1 = dithered PWM */
+	float_pin_ptr min_dc;       	/* pin: minimum duty cycle */
+	float_pin_ptr max_dc;	        /* pin: maximum duty cycle */
+	float_pin_ptr curr_dc;	        /* pin: current duty cycle */
+	float_pin_ptr offset;	        /* pin: offset: this is added to duty cycle */
 
 	// tracking values of in or io pins
 	hal_bit_t   old_enable;
@@ -161,7 +162,7 @@ typedef struct {
     struct mp_params tb_state[3];
 
     // out pins are only written to so defacto unshared
-    hal_bit_t *out[2];		/* pins for output signals */
+    bit_pin_ptr  out[2];		/* pins for output signals */
 
 } pwmgen_t;
 
@@ -264,11 +265,11 @@ static int delete_pwmgen(const char *name, void *inst, const int inst_size)
 
     // disable PWM outputs
     if (p->cfg.output_type < 2) {
-	    *(p->out[PWM_PIN]) = 0;
+	set_bit_pin(p->out[PWM_PIN], 0);
     } else {
 	// up/down: drive both outputs low
-	*(p->out[UP_PIN]) = 0;
-	*(p->out[DOWN_PIN]) = 0;
+	set_bit_pin(p->out[UP_PIN], 0);
+	set_bit_pin(p->out[DOWN_PIN], 0);
     }
 
     // delete from instance list
@@ -401,11 +402,11 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 	if (cfg->output_type < 2) {
 	    /* PWM (and maybe DIR) output */
 	    /* DIR is set by update(), we only do PWM */
-	    *(self->out[PWM_PIN]) = mp->curr_output;
+	    set_bit_pin(self->out[PWM_PIN], mp->curr_output);
 	} else {
 	    /* UP and DOWN output */
-	    *(self->out[UP_PIN]) = mp->curr_output & ~mparams->direction;
-	    *(self->out[DOWN_PIN]) = mp->curr_output & mparams->direction;
+	    set_bit_pin(self->out[UP_PIN], mp->curr_output & ~mparams->direction);
+	    set_bit_pin(self->out[DOWN_PIN], mp->curr_output & mparams->direction);
 	}
     }
     return 0;
@@ -424,19 +425,22 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 	struct config *cfg = &self->cfg;
 	struct upd_state *upd = &self->upd;
 
+	hal_float_t max_dc     = get_float_pin(upd->max_dc);
+	hal_float_t min_dc     = get_float_pin(upd->min_dc);
+
 	/* validate duty cycle limits, both limits must be between
 	   0.0 and 1.0 (inclusive) and max must be greater then min */
-	if ( *(upd->max_dc) > 1.0 ) {
-	    *(upd->max_dc) = 1.0;
+	if (max_dc > 1.0) {
+	    set_float_pin(upd->max_dc, 1.0);
 	}
-	if ( *(upd->min_dc) > *(upd->max_dc) ) {
-	    *(upd->min_dc) = *(upd->max_dc);
+	if (min_dc > max_dc) {
+	    set_float_pin(upd->min_dc, max_dc);
 	}
-	if ( *(upd->min_dc) < 0.0 ) {
-	    *(upd->min_dc) = 0.0;
+	if (min_dc < 0.0) {
+	    set_float_pin(upd->min_dc, 0.0);
 	}
-	if ( *(upd->max_dc) < *(upd->min_dc) ) {
-	    *(upd->max_dc) = *(upd->min_dc);
+	if (max_dc < min_dc) {
+	    set_float_pin(upd->max_dc, min_dc);
 	}
 
 	// cop out until we know the thread period from make_pulses
@@ -444,17 +448,18 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 	    return 0;
 
 	// change-detect the driving pins
-#define TRACK(name)  (*(upd->name) != upd->old_##name) ? upd->old_##name = *(upd->name), true : false
+#define TRACK(type, name)  (get_##type##_pin(upd->name) != upd->old_##name) ? \
+		upd->old_##name = get_##type##_pin(upd->name) , true : false
 	bool changed = false;
-	changed |= TRACK(enable);
-	changed |= TRACK(dither_pwm);
-	changed |= TRACK(value);
-	changed |= TRACK(scale);
-	changed |= TRACK(pwm_freq);
-	changed |= TRACK(min_dc);
-	changed |= TRACK(max_dc);
-	changed |= TRACK(offset);
-	changed |= TRACK(jitter_correct);
+	changed |= TRACK(bit, enable);
+	changed |= TRACK(bit, dither_pwm);
+	changed |= TRACK(float, value);
+	changed |= TRACK(float, scale);
+	changed |= TRACK(float, pwm_freq);
+	changed |= TRACK(float, min_dc);
+	changed |= TRACK(float, max_dc);
+	changed |= TRACK(float, offset);
+	changed |= TRACK(bit, jitter_correct);
 #undef TRACK
 	if (!changed)
 	    continue;
@@ -464,56 +469,64 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 	// get a handle on the currently unused param buffer
 	struct mp_params *uparams =  &self->tb_state[rtapi_tb_write(&self->tb)];
 
+	hal_float_t scale      = get_float_pin(upd->scale);
+	hal_bit_t   enable     = get_bit_pin(upd->enable);
+	hal_bit_t   dither_pwm = get_bit_pin(upd->dither_pwm);
+	hal_float_t pwm_freq   = get_float_pin(upd->pwm_freq);
+	hal_float_t value      = get_float_pin(upd->value);
+	hal_float_t offset     = get_float_pin(upd->offset);
+
+
 	/* validate the new scale value */
-	if ((*(upd->scale) < 1e-20)
-	    && (*(upd->scale) > -1e-20)) {
+	if ((scale < 1e-20) && (scale > -1e-20)) {
 	    /* value too small, divide by zero is a bad thing */
-	    *(upd->scale) = 1.0;
+	    set_float_pin(upd->scale, 1.0);
 	}
 	/* we will need the reciprocal */
-	upd->scale_recip = 1.0 / *(upd->scale);
+	upd->scale_recip = 1.0 / scale;
 
 	// set pwm_mode:
-	if ( *(upd->enable) == 0 ) {
+	if ( enable == 0 ) {
 	    uparams->pwm_mode = PWM_DISABLED;
-	} else if ( *(upd->pwm_freq) == 0 ) {
+	} else if ( pwm_freq == 0 ) {
 	    uparams->pwm_mode = PWM_PDM;
-	} else if ( *(upd->dither_pwm) != 0 ) {
+	} else if ( dither_pwm != 0 ) {
 	    uparams->pwm_mode = PWM_DITHER;
 	} else {
 	    uparams->pwm_mode = PWM_PURE;
 	}
 
 	// set pwm_period:
+
 	/* validate max_freq */
-	if ( *(upd->pwm_freq) <= 0.0 ) {
+	if (pwm_freq <= 0.0 ) {
 	    /* zero or negative means PDM mode */
-	    *(upd->pwm_freq) = 0.0;
+	    set_float_pin(upd->pwm_freq, 0.0);
 	    uparams->pwm_period = periodns;
 	} else {
 	    /* positive means PWM mode */
-	    if ( *(upd->pwm_freq) < 0.5 ) {
+	    if ( pwm_freq < 0.5 ) {
 		/* min freq is 0.5 Hz (2 billion nsec period) */
-		*(upd->pwm_freq) = 0.5;
-	    } else if ( *(upd->pwm_freq) > ((1e9/2.0) / periodns) ) {
+		set_float_pin(upd->pwm_freq, 0.5);
+	    } else if ( pwm_freq > ((1e9/2.0) / periodns) ) {
 		/* max freq is 2 base periods */
-		*(upd->pwm_freq) = (1e9/2.0) / periodns;
+		set_float_pin(upd->pwm_freq, (1e9/2.0) / periodns);
 	    }
 	    if ( uparams->pwm_mode == PWM_PURE ) {
 		/* period must be integral multiple of periodns */
-		upd->periods = (( 1e9 / *(upd->pwm_freq) ) / periodns ) + 0.5;
+		upd->periods = (( 1e9 / pwm_freq ) / periodns ) + 0.5;
 		upd->periods_recip = 1.0 / upd->periods;
 		uparams->pwm_period = upd->periods * periodns;
 		/* actual max freq after rounding */
-		*(upd->pwm_freq) = 1.0e9 / uparams->pwm_period;
+		set_float_pin(upd->pwm_freq, 1.0e9 / uparams->pwm_period);
 	    } else {
-		uparams->pwm_period = 1.0e9 / *(upd->pwm_freq);
+		uparams->pwm_period = 1.0e9 / pwm_freq;
 	    }
 	}
 
 	// set direction
 	/* convert value command to duty cycle */
-	tmpdc = *(upd->value) * upd->scale_recip + *(upd->offset);
+	tmpdc = value * upd->scale_recip + offset;
 	if ( cfg->output_type == 0 ) {
 	    /* unidirectional mode, no negative output */
 	    if ( tmpdc < 0.0 ) {
@@ -522,18 +535,18 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 	}
 	/* limit the duty cycle */
 	if (tmpdc >= 0.0) {
-	    if ( tmpdc > *(upd->max_dc) ) {
-		tmpdc = *(upd->max_dc);
-	    } else if ( tmpdc < *(upd->min_dc) ) {
-		tmpdc = *(upd->min_dc);
+	    if ( tmpdc > max_dc) {
+		tmpdc = max_dc;
+	    } else if ( tmpdc < min_dc ) {
+		tmpdc = min_dc;
 	    }
 	    uparams->direction = 0;
 	    outdc = tmpdc;
 	} else {
-	    if ( tmpdc < -*(upd->max_dc) ) {
-		tmpdc = -*(upd->max_dc);
-	    } else if ( tmpdc > -*(upd->min_dc) ) {
-		tmpdc = -*(upd->min_dc);
+	    if ( tmpdc < -max_dc ) {
+		tmpdc = -max_dc;
+	    } else if ( tmpdc > -min_dc ) {
+		tmpdc = -min_dc;
 	    }
 	    uparams->direction = 1;
 	    outdc = -tmpdc;
@@ -546,20 +559,20 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 	    uparams->high_time = high_periods * periodns;
 	    /* save rounded value to curr_dc param */
 	    if ( tmpdc >= 0 ) {
-		*(upd->curr_dc) = high_periods * upd->periods_recip;
+		set_float_pin(upd->curr_dc, high_periods * upd->periods_recip);
 	    } else {
-		*(upd->curr_dc) = -high_periods * upd->periods_recip;
+		set_float_pin(upd->curr_dc, -high_periods * upd->periods_recip);
 	    }
 	} else {
 	    uparams->high_time = ( uparams->pwm_period * outdc ) + 0.5;
 	    /* save duty cycle to curr_dc param */
-	    *(upd->curr_dc) = tmpdc;
+	    set_float_pin(upd->curr_dc, tmpdc);
 	}
 	/* if using PWM/DIR outputs, set DIR pin */
 	if ( cfg->output_type == 1 ) {
-	    *(self->out[DIR_PIN]) = uparams->direction;
+	    set_bit_pin(self->out[DIR_PIN], uparams->direction);
 	}
-	uparams->jitter_correct = *(upd->jitter_correct);
+	uparams->jitter_correct = get_bit_pin(upd->jitter_correct);
 
 	// all fields in mp_params now set
 
@@ -580,142 +593,69 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_pwmgen(const char *name, const int inst_id,
-			 pwmgen_t * addr, const int output_type)
+static int export_pwmgen(const char *name,
+			 const int inst_id,
+			 pwmgen_t *p,
+			 const int output_type)
 {
-    int retval, msg;
+    int msg;
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
+#ifndef VERBOSE_SETUP
     rtapi_set_msg_level(RTAPI_MSG_WARN);
+#endif
 
-    /* export paramameters */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.scale), inst_id,
-	    "%s.scale", name);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.offset), inst_id,
-	    "%s.offset", name);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_IO, &(addr->upd.dither_pwm), inst_id,
-	    "%s.dither-pwm", name);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.pwm_freq), inst_id,
-	    "%s.pwm-freq", name);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.min_dc), inst_id,
-	    "%s.min-dc", name);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.max_dc), inst_id,
-	    "%s.max-dc", name);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->upd.curr_dc), inst_id,
-	    "%s.curr-dc", name);
-    if (retval != 0) {
-	return retval;
-    }
-    /* export pins */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.enable), inst_id,
-	    "%s.enable", name);
-    if (retval != 0) {
-	return retval;
-    }
-    *(addr->upd.enable) = 0;
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.jitter_correct), inst_id,
-	    "%s.jitter_correct", name);
-    if (retval != 0) {
-	return retval;
-    }
-    *(addr->upd.enable) = 0;
-    retval = hal_pin_float_newf(HAL_IN, &(addr->upd.value), inst_id,
-	    "%s.value", name);
-    if (retval != 0) {
-	return retval;
-    }
-    *(addr->upd.value) = 0.0;
+#define FCHECK(rvalue) if (float_pin_null(rvalue)) return _halerrno;
+#define BCHECK(rvalue) if (bit_pin_null(rvalue)) return _halerrno;
+
+    FCHECK(p->upd.scale          = halxd_pin_float_newf(HAL_IO, inst_id, 1.0, "%s.scale", name));
+    FCHECK(p->upd.offset         = halxd_pin_float_newf(HAL_IO, inst_id, 0.0, "%s.offset", name));
+    FCHECK(p->upd.pwm_freq       = halxd_pin_float_newf(HAL_IO, inst_id, 0.0, "%s.pwm-freq", name));
+    FCHECK(p->upd.min_dc         = halxd_pin_float_newf(HAL_IO, inst_id, 0.0, "%s.min-dc", name));
+    FCHECK(p->upd.max_dc         = halxd_pin_float_newf(HAL_IO, inst_id, 1.0, "%s.max-dc", name));
+    FCHECK(p->upd.curr_dc        = halxd_pin_float_newf(HAL_OUT,inst_id, 0.0, "%s.curr-dc", name));
+    FCHECK(p->upd.value          = halxd_pin_float_newf(HAL_IN, inst_id, 0.0, "%s.value", name));
+
+    BCHECK(p->upd.jitter_correct = halxd_pin_bit_newf(HAL_IN,   inst_id, 0,   "%s.jitter-correct", name));
+    BCHECK(p->upd.dither_pwm     = halxd_pin_bit_newf(HAL_IO,   inst_id, 0,   "%s.dither-pwm", name));
+    BCHECK(p->upd.enable         = halxd_pin_bit_newf(HAL_IN,   inst_id, 0,   "%s.enable", name));
+
+
     if (output_type == 2) {
-	/* export UP/DOWN pins */
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[UP_PIN]), inst_id,
-		"%s.up", name);
-	if (retval != 0) {
-	    return retval;
-	}
-	/* init the pin */
-	*(addr->out[UP_PIN]) = 0;
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[DOWN_PIN]), inst_id,
-		"%s.down", name);
-	if (retval != 0) {
-	    return retval;
-	}
-	/* init the pin */
-	*(addr->out[DOWN_PIN]) = 0;
+	  BCHECK(p->out[UP_PIN]   = halxd_pin_bit_newf(HAL_OUT, inst_id, 0, "%s.up", name));
+	  BCHECK(p->out[DOWN_PIN] = halxd_pin_bit_newf(HAL_OUT, inst_id, 0, "%s.down", name));
     } else {
-	/* export PWM pin */
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[PWM_PIN]), inst_id,
-		"%s.pwm", name);
-	if (retval != 0) {
-	    return retval;
-	}
-	/* init the pin */
-	*(addr->out[PWM_PIN]) = 0;
-	if ( output_type == 1 ) {
-	    /* export DIR pin */
-	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[DIR_PIN]), inst_id,
-		    "%s.dir", name);
-	    if (retval != 0) {
-		return retval;
-	    }
-	    /* init the pin */
-	    *(addr->out[DIR_PIN]) = 0;
+	  BCHECK(p->out[PWM_PIN]  = halxd_pin_bit_newf(HAL_OUT, inst_id, 0, "%s.pwm", name));
+
+	  if (output_type == 1) {
+	      BCHECK(p->out[DIR_PIN]   = halxd_pin_bit_newf(HAL_OUT, inst_id, 0, "%s.dir", name));
 	}
     }
-
-    /* init other fields */
-    addr->cfg.output_type = output_type;
+    p->cfg.output_type = output_type;
 
     // set triple buffer initial state
-    rtapi_tb_init(&addr->tb);
-
+    rtapi_tb_init(&p->tb);
 
     // supply startup params to make_pulses
-    struct mp_params *p =  &addr->tb_state[rtapi_tb_write(&addr->tb)];
-    p->high_time = 0;
-    p->pwm_mode = PWM_DISABLED;
-    p->direction = 0;
-    p->pwm_period = 50000;
-    rtapi_tb_flip_writer(&addr->tb); // commit
+    struct mp_params *mpp =  &p->tb_state[rtapi_tb_write(&p->tb)];
+    mpp->high_time = 0;
+    mpp->pwm_mode = PWM_DISABLED;
+    mpp->direction = 0;
+    mpp->pwm_period = 50000;
+    rtapi_tb_flip_writer(&p->tb); // commit
 
-    // update() private state, including pins
-    *(addr->upd.scale) = 1.0;
-    *(addr->upd.offset) = 0.0;
-    *(addr->upd.dither_pwm) = 0;
-    *(addr->upd.pwm_freq) = 0;
-    *(addr->upd.min_dc) = 0.0;
-    *(addr->upd.max_dc) = 1.0;
-    *(addr->upd.curr_dc) = 0.0;
-    *(addr->upd.jitter_correct) = 0;
-    addr->upd.old_scale = *(addr->upd.scale) + 1.0; // trigger change detection
-    addr->upd.old_pwm_freq = -1;
+    // update() private state
+    p->upd.old_scale = 1.0; // trigger change detection
+    p->upd.old_pwm_freq = -1;
 
-
-    // make_pulses private state
-    addr->mp.period_timer = 0;
-    addr->mp.curr_output = 0;
-    addr->mp.high_timer = 0;
+    // make_pulses() private state
+    p->mp.period_timer = 0;
+    p->mp.curr_output = 0;
+    p->mp.high_timer = 0;
 
     /* restore saved message level */
     rtapi_set_msg_level(msg);
