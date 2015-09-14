@@ -213,8 +213,7 @@ int rtapi_app_main(void)
         .reentrant = 0,
         .owner_id = comp_id
     };
-    if ((retval = hal_export_xfunctf(&u,
-				     "%s.update",
+    if ((retval = hal_export_xfunctf(&u, "%s.update",
 				     prefix)) < 0)
 	return retval;
 
@@ -226,8 +225,7 @@ int rtapi_app_main(void)
         .reentrant = 0,
         .owner_id = comp_id
     };
-    if ((retval = hal_export_xfunctf(&mp,
-				     "%s.make-pulses",
+    if ((retval = hal_export_xfunctf(&mp, "%s.make-pulses",
 				     prefix)) < 0)
 	return retval;
     hal_ready(comp_id);
@@ -244,9 +242,9 @@ static int instantiate_pwmgen(const char *name,
 			      const char**argv)
 {
     pwmgen_t *p;
+    int retval;
 
-    int retval = hal_inst_create(name, comp_id, sizeof(pwmgen_t), (void **)&p);
-    if (retval < 0)
+    if ((retval = hal_inst_create(name, comp_id, sizeof(pwmgen_t), (void **)&p)) < 0);
 	return retval;
 
     p->inst_id = retval;
@@ -301,9 +299,9 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 	struct config *cfg = &self->cfg;
 	struct mp_state *mp = &self->mp;
 
-	if (rtapi_tb_new_snap(&self->tb)) {
+	if (rtapi_tb_snapshot(&self->tb)) {
 	    // new parameter set available, fetch it
-	    self->mp.mp = &self->tb_state[rtapi_tb_snap(&self->tb)];
+	    self->mp.mp = &self->tb_state[rtapi_tb_snap_idx(&self->tb)];
 
 #ifdef TRACE_TB
 	    HALDBG("SNAP inst=%d pwm_mode=%d pwm_period=%d high_time=%d direction=%d jc=%d",
@@ -467,7 +465,7 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 	// compute a new parameter set
 
 	// get a handle on the currently unused param buffer
-	struct mp_params *uparams =  &self->tb_state[rtapi_tb_write(&self->tb)];
+	struct mp_params *uparams =  &self->tb_state[rtapi_tb_write_idx(&self->tb)];
 
 	hal_float_t scale      = get_float_pin(upd->scale);
 	hal_bit_t   enable     = get_bit_pin(upd->enable);
@@ -583,7 +581,7 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 	rtapi_smp_wmb();
 
 	// flip the write index
-	rtapi_tb_flip_writer(&self->tb);
+	rtapi_tb_flip(&self->tb);
     }
     return 0;
 }
@@ -641,12 +639,12 @@ static int export_pwmgen(const char *name,
     rtapi_tb_init(&p->tb);
 
     // supply startup params to make_pulses
-    struct mp_params *mpp =  &p->tb_state[rtapi_tb_write(&p->tb)];
+    struct mp_params *mpp =  &p->tb_state[rtapi_tb_write_idx(&p->tb)];
     mpp->high_time = 0;
     mpp->pwm_mode = PWM_DISABLED;
     mpp->direction = 0;
     mpp->pwm_period = 50000;
-    rtapi_tb_flip_writer(&p->tb); // commit
+    rtapi_tb_flip(&p->tb); // commit
 
     // update() private state
     p->upd.old_scale = 1.0; // trigger change detection
