@@ -13,52 +13,52 @@ START_TEST(test_triple_buffer)
 {
     rtapi_tb_init(&tb);
 
-    ck_assert_int_eq(tb_buf[rtapi_tb_snap(&tb)], 0);
-    ck_assert_int_eq(rtapi_tb_new_snap(&tb), false);  // no new data
+    ck_assert_int_eq(tb_buf[rtapi_tb_snap_idx(&tb)], 0);
+    ck_assert_int_eq(rtapi_tb_snapshot(&tb), false);  // no new data
 
     /* Test 1 */
-    tb_buf[rtapi_tb_write(&tb)] = 3;
-    rtapi_tb_flip_writer(&tb);   // commit 3
+    tb_buf[rtapi_tb_write_idx(&tb)] = 3;
+    rtapi_tb_flip(&tb);   // commit 3
 
-    ck_assert_int_eq(rtapi_tb_new_snap(&tb), true);      // flipped - new data available
-    ck_assert_int_eq(tb_buf[rtapi_tb_snap(&tb)], 3);
-    ck_assert_int_eq(rtapi_tb_new_snap(&tb), false);     // no new data
+    ck_assert_int_eq(rtapi_tb_snapshot(&tb), true);      // flipped - new data available
+    ck_assert_int_eq(tb_buf[rtapi_tb_snap_idx(&tb)], 3);
+    ck_assert_int_eq(rtapi_tb_snapshot(&tb), false);     // no new data
 
     /* Test 2 */
-    tb_buf[rtapi_tb_write(&tb)] = 4;
-    rtapi_tb_flip_writer(&tb);                           // commit 4
-    tb_buf[rtapi_tb_write(&tb)] = 5;                     // 5 not committed
+    tb_buf[rtapi_tb_write_idx(&tb)] = 4;
+    rtapi_tb_flip(&tb);                           // commit 4
+    tb_buf[rtapi_tb_write_idx(&tb)] = 5;                     // 5 not committed
 
-    ck_assert_int_eq(rtapi_tb_new_snap(&tb), true);      // new data
-    ck_assert_int_eq(tb_buf[rtapi_tb_snap(&tb)], 4);     // equals last committed, 4
-    rtapi_tb_flip_writer(&tb);                           // commit 5
-    ck_assert_int_eq(tb_buf[rtapi_tb_snap(&tb)], 4);     // still 4 since no new snap
+    ck_assert_int_eq(rtapi_tb_snapshot(&tb), true);      // new data
+    ck_assert_int_eq(tb_buf[rtapi_tb_snap_idx(&tb)], 4);     // equals last committed, 4
+    rtapi_tb_flip(&tb);                           // commit 5
+    ck_assert_int_eq(tb_buf[rtapi_tb_snap_idx(&tb)], 4);     // still 4 since no new snap
 
-    ck_assert_int_eq(rtapi_tb_new_snap(&tb), true);      // new data
-    ck_assert_int_eq(tb_buf[rtapi_tb_snap(&tb)], 5);     // must be 5 now since new snap
+    ck_assert_int_eq(rtapi_tb_snapshot(&tb), true);      // new data
+    ck_assert_int_eq(tb_buf[rtapi_tb_snap_idx(&tb)], 5);     // must be 5 now since new snap
 
-    rtapi_tb_flip_writer(&tb);
-    tb_buf[rtapi_tb_write(&tb)] = 6;                     // 6 but not committed
-    rtapi_tb_flip_writer(&tb);
-    ck_assert_int_eq(rtapi_tb_new_snap(&tb), true);      // must be new data
-    ck_assert_int_eq(tb_buf[rtapi_tb_snap(&tb)], 6);     // must be 6 now since new snap
+    rtapi_tb_flip(&tb);
+    tb_buf[rtapi_tb_write_idx(&tb)] = 6;                     // 6 but not committed
+    rtapi_tb_flip(&tb);
+    ck_assert_int_eq(rtapi_tb_snapshot(&tb), true);      // must be new data
+    ck_assert_int_eq(tb_buf[rtapi_tb_snap_idx(&tb)], 6);     // must be 6 now since new snap
 
-    tb_buf[rtapi_tb_write(&tb)] = 7;
-    rtapi_tb_flip_writer(&tb);
-    tb_buf[rtapi_tb_write(&tb)] = 8;
-    rtapi_tb_flip_writer(&tb);
-    ck_assert_int_eq(tb_buf[rtapi_tb_snap(&tb)], 6); // must be still 6 since no new snap
+    tb_buf[rtapi_tb_write_idx(&tb)] = 7;
+    rtapi_tb_flip(&tb);
+    tb_buf[rtapi_tb_write_idx(&tb)] = 8;
+    rtapi_tb_flip(&tb);
+    ck_assert_int_eq(tb_buf[rtapi_tb_snap_idx(&tb)], 6); // must be still 6 since no new snap
 
-    tb_buf[rtapi_tb_write(&tb)] = 7;
-    rtapi_tb_flip_writer(&tb);
-    tb_buf[rtapi_tb_write(&tb)] = 8;
-    rtapi_tb_flip_writer(&tb);
+    tb_buf[rtapi_tb_write_idx(&tb)] = 7;
+    rtapi_tb_flip(&tb);
+    tb_buf[rtapi_tb_write_idx(&tb)] = 8;
+    rtapi_tb_flip(&tb);
 
-    ck_assert_int_eq(rtapi_tb_new_snap(&tb), true);      // must be new data, 8
-    ck_assert_int_eq(tb_buf[rtapi_tb_snap(&tb)], 8);
+    ck_assert_int_eq(rtapi_tb_snapshot(&tb), true);      // must be new data, 8
+    ck_assert_int_eq(tb_buf[rtapi_tb_snap_idx(&tb)], 8);
 
-    ck_assert_int_eq(rtapi_tb_new_snap(&tb), false);      // no new data, 8
-    ck_assert_int_eq(tb_buf[rtapi_tb_snap(&tb)], 8);
+    ck_assert_int_eq(rtapi_tb_snapshot(&tb), false);      // no new data, 8
+    ck_assert_int_eq(tb_buf[rtapi_tb_snap_idx(&tb)], 8);
 }
 END_TEST
 
@@ -91,15 +91,15 @@ static void *test_tbop(void * arg)
 	    switch (t->op) {
 
 	    case TB_WRITE_FLIP:
-		t->tb_buf[rtapi_tb_write(t->tbflag)] = t->value;
-		rtapi_tb_flip_writer(t->tbflag);
+		t->tb_buf[rtapi_tb_write_idx(t->tbflag)] = t->value;
+		rtapi_tb_flip(t->tbflag);
 		t->value++;
 		break;
 
 	    case TB_SNAP_READ:
-		if (rtapi_tb_new_snap(t->tbflag)) {
+		if (rtapi_tb_snapshot(t->tbflag)) {
 		    t->snapped++;
-		    int v = t->tb_buf[rtapi_tb_snap(t->tbflag)];
+		    int v = t->tb_buf[rtapi_tb_snap_idx(t->tbflag)];
 		    // expect nondecreasing sequence of values
 		    ck_assert(v >= t->value);
 		    t->value = v;
