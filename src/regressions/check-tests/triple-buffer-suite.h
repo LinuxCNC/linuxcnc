@@ -11,7 +11,45 @@ int tb_buf[3];
 
 START_TEST(test_triple_buffer)
 {
+    int i;
     rtapi_tb_init(&tb);
+    hal_u8_t startup_state = tb;
+
+    // show startup conditions
+    ck_assert_int_eq(rtapi_tb_write_idx(&tb), 0);     // current write index=0
+    ck_assert_int_eq(rtapi_tb_snap_idx(&tb), 2);      // current snap index=2
+    ck_assert_int_eq(rtapi_tb_snapshot(&tb), false);  // nothing to snapshot
+
+    // snapshot does not change the write index:
+    ck_assert_int_eq(rtapi_tb_write_idx(&tb), 0);     // current write index still 0
+
+    // an unsuccessful snapshot does not change the snap index:
+    ck_assert_int_eq(rtapi_tb_snap_idx(&tb), 2);      // current snap index still 2
+
+    // show cycling through states:
+    i = 10;
+    while (i--) {
+	rtapi_tb_flip(&tb);
+	ck_assert_int_eq(rtapi_tb_write_idx(&tb), 1);     // flip: write index 0 -> 1
+	ck_assert_int_eq(rtapi_tb_snapshot(&tb), true);   // after a flip snapshot returns true
+	ck_assert_int_eq(rtapi_tb_snap_idx(&tb), 0);      // snap index:  2 -> 0
+
+	rtapi_tb_flip(&tb);
+	ck_assert_int_eq(rtapi_tb_write_idx(&tb), 2);     // flip: write index 1 -> 2
+	ck_assert_int_eq(rtapi_tb_snapshot(&tb), true);   //
+	ck_assert_int_eq(rtapi_tb_snap_idx(&tb), 1);      // snap index:  0 -> 1
+
+	rtapi_tb_flip(&tb);
+	ck_assert_int_eq(rtapi_tb_write_idx(&tb), 0);     // flip: write index 2 -> 0
+	ck_assert_int_eq(rtapi_tb_snapshot(&tb), true);   //
+	ck_assert_int_eq(rtapi_tb_snap_idx(&tb), 2);      // snap index:  1 -> 2
+
+	// we've come full circle ;)
+	ck_assert_int_eq(tb,startup_state);
+    }
+
+    // regressions
+    rtapi_tb_init(&tb); // re-init
 
     ck_assert_int_eq(tb_buf[rtapi_tb_snap_idx(&tb)], 0);
     ck_assert_int_eq(rtapi_tb_snapshot(&tb), false);  // no new data
