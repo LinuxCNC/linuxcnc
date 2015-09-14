@@ -182,7 +182,8 @@ static const char *prefix = "pwmgen"; // less surprises on funct names
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
-static int export_pwmgen(const char *name, pwmgen_t * addr, const int output_type);
+static int export_pwmgen(const char *name, const int inst_id,
+			 pwmgen_t * addr, const int output_type);
 static int make_pulses(void *arg, const hal_funct_args_t *fa);
 static int update(void *arg, const hal_funct_args_t *fa);
 static int instantiate_pwmgen(const char *name, const int argc,
@@ -248,7 +249,7 @@ static int instantiate_pwmgen(const char *name,
 	return retval;
 
     p->inst_id = retval;
-    if ((retval = export_pwmgen(name, p, output_type)) != 0)
+    if ((retval = export_pwmgen(name, p->inst_id, p, output_type)) != 0)
 	HALFAIL_RC(retval, "%s: ERROR: export(%s) failed", compname, name);
 
     // append to instance list
@@ -579,7 +580,8 @@ static int update(void *arg,  const hal_funct_args_t *fa)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_pwmgen(const char *name, pwmgen_t * addr, const int output_type)
+static int export_pwmgen(const char *name, const int inst_id,
+			 pwmgen_t * addr, const int output_type)
 {
     int retval, msg;
 
@@ -591,55 +593,55 @@ static int export_pwmgen(const char *name, pwmgen_t * addr, const int output_typ
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export paramameters */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.scale), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.scale), inst_id,
 	    "%s.scale", name);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.offset), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.offset), inst_id,
 	    "%s.offset", name);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IO, &(addr->upd.dither_pwm), comp_id,
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->upd.dither_pwm), inst_id,
 	    "%s.dither-pwm", name);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.pwm_freq), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.pwm_freq), inst_id,
 	    "%s.pwm-freq", name);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.min_dc), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.min_dc), inst_id,
 	    "%s.min-dc", name);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.max_dc), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upd.max_dc), inst_id,
 	    "%s.max-dc", name);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->upd.curr_dc), comp_id,
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->upd.curr_dc), inst_id,
 	    "%s.curr-dc", name);
     if (retval != 0) {
 	return retval;
     }
     /* export pins */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.enable), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.enable), inst_id,
 	    "%s.enable", name);
     if (retval != 0) {
 	return retval;
     }
     *(addr->upd.enable) = 0;
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.jitter_correct), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.jitter_correct), inst_id,
 	    "%s.jitter_correct", name);
     if (retval != 0) {
 	return retval;
     }
     *(addr->upd.enable) = 0;
-    retval = hal_pin_float_newf(HAL_IN, &(addr->upd.value), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->upd.value), inst_id,
 	    "%s.value", name);
     if (retval != 0) {
 	return retval;
@@ -647,14 +649,14 @@ static int export_pwmgen(const char *name, pwmgen_t * addr, const int output_typ
     *(addr->upd.value) = 0.0;
     if (output_type == 2) {
 	/* export UP/DOWN pins */
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[UP_PIN]), comp_id,
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[UP_PIN]), inst_id,
 		"%s.up", name);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* init the pin */
 	*(addr->out[UP_PIN]) = 0;
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[DOWN_PIN]), comp_id,
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[DOWN_PIN]), inst_id,
 		"%s.down", name);
 	if (retval != 0) {
 	    return retval;
@@ -663,7 +665,7 @@ static int export_pwmgen(const char *name, pwmgen_t * addr, const int output_typ
 	*(addr->out[DOWN_PIN]) = 0;
     } else {
 	/* export PWM pin */
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[PWM_PIN]), comp_id,
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[PWM_PIN]), inst_id,
 		"%s.pwm", name);
 	if (retval != 0) {
 	    return retval;
@@ -672,7 +674,7 @@ static int export_pwmgen(const char *name, pwmgen_t * addr, const int output_typ
 	*(addr->out[PWM_PIN]) = 0;
 	if ( output_type == 1 ) {
 	    /* export DIR pin */
-	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[DIR_PIN]), comp_id,
+	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[DIR_PIN]), inst_id,
 		    "%s.dir", name);
 	    if (retval != 0) {
 		return retval;
