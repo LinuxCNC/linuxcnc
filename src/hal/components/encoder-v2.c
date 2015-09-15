@@ -85,13 +85,16 @@ RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "names of encoder");
 /* data that is atomically passed from fast function to slow one */
 
 typedef struct {
-    char count_detected;
-    char index_detected;
-    char latch_detected;
-    __s32 raw_count;
-    __u32 timestamp;
-    __s32 index_count;
-    __s32 latch_count;
+    // event flags: set by update, cleared by capture
+    char count_detected;  // u:s c:rc
+    char index_detected;  // u:s c:rc
+    char latch_detected;  // u:s c:rc
+
+    // event params: set by update, read by capture
+    __s32 raw_count;      // u:s c:r
+    __u32 timestamp;      // u:s c:r
+    __s32 index_count;    // u:s c:r
+    __s32 latch_count;    // u:s c:r
 } atomic;
 
 /* this structure contains the runtime data for a single counter
@@ -101,38 +104,50 @@ typedef struct {
 */
 
 typedef struct {
-    unsigned char state;	/* u:rw quad decode state machine state */
-    unsigned char oldZ;		/* u:rw previous value of phase Z */
-    unsigned char Zmask;	/* u:rc c:s mask for oldZ, from index-ena */
-    hal_bit_t *x4_mode;		/* u:r enables x4 counting (default) */
-    hal_bit_t *counter_mode;	/* u:r enables counter mode */
-    atomic buf[2];		/* u:w c:r double buffer for atomic data */
-    volatile atomic *bp;	/* u:r c:w ptr to in-use buffer */
-    hal_s32_t *raw_counts;	/* u:rw raw count value, in update() only */
-    hal_bit_t *phaseA;		/* u:r quadrature input */
-    hal_bit_t *phaseB;		/* u:r quadrature input */
-    hal_bit_t *phaseZ;		/* u:r index pulse input */
-    hal_bit_t *index_ena;	/* c:rw index enable input */
-    hal_bit_t *reset;		/* c:r counter reset input */
-    hal_bit_t *latch_in;        /* c:r counter latch input */
-    hal_bit_t *latch_rising;    /* u:r latch on rising edge? */
-    hal_bit_t *latch_falling;   /* u:r latch on falling edge? */
-    __s32 raw_count;		/* c:rw captured raw_count */
-    __u32 timestamp;		/* c:rw captured timestamp */
-    __s32 index_count;		/* c:rw captured index count */
-    __s32 latch_count;		/* c:rw captured index count */
-    hal_s32_t *count;		/* c:w captured binary count value */
-    hal_s32_t *count_latch;     /* c:w captured binary count value */
-    hal_float_t *min_speed;     /* c:r minimum velocity to estimate nonzero */
-    hal_float_t *pos;		/* c:w scaled position (floating point) */
-    hal_float_t *pos_interp;	/* c:w scaled and interpolated position (float) */
-    hal_float_t *pos_latch;     /* c:w scaled latched position (floating point) */
-    hal_float_t *vel;		/* c:w scaled velocity (floating point) */
-    hal_float_t *pos_scale;	/* c:r pin: scaling factor for pos */
-    hal_bit_t old_latch;        /* value of latch on previous cycle */
-    double old_scale;		/* c:rw stored scale value */
-    double scale;		/* c:rw reciprocal value used for scaling */
-    int counts_since_timeout;	/* c:rw used for velocity calcs */
+
+    // fast, no fp
+    struct update_state {
+	hal_bit_t *x4_mode;		/* u:r enables x4 counting (default) */
+	hal_bit_t *counter_mode;	/* u:r enables counter mode */
+	hal_bit_t *phaseA;		/* u:r quadrature input */
+	hal_bit_t *phaseB;		/* u:r quadrature input */
+	hal_bit_t *phaseZ;		/* u:r index pulse input */
+	hal_bit_t *latch_rising;    /* u:r latch on rising edge? */
+	hal_bit_t *latch_falling;   /* u:r latch on falling edge? */
+	hal_bit_t *latch_in;        /* u:r counter latch input */
+	hal_bit_t old_latch;        /* value of latch on previous cycle */
+
+	unsigned char state;	/* u:rw quad decode state machine state */
+	unsigned char oldZ;		/* u:rw previous value of phase Z */
+    } upd;
+
+    // slow, fp
+    struct capture_state {
+	hal_bit_t *index_ena;	/* c:rw index enable input */
+	hal_bit_t *reset;	/* c:r counter reset input */
+	__s32 raw_count;		/* c:rw captured raw_count */
+	__u32 timestamp;		/* c:rw captured timestamp */
+	__s32 index_count;		/* c:rw captured index count */
+	__s32 latch_count;		/* c:rw captured index count */
+	hal_s32_t *count;		/* c:w captured binary count value */
+	hal_s32_t *count_latch;     /* c:w captured binary count value */
+	hal_float_t *min_speed;     /* c:r minimum velocity to estimate nonzero */
+	hal_float_t *pos;		/* c:w scaled position (floating point) */
+	hal_float_t *pos_interp;	/* c:w scaled and interpolated position (float) */
+	hal_float_t *pos_latch;     /* c:w scaled latched position (floating point) */
+	hal_float_t *vel;		/* c:w scaled velocity (floating point) */
+	hal_float_t *pos_scale;	/* c:r pin: scaling factor for pos */
+	double old_scale;		/* c:rw stored scale value */
+	double scale;		/* c:rw reciprocal value used for scaling */
+	int counts_since_timeout;	/* c:rw used for velocity calcs */
+    } capt;
+
+    struct shared_state {
+	hal_s32_t *raw_counts;	/* u:rw c:r raw count value */
+	unsigned char Zmask;	/* u:rc c:s mask for oldZ, from index-ena */
+	atomic buf[2];		/* u:w c:r double buffer for atomic data */
+	volatile atomic *bp;	/* u:r c:w ptr to in-use buffer */
+    } shared;
 } counter_t;
 
 static __u32 timebase;		/* master timestamp for all counters */
@@ -188,7 +203,6 @@ static void capture(void *arg, long period);
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
-
 
 int rtapi_app_main(void)
 {
@@ -254,33 +268,39 @@ int rtapi_app_main(void)
 	    hal_exit(comp_id);
 	    return -1;
 	}
-	/* init counter */
-	cntr->state = 0;
-	cntr->oldZ = 0;
-	cntr->Zmask = 0;
-	*(cntr->x4_mode) = 1;
-	*(cntr->counter_mode) = 0;
-	*(cntr->latch_rising) = 1;
-	*(cntr->latch_falling) = 1;
-	cntr->buf[0].count_detected = 0;
-	cntr->buf[1].count_detected = 0;
-	cntr->buf[0].index_detected = 0;
-	cntr->buf[1].index_detected = 0;
-	cntr->bp = &(cntr->buf[0]);
-	*(cntr->raw_counts) = 0;
-	cntr->raw_count = 0;
-	cntr->timestamp = 0;
-	cntr->index_count = 0;
-	cntr->latch_count = 0;
-	*(cntr->count) = 0;
-	*(cntr->min_speed) = 1.0;
-	*(cntr->pos) = 0.0;
-	*(cntr->pos_latch) = 0.0;
-	*(cntr->vel) = 0.0;
-	*(cntr->pos_scale) = 1.0;
-	cntr->old_scale = 1.0;
-	cntr->scale = 1.0;
-	cntr->counts_since_timeout = 0;
+
+	struct shared_state *shared = &cntr->shared;
+	shared->Zmask = 0;
+	shared->buf[0].count_detected = 0;
+	shared->buf[1].count_detected = 0;
+	shared->buf[0].index_detected = 0;
+	shared->buf[1].index_detected = 0;
+	shared->bp = &(shared->buf[0]);
+	*(shared->raw_counts) = 0;
+
+	struct update_state *upd = &cntr->upd;
+	upd->state = 0;
+	upd->oldZ = 0;
+	*(upd->x4_mode) = 1;
+	*(upd->counter_mode) = 0;
+	*(upd->latch_rising) = 1;
+	*(upd->latch_falling) = 1;
+
+	struct capture_state *capt = &cntr->capt;
+	capt->raw_count = 0;
+	capt->timestamp = 0;
+	capt->index_count = 0;
+	capt->latch_count = 0;
+	*(capt->count) = 0;
+	*(capt->min_speed) = 1.0;
+	*(capt->pos) = 0.0;
+	*(capt->pos_interp) = 0.0;  // was missing
+	*(capt->pos_latch) = 0.0;
+	*(capt->vel) = 0.0;
+	*(capt->pos_scale) = 1.0;
+	capt->old_scale = 1.0;
+	capt->scale = 1.0;
+	capt->counts_since_timeout = 0;
     }
     /* export functions */
     retval = hal_export_funct("encoder.update-counters", update,
@@ -314,6 +334,7 @@ void rtapi_app_exit(void)
 *            REALTIME ENCODER COUNTING AND UPDATE FUNCTIONS            *
 ************************************************************************/
 
+// FAST NOFP
 static void update(void *arg, long period)
 {
     counter_t *cntr;
@@ -324,63 +345,70 @@ static void update(void *arg, long period)
 
     cntr = arg;
     for (n = 0; n < howmany; n++) {
-	buf = (atomic *) cntr->bp;
+
+	struct update_state *upd = &cntr->upd;
+	struct shared_state *shared = &cntr->shared;
+
+	buf = (atomic *) shared->bp;
+
 	/* get state machine current state */
-	state = cntr->state;
+	state = upd->state;
+
 	/* add input bits to state code */
-	if (*(cntr->phaseA)) {
+	if (*(upd->phaseA)) {
 	    state |= SM_PHASE_A_MASK;
 	}
-	if (*(cntr->phaseB)) {
+	if (*(upd->phaseB)) {
 	    state |= SM_PHASE_B_MASK;
 	}
 	/* look up new state */
-	if ( *(cntr->counter_mode) ) {
+	if ( *(upd->counter_mode) ) {
 	    state = lut_ctr[state & (SM_LOOKUP_MASK & ~SM_PHASE_B_MASK)];
-	} else if ( *(cntr->x4_mode) ) {
+	} else if ( *(upd->x4_mode) ) {
 	    state = lut_x4[state & SM_LOOKUP_MASK];
 	} else {
 	    state = lut_x1[state & SM_LOOKUP_MASK];
 	}
 	/* should we count? */
 	if (state & SM_CNT_UP_MASK) {
-	    (*cntr->raw_counts)++;
-	    buf->raw_count = *(cntr->raw_counts);
+	    (*shared->raw_counts)++;
+	    buf->raw_count = *(shared->raw_counts);
 	    buf->timestamp = timebase;
 	    buf->count_detected = 1;
 	} else if (state & SM_CNT_DN_MASK) {
-	    (*cntr->raw_counts)--;
-	    buf->raw_count = *(cntr->raw_counts);
+	    (*shared->raw_counts)--;
+	    buf->raw_count = *(shared->raw_counts);
 	    buf->timestamp = timebase;
 	    buf->count_detected = 1;
 	}
 	/* save state machine state */
-	cntr->state = state;
+	upd->state = state;
 	/* get old phase Z state, make room for new bit value */
-	state = cntr->oldZ << 1;
+	state = upd->oldZ << 1;
 	/* add new value of phase Z */
-	if (*(cntr->phaseZ)) {
+	if (*(upd->phaseZ)) {
 	    state |= 1;
 	}
-	cntr->oldZ = state & 3;
+	upd->oldZ = state & 3;
 	/* test for index enabled and rising edge on phase Z */
-	if ((state & cntr->Zmask) == 1) {
+	if ((state & shared->Zmask) == 1) {
 	    /* capture counts, reset Zmask */
-	    buf->index_count = *(cntr->raw_counts);
+	    buf->index_count = *(shared->raw_counts);
 	    buf->index_detected = 1;
-	    cntr->Zmask = 0;
+	    shared->Zmask = 0;
 	}
         /* test for latch enabled and desired edge on latch-in */
-        latch = *(cntr->latch_in), old_latch = cntr->old_latch;
+        latch = *(upd->latch_in), old_latch = upd->old_latch;
+
         rising = latch && !old_latch;
         falling = !latch && old_latch;
 
-        if((rising && *(cntr->latch_rising))
-                || (falling && *(cntr->latch_falling))) {
+        if((rising && *(upd->latch_rising))
+                || (falling && *(upd->latch_falling))) {
             buf->latch_detected = 1;
-            buf->latch_count = *(cntr->raw_counts);
+            buf->latch_count = *(shared->raw_counts);
         }
-        cntr->old_latch = latch;
+        upd->old_latch = latch;
 
 	/* move on to next channel */
 	cntr++;
@@ -390,7 +418,7 @@ static void update(void *arg, long period)
     /* done */
 }
 
-
+// SLOW FP
 static void capture(void *arg, long period)
 {
     counter_t *cntr;
@@ -402,112 +430,119 @@ static void capture(void *arg, long period)
 
     cntr = arg;
     for (n = 0; n < howmany; n++) {
+
+	struct capture_state *capt = &cntr->capt;
+	struct shared_state *shared = &cntr->shared;
+
 	/* point to active buffer */
-	buf = (atomic *) cntr->bp;
+	buf = (atomic *) shared->bp;
 	/* tell update() to use the other buffer */
-	if ( buf == &(cntr->buf[0]) ) {
-	    cntr->bp = &(cntr->buf[1]);
+	if ( buf == &(shared->buf[0]) ) {
+	    shared->bp = &(shared->buf[1]);
 	} else {
-	    cntr->bp = &(cntr->buf[0]);
+	    shared->bp = &(shared->buf[0]);
 	}
 	/* handle index */
 	if ( buf->index_detected ) {
 	    buf->index_detected = 0;
-	    cntr->index_count = buf->index_count;
-	    *(cntr->index_ena) = 0;
+	    capt->index_count = buf->index_count;
+	    *(capt->index_ena) = 0;
 	}
         /* handle latch */
 	if ( buf->latch_detected ) {
 	    buf->latch_detected = 0;
-	    cntr->latch_count = buf->latch_count;
+	    capt->latch_count = buf->latch_count;
 	}
 
 	/* update Zmask based on index_ena */
-	if (*(cntr->index_ena)) {
-	    cntr->Zmask = 3;
+	if (*(capt->index_ena)) {
+	    shared->Zmask = 3;
 	} else {
-	    cntr->Zmask = 0;
+	    shared->Zmask = 0;
 	}
 	/* done interacting with update() */
 	/* check for change in scale value */
-	if ( *(cntr->pos_scale) != cntr->old_scale ) {
+	if ( *(capt->pos_scale) != capt->old_scale ) {
 	    /* save new scale to detect future changes */
-	    cntr->old_scale = *(cntr->pos_scale);
+	    capt->old_scale = *(capt->pos_scale);
 	    /* scale value has changed, test and update it */
-	    if ((*(cntr->pos_scale) < 1e-20) && (*(cntr->pos_scale) > -1e-20)) {
+	    if ((*(capt->pos_scale) < 1e-20) && (*(capt->pos_scale) > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		*(cntr->pos_scale) = 1.0;
+		*(capt->pos_scale) = 1.0;
 	    }
 	    /* we actually want the reciprocal */
-	    cntr->scale = 1.0 / *(cntr->pos_scale);
+	    capt->scale = 1.0 / *(capt->pos_scale);
 	}
         /* check for valid min_speed */
-        if ( *(cntr->min_speed) == 0 ) {
-            *(cntr->min_speed) = 1;
+        if ( *(capt->min_speed) == 0 ) {
+            *(capt->min_speed) = 1;
         }
 
 	/* check reset input */
-	if (*(cntr->reset)) {
+	if (*(capt->reset)) {
 	    /* reset is active, reset the counter */
 	    /* note: we NEVER reset raw_counts, that is always a
 		running count of edges seen since startup.  The
 		public "count" is the difference between raw_count
 		and index_count, so it will become zero. */
-	    cntr->raw_count = *(cntr->raw_counts);
-	    cntr->index_count = cntr->raw_count;
+
+	    capt->raw_count = *(shared->raw_counts);
+	    capt->index_count = capt->raw_count;
 	}
 	/* process data from update() */
 	if ( buf->count_detected ) {
 	    /* one or more counts in the last period */
 	    buf->count_detected = 0;
-	    delta_counts = buf->raw_count - cntr->raw_count;
-	    delta_time = buf->timestamp - cntr->timestamp;
-	    cntr->raw_count = buf->raw_count;
-	    cntr->timestamp = buf->timestamp;
-	    if ( cntr->counts_since_timeout < 2 ) {
-		cntr->counts_since_timeout++;
+	    delta_counts = buf->raw_count - capt->raw_count;
+	    delta_time = buf->timestamp - capt->timestamp;
+	    capt->raw_count = buf->raw_count;
+	    capt->timestamp = buf->timestamp;
+	    if ( capt->counts_since_timeout < 2 ) {
+		capt->counts_since_timeout++;
 	    } else {
-		vel = (delta_counts * cntr->scale ) / (delta_time * 1e-9);
-		*(cntr->vel) = vel;
+		vel = (delta_counts * capt->scale ) / (delta_time * 1e-9);
+		*(capt->vel) = vel;
 	    }
 	} else {
 	    /* no count */
-	    if ( cntr->counts_since_timeout ) {
+	    if ( capt->counts_since_timeout ) {
 		/* calc time since last count */
-		delta_time = timebase - cntr->timestamp;
-		if ( delta_time < 1e9 / ( *(cntr->min_speed) * cntr->scale )) {
+		delta_time = timebase - capt->timestamp;
+		if ( delta_time < 1e9 / ( *(capt->min_speed) * capt->scale )) {
 		    /* not to long, estimate vel if a count arrived now */
-		    vel = ( cntr->scale ) / (delta_time * 1e-9);
+		    vel = ( capt->scale ) / (delta_time * 1e-9);
 		    /* make vel positive, even if scale is negative */
 		    if ( vel < 0.0 ) vel = -vel;
 		    /* use lesser of estimate and previous value */
 		    /* use sign of previous value, magnitude of estimate */
-		    if ( vel < *(cntr->vel) ) {
-			*(cntr->vel) = vel;
+		    if ( vel < *(capt->vel) ) {
+			*(capt->vel) = vel;
 		    }
-		    if ( -vel > *(cntr->vel) ) {
-			*(cntr->vel) = -vel;
+		    if ( -vel > *(capt->vel) ) {
+			*(capt->vel) = -vel;
 		    }
 		} else {
 		    /* its been a long time, stop estimating */
-		    cntr->counts_since_timeout = 0;
-		    *(cntr->vel) = 0;
+		    capt->counts_since_timeout = 0;
+		    *(capt->vel) = 0;
 		}
 	    } else {
 		/* we already stopped estimating */
-		*(cntr->vel) = 0;
+		*(capt->vel) = 0;
 	    }
 	}
 	/* compute net counts */
-	*(cntr->count) = cntr->raw_count - cntr->index_count;
-        *(cntr->count_latch) = cntr->latch_count - cntr->index_count;
+	*(capt->count) = capt->raw_count - capt->index_count;
+        *(capt->count_latch) = capt->latch_count - capt->index_count;
+
 	/* scale count to make floating point position */
-	*(cntr->pos) = *(cntr->count) * cntr->scale;
-	*(cntr->pos_latch) = *(cntr->count_latch) * cntr->scale;
+	*(capt->pos) = *(capt->count) * capt->scale;
+	*(capt->pos_latch) = *(capt->count_latch) * capt->scale;
+
 	/* add interpolation value */
-	delta_time = timebase - cntr->timestamp;
-	interp = *(cntr->vel) * (delta_time * 1e-9);
-	*(cntr->pos_interp) = *(cntr->pos) + interp;
+	delta_time = timebase - capt->timestamp;
+	interp = *(capt->vel) * (delta_time * 1e-9);
+	*(capt->pos_interp) = *(capt->pos) + interp;
 	/* move on to next channel */
 	cntr++;
     }
@@ -530,113 +565,113 @@ static int export_encoder(counter_t * addr,char * prefix)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pins for the quadrature inputs */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseA), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.phaseA), comp_id,
             "%s.phase-A", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseB), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.phaseB), comp_id,
             "%s.phase-B", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the index input */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseZ), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.phaseZ), comp_id,
             "%s.phase-Z", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the index enable input */
-    retval = hal_pin_bit_newf(HAL_IO, &(addr->index_ena), comp_id,
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->capt.index_ena), comp_id,
             "%s.index-enable", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the reset input */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->reset), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->capt.reset), comp_id,
             "%s.reset", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pins for position latching */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->latch_in), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.latch_in), comp_id,
             "%s.latch-input", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->latch_rising), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.latch_rising), comp_id,
             "%s.latch-rising", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->latch_falling), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->upd.latch_falling), comp_id,
             "%s.latch-falling", prefix);
     if (retval != 0) {
 	return retval;
     }
 
     /* export parameter for raw counts */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->raw_counts), comp_id,
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->shared.raw_counts), comp_id,
             "%s.rawcounts", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counts captured by capture() */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->count), comp_id,
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->capt.count), comp_id,
             "%s.counts", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counts latched by capture() */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->count_latch), comp_id,
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->capt.count_latch), comp_id,
             "%s.counts-latched", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for minimum speed estimated by capture() */
-    retval = hal_pin_float_newf(HAL_IN, &(addr->min_speed), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->capt.min_speed), comp_id,
             "%s.min-speed-estimate", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by capture() */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos), comp_id,
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->capt.pos), comp_id,
             "%s.position", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled and interpolated position captured by capture() */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos_interp), comp_id,
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->capt.pos_interp), comp_id,
             "%s.position-interpolated", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for latched position captured by capture() */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos_latch), comp_id,
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->capt.pos_latch), comp_id,
             "%s.position-latched", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled velocity captured by capture() */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->vel), comp_id,
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->capt.vel), comp_id,
             "%s.velocity", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaling */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->pos_scale), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->capt.pos_scale), comp_id,
             "%s.position-scale", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for x4 mode */
-    retval = hal_pin_bit_newf(HAL_IO, &(addr->x4_mode), comp_id,
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->upd.x4_mode), comp_id,
             "%s.x4-mode", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counter mode */
-    retval = hal_pin_bit_newf(HAL_IO, &(addr->counter_mode), comp_id,
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->upd.counter_mode), comp_id,
             "%s.counter-mode", prefix);
     if (retval != 0) {
 	return retval;
