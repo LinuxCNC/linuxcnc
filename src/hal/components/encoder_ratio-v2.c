@@ -125,6 +125,10 @@ typedef union  {
 /* this structure contains the runtime data for a single counter */
 typedef struct {
 
+    struct to_sample {
+	increments_t incr;  // s:r u:w
+    } sample_reads;
+
     struct sample_state {
 	hal_bit_t *master_A;	/* quadrature input */
 	hal_bit_t *master_B;	/* quadrature input */
@@ -137,19 +141,18 @@ typedef struct {
     } smpl;
 
     struct upd_state {
+	double output_scale;
+
 	hal_u32_t *master_ppr;	/* parameter: master encoder PPR */
 	hal_u32_t *slave_ppr;	/* parameter: slave encoder PPR */
 	hal_u32_t *master_teeth; /* parameter: master "gear" tooth count */
 	hal_u32_t *slave_teeth;	/* parameter: slave "gear" tooth count */
 	hal_float_t *error;	/* error output */
-
-	double output_scale;
     } upd;
 
-    struct shared_state {
+    struct to_update {
 	int raw_error;	    // s:w u:r
-	increments_t incr;  // s:r u:w
-    } shared;
+    } update_reads;
 
 } encoder_pair_t;
 
@@ -259,9 +262,9 @@ int rtapi_app_main(void)
 	encoder_pair_array[n].smpl.slave_state = 0;
 
 	// shared_state
-	encoder_pair_array[n].shared.incr.i.master_increment = 0;
-	encoder_pair_array[n].shared.incr.i.slave_increment = 0;
-	encoder_pair_array[n].shared.raw_error = 0;
+	encoder_pair_array[n].sample_reads.incr.i.master_increment = 0;
+	encoder_pair_array[n].sample_reads.incr.i.slave_increment = 0;
+	encoder_pair_array[n].update_reads.raw_error = 0;
 
 	// update_state
 	encoder_pair_array[n].upd.output_scale = 1.0;
@@ -306,7 +309,8 @@ static void sample(void *arg, long period)
     int n;
     unsigned char state;
     struct sample_state *smpl = &_pair->smpl;
-    struct shared_state *shared = &_pair->shared;
+    struct to_update *update_reads = &_pair->update_reads;
+    const struct to_sample *sample_reads = &_pair->sample_reads;
 
     // pair = arg;
     for (n = 0; n < howmany; n++) {
@@ -326,9 +330,9 @@ static void sample(void *arg, long period)
 	if ( *(smpl->enable) != 0 ) {
 	    /* has an edge been detected? */
 	    if (state & SM_CNT_UP_MASK) {
-		shared->raw_error -= shared->incr.i.master_increment;
+		update_reads->raw_error -= sample_reads->incr.i.master_increment;
 	    } else if (state & SM_CNT_DN_MASK) {
-		shared->raw_error += shared->incr.i.master_increment;
+		update_reads->raw_error += sample_reads->incr.i.master_increment;
 	    }
 	}
 	/* save state machine state */
@@ -347,9 +351,9 @@ static void sample(void *arg, long period)
 	state = lut[state & SM_LOOKUP_MASK];
 	/* has an edge been detected? */
 	if (state & SM_CNT_UP_MASK) {
-	    shared->raw_error += shared->incr.i.slave_increment;
+	    update_reads->raw_error += sample_reads->incr.i.slave_increment;
 	} else if (state & SM_CNT_DN_MASK) {
-	    shared->raw_error -= shared->incr.i.slave_increment;
+	    update_reads->raw_error -= sample_reads->incr.i.slave_increment;
 	}
 	/* save state machine state */
 	smpl->slave_state = state;
@@ -365,17 +369,18 @@ static void update(void *arg, long period)
     int n;
 
     struct upd_state *up = &_pair->upd;
-    struct shared_state *shared = &_pair->shared;
+    const struct to_update *update_reads = &_pair->update_reads;
+    struct to_sample *sample_reads = &_pair->sample_reads;
 
     for (n = 0; n < howmany; n++) {
 	/* scale raw error to output pin */
 	if ( up->output_scale > 0 ) {
-	    *(up->error) = shared->raw_error / up->output_scale;
+	    *(up->error) = update_reads->raw_error / up->output_scale;
 	}
 	/* update scale factors (only needed if params change, but
 	   it's faster to do it every time than to detect changes.) */
-	shared->incr.i.master_increment = *(up->master_teeth) * *(up->slave_ppr);
-	shared->incr.i.slave_increment = *(up->slave_teeth) * *(up->master_ppr);
+	sample_reads->incr.i.master_increment = *(up->master_teeth) * *(up->slave_ppr);
+	sample_reads->incr.i.slave_increment = *(up->slave_teeth) * *(up->master_ppr);
 	up->output_scale = *(up->master_ppr) * *(up->slave_ppr) * *(up->slave_teeth);
 	/* move on to next pair */
 	_pair++;
