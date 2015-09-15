@@ -1291,6 +1291,10 @@ endif
 #boss_plc-objs := hal/components/boss_plc.o $(MATHSTUB)
 obj-$(CONFIG_ENCODER) += encoder.o
 encoder-objs := hal/components/encoder.o $(MATHSTUB)
+
+obj-$(CONFIG_ENCODER) += encoder-v2.o
+encoder-v2-objs := hal/components/encoder-v2.o $(MATHSTUB)
+
 obj-$(CONFIG_COUNTER) += counter.o
 counter-objs := hal/components/counter.o $(MATHSTUB)
 obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio.o
@@ -1763,6 +1767,7 @@ ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 $(RTLIBDIR)/classicladder_rt$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(classicladder_rt-objs))
 $(RTLIBDIR)/boss_plc$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(boss_plc-objs))
 $(RTLIBDIR)/encoder$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder-objs))
+$(RTLIBDIR)/encoder-v2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder-v2-objs))
 $(RTLIBDIR)/counter$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(counter-objs))
 $(RTLIBDIR)/encoder_ratio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratio-objs))
 $(RTLIBDIR)/encoder_ratio-v2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratio-v2-objs))
