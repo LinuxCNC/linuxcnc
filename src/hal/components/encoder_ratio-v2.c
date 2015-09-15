@@ -94,6 +94,7 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi_atomics.h"
 #include "hal.h"		/* HAL public API decls */
 
 /* module information */
@@ -121,6 +122,9 @@ typedef union  {
 	int slave_increment;
     } i;
 } increments_t;
+
+// since rtapi_load_u64/rtapi_store_u64 is used for increments_t, better be sure:
+rtapi_ct_assert(sizeof(increments_t) == sizeof(hal_u64_t), "BUG: assertion violated");
 
 /* this structure contains the runtime data for a single counter */
 typedef struct {
@@ -150,8 +154,9 @@ typedef struct {
 	hal_float_t *error;	/* error output */
     } upd;
 
+    // passed atomically from sample to update update
     struct to_update {
-	int raw_error;	    // s:w u:r
+	hal_s32_t raw_error;	    // s:w u:r
     } update_reads;
 
 } encoder_pair_t;
@@ -305,18 +310,27 @@ void rtapi_app_exit(void)
 static void sample(void *arg, long period)
 {
     encoder_pair_t *_pair = arg;
-
     int n;
-    unsigned char state;
-    struct sample_state *smpl = &_pair->smpl;
-    struct to_update *update_reads = &_pair->update_reads;
-    const struct to_sample *sample_reads = &_pair->sample_reads;
 
     // pair = arg;
     for (n = 0; n < howmany; n++) {
+
+	// private state
+	struct sample_state *smpl = &_pair->smpl;
+
+	// shared state per direction:
+	struct to_update *update_reads = &_pair->update_reads;
+
+	// current value of raw_error, udpdated eventually
+	hal_s32_t raw_error =  rtapi_load_s32(&update_reads->raw_error);
+
+	// r/o atomic snapshot of master_increment and slave_increment
+	const increments_t incr = { .u64 = rtapi_load_u64(&_pair->sample_reads.incr.u64) };
+
 	/* detect transitions on master encoder */
 	/* get state machine current state */
-	state = smpl->master_state;
+	unsigned char state = smpl->master_state;
+
 	/* add input bits to state code */
 	if (*(smpl->master_A)) {
 	    state |= SM_PHASE_A_MASK;
@@ -330,9 +344,9 @@ static void sample(void *arg, long period)
 	if ( *(smpl->enable) != 0 ) {
 	    /* has an edge been detected? */
 	    if (state & SM_CNT_UP_MASK) {
-		update_reads->raw_error -= sample_reads->incr.i.master_increment;
+		raw_error -= incr.i.master_increment;
 	    } else if (state & SM_CNT_DN_MASK) {
-		update_reads->raw_error += sample_reads->incr.i.master_increment;
+		raw_error += incr.i.master_increment;
 	    }
 	}
 	/* save state machine state */
@@ -351,10 +365,14 @@ static void sample(void *arg, long period)
 	state = lut[state & SM_LOOKUP_MASK];
 	/* has an edge been detected? */
 	if (state & SM_CNT_UP_MASK) {
-	    update_reads->raw_error += sample_reads->incr.i.slave_increment;
+	    raw_error += incr.i.slave_increment;
 	} else if (state & SM_CNT_DN_MASK) {
-	    update_reads->raw_error -= sample_reads->incr.i.slave_increment;
+	    raw_error -= incr.i.slave_increment;
 	}
+
+	// atomically update the raw error
+	rtapi_store_s32(&update_reads->raw_error, raw_error);
+
 	/* save state machine state */
 	smpl->slave_state = state;
 	/* move on to next pair */
@@ -368,20 +386,29 @@ static void update(void *arg, long period)
     encoder_pair_t *_pair = arg;
     int n;
 
-    struct upd_state *up = &_pair->upd;
-    const struct to_update *update_reads = &_pair->update_reads;
-    struct to_sample *sample_reads = &_pair->sample_reads;
-
     for (n = 0; n < howmany; n++) {
+
+	// update private state
+	struct upd_state *up = &_pair->upd;
+
+	// atomically fetch current raw_error, R/O in update()
+	const hal_s32_t raw_error =  rtapi_load_s32( &_pair->update_reads.raw_error);
+
+	increments_t incr;
+
 	/* scale raw error to output pin */
 	if ( up->output_scale > 0 ) {
-	    *(up->error) = update_reads->raw_error / up->output_scale;
+	    *(up->error) = raw_error / up->output_scale;
 	}
 	/* update scale factors (only needed if params change, but
 	   it's faster to do it every time than to detect changes.) */
-	sample_reads->incr.i.master_increment = *(up->master_teeth) * *(up->slave_ppr);
-	sample_reads->incr.i.slave_increment = *(up->slave_teeth) * *(up->master_ppr);
+	incr.i.master_increment = *(up->master_teeth) * *(up->slave_ppr);
+	incr.i.slave_increment = *(up->slave_teeth) * *(up->master_ppr);
 	up->output_scale = *(up->master_ppr) * *(up->slave_ppr) * *(up->slave_teeth);
+
+	// atomically update master_increment and slave_increment
+	rtapi_store_u64(&_pair->sample_reads.incr.u64,incr.u64);
+
 	/* move on to next pair */
 	_pair++;
     }
