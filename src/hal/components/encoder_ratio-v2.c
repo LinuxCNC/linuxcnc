@@ -8,7 +8,9 @@
 *
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
+* Last change: Michael Haberler 9/2015
+*              make SMP-safe, instantiable, use v2 pins
+*
 ********************************************************************/
 /** This file, 'encoder_ratio.c', is a HAL component that can be used
     to synchronize two axes (like an "electronic gear").  It counts
@@ -96,19 +98,17 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "rtapi_atomics.h"
 #include "hal.h"		/* HAL public API decls */
+#include "hal_priv.h"           // SHMPTR,SHMOFF
+#include "hal_list.h"
 
-/* module information */
-MODULE_AUTHOR("John Kasunich");
+#define VERBOSE_SETUP  // pin creation
+
+MODULE_AUTHOR("John Kasunich, Michael Haberler");
 MODULE_DESCRIPTION("Encoder Ratio Module for HAL");
 MODULE_LICENSE("GPL");
-static int num_chan;	/* number of channels*/
-static int default_num_chan = 1;
-RTAPI_MP_INT(num_chan, "number of channels");
 
-static int howmany;
-#define MAX_CHAN 8
-static char *names[MAX_CHAN] = {0,};
-RTAPI_MP_ARRAY_STRING(names,MAX_CHAN,"encoder_ratio names");
+RTAPI_TAG(HAL,HC_INSTANTIABLE);
+RTAPI_TAG(HAL,HC_SMP_SAFE);
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -128,17 +128,19 @@ rtapi_ct_assert(sizeof(increments_t) == sizeof(hal_u64_t), "BUG: assertion viola
 
 /* this structure contains the runtime data for a single counter */
 typedef struct {
+    hal_list_t  list;
+    int inst_id;
 
     struct to_sample {
 	increments_t incr;  // s:r u:w
     } sample_reads;
 
     struct sample_state {
-	hal_bit_t *master_A;	/* quadrature input */
-	hal_bit_t *master_B;	/* quadrature input */
-	hal_bit_t *slave_A;	/* quadrature input */
-	hal_bit_t *slave_B;	/* quadrature input */
-	hal_bit_t *enable;	/* enable input */
+	bit_pin_ptr master_A;	/* quadrature input */
+	bit_pin_ptr master_B;	/* quadrature input */
+	bit_pin_ptr slave_A;	/* quadrature input */
+	bit_pin_ptr slave_B;	/* quadrature input */
+	bit_pin_ptr enable;	/* enable input */
 
 	unsigned char master_state;	/* quad decode state machine state */
 	unsigned char slave_state;	/* quad decode state machine state */
@@ -147,11 +149,11 @@ typedef struct {
     struct upd_state {
 	double output_scale;
 
-	hal_u32_t *master_ppr;	/* parameter: master encoder PPR */
-	hal_u32_t *slave_ppr;	/* parameter: slave encoder PPR */
-	hal_u32_t *master_teeth; /* parameter: master "gear" tooth count */
-	hal_u32_t *slave_teeth;	/* parameter: slave "gear" tooth count */
-	hal_float_t *error;	/* error output */
+	u32_pin_ptr master_ppr;	  /* parameter: master encoder PPR */
+	u32_pin_ptr slave_ppr;	  /* parameter: slave encoder PPR */
+	u32_pin_ptr master_teeth; /* parameter: master "gear" tooth count */
+	u32_pin_ptr slave_teeth;  /* parameter: slave "gear" tooth count */
+	float_pin_ptr error;	  /* error output */
     } upd;
 
     // passed atomically from sample to update update
@@ -161,8 +163,8 @@ typedef struct {
 
 } encoder_pair_t;
 
-/* pointer to array of counter_t structs in shmem, 1 per counter */
-static encoder_pair_t *encoder_pair_array;
+// list of instance structures
+static  hal_list_t head;
 
 /* bitmasks for quadrature decode state machine */
 #define SM_PHASE_A_MASK 0x01
@@ -187,161 +189,149 @@ static const unsigned char lut[16] = {
 /* other globals */
 static int comp_id;		/* component ID */
 
+static const char *compname = "encoder_ratio-v2";
+static const char *prefix = "encoder-ratio-v2";
+
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
-
-static int export_encoder_pair(int num, encoder_pair_t * addr, char* prefix);
-static void sample(void *arg, long period);
-static void update(void *arg, long period);
+static int export_encoder_pair(const char *name, const int inst_id,
+			       encoder_pair_t * addr);
+static int sample(void *arg, const hal_funct_args_t *fa);
+static int update(void *arg, const hal_funct_args_t *fa);
+static int instantiate_encoder_pair(const char *name, const int argc,
+			      const char**argv);
+static int delete_encoder_pair(const char *name, void *inst, const int inst_size);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
-
 int rtapi_app_main(void)
 {
-    int n, retval,i;
+    int retval;
+    dlist_init_entry(&head);
 
-    if(num_chan && names[0]) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"num_chan= and names= are mutually exclusive\n");
-        return -EINVAL;
-    }
-    if(!num_chan && !names[0]) num_chan = default_num_chan;
+    if ((comp_id = hal_xinit(TYPE_RT, 0, 0,
+			     instantiate_encoder_pair,
+			     delete_encoder_pair,
+			     compname)) < 0)
+	return comp_id;
 
-    if(num_chan) {
-        howmany = num_chan;
-    } else {
-        howmany = 0;
-        for (i = 0; i < MAX_CHAN; i++) {
-            if (names[i] == NULL) {
-                break;
-            }
-            howmany = i + 1;
-        }
-    }
+    hal_export_xfunct_args_t u = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = update,
+        .arg = &head,
+        .uses_fp = 1,
+        .reentrant = 0,
+        .owner_id = comp_id
+    };
+    if ((retval = hal_export_xfunctf(&u, "%s.update",
+				     prefix)) < 0)
+	return retval;
 
-    /* test for number of channels */
-    if ((howmany <= 0) || (howmany > MAX_CHAN)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "ENCODER_RATIO: ERROR: invalid number of channels: %d\n", howmany);
-	return -1;
-    }
-    /* have good config info, connect to the HAL */
-    comp_id = hal_init("encoder_ratio");
-    if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "ENCODER_RATIO: ERROR: hal_init() failed\n");
-	return -1;
-    }
-    /* allocate shared memory for encoder data */
-    encoder_pair_array = hal_malloc(howmany * sizeof(encoder_pair_t));
-    if (encoder_pair_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "ENCODER_RATIO: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    /* set up each encoder pair */
-    i = 0; // for names= items
-    for (n = 0; n < howmany; n++) {
-	/* export all vars */
-        if(num_chan) {
-            char buf[HAL_NAME_LEN + 1];
-            rtapi_snprintf(buf, sizeof(buf), "encoder-ratio.%d", n);
-	    retval = export_encoder_pair(n, &(encoder_pair_array[n]), buf);
-        } else {
-	    retval = export_encoder_pair(n, &(encoder_pair_array[n]), names[i++]);
-        }
-
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"ENCODER_RATIO: ERROR: counter %d var export failed\n", n);
-	    hal_exit(comp_id);
-	    return -1;
-	}
-	/* init encoder pair */
-
-	// sample_state
-	encoder_pair_array[n].smpl.master_state = 0;
-	encoder_pair_array[n].smpl.slave_state = 0;
-
-	// shared_state
-	encoder_pair_array[n].sample_reads.incr.i.master_increment = 0;
-	encoder_pair_array[n].sample_reads.incr.i.slave_increment = 0;
-	encoder_pair_array[n].update_reads.raw_error = 0;
-
-	// update_state
-	encoder_pair_array[n].upd.output_scale = 1.0;
-	*(encoder_pair_array[n].upd.error) = 0.0;
-    }
-    /* export functions */
-    retval = hal_export_funct("encoder-ratio.sample", sample,
-	encoder_pair_array, 0, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "ENCODER_RATIO: ERROR: sample funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    retval = hal_export_funct("encoder-ratio.update", update,
-	encoder_pair_array, 1, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "ENCODER_RATIO: ERROR: update funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"ENCODER_RATIO: installed %d encoder_ratio blocks\n", howmany);
+    hal_export_xfunct_args_t mp = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = sample,
+        .arg = &head,
+        .uses_fp = 0,
+        .reentrant = 0,
+        .owner_id = comp_id
+    };
+    if ((retval = hal_export_xfunctf(&mp, "%s.sample",
+				     prefix)) < 0)
+	return retval;
     hal_ready(comp_id);
     return 0;
 }
+
 
 void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
 }
 
+static int instantiate_encoder_pair(const char *name,
+			      const int argc,
+			      const char**argv)
+{
+    encoder_pair_t *p;
+    int retval;
+    int msg;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later. */
+    msg = rtapi_get_msg_level();
+
+#ifndef  VERBOSE_SETUP
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+#endif
+
+    if ((retval = hal_inst_create(name, comp_id, sizeof(encoder_pair_t), (void **)&p)) < 0)
+	return retval;
+
+    p->inst_id = retval;
+    if ((retval = export_encoder_pair(name, p->inst_id, p)) != 0)
+	HALFAIL_RC(retval, "%s: ERROR: export(%s) failed", compname, name);
+
+    // append to instance list
+    dlist_init_entry(&p->list);
+    dlist_add_after(&p->list, &head);
+
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int delete_encoder_pair(const char *name, void *inst, const int inst_size)
+{
+    encoder_pair_t *p = inst;
+
+    // delete from instance list
+    dlist_remove_entry(&p->list);
+    return 0;
+}
+
 /***********************************************************************
 *            REALTIME ENCODER COUNTING AND UPDATE FUNCTIONS            *
 ************************************************************************/
 
-static void sample(void *arg, long period)
+static int sample(void *arg, const hal_funct_args_t *fa)
 {
-    encoder_pair_t *_pair = arg;
-    int n;
+    hal_list_t *insts = arg;
+    encoder_pair_t *self;
 
-    // pair = arg;
-    for (n = 0; n < howmany; n++) {
+    // foreach encoder_pair instance: sample inputs
+    dlist_for_each_entry(self, insts, list) {
 
 	// private state
-	struct sample_state *smpl = &_pair->smpl;
+	struct sample_state *smpl = &self->smpl;
 
 	// shared state per direction:
-	struct to_update *update_reads = &_pair->update_reads;
+	struct to_update *update_reads = &self->update_reads;
 
 	// current value of raw_error, udpdated eventually
 	hal_s32_t raw_error =  rtapi_load_s32(&update_reads->raw_error);
 
 	// r/o atomic snapshot of master_increment and slave_increment
-	const increments_t incr = { .u64 = rtapi_load_u64(&_pair->sample_reads.incr.u64) };
+	const increments_t incr = { .u64 = rtapi_load_u64(&self->sample_reads.incr.u64) };
 
 	/* detect transitions on master encoder */
 	/* get state machine current state */
 	unsigned char state = smpl->master_state;
 
 	/* add input bits to state code */
-	if (*(smpl->master_A)) {
+	if (get_bit_pin(smpl->master_A)) {
 	    state |= SM_PHASE_A_MASK;
 	}
-	if (*(smpl->master_B)) {
+	if (get_bit_pin(smpl->master_B)) {
 	    state |= SM_PHASE_B_MASK;
 	}
 	/* look up new state */
 	state = lut[state & SM_LOOKUP_MASK];
 	/* are we enabled? */
-	if ( *(smpl->enable) != 0 ) {
+	if ( get_bit_pin(smpl->enable) != 0 ) {
 	    /* has an edge been detected? */
 	    if (state & SM_CNT_UP_MASK) {
 		raw_error -= incr.i.master_increment;
@@ -355,10 +345,10 @@ static void sample(void *arg, long period)
 	/* get state machine current state */
 	state = smpl->slave_state;
 	/* add input bits to state code */
-	if (*(smpl->slave_A)) {
+	if (get_bit_pin(smpl->slave_A)) {
 	    state |= SM_PHASE_A_MASK;
 	}
-	if (*(smpl->slave_B)) {
+	if (get_bit_pin(smpl->slave_B)) {
 	    state |= SM_PHASE_B_MASK;
 	}
 	/* look up new state */
@@ -375,116 +365,79 @@ static void sample(void *arg, long period)
 
 	/* save state machine state */
 	smpl->slave_state = state;
-	/* move on to next pair */
-	_pair++;
     }
-    /* done */
+    return 0;
 }
 
-static void update(void *arg, long period)
+static int update(void *arg, const hal_funct_args_t *fa)
 {
-    encoder_pair_t *_pair = arg;
-    int n;
+    hal_list_t *insts = arg;
+    encoder_pair_t *self;
 
-    for (n = 0; n < howmany; n++) {
+    // foreach encoder_pair instance: update parameters, error pin
+    dlist_for_each_entry(self, insts, list) {
 
 	// update private state
-	struct upd_state *up = &_pair->upd;
+	struct upd_state *up = &self->upd;
 
-	// atomically fetch current raw_error, R/O in update()
-	const hal_s32_t raw_error =  rtapi_load_s32( &_pair->update_reads.raw_error);
+	// atomically fetch current raw_error (R/O in this funct)
+	const hal_s32_t raw_error =  rtapi_load_s32( &self->update_reads.raw_error);
 
 	increments_t incr;
 
 	/* scale raw error to output pin */
 	if ( up->output_scale > 0 ) {
-	    *(up->error) = raw_error / up->output_scale;
+	    set_float_pin(up->error, raw_error / up->output_scale);
 	}
 	/* update scale factors (only needed if params change, but
 	   it's faster to do it every time than to detect changes.) */
-	incr.i.master_increment = *(up->master_teeth) * *(up->slave_ppr);
-	incr.i.slave_increment = *(up->slave_teeth) * *(up->master_ppr);
-	up->output_scale = *(up->master_ppr) * *(up->slave_ppr) * *(up->slave_teeth);
+	incr.i.master_increment = get_u32_pin(up->master_teeth) * get_u32_pin(up->slave_ppr);
+	incr.i.slave_increment = get_u32_pin(up->slave_teeth) * get_u32_pin(up->master_ppr);
+	up->output_scale = get_u32_pin(up->master_ppr) *
+	    get_u32_pin(up->slave_ppr) *
+	    get_u32_pin(up->slave_teeth);
 
 	// atomically update master_increment and slave_increment
-	rtapi_store_u64(&_pair->sample_reads.incr.u64,incr.u64);
-
-	/* move on to next pair */
-	_pair++;
+	rtapi_store_u64(&self->sample_reads.incr.u64,incr.u64);
     }
-    /* done */
+    return 0;
 }
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
-
-static int export_encoder_pair(int num, encoder_pair_t * addr, char* prefix)
+static int export_encoder_pair(const char *name,
+			       const int inst_id,
+			       encoder_pair_t *e)
 {
-    int retval, msg;
+#define FCHECK(rvalue) if (float_pin_null(rvalue)) return _halerrno;
+#define BCHECK(rvalue) if (bit_pin_null(rvalue)) return _halerrno;
+#define UCHECK(rvalue) if (u32_pin_null(rvalue)) return _halerrno;
 
-    /* This function exports a lot of stuff, which results in a lot of
-       logging if msg_level is at INFO or ALL. So we save the current value
-       of msg_level and restore it later.  If you actually need to log this
-       function's actions, change the second line below */
-    msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    BCHECK(e->smpl.master_A  = halxd_pin_bit_newf(HAL_IN, inst_id, 0,   "%s.master-A", name));
+    BCHECK(e->smpl.master_B  = halxd_pin_bit_newf(HAL_IN, inst_id, 0,   "%s.master-B", name));
+    BCHECK(e->smpl.slave_A   = halxd_pin_bit_newf(HAL_IN, inst_id, 0,   "%s.slave-A", name));
+    BCHECK(e->smpl.slave_B   = halxd_pin_bit_newf(HAL_IN, inst_id, 0,   "%s.slave-B", name));
+    BCHECK(e->smpl.enable    = halxd_pin_bit_newf(HAL_IN, inst_id, 0,   "%s.enable", name));
 
-    /* export pins for the quadrature inputs */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->smpl.master_A), comp_id,
-			      "%s.master-A", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->smpl.master_B), comp_id,
-			      "%s.master-B", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->smpl.slave_A), comp_id,
-			      "%s.slave-A", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->smpl.slave_B), comp_id,
-			      "%s.slave-B", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    /* export pin for the enable input */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->smpl.enable), comp_id,
-			      "%s.enable", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    /* export pin for output */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->upd.error), comp_id,
-				"%s.error", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    /* export pins for config info() */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->upd.master_ppr), comp_id,
-			      "%s.master-ppr", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->upd.slave_ppr), comp_id,
-			      "%s.slave-ppr", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->upd.master_teeth), comp_id,
-			      "%s.master-teeth", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->upd.slave_teeth), comp_id,
-			      "%s.slave-teeth", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    /* restore saved message level */
-    rtapi_set_msg_level(msg);
+    FCHECK(e->upd.error   = halxd_pin_float_newf(HAL_OUT, inst_id, 0.0, "%s.error", name));
+
+    UCHECK(e->upd.master_ppr   = halxd_pin_u32_newf(HAL_IO, inst_id, 0.0, "%s.master-ppr", name));
+    UCHECK(e->upd.slave_ppr    = halxd_pin_u32_newf(HAL_IO, inst_id, 0.0, "%s.slave-ppr", name));
+    UCHECK(e->upd.master_teeth = halxd_pin_u32_newf(HAL_IO, inst_id, 0.0, "%s.master-teeth", name));
+    UCHECK(e->upd.slave_teeth  = halxd_pin_u32_newf(HAL_IO, inst_id, 0.0, "%s.slave-teeth", name));
+
+    // sample_state
+    e->smpl.master_state = 0;
+    e->smpl.slave_state = 0;
+
+    // shared_state
+    e->sample_reads.incr.i.master_increment = 0;
+    e->sample_reads.incr.i.slave_increment = 0;
+    e->update_reads.raw_error = 0;
+
+    // update_state
+    e->upd.output_scale = 1.0;
+
     return 0;
 }
