@@ -92,7 +92,7 @@ typedef struct {
 
     // event params: set by update, read by capture
     __s32 raw_count;      // u:s c:r
-    __u32 timestamp;      // u:s c:r
+    __u32 timestamp;      // u:s c:r, applies only to count_detected/raw_count
     __s32 index_count;    // u:s c:r
     __s32 latch_count;    // u:s c:r
 } atomic;
