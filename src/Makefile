@@ -1252,7 +1252,7 @@ hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 
 ifdef TARGET_PLATFORM_RASPBERRY
 obj-$(CONFIG_HAL_GPIO) += hal_gpio.o
-hal_gpio-objs := hal/drivers/hal_gpio.o
+hal_gpio-objs := hal/drivers/hal_gpio.o hal/drivers/cpuinfo.o
 obj-$(CONFIG_HAL_SPI) += hal_spi.o
 hal_spi-objs := hal/drivers/hal_spi.o
 endif
