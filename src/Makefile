@@ -1303,6 +1303,8 @@ obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio-v2.o
 encoder_ratio-v2-objs := hal/components/encoder_ratio-v2.o $(MATHSTUB)
 obj-$(CONFIG_STEPGEN) += stepgen.o
 stepgen-objs := hal/components/stepgen.o $(MATHSTUB)
+obj-$(CONFIG_STEPGEN) += stepgen-v2.o
+stepgen-v2-objs := hal/components/stepgen-v2.o $(MATHSTUB)
 obj-$(CONFIG_LCD) += lcd.o
 lcd-objs := hal/components/lcd.o $(MATHSTUB)
 obj-$(CONFIG_MATRIX_KB) += matrix_kb.o
@@ -1772,6 +1774,7 @@ $(RTLIBDIR)/counter$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(counter-objs))
 $(RTLIBDIR)/encoder_ratio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratio-objs))
 $(RTLIBDIR)/encoder_ratio-v2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratio-v2-objs))
 $(RTLIBDIR)/stepgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(stepgen-objs))
+$(RTLIBDIR)/stepgen-v2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(stepgen-v2-objs))
 $(RTLIBDIR)/lcd$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(lcd-objs))
 $(RTLIBDIR)/matrix_kb$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(matrix_kb-objs))
 $(RTLIBDIR)/mux_generic$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(mux_generic-objs))
