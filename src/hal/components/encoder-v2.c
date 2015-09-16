@@ -61,6 +61,7 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi_atomics.h"
 #include "rtapi_string.h"
 #include "hal.h"		/* HAL public API decls */
 
@@ -146,7 +147,7 @@ typedef struct {
 	hal_s32_t *raw_counts;	/* u:rw c:r raw count value */
 	unsigned char Zmask;	/* u:rc c:s mask for oldZ, from index-ena */
 	atomic buf[2];		/* u:w c:r double buffer for atomic data */
-	volatile atomic *bp;	/* u:r c:w ptr to in-use buffer */
+	atomic *bp;	        /* u:r c:w ptr to in-use buffer */
     } shared;
 } counter_t;
 
@@ -349,7 +350,8 @@ static void update(void *arg, long period)
 	struct update_state *upd = &cntr->upd;
 	struct shared_state *shared = &cntr->shared;
 
-	buf = (atomic *) shared->bp;
+	// atomically fetch pointer to current buffer
+	buf = (atomic *) rtapi_load_ptr((void **)&shared->bp);
 
 	/* get state machine current state */
 	state = upd->state;
@@ -438,10 +440,15 @@ static void capture(void *arg, long period)
 	buf = (atomic *) shared->bp;
 	/* tell update() to use the other buffer */
 	if ( buf == &(shared->buf[0]) ) {
-	    shared->bp = &(shared->buf[1]);
+	    rtapi_store_ptr((void **)&shared->bp, &(shared->buf[1]));
 	} else {
-	    shared->bp = &(shared->buf[0]);
+	    rtapi_store_ptr((void **)&shared->bp, &(shared->buf[0]));
 	}
+
+	// force visibility of the cntr->bp change and any changes to its contents
+	// from the previous invocation onto update()
+	rtapi_smp_wmb();
+
 	/* handle index */
 	if ( buf->index_detected ) {
 	    buf->index_detected = 0;
