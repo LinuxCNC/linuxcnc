@@ -391,6 +391,7 @@ int tpClear(TP_STRUCT * const tp)
     emcmotStatus->requested_vel = 0.0;
     emcmotStatus->distance_to_go = 0.0;
     ZERO_EMC_POSE(emcmotStatus->dtg);
+    SET_MOTION_INPOS_FLAG(1);
 
     return tpClearDIOs(tp);
 }
