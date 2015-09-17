@@ -28,12 +28,17 @@ import gtksourceview2 as gtksourceview
 
 class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'
+    __gproperties__ = {
+        'idle_line_reset' : ( gobject.TYPE_BOOLEAN, 'Reset Line Number when idle', 'Sets line number back to 0 when code is not running or paused',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT)
+    }
     def __init__(self, *a, **kw):
         gtksourceview.View.__init__(self, *a, **kw)
         self.filename = None
         self.mark = None
         self.offset = 0
         self.program_length = 0
+        self.idle_line_reset = True
         self.buf = gtksourceview.Buffer()
         self.buf.set_max_undo_levels(20)
         self.buf.connect('changed', self.update_iter)
@@ -54,11 +59,26 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.update_iter()
         self.connect('button-release-event', self.button_pressed)
 
+    def do_get_property(self, property):
+        name = property.name.replace('-', '_')
+        if name in ['idle_line_reset']:
+            return getattr(self, name)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
+
+    def do_set_property(self, property, value):
+        name = property.name.replace('-', '_')
+        if name in ['idle_line_reset']:
+            return setattr(self, name, value)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
+
     def _hal_init(self):
         _EMC_ActionBase._hal_init(self)
         self.gstat.connect('file-loaded', lambda w, f: gobject.timeout_add(1, self.load_file, f))
         self.gstat.connect('line-changed', self.highlight_line)
-        self.gstat.connect('interp_idle', lambda w: self.set_line_number(0))
+        if self.idle_line_reset:
+            self.gstat.connect('interp_idle', lambda w: self.set_line_number(0))
 
     def set_language(self, lang, path = None):
         # path = the search path for the langauage file
