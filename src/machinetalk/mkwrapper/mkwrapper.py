@@ -155,10 +155,10 @@ class Canon():
 
 
 class Preview():
-    def __init__(self, parameterFile="", debug=False):
+    def __init__(self, parameterFile="", initcode="", debug=False):
         self.filename = ""
         self.unitcode = ""
-        self.initcode = ""
+        self.initcode = initcode
         self.canon = Canon(parameterFile=parameterFile, debug=debug)
         self.debug = debug
         self.isRunning = False
@@ -291,9 +291,10 @@ class LinuxCNCWrapper():
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
             self.directory = os.path.abspath(os.path.expanduser(self.directory))
             self.pollInterval = float(pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1)
-            self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or ""
+            self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or "linuxcnc.var"
             self.interpParameterFile = os.path.abspath(os.path.expanduser(self.interpParameterFile))
-            
+            self.interpInitcode = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+
             # setup program extensions
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
             for line in extensions:
@@ -358,6 +359,7 @@ class LinuxCNCWrapper():
         self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
         self.commandDsname = self.commandDsname.replace('0.0.0.0', self.host)
         self.preview = Preview(parameterFile=self.interpParameterFile,
+                               initcode=self.interpInitcode,
                                debug=self.debug)
         (self.previewDsname, self.previewstatusDsname) = \
             self.preview.bind(self.baseUri + ':*', self.baseUri + ':*')
@@ -1396,6 +1398,7 @@ class LinuxCNCWrapper():
                         lineNumber = self.rx.emc_command_params.line_number
                         self.command.auto(linuxcnc.AUTO_RUN, lineNumber)
                     elif self.rx.interp_name == 'preview':
+                        self.preview.unitcode = "G%d" % (20 + (self.stat.linear_units == 1))
                         self.preview.start()
                 else:
                     self.send_command_wrong_params()
