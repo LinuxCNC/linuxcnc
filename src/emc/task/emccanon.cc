@@ -1297,7 +1297,7 @@ void ARC_FEED(int line_number,
     PM_CARTESIAN center, normal;
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
-    double v1, v2,  a1, a2, vel, ini_maxvel, circ_maxvel, axial_maxvel=0.0, circ_acc, acc=0.0;
+    double v1, v2, v3,  a1, a2, a3, vel, ini_maxvel, circ_maxvel, axial_maxvel=0.0, circ_acc, acc=0.0;
     double radius, angle, theta1, theta2, helical_length, axis_len;
     double tcircle, taxial, tmax, thelix, ta, tb, tc, da, db, dc;
     double tu, tv, tw, du, dv, dw;
@@ -1429,6 +1429,12 @@ void ARC_FEED(int line_number,
 	a2 = FROM_EXT_LEN(axis_max_acceleration[2]);
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
+        if(xy_rotation && axis_valid(0)) {
+            v3 = FROM_EXT_LEN(axis_max_velocity[0]);
+            a3 = FROM_EXT_LEN(axis_max_acceleration[0]);
+            circ_maxvel = ini_maxvel = MIN(ini_maxvel, v3);
+            circ_acc = acc = MIN(acc, a3);
+        }
         if(axis_valid(0) && axis_len > 0.001) {
             axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[0]);
             a1 = FROM_EXT_LEN(axis_max_acceleration[0]);
@@ -1466,6 +1472,12 @@ void ARC_FEED(int line_number,
 	a2 = FROM_EXT_LEN(axis_max_acceleration[2]);
 	circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
+        if(xy_rotation && axis_valid(1)) {
+            v3 = FROM_EXT_LEN(axis_max_velocity[1]);
+            a3 = FROM_EXT_LEN(axis_max_acceleration[1]);
+            circ_maxvel = ini_maxvel = MIN(ini_maxvel, v3);
+            circ_acc = acc = MIN(acc, a3);
+        }
         if(axis_valid(1) && axis_len > 0.001) {
             axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[1]);
             a1 = FROM_EXT_LEN(axis_max_acceleration[1]);
