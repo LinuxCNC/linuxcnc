@@ -1,3 +1,5 @@
+[[cha:halmodule]](((Userspace Python Components)))
+
 = Creating Userspace Python Components
 
 == Basic usage
@@ -86,7 +88,7 @@ arguments are: pin name suffix, pin type, and pin direction. For
 parameters, the arguments are: parameter name suffix, parameter type,
 and parameter direction.
 
-.HAL Option Names[[cap:HAL-Option-Names]]
+.HAL Option Names
 [width="100%",cols="<3s,4*<"]
 |===========================================================
 |Pin and Parameter Types: |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32

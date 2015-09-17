@@ -1,0 +1,12 @@
+O<obug> sub
+
+O100 IF [#1 GT 0]
+    M66 P0 L0
+O100 ENDIF
+
+O200 IF [1]
+    G0 G53 X#1
+O200 ENDIF 
+
+O<obug> endsub
+M2

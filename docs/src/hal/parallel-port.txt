@@ -1,6 +1,6 @@
-= Parallel Port Driver
+[[cha:parport]] (((Parallel Port Driver)))
 
-[[cha:Parport]] (((Parallel Port Driver)))
+= Parallel Port Driver
 
 == Parport
 
@@ -48,7 +48,7 @@ used. 'SPP' mode is most likely to work.
 
 No other combinations are supported, and a port cannot be changed from
 input to output once the driver is installed. The
-<<fig:Parport-block-diag,Parport Block Diagram>> shows two block diagrams,
+<<fig:parport-block-diag,Parport Block Diagram>> shows two block diagrams,
 one showing the driver when the data group is configured for output, and one
 showing it configured for input.  For 'x' mode, refer to the pin listing of
 'halcmd show pin' for pin direction assignment.
@@ -158,11 +158,7 @@ slot you put them into, so if you like to \'get under the hood'
 and re-arrange things, be sure to check these values before you
 start LinuxCNC.
 
-
-
-
-
-[[fig:Parport-block-diag]]
+[[fig:parport-block-diag]]
 
 .Parport Block Diagram
 
@@ -216,7 +212,9 @@ low. If '-invert' is FALSE, setting the HAL '-out' pin TRUE drives the
 physical pin high, and FALSE drives it low. If '-invert' is TRUE, then
 setting the HAL '-out' pin TRUE will drive the physical pin low.
 
-=== Functions[[sub:parport-functions]]
+[[sub:parport-functions]]
+
+=== Functions
 
 * 'parport.<p>.read' (funct) Reads physical input pins of port
    '<portnum>' and updates HAL '-in' and '-in-not' pins.

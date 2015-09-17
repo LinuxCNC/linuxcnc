@@ -1,8 +1,8 @@
+[[cha:ngcgui]](((NGCGUI)))
+
 = NGCGUI
 
-[[cha:ngcgui]] (((NGCGUI)))
-
-image::images/ngcgui.png[]
+image::images/ngcgui.png[align="center"]
 
 == Overview
     
@@ -298,7 +298,7 @@ EMBED_TAB_LOCATION = name_of_location - where the embeded page is located
 The EMBED_TAB_LOCATION specifier is not used for the axis gui.  While
 pyngcgui can be embedded in axis, integration is more complete when using
 ngcgui (using TKPKG = Ngcgui 1.0).  To specify the EMBED_TAB_LOCATION
-for other guis, see the <<sub:DISPLAY-section,DISPLAY Section>> of the INI
+for other guis, see the <<sec:display-section,DISPLAY Section>> of the INI
 Configuration Chapter.
 
 [NOTE]
@@ -608,7 +608,7 @@ An NGCGUI-compatible subfile contains a single subroutine definition. The name
 of the subroutine must be the same as the filename (not including the .ngc
 suffix). LinuxCNC supports named or numbered subroutines, but only named
 subroutines are compatible with NGCGUI. For more information see the
-<<cha:O-Codes,O-Codes>> Chapter.
+<<cha:o-codes,O-Codes>> Chapter.
 
 The first non-comment line should be a sub statement.
 The last non-comment line should be a endsub statement.
@@ -865,14 +865,14 @@ GCMC_INCLUDE_PATH = ../../nc_files/gcmc_lib
 The following shows the DB25 subroutine. In the first photo you see where you
 fill in the blanks for each variable.
 
-image::images/ngcgui-db25-1.png[]
+image::images/ngcgui-db25-1.png[align="center"]
 
 This photo shows the backplot of the DB25 subroutine.
 
-image::images/ngcgui-db25-2.png[]
+image::images/ngcgui-db25-2.png[align="center"]
 
 This photo shows the use of the new button and the custom tab to create
 three DB25 cutouts in one program.
 
-image::images/ngcgui-db25-3.png[]
+image::images/ngcgui-db25-3.png[align="center"]
 

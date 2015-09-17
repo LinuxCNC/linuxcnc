@@ -28,6 +28,15 @@ Pin Descriptors.
 \fBdebug_modules\fR [default: 0]
 Developer/debug use only!  Enable debug logging of the HostMot2
 Modules used.
+.TP
+\fBuse_serial_numbers\fR [default: 0]
+When creating HAL pins for smart-serial devices name the pins by the board serial
+number rather than which board and port they are connected to. 
+With this option set to 1 pins will have names like \fBhm2_8i20.1234.current\fR rather than
+\fBhm2_5i23.0.8i20.0.1.current\fR. The identifier consists of the last 4 digits of the board
+serial number, which is normally on a sticker on the board. 
+This will make configs less portable, but does mean that boards can be re-connected less
+carefully. 
 
 .SH DESCRIPTION
 hostmot2 is a device driver that interfaces the Mesa HostMot2 firmware
@@ -259,10 +268,14 @@ Indicates the phase eror of the DPLL. If the number cycles by a large amount
 it is likely that the PLL has failed to achieve lock and adjustments will need
 to be made. 
 .TP
-(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.time-const"
-The filter time-constant for the PLL. Default 40960 (0xA000)
+(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.time-const
+The filter time-constant for the PLL.  The default value is a compromise
+between insensitivity to single-cycle variations and being resilient to changes
+to the Linux CLOCK_MONOTONIC timescale, which can instantly change by up to
+±500ppm from its nominal value, usually by timekeeping software like ntpd and
+ntpdate. Default 2000 (0x7d0)
 .TP
-(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.plimit"
+(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.plimit
 Sets the phase adjustment limit of the PLL. If the value is zero then the PLL
 will free-run at the base frequency independent of the servo thread rate. This
 is probably not what you want. Default 4194304 (0x400000) Units not known...
@@ -1183,6 +1196,20 @@ internal state to the syslog, and set the pin back to False.
 See man setsserial for the current way to set smart-serial eeprom parameters. 
 
 .SH FUNCTIONS
+.TP
+\fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.read-request\fR
+On boards with long turn around time for reads (at the time of writing, this
+applies only to ethernet boards), this function sends a read request.  When
+multiple boards are used, this can reduce the servo thread execution time.  In
+this case, the appropriate thread order would be
+.EX
+addf hm2_7i80.0.read-request
+addf hm2_7i80.1.read-request
+addf hm2_7i80.0.read
+addf hm2_7i80.1.read
+.EE
+which causes the read request to be sent to board 1 before waiting for the
+response to the read request to arrive from board 0.
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.read\fR
 This reads the encoder counters, stepgen feedbacks, and GPIO input pins

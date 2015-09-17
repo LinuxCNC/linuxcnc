@@ -110,7 +110,7 @@ motor_pos_fb.
 
 image::emc2-motion-joint-controller-block-diag.png[align="center"]
 
-.Joint Controller Block Diagram[[fig:motion-joint-controller-block-diag]]
+.Joint Controller Block Diagram
 
 The above figure shows five of the
 seven sets of position information that form the main data flow through
@@ -791,7 +791,7 @@ internal view of the buffer space.
 
 image::CMS_buffer.png[align="center"]
 
-.CMS buffer[[fig:CMS-buffer]]
+.CMS buffer
 
 The CMS base class is primarily responsible for creating the
 communications pathways and interfacing to the O.S.
@@ -1043,7 +1043,7 @@ table file.
 
 LinuxCNC supports two kinds of toolchanger hardware,
 called _nonrandom_ and _random_.  The ini setting
-<<sub:EMCIO-Section,[EMCIO]RANDOM_TOOLCHANGER>> controls which of
+<<sec:emcio-section,[EMCIO]RANDOM_TOOLCHANGER>> controls which of
 these kinds of hardware LinuxCNC thinks it's connected to.
 
 

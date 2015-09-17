@@ -1,12 +1,8 @@
-= Tool Edit GUI
-
 [[cha:tooledit-gui]] (((Tool Edit GUI)))
 
-== Tool Edit Version Requirements
-[NOTE]
-The following configurable features for 'tooledit' are available in versions
-2.5.1 and later. In 2.5.0 the 'tooledit' gui is without the configurable
-features.
+= Tool Edit GUI
+
+== Overview
 
 image::images/tooledit.png[align="center",width=640]
 
@@ -19,6 +15,7 @@ used by LinuxCNC can be updated with the ReloadTable button.
 This button is enabled only when the machine is ON and IDLE.
 
 == Column Sorting
+
 The tool table display can be sorted on any column in ascending
 order by clicking on the column header.  A second click sorts
 in descending order.  Column sorting requires that the machine

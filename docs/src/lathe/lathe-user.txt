@@ -1,9 +1,6 @@
+[[cha:lathe-user-information]](((Lathe User Information)))
+
 = Lathe User Information
-
-[[cha:lathe-user-information]] (((Lathe User Information)))
-
-This chapter attempts to bring together all the lathe specific
-information and is currently under construction.
 
 == Lathe Mode
 
@@ -35,6 +32,9 @@ must program that in the preamble of each gcode file or
 RS274NGC_STARTUP_CODE = G18 G20 G90
 ---------------------------------------
 
+If your using Gmoccapy then see the
+<<gmoccapy:lathe-section,the Gmoccapy Lathe section>>.
+
 == Lathe Tool Table [[sec:lathe-tool-table]]
 
 The "Tool Table" is a text file that contains information about each tool. 
@@ -59,25 +59,25 @@ with the center line angle of each orientation and
 info on FRONTANGLE and BACKANGLE.
 The FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+.
 
-.Lathe Tool Orientations[[cap:Lathe-Tool-Orientations]]
+.Lathe Tool Orientations
 
-image::images/tool_positions.png[]
+image::images/tool_positions.png[align="center"]
 
 In AXIS the following figures show what the Tool Positions look like, as entered in the tool table.
 
-.Tool Positions 1, 2, 3 & 4[[fig:Tool-Positions-1-2-3-4]]
+.Tool Positions 1, 2, 3 & 4
 
-image::images/tool_pos_1.png[] 
-image::images/tool_pos_2.png[] 
-image::images/tool_pos_3.png[] 
-image::images/tool_pos_4.png[]
+image:images/tool_pos_1.png[]
+image:images/tool_pos_2.png[]
+image:images/tool_pos_3.png[]
+image:images/tool_pos_4.png[]
 
-.Tool Positions 5, 6, 7 & 8[[fig:Tool-Positions-5-6-7-8]]
+.Tool Positions 5, 6, 7 & 8
 
-image::images/tool_pos_5.png[] 
-image::images/tool_pos_6.png[] 
-image::images/tool_pos_7.png[] 
-image::images/tool_pos_8.png[]
+image:images/tool_pos_5.png[]
+image:images/tool_pos_6.png[]
+image:images/tool_pos_7.png[]
+image:images/tool_pos_8.png[]
 
 == Tool Touch Off
 
@@ -86,9 +86,9 @@ table using the Touch Off window. If you have a tool turret you normally
 have 'Touch off to fixture' selected when setting up your turret. When
 setting the material Z zero you have 'Touch off to material' selected.
 For more information on the G codes used for tools see
-<<sec:M6-Tool-Change,M6>>, <<sec:T-Select-Tool,Tn>>, and <<sec:G43,G43>>.
+<<mcode:m6,M6>>, <<sec:select-tool,Tn>>, and <<gcode:g43,G43>>.
 For more information on tool touch off options in Axis see 
-<<sec:tool-touch-off,Tool Touch Off>>.
+<<axis:tool-touch-off,Tool Touch Off>>.
 
 === X Touch Off
 
@@ -179,19 +179,19 @@ information.
 
 .Threading
 The G76 threading cycle is used for both internal and external threads.
-For more information see the <<sec:G76-Threading-Canned,G76>> Section.
+For more information see the <<gcode:g76,G76>> Section.
 
 .Constant Surface Speed
 CSS or Constant Surface Speed uses the machine X origin modified
 by the tool X offset to compute the spindle speed in RPM. CSS will
 track changes in tool offsets. The X machine origin should be when the
 reference tool (the one with zero offset) is at the center of rotation.
-For more information see the <<sec:G96-G97-Spindle,G96>> Section.
+For more information see the <<gcode:g96-g97,G96>> Section.
 
 .Feed per Revolution
 Feed per revolution will move the Z axis by the F amount per revolution.
 This is not for threading, use G76 for threading.
-For more information see the <<sec:G93-G94-G95-Mode,G95>> Section.
+For more information see the <<gcode:g93-g94-g95,G95>> Section.
 
 == Arcs
 
@@ -245,9 +245,9 @@ the programmed path unless cutter comp is in effect. In the following
 figures you can see how the control point does not follow the tool edge
 as you might assume.
 
-.Control Point[[fig:Control-Point]]
+.Control Point
 
-image::images/control_point.png[]
+image::images/control_point.png[align="center"]
 
 === Cutting Angles without Cutter Comp
 
@@ -258,7 +258,7 @@ as we are moving in an X or Z direction only.
 
 .Ramp Entry
 
-image::images/ramp_entry.png[]
+image::images/ramp_entry.png[align="center"]
 
 Now as the control point progresses along the programmed path the
 actual cutter edge does not follow the programmed path as shown in the
@@ -267,7 +267,7 @@ adjusting your programmed path to compensate for tip radius.
 
 .Ramp Path
 
-image::images/ramp_cut.png[]
+image::images/ramp_cut.png[align="center"]
 
 In the above example it is a simple exercise to adjust the programmed
 path to give the desired actual path by moving the programmed path for
@@ -282,7 +282,7 @@ path and the tool is touching the OD of the part.
 
 .Turning Cut
 
-image::images/radius_1.png[]
+image::images/radius_1.png[align="center"]
 
 In this next figure you can see as the tool approaches the end of the
 part the control point still follows the path but the tool tip has left
@@ -291,14 +291,14 @@ has been programmed the part will actually end up with a square corner.
 
 .Radius Cut
 
-image::images/radius_2.png[]
+image::images/radius_2.png[align="center"]
 
 Now you can see as the control point follows the radius programmed the
 tool tip has left the part and is now cutting air.
 
 .Radius Cut
 
-image::images/radius_3.png[]
+image::images/radius_3.png[align="center"]
 
 In the final figure we can see the tool tip will finish cutting the
 face but leave a square corner instead of a nice radius. Notice also
@@ -309,7 +309,7 @@ past center at least the nose radius of the tool.
 
 .Face Cut
 
-image::images/radius_4.png[]
+image::images/radius_4.png[align="center"]
 
 === Using Cutter Comp
 

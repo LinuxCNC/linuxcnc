@@ -219,22 +219,31 @@ static int do_load_cmd(string name, vector<string> args) {
         void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_NOW);
         if(!module) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
+            modules.erase(name);
             return -1;
         }
 	/// XXX handle arguments
         int (*start)(void) = DLSYM<int(*)(void)>(module, "rtapi_app_main");
         if(!start) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlsym: %s\n", name.c_str(), dlerror());
+            dlclose(module);
+            modules.erase(name);
             return -1;
         }
         int result;
 
         result = do_comp_args(module, args);
-        if(result < 0) { dlclose(module); return -1; }
+        if(result < 0) {
+            dlclose(module);
+            modules.erase(name);
+            return -1;
+        }
 
         if ((result=start()) < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: rtapi_app_main: %s (%d)\n",
                 name.c_str(), strerror(-result), result);
+            dlclose(module);
+            modules.erase(name);
 	    return result;
         } else {
             instance_count ++;
@@ -438,7 +447,7 @@ int main(int argc, char **argv) {
             fprintf(stderr,
                 "Refusing to run as root without fallback UID specified\n"
                 "To run under a debugger with I/O, use e.g.,\n"
-                "    sudo env RTAPI_UID=`id -u` gdb rtapi_app\n");
+                "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb rtapi_app\n");
             exit(1);
         }
         setreuid(fallback_uid, 0);
@@ -512,6 +521,7 @@ namespace
 struct Posix : RtapiApp
 {
     Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
+        pthread_once(&key_once, init_key);
         if(do_thread_lock)
             pthread_mutex_init(&thread_lock, 0);
     }
@@ -527,6 +537,12 @@ struct Posix : RtapiApp
     static void *wrapper(void *arg);
     bool do_thread_lock;
     pthread_mutex_t thread_lock;
+
+    static pthread_once_t key_once;
+    static pthread_key_t key;
+    static void init_key(void) {
+        pthread_key_create(&key, NULL);
+    }
 };
 
 static void signal_handler(int sig, siginfo_t *si, void *uctx)
@@ -609,7 +625,7 @@ static int harden_rt()
     }
 #endif
 
-    struct sigaction sig_act;
+    struct sigaction sig_act = {};
     // enable realtime
     if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
     {
@@ -650,9 +666,16 @@ static int harden_rt()
     sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
 
     int fd = open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);
+    if (fd < 0) {
+        rtapi_print_msg(RTAPI_MSG_WARN, "failed to open /dev/cpu_dma_latency: %s\n", strerror(errno));
+    }
     setfsuid(getuid());
     if(fd >= 0) {
-        write(fd, "\0\0\0\0", 4);
+        int r;
+        r = write(fd, "\0\0\0\0", 4);
+        if (r != 4) {
+            rtapi_print_msg(RTAPI_MSG_WARN, "failed to write to /dev/cpu_dma_latency: %s\n", strerror(errno));
+        }
         // deliberately leak fd until program exit
     }
     return 0;
@@ -835,11 +858,8 @@ static void advance_clock(struct timespec &result, const struct timespec &src, u
 
 #define RTAPI_CLOCK (CLOCK_MONOTONIC)
 
-static pthread_once_t key_once = PTHREAD_ONCE_INIT;
-static pthread_key_t key;
-static void init_key(void) {
-    pthread_key_create(&key, NULL);
-}
+pthread_once_t Posix::key_once = PTHREAD_ONCE_INIT;
+pthread_key_t Posix::key;
 
 void *Posix::wrapper(void *arg)
 {
@@ -854,7 +874,6 @@ void *Posix::wrapper(void *arg)
   rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %lu ratio=%u\n",
 	  task, task->period, task->ratio);
 
-  pthread_once(&key_once, init_key);
   pthread_setspecific(key, arg);
 
   Posix &papp = reinterpret_cast<Posix&>(App());

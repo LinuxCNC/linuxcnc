@@ -1,11 +1,10 @@
+[[cha:keystick-gui]] (((GUI,KEYSTICK)))
+
 = KEYSTICK GUI
-
-[[cha:keystick-gui]] (((KEYSTICK)))
-
 
 == Introduction
 
-.The Mini Graphical Interface[[fig:keystick]]
+.The Mini Graphical Interface
 image::images/keystick.png[align="center"]
 
 Keystick is a minimal text based interface.

@@ -1,43 +1,44 @@
-= M Codes
-
 [[cha:m-codes]] (((M Codes)))
+
+= M Codes
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-== M Code Quick Reference Table [[m-code-quick-reference]]
+== M Code Quick Reference Table
+
 [width="60%", options="header", cols="2^,5<"]
 |========================================
-|Code                                          | Description
-|<<sec:M0-M1,M0 M1>>                           | Program Pause
-|<<sec:M2-M30,M2 M30>>                         | Program End
-|<<sec:M60, M60>>                              | Pallet Change Pause
-|<<sec:M3-M4-M5,M3 M4 M5>>                     | Spindle Control
-|<<sec:M6-Tool-Change,M6>>                     | Tool Change
-|<<sec:M7-M8-M9,M7 M8 M9>>                     | Coolant Control
-|<<sec:M19,M19>>                               | Orient Spindle
-|<<sec:M48-M49-Override,M48 M49>>              | Feed & Spindle Overrides Enable/Disable
-|<<sec:M50-Feed-Override,M50>>                 | Feed Override Control
-|<<sec:M51-Spindle-Override,M51>>              | Spindle Override Control
-|<<sec:M52-Adaptive-Feed-Control,M52>>         | Adaptive Feed Control
-|<<sec:M53-Feed-Stop-Control,M53>>             | Feed Stop Control
-|<<sec:M61-Set-Current-Tool-Number,M61>>       | Set Current Tool Number
-|<<sec:M62-M65,M62-M65>>                       | Output Control
-|<<sec:M66-Input-Control,M66>>                 | Input Control
-|<<sec:M67-Analog-Output,M67>>                 | Analog Output Control
-|<<sec:M68-Analog-Output,M68>>                 | Analog Output Control
-|<<sec:M70-Save-Modal-State,M70>>              | Save Modal State
-|<<sec:M71-Invalidate-Stored-Modal-State,M71>> | Invalidate Stored Modal State
-|<<sec:M72-Restore-Modal-State,M72>>           | Restore Modal State
-|<<sec:M73-Save-Autorestore-Modal-State,M73>>  | Save Autorestore Modal State
-|<<sec:M100-to-M199,M100-M199>>                | User Defined M-Codes 
+|Code                                | Description
+|<<mcode:m0-m1,M0 M1>>               | Program Pause
+|<<mcode:m2-m30,M2 M30>>             | Program End
+|<<mcode:m60, M60>>                  | Pallet Change Pause
+|<<mcode:m3-m4-m5,M3 M4 M5>>         | Spindle Control
+|<<mcode:m6,M6>>                     | Tool Change
+|<<mcode:m7-m8-m9,M7 M8 M9>>         | Coolant Control
+|<<mcode:m19,M19>>                   | Orient Spindle
+|<<mcode:m48-m49,M48 M49>>           | Feed & Spindle Overrides Enable/Disable
+|<<mcode:m50,M50>>                   | Feed Override Control
+|<<mcode:m51,M51>>                   | Spindle Override Control
+|<<mcode:m52,M52>>                   | Adaptive Feed Control
+|<<mcode:m53,M53>>                   | Feed Stop Control
+|<<mcode:m61,M61>>                   | Set Current Tool Number
+|<<mcode:m62-m65,m62-m65>>           | Output Control
+|<<mcode:m66,M66>>                   | Input Control
+|<<mcode:m67,M67>>                   | Analog Output Control
+|<<mcode:m68,M68>>                   | Analog Output Control
+|<<mcode:m70,M70>>                   | Save Modal State
+|<<mcode:m71,M71>>                   | Invalidate Stored Modal State
+|<<mcode:m72,M72>>                   | Restore Modal State
+|<<mcode:m73,M73>>                   | Save Autorestore Modal State
+|<<mcode:m100-m199,M100-M199>>       | User Defined M-Codes 
 |========================================
 
 
-[[sec:M0-M1]]
+[[mcode:m0-m1]](((M0, M1 Program Pause)))
+
 == M0, M1 Program Pause
-(((M0 Program Pause)))(((M1 Program Optional Pause)))
 
 * 'M0' - pause a running program temporarily. LinuxCNC remains
          in the Auto Mode so MDI and other manual actions
@@ -56,9 +57,9 @@ but the effect will probably not be noticeable,
 because normal behavior in MDI mode is 
 to stop after each line of input anyway.
 
-[[sec:M2-M30]]
+[[mcode:m2-m30]](((M2 Program End)))(((M30 Program End)))
+
 == M2, M30 Program End
-(((M2 Program End)))(((M30 Program End)))
 
 * 'M2' - end the program. Pressing cycle start will
          start the program at the beginning of the file.
@@ -81,28 +82,32 @@ Both of these commands have the following effects:
 . Coolant is turned off (like 'M9').
 
 [NOTE]
-Lines of code after M2/M30 will not be executed.
-Pressing cycle start will start the program
-at the beginning of the file.
+Lines of code after M2/M30 will not be executed. Pressing cycle start will
+start the program at the beginning of the file.
 
-[[sec:M60]]
+[WARNING]
+Using % to wrap the G code does not do the same thing as a 'Program End'. See
+<<sec:file-requirements,File Requirements>> for more information on what using
+% does not do.
+
+[[mcode:m60]](((M60 Pallet Change Pause)))
+
 == M60 Pallet Change Pause
-(((M60 Pallet Change Pause)))
 
 * 'M60' - exchange pallet shuttles and then pause a running program
           temporarily (regardless of the setting of the optional stop
           switch). Pressing the cycle start button
           will restart the program at the following line.
 
-[[sec:M3-M4-M5]]
+[[mcode:m3-m4-m5]](((M3, M4, M5 Spindle Control)))
+
 == M3, M4, M5 Spindle Control
-(((M3 Spindle CW)))(((M4 Spindle CCW)))(((M5 Spindle Stop)))
 
 * 'M3' - start the spindle clockwise at the 'S' speed.
 * 'M4' - start the spindle counterclockwise at the 'S' speed.
 * 'M5' - stop the spindle.
 
-It is OK to use 'M3' or 'M4' if the <<sec:S-spindle-speed,S>>
+It is OK to use 'M3' or 'M4' if the <<sec:set-spindle-speed,S>>
 spindle speed is set to zero. If this is done
 (or if the speed override switch is enabled and set to zero),
 the spindle will not start turning.
@@ -112,9 +117,9 @@ the spindle will start turning.
 It is OK to use 'M3' or 'M4' when the spindle is already
 turning or to use 'M5' when the spindle is already stopped.
 
-[[sec:M6-Tool-Change]]
+[[mcode:m6]](((M6-Tool-Change)))
+
 == M6 Tool Change
-(((M6-Tool-Change)))
 
 === Manual Tool Change
 
@@ -122,13 +127,13 @@ If the HAL component hal_manualtoolchange is loaded,
 M6 will stop the spindle and prompt the user to change the tool
 based on the last 'T-' number programmed.
 For more information on hal_manualtoolchange see
-the <<sec:Manual-Tool-Change,Manual Tool Change>> section.
+the <<sec:manual-tool-change,Manual Tool Change>> section.
 
 === Tool Changer
 
 To change a tool in the spindle from the tool currently in the spindle
 to the tool most recently selected (using a T word - see Section
-<<sec:T-Select-Tool,Select Tool>>), program 'M6'.
+<<sec:select-tool,Select Tool>>), program 'M6'.
 When the tool change is complete:
 
 * The spindle will be stopped. 
@@ -138,7 +143,7 @@ When the tool change is complete:
    the tool that was in the spindle (if there was one) will be placed
    back into the tool changer magazine.
 * If configured in the .ini file some axis positions may move when a M6
-   is issued. See the <<sub:EMCIO-Section,EMCIO section>> for more
+   is issued. See the <<sec:emcio-section,EMCIO section>> for more
    information on tool change options.
 * No other changes will be made. For example, coolant will continue to
    flow during the tool change unless it has been turned off by an 'M9'.
@@ -156,9 +161,9 @@ there will definitely be no tool in the spindle after a tool change. The tool
 changer will have to be setup to perform the tool change in hal and possibly
 classicladder.
 
-[[sec:M7-M8-M9]]
+[[mcode:m7-m8-m9]](((M7, M8, M9 Coolant Control)))
+
 == M7, M8, M9 Coolant Control
-(((M7 Mist Coolant)))(((M8 Flood Coolant)))(((M9 Coolant Off)))
 
 * 'M7' - turn mist coolant on.
 * 'M8' - turn flood coolant on.
@@ -167,9 +172,9 @@ classicladder.
 It is OK to use any of these commands, regardless of the current coolant
 state.
 
-[[sec:M19]]
+[[mcode:m19]](((M19 Orient Spindle)))
+
 == M19 Orient Spindle
-(((M19 Orient Spindle)))
 
 * 'M19 R- Q- [P-]'
 
@@ -222,10 +227,9 @@ cause the orient cycle to abort.
 * 'motion.spindle-locked' (out bit)
 Spindle orient complete pin. Cleared by any of M3,M4,M5.
 
+[[mcode:m48-m49]](((M48, M49 Speed and Feed Override Control)))
 
-[[sec:M48-M49-Override]]
 == M48, M49 Speed and Feed Override Control
-(((M48, M49 Override Control)))
 
 * 'M48' - enable the spindle speed and feed rate override controls.
 * 'M49' - disable both controls.
@@ -234,9 +238,9 @@ It is OK to enable or disable the controls when
 they are already enabled or disabled. 
 See the <<sub:feed-rate,Feed Rate>> Section for more details.
 
-[[sec:M50-Feed-Override]]
+[[mcode:m50]](((M50 Feed Override Control)))
+
 == M50 Feed Override Control
-(((M50 Feed Override Control)))
 
 * 'M50 <P1>' - enable the feed rate override control. The P1
                is optional. 
@@ -246,9 +250,9 @@ While disabled the feed override will have no influence,
 and the motion will be executed at programmed feed rate.
 (unless there is an adaptive feed rate override active).
 
-[[sec:M51-Spindle-Override]]
+[[mcode:m51]](((M51 Spindle Speed Override)))
+
 == M51 Spindle Speed Override Control
-(((M51 Spindle Speed Override)))
 
 * 'M51 <P1>' - enable the spindle speed override control. The P1
                is optional. 
@@ -256,11 +260,11 @@ and the motion will be executed at programmed feed rate.
              While disabled the spindle speed override will have
              no influence, and the spindle speed will have the
              exact program specified value of the S-word
-             (described in <<sec:S-spindle-speed,Spindle Speed>> Section).
+             (described in <<sec:set-spindle-speed,Spindle Speed>> Section).
 
-[[sec:M52-Adaptive-Feed-Control]]
+[[mcode:m52]](((M52 Adaptive Feed Control)))
+
 == M52 Adaptive Feed Control
-(((M52 Adaptive Feed Control)))
 
 * 'M52 <P1>' - use an adaptive feed. The P1 is optional.
 * 'M52 P0' - stop using adaptive feed.
@@ -271,9 +275,10 @@ to set the actual feed rate. In LinuxCNC, the HAL pin 'motion.adaptive-feed'
 is used for this purpose. Values on 'motion.adaptive-feed' should range
 from 0 (feed hold) to 1 (full speed).
 
-[[sec:M53-Feed-Stop-Control]]
+[[mcode:m53]](((M53 Feed Stop Control)))
+
 == M53 Feed Stop Control
-(((M53 Feed Stop Control)))
+
 
 * 'M53 <P1>' - enable the feed stop switch. The P1 is optional.
                Enabling the feed stop switch will allow motion to be
@@ -285,9 +290,9 @@ from 0 (feed hold) to 1 (full speed).
              will have no effect on feed when M53 is not active.
 
 
-[[sec:M61-Set-Current-Tool-Number]]
+[[mcode:m61]](((M61 Set Current Tool Number)))
+
 == M61 Set Current Tool Number
-(((M61 Set Current Tool Number)))
 
 * 'M61 Q-' - change the current tool number while in MDI or Manual mode.
              One use is when you power up LinuxCNC with a tool currently in
@@ -297,9 +302,9 @@ It is an error if:
 
 * Q- is not 0 or greater
 
-[[sec:M62-M65]]
+[[mcode:m62-m65]](((M62 - M65 Output Control)))
+
 == M62 to M65 Output Control
-(((M62 to M65 Output Control)))
 
 * 'M62 P-' - turn on digital output synchronized with motion.
              The P- word specifies the digital output number.
@@ -316,7 +321,7 @@ It is an error if:
 The P-word ranges from 0 to a default value of 3. If needed the the
 number of I/O can be increased by using the num_dio parameter when loading
 the motion controller. See the <<sec:motion,Motion Section>> for more
-finformation.
+information.
 
 The M62 & M63 commands will be queued. Subsequent commands referring
 to the same output number will overwrite the older settings. More than
@@ -336,9 +341,9 @@ break blending.
 M62-65 will not function unless the appropriate motion.digital-out-nn pins are
 connected in your hal file to outputs.
 
-[[sec:M66-Input-Control]]
+[[mcode:m66]](((M66 Wait on Input)))
+
 == M66 Wait on Input
-(((M66 Input Control)))
 
 ----
 M66 P- | E- <L->
@@ -385,9 +390,9 @@ motion.analog-in-nn pins are connected in your hal file to an input.
 net signal-name motion.digital-in-00 <= parport.0.pin10-in
 ----
 
-[[sec:M67-Analog-Output]]
-== M67 Synchronized Analog Output
-(((M67 Analog Motion Output Control)))
+[[mcode:m67]](((M67 Analog Output, Synchronized)))
+
+== M67 Analog Output,Synchronized
 
 ----
 M67 E- Q-
@@ -410,9 +415,9 @@ more information.
 M67 will not function unless the appropriate motion.analog-out-nn pins are
 connected in your hal file to outputs.
 
-[[sec:M68-Analog-Output]]
+[[mcode:m68]](((M68 Analog Output)))
+
 == M68 Analog Output
-(((M68 Analog Aux Output Control)))
 
 ----
 M68 E- Q-
@@ -433,8 +438,9 @@ more information.
 M68 will not function unless the appropriate motion.analog-out-nn pins are
 connected in your hal file to outputs.
 
-== M70 Save Modal State[[sec:M70-Save-Modal-State]]
-(((M70 Save Modal State)))
+[[mcode:m70]](((M70 Save Modal State)))
+
+== M70 Save Modal State
 
 To explicitly save the modal state at the current call level, program
 'M70'. Once modal state has been saved with 'M70', it can be restored
@@ -444,7 +450,8 @@ A pair of 'M70' and 'M72' instructions will typically be used to
 protect a program against inadvertant modal changes within
 subroutines.
 
-[[saved_state_by_M70]]
+[[mcode:m70-saved-state]]
+
 The state saved consists of:
 
 * current G20/G21 settings (imperial/metric)
@@ -482,11 +489,11 @@ Note that in particular, the motion mode (G1 etc) is NOT restored.
 
 A recursive invocation of a subroutine introduces a new call level.
 
-== M71 Invalidate Stored Modal State[[sec:M71-Invalidate-Stored-Modal-State]]
-(((M71 Invalidate Stored Modal State)))
+[[mcode:m71]](((M71 Invalidate Stored Modal State)))
 
-<<saved_state_by_M70,Modal state saved with an 'M70'>> or by an
-<<sec:M73-Save-Autorestore-Modal-State, 'M73'>> at the current call
+== M71 Invalidate Stored Modal State
+
+Modal state saved with an 'M70' or by an 'M73' at the current call
 level is invalidated (cannot be restored from anymore).
 
 A subsequent 'M72' at the same call level will fail.
@@ -497,10 +504,11 @@ subsequent return or endsub will *not* restore modal state.
 The usefulness of this feature is dubious. It should not be relied upon as it might
 go away.
 
-== M72 Restore Modal State[[sec:M72-Restore-Modal-State]]
-(((M72 Restore Modal State)))
+[[mcode:m72]](((M72 Restore Modal State)))
 
-<<saved_state_by_M70,Modal state saved with an 'M70'>> code can be
+== M72 Restore Modal State
+
+<<mcode:m70-saved-state,Modal state saved with an 'M70'>> code can be
 restored by executing an 'M72'.
 
 The handling of G20/G21 is specially treated as feeds are interpreted
@@ -518,7 +526,7 @@ the 'imperialsub' subroutine is not "aware" of the M7x features and can be
 used unmodified:
 
 [source,{ngc}]
----------------------------------------------------------------------
+----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
 O<showstate> endsub
@@ -548,10 +556,11 @@ M72 (explicitely restore state)
 (debug, back in main, state now:)
 o<showstate> call
 m2
----------------------------------------------------------------------
+----
 
-== M73 Save and Autorestore Modal State[[sec:M73-Save-Autorestore-Modal-State]]
-(((M73 Save and Autorestore Modal State)))
+[[mcode:m73]](((M73 Save and Autorestore Modal State)))
+
+== M73 Save and Autorestore Modal State
 
 To save modal state within a subroutine, and restore state on
 subroutine 'endsub' or any 'return' path, program 'M73'.
@@ -566,11 +575,11 @@ The suggested use is at the beginning of a O-word subroutine as in the
 following example. Using 'M73' this way enables designing subroutines
 which need to modify modal state but will protect the calling program
 against inadvertant modal changes. Note the use of
-<<sec:Predefined-Named-Parameters, predefined named parameters>> in
+<<sec:predefined-named-parameters, predefined named parameters>> in
 the 'showstate' subroutine.
 
 [source,{ngc}]
----------------------------------------------------------------------
+----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
 O<showstate> endsub
@@ -599,15 +608,15 @@ o<imperialsub> call
 (debug, back in main, state now:)
 o<showstate> call
 m2
----------------------------------------------------------------------
+----
 
-=== Selectively restoring modal state by testing predefined parameters [[sec:Selectively-restoring-modal-state]]
+=== Selectively Restoring Modal State
 
 Executing an 'M72' or returning from a subroutine which contains an
-'M73' will restore <<saved_state_by_M70,*all* modal state saved>>.
+'M73' will restore <<mcode:m70-saved-state,*all* modal state saved>>.
 
 If only some aspects of modal state should be preserved, an
-alternative is the usage of <<sec:Predefined-Named-Parameters,
+alternative is the usage of <<sec:predefined-named-parameters,
 predefined named parameters>>, local parameters and conditional
 statements. The idea is to remember the modes to be restored at the
 beginning of the subroutine, and restore these before exiting. Here is
@@ -633,9 +642,9 @@ O<measure> endsub
 
 ---------------------------------------------------------------------
 
-[[sec:M100-to-M199]]
+[[mcode:m100-m199]](((M100 to M199 User Defined Commands)))
+
 == M100 to M199 User Defined Commands
-(((M100 to M199 User Defined Commands)))(((User Defined Commands M100-M199)))
 
 ----
 M1-- <P- Q->
@@ -654,7 +663,7 @@ is executed with the optional P and Q values as its two arguments.
 Execution of the G code file pauses until the external program exits.
 Any valid executable file can be used. The file must be located in the search
 path specificed in the ini file configuration. See the 
-<<sub:DISPLAY-section,Display Section>> for more information on search paths.
+<<sec:display-section,Display Section>> for more information on search paths.
 
 [WARNING]
 Do not use a word processor to create or edit the files. A word processor

@@ -1,6 +1,5 @@
 = Contributing to LinuxCNC
 
-
 == Introduction
 
 This document contains information for developers about LinuxCNC

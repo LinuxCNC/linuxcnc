@@ -888,7 +888,7 @@ en quelques mots:
 
 L'apparence des LinuxCNC Actions dans Glade est approximativement la suivante:
 
-image::images/emc-actions.png[]
+image::images/vcp-actions.png[]
 
 Le survol de la souris donne une infobulle.
 

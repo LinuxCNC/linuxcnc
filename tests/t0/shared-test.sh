@@ -31,6 +31,7 @@ fi
 (
     function introspect() {
         SEQUENCE_NUMBER=$1
+        echo set wait done
         echo "set mdi m100 P6 Q$SEQUENCE_NUMBER"  # sequence number
         echo 'set mdi m100 P0 Q#5420'             # X
         echo 'set mdi m100 P1 Q#5421'             # Y
@@ -178,6 +179,7 @@ fi
     #
     # All the configs will be at Z=5.0 after switching to G59.3.
     echo set mdi g10 l20 p9 z5
+    introspect 11.5
 
     echo set mdi g59.3
     introspect 12
@@ -398,6 +400,7 @@ fi
     #
     # All the configs will be at Z = 6.0 after switching to G59.3.
     echo set mdi g10 l20 p9 z6
+    introspect 117.5
 
     echo set mdi g59.3
     introspect 118
@@ -601,6 +604,7 @@ fi
     #
     # All the configs will be at Z=7.0 after switching to G59.3.
     echo set mdi g10 l20 p9 z7
+    introspect 213.5
 
     echo set mdi g59.3
     introspect 214

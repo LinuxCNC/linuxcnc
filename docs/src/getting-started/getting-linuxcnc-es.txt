@@ -1,0 +1,198 @@
+= Obteniendo LinuxCNC
+
+== Descarga Normal
+
+Descargue el Live-CD de:
+
+http://www.linuxcnc.org/[La pagina principal del LinuxCNC www.linuxcnc.org]
+
+y siga el vinculo para descarga.
+
+== Descarga Multi-sesion (((Descarga Multi-sesion)))
+
+Si el archivo es demasiado grande para ser descargado en una sesión debido a una conexión a internet lenta o defectuosa, utilice `wget` (o bittorrent) para permitir restaurar la descarga despues de una interrupción.
+
+Linux Wget:: (((Linux Wget)))
+Abra una ventana de terminal. En Ubuntu valla a Applications/Accessories/Terminal.
+Utilice 'cd' para cambiar al directorio donde desea guardar el ISO.
+Si lo necesita utilice 'mkdir' para crear un nuevo directorio.
++
+Note que los nombres de los archivos pueden cambiar, usted debería de ir a 
+http://www.linuxcnc.org/[http://www.linuxcnc.org/] 
+y seguir el vinculo de descarga para obtener el nombre actual del archivo.
+En la mayoría de los buscadores usted puede hacer clic derecho en el vinculo y seleccionar la opción de copiar la locación del vinculo, posteriormente pegue esa locación en la ventana de la terminal utilizando un clic del botón derecho y seleccionando la opción pegar.
+
+.Ubuntu 10.04 Lucid Lynx y LinuxCNC (versión actual)
+*********************************************************************
+Para obtener la versión Ubuntu 10.04 Lucid Lynx,
+copie una de las siguientes direcciones en la ventana de terminal y presione la tecla enter:
+
+Para el espejo en USA:
+wget http://www.linuxcnc.org/iso/ubuntu-10.04-linuxcnc3-i386.iso
+
+Para el espejo en Europa:
+wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc3-i386.iso
+
+La md5sum del archivo anterior es: '5283b33b7e23e79da1ee561ad476b05f' 
+*********************************************************************
++
+Para continuar una descarga parcial que fue interrumpida
+agregue la opción -c al comando wget:
++
+wget -c http://www.linuxcnc.org/iso/ubuntu-10.04-linuxcnc1-i386.iso
++
+Para detener una descarga en progreso utilice Ctrl-C o cierre la pantalla de la terminal.
++
+.Ubuntu 8.04 Hardy Heron y LinuxCNC (antiguo)
+*********************************************************************
+Si usted requiere una versión antigua de Ubuntu, usted puede descargar Ubuntu 8.04.
+La imagen CD siguiente tiene el antiguo emc 2.3.x en ella, pero puede ser actualizada a
+la versión 2.4.x siguiendo las instrucciones en el wiki de LinuxCNC.org que se encuentran aquí:
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.4
+
+Para el espejo en USA:
+wget http://www.linuxcnc.org/iso/ubuntu-8.04-desktop-emc2-aj13-i386.iso
+
+Para el espejo en Europa:
+wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso
+
+La md5sum del archivo anterior es: '1bab052ec879f941628927c988863f14'
+*********************************************************************
++
+Cuando la descarga sea completada usted encontrara el archivo ISO en el
+directorio que selecciono. A continuación quemaremos el CD.
+
+Wget Windows:: (((Wget Windows)))
+El programa wget se encuentra también disponible para Windows descargado de:
++
+http://gnuwin32.sourceforge.net/packages/wget.htm
++
+Siga las instrucciones de la pagina de internet para descargar e instalar la versión de Windows
+del programa wget.
++
+Para correr wget abra una ventana de linea de comandos.
++
+En la mayoría de las instalaciones de Windows esto se hace en Programs/Accessories/Command Prompt
++
+Primero usted tiene que cambiarse al directorio donde wget esta instalado.
++
+Típicamente es en  C:\Program Files\GnuWin32\bin por lo tanto en la ventana de la linea de comandos escriba:
++
+---
+'cd C:\Program Files\GnuWin32\bin'
+---
++
+y el prompt debería de cambiar a: 'C:\Program Files\GnuWin32\bin>'
++
+Escriba el comando wget en la ventana de la linea de comandos como se describió en las secciones anteriores dependiendo
+de la versión de LinuxCNC que requiera y presione enter.
+
+== Quemando el CD de LinuxCNC
+
+LinuxCNC es distribuido como una imagen de CD con un formato llamado ISO.
+Para instalar LinuxCNC, usted necesitara primero quemar el archivo ISO en un CD.
+Usted necesita un quemador CD/DVD que funcione y un CD en blanco de 80 minutos (700Mb) para hacer esto.
+Si la escritura del CD falla trate de nuevo con una velocidad de escritura mas baja.
+
+Verificando la integridad del CD con md5sum en Linux::
+
+Antes de quemar el CD, es altamente recomendable que verifique el md5sum (hash)
+del archivo .iso.
++
+Abra una ventana de terminal.
+En Ubuntu valla a Applications/Accessories/Terminal.
++
+Cambie el directorio a donde el archivo ISO fue descargado.
++
+---
+cd download_directory
+---
++
+Ejecute el comando de verificación de md5sum con el nombre del archivo guardado.
++
+---
+md5sum -b ubuntu-10.04-linuxcnc1-i386.iso
+---
++
+El comando md5sum deberá de imprimir una linea sencilla después de calcular el hash.
+
+En computadoras lentas esto puede tardar un minuto o dos.
++
+---
+5283b33b7e23e79da1ee561ad476b05f *ubuntu-10.04-linuxcnc1-i386.iso
+---
++
+Ahora compare este valor con el que realmente debería de ser.
++
+Si descarga el md5sum asi como el iso,
+usted puede preguntar al programa md5sum el hacer la revisión por usted.
+En el mismo directorio:
++
+---
+md5sum -c ubuntu-10.04-linuxcnc1-i386.iso.md5
+---
++
+Si todo va bien despues de una pausa la terminal deveria de imprimir:
++
+---
+ubuntu-10.04-linuxcnc1-i386.iso: OK
+---
++
+
+Quemando el archivo ISO en Linux::
+
+ . Inserte un CD en blanco en su quemador. Una ventana de 'CD/DVD creador' o 'Seleccione tipo de disco' aparecera seleccione no hacer nada y cierre la ventana.
+ . Busque la imagen Iso en el buscador de archivos.
+ . Haga click derecro sobre la imagen ISO y seleccione la opcion escrivir a disco.
+ . Seleccione la velocidad de escritura. Si se esta quemando un disco Live CD de Ubuntu seleccione la velocidad mas baja posible.
+ . Inicie el proceso de quemado.
+ . Si una ventana con el titulo 'seleccione el nombre para la imagen de disco' aparece, solo seleccione la opcion OK.
+
+Verificar md5sum con Windows::
+
+Antes de quemar el CD, es altamente recomendable que verifique el md5sum (hash)
+del archivo .iso que se descargo.
++
+Windows no incluye un programa de verificacion de mdsum. Se tendra que descargar e instalar uno para provar la md5sum. mas informacion puede ser encontrada en:
++
+https://help.ubuntu.com/community/HowToMD5SUM
+
+Quemando el archivo ISO en Windows::
+
+ . Descargue e instale Infra Recorder, el cual es un programa para quemar imagenes de disco gratuito y libre: http://infrarecorder.org/
+ . Inserte un CD en blanco en la unidad de disco y seleccione la opcion de hacer nada o cancelar si alguna pantalla emergente aparece.
+ . Abra Infra Recorder, seleccione la opcion 'Acciones' del menu, posteriormente seleccione 'Quemar Imagen'.
+
+== Probando LinuxCNC
+
+Con el Live CD en la unidad CD/DVD apague la computadora y enciéndala de nuevo. 
+Esto hará que la computadora arranque desde el Live CD.
+Una vez que la computadora haya arrancado usted puede probar LinuxCNC sin instalarlo.
+Usted no puede crear configuraciones personalizadas o modificar la mayoría de los 
+parámetros del sistema tales como la resolución de pantalla amenos que instale LinuxCNC.
+
+Para probar LinuxCNC desde el menú de Applications/CNC seleccione LinuxCNC. Entonces seleccione
+una configuración sim (simulador) para hacer pruebas.
+
+Para revisar si su computadora es candidata apta para la generación de pasos por software
+corra una prueba de latencia como se describe en la sección (<<sub:latency-test,Latency Test>>)
+
+== Instalar LinuxCNC
+
+Si le gustan los resultados que obtuvo probando LinuxCNC, solo haga clic en el icono de instalación del escritorio,
+conteste unas cuantas preguntas (su nombre, zona horaria, contraseña) y la instalación se completara en unos pocos minutos. Asegúrese de conservar el nombre y la contraseña que introdujo. Una vez que el proceso de instalación concluya y usted se encuentre en linea el administrador de actualizaciones le permitirá actualizar a la ultima versión estable de LinuxCNC.
+
+== Actualizaciones a LinuxCNC(((Actualizaciones a LinuxCNC)))
+
+Con la instalación normal el agente de actualizaciones le notificara de las actualizaciones disponibles para LinuxCNC cuando se conecte a internet, y usted podrá actualizar sin necesidad de conocer mas sobre LINUX.
+
+Si usted desea actualizar a 10.04 de 8.04 se recomienda una instalación limpia de EMC.
+Es correcto actualizar todo cuando se le pregunte por hacerlo exepto el sistema operativo.
+
+Advertencia: No actualice Ubuntu a una versión que no sea LTS (Por ejemplo de 8.04 a 8.10) lo anterior arruinara su instalación de EMC y no podrá utilizarlo.
+
+== Problemas con la instalación
+
+En casos raros deberá de resetear el BIOS a su configuración de fabrica si durante el proceso de instalación desde el Live CD el disco duro no es detectado correctamente.
+
+// vim: set syntax=asciidoc:

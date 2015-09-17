@@ -1,8 +1,8 @@
-= General Reference
-
 [[cha:general-reference]]
 
-== General Naming Conventions[[sec:GR-Naming-Conventions]]
+= General Reference
+
+== General Naming Conventions
 
 Consistent naming conventions would make HAL much easier to use. For
 example, if every encoder driver provided the same set of pins and
@@ -32,7 +32,7 @@ follow these rules:
  - HAL components should not use underscores or “MixedCase”.
  - Use only lowercase letters and numbers in names. 
 
-== Hardware Driver Naming Conventions [[sec:GR-Driver-Naming]]
+== Hardware Driver Naming Conventions
 
 === Pin/Parameter names
 
@@ -94,7 +94,7 @@ The individual fields are:
     high and active low inputs. For most io-types, there is a standard set
     of pins and parameters, (referred to as the “canonical interface”) that
     the driver should implement. The canonical interfaces are described in
-    the <<cha:Canonical-Device-Interfaces,Canonical Device Interfaces>>
+    the <<cha:canonical-device-interfaces,Canonical Device Interfaces>>
     chapter.
 
 .Examples

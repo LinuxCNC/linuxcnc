@@ -523,7 +523,8 @@ int Interp::execute(const char *command, int line_number)
 {
     int status;
 
-    _setup.sequence_number = line_number;
+    if(command && line_number)
+        _setup.sequence_number = line_number;
     status = Interp::execute(command);
     if (status > INTERP_MIN_ERROR) {
 	unwind_call(status, __FILE__,__LINE__,__FUNCTION__);
@@ -860,9 +861,9 @@ int Interp::init()
           if(NULL != (inistring = inifile.Find("LOG_FILE", "RS274NGC")))
           {
 	      if ((log_file = fopen(inistring, "a"))  == NULL) {
+		  log_file = stderr;
 		  logDebug( "(%d): Unable to open log file:%s, using stderr",
 			  getpid(), inistring);
-		  log_file = stderr;
 	      }
           } else {
 	      log_file = stderr;

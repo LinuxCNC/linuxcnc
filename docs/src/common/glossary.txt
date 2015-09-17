@@ -5,13 +5,13 @@ meaning and several additional meanings for users, installers, and
 developers.
 
 Acme Screw::
-     (((acme screw)))[[glo:AcmeScrew]] A type of lead-screw that uses an Acme
+     (((acme screw))) A type of lead-screw that uses an Acme
     thread form. Acme threads have somewhat lower friction and wear than
     simple triangular threads, but ball-screws are lower yet. Most manual
     machine tools use acme lead-screws.
 
 Axis::
-     (((axis)))[[glo:Axis]] One of the computer controlled movable parts of the
+     (((axis))) One of the computer controlled movable parts of the
     machine. For a typical vertical mill, the table is the X axis, the
     saddle is the Y axis, and the quill or knee is the Z axis. Angular
     axes like rotary tables are referred to as A, B, and C. Additional
@@ -34,7 +34,7 @@ Gmoccapy (GUI)::
 
 
 Backlash::
-     (((backlash)))[[glo:Backlash]] The amount of "play" or lost motion that
+     (((backlash))) The amount of "play" or lost motion that
     occurs when direction is reversed in a lead screw. or other mechanical
     motion driving system. It can result from nuts that are loose on
     leadscrews, slippage in belts, cable slack, "wind-up" in rotary
@@ -56,24 +56,24 @@ Backlash Compensation::
     motion.
 
 Ball Screw::
-     (((ball screw)))[[glo:Ballscrew]] A type of lead-screw that uses small
+     (((ball screw))) A type of lead-screw that uses small
     hardened steel balls between the nut and screw to reduce friction.
     Ball-screws have very low friction and backlash, but are usually quite
     expensive.
 
 Ball Nut::
-     (((ball nut)))[[glo:Ballnut]] A special nut designed for use with a
+     (((ball nut))) A special nut designed for use with a
     ball-screw. It contains an internal passage to re-circulate the balls
     from one end of the screw to the other.
 
 CNC::
-     (((CNC)))[[glo:CNC]] Computer Numerical Control. The general term used to
+     (((CNC))) Computer Numerical Control. The general term used to
     refer to computer control of machinery. Instead of a human operator
     turning cranks to move a cutting tool, CNC uses a computer and motors
     to move the tool, based on a part program.
 
 Comp::
-     (((comp)))[[glo:comp]] A tool used to build, compile and install LinuxCNC HAL
+     (((comp))) A tool used to build, compile and install LinuxCNC HAL
     components.
 
 Configuration(n)::
@@ -122,26 +122,26 @@ EDM::
     than the radius on the corner of the sinking electrode.
 
 EMC::
-     (((EMC)))[[glo:EMC]] The Enhanced Machine Controller. Initially a NIST
+     (((EMC))) The Enhanced Machine Controller. Initially a NIST
     project. Renamed to LinuxCNC in 2012.
 
 EMCIO::
-     (((EMCIO)))[[glo:EMCIO]] The module within LinuxCNC that handles general
+     (((EMCIO))) The module within LinuxCNC that handles general
     purpose I/O, unrelated to the actual motion of the axes.
 
 EMCMOT::
-     (((EMCMOT)))[[glo:EMCMOT]] The module within LinuxCNC that handles
+     (((EMCMOT))) The module within LinuxCNC that handles
     the actual motion of the cutting tool. It runs as a real-time program
     and directly controls the motors.
 
 Encoder::
-     (((encoder)))[[glo:Encoder]] A device to measure position. Usually a
+     (((encoder))) A device to measure position. Usually a
     mechanical-optical device, which outputs a quadrature signal. The
     signal can be counted by special hardware, or directly by the parport
     with LinuxCNC.
 
 Feed::
-     (((feed)))[[glo:Feed]] Relatively slow, controlled motion of the tool used
+     (((feed))) Relatively slow, controlled motion of the tool used
     when making a cut.
 
 Feed rate::
@@ -150,11 +150,11 @@ Feed rate::
     F10 would mean ten machine units per minute.
 
 Feedback::
-     (((feedback)))[[glo:Feedback]] A method (e.g., quadrature encoder signals)
+     (((feedback))) A method (e.g., quadrature encoder signals)
     by which LinuxCNC receives information about the position of motors
 
 Feedrate Override::
-     (((feedrate override)))[[glo:FeedrateOveride]] A manual, operator controlled
+     (((feedrate override))) A manual, operator controlled
     change in the rate at which the tool moves while cutting. Often used to
     allow the operator to adjust for tools that are a little dull, or
     anything else that requires the feed rate to be “tweaked”.
@@ -163,12 +163,12 @@ Floating Point Number::
     A number that has a decimal point. (12.300) In HAL it is known as float.
 
 G-Code::
-     (((G-Code)))[[glo:G-Code]] The generic term used to refer to the most
+     (((G-Code))) The generic term used to refer to the most
     common part programming language. There are several dialects of G-code,
     LinuxCNC uses RS274/NGC.
 
 GUI::
-    [[glo:GUI]](((GUI))) Graphical User Interface.
+    (((GUI))) Graphical User Interface.
     General;;
          A type of interface that allows communications between a computer
         and a human (in most cases) via the manipulation of icons and other
@@ -180,29 +180,29 @@ GUI::
         controlling program.
 
 HAL::
-     (((HAL)))[[glo:HAL]] Hardware Abstraction Layer. At the highest
+     (((HAL))) Hardware Abstraction Layer. At the highest
     level, it is simply a way to allow a number of
     building blocks to be loaded and interconnected to assemble a complex
     system. Many of the building blocks are drivers for hardware devices.
     However, HAL can do more than just configure hardware drivers.
 
 Home::
-     (((home)))[[glo:Home]] A specific location in the machine's work envelope
+     (((home))) A specific location in the machine's work envelope
     that is used to make sure the computer and the actual machine both
     agree on the tool position.
 
 ini file::
-     (((INI)))[[glo:inifile]] A text file that contains most of the information
+     (((INI))) A text file that contains most of the information
     that configures LinuxCNC for a particular machine.
 
 Instance::
-     (((Instance)))[[glo:Instance]] One can have an instance of a class or a
+     (((Instance))) One can have an instance of a class or a
     particular object. The instance is the actual object created at
     runtime. In programmer jargon, the Lassie object is an instance of the
     Dog class. 
 
 Joint Coordinates::
-     (((joint coordinates)))[[glo:Joint_Coordinates]] These specify the angles
+     (((joint coordinates))) These specify the angles
     between the individual joints of the machine. See also Kinematics
 
 Jog::
@@ -212,10 +212,10 @@ Jog::
     jog speed can be set from the graphical interface.
 
 kernel-space::
-    [[glo:kernel-space]] See real-time.
+     See real-time.
 
 Kinematics::
-     (((kinematics)))[[glo:Kinematics]] The position relationship between world
+     (((kinematics))) The position relationship between world
     coordinates and joint coordinates of a machine. There are two types of
     kinematics. Forward kinematics is used to calculate world coordinates
     from joint coordinates. Inverse kinematics is used for exactly the opposite
@@ -223,7 +223,7 @@ Kinematics::
     moments etc. on the machine. It is for positioning only.
 
 Lead-screw::
-     (((lead screw)))[[glo:Leadscrew]] An screw that is rotated by a motor to
+     (((lead screw))) An screw that is rotated by a motor to
     move a table or other part of a machine. Lead-screws are usually either
     ball-screws or acme screws, although conventional triangular threaded
     screws may be used where accuracy and long life are not as important as
@@ -235,21 +235,21 @@ Machine units::
     HAL pins and parameters are also generally in machine units.
 
 MDI::
-     (((MDI)))[[glo:MDI]] Manual Data Input. This is a mode of operation where
+     (((MDI))) Manual Data Input. This is a mode of operation where
     the controller executes single lines of G-code as they are typed by the
     operator.
 
 NIST::
-     (((NIST)))[[glo:NIST]] National Institute of Standards and Technology.
+     (((NIST))) National Institute of Standards and Technology.
     An agency of the Department of Commerce in the United States.
 
 NML::
-     (((NML)))[[glo:NML]] Neutral Message Language provides a mechanism for
+     (((NML))) Neutral Message Language provides a mechanism for
      handling multiple types of messages in the same buffer as well as
      simplifying the interface for encoding and decoding buffers in neutral
      format and the configuration mechanism.
 Offsets::
-     (((offsets)))[[glo:Offsets]]
+     (((offsets)))
     An arbitrary amount, added to the value of something to make it
     equal to some desired value. For example, gcode programs are
     often written around some convenient point, such as X0, Y0.
@@ -260,7 +260,7 @@ Offsets::
     of a tool to equal that tool's actual length.
 
 Part Program::
-     (((part Program)))[[glo:PartProgram]] A description of a part,
+     (((part Program))) A description of a part,
     in a language that the controller can understand. For LinuxCNC,
     that language is RS-274/NGC, commonly known as G-code.
 
@@ -276,30 +276,30 @@ Python::
     programming scripts.
 
 Rapid::
-     (((rapid)))[[glo:Rapid]] Fast, possibly less precise motion of the tool,
+     (((rapid))) Fast, possibly less precise motion of the tool,
     commonly used to move between cuts. If the tool meets the workpiece
     or the fixturing during a rapid, it is probably a bad thing!
 
 Rapid rate::
-     (((rapid rate)))[[glo:RapidRate]]The speed at which a rapid motion occurs.
+     (((rapid rate)))The speed at which a rapid motion occurs.
     In auto or mdi mode, rapid rate is usually the maximum speed of the machine.
     It is often desirable to limit the rapid rate when
     testing a g-code program for the first time.
 
 Real-time::
-    (((real-time)))[[glo:real-time]] Software that is intended to meet
+    (((real-time))) Software that is intended to meet
     very strict timing deadlines. Under Linux, in order to meet these
     requirements it is necessary to install a realtime kernel such
     as RTAI and build the software to run in the special real-time
     environment. For this reason real-time software runs in kernel-space.
 
 RTAI::
-     (((RTAI)))[[glo:RTAI]] Real Time Application Interface, see
+     (((RTAI))) Real Time Application Interface, see
     https://www.rtai.org/[https://www.rtai.org/], the real-time extensions
     for Linux that LinuxCNC can use to achieve real-time performance.
 
 RTLINUX::
-    (((RTLINUX)))[[glo:RTLINUX]] See
+    (((RTLINUX))) See
     https://en.wikipedia.org/wiki/RTLinux[https://en.wikipedia.org/wiki/RTLinux],
     an older real-time extension for Linux that LinuxCNC used to use to
     achieve real-time performance.  Obsolete, replaced by RTAI.
@@ -309,17 +309,17 @@ RTAPI::
     including RTAI and POSIX pthreads with realtime extensions.
 
 RS-274/NGC::
-     (((RS274NGC)))[[glo:RS274NGC]] The formal name for the language
+     (((RS274NGC))) The formal name for the language
     used by LinuxCNC part programs.
 
 Servo Motor::
-     (((servo motor)))[[glo:ServoMotor]] Generally, any motor that is used
+     (((servo motor))) Generally, any motor that is used
     with error-sensing feedback to correct the position of an actuator.
     Also, a motor which is specially-designed to provide improved
     performance in such applications.
 
 Servo Loop::
-     (((loop)))[[glo:ServoLoop]] A control loop used to control position or
+     (((loop))) A control loop used to control position or
     velocity of an motor equipped with a feedback device.
 
 Signed Integer::
@@ -328,7 +328,7 @@ Signed Integer::
     integer has a usable range of -2,147,483,647 to +2,147,483,647.)
 
 Spindle::
-     (((spindle)))[[glo:Spindle]] The part of a machine tool that spins
+     (((spindle))) The part of a machine tool that spins
     to do the cutting. On a mill or drill, the spindle holds the
     cutting tool. On a lathe, the spindle holds the workpiece.
 
@@ -345,17 +345,17 @@ Stepconf::
     and machine that LinuxCNC is to run on.
 
 Stepper Motor::
-     (((stepper motor)))[[glo:StepperMotor]] A type of motor that turns in
+     (((stepper motor))) A type of motor that turns in
     fixed steps. By counting steps, it is possible to determine how far the
     motor has turned. If the load exceeds the torque capability of the
     motor, it will skip one or more steps, causing position errors.
 
 TASK::
-     (((TASK)))[[glo:TASK]] The module within LinuxCNC that coordinates
+     (((TASK))) The module within LinuxCNC that coordinates
     the overall execution and interprets the part program.
 
 Tcl/Tk::
-     (((Tk)))[[glo:Tcl/Tk]] A scripting language and graphical widget toolkit
+     (((Tk))) A scripting language and graphical widget toolkit
     with which several of LinuxCNCs GUIs and selection wizards were
     written.
 
@@ -372,7 +372,7 @@ Unsigned Integer::
     zero to 4,294,967,296.)
 
 World Coordinates::
-     (((world coordinates)))[[glo:World_Coordinates]] This is the absolute
+     (((world coordinates))) This is the absolute
     frame of reference. It gives coordinates in terms of a fixed reference
     frame that is attached to some point (generally the base) of the
     machine tool.

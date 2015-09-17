@@ -1706,6 +1706,20 @@ void ARC_FEED(int line_number,
     double a2 = FROM_EXT_LEN(axis_max_acceleration[axis2]);
     double v_max_axes = MIN(v1, v2);
     double a_max_axes = MIN(a1, a2);
+
+    if(xy_rotation && activePlane != CANON_PLANE_XY) {
+        // also consider the third plane's constraint, which may get
+        // involved since we're rotated.
+
+        int axis3 = (norm_axis_ind + 3) % 3;
+        if (axis_valid(axis3)) {
+            double v3 = FROM_EXT_LEN(axis_max_velocity[axis3]);
+            double a3 = FROM_EXT_LEN(axis_max_acceleration[axis3]);
+            v_max_axes = MIN(v3, v_max_axes);
+            a_max_axes = MIN(a3, a_max_axes);
+        }
+    }
+
     //FIXME allow tangential acceleration like in TP
     double a_max_normal = a_max_axes * sqrt(3.0)/2.0;
     canon_debug("a_max_axes = %f\n", a_max_axes);

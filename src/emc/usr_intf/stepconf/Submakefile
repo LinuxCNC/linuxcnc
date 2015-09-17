@@ -1,4 +1,4 @@
-STEPCONF_MODULES = pages build_INI build_HAL
+STEPCONF_MODULES = pages build_INI build_HAL import_mach 
 
 PYTARGETS += ../bin/stepconf  ../lib/python/stepconf/__init__.py ../share/linuxcnc/linuxcnc-wizard.gif $(patsubst %,../lib/python/stepconf/%.py,$(STEPCONF_MODULES)) \
 	../share/linuxcnc/stepconf/main_page.glade \

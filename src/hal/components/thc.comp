@@ -72,6 +72,7 @@ pin out float z_pos_out "Z Motor Position Command Out";
 pin out float z_fb_out "Z Position Feedback to Axis";
 pin out float volts "The Calculated Volts";
 pin out bit vel_status "When the THC thinks we are at requested speed";
+pin out float offset_value "The Current Offset";
 
 // Parameters
 param rw float vel_scale "The scale to convert the Velocity signal to Volts";
@@ -94,7 +95,8 @@ FUNCTION(_) {
     // convert encoder velocity to volts
     volts = (encoder_vel - scale_offset) * vel_scale;
     if(volts < 0){volts = 0;} // make sure volts is not negative
-    
+    offset_value = offset;
+
     if(enable){
         float min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
         if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}

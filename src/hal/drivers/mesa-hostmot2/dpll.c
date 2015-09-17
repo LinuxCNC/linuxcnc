@@ -102,7 +102,13 @@ int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index) {
     *hm2->dpll.pins->time4_us = 100.0;
     *hm2->dpll.pins->prescale = 1;
     *hm2->dpll.pins->base_freq = -1; // An indication it needs init
-    *hm2->dpll.pins->time_const = 0xA000;
+    /* This value is an empirical compromise between insensitivity to
+     * single-cycle variations (larger values) and being resilient to changes to
+     * the Linux CLOCK_MONOTONIC timescale, which can instantly change by up to
+     * +-500ppm from its nominal value, usually by timekeeping software like ntp
+     * and ntpdate.
+     */
+    *hm2->dpll.pins->time_const = 2000;
     *hm2->dpll.pins->plimit = 0x400000;
 
     r = hm2_register_tram_read_region(hm2, hm2->dpll.hm2_dpll_sync_addr,

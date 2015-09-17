@@ -1,6 +1,6 @@
-= Classicladder Programming
+[[cha:classicladder]](((Classicladder)))
 
-[[cha:classicladder]] (((Classicladder)))
+= Classicladder Programming
 
 == Ladder Concepts
 
@@ -84,7 +84,7 @@ while loading the Classic Ladder real time module. If you do not
 configure the number of ladder objects Classic Ladder will use the
 default values.
 
-.Default Variable Count[[cap:Default-Variable-Count]]
+.Default Variable Count
 
 [width="90%", options="header", cols="<8,<4,<2"]
 |========================================
@@ -186,7 +186,7 @@ section display, and section manager.
 When you first start up Classic Ladder you get an empty Sections
 Manager window.
 
-.Sections Manager Default Window[[cap:Sections-Manager-Default]]
+.Sections Manager Default Window
 
 image::images/Default_Sections_Manager.png[align="center"]
 
@@ -199,7 +199,7 @@ for call coils.
 When you first start up Classic Ladder you get an empty Section
 Display window. Displayed is one empty rung.
 
-.Section Display Default Window[[cap:Section-Display-Default]]
+.Section Display Default Window
 
 image::images/Default_Section_Display.png[align="center"]
 
@@ -241,7 +241,7 @@ the Watch Window (signed integer). The Vars
 button is in the Section Display Window, toggle the Vars button to
 display one, the other, both, then none of the variable windows.
 
-.Bit Status Window[[cap:Bit-Status-Window]]
+.Bit Status Window
 
 image::images/Bit_Status.png[align="center"]
 
@@ -259,7 +259,7 @@ Any Bits that are set as outputs by the program when Classic Ladder is
 running can not be changed and will be displayed as checked if on and
 unchecked if off.
 
-.Watch Window[[cap:Watch-Window]]
+.Watch Window
 
 image::images/watch_window.png[align="center"]
 
@@ -276,7 +276,7 @@ number/name and press the Enter Key.
 
 === Symbol Window
 
-.Symbol Names window[[cap:Symbol-Names-window]]
+.Symbol Names window
 
 image::images/Default_Symbols_names.png[align="center"]
 
@@ -294,7 +294,7 @@ ladder program is connected to!
 
 === The Editor window
 
-.Editor Window[[cap:Editor-Window]]
+.Editor Window
 
 image::images/Editor.png[align="center"]
 
@@ -353,7 +353,7 @@ A short description of each of the buttons:
 The config window shows the current project status and has the Modbus
 setup tabs.
 
-.Config Window[[cap:Config-Window]]
+.Config Window
 
 image::images/Config.png[align="center"]
 
@@ -568,7 +568,7 @@ classicladder.0.s32out-00 will be set to a value of 5 and when the HAL
 pin classicladder.0.s32in-00 is 0 the HAL pin classicladder.0.out-00
 will be set to True.
 
-.Assign/Compare Example[[cap:Assign/Compare-Example]]
+.Assign/Compare Example
 
 image::images/AssignCompare-Ladder.png[align="center"]
 
@@ -784,11 +784,11 @@ on command line.
 If you do not specify a '-- modmaster' when loading the Classic Ladder user
 program this page will not be displayed.
 
-.Config I/O[[cap:Config-I/O]]
+.Config I/O
 
 image::images/Config-io.png[align="center"]
 
-.Config Coms[[cap:Config-Coms]]
+.Config Coms
 
 image::images/Config-com.png[align="center"]
 
@@ -952,7 +952,7 @@ In this section we will cover the steps needed to add Classic Ladder
 to a Stepconf Wizard generated config. On the advanced Configuration
 Options page of Stepconf Wizard check off "Include Classic Ladder PLC". 
 
-.Stepconf Classic Ladder[[cap:Stepconf-Classicladder]]
+.Stepconf Classic Ladder
 
 image::images/stepconf_ladder.png[align="center"]
 
@@ -988,20 +988,20 @@ input, a connector line and one output. A rung can have up to six
 horizontal branches. While it is possible to have more than one
 circuit in a run the results are not predictable.
 
-.Section Display with Grid[[cap:Section-Display-with-Grid]]
+.Section Display with Grid
 
 image::images/Section_Display_Grid.png[align="center"]
 
 Now click on the N.O. Input in the Editor Window.
 
-.Editor Window[[cap:Editor-Window-NO]]
+.Editor Window
 
 image::images/Editor_NO_Input.png[align="center"]
 
 Now click in the upper left grid to place the N.O. Input into the
 ladder.
 
-.Section Display with Input[[cap:Section-Display-with-Input]]
+.Section Display with Input
 
 image::images/Section_Display_Build01.png[align="center"]
 
@@ -1009,14 +1009,14 @@ Repeat the above steps to add a N.O. Output to the upper right grid
 and use the Horizontal Connection to connect the two. It should look
 like the following. If not, use the Eraser to remove unwanted sections.
 
-.Section Display with Rung[[cap:Section-Display-with-Rung]]
+.Section Display with Rung
 
 image::images/Section_Display_Build02.png[align="center"]
 
 Now click on the OK button in the Editor window. Now your Section
 Display should look like this.
 
-.Section Display Finished[[cap:Section-Display-Finished]]
+.Section Display Finished
 
 image::images/Section_Display_Build03.png[align="center"]
 
@@ -1024,7 +1024,7 @@ To save the new file select Save As and give it a name. The .clp
 extension will be added automatically. It should default to the running
 config directory as the place to save it.
 
-.Save As Dialog[[cap:Save-As-Dialog]]
+.Save As Dialog
 
 image::images/SaveAs.png[align="center"]
 

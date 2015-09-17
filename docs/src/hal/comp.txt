@@ -1,6 +1,6 @@
-= halcompile: The HAL Component Generator
+[[cha:hal-component-generator]] (((HAL Component Generator)))
 
-[[cha:halcompile-hal-component-generator]] (((halcompile HAL Component Generator)))
+= The HAL Component Generator
 
 == Introduction
 
@@ -15,7 +15,9 @@ For instance, when coded in C, a simple component such as "ddt" is around 80
 lines of code. The equivalent component is very short when written using the
 'halcompile' preprocessor:
 
-.Simple Component Example [[code:simple-comp-example]]
+[[code:simple-comp-example]]
+
+.Simple Component Example
 ----
 component ddt "Compute the derivative of the input function";
 pin in float in;
@@ -456,9 +458,7 @@ If a '.comp' file is a driver for hardware, it may be placed in
 'linuxcnc/src/hal/drivers' and will be built unless LinuxCNC is
 configured as a userspace simulator.
 
-[[sec:Compiling-realtime-components]]
 == Compiling realtime components outside the source tree
-(((Compiling realtime components outside the source tree)))
 
 'halcompile' can process, compile, and install a realtime component
 in a single step, placing 'rtexample.ko' in the LinuxCNC realtime

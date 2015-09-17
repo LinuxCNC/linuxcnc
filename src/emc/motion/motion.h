@@ -254,6 +254,7 @@ extern "C" {
         int arcBlendFallbackEnable;
         int arcBlendGapCycles;
         double arcBlendRampFreq;
+        double arcBlendTangentKinkRatio;
         double maxFeedScale;
     } emcmot_command_t;
 
@@ -747,6 +748,7 @@ Suggestion: Split this in to an Error and a Status flag register..
         int arcBlendFallbackEnable;
         int arcBlendGapCycles;
         double arcBlendRampFreq;
+        double arcBlendTangentKinkRatio;
         double maxFeedScale;
     } emcmot_config_t;
 

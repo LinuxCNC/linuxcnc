@@ -1,3 +1,5 @@
+[[cha:mpg-pendant]](((MPG Pendant)))
+
 = MPG Pendant
 
 This example is to explain how to hook up the common MPG pendants
@@ -11,7 +13,7 @@ sure you don't have mux4 or an encoder already in use. If you do just
 increase the counts and change the reference numbers. More information
 about mux4 and encoder can be found in the HAL manual or the man page.
 
-See the <<sub:HAL-section,HAL Ini Section>> of the manual for more
+See the <<sec:hal-section,HAL Ini Section>> of the manual for more
 information on adding a hal file.
 
 .jog.hal
@@ -69,7 +71,7 @@ net encoder-counts => axis.2.jog-counts
 ----
 
 If the machine is capable of high acceleration to smooth out the moves
-for each click of the MPG use the <<ilowpass,ilowpass>> component to
+for each click of the MPG use the <<sec:ilowpass,ilowpass>> component to
 limit the acceleration.
 
 .jog.hal with ilowpass

@@ -243,7 +243,8 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     # Override gremlin's / glcannon.py function so we can emit a GObject signal
     def update_highlight_variable(self,line):
         self.highlight_line = line
-        if line == None: return
+        if line == None:
+            line = -1
         self.emit('line-clicked', line)
 
     def realize(self, widget):

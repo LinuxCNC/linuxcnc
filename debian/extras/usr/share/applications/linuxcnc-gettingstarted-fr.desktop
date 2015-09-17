@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=
 Encoding=UTF-8
-Name=LinuxCNC Getting Started Guide (French)
+Name=French Getting Started Guide
 Type=Application
 Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_fr.pdf
-Icon=gnome-help
+Icon=linuxcncicon
 X-GNOME-DocPath=
 Terminal=false
-Comment=The LinuxCNC Getting Started Guide. All you need to know to get started. (French)
+Comment=Information on how to download and install LinuxCNC
 StartupNotify=false
 Categories=X-CNC;
 GenericName[en_US]=

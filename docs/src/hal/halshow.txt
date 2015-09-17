@@ -1,6 +1,6 @@
-= Halshow
+[[cha:halshow]](((Halshow)))
 
-[[cha:halshow]] (((Halshow)))
+= Halshow
 
 The script halshow can help you find your way around a running HAL.
 This is a very specialized system and it must connect to a working HAL.
@@ -20,11 +20,13 @@ Halshow is in the TkLinuxCNC menu under Scripts/HAL Show.
 
 == HAL Tree Area
 
-At the left of its display as shown in figure  <<cap:Halshow-Layout>>
-is a tree view, somewhat like you might see with some file browsers. At
-the right is a tabbed notebook with tabs for show and watch.
+At the left of its display as shown in figure is a tree view, somewhat like
+you might see with some file browsers. At the right is a tabbed notebook with
+tabs for show and watch.
 
-.Halshow Layout[[cap:Halshow-Layout]]
+[[cap:halshow-layout]]
+
+.Halshow Layout
 
 image::images/halshow-1.png[align="center"]
 
@@ -39,7 +41,7 @@ find: Expand Tree, Collapse Tree; Expand Pins, Expand Parameters,
 Expand Signals; and Erase Watch. (Note that Erase Watch erases 'all'
 previously set watches, you cannot erase just one watch.)
 
-.Show Menu[[cap:Show-Menu]]
+.Show Menu
 
 image::images/halshow-3.png[align="center"]
 
@@ -47,7 +49,7 @@ image::images/halshow-3.png[align="center"]
 
 Clicking on the node name, the word "Components" for example, will
 show you (under the "Show" tab) all that HAL knows about the contents
-of that node. Figure  <<cap:Halshow-Layout>> shows a list exactly like
+of that node. Figure <<cap:halshow-layout>> shows a list exactly like
 you will see if you click the "Components" name while you are running a
 standard m5i20 servo card. The information display is exactly like
 those shown in traditional text based HAL analysis tools. The advantage
@@ -158,10 +160,10 @@ addf ddt.0 servo-thread
 ----
 
 This is just for viewing, so we leave position blank and get the last
-position in the thread. Figure  <<cap:Addf-Command>> shows the state of
-halshow after this command has been issued.
+position in the thread. The following figure shows the state of halshow
+after this command has been issued.
 
-.Addf Command[[cap:Addf-Command]]
+.Addf Command
 
 image::images/halshow-2.png[align="center"]
 
@@ -217,23 +219,21 @@ editor panel to modify that HAL. There are times when you want a
 different set of things displayed without all of the information
 available in this area. That is where the HAL Watch Area is of value.
 
-== HAL Watch Area
+== Watch Tab
 
-Clicking the watch tab produces a blank canvas. You can add signals
-and pins to this canvas and watch their values.footnote:[The refresh
-rate of the watch display is much lower than Halmeter or
-Halscope. If you need good resolution of the timing of signals those
-tools are much more effective.] 
-You can add signals or pins when the watch tab is displayed by
-clicking on the name of it. Figure  <<cap:Watch-Display>> shows this
-canvas with several "bit" type signals. These signals include
-enable-out for the first three axes and two of the three iocontrol
-"estop" signals. Notice that the axes are not enabled even though the
-estop signals say that LinuxCNC is not in estop. A quick look at TkLinuxCNC shows
-that the condition of LinuxCNC is ESTOP RESET. The amp enables do not turn
-true until the machine has been turned on.
+Clicking the watch tab produces a blank canvas. You can add signals and pins
+to this canvas and watch their values.footnote:[The refresh rate of the watch
+display is much lower than Halmeter or Halscope. If you need good resolution
+of the timing of signals those tools are much more effective.] You can add
+signals or pins when the watch tab is displayed by clicking on the name of it.
+The following figure shows this canvas with several "bit" type signals. These
+signals include enable-out for the first three axes and two of the three
+iocontrol "estop" signals. Notice that the axes are not enabled even though the
+estop signals say that LinuxCNC is not in estop. A quick look at TkLinuxCNC
+shows that the condition of LinuxCNC is ESTOP RESET. The amp enables do not
+turn true until the machine has been turned on.
 
-.[[cap:Watch-Display]]Watch Display
+.Watch Tab
 
 image::images/halshow-4.png[align="center"]
 

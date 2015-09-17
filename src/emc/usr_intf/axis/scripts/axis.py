@@ -3377,7 +3377,10 @@ def check_dynamic_tabs():
         raise SystemExit(r)
     else:
         if postgui_halfile:
-            res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", postgui_halfile])
+            if postgui_halfile.lower().endswith('.tcl'):
+                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", vars.emcini.get(), postgui_halfile])
+            else:
+                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", postgui_halfile])
             if res: raise SystemExit, res
         root_window.deiconify()
         destroy_splash()

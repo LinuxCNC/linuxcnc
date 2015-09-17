@@ -30,19 +30,17 @@ DOC_SRCS_EN := \
 	common/emc-history.txt \
 	common/glossary.txt \
 	common/gpld-copyright.txt \
-	common/integrator-concepts.txt \
 	common/overleaf.txt \
-	common/python-interface.txt \
-	common/starting-linuxcnc.txt \
-	common/stepper-diagnostics.txt \
-	common/user-concepts.txt \
-	common/user-foreword.txt \
-	common/user-intro.txt \
 	config/core-components.txt \
 	config/ini-config.txt \
 	config/ini-homing.txt \
+	config/integrator-concepts.txt \
 	config/lathe-config.txt \
 	config/moveoff.txt \
+	config/pncconf.txt \
+	config/python-interface.txt \
+	config/stepconf.txt \
+	config/stepper-diagnostics.txt \
 	config/stepper.txt \
 	config/stepper-quickstart.txt \
 	drivers/ax5214h.txt \
@@ -72,15 +70,14 @@ DOC_SRCS_EN := \
 	gcode/tool-compensation.txt \
 	getting-started/about-linuxcnc.txt \
 	getting-started/getting-linuxcnc.txt \
-	getting-started/linux-faq.txt \
-	getting-started/pncconf.txt \
+	common/linux-faq.txt \
 	getting-started/running-linuxcnc.txt \
-	getting-started/stepconf.txt \
 	getting-started/system-requirements.txt \
 	getting-started/updating-linuxcnc.txt \
 	gui/axis.txt \
-	gui/gmoccapy.txt \
 	gui/gladevcp.txt \
+	gui/gmoccapy.txt \
+	gui/gmoccapy-hu.txt \
 	gui/gscreen.txt \
 	gui/halui.txt \
 	gui/image-to-gcode.txt \
@@ -90,6 +87,7 @@ DOC_SRCS_EN := \
 	gui/tklinuxcnc.txt \
 	gui/tooledit.txt \
 	gui/touchy.txt \
+	gui/vismach.txt \
 	hal/basic-hal.txt \
 	hal/canonical-devices.txt \
 	hal/comp.txt \
@@ -107,6 +105,7 @@ DOC_SRCS_EN := \
 	hal/rtcomps.txt \
 	hal/tools.txt \
 	hal/tutorial.txt \
+	hal/twopass.txt \
 	install/latency-test.txt \
 	ladder/classic-ladder.txt \
 	ladder/ladder-examples.txt \
@@ -116,8 +115,11 @@ DOC_SRCS_EN := \
 	motion/pid-theory.txt \
 	motion/tweaking-steppers.txt \
 	remap/remap.txt \
+	user/starting-linuxcnc.txt \
+	user/user-concepts.txt \
+	user/user-foreword.txt \
+	user/user-intro.txt \
 	Master_Getting_Started.txt \
-	getting-started/index.txt \
 	Master_Documentation.txt \
 	Master_Developer.txt
 
@@ -128,9 +130,6 @@ DOC_SRCS_FR := \
 	common/outdated-notice_fr.txt \
 	common/overleaf_fr.txt \
 	common/Stepper_Diagnostics_fr.txt \
-	common/User_Concepts_fr.txt \
-	common/userforeword_fr.txt \
-	common/user_intro_fr.txt \
 	config/linuxcnc2hal_fr.txt \
 	config/ini_config_fr.txt \
 	config/ini_homing_fr.txt \
@@ -191,6 +190,9 @@ DOC_SRCS_FR := \
 	motion/kinematics_fr.txt \
 	motion/pid_theory_fr.txt \
 	motion/tweaking_steppers_fr.txt \
+	user/user-concepts-fr.txt \
+	user/user-foreword-fr.txt \
+	user/user-intro-fr.txt \
 	Master_Getting_Started_fr.txt \
 	getting-started/index-fr.txt \
 	Master_User_fr.txt \
@@ -198,13 +200,13 @@ DOC_SRCS_FR := \
 	Master_Integrator_fr.txt \
 
 DOC_SRCS_ES := \
-	getting-started/About-LinuxCNC_es.txt \
-	getting-started/Getting-LinuxCNC_es.txt \
-	getting-started/Linux_FAQ_es.txt \
-	getting-started/Running-LinuxCNC_es.txt \
-	getting-started/stepconf_es.txt \
-	config/stepper_quickstart_es.txt \
-	getting-started/System_Requirements_es.txt \
+	getting-started/about-linuxcnc-es.txt \
+	getting-started/getting-linuxcnc-es.txt \
+	common/linux-faq-es.txt \
+	getting-started/running-linuxcnc-es.txt \
+	config/stepconf-es.txt \
+	config/stepper-quickstart-es.txt \
+	getting-started/system-requirements-es.txt \
 
 DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES)
 
@@ -352,16 +354,15 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@mkdir -p $(dir $@)
 	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
-SA := <li><a onclick=\"return toggle('man_
+SA := <p><a onclick=\"return toggle('man_
 SB := ')\"><img id=\"man_
-SC := _image\" src=\"plus.png\" style=\"border:0;margin-right:5px;vertical-align:middle;\" />
+SC := _image\" src=\"plus.png\" alt=\"plus\" style=\"border:0;margin-right:5px;vertical-align:middle\"/>
 
 SD := <div id=\"man_
-SE := \" style=\"display:none; \
-    -moz-column-width: 25ex; \
-    -moz-column-gap: 4ex; \
-    -webkit-column-width: \
-    25ex; -webkit-column-gap: 4ex;\">
+SE := \" style=\"-moz-column-width: 25ex; \
+	-moz-column-gap: 4ex; \
+	-webkit-column-width: \
+	25ex; -webkit-column-gap: 4ex;\">
 
 #
 # This function appends a section to the "manpages" HTML fragment called
@@ -371,15 +372,15 @@ SE := \" style=\"display:none; \
 #
 ADD_HTML_MANPAGES = \
 	@echo "Adding manpages: man$(strip $(1)): $(strip $(2))"; \
-	echo "$(SA)$(strip $(1))$(SB)$(strip $(1))$(SC)$(strip $(2))</a>" >> objects/index.incl; \
+	echo "$(SA)$(strip $(1))$(SB)$(strip $(1))$(SC)$(strip $(2))</a></p>" >> objects/index.incl; \
 	echo "$(SD)$(strip $(1))$(SE)" >> objects/index.incl; \
-	echo "<UL>" >> objects/index.incl; \
+	echo "<ul>" >> objects/index.incl; \
 	for HTML_FILE in $(filter %.$(strip $(1)).html, $(MAN_HTML_TARGETS)); do \
 		BASENAME=$$(basename $$HTML_FILE .html); \
-		echo "<LI><A HREF=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$$BASENAME</A>"; \
+		echo "<li><a href=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$${BASENAME%.*}</a></li>"; \
 	done >> objects/index.incl; \
-	echo "<p>Man pages can also be viewed in a terminal by typing man and the name of component.</p>" >> objects/index.incl; \
-	echo "</UL><BR>" >> objects/index.incl
+	echo "</ul></div>" >> objects/index.incl
+
 
 objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	rm -f $@

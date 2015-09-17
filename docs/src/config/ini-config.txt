@@ -1,6 +1,6 @@
-= INI Configuration
-
 [[cha:ini-configuration]] (((INI Configuration)))
+
+= INI Configuration
 
 == The INI File Components
 
@@ -13,7 +13,9 @@ A typical INI file follows a rather simple layout that includes;
 Each of these elements is separated on single lines. Each end of line
 or newline character creates a new element.
 
-=== Comments (((Comments, INI File)))
+(((INI File, Comments)))
+
+=== Comments
 
 A comment line is started with a ; or a # mark. When the ini reader
 sees either of these marks at the start a line, the rest of the line is
@@ -57,20 +59,18 @@ name and end at the next section name.
 
 The following sections are used by LinuxCNC:
 
-* '[<<sub:EMC-section,EMC>>]' general information
-* '[<<sub:DISPLAY-section,DISPLAY>>]' settings related to the graphical user interface
-* '[<<sub:FILTER-Section,FILTER>>]' settings input filter programs
-* '[<<sub:RS274NGC-section,RS274NGC>>]' settings used by the g-code interpreter
-* '[<<sub:EMCMOT-section,EMCMOT>>]' settings used by the real time motion controller
-* '[<<sub:TASK-section,TASK>>]' settings used by the task controller
-* '[<<sub:HAL-section,HAL>>]' specifies .hal files
-* '[<<sub:HALUI-section,HALUI>>]' MDI commands used by HALUI
-* '[<<sub:APPLICATIONS-section,APPLICATIONS>>]' Other applications to be started by LinuxCNC
-* '[<<sub:TRAJ-section,TRAJ>>]' additional settings used by the real time motion controller
-* '[<<sub:AXIS-section,AXIS_n>>]' individual axis variables
-* '[<<sub:EMCIO-Section,EMCIO>>]' settings used by the I/O Controller
-
-[[sub:ini-variables]]
+* '[<<sec:emc-section,EMC>>]' general information
+* '[<<sec:display-section,DISPLAY>>]' settings related to the graphical user interface
+* '[<<sec:filter-section,FILTER>>]' settings input filter programs
+* '[<<sec:rs274ngc-section,RS274NGC>>]' settings used by the g-code interpreter
+* '[<<sec:emcmot-section,EMCMOT>>]' settings used by the real time motion controller
+* '[<<sec:task-section,TASK>>]' settings used by the task controller
+* '[<<sec:hal-section,HAL>>]' specifies .hal files
+* '[<<sec:halui-section,HALUI>>]' MDI commands used by HALUI
+* '[<<sec:applications-section,APPLICATIONS>>]' Other applications to be started by LinuxCNC
+* '[<<sec:traj-section,TRAJ>>]' additional settings used by the real time motion controller
+* '[<<sec:axis-section,AXIS_n>>]' individual axis variables
+* '[<<sec:emcio-section,EMCIO>>]' settings used by the I/O Controller
 
 === Variables
 
@@ -182,11 +182,9 @@ included file may not include additional files.  The recommended file extension
 is .inc.  Do not use a file extension of .ini for included files.
 
 
-[[sec:INI-Detail]]
-
 == INI File Sections
 
-[[sub:EMC-section]](((EMC (inifile section))))
+[[sec:emc-section]](((INI File, EMC Section)))
 
 === [EMC] Section
 
@@ -204,49 +202,50 @@ is .inc.  Do not use a file extension of .ini for included files.
     terminal. Debug flags are usually only useful to developers. See
     src/emc/nml_intf/debugflags.h for other settings.
 
-[[sub:DISPLAY-section]](((DISPLAY (inifile section))))
+[[sec:display-section]](((INI File, DISPLAY Section)))
 
 === [DISPLAY] Section
 
 Different user interface programs use different options, and not every
 option is supported by every user interface. The main two interfaces
-for LinuxCNC are AXIS and Touchy. There are several newer interfaces, 
+for LinuxCNC are AXIS and Touchy. There are several newer interfaces,
 like gmoccapy and gscreen. Axis is an interface for use with normal
-computer and monitor, Touchy is for use with touch screens. Gmoccapy 
-can be used both ways and offers also many connections for hardware controls. 
+computer and monitor, Touchy is for use with touch screens. Gmoccapy
+can be used both ways and offers also many connections for hardware controls.
 Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-    may include: 'axis',(((axis))) 'touchy',(((touchy))) 'gmoccapy',(((gmoccapy))) 'gscreen',(((gscreen))) 'keystick',(((keystick)))
-    'mini',(((mini))) 'tklinuxcnc',(((tkLinuxCNC))) 'xemc',(((xemc)))
+   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'keystick',
+   'mini', 'tklinuxcnc', 'xemc',
 
-* 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE) to show when the user
-    interface starts. The RELATIVE coordinate system reflects the G92 and
-    G5x coordinate offsets currently in effect.
+* 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
+  to show when the user interface starts. The RELATIVE coordinate system
+  reflects the G92 and G5x coordinate offsets currently in effect.
 
-* 'POSITION_FEEDBACK = ACTUAL' - The coordinate value (COMMANDED or ACTUAL) to show when the user
-    interface starts. The COMMANDED position is the ideal position
-    requested by LinuxCNC. The ACTUAL position is the feedback position of the
-    motors.
+* 'POSITION_FEEDBACK = ACTUAL' - The coordinate value (COMMANDED or ACTUAL)
+  to show when the user interface starts. The COMMANDED position is the ideal
+  position requested by LinuxCNC. The ACTUAL position is the feedback position
+  of the motors.
 
-* 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select. 1.2 means 120% of the
-    programmed feed rate.
+* 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
+  1.2 means 120% of the programmed feed rate.
 
-* 'MIN_SPINDLE_OVERRIDE = 0.5' - The minimum spindle override the user may select. 0.5 means 50% of the
-    programmed spindle speed. (This is useful as it's dangerous to run a
-    program with a too low spindle speed).
+* 'MIN_SPINDLE_OVERRIDE = 0.5' - The minimum spindle override the user may
+  select. 0.5 means 50% of the programmed spindle speed. (This is used to
+  set the minimum spindle speed).
 
-* 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may select. 1.0 means 100% of
-    the programmed spindle speed.
+* 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may
+  select. 1.0 means 100% of the programmed spindle speed.
 
-* 'DEFAULT_SPINDLE_SPEED = 100' - The default spindle RPM when the spindle is started in manual mode.
-    This is not the minimum speed. In AXIS this defaults to 1 RPM if this setting is not present.
+* 'DEFAULT_SPINDLE_SPEED = 100' - The default spindle RPM when the spindle
+  is started in manual mode. This is not the minimum speed. In AXIS this
+  defaults to 1 RPM if this setting is not present.
 
-* 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for g-code files
-    and the location for user-defined M-codes. This location is searched for
-    the file name before the subroutine path and user M path if specified
-    in the [RS274NGC] section.
+* 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for g-code
+  files and the location for user-defined M-codes. This location is searched
+  for the file name before the subroutine path and user M path if specified
+  in the [RS274NGC] section.
 
 * 'INTRO_GRAPHIC = emc2.gif' - The image shown on the splash screen.
 
@@ -257,7 +256,7 @@ User Manual.
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP, see the
-<<sec:embeding-tab,embedding a tab>> section of the GladeVCP Chapter.
+<<gladevcp:embeding-tab,embedding a tab>> section of the GladeVCP Chapter.
 
 * 'EMBED_TAB_NAME=GladeVCP demo'
 
@@ -268,7 +267,7 @@ The following [DISPLAY] items are used by GladeVCP, see the
 The following [DISPLAY] items are for the AXIS interface only, many of them are used also from gmoccapy, see the <<cha:gmoccapy,gmoccapy>> document for details.
 
 * 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in ,
-   <<sub:TRAJ-section,machine units>> per second.
+   <<sec:traj-section,machine units>> per second.
 
 * 'MIN_VELOCITY = .01' - The approximate lowest value the jog slider.
 
@@ -345,7 +344,7 @@ The following [DISPLAY] item is used by the TKLinuxCNC interface only.
 
 * 'HELP_FILE = tklinucnc.txt' - Path to help file.
 
-[[sub:FILTER-Section]](((ini [FILTER] Section)))
+[[sec:filter-section]](((INI File, FILTER Section)))
 
 === [FILTER] Section
 
@@ -435,7 +434,7 @@ if __name__ == "__main__":
    main(sys.argv[1:])
 ----
 
-[[sub:RS274NGC-section]](((RS274NGC (inifile section))))
+[[sec:rs274ngc-section]](((INI File, RS274NGC Section)))
 
 === [RS274NGC] Section
 
@@ -445,8 +444,8 @@ if __name__ == "__main__":
     between runs). 
 
 * 'ORIENT_OFFSET = 0' -
-    (((ORIENT OFFSET ))) A float value added to the R word parameter
-    of an <<sec:M19,M19 Orient Spindle>> operation. Used to define an arbitrary
+    (((ORIENT OFFSET))) A float value added to the R word parameter
+    of an <<mcode:m19,M19 Orient Spindle>> operation. Used to define an arbitrary
     zero position regardless of encoder mount orientation.
 
 * 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' -
@@ -489,7 +488,7 @@ The first executable M1xx found in the search is used for each M1xx.
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
 
-[[sub:EMCMOT-section]](((EMCMOT (inifile section))))
+[[sec:emcmot-section]](((INI File, EMCMOT Section)))
 
 === [EMCMOT] Section
 
@@ -507,7 +506,7 @@ Section.
 * 'TRAJ_PERIOD = 100000' - This is the 'Trajectory Planner' task period in
   nanoseconds.
 
-[[sub:TASK-section]](((TASK (inifile section))))
+[[sec:task-section]](((INI File, TASK Section)))
 
 === [TASK] Section
 
@@ -524,7 +523,7 @@ Section.
     executing a pause instruction, and when accepting a command from a user
     interface. There is usually no need to change this number.
 
-[[sub:HAL-section]](((HAL (inifile section))))
+[[sec:hal-section]](((INI File, HAL Section)))
 
 === [HAL] section
 
@@ -537,6 +536,9 @@ Section.
     HALFILES are found using a search.  If the named file is found in the directory
     containing the ini file, it is used.  If the named file is not found in this
     ini file directory, a search is made using a system library of halfiles.
+    A HALFILE may also be specifed as an absolute path (when the name starts with
+    a '/' character).  Absolute paths are not recommended as their use may limit
+    relocation of configurations.
 
 * 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Execute the tcl file 'texample.tcl'
     at start up with arg1, arg2, etc as ::argv list.  Files with a .tcl suffix are
@@ -578,30 +580,14 @@ Connections made using a POSTGUI_HALFILE are not checked.
     names= names used are unique on each use).  In the second pass (pass1), the
     HALFILES are reread and all commands except the previously executed load commands
     are executed.
-+
-The TWOPASS item can be activated with any non-null string including the keywords verbose
-and nodelete. The verbose keyword causes printing of details to stdout.  The nodelete keyword
-preserves temporary files in /tmp.
-Example:
-----
-TWOPASS = nodelete verbose
-----
 
-Some GUIs support halfiles that are processed after the GUI is started in order
-to connect hal pins that are created by the GUI.  When using a postgui halfile with
-TWOPASS processing, include all loadrt items for components added by postgui halfiles
-in a separate halfile that is processed before the GUI.  The addf commands can also
-be included in the file.
-Example:
-----
-[HAL]
-HALFILE = file_1.hal
-...
-HALFILE = file_n.hal
-HALFILE = file_with_all_loads_for_postgui.hal
-...
-POSTGUI_HALFILE = the_postgui_file.hal
-----
+* 'TWOPASS = nodelete verbose' - The TWOPASS feature can be activated with any
+  non-null string including the keywords verbose and nodelete. The verbose
+  keyword causes printing of details to stdout. The nodelete keyword preserves
+  temporary files in /tmp.
++
+For more information see the <<cha:hal-twopass,Hal TWOPASS>> chapter.
+
 * 'HALCMD = command' - Execute 'command' as a single HAL command.
    If 'HALCMD' is specified multiple times, the commands are executed in the order
     they appear in the ini file. 'HALCMD' lines are executed after all
@@ -624,7 +610,7 @@ POSTGUI_HALFILE = the_postgui_file.hal
 * 'HALUI = halui' - adds the HAL user interface pins. For more information see
    the <<cha:hal-user-interface,HAL User Interface>> chapter.
 
-[[sub:HALUI-section]](((HALUI (inifile section))))
+[[sec:halui-section]](((INI File, HALUI Section)))
 
 === [HALUI] section
 
@@ -632,7 +618,7 @@ POSTGUI_HALFILE = the_postgui_file.hal
      An MDI command can be executed by using halui.mdi-command-00. Increment
     the number for each command listed in the [HALUI] section.
 
-[[sub:APPLICATIONS-section]](((APPLICATIONS (inifile section))))
+[[sec:applications-section]](((INI File, APPLICATIONS Section)))
 
 === [APPLICATIONS] Section
 
@@ -670,7 +656,7 @@ gui-dependent actions (like creating gui-specific hal pins).
 
   APP = halscope -i my.halscope
 
-[[sub:TRAJ-section]](((TRAJ (inifile section))))
+[[sec:traj-section]](((INI File, TRAJ Section)))
 
 === [TRAJ] Section
 
@@ -861,7 +847,7 @@ small, tight corners, since you're limited by cornering acceleration.
 [WARNING]
 LinuxCNC will not know your axis travel limits when using 'NO_FORCE_HOMING = 1'.
 
-[[sub:AXIS-section]](((AXIS (inifile section))))
+[[sec:axis-section]](((INI File, AXIS Section)))
 
 === [AXIS_<num>] Section
 
@@ -903,7 +889,7 @@ Typically (but not always):
     [TRAJ]ANGULAR_UNITS if the TYPE of this axis is ANGULAR)
 
 * 'MAX_VELOCITY = 1.2' -
-    Maximum velocity for this axis in <<sub:TRAJ-section,machine units>> per second.
+    Maximum velocity for this axis in <<sec:traj-section,machine units>> per second.
 
 * 'MAX_ACCELERATION = 20.0' -
      Maximum acceleration for this axis in machine units per
@@ -967,16 +953,7 @@ Typically (but not always):
     slower speeds. The maximum allowable following error will always be
     greater than MIN_FERROR. This prevents small following errors for
     stationary axes from inadvertently aborting motion. Small following
-    errors will always be present due to vibration, etc. The following
-    polarity values determine how inputs are interpreted and how outputs
-    are applied. They can usually be set via trial-and-error since there
-    are only two possibilities. The LinuxCNC Servo Axis Calibration utility
-    program (in the AXIS interface menu Machine/Calibration and in TkLinuxCNC it
-    is under Setting/Calibration) can be used to set these and more
-    interactively and verify their results so that the proper values can be
-    put in the INI file with a minimum of trouble.
-
-[[sub:Homing-related-items]]
+    errors will always be present due to vibration, etc.
 
 .Homing
 
@@ -989,7 +966,7 @@ These parameters are Homing related, for a better explanation read the
 
 * 'HOME_OFFSET = 0.0' -
      The axis position of the home switch or index pulse, in
-    <<sub:TRAJ-section,machine units>>. When the home point is found during
+    <<sec:traj-section,machine units>>. When the home point is found during
     the homing process, this is the position that is assigned to that point.
     When sharing home and limit switches and using a home sequence that will
     leave the home/limit switch in the toggled state the home offset can be
@@ -1042,8 +1019,6 @@ These parameters are Homing related, for a better explanation read the
     home switches and does not have position feedback such as a step and
     direction driven machine.
 
-[[sub:Servo-related-items]]
-
 .Servo
 
 These parameters are relevant to axes controlled by servos.
@@ -1059,7 +1034,7 @@ The following items might be used by a PID component and the assumption is
 that the output is volts.
 
 * 'DEADBAND = 0.000015' - How close is close enough to consider the motor in position,
-in <<sub:TRAJ-section,machine units>>. This is often set to a distance equivalent to 1, 1.5, 2,
+in <<sec:traj-section,machine units>>. This is often set to a distance equivalent to 1, 1.5, 2,
 or 3 encoder counts, but there are no strict rules.
 Looser (larger) settings allow less servo 'hunting' at the expense of lower accuracy.
 Tighter (smaller) settings attempt higher accuracy at the expense of more servo 'hunting'.
@@ -1145,7 +1120,7 @@ image::images/encoder-counts-math.png[align="center"]
     
 // latexmath:[$\frac{volt}{mu\, s^{2}}$].
 
-* 'OUTPUT_SCALE = 1.000' -
+* 'OUTPUT_SCALE = 1.000' - 
 
 * 'OUTPUT_OFFSET = 0.000' - These two values are the scale and offset factors for
     the axis output to the motor amplifiers.
@@ -1228,7 +1203,7 @@ For a linear axis one machine unit will be equal to
 the setting of LINEAR_UNITS.
 For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
 A second number, if specified, is ignored.
-For example, on a 2000 counts per rev encoder(((encoder))), and 10
+For example, on a 2000 counts per rev encoder, and 10
 revs/inch gearing, and desired units of inch, we
 have:
 
@@ -1237,8 +1212,6 @@ image::images/encoder-scale.png[align="center"]
 //latexmath:[ INPUT\_SCALE =
 //\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} =
 //\frac{20000\, counts}{inch} ]
-
-[[sub:Stepper-related-items]]
 
 .Stepper
 
@@ -1265,7 +1238,7 @@ servo systems, this is the number of feedback pulses per machine unit.
 A second number, if specified, is ignored.
 
 For example, on a 1.8 degree stepper motor with half-stepping, and 10
-revs/inch gearing, and desired <<sub:TRAJ-section,machine units>> of inch, we
+revs/inch gearing, and desired <<sec:traj-section,machine units>> of inch, we
 have:
 
 image::images/stepper-scale.png[align="center"]
@@ -1281,7 +1254,7 @@ For a linear axis one machine unit will be equal to
 the setting of LINEAR_UNITS.
 For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
 A second number, if specified, is ignored.
-For example, on a 2000 counts per rev encoder(((encoder))), and 10
+For example, on a 2000 counts per rev encoder, and 10
 revs/inch gearing, and desired units of inch, we
 have: 
 
@@ -1306,7 +1279,7 @@ image::images/encoder-scale.png[align="center"]
     STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
 
 
-[[sub:EMCIO-Section]](((EMCIO (inifile section))))
+[[sec:emcio-section]](((INI File, EMCIO Section)))
 
 === [EMCIO] Section
 
@@ -1342,7 +1315,8 @@ image::images/encoder-scale.png[align="center"]
 * 'TOOL_CHANGE_AT_G30 = 1' -
     The machine is moved to reference point defined by parameters
     5181-5186 for G30 if the value is 1. For more information see the
-    <<sec:parameters,Parameters Section and the <<sec:G30-G30_1,G30 Section>>.
+    <<sec:parameters,Parameters Section and the
+    <<gcode:g30-g30.1,G30 Section>>.
 
 * 'RANDOM_TOOLCHANGER = 1' -
     This is for machines that cannot place the tool back into the pocket

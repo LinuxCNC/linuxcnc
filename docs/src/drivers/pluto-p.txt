@@ -1,11 +1,10 @@
-= Pluto P Driver
+[[cha:pluto-p-driver]](((Pluto P Driver)))
 
-[[cha:pluto-p-driver]] (((Pluto P Driver)))
+= Pluto P Driver
 
 == General Info
 
-The Pluto-P is a FPGA board featuring the
-ACEX1K(((ACEX1K))) chip from Altera.
+The Pluto-P is a FPGA board featuring the ACEX1K chip from Altera.
 
 === Requirements
 
@@ -106,7 +105,7 @@ Some additional information about it is available from
 http://www.knjn.com/FPGA-Parallel.html[KNJC LLC]
 and from http://emergent.unpy.net/01165081407[the developer's blog].
 
-== Pluto Servo[[sec:pluto-servo]](((pluto-servo)))
+== Pluto Servo
 
 The pluto_servo system is suitable for control of a 4-axis CNC mill
 with servo motors, a 3-axis mill with PWM spindle control, a lathe with
@@ -160,11 +159,11 @@ This driver features:
 
 * 'VCC' - +3.3V regulated DC
 
-.Pluto-Servo Pinout(((pluto-servo pinout)))[[fig:Pluto-Servo-Pinout]]
+.Pluto-Servo Pinout(((pluto-servo pinout)))
 
 image::images/pluto-pinout.png[align="center"]
 
-.Pluto-Servo Alternate Pin Functions[[table:Pluto-Servo-Alternate-Pin]](((pluto-servo alternate pin functions)))
+.Pluto-Servo Alternate Pin Functions
 
 [width="90%", options="header"]
 |========================================
@@ -258,7 +257,7 @@ inputs, and 6 general-purpose outputs--the layout on this header is
 different than the layout of a standard 26-pin ribbon cable to DB25
 connector.
 
-.Pluto-Step Pinout[[fig:Pluto-Step-Pinout]](((pluto-step pinout)))
+.Pluto-Step Pinout (((pluto-step pinout)))
 
 image::images/pluto-step-pinout.png[align="center"]
 
@@ -279,7 +278,7 @@ are the same as for the software stepgen component, except that
 'dirtime' which should be the maximum of the two, and that the same
 step timings are always applied to all channels.
 
-.Pluto-Step Timings[[fig:Pluto-Step-Timings]](((pluto-step timings)))
+.Pluto-Step Timings (((pluto-step timings)))
 
 image::images/pluto_step_waveform.png[align="center"]
 

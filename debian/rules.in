@@ -80,6 +80,8 @@ install: build
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	-rm debian/tmp/linuxcnc*.files
 	-rm -f debian/tmp/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
+	(cd debian/tmp/usr/share/doc/linuxcnc/examples; \
+	    ln -sf ../../../linuxcnc/ncfiles ./nc_files)
 	dh_movefiles
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
 		echo "Files exist in debian/tmp, but should not:"; \
@@ -104,7 +106,7 @@ binary-arch: build install
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app
-	dh_pysupport
+	@PYTHON_PACKAGING@
 	dh_makeshlibs
 	dh_installdeb
 	cat debian/@MAIN_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local

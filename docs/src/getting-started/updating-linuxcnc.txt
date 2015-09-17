@@ -1,6 +1,6 @@
-= Updating LinuxCNC
-
 [[cha:updating-linuxcnc]] (((Updating LinuxCNC)))
+
+= Updating LinuxCNC
 
 This section describes how to upgrade LinuxCNC to version 2.7 from
 version 2.6.  It assumes that you have an existing 2.6 install that you
@@ -138,9 +138,15 @@ require changes to your machine configuration.
 === Hostmot2 Watchdog
 
 The Hostmot2 watchdog now gets handled by the hm2 `write` Hal function.
-There is no longer any need to run the hm2 `pet-watchdog` Hal function.
-The `pet-watchdog` function will be removed before the 2.7.0 release.
+Remove any `addf` lines that refer to the `pet_watchdog` function.
 
+=== Hostmot2 dpll
+
+The Hostmot2 dpll's default time constant has been changed from 40960 to 2000.
+The original value could occasionally lead to following errors when software
+like ntpd and ntpdate adjusted the rate of the linux CLOCK_MONOTONIC time
+source by up to 1000ppm in a single step.  The new value allows the dpll to
+adjust to the change in the base period frequency without error.
 
 === Parport changes
 
@@ -168,5 +174,23 @@ the following ways:
 * Make sure your Hal configuration does not load the `probe_parport`
   component.
 
+
+=== Huanyang VFD driver
+
+LinuxCNC 2.7 includes a driver for the Huanyang family of VFDs.  This
+driver is based on an out-of-tree driver by "scotta" and "alan_3301"
+at CNCZone.com, and curated by Benjamin Brockhaus.  This new driver
+talks to the same hardware as the original driver, but has a slightly
+different HAL interface:
+
+[options="header"]
+|===================================================================
+| Original hy-vfd driver   | New LinuxCNC hy-vfd driver
+| hy_vfd.fwd               | hy_vfd.forward
+| hy_vfd.rev               | hy_vfd.reverse
+| hy_vfd.modbus-ok         | hy_vfd.hycomm-ok
+| hy_vfd.motor-pole-number | (removed)
+| hy_vfd.base-freq         | (removed)
+|===================================================================
 
 // vim: set syntax=asciidoc:

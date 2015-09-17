@@ -145,3 +145,29 @@ proc get_netlist {inpins_name outpin_name iopins_name signame} {
   if {[llength $inpins] == 0} { set inpins {} }
   if {[llength $outpin] == 0} { set outpin {} }
 } ;# get_netlist
+
+proc find_file_in_hallib_path {filename {inifile .}} {
+  # find halfile using path HALLIB_PATH=.:HALLIB_DIR (see scripts/linuxcnc.in)
+  set libtag LIB: ;# special prefix for explicit use of hallib file
+  set halname [lindex $filename end]
+  if {[string first "$libtag" $halname] == 0} {
+    # explicit $libtag used
+    set halname [string range $halname [string len $libtag] end]
+    set usehalname [file join $::env(HALLIB_DIR) $halname]
+  } else {
+    if {[file pathtype $filename] == "absolute"} {
+      set usehalname $filename
+    } else {
+      # relative file specifier (relative to ini file directory)
+      set usehalname [file join [file dirname $inifile] $halname]
+      if ![file readable $usehalname] {
+        # use ::env(HALLIB_DIR)
+        set usehalname [file join $::env(HALLIB_DIR) $halname]
+      }
+    }
+  }
+  if [file readable $usehalname] {
+    return $usehalname
+  }
+  return -code error "find_file_in_hallib_path: cannot find: <$filename>"
+} ;# find_file_in_hallib_path
