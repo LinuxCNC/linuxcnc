@@ -754,7 +754,7 @@ class gmoccapy( object ):
 
         # to much axes given, can only handle 5
         if len(self.axis_list) > 5:
-            message = _("**** LUNINOS INFO : ****")
+            message = _("**** LUMINOS INFO : ****")
             message += _("**** luminos can only handle 5 axis, ****\n**** but you have given %d through your INI file ****\n" % len(self.axis_list))
             message += _("**** luminos will not start ****\n\n")
             print(message)
@@ -777,6 +777,16 @@ class gmoccapy( object ):
                 self.widgets.Combi_DRO_5.set_property("mm_text_template", "%11.2f")
                 self.widgets.Combi_DRO_5.set_property("imperial_text_template", "%11.2f")
 
+            image = self.widgets["img_home_%s" % self.axisletter_five]
+            self.widgets.btn_home_5.set_image(image)
+            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis %s") % self.axisletter_five.upper())
+            self.widgets.btn_home_5.show()
+            
+            self.widgets.btn_5_plus.set_label("%s+" % self.axisletter_five.upper())
+            self.widgets.btn_5_plus.show()
+            self.widgets.btn_5_minus.set_label("%s-" % self.axisletter_five.upper())
+            self.widgets.btn_5_minus.show()
+            
         if self.axisletter_five:
             axis_four = list(set(self.axis_list) - set(("x", "y", "z")) - set(self.axisletter_five))
         else:
@@ -792,6 +802,12 @@ class gmoccapy( object ):
         image = self.widgets["img_home_%s" % self.axisletter_four]
         self.widgets.btn_home_4.set_image(image)
         self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis %s") % self.axisletter_four.upper())
+        self.widgets.btn_home_4.show()
+
+        self.widgets.btn_4_plus.set_label("%s+" % self.axisletter_four.upper())
+        self.widgets.btn_4_plus.show()
+        self.widgets.btn_4_minus.set_label("%s-" % self.axisletter_four.upper())
+        self.widgets.btn_4_minus.show()
 
         if self.axisletter_four in "abc":
             self.widgets.Combi_DRO_4.set_property("mm_text_template", "%11.2f")
@@ -2670,13 +2686,16 @@ class gmoccapy( object ):
         self.widgets.tbtn_turtle_jog.set_active( bool( pin.get() ) )
 
     def on_btn_jog_pressed( self, widget, data = None ):
+        if not self.initialized:
+            return
+        
         # only in manual mode we will allow jogging the axis at this development state
         if not self.stat.task_mode == linuxcnc.MODE_MANUAL:
             return
 
         axisletter = widget.get_label()[0]
         if not axisletter.lower() in "xyzabcuvw":
-            print ( "unknown axis %s" % axisletter )
+            print ( "on_btn_jog_pressed message -- unknown axis %s" % axisletter )
             return
 
         # get the axisnumber
@@ -2705,9 +2724,12 @@ class gmoccapy( object ):
             self.command.jog( linuxcnc.JOG_CONTINUOUS, axisnumber, direction * velocity )
 
     def on_btn_jog_released( self, widget, data = None ):
+        if not self.initialized:
+            return
+        
         axisletter = widget.get_label()[0]
         if not axisletter.lower() in "xyzabcuvw":
-            print ( "unknown axis %s" % axisletter )
+            print ( "on_btn_jog_released message -- unknown axis %s" % axisletter )
             return
 
         axis = "xyzabcuvw".index( axisletter.lower() )
