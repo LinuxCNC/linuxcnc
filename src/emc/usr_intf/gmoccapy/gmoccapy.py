@@ -764,6 +764,8 @@ class gmoccapy( object ):
         if len(self.axis_list) == 5:
             self.widgets.lbl_replace_4.hide()
             self.widgets.lbl_replace_5.hide()
+            self.widgets.lbl_replace_set_value_4.hide()
+            self.widgets.lbl_replace_set_value_5.hide()
             self.axisletter_five = self.axis_list[-1]
             self.axisnumber_five = "xyzabcuvw".index(self.axisletter_five)
             self.widgets.Combi_DRO_5.set_property("joint_number", self.axisnumber_five)
@@ -787,6 +789,11 @@ class gmoccapy( object ):
             self.widgets.btn_5_minus.set_label("%s-" % self.axisletter_five.upper())
             self.widgets.btn_5_minus.show()
             
+            image = self.widgets["img_touch_off_%s" % self.axisletter_five]
+            self.widgets.btn_set_value_5.set_image(image)
+            self.widgets.btn_set_value_5.set_property("tooltip-text", _("Set axis %s value to") % self.axisletter_five.upper())
+            self.widgets.btn_set_value_5.show()
+            
         if self.axisletter_five:
             axis_four = list(set(self.axis_list) - set(("x", "y", "z")) - set(self.axisletter_five))
         else:
@@ -808,6 +815,11 @@ class gmoccapy( object ):
         self.widgets.btn_4_plus.show()
         self.widgets.btn_4_minus.set_label("%s-" % self.axisletter_four.upper())
         self.widgets.btn_4_minus.show()
+
+        image = self.widgets["img_touch_off_%s" % self.axisletter_four]
+        self.widgets.btn_set_value_4.set_image(image)
+        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis %s value to") % self.axisletter_four.upper())
+        self.widgets.btn_set_value_4.show()
 
         if self.axisletter_four in "abc":
             self.widgets.Combi_DRO_4.set_property("mm_text_template", "%11.2f")
@@ -3286,6 +3298,10 @@ class gmoccapy( object ):
             axis = "y"
         elif widget == self.widgets.btn_set_value_z:
             axis = "z"
+        elif widget == self.widgets.btn_set_value_4:
+            axis = self.axisletter_four
+        elif widget == self.widgets.btn_set_value_5:
+            axis = self.axisletter_five
         else:
             axis = "Unknown"
             self._add_alarm_entry( _( "Offset %s could not be set, because off unknown axis" ) % axis )

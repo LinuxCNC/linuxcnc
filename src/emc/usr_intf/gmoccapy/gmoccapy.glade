@@ -496,8 +496,8 @@
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
                                             <property name="use_commanded">False</property>
-                                            <property name="show_dtg">False</property>
                                             <property name="enable_dro">False</property>
+                                            <property name="show_dtg">False</property>
                                             <signal name="button_press_event" handler="on_gremlin_button_press_event"/>
                                             <signal name="line_clicked" handler="on_gremlin_line_clicked"/>
                                             <signal name="gcode_error" handler="on_gremlin_gcode_error"/>
@@ -922,8 +922,8 @@
                                       <object class="Combi_DRO" id="Combi_DRO_x">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <property name="abs_color">#00000000ffff</property>
@@ -940,13 +940,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_y">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="joint_number">1</property>
-                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <property name="abs_color">#00000000ffff</property>
                                         <property name="font_size">28</property>
+                                        <property name="joint_number">1</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -957,13 +957,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_z">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="joint_number">2</property>
-                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <property name="abs_color">#00000000ffff</property>
                                         <property name="font_size">28</property>
+                                        <property name="joint_number">2</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -974,13 +974,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_4">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="joint_number">3</property>
-                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <property name="abs_color">#00000000ffff</property>
                                         <property name="font_size">28</property>
+                                        <property name="joint_number">3</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -990,13 +990,13 @@
                                     <child>
                                       <object class="Combi_DRO" id="Combi_DRO_5">
                                         <property name="visible">True</property>
-                                        <property name="joint_number">4</property>
-                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <property name="abs_color">#00000000ffff</property>
                                         <property name="font_size">28</property>
+                                        <property name="joint_number">4</property>
                                       </object>
                                       <packing>
                                         <property name="position">4</property>
@@ -2273,16 +2273,16 @@
                                                             <child>
                                                             <object class="HAL_HBar" id="spindle_feedback_bar">
                                                             <property name="visible">True</property>
-                                                            <property name="z1_color">#0000ffff0000</property>
                                                             <property name="bg_color">#bebebebebebe</property>
-                                                            <property name="z2_color">#0000ffff0000</property>
-                                                            <property name="z0_border">0.40000000596046448</property>
-                                                            <property name="z1_border">0.80000001192092896</property>
                                                             <property name="target_color">#0000ffff0000</property>
-                                                            <property name="target_value">-0.039999999105930328</property>
                                                             <property name="text_template">%i</property>
-                                                            <property name="z0_color">#0000ffff0000</property>
+                                                            <property name="z2_color">#0000ffff0000</property>
+                                                            <property name="target_value">-0.039999999105930328</property>
                                                             <property name="max">6000</property>
+                                                            <property name="z1_border">0.80000001192092896</property>
+                                                            <property name="z0_border">0.40000000596046448</property>
+                                                            <property name="z0_color">#0000ffff0000</property>
+                                                            <property name="z1_color">#0000ffff0000</property>
                                                             </object>
                                                             <packing>
                                                             <property name="position">0</property>
@@ -2291,8 +2291,8 @@
                                                             <child>
                                                             <object class="HAL_LED" id="spindle_at_speed_led">
                                                             <property name="visible">True</property>
-                                                            <property name="led_blink_rate">0</property>
                                                             <property name="pick_color_on">#0000ffff0000</property>
+                                                            <property name="led_blink_rate">0</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -6151,18 +6151,6 @@ Date</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_6">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">12</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkButton" id="btn_back_ref">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
@@ -6176,7 +6164,7 @@ Date</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">13</property>
+                    <property name="position">12</property>
                   </packing>
                 </child>
               </object>
@@ -6216,122 +6204,6 @@ offsets</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_zero_x">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">touch off X / set X to 0</property>
-                    <signal name="clicked" handler="on_btn_zero_x_clicked"/>
-                    <child>
-                      <object class="GtkImage" id="img_zero_x">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="pixbuf">images/touchoffx.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_zero_y">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">touch off Y / set Y to 0</property>
-                    <signal name="clicked" handler="on_btn_zero_y_clicked"/>
-                    <child>
-                      <object class="GtkImage" id="img_zero_y">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="pixbuf">images/touchoffy.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lbl_replace_zero_y">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_zero_z">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">touch off Z / set Z to 0</property>
-                    <signal name="clicked" handler="on_btn_zero_z_clicked"/>
-                    <child>
-                      <object class="GtkImage" id="img_zero_z">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="tooltip_markup">touch off z / set z to 0</property>
-                        <property name="pixbuf">images/touchoffz.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_zero_g92">
-                    <property name="label" translatable="yes">zero
-G92</property>
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Zero all G92 offsets</property>
-                    <signal name="clicked" handler="on_btn_zero_g92_clicked"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_block_height">
-                    <property name="label" translatable="yes"> Block
-Height</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <signal name="clicked" handler="on_btn_block_height_clicked"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkButton" id="btn_set_value_x">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
@@ -6352,7 +6224,7 @@ Height</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">7</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
@@ -6376,7 +6248,7 @@ Height</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">8</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
@@ -6387,7 +6259,7 @@ Height</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">9</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -6411,7 +6283,119 @@ Height</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_set_value_4">
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_btn_set_value_clicked"/>
+                    <child>
+                      <object class="GtkImage" id="img_set_value_4">
+                        <property name="width_request">48</property>
+                        <property name="height_request">48</property>
+                        <property name="visible">True</property>
+                        <property name="pixbuf">images/touchoffa_value.png</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="lbl_replace_set_value_4">
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_set_value_5">
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_btn_set_value_clicked"/>
+                    <child>
+                      <object class="GtkImage" id="img_set_value_5">
+                        <property name="width_request">48</property>
+                        <property name="height_request">48</property>
+                        <property name="visible">True</property>
+                        <property name="pixbuf">images/touchoffb_value.png</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="lbl_replace_set_value_5">
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_zero_g92">
+                    <property name="label" translatable="yes">zero
+G92</property>
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Zero all G92 offsets</property>
+                    <signal name="clicked" handler="on_btn_zero_g92_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_block_height">
+                    <property name="label" translatable="yes"> Block
+Height</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_btn_block_height_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
                     <property name="position">10</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="lbl_replace_block_height">
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">11</property>
                   </packing>
                 </child>
                 <child>
@@ -6429,7 +6413,7 @@ selected</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">11</property>
+                    <property name="position">12</property>
                   </packing>
                 </child>
                 <child>
@@ -6446,7 +6430,7 @@ selected</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">12</property>
+                    <property name="position">13</property>
                   </packing>
                 </child>
               </object>
@@ -7260,5 +7244,29 @@ selected</property>
     <property name="upper">5</property>
     <property name="step_increment">1</property>
     <signal name="value_changed" handler="on_adj_dro_digits_value_changed"/>
+  </object>
+  <object class="GtkImage" id="img_touch_off_a">
+    <property name="visible">True</property>
+    <property name="pixbuf">images/touchoffa_value.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_off_b">
+    <property name="visible">True</property>
+    <property name="pixbuf">images/touchoffb_value.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_off_c">
+    <property name="visible">True</property>
+    <property name="pixbuf">images/touchoffc_value.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_off_u">
+    <property name="visible">True</property>
+    <property name="pixbuf">images/touchoffu_value.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_off_v">
+    <property name="visible">True</property>
+    <property name="pixbuf">images/touchoffv_value.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_off_w">
+    <property name="visible">True</property>
+    <property name="pixbuf">images/touchoffw_value.png</property>
   </object>
 </interface>
