@@ -360,23 +360,29 @@ typedef struct {
 	volatile long long accum;	/* frequency generator accumulator */
 	long addval;		/* actual frequency generator add value */
 
+
+	// shared because updated in both update_pos() and update_freq()
+	// not an issue as long as both are on the same thread
+
+	hal_float_t *pos_scale;	/* pin: steps per position unit */
+	double old_scale;		/* stored scale value */
+	double scale_recip;		/* reciprocal value used for scaling */
     } shared;
     struct update_pos {
+
+	hal_s32_t *count;		/* pin: captured feedback in counts */
 
     } upos;
 
     struct update_freq {
+	int pos_mode;		/* 1 = position mode, 0 = velocity mode */
 
     } upfrq;
 
     /* stuff that is not accessed by makepulses */
-    int pos_mode;		/* 1 = position mode, 0 = velocity mode */
     hal_u32_t *step_space;	/* pin: min step pulse spacing */
     double old_pos_cmd;		/* previous position command (counts) */
-    hal_s32_t *count;		/* pin: captured feedback in counts */
-    hal_float_t *pos_scale;	/* pin: steps per position unit */
-    double old_scale;		/* stored scale value */
-    double scale_recip;		/* reciprocal value used for scaling */
+
     hal_float_t *vel_cmd;	/* pin: velocity command (pos units/sec) */
     hal_float_t *pos_cmd;	/* pin: position command (position units) */
     hal_float_t *pos_fb;	/* pin: position feedback (position units) */
@@ -756,24 +762,28 @@ static void update_pos(void *arg, long period)
 	    accum_b = shared->accum;
 	} while ( accum_a != accum_b );
 	/* compute integer counts */
-	*(stepgen->count) = accum_a >> PICKOFF;
+	*(upos->count) = accum_a >> PICKOFF;
+
+	// duplicated in update_freq() -mah
+
 	/* check for change in scale value */
-	if (*(stepgen->pos_scale) != stepgen->old_scale) {
+	if (*(shared->pos_scale) != shared->old_scale) {
 	    /* get ready to detect future scale changes */
-	    stepgen->old_scale = *(stepgen->pos_scale);
+	    shared->old_scale = *(shared->pos_scale);
 	    /* validate the new scale value */
-	    if ((*(stepgen->pos_scale) < 1e-20)
-		&& (*(stepgen->pos_scale) > -1e-20)) {
+	    if ((*(shared->pos_scale) < 1e-20)
+		&& (*(shared->pos_scale) > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		*(stepgen->pos_scale) = 1.0;
+		*(shared->pos_scale) = 1.0;
 	    }
 	    /* we will need the reciprocal, and the accum is fixed point with
 	       fractional bits, so we precalc some stuff */
-	    stepgen->scale_recip = (1.0 / (1L << PICKOFF)) / *(stepgen->pos_scale);
+	    shared->scale_recip = (1.0 / (1L << PICKOFF)) / *(shared->pos_scale);
 	}
+
 	/* scale accumulator to make floating point position, after
 	   removing the one-half count offset */
-	*(stepgen->pos_fb) = (double)(accum_a-(1<< (PICKOFF-1))) * stepgen->scale_recip;
+	*(stepgen->pos_fb) = (double)(accum_a-(1<< (PICKOFF-1))) * shared->scale_recip;
 	/* move on to next channel */
 	stepgen++;
     }
@@ -841,18 +851,18 @@ static void update_freq(void *arg, long period)
 	struct shared *shared = &stepgen->shared;
 
 	/* check for scale change */
-	if (*(stepgen->pos_scale) != stepgen->old_scale) {
+	if (*(shared->pos_scale) != shared->old_scale) {
 	    /* get ready to detect future scale changes */
-	    stepgen->old_scale = *(stepgen->pos_scale);
+	    shared->old_scale = *(shared->pos_scale);
 	    /* validate the new scale value */
-	   if ((*(stepgen->pos_scale) < 1e-20)
-		 && (*(stepgen->pos_scale) > -1e-20)) {
+	   if ((*(shared->pos_scale) < 1e-20)
+		 && (*(shared->pos_scale) > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		     *(stepgen->pos_scale) = 1.0;
+		     *(shared->pos_scale) = 1.0;
 	   }
 	    /* we will need the reciprocal, and the accum is fixed point with
 	       fractional bits, so we precalc some stuff */
-	   stepgen->scale_recip = (1.0 / (1L << PICKOFF)) / *(stepgen->pos_scale);
+	   shared->scale_recip = (1.0 / (1L << PICKOFF)) / *(shared->pos_scale);
 	}
 	if ( newperiod ) {
 	    /* period changed, force recalc of timing parameters */
@@ -894,8 +904,8 @@ static void update_freq(void *arg, long period)
 	/* test for disabled stepgen */
 	if (*stepgen->enable == 0) {
 	    /* disabled: keep updating old_pos_cmd (if in pos ctrl mode) */
-	    if ( stepgen->pos_mode ) {
-		stepgen->old_pos_cmd = *(stepgen->pos_cmd) * *(stepgen->pos_scale);
+	    if ( upfreq->pos_mode ) {
+		stepgen->old_pos_cmd = *(stepgen->pos_cmd) * *(shared->pos_scale);
 	    }
 	    /* set velocity to zero */
 	    stepgen->freq = 0;
@@ -914,7 +924,7 @@ static void update_freq(void *arg, long period)
 	    *(stepgen->maxvel) = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to max_freq */
-	    desired_freq = *(stepgen->maxvel) * rtapi_fabs(*(stepgen->pos_scale));
+	    desired_freq = *(stepgen->maxvel) * rtapi_fabs(*(shared->pos_scale));
 	    if (desired_freq > max_freq) {
 		/* parameter is too high, complain about it */
 		if(!stepgen->printed_error) {
@@ -927,10 +937,10 @@ static void update_freq(void *arg, long period)
 		    stepgen->printed_error = 1;
 		}
 		/* parameter is too high, limit it */
-		*(stepgen->maxvel) = max_freq / rtapi_fabs(*(stepgen->pos_scale));
+		*(stepgen->maxvel) = max_freq / rtapi_fabs(*(shared->pos_scale));
 	    } else {
 		/* lower max_freq to match parameter */
-		max_freq = *(stepgen->maxvel) * rtapi_fabs(*(stepgen->pos_scale));
+		max_freq = *(stepgen->maxvel) * rtapi_fabs(*(shared->pos_scale));
 	    }
 	}
 	/* set internal accel limit to its absolute max, which is
@@ -942,19 +952,19 @@ static void update_freq(void *arg, long period)
 	    *(stepgen->maxaccel) = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to max_ac */
-	    if (*(stepgen->maxaccel) * rtapi_fabs(*(stepgen->pos_scale)) > max_ac) {
+	    if (*(stepgen->maxaccel) * rtapi_fabs(*(shared->pos_scale)) > max_ac) {
 		/* parameter is too high, lower it */
-		*(stepgen->maxaccel) = max_ac / rtapi_fabs(*(stepgen->pos_scale));
+		*(stepgen->maxaccel) = max_ac / rtapi_fabs(*(shared->pos_scale));
 	    } else {
 		/* lower limit to match parameter */
-		max_ac = *(stepgen->maxaccel) * rtapi_fabs(*(stepgen->pos_scale));
+		max_ac = *(stepgen->maxaccel) * rtapi_fabs(*(shared->pos_scale));
 	    }
 	}
 	/* at this point, all scaling, limits, and other parameter
 	   changes have been handled - time for the main control */
-	if ( stepgen->pos_mode ) {
+	if ( upfreq->pos_mode ) {
 	    /* calculate position command in counts */
-	    pos_cmd = *(stepgen->pos_cmd) * *(stepgen->pos_scale);
+	    pos_cmd = *(stepgen->pos_cmd) * *(shared->pos_scale);
 	    /* calculate velocity command in counts/sec */
 	    vel_cmd = (pos_cmd - stepgen->old_pos_cmd) * recip_dt;
 	    stepgen->old_pos_cmd = pos_cmd;
@@ -1027,7 +1037,7 @@ static void update_freq(void *arg, long period)
 	} else {
 	    /* velocity mode is simpler */
 	    /* calculate velocity command in counts/sec */
-	    vel_cmd = *(stepgen->vel_cmd) * *(stepgen->pos_scale);
+	    vel_cmd = *(stepgen->vel_cmd) * *(shared->pos_scale);
 	    /* apply frequency limit */
 	    if (vel_cmd > max_freq) {
 		vel_cmd = max_freq;
@@ -1076,11 +1086,11 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	"stepgen.%d.rawcounts", num);
     if (retval != 0) { return retval; }
     /* export pin for counts captured by update() */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->count), comp_id,
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->upos.count), comp_id,
 	"stepgen.%d.counts", num);
     if (retval != 0) { return retval; }
     /* export parameter for position scaling */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->pos_scale), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->shared.pos_scale), comp_id,
 	"stepgen.%d.position-scale", num);
     if (retval != 0) { return retval; }
     /* export pin for command */
@@ -1166,14 +1176,14 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	}
     }
     /* set default parameter values */
-    *(addr->pos_scale) = 1.0;
-    addr->old_scale = 0.0;
-    addr->scale_recip = 0.0;
+    *(addr->shared.pos_scale) = 1.0;
+    addr->shared.old_scale = 0.0;
+    addr->shared.scale_recip = 0.0;
     *(addr->freq) = 0.0;
     *(addr->maxvel) = 0.0;
     *(addr->maxaccel) = 0.0;
     addr->step_type = step_type;
-    addr->pos_mode = pos_mode;
+    addr->upfrq.pos_mode = pos_mode;
     /* timing parameter defaults depend on step type */
     *(addr->step_len) = 1;
     if ( step_type < 2 ) {
@@ -1219,7 +1229,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     addr->printed_error = 0;
     addr->old_pos_cmd = 0.0;
     /* set initial pin values */
-    *(addr->count) = 0;
+    *(addr->upos.count) = 0;
     *(addr->pos_fb) = 0.0;
     if ( pos_mode ) {
 	*(addr->pos_cmd) = 0.0;
