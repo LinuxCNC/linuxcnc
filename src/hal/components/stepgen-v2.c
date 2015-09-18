@@ -330,16 +330,19 @@ RTAPI_MP_ARRAY_INT(user_step_type, MAX_CYCLE,
    which runs in the fastest thread */
 
 typedef struct {
-    /* stuff that is both read and written by makepulses */
-    unsigned int timer1;	/* times out when step pulse should end */
-    unsigned int timer2;	/* times out when safe to change dir */
-    unsigned int timer3;	/* times out when safe to step in new dir */
-    int hold_dds;		/* prevents accumulator from updating */
-    long addval;		/* actual frequency generator add value */
-    volatile long long accum;	/* frequency generator accumulator */
-    hal_s32_t *rawcount;	/* pin: position feedback in counts */
-    int curr_dir;		/* current direction */
-    int state;			/* current position in state table */
+    struct make_pulses {
+
+	/* stuff that is both read and written by makepulses */
+	unsigned int timer1;	/* times out when step pulse should end */
+	unsigned int timer2;	/* times out when safe to change dir */
+	unsigned int timer3;	/* times out when safe to step in new dir */
+	int hold_dds;		/* prevents accumulator from updating */
+	hal_s32_t *rawcount;	/* pin: position feedback in counts */
+	int curr_dir;		/* current direction */
+	int state;		/* current position in state table */
+    } mp;
+
+
     /* stuff that is read but not written by makepulses */
     hal_bit_t *enable;		/* pin for enable stepgen */
     long target_addval;		/* desired freq generator add value */
@@ -352,6 +355,20 @@ typedef struct {
     int num_phases;		/* number of phases for types 2 and up */
     hal_bit_t *phase[5];	/* pins for output signals */
     const unsigned char *lut;	/* pointer to state lookup table */
+
+    struct shared {
+	volatile long long accum;	/* frequency generator accumulator */
+	long addval;		/* actual frequency generator add value */
+
+    } shared;
+    struct update_pos {
+
+    } upos;
+
+    struct update_freq {
+
+    } upfrq;
+
     /* stuff that is not accessed by makepulses */
     int pos_mode;		/* 1 = position mode, 0 = velocity mode */
     hal_u32_t *step_space;	/* pin: min step pulse spacing */
@@ -568,33 +585,36 @@ static void make_pulses(void *arg, long period)
     stepgen = arg;
 
     for (n = 0; n < num_chan; n++) {
+	struct make_pulses *mp = &stepgen->mp;
+	struct shared *shared = &stepgen->shared;
+
 	/* decrement "timing constraint" timers */
-	if ( stepgen->timer1 > 0 ) {
-	    if ( stepgen->timer1 > periodns ) {
-		stepgen->timer1 -= periodns;
+	if ( mp->timer1 > 0 ) {
+	    if ( mp->timer1 > periodns ) {
+		mp->timer1 -= periodns;
 	    } else {
-		stepgen->timer1 = 0;
+		mp->timer1 = 0;
 	    }
 	}
-	if ( stepgen->timer2 > 0 ) {
-	    if ( stepgen->timer2 > periodns ) {
-		stepgen->timer2 -= periodns;
+	if ( mp->timer2 > 0 ) {
+	    if ( mp->timer2 > periodns ) {
+		mp->timer2 -= periodns;
 	    } else {
-		stepgen->timer2 = 0;
+		mp->timer2 = 0;
 	    }
 	}
-	if ( stepgen->timer3 > 0 ) {
-	    if ( stepgen->timer3 > periodns ) {
-		stepgen->timer3 -= periodns;
+	if ( mp->timer3 > 0 ) {
+	    if ( mp->timer3 > periodns ) {
+		mp->timer3 -= periodns;
 	    } else {
-		stepgen->timer3 = 0;
+		mp->timer3 = 0;
 		/* last timer timed out, cancel hold */
-		stepgen->hold_dds = 0;
+		mp->hold_dds = 0;
 	    }
 	}
-	if ( !stepgen->hold_dds && *(stepgen->enable) ) {
+	if ( !mp->hold_dds && *(stepgen->enable) ) {
 	    /* update addval (ramping) */
-	    old_addval = stepgen->addval;
+	    old_addval = shared->addval;
 	    target_addval = stepgen->target_addval;
 	    if (stepgen->deltalim != 0) {
 		/* implement accel/decel limit */
@@ -613,76 +633,80 @@ static void make_pulses(void *arg, long period)
 		new_addval = target_addval;
 	    }
 	    /* save result */
-	    stepgen->addval = new_addval;
+	    shared->addval = new_addval;
 	    /* check for direction reversal */
 	    if (((new_addval >= 0) && (old_addval < 0)) ||
 		((new_addval < 0) && (old_addval >= 0))) {
 		/* reversal required, can we do so now? */
-		if ( stepgen->timer3 != 0 ) {
+		if ( mp->timer3 != 0 ) {
 		    /* no - hold everything until delays time out */
-		    stepgen->hold_dds = 1;
+		    mp->hold_dds = 1;
 		}
 	    }
 	}
 	/* update DDS */
-	if ( !stepgen->hold_dds && *(stepgen->enable) ) {
+	if ( !mp->hold_dds && *(stepgen->enable) ) {
 	    /* save current value of low half of accum */
-	    step_now = stepgen->accum;
+	    step_now = shared->accum;
 	    /* update the accumulator */
-	    stepgen->accum += stepgen->addval;
+	    shared->accum += shared->addval;
 	    /* test for changes in low half of accum */
-	    step_now ^= stepgen->accum;
+	    step_now ^= shared->accum;
 	    /* we only care about the pickoff bit */
 	    step_now &= (1L << PICKOFF);
 	    /* update rawcounts parameter */
-	    *(stepgen->rawcount) = stepgen->accum >> PICKOFF;
+	    *(mp->rawcount) = shared->accum >> PICKOFF;
 	} else {
 	    /* DDS is in hold, no steps */
 	    step_now = 0;
 	}
-	if ( stepgen->timer2 == 0 ) {
+	if ( mp->timer2 == 0 ) {
 	    /* update direction - do not change if addval = 0 */
-	    if ( stepgen->addval > 0 ) {
-		stepgen->curr_dir = 1;
-	    } else if ( stepgen->addval < 0 ) {
-		stepgen->curr_dir = -1;
+	    if ( shared->addval > 0 ) {
+		mp->curr_dir = 1;
+	    } else if ( shared->addval < 0 ) {
+		mp->curr_dir = -1;
 	    }
 	}
 	if ( step_now ) {
 	    /* (re)start various timers */
+
 	    /* timer 1 = time till end of step pulse */
-	    stepgen->timer1 = *(stepgen->step_len);
+	    mp->timer1 = *(stepgen->step_len);
+
 	    /* timer 2 = time till allowed to change dir pin */
-	    stepgen->timer2 = stepgen->timer1 + *(stepgen->dir_hold_dly);
+	    mp->timer2 = mp->timer1 + *(stepgen->dir_hold_dly);
+
 	    /* timer 3 = time till allowed to step the other way */
-	    stepgen->timer3 = stepgen->timer2 + *(stepgen->dir_setup);
+	    mp->timer3 = mp->timer2 + *(stepgen->dir_setup);
+
 	    if ( stepgen->step_type >= 2 ) {
 		/* update state */
-		stepgen->state += stepgen->curr_dir;
-		if ( stepgen->state < 0 ) {
-		    stepgen->state = stepgen->cycle_max;
-		} else if ( stepgen->state > stepgen->cycle_max ) {
-		    stepgen->state = 0;
+		mp->state += mp->curr_dir;
+		if ( mp->state < 0 ) {
+		    mp->state = stepgen->cycle_max;
+		} else if ( mp->state > stepgen->cycle_max ) {
+		    mp->state = 0;
 		}
 	    }
 	}
 	/* generate output, based on stepping type */
 	if (stepgen->step_type == 0) {
 	    /* step/dir output */
-	    if ( stepgen->timer1 != 0 ) {
+	    if ( mp->timer1 != 0 ) {
 		 *(stepgen->phase[STEP_PIN]) = 1;
 	    } else {
 		 *(stepgen->phase[STEP_PIN]) = 0;
 	    }
-	    if ( stepgen->curr_dir < 0 ) {
+	    if ( mp->curr_dir < 0 ) {
 		 *(stepgen->phase[DIR_PIN]) = 1;
 	    } else {
 		 *(stepgen->phase[DIR_PIN]) = 0;
 	    }
 	} else if (stepgen->step_type == 1) {
 	    /* up/down */
-	    if ( stepgen->timer1 != 0 ) {
-		if ( stepgen->curr_dir < 0 ) {
+	    if ( mp->timer1 != 0 ) {
+		if ( mp->curr_dir < 0 ) {
 		    *(stepgen->phase[UP_PIN]) = 0;
 		    *(stepgen->phase[DOWN_PIN]) = 1;
 		} else {
@@ -696,7 +720,7 @@ static void make_pulses(void *arg, long period)
 	} else {
 	    /* step type 2 or greater */
 	    /* look up correct output pattern */
-	    outbits = (stepgen->lut)[stepgen->state];
+	    outbits = (stepgen->lut)[mp->state];
 	    /* now output the phase bits */
 	    for (p = 0; p < stepgen->num_phases; p++) {
 		/* output one phase */
@@ -720,12 +744,16 @@ static void update_pos(void *arg, long period)
     stepgen = arg;
 
     for (n = 0; n < num_chan; n++) {
+
+	struct update_pos *upos = &stepgen->upos;
+	struct shared *shared = &stepgen->shared;
+
 	/* 'accum' is a long long, and its remotely possible that
 	   make_pulses could change it half-way through a read.
 	   So we have a crude atomic read routine */
 	do {
-	    accum_a = stepgen->accum;
-	    accum_b = stepgen->accum;
+	    accum_a = shared->accum;
+	    accum_b = shared->accum;
 	} while ( accum_a != accum_b );
 	/* compute integer counts */
 	*(stepgen->count) = accum_a >> PICKOFF;
@@ -808,6 +836,10 @@ static void update_freq(void *arg, long period)
 
     /* loop thru generators */
     for (n = 0; n < num_chan; n++) {
+
+	struct update_freq *upfreq = &stepgen->upfrq;
+	struct shared *shared = &stepgen->shared;
+
 	/* check for scale change */
 	if (*(stepgen->pos_scale) != stepgen->old_scale) {
 	    /* get ready to detect future scale changes */
@@ -867,7 +899,7 @@ static void update_freq(void *arg, long period)
 	    }
 	    /* set velocity to zero */
 	    stepgen->freq = 0;
-	    stepgen->addval = 0;
+	    shared->addval = 0;
 	    stepgen->target_addval = 0;
 	    /* and skip to next one */
 	    stepgen++;
@@ -930,8 +962,8 @@ static void update_freq(void *arg, long period)
 	       make_pulses could change it half-way through a read.
 	       So we have a crude atomic read routine */
 	    do {
-		accum_a = stepgen->accum;
-		accum_b = stepgen->accum;
+		accum_a = shared->accum;
+		accum_b = shared->accum;
 	    } while ( accum_a != accum_b );
 	    /* convert from fixed point to double, after subtracting
 	       the one-half step offset */
@@ -1040,7 +1072,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export param variable for raw counts */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->rawcount), comp_id,
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->mp.rawcount), comp_id,
 	"stepgen.%d.rawcounts", num);
     if (retval != 0) { return retval; }
     /* export pin for counts captured by update() */
@@ -1167,17 +1199,19 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	addr->lut = &(master_lut[step_type - 2][0]);
     }
     /* init the step generator core to zero output */
-    addr->timer1 = 0;
-    addr->timer2 = 0;
-    addr->timer3 = 0;
-    addr->hold_dds = 0;
-    addr->addval = 0;
+    addr->mp.timer1 = 0;
+    addr->mp.timer2 = 0;
+    addr->mp.timer3 = 0;
+    addr->mp.hold_dds = 0;
+
+    addr->shared.addval = 0;   // !!!!! FIXME SHARED
+
     /* accumulator gets a half step offset, so it will step half
        way between integer positions, not at the integer positions */
-    addr->accum = 1 << (PICKOFF-1);
-    *(addr->rawcount) = 0;
-    addr->curr_dir = 0;
-    addr->state = 0;
+    addr->shared.accum = 1 << (PICKOFF-1);
+    *(addr->mp.rawcount) = 0;
+    addr->mp.curr_dir = 0;
+    addr->mp.state = 0;
     *(addr->enable) = 0;
     addr->target_addval = 0;
     addr->deltalim = 0;
