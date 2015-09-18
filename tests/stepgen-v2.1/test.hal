@@ -1,0 +1,25 @@
+setexact_for_test_suite_only
+
+loadrt sampler cfg=bbs depth=4000
+loadusr -Wn halsampler halsampler -N halsampler  -n 3500
+
+loadrt stepgen step_type=2
+loadrt threads name1=fast period1=100000
+
+net n0 stepgen.0.phase-A sampler.0.pin.0
+net n1 stepgen.0.phase-B sampler.0.pin.1
+net n2 stepgen.0.counts sampler.0.pin.2
+
+addf stepgen.update-freq fast
+addf stepgen.make-pulses fast
+addf stepgen.capture-position fast
+addf sampler.0 fast
+
+setp stepgen.0.maxvel .15
+setp stepgen.0.maxaccel 2
+setp stepgen.0.position-cmd .04
+setp stepgen.0.enable 1
+setp stepgen.0.position-scale 32000
+
+start
+waitusr  -i halsampler
