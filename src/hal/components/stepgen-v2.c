@@ -330,9 +330,32 @@ RTAPI_MP_ARRAY_INT(user_step_type, MAX_CYCLE,
    which runs in the fastest thread */
 
 typedef struct {
-    struct make_pulses {
 
-	/* stuff that is both read and written by makepulses */
+    // shared state between make_pulses(),  update_pos() and update_freq()
+    struct shared {
+	volatile long long accum;	/* uf:r up:r mp:rw   frequency generator accumulator */
+
+	long addval;		        /* uf:w mp:rw        actual frequency generator add value */
+	long target_addval;		/* uf:w mp:r         desired freq generator add value */
+	long deltalim;		        /* uf:w mp:r         max allowed change per period */
+
+	// uf:rw mp:r - parameters, r/o by make_pulses()
+	hal_u32_t *step_len;		/* uf:w mp:r pin: step pulse length */
+	hal_u32_t *dir_hold_dly;	/* uf:w mp:r pin: direction hold time or delay */
+	hal_u32_t *dir_setup;	        /* uf:w mp:r pin: direction setup time */
+    } shared;
+
+    // updated - in both update_pos() and update_freq() (change detection)
+    // not an issue as long as both are on the same (slow) thread any order
+    // not read by make_pulses
+    struct ufp_shared {
+	hal_float_t *pos_scale;	        /* pin: steps per position unit */
+	double old_scale;		/* stored scale value */
+	double scale_recip;		/* reciprocal value used for scaling */
+    } ufp;
+
+    // make_pulses() private state
+    struct make_pulses {
 	unsigned int timer1;	/* times out when step pulse should end */
 	unsigned int timer2;	/* times out when safe to change dir */
 	unsigned int timer3;	/* times out when safe to step in new dir */
@@ -340,46 +363,19 @@ typedef struct {
 	hal_s32_t *rawcount;	/* pin: position feedback in counts */
 	int curr_dir;		/* current direction */
 	int state;		/* current position in state table */
+	hal_bit_t *phase[5];	/* pins for output signals */
+	int cycle_max;		/* cycle length for step types 2 and up */
+	const unsigned char *lut;	/* pointer to state lookup table */
+	int num_phases;		/* number of phases for types 2 and up */
     } mp;
 
-
-    /* stuff that is read but not written by makepulses */
-
-    int step_type;		/* stepping type - see list above */
-    int cycle_max;		/* cycle length for step types 2 and up */
-    int num_phases;		/* number of phases for types 2 and up */
-    hal_bit_t *phase[5];	/* pins for output signals */
-    const unsigned char *lut;	/* pointer to state lookup table */
-
-    struct shared {
-	volatile long long accum;	/* uf:r up:r mp:rw   frequency generator accumulator */
-	long addval;		        /* uf:w mp:rw        actual frequency generator add value */
-
-	long target_addval;		/* uf:w mp:r         desired freq generator add value */
-	long deltalim;		        /* uf:w mp:r         max allowed change per period */
-
-
-	// uf:rw mp:r - parameters, r/o by make_pulses()
-	hal_u32_t *step_len;		/* pin: step pulse length */
-	hal_u32_t *dir_hold_dly;	/* pin: direction hold time or delay */
-	hal_u32_t *dir_setup;	        /* pin: direction setup time */
-    } shared;
-
-    struct ufp_shared {
-	// shared because updated in both update_pos() and update_freq()
-	// (change detection)
-	// not an issue as long as both are on the same (slow) thread any order
-	// also not read by make_pulses
-	hal_float_t *pos_scale;	/* pin: steps per position unit */
-	double old_scale;		/* stored scale value */
-	double scale_recip;		/* reciprocal value used for scaling */
-    } ufp;
-
+    // update_pos() private state
     struct update_pos {
-	hal_s32_t *count;		/* pin: captured feedback in counts */
+	hal_s32_t *count;	/* pin: captured feedback in counts */
 	hal_float_t *pos_fb;	/* pin: position feedback (position units) */
     } upos;
 
+    // update_freq() private state
     struct update_freq {
 	int pos_mode;		/* 1 = position mode, 0 = velocity mode */
 	hal_float_t *pos_cmd;	/* pin: position command (position units) */
@@ -397,11 +393,11 @@ typedef struct {
 	hal_u32_t old_dir_setup;
     } upfrq;
 
+    // setup-time constants
     struct readonly {            // driving pins, never modified
-	hal_bit_t *enable;		/* pin for enable stepgen */
+	hal_bit_t *enable;	 /* mp:r uf:r pin for enable stepgen */
+	int step_type;		 /* mp:r uf:r stepping type - see list above */
     } ro;
-
-    /* stuff that is not accessed by makepulses */
 
     int printed_error;		/* flag to avoid repeated printing */
 } stepgen_t;
@@ -603,7 +599,7 @@ static void make_pulses(void *arg, long period)
     for (n = 0; n < num_chan; n++) {
 	struct make_pulses *mp = &stepgen->mp;
 	struct shared *shared = &stepgen->shared;
-	struct readonly *ro = &stepgen->ro;
+	const struct readonly *ro = &stepgen->ro;
 
 	/* decrement "timing constraint" timers */
 	if ( mp->timer1 > 0 ) {
@@ -697,51 +693,51 @@ static void make_pulses(void *arg, long period)
 	    /* timer 3 = time till allowed to step the other way */
 	    mp->timer3 = mp->timer2 + *(shared->dir_setup);
 
-	    if ( stepgen->step_type >= 2 ) {
+	    if ( ro->step_type >= 2 ) {
 		/* update state */
 		mp->state += mp->curr_dir;
 		if ( mp->state < 0 ) {
-		    mp->state = stepgen->cycle_max;
-		} else if ( mp->state > stepgen->cycle_max ) {
+		    mp->state = mp->cycle_max;
+		} else if ( mp->state > mp->cycle_max ) {
 		    mp->state = 0;
 		}
 	    }
 	}
 	/* generate output, based on stepping type */
-	if (stepgen->step_type == 0) {
+	if (ro->step_type == 0) {
 	    /* step/dir output */
 	    if ( mp->timer1 != 0 ) {
-		 *(stepgen->phase[STEP_PIN]) = 1;
+		 *(mp->phase[STEP_PIN]) = 1;
 	    } else {
-		 *(stepgen->phase[STEP_PIN]) = 0;
+		 *(mp->phase[STEP_PIN]) = 0;
 	    }
 	    if ( mp->curr_dir < 0 ) {
-		 *(stepgen->phase[DIR_PIN]) = 1;
+		 *(mp->phase[DIR_PIN]) = 1;
 	    } else {
-		 *(stepgen->phase[DIR_PIN]) = 0;
+		 *(mp->phase[DIR_PIN]) = 0;
 	    }
-	} else if (stepgen->step_type == 1) {
+	} else if (ro->step_type == 1) {
 	    /* up/down */
 	    if ( mp->timer1 != 0 ) {
 		if ( mp->curr_dir < 0 ) {
-		    *(stepgen->phase[UP_PIN]) = 0;
-		    *(stepgen->phase[DOWN_PIN]) = 1;
+		    *(mp->phase[UP_PIN]) = 0;
+		    *(mp->phase[DOWN_PIN]) = 1;
 		} else {
-		    *(stepgen->phase[UP_PIN]) = 1;
-		    *(stepgen->phase[DOWN_PIN]) = 0;
+		    *(mp->phase[UP_PIN]) = 1;
+		    *(mp->phase[DOWN_PIN]) = 0;
 		}
 	    } else {
-		*(stepgen->phase[UP_PIN]) = 0;
-		*(stepgen->phase[DOWN_PIN]) = 0;
+		*(mp->phase[UP_PIN]) = 0;
+		*(mp->phase[DOWN_PIN]) = 0;
 	    }
 	} else {
 	    /* step type 2 or greater */
 	    /* look up correct output pattern */
-	    outbits = (stepgen->lut)[mp->state];
+	    outbits = (mp->lut)[mp->state];
 	    /* now output the phase bits */
-	    for (p = 0; p < stepgen->num_phases; p++) {
+	    for (p = 0; p < mp->num_phases; p++) {
 		/* output one phase */
-		*(stepgen->phase[p]) = outbits & 1;
+		*(mp->phase[p]) = outbits & 1;
 		/* move to the next phase */
 		outbits >>= 1;
 	    }
@@ -861,7 +857,7 @@ static void update_freq(void *arg, long period)
 
 	struct update_freq *upfreq = &stepgen->upfrq;
 	struct shared *shared = &stepgen->shared;
-	struct readonly *ro = &stepgen->ro;
+	const struct readonly *ro = &stepgen->ro;
 	struct ufp_shared *ufp_shared = &stepgen->ufp;
 
 	/* check for scale change */
@@ -908,7 +904,7 @@ static void update_freq(void *arg, long period)
 	if ( *(shared->dir_hold_dly) != upfreq->old_dir_hold_dly ) {
 	    if ( (*(shared->dir_hold_dly) + *(shared->dir_setup)) == 0 ) {
 		/* dirdelay must be non-zero step types 0 and 1 */
-		if ( stepgen->step_type < 2 ) {
+		if ( ro->step_type < 2 ) {
 		    *(shared->dir_hold_dly) = 1;
 		}
 	    }
@@ -1161,32 +1157,32 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     /* export output pins */
     if ( step_type == 0 ) {
 	/* step and direction */
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[STEP_PIN]),
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->mp.phase[STEP_PIN]),
 	    comp_id, "stepgen.%d.step", num);
 	if (retval != 0) { return retval; }
-	*(addr->phase[STEP_PIN]) = 0;
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[DIR_PIN]),
+	*(addr->mp.phase[STEP_PIN]) = 0;
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->mp.phase[DIR_PIN]),
 	    comp_id, "stepgen.%d.dir", num);
 	if (retval != 0) { return retval; }
-	*(addr->phase[DIR_PIN]) = 0;
+	*(addr->mp.phase[DIR_PIN]) = 0;
     } else if (step_type == 1) {
 	/* up and down */
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[UP_PIN]),
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->mp.phase[UP_PIN]),
 	    comp_id, "stepgen.%d.up", num);
 	if (retval != 0) { return retval; }
-	*(addr->phase[UP_PIN]) = 0;
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[DOWN_PIN]),
+	*(addr->mp.phase[UP_PIN]) = 0;
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->mp.phase[DOWN_PIN]),
 	    comp_id, "stepgen.%d.down", num);
 	if (retval != 0) { return retval; }
-	*(addr->phase[DOWN_PIN]) = 0;
+	*(addr->mp.phase[DOWN_PIN]) = 0;
     } else {
 	/* stepping types 2 and higher use a varying number of phase pins */
-	addr->num_phases = num_phases_lut[step_type - 2];
-	for (n = 0; n < addr->num_phases; n++) {
-	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[n]),
+	addr->mp.num_phases = num_phases_lut[step_type - 2];
+	for (n = 0; n < addr->mp.num_phases; n++) {
+	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->mp.phase[n]),
 		comp_id, "stepgen.%d.phase-%c", num, n + 'A');
 	    if (retval != 0) { return retval; }
-	    *(addr->phase[n]) = 0;
+	    *(addr->mp.phase[n]) = 0;
 	}
     }
     /* set default parameter values */
@@ -1196,7 +1192,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     *(addr->upfrq.freq) = 0.0;
     *(addr->upfrq.maxvel) = 0.0;
     *(addr->upfrq.maxaccel) = 0.0;
-    addr->step_type = step_type;
+    addr->ro.step_type = step_type;
     addr->upfrq.pos_mode = pos_mode;
     /* timing parameter defaults depend on step type */
     *(addr->shared.step_len) = 1;
@@ -1219,8 +1215,8 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     addr->upfrq.old_dir_setup = ~0;
     if ( step_type >= 2 ) {
 	/* init output stuff */
-	addr->cycle_max = cycle_len_lut[step_type - 2] - 1;
-	addr->lut = &(master_lut[step_type - 2][0]);
+	addr->mp.cycle_max = cycle_len_lut[step_type - 2] - 1;
+	addr->mp.lut = &(master_lut[step_type - 2][0]);
     }
     /* init the step generator core to zero output */
     addr->mp.timer1 = 0;
