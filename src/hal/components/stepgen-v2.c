@@ -344,12 +344,7 @@ typedef struct {
 
 
     /* stuff that is read but not written by makepulses */
-    hal_bit_t *enable;		/* pin for enable stepgen */
-    long target_addval;		/* desired freq generator add value */
-    long deltalim;		/* max allowed change per period */
-    hal_u32_t *step_len;		/* pin: step pulse length */
-    hal_u32_t *dir_hold_dly;	/* pin: direction hold time or delay */
-    hal_u32_t *dir_setup;	/* pin: direction setup time */
+
     int step_type;		/* stepping type - see list above */
     int cycle_max;		/* cycle length for step types 2 and up */
     int num_phases;		/* number of phases for types 2 and up */
@@ -360,39 +355,51 @@ typedef struct {
 	volatile long long accum;	/* frequency generator accumulator */
 	long addval;		/* actual frequency generator add value */
 
+	long target_addval;		/* desired freq generator add value */
+	long deltalim;		/* max allowed change per period */
+
+	// uf:rw mp:r
+	hal_u32_t *step_len;		/* pin: step pulse length */
+	hal_u32_t *dir_hold_dly;	/* pin: direction hold time or delay */
+	hal_u32_t *dir_setup;	/* pin: direction setup time */
+
 
 	// shared because updated in both update_pos() and update_freq()
-	// not an issue as long as both are on the same thread
-
+	// (change detection)
+	// not an issue as long as both are on the same thread any order
 	hal_float_t *pos_scale;	/* pin: steps per position unit */
 	double old_scale;		/* stored scale value */
 	double scale_recip;		/* reciprocal value used for scaling */
     } shared;
+
     struct update_pos {
-
 	hal_s32_t *count;		/* pin: captured feedback in counts */
-
+	hal_float_t *pos_fb;	/* pin: position feedback (position units) */
     } upos;
 
     struct update_freq {
 	int pos_mode;		/* 1 = position mode, 0 = velocity mode */
+	hal_float_t *pos_cmd;	/* pin: position command (position units) */
+	double old_pos_cmd;		/* previous position command (counts) */
+	hal_float_t *vel_cmd;	/* pin: velocity command (pos units/sec) */
 
+	hal_float_t *freq;		/* pin: frequency command */
+	hal_float_t *maxvel;	/* pin: max velocity, (pos units/sec) */
+	hal_float_t *maxaccel;	/* pin: max accel (pos units/sec^2) */
+	hal_u32_t *step_space;	/* pin: min step pulse spacing */
+
+	hal_u32_t old_step_len;	/* used to detect parameter changes */
+	hal_u32_t old_step_space;
+	hal_u32_t old_dir_hold_dly;
+	hal_u32_t old_dir_setup;
     } upfrq;
 
-    /* stuff that is not accessed by makepulses */
-    hal_u32_t *step_space;	/* pin: min step pulse spacing */
-    double old_pos_cmd;		/* previous position command (counts) */
+    struct readonly {            // driving pins, never modified
+	hal_bit_t *enable;		/* pin for enable stepgen */
+    } ro;
 
-    hal_float_t *vel_cmd;	/* pin: velocity command (pos units/sec) */
-    hal_float_t *pos_cmd;	/* pin: position command (position units) */
-    hal_float_t *pos_fb;	/* pin: position feedback (position units) */
-    hal_float_t *freq;		/* pin: frequency command */
-    hal_float_t *maxvel;	/* pin: max velocity, (pos units/sec) */
-    hal_float_t *maxaccel;	/* pin: max accel (pos units/sec^2) */
-    hal_u32_t old_step_len;	/* used to detect parameter changes */
-    hal_u32_t old_step_space;
-    hal_u32_t old_dir_hold_dly;
-    hal_u32_t old_dir_setup;
+    /* stuff that is not accessed by makepulses */
+
     int printed_error;		/* flag to avoid repeated printing */
 } stepgen_t;
 
@@ -593,6 +600,7 @@ static void make_pulses(void *arg, long period)
     for (n = 0; n < num_chan; n++) {
 	struct make_pulses *mp = &stepgen->mp;
 	struct shared *shared = &stepgen->shared;
+	struct readonly *ro = &stepgen->ro;
 
 	/* decrement "timing constraint" timers */
 	if ( mp->timer1 > 0 ) {
@@ -618,18 +626,18 @@ static void make_pulses(void *arg, long period)
 		mp->hold_dds = 0;
 	    }
 	}
-	if ( !mp->hold_dds && *(stepgen->enable) ) {
+	if ( !mp->hold_dds && *(ro->enable) ) {
 	    /* update addval (ramping) */
 	    old_addval = shared->addval;
-	    target_addval = stepgen->target_addval;
-	    if (stepgen->deltalim != 0) {
+	    target_addval = shared->target_addval;
+	    if (shared->deltalim != 0) {
 		/* implement accel/decel limit */
-		if (target_addval > (old_addval + stepgen->deltalim)) {
+		if (target_addval > (old_addval + shared->deltalim)) {
 		    /* new value is too high, increase addval as far as possible */
-		    new_addval = old_addval + stepgen->deltalim;
-		} else if (target_addval < (old_addval - stepgen->deltalim)) {
+		    new_addval = old_addval + shared->deltalim;
+		} else if (target_addval < (old_addval - shared->deltalim)) {
 		    /* new value is too low, decrease addval as far as possible */
-		    new_addval = old_addval - stepgen->deltalim;
+		    new_addval = old_addval - shared->deltalim;
 		} else {
 		    /* new value can be reached in one step - do it */
 		    new_addval = target_addval;
@@ -651,7 +659,7 @@ static void make_pulses(void *arg, long period)
 	    }
 	}
 	/* update DDS */
-	if ( !mp->hold_dds && *(stepgen->enable) ) {
+	if ( !mp->hold_dds && *(ro->enable) ) {
 	    /* save current value of low half of accum */
 	    step_now = shared->accum;
 	    /* update the accumulator */
@@ -678,13 +686,13 @@ static void make_pulses(void *arg, long period)
 	    /* (re)start various timers */
 
 	    /* timer 1 = time till end of step pulse */
-	    mp->timer1 = *(stepgen->step_len);
+	    mp->timer1 = *(shared->step_len);
 
 	    /* timer 2 = time till allowed to change dir pin */
-	    mp->timer2 = mp->timer1 + *(stepgen->dir_hold_dly);
+	    mp->timer2 = mp->timer1 + *(shared->dir_hold_dly);
 
 	    /* timer 3 = time till allowed to step the other way */
-	    mp->timer3 = mp->timer2 + *(stepgen->dir_setup);
+	    mp->timer3 = mp->timer2 + *(shared->dir_setup);
 
 	    if ( stepgen->step_type >= 2 ) {
 		/* update state */
@@ -783,7 +791,7 @@ static void update_pos(void *arg, long period)
 
 	/* scale accumulator to make floating point position, after
 	   removing the one-half count offset */
-	*(stepgen->pos_fb) = (double)(accum_a-(1<< (PICKOFF-1))) * shared->scale_recip;
+	*(upos->pos_fb) = (double)(accum_a-(1<< (PICKOFF-1))) * shared->scale_recip;
 	/* move on to next channel */
 	stepgen++;
     }
@@ -849,6 +857,7 @@ static void update_freq(void *arg, long period)
 
 	struct update_freq *upfreq = &stepgen->upfrq;
 	struct shared *shared = &stepgen->shared;
+	struct readonly *ro = &stepgen->ro;
 
 	/* check for scale change */
 	if (*(shared->pos_scale) != shared->old_scale) {
@@ -866,65 +875,65 @@ static void update_freq(void *arg, long period)
 	}
 	if ( newperiod ) {
 	    /* period changed, force recalc of timing parameters */
-	    stepgen->old_step_len = ~0;
-	    stepgen->old_step_space = ~0;
-	    stepgen->old_dir_hold_dly = ~0;
-	    stepgen->old_dir_setup = ~0;
+	    upfreq->old_step_len = ~0;
+	    upfreq->old_step_space = ~0;
+	    upfreq->old_dir_hold_dly = ~0;
+	    upfreq->old_dir_setup = ~0;
 	}
 	/* process timing parameters */
-	if ( *(stepgen->step_len) != stepgen->old_step_len ) {
+	if ( *(shared->step_len) != upfreq->old_step_len ) {
 	    /* must be non-zero */
-	    if ( *(stepgen->step_len) == 0 ) {
-		*(stepgen->step_len) = 1;
+	    if ( *(shared->step_len) == 0 ) {
+		*(shared->step_len) = 1;
 	    }
 	    /* make integer multiple of periodns */
-	    stepgen->old_step_len = ulceil(*(stepgen->step_len), periodns);
-	    *(stepgen->step_len) = stepgen->old_step_len;
+	    upfreq->old_step_len = ulceil(*(shared->step_len), periodns);
+	    *(shared->step_len) = upfreq->old_step_len;
 	}
-	if ( *(stepgen->step_space) != stepgen->old_step_space ) {
+	if ( *(upfreq->step_space) != upfreq->old_step_space ) {
 	    /* make integer multiple of periodns */
-	    stepgen->old_step_space = ulceil(*(stepgen->step_space), periodns);
-	    *(stepgen->step_space) = stepgen->old_step_space;
+	    upfreq->old_step_space = ulceil(*(upfreq->step_space), periodns);
+	    *(upfreq->step_space) = upfreq->old_step_space;
 	}
-	if ( *(stepgen->dir_setup) != stepgen->old_dir_setup ) {
+	if ( *(shared->dir_setup) != upfreq->old_dir_setup ) {
 	    /* make integer multiple of periodns */
-	    stepgen->old_dir_setup = ulceil(*(stepgen->dir_setup), periodns);
-	    *(stepgen->dir_setup) = stepgen->old_dir_setup;
+	    upfreq->old_dir_setup = ulceil(*(shared->dir_setup), periodns);
+	    *(shared->dir_setup) = upfreq->old_dir_setup;
 	}
-	if ( *(stepgen->dir_hold_dly) != stepgen->old_dir_hold_dly ) {
-	    if ( (*(stepgen->dir_hold_dly) + *(stepgen->dir_setup)) == 0 ) {
+	if ( *(shared->dir_hold_dly) != upfreq->old_dir_hold_dly ) {
+	    if ( (*(shared->dir_hold_dly) + *(shared->dir_setup)) == 0 ) {
 		/* dirdelay must be non-zero step types 0 and 1 */
 		if ( stepgen->step_type < 2 ) {
-		    *(stepgen->dir_hold_dly) = 1;
+		    *(shared->dir_hold_dly) = 1;
 		}
 	    }
-	    stepgen->old_dir_hold_dly = ulceil(*(stepgen->dir_hold_dly), periodns);
-	    *(stepgen->dir_hold_dly) = stepgen->old_dir_hold_dly;
+	    upfreq->old_dir_hold_dly = ulceil(*(shared->dir_hold_dly), periodns);
+	    *(shared->dir_hold_dly) = upfreq->old_dir_hold_dly;
 	}
 	/* test for disabled stepgen */
-	if (*stepgen->enable == 0) {
+	if (*ro->enable == 0) {
 	    /* disabled: keep updating old_pos_cmd (if in pos ctrl mode) */
 	    if ( upfreq->pos_mode ) {
-		stepgen->old_pos_cmd = *(stepgen->pos_cmd) * *(shared->pos_scale);
+		upfreq->old_pos_cmd = *(upfreq->pos_cmd) * *(shared->pos_scale);
 	    }
 	    /* set velocity to zero */
-	    stepgen->freq = 0;
+	    upfreq->freq = 0;
 	    shared->addval = 0;
-	    stepgen->target_addval = 0;
+	    shared->target_addval = 0;
 	    /* and skip to next one */
 	    stepgen++;
 	    continue;
 	}
 	/* calculate frequency limit */
-	min_step_period = *(stepgen->step_len) + *(stepgen->step_space);
+	min_step_period = *(shared->step_len) + *(upfreq->step_space);
 	max_freq = 1.0 / (min_step_period * 0.000000001);
 	/* check for user specified frequency limit parameter */
-	if (*(stepgen->maxvel) <= 0.0) {
+	if (*(upfreq->maxvel) <= 0.0) {
 	    /* set to zero if negative */
-	    *(stepgen->maxvel) = 0.0;
+	    *(upfreq->maxvel) = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to max_freq */
-	    desired_freq = *(stepgen->maxvel) * rtapi_fabs(*(shared->pos_scale));
+	    desired_freq = *(upfreq->maxvel) * rtapi_fabs(*(shared->pos_scale));
 	    if (desired_freq > max_freq) {
 		/* parameter is too high, complain about it */
 		if(!stepgen->printed_error) {
@@ -937,37 +946,37 @@ static void update_freq(void *arg, long period)
 		    stepgen->printed_error = 1;
 		}
 		/* parameter is too high, limit it */
-		*(stepgen->maxvel) = max_freq / rtapi_fabs(*(shared->pos_scale));
+		*(upfreq->maxvel) = max_freq / rtapi_fabs(*(shared->pos_scale));
 	    } else {
 		/* lower max_freq to match parameter */
-		max_freq = *(stepgen->maxvel) * rtapi_fabs(*(shared->pos_scale));
+		max_freq = *(upfreq->maxvel) * rtapi_fabs(*(shared->pos_scale));
 	    }
 	}
 	/* set internal accel limit to its absolute max, which is
 	   zero to full speed in one thread period */
 	max_ac = max_freq * recip_dt;
 	/* check for user specified accel limit parameter */
-	if (*(stepgen->maxaccel) <= 0.0) {
+	if (*(upfreq->maxaccel) <= 0.0) {
 	    /* set to zero if negative */
-	    *(stepgen->maxaccel) = 0.0;
+	    *(upfreq->maxaccel) = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to max_ac */
-	    if (*(stepgen->maxaccel) * rtapi_fabs(*(shared->pos_scale)) > max_ac) {
+	    if (*(upfreq->maxaccel) * rtapi_fabs(*(shared->pos_scale)) > max_ac) {
 		/* parameter is too high, lower it */
-		*(stepgen->maxaccel) = max_ac / rtapi_fabs(*(shared->pos_scale));
+		*(upfreq->maxaccel) = max_ac / rtapi_fabs(*(shared->pos_scale));
 	    } else {
 		/* lower limit to match parameter */
-		max_ac = *(stepgen->maxaccel) * rtapi_fabs(*(shared->pos_scale));
+		max_ac = *(upfreq->maxaccel) * rtapi_fabs(*(shared->pos_scale));
 	    }
 	}
 	/* at this point, all scaling, limits, and other parameter
 	   changes have been handled - time for the main control */
 	if ( upfreq->pos_mode ) {
 	    /* calculate position command in counts */
-	    pos_cmd = *(stepgen->pos_cmd) * *(shared->pos_scale);
+	    pos_cmd = *(upfreq->pos_cmd) * *(shared->pos_scale);
 	    /* calculate velocity command in counts/sec */
-	    vel_cmd = (pos_cmd - stepgen->old_pos_cmd) * recip_dt;
-	    stepgen->old_pos_cmd = pos_cmd;
+	    vel_cmd = (pos_cmd - upfreq->old_pos_cmd) * recip_dt;
+	    upfreq->old_pos_cmd = pos_cmd;
 	    /* 'accum' is a long long, and its remotely possible that
 	       make_pulses could change it half-way through a read.
 	       So we have a crude atomic read routine */
@@ -979,7 +988,7 @@ static void update_freq(void *arg, long period)
 	       the one-half step offset */
 	    curr_pos = (accum_a-(1<< (PICKOFF-1))) * (1.0 / (1L << PICKOFF));
 	    /* get velocity in counts/sec */
-	    curr_vel = *(stepgen->freq);
+	    curr_vel = *(upfreq->freq);
 	    /* At this point we have good values for pos_cmd, curr_pos,
 	       vel_cmd, curr_vel, max_freq and max_ac, all in counts,
 	       counts/sec, or counts/sec^2.  Now we just have to do
@@ -1037,7 +1046,7 @@ static void update_freq(void *arg, long period)
 	} else {
 	    /* velocity mode is simpler */
 	    /* calculate velocity command in counts/sec */
-	    vel_cmd = *(stepgen->vel_cmd) * *(shared->pos_scale);
+	    vel_cmd = *(upfreq->vel_cmd) * *(shared->pos_scale);
 	    /* apply frequency limit */
 	    if (vel_cmd > max_freq) {
 		vel_cmd = max_freq;
@@ -1047,20 +1056,20 @@ static void update_freq(void *arg, long period)
 	    /* calc max change in frequency in one period */
 	    dv = max_ac * dt;
 	    /* apply accel limit */
-	    if ( vel_cmd > (*(stepgen->freq) + dv) ) {
-		new_vel = *(stepgen->freq) + dv;
-	    } else if ( vel_cmd < (*(stepgen->freq) - dv) ) {
-		new_vel = *(stepgen->freq) - dv;
+	    if ( vel_cmd > (*(upfreq->freq) + dv) ) {
+		new_vel = *(upfreq->freq) + dv;
+	    } else if ( vel_cmd < (*(upfreq->freq) - dv) ) {
+		new_vel = *(upfreq->freq) - dv;
 	    } else {
 		new_vel = vel_cmd;
 	    }
 	    /* end of velocity mode */
 	}
-	*(stepgen->freq) = new_vel;
+	*(upfreq->freq) = new_vel;
 	/* calculate new addval */
-	stepgen->target_addval = *(stepgen->freq) * freqscale;
+	shared->target_addval = *(upfreq->freq) * freqscale;
 	/* calculate new deltalim */
-	stepgen->deltalim = max_ac * accelscale;
+	shared->deltalim = max_ac * accelscale;
 	/* move on to next channel */
 	stepgen++;
     }
@@ -1095,52 +1104,52 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     if (retval != 0) { return retval; }
     /* export pin for command */
     if ( pos_mode ) {
-	retval = hal_pin_float_newf(HAL_IN, &(addr->pos_cmd), comp_id,
+	retval = hal_pin_float_newf(HAL_IN, &(addr->upfrq.pos_cmd), comp_id,
 	    "stepgen.%d.position-cmd", num);
     } else {
-	retval = hal_pin_float_newf(HAL_IN, &(addr->vel_cmd), comp_id,
+	retval = hal_pin_float_newf(HAL_IN, &(addr->upfrq.vel_cmd), comp_id,
 	    "stepgen.%d.velocity-cmd", num);
     }
     if (retval != 0) { return retval; }
     /* export pin for enable command */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->ro.enable), comp_id,
 	"stepgen.%d.enable", num);
     if (retval != 0) { return retval; }
     /* export pin for scaled position captured by update() */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos_fb), comp_id,
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->upos.pos_fb), comp_id,
 	"stepgen.%d.position-fb", num);
     if (retval != 0) { return retval; }
     /* export param for scaled velocity (frequency in Hz) */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->freq), comp_id,
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->upfrq.freq), comp_id,
 	"stepgen.%d.frequency", num);
     if (retval != 0) { return retval; }
     /* export parameter for max frequency */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->maxvel), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upfrq.maxvel), comp_id,
 	"stepgen.%d.maxvel", num);
     if (retval != 0) { return retval; }
     /* export parameter for max accel/decel */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->maxaccel), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->upfrq.maxaccel), comp_id,
 	"stepgen.%d.maxaccel", num);
     if (retval != 0) { return retval; }
     /* every step type uses steplen */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->step_len), comp_id,
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->shared.step_len), comp_id,
 	"stepgen.%d.steplen", num);
     if (retval != 0) { return retval; }
     /* step/dir and up/down use 'stepspace' */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->step_space),
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->upfrq.step_space),
 			      comp_id, "stepgen.%d.stepspace", num);
     if (retval != 0) { return retval; }
     /* step/dir is the only one that uses dirsetup and dirhold */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->dir_setup),
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->shared.dir_setup),
 			      comp_id, "stepgen.%d.dirsetup", num);
     if (retval != 0) { return retval; }
     if ( step_type == 0 ) {
-	retval = hal_pin_u32_newf(HAL_IO, &(addr->dir_hold_dly),
+	retval = hal_pin_u32_newf(HAL_IO, &(addr->shared.dir_hold_dly),
 				  comp_id, "stepgen.%d.dirhold", num);
 	if (retval != 0) { return retval; }
     } else {
 	/* the others use dirdelay */
-	retval = hal_pin_u32_newf(HAL_IO, &(addr->dir_hold_dly),
+	retval = hal_pin_u32_newf(HAL_IO, &(addr->shared.dir_hold_dly),
 				  comp_id, "stepgen.%d.dirdelay", num);
 	if (retval != 0) { return retval; }
     }
@@ -1179,30 +1188,30 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     *(addr->shared.pos_scale) = 1.0;
     addr->shared.old_scale = 0.0;
     addr->shared.scale_recip = 0.0;
-    *(addr->freq) = 0.0;
-    *(addr->maxvel) = 0.0;
-    *(addr->maxaccel) = 0.0;
+    *(addr->upfrq.freq) = 0.0;
+    *(addr->upfrq.maxvel) = 0.0;
+    *(addr->upfrq.maxaccel) = 0.0;
     addr->step_type = step_type;
     addr->upfrq.pos_mode = pos_mode;
     /* timing parameter defaults depend on step type */
-    *(addr->step_len) = 1;
+    *(addr->shared.step_len) = 1;
     if ( step_type < 2 ) {
-	*(addr->step_space) = 1;
+	*(addr->upfrq.step_space) = 1;
     } else {
-	*(addr->step_space) = 0;
+	*(addr->upfrq.step_space) = 0;
     }
     if ( step_type == 0 ) {
-	*(addr->dir_hold_dly) = 1;
-	*(addr->dir_setup) = 1;
+	*(addr->shared.dir_hold_dly) = 1;
+	*(addr->shared.dir_setup) = 1;
     } else {
-	*(addr->dir_hold_dly) = 1;
-	*(addr->dir_setup) = 0;
+	*(addr->shared.dir_hold_dly) = 1;
+	*(addr->shared.dir_setup) = 0;
     }
     /* set 'old' values to make update_freq validate the timing params */
-    addr->old_step_len = ~0;
-    addr->old_step_space = ~0;
-    addr->old_dir_hold_dly = ~0;
-    addr->old_dir_setup = ~0;
+    addr->upfrq.old_step_len = ~0;
+    addr->upfrq.old_step_space = ~0;
+    addr->upfrq.old_dir_hold_dly = ~0;
+    addr->upfrq.old_dir_setup = ~0;
     if ( step_type >= 2 ) {
 	/* init output stuff */
 	addr->cycle_max = cycle_len_lut[step_type - 2] - 1;
@@ -1222,19 +1231,19 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     *(addr->mp.rawcount) = 0;
     addr->mp.curr_dir = 0;
     addr->mp.state = 0;
-    *(addr->enable) = 0;
-    addr->target_addval = 0;
-    addr->deltalim = 0;
+    *(addr->ro.enable) = 0;
+    addr->shared.target_addval = 0;
+    addr->shared.deltalim = 0;
     /* other init */
     addr->printed_error = 0;
-    addr->old_pos_cmd = 0.0;
+    addr->upfrq.old_pos_cmd = 0.0;
     /* set initial pin values */
     *(addr->upos.count) = 0;
-    *(addr->pos_fb) = 0.0;
+    *(addr->upos.pos_fb) = 0.0;
     if ( pos_mode ) {
-	*(addr->pos_cmd) = 0.0;
+	*(addr->upfrq.pos_cmd) = 0.0;
     } else {
-	*(addr->vel_cmd) = 0.0;
+	*(addr->upfrq.vel_cmd) = 0.0;
     }
     /* restore saved message level */
     rtapi_set_msg_level(msg);
