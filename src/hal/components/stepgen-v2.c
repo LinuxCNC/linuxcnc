@@ -8,7 +8,9 @@
 *
 * Copyright (c) 2003-2007 All rights reserved.
 *
-* Last change:
+* Last change: Michael Haberler 9/2015
+*   make SMP-safe
+*   instantiable
 ********************************************************************/
 /** This file, 'stepgen.c', is a HAL component that provides software
     based step pulse generation.  The maximum step rate will depend
@@ -309,8 +311,8 @@
 #include "rtapi_math.h"
 
 // debugging
-#define TRACE_TB
-#define VERBOSE_SETUP
+// #define TRACE_TB
+// #define VERBOSE_SETUP
 
 
 #define MAX_CYCLE 18
@@ -346,6 +348,8 @@ struct mp_params {
     hal_u32_t step_len;		/* uf:w mp:r step pulse length */
     hal_u32_t dir_hold_dly;     /* uf:w mp:r direction hold time or delay */
     hal_u32_t dir_setup;        /* uf:w mp:r direction setup time */
+
+    char __mp_params_pad[RTAPI_CACHELINE -  5 * sizeof(hal_s32_t)];
 };
 
 /** This structure contains the runtime data for a single generator. */
@@ -476,7 +480,6 @@ static unsigned char num_phases_lut[] =
 static int comp_id;		/* component ID */
 static  hal_list_t head;
 
-// static int num_chan = 0;	/* number of step generators configured */
 static long periodns;		/* makepulses function period in nanosec */
 static long old_periodns;	/* used to detect changes in periodns */
 static double periodfp;		/* makepulses function period in seconds */
