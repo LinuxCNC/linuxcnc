@@ -344,22 +344,31 @@ class gmoccapy( object ):
         self.h_tabs.append( tab_auto )
 
         tab_ref = [( 1, "btn_home_all" ), ( 3, "btn_home_x" ),
-                   ( 5, "btn_home_z" ), ( 7, "btn_unhome_all" ), ( 9, "btn_back_ref" )
+                   ( 5, "btn_home_z" ), ( 8, "btn_unhome_all" ), ( 9, "btn_back_ref" )
         ]
         if not self.lathe_mode:
             tab_ref.append( ( 4, "btn_home_y" ) )
         if len( self.axis_list ) == 4:
             tab_ref.append( ( 6, "btn_home_4" ) )
+        if len( self.axis_list ) == 5:
+            tab_ref.append( ( 6, "btn_home_4" ) )
+            tab_ref.append( ( 7, "btn_home_5" ) )        
         self.h_tabs.append( tab_ref )
 
-        tab_touch = [( 0, "tbtn_edit_offsets" ), ( 1, "btn_zero_x" ), ( 3, "btn_zero_z" ), ( 4, "btn_zero_g92" ),
-                     ( 5, "btn_set_value_x" ), ( 7, "btn_set_value_z" ), ( 8, "btn_set_selected" ),
-                     ( 9, "btn_back_zero" )
+        tab_touch = [( 0, "tbtn_edit_offsets" ), ( 1, "btn_set_value_x" ), ( 3, "btn_set_value_z" ), ( 6, "btn_zero_g92" ),
+                     ( 8, "btn_set_selected" ), ( 9, "btn_back_zero" )
         ]
         if not self.lathe_mode:
-            tab_touch.append( ( 2, "btn_zero_y" ) )
-            tab_touch.append( ( 6, "btn_set_value_y" ) )
+            tab_touch.append( ( 2, "btn_set_value_y" ) )
+
+        if len( self.axis_list ) == 4:
+            tab_touch.append( ( 4, "btn_set_value_4" ) )
+        if len( self.axis_list ) == 5:
+            tab_touch.append( ( 4, "btn_set_value_4" ) )
+            tab_touch.append( ( 5, "btn_set_value_5" ) )        
+
         self.h_tabs.append( tab_touch )
+        
 
         tab_setup = [( 0, "btn_delete" ), ( 4, "btn_classicladder" ), ( 5, "btn_hal_scope" ), ( 6, "btn_status" ),
                      ( 7, "btn_hal_meter" ), ( 8, "btn_calibration" ), ( 9, "btn_show_hal" )
