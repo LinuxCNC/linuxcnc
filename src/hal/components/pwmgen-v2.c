@@ -300,6 +300,10 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 	struct mp_state *mp = &self->mp;
 
 	if (rtapi_tb_snapshot(&self->tb)) {
+
+	    // read barrier before accessing new snapshot
+	    rtapi_smp_rmb();
+
 	    // new parameter set available, fetch it
 	    self->mp.mpp = &self->tb_state[rtapi_tb_snap_idx(&self->tb)];
 
