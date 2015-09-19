@@ -2045,7 +2045,8 @@ class gmoccapy( object ):
         # Only in MDI mode the RETURN key should execute a command
         if keyname == "Return" and signal and self.stat.task_mode == linuxcnc.MODE_MDI:
             #print("Got enter in MDI")
-            self.widgets.hal_mdihistory.submit() 
+            self.widgets.hal_mdihistory.submit()
+            self.widgets.hal_mdihistory.entry.grab_focus()
             # we need to leave here, otherwise the check for jogging 
             # only allowed in manual mode will finish the sub
             return True

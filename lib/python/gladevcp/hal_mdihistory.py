@@ -116,3 +116,5 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         if idx is None:
             return
         self.entry.set_text(self.model[idx][0])
+        
+        
