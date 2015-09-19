@@ -381,6 +381,8 @@ typedef struct {
 	unsigned int timer3;	/* times out when safe to step in new dir */
 	int hold_dds;		/* prevents accumulator from updating */
 	hal_s32_t *rawcount;	/* pin: position feedback in counts */
+	hal_bit_t *jitter_correct;  /* mp:r use actual instead of assumed time */
+
 	int curr_dir;		/* current direction */
 	int state;		/* current position in state table */
 	hal_bit_t *phase[5];	/* pins for output signals */
@@ -674,6 +676,8 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 	    periodns = fa_period(fa);
 	}
 
+	long delay = *(mp->jitter_correct) ? fa_current_period(fa) : periodns;
+
 	// currently valid parameter set
 	struct mp_params *mpp = mp->mpp;
 
@@ -683,22 +687,22 @@ static int make_pulses(void *arg, const hal_funct_args_t *fa)
 
 	/* decrement "timing constraint" timers */
 	if ( mp->timer1 > 0 ) {
-	    if ( mp->timer1 > periodns ) {
-		mp->timer1 -= periodns;
+	    if ( mp->timer1 > delay ) {
+		mp->timer1 -= delay;
 	    } else {
 		mp->timer1 = 0;
 	    }
 	}
 	if ( mp->timer2 > 0 ) {
-	    if ( mp->timer2 > periodns ) {
-		mp->timer2 -= periodns;
+	    if ( mp->timer2 > delay ) {
+		mp->timer2 -= delay;
 	    } else {
 		mp->timer2 = 0;
 	    }
 	}
 	if ( mp->timer3 > 0 ) {
-	    if ( mp->timer3 > periodns ) {
-		mp->timer3 -= periodns;
+	    if ( mp->timer3 > delay ) {
+		mp->timer3 -= delay;
 	    } else {
 		mp->timer3 = 0;
 		/* last timer timed out, cancel hold */
@@ -1194,6 +1198,10 @@ static int export_stepgen(const char *name,  stepgen_t *self,
     retval = hal_pin_s32_newf(HAL_OUT, &(self->mp.rawcount), self->inst_id,
 			      "%s.rawcounts", name);
     if (retval != 0) { return retval; }
+    retval = hal_pin_bit_newf(HAL_IN, &(self->mp.jitter_correct), self->inst_id,
+			      "%s.jitter-correct", name);
+    if (retval != 0) { return retval; }
+
     /* export pin for counts captured by update() */
     retval = hal_pin_s32_newf(HAL_OUT, &(self->upos.count), self->inst_id,
 			      "%s.counts", name);
