@@ -299,7 +299,11 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "triple-buffer.h"
 #include "hal.h"		/* HAL public API decls */
+#include "hal_priv.h"           // SHMPTR,SHMOFF
+#include "hal_list.h"
+#include "hal_logging.h"
 
 #include <float.h>
 #include "rtapi_math.h"
@@ -323,6 +327,16 @@ RTAPI_MP_ARRAY_INT(user_step_type, MAX_CYCLE,
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
+// parameter set for make_pulses()
+struct mp_params {
+    hal_s32_t target_addval;	/* uf:w mp:r         desired freq generator add value */
+    hal_s32_t deltalim;		/* uf:w mp:r         max allowed change per period */
+
+    // uf:rw mp:r - parameters, r/o by make_pulses()
+    hal_u32_t step_len;		/* uf:w mp:r step pulse length */
+    hal_u32_t dir_hold_dly;     /* uf:w mp:r direction hold time or delay */
+    hal_u32_t dir_setup;        /* uf:w mp:r direction setup time */
+};
 
 /** This structure contains the runtime data for a single generator. */
 
@@ -330,32 +344,24 @@ RTAPI_MP_ARRAY_INT(user_step_type, MAX_CYCLE,
    which runs in the fastest thread */
 
 typedef struct {
+    int inst_id;
+
 
     // shared state between make_pulses(),  update_pos() and update_freq()
     struct shared {
-	volatile long long accum;	/* uf:r up:r mp:rw   frequency generator accumulator */
+	// passed as atomics
+	hal_s64_t accum;	        /* uf:r up:r mp:rw   frequency generator accumulator */
+	hal_s32_t addval;		/* uf:w mp:rw        actual frequency generator add value */
 
-	long addval;		        /* uf:w mp:rw        actual frequency generator add value */
-	long target_addval;		/* uf:w mp:r         desired freq generator add value */
-	long deltalim;		        /* uf:w mp:r         max allowed change per period */
+	// triple buffer for param messages update_freq() -> make_pulses()
+	TB_FLAG_FAST(tb);
+	struct mp_params tb_state[3];
 
-	// uf:rw mp:r - parameters, r/o by make_pulses()
-	hal_u32_t *step_len;		/* uf:w mp:r pin: step pulse length */
-	hal_u32_t *dir_hold_dly;	/* uf:w mp:r pin: direction hold time or delay */
-	hal_u32_t *dir_setup;	        /* uf:w mp:r pin: direction setup time */
     } shared;
-
-    // updated - in both update_pos() and update_freq() (change detection)
-    // not an issue as long as both are on the same (slow) thread any order
-    // not read by make_pulses
-    struct ufp_shared {
-	hal_float_t *pos_scale;	        /* pin: steps per position unit */
-	double old_scale;		/* stored scale value */
-	double scale_recip;		/* reciprocal value used for scaling */
-    } ufp;
 
     // make_pulses() private state
     struct make_pulses {
+	struct mp_params *mpp;  // current make_pulses params
 	unsigned int timer1;	/* times out when step pulse should end */
 	unsigned int timer2;	/* times out when safe to change dir */
 	unsigned int timer3;	/* times out when safe to step in new dir */
@@ -368,6 +374,15 @@ typedef struct {
 	const unsigned char *lut;	/* pointer to state lookup table */
 	int num_phases;		/* number of phases for types 2 and up */
     } mp;
+
+    // updated - in both update_pos() and update_freq() (change detection)
+    // not an issue as long as both are on the same (slow) thread any order
+    // not read by make_pulses
+    struct ufp_shared {
+	hal_float_t *pos_scale;	        /* pin: steps per position unit */
+	double old_scale;		/* stored scale value */
+	double scale_recip;		/* reciprocal value used for scaling */
+    } ufp;
 
     // update_pos() private state
     struct update_pos {
@@ -382,10 +397,13 @@ typedef struct {
 	double old_pos_cmd;		/* previous position command (counts) */
 	hal_float_t *vel_cmd;	/* pin: velocity command (pos units/sec) */
 
-	hal_float_t *freq;		/* pin: frequency command */
+	hal_float_t *freq;	/* pin: frequency command */
 	hal_float_t *maxvel;	/* pin: max velocity, (pos units/sec) */
 	hal_float_t *maxaccel;	/* pin: max accel (pos units/sec^2) */
+	hal_u32_t *step_len;	/* pin: step pulse length */
 	hal_u32_t *step_space;	/* pin: min step pulse spacing */
+	hal_u32_t *dir_hold_dly; /* pin: direction hold time or delay */
+	hal_u32_t *dir_setup;   /* pin: direction setup time */
 
 	hal_u32_t old_step_len;	/* used to detect parameter changes */
 	hal_u32_t old_step_space;
@@ -586,20 +604,41 @@ void rtapi_app_exit(void)
 
 static void make_pulses(void *arg, long period)
 {
-    stepgen_t *stepgen;
+    stepgen_t *self = arg;
     long old_addval, target_addval, new_addval, step_now;
     int n, p;
     unsigned char outbits;
 
     /* store period so scaling constants can be (re)calculated */
     periodns = period;
-    /* point to stepgen data structures */
-    stepgen = arg;
 
     for (n = 0; n < num_chan; n++) {
-	struct make_pulses *mp = &stepgen->mp;
-	struct shared *shared = &stepgen->shared;
-	const struct readonly *ro = &stepgen->ro;
+	struct make_pulses *mp = &self->mp;
+	struct shared *shared = &self->shared;
+	const struct readonly *ro = &self->ro;
+
+	if (rtapi_tb_snapshot(&shared->tb)) {
+	    // new parameter set available, fetch it
+	    mp->mpp = &self->shared.tb_state[rtapi_tb_snap_idx(&shared->tb)];
+
+#if  1// def TRACE_TB
+	    HALDBG("SNAP inst=%d target_addval=%d deltalim=%d "
+		   "step_len=%d dir_hold_dly=%d dir_setup=%d",
+		   self->inst_id,
+		   mp->mpp->target_addval,
+		   mp->mpp->deltalim,
+		   mp->mpp->step_len,
+		   mp->mpp->dir_hold_dly,
+		   mp->mpp->dir_setup);
+#endif
+	}
+
+	// currently valid parameter set
+	struct mp_params *mpp = mp->mpp;
+
+	// work from local copies
+	hal_s32_t addval = rtapi_load_s32(&shared->addval);
+	hal_s64_t accum =  rtapi_load_s64(&shared->accum);
 
 	/* decrement "timing constraint" timers */
 	if ( mp->timer1 > 0 ) {
@@ -627,16 +666,16 @@ static void make_pulses(void *arg, long period)
 	}
 	if ( !mp->hold_dds && *(ro->enable) ) {
 	    /* update addval (ramping) */
-	    old_addval = shared->addval;
-	    target_addval = shared->target_addval;
-	    if (shared->deltalim != 0) {
+	    old_addval = addval;
+	    target_addval = mp->mpp->target_addval;
+	    if (mp->mpp->deltalim != 0) {
 		/* implement accel/decel limit */
-		if (target_addval > (old_addval + shared->deltalim)) {
+		if (target_addval > (old_addval + mp->mpp->deltalim)) {
 		    /* new value is too high, increase addval as far as possible */
-		    new_addval = old_addval + shared->deltalim;
-		} else if (target_addval < (old_addval - shared->deltalim)) {
+		    new_addval = old_addval + mp->mpp->deltalim;
+		} else if (target_addval < (old_addval - mp->mpp->deltalim)) {
 		    /* new value is too low, decrease addval as far as possible */
-		    new_addval = old_addval - shared->deltalim;
+		    new_addval = old_addval - mp->mpp->deltalim;
 		} else {
 		    /* new value can be reached in one step - do it */
 		    new_addval = target_addval;
@@ -646,7 +685,7 @@ static void make_pulses(void *arg, long period)
 		new_addval = target_addval;
 	    }
 	    /* save result */
-	    shared->addval = new_addval;
+	    addval = new_addval;
 	    /* check for direction reversal */
 	    if (((new_addval >= 0) && (old_addval < 0)) ||
 		((new_addval < 0) && (old_addval >= 0))) {
@@ -660,38 +699,44 @@ static void make_pulses(void *arg, long period)
 	/* update DDS */
 	if ( !mp->hold_dds && *(ro->enable) ) {
 	    /* save current value of low half of accum */
-	    step_now = shared->accum;
+	    step_now = accum;
 	    /* update the accumulator */
-	    shared->accum += shared->addval;
+	    accum += addval;
 	    /* test for changes in low half of accum */
-	    step_now ^= shared->accum;
+	    step_now ^= accum;
 	    /* we only care about the pickoff bit */
 	    step_now &= (1L << PICKOFF);
 	    /* update rawcounts parameter */
-	    *(mp->rawcount) = shared->accum >> PICKOFF;
+	    *(mp->rawcount) = accum >> PICKOFF;
+
+	   // atomic update
+	    rtapi_store_s64(&shared->accum, accum);
 	} else {
 	    /* DDS is in hold, no steps */
 	    step_now = 0;
 	}
 	if ( mp->timer2 == 0 ) {
 	    /* update direction - do not change if addval = 0 */
-	    if ( shared->addval > 0 ) {
+	    if ( addval > 0 ) {
 		mp->curr_dir = 1;
 	    } else if ( shared->addval < 0 ) {
 		mp->curr_dir = -1;
 	    }
 	}
+	// save updated addval (might be zeroed by update_freq())
+	rtapi_store_s32(&shared->addval, addval);
+
 	if ( step_now ) {
 	    /* (re)start various timers */
 
 	    /* timer 1 = time till end of step pulse */
-	    mp->timer1 = *(shared->step_len);
+	    mp->timer1 = mpp->step_len;
 
 	    /* timer 2 = time till allowed to change dir pin */
-	    mp->timer2 = mp->timer1 + *(shared->dir_hold_dly);
+	    mp->timer2 = mp->timer1 + mpp->dir_hold_dly;
 
 	    /* timer 3 = time till allowed to step the other way */
-	    mp->timer3 = mp->timer2 + *(shared->dir_setup);
+	    mp->timer3 = mp->timer2 + mpp->dir_setup;
 
 	    if ( ro->step_type >= 2 ) {
 		/* update state */
@@ -743,14 +788,14 @@ static void make_pulses(void *arg, long period)
 	    }
 	}
 	/* move on to next step generator */
-	stepgen++;
+	self++;
     }
     /* done */
 }
 
 static void update_pos(void *arg, long period)
 {
-    long long int accum_a, accum_b;
+    hal_s64_t accum;
     stepgen_t *stepgen;
     int n;
 
@@ -762,15 +807,10 @@ static void update_pos(void *arg, long period)
 	struct ufp_shared *ufp_shared = &stepgen->ufp;
 	struct shared *shared = &stepgen->shared;
 
-	/* 'accum' is a long long, and its remotely possible that
-	   make_pulses could change it half-way through a read.
-	   So we have a crude atomic read routine */
-	do {
-	    accum_a = shared->accum;
-	    accum_b = shared->accum;
-	} while ( accum_a != accum_b );
+	accum = rtapi_load_s64(&shared->accum);
+
 	/* compute integer counts */
-	*(upos->count) = accum_a >> PICKOFF;
+	*(upos->count) = accum >> PICKOFF;
 
 	// duplicated in update_freq() -mah
 
@@ -791,7 +831,7 @@ static void update_pos(void *arg, long period)
 
 	/* scale accumulator to make floating point position, after
 	   removing the one-half count offset */
-	*(upos->pos_fb) = (double)(accum_a-(1<< (PICKOFF-1))) * ufp_shared->scale_recip;
+	*(upos->pos_fb) = (double)(accum-(1<< (PICKOFF-1))) * ufp_shared->scale_recip;
 	/* move on to next channel */
 	stepgen++;
     }
@@ -813,7 +853,7 @@ static void update_freq(void *arg, long period)
     stepgen_t *stepgen;
     int n, newperiod;
     long min_step_period;
-    long long int accum_a, accum_b;
+    hal_s64_t accum;
     double pos_cmd, vel_cmd, curr_pos, curr_vel, avg_v, max_freq, max_ac;
     double match_ac, match_time, est_out, est_cmd, est_err, dp, dv, new_vel;
     double desired_freq;
@@ -860,6 +900,9 @@ static void update_freq(void *arg, long period)
 	const struct readonly *ro = &stepgen->ro;
 	struct ufp_shared *ufp_shared = &stepgen->ufp;
 
+	// get a handle on the currently write buffer
+	struct mp_params *mpp =  &shared->tb_state[rtapi_tb_write_idx(&shared->tb)];
+
 	/* check for scale change */
 	if (*(ufp_shared->pos_scale) != ufp_shared->old_scale) {
 	    /* get ready to detect future scale changes */
@@ -882,34 +925,34 @@ static void update_freq(void *arg, long period)
 	    upfreq->old_dir_setup = ~0;
 	}
 	/* process timing parameters */
-	if ( *(shared->step_len) != upfreq->old_step_len ) {
+	if ( *(upfreq->step_len) != upfreq->old_step_len ) {
 	    /* must be non-zero */
-	    if ( *(shared->step_len) == 0 ) {
-		*(shared->step_len) = 1;
+	    if ( *(upfreq->step_len) == 0 ) {
+		*(upfreq->step_len) = 1;
 	    }
 	    /* make integer multiple of periodns */
-	    upfreq->old_step_len = ulceil(*(shared->step_len), periodns);
-	    *(shared->step_len) = upfreq->old_step_len;
+	    upfreq->old_step_len = ulceil(*(upfreq->step_len), periodns);
+	    *(upfreq->step_len) = upfreq->old_step_len;
 	}
 	if ( *(upfreq->step_space) != upfreq->old_step_space ) {
 	    /* make integer multiple of periodns */
 	    upfreq->old_step_space = ulceil(*(upfreq->step_space), periodns);
 	    *(upfreq->step_space) = upfreq->old_step_space;
 	}
-	if ( *(shared->dir_setup) != upfreq->old_dir_setup ) {
+	if ( *(upfreq->dir_setup) != upfreq->old_dir_setup ) {
 	    /* make integer multiple of periodns */
-	    upfreq->old_dir_setup = ulceil(*(shared->dir_setup), periodns);
-	    *(shared->dir_setup) = upfreq->old_dir_setup;
+	    upfreq->old_dir_setup = ulceil(*(upfreq->dir_setup), periodns);
+	    *(upfreq->dir_setup) = upfreq->old_dir_setup;
 	}
-	if ( *(shared->dir_hold_dly) != upfreq->old_dir_hold_dly ) {
-	    if ( (*(shared->dir_hold_dly) + *(shared->dir_setup)) == 0 ) {
+	if ( *(upfreq->dir_hold_dly) != upfreq->old_dir_hold_dly ) {
+	    if ( (*(upfreq->dir_hold_dly) + *(upfreq->dir_setup)) == 0 ) {
 		/* dirdelay must be non-zero step types 0 and 1 */
 		if ( ro->step_type < 2 ) {
-		    *(shared->dir_hold_dly) = 1;
+		    *(upfreq->dir_hold_dly) = 1;
 		}
 	    }
-	    upfreq->old_dir_hold_dly = ulceil(*(shared->dir_hold_dly), periodns);
-	    *(shared->dir_hold_dly) = upfreq->old_dir_hold_dly;
+	    upfreq->old_dir_hold_dly = ulceil(*(upfreq->dir_hold_dly), periodns);
+	    *(upfreq->dir_hold_dly) = upfreq->old_dir_hold_dly;
 	}
 	/* test for disabled stepgen */
 	if (*ro->enable == 0) {
@@ -919,14 +962,27 @@ static void update_freq(void *arg, long period)
 	    }
 	    /* set velocity to zero */
 	    upfreq->freq = 0;
-	    shared->addval = 0;
-	    shared->target_addval = 0;
+
+	    // atomically clear
+	    rtapi_store_s32(&shared->addval, 0);
+
+	    mpp->target_addval = 0;
+	    mpp->deltalim = 0;  // ?
+	    mpp->step_len =     *(upfreq->step_len);
+	    mpp->dir_hold_dly = *(upfreq->dir_hold_dly);
+	    mpp->dir_setup =    *(upfreq->dir_setup);
+
+	    // write memory barrier
+	    rtapi_smp_wmb();
+	    // commit
+	    rtapi_tb_flip(&shared->tb);
+
 	    /* and skip to next one */
 	    stepgen++;
 	    continue;
 	}
 	/* calculate frequency limit */
-	min_step_period = *(shared->step_len) + *(upfreq->step_space);
+	min_step_period = *(upfreq->step_len) + *(upfreq->step_space);
 	max_freq = 1.0 / (min_step_period * 0.000000001);
 	/* check for user specified frequency limit parameter */
 	if (*(upfreq->maxvel) <= 0.0) {
@@ -978,16 +1034,13 @@ static void update_freq(void *arg, long period)
 	    /* calculate velocity command in counts/sec */
 	    vel_cmd = (pos_cmd - upfreq->old_pos_cmd) * recip_dt;
 	    upfreq->old_pos_cmd = pos_cmd;
-	    /* 'accum' is a long long, and its remotely possible that
-	       make_pulses could change it half-way through a read.
-	       So we have a crude atomic read routine */
-	    do {
-		accum_a = shared->accum;
-		accum_b = shared->accum;
-	    } while ( accum_a != accum_b );
+
+	    // atomically load accum
+	    accum = rtapi_load_s64(&shared->accum);
+
 	    /* convert from fixed point to double, after subtracting
 	       the one-half step offset */
-	    curr_pos = (accum_a-(1<< (PICKOFF-1))) * (1.0 / (1L << PICKOFF));
+	    curr_pos = (accum-(1<< (PICKOFF-1))) * (1.0 / (1L << PICKOFF));
 	    /* get velocity in counts/sec */
 	    curr_vel = *(upfreq->freq);
 	    /* At this point we have good values for pos_cmd, curr_pos,
@@ -1067,10 +1120,21 @@ static void update_freq(void *arg, long period)
 	    /* end of velocity mode */
 	}
 	*(upfreq->freq) = new_vel;
+
 	/* calculate new addval */
-	shared->target_addval = *(upfreq->freq) * freqscale;
+	mpp->target_addval = *(upfreq->freq) * freqscale;
 	/* calculate new deltalim */
-	shared->deltalim = max_ac * accelscale;
+	mpp->deltalim = max_ac * accelscale;
+
+	mpp->step_len =     *(upfreq->step_len);
+	mpp->dir_hold_dly = *(upfreq->dir_hold_dly);
+	mpp->dir_setup =    *(upfreq->dir_setup);
+
+	// write memory barrier
+	rtapi_smp_wmb();
+	// commit
+	rtapi_tb_flip(&shared->tb);
+
 	/* move on to next channel */
 	stepgen++;
     }
@@ -1133,7 +1197,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	"stepgen.%d.maxaccel", num);
     if (retval != 0) { return retval; }
     /* every step type uses steplen */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->shared.step_len), comp_id,
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->upfrq.step_len), comp_id,
 	"stepgen.%d.steplen", num);
     if (retval != 0) { return retval; }
     /* step/dir and up/down use 'stepspace' */
@@ -1141,16 +1205,16 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 			      comp_id, "stepgen.%d.stepspace", num);
     if (retval != 0) { return retval; }
     /* step/dir is the only one that uses dirsetup and dirhold */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->shared.dir_setup),
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->upfrq.dir_setup),
 			      comp_id, "stepgen.%d.dirsetup", num);
     if (retval != 0) { return retval; }
     if ( step_type == 0 ) {
-	retval = hal_pin_u32_newf(HAL_IO, &(addr->shared.dir_hold_dly),
+	retval = hal_pin_u32_newf(HAL_IO, &(addr->upfrq.dir_hold_dly),
 				  comp_id, "stepgen.%d.dirhold", num);
 	if (retval != 0) { return retval; }
     } else {
 	/* the others use dirdelay */
-	retval = hal_pin_u32_newf(HAL_IO, &(addr->shared.dir_hold_dly),
+	retval = hal_pin_u32_newf(HAL_IO, &(addr->upfrq.dir_hold_dly),
 				  comp_id, "stepgen.%d.dirdelay", num);
 	if (retval != 0) { return retval; }
     }
@@ -1185,34 +1249,75 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	    *(addr->mp.phase[n]) = 0;
 	}
     }
-    /* set default parameter values */
-    *(addr->ufp.pos_scale) = 1.0;
-    addr->ufp.old_scale = 0.0;
-    addr->ufp.scale_recip = 0.0;
+
+
+    // --- update_freq() private state and pins ---
+    addr->upfrq.pos_mode = pos_mode;
+    addr->upfrq.old_pos_cmd = 0.0;
+    if ( pos_mode ) {
+	*(addr->upfrq.pos_cmd) = 0.0;
+    } else {
+	*(addr->upfrq.vel_cmd) = 0.0;
+    }
     *(addr->upfrq.freq) = 0.0;
     *(addr->upfrq.maxvel) = 0.0;
     *(addr->upfrq.maxaccel) = 0.0;
-    addr->ro.step_type = step_type;
-    addr->upfrq.pos_mode = pos_mode;
+    *(addr->upfrq.step_len) = 1;
+
     /* timing parameter defaults depend on step type */
-    *(addr->shared.step_len) = 1;
     if ( step_type < 2 ) {
 	*(addr->upfrq.step_space) = 1;
     } else {
 	*(addr->upfrq.step_space) = 0;
     }
     if ( step_type == 0 ) {
-	*(addr->shared.dir_hold_dly) = 1;
-	*(addr->shared.dir_setup) = 1;
+	*(addr->upfrq.dir_hold_dly) = 1;
+	*(addr->upfrq.dir_setup) = 1;
     } else {
-	*(addr->shared.dir_hold_dly) = 1;
-	*(addr->shared.dir_setup) = 0;
+	*(addr->upfrq.dir_hold_dly) = 1;
+	*(addr->upfrq.dir_setup) = 0;
     }
+
     /* set 'old' values to make update_freq validate the timing params */
     addr->upfrq.old_step_len = ~0;
     addr->upfrq.old_step_space = ~0;
     addr->upfrq.old_dir_hold_dly = ~0;
     addr->upfrq.old_dir_setup = ~0;
+    // --- update_freq() private state initialisation complete  ---
+
+    // update_pos() state and pins
+    *(addr->upos.count) = 0;
+    *(addr->upos.pos_fb) = 0.0;
+
+    // update_freq()/update_pos() shared
+    *(addr->ufp.pos_scale) = 1.0;
+    addr->ufp.old_scale = 0.0;
+    addr->ufp.scale_recip = 0.0;
+
+    // readonly params
+    addr->ro.step_type = step_type;
+    *(addr->ro.enable) = 0;
+
+    // ---  shared state ---
+    /* accumulator gets a half step offset, so it will step half
+       way between integer positions, not at the integer positions */
+    addr->shared.accum = 1 << (PICKOFF-1);
+    addr->shared.addval = 0;
+
+    // set triple buffer initial state
+    rtapi_tb_init(&addr->shared.tb);
+
+    // supply startup params to make_pulses
+    // this guaranteeds the struct mp_params *mpp local in make_pulses()
+    // will never be NULL
+    struct mp_params *mpp =  &addr->shared.tb_state[rtapi_tb_write_idx(&addr->shared.tb)];
+    mpp->target_addval = 0;
+    mpp->deltalim = 0;
+    mpp->step_len = *(addr->upfrq.step_len);
+    mpp->dir_hold_dly = *(addr->upfrq.dir_hold_dly);
+    mpp->dir_setup = *(addr->upfrq.dir_setup);
+
+    // --- make_pulses() private state and pins ---
     if ( step_type >= 2 ) {
 	/* init output stuff */
 	addr->mp.cycle_max = cycle_len_lut[step_type - 2] - 1;
@@ -1223,29 +1328,22 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     addr->mp.timer2 = 0;
     addr->mp.timer3 = 0;
     addr->mp.hold_dds = 0;
-
-    addr->shared.addval = 0;   // !!!!! FIXME SHARED
-
-    /* accumulator gets a half step offset, so it will step half
-       way between integer positions, not at the integer positions */
-    addr->shared.accum = 1 << (PICKOFF-1);
     *(addr->mp.rawcount) = 0;
     addr->mp.curr_dir = 0;
     addr->mp.state = 0;
-    *(addr->ro.enable) = 0;
-    addr->shared.target_addval = 0;
-    addr->shared.deltalim = 0;
-    /* other init */
+    // --- make_pulses() private state init complete ---
+
+
+    // all init complete, only now do barrier and flip
+
+    // write memory barrier
+    rtapi_smp_wmb();
+    // commit startup params to make_pulses
+    rtapi_tb_flip(&addr->shared.tb);
+
+    // --- all shared state init complete ---
+
     addr->printed_error = 0;
-    addr->upfrq.old_pos_cmd = 0.0;
-    /* set initial pin values */
-    *(addr->upos.count) = 0;
-    *(addr->upos.pos_fb) = 0.0;
-    if ( pos_mode ) {
-	*(addr->upfrq.pos_cmd) = 0.0;
-    } else {
-	*(addr->upfrq.vel_cmd) = 0.0;
-    }
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
