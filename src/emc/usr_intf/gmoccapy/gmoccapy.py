@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "  1.5.5"
+_RELEASE = " 1.5.5.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -160,7 +160,7 @@ class gmoccapy( object ):
         # widget states.
 
         self.start_line = 0      # needed for start from line
-        self.stepping = False    # used to sensitize widgets when using step by step
+#        self.stepping = False    # used to sensitize widgets when using step by step
 
         self.active_gcodes = []  # this are the formated G code values
         self.active_mcodes = []  # this are the formated M code values
@@ -1645,7 +1645,7 @@ class gmoccapy( object ):
 
     def on_hal_status_interp_idle( self, widget ):
         self._add_alarm_entry( "idle" )
-        widgetlist = ["rbt_manual", "btn_step", "ntb_jog", "btn_from_line",
+        widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks"
         ]
@@ -1679,7 +1679,7 @@ class gmoccapy( object ):
 
     def on_hal_status_interp_run( self, widget ):
         self._add_alarm_entry( "run" )
-        widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_step", "btn_index_tool",
+        widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_index_tool",
                       "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
@@ -1691,9 +1691,9 @@ class gmoccapy( object ):
         self._sensitize_widgets( widgetlist, False )
         self.widgets.btn_run.set_sensitive( False )
         # the user want to run step by step
-        if self.stepping == True:
-            self.widgets.btn_step.set_sensitive( True )
-            self.widgets.tbtn_pause.set_sensitive( False )
+#        if self.stepping == True:
+#            self.widgets.btn_step.set_sensitive( True )
+#            self.widgets.tbtn_pause.set_sensitive( False )
 
         self.widgets.btn_show_kbd.set_image( self.widgets.img_brake_macro )
         self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "interrupt running macro" ) )
@@ -4044,7 +4044,7 @@ class gmoccapy( object ):
     # because it will not emit a RESUME signal
     def on_tbtn_pause_toggled( self, widget, data = None ):
         self._add_alarm_entry( "Pause toggled to be %s" % widget.get_active() )
-        widgetlist = ["btn_step", "rbt_forward", "rbt_reverse", "rbt_stop"]
+        widgetlist = ["rbt_forward", "rbt_reverse", "rbt_stop"]
         self._sensitize_widgets( widgetlist, widget.get_active() )
 
     def on_btn_stop_clicked( self, widget, data = None ):
@@ -4056,16 +4056,16 @@ class gmoccapy( object ):
     def on_btn_run_clicked( self, widget, data = None ):
         self.command.auto( linuxcnc.AUTO_RUN, self.start_line )
 
-    def on_btn_step_clicked( self, widget, data = None ):
-        self.command.auto( linuxcnc.AUTO_STEP )
-        self.stepping = True
+#    def on_btn_step_clicked( self, widget, data = None ):
+#        self.command.auto( linuxcnc.AUTO_STEP )
+#        self.stepping = True
 
     # this is needed only for stepping through a program, to
     # sensitize the widgets according to that mode
-    def on_btn_load_state_changed( self, widget, state ):
-        if state == gtk.STATE_INSENSITIVE:
-            self.stepping = False
-            self.widgets.tbtn_pause.set_sensitive( True )
+#    def on_btn_load_state_changed( self, widget, state ):
+#        if state == gtk.STATE_INSENSITIVE:
+#            self.stepping = False
+#            self.widgets.tbtn_pause.set_sensitive( True )
 
     def on_btn_from_line_clicked( self, widget, data = None ):
         self._add_alarm_entry( "Restart the program from line clicked" )
@@ -4425,9 +4425,6 @@ class gmoccapy( object ):
 
 # Hal Pin Handling End
 # =========================================================
-
-    def on_gremlin_button_press_event( self, widget, event ):
-        print widget.get_highlight_line()
 
 if __name__ == "__main__":
     app = gmoccapy()
