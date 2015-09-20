@@ -308,21 +308,31 @@
 #include <float.h>
 #include "rtapi_math.h"
 
-#define MAX_CHAN 16
+// debugging
+#define TRACE_TB
+#define VERBOSE_SETUP
+
+
 #define MAX_CYCLE 18
 #define USER_STEP_TYPE 13
 
 /* module information */
-MODULE_AUTHOR("John Kasunich");
+MODULE_AUTHOR("John Kasunich, Michael Haberler");
 MODULE_DESCRIPTION("Step Pulse Generator for EMC HAL");
 MODULE_LICENSE("GPL");
-int step_type[] = { [0 ... MAX_CHAN-1] = -1 } ;
-RTAPI_MP_ARRAY_INT(step_type,MAX_CHAN,"stepping types for up to 16 channels");
-char *ctrl_type[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(ctrl_type,MAX_CHAN,"control type (pos or vel) for up to 16 channels");
+
+int step_type =  -1;
+RTAPI_IP_INT(step_type, "stepping types for this instance");
+
+char *ctrl_type = "p";
+RTAPI_IP_STRING(ctrl_type,"control type (pos or vel) for this instance");
+
 int user_step_type[] = { [0 ... MAX_CYCLE-1] = -1 };
-RTAPI_MP_ARRAY_INT(user_step_type, MAX_CYCLE,
-	"lookup table for user-defined step type");
+RTAPI_IP_ARRAY_INT(user_step_type, MAX_CYCLE,
+		   "lookup table for user-defined step type for this instance");
+
+RTAPI_TAG(HAL,HC_INSTANTIABLE);
+RTAPI_TAG(HAL,HC_SMP_SAFE);
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -344,14 +354,18 @@ struct mp_params {
    which runs in the fastest thread */
 
 typedef struct {
+    hal_list_t  list;                  // list of instances
     int inst_id;
-
+    char *iname;
 
     // shared state between make_pulses(),  update_pos() and update_freq()
     struct shared {
 	// passed as atomics
 	hal_s64_t accum;	        /* uf:r up:r mp:rw   frequency generator accumulator */
+	char __accum_pad[RTAPI_CACHELINE - sizeof(hal_s64_t)];
+
 	hal_s32_t addval;		/* uf:w mp:rw        actual frequency generator add value */
+	char __addval_pad[RTAPI_CACHELINE - sizeof(hal_s32_t)];
 
 	// triple buffer for param messages update_freq() -> make_pulses()
 	TB_FLAG_FAST(tb);
@@ -375,7 +389,7 @@ typedef struct {
 	int num_phases;		/* number of phases for types 2 and up */
     } mp;
 
-    // updated - in both update_pos() and update_freq() (change detection)
+    // updated in both update_pos() and update_freq() (change detection)
     // not an issue as long as both are on the same (slow) thread any order
     // not read by make_pulses
     struct ufp_shared {
@@ -420,9 +434,6 @@ typedef struct {
     int printed_error;		/* flag to avoid repeated printing */
 } stepgen_t;
 
-/* ptr to array of stepgen_t structs in shared memory, 1 per channel */
-static stepgen_t *stepgen_array;
-
 /* lookup tables for stepping types 2 and higher - phase A is the LSB */
 
 static unsigned char master_lut[][MAX_CYCLE] = {
@@ -461,7 +472,9 @@ static unsigned char num_phases_lut[] =
 
 /* other globals */
 static int comp_id;		/* component ID */
-static int num_chan = 0;	/* number of step generators configured */
+static  hal_list_t head;
+
+// static int num_chan = 0;	/* number of step generators configured */
 static long periodns;		/* makepulses function period in nanosec */
 static long old_periodns;	/* used to detect changes in periodns */
 static double periodfp;		/* makepulses function period in seconds */
@@ -471,120 +484,144 @@ static long old_dtns;		/* update_freq funct period in nsec */
 static double dt;		/* update_freq period in seconds */
 static double recip_dt;		/* recprocal of period, avoids divides */
 
+static const char *compname = "stepgen-v2";
+static const char *prefix = "stepgen"; // less surprises on funct names
+
 typedef enum CONTROL { POSITION, VELOCITY, INVALID } CONTROL;
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
-
-static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode);
-static void make_pulses(void *arg, long period);
-static void update_freq(void *arg, long period);
-static void update_pos(void *arg, long period);
+static int export_stepgen(const char *name,  stepgen_t *addr,
+			  const int step_type, const int pos_mode);
+static int make_pulses(void *arg, const hal_funct_args_t *fa);
+static int update_freq(void *arg, const hal_funct_args_t *fa);
+static int update_pos(void *arg,  const hal_funct_args_t *fa);
 static int setup_user_step_type(void);
 static CONTROL parse_ctrl_type(const char *ctrl);
+static int instantiate_stepgen(const char *name, const int argc,
+			      const char**argv);
+static int delete_stepgen(const char *name, void *inst, const int inst_size);
 
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
-
 int rtapi_app_main(void)
 {
-    int n, retval;
-
-    retval = setup_user_step_type();
+    int retval = setup_user_step_type();
     if(retval < 0) {
         return retval;
     }
 
-    for (n = 0; n < MAX_CHAN && step_type[n] != -1 ; n++) {
-	if ((step_type[n] > MAX_STEP_TYPE) || (step_type[n] < 0)) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "STEPGEN: ERROR: bad stepping type '%i', axis %i\n",
-			    step_type[n], n);
-	    return -1;
-	}
-	if(parse_ctrl_type(ctrl_type[n]) == INVALID) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "STEPGEN: ERROR: bad control type '%s' for axis %i (must be 'p' or 'v')\n",
-			    ctrl_type[n], n);
-	    return -1;
-	}
-	num_chan++;
-    }
-    if (num_chan == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"STEPGEN: ERROR: no channels configured\n");
-	return -1;
-    }
+    dlist_init_entry(&head);
+
+    if ((comp_id = hal_xinit(TYPE_RT, 0, 0,
+			     instantiate_stepgen,
+			     delete_stepgen,
+			     compname)) < 0)
+	return comp_id;
+
+    hal_export_xfunct_args_t uf = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = update_freq,
+        .arg = &head,
+        .uses_fp = 1,
+        .reentrant = 0,
+        .owner_id = comp_id
+    };
+    if ((retval = hal_export_xfunctf(&uf, "%s.update-freq",
+				     prefix)) < 0)
+	return retval;
+
+    hal_export_xfunct_args_t up = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = update_pos,
+        .arg = &head,
+        .uses_fp = 1,
+        .reentrant = 0,
+        .owner_id = comp_id
+    };
+    if ((retval = hal_export_xfunctf(&up, "%s.capture-position",
+				     prefix)) < 0)
+	return retval;
+    hal_export_xfunct_args_t mp = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = make_pulses,
+        .arg = &head,
+        .uses_fp = 0,
+        .reentrant = 0,
+        .owner_id = comp_id
+    };
+    if ((retval = hal_export_xfunctf(&mp, "%s.make-pulses",
+				     prefix)) < 0)
+	return retval;
+
     /* periodns will be set to the proper value when 'make_pulses()' runs for
        the first time.  We load a default value here to avoid glitches at
        startup, but all these 'constants' are recomputed inside
        'update_freq()' using the real period. */
     old_periodns = periodns = 50000;
     old_dtns = 1000000;
+
     /* precompute some constants */
     periodfp = periodns * 0.000000001;
     freqscale = (1L << PICKOFF) * periodfp;
     accelscale = freqscale * periodfp;
     dt = old_dtns * 0.000000001;
     recip_dt = 1.0 / dt;
-    /* have good config info, connect to the HAL */
-    comp_id = hal_init("stepgen-v2");
-    if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"STEPGEN: ERROR: hal_init() failed\n");
-	return -1;
-    }
-    /* allocate shared memory for counter data */
-    stepgen_array = hal_malloc(num_chan * sizeof(stepgen_t));
-    if (stepgen_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"STEPGEN: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    /* export all the variables for each pulse generator */
-    for (n = 0; n < num_chan; n++) {
-	/* export all vars */
-	retval = export_stepgen(n, &(stepgen_array[n]),
-	    step_type[n], (parse_ctrl_type(ctrl_type[n]) == POSITION));
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STEPGEN: ERROR: stepgen %d var export failed\n", n);
-	    hal_exit(comp_id);
-	    return -1;
-	}
-    }
-    /* export functions */
-    retval = hal_export_funct("stepgen.make-pulses", make_pulses,
-	stepgen_array, 0, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STEPGEN: ERROR: makepulses funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    retval = hal_export_funct("stepgen.update-freq", update_freq,
-	stepgen_array, 1, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STEPGEN: ERROR: freq update funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    retval = hal_export_funct("stepgen.capture-position", update_pos,
-	stepgen_array, 1, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	 "STEPGEN: ERROR: pos update funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"STEPGEN: installed %d step pulse generators\n", num_chan);
+
     hal_ready(comp_id);
+    return 0;
+}
+
+static int instantiate_stepgen(const char *name,
+			      const int argc,
+			      const char**argv)
+{
+    int retval;
+
+    // validate instance parameters
+    if ((step_type > MAX_STEP_TYPE) || (step_type < 0)) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"STEPGEN instance %s: ERROR: bad stepping type '%d'\n",
+			name, step_type);
+	return -1;
+    }
+    int ctype = parse_ctrl_type(ctrl_type);
+    if (ctype == INVALID) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"STEPGEN instance %s: ERROR: bad control type '%s'"
+			" (must be 'p' or 'v')\n", name, ctrl_type);
+	return -1;
+    }
+
+    stepgen_t *p;
+    if ((retval = hal_inst_create(name, comp_id, sizeof(stepgen_t), (void **)&p)) < 0)
+	return retval;
+
+    p->inst_id = retval;
+    if ((retval = export_stepgen(name, p, step_type, ctype == POSITION)) != 0)
+	HALFAIL_RC(retval, "STEPGEN: ERROR: export_stepgen(%s, %s) failed", compname, name);
+
+    p->iname = halg_strdup(1, name);
+
+    // append to instance list
+    dlist_init_entry(&p->list);
+    dlist_add_after(&p->list, &head);
+    return 0;
+}
+
+static int delete_stepgen(const char *name, void *inst, const int inst_size)
+{
+    stepgen_t *p = inst;
+    halg_free_str(&p->iname);
+
+    // if controlled turnoff of some pin(s) is to be done on shutdown,
+    // this is the place:
+
+    // delete from instance list
+    dlist_remove_entry(&p->list);
     return 0;
 }
 
@@ -602,17 +639,17 @@ void rtapi_app_exit(void)
     toggles, a step is generated.
 */
 
-static void make_pulses(void *arg, long period)
+static int make_pulses(void *arg, const hal_funct_args_t *fa)
 {
-    stepgen_t *self = arg;
+    hal_list_t *insts = arg;
+    stepgen_t *self;
     long old_addval, target_addval, new_addval, step_now;
-    int n, p;
+    int p;
     unsigned char outbits;
 
-    /* store period so scaling constants can be (re)calculated */
-    periodns = period;
+    // foreach stepgen instance:
+    dlist_for_each_entry(self, insts, list) {
 
-    for (n = 0; n < num_chan; n++) {
 	struct make_pulses *mp = &self->mp;
 	struct shared *shared = &self->shared;
 	const struct readonly *ro = &self->ro;
@@ -621,7 +658,7 @@ static void make_pulses(void *arg, long period)
 	    // new parameter set available, fetch it
 	    mp->mpp = &self->shared.tb_state[rtapi_tb_snap_idx(&shared->tb)];
 
-#if  1// def TRACE_TB
+#ifdef TRACE_TB
 	    HALDBG("SNAP inst=%d target_addval=%d deltalim=%d "
 		   "step_len=%d dir_hold_dly=%d dir_setup=%d",
 		   self->inst_id,
@@ -631,6 +668,10 @@ static void make_pulses(void *arg, long period)
 		   mp->mpp->dir_hold_dly,
 		   mp->mpp->dir_setup);
 #endif
+
+	    // not needed on every cycle, really just once
+	    /* store period so scaling constants can be (re)calculated */
+	    periodns = fa_period(fa);
 	}
 
 	// currently valid parameter set
@@ -787,25 +828,22 @@ static void make_pulses(void *arg, long period)
 		outbits >>= 1;
 	    }
 	}
-	/* move on to next step generator */
-	self++;
     }
-    /* done */
+    return 0;
 }
 
-static void update_pos(void *arg, long period)
+static int update_pos(void *arg, const hal_funct_args_t *fa)
 {
+    hal_list_t *insts = arg;
+    stepgen_t *self;
     hal_s64_t accum;
-    stepgen_t *stepgen;
-    int n;
 
-    stepgen = arg;
+    // foreach stepgen instance:
+    dlist_for_each_entry(self, insts, list) {
 
-    for (n = 0; n < num_chan; n++) {
-
-	struct update_pos *upos = &stepgen->upos;
-	struct ufp_shared *ufp_shared = &stepgen->ufp;
-	struct shared *shared = &stepgen->shared;
+	struct update_pos *upos = &self->upos;
+	struct ufp_shared *ufp_shared = &self->ufp;
+	struct shared *shared = &self->shared;
 
 	accum = rtapi_load_s64(&shared->accum);
 
@@ -832,10 +870,8 @@ static void update_pos(void *arg, long period)
 	/* scale accumulator to make floating point position, after
 	   removing the one-half count offset */
 	*(upos->pos_fb) = (double)(accum-(1<< (PICKOFF-1))) * ufp_shared->scale_recip;
-	/* move on to next channel */
-	stepgen++;
     }
-    /* done */
+    return 0;
 }
 
 /* helper function - computes integeral multiple of increment that is greater
@@ -848,15 +884,18 @@ static unsigned long ulceil(unsigned long value, unsigned long increment)
     return increment*(((value-1)/increment)+1);
 }
 
-static void update_freq(void *arg, long period)
+static int update_freq(void *arg, const hal_funct_args_t *fa)
 {
-    stepgen_t *stepgen;
-    int n, newperiod;
+    hal_list_t *insts = arg;
+    stepgen_t *self;
+
+    int newperiod;
     long min_step_period;
     hal_s64_t accum;
     double pos_cmd, vel_cmd, curr_pos, curr_vel, avg_v, max_freq, max_ac;
     double match_ac, match_time, est_out, est_cmd, est_err, dp, dv, new_vel;
     double desired_freq;
+
     /*! \todo FIXME - while this code works just fine, there are a bunch of
        internal variables, many of which hold intermediate results that
        don't really need their own variables.  They are used either for
@@ -880,25 +919,22 @@ static void update_freq(void *arg, long period)
     }
     /* now recalc constants related to the period of this funct */
     /* only recalc constants if period changes */
-    if (period != old_dtns) {
+    if (fa_period(fa) != old_dtns) {
 	/* get ready to detect future period changes */
-	old_dtns = period;
+	old_dtns = fa_period(fa);
 	/* dT is the period of this thread, used for the position loop */
-	dt = period * 0.000000001;
+	dt = fa_period(fa) * 0.000000001;
 	/* calc the reciprocal once here, to avoid multiple divides later */
 	recip_dt = 1.0 / dt;
     }
 
-    /* point at stepgen data */
-    stepgen = arg;
+    // foreach stepgen instance:
+    dlist_for_each_entry(self, insts, list) {
 
-    /* loop thru generators */
-    for (n = 0; n < num_chan; n++) {
-
-	struct update_freq *upfreq = &stepgen->upfrq;
-	struct shared *shared = &stepgen->shared;
-	const struct readonly *ro = &stepgen->ro;
-	struct ufp_shared *ufp_shared = &stepgen->ufp;
+	struct update_freq *upfreq = &self->upfrq;
+	struct shared *shared = &self->shared;
+	const struct readonly *ro = &self->ro;
+	struct ufp_shared *ufp_shared = &self->ufp;
 
 	// get a handle on the currently write buffer
 	struct mp_params *mpp =  &shared->tb_state[rtapi_tb_write_idx(&shared->tb)];
@@ -978,7 +1014,6 @@ static void update_freq(void *arg, long period)
 	    rtapi_tb_flip(&shared->tb);
 
 	    /* and skip to next one */
-	    stepgen++;
 	    continue;
 	}
 	/* calculate frequency limit */
@@ -993,14 +1028,14 @@ static void update_freq(void *arg, long period)
 	    desired_freq = *(upfreq->maxvel) * rtapi_fabs(*(ufp_shared->pos_scale));
 	    if (desired_freq > max_freq) {
 		/* parameter is too high, complain about it */
-		if(!stepgen->printed_error) {
+		if(!self->printed_error) {
 		    rtapi_print_msg(RTAPI_MSG_ERR,
-			"STEPGEN: Channel %d: The requested maximum velocity of %d steps/sec is too high.\n",
-			n, (int)desired_freq);
+			"STEPGEN: %s: The requested maximum velocity of %d steps/sec is too high.\n",
+			self->iname, (int)desired_freq);
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 			"STEPGEN: The maximum possible frequency is %d steps/second\n",
 			(int)max_freq);
-		    stepgen->printed_error = 1;
+		    self->printed_error = 1;
 		}
 		/* parameter is too high, limit it */
 		*(upfreq->maxvel) = max_freq / rtapi_fabs(*(ufp_shared->pos_scale));
@@ -1134,17 +1169,15 @@ static void update_freq(void *arg, long period)
 	rtapi_smp_wmb();
 	// commit
 	rtapi_tb_flip(&shared->tb);
-
-	/* move on to next channel */
-	stepgen++;
     }
-    /* done */
+    return 0;
 }
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
-static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode)
+static int export_stepgen(const char *name,  stepgen_t *self,
+			  const int step_type, const int pos_mode)
 {
     int n, retval, msg;
 
@@ -1153,184 +1186,186 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
+#ifndef VERBOSE_SETUP
     rtapi_set_msg_level(RTAPI_MSG_WARN);
+#endif
 
     /* export param variable for raw counts */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->mp.rawcount), comp_id,
-	"stepgen.%d.rawcounts", num);
+    retval = hal_pin_s32_newf(HAL_OUT, &(self->mp.rawcount), self->inst_id,
+			      "%s.rawcounts", name);
     if (retval != 0) { return retval; }
     /* export pin for counts captured by update() */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->upos.count), comp_id,
-	"stepgen.%d.counts", num);
+    retval = hal_pin_s32_newf(HAL_OUT, &(self->upos.count), self->inst_id,
+			      "%s.counts", name);
     if (retval != 0) { return retval; }
     /* export parameter for position scaling */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->ufp.pos_scale), comp_id,
-	"stepgen.%d.position-scale", num);
+    retval = hal_pin_float_newf(HAL_IO, &(self->ufp.pos_scale), self->inst_id,
+				"%s.position-scale", name);
     if (retval != 0) { return retval; }
     /* export pin for command */
     if ( pos_mode ) {
-	retval = hal_pin_float_newf(HAL_IN, &(addr->upfrq.pos_cmd), comp_id,
-	    "stepgen.%d.position-cmd", num);
+	retval = hal_pin_float_newf(HAL_IN, &(self->upfrq.pos_cmd), self->inst_id,
+				    "%s.position-cmd", name);
     } else {
-	retval = hal_pin_float_newf(HAL_IN, &(addr->upfrq.vel_cmd), comp_id,
-	    "stepgen.%d.velocity-cmd", num);
+	retval = hal_pin_float_newf(HAL_IN, &(self->upfrq.vel_cmd), self->inst_id,
+				    "%s.velocity-cmd", name);
     }
     if (retval != 0) { return retval; }
     /* export pin for enable command */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->ro.enable), comp_id,
-	"stepgen.%d.enable", num);
+    retval = hal_pin_bit_newf(HAL_IN, &(self->ro.enable), self->inst_id,
+			      "%s.enable", name);
     if (retval != 0) { return retval; }
     /* export pin for scaled position captured by update() */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->upos.pos_fb), comp_id,
-	"stepgen.%d.position-fb", num);
+    retval = hal_pin_float_newf(HAL_OUT, &(self->upos.pos_fb), self->inst_id,
+				"%s.position-fb", name);
     if (retval != 0) { return retval; }
     /* export param for scaled velocity (frequency in Hz) */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->upfrq.freq), comp_id,
-	"stepgen.%d.frequency", num);
+    retval = hal_pin_float_newf(HAL_OUT, &(self->upfrq.freq), self->inst_id,
+				"%s.frequency", name);
     if (retval != 0) { return retval; }
     /* export parameter for max frequency */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upfrq.maxvel), comp_id,
-	"stepgen.%d.maxvel", num);
+    retval = hal_pin_float_newf(HAL_IO, &(self->upfrq.maxvel), self->inst_id,
+				"%s.maxvel", name);
     if (retval != 0) { return retval; }
     /* export parameter for max accel/decel */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->upfrq.maxaccel), comp_id,
-	"stepgen.%d.maxaccel", num);
+    retval = hal_pin_float_newf(HAL_IO, &(self->upfrq.maxaccel), self->inst_id,
+				"%s.maxaccel", name);
     if (retval != 0) { return retval; }
     /* every step type uses steplen */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->upfrq.step_len), comp_id,
-	"stepgen.%d.steplen", num);
+    retval = hal_pin_u32_newf(HAL_IO, &(self->upfrq.step_len), self->inst_id,
+			      "%s.steplen", name);
     if (retval != 0) { return retval; }
     /* step/dir and up/down use 'stepspace' */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->upfrq.step_space),
-			      comp_id, "stepgen.%d.stepspace", num);
+    retval = hal_pin_u32_newf(HAL_IO, &(self->upfrq.step_space),
+			      self->inst_id, "%s.stepspace", name);
     if (retval != 0) { return retval; }
     /* step/dir is the only one that uses dirsetup and dirhold */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->upfrq.dir_setup),
-			      comp_id, "stepgen.%d.dirsetup", num);
+    retval = hal_pin_u32_newf(HAL_IO, &(self->upfrq.dir_setup),
+			      self->inst_id, "%s.dirsetup", name);
     if (retval != 0) { return retval; }
     if ( step_type == 0 ) {
-	retval = hal_pin_u32_newf(HAL_IO, &(addr->upfrq.dir_hold_dly),
-				  comp_id, "stepgen.%d.dirhold", num);
+	retval = hal_pin_u32_newf(HAL_IO, &(self->upfrq.dir_hold_dly),
+				  self->inst_id, "%s.dirhold", name);
 	if (retval != 0) { return retval; }
     } else {
 	/* the others use dirdelay */
-	retval = hal_pin_u32_newf(HAL_IO, &(addr->upfrq.dir_hold_dly),
-				  comp_id, "stepgen.%d.dirdelay", num);
+	retval = hal_pin_u32_newf(HAL_IO, &(self->upfrq.dir_hold_dly),
+				  self->inst_id, "%s.dirdelay", name);
 	if (retval != 0) { return retval; }
     }
     /* export output pins */
     if ( step_type == 0 ) {
 	/* step and direction */
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->mp.phase[STEP_PIN]),
-	    comp_id, "stepgen.%d.step", num);
+	retval = hal_pin_bit_newf(HAL_OUT, &(self->mp.phase[STEP_PIN]),
+				  self->inst_id, "%s.step", name);
 	if (retval != 0) { return retval; }
-	*(addr->mp.phase[STEP_PIN]) = 0;
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->mp.phase[DIR_PIN]),
-	    comp_id, "stepgen.%d.dir", num);
+	*(self->mp.phase[STEP_PIN]) = 0;
+	retval = hal_pin_bit_newf(HAL_OUT, &(self->mp.phase[DIR_PIN]),
+				  self->inst_id, "%s.dir", name);
 	if (retval != 0) { return retval; }
-	*(addr->mp.phase[DIR_PIN]) = 0;
+	*(self->mp.phase[DIR_PIN]) = 0;
     } else if (step_type == 1) {
 	/* up and down */
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->mp.phase[UP_PIN]),
-	    comp_id, "stepgen.%d.up", num);
+	retval = hal_pin_bit_newf(HAL_OUT, &(self->mp.phase[UP_PIN]),
+				  self->inst_id, "%s.up", name);
 	if (retval != 0) { return retval; }
-	*(addr->mp.phase[UP_PIN]) = 0;
-	retval = hal_pin_bit_newf(HAL_OUT, &(addr->mp.phase[DOWN_PIN]),
-	    comp_id, "stepgen.%d.down", num);
+	*(self->mp.phase[UP_PIN]) = 0;
+	retval = hal_pin_bit_newf(HAL_OUT, &(self->mp.phase[DOWN_PIN]),
+				  self->inst_id, "%s.down", name);
 	if (retval != 0) { return retval; }
-	*(addr->mp.phase[DOWN_PIN]) = 0;
+	*(self->mp.phase[DOWN_PIN]) = 0;
     } else {
-	/* stepping types 2 and higher use a varying number of phase pins */
-	addr->mp.num_phases = num_phases_lut[step_type - 2];
-	for (n = 0; n < addr->mp.num_phases; n++) {
-	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->mp.phase[n]),
-		comp_id, "stepgen.%d.phase-%c", num, n + 'A');
+	/* stepping types 2 and higher use a varying nameber of phase pins */
+	self->mp.num_phases = num_phases_lut[step_type - 2];
+	for (n = 0; n < self->mp.num_phases; n++) {
+	    retval = hal_pin_bit_newf(HAL_OUT, &(self->mp.phase[n]),
+				      self->inst_id, "%s.phase-%c", name, n + 'A');
 	    if (retval != 0) { return retval; }
-	    *(addr->mp.phase[n]) = 0;
+	    *(self->mp.phase[n]) = 0;
 	}
     }
 
 
     // --- update_freq() private state and pins ---
-    addr->upfrq.pos_mode = pos_mode;
-    addr->upfrq.old_pos_cmd = 0.0;
+    self->upfrq.pos_mode = pos_mode;
+    self->upfrq.old_pos_cmd = 0.0;
     if ( pos_mode ) {
-	*(addr->upfrq.pos_cmd) = 0.0;
+	*(self->upfrq.pos_cmd) = 0.0;
     } else {
-	*(addr->upfrq.vel_cmd) = 0.0;
+	*(self->upfrq.vel_cmd) = 0.0;
     }
-    *(addr->upfrq.freq) = 0.0;
-    *(addr->upfrq.maxvel) = 0.0;
-    *(addr->upfrq.maxaccel) = 0.0;
-    *(addr->upfrq.step_len) = 1;
+    *(self->upfrq.freq) = 0.0;
+    *(self->upfrq.maxvel) = 0.0;
+    *(self->upfrq.maxaccel) = 0.0;
+    *(self->upfrq.step_len) = 1;
 
     /* timing parameter defaults depend on step type */
     if ( step_type < 2 ) {
-	*(addr->upfrq.step_space) = 1;
+	*(self->upfrq.step_space) = 1;
     } else {
-	*(addr->upfrq.step_space) = 0;
+	*(self->upfrq.step_space) = 0;
     }
     if ( step_type == 0 ) {
-	*(addr->upfrq.dir_hold_dly) = 1;
-	*(addr->upfrq.dir_setup) = 1;
+	*(self->upfrq.dir_hold_dly) = 1;
+	*(self->upfrq.dir_setup) = 1;
     } else {
-	*(addr->upfrq.dir_hold_dly) = 1;
-	*(addr->upfrq.dir_setup) = 0;
+	*(self->upfrq.dir_hold_dly) = 1;
+	*(self->upfrq.dir_setup) = 0;
     }
 
     /* set 'old' values to make update_freq validate the timing params */
-    addr->upfrq.old_step_len = ~0;
-    addr->upfrq.old_step_space = ~0;
-    addr->upfrq.old_dir_hold_dly = ~0;
-    addr->upfrq.old_dir_setup = ~0;
+    self->upfrq.old_step_len = ~0;
+    self->upfrq.old_step_space = ~0;
+    self->upfrq.old_dir_hold_dly = ~0;
+    self->upfrq.old_dir_setup = ~0;
     // --- update_freq() private state initialisation complete  ---
 
     // update_pos() state and pins
-    *(addr->upos.count) = 0;
-    *(addr->upos.pos_fb) = 0.0;
+    *(self->upos.count) = 0;
+    *(self->upos.pos_fb) = 0.0;
 
     // update_freq()/update_pos() shared
-    *(addr->ufp.pos_scale) = 1.0;
-    addr->ufp.old_scale = 0.0;
-    addr->ufp.scale_recip = 0.0;
+    *(self->ufp.pos_scale) = 1.0;
+    self->ufp.old_scale = 0.0;
+    self->ufp.scale_recip = 0.0;
 
     // readonly params
-    addr->ro.step_type = step_type;
-    *(addr->ro.enable) = 0;
+    self->ro.step_type = step_type;
+    *(self->ro.enable) = 0;
 
     // ---  shared state ---
     /* accumulator gets a half step offset, so it will step half
        way between integer positions, not at the integer positions */
-    addr->shared.accum = 1 << (PICKOFF-1);
-    addr->shared.addval = 0;
+    self->shared.accum = 1 << (PICKOFF-1);
+    self->shared.addval = 0;
 
     // set triple buffer initial state
-    rtapi_tb_init(&addr->shared.tb);
+    rtapi_tb_init(&self->shared.tb);
 
     // supply startup params to make_pulses
     // this guaranteeds the struct mp_params *mpp local in make_pulses()
     // will never be NULL
-    struct mp_params *mpp =  &addr->shared.tb_state[rtapi_tb_write_idx(&addr->shared.tb)];
+    struct mp_params *mpp =  &self->shared.tb_state[rtapi_tb_write_idx(&self->shared.tb)];
     mpp->target_addval = 0;
     mpp->deltalim = 0;
-    mpp->step_len = *(addr->upfrq.step_len);
-    mpp->dir_hold_dly = *(addr->upfrq.dir_hold_dly);
-    mpp->dir_setup = *(addr->upfrq.dir_setup);
+    mpp->step_len = *(self->upfrq.step_len);
+    mpp->dir_hold_dly = *(self->upfrq.dir_hold_dly);
+    mpp->dir_setup = *(self->upfrq.dir_setup);
 
     // --- make_pulses() private state and pins ---
     if ( step_type >= 2 ) {
 	/* init output stuff */
-	addr->mp.cycle_max = cycle_len_lut[step_type - 2] - 1;
-	addr->mp.lut = &(master_lut[step_type - 2][0]);
+	self->mp.cycle_max = cycle_len_lut[step_type - 2] - 1;
+	self->mp.lut = &(master_lut[step_type - 2][0]);
     }
     /* init the step generator core to zero output */
-    addr->mp.timer1 = 0;
-    addr->mp.timer2 = 0;
-    addr->mp.timer3 = 0;
-    addr->mp.hold_dds = 0;
-    *(addr->mp.rawcount) = 0;
-    addr->mp.curr_dir = 0;
-    addr->mp.state = 0;
+    self->mp.timer1 = 0;
+    self->mp.timer2 = 0;
+    self->mp.timer3 = 0;
+    self->mp.hold_dds = 0;
+    *(self->mp.rawcount) = 0;
+    self->mp.curr_dir = 0;
+    self->mp.state = 0;
     // --- make_pulses() private state init complete ---
 
 
@@ -1339,11 +1374,11 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     // write memory barrier
     rtapi_smp_wmb();
     // commit startup params to make_pulses
-    rtapi_tb_flip(&addr->shared.tb);
+    rtapi_tb_flip(&self->shared.tb);
 
     // --- all shared state init complete ---
 
-    addr->printed_error = 0;
+    self->printed_error = 0;
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
@@ -1358,9 +1393,9 @@ static int setup_user_step_type(void) {
     }
     cycle_len_lut[USER_STEP_TYPE] = i;
     if(used_phases & ~0x1f) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, "STEPGEN: ERROR: "
-			    "bad user step type uses more than 5 phases");
-	    return -EINVAL; // more than 5 phases is not allowed
+	rtapi_print_msg(RTAPI_MSG_ERR, "STEPGEN: ERROR: "
+			"bad user step type uses more than 5 phases");
+	return -EINVAL; // more than 5 phases is not allowed
     }
 
     if(used_phases & 0x10) num_phases_lut[USER_STEP_TYPE] = 5;
@@ -1370,9 +1405,9 @@ static int setup_user_step_type(void) {
     else if(used_phases & 0x1) num_phases_lut[USER_STEP_TYPE] = 1;
 
     if(used_phases)
-	    rtapi_print_msg(RTAPI_MSG_INFO,
-		"User step type has %d phases and %d steps per cycle\n",
-		num_phases_lut[USER_STEP_TYPE], i);
+	rtapi_print_msg(RTAPI_MSG_INFO,
+			"User step type has %d phases and %d steps per cycle\n",
+			num_phases_lut[USER_STEP_TYPE], i);
     return 0;
 }
 
