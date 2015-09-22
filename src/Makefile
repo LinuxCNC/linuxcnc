@@ -386,10 +386,23 @@ CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(PROFILE_CFLAGS) -DULAPI $(call cc-option,
 # enable runtime comparison of GIT_CONFIG_SHA (config.h) and GIT_BUILD_SHA
 CFLAGS += -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\"
 
-CXXFLAGS := $(INCLUDE) $(CXXFLAGS) \
-	 -DULAPI $(DEBUG) $(OPT) \
-	$(PROFILE_CFLAGS) \
-	 -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\"
+# make ck_pr.h happy:
+CFLAGS += $(CK_CFLAGS)
+
+# if not initialised use innocuous switch to prevent errors
+ifeq ($(ARCH_CFLAGS),@ARCH_CFLAGS@)
+ARCH_CFLAGS := -Wunused
+endif
+
+BASE_CXXFLAGS:= $(INCLUDE) $(CXXFLAGS) \
+		$(CK_CFLAGS) \
+		$(DEBUG) $(OPT) \
+		$(PROFILE_CFLAGS) \
+		 -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\" \
+		$(ARCH_CFLAGS)
+
+CXXFLAGS :=   $(BASE_CXXFLAGS) -DULAPI
+RT_CXXFLAGS :=   $(BASE_CXXFLAGS) 
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS += -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
@@ -1195,6 +1208,7 @@ endif # KERNELRELEASE non-empty
 # what kbuild seems to require
 
 EXTRA_CFLAGS = $(RTFLAGS) \
+        $(ARCH_CFLAGS) \
 	-D__MODULE__ \
 	-I$(INCLUDE_PREFIX) \
 	-I$(INCLUDE_PREFIX)/libnml/linklist \
@@ -1703,7 +1717,14 @@ $(sort $(RTOBJS)) : $(OBJDIR)/%.o : %.c $(DEPDIR)/%.d
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(CPPFLAGS) $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $< -o $@
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $< -o $@
+
+# Rules to make .o (object) files from .cc
+$(sort $(CXXRTOBJS)) : $(OBJDIR)/%.o : %.cc $(DEPDIR)/%.d
+	$(ECHO) Compiling realtime++ $<
+	@rm -f $@
+	@mkdir -p $(dir $@)
+	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(RT_CXXFLAGS) $(EXTRA_CFLAGS) $< -o $@
 
 endif # end BUILD_SYS=user-dso
 
