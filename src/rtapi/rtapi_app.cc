@@ -108,6 +108,10 @@ typedef int (*hal_call_usrfunct_t)(const char *name,
 				   const char **argv,
 				   int *ureturn);
 static hal_call_usrfunct_t call_usrfunct;
+typedef int (*halg_foreach_t)(bool use_hal_mutex,
+			      foreach_args_t *args,
+			      hal_object_callback_t callback);
+typedef int (*hal_exit_usercomps_t)(char *);
 
 // all we know about a module
 typedef struct modinfo {
@@ -691,10 +695,35 @@ static int do_load_cmd(int instance,
     return retval;
 }
 
+static int exit_usercomps(char *name)
+{
+    modinfo_t &hallib = modules[HALMOD];
+
+    dlerror();
+    hal_exit_usercomps_t huc = (hal_exit_usercomps_t) dlsym(hallib.handle,
+							    "hal_exit_usercomps");
+    return huc(NULL);
+}
+
+static int stop_threads(void)
+{
+    typedef int (*f_t)(void);
+    modinfo_t &hallib = modules[HALMOD];
+    dlerror();
+    f_t hst = (f_t) dlsym(hallib.handle,
+			  "hal_stop_threads");
+    return hst();
+}
+
 // shut down the stack in reverse loading order
 static void exit_actions(int instance)
 {
     machinetalk::Container reply;
+
+    stop_threads();
+    sleep(0.2);
+    exit_usercomps(NULL);
+
     size_t index = loading_order.size() - 1;
     for(std::vector<std::string>::reverse_iterator rit = loading_order.rbegin();
 	rit != loading_order.rend(); ++rit, --index) {
