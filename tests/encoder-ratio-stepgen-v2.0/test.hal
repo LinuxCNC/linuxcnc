@@ -1,9 +1,8 @@
 # run encoder_ratio and encoder_ratio-v2 in sync
 
-loadrt stepgen-v2 step_type=2 ctrl_type=v
-loadrt encoder_ratio names=v1
-loadrt encoder_ratio-v2 names=v2
-
+newinst stepgen-v2 stepgen.0 step_type=2 ctrl_type=v
+newinst encoder_ratio v1
+newinst encoder_ratio-v2 v2
 
 # gates to selectively connect master, slave to the A/B signal
 newinst andn masterA pincount=2
