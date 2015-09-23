@@ -316,7 +316,7 @@ int do_start_cmd(void) {
 
 int do_stop_cmd(void) {
     int retval = hal_stop_threads();
-    halcmd_info("Realtime threads %sstopped\n", retval ? "" : "already");
+    halcmd_info("Realtime threads %sstopped\n", retval ? "already" : "");
     return 0;
 }
 
