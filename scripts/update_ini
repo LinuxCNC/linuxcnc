@@ -166,8 +166,8 @@ if version == "$Revision$" or version < "1.0":
     newini.write("# This config file was created %s by the update_ini script\n" % datetime.datetime.now())
     newini.write("# The original config files may be found in the %s directory\n\n" % backupdir)
 
-    # There may be comments at the top.
-    section = re.search("(.+?)\[", inistring, re.DOTALL)
+    # reproduce everything before the first [section] verbatim
+    section = re.match("(.*?)^\[", inistring, re.DOTALL | re.MULTILINE)
     if section !=None:
         newini.write(section.group(1))
 
