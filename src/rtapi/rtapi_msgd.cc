@@ -698,7 +698,8 @@ static struct option long_options[] = {
 int main(int argc, char **argv)
 {
     int c, i, retval;
-    int option = LOG_NDELAY;
+    int syslog_async_option = LOG_NDELAY;
+    int syslog_async_delay = 1000;
     pid_t pid, sid;
     size_t argv0_len, procname_len, max_procname_len;
 
@@ -768,7 +769,8 @@ int main(int argc, char **argv)
 	    break;
 	case 's':
 	    log_stderr++;
-	    option |= LOG_PERROR;
+	    syslog_async_option |= LOG_PERROR;
+	    syslog_async_delay = 0;
 	    break;
 	case 'R':
 	    netopts.service_uuid = strdup(optarg);
@@ -880,9 +882,9 @@ int main(int argc, char **argv)
     snprintf(proctitle, sizeof(proctitle), "msgd:%d",rtapi_instance);
     backtrace_init(proctitle);
 
-    openlog_async(proctitle, option , SYSLOG_FACILITY);
-    // max out async syslog buffers for slow system in debug mode
-    tunelog_async(99,1000);
+    openlog_async(proctitle, syslog_async_option, SYSLOG_FACILITY);
+    // tune async syslog buffers:  max buffer size; 0 delay for stdout, else 1s
+    tunelog_async(99,syslog_async_delay);
 
     // set new process name
     argv0_len = strlen(argv[0]);
