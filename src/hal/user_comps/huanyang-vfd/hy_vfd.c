@@ -110,7 +110,7 @@ typedef struct {
 	hal_float_t *freq_lower_limit;		// PD011 Freqency Lower Limit
 	hal_float_t *rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
 	hal_float_t *rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
-	hal_float_t *rated_motor_rev;		// PD144 Set value corresponds to RPM at 50Hz
+	hal_float_t *rated_motor_rev;		// max motor speed (at max_freq).  PD144 gets set to value corresponding to RPM at 50Hz
 	
 	hal_bit_t	*hycomm_ok;				// the last HYCOMM_OK transactions returned successfully
 	
@@ -226,8 +226,9 @@ void usage(int argc, char **argv) {
                         "    Set VFD max output current to <i> (Amps).  This will be read from the\n"
                         "    VFD register 142 if not supplied on the command line.\n"
                         "-S or --motor-speed <r>\n"
-                        "    Set the motor's max speed to <r> (RPM).  This will be read from the VFD\n"
-                        "    register 144 if not supplied on the command line.\n"
+                        "    Set the motor's max speed to <r> (RPM).  This will be computed from the\n"
+                        "    50 Hz RPM value read from the VFD register P144 if not supplied on the\n"
+                        "    command line.\n"
         );
 }
 
@@ -365,7 +366,7 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *haldata)
 {
 	int retval;
-        float motor_rev_factor;
+        float rpm_at_50hz;
 
 	/* can't do anything with a null HAL data block */
 	if (haldata == NULL)
@@ -440,15 +441,14 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		goto failed;		
 	*(haldata->rated_motor_current) = hc_data->ret_data * 0.1;
 
-	hc_data->parameter = 144; // PD144 Rated Motor Rev
-        motor_rev_factor = 1;
+        hc_data->parameter = 144; // PD144 Rated Motor Rev (at 50 Hz)
         if (*haldata->rated_motor_rev != 0) {
-            // user passed in motor max speed, send to VFD
+            // user passed in motor max speed
+            // we know motor max freq
+            // write the VFD's P144 with "motor speed at 50 Hz"
+            rpm_at_50hz = (*haldata->rated_motor_rev / *haldata->max_freq) * 50.0;
             hc_data->function = FUNCTION_WRITE;
-            if (*haldata->rated_motor_rev > 9999) {
-                motor_rev_factor = 10;
-            }
-            hc_data->data = (uint16_t)(*haldata->rated_motor_rev/motor_rev_factor);
+            hc_data->data = (uint16_t)rpm_at_50hz;
             if ((retval = hy_comm(hc_param, hc_data)) != 0) {
                 goto failed;
             }
@@ -457,8 +457,9 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->rated_motor_rev) = hc_data->ret_data * motor_rev_factor;
-	
+        rpm_at_50hz = hc_data->ret_data;
+        *(haldata->rated_motor_rev) = (rpm_at_50hz / 50.0) * *haldata->max_freq;
+
 	if (hc_param->debug) {
 		printf("read_setup: read setup parameters - OK.\n");
 	}

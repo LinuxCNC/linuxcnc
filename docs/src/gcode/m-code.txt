@@ -321,7 +321,7 @@ It is an error if:
 The P-word ranges from 0 to a default value of 3. If needed the the
 number of I/O can be increased by using the num_dio parameter when loading
 the motion controller. See the <<sec:motion,Motion Section>> for more
-finformation.
+information.
 
 The M62 & M63 commands will be queued. Subsequent commands referring
 to the same output number will overwrite the older settings. More than

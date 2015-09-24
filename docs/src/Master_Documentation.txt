@@ -154,8 +154,6 @@ include::gui/pyvcp-examples.txt[]
 
 include::gui/gladevcp.txt[]
 
-include::gui/gscreen.txt[]
-
 :leveloffset: 1
 
 = User Interfaces

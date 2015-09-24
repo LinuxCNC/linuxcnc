@@ -1176,58 +1176,56 @@ position of each item on the line, but by the following list:
 
 == G Code Best Practices
 
-* Use an appropriate decimal precision
+.Use an appropriate decimal precision
 
 Use at least 3 digits after the decimal when milling in millimeters,
 and at least 4 digits after the decimal when milling in inches.
 
-* Use consistent white space
+.Use consistent white space
 
 G-code is most legible when at least one space appears before words.
 While it is permitted to insert white space in the middle of numbers,
 there is no reason to do so.
 
-* Use Center-format arcs
+.Use Center-format arcs
 
 Center-format arcs (which use 'I- J- K-' instead of 'R-' ) behave more
 consistently than R-format arcs, particularly for
 included angles near 180 or 360 degrees.
 
-* Put important modal settings at the top of the file
+.Use a Preamble set modal groups
 
 When correct execution of your program depends on modal settings, be
 sure to set them at the beginning of the part program. Modes can carry
 over from previous programs and from the MDI commands.
 
-As a good preventative measure, put a line similar to the following at
-the top of all your programs:
-
+.Example Preamble for a Mill
 [source,{ngc}]
 ----
-    G17 G20 G40 G49 G54 G80 G90 G94 
+G17 G20 G40 G49 G54 G80 G90 G94 
 ----
 
-(XY plane, inch mode, cancel diameter compensation, cancel length
-offset, coordinate system 1, cancel motion, non-incremental motion,
-feed/minute mode)
+G17 use XY plane, G20 inch mode, G40 cancel diameter compensation,
+G49 cancel length offset, G54 use coordinate system 1, G80 cancel canned
+cycles, G90 absolute distance mode, G94 feed/minute mode.
 
 Perhaps the most critical modal setting is the distance units--If you
 do not include G20 or G21, then different machines will mill the
 program at different scales. Other settings, such as the return mode in
 canned cycles may also be important.
 
-* Don't put too many things on one line
+.Don't put too many things on one line
 
 Ignore everything in Section <<sec:order-of-execution,Order of Execution>>, and instead
 write no line of code that is the slightest bit ambiguous.
 
-* Don't set & use a parameter on the same line
+.Don't set & use a parameter on the same line
 
 Don't use and set a parameter on the same line, even though the
 semantics are well defined. Updating a variable to a new value, such as
 '#1=[#1+#2]' is OK.
 
-* Don't use line numbers
+.Don't use line numbers
 
 Line numbers offer no benefits. When line numbers are reported in
 error messages, the numbers refer to the line number in the file, not
