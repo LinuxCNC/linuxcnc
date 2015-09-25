@@ -100,6 +100,10 @@ def wait_for_home(joints):
             return
         time.sleep(0.1)
 
+    s.poll()
+    print "timeout waiting for homing to complete"
+    print "s.homed:", s.homed
+    print "s.position:", s.position
     sys.exit(1)
 
 
