@@ -531,18 +531,16 @@ NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
-install-test:
-	@if type -path dpkg-query > /dev/null 2>&1 ; then  \
-		if dpkg-query -S $(DESTDIR)/usr/bin/linuxcnc > /dev/null 2>&1 || dpkg-query -S $(DESTDIR)/usr/bin/emc > /dev/null 2>&1 ; then \
-			echo "*** Error: Package version installed in $(DESTDIR)/usr"; \
-			echo "Use './configure --enable-run-in-place' or uninstall the linuxcnc package"; \
-			echo "before installing."; \
-			exit 1; \
-		fi \
-	fi
-
-install: install-test install-kernel-dep install-kernel-indep
+ifeq ($(DESTDIR),)
+install:
+	$(Q)echo "'make install' is only supported for building packages,"
+	$(Q)echo "and it doesn't look like that is what is going on because"
+	$(Q)echo "you have not set DESTDIR."
+	$(Q)exit 99
+else
+install: install-kernel-dep install-kernel-indep
 	$(ECHO) "Installed in $(DESTDIR) with prefix $(prefix)"
+endif
 
 install-dirs:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
