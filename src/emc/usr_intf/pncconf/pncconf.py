@@ -1908,11 +1908,11 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "net spindle-output      => " + potpinname + "spinout"
                 else:
                     if get("outputminlimit") == 0:
-                        signal = "spindle-vel-cmd-abs"
+                        signal = "spindle-vel-cmd-rpm-abs"
                     else:
                         signal = "spindle-vel-cmd"
                     print >>file, "net %s     => %sspinout"%(signal,potpinname)
-                print >>file, "net machine-is-enabled      => " + potpinname +"spinena"
+                print >>file, "net spindle-enable      => " + potpinname +"spinena"
                 print >>file, "net spindle-ccw         => " + potpinname +"spindir"
                 print >>file
 
@@ -1928,19 +1928,19 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file
                 if let == 's':
                     if get("outputminlimit") == 0:
-                        signal = "spindle-vel-cmd-abs"
+                        signal = "spindle-vel-cmd-rpm-abs"
                     else:
                         signal = "spindle-vel-cmd"
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname
                         if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
-                            print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
+                            print >>file, "net spindle-enable      => " + rawpinname + "spinena"
                     else:
                         print >>file, "net %s     => %s"%(signal,pwmpinname)
-                        print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
+                        print >>file, "net spindle-enable      => " + rawpinname + "spinena"
                         if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
-                            print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
+                            print >>file, "net spindle-enable      => " + rawpinname + "spinena"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
@@ -1966,10 +1966,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname + ".value"
-                        print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"    
+                        print >>file, "net spindle-enable      => " + pwmpinname +".enable"    
                     else:
                         print >>file, "net spindle-vel-cmd     => " + pwmpinname + ".value"
-                        print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"
+                        print >>file, "net spindle-enable      => " + pwmpinname +".enable"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname + ".value"
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
@@ -1999,7 +1999,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                    print >>file, "setp    "+i+".invert_output true"
             if let == "s":
                 print >>file
-                print >>file, "net machine-is-enabled          =>  " + steppinname + ".enable" 
+                print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
                 if not encoderpinname and not resolverpinname:
                     print >>file, "net spindle-vel-fb         <=  "+ steppinname + ".velocity-fb"
@@ -9401,7 +9401,7 @@ But there is not one in the machine-named folder.."""),True)
             signallist = ((axis+"-enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true")
         else:
             signallist = ("spindle-cw","spindle-ccw","spindle-brake","spindle-on","machine-is-enabled",
-                            "estop-out","charge-pump","force-pin-true")
+                            "spindle-enable","estop-out","charge-pump","force-pin-true")
         halrun = self.halrun
         def write_pins(pname,p,i,t):
             if p in signallist:
