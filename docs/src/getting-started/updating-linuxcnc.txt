@@ -3,7 +3,7 @@
 = Updating LinuxCNC
 
 This section describes how to upgrade LinuxCNC to version 2.7 from
-version 2.6.  It assumes that you have an existing 2.6 install that you
+version 2.6. It assumes that you have an existing 2.6 install that you
 want to update to 2.7.
 
 To upgrade LinuxCNC to version 2.7 from a version older than 2.6,
@@ -35,7 +35,7 @@ or Ubuntu Lucid.
 
 === Setting apt sources
 
-* Open the `Software Sources` window.  The process for doing this
+* Open the `Software Sources` window. The process for doing this
   differs slightly on the three supported platforms:
 
 ** Debian Wheezy:
@@ -70,16 +70,16 @@ or Ubuntu Lucid.
 * Delete or un-check all the old linuxcnc.org entries (leave all
   non-linuxcnc.org lines as they are).
 
-* Click the `Add` button and add a new apt line.  The line will be
+* Click the `Add` button and add a new apt line. The line will be
   slightly different on the different platforms:
 
 [options="header"]
-|===================================================================
+|====
 | Platform       | apt source line
 | Debian Wheezy  | `deb http://linuxcnc.org wheezy base 2.7-rtai`
 | Ubuntu Precise | `deb http://linuxcnc.org precise base 2.7-rtai`
 | Ubuntu Lucid   | `deb http://linuxcnc.org lucid base 2.7-rtai`
-|===================================================================
+|====
 
 image::images/upgrading-to-2.7.png[align="left"]
 
@@ -107,7 +107,7 @@ Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
 * Use the Search function to search for `linuxcnc`.
 
 * Click the check box to mark the new linuxcnc and linuxcnc-doc-*
-  packages for upgrade.  The package manager may select a number of
+  packages for upgrade. The package manager may select a number of
   additional packages to be installed, to satisfy dependencies that the
   new linuxcnc package has.
 
@@ -129,68 +129,69 @@ Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
   all packages.
 
 
-== Updating your config
+== Updating Configuration Files
 
 LinuxCNC version 2.7 differs from version 2.6 in some ways that may
 require changes to your machine configuration.
 
 
-=== Hostmot2 Watchdog
+=== Mesa Hardware
 
-The Hostmot2 watchdog now gets handled by the hm2 `write` Hal function.
-Remove any `addf` lines that refer to the `pet_watchdog` function.
+==== Hostmot2 Watchdog
 
-=== Hostmot2 dpll
+If you have Mesa hardware the Hostmot2 watchdog now gets handled by the
+hm2 `write` Hal function. Remove any `addf` lines that refer to the
+`pet_watchdog` function from your main hal file.
+
+==== Hostmot2 dpll
 
 The Hostmot2 dpll's default time constant has been changed from 40960 to 2000.
 The original value could occasionally lead to following errors when software
 like ntpd and ntpdate adjusted the rate of the linux CLOCK_MONOTONIC time
-source by up to 1000ppm in a single step.  The new value allows the dpll to
+source by up to 1000ppm in a single step. The new value allows the dpll to
 adjust to the change in the base period frequency without error.
 
-=== Parport changes
+=== Parallel Port
 
-Older versions of the LinuxCNC `hal_parport` driver conflicted with the
-Linux `parport_pc` driver.  This required two mitigation techniques:
-we would prevent `parport_pc` from loading, and we would load another
-LinuxCNC driver called `probe_parport` before loading `hal_parport`.
+If you use the Parallel Port driver there are some changes. Older versions
+of the LinuxCNC `hal_parport` driver conflicted with the Linux `parport_pc`
+driver. This required two mitigation techniques, prevent `parport_pc` from
+loading, and load another LinuxCNC driver called `probe_parport` before loading
+`hal_parport`.
 
 The LinuxCNC `hal_parport` driver now cooperates well with the Linux
 `parport_pc` driver, and these mitigation techniques are no longer
-needed or useful.  In 2.7, the `probe_parport` driver has been removed
+needed or useful. In 2.7, the `probe_parport` driver has been removed
 from LinuxCNC.
 
 This means configs that use the parallel port may need to be updated in
 the following ways:
 
-* Make sure LinuxCNC does not prevent the Linux `parport_pc` driver
-  from loading.  Older versions of LinuxCNC would blacklist `parport_pc`
-  in `/etc/modprobe.d/linuxcnc.conf` (or `/etc/modprobe.d/emc2.conf`
-  for even older versions of LinuxCNC).  Comment out any
-  lines in either of those files that looks like this:
+* Make sure LinuxCNC does not prevent the Linux `parport_pc` driver from
+  loading. Older versions of LinuxCNC would blacklist `parport_pc` in
+  `/etc/modprobe.d/linuxcnc.conf` (or `/etc/modprobe.d/emc2.conf` for even
+  older versions of LinuxCNC). Comment out any lines in either of those files
+  that looks like this:
   +
   `install parport_pc /bin/true`
 
-* Make sure your Hal configuration does not load the `probe_parport`
-  component.
+* Make sure your Hal configuration does not have `loadrt probe_parport` in any
+  .hal file.
 
 
-=== Huanyang VFD driver
+=== Huanyang VFD
 
-LinuxCNC 2.7 includes a driver for the Huanyang family of VFDs.  This
-driver is based on an out-of-tree driver by "scotta" and "alan_3301"
-at CNCZone.com, and curated by Benjamin Brockhaus.  This new driver
-talks to the same hardware as the original driver, but has a slightly
-different HAL interface:
+If you use the Huanyang VFD component there are a few hal pin changes to the
+component.
 
 [options="header"]
-|===================================================================
-| Original hy-vfd driver   | New LinuxCNC hy-vfd driver
+|====
+| 2.6 hy-vfd driver        | 2.7 hy-vfd driver
 | hy_vfd.fwd               | hy_vfd.forward
 | hy_vfd.rev               | hy_vfd.reverse
 | hy_vfd.modbus-ok         | hy_vfd.hycomm-ok
 | hy_vfd.motor-pole-number | (removed)
 | hy_vfd.base-freq         | (removed)
-|===================================================================
+|====
 
 // vim: set syntax=asciidoc:
