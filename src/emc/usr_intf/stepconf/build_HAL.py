@@ -43,7 +43,8 @@ class HAL:
         print >>file, _("# overwritten when you run stepconf again")
 
         print >>file, "loadrt trivkins"
-        print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
+	print >>file, "loadrt tp"
+        print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES kins=trivkins tp=tp"
         port3name=port2name=port2dir=port3dir=""
         if self.d.number_pports>2:
              port3name = ' '+self.d.ioaddr3
