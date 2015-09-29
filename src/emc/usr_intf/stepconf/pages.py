@@ -186,7 +186,7 @@ class Pages:
         if not self.w.createconfig.get_active():
             filter = gtk.FileFilter()
             filter.add_pattern("*.stepconf")
-            filter.set_name(_("LinuxCNC 'stepconf' configuration files"))
+            filter.set_name(_("Machinekit 'stepconf' configuration files"))
             dialog = gtk.FileChooserDialog(_("Modify Existing Configuration"),
                 self.w.window1, gtk.FILE_CHOOSER_ACTION_OPEN,
                 (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
@@ -194,9 +194,9 @@ class Pages:
             dialog.set_default_response(gtk.RESPONSE_OK)
             dialog.add_filter(filter)
             if not self.d._lastconfigname == "" and self.d._chooselastconfig:
-                dialog.set_filename(os.path.expanduser("~/linuxcnc/configs/%s.stepconf"% self.d._lastconfigname))
-            dialog.add_shortcut_folder(os.path.expanduser("~/linuxcnc/configs"))
-            dialog.set_current_folder(os.path.expanduser("~/linuxcnc/configs"))
+                dialog.set_filename(os.path.expanduser("~/machinekit/configs/%s.stepconf"% self.d._lastconfigname))
+            dialog.add_shortcut_folder(os.path.expanduser("~/machinekit/configs"))
+            dialog.set_current_folder(os.path.expanduser("~/machinekit/configs"))
             dialog.show_all()
             result = dialog.run()
             if result == gtk.RESPONSE_OK:
@@ -213,7 +213,7 @@ class Pages:
     # callbacks
     def on_machinename_changed(self, *args):
         temp = self.w.machinename.get_text()
-        self.w.confdir.set_text("~/linuxcnc/configs/%s" % temp.replace(" ","_"))
+        self.w.confdir.set_text("~/machinekit/configs/%s" % temp.replace(" ","_"))
     def on_drivertype_changed(self, *args):
         self.a.update_drivertype_info()
 
@@ -303,7 +303,7 @@ class Pages:
         self.w.pyvcp.set_active(self.d.pyvcp)
         self.on_pyvcp_toggled()
         if  not self.w.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
+           if os.path.exists(os.path.expanduser("~/machinekit/configs/%s/custompanel.xml" % self.d.machinename)):
                 self.w.radiobutton8.set_active(True)
         self.w.classicladder.set_active(self.d.classicladder)
         self.w.modbus.set_active(self.d.modbus)
@@ -319,7 +319,7 @@ class Pages:
         self.on_classicladder_toggled()
         self.w.manualtoolchange.set_active(self.d.manualtoolchange)
         if  not self.w.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
+           if os.path.exists(os.path.expanduser("~/machinekit/configs/%s/custom.clp" % self.d.machinename)):
                 self.w.radiobutton4.set_active(True)
 
     def options_finish(self):
@@ -359,7 +359,7 @@ class Pages:
            if self.w.radiobutton4.get_active() == True:
               self.d.laddername='custom.clp'
            else:
-               if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
+               if os.path.exists(os.path.expanduser("~/machinekit/configs/%s/custom.clp" % self.d.machinename)):
                   if not self.a.warning_dialog(self._p.MESS_CL_REWRITE,False):
                      return True # don't advance the page
            if self.w.radiobutton1.get_active() == False:
@@ -376,7 +376,7 @@ class Pages:
            if self.w.radiobutton8.get_active() == True:
               self.d.pyvcpname = "custompanel.xml"
            else:
-              if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
+              if os.path.exists(os.path.expanduser("~/machinekit/configs/%s/custompanel.xml" % self.d.machinename)):
                  if not self.a.warning_dialog(self._p.MESS_PYVCP_REWRITE,False):
                    return True
 
