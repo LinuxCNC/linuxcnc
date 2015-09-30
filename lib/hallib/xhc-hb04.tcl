@@ -524,8 +524,12 @@ if ![info exists ::XHC_HB04_CONFIG(threadname)] {
 loadrt xhc_hb04_util names=pendant_util
 addf   pendant_util $::XHC_HB04_CONFIG(threadname)
 
-connect_pins    ;# per ini file items: [XHC_HB04_BUTTONS]buttonname=pin
-wheel_setup  $::XHC_HB04_CONFIG(jogmode)
-                 # jog wheel per ini file items:
-                 #     [XHC_HB04_CONFIG]coords,coefs,scales
+# If twopass, do not call procs in pass0 that test pin
+# connections since components not yet loaded
+if { ![namespace exists ::tp] || ([::tp::passnumber] != 0) } {
+  connect_pins    ;# per ini file items: [XHC_HB04_BUTTONS]buttonname=pin
+  wheel_setup  $::XHC_HB04_CONFIG(jogmode)
+                   # jog wheel per ini file items:
+                   #     [XHC_HB04_CONFIG]coords,coefs,scales
+}
 #parray ::XHC_HB04_CONFIG
