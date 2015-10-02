@@ -1,3 +1,64 @@
+linuxcnc (1:2.7.1) wheezy; urgency=low
+
+  * docs: correct and expand description of #<_coord_system>
+  * docs: clarify "Updating from 2.6 to 2.7"
+  * docs: fix misc markup issues, typos, and minor issues
+  * docs: add more information about parallel ports
+  * docs: remove duplicate include
+  * docs: clarify dmesg info in Linux FAQ
+  * docs: update the desktop menus
+  * docs: add info on using % to wrap G-code files
+  * docs: update code notes on M61
+  * docs: add link to upgrade page from 2.5 to 2.6
+  * docs: show complete ini entry names for homing
+  * docs: fix display of terminal commands in pdf viewers
+  * docs: clarify G2 and G3 with R and P
+  * docs: document hal alias APIs with manpages
+  * docs: hostmot2 manpage fixes
+  * docs: update checksums for new Wheezy image containing 2.7.0
+
+  * gmoccapy: fix single stepping bug
+  * gmoccapy: bug in tool info handling with tool number being "-1"
+  * gmoccapy: bug in handling tool info with tool being "-1"
+  * update copyright dates for AXIS and Touchy
+  * gremlin: improve ini file find
+  * ngcgui: improve ini file find
+  * ngcgui: fix fullscreen regression
+
+  * pncconf: fix spindle control signals
+  * pncconf: fix spindle control error
+  * pncconf: fix HAL file - VFD always being selected
+
+  * hm2_eth: don't just crash when packets get lost
+
+  * toggle2nist: does not require floating-point
+
+  * xhc-hb04: honor mpg_accels for all manual_mode jogs
+  * xhc-hb04: fix output scaling
+  * xhc_hb04: update man page text
+  * xhc-hb04: support twopass usage
+
+  * hy-vfd: set P144 correctly
+  * gs2 vfd: add support for configs that power off the VFD on E-stop
+
+  * fix bug #439, non-NCD arcs on machines with ABCUVW axes
+  * motion: set the "In Position" emcmot status flag when aborting
+
+  * add option to disable line number reset in hal_sourceview when idle
+  * build system: make the git scripts more user friendly
+  * tp: fix warning: function declaration isn't a prototype
+  * uspace_rtapi_app: clean up on failed "realtime" module load
+  * task: fix a compile warning (heartbeat is unsigned long)
+  * io: "no tool" is spelled "0", not "-1"
+  * io: fix HAL pins on "M61 Q0"
+  * hal_lib: actually export hal_xxx_alias
+
+  * tests: add a lathe test
+  * tests: add another loadrt test
+  * tests: add "spindle unloading" to m61 test
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 17 Oct 2015 21:07:44 -0600
+
 linuxcnc (1:2.7.0) wheezy; urgency=low
 
   * docs: add jessie rtpreempt install instructions
