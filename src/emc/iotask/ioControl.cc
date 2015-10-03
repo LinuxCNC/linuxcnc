@@ -972,9 +972,9 @@ int main(int argc, char *argv[])
 		
 		pocket_number = ((EMC_TOOL_SET_NUMBER *) emcioCommand)->tool;
 		rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_SET_NUMBER old_loaded_tool=%d new_pocket_number=%d new_tool=%d\n", emcioStatus.tool.toolInSpindle, pocket_number, emcioStatus.tool.toolTable[pocket_number].toolno);
+                load_tool(pocket_number);
 		emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolTable[pocket_number].toolno;
 		*(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
-                load_tool(pocket_number);
 	    }
 	    break;
 
