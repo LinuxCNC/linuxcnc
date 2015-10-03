@@ -169,7 +169,7 @@ def wait_for_pin_value(pin_name, value, timeout=1):
         time.sleep(0.1)
 
     if h[pin_name] != value:
-        print "timeout!  pin %s didn't get to %f" % (pin_name, value)
+        print "timeout!  pin %s is %f, didn't get to %f" % (pin_name, h[pin_name], value)
         introspect()
         sys.exit(1)
 
@@ -178,7 +178,7 @@ def wait_for_pin_value(pin_name, value, timeout=1):
 
 def verify_pin_value(pin_name, value):
     if (h[pin_name] != value):
-        print "pin %s is not %f" % (pin_name, value)
+        print "pin %s is %f, not %f" % (pin_name, h[pin_name], value)
         sys.exit(1);
 
     print "pin %s is %f" % (pin_name, value)
@@ -267,6 +267,8 @@ e.set_mode(linuxcnc.MODE_MDI)
 # test m6 to get a baseline
 #
 
+print "*** starting 'T1 M6' tool change"
+
 e.g('t1 m6')
 
 # prepare for tool change
@@ -337,6 +339,8 @@ introspect()
 #
 # now finally test m61
 #
+
+print "*** starting 'M61 Q10' tool change"
 
 e.g('m61 q10')
 
