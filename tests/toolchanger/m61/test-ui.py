@@ -226,6 +226,17 @@ def verify_stable_pin_values(pins, duration=1):
         time.sleep(0.010)
 
 
+def verify_tool_number(tool_number):
+    verify_interp_param(5400, tool_number)        # 5400 == tool in spindle
+
+    # verify stat buffer
+    e.s.poll()
+    if e.s.tool_in_spindle != tool_number:
+        print "ERROR: stat buffer .tool_in_spindle is %f, should be %f" % (e.s.tool_in_spindle, tool_number)
+        sys.exit(1)
+    print "stat buffer .tool_in_spindle is %f" % e.s.tool_in_spindle
+
+
 
 
 #
@@ -261,6 +272,10 @@ e.set_state(linuxcnc.STATE_ON)
 e.set_mode(linuxcnc.MODE_MDI)
 
 
+# at startup, we should have the special tool 0 in the spindle, meaning
+# "no tool" or "unknown tool"
+
+verify_tool_number(0)
 
 
 #
@@ -290,11 +305,10 @@ wait_for_pin_value('tool-change', 0)
 h['tool-changed'] = 0
 
 time.sleep(0.1)
-e.s.poll()
-print "tool change done, e.s.tool_in_spindle = ", e.s.tool_in_spindle
-print "current tool: ", e.get_current_tool()
 
-verify_interp_param(5400, 1)      # tool in spindle
+print "*** tool change complete"
+verify_tool_number(1)
+
 verify_interp_param(5401, 0)      # tlo x
 verify_interp_param(5402, 0)      # tlo y
 verify_interp_param(5403, 1)      # tlo z
@@ -354,10 +368,8 @@ verify_stable_pin_values(
     duration=1
 )
 
-print "m61 done, e.s.tool_in_spindle = ", e.s.tool_in_spindle
-print "current tool: ", e.get_current_tool()
+verify_tool_number(10)
 
-verify_interp_param(5400, 10)     # tool in spindle
 verify_interp_param(5401, 0)      # tlo x
 verify_interp_param(5402, 0)      # tlo y
 verify_interp_param(5403, 3)      # tlo z
