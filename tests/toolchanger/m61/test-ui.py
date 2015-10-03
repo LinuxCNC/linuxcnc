@@ -238,6 +238,30 @@ def verify_tool_number(tool_number):
     print "stat buffer .tool_in_spindle is %f" % e.s.tool_in_spindle
 
 
+def do_tool_change_handshake(tool_number, pocket_number):
+    # prepare for tool change
+    wait_for_pin_value('tool-prepare', 1)
+    verify_pin_value('tool-prep-number', tool_number)
+    verify_pin_value('tool-prep-pocket', pocket_number)
+
+    h['tool-prepared'] = 1
+    wait_for_pin_value('tool-prepare', 0)
+    h['tool-prepared'] = 0
+
+    time.sleep(0.1)
+    e.s.poll()
+    print "tool prepare done, e.s.pocket_prepped = ", e.s.pocket_prepped
+    if e.s.pocket_prepped != pocket_number:
+        print "ERROR: wrong pocket prepped in stat buffer (got %d, expected %d)" % (e.s.pocket_prepped, pocket_number)
+        sys.exit(1)
+
+    # change tool
+    wait_for_pin_value('tool-change', 1)
+    h['tool-changed'] = 1
+    wait_for_pin_value('tool-change', 0)
+    h['tool-changed'] = 0
+
+
 
 
 #
@@ -287,25 +311,7 @@ print "*** starting 'T1 M6' tool change"
 
 e.g('t1 m6')
 
-# prepare for tool change
-wait_for_pin_value('tool-prepare', 1)
-verify_pin_value('tool-prep-number', 1)
-verify_pin_value('tool-prep-pocket', 1)
-h['tool-prepared'] = 1
-wait_for_pin_value('tool-prepare', 0)
-h['tool-prepared'] = 0
-
-time.sleep(0.1)
-e.s.poll()
-print "tool prepare done, e.s.pocket_prepped = ", e.s.pocket_prepped
-
-# change tool
-wait_for_pin_value('tool-change', 1)
-h['tool-changed'] = 1
-wait_for_pin_value('tool-change', 0)
-h['tool-changed'] = 0
-
-time.sleep(0.1)
+do_tool_change_handshake(tool_number=1, pocket_number=1)
 
 print "*** tool change complete"
 verify_tool_number(1)
