@@ -607,7 +607,7 @@ void load_tool(int pocket) {
     } else if(pocket == 0) {
         // on non-random tool-changers, asking for pocket 0 is the secret
         // handshake for "unload the tool from the spindle"
-	emcioStatus.tool.toolTable[0].toolno = -1;
+	emcioStatus.tool.toolTable[0].toolno = 0;
         ZERO_EMC_POSE(emcioStatus.tool.toolTable[0].offset);
         emcioStatus.tool.toolTable[0].diameter = 0.0;
         emcioStatus.tool.toolTable[0].frontangle = 0.0;
