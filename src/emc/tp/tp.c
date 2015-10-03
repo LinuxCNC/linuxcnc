@@ -748,7 +748,7 @@ STATIC int tcSetLineXYZ(TC_STRUCT * const tc, PmCartLine const * const line)
     }
 
     tc->coords.line.xyz = *line;
-    tc->target = line->tmag;
+    tc->target = pmLine9Target(&tc->coords.line);
     return TP_ERR_OK;
 }
 

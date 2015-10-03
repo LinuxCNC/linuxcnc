@@ -370,7 +370,7 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         pmCartLineInit(&prev_tc->coords.line.xyz,
                 &prev_tc->coords.line.xyz.start, circ_start);
         tp_debug_print("Old target = %f\n", prev_tc->target);
-        prev_tc->target = prev_tc->coords.line.xyz.tmag;
+        prev_tc->target = pmLine9Target(&prev_tc->coords.line);
         tp_debug_print("Target = %f\n",prev_tc->target);
         //Setup tangent blending constraints
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
@@ -385,7 +385,7 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     pmCartLineInit(&tc->coords.line.xyz, circ_end, &tc->coords.line.xyz.end);
 
     tp_info_print(" L2: old target = %f\n", tc->target);
-    tc->target = tc->coords.line.xyz.tmag;
+    tc->target = pmLine9Target(&tc->coords.line);
     tp_info_print(" L2: new target = %f\n", tc->target);
     tp_debug_print(" L2 start  : %f %f %f\n",tc->coords.line.xyz.start.x,
             tc->coords.line.xyz.start.y,
@@ -676,7 +676,8 @@ int tcClampVelocityByLength(TC_STRUCT * const tc)
 }
 
 /**
- * compute the total arc length of a circle segment
+ * compute the total arc length of a circle segment.
+ * FIXME redundant now, remove and replace if possible
  */
 int tcUpdateTargetFromCircle(TC_STRUCT * const tc)
 {
@@ -684,11 +685,7 @@ int tcUpdateTargetFromCircle(TC_STRUCT * const tc)
         return TP_ERR_FAIL;
     }
 
-    double h2;
-    pmCartMagSq(&tc->coords.circle.xyz.rHelix, &h2);
-    double helical_length = pmSqrt(pmSq(tc->coords.circle.fit.total_planar_length) + h2);
-
-    tc->target = helical_length;
+    tc->target = pmCircle9Target(&tc->coords.circle);
     return TP_ERR_OK;
 }
 
