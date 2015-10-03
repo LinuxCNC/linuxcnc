@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.5.1"
+_RELEASE = " 1.5.5.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -160,7 +160,6 @@ class gmoccapy( object ):
         # widget states.
 
         self.start_line = 0      # needed for start from line
-#        self.stepping = False    # used to sensitize widgets when using step by step
 
         self.active_gcodes = []  # this are the formated G code values
         self.active_mcodes = []  # this are the formated M code values
@@ -1539,7 +1538,6 @@ class gmoccapy( object ):
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks"
         ]
-        #"btn_step",
         if not self.widgets.rbt_hal_unlock.get_active():
             widgetlist.append( "tbtn_setup" )
         if self.all_homed or self.no_force_homing:
@@ -1575,17 +1573,12 @@ class gmoccapy( object ):
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
         ]
-        #"btn_step",
         # in MDI it should be possible to add more commands, even if the interpreter is running
         if self.stat.task_mode != linuxcnc.MODE_MDI:
             widgetlist.append( "ntb_jog" )
 
         self._sensitize_widgets( widgetlist, False )
         self.widgets.btn_run.set_sensitive( False )
-        # the user want to run step by step
-#        if self.stepping == True:
-#            self.widgets.btn_step.set_sensitive( True )
-#            self.widgets.tbtn_pause.set_sensitive( False )
 
         self.widgets.btn_show_kbd.set_image( self.widgets.img_brake_macro )
         self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "interrupt running macro" ) )
@@ -2327,7 +2320,7 @@ class gmoccapy( object ):
 
         # we do not allow touch off with no tool mounted, so we set the
         # coresponding widgets unsensitive and set the description acordingly
-        if tool == 0:
+        if tool <= 0:
             self.widgets.lbl_tool_no.set_text( "0" )
             self.widgets.lbl_tool_dia.set_text( "0" )
             self.widgets.lbl_tool_name.set_text( _( "No tool description available" ) )
@@ -3915,8 +3908,6 @@ class gmoccapy( object ):
     def on_tbtn_pause_toggled( self, widget, data = None ):
         self._add_alarm_entry( "Pause toggled to be %s" % widget.get_active() )
         widgetlist = ["rbt_forward", "rbt_reverse", "rbt_stop"]
-#        if not self.stepping:
-#            widgetlist.append("btn_step")
         self._sensitize_widgets( widgetlist, widget.get_active() )
 
     def on_btn_stop_clicked( self, widget, data = None ):
@@ -3927,17 +3918,6 @@ class gmoccapy( object ):
 
     def on_btn_run_clicked( self, widget, data = None ):
         self.command.auto( linuxcnc.AUTO_RUN, self.start_line )
-
-#    def on_btn_step_clicked( self, widget, data = None ):
-#        self.stepping = True
-#        self.command.auto( linuxcnc.AUTO_STEP )
-
-#    # this is needed only for stepping through a program, to
-#    # sensitize the widgets according to that mode
-#    def on_btn_load_state_changed( self, widget, state ):
-#        if state == gtk.STATE_INSENSITIVE:
-#            self.stepping = False
-#            self.widgets.tbtn_pause.set_sensitive( True )
 
     def on_btn_from_line_clicked( self, widget, data = None ):
         self._add_alarm_entry( "Restart the program from line clicked" )
@@ -4310,7 +4290,10 @@ if __name__ == "__main__":
     print ( "**** GMOCCAPY INFO : postgui halfile = %s ****:" % postgui_halfile )
 
     if postgui_halfile:
-        res = os.spawnvp( os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", postgui_halfile] )
+        if postgui_halfile.lower().endswith('.tcl'):
+            res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, postgui_halfile])
+        else:
+            res = os.spawnvp( os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", postgui_halfile] )
         if res:
             raise SystemExit, res
     gtk.main()
