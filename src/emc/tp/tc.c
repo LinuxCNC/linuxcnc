@@ -313,9 +313,9 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
                     &abc);
             break;
         case TC_CIRCULAR:
-            angle = pmCircleAngleFromProgress(&tc->coords.circle.xyz,
+            angle = pmCircleAngleFromParam(&tc->coords.circle.xyz,
                     &tc->coords.circle.fit,
-                    progress);
+                    progress / tc->target);
             pmCirclePoint(&tc->coords.circle.xyz,
                     angle,
                     &xyz);
@@ -480,15 +480,7 @@ int tcFlagEarlyStop(TC_STRUCT * const tc,
 
 double pmLine9Target(PmLine9 * const line9)
 {
-    if (!line9->xyz.tmag_zero) {
-        return line9->xyz.tmag;
-    } else if (!line9->uvw.tmag_zero) {
-        return line9->uvw.tmag;
-    } else if (!line9->abc.tmag_zero) {
-        return line9->abc.tmag;
-    } else {
-        return 0.0;
-    }
+    return pmSqrt(pmSq(line9->xyz.tmag) + pmSq(line9->uvw.tmag) + pmSq(line9->abc.tmag));
 }
 
 
@@ -621,8 +613,7 @@ double pmCircle9Target(PmCircle9 const * const circ9)
     double h2;
     pmCartMagSq(&circ9->xyz.rHelix, &h2);
     double helical_length = pmSqrt(pmSq(circ9->fit.total_planar_length) + h2);
-
-    return helical_length;
+    return pmSqrt(pmSq(helical_length) + pmSq(circ9->uvw.tmag) + pmSq(circ9->abc.tmag));
 }
 
 /**

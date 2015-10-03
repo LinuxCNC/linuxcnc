@@ -1651,7 +1651,7 @@ double pmCircleActualMaxVel(PmCircle * const circle,
  * Intermediate function to find the angle for a parameter from 0..1 along the
  * spiral arc.
  */
-static double pmCircleAngleFromParam(PmCircle const * const circle,
+double pmCircleAngleFromParam(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
         double t)
 {
