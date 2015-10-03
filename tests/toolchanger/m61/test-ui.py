@@ -414,6 +414,34 @@ verify_interp_param(5427, 0)      # current v
 verify_interp_param(5428, 0)      # current w
 
 
+#
+# use M6 to unload the spindle (T0)
+#
+
+print "*** using 'T0 M6' to unload the spindle"
+e.g("t0 m6")
+do_tool_change_handshake(tool_number=0, pocket_number=0)
+verify_tool_number(0)
+
+
+#
+# use M61 to load T1 in the spindle again
+#
+
+print "*** using 'M61 Q1' to load a tool again"
+e.g("m61 q1")
+verify_tool_number(1)
+
+
+#
+# use M61 to unload the spindle (T0)
+#
+
+print "*** using 'M61 Q0' to unload the spindle again"
+e.g("m61 q0", wait=True)
+verify_tool_number(0)
+
+
 # if we get here it all worked!
 sys.exit(0)
 
