@@ -228,6 +228,7 @@ def verify_stable_pin_values(pins, duration=1):
 
 def verify_tool_number(tool_number):
     verify_interp_param(5400, tool_number)        # 5400 == tool in spindle
+    verify_pin_value('tool-number', tool_number)  # pin from iocontrol
 
     # verify stat buffer
     e.s.poll()
