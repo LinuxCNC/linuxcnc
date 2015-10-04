@@ -15,7 +15,7 @@
 
 import sys, os, pango, linuxcnc, hashlib
 datadir = os.path.abspath(os.path.dirname(__file__))
-KEYWORDS = ['','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
+KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 try:
     import gobject,gtk
 except:
@@ -28,13 +28,22 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 locale.setlocale(locale.LC_ALL, '')
 
+# we put this in a try so there is no error in the glade editor
+# linuxcnc is probably not running then
+try:
+    INIPATH = os.environ['INI_FILE_NAME']
+except:
+    INIPATH = None
+
 class ToolEdit(gtk.VBox):
     __gtype_name__ = 'ToolEdit'
     __gproperties__ = {
         'font' : ( gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
                 "sans 12", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'hide_columns' : ( gobject.TYPE_STRING, 'Hidden Columns', 's,t,p,x,y,z,a,b,c,u,v,w,d,i,j,q,; are the options',
+        'hide_columns' : (gobject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: stpxyzabcuvwdijq and ; are the options',
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'lathe_display_type' : ( gobject.TYPE_BOOLEAN, 'Display Type', 'True: Lathe layout, False standard layout',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
 
@@ -42,9 +51,11 @@ class ToolEdit(gtk.VBox):
         super(ToolEdit, self).__init__()
         self.emcstat = linuxcnc.stat()
         self.hash_check = None 
+        self.lathe_display_type = True
         self.toolfile = toolfile
         self.num_of_col = 1
         self.font="sans 12"
+        self.hide_columns =''
         self.toolinfo_num = 0
         self.toolinfo = []
         self.wTree = gtk.Builder()
@@ -56,39 +67,95 @@ class ToolEdit(gtk.VBox):
             "on_add_clicked" : self.add,
             "on_reload_clicked" : self.reload,
             "on_save_clicked" : self.save,
+            "on_style_clicked" : self.display_toggle,
             "cell_toggled" : self.toggled
             }
         self.wTree.connect_signals( dic )
-        renderer = self.wTree.get_object("cell_toggle")
+
+        # for raw view 1:
+
+        # toggle button useable
+        renderer = self.wTree.get_object("cell_toggle1")
         renderer.set_property('activatable', True)
-        # list of the columns
-        self.objectlist = "s","t","p","x","y","z","a","b","c","u","v","w","d","i","j","q",";"
-        # these signals include column data so must be made here instead of in Glade
-        # for view 2
-        self.cell_list = "cell_toggle","cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b",\
-                            "cell_c","cell_u","cell_v","cell_w","cell_d",\
-                            "cell_front","cell_back","cell_orient","cell_comments"
-        for col,name in enumerate(self.cell_list):
-            if col == 0:continue
-            temp = self.wTree.get_object(name)
-            temp.connect( 'edited', self.col_editted, col )
-            temp.set_property('font', self.font)
+        # make colums editable
+        self.tool_cell_list = "cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b","cell_c","cell_u","cell_v","cell_w","cell_d", \
+                "cell_front","cell_back","cell_orient","cell_comments"
+        for col,name in enumerate(self.tool_cell_list):
+            #print name,col
+            renderer = self.wTree.get_object(name+'1')
+            renderer.connect( 'edited', self.col_editted, col+1, None)
+
+        # for lathe wear view2:
+
+        # make columns editable
+        temp =[ ("cell_x2",3),("cell_z2",5),("cell_front2",13),("cell_back2",14), \
+                ("cell_orient2",15), ("cell_comments2",16)]
+        for name,col in temp:
+            renderer = self.wTree.get_object(name)
+            renderer.connect( 'edited', self.col_editted, col, 'wear' )
+        # Hide columns we don't want to see
+        self.set_col_visible(list='spyabcuvwdijq', bool= False, tab= '2')
+
+        # for tool offsets view 3:
+
+        # make columns editable
+        temp =[ ("cell_x3",3),("cell_z3",5),("cell_front3",13),("cell_back3",14), \
+                ("cell_orient3",15), ("cell_comments3",16)]
+        for name,col in temp:
+            renderer = self.wTree.get_object(name)
+            renderer.connect( 'edited', self.col_editted, col, 'tool' )
+        # Hide columns we don't want to see
+        self.set_col_visible(list='spyabcuvwdij', bool= False, tab= '3')
 
         # global references
         self.model = self.wTree.get_object("liststore1")
+        self.notebook = self.wTree.get_object("tool_offset_notebook")
         self.all_window = self.wTree.get_object("all_window")
+        self.wear_window = self.wTree.get_object("wear_window")
+        self.tool_window = self.wTree.get_object("tool_window")
+        self.view1 = self.wTree.get_object("treeview1")
         self.view2 = self.wTree.get_object("treeview2")
-        self.view2.connect( 'button_press_event', self.on_treeview2_button_press_event )
+        self.view2.connect('button_press_event', self.on_treeview2_button_press_event)
+        self.selection = self.view2.get_selection()
+        self.selection.set_mode(gtk.SELECTION_SINGLE)
+        self.view3 = self.wTree.get_object("treeview3")
+        self.view3.connect('button_press_event', self.on_treeview2_button_press_event)
         self.apply = self.wTree.get_object("apply")
         self.buttonbox = self.wTree.get_object("buttonbox")
+        self.tool_filter = self.wTree.get_object("tool_modelfilter")
+        self.tool_filter.set_visible_func(self.match_type,False)
+        self.wear_filter = self.wTree.get_object("wear_modelfilter")
+        self.wear_filter.set_visible_func(self.match_type,True)
         # reparent tooledit box from Glades tp level window to tooledit's VBox
         window = self.wTree.get_object("tooledit_box")
         window.reparent(self)
         # If the toolfile was specified when tooledit was created load it
         if toolfile:
             self.reload(None)
+        # check the ini file if UNITS are set to mm
+        # first check the global settings
+        # if not available then the X axis units
+        try:
+            self.inifile = linuxcnc.ini(INIPATH)
+            test = self.inifile.find("DISPLAY", "LATHE")
+            print test,"<<<<<<"
+            if test == '1' or test == 'True':
+                self.lathe_display_type = True
+                self.set_lathe_display(True)
+        except:
+            pass
+
         # check linuxcnc status every second
         gobject.timeout_add(1000, self.periodic_check)
+
+    # used to split tool and wear data by the tool number
+    # if the tool number is above 10000 then its a wear offset (as per fanuc)
+    # returning true will show the row
+    def match_type(self, model, iter, data):
+        value = model.get_value(iter, 1)
+        if value < 10000:
+            return not data
+        return data
 
         # delete the selected tools
     def delete(self,widget):
@@ -141,20 +208,18 @@ class ToolEdit(gtk.VBox):
         self.model.append(data)
         self.num_of_col +=1
 
-        # This is for adding a filename path after the tooleditor is already loaded.
+        # this is for adding a filename path after the tooleditor is already loaded.
     def set_filename(self,filename):
         self.toolfile = filename
         self.reload(None)
 
         # Reload the tool file into display
-        # note show the decimal point as the locale requires even though the file
-        # only uses (requires) a decimal point not a comma
     def reload(self,widget):
         self.hash_code = self.md5sum(self.toolfile)
         # clear the current liststore, search the tool file, and add each tool
         if self.toolfile == None:return
         self.model.clear()
-        # print "toolfile:",self.toolfile
+        print "toolfile:",self.toolfile
         if not os.path.exists(self.toolfile):
             print "Toolfile does not exist"
             return
@@ -193,7 +258,7 @@ class ToolEdit(gtk.VBox):
                                 print "Tooledit widget int error"
                         else:
                             try:
-                                array[offset]= locale.format("%10.4f", float(word.lstrip(i)))
+                                array[offset]= "%10.4f"% float(word.lstrip(i))
                             except:
                                 print "Tooledit_widget float error"
                         break
@@ -223,7 +288,9 @@ class ToolEdit(gtk.VBox):
                     test = i.lstrip() # localized floats
                     line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
 
-            print >>file,line
+            #print >>file,line
+        # Theses lines are required to make sure the OS doesn't cache the data
+        # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()
         os.fsync(file.fileno())
         # tell linuxcnc we changed the tool table entries
@@ -232,30 +299,81 @@ class ToolEdit(gtk.VBox):
         except:
             print "Reloading tooltable into linuxcnc failed"
 
-    # This allows hiding or showing columns of view 2
-    # default, all the columns are shown
+        # This is for changing the display after tool editor was loaded using the style button
+        # note that it toggles the display
+    def display_toggle(self,widget=None):
+        value = (self.display_type * -1) +1
+        self.set_display(value)
+
+        # There is an 'everything' display and a 'lathe' display
+        # the same model is used in each case just the listview is different
+        # does the actual display change by hiding what we don't want
+        # for whatever reason I have to hide/show both the view and it's container
+    def set_lathe_display(self,value):
+        #print "    lathe_display    ",value
+        self.lathe_display_type = value
+        #if self.all_window.flags() & gtk.VISIBLE:
+        self.notebook.set_show_tabs(value)
+        if value:
+            self.wear_window.show()
+            self.view3.show()
+            self.tool_window.show()
+            self.view2.show()
+        else:
+            self.view2.hide()
+            self.wear_window.hide()
+            
+            self.tool_window.hide()
+            self.view3.hide()
+
+    def set_font(self, value, tab='123'):
+        for i in range(0, len(tab)):
+            if tab[i] in ('1','2','3'):
+                for col,name in enumerate(self.tool_cell_list):
+                    temp2 = self.wTree.get_object(name+tab[i])
+                    temp2.set_property('font', value)
+
+    # for legacy interface
     def set_visible(self,list,bool):
-        try:
-            for index in range(0,len(list)):
-                name = list[index].lower()
-                if not name in self.objectlist:
-                    continue
-                else:
+        self.set_col_visible(list, bool, tab= '1')
+
+    # This allows hiding or showing columns from a text string of columnns
+    # eg list ='xyz'
+    # tab= selects what tabs to apply it to
+    def set_col_visible(self, list, bool= False, tab= '1'):
+        #print list,bool,tab
+        for i in range(0, len(tab)):
+            if tab[i] in ('1','2','3'):
+                #print tab[i]
+                for index in range(0, len(list)):
+                    colstr = str(list[index])
+                    #print colstr
+                    colnum = 'stpxyzabcuvwdijq;'.index(colstr.lower())
+                    #print colnum
+                    name = KEYWORDS[colnum].lower()+tab[i]
+                    #print name
                     renderer = self.wTree.get_object(name)
                     renderer.set_property('visible', bool)
-        except:
-            pass
 
-        # Allows you to change the font of all the columns and rows
-    def set_font(self,value):
-        for col,name in enumerate(self.cell_list):
-            if col == 0: continue
-            temp = self.wTree.get_object(name)
-            temp.set_property('font', value)
+    # For single click selection when in edit mode
+    def on_treeview2_button_press_event(self, widget, event):
+        if event.button == 1 : # left click
+            try:
+                path, model, x, y = widget.get_path_at_pos(int(event.x), int(event.y))
+                widget.set_cursor(path, None, True)
+            except:
+                pass
 
         # depending what is editted add the right type of info integer,float or text
-        # we use locale methods so either a comma or decimal can be used, dependig in locale
-    def col_editted(self, widget, path, new_text, col):
+        # If it's a filtered display then we must convert the path 
+    def col_editted(self, widget, path, new_text, col, filter):
+        if filter == 'wear':
+            (store_path,) = self.wear_filter.convert_path_to_child_path(path)
+            path = store_path
+        elif filter == 'tool':
+            (store_path,) = self.tool_filter.convert_path_to_child_path(path)
+            path = store_path
+        
         if col in(1,2):
             try:
                 self.model[path][col] = int(new_text)
@@ -271,7 +389,9 @@ class ToolEdit(gtk.VBox):
                 self.model[path][col] = (new_text)
             except:
                 pass
-        #print new_text, col
+        #print path,new_text, col
+        if filter in('wear','tool'):
+            self.save(None)
 
         # this makes the checkboxes actually update
     def toggled(self, widget, path):
@@ -334,14 +454,6 @@ class ToolEdit(gtk.VBox):
         else:
             self.buttonbox.show()
 
-    # For single click selection when in edit mode
-    def on_treeview2_button_press_event(self,widget,event):
-        if event.button == 1 : # left click
-            try:
-                path,model,x,y = widget.get_path_at_pos(int(event.x), int(event.y))
-                self.view2.set_cursor(path,None,True)
-            except:
-                pass
         # standard Gobject method
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -361,16 +473,19 @@ class ToolEdit(gtk.VBox):
                 self.set_font(value)
             except:
                 pass
-        if name == 'hide_columns':
-            self.set_visible("stpxyzabcuxvdijq;",True)
-            self.set_visible("%s"%value,False)
-        if name in self.__gproperties.keys():
-            setattr(self, name, value)
-
-    def __getitem__(self, item):
-        return getattr(self, item)
-    def __setitem__(self, item, value):
-        return setattr(self, item, value)
+        elif name == 'lathe_display_type':
+            #print value
+            if INIPATH is None:
+                try:
+                    self.set_lathe_display(value)
+                except:
+                    pass
+        elif name == 'hide_columns':
+            try:
+                self.set_col_visible("sptxyzabcuvwdijq;", True)
+                self.set_col_visible("%s" % value, False)
+            except:
+                pass
 
 # for testing without glade editor:
 # for what ever reason tooledit always shows both display lists,
@@ -386,12 +501,13 @@ def main(filename=None):
     tooledit = ToolEdit(filename)
     
     window.vbox.add(tooledit)
-    tooledit.set_visible("Abcijquvw",False)
     window.connect("destroy", gtk.main_quit)
+    tooledit.set_col_visible("abcUVW", False, tab='1')
     tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/gscreen_custom/lathe-fanucy.tbl")
-    tooledit.set_font("sans 16")
+    #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/test.tbl")
+    tooledit.set_font("sans 16",tab='23')
     window.show_all()
-    #tooledit.hide_buttonbox(True)
+    #tooledit.set_lathe_display(True)
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
        print "True"
@@ -399,7 +515,7 @@ def main(filename=None):
        print "False"
 
 if __name__ == "__main__":
-    # if there arw two arguments then specify the path
+    # if there are two arguments then specify the path
     if len(sys.argv) > 1: main(sys.argv[1])
     else: main()
     
