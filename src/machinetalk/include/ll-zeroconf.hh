@@ -1,6 +1,9 @@
 /*
  * minimalistic zeroconf publish interface
  * low-level Avahi interface, avahi poll loop integration
+ *
+ * Copyright Michael Haberler 2013-2015
+ * License: Mozilla Public License Version 2.0
  */
 
 #ifndef _LL_ZEROCONF_H

@@ -2,8 +2,8 @@
  * zeroconf register interface / low level register/unregister
  * czmq reactor compatible
  *
- * Michael Haberler 2014
- * based on distcc code by Lennart Poettering,  Copyright (C) 2007
+ * Copyright Michael Haberler 2014-2015
+ * License: Mozilla Public License Version 2.0
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
