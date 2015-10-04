@@ -532,8 +532,10 @@ int tcSetupMotion(TC_STRUCT * const tc,
     tc->maxaccel = acc;
 
     tc->maxvel = ini_maxvel;
+    tp_debug_print(" ini_maxvel = %f\n", ini_maxvel);
 
     tc->reqvel = vel;
+    tp_debug_print(" reqvel = %f\n", vel);
     // Initial guess at target velocity is just the requested velocity
     tc->target_vel = vel;
     // TO be filled in by tangent calculation, negative = invalid (KLUDGE)
