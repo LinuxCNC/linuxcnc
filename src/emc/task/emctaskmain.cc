@@ -3485,7 +3485,7 @@ int main(int argc, char *argv[])
     // end of while (! done)
 
     rcs_print(
-        "task: %lu cycles, min=%.6f, max=%.6f, avg=%.6f, %u latency excursions (> %dx expected cycle time of %.6fs)\n",
+        "task: %u cycles, min=%.6f, max=%.6f, avg=%.6f, %u latency excursions (> %dx expected cycle time of %.6fs)\n",
         emcStatus->task.heartbeat,
         minTime,
         maxTime,
