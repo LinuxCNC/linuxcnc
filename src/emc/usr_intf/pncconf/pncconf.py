@@ -786,7 +786,7 @@ class Data:
         self.mitsub_vfd_baud = 9600
         self.mitsub_vfd_command_scale = 1
         self.mitsub_vfd_feedback_scale = 1
-        self.gs2_vfd = False
+        self.gs2_vfd = True
         self.gs2_vfd_port = '/dev/ttyS0'
         self.gs2_vfd_slave = 1
         self.gs2_vfd_baud = 9600

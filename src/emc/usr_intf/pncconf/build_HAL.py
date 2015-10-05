@@ -815,10 +815,11 @@ class HAL:
             print >>f1
             if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect:
                 print >>f1, "source pyvcp_options.hal"
-            if self.d.gs2_vfd:
-                print >>f1, "source gs2_vfd.hal"
-            if self.d.mitsub_vfd:
-                print >>f1, "source mitsub_vfd.hal"
+            if self.d.serial_vfd:
+                if self.d.gs2_vfd:
+                    print >>f1, "source gs2_vfd.hal"
+                if self.d.mitsub_vfd:
+                    print >>f1, "source mitsub_vfd.hal"
             print >>f1, "source custom_postgui.hal"
 
 
@@ -875,7 +876,7 @@ class HAL:
 
         # include Automation Direct GS2 VFD HAL file
         fname = os.path.join(base, "gs2_vfd.hal")
-        if self.d.gs2_vfd:
+        if self.d.serial_vfd and self.d.gs2_vfd:
             self.write_gs2_vfd(fname)
         else:
             if os.path.exists(fname):
@@ -883,8 +884,8 @@ class HAL:
 
         # include Mitsubishi FR VFD HAL file
         fname = os.path.join(base, "mitsub_vfd.hal")
-        if self.d.mitsub_vfd:
-            self.write_gs2_vfd(fname)
+        if self.d.serial_vfd and self.d.mitsub_vfd:
+            self.write_mitsub_vfd(fname)
         else:
             if os.path.exists(fname):
                 os.remove(fname)

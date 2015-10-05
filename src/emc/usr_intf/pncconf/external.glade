@@ -351,7 +351,7 @@ show / adjust parameters.</property>
             <child type="tab">
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">page 1</property>
+                <property name="label" translatable="yes">Text</property>
               </object>
               <packing>
                 <property name="tab_fill">False</property>
@@ -4602,10 +4602,8 @@ show / adjust parameters.</property>
                 <child>
                   <object class="GtkRadioButton" id="mitsub_vfd">
                     <property name="label" translatable="yes">Mitsubishi FR Spindle VFD</property>
-                    <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="active">True</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -4615,7 +4613,7 @@ show / adjust parameters.</property>
                 </child>
                 <child>
                   <object class="GtkRadioButton" id="gs2_vfd">
-                    <property name="label" translatable="yes">Gs2 Spindle VFD</property>
+                    <property name="label" translatable="yes">GS2 Spindle VFD</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -4745,35 +4743,9 @@ show / adjust parameters.</property>
                     <child type="tab">
                       <object class="GtkLabel" id="label15">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">page 1</property>
+                        <property name="label" translatable="yes">GS2</property>
                       </object>
                       <packing>
-                        <property name="tab_fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child type="tab">
-                      <object class="GtkLabel" id="label16">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">page 2</property>
-                      </object>
-                      <packing>
-                        <property name="position">1</property>
-                        <property name="tab_fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child type="tab">
-                      <object class="GtkLabel" id="label17">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">page 3</property>
-                      </object>
-                      <packing>
-                        <property name="position">2</property>
                         <property name="tab_fill">False</property>
                       </packing>
                     </child>
@@ -4795,19 +4767,6 @@ show / adjust parameters.</property>
               </object>
               <packing>
                 <property name="position">7</property>
-                <property name="tab_fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child type="tab">
-              <object class="GtkLabel" id="label12">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">page 9</property>
-              </object>
-              <packing>
-                <property name="position">8</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
