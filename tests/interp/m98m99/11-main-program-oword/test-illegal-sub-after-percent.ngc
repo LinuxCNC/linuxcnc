@@ -1,0 +1,25 @@
+%
+(illegal example)
+(Define sub after percent [= after EOF])
+O1 (main program begin)
+G0 X1Y2
+(calling sub 2)
+O2 call
+(returned from sub 2)
+%
+(Nothing should follow % sign)
+
+(From http://linuxcnc.org/docs/html/gcode/overview.html#_overview    )
+(    The useful contents of a file demarcated by percents stop after )
+(    the second percent line. Anything after that is ignored.        )
+
+(From Smid 3rd Ed. p. 62)
+(    The percent sign (%) after M30 is a special _stop_code_.  This  )
+(    symbol terminates the loading of a program from an external     )
+(    device.  It is also called the _end-of-file_marker_.            )
+
+O2 sub (subprogram begin) (program end signaled by O2 sub)
+(in sub 2)
+G0 Z3
+(returning from sub 2)
+O2 endsub

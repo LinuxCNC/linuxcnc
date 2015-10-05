@@ -4090,16 +4090,30 @@ int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
 
 Returned Value: int
    When an m2 or m30 (program_end) is encountered, this returns INTERP_EXIT.
-   If the code is not m0, m1, m2, m30, or m60, this returns
-   NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60
+   M99 main program endless loop:
+       if looping is disabled (default, not in task), return INTERP_EXIT;
+       else in task, return INTERP_EXECUTE_FINISH.
+   M99 return from subprogram is not handled here, and raises an error.
+   If the code is not m0, m1, m2, m30, m60, or m99 this returns
+       NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60_M99
    Otherwise, it returns INTERP_OK.
 
 Side effects:
-   An m0, m1, m2, m30, or m60 in the block is executed.
+   An m0, m1, m2, m30, m60 or m99 in the block is executed.
 
    For m0, m1, and m60, this makes a function call to the PROGRAM_STOP
    canonical machining function (which stops program execution).
    In addition, m60 calls PALLET_SHUTTLE.
+
+   For m99 main program endless looping in task, this returns control
+   to the beginning of the file and outputs any linked segments to the
+   interp list.  The INTERP_EXECUTE_FINISH return code causes any
+   commands in the interp list to be issued so that the endless loop
+   doesn't result in an infinite queue.
+
+   For m99 main program endless looping elsewhere, especially preview
+   where endless looping is not desired, this behaves as m2 and m30
+   below.
 
    For m2 and m30, this resets the machine and then calls PROGRAM_END.
    In addition, m30 calls PALLET_SHUTTLE.
@@ -4160,6 +4174,11 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   CHP(move_endpoint_and_flush(settings, cx, cy));
   dequeue_canons(settings);
 
+  // M99 as subroutine return is handled in interp_o_word.cc
+  // convert_control_functions()
+  CHKS((block->m_modes[4] == 99 && settings->call_level > 0),
+	   (_("Bug:  Reached convert_stop() from M99 as subprogram return")));
+
   if (block->m_modes[4] == 0) {
     PROGRAM_STOP();
   } else if (block->m_modes[4] == 60) {
@@ -4167,7 +4186,16 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     PROGRAM_STOP();
   } else if (block->m_modes[4] == 1) {
     OPTIONAL_PROGRAM_STOP();
-  } else if ((block->m_modes[4] == 2) || (block->m_modes[4] == 30)) {   /* reset stuff here */
+  } else if (block->m_modes[4] == 99 && _setup.loop_on_main_m99) {
+      // Fanuc-style M99 main program endless loop
+
+      logDebug("M99 main program endless loop");
+      loop_to_beginning(settings);  // return control to beginning of file
+      FINISH();  // Output any final linked segments
+      return INTERP_EXECUTE_FINISH;  // tell task to issue any queued commands
+  } else if ((block->m_modes[4] == 2) || (block->m_modes[4] == 30) ||
+	     (block->m_modes[4] == 99 && !_setup.loop_on_main_m99)
+	     ) {   /* reset stuff here */
 /*1*/
     settings->current_x += settings->origin_offset_x;
     settings->current_y += settings->origin_offset_y;
@@ -4293,7 +4321,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     unwind_call(INTERP_EXIT, __FILE__,__LINE__,__FUNCTION__);
     return INTERP_EXIT;
   } else
-    ERS(NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60);
+    ERS(NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60_M99);
   return INTERP_OK;
 }
 

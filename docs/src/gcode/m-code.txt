@@ -32,6 +32,7 @@
 |<<mcode:m71,M71>>                   | Invalidate Stored Modal State
 |<<mcode:m72,M72>>                   | Restore Modal State
 |<<mcode:m73,M73>>                   | Save Autorestore Modal State
+|<<mcode:m98-m99,M98 M99>>           | Call and Return From Subprogram
 |<<mcode:m100-m199,M100-M199>>       | User Defined M-Codes 
 |========================================
 
@@ -607,6 +608,13 @@ o<imperialsub> call
 o<showstate> call
 m2
 ----
+
+[[mcode:m98-m99]]
+== M98 and M99 ==
+
+The interpreter supports Fanuc-style main- and sub-programs with the
+'M98' and 'M99' M-codes.  See <<ocode:fanuc-style-programs,Fanuc-Style
+Programs>>.
 
 === Selectively Restoring Modal State
 

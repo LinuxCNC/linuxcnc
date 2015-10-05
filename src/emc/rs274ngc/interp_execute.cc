@@ -279,7 +279,8 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   }
   CHP(convert_m(block, settings));
   CHP(convert_g(block, settings));
-  if ((block->m_modes[4] != -1) && ONCE(STEP_MGROUP4)) {        /* converts m0, m1, m2, m30, or m60 */
+  /* convert m0, m1, m2, m30, m60, or (when main program loops disabled) m99 */
+  if ((block->m_modes[4] != -1) && ONCE(STEP_MGROUP4)) {
       if (STEP_REMAPPED_IN_BLOCK(block, STEP_MGROUP4)) {
 	  status = convert_remapped_code(block,settings,STEP_MGROUP4,'M',block->m_modes[4]);
       } else {

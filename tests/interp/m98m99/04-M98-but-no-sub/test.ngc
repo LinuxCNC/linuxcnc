@@ -1,0 +1,6 @@
+%
+( M98 call non-existant sub )
+
+M98 P1
+M30
+%

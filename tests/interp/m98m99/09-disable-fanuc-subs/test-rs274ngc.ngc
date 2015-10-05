@@ -1,0 +1,13 @@
+%
+( A simple O sub example )
+
+O1 sub
+G91 G0 X1                ; Jog 1" along X (relative)
+G90 G99 G81 Z-1.0 R0.25  ; Drill to Z-1.0
+O1 endsub
+
+F40
+G90 G0 X0 Y0 Z0.25
+O1 call
+M30
+%

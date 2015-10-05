@@ -1,0 +1,14 @@
+;Nested subroutine definition
+
+O1 sub
+G1 X0
+
+  O2 sub
+  G1 Y0
+  O2 endsub
+
+O1 endsub
+
+O1 call
+M30
+%

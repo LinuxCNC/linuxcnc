@@ -1,0 +1,17 @@
+%
+(legal example)
+(Main program defined with numeric O-word title, terminated by percent)
+O2 sub (subprogram begin) (program end signaled by O2 sub)
+(in sub 2)
+G0 Z3
+(returning from sub 2)
+O2 endsub
+
+O1 (main program begin)
+G0 X1Y2
+(calling sub 2)
+O2 call
+(returned from sub 2)
+
+(end of main signaled by percent)
+%

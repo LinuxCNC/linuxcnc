@@ -1,0 +1,9 @@
+%
+( Fanuc 'O...' sub must end with M99 )
+
+M98 P1
+
+O1
+(PRINT,X FANUC)
+O1 endsub
+%

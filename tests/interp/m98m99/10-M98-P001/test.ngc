@@ -1,0 +1,14 @@
+%
+(main program)
+M98 P0002
+M30                                         (end)
+
+O0002  (O-word begins with '0')
+(PRINT,x got here)
+M99
+
+O2  (O-word does not begin with '0')
+(PRINT,x ERROR: should not get here)
+M99
+
+%

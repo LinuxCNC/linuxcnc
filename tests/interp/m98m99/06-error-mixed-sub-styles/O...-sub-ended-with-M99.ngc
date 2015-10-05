@@ -1,0 +1,9 @@
+%
+( RS274NGC 'O... sub' sub must not end with M99 )
+
+O1 call
+
+O1 sub
+(PRINT,X FANUC)
+M99
+%
