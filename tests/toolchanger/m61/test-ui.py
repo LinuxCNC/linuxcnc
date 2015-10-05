@@ -169,7 +169,7 @@ def wait_for_pin_value(pin_name, value, timeout=1):
         time.sleep(0.1)
 
     if h[pin_name] != value:
-        print "timeout!  pin %s didn't get to %f" % (pin_name, value)
+        print "timeout!  pin %s is %f, didn't get to %f" % (pin_name, h[pin_name], value)
         introspect()
         sys.exit(1)
 
@@ -178,7 +178,7 @@ def wait_for_pin_value(pin_name, value, timeout=1):
 
 def verify_pin_value(pin_name, value):
     if (h[pin_name] != value):
-        print "pin %s is not %f" % (pin_name, value)
+        print "pin %s is %f, not %f" % (pin_name, h[pin_name], value)
         sys.exit(1);
 
     print "pin %s is %f" % (pin_name, value)
@@ -226,6 +226,42 @@ def verify_stable_pin_values(pins, duration=1):
         time.sleep(0.010)
 
 
+def verify_tool_number(tool_number):
+    verify_interp_param(5400, tool_number)        # 5400 == tool in spindle
+    verify_pin_value('tool-number', tool_number)  # pin from iocontrol
+
+    # verify stat buffer
+    e.s.poll()
+    if e.s.tool_in_spindle != tool_number:
+        print "ERROR: stat buffer .tool_in_spindle is %f, should be %f" % (e.s.tool_in_spindle, tool_number)
+        sys.exit(1)
+    print "stat buffer .tool_in_spindle is %f" % e.s.tool_in_spindle
+
+
+def do_tool_change_handshake(tool_number, pocket_number):
+    # prepare for tool change
+    wait_for_pin_value('tool-prepare', 1)
+    verify_pin_value('tool-prep-number', tool_number)
+    verify_pin_value('tool-prep-pocket', pocket_number)
+
+    h['tool-prepared'] = 1
+    wait_for_pin_value('tool-prepare', 0)
+    h['tool-prepared'] = 0
+
+    time.sleep(0.1)
+    e.s.poll()
+    print "tool prepare done, e.s.pocket_prepped = ", e.s.pocket_prepped
+    if e.s.pocket_prepped != pocket_number:
+        print "ERROR: wrong pocket prepped in stat buffer (got %d, expected %d)" % (e.s.pocket_prepped, pocket_number)
+        sys.exit(1)
+
+    # change tool
+    wait_for_pin_value('tool-change', 1)
+    h['tool-changed'] = 1
+    wait_for_pin_value('tool-change', 0)
+    h['tool-changed'] = 0
+
+
 
 
 #
@@ -261,38 +297,25 @@ e.set_state(linuxcnc.STATE_ON)
 e.set_mode(linuxcnc.MODE_MDI)
 
 
+# at startup, we should have the special tool 0 in the spindle, meaning
+# "no tool" or "unknown tool"
+
+verify_tool_number(0)
 
 
 #
 # test m6 to get a baseline
 #
 
+print "*** starting 'T1 M6' tool change"
+
 e.g('t1 m6')
 
-# prepare for tool change
-wait_for_pin_value('tool-prepare', 1)
-verify_pin_value('tool-prep-number', 1)
-verify_pin_value('tool-prep-pocket', 1)
-h['tool-prepared'] = 1
-wait_for_pin_value('tool-prepare', 0)
-h['tool-prepared'] = 0
+do_tool_change_handshake(tool_number=1, pocket_number=1)
 
-time.sleep(0.1)
-e.s.poll()
-print "tool prepare done, e.s.pocket_prepped = ", e.s.pocket_prepped
+print "*** tool change complete"
+verify_tool_number(1)
 
-# change tool
-wait_for_pin_value('tool-change', 1)
-h['tool-changed'] = 1
-wait_for_pin_value('tool-change', 0)
-h['tool-changed'] = 0
-
-time.sleep(0.1)
-e.s.poll()
-print "tool change done, e.s.tool_in_spindle = ", e.s.tool_in_spindle
-print "current tool: ", e.get_current_tool()
-
-verify_interp_param(5400, 1)      # tool in spindle
 verify_interp_param(5401, 0)      # tlo x
 verify_interp_param(5402, 0)      # tlo y
 verify_interp_param(5403, 1)      # tlo z
@@ -338,6 +361,8 @@ introspect()
 # now finally test m61
 #
 
+print "*** starting 'M61 Q10' tool change"
+
 e.g('m61 q10')
 
 verify_stable_pin_values(
@@ -350,10 +375,8 @@ verify_stable_pin_values(
     duration=1
 )
 
-print "m61 done, e.s.tool_in_spindle = ", e.s.tool_in_spindle
-print "current tool: ", e.get_current_tool()
+verify_tool_number(10)
 
-verify_interp_param(5400, 10)     # tool in spindle
 verify_interp_param(5401, 0)      # tlo x
 verify_interp_param(5402, 0)      # tlo y
 verify_interp_param(5403, 3)      # tlo z
@@ -389,6 +412,34 @@ verify_interp_param(5425, 0)      # current c
 verify_interp_param(5426, 0)      # current u
 verify_interp_param(5427, 0)      # current v
 verify_interp_param(5428, 0)      # current w
+
+
+#
+# use M6 to unload the spindle (T0)
+#
+
+print "*** using 'T0 M6' to unload the spindle"
+e.g("t0 m6")
+do_tool_change_handshake(tool_number=0, pocket_number=0)
+verify_tool_number(0)
+
+
+#
+# use M61 to load T1 in the spindle again
+#
+
+print "*** using 'M61 Q1' to load a tool again"
+e.g("m61 q1")
+verify_tool_number(1)
+
+
+#
+# use M61 to unload the spindle (T0)
+#
+
+print "*** using 'M61 Q0' to unload the spindle again"
+e.g("m61 q0", wait=True)
+verify_tool_number(0)
 
 
 # if we get here it all worked!

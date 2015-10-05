@@ -36,7 +36,7 @@ or Ubuntu Lucid.
 
 === Setting apt sources
 
-* Open the `Software Sources` window.  The process for doing this
+* Open the `Software Sources` window. The process for doing this
   differs slightly on the three supported platforms:
 
 ** Debian Wheezy:
@@ -71,16 +71,16 @@ or Ubuntu Lucid.
 * Delete or un-check all the old linuxcnc.org entries (leave all
   non-linuxcnc.org lines as they are).
 
-* Click the `Add` button and add a new apt line.  The line will be
+* Click the `Add` button and add a new apt line. The line will be
   slightly different on the different platforms:
 
 [options="header"]
-|===================================================================
+|====
 | Platform       | apt source line
 | Debian Wheezy  | `deb http://linuxcnc.org wheezy base 2.7-rtai`
 | Ubuntu Precise | `deb http://linuxcnc.org precise base 2.7-rtai`
 | Ubuntu Lucid   | `deb http://linuxcnc.org lucid base 2.7-rtai`
-|===================================================================
+|====
 
 image::images/upgrading-to-2.7.png[align="left"]
 
@@ -108,7 +108,7 @@ Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
 * Use the Search function to search for `linuxcnc`.
 
 * Click the check box to mark the new linuxcnc and linuxcnc-doc-*
-  packages for upgrade.  The package manager may select a number of
+  packages for upgrade. The package manager may select a number of
   additional packages to be installed, to satisfy dependencies that the
   new linuxcnc package has.
 
@@ -130,7 +130,7 @@ Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
   all packages.
 
 
-== Updating your config
+== Updating Configuration Files
 
 The new version of LinuxCNC differs from version 2.7 in some ways that
 may require changes to your machine configuration.

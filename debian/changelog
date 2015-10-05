@@ -408,6 +408,34 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
 
+linuxcnc (1:2.6.10) wheezy; urgency=low
+
+  * docs: specify that G92.1 and G92.2 only affect the G92 offsets
+  * docs: update the GFDL blurb
+  * docs: remove a stray ")" in User Intro
+
+  * fix constraint violations with rotated G18/G19 arcs (SF bug #430)
+
+  * touchy: G64 now takes optional Q
+
+  * gmoccapy: fix single stepping through a program
+
+  * pncconf: fix spindle control error
+
+  * toggle2nist: does not require floating-point
+
+  * motion: set the "In Position" status flag when aborting
+
+  * task: fix a compile warning (heartbeat is unsigned long)
+  * latency-plot: don't depend on a specific wish interpreter
+  * sim_rtapi_app: clean up on failed "realtime" module load
+  * build system: make the git scripts more user friendly
+  * tests: add another loadrt test
+  * packaging: switch to dh_python2 on Jessie and later
+  * packaging: Debian Jessie and Ubuntu 14.04 don't have libgnomeprintui2.2
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 02 Oct 2015 19:03:15 -0600
+
 linuxcnc (1:2.6.9) wheezy; urgency=low
 
   * docs: update G33.1 example to include S100 M3

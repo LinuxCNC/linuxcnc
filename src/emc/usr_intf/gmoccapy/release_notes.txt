@@ -1,5 +1,11 @@
-TODO: announce new version
-- add filetype check for postgui_halfile (based on file ending)
+ver. 1.5.5.2
+- unloading a tool with M61 Q0 did not reset the tool information 
+  because the tool number changed to "-1" and I tested only for "0"
+  To unload the tool with M61 Q0 the command has to be executed twice
+  because of a linuxcnc bug (IMHO)
+
+ver. 1.5.5.1
+- corrected the step by step behavior
 
 ver. 1.5.5
 - gmoccapy will take notice of the settings 
