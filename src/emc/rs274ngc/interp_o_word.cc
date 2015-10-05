@@ -536,7 +536,6 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	logOword("fopen: |%s| failed CWD:|%s|", newFileName,
 		 dirname);
 	free(dirname);
-	ERS(NCE_UNABLE_TO_OPEN_FILE,tmpFileName);
     }
 
     settings->skipping_o = block->o_name; // start skipping
