@@ -293,8 +293,11 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          (block->g_modes[0] != G_10) &&
          (block->g_modes[7] != G_41) && (block->g_modes[7] != G_41_1) &&
          (block->g_modes[7] != G_42) && (block->g_modes[7] != G_42_1) &&
-	 (block->m_modes[5] != 66)),
-         _("L word with no G10, cutter compensation, canned cycle, digital/analog input, or NURBS code"));
+	 (block->m_modes[5] != 66) &&
+	 (block->o_type != M_98)  // m98 repeat
+	 ),
+         _("L word with no G10, cutter compensation, canned cycle, "
+	   "digital/analog input, M98 or NURBS code"));
   }
 
   if (block->p_flag) {
@@ -305,9 +308,11 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
           (block->m_modes[9] != 50) && (block->m_modes[9] != 51) && (block->m_modes[9] != 52) &&
           (block->m_modes[9] != 53) && (block->m_modes[5] != 62) && (block->m_modes[5] != 63) &&
           (block->m_modes[5] != 64) && (block->m_modes[5] != 65) && (block->m_modes[5] != 66) &&
-          (block->m_modes[7] != 19) && (block->user_m != 1)),
+          (block->m_modes[7] != 19) && (block->user_m != 1) &&
+          (block->o_type != M_98)),
           _("P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89"
-            " or M50 M51 M52 M53 M62 M63 M64 M65 M66 or user M code to use it"));
+            " or M50 M51 M52 M53 M62 M63 M64 M65 M66 M98 "
+            "or user M code to use it"));
       int p_value = round_to_int(block->p_number);
       CHKS(((motion == G_2 || motion == G_3 || (block->m_modes[7] == 19)) && 
 	    fabs(p_value - block->p_number) > 0.001),
