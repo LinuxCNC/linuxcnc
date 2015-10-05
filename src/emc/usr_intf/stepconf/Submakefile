@@ -11,6 +11,8 @@ STEPCONF_GLADEFILES := \
 	axisx.glade \
 	axisy.glade \
 	axisz.glade \
+	axisu.glade \
+	axisv.glade \
 	axisa.glade \
 	finished.glade \
 
