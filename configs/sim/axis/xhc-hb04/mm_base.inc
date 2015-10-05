@@ -1,5 +1,3 @@
-# adapted from axis_9axis.ini for xhc-hb04 demo
-
 [DISPLAY]
 DISPLAY =               axis
 CYCLE_TIME =            0.100
@@ -21,7 +19,7 @@ png = image-to-gcode
 gif = image-to-gcode
 jpg = image-to-gcode
 py = python
-
+duh
 [TASK]
 TASK =                  milltask
 CYCLE_TIME =            0.001
@@ -37,7 +35,7 @@ EMCMOT =                motmod
 COMM_TIMEOUT =          1.0
 COMM_WAIT =             0.010
 SERVO_PERIOD =          1000000
-
+duh
 [TRAJ]
 NO_FORCE_HOMING =          1
 AXES =                     9
@@ -52,7 +50,20 @@ POSITION_FILE =            position9.txt
 MAX_LINEAR_VELOCITY =      1.2
 MAX_ANGULAR_VELOCITY =     90.0
 
-[AXIS_0]
+[KINS]
+KINEMATICS = trivkins
+#This is a best-guess at the number of joints, it should be checked
+JOINTS = 9
+
+
+[AXIS_X]
+HOME = 0.000
+MIN_LIMIT = -254
+MAX_LIMIT = 254
+MAX_VELOCITY = 30.48
+MAX_ACCELERATION = 508
+
+[JOINT_0]
 TYPE =                  LINEAR
 HOME =                  0.000
 MAX_VELOCITY =          30.48
@@ -72,7 +83,14 @@ HOME_IGNORE_LIMITS =    NO
 HOME_SEQUENCE =         1
 HOME_IS_SHARED =        1
 
-[AXIS_1]
+[AXIS_Y]
+HOME = 0.000
+MIN_LIMIT = -254
+MAX_LIMIT = 254
+MAX_VELOCITY = 30.48
+MAX_ACCELERATION = 508
+
+[JOINT_1]
 TYPE =                  LINEAR
 HOME =                  0.000
 MAX_VELOCITY =          30.48
@@ -91,7 +109,14 @@ HOME_USE_INDEX =        NO
 HOME_IGNORE_LIMITS =    NO
 HOME_SEQUENCE =         1
 
-[AXIS_2]
+[AXIS_Z]
+HOME = 0.0
+MIN_LIMIT = -50.8
+MAX_LIMIT = 101.6
+MAX_VELOCITY = 30.48
+MAX_ACCELERATION = 508
+
+[JOINT_2]
 TYPE =                  LINEAR
 HOME =                  0.0
 MAX_VELOCITY =          30.48
@@ -111,7 +136,12 @@ HOME_IGNORE_LIMITS =    NO
 HOME_SEQUENCE =         0
 HOME_IS_SHARED =        1
 
-[AXIS_3]
+[AXIS_A]
+HOME = 0.0
+MAX_VELOCITY = 90.0
+MAX_ACCELERATION = 1200.0
+
+[JOINT_3]
 TYPE =                  ANGULAR
 HOME =                  0.0
 MAX_VELOCITY =          90.0
@@ -128,7 +158,12 @@ HOME_USE_INDEX =        NO
 HOME_IGNORE_LIMITS =    NO
 HOME_SEQUENCE =         1
 
-[AXIS_4]
+[AXIS_B]
+HOME = 0.0
+MAX_VELOCITY = 90.0
+MAX_ACCELERATION = 1200.0
+
+[JOINT_4]
 TYPE =                  ANGULAR
 HOME =                  0.0
 MAX_VELOCITY =          90.0
@@ -145,7 +180,12 @@ HOME_USE_INDEX =        NO
 HOME_IGNORE_LIMITS =    NO
 HOME_SEQUENCE =         1
 
-[AXIS_5]
+[AXIS_C]
+HOME = 0.0
+MAX_VELOCITY = 90.0
+MAX_ACCELERATION = 1200.0
+
+[JOINT_5]
 TYPE =                  ANGULAR
 HOME =                  0.0
 MAX_VELOCITY =          90.0
@@ -162,7 +202,14 @@ HOME_USE_INDEX =        NO
 HOME_IGNORE_LIMITS =    NO
 HOME_SEQUENCE =         1
 
-[AXIS_6]
+[AXIS_U]
+HOME = 0.000
+MIN_LIMIT = -254
+MAX_LIMIT = 254
+MAX_VELOCITY = 30.48
+MAX_ACCELERATION = 508
+
+[JOINT_6]
 TYPE =                  LINEAR
 HOME =                  0.000
 MAX_VELOCITY =          30.48
@@ -182,7 +229,14 @@ HOME_IGNORE_LIMITS =    NO
 HOME_SEQUENCE =         1
 HOME_IS_SHARED =        1
 
-[AXIS_7]
+[AXIS_V]
+HOME = 0.000
+MIN_LIMIT = -254
+MAX_LIMIT = 254
+MAX_VELOCITY = 30.48
+MAX_ACCELERATION = 508
+
+[JOINT_7]
 TYPE =                  LINEAR
 HOME =                  0.000
 MAX_VELOCITY =          30.48
@@ -201,7 +255,14 @@ HOME_USE_INDEX =        NO
 HOME_IGNORE_LIMITS =    NO
 HOME_SEQUENCE =         1
 
-[AXIS_8]
+[AXIS_W]
+HOME = 0.0
+MIN_LIMIT = -50.8
+MAX_LIMIT = 101.6
+MAX_VELOCITY = 30.48
+MAX_ACCELERATION = 508
+
+[JOINT_8]
 TYPE =                  LINEAR
 HOME =                  0.0
 MAX_VELOCITY =          30.48
