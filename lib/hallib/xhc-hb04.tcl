@@ -38,7 +38,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #       SYSFS{idProduct}=="eb70", SYSFS{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"
 #       or (for ubuntu12 and up):
 #       ATTR{idProduct}=="eb70",  ATTR{idVendor}=="10ce",  MODE="666", OWNER="root", GROUP="users"
-#    4) For jogmode==vnormal (man motion -- see axis.N.jog-vel-mode),
+#    4) For jogmode==vnormal (man motion -- see joint.N.jog-vel-mode),
 #       the max movement is limited by the machine velocity and acceleration limits
 #       such that delta_x = 0.5 * vmax**2/accelmx
 #       so for sim example:
@@ -183,7 +183,7 @@ proc wheel_setup {jogmode} {
   #   divide the xhc-hb04.jog.scale by $kvalue
   #   and
   #   multiply the pendant_util.scale$idx by $kvalue
-  # to manipulate the integer (s32) axis.N.jog-counts
+  # to manipulate the integer (s32) joint.N.jog-counts
 
   set kvalue 100.0; # allow fractional scales (.1, .01)
                     # Note: larger values not advised as the
@@ -194,7 +194,7 @@ proc wheel_setup {jogmode} {
   net pendant:jog-prescale    => pendant_util.divide-by-k-in
 
   net pendant:jog-scale       <= pendant_util.divide-by-k-out
-  #   pendant:jog-scale connects to each axis.$axno.jog-scale
+  #   pendant:jog-scale connects to each joint.$axno.jog-scale
 
   net pendant:wheel-counts     <= xhc-hb04.jog.counts
   net pendant:wheel-counts-neg <= xhc-hb04.jog.counts-neg
@@ -255,20 +255,20 @@ proc wheel_setup {jogmode} {
     net pendant:pos-rel-$coord <= halui.axis.$axno.pos-relative \
                                => xhc-hb04.$acoord.pos-relative
 
-    if ![pin_exists axis.$axno.jog-scale] {
+    if ![pin_exists joint.$axno.jog-scale] {
       err_exit "Not configured for coords = $::XHC_HB04_CONFIG(coords),\
-      missing axis.$axno.* pins"
+      missing joint.$axno.* pins"
     }
-    net pendant:jog-scale => axis.$axno.jog-scale
+    net pendant:jog-scale => joint.$axno.jog-scale
 
     net pendant:wheel-counts                 => pendant_util.in$idx
     net pendant:wheel-counts-$coord-filtered <= pendant_util.out$idx \
-                                             => axis.$axno.jog-counts
+                                             => joint.$axno.jog-counts
 
     #-----------------------------------------------------------------------
     # multiplexer for ini.N.max_acceleration
-    if [catch {set std_accel [set ::AXIS_[set axno](MAX_ACCELERATION)]} msg] {
-      err_exit "Error: missing \[AXIS_[set axno]\]MAX_ACCELERATION"
+    if [catch {set std_accel [set ::JOINT_[set axno](MAX_ACCELERATION)]} msg] {
+      err_exit "Error: missing \[JOINT_[set axno]\]MAX_ACCELERATION"
     }
     setp pendant_util.amux$idx-in0 $std_accel
     if ![info exists ::XHC_HB04_CONFIG(accel,$idx)] {
@@ -286,7 +286,7 @@ proc wheel_setup {jogmode} {
     switch $jogmode {
       normal - vnormal {
         net pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
-                               => axis.$axno.jog-enable
+                               => joint.$axno.jog-enable
       }
       plus-minus {
         # (Experimental) connect halui plus,minus pins
@@ -298,7 +298,7 @@ proc wheel_setup {jogmode} {
     }
     switch $jogmode {
       vnormal {
-        setp axis.$axno.jog-vel-mode 1
+        setp joint.$axno.jog-vel-mode 1
       }
     }
   }
@@ -476,10 +476,10 @@ switch -glob $::XHC_HB04_CONFIG(inch_or_mm) {
 
 # jogmodes:
 #   normal,vnormal: use motion pins:
-#               axis.N.jog-counts
-#               axis.N.jog-enable
-#               axis.N.jog-scale  (machine units per count)
-#               axis.N.jog-vel-mode
+#               joint.N.jog-counts
+#               joint.N.jog-enable
+#               joint.N.jog-scale  (machine units per count)
+#               joint.N.jog-vel-mode
 
 #   plus-minus: use halui pins:   (Experimental)
 #               halui.jog.N.plus  (jog in + dir at jog-speed)
