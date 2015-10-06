@@ -24,5 +24,8 @@
 # [DISPLAY]USER_COMMAND_FILE = fullscreen.tcl
 
 maxgeo=root_window.tk.call("wm","maxsize",".")
-fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]
+if type(maxgeo) is type(''):
+    fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]
+else:
+    fullsize=str(maxgeo[0]) + 'x' + str(maxgeo[1])
 root_window.tk.call("wm","geometry",".",fullsize)
