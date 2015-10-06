@@ -16,7 +16,12 @@ proc core_sim {axes
   # adapted as haltcl proc from core_sim.hal
   # note: with default emcmot==motmot,
   #       thread will not be added for (default) base_pariod == 9
-  loadrt trivkins
+  if [info exists ::KINS(KINEMATICS)] {
+    loadrt $::KINS(KINEMATICS)
+  } else {
+    puts stderr "\n!!!core_sim: KINS(KINEMATICS) must be specified\n"
+    exit 1
+  }
   set lcmd "loadrt $emcmot"
   set lcmd "$lcmd base_period_nsec=$base_period"
   set lcmd "$lcmd servo_period_nsec=$servo_period"
