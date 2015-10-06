@@ -1289,10 +1289,9 @@ Handled by +Interp::convert_setup_tool()+.
 
 ==== M61
 
-FIXME!
-
-Set current tool number.  This switches which tool is in the spindle,
-without actually moving the toolchanger or swapping any tools.
+Set current tool number.  This switches LinuxCNC's internal representation
+of which tool is in the spindle, without actually moving the toolchanger
+or swapping any tools.
 
 Handled by +Interp::convert_tool_change()+.
 
@@ -1300,8 +1299,6 @@ Canon: +CHANGE_TOOL_NUMBER()+
 
 settings->current_pocket is assigned the pocket number currently
 holding the tool specified by the Q-word argument.
-
-I think this m-code is broken.
 
 
 ==== G41/G41.1/G42/G42.1
