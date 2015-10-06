@@ -2,9 +2,9 @@
 
 # first load all the RT modules that will be needed
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # load four limit3 blocks to simulate the accel and vel limits of the motors
 loadrt limit3 count=4
 # load window comparators for home/limit switches
@@ -44,14 +44,14 @@ net saddle-pos-cmd joint.2.motor-pos-cmd => limit3.2.in
 net quill-pos-cmd  joint.8.motor-pos-cmd => limit3.3.in
 
 # set the limit block parameters from the ini file
-setp limit3.0.maxv [AXIS_0]MAX_VELOCITY
-setp limit3.0.maxa [AXIS_0]MAX_ACCELERATION
-setp limit3.1.maxv [AXIS_1]MAX_VELOCITY
-setp limit3.1.maxa [AXIS_1]MAX_ACCELERATION
-setp limit3.2.maxv [AXIS_2]MAX_VELOCITY
-setp limit3.2.maxa [AXIS_2]MAX_ACCELERATION
-setp limit3.3.maxv [AXIS_8]MAX_VELOCITY
-setp limit3.3.maxa [AXIS_8]MAX_ACCELERATION
+setp limit3.0.maxv [JOINT_0]MAX_VELOCITY
+setp limit3.0.maxa [JOINT_0]MAX_ACCELERATION
+setp limit3.1.maxv [JOINT_1]MAX_VELOCITY
+setp limit3.1.maxa [JOINT_1]MAX_ACCELERATION
+setp limit3.2.maxv [JOINT_2]MAX_VELOCITY
+setp limit3.2.maxa [JOINT_2]MAX_ACCELERATION
+setp limit3.3.maxv [JOINT_8]MAX_VELOCITY
+setp limit3.3.maxa [JOINT_8]MAX_ACCELERATION
 
 # loop limited position commands back to motion module feedback
 # also send them to the vismach model and to the "limit switches"
