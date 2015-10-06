@@ -37,12 +37,12 @@ setp ypid.FF0 1
 setp zpid.FF0 1
 
 # enable pid in usual manner
-net xenable axis.0.amp-enable-out => xpid.enable
-net yenable axis.1.amp-enable-out => ypid.enable
-net zenable axis.2.amp-enable-out => zpid.enable
+net xenable joint.0.amp-enable-out => xpid.enable
+net yenable joint.1.amp-enable-out => ypid.enable
+net zenable joint.2.amp-enable-out => zpid.enable
 
 # connect without a shortcircuit using pass-thru pid
-net Xpos-cmd <= axis.0.motor-pos-cmd
+net Xpos-cmd <= joint.0.motor-pos-cmd
 net Xpos-cmd => xpid.command
 
 # sample-hold
@@ -58,7 +58,7 @@ net Xonposition => xmux.in1
 net Xpos-fb  => xmux.in0
 
 net Xpos-fb  <= xmux.out
-net Xpos-fb  => axis.0.motor-pos-fb
+net Xpos-fb  => joint.0.motor-pos-fb
 net Xpos-fb  => comp_x.in1
 net Xpos-fb  => ddt_x.in
 #---------------------------------------
@@ -69,9 +69,9 @@ net Yonposition => ymux.in1
 net Ypos-fb  => ymux.in0
 
 net Ypos-fb  <= ymux.out
-net Ypos-cmd <= axis.1.motor-pos-cmd
+net Ypos-cmd <= joint.1.motor-pos-cmd
 net Ypos-cmd => ypid.command
-net Ypos-fb  => axis.1.motor-pos-fb
+net Ypos-fb  => joint.1.motor-pos-fb
 net Ypos-fb  => comp_y.in1
 net Ypos-fb  => ddt_y.in
 #---------------------------------------
@@ -82,8 +82,8 @@ net Zonposition => zmux.in1
 net Zpos-fb  => zmux.in0
 
 net Zpos-fb  <= zmux.out
-net Zpos-cmd <= axis.2.motor-pos-cmd
+net Zpos-cmd <= joint.2.motor-pos-cmd
 net Zpos-cmd => zpid.command
-net Zpos-fb  => axis.2.motor-pos-fb
+net Zpos-fb  => joint.2.motor-pos-fb
 net Zpos-fb  => comp_z.in1
 net Zpos-fb  => ddt_z.in

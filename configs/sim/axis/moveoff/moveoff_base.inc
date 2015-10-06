@@ -39,7 +39,18 @@ MAX_LINEAR_VELOCITY = 5
 TOOL_CHANGE_POSITION = 0 0 0
 TOOL_CHANGE_QUILL_UP = 1
 
-[AXIS_0]
+[KINS]
+    JOINTS = 3
+KINEMATICS = trivkins
+
+[AXIS_X]
+            HOME = 0.000
+       MIN_LIMIT = -40.0
+       MAX_LIMIT = 40.0
+    MAX_VELOCITY = 5
+MAX_ACCELERATION = 50.0
+
+[JOINT_0]
                    TYPE = LINEAR
                    HOME = 0.000
            MAX_VELOCITY = 5
@@ -59,7 +70,14 @@ TOOL_CHANGE_QUILL_UP = 1
           HOME_SEQUENCE = 1
          HOME_IS_SHARED = 1
 
-[AXIS_1]
+[AXIS_Y]
+            HOME = 0.000
+       MIN_LIMIT = -40.0
+       MAX_LIMIT = 40.0
+    MAX_VELOCITY = 5
+MAX_ACCELERATION = 50.0
+
+[JOINT_1]
                    TYPE = LINEAR
                    HOME = 0.000
            MAX_VELOCITY = 5
@@ -79,7 +97,14 @@ TOOL_CHANGE_QUILL_UP = 1
           HOME_SEQUENCE = 1
          HOME_IS_SHARED = 0
 
-[AXIS_2]
+[AXIS_Z]
+            HOME = 0.0
+       MIN_LIMIT = -8.0
+       MAX_LIMIT = 0.12
+    MAX_VELOCITY = 5
+MAX_ACCELERATION = 50.0
+
+[JOINT_2]
                    TYPE = LINEAR
                    HOME = 0.0
            MAX_VELOCITY = 5
@@ -98,4 +123,3 @@ TOOL_CHANGE_QUILL_UP = 1
      HOME_IGNORE_LIMITS = NO
           HOME_SEQUENCE = 0
          HOME_IS_SHARED = 1
-
