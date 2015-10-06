@@ -112,18 +112,12 @@ def ini_setup ():
 
 def get_linuxcnc_ini_file():
     """find linuxcnc ini file with pgrep"""
-    ps   = subprocess.Popen('ps ax'.split(),
+    ps   = subprocess.Popen('ps -C linuxcncsvr --no-header -o args'.split(),
                              stdout=subprocess.PIPE
                            )
-    grep = subprocess.Popen('grep linuxcncsvr'.split(),
-                             stdin=ps.stdout,
-                             stdout=subprocess.PIPE
-                           )
-    ps.stdout.close()
-    p,e = grep.communicate()
-    ps.wait()
+    p,e = ps.communicate()
 
-    if grep.returncode:
+    if ps.returncode:
         print(_('get_linuxcnc_ini_file: stdout= %s') % p)
         print(_('get_linuxcnc_ini_file: stderr= %s') % e)
         return None
