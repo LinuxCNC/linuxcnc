@@ -159,8 +159,8 @@ foreach axname $possibles {
 # Read maxJogSpeed and axisType for each axis and store them arrays
 foreach temp $axiscoordmap {
     set maxJogSpeedAxis($temp) \
-    [int [expr [emc_ini MAX_VELOCITY AXIS_$temp] * 60 +0.5]]
-    set axisType($temp) [emc_ini TYPE AXIS_$temp]
+    [int [expr [emc_ini MAX_VELOCITY JOINT_$temp] * 60 +0.5]]
+    set axisType($temp) [emc_ini TYPE JOINT_$temp]
  }
 
 set programDirectory [emc_ini PROGRAM_PREFIX DISPLAY]
