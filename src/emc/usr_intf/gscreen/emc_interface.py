@@ -422,7 +422,7 @@ class emc_status:
             self.data.flood = self.emcstat.flood
             self.data.mist = self.emcstat.mist
             self.data.machine_on = self.emcstat.task_state == self.emc.STATE_ON
-            self.data.or_limits = self.emcstat.axis[0]['override_limits']
+            self.data.or_limits = self.emcstat.joint[0]['override_limits']
             self.data.feed_hold = self.emcstat.feed_hold_enabled
             self.data.feed_override = self.emcstat.feedrate
             self.data.velocity_override = self.emcstat.max_velocity / self.data._maxvelocity
