@@ -862,6 +862,11 @@ corresponding bottom button.
 
 As the notebook tabs are shown, you are able to switch between both views in any case.
 
+.Show Aux Display
+By clicking this button a additional window will be opened. This button is only sensitive, if a file named 'gmoccapy2.glade' is located in your config folder. You can build the Aux Screen using Glade. 
+
+WARNING: 'The main window of the aux screen must be named window2'
+
 .DRO Options
 You have the option to select the background colors of the different DRO states.
 So users suffering from protanopia (red/green weakness) are able to select proper colors
