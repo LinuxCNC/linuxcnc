@@ -65,7 +65,7 @@ proc make_ddts {axes} {
 } ;# make_ddts
 
 proc core_sim {} {
-  loadrt trivkins
+  loadrt $::KINS(KINEMATICS)
 
   loadrt $::EMCMOT(EMCMOT) \
          base_period_nsec=$::EMCMOT(BASE_PERIOD) \
@@ -80,16 +80,16 @@ proc core_sim {} {
   alias pin iocontrol.0.emc-enable-in    enable_in
   alias pin iocontrol.0.tool-prep-number tprep_no
 
-  alias pin axis.0.motor-pos-cmd  xpos_cmd
-  alias pin axis.0.motor-pos-fb   xpos_fb
-  alias pin axis.1.motor-pos-cmd  ypos_cmd
-  alias pin axis.1.motor-pos-fb   ypos_fb
-  alias pin axis.2.motor-pos-cmd  zpos_cmd
-  alias pin axis.2.motor-pos-fb   zpos_fb
+  alias pin joint.0.motor-pos-cmd  xpos_cmd
+  alias pin joint.0.motor-pos-fb   xpos_fb
+  alias pin joint.1.motor-pos-cmd  ypos_cmd
+  alias pin joint.1.motor-pos-fb   ypos_fb
+  alias pin joint.2.motor-pos-cmd  zpos_cmd
+  alias pin joint.2.motor-pos-fb   zpos_fb
 
-  alias pin axis.0.home-sw-in xhome_sw_in
-  alias pin axis.1.home-sw-in yhome_sw_in
-  alias pin axis.2.home-sw-in zhome_sw_in
+  alias pin joint.0.home-sw-in xhome_sw_in
+  alias pin joint.1.home-sw-in yhome_sw_in
+  alias pin joint.2.home-sw-in zhome_sw_in
 
   net Estop-loop enable_out => enable_in
 
