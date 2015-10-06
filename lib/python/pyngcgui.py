@@ -194,19 +194,24 @@ def save_a_copy(fname,archive_dir='/tmp/old_ngc'):
         sys.exit(1)
 
 def get_linuxcnc_ini_file():
-    # example pgrep -lf output:
-    # 22224 linuxcncsvr -ini /path_to/somefile.ini
-    s = subprocess.Popen(['pgrep','-lf','linuxcncsvr']
-                         ,stdout=subprocess.PIPE
-                         ,stderr=subprocess.PIPE
-                         )
-    p,e = s.communicate()
-    if s.returncode:
+    ps   = subprocess.Popen('ps ax'.split(),
+                             stdout=subprocess.PIPE
+                           )
+    grep = subprocess.Popen('grep linuxcncsvr'.split(),
+                             stdin=ps.stdout,
+                             stdout=subprocess.PIPE
+                           )
+    ps.stdout.close()
+    p,e = grep.communicate()
+    ps.wait() # avoid zombies
+
+    if grep.returncode:
         print(_('get_linuxcnc_ini_file: stdout= %s') % p)
         print(_('get_linuxcnc_ini_file: stderr= %s') % e)
         return None
 
     ans = p.split()[p.split().index('-ini')+1]
+    print '****************ans=',ans
     return ans
 
 def dummy_send(filename):
