@@ -1,5 +1,4 @@
-# twopass_compat: test compatibility with existing hal files
-# (core_sim.hal,axis_manualtoolchange.hal,simlated_home.hal)
+# twopass_base.inc
 
 [DISPLAY]
                 DISPLAY = axis
@@ -51,7 +50,18 @@ SERVO_PERIOD = 1000000
       POSITION_FILE = position.txt
 MAX_LINEAR_VELOCITY = 1.2
 
-[AXIS_0]
+[KINS]
+    JOINTS = 3
+KINEMATICS = trivkins
+
+[AXIS_X]
+            HOME = 0.000
+       MIN_LIMIT = -40.0
+       MAX_LIMIT = 40.0
+    MAX_VELOCITY = 4
+MAX_ACCELERATION = 100.0
+
+[JOINT_0]
               TYPE = LINEAR
               HOME = 0.000
       MAX_VELOCITY = 4
@@ -71,7 +81,14 @@ HOME_IGNORE_LIMITS = NO
      HOME_SEQUENCE = 1
     HOME_IS_SHARED = 1
 
-[AXIS_1]
+[AXIS_Y]
+            HOME = 0.000
+       MIN_LIMIT = -40.0
+       MAX_LIMIT = 40.0
+    MAX_VELOCITY = 4
+MAX_ACCELERATION = 100.0
+
+[JOINT_1]
               TYPE = LINEAR
               HOME = 0.000
       MAX_VELOCITY = 4
@@ -90,8 +107,14 @@ HOME_IGNORE_LIMITS = NO
 HOME_IGNORE_LIMITS = NO
      HOME_SEQUENCE = 1
 
-[AXIS_2]
+[AXIS_Z]
+            HOME = 0.0
+       MIN_LIMIT = -8.0
+       MAX_LIMIT = 1.0
+    MAX_VELOCITY = 4
+MAX_ACCELERATION = 100.0
 
+[JOINT_2]
               TYPE = LINEAR
               HOME = 0.0
       MAX_VELOCITY = 4

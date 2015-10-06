@@ -71,10 +71,10 @@ proc core_sim {axes
     set idx $::SIM_LIB($a,idx)
     net sample:enable => ${a}_mux.sel
 
-    net ${a}:enable  <= axis.$idx.amp-enable-out
+    net ${a}:enable  <= joint.$idx.amp-enable-out
     net ${a}:enable  => ${a}_pid.enable
 
-    net ${a}:pos-cmd <= axis.$idx.motor-pos-cmd
+    net ${a}:pos-cmd <= joint.$idx.motor-pos-cmd
     net ${a}:pos-cmd => ${a}_pid.command
 
     net ${a}:on-pos  <= ${a}_pid.output
@@ -82,7 +82,7 @@ proc core_sim {axes
 
     net ${a}:pos-fb  <= ${a}_mux.out
     net ${a}:pos-fb  => ${a}_mux.in0 ;# hold position when !motion-enabled
-    net ${a}:pos-fb  => axis.$idx.motor-pos-fb
+    net ${a}:pos-fb  => joint.$idx.motor-pos-fb
   }
 } ;# core_sim
 
@@ -163,7 +163,7 @@ proc simulated_home {axes} {
     net ${a}:pos-fb => ${a}_switch.cur-pos
 
     net ${a}:homesw <= ${a}_switch.home-sw
-    net ${a}:homesw => axis.$idx.home-sw-in
+    net ${a}:homesw => joint.$idx.home-sw-in
 
     #setp ${a}_switch.hysteresis ;# using component default
     #setp ${a}_switch.home-pos   ;# using component default
