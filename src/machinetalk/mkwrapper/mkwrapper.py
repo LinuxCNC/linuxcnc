@@ -238,9 +238,6 @@ class StatusValues():
 
 class LinuxCNCWrapper():
 
-    def preview_error(self, error, line):
-        self.linuxcncErrors.append(error + "\non line " + str(line))
-
     def __init__(self, context, host='', loopback=False,
                 iniFile=None, svcUuid=None,
                 pollInterval=None, pingInterval=2, debug=False):
@@ -250,6 +247,12 @@ class LinuxCNCWrapper():
         self.pingInterval = pingInterval
         self.shutdown = threading.Event()
         self.running = False
+
+        # synchronization locks
+        self.commandLock = threading.Lock()
+        self.statusLock = threading.Lock()
+        self.errorLock = threading.Lock()
+        self.errorNoteLock = threading.Lock()
 
         # status
         self.status = StatusValues()
@@ -279,7 +282,7 @@ class LinuxCNCWrapper():
 
         self.linuxcncErrors = []
         self.programExtensions = {}
-        
+
         # Linuxcnc
         try:
             self.stat = linuxcnc.stat()
@@ -417,11 +420,11 @@ class LinuxCNCWrapper():
 
         while not self.shutdown.is_set():
             s = dict(poll.poll(1000))
-            if self.statusSocket in s:
+            if self.statusSocket in s and s[self.statusSocket] == zmq.POLLIN:
                 self.process_status(self.statusSocket)
-            if self.errorSocket in s:
+            if self.errorSocket in s and s[self.errorSocket] == zmq.POLLIN:
                 self.process_error(self.errorSocket)
-            if self.commandSocket in s:
+            if self.commandSocket in s and s[self.commandSocket] == zmq.POLLIN:
                 self.process_command(self.commandSocket)
 
         self.unpublish()
@@ -449,7 +452,7 @@ class LinuxCNCWrapper():
 
     def stop(self):
         self.shutdown.set()
- 
+
     # handle program extensions
     def preprocess_program(self, filePath):
         fileName, extension = os.path.splitext(filePath)
@@ -468,10 +471,10 @@ class LinuxCNCWrapper():
                 outFile.close()
                 filePath = newFileName
             except IOError as e:
-                self.linuxcncErrors.append(str(e))
+                self.add_error(str(e))
                 return ''
             except subprocess.CalledProcessError as e:
-                self.linuxcncErrors.append(e.output)
+                self.add_error('%s failed: %s' % (program, str(e)))
                 return ''
         # get number of lines
         with open(filePath) as f:
@@ -1133,7 +1136,7 @@ class LinuxCNCWrapper():
             self.update_config(stat)
 
     def update_error(self, error):
-        if len(self.linuxcncErrors) > 0:
+        with self.errorNoteLock:
             for linuxcncError in self.linuxcncErrors:
                 self.txError.note.append(linuxcncError)
                 self.send_error_msg('error', MT_EMC_NML_ERROR)
@@ -1163,6 +1166,13 @@ class LinuxCNCWrapper():
         elif (kind == linuxcnc.OPERATOR_DISPLAY):
             if self.displaySubscribed:
                 self.send_error_msg('display', MT_EMC_OPERATOR_DISPLAY)
+
+    def add_error(self, note):
+        with self.errorNoteLock:
+            self.linuxcncErrors.append(note)
+
+    def preview_error(self, error, line):
+        self.add_error("%s\non line %i" % (error, str(line)))
 
     def send_config(self, data, type):
         self.txStatus.emc_status_config.MergeFrom(data)
@@ -1195,22 +1205,25 @@ class LinuxCNCWrapper():
         self.send_status_msg('interp', type)
 
     def send_status_msg(self, topic, type):
-        self.txStatus.type = type
-        txBuffer = self.txStatus.SerializeToString()
-        self.txStatus.Clear()
-        self.statusSocket.send_multipart([topic, txBuffer])
+        with self.statusLock:
+            self.txStatus.type = type
+            txBuffer = self.txStatus.SerializeToString()
+            self.statusSocket.send_multipart([topic, txBuffer], zmq.NOBLOCK)
+            self.txStatus.Clear()
 
     def send_error_msg(self, topic, type):
-        self.txError.type = type
-        txBuffer = self.txError.SerializeToString()
-        self.txError.Clear()
-        self.errorSocket.send_multipart([topic, txBuffer])
+        with self.errorLock:
+            self.txError.type = type
+            txBuffer = self.txError.SerializeToString()
+            self.errorSocket.send_multipart([topic, txBuffer], zmq.NOBLOCK)
+            self.txError.Clear()
 
     def send_command_msg(self, type):
-        self.txCommand.type = type
-        txBuffer = self.txCommand.SerializeToString()
-        self.txCommand.Clear()
-        self.commandSocket.send(txBuffer)
+        with self.errorLock:
+            self.txCommand.type = type
+            txBuffer = self.txCommand.SerializeToString()
+            self.commandSocket.send(txBuffer, zmq.NOBLOCK)
+            self.txCommand.Clear()
 
     def add_pparams(self):
         parameters = ProtocolParameters()
@@ -1271,7 +1284,7 @@ class LinuxCNCWrapper():
 
     def process_status(self, socket):
         try:
-            rc = socket.recv(zmq.NOBLOCK)
+            rc = socket.recv()
             subscription = rc[1:]
             status = (rc[0] == "\x01")
 
@@ -1306,7 +1319,7 @@ class LinuxCNCWrapper():
 
     def process_error(self, socket):
         try:
-            rc = socket.recv(zmq.NOBLOCK)
+            rc = socket.recv()
             subscription = rc[1:]
             status = (rc[0] == "\x01")
 
@@ -1727,18 +1740,20 @@ class LinuxCNCWrapper():
                 self.send_command_msg(MT_ERROR)
 
         except linuxcnc.error as detail:
-            self.linuxcncErrors.append(detail)
+            self.add_error(detail)
         except UnicodeEncodeError:
-            self.linuxcncErrors.append("Please use only ASCII characters")
+            self.add_error("Please use only ASCII characters")
         except Exception as e:
             printError('uncaught exception ' + str(e))
-            self.linuxcncErrors.append(str(e))
+            self.add_error(str(e))
 
 
 shutdown = False
 
 
 def _exitHandler(signum, frame):
+    del signum
+    del frame
     global shutdown
     shutdown = True
 
