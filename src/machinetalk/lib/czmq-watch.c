@@ -1,3 +1,9 @@
+/* avahi event loopt adapter for czmq
+ *
+ * Copyright Michael Haberler 2013-2015
+ * License: Mozilla Public License Version 2.0
+ */
+
 #include <avahi-common/llist.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/timeval.h>
@@ -129,7 +135,6 @@ static void watch_free(AvahiWatch *w)
     assert(w);
     if (w->poller.fd > -1) {
 	zloop_poller_end(w->czmq_poll->loop, &w->poller);
-	// w->czmq_poll->loop = 0;
     }
     w->poller.fd = -1;
 }

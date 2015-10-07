@@ -1,6 +1,8 @@
 /* zeroconf announce/withdraw tailored for machinekit purposes
+ *
+ * Copyright Michael Haberler 2014-2015
+ * License: Mozilla Public License Version 2.0
  */
-
 #include "mk-zeroconf.hh"
 
 
