@@ -3006,6 +3006,7 @@ while s.joints == 0:
 
 num_joints = s.joints
 for i in range(num_joints):
+    if not (s.axis_mask & (1<<i)): continue
     widgets.homemenu.add_command(command=lambda i=i: commands.home_axis_number(i))
     widgets.unhomemenu.add_command(command=lambda i=i: commands.unhome_axis_number(i))
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
