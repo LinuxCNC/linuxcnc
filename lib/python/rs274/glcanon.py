@@ -1251,8 +1251,8 @@ class GlCanonDraw:
         homed = list(s.homed[:])
 
         if self.is_lathe() and not s.axis_mask & 2:
-            homed.insert(1, 0)
-            limit.insert(1, 0)
+           homed[1] = 0
+           limit[1] = 0
 
         if not self.get_joints_mode():
             if self.get_show_commanded():
