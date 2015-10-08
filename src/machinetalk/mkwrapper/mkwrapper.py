@@ -1221,7 +1221,7 @@ class LinuxCNCWrapper():
             self.txError.Clear()
 
     def send_command_msg(self, identity, type):
-        with self.errorLock:
+        with self.commandLock:
             self.txCommand.type = type
             txBuffer = self.txCommand.SerializeToString()
             self.commandSocket.send_multipart([identity, txBuffer], zmq.NOBLOCK)
