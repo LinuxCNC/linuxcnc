@@ -4,6 +4,7 @@ import sys
 from stat import *
 import zmq
 import threading
+import multiprocessing
 import time
 import math
 import socket
@@ -15,7 +16,6 @@ import subprocess
 
 import ConfigParser
 import linuxcnc
-import preview
 from machinekit import service
 from machinekit import config
 
@@ -137,38 +137,58 @@ class FileService(threading.Thread):
 class Canon():
     def __init__(self, parameterFile="", debug=False):
         self.debug = debug
-        self.aborted = False
+        self.aborted = multiprocessing.Value('b', False, lock=False)
         self.parameterFile = parameterFile
 
     def do_cancel(self):
         if self.debug:
             print("setting abort flag")
-        self.aborted = True
+        self.aborted.value = True
 
     def check_abort(self):
         if self.debug:
             print("check_abort")
-        return self.aborted
+        return self.aborted.value
 
     def reset(self):
-        self.aborted = False
+        self.aborted.value = False
 
 
+# Preview class works concurrently using multiprocessing
+# Queues are used for communication
 class Preview():
     def __init__(self, parameterFile="", initcode="", debug=False):
+        self.debug = debug
         self.filename = ""
         self.unitcode = ""
         self.initcode = initcode
         self.canon = Canon(parameterFile=parameterFile, debug=debug)
-        self.debug = debug
-        self.isRunning = False
+        self.preview = None
         self.errorCallback = None
+
+        # multiprocessing tools
+        self.bindEvent = multiprocessing.Event()
+        self.bindCompletedEvent = multiprocessing.Event()
+        self.previewEvent = multiprocessing.Event()
+        self.previewCompleteEvent = multiprocessing.Event()
+        self.shutdownEvent = multiprocessing.Event()
+        self.errorEvent = multiprocessing.Event()
+        self.isStarted = multiprocessing.Value('b', False, lock=False)
+        self.isBound = multiprocessing.Value('b', False, lock=False)
+        self.isRunning = multiprocessing.Value('b', False, lock=False)
+        self.inqueue = multiprocessing.Queue()  # used to send data to the process
+        self.outqueue = multiprocessing.Queue()  # used to get data from the process
+        self.process = multiprocessing.Process(target=self.run)
+        self.process.start()
 
     def register_error_callback(self, callback):
         self.errorCallback = callback
 
     def bind(self, previewUri, statusUri):
-        return preview.bind(previewUri, statusUri)
+        self.inqueue.put((previewUri, statusUri))
+        self.bindEvent.set()
+        self.bindCompletedEvent.wait()
+        return self.outqueue.get()
 
     def abort(self):
         self.canon.do_cancel()
@@ -180,43 +200,105 @@ class Preview():
             raise Exception("file does not exist " + filename)
 
     def start(self):
-        if self.isRunning:
+        if self.isRunning.value is True:
             raise Exception("Preview already running")
 
-        self.canon.reset()
-        thread = threading.Thread(target=self.run)
+        # start the monitoring daemon
+        thread = threading.Thread(target=self.monitoring_thread)
         thread.daemon = True
         thread.start()
 
+    def stop(self):
+        self.shutdownEvent.set()
+        self.previewCompleteEvent.set()  # in case we are monitoring
+        self.process.join()  # make sure to have one process at exit
+
+    def monitoring_thread(self):
+        if not self.isBound.value:
+            raise Exception('Preview is not bound')
+
+        # put everything on the process queue
+        self.inqueue.put((self.filename, self.unitcode, self.initcode))
+        # reset canon
+        self.canon.reset()
+        # release the dragon
+        self.previewEvent.set()
+        self.previewCompleteEvent.wait()
+        # handle error events
+        if self.errorEvent.wait(0.1):
+            (error, line) = self.outqueue.get()
+            if self.errorCallback is not None:
+                self.errorCallback(error, line)
+            self.errorEvent.clear()
+
     def run(self):
-        self.isRunning = True
+        import preview  # must be imported in new process to work properly
+        self.preview = preview
+
+        self.isStarted.value = True
+
+        # waiting for a bind event
+        while not self.bindEvent.wait(timeout=0.1):
+            if self.shutdownEvent.is_set():  # in case someone shuts down when we are not bound
+                self.isStarted.value = False
+
+        # bind the socket here
+        (previewUri, statusUri) = self.inqueue.get()
+        (previewUri, statusUri) = self.preview.bind(previewUri, statusUri)
+        self.outqueue.put((previewUri, statusUri))
+        self.isBound.value = True
+        self.bindCompletedEvent.set()
+        if self.debug:
+            print('Preview socket bound')
+
+        # wait for preview request or shutdown
+        # event handshaking is used to synchronize the monitoring thread
+        # and the process
+        while not self.shutdownEvent.is_set():
+            if self.previewEvent.wait(timeout=0.1):
+                self.previewCompleteEvent.clear()
+                self.isRunning.value = True
+                self.do_preview()
+                self.previewCompleteEvent.set()
+                self.previewEvent.clear()
+                self.isRunning.value = False
+
+        if self.debug:
+            print('Preview process exited')
+        self.isStarted.value = False
+
+    def do_preview(self):
+        # get all stuff that is modified at runtime
+        (filename, unitcode, initcode) = self.inqueue.get()
         if self.debug:
             print("Preview starting")
-            print("Filename: " + self.filename)
-            print("Unitcode: " + self.unitcode)
-            print("Initcode: " + self.initcode)
+            print("Filename: " + filename)
+            print("Unitcode: " + unitcode)
+            print("Initcode: " + initcode)
         try:
-            result, last_sequence_number = preview.parse(self.filename,
-                                                         self.canon,
-                                                         self.unitcode,
-                                                         self.initcode)
+            # here we do all the actual work...
+            (result, last_sequence_number) = self.preview.parse(
+                filename,
+                self.canon,
+                unitcode,
+                initcode)
 
-            if result > preview.MIN_ERROR:
-                error = " gcode error: %s " % (preview.strerror(result))
+            # check if we encountered a error during execution
+            if result > self.preview.MIN_ERROR:
+                error = " gcode error: %s " % (self.preview.strerror(result))
                 line = last_sequence_number - 1
                 if self.debug:
                     printError("preview: " + self.filename)
                     printError(error + " on line " + str(line))
-                if self.errorCallback is not None:
-
-                    self.errorCallback(error, line)
+                # pass error through queue
+                self.outqueue.put((error, str(line)))
+                self.errorEvent.set()
 
         except Exception as e:
-            printError("preview exception" + str(e))
+            printError("preview exception " + str(e))
 
         if self.debug:
             print("Preview exiting")
-        self.isRunning = False
 
 
 class StatusValues():
@@ -454,6 +536,7 @@ class LinuxCNCWrapper():
 
     def stop(self):
         self.shutdown.set()
+        self.preview.stop()
 
     # handle program extensions
     def preprocess_program(self, filePath):
@@ -1174,7 +1257,7 @@ class LinuxCNCWrapper():
             self.linuxcncErrors.append(note)
 
     def preview_error(self, error, line):
-        self.add_error("%s\non line %i" % (error, str(line)))
+        self.add_error("%s\non line %s" % (error, str(line)))
 
     def send_config(self, data, type):
         self.txStatus.emc_status_config.MergeFrom(data)
@@ -1837,7 +1920,7 @@ def main():
         mkwrapper.stop()
 
     # wait for all threads to terminate
-    while threading.active_count() > 1:
+    while threading.active_count() > 2:  # one thread for every process is left
         time.sleep(0.1)
 
     print("threads stopped")
