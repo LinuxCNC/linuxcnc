@@ -176,8 +176,8 @@ home position like a rotary axis and you want that axis to home at
 the current position when the "Home All" button is pressed in Axis
 the following ini entries for that axis are needed.
 
-. SEARCH_VEL = 0
-. LATCH_VEL = 0
-. USE_INDEX = NO
+. HOME_SEARCH_VEL = 0
+. HOME_LATCH_VEL = 0
+. HOME_USE_INDEX = NO
 . HOME_SEQUENCE = 0
 
