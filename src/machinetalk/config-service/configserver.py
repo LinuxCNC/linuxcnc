@@ -123,7 +123,7 @@ class ConfigServer:
         if self.debug:
             print(("send_msg " + str(self.tx)))
         self.tx.Clear()
-        self.socket.send_multipart([dest, txBuffer])
+        self.socket.send_multipart([dest, txBuffer], zmq.NOBLOCK)
 
     def list_apps(self, origin):
         for name in self.cfg.sections():
