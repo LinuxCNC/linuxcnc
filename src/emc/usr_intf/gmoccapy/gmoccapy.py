@@ -608,10 +608,8 @@ class gmoccapy( object ):
 
             # we first hide the Y button to home and touch off
             self.widgets.btn_home_y.hide()
-            self.widgets.btn_zero_y.hide()
             self.widgets.btn_set_value_y.hide()
             self.widgets.lbl_replace_y.show()
-            self.widgets.lbl_replace_zero_y.show()
             self.widgets.lbl_replace_set_value_y.show()
             self.widgets.btn_tool_touchoff_x.show()
             self.widgets.lbl_hide_tto_x.hide()
