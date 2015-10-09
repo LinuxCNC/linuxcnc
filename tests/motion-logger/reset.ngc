@@ -1,0 +1,17 @@
+
+;
+; This gcode program is intended to reset Task (including Canon) to a
+; sane, simple default analogous to system startup.
+;
+
+G90                                     ; absolute distance mode
+G91.1                                   ; arc centers are relative
+G40                                     ; cutter radius compensation off
+G53 G0 X0 Y0 Z0 A0 B0 C0 U0 V0 W0       ; move to machine home
+G92.1                                   ; clear G92 offsets
+G54                                     ; switch to coordinate system G54
+G10 L2 P1 X0 Y0 Z0 A0 B0 C0 U0 V0 W0 R0 ; set G54 to equal G53
+G49                                     ; disable tool offset compensation
+G80                                     ; cancel canned cycle
+
+M2
