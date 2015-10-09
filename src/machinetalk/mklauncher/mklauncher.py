@@ -138,7 +138,7 @@ class Mklauncher:
         self.launcherPort = self.launcherSocket.bind_to_random_port(self.baseUri)
         self.launcherDsname = self.launcherSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
         self.launcherDsname = self.launcherDsname.replace('0.0.0.0', self.host)
-        self.commandSocket = context.socket(zmq.DEALER)
+        self.commandSocket = context.socket(zmq.ROUTER)
         self.commandPort = self.commandSocket.bind_to_random_port(self.baseUri)
         self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
         self.commandDsname = self.commandDsname.replace('0.0.0.0', self.host)
@@ -176,9 +176,9 @@ class Mklauncher:
 
         while not self.shutdown.is_set():
             s = dict(poll.poll(1000))
-            if self.launcherSocket in s:
+            if self.launcherSocket in s and s[self.launcherSocket] == zmq.POLLIN:
                 self.process_launcher(self.launcherSocket)
-            if self.commandSocket in s:
+            if self.commandSocket in s and s[self.commandSocket] == zmq.POLLIN:
                 self.process_command(self.commandSocket)
 
         self.unpublish()
@@ -271,19 +271,20 @@ class Mklauncher:
         self.txContainer.type = msgType
         txBuffer = self.txContainer.SerializeToString()
         self.txContainer.Clear()
-        self.launcherSocket.send_multipart(['launcher', txBuffer])
+        self.launcherSocket.send_multipart(['launcher', txBuffer], zmq.NOBLOCK)
 
-    def send_command_msg(self, msgType):
+    def send_command_msg(self, identity, msgType):
         self.txCommand.type = msgType
         txBuffer = self.txCommand.SerializeToString()
+        self.commandSocket.send_multipart([identity, txBuffer], zmq.NOBLOCK)
         self.txCommand.Clear()
-        self.commandSocket.send(txBuffer)
 
     def poll(self):
         while not self.shutdown.is_set():
-            self.update_launcher()
-            if (self.pingCount == self.pingRatio):
-                self.ping_launcher()
+            if self.launcherSubscribed:
+                self.update_launcher()
+                if (self.pingCount == self.pingRatio):
+                    self.ping_launcher()
 
             if (self.pingCount == self.pingRatio):
                 self.pingCount = 0
@@ -299,7 +300,7 @@ class Mklauncher:
 
     def process_launcher(self, s):
         try:
-            rc = s.recv(zmq.NOBLOCK)
+            rc = s.recv()
             subscription = rc[1:]
             status = (rc[0] == "\x01")
 
@@ -354,43 +355,43 @@ class Mklauncher:
     def write_stdin_process(self, index, data):
         self.processes[index].stdin.write(data)
 
-    def send_command_wrong_params(self):
+    def send_command_wrong_params(self, identity):
         self.txCommand.note.append('wrong parameters')
-        self.send_command_msg(MT_ERROR)
+        self.send_command_msg(identity, MT_ERROR)
 
-    def send_command_wrong_index(self):
+    def send_command_wrong_index(self, identity):
         self.txCommand.note.append('wrong index')
-        self.send_command_msg(MT_ERROR)
+        self.send_command_msg(identity, MT_ERROR)
 
     def process_command(self, s):
-        if self.debug:
-            print('process command called')
-
-        message = s.recv()
+        (identity, message) = s.recv_multipart()
         self.rx.ParseFromString(message)
 
+        if self.debug:
+            print("process command called, id: %s" % identity)
+
         if self.rx.type == MT_PING:
-            self.send_command_msg(MT_PING_ACKNOWLEDGE)
+            self.send_command_msg(identity, MT_PING_ACKNOWLEDGE)
 
         elif self.rx.type == MT_LAUNCHER_START:
             if self.rx.HasField('index'):
                 index = self.rx.index
                 if index >= len(self.container.launcher):
-                    self.send_command_wrong_index()
+                    self.send_command_wrong_index(identity)
                 else:
                     success, note = self.start_process(index)
                     if not success:
                         self.txCommand.note.append(note)
-                        self.send_command_msg(MT_ERROR)
+                        self.send_command_msg(identity, MT_ERROR)
             else:
-                self.send_command_wrong_params()
+                self.send_command_wrong_params(identity)
 
         elif self.rx.type == MT_LAUNCHER_TERMINATE:
             if self.rx.HasField('index'):
                 index = self.rx.index
                 if index >= len(self.container.launcher) \
                    or index not in self.processes:
-                    self.send_command_wrong_index()
+                    self.send_command_wrong_index(identity)
                 else:
                     self.terminate_process(index)
 
@@ -399,7 +400,7 @@ class Mklauncher:
                 index = self.rx.index
                 if index >= len(self.container.launcher) \
                    or index not in self.processes:
-                    self.send_command_wrong_index()
+                    self.send_command_wrong_index(identity)
                 else:
                     self.kill_process(index)
 
@@ -410,21 +411,21 @@ class Mklauncher:
                 name = self.rx.name
                 if index >= len(self.container.launcher) \
                    or index not in self.processes:
-                    self.send_command_wrong_index()
+                    self.send_command_wrong_index(identity)
                 else:
                     self.write_stdin_process(index, name)
 
         elif self.rx.type == MT_LAUNCHER_CALL:
             self.txCommand.note.append("process call not allowed")
-            self.send_command_msg(MT_ERROR)
+            self.send_command_msg(identity, MT_ERROR)
 
         elif self.rx.type == MT_LAUNCHER_SHUTDOWN:
             self.txCommand.note.append("shutdown not allowed")
-            self.send_command_msg(MT_ERROR)
+            self.send_command_msg(identity, MT_ERROR)
 
         else:
             self.txCommand.note.append("unknown command")
-            self.send_command_msg(MT_ERROR)
+            self.send_command_msg(identity, MT_ERROR)
 
 
 shutdown = False
