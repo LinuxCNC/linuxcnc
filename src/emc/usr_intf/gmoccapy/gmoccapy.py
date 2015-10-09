@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.5.1"
+_RELEASE = " 2.0.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1168,6 +1168,7 @@ class gmoccapy( object ):
         self.widgets.gremlin.set_property( "metric_units", int( self.stat.linear_units ) )
         self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property( "use_commanded", not self.dro_actual)
+        self.widgets.eb_program_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0,0,0))
 
     # init the function to hide the cursor
     def _init_hide_cursor( self ):
@@ -1616,8 +1617,7 @@ class gmoccapy( object ):
 
     def on_hal_status_file_loaded( self, widget, filename ):
         if self.log: self._add_alarm_entry( "loaded file %s" % filename )
-        widgetlist = ["btn_use_current"
-        ]
+        widgetlist = ["btn_use_current"]
         # this test is only neccesary, because of remap and toolchange, it will emit a file loaded signal
         if filename:
             fileobject = file( filename, 'r' )
@@ -1625,8 +1625,8 @@ class gmoccapy( object ):
             fileobject.close()
             self.halcomp["program.length"] = len( lines )
 
-            if len( filename ) > 50:
-                filename = filename[0:10] + "..." + filename[len( filename ) - 39:len( filename )]
+            if len( filename ) > 70:
+                filename = filename[0:10] + "..." + filename[len( filename ) - 50:len( filename )]
             self.widgets.lbl_program.set_text( filename )
             self._sensitize_widgets( widgetlist, True )
         else:
