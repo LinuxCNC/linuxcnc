@@ -280,17 +280,15 @@ typedef struct {
             hal_bit_t *input_a;
             hal_bit_t *input_b;
             hal_bit_t *input_idx;
-        } pin;
 
-        struct {
-            hal_float_t scale;
-            hal_bit_t index_invert;
-            hal_bit_t index_mask;
-            hal_bit_t index_mask_invert;
-            hal_bit_t counter_mode;
-            hal_bit_t filter;
-            hal_float_t vel_timeout;
-        } param;
+            hal_float_t *scale;
+            hal_bit_t *index_invert;
+            hal_bit_t *index_mask;
+            hal_bit_t *index_mask_invert;
+            hal_bit_t *counter_mode;
+            hal_bit_t *filter;
+            hal_float_t *vel_timeout;
+        } pin;
 
     } hal;
 
