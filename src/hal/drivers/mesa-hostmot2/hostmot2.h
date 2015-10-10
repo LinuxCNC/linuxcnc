@@ -1307,4 +1307,8 @@ void hm2_raw_write(hostmot2_t *hm2);
 // used by hm2_register() to initialize and by hm2_pet_watchdog() to recover from io errors and watchdog errors
 void hm2_force_write(hostmot2_t *hm2);
 
+
+// items related to pin naming
+const char *hm2_get_general_function_hal_name(int gtag);
+const char *hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin);
 #endif

@@ -200,11 +200,20 @@ void hm2_ioport_cleanup(hostmot2_t *hm2) {
 }
 
 
+static int do_alias(const char *orig_base, const char *alias_base,
+        const char *suffix, int (*funct)(const char *, const char *)) {
+    char orig_name[HAL_NAME_LEN];
+    char alias_name[HAL_NAME_LEN];
+    snprintf(orig_name, sizeof(orig_name), "%s%s", orig_base, suffix);
+    snprintf(alias_name, sizeof(alias_name), "%s%s", alias_base, suffix);
+    return funct(orig_name, alias_name);
+}
 
 
 int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
     int r;
     int i;
+    const char *gtag_name, *funct_name;
 
     for (i = 0; i < hm2->num_pins; i ++) {
         // all pins get *some* gpio HAL presence
@@ -324,6 +333,42 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
             }
 
             hm2->pin[i].instance->hal.param.is_output = 0;
+        }
+
+        // it's an output of some other module
+        if(hm2->pin[i].gtag != HM2_GTAG_IOPORT &&
+            hm2->pin[i].direction == HM2_PIN_DIR_IS_OUTPUT &&
+            (gtag_name = hm2_get_general_function_hal_name(hm2->pin[i].gtag)) &&
+            (funct_name = hm2_get_pin_secondary_hal_name(&hm2->pin[i])))
+        {
+            char orig_base[HAL_NAME_LEN];
+            char alias_base[HAL_NAME_LEN];
+            sprintf(orig_base,
+                "%s.gpio.%03d",
+                hm2->llio->name,
+                i);
+            sprintf(alias_base,
+                "%s.%s.%02d.%s",
+                hm2->llio->name,
+                gtag_name,
+                hm2->pin[i].sec_unit,
+                funct_name
+                );
+
+            r = do_alias(orig_base, alias_base, ".invert_output",
+                hal_param_alias);
+            if (r < 0) {
+                HM2_ERR("error %d adding .invert_output alias, aborting\n",
+                    r);
+                return -EINVAL;
+            }
+            r = do_alias(orig_base, alias_base, ".is_opendrain",
+                hal_param_alias);
+            if (r < 0) {
+                HM2_ERR("error %d adding .is_opendrain alias, aborting\n",
+                    r);
+                return -EINVAL;
+            }
         }
     }
 
