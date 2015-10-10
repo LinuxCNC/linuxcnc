@@ -493,6 +493,8 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
     } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
     if(recv != board->queue_buff_size) {
         LL_PRINT("enqueue_read ERROR: reading packet: recv() -> %d %s (expected to read %d bytes)\n", recv, strerror(errno), board->queue_buff_size);
+        board->queue_reads_count = 0;
+        board->queue_buff_size = 0;
         return 0;
     }
     LL_PRINT_IF(debug, "enqueue_read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, recv, i, t2 - t1);
