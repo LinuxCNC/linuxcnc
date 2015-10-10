@@ -3490,4 +3490,6 @@ EXPORT_SYMBOL(halpr_find_funct_by_owner);
 
 EXPORT_SYMBOL(halpr_find_pin_by_sig);
 
+EXPORT_SYMBOL(hal_pin_alias);
+EXPORT_SYMBOL(hal_param_alias);
 #endif /* rtapi */
