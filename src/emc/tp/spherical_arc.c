@@ -122,7 +122,7 @@ int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
         PmCartLine const * const line2, double radius,
         double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end, int consume) {
 
-    PmCartesian center, normal, binormal;
+    PmCartesian center, normal;
 
     // Pointer to middle point of line segment pair
     PmCartesian const * const middle = &line1->end;
@@ -134,11 +134,6 @@ int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
     pmCartUnitEq(&normal);
     pmCartScalMultEq(&normal, center_dist);
     pmCartCartAdd(middle, &normal, &center);
-
-    //Calculate the binormal (vector perpendicular to the plane of the
-    //arc)
-    pmCartCartCross(&line1->uVec, &line2->uVec, &binormal);
-    pmCartUnitEq(&binormal);
 
     // Start point is blend_dist away from middle point in the
     // negative direction of line1
@@ -177,25 +172,26 @@ int arcConvexTest(PmCartesian const * const center,
 
 int arcTangent(SphericalArc const * const arc, PmCartesian * const tan, int at_end)
 {
-    PmCartesian r_perp;
-    PmCartesian r_tan;
-
-    if (at_end) {
-        r_perp = arc->rEnd;
-    } else {
-        r_perp = arc->rStart;
+    if (!arc || !tan) {
+        return TP_ERR_MISSING_INPUT;
     }
 
-    pmCartCartCross(&arc->binormal, &r_perp, &r_tan);
-    //Get spiral component
-    double dr = arc->spiral / arc->angle;
+    // This section implements the derivative of the SLERP formula to get a
+    // local tangent vector.
+    const double theta = arc->angle;
+    const double t = (double)at_end;
+    const double k = theta / arc->Sangle;
+    const double k0 = -cos( (1.0 - t) * theta);
+    const double k1 = cos( t * theta);
 
-    //Get perpendicular component due to spiral
-    PmCartesian d_perp;
-    pmCartUnit(&r_perp, &d_perp);
-    pmCartScalMultEq(&d_perp, dr);
-    //TODO error checks
-    pmCartCartAdd(&d_perp, &r_tan, tan);
+    PmCartesian dp0,dp1;
+
+    // Ugly sequence to build up tangent vector from components of the derivative
+    pmCartScalMult(&arc->rStart, k * k0, &dp0);
+    pmCartScalMult(&arc->rEnd, k * k1, &dp1);
+    pmCartCartAdd(&dp0, &dp1, tan);
+
+    // tangential vector complete, now normalize
     pmCartUnitEq(tan);
 
     return TP_ERR_OK;

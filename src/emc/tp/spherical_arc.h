@@ -33,7 +33,6 @@ typedef struct {
     PmCartesian rEnd;
     PmCartesian uTan;   /* Tangent vector at start of arc (copied from
                            prev. tangent line)*/
-    PmCartesian binormal;
     double radius;
     double spiral;
     // Angle that the arc encloses

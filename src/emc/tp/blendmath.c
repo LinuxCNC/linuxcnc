@@ -1574,7 +1574,6 @@ int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const poi
     // If we consume the previous line, the remaining line length gets added here
     arc->uTan = geom->u_tan1;
     arc->line_length = param->line_length;
-    arc->binormal = geom->binormal;
 
     // Create the arc from the processed points
     return arcInitFromPoints(arc, &points->arc_start,
