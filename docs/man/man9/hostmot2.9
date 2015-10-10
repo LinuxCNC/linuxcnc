@@ -1052,7 +1052,9 @@ Digital Outputs described in the Canonical Device Interface (part of
 the HAL General Reference document).  Each GPIO can have the following
 HAL Pins:
 
-(bit out) in & in_not: State (normal and inverted) of the hardware
+.TP
+(bit out) in & in_not
+State (normal and inverted) of the hardware
 input pin.  Both full GPIO pins and IO pins used as inputs by active
 module instances have these pins.
 
@@ -1061,6 +1063,7 @@ module instances have these pins.
 Value to be written (possibly inverted) to the hardware
 output pin.  Only full GPIO pins have this pin.
 
+.PP
 Each GPIO can have the following Parameters:
 
 .TP

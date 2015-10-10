@@ -198,7 +198,7 @@ It is an error if:
 ----
 G2 or G3 axes offsets (center format)
 G2 or G3 axes R- (radius format)
-G2 or G3 offsets <P-> (full circles)
+G2 or G3 offsets|R- <P-> (full circles)
 ----
 
 A circular or helical arc is specified using either 'G2' (clockwise
@@ -405,7 +405,7 @@ either the current point or the end point of the arc.
 === Radius Format Arcs
 
 ----
-G2 or G3 axes R-
+G2 or G3 axes R- <P->
 ----
 * 'R' - radius from current position
 

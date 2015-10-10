@@ -132,6 +132,14 @@ AC_SUBST([EMC2VERSION])
 AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(EGREP, egrep)
 
+#
+# check for pkg-config
+#
+AC_PATH_PROG([PKG_CONFIG], [pkg-config])
+if test -z "$PKG_CONFIG"; then
+  AC_MSG_ERROR([pkg-config is required to build LinuxCNC])
+fi
+
 ##############################################################################
 # Section 2                                                                  #
 # RealTime checking (either RTAI, or RT-Linux)                               #
