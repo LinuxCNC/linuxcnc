@@ -18,11 +18,6 @@ STEPCONF_GLADEFILES := \
 
 PYTARGETS += ../bin/stepconf  ../lib/python/stepconf/__init__.py ../share/linuxcnc/linuxcnc-wizard.gif $(patsubst %,../lib/python/stepconf/%.py,$(STEPCONF_MODULES)) \
 	$(patsubst %, ../share/linuxcnc/stepconf/%, $(STEPCONF_GLADEFILES)) \
-	objects/glade-conflict-check-stamp \
-
-objects/glade-conflict-check-stamp: $(patsubst %,emc/usr_intf/stepconf/%,$(STEPCONF_GLADEFILES))
-	$(ECHO) Checking for ID conflicts in stepconf glade files
-	$(Q)../scripts/checkglade $^ && touch $@
 
 PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepconf/%.py,$(STEPCONF_MODULES)) \
 	$(patsubst %, emc/usr_intf/stepconf/%, $(STEPCONF_GLADEFILES)) \
