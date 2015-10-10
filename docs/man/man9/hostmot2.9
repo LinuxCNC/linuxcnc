@@ -1098,6 +1098,16 @@ value of the GPIO will be the inverse of the value on the "out" HAL pin.
 Only full GPIO pins and IO pins used as outputs by active module instances
 have this parameter.
 
+.PP
+When a physical I/O pin is used by a special function, the related
+.BR is_output ", and " is_opendrain
+HAL parameters are aliased to the special function.  For instance, if gpio 1
+is taken over by pwmgen 0's first output, then aliases like
+.B hm2_7i92.0.pwmgen.00.out0.invert_output
+(referring to
+.BR hm2_7i92.0.gpio.001.invert_output )
+will be automatically created.
+
 .SH led
 
 Creates HAL pins for the LEDs on the FPGA board.
