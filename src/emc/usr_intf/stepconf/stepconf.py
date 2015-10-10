@@ -288,6 +288,9 @@ class Data:
         self.ladderhaltype = 0 # no HAL connections specified
         self.ladderconnect = 1 # HAL connections allowed
 
+        self.select_axis = True
+        self.select_gmoccapy = False
+
         self.pin1inv = 0
         self.pin2inv = 0
         self.pin3inv = 0

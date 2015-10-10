@@ -53,7 +53,10 @@ class INI:
 
         print >>file
         print >>file, "[DISPLAY]"
-        print >>file, "DISPLAY = axis"
+        if self.d.select_axis:
+            print >>file, "DISPLAY = axis"
+        elif self.d.select_gmoccapy:
+            print >>file, "DISPLAY = gmoccapy"
         print >>file, "EDITOR = gedit"
         print >>file, "POSITION_OFFSET = RELATIVE"
         print >>file, "POSITION_FEEDBACK = ACTUAL"
