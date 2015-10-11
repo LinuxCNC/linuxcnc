@@ -119,6 +119,8 @@ typedef struct {
   hal_bit_t	old_run;		// so we can detect changes in the run state
   hal_bit_t	old_dir;
   hal_bit_t	old_err_reset;
+  hal_bit_t    *ena_gs2comp;    // gs2 component enable pin
+  hal_bit_t    *isInitialized;    // initialized status pin
 } haldata_t;
 
 static int done;
@@ -138,10 +140,11 @@ static struct option long_options[] = {
     {"accel-seconds", required_argument, NULL, 'A'},
     {"decel-seconds", required_argument, NULL, 'D'},
     {"braking-resistor", no_argument, NULL, 'R'},
+    {"disable", no_argument, NULL, 'X'},
     {0,0,0,0}
 };
 
-static char *option_string = "gb:d:hn:p:r:s:t:vA:D:R";
+static char *option_string = "gb:d:hn:p:r:s:t:vA:D:RX";
 
 static char *bitstrings[] = {"5", "6", "7", "8", NULL};
 
@@ -187,14 +190,18 @@ int gs2_set_accel_time(modbus_t *mb_ctx, float accel_time) {
 
     r = modbus_write_register(mb_ctx, GS2_REG_ACCELERATION_TIME_1, data);
     if (r != 1) {
-        fprintf(
-            stderr,
-            "failed to set register P0x%04x to 0x%04x (%d): %s\n",
-            GS2_REG_ACCELERATION_TIME_1,
-            data, data,
-            strerror(errno)
-        );
-        return -1;
+        // Retry, test system always fails first communication
+        r = modbus_write_register(mb_ctx, GS2_REG_ACCELERATION_TIME_1, data);
+        if (r != 1) {
+            fprintf(
+                stderr,
+                "failed to set register P0x%04x to 0x%04x (%d): %s\n",
+                GS2_REG_ACCELERATION_TIME_1,
+                data, data,
+                strerror(errno)
+            );
+            return -1;
+        }
     }
 
     return 0;
@@ -435,6 +442,8 @@ void usage(int argc, char **argv) {
     "    the VFD to keep braking even in situations where the motor is regenerating\n"
     "    high voltage.  The regenerated voltage gets safely dumped into the\n"
     "    braking resistor.\n"
+    "-X, --disable\n"
+    "    Set this flag to disable the control by default (sets default value of 'enable' pin to 0)"
     );
 }
 int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_block) {
@@ -496,6 +505,7 @@ int main(int argc, char **argv)
     char parity;
     int opt;
     int argindex, argvalue;
+    int enabled;
 
     float accel_time = 10.0;
     float decel_time = 0.0;  // this means: coast to a stop, don't try to control deceleration time
@@ -512,6 +522,7 @@ int main(int argc, char **argv)
     verbose = 0;
     device = "/dev/ttyS0";
     parity = 'O';
+    enabled = 1;
 
     /* slave / register info */
     slave = 1;
@@ -523,6 +534,9 @@ int main(int argc, char **argv)
     // process command line options
     while ((opt=getopt_long(argc, argv, option_string, long_options, NULL)) != -1) {
         switch(opt) {
+            case 'X':  // disable by default on startup
+                enabled = 0;
+                break;
             case 'b':   // serial data bits, probably should be 8 (and defaults to 8)
                 argindex=match_string(optarg, bitstrings);
                 if (argindex<0) {
@@ -618,8 +632,8 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("%s: device='%s', baud=%d, parity='%c', bits=%d, stopbits=%d, address=%d\n",
-           modname, device, baud, parity, bits, stopbits, slave);
+    printf("%s: device='%s', baud=%d, parity='%c', bits=%d, stopbits=%d, address=%d, enabled=%d\n",
+           modname, device, baud, parity, bits, stopbits, slave, enabled);
     /* point TERM and INT signals at our quit function */
     /* if a signal is received between here and the main loop, it should prevent
             some initialization from happening */
@@ -642,25 +656,6 @@ int main(int argc, char **argv)
     modbus_set_debug(mb_ctx, debug);
 
     modbus_set_slave(mb_ctx, slave);
-
-
-    //
-    // configure the gs2 vfd based on command-line arguments
-    //
-    if (gs2_set_accel_time(mb_ctx, accel_time) != 0) {
-        retval = 1;
-        goto out_close;
-    }
-
-    if (gs2_set_decel_time(mb_ctx, decel_time) != 0) {
-        retval = 1;
-        goto out_close;
-    }
-
-    if (gs2_set_braking_resistor(mb_ctx, braking_resistor) != 0) {
-        retval = 1;
-        goto out_close;
-    }
 
     // show the gs2 vfd configuration
     if (verbose) {
@@ -735,7 +730,12 @@ int main(int argc, char **argv)
     if (retval!=0) goto out_closeHAL;
     retval = hal_param_s32_newf(HAL_RW, &(haldata->ack_delay), hal_comp_id, "%s.ack-delay", modname);
     if (retval!=0) goto out_closeHAL;
-
+    /* define run (enable) pin and isInitialized */
+    retval = hal_pin_bit_newf(HAL_IN, &(haldata->ena_gs2comp), hal_comp_id, "%s.enable", modname);
+    if (retval!=0) goto out_closeHAL; 
+    retval = hal_pin_bit_newf(HAL_OUT, &(haldata->isInitialized), hal_comp_id, "%s.initialized", modname);
+    if (retval!=0) goto out_closeHAL; 
+    
     /* make default data match what we expect to use */
     *(haldata->stat1) = 0;
     *(haldata->stat2) = 0;
@@ -762,18 +762,51 @@ int main(int argc, char **argv)
     haldata->old_run = -1;		// make sure the initial value gets output
     haldata->old_dir = -1;
     haldata->old_err_reset = -1;
-    hal_ready(hal_comp_id);
+    *(haldata->ena_gs2comp) = enabled;  // command line override, defaults to "enabled" for compatibility
+    *(haldata->isInitialized) = 0; 
     
+    // Activate HAL component
+    hal_ready(hal_comp_id);
+
     /* here's the meat of the program.  loop until done (which may be never) */
     while (done==0) {
-        read_data(mb_ctx, &slavedata, haldata);
-        write_data(mb_ctx, &slavedata, haldata);
+
         /* don't want to scan too fast, and shouldn't delay more than a few seconds */
         if (haldata->looptime < 0.001) haldata->looptime = 0.001;
         if (haldata->looptime > 2.0) haldata->looptime = 2.0;
         loop_timespec.tv_sec = (time_t)(haldata->looptime);
         loop_timespec.tv_nsec = (long)((haldata->looptime - loop_timespec.tv_sec) * 1000000000l);
         nanosleep(&loop_timespec, &remaining);
+
+        if(*(haldata->ena_gs2comp) == 0) {
+             // Component not enabled, so do nothing and force uninitialized state
+             if (*(haldata->isInitialized)) {
+                *(haldata->spindle_on) = 0;
+                // need to write to vfd in case we are here when it is being disabled
+                write_data(mb_ctx, &slavedata, haldata);
+                // debug printf below
+                // printf("GS2: Disabling\n");
+            }
+            *(haldata->isInitialized) = 0;
+        } else if (!*(haldata->isInitialized)) {
+            // Initialize: configure the gs2 vfd based on command-line arguments
+            if (gs2_set_accel_time(mb_ctx, accel_time) != 0) {
+                continue;
+            }
+            if (gs2_set_decel_time(mb_ctx, decel_time) != 0) {
+                continue;
+            }
+            if (gs2_set_braking_resistor(mb_ctx, braking_resistor) != 0) {
+                continue;
+            }
+            // debug printf below
+            // printf("GS2: Initialized\n");
+            *(haldata->isInitialized) = 1;
+        } else {
+            // Enabled and initialized, so do read/write of Modbus
+            read_data(mb_ctx, &slavedata, haldata);
+            write_data(mb_ctx, &slavedata, haldata);   
+        }
     }
     
     retval = 0;	/* if we get here, then everything is fine, so just clean up and exit */

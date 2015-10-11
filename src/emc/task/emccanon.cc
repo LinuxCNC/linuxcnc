@@ -1490,18 +1490,18 @@ void ARC_FEED(int line_number,
 
         get_last_pos(lx, ly, lz);
 
-        a = FROM_PROG_ANG(a);
-        b = FROM_PROG_ANG(b);
-        c = FROM_PROG_ANG(c);
-        u = FROM_PROG_LEN(u);
-        v = FROM_PROG_LEN(v);
-        w = FROM_PROG_LEN(w);
-
         double fe=FROM_PROG_LEN(first_end), se=FROM_PROG_LEN(second_end), ae=FROM_PROG_LEN(axis_end_point);
         double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
         rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
         rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
         if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canonNaivecamTolerance) {
+            a = FROM_PROG_ANG(a);
+            b = FROM_PROG_ANG(b);
+            c = FROM_PROG_ANG(c);
+            u = FROM_PROG_LEN(u);
+            v = FROM_PROG_LEN(v);
+            w = FROM_PROG_LEN(w);
+
             rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
             see_segment(line_number, mx, my,
                         (lz + ae)/2, 

@@ -1,15 +1,18 @@
 component xhc_hb04_util "xhc-hb04 convenience utility";
 description """Provides logic for a start/pause button and an interface
-to halui.program.is_paused,is_idle,is_running to generate outputs for
-halui.program.pause,resume,run.
+to halui.program.is_paused, is_idle, is_running to generate outputs for
+halui.program.pause, resume, run.
 
 Includes 4 simple lowpass filters with coef and scale pins.  The coef value should
 be 0 <= coef <=1, smaller coef values slow response.
 
-Inludes 4 multiplexers to manage ini hal pins ini.N.max_acceleration.  The amux.N.in0
-inputs are used for auto, mdi modes; the amux.N.in1 inputs are selected when the
-is_manual pin is True and the jogenable-off pin is False.  These pins are typially
-connected to halui.mode.is-manual and xhc-hb04.jog.enable-off respectively.
+Includes 4 multiplexers to manage ini hal pins ini.N.max_acceleration.  The amux.N.in0
+inputs are used by default, the amux.N.in1 inputs are selected when the is-manual
+pin is True.
+
+The pin named is-manual is typically connected to halui.mode.is-manual.
+
+The pin named jogenable-off is not used.
 """;
 
 pin in bit start_or_pause;
@@ -88,13 +91,13 @@ FUNCTION(_) {
     value2 += (in2 - value2) * (fabs(coef2) < 1 ? fabs(coef2) : 1);
     value3 += (in3 - value3) * (fabs(coef3) < 1 ? fabs(coef3) : 1);
 
-    out0 =  ceil(value0 - .5) * scale0;
-    out1 =  ceil(value1 - .5) * scale1;
-    out2 =  ceil(value2 - .5) * scale2;
-    out3 =  ceil(value3 - .5) * scale3;
+    out0 =  ceil(value0 * scale0 - .5);
+    out1 =  ceil(value1 * scale1 - .5);
+    out2 =  ceil(value2 * scale2 - .5);
+    out3 =  ceil(value3 * scale3 - .5);
 
     // accel muxes:
-    if (is_manual && !jogenable_off) {
+    if (is_manual) {
         amux0_out = amux0_in1;
         amux1_out = amux1_in1;
         amux2_out = amux2_in1;

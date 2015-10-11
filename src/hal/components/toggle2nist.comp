@@ -16,7 +16,7 @@ pin out bit on;
 pin out bit off;
 variable int old_in;
 variable int to_state=0;
-function _;
+function _ nofp;
 license "GPL";
 ;;
 FUNCTION(_)  {

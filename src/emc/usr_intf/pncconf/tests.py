@@ -1121,7 +1121,7 @@ But there is not one in the machine-named folder.."""),True)
             signallist = ((axis+"-enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true")
         else:
             signallist = ("spindle-cw","spindle-ccw","spindle-brake","spindle-on","machine-is-enabled",
-                            "estop-out","charge-pump","force-pin-true")
+                            "spindle-enable","estop-out","charge-pump","force-pin-true")
         halrun = self.halrun
         def write_pins(pname,p,i,t):
             if p in signallist:

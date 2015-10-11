@@ -815,10 +815,11 @@ class HAL:
             print >>f1
             if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect:
                 print >>f1, "source pyvcp_options.hal"
-            if self.d.gs2_vfd:
-                print >>f1, "source gs2_vfd.hal"
-            if self.d.mitsub_vfd:
-                print >>f1, "source mitsub_vfd.hal"
+            if self.d.serial_vfd:
+                if self.d.gs2_vfd:
+                    print >>f1, "source gs2_vfd.hal"
+                if self.d.mitsub_vfd:
+                    print >>f1, "source mitsub_vfd.hal"
             print >>f1, "source custom_postgui.hal"
 
 
@@ -875,7 +876,7 @@ class HAL:
 
         # include Automation Direct GS2 VFD HAL file
         fname = os.path.join(base, "gs2_vfd.hal")
-        if self.d.gs2_vfd:
+        if self.d.serial_vfd and self.d.gs2_vfd:
             self.write_gs2_vfd(fname)
         else:
             if os.path.exists(fname):
@@ -883,8 +884,8 @@ class HAL:
 
         # include Mitsubishi FR VFD HAL file
         fname = os.path.join(base, "mitsub_vfd.hal")
-        if self.d.mitsub_vfd:
-            self.write_gs2_vfd(fname)
+        if self.d.serial_vfd and self.d.mitsub_vfd:
+            self.write_mitsub_vfd(fname)
         else:
             if os.path.exists(fname):
                 os.remove(fname)
@@ -1224,9 +1225,9 @@ class HAL:
                     if self.d.susenegativevoltage:
                         signal = "spindle-vel-cmd-rpm"
                     else:
-                        signal = "spindle-vel-cmd-abs"
+                        signal = "spindle-vel-cmd-rpm-abs"
                     print >>file, "net %s     => %sspinout"%(signal,potpinname)
-                print >>file, "net machine-is-enabled      => " + potpinname +"spinena"
+                print >>file, "net spindle-enable      => " + potpinname +"spinena"
                 print >>file, "net spindle-ccw         => " + potpinname +"spindir"
                 print >>file
 
@@ -1248,10 +1249,10 @@ class HAL:
                         if self.d.susenegativevoltage:
                             signal = "spindle-vel-cmd-rpm"
                         else:
-                            signal = "spindle-vel-cmd-abs"
+                            signal = "spindle-vel-cmd-rpm-abs"
                         print >>file, "net %s     => %s"%(signal,pwmpinname)
                     if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
-                        print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
+                        print >>file, "net spindle-enable      => " + rawpinname + "spinena"
                 else:
                     print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
                     print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
@@ -1281,10 +1282,10 @@ class HAL:
                     print >>file
                     if closedloop or self.d.suseoutputrange2:
                         print >>file, "net spindle-output      => " + pwmpinname + ".value"
-                        print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"    
+                        print >>file, "net spindle-enable      => " + pwmpinname +".enable"    
                     else:
                         print >>file, "net spindle-vel-cmd-rpm     => " + pwmpinname + ".value"
-                        print >>file, "net machine-is-enabled      => " + pwmpinname +".enable"
+                        print >>file, "net spindle-enable      => " + pwmpinname +".enable"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname + ".value"
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
@@ -1311,7 +1312,7 @@ class HAL:
                    print >>file, "setp    "+i+".invert_output true"
             if let == "s":
                 print >>file
-                print >>file, "net machine-is-enabled          =>  " + steppinname + ".enable" 
+                print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
                 if not encoderpinname and not resolverpinname:
                     print >>file, "net spindle-vel-fb-rps         <=  "+ steppinname + ".velocity-fb"

@@ -160,7 +160,6 @@ class gmoccapy( object ):
         # widget states.
 
         self.start_line = 0      # needed for start from line
-#        self.stepping = False    # used to sensitize widgets when using step by step
 
         self.active_gcodes = []  # this are the formated G code values
         self.active_mcodes = []  # this are the formated M code values
@@ -2436,7 +2435,7 @@ class gmoccapy( object ):
 
         # we do not allow touch off with no tool mounted, so we set the
         # coresponding widgets unsensitive and set the description acordingly
-        if tool == 0:
+        if tool <= 0:
             self.widgets.lbl_tool_no.set_text( "0" )
             self.widgets.lbl_tool_dia.set_text( "0" )
             self.widgets.lbl_tool_name.set_text( _( "No tool description available" ) )
@@ -4054,17 +4053,6 @@ class gmoccapy( object ):
 
     def on_btn_run_clicked( self, widget, data = None ):
         self.command.auto( linuxcnc.AUTO_RUN, self.start_line )
-
-#    def on_btn_step_clicked( self, widget, data = None ):
-#        self.command.auto( linuxcnc.AUTO_STEP )
-#        self.stepping = True
-
-    # this is needed only for stepping through a program, to
-    # sensitize the widgets according to that mode
-#    def on_btn_load_state_changed( self, widget, state ):
-#        if state == gtk.STATE_INSENSITIVE:
-#            self.stepping = False
-#            self.widgets.tbtn_pause.set_sensitive( True )
 
     def on_btn_from_line_clicked( self, widget, data = None ):
         self._add_alarm_entry( "Restart the program from line clicked" )

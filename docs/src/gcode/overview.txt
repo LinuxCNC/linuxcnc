@@ -543,7 +543,9 @@ can be added easily without changes to the source code.
     Return 1 if Units/revolution mode (G95) is on, else 0.
 
 * '#<_coord_system>' -
-    Return index of the current coordinate system (G54..G59.3)
+    Return a float of the current coordinate system name(G54..G59.3).
+    For example if your in G55 coordinate system the return value is
+    550.000000 and if your in G59.1 the return value is 591.000000.
 
 [width="20%",options="header"]
 |====
