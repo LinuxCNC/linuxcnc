@@ -843,68 +843,6 @@ class gmoccapy( object ):
                 axis = 5
             self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
 
-#     def _init_axis_four( self ):
-#         self.dro_size = int( self.prefs.getpref( "dro_size", 28, int ) )
-#         self.widgets.adj_dro_size.set_value( self.dro_size )
-# 
-#         if len( self.axis_list ) < 4:
-#             self.widgets.Combi_DRO_4.hide()
-#             self.widgets.chk_hide_axis_4.set_active( False )
-#             self.widgets.frm_tool_changer.set_sensitive( False )
-#             self.prefs.putpref( "hide_axis_4", False, bool )
-# 
-#             for axis in self.axis_list:
-#                 self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", self.dro_size )
-# 
-#             return
-#         axis_four = list( set( self.axis_list ) - set( ( "x", "y", "z" ) ) )
-#         if len( axis_four ) > 1:
-#             message = _( "**** GMOCCAPY ERROR : ****" )
-#             message += _( 
-#                 "**** gmoccapy can only handle 4 axis, ****\n**** but you have given %d through your INI file ****\n" % len( 
-#                     self.axis_list ) )
-#             message += _( "**** gmoccapy will not start ****\n\n" )
-#             print( message )
-#             self.widgets.window1.destroy()
-#         self.axisletter_four = axis_four[0]
-#         self.axisnumber_four = "xyzabcuvw".index( self.axisletter_four )
-#         self.widgets.Combi_DRO_4.set_property( "joint_number", self.axisnumber_four )
-#         self.widgets.Combi_DRO_4.change_axisletter( self.axisletter_four.upper() )
-#         if self.axisletter_four in "abc":
-#             self.widgets.Combi_DRO_4.set_property( "mm_text_template", "%11.2f" )
-#             self.widgets.Combi_DRO_4.set_property( "imperial_text_template", "%11.2f" )
-#         image = self.widgets["img_home_%s" % self.axisletter_four]
-#         self.widgets.btn_home_4.set_image( image )
-#         self.widgets.btn_home_4.set_property( "tooltip-text", _( "Home axis %s" ) % self.axisletter_four.upper() )
-# 
-#         # We have to change the size of the DRO, to make 4 DRO fit the space we got
-#         for axis in self.axis_list:
-#             if axis == self.axisletter_four:
-#                 axis = 4
-#             self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", self.dro_size * 3 / 4 )
-# 
-#         self.widgets.btn_4_plus.set_label( "%s+" % self.axisletter_four.upper() )
-#         self.widgets.btn_4_minus.set_label( "%s-" % self.axisletter_four.upper() )
-#         self.widgets.btn_4_plus.show()
-#         self.widgets.btn_4_minus.show()
-#         self.widgets.lbl_replace_4.hide()
-#         self.widgets.btn_home_4.show()
-# 
-#         # we have to re-arrange the jog buttons, so first remove all button
-#         self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_minus )
-#         self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_plus )
-#         self.widgets.tbl_jog_btn.remove( self.widgets.btn_4_minus )
-#         self.widgets.tbl_jog_btn.remove( self.widgets.btn_4_plus )
-# 
-#         # now we place them in a different order
-#         self.widgets.tbl_jog_btn.attach( self.widgets.btn_z_plus, 2, 3, 0, 1, gtk.SHRINK, gtk.SHRINK )
-#         self.widgets.tbl_jog_btn.attach( self.widgets.btn_z_minus, 2, 3, 2, 3, gtk.SHRINK, gtk.SHRINK )
-#         self.widgets.tbl_jog_btn.attach( self.widgets.btn_4_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK )
-#         self.widgets.tbl_jog_btn.attach( self.widgets.btn_4_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK )
-# 
-#         if self.prefs.getpref( "hide_axis_4", False, bool ):
-#             self._hide_axis_4( True )
-
     def _hide_axis_4( self, state = False ):
         print( "axis 4 should be hidden", state )
 
@@ -1687,11 +1625,6 @@ class gmoccapy( object ):
 
         self._sensitize_widgets( widgetlist, False )
         self.widgets.btn_run.set_sensitive( False )
-        # the user want to run step by step
-#        if self.stepping == True:
-#            self.widgets.btn_step.set_sensitive( True )
-#            self.widgets.tbtn_pause.set_sensitive( False )
-
         self.widgets.btn_show_kbd.set_image( self.widgets.img_brake_macro )
         self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "interrupt running macro" ) )
 
@@ -4312,8 +4245,6 @@ class gmoccapy( object ):
 
         # buttons for jogging the axis
         for jog_button in self.axis_list:
-#             if jog_button not in "xyz":
-#                 jog_button = self.axisletter_four
             pin = self.halcomp.newpin( "jog-%s-plus" % jog_button, hal.HAL_BIT, hal.HAL_IN )
             hal_glib.GPin( pin ).connect( "value_changed", self._on_pin_jog_changed, jog_button, 1 )
             pin = self.halcomp.newpin( "jog-%s-minus" % jog_button, hal.HAL_BIT, hal.HAL_IN )
