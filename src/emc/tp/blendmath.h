@@ -134,7 +134,7 @@ double saturate(double x, double max);
 
 int sat_inplace(double * const x, double max);
 
-int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendGeom3 const * const geom, BlendParameters const * const param, double cycle_time, int at_end);
+int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendParameters const * const param, double cycle_time, int at_end);
 
 int findIntersectionAngle(PmCartesian const * const u1,
         PmCartesian const * const u2, double * const theta);

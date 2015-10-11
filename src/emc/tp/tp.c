@@ -914,7 +914,6 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     int res_tangent = checkTangentAngle(&circ2_temp,
             &blend_tc->coords.arc.xyz,
-            &geom,
             &param,
             tp->cycleTime,
             true);
@@ -1073,7 +1072,7 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             param.v_plan, param.a_max);
     blend_tc->target_vel = param.v_actual;
 
-    int res_tangent = checkTangentAngle(&circ1_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, false);
+    int res_tangent = checkTangentAngle(&circ1_temp, &blend_tc->coords.arc.xyz, &param, tp->cycleTime, false);
     if (res_tangent) {
         tp_debug_print("failed tangent check, aborting arc...\n");
         return TP_ERR_FAIL;
@@ -1223,8 +1222,8 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
             param.v_plan, param.a_max);
     blend_tc->target_vel = param.v_actual;
 
-    int res_tangent1 = checkTangentAngle(&circ1_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, false);
-    int res_tangent2 = checkTangentAngle(&circ2_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, true);
+    int res_tangent1 = checkTangentAngle(&circ1_temp, &blend_tc->coords.arc.xyz, &param, tp->cycleTime, false);
+    int res_tangent2 = checkTangentAngle(&circ2_temp, &blend_tc->coords.arc.xyz, &param, tp->cycleTime, true);
     if (res_tangent1 || res_tangent2) {
         tp_debug_print("failed tangent check, aborting arc...\n");
         return TP_ERR_FAIL;

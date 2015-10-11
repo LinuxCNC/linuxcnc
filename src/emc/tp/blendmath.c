@@ -250,7 +250,7 @@ static inline double findTrimAngle(PmCartesian const * const P,
 /**
  * Verify that a blend arc is tangent to a circular arc.
  */
-int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendGeom3 const * const geom, BlendParameters const * const param, double cycle_time, int at_end)
+int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendParameters const * const param, double cycle_time, int at_end)
 {
     // Debug Information to diagnose tangent issues
     PmCartesian u_circ, u_arc;
