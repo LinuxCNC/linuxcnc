@@ -172,6 +172,7 @@ setup_struct::setup_struct() :
     lathe_diameter_mode(0),
     mdi_interrupt(0),
     feature_set(0),
+    persistent_g92_offset(true),
     pythis(),
     on_abort_command(NULL),
     init_once(0)

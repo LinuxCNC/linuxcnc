@@ -295,7 +295,7 @@ dont le numéro est égal à la valeur entière trouvée dans le paramètre 2.
 5181 à 5189::
     Origine 'G30' pour X Y Z A B C U V W. Persistant.
 5211 à 5219::
-    Offset 'G92' pour X Y Z A B C U V W. Persistant.
+    Offset 'G52' et 'G92' pour X Y Z A B C U V W. Persistant.
 5220::
     Système de coordonnées 1 à 9 pour G54 à G59.3. Persistant.
 5221 à 5229::
@@ -844,7 +844,7 @@ visibles dans le tableau <<tbl:G-codes-modaux, ci-dessous>>.
 [width="100%", cols="4,6", options="header"]
 |==========================================================
 |Signification du groupe modal        | Mots G
-|Codes non modaux ('Groupe 0')| G4, G10, G28, G30, G53, G92, G92.1, G92.2, G92.3
+|Codes non modaux ('Groupe 0')| G4, G10, G28, G30, G53, G52, G92, G92.1, G92.2, G92.3
 .2+|Mouvements ('Groupe 1')      | G0, G1, G2, G3, G33, G38.x, G73, G80, G81,
                              | G82, G83, G84, G85, G86, G87, G88, G89
 |Choix du plan de travail ('Groupe 2')| G17, G18, G19, G17.1, G18.1, G19.1
@@ -894,7 +894,7 @@ la ligne (en ayant été activé sur une ancienne ligne) et qu'un G-code
 du groupe 0 utilisant des mots d'axes apparaît sur la même ligne,
 l'activité du G-code du groupe 1 est révoquée pour le reste de la
 ligne. Les mots d'axes utilisant des G-codes du groupe 0 sont G10, G28,
-G30 et G92.
+G30, G52 et G92.
 
 C'est une erreur d'inclure des mots sans rapport sur une ligne avec le
 contrôle de flux 'O'.
@@ -1083,7 +1083,8 @@ mot n'est permis sur la même ligne.
 * Réglage du mode de déplacement (G90, G91).
 * Réglage du mode de retrait (G98, G99).
 * Prise d'origine (G28, G30) ou établissement du système de
-   coordonnées (G10) ou encore, réglage des décalages d'axes (G92, G92.1, G92.2, G94).
+   coordonnées (G10) ou encore, réglage des décalages d'axes (G52,
+   G92, G92.1, G92.2, G94).
 * Effectuer un mouvement (G0 à G3, G33, G80 à G89), tel que modifié
    (éventuellement) par G53.
 * Arrêt (M0, M1, M2, M30, M60).

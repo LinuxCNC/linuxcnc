@@ -284,11 +284,14 @@ example '##2'  means the value of the parameter whose index is the
 
 * '5181-5189' - "G30" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 
-* '5211-5219' - "G92" offset for X, Y, Z, A, B, C, U, V & W. Persistent.
+* '5210' - 1 if "G52" or "G92" offset is currently applied, 0
+   otherwise.  Volatile by default; persistent if
+   'PERSISTENT_G92_OFFSET = true' in the '[RS274NGC]' section of the
+   '.ini' file.
 
-* '5210' - 1 if "G92" offset is currently applied, 0 otherwise. Persistent.
-
-* '5211-5219' - 'G92' offset (X Y Z A B C U V W).
+* '5211-5219' - Shared "G52" and "G92" offset for X, Y, Z, A, B, C, U,
+  V & W.  Volatile by default; persistent if 'PERSISTENT_G92_OFFSET =
+  true' in the '[RS274NGC]' section of the '.ini' file.
 
 * '5220' - Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 
@@ -947,7 +950,7 @@ being in effect. The modal groups are shown in the following Table.
 [width="80%", cols="4,6", options="header"]
 |====
 |Modal Group Meaning                   | Member Words
-|Non-modal codes (Group 0)             | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, 
+|Non-modal codes (Group 0)             | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3, 
 .2+|Motion (Group 1)                   | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
                                        | G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection (Group 2)             | G17, G18, G19, G17.1, G18.1, G19.1
@@ -994,7 +997,7 @@ G-code from group 1 is implicitly in effect on a line (by having been
 activated on an earlier line), and a group 0 G-code that uses axis
 words appears on the line, the activity of the group 1 G-code is
 suspended for that line. The axis word-using G-codes from group 0 are
-G10, G28, G30, and G92.
+G10, G28, G30, G52 and G92.
 
 It is an error to include any unrelated words on a line with 'O-' flow
 control.
@@ -1171,7 +1174,7 @@ position of each item on the line, but by the following list:
 * Set distance mode (G90, G91). 
 * Set retract mode (G98, G99).
 * Go to reference location (G28, G30) or change coordinate system 
-  data (G10) or set axis offsets (G92, G92.1, G92.2, G94). 
+  data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G94). 
 * Perform motion (G0 to G3, G33, G38.x, G73, G76, G80 to G89), as modified
   (possibly) by G53. 
 * Stop (M0, M1, M2, M30, M60).
