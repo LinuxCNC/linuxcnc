@@ -217,6 +217,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_49   490
 #define G_50   500
 #define G_51   510
+#define G_52   520
 #define G_53   530
 #define G_54   540
 #define G_55   550
@@ -776,6 +777,8 @@ typedef struct setup_struct
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
   int feature_set; 
+
+  bool persistent_g92_offset;
 
 #define FEATURE(x) (_setup.feature_set & FEATURE_ ## x)
 #define FEATURE_RETAIN_G43           0x00000001

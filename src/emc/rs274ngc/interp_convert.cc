@@ -983,8 +983,8 @@ Returned Value: int
    Otherwise, it returns INTERP_OK.
    1. The function is called when cutter radius compensation is on:
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP
-   2. The g_code argument is not G_92, G_92_1, G_92_2, or G_92_3
-      NCE_BUG_CODE_NOT_IN_G92_SERIES
+   2. The g_code argument is not G_52, G_92, G_92_1, G_92_2, or G_92_3
+      NCE_BUG_CODE_NOT_IN_G52_G92_SERIES
 
 Side effects:
    SET_G92_OFFSET is called, and the coordinate
@@ -1019,7 +1019,8 @@ Since a non-zero offset may be already be in effect when the G92 is
 called, that must be taken into account.
 
 In addition to causing the axis offset values in the _setup model to be
-set, G92 sets parameters 5211 to 5216 to the x,y,z,a,b,c axis offsets.
+set, G52 and G92 set parameters 5211 to 5216 to the x,y,z,a,b,c axis
+offsets.
 
 The action of G92.2 is described in [NCMS, page 12]. There is no
 equivalent command in [Fanuc]. G92.2 resets axis offsets to zero.
@@ -1054,55 +1055,98 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
        block->c_number, 'C');
   pars = settings->parameters;
-  if (g_code == G_92) {
-    pars[5210] = 1.0;
-    if (block->x_flag) {
-      settings->axis_offset_x =
-        (settings->current_x + settings->axis_offset_x - block->x_number);
-      settings->current_x = block->x_number;
-    }
+  if ((g_code == G_52) || (g_code == G_92)) {
+      pars[5210] = 1.0;
 
-    if (block->y_flag) {
-      settings->axis_offset_y =
-        (settings->current_y + settings->axis_offset_y - block->y_number);
-      settings->current_y = block->y_number;
-    }
+      if (g_code == G_52) {
+	  if (block->x_flag) {
+	      settings->current_x += settings->axis_offset_x - block->x_number;
+	      settings->axis_offset_x = block->x_number;
+	  }
 
-    if (block->z_flag) {
-      settings->axis_offset_z =
-        (settings->current_z + settings->axis_offset_z - block->z_number);
-      settings->current_z = block->z_number;
-    }
-    if (block->a_flag) {
-      settings->AA_axis_offset = (settings->AA_current +
-                                  settings->AA_axis_offset - block->a_number);
-      settings->AA_current = block->a_number;
-    }
-    if (block->b_flag) {
-      settings->BB_axis_offset = (settings->BB_current +
-                                  settings->BB_axis_offset - block->b_number);
-      settings->BB_current = block->b_number;
-    }
-    if (block->c_flag) {
-      settings->CC_axis_offset = (settings->CC_current +
-                                  settings->CC_axis_offset - block->c_number);
-      settings->CC_current = block->c_number;
-    }
-    if (block->u_flag) {
-      settings->u_axis_offset = (settings->u_current +
-                                 settings->u_axis_offset - block->u_number);
-      settings->u_current = block->u_number;
-    }
-    if (block->v_flag) {
-      settings->v_axis_offset = (settings->v_current +
-                                 settings->v_axis_offset - block->v_number);
-      settings->v_current = block->v_number;
-    }
-    if (block->w_flag) {
-      settings->w_axis_offset = (settings->w_current +
-                                 settings->w_axis_offset - block->w_number);
-      settings->w_current = block->w_number;
-    }
+	  if (block->y_flag) {
+	      settings->current_y += settings->axis_offset_y - block->y_number;
+	      settings->axis_offset_y = block->y_number;
+	  }
+
+	  if (block->z_flag) {
+	      settings->current_z += settings->axis_offset_z - block->z_number;
+	      settings->axis_offset_z = block->z_number;
+	  }
+	  if (block->a_flag) {
+	      settings->AA_current += settings->AA_axis_offset - block->a_number;
+	      settings->AA_axis_offset = block->a_number;
+	  }
+	  if (block->b_flag) {
+	      settings->BB_current += settings->BB_axis_offset - block->b_number;
+	      settings->BB_axis_offset = block->b_number;
+	  }
+	  if (block->c_flag) {
+	      settings->CC_current += settings->CC_axis_offset - block->c_number;
+	      settings->CC_axis_offset = block->c_number;
+	  }
+	  if (block->u_flag) {
+	      settings->u_current += settings->u_axis_offset - block->u_number;
+	      settings->u_axis_offset = block->u_number;
+	  }
+	  if (block->v_flag) {
+	      settings->v_current += settings->v_axis_offset - block->v_number;
+	      settings->v_axis_offset = block->v_number;
+	  }
+	  if (block->w_flag) {
+	      settings->w_current += settings->w_axis_offset - block->w_number;
+	      settings->w_axis_offset = block->w_number;
+	  }
+
+      } else {
+	  if (block->x_flag) {
+	      settings->axis_offset_x =
+		  (settings->current_x + settings->axis_offset_x - block->x_number);
+	      settings->current_x = block->x_number;
+	  }
+
+	  if (block->y_flag) {
+	      settings->axis_offset_y =
+		  (settings->current_y + settings->axis_offset_y - block->y_number);
+	      settings->current_y = block->y_number;
+	  }
+
+	  if (block->z_flag) {
+	      settings->axis_offset_z =
+		  (settings->current_z + settings->axis_offset_z - block->z_number);
+	      settings->current_z = block->z_number;
+	  }
+	  if (block->a_flag) {
+	      settings->AA_axis_offset = (settings->AA_current +
+					  settings->AA_axis_offset - block->a_number);
+	      settings->AA_current = block->a_number;
+	  }
+	  if (block->b_flag) {
+	      settings->BB_axis_offset = (settings->BB_current +
+					  settings->BB_axis_offset - block->b_number);
+	      settings->BB_current = block->b_number;
+	  }
+	  if (block->c_flag) {
+	      settings->CC_axis_offset = (settings->CC_current +
+					  settings->CC_axis_offset - block->c_number);
+	      settings->CC_current = block->c_number;
+	  }
+	  if (block->u_flag) {
+	      settings->u_axis_offset = (settings->u_current +
+					 settings->u_axis_offset - block->u_number);
+	      settings->u_current = block->u_number;
+	  }
+	  if (block->v_flag) {
+	      settings->v_axis_offset = (settings->v_current +
+					 settings->v_axis_offset - block->v_number);
+	      settings->v_current = block->v_number;
+	  }
+	  if (block->w_flag) {
+	      settings->w_axis_offset = (settings->w_current +
+					 settings->w_axis_offset - block->w_number);
+	      settings->w_current = block->w_number;
+	  }
+      }
 
     SET_G92_OFFSET(settings->axis_offset_x,
                    settings->axis_offset_y,
@@ -1113,7 +1157,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                    settings->u_axis_offset,
                    settings->v_axis_offset,
                    settings->w_axis_offset);
-    
+
     pars[5211] = PROGRAM_TO_USER_LEN(settings->axis_offset_x);
     pars[5212] = PROGRAM_TO_USER_LEN(settings->axis_offset_y);
     pars[5213] = PROGRAM_TO_USER_LEN(settings->axis_offset_z);
@@ -1123,6 +1167,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     pars[5217] = PROGRAM_TO_USER_LEN(settings->u_axis_offset);
     pars[5218] = PROGRAM_TO_USER_LEN(settings->v_axis_offset);
     pars[5219] = PROGRAM_TO_USER_LEN(settings->w_axis_offset);
+
   } else if ((g_code == G_92_1) || (g_code == G_92_2)) {
     pars[5210] = 0.0;
     settings->current_x = settings->current_x + settings->axis_offset_x;
@@ -1198,7 +1243,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                    settings->v_axis_offset,
                    settings->w_axis_offset);
   } else
-    ERS(NCE_BUG_CODE_NOT_IN_G92_SERIES);
+    ERS(NCE_BUG_CODE_NOT_IN_G52_G92_SERIES);
 
   return INTERP_OK;
 }
@@ -3274,14 +3319,15 @@ Returned Value: int
       convert_setup
    If any of the following errors occur, this returns the error code shown.
    Otherwise, it returns INTERP_OK.
-   1. code is not G_4, G_10, G_28, G_30, G_53, G92, G_92_1, G_92_2, or G_92_3:
-      NCE_BUG_CODE_NOT_G4_G10_G28_G30_G53_OR_G92_SERIES
+   1. code is not G_4, G_10, G_28, G_30, G_52, G_53, G_92, G_92_1, G_92_2,
+          or G_92_3:
+      NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES
 
 Side effects: See below
 
 Called by: convert_g
 
-If the g_code is g10, g28, g30, g92, g92.1, g92.2, or g92.3 (all are in
+If the g_code is g10, g28, g30, g52, g92, g92.1, g92.2, or g92.3 (all are in
 modal group 0), it is executed. The other two in modal group 0 (G4 and
 G53) are executed elsewhere.
 
@@ -3301,14 +3347,15 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
     CHP(convert_home(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
     CHP(convert_savehome(code, block, settings));
-  } else if ((code == G_92) || (code == G_92_1) ||
+  } else if ((code == G_52) ||
+	     (code == G_92) || (code == G_92_1) ||
              (code == G_92_2) || (code == G_92_3)) {
     CHP(convert_axis_offsets(code, block, settings));
   } else if (code == G_5_3) {
     CHP(convert_nurbs(code, block, settings));
   } else if ((code == G_4) || (code == G_53));  /* handled elsewhere */
   else
-    ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G53_OR_G92_SERIES);
+    ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES);
   return INTERP_OK;
 }
 
@@ -4056,6 +4103,7 @@ Side effects:
 
    For m2 and m30, this resets the machine and then calls PROGRAM_END.
    In addition, m30 calls PALLET_SHUTTLE.
+   Clear g92 offset unless PERSISTENT_G92_OFFSET is set in the .ini file.
 
 Called by: execute_block.
 
@@ -4096,6 +4144,7 @@ settings. They occur on M2 or M30.
 7. The spindle is stopped (like M5)                   - STOP_SPINDLE_TURNING
 8. The motion mode is set to G_1 (like G1)            - no canonical call
 9. Coolant is turned off (like M9)                    - FLOOD_OFF & MIST_OFF
+10. G52/G92 is cleared unless PERSISTENT_G92_OFFSET is set in the .ini file
 
 */
 
@@ -4209,6 +4258,12 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
       FLOOD_OFF();
       settings->flood = false;
     }
+
+/*10*/
+    if (! settings->persistent_g92_offset)
+	// Clear G92/G52 offset
+	for (index=5210; index<=5219; index++)
+	    settings->parameters[index] = 0;
 
     if (block->m_modes[4] == 30)
       PALLET_SHUTTLE();

@@ -742,8 +742,8 @@ coordonnées.
 * Quand un mouvement de rotation est en cours, jogger un axe, déplacera celui-ci
 seulement dans le sens négatif ou positif et non pas le long de l'axe de
 rotation.
-* Si un décalage d'origine créé avec 'G92' est actif avant la commande 'G10 L2',
-il reste actif après.
+* Si un décalage d'origine créé avec 'G92' ou 'G92' est actif avant la
+commande 'G10 L2', il reste actif après.
 * Le système de coordonnées dont l'origine est définie par la commande 'G10'
 peut être actif ou non au moment de l'exécution de 'G10'. Si il est actif à
 ce moment là, les nouvelles coordonnées prennent effet immédiatement.
@@ -789,7 +789,7 @@ G10 L10 P- axes <R- I- J- Q->
 
 G10 L10 modifie les valeurs de l'outil 'P' dans la table d'outils, de sorte
 que si la compensation d'outil est rechargée, avec la machine à la position
-courante et avec les G5x et G92 actifs, les coordonnées courantes pour
+courante et avec les G5x et G52/G92 actifs, les coordonnées courantes pour
 l'axe spécifié deviendront les coordonnées spécifiées. Les axes non spécifiés
 dans la commande G10 L10 ne seront pas modifiés.
 
@@ -826,7 +826,7 @@ G10 L11 est identique à G10 L10 excepté qu'au lieux de fixer les valeurs
 par rapport aux décalages de coordonnées courants, il les fixe de sorte que les
 coordonnées courantes deviennent celles spécifiées par les paramètres si la
 nouvelle compensation d'outil est rechargée et que la machine est placée dans
-le système de coordonnées G59.3, système sans aucun décalage G92 actif.
+le système de coordonnées G59.3, système sans aucun décalage G52/G92 actif.
 
 Ceci permet à l'utilisateur de fixer le système de coordonnées G59.3 à
 un point fixe de la machine et d'utiliser cet emplacement pour mesurer

@@ -100,6 +100,7 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
       CHKS(((mode1 != G_5_2) && (mode1 != -1)), _("Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."));
   } else if (mode1 == G_5_2){
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
+  } else if (mode0 == G_52) {
   } else if (mode0 == G_53) {
     CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
         NCE_MUST_USE_G0_OR_G1_WITH_G53);

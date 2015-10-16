@@ -17,7 +17,8 @@
 #define RS274NGC_RETURN_HH
 #include "interp_return.hh"
 #define NCE_A_FILE_IS_ALREADY_OPEN _("A file is already open")
-#define NCE_ALL_AXES_MISSING_WITH_G92 _("All axes missing with g92")
+#define NCE_ALL_AXES_MISSING_WITH_G52_OR_G92 \
+    _("All axes missing with g52 or g92")
 #define NCE_ALL_AXES_MISSING_WITH_MOTION_CODE _("All axes missing with motion code")
 #define NCE_ARC_RADIUS_TOO_SMALL_TO_REACH_END_POINT _("Arc radius too small to reach end point")
 #define NCE_ARGUMENT_TO_ACOS_OUT_OF_RANGE _("Argument to acos out of range")
@@ -32,11 +33,12 @@
 #define NCE_BUG_CODE_NOT_G20_OR_G21 _("Bug code not g20 or g21")
 #define NCE_BUG_CODE_NOT_G28_OR_G30 _("Bug code not g28 or g30")
 #define NCE_BUG_CODE_NOT_G2_OR_G3 _("Bug code not g2 or g3")
-#define NCE_BUG_CODE_NOT_G4_G10_G28_G30_G53_OR_G92_SERIES _("Bug code not g4 g10 g28 g30 g53 or g92 series")
+#define NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES \
+    _("Bug code not g4 g10 g28 g30 g52 g53 or g92 series")
 #define NCE_BUG_CODE_NOT_G61_G61_1_OR_G64 _("Bug code not g61 g61.1 or g64")
 #define NCE_BUG_CODE_NOT_G90_OR_G91 _("Bug code not g90 or g91")
 #define NCE_BUG_CODE_NOT_G98_OR_G99 _("Bug code not g98 or g99")
-#define NCE_BUG_CODE_NOT_IN_G92_SERIES _("Bug code not in g92 series")
+#define NCE_BUG_CODE_NOT_IN_G52_G92_SERIES _("Bug code not in g52 or g92 series")
 #define NCE_BUG_CODE_NOT_IN_RANGE_G54_TO_G593 _("Bug code not in range g54 to g593")
 #define NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60 _("Bug code not m0 m1 m2 m30 m60")
 #define NCE_BUG_DISTANCE_MODE_NOT_G90_OR_G91 _("Bug distance mode not g90 or g91")
