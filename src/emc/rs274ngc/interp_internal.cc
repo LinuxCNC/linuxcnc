@@ -119,8 +119,8 @@ Returned Value:
    1. A g80 is in the block, no modal group 0 code that uses axes
       is in the block, and one or more axis values is given:
       NCE_CANNOT_USE_AXIS_VALUES_WITH_G80
-   2. A g92 is in the block and no axis value is given:
-      NCE_ALL_AXES_MISSING_WITH_G92
+   2. A g52 g92 is in the block and no axis value is given:
+      NCE_ALL_AXES_MISSING_WITH_G52_OR_G92
    3. One g-code from group 1 and one from group 0, both of which can use
       axis values, are in the block:
       NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES
@@ -176,14 +176,15 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   mode1 = block->g_modes[1];
   mode_zero_covets_axes =
     ((mode0 == G_10) || (mode0 == G_28) || (mode0 == G_30)
-     || (mode0 == G_92));
+     || (mode0 == G_52) || (mode0 == G_92));
 
   if (mode1 != -1) {
     if (mode1 == G_80) {
       CHKS(((polar_flag || axis_flag) && (!mode_zero_covets_axes)),
           NCE_CANNOT_USE_AXIS_VALUES_WITH_G80);
       CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
-      CHKS(((!axis_flag) && (mode0 == G_92)), NCE_ALL_AXES_MISSING_WITH_G92);
+      CHKS(((!axis_flag) && (mode0 == G_52 || mode0 == G_92)),
+	   NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
     } else {
       CHKS(mode_zero_covets_axes,
           NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
@@ -196,7 +197,9 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     block->motion_to_be = mode1;
   } else if (mode_zero_covets_axes) {   /* other 3 can get by without axes but not G92 */
     CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
-    CHKS(((!axis_flag) && (block->g_modes[0] == G_92)), NCE_ALL_AXES_MISSING_WITH_G92);
+    CHKS(((!axis_flag) &&
+	  (block->g_modes[0] == G_52 || block->g_modes[0] == G_92)),
+	 NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
   } else if (axis_flag || polar_flag) {
     CHKS(((settings->motion_mode == -1)
          || (settings->motion_mode == G_80)) && (block->g_modes[8] != G_43_1),
