@@ -1041,9 +1041,18 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
   CHKS((settings->cutter_comp_side),      /* not "== true" */
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP);
-  CHKS((block->a_flag && settings->a_axis_wrapped && (block->a_number <= -360.0 || block->a_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->a_number, 'A');
-  CHKS((block->b_flag && settings->b_axis_wrapped && (block->b_number <= -360.0 || block->b_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->b_number, 'B');
-  CHKS((block->c_flag && settings->c_axis_wrapped && (block->c_number <= -360.0 || block->c_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->c_number, 'C');
+  CHKS((block->a_flag && settings->a_axis_wrapped &&
+	(block->a_number <= -360.0 || block->a_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
+       block->a_number, 'A');
+  CHKS((block->b_flag && settings->b_axis_wrapped &&
+	(block->b_number <= -360.0 || block->b_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
+       block->b_number, 'B');
+  CHKS((block->c_flag && settings->c_axis_wrapped &&
+	(block->c_number <= -360.0 || block->c_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
+       block->c_number, 'C');
   pars = settings->parameters;
   if (g_code == G_92) {
     pars[5210] = 1.0;
