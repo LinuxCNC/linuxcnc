@@ -1625,31 +1625,31 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
        (_("Cannot change coordinate systems with cutter radius compensation on")));
   parameters = settings->parameters;
   switch (g_code) {
-  case 540:
+  case G_54:
     origin = 1;
     break;
-  case 550:
+  case G_55:
     origin = 2;
     break;
-  case 560:
+  case G_56:
     origin = 3;
     break;
-  case 570:
+  case G_57:
     origin = 4;
     break;
-  case 580:
+  case G_58:
     origin = 5;
     break;
-  case 590:
+  case G_59:
     origin = 6;
     break;
-  case 591:
+  case G_59_1:
     origin = 7;
     break;
-  case 592:
+  case G_59_2:
     origin = 8;
     break;
-  case 593:
+  case G_59_3:
     origin = 9;
     break;
   default:
