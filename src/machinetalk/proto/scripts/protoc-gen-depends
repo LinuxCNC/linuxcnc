@@ -21,8 +21,15 @@ from optparse import OptionParser
 import sys
 import os, string
 
+if sys.version_info >= (3, 0):
+    # Python 3 does handle encoding differently
+    # Read all bytes (without text-encoding) from stdin to input_str
+    input_str = sys.stdin.buffer.raw.readall()
+else:
+    input_str = sys.stdin.read()
+
 req = CodeGeneratorRequest()
-req.MergeFromString(''.join(stdin.readlines()))
+req.MergeFromString(input_str)
 
 optparser = OptionParser()
 optparser.add_option("-v","--vpath", dest="vpath", metavar="DIR", action="append", default=[], help="list of directories to search for proto files.")
@@ -81,4 +88,9 @@ def add_depends(fd):
 
 res.file.extend([add_depends(fileDescriptor) for fileDescriptor in req.proto_file])
 
-stdout.write(res.SerializeToString())
+if sys.version_info >= (3, 0):
+    # With Python 3 we write to buffer
+    stdout.buffer.write(res.SerializeToString())
+else:
+    stdout.write(res.SerializeToString())
+
