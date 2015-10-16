@@ -1441,12 +1441,40 @@ class LinuxCNCWrapper():
         self.txCommand.note.append("wrong parameters")
         self.send_command_msg(identity, MT_ERROR)
 
-    def process_command(self, socket):
-        if self.debug:
-            print("process command called")
+    def command_completion_process(self, event):
+        self.command.wait_complete()  # wait for emcmodule
+        event.set()  # inform the listening thread
 
+    def command_completion_thread(self, identity, ticket):
+        event = multiprocessing.Event()
+        # wait in separate process to prevent GIL from causing problems
+        multiprocessing.Process(target=self.command_completion_process,
+                                args=(event,)).start()
+        # wait until the command is completed
+        event.wait()
+        self.txCommand.reply_ticket = ticket
+        self.send_command_msg(identity, MT_EMCCMD_COMPLETED)
+
+        if self.debug:
+            print('command #%i from %s completed' % (ticket, identity))
+
+    def wait_complete(self, identity, ticket):
+        self.txCommand.reply_ticket = ticket
+        self.send_command_msg(identity, MT_EMCCMD_EXECUTED)
+
+        if self.debug:
+            print('waiting for command #%ifrom %s to complete' % (ticket, identity))
+
+        # kick off the monitoring thread
+        threading.Thread(target=self.command_completion_thread,
+                         args=(identity, ticket, )).start()
+
+    def process_command(self, socket):
         (identity, message) = socket.recv_multipart()
         self.rx.ParseFromString(message)
+
+        if self.debug:
+            print("process command called, id: %s" % identity)
 
         try:
             if self.rx.type == MT_PING:
@@ -1460,6 +1488,8 @@ class LinuxCNCWrapper():
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.abort()
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                     elif self.rx.interp_name == 'preview':
                         self.preview.abort()
                 else:
@@ -1469,6 +1499,8 @@ class LinuxCNCWrapper():
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.auto(linuxcnc.AUTO_PAUSE)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1476,6 +1508,8 @@ class LinuxCNCWrapper():
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.auto(linuxcnc.AUTO_RESUME)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1483,6 +1517,8 @@ class LinuxCNCWrapper():
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.auto(linuxcnc.AUTO_STEP)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1493,6 +1529,8 @@ class LinuxCNCWrapper():
                     if self.rx.interp_name == 'execute':
                         lineNumber = self.rx.emc_command_params.line_number
                         self.command.auto(linuxcnc.AUTO_RUN, lineNumber)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                     elif self.rx.interp_name == 'preview':
                         self.preview.unitcode = "G%d" % (20 + (self.stat.linear_units == 1))
                         self.preview.start()
@@ -1501,15 +1539,21 @@ class LinuxCNCWrapper():
 
             elif self.rx.type == MT_EMC_SPINDLE_BRAKE_ENGAGE:
                 self.command.brake(linuxcnc.BRAKE_ENGAGE)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SPINDLE_BRAKE_RELEASE:
                 self.command.brake(linuxcnc.BRAKE_RELEASE)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SET_DEBUG:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('debug_level'):
                     debugLevel = self.rx.emc_command_params.debug_level
                     self.command.debug(debugLevel)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1518,20 +1562,28 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('scale'):
                     feedrate = self.rx.emc_command_params.scale
                     self.command.feedrate(feedrate)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_COOLANT_FLOOD_ON:
                 self.command.flood(linuxcnc.FLOOD_ON)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_COOLANT_FLOOD_OFF:
                 self.command.flood(linuxcnc.FLOOD_OFF)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_AXIS_HOME:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('index'):
                     axis = self.rx.emc_command_params.index
                     self.command.home(axis)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1540,6 +1592,8 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('index'):
                     axis = self.rx.emc_command_params.index
                     self.command.jog(linuxcnc.JOG_STOP, axis)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1550,6 +1604,8 @@ class LinuxCNCWrapper():
                     axis = self.rx.emc_command_params.index
                     velocity = self.rx.emc_command_params.velocity
                     self.command.jog(linuxcnc.JOG_CONTINUOUS, axis, velocity)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1562,17 +1618,23 @@ class LinuxCNCWrapper():
                     velocity = self.rx.emc_command_params.velocity
                     distance = self.rx.emc_command_params.distance
                     self.command.jog(linuxcnc.JOG_INCREMENT, axis, velocity, distance)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
                 self.command.load_tool_table()
+                if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_MAX_VELOCITY:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('velocity'):
                     velocity = self.rx.emc_command_params.velocity
                     self.command.maxvel(velocity)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1583,14 +1645,20 @@ class LinuxCNCWrapper():
                     if self.rx.interp_name == 'execute':
                         command = self.rx.emc_command_params.command
                         self.command.mdi(command)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_COOLANT_MIST_ON:
                 self.command.mist(linuxcnc.MIST_ON)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_COOLANT_MIST_OFF:
                 self.command.mist(linuxcnc.MIST_OFF)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TASK_SET_MODE:
                 if self.rx.HasField('emc_command_params') \
@@ -1598,11 +1666,15 @@ class LinuxCNCWrapper():
                 and self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.mode(self.rx.emc_command_params.task_mode)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_OVERRIDE_LIMITS:
                 self.command.override_limits()
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_OPEN:
                 if self.rx.HasField('emc_command_params') \
@@ -1613,6 +1685,8 @@ class LinuxCNCWrapper():
                     if fileName is not '':
                         if self.rx.interp_name == 'execute':
                             self.command.program_open(fileName)
+                            if self.rx.HasField('ticket'):
+                                self.wait_complete(identity, self.rx.ticket)
                         elif self.rx.interp_name == 'preview':
                             self.preview.program_open(fileName)
                 else:
@@ -1622,6 +1696,8 @@ class LinuxCNCWrapper():
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.reset_interpreter()
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1630,6 +1706,8 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('enable'):
                     adaptiveFeed = self.rx.emc_command_params.enable
                     self.command.set_adaptive_feed(adaptiveFeed)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identit, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1640,6 +1718,8 @@ class LinuxCNCWrapper():
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.value
                     self.command.set_analog_output(axis, value)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1648,6 +1728,8 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('enable'):
                     blockDelete = self.rx.emc_command_params.enable
                     self.command.set_block_delete(blockDelete)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1658,6 +1740,8 @@ class LinuxCNCWrapper():
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.enable
                     self.command.set_digital_output(axis, value)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1666,6 +1750,8 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('enable'):
                     feedHold = self.rx.emc_command_params.enable
                     self.command.set_feed_hold(feedHold)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1674,6 +1760,8 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('enable'):
                     feedOverride = self.rx.emc_command_params.enable
                     self.command.set_feed_override(feedOverride)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1684,6 +1772,8 @@ class LinuxCNCWrapper():
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.value
                     self.command.set_max_limit(axis, value)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1694,6 +1784,8 @@ class LinuxCNCWrapper():
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.value
                     self.command.set_min_limit(axis, value)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1702,6 +1794,8 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('enable'):
                     optionalStop = self.rx.emc_command_params.enable
                     self.command.set_optional_stop(optionalStop)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1710,6 +1804,8 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('enable'):
                     spindleOverride = self.rx.emc_command_params.enable
                     self.command.set_spindle_override(spindleOverride)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1719,26 +1815,38 @@ class LinuxCNCWrapper():
                     speed = self.rx.emc_command_params.velocity
                     direction = linuxcnc.SPINDLE_FORWARD    # always forwward, speed can be signed
                     self.command.spindle(direction, speed)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_SPINDLE_INCREASE:
                 self.command.spindle(linuxcnc.SPINDLE_INCREASE)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SPINDLE_DECREASE:
                 self.command.spindle(linuxcnc.SPINDLE_DECREASE)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SPINDLE_CONSTANT:
                 self.command.spindle(linuxcnc.SPINDLE_CONSTANT)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SPINDLE_OFF:
                 self.command.spindle(linuxcnc.SPINDLE_OFF)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_SPINDLE_SCALE:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('scale'):
                     scale = self.rx.emc_command_params.scale
                     self.command.spindleoverride(scale)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1748,6 +1856,8 @@ class LinuxCNCWrapper():
                 and self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.state(self.rx.emc_command_params.task_state)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1756,6 +1866,8 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('enable'):
                     teleopEnable = self.rx.emc_command_params.enable
                     self.command.teleop_enable(teleopEnable)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1781,6 +1893,9 @@ class LinuxCNCWrapper():
                             self.command.teleop_vector(a, b, c, u)
                     else:
                         self.command.teleop_vector(a, b, c)
+
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1803,6 +1918,8 @@ class LinuxCNCWrapper():
                     orientation = self.rx.emc_command_params.tool_data.orientation
                     self.command.tool_offset(toolno, z_offset, x_offset, diameter,
                         frontangle, backangle, orientation)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1810,6 +1927,8 @@ class LinuxCNCWrapper():
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('traj_mode'):
                     self.command.traj_mode(self.rx.emc_command_params.traj_mode)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1818,6 +1937,8 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('index'):
                     axis = self.rx.emc_command_params.index
                     self.command.unhome(axis)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
