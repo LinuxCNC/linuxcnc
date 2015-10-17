@@ -1,0 +1,4 @@
+
+net gripper <= pyvcp.gripper-f
+net gripper => pid.5.command
+

@@ -1,0 +1,212 @@
+
+loadrt scorbot-kins
+
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+
+# standard components
+loadrt pid num_chan=6
+
+# hostmot2 driver
+# if you have any firmware trouble, enable the debug flags here and see what's going on in the syslog
+#loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
+loadrt hostmot2
+
+# load low-level driver
+loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)
+
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency 40000
+
+loadrt differential
+
+
+addf hm2_[HOSTMOT2](BOARD).0.read          servo-thread
+addf motion-command-handler                servo-thread
+addf motion-controller                     servo-thread
+addf differential.0                        servo-thread
+addf pid.0.do-pid-calcs                    servo-thread
+addf pid.1.do-pid-calcs                    servo-thread
+addf pid.2.do-pid-calcs                    servo-thread
+addf pid.3.do-pid-calcs                    servo-thread
+addf pid.4.do-pid-calcs                    servo-thread
+addf pid.5.do-pid-calcs                    servo-thread
+addf hm2_[HOSTMOT2](BOARD).0.write         servo-thread
+
+#loadusr -W scorbot-er-3
+
+
+#
+# E-Stop
+#
+
+net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+
+
+#
+# Joint 0
+#
+
+#net j0.cmd <= axis.0.motor-pos-cmd
+#net j0.cmd => scorbot-er-3.joint0.motor-pos-cmd
+#net j0.cmd => axis.0.motor-pos-fb
+
+#setp scorbot-er-3.joint0.scale [AXIS_0]SCALE
+
+# joint/limit switch
+net j0.limit <= hm2_[HOSTMOT2](BOARD).0.gpio.012.in
+net j0.limit => axis.0.home-sw-in
+net j0.limit => axis.0.neg-lim-sw-in
+net j0.limit => axis.0.pos-lim-sw-in
+
+# encoder
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.counter-mode 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.filter 1
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-invert 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-mask 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-mask-invert 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.scale [AXIS_0]SCALE
+
+# position feedback 
+net j0.pos-fb <= hm2_[HOSTMOT2](BOARD).0.encoder.00.position
+net j0.pos-fb => pid.0.feedback
+net j0.pos-fb => axis.0.motor-pos-fb
+
+# enable
+net j0.enable <= axis.0.amp-enable-out
+net j0.enable => pid.0.enable
+net j0.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.00.enable
+
+# PID gains
+setp pid.0.Pgain [AXIS_0]P
+setp pid.0.Igain [AXIS_0]I
+setp pid.0.Dgain [AXIS_0]D
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.FF2 [AXIS_0]FF2
+
+# pwm configuration
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.output-type 1 # PWM on pin1, Dir on pin2
+#setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.scale [AXIS_0]OUTPUT_SCALE
+
+# position command
+net j0.pos-cmd axis.0.motor-pos-cmd => pid.0.command
+net j0.pwm-cmd pid.0.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.00.value
+
+
+#
+# Joint 1
+#
+
+#net j1.cmd <= axis.1.motor-pos-cmd
+#net j1.cmd => scorbot-er-3.joint1.motor-pos-cmd
+#net j1.cmd => axis.1.motor-pos-fb
+
+#net j1.limit <= scorbot-er-3.joint1.limit-sw
+#net j1.limit => axis.1.home-sw-in
+#net j1.limit => axis.1.neg-lim-sw-in
+#net j1.limit => axis.1.pos-lim-sw-in
+
+#setp scorbot-er-3.joint1.scale [AXIS_1]SCALE
+
+
+#
+# Joint 2
+#
+
+#net j2.cmd <= axis.2.motor-pos-cmd
+#net j2.cmd => scorbot-er-3.joint2.motor-pos-cmd
+#net j2.cmd => axis.2.motor-pos-fb
+
+#net j2.limit <= scorbot-er-3.joint2.limit-sw
+#net j2.limit => axis.2.home-sw-in
+#net j2.limit => axis.2.neg-lim-sw-in
+#net j2.limit => axis.2.pos-lim-sw-in
+
+#setp scorbot-er-3.joint2.scale [AXIS_2]SCALE
+
+
+#
+# Joint 3
+#
+
+#net wrist-pitch.cmd <= axis.3.motor-pos-cmd
+#net wrist-pitch.cmd => differential.0.pitch
+#net wrist-pitch.cmd => axis.3.motor-pos-fb
+
+#net j3.cmd <= differential.0.motor0
+#net j3.cmd => scorbot-er-3.joint3.motor-pos-cmd
+
+#net wrist-pitch.limit <= scorbot-er-3.joint3.limit-sw
+#net wrist-pitch.limit => axis.3.home-sw-in
+#net wrist-pitch.limit => axis.3.neg-lim-sw-in
+#net wrist-pitch.limit => axis.3.pos-lim-sw-in
+
+#setp scorbot-er-3.joint3.scale [AXIS_3]SCALE
+
+
+#
+# Joint 4
+#
+
+#net wrist-roll.cmd <= axis.4.motor-pos-cmd
+#net wrist-roll.cmd => differential.0.roll
+#net wrist-roll.cmd => axis.4.motor-pos-fb
+
+#net j4.cmd <= differential.0.motor1
+#net j4.cmd => scorbot-er-3.joint4.motor-pos-cmd
+
+#net wrist-roll.limit <= scorbot-er-3.joint4.limit-sw
+#net wrist-roll.limit => axis.4.home-sw-in
+#net wrist-roll.limit => axis.4.neg-lim-sw-in
+#net wrist-roll.limit => axis.4.pos-lim-sw-in
+
+#setp scorbot-er-3.joint4.scale [AXIS_4]SCALE
+
+
+#
+# Joint 5
+#
+
+#net j5.cmd <= axis.5.motor-pos-cmd
+#net j5.cmd => scorbot-er-3.joint5.motor-pos-cmd
+#net j5.cmd => axis.5.motor-pos-fb
+
+#net j5.limit <= scorbot-er-3.joint5.limit-sw
+#net j5.limit => axis.5.home-sw-in
+#net j5.limit => axis.5.neg-lim-sw-in
+#net j5.limit => axis.5.pos-lim-sw-in
+
+#setp scorbot-er-3.joint5.scale [AXIS_5]SCALE
+
+
+#
+# Joint 6
+#
+
+#net j6.cmd <= axis.6.motor-pos-cmd
+#net j6.cmd => scorbot-er-3.joint6.motor-pos-cmd
+#net j6.cmd => axis.6.motor-pos-fb
+
+#net j6.limit <= scorbot-er-3.joint6.limit-sw
+#net j6.limit => axis.6.home-sw-in
+#net j6.limit => axis.6.neg-lim-sw-in
+#net j6.limit => axis.6.pos-lim-sw-in
+
+#setp scorbot-er-3.joint6.scale [AXIS_6]SCALE
+
+
+#
+# Joint 7
+#
+
+#net j7.cmd <= axis.7.motor-pos-cmd
+#net j7.cmd => scorbot-er-3.joint7.motor-pos-cmd
+#net j7.cmd => axis.7.motor-pos-fb
+
+#net j7.limit <= scorbot-er-3.joint7.limit-sw
+#net j7.limit => axis.7.home-sw-in
+#net j7.limit => axis.7.neg-lim-sw-in
+#net j7.limit => axis.7.pos-lim-sw-in
+
+#setp scorbot-er-3.joint7.scale [AXIS_7]SCALE
