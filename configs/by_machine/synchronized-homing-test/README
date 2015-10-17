@@ -1,0 +1,19 @@
+This configuration drives a 3-axis servo machine using a Mesa AnythingIO board with the HostMot2 firmware.  The config will only run if you have the card installed and have installed the firmware.
+
+See the HostMot2 section of the Integrators manual for more information.
+
+All 3 axes use a home switch.  All home switches are connected to a single shared input pin.  X and Z home without encoder index, Y homes with encoder index.
+
+No limit switches are used.
+
+These configs have 3 Encoders, 3 PWMs, and 0 StepGens
+
+5i22-big   For the 1.5M gate version
+
+5i22-small For the 1.0M gate version
+
+7i43-big   For the 400k gate version
+
+7i43-small For the 200k gate version
+
+3x20-small For the 1.0M gate version
