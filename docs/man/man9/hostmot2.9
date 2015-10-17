@@ -1106,7 +1106,18 @@ is taken over by pwmgen 0's first output, then aliases like
 .B hm2_7i92.0.pwmgen.00.out0.invert_output
 (referring to
 .BR hm2_7i92.0.gpio.001.invert_output )
-will be automatically created.
+will be automatically created.  When more than one GPIO is connected to the
+same special function, an extra .#. is inserted so that the settings for
+each related GPIO can be set separately.  For example, for the firmware
+SV12IM_2X7I48_72, the alias
+.B hm2_5i20.0.pwmgen.00.0.enable.invert_output
+(referring to 
+.BR hm2_5i20.0.gpio.000.invert_output )
+and
+.B hm2_5i20.0.pwmgen.00.1.enable.invert_output
+(referring to
+.BR hm2_5i20.0.gpio.023.invert_output )
+are both created.
 
 .SH led
 

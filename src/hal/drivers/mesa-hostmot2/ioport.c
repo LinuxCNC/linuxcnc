@@ -209,6 +209,18 @@ static int do_alias(const char *orig_base, const char *alias_base,
     return funct(orig_name, alias_name);
 }
 
+static void count_instances(hostmot2_t *hm2, int p, int *m, int *n) {
+    int i, j = 0;
+    for(i=0; i != hm2->num_pins; i++) {
+	if(i == p) *m = j;
+        if(hm2->pin[i].gtag == hm2->pin[p].gtag &&
+		hm2->pin[i].sec_unit == hm2->pin[p].sec_unit &&
+		hm2->pin[i].sec_pin == hm2->pin[p].sec_pin)
+	    j++;
+    }
+    *n = j;
+}
+
 
 int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
     int r;
@@ -341,20 +353,32 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
             (gtag_name = hm2_get_general_function_hal_name(hm2->pin[i].gtag)) &&
             (funct_name = hm2_get_pin_secondary_hal_name(&hm2->pin[i])))
         {
+	    int m, n;
+	    count_instances(hm2, i, &m, &n);
             char orig_base[HAL_NAME_LEN];
             char alias_base[HAL_NAME_LEN];
             sprintf(orig_base,
                 "%s.gpio.%03d",
                 hm2->llio->name,
                 i);
-            sprintf(alias_base,
-                "%s.%s.%02d.%s",
-                hm2->llio->name,
-                gtag_name,
-                hm2->pin[i].sec_unit,
-                funct_name
-                );
-
+	    if(n == 1) {
+		sprintf(alias_base,
+		    "%s.%s.%02d.%s",
+		    hm2->llio->name,
+		    gtag_name,
+		    hm2->pin[i].sec_unit,
+		    funct_name
+		    );
+	    } else {
+		sprintf(alias_base,
+		    "%s.%s.%02d.%d.%s",
+		    hm2->llio->name,
+		    gtag_name,
+		    hm2->pin[i].sec_unit,
+		    m,
+		    funct_name
+		    );
+	    }
             r = do_alias(orig_base, alias_base, ".invert_output",
                 hal_param_alias);
             if (r < 0) {
