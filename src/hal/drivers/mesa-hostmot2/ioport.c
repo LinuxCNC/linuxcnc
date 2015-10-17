@@ -358,16 +358,14 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
             r = do_alias(orig_base, alias_base, ".invert_output",
                 hal_param_alias);
             if (r < 0) {
-                HM2_ERR("error %d adding .invert_output alias, aborting\n",
-                    r);
-                return -EINVAL;
+                HM2_ERR("Failed to add %s.invert_output alias, continuing\n",
+                    orig_base);
             }
             r = do_alias(orig_base, alias_base, ".is_opendrain",
                 hal_param_alias);
             if (r < 0) {
-                HM2_ERR("error %d adding .is_opendrain alias, aborting\n",
-                    r);
-                return -EINVAL;
+                HM2_ERR("Failed to add %s.is_opendrain alias, continuing\n",
+                    orig_base);
             }
         }
     }
