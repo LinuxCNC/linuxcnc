@@ -636,6 +636,10 @@ enum ContainerType {
     MT_EMC_NML_TEXT = 12511;
     MT_EMC_NML_DISPLAY = 12512;
 
+    // EMC command
+    MT_EMCCMD_EXECUTED = 12520;
+    MT_EMCCMD_COMPLETED = 12521;
+
     // launcher pub-sub
     MT_LAUNCHER_FULL_UPDATE = 12600;
     MT_LAUNCHER_INCREMENTAL_UPDATE = 12601;
@@ -650,6 +654,7 @@ enum ContainerType {
 }
 
 enum OriginIndex {
+    ORIGIN_UNKNOWN = 0;
     ORIGIN_G54 = 1;
     ORIGIN_G55 = 2;
     ORIGIN_G56 = 3;
