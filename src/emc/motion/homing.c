@@ -16,7 +16,6 @@
 #include "motion.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
-#include <stdio.h>
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -203,9 +202,9 @@ int waiting_for_peers(int joint_num) {
     emcmot_joint_t *joint;
     int waiting_state[num_joints];
 
-    printf("%d waiting for peers in state %d, ", joint_num, joints[joint_num].home_state);
+    rtapi_print("%d waiting for peers in state %d, ", joint_num, joints[joint_num].home_state);
     if (emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE) {
-        printf("never mind\n");
+        rtapi_print("never mind\n");
         return 0;
     }
     waiting_state[joint_num] = joints[joint_num].home_state;
@@ -214,12 +213,12 @@ int waiting_for_peers(int joint_num) {
         joint = &joints[i];
         if (joint->home_sequence != joints[joint_num].home_sequence) {
             // not in my sequence; ignore
-            printf("%d not in my sequence, ", i);
+            rtapi_print("%d not in my sequence, ", i);
             continue;
         }
         if (waiting_state[i] != waiting_state[joint_num]) {
             // in my sequence but not yet waiting where I am; keep waiting
-            printf("%d in my sequence but not yet waiting in my state; returning 1\n", i);
+            rtapi_print("%d in my sequence but not yet waiting in my state; returning 1\n", i);
             return 1;
         }
     }
@@ -231,7 +230,7 @@ int waiting_for_peers(int joint_num) {
         joint = &joints[i];
         if (joint->home_sequence != joints[joint_num].home_sequence) {
             // not in my sequence; ignore
-            printf("%d not in my sequence, ", i);
+            rtapi_print("%d not in my sequence, ", i);
             continue;
         }
 
@@ -246,15 +245,15 @@ int waiting_for_peers(int joint_num) {
         if (joint->home_sequence == joints[joint_num].home_sequence) break;
     }
     // i is the index of the last peer in this sequence
-    printf("last matching peer %d, ", i);
+    rtapi_print("last matching peer %d, ", i);
     
     if (joint_num == i) {
         // and if that's me
-        printf(" which is me, ");
+        rtapi_print(" which is me, ");
     }
 #endif
 
-    printf("everyone synced; returning 0\n");
+    rtapi_print("everyone synced; returning 0\n");
     // everyone is synced; let's all continue
     return 0; 
 }
