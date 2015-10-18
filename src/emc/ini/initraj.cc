@@ -92,51 +92,40 @@ static int loadTraj(EmcIniFile *trajInifile)
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
 
     try{
-	int axes = 0;
 	int axismask = 0;
 	const char *coord = trajInifile->Find("COORDINATES", "TRAJ");
 	if(coord) {
 	    if(strchr(coord, 'x') || strchr(coord, 'X')) {
 	         axismask |= 1;
-	         axes += 1;
             }
 	    if(strchr(coord, 'y') || strchr(coord, 'Y')) {
 	         axismask |= 2;
-	         axes += 1;
             }
 	    if(strchr(coord, 'z') || strchr(coord, 'Z')) {
 	         axismask |= 4;
-	         axes += 1;
             }
 	    if(strchr(coord, 'a') || strchr(coord, 'A')) {
 	         axismask |= 8;
-	         axes += 1;
             }
 	    if(strchr(coord, 'b') || strchr(coord, 'B')) {
 	         axismask |= 16;
-	         axes += 1;
             }
 	    if(strchr(coord, 'c') || strchr(coord, 'C')) {
 	         axismask |= 32;
-	         axes += 1;
             }
 	    if(strchr(coord, 'u') || strchr(coord, 'U')) {
 	         axismask |= 64;
-	         axes += 1;
             }
 	    if(strchr(coord, 'v') || strchr(coord, 'V')) {
 	         axismask |= 128;
-	         axes += 1;
             }
 	    if(strchr(coord, 'w') || strchr(coord, 'W')) {
 	         axismask |= 256;
-	         axes += 1;
             }
 	} else {
 	    axismask = 1 | 2 | 4;		// default: XYZ machine
-	    axes = 3;
 	}
-        if (0 != emcTrajSetAxes(axes, axismask)) {
+        if (0 != emcTrajSetAxes(axismask)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetAxes\n");
             }

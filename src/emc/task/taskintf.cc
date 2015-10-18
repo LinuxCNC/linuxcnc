@@ -902,22 +902,11 @@ int emcTrajSetJoints(int joints)
     return retval;
 }
 
-int emcTrajSetAxes(int axes, int axismask)
+int emcTrajSetAxes(int axismask)
 {
-    if (axes <= 0 || axes > EMCMOT_MAX_AXIS) { //FIXME-AJ: figure out jointmask/axismask || axismask >= (1<<joints)) {
-	rcs_print("emcTrajSetAxes failing: axes=%d axismask=%x\n",
-		axes, axismask);
-	return -1;
-    }
-
-    int right_axes = 0;
+    int axes = 0;
     for(int i=0; i<EMCMOT_MAX_AXIS; i++)
-        if(axismask & (1<<i)) right_axes = i+1;
-
-    if(right_axes != axes) {
-	rcs_print("axes setting corrected from %d to %d based on axismask 0x%x\n",
-		axes, right_axes, axismask);
-    }
+        if(axismask & (1<<i)) axes = i+1;
 
     TrajConfig.DeprecatedAxes = axes;
     TrajConfig.AxisMask = axismask;
