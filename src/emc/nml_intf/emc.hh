@@ -16,7 +16,7 @@
 #define EMC_HH
 
 #include "config.h"
-#include "emcglb.h"		// EMC_JOINT_MAX, EMC_AXIS_MAX
+#include "emcmotcfg.h"		// EMC_JOINT_MAX, EMC_AXIS_MAX
 #include "nml_type.hh"
 #include "motion_types.h"
 #include <stdint.h>
