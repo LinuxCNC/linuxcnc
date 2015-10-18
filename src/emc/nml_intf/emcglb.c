@@ -38,7 +38,3 @@ EmcPose tool_change_position;	/* no defaults */
 unsigned char have_tool_change_position = 0;	/* default is 'not there' */
 
 int taskplanopen = 0;
-
-void emcInitGlobals()
-{
-}
