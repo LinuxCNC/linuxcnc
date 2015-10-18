@@ -84,7 +84,10 @@ typedef struct TrajConfig_t {
     int Joints;
     double MaxAccel;
     double MaxVel;
-    int Axes;
+    union {
+        int DeprecatedAxes;
+        int Axes __attribute__((deprecated));
+    };
     int AxisMask;
     double LinearUnits;
     double AngularUnits;
