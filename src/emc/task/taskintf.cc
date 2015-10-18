@@ -509,17 +509,13 @@ double emcAxisGetMaxAcceleration(int axis)
     return AxisConfig[axis].MaxAccel;
 }
 
-int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
+int emcAxisUpdate(EMC_AXIS_STAT stat[], int axis_mask)
 {
     int axis_num;
     emcmot_axis_status_t *axis;
     
-    // check for valid range
-    if (numAxes <= 0 || numAxes > EMCMOT_MAX_AXIS) {
-	return -1;
-    }
-
-    for (axis_num = 0; axis_num < numAxes; axis_num++) {
+    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+        if(!(axis_mask & (1 << axis_num))) continue;
         axis = &(emcmotStatus.axis_status[axis_num]);
 
         stat[axis_num].velocity = axis->vel_cmd;
@@ -1807,7 +1803,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     localMotionEchoSerialNumber = emcmotStatus.commandNumEcho;
 
     r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
-    r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axes);
+    r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
     r3 = emcTrajUpdate(&stat->traj);
     stat->heartbeat = localMotionHeartbeat;
     stat->command_type = localMotionCommandType;
