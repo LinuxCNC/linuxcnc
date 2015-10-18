@@ -66,9 +66,6 @@ else
 fi
 export PYTHONPATH
 
-PRELOAD_WORKAROUND=@PRELOAD_WORKAROUND@
-
-
 XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
 export XFILESEARCHPATH
 
@@ -813,12 +810,6 @@ if ! program_available $EMCTASK ; then
     echo "Can't execute TASK program $EMCTASK"
     Cleanup
     exit 1
-fi
-
-# setup LD_PRELOAD  if deemed necessary by configure
-unset LD_PRELOAD
-if [ -n "$PRELOAD_WORKAROUND" ] ; then
-	export LD_PRELOAD=$PRELOAD_WORKAROUND
 fi
 
 halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE" &
