@@ -1519,110 +1519,89 @@ else
 fi
 AC_SUBST(MSGFMT)
 
-AC_MSG_CHECKING(for Python support)
-AC_ARG_ENABLE(python,
-    AS_HELP_STRING(
-        [--disable-python],
-        [Disable the parts of LinuxCNC that depend on Python.]
-    ),
-    [
-	case "$enableval" in
-	Y*|y*)
-	    BUILD_PYTHON=yes ;;
-	*)
-	    BUILD_PYTHON=no ;;
-	esac
-    ],
-    [BUILD_PYTHON=yes])
+if test "$PYTHON" = "none"; then
+    AC_MSG_ERROR([Python missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])
+fi
 
-AC_MSG_RESULT($BUILD_PYTHON)
+AC_MSG_CHECKING([python version])
+if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2040000'
+then
+    AC_MSG_ERROR(Python version too old (2.4 or newer required))
+fi
+AC_MSG_RESULT(OK)
 
-if test "$BUILD_PYTHON" = "yes"; then
-    if test "$PYTHON" = "none"; then
-	AC_MSG_ERROR([Python missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])
-    fi
+AC_MSG_CHECKING([version of python libraries])
+LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
+AC_MSG_RESULT($LIBPYTHON)
 
-    AC_MSG_CHECKING([python version])
-    if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2040000'
-    then
-	AC_MSG_ERROR(Python version too old (2.4 or newer required))
-    fi
-    AC_MSG_RESULT(OK)
+AC_MSG_CHECKING([match between tk and Tkinter versions])
+    
+PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
+PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
 
-    AC_MSG_CHECKING([version of python libraries])
-    LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
-    AC_MSG_RESULT($LIBPYTHON)
-
-    AC_MSG_CHECKING([match between tk and Tkinter versions])
-	
-    PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
-    PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
-
-    if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
-	AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
-	AC_MSG_ERROR([Python requires use of Tcl $PYTHON_TCL_VERSION and Tk $PYTHON_TK_VERSION.
+if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
+    AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
+    AC_MSG_ERROR([Python requires use of Tcl $PYTHON_TCL_VERSION and Tk $PYTHON_TK_VERSION.
 Install this version and specify --with-tclConfig and --with-tkConfig if necessary])
-    fi
-    if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
-	AC_MSG_RESULT([Tk mismatch: $TK_VERSION vs $PYTHON_TK_VERSION])
-	AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tkConfig if necessary"])
-    fi
-    AC_MSG_RESULT([$PYTHON_TK_VERSION])
+fi
+if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
+    AC_MSG_RESULT([Tk mismatch: $TK_VERSION vs $PYTHON_TK_VERSION])
+    AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tkConfig if necessary"])
+fi
+AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
-    AC_MSG_CHECKING(location of Python header files)
-    INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
-    AC_MSG_RESULT($INCLUDEPY)
+AC_MSG_CHECKING(location of Python header files)
+INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
+AC_MSG_RESULT($INCLUDEPY)
 
-    AC_MSG_CHECKING([for Python headers])
-    AS_IF([test "x$PYTHON_CPPFLAGS" = x],
-    [
-	_PYTHON_SYSCONFIG([[get_python_inc()]], [PYTHON_CPPFLAGS="-I$py_val"])
-  	_PYTHON_SYSCONFIG([[get_python_inc(True)]],
-  	[test "x$PYTHON_CPPFLAGS" = "x-I$py_val" || PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS -I$py_val"])
-    ])
-    AC_MSG_RESULT([$PYTHON_CPPFLAGS])
-    AC_SUBST(PYTHON_CPPFLAGS)
+AC_MSG_CHECKING([for Python headers])
+AS_IF([test "x$PYTHON_CPPFLAGS" = x],
+[
+    _PYTHON_SYSCONFIG([[get_python_inc()]], [PYTHON_CPPFLAGS="-I$py_val"])
+    _PYTHON_SYSCONFIG([[get_python_inc(True)]],
+    [test "x$PYTHON_CPPFLAGS" = "x-I$py_val" || PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS -I$py_val"])
+])
+AC_MSG_RESULT([$PYTHON_CPPFLAGS])
+AC_SUBST(PYTHON_CPPFLAGS)
 
-    AC_MSG_CHECKING([for Python libraries])
-    AS_IF([test "x$PYTHON_LIBS" = x],
-    [
-	_PYTHON_SYSCONFIG([[get_config_var('LIBS')]], [PYTHON_LIBS=$py_val])
-    ])
-    AC_MSG_RESULT([$PYTHON_LIBS])
-    AC_SUBST(PYTHON_LIBS)
+AC_MSG_CHECKING([for Python libraries])
+AS_IF([test "x$PYTHON_LIBS" = x],
+[
+    _PYTHON_SYSCONFIG([[get_config_var('LIBS')]], [PYTHON_LIBS=$py_val])
+])
+AC_MSG_RESULT([$PYTHON_LIBS])
+AC_SUBST(PYTHON_LIBS)
 
-    # Get the CFLAGS and LIBS for boost::python.
-    # This does an AC_SUBST() of BOOST_PYTHON_LIBS
-    # For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
-    AX_BOOST_PYTHON_EMC
+# Get the CFLAGS and LIBS for boost::python.
+# This does an AC_SUBST() of BOOST_PYTHON_LIBS
+# For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
+AX_BOOST_PYTHON_EMC
 
-    AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
-	[AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
+    [AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
-    AC_MSG_CHECKING(for site-package location)
-    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib()'`
-    AC_MSG_RESULT($SITEPY)
+AC_MSG_CHECKING(for site-package location)
+SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib()'`
+AC_MSG_RESULT($SITEPY)
 
-    AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
-    AC_CHECK_LIB(GL, glBegin, [], [AC_MSG_ERROR([Required GL library missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+AC_CHECK_LIB(GL, glBegin, [], [AC_MSG_ERROR([Required GL library missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
-    AC_MSG_CHECKING(for working GLU quadrics)
-    AC_TRY_COMPILE([
+AC_MSG_CHECKING(for working GLU quadrics)
+AC_TRY_COMPILE([
 #include <GL/gl.h>
 #include <GL/glu.h>
 ],
-	[GLUquadric *q;],
-	[AC_MSG_RESULT(yes)],[
-		AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])]
-	
-    )
+    [GLUquadric *q;],
+    [AC_MSG_RESULT(yes)],[
+            AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])]
+    
+)
 
-    AC_MSG_CHECKING(for Xmu headers)
-    AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
-fi
+AC_MSG_CHECKING(for Xmu headers)
+AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
-AC_SUBST([BUILD_PYTHON])
 AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])
