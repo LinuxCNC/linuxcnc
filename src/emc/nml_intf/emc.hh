@@ -428,7 +428,7 @@ extern int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints);
 // implementation functions for EMC_TRAJ types
 
 extern int emcTrajSetJoints(int joints);
-extern int emcTrajSetAxes(int axes, int axismask);
+extern int emcTrajSetAxes(int axismask);
 extern int emcTrajSetUnits(double linearUnits, double angularUnits);
 extern int emcTrajSetCycleTime(double cycleTime);
 extern int emcTrajSetMode(int traj_mode);
