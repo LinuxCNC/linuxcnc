@@ -883,7 +883,7 @@ int emcTrajSetAxes(int axes, int axismask)
 		axes, right_axes, axismask);
     }
 
-    TrajConfig.Axes = axes;
+    TrajConfig.DeprecatedAxes = axes;
     TrajConfig.AxisMask = axismask;
     
     if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -1121,7 +1121,7 @@ int emcTrajInit()
     TrajConfig.Inited = 0;
     TrajConfig.Joints = 0;
     TrajConfig.MaxAccel = DBL_MAX;
-    TrajConfig.Axes = 0;
+    TrajConfig.DeprecatedAxes = 0;
     TrajConfig.AxisMask = 0;
     TrajConfig.LinearUnits = 1.0;
     TrajConfig.AngularUnits = 1.0;
@@ -1341,7 +1341,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     int joint, enables;
 
     stat->joints = TrajConfig.Joints;
-    stat->axes = TrajConfig.Axes;
+    stat->deprecated_axes = TrajConfig.DeprecatedAxes;
     stat->axis_mask = TrajConfig.AxisMask;
     stat->linearUnits = TrajConfig.LinearUnits;
     stat->angularUnits = TrajConfig.AngularUnits;
