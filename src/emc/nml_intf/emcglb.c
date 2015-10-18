@@ -13,7 +13,6 @@
 * Last change:
 ********************************************************************/
 
-#include <string.h>		/* strcpy() */
 #include "emcglb.h"		/* these decls */
 #include "emccfg.h"		/* their initial values */
 #include "emcpos.h"		/* EmcPose */
