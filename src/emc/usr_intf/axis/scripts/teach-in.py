@@ -42,7 +42,7 @@ def get_cart():
     position = " ".join(["%-8.4f"] * s.axes)
     return position % s.position[:s.axes]
     
-def get_joint():
+def get_joint():  # XXX should use joint count here
     s.poll()
     position = " ".join(["%-8.4f"] * s.axes)
     return position % s.joint_actual_position[:s.axes]
