@@ -329,7 +329,6 @@ static PyMemberDef Stat_members[] = {
     {(char*)"angular_units", T_DOUBLE, O(motion.traj.angularUnits), READONLY},
     {(char*)"cycle_time", T_DOUBLE, O(motion.traj.cycleTime), READONLY},
     {(char*)"joints", T_INT, O(motion.traj.joints), READONLY},
-    {(char*)"axes", T_INT, O(motion.traj.axes), READONLY},
     {(char*)"axis_mask", T_INT, O(motion.traj.axis_mask), READONLY},
     {(char*)"motion_mode", T_INT, O(motion.traj.mode), READONLY},
     {(char*)"enabled", T_BOOL, O(motion.traj.enabled), READONLY},
@@ -639,6 +638,11 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
     return res;
 }
 
+static PyObject *Stat_axes(pyStatChannel *s) {
+    PyErr_WarnEx(PyExc_DeprecationWarning, "stat.axes is deprecated and will be removed in the future", 0);
+    return PyInt_FromLong(s->status.motion.traj.deprecated_axes);
+}
+
 // XXX io.tool.toolTable
 // XXX EMC_JOINT_STAT motion.joint[]
 
@@ -665,6 +669,7 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"settings", (getter)Stat_activesettings},
     {(char*)"tool_offset", (getter)Stat_tool_offset},
     {(char*)"tool_table", (getter)Stat_tool_table},
+    {(char*)"axes", (getter)Stat_axes},
     {NULL}
 };
 
