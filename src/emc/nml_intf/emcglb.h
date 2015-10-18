@@ -57,7 +57,6 @@ extern "C" {
     extern int taskplanopen;
 
     extern int emcGetArgs(int argc, char *argv[]);
-    extern void emcInitGlobals();
 
 typedef struct JointConfig_t {
     int Inited;
