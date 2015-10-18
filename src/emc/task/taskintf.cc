@@ -910,6 +910,15 @@ int emcTrajSetAxes(int axes, int axismask)
 	return -1;
     }
 
+    int right_axes = 0;
+    for(int i=0; i<EMCMOT_MAX_AXIS; i++)
+        if(axismask & (1<<i)) right_axes = i+1;
+
+    if(right_axes != axes) {
+	rcs_print("axes setting corrected from %d to %d based on axismask 0x%x\n",
+		axes, right_axes, axismask);
+    }
+
     TrajConfig.Axes = axes;
     TrajConfig.AxisMask = axismask;
     
