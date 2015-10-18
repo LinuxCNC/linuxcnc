@@ -221,8 +221,8 @@ if version == "$Revision$" or version < "1.0":
     j = 0
     while 1:
          # Search preerentially in "[JOINT_N] in case the file is part-converted already
-        if re.search("(\[JOINT_%i\])"%j, inistring):
-            if re.search("(\[AXIS_%s\])" % "XYZABCUVW"[j], inistring):
+        if re.search("^(\[JOINT_%i\])"%j, inistring, re.MULTILINE):
+            if re.search("^(\[AXIS_%s\])" % "XYZABCUVW"[j], inistring, re.MULTILINE):
                 copysection("AXIS_%s" % "XYZABCUVW"[j])
                 copysection("JOINT_%i" % j)
             else:
@@ -233,7 +233,7 @@ if version == "$Revision$" or version < "1.0":
                 writeifexists(newini, "JOINT_%i" % j, "MAX_VELOCITY")
                 writeifexists(newini, "JOINT_%i" % j, "MAX_ACCELERATION")
                 copysection("[JOINT_%i]" % j)
-        elif  re.search("\[AXIS_%i\]" % j, inistring): #Looks like an [AXIS_0] style layout
+        elif  re.search("^\[AXIS_%i\]" % j, inistring, re.MULTILINE): #Looks like an [AXIS_0] style layout
                 newini.write("\n[AXIS_%s]\n" % "XYZABCUVW"[j])
                 writeifexists(newini, "AXIS_%i" % j, "HOME")
                 writeifexists(newini, "AXIS_%i" % j, "MIN_LIMIT")
