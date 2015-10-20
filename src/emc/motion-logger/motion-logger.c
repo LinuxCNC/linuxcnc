@@ -613,6 +613,14 @@ int main(int argc, char* argv[]) {
                 );
                 break;
 
+            case EMCMOT_SET_MAX_FEED_OVERRIDE:
+                log_print("SET_MAX_FEED_OVERRIDE %.6f\n", c->maxFeedScale);
+                break;
+
+            case EMCMOT_SETUP_ARC_BLENDS:
+                log_print("SETUP_ARC_BLENDS\n");
+                break;
+
             default:
                 log_print("ERROR: unknown command %d\n", c->command);
                 break;
