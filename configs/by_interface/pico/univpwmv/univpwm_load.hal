@@ -35,7 +35,7 @@ addf ppmc.0.read       servo-thread
 # then run the motion controller
 addf motion-command-handler servo-thread
 addf and2.0            servo-thread
-addf estop-latch.0     servo-thread
+addf estop_latch.0     servo-thread
 addf motion-controller servo-thread
 addf not.0	       servo-thread
 # then the PID loops
