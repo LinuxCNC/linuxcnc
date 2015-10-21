@@ -22,7 +22,6 @@ SERVO_PERIOD = 1000000
 
 [TRAJ]
     NO_FORCE_HOMING = 1
-               AXES = 3
         COORDINATES = X Y Z
                HOME = 0 0 0
        LINEAR_UNITS = inch

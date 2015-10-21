@@ -70,7 +70,7 @@ proc core_sim {} {
   loadrt $::EMCMOT(EMCMOT) \
          base_period_nsec=$::EMCMOT(BASE_PERIOD) \
          servo_period_nsec=$::EMCMOT(SERVO_PERIOD) \
-         num_joints=$::TRAJ(AXES)
+         num_joints=$::KINS(JOINTS)
 
   alias pin iocontrol.0.tool-change      tchange
   alias pin iocontrol.0.tool-changed     tchanged
