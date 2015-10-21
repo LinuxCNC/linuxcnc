@@ -82,8 +82,8 @@ foreach arg $argv {
 # Read the ini file to determine what the axes and coordinates are.
 
 set worldlabellist "X Y Z A B C U V W"
-set axiscoordmap "0 1 2 3 4 5 6 7 8"
-set numaxes [emc_ini "AXES" "TRAJ"]
+set jointcoordmap "0 1 2 3 4 5 6 7 8"
+set numjoints [emc_ini "JOINTS" "KINS"]
 set coordnames [ emc_ini "COORDINATES" "TRAJ"]
 
 set worldlabel0 [lindex  $worldlabellist 0 ]
@@ -626,61 +626,60 @@ proc toggleJogIncrement {} {
     }
 }
 
-# given axis, determines speed and cont v. incr and jogs it neg
-proc jogNeg {axis} {
-    global activeAxis jogType jogIncrement axiscoordmap
+# given joint, determines speed and cont v. incr and jogs it neg
+proc jogNeg {joint} {
+    global activeJoint jogType jogIncrement jointcoordmap
 
-    set activeAxis $axis
+    set activeJoint $joint
 
     if { [emc_teleop_enable] == 1 } {
-	set axisToJog [ lindex $axiscoordmap $axis ]
+	set jointToJog [ lindex $jointcoordmap $joint ]
     } else {
-	set axisToJog $axis
+	set jointToJog $joint
     }
-    switch $::jogAxisType($axisToJog) {
+    switch $::jogJointType($jointToJog) {
       linear  {set speed $::linearJogSpeed}
       angular {set speed $::angularJogSpeed}
       undefined {return}
     }
     if {$jogType == "continuous"} {
-        emc_jog $axisToJog -$speed
+        emc_jog $jointToJog -$speed
     } else {
-        emc_jog_incr $axisToJog -$speed $jogIncrement
+        emc_jog_incr $jointToJog -$speed $jogIncrement
     }
 }
 
-# given axis, determines speed and cont v. incr and jogs it pos
-proc jogPos {axis} {
-    global activeAxis jogType jogIncrement axiscoordmap
+# given joint, determines speed and cont v. incr and jogs it pos
+proc jogPos {joint} {
+    global activeJoint jogType jogIncrement jointcoordmap
 
-    set activeAxis $axis
+    set activeJoint $joint
     
     if { [emc_teleop_enable] == 1 } {
-	set axisToJog [ lindex $axiscoordmap $axis ]
+	set jointToJog [ lindex $jointcoordmap $joint ]
     } else {
-	set axisToJog $axis
+	set jointToJog $joint
     }
-    switch $::jogAxisType($axisToJog) {
+    switch $::jogJointType($jointToJog) {
       linear  {set speed $::linearJogSpeed}
       angular {set speed $::angularJogSpeed}
       undefined {return}
     }
 
     if {$jogType == "continuous"} {
-        emc_jog $axisToJog $speed
+        emc_jog $jointToJog $speed
     } else {
-        emc_jog_incr $axisToJog $speed $jogIncrement
+        emc_jog_incr $jointToJog $speed $jogIncrement
     }
 }
 
-# stops the active axis
-proc jogStop {axis} {
+# stops the active joint
+proc jogStop {joint} {
     global jogType
-    #removed globalAxis, as that caused the problems with multiple jogs
 
     # only stop continuous jogs; let incremental jogs finish
     if {$jogType == "continuous"} {
-        emc_jog_stop $axis
+        emc_jog_stop $joint
     }
 }
 
@@ -995,16 +994,16 @@ if [info exists ::angularJogSpeed] {
   }
 }
 
-foreach axis {0 1 2 3 4 5 6 7 8} {
-  set temp [emc_ini "TYPE" "AXIS_$axis"]
+foreach joint {0 1 2 3 4 5 6 7 8} {
+  set temp [emc_ini "TYPE" "JOINT_$joint"]
   switch $temp {
-    LINEAR  {set ::jogAxisType($axis) linear}
+    LINEAR  {set ::jogJointType($joint) linear}
     ANGULAR {
       if [info exists ::angularJogSpeed] {
-        set ::jogAxisType($axis) angular
+        set ::jogJointType($joint) angular
       } else {
         # insufficient information to jog:
-        set ::jogAxisType($axis) undefined
+        set ::jogJointType($joint) undefined
       }
     }
   }
@@ -1032,41 +1031,41 @@ set relabssel [frame $coordsel.relabssel]
 set actcmdsel [frame $coordsel.actcmdsel]
 set jog [frame $bun.jog]
 set dojog [frame $jog.dojog]
-set axiscount 1
+set jointcount 1
 pack $move -side top -fill both -expand true
 pack $position -side left
 pack $pos0 -side top
-if { $numaxes > 1 && [ string first "Y" $coordnames ] >= 0 } {
+if { $numjoints > 1 && [ string first "Y" $coordnames ] >= 0 } {
     pack $pos1 -side top
-	incr axiscount
+	incr jointcount
 }
-if { $numaxes > 2 && [ string first "Z" $coordnames ] >= 0  } {
+if { $numjoints > 2 && [ string first "Z" $coordnames ] >= 0  } {
     pack $pos2 -side top
-	incr axiscount
+	incr jointcount
 }
-if { $numaxes > 3 && [ string first "A" $coordnames ] >= 0  } {
+if { $numjoints > 3 && [ string first "A" $coordnames ] >= 0  } {
     pack $pos3 -side top
-	incr axiscount
+	incr jointcount
 }
-if { $numaxes > 4 && [ string first "B" $coordnames ] >= 0  } {
+if { $numjoints > 4 && [ string first "B" $coordnames ] >= 0  } {
     pack $pos4 -side top
-	incr axiscount
+	incr jointcount
 }
-if { $numaxes > 5 && [ string first "C" $coordnames ] >= 0  } {
+if { $numjoints > 5 && [ string first "C" $coordnames ] >= 0  } {
     pack $pos5 -side top
-	incr axiscount
+	incr jointcount
 }
-if { $numaxes > 6 && [ string first "U" $coordnames ] >= 0  } {
+if { $numjoints > 6 && [ string first "U" $coordnames ] >= 0  } {
     pack $pos6 -side top
-	incr axiscount
+	incr jointcount
 }
-if { $numaxes > 7 && [ string first "V" $coordnames ] >= 0 } {
+if { $numjoints > 7 && [ string first "V" $coordnames ] >= 0 } {
     pack $pos7 -side top
-	incr axiscount
+	incr jointcount
 }
-if { $numaxes > 8 && [ string first "W" $coordnames ] >= 0  } {
+if { $numjoints > 8 && [ string first "W" $coordnames ] >= 0  } {
     pack $pos8 -side top
-	incr axiscount
+	incr jointcount
 }
 pack $bun -side right -anchor n ; # don't fill or expand these-- looks funny
 pack $limoride -side top -pady 2m
@@ -1123,43 +1122,43 @@ pack $pos7d -side right
 pack $pos8l -side left
 pack $pos8d -side right
 
-bind $pos0l <ButtonPress-1> {axisSelect 0}
-bind $pos0d <ButtonPress-1> {axisSelect 0}
-bind $pos1l <ButtonPress-1> {axisSelect 1}
-bind $pos1d <ButtonPress-1> {axisSelect 1}
-bind $pos2l <ButtonPress-1> {axisSelect 2}
-bind $pos2d <ButtonPress-1> {axisSelect 2}
-bind $pos3l <ButtonPress-1> {axisSelect 3}
-bind $pos3d <ButtonPress-1> {axisSelect 3}
-bind $pos4l <ButtonPress-1> {axisSelect 4}
-bind $pos4d <ButtonPress-1> {axisSelect 4}
-bind $pos5l <ButtonPress-1> {axisSelect 5}
-bind $pos5d <ButtonPress-1> {axisSelect 5}
-bind $pos6l <ButtonPress-1> {axisSelect 6}
-bind $pos6d <ButtonPress-1> {axisSelect 6}
-bind $pos7l <ButtonPress-1> {axisSelect 7}
-bind $pos7d <ButtonPress-1> {axisSelect 7}
-bind $pos8l <ButtonPress-1> {axisSelect 8}
-bind $pos8d <ButtonPress-1> {axisSelect 8}
+bind $pos0l <ButtonPress-1> {jointSelect 0}
+bind $pos0d <ButtonPress-1> {jointSelect 0}
+bind $pos1l <ButtonPress-1> {jointSelect 1}
+bind $pos1d <ButtonPress-1> {jointSelect 1}
+bind $pos2l <ButtonPress-1> {jointSelect 2}
+bind $pos2d <ButtonPress-1> {jointSelect 2}
+bind $pos3l <ButtonPress-1> {jointSelect 3}
+bind $pos3d <ButtonPress-1> {jointSelect 3}
+bind $pos4l <ButtonPress-1> {jointSelect 4}
+bind $pos4d <ButtonPress-1> {jointSelect 4}
+bind $pos5l <ButtonPress-1> {jointSelect 5}
+bind $pos5d <ButtonPress-1> {jointSelect 5}
+bind $pos6l <ButtonPress-1> {jointSelect 6}
+bind $pos6d <ButtonPress-1> {jointSelect 6}
+bind $pos7l <ButtonPress-1> {jointSelect 7}
+bind $pos7d <ButtonPress-1> {jointSelect 7}
+bind $pos8l <ButtonPress-1> {jointSelect 8}
+bind $pos8d <ButtonPress-1> {jointSelect 8}
 
-bind $pos0l <ButtonPress-3> {axisSelect 0; popupAxisOffset 0}
-bind $pos0d <ButtonPress-3> {axisSelect 0; popupAxisOffset 0}
-bind $pos1l <ButtonPress-3> {axisSelect 1; popupAxisOffset 1}
-bind $pos1d <ButtonPress-3> {axisSelect 1; popupAxisOffset 1}
-bind $pos2l <ButtonPress-3> {axisSelect 2; popupAxisOffset 2}
-bind $pos2d <ButtonPress-3> {axisSelect 2; popupAxisOffset 2}
-bind $pos3l <ButtonPress-3> {axisSelect 3; popupAxisOffset 3}
-bind $pos3d <ButtonPress-3> {axisSelect 3; popupAxisOffset 3}
-bind $pos4l <ButtonPress-3> {axisSelect 4; popupAxisOffset 4}
-bind $pos4d <ButtonPress-3> {axisSelect 4; popupAxisOffset 4}
-bind $pos5l <ButtonPress-3> {axisSelect 5; popupAxisOffset 5}
-bind $pos5d <ButtonPress-3> {axisSelect 5; popupAxisOffset 5}
-bind $pos6l <ButtonPress-3> {axisSelect 6; popupAxisOffset 6}
-bind $pos6d <ButtonPress-3> {axisSelect 6; popupAxisOffset 6}
-bind $pos7l <ButtonPress-3> {axisSelect 7; popupAxisOffset 7}
-bind $pos7d <ButtonPress-3> {axisSelect 7; popupAxisOffset 7}
-bind $pos8l <ButtonPress-3> {axisSelect 8; popupAxisOffset 8}
-bind $pos8d <ButtonPress-3> {axisSelect 8; popupAxisOffset 8}
+bind $pos0l <ButtonPress-3> {jointSelect 0; popupAxisOffset 0}
+bind $pos0d <ButtonPress-3> {jointSelect 0; popupAxisOffset 0}
+bind $pos1l <ButtonPress-3> {jointSelect 1; popupAxisOffset 1}
+bind $pos1d <ButtonPress-3> {jointSelect 1; popupAxisOffset 1}
+bind $pos2l <ButtonPress-3> {jointSelect 2; popupAxisOffset 2}
+bind $pos2d <ButtonPress-3> {jointSelect 2; popupAxisOffset 2}
+bind $pos3l <ButtonPress-3> {jointSelect 3; popupAxisOffset 3}
+bind $pos3d <ButtonPress-3> {jointSelect 3; popupAxisOffset 3}
+bind $pos4l <ButtonPress-3> {jointSelect 4; popupAxisOffset 4}
+bind $pos4d <ButtonPress-3> {jointSelect 4; popupAxisOffset 4}
+bind $pos5l <ButtonPress-3> {jointSelect 5; popupAxisOffset 5}
+bind $pos5d <ButtonPress-3> {jointSelect 5; popupAxisOffset 5}
+bind $pos6l <ButtonPress-3> {jointSelect 6; popupAxisOffset 6}
+bind $pos6d <ButtonPress-3> {jointSelect 6; popupAxisOffset 6}
+bind $pos7l <ButtonPress-3> {jointSelect 7; popupAxisOffset 7}
+bind $pos7d <ButtonPress-3> {jointSelect 7; popupAxisOffset 7}
+bind $pos8l <ButtonPress-3> {jointSelect 8; popupAxisOffset 8}
+bind $pos8d <ButtonPress-3> {jointSelect 8; popupAxisOffset 8}
 
 # set the position display font and radio button variables to their
 # ini file values, if present. Otherwise leave the font alone, as it
@@ -1207,7 +1206,7 @@ if {$userfont != ""} {
     set fontstyle [font actual $userfont -weight]
 } elseif {[lsearch [font families] {courier 10 pitch}] != -1} {
     set fontfamily {courier 10 pitch}
-     if {$axiscount > 3} {
+     if {$jointcount > 3} {
 	set fontsize 24
     } else {
 	set fontsize 48
@@ -1215,7 +1214,7 @@ if {$userfont != ""} {
     set fontstyle bold
 } else {
     set fontfamily courier
-    if {$axiscount > 3} {
+    if {$jointcount > 3} {
 	set fontsize 24
     } else {
         set fontsize 48
@@ -1267,15 +1266,15 @@ pack $jognegbutton -side left
 pack $homebutton -side left
 pack $jogposbutton -side left
 
-bind $jognegbutton <ButtonPress-1> {jogNeg $activeAxis}
-bind $jognegbutton <ButtonRelease-1> {jogStop $activeAxis}
-bind $homebutton <ButtonPress-1> {emc_home $activeAxis}
-bind $jogposbutton <ButtonPress-1> {jogPos $activeAxis}
-bind $jogposbutton <ButtonRelease-1> {jogStop $activeAxis}
+bind $jognegbutton <ButtonPress-1> {jogNeg $activeJoint}
+bind $jognegbutton <ButtonRelease-1> {jogStop $activeJoint}
+bind $homebutton <ButtonPress-1> {emc_home $activeJoint}
+bind $jogposbutton <ButtonPress-1> {jogPos $activeJoint}
+bind $jogposbutton <ButtonRelease-1> {jogStop $activeJoint}
 
-proc axisSelect {axis} {
+proc jointSelect {joint} {
     global pos0 pos1 pos2 pos3 pos4 pos5 pos6 pos7 pos8
-    global activeAxis
+    global activeJoint
 
     $pos0 config -relief flat
     $pos1 config -relief flat
@@ -1286,31 +1285,31 @@ proc axisSelect {axis} {
     $pos6 config -relief flat
     $pos7 config -relief flat
     $pos8 config -relief flat
-    set activeAxis $axis
+    set activeJoint $joint
    
-    if {$axis == 0} {
+    if {$joint == 0} {
 	$pos0 config -relief groove
-    } elseif {$axis == 1} {
+    } elseif {$joint == 1} {
         $pos1 config -relief groove
-    } elseif {$axis == 2} {
+    } elseif {$joint == 2} {
         $pos2 config -relief groove
-    } elseif {$axis == 3} {
+    } elseif {$joint == 3} {
         $pos3 config -relief groove
-    } elseif {$axis == 4} {
+    } elseif {$joint == 4} {
         $pos4 config -relief groove
-    } elseif {$axis == 5} {
+    } elseif {$joint == 5} {
         $pos5 config -relief groove
-    } elseif {$axis == 6} {
+    } elseif {$joint == 6} {
         $pos6 config -relief groove
-    } elseif {$axis == 7} {
+    } elseif {$joint == 7} {
         $pos7 config -relief groove
-    } elseif {$axis == 8} {
+    } elseif {$joint == 8} {
         $pos8 config -relief groove
     }
 }
 
-# force first selected axis
-axisSelect 0
+# force first selected joint
+jointSelect 0
 
 proc setAxisOffset {axis offset} {
     global worldlabellist
@@ -1348,8 +1347,8 @@ proc popupAxisOffset {axis} {
     .axisoffset.input.entry select range 0 end
 }
 
-proc incrJogSpeed {axistype} {
-    switch $axistype {
+proc incrJogSpeed {jointtype} {
+    switch $jointtype {
       linear  {
         if {$::linearJogSpeed < $::linearJogSpeedMax} {
             set ::linearJogSpeed [expr {int($::linearJogSpeed + 1.5)}]
@@ -1363,8 +1362,8 @@ proc incrJogSpeed {axistype} {
     }
 }
 
-proc decrJogSpeed {axistype} {
-    switch $axistype {
+proc decrJogSpeed {jointtype} {
+    switch $jointtype {
       linear  {
         if {$::linearJogSpeed > 1} {
             set ::linearJogSpeed [expr {int($::linearJogSpeed - 0.5)}]
@@ -1378,7 +1377,7 @@ proc decrJogSpeed {axistype} {
     }
 }
 
-proc popupJogSpeed {axistype} {
+proc popupJogSpeed {jointtype} {
     global maxJogSpeed popupJogSpeedEntry
 
     if {[winfo exists .jogspeedpopup]} {
@@ -1391,7 +1390,7 @@ proc popupJogSpeed {axistype} {
     wm title .jogspeedpopup [msgcat::mc "Set Jog Speed"]
 
     # initialize value to current jog speed
-    switch $axistype {
+    switch $jointtype {
       linear  {set popupJogSpeedEntry $::linearJogSpeed
                set item ::linearJogSpeed
       }
@@ -1703,17 +1702,16 @@ bind . <KeyPress-F10> {break}
 #bind ManualBindings <KeyPress-8> {emc_feed_override 80}
 #bind ManualBindings <KeyPress-9> {emc_feed_override 90}
 #bind ManualBindings <KeyPress-0> {emc_feed_override 100}
-# These key bindings really needed to be changed for 6 axis operation.
-bind ManualBindings <KeyPress-0> {axisSelect 0}
-bind ManualBindings <KeyPress-grave> {axisSelect 0}
-bind ManualBindings <KeyPress-1> {axisSelect 1}
-bind ManualBindings <KeyPress-2> {axisSelect 2}
-bind ManualBindings <KeyPress-3> {axisSelect 3}
-bind ManualBindings <KeyPress-4> {axisSelect 4}
-bind ManualBindings <KeyPress-5> {axisSelect 5}
-bind ManualBindings <KeyPress-6> {axisSelect 6}
-bind ManualBindings <KeyPress-7> {axisSelect 7}
-bind ManualBindings <KeyPress-8> {axisSelect 8}
+bind ManualBindings <KeyPress-0> {jointSelect 0}
+bind ManualBindings <KeyPress-grave> {jointSelect 0}
+bind ManualBindings <KeyPress-1> {jointSelect 1}
+bind ManualBindings <KeyPress-2> {jointSelect 2}
+bind ManualBindings <KeyPress-3> {jointSelect 3}
+bind ManualBindings <KeyPress-4> {jointSelect 4}
+bind ManualBindings <KeyPress-5> {jointSelect 5}
+bind ManualBindings <KeyPress-6> {jointSelect 6}
+bind ManualBindings <KeyPress-7> {jointSelect 7}
+bind ManualBindings <KeyPress-8> {jointSelect 8}
 bind ManualBindings <KeyPress-at> {toggleCmdAct}
 bind ManualBindings <KeyPress-numbersign> {toggleRelAbs}
 bind ManualBindings <KeyPress-dollar> {toggleJointWorld}
@@ -1723,9 +1721,9 @@ bind ManualBindings <KeyPress-semicolon>  {decrJogSpeed angular}
 bind ManualBindings <KeyPress-apostrophe> {incrJogSpeed angular}
 bind ManualBindings <KeyPress-c> {toggleJogType}
 bind ManualBindings <KeyPress-i> {toggleJogIncrement}
-bind ManualBindings <KeyPress-x> {axisSelect 0}
-bind ManualBindings <KeyPress-y> {axisSelect 1}
-bind ManualBindings <KeyPress-z> {axisSelect 2}
+bind ManualBindings <KeyPress-x> {jointSelect 0}
+bind ManualBindings <KeyPress-y> {jointSelect 1}
+bind ManualBindings <KeyPress-z> {jointSelect 2}
 bind ManualBindings <$modifier-t> {popupToolOffset}
 bind ManualBindings <KeyPress-b> {emc_brake off}
 bind ManualBindings <Shift-KeyPress-B> {emc_brake on}
@@ -1734,7 +1732,7 @@ bind ManualBindings <KeyPress-F7> {toggleMist}
 bind ManualBindings <KeyPress-F8> {toggleFlood}
 bind ManualBindings <KeyPress-F9> {toggleSpindleForward}
 bind ManualBindings <KeyPress-F10> {toggleSpindleReverse}
-bind ManualBindings <Home> {emc_home $activeAxis}
+bind ManualBindings <Home> {emc_home $activeJoint}
 
 bind AutoBindings <KeyPress-1> {emc_feed_override 10}
 bind AutoBindings <KeyPress-2> {emc_feed_override 20}
@@ -1798,28 +1796,28 @@ proc spindleIncrUp {} {
 bind ManualBindings <KeyPress-F12> spindleIncrDown
 bind ManualBindings <KeyRelease-F12> spindleIncrUp
 
-set activeAxis 0
-set minusAxis -1
-set equalAxis -1
+set activeJoint 0
+set minusJoint -1
+set equalJoint -1
 
 proc minusDone {} {
-    global minusAxis
+    global minusJoint
     
-    jogStop $minusAxis
+    jogStop $minusJoint
     bind ManualBindings <KeyPress-minus> minusDown
-    set minusAxis -1
+    set minusJoint -1
 }
 
 proc minusDown {} {
-    global minusAxis activeAxis
+    global minusJoint activeJoint
     
-    if {$minusAxis < 0} {
-       set minusAxis $activeAxis
+    if {$minusJoint < 0} {
+       set minusJoint $activeJoint
     }
 
     bind ManualBindings <KeyPress-minus> {}
     after cancel minusDone
-    jogNeg $minusAxis
+    jogNeg $minusJoint
 }
 
 proc minusUp {} {
@@ -1833,23 +1831,23 @@ bind ManualBindings <KeyPress-minus> minusDown
 bind ManualBindings <KeyRelease-minus> minusUp
 
 proc equalDone {} {
-    global equalAxis
+    global equalJoint
     
-    jogStop $equalAxis
-    set equalAxis -1
+    jogStop $equalJoint
+    set equalJoint -1
     bind ManualBindings <KeyPress-equal> equalDown
 }
 
 proc equalDown {} {
-    global equalAxis activeAxis
+    global equalJoint activeJoint
 
-    if {$equalAxis < 0} {
-       set equalAxis $activeAxis
+    if {$equalJoint < 0} {
+       set equalJoint $activeJoint
     }
 
     bind ManualBindings <KeyPress-equal> {}
     after cancel equalDone
-    jogPos $equalAxis
+    jogPos $equalJoint
 }
 
 proc equalUp {} {
@@ -1868,7 +1866,7 @@ proc leftDone {} {
 }
 
 proc leftDown {} {
-    axisSelect 0
+    jointSelect 0
     bind ManualBindings <KeyPress-Left> {}
     after cancel leftDone
     jogNeg 0
@@ -1890,7 +1888,7 @@ proc rightDone {} {
 }
 
 proc rightDown {} {
-    axisSelect 0
+    jointSelect 0
     bind ManualBindings <KeyPress-Right> {}
     after cancel rightDone
     jogPos 0
@@ -1912,7 +1910,7 @@ proc downDone {} {
 }
 
 proc downDown {} {
-    axisSelect 1
+    jointSelect 1
     bind ManualBindings <KeyPress-Down> {}
     after cancel downDone
     jogNeg 1
@@ -1934,7 +1932,7 @@ proc upDone {} {
 }
 
 proc upDown {} {
-    axisSelect 1
+    jointSelect 1
     bind ManualBindings <KeyPress-Up> {}
     after cancel upDone
     jogPos 1
@@ -1956,7 +1954,7 @@ proc priorDone {} {
 }
 
 proc priorDown {} {
-    axisSelect 2
+    jointSelect 2
     bind ManualBindings <KeyPress-Prior> {}
     after cancel priorDone
     jogPos 2
@@ -1978,7 +1976,7 @@ proc nextDone {} {
 }
 
 proc nextDown {} {
-    axisSelect 2
+    jointSelect 2
     bind ManualBindings <KeyPress-Next> {}
     after cancel nextDone
     jogNeg 2
@@ -2199,7 +2197,7 @@ proc updateStatus {} {
     global iohb iocmd ionum iostatus
     global motionhb motioncmd motionnum motionstatus
     global oldstatusstring
-    global axiscoordmap
+    global jointcoordmap
     global homedcolor unhomedcolor opstopcolor limitcolor
 
     # force an update of error log
@@ -2328,7 +2326,7 @@ proc updateStatus {} {
 
     # set the offset information
     set offsetsetting [lsearch -inline [emc_program_codes] {G5[4-9]*}]
-    for {set i 0} {$i < $::numaxes} {incr i} {
+    for {set i 0} {$i < $::numjoints} {incr i} {
     if { [lsearch $::coordnames [lindex $::worldlabellist $i]] != -1 } {
       set fstr [lindex $::worldlabellist $i]
       set spec " $fstr%.4f"
@@ -2414,46 +2412,46 @@ proc updateStatus {} {
 	} 
 	if { $lastjointworld == "world" } {
 	    if {$coords == "relative" && $actcmd == "commanded"} {
-		set posdigit0 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 0 ] ] ]
-		set posdigit1 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 1 ] ] ]
-		set posdigit2 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 2 ] ] ]
-		set posdigit3 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 3 ] ] ]
-		set posdigit4 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 4 ] ] ]
-		set posdigit5 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 5 ] ] ]
-		set posdigit6 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 6 ] ] ]
-		set posdigit7 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 7 ] ] ]
-		set posdigit8 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 8 ] ] ]
+		set posdigit0 [format "%9.4f" [emc_rel_cmd_pos [ lindex $jointcoordmap 0 ] ] ]
+		set posdigit1 [format "%9.4f" [emc_rel_cmd_pos [ lindex $jointcoordmap 1 ] ] ]
+		set posdigit2 [format "%9.4f" [emc_rel_cmd_pos [ lindex $jointcoordmap 2 ] ] ]
+		set posdigit3 [format "%9.4f" [emc_rel_cmd_pos [ lindex $jointcoordmap 3 ] ] ]
+		set posdigit4 [format "%9.4f" [emc_rel_cmd_pos [ lindex $jointcoordmap 4 ] ] ]
+		set posdigit5 [format "%9.4f" [emc_rel_cmd_pos [ lindex $jointcoordmap 5 ] ] ]
+		set posdigit6 [format "%9.4f" [emc_rel_cmd_pos [ lindex $jointcoordmap 6 ] ] ]
+		set posdigit7 [format "%9.4f" [emc_rel_cmd_pos [ lindex $jointcoordmap 7 ] ] ]
+		set posdigit8 [format "%9.4f" [emc_rel_cmd_pos [ lindex $jointcoordmap 8 ] ] ]
 	    } elseif {$coords == "relative" && $actcmd == "actual"} {
-		set posdigit0 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 0 ] ] ]
-		set posdigit1 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 1 ] ] ]
-		set posdigit2 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 2 ] ] ]
-		set posdigit3 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 3 ] ] ]
-		set posdigit4 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 4 ] ] ]
-		set posdigit5 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 5 ] ] ]
-		set posdigit6 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 6 ] ] ]
-		set posdigit7 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 7 ] ] ]
-		set posdigit8 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 8 ] ] ]
+		set posdigit0 [format "%9.4f" [emc_rel_act_pos [ lindex $jointcoordmap 0 ] ] ]
+		set posdigit1 [format "%9.4f" [emc_rel_act_pos [ lindex $jointcoordmap 1 ] ] ]
+		set posdigit2 [format "%9.4f" [emc_rel_act_pos [ lindex $jointcoordmap 2 ] ] ]
+		set posdigit3 [format "%9.4f" [emc_rel_act_pos [ lindex $jointcoordmap 3 ] ] ]
+		set posdigit4 [format "%9.4f" [emc_rel_act_pos [ lindex $jointcoordmap 4 ] ] ]
+		set posdigit5 [format "%9.4f" [emc_rel_act_pos [ lindex $jointcoordmap 5 ] ] ]
+		set posdigit6 [format "%9.4f" [emc_rel_act_pos [ lindex $jointcoordmap 6 ] ] ]
+		set posdigit7 [format "%9.4f" [emc_rel_act_pos [ lindex $jointcoordmap 7 ] ] ]
+		set posdigit8 [format "%9.4f" [emc_rel_act_pos [ lindex $jointcoordmap 8 ] ] ]
 	    } elseif {$coords == "machine" && $actcmd == "commanded"} {
-		set posdigit0 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 0 ] ] ]
-		set posdigit1 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 1 ] ] ]
-		set posdigit2 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 2 ] ] ]
-		set posdigit3 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 3 ] ] ]
-		set posdigit4 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 4 ] ] ]
-		set posdigit5 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 5 ] ] ]
-		set posdigit6 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 6 ] ] ]
-		set posdigit7 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 7 ] ] ]
-		set posdigit8 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 8 ] ] ]
+		set posdigit0 [format "%9.4f" [emc_abs_cmd_pos [ lindex $jointcoordmap 0 ] ] ]
+		set posdigit1 [format "%9.4f" [emc_abs_cmd_pos [ lindex $jointcoordmap 1 ] ] ]
+		set posdigit2 [format "%9.4f" [emc_abs_cmd_pos [ lindex $jointcoordmap 2 ] ] ]
+		set posdigit3 [format "%9.4f" [emc_abs_cmd_pos [ lindex $jointcoordmap 3 ] ] ]
+		set posdigit4 [format "%9.4f" [emc_abs_cmd_pos [ lindex $jointcoordmap 4 ] ] ]
+		set posdigit5 [format "%9.4f" [emc_abs_cmd_pos [ lindex $jointcoordmap 5 ] ] ]
+		set posdigit6 [format "%9.4f" [emc_abs_cmd_pos [ lindex $jointcoordmap 6 ] ] ]
+		set posdigit7 [format "%9.4f" [emc_abs_cmd_pos [ lindex $jointcoordmap 7 ] ] ]
+		set posdigit8 [format "%9.4f" [emc_abs_cmd_pos [ lindex $jointcoordmap 8 ] ] ]
 	    } else {
 		# $coords == "machine" && $actcmd == "actual"
-		set posdigit0 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 0 ] ] ]
-		set posdigit1 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 1 ] ] ]
-		set posdigit2 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 2 ] ] ]
-		set posdigit3 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 3 ] ] ]
-		set posdigit4 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 4 ] ] ]
-		set posdigit5 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 5 ] ] ]
-		set posdigit6 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 6 ] ] ]
-		set posdigit7 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 7 ] ] ]
-		set posdigit8 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 8 ] ] ]
+		set posdigit0 [format "%9.4f" [emc_abs_act_pos [ lindex $jointcoordmap 0 ] ] ]
+		set posdigit1 [format "%9.4f" [emc_abs_act_pos [ lindex $jointcoordmap 1 ] ] ]
+		set posdigit2 [format "%9.4f" [emc_abs_act_pos [ lindex $jointcoordmap 2 ] ] ]
+		set posdigit3 [format "%9.4f" [emc_abs_act_pos [ lindex $jointcoordmap 3 ] ] ]
+		set posdigit4 [format "%9.4f" [emc_abs_act_pos [ lindex $jointcoordmap 4 ] ] ]
+		set posdigit5 [format "%9.4f" [emc_abs_act_pos [ lindex $jointcoordmap 5 ] ] ]
+		set posdigit6 [format "%9.4f" [emc_abs_act_pos [ lindex $jointcoordmap 6 ] ] ]
+		set posdigit7 [format "%9.4f" [emc_abs_act_pos [ lindex $jointcoordmap 7 ] ] ]
+		set posdigit8 [format "%9.4f" [emc_abs_act_pos [ lindex $jointcoordmap 8 ] ] ]
 	    }
 	}
     }
