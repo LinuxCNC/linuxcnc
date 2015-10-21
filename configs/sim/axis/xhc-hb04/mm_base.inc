@@ -38,7 +38,6 @@ SERVO_PERIOD =          1000000
 duh
 [TRAJ]
 NO_FORCE_HOMING =          1
-AXES =                     9
 COORDINATES =              X Y Z A B C U V W
 HOME =                     0 0 0 0 0 0 0 0 0
 LINEAR_UNITS =             mm
@@ -52,7 +51,6 @@ MAX_ANGULAR_VELOCITY =     90.0
 
 [KINS]
 KINEMATICS = trivkins
-#This is a best-guess at the number of joints, it should be checked
 JOINTS = 9
 
 
