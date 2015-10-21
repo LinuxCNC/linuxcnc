@@ -21,7 +21,7 @@
 # Expand to fullscreen
 # for axis gui, include ini item:
 # Usage (in ini file):
-# [DISPLAY]USER_COMMAND_FILE = fullscreen.tcl
+# [DISPLAY]USER_COMMAND_FILE = fullscreen.py
 
 maxgeo=root_window.tk.call("wm","maxsize",".")
 if type(maxgeo) is type(''):
