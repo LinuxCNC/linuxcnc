@@ -40,7 +40,6 @@ BASE_PERIOD  = 0
 SERVO_PERIOD = 1000000
 
 [TRAJ]
-               AXES = 3
         COORDINATES = X Y Z
                HOME = 0 0 0
        LINEAR_UNITS = inch
