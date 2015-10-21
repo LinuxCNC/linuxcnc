@@ -1449,3 +1449,68 @@ settings.tool_change_with_spindle_on::
     These are set from ini variables in the +[EMCIO]+ section, and
     control how tool changes are performed.
 
+
+== Reckoning of joints and axes
+
+=== In the status buffer
+
+The status buffer is used by Task and the UIs.
+
+FIXME: `axis_mask` and `axes` overspecify the number of axes
+
+`status.motion.traj.axis_mask`::
+
+    A bitmask with a "1" for the axes that are present and a "0"
+    for the axes that are not present.  X is bit 0, Y is bit 1, etc.
+    For example, a machine with X and Z axes would have an `axis_mask`
+    of 0x5, an XYZ machine would have 0x7, and an XYZB machine would
+    have an `axis_mask` of 0x17.
+
+`status.motion.traj.axes` (deprecated)::
+
+    The value of this variable is one more than the index of the
+    highest-numbered axis present on the machine.  As in the `axis_mask`,
+    the index of X in 0, Y is 1, etc.  An XZ machine has `axes` value
+    of 3, as does an XYZ machine.  An XYZW machine has `axes` value 9.
+    This variable is not terribly helpful, and its use is deprecated.
+    Use `axis_mask` instead.
+
+`status.motion.traj.joints`::
+
+    A count of the number of joints the machine has.  A normal lathe
+    has 2 joints; one driving the X axis and one driving the Z axis.
+    An XYYZ gantry mill has 4 joints; one driving X, one driving one side
+    of the Y, one driving the other side of the Y, and one driving Z.
+    An XYZA mill also has 4 joints.
+
+`status.motion.axis[EMCMOT_MAX_AXIS]`::
+
+    An array of `EMCMOT_MAX_AXIS` axis structures.  `axis[n]` is valid
+    if `(axis_mask & (1 << n))` is True.  If `(axis_mask & (1 << n))`
+    is False, then `axis[n]` does not exist on this machine and must
+    be ignored.
+
+`status.motion.joint[EMCMOT_MAX_JOINTS]`::
+
+    An array of `EMCMOT_MAX_JOINTS` joint structures.  `joint[0]` through
+    `joint[joints-1]` are valid, the others do not exist on this machine
+    and must be ignored.
+
+Things are not this way currently in the joints-axes branch, but
+deviations from this design are considered bugs.  For an example of such
+a bug, see the treatment of axes in src/emc/ini/initraj.cc:loadTraj().
+There are undoubtedly more, and I need your help to find them and
+fix them.
+
+
+=== In Motion
+
+The Motion controller realtime component first gets the number of joints
+from the `num_joints` load-time parameter.  This determines how many
+joints worth of HAL pins are created at startup.
+
+Motion's number of joints can be changed at runtime using the
+`EMCMOT_SET_NUM_JOINTS` command from Task.
+
+The Motion controller always operates on `EMCMOT_MAX_AXIS` axes.
+It always creates nine sets of axis.*.* pins.
