@@ -11,7 +11,7 @@ source [file join $::env(HALLIB_DIR) sim_lib.tcl]
 
 set axes [eval set axes $::TRAJ(COORDINATES)] ;# eval to handle list {}
 set axes [string tolower $axes] ;# expect lowercase throughout
-set number_of_axes $::TRAJ(AXES)
+set number_of_joints $::KINS(JOINTS)
 
 set base_period 0 ;# 0 means no thread
 if [info exists ::EMCMOT(BASE_PERIOD)] {
@@ -19,7 +19,7 @@ if [info exists ::EMCMOT(BASE_PERIOD)] {
 }
 
 core_sim $axes \
-         $number_of_axes \
+         $number_of_joints \
          $::EMCMOT(SERVO_PERIOD) \
          $base_period
 

@@ -8,7 +8,7 @@ foreach a {x y z a b c u v w} {
 }
 #----------------------------------------------------------------------
 proc core_sim {axes
-               number_of_axes
+               number_of_joints
                servo_period
                {base_period 0}
                {emcmot motmod}
@@ -25,7 +25,7 @@ proc core_sim {axes
   set lcmd "loadrt $emcmot"
   set lcmd "$lcmd base_period_nsec=$base_period"
   set lcmd "$lcmd servo_period_nsec=$servo_period"
-  set lcmd "$lcmd num_joints=$number_of_axes"
+  set lcmd "$lcmd num_joints=$number_of_joints"
 
   eval $lcmd
   addf motion-command-handler servo-thread
