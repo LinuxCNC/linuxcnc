@@ -256,16 +256,16 @@ proc incompatible_ini_file {} {
       -message [msgcat::mc "\
                No Tuneable items in ini file: <$fname>\n\n\
                To specify tuneable item(s):\n\n\
-                  1) Include all \[AXIS_n\] sections\n\
+                  1) Include all \[JOINT_n\] sections\n\
                      and specify itemnames(s)\n\n\
                      Inifile example:\n\
-                        \[AXIS_0\]\n\
+                        \[JOINT_0\]\n\
                         P = 1\n\n\
-                  2) Use setp for \[AXIS_n\]itemname\n\n\
+                  2) Use setp for \[JOINT_n\]itemname\n\n\
                      Halfile example:\n\
                      loadrt pid names=example\n\
                      ...\n\
-                     setp example.Pgain \[AXIS_0\]P\n\
+                     setp example.Pgain \[JOINT_0\]P\n\
                \n\
                " ] \
       -type ok \
