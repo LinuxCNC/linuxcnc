@@ -103,6 +103,19 @@ Usage:
 Notes:
        Create watchfile in halshow using: 'File/Save Watch List'
        linuxcnc must be running for standalone usage
+
+A watchfile created using the 'File/Save Watch List' menu item
+is formatted as a single line with tokens "pin+", "param+", "sig=+"
+followed by the appropriate pin, param, or signal name.  The
+token-name pairs are separated by a space character.
+
+Example:
+   pin+axis.0.pos-hard-limit pin+axis.1.pos-hard-limit sig+estop-loop
+
+When loading a watchfile with the 'File/Load Watch List' menu item,
+the token-name pairs may appear on mulitple lines.  Blank lines and
+lines beginning with a # character are ignored.
+
 ----
 
 [[sec:halscope]]

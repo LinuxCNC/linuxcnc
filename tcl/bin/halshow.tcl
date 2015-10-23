@@ -549,7 +549,12 @@ proc getwatchlist {} {
 proc loadwatchlist {filename} {
   if {"$filename" == ""} return
   set f [open $filename r]
-  set wl [gets $f]
+  set wl ""
+  while {![eof $f]} {
+     set nextline [string trim [gets $f]]
+     if {[string first "#" $nextline] == 0} continue ;# ignore comment lines
+     set wl "$wl $nextline"
+  }
   close $f
   if {"$wl" == ""} return
   watchReset all
