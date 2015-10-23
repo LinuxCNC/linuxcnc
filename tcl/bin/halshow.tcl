@@ -442,9 +442,6 @@ proc watchHAL {which} {
     if {[lsearch $::watchlist $which] != -1} {
         return
     }
-    lappend ::watchlist $which
-    set i [llength $::watchlist]
-    set label [lindex [split $which +] end]
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
     if {$vartype != "pin" && $vartype != "param" && $vartype != "sig"} {
@@ -461,6 +458,10 @@ proc watchHAL {which} {
 	# e.g., clicking "Pins / axis / 0"
 	if {[catch {hal ptype $varname} type]} { return }
     }
+
+    lappend ::watchlist $which
+    set i [llength $::watchlist]
+    set label [lindex [split $which +] end]
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill firebrick4 -tag oval$i
