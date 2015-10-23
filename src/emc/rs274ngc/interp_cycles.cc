@@ -867,6 +867,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current, 
                       settings->u_current, settings->v_current, settings->w_current);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
@@ -1037,6 +1038,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current, 
                       settings->u_current, settings->v_current, r);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
@@ -1253,6 +1255,7 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, settings->v_current, settings->w_current);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
@@ -1421,6 +1424,7 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       r, settings->v_current, settings->w_current);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
@@ -1646,6 +1650,7 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, settings->v_current, settings->w_current);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
@@ -1813,6 +1818,7 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, r, settings->w_current);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
