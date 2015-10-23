@@ -84,18 +84,23 @@ set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 1]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu
-        set ::savelabel "Save Watch List" ;# identifier for entryconfigure
-        $filemenu add command -label [msgcat::mc $::savelabel] \
-            -command {savewatchlist}
+        set ::savelabel1 "Save Watch List" ;# identifier for entryconfigure
+        set ::savelabel2 "Save Watch List (multiline)" ;# identifier for entryconfigure
+        $filemenu add command -label [msgcat::mc $::savelabel1] \
+            -command savewatchlist
+        $filemenu add command -label [msgcat::mc $::savelabel2] \
+            -command [list savewatchlist multiline]
         $filemenu add command -label [msgcat::mc "Load Watch List"] \
             -command {getwatchlist}
         $filemenu add command -label [msgcat::mc "Exit"] \
             -command {destroy .; exit}
         $filemenu configure -postcommand {
           if {$::watchlist != ""} {
-            $filemenu entryconfigure [msgcat::mc $::savelabel] -state normal
+            $filemenu entryconfigure [msgcat::mc $::savelabel1] -state normal
+            $filemenu entryconfigure [msgcat::mc $::savelabel2] -state normal
           } else {
-            $filemenu entryconfigure [msgcat::mc $::savelabel] -state disabled
+            $filemenu entryconfigure [msgcat::mc $::savelabel1] -state disabled
+            $filemenu entryconfigure [msgcat::mc $::savelabel2] -state disabled
           }
         }
 set viewmenu [menu $menubar.view -tearoff 0]
@@ -562,7 +567,7 @@ proc loadwatchlist {filename} {
   foreach item $wl { watchHAL $item }
 }
 
-proc savewatchlist {} {
+proc savewatchlist { {fmt oneline} } {
   if {"$::watchlist" == ""} {
     return -code error "savewatchlist: null ::watchlist"
   }
@@ -573,7 +578,15 @@ proc savewatchlist {} {
             ]
   if {"$sfile" == ""} return
   set f [open $sfile w]
-  puts $f $::watchlist
+  switch $fmt {
+    multiline {
+      puts $f "# halshow watchlist created [clock format [clock seconds]]\n"
+      foreach line $::watchlist {
+        puts $f $line
+      }
+    }
+    default {puts $f $::watchlist}
+  }
   close $f
 }
 

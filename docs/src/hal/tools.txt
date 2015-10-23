@@ -99,10 +99,14 @@ Usage:
   halshow [Options] [watchfile]
   Options:
            --help  (this help)
+----
 
 Notes:
-       Create watchfile in halshow using: 'File/Save Watch List'
-       linuxcnc must be running for standalone usage
+
+Create watchfile in halshow using: 'File/Save Watch List' or
+'File/Save Watch List (multiline)'.
+
+LinuxCNC must be running for standalone usage
 
 A watchfile created using the 'File/Save Watch List' menu item
 is formatted as a single line with tokens "pin+", "param+", "sig=+"
@@ -112,11 +116,19 @@ token-name pairs are separated by a space character.
 Example:
    pin+axis.0.pos-hard-limit pin+axis.1.pos-hard-limit sig+estop-loop
 
-When loading a watchfile with the 'File/Load Watch List' menu item,
-the token-name pairs may appear on mulitple lines.  Blank lines and
+A watchfile created using the 'File/Save Watch List (multiline)' menu item
+is formatted with separate lines for each item identified with token-name
+pairs as described above.
+
+Example:
+   pin+axis.0.pos-hard-limit
+   pin+axis.1.pos-hard-limit
+   sig+estop-loop
+
+When loading a watchfile with the 'File/Load Watch List' menu item, the
+token-name pairs may appear as single or mulitple lines.  Blank lines and
 lines beginning with a # character are ignored.
 
-----
 
 [[sec:halscope]]
 
