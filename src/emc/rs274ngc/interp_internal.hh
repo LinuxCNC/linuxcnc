@@ -911,6 +911,18 @@ macros totally crash-proof. If the function call stack is deeper than
     } while(0)
 
 
+//
+// The traverse (in the active plane) to the location of the canned cycle
+// is different on the first repeat vs on all the following repeats.
+//
+// The first traverse happens in the CURRENT_CC plane (which was raised to
+// the R plane earlier, if needed), followed by a traverse down to the R
+// plane.
+//
+// All later positioning moves happen in the CLEAR_CC plane, which is
+// either the R plane or the OLD_CC plane depending on G98/G99.
+//
+
 #define CYCLE_MACRO(call) for (repeat = block->l_number; \
                                repeat > 0; \
                                repeat--) \
@@ -933,9 +945,16 @@ macros totally crash-proof. If the function call stack is deeper than
            aa = radius * cos(theta); \
            bb = radius * sin(theta); \
        } \
-       cycle_traverse(block, plane, aa, bb, current_cc); \
-       if (old_cc != r) \
+       if ((repeat == block->l_number) && (current_cc > r)) { \
+         cycle_traverse(block, plane, aa, bb, current_cc); \
          cycle_traverse(block, plane, aa, bb, r); \
+       } else { \
+         /* we must be at CLEAR_CC already */ \
+         cycle_traverse(block, plane, aa, bb, clear_cc); \
+         if (clear_cc > r) { \
+           cycle_traverse(block, plane, aa, bb, r); \
+         } \
+       } \
        CHP(call); \
      }
 
