@@ -1040,7 +1040,7 @@ def document(filename, outfilename):
     print >>f, ".SH PINS"
     for _, name, type, array, dir, doc, value in finddocs('pin'):
         print >>f, lead
-        print >>f, ".B %s\\fR" % to_hal_man(name),
+        print >>f, ".B %s.%s\\fR" % (comp_name, name),
         print >>f, type, dir,
         if array:
             sz = name.count("#")
