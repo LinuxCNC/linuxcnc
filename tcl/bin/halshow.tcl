@@ -426,6 +426,13 @@ proc showEx {what} {
     $::disp configure -state disabled
 }
 
+set ::last_watchfile_tail my.halshow
+set ::last_watchfile_dir  [pwd]
+set ::filetypes { {{HALSHOW} {.halshow}}\
+                  {{TXT}     {.txt}}\
+                  {{ANY}     {.*}}\
+                }
+
 set ::watchlist ""
 set ::watchstring ""
 proc watchHAL {which} {
@@ -545,8 +552,9 @@ proc displayThis {str} {
 
 proc getwatchlist {} {
   set lfile [tk_getOpenFile \
-            -initialdir  [pwd]\
-            -initialfile  my.halshow\
+            -filetypes   $::filetypes\
+            -initialdir  $::last_watchfile_dir\
+            -initialfile $::last_watchfile_tail\
             -title       [msgcat::mc "Load a watch list"]\
             ]
   loadwatchlist $lfile
@@ -562,6 +570,8 @@ proc loadwatchlist {filename} {
      set wl "$wl $nextline"
   }
   close $f
+  set ::last_watchfile_tail [file tail    $filename]
+  set ::last_watchfile_dir  [file dirname $filename]
   if {"$wl" == ""} return
   watchReset all
   $::top raise pw
@@ -573,8 +583,9 @@ proc savewatchlist { {fmt oneline} } {
     return -code error "savewatchlist: null ::watchlist"
   }
   set sfile [tk_getSaveFile \
-            -initialdir  [pwd]\
-            -initialfile my.halshow\
+            -filetypes   $::filetypes\
+            -initialdir  $::last_watchfile_dir\
+            -initialfile $::last_watchfile_tail\
             -title       [msgcat::mc "Save current watch list"]\
             ]
   if {"$sfile" == ""} return
@@ -589,6 +600,8 @@ proc savewatchlist { {fmt oneline} } {
     default {puts $f $::watchlist}
   }
   close $f
+  set ::last_watchfile_tail [file tail    $sfile]
+  set ::last_watchfile_dir  [file dirname $sfile]
 }
 
 #----------start up the displays----------
@@ -625,6 +638,8 @@ if {[llength $::argv] > 0} {
        default { set watchfile [lindex $::argv $idx]
                  if [file readable $watchfile] {
                     loadwatchlist $watchfile
+                    set ::last_watchfile_tail [file tail    $watchfile]
+                    set ::last_watchfile_dir  [file dirname $watchfile]
                  } else {
                     puts "\nCannot read file <$watchfile>\n"
                     usage
