@@ -157,16 +157,28 @@ Usage:
 sim_pin is a command line utility to display and update any number of
 writable pins, parameters or signals.  Usage:
 ----
-sim_pin
   Usage:
          sim_pin name1 [name2 ...] &
 
-  Note:  linuxcnc must be running
+  Note:  LinuxCNC (or a standalone Hal application) must be running
          A named item can specify a pin, param, or signal
          The item must be writable, e.g.:
             pin:    IN or I/O (and not connected to a signal)
             param:  RW
             signal: connected to a writable pin
+
+         Hal item types bit,s32,u32,float are supported
+
+         When a bit item is specifed, a pushbutton is created
+         to manage the item in one of three manners specified
+         by radio buttons:
+             toggle: Toggle value when button pressed
+             pulse:  Pulse item to 1 once when button pressed
+             hold:   Set to 1 while button pressed
+         The bit pushbutton mode can be specifed on the command
+         line by formatting the item name:
+             namei/mode=[toggle | pulse | hold]
+
 ----
 For complete information, see the man page:
 ----
