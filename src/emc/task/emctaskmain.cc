@@ -627,9 +627,9 @@ interpret_again:
 			    // throw the results away if we're supposed to
 			    // read
 			    // through it
-			    if (programStartLine < 0 ||
-				emcStatus->task.readLine <
-				programStartLine) {
+			    if (emcTaskPlanLevel() == 0 &&
+				(programStartLine < 0 ||
+				 emcTaskPlanLine() < programStartLine)) {
 				// we're stepping over lines, so check them
 				// for
 				// limits, etc. and clear then out
@@ -646,7 +646,8 @@ interpret_again:
 				interp_list.clear();
 			    }
 
-			    if (emcStatus->task.readLine < programStartLine) {
+			    if (emcTaskPlanLevel() == 0 &&
+				emcTaskPlanLine() < programStartLine) {
 			    
 				//update the position with our current position, as the other positions are only skipped through
 				CANON_UPDATE_END_POINT(emcStatus->motion.traj.actualPosition.tran.x,
@@ -658,16 +659,19 @@ interpret_again:
 						       emcStatus->motion.traj.actualPosition.u,
 						       emcStatus->motion.traj.actualPosition.v,
 						       emcStatus->motion.traj.actualPosition.w);
+			    }
 
-				if ((emcStatus->task.readLine + 1 == programStartLine)  &&
-				    (emcTaskPlanLevel() == 0))  {
+			    if ((emcTaskPlanLevel() == 0) &&
+				(emcTaskPlanLine() + 1 == programStartLine))  {
 
-				    emcTaskPlanSynch();
+				emcTaskPlanSynch();
 
-                                    // reset programStartLine so we don't fall into our stepping routines
-                                    // if we happen to execute lines before the current point later (due to subroutines).
-                                    programStartLine = 0;
-                                }
+				// reset programStartLine so we don't
+				// fall into our stepping routines if
+				// we happen to execute lines before
+				// the current point later (due to
+				// subroutines).
+				programStartLine = 0;
 			    }
 
                             if (count++ < emc_task_interp_max_len
