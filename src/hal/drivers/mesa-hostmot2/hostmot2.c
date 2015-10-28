@@ -1657,6 +1657,7 @@ void rtapi_app_exit(void) {
 
 // this pushes our idea of what things are like into the FPGA's poor little mind
 void hm2_force_write(hostmot2_t *hm2) {
+    hm2->llio->queue_writes = 1;
     hm2_watchdog_force_write(hm2);
     hm2_ioport_force_write(hm2);
     hm2_encoder_force_write(hm2);
@@ -1666,5 +1667,8 @@ void hm2_force_write(hostmot2_t *hm2) {
     hm2_sserial_force_write(hm2);
     hm2_bspi_force_write(hm2);
     hm2_dpll_force_write(hm2);
+
+    hm2->llio->queue_writes = 0;
+    if(hm2->llio->send_queued_writes) hm2->llio->send_queued_writes(hm2->llio);
 }
 
