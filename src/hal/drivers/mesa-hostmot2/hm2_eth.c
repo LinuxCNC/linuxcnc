@@ -525,7 +525,7 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
 static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size);
 
 static int hm2_eth_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
-    if(rtapi_task_self() >= 0)
+    if(this->queue_writes)
         return hm2_eth_enqueue_write(this, addr, buffer, size);
 
     int send;

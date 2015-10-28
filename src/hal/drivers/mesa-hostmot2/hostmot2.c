@@ -121,6 +121,7 @@ static void hm2_write(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
+    hm2->llio->queue_writes = 1;
     hm2_ioport_gpio_prepare_tram_write(hm2);
     hm2_pwmgen_prepare_tram_write(hm2);
     hm2_tp_pwmgen_prepare_tram_write(hm2);
@@ -145,6 +146,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
+    hm2->llio->queue_writes = 0;
     hm2_finish_write(hm2);
 }
 

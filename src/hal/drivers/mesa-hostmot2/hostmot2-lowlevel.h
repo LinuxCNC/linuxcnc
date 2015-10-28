@@ -144,6 +144,8 @@ struct hm2_lowlevel_io_struct {
     // if TRUE, the hostmot2 driver will also export read_gpio() and write_gpio()
     int threadsafe;
 
+    // if TRUE, queue writes for a subsequent call to ->send_queued_writes()
+    int queue_writes;
     void *private;  // for the low-level driver to hang their struct on
 };
 
