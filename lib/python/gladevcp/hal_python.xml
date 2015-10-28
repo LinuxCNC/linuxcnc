@@ -152,6 +152,15 @@
                 <property id="size" query="False" default="0" visible="False"/>
             </properties>
         </glade-widget-class>
+
+        <glade-widget-class name="Features" generic-name="features" title="features">
+            <properties>
+                <property id="size" query="False" default="1" visible="False"/>
+                <property id="spacing" query="False" default="0" visible="False"/>
+                <property id="homogeneous" query="False" default="0" visible="False"/>
+            </properties>
+        </glade-widget-class>
+
     </glade-widget-classes>
     
     <glade-widget-group name="python" title="HAL Python">
@@ -201,6 +210,7 @@
         <glade-widget-class-ref name="EMC_SourceView"/>
         <glade-widget-class-ref name="EMC_MDIHistory"/>
         
+        <glade-widget-class-ref name="Features"/>
         
     </glade-widget-group>
     <glade-widget-group name="python" title="VCP Actions">
