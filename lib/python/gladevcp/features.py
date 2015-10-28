@@ -32,6 +32,7 @@ import ConfigParser
 import re, os
 import getopt
 import linuxcnc
+SYS_PATH = linuxcnc.SHARE + '/features/'
 import subprocess
 import webbrowser
 import io
@@ -39,7 +40,6 @@ from cStringIO import StringIO
 import gettext
 
 ###############################################################################
-####  SETTINGS : YOU CAN CHANGE FOLLOWING LINES VALUES TO FIT YOUR NEEDS   ####
 
 DEFAULT_CATALOG = 'lathe'  # or could be 'lathe'
 
@@ -174,6 +174,14 @@ def search_path(f) :
     src = APP_PATH + INC_DIR + f
     if os.path.isfile(src) :
         return src
+
+    src = SYS_PATH + INI_DIR + f
+    if os.path.isfile(src) :
+        return src
+    src = SYS_PATH + LIB_DIR + f
+    if os.path.isfile(src) :
+        return src
+
     mess_dlg(_("Can not find file %s") % f)
     return None
 
@@ -189,7 +197,8 @@ def get_pixbuf(icon, size) :
     s = icon.split("/")
     icon = s[-1]
     icon_id = icon + str(size)
-    icon = APP_PATH + GRAPHICS_DIR +"/" + icon
+    #icon = APP_PATH + GRAPHICS_DIR +"/" + icon
+    icon = SYS_PATH + GRAPHICS_DIR +"/" + icon
 
     if (icon_id) in PIXBUF_DICT :
         return PIXBUF_DICT[icon_id]
@@ -226,6 +235,14 @@ def mess_dlg(mess):
     dlg.set_keep_above(True)
     dlg.run()
     dlg.destroy()
+
+def copy_to_dir(fname,dir):
+    # create directories if necessary
+    dirname  = os.path.realpath(os.path.dirname(dir))
+    filename = os.path.basename(fname)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    open(dirname+'/'+filename,'w').write(open(fname,'r').read())
 
 class CellRendererMx(gtk.CellRendererText):
 
@@ -746,11 +763,29 @@ class Features(gtk.VBox):
     __gproperties__ = {}
     __gproperties = __gproperties__
 
+    def usage(self):
+        print """
+Standalone Usage:
+   features [Options]
+
+Options:
+   -h | --help
+   -i inifilename | --ini=inifilename
+
+Notes:
+  1) for standalone usage:
+        a) specify an inifile name which specifies [DISPLAY]FEATURES_PATH
+     or
+        b) start in a working directory with appropriate subdirs (catalogs etc)"""
+        print "  2) default catalog is:",DEFAULT_CATALOG
+        print "  3) Program location:",__file__
+
     def __init__(self, *a, **kw):
         global APP_PATH, DEFAULT_CATALOG
 
         # process passed args
-        opt, optl = 'U:c:x:i', ["catalog=", "ini="]
+        # not used herein: c:,x:
+        opt, optl = 'hU:c:x:i:', ["help", "catalog=", "ini="]
         optlist, args = getopt.getopt(sys.argv[1:], opt, optl)
         optlist = dict(optlist)
 
@@ -765,30 +800,62 @@ class Features(gtk.VBox):
             ini = optlist["--ini"]
 
         APP_PATH = os.getcwd() + '/'
+
+        inifiletext = "NA"
         if (ini is not None):
             try :
                 inifile = linuxcnc.ini(ini)
+                initext = os.path.realpath(ini)
                 try :
                     val = inifile.find('DISPLAY', 'FEATURES_PATH')
                     APP_PATH = val + '/'
                 except :
                     print("Warning! There's no FEATURES_PATH in ini file")
-
                 try :
                     inifile.find('RS274NGC', 'SUBROUTINE_PATH')
                 except :
                     print(_("Warning! There's no SUBROUTINES_PATH in ini file!"))
             except:
+                print(_('Can not read LinuxCNC ini file'))
                 mess_dlg(_('Can not read LinuxCNC ini file'))
 
         if "--catalog" in optlist :
-            self.catalog_dir = APP_PATH + CATALOGS_DIR + optlist["--catalog"] + '/'
+            catname = optlist["--catalog"] + '/'
         else :
-            self.catalog_dir = APP_PATH + CATALOGS_DIR + DEFAULT_CATALOG + '/'
+            catname = DEFAULT_CATALOG + '/'
 
-        if not os.path.exists(self.catalog_dir + 'menu.xml') :
-            mess_dlg(_('Catalog file does not exists : %s') % self.catalog_dir + 'menu.xml')
-            IOError('IOError Catalog file does not exists : %s' % self.catalog_dir + 'menu.xml')
+        self.catalog_dir = APP_PATH + CATALOGS_DIR + catname
+        menu_xml_file = self.catalog_dir + 'menu.xml'
+
+        if "-h" in optlist or "--help" in optlist:
+            self.usage()
+
+        print ""
+        print "Features info:"
+        print "      inifile=",inifiletext
+        print "     SYS_PATH=",SYS_PATH
+        print "     APP_PATH=",os.path.realpath(APP_PATH)
+        print "  catalog_dir=",os.path.realpath(self.catalog_dir)
+        print "menu_xml_file=",os.path.realpath(menu_xml_file)
+        print ""
+
+        if "-h" in optlist or "--help" in optlist:
+            exit(0)
+
+        if not os.path.exists(menu_xml_file) :
+            copyfrom = SYS_PATH + CATALOGS_DIR + catname + 'menu.xml'
+            print (_('\nCatalog file does not exists : %s\nCopying from %s') %
+                       (menu_xml_file,copyfrom)
+                  )
+            copy_to_dir(copyfrom,self.catalog_dir)
+
+        defaults_file = self.catalog_dir + DEFAULTS
+        if not os.path.exists(defaults_file) :
+            copyfrom = SYS_PATH + CATALOGS_DIR + catname + DEFAULTS
+            print (_('\nCatalog file does not exists : %s\nCopying from %s') %
+                       (defaults_file,copyfrom)
+                  )
+            copy_to_dir(copyfrom,self.catalog_dir)
 
         xml = etree.parse(self.catalog_dir + 'menu.xml')
         self.catalog = xml.getroot()
@@ -813,7 +880,7 @@ class Features(gtk.VBox):
 
         self.builder = gtk.Builder()
         try :
-            self.builder.add_from_file(APP_PATH + "features.glade")
+            self.builder.add_from_file(SYS_PATH + "features.glade")
         except :
             mess_dlg(_("File not found : features.glade"))
             raise IOError("File not found : features.glade")
@@ -2438,6 +2505,12 @@ class Features(gtk.VBox):
 
     def autorefresh_call(self) :
         fname = APP_PATH + NGC_DIR + "features.ngc"
+        dname = os.path.dirname(fname)
+        try:
+            if not os.path.exists(dname):
+                os.mkdir(dname)
+        except IOError,msg:
+            print(msg)
         f = open(fname, "w")
         f.write(self.to_gcode())
         f.close()
