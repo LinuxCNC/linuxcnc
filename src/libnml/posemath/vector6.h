@@ -14,15 +14,17 @@
 #define VECTOR6_H
 #include "posemath.h"
 
+#define VECTOR_SIZE 6
 typedef struct {
     double ax[6];
 } Vector6;
 
 int VecVecAdd(Vector6 const * v1, Vector6 const * v2, Vector6 * out);
 int VecVecSub(Vector6 const * v1, Vector6 const * v2, Vector6 * out);
-int VecScalMult(Vector6 const * v1, double s, Vector6 * vout);
+int VecScalMult(Vector6 const * v1, double s, Vector6 * out);
 int VecVecDot(Vector6 const * v1, Vector6 const * v2, double * out);
 int VecMag(Vector6 const * v1, double * out);
+int VecMagSq(Vector6 const * v1, double * out);
 int VecUnit(Vector6 const * v1, Vector6 * out);
 
 int CartToVec(PmCartesian const * p1, PmCartesian const * p2, Vector6 * out);

@@ -12,3 +12,118 @@
 ********************************************************************/
 
 #include "vector6.h"
+#include "posemath.h"
+#include "rtapi_math.h"
+
+int VecVecAdd(Vector6 const * v1, Vector6 const * v2, Vector6 * out)
+{
+    if (!v1 || !v2 || !out) {
+        return -1;
+    }
+
+    int i;
+    for (i = 0; i < VECTOR_SIZE; ++i) {
+        out->ax[i] = v1->ax[i] + v2->ax[i];
+    }
+    return 0;
+}
+
+
+int VecVecSub(Vector6 const * v1, Vector6 const * v2, Vector6 * out)
+{
+    if (!v1 || !v2 || !out) {
+        return -1;
+    }
+    int i;
+    for (i = 0; i < VECTOR_SIZE; ++i) {
+        out->ax[i] = v1->ax[i] - v2->ax[i];
+    }
+    return 0;
+}
+
+int VecScalMult(Vector6 const * v1, double s, Vector6 * out)
+{
+    if (!v1 || !out) {
+        return -1;
+    }
+    int i;
+    for (i = 0; i < VECTOR_SIZE; ++i) {
+        out->ax[i] = v1->ax[i]*s;
+    }
+    return 0;
+}
+
+int VecVecDot(Vector6 const * v1, Vector6 const * v2, double * out)
+{
+    if (!v1 || !v2 || !out) {
+        return -1;
+    }
+    int i;
+    *out = 0.0;
+    for (i = 0; i < VECTOR_SIZE; ++i) {
+       *out += v1->ax[i] * v2->ax[i];
+    }
+    return 0;
+}
+
+int VecMagSq(Vector6 const * v1, double * out)
+{
+    return VecVecDot(v1,v1,out);
+}
+
+int VecMag(Vector6 const * v1, double * out)
+{
+    int res_mag = VecMagSq(v1, out);
+    if (res_mag)
+        return res_mag;
+
+    *out = pmSqrt(*out);
+    return 0;
+}
+
+int VecUnit(Vector6 const * v1, Vector6 * out)
+{
+    double mag = 0.0;
+    int res_mag = VecMag(v1, &mag);
+    //FIXME hard-coded cutoff
+    if (res_mag || fabs(mag) < 1e-9) 
+        return res_mag;
+
+    VecScalMult(v1, 1.0 / mag, out);
+    return 0;
+}
+
+int CartToVec(PmCartesian const * p1, PmCartesian const * p2, Vector6 * out)
+{
+    if (!p1 || !p2 || !out) {
+        return -1;
+    }
+
+    // Copy out elements into our array
+    out->ax[0] = p1->x;
+    out->ax[1] = p1->y;
+    out->ax[2] = p1->z;
+
+    out->ax[3] = p2->x;
+    out->ax[4] = p2->y;
+    out->ax[5] = p2->z;
+
+    return 0;
+
+}
+int VecToCart(Vector6 const * vec, PmCartesian * p1, PmCartesian * p2)
+{
+    if (!p1 || !p2 || !vec) {
+        return -1;
+    }
+
+    p1->x = vec->ax[0];
+    p1->y = vec->ax[1];
+    p1->z = vec->ax[2];
+
+    p2->x = vec->ax[3];
+    p2->y = vec->ax[4];
+    p2->z = vec->ax[5];
+
+    return 0;
+}
