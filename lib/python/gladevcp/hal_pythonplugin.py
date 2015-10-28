@@ -41,3 +41,5 @@ from hal_mdihistory import *
 
 from hal_pyngcgui import PyNgcGui
 from hal_gremlin_plus import HAL_GremlinPlus
+
+from features import Features
