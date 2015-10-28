@@ -429,6 +429,11 @@ TARGETS += ../bin/halshow
 	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/bin/halshow.tcl")>>$@
 	$(Q)chmod +x $@
 
+TARGETS +=../bin/features
+../bin/features: Makefile
+	$(Q)cp ../lib/python/gladevcp/features.py ../bin/features
+	$(Q)chmod +x $@
+
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
 
@@ -568,7 +573,15 @@ install-dirs:
 		$(DESTDIR)$(datadir)/linuxcnc/stepconf \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
-		$(DESTDIR)$(datadir)/linuxcnc/hallib
+		$(DESTDIR)$(datadir)/linuxcnc/hallib \
+		$(DESTDIR)$(datadir)/features/catalogs \
+		$(DESTDIR)$(datadir)/features/graphics \
+		$(DESTDIR)$(datadir)/features/ini \
+		$(DESTDIR)$(datadir)/features/lib \
+		$(DESTDIR)$(datadir)/features/locale \
+		$(DESTDIR)$(datadir)/features/scripts \
+		$(DESTDIR)$(datadir)/features/xml \
+
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
@@ -682,6 +695,9 @@ install-python: install-dirs
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
+
+	$(EXE) ../lib/python/gladevcp/features.py $(DESTDIR)$(bindir)/features
+	$(TREE) ../share/features/* $(DESTDIR)$(datadir)/features/
 endif
 
 install-kernel-dep:

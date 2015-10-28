@@ -1,0 +1,47 @@
+Incorporation of linuxcnc-features into LinuxCNC git tree
+
+Constituents in the LinuxCNC git tree:
+  1) share/features ----------------------- all non-program components 
+  2) lib/python/gladevcp/features.py ------ 'the main program'
+  3) configs/sim/axis/features_demo/ ------ axis gui demos
+     configs/sim/gmoccapy/features_demo/ -- gmoccapy gui demos
+  4) bin/features ------------------------- copied (by make) from features.py   
+
+
+Notes:
+  1) deb install or Run-In-Place (RIP) build
+     for axis gui, use [DISPLAY]GLADEVCP=  (see demos)
+     for gmoccapy gui, use EMBED_TAB_*=    (see demos)
+
+  2) Standalone usage:
+     $ features --help
+     Standalone Usage:
+        features [Options]
+     Options:
+        -h | --help
+        -i inifilename | --ini=inifilename
+     Notes:
+       1) for standalone usage:
+             a) specify an inifile name which specifies [DISPLAY]FEATURES_PATH
+          or
+             b) start in a working directory with appropriate subdirs (catalogs etc)
+       2) default catalog is: lathe
+       3) Program location: /usr/bin/features
+
+  3) translation support files located in:
+       share/features/locale
+     are present but not incorporated
+
+  4) When a config is started without a catalogs/type/menu.xml file, the appropriate
+     system SYS_PATH/catalogs/type/menu.xml file is copied to the configuration's
+     [DISPLAY]FEATURES_PATH/catalogs/type/menu.xml
+
+     Similarly, a missing catalogs/type/defaultgs.ngc file is copied
+     from the SYS_PATH.
+   
+
+Authors:
+  Nick Drobchenko - Nick from both cnc-club.ru and linuxcnc.org forums,
+  Fernand Veilleux - FernV from linuxcnc.org forum,
+  Sergey - verser from both cnc-club.ru and linuxcnc.org forums,
+  Meison Kim, Alexander Wigen, Konstantin Navrockiy, Fernand Veilleux. 
