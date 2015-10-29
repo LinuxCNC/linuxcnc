@@ -1,0 +1,345 @@
+(Adds a polyline segment and defines apexes as per corner style and radius)
+
+(CALL x, y, relative, corner style, corner radius, complementary)
+o<fv_polyline-add> sub
+
+	#<cr> = #5
+	#<_polyline-index-no>	= [#<_polyline-index-no> + 1] (index of new line)
+	#<offset>				= [14 * #<_polyline-index-no>]
+	
+	(define pointers for values and apexes of lines)
+	(previous line segment)
+	#<p-ang>	= [47 + #<offset>]	(angle)
+	#<p-len>	= [48 + #<offset>]	(length, can be modified when new line is added)
+	#<px-e>		= [49 + #<offset>]	(effective end, can be modified when new line is added)
+	#<py-e>		= [50 + #<offset>]	(effective end, can be modified when new line is added)
+	
+	(values and apexes of new line)
+	#<x>		= [51 + #<offset>]	(line begin position)
+	#<y>		= [52 + #<offset>]	(line begin position)
+
+	#<cs>		= [53 + #<offset>]	(corner style, 0..3)
+;	#<cr>		= [54 + #<offset>]	(corner radius)
+	#<dir-c>	= [55 + #<offset>]	(direction of corner, 2 or 3)
+	#<len-c>	= [56 + #<offset>]	(length of arc, chamfer or none)
+	#<cx>		= [57 + #<offset>]	(center of arc)
+	#<cy>		= [58 + #<offset>]	(center of arc)
+
+	#<x-b>		= [59 + #<offset>]	(effective line begin)
+	#<y-b>		= [60 + #<offset>]	(effective line begin)
+
+	#<ang>		= [61 + #<offset>]	(angle)
+	#<len>		= [62 + #<offset>]	(length of straight segment)
+	#<x-e>		= [63 + #<offset>]	(effective end)
+	#<y-e>		= [64 + #<offset>]	(effective end)
+	
+	#<x1>		= [65 + #<offset>]	(line end position)
+	#<y1>		= [66 + #<offset>]	(line end position)
+
+
+	o<max_reached> if [#<y1> GE 2000]
+	   (debug,polyline: maximum of lines is reached - EXITING)
+	   (print,polyline: maximum of lines is reached - EXITING)
+	   (AXIS,notify,polyline: maximum of lines is reached - EXITING)
+	   M2	
+	o<max_reached> endif
+	
+	o<poly-append-if00> if [#3] (absolute position)
+		#[#<x1>] = #1
+		#[#<y1>] = #2
+	o<poly-append-if00> else (relative position)
+		#[#<x1>] = [#1 + #[#<x>]]
+		#[#<y1>] = [#2 + #[#<y>]]
+	o<poly-append-if00> endif
+
+	o<validity-1> if [[#[#<x1>] EQ #[#<x>]] AND [#[#<y1>] EQ #[#<y>]]]
+	   (debug,polyline: begin and end positions are the same - EXITING)
+	   (print,polyline: begin and end positions are the same - EXITING)
+	   (AXIS,notify,polyline: begin and end positions are the same - EXITING)
+	   M2
+	o<validity-1> endif
+	
+	o<if-no-cr> if [#<cr> EQ 0]
+		#[#<cs>] = 0 (then no style)
+	o<if-no-cr> else
+		#[#<cs>] = #4
+	o<if-no-cr> endif
+	
+	#[#<x-e>] = #[#<x1>]
+	#[#<y-e>] = #[#<y1>]
+
+	o<line> CALL [#[#<x1>]] [#[#<y1>]] [#[#<x>]] [#[#<y>]] (absolute angle of new line)
+		#[#<ang>] = [[360 + #<_line:phi>] MOD 360]
+		#[#<len>] = #<_line:len>
+		
+	o<more-than-1-line> if [#<_polyline-index-no> EQ 0]
+		#[#<x-b>] = #[#<x>]
+		#[#<y-b>] = #[#<y>]
+	
+	o<more-than-1-line> else  (at least one line before this one, then calc radius and center)
+		#<prev-angle> = [[#[#<p-ang>] + 180] MOD 360] (reverse for calc)
+		#<l-ang1> = [#<prev-angle> - #[#<ang>]]
+		#<lines-angle> = ABS[#<l-ang1>]
+		#<split> = [#<lines-angle> / 2] (split angle of 2 lines)
+;(print,)
+;#<var1> = #[#<ang>]
+;(print,ang = #<var1>)
+;(print,prev = #<prev-angle>)
+;(print,lines-ang = #<lines-angle>)
+;(print,split = #<split>)
+
+
+		o<poly-append-if100> if [[#<lines-angle> EQ 0] OR [#<lines-angle> EQ 180]] (lines are parallel so no corner style possible)
+			#[#<cs>] = 0
+		o<poly-append-if100> else
+			#<median_angle> = [[#<prev-angle> + #[#<ang>]] / 2]
+;			o<poly-append-if1000> if [#<split> LT 0]
+;				#<split> = [180 - #<split>]
+;				#<median_angle> = [[#<median_angle> + 180] MOD 360]
+;			o<poly-append-if1000> endif
+;(print,median = #<median_angle>)			
+;(print,split = #<split>)
+		o<poly-append-if100> endif
+		
+		o<radius-test> if [#[#<cs>] EQ 2]
+			#<cr-len> = [#<cr> / sin[#<split>] * sin[90 - #<split>]]
+		
+			o<radius-limited-1> if [#<_polyline-limit-radius>]
+				o<radius-limited-10> if [[#<cr-len> GT #[#<p-len>]] OR [#<cr-len> GT #[#<len>]]]
+					o<radius-limited-11> if [#[#<p-len>] LT #[#<len>]]
+						#<cr-len> = #[#<p-len>]
+					o<radius-limited-11> else
+						#<cr-len> = #[#<len>]
+					o<radius-limited-11> endif
+				o<radius-limited-10> endif
+			o<radius-limited-1> endif
+			o<radius-test1> if [#<cr-len> LT 0]
+				#[#<cs>] = 0 (then no style)
+				#<cr-len> = 0
+			o<radius-test1> endif
+		o<radius-test> else	if [[#[#<cs>] EQ 1] OR [#[#<cs>] EQ 3]]
+				o<poly-cs3-cr1> if [[#<cr> GT #[#<p-len>]] OR [#<cr> GT #[#<len>]]]
+					o<radius-limited-311> if [#[#<p-len>] GT #[#<len>]]
+						#<cr> = #[#<len>]
+					o<radius-limited-311> else
+						#<cr> = #[#<p-len>]
+					o<radius-limited-311> endif
+				o<poly-cs3-cr1> endif
+			o<radius-test2> if [#<cr> LT 0]
+				#[#<cs>] = 0 (then no style)
+				#<cr> = 0
+			o<radius-test2> endif
+		o<radius-test> endif	
+		
+
+		o<poly-append-cs-if01> if [#[#<cs>] EQ 0] (no corner style)
+			#[#<x-b>] = #[#<x>]
+			#[#<y-b>] = #[#<y>]
+			
+			
+		o<poly-append-cs-if01> elseif [#[#<cs>] EQ 2] (rounded)
+			o<comp-1-dir2> if [#<l-ang1> LT 0]
+				#[#<dir-c>] = 2
+			o<comp-1-dir2> else
+				#[#<dir-c>] = 3
+			o<comp-1-dir2> endif
+			
+			o<comp-1-dir3> if [#6]
+				#[#<dir-c>] = [6 / #[#<dir-c>]]
+			o<comp-1-dir3> endif
+			
+;			#<cr-len> = [#<cr> / sin[#<split>] * sin[90 - #<split>]]
+;(print,)
+;(print,cr-len = #<cr-len>)
+;#<var1> = #[#<p-len>]
+;(print,p-len = #<var1>)
+			
+;			#<cr-len> = [#<cr> / sin[#<split>] * sin[90 - #<split>]]
+;			o<radius-limited-1> if [#<_polyline-limit-radius>]
+;				o<radius-limited-10> if [[#<cr-len> GT #[#<p-len>]] OR [#<cr-len> GT #[#<len>]]]
+;					o<radius-limited-11> if [#[#<p-len>] GT #[#<len>]]
+;						#<cr-len> = #[#<len>]
+;					o<radius-limited-11> else
+;						#<cr-len> = #[#<p-len>]
+;					o<radius-limited-11> endif
+;(print,<max-len> = #<max-len>)
+;(print,split = #<split>)
+;					#<cr-len> = [#<max-len> * SIN[#<split>] / SIN[90 - #<split>]]
+;(print,c-rad = #<cr-len>)
+;				o<radius-limited-10> endif					
+;			o<radius-limited-1> endif
+			
+;(print,<cr-len> = #<cr-len>)
+			
+			
+			o<rotate-xy> CALL [#[#<x>] + #<cr-len>] [#[#<y>]] [#[#<x>]] [#[#<y>]] [#<prev-angle>]
+				#[#<px-e>] = #<_rotate_result_x>
+				#[#<py-e>] = #<_rotate_result_y>
+
+			o<rotate-xy> CALL [#[#<x>] + #<cr-len>] [#[#<y>]] [#[#<x>]] [#[#<y>]] [#[#<ang>]]
+				#[#<x-b>] = #<_rotate_result_x>
+				#[#<y-b>] = #<_rotate_result_y>				
+
+			#<hyp> = [#<cr-len> / sin[90 - #<split>]]
+			o<rotate-xy> CALL [#[#<x>] + #<hyp>] [#[#<y>]] [#[#<x>]] [#[#<y>]] [#<median_angle>]
+				#[#<cx>] = #<_rotate_result_x>
+				#[#<cy>] = #<_rotate_result_y>
+
+			o<line> CALL [#[#<x1>]] [#[#<y1>]] [#[#<x-b>]] [#[#<y-b>]] (absolute angle of new line)
+				#[#<len>] = #<_line:len>
+			#[#<p-len>] = [#[#<p-len>] - #<cr-len>]	
+
+		
+		o<poly-append-cs-if01> elseif [[#[#<cs>] EQ 1] OR [#[#<cs>] EQ 3]] (chamfer or inverted)
+			o<comp-1-dir1> if [#<l-ang1> LT 0]
+				#[#<dir-c>] = 3
+			o<comp-1-dir1> else
+				#[#<dir-c>] = 2
+			o<comp-1-dir1> endif
+
+			o<comp-1-dir4> if [#6]
+				#[#<dir-c>] = [6 / #[#<dir-c>]]
+			o<comp-1-dir4> endif			
+		
+			o<rotate-xy> CALL [#[#<x>] + #<cr>] [#[#<y>]] [#[#<x>]] [#[#<y>]] [#<prev-angle>]
+				#[#<px-e>] = #<_rotate_result_x>
+				#[#<py-e>] = #<_rotate_result_y>
+
+			o<rotate-xy> CALL [#[#<x>] + #<cr>] [#[#<y>]] [#[#<x>]] [#[#<y>]] [#[#<ang>]]
+				#[#<x-b>] = #<_rotate_result_x>
+				#[#<y-b>] = #<_rotate_result_y>
+
+			#[#<cx>] = #[#<x>]
+			#[#<cy>] = #[#<y>]
+			#<var-1> = #[#<x>]
+			#<var-2> = #[#<y>]
+			#[#<p-len>] = [#[#<p-len>] - #<cr>]	
+
+		o<poly-append-cs-if01> endif
+	o<more-than-1-line> endif	
+	
+	
+	o<closing> if [#3 LT 0]	(relative equals -1)
+
+		#<prev-angle> = [[#[#<ang>] + 180] MOD 360] (reverse for calc)
+		#<lines-angle> = [[360 + #<prev-angle> - #61] MOD 360]
+		#<split> = [ABS[#<prev-angle> - #61] / 2] (split angle of 2 lines)
+
+;		#<prev-angle> = [[#[#<p-ang>] + 180] MOD 360] (reverse for calc)
+;		#<l-ang1> = [#<prev-angle> - #[#<ang>]]
+;		#<lines-angle> = ABS[#<l-ang1>]
+;		#<split> = [#<lines-angle> / 2] (split angle of 2 lines)
+
+		
+(print,)
+#<var1> = #[#<ang>]
+(print,ang = #61)
+(print,prev = #<prev-angle>)
+(print,lines-ang = #<lines-angle>)
+(print,split = #<split>)
+
+	
+		o<poly-close-if100> if [[#<split> EQ 0] OR [#<split> EQ 90]] (parallel)
+			#53 = 0
+		o<poly-close-if100> else
+			#<median_angle> = [[#<prev-angle> + #61] / 2]
+			o<poly-close-if1000> if [#<split> GT 90]
+				#<split> = [180 - #<split>]
+				#<median_angle> = [[#<median_angle> + 180] MOD 360]
+			o<poly-close-if1000> endif
+		o<poly-close-if100> endif
+		
+		o<cl-radius-test> if [#[#<cs>] EQ 2]
+			#<cr-len> = [#<cr> / sin[#<split>] * sin[90 - #<split>]]
+		
+			o<cl-radius-limited-1> if [#<_polyline-limit-radius>]
+				o<radius-limited-10> if [[#<cr-len> GT #[#<p-len>]] OR [#<cr-len> GT #[#<len>]]]
+					o<radius-limited-11> if [#[#<p-len>] LT #[#<len>]]
+						#<cr-len> = #[#<p-len>]
+					o<radius-limited-11> else
+						#<cr-len> = #[#<len>]
+					o<radius-limited-11> endif
+				o<radius-limited-10> endif
+			o<cl-radius-limited-1> endif
+			o<cl-radius-test1> if [#<cr-len> LT 0]
+				#[#<cs>] = 0 (then no style)
+				#<cr-len> = 0
+			o<cl-radius-test1> endif
+		o<cl-radius-test> else	if [[#[#<cs>] EQ 1] OR [#[#<cs>] EQ 3]]
+				o<cl-poly-cs3-cr1> if [[#<cr> GT #[#<p-len>]] OR [#<cr> GT #[#<len>]]]
+					o<cl-radius-limited-311> if [#[#<p-len>] GT #[#<len>]]
+						#<cr> = #[#<len>]
+					o<cl-radius-limited-311> else
+						#<cr> = #[#<p-len>]
+					o<cl-radius-limited-311> endif
+				o<cl-poly-cs3-cr1> endif
+			o<cl-radius-test2> if [#<cr> LT 0]
+				#[#<cs>] = 0 (then no style)
+				#<cr> = 0
+			o<cl-radius-test2> endif
+		o<cl-radius-test> endif		
+		
+		o<poly-close-cs-if01> if [#53 EQ 0] (no style)
+			(do nothing)
+			
+		o<poly-close-cs-if01> elseif [#53 EQ 2] (rounded)	
+		
+			o<close-comp-1-dir2> if #<l-ang1> LT 0]
+				#55 = 2
+			o<close-comp-1-dir2> else
+				#55 = 3
+			o<close-comp-1-dir2> endif
+			
+			o<close-comp-1-dir3> if [#7]
+				#55 = [6 / #55]
+			o<close-comp-1-dir3> endif
+		
+			(find last segment effective end position)
+			#<cr-len> = [#54 / sin[#<split>] * sin[90 - #<split>]]			
+			o<rotate-xy> CALL [#51 + #<cr-len>] [#52] [#51] [#52] [#<prev-angle>] 
+			#[#<x-e>] = #<_rotate_result_x>
+			#[#<y-e>] = #<_rotate_result_y>
+
+			(find first segment effective begin position)	
+			o<rotate-xy> CALL [#51 + #<cr-len>] [#52] [#51] [#52] [#61]	
+			#59 = #<_rotate_result_x>
+			#60 = #<_rotate_result_y>				
+
+			(find center of arc)		
+			#<cr-len> = [#54 / sin[#<split>]]
+			o<rotate-xy> CALL [#51 + #<cr-len>] [#52] [#51] [#52] [#<median_angle>]
+			#57 = #<_rotate_result_x>
+			#58 = #<_rotate_result_y>
+
+		o<poly-close-cs-if01> else	(chamfer or inverted)
+		
+			o<close-comp-1-dir1> if [#<lines-angle> GT 180]
+				#55 = 3
+			o<close-comp-1-dir1> else
+				#55 = 2
+			o<close-comp-1-dir1> endif
+
+			o<close-comp-1-dir4> if [#7]
+				#55 = [6 / #55]
+			o<close-comp-1-dir4> endif			
+
+			(find last segment effective end position)
+			o<rotate-xy> CALL [#51 + #54] [#52] [#51] [#52] [#<prev-angle>]
+			#[#<x-e>] = #<_rotate_result_x>
+			#[#<y-e>] = #<_rotate_result_y>
+
+			(find first segment effective begin position)	
+			o<rotate-xy> CALL [#51 + #54] [#52] [#51] [#52] [#61]
+			#59 = #<_rotate_result_x>
+			#60 = #<_rotate_result_y>
+
+			(sets center of arc)
+			#57 = #51
+			#58 = #52
+		o<poly-close-cs-if01> endif
+	o<closing> endif
+	
+	#49 = #[#<x-e>]
+	#50 = #[#<y-e>]
+	
+o<fv_polyline-add> endsub	

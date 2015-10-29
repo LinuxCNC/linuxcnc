@@ -51,8 +51,8 @@ O<get-local> ENDSUB
 #<_get_offsets_w> = 0
 #<_get_offsets_r> = 0
 O<get-offsets> SUB
-	O<get-offsets-if> IF [#5210 EQ 1] (Add 92 offset) (In #[5201+#5220*20], 5201 because #5220 starts from 1)
-		#<_get_offsets_x> = [#[5201 + #5220 * 20] + #5211]
+	O<get-offsets-if> IF [5210 EQ 1] (Add 92 offset) (In #[5201+#5220*20], 5201 because #5220 starts from 1)
+		#<_get_offsets_x> = [#[5201 + #5220 * 20] + #5201]
 		#<_get_offsets_y> = [#[5202 + #5220 * 20] + #5212]
 		#<_get_offsets_z> = [#[5203 + #5220 * 20] + #5213]
 		#<_get_offsets_a> = [#[5204 + #5220 * 20] + #5214]
