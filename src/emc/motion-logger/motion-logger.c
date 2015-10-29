@@ -491,6 +491,8 @@ int main(int argc, char* argv[]) {
                     "SET_POSITION_LIMITS joint=%d, min=%.6f, max=%.6f\n",
                     c->axis, c->minLimit, c->maxLimit
                 );
+                joints[c->axis].max_pos_limit = c->maxLimit;
+                joints[c->axis].min_pos_limit = c->minLimit;
                 break;
 
             case EMCMOT_SET_BACKLASH:
