@@ -15,19 +15,19 @@ o<fv_circle> sub (CALL [#<delx>] [#<delx>] [#<diam>] [#flat] [#rot] [#cut_opt] [
 
 	(Check validity of params passed)
 	o<l00> if [#<final_rad> EQ 0]
-			   (debug, circle: bad diameter #<dia> - EXITING)
-			   (print, circle: bad diameter #<dia> - EXITING)
-			   (AXIS,notify, circle: diameter #<dia> - EXITING)
-			   M2
+	    (debug,Circle: bad diameter #<dia> - EXITING)
+	    (print,Circle: bad diameter #<dia> - EXITING)
+	    (AXIS,notify,Circle: diameter #<dia> - EXITING)
+	    M2
 	o<l00> endif
 
 	o<l02> if [#<cut_depth> EQ 0.0]
-			   (debug, circle: bad cut_depth #<cut_depth> - EXITING)
-			   (print, circle: bad cut_depth #<cut_depth> - EXITING)
-			   (AXIS,notify, circle: bad cut_depth - EXITING)
-			   M2
+	    (debug,Circle: bad cut_depth #<cut_depth> - EXITING)
+	    (print,Circle: bad cut_depth #<cut_depth> - EXITING)
+	    (AXIS,notify,Circle: bad cut_depth - EXITING)
+		M2
 	o<l02> else if [#<cut_depth> GT 0.0]
-			 	#<cut_depth> = [0 - #<cut_depth>]           
+	 	#<cut_depth> = [0 - #<cut_depth>]           
 	o<l02> endif
 	(end validity check)
 	

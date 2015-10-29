@@ -16,27 +16,25 @@ o<fv_slot-arc> sub
 	#<show_final> = #11
 
 	(Check validity of params passed)
-	o<l00> if [#<cut_depth> EQ 0.0]
-           (debug, slot: bad cut_depth #<cut_depth> - EXITING)
-           (print, slot: bad cut_depth #<cut_depth> - EXITING)
-           (AXIS,notify, slot: bad cut_depth - EXITING)
-           M2
-	o<l00> elseif [#<cut_depth> GT 0.0]
-           #<cut_depth> = [0 - #<cut_depth>]           
+	o<l00> if [#<cut_depth> GE #<cut_start>]
+    	(debug,Slot: bad cut_depth #<cut_depth> - EXITING)
+        (print,Slot: bad cut_depth #<cut_depth> - EXITING)
+    	(AXIS,notify,Slot: bad cut_depth - EXITING)
+    	M2
 	o<l00> endif
 
 	o<l000> if [#<final_w> EQ 0.0]
-           (debug, slot: bad width #<width> - EXITING)
-           (print, slot: bad width #<width> - EXITING)
-           (AXIS,notify, slot: bad width - EXITING)
-           M2       
+    	(debug,Slot: bad width #<width> - EXITING)
+        (print,Slot: bad width #<width> - EXITING)
+        (AXIS,notify,Slot: bad width - EXITING)
+        M2       
 	o<l000> endif
 
 	o<l04> if [#<arc_radius> EQ 0]
-           (debug, slot: bad radius - EXITING)
-           (print, slot: bad radius - EXITING)
-           (AXIS,notify, slot: radius - EXITING)
-           M2       
+    	(debug,Slot: bad radius - EXITING)
+    	(print,Slot: bad radius - EXITING)
+        (AXIS,notify,Slot: radius - EXITING)
+        M2       
 	o<l04> endif
 	
 	o<pocket> if [[#<cut_opt> EQ 3] AND [#5410 GT 0] AND [#<final_w> GT #5410]] (...a pocket and tool dia > 0)

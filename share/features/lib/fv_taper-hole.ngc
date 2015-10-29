@@ -1,51 +1,58 @@
 (info: taper-hole: inside only, cw/ccw)
-o<fv_taper-hole> sub (CALL [#<cx>] [#<cy>] [#<diam>] [#ang] [#dir] [#cut_start] [#cut_step] [#depth] [#show_final])
+o<fv_taper-hole> sub (CALL [#<cx>] [#<cy>] [#<diam>] [#ang] [#in/out] [#dir] [#cut_start] [#cut_step] [#depth] [#show_final])
 	(Assign significative names to params passed)
 	#<cx>			=  #1 (x center)
 	#<cy>			=  #2 (y center)
-	#<rad>			= [#3 / 2] (diameter / 2)
-	#<taper_angle>	=  #4
-	#<dir>			=  #5 (Clockwise=2:Counter-Clockwise=3)
-	#<cut_start>	=  #6
-	#<cut_step>		=  #7
-	#<cut_depth>	=  #8
-	#<show_final>	=  #9
+	#<top-rad>		= [#3 / 2] (diameter / 2)
+	o<l000> if [#5 EQ 0]
+		#<taper_angle>	=  #4
+	o<l000> else
+		#<taper_angle>	=  [0 - #4]	
+	o<l000> endif
+	#<cut-opt>		=  #5
+	#<dir>			=  #6 (Clockwise=2:Counter-Clockwise=3)
+	#<cut_start>	=  #7
+	#<cut_step>		=  #8
+	#<cut_depth>	=  #9
+	#<show_final>	= #10
 
 	(Check validity of params passed)
-	o<l00> if [#<rad> EQ 0.0]
-			   (debug, taper-hole: bad diameter #<dia> - EXITING)
-			   (print, taper-hole: bad diameter #<dia> - EXITING)
-			   (AXIS,notify, taper-hole: diameter #<dia> - EXITING)
-			   M2
+	o<l00> if [#<top-rad> EQ 0.0]
+		(debug,Taper-hole: bad diameter #<dia> - EXITING)
+		(print,Taper-hole: bad diameter #<dia> - EXITING)
+		(AXIS,notify,Taper-hole: diameter #<dia> - EXITING)
+		M2
 	o<l00> endif
 
-	o<l02> if [#<cut_depth> EQ 0.0]
-			   (debug, taper-hole: bad cut_depth #<cut_depth> - EXITING)
-			   (print, taper-hole: bad cut_depth #<cut_depth> - EXITING)
-			   (AXIS,notify, taper-hole: bad cut_depth - EXITING)
-			   M2
-	o<l02> else if [#<cut_depth> GT 0.0]
-			 	#<cut_depth> = [0 - #<cut_depth>]           
-	o<l02> endif
+	o<l01> if [#<cut_depth> GE #<cut_start>]
+		(debug,Taper-hole: bad cut_depth #<cut_depth> - EXITING)
+		(print,Taper-hole: bad cut_depth #<cut_depth> - EXITING)
+		(AXIS,notify,Taper-hole: bad cut_depth - EXITING)
+		M2
+	o<l01> endif
 
-	o<l03> if [#<cut_step> EQ 0.0]
-			   (debug, taper-hole: bad cut_step #<cut_step> - EXITING)
-			   (print, taper-hole: bad cut_step #<cut_step> - EXITING)
-			   (AXIS,notify, taper-hole: bad cut_step - EXITING)
-			   M2
-	o<l03> else if [#<cut_step> GT 0.0]
-			 	#<cut_step> = [0 - #<cut_step>]
-	o<l03> endif
+	o<l02> if [#<cut_step> EQ 0.0]
+		(debug,Taper-hole: bad cut_step #<cut_step> - EXITING)
+		(print,Taper-hole: bad cut_step #<cut_step> - EXITING)
+		(AXIS,notify,Taper-hole: bad cut_step - EXITING)
+		M2
+	o<l02> else if [#<cut_step> GT 0.0]
+		#<cut_step> = [0 - #<cut_step>]
+	o<l02> endif
 	
 	#<tool_radius> = [#5410 / 2]
 	#<taper> = [[#<cut_depth> - #<cut_start>] * SIN[#<taper_angle>] / SIN[90 - #<taper_angle>]]
-	#<small-rad> = [#<rad> + #<taper>]
+	#<small-rad> = [#<top-rad> + #<taper>]
+	
+	o<l03> if [#<small-rad> GT #<top-rad>]
+		#<small-rad> = #<top-rad>
+	o<l03> endif	
 	
 	o<l04> if [#<small-rad> LE #<tool_radius>]
-			   (debug, taper-hole: tool too large - EXITING)
-			   (print, taper-hole: tool too large - EXITING)
-			   (AXIS,notify, taper-hole: tool too large - EXITING)
-			   M2
+	   (debug,Taper-hole: tool too large - EXITING)
+	   (print,Taper-hole: tool too large - EXITING)
+	   (AXIS,notify,Taper-hole: tool too large - EXITING)
+	   M2
 	o<l04> endif
 	(end validity check)
 	
@@ -62,9 +69,9 @@ o<fv_taper-hole> sub (CALL [#<cx>] [#<cy>] [#<diam>] [#ang] [#dir] [#cut_start] 
 	S#<_spindle_rpm>
 	#<_cut_to:seg_z> = #<cut_start>
 	#<cut-arc> = 1
-	#<old_rad> = #<rad>
+	#<prior-rad> = #<top-rad>
 	
-	o<fv_entry-arc> call [#<cx> + #<rad>] [#<cy>] [#<cx>] [#<cy>] [#<dir>] [0] [#<cut_start>]
+	o<fv_entry-arc> call [#<cx> + #<top-rad>] [#<cy>] [#<cx>] [#<cy>] [#<dir>] [#<cut-opt>] [#<cut_start>]
 
 	o<wh010> while [[#<_cut_to:seg_z> GT #<cut_depth>] OR #<final_loop> OR #<show_final>]
 	
@@ -75,7 +82,7 @@ o<fv_taper-hole> sub (CALL [#<cx>] [#<cy>] [#<diam>] [#ang] [#dir] [#cut_start] 
 			o<wh-if1> endif
 			
 			#<taper> = [[#<_cut_to:loop_end_z> - #<cut_start>] * SIN[#<taper_angle>] / SIN[90 - #<taper_angle>]]
-			#<small-rad> = [#<rad> + #<taper>]
+			#<small-rad> = [#<top-rad> + #<taper>]
 			#<arc_len> = [[#<small-rad> - #<tool_radius>] * 3.141592]
 	
 			o<oval_plunge> if [#<_plunge_down>]
@@ -92,9 +99,9 @@ o<fv_taper-hole> sub (CALL [#<cx>] [#<cy>] [#<diam>] [#ang] [#dir] [#cut_start] 
 		o<wh010-final> endif
 				
 		o<if-cut-arc-0> if [#<cut-arc>]	(cuts first arc)
-			o<fv_cut-to> CALL [#<cx> - #<small-rad>] [#<cy>] [#<arc_len>] [#<dir>] [-[#<old_rad> + #<small-rad>] / 2] [0]
+			o<fv_cut-to> CALL [#<cx> - #<small-rad>] [#<cy>] [#<arc_len>] [#<dir>] [-[#<prior-rad> + #<small-rad>] / 2] [0]
 		o<if-cut-arc-0> else (cuts second arc)
-			o<fv_cut-to> CALL [#<cx> + #<small-rad>] [#<cy>] [#<arc_len>] [#<dir>] [[#<old_rad> + #<small-rad>] / 2] [0]
+			o<fv_cut-to> CALL [#<cx> + #<small-rad>] [#<cy>] [#<arc_len>] [#<dir>] [[#<prior-rad> + #<small-rad>] / 2] [0]
 		o<if-cut-arc-0> endif
 		
 		(Draw reference lines)
@@ -105,7 +112,7 @@ o<fv_taper-hole> sub (CALL [#<cx>] [#<cy>] [#<diam>] [#ang] [#dir] [#cut_start] 
 				o<if-cut-arc-1> else
 					G40
 					G0 X[#<cx> + #<small-rad>] Y[#<cy>]
-					#<old_rad> = #<small-rad>
+					#<prior-rad> = #<small-rad>
 				o<if-cut-arc-1> endif
 			o<show_final_cut-1> elseif [#<_show_final_cuts> AND [#<show_final> EQ 11] OR [#<show_final> EQ 8]]
 				o<if-cut-arc-2> if [#<cut-arc> EQ 1]
@@ -115,16 +122,16 @@ o<fv_taper-hole> sub (CALL [#<cx>] [#<cy>] [#<diam>] [#ang] [#dir] [#cut_start] 
 					#<cut_depth> = #<cut_start>
 					#<_cut_to:loop_end_z> = #<cut_start>
 					G40
-					G0 X[#<cx> + #<rad>] Y[#<cy>]
+					G0 X[#<cx> + #<top-rad>] Y[#<cy>]
 					G0 Z#<cut_start>
-					#<small-rad> = #<rad>
-					#<old_rad> = #<rad>
+					#<small-rad> = #<top-rad>
+					#<prior-rad> = #<top-rad>
 				o<if-cut-arc-2> endif
 			o<show_final_cut-1> else
 				#<show_final> = 0
 			o<show_final_cut-1> endif	
 		o<show_final_cut> else
-			#<old_rad> = #<small-rad>
+			#<prior-rad> = #<small-rad>
 		o<show_final_cut> endif	
 
 		#<cut-arc> = [[#<cut-arc> + 1] MOD 2]

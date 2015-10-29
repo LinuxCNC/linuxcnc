@@ -1,10 +1,13 @@
 (info: straight slot, in/out/pocket cutting, cw/ccw, rotated)
-o<fv_slot> sub (CALL[#x][#y][#w][#len][#rot][#opt][#dir][#cut_start][#dpt][#finalcut][centered])
+
+(CALL[#x][#y][#w][#len][#rot][#opt][#dir][#cut_start][#dpt][#finalcut][centered])
+
+o<fv_slot> sub
 
 	(Assign significative names to params passed)
 	#<x>          =  #1
 	#<y>          =  #2
-	#<final_w>    =  ABS[#3]	
+	#<final_w>    =  ABS[#3]
 	o<slot_center> if [#11] (centered)
 		#<l>      =  ABS[#4 / 2]
 		#<lm>     =  [#<l>]
@@ -21,19 +24,17 @@ o<fv_slot> sub (CALL[#x][#y][#w][#len][#rot][#opt][#dir][#cut_start][#dpt][#fina
 
 	(Check validity of params passed)
 	o<l0> if [#<final_w> EQ 0.0]
-			(debug, slot: bad width #<w> - EXITING)
-			(print, slot: bad width #<w> - EXITING)
-			(AXIS,notify, slot: bad w - EXITING)
-			M2
+		(debug,Slot: bad width #<w> - EXITING)
+		(print,Slot: bad width #<w> - EXITING)
+		(AXIS,notify,Slot: bad w - EXITING)
+		M2
 	o<l0> endif
 
-	o<l2> if [#<cut_depth> EQ 0.0]
-			(debug, circle: bad cut_depth #<cut_depth> - EXITING)
-			(print, circle: bad cut_depth #<cut_depth> - EXITING)
-			(AXIS,notify, circle: bad cut_depth - EXITING)
-			M2
-	o<l2> else if [#<cut_depth> GT 0.0]
-			#<cut_depth> = [0 - #<cut_depth>]
+	o<l2> if [#<cut_depth> GE #<cut_start>]		
+		(debug,Slot: bad cut_depth #<cut_depth> - EXITING)
+		(print,Slot: bad cut_depth #<cut_depth> - EXITING)
+		(AXIS,notify,Slot: bad cut_depth - EXITING)
+		M2
 	o<l2> endif
 	(end validity check)
 

@@ -1,0 +1,127 @@
+(Adds an arc to a polyline)
+
+(CALL arc_type[1]: 0=IJ 1=Radius 2=cXcY, x_i[2], y_j[3], cX_relative_abs[4]: 0=relative 1=absolute, cY_radius_angle[5], dir[6], reverse[7])
+o<fv_polyline-arc> sub
+
+	#<_polyline-index-no>	= [#<_polyline-index-no> + 1] (index of new line)
+	#<offset>				= [14 * #<_polyline-index-no>]
+	
+	(define pointers for values and apexes for arcs)
+	(previous line segment)
+	#<p-ang>	= [47 + #<offset>]	(angle)
+	#<p-len>	= [48 + #<offset>]	(length, can be modified when new line is added)
+	#<px-e>		= [49 + #<offset>]	(effective end, can be modified when new line is added)
+	#<py-e>		= [50 + #<offset>]	(effective end, can be modified when new line is added)
+	
+	(values and apexes of new line)
+	#<x>		= [51 + #<offset>]	(line begin position)
+	#<y>		= [52 + #<offset>]	(line begin position)
+
+	#<cs>		= [53 + #<offset>]	(corner style, 0..3)
+	#<cr>		= [54 + #<offset>]	(corner radius)
+	#<dir-c>	= [55 + #<offset>]	(direction of corner, 2 or 3)
+	#<len-c>	= [56 + #<offset>]	(length of arc, chamfer or none)
+	#<cx>		= [57 + #<offset>]	(center of arc)
+	#<cy>		= [58 + #<offset>]	(center of arc)
+
+	#<x-b>		= [59 + #<offset>]	(effective line begin)
+	#<y-b>		= [60 + #<offset>]	(effective line begin)
+
+	#<ang>		= [61 + #<offset>]	(angle)
+	#<len>		= [62 + #<offset>]	(length of straight segment)
+	#<x-e>		= [63 + #<offset>]	(effective end)
+	#<y-e>		= [64 + #<offset>]	(effective end)
+	
+	#<x1>		= [65 + #<offset>]	(line end position)
+	#<y1>		= [66 + #<offset>]	(line end position)
+
+	o<max_reached> if [#<y1> GE 2000]
+	   (debug,polyline: maximum of lines is reached - EXITING)
+	   (print,polyline: maximum of lines is reached - EXITING)
+	   (AXIS,notify,polyline: maximum of lines is reached - EXITING)
+	   M2	
+	o<max_reached> endif
+	
+	o<poly-type> if [#1 EQ 1] (Radius type)
+		o<poly-R-abs> if [#4]  (absolute)
+			#[#<x-b>] = #2
+			#[#<y-b>] = #3
+		o<poly-R-abs> else
+			#[#<x-b>] = [#[#<px-e>] + #2]
+			#[#<y-b>] = [#[#<py-e>] + #3]
+		o<poly-R-abs> endif	
+		
+		o<poly-R-check1> if [[#[#<x-b>] EQ #[#<px-e>]] AND [#[#<y-b>] EQ #[#<py-e>]]]
+		   (debug,polyline arc: Destination error - EXITING)
+		   (print,polyline arc: Destination error - EXITING)
+		   (AXIS,notify,polyline arc: Destination error - EXITING)
+		   M2
+		o<poly-R-check1> endif
+		
+		o<line> CALL [#[#<x-b>]] [#[#<y-b>]] [#[#<px-e>]] [#[#<py-e>]]
+
+		o<poly-R-check2> if [#<_line:len> GT [#5 * 2]]
+		   (debug,polyline arc: Radius too short - EXITING)
+		   (print,polyline arc: Radius too short - EXITING)
+		   (AXIS,notify,polyline arc: Radius too short - EXITING)
+		   M2
+		o<poly-R-check2> endif
+		
+		#<mid-x> = [[#[#<x-b>] + #[#<px-e>]] / 2]
+		#<mid-y> = [[#[#<y-b>] + #[#<py-e>]] / 2]
+		
+		#<bside> = SQRT[[#5 * #5] - [[#<_line:len> / 2] * [#<_line:len> / 2]]]
+		o<poly-R-rev> if [#7] (reverse side)
+			o<rotate-xy> CALL [#<mid-x> + #<bside>] [#<mid-y>] [#<mid-x>] [#<mid-y>] [#<_line:phi> + 270]
+		o<poly-R-rev> else
+			o<rotate-xy> CALL [#<mid-x> + #<bside>] [#<mid-y>] [#<mid-x>] [#<mid-y>] [#<_line:phi> + 90]
+		o<poly-R-rev> endif
+		#[#<cx>] = #<_rotate_result_x>
+		#[#<cy>] = #<_rotate_result_y>
+
+	o<poly-type> else if [#1 EQ 2] (cX and cY type)
+		#[#<x-b>] = #2
+		#[#<y-b>] = #3	
+		#[#<cx>] = #4
+		#[#<cy>] = #5	
+	
+	o<poly-type> else (IJ offset type)
+		o<poly-IJ-check1> if [[#2 EQ 0] AND [#3 EQ 0]]
+		   (debug,polyline arc: Offsets error - EXITING)
+		   (print,polyline arc: Offsets error - EXITING)
+		   (AXIS,notify,polyline arc: Offsets error - EXITING)
+		   M2
+		o<poly-IJ-check1> endif	
+
+		o<poly-IJ-check2> if [[#5 EQ 0] AND [#4 EQ 0]]
+		   (debug,polyline arc: Angle error - EXITING)
+		   (print,polyline arc: Angle error - EXITING)
+		   (AXIS,notify,polyline arc: Angle error - EXITING)
+		   M2
+		o<poly-IJ-check2> endif	
+		
+		#[#<cx>] = [#[#<px-e>] + #2]
+		#[#<cy>] = [#[#<py-e>] + #3]
+		
+		o<poly-IJ-abs> if [#4] (absolute)
+			o<line> CALL [#[#<cx>]] [#[#<cy>]] [#[#<px-e>]] [#[#<py-e>]]
+			o<rotate-xy> CALL [#[#<cx>] + #<_line:len>] [#[#<cy>]] [#[#<cx>]] [#[#<cy>]] [#5]
+			#[#<x-b>] = #<_rotate_result_x>
+			#[#<y-b>] = #<_rotate_result_y>
+		o<poly-IJ-abs> else (relative)
+			o<rotate-xy> CALL [#[#<px-e>]] [#[#<py-e>]] [#[#<cx>]] [#[#<cy>]] [#5]
+			#[#<x-b>] = #<_rotate_result_x>
+			#[#<y-b>] = #<_rotate_result_y>
+		o<poly-IJ-abs> endif		
+	o<poly-type> endif
+	
+	#[#<dir-c>] = #6
+	#[#<cs>] = 2
+	#[#<x-e>] = #[#<x-b>]
+	#[#<y-e>] = #[#<y-b>]
+	#[#<x1>] = #[#<x-b>]
+	#[#<y1>] = #[#<y-b>]
+	#[#<ang>] = 0
+	#[#<len>] = 0
+	
+o<fv_polyline-arc> endsub

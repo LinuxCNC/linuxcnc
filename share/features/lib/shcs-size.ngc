@@ -1,0 +1,192 @@
+(return size of bolt and counterbore)
+o<shcs-size> sub (CALL [screw number] [washer dia] [washer thickness] [bore depth] [warn] [full dpt] [surface])
+
+	#<screw-no>			= #1
+	#<washer_d>			= #2
+	#<washer_t>			= #3
+	#<bore_depth_opt>	= #4
+	#<warn>				= #5
+	#<full_depth>		= #6
+	#<surf>				= #7
+ 		 	
+	;metric
+	o<screw-no> if [#<screw-no> EQ 1]
+		#<bdia> = [1.6]
+		#<cdia> = [3.5]
+	o<screw-no> else if [#<screw-no> EQ 2]
+		#<bdia> = [2.0]
+		#<cdia> = [4.4]
+	o<screw-no> else if [#<screw-no> EQ 3]
+		#<bdia> = [2.5]
+		#<cdia> = [5.4]
+	o<screw-no> else if [#<screw-no> EQ 4]
+		#<bdia> = [2.6]
+		#<cdia> = [6.0]
+	o<screw-no> else if [#<screw-no> EQ 5]
+		#<bdia> = [3.0]
+		#<cdia> = [6.5]
+	o<screw-no> else if [#<screw-no> EQ 6]
+		#<bdia> = [4.0]
+		#<cdia> = [8.25]
+	o<screw-no> else if [#<screw-no> EQ 7]
+		#<bdia> = [5.0]
+		#<cdia> = [9.75]
+	o<screw-no> else if [#<screw-no> EQ 8]
+		#<bdia> = [6.0]
+		#<cdia> = [11.2]
+	o<screw-no> else if [#<screw-no> EQ 9]
+		#<bdia> = [8.0]
+		#<cdia> = [14.5]
+	o<screw-no> else if [#<screw-no> EQ 10]
+		#<bdia> = [10.0]
+		#<cdia> = [17.5]
+	o<screw-no> else if [#<screw-no> EQ 11]
+		#<bdia> = [12.0]
+		#<cdia> = [19.5]
+	o<screw-no> else if [#<screw-no> EQ 12]
+		#<bdia> = [14.0]
+		#<cdia> = [22.5]
+	o<screw-no> else if [#<screw-no> EQ 13]
+		#<bdia> = [16.0]
+		#<cdia> = [25.5]
+	o<screw-no> else if [#<screw-no> EQ 14]
+		#<bdia> = [18.0]
+		#<cdia> = [28.5]
+	o<screw-no> else if [#<screw-no> EQ 15]
+		#<bdia> = [20.0]
+		#<cdia> = [31.5]
+	o<screw-no> else if [#<screw-no> EQ 16]
+		#<bdia> = [24.0]
+		#<cdia> = [37.5]
+	o<screw-no> else if [#<screw-no> EQ 17]
+		#<bdia> = [30.0]
+		#<cdia> = [47.5]
+	o<screw-no> else if [#<screw-no> EQ 18]
+		#<bdia> = [36.0]
+		#<cdia> = [56.5]
+	o<screw-no> else if [#<screw-no> EQ 19]
+		#<bdia> = [42.0]
+		#<cdia> = [66.0]
+	o<screw-no> else if [#<screw-no> EQ 20]
+		#<bdia> = [48.0]
+		#<cdia> = [75.0]
+		
+	;fractionnal
+	o<screw-no> else if [#<screw-no> EQ 31]
+		#<bdia> = [0.250]
+		#<cdia> = [0.438]
+	o<screw-no> else if [#<screw-no> EQ 32]
+		#<bdia> = [0.312]
+		#<cdia> = [0.531]
+	o<screw-no> else if [#<screw-no> EQ 33]
+		#<bdia> = [0.375]
+		#<cdia> = [0.625]
+	o<screw-no> else if [#<screw-no> EQ 34]
+		#<bdia> = [0.438]
+		#<cdia> = [0.719]
+	o<screw-no> else if [#<screw-no> EQ 35]
+		#<bdia> = [0.5]
+		#<cdia> = [0.813]
+	o<screw-no> else if [#<screw-no> EQ 36]
+		#<bdia> = [0.562]
+		#<cdia> = [0.906]
+	o<screw-no> else if [#<screw-no> EQ 37]
+		#<bdia> = [0.625]
+		#<cdia> = [1.0]
+	o<screw-no> else if [#<screw-no> EQ 38]
+		#<bdia> = [0.75]
+		#<cdia> = [1.187]
+	o<screw-no> else if [#<screw-no> EQ 39]
+		#<bdia> = [0.875]
+		#<cdia> = [1.375]
+	o<screw-no> else if [#<screw-no> EQ 40]
+		#<bdia> = [1.0]
+		#<cdia> = [1.625]
+	o<screw-no> else if [#<screw-no> EQ 41]
+		#<bdia> = [1.125]
+		#<cdia> = [1.812]
+	o<screw-no> else if [#<screw-no> EQ 42]
+		#<bdia> = [1.25]
+		#<cdia> = [2.0]
+	o<screw-no> else if [#<screw-no> EQ 43]
+		#<bdia> = [1.5]
+		#<cdia> = [2.375]
+	o<screw-no> else if [#<screw-no> EQ 44]
+		#<bdia> = [1.75]
+		#<cdia> = [2.75]
+	o<screw-no> else if [#<screw-no> EQ 45]
+		#<bdia> = [2.0]
+		#<cdia> = [3.125]
+
+	;numbered
+	o<screw-no> else if [#<screw-no> EQ 51]
+		#<bdia> = [0.060]
+		#<cdia> = [0.125]
+	o<screw-no> else if [#<screw-no> EQ 52]
+		#<bdia> = [0.073]
+		#<cdia> = [0.157]
+	o<screw-no> else if [#<screw-no> EQ 53]
+		#<bdia> = [0.086]
+		#<cdia> = [0.188]
+	o<screw-no> else if [#<screw-no> EQ 54]
+		#<bdia> = [0.099]
+		#<cdia> = [0.219]
+	o<screw-no> else if [#<screw-no> EQ 55]
+		#<bdia> = [0.112]
+		#<cdia> = [0.219]
+	o<screw-no> else if [#<screw-no> EQ 56]
+		#<bdia> = [0.125]
+		#<cdia> = [0.250]
+	o<screw-no> else if [#<screw-no> EQ 57]
+		#<bdia> = [0.138]
+		#<cdia> = [0.282]
+	o<screw-no> else if [#<screw-no> EQ 58]
+		#<bdia> = [0.164]
+		#<cdia> = [0.313]
+	o<screw-no> else if [#<screw-no> EQ 59]
+		#<bdia> = [0.190]
+		#<cdia> = [0.375]
+	o<screw-no> else if [#<screw-no> EQ 60]
+		#<bdia> = [0.216]
+		#<cdia> = [0.406]
+	o<screw-no> endif
+	
+	o<shcs-units> if [#<_metric>]
+		o<shcs-inch-screw> if [#<screw-no> GT 30]
+			#<bdia> = [#<bdia> * 25.4]
+			#<cdia> = [#<cdia> * 25.4]
+ 		o<shcs-inch-screw> endif
+ 	o<shcs-units> else
+		o<shcs-metric-screw> if [#<screw-no> LT 30]
+			#<bdia> = [#<bdia> / 25.4]
+			#<cdia> = [#<cdia> / 25.4]
+ 		o<shcs-metric-screw> endif
+ 	o<shcs-units> endif	
+	
+	o<screw-no-wd> if [#<washer_d> GT #<cdia>]
+		#<cdia> = #<washer_d>
+	o<screw-no-wd> endif
+	
+	#<_shcs:bolt_dia> = #<bdia>
+	#<_shcs:bore_dia> = #<cdia>
+	
+	#<min-d> = [#<surf> - #<bdia> - #<washer_t>]
+	#<max-d> = [#<full_depth> + #<bdia>]
+	
+	o<shcs-depth> if [#<bore_depth_opt> EQ 0] (just under surface)
+		#<_shcs:bore_depth> = #<min-d>
+		o<shcs-depth-w00> if [#<warn> AND [#<min-d> LT #<max-d>]]
+		   (debug,SHCS counterbore: material left is less than diameter of screw)
+		   (print,SHCS counterbore: material left is less than diameter of screw)
+		   (AXIS,notify,SHCS counterbore: material left is less than diameter of screw)
+		o<shcs-depth-w00> endif
+	o<shcs-depth> else (down to minimum)	
+		#<_shcs:bore_depth> = #<max-d>
+		o<shcs-depth-w01> if [#<warn> AND [#<min-d> LT #<max-d>]]
+		   (debug,SHCS counterbore: screw head will not sink completely)
+		   (print,SHCS counterbore: screw head will not sink completely)
+		   (AXIS,notify,SHCS counterbore: screw head will not sink completely)
+		o<shcs-depth-w01> endif
+	o<shcs-depth> endif
+		
+o<shcs-size> endsub		
