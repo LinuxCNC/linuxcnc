@@ -1,14 +1,11 @@
-LinuxCNC Features v2 - native realtime CAM for LinuxCNC
+LinuxCNC Features v2.01 - native realtime CAM for LinuxCNC
 
-Welcome to this advanced version of LinuxCNC-Features.
+Welcome to this update version of LinuxCNC-Features.
 
-This is an almost complete re-write and you may want to copy it in a different directory
-like ~/linuxcnc/features but ~/linuxcnc-features is allright too although it will
-replace a good part of the original one.
+Changes are described in the CHANGES file.
  
-Few changes to your subroutines will make them take full advantage of all the new features.
+Some changes to your subroutines will make them take full advantage of all the new features.
 There is also some settings you can do in the beginning of features.py.
-
 
 
 1. Installation
@@ -17,9 +14,7 @@ There is also some settings you can do in the beginning of features.py.
 
 	or clone git repo "github.com/FernV/linuxcnc-features.git" into ~/  .
 
-2. Make sure features.py is executable
-
-3. Make sure you have python-lxml installed. If not, open a terminal and copy the following command :
+2. Make sure you have python-lxml installed. If not, open a terminal and copy the following command :
 
 	sudo apt-get install python-lxml
 
@@ -34,124 +29,50 @@ or
 
 	In your file manager, double-click on features.py
 
-Default catalog is catalogs/mill. In it is menu.xml, def_template.xml and defaults.ngc
+Default catalog is mill. In it's directory are menu.xml, def_template.xml and defaults.ngc
 
-Other catalogs are mill-mm, lathe, lathe-mm.
-The command is : ./features.py --catalog="catalog-name".
+Other supplied catalog is lathe (not much done yet)
 
-Start linuxcnc (before or after, it does not matter) with the configuration ini you want, mill or lathe.
-Ex.: 'linuxcnc ~/linuxcnc/configs/sim.axis/axis.ini' (or axis_mm.ini).
+The command is : ./features.py --catalog=lathe
 
-Open some examples and if all is well, enjoy.
+Open some examples files and enjoy.
 
 
 3. Installing Embedded
 --------------------------------------------------------------------------------
-Install by copying the following lines in a terminal
+Installing has been simplified with the use of 'setup' script
 
-1. Install python-lxml if not done yet.
+First install python-lxml if not done yet. Required for setup and Features.
 
-2. Create links into /usr/share/pyshared/gladevcp/
+Simply type ./setup in a terminal
 
-	(change directory as required)
-	
-	```sh
-	cd ___features_source_from_git_path___	
-	features_dir=`pwd`
-	cd /usr/share/pyshared/gladevcp/
-	sudo ln "$features_dir"/features.py -s
-	sudo ln "$features_dir"/features.glade -s
-	```		
-	
-	Note! If you are using linuxcnc Run-in-place, consider this directory: <base>/lib/python/gladevcp (here and after).
-	
-3. Change hal_pythonplugin.py in /usr/share/pyshared/gladevcp/
+If you want to remove LinuxCNC-Features, use './setup c'
 
-	sudo gedit /usr/share/pyshared/gladevcp/hal_pythonplugin.py
+IMPORTANT NOTE : when linuxcnc updates, it changes some files to what they were before.
+Just do ./setup again
 
-	Add this new line anywhere :
-	
-		from features import Features
-
-
-4. Change hal_python.xml in /usr/share/glade3/catalogs ()glade3 can be glade2)
-
-	sudo gedit /usr/share/glade3/catalogs/hal_python.xml
-
-	Find (it is in the beginning):
-	
-		<glade-widget-classes>
-	
-	Add after:
-	
-		<glade-widget-class name="Features" generic-name="features" title="features">
-		
-		    <properties>
-		    
-		        <property id="size" query="False" default="1" visible="False"/>
-		        
-		        <property id="spacing" query="False" default="0" visible="False"/>
-		        
-		        <property id="homogeneous" query="False" default="0" visible="False"/>
-		        
-		    </properties>
-		    
-		</glade-widget-class>
-		
-
-	Find :  
-	
-		<glade-widget-group name="python" title="HAL Python">
-	
-	Add after :
-	
-		<glade-widget-class-ref name="Features"/>
-		
-
-	IMPORTANT NOTE : when linuxcnc updates, it recreates directories and if features do not load
-	you will have to redo steps 2, 3 and 4
-	
-	
-5. Create links into /usr/lib/pymodules/python2.7/gladevcp
-
-
-
-	```sh
-	cd ___features_source_from_git_path___	
-	features_dir=`pwd`
-	cd /usr/lib/pymodules/python2.7/gladevcp
-	sudo ln "$features_dir"/features.py -s
-	sudo ln "$features_dir"/features.glade -s
-	```		
 	
 4. Using Embedded
 --------------------------------------------------------------------------------
-Add these lines into your ini file inside [DISPLAY] section :
-	
-		GLADEVCP = -U --catalog=lathe features.ui
-		FEATURES_PATH = /home/fernand/linuxcnc-features
-	
-	To use different features use one of the catalogs
-		--catalog=lathe
-		--catalog=lathe-mm
-		--catalog=mill
-		--catalog=mill-mm
+Change to ./linuxcnc-configs/axis or ./linuxcnc-configs/gmoccapy
+
+Start linuxcnc with one of the ini files available
+
 
 5. Optional Translations
 --------------------------------------------------------------------------------
-Translation will work in Stand Alone AND Embedded modes
-
-	Make links in your system locale directories to translation files
-	
-	cd /usr/share/locale/<YOUR LOCALE>/LC_MESSAGES
-	
-	sudo ln /<full path to features directory>/locale/<YOUR LOCALE>/LC_MESSAGES/linuxcnc-features.mo -s
-
-Use poedit to translate strings in linuxcnc-features.po then save and copy linuxcnc-features.mo to
-above path.
+Translation files are not included in the release. Will be in future release.
 
 
-6.	Extending subroutines
+6. Configuring
+--------------------------------------------------------------------------------
+In the beginning of features.py are some values you can set to suit your taste
+
+After features has started, select Utilities->Preferences and set your default values.
+Click OK to save.
+
+
+7. Extending subroutines
 --------------------------------------------------------------------------------
 
 1. Param subsitutions
@@ -191,18 +112,16 @@ above path.
 
 	[SUBROUTINE] type should be lower case, short, without space. Ex : circle, rect, probe-dn
 
-	Valid params types are : string, float, int, bool (or boolean), header (or hdr), combo, items
+	Valid params types are : string, float, int, bool (or boolean), header, sub-header, combo, items, filename
 	
-	Note : you can change string, float and int types on the fly with the context menu. 
-	This is usefull with variables.
+	Note : you can change string, float and int types on the fly with the context menu. Usefull with variables.
 	
 	When using a value like #&lt;var_name&gt; use "string" because if will evaluate to 0 if "int" used or 0.0 if "float".
 	
-	Study examples in ini/mill/fv_circle.ini and others.
-	
-	Note : icons and images only need name.ext.
+	Study files in ini directory
 	
 	
-	
-Some information in Russian can be obtained here: http://cnc-club.ru/forum/viewtopic.php?f=15&t=3124&p=72441#p72441
-
+8. Notes
+--------------------------------------------------------------------------------
+Polyline is not fully implemented yet, not recommend to use now, but please evaluate.
+Future development will concentrate more on ini and ngc files.

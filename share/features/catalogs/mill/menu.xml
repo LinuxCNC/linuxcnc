@@ -1,50 +1,68 @@
 <xml>
-    <group name='Regular Shape' icon="rect.png">
-        <sub name='Rectangle From 1 point' tool_tip='Position by center or corner' icon="center-rect.png" src="mill/fv_rect.ini"/>
-        <sub name='Rectangle From 2 points' tool_tip='Position by any corner' icon="rect-corner.png" src="mill/fv_rect-2.ini"/>
+    <group name='Basic Shapes' icon="rect.png">
+        <sub name='Rectangle From 1 Point' tool_tip='Position by center or corner' icon="center-rect.png" src="mill/fv_rect.ini"/>
+        <sub name='Rectangle From 2 Points' tool_tip='Position by any corner' icon="rect-corner.png" src="mill/fv_rect-2.ini"/>
         <separator/>
         <sub name='Circle' tool_tip='Create a circle' icon="circle.png" src="mill/fv_circle.ini"/>
-        <sub name='Circle By 2 Points' tool_tip='Create a circle from ends of diameter' icon="circle-2.png" src="mill/fv_circle-2.ini"/>
+        <sub name='Circle From 2 Points' tool_tip='Create a circle from ends of diameter' icon="circle-2.png" src="mill/fv_circle-2.ini"/>
+	    <sub name='Taper/Cone' tool_tip='Create a hole smaller at the bottom or a cone' icon="circle.png" src="mill/fv_taper-hole.ini"/>
         <separator/>
-        <sub name='Slot' tool_tip='Define a point and angle' icon="slot.png" src="mill/fv_slot.ini"/>         
-        <sub name='Slot By 2 Points' tool_tip='Define 2 points' icon="slot-2.png" src="mill/fv_slot-2.ini"/>
+        <sub name='Slot/Oval From 1 Point' tool_tip='Define a point and angle' icon="slot.png" src="mill/fv_slot.ini"/>         
+        <sub name='Slot/Oval From 2 Points' tool_tip='Define 2 points' icon="slot-2.png" src="mill/fv_slot-2.ini"/>
         <sub name='Radial Slot' tool_tip='Create an radial slot' icon="radial-slot.png" src="mill/fv_slot-arc.ini"/>
         <separator/>
-        <sub name='Oval' tool_tip='Create an oval shape' icon="oval.png" src="mill/fv_oval.ini"/>            
         <sub name='Ellipse' tool_tip='Create an ellipse' icon="ellipse.png" src="mill/fv_ellipse.ini"/>       
-        <separator/>
         <sub name='Polygon' tool_tip='Polygon of N edges' icon="hexagon.png" src="mill/fv_polygon.ini"/>
     </group>
-    <group name='Irregular Shape'>
-        <sub name='Taper Hole' tool_tip='Create a hole smaller at the bottom' icon="circle.png" src="mill/fv_taper-hole.ini"/>
+    <group name='Advanced' icon='adv-Ab.png'>
+    	<group name='Polyline' icon="polyline.png">
+	        <sub name='Begin' tool_tip='Starts a polyline' icon="close.png" src="mill/fv_polyline.ini"/>
+	        <separator/>
+	        <sub name='Line To' tool_tip='Line with relative or absolute position' icon="line-to.png" src="mill/fv_polyline-to.ini"/>
+	        <sub name='Line Polar' tool_tip='Line of length and angle' icon="line-al.png" src="mill/fv_polyline-polar.ini"/>
+	        <sub name='Arc R' tool_tip='Define a destination point and radius' icon="arc-to-xyr.png" src="mill/fv_polyline-arc-r.ini"/>
+	        <sub name='Arc I,J' tool_tip='Define offsets and angle' icon="arc-to-xyij.png" src="mill/fv_polyline-arc-ij.ini"/>
+	        <separator/>
+	        <sub name='Repeat Items' tool_tip='Repeat a group of polyline items' icon="array.png" src="mill/fv_polyline-repeat.ini"/>
+	        <sub name='Compound corner' tool_tip='Add an compound corner to a polyline' icon="arc-to-xyr.png" src="mill/fv_polyline-corner.ini"/>
+    	</group>
+		<sub name='QCad Fonts Engraving' tool_tip='' icon="qcad.png" src="mill/mz_engrave.ini"/>
+		<sub name='TrueType Fonts Engraving' tool_tip='' icon="truetype.png" src="mill/fv_ttt.ini"/>
+    	<group name='Counterbore' icon='counterbore.png' tool_tip='For Socket Head Cap Screw'>
+	        <sub name='Single Hole' tool_tip='No slot' icon="circle.png" src="mill/fv_SHCS.ini"/>
+	        <sub name='Slot From 1 Point' tool_tip='Define a point and angle' icon="slot.png" src="mill/fv_SHCS_slot.ini"/>       
+	        <sub name='Slot From 2 Points' tool_tip='Define 2 points' icon="slot-2.png" src="mill/fv_SHCS_slot2.ini"/>
+	        <sub name='Radial Slot' tool_tip='Create an radial slot' icon="radial-slot.png" src="mill/fv_SHCS_slot-arc.ini"/>
+	    </group>
+		<sub name='D-Sub Connectors' tool_tip='' icon="dsub.png" src="dsub.ini"/>
     </group>
-    <group name='Drilling' icon="tool.png">
-        <sub name='Single Or In-Line Holes' tool_tip='Drill a single or line of holes' icon="tool.png" src="mill/fv_drill-one.ini"/>
+    <group name='Drilling' icon="drill.png">
+        <sub name='Single Or In-Line Holes' tool_tip='Drill a single or line of holes' icon="drill.png" src="mill/fv_drill-one.ini"/>
         <sub name='Regular Circle' tool_tip='Create a regular spaced holes circle' icon="circular-array.png" src="mill/fv_bolt-circle.ini"/>
         <sub name='Irregular Circle' tool_tip='Create a hole circle of different angle spacing' icon="circular-array.png" src="mill/fv_bolt-circle-irr.ini"/>
     </group>
     <group name='Grouping, Offset And Rotation' icon="group.png">
         <sub name='Standard Group' tool_tip='Group features together' icon="group.png" src="fv_group.ini"/>
         <separator/>
-        <sub name='Radial array' tool_tip='Array based on diameter or distance' icon="circ-array-diam.png" src="mill/fv_circular-array.ini"/>
-        <sub name='Linear array' tool_tip='Create a linear array' icon="array.png" src="mill/fv_linear-array.ini"/>
-        <sub name='Rectangular array' tool_tip='Array from a corner or center' icon="rect-array.png" src="mill/fv_rectangular-array.ini"/>
+        <sub name='Radial Array' tool_tip='Array based on diameter or distance' icon="circ-array-diam.png" src="mill/fv_circular-array.ini"/>
+        <sub name='Linear Array' tool_tip='Create a linear array' icon="array.png" src="mill/fv_linear-array.ini"/>
+        <sub name='Rectangular Array' tool_tip='Array from a corner or center' icon="rect-array.png" src="mill/fv_rectangular-array.ini"/>
     </group>
     <group name='Tools' icon="tool.png">
         <sub name='Change Tool' tool_tip='Select and set parameters' icon="tool-change.png" src="fv_tool-change.ini"/>
         <sub name='Change Drill' tool_tip='Select and set parameters' icon="tool-params.png" src="fv_drill-change.ini"/>
     </group>
     <group name='Probing' icon="probe.png">
-        <sub name='Set Probing Params' tool_tip='Set params before probing' icon="probe.png" src="fv_set-probing-params.ini"/>
-        <separator/>
         <sub name='Probe Edges' tool_tip='Find workpiece edges' icon="probe.png" src="fv_probe-edge.ini"/>
         <sub name='Probe Hole' tool_tip='Find the center of a hole' icon="probe-hole.png" src="fv_probe-hole.ini"/>
         <sub name='Probe Cube' tool_tip='Find the center of a cube or cylinder' icon="probe.png" src="fv_probe-cube.ini"/>
-        <sub name='Probe Array' tool_tip='Probe a array of place and save to file' icon="probe-down.png" src="fv_probe-array.ini"/>
+        <sub name='Probe Grid' tool_tip='Probe a array of points and save to file' icon="probe-down.png" src="fv_probe-array.ini"/>
+        <separator/>
+        <sub name='Set Probing Params' tool_tip='Set params before probing' icon="probe.png" src="fv_set-probing-params.ini"/>
     </group>
-    <group name='Miscellaneous'>
+    <group name='Miscellaneous' icon='misc.png'>
         <sub name='Task' tool_tip='Master feature' icon="gcode.png" src="fv_task.ini"/>
-        <sub name='Add Custom G Code' tool_tip='Write custom gcode' icon="gcode.png" src="fv_gcode.ini"/>
+        <sub name='Custom G Code' tool_tip='Write custom gcode' icon="gcode.png" src="fv_gcode.ini"/>
         <sub name='Design Cube' tool_tip='Show a temporary cube' icon="rect.png" src="mill/fv_design-cube.ini"/>
         <sub name='Change Units' tool_tip='Change from inch to metric or inverse' icon="rect.png" src="fv_change-units.ini"/>
     </group>

@@ -1,0 +1,127 @@
+(Adds a polyline composite item)
+(CALL center x, center y, absc 3, cs0 4, cr0 5, rev0 6, cs 7, cr 8, rev 9, xend 10, yend 11, absend 12, tr1 13, tr2 14)
+o<fv_polyline-comp> sub
+	
+	#<offset>	= [14 * #<_polyline-index-no>]
+	#<xbeg>		= #[63 + #<offset>]	(effective end of last line)
+	#<ybeg>		= #[64 + #<offset>]	(effective end of last line)
+	
+	o<comp-abs1> if [#3] (absolute)
+		#<xto> = #1
+		#<yto> = #2
+	o<comp-abs1> else (relative)
+		#<xto> = [#<xbeg> + #1]
+		#<yto> = [#<ybeg> + #2]
+	o<comp-abs1> endif
+	
+	o<comp-valid-1> if [[#<xto> EQ #<xbeg>] and [#<yto> EQ #<ybeg>]]
+	   (debug,Polyline corner: Invalid corner coords - EXITING)
+	   (print,Polyline corner: Invalid corner coords - EXITING)
+	   (AXIS,notify,Polyline corner: Invalid corner coords - EXITING)
+	   M2	
+	o<comp-valid-1> endif
+	
+	o<comp-abs2> if [#12] (absolute end point)
+		#<xlast> = #10
+		#<ylast> = #11	
+	o<comp-abs2> else (relative)
+		#<xlast> = [#<xto> + #10]
+		#<ylast> = [#<yto> + #11]
+	o<comp-abs2> endif
+
+	o<comp-valid-2> if [[[#<xlast> EQ #<xto>] and [#<ylast> EQ #<yto>]] OR [[#<xlast> EQ #<xbeg>] and [#<ylast> EQ #<ybeg>]]]
+	   (debug,Polyline corner: Invalid ending coords - EXITING)
+	   (print,Polyline corner: Invalid ending coords - EXITING)
+	   (AXIS,notify,Polyline corner: Invalid ending coords - EXITING)
+	   M2	
+	o<comp-valid-2> endif
+	
+	o<line> CALL [#<xbeg>] [#<ybeg>] [#<xto>] [#<yto>]
+	#<line1-angle> = [[360 + #<_line:phi>] MOD 360]
+
+	o<line> CALL [#<xlast>] [#<ylast>] [#<xto>] [#<yto>] 
+	#<line2-angle> = [[360 + #<_line:phi>] MOD 360]
+
+	o<comp-1> if [#7 EQ 3] (inverted)
+
+		#<lines-angle> = [[360 + #<line2-angle> - #<line1-angle>] MOD 360]
+		o<comp-1-angles> if [#<lines-angle> GT 180]
+			#<cdir> = 2
+			#<factor1> = -1
+		o<comp-1-angles> else
+			#<cdir> = 3
+			#<factor1> = 1
+		o<comp-1-angles> endif
+	
+		o<comp-1-dir2> if [#9]
+			#<cdir> = [6 / #<cdir>]
+			#<factor1> = [#<factor1> * -1]
+		o<comp-1-dir2> endif
+		
+		#<hyp> = [#8 + #13]
+		#<aside> = SQRT[[#<hyp> * #<hyp>] - [#13 * #13]]
+
+		o<rotate-xy> CALL [#<xto> + #<aside>] [#<yto>] [#<xto>] [#<yto>] [#<line1-angle>]
+		o<fv_polyline-add> CALL [#<_rotate_result_x>] [#<_rotate_result_y>] [1] [#4] [#5] [#6]
+
+		o<comp-tr1> if [#13 GT 0.0] (radius for transition 1)		
+			#<ang> = [#<line1-angle> + asin[#13 / #<hyp>] * #<factor1>]
+			o<rotate-xy> CALL [#<xto> + #8] [#<yto>] [#<xto>] [#<yto>] [#<ang>]
+			#<x-begin> = #<_rotate_result_x>
+			#<y-begin> = #<_rotate_result_y>
+	
+			o<rotate-xy> CALL [#<xto> + #<hyp>] [#<yto>] [#<xto>] [#<yto>] [#<ang>]
+			o<fv_polyline-arc> CALL [2] [#<x-begin> ] [#<y-begin>] [#<_rotate_result_x>] [#<_rotate_result_y>] [6 / #<cdir>]	
+		o<comp-tr1> endif
+		
+		o<line> CALL [#<xlast>] [#<ylast>] [#<xto>] [#<yto>]
+		#<line2-angle> = [[360 + #<_line:phi>] MOD 360]
+		#<hyp> = [#8 + #14]
+		#<bside> = SQRT[[#<hyp> * #<hyp>] - [#14 * #14]]
+
+		o<comp-tr2> if [#14 GT 0.0] (radius for transition 2)
+			#<ang> = [#<line2-angle> - asin[#14 / #<hyp>] * #<factor1>]
+			o<rotate-xy> CALL [#<xto> + #<bside>] [#<yto>] [#<xto>] [#<yto>] [#<line2-angle>]
+			#<line2-beg-x> = #<_rotate_result_x>
+			#<line2-beg-y> = #<_rotate_result_y>
+
+			o<rotate-xy> CALL [#<xto> + #<hyp>] [#<yto>] [#<xto>] [#<yto>] [#<ang>]
+			#<last-cx> = #<_rotate_result_x>
+			#<last-cy> = #<_rotate_result_y>
+		o<comp-tr2> else
+			#<ang> = #<line2-angle>
+		o<comp-tr2> endif
+
+		o<rotate-xy> CALL [#<xto> + #8] [#<yto>] [#<xto>] [#<yto>] [#<ang>]
+		#<x-begin> = #<_rotate_result_x>
+		#<y-begin> = #<_rotate_result_y>
+		o<fv_polyline-arc> CALL [2] [#<x-begin> ] [#<y-begin>] [#<xto>] [#<yto>] [#<cdir>]
+
+		o<comp-tr3> if [#14 GT 0.0]
+			o<fv_polyline-arc> CALL [2] [#<line2-beg-x> ] [#<line2-beg-y>] [#<last-cx>] [#<last-cy>] [6 / #<cdir>]
+		o<comp-tr3> endif
+		
+		o<fv_polyline-add> CALL [#<xlast>] [#<ylast>] [1] [0] [0] [0]
+
+
+	o<comp-1> else if [#7 EQ 2] (rounded)
+		o<fv_polyline-add> CALL [#1] [#2] [#3] [#4] [#5] [#6]
+		o<fv_polyline-add> CALL [#<xlast>] [#<ylast>] [1] [2] [#8] [#9]
+
+	
+	o<comp-1> else if [#7 EQ 1] (chamfer)
+				(use transition 1)
+		o<rotate-xy> CALL [#<xto> + #13] [#<yto>] [#<xto>] [#<yto>] [#<line1-angle>]
+		o<fv_polyline-add> CALL [#<_rotate_result_x>] [#<_rotate_result_y>] [1] [#4] [#5] [#6]
+				(use transition 2)
+		o<rotate-xy> CALL [#<xto> + #14] [#<yto>] [#<xto>] [#<yto>] [#<line2-angle>]
+		o<fv_polyline-add> CALL [#<_rotate_result_x>] [#<_rotate_result_y>] [1] [0] [0] [0]
+		o<fv_polyline-add> CALL [#<xlast>] [#<ylast>] [1] [0] [0] [0]
+		
+
+	o<comp-1> else
+		o<fv_polyline-add> CALL [#1] [#2] [#3] [#4] [#5] [#6]
+		o<fv_polyline-add> CALL [#<xlast>] [#<ylast>] [1] [0] [0] [0]
+	o<comp-1> endif
+	
+o<fv_polyline-comp> endsub

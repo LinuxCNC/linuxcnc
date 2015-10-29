@@ -1,24 +1,16 @@
+(Metric detected)
+G21
+
 ( Mill defaults )
 
 G17 (xy plane)
-G21 (metric)
 G40 (cancel cutter radius compensation)
 G49 (cancel tool length offset)
 G90 (absolute distance mode)
-;G92.1 (cancel G92 offsets)
+G92.1 (cancel G92 offsets)
 G94 (units/min feedrate)
 G54 (Coordinate system 1 by default)
 G64 p0.001 (path control stop)
-
-#<_z_clear> = 3
-
-#<_surface> = 0
-#<_depth> = -12
-#<_depth_step> = -3
-
-#<_ffeed> = 100
-#<_final_feed> = 90
-#<_vertical_feed> = 10
 
 #<_spindle_rpm> = 1000
 #<_final_spindle_rpm> = 1000
@@ -28,20 +20,10 @@ G64 p0.001 (path control stop)
 #<_pocket_ratio> = 0.9
 #<_pocket_cutting> = 0.85
 
-#<_probe_feed> = 60
-#<_probe_latch> = -2
-#<_probe_latch_feed> = 10
 #<_probe_func> = 38.2
-#<_probe_tip_dia> = 3
-#<_probe_depth> = 15
-
 #<_tool_probe_set> = 0
 
 #<_drill_mode> = 73
-#<_drill_feed> = 25
-#<_drill_retract>= 4
-#<_drill_dwell> = 3
-#<_drill_q> = 6
 
 #<_show_final_cuts> = 1
 #<_show_bottom_cut> = 1
@@ -51,138 +33,91 @@ G64 p0.001 (path control stop)
 #<_units_w> = 1  (width, height, length)
 #<_units_d> = 1  (depth)
 
-(This is a safety message to help avoid gouging in the work piece)
-(Disable messages at will but let the loop in case you forget)
-/ (debug, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
-/ (print, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
-/ (AXIS,notify, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
-/ G0 Z3
-/ o<safety-999> repeat [1000]
-/	G0 X-2 Y-2
-/	G0 Y2
-/	G0 X2
-/	G0 Y-2
-/ o<safety-999> endrepeat 
+#<_polyline-index-no> = -1
+#<_polyline-cut-dir> = 2
+#<_polyline-comp> = 40
+#<_polyline-limit-radius> = 1
+
+o<metric-detected> if [#<_metric>]
+	#<_z_clear> = 3
+
+	#<_surface> = 0
+	#<_depth> = -12
+	#<_depth_step> = -3
+
+	#<_ffeed> = 100
+	#<_final_feed> = 90
+	#<_vertical_feed> = 10
+
+	#<_probe_feed> = 60
+	#<_probe_latch> = -2
+	#<_probe_latch_feed> = 10
+	#<_probe_tip_dia> = 3
+	#<_probe_depth> = 15
+
+	#<_drill_feed> = 25
+	#<_drill_retract>= 4
+	#<_drill_dwell> = 3
+	#<_drill_q> = 6
+
+	(This is a safety message to help avoid gouging in the work piece)
+	(Disable messages at will but let the loop in case you forget)
+	/ (debug, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+	/ (print, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+	/ (AXIS,notify, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+	/ G0 Z75
+	/ o<safety-999> repeat [1000]
+	/	G0 X-50 Y-50
+	/	G0 Y50
+	/	G0 X50
+	/	G0 Y-50
+	/ o<safety-999> endrepeat
+
+o<metric-detected> else
+	#<_z_clear> = 0.2
+
+	#<_surface> = 0
+	#<_depth> = -0.5
+	#<_depth_step> = -0.2
+
+	#<_ffeed> = 10
+	#<_final_feed> = 6
+	#<_vertical_feed> = 2
+
+	#<_probe_feed> = 15
+	#<_probe_latch> = -0.1
+	#<_probe_latch_feed> = 1
+	#<_probe_tip_dia> = 0.125
+	#<_probe_depth> = 1
+
+	#<_drill_feed> = 1
+	#<_drill_retract>= 0.175
+	#<_drill_dwell> = 3
+	#<_drill_q> = 0.3
+
+	(This is a safety message to help avoid gouging in the work piece)
+	(Disable messages at will but let the loop in case you forget)
+	/ (debug, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+	/ (print, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+	/ (AXIS,notify, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+	/ G0 Z3
+	/ o<safety-999> repeat [1000]
+	/	G0 X-2 Y-2
+	/	G0 Y2
+	/	G0 X2
+	/	G0 Y-2
+	/ o<safety-999> endrepeat
+
+o<metric-detected> endif
 
 F#<_ffeed>
 S#<_spindle_rpm>    
         
 ( end mill defaults )
 
+
 (Definitions)
-
-
-
-(Rotate-xy sub definition)
-(#<_rotate_result_x> = 0)
-(#<_rotate_result_y> = 0)
-o<rotate-xy> SUB
-	#<x> = #1
-	#<y> = #2
-	#<cx> = #3
-	#<cy> = #4
-	#<a> = #5
-	#<_rotate_result_x> = [[#<x> - #<cx>] * COS[#<a>] - [#<y> - #<cy>] * SIN[#<a>] + #<cx>]
-	#<_rotate_result_y> = [[#<x> - #<cx>] * SIN[#<a>] + [#<y> - #<cy>] * COS[#<a>] + #<cy>]
-o<rotate-xy> ENDSUB
-
-
-
-o<fv_drill-one> sub
-; [x] [y] [depth] [start]
-
- 	G0 Z#<_z_clear> 
-	G0 X#1 Y#2
- 	G0 Z[#4 + 0.01]
-   	F#<_drill_feed>
-	o<100> if [#<_drill_mode> EQ 73]
-	 	G73 Z#3 R#<_drill_retract> Q#<_drill_q>	
-	o<100> elseif [#<_drill_mode> EQ 81]
-	 	G81 Z#3 R#<_drill_retract>
- 	o<100> elseif [#<_drill_mode> EQ 82]
-	 	G82 Z#3 R#<_drill_retract> P#<_drill_dwell>	
-	o<100> elseif [#<_drill_mode> EQ 83]
-	 	G83 Z#3 R#<_drill_retract> Q#<_drill_q>	
-	o<100> endif
-	
- 	G0 Z#<_z_clear>
-	G80
-o<fv_drill-one> endsub
-
 (End definitions)
-
-o<task-001-enabled> if [1]
-	#<_surface> = 0.000
-	#<_depth> = -12.000
-	#<_z_clear> = 4.000
-	#<_show_final_cuts> = 1
-
-(Tool change)
-o<toolchng-001-ena> if [1]
-	M9
-	T8 M6 G43
-	#<_tool_dia> = #5410
-	#<_tool_d> = #5410
-
-	o<toolchng-001-if> if [#<_tool_probe_set>]
-		o<set-tool-length> CALL
-	o<toolchng-001-if> endif
-
-	o<toolchng-001-act> if [0 EQ 0]
-		M0
-	o<toolchng-001-act> elseif [0 EQ 1]
-		G4 P5
-		M3
-	o<toolchng-001-act> else (will auto-restart)
-		M3
-	o<toolchng-001-act> endif
-
-	M9
-o<toolchng-001-ena> endif
-
-S1000
-F100.000
-
-#<_final_feed> = 75.000
-#<_final_spindle_rpm> = 1000
-#<_ffeed> = 100.000
-#<_vertical_feed> = 25.000
-#<_plunge_down> = 0
-#<_depth_step> = -3.000
-#<_plunge_ratio> = 0.07
-#<_pocket_ratio> = 0.80
-(End tool change)
-
-	G0 Z[100]
-	G0 X[#<_x>] Y[#<_y>]
-o<task-001-enabled> endif
-
- 	(Drill a regular circle of 5 holes)
-	o<drill-cir-001> if [1]
-		#<d> = [40.000 * #<_units_r>]
-		o<drill-cir-001-10> if [1] ; option diameter
-			#<drill-cir-001-radius> = [#<d> / 2]
-		o<drill-cir-001-10> else ; option distance between holes
-			o<drill-cir-001-10a> if [[360.00 MOD 360] NE 0]
-				#<drill-cir-001-radius> = [#<d> / 2 / SIN[180 / 5]]
-			o<drill-cir-001-10a> else
-				#<drill-cir-001-radius> = [#<d> / SIN[360.00 / 5]]
-			o<drill-cir-001-10a> endif
-		o<drill-cir-001-10> endif
-
-		o<drill-cir-001-20> if [[[360.00 MOD 360] NE 0] AND [5 GT 1]]
-			#<drill-cir-001-fill> = [360.00 * 5 / [5 - 1]]
-		o<drill-cir-001-20> else
-			#<drill-cir-001-fill> = 360.00
-		o<drill-cir-001-20> endif
-
-		#<i> = 0
-		o<drill-cir-001-loop> while [#<i> LT 5]
-	 		o<rotate-xy> CALL [#<drill-cir-001-radius>] [0] [0] [0] [0.00 + [#<drill-cir-001-fill> / 5] * #<i>]
-			o<fv_drill-one> CALL [0.000 + #<_rotate_result_x>] [0.000 + #<_rotate_result_y>] [-12.000] [0.000]
-			#<i> = [#<i> + 1]
-		o<drill-cir-001-loop> endwhile
-	o<drill-cir-001> endif
 
 
 M2

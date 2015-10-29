@@ -1,0 +1,18 @@
+(by Mit Zot based on work by <ArcEye>, <Lawrence Glaister>)
+(===================================================================)
+(Subroutine to handle x,y rotation about 0,0)
+(input x,y get scaled, rotated then offset )
+( [#1 = 0 or 1 for a G0 or G1 type of move], [#2=x], [#3=y])
+o9000 sub
+  #28 = [#2 * #1004]  ( scaled x )
+  #29 = [#3 * #1005]  ( scaled y )
+  #30 = [SQRT[#28 * #28 + #29 * #29 ]]   ( dist from 0 to x,y )
+  #31 = [ATAN[#29]/[#28]]                ( direction to  x,y )
+  #32 = [#30 * cos[#31 + #1006]]     ( rotated x )
+  #33 = [#30 * sin[#31 + #1006]]     ( rotated y )
+  o9010 if [#1 LT 0.5]
+    G00 X[#32+#1002] Y[#33+#1003]
+  o9010 else
+    G01 X[#32+#1002] Y[#33+#1003]
+  o9010 endif
+o9000 endsub

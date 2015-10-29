@@ -14,20 +14,18 @@ o<fv_polygon> sub (CALL [#cx][#cy][#n][#radius][#rot][#opt][#dir][#param_s][#dpt
 	(Check validity of params passed)
 
 	o<l00-1> if [#<final_rad> EQ 0]
-		(debug, Polygon: bad radius - EXITING)
-		(print, Polygon: bad radius - EXITING)
-		(AXIS,notify, Polygon: bad radius - EXITING)
+		(debug,Polygon: bad radius - EXITING)
+		(print,Polygon: bad radius - EXITING)
+		(AXIS,notify,Polygon: bad radius - EXITING)
 		M2        
 	o<l00-1> endif
 	
-	o<l02> if [#<cut_depth> EQ 0.0]
-		(debug, circle: bad cut_depth #<cut_depth> - EXITING)
-		(print, circle: bad cut_depth #<cut_depth> - EXITING)
-		(AXIS,notify, circle: bad cut_depth - EXITING)
-		M2
-	o<l02> else if [#<cut_depth> GT 0.0]
-		#<cut_depth> = [0 - #<cut_depth>]           
-	o<l02> endif
+	o<l00-2> if [#<cut_depth> GE #<cut_start>]
+    	(debug,Polygon: bad cut_depth #<cut_depth> - EXITING)
+        (print,Polygon: bad cut_depth #<cut_depth> - EXITING)
+    	(AXIS,notify,Polygon: bad cut_depth - EXITING)
+    	M2
+	o<l00-2> endif
 
 	(end validity check)
 	

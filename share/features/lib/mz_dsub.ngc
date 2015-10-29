@@ -1,0 +1,259 @@
+(info: mz_dsub: D-SUB connectors, mounted from front or from back, can be rotated)
+o<mz_dsub> sub (CALL [#param_x] [#param_y] [#<param_type>] [#param_rot] [#param_s] [#param_dpt] [#param_fc])
+
+	(Assign significative names to params passed)
+	#<rot_x>		=  #1
+	#<rot_y>		=  #2
+	#<type>			=  #3
+	#<rot>			=  #4
+	#<cut_start>		=  #5
+	#<cut_depth>		=  #6
+	#<show_final>		=  #7	
+	
+	
+	
+(Calc / define all points depending connector type)
+		o<dir-00> if [#<type> EQ 1] (9 pin front mounted)
+			#<x-10> = 12.50  (distance from center of connector for mounting holes)
+			#<x-20> = 9.09 (start of upper radius)
+			#<y-20> = 5.84 
+			#<x-30> = 11.14 (end of upper radius)		
+			#<y-30> = 3.25
+			#<x-40> = 9.48 (start of lower radius)
+			#<y-40> = -4.11
+			#<x-50> = 7.4 (end of lower radius)
+			#<y-50> = [#<y-20> * -1]
+			
+			#<radius> = 2.11 
+
+		o<dir-00> elseif [#<type> EQ 2](15 pin front mounted)
+			#<x-10> = 16.66  (distance from center of connector for mounting holes)
+			#<x-20> = 13.16 (start of upper radius)
+			#<y-20> = 5.84 
+			#<x-30> = 15.21 (end of upper radius)		
+			#<y-30> = 3.25
+			#<x-40> = 13.64 (start of lower radius)
+			#<y-40> = -4.11
+			#<x-50> = 11.57 (end of lower radius)
+			#<y-50> = [#<y-20> * -1]
+			
+			#<radius> = 2.11
+			
+		o<dir-00> elseif [#<type> EQ 3](25 pin front mounted)
+			#<x-10> = 23.52  (distance from center of connector for mounting holes)
+			#<x-20> = 20.03 (start of upper radius)
+			#<y-20> = 5.84 
+			#<x-30> = 22.08 (end of upper radius)		
+			#<y-30> = 3.25
+			#<x-40> = 20.52 (start of lower radius)
+			#<y-40> = -4.11
+			#<x-50> = 18.44 (end of lower radius)
+			#<y-50> = [#<y-20> * -1]
+			
+			#<radius> = 2.11
+			
+		o<dir-00> elseif [#<type> EQ 4](37 pin front mounted)
+			#<x-10> = 31.75  (distance from center of connector for mounting holes)
+			#<x-20> = 28.26 (start of upper radius)
+			#<y-20> = 5.84 
+			#<x-30> = 30.31 (end of upper radius)		
+			#<y-30> = 3.25
+			#<x-40> = 28.74 (start of lower radius)
+			#<y-40> = -4.11
+			#<x-50> = 26.67 (end of lower radius)
+			#<y-50> = [#<y-20> * -1]
+			
+			#<radius> = 2.11
+		
+		o<dir-00> elseif [#<type> EQ 5](50 pin front mounted)
+			#<x-10> = 30.56  (distance from center of connector for mounting holes)
+			#<x-20> = 27.06 (start of upper radius)
+			#<y-20> = 7.91 
+			#<x-30> = 29.14 (end of upper radius)		
+			#<y-30> = 5.43
+			#<x-40> = 27.06 (start of lower radius)
+			#<y-40> = -6.09
+			#<x-50> = 24.97 (end of lower radius)
+			#<y-50> = [#<y-20> * -1]
+			
+			#<radius> = 2.11
+
+		o<dir-00> elseif [#<type> EQ 6]  (9 pin back mounted)
+			#<x-10> = 12.50  (distance from center of connector for mounting holes)
+			#<x-20> = 6.89 (start of upper radius)
+			#<y-20> = 5.34 
+			#<x-30> = 10.16 (end of upper radius)		
+			#<y-30> = 1.26
+			#<x-40> = 9.31 (start of lower radius)
+			#<y-40> = -2.53
+			#<x-50> = 6.10 (end of lower radius)
+			#<y-50> = [#<y-20> * -1]
+		
+			#<radius> = 3.35
+			
+		o<dir-00> elseif  [#<type> EQ 7] (15 pin back mounted)
+			#<x-10> = 16.66  (distance from center of connector for mounting holes)
+			#<x-20> = 11.05 (start of upper radius)
+			#<y-20> = 5.34 
+			#<x-30> = 14.32 (end of upper radius)		
+			#<y-30> = 1.26
+			#<x-40> = 13.48 (start of lower radius)
+			#<y-40> = -2.53
+			#<x-50> = 10.18 (end of lower radius)
+			#<y-50> = [#<y-20> * -1]
+			
+			#<radius> = 3.35
+			
+		o<dir-00> elseif  [#<type> EQ 8] (25 pin back mounted)
+			#<x-10> = 23.52  (distance from center of connector for mounting holes)
+			#<x-20> = 17.91 (start of upper radius)
+			#<y-20> = 5.34 
+			#<x-30> = 21.18 (end of upper radius)		
+			#<y-30> = 1.26
+			#<x-40> = 20.34 (start of lower radius)
+			#<y-40> = -2.53
+			#<x-50> = 17.03 (end of lower radius)
+			#<y-50> = [#<y-20> * -1]
+
+			#<radius> = 3.35
+			
+		o<dir-00> elseif  [#<type> EQ 9] (37 pin back mounted)
+			#<x-10> = 31.75  (distance from center of connector for mounting holes)
+			#<x-20> = 26.19 (start of upper radius)
+			#<y-20> = 5.34 
+			#<x-30> = 29.46 (end of upper radius)		
+			#<y-30> = 1.26
+			#<x-40> = 28.62 (start of lower radius)
+			#<y-40> = -2.53
+			#<x-50> = 25.31 (end of lower radius)
+			#<y-50> = [#<y-20> * -1]
+			
+			#<radius> = 3.35
+			
+		o<dir-00> elseif  [#<type> EQ 10] (50 pin back mounted)
+			#<x-10> = 30.56  (distance from center of connector for mounting holes)
+			#<x-20> = 24.82 (start of upper radius)
+			#<y-20> = 7.05 
+			#<x-30> = 28.1 (end of upper radius)		
+			#<y-30> = 3.10
+			#<x-40> = 26.68 (start of lower radius)
+			#<y-40> = -4.55
+			#<x-50> = 23.45 (end of lower radius)
+			#<y-50> = [#<y-20> * -1]
+			
+			#<radius> = 3.35
+			
+		o<dir-00> endif
+
+		o<change2imperial> if [#<_imperial>]
+		(translate from mm to inch)
+			#<x-10> = [#<x-10> / 25.4] 
+			#<x-20> = [#<x-20> / 25.4]
+			#<y-20> = [#<y-20> / 25.4]
+			#<x-30> = [#<x-30> / 25.4]		
+			#<y-30> = [#<y-30> / 25.4]
+			#<x-40> = [#<x-40> / 25.4]
+			#<y-40> = [#<y-40> / 25.4]
+			#<x-50> = [#<x-50> / 25.4]
+			#<y-50> = [#<y-50> / 25.4]
+			#<radius> = [#<radius> / 25.4]
+			#<var1> = 0.0610236
+			#<var2> = 0.01
+		o<change2imperial> else
+			#<var1> = 1.55
+			#<var2> = 0.1
+		o<change2imperial> endif		
+
+		#<x-60> =  [#<x-50> * -1]  (mirror X axis)
+		#<y-60> =  #<y-50>
+		#<x-70> =  [#<x-40> * -1]
+		#<y-70> =  #<y-40>
+		#<x-80> =  [#<x-30> * -1]
+		#<y-80> =  #<y-30>
+		#<x-90> =  [#<x-20> * -1]
+		#<y-90> =  #<y-20>
+		
+		(mounting holes arcs entry points)
+		#<y-10> = 0
+		#<x-11> =  [#<x-10> * -1]
+		#<y-11> = 0
+		#<x-100> = #<x-10>
+		#<y-100> = [#<y-10> + #<var1>] (3.1mm mounting holes)
+		#<x-110> = #<x-11>
+		#<y-110> = [#<y-11> - #<var1>] (3.1mm mounting holes)
+	
+		o<rotate-all> if [#<rot> NE 0] (rotate all)
+			o<rotate-xy> CALL [#<x-10>] [#<y-10>] [0] [0] [#<rot>]
+				#<x-10> = #<_rotate_result_x>
+				#<y-10> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-20>] [#<y-20>] [0] [0] [#<rot>]
+				#<x-20> = #<_rotate_result_x>
+				#<y-20> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-30>] [#<y-30>] [0] [0] [#<rot>]
+				#<x-30> = #<_rotate_result_x>
+				#<y-30> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-40>] [#<y-40>] [0] [0] [#<rot>]
+				#<x-40> = #<_rotate_result_x>
+				#<y-40> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-50>] [#<y-50>] [0] [0] [#<rot>]
+				#<x-50> = #<_rotate_result_x>
+				#<y-50> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-60>] [#<y-60>] [0] [0] [#<rot>]
+				#<x-60> = #<_rotate_result_x>
+				#<y-60> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-70>] [#<y-70>] [0] [0] [#<rot>]
+				#<x-70> = #<_rotate_result_x>
+				#<y-70> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-80>] [#<y-80>] [0] [0] [#<rot>]
+				#<x-80> = #<_rotate_result_x>
+				#<y-80> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-90>] [#<y-90>] [0] [0] [#<rot>]
+				#<x-90> = #<_rotate_result_x>
+				#<y-90> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-100>] [#<y-100>] [0] [0] [#<rot>]
+				#<x-100> = #<_rotate_result_x>
+				#<y-100> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-110>] [#<y-110>] [0] [0] [#<rot>]
+				#<x-110> = #<_rotate_result_x>
+				#<y-110> = #<_rotate_result_y>
+		o<rotate-all> endif	
+	
+	F#<_ffeed>
+	M3S#<_spindle_rpm>
+	(cutout start)	
+	(start at center on z clear)
+	G0 Z#<_z_clear>
+	G0 X#<rot_x> Y#<rot_y> 
+	(move to first hole)
+	G42 G0 X[#<rot_x> + #<x-100>] Y[#<rot_y> + #<y-100>]
+	(cut mounting holes fi3.1mm)
+	G0 Z[#<cut_start> + #<var2>]
+	G1 Z#<cut_depth> F#<_vertical_feed>
+	G2 X[#<rot_x> + #<x-100>] Y[#<rot_y> + #<y-100>] I[#<x-10> - #<x-100>] J[#<y-10> - #<y-100>] F#<_ffeed>  
+	G0 Z#<_z_clear>
+	G40 G0 X#<rot_x> Y#<rot_y>
+	G42 G0 X[#<rot_x> + #<x-110>] Y[#<rot_y> + #<y-110>]
+	G0 Z[#<cut_start> + #<var2>]
+	G1 Z#<cut_depth> F#<_vertical_feed>
+	G2 X[#<rot_x> + #<x-110>] Y[#<rot_y> + #<y-110>] I[#<x-100> - #<x-10>] J[#<y-100> - #<y-10>] F#<_ffeed>
+	G0 Z#<_z_clear>
+	G40 G0 X#<rot_x> Y#<rot_y>
+
+	(cut connector)
+	G42 G0 X[#<rot_x> + #<x-20>] Y[#<rot_y> + #<y-20>]
+	G0 Z[#<cut_start> + #<var2>]
+	G1 Z#<cut_depth> F#<_vertical_feed>
+	G1 X[#<rot_x> + #<x-20>] Y[#<rot_y> + #<y-20>] F#<_ffeed>
+	G2 X[#<rot_x> + #<x-30>] Y[#<rot_y> + #<y-30>] R#<radius>
+	G1 X[#<rot_x> + #<x-40>] Y[#<rot_y> + #<y-40>]
+	G2 X[#<rot_x> + #<x-50>] Y[#<rot_y> + #<y-50>] R#<radius>
+	G1 X[#<rot_x> + #<x-60>] Y[#<rot_y> + #<y-60>]
+	G2 X[#<rot_x> + #<x-70>] Y[#<rot_y> + #<y-70>] R#<radius>
+        G1 X[#<rot_x> + #<x-80>] Y[#<rot_y> + #<y-80>]
+	G2 X[#<rot_x> + #<x-90>] Y[#<rot_y> + #<y-90>] R#<radius>
+	G1 X[#<rot_x> + #<x-20>] Y[#<rot_y> + #<y-20>]
+	G0 Z#<_z_clear>
+	G40	
+  	
+	 	
+o<mz_dsub> endsub
