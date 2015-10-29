@@ -1,0 +1,27 @@
+;call x y z opt w h d
+o<fv_design-cube> sub
+	o<design-cube-if-00> if [#4]
+		#<x> = [#1 - #5 / 2]
+		#<y> = [#2 - #6 / 2]
+	o<design-cube-if-00> else
+		#<x> = #1
+		#<y> = #2
+	o<design-cube-if-00> endif		
+
+	G0 X#<x> Y#<y> Z[#3]
+	G1 X[#<x> + #5]
+	G1 Y[#<y> + #6]
+	G1 X#<x>
+	G1 X#<x> Y#<y>
+	G1 Z[#3 + #7]
+	G1 X[#<x> + #5]
+	G0 Z[#3]
+	G1 Z[#3 + #7]
+	G1 Y[#<y> + #6]
+	G0 Z[#3]
+	G1 Z[#3 + #7]
+	G1 X#<x>
+	G0 Z[#3]
+	G1 Z[#3 + #7]
+	G1 X#<x> Y#<y>	
+o<fv_design-cube> endsub

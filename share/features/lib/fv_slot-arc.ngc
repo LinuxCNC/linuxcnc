@@ -1,0 +1,180 @@
+(info: slot-arc: arc slot, in/out/pocket cutting, cw/ccw)
+(CALL [#cx][#cy][#_radius][#width][#start][#extend][#cut_opt][#param_dir][#cut_start][#depth] [#final])
+o<fv_slot-arc> sub
+
+	(Assign significative names to params passed)
+	#<cx>         =  #1
+	#<cy>         =  #2
+	#<arc_radius> =  ABS[#3] (center of slot)
+	#<final_w>    =  ABS[#4]
+	#<start>      =  #5 (angle)
+	#<extend>     =  #6 (angle)
+	#<cut_opt>    =  #7
+	#<dir>        =  #8 (2:cw, 3:ccw)
+	#<cut_start>  =  #9
+	#<cut_depth>  = #10
+	#<show_final> = #11
+
+	(Check validity of params passed)
+	o<l00> if [#<cut_depth> EQ 0.0]
+           (debug, slot: bad cut_depth #<cut_depth> - EXITING)
+           (print, slot: bad cut_depth #<cut_depth> - EXITING)
+           (AXIS,notify, slot: bad cut_depth - EXITING)
+           M2
+	o<l00> elseif [#<cut_depth> GT 0.0]
+           #<cut_depth> = [0 - #<cut_depth>]           
+	o<l00> endif
+
+	o<l000> if [#<final_w> EQ 0.0]
+           (debug, slot: bad width #<width> - EXITING)
+           (print, slot: bad width #<width> - EXITING)
+           (AXIS,notify, slot: bad width - EXITING)
+           M2       
+	o<l000> endif
+
+	o<l04> if [#<arc_radius> EQ 0]
+           (debug, slot: bad radius - EXITING)
+           (print, slot: bad radius - EXITING)
+           (AXIS,notify, slot: radius - EXITING)
+           M2       
+	o<l04> endif
+	
+	o<pocket> if [[#<cut_opt> EQ 3] AND [#5410 GT 0] AND [#<final_w> GT #5410]] (...a pocket and tool dia > 0)
+		#<cycle_count> = FUP[#<final_w> / #5410 / #<_pocket_ratio> / 2]
+		#<min_w> = [#<_pocket_ratio> * #5410 * 2]
+	o<pocket> else
+		#<cycle_count> = 1
+		#<min_w> = #<final_w>
+	o<pocket> endif
+	
+	#<cycle> = 0
+	#<tr> = [#5410 / 2]
+	
+	o<wh_cycle> while [#<cycle> LT #<cycle_count>]
+		o<wh_cycle-0> if [#<cycle_count> EQ 1]
+			#<radius> = [#<final_w> / 2]
+		o<wh_cycle-0> else
+			#<radius> = [[#<min_w> + [#<final_w> - #<min_w>] * #<cycle> / [#<cycle_count> - 1]] / 2]
+		o<wh_cycle-0> endif
+
+		#<cycle> = [#<cycle> + 1]
+
+		(Calc / define ALL apexes and references point depending on rotation and cut direction)
+
+		o<l08> if [#<dir> EQ 2] (cw)
+			o<rotate-xy> CALL [#<cx> + #<arc_radius> - #<radius>] [#<cy>] [#<cx>] [#<cy>] [#<start> + #<extend>]
+				#<x1> = #<_rotate_result_x>
+				#<y1> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<cx> + #<arc_radius> + #<radius>] [#<cy>] [#<cx>] [#<cy>] [#<start> + #<extend>]
+				#<x2> = #<_rotate_result_x>
+				#<y2> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<cx> + #<arc_radius> + #<radius>] [#<cy>] [#<cx>] [#<cy>] [#<start>]
+				#<x3> = #<_rotate_result_x>
+				#<y3> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<cx> + #<arc_radius> - #<radius>] [#<cy>] [#<cx>] [#<cy>] [#<start>]
+				#<x4> = #<_rotate_result_x>
+				#<y4> = #<_rotate_result_y>
+		o<l08> else (CCW)
+			o<rotate-xy> CALL [#<cx> + #<arc_radius> - #<radius>] [#<cy>] [#<cx>] [#<cy>] [#<start>]
+				#<x1> = #<_rotate_result_x>
+				#<y1> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<cx> + #<arc_radius> + #<radius>] [#<cy>] [#<cx>] [#<cy>] [#<start>]
+				#<x2> = #<_rotate_result_x>
+				#<y2> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<cx> + #<arc_radius> + #<radius>] [#<cy>] [#<cx>] [#<cy>] [#<start> + #<extend>]
+				#<x3> = #<_rotate_result_x>
+				#<y3> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<cx> + #<arc_radius> - #<radius>] [#<cy>] [#<cx>] [#<cy>] [#<start> + #<extend>]
+				#<x4> = #<_rotate_result_x>
+				#<y4> = #<_rotate_result_y>
+		o<l08> endif
+
+		(small arcs)
+		#<i12> = [[#<x2> - #<x1>] / 2]
+		#<j12> = [[#<y2> - #<y1>] / 2]
+		#<i34> = [[#<x4> - #<x3>] / 2]
+		#<j34> = [[#<y4> - #<y3>] / 2]
+		(large arcs)
+		#<i23> = [#<cx> - #<x2>]
+		#<j23> = [#<cy> - #<y2>]
+		#<i41> = [#<cx> - #<x4>]
+		#<j41> = [#<cy> - #<y4>]
+
+		o<len_calc> if [#<cut_opt> EQ 1] (Inside=0:Outside=1:On the line=2:Create a pocket=3)
+			#<len_arc_end> = [[#<radius> + #<tr>] * 3.141592]
+			#<len_arc_out> = [[#<arc_radius> + #<radius> + #<tr>] * 3.141592 * #<extend> / 360]
+			#<len_arc_in> = [[#<arc_radius> - #<radius> - #<tr>] * 3.141592 * #<extend> / 360]
+		o<len_calc> elseif [#<cut_opt> EQ 2]
+			#<len_arc_end> = [#<radius> * 3.141592]
+			#<len_arc_out> = [[#<arc_radius> + #<radius>] * 3.141592 * #<extend> / 360]
+			#<len_arc_in> = [[#<arc_radius> - #<radius>] * 3.141592 * #<extend> / 360]
+		o<len_calc> else
+			#<len_arc_end> = [[#<radius> - #<tr>] * 3.141592]
+			#<len_arc_out> = [[#<arc_radius> + #<radius> - #<tr>] * 3.141592 * #<extend> / 360]
+			#<len_arc_in> = [[#<arc_radius> - #<radius> + #<tr>] * 3.141592 * #<extend> / 360]
+		o<len_calc> endif
+
+		#<_cut_to:seg_z> = #<cut_start>
+		
+		#<final_loop> = 1
+		o<will_show_final> if [#<cycle> EQ #<cycle_count>]
+			/ #<show_final> = [#11 + 10]
+		o<will_show_final> else
+			#<show_final> = 0
+		o<will_show_final> endif
+		
+		F#<_ffeed>
+		S#<_spindle_rpm>
+		
+		o<fv_entry-arc> call [#<x1>] [#<y1>] [#<x2>] [#<y2>] [#<dir>] [#<cut_opt>] [#<cut_start>]
+		     
+		o<l40> while [[#<_cut_to:seg_z> GT #<cut_depth>] OR #<final_loop> OR #<show_final>]
+		
+			o<wh010-final> if [#<_cut_to:seg_z> GT #<cut_depth>]
+				#<_cut_to:loop_end_z> = [#<_cut_to:seg_z> + #<_depth_step>]
+				o<wh-if1> if [#<_cut_to:loop_end_z> LT #<cut_depth>]
+					#<_cut_to:loop_end_z> = #<cut_depth>
+				o<wh-if1> endif
+		
+				o<oval_plunge> if [#<_plunge_down>]
+					F#<_vertical_feed>
+					G1 Z#<_cut_to:loop_end_z>
+					#<_cut_to:seg_z> = #<_cut_to:loop_end_z>
+					F#<_ffeed>
+				o<oval_plunge> endif
+			o<wh010-final> else
+				#<final_loop> = 0				
+				F#<_final_feed>
+				S#<_final_spindle_rpm>
+			o<wh010-final> endif
+		
+			o<fv_cut-to> CALL [#<x2>] [#<y2>] [#<len_arc_end>] [#<dir>] [#<i12>] [#<j12>]
+			o<fv_cut-to> CALL [#<x3>] [#<y3>] [#<len_arc_out>] [#<dir>] [#<i23>] [#<j23>]
+			o<fv_cut-to> CALL [#<x4>] [#<y4>] [#<len_arc_end>] [#<dir>] [#<i34>] [#<j34>]
+			o<fv_cut-to> CALL [#<x1>] [#<y1>] [#<len_arc_in>] [6 / #<dir>] [#<i41>] [#<j41>]
+		
+			(Draw reference lines)			
+			o<show_final_cut> if [#<final_loop> EQ 0]
+				o<show_final_cut-1> if [#<_show_final_cuts> AND [#<show_final> EQ 11] AND #<_show_bottom_cut>] 
+					G40
+					G0 X#<x1> Y#<y1>
+					#<show_final> = 8
+				o<show_final_cut-1> elseif [#<_show_final_cuts> AND [#<show_final> EQ 11] OR [#<show_final> EQ 8]]
+					#<_cut_to:seg_z> = #<cut_start>
+					#<cut_depth> = #<cut_start>
+					#<_cut_to:loop_end_z> = #<cut_start>
+					G40
+					G0 X#<x1> Y#<y1>
+					G0 Z#<cut_start>
+					#<show_final> = 1
+				o<show_final_cut-1> else
+					#<show_final> = 0
+				o<show_final_cut-1> endif	
+			o<show_final_cut> endif	
+		o<l40> endwhile
+	o<wh_cycle> endwhile
+
+	G0 Z#<_z_clear>
+	G40	
+
+o<fv_slot-arc> endsub

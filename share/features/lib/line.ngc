@@ -1,0 +1,30 @@
+(return: _line:len,phi,cos,sin)
+
+o<line> sub
+	(not_a_subfile)
+	#<x1> = #1
+	#<y1> = #2
+	#<x2> = #3
+	#<y2> = #4
+	;(print line: x1=#<x1> y1=#<y1> x2=#<x2> y2=#<y2>)
+
+	#<epsilon>   = 0.000001
+	#<_line:dely>      = [#<y1> - #<y2>]
+	#<_line:delx>      = [#<x1> - #<x2>]
+	#<_line:len> = SQRT[#<_line:delx> * #<_line:delx> + #<_line:dely> * #<_line:dely>]
+
+	o<l01> if [ABS[#<_line:delx>] GT #<epsilon>]
+		 #<_line:phi> = ATAN[#<_line:dely>] / [#<_line:delx>]
+	o<l01> else
+		o<l02> if [#<_line:dely> GE 0]
+			#<_line:phi> =  90
+		o<l02> else
+			#<_line:phi> = -90
+		o<l02> endif
+	o<l01> endif
+
+	#<_line:cos> = COS[#<_line:phi>]
+	#<_line:sin> = SIN[#<_line:phi>]
+
+	;(print line: len=#<_line:len> angle=#<_line:phi> cos=#<_line:cos> sin=#<_line:sin>)
+o<line> endsub
