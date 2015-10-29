@@ -1,0 +1,13 @@
+(Coordinate-sys-to-num SUB)
+(Converts 54..59.1 to 0..9)
+#<_coordinate-to-num> = 0
+O<coordinate-sys-to-num> SUB
+	O<coordinate-sys-to-num-if> IF [#1 LT 59.1]
+		#<_coordinate-to-num> = [#1 - 53]
+	O<coordinate-sys-to-num-if> ELSE (59.1, 59.2, 59.3)
+		#<_coordinate-to-num> = [#1 * 10 - 590 + 6]	
+	O<coordinate-sys-to-num-if> ELSE
+		#<_coordinate-to-num> = 0
+	O<coordinate-sys-to-num-if> ENDIF
+O<coordinate-sys-to-num> ENDSUB
+

@@ -1,0 +1,14 @@
+(Rotate-xy sub definition)
+(#<_rotate_result_x> = 0)
+(#<_rotate_result_y> = 0)
+o<rotate-xy> SUB
+	#<x> = #1
+	#<y> = #2
+	#<cx> = #3
+	#<cy> = #4
+	#<a> = #5
+	#<_rotate_result_x> = [[#<x> - #<cx>] * COS[#<a>] - [#<y> - #<cy>] * SIN[#<a>] + #<cx>]
+	#<_rotate_result_y> = [[#<x> - #<cx>] * SIN[#<a>] + [#<y> - #<cy>] * COS[#<a>] + #<cy>]
+o<rotate-xy> ENDSUB
+
+

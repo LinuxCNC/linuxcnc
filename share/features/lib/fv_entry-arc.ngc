@@ -1,0 +1,89 @@
+(compute a quarter-arc preentry and radius vector to a point x,y)
+(return: _entry:prex,prey == preentry point)
+(        _entry:vx,vy     == vector from start x,y to center xctr,yctr)
+
+(Usage: for entry to a point on an arc)
+( o<entry> call [x][y][xctr][yctr][dir][option][cut_start])
+( will set compensation and bring cutter to x, y then z ready to start cutting)
+
+o<fv_entry-arc> sub
+	#<_entry:x> = #1
+	#<_entry:y> = #2
+	#<xctr>     = #3
+	#<yctr>     = #4
+	#<dir>      = #5 (2:cw, 3:ccw)
+	#<opt>      = #6 (Inside=0:Outside=1:On the line=2:Create a pocket=3)
+
+	G0 Z#<_z_clear>
+	G40
+
+	o<comp00> if [#<opt> EQ 2] (no compensation)
+		     G0 X#<_entry:x> Y#<_entry:y>
+	o<comp00> else
+	
+		o<opt_00> if [#<opt> EQ 3] (pocket is inside)
+			#<opt> = 0
+		o<opt_00> endif	
+
+		o<line> CALL [#<_entry:x>] [#<_entry:y>] [#<xctr>] [#<yctr>]
+		#<rt> = [[#5410 + 0.01] / 2] (tool radius used to calc pre-entry point)
+		
+		(compute pre-entry px,py for 1/4 circle with radius rt)
+		(and vector from start x,y to center of circle)
+		o<l60> if [#<opt> EQ 0] (inside)
+			o<l70>   if [#<dir> EQ 2]  (cw)
+					   #<px> = [#<_line:delx> - #<rt> * #<_line:sin> - #<rt> * #<_line:cos>]
+					   #<py> = [#<_line:dely> + #<rt> * #<_line:cos> - #<rt> * #<_line:sin>]
+					   #<vx> = [0 + #<rt> * #<_line:sin>]
+					   #<vy> = [0 - #<rt> * #<_line:cos>]
+			o<l70>   else  (ccw)
+					   #<px> = [#<_line:delx> + #<rt> * #<_line:sin> - #<rt> * #<_line:cos>]
+					   #<py> = [#<_line:dely> - #<rt> * #<_line:cos> - #<rt> * #<_line:sin>]
+					   #<vx> = [0 - #<rt> * #<_line:sin>]
+					   #<vy> = [0 + #<rt> * #<_line:cos>]
+			o<l70>   endif
+		o<l60> else
+			o<l80>   if [#<dir> EQ 2] (cw)
+					   #<px> = [#<_line:delx> - #<rt> * #<_line:sin> + #<rt> * #<_line:cos>]
+					   #<py> = [#<_line:dely> + #<rt> * #<_line:cos> + #<rt> * #<_line:sin>]
+					   #<vx> = [0 + #<rt> * #<_line:sin>]
+					   #<vy> = [0 - #<rt> * #<_line:cos>]
+			o<l80>   else (ccw)
+					   #<px> = [#<_line:delx> + #<rt> * #<_line:sin> + #<rt> * #<_line:cos>]
+					   #<py> = [#<_line:dely> - #<rt> * #<_line:cos> + #<rt> * #<_line:sin>]
+					   #<vx> = [0 - #<rt> * #<_line:sin>]
+					   #<vy> = [0 + #<rt> * #<_line:cos>]
+			o<l80>   endif
+		o<l60> endif
+
+		#<_entry:prex> = [#<px> + #<xctr>]
+		#<_entry:prey> = [#<py> + #<yctr>]
+		#<_entry:vx>   = #<vx>
+		#<_entry:vy>   = #<vy>
+
+		G0 X#<_entry:prex> Y#<_entry:prey>
+				     
+		o<l10> if [#<opt> EQ 0] (inside)
+			o<l20> if [#<dir> EQ 2] (cw)
+				G42 (cutter radius comp right of path)
+				G2  x#<_entry:x> y#<_entry:y> i#<_entry:vx> j#<_entry:vy>
+			o<l20> else (ccw)
+				G41 (cutter radius comp left of path)
+				G3  x#<_entry:x> y#<_entry:y> i#<_entry:vx> j#<_entry:vy>
+			o<l20> endif
+		o<l10> else (outside)
+			o<l30> if [#<dir> EQ 2] (2 ==> cw)
+				G41 (cutter radius comp left of path)
+				G3  x#<_entry:x> y#<_entry:y> i#<_entry:vx> j#<_entry:vy>
+			o<l30> else (3 ==> ccw)
+				G42 (cutter radius comp right of path)
+				G2  x#<_entry:x> y#<_entry:y> i#<_entry:vx> j#<_entry:vy>
+			o<l30> endif
+		o<l10> endif		
+	o<comp00> endif
+	
+	G0 Z[#7 + 0.01] (hardcoded delta)
+	G1 Z#7 (plunge)
+	#<_entry:done> = 1
+	
+o<fv_entry-arc> endsub

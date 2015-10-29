@@ -1,0 +1,360 @@
+(info: fv_rectangle: regular inside/outside/pocket, cw/ccw, corner style, rotated)
+o<fv_rectangle> sub (CALL [#param_x] [#param_y] [#param_ref] [#<w>] [#<h>] [#param_rot] [#param_ct] [#<cr>] [#param_opt] [#param_dir] [#param_s] [#<dpt>] [#param_fc])
+
+	(Assign significative names to params passed)
+	#<rot_x>		=  #1
+	#<rot_y>		=  #2
+	#<ref>			=  #3
+	#<final_w>		=  #4
+	#<final_h>		=  #5
+	#<rot> 			=  #6
+	#<final_style>	=  #7 (None=0:Chamfer=1:Rounded=2:Inverted Round=3)
+	#<final_radius>	=  #8
+	#<cut_option>	=  #9 (Inside=0:Outside=1:On the line=2:Create a pocket=3)
+	#<dir>			= #10 (Clockwise=2:Counter-Clockwise=3)
+	#<cut_start>	= #11
+	#<cut_depth>	= #12
+	#<show_final>	= #13	
+	
+	(Check validity of params passed)
+	o<l00-1> if [#<final_w> EQ 0]
+				(debug, Rectangle 1: bad width - EXITING)
+				(print, Rectangle 2: bad width - EXITING)
+				(AXIS,notify, Rectangle 3: bad width - EXITING)
+				M2
+	o<l00-1> endif
+
+	o<l00-2> if [#<final_h> EQ 0]
+				(debug, Rectangle: bad height - EXITING)
+				(print, Rectangle: bad height - EXITING)
+				(AXIS,notify, Rectangle: bad height - EXITING)
+				M2
+	o<l00-2> endif
+
+	o<chk00> if [#<final_radius> EQ 0]
+				#<final_style> = 0
+	o<chk00> endif
+
+	o<chk01> if [#<final_style> EQ 0]
+				#<final_radius> = 0
+	o<chk01> elseif [#<final_radius> LT 0]
+				#<final_radius> = [0 - #<final_radius>]
+	o<chk01> endif
+
+	o<l00> if [#<cut_depth> EQ 0.0]
+				(debug, Rectangle: bad cut_depth - EXITING)
+				(print, Rectangle: bad cut_depth - EXITING)
+				(AXIS,notify, Rectangle: bad cut_depth - EXITING)
+				M2
+	o<l00> elseif [#<cut_depth> GT 0.0]
+				#<cut_depth> = [0 - #<cut_depth>]           
+	o<l00> endif
+	(end validity check)
+
+	o<ref-00> if [#<ref> EQ 0] (reference is corner)
+		#<cx> = [#<rot_x> + #<final_w> / 2]
+		#<cy> = [#<rot_y> + #<final_h> / 2]
+	o<ref-00> else (reference is center)
+		#<cx> = #<rot_x>
+		#<cy> = #<rot_y>
+	o<ref-00> endif
+	
+	o<inverted-dir> if [#<final_style> EQ 3]
+		#<corner-dir> = [6 / #<dir>]
+	o<inverted-dir> else
+		#<corner-dir> = #<dir>
+	o<inverted-dir> endif
+	
+	#<final_w> = ABS[#<final_w>]
+	#<final_h> = ABS[#<final_h>]
+	
+	o<get_larger> if [#<final_w> LT #<final_h>]
+		#<ref_size> = [#<final_w> / 2]
+	o<get_larger> else
+		#<ref_size> = [#<final_h> / 2]
+	o<get_larger> endif
+
+	o<pocket> if [[#<cut_option> EQ 3] AND [#5410 GT 0] AND [#<ref_size> GT #5410]] (...a pocket and tool dia > 0)
+		#<cycle_count> = FUP[#<ref_size> / #5410 / #<_pocket_ratio>]
+		#<temp> = [[#<ref_size> - [#<_pocket_ratio> * #5410]] * 2]
+		#<min_w> = [#<final_w> - #<temp>]
+		#<min_h> = [#<final_h> - #<temp>]
+	o<pocket> else
+		#<cycle_count> = 1
+	o<pocket> endif
+	
+	#<cycle> = 0
+	#<st> = 0
+	#<cr> = 0
+
+	o<wh_cycle> while [#<cycle> LT #<cycle_count>]
+	
+		o<wh_cycle-0> if [#<cycle> EQ #<cycle_count> - 1]
+			#<w>  = #<final_w>
+			#<h>  = #<final_h>
+			#<st> = #<final_style>
+			#<cr> = #<final_radius>
+		o<wh_cycle-0> else (then pocket)
+			#<w>  = [#<min_w> + [#<final_w> - #<min_w>] * #<cycle> / [#<cycle_count> - 1]]
+			#<h>  = [#<min_h> + [#<final_h> - #<min_h>] * #<cycle> / [#<cycle_count> - 1]]
+			
+			(Styles : None=0:Chamfer=1:Rounded=2:Inverted Round=3)
+			o<corner-00> if [[#<final_style> GT 0] AND [#<final_radius> GT 0]]
+				#<tmp_cr> = [[#<w> - #<final_w> + #<final_radius> * 2] / 2]
+				o<corner-if-00> if [[#<final_style> EQ 1] AND [#<tmp_cr> GE #5410 / 2 * [SQRT[2] - 1] / SIN[45]]] (Sine rule)
+					#<cr> = #<tmp_cr>
+					#<st> = #<final_style>					
+				o<corner-if-00> elseif [[#<final_style> EQ 2] AND [#<tmp_cr> GE #5410 / 2]]
+					#<cr> = #<tmp_cr>
+					#<st> = #<final_style>
+				o<corner-if-00> elseif [#<tmp_cr> GE #5410 / 2 * [SQRT[2] - 1]]
+					#<cr> = #<tmp_cr>
+					#<st> = #<final_style>
+				o<corner-if-00> endif
+			o<corner-00> endif
+			
+		o<wh_cycle-0> endif
+		
+		#<cycle> = [#<cycle> + 1]	
+
+		(Calc / define all points depending on cut dir)
+		o<dir-00> if [#<dir> EQ 2] (clockwise)
+			#<x-10> = [#<cx> - #<w> / 2]
+			#<y-10> = [#<cy> - #<h> / 2]
+			#<x-30> = [#<cx> + #<w> / 2]
+			#<y-30> = [#<cy> + #<h> / 2]
+			#<x-20> = #<x-10>		
+			#<y-20> = #<y-30>
+			#<x-40> = #<x-30>
+			#<y-40> = #<y-10>
+			#<x-11> = [#<x-10>]
+			#<y-11> = [#<y-10> + #<cr>]
+			#<x-12> = [#<x-10>]
+			#<y-12> = [#<y-20> - #<cr>]
+			#<x-21> = [#<x-20> + #<cr>]
+			#<y-21> = [#<y-20>]
+			#<x-22> = [#<x-30> - #<cr>]
+			#<y-22> = [#<y-30>]
+			#<x-31> = [#<x-30>]
+			#<y-31> = [#<y-30> - #<cr>]
+			#<x-32> = [#<x-30>]
+			#<y-32> = [#<y-40> + #<cr>]
+			#<x-41> = [#<x-40> - #<cr>]
+			#<y-41> = [#<y-40>]
+			#<x-42> = [#<x-10> + #<cr>]
+			#<y-42> = [#<y-10>]
+		o<dir-00> else (counter-clockwise)
+			#<x-10> = [#<cx> + #<w> / 2]
+			#<y-10> = [#<cy> - #<h> / 2]
+			#<x-30> = [#<cx> - #<w> / 2]
+			#<y-30> = [#<cy> + #<h> / 2]
+			#<x-20> = #<x-10>		
+			#<y-20> = #<y-30>
+			#<x-40> = #<x-30>
+			#<y-40> = #<y-10>
+			#<x-11> = #<x-10>
+			#<y-11> = [#<y-10> + #<cr>]
+			#<x-12> = [#<x-10>]
+			#<y-12> = [#<y-20> - #<cr>]
+			#<x-21> = [#<x-20> - #<cr>]
+			#<y-21> = [#<y-20>]
+			#<x-22> = [#<x-30> + #<cr>]
+			#<y-22> = [#<y-30>]
+			#<x-31> = [#<x-30>]
+			#<y-31> = [#<y-30> - #<cr>]
+			#<x-32> = [#<x-40>]
+			#<y-32> = [#<y-40> + #<cr>]
+			#<x-41> = [#<x-40> + #<cr>]
+			#<y-41> = [#<y-40>]
+			#<x-42> = [#<x-10> - #<cr>]
+			#<y-42> = [#<y-10>]
+		o<dir-00> endif
+		#<vx-12-21> = #<x-21>
+		#<vy-12-21> = #<y-12>
+		#<vx-22-31> = #<x-22>
+		#<vy-22-31> = #<y-31>
+		#<vx-32-41> = #<x-41>
+		#<vy-32-41> = #<y-32>
+		#<vx-42-11> = #<x-42>
+		#<vy-42-11> = #<y-11>
+	
+		o<rotate-all> if [#<rot> NE 0] (rotate all)
+			o<rotate-xy> CALL [#<x-10>] [#<y-10>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-10> = #<_rotate_result_x>
+				#<y-10> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-11>] [#<y-11>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-11> = #<_rotate_result_x>
+				#<y-11> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-12>] [#<y-12>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-12> = #<_rotate_result_x>
+				#<y-12> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-20>] [#<y-20>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-20> = #<_rotate_result_x>
+				#<y-20> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-21>] [#<y-21>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-21> = #<_rotate_result_x>
+				#<y-21> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-22>] [#<y-22>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-22> = #<_rotate_result_x>
+				#<y-22> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-30>] [#<y-30>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-30> = #<_rotate_result_x>
+				#<y-30> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-31>] [#<y-31>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-31> = #<_rotate_result_x>
+				#<y-31> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-32>] [#<y-32>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-32> = #<_rotate_result_x>
+				#<y-32> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-40>] [#<y-40>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-40> = #<_rotate_result_x>
+				#<y-40> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-41>] [#<y-41>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-41> = #<_rotate_result_x>
+				#<y-41> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<x-42>] [#<y-42>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<x-42> = #<_rotate_result_x>
+				#<y-42> = #<_rotate_result_y>
+
+			o<rotate-xy> CALL [#<vx-12-21>] [#<vy-12-21>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<vx-12-21> = #<_rotate_result_x>
+				#<vy-12-21> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<vx-22-31>] [#<vy-22-31>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<vx-22-31> = #<_rotate_result_x>
+				#<vy-22-31> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<vx-32-41>] [#<vy-32-41>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<vx-32-41> = #<_rotate_result_x>
+				#<vy-32-41> = #<_rotate_result_y>
+			o<rotate-xy> CALL [#<vx-42-11>] [#<vy-42-11>] [#<rot_x>] [#<rot_y>] [#<rot>]
+				#<vx-42-11> = #<_rotate_result_x>
+				#<vy-42-11> = #<_rotate_result_y>
+		o<rotate-all> endif	
+		
+		o<len_calc> if [#<cut_option> EQ 1]  (outside)
+			#<len_w> = [#<w> + #5410]
+			#<len_h> = [#<h> + #5410]
+			#<len_ch> = [#<cr> * 1.414213]
+			o<len_calc-00> if [#<st> EQ 3]
+				#<len_arc> = [[#<cr> - #5410 / 2] * 3.141592 / 2]
+			o<len_calc-00> else
+				#<len_arc> = [[#<cr> + #5410 / 2] * 3.141592 / 2]
+			o<len_calc-00> endif
+		o<len_calc> elseif [#<cut_option> EQ 2]  (on line)
+			#<len_w> = #<w>
+			#<len_h> = #<h>
+			#<len_ch> = [#<cr> * 1.414213]
+			#<len_arc> = [#<cr> * 3.141592 / 2]			
+		o<len_calc> else ( Inside or a pocket )
+			#<len_w> = [#<w> - #5410]
+			#<len_h> = [#<h> - #5410]
+			#<len_ch> = [#<cr> * 1.414213]
+			o<len_calc-01> if [#<st> EQ 3]
+				#<len_arc> = [[#<cr> + #5410 / 2] * 3.141592 / 2]			
+			o<len_calc-01> else
+				#<len_arc> = [[#<cr> - #5410 / 2] * 3.141592 / 2]			
+			o<len_calc-01> endif
+		o<len_calc> endif		
+		
+		#<_cut_to:seg_z> = #<cut_start>
+
+		#<final_loop> = 1
+		#<final_loop_to_do> = 1
+		o<will_show_final> if [#<cycle> EQ #<cycle_count>]
+			/ #<show_final> = [#13 + 10]
+		o<will_show_final> else
+			#<show_final> = 0
+		o<will_show_final> endif
+	
+		F#<_ffeed>
+		S#<_spindle_rpm>
+		
+		o<fv_entry-angle> call [#<x-32>] [#<y-32>] [#<x-11>] [#<y-11>] [#<x-12>] [#<y-12>] [#<dir>] [#<cut_option>] [#<cut_start>]
+
+		(down to cut_depth)
+		o<wh010> while [[#<_cut_to:seg_z> GT #<cut_depth>] OR #<final_loop> OR #<show_final>]
+		
+			o<wh010-final> if [#<_cut_to:seg_z> GT #<cut_depth>]
+				#<_cut_to:loop_end_z> = [#<_cut_to:seg_z> + #<_depth_step>]
+				o<wh-if1> if [#<_cut_to:loop_end_z> LT #<cut_depth>]
+					#<_cut_to:loop_end_z> = #<cut_depth>
+				o<wh-if1> endif
+	
+				o<oval_plunge> if [#<_plunge_down>]
+					F#<_vertical_feed>
+					G1 Z#<_cut_to:loop_end_z>
+					#<_cut_to:seg_z> = #<_cut_to:loop_end_z>
+					F#<_ffeed>
+				o<oval_plunge> endif
+			o<wh010-final> else
+				#<final_loop> = 0
+				o<final_seg> if [#<final_loop_to_do>]
+					#<final_loop_to_do> = -1
+				o<final_seg> endif
+				F#<_final_feed>
+				S#<_final_spindle_rpm>
+			o<wh010-final> endif
+			
+			(cut rectangle)
+			o<cut-style> if [#<st> EQ 0] (square)
+				o<fv_cut-to> CALL [#<x-20>] [#<y-20>] [#<len_h>] [1]
+				o<fv_cut-to> CALL [#<x-30>] [#<y-30>] [#<len_w>] [1]
+				o<fv_cut-to> CALL [#<x-40>] [#<y-40>] [#<len_h>] [1]
+				o<fv_cut-to> CALL [#<x-10>] [#<y-10>] [#<len_w>] [1]
+			o<cut-style> elseif [#<st> EQ 1] (chamfer)
+				o<fv_cut-to> CALL [#<x-12>] [#<y-12>] [#<len_h>] [1]
+				o<fv_cut-to> CALL [#<x-21>] [#<y-21>] [#<len_ch>] [1]
+				o<fv_cut-to> CALL [#<x-22>] [#<y-22>] [#<len_w>] [1]
+				o<fv_cut-to> CALL [#<x-31>] [#<y-31>] [#<len_ch>] [1]
+				o<fv_cut-to> CALL [#<x-32>] [#<y-32>] [#<len_h>] [1]
+				o<fv_cut-to> CALL [#<x-41>] [#<y-41>] [#<len_ch>] [1]
+				o<fv_cut-to> CALL [#<x-42>] [#<y-42>] [#<len_w>] [1]
+				o<fv_cut-to> CALL [#<x-11>] [#<y-11>] [#<len_ch>] [1]			
+			o<cut-style> elseif [#<st> EQ 2] (rounded)
+				o<fv_cut-to> CALL [#<x-12>] [#<y-12>] [#<len_h>] [1]
+				o<fv_cut-to> CALL [#<x-21>] [#<y-21>] [#<len_arc>] [#<corner-dir>] [#<vx-12-21> - #<x-12>] [#<vy-12-21> - #<y-12>]
+				o<fv_cut-to> CALL [#<x-22>] [#<y-22>] [#<len_w>] [1]
+				o<fv_cut-to> CALL [#<x-31>] [#<y-31>] [#<len_arc>] [#<corner-dir>] [#<vx-22-31> - #<x-22>] [#<vy-22-31> - #<y-22>]
+				o<fv_cut-to> CALL [#<x-32>] [#<y-32>] [#<len_h>] [1]
+				o<fv_cut-to> CALL [#<x-41>] [#<y-41>] [#<len_arc>] [#<corner-dir>] [#<vx-32-41> - #<x-32>] [#<vy-32-41> - #<y-32>]
+				o<fv_cut-to> CALL [#<x-42>] [#<y-42>] [#<len_w>] [1]
+				o<fv_cut-to> CALL [#<x-11>] [#<y-11>] [#<len_arc>] [#<corner-dir>] [#<vx-42-11> - #<x-42>] [#<vy-42-11> - #<y-42>]
+			o<cut-style> else (inverted)
+				o<fv_cut-to> CALL [#<x-12>] [#<y-12>] [#<len_h>] [1]
+				o<fv_cut-to> CALL [#<x-21>] [#<y-21>] [#<len_arc>] [#<corner-dir>] [#<x-20> - #<x-12>] [#<y-20> - #<y-12>]
+				o<fv_cut-to> CALL [#<x-22>] [#<y-22>] [#<len_w>] [1]
+				o<fv_cut-to> CALL [#<x-31>] [#<y-31>] [#<len_arc>] [#<corner-dir>] [#<x-30> - #<x-22>] [#<y-30> - #<y-22>]
+				o<fv_cut-to> CALL [#<x-32>] [#<y-32>] [#<len_h>] [1]
+				o<fv_cut-to> CALL [#<x-41>] [#<y-41>] [#<len_arc>] [#<corner-dir>] [#<x-40> - #<x-32>] [#<y-40> - #<y-32>]
+				o<fv_cut-to> CALL [#<x-42>] [#<y-42>] [#<len_w>] [1]
+				o<fv_cut-to> CALL [#<x-11>] [#<y-11>] [#<len_arc>] [#<corner-dir>] [#<x-10> - #<x-42>] [#<y-10> - #<y-42>]			
+			o<cut-style> endif
+			o<final_seg-0> if [#<final_loop_to_do> EQ -1]
+				#<final_loop_to_do> = 0
+				o<fv_cut-to> CALL [#<_final:x>] [#<_final:y>] [#5410] [1]
+			o<final_seg-0> endif
+		
+			(Draw reference lines)			
+			o<show_final_cut> if [#<final_loop> EQ 0]
+				o<show_final_cut-1> if [#<_show_final_cuts> AND [#<show_final> EQ 11] AND #<_show_bottom_cut>] 
+					G40
+					G0 X#<x-11> Y#<y-11>
+					#<show_final> = 8
+				o<show_final_cut-1> elseif [#<_show_final_cuts> AND [#<show_final> EQ 11] OR [#<show_final> EQ 8]]
+					#<_cut_to:seg_z> = #<cut_start>
+					#<cut_depth> = #<cut_start>
+					#<_cut_to:loop_end_z> = #<cut_start>
+					G40
+					G0 X#<x-11> Y#<y-11>
+					G0 Z#<cut_start>				
+					#<show_final> = 1
+				o<show_final_cut-1> else
+					#<show_final> = 0
+				o<show_final_cut-1> endif	
+			o<show_final_cut> endif			
+		o<wh010> endwhile (down)
+	o<wh_cycle> endwhile (expand)
+	
+	G0 Z#<_z_clear>
+	G40	
+	 	
+o<fv_rectangle> endsub

@@ -1,0 +1,79 @@
+(Get local coordinates)
+#<_xl> = 0 
+#<_yl> = 0 
+#<_zl> = 0 
+#<_al> = 0 
+#<_bl> = 0 
+#<_cl> = 0 
+#<_ul> = 0 
+#<_vl> = 0 
+#<_wl> = 0 
+O<get-local> SUB
+	O<get-local-g91-if> IF [#<_incremental>]
+		#<_xl> = 0 
+		#<_yl> = 0 
+		#<_zl> = 0 
+		#<_al> = 0 
+		#<_bl> = 0 
+		#<_cl> = 0 
+		#<_ul> = 0 
+		#<_vl> = 0 
+		#<_wl> = 0 	
+	O<get-local-g91-if> ELSE
+		#<_xl> = #<_x>
+		#<_yl> = #<_y>
+		#<_zl> = #<_z>
+		#<_al> = #<_a>
+		#<_bl> = #<_b>
+		#<_cl> = #<_c>
+		#<_ul> = #<_u>
+		#<_vl> = #<_v>
+		#<_wl> = #<_w>
+	O<get-local-g91-if> ENDIF	
+O<get-local> ENDSUB
+
+
+(Get offsets SUB definition)
+(Returns current offsets)
+
+(5210 - 1 if G92 offsets are active, 0 if not)
+(5211-5219 - G92 offset /X Y Z A B C U V W/)
+(5420-5428 - Current Position including offsets in current program units /X Y Z A B C U V W/)
+(5220 - Current Coordinate System number 1 - 9 for G54 - G59.3)
+#<_get_offsets_x> = 0
+#<_get_offsets_y> = 0
+#<_get_offsets_z> = 0
+#<_get_offsets_a> = 0
+#<_get_offsets_b> = 0
+#<_get_offsets_c> = 0
+#<_get_offsets_u> = 0
+#<_get_offsets_v> = 0
+#<_get_offsets_w> = 0
+#<_get_offsets_r> = 0
+O<get-offsets> SUB
+	O<get-offsets-if> IF [#5210 EQ 1] (Add 92 offset) (In #[5201+#5220*20], 5201 because #5220 starts from 1)
+		#<_get_offsets_x> = [#[5201 + #5220 * 20] + #5211]
+		#<_get_offsets_y> = [#[5202 + #5220 * 20] + #5212]
+		#<_get_offsets_z> = [#[5203 + #5220 * 20] + #5213]
+		#<_get_offsets_a> = [#[5204 + #5220 * 20] + #5214]
+		#<_get_offsets_b> = [#[5205 + #5220 * 20] + #5215]
+		#<_get_offsets_c> = [#[5206 + #5220 * 20] + #5216]
+		#<_get_offsets_u> = [#[5207 + #5220 * 20] + #5217]
+		#<_get_offsets_v> = [#[5208 + #5220 * 20] + #5218]
+		#<_get_offsets_w> = [#[5209 + #5220 * 20] + #5219]
+		#<_get_offsets_r> = [#[5210 + #5220 * 20]] (There's no G92 offset for R)
+	O<get-offsets-if> ELSE
+		#<_get_offsets_x> = #[5201 + #5220 * 20]
+		#<_get_offsets_y> = #[5202 + #5220 * 20]
+		#<_get_offsets_z> = #[5203 + #5220 * 20]
+		#<_get_offsets_a> = #[5204 + #5220 * 20]
+		#<_get_offsets_b> = #[5205 + #5220 * 20]
+		#<_get_offsets_c> = #[5206 + #5220 * 20]
+		#<_get_offsets_u> = #[5207 + #5220 * 20]
+		#<_get_offsets_v> = #[5208 + #5220 * 20]
+		#<_get_offsets_w> = #[5209 + #5220 * 20]
+		#<_get_offsets_r> = #[5210 + #5220 * 20]
+	O<get-offsets-if> ENDIF 
+O<get-offsets> ENDSUB
+
+

@@ -1,0 +1,165 @@
+(info: fv_ellipse: inside/outside/pocket cutting, cw/ccw direction, rotated)
+o<fv_ellipse> sub (CALL [#cx] [#cy] [#xr] [#yr] [#rotation] [#segments] [#cut_opt] [#dir] [#cut_start] [#depth] [#show_final])
+
+	(Assign significative names to params passed)
+	#<cx>         =  #1 (x center)
+	#<cy>         =  #2 (y center)
+	#<final_xr>   =  #3 (x radius)
+	#<final_yr>   =  #4 (y radius)
+	#<rot>        =  #5 (angle rotation)
+	#<seg>        =  #6
+	#<cut_opt>    =  #7 (Inside=0:Outside=1:On the line=2:Create a pocket=3)
+	#<dir>	      =  #8 (Clockwise=2:Counter-Clockwise=3)
+	#<cut_start>  =  #9
+	#<cut_depth>  = #10
+	#<show_final> = #11
+
+	(Check validity of params passed)
+	o<chk00> if [#<final_xr> EQ 0]
+		(debug, ellipse: bad width - EXITING)
+		(print, ellipse: bad width - EXITING)
+		(AXIS,notify, ellipse: bad width - EXITING)
+		M2
+	o<chk00> elseif [#<final_xr> LT 0]
+		#<final_xr> = [0 - #<final_xr>]
+	o<chk00> endif
+
+	o<chk01> if [#<final_yr> EQ 0]
+		(debug, ellipse: bad height - EXITING)
+		(print, ellipse: bad height - EXITING)
+		(AXIS,notify, ellipse: bad height - EXITING)
+		M2
+	o<chk01> elseif [#<final_yr> LT 0]
+		#<final_yr> = [0 - #<final_yr>]
+	o<chk01> endif
+
+	o<chk02> if [#<cut_depth> EQ 0.0]
+		(debug, ellipse: bad cut_depth - EXITING)
+		(print, ellipse: bad cut_depth - EXITING)
+		(AXIS,notify, ellipse: bad cut_depth - EXITING)
+		M2
+	o<chk02> elseif [#<cut_depth> GT 0.0]
+		#<cut_depth> = [0 - #<cut_depth>]
+	o<chk02> endif
+	(end validity check)
+	
+	o<chk-size> if [#<final_xr> GT #<final_yr>]
+		#<calc_dia> = [#<final_xr> * 2]
+	o<chk-size> else
+		#<calc_dia> = [#<final_yr> * 2]
+	o<chk-size> endif
+
+	o<pocket> if [[#<cut_opt> EQ 3] AND [#5410 GT 0] AND [#<calc_dia> GT #5410]] (...a pocket and tool dia > 0)
+		#<cycle_count> = FUP[#<calc_dia> / #5410 / #<_pocket_ratio> / 2]
+		#<min_r> = [#<_pocket_ratio> * #5410]
+	o<pocket> else
+		#<cycle_count> = 1
+	o<pocket> endif
+	
+	#<cycle> = 0
+	#<max_r> = [#<calc_dia> / 2]
+	
+	(expand)
+	o<wh_cycle> while [#<cycle> LT #<cycle_count>]
+		o<wh_cycle-0> if [#<cycle> EQ #<cycle_count> - 1]
+			#<xr> = #<final_xr>
+			#<yr> = #<final_yr>
+		o<wh_cycle-0> else
+			#<xr> = [#<min_r> + [#<max_r> - #<min_r>] * #<cycle> / [#<cycle_count> - 1]]
+			o<is_too_much-xr> if [#<xr> GT #<final_xr>]
+				#<xr> = #<final_xr>
+			o<is_too_much-xr> endif
+			#<yr> = [#<min_r> + [#<max_r> - #<min_r>] * #<cycle> / [#<cycle_count> - 1]]
+			o<is_too_much-yr> if [#<yr> GT #<final_yr>]
+				#<yr> = #<final_yr>
+			o<is_too_much-yr> endif
+		o<wh_cycle-0> endif	
+		
+		#<cycle> = [#<cycle> + 1]
+
+		(calc len of micro-segments)		
+		o<len_calc> if [#<cut_opt> EQ 1] (Inside=0:Outside=1:On the line=2:Create a pocket=3)
+			#<len> = [[#<xr> + #<yr> + #5410] * 3.141592 / #<seg>]
+		o<len_calc> elseif [#<cut_opt> EQ 2]
+			#<len> = [[#<xr> + #<yr>] * 3.141592 / #<seg>]
+		o<len_calc> else
+			#<len> = [[#<xr> + #<yr> - #5410] * 3.141592 / #<seg>]
+		o<len_calc> endif
+
+		#<final_loop> = 1
+		o<will_show_final> if [#<cycle> EQ #<cycle_count>]
+			/ #<show_final> = [#11 + 10]
+		o<will_show_final> else
+			#<show_final> = 0
+		o<will_show_final> endif
+
+		F#<_ffeed>
+		S#<_spindle_rpm>
+
+		#<_cut_to:seg_z> = #<cut_start>
+		
+		o<rotate-xy> CALL [#<cx> + #<xr>] [#<cy>] [#<cx>] [#<cy>] [#<rot>]
+		o<fv_entry-arc> call [#<_rotate_result_x>] [#<_rotate_result_y>] [#<cx>] [#<cy>] [#<dir>] [#<cut_opt>]
+	
+		o<wh010> while [[#<_cut_to:seg_z> GT #<cut_depth>] OR #<final_loop> OR #<show_final>]
+		
+			o<wh010-final> if [#<_cut_to:seg_z> GT #<cut_depth>]
+				#<_cut_to:loop_end_z> = [#<_cut_to:seg_z> + #<_depth_step>]
+				o<wh-if1> if [#<_cut_to:loop_end_z> LT #<cut_depth>]
+					#<_cut_to:loop_end_z> = #<cut_depth>
+				o<wh-if1> endif
+		
+				o<oval_plunge> if [#<_plunge_down>]
+					F#<_vertical_feed>
+					G1 Z#<_cut_to:loop_end_z>
+					#<_cut_to:seg_z> = #<_cut_to:loop_end_z>
+					F#<_ffeed>
+				o<oval_plunge> endif
+			o<wh010-final> else
+				#<final_loop> = 0				
+				F#<_final_feed>
+				S#<_final_spindle_rpm>
+			o<wh010-final> endif
+				
+			#<i> = 1
+			o<cut-ellipse-loop> while [#<i> LE #<seg>]				
+				o<cut-ellipse-if1> if [#<dir> EQ 3]
+				   	#<theta> = [360 * #<i> / #<seg>]
+				o<cut-ellipse-if1> else
+					#<theta> = [360 * [#<seg> - #<i>] / #<seg>]
+				o<cut-ellipse-if1> endif
+		
+				#<x> = [#<cx> + [#<xr> * COS[#<theta>]]]
+				#<y> = [#<cy> + [#<yr> * SIN[#<theta>]]]
+				o<rotate-xy> CALL [#<x>] [#<y>] [#<cx>] [#<cy>] [#<rot>]
+		   		o<fv_cut-to> CALL [#<_rotate_result_x>] [#<_rotate_result_y>] [#<len>] [1]
+				#<i> = [#<i> + 1]
+			o<cut-ellipse-loop> endwhile
+						
+	   		(Draw reference lines)			
+			o<show_final_cut> if [#<final_loop> EQ 0]
+				o<rotate-xy> CALL [#<cx> + #<final_xr>] [#<cy>] [#<cx>] [#<cy>] [#<rot>]
+				o<show_final_cut-1> if [#<_show_final_cuts> AND [#<show_final> EQ 11] AND #<_show_bottom_cut>] 
+					G40
+					G0 X#<_rotate_result_x> Y#<_rotate_result_y>
+					#<show_final> = 8
+				o<show_final_cut-1> elseif [#<_show_final_cuts> AND [#<show_final> EQ 11] OR [#<show_final> EQ 8]]
+					#<_cut_to:seg_z> = #<cut_start>
+					#<cut_depth> = #<cut_start>
+					#<_cut_to:loop_end_z> = #<cut_start>
+					G40
+					G0 X#<_rotate_result_x> Y#<_rotate_result_y>
+					G0 Z#<cut_start>				
+					#<show_final> = 1
+				o<show_final_cut-1> else
+					#<show_final> = 0
+				o<show_final_cut-1> endif	
+			o<show_final_cut> endif
+		o<wh010> endwhile
+		
+	o<wh_cycle> endwhile
+
+	G0 Z#<_z_clear>
+	G40 (no compensation)
+	  
+o<fv_ellipse> endsub

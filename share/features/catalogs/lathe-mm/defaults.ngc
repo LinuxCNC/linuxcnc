@@ -1,0 +1,26 @@
+(   Lathe deafults )
+	G21 (metric)
+	G18 (ZX plane)
+
+	#<_global_thread_j> = 1
+	#<_global_thread_r> = 1.7
+	#<_global_thread_h> = 1
+	#<_global_thread_q> = 29.5
+	#<_global_thread_e> = 2
+	#<_global_thread_l> = 3
+
+	#<_global_surface> = 0
+	#<_global_surface_id> = 0
+	#<_global_depth> = 10
+	#<_global_depth_step> = 1
+	#<_global_rappid> = 70
+	#<_global_rappid_id> = 0
+	#<_global_rappid_z> = 50
+	#<_global_final> = 1
+	#<_global_final_num> = 2
+	#<_global_final_feed> = 1000
+	#<_global_feed> = 10000
+
+	#<_global_spindle> =	1000
+	#<_global_final_spindle> = 1000
+( / Lathe deafults )

@@ -1,0 +1,31 @@
+(Probe SUB)
+O<probe> SUB
+	#<probe_func> = #1	
+	#<feed> = #2
+	#<latch> = #3
+	#<latch_feed> = #4
+	(#5-#13 - axes)
+
+	G91 (incremental distance)	
+
+	G#<probe_func> F#<feed> X#5 Y#6 Z#7 
+	#<l> = [#<latch> / SQRT[#5 * #5 + #6 * #6 + #7 * #7]]  (probe length)		
+	
+	O<probe-if-00> IF [#<latch> GT 0] (latch towards material)
+		#<l> = [-#<l>] 
+		G0 X[#5 * #<l>] Y[#6 * #<l>] Z[#7 * #<l>] 
+		#<l> = [-#<l> * 2] 
+		G#<probe_func> F#<latch_feed> X[#5 * #<l>] Y[#6 * #<l>] Z[#7 * #<l>] 
+	O<probe-if-00> ENDIF
+	
+	O<probe-if-01> IF [#<latch> LT 0] (latch backwards material)
+		(Flip probe func ['38.2 - 38.4', '38.3 - 38.5', '38.4 - 38.2', '38.5 - 38.3'])
+		#<probe_func> = [[#<probe_func> * 10 - 380] MOD 4 / 10 + 38.2]
+		G#<probe_func> F#<latch_feed> X[#5 * #<l>] Y[#6 * #<l>] Z[#7 * #<l>] 
+	O<probe-if-01> ENDIF
+
+	G90 (Absolute distance mode)
+
+O<probe> ENDSUB
+
+

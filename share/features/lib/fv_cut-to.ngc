@@ -1,0 +1,18 @@
+(This subroutine limits the amount of dive into workpiece to the ratio defined by _plunge_ratio and does the cut)
+(CALL to_x, to_y, len, dir, i, j)
+o<fv_cut-to> sub
+	o<cut-00> if [#<_cut_to:seg_z> GT #<_cut_to:loop_end_z>]
+		o<cut-02> if [#3 GT 0]
+			#<_cut_to:seg_z> = [#<_cut_to:seg_z> - #3 * #<_plunge_ratio>]
+			o<cut-02a> if [#<_cut_to:seg_z> LT #<_cut_to:loop_end_z>]
+				#<_cut_to:seg_z> = #<_cut_to:loop_end_z>
+			o<cut-02a> endif
+		o<cut-02> endif
+	o<cut-00> endif
+	
+	o<cut-10> if [[#4 EQ 2] OR [#4 EQ 3]]
+		G#4 X#1 Y#2 Z#<_cut_to:seg_z> I#5 J#6
+	o<cut-10> else
+		G1 X#1 Y#2 Z#<_cut_to:seg_z>
+	o<cut-10> endif	
+o<fv_cut-to> endsub

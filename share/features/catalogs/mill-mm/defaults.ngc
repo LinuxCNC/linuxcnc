@@ -1,0 +1,70 @@
+( Mill defaults )
+
+G17 (xy plane)
+G21 (metric)
+G40 (cancel cutter radius compensation)
+G49 (cancel tool length offset)
+G90 (absolute distance mode)
+;G92.1 (cancel G92 offsets)
+G94 (units/min feedrate)
+G54 (Coordinate system 1 by default)
+G64 p0.001 (path control stop)
+
+#<_z_clear> = 3
+
+#<_surface> = 0
+#<_depth> = -12
+#<_depth_step> = -3
+
+#<_ffeed> = 100
+#<_final_feed> = 90
+#<_vertical_feed> = 10
+
+#<_spindle_rpm> = 1000
+#<_final_spindle_rpm> = 1000
+
+#<_plunge_down> = 0
+#<_plunge_ratio> = 0.07
+#<_pocket_ratio> = 0.9
+#<_pocket_cutting> = 0.85
+
+#<_probe_feed> = 60
+#<_probe_latch> = -2
+#<_probe_latch_feed> = 10
+#<_probe_func> = 38.2
+#<_probe_tip_dia> = 3
+#<_probe_depth> = 15
+
+#<_tool_probe_set> = 0
+
+#<_drill_mode> = 73
+#<_drill_feed> = 25
+#<_drill_retract>= 4
+#<_drill_dwell> = 3
+#<_drill_q> = 6
+
+#<_show_final_cuts> = 1
+#<_show_bottom_cut> = 1
+
+#<_units_factor> = 1
+#<_units_r> = 1  (radius and diameter)
+#<_units_w> = 1  (width, height, length)
+#<_units_d> = 1  (depth)
+
+(This is a safety message to help avoid gouging in the work piece)
+(Disable messages at will but let the loop in case you forget)
+/ (debug, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+/ (print, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+/ (AXIS,notify, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+/ G0 Z3
+/ o<safety-999> repeat [1000]
+/	G0 X-2 Y-2
+/	G0 Y2
+/	G0 X2
+/	G0 Y-2
+/ o<safety-999> endrepeat 
+
+F#<_ffeed>
+S#<_spindle_rpm>    
+        
+( end mill defaults )
