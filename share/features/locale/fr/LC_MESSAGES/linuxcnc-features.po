@@ -1,0 +1,2819 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: linuxcnc-features\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-06-24 20:02-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: locale/menu.xml:2
+msgid "Regular Shape"
+msgstr "Forme régulière"
+
+#: locale/menu.xml:4
+msgid "Rectangle From 1 point"
+msgstr ""
+
+#: locale/menu.xml:6
+msgid "Position by center or corner"
+msgstr ""
+
+#: locale/menu.xml:8
+msgid "Rectangle From 2 points"
+msgstr ""
+
+#: locale/menu.xml:10
+msgid "Position by any corner"
+msgstr ""
+
+#: locale/menu.xml:12
+msgid "Circle"
+msgstr "Cercle"
+
+#: locale/menu.xml:14
+msgid "Create a circle"
+msgstr "Créer un cercle"
+
+#: locale/menu.xml:16
+msgid "Circle By 2 Points"
+msgstr ""
+
+#: locale/menu.xml:18
+msgid "Create a circle from ends of diameter"
+msgstr ""
+
+#: locale/menu.xml:20 locale/fv_slot-2.ini:2 locale/fv_slot.ini:2
+msgid "Slot"
+msgstr ""
+
+#: locale/menu.xml:22
+msgid "Define a point and angle"
+msgstr ""
+
+#: locale/menu.xml:24
+msgid "Slot By 2 Points"
+msgstr ""
+
+#: locale/menu.xml:26
+msgid "Define 2 points"
+msgstr ""
+
+#: locale/menu.xml:28 locale/fv_slot-arc.ini:2
+msgid "Radial Slot"
+msgstr ""
+
+#: locale/menu.xml:30
+msgid "Create an radial slot"
+msgstr ""
+
+#: locale/menu.xml:32
+msgid "Oval"
+msgstr "Ovale"
+
+#: locale/menu.xml:34
+msgid "Create an oval shape"
+msgstr "Créer une forme ovale"
+
+#: locale/menu.xml:36 locale/fv_ellipse.ini:2
+msgid "Ellipse"
+msgstr ""
+
+#: locale/menu.xml:38
+msgid "Create an ellipse"
+msgstr "Créer une ellipse"
+
+#: locale/menu.xml:40
+msgid "Polygon"
+msgstr "Polygone"
+
+#: locale/menu.xml:42
+msgid "Polygon of N edges"
+msgstr "Polygone de n côtés"
+
+#: locale/menu.xml:44
+msgid "Drilling"
+msgstr "Perçage"
+
+#: locale/menu.xml:46
+msgid "Single Or In-Line Holes"
+msgstr ""
+
+#: locale/menu.xml:48
+msgid "Drill a single or line of holes"
+msgstr ""
+
+#: locale/menu.xml:50
+msgid "Regular Circle"
+msgstr "Cercle régulier"
+
+#: locale/menu.xml:52
+msgid "Create a regular spaced holes circle"
+msgstr ""
+
+#: locale/menu.xml:54
+msgid "Irregular Circle"
+msgstr "Cercle  irrégulier"
+
+#: locale/menu.xml:56
+msgid "Create a hole circle of different angle spacing"
+msgstr ""
+
+#: locale/menu.xml:58
+msgid "Grouping, Offset And Rotation"
+msgstr ""
+
+#: locale/menu.xml:60
+msgid "Standard Group"
+msgstr "Groupe standard"
+
+#: locale/menu.xml:62
+msgid "Group features together"
+msgstr ""
+
+#: locale/menu.xml:64
+msgid "Radial array"
+msgstr "Ensemble circulaire"
+
+#: locale/menu.xml:66
+msgid "Array based on diameter or distance"
+msgstr ""
+
+#: locale/menu.xml:68 locale/fv_linear-array.ini:2
+msgid "Linear array"
+msgstr "Ensemble linéaire"
+
+#: locale/menu.xml:70
+msgid "Create a linear array"
+msgstr ""
+
+#: locale/menu.xml:72
+msgid "Rectangular array"
+msgstr "Ensemble rectangulaire"
+
+#: locale/menu.xml:74
+msgid "Array from a corner or center"
+msgstr ""
+
+#: locale/menu.xml:76
+msgid "Tools"
+msgstr "Outils"
+
+#: locale/menu.xml:78
+msgid "Change Tool"
+msgstr "Changer d'outils"
+
+#: locale/menu.xml:80 locale/menu.xml:84
+msgid "Select and set parameters"
+msgstr ""
+
+#: locale/menu.xml:82
+msgid "Change Drill"
+msgstr "Changer de foret"
+
+#: locale/menu.xml:86
+msgid "Probing"
+msgstr "Palpage"
+
+#: locale/menu.xml:88
+msgid "Set Probing Params"
+msgstr ""
+
+#: locale/menu.xml:90
+msgid "Set params before probing"
+msgstr ""
+
+#: locale/menu.xml:92 locale/fv_probe-edge.ini:2
+msgid "Probe Edges"
+msgstr ""
+
+#: locale/menu.xml:94
+msgid "Find workpiece edges"
+msgstr ""
+
+#: locale/menu.xml:96 locale/fv_probe-hole.ini:2
+msgid "Probe Hole"
+msgstr ""
+
+#: locale/menu.xml:98
+msgid "Find the center of a hole"
+msgstr ""
+
+#: locale/menu.xml:100 locale/fv_probe-cube.ini:2
+msgid "Probe Cube"
+msgstr ""
+
+#: locale/menu.xml:102
+msgid "Find the center of a cube or cylinder"
+msgstr ""
+
+#: locale/menu.xml:104 locale/fv_probe-down.ini:2 locale/fv_probe-array.ini:2
+msgid "Probe Array"
+msgstr ""
+
+#: locale/menu.xml:106
+msgid "Probe a array of place and save to file"
+msgstr ""
+
+#: locale/menu.xml:108
+msgid "Miscellaneous"
+msgstr ""
+
+#: locale/menu.xml:110
+msgid "Task"
+msgstr "Tâche"
+
+#: locale/menu.xml:112
+msgid "Master feature"
+msgstr ""
+
+#: locale/menu.xml:114
+msgid "Add Custom G Code"
+msgstr ""
+
+#: locale/menu.xml:116
+msgid "Write custom gcode"
+msgstr ""
+
+#: locale/menu.xml:118 locale/fv_design-cube.ini:2
+msgid "Design Cube"
+msgstr ""
+
+#: locale/menu.xml:120
+msgid "Show a temporary cube"
+msgstr ""
+
+#: locale/menu.xml:122
+msgid "Change Units"
+msgstr ""
+
+#: locale/menu.xml:124
+msgid "Change from inch to metric or inverse"
+msgstr ""
+
+#: locale/menu.xml:2
+msgid "Cutting"
+msgstr ""
+
+#: locale/menu.xml:4
+msgid "Face"
+msgstr ""
+
+#: locale/menu.xml:6
+msgid "Cutting params"
+msgstr ""
+
+#: locale/menu.xml:8
+msgid "Threading"
+msgstr ""
+
+#: locale/menu.xml:10
+msgid "Thread"
+msgstr ""
+
+#: locale/menu.xml:12
+msgid "Threading params"
+msgstr ""
+
+#: locale/menu.xml:14
+msgid "Tool"
+msgstr "Outil"
+
+#: locale/menu.xml:16
+msgid "Set lathe cuting params"
+msgstr ""
+
+#: locale/menu.xml:18 locale/tool-change.ini:2
+msgid "Change tool"
+msgstr ""
+
+#: features.py:161
+#, python-format
+msgid "Can not find file %s"
+msgstr ""
+
+#: features.py:182 features.py:183
+#, python-format
+msgid "Image file not found : %s"
+msgstr ""
+
+#: features.py:200 features.py:201
+#, python-format
+msgid "Image file not valid : %s"
+msgstr ""
+
+#: features.py:650 features.py:703
+#, python-format
+msgid "File not found : %s"
+msgstr ""
+
+#: features.py:705
+#, python-format
+msgid "File not found : %(f)s in %(p)s"
+msgstr ""
+
+#: features.py:756
+msgid "No PROGRAM_PREFIX in LinuxCNC ini file"
+msgstr ""
+
+#: features.py:758
+msgid "Can not read LinuxCNC ini file"
+msgstr ""
+
+#: features.py:770
+#, python-format
+msgid "Catalog file does not exists : %s"
+msgstr ""
+
+#: features.py:798
+msgid "File not found : features.glade"
+msgstr ""
+
+#: features.py:833 features.py:834
+#, python-format
+msgid "Can not load NGC default file : %s"
+msgstr ""
+
+#: features.py:867
+msgid "_New"
+msgstr ""
+
+#: features.py:874 features.py:1379
+msgid "_Open"
+msgstr ""
+
+#: features.py:881
+msgid "_Save"
+msgstr ""
+
+#: features.py:887
+msgid "Save as Default Template"
+msgstr ""
+
+#: features.py:896
+msgid "_Export as RS274NGC"
+msgstr ""
+
+#: features.py:903
+msgid "_File"
+msgstr ""
+
+#: features.py:910
+msgid "_View"
+msgstr ""
+
+#: features.py:914 features.py:1533
+msgid "Singl_e View"
+msgstr ""
+
+#: features.py:918 features.py:1538
+msgid "Split _Features/Params Views"
+msgstr ""
+
+#: features.py:922 features.py:1543
+msgid "_Hide Features Value Column"
+msgstr ""
+
+#: features.py:929 features.py:1551
+msgid "_Top / Bottom Layout"
+msgstr "Disposition haut / bas"
+
+#: features.py:934 features.py:1557
+msgid "_Side By Side Layout"
+msgstr "Disposition côte à côte"
+
+#: features.py:942 features.py:1566
+msgid "_Use Widgets Box"
+msgstr ""
+
+#: features.py:946 features.py:1572
+msgid "Sho_w Headers"
+msgstr ""
+
+#: features.py:954
+msgid "Save As Default _Layout"
+msgstr ""
+
+#: features.py:963
+msgid "_Add"
+msgstr ""
+
+#: features.py:970
+msgid "_Utilities"
+msgstr ""
+
+#: features.py:974
+msgid "_Auto-Refresh"
+msgstr ""
+
+#: features.py:977
+msgid "_Edit Defaults"
+msgstr ""
+
+#: features.py:984
+msgid "_Reload Defaults"
+msgstr ""
+
+#: features.py:991
+msgid "Edit Current _Feature"
+msgstr ""
+
+#: features.py:998
+msgid "Reload _Current Feature"
+msgstr ""
+
+#: features.py:1008
+msgid "_Preferences"
+msgstr ""
+
+#: features.py:1015
+msgid "_Get Strings For Translation"
+msgstr ""
+
+#: features.py:1025
+msgid "_Help"
+msgstr ""
+
+#: features.py:1029
+msgid "_Context Help"
+msgstr ""
+
+#: features.py:1036
+msgid "_General Help"
+msgstr ""
+
+#: features.py:1046
+msgid "LinuxCNC Home"
+msgstr ""
+
+#: features.py:1053
+msgid "LinuxCNC Forum"
+msgstr ""
+
+#: features.py:1060
+msgid "CNC-Club Russia"
+msgstr ""
+
+#: features.py:1067
+msgid "Get Latest Version"
+msgstr ""
+
+#: features.py:1077
+msgid "_About"
+msgstr ""
+
+#: features.py:1144
+msgid "Add Feature"
+msgstr ""
+
+#: features.py:1152
+msgid "Catalog Root"
+msgstr ""
+
+#: features.py:1156
+msgid "Upper Level"
+msgstr ""
+
+#: features.py:1313
+#, python-format
+msgid "Warning cannot write to topfeatures file %s"
+msgstr ""
+
+#: features.py:1366
+msgid "Problem adding catalog to menu"
+msgstr ""
+
+#: features.py:1371
+msgid "Import _XML"
+msgstr ""
+
+#: features.py:1384
+msgid "Select a valid or prototype ini"
+msgstr ""
+
+#: features.py:1391 features.py:1738
+msgid "Name"
+msgstr ""
+
+#: features.py:1405 features.py:1752
+msgid "Value"
+msgstr ""
+
+#: features.py:1464
+msgid "Change data type"
+msgstr "Changer type de donnée"
+
+#: features.py:1470
+msgid "String"
+msgstr "Chaîne"
+
+#: features.py:1475
+msgid "Integer"
+msgstr "Entier"
+
+#: features.py:1480
+msgid "Float"
+msgstr "Réel"
+
+#: features.py:1485
+msgid "Set digits"
+msgstr "Décimales"
+
+#: features.py:1499
+msgid "_Edit Current Feature"
+msgstr ""
+
+#: features.py:1506
+msgid "Re_load Current Feature"
+msgstr ""
+
+#: features.py:1516
+msgid "_Duplicate Current Feature"
+msgstr ""
+
+#: features.py:1523
+msgid "Re_move Current Feature"
+msgstr ""
+
+#: features.py:1648
+#, python-format
+msgid "Can not convert \"%s\" to float"
+msgstr ""
+
+#: features.py:1656
+#, python-format
+msgid "Can not convert \"%s\" to int"
+msgstr ""
+
+#: features.py:2251
+msgid ""
+"LinuxCNC not running\n"
+"\n"
+"Start LinuxCNC and press Build button again"
+msgstr ""
+
+#: features.py:2255 features.py:2807
+msgid "Save as..."
+msgstr ""
+
+#: features.py:2515
+msgid "Untitle.xml"
+msgstr "sansnom.xml"
+
+#: features.py:2580
+msgid "Preferences"
+msgstr "Préférences"
+
+#: features.py:2588
+msgid "Name Column Minimum Width"
+msgstr ""
+
+#: features.py:2591
+msgid "Window Minimum Width"
+msgstr ""
+
+#: features.py:2594
+msgid "Auto-refresh timeout"
+msgstr ""
+
+#: features.py:2598
+msgid "Default Decimals"
+msgstr ""
+
+#: features.py:2783
+msgid "Import"
+msgstr "Importer"
+
+#: features.py:2792
+msgid "All files"
+msgstr ""
+
+#: features.py:2833 features.py:2855
+msgid "Open"
+msgstr "Ouvrir"
+
+#: features.py:2874
+#, python-format
+msgid "Can not reload NGC defaults: %s"
+msgstr ""
+
+#: features.glade:37
+msgid "Features"
+msgstr ""
+
+#: features.glade:55
+msgid "Build ngc script"
+msgstr ""
+
+#: features.glade:57
+msgid "Build"
+msgstr ""
+
+#: features.glade:81
+msgid "Duplicate selected feature <Ctrl+D>"
+msgstr ""
+
+#: features.glade:83
+msgid "Duplicate"
+msgstr "Dupliquer"
+
+#: features.glade:97
+msgid "Remove selected feature <Ctrl+Del>"
+msgstr ""
+
+#: features.glade:99 locale/fv_circle.ini:46 locale/fv_circle-2.ini:54
+msgid "Remove"
+msgstr ""
+
+#: features.glade:123
+msgid "Undo last operation <Ctrl+Z>"
+msgstr ""
+
+#: features.glade:125
+msgid "Undo"
+msgstr "Défaire"
+
+#: features.glade:139
+msgid "Redo last Undo"
+msgstr ""
+
+#: features.glade:141
+msgid "Redo"
+msgstr "Refaire"
+
+#: features.glade:165
+msgid "Move up <Ctrl+Up>"
+msgstr ""
+
+#: features.glade:167
+msgid "Move Up"
+msgstr "Vers le haut"
+
+#: features.glade:181
+msgid "Move down <Ctrl+Down>"
+msgstr ""
+
+#: features.glade:183
+msgid "Move Down"
+msgstr "Vers le bas"
+
+#: features.glade:207
+msgid "Add to Group <Ctrl+Right>"
+msgstr ""
+
+#: features.glade:209
+msgid "Add to items"
+msgstr ""
+
+#: features.glade:223
+msgid "Remove from Group <Ctrl+Left>"
+msgstr ""
+
+#: features.glade:225
+msgid "Remove from items"
+msgstr ""
+
+#: features.glade:249
+msgid "Collapse all other nodes"
+msgstr ""
+
+#: features.glade:251
+msgid "Collapse all others"
+msgstr ""
+
+#: locale/fv_gcode.ini:2
+msgid "GCode"
+msgstr ""
+
+#: locale/fv_gcode.ini:4
+msgid ""
+"<b>Add gcode</b>\n"
+"'/n' can be used to split lines\n"
+"lines will be parsed as usual so you can use &lt;eval&gt;&lt;/eval&gt;"
+msgstr ""
+
+#: locale/fv_gcode.ini:6 locale/fv_rect-2.ini:6 locale/fv_slot-2.ini:6
+#: locale/fv_group.ini:6 locale/fv_ellipse.ini:6 locale/fv_circle.ini:4
+#: locale/fv_bolt-circle-irr.ini:6 locale/fv_change-units.ini:6
+#: locale/fv_task.ini:6 locale/fv_rectangular-array.ini:6
+#: locale/fv_drill-one.ini:6 locale/fv_polygon.ini:6
+#: locale/fv_drill-change.ini:6 locale/fv_tool-change.ini:6
+#: locale/fv_oval.ini:6 locale/fv_tool-probe-pos.ini:6
+#: locale/fv_probe-cube.ini:6 locale/fv_taper-hole.ini:4
+#: locale/fv_slot-arc.ini:6 locale/fv_probe-array.ini:6 locale/fv_rect.ini:6
+#: locale/fv_design-cube.ini:6 locale/fv_circle-2.ini:6
+#: locale/fv_linear-array.ini:6 locale/fv_circular-array.ini:6
+#: locale/fv_probe-hole.ini:6 locale/fv_bolt-circle.ini:6
+#: locale/fv_probe-edge.ini:6 locale/fv_slot.ini:6
+msgid "Enabled"
+msgstr "Actif"
+
+#: locale/fv_gcode.ini:8
+msgid "Disabling will exclude lines"
+msgstr ""
+
+#: locale/fv_gcode.ini:10 locale/fv_gcode.ini:16 locale/fv_gcode.ini:22
+#: locale/fv_gcode.ini:28 locale/fv_gcode.ini:34 locale/fv_gcode.ini:40
+#: locale/fv_gcode.ini:46 locale/fv_gcode.ini:52 locale/fv_rect-2.ini:10
+#: locale/fv_rect-2.ini:16 locale/fv_rect-2.ini:22 locale/fv_rect-2.ini:28
+#: locale/fv_rect-2.ini:34 locale/fv_rect-2.ini:40 locale/fv_rect-2.ini:46
+#: locale/fv_rect-2.ini:52 locale/fv_rect-2.ini:64 locale/fv_rect-2.ini:70
+#: locale/fv_rect-2.ini:88 locale/fv_rect-2.ini:94 locale/fv_slot-2.ini:10
+#: locale/fv_slot-2.ini:16 locale/fv_slot-2.ini:22 locale/fv_slot-2.ini:28
+#: locale/fv_slot-2.ini:34 locale/fv_slot-2.ini:40 locale/fv_slot-2.ini:46
+#: locale/fv_slot-2.ini:52 locale/fv_slot-2.ini:58 locale/fv_slot-2.ini:76
+#: locale/fv_slot-2.ini:82 locale/fv_group.ini:10 locale/fv_group.ini:16
+#: locale/fv_ellipse.ini:10 locale/fv_ellipse.ini:16 locale/fv_ellipse.ini:22
+#: locale/fv_ellipse.ini:28 locale/fv_ellipse.ini:34 locale/fv_ellipse.ini:40
+#: locale/fv_ellipse.ini:46 locale/fv_ellipse.ini:52 locale/fv_ellipse.ini:58
+#: locale/fv_ellipse.ini:64 locale/fv_ellipse.ini:82 locale/fv_ellipse.ini:88
+#: locale/fv_circle.ini:8 locale/fv_circle.ini:14 locale/fv_circle.ini:20
+#: locale/fv_circle.ini:26 locale/fv_circle.ini:32 locale/fv_circle.ini:38
+#: locale/fv_circle.ini:44 locale/fv_circle.ini:50 locale/fv_circle.ini:56
+#: locale/fv_circle.ini:62 locale/fv_circle.ini:80 locale/fv_circle.ini:86
+#: locale/fv_bolt-circle-irr.ini:10 locale/fv_bolt-circle-irr.ini:16
+#: locale/fv_bolt-circle-irr.ini:22 locale/fv_bolt-circle-irr.ini:28
+#: locale/fv_bolt-circle-irr.ini:34 locale/fv_bolt-circle-irr.ini:40
+#: locale/fv_bolt-circle-irr.ini:46 locale/fv_bolt-circle-irr.ini:52
+#: locale/fv_bolt-circle-irr.ini:58 locale/fv_bolt-circle-irr.ini:64
+#: locale/fv_bolt-circle-irr.ini:70 locale/fv_bolt-circle-irr.ini:76
+#: locale/fv_bolt-circle-irr.ini:82 locale/fv_bolt-circle-irr.ini:88
+#: locale/fv_bolt-circle-irr.ini:94 locale/fv_bolt-circle-irr.ini:100
+#: locale/fv_bolt-circle-irr.ini:106 locale/fv_change-units.ini:10
+#: locale/fv_change-units.ini:16 locale/fv_change-units.ini:22
+#: locale/fv_change-units.ini:28 locale/fv_change-units.ini:34
+#: locale/fv_change-units.ini:40 locale/fv_task.ini:10 locale/fv_task.ini:16
+#: locale/fv_task.ini:22 locale/fv_task.ini:28 locale/fv_task.ini:34
+#: locale/fv_task.ini:40 locale/fv_task.ini:46 locale/fv_task.ini:52
+#: locale/fv_task.ini:58 locale/fv_task.ini:64 locale/fv_task.ini:70
+#: locale/fv_rectangular-array.ini:10 locale/fv_rectangular-array.ini:16
+#: locale/fv_rectangular-array.ini:22 locale/fv_rectangular-array.ini:28
+#: locale/fv_rectangular-array.ini:40 locale/fv_rectangular-array.ini:46
+#: locale/fv_rectangular-array.ini:52 locale/fv_rectangular-array.ini:58
+#: locale/fv_rectangular-array.ini:64 locale/fv_rectangular-array.ini:70
+#: locale/fv_rectangular-array.ini:76 locale/fv_rectangular-array.ini:82
+#: locale/fv_rectangular-array.ini:94 locale/fv_set-tool-params.ini:10
+#: locale/fv_set-tool-params.ini:16 locale/fv_set-tool-params.ini:22
+#: locale/fv_set-tool-params.ini:28 locale/fv_set-tool-params.ini:34
+#: locale/fv_drill-one.ini:10 locale/fv_drill-one.ini:16
+#: locale/fv_drill-one.ini:22 locale/fv_drill-one.ini:28
+#: locale/fv_drill-one.ini:34 locale/fv_drill-one.ini:40
+#: locale/fv_drill-one.ini:46 locale/fv_drill-one.ini:52
+#: locale/fv_drill-one.ini:58 locale/fv_drill-one.ini:64
+#: locale/fv_drill-one.ini:70 locale/fv_drill-one.ini:76
+#: locale/thread-adv.ini:10 locale/thread-adv.ini:16 locale/thread-adv.ini:22
+#: locale/thread-adv.ini:28 locale/thread-adv.ini:34 locale/thread-adv.ini:40
+#: locale/thread-adv.ini:46 locale/thread-adv.ini:52 locale/thread-adv.ini:58
+#: locale/thread-adv.ini:64 locale/thread-adv.ini:70 locale/thread-adv.ini:76
+#: locale/thread-adv.ini:82 locale/fv_polygon.ini:10 locale/fv_polygon.ini:16
+#: locale/fv_polygon.ini:22 locale/fv_polygon.ini:28 locale/fv_polygon.ini:34
+#: locale/fv_polygon.ini:40 locale/fv_polygon.ini:46 locale/fv_polygon.ini:52
+#: locale/fv_polygon.ini:58 locale/fv_polygon.ini:76 locale/fv_polygon.ini:82
+#: locale/fv_drill-change.ini:10 locale/fv_drill-change.ini:16
+#: locale/fv_drill-change.ini:22 locale/fv_drill-change.ini:34
+#: locale/fv_drill-change.ini:46 locale/fv_drill-change.ini:52
+#: locale/fv_drill-change.ini:58 locale/fv_drill-change.ini:64
+#: locale/fv_drill-change.ini:70 locale/fv_drill-change.ini:82
+#: locale/fv_drill-change.ini:88 locale/fv_drill-change.ini:94
+#: locale/fv_drill-change.ini:100 locale/fv_tool-change.ini:10
+#: locale/fv_tool-change.ini:16 locale/fv_tool-change.ini:22
+#: locale/fv_tool-change.ini:34 locale/fv_tool-change.ini:46
+#: locale/fv_tool-change.ini:52 locale/fv_tool-change.ini:58
+#: locale/fv_tool-change.ini:64 locale/fv_tool-change.ini:70
+#: locale/fv_tool-change.ini:76 locale/fv_tool-change.ini:82
+#: locale/fv_tool-change.ini:88 locale/fv_tool-change.ini:94
+#: locale/fv_tool-change.ini:106 locale/fv_tool-change.ini:112
+#: locale/fv_tool-change.ini:118 locale/fv_tool-change.ini:124
+#: locale/fv_probe-down.ini:10 locale/fv_probe-down.ini:16
+#: locale/fv_probe-down.ini:22 locale/fv_probe-down.ini:28
+#: locale/fv_probe-down.ini:34 locale/fv_probe-down.ini:40
+#: locale/fv_oval.ini:10 locale/fv_oval.ini:16 locale/fv_oval.ini:22
+#: locale/fv_oval.ini:28 locale/fv_oval.ini:34 locale/fv_oval.ini:40
+#: locale/fv_oval.ini:46 locale/fv_oval.ini:52 locale/fv_oval.ini:58
+#: locale/fv_oval.ini:76 locale/fv_oval.ini:82 locale/fv_tool-probe-pos.ini:10
+#: locale/fv_tool-probe-pos.ini:16 locale/fv_tool-probe-pos.ini:28
+#: locale/fv_tool-probe-pos.ini:34 locale/fv_tool-probe-pos.ini:40
+#: locale/fv_tool-probe-pos.ini:46 locale/fv_tool-probe-pos.ini:52
+#: locale/fv_tool-probe-pos.ini:58 locale/fv_tool-probe-pos.ini:64
+#: locale/fv_tool-probe-pos.ini:70 locale/fv_tool-probe-pos.ini:76
+#: locale/fv_tool-probe-pos.ini:82 locale/tool-change.ini:10
+#: locale/tool-change.ini:16 locale/threading-params.ini:10
+#: locale/threading-params.ini:16 locale/threading-params.ini:22
+#: locale/threading-params.ini:28 locale/threading-params.ini:34
+#: locale/threading-params.ini:40 locale/fv_probe-cube.ini:10
+#: locale/fv_probe-cube.ini:16 locale/fv_probe-cube.ini:22
+#: locale/fv_probe-cube.ini:28 locale/fv_probe-cube.ini:34
+#: locale/fv_probe-cube.ini:40 locale/fv_probe-cube.ini:46
+#: locale/fv_taper-hole.ini:8 locale/fv_taper-hole.ini:14
+#: locale/fv_taper-hole.ini:20 locale/fv_taper-hole.ini:26
+#: locale/fv_taper-hole.ini:32 locale/fv_taper-hole.ini:38
+#: locale/fv_taper-hole.ini:44 locale/fv_taper-hole.ini:50
+#: locale/fv_taper-hole.ini:62 locale/fv_taper-hole.ini:68
+#: locale/fv_taper-hole.ini:74 locale/fv_slot-arc.ini:10
+#: locale/fv_slot-arc.ini:16 locale/fv_slot-arc.ini:22
+#: locale/fv_slot-arc.ini:28 locale/fv_slot-arc.ini:34
+#: locale/fv_slot-arc.ini:40 locale/fv_slot-arc.ini:46
+#: locale/fv_slot-arc.ini:52 locale/fv_slot-arc.ini:58
+#: locale/fv_slot-arc.ini:64 locale/fv_slot-arc.ini:82
+#: locale/fv_slot-arc.ini:88 locale/fv_probe-array.ini:10
+#: locale/fv_probe-array.ini:16 locale/fv_probe-array.ini:22
+#: locale/fv_probe-array.ini:28 locale/fv_probe-array.ini:34
+#: locale/fv_probe-array.ini:40 locale/fv_probe-array.ini:46
+#: locale/fv_probe-array.ini:52 locale/fv_probe-array.ini:58
+#: locale/fv_probe-array.ini:64 locale/fv_probe-array.ini:70
+#: locale/fv_probe-array.ini:76 locale/fv_set-probing-params.ini:16
+#: locale/fv_set-probing-params.ini:22 locale/fv_set-probing-params.ini:28
+#: locale/fv_set-probing-params.ini:34 locale/fv_probe-tool-d.ini:10
+#: locale/fv_probe-tool-d.ini:16 locale/fv_probe-tool-d.ini:22
+#: locale/fv_probe-tool-d.ini:28 locale/fv_probe-tool-d.ini:34
+#: locale/fv_probe-tool-d.ini:40 locale/fv_probe-tool-d.ini:46
+#: locale/fv_probe-tool-d.ini:52 locale/fv_probe-tool-d.ini:58
+#: locale/lathe-cutting-params.ini:10 locale/lathe-cutting-params.ini:16
+#: locale/lathe-cutting-params.ini:22 locale/lathe-cutting-params.ini:28
+#: locale/lathe-cutting-params.ini:34 locale/lathe-cutting-params.ini:40
+#: locale/lathe-cutting-params.ini:46 locale/lathe-cutting-params.ini:52
+#: locale/lathe-cutting-params.ini:58 locale/lathe-cutting-params.ini:64
+#: locale/lathe-cutting-params.ini:70 locale/lathe-cutting-params.ini:76
+#: locale/lathe-cutting-params.ini:82 locale/lathe-cutting-params.ini:88
+#: locale/fv_rect.ini:10 locale/fv_rect.ini:16 locale/fv_rect.ini:22
+#: locale/fv_rect.ini:34 locale/fv_rect.ini:40 locale/fv_rect.ini:46
+#: locale/fv_rect.ini:52 locale/fv_rect.ini:58 locale/fv_rect.ini:64
+#: locale/fv_rect.ini:76 locale/fv_rect.ini:82 locale/fv_rect.ini:100
+#: locale/fv_rect.ini:106 locale/fv_design-cube.ini:10
+#: locale/fv_design-cube.ini:16 locale/fv_design-cube.ini:22
+#: locale/fv_design-cube.ini:28 locale/fv_design-cube.ini:34
+#: locale/fv_design-cube.ini:40 locale/fv_design-cube.ini:52
+#: locale/fv_design-cube.ini:58 locale/fv_design-cube.ini:64
+#: locale/fv_circle-2.ini:10 locale/fv_circle-2.ini:16
+#: locale/fv_circle-2.ini:22 locale/fv_circle-2.ini:28
+#: locale/fv_circle-2.ini:34 locale/fv_circle-2.ini:40
+#: locale/fv_circle-2.ini:46 locale/fv_circle-2.ini:52
+#: locale/fv_circle-2.ini:58 locale/fv_circle-2.ini:64
+#: locale/fv_circle-2.ini:70 locale/fv_circle-2.ini:88
+#: locale/fv_circle-2.ini:94 locale/cutting-params.ini:10
+#: locale/cutting-params.ini:16 locale/cutting-params.ini:22
+#: locale/cutting-params.ini:28 locale/cutting-params.ini:34
+#: locale/cutting-params.ini:40 locale/cutting-params.ini:46
+#: locale/cutting-params.ini:52 locale/cutting-params.ini:58
+#: locale/cutting-params.ini:64 locale/cutting-params.ini:70
+#: locale/cutting-params.ini:76 locale/cutting-params.ini:82
+#: locale/cutting-params.ini:88 locale/fv_linear-array.ini:10
+#: locale/fv_linear-array.ini:16 locale/fv_linear-array.ini:22
+#: locale/fv_linear-array.ini:28 locale/fv_linear-array.ini:34
+#: locale/fv_linear-array.ini:40 locale/fv_linear-array.ini:46
+#: locale/fv_linear-array.ini:52 locale/fv_linear-array.ini:58
+#: locale/fv_linear-array.ini:64 locale/fv_linear-array.ini:70
+#: locale/fv_linear-array.ini:76 locale/fv_linear-array.ini:82
+#: locale/fv_linear-array.ini:88 locale/fv_linear-array.ini:100
+#: locale/fv_circular-array.ini:10 locale/fv_circular-array.ini:16
+#: locale/fv_circular-array.ini:22 locale/fv_circular-array.ini:28
+#: locale/fv_circular-array.ini:34 locale/fv_circular-array.ini:40
+#: locale/fv_circular-array.ini:46 locale/fv_circular-array.ini:58
+#: locale/fv_circular-array.ini:64 locale/fv_circular-array.ini:70
+#: locale/fv_circular-array.ini:76 locale/fv_circular-array.ini:82
+#: locale/fv_circular-array.ini:94 locale/fv_probe-hole.ini:10
+#: locale/fv_probe-hole.ini:16 locale/fv_probe-hole.ini:22
+#: locale/fv_probe-hole.ini:28 locale/fv_bolt-circle.ini:10
+#: locale/fv_bolt-circle.ini:16 locale/fv_bolt-circle.ini:22
+#: locale/fv_bolt-circle.ini:28 locale/fv_bolt-circle.ini:34
+#: locale/fv_bolt-circle.ini:40 locale/fv_bolt-circle.ini:46
+#: locale/fv_bolt-circle.ini:58 locale/fv_bolt-circle.ini:64
+#: locale/fv_bolt-circle.ini:70 locale/fv_bolt-circle.ini:76
+#: locale/fv_bolt-circle.ini:82 locale/fv_bolt-circle.ini:88
+#: locale/fv_probe-edge.ini:10 locale/fv_probe-edge.ini:16
+#: locale/fv_probe-edge.ini:34 locale/fv_probe-edge.ini:40 locale/face.ini:10
+#: locale/face.ini:16 locale/fv_slot.ini:10 locale/fv_slot.ini:16
+#: locale/fv_slot.ini:22 locale/fv_slot.ini:28 locale/fv_slot.ini:34
+#: locale/fv_slot.ini:40 locale/fv_slot.ini:46 locale/fv_slot.ini:52
+#: locale/fv_slot.ini:58 locale/fv_slot.ini:76 locale/fv_slot.ini:82
+msgid "Sans option"
+msgstr ""
+
+#: locale/fv_gcode.ini:12
+msgid "<b>--- Lines ---</b>"
+msgstr "<b>--- Lignes ---</b>"
+
+#: locale/fv_gcode.ini:14 locale/fv_rect-2.ini:8 locale/fv_rect-2.ini:14
+#: locale/fv_rect-2.ini:20 locale/fv_rect-2.ini:50 locale/fv_rect-2.ini:68
+#: locale/fv_slot-2.ini:8 locale/fv_slot-2.ini:14 locale/fv_slot-2.ini:20
+#: locale/fv_slot-2.ini:56 locale/fv_ellipse.ini:8 locale/fv_ellipse.ini:14
+#: locale/fv_ellipse.ini:20 locale/fv_ellipse.ini:62 locale/fv_circle.ini:6
+#: locale/fv_circle.ini:12 locale/fv_circle.ini:18 locale/fv_circle.ini:42
+#: locale/fv_circle.ini:60 locale/fv_bolt-circle-irr.ini:8
+#: locale/fv_bolt-circle-irr.ini:14 locale/fv_bolt-circle-irr.ini:38
+#: locale/fv_bolt-circle-irr.ini:50 locale/fv_bolt-circle-irr.ini:92
+#: locale/fv_change-units.ini:14 locale/fv_task.ini:20 locale/fv_task.ini:44
+#: locale/fv_rectangular-array.ini:14 locale/fv_rectangular-array.ini:50
+#: locale/fv_rectangular-array.ini:68 locale/fv_rectangular-array.ini:80
+#: locale/fv_drill-one.ini:8 locale/fv_drill-one.ini:14
+#: locale/fv_drill-one.ini:38 locale/fv_drill-one.ini:62
+#: locale/fv_polygon.ini:8 locale/fv_polygon.ini:14 locale/fv_polygon.ini:20
+#: locale/fv_polygon.ini:56 locale/fv_drill-change.ini:8
+#: locale/fv_drill-change.ini:14 locale/fv_drill-change.ini:44
+#: locale/fv_drill-change.ini:50 locale/fv_drill-change.ini:68
+#: locale/fv_tool-change.ini:14 locale/fv_tool-change.ini:44
+#: locale/fv_tool-change.ini:50 locale/fv_tool-change.ini:68
+#: locale/fv_tool-change.ini:92 locale/fv_probe-down.ini:14
+#: locale/fv_oval.ini:8 locale/fv_oval.ini:14 locale/fv_oval.ini:20
+#: locale/fv_oval.ini:56 locale/fv_tool-probe-pos.ini:8
+#: locale/fv_tool-probe-pos.ini:14 locale/fv_tool-probe-pos.ini:44
+#: locale/fv_tool-probe-pos.ini:62 locale/fv_probe-cube.ini:8
+#: locale/fv_probe-cube.ini:14 locale/fv_probe-cube.ini:32
+#: locale/fv_taper-hole.ini:6 locale/fv_taper-hole.ini:12
+#: locale/fv_taper-hole.ini:18 locale/fv_taper-hole.ini:48
+#: locale/fv_slot-arc.ini:8 locale/fv_slot-arc.ini:14
+#: locale/fv_slot-arc.ini:20 locale/fv_slot-arc.ini:62
+#: locale/fv_probe-array.ini:8 locale/fv_probe-array.ini:32
+#: locale/fv_probe-array.ini:62 locale/fv_rect.ini:8 locale/fv_rect.ini:14
+#: locale/fv_rect.ini:20 locale/fv_rect.ini:62 locale/fv_rect.ini:80
+#: locale/fv_design-cube.ini:8 locale/fv_design-cube.ini:14
+#: locale/fv_design-cube.ini:38 locale/fv_circle-2.ini:8
+#: locale/fv_circle-2.ini:14 locale/fv_circle-2.ini:20
+#: locale/fv_circle-2.ini:50 locale/fv_circle-2.ini:68
+#: locale/fv_linear-array.ini:14 locale/fv_linear-array.ini:44
+#: locale/fv_linear-array.ini:68 locale/fv_linear-array.ini:86
+#: locale/fv_circular-array.ini:14 locale/fv_circular-array.ini:38
+#: locale/fv_circular-array.ini:56 locale/fv_circular-array.ini:80
+#: locale/fv_probe-hole.ini:8 locale/fv_probe-hole.ini:14
+#: locale/fv_bolt-circle.ini:8 locale/fv_bolt-circle.ini:14
+#: locale/fv_bolt-circle.ini:38 locale/fv_bolt-circle.ini:56
+#: locale/fv_bolt-circle.ini:74 locale/fv_probe-edge.ini:8
+#: locale/fv_probe-edge.ini:14 locale/fv_probe-edge.ini:26
+#: locale/fv_slot.ini:8 locale/fv_slot.ini:14 locale/fv_slot.ini:20
+#: locale/fv_slot.ini:56
+msgid "None"
+msgstr ""
+
+#: locale/fv_gcode.ini:18
+msgid "Line 1"
+msgstr "Ligne 1"
+
+#: locale/fv_gcode.ini:20 locale/fv_gcode.ini:26 locale/fv_gcode.ini:32
+#: locale/fv_gcode.ini:38 locale/fv_gcode.ini:44 locale/fv_gcode.ini:50
+msgid "Gcode line"
+msgstr ""
+
+#: locale/fv_gcode.ini:24
+msgid "Line 2"
+msgstr "Ligne 2"
+
+#: locale/fv_gcode.ini:30
+msgid "Line 3"
+msgstr "Ligne 3"
+
+#: locale/fv_gcode.ini:36
+msgid "Line 4"
+msgstr "Ligne 4"
+
+#: locale/fv_gcode.ini:42
+msgid "Line 5"
+msgstr "Ligne 5"
+
+#: locale/fv_gcode.ini:48
+msgid "Line 6"
+msgstr "Ligne 6"
+
+#: locale/fv_rect-2.ini:2 locale/fv_rect.ini:2
+msgid "Rectangle"
+msgstr ""
+
+#: locale/fv_rect-2.ini:4
+msgid ""
+"<b>Creates rectangle from 2 points</b>\n"
+"Corners can be radiused or chamfered"
+msgstr ""
+
+#: locale/fv_rect-2.ini:12 locale/fv_slot-2.ini:12 locale/fv_ellipse.ini:12
+#: locale/fv_circle.ini:10 locale/fv_polygon.ini:12 locale/fv_oval.ini:12
+#: locale/fv_taper-hole.ini:10 locale/fv_slot-arc.ini:12 locale/fv_rect.ini:12
+#: locale/fv_circle-2.ini:12 locale/fv_slot.ini:12
+msgid "Show final cut"
+msgstr ""
+
+#: locale/fv_rect-2.ini:18 locale/fv_slot-2.ini:18 locale/fv_ellipse.ini:18
+#: locale/fv_circle.ini:16 locale/fv_bolt-circle-irr.ini:12
+#: locale/fv_rectangular-array.ini:12 locale/fv_drill-one.ini:12
+#: locale/fv_polygon.ini:18 locale/fv_drill-change.ini:12
+#: locale/fv_tool-change.ini:12 locale/fv_oval.ini:18
+#: locale/fv_taper-hole.ini:16 locale/fv_slot-arc.ini:18 locale/fv_rect.ini:18
+#: locale/fv_circle-2.ini:18 locale/fv_linear-array.ini:12
+#: locale/fv_circular-array.ini:12 locale/fv_probe-hole.ini:12
+#: locale/fv_bolt-circle.ini:12 locale/fv_probe-edge.ini:12
+#: locale/fv_slot.ini:18
+msgid "<b>--- General ---</b>"
+msgstr "<b>--- Général ---</b>"
+
+#: locale/fv_rect-2.ini:24 locale/fv_rect.ini:32 locale/fv_design-cube.ini:50
+msgid "X0"
+msgstr ""
+
+#: locale/fv_rect-2.ini:26 locale/fv_rect-2.ini:32 locale/fv_slot-2.ini:26
+#: locale/fv_slot-2.ini:32 locale/fv_probe-array.ini:20
+#: locale/fv_probe-array.ini:26
+msgid "First point"
+msgstr ""
+
+#: locale/fv_rect-2.ini:30 locale/fv_set-tool-params.ini:20
+#: locale/fv_rect.ini:38 locale/fv_design-cube.ini:56
+msgid "Y0"
+msgstr ""
+
+#: locale/fv_rect-2.ini:36 locale/fv_slot-2.ini:24 locale/fv_circle-2.ini:24
+msgid "X1"
+msgstr ""
+
+#: locale/fv_rect-2.ini:38 locale/fv_rect-2.ini:44 locale/fv_slot-2.ini:38
+#: locale/fv_slot-2.ini:44
+msgid "Second point"
+msgstr ""
+
+#: locale/fv_rect-2.ini:42 locale/fv_slot-2.ini:30 locale/fv_circle-2.ini:30
+msgid "Y1"
+msgstr ""
+
+#: locale/fv_rect-2.ini:48
+msgid "<b>--- Style ---</b>"
+msgstr ""
+
+#: locale/fv_rect-2.ini:54
+msgid "Corner Style"
+msgstr "Style des coins"
+
+#: locale/fv_rect-2.ini:56 locale/fv_rect.ini:68
+msgid "Select corner style"
+msgstr "Sélectionner style"
+
+#: locale/fv_rect-2.ini:58 locale/fv_rect.ini:70
+msgid "None=0:Chamfer=1:Rounded=2:Inverted Round=3"
+msgstr ""
+
+#: locale/fv_rect-2.ini:60
+msgid "Corner radius"
+msgstr "Rayon des coins"
+
+#: locale/fv_rect-2.ini:62 locale/fv_rect.ini:44 locale/fv_rect.ini:50
+msgid "Positive or negative value"
+msgstr "Valeur positive ou négative"
+
+#: locale/fv_rect-2.ini:66 locale/fv_slot-2.ini:54 locale/fv_ellipse.ini:60
+#: locale/fv_circle.ini:58 locale/fv_polygon.ini:54 locale/fv_oval.ini:54
+#: locale/fv_taper-hole.ini:46 locale/fv_slot-arc.ini:60 locale/fv_rect.ini:78
+#: locale/fv_circle-2.ini:66 locale/fv_slot.ini:54
+msgid "<b>--- Cutting params ---</b>"
+msgstr ""
+
+#: locale/fv_rect-2.ini:72 locale/fv_slot-2.ini:60 locale/fv_ellipse.ini:66
+#: locale/fv_circle.ini:64 locale/fv_polygon.ini:60 locale/fv_oval.ini:60
+#: locale/fv_slot-arc.ini:66 locale/fv_rect.ini:84 locale/fv_circle-2.ini:72
+#: locale/fv_slot.ini:60
+msgid "Cut options"
+msgstr ""
+
+#: locale/fv_rect-2.ini:74 locale/fv_slot-2.ini:62 locale/fv_ellipse.ini:68
+#: locale/fv_circle.ini:66 locale/fv_polygon.ini:62 locale/fv_oval.ini:62
+#: locale/fv_slot-arc.ini:68 locale/fv_rect.ini:86 locale/fv_circle-2.ini:74
+#: locale/fv_slot.ini:62
+msgid "Select tool path"
+msgstr ""
+
+#: locale/fv_rect-2.ini:76 locale/fv_slot-2.ini:64 locale/fv_ellipse.ini:70
+#: locale/fv_circle.ini:68 locale/fv_polygon.ini:64 locale/fv_oval.ini:64
+#: locale/fv_slot-arc.ini:70 locale/fv_rect.ini:88 locale/fv_circle-2.ini:76
+#: locale/fv_slot.ini:64
+msgid "Inside=0:Outside=1:On the line=2:Create a pocket=3"
+msgstr ""
+
+#: locale/fv_rect-2.ini:78 locale/fv_slot-2.ini:66 locale/fv_ellipse.ini:72
+#: locale/fv_circle.ini:70 locale/fv_polygon.ini:66 locale/fv_oval.ini:66
+#: locale/fv_taper-hole.ini:52 locale/fv_slot-arc.ini:72 locale/fv_rect.ini:90
+#: locale/fv_circle-2.ini:78 locale/fv_slot.ini:66
+msgid "Cut direction"
+msgstr ""
+
+#: locale/fv_rect-2.ini:80 locale/fv_slot-2.ini:68 locale/fv_ellipse.ini:74
+#: locale/fv_circle.ini:72 locale/fv_polygon.ini:68 locale/fv_oval.ini:68
+#: locale/fv_taper-hole.ini:54 locale/fv_slot-arc.ini:74 locale/fv_rect.ini:92
+#: locale/fv_circle-2.ini:80 locale/fv_slot.ini:68
+msgid "Direction of path"
+msgstr ""
+
+#: locale/fv_rect-2.ini:82 locale/fv_slot-2.ini:70 locale/fv_ellipse.ini:76
+#: locale/fv_circle.ini:74 locale/fv_polygon.ini:70 locale/fv_oval.ini:70
+#: locale/fv_taper-hole.ini:56 locale/fv_slot-arc.ini:76 locale/fv_rect.ini:94
+#: locale/fv_circle-2.ini:82 locale/fv_slot.ini:70
+msgid "Clockwise=2:Counter-Clockwise=3"
+msgstr ""
+
+#: locale/fv_rect-2.ini:84 locale/fv_slot-2.ini:72 locale/fv_ellipse.ini:78
+#: locale/fv_circle.ini:76 locale/fv_task.ini:24 locale/fv_polygon.ini:72
+#: locale/fv_oval.ini:72 locale/fv_taper-hole.ini:58 locale/fv_slot-arc.ini:78
+#: locale/fv_rect.ini:96 locale/fv_circle-2.ini:84 locale/fv_slot.ini:72
+msgid "Cut start"
+msgstr ""
+
+#: locale/fv_rect-2.ini:86 locale/fv_slot-2.ini:74 locale/fv_ellipse.ini:80
+#: locale/fv_circle.ini:78 locale/fv_polygon.ini:74 locale/fv_oval.ini:74
+#: locale/fv_taper-hole.ini:60 locale/fv_slot-arc.ini:80 locale/fv_rect.ini:98
+#: locale/fv_circle-2.ini:86 locale/fv_slot.ini:74
+msgid "Surface is usual"
+msgstr ""
+
+#: locale/fv_rect-2.ini:90 locale/fv_slot-2.ini:78 locale/fv_ellipse.ini:84
+#: locale/fv_circle.ini:82 locale/fv_task.ini:30 locale/fv_polygon.ini:78
+#: locale/fv_oval.ini:78 locale/fv_taper-hole.ini:70 locale/fv_slot-arc.ini:84
+#: locale/fv_rect.ini:102 locale/fv_circle-2.ini:90 locale/fv_slot.ini:78
+msgid "Cut down to"
+msgstr ""
+
+#: locale/fv_rect-2.ini:92 locale/fv_slot-2.ini:80 locale/fv_ellipse.ini:86
+#: locale/fv_circle.ini:84 locale/fv_task.ini:32 locale/fv_polygon.ini:80
+#: locale/fv_oval.ini:80 locale/fv_taper-hole.ini:72 locale/fv_slot-arc.ini:86
+#: locale/fv_rect.ini:104 locale/fv_circle-2.ini:92 locale/fv_slot.ini:80
+msgid "Negative value"
+msgstr ""
+
+#: locale/fv_slot-2.ini:4
+msgid "<b>Creates a slot from 2 points</b>"
+msgstr ""
+
+#: locale/fv_slot-2.ini:36 locale/fv_circle-2.ini:36
+msgid "X2"
+msgstr ""
+
+#: locale/fv_slot-2.ini:42 locale/fv_circle-2.ini:42
+msgid "Y2"
+msgstr ""
+
+#: locale/fv_slot-2.ini:48 locale/fv_oval.ini:36 locale/fv_probe-cube.ini:18
+#: locale/fv_slot-arc.ini:54 locale/fv_rect.ini:42
+#: locale/fv_design-cube.ini:18 locale/fv_design-cube.ini:20
+#: locale/fv_slot.ini:36
+msgid "Width"
+msgstr "Largeur"
+
+#: locale/fv_slot-2.ini:50 locale/fv_slot-arc.ini:56 locale/fv_slot.ini:38
+msgid "Width of slot"
+msgstr ""
+
+#: locale/fv_group.ini:2
+msgid "Groupe"
+msgstr ""
+
+#: locale/fv_group.ini:4
+msgid "<b>Group items together</b>"
+msgstr ""
+
+#: locale/fv_group.ini:8 locale/fv_rectangular-array.ini:8
+#: locale/fv_linear-array.ini:8 locale/fv_circular-array.ini:8
+msgid "Disabling will disable ALL items"
+msgstr ""
+
+#: locale/fv_group.ini:12 locale/fv_change-units.ini:36
+#: locale/fv_rectangular-array.ini:90 locale/fv_drill-change.ini:96
+#: locale/fv_tool-change.ini:120 locale/fv_linear-array.ini:96
+#: locale/fv_circular-array.ini:90
+msgid "Items"
+msgstr ""
+
+#: locale/fv_group.ini:14
+msgid "Items to group"
+msgstr ""
+
+#: locale/fv_ellipse.ini:4
+msgid "<b>Creates an ellipse</b>"
+msgstr ""
+
+#: locale/fv_ellipse.ini:24 locale/fv_circle.ini:22
+#: locale/fv_bolt-circle-irr.ini:24 locale/fv_polygon.ini:24
+#: locale/fv_taper-hole.ini:22 locale/fv_slot-arc.ini:24
+#: locale/fv_circular-array.ini:24 locale/fv_bolt-circle.ini:24
+msgid "cX"
+msgstr ""
+
+#: locale/fv_ellipse.ini:26 locale/fv_ellipse.ini:32
+msgid "Center of ellipse"
+msgstr ""
+
+#: locale/fv_ellipse.ini:30 locale/fv_circle.ini:28
+#: locale/fv_bolt-circle-irr.ini:30 locale/fv_polygon.ini:30
+#: locale/fv_taper-hole.ini:28 locale/fv_slot-arc.ini:30
+#: locale/fv_circular-array.ini:30 locale/fv_bolt-circle.ini:30
+msgid "cY"
+msgstr ""
+
+#: locale/fv_ellipse.ini:36
+msgid "X Radius"
+msgstr ""
+
+#: locale/fv_ellipse.ini:38
+msgid "Radius in X axis"
+msgstr ""
+
+#: locale/fv_ellipse.ini:42
+msgid "Y Radius"
+msgstr ""
+
+#: locale/fv_ellipse.ini:44
+msgid "Radius in Y axis"
+msgstr ""
+
+#: locale/fv_ellipse.ini:48 locale/fv_circle.ini:52
+#: locale/fv_rectangular-array.ini:72 locale/fv_drill-one.ini:54
+#: locale/fv_polygon.ini:48 locale/fv_oval.ini:48 locale/fv_rect.ini:54
+#: locale/fv_circle-2.ini:60 locale/fv_slot.ini:48
+msgid "Rotation"
+msgstr ""
+
+#: locale/fv_ellipse.ini:50 locale/fv_oval.ini:50 locale/fv_rect.ini:56
+#: locale/fv_slot.ini:50
+msgid "Angle rotated"
+msgstr ""
+
+#: locale/fv_ellipse.ini:54
+msgid "Segments"
+msgstr ""
+
+#: locale/fv_ellipse.ini:56
+msgid "Smoother with more segments"
+msgstr ""
+
+#: locale/fv_circle.ini:2 locale/fv_circle-2.ini:2
+msgid "Cercle"
+msgstr ""
+
+#: locale/fv_circle.ini:24 locale/fv_circle.ini:30
+#: locale/fv_bolt-circle-irr.ini:26 locale/fv_bolt-circle-irr.ini:32
+#: locale/fv_bolt-circle.ini:26 locale/fv_bolt-circle.ini:32
+msgid "Center of circle"
+msgstr ""
+
+#: locale/fv_circle.ini:34 locale/fv_circle.ini:36
+#: locale/fv_bolt-circle-irr.ini:42 locale/fv_set-tool-params.ini:12
+#: locale/fv_set-tool-params.ini:14 locale/fv_taper-hole.ini:36
+#: locale/fv_probe-hole.ini:18
+msgid "Diamètre"
+msgstr ""
+
+#: locale/fv_circle.ini:40 locale/fv_circle-2.ini:48
+msgid "<b>--- Add a flat ---</b>"
+msgstr ""
+
+#: locale/fv_circle.ini:48 locale/fv_circle-2.ini:56
+msgid "Height to remove from diameter"
+msgstr ""
+
+#: locale/fv_circle.ini:54 locale/fv_circle-2.ini:62
+msgid "Rotation of flat"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:2 locale/fv_bolt-circle.ini:2
+msgid "Drill Circle"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:4
+msgid "<b>Create a irregular circle</b>"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:18 locale/fv_bolt-circle-irr.ini:20
+#: locale/fv_drill-one.ini:18 locale/fv_drill-one.ini:20
+#: locale/fv_bolt-circle.ini:18 locale/fv_bolt-circle.ini:20
+msgid "Number of holes"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:36 locale/fv_bolt-circle.ini:36
+msgid "<b>--- Dimension ---</b>"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:44
+msgid "Diameter of circle"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:48
+msgid "<b>--- Holes positions ---</b>"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:54
+msgid "Hole 1 At"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:56 locale/fv_bolt-circle-irr.ini:62
+#: locale/fv_bolt-circle-irr.ini:68 locale/fv_bolt-circle-irr.ini:74
+#: locale/fv_bolt-circle-irr.ini:80 locale/fv_bolt-circle-irr.ini:86
+#: locale/fv_taper-hole.ini:42 locale/fv_slot-arc.ini:44
+msgid "Angle"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:60
+msgid "Hole 2 At"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:66
+msgid "Hole 3 At"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:72
+msgid "Hole 4 At"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:78
+msgid "Hole 5 At"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:84
+msgid "Hole 6 At"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:90 locale/fv_drill-one.ini:60
+#: locale/fv_bolt-circle.ini:72
+msgid "<b>--- Drilling params ---</b>"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:96 locale/fv_drill-one.ini:66
+#: locale/fv_bolt-circle.ini:78
+msgid "Start drilling"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:98 locale/fv_drill-one.ini:68
+#: locale/fv_bolt-circle.ini:80
+msgid "Start drilling at height"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:102 locale/fv_drill-one.ini:72
+#: locale/fv_bolt-circle.ini:84
+msgid "Drill depth"
+msgstr ""
+
+#: locale/fv_bolt-circle-irr.ini:104 locale/fv_drill-one.ini:74
+#: locale/fv_bolt-circle.ini:86
+msgid "Depth of drilling"
+msgstr ""
+
+#: locale/fv_change-units.ini:2
+msgid "Swap units"
+msgstr ""
+
+#: locale/fv_change-units.ini:4
+msgid "<b>Temporarily change units</b>"
+msgstr ""
+
+#: locale/fv_change-units.ini:8
+msgid "Disabling will NOT disable items"
+msgstr ""
+
+#: locale/fv_change-units.ini:12
+msgid "<b>--- Change units for ---</b>"
+msgstr ""
+
+#: locale/fv_change-units.ini:18
+msgid "Radius/Diameter"
+msgstr ""
+
+#: locale/fv_change-units.ini:20
+msgid "Radiuses, diameters"
+msgstr ""
+
+#: locale/fv_change-units.ini:24
+msgid "Width/Height/Length"
+msgstr ""
+
+#: locale/fv_change-units.ini:26
+msgid "Width, height, length"
+msgstr ""
+
+#: locale/fv_change-units.ini:30
+msgid "Cut Depth"
+msgstr ""
+
+#: locale/fv_change-units.ini:32
+msgid "Change units for cut depth"
+msgstr ""
+
+#: locale/fv_change-units.ini:38
+msgid "If enabled, these items will use alternate units"
+msgstr ""
+
+#: locale/fv_task.ini:2
+msgid "Tâche"
+msgstr ""
+
+#: locale/fv_task.ini:4
+msgid "<b>Create Task</b>"
+msgstr ""
+
+#: locale/fv_task.ini:8
+msgid "Disabling will disable ALL sub-tasks"
+msgstr ""
+
+#: locale/fv_task.ini:12
+msgid "Show final cuts"
+msgstr ""
+
+#: locale/fv_task.ini:14
+msgid "Show ALL sub-tasks final cuts"
+msgstr ""
+
+#: locale/fv_task.ini:18
+msgid "<b>--- Task params ---</b>"
+msgstr ""
+
+#: locale/fv_task.ini:26 locale/lathe-cutting-params.ini:6
+#: locale/lathe-cutting-params.ini:8 locale/fv_design-cube.ini:62
+#: locale/cutting-params.ini:6 locale/cutting-params.ini:8
+msgid "Surface"
+msgstr ""
+
+#: locale/fv_task.ini:36
+msgid "Clear Height"
+msgstr ""
+
+#: locale/fv_task.ini:38 locale/fv_probe-tool-d.ini:56
+msgid "Height to clear work piece"
+msgstr ""
+
+#: locale/fv_task.ini:42
+msgid "<b>--- Post Processing ---</b>"
+msgstr ""
+
+#: locale/fv_task.ini:48 locale/fv_tool-probe-pos.ini:66
+msgid "Goto X"
+msgstr ""
+
+#: locale/fv_task.ini:50 locale/fv_task.ini:56 locale/fv_task.ini:62
+msgid "Go to at ending"
+msgstr ""
+
+#: locale/fv_task.ini:54 locale/fv_tool-probe-pos.ini:72
+msgid "Goto Y"
+msgstr ""
+
+#: locale/fv_task.ini:60 locale/fv_tool-probe-pos.ini:78
+msgid "Goto Z"
+msgstr ""
+
+#: locale/fv_task.ini:66
+msgid "Task list"
+msgstr ""
+
+#: locale/fv_task.ini:68
+msgid "Drop Subroutines here"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:2
+msgid "Array"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:4
+msgid "<b>Create a rectangular array of items</b>"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:18
+msgid "X axis copies"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:20 locale/fv_rectangular-array.ini:26
+#: locale/fv_linear-array.ini:20 locale/fv_circular-array.ini:20
+msgid "Number of copies"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:24
+msgid "Y axis copies"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:30
+msgid "Position option"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:32
+msgid "Select options"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:34
+msgid "Low XY position=0:Center of array=1"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:36 locale/fv_drill-one.ini:24
+#: locale/fv_probe-down.ini:18 locale/fv_probe-down.ini:20
+#: locale/fv_oval.ini:24 locale/fv_tool-probe-pos.ini:24
+#: locale/fv_probe-array.ini:18 locale/fv_design-cube.ini:48
+#: locale/fv_linear-array.ini:24 locale/fv_slot.ini:24
+msgid "X"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:38 locale/fv_linear-array.ini:26
+msgid "Origin X"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:42 locale/fv_drill-one.ini:30
+#: locale/fv_probe-down.ini:24 locale/fv_oval.ini:30
+#: locale/fv_tool-probe-pos.ini:30 locale/fv_probe-array.ini:24
+#: locale/fv_design-cube.ini:54 locale/fv_linear-array.ini:30
+#: locale/fv_slot.ini:30
+msgid "Y"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:44 locale/fv_linear-array.ini:32
+msgid "Origin Y"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:48 locale/fv_drill-one.ini:36
+#: locale/fv_probe-array.ini:30 locale/fv_linear-array.ini:42
+msgid "<b>--- Offsets ---</b>"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:54 locale/fv_drill-one.ini:42
+#: locale/fv_probe-array.ini:42 locale/fv_linear-array.ini:48
+msgid "dX"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:56 locale/fv_linear-array.ini:50
+msgid "X step"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:60 locale/fv_drill-one.ini:48
+#: locale/fv_probe-array.ini:54 locale/fv_linear-array.ini:54
+msgid "dY"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:62 locale/fv_linear-array.ini:56
+msgid "Y step"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:66 locale/fv_linear-array.ini:66
+#: locale/fv_circular-array.ini:54
+msgid "<b>--- Rotation ---</b>"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:74
+msgid "Rotation of array"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:78 locale/fv_linear-array.ini:84
+#: locale/fv_circular-array.ini:78
+msgid "<b>--- Coordinates ---</b>"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:84 locale/fv_probe-cube.ini:48
+#: locale/fv_linear-array.ini:90 locale/fv_circular-array.ini:84
+#: locale/fv_probe-hole.ini:30 locale/fv_probe-edge.ini:42
+msgid "Coordinate system"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:86 locale/fv_linear-array.ini:92
+#: locale/fv_circular-array.ini:86
+msgid ""
+"Use this coordinate system\n"
+"Returns to prior coordinate system afterward"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:88 locale/fv_linear-array.ini:94
+#: locale/fv_circular-array.ini:88
+msgid "G55=55:G56=56:G57=57:G58=58:G59=59:G59.1=59.1:G59.2=59.2:G59.3=59.3"
+msgstr ""
+
+#: locale/fv_rectangular-array.ini:92 locale/fv_circular-array.ini:92
+msgid "Items to copy"
+msgstr ""
+
+#: locale/fv_set-tool-params.ini:2
+msgid "Outil"
+msgstr ""
+
+#: locale/fv_set-tool-params.ini:4
+msgid "Selects tools and changes its parameters"
+msgstr ""
+
+#: locale/fv_set-tool-params.ini:6
+msgid "Tool Number"
+msgstr ""
+
+#: locale/fv_set-tool-params.ini:8 locale/fv_drill-change.ini:18
+#: locale/fv_tool-change.ini:18
+msgid "Number"
+msgstr ""
+
+#: locale/fv_set-tool-params.ini:18 locale/fv_oval.ini:42
+#: locale/fv_slot.ini:42
+msgid "Longueur"
+msgstr ""
+
+#: locale/fv_set-tool-params.ini:24
+msgid "Depth Step"
+msgstr ""
+
+#: locale/fv_set-tool-params.ini:26
+msgid "Tools depth step for multipass mill"
+msgstr ""
+
+#: locale/fv_set-tool-params.ini:30 locale/fv_set-tool-params.ini:32
+#: locale/thread-adv.ini:78 locale/thread-adv.ini:80
+#: locale/fv_tool-change.ini:72 locale/threading-params.ini:36
+#: locale/threading-params.ini:38 locale/fv_set-probing-params.ini:14
+#: locale/fv_probe-tool-d.ini:30 locale/lathe-cutting-params.ini:24
+#: locale/lathe-cutting-params.ini:26 locale/cutting-params.ini:24
+#: locale/cutting-params.ini:26
+msgid "Feed"
+msgstr ""
+
+#: locale/fv_drill-one.ini:2
+msgid "Drill"
+msgstr ""
+
+#: locale/fv_drill-one.ini:4
+msgid "<b>Drill a single or a line of holes</b>"
+msgstr ""
+
+#: locale/fv_drill-one.ini:26
+msgid "X first hole"
+msgstr ""
+
+#: locale/fv_drill-one.ini:32
+msgid "Y first hole"
+msgstr ""
+
+#: locale/fv_drill-one.ini:44 locale/fv_probe-array.ini:44
+msgid "X offset"
+msgstr ""
+
+#: locale/fv_drill-one.ini:50 locale/fv_probe-array.ini:56
+msgid "Y offset"
+msgstr ""
+
+#: locale/fv_drill-one.ini:56
+msgid "Rotation of line"
+msgstr ""
+
+#: locale/thread-adv.ini:2
+msgid "Lathe thread"
+msgstr ""
+
+#: locale/thread-adv.ini:4 locale/threading-params.ini:4
+msgid "<big>Create thread</big>"
+msgstr ""
+
+#: locale/thread-adv.ini:6
+msgid "Start point X"
+msgstr ""
+
+#: locale/thread-adv.ini:8 locale/thread-adv.ini:14
+msgid ""
+"Thread will be cut from this point, will G0 to that point before G76 cutting."
+msgstr ""
+
+#: locale/thread-adv.ini:12
+msgid "Start point Z"
+msgstr ""
+
+#: locale/thread-adv.ini:18
+msgid "Thread pitch (P)"
+msgstr ""
+
+#: locale/thread-adv.ini:20
+msgid "The thread pitch in distance per revolution."
+msgstr ""
+
+#: locale/thread-adv.ini:24
+msgid "Thread length (Z)"
+msgstr ""
+
+#: locale/thread-adv.ini:26
+msgid ""
+"The final position of threads. At the end of the cycle the tool will be at "
+"this Z position."
+msgstr ""
+
+#: locale/thread-adv.ini:30
+msgid "Thread peak (I)"
+msgstr ""
+
+#: locale/thread-adv.ini:32
+msgid ""
+"The thread peak offset from the drive line.\n"
+"\tNegative I values are external threads, and positive I values are internal "
+"threads.\n"
+"\tGenerally the material has been turned to this size before the G76 cycle."
+msgstr ""
+
+#: locale/thread-adv.ini:36
+msgid "Inital cut (J)"
+msgstr ""
+
+#: locale/thread-adv.ini:38
+msgid ""
+"A positive value specifying the initial cut depth. The first threading cut "
+"will be J beyond the thread peak position."
+msgstr ""
+
+#: locale/thread-adv.ini:42 locale/threading-params.ini:6
+msgid "depth degression (R)"
+msgstr ""
+
+#: locale/thread-adv.ini:44 locale/threading-params.ini:8
+msgid ""
+"The depth degression.\n"
+"R1.0 selects constant depth on successive threading passes.\n"
+"R2.0 selects constant area. Values between 1.0 and 2.0 select decreasing "
+"depth but increasing area.\n"
+"Values above 2.0 select decreasing area.\n"
+"Beware that unnecessarily high degression values will cause a large number "
+"of passes to be used.\n"
+"(degression = a descent by stages or steps.)"
+msgstr ""
+
+#: locale/thread-adv.ini:48
+msgid "Full thread depth (K)"
+msgstr ""
+
+#: locale/thread-adv.ini:50
+msgid ""
+"A positive value specifying the full thread depth. The final threading cut "
+"will be K beyond the thread peak position."
+msgstr ""
+
+#: locale/thread-adv.ini:54 locale/threading-params.ini:12
+msgid "Compound slide angle (Q)"
+msgstr ""
+
+#: locale/thread-adv.ini:56 locale/threading-params.ini:14
+msgid ""
+"The compound slide angle is the angle (in degrees) describing to what extent "
+"successive passes should be offset along the drive line.\n"
+"\tThis is used to cause one side of the tool to remove more material than "
+"the other.\n"
+"\tA positive Q value causes the leading edge of the tool to cut more "
+"heavily. Typical values are 29, 29.5 or 30."
+msgstr ""
+
+#: locale/thread-adv.ini:60 locale/threading-params.ini:18
+msgid "# spring passes (H)"
+msgstr ""
+
+#: locale/thread-adv.ini:62 locale/threading-params.ini:20
+msgid "Number of final cuts"
+msgstr ""
+
+#: locale/thread-adv.ini:66 locale/threading-params.ini:24
+msgid "Tapper (E)"
+msgstr ""
+
+#: locale/thread-adv.ini:68 locale/threading-params.ini:26
+msgid ""
+"Specifies the distance along the drive line used for the taper. The angle of "
+"the taper will be so the last pass tapers to the thread crest over the "
+"distance specified with E.\n"
+"\t' E0.2' will give a taper for the first/last 0.2 length units along the "
+"thread.\n"
+"\tFor a 45 degree taper program E the same as K."
+msgstr ""
+
+#: locale/thread-adv.ini:72 locale/threading-params.ini:30
+msgid "Tapper (L)"
+msgstr ""
+
+#: locale/thread-adv.ini:74 locale/threading-params.ini:32
+msgid ""
+"Specifies which ends of the thread get the taper. Program L0 for no taper "
+"(the default), L1 for entry taper, L2 for exit taper, or L3 for both entry "
+"and exit tapers.\n"
+"\tEntry tapers will pause at the drive line to synchronize with the index "
+"pulse then feed in to the beginning of the taper.\n"
+"\tNo entry taper and the tool will rapid to the cut depth then synchronize "
+"and begin the cut."
+msgstr ""
+
+#: locale/fv_polygon.ini:2
+msgid "Polygone"
+msgstr ""
+
+#: locale/fv_polygon.ini:4
+msgid ""
+"<b>Creates a polygon</b>\n"
+" with n edges"
+msgstr ""
+
+#: locale/fv_polygon.ini:26
+msgid "Polygon center X"
+msgstr ""
+
+#: locale/fv_polygon.ini:32
+msgid "Polygon center Y"
+msgstr ""
+
+#: locale/fv_polygon.ini:36
+msgid "Edges"
+msgstr ""
+
+#: locale/fv_polygon.ini:38
+msgid "Number of edges"
+msgstr ""
+
+#: locale/fv_polygon.ini:42 locale/fv_polygon.ini:44 locale/fv_slot-arc.ini:36
+#: locale/fv_probe-tool-d.ini:18 locale/fv_rect.ini:72
+msgid "Radius"
+msgstr ""
+
+#: locale/fv_polygon.ini:50
+msgid "Starting angle"
+msgstr ""
+
+#: locale/fv_drill-change.ini:2
+msgid "Drill Change"
+msgstr ""
+
+#: locale/fv_drill-change.ini:4
+msgid ""
+"<b>Add drill change gcode</b>\n"
+"Changes setting accordingly"
+msgstr ""
+
+#: locale/fv_drill-change.ini:20
+msgid "From tool table"
+msgstr ""
+
+#: locale/fv_drill-change.ini:24 locale/fv_tool-change.ini:24
+msgid "Post action"
+msgstr ""
+
+#: locale/fv_drill-change.ini:26
+msgid "After drill changed, it will..."
+msgstr ""
+
+#: locale/fv_drill-change.ini:28 locale/fv_tool-change.ini:28
+msgid "Pause=0:Pause then restart=1:Auto restart=2"
+msgstr ""
+
+#: locale/fv_drill-change.ini:30 locale/fv_tool-change.ini:30
+msgid "Pause for"
+msgstr ""
+
+#: locale/fv_drill-change.ini:32 locale/fv_tool-change.ini:32
+msgid "Timed pause of 'n' seconds to restart spindle"
+msgstr ""
+
+#: locale/fv_drill-change.ini:36 locale/fv_tool-change.ini:36
+msgid "Use cooling"
+msgstr ""
+
+#: locale/fv_drill-change.ini:38 locale/fv_tool-change.ini:38
+msgid "Use flood, mist or none"
+msgstr ""
+
+#: locale/fv_drill-change.ini:40 locale/fv_tool-change.ini:40
+msgid "None=9:Flood=8:Mist=7"
+msgstr ""
+
+#: locale/fv_drill-change.ini:42
+msgid "<b>--- Drilling Parameters ---</b>"
+msgstr ""
+
+#: locale/fv_drill-change.ini:48
+msgid "<b><i>  Operation ---</i></b>"
+msgstr ""
+
+#: locale/fv_drill-change.ini:54 locale/fv_tool-change.ini:54
+#: locale/lathe-cutting-params.ini:32 locale/lathe-cutting-params.ini:74
+#: locale/cutting-params.ini:32 locale/cutting-params.ini:74
+msgid "Spindle speed"
+msgstr ""
+
+#: locale/fv_drill-change.ini:56 locale/fv_tool-change.ini:56
+msgid "Set spindle speed"
+msgstr ""
+
+#: locale/fv_drill-change.ini:60
+msgid "Drilling feed"
+msgstr ""
+
+#: locale/fv_drill-change.ini:62
+msgid "Set feed"
+msgstr ""
+
+#: locale/fv_drill-change.ini:66
+msgid "<b><i>  Mode ---</i></b>"
+msgstr ""
+
+#: locale/fv_drill-change.ini:72
+msgid "Drilling mode"
+msgstr ""
+
+#: locale/fv_drill-change.ini:74
+msgid ""
+"G73 requires Q>0 and R\n"
+"G81 requires R\n"
+"G82 requires R and P\n"
+"G83 requires Q>0 and R"
+msgstr ""
+
+#: locale/fv_drill-change.ini:76
+msgid ""
+"With Chip Breaking - G73=73:Standard - G81=81:Dwell at the bottom - G82=82:"
+"Peck Drilling Cycle - G83=83"
+msgstr ""
+
+#: locale/fv_drill-change.ini:78
+msgid "Retract (R)"
+msgstr ""
+
+#: locale/fv_drill-change.ini:80
+msgid "Retract height"
+msgstr ""
+
+#: locale/fv_drill-change.ini:84
+msgid "Dwell (P)"
+msgstr ""
+
+#: locale/fv_drill-change.ini:86
+msgid "Dwell seconds"
+msgstr ""
+
+#: locale/fv_drill-change.ini:90
+msgid "Delta (Q)"
+msgstr ""
+
+#: locale/fv_drill-change.ini:92
+msgid ""
+"Project-Id-Version: PACKAGE VERSION 1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-06-21 19:22-0400\n"
+"PO-Revision-Date: 2015-06-21 23:33-0500\n"
+"Last-Translator: Fernand Veilleux <fernveilleux@gmail.com>\n"
+"Language-Team: LANGUAGE <fernveilleux@gmail.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+msgstr ""
+
+#: locale/fv_drill-change.ini:98
+msgid "Subroutines that use this drill"
+msgstr ""
+
+#: locale/fv_tool-change.ini:2
+msgid "Tool Change"
+msgstr ""
+
+#: locale/fv_tool-change.ini:4
+msgid ""
+"<b>Add tool change gcode</b>\n"
+"Changes setting accordingly even if disabled"
+msgstr ""
+
+#: locale/fv_tool-change.ini:8
+msgid "Cutting params will be set even if disabled"
+msgstr ""
+
+#: locale/fv_tool-change.ini:20
+msgid "Tool number from table"
+msgstr ""
+
+#: locale/fv_tool-change.ini:26
+msgid "After tool changed, it will..."
+msgstr ""
+
+#: locale/fv_tool-change.ini:42
+msgid "<b>--- Cutting Parameters ---</b>"
+msgstr ""
+
+#: locale/fv_tool-change.ini:48
+msgid "<b><i>  Speed...  </i></b>"
+msgstr ""
+
+#: locale/fv_tool-change.ini:60
+msgid "Final spindle speed"
+msgstr ""
+
+#: locale/fv_tool-change.ini:62
+msgid "Spindle speed for final loop"
+msgstr ""
+
+#: locale/fv_tool-change.ini:66
+msgid "<b><i>  Feed...  </i></b>"
+msgstr ""
+
+#: locale/fv_tool-change.ini:74
+msgid "Set XY feed"
+msgstr ""
+
+#: locale/fv_tool-change.ini:78
+msgid "Final feed"
+msgstr ""
+
+#: locale/fv_tool-change.ini:80
+msgid "Feed for last loop"
+msgstr ""
+
+#: locale/fv_tool-change.ini:84
+msgid "Vertical feed"
+msgstr ""
+
+#: locale/fv_tool-change.ini:86
+msgid "Direct plunge feed when no XY move"
+msgstr ""
+
+#: locale/fv_tool-change.ini:90
+msgid "<b><i>  Penetration...  </i></b>"
+msgstr ""
+
+#: locale/fv_tool-change.ini:96
+msgid "Mode"
+msgstr ""
+
+#: locale/fv_tool-change.ini:98
+msgid "How Z position is attained"
+msgstr ""
+
+#: locale/fv_tool-change.ini:100
+msgid "Plunge to Z while moving to XY=0:Plunge to Z then go to XY=1"
+msgstr ""
+
+#: locale/fv_tool-change.ini:102 locale/fv_taper-hole.ini:64
+msgid "Cut step"
+msgstr ""
+
+#: locale/fv_tool-change.ini:104
+msgid "Step down on each pass"
+msgstr ""
+
+#: locale/fv_tool-change.ini:108
+msgid "Penetration ratio"
+msgstr ""
+
+#: locale/fv_tool-change.ini:110
+msgid "Z versus XY move"
+msgstr ""
+
+#: locale/fv_tool-change.ini:114
+msgid "Pocketing ratio"
+msgstr ""
+
+#: locale/fv_tool-change.ini:116
+msgid "XY move versus tool diameter"
+msgstr ""
+
+#: locale/fv_tool-change.ini:122
+msgid "Subroutines that use this tool"
+msgstr ""
+
+#: locale/fv_probe-down.ini:4 locale/fv_probe-array.ini:4
+msgid ""
+"<b>Probe array of points </b>\n"
+"Save to a file"
+msgstr ""
+
+#: locale/fv_probe-down.ini:6 locale/fv_probe-array.ini:12
+msgid "File name"
+msgstr ""
+
+#: locale/fv_probe-down.ini:8 locale/fv_probe-array.ini:14
+msgid "Enter file name to save to"
+msgstr ""
+
+#: locale/fv_probe-down.ini:12 locale/fv_probe-array.ini:60
+msgid "<b>Probing</b>"
+msgstr ""
+
+#: locale/fv_probe-down.ini:26
+msgid "YTOOL_EDITOR = tooledit Z DIAM"
+msgstr ""
+
+#: locale/fv_probe-down.ini:30 locale/fv_slot-arc.ini:42
+#: locale/fv_probe-array.ini:66
+msgid "Start At"
+msgstr ""
+
+#: locale/fv_probe-down.ini:32 locale/fv_probe-array.ini:68
+msgid "Start above Z0"
+msgstr ""
+
+#: locale/fv_probe-down.ini:36 locale/fv_probe-array.ini:72
+#: locale/fv_probe-tool-d.ini:48 locale/fv_design-cube.ini:30
+msgid "Depth"
+msgstr ""
+
+#: locale/fv_probe-down.ini:38 locale/fv_probe-array.ini:74
+msgid "Maximum depth"
+msgstr ""
+
+#: locale/fv_oval.ini:2
+msgid "Ovale"
+msgstr ""
+
+#: locale/fv_oval.ini:4
+msgid "<b>Creates an oval</b>"
+msgstr ""
+
+#: locale/fv_oval.ini:26
+msgid "X Center"
+msgstr ""
+
+#: locale/fv_oval.ini:32
+msgid "Y center"
+msgstr ""
+
+#: locale/fv_oval.ini:38
+msgid "Diameter of arcs"
+msgstr ""
+
+#: locale/fv_oval.ini:44
+msgid "Between arcs"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:2
+msgid "Probe Position"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:4
+msgid "<b>Sets Probe Position</b>"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:12
+msgid "<b>--- Probe position ---</b>"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:18
+msgid "Coordinates"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:20
+msgid "Work or machine"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:22
+msgid "Absolute, G54=54:Machine, G53=53"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:26
+msgid "X position of probe"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:32
+msgid "Y position of probe"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:36 locale/fv_design-cube.ini:60
+#: locale/fv_linear-array.ini:36 locale/face.ini:6
+msgid "Z"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:38
+msgid "Z position of probe"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:42 locale/fv_probe-cube.ini:30
+msgid "<b>--- Probing ---</b>"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:48 locale/fv_circular-array.ini:60
+#: locale/fv_bolt-circle.ini:60
+msgid "Start"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:50
+msgid "Relative to probe"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:54
+msgid "Probing depth"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:56
+msgid "Maximum depth relative to probe top"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:60
+msgid "<b>--- Post Probing ---</b>"
+msgstr ""
+
+#: locale/fv_tool-probe-pos.ini:68 locale/fv_tool-probe-pos.ini:74
+#: locale/fv_tool-probe-pos.ini:80
+msgid "Goto after probing"
+msgstr ""
+
+#: locale/tool-change.ini:4
+msgid "<big>Change tool</big>\n"
+msgstr ""
+
+#: locale/tool-change.ini:6 locale/tool-change.ini:8
+msgid "Tool number"
+msgstr ""
+
+#: locale/tool-change.ini:12
+msgid "Additional Gcode"
+msgstr ""
+
+#: locale/tool-change.ini:14
+msgid "Additional Gcode to be passed after tool is changed"
+msgstr ""
+
+#: locale/threading-params.ini:2
+msgid "Lathe threading parameters"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:4
+msgid ""
+"<b>Probe cube or cylinder to find it&#39;s center</b>\n"
+"Position probe at left of workpiece, about center of Y axis\n"
+"Set params first or use global params"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:12
+msgid "<b>--- Workpiece Info ---</b>"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:20
+msgid "Approximate width (must be larger than workpiece)"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:24 locale/fv_rect.ini:48
+#: locale/fv_design-cube.ini:24 locale/fv_design-cube.ini:26
+msgid "Height"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:26
+msgid "Approximate height (must be larger than workpiece)"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:36 locale/fv_probe-edge.ini:30
+msgid "Clear height"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:38 locale/fv_probe-edge.ini:32
+msgid "Raise to clear workpiece"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:42 locale/fv_probe-hole.ini:24
+#: locale/fv_probe-edge.ini:36
+msgid "Touch"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:44 locale/fv_probe-edge.ini:38
+msgid "Set axis to 0"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:50 locale/fv_probe-hole.ini:32
+#: locale/fv_probe-edge.ini:44
+msgid "Set this system to 0"
+msgstr ""
+
+#: locale/fv_probe-cube.ini:52 locale/fv_probe-hole.ini:34
+#: locale/fv_probe-edge.ini:46
+msgid ""
+"P1 G54=1:P2 G55=2:P3 G56=3:P4 G57=4:P5 G58=5:P6 G59=6:P7 G59.1=7:P8 G59.2=8:"
+"P9 G59.3=9"
+msgstr ""
+
+#: locale/fv_taper-hole.ini:2
+msgid "Taper Hole"
+msgstr ""
+
+#: locale/fv_taper-hole.ini:24 locale/fv_taper-hole.ini:30
+msgid "Center of hole"
+msgstr ""
+
+#: locale/fv_taper-hole.ini:34
+msgid "Surface diameter"
+msgstr ""
+
+#: locale/fv_taper-hole.ini:40
+msgid "Taper angle"
+msgstr ""
+
+#: locale/fv_taper-hole.ini:66
+msgid "Step each pass"
+msgstr ""
+
+#: locale/fv_slot-arc.ini:4
+msgid "<b>Creates a radial slot</b>"
+msgstr ""
+
+#: locale/fv_slot-arc.ini:26 locale/fv_slot-arc.ini:32
+msgid "Center of arc"
+msgstr ""
+
+#: locale/fv_slot-arc.ini:38
+msgid "Distance from X,Y"
+msgstr ""
+
+#: locale/fv_slot-arc.ini:48
+msgid "Extend angle"
+msgstr ""
+
+#: locale/fv_slot-arc.ini:50
+msgid "Length of arc in degrees"
+msgstr ""
+
+#: locale/fv_probe-array.ini:36
+msgid "X count"
+msgstr ""
+
+#: locale/fv_probe-array.ini:38
+msgid "Number of rows in X axis"
+msgstr ""
+
+#: locale/fv_probe-array.ini:48
+msgid "Y count"
+msgstr ""
+
+#: locale/fv_probe-array.ini:50
+msgid "Number of rows in Y axis"
+msgstr ""
+
+#: locale/fv_set-probing-params.ini:2
+msgid "Probing Params"
+msgstr ""
+
+#: locale/fv_set-probing-params.ini:4
+msgid "<b>Set global probing parameters</b>"
+msgstr ""
+
+#: locale/fv_set-probing-params.ini:6 locale/fv_set-probing-params.ini:8
+#: locale/fv_probe-tool-d.ini:24
+msgid "Probing Mode"
+msgstr ""
+
+#: locale/fv_set-probing-params.ini:10
+msgid ""
+"G38.2 - toward workpiece, stop on contact, signal failure=38.2:G38.3 - "
+"toward workpiece, stop on contact=38.3:G38.4 - away from workpiece, stop on "
+"loss of contact, signal failure=38.4:G38.5 - away from workpiece, stop on "
+"loss of contact=38.5"
+msgstr ""
+
+#: locale/fv_set-probing-params.ini:12
+msgid "Probing Feed"
+msgstr ""
+
+#: locale/fv_set-probing-params.ini:18
+msgid "Latch distance"
+msgstr ""
+
+#: locale/fv_set-probing-params.ini:20
+msgid ""
+"If Latch Distance is greater than 0 then probe will go back and Latch in the "
+"same direction.\n"
+"Else Latch will be done in opposite direction (stop on loss of contact)."
+msgstr ""
+
+#: locale/fv_set-probing-params.ini:24 locale/fv_set-probing-params.ini:26
+#: locale/fv_probe-tool-d.ini:42
+msgid "Latch Feed"
+msgstr ""
+
+#: locale/fv_set-probing-params.ini:30 locale/fv_set-probing-params.ini:32
+msgid "Probe Tip Diameter"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:2
+msgid "Probe tool diameter"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:4
+msgid ""
+"<big>Probe cube</big>\n"
+"Probes tool diameter on fixed probe\n"
+"Will be using G59.3 coordinate system"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:6
+msgid "Probe X"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:8
+msgid "Approximate cX in G53"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:12
+msgid "Probe Y"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:14
+msgid "Approximate cY in G53"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:20
+msgid "Approximate tool radius plus probe radius (must be upper approximation)"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:26
+msgid ""
+"G38.2 - probe toward workpiece, stop on contact, signal failure\n"
+"G38.3 - probe toward workpiece, stop on contact\n"
+"G38.4 - probe away from workpiece, stop on loss of contact, signal failure\n"
+"G38.5 - probe away from workpiece, stop on loss of contact\n"
+"(Do not write G, just '38.4')"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:32
+msgid "Probe fast feed"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:36
+msgid "Latch Distance"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:38
+msgid ""
+"Latch distance\n"
+"If Latch Distance is greater than 0 then probe will go back and Latch in the "
+"same direction.\n"
+"Else Latch will be done in opposite direction (stop on loss of contact)."
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:44
+msgid "Probe latch feed"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:50
+msgid "Probe depth in G53"
+msgstr ""
+
+#: locale/fv_probe-tool-d.ini:54
+msgid "Z Clear Height"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:2 locale/cutting-params.ini:2
+msgid "Lathe cutting parameters"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:4 locale/cutting-params.ini:4
+msgid ""
+"Sets global cutting depth, depth step, surface origin, and rappid distance."
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:12 locale/cutting-params.ini:12
+msgid "Surface for ID"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:14 locale/cutting-params.ini:14
+msgid "Surface for ID cutting"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:18 locale/lathe-cutting-params.ini:20
+#: locale/cutting-params.ini:18 locale/cutting-params.ini:20
+msgid "Depth step"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:30 locale/cutting-params.ini:30
+msgid "Spindle"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:36 locale/cutting-params.ini:36
+msgid "Rappid"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:38 locale/cutting-params.ini:38
+msgid "Rappid distance"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:42 locale/cutting-params.ini:42
+msgid "Rappid for inner cuts"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:44 locale/cutting-params.ini:44
+msgid "Rappid distance for inner cuts"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:48 locale/cutting-params.ini:48
+msgid "Rappid Z to go to ID"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:50 locale/cutting-params.ini:50
+msgid "Rappid to switch ID-OD"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:54 locale/cutting-params.ini:54
+msgid "Final cut"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:56 locale/cutting-params.ini:56
+msgid "Final cut depth step"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:60 locale/lathe-cutting-params.ini:62
+#: locale/cutting-params.ini:60 locale/cutting-params.ini:62
+msgid "Num of final cuts"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:66 locale/cutting-params.ini:66
+msgid "Final cut feed"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:68 locale/cutting-params.ini:68
+msgid "Final cut Feed"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:72 locale/cutting-params.ini:72
+msgid "Final cut spindle"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:78 locale/cutting-params.ini:78
+msgid "Flood"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:80 locale/cutting-params.ini:80
+msgid "Use flood (1 - yes / 0 - no)"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:84 locale/cutting-params.ini:84
+msgid "Mist"
+msgstr ""
+
+#: locale/lathe-cutting-params.ini:86 locale/cutting-params.ini:86
+msgid "Use mist (1 - yes / 0 - no)"
+msgstr ""
+
+#: locale/fv_rect.ini:4
+msgid ""
+"<b>Creates rectangle from center or corner</b>\n"
+"Width / height may be negative\n"
+"Corners can be radiused or chamfered"
+msgstr ""
+
+#: locale/fv_rect.ini:24
+msgid "Referenced by"
+msgstr ""
+
+#: locale/fv_rect.ini:26 locale/fv_design-cube.ini:44
+msgid "Define reference point"
+msgstr ""
+
+#: locale/fv_rect.ini:28
+msgid "Corner=0:Center=1"
+msgstr ""
+
+#: locale/fv_rect.ini:30
+msgid "cX or corner X"
+msgstr ""
+
+#: locale/fv_rect.ini:36
+msgid "cY or corner Y"
+msgstr ""
+
+#: locale/fv_rect.ini:60
+msgid "<b>--- Corners ---</b>"
+msgstr ""
+
+#: locale/fv_rect.ini:66
+msgid "Style"
+msgstr ""
+
+#: locale/fv_rect.ini:74
+msgid "Radius or chamfer distance from corner"
+msgstr ""
+
+#: locale/fv_design-cube.ini:4
+msgid "<b>Create a temporary cube</b>"
+msgstr ""
+
+#: locale/fv_design-cube.ini:12
+msgid "<b>--- Definition ---</b>"
+msgstr ""
+
+#: locale/fv_design-cube.ini:32
+msgid "Negative value is usual"
+msgstr ""
+
+#: locale/fv_design-cube.ini:36
+msgid "<b>--- Position ---</b>"
+msgstr ""
+
+#: locale/fv_design-cube.ini:42
+msgid "Reference is"
+msgstr ""
+
+#: locale/fv_design-cube.ini:46
+msgid "Low X/Y=0:Center=1"
+msgstr ""
+
+#: locale/fv_circle-2.ini:4
+msgid ""
+"<b>Creates a circle</b>\n"
+"Points are the ends of the diameter\n"
+"Can also create a D shape"
+msgstr ""
+
+#: locale/fv_circle-2.ini:26 locale/fv_circle-2.ini:32
+msgid "One end of the diameter"
+msgstr ""
+
+#: locale/fv_circle-2.ini:38 locale/fv_circle-2.ini:44
+msgid "Opposite end of the diameter"
+msgstr ""
+
+#: locale/fv_linear-array.ini:4
+msgid "<b>Create linear array of items</b>"
+msgstr ""
+
+#: locale/fv_linear-array.ini:18 locale/fv_circular-array.ini:18
+msgid "Copies"
+msgstr ""
+
+#: locale/fv_linear-array.ini:38
+msgid "Origin Z"
+msgstr ""
+
+#: locale/fv_linear-array.ini:60
+msgid "dZ"
+msgstr ""
+
+#: locale/fv_linear-array.ini:62
+msgid "Z step"
+msgstr ""
+
+#: locale/fv_linear-array.ini:72
+msgid "Array Rotation"
+msgstr ""
+
+#: locale/fv_linear-array.ini:74
+msgid "Array rotation"
+msgstr ""
+
+#: locale/fv_linear-array.ini:78
+msgid "Items rotation"
+msgstr ""
+
+#: locale/fv_linear-array.ini:80
+msgid "Relative to previous one"
+msgstr ""
+
+#: locale/fv_linear-array.ini:98
+msgid "Items to align"
+msgstr ""
+
+#: locale/fv_circular-array.ini:2
+msgid "Radial Array"
+msgstr ""
+
+#: locale/fv_circular-array.ini:4
+msgid "<b>Create radial array of items</b>"
+msgstr ""
+
+#: locale/fv_circular-array.ini:26 locale/fv_circular-array.ini:32
+msgid "Array center"
+msgstr ""
+
+#: locale/fv_circular-array.ini:36
+msgid "<b>--- Dimensions ---</b>"
+msgstr ""
+
+#: locale/fv_circular-array.ini:42 locale/fv_bolt-circle.ini:42
+msgid "Dimension"
+msgstr ""
+
+#: locale/fv_circular-array.ini:44
+msgid ""
+"Diameter of array or\n"
+"distance between group of items"
+msgstr ""
+
+#: locale/fv_circular-array.ini:48 locale/fv_bolt-circle.ini:48
+msgid "Dimension is"
+msgstr ""
+
+#: locale/fv_circular-array.ini:50 locale/fv_bolt-circle.ini:50
+msgid "Select what dimension means"
+msgstr ""
+
+#: locale/fv_circular-array.ini:52
+msgid "Diameter of array=1:Distance between sub-groups=0"
+msgstr ""
+
+#: locale/fv_circular-array.ini:62
+msgid "Angle of the first item"
+msgstr ""
+
+#: locale/fv_circular-array.ini:66
+msgid "Fill angle"
+msgstr ""
+
+#: locale/fv_circular-array.ini:68
+msgid "Angle covered by items"
+msgstr ""
+
+#: locale/fv_circular-array.ini:72
+msgid "Rotate items"
+msgstr ""
+
+#: locale/fv_circular-array.ini:74
+msgid "Rotate each item"
+msgstr ""
+
+#: locale/fv_probe-hole.ini:4
+msgid ""
+"<b>Probe hole</b>\n"
+"Probes hole to find it&#39;s center"
+msgstr ""
+
+#: locale/fv_probe-hole.ini:20
+msgid "Approximate diameter (larger than diameter but less than twice)"
+msgstr ""
+
+#: locale/fv_probe-hole.ini:26
+msgid "Set center to X0 and Y0"
+msgstr ""
+
+#: locale/fv_bolt-circle.ini:4
+msgid "<b>Create a regular circle</b>"
+msgstr ""
+
+#: locale/fv_bolt-circle.ini:44
+msgid "Diameter or distance"
+msgstr ""
+
+#: locale/fv_bolt-circle.ini:52
+msgid "Diameter=1:Distance between holes=0"
+msgstr ""
+
+#: locale/fv_bolt-circle.ini:54
+msgid "<b>--- Coverage ---</b>"
+msgstr ""
+
+#: locale/fv_bolt-circle.ini:62
+msgid "Angle of the first hole"
+msgstr ""
+
+#: locale/fv_bolt-circle.ini:66
+msgid "Extend"
+msgstr ""
+
+#: locale/fv_bolt-circle.ini:68
+msgid "Angle covered by holes"
+msgstr ""
+
+#: locale/fv_probe-edge.ini:4
+msgid ""
+"<b>Probe Edges</b>\n"
+"When done, the probe will be above the edge and optionnaly can Touch to set "
+"0\n"
+"Also used to measure your workpiece by probing opposite edges\n"
+"\n"
+"You can also check alignment by checking Y at both ends\n"
+"Set probing params first or use global params"
+msgstr ""
+
+#: locale/fv_probe-edge.ini:18
+msgid "Axis"
+msgstr ""
+
+#: locale/fv_probe-edge.ini:20
+msgid "Select axis to find edge"
+msgstr ""
+
+#: locale/fv_probe-edge.ini:22
+msgid "X=0:Y=1"
+msgstr ""
+
+#: locale/fv_probe-edge.ini:24
+msgid "Direction"
+msgstr ""
+
+#: locale/fv_probe-edge.ini:28
+msgid "Ascending=1:Descending=-1"
+msgstr ""
+
+#: locale/face.ini:2
+msgid "Facing"
+msgstr ""
+
+#: locale/face.ini:4
+msgid ""
+"<big>OD/OD tapper</big>\n"
+"Use #<D0> to refer to starting D"
+msgstr ""
+
+#: locale/face.ini:8
+msgid "Z of face"
+msgstr ""
+
+#: locale/face.ini:12
+msgid "D0"
+msgstr ""
+
+#: locale/face.ini:14
+msgid "X (Face end diameter)"
+msgstr ""
+
+#: locale/fv_slot.ini:4
+msgid "<b>Creates a slot</b>"
+msgstr ""
+
+#: locale/fv_slot.ini:26
+msgid "X reference"
+msgstr ""
+
+#: locale/fv_slot.ini:32
+msgid "Y reference"
+msgstr ""
+
+#: locale/fv_slot.ini:44
+msgid "Distance between centers"
+msgstr ""

@@ -1,0 +1,112 @@
+(fv_entry-angle used for calculating straight line entry in a corner and exit about same place without gouging)
+o<fv_entry-angle> sub
+
+	#<xprior> 	=  #1
+	#<yprior> 	=  #2
+	#<x1> 		=  #3
+	#<y1> 		=  #4
+	#<xto> 		=  #5
+	#<yto> 		=  #6
+	#<dir> 		=  #7 (2:cw, 3:ccw)
+	#<opt> 		=  #8 (Inside=0:Outside=1:On the line=2:Create a pocket=3)
+	#<cut_start> = #9
+
+	G0 Z#<_z_clear>
+	G40
+
+	o<comp00> if [#<opt> EQ 2] (no compensation)
+		G0 X#<x1> Y#<y1>
+		#<_final:x> = #<x1>
+		#<_final:y> = #<y1>
+	o<comp00> else
+
+		o<opt_00> if [#<opt> EQ 3] (pocket is inside)
+			#<opt> = 0
+		o<opt_00> endif	
+
+		o<line> call [#<xto>] [#<yto>] [#<x1>] [#<y1>]
+			#<cos12> = #<_line:cos>
+			#<sin12> = #<_line:sin>
+			#<phi12> = #<_line:phi>
+				 
+		(compute angles at line interesctions:)
+		o<dot> call [#<xprior>] [#<yprior>] [#<x1>] [#<y1>] [#<xto>] [#<yto>]
+			#<ang312> = #<_dot:ang>
+				 
+		#<tool_radius> = [[#5410 + .01] / 2]
+
+		o<in_out> if [#<opt> EQ 0] (inside)
+			#<elen12> = [#<tool_radius> / [TAN[#<ang312> / 2]]]
+			#<k12>    = [#<elen12> / #<tool_radius>]
+			#<ax>     = [#<x1> + #<elen12> * #<cos12>]
+			#<ay>     = [#<y1> + #<elen12> * #<sin12>]
+			 (compute pre-entry points:)
+			o<dir00> if [#<dir> EQ 2]
+				#<bx> = [#<ax> + #<tool_radius> * #<sin12> - #<tool_radius> * #<cos12>]
+				#<by> = [#<ay> - #<tool_radius> * #<cos12> - #<tool_radius> * #<sin12>]
+				#<cx> = [#<bx> + #<tool_radius> * #<cos12>]
+				#<cy> = [#<by> + #<tool_radius> * #<sin12>]
+				#<vx> = [        #<tool_radius> * #<cos12>]
+				#<vy> = [        #<tool_radius> * #<sin12>]
+			o<dir00> else (direction EQ 3 CCW)
+				#<bx> = [#<ax> - #<tool_radius> * #<sin12> - #<tool_radius> * #<cos12>]
+				#<by> = [#<ay> + #<tool_radius> * #<cos12> - #<tool_radius> * #<sin12>]
+				#<cx> = [#<bx> + #<tool_radius> * #<cos12>]
+				#<cy> = [#<by> + #<tool_radius> * #<sin12>]
+				#<vx> = [        #<tool_radius> * #<cos12>]
+				#<vy> = [        #<tool_radius> * #<sin12>]
+			o<dir00> endif
+
+			(rampdown finishes at point 2, to exit: need to turn corner at 2)
+			(and go along the 2-->3 line enough to exit)
+			(need a test here: if you go along 23 too far you gouge vertex 3)
+			#<_final:x> = [#<x1> + #<elen12> * #<cos12>]
+			#<_final:y> = [#<y1> + #<elen12> * #<sin12>]
+
+			G0 X#<cx> Y#<cy> (preentry 1)
+			G0 X#<bx> Y#<by> (preentry 2)
+			
+			o<dir10>  if [#<dir> EQ 2]
+				G42 (cutter radius comp right of path)
+				G2 X#<ax> Y#<ay> I#<vx> J#<vy> (arc entry)
+			o<dir10>  else (direction EQ 3 CCW)
+				G41 (cutter radius comp left of path)
+				G3 X#<ax> Y#<ay> I#<vx> J#<vy> (arc entry)
+			o<dir10>  endif
+
+		o<in_out> else (outside)
+
+			o<dir50>  if [#<dir> EQ 2]
+				#<bx> = [#<x1> -  #<tool_radius> * sin[#<phi12>] - #<tool_radius> * cos[#<phi12>]]
+				#<by> = [#<y1> +  #<tool_radius> * cos[#<phi12>] - #<tool_radius> * sin[#<phi12>]]
+				#<vx> = [         #<tool_radius> * cos[#<phi12>]] (b to arc center)
+				#<vy> = [         #<tool_radius> * sin[#<phi12>]]
+				
+				G0 X#<bx> Y#<by>
+				G41 (cutter radius comp left of path)
+				G3 X#<x1> Y#<y1> I#<vx> J#<vy> (arc entry)
+				
+			o<dir50>  else (dir EQ 3 CCW)
+				#<bx> = [#<x1> +  #<tool_radius> * sin[#<phi12>] - #<tool_radius> * cos[#<phi12>]]
+				#<by> = [#<y1> -  #<tool_radius> * cos[#<phi12>] - #<tool_radius> * sin[#<phi12>]]
+				#<vx> = [         #<tool_radius> * cos[#<phi12>]] (b to arc center)
+				#<vy> = [         #<tool_radius> * sin[#<phi12>]]
+				
+				G0 X#<bx> Y#<by>
+				G42 (cutter radius comp right of path)
+				G2 X#<x1> Y#<y1> I#<vx> J#<vy> (arc entry)
+				
+			o<dir50>  endif
+			
+			#<_final:x> = #<x1>
+			#<_final:y> = #<y1>
+		o<in_out>   endif
+	o<comp00> endif
+	
+;	#<_final:x1> = #<x1>
+;	#<_final:y1> = #<y1>
+
+	G0 Z[#<cut_start> + 0.01] (hardcoded delta)
+	G1 Z#<cut_start> (plunge)
+	
+o<fv_entry-angle> endsub
