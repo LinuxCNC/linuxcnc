@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "********************" >&2
+#echo "$0 $*"                >&2
+echo "$0 NOT SUPPORTED YET" >&2
+echo "********************" >&2
+
+cat <<EOF
+(debug, $0 NOT SUPPORTED YET)
+EOF
+
+exit 1
