@@ -286,6 +286,7 @@ HEADERS := \
     emc/tp/tp_types.h \
     emc/tp/spherical_arc.h \
     emc/tp/blendmath.h \
+    emc/tp/blendmath6.h \
     emc/motion/emcmotcfg.h \
     emc/motion/emcmotglb.h \
     emc/motion/motion.h \

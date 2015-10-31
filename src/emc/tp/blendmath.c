@@ -385,7 +385,7 @@ int blendCoplanarCheck(PmCartesian const * const normal,
  * direction, then the intersection angle is PI/2. This is based on the
  * simple_tp formulation for tolerances.
  */
-int findIntersectionAngle(PmCartesian const * const u1,
+int findIntersectionAngle3(PmCartesian const * const u1,
         PmCartesian const * const u2, double * const theta)
 {
     double dot;
@@ -591,7 +591,7 @@ int blendGeom3Init(BlendGeom3 * const geom,
             geom->P.z);
 
     // Find angle between tangent vectors
-    int res_angle = findIntersectionAngle(&geom->u_tan1,
+    int res_angle = findIntersectionAngle3(&geom->u_tan1,
             &geom->u_tan2,
             &geom->theta_tan);
 

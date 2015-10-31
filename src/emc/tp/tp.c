@@ -2068,7 +2068,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
 
         tcGetEndAccelUnitVector(tc, &v1);
         tcGetStartAccelUnitVector(nexttc, &v2);
-        findIntersectionAngle(&v1, &v2, &theta);
+        findIntersectionAngle3(&v1, &v2, &theta);
         /* Minimum value of cos(theta) to prevent numerical instability */
         const double min_cos_theta = cos(PM_PI / 2.0 - TP_MIN_ARC_ANGLE);
         if (cos(theta) > min_cos_theta) {

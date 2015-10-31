@@ -6,7 +6,7 @@
 * License: GPL Version 2
 * System: Linux
 *    
-* Copyright (c) 2014 All rights reserved.
+* Copyright (c) 2014-2015 All rights reserved.
 *
 * Last change:
 ********************************************************************/
@@ -49,16 +49,6 @@ typedef struct {
     double v_max2;          /* maximum velocity in direction u_tan2 */
 
 } BlendGeom3;
-
-/**
- * 9D Input geometry for a spherical blend arc.
- */
-#ifdef BLEND_9D
-typedef struct {
-//Not implemented yet
-} BlendGeom9;
-#endif 
-
 
 /**
  * Blend arc parameters (abstracted).
@@ -113,13 +103,6 @@ typedef struct {
 } BlendPoints3;
 
 
-
-#ifdef BLEND_9D
-typedef struct {
-//Not implemented yet
-} BlendPoints9;
-#endif
-
 double findMaxTangentAngle(double v, double acc, double cycle_time);
 
 double findKinkAccel(double kink_angle, double v_plan, double cycle_time);
@@ -136,7 +119,7 @@ int sat_inplace(double * const x, double max);
 
 int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendParameters const * const param, double cycle_time, int at_end);
 
-int findIntersectionAngle(PmCartesian const * const u1,
+int findIntersectionAngle3(PmCartesian const * const u1,
         PmCartesian const * const u2, double * const theta);
 
 double pmCartMin(PmCartesian const * const in);
@@ -225,10 +208,10 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
 int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const points,
         BlendGeom3 const * const geom, BlendParameters const * const param);
 
-//Not implemented yet
 int blendGeom3Print(BlendGeom3 const * const geom);
 int blendParamPrint(BlendParameters const * const param);
 int blendPoints3Print(BlendPoints3 const * const points);
+
 double pmCircleActualMaxVel(PmCircle * const circle,
         double * const acc_ratio,
         double v_max,
@@ -244,4 +227,5 @@ double pmCircleAngleFromProgress(PmCircle const * const circle,
         double progress);
 double pmCircleLength(PmCircle const * const circle);
 double pmCircleEffectiveMinRadius(PmCircle const * const circle);
+
 #endif
