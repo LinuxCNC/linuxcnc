@@ -863,15 +863,15 @@ static void flush_segments(void) {
     //double uvw_vel = linedata.uvw_len / linedata.tmax;
     double vel = linedata.vel;
 
-    printf("xyz_vel = %f, abc_vel = %f, vel = %f\n", xyz_vel, abc_vel, vel);
-
-    if (abc_vel > currentAngularFeedRate) {
-        vel *= (currentAngularFeedRate / abc_vel);
+    if (angular_move) {
+        if (abc_vel > currentAngularFeedRate) {
+            vel *= (currentAngularFeedRate / abc_vel);
+        }
+    } else {
+        if (xyz_vel > currentLinearFeedRate) {
+            vel *= (currentLinearFeedRate / xyz_vel);
+        }
     }
-    if (xyz_vel > currentLinearFeedRate) {
-        vel *= (currentLinearFeedRate / xyz_vel);
-    }
-    printf("newvel = %f\n", vel);
 
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
