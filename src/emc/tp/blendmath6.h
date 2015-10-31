@@ -45,14 +45,15 @@ int findIntersectionAngle6(Vector6 const * const u1,
 
 int blendCalculateNormals6(BlendGeom6 * const geom);
 
-int blendFindPoints6(BlendPoints6 * const points, BlendGeom6 const * const geom,
+int blendFindPoints6(BlendPoints6 * const points,
+        BlendGeom6 const * const geom,
         BlendParameters const * const param);
 
 int blendGeom6Init(BlendGeom3 * const geom,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc);
 
-int blendParamKinematics(BlendGeom6 * const geom,
+int blendParamKinematics6(BlendGeom6 * const geom,
         BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
