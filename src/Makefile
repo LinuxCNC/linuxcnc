@@ -430,7 +430,7 @@ TARGETS += ../bin/halshow
 	$(Q)chmod +x $@
 
 TARGETS +=../bin/features
-../bin/features: Makefile
+../bin/features: Makefile ../lib/python/gladevcp/features.py
 	$(Q)cp ../lib/python/gladevcp/features.py ../bin/features
 	$(Q)chmod +x $@
 
@@ -574,13 +574,13 @@ install-dirs:
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
 		$(DESTDIR)$(datadir)/linuxcnc/hallib \
-		$(DESTDIR)$(datadir)/features/catalogs \
 		$(DESTDIR)$(datadir)/features/graphics \
-		$(DESTDIR)$(datadir)/features/ini \
-		$(DESTDIR)$(datadir)/features/lib \
-		$(DESTDIR)$(datadir)/features/locale \
-		$(DESTDIR)$(datadir)/features/scripts \
+		$(DESTDIR)$(datadir)/features/catalogs \
 		$(DESTDIR)$(datadir)/features/xml \
+		$(DESTDIR)$(datadir)/features/scripts \
+		$(DESTDIR)$(datadir)/features/support \
+		$(DESTDIR)$(datadir)/features/cfg \
+		$(DESTDIR)$(datadir)/features/lib \
 
 
 install-kernel-indep: install-dirs
