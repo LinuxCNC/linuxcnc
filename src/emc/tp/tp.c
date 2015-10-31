@@ -21,6 +21,7 @@
 #include "motion_types.h"
 #include "spherical_arc.h"
 #include "blendmath.h"
+#include "blendmath6.h"
 //KLUDGE Don't include all of emc.hh here, just hand-copy the TERM COND
 //definitions until we can break the emc constants out into a separate file.
 //#include "emc.hh"
@@ -142,9 +143,9 @@ STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
         return TP_ERR_FAIL;
     }
 
-    acc_bound->x = emcmotDebug->joints[0].acc_limit;
-    acc_bound->y = emcmotDebug->joints[1].acc_limit;
-    acc_bound->z = emcmotDebug->joints[2].acc_limit;
+    acc_bound->x = joints[0].acc_limit;
+    acc_bound->y = joints[1].acc_limit;
+    acc_bound->z = joints[2].acc_limit;
     return TP_ERR_OK;
 }
 
@@ -154,9 +155,35 @@ STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
         return TP_ERR_FAIL;
     }
 
-    vel_bound->x = emcmotDebug->joints[0].vel_limit;
-    vel_bound->y = emcmotDebug->joints[1].vel_limit;
-    vel_bound->z = emcmotDebug->joints[2].vel_limit;
+    vel_bound->x = joints[0].vel_limit;
+    vel_bound->y = joints[1].vel_limit;
+    vel_bound->z = joints[2].vel_limit;
+    return TP_ERR_OK;
+}
+
+STATIC int tpGetMachineAccelBoundsVec(Vector6 * const acc_bound) {
+    if (!acc_bound) {
+        return TP_ERR_FAIL;
+    }
+
+    int i;
+    for (i = 0; i < VECTOR_SIZE; ++i) {
+        acc_bound->ax[i] = joints[i].acc_limit;
+    }
+
+    return TP_ERR_OK;
+}
+
+
+STATIC int tpGetMachineVelBoundsVec(Vector6 * const vel_bound) {
+    if (!vel_bound) {
+        return TP_ERR_FAIL;
+    }
+
+    int i;
+    for (i = 0; i < VECTOR_SIZE; ++i) {
+        vel_bound->ax[i] = joints[i].vel_limit;
+    }
     return TP_ERR_OK;
 }
 
