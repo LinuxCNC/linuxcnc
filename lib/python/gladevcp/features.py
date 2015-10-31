@@ -19,8 +19,6 @@
 
 import gtk
 # -----------------------------------------------------------------------------
-# ---  SETTINGS : YOU CAN CHANGE FOLLOWING LINES VALUES TO FIT YOUR NEEDS   ---
-
 DEFAULT_DISPLAY = 'axis'  # or 'gmoccapy'
 DEFAULT_METRIC = True
 DEFAULT_CATALOG = 'mill'  # or could be 'lathe' or any valid sub-directory name in catalog directory
@@ -87,6 +85,7 @@ import ConfigParser
 import re, os
 import getopt
 import linuxcnc
+SYS_DIR = linuxcnc.SHARE + '/features'
 import subprocess
 import webbrowser
 import io
@@ -94,6 +93,8 @@ from cStringIO import StringIO
 import gettext
 import time
 import urllib
+import shutil
+import hashlib
 
 
 # About Dialog strings
@@ -120,7 +121,7 @@ except :
     gettext.install('linuxcnc-features', None, unicode = True)
 
 # These could be changed but recommend to leave as is
-INI_DIR = '/ini/'
+CFG_DIR = '/cfg/'
 XML_DIR = '/xml/'
 LIB_DIR = '/lib/'
 INC_DIR = '/lib/include/'
@@ -160,20 +161,6 @@ TARGETS = [
     ('STRING', 0, 3),
     ]
 
-NO_SUBROUTINE_PATH_MSG = '''Warning! There's no SUBROUTINES_PATH in ini file!\n
-    Edit your linuxcnc ini file and add in RS274NGC section\n
-    SUBROUTINE_PATH = /home/fernand/linuxcnc-features/lib:
-    /home/fernand/linuxcnc-features/scripts\n
-    or similar to lib and other needed directory'''
-
-NO_PROGRAM_PREFIX_MSG = '''There's no PROGRAM_PREFIX in ini file!\n
-    Edit your linuxcnc ini file and add in DISPLAY section\n
-    PROGRAM_PREFIX = abs or relative path to scripts directory\n
-    i.e. PROGRAM_PREFIX = /home/fernand/linuxcnc-features/scripts'''
-
-DEFAULT_UNITS_NOT_DETECTED = _("""Warning! Units used not detected. 
-                                Using imperial/inch!""")
-
 INCLUDE = []
 DEFINITIONS = []
 PIXBUF_DICT = {}
@@ -198,7 +185,7 @@ def search_path(f) :
     src = APP_PATH + f
     if os.path.isfile(src) :
         return src
-    src = APP_PATH + INI_DIR + f
+    src = APP_PATH + CFG_DIR + f
     if os.path.isfile(src) :
         return src
     src = APP_PATH + XML_DIR + f
@@ -254,15 +241,145 @@ def get_pixbuf(icon, size) :
         PIXBUF_DICT[icon_id] = None
         return None
 
-def mess_dlg(mess):
+def mess_dlg(mess,title="LinuxCNC-Features"):
     dlg = gtk.MessageDialog(parent = None,
         flags = gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
         type = gtk.MESSAGE_WARNING,
         buttons = gtk.BUTTONS_OK, message_format = '%s' % mess)
-    dlg.set_title('LinuxCNC-Features')
+    dlg.set_title(title)
     dlg.set_keep_above(True)
     dlg.run()
     dlg.destroy()
+
+def mess_yesno(mess,title=""):
+    yesno = gtk.MessageDialog(parent = None,
+        flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+        type = gtk.MESSAGE_QUESTION,
+        buttons=gtk.BUTTONS_YES_NO,
+        message_format = '%s' % mess
+        )
+    yesno.set_title(title)
+    yesno.set_keep_above(True)
+    response = yesno.run()
+    yesno.destroy()
+    if  response == gtk.RESPONSE_YES: return True
+    else: return False
+
+def copy_dir_recursive(fromdir,todir,overwrite=False,verbose=False):
+    global update_count
+    if not os.path.isdir(todir):
+        os.makedirs(todir,0755)
+    for p in os.listdir(fromdir):
+        frompath = fromdir + '/' + p
+        topath   = todir   + '/' + p
+        if os.path.isfile(frompath):
+            if not os.path.isfile(topath) or overwrite :
+                if verbose: print "    copying %s to %s" % (p,todir)
+                shutil.copy(frompath,topath)
+                update_count = update_count + 1
+            else:
+                if p == "features.ngc" : continue # special case
+                if (   hashlib.md5(open(frompath,'rb').read()).digest()
+                    != hashlib.md5(open(topath,  'rb').read()).digest()
+                   ) :
+                   print (_('New file available: %s') % frompath)
+                   mess_dlg(
+                       _('An updated system file is available:\n\n%s\n\n'
+                         'You must rename or move your file to\n\n'
+                         'get the updated system file\n' % p),
+                         title="NEW file available")
+                if verbose: print "NOT copying %s to %s" % (p,todir)
+                pass
+        if os.path.isdir(frompath):
+            copy_dir_recursive(frompath,topath,verbose=verbose)
+
+def err_exit(errtxt):
+    print errtxt
+    mess_dlg (errtxt)
+    sys.exit(1)
+
+def exit_if_invalid_rip_standalone():
+    # This environmental variable exists if:
+    #    started by linuxcnc script
+    # or
+    #    set by sourcing rip-environment
+    if not os.environ.has_key('LINUXCNCVERSION') :
+        pname = os.path.realpath(__file__)
+        if pname.find("/usr/bin") != 0 :
+            etxt = (_('***Detected Standalone, Run-In-Place\n'
+                      '***without proper environment\n'
+                      '***Setup Run-In-Place first:\n'
+                    ))
+            idx = pname.find("bin/features")
+            guess = ""
+            if idx >= 0:
+                guess = pname[0:idx]
+            else :
+                idx = pname.find("lib/python/gladevcp/features.py")
+                if idx >= 0:
+                    guess = pname[0:idx]
+            etxt = etxt + (_('   $ source %sscripts/rip-environment' % guess))
+            err_exit(etxt)
+        return
+
+def require_ini_items(fname,ini_instance):
+    global APP_PATH
+    try :
+        val = ini_instance.find('DISPLAY', 'FEATURES_DIR')
+        if val is None :
+            err_exit  (_('Ini file <%s>\nmust have entry'
+                         ' for [DISPLAY]FEATURES_DIR'
+                      % fname))
+        APP_PATH = val + '/'
+        print "FEATURES_DIR=",val
+        if not os.path.isabs(APP_PATH) :
+            APP_PATH = os.path.dirname(fname) + '/' + APP_PATH
+        APP_PATH = os.path.abspath(APP_PATH)
+        if not os.path.isdir(APP_PATH):
+            err_exit  (_('Ini file <%s>\n'
+                         '[DISPLAY]FEATURES_DIR is not a valid directory' % fname
+                      ))
+        if not os.path.isdir(APP_PATH + LIB_DIR):
+            os.makedirs(APP_PATH + LIB_DIR)
+    except Exception, detail :
+        err_exit(_('require_ini_items\n%s' % detail))
+
+def require_features_lib(fname,ini_instance):
+    # presumes already checked:[DISPLAY]FEATURES_DIR
+    global APP_PATH
+    require_lib = APP_PATH + LIB_DIR.rstrip("/")
+    try :
+        subroutine_path = ini_instance.find('RS274NGC', 'SUBROUTINE_PATH')
+        if subroutine_path is None:
+            err_exit(_('require_lib()\nMissing:\n'
+                       '[RS274NGC]SUBROUTINE_PATH'))
+        print "[RS274NGC]SUBROUTINE_PATH= %s" % subroutine_path
+        for i,d in enumerate(subroutine_path.split(":")):
+            print ("SUBROUTINE_PATH[%d](realpath)= %s" %
+                  (i,os.path.realpath(os.path.expanduser(d))) )
+        # ini file must specify a [RS274NGC]SUBROUTINE_PATH that
+        # includes APP_PATH + LIB_DIR (typ: [DISPLAY]FEATURES_DIR/lib)
+        found_lib_dir = False
+        for d in subroutine_path.split(":"):
+            d = os.path.expanduser(d)
+            if os.path.isabs(d) :
+                thedir = d
+            else:
+                thedir=(os.path.realpath(os.path.dirname(fname)+'/'+d))
+            if not os.path.isdir(thedir):
+                continue
+            else:
+                thedir = os.path.realpath(thedir)
+                if thedir.find(require_lib) == 0:
+                    found_lib_dir = True
+                    break
+        if not found_lib_dir :
+            err_exit (_('The required features lib directory:\n<%s>\n'
+                      'was not in [RS274NGC]SUBROUTINE_PATH:\n\n'
+                      '<%s>\n\n'
+                    % (require_lib,subroutine_path) ))
+    except Exception,detail :
+        err_exit(_('require_features_lib()\n%s' % detail))
 
 class CellRendererMx(gtk.CellRendererText):
 
@@ -751,27 +868,27 @@ class CellRendererMx(gtk.CellRendererText):
 gobject.type_register(CellRendererMx)
 
 class Parameter() :
-    def __init__(self, ini = None, ini_id = None, xml = None) :
+    def __init__(self, cfg = None, cfg_id = None, xml = None) :
         self.attr = {}
         self.pixbuf = {}
-        if ini is not None :
-            self.from_ini(ini, ini_id)
+        if cfg is not None :
+            self.from_cfg(cfg, cfg_id)
         elif xml is not None :
             self.from_xml(xml)
 
     def __repr__(self) :
         return etree.tostring(self.to_xml(), pretty_print = True)
 
-    def from_ini(self, ini, ini_id) :
+    def from_cfg(self, cfg, cfg_id) :
         self.attr = {}
-        ini = dict(ini)
-        for i in ini :
-            self.attr[i] = ini[i]
+        cfg = dict(cfg)
+        for i in cfg :
+            self.attr[i] = cfg[i]
         if "type" in self.attr :
             self.attr["type"] = self.attr["type"].lower()
         if "call" not in self.attr :
-            self.attr["call"] = "#" + ini_id.lower()
-        self.id = ini_id
+            self.attr["call"] = "#" + cfg_id.lower()
+        self.id = cfg_id
 
     def from_xml(self, xml) :
         for i in xml.keys() :
@@ -894,7 +1011,7 @@ class Feature():
                     (p[:6] == "PARAM_" and p not in self.attr["order"])]
         for s in parameters :
             if s in conf :
-                p = Parameter(ini = conf[s], ini_id = s.lower())
+                p = Parameter(cfg = conf[s], cfg_id = s.lower())
                 p.attr['name'] = _(p.get_name())
                 p.attr['tool_tip'] = _(p.get_attr('tool_tip') \
                             if "tool_tip" in p.attr else p.get_attr('name'))
@@ -1037,9 +1154,15 @@ class Feature():
                     res += l[i:] + "\n"
                 s = res
             try :
-                return subprocess.check_output([s], shell = True)
+                return subprocess.check_output([s], shell = True,
+                                               stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError as e:
-                mess_dlg('Error with subprocess: %s' % e)
+                msg = (_('Error with subprocess: returncode = %s\n'
+                         'output = %s\n'
+                         'e= %s\n' 
+                         % (e.returncode,e.output,e)))
+                print msg
+                mess_dlg(msg)
                 return ''
 
         def import_callback(m) :
@@ -1056,7 +1179,17 @@ class Feature():
                 raise IOError("IOError File not found : %(f)s in %(p)s" %
                               {"f":fname, "p":(XML_DIR)})
 
-        s = re.sub(r"%APP_PATH%", "%s" % APP_PATH, s)
+        # Note: SYS_DIR
+        # This token appearing in .cfg files references the primary 'features'
+        # directory which formerly had a subdir (support/) for custom scripts
+        # or executables.  However, binary executables are not applicable to
+        # included in the LinuxCNC tree since they need to be built
+        # for each architecture.
+        # In the future, such programs should probably be located normally
+        # in the PATH so that they are available independently.
+        # If they need to be built for LinuxCNC, they should handled by
+        # src/Makefile and located in the bin/ or scripts/ directory
+        s = re.sub(r"%SYS_DIR%", "%s" % SYS_DIR, s)
 
         s = re.sub(r"(?i)(<import>(.*?)</import>)", import_callback, s)
         s = re.sub(r"(?i)(<eval>(.*?)</eval>)", eval_callback, s)
@@ -1068,7 +1201,7 @@ class Feature():
                            (re.escape(p.attr["call"])), r"%s\1" %
                            (p.attr["value"]), s)
 
-        s = re.sub(r"%APP_PATH%", "%s" % APP_PATH, s)
+        s = re.sub(r"%SYS_DIR%", "%s" % SYS_DIR, s)
         s = re.sub(r"(?ims)(<subprocess>(.*?)</subprocess>)",
                    subprocess_callback, s)
         s = re.sub(r"#self_id", "%s" % self.get_attr("id"), s)
@@ -1084,18 +1217,37 @@ class Features(gtk.VBox):
     __gproperties__ = {}
     __gproperties = __gproperties__
 
+    def usage(self):
+        print """
+Standalone Usage:
+   features [Options]
+
+Options:
+   -h | --help                        this text
+   -i inifilename | --ini=inifilename inifile for standalone
+
+Notes:
+  For standalone usage:
+     a) Specify an inifile name which specifies [DISPLAY]FEATURES_DIR
+  or
+     b) Start in a working directory with pre-existing Features subdirs
+        !!!If Features subdirs are not present, they will be created"""
+
     def __init__(self, *a, **kw):
         global APP_PATH, DEFAULT_CATALOG, DEFAULT_METRIC
 
+        exit_if_invalid_rip_standalone()
+
         # process passed args
-        opt, optl = 'U:c:x:i:t', ["catalog=", "ini="]
+        # not used herein: c:,x:
+        opt, optl = 'hU:c:x:i:', ["help","catalog=", "ini="]
         optlist, args = getopt.getopt(sys.argv[1:], opt, optl)
         optlist = dict(optlist)
 
-        if "-t" in optlist :
-            # get translations and exit
-            self.get_translations()
-            sys.exit()
+        #future if "-t" in optlist :
+        #future     # get translations and exit
+        #future     self.get_translations()
+        #future     sys.exit()
 
         if "-U" in optlist :
             optlist_, args = getopt.getopt(optlist["-U"].split(), opt, optl)
@@ -1109,53 +1261,75 @@ class Features(gtk.VBox):
 
         self.display = DEFAULT_DISPLAY
 
-        if (ini is not None):
-            APP_PATH = '/usr/local/bin/features'
-            if not os.path.exists(APP_PATH):
-                mess_dlg('Execute ./setup first')
-                sys.exit(1)
-
+        inifilename = 'NA'
+        if (ini is None) :
+            # standalone with no -i:
+            # beware, files expected/created in this dir
+            APP_PATH = os.getcwd() + '/'
+        else : # has ini file
             try :
-                inifile = linuxcnc.ini(ini)
-                self.display = inifile.find('DISPLAY', 'DISPLAY')
+                inifilename = os.path.abspath(ini)
+                ini_instance = linuxcnc.ini(ini)
+            except Exception, detail :
+                err_exit(_("Open fails for ini=%s\n\n%s" %(inifilename,detail)))
 
-                try :
-                    val = inifile.find('DISPLAY', 'PROGRAM_PREFIX')
-                except :
-                    print(NO_PROGRAM_PREFIX_MSG)
-                    mess_dlg(NO_PROGRAM_PREFIX_MSG)
-                    sys.exit(1)
+            require_ini_items(inifilename,ini_instance)
+            require_features_lib(inifilename,ini_instance)
 
-                try :
-                    inifile.find('RS274NGC', 'SUBROUTINE_PATH')
-                except :
-                    print (NO_SUBROUTINE_PATH_MSG)
-                    mess_dlg (NO_SUBROUTINE_PATH_MSG)
-                    sys.exit(1)
+            val = ini_instance.find('DISPLAY', 'DISPLAY')
+            if val is not None:
+                self.display = val
+            else:
+                msg = (_('not found: [DISPLAY]DISPLAY, using: %s'% self.display))
+                print msg
+                mess_dlg (msg)
 
-                try :
-                    val = inifile.find('TRAJ', 'LINEAR_UNITS')
-                    DEFAULT_METRIC = val in ['mm', 'metric']
-                except :
-                    print (DEFAULT_UNITS_NOT_DETECTED)
-                    mess_dlg (DEFAULT_UNITS_NOT_DETECTED)
+            val = ini_instance.find('DISPLAY', 'PROGRAM_PREFIX')
+            # exiting here is overly restrictive since the required
+            # scripts/ dir could be elsewhere in the search path
+            if val is None:
+                err_exit (_("There's no PROGRAM_PREFIX in ini file!\n"
+                "Edit your linuxcnc ini file and add in DISPLAY section\n"
+                "PROGRAM_PREFIX = abs or relative path to scripts directory\n"
+                "i.e. PROGRAM_PREFIX = ./myfeatures/scripts"
+                ))
 
-            except:
-                mess_dlg(_('Can not read LinuxCNC ini file'))
-
-        else :
-            APP_PATH = os.path.abspath(os.path.dirname(__file__))
+            val = ini_instance.find('TRAJ', 'LINEAR_UNITS')
+            if val is None and not DEFAULT_METRIC:
+                msg = (_("""Warning! Units used not detected.
+                                Using imperial/inch!"""))
+                print (msg)
+                mess_dlg (msg)
+            else:
+                DEFAULT_METRIC = val in ['mm', 'metric']
 
         if "--catalog" in optlist :
             self.catalog_dir = APP_PATH + CATALOGS_DIR + optlist["--catalog"]
         else :
             self.catalog_dir = APP_PATH + CATALOGS_DIR + DEFAULT_CATALOG
 
+        if "-h" in optlist or "--help" in optlist:
+            self.usage()
+        print ""
+        print "Features info:"
+        print "        inifile=",inifilename
+        print "        SYS_DIR=",SYS_DIR
+        print "  Features prog=",__file__
+        print ""
+        if "-h" in optlist or "--help" in optlist:
+            sys.exit(0)
+
+        fromdirs = [CATALOGS_DIR, CFG_DIR, LIB_DIR,
+                    GRAPHICS_DIR, XML_DIR, NGC_DIR]
+
+        if ini is None: self.ask_to_create_standalone(fromdirs)
+
+        # first use:copy, subsequent: update
+        self.update_user_tree(fromdirs,APP_PATH)
+
         if not os.path.exists(self.catalog_dir + '/menu.xml') :
-            mess_dlg(_('Catalog file does not exists : %s') %
-                     self.catalog_dir + '/menu.xml')
-            IOError('IOError Catalog file does not exists : %s' %
-                    self.catalog_dir + '/menu.xml')
+            raise IOError(_('Catalog file does not exists : %s' %
+                    self.catalog_dir + '/menu.xml'))
 
         xml = etree.parse(self.catalog_dir + '/menu.xml')
         self.catalog = xml.getroot()
@@ -1179,10 +1353,9 @@ class Features(gtk.VBox):
 
         self.builder = gtk.Builder()
         try :
-            self.builder.add_from_file(APP_PATH + "/features.glade")
+            self.builder.add_from_file(SYS_DIR + "/features.glade")
         except :
-            mess_dlg(_("File not found : features.glade"))
-            raise IOError("File not found : features.glade")
+            raise IOError(_("UNEXPECTED: File not found : features.glade"))
 
         self.get_widgets()
 
@@ -1260,15 +1433,45 @@ class Features(gtk.VBox):
         self.clipboard = gtk.clipboard_get(gtk.gdk.SELECTION_CLIPBOARD)
         self.update_timeout = gobject.timeout_add(8000, self.update_check_call)
 
+    def ask_to_create_standalone(self,fromdirs):
+        global APP_PATH
+        dir_exists = False
+        for d in fromdirs:
+            if os.path.isdir(APP_PATH + d):
+                dir_exists = True
+                break
+        if not dir_exists:
+            msg = _('Standalone Directory:\n\n%s\n\nContinue?' % (APP_PATH))
+            if not mess_yesno(msg, title="Features CREATE") :
+                sys.exit(0)
+
+    def update_user_tree(self,fromdirs,todir):
+        global update_count
+        # copy system files to user, make dirs if necessary
+        # don't overwrite exiting files
+        for d in fromdirs:
+            update_count = 0
+            dir_exists = os.path.isdir(APP_PATH + d)
+            copy_dir_recursive(SYS_DIR + d, todir + d, overwrite=False)
+            if dir_exists:
+                print (_('Updated %4d new files in %s'
+                       % (update_count, d.lstrip('/') )))
+            else :
+                print (_('Created %4d files in: %s'
+                       % (update_count, APP_PATH + d.lstrip('/'))))
+
     def update_check_call(self):
         opener = urllib.FancyURLopener({})
         try :
-            f = opener.open("https://raw.github.com/FernV/linuxcnc-features/master/version").read()
+            f = opener.open(
+                "https://raw.github.com/FernV/linuxcnc-features/master/version"
+                ).read()
             if f.find('Not Found') > -1 :
                 return
             f = re.sub(r"\n", "", f)
             if (f > APP_VERSION) and (f > self.checked_update) :
-                mess_dlg('New update available : %s\nCurrent version : %s' % (f, APP_VERSION))
+                mess_dlg('New update available : %s\nCurrent version : %s'
+                    % (f, APP_VERSION))
                 webbrowser.open(HOME_PAGE)
                 self.checked_update = f
                 self.save_preferences()
@@ -1804,8 +2007,8 @@ class Features(gtk.VBox):
         img = gtk.Image()
         img.set_from_stock('gtk-open', MENU_ICON_SIZE)
         menu_item.set_image(img)
-        menu_item.connect("activate", self.menu_open_ini_activate)
-        menu_item.set_tooltip_text(_("Select a valid or prototype ini"))
+        menu_item.connect("activate", self.menu_open_cfg_activate)
+        menu_item.set_tooltip_text(_("Select a valid or prototype cfg"))
         self.menuAdd.append(menu_item)
 
     def create_treeview(self):
@@ -2362,7 +2565,7 @@ class Features(gtk.VBox):
             os.popen("msgcat ./features.po ./glade.po -o ./locale/linuxcnc-features.tmp_po")
             os.popen("rm ./features.po ./glade.po")
 
-                # catalogs
+            # catalogs
             find = os.popen("find ./%s -name 'menu.xml'" % CATALOGS_DIR).read()
             for s in find.split() :
                 translatable = []
@@ -2387,8 +2590,8 @@ class Features(gtk.VBox):
                 os.popen("msgcat %s ./locale/linuxcnc-features.tmp_po -o ./locale/linuxcnc-features.tmp_po" % destname)
                 os.popen("rm %s" % destname)
 
-                # ini files
-            find = os.popen("find ./%s -name '*.ini'" % INI_DIR).read()
+            # ini files
+            find = os.popen("find ./%s -name '*.cfg'" % CFG_DIR).read()
             for s in find.split() :
                 translatable = []
                 splitname = s.split('/')
@@ -2414,7 +2617,7 @@ class Features(gtk.VBox):
                 out = "\n".join(out)
                 open(destname, "w").write(out)
 
-            cmd_line = "find ./locale/ -name '*.ini'"
+            cmd_line = "find ./locale/ -name '*.cfg'"
             find = os.popen(cmd_line).read()
             for s in find.split() :
                 os.popen("xgettext --language=Python --from-code=UTF-8 %s -o %s" % (s, s))
@@ -2967,7 +3170,11 @@ class Features(gtk.VBox):
     def action_build(self, *arg) :
         self.autorefresh_call()
         if not self.LinuxCNC_connected :
-            mess_dlg(_("LinuxCNC not running\n\nStart LinuxCNC with the right config ini\nand press Build button again"))
+            mess_dlg(_("LinuxCNC not running\n\n"
+            "Start LinuxCNC with the right config ini\n"
+            "and press Build button again\n\n"
+            "(The config must have a correct [RS274NGC]SUBROUTINE_PATH)"
+            ))
         else :
             self.auto_refresh.set_active(True)
 
@@ -2991,7 +3198,7 @@ class Features(gtk.VBox):
                     filename += ".ngc"
                 f = open(filename, "w")
                 f.write(gcode)
-            f.close()
+                f.close()
         finally :
             filechooserdialog.destroy()
 
@@ -3443,9 +3650,9 @@ class Features(gtk.VBox):
         self.checked_update = read_str('general', 'chk_version', '2.0')
 
 #        try :
-#        	v = config.get('version', '2.0')#
-# 	        if v < APP_VERSION :
-# 	            self.save_preferences()
+#           v = config.get('version', '2.0')#
+#           if v < APP_VERSION :
+#           self.save_preferences()
 #        except :
 #            self.save_preferences()
 
@@ -3678,17 +3885,17 @@ class Features(gtk.VBox):
         finally:
             filechooserdialog.destroy()
 
-    def menu_open_ini_activate(self, callback = None) :
+    def menu_open_cfg_activate(self, callback = None) :
         filechooserdialog = gtk.FileChooserDialog(_("Open"), None, \
-			gtk.FILE_CHOOSER_ACTION_OPEN, (gtk.STOCK_CANCEL, \
-			gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))
+            gtk.FILE_CHOOSER_ACTION_OPEN, (gtk.STOCK_CANCEL, \
+            gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))
         try:
             filt = gtk.FileFilter()
-            filt.set_name("inifiles")
+            filt.set_name("cfg")
             filt.add_mime_type("text/xml")
-            filt.add_pattern("*.ini")
+            filt.add_pattern("*.cfg")
             filechooserdialog.add_filter(filt)
-            filechooserdialog.set_current_folder(APP_PATH + INI_DIR)
+            filechooserdialog.set_current_folder(APP_PATH + CFG_DIR)
 
             if filechooserdialog.run() == gtk.RESPONSE_OK:
                 self.add_feature(filechooserdialog.get_filename())
