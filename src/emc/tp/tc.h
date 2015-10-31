@@ -39,8 +39,8 @@ int tcCanConsume(TC_STRUCT const * const tc);
 int tcSetTermCond(TC_STRUCT * const tc, int term_cond);
 
 int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
-        PmCartesian const * const circ_start,
-        PmCartesian const * const circ_end);
+        Vector6 const * const circ_start,
+        Vector6 const * const circ_end);
 
 int tcIsBlending(TC_STRUCT * const tc);
 

@@ -1187,8 +1187,9 @@ int blendComputeParameters(BlendParameters * const param)
 
 /** Check if the previous line segment will be consumed based on the blend arc parameters. */
 int blendCheckConsume(BlendParameters * const param,
-        BlendPoints3 const * const points,
-        TC_STRUCT const * const prev_tc, int gap_cycles)
+        double trim,
+        TC_STRUCT const * const prev_tc,
+        int gap_cycles)
 {
     //Initialize values
     param->consume = 0;
@@ -1202,10 +1203,11 @@ int blendCheckConsume(BlendParameters * const param,
     }
 
     //Check for segment length limits
-    double L_prev = prev_tc->target - points->trim1;
+    double L_prev = prev_tc->target - trim;
     double prev_seg_time = L_prev / param->v_plan;
 
-    bool can_consume = tcCanConsume(prev_tc);
+    // KLUDGE force this to always be false for now for debugging
+    bool can_consume = tcCanConsume(prev_tc) && false;
     param->consume = (prev_seg_time < gap_cycles * prev_tc->cycle_time && can_consume);
     if (param->consume) {
         tp_debug_print("consuming prev line, L_prev = %g\n",

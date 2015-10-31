@@ -41,27 +41,27 @@ int blendFindPoints6(BlendPoints6 * const points, BlendGeom6 const * const geom,
     VecScalMult(&geom->normal, center_dist, &points->arc_center);
     VecVecAddEq(&points->arc_center, &geom->P);
     tp_debug_print("arc_center = %f %f %f\n",
-            points->arc_center.x,
-            points->arc_center.y,
-            points->arc_center.z);
+            points->arc_center.ax[0],
+            points->arc_center.ax[1],
+            points->arc_center.ax[2]);
 
     // Start point is d_plan away from intersection P in the
     // negative direction of u1
     VecScalMult(&geom->u1, -param->d_plan, &points->arc_start);
     VecVecAddEq(&points->arc_start, &geom->P);
     tp_debug_print("arc_start = %f %f %f\n",
-            points->arc_start.x,
-            points->arc_start.y,
-            points->arc_start.z);
+            points->arc_start.ax[0],
+            points->arc_start.ax[1],
+            points->arc_start.ax[2]);
 
-    // End point is d_plan away from intersection P in the
+    // End point is d_plan aw.ax[0] from intersection P in the
     // positive direction of u1
     VecScalMult(&geom->u2, param->d_plan, &points->arc_end);
     VecVecAddEq(&points->arc_end, &geom->P);
     tp_debug_print("arc_end = %f %f %f\n",
-            points->arc_end.x,
-            points->arc_end.y,
-            points->arc_end.z);
+            points->arc_end.ax[0],
+            points->arc_end.ax[1],
+            points->arc_end.ax[2]);
 
     //For line case, just copy over d_plan since it's the same
     points->trim1 = param->d_plan;
@@ -76,16 +76,21 @@ int blendGeom6Init(BlendGeom6 * const geom,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc)
 {
+    if (!geom || !prev_tc || !tc) {
+        return TP_ERR_FAIL;
+    }
     geom->v_max1 = prev_tc->maxvel;
     geom->v_max2 = tc->maxvel;
 
-    // Get tangent unit vectors to each arc at the intersection point
-    // TODO
-    /*int res_u1 = tcGetEndTangentUnitVector(prev_tc, &geom->u1);*/
-    /*int res_u2 = tcGetStartTangentUnitVector(tc, &geom->u2);*/
+    // KLUDGE, since we know these are for lines for now, just assume it ang grab them.
+    // TODO refactor to finction if we end up doing arcs too
+    CartToVec(&prev_tc->coords.line.xyz.uVec, &prev_tc->coords.line.uvw.uVec, &geom->u1);
+    VecUnitEq(&geom->u1);
+    CartToVec(&tc->coords.line.xyz.uVec, &tc->coords.line.uvw.uVec, &geom->u2);
+    VecUnitEq(&geom->u2);
 
-    //TODO
-    /*int res_intersect = tcGetIntersectionPoint(prev_tc, tc, &geom->P);*/
+    // Manually extract the end of line 1 for XYZ and UVW
+    CartToVec(&prev_tc->coords.line.xyz.end, &prev_tc->coords.line.uvw.end, &geom->P);
 
     // Find angle between tangent vectors
     int res_angle = findIntersectionAngle6(&geom->u1,

@@ -360,15 +360,20 @@ int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
  * (line-arc-line).
  */
 int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
-        PmCartesian const * const circ_start,
-        PmCartesian const * const circ_end) {
-
+        Vector6 const * const circ_start,
+        Vector6 const * const circ_end)
+{
     /* Only shift XYZ for now*/
+    PmCartesian xyz1, uvw1;
     if (prev_tc) {
+        VecToCart(circ_start, &xyz1, &uvw1);
+
         tp_debug_print("connect: keep prev_tc\n");
         //Have prev line, need to shorten it
         pmCartLineInit(&prev_tc->coords.line.xyz,
-                &prev_tc->coords.line.xyz.start, circ_start);
+                &prev_tc->coords.line.xyz.start, &xyz1);
+        pmCartLineInit(&prev_tc->coords.line.uvw,
+                &prev_tc->coords.line.uvw.start, &uvw1);
         tp_debug_print("Old target = %f\n", prev_tc->target);
         prev_tc->target = pmLine9Target(&prev_tc->coords.line);
         tp_debug_print("Target = %f\n",prev_tc->target);
@@ -377,12 +382,18 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         tp_debug_print(" L1 end  : %f %f %f\n",prev_tc->coords.line.xyz.end.x,
                 prev_tc->coords.line.xyz.end.y,
                 prev_tc->coords.line.xyz.end.z);
+        tp_debug_print(" L1 end  : %f %f %f\n",prev_tc->coords.line.uvw.end.x,
+                prev_tc->coords.line.uvw.end.y,
+                prev_tc->coords.line.uvw.end.z);
     } else {
         tp_debug_print("connect: consume prev_tc\n");
     }
 
+    PmCartesian xyz2, uvw2;
+    VecToCart(circ_start, &xyz2, &uvw2);
     //Shorten next line
-    pmCartLineInit(&tc->coords.line.xyz, circ_end, &tc->coords.line.xyz.end);
+    pmCartLineInit(&tc->coords.line.xyz, &xyz2, &tc->coords.line.xyz.end);
+    pmCartLineInit(&tc->coords.line.uvw, &uvw2, &tc->coords.line.uvw.end);
 
     tp_info_print(" L2: old target = %f\n", tc->target);
     tc->target = pmLine9Target(&tc->coords.line);
@@ -391,11 +402,15 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
             tc->coords.line.xyz.start.y,
             tc->coords.line.xyz.start.z);
 
+    tp_debug_print(" L2 start uvw : %f %f %f\n",tc->coords.line.uvw.start.x,
+            tc->coords.line.uvw.start.y,
+            tc->coords.line.uvw.start.z);
+
     //Disable flag for parabolic blending with previous
     tc->blend_prev = 0;
 
-    tp_info_print("       Q1: %f %f %f\n",circ_start->x,circ_start->y,circ_start->z);
-    tp_info_print("       Q2: %f %f %f\n",circ_end->x,circ_end->y,circ_end->z);
+    tp_info_print("       Q1: %f %f %f\n", xyz1.x,xyz1.y,xyz1.z);
+    tp_info_print("       Q2: %f %f %f\n", xyz2.x,xyz2.y,xyz2.z);
 
     return 0;
 }

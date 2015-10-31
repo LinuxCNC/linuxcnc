@@ -91,6 +91,7 @@ STATIC int tcCheckLastParabolic(TC_STRUCT * const tc,
 
 /**
  * Returns true if there is motion along ABC or UVW axes, false otherwise.
+ * TODO give this a better name since UVW is not rotary motion
  */
 STATIC int tpRotaryMotionCheck(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     switch (tc->motion_type) {
@@ -98,7 +99,7 @@ STATIC int tpRotaryMotionCheck(TP_STRUCT const * const tp, TC_STRUCT const * con
         case TC_RIGIDTAP:
             return false;
         case TC_LINEAR:
-            if (tc->coords.line.abc.tmag_zero && tc->coords.line.uvw.tmag_zero) {
+            if (tc->coords.line.abc.tmag_zero) {
                 return false;
             } else {
                 return true;
@@ -887,7 +888,7 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         return TP_ERR_FAIL;
     }
 
-    blendCheckConsume(&param, &points_exact, prev_tc, emcmotConfig->arcBlendGapCycles);
+    blendCheckConsume(&param, points_exact.trim1, prev_tc, emcmotConfig->arcBlendGapCycles);
     //Store working copies of geometry
     PmCartLine line1_temp = prev_tc->coords.line.xyz;
     PmCircle circ2_temp = tc->coords.circle.xyz;
@@ -1038,7 +1039,7 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         return TP_ERR_FAIL;
     }
     
-    blendCheckConsume(&param, &points_exact, prev_tc, emcmotConfig->arcBlendGapCycles);
+    blendCheckConsume(&param, points_exact.trim1, prev_tc, emcmotConfig->arcBlendGapCycles);
 
     /* If blend calculations were successful, then we're ready to create the
      * blend arc.
@@ -1183,7 +1184,7 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
         return TP_ERR_FAIL;
     }
 
-    blendCheckConsume(&param, &points_exact, prev_tc, emcmotConfig->arcBlendGapCycles);
+    blendCheckConsume(&param, points_exact.trim1, prev_tc, emcmotConfig->arcBlendGapCycles);
     
     /* If blend calculations were successful, then we're ready to create the
      * blend arc. Begin work on temp copies of each circle here:
@@ -1286,18 +1287,18 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
 {
 
     tp_debug_print("-- Starting LineLine blend arc --\n");
-    PmCartesian acc_bound, vel_bound;
+    Vector6 acc_bound, vel_bound;
     
     //Get machine limits
-    tpGetMachineAccelBounds(&acc_bound);
-    tpGetMachineVelBounds(&vel_bound);
+    tpGetMachineAccelBoundsVec(&acc_bound);
+    tpGetMachineVelBoundsVec(&vel_bound);
     
     // Setup blend data structures
-    BlendGeom3 geom;
+    BlendGeom6 geom;
     BlendParameters param;
-    BlendPoints3 points;
+    BlendPoints6 points;
 
-    int res_init = blendInit3FromLineLine(&geom, &param,
+    int res_init = blendInit6FromLineLine(&geom, &param,
             prev_tc,
             tc,
             &acc_bound,
@@ -1315,16 +1316,15 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         return res_blend;
     }
 
-    blendFindPoints3(&points, &geom, &param);
+    blendFindPoints6(&points, &geom, &param);
 
-    blendCheckConsume(&param, &points, prev_tc, emcmotConfig->arcBlendGapCycles);
+    blendCheckConsume(&param, points.trim1, prev_tc, emcmotConfig->arcBlendGapCycles);
 
     // Set up actual blend arc here
-    int res_arc = arcFromBlendPoints3(&blend_tc->coords.arc.xyz,
+    int res_arc = arcFromBlendPoints6(&blend_tc->coords.arc.xyz,
             &points,
             &geom,
-            &param,
-            &prev_tc->coords.line.uvw.end);
+            &param);
 
     if (res_arc < 0) {
         return TP_ERR_FAIL;
@@ -1347,6 +1347,8 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
 
     //TODO refactor to pass consume to connect function
     if (param.consume) {
+#if 0
+        // FIXME temporarily disable since we're forcing this not to happen
         //Since we're consuming the previous segment, pop the last line off of the queue
         retval = tcqPopBack(&tp->queue);
         if (retval) {
@@ -1357,6 +1359,7 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         //Since the blend arc meets the end of the previous line, we only need
         //to "connect" to the next line
         retval = tcConnectBlendArc(NULL, tc, &points.arc_start, &points.arc_end);
+#endif
     } else {
         //TODO refactor connect function to stretch lines and check for bad stretching
         tp_debug_print("keeping previous line\n");
@@ -1720,6 +1723,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         return TP_ERR_FAIL;
     }
 
+    //TODO 6D tangent check
     PmCartesian prev_tan, this_tan;
 
     int res_endtan = tcGetEndTangentUnitVector(prev_tc, &prev_tan);
