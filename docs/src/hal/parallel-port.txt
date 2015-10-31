@@ -2,64 +2,62 @@
 
 = Parallel Port Driver
 
-== Parport
+The hal_parport component is a driver for the traditional PC parallel port.
+The port has a total of 17 physical pins. The original parallel port divided
+those pins into three groups: data, control, and status. The data group
+consists of 8 output pins, the control group consists of 4 pins, and the
+status group consists of 5 input pins.
 
-Parport is a driver for the traditional PC parallel port. The port has
-a total of 17 physical pins. The original parallel port divided those
-pins into three groups: data, control, and status. The data group
-consists of 8 output pins, the control group consists of 4 pins, and
-the status group consists of 5 input pins.
+In the early 1990's, the bidirectional parallel port was introduced, which
+allows the data group to be used for output or input. The HAL driver supports
+the bidirectional port, and allows the user to set the data group as either
+input or output. If configured as 'out', a port provides a total of 12 outputs
+and 5 inputs. If configured as 'in', it provides 4 outputs and 13 inputs.
 
-In the early 1990's, the bidirectional parallel port was introduced,
-which allows the data group to be used for output or input. The HAL
-driver supports the bidirectional port, and allows the user to set the
-data group as either input or output. If configured as output, a port
-provides a total of 12 outputs and 5 inputs. If configured as input, it
-provides 4 outputs and 13 inputs.
+In some parallel ports, the control group pins are open collectors, which may
+also be driven low by an external gate. On a board with open collector control
+pins. If configured as 'x', it provides 8 outputs, and 9 inputs.
 
-In some parallel ports, the control group pins are open collectors,
-which may also be driven low by an external gate. On a board with open
-collector control pins, the 'x' mode allows a more flexible mode with 8
-outputs, and 9 inputs. In other parallel ports, the control group has
-push-pull drivers and cannot be used as an input.
+In some parallel ports, the control group has push-pull drivers and cannot be
+used as an input.
 
 .HAL and Open Collectors
 [NOTE]
 ===========================================================
-HAL cannot automatically determine if the 'x' mode bidirectional pins
-are actually open collectors (OC). If they are not, they cannot be used
-as inputs, and attempting to drive them LOW from an external source can
-damage the hardware.
+HAL cannot automatically determine if the 'x' mode bidirectional pins are
+actually open collectors (OC). If they are not, they cannot be used as inputs,
+and attempting to drive them LOW from an external source can damage the
+hardware.
 
-To determine whether your port has 'open collector' pins, load
-hal_parport in 'x' mode.  With no device attached, HAL should read the
-pin as TRUE. Next, insert a 470 ohm resistor from one of the
-control pins to GND. If the resulting voltage on the control pin is
-close to 0V, and HAL now reads the pin as FALSE, then you have an OC
-port. If the resulting voltage is far from 0V, or HAL does not read the
-pin as FALSE, then your port cannot be used in 'x' mode.
+To determine whether your port has 'open collector' pins, load hal_parport in
+'x' mode. With no device attached, HAL should read the pin as TRUE. Next,
+insert a 470 ohm resistor from one of the control pins to GND. If the resulting
+voltage on the control pin is close to 0V, and HAL now reads the pin as FALSE,
+then you have an OC port. If the resulting voltage is far from 0V, or HAL does
+not read the pin as FALSE, then your port cannot be used in 'x' mode.
 
 The external hardware that drives the control pins should also use
 open collector gates (e.g., 74LS05).
 
-On some machines, BIOS settings may affect whether 'x' mode can be
+On some computers, BIOS settings may affect whether 'x' mode can be
 used. 'SPP' mode is most likely to work.
 ===========================================================
 
-No other combinations are supported, and a port cannot be changed from
-input to output once the driver is installed. The
-<<fig:parport-block-diag,Parport Block Diagram>> shows two block diagrams,
-one showing the driver when the data group is configured for output, and one
-showing it configured for input.  For 'x' mode, refer to the pin listing of
-'halcmd show pin' for pin direction assignment.
+No other combinations are supported, and a port cannot be changed from input to
+output once the driver is installed.
 
 The parport driver can control up to 8 ports (defined by MAX_PORTS in
 hal_parport.c). The ports are numbered starting at zero.
 
-=== Installing
+== Loading
+
+The hal_parport driver is a real time component so it must be loaded into the
+real time thread with 'loadrt'. The configuration string consists of at least
+one port index or port address and optional pin direction specifiers. If the
+configuration string does not contain at least one address, it is an error.
 
 ----
-loadrt hal_parport cfg="<config-string>"
+loadrt hal_parport cfg="configuration string"
 ----
 
 .Using the Port Index
@@ -75,42 +73,60 @@ loadrt hal_parport cfg="0"
 
 .Using the Port Address
 
-The configure string consists of a hex port address, followed by an
-optional direction, repeated for each port. The direction is 'in',
-'out', or 'x' and determines the direction of the physical pins 2
-through 9, and whether to create input HAL pins for the physical
-control pins. If the direction is not specified, the data group
-defaults to output. For example:
+The port address is specified using the hex notation '0x' then the address.
 
 ----
-loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"
+loadrt hal_parport cfg="0x378"
 ----
 
-This example installs drivers for one port at 0x0278, with pins 2-9 as
-outputs (by default, since neither 'in' nor 'out' was specified), one
-at 0x0378, with pins 2-9 as inputs, and one at 0x20A0, with pins 2-9
-explicitly specified as outputs. Note that you must know the base
-address of the parallel port to properly configure the driver. For ISA
-bus ports, this is usually not a problem, since the port is almost
-always at a 'well known' address, like 0278 or 0378 which is typically
-configured in the system BIOS. The address for a PCI card is usually
-shown in 'lspci -v' in an 'I/O ports' line, or in the kernel message
-log after executing 'sudo modprobe -a parport_pc'. There is no
-default address; if '<config-string>' does not contain at least one
-address, it is an error.
+.Direction
 
-Port Address
+The direction is 'in', 'out', or 'x' and that determines the direction of the
+physical pins of the parallel port. If the direction is not specified, the
+default is 'out'.
 
-For those who build their own hardware, one safeguard against
-shorting out an on-board parallel port - or even the whole
-motherboard - is to use an add-on parallel port card. Even if you
-don't need the extra layer of safety, a parport card is a good
-way to add extra I/O lines with LinuxCNC.
+----
+loadrt hal_parport cfg="0 in"
+----
+
+.Parallel Port Direction
+[cols=">1,3*^2", width="50%", options="header"]
+|===========================
+|Pin|in|out|x
+|1|out|out|in
+|2|in|out|out
+|3|in|out|out
+|4|in|out|out
+|5|in|out|out
+|6|in|out|out
+|7|in|out|out
+|8|in|out|out
+|9|in|out|out
+|10|in|in|in
+|11|in|in|in
+|12|in|in|in
+|13|in|in|in
+|14|in|out|in
+|15|in|in|in
+|16|out|out|in
+|17|out|out|in
+|===========================
+
+
+.Functions
+You must also direct LinuxCNC to run the 'read' and 'write' functions.
+
+----
+addf parport.0.read base-thread
+addf parport.0.write base-thread
+----
+
+== PCI Port Address
 
 One good PCI parport card is made with the Netmos 9815 chipset.
 It has good +5V signals, and can come in a single or dual ports.
 
-To find the I/O addresses for these cards open a terminal window
+To find the I/O addresses for PCI cards open a terminal window
 and use the list pci command:
 
 ----
@@ -132,24 +148,14 @@ I/O ports at c800 [size=8]
 I/O ports at cc00 [size=16]
 ----
 
-From experimentation, I've found the first port (the on-card
-port) uses the third address listed (c000), and the second port
-(the one that attaches with a ribbon cable) uses the first
-address listed (b800).
-
-You can then open an editor and put the addresses into the
-appropriate place in your .hal file.
+From experimentation, I've found the first port (the on-card port) uses the
+third address listed (c000), and the second port (the one that attaches with
+a ribbon cable) uses the first address listed (b800). The following example
+shows the onboard parallel port and a PCI parallel port using the default
+out direction.
 
 ----
 loadrt hal_parport cfg="0x378 0xc000"
-----
-
-You must also direct LinuxCNC to run the 'read' and 'write' functions
-for the second card. For example,
-
-----
-addf parport.1.read base-thread 1
-addf parport.1.write base-thread -1
 ----
 
 Please note that your values will differ. The Netmos cards are
@@ -158,13 +164,7 @@ slot you put them into, so if you like to \'get under the hood'
 and re-arrange things, be sure to check these values before you
 start LinuxCNC.
 
-[[fig:parport-block-diag]]
-
-.Parport Block Diagram
-
-image::images/parport-block-diag.png[align="center"]
-
-=== Pins
+== Pins
 
 * 'parport.<p>.pin-<n>-out' (bit) Drives a physical output pin.
 
@@ -178,24 +178,14 @@ physical pin number in the 25 pin D-shell connector.
 For each physical output pin, the driver creates a single HAL pin, for example:
 'parport.0.pin-14-out'.
 
-Pins 2 through 9 are part of the data group and are output pins if
-the port is defined as an output port. (Output is the default.) Pins 1,
-14, 16, and 17 are outputs in all modes. These HAL pins control the
-state of the corresponding physical pins.
-
 For each physical input pin, the driver creates two HAL pins, for example:
 'parport.0.pin-12-in' and 'parport.0.pin-12-in-not'.
 
-Pins 10, 11, 12, 13, and 15 are always input pins. Pins 2 through 9 
-are input pins only if the port is defined as an input port. The '-in'
-HAL pin is TRUE if the physical pin is high, and FALSE if the 
-physical pin is low. The '-in-not' HAL pin is inverted -- it is FALSE
-if the physical pin is high. By 
-connecting a signal to one or the other, the user can determine the
-state of the input. In 'x' mode, pins 1, 14, 16, and 17 are also input
-pins. 
+The '-in' HAL pin is TRUE if the physical pin is high, and FALSE if the
+physical pin is low. The '-in-not' HAL pin is inverted and is FALSE if the
+physical pin is high.
 
-=== Parameters
+== Parameters
 
 * 'parport.<p>.pin-<n>-out-invert' (bit) Inverts an output pin.
 
@@ -214,7 +204,7 @@ setting the HAL '-out' pin TRUE will drive the physical pin low.
 
 [[sub:parport-functions]]
 
-=== Functions
+== Functions
 
 * 'parport.<p>.read' (funct) Reads physical input pins of port
    '<portnum>' and updates HAL '-in' and '-in-not' pins.
@@ -243,7 +233,7 @@ updated in a slower thread to save CPU time. It is probably not a good
 idea to use both an '-all' function and an individual function at the
 same time.
 
-=== Common problems
+== Common problems
 
 If loading the module reports
 
@@ -261,7 +251,7 @@ and that no other device in the system has claimed the I/O ports.
 If the module loads but does not appear to function, then the port
 address is incorrect.
 
-=== Using DoubleStep
+== Using DoubleStep
 
 To setup DoubleStep on the parallel port you must add the function
 parport.n.reset after parport.n.write and configure stepspace to 0 and
