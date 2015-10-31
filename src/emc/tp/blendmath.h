@@ -223,9 +223,6 @@ double pmCircleActualMaxVel(PmCircle * const circle,
         int parabolic);
 int findSpiralArcLengthFit(PmCircle const * const circle,
         SpiralArcLengthFit * const fit);
-double pmCircleAngleFromParam(PmCircle const * const circle,
-        SpiralArcLengthFit const * const fit,
-        double t);
 double pmCircleAngleFromProgress(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
         double progress);
