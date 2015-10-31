@@ -14,6 +14,7 @@
 #define SPHERICAL_ARC_H
 
 #include "posemath.h"
+#include "vector6.h"
 
 #define ARC_POS_EPSILON 1e-12
 #define ARC_MIN_RADIUS 1e-12
@@ -24,14 +25,14 @@
 
 typedef struct {
     // Three defining points for the arc
-    PmCartesian start;
-    PmCartesian end;
-    PmCartesian center;
+    Vector6 start;
+    Vector6 end;
+    Vector6 center;
     // Relative vectors from center to start and center to end
     // These are cached here since they'll be reused during SLERP
-    PmCartesian rStart;
-    PmCartesian rEnd;
-    PmCartesian uTan;   /* Tangent vector at start of arc (copied from
+    Vector6 rStart;
+    Vector6 rEnd;
+    Vector6 uTan;   /* Tangent vector at start of arc (copied from
                            prev. tangent line)*/
     double radius;
     double spiral;
@@ -42,22 +43,23 @@ typedef struct {
 } SphericalArc;
 
 
-int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
-        PmCartesian const * const end, PmCartesian const * const center);
+int arcInitFromPoints(SphericalArc * const arc, Vector6 const * const start,
+        Vector6 const * const end, Vector6 const * const center);
 
-int arcInitFromVectors(SphericalArc * const arc, PmCartesian const * const vec0,
-        PmCartesian const * const vec1,
-        PmCartesian const * const center);
+int arcInitFromVectors(SphericalArc * const arc, Vector6 const * const vec0,
+        Vector6 const * const vec1,
+        Vector6 const * const center);
 
-int arcPoint(SphericalArc const * const arc, double angle_in, PmCartesian * const out);
+int arcPoint(SphericalArc const * const arc, double angle_in, Vector6 * const out);
 
-int arcNormalizedSlerp(SphericalArc const * const arc, double t, PmCartesian * const out);
+int arcPointCart(SphericalArc const * const arc, 
+        double angle_in,
+        PmCartesian * xyz,
+        PmCartesian * uvw);
+
+int arcNormalizedSlerp(SphericalArc const * const arc, double t, Vector6 * const out);
 
 int arcLength(SphericalArc const * const arc, double * const length);
-
-int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
-        PmCartLine const * const line2, double radius,
-        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end, int consume);
 
 int arcConvexTest(PmCartesian const * const center,
         PmCartesian const * const P, PmCartesian const * const uVec, int reverse_dir);

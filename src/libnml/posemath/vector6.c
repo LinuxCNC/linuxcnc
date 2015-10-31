@@ -29,6 +29,20 @@ int VecVecAdd(Vector6 const * v1, Vector6 const * v2, Vector6 * out)
 }
 
 
+int VecVecAddEq(Vector6 * v1, Vector6 const * v2)
+{
+    if (!v1 || !v2) {
+        return -1;
+    }
+
+    int i;
+    for (i = 0; i < VECTOR_SIZE; ++i) {
+        v1->ax[i] += v2->ax[i];
+    }
+    return 0;
+}
+
+
 int VecVecSub(Vector6 const * v1, Vector6 const * v2, Vector6 * out)
 {
     if (!v1 || !v2 || !out) {
@@ -90,6 +104,49 @@ int VecUnit(Vector6 const * v1, Vector6 * out)
         return res_mag;
 
     VecScalMult(v1, 1.0 / mag, out);
+    return 0;
+}
+
+int VecUnitEq(Vector6 * v1)
+{
+    double mag = 0.0;
+    int res_mag = VecMag(v1, &mag);
+    //FIXME hard-coded cutoff
+    if (res_mag || fabs(mag) < 1e-9) 
+        return res_mag;
+
+    VecScalMult(v1, 1.0 / mag, v1);
+    return 0;
+}
+
+int VecMin(Vector6 const * v1, double * m)
+{
+    if (!v1 || !m) {
+        return -1;
+    }
+
+    int i;
+    double m_temp = v1->ax[0];
+    for (i = 0; i < VECTOR_SIZE; ++i) {
+       m_temp = fmin(v1->ax[i], m_temp);
+    }
+    *m = m_temp;
+    return 0;
+}
+
+
+int VecMax(Vector6 const * v1, double * m)
+{
+    if (!v1 || !m) {
+        return -1;
+    }
+
+    int i;
+    double m_temp = v1->ax[0];
+    for (i = 0; i < VECTOR_SIZE; ++i) {
+       m_temp = fmax(v1->ax[i], m_temp);
+    }
+    *m = m_temp;
     return 0;
 }
 

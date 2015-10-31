@@ -15,6 +15,7 @@
 
 #include "posemath.h"
 #include "tc_types.h"
+#include "vector6.h"
 
 #define BLEND_ACC_RATIO_TANGENTIAL 0.5
 #define BLEND_ACC_RATIO_NORMAL (pmSqrt(1.0 - pmSq(BLEND_ACC_RATIO_TANGENTIAL)))
@@ -205,8 +206,11 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
         BlendParameters * const param, BlendGeom3 const * const geom,
         PmCircle const * const circ1, PmCartLine const * const line2);
 
-int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const points,
-        BlendGeom3 const * const geom, BlendParameters const * const param);
+int arcFromBlendPoints3(SphericalArc * const arc,
+        BlendPoints3 const * const points,
+        BlendGeom3 const * const geom,
+        BlendParameters const * const param,
+        PmCartesian const * const uvw);
 
 int blendGeom3Print(BlendGeom3 const * const geom);
 int blendParamPrint(BlendParameters const * const param);

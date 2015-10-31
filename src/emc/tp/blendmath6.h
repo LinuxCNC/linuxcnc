@@ -49,7 +49,7 @@ int blendFindPoints6(BlendPoints6 * const points,
         BlendGeom6 const * const geom,
         BlendParameters const * const param);
 
-int blendGeom6Init(BlendGeom3 * const geom,
+int blendGeom6Init(BlendGeom6 * const geom,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc);
 
@@ -64,8 +64,8 @@ int blendParamKinematics6(BlendGeom6 * const geom,
 int blendInit6FromLineLine(BlendGeom6 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
-        PmCartesian const * const acc_bound,
-        PmCartesian const * const vel_bound,
+        Vector6 const * const acc_bound,
+        Vector6 const * const vel_bound,
         double maxFeedScale);
 
 int arcFromBlendPoints6(SphericalArc * const arc, BlendPoints6 const * const points,

@@ -80,9 +80,9 @@ typedef struct {
 } PmCircle9;
 
 typedef struct {
+    //TODO choose a better name for 6D
     SphericalArc xyz;
     PmCartesian abc;
-    PmCartesian uvw;
 } Arc9;
 
 typedef enum {

@@ -1568,16 +1568,29 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
 /**
  * Setup the spherical arc struct based on the blend arc data.
  */
-int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const points,
-        BlendGeom3 const * const geom, BlendParameters const * const param)
+int arcFromBlendPoints3(SphericalArc * const arc,
+        BlendPoints3 const * const points,
+        BlendGeom3 const * const geom,
+        BlendParameters const * const param,
+        PmCartesian const * const uvw)
 {
     // If we consume the previous line, the remaining line length gets added here
-    arc->uTan = geom->u_tan1;
+
+    // Augment 3D tangent vector with zeros and save as 6D tangent vector
+    // Necessary for line arc case
+    PmCartesian zero={0,0,0};
+    CartToVec(&geom->u_tan1, &zero, &arc->uTan);
+
     arc->line_length = param->line_length;
 
-    // Create the arc from the processed points
-    return arcInitFromPoints(arc, &points->arc_start,
-            &points->arc_end, &points->arc_center);
+    // Augment start, end, and center vectors with fixed UVW position
+    Vector6 start, end, center;
+    CartToVec(&points->arc_start, uvw, &start);
+    CartToVec(&points->arc_end, uvw, &end);
+    CartToVec(&points->arc_center, uvw, &center);
+
+    // Finally, use the augmented vectors to create the 6D arc
+    return arcInitFromPoints(arc, &start, &end, &center);
 }
 
 int blendGeom3Print(BlendGeom3 const * const geom)
@@ -1823,65 +1836,4 @@ double pmCircleEffectiveMinRadius(PmCircle const * const circle)
 }
 
 
-
-/** @section blend6d 6D blend functions from blendmath6.h */
-#include "blendmath6.h"
-
-int findIntersectionAngle6(Vector6 const * const u1,
-        Vector6 const * const u2,
-        double * const theta)
-{
-    return 0;
-}
-
-
-int blendCalculateNormals6(BlendGeom6 * const geom)
-{
-    return 0;
-}
-
-
-int blendFindPoints6(BlendPoints6 * const points, BlendGeom6 const * const geom,
-        BlendParameters const * const param)
-{
-    return 0;
-}
-
-
-int blendGeom6Init(BlendGeom3 * const geom,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc)
-{
-    return 0;
-}
-
-
-int blendParamKinematics6(BlendGeom6 * const geom,
-        BlendParameters * const param,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc,
-        Vector6 const * const acc_bound,
-        Vector6 const * const vel_bound,
-        double maxFeedScale)
-{
-    return 0;
-}
-
-
-int blendInit6FromLineLine(BlendGeom6 * const geom, BlendParameters * const param,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc,
-        PmCartesian const * const acc_bound,
-        PmCartesian const * const vel_bound,
-        double maxFeedScale)
-{
-    return 0;
-}
-
-
-int arcFromBlendPoints6(SphericalArc * const arc, BlendPoints6 const * const points,
-        BlendGeom6 const * const geom, BlendParameters const * const param)
-{
-    return 0;
-}
 

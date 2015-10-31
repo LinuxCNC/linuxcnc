@@ -12,15 +12,16 @@
  ********************************************************************/
 
 #include "posemath.h"
+#include "vector6.h"
 #include "spherical_arc.h"
 #include "tp_types.h"
 #include "rtapi_math.h"
 
 #include "tp_debug.h"
 
-int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
-        PmCartesian const * const end,
-        PmCartesian const * const center)
+int arcInitFromPoints(SphericalArc * const arc, Vector6 const * const start,
+        Vector6 const * const end,
+        Vector6 const * const center)
 {
 #ifdef ARC_PEDANTIC
     if (!P0 || !P1 || !center) {
@@ -36,13 +37,13 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     arc->end = *end;
     arc->center = *center;
 
-    pmCartCartSub(start, center, &arc->rStart);
-    pmCartCartSub(end, center, &arc->rEnd);
+    VecVecSub(start, center, &arc->rStart);
+    VecVecSub(end, center, &arc->rEnd);
 
     // Find the radii at start and end. These are identical for a perfect spherical arc
     double radius0, radius1;
-    pmCartMag(&arc->rStart, &radius0);
-    pmCartMag(&arc->rEnd, &radius1);
+    VecMag(&arc->rStart, &radius0);
+    VecMag(&arc->rEnd, &radius1);
 
     tp_debug_print("radii are %g and %g\n",
             radius0,
@@ -58,13 +59,13 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     arc->radius = radius0;
 
     // Get unit vectors from center to start and center to end
-    PmCartesian u0, u1;
-    pmCartScalMult(&arc->rStart, 1.0 / radius0, &u0);
-    pmCartScalMult(&arc->rEnd, 1.0 / radius1, &u1);
+    Vector6 u0, u1;
+    VecScalMult(&arc->rStart, 1.0 / radius0, &u0);
+    VecScalMult(&arc->rEnd, 1.0 / radius1, &u1);
 
     // Find arc angle
     double dot;
-    pmCartCartDot(&u0, &u1, &dot);
+    VecVecDot(&u0, &u1, &dot);
     arc->angle = acos(dot);
     tp_debug_print("spherical arc angle = %f\n", arc->angle);
 
@@ -84,7 +85,22 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     return TP_ERR_OK;
 }
 
-int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * const out)
+int arcPointCart(SphericalArc const * const arc, 
+        double angle_in,
+        PmCartesian * xyz,
+        PmCartesian * uvw)
+{
+
+    Vector6 temp;
+    int res = arcPoint(arc, angle_in, &temp);
+    if (res) {
+        return res;
+    }
+
+    return VecToCart(&temp, xyz, uvw);
+}
+
+int arcPoint(SphericalArc const * const arc, double progress, Vector6 * const out)
 {
     //TODO pedantic
 
@@ -93,20 +109,20 @@ int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * cons
     if (net_progress <= 0.0 && arc->line_length > 0) {
         tc_debug_print("net_progress = %f, line_length = %f\n", net_progress, arc->line_length);
         //Get position on line (not actually an angle in this case)
-        pmCartScalMult(&arc->uTan, net_progress, out);
-        pmCartCartAdd(out, &arc->start, out);
+        VecScalMult(&arc->uTan, net_progress, out);
+        VecVecAdd(out, &arc->start, out);
     } else {
         double angle_in = net_progress / arc->radius;
         tc_debug_print("angle_in = %f, angle_total = %f\n", angle_in, arc->angle);
         double scale0 = sin(arc->angle - angle_in) / arc->Sangle;
         double scale1 = sin(angle_in) / arc->Sangle;
 
-        PmCartesian interp0,interp1;
-        pmCartScalMult(&arc->rStart, scale0, &interp0);
-        pmCartScalMult(&arc->rEnd, scale1, &interp1);
+        Vector6 interp0,interp1;
+        VecScalMult(&arc->rStart, scale0, &interp0);
+        VecScalMult(&arc->rEnd, scale1, &interp1);
 
-        pmCartCartAdd(&interp0, &interp1, out);
-        pmCartCartAdd(&arc->center, out, out);
+        VecVecAdd(&interp0, &interp1, out);
+        VecVecAdd(&arc->center, out, out);
     }
     return TP_ERR_OK;
 }
@@ -118,43 +134,6 @@ int arcLength(SphericalArc const * const arc, double * const length)
     return TP_ERR_OK;
 }
 
-int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
-        PmCartLine const * const line2, double radius,
-        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end, int consume) {
-
-    PmCartesian center, normal;
-
-    // Pointer to middle point of line segment pair
-    PmCartesian const * const middle = &line1->end;
-    //TODO assert line1 end = line2 start?
-
-    //Calculate the normal direction of the arc from the difference
-    //between the unit vectors
-    pmCartCartSub(&line2->uVec, &line1->uVec, &normal);
-    pmCartUnitEq(&normal);
-    pmCartScalMultEq(&normal, center_dist);
-    pmCartCartAdd(middle, &normal, &center);
-
-    // Start point is blend_dist away from middle point in the
-    // negative direction of line1
-    pmCartScalMult(&line1->uVec, -blend_dist, start);
-    pmCartCartAdd(start, middle, start);
-
-    // End point is blend_dist away from middle point in the positive
-    // direction of line2
-    pmCartScalMult(&line2->uVec, blend_dist, end);
-    pmCartCartAddEq(end, middle);
-
-    //Handle line portion of line-arc
-    arc->uTan = line1->uVec;
-    if (consume) {
-        arc->line_length = line1->tmag - blend_dist;
-    } else {
-        arc->line_length = 0;
-    }
-
-    return arcInitFromPoints(arc, start, end, &center);
-}
 
 int arcConvexTest(PmCartesian const * const center,
         PmCartesian const * const P, PmCartesian const * const uVec, int reverse_dir)
@@ -184,15 +163,17 @@ int arcTangent(SphericalArc const * const arc, PmCartesian * const tan, int at_e
     const double k0 = -cos( (1.0 - t) * theta);
     const double k1 = cos( t * theta);
 
-    PmCartesian dp0,dp1;
+    Vector6 dp0,dp1;
 
     // Ugly sequence to build up tangent vector from components of the derivative
-    pmCartScalMult(&arc->rStart, k * k0, &dp0);
-    pmCartScalMult(&arc->rEnd, k * k1, &dp1);
-    pmCartCartAdd(&dp0, &dp1, tan);
+    VecScalMult(&arc->rStart, k * k0, &dp0);
+    VecScalMult(&arc->rEnd, k * k1, &dp1);
+    Vector6 tan_temp;
+    VecVecAdd(&dp0, &dp1, &tan_temp);
 
     // tangential vector complete, now normalize
-    pmCartUnitEq(tan);
-
+    VecUnitEq(&tan_temp);
+    PmCartesian temp;
+    VecToCart(&tan_temp, tan, &temp);
     return TP_ERR_OK;
 }
