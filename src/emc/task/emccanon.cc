@@ -118,9 +118,6 @@ struct VelData {
     double tmax;
     double vel;
     double dtot;
-    double xyz_len;
-    double abc_len;
-    double uvw_len;
 };
 
 struct AccelData{
@@ -753,11 +750,9 @@ static VelData getStraightVelocity(double x, double y, double z,
     dx = fabs(x - canonEndPoint.x);
     dy = fabs(y - canonEndPoint.y);
     dz = fabs(z - canonEndPoint.z);
-
     da = fabs(a - canonEndPoint.a);
     db = fabs(b - canonEndPoint.b);
     dc = fabs(c - canonEndPoint.c);
-
     du = fabs(u - canonEndPoint.u);
     dv = fabs(v - canonEndPoint.v);
     dw = fabs(w - canonEndPoint.w);
@@ -776,47 +771,91 @@ static VelData getStraightVelocity(double x, double y, double z,
         printf("getStraightVelocity dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g\n",
                dx, dy, dz, da, db, dc, du, dv, dw);
 
-    //Calculate the total lengths for each block (scratchwork)
-    out.xyz_len = pmSqrt(pmSq(dx) + pmSq(dy) + pmSq(dz));  
-    out.abc_len = pmSqrt(pmSq(da) + pmSq(db) + pmSq(dc));  
-    out.uvw_len = pmSqrt(pmSq(du) + pmSq(dv) + pmSq(dw));  
-    out.dtot = pmSqrt(pmSq(out.xyz_len) + pmSq(out.abc_len) + pmSq(out.uvw_len));
-
     // Figure out what kind of move we're making:
-    if (out.xyz_len <= 0.0) {
-        cartesian_move = 0;
+    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
+        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
+	cartesian_move = 0;
     } else {
-        cartesian_move = 1;
+	cartesian_move = 1;
     }
-    if (out.abc_len <= 0.0) {
-        angular_move = 0;
+    if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
+	angular_move = 0;
     } else {
-        angular_move = 1;
-    }
-
-    tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
-    ty = dy? fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
-    tz = dz? fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
-    ta = da? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])): 0.0;
-    tb = db? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])): 0.0;
-    tc = dc? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])): 0.0;
-    tu = du? fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
-    tv = dv? fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
-    tw = dw? fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
-    out.tmax = MAX9(tx, ty, tz,
-            ta, tb, tc,
-            tu, tv, tw);
-
-    if(debug_velacc)
-        printf("getStraightVelocity times tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
-                tx, ty, tz, ta, tb, tc, tu, tv, tw);
-
-    if (out.tmax <= 0.0) {
-        out.vel = currentLinearFeedRate;
-    } else {
-        out.vel = out.dtot / out.tmax;
+	angular_move = 1;
     }
 
+    // Pure linear move:
+    if (cartesian_move && !angular_move) {
+        tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
+        ty = dy? fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
+        tz = dz? fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
+        tu = du? fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
+        tv = dv? fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
+        tw = dw? fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
+        out.tmax = MAX3(tx, ty ,tz);
+        out.tmax = MAX4(tu, tv, tw, out.tmax);
+
+        if(dx || dy || dz)
+            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        else
+            out.dtot = sqrt(du * du + dv * dv + dw * dw);
+
+        if (out.tmax <= 0.0) {
+            out.vel = currentLinearFeedRate;
+        } else {
+            out.vel = out.dtot / out.tmax;
+        }
+    }
+    // Pure angular move:
+    else if (!cartesian_move && angular_move) {
+        ta = da? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
+        tb = db? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
+        tc = dc? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
+        out.tmax = MAX3(ta, tb, tc);
+
+        out.dtot = sqrt(da * da + db * db + dc * dc);
+        if (out.tmax <= 0.0) {
+            out.vel = currentAngularFeedRate;
+        } else {
+            out.vel = out.dtot / out.tmax;
+        }
+    }
+    // Combination angular and linear move:
+    else if (cartesian_move && angular_move) {
+        tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
+        ty = dy? fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
+        tz = dz? fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
+        ta = da? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])): 0.0;
+        tb = db? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])): 0.0;
+        tc = dc? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])): 0.0;
+        tu = du? fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
+        tv = dv? fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
+        tw = dw? fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
+        out.tmax = MAX9(tx, ty, tz,
+                ta, tb, tc,
+                tu, tv, tw);
+
+        if(debug_velacc)
+            printf("getStraightVelocity times tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
+                    tx, ty, tz, ta, tb, tc, tu, tv, tw);
+
+        /*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
+            a combnation move is handled like a linear move, except
+            that the angular axes are allowed sufficient time to
+            complete their motion coordinated with the motion of
+            the linear axes.
+            */
+        if(dx || dy || dz)
+            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        else
+            out.dtot = sqrt(du * du + dv * dv + dw * dw);
+
+        if (out.tmax <= 0.0) {
+            out.vel = currentLinearFeedRate;
+        } else {
+            out.vel = out.dtot / out.tmax;
+        }
+    }
     if(debug_velacc) 
         printf("cartesian %d ang %d vel %g\n", cartesian_move, angular_move, out.vel);
     return out;
@@ -858,20 +897,22 @@ static void flush_segments(void) {
 #endif
 
     VelData linedata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
-    double xyz_vel = linedata.xyz_len / linedata.tmax;
-    double abc_vel = linedata.abc_len / linedata.tmax;
-    //double uvw_vel = linedata.uvw_len / linedata.tmax;
     double vel = linedata.vel;
 
-    if (angular_move) {
-        if (abc_vel > currentAngularFeedRate) {
-            vel *= (currentAngularFeedRate / abc_vel);
+    if (cartesian_move && !angular_move) {
+        if (vel > currentLinearFeedRate) {
+            vel = currentLinearFeedRate;
         }
-    } else {
-        if (xyz_vel > currentLinearFeedRate) {
-            vel *= (currentLinearFeedRate / xyz_vel);
+    } else if (!cartesian_move && angular_move) {
+        if (vel > currentAngularFeedRate) {
+            vel = currentAngularFeedRate;
+        }
+    } else if (cartesian_move && angular_move) {
+        if (vel > currentLinearFeedRate) {
+            vel = currentLinearFeedRate;
         }
     }
+
 
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
