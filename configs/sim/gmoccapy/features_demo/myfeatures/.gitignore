@@ -2,3 +2,7 @@
 *.lst
 *.ngc
 *.xml
+cfg/
+lib/
+scripts/
+graphics/
