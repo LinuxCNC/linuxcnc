@@ -1292,7 +1292,7 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     tp_debug_print("-- Starting LineLine blend arc --\n");
     Vector6 acc_bound, vel_bound;
     
-    //Get machine limits
+    // Get machine limits for XYZ and UVW (skipping ABC)
     tpGetMachineAccelBoundsVec(&acc_bound);
     tpGetMachineVelBoundsVec(&vel_bound);
     

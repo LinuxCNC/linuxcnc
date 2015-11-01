@@ -236,16 +236,11 @@ int blendInit6FromLineLine(BlendGeom6 * const geom, BlendParameters * const para
 int arcFromBlendPoints6(SphericalArc * const arc, BlendPoints6 const * const points,
         BlendGeom6 const * const geom, BlendParameters const * const param)
 {
-    // If we consume the previous line, the remaining line length gets added here
-    // TODO
-    /*arc->uTan = geom->u1;*/
+    arc->uTan = geom->u1;
     arc->line_length = param->line_length;
 
-    //TODO
-    /*return arcInitFromPoints(arc, &points->arc_start,*/
-            /*&points->arc_end, &points->arc_center);*/
-    return 0;
-    // Create the arc from the processed points
+    return arcInitFromPoints(arc, &points->arc_start,
+            &points->arc_end, &points->arc_center);
 }
 
 
