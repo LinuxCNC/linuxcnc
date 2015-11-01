@@ -1206,7 +1206,7 @@ int blendCheckConsume(BlendParameters * const param,
     double prev_seg_time = L_prev / param->v_plan;
 
     // KLUDGE force this to always be false for now for debugging
-    bool can_consume = tcCanConsume(prev_tc) && false;
+    bool can_consume = tcCanConsume(prev_tc);
     param->consume = (prev_seg_time < gap_cycles * prev_tc->cycle_time && can_consume);
     if (param->consume) {
         tp_debug_print("consuming prev line, L_prev = %g\n",

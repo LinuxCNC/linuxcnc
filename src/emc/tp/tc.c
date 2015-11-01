@@ -379,10 +379,10 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         tp_debug_print("Target = %f\n",prev_tc->target);
         //Setup tangent blending constraints
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-        tp_debug_print(" L1 end  : %f %f %f\n",prev_tc->coords.line.xyz.end.x,
+        tp_debug_print(" L1 end xyz : %f %f %f\n",prev_tc->coords.line.xyz.end.x,
                 prev_tc->coords.line.xyz.end.y,
                 prev_tc->coords.line.xyz.end.z);
-        tp_debug_print(" L1 end  : %f %f %f\n",prev_tc->coords.line.uvw.end.x,
+        tp_debug_print(" L1 end uvw : %f %f %f\n",prev_tc->coords.line.uvw.end.x,
                 prev_tc->coords.line.uvw.end.y,
                 prev_tc->coords.line.uvw.end.z);
     } else {
@@ -390,7 +390,7 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     }
 
     PmCartesian xyz2, uvw2;
-    VecToCart(circ_start, &xyz2, &uvw2);
+    VecToCart(circ_end, &xyz2, &uvw2);
     //Shorten next line
     pmCartLineInit(&tc->coords.line.xyz, &xyz2, &tc->coords.line.xyz.end);
     pmCartLineInit(&tc->coords.line.uvw, &uvw2, &tc->coords.line.uvw.end);
@@ -398,7 +398,7 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     tp_info_print(" L2: old target = %f\n", tc->target);
     tc->target = pmLine9Target(&tc->coords.line);
     tp_info_print(" L2: new target = %f\n", tc->target);
-    tp_debug_print(" L2 start  : %f %f %f\n",tc->coords.line.xyz.start.x,
+    tp_debug_print(" L2 start xyz : %f %f %f\n",tc->coords.line.xyz.start.x,
             tc->coords.line.xyz.start.y,
             tc->coords.line.xyz.start.z);
 

@@ -1350,7 +1350,6 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
 
     //TODO refactor to pass consume to connect function
     if (param.consume) {
-#if 0
         // FIXME temporarily disable since we're forcing this not to happen
         //Since we're consuming the previous segment, pop the last line off of the queue
         retval = tcqPopBack(&tp->queue);
@@ -1362,7 +1361,6 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         //Since the blend arc meets the end of the previous line, we only need
         //to "connect" to the next line
         retval = tcConnectBlendArc(NULL, tc, &points.arc_start, &points.arc_end);
-#endif
     } else {
         //TODO refactor connect function to stretch lines and check for bad stretching
         tp_debug_print("keeping previous line\n");
