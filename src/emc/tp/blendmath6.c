@@ -280,6 +280,11 @@ int findOrthonormalBasis(Vector6 const * const a,
     return 0;
 }
 
+
+/**
+ * Compute the squares of the axis bound scales.
+ * TODO better explanation
+ */
 int calcBoundScales(Vector6 const * const u,
         Vector6 const * const v,
         Vector6 * scales)
@@ -290,7 +295,7 @@ int calcBoundScales(Vector6 const * const u,
 
     int i;
     for (i = 0; i < 6; ++i) {
-        scales->ax[i] = pmSqrt(pmSq(u->ax[i]) + pmSq(v->ax[i]));
+        scales->ax[i] = pmSq(u->ax[i]) + pmSq(v->ax[i]);
         tp_debug_print("scale %d: %f\n", i, scales->ax[i]);
     }
     return 0;
@@ -302,17 +307,21 @@ int calcMinBound(Vector6 const * scales,
         double * min_bound)
 {
     //TODO check inputs
-    double m = INFINITY;
+    //Square of max accel bound
+    double m2 = INFINITY;
 
     int i;
     for (i = 0; i < 6; ++i) {
-        double s = scales->ax[i];
+        // Crude numerical cutoff to prevent scales being too low and causing division errors
+        double s = fmax(scales->ax[i], TP_POS_EPSILON);
         double b = bounds->ax[i];
         if (s > 0.0 && b > 0.0) {
-           m = fmin(m, b / s);
+            //Have to square b here since the scale is also squared
+            m2 = fmin(m2, pmSq(b) / s);
         }
     }
-    *min_bound = m;
+    // One square root at the end to get the actual max accel
+    *min_bound = pmSqrt(m2);
     return 0;
 
 }
