@@ -1,0 +1,20 @@
+G20 G90 G17
+
+(Explicit unlimited tolerance, no naive CAM detection)
+G64 P0 Q0
+
+(Simple edge traverse for 6D prism)
+G0 X0 Y0 Z0 U0 V0 W0
+G1 X1 F1000
+Y1 
+Z1
+U1
+V1
+W1
+X0
+Y0
+Z0
+U0
+V0
+W0
+M2

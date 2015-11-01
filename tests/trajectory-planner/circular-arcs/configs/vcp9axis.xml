@@ -1,0 +1,323 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+<label>
+        <text>"Peak Values"</text>
+</label>
+<label>
+        <text>"X axis"</text>
+</label>
+<hbox>
+<label>
+        <text>"+Acc"</text>
+</label>
+
+<number>
+    <halpin>"pxacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"+Vel"</text>
+</label>
+<number>
+    <halpin>"pxvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+
+</hbox>
+<hbox>
+<label>
+        <text>"-Acc"</text>
+</label>
+
+<number>
+    <halpin>"nxacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"-Vel"</text>
+</label>
+<number>
+    <halpin>"nxvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+</hbox>
+
+
+
+<label>
+        <text>"Y axis"</text>
+</label>
+<hbox>
+<label>
+        <text>"+Acc"</text>
+</label>
+
+<number>
+    <halpin>"pyacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"+Vel"</text>
+</label>
+<number>
+    <halpin>"pyvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+
+</hbox>
+<hbox>
+<label>
+        <text>"-Acc"</text>
+</label>
+
+<number>
+    <halpin>"nyacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"-Vel"</text>
+</label>
+<number>
+    <halpin>"nyvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+</hbox>
+
+
+
+<label>
+        <text>"Z axis"</text>
+</label>
+<hbox>
+<label>
+        <text>"+Acc"</text>
+</label>
+
+<number>
+    <halpin>"pzacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"+Vel"</text>
+</label>
+<number>
+    <halpin>"pzvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+
+</hbox>
+<hbox>
+<label>
+        <text>"-Acc"</text>
+</label>
+
+<number>
+    <halpin>"nzacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"-Vel"</text>
+</label>
+<number>
+    <halpin>"nzvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+</hbox>
+
+
+<label>
+        <text>"U axis"</text>
+</label>
+<hbox>
+<label>
+        <text>"+Acc"</text>
+</label>
+
+<number>
+    <halpin>"puacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"+Vel"</text>
+</label>
+<number>
+    <halpin>"puvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+
+</hbox>
+<hbox>
+<label>
+        <text>"-Acc"</text>
+</label>
+
+<number>
+    <halpin>"nuacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"-Vel"</text>
+</label>
+<number>
+    <halpin>"nuvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+</hbox>
+
+
+<label>
+        <text>"V axis"</text>
+</label>
+<hbox>
+<label>
+        <text>"+Acc"</text>
+</label>
+
+<number>
+    <halpin>"pvacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"+Vel"</text>
+</label>
+<number>
+    <halpin>"pvvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+
+</hbox>
+<hbox>
+<label>
+        <text>"-Acc"</text>
+</label>
+
+<number>
+    <halpin>"nvacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"-Vel"</text>
+</label>
+<number>
+    <halpin>"nvvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+</hbox>
+
+
+<label>
+        <text>"W axis"</text>
+</label>
+<hbox>
+<label>
+        <text>"+Acc"</text>
+</label>
+
+<number>
+    <halpin>"pwacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"+Vel"</text>
+</label>
+<number>
+    <halpin>"pwvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+
+</hbox>
+<hbox>
+<label>
+        <text>"-Acc"</text>
+</label>
+
+<number>
+    <halpin>"nwacc"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+<label>
+        <text>"-Vel"</text>
+</label>
+<number>
+    <halpin>"nwvel"</halpin>
+    <font>("Helvetica",14)</font>
+    <format>"+4.4f"</format>
+</number>
+
+</hbox>
+
+
+
+<button>
+    <halpin>"resetmm"</halpin>
+    <text>"reset"</text>
+</button>
+
+
+<hbox>
+<label>
+<text>"Cycle Time"</text>
+<font>("Helvetica",14)</font>
+</label>
+<u32>
+<halpin>"time-hours"</halpin>
+<font>("Helvetica",14)</font>
+<format>"2d"</format>
+</u32>
+<label>
+<text>":"</text>
+<font>("Helvetica",14)</font>
+</label>
+<u32>
+<halpin>"time-minutes"</halpin>
+<font>("Helvetica",14)</font>
+<format>"2d"</format>
+</u32>
+<label>
+<text>":"</text>
+<font>("Helvetica",14)</font>
+</label>
+<u32>
+<halpin>"time-seconds"</halpin>
+<font>("Helvetica",14)</font>
+<format>"2d"</format>
+</u32>
+</hbox> 
+
+
+
+</pyvcp>
