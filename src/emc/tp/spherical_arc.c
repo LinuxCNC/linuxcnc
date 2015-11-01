@@ -58,15 +58,15 @@ int arcInitFromPoints(SphericalArc * const arc, Vector6 const * const start,
     // Choose initial radius as nominal radius
     arc->radius = radius0;
 
-    // Get unit vectors from center to start and center to end
-    Vector6 u0, u1;
-    VecScalMult(&arc->rStart, 1.0 / radius0, &u0);
-    VecScalMult(&arc->rEnd, 1.0 / radius1, &u1);
-
     // Find arc angle
-    double dot;
-    VecVecDot(&u0, &u1, &dot);
+    double dot=0.0;
+    VecVecDot(&arc->rStart, &arc->rEnd, &dot);
+
+    // Divide through by magnitudes of each vector
+    dot /= radius0;
+    dot /= radius1;
     arc->angle = acos(dot);
+
     tp_debug_print("spherical arc angle = %f\n", arc->angle);
 
     // Store spiral factor as radial difference. Archimedean spiral coef. a = spiral / angle
