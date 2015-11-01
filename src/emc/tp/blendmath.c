@@ -34,9 +34,9 @@
  */
 double findMaxTangentAngle(double v_plan, double acc_limit, double cycle_time)
 {
-    //Find acc hiccup we're allowed to get
-    //TODO somewhat redundant with findKinkAccel, should refactor
+    // Calculate how much of a ripple in acceleration we can tolerate 
     double acc_margin = BLEND_ACC_RATIO_NORMAL * BLEND_KINK_FACTOR * acc_limit;
+
     double dx = v_plan / cycle_time;
     if (dx > 0.0) {
         return (acc_margin / dx);

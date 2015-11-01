@@ -100,11 +100,16 @@ int arcPointCart(SphericalArc const * const arc,
     return VecToCart(&temp, xyz, uvw);
 }
 
+
+/**
+ * For a given progress along the arc, get the corresponding XYZUVW point.
+ */
 int arcPoint(SphericalArc const * const arc, double progress, Vector6 * const out)
 {
-    //TODO pedantic
-
-    //Convert progress to actual progress around the arc
+    //Convert progress to actual progress around the arc. Progress = 0 when the
+    //line segment is complete, and the arc is just starting. "Negative"
+    //progress means we're on the line segment before the arc. This is an
+    //artifact of "consuming" the previous line segment.
     double net_progress = progress - arc->line_length;
     if (net_progress <= 0.0 && arc->line_length > 0) {
         tc_debug_print("net_progress = %f, line_length = %f\n", net_progress, arc->line_length);
