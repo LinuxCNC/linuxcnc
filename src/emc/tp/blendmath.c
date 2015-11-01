@@ -1796,25 +1796,6 @@ double pmCircleAngleFromProgress(PmCircle const * const circle,
 
 }
 
-
-/**
- * compute the total arc length of a circle segment.
- * Deprecated since adding the fit to PmCircle9
- */
-double pmCircleLength(PmCircle const * const circle)
-{
-
-    SpiralArcLengthFit fit;
-    //TODO store in circle init rather than recalculating each time
-    findSpiralArcLengthFit(circle, &fit);
-    double h2;
-    pmCartMagSq(&circle->rHelix, &h2);
-    double helical_length = pmSqrt(pmSq(fit.total_planar_length) + h2);
-
-    return helical_length;
-}
-
-
 /**
  * Find the effective minimum radius for acceleration calculations.
  * The radius of curvature of a spiral is larger than the circle of the same

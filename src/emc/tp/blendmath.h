@@ -227,7 +227,6 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
 double pmCircleAngleFromProgress(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
         double progress);
-double pmCircleLength(PmCircle const * const circle);
 double pmCircleEffectiveMinRadius(PmCircle const * const circle);
 
 #endif
