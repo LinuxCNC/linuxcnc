@@ -117,9 +117,11 @@ static int rotary_unlock_for_traverse = -1;
 struct VelData {
     double tmax;
     double vel;
-    double velxyz;
+    // Stores the equivalent velocity when only using XYZ (used to cap feeds at requested XYZ feed).
+    double vel_xyz;
     double dtot;
-    double duvw;
+    //Used for ARC_FEED to figure out the net velocity with an XYX arc and a UVW line together
+    double d_uvw;
 };
 
 struct AccelData{
@@ -739,7 +741,7 @@ static VelData getStraightVelocity(double x, double y, double z,
 {
     double dx, dy, dz, da, db, dc, du, dv, dw;
     double tx, ty, tz, ta, tb, tc, tu, tv, tw;
-    VelData out;
+    VelData out={0};
 
 /* If we get a move to nowhere (!cartesian_move && !angular_move)
    we might as well go there at the currentLinearFeedRate...
@@ -774,48 +776,31 @@ static VelData getStraightVelocity(double x, double y, double z,
                dx, dy, dz, da, db, dc, du, dv, dw);
 
     // Figure out what kind of move we're making:
-    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
-        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
-	cartesian_move = 0;
+    if (dx > 0.0 || dy > 0.0 || dz > 0.0 ||
+            du > 0.0 || dv > 0.0 || dw > 0.0) {
+        cartesian_move = 1;
     } else {
-	cartesian_move = 1;
+        cartesian_move = 0;
     }
-    if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
-	angular_move = 0;
+    if (da > 0.0 || db > 0.0 || dc > 0.0) {
+        angular_move = 0;
     } else {
-	angular_move = 1;
+        angular_move = 1;
     }
 
+    // Calculate times required to cover the displacement for each axis
+    tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
+    ty = dy? fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
+    tz = dz? fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
+    ta = da? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])): 0.0;
+    tb = db? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])): 0.0;
+    tc = dc? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])): 0.0;
+    tu = du? fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
+    tv = dv? fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
+    tw = dw? fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
 
-    //TODO refactor
-    out.duvw = sqrt(du * du + dv * dv + dw * dw);
-    // Pure linear move:
-    if (cartesian_move && !angular_move) {
-        tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
-        ty = dy? fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
-        tz = dz? fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
-        tu = du? fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
-        tv = dv? fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
-        tw = dw? fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
-        out.tmax = MAX3(tx, ty ,tz);
-        out.tmax = MAX4(tu, tv, tw, out.tmax);
-
-        out.dtot = sqrt(dx * dx + dy * dy + dz * dz + du * du + dv * dv + dw * dw);
-
-        if (out.tmax <= 0.0) {
-            out.vel = currentLinearFeedRate;
-            out.velxyz = out.vel;
-        } else {
-            out.vel = out.dtot / out.tmax;
-            //TODO refactor
-            out.velxyz = sqrt(dx * dx + dy * dy + dz * dz) / out.tmax;
-        }
-    }
     // Pure angular move:
-    else if (!cartesian_move && angular_move) {
-        ta = da? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
-        tb = db? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
-        tc = dc? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
+    if (!cartesian_move && angular_move) {
         out.tmax = MAX3(ta, tb, tc);
 
         out.dtot = sqrt(da * da + db * db + dc * dc);
@@ -825,17 +810,8 @@ static VelData getStraightVelocity(double x, double y, double z,
             out.vel = out.dtot / out.tmax;
         }
     }
-    // Combination angular and linear move:
-    else if (cartesian_move && angular_move) {
-        tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
-        ty = dy? fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
-        tz = dz? fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
-        ta = da? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])): 0.0;
-        tb = db? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])): 0.0;
-        tc = dc? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])): 0.0;
-        tu = du? fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
-        tv = dv? fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
-        tw = dw? fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
+    // Combination angular and linear move (or pure linear move)
+    else {
         out.tmax = MAX9(tx, ty, tz,
                 ta, tb, tc,
                 tu, tv, tw);
@@ -850,15 +826,16 @@ static VelData getStraightVelocity(double x, double y, double z,
             complete their motion coordinated with the motion of
             the linear axes.
             */
-        out.dtot = sqrt(dx * dx + dy * dy + dz * dz + du * du + dv * dv + dw * dw);
+        double d_xyz = sqrt(dx * dx + dy * dy + dz * dz);
+        out.d_uvw = sqrt(du * du + dv * dv + dw * dw);
+        out.dtot = sqrt(d_xyz * d_xyz + out.d_uvw * out.d_uvw);
 
         if (out.tmax <= 0.0) {
             out.vel = currentLinearFeedRate;
-            out.velxyz = out.vel;
+            out.vel_xyz = out.vel;
         } else {
             out.vel = out.dtot / out.tmax;
-            //TODO refactor
-            out.velxyz = sqrt(dx * dx + dy * dy + dz * dz) / out.tmax;
+            out.vel_xyz = d_xyz / out.tmax;
         }
     }
     if(debug_velacc) 
@@ -905,8 +882,8 @@ static void flush_segments(void) {
 
     double vel = linedata.vel;
     if (cartesian_move) {
-        if (linedata.velxyz > currentLinearFeedRate) {
-            vel *= currentLinearFeedRate / linedata.velxyz ;
+        if (linedata.vel_xyz > currentLinearFeedRate) {
+            vel *= currentLinearFeedRate / linedata.vel_xyz ;
         }
     } else if (angular_move) {
         if (vel > currentAngularFeedRate) {
@@ -1146,8 +1123,8 @@ void STRAIGHT_PROBE(int line_number,
     ini_maxvel = vel = veldata.vel;
 
     if (cartesian_move) {
-        if (veldata.velxyz > currentLinearFeedRate) {
-            vel *= currentLinearFeedRate / veldata.velxyz;
+        if (veldata.vel_xyz > currentLinearFeedRate) {
+            vel *= currentLinearFeedRate / veldata.vel_xyz;
         }
     } else if (angular_move) {
         if (vel > currentAngularFeedRate) {
@@ -1774,7 +1751,7 @@ void ARC_FEED(int line_number,
     // Limit velocity by maximum
     // TODO scale by only XYZ
     double vel = MIN(currentLinearFeedRate, v_max);
-    double vel_uvw = veldata.duvw / t_max;
+    double vel_uvw = veldata.d_uvw / t_max;
     //KLUDGE roll UVW velocity in
     double vel_act = sqrt(vel * vel + vel_uvw * vel_uvw);
 
