@@ -1586,8 +1586,8 @@ int arcFromBlendPoints3(SphericalArc * const arc,
 
     // Augment start, end, and center vectors with fixed UVW position
     Vector6 start, end, center;
-    CartToVec(&points->arc_start, uvw, &start);
-    CartToVec(&points->arc_end, uvw, &end);
+    CartToVec(&points->arc_start, &zero, &start);
+    CartToVec(&points->arc_end, &zero, &end);
     CartToVec(&points->arc_center, uvw, &center);
 
     // Finally, use the augmented vectors to create the 6D arc

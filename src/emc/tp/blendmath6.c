@@ -77,13 +77,20 @@ int blendGeom6Init(BlendGeom6 * const geom,
     geom->v_max2 = tc->maxvel;
 
     // KLUDGE, since we know these are for lines for now, just assume it ang grab them.
-    // TODO refactor to finction if we end up doing arcs too
-    CartToVec(&prev_tc->coords.line.xyz.uVec, &prev_tc->coords.line.uvw.uVec, &geom->u1);
+    // KLUDGE lots of repeated work here, copying and re-finding the overall vector
+    Vector6 v1, v2;
+    CartToVec(&prev_tc->coords.line.xyz.start, &prev_tc->coords.line.uvw.start, &v1);
+    CartToVec(&prev_tc->coords.line.xyz.end, &prev_tc->coords.line.uvw.end, &v2);
+    VecVecSub(&v2, &v1, &geom->u1);
     VecUnitEq(&geom->u1);
-    CartToVec(&tc->coords.line.xyz.uVec, &tc->coords.line.uvw.uVec, &geom->u2);
-    VecUnitEq(&geom->u2);
+
+    CartToVec(&tc->coords.line.xyz.start, &tc->coords.line.uvw.start, &v1);
+    CartToVec(&tc->coords.line.xyz.end, &tc->coords.line.uvw.end, &v2);
+    VecVecSub(&v2, &v1, &geom->u1);
+    VecUnitEq(&geom->u1);
 
     // Manually extract the end of line 1 for XYZ and UVW
+    // FIXME redundant
     CartToVec(&prev_tc->coords.line.xyz.end, &prev_tc->coords.line.uvw.end, &geom->P);
 
     // Find angle between tangent vectors
