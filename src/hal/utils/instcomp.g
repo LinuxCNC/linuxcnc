@@ -800,7 +800,7 @@ static int comp_id;
 ###############################  rtapi_app_exit()  #####################################################
 
     print >>f, "void rtapi_app_exit(void)\n{"
-    
+
     print >>f, "    hal_exit(comp_id);"
     print >>f, "}\n"
 
@@ -836,7 +836,7 @@ static int comp_id;
 #            strg += "\"%s\", %s);" % (to_c(name), to_c(name))
 #            print >>f, strg
 #####################################################################################################################
-            
+
         print >>f, "    return extra_inst_cleanup(name, inst, inst_size);"
         print >>f, "}\n"
 
@@ -973,14 +973,23 @@ def document(filename, outfilename):
 
     print >>f, ".TH %s \"9\" \"%s\" \"Machinekit Documentation\" \"HAL Component\"" % (comp_name.upper(), time.strftime("%F"))
     print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
-    
-    print >>f, ".SH INSTANTIABLE COMPONENTS\n"
+
+    print >>f, ".SH INSTANTIABLE COMPONENTS"
+    print >>f, ".HP"
+    print >>f, ".HP"
     print >>f, ".B All instantiable components can be loaded in two manners\n"
-    print >>f, ".B Using loadrt with or without count= | names= parameters as per legacy components\n"    
+    print >>f, ".LP"
+    print >>f, ".B Using loadrt with or without count= | names= parameters as per legacy components\n"
+    print >>f, ".LP"
     print >>f, ".B Using newinst, which names the instance and allows further parameters and arguments,\n"
+    print >>f, ".LP"
     print >>f, ".B primarily pincount= which can set the number of pins created for that instance (where applicable)\n"
-    
-    print >>f, ".SH NAME\n"
+    print >>f, ".HP"
+
+    print >>f, ".RE"
+    print >>f, ".SH NAME"
+    print >>f, ".HP"
+    print >>f, ".HP"
     doc = finddoc('component')
     if doc and doc[2]:
         if '\n' in doc[2]:
@@ -993,17 +1002,28 @@ def document(filename, outfilename):
         rest = ''
         print >>f, "%s" % doc[1]
 
-
     print >>f, ".SH SYNOPSIS"
+    print >>f, ".HP"
+    print >>f, ".HP"
     if rest:
         print >>f, rest
     else:
+        rest = ''
+        print >>f, "%s" % doc[1]
+
+    print >>f, ".SH USAGE SYNOPSIS"
+    print >>f, ".HP"
+    print >>f, ".HP"
+
+    if rest:
+        print >>f, rest
         print >>f, ".HP"
+    else:
         print >>f, ".B loadrt %s " % comp_name
-	print >>f, ".LP"        
+	print >>f, ".LP"
         print >>f, ".B newinst %s <newinstname> [ pincount=\\fIN\\fB | iprefix=\\fIprefix\\fB ]" % comp_name
         print >>f, ".B                             [instanceparamX=\\fIX\\fB | argX=\\fIX\\fB ]"
-        print >>f, ".HP"        
+        print >>f, ".HP"
         for type, name, default, doc in modparams:
             print >>f, "[%s=\\fIN\\fB]" % name,
         print >>f
@@ -1026,32 +1046,37 @@ def document(filename, outfilename):
 
     doc = finddoc('descr')
     if doc and doc[1]:
-        print >>f, ".SH DESCRIPTION\n"
+        print >>f, ".SH DESCRIPTION"
+        print >>f, ".HP"
+        print >>f, ".HP"
         print >>f, "%s" % doc[1]
 
     if functions:
         print >>f, ".SH FUNCTIONS"
+        print >>f, ".HP"
+        print >>f, ".HP"
         for _, name, fp, doc in finddocs('funct'):
             print >>f, ".TP"
             if name != None and name != "_":
                 print >>f, "\\fB%s.N.%s.funct\\fR" % (comp_name, name) ,
             else :
                 print >>f, "\\fB%s.N.funct\\fR" % comp_name ,
-	    print >>f, "\nOR"
+    	    print >>f, "\n( OR"
             if name != None and name != "_":
                 print >>f, "\\fB<newinstname>.%s.funct\\fR"  % name ,
             else :
                 print >>f, "\\fB<newinstname>.funct\\fR" ,
             if fp:
-                print >>f, "(requires a floating-point thread)"
+                print >>f, "(requires a floating-point thread) )"
             else:
-                print >>f
-	    print >>f, ".HP"
+                print >>f, " )"
+            print >>f, ".HP"
             print >>f, doc
-
 
     lead = ".TP"
     print >>f, ".SH PINS"
+    print >>f, ".HP"
+    print >>f, ".HP"
     for _, name, type, array, dir, doc, value in finddocs('pin'):
         print >>f, lead
         print >>f, ".B %s.N.%s \\fR" % (comp_name, name),
@@ -1064,7 +1089,7 @@ def document(filename, outfilename):
         else:
             print >>f, "\\fR"
 	print >>f, "( OR"
-	
+
         print >>f, ".B <newinstname>.%s \\fR" % name,
         print >>f, type, dir,
         if array:
@@ -1075,32 +1100,15 @@ def document(filename, outfilename):
         else:
             print >>f, "\\fR )\n"
         if doc:
-	    print >>f, ".HP"
+    	    print >>f, ".HP"
             print >>f, doc
 
     lead = ".TP"
-    if params:
-        print >>f, ".SH PARAMETERS"
-        for _, name, type, array, dir, doc, value in finddocs('param'):
-            print >>f, lead
-            print >>f, ".B %s\\fR" % to_hal_man(name),
-            print >>f, type, dir,
-            if array:
-                sz = name.count("#")
-                print >>f, " (%s=%s..%s)" % ("M" * sz, "0" * sz , array),
-            if value:
-                print >>f, "\\fR(default: \\fI%s\\fR)" % value
-            else:
-                print >>f, "\\fR"
-            if doc:
-                print >>f, doc
-                lead = ".TP"
-            else:
-                lead = ".TQ"
-
 
     if instanceparams:
         print >>f, ".SH INST_PARAMETERS"
+        print >>f, ".HP"
+        print >>f, ".HP"
         for _, name, type, doc, value in finddocs('instanceparam'):
             print >>f, lead
             print >>f, ".B %s\\fR" % name,
@@ -1117,6 +1125,8 @@ def document(filename, outfilename):
 
     if moduleparams:
         print >>f, ".SH MODULE_PARAMETERS"
+        print >>f, ".HP"
+        print >>f, ".HP"
         for _, name, type, doc, value in finddocs('moduleparam'):
             print >>f, lead
             print >>f, ".B %s\\fR" % name,
@@ -1133,23 +1143,34 @@ def document(filename, outfilename):
 
     doc = finddoc('see_also')
     if doc and doc[1]:
-        print >>f, ".SH SEE ALSO\n"
+        print >>f, ".SH SEE ALSO"
+        print >>f, ".HP"
+        print >>f, ".HP"
         print >>f, "%s" % doc[1]
 
     doc = finddoc('notes')
     if doc and doc[1]:
-        print >>f, ".SH NOTES\n"
+        print >>f, ".SH NOTES"
+        print >>f, ".HP"
+        print >>f, ".HP"
         print >>f, "%s" % doc[1]
 
     doc = finddoc('author')
     if doc and doc[1]:
-        print >>f, ".SH AUTHOR\n"
+        print >>f, ".SH AUTHOR"
+        print >>f, ".HP"
+        print >>f, ".HP"
         print >>f, "%s" % doc[1]
 
     doc = finddoc('license')
     if doc and doc[1]:
-        print >>f, ".SH LICENSE\n"
+        print >>f, ".SH LICENSE"
+        print >>f, ".HP"
+        print >>f, ".HP"
         print >>f, "%s" % doc[1]
+
+###########################################################
+
 
 def process(filename, mode, outfilename):
     tempdir = tempfile.mkdtemp()
