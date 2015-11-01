@@ -184,3 +184,11 @@ int VecToCart(Vector6 const * vec, PmCartesian * p1, PmCartesian * p2)
 
     return 0;
 }
+
+void VecPrint(Vector6 const * const vec)
+{
+    int i;
+    for (i = 0; i < 6; ++i) {
+        rtapi_print("   %d: %f\n", i, vec->ax[i]);
+    }
+}

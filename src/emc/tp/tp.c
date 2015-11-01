@@ -162,6 +162,7 @@ STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
     return TP_ERR_OK;
 }
 
+static const int ind_map[] = {0,1,2,6,7,8};
 STATIC int tpGetMachineAccelBoundsVec(Vector6 * const acc_bound) {
     if (!acc_bound) {
         return TP_ERR_FAIL;
@@ -169,7 +170,8 @@ STATIC int tpGetMachineAccelBoundsVec(Vector6 * const acc_bound) {
 
     int i;
     for (i = 0; i < VECTOR_SIZE; ++i) {
-        acc_bound->ax[i] = joints[i].acc_limit;
+        acc_bound->ax[i] = joints[ind_map[i]].acc_limit;
+        tp_debug_print("acc joint %d: %f\n",i, acc_bound->ax[i]);
     }
 
     return TP_ERR_OK;
@@ -183,7 +185,8 @@ STATIC int tpGetMachineVelBoundsVec(Vector6 * const vel_bound) {
 
     int i;
     for (i = 0; i < VECTOR_SIZE; ++i) {
-        vel_bound->ax[i] = joints[i].vel_limit;
+        vel_bound->ax[i] = joints[ind_map[i]].vel_limit;
+        tp_debug_print("vel joint %d: %f\n",i, vel_bound->ax[i]);
     }
     return TP_ERR_OK;
 }

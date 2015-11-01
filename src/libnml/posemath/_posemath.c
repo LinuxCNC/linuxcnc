@@ -1661,7 +1661,7 @@ int pmCartLineInit(PmCartLine * const line, PmCartesian const * const start, PmC
 
     pmCartMag(&line->uVec, &tmag);
     if (IS_FUZZ(tmag, CART_FUZZ)) {
-        line->uVec.x = 1.0;
+        line->uVec.x = 0.0;
         line->uVec.y = 0.0;
         line->uVec.z = 0.0;
     } else {

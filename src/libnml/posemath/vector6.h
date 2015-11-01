@@ -34,4 +34,6 @@ int VecMax(Vector6 const * v1, double * m);
 
 int CartToVec(PmCartesian const * p1, PmCartesian const * p2, Vector6 * out);
 int VecToCart(Vector6 const * vec, PmCartesian * p1, PmCartesian * p2);
+
+void VecPrint(Vector6 const * const vec);
 #endif

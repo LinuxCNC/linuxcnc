@@ -140,8 +140,8 @@ int blendParamKinematics6(BlendGeom6 * const geom,
 
     Vector6 scales;
     int res_scales = calcBoundScales(&u, &v, &scales);
-
-    //TODO use the scales to find actual bounds
+    
+    calcMinBound(&scales, acc_bound, &param->a_max);
 
     // Store max normal acceleration
     param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
@@ -153,9 +153,8 @@ int blendParamKinematics6(BlendGeom6 * const geom,
     param->v_goal = param->v_req * maxFeedScale;
 
     // Calculate the maximum planar velocity
-    double v_planar_max;
-    //FIXME sloppy handling of return value
-    res_dia |= VecMin(vel_bound, &v_planar_max);
+    double v_planar_max=0;
+    calcMinBound(&scales, vel_bound, &v_planar_max);
     tp_debug_print("v_planar_max = %f\n", v_planar_max);
 
     // Clip the angle at a reasonable value (less than 90 deg), to prevent div by zero
@@ -255,4 +254,70 @@ int arcFromBlendPoints6(SphericalArc * const arc, BlendPoints6 const * const poi
     // Create the arc from the processed points
 }
 
+
+int findOrthonormalBasis(Vector6 const * const a,
+        Vector6 const * const b,
+        Vector6 * const u,
+        Vector6 * const v)
+{
+    //TODO error check
+    // Find component of a in direction of b
+    // NOTE assumes both a and b are already unit
+    double dot;
+    VecVecDot(a, b, &dot);
+
+    //Build the component in the direction of b
+    Vector6 temp;
+    VecScalMult(b, dot, &temp);
+
+    *u = *b;
+    // Subtract component of a in direction of b
+    VecVecSub(a, &temp, v);
+    VecUnitEq(v);
+
+    tp_debug_print("Orthonormal u\n");
+    VecPrint(u);
+
+    tp_debug_print("Orthonormal v\n");
+    VecPrint(v);
+
+    return 0;
+}
+
+int calcBoundScales(Vector6 const * const u,
+        Vector6 const * const v,
+        Vector6 * scales)
+{
+    if (!u || !v || !scales) {
+        return -1;
+    }
+
+    int i;
+    for (i = 0; i < 6; ++i) {
+        scales->ax[i] = pmSqrt(pmSq(u->ax[i]) + pmSq(v->ax[i]));
+        tp_debug_print("scale %d: %f\n", i, scales->ax[i]);
+    }
+    return 0;
+}
+
+
+int calcMinBound(Vector6 const * scales,
+        Vector6 const * bounds,
+        double * min_bound)
+{
+    //TODO check inputs
+    double m = INFINITY;
+
+    int i;
+    for (i = 0; i < 6; ++i) {
+        double s = scales->ax[i];
+        double b = bounds->ax[i];
+        if (s > 0.0 && b > 0.0) {
+           m = fmin(m, b / s);
+        }
+    }
+    *min_bound = m;
+    return 0;
+
+}
 

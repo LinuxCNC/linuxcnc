@@ -498,7 +498,6 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
 }
 
 
-
 int findAccelScale(PmCartesian const * const acc,
         PmCartesian const * const bounds,
         PmCartesian * const scale)

@@ -79,4 +79,8 @@ int findOrthonormalBasis(Vector6 const * const a,
 int calcBoundScales(Vector6 const * const u,
         Vector6 const * const v,
         Vector6 * scales);
+
+int calcMinBound(Vector6 const * scales,
+        Vector6 const * bounds,
+        double * min_bound);
 #endif
