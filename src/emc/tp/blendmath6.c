@@ -133,8 +133,15 @@ int blendParamKinematics6(BlendGeom6 * const geom,
     double nominal_tolerance;
     tcFindBlendTolerance(prev_tc, tc, &param->tolerance, &nominal_tolerance);
 
-    // Calculate max acceleration based on plane containing lines
-    int res_dia = VecMin(acc_bound, &param->a_max);
+    // First, do the geometry heavy-lifting to find the scale factors for each
+    // limit, depending on the plane connecting each line.
+    Vector6 u, v;
+    findOrthonormalBasis(&geom->u1, &geom->u2, &u, &v);
+
+    Vector6 scales;
+    int res_scales = calcBoundScales(&u, &v, &scales);
+
+    //TODO use the scales to find actual bounds
 
     // Store max normal acceleration
     param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
@@ -185,8 +192,7 @@ int blendParamKinematics6(BlendGeom6 * const geom,
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
     tp_debug_print("v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
 
-    return res_dia;
-    return 0;
+    return res_scales;
 }
 
 

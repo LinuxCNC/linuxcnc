@@ -71,4 +71,12 @@ int blendInit6FromLineLine(BlendGeom6 * const geom, BlendParameters * const para
 int arcFromBlendPoints6(SphericalArc * const arc, BlendPoints6 const * const points,
         BlendGeom6 const * const geom, BlendParameters const * const param);
 
+int findOrthonormalBasis(Vector6 const * const a,
+        Vector6 const * const b,
+        Vector6 * const u,
+        Vector6 * const v);
+
+int calcBoundScales(Vector6 const * const u,
+        Vector6 const * const v,
+        Vector6 * scales);
 #endif
