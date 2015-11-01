@@ -127,7 +127,7 @@ int arcPoint(SphericalArc const * const arc, double progress, Vector6 * const ou
         VecScalMult(&arc->rEnd, scale1, &interp1);
 
         VecVecAdd(&interp0, &interp1, out);
-        VecVecAdd(&arc->center, out, out);
+        VecVecAddEq(out, &arc->center);
     }
     return TP_ERR_OK;
 }
@@ -168,17 +168,19 @@ int arcTangent(SphericalArc const * const arc, PmCartesian * const tan, int at_e
     const double k0 = -cos( (1.0 - t) * theta);
     const double k1 = cos( t * theta);
 
-    Vector6 dp0,dp1;
+    Vector6 dp0, dp1;
 
     // Ugly sequence to build up tangent vector from components of the derivative
     VecScalMult(&arc->rStart, k * k0, &dp0);
     VecScalMult(&arc->rEnd, k * k1, &dp1);
-    Vector6 tan_temp;
-    VecVecAdd(&dp0, &dp1, &tan_temp);
+
+    // Merge both components into dp1 (reuses dp1)
+    VecVecAddEq(&dp1, &dp0);
 
     // tangential vector complete, now normalize
-    VecUnitEq(&tan_temp);
-    PmCartesian temp;
-    VecToCart(&tan_temp, tan, &temp);
+    VecToCart(&dp1, tan, NULL);
+
+    // Get unit vector after UVW components are stripped away
+    pmCartUnitEq(tan);
     return TP_ERR_OK;
 }
