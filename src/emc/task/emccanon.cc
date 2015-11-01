@@ -128,6 +128,8 @@ struct AccelData{
     double tmax;
     double acc;
     double dtot;
+    // Used to factor in UVW acceleration when combined with an XYZ circle
+    double d_uvw;
 };
 
 static PM_QUATERNION quat(1, 0, 0, 0);
@@ -606,11 +608,7 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 {
     double dx, dy, dz, du, dv, dw, da, db, dc;
     double tx, ty, tz, tu, tv, tw, ta, tb, tc;
-    AccelData out;
-
-    out.acc = 0.0; // if a move to nowhere
-    out.tmax = 0.0;
-    out.dtot = 0.0;
+    AccelData out = {0};
 
     // Compute absolute travel distance for each axis:
     dx = fabs(x - canonEndPoint.x);
@@ -639,82 +637,62 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 
     // Figure out what kind of move we're making.  This is used to determine
     // the units of vel/acc.
-    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
-        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
-	cartesian_move = 0;
+    if (dx > 0.0 || dy > 0.0 || dz > 0.0 ||
+            du > 0.0 || dv > 0.0 || dw > 0.0) {
+        cartesian_move = 1;
     } else {
-	cartesian_move = 1;
+        cartesian_move = 0;
     }
-    if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
-	angular_move = 0;
+    if (da > 0.0 || db > 0.0 || dc > 0.0) {
+        angular_move = 0;
     } else {
-	angular_move = 1;
+        angular_move = 1;
     }
 
-    // Pure linear move:
-    if (cartesian_move && !angular_move) {
+    // Compute the "time^2" values for each axis. This is analogous to the
+    // velocity calcultion, though not an actual physical quantity.
 	tx = dx? (dx / FROM_EXT_LEN(axis_max_acceleration[0])): 0.0;
 	ty = dy? (dy / FROM_EXT_LEN(axis_max_acceleration[1])): 0.0;
 	tz = dz? (dz / FROM_EXT_LEN(axis_max_acceleration[2])): 0.0;
-	tu = du? (du / FROM_EXT_LEN(axis_max_acceleration[6])): 0.0;
-	tv = dv? (dv / FROM_EXT_LEN(axis_max_acceleration[7])): 0.0;
-	tw = dw? (dw / FROM_EXT_LEN(axis_max_acceleration[8])): 0.0;
-        out.tmax = MAX3(tx, ty ,tz);
-        out.tmax = MAX4(tu, tv, tw, out.tmax);
-
-        if(dx || dy || dz)
-            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
-        else
-            out.dtot = sqrt(du * du + dv * dv + dw * dw);
-        
-	if (out.tmax > 0.0) {
-	    out.acc = out.dtot / out.tmax;
-	}
-    }
-    // Pure angular move:
-    else if (!cartesian_move && angular_move) {
 	ta = da? (da / FROM_EXT_ANG(axis_max_acceleration[3])): 0.0;
 	tb = db? (db / FROM_EXT_ANG(axis_max_acceleration[4])): 0.0;
 	tc = dc? (dc / FROM_EXT_ANG(axis_max_acceleration[5])): 0.0;
+	tu = du? (du / FROM_EXT_LEN(axis_max_acceleration[6])): 0.0;
+	tv = dv? (dv / FROM_EXT_LEN(axis_max_acceleration[7])): 0.0;
+	tw = dw? (dw / FROM_EXT_LEN(axis_max_acceleration[8])): 0.0;
+
+    // Pure angular move:
+    if (!cartesian_move && angular_move) {
         out.tmax = MAX3(ta, tb, tc);
 
-	out.dtot = sqrt(da * da + db * db + dc * dc);
-	if (out.tmax > 0.0) {
-	    out.acc = out.dtot / out.tmax;
-	}
+        out.dtot = sqrt(da * da + db * db + dc * dc);
+        if (out.tmax > 0.0) {
+            out.acc = out.dtot / out.tmax;
+        }
     }
     // Combination angular and linear move:
-    else if (cartesian_move && angular_move) {
-	tx = dx? (dx / FROM_EXT_LEN(axis_max_acceleration[0])): 0.0;
-	ty = dy? (dy / FROM_EXT_LEN(axis_max_acceleration[1])): 0.0;
-	tz = dz? (dz / FROM_EXT_LEN(axis_max_acceleration[2])): 0.0;
-	ta = da? (da / FROM_EXT_ANG(axis_max_acceleration[3])): 0.0;
-	tb = db? (db / FROM_EXT_ANG(axis_max_acceleration[4])): 0.0;
-	tc = dc? (dc / FROM_EXT_ANG(axis_max_acceleration[5])): 0.0;
-	tu = du? (du / FROM_EXT_LEN(axis_max_acceleration[6])): 0.0;
-	tv = dv? (dv / FROM_EXT_LEN(axis_max_acceleration[7])): 0.0;
-	tw = dw? (dw / FROM_EXT_LEN(axis_max_acceleration[8])): 0.0;
+    else {
         out.tmax = MAX9(tx, ty, tz,
-                    ta, tb, tc,
-                    tu, tv, tw);
+                ta, tb, tc,
+                tu, tv, tw);
 
-    if(debug_velacc)
-        printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n", 
-               tx, ty, tz, ta, tb, tc, tu, tv, tw);
-/*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
-    a combnation move is handled like a linear move, except
-    that the angular axes are allowed sufficient time to
-    complete their motion coordinated with the motion of
-    the linear axes.
-*/
-        if(dx || dy || dz)
-            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
-        else
-            out.dtot = sqrt(du * du + dv * dv + dw * dw);
+        if(debug_velacc)
+            printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n", 
+                    tx, ty, tz, ta, tb, tc, tu, tv, tw);
+        /*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
+            a combnation move is handled like a linear move, except
+            that the angular axes are allowed sufficient time to
+            complete their motion coordinated with the motion of
+            the linear axes.
+            */
+            if (du > 0 || dv >0 || dw > 0) {
+                out.d_uvw = sqrt(du * du + dv * dv + dw * dw);
+            }
+            out.dtot = sqrt(dx * dx + dy * dy + dz * dz + out.d_uvw * out.d_uvw);
 
-	if (out.tmax > 0.0) {
-	    out.acc = out.dtot / out.tmax;
-	}
+        if (out.tmax > 0.0) {
+            out.acc = out.dtot / out.tmax;
+        }
     }
     if(debug_velacc) 
         printf("cartesian %d ang %d acc %g\n", cartesian_move, angular_move, out.acc);
@@ -827,8 +805,14 @@ static VelData getStraightVelocity(double x, double y, double z,
             the linear axes.
             */
         double d_xyz = sqrt(dx * dx + dy * dy + dz * dz);
-        out.d_uvw = sqrt(du * du + dv * dv + dw * dw);
-        out.dtot = sqrt(d_xyz * d_xyz + out.d_uvw * out.d_uvw);
+
+        // Add in UVW motion to arc length and velocity (if there is any)
+        if (du > 0 || dv >0 || dw > 0) {
+            out.d_uvw = sqrt(du * du + dv * dv + dw * dw);
+            out.dtot = sqrt(d_xyz * d_xyz + out.d_uvw * out.d_uvw);
+        } else {
+            out.dtot = d_xyz;
+        }
 
         if (out.tmax <= 0.0) {
             out.vel = currentLinearFeedRate;
@@ -1746,7 +1730,9 @@ void ARC_FEED(int line_number,
 
     // a_max could be higher than a_max_axes, but the projection onto the
     // circle plane and helical axis will still be within limits
-    double a_max = total_xyz_length / tt_max;
+    // Also factor in UVW acceleration here
+    double total_acc_length = sqrt(pow(total_xyz_length, 2) + pow(accdata.d_uvw, 2));
+    double a_max = total_acc_length / tt_max;
 
     // Limit velocity by maximum
     // TODO scale by only XYZ
