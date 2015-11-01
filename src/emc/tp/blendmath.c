@@ -511,14 +511,14 @@ int findAccelScale(Vector6 const * const acc,
     }
 
     int i;
-    double m = INFINITY;
+    double m = 0;
     for (i = 0; i < 6; ++i) {
         // Crude numerical cutoff to prevent scales being too low and causing division errors
         double b = bounds->ax[i];
-        double a = acc->ax[i];
+        double a = fabs(acc->ax[i]);
         if (b > 0.0) {
             //Have to square b here since the scale is also squared
-            m = fmin(m, a / b);
+            m = fmax(m, a / b);
         }
     }
 

@@ -1731,8 +1731,10 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
                 res_endtan, res_starttan);
     }
 
-    tp_debug_print("prev tangent vector: %f %f %f\n", prev_tan.x, prev_tan.y, prev_tan.z);
-    tp_debug_print("this tangent vector: %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
+    tp_debug_print("prev tangent vector:\n");
+    VecPrint(&prev_tan);
+    tp_debug_print("this tangent vector:\n");
+    VecPrint(&this_tan);
 
     double dot = -1.0;
     const double SHARP_CORNER_DEG = 2.0;
@@ -1759,6 +1761,9 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     VecScalMult(&this_tan, a_inst, &acc2);
     VecVecSub(&acc2, &acc1, &acc_diff);
 
+    tp_debug_print("acc_diff:\n");
+    VecPrint(&acc_diff);
+
     //TODO store this in TP struct instead?
     Vector6 acc_bound;
     tpGetMachineAccelBoundsVec(&acc_bound);
@@ -1771,6 +1776,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     if (prev_tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_CIRCULAR) {
         acc_scale_max /= BLEND_ACC_RATIO_TANGENTIAL;
     }
+    tp_debug_print("acc_scale_max = %f\n", acc_scale_max);
 
     const double kink_ratio = tpGetTangentKinkRatio();
     if (acc_scale_max < kink_ratio) {
