@@ -498,35 +498,31 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
 }
 
 
-int findAccelScale(PmCartesian const * const acc,
-        PmCartesian const * const bounds,
-        PmCartesian * const scale)
+int findAccelScale(Vector6 const * const acc,
+        Vector6 const * const bounds,
+        double * m_out)
 {
     if (!acc || !bounds ) {
         return TP_ERR_MISSING_INPUT;
     }
 
-    if (!scale ) {
+    if (!m_out ) {
         return TP_ERR_MISSING_OUTPUT;
     }
 
-    // Find the scale of acceleration vs. machine accel bounds
-    if (bounds->x != 0) {
-    scale->x = fabs(acc->x / bounds->x);
-    } else {
-        scale->x = 0;
-    }
-    if (bounds->y != 0) {
-    scale->y = fabs(acc->y / bounds->y);
-    } else {
-        scale->y = 0;
+    int i;
+    double m = INFINITY;
+    for (i = 0; i < 6; ++i) {
+        // Crude numerical cutoff to prevent scales being too low and causing division errors
+        double b = bounds->ax[i];
+        double a = acc->ax[i];
+        if (b > 0.0) {
+            //Have to square b here since the scale is also squared
+            m = fmin(m, a / b);
+        }
     }
 
-    if (bounds->z != 0) {
-    scale->z = fabs(acc->z / bounds->z);
-    } else {
-        scale->z = 0;
-    }
+    *m_out = m;
 
     return TP_ERR_OK;
 }
@@ -575,8 +571,12 @@ int blendGeom3Init(BlendGeom3 * const geom,
     geom->v_max2 = tc->maxvel;
 
     // Get tangent unit vectors to each arc at the intersection point
-    int res_u1 = tcGetEndTangentUnitVector(prev_tc, &geom->u_tan1);
-    int res_u2 = tcGetStartTangentUnitVector(tc, &geom->u_tan2);
+    // Ugly way recycles these functions and throws out UVW components
+    Vector6 u1, u2;
+    int res_u1 = tcGetEndTangentUnitVector(prev_tc, &u1);
+    int res_u2 = tcGetStartTangentUnitVector(tc, &u2);
+    VecToCart(&u1, &geom->u_tan1, NULL);
+    VecToCart(&u2, &geom->u_tan2, NULL);
 
     // Initialize u1 and u2 by assuming they match the tangent direction
     geom->u1 = geom->u_tan1;

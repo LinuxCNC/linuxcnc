@@ -170,17 +170,21 @@ int CartToVec(PmCartesian const * p1, PmCartesian const * p2, Vector6 * out)
 }
 int VecToCart(Vector6 const * vec, PmCartesian * p1, PmCartesian * p2)
 {
-    if (!p1 || !p2 || !vec) {
+    if (!vec) {
         return -1;
     }
 
+    if (p1) {
     p1->x = vec->ax[0];
     p1->y = vec->ax[1];
     p1->z = vec->ax[2];
+    }
 
+    if (p2) {
     p2->x = vec->ax[3];
     p2->y = vec->ax[4];
     p2->z = vec->ax[5];
+    }
 
     return 0;
 }

@@ -195,17 +195,24 @@ int pmCircleTangentVector(PmCircle const * const circle,
 /**
  * Calulate the unit tangent vector at the start of a move for any segment.
  */
-int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
+int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, Vector6 * const out)
+{
+    PmCartesian zero={0,0,0};
+    PmCartesian temp={0,0,0};
 
     switch (tc->motion_type) {
         case TC_LINEAR:
-            *out=tc->coords.line.xyz.uVec;
-            break;
+            return tcGetEndTangentUnitVector(tc, out);
         case TC_RIGIDTAP:
-            *out=tc->coords.rigidtap.xyz.uVec;
+            // Augment with zero vector, no re-scaling necessary
+            CartToVec(&tc->coords.rigidtap.xyz.uVec, &zero, out);
             break;
         case TC_CIRCULAR:
-            pmCircleTangentVector(&tc->coords.circle.xyz, 0.0, out);
+            // KLUDGE ignore UVW direction. this is WRONG, but since we don't
+            // do any tangent blends with circles and UVW motion, we can get
+            // away with it for now.
+            pmCircleTangentVector(&tc->coords.circle.xyz, 0.0, &temp);
+            CartToVec(&temp, &zero, out);
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
@@ -217,18 +224,36 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
 /**
  * Calulate the unit tangent vector at the end of a move for any segment.
  */
-int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
+int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, Vector6 * const out) {
+
+    PmCartesian zero={0,0,0};
+    PmCartesian temp={0,0,0};
 
     switch (tc->motion_type) {
         case TC_LINEAR:
-            *out=tc->coords.line.xyz.uVec;
+            // Ugly way to calculate overall unit vector
+            // TODO refactor and simply if possible
+            {
+                Vector6 v1, v2;
+                CartToVec(&tc->coords.line.xyz.start, &tc->coords.line.uvw.start, &v1);
+                CartToVec(&tc->coords.line.xyz.end, &tc->coords.line.uvw.end, &v2);
+                VecVecSub(&v2, &v1, out);
+                VecUnitEq(out);
+            }
             break;
         case TC_RIGIDTAP:
-            pmCartScalMult(&tc->coords.rigidtap.xyz.uVec, -1.0, out);
+            // Exit move is in opposite direction of tap direction
+            pmCartScalMult(&tc->coords.rigidtap.xyz.uVec, -1.0, &temp);
+            // Augment with zero vector, no re-scaling necessary
+            CartToVec(&temp, &zero, out);
             break;
         case TC_CIRCULAR:
+            // KLUDGE ignore UVW direction. this is WRONG, but since we don't
+            // do any tangent blends with circles and UVW motion, we can get
+            // away with it for now.
             pmCircleTangentVector(&tc->coords.circle.xyz,
-                    tc->coords.circle.xyz.angle, out);
+                    tc->coords.circle.xyz.angle, &temp);
+            CartToVec(&temp, &zero, out);
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);

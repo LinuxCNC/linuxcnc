@@ -21,6 +21,7 @@
 #include "motion_types.h"
 #include "spherical_arc.h"
 #include "blendmath.h"
+#include "vector6.h"
 #include "blendmath6.h"
 //KLUDGE Don't include all of emc.hh here, just hand-copy the TERM COND
 //definitions until we can break the emc constants out into a separate file.
@@ -1676,10 +1677,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     return TP_ERR_OK;
 }
 
-STATIC double pmCartAbsMax(PmCartesian const * const v)
-{
-    return fmax(fmax(fabs(v->x),fabs(v->y)),fabs(v->z));
-}
 
 STATIC int tpAdjustAccelForTangent(TP_STRUCT const * const tp,
         TC_STRUCT * const tc,
@@ -1725,7 +1722,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     }
 
     //TODO 6D tangent check
-    PmCartesian prev_tan, this_tan;
+    Vector6 prev_tan, this_tan;
 
     int res_endtan = tcGetEndTangentUnitVector(prev_tc, &prev_tan);
     int res_starttan = tcGetStartTangentUnitVector(tc, &this_tan);
@@ -1740,7 +1737,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     double dot = -1.0;
     const double SHARP_CORNER_DEG = 2.0;
     const double SHARP_CORNER_THRESHOLD = cos(PM_PI * (1.0 - SHARP_CORNER_DEG / 180.0));
-    pmCartCartDot(&prev_tan, &this_tan, &dot);
+    VecVecDot(&prev_tan, &this_tan, &dot);
     if (dot < SHARP_CORNER_THRESHOLD) {
         tp_debug_print("Found sharp corner\n");
         tcSetTermCond(prev_tc, TC_TERM_COND_STOP);
@@ -1755,29 +1752,21 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     tp_debug_print("tangent v_max = %f\n",v_max);
 
     double a_inst = v_max / tp->cycleTime;
+
     // Set up worst-case final velocity
-    PmCartesian acc1, acc2, acc_diff;
-    pmCartScalMult(&prev_tan, a_inst, &acc1);
-    pmCartScalMult(&this_tan, a_inst, &acc2);
-    pmCartCartSub(&acc2,&acc1,&acc_diff);
+    Vector6 acc1, acc2, acc_diff;
+    VecScalMult(&prev_tan, a_inst, &acc1);
+    VecScalMult(&this_tan, a_inst, &acc2);
+    VecVecSub(&acc2, &acc1, &acc_diff);
 
     //TODO store this in TP struct instead?
-    PmCartesian acc_bound;
-    tpGetMachineAccelBounds(&acc_bound);
+    Vector6 acc_bound;
+    tpGetMachineAccelBoundsVec(&acc_bound);
 
-    PmCartesian acc_scale;
-    findAccelScale(&acc_diff,&acc_bound,&acc_scale);
-    tp_debug_print("acc_diff: %f %f %f\n",
-            acc_diff.x,
-            acc_diff.y,
-            acc_diff.z);
-    tp_debug_print("acc_scale: %f %f %f\n",
-            acc_scale.x,
-            acc_scale.y,
-            acc_scale.z);
+    double acc_scale_max;
+    findAccelScale(&acc_diff, &acc_bound, &acc_scale_max);
 
     //FIXME this ratio is arbitrary, should be more easily tunable
-    double acc_scale_max = pmCartAbsMax(&acc_scale);
     //KLUDGE lumping a few calculations together here
     if (prev_tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_CIRCULAR) {
         acc_scale_max /= BLEND_ACC_RATIO_TANGENTIAL;
