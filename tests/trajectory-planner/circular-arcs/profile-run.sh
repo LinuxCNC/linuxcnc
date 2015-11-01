@@ -11,10 +11,10 @@ function say_failed {
 set -o monitor
 ./build-release.sh
 operf rtapi_app > profile.log &
-linuxcnc configs/9axis/axis_9axis.ini &
+linuxcnc $1 &
 LOCAL_LCNC_PID=$!
 echo $LOCAL_LCNC_PID
-(python machine_setup.py $1 && say_done) || say_failed
+(python machine_setup.py $2 && say_done) || say_failed
 #fg
 #End profiling
 pkill -9 axis
