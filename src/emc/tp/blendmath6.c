@@ -40,28 +40,22 @@ int blendFindPoints6(BlendPoints6 * const points, BlendGeom6 const * const geom,
 
     VecScalMult(&geom->normal, center_dist, &points->arc_center);
     VecVecAddEq(&points->arc_center, &geom->P);
-    tp_debug_print("arc_center = %f %f %f\n",
-            points->arc_center.ax[0],
-            points->arc_center.ax[1],
-            points->arc_center.ax[2]);
+    tp_debug_print("arc_center:\n");
+    VecPrint(&points->arc_center);
 
     // Start point is d_plan away from intersection P in the
     // negative direction of u1
     VecScalMult(&geom->u1, -param->d_plan, &points->arc_start);
     VecVecAddEq(&points->arc_start, &geom->P);
-    tp_debug_print("arc_start = %f %f %f\n",
-            points->arc_start.ax[0],
-            points->arc_start.ax[1],
-            points->arc_start.ax[2]);
+    tp_debug_print("arc_start:\n");
+    VecPrint(&points->arc_start);
 
     // End point is d_plan aw.ax[0] from intersection P in the
     // positive direction of u1
     VecScalMult(&geom->u2, param->d_plan, &points->arc_end);
     VecVecAddEq(&points->arc_end, &geom->P);
-    tp_debug_print("arc_end = %f %f %f\n",
-            points->arc_end.ax[0],
-            points->arc_end.ax[1],
-            points->arc_end.ax[2]);
+    tp_debug_print("arc_end:\n");
+    VecPrint(&points->arc_end);
 
     //For line case, just copy over d_plan since it's the same
     points->trim1 = param->d_plan;
