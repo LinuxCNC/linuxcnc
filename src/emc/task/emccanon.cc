@@ -117,7 +117,9 @@ static int rotary_unlock_for_traverse = -1;
 struct VelData {
     double tmax;
     double vel;
+    double velxyz;
     double dtot;
+    double duvw;
 };
 
 struct AccelData{
@@ -784,6 +786,9 @@ static VelData getStraightVelocity(double x, double y, double z,
 	angular_move = 1;
     }
 
+
+    //TODO refactor
+    out.duvw = sqrt(du * du + dv * dv + dw * dw);
     // Pure linear move:
     if (cartesian_move && !angular_move) {
         tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
@@ -795,15 +800,15 @@ static VelData getStraightVelocity(double x, double y, double z,
         out.tmax = MAX3(tx, ty ,tz);
         out.tmax = MAX4(tu, tv, tw, out.tmax);
 
-        if(dx || dy || dz)
-            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
-        else
-            out.dtot = sqrt(du * du + dv * dv + dw * dw);
+        out.dtot = sqrt(dx * dx + dy * dy + dz * dz + du * du + dv * dv + dw * dw);
 
         if (out.tmax <= 0.0) {
             out.vel = currentLinearFeedRate;
+            out.velxyz = out.vel;
         } else {
             out.vel = out.dtot / out.tmax;
+            //TODO refactor
+            out.velxyz = sqrt(dx * dx + dy * dy + dz * dz) / out.tmax;
         }
     }
     // Pure angular move:
@@ -845,15 +850,15 @@ static VelData getStraightVelocity(double x, double y, double z,
             complete their motion coordinated with the motion of
             the linear axes.
             */
-        if(dx || dy || dz)
-            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
-        else
-            out.dtot = sqrt(du * du + dv * dv + dw * dw);
+        out.dtot = sqrt(dx * dx + dy * dy + dz * dz + du * du + dv * dv + dw * dw);
 
         if (out.tmax <= 0.0) {
             out.vel = currentLinearFeedRate;
+            out.velxyz = out.vel;
         } else {
             out.vel = out.dtot / out.tmax;
+            //TODO refactor
+            out.velxyz = sqrt(dx * dx + dy * dy + dz * dz) / out.tmax;
         }
     }
     if(debug_velacc) 
@@ -897,22 +902,17 @@ static void flush_segments(void) {
 #endif
 
     VelData linedata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
-    double vel = linedata.vel;
 
-    if (cartesian_move && !angular_move) {
-        if (vel > currentLinearFeedRate) {
-            vel = currentLinearFeedRate;
+    double vel = linedata.vel;
+    if (cartesian_move) {
+        if (linedata.velxyz > currentLinearFeedRate) {
+            vel *= currentLinearFeedRate / linedata.velxyz ;
         }
-    } else if (!cartesian_move && angular_move) {
+    } else if (angular_move) {
         if (vel > currentAngularFeedRate) {
             vel = currentAngularFeedRate;
         }
-    } else if (cartesian_move && angular_move) {
-        if (vel > currentLinearFeedRate) {
-            vel = currentLinearFeedRate;
-        }
-    }
-
+    } 
 
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
@@ -1145,19 +1145,15 @@ void STRAIGHT_PROBE(int line_number,
     VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
     ini_maxvel = vel = veldata.vel;
 
-    if (cartesian_move && !angular_move) {
-	if (vel > currentLinearFeedRate) {
-	    vel = currentLinearFeedRate;
-	}
-    } else if (!cartesian_move && angular_move) {
-	if (vel > currentAngularFeedRate) {
-	    vel = currentAngularFeedRate;
-	}
-    } else if (cartesian_move && angular_move) {
-	if (vel > currentLinearFeedRate) {
-	    vel = currentLinearFeedRate;
-	}
-    }
+    if (cartesian_move) {
+        if (veldata.velxyz > currentLinearFeedRate) {
+            vel *= currentLinearFeedRate / veldata.velxyz;
+        }
+    } else if (angular_move) {
+        if (vel > currentAngularFeedRate) {
+            vel = currentAngularFeedRate;
+        }
+    } 
 
     AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     acc = accdata.acc;
@@ -1776,7 +1772,12 @@ void ARC_FEED(int line_number,
     double a_max = total_xyz_length / tt_max;
 
     // Limit velocity by maximum
+    // TODO scale by only XYZ
     double vel = MIN(currentLinearFeedRate, v_max);
+    double vel_uvw = veldata.duvw / t_max;
+    //KLUDGE roll UVW velocity in
+    double vel_act = sqrt(vel * vel + vel_uvw * vel_uvw);
+
     canon_debug("current F = %f\n",currentLinearFeedRate);
     canon_debug("vel = %f\n",vel);
 
@@ -1791,7 +1792,7 @@ void ARC_FEED(int line_number,
         // or we wouldn't be calling ARC_FEED
         linearMoveMsg.end = to_ext_pose(endpt);
         linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
-        linearMoveMsg.vel = toExtVel(vel);
+        linearMoveMsg.vel = toExtVel(vel_act);
         linearMoveMsg.ini_maxvel = toExtVel(v_max);
         linearMoveMsg.acc = toExtAcc(a_max);
         linearMoveMsg.indexrotary = -1;
@@ -1814,7 +1815,7 @@ void ARC_FEED(int line_number,
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 
-        circularMoveMsg.vel = toExtVel(vel);
+        circularMoveMsg.vel = toExtVel(vel_act);
         circularMoveMsg.ini_maxvel = toExtVel(v_max);
         circularMoveMsg.acc = toExtAcc(a_max);
 

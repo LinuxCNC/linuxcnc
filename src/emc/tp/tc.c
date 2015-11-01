@@ -495,10 +495,8 @@ int tcFlagEarlyStop(TC_STRUCT * const tc,
 
 double pmLine9Target(PmLine9 * const line9)
 {
-    if (!line9->xyz.tmag_zero) {
-        return line9->xyz.tmag;
-    } else if (!line9->uvw.tmag_zero) {
-        return line9->uvw.tmag;
+    if (!line9->xyz.tmag_zero || !line9->uvw.tmag_zero) {
+        return pmSqrt(pmSq(line9->xyz.tmag) + pmSq(line9->uvw.tmag));
     } else if (!line9->abc.tmag_zero) {
         return line9->abc.tmag;
     } else {
@@ -637,7 +635,8 @@ double pmCircle9Target(PmCircle9 const * const circ9)
     pmCartMagSq(&circ9->xyz.rHelix, &h2);
     double helical_length = pmSqrt(pmSq(circ9->fit.total_planar_length) + h2);
 
-    return helical_length;
+    double uvw_length = circ9->uvw.tmag;
+    return pmSqrt(pmSq(helical_length) + pmSq(uvw_length));
 }
 
 /**
