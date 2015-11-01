@@ -191,8 +191,10 @@ int VecToCart(Vector6 const * vec, PmCartesian * p1, PmCartesian * p2)
 
 void VecPrint(Vector6 const * const vec)
 {
+#ifdef TP_DEBUG_PRINT
     int i;
     for (i = 0; i < 6; ++i) {
         rtapi_print("   %d: %f\n", i, vec->ax[i]);
     }
+#endif
 }
