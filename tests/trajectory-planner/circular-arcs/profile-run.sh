@@ -9,10 +9,9 @@ function say_failed {
 }
 
 set -o monitor
-./build-profile.sh
-cp position.blank position.txt
+./build-release.sh
 operf rtapi_app > profile.log &
-linuxcnc -r circular_arcs.ini &
+linuxcnc configs/9axis/axis_9axis.ini &
 LOCAL_LCNC_PID=$!
 echo $LOCAL_LCNC_PID
 (python machine_setup.py $1 && say_done) || say_failed
