@@ -750,7 +750,7 @@ class LinuxCNCWrapper():
                 positionOffset = EMC_CONFIG_RELATIVE_OFFSET
             modified |= self.update_config_value('position_offset', positionOffset)
 
-            positionFeedback = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'ACTUAL'
+            positionFeedback = self.ini.find('DISPLAY', 'POSITION_FEEDBACK') or 'ACTUAL'
             if positionFeedback == 'COMMANDED':
                 positionFeedback = EMC_CONFIG_COMMANDED_FEEDBACK
             else:
