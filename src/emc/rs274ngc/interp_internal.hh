@@ -778,7 +778,7 @@ typedef struct setup_struct
   bool mdi_interrupt;
   int feature_set; 
 
-  bool persistent_g92_offset;
+  int disable_g92_persistence;
 
 #define FEATURE(x) (_setup.feature_set & FEATURE_ ## x)
 #define FEATURE_RETAIN_G43           0x00000001

@@ -4103,7 +4103,7 @@ Side effects:
 
    For m2 and m30, this resets the machine and then calls PROGRAM_END.
    In addition, m30 calls PALLET_SHUTTLE.
-   Clear g92 offset unless PERSISTENT_G92_OFFSET is set in the .ini file.
+   Clear g92 offset if DISABLE_G92_PERSISTENCE is set in the .ini file.
 
 Called by: execute_block.
 
@@ -4144,7 +4144,7 @@ settings. They occur on M2 or M30.
 7. The spindle is stopped (like M5)                   - STOP_SPINDLE_TURNING
 8. The motion mode is set to G_1 (like G1)            - no canonical call
 9. Coolant is turned off (like M9)                    - FLOOD_OFF & MIST_OFF
-10. G52/G92 is cleared unless PERSISTENT_G92_OFFSET is set in the .ini file
+10. G52/G92 is cleared if DISABLE_G92_PERSISTENCE is set in the .ini file
 
 */
 
@@ -4260,7 +4260,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     }
 
 /*10*/
-    if (! settings->persistent_g92_offset)
+    if (settings->disable_g92_persistence)
 	// Clear G92/G52 offset
 	for (index=5210; index<=5219; index++)
 	    settings->parameters[index] = 0;

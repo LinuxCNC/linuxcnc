@@ -1000,21 +1000,9 @@ int Interp::init()
           }
 
 	  // ini file g52/g92 offset persistence default setting
-          if(NULL != (inistring = inifile.Find("PERSISTENT_G92_OFFSET",
-					       "RS274NGC")))
-          {
-	      if (strcmp(inistring,"True") == 0 ||
-		  strcmp(inistring, "true") == 0 ||
-		  strcmp(inistring, "YES") == 0) {
-		  logDebug("init:  PERSISTENT_G92_OFFSET = TRUE");
-		  _setup.persistent_g92_offset = true;
-	      } else {
-		  logDebug("init:  PERSISTENT_G92_OFFSET = FALSE");
-		  _setup.persistent_g92_offset = false;
-	      }
-          } else
-	      logDebug("init:  PERSISTENT_G92_OFFSET = %s (default)",
-		       _setup.persistent_g92_offset ? "TRUE" : "FALSE");
+	  inifile.Find(&_setup.disable_g92_persistence,
+		       "DISABLE_G92_PERSISTENCE",
+		       "RS274NGC");
 
           // close it
           inifile.Close();
@@ -1056,11 +1044,11 @@ int Interp::init()
                  _setup.v_origin_offset ,
                  _setup.w_origin_offset);
 
-  // Restore G92 offset if PERSISTENT_G92_OFFSET is set in .ini file.
+  // Restore G92 offset if DISABLE_G92_PERSISTENCE not set in .ini file.
   // This can't be done with the static _required_parameters[], where
   // the .vars file contents would reflect that setting, so instead
   // edit the restored parameters here.
-  if (! _setup.persistent_g92_offset)
+  if (_setup.disable_g92_persistence)
       // Persistence disabled:  clear g92 parameters
       for (k = 5210; k < 5220; k++)
 	  pars[k] = 0;
