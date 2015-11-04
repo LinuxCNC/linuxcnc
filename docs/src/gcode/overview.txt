@@ -286,12 +286,13 @@ example '##2'  means the value of the parameter whose index is the
 
 * '5210' - 1 if "G52" or "G92" offset is currently applied, 0
    otherwise.  Volatile by default; persistent if
-   'PERSISTENT_G92_OFFSET = true' in the '[RS274NGC]' section of the
+   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
    '.ini' file.
 
 * '5211-5219' - Shared "G52" and "G92" offset for X, Y, Z, A, B, C, U,
-  V & W.  Volatile by default; persistent if 'PERSISTENT_G92_OFFSET =
-  true' in the '[RS274NGC]' section of the '.ini' file.
+  V & W.  Volatile by default; persistent if
+  'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
+  '.ini' file.
 
 * '5220' - Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 

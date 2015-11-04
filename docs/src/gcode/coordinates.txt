@@ -238,20 +238,19 @@ appearance that no offsets were in effect. However, the 'G92' was
 still in effect for all coordinates and did produce expected work
 offsets for the other coordinate systems.
 
-By default, 'G92' offsets are cleared after the machine is started and
-after a 'M02' or 'M30'.  Programmers that often use 'G92' as a global
-offset and do not use 'G92' or 'G52' for local coordinate systems may
-wish for the offset to persist between machine resets.  Enable 'G92'
-persistence by setting 'PERSISTENT_G92_OFFSET = true' in the
+By default, 'G92' offsets are restored after the machine is started.
+Programmers that wish for Fanuc behavior, where 'G92' offsets are
+cleared at machine start and after a reset or program end, may disable
+'G92' persistence by setting 'DISABLE_G92_PERSISTENCE = 1' in the
 '[RS274NGC]' section of the '.ini' file.
 
 [NOTE]
 
-Especially when enabling 'G92' offset persistence, it is good practice
-to clear the 'G92' offsets at the end of their use with 'G92.1' or
-'G92.2'. When starting up LinuxCNC with 'G92' persistence enabled, any
-offsets in the 'G92' variables will be applied when an axis is homed.
-See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> below.
+It is good practice to clear the 'G92' offsets at the end of their use
+with 'G92.1' or 'G92.2'.  When starting up LinuxCNC with 'G92'
+persistence enabled (the default), any offsets in the 'G92' variables
+will be applied when an axis is homed.  See
+<<sec:g92-persistence-cautions,G92 Persistence Cautions>> below.
 
 === Setting G92 Values
 
@@ -267,10 +266,8 @@ current displayed position becomes 5.0000.
 
 === G92 Persistence Cautions[[sec:g92-persistence-cautions]]
 
-By default, the values of a 'G92' offset will remain in the VAR file.
-This may happen unintentionally when a program is aborted while 'G92'
-offsets are in effect.  In this case, the saved 'G92' offsets will be
-restored after a machine reset or startup.
+By default, the values of a 'G92' offset will be saved in the VAR file
+and be restored after a machine reset or startup.
 
 The G92 parameters are:
 
@@ -286,10 +283,10 @@ The G92 parameters are:
 * 5219 - W Axis Offset
 
 where 5210 is the 'G92' enable flag (1 for enabled, 0 for disabled)
-and 5211 are the axis offsets. If you are seeing unexpected positions
-as the result of a commanded move, as a result of storing an offset in
-a previous program and not clearing them at the end then issue a G92.1
-in the MDI window to clear the stored offsets.
+and 5211 to 5219 are the axis offsets. If you are seeing unexpected
+positions as the result of a commanded move, as a result of storing an
+offset in a previous program and not clearing them at the end then
+issue a G92.1 in the MDI window to clear the stored offsets.
 
 If G92 values exist in the VAR file when LinuxCNC starts up, the G92
 values in the var file will be applied to the values of the current
@@ -303,27 +300,25 @@ G92 was applied to the machine origin. If you issue a G92.1 and the DRO
 now reads all zeros then you had a G92 offset in effect when you last
 ran LinuxCNC.
 
-When 'G92' offset persistence is enabled, unless your intention is to
-use the same G92 offsets in the next program, the best practice is to
-issue a G92.1 at the end of any G Code files where you use G92
-offsets.
+Unless your intention is to use the same G92 offsets in the next
+program, the best practice is to issue a G92.1 at the end of any G
+code files where you use G92 offsets.
 
-When a file is aborted during processing that has 'G92' offsets in
+When a program is aborted during processing that has 'G92' offsets in
 effect a startup will cause them to become active again.  As a
 safeguard, always have your preamble to set the environment as you
 expect it.  Additionally, 'G92' persistence may be disabled by setting
-'PERSISTENT_G92_OFFSET = false' in the '[RS274NGC]' section of the
+'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
 '.ini' file.
 
 === G92 and G52 Interaction Cautions[[sec:g92-g52-interaction-cautions]]
 
-'G52' and 'G92' share the same offset registers.  When 'G92'
-persistence is enabled in the '.ini' file (see <<sec:g92-commands,G92
+'G52' and 'G92' share the same offset registers.  Unless 'G92'
+persistence is disabled in the '.ini' file (see <<sec:g92-commands,G92
 Commands>>), 'G52' offsets will also persist after machine reset,
-'M02' or 'M30'.  When 'G92' persistence is enabled, beware that a
-'G52' offset in effect during a program abort may result in unintended
-offsets when the next program is run.  See <<sec:g92-persistence-cautions,G92
-Persistence Cautions>> above.
+'M02' or 'M30'.  Beware that a 'G52' offset in effect during a program
+abort may result in unintended offsets when the next program is run.
+See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> above.
 
 == Sample Programs Using Offsets
 
