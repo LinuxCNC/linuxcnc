@@ -265,33 +265,101 @@ def mess_yesno(mess,title=""):
     if  response == gtk.RESPONSE_YES: return True
     else: return False
 
-def copy_dir_recursive(fromdir,todir,overwrite=False,verbose=False):
-    global update_count
+def mess_with_buttons(mess,buttons,title=""):
+    mwb = gtk.Dialog(parent=None,buttons=buttons,
+          flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+          )
+    mwb.set_title(title)
+    finbox = mwb.get_content_area();
+    l = gtk.Label(mess);
+    finbox.pack_start(l)
+    mwb.show_all()
+    response = mwb.run()
+    mwb.destroy()
+    return response
+
+class copymode:
+    # 'enum' items
+    one_at_a_time,yes_to_all,no_to_all = range(3)
+
+def copy_dir_recursive(fromdir,todir,
+                       update_ct = 0,
+                       mode      = copymode.one_at_a_time,
+                       overwrite = False,
+                       verbose   = False):
     if not os.path.isdir(todir):
         os.makedirs(todir,0755)
+
     for p in os.listdir(fromdir):
-        frompath = fromdir + '/' + p
-        topath   = todir   + '/' + p
-        if os.path.isfile(frompath):
-            if not os.path.isfile(topath) or overwrite :
-                if verbose: print "    copying %s to %s" % (p,todir)
-                shutil.copy(frompath,topath)
-                update_count = update_count + 1
-            else:
-                if p == "features.ngc" : continue # special case
-                if (   hashlib.md5(open(frompath,'rb').read()).digest()
-                    != hashlib.md5(open(topath,  'rb').read()).digest()
-                   ) :
-                   print (_('New file available: %s') % frompath)
-                   mess_dlg(
-                       _('An updated system file is available:\n\n%s\n\n'
-                         'You must rename or move your file to\n\n'
-                         'get the updated system file\n' % p),
-                         title="NEW file available")
-                if verbose: print "NOT copying %s to %s" % (p,todir)
-                pass
+        frompath = fromdir.rstrip('/') + '/' + p.lstrip('/')
+        topath   = todir.rstrip('/')   + '/' + p.lstrip('/')
         if os.path.isdir(frompath):
-            copy_dir_recursive(frompath,topath,verbose=verbose)
+            mode,update_ct = copy_dir_recursive(frompath,topath,
+                                      update_ct = update_ct,
+                                      mode      = mode,
+                                      overwrite = overwrite,
+                                      verbose   = verbose)
+            continue
+        # copy files
+        if not os.path.isfile(topath) or overwrite :
+            shutil.copy(frompath,topath)
+            update_ct = update_ct + 1
+            continue
+        else : # local file existes and not overwrite
+            if  (   hashlib.md5(open(frompath,'rb').read()).digest()
+                 == hashlib.md5(open(topath,  'rb').read()).digest()) :
+                # files are same
+                if verbose: print "NOT copying %s to %s" % (p,todir)
+            else : # files are different
+                if (   os.path.getctime(frompath)
+                     < os.path.getctime(topath) ) :
+                    # different and local file most recent
+                    if verbose : print (_('Keeping modified local file %s'%p))
+                    pass
+                else : # different and system file is most recent
+                    if mode == copymode.yes_to_all :
+                        if verbose: print "copying %s to %s" % (p,todir)
+                        shutil.copy(frompath,topath)
+                        update_ct = update_ct + 1
+                        continue
+                    if mode == copymode.no_to_all :
+                        os.utime(topath,None) # touch it
+                        continue
+
+                    buttons=(gtk.STOCK_YES,     gtk.RESPONSE_YES,
+                             gtk.STOCK_NO,      gtk.RESPONSE_NO,
+                             gtk.STOCK_REFRESH, gtk.RESPONSE_ACCEPT,
+                             gtk.STOCK_CANCEL,  gtk.RESPONSE_NONE)
+                    showdir = frompath[1+len(SYS_DIR.rstrip('/')):]
+                    msg = _('An updated system file is available:\n\n%s\n\n'
+                    'YES--------- Use new system file\n\n'
+                    'NO---------- Keep local file\n\n'
+                    'Refresh ---- Accept all new system files (don\'t ask again)\n\n'
+                    'Cancel------ Keep all local files (don\'t ask again)\n\n'
+                    % showdir)
+                    ans = mess_with_buttons(msg,buttons,
+                                            title="NEW file version available")
+
+                    # set copymode
+                    if   ans == gtk.RESPONSE_YES :
+                        pass
+                    elif ans == gtk.RESPONSE_ACCEPT :
+                        mode = copymode.yes_to_all
+                    elif ans == gtk.RESPONSE_NONE :
+                        mode = copymode.no_to_all
+                    elif   ans == gtk.RESPONSE_NO :
+                        pass
+                    else :
+                        ans = gtk.RESPONSE_NO # anything else (window close etc)
+
+                    # copy or touch
+                    if  ans == gtk.RESPONSE_YES or mode == copymode.yes_to_all :
+                        if verbose: print "copying %s to %s" % (p,todir)
+                        shutil.copy(frompath,topath)
+                        update_ct = update_ct + 1
+                    if  ans == gtk.RESPONSE_NO or mode == copymode.no_to_all :
+                        os.utime(topath,None) # touch it (update timestamp)
+    return mode,update_ct
 
 def err_exit(errtxt):
     print errtxt
@@ -1159,7 +1227,7 @@ class Feature():
             except subprocess.CalledProcessError as e:
                 msg = (_('Error with subprocess: returncode = %s\n'
                          'output = %s\n'
-                         'e= %s\n' 
+                         'e= %s\n'
                          % (e.returncode,e.output,e)))
                 print msg
                 mess_dlg(msg)
@@ -1320,7 +1388,7 @@ Notes:
             sys.exit(0)
 
         fromdirs = [CATALOGS_DIR, CFG_DIR, LIB_DIR,
-                    GRAPHICS_DIR, XML_DIR, NGC_DIR]
+                    GRAPHICS_DIR, XML_DIR]
 
         if ini is None: self.ask_to_create_standalone(fromdirs)
 
@@ -1446,19 +1514,26 @@ Notes:
                 sys.exit(0)
 
     def update_user_tree(self,fromdirs,todir):
-        global update_count
+        if not os.path.isdir(APP_PATH + NGC_DIR):
+            os.makedirs(     APP_PATH + NGC_DIR,0755)
+
         # copy system files to user, make dirs if necessary
-        # don't overwrite exiting files
+        mode = copymode.one_at_a_time
         for d in fromdirs:
-            update_count = 0
+            update_ct = 0
             dir_exists = os.path.isdir(APP_PATH + d)
-            copy_dir_recursive(SYS_DIR + d, todir + d, overwrite=False)
+            mode,update_ct = copy_dir_recursive(SYS_DIR + d, todir + d,
+                                      update_ct = 0,
+                                      mode      = mode,
+                                      overwrite = False,
+                                      verbose   = False
+                                      )
             if dir_exists:
                 print (_('Updated %4d new files in %s'
-                       % (update_count, d.lstrip('/') )))
+                       % (update_ct, d.lstrip('/') )))
             else :
                 print (_('Created %4d files in: %s'
-                       % (update_count, APP_PATH + d.lstrip('/'))))
+                       % (update_ct, APP_PATH + d.lstrip('/'))))
 
     def update_check_call(self):
         opener = urllib.FancyURLopener({})
