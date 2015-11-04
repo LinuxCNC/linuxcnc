@@ -1,8 +1,6 @@
 # these may be created in testing a rip build
-*.lst
-*.ngc
-*.xml
+catalogs/
 cfg/
-lib/
-scripts/
 graphics/
+scripts/
+xml/
