@@ -1,0 +1,4 @@
+(report version)
+o<linuxcnc_version>sub
+(debug,LinuxCNC:#<_vmajor>.#<_vminor>)
+o<linuxcnc_version>endsub
