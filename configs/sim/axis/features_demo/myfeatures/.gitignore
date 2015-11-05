@@ -1,6 +1,7 @@
 # these may be created in testing a rip build
 catalogs/
 cfg/
+lib/
 graphics/
 scripts/
 xml/
