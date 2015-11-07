@@ -338,9 +338,9 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
                     &abc);
             break;
         case TC_CIRCULAR:
-            angle = pmCircleAngleFromProgress(&tc->coords.circle.xyz,
+            angle = pmCircleAngleFromParam(&tc->coords.circle.xyz,
                     &tc->coords.circle.fit,
-                    progress);
+                    progress / tc->target);
             pmCirclePoint(&tc->coords.circle.xyz,
                     angle,
                     &xyz);
