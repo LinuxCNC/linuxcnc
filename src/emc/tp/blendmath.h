@@ -123,8 +123,6 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
 int findIntersectionAngle3(PmCartesian const * const u1,
         PmCartesian const * const u2, double * const theta);
 
-double pmCartMin(PmCartesian const * const in);
-
 int calculateInscribedDiameter(PmCartesian const * const normal,
         PmCartesian const * const bounds, double * const diameter);
 
@@ -137,11 +135,6 @@ int pmCartCartParallel(PmCartesian const * const v1,
 
 int pmCircLineCoplanar(PmCircle const * const circ,
         PmCartLine const * const line, double tol);
-
-int blendCoplanarCheck(PmCartesian const * const normal,
-        PmCartesian const * const u1_tan,
-        PmCartesian const * const u2_tan,
-        double tol);
 
 int blendCalculateNormals3(BlendGeom3 * const geom);
 

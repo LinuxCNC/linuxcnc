@@ -364,27 +364,6 @@ int pmCircLineCoplanar(PmCircle const * const circ,
 }
 
 
-int blendCoplanarCheck(PmCartesian const * const normal,
-        PmCartesian const * const u1_tan,
-        PmCartesian const * const u2_tan,
-        double tol)
-{
-    if (!normal || !u1_tan  || !u2_tan) {
-        return TP_ERR_MISSING_INPUT;
-    }
-
-    double dot1, dot2;
-    int res1 = pmCartCartDot(normal, u1_tan, &dot1);
-    int res2 = pmCartCartDot(normal, u2_tan, &dot2);
-
-    if (fabs(dot1) < tol && fabs(dot2) < tol && !res1 && !res2) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-
 /**
  * Somewhat redundant function to calculate the segment intersection angle.
  * @param u1 unit vector tangent to first segment at intersection point
@@ -420,13 +399,6 @@ int findIntersectionAngle3(PmCartesian const * const u1,
 
     *theta = acos(-dot)/2.0;
     return TP_ERR_OK;
-}
-
-
-/** Calculate the minimum of the three values in a PmCartesian. */
-double pmCartMin(PmCartesian const * const in)
-{
-    return fmin(fmin(in->x,in->y),in->z);
 }
 
 
