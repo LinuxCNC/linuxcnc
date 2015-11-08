@@ -133,9 +133,6 @@ int findAccelScale(Vector6 const * const acc,
 int pmCartCartParallel(PmCartesian const * const v1,
         PmCartesian const * const v2, double tol);
 
-int pmCircLineCoplanar(PmCircle const * const circ,
-        PmCartLine const * const line, double tol);
-
 int blendCalculateNormals3(BlendGeom3 * const geom);
 
 int blendComputeParameters(BlendParameters * const param);

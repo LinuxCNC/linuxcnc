@@ -308,7 +308,6 @@ int checkTangentAngle(PmCircle const * const circ,
 }
 
 
-
 /**
  * Check if two cartesian vectors are parallel.
  * The input tolerance specifies what the maximum angle between the
@@ -329,34 +328,6 @@ int pmCartCartParallel(PmCartesian const * const v1,
     pmCartCartDot(&u1, &u2, &dot);
     double theta = acos(fabs(dot));
     if (theta < tol) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-
-/**
- * Check if a Circle and line are coplanar.
- *
- * @param circ PmCircle input
- * @param line PmCartLine input
- * @param tol deviation tolerance (magnitude of error component)
- */
-int pmCircLineCoplanar(PmCircle const * const circ,
-        PmCartLine const * const line, double tol)
-{
-    double dot;
-    int res = pmCartCartDot(&circ->normal, &line->uVec, &dot);
-    tp_debug_print("normal = %.12g %.12g %.12g, uVec = %.12g %.12g %.12g, dot = %.12g\n",
-            circ->normal.x,
-            circ->normal.y,
-            circ->normal.z,
-            line->uVec.x,
-            line->uVec.y,
-            line->uVec.z,
-            dot);
-    if (fabs(dot) < tol && !res) {
         return 1;
     } else {
         return 0;
