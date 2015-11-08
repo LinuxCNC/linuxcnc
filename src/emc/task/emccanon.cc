@@ -647,9 +647,9 @@ static AccelData getStraightAcceleration(double x, double y, double z,
         cartesian_move = 0;
     }
     if (da > 0.0 || db > 0.0 || dc > 0.0) {
-        angular_move = 0;
-    } else {
         angular_move = 1;
+    } else {
+        angular_move = 0;
     }
 
     // Compute the "time^2" values for each axis. This is analogous to the
@@ -764,9 +764,9 @@ static VelData getStraightVelocity(double x, double y, double z,
         cartesian_move = 0;
     }
     if (da > 0.0 || db > 0.0 || dc > 0.0) {
-        angular_move = 0;
-    } else {
         angular_move = 1;
+    } else {
+        angular_move = 0;
     }
 
     // Calculate times required to cover the displacement for each axis
