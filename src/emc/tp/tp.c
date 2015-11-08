@@ -2007,14 +2007,16 @@ int tpAddCircle(TP_STRUCT * const tp,
     //Reduce max velocity to match sample rate
     tcClampVelocityByLength(&tc);
 
-    double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, &tc.acc_ratio_tan, ini_maxvel, acc, false);
-    tp_debug_print("tc.acc_ratio_tan = %f\n",tc.acc_ratio_tan);
-
     // Copy in motion parameters
     tcSetupMotion(&tc,
             vel,
-            v_max_actual,
+            ini_maxvel,
             acc);
+
+    tcClampVelocityByRadius(&tc, false);
+
+    tp_debug_print("tc.acc_ratio_tan = %f\n",tc.acc_ratio_tan);
+
 
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);

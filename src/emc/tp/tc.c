@@ -688,13 +688,28 @@ int tcFinalizeLength(TC_STRUCT * const tc)
     int parabolic = (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC);
     tp_debug_print("blend_prev = %d, term_cond = %d\n",tc->blend_prev, tc->term_cond);
 
-    if (tc->motion_type == TC_CIRCULAR) {
-        tc->maxvel = pmCircleActualMaxVel(&tc->coords.circle.xyz, &tc->acc_ratio_tan, tc->maxvel, tc->maxaccel, parabolic);
-    }
+    tcClampVelocityByRadius(tc, parabolic);
 
     tcClampVelocityByLength(tc);
 
     tc->finalized = 1;
+    return TP_ERR_OK;
+}
+
+
+int tcClampVelocityByRadius(TC_STRUCT * const tc, bool parabolic)
+{
+    if (!tc || tc->motion_type != TC_CIRCULAR || tc->target < TP_POS_EPSILON) {
+        return TP_ERR_FAIL;
+    }
+
+    //KLUDGE work backwards to get the XYZ-projected maximum velocity
+    double xyz_ratio = pmSqrt((pmSq(tc->target) - pmSq(tc->coords.circle.uvw.tmag)) / pmSq(tc->target));
+    double xyz_maxvel = xyz_ratio * tc->maxvel;
+    double xyz_maxaccel = xyz_ratio * tc->maxaccel;
+
+    double clipped_maxvel = pmCircleActualMaxVel(&tc->coords.circle.xyz, &tc->acc_ratio_tan, xyz_maxvel, xyz_maxaccel, parabolic);
+    tc->maxvel = clipped_maxvel / xyz_ratio;
     return TP_ERR_OK;
 }
 
