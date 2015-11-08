@@ -381,6 +381,7 @@ int findIntersectionAngle3(PmCartesian const * const u1,
  * @param extents distance from center to one corner of the prism.
  * @param diameter diameter of inscribed circle on cross section.
  *
+ * Note: this function may be replaced soon
  */
 int calculateInscribedDiameter(PmCartesian const * const normal,
         PmCartesian const * const bounds, double * const diameter)
@@ -456,15 +457,22 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
 }
 
 
+/**
+ * Given an acceleration vector, find a scale factor that will place it within
+ * machine acceleration limits.
+ * @param acc acceleration vector to be tested
+ * @param bounds vector of machine acceleration limits
+ * @param[out] scale best-case scale factor
+ */
 int findAccelScale(Vector6 const * const acc,
         Vector6 const * const bounds,
-        double * m_out)
+        double * scale)
 {
     if (!acc || !bounds ) {
         return TP_ERR_MISSING_INPUT;
     }
 
-    if (!m_out ) {
+    if (!scale ) {
         return TP_ERR_MISSING_OUTPUT;
     }
 
@@ -480,15 +488,16 @@ int findAccelScale(Vector6 const * const acc,
         }
     }
 
-    *m_out = m;
+    *scale = m;
 
     return TP_ERR_OK;
 }
 
 
-
-
-/** Find real roots of a quadratic equation in standard form. */
+/**
+ * Find real roots of a quadratic equation in standard form.
+ * 
+ */
 int quadraticFormula(double A, double B, double C, double * const root0,
         double * const root1)
 {
@@ -1526,6 +1535,15 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
 
 /**
  * Setup the spherical arc struct based on the blend arc data.
+ * @param[out] arc resulting blend arc
+ * @param points start / end / center points computed for the blend
+ * @param geom geometry details computed for the blend
+ * @param param other generalized parameters for the blend
+ * @param uvw fixed UVW position during blend motion.
+ *
+ * This function translates from blend calculations into a form usable for
+ * building a spherical arc. Note that in this function, UVW position is held
+ * constant during the blend.
  */
 int arcFromBlendPoints3(SphericalArc * const arc,
         BlendPoints3 const * const points,
@@ -1552,6 +1570,8 @@ int arcFromBlendPoints3(SphericalArc * const arc,
     return arcInitFromPoints(arc, &start, &end, &center);
 }
 
+
+/** Debug function for printing geometry data */
 int blendGeom3Print(BlendGeom3 const * const geom)
 {
     tp_debug_print("u1 = %f %f %f\n",
@@ -1566,6 +1586,8 @@ int blendGeom3Print(BlendGeom3 const * const geom)
     return 0;
 }
 
+
+/** Debug function to list resulting points from a blend */
 int blendPoints3Print(BlendPoints3 const * const points)
 {
     tp_debug_print("arc_start = %f %f %f\n",
@@ -1619,8 +1641,15 @@ double pmCircleActualMaxVel(PmCircle * const circle,
 /** @section spiralfuncs Functions to approximate spiral arc length */
 
 /**
- * Intermediate function to find the angle for a parameter from 0..1 along the
- * spiral arc.
+ * Compute the angle along a circule segment given the normalized distance progress.
+ * @param circle circular segment
+ * @param fit corresponding fit to circular segment
+ * @param t normalized distance along segment (0 <= t <= 1)
+ * @return actual angle along the circular segment
+ *
+ * This step is necessary since arc length is in general a function of angle.
+ * Essentially, this function is the inverse of the quadratic fit of angle to
+ * arc length.
  */
 double pmCircleAngleFromParam(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
@@ -1683,6 +1712,9 @@ static void printSpiralArcLengthFit(SpiralArcLengthFit const * const fit)
  * Also, this fit predicts a total arc length >= the true arc length, which
  * means the true speed along the curve will be the same or slower than the
  * nominal speed.
+ *
+ * @param circle circle w/ spiral component
+ * @param[out] fit computed fit structure
  */
 int findSpiralArcLengthFit(PmCircle const * const circle,
         SpiralArcLengthFit * const fit)
@@ -1706,7 +1738,6 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
     tp_debug_print("radius = %.12f, angle = %.12f\n", min_radius, circle->angle);
     tp_debug_print("spiral_coef = %.12f\n", spiral_coef);
 
-
     //Compute the slope of the arc length vs. angle curve at the start and end of the segment
     double slope_start = pmSqrt(pmSq(min_radius) + pmSq(spiral_coef));
     double slope_end = pmSqrt(pmSq(min_radius + spiral_coef * circle->angle) + pmSq(spiral_coef));
@@ -1719,10 +1750,6 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
 
     // Check against start and end angle
     double angle_end_chk = pmCircleAngleFromParam(circle, fit, 1.0);
-    /*double scale_correction = circle->angle / angle_end_chk;*/
-
-    /*fit->b0 *= scale_correction;*/
-    /*fit->b1 *= scale_correction;*/
 
     angle_end_chk = pmCircleAngleFromParam(circle, fit, 1.0);
     double fit_err = angle_end_chk - circle->angle;
@@ -1741,6 +1768,8 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
  * Find the effective minimum radius for acceleration calculations.
  * The radius of curvature of a spiral is larger than the circle of the same
  * nominal radius.
+ * @param circle circle geometry to check
+ * @return effective radius
  */
 double pmCircleEffectiveMinRadius(PmCircle const * const circle)
 {
