@@ -978,8 +978,10 @@ see_segment(int line_number,
         flush_segments();
     }
     pt pos = {x, y, z, a, b, c, u, v, w, line_number};
+    canon_debug("Adding line %d to chained points\n", line_number);
     chained_points.push_back(pos);
     if(changed_abc || changed_uvw) {
+        canon_debug("flushing segments due to ABCUVW motion\n");
         flush_segments();
     }
 }
@@ -1041,6 +1043,9 @@ void STRAIGHT_FEED(int line_number,
 {
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
+
+    canon_debug("STRAIGHT_FEED x %g y %g z %g a %g b %g c %g u %g v %g w %g ",
+            x, y, z, a, b, c, u, v, w);
 
     from_prog(x,y,z,a,b,c,u,v,w);
     rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
@@ -1437,6 +1442,9 @@ void ARC_FEED(int line_number,
               double u, double v, double w)
 {
 
+    canon_debug("ARC_FEED a %g b %g c %g u %g v %g w %g ",
+            a, b, c, u, v, w);
+
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
@@ -1682,11 +1690,11 @@ void ARC_FEED(int line_number,
 
     //FIXME allow tangential acceleration like in TP
     double a_max_normal = a_max_axes * sqrt(3.0)/2.0;
-    canon_debug("a_max_axes = %f\n", a_max_axes);
+    debug_canon_var(a_max_axes);
 
     // Compute the centripetal acceleration
     double v_max_radial = sqrt(a_max_normal * effective_radius);
-    canon_debug("v_max_radial = %f\n", v_max_radial);
+    debug_canon_var(v_max_radial);
 
     // Restrict our maximum velocity in-plane if need be
     double v_max_planar = MIN(v_max_radial, v_max_axes);
