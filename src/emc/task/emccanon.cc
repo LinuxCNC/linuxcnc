@@ -1722,11 +1722,12 @@ void ARC_FEED(int line_number,
     // The spiral time is the min time needed to stay under the planar velocity limit.
     double t_max_spiral = spiral_length / v_max_planar;
 
+    double total_motion_length = sqrt(pow(total_xyz_length, 2) + pow(veldata.d_uvw, 2));
     // Now, compute actual XYZ max velocity from this min time and the total arc length
     double t_max = fmax(t_max_motion, t_max_spiral);
 
-    double v_max = total_xyz_length / t_max;
-    canon_debug("v_max = %f\n", v_max);
+    double v_max = total_motion_length / t_max;
+    debug_canon_var(v_max);
 
 
 //COMPUTE ACCEL
@@ -1742,21 +1743,23 @@ void ARC_FEED(int line_number,
     // a_max could be higher than a_max_axes, but the projection onto the
     // circle plane and helical axis will still be within limits
     // Also factor in UVW acceleration here
-    double total_acc_length = sqrt(pow(total_xyz_length, 2) + pow(accdata.d_uvw, 2));
-    double a_max = total_acc_length / tt_max;
+    double a_max = total_motion_length / tt_max;
 
     // Limit velocity by maximum
     // TODO scale by only XYZ
-    double vel = MIN(currentLinearFeedRate, v_max);
     double vel_uvw = veldata.d_uvw / t_max;
     //KLUDGE roll UVW velocity in
-    double vel_act = sqrt(vel * vel + vel_uvw * vel_uvw);
+    double vel_xyz = sqrt(v_max * v_max - vel_uvw * vel_uvw);
 
-    canon_debug("current F = %f\n",currentLinearFeedRate);
-    canon_debug("vel = %f\n",vel);
+    double vel_clipped = MIN(currentLinearFeedRate, vel_xyz);
+    double v_req = v_max * vel_clipped / vel_xyz;
 
-    canon_debug("v_max = %f\n",v_max);
-    canon_debug("a_max = %f\n",a_max);
+
+    // Dump final values for debugging
+    debug_canon_var(currentLinearFeedRate);
+    debug_canon_var(v_req);
+    debug_canon_var(v_max);
+    debug_canon_var(a_max);
 
     cartesian_move = 1;
 
@@ -1766,11 +1769,11 @@ void ARC_FEED(int line_number,
         // or we wouldn't be calling ARC_FEED
         linearMoveMsg.end = to_ext_pose(endpt);
         linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
-        linearMoveMsg.vel = toExtVel(vel_act);
+        linearMoveMsg.vel = toExtVel(v_req);
         linearMoveMsg.ini_maxvel = toExtVel(v_max);
         linearMoveMsg.acc = toExtAcc(a_max);
         linearMoveMsg.indexrotary = -1;
-        if(vel && a_max){
+        if(v_req && a_max){
             interp_list.set_line_number(line_number);
             interp_list.append(linearMoveMsg);
         }
@@ -1789,14 +1792,14 @@ void ARC_FEED(int line_number,
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 
-        circularMoveMsg.vel = toExtVel(vel_act);
+        circularMoveMsg.vel = toExtVel(v_req);
         circularMoveMsg.ini_maxvel = toExtVel(v_max);
         circularMoveMsg.acc = toExtAcc(a_max);
 
         //FIXME what happens if accel or vel is zero?
         // The end point is still updated, but nothing is added to the interp list
         // seems to be a crude way to indicate a zero length segment?
-        if(vel && a_max) {
+        if(v_req && a_max) {
             interp_list.set_line_number(line_number);
             interp_list.append(circularMoveMsg);
         }
