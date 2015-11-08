@@ -47,8 +47,11 @@
 
 //Simple compile-time debug macro
 #ifdef EMCCANON_DEBUG
+#include <iostream>
 #define canon_debug(...) printf(__VA_ARGS__)
+#define debug_canon_var(varname) (std::cout << #varname << " = " << varname)
 #else
+#define debug_canon_var(varname)
 #define canon_debug(...)
 #endif
 
