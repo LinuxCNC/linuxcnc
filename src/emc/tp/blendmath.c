@@ -1780,23 +1780,6 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
 
 
 /**
- * Compute the angle around a circular segment from the total progress along
- * the curve.
- */
-double pmCircleAngleFromProgress(PmCircle const * const circle,
-        SpiralArcLengthFit const * const fit,
-        double progress)
-{
-    double h2;
-    pmCartMagSq(&circle->rHelix, &h2);
-    double s_end = pmSqrt(pmSq(fit->total_planar_length) + h2);
-    // Parameterize by total progress along helix
-    double t = progress / s_end;
-    return pmCircleAngleFromParam(circle, fit, t);
-
-}
-
-/**
  * Find the effective minimum radius for acceleration calculations.
  * The radius of curvature of a spiral is larger than the circle of the same
  * radius.
