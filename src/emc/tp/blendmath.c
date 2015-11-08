@@ -26,6 +26,7 @@
  * Find the maximum angle allowed between "tangent" segments.
  * @param v speed of motion in worst case (i.e. at max feed).
  * @param acc magnitude of acceleration allowed during "kink".
+ * @param cycle_time one planner timestep (sec)
  *
  * Since we are discretized by a timestep, the maximum allowable
  * "kink" in a trajectory is bounded by normal acceleration. A small
@@ -51,6 +52,10 @@ double findMaxTangentAngle(double v_plan, double acc_limit, double cycle_time)
 /**
  * Find the acceleration required to create a specific change in path
  * direction, assuming constant speed.
+ * @param kink_angle Angle between direction vectors of of two nearly-tangent segments
+ * @param v_plan The ideal velocity we'd like to reach across the intersection
+ * @param cycle_time one planner timestep (sec)
+ *
  * This determines how much of a "spike" in acceleration will occur due to a
  * slight mismatch between tangent directions at the start / end of a segment.
  */
@@ -64,6 +69,9 @@ double findKinkAccel(double kink_angle, double v_plan, double cycle_time)
         return 0;
     }
 }
+
+
+/** @section util Utility functions for general use */
 
 
 /**
@@ -81,11 +89,13 @@ double fsign(double f)
     }
 }
 
-/** negate a value (or not) based on a bool parameter */
+
+/** Negate a value (or not) based on a bool parameter */
 inline double negate(double f, int neg)
 {
     return (neg) ? -f : f;
 }
+
 
 /** Clip the input at the specified minimum (in place). */
 int clip_min(double * const x, double min) {
@@ -106,9 +116,8 @@ int clip_max(double * const x, double max) {
     return 0;
 }
 
-/**
- * Saturate a value x to be within +/- max.
- */
+
+/** Saturate a value x to be within +/- max. */
 double saturate(double x, double max) {
     if ( x > max ) {
         return max;
@@ -122,9 +131,7 @@ double saturate(double x, double max) {
 }
 
 
-/**
- * Apply bounds to a value x.
- */
+/** Apply bounds to a value x. */
 inline double bound(double x, double max, double min) {
     if ( x > max ) {
         return max;
@@ -150,6 +157,7 @@ int sat_inplace(double * const x, double max) {
     }
     return 0;
 }
+
 
 #if 0
 static int pmCirclePrint(PmCircle const * const circ) {
@@ -190,17 +198,7 @@ static inline int findSpiralApproximation(PmCircle const * const circ,
 {
     double dr = circ->spiral / circ->angle;
 
-    /*tp_debug_print("In findSpiralApproximation\n");*/
-    /*tp_debug_print(" dr = %f\n",dr);*/
-    /*tp_debug_print(" utan = %f %f %f\n",*/
-            /*u_tan->x,*/
-            /*u_tan->y,*/
-            /*u_tan->z);*/
     pmCartScalMult(u_tan, dr, center_out);
-    /*tp_debug_print(" circcenter = %f %f %f\n",*/
-            /*circ->center.x,*/
-            /*circ->center.y,*/
-            /*circ->center.z);*/
     pmCartCartAddEq(center_out, &circ->center);
 
     PmCartesian r_adjust;
@@ -224,7 +222,7 @@ static inline int findSpiralApproximation(PmCircle const * const circ,
  * @param P intersection point
  * @param arc_center calculated center of blend arc
  * @param center actual center of circle (not spiral approximated center)
- * @return trim angle
+ * @return size of circular segment to remove (in rad)
  */
 static inline double findTrimAngle(PmCartesian const * const P,
         PmCartesian const * const arc_center,
@@ -249,8 +247,17 @@ static inline double findTrimAngle(PmCartesian const * const P,
 
 /**
  * Verify that a blend arc is tangent to a circular arc.
+ *
+ * This function works by comparing the tangent vectors of blend arc and
+ * circular arc segment. If the angle between them is less then the angle
+ * tolerance, then they are tangent enough not to cause (significant)
+ * acceleration spikes.
  */
-int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendParameters const * const param, double cycle_time, int at_end)
+int checkTangentAngle(PmCircle const * const circ,
+        SphericalArc const * const arc,
+        BlendParameters const * const param,
+        double cycle_time,
+        int at_end)
 {
     // Debug Information to diagnose tangent issues
     PmCartesian u_circ, u_arc;
@@ -380,10 +387,16 @@ int blendCoplanarCheck(PmCartesian const * const normal,
 
 /**
  * Somewhat redundant function to calculate the segment intersection angle.
+ * @param u1 unit vector tangent to first segment at intersection point
+ * @param u2 unit vector tangent to second segment at intersection point
+ * @param[out] theta calculated intersection angle
+ *
  * The intersection angle is half of the supplement of the "divergence" angle
  * between unit vectors. If two unit vectors are pointing in the same
  * direction, then the intersection angle is PI/2. This is based on the
  * simple_tp formulation for tolerances.
+ *
+ * Note: This function does not check for valid inputs.
  */
 int findIntersectionAngle3(PmCartesian const * const u1,
         PmCartesian const * const u2, double * const theta)
@@ -391,6 +404,8 @@ int findIntersectionAngle3(PmCartesian const * const u1,
     double dot;
     pmCartCartDot(u1, u2, &dot);
 
+    // Small deviations are ok, but but deviations indicate a problem
+    // elsewhere.
     if (dot > 1.0 || dot < -1.0) {
         tp_debug_print("dot product %.16g outside domain of acos! u1 = %.16g %.16g %.16g, u2 = %.16g %.16g %.16g\n",
                 dot,
@@ -1782,7 +1797,7 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
 /**
  * Find the effective minimum radius for acceleration calculations.
  * The radius of curvature of a spiral is larger than the circle of the same
- * radius.
+ * nominal radius.
  */
 double pmCircleEffectiveMinRadius(PmCircle const * const circle)
 {
@@ -1799,6 +1814,3 @@ double pmCircleEffectiveMinRadius(PmCircle const * const circle)
             effective_radius);
     return effective_radius;
 }
-
-
-
