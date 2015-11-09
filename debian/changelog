@@ -4,6 +4,25 @@ linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
 
+linuxcnc (1:2.7.2) UNRELEASED; urgency=low
+
+  * docs: improve parport docs
+
+  * hm2_7i90 manpage: clarify firmware management
+  * hm2_7i90 manpage: remove incorrect EPP info
+
+  * interp: fix an old bug in canned cycle preliminary & in-between moves
+
+  * sample configs: fix homing in sim/axis/halui_pyvcp
+  * sample configs: fix homing in sim/axis/classicladder
+
+  * realtime script: wait for the last rtapi_app to die when stopping realtime
+  * tests: add an interpreter test of G81
+  * tests: add motion-logger, a debugging tool
+  * motion: motion_debug.h needs to include motion.h
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 01 Nov 2015 10:07:24 -0700
+
 linuxcnc (1:2.7.1) wheezy; urgency=low
 
   * docs: correct and expand description of #<_coord_system>
