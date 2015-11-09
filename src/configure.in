@@ -1062,6 +1062,12 @@ if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
     else
         AC_MSG_RESULT(yes)
     fi
+
+    AC_PATH_PROG(CHECKLINK,checklink,"none")
+    if ( test "none" = "$CHECKLINK" ) ; then
+	AC_MSG_ERROR([no checklink, HTML documentation cannot be built
+install with "sudo apt-get install w3c-linkchecker"])
+    fi
 fi
 AC_SUBST(BUILD_DOCS)
 AC_SUBST(BUILD_DOCS_PDF)
