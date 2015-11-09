@@ -163,10 +163,8 @@ SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
 $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
 
-ifeq ($(BUILD_PYTHON),yes)
 $(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC -fno-strict-aliasing
 USERSRCS += $(PYSRCS)
-endif
 
 # Find the list of object files for each type of source file
 CUSERSRCS := $(filter %.c,$(USERSRCS))
@@ -186,9 +184,7 @@ endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
-ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
-endif
 
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
@@ -432,14 +428,12 @@ TARGETS += ../bin/halshow
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
 
-ifeq ($(BUILD_PYTHON),yes)
 pythonclean:
 	rm -f $(PYTARGETS)
 	find ../lib/python -name '*.so' -exec rm {} +
 python: $(PYTARGETS)
 userspace: python
 clean: docclean pythonclean cscopeclean
-endif
 
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
 # for building kernel modules.	Other kernel module build styles need to be
@@ -637,7 +631,6 @@ install-kernel-indep: install-dirs
 
 	$(FILE) ../share/gtksourceview-2.0/language-specs/*.lang  $(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs/
 
-ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
 install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
@@ -680,7 +673,6 @@ install-python: install-dirs
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
-endif
 
 install-kernel-dep:
 	$(DIR)	$(DESTDIR)$(moduledir)/linuxcnc \
