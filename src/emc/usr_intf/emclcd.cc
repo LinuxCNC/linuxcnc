@@ -1131,43 +1131,43 @@ static void parseConnect()
 //  sockSendStr(sockfd, "info\n");
 }
 
-static int jog(int axis, float speed)
+static int jog(int jnum, float speed)
 {
   float stepSize;
 
   if (emcStatus->task.mode != EMC_TASK_MODE_MANUAL) return 0;
   if (units == unmm) stepSize = 10.0;
   else stepSize = 1.0;
-  if ((axis < 0) || (axis > 5)) return -1;
+  if ((jnum < 0) || (jnum > 5)) return -1;
 //  if (runStatus == rsIdle) {
 //    sendManual();
     switch (jogMode) {
       case jtCont: 
         if (jogging == 1) {  // toggle if driver does not support key down / key up
           jogging = 0;
-          return sendJogStop(axis);
+          return sendJogJointStop(jnum);
           }
         else {
           jogging = 1;
-          return sendJogCont(axis, speed);
+          return sendJogJointCont(jnum, speed);
           }
-      case jtStep1: return sendJogIncr(axis, speed, stepSize/conversion); break;
-      case jtStep01: return sendJogIncr(axis, speed, (stepSize/10.0)/conversion); break;
-      case jtStep001: return sendJogIncr(axis, speed, (stepSize/100.0)/conversion); break;
-      case jtStep0001: return sendJogIncr(axis, speed, (stepSize/1000.0)/conversion); break;
+      case jtStep1: return sendJogJointIncr(jnum, speed, stepSize/conversion); break;
+      case jtStep01: return sendJogJointIncr(jnum, speed, (stepSize/10.0)/conversion); break;
+      case jtStep001: return sendJogJointIncr(jnum, speed, (stepSize/100.0)/conversion); break;
+      case jtStep0001: return sendJogJointIncr(jnum, speed, (stepSize/1000.0)/conversion); break;
       default: return -1;
       }
 //    }
 //  else return 0;
 }
 
-static int jogStop(int axis)
+static int jogStop(int jnum)
 {
   if (emcStatus->task.mode != EMC_TASK_MODE_MANUAL) return 0;
-  if ((axis < 0) || (axis > 5)) return -1;
+  if ((jnum < 0) || (jnum > 5)) return -1;
   jogging = 0;
   if (jogMode != jtCont) return 0;
-  return sendJogStop(axis);
+  return sendJogJointStop(jnum);
 }
 
 static int leftKey()

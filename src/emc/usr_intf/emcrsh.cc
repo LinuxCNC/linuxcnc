@@ -1013,29 +1013,29 @@ static cmdResponseType setHome(char *s, connectionRecType *context)
 
 static cmdResponseType setJogStop(char *s, connectionRecType *context)
 {
-  int axis;
+  int jnum;
   
   if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%d", &axis) <= 0) return rtStandardError;
-  if ((axis < 0) || (axis > 5)) return rtStandardError;
-  if (sendJogStop(axis) != 0) return rtStandardError;
+  if (sscanf(s, "%d", &jnum) <= 0) return rtStandardError;
+  if ((jnum < 0) || (jnum > 5)) return rtStandardError;
+  if (sendJogJointStop(jnum) != 0) return rtStandardError;
   return rtNoError;
 }
 
 static cmdResponseType setJog(char *s, connectionRecType *context)
 {
-  int axis;
+  int jnum;
   float speed;
   char *pch;
   
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
-  if (sscanf(pch, "%d", &axis) <= 0) return rtStandardError;
-  if ((axis < 0) || (axis > 5)) return rtStandardError;
+  if (sscanf(pch, "%d", &jnum) <= 0) return rtStandardError;
+  if ((jnum < 0) || (jnum > 5)) return rtStandardError;
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &speed) <= 0) return rtStandardError; 
-  if (sendJogCont(axis, speed) != 0) return rtStandardError;
+  if (sendJogJointCont(jnum, speed) != 0) return rtStandardError;
   return rtNoError;
 }
 
@@ -1051,21 +1051,21 @@ static cmdResponseType setFeedOverride(char *s, connectionRecType *context)
 
 static cmdResponseType setJogIncr(char *s, connectionRecType *context)
 {
-  int axis;
+  int jnum;
   float speed, incr;
   char *pch;
   
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
-  if (sscanf(pch, "%d", &axis) <= 0) return rtStandardError;
-  if ((axis < 0) || (axis > 5)) return rtStandardError;
+  if (sscanf(pch, "%d", &jnum) <= 0) return rtStandardError;
+  if ((jnum < 0) || (jnum > 5)) return rtStandardError;
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &speed) <= 0) return rtStandardError; 
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &incr) <= 0) return rtStandardError; 
-  if (sendJogIncr(axis, speed, incr) != 0) return rtStandardError;
+  if (sendJogJointIncr(jnum, speed, incr) != 0) return rtStandardError;
   return rtNoError;
 }
 

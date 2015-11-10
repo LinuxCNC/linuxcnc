@@ -142,7 +142,7 @@ class EMC_AXIS_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 
     // 0 = X, 1 = Y, 2 = Z, etc.
-    int axis;
+    int joint_or_axis;
 };
 
 // AIXS status base class
@@ -408,6 +408,7 @@ class EMC_JOG_CONT:public EMC_AXIS_CMD_MSG {
     void update(CMS * cms);
 
     double vel;
+    int jjogmode;
 };
 
 class EMC_JOG_INCR:public EMC_AXIS_CMD_MSG {
@@ -421,6 +422,7 @@ class EMC_JOG_INCR:public EMC_AXIS_CMD_MSG {
 
     double incr;
     double vel;
+    int jjogmode;
 };
 
 class EMC_JOG_ABS:public EMC_AXIS_CMD_MSG {
@@ -434,6 +436,7 @@ class EMC_JOG_ABS:public EMC_AXIS_CMD_MSG {
 
     double pos;
     double vel;
+    int jjogmode;
 };
 
 class EMC_JOG_STOP:public EMC_AXIS_CMD_MSG {
@@ -444,6 +447,8 @@ class EMC_JOG_STOP:public EMC_AXIS_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
+
+    int jjogmode;
 };
 
 class EMC_JOINT_ACTIVATE:public EMC_JOINT_CMD_MSG {

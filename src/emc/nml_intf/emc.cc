@@ -1270,7 +1270,7 @@ void EMC_JOINT_CMD_MSG::update(CMS * cms)
 
 void EMC_AXIS_CMD_MSG::update(CMS * cms)
 {
-    cms->update(axis);
+    cms->update(joint_or_axis);
 
 }
 

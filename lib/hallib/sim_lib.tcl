@@ -1,12 +1,77 @@
 # sim_lib.tcl: haltcl procs for sim configurations
 
 #----------------------------------------------------------------------
-# all globals are in one associative array ::SIM_LIB()
-set letters {x y z a b c u v w}
-foreach a {x y z a b c u v w} {
-  set ::SIM_LIB($a,idx) [lsearch $letters $a]
-}
+# Notes (Joints-Axes):
+#   1) establish indices for common kins (trivkins, gentrivkins)
+#   2) if  ::KINS(KINEMATICS) exists:
+#        loadrt the kins using any included parameters
+#        example: for inifile item:
+#           [KINS]KINEMATICS = gentrivkins coordinates=XZ kinstype=BOTH
+#        use:
+#           loadrt gentrivkins coordinates=xz kinstype=BOTH
+#      else:
+#           loadrt trivkins
+#
+#   3) NB: If $::KINS(KINEMATICS) specifies coordinates=, the
+#          coordinats must agree with ::TRAJ(COORDINATES)
+#
 #----------------------------------------------------------------------
+proc indices_for_trivkins {  {axes {x y z a b c u v w} } } {
+  foreach a [string tolower $axes] {
+    set ::SIM_LIB(jointidx,$a) [lsearch {x y z a b c u v w} $a]
+  }
+} ;# indices_for_trivkins
+
+proc indices_for_gentrivkins {axes} {
+  # ref: src/emc/kinematics/gentrivkins.c
+  set i 0
+  foreach a [string tolower $axes] {
+     # assign to consecutive joints:
+     set ::SIM_LIB(jointidx,$a) $i
+     incr i
+  }
+} ;# indices_for_gentrivkins
+
+proc get_traj_coordinates {} {
+  # initraj.cc: coordinates may be with or without spaces X Z or XZ
+  # convert either form to list like {x z}
+  set coordinates [lindex $::TRAJ(COORDINATES) 0]
+  set coordinates [string map {" " "" "\t" ""} $coordinates]
+  set coordinates [split $coordinates ""]
+  return [string tolower $coordinates]
+} ;# get_traj_coordinates
+
+proc setup_kins {axes} {
+  if ![info exists ::KINS(KINEMATICS)] {
+    puts stderr "NO \[KINS\]KINEMATICS, trying trivkins"
+    indices_for_trivkins
+    eval loadrt trivkins
+    return
+  }
+  set ::KINS(KINEMATICS) [lindex $::KINS(KINEMATICS) end]
+  set cmd "loadrt $::KINS(KINEMATICS)" ;# may include parms
+
+  set kins [lindex $::KINS(KINEMATICS) 0] ;# just the kins
+
+  puts stderr "setup_kins: cmd=$cmd"
+  if [catch {eval $cmd} msg] {
+    puts stderr "msg=$msg"
+    # if fail, try without coordinates parameters
+    eval $cmd
+  }
+
+  # set up axis indices for known kins
+  switch $kins {
+    gentrivkins {indices_for_gentrivkins $axes}
+    trivkins    {indices_for_trivkins    $axes}
+    default      {
+      puts stderr "setup_kins:UNKNOWN \[KINS\]KINEMATICS=<$::KINS(KINEMATICS)>,\
+                  trying incices_for_trivkins"
+      indices_for_trivkins $axes
+    }
+  }
+} ;# setup_kins
+
 proc core_sim {axes
                number_of_joints
                servo_period
@@ -15,14 +80,10 @@ proc core_sim {axes
               } {
   # adapted as haltcl proc from core_sim.hal
   # note: with default emcmot==motmot,
-  #       thread will not be added for (default) base_pariod == 9
-  if [info exists ::KINS(KINEMATICS)] {
-    loadrt $::KINS(KINEMATICS)
-  } else {
-    puts stderr "\n!!!core_sim: KINS(KINEMATICS) must be specified\n"
-    exit 1
-  }
+  #       thread will not be added for (default) base_pariod == 0
+  setup_kins $axes
   set lcmd "loadrt $emcmot"
+
   set lcmd "$lcmd base_period_nsec=$base_period"
   set lcmd "$lcmd servo_period_nsec=$servo_period"
   set lcmd "$lcmd num_joints=$number_of_joints"
@@ -73,7 +134,7 @@ proc core_sim {axes
 
   net sample:enable <= motion.motion-enabled
   foreach a $axes {
-    set idx $::SIM_LIB($a,idx)
+    set idx $::SIM_LIB(jointidx,$a)
     net sample:enable => ${a}_mux.sel
 
     net ${a}:enable  <= joint.$idx.amp-enable-out
@@ -163,7 +224,7 @@ proc simulated_home {axes} {
   }
 
   foreach a $axes {
-    set idx $::SIM_LIB($a,idx)
+    set idx $::SIM_LIB(jointidx,$a)
     # add pin to pre-existing signal:
     net ${a}:pos-fb => ${a}_switch.cur-pos
 
@@ -226,3 +287,4 @@ proc sim_spindle {} {
   addf near_speed   servo-thread
   addf sim_spindle  servo-thread
 } ;# sim_spindle
+

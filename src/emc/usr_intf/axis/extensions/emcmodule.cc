@@ -1019,49 +1019,54 @@ static PyObject *unhome(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-// jog(JOG_STOP, axis) 
-// jog(JOG_CONTINUOUS, axis, speed) 
-// jog(JOG_INCREMENT, axis, speed, increment)
+// jog(JOG_STOP,       jjogmode, ja_value) 
+// jog(JOG_CONTINUOUS, jjogmode, ja_value, speed)
+// jog(JOG_INCREMENT,  jjogmode, ja_value, speed, increment)
 static PyObject *jog(pyCommandChannel *s, PyObject *o) {
     int fn;
-    int axis;
+    int ja_value,jjogmode;
     double vel, inc;
 
-
-    if(!PyArg_ParseTuple(o, "ii|dd", &fn, &axis, &vel, &inc)) return NULL;
+    if(!PyArg_ParseTuple(o, "iii|dd", &fn, &jjogmode, &ja_value, &vel, &inc)) {
+        return NULL;
+    }
+    
     if(fn == LOCAL_JOG_STOP) {
-        if(PyTuple_Size(o) != 2) {
+        if(PyTuple_Size(o) != 3) {
             PyErr_Format( PyExc_TypeError,
-                "jog(JOG_STOP, ...) takes 2 arguments (%lu given)",
+                "jog(JOG_STOP, ...) takes 3 arguments (%lu given)",
                 (unsigned long)PyTuple_Size(o));
             return NULL;
         }
         EMC_JOG_STOP abort;
-        abort.axis = axis;
+        abort.joint_or_axis = ja_value;
+        abort.jjogmode = jjogmode;
         emcSendCommand(s, abort);
     } else if(fn == LOCAL_JOG_CONTINUOUS) {
-        if(PyTuple_Size(o) != 3) {
+        if(PyTuple_Size(o) != 4) {
             PyErr_Format( PyExc_TypeError,
-                "jog(JOG_CONTINUOUS, ...) takes 3 arguments (%lu given)",
+                "jog(JOG_CONTINUOUS, ...) takes 4 arguments (%lu given)",
                 (unsigned long)PyTuple_Size(o));
             return NULL;
         }
         EMC_JOG_CONT cont;
-        cont.axis = axis;
+        cont.joint_or_axis = ja_value;
         cont.vel = vel;
+        cont.jjogmode = jjogmode;
         emcSendCommand(s, cont);
     } else if(fn == LOCAL_JOG_INCREMENT) {
-        if(PyTuple_Size(o) != 4) {
+        if(PyTuple_Size(o) != 5) {
             PyErr_Format( PyExc_TypeError,
-                "jog(JOG_INCREMENT, ...) takes 4 arguments (%lu given)",
+                "jog(JOG_INCREMENT, ...) takes 5 arguments (%lu given)",
                 (unsigned long)PyTuple_Size(o));
             return NULL;
         }
 
         EMC_JOG_INCR incr;
-        incr.axis = axis;
+        incr.joint_or_axis = ja_value;
         incr.vel = vel;
         incr.incr = inc;
+        incr.jjogmode = jjogmode;
         emcSendCommand(s, incr);
     } else {
         PyErr_Format( PyExc_TypeError, "jog() first argument must be JOG_xxx");
@@ -2208,6 +2213,10 @@ initlinuxcnc(void) {
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_DELAY);
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD);
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED);
+
+    ENUMX(7, EMCMOT_MAX_JOINTS);
+    ENUMX(7, EMCMOT_MAX_AXIS);
+
 
     ENUM(RCS_DONE);
     ENUM(RCS_EXEC);
