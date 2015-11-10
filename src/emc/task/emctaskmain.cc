@@ -1642,24 +1642,31 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_JOG_CONT_TYPE:
 	jog_cont_msg = (EMC_JOG_CONT *) cmd;
-	retval = emcJogCont(jog_cont_msg->axis, jog_cont_msg->vel);
+	retval = emcJogCont(jog_cont_msg->joint_or_axis,
+                            jog_cont_msg->vel,
+                            jog_cont_msg->jjogmode);
 	break;
 
     case EMC_JOG_STOP_TYPE:
 	jog_stop_msg = (EMC_JOG_STOP *) cmd;
-	retval = emcJogStop(jog_stop_msg->axis);
+	retval = emcJogStop(jog_stop_msg->joint_or_axis,
+                            jog_stop_msg->jjogmode);
 	break;
 
     case EMC_JOG_INCR_TYPE:
 	jog_incr_msg = (EMC_JOG_INCR *) cmd;
-	retval = emcJogIncr(jog_incr_msg->axis,
-			    jog_incr_msg->incr, jog_incr_msg->vel);
+	retval = emcJogIncr(jog_incr_msg->joint_or_axis,
+			    jog_incr_msg->incr,
+                            jog_incr_msg->vel,
+                            jog_incr_msg->jjogmode);
 	break;
 
     case EMC_JOG_ABS_TYPE:
 	jog_abs_msg = (EMC_JOG_ABS *) cmd;
-	retval = emcJogAbs(jog_abs_msg->axis,
-	                   jog_abs_msg->pos, jog_abs_msg->vel);
+	retval = emcJogAbs(jog_abs_msg->joint_or_axis,
+	                   jog_abs_msg->pos,
+                           jog_abs_msg->vel,
+                           jog_abs_msg->jjogmode);
 	break;
 
     case EMC_JOINT_SET_BACKLASH_TYPE:

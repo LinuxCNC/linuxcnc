@@ -1364,51 +1364,49 @@ static int sendAbort()
     return emcCommandSend(task_abort_msg);
 }
 
-static int axisJogging[EMCMOT_MAX_JOINTS] = {0,};
 
-int sendJogStop(int axis)
+int sendJogJointStop(int ja)
 {
     EMC_JOG_STOP emc_jog_stop_msg;
     
-    emc_jog_stop_msg.axis = axis;
-    axisJogging[axis] = 0;
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) { return -1; }
+
+    emc_jog_stop_msg.jjogmode = 1;
+    emc_jog_stop_msg.joint_or_axis = ja;
     return emcCommandSend(emc_jog_stop_msg);
 }
 
-int sendJogCont(int axis, double speed)
+
+int sendJogJointCont(int ja, double speed)
 {
     EMC_JOG_CONT emc_jog_cont_msg;
 
-    sendManual();
-
-    emc_jog_cont_msg.axis = axis;
+    if (emcStatus->task.state != EMC_TASK_STATE_ON) { return -1; }
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) { return -1; }
+    if (ja < 0 || ja >= EMCMOT_MAX_JOINTS) { return -1; }
+    
+    emc_jog_cont_msg.jjogmode = 1;
+    emc_jog_cont_msg.joint_or_axis = ja;
     emc_jog_cont_msg.vel = speed / 60.0;
-    axisJogging[axis] = 1;
+
+    sendManual();
     return emcCommandSend(emc_jog_cont_msg);
 }
 
-int sendJogInc(int axis, double speed, double incr)
+int sendJogJointIncr(int ja, double speed, double incr)
 {
     EMC_JOG_INCR emc_jog_incr_msg;
 
-    if (emcStatus->task.state != EMC_TASK_STATE_ON) {
-	return -1;
-    }
+    if (emcStatus->task.state != EMC_TASK_STATE_ON) { return -1; }
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) { return -1; }
+    if (ja < 0 || ja >= EMCMOT_MAX_JOINTS) { return -1; }
 
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return -1;
-    }
-
-    sendManual();
-
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
-        return -1;
-
-    emc_jog_incr_msg.axis = axis;
+    emc_jog_incr_msg.jjogmode = 1;
+    emc_jog_incr_msg.joint_or_axis = ja;
     emc_jog_incr_msg.vel = speed / 60.0;
     emc_jog_incr_msg.incr = incr;
 
-    axisJogging[axis] = 1;
+    sendManual();
     return emcCommandSend(emc_jog_incr_msg);
 }
 
@@ -1884,18 +1882,18 @@ static void check_hal_changes()
 	bit = new_halui_data.jog_minus[joint];
 	if ((bit != old_halui_data.jog_minus[joint]) || (bit && jog_speed_changed)) {
 	    if (bit != 0)
-		sendJogCont(joint,-new_halui_data.jog_speed);
+		sendJogJointCont(joint,-new_halui_data.jog_speed);
 	    else
-		sendJogStop(joint);
+		sendJogJointStop(joint);
 	    old_halui_data.jog_minus[joint] = bit;
 	}
 
 	bit = new_halui_data.jog_plus[joint];
 	if ((bit != old_halui_data.jog_plus[joint]) || (bit && jog_speed_changed)) {
 	    if (bit != 0)
-		sendJogCont(joint,new_halui_data.jog_speed);
+		sendJogJointCont(joint,new_halui_data.jog_speed);
 	    else
-		sendJogStop(joint);
+		sendJogJointStop(joint);
 	    old_halui_data.jog_plus[joint] = bit;
 	}
 
@@ -1903,23 +1901,23 @@ static void check_hal_changes()
 	bit = (fabs(floatt) > new_halui_data.jog_deadband);
 	if ((floatt != old_halui_data.jog_analog[joint]) || (bit && jog_speed_changed)) {
 	    if (bit)
-		sendJogCont(joint,(new_halui_data.jog_speed) * (new_halui_data.jog_analog[joint]));
+		sendJogJointCont(joint,(new_halui_data.jog_speed) * (new_halui_data.jog_analog[joint]));
 	    else
-		sendJogStop(joint);
+		sendJogJointStop(joint);
 	    old_halui_data.jog_analog[joint] = floatt;
 	}
 
 	bit = new_halui_data.jog_increment_plus[joint];
 	if (bit != old_halui_data.jog_increment_plus[joint]) {
 	    if (bit)
-		sendJogInc(joint, new_halui_data.jog_speed, new_halui_data.jog_increment[joint]);
+		sendJogJointIncr(joint, new_halui_data.jog_speed, new_halui_data.jog_increment[joint]);
 	    old_halui_data.jog_increment_plus[joint] = bit;
 	}
 
 	bit = new_halui_data.jog_increment_minus[joint];
 	if (bit != old_halui_data.jog_increment_minus[joint]) {
 	    if (bit)
-		sendJogInc(joint, new_halui_data.jog_speed, -(new_halui_data.jog_increment[joint]));
+		sendJogJointIncr(joint, new_halui_data.jog_speed, -(new_halui_data.jog_increment[joint]));
 	    old_halui_data.jog_increment_minus[joint] = bit;
 	}
 
@@ -1962,9 +1960,9 @@ static void check_hal_changes()
     js = new_halui_data.joint_selected;
     if ((bit != old_halui_data.jog_minus[num_joints]) || (bit && jog_speed_changed)) {
         if (bit != 0)
-	    sendJogCont(js, -new_halui_data.jog_speed);
+	    sendJogJointCont(js, -new_halui_data.jog_speed);
 	else
-	    sendJogStop(js);
+	    sendJogJointStop(js);
 	old_halui_data.jog_minus[num_joints] = bit;
     }
 
@@ -1972,9 +1970,9 @@ static void check_hal_changes()
     js = new_halui_data.joint_selected;
     if ((bit != old_halui_data.jog_plus[num_joints]) || (bit && jog_speed_changed)) {
         if (bit != 0)
-	    sendJogCont(js,new_halui_data.jog_speed);
+	    sendJogJointCont(js,new_halui_data.jog_speed);
 	else
-	    sendJogStop(js);
+	    sendJogJointStop(js);
 	old_halui_data.jog_plus[num_joints] = bit;
     }
 
@@ -1982,7 +1980,7 @@ static void check_hal_changes()
     js = new_halui_data.joint_selected;
     if (bit != old_halui_data.jog_increment_plus[num_joints]) {
 	if (bit)
-	    sendJogInc(js, new_halui_data.jog_speed, new_halui_data.jog_increment[num_joints]);
+	    sendJogJointIncr(js, new_halui_data.jog_speed, new_halui_data.jog_increment[num_joints]);
 	old_halui_data.jog_increment_plus[num_joints] = bit;
     }
 
@@ -1990,7 +1988,7 @@ static void check_hal_changes()
     js = new_halui_data.joint_selected;
     if (bit != old_halui_data.jog_increment_minus[num_joints]) {
 	if (bit)
-	    sendJogInc(js, new_halui_data.jog_speed, -(new_halui_data.jog_increment[num_joints]));
+	    sendJogJointIncr(js, new_halui_data.jog_speed, -(new_halui_data.jog_increment[num_joints]));
 	old_halui_data.jog_increment_minus[num_joints] = bit;
     }
 

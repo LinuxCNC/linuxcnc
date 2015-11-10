@@ -1279,7 +1279,8 @@ static void idleHandler()
   // key up for jogs
   if (axisJogging != AXIS_NONE && keyup_count == 0)
     {
-      emc_jog_stop_msg.axis = axisIndex(axisJogging);
+      emc_jog_stop_msg.joint_or_axis = axisIndex(axisJogging);
+      emc_jog_stop_msg.jjogmode = 1;
       emcCommandSend(emc_jog_stop_msg);
       axisJogging = AXIS_NONE;
     }
@@ -2126,7 +2127,8 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_jog_incr_msg.axis = axisIndex(AXIS_X);
+                  emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_X);
+                  emc_jog_incr_msg.jjogmode = 1;
                   if (xJogPol)
                     emc_jog_incr_msg.vel = jogSpeed / 60.0;
                   else
@@ -2138,7 +2140,8 @@ int main(int argc, char *argv[])
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_jog_cont_msg.axis = axisIndex(AXIS_X);
+                  emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_X);
+                  emc_jog_cont_msg.jjogmode = 1;
                   if (xJogPol)
                     emc_jog_cont_msg.vel = jogSpeed / 60.0;
                   else
@@ -2156,7 +2159,8 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_jog_incr_msg.axis = axisIndex(AXIS_X);
+                  emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_X);
+                  emc_jog_incr_msg.jjogmode = 1;
                   if (xJogPol)
                     emc_jog_incr_msg.vel = - jogSpeed / 60.0;
                   else
@@ -2168,7 +2172,8 @@ int main(int argc, char *argv[])
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_jog_cont_msg.axis = axisIndex(AXIS_X);
+                  emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_X);
+                  emc_jog_cont_msg.jjogmode = 1;
                   if (xJogPol)
                     emc_jog_cont_msg.vel = - jogSpeed / 60.0;
                   else
@@ -2186,7 +2191,8 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_jog_incr_msg.axis = axisIndex(AXIS_Y);
+                  emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_Y);
+                  emc_jog_incr_msg.jjogmode = 1;
                   if (yJogPol)
                     emc_jog_incr_msg.vel = jogSpeed / 60.0;
                   else
@@ -2198,7 +2204,8 @@ int main(int argc, char *argv[])
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_jog_cont_msg.axis = axisIndex(AXIS_Y);
+                  emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_Y);
+                  emc_jog_cont_msg.jjogmode = 1;
                   if (yJogPol)
                     emc_jog_cont_msg.vel = jogSpeed / 60.0;
                   else
@@ -2216,7 +2223,8 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_jog_incr_msg.axis = axisIndex(AXIS_Y);
+                  emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_Y);
+                  emc_jog_incr_msg.jjogmode = 1;
                   if (yJogPol)
                     emc_jog_incr_msg.vel = - jogSpeed / 60.0;
                   else
@@ -2228,7 +2236,8 @@ int main(int argc, char *argv[])
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_jog_cont_msg.axis = axisIndex(AXIS_Y);
+                  emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_Y);
+                  emc_jog_cont_msg.jjogmode = 1;
                   if (yJogPol)
                     emc_jog_cont_msg.vel = - jogSpeed / 60.0;
                   else
@@ -2246,7 +2255,8 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_jog_incr_msg.axis = axisIndex(AXIS_Z);
+                  emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_Z);
+                  emc_jog_incr_msg.jjogmode = 1;
                   if (zJogPol)
                     emc_jog_incr_msg.vel = jogSpeed / 60.0;
                   else
@@ -2258,7 +2268,8 @@ int main(int argc, char *argv[])
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_jog_cont_msg.axis = axisIndex(AXIS_Z);
+                  emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_Z);
+                  emc_jog_cont_msg.jjogmode = 1;
                   if (zJogPol)
                     emc_jog_cont_msg.vel = jogSpeed / 60.0;
                   else
@@ -2276,7 +2287,8 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_jog_incr_msg.axis = axisIndex(AXIS_Z);
+                  emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_Z);
+                  emc_jog_incr_msg.jjogmode = 1;
                   if (zJogPol)
                     emc_jog_incr_msg.vel = - jogSpeed / 60.0;
                   else
@@ -2288,7 +2300,9 @@ int main(int argc, char *argv[])
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_jog_cont_msg.axis = axisIndex(AXIS_Z);
+                  emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_Z);
+                  emc_jog_cont_msg.jjogmode = 1;
+                  if (zJogPol)
                   if (zJogPol)
                     emc_jog_cont_msg.vel = - jogSpeed / 60.0;
                   else

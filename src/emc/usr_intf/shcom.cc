@@ -551,32 +551,31 @@ int sendOverrideLimits(int axis)
 
     return 0;
 }
-static int axisJogging[EMCMOT_MAX_AXIS] = {0,};
 
-int sendJogStop(int axis)
+int sendJogJointStop(int jnum)
 {
     EMC_JOG_STOP emc_jog_stop_msg;
     
-    emc_jog_stop_msg.axis = axis;
+    emc_jog_stop_msg.jjogmode = 1;
+    emc_jog_stop_msg.joint_or_axis = jnum;
     emcCommandSend(emc_jog_stop_msg);
 
-    axisJogging[axis] = 0;
     return 0;
 }
 
-int sendJogCont(int axis, double speed)
+int sendJogJointCont(int jnum, double speed)
 {
     EMC_JOG_CONT emc_jog_cont_msg;
 
-    if (0 == jogPol[axis]) {
+    if (0 == jogPol[jnum]) {
         speed = -speed;
     }
 
-    emc_jog_cont_msg.axis = axis;
+    emc_jog_cont_msg.jjogmode = 1;
+    emc_jog_cont_msg.joint_or_axis = jnum;
     emc_jog_cont_msg.vel = speed / 60.0;
     emcCommandSend(emc_jog_cont_msg);
 
-    axisJogging[axis] = 1;
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -586,15 +585,16 @@ int sendJogCont(int axis, double speed)
     return 0;
 }
 
-int sendJogIncr(int axis, double speed, double incr)
+int sendJogJointIncr(int jnum, double speed, double incr)
 {
     EMC_JOG_INCR emc_jog_incr_msg;
 
-    if (0 == jogPol[axis]) {
+    if (0 == jogPol[jnum]) {
 	speed = -speed;
     }
 
-    emc_jog_incr_msg.axis = axis;
+    emc_jog_incr_msg.jjogmode = 1;
+    emc_jog_incr_msg.joint_or_axis = jnum;
     emc_jog_incr_msg.vel = speed / 60.0;
     emc_jog_incr_msg.incr = incr;
     emcCommandSend(emc_jog_incr_msg);
@@ -604,7 +604,6 @@ int sendJogIncr(int axis, double speed, double incr)
     } else if (emcWaitType == EMC_WAIT_DONE) {
 	return emcCommandWaitDone();
     }
-    axisJogging[axis] = 1;
 
     return 0;
 }

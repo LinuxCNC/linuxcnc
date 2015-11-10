@@ -417,10 +417,10 @@ extern int emcJointActivate(int joint);
 extern int emcJointDeactivate(int joint);
 extern int emcJointOverrideLimits(int joint);
 extern int emcJointLoadComp(int joint, const char *file, int type);
-extern int emcJogStop(int nr);
-extern int emcJogCont(int nr, double vel);
-extern int emcJogIncr(int nr, double incr, double vel);
-extern int emcJogAbs(int nr, double pos, double vel);
+extern int emcJogStop(int nr, int jjogmode);
+extern int emcJogCont(int nr, double vel, int jjogmode);
+extern int emcJogIncr(int nr, double incr, double vel, int jjogmode);
+extern int emcJogAbs(int nr, double pos, double vel, int jjogmode);
 
 
 extern int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints);
