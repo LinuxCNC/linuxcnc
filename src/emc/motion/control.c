@@ -12,7 +12,6 @@
 *
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
-
 #include "posemath.h"
 #include "rtapi.h"
 #include "hal.h"
@@ -899,6 +898,9 @@ static void handle_jogwheels(void)
 	    /* no, nothing to do */
 	    continue;
 	}
+        if (GET_MOTION_TELEOP_FLAG()) {
+            return;  //only joint jogging (no axis.N.jog* pins)
+        }
 	/* must be in free mode and enabled */
 	if (GET_MOTION_COORD_FLAG()) {
 	    continue;
@@ -979,7 +981,6 @@ static void handle_jogwheels(void)
     // done with initialization, do the whole thing from now on
     first_pass = 0;
 }
-
 static void get_pos_cmds(long period)
 {
     int joint_num, axis_num, result;

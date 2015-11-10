@@ -9,8 +9,7 @@
 #begin-----------------------------------------------------------------
 source [file join $::env(HALLIB_DIR) sim_lib.tcl]
 
-set axes [eval set axes $::TRAJ(COORDINATES)] ;# eval to handle list {}
-set axes [string tolower $axes] ;# expect lowercase throughout
+set axes [get_traj_coordinates]
 set number_of_joints $::KINS(JOINTS)
 
 set base_period 0 ;# 0 means no thread

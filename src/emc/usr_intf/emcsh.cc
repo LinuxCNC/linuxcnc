@@ -1778,7 +1778,7 @@ static int emc_jog_stop(ClientData clientdata,
 	return TCL_ERROR;
     }
 
-    if (0 != sendJogStop(joint)) {
+    if (0 != sendJogJointStop(joint)) {
 	setresult(interp,"emc_jog_stop: can't send jog stop msg");
 	return TCL_OK;
     }
@@ -1807,7 +1807,7 @@ static int emc_jog(ClientData clientdata,
 	return TCL_ERROR;
     }
 
-    if (0 != sendJogCont(joint, speed)) {
+    if (0 != sendJogJointCont(joint, speed)) {
 	setresult(interp,"emc_jog: can't jog");
 	return TCL_OK;
     }
@@ -1842,7 +1842,7 @@ static int emc_jog_incr(ClientData clientdata,
 	return TCL_ERROR;
     }
 
-    if (0 != sendJogIncr(joint, speed, incr)) {
+    if (0 != sendJogJointIncr(joint, speed, incr)) {
 	setresult(interp,"emc_jog_incr: can't jog");
 	return TCL_OK;
     }

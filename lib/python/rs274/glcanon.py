@@ -381,6 +381,7 @@ class GlCanonDraw:
         self.select_buffer_size = 100
         self.cached_tool = -1
         self.initialised = 0
+        self.no_joint_display = False
 
     def realize(self):
         self.hershey = hershey.Hershey()
@@ -1160,7 +1161,7 @@ class GlCanonDraw:
         glPushMatrix()
         glLoadIdentity()
 
-        limit, homed, posstrs, droposstrs = self.posstrs()
+        limit, homed, posstrs, droposstrs = self.posstrs(self.no_joint_display)
 
         charwidth, linespace, base = self.get_font_info()
 
@@ -1191,13 +1192,21 @@ class GlCanonDraw:
                 glRasterPos2i(5, ypos)
                 for char in string:
                     glCallList(base + ord(char))
+
                 if i < len(homed) and homed[i]:
-                    glRasterPos2i(pixel_width + 8, ypos)
-                    glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+                    if "Dia" in string:
+                        # use line below
+                        glRasterPos2i(pixel_width + 8, ypos - linespace) 
+                        glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+                    else:
+                        glRasterPos2i(pixel_width + 8, ypos)
+                        glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+
                 if i < len(homed) and limit[i]:
                     glBitmap(13, 16, 0, 1, 17, 0, limiticon)
                 ypos -= linespace
                 i = i + 1
+        # FIXME needs work for joints_axes with show_offsets below
         if self.get_show_offsets():
             i=0
             for string in droposstrs:
@@ -1206,6 +1215,7 @@ class GlCanonDraw:
                 for char in string:
                     glCallList(base + ord(char))
                 if i < len(homed) and homed[i]:
+                    print "((((W i=%d homed[i]=%d len(homed)=%d ls=%d s=%s"%(i,homed[i],len(homed),linespace,string)
                     glRasterPos2i(charwidth *3, ypos)
                     glBitmap(13, 16, 0, 3, 17, 0, homeicon)
                 ypos -= linespace
@@ -1245,16 +1255,20 @@ class GlCanonDraw:
                 gluDeleteQuadric(q)
         glEndList()
 
-    def posstrs(self):
+    def posstrs(self,no_joint_display=False):
         s = self.stat
+        self.no_joint_display = no_joint_display
         limit = list(s.limit[:])
         homed = list(s.homed[:])
 
-        if self.is_lathe() and not s.axis_mask & 2:
+        if self.is_lathe() and (s.joints >= 3):
+           # hack to hide homeicon for dummy joint_1
+           # better to use gentrivkins with KINEMATICS_BOTH
+           # even gentrivkins with KINEMATICS_IDENTITY is better
            homed[1] = 0
            limit[1] = 0
 
-        if not self.get_joints_mode():
+        if not self.get_joints_mode() or self.no_joint_display:
             if self.get_show_commanded():
                 positions = s.position
             else:

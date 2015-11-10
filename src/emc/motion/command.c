@@ -227,8 +227,6 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
     emcmot_joint_t *joint;
     int in_range = 1;
 
-    /* First, make sure our endpoint is inside the world volume */
-    
     if(check_axis_constraint(pos.tran.x, id, move_type, 0, 'X') == 0) 
         in_range = 0;
     if(check_axis_constraint(pos.tran.y, id, move_type, 1, 'Y') == 0) 
@@ -400,6 +398,10 @@ void emcmotCommandHandler(void *arg, long period)
     double tmp1;
     emcmot_comp_entry_t *comp_entry;
     char issue_atspeed = 0;
+    int abort = 0;
+
+check_stuff ( "before command_handler()" );
+
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
 	emcmotDebug->split++;
@@ -419,33 +421,54 @@ void emcmotCommandHandler(void *arg, long period)
 	
 	/* ...and process command */
 
-	/* Many commands uses "command->joint" to indicate which joint they
-	   wish to operate on.  This code eliminates the need to copy
-	   command->joint to "joint_num", limit check it, and then set "joint"
-	   to point to the joint data.  All the individual commands need to do
-	   is verify that "joint" is non-zero. */
-	joint_num = emcmotCommand->joint;
-	if (joint_num >= 0 && joint_num < emcmotConfig->numJoints) {
-	    /* valid joint, point to it's data */
-	    joint = &joints[joint_num];
-	} else {
-	    /* bad joint number */
-	    joint = 0;
-	}
+        joint = 0;
+        axis  = 0;
+        joint_num = emcmotCommand->joint;
+        axis_num  = emcmotCommand->axis;
 
-        /* same for axes */
-	axis_num = emcmotCommand->axis;
-	if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
-	    /* valid joint, point to it's data */
-	    axis = &axes[axis_num];
-	} else {
-	    /* bad axis number */
-	    axis = 0;
-	}
+//-----------------------------------------------------------------------------
+// joints_axes test for unexpected conditions
+// remove after branch stabilization:
+        if (   emcmotCommand->command == EMCMOT_JOG_CONT
+            || emcmotCommand->command == EMCMOT_JOG_INCR
+            || emcmotCommand->command == EMCMOT_JOG_ABS
+            || emcmotCommand->command == EMCMOT_JOINT_ABORT
+           ) {
+           if (GET_MOTION_TELEOP_FLAG() && axis_num < 0) {
+	       rtapi_print_msg(RTAPI_MSG_ERR,
+                    "command.com teleop bad axis_num cmd=%d\n",
+                    emcmotCommand->command);
+               abort = 1;
+           }
+           if (!GET_MOTION_TELEOP_FLAG() && joint_num < 0) {
+	       rtapi_print_msg(RTAPI_MSG_ERR,
+                    "command.com !teleop bad joint_num cmd=%d\n",
+                    emcmotCommand->command);
+             abort = 1;
+           }
+        }
+        if (abort) {
+          switch (emcmotCommand->command) {
+          case EMCMOT_JOG_CONT:    rtapi_print_msg(RTAPI_MSG_ERR,"JOG_CONT\n");
+               break;
+          case EMCMOT_JOG_INCR:    rtapi_print_msg(RTAPI_MSG_ERR,"JOG_INCR\n");
+               break;
+          case EMCMOT_JOG_ABS:     rtapi_print_msg(RTAPI_MSG_ERR,"JOG_ABS\n");
+                break;
+          case EMCMOT_JOINT_ABORT: rtapi_print_msg(RTAPI_MSG_ERR,"JOG_ABORT\n");
+              break;
+          default: break;
+          }
+          return;
+        }
+//-----------------------------------------------------------------------------
 
-/* printing of commands for troubleshooting */
-	rtapi_print_msg(RTAPI_MSG_DBG, "%d: CMD %d, code %3d ", emcmotStatus->heartbeat,
-	    emcmotCommand->commandNum, emcmotCommand->command);
+        if (joint_num >= 0 && joint_num < emcmotConfig->numJoints) {
+            joint = &joints[joint_num];
+        }
+        if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
+            axis = &axes[axis_num];
+        }
 
 	switch (emcmotCommand->command) {
 	case EMCMOT_ABORT:
@@ -496,13 +519,9 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_JOINT_ABORT:
 	    /* abort one joint */
 	    /* can happen at any time */
-	    /* this command stops a single joint.  It is only usefull
-	       in free mode, so in coord or teleop mode it does
-	       nothing. */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_ABORT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (GET_MOTION_TELEOP_FLAG()) {
-		axis = &axes[joint_num];
 		/* tell teleop planner to stop */
 		axis->teleop_tp.enable = 0;
 		/* do nothing in teleop mode */
@@ -710,9 +729,6 @@ void emcmotCommandHandler(void *arg, long period)
 	       stop the jog. */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_CONT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    if (joint == 0) {
-		break;
-	    }
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -771,11 +787,7 @@ void emcmotCommandHandler(void *arg, long period)
 	           since homing, otherwise just do this one */
 	        clearHomes(joint_num);
             } else {
-                axis_num = emcmotCommand->joint;
-                if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
-                    /* valid axis, point to it's data */
-                    axis = &axes[axis_num];
-                }
+            // TELEOP  JOG_CONT
 	        if (emcmotCommand->vel > 0.0) {
 		    axis->teleop_tp.pos_cmd = axis->max_pos_limit;
 	        } else {
@@ -794,9 +806,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* do an incremental jog */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_INCR");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    if (joint == 0) {
-		break;
-	    }
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -863,11 +872,7 @@ void emcmotCommandHandler(void *arg, long period)
 	           since homing, otherwise just do this one */
 	        clearHomes(joint_num);
             } else {
-                axis_num = emcmotCommand->joint;
-                if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
-                    /* valid axis, point to it's data */
-                    axis = &axes[axis_num];
-                }
+                // TELEOP JOG_INCR
 	        if (emcmotCommand->vel > 0.0) {
 		    tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
 	        } else {
@@ -891,7 +896,8 @@ void emcmotCommandHandler(void *arg, long period)
             }
 	    break;
 
-	case EMCMOT_JOG_ABS:
+	case EMCMOT_JOG_ABS: //FIXME not updated for free/teleop
+                         //(see JOG_CONT,JOG_INCR above for reqd changes)
 	    /* do an absolute jog */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
@@ -1569,7 +1575,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* 	emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
 	    /* 	tpAbort(&emcmotDebug->tp); */
 	    /* 	SET_MOTION_ERROR_FLAG(1); */
-	    /* } else { */
+	    /* } else {...} */
 	    emcmotStatus->spindle.speed = emcmotCommand->vel;
 	    emcmotStatus->spindle.css_factor = emcmotCommand->ini_maxvel;
 	    emcmotStatus->spindle.xoffset = emcmotCommand->acc;

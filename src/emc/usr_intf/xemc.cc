@@ -926,7 +926,7 @@ static int sendOverrideLimits()
   return 0;
 }
 
-static int sendJogStop(int axis)
+static int sendJogJointStop(int axis)
 {
   EMC_JOG_STOP emc_jog_stop_msg;
 
@@ -939,7 +939,8 @@ static int sendJogStop(int axis)
     return 0;
   }
 
-  emc_jog_stop_msg.axis = axisJogging;
+  emc_jog_stop_msg.joint_or_axis = axisJogging;
+  emc_jog_stop_msg.jjogmode = 1;
   emcCommandSend(emc_jog_stop_msg);
 
   axisJogging = -1;
@@ -947,7 +948,7 @@ static int sendJogStop(int axis)
   return 0;
 }
 
-static int sendJogCont(int axis, double speed)
+static int sendJogJointCont(int axis, double speed)
 {
   EMC_JOG_CONT emc_jog_cont_msg;
 
@@ -964,7 +965,8 @@ static int sendJogCont(int axis, double speed)
     speed = -speed;
   }
 
-  emc_jog_cont_msg.axis = axis;
+  emc_jog_cont_msg.joint_or_axis = axis;
+  emc_jog_cont_msg.jjogmode = 1;
   emc_jog_cont_msg.vel = speed / 60.0;
   emcCommandSend(emc_jog_cont_msg);
 
@@ -973,7 +975,7 @@ static int sendJogCont(int axis, double speed)
   return 0;
 }
 
-static int sendJogIncr(int axis, double speed, double incr)
+static int sendJogJointIncr(int axis, double speed, double incr)
 {
   EMC_JOG_INCR emc_jog_incr_msg;
 
@@ -990,7 +992,8 @@ static int sendJogIncr(int axis, double speed, double incr)
     speed = -speed;
   }
 
-  emc_jog_incr_msg.axis = axis;
+  emc_jog_incr_msg.joint_or_axis = axis;
+  emc_jog_incr_msg.jjogmode = 1;
   emc_jog_incr_msg.vel = speed / 60.0;
   emc_jog_incr_msg.incr = jogIncrement;
   emcCommandSend(emc_jog_incr_msg);
@@ -2363,18 +2366,18 @@ static void downAction(Widget w,
   }
   else if (w == jogMinusLabel) {
     if (jogIncrement > 0.0) {
-      sendJogIncr(activeAxis, -jogSpeed, jogIncrement);
+      sendJogJointIncr(activeAxis, -jogSpeed, jogIncrement);
     }
     else {
-      sendJogCont(activeAxis, -jogSpeed);
+      sendJogJointCont(activeAxis, -jogSpeed);
     }
   }
   else if (w == jogPlusLabel) {
     if (jogIncrement > 0.0) {
-      sendJogIncr(activeAxis, jogSpeed, jogIncrement);
+      sendJogJointIncr(activeAxis, jogSpeed, jogIncrement);
     }
     else {
-      sendJogCont(activeAxis, jogSpeed);
+      sendJogJointCont(activeAxis, jogSpeed);
     }
   }
   else if (w == posLabel[0]) {
@@ -2475,13 +2478,13 @@ static void upAction(Widget w,
   else if (w == jogMinusLabel) {
     // only stop it if it's continuous jogging
     if (jogIncrement <= 0.0) {
-      sendJogStop(axisJogging);
+      sendJogJointStop(axisJogging);
     }
   }
   else if (w == jogPlusLabel) {
     // only stop it if it's continuous jogging
     if (jogIncrement <= 0.0) {
-      sendJogStop(axisJogging);
+      sendJogJointStop(axisJogging);
     }
   }
   else if (w == posLabel[0]) {
@@ -2700,60 +2703,60 @@ static void keyPressAction(unsigned int state, unsigned int keycode)
   case KEY_PGUP:
     activeAxis = 2;
     if (jogIncrement > 0.0) {
-      sendJogIncr(activeAxis, jogSpeed, jogIncrement);
+      sendJogJointIncr(activeAxis, jogSpeed, jogIncrement);
     }
     else {
-      sendJogCont(activeAxis, jogSpeed);
+      sendJogJointCont(activeAxis, jogSpeed);
     }
     break;
 
   case KEY_PGDN:
     activeAxis = 2;
     if (jogIncrement > 0.0) {
-      sendJogIncr(activeAxis, -jogSpeed, jogIncrement);
+      sendJogJointIncr(activeAxis, -jogSpeed, jogIncrement);
     }
     else {
-      sendJogCont(activeAxis, -jogSpeed);
+      sendJogJointCont(activeAxis, -jogSpeed);
     }
     break;
 
   case KEY_RIGHT:
     activeAxis = 0;
     if (jogIncrement > 0.0) {
-      sendJogIncr(activeAxis, jogSpeed, jogIncrement);
+      sendJogJointIncr(activeAxis, jogSpeed, jogIncrement);
     }
     else {
-      sendJogCont(activeAxis, jogSpeed);
+      sendJogJointCont(activeAxis, jogSpeed);
     }
     break;
 
   case KEY_LEFT:
     activeAxis = 0;
     if (jogIncrement > 0.0) {
-      sendJogIncr(activeAxis, -jogSpeed, jogIncrement);
+      sendJogJointIncr(activeAxis, -jogSpeed, jogIncrement);
     }
     else {
-      sendJogCont(activeAxis, -jogSpeed);
+      sendJoJointgCont(activeAxis, -jogSpeed);
     }
     break;
 
   case KEY_UP:
     activeAxis = 1;
     if (jogIncrement > 0.0) {
-      sendJogIncr(activeAxis, jogSpeed, jogIncrement);
+      sendJogJointIncr(activeAxis, jogSpeed, jogIncrement);
     }
     else {
-      sendJogCont(activeAxis, jogSpeed);
+      sendJogJointCont(activeAxis, jogSpeed);
     }
     break;
 
   case KEY_DOWN:
     activeAxis = 1;
     if (jogIncrement > 0.0) {
-      sendJogIncr(activeAxis, -jogSpeed, jogIncrement);
+      sendJogJointIncr(activeAxis, -jogSpeed, jogIncrement);
     }
     else {
-      sendJogCont(activeAxis, -jogSpeed);
+      sendJogJointCont(activeAxis, -jogSpeed);
     }
     break;
 
@@ -3016,7 +3019,7 @@ static void keyReleaseAction(unsigned int state, unsigned int keycode)
   case KEY_RIGHT:
     if (jogIncrement <= 0.0) {
       // only stop it if it's continuous jogging
-      sendJogStop(axisJogging);
+      sendJogJointStop(axisJogging);
     }
     break;
 
@@ -3024,7 +3027,7 @@ static void keyReleaseAction(unsigned int state, unsigned int keycode)
   case KEY_DOWN:
     if (jogIncrement <= 0.0) {
       // only stop it if it's continuous jogging
-      sendJogStop(axisJogging);
+      sendJogJointStop(axisJogging);
     }
     break;
 
@@ -3032,7 +3035,7 @@ static void keyReleaseAction(unsigned int state, unsigned int keycode)
   case KEY_PGDN:
     if (jogIncrement <= 0.0) {
       // only stop it if it's continuous jogging
-      sendJogStop(axisJogging);
+      sendJogJointStop(axisJogging);
     }
     break;
 
