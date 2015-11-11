@@ -83,13 +83,19 @@ int kinematicsHome(EmcPose * world,
     return kinematicsForward(joint, world, fflags, iflags);
 }
 
+static KINEMATICS_TYPE ktype;
+
 KINEMATICS_TYPE kinematicsType()
 {
-    return KINEMATICS_IDENTITY;
+    return ktype;
 }
 
-char *coordinates = "XYZABCUVW";
+static char *coordinates = "XYZABCUVW";
 RTAPI_MP_STRING(coordinates, "Existing Axes");
+
+static char *kinstype = "1"; // use KINEMATICS_IDENTITY
+RTAPI_MP_STRING(kinstype, "Kinemtics Type (Identity,Both)");
+
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
@@ -115,7 +121,6 @@ static int next_axis_number(void) {
     }
     return -1;
 }
-
 int comp_id;
 int rtapi_app_main(void) {
     int i;
@@ -126,6 +131,12 @@ int rtapi_app_main(void) {
 
     for(i=0; i<EMCMOT_MAX_JOINTS; i++) {
 	data->joints[i] = next_axis_number();
+    }
+    switch (*kinstype) {
+      case 'b': case 'B': ktype = KINEMATICS_BOTH;         break;
+      case 'f': case 'F': ktype = KINEMATICS_FORWARD_ONLY; break;
+      case 'i': case 'I': ktype = KINEMATICS_INVERSE_ONLY; break;
+      case '1': default:  ktype = KINEMATICS_IDENTITY;
     }
 
     hal_ready(comp_id);
