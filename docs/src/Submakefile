@@ -393,7 +393,7 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_fr checkref_es
 
-checkref_en: $(DOC_TARGETS_HTML_EN) .htmldoc-stamp
+checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref English $^
 
 checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
