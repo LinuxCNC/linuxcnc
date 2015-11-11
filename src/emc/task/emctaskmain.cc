@@ -587,6 +587,10 @@ interpret_again:
 					       command);
 			    // and execute it
 			    execRetval = emcTaskPlanExecute(0);
+			    // line number may need update after
+			    // returns from subprograms in external
+			    // files
+			    emcStatus->task.readLine = emcTaskPlanLine();
 			    if (execRetval > INTERP_MIN_ERROR) {
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP_WAITING;
@@ -619,9 +623,9 @@ interpret_again:
 			    // throw the results away if we're supposed to
 			    // read
 			    // through it
-			    if (programStartLine < 0 ||
-				emcStatus->task.readLine <
-				programStartLine) {
+			    if ((programStartLine < 0 ||
+				 emcStatus->task.readLine < programStartLine) &&
+				emcTaskPlanLevel() == 0) {
 				// we're stepping over lines, so check them
 				// for
 				// limits, etc. and clear then out
@@ -638,7 +642,8 @@ interpret_again:
 				interp_list.clear();
 			    }
 
-			    if (emcStatus->task.readLine < programStartLine) {
+			    if (emcStatus->task.readLine < programStartLine &&
+				emcTaskPlanLevel() == 0) {
 			    
 				//update the position with our current position, as the other positions are only skipped through
 				CANON_UPDATE_END_POINT(emcStatus->motion.traj.actualPosition.tran.x,
