@@ -482,6 +482,27 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
 
+linuxcnc (1:2.6.11) UNRELEASED; urgency=low
+
+  * docs: update code notes on M61
+
+  * hm2_7i90 manpage: clarify firmware management
+  * hm2_7i90 manpage: remove incorrect EPP info
+
+  * gmoccapy: bug in tool info handling with tool number being "-1"
+
+  * interp: fix an old bug in canned cycle preliminary & in-between moves
+
+  * io: "no tool" is spelled "0", not "-1"
+  * io: fix HAL pins on "M61 Q0"
+
+  * tests: add an interpreter test of G81
+  * tests: add spindle unloading to m61 test
+  * add motion-logger, a debugging tool
+  * motion: motion_debug.h needs to include motion.h
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 01 Nov 2015 10:16:51 -0700
+
 linuxcnc (1:2.6.10) wheezy; urgency=low
 
   * docs: specify that G92.1 and G92.2 only affect the G92 offsets
