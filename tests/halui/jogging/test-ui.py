@@ -169,7 +169,23 @@ def introspect(h):
     os.system("halcmd show sig")
 
 
-def select_joint(name):
+def home_joint(name):
+    print "    homing", name
+
+    h[name + '-home'] = 1
+    start = time.time()
+    while (h[name + '-homed'] == 0) and ((time.time() - start) < timeout):
+        time.sleep(0.1)
+
+    if h[name + '-homed'] == 0:
+        print "failed to home", name, "in halui"
+        introspect(h)
+        sys.exit(1)
+
+    h[name + '-home'] = 0
+
+
+def select_joint(name, deassert=True):
     print "    selecting", name
 
     h[name + '-select'] = 1
@@ -182,7 +198,8 @@ def select_joint(name):
         introspect(h)
         sys.exit(1)
 
-    h[name + '-select'] = 0
+    if deassert:
+        h[name + '-select'] = 0
 
 
 def jog_minus(name, target):
@@ -288,14 +305,20 @@ def jog_joint(joint_number, target):
 
 h = hal.component("python-ui")
 
+h.newpin("joint-0-home", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("joint-0-homed", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-0-select", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-0-selected", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-0-position", hal.HAL_FLOAT, hal.HAL_IN)
 
+h.newpin("joint-1-home", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("joint-1-homed", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-1-select", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-1-selected", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-1-position", hal.HAL_FLOAT, hal.HAL_IN)
 
+h.newpin("joint-2-home", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("joint-2-homed", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-2-select", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-2-selected", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-2-position", hal.HAL_FLOAT, hal.HAL_IN)
@@ -315,6 +338,21 @@ os.system("halcmd source ./postgui.hal")
 e = LinuxcncControl()
 e.set_state(linuxcnc.STATE_ESTOP_RESET)
 e.set_state(linuxcnc.STATE_ON)
+
+# Select joints 1 and 2, but do not de-assert the .select pins.
+select_joint('joint-1', deassert=False)
+select_joint('joint-2', deassert=False)
+
+# Home all the joints.  This should work fine.
+home_joint('joint-0')
+home_joint('joint-1')
+home_joint('joint-2')
+
+# Deassert the .select pins for joints 1 and 2.
+h['joint-1-select'] = 0
+h['joint-2-select'] = 0
+
+# The machine is homed and all the .joint.N.select pins are deasserted.
 e.set_mode(linuxcnc.MODE_MANUAL)
 
 
