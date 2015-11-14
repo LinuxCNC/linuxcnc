@@ -10,6 +10,12 @@ net jog-selected-plus <= python-ui.jog-selected-plus
 net jog-selected-plus => halui.jog.selected.plus
 
 
+net joint-0-home   <= python-ui.joint-0-home
+net joint-0-home   => halui.joint.0.home
+
+net joint-0-homed <= halui.joint.0.is-homed
+net joint-0-homed => python-ui.joint-0-homed
+
 net joint-0-select   <= python-ui.joint-0-select
 net joint-0-select   => halui.joint.0.select
 
@@ -19,6 +25,12 @@ net joint-0-selected => python-ui.joint-0-selected
 net Xpos => python-ui.joint-0-position
 
 
+net joint-1-home   <= python-ui.joint-1-home
+net joint-1-home   => halui.joint.1.home
+
+net joint-1-homed <= halui.joint.1.is-homed
+net joint-1-homed => python-ui.joint-1-homed
+
 net joint-1-select   <= python-ui.joint-1-select
 net joint-1-select   => halui.joint.1.select
 
@@ -27,6 +39,12 @@ net joint-1-selected => python-ui.joint-1-selected
 
 net Ypos => python-ui.joint-1-position
 
+
+net joint-2-home   <= python-ui.joint-2-home
+net joint-2-home   => halui.joint.2.home
+
+net joint-2-homed <= halui.joint.2.is-homed
+net joint-2-homed => python-ui.joint-2-homed
 
 net joint-2-select   <= python-ui.joint-2-select
 net joint-2-select   => halui.joint.2.select

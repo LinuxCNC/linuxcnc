@@ -168,7 +168,7 @@ which is supposed be close to an integer is considered close enough if
 it is within 0.0001 of an integer.
 
 
-[[sec:parameters]](((Parameters)))
+[[gcode:parameters]](((Parameters)))
 
 == Parameters
 
@@ -178,10 +178,10 @@ types of parameter of different purpose and appearance, each described
 in the following sections. The only value type supported by parameters
 is floating-point; there are no string, boolean or integer types in
 G-code like in other programming languages. However, logic expressions
-can be formulated with <<sec:binary-operators,boolean operators>>
+can be formulated with <<gcode:binary-operators,boolean operators>>
 ( 'AND', 'OR', 'XOR', and the comparison operators
 'EQ','NE','GT','GE','LT','LE'), and the 'MOD', 'ROUND', 'FUP' and
-'FIX' <<sub:functions,operators>> support integer arithmetic.
+'FIX' <<gcode:functions,operators>> support integer arithmetic.
 
 Parameters differ in syntax, scope, behavior when not yet
 initialized, mode, persistence and intended use.
@@ -356,7 +356,7 @@ Interpreter. The Interpreter reads the file when it starts up, and
 writes the file when it exits.
 
 The format of a parameter file is shown in Table
-<<sec:format-parameter-file,Parameter File Format>>. 
+<<gcode:format-parameter-file,Parameter File Format>>. 
 
 The Interpreter expects the file to have two columns. It skips any
 lines which do not contain exactly two numeric values. The first
@@ -380,7 +380,7 @@ ascending order.
 The original file is saved as a backup file when the new file
 is written.
 
-[[sec:format-parameter-file]]
+[[gcode:format-parameter-file]]
 
 .Parameter File Format
 
@@ -448,9 +448,9 @@ Global parameters, as well as local parameters assigned to at the
 global level, retain their value once assigned even when the program
 ends, and have these  values when the program is run again.
 
-The <<sub:functions,'EXISTS' function>> tests whether a given named parameter exists.
+The <<gcode:functions,'EXISTS' function>> tests whether a given named parameter exists.
 
-[[sec:predefined-named-parameters]]
+[[gcode:predefined-named-parameters]]
 
 === Predefined Named Parameters
 
@@ -682,7 +682,7 @@ can be added easily without changes to the source code.
     current level of the remap stack. Each remap in a block adds one
     to the remap level. For debugging.
 
-[[sec:expressions]]
+[[gcode:expressions]]
 
 == Expressions
 
@@ -694,7 +694,7 @@ produce a number. The expressions on a line are evaluated when the line
 is read, before anything on the line is executed. An example of an
 expression is '[1 + acos[0] - [#3 ** [4.0/2]]]'.
 
-[[sec:binary-operators]]
+[[gcode:binary-operators]]
 
 == Binary Operators
 
@@ -744,7 +744,7 @@ solves this problem by considering values equal if their absolute
 difference is less than 0.0001 (this value is defined as
 'TOLERANCE_EQUAL' in src/emc/rs274ngc/interp_internal.hh).
 
-[[sub:functions]]
+[[gcode:functions]]
 
 == Functions
 
@@ -804,7 +804,7 @@ m2
 
 A line may have any number of G words, but two G words from the same
 modal group may not appear on the
-same line See the <<sec:modal-groups,Modal Groups>> Section for more information.
+same line See the <<gcode:modal-groups,Modal Groups>> Section for more information.
 
 A line may have zero to four M words. Two M words from the same modal
 group may not appear on the same line.
@@ -930,7 +930,7 @@ It is an error if:
 * An incremental move is started at the origin
 * A mix of Polar and and X or Y words are used
 
-[[sec:modal-groups]](((Modal Groups)))
+[[gcode:modal-groups]](((Modal Groups)))
 
 == Modal Groups
 
@@ -999,8 +999,7 @@ G10, G28, G30, and G92.
 It is an error to include any unrelated words on a line with 'O-' flow
 control.
 
-[[sec:comments]]
-
+[[gcode:comments]]
 == Comments
 
 Comments can be added to lines of G code to help clear up the
@@ -1030,6 +1029,7 @@ comment will in effect disable the active comment. For example, '(foo)
 A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
 
+[[gcode:messages]]
 == Messages
 
 * '(MSG,)' - displays message if 'MSG' appears after the left parenthesis
@@ -1052,7 +1052,7 @@ on that line, and will always be interpreted for active comment syntax.
   coordinate consisting of XYZABCUVW of each successful straight probe in it.
 
 * '(PROBECLOSE)' - will close the open probelog file. For more information on
-  probing see the <<gcode:g38.n,G38>> Section.
+  probing see the <<gcode:g38,G38>> Section.
 
 (((Logging)))
 
@@ -1069,21 +1069,23 @@ on that line, and will always be interpreted for active comment syntax.
 * '(LOG,)' - everything past the ',' is written to the log file if it is open.
   Supports expansion of parameters as described below.
 
-(((Debug Messages)))
-
+[[gcode:debug]]
 == Debug Messages
+(((Debug Messages)))
 
 * '(DEBUG,)' - displays a message like '(MSG,)' with the addition of special
   handling for comment parameters as described below.
 
-(((Print Messages)))
-
+[[gcode:print]]
 == Print Messages
+(((Print Messages)))
 
 * '(PRINT,)' - messages are output to 'stderr' with special handling for
   comment parameters as described below.
 
+[[gcode:comment-parameters]]
 == Comment Parameters
+(((Comment Parameters)))
 
 In the DEBUG, PRINT and LOG comments, the values of parameters in the
 message are expanded.
@@ -1103,7 +1105,7 @@ are replaced by the value of the named parameter. Named parameters
 will have white space removed from them. So, '\#<named parameter>'
 will be converted to '#<namedparameter>'.
 
-[[sec:file-requirements]]
+[[gcode:file-requirements]]
 
 == File Requirements
 
@@ -1138,7 +1140,7 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 <<axis:preview-control,preview control>> comments.
 
-[[sec:order-of-execution]](((G Code Order of Execution)))
+[[gcode:order-of-execution]](((G Code Order of Execution)))
 
 == G Code Order of Execution
 
@@ -1218,7 +1220,7 @@ canned cycles may also be important.
 
 .Don't put too many things on one line
 
-Ignore everything in Section <<sec:order-of-execution,Order of Execution>>, and instead
+Ignore everything in Section <<gcode:order-of-execution,Order of Execution>>, and instead
 write no line of code that is the slightest bit ambiguous.
 
 .Don't set & use a parameter on the same line
