@@ -1954,7 +1954,7 @@ static void check_hal_changes()
 		*halui_data->joint_selected = joint;
 		select_changed = joint; // flag that we changed the selected joint
 	    } 
-	    old_halui_data.joint_home[joint] = bit;
+	    old_halui_data.joint_nr_select[joint] = bit;
 	}
     }
     
