@@ -1937,14 +1937,14 @@ static void check_hal_changes()
 	    if (joint != select_changed) {
 		*(halui_data->joint_is_selected[joint]) = 0;
                 if (jogging_selected_joint(old_halui_data) && !jogging_joint(old_halui_data, joint)) {
-                    sendJogStop(joint);
+                    sendJogJointStop(joint);
                 }
     	    } else {
 		*(halui_data->joint_is_selected[joint]) = 1;
                 if (*halui_data->jog_plus[num_axes]) {
-                    sendJogCont(joint, new_halui_data.jog_speed);
+                    sendJogJointCont(joint, new_halui_data.jog_speed);
                 } else if (*halui_data->jog_minus[num_axes]) {
-                    sendJogCont(joint, -new_halui_data.jog_speed);
+                    sendJogJointCont(joint, -new_halui_data.jog_speed);
                 }
 	    }
 	}
