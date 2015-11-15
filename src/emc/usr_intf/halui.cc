@@ -1739,6 +1739,23 @@ static void copy_hal_data(const halui_str &i, local_halui_str &j)
 #undef ARRAY
 }
 
+
+// Returns true if any of halui.jog.N.plus, halui.jog.N.minus, or
+// halui.jog.N.analog are true (where N is the passed-in joint number).
+// Otherwise, returns false.
+static bool jogging_joint(local_halui_str &hal, int joint) {
+    return (hal.jog_plus[joint] || hal.jog_minus[joint] || hal.jog_analog[joint]);
+}
+
+
+// Returns true if any of halui.jog.selected.plus,
+// halui.jog.selected.minus, or halui.jog.selected.analog are true.
+// Otherwise, returns false.
+static bool jogging_selected_joint(local_halui_str &hal) {
+    return (hal.jog_plus[num_axes] || hal.jog_minus[num_axes]);
+}
+
+
 // this function looks if any of the hal pins has changed
 // and sends appropiate messages if so
 static void check_hal_changes()
@@ -2024,8 +2041,16 @@ static void check_hal_changes()
 	for (joint = 0; joint < num_axes; joint++) {
 	    if (joint != select_changed) {
 		*(halui_data->joint_is_selected[joint]) = 0;
+                if (jogging_selected_joint(old_halui_data) && !jogging_joint(old_halui_data, joint)) {
+                    sendJogStop(joint);
+                }
     	    } else {
 		*(halui_data->joint_is_selected[joint]) = 1;
+                if (*halui_data->jog_plus[num_axes]) {
+                    sendJogCont(joint, new_halui_data.jog_speed);
+                } else if (*halui_data->jog_minus[num_axes]) {
+                    sendJogCont(joint, -new_halui_data.jog_speed);
+                }
 	    }
 	}
     }
