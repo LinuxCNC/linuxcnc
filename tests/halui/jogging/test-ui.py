@@ -310,18 +310,27 @@ h.newpin("joint-0-homed", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-0-select", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-0-selected", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-0-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-0-velocity", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-0-jog-plus", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("joint-0-jog-minus", hal.HAL_BIT, hal.HAL_OUT)
 
 h.newpin("joint-1-home", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-1-homed", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-1-select", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-1-selected", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-1-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-1-velocity", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-1-jog-plus", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("joint-1-jog-minus", hal.HAL_BIT, hal.HAL_OUT)
 
 h.newpin("joint-2-home", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-2-homed", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-2-select", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-2-selected", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("joint-2-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-2-velocity", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-2-jog-plus", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("joint-2-jog-minus", hal.HAL_BIT, hal.HAL_OUT)
 
 h.newpin("jog-selected-minus", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("jog-selected-plus", hal.HAL_BIT, hal.HAL_OUT)
@@ -357,10 +366,11 @@ e.set_mode(linuxcnc.MODE_MANUAL)
 
 
 #
-# run the test
+# First some simple single-axis jog & stop.  Test each axis jogging in each
+# direction, one at a time.
 #
 # These jog_joint() functions will exit with a return value of 1 if
-# something goes wrong.
+# something goes wrong, signalling test failure.
 #
 
 jog_joint(0, -0.5)
@@ -371,6 +381,110 @@ jog_joint(1, 0.0)
 
 jog_joint(2, -0.5)
 jog_joint(2, 0.0)
+
+
+#
+# Next try selecting a joint and jogging it with the "jog selected" pins,
+# then changing which joint is selected.  The expected behavior when
+# changing which joint is selected is that the old joint stops jogging and
+# the new one starts jogging.
+#
+# We do this while jogging yet a third joint using its private, per-joint
+# jog pins, to verify that it is unaffected by all the drama.
+#
+
+name0 = 'joint-0'
+name1 = 'joint-1'
+name2 = 'joint-2'
+
+start_position0 = h[name0 + '-position']
+start_position1 = h[name1 + '-position']
+start_position2 = h[name2 + '-position']
+
+print "%s starting at %.3f" % (name0, start_position0)
+print "%s starting at %.3f" % (name1, start_position1)
+print "%s starting at %.3f" % (name2, start_position2)
+
+print "jogging %s positive using the private per-joint jog pins" % name0
+h[name0 + '-jog-plus'] = 1
+
+# wait for this joint to come up to speed
+start = time.time()
+timeout = 2
+while (h[name0 + '-velocity'] <= 0) and ((time.time() - start) < timeout):
+    time.sleep(0.1)
+if h[name0 + '-velocity'] <= 0:
+    print "%s did not start jogging" % name0
+    sys.exit(1)
+
+print "jogging selected joint (%s) negative" % (name1)
+select_joint(name1)
+h['jog-selected-minus'] = 1
+
+time.sleep(2)
+
+if h[name0 + '-velocity'] <= 0:
+    print "%s stopped jogging" % name0
+    sys.exit(1)
+
+if h[name1 + '-position'] >= start_position1:
+    print "%s was selected but did not jog negative (start=%.3f, end=%.3f)" % (name1, start_position1, h[name1 + '-position'])
+    sys.exit(1)
+
+if h[name2 + '-position'] != start_position2:
+    print "%s was not selected but moved (start=%.3f, end=%.3f)" % (name2, start_position2, h[name2 + '-position'])
+    sys.exit(1)
+
+print "%s was selected and jogged, %s was not selected and stayed still" % (name1, name2)
+
+
+start_position1 = h[name1 + '-position']
+start_position2 = h[name2 + '-position']
+
+start_velocity1 = h[name1 + '-velocity']
+start_velocity2 = h[name2 + '-velocity']
+
+print "selecting %s" % name2
+select_joint(name2)
+
+time.sleep(2)
+
+if h[name0 + '-velocity'] <= 0:
+    print "%s stopped jogging" % name0
+    sys.exit(1)
+
+if h[name1 + '-velocity'] != 0:
+    print "%s was deselected but did not stop (start_vel=%.3f, end_vel=%.3f)" % (name1, start_velocity1, h[name1 + '-velocity'])
+    sys.exit(1)
+
+if h[name2 + '-velocity'] >= 0:
+    print "%s was selected but did not move (start_vel=%.3f, end_vel=%.3f)" % (name2, start_velocity2, h[name2 + '-velocity'])
+    sys.exit(1)
+
+print "%s was deselected and stopped, %s was selected and jogged" % (name1, name2)
+
+
+start_velocity1 = h[name1 + '-velocity']
+start_velocity2 = h[name2 + '-velocity']
+
+print "stopping jog"
+h['jog-selected-minus'] = 0
+
+time.sleep(2)
+
+if h[name0 + '-velocity'] <= 0:
+    print "%s stopped jogging" % name0
+    sys.exit(1)
+
+if h[name1 + '-velocity'] != 0:
+    print "%s started moving again (start_vel=%.3f, end_vel=%.3f)" % (name1, start_velocity1, h[name1 + '-velocity'])
+    sys.exit(1)
+
+if h[name2 + '-velocity'] != 0:
+    print "%s did not stop (start_vel=%.3f, end_vel=%.3f)" % (name2, start_velocity2, h[name2 + '-velocity'])
+    sys.exit(1)
+
+print "%s stopped" % name2
 
 
 sys.exit(0)
