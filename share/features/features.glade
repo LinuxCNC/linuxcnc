@@ -4,124 +4,11 @@
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkActionGroup" id="actiongroup1">
     <child>
-      <object class="GtkAction" id="actionAdd">
-        <property name="label" translatable="yes">Add a subroutine</property>
-        <property name="stock_id">gtk-add</property>
-        <signal name="activate" handler="add_button_clicked" swapped="no"/>
-      </object>
-      <accelerator key="Insert" modifiers="GDK_CONTROL_MASK"/>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionCollapse">
-        <property name="label" translatable="yes">Collapse all other nodes</property>
-        <property name="tooltip" translatable="yes">Collapse all other nodes</property>
-        <property name="stock_id">gtk-zoom-out</property>
-        <signal name="activate" handler="action_collapse" swapped="no"/>
-      </object>
-      <accelerator key="k" modifiers="GDK_CONTROL_MASK"/>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionDuplicate">
-        <property name="label" translatable="yes">Duplicate selected feature</property>
-        <property name="tooltip" translatable="yes">Duplicate selected feature</property>
-        <property name="stock_id">gtk-copy</property>
-        <signal name="activate" handler="duplicate_clicked" swapped="no"/>
-      </object>
-      <accelerator key="d" modifiers="GDK_CONTROL_MASK"/>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionDelete">
-        <property name="label" translatable="yes">Remove selected feature</property>
-        <property name="tooltip" translatable="yes">Remove selected feature</property>
-        <property name="stock_id">gtk-remove</property>
-        <signal name="activate" handler="delete_clicked" swapped="no"/>
-      </object>
-      <accelerator key="Delete" modifiers="GDK_CONTROL_MASK"/>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionUndo">
-        <property name="label" translatable="yes">Undo</property>
-        <property name="tooltip" translatable="yes">Undo last operation</property>
-        <property name="stock_id">gtk-undo</property>
-        <signal name="activate" handler="undo_clicked" swapped="no"/>
-      </object>
-      <accelerator key="z" modifiers="GDK_CONTROL_MASK"/>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionRedo">
-        <property name="label" translatable="yes">Redo</property>
-        <property name="tooltip" translatable="yes">Cancel last Undo</property>
-        <property name="stock_id">gtk-redo</property>
-        <signal name="activate" handler="redo_clicked" swapped="no"/>
-      </object>
-      <accelerator key="z" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionMoveUp">
-        <property name="label" translatable="yes">Move Up</property>
-        <property name="tooltip" translatable="yes">Move up one row</property>
-        <property name="stock_id">gtk-go-up</property>
-        <signal name="activate" handler="move_up_clicked" swapped="no"/>
-      </object>
-      <accelerator key="Up" modifiers="GDK_CONTROL_MASK"/>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionMoveDn">
-        <property name="label" translatable="yes">Move down</property>
-        <property name="tooltip" translatable="yes">Move down one row</property>
-        <property name="stock_id">gtk-go-down</property>
-        <signal name="activate" handler="move_down_clicked" swapped="no"/>
-      </object>
-      <accelerator key="Down" modifiers="GDK_CONTROL_MASK"/>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionAppendItem">
-        <property name="label" translatable="yes">Add to Group</property>
-        <property name="tooltip" translatable="yes">Add to Group</property>
-        <property name="stock_id">gtk-indent</property>
-        <signal name="activate" handler="add_to_item_clicked" swapped="no"/>
-      </object>
-      <accelerator key="Right" modifiers="GDK_CONTROL_MASK"/>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionRemoveItem">
-        <property name="label" translatable="yes">Remove from items</property>
-        <property name="tooltip" translatable="yes">Remove from Group</property>
-        <property name="stock_id">gtk-unindent</property>
-        <signal name="activate" handler="remove_from_item_clicked" swapped="no"/>
-      </object>
-      <accelerator key="Left" modifiers="GDK_CONTROL_MASK"/>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionCut">
-        <property name="label" translatable="yes">Cut</property>
-        <property name="tooltip" translatable="yes">Cut selected feature to clipboard</property>
-        <property name="stock_id">gtk-cut</property>
-        <signal name="activate" handler="edit_cut" swapped="no"/>
-      </object>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionCopy">
-        <property name="label" translatable="yes">Copy</property>
-        <property name="tooltip" translatable="yes">Copy selected feature to clipboard</property>
-        <property name="stock_id">gtk-copy</property>
-        <signal name="activate" handler="edit_copy" swapped="no"/>
-      </object>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionPaste">
-        <property name="label" translatable="yes">Paste</property>
-        <property name="tooltip" translatable="yes">Paste from clipboard</property>
-        <property name="stock_id">gtk-paste</property>
-        <signal name="activate" handler="edit_paste" swapped="no"/>
-      </object>
-    </child>
-    <child>
-      <object class="GtkAction" id="actionNew">
-        <property name="label" translatable="yes">New</property>
-        <property name="tooltip" translatable="yes">Create new</property>
-        <property name="stock_id">gtk-new</property>
-        <signal name="activate" handler="menu_new_activate" swapped="no"/>
+      <object class="GtkAction" id="actionSave">
+        <property name="label" translatable="yes">Save</property>
+        <property name="tooltip" translatable="yes">Save as xml file</property>
+        <property name="stock_id">gtk-save</property>
+        <signal name="activate" handler="menu_save_xml_activate" swapped="no"/>
       </object>
     </child>
     <child>
@@ -133,12 +20,125 @@
       </object>
     </child>
     <child>
-      <object class="GtkAction" id="actionSave">
-        <property name="label" translatable="yes">Save</property>
-        <property name="tooltip" translatable="yes">Save as xml file</property>
-        <property name="stock_id">gtk-save</property>
-        <signal name="activate" handler="menu_save_xml_activate" swapped="no"/>
+      <object class="GtkAction" id="actionNew">
+        <property name="label" translatable="yes">New</property>
+        <property name="tooltip" translatable="yes">Create new</property>
+        <property name="stock_id">gtk-new</property>
+        <signal name="activate" handler="menu_new_activate" swapped="no"/>
       </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionPaste">
+        <property name="label" translatable="yes">Paste</property>
+        <property name="tooltip" translatable="yes">Paste from clipboard</property>
+        <property name="stock_id">gtk-paste</property>
+        <signal name="activate" handler="edit_paste" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionCopy">
+        <property name="label" translatable="yes">Copy</property>
+        <property name="tooltip" translatable="yes">Copy selected feature to clipboard</property>
+        <property name="stock_id">gtk-copy</property>
+        <signal name="activate" handler="edit_copy" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionCut">
+        <property name="label" translatable="yes">Cut</property>
+        <property name="tooltip" translatable="yes">Cut selected feature to clipboard</property>
+        <property name="stock_id">gtk-cut</property>
+        <signal name="activate" handler="edit_cut" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionRemoveItem">
+        <property name="label" translatable="yes">Remove from items</property>
+        <property name="tooltip" translatable="yes">Remove from Group</property>
+        <property name="stock_id">gtk-unindent</property>
+        <signal name="activate" handler="remove_from_item_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Left" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionAppendItem">
+        <property name="label" translatable="yes">Add to Group</property>
+        <property name="tooltip" translatable="yes">Add to Group</property>
+        <property name="stock_id">gtk-indent</property>
+        <signal name="activate" handler="add_to_item_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Right" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionMoveDn">
+        <property name="label" translatable="yes">Move down</property>
+        <property name="tooltip" translatable="yes">Move down one row</property>
+        <property name="stock_id">gtk-go-down</property>
+        <signal name="activate" handler="move_down_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Down" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionMoveUp">
+        <property name="label" translatable="yes">Move Up</property>
+        <property name="tooltip" translatable="yes">Move up one row</property>
+        <property name="stock_id">gtk-go-up</property>
+        <signal name="activate" handler="move_up_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Up" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionRedo">
+        <property name="label" translatable="yes">Redo</property>
+        <property name="tooltip" translatable="yes">Cancel last Undo</property>
+        <property name="stock_id">gtk-redo</property>
+        <signal name="activate" handler="redo_clicked" swapped="no"/>
+      </object>
+      <accelerator key="z" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionUndo">
+        <property name="label" translatable="yes">Undo</property>
+        <property name="tooltip" translatable="yes">Undo last operation</property>
+        <property name="stock_id">gtk-undo</property>
+        <signal name="activate" handler="undo_clicked" swapped="no"/>
+      </object>
+      <accelerator key="z" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionDelete">
+        <property name="label" translatable="yes">Remove selected feature</property>
+        <property name="tooltip" translatable="yes">Remove selected feature</property>
+        <property name="stock_id">gtk-remove</property>
+        <signal name="activate" handler="delete_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Delete" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionDuplicate">
+        <property name="label" translatable="yes">Duplicate selected feature</property>
+        <property name="tooltip" translatable="yes">Duplicate selected feature</property>
+        <property name="stock_id">gtk-copy</property>
+        <signal name="activate" handler="duplicate_clicked" swapped="no"/>
+      </object>
+      <accelerator key="d" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionCollapse">
+        <property name="label" translatable="yes">Collapse all other nodes</property>
+        <property name="tooltip" translatable="yes">Collapse all other nodes</property>
+        <property name="stock_id">gtk-zoom-out</property>
+        <signal name="activate" handler="action_collapse" swapped="no"/>
+      </object>
+      <accelerator key="k" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionAdd">
+        <property name="label" translatable="yes">Add a subroutine</property>
+        <property name="stock_id">gtk-add</property>
+        <signal name="activate" handler="add_button_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Insert" modifiers="GDK_CONTROL_MASK"/>
     </child>
   </object>
   <object class="GtkAdjustment" id="adj_digits">
@@ -601,17 +601,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkStatusbar" id="statusbar">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="spacing">2</property>
-            <property name="has_resize_grip">False</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">3</property>
-          </packing>
+          <placeholder/>
         </child>
       </object>
     </child>

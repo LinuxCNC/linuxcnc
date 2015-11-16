@@ -57,19 +57,6 @@ o<metric-detected> if [#<_metric>]
 	#<_drill_dwell> = 3
 	#<_drill_q> = 6
 
-	(This is a safety message to help avoid gouging in the work piece)
-	(Disable messages at will but let the loop in case you forget)
-	/ (debug, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
-	/ (print, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
-	/ (AXIS,notify, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
-	/ G0 Z75
-	/ o<safety-999> repeat [1000]
-	/	G0 X-50 Y-50
-	/	G0 Y50
-	/	G0 X50
-	/	G0 Y-50
-	/ o<safety-999> endrepeat
-
 o<metric-detected> else
 	#<_z_clear> = 0.2
 
@@ -92,23 +79,18 @@ o<metric-detected> else
 	#<_drill_dwell> = 3
 	#<_drill_q> = 0.3
 
-	(This is a safety message to help avoid gouging in the work piece)
-	(Disable messages at will but let the loop in case you forget)
-	/ (debug, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
-	/ (print, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
-	/ (AXIS,notify, Message from defaults.ngc : Stop and check 'Skip lines starting with /')
-	/ G0 Z3
-	/ o<safety-999> repeat [1000]
-	/	G0 X-2 Y-2
-	/	G0 Y2
-	/	G0 X2
-	/	G0 Y-2
-	/ o<safety-999> endrepeat
-
 o<metric-detected> endif
 
+(This is a safety to help avoid gouging your work piece)
+(REMOVE AT YOUR RISK)
+/ (debug,Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+/ (print,Message from defaults.ngc : Stop and check 'Skip lines starting with /')
+/ o<safety-999> repeat [1000]
+/ M0
+/ o<safety-999> endrepeat
+
 F#<_ffeed>
-S#<_spindle_rpm>    
-        
+S#<_spindle_rpm>
+ 
 ( end mill defaults )
 
