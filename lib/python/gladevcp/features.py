@@ -22,7 +22,7 @@ import gtk
 DEFAULT_DISPLAY = 'axis'  # or 'gmoccapy'
 DEFAULT_METRIC = True
 DEFAULT_CATALOG = 'mill'  # or could be 'lathe' or any valid sub-directory name in catalog directory
-
+DEFAULT_EDITOR = 'gedit'
 # change icon sizes at will
 # following are popular sizes :
 # gtk-icon-sizes = "panel=16,16 : panel-menu=16,16 : gtk-menu=16,16 : gtk-button=20,20 :
@@ -44,12 +44,7 @@ NO_ICON_FILE = 'no-icon.png'
 
 use_top_features_toolbar = True
 MAX_TOP_FEATURES = 15
-SUPER_TOP_FEATURES_COUNT = 10  # must be less than MAX_TOP_FEATURES
-
-# if False, will use treeview2
-# else will have a box with checkboxes, spinbuttons, comboboxes, etc...
-DEFAULT_USE_WIDGETS = False
-show_tooltip_in_widget_box = True
+SUPER_TOP_FEATURES_COUNT = 3  # must be less than MAX_TOP_FEATURES
 
 DEFAULT_DIGITS = '3'
 
@@ -146,20 +141,11 @@ TOP_FEATURES = "/top.lst"
 DEFAULTS = '/defaults.ngc'
 POSTAMBLE = '/postamble.ngc'
 
-HOME_PAGE = 'http://fernv.github.io/linuxcnc-features/'
-
 SEL_IS_NONE = 0
 SEL_IS_FEATURE = 1
 SEL_IS_ITEMS = 2
 SEL_IS_HEADER = 3
 SEL_IS_PARAM = 4
-
-TARGETS = [
-    ('MY_TREE_MODEL_ROW', gtk.TARGET_SAME_WIDGET, 0),
-    ('text/plain', 0, 1),
-    ('TEXT', 0, 2),
-    ('STRING', 0, 3),
-    ]
 
 INCLUDE = []
 DEFINITIONS = []
@@ -179,13 +165,16 @@ def get_float(s10) :
     except :
         return 0.0
 
-def search_path(f) :
+def search_path(f, msg = '', warn = False) :
     if os.path.isfile(f) :
         return f
     src = APP_PATH + f
     if os.path.isfile(src) :
         return src
     src = APP_PATH + CFG_DIR + f
+    if os.path.isfile(src) :
+        return src
+    src = APP_PATH + GRAPHICS_DIR + f
     if os.path.isfile(src) :
         return src
     src = APP_PATH + XML_DIR + f
@@ -197,7 +186,12 @@ def search_path(f) :
     src = APP_PATH + INC_DIR + f
     if os.path.isfile(src) :
         return src
-    mess_dlg(_("Can not find file %s") % f)
+    # else
+    if msg != '' :
+        msg += ' : %s' % f
+        print(msg)
+        if warn :
+            mess_dlg(msg)
     return None
 
 def get_pixbuf(icon, size) :
@@ -212,14 +206,11 @@ def get_pixbuf(icon, size) :
     s = icon.split("/")
     icon = s[-1]
     icon_id = icon + str(size)
-    icon = APP_PATH + GRAPHICS_DIR + icon
 
     if (icon_id) in PIXBUF_DICT :
         return PIXBUF_DICT[icon_id]
-
-    if not os.path.isfile(icon):
-        StatusBar.push(SB_Pix_context_id, _('Image file not found : %s' % icon))
-        print(_('Image file not found : %s' % icon))
+    icon = search_path(icon, _('Image file not found'), False)
+    if (icon is None) :
         PIXBUF_DICT[icon_id] = None
         return None
 
@@ -236,12 +227,11 @@ def get_pixbuf(icon, size) :
         PIXBUF_DICT[icon_id] = pix_buf
         return pix_buf
     except :
-        StatusBar.push(SB_Pix_context_id, _('Image file not valid : %s' % icon))
-        print(_('Image file not valid : %s' % p))
+        mess_dlg(_('Image file not valid : %s' % icon))
         PIXBUF_DICT[icon_id] = None
         return None
 
-def mess_dlg(mess,title="LinuxCNC-Features"):
+def mess_dlg(mess, title = "LinuxCNC-Features"):
     dlg = gtk.MessageDialog(parent = None,
         flags = gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
         type = gtk.MESSAGE_WARNING,
@@ -251,11 +241,11 @@ def mess_dlg(mess,title="LinuxCNC-Features"):
     dlg.run()
     dlg.destroy()
 
-def mess_yesno(mess,title=""):
+def mess_yesno(mess, title = ""):
     yesno = gtk.MessageDialog(parent = None,
-        flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+        flags = gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
         type = gtk.MESSAGE_QUESTION,
-        buttons=gtk.BUTTONS_YES_NO,
+        buttons = gtk.BUTTONS_YES_NO,
         message_format = '%s' % mess
         )
     yesno.set_title(title)
@@ -265,13 +255,13 @@ def mess_yesno(mess,title=""):
     if  response == gtk.RESPONSE_YES: return True
     else: return False
 
-def mess_with_buttons(mess,buttons,title=""):
-    mwb = gtk.Dialog(parent=None,buttons=buttons,
-          flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+def mess_with_buttons(mess, buttons, title = ""):
+    mwb = gtk.Dialog(parent = None, buttons = buttons,
+          flags = gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
           )
     mwb.set_title(title)
-    finbox = mwb.get_content_area();
-    l = gtk.Label(mess);
+    finbox = mwb.get_content_area()
+    l = gtk.Label(mess)
     finbox.pack_start(l)
     mwb.show_all()
     response = mwb.run()
@@ -280,65 +270,65 @@ def mess_with_buttons(mess,buttons,title=""):
 
 class copymode:
     # 'enum' items
-    one_at_a_time,yes_to_all,no_to_all = range(3)
+    one_at_a_time, yes_to_all, no_to_all = range(3)
 
-def copy_dir_recursive(fromdir,todir,
+def copy_dir_recursive(fromdir, todir,
                        update_ct = 0,
-                       mode      = copymode.one_at_a_time,
+                       mode = copymode.one_at_a_time,
                        overwrite = False,
-                       verbose   = False):
+                       verbose = False):
     if not os.path.isdir(todir):
-        os.makedirs(todir,0755)
+        os.makedirs(todir, 0755)
 
     for p in os.listdir(fromdir):
         frompath = fromdir.rstrip('/') + '/' + p.lstrip('/')
-        topath   = todir.rstrip('/')   + '/' + p.lstrip('/')
+        topath = todir.rstrip('/') + '/' + p.lstrip('/')
         if os.path.isdir(frompath):
-            mode,update_ct = copy_dir_recursive(frompath,topath,
+            mode, update_ct = copy_dir_recursive(frompath, topath,
                                       update_ct = update_ct,
-                                      mode      = mode,
+                                      mode = mode,
                                       overwrite = overwrite,
-                                      verbose   = verbose)
+                                      verbose = verbose)
             continue
         # copy files
         if not os.path.isfile(topath) or overwrite :
-            shutil.copy(frompath,topath)
+            shutil.copy(frompath, topath)
             update_ct = update_ct + 1
             continue
-        else : # local file existes and not overwrite
-            if  (   hashlib.md5(open(frompath,'rb').read()).digest()
-                 == hashlib.md5(open(topath,  'rb').read()).digest()) :
+        else :  # local file existes and not overwrite
+            if  (hashlib.md5(open(frompath, 'rb').read()).digest()
+                 == hashlib.md5(open(topath, 'rb').read()).digest()) :
                 # files are same
-                if verbose: print "NOT copying %s to %s" % (p,todir)
-            else : # files are different
-                if (   os.path.getctime(frompath)
-                     < os.path.getctime(topath) ) :
+                if verbose: print "NOT copying %s to %s" % (p, todir)
+            else :  # files are different
+                if (os.path.getctime(frompath)
+                     < os.path.getctime(topath)) :
                     # different and local file most recent
-                    if verbose : print (_('Keeping modified local file %s'%p))
+                    if verbose : print (_('Keeping modified local file %s' % p))
                     pass
-                else : # different and system file is most recent
+                else :  # different and system file is most recent
                     if mode == copymode.yes_to_all :
-                        if verbose: print "copying %s to %s" % (p,todir)
-                        shutil.copy(frompath,topath)
+                        if verbose: print "copying %s to %s" % (p, todir)
+                        shutil.copy(frompath, topath)
                         update_ct = update_ct + 1
                         continue
                     if mode == copymode.no_to_all :
-                        os.utime(topath,None) # touch it
+                        os.utime(topath, None)  # touch it
                         continue
 
-                    buttons=(gtk.STOCK_YES,     gtk.RESPONSE_YES,
-                             gtk.STOCK_NO,      gtk.RESPONSE_NO,
+                    buttons = (gtk.STOCK_YES, gtk.RESPONSE_YES,
+                             gtk.STOCK_NO, gtk.RESPONSE_NO,
                              gtk.STOCK_REFRESH, gtk.RESPONSE_ACCEPT,
-                             gtk.STOCK_CANCEL,  gtk.RESPONSE_NONE)
-                    showdir = frompath[1+len(SYS_DIR.rstrip('/')):]
+                             gtk.STOCK_CANCEL, gtk.RESPONSE_NONE)
+                    showdir = frompath[1 + len(SYS_DIR.rstrip('/')):]
                     msg = _('An updated system file is available:\n\n%s\n\n'
                     'YES--------- Use new system file\n\n'
                     'NO---------- Keep local file\n\n'
                     'Refresh ---- Accept all new system files (don\'t ask again)\n\n'
                     'Cancel------ Keep all local files (don\'t ask again)\n\n'
                     % showdir)
-                    ans = mess_with_buttons(msg,buttons,
-                                            title="NEW file version available")
+                    ans = mess_with_buttons(msg, buttons,
+                                            title = "NEW file version available")
 
                     # set copymode
                     if   ans == gtk.RESPONSE_YES :
@@ -350,16 +340,16 @@ def copy_dir_recursive(fromdir,todir,
                     elif   ans == gtk.RESPONSE_NO :
                         pass
                     else :
-                        ans = gtk.RESPONSE_NO # anything else (window close etc)
+                        ans = gtk.RESPONSE_NO  # anything else (window close etc)
 
                     # copy or touch
                     if  ans == gtk.RESPONSE_YES or mode == copymode.yes_to_all :
-                        if verbose: print "copying %s to %s" % (p,todir)
-                        shutil.copy(frompath,topath)
+                        if verbose: print "copying %s to %s" % (p, todir)
+                        shutil.copy(frompath, topath)
                         update_ct = update_ct + 1
                     if  ans == gtk.RESPONSE_NO or mode == copymode.no_to_all :
-                        os.utime(topath,None) # touch it (update timestamp)
-    return mode,update_ct
+                        os.utime(topath, None)  # touch it (update timestamp)
+    return mode, update_ct
 
 def err_exit(errtxt):
     print errtxt
@@ -390,7 +380,7 @@ def exit_if_invalid_rip_standalone():
             err_exit(etxt)
         return
 
-def require_ini_items(fname,ini_instance):
+def require_ini_items(fname, ini_instance):
     global APP_PATH
     try :
         val = ini_instance.find('DISPLAY', 'FEATURES_DIR')
@@ -399,7 +389,7 @@ def require_ini_items(fname,ini_instance):
                          ' for [DISPLAY]FEATURES_DIR'
                       % fname))
         APP_PATH = val + '/'
-        print "FEATURES_DIR=",val
+        print "FEATURES_DIR=", val
         if not os.path.isabs(APP_PATH) :
             APP_PATH = os.path.dirname(fname) + '/' + APP_PATH
         APP_PATH = os.path.abspath(APP_PATH)
@@ -412,7 +402,7 @@ def require_ini_items(fname,ini_instance):
     except Exception, detail :
         err_exit(_('require_ini_items\n%s' % detail))
 
-def require_features_lib(fname,ini_instance):
+def require_features_lib(fname, ini_instance):
     # presumes already checked:[DISPLAY]FEATURES_DIR
     global APP_PATH
     require_lib = APP_PATH + LIB_DIR.rstrip("/")
@@ -422,9 +412,9 @@ def require_features_lib(fname,ini_instance):
             err_exit(_('require_lib()\nMissing:\n'
                        '[RS274NGC]SUBROUTINE_PATH'))
         print "[RS274NGC]SUBROUTINE_PATH= %s" % subroutine_path
-        for i,d in enumerate(subroutine_path.split(":")):
+        for i, d in enumerate(subroutine_path.split(":")):
             print ("SUBROUTINE_PATH[%d](realpath)= %s" %
-                  (i,os.path.realpath(os.path.expanduser(d))) )
+                  (i, os.path.realpath(os.path.expanduser(d))))
         # ini file must specify a [RS274NGC]SUBROUTINE_PATH that
         # includes APP_PATH + LIB_DIR (typ: [DISPLAY]FEATURES_DIR/lib)
         found_lib_dir = False
@@ -433,7 +423,7 @@ def require_features_lib(fname,ini_instance):
             if os.path.isabs(d) :
                 thedir = d
             else:
-                thedir=(os.path.realpath(os.path.dirname(fname)+'/'+d))
+                thedir = (os.path.realpath(os.path.dirname(fname) + '/' + d))
             if not os.path.isdir(thedir):
                 continue
             else:
@@ -445,8 +435,8 @@ def require_features_lib(fname,ini_instance):
             err_exit (_('The required features lib directory:\n<%s>\n'
                       'was not in [RS274NGC]SUBROUTINE_PATH:\n\n'
                       '<%s>\n\n'
-                    % (require_lib,subroutine_path) ))
-    except Exception,detail :
+                    % (require_lib, subroutine_path)))
+    except Exception, detail :
         err_exit(_('require_features_lib()\n%s' % detail))
 
 class CellRendererMx(gtk.CellRendererText):
@@ -974,13 +964,28 @@ class Parameter() :
             if self.get_name().lower() in DEFAULT_ICONS:
                 icon = DEFAULT_ICONS[self.get_name().lower()]
         return get_pixbuf(icon, TV_ICON_SIZE)
-#        return get_pixbuf(self.get_attr("icon"), TV_ICON_SIZE)
 
     def get_image(self) :
         return get_pixbuf(self.get_attr("image"), ADD_DLG_IMAGE_SIZE)
 
     def get_value(self) :
-        return self.attr["value"] if "value" in self.attr else ""
+        if DEFAULT_METRIC and "metric_value" in self.attr :
+            return self.attr["metric_value"]
+        else :
+            return self.attr["value"] if "value" in self.attr else ""
+
+    def set_value(self, new_val) :
+        if DEFAULT_METRIC and "metric_value" in self.attr :
+            self.attr["metric_value"] = new_val
+            if self.get_type() == "float" :
+                fmt = '{0:0.' + self.get_digits() + 'f}'
+                self.attr['value'] = fmt.format(get_float(new_val) * 25.4)
+        else :
+            self.attr["value"] = new_val
+            if (self.get_type() == "float") and \
+                        self.get_attr("metric_value") is not None :
+                fmt = '{0:0.' + self.get_digits() + 'f}'
+                self.attr['metric_value'] = fmt.format(get_float(new_val) / 25.4)
 
     def get_name(self) :
         return self.attr["name"] if "name" in self.attr else ""
@@ -999,6 +1004,12 @@ class Parameter() :
 
     def get_digits(self):
         return self.attr["digits"] if "digits" in self.attr else DEFAULT_DIGITS
+
+    def set_digits(self, new_digits) :
+        self.attr["digits"] = new_digits
+        fmt = '{0:0.' + new_digits + 'f}'
+        val = fmt.format(get_float(self.get_value()))
+        self.set_value(val)
 
     def get_min_value(self):
         return self.attr["minimum_value"] if "minimum_value" in self.attr \
@@ -1029,6 +1040,9 @@ class Feature():
 
     def get_value(self):
         return self.attr["value"] if "value" in self.attr else ""
+
+    def set_value(self, new_val):
+        self.attr["value"] = new_val
 
     def get_type(self):
         return self.attr["type"] if "type" in self.attr else "string"
@@ -1062,8 +1076,6 @@ class Feature():
         self.attr["src"] = src
 
         self.attr["name"] = _(self.get_name())
-        # original name
-        self.attr["o-name"] = self.attr["name"]
 
         # get order
         if "order" not in self.attr :
@@ -1088,15 +1100,11 @@ class Feature():
                     p.attr['options'] = _(opt)
                 if p.get_type() not in SUPPORTED_DATA_TYPES :
                     p.attr['type'] = 'string'
-                if p.get_type() in ['int', 'float'] and DEFAULT_METRIC :
-                    val = p.get_attr('metric_value')
-                    if val is not None:
-                        p.attr['value'] = val
                 if p.get_type() == 'float' :
                     fmt = '{0:0.' + p.get_digits() + 'f}'
-                    p.attr['value'] = fmt.format(get_float(p.get_value()))
+                    p.set_value(fmt.format(get_float(p.get_value())))
                 elif p.get_type() == 'int' :
-                    p.attr['value'] = str(get_int(p.get_value()))
+                    p.set_value(str(get_int(p.get_value())))
                 self.param.append(p)
 
         self.attr["id"] = self.attr["type"] + '-000'
@@ -1134,11 +1142,6 @@ class Feature():
             # get smallest free name
             l = xml.findall(".//feature[@type='%s']" % self.attr["type"])
             num = max([get_int(i.get("id")[-3:]) for i in l ] + [0]) + 1
-
-        if not "o-name" in self.attr :
-            self.attr["o-name"] = self.attr["name"]
-
-        self.attr["name"] = self.attr["o-name"]  # + " %03d" % num
         self.attr["id"] = self.attr["type"] + "-%03d" % num
 
     def get_definitions(self) :
@@ -1152,14 +1155,13 @@ class Feature():
             return ""
 
     def include(self, srce) :
-        src = search_path(srce)
-        if src :
+        src = search_path(srce, _("File not found"), True)
+        if src is not None:
             f = open(src)
             s = f.read()
             f.close()
             return s
         else :
-            mess_dlg(_("File not found : %s") % srce)
             raise IOError("IOError: File not found : %s" % srce)
 
     def include_once(self, src) :
@@ -1169,19 +1171,14 @@ class Feature():
             return self.include(src)
         return ""
 
-    def get_param_value(self, call) :
-        call = "#" + call.lower()
-        for p in self.param :
-            if "call" in p.attr and "value" in p.attr :
-                if call == p.attr["call"] :
-                    return p.attr['value']
-        return None
-
     def process(self, s) :
         global APP_PATH
 
         def eval_callback(m) :
-            return str(eval(m.group(2), globals(), {"self":self}))
+            try :
+                return str(eval(m.group(2), globals(), {"self":self}))
+            except :
+                return ''
 
         def exec_callback(m) :
             s = m.group(2)
@@ -1223,27 +1220,22 @@ class Feature():
                 s = res
             try :
                 return subprocess.check_output([s], shell = True,
-                                               stderr=subprocess.STDOUT)
+                                               stderr = subprocess.STDOUT)
             except subprocess.CalledProcessError as e:
                 msg = (_('Error with subprocess: returncode = %s\n'
                          'output = %s\n'
                          'e= %s\n'
-                         % (e.returncode,e.output,e)))
+                         % (e.returncode, e.output, e)))
                 print msg
                 mess_dlg(msg)
                 return ''
 
         def import_callback(m) :
             fname = m.group(2)
+            fname = search_path(fname, _("File not found"), False)
             if fname is not None :
-                try :
-                    return str(open(fname).read())
-                except :
-                    StatusBar.push(SB_File_context_id,
-                                   _("File not found : %s") % fname)
+                return str(open(fname).read())
             else :
-                mess_dlg(_("File not found : %(f)s in %(p)s" %
-                           {"f":fname, "p":(XML_DIR)}))
                 raise IOError("IOError File not found : %(f)s in %(p)s" %
                               {"f":fname, "p":(XML_DIR)})
 
@@ -1267,7 +1259,7 @@ class Feature():
             if "call" in p.attr and "value" in p.attr :
                 s = re.sub(r"%s([^A-Za-z0-9_]|$)" %
                            (re.escape(p.attr["call"])), r"%s\1" %
-                           (p.attr["value"]), s)
+                           p.get_value(), s)
 
         s = re.sub(r"%SYS_DIR%", "%s" % SYS_DIR, s)
         s = re.sub(r"(?ims)(<subprocess>(.*?)</subprocess>)",
@@ -1308,14 +1300,14 @@ Notes:
 
         # process passed args
         # not used herein: c:,x:
-        opt, optl = 'hU:c:x:i:', ["help","catalog=", "ini="]
+        opt, optl = 'hU:c:x:i:', ["help", "catalog=", "ini="]
         optlist, args = getopt.getopt(sys.argv[1:], opt, optl)
         optlist = dict(optlist)
 
-        #future if "-t" in optlist :
-        #future     # get translations and exit
-        #future     self.get_translations()
-        #future     sys.exit()
+        # future if "-t" in optlist :
+        # future     # get translations and exit
+        # future     self.get_translations()
+        # future     sys.exit()
 
         if "-U" in optlist :
             optlist_, args = getopt.getopt(optlist["-U"].split(), opt, optl)
@@ -1328,27 +1320,28 @@ Notes:
             ini = optlist["--ini"]
 
         self.display = DEFAULT_DISPLAY
+        self.editor = DEFAULT_EDITOR
 
         inifilename = 'NA'
         if (ini is None) :
             # standalone with no -i:
             # beware, files expected/created in this dir
             APP_PATH = os.getcwd() + '/'
-        else : # has ini file
+        else :  # has ini file
             try :
                 inifilename = os.path.abspath(ini)
                 ini_instance = linuxcnc.ini(ini)
             except Exception, detail :
-                err_exit(_("Open fails for ini=%s\n\n%s" %(inifilename,detail)))
+                err_exit(_("Open fails for ini=%s\n\n%s" % (inifilename, detail)))
 
-            require_ini_items(inifilename,ini_instance)
-            require_features_lib(inifilename,ini_instance)
+            require_ini_items(inifilename, ini_instance)
+            require_features_lib(inifilename, ini_instance)
 
             val = ini_instance.find('DISPLAY', 'DISPLAY')
             if val is not None:
                 self.display = val
             else:
-                msg = (_('not found: [DISPLAY]DISPLAY, using: %s'% self.display))
+                msg = (_('not found: [DISPLAY]DISPLAY, using: %s' % self.display))
                 print msg
                 mess_dlg (msg)
 
@@ -1371,6 +1364,14 @@ Notes:
             else:
                 DEFAULT_METRIC = val in ['mm', 'metric']
 
+            val = ini_instance.find('DISPLAY', 'EDITOR')
+            if val is not None:
+                self.editor = val
+            else:
+                msg = (_('not found: [DISPLAY]EDITOR, using: %s' % DEFAULT_EDITOR))
+                print msg
+                mess_dlg (msg)
+
         if "--catalog" in optlist :
             self.catalog_dir = APP_PATH + CATALOGS_DIR + optlist["--catalog"]
         else :
@@ -1380,9 +1381,9 @@ Notes:
             self.usage()
         print ""
         print "Features info:"
-        print "        inifile=",inifilename
-        print "        SYS_DIR=",SYS_DIR
-        print "  Features prog=",__file__
+        print "        inifile=", inifilename
+        print "        SYS_DIR=", SYS_DIR
+        print "  Features prog=", __file__
         print ""
         if "-h" in optlist or "--help" in optlist:
             sys.exit(0)
@@ -1393,7 +1394,7 @@ Notes:
         if ini is None: self.ask_to_create_standalone(fromdirs)
 
         # first use:copy, subsequent: update
-        self.update_user_tree(fromdirs,APP_PATH)
+        self.update_user_tree(fromdirs, APP_PATH)
 
         if not os.path.exists(self.catalog_dir + '/menu.xml') :
             raise IOError(_('Catalog file does not exists : %s' %
@@ -1408,7 +1409,6 @@ Notes:
         self.selected_feature_path = None
         self.selected_type = None
         self.iter_selected_type = SEL_IS_NONE
-        self.use_widget_box = DEFAULT_USE_WIDGETS
         self.treeview2 = None
 
         self.embedded = True
@@ -1430,15 +1430,9 @@ Notes:
         self.read_preferences()
         self.on_scale_change_value(self)
 
-        global SB_Pix_context_id, SB_File_context_id, SB_Params_context_id
-        SB_Pix_context_id = StatusBar.get_context_id('Pix')
-        SB_File_context_id = StatusBar.get_context_id('File')
-        SB_Params_context_id = StatusBar.get_context_id('Params')
-
         self.treestore = gtk.TreeStore(object, str, gobject.TYPE_BOOLEAN,
                                        gobject.TYPE_BOOLEAN)
         self.master_filter = self.treestore.filter_new()
-        self.widgets_viewport = None
 
         self.details_filter = self.treestore.filter_new()
         self.details_filter.set_visible_column(3)
@@ -1454,34 +1448,26 @@ Notes:
 
         self.add_toolbar.set_icon_size(MENU_ICON_SIZE)
 
-        self.default_src = None
-        self.post_amble_src = None
         self.create_menu_interface()
 
-        if self.default_src is None :
-            self.default_src = self.catalog_dir + DEFAULTS
-        try :
+        self.default_src = search_path(self.catalog_dir + DEFAULTS,
+                _('Can not load NGC default file'), True)
+        if  self.default_src is not None :
             self.defaults = open(self.default_src).read()
-        except :
-            StatusBar.push(3, _('Can not load NGC default file : %s') %
-                           self.default_src)
-            mess_dlg(_('Can not load NGC default file : %s') %
-                     self.default_src)
+        else :
+            self.defaults = ''
 
-        if self.post_amble_src is None :
-            self.post_amble_src = self.catalog_dir + POSTAMBLE
-        try :
+        self.post_amble_src = search_path(self.catalog_dir + POSTAMBLE,
+                _('Can not load post amble file'), False)
+        if self.post_amble_src is not None :
             self.post_amble = open(self.post_amble_src).read()
-        except :
-            StatusBar.push(3, _('Can not load post amble file : %s') %
-                           self.post_amble_src)
+        else :
             self.post_amble = ''
 
         if use_top_features_toolbar :
             self.setup_top_features()
 
         self.create_add_dialog()
-        self.actionUseWidgets.set_active(self.use_widget_box)
 
         self.builder.connect_signals(self)
         self.actionSingleView.set_active(not self.use_dual_views)
@@ -1496,12 +1482,11 @@ Notes:
         self.addVBox.hide()
         self.feature_pane.set_size_request(int(self.tv_w_adj.value), 100)
 
-        self.set_layout()
+        self.set_layout(self.use_dual_views)
         self.treeview.grab_focus()
         self.clipboard = gtk.clipboard_get(gtk.gdk.SELECTION_CLIPBOARD)
-        self.update_timeout = gobject.timeout_add(8000, self.update_check_call)
 
-    def ask_to_create_standalone(self,fromdirs):
+    def ask_to_create_standalone(self, fromdirs):
         global APP_PATH
         dir_exists = False
         for d in fromdirs:
@@ -1510,48 +1495,30 @@ Notes:
                 break
         if not dir_exists:
             msg = _('Standalone Directory:\n\n%s\n\nContinue?' % (APP_PATH))
-            if not mess_yesno(msg, title="Features CREATE") :
+            if not mess_yesno(msg, title = "Features CREATE") :
                 sys.exit(0)
 
-    def update_user_tree(self,fromdirs,todir):
+    def update_user_tree(self, fromdirs, todir):
         if not os.path.isdir(APP_PATH + NGC_DIR):
-            os.makedirs(     APP_PATH + NGC_DIR,0755)
+            os.makedirs(APP_PATH + NGC_DIR, 0755)
 
         # copy system files to user, make dirs if necessary
         mode = copymode.one_at_a_time
         for d in fromdirs:
             update_ct = 0
             dir_exists = os.path.isdir(APP_PATH + d)
-            mode,update_ct = copy_dir_recursive(SYS_DIR + d, todir + d,
+            mode, update_ct = copy_dir_recursive(SYS_DIR + d, todir + d,
                                       update_ct = 0,
-                                      mode      = mode,
+                                      mode = mode,
                                       overwrite = False,
-                                      verbose   = False
+                                      verbose = False
                                       )
             if dir_exists:
                 print (_('Updated %4d new files in %s'
-                       % (update_ct, d.lstrip('/') )))
+                       % (update_ct, d.lstrip('/'))))
             else :
                 print (_('Created %4d files in: %s'
-                       % (update_ct, APP_PATH + d.lstrip('/'))))
-
-    def update_check_call(self):
-        opener = urllib.FancyURLopener({})
-        try :
-            f = opener.open(
-                "https://raw.github.com/FernV/linuxcnc-features/master/version"
-                ).read()
-            if f.find('Not Found') > -1 :
-                return
-            f = re.sub(r"\n", "", f)
-            if (f > APP_VERSION) and (f > self.checked_update) :
-                mess_dlg('New update available : %s\nCurrent version : %s'
-                    % (f, APP_VERSION))
-                webbrowser.open(HOME_PAGE)
-                self.checked_update = f
-                self.save_preferences()
-        except:
-            mess_dlg(_('Cannot access update information'))
+                       % (update_ct, APP_PATH + '/' + d.lstrip('/'))))
 
     def create_mi(self, _action):
         mi = _action.create_menu_item()
@@ -1649,11 +1616,6 @@ Notes:
 
         v_menu.append(gtk.SeparatorMenuItem())
 
-        if DEFAULT_USE_WIDGETS :
-            mi = self.actionUseWidgets.create_menu_item()
-            mi.set_size_request(-1, ADD_MENU_ICON_SIZE)
-            v_menu.append(mi)
-
         mi = self.actionHideValCol.create_menu_item()
         mi.set_size_request(-1, ADD_MENU_ICON_SIZE)
         v_menu.append(mi)
@@ -1727,14 +1689,6 @@ Notes:
         menu_help.append(menu_cnc_russia)
         menu_help.append(gtk.SeparatorMenuItem())
 
-        menu_features_update = gtk.ImageMenuItem(_('Check for update'))
-        img = gtk.Image()
-        img.set_from_stock('gtk-help', MENU_ICON_SIZE)
-        menu_features_update.set_image(img)
-        menu_features_update.connect("activate", self.menu_features_update)
-        menu_help.append(menu_features_update)
-        menu_help.append(gtk.SeparatorMenuItem())
-
         menu_about = gtk.ImageMenuItem(_('_About'))
         img = gtk.Image()
         img.set_from_stock('gtk-about', MENU_ICON_SIZE)
@@ -1748,25 +1702,6 @@ Notes:
         self.main_box.reorder_child(menu_bar, 0)
 
         self.menubar = menu_bar
-
-    def menu_features_update(self, *args):
-        opener = urllib.FancyURLopener({})
-        try :
-            f = opener.open("https://raw.github.com/FernV/linuxcnc-features/master/version").read()
-            if f.find('Not Found') > -1 :
-                mess_dlg(_('No new version information'))
-                return
-            f = re.sub(r"\n", "", f)
-            if f == APP_VERSION :
-                mess_dlg(_('You have the latest version : %s') % f)
-                return
-            if (f > APP_VERSION) :
-                mess_dlg('New update available : %s\nCurrent version : %s' % (f, APP_VERSION))
-                webbrowser.open(HOME_PAGE)
-                self.checked_update = f
-                self.save_preferences()
-        except:
-            mess_dlg(_('Cannot access update information'))
 
     def edit_cut(self, *args):
         self.edit_copy()
@@ -1814,15 +1749,19 @@ Notes:
     def edit_defaults(self, *args):
         if not os.path.isfile(self.default_src):
             open(self.default_src, 'w').close()
-        webbrowser.open(self.default_src)
+        subprocess.Popen(self.editor + " " + self.default_src, shell = True,
+                         stdin = open(os.devnull, 'r'))
 
     def edit_postamble(self, *args):
         if not os.path.isfile(self.post_amble_src):
             open(self.post_amble_src, 'w').close()
-        webbrowser.open(self.post_amble_src)
+        subprocess.Popen(self.editor + " " + self.post_amble_src, shell = True,
+                         stdin = open(os.devnull, 'r'))
 
     def edit_feature(self, *args):
-        webbrowser.open(self.selected_feature.get_attr('src'))
+        subprocess.Popen(self.editor + ' ' +
+                         self.selected_feature.get_attr('src'),
+                         shell = True, stdin = open(os.devnull, 'r'))
 
     def menu_context_activate(self, *args):
         webbrowser.open(self.selected_feature.get_attr('html_help'), new = 2)
@@ -1886,7 +1825,7 @@ Notes:
         for path in range(len(self.catalog_path)) :
             p = self.catalog_path[path]
             if p.tag.lower() in ["group", "sub", "import"] :
-                name = p.get("name")  # ) if "name" in p.keys() else None
+                name = p.get('name') if "name" in p.keys() else 'Un-named'
                 src = p.get("src") if "src" in p.keys() else None
                 tooltip = p.get("tool_tip") if "tool_tip" in p.keys() else None
                 self.icon_store.append([get_pixbuf(p.get("icon"),
@@ -1925,8 +1864,8 @@ Notes:
 
         for src in feature_list :
             try :
-                src_file = search_path(src)
-                if not src_file :
+                src_file = search_path(src, _("Image file not found"), False)
+                if src_file is None :
                     continue
                 f = Feature(src_file)
                 icon = gtk.Image()
@@ -1950,19 +1889,12 @@ Notes:
                     self.topfeatures[src_file][2:] = self.topfeatures_dict[src_file]
             except :
                 pass
-
-        self.top_features_ini = {
-            "top-features": 3,
-            "last-features": 10
-        }
-        self.top_features_ini["top-features"] = SUPER_TOP_FEATURES_COUNT
-        self.top_features_ini["last-features"] = MAX_TOP_FEATURES - SUPER_TOP_FEATURES_COUNT
         self.topfeatures_update()
 
     def topfeatures_update(self, src = None):
         if src in self.topfeatures :
             self.topfeatures[src][2] += 1
-            self.topfeatures[src][3] += 1
+            self.topfeatures[src][3] = time.time()
 
         # clear toolbar
         while self.topfeatures_tb.get_n_items() > 0 :
@@ -1971,16 +1903,17 @@ Notes:
         tf = self.topfeatures.items()
 
         tf.sort(lambda x, y:-1 if x[1][2] - y[1][2] > 0 else 1)  # sort by i
-        for tfi in tf[:self.top_features_ini["top-features"]] :
+        for tfi in tf[:SUPER_TOP_FEATURES_COUNT] :
             self.topfeatures_tb.insert(tfi[1][0], -1)
 
-        self.topfeatures_tb.insert(gtk.SeparatorToolItem(), -1)
+        if SUPER_TOP_FEATURES_COUNT > 0 :
+            self.topfeatures_tb.insert(gtk.SeparatorToolItem(), -1)
 
         # remove appended buttons so they do not appear twice
         tf = tf[SUPER_TOP_FEATURES_COUNT: ]
 
         tf.sort(lambda x, y:-1 if x[1][3] - y[1][3] > 0 else 1)  # sort by t
-        for tfi in tf[:self.top_features_ini["last-features"]] :
+        for tfi in tf[:MAX_TOP_FEATURES] :
             self.topfeatures_tb.insert(tfi[1][1], -1)
 
         self.topfeatures_tb.show_all()
@@ -1990,9 +1923,9 @@ Notes:
             if "INFO" not in self.config_top.sections() :
                 self.config_top.add_section('INFO')
                 self.config_top.set('INFO', 'warning',
-                    'This file is rewritten every time a feature is added\n'
+                    'This file is rewritten every time a feature is used\n'
                     'and shows usage of each one\n'
-                    'columns are : source, total usage, last session usage')
+                    'columns are : source, total usage, last time used')
 
             if "VAR" not in self.config_top.sections() :
                 self.config_top.add_section('VAR')
@@ -2057,12 +1990,6 @@ Notes:
 
                     grp_menu.append(a_menu_item)
 
-                elif p.tag.lower() == "defaults" :
-                    self.default_src = p.get("src") if "src" in p.keys() else None
-
-                elif p.tag.lower() == "postamble" :
-                    self.post_amble_src = p.get("src") if "src" in p.keys() else None
-
         try :
             add_to_menu(self.menuAdd, self.catalog)
         except :
@@ -2092,14 +2019,6 @@ Notes:
         self.treeview.set_size_request(int(self.col_width_adj.value) + 50, -1)
 
         self.builder.get_object("feat_scrolledwindow").add(self.treeview)
-# TODO: ??? implemnt DnD ???
-#        self.treeview.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, TARGETS,
-#                gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
-#        self.treeview.connect("drag_data_get", self.drag_data_get_data)
-
-#        self.treeview.enable_model_drag_dest(TARGETS,
-#                gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
-#        self.treeview.connect("drag-data-received", self.drag_drop_data)
 
         self.treeview.add_events(gtk.gdk.BUTTON_PRESS_MASK)
         self.treeview.connect('button-press-event', self.pop_menu)
@@ -2144,33 +2063,6 @@ Notes:
         self.treeview.set_model(self.master_filter)
         self.treeview.set_size_request(int(self.col_width_adj.value), 100)
 
-#    def drag_data_get_data(self, treeview, context, selection, target_id,
-#                           etime):
-#        treeselection = treeview.get_selection()
-#        model, itr = treeselection.get_selected()
-#        data = model.get_value(itr, 0)
-#        selection.set(selection.target, 8, data)
-
-#    def drag_drop_data(self, treeview, context, x, y,
-#                selection, info, etime, *args):
-#        self.treeview.stop_emission('by-name')
-#
-#        model = treeview.get_model()
-#        data = selection.data
-#        drop_info = treeview.get_dest_row_at_pos(x, y)
-#        if drop_info:
-#            path, position = drop_info
-#            itr = model.get_iter(path)
-#            if (position == gtk.TREE_VIEW_DROP_BEFORE
-#                or position == gtk.TREE_VIEW_DROP_INTO_OR_BEFORE):
-#                model.insert_before(itr, [data])
-#            else:
-#                model.insert_after(itr, [data])
-#        else:
-#            model.append([data])
-#        if context.action == gtk.gdk.ACTION_MOVE:
-#            context.finish(True, True, etime)
-
     def pop_menu(self, tv, event):
         if event.button == 3:
             self.pop_up = None
@@ -2191,30 +2083,35 @@ Notes:
 
                 if dt in ['string', 'float', 'int'] :
                     chng_dt_menu = gtk.MenuItem(_('Change data type'))
+                    chng_dt_menu.set_size_request(-1, ADD_MENU_ICON_SIZE)
                     self.pop_up.append(chng_dt_menu)
                     sub_menu = gtk.Menu()
                     chng_dt_menu.set_submenu(sub_menu)
 
                     if dt != 'string' :
                         menu_item = gtk.MenuItem(_('String'))
+                        menu_item.set_size_request(-1, ADD_MENU_ICON_SIZE)
                         menu_item.connect("activate",
                                           self.pop_chng_dt_activate, itr, 1)
                         sub_menu.append(menu_item)
 
                     if dt != 'int' :
                         menu_item = gtk.MenuItem(_('Integer'))
+                        menu_item.set_size_request(-1, ADD_MENU_ICON_SIZE)
                         menu_item.connect("activate",
                                           self.pop_chng_dt_activate, itr, 2)
                         sub_menu.append(menu_item)
 
                     if dt != 'float' :
                         menu_item = gtk.MenuItem(_('Float'))
+                        menu_item.set_size_request(-1, ADD_MENU_ICON_SIZE)
                         menu_item.connect("activate",
                                           self.pop_chng_dt_activate, itr, 3)
                         sub_menu.append(menu_item)
 
                     if dt == 'float' :
                         menu_digits = gtk.MenuItem(_('Set digits'))
+                        menu_digits.set_size_request(-1, ADD_MENU_ICON_SIZE)
                         self.pop_up.append(menu_digits)
                         sub_menu = gtk.Menu()
                         menu_digits.set_submenu(sub_menu)
@@ -2222,6 +2119,7 @@ Notes:
                         i = 1
                         while i < 7 :
                             menu_item = gtk.MenuItem(str(i))
+                            menu_item.set_size_request(-1, ADD_MENU_ICON_SIZE)
                             menu_item.connect("activate",
                                         self.pop_set_digits_activate, itr, i)
                             sub_menu.append(menu_item)
@@ -2240,29 +2138,44 @@ Notes:
 
             self.pop_up.append(self.create_mi(self.actionAdd))
             self.pop_up.append(gtk.SeparatorMenuItem())
-            self.pop_up.append(self.actionSingleView.create_menu_item())
-            self.pop_up.append(self.actionDualView.create_menu_item())
+
+            mi = self.actionSingleView.create_menu_item()
+            mi.set_size_request(-1, ADD_MENU_ICON_SIZE)
+            self.pop_up.append(mi)
+
+            mi = self.actionDualView.create_menu_item()
+            mi.set_size_request(-1, ADD_MENU_ICON_SIZE)
+            self.pop_up.append(mi)
+
             self.pop_up.append(gtk.SeparatorMenuItem())
 
-            self.pop_up.append(self.actionTopBottom.create_menu_item())
-            self.pop_up.append(self.actionSideBySide.create_menu_item())
+            mi = self.actionTopBottom.create_menu_item()
+            mi.set_size_request(-1, ADD_MENU_ICON_SIZE)
+            self.pop_up.append(mi)
+
+            mi = self.actionSideBySide.create_menu_item()
+            mi.set_size_request(-1, ADD_MENU_ICON_SIZE)
+            self.pop_up.append(mi)
+
             self.pop_up.append(gtk.SeparatorMenuItem())
 
-            if DEFAULT_USE_WIDGETS :
-                self.pop_up.append(self.actionUseWidgets.create_menu_item())
-            self.pop_up.append(self.actionHideValCol.create_menu_item())
-            self.pop_up.append(self.actionSubHdrs.create_menu_item())
+            mi = self.actionHideValCol.create_menu_item()
+            mi.set_size_request(-1, ADD_MENU_ICON_SIZE)
+            self.pop_up.append(mi)
+
+            mi = self.actionSubHdrs.create_menu_item()
+            mi.set_size_request(-1, ADD_MENU_ICON_SIZE)
+            self.pop_up.append(mi)
 
             self.pop_up.show_all()
             self.pop_up.popup(None, None, None, event.button, event.time, None)
             return True
 
     def pop_set_digits_activate(self, callback = None, *args) :
-        self.treestore.get(args[0], 0)[0].attr["digits"] = str(args[1])
-        fmt = '{0:0.' + str(args[1]) + 'f}'
-        v = get_float(self.treestore.get(args[0], 0)[0].get_value())
-        self.treestore.get(args[0], 0)[0].attr["value"] = fmt.format(v)
-        self.action()
+        new_digts = str(args[1])
+        if new_digits != self.treestore.get(args[0], 0)[0].get_digits() :
+            self.treestore.get(args[0], 0)[0].set_digits(new_digits)
+            self.action()
 
     def pop_chng_dt_activate(self, callback = None, *args) :
         if args[1] == 1 :
@@ -2270,156 +2183,13 @@ Notes:
         elif args[1] == 2 :
             self.treestore.get(args[0], 0)[0].attr["type"] = 'int'
             v = get_float(self.treestore.get(args[0], 0)[0].get_value())
-            self.treestore.get(args[0], 0)[0].attr["value"] = '%d' % v
+            self.treestore.get(args[0], 0)[0].set_value('%d' % v)
         elif args[1] == 3 :
             self.treestore.get(args[0], 0)[0].attr["type"] = 'float'
             v = get_float(self.treestore.get(args[0], 0)[0].get_value())
             fmt = '{0:0.' + self.treestore.get(args[0], 0)[0].get_digits() + 'f}'
-            self.treestore.get(args[0], 0)[0].attr["value"] = fmt.format(v)
+            self.treestore.get(args[0], 0)[0].set_value(fmt.format(v))
         self.action()
-
-    def create_widget_box(self) :
-        tbl = gtk.Table(1, 2)
-        tbl.set_row_spacings(2)
-        tbl.set_col_spacings(3)
-        tbl.set_border_width(4)
-        row_no = 0
-
-        itr = self.details_filter.get_iter_first()
-        while itr is not None :
-
-            lbl = gtk.Label()
-            lbl.set_ellipsize(pango.ELLIPSIZE_END)
-            lbl.set_property("use-markup", True)
-            lbl.set_alignment(0.0, 0.5)
-            lbl.set_label(self.details_filter.get_value(itr, 0).get_name())
-            lbl.set_tooltip_markup(self.details_filter.get_value(itr, 0).get_attr('tool_tip'))
-            tooltip = self.details_filter.get_value(itr, 0).get_attr('tool_tip')
-
-            data_type = self.details_filter.get_value(itr, 0).get_type()
-
-            if data_type in ['sub-header', 'header'] :
-                lbl.set_padding(25, 4)
-                lbl.set_tooltip_markup(lbl.get_label())
-                tbl.attach(lbl, 0, 2, row_no, row_no + 1)
-            else :
-                hbox = gtk.HBox(False, 4)
-                hbox.set_size_request(130, -1)
-
-                img = gtk.Image()
-                pbuf = self.details_filter.get_value(itr, 0).get_icon()
-                if pbuf :
-                    img.set_from_pixbuf(pbuf)
-                    pad = (TV_ICON_SIZE - pbuf.get_width()) / 2
-                    if pad < 0:
-                        pad = 0
-                else :
-                    pad = TV_ICON_SIZE / 2
-
-                hbox.pack_start(img, expand = False, padding = pad)
-                hbox.pack_start(lbl, expand = True, fill = True)
-                tbl.attach(hbox, 0, 1, row_no, row_no + 1)
-
-                val = self.details_filter.get_value(itr, 0).get_value()
-                if data_type == 'float':
-                    try :
-                        f_val = float(val)
-                    except :
-                        StatusBar.push(SB_Params_context_id,
-                                    _('Can not convert "%s" to float') % val)
-                        data_type = 'string'
-
-                if data_type == 'int':
-                    try :
-                        i_val = int(val)
-                    except :
-                        if val != '' :
-                            StatusBar.push(SB_Params_context_id,
-                                        _('Can not convert "%s" to int') % val)
-                            data_type = 'string'
-                        else :
-                            i_val = 0
-
-                if data_type in ['bool', 'boolean'] :
-                    cell = gtk.CheckButton('')
-                    cell.set_active(get_int(val) != 0)
-                    cell.set_tooltip_markup(lbl.get_tooltip_markup())
-                    cell.connect('toggled', self.edited_toggled, itr)
-                    tbl.attach(cell, 1, 2, row_no, row_no + 1, ypadding = 4)
-
-                elif data_type == 'combo':
-                    cell = gtk.combo_box_new_text()
-                    options = self.details_filter.get_value(itr, 0).attr['options']
-
-                    i = 0
-                    act = -1
-                    found = False
-                    for option in options.split(":") :
-                        opt = option.split('=')
-                        cell.append_text(opt[0])
-                        if (not found) and (opt[1] == val) :
-                            act = i
-                            found = True
-                        i += 1
-
-                    cell.set_active(act)
-                    cell.connect('changed', self.edited_combo, itr)
-                    cell.set_tooltip_markup(lbl.get_tooltip_markup())
-                    tbl.attach(cell, 1, 2, row_no, row_no + 1)
-
-                elif data_type == 'float':
-                    d = get_int(self.details_filter.get_value(itr, 0).get_digits())
-                    mini = get_float(self.details_filter.get_value(itr, 0).get_min_value())
-                    maxi = get_float(self.details_filter.get_value(itr, 0).get_max_value())
-                    adj = gtk.Adjustment(f_val, mini, maxi, 0.1, 1)
-                    cell = gtk.SpinButton(adj, digits = d)
-                    cell.set_tooltip_markup(lbl.get_tooltip_markup())
-                    adj.connect('value-changed', self.edited_float, itr)
-                    tbl.attach(cell, 1, 2, row_no, row_no + 1)
-
-                elif data_type == 'int':
-                    mini = int(get_float(self.details_filter.get_value(itr, 0).get_min_value()))
-                    maxi = int(get_float(self.details_filter.get_value(itr, 0).get_max_value()))
-                    adj = gtk.Adjustment(i_val, mini, maxi, 1, 10)
-                    cell = gtk.SpinButton(adj)
-                    cell.set_tooltip_markup(lbl.get_tooltip_markup())
-                    adj.connect('value-changed', self.edited_int, itr)
-                    tbl.attach(cell, 1, 2, row_no, row_no + 1)
-
-                else :  # string
-                    cell = gtk.Entry()
-                    cell.set_text(val)
-                    cell.set_tooltip_markup(lbl.get_tooltip_markup())
-                    cell.connect('changed', self.edited_text, itr)
-                    tbl.attach(cell, 1, 2, row_no, row_no + 1)
-
-            if tooltip is not None and show_tooltip_in_widget_box :
-                row_no += 1
-                tbl.resize(row_no + 1, 2)
-                lbl = gtk.Label()
-                lbl.set_alignment(0.0, 0.5)
-                lbl.set_padding(TV_ICON_SIZE + 25, 4)
-                lbl.set_ellipsize(pango.ELLIPSIZE_END)
-                lbl.set_property("use-markup", True)
-                lbl.set_label('<i>%s</i>' % tooltip)
-                tbl.attach(lbl, 0, 2, row_no, row_no + 1)
-
-            itr = self.details_filter.iter_next(itr)
-            if itr :
-                row_no += 1
-                tbl.resize(row_no + 1, 2)
-
-        vbox = gtk.VBox()
-        vbox.pack_start(tbl, expand = False, fill = False)
-        lbl = gtk.Label('')
-        vbox.pack_start(lbl, expand = True, fill = True)
-        if self.widgets_viewport is not None :
-            self.widgets_viewport.destroy()
-        self.widgets_viewport = gtk.Viewport()
-        self.widgets_viewport.add(vbox)
-        self.params_scroll.add(self.widgets_viewport)
-        self.params_scroll.show_all()
-
 
     def create_second_treeview(self):
         self.treeview2 = gtk.TreeView()
@@ -2472,11 +2242,11 @@ Notes:
         self.actionBuild.connect('activate', self.action_build)
 
         self.actionDualView = gtk.RadioAction("actionDualView", _('Dual Views'), _('Dual Views'), '', 0)
-        self.actionDualView.connect('activate', self.dual_view_activate)
+        self.actionDualView.connect('activate', self.set_layout_dual)
 
         self.actionSingleView = gtk.RadioAction("actionSingleView", _('Single View'), _('Single View'), '', 0)
         self.actionSingleView.set_group(self.actionDualView)
-        self.actionSingleView.connect('activate', self.single_view_activate)
+        self.actionSingleView.connect('activate', self.set_layout_single)
 
         self.actionEditDefaults = gtk.Action("actionEditDefaults", _('Edit Defaults'), _('Edit Defaults'), 'gtk-edit')
         self.actionEditDefaults.connect('activate', self.edit_defaults)
@@ -2515,9 +2285,6 @@ Notes:
         self.actionTopBottom.set_group(self.actionSideBySide)
         self.actionTopBottom.connect('activate', self.top_bottom_layout)
 
-        self.actionUseWidgets = gtk.ToggleAction("actionUseWidgets", _('Use Widgets Box'), _('Use Widgets Box'), '')
-        self.actionUseWidgets.connect('activate', self.use_widget)
-
         self.actionSubHdrs = gtk.ToggleAction("actionSubHdrs", _('Sub-Groups In Master Tree'), _('Sub-Groups In Master Tree'), '')
         self.actionSubHdrs.connect('activate', self.action_SubHdrs)
 
@@ -2544,7 +2311,6 @@ Notes:
         self.actionGroup.add_action(self.actionSaveTemplate)
         self.actionGroup.add_action(self.actionSideBySide)
         self.actionGroup.add_action(self.actionTopBottom)
-        self.actionGroup.add_action(self.actionUseWidgets)
         self.actionGroup.add_action(self.actionSubHdrs)
 
         self.actionAdd = self.builder.get_object("actionAdd")
@@ -2603,9 +2369,6 @@ Notes:
         self.add_iconview = self.builder.get_object("add_iconview")
         self.add_toolbar = self.builder.get_object("add_toolbar")
         self.tv_w_adj = self.builder.get_object("tv_w_adj")
-
-        global StatusBar
-        StatusBar = self.builder.get_object("statusbar")
 
 
     def get_translations(self, callback = None) :
@@ -2730,7 +2493,7 @@ Notes:
         (model, itr) = self.treeview.get_selection().get_selected()
         self.actionCollapse.set_sensitive(itr is not None)
         if itr :
-#            tree_path = model.get_path(itr)
+            tree_path = model.get_path(itr)
             ts_itr = model.convert_iter_to_child_iter(itr)
             self.selected_type = model.get_value(itr, 0).attr.get("type")
             if self.selected_type == "items" :
@@ -2807,7 +2570,7 @@ Notes:
             self.can_remove_from_group = False
             n_children = model.iter_n_children(None)
             self.items_lpath = (n_children,)
-#            tree_path = None
+            tree_path = None
 
 
         self.can_delete_duplicate = (self.iter_selected_type == SEL_IS_FEATURE)
@@ -2815,11 +2578,7 @@ Notes:
 
         if self.use_dual_views :
             if self.iter_selected_type == SEL_IS_NONE :
-                if self.use_widget_box :
-                    if self.widgets_viewport is not None :
-                        self.widgets_viewport.destroy()
-                        self.widgets_viewport = None
-                elif self.treeview2 :
+                if self.treeview2 is not None:
                     self.treeview2.set_model(None)
 
             if ((old_selected_feature == self.selected_feature) and \
@@ -2832,14 +2591,11 @@ Notes:
                     a_filter = self.treestore.filter_new(self.feature_ts_path)
                 a_filter.set_visible_column(3)
                 self.details_filter = a_filter
-                if not self.sub_hdrs_in_tv1 :
-                    self.treeview.expand_all()
+                if tree_path is not None and not self.sub_hdrs_in_tv1 :
+                    self.treeview.expand_row(tree_path, False)
 
-                if self.use_widget_box :
-                    self.create_widget_box()
-                else :
-                    self.treeview2.set_model(self.details_filter)
-                    self.treeview2.expand_all()
+                self.treeview2.set_model(self.details_filter)
+                self.treeview2.expand_all()
 
     def add_to_item_clicked(self, call) :
         ts_itr = self.master_filter.convert_iter_to_child_iter(self.iter_next)
@@ -3123,7 +2879,7 @@ Notes:
 
     def show_help(self) :
         html_hlp = self.selected_feature.get_attr("html_help")
-        if html_hlp :
+        if html_hlp is not None :
             webbrowser.open(html_hlp, new = 2)
 
     def treestore_from_xml(self, xml):
@@ -3282,7 +3038,7 @@ Notes:
         itr = self.master_filter.convert_iter_to_child_iter(itr)
         old_value = self.treestore.get_value(itr, 0).get_value()
         if old_value != new_text :
-            self.treestore.get(itr, 0)[0].attr["value"] = new_text
+            self.treestore.get(itr, 0)[0].set_value(new_text)
             self.action()
         self.treeview.grab_focus()
 
@@ -3291,7 +3047,7 @@ Notes:
         itr = self.details_filter.convert_iter_to_child_iter(itr)
         old_value = self.treestore.get_value(itr, 0).get_value()
         if old_value != new_text :
-            self.treestore.get(itr, 0)[0].attr["value"] = new_text
+            self.treestore.get(itr, 0)[0].set_value(new_text)
             self.action()
         self.treeview2.grab_focus()
 
@@ -3428,23 +3184,24 @@ Notes:
         self.add_feature(src)
 
     def add_feature(self, src) :
-        src_file = search_path(src)
-        if not src_file :
+        src_file = search_path(src, _("File not found"), True)
+        if src_file is None:
             return
 
-        src_data = open(src_file).read(25)
+        src_data = open(src_file).read()
         valid_xml = src_data.find(".//%s" % XML_TAG)
         if valid_xml > -1 :
             xml = etree.parse(src_file).getroot()
         else :
             if src_data.find('[SUBROUTINE]') == -1 :
-                IOError("'%s' is not a valid file")
-            if use_top_features_toolbar :
-                self.topfeatures_update(src)
-            xml = etree.Element(XML_TAG)
-            f = Feature(src_file)
-            xml.append(f.to_xml())
+                mess_dlg("'%s' is not a valid cfg file" % src_file)
+                return
+        xml = etree.Element(XML_TAG)
+        f = Feature(src_file)
+        xml.append(f.to_xml())
         self.import_xml(xml)
+        if use_top_features_toolbar :
+            self.topfeatures_update(src)
 
     def autorefresh_call(self) :
         fname = APP_PATH + NGC_DIR + "features.ngc"
@@ -3528,7 +3285,6 @@ Notes:
         dialog.set_authors(APP_AUTHORS)
         dialog.set_comments(_(APP_COMMENTS))
         dialog.set_license(_(APP_LICENCE))
-        dialog.set_website(HOME_PAGE)
         dialog.run()
         dialog.destroy()
 
@@ -3549,63 +3305,31 @@ Notes:
         self.file_changed = False
         self.action()
 
-    def set_layout(self):
+    def set_layout(self, val):
+        self.use_dual_views = val
         if self.use_dual_views :
-            if self.use_widget_box :
-                if self.treeview2 is not None :
-                    self.treeview2.destroy()
-                    self.treeview2 = None
-            else :
-                if self.widgets_viewport is not None :
-                    self.widgets_viewport.destroy()
-                    self.widgets_viewport = None
-                if self.treeview2 is None :
-                    self.create_second_treeview()
-                    self.treeview2.show_all()
-                if self.side_by_side :
-                    self.side_by_side_layout()
+            if self.treeview2 is None :
+                self.create_second_treeview()
+                self.treeview2.show_all()
+            if self.side_by_side :
+                self.side_by_side_layout()
             self.frame2.set_visible(True)
         else :
             self.frame2.set_visible(False)
             if self.treeview2 is not None :
                 self.treeview2.destroy()
                 self.treeview2 = None
-            if self.widgets_viewport is not None :
-                self.widgets_viewport.destroy()
-                self.widgets_viewport = None
         self.treestore_from_xml(self.treestore_to_xml())
 
         self.actionTopBottom.set_sensitive(self.use_dual_views)
         self.actionSideBySide.set_sensitive(self.use_dual_views)
-        self.actionUseWidgets.set_sensitive(self.use_dual_views)
         self.actionSubHdrs.set_sensitive(self.use_dual_views)
 
-    def dual_view_activate(self, *args) :
-        self.use_dual_views = True
-        self.set_layout()
+    def set_layout_dual(self, *args):
+        self.set_layout(True)
 
-    def single_view_activate(self, *args) :
-        self.use_dual_views = False
-        self.set_layout()
-
-    def use_widget(self, callback = None) :
-        self.use_widget_box = self.actionUseWidgets.get_active()
-        if self.use_widget_box :
-            if self.treeview2 is not None :
-                self.treeview2.destroy()
-                self.treeview2 = None
-        if self.use_dual_views :
-            path = self.selected_feature_path
-            if not self.use_widget_box :
-                if self.widgets_viewport is not None :
-                    self.widgets_viewport.destroy()
-                    self.widgets_viewport = None
-                self.create_second_treeview()
-                self.treeview2.show_all()
-            self.treestore_from_xml(self.treestore_to_xml())
-            if path :
-                self.treeview.set_cursor(path)
-                self.get_selected_feature(self)
+    def set_layout_single(self, *args):
+        self.set_layout(False)
 
     def hide_value_col(self, callback = None):
         self.col_value.set_visible(not self.actionHideValCol.get_active())
@@ -3670,16 +3394,13 @@ Notes:
         config = ConfigParser.RawConfigParser()
 
         config.add_section('general')
-        config.set('general', 'version', APP_VERSION)
-        config.set('general', 'chk_version', self.checked_update)
         config.set('general', 'refresh_time_out', self.timeout_adj.value)
         config.set('general', 'width', self.w_adj.value)
         config.set('general', 'col_width', self.col_width_adj.value)
         config.set('general', 'digits', self.digits_adj.value)
         config.set('general', 'dual_view', self.use_dual_views)
-        config.set('general', 'use_widgets', self.use_widget_box)
         config.set('general', 'side_by_side', self.side_by_side)
-        config.set('general', 'subheaders_in_MASTER', self.sub_hdrs_in_tv1)
+        config.set('general', 'subheaders_in_master', self.sub_hdrs_in_tv1)
         config.set('general', 'features_tv_width', self.tv_w_adj.value)
 
         with open(APP_PATH + PREFERENCES_FILE, 'wb') as configfile:
@@ -3692,6 +3413,13 @@ Notes:
         def read_float(cf, key, default):
             try :
                 val = cf.getfloat('general', key)
+            except :
+                val = default
+            return val
+
+        def read_int(cf, key, default):
+            try :
+                val = cf.getint('general', key)
             except :
                 val = default
             return val
@@ -3712,32 +3440,22 @@ Notes:
 
         config = ConfigParser.ConfigParser()
         config.read(APP_PATH + PREFERENCES_FILE)
-        self.timeout_adj.value = read_float(config, 'refresh_time_out', 1.000)
-        self.w_adj.value = read_float(config, 'width', 425)
-        self.col_width_adj.value = read_float(config, 'col_width', 175)
+        self.timeout_adj.value = read_float(config, 'refresh_time_out', 0.700)
+        self.w_adj.value = read_float(config, 'width', 575)
+        self.col_width_adj.value = read_float(config, 'col_width', 190)
         self.digits_adj.value = read_float(config, 'digits', get_float(DEFAULT_DIGITS))
         DEFAULT_DIGITS = str(int(self.digits_adj.value))
         self.use_dual_views = read_boolean(config, 'dual_view', True)
-        self.use_widget_box = read_boolean(config, 'use_widgets', DEFAULT_USE_WIDGETS)
         self.side_by_side = read_boolean(config, 'side_by_side', True)
-        self.sub_hdrs_in_tv1 = read_boolean(config, 'subheaders_in_MASTER', True)
-        self.tv_w_adj.value = read_float(config, 'features_tv_width', 175)
-        self.checked_update = read_str('general', 'chk_version', '2.0')
-
-#        try :
-#           v = config.get('version', '2.0')#
-#           if v < APP_VERSION :
-#           self.save_preferences()
-#        except :
-#            self.save_preferences()
+        self.sub_hdrs_in_tv1 = read_boolean(config, 'subheaders_in_master', False)
+        self.tv_w_adj.value = read_float(config, 'features_tv_width', 215)
 
     def on_scale_change_value(self, widget):
         self.main_box.set_size_request(int(self.w_adj.value), 100)
 
     def col_width_adj_value_changed(self, widget):
-        if self.col_value :
-            self.col_value.set_min_width(int(self.col_width_adj.value))
-        if self.col_value2 :
+        self.col_value.set_min_width(int(self.col_width_adj.value))
+        if self.col_value2 is not None:
             self.col_value2.set_min_width(int(self.col_width_adj.value))
 
     def move_up_clicked(self, *arg) :
@@ -3748,19 +3466,20 @@ Notes:
 
     def get_col_name(self, column, cell, model, itr) :
         data_type = model.get_value(itr, 0).get_type()
+        val = model.get_value(itr, 0).get_name()
         if data_type == 'header' :
-            cell.set_property('markup', header_fmt_str % model.get_value(itr, 0).get_name())
+            cell.set_property('markup', header_fmt_str % val)
         elif data_type == 'sub-header' :
             if  self.use_dual_views and not self.sub_hdrs_in_tv1 :
-                cell.set_property('markup', sub_header_fmt_str2 % model.get_value(itr, 0).get_name())
+                cell.set_property('markup', sub_header_fmt_str2 % val)
             else :
-                cell.set_property('markup', sub_header_fmt_str % model.get_value(itr, 0).get_name())
+                cell.set_property('markup', sub_header_fmt_str % val)
         elif data_type == 'items' :
-            cell.set_property('markup', items_fmt_str % model.get_value(itr, 0).get_name())
+            cell.set_property('markup', items_fmt_str % val)
         elif data_type in SUPPORTED_DATA_TYPES :
-            cell.set_property('markup', model.get_value(itr, 0).get_name())
+            cell.set_property('markup', val)
         else :
-            cell.set_property('markup', feature_fmt_str % model.get_value(itr, 0).get_name())
+            cell.set_property('markup', feature_fmt_str % val)
 
     def get_editinfo(self, cell, treeview, path):
         model = treeview.get_model()
@@ -3978,18 +3697,18 @@ Notes:
             filechooserdialog.destroy()
 
     def reload_defaults(self, callback = None) :
-        try :
+        if self.default_src is None :
+            mess_dlg(_('No NGC defaults file'))
+        else :
             self.defaults = open(self.default_src).read()
             self.action()
-        except :
-            mess_dlg(_('Can not reload NGC defaults: %s' % self.default_src))
 
     def reload_postamble(self, callback = None) :
-        try :
+        if self.post_amble_src is None :
+            mess_dlg(_('No post amble file'))
+        else :
             self.post_amble = open(self.post_amble_src).read()
             self.action()
-        except :
-            mess_dlg(_('Can not reload post amble file: %s' % self.post_amble_src))
 
     def reload_subroutine(self, *args):
         src = self.selected_feature.get_attr('src')
