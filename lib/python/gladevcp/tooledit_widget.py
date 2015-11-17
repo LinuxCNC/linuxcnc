@@ -121,7 +121,7 @@ class ToolEdit(gtk.VBox):
             value1 = model.get_value(row1,sort_column)
             value2 = model.get_value(row2,sort_column)
             return cmp(value1,value2)
-        model = self.view2.get_model()
+        model = self.view1.get_model()
         model.set_sort_func(12, compare)
         self.view2.connect('button_press_event', self.on_treeview2_button_press_event)
         self.selection = self.view2.get_selection()
