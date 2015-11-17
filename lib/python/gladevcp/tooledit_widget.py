@@ -115,6 +115,14 @@ class ToolEdit(gtk.VBox):
         self.tool_window = self.wTree.get_object("tool_window")
         self.view1 = self.wTree.get_object("treeview1")
         self.view2 = self.wTree.get_object("treeview2")
+        # sort routine for tool diameter
+        def compare(model, row1, row2, user_data=None):
+            sort_column, _ = model.get_sort_column_id()
+            value1 = model.get_value(row1,sort_column)
+            value2 = model.get_value(row2,sort_column)
+            return cmp(value1,value2)
+        model = self.view2.get_model()
+        model.set_sort_func(12, compare)
         self.view2.connect('button_press_event', self.on_treeview2_button_press_event)
         self.selection = self.view2.get_selection()
         self.selection.set_mode(gtk.SELECTION_SINGLE)
