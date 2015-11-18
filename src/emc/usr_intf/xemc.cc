@@ -2737,7 +2737,7 @@ static void keyPressAction(unsigned int state, unsigned int keycode)
       sendJogJointIncr(activeAxis, -jogSpeed, jogIncrement);
     }
     else {
-      sendJoJointgCont(activeAxis, -jogSpeed);
+      sendJogJointCont(activeAxis, -jogSpeed);
     }
     break;
 
