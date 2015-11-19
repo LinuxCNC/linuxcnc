@@ -231,6 +231,9 @@ DONE: - spindle-override
 
 */
 
+#define JOGJOINT 1
+#define JOGAXIS  0
+
 #define MDI_MAX 64
 
 #define HAL_FIELDS \
@@ -1365,19 +1368,19 @@ static int sendAbort()
 }
 
 
-int sendJogJointStop(int ja)
+int sendJogStop(int ja, int jjogmode)
 {
     EMC_JOG_STOP emc_jog_stop_msg;
     
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) { return -1; }
 
-    emc_jog_stop_msg.jjogmode = 1;
+    emc_jog_stop_msg.jjogmode = jjogmode;
     emc_jog_stop_msg.joint_or_axis = ja;
     return emcCommandSend(emc_jog_stop_msg);
 }
 
 
-int sendJogJointCont(int ja, double speed)
+int sendJogCont(int ja, double speed, int jjogmode)
 {
     EMC_JOG_CONT emc_jog_cont_msg;
 
@@ -1385,7 +1388,7 @@ int sendJogJointCont(int ja, double speed)
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) { return -1; }
     if (ja < 0 || ja >= EMCMOT_MAX_JOINTS) { return -1; }
     
-    emc_jog_cont_msg.jjogmode = 1;
+    emc_jog_cont_msg.jjogmode = jjogmode;
     emc_jog_cont_msg.joint_or_axis = ja;
     emc_jog_cont_msg.vel = speed / 60.0;
 
@@ -1393,7 +1396,7 @@ int sendJogJointCont(int ja, double speed)
     return emcCommandSend(emc_jog_cont_msg);
 }
 
-int sendJogJointIncr(int ja, double speed, double incr)
+int sendJogIncr(int ja, double speed, double incr, int jjogmode)
 {
     EMC_JOG_INCR emc_jog_incr_msg;
 
@@ -1401,7 +1404,7 @@ int sendJogJointIncr(int ja, double speed, double incr)
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) { return -1; }
     if (ja < 0 || ja >= EMCMOT_MAX_JOINTS) { return -1; }
 
-    emc_jog_incr_msg.jjogmode = 1;
+    emc_jog_incr_msg.jjogmode = jjogmode;
     emc_jog_incr_msg.joint_or_axis = ja;
     emc_jog_incr_msg.vel = speed / 60.0;
     emc_jog_incr_msg.incr = incr;
@@ -1882,18 +1885,18 @@ static void check_hal_changes()
 	bit = new_halui_data.jog_minus[joint];
 	if ((bit != old_halui_data.jog_minus[joint]) || (bit && jog_speed_changed)) {
 	    if (bit != 0)
-		sendJogJointCont(joint,-new_halui_data.jog_speed);
+		sendJogCont(joint,-new_halui_data.jog_speed,JOGJOINT);
 	    else
-		sendJogJointStop(joint);
+		sendJogStop(joint,JOGJOINT);
 	    old_halui_data.jog_minus[joint] = bit;
 	}
 
 	bit = new_halui_data.jog_plus[joint];
 	if ((bit != old_halui_data.jog_plus[joint]) || (bit && jog_speed_changed)) {
 	    if (bit != 0)
-		sendJogJointCont(joint,new_halui_data.jog_speed);
+		sendJogCont(joint,new_halui_data.jog_speed,JOGJOINT);
 	    else
-		sendJogJointStop(joint);
+		sendJogStop(joint,JOGJOINT);
 	    old_halui_data.jog_plus[joint] = bit;
 	}
 
@@ -1901,23 +1904,23 @@ static void check_hal_changes()
 	bit = (fabs(floatt) > new_halui_data.jog_deadband);
 	if ((floatt != old_halui_data.jog_analog[joint]) || (bit && jog_speed_changed)) {
 	    if (bit)
-		sendJogJointCont(joint,(new_halui_data.jog_speed) * (new_halui_data.jog_analog[joint]));
+		sendJogCont(joint,(new_halui_data.jog_speed) * (new_halui_data.jog_analog[joint]),JOGJOINT);
 	    else
-		sendJogJointStop(joint);
+		sendJogStop(joint,JOGJOINT);
 	    old_halui_data.jog_analog[joint] = floatt;
 	}
 
 	bit = new_halui_data.jog_increment_plus[joint];
 	if (bit != old_halui_data.jog_increment_plus[joint]) {
 	    if (bit)
-		sendJogJointIncr(joint, new_halui_data.jog_speed, new_halui_data.jog_increment[joint]);
+		sendJogIncr(joint, new_halui_data.jog_speed, new_halui_data.jog_increment[joint],JOGJOINT);
 	    old_halui_data.jog_increment_plus[joint] = bit;
 	}
 
 	bit = new_halui_data.jog_increment_minus[joint];
 	if (bit != old_halui_data.jog_increment_minus[joint]) {
 	    if (bit)
-		sendJogJointIncr(joint, new_halui_data.jog_speed, -(new_halui_data.jog_increment[joint]));
+		sendJogIncr(joint, new_halui_data.jog_speed, -(new_halui_data.jog_increment[joint]),JOGJOINT);
 	    old_halui_data.jog_increment_minus[joint] = bit;
 	}
 
@@ -1937,14 +1940,14 @@ static void check_hal_changes()
 	    if (joint != select_changed) {
 		*(halui_data->joint_is_selected[joint]) = 0;
                 if (jogging_selected_joint(old_halui_data) && !jogging_joint(old_halui_data, joint)) {
-                    sendJogJointStop(joint);
+                    sendJogStop(joint,JOGJOINT);
                 }
     	    } else {
 		*(halui_data->joint_is_selected[joint]) = 1;
                 if (*halui_data->jog_plus[num_axes]) {
-                    sendJogJointCont(joint, new_halui_data.jog_speed);
+                    sendJogCont(joint, new_halui_data.jog_speed,JOGJOINT);
                 } else if (*halui_data->jog_minus[num_axes]) {
-                    sendJogJointCont(joint, -new_halui_data.jog_speed);
+                    sendJogCont(joint, -new_halui_data.jog_speed,JOGJOINT);
                 }
 	    }
 	}
@@ -1960,9 +1963,9 @@ static void check_hal_changes()
     js = new_halui_data.joint_selected;
     if ((bit != old_halui_data.jog_minus[num_joints]) || (bit && jog_speed_changed)) {
         if (bit != 0)
-	    sendJogJointCont(js, -new_halui_data.jog_speed);
+	    sendJogCont(js, -new_halui_data.jog_speed,JOGJOINT);
 	else
-	    sendJogJointStop(js);
+	    sendJogStop(js,JOGJOINT);
 	old_halui_data.jog_minus[num_joints] = bit;
     }
 
@@ -1970,9 +1973,9 @@ static void check_hal_changes()
     js = new_halui_data.joint_selected;
     if ((bit != old_halui_data.jog_plus[num_joints]) || (bit && jog_speed_changed)) {
         if (bit != 0)
-	    sendJogJointCont(js,new_halui_data.jog_speed);
+	    sendJogCont(js,new_halui_data.jog_speed,JOGJOINT);
 	else
-	    sendJogJointStop(js);
+	    sendJogStop(js,JOGJOINT);
 	old_halui_data.jog_plus[num_joints] = bit;
     }
 
@@ -1980,7 +1983,7 @@ static void check_hal_changes()
     js = new_halui_data.joint_selected;
     if (bit != old_halui_data.jog_increment_plus[num_joints]) {
 	if (bit)
-	    sendJogJointIncr(js, new_halui_data.jog_speed, new_halui_data.jog_increment[num_joints]);
+	    sendJogIncr(js, new_halui_data.jog_speed, new_halui_data.jog_increment[num_joints],JOGJOINT);
 	old_halui_data.jog_increment_plus[num_joints] = bit;
     }
 
@@ -1988,7 +1991,7 @@ static void check_hal_changes()
     js = new_halui_data.joint_selected;
     if (bit != old_halui_data.jog_increment_minus[num_joints]) {
 	if (bit)
-	    sendJogJointIncr(js, new_halui_data.jog_speed, -(new_halui_data.jog_increment[num_joints]));
+	    sendJogIncr(js, new_halui_data.jog_speed, -(new_halui_data.jog_increment[num_joints]),JOGJOINT);
 	old_halui_data.jog_increment_minus[num_joints] = bit;
     }
 
