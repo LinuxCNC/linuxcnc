@@ -521,8 +521,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferror_limit;	/* limit depends on speed */
 	double ferror_high_mark;	/* max following error */
 	simple_tp_t free_tp;	/* planner for free mode motion */
-	int kb_jog_active;	/* non-zero during a keyboard jog */
-	int wheel_jog_active;	/* non-zero during a wheel jog */
+	int kb_jjog_active;	/* non-zero during a keyboard jog */
+	int wheel_jjog_active;	/* non-zero during a wheel jog */
 
 	/* internal info - changes regularly, not usually accessed from user
 	   space */
@@ -537,7 +537,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	home_state_t home_state;	/* state machine for homing */
 	double motor_offset;	/* diff between internal and motor pos, used
 				   to set position to zero during homing */
-	int old_jog_counts;	/* prior value, used for deltas */
+	int old_jjog_counts;	/* prior value, used for deltas */
     } emcmot_joint_t;
 
 /* This structure contains only the "status" data associated with
@@ -593,6 +593,11 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double vel_limit;	/* upper limit of axis speed */
 	double acc_limit;	/* upper limit of axis accel */
 	simple_tp_t teleop_tp;	/* planner for teleop mode motion */
+
+	int old_ajog_counts;	/* prior value, used for deltas */
+	int kb_ajog_active;	/* non-zero during a keyboard jog */
+	int wheel_ajog_active;	/* non-zero during a wheel jog */
+
     } emcmot_axis_t;
 
     typedef struct {

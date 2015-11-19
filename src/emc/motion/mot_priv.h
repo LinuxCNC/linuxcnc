@@ -47,8 +47,8 @@ typedef struct {
     hal_float_t *free_pos_cmd;	/* RPI: free traj planner pos cmd */
     hal_float_t *free_vel_lim;	/* RPI: free traj planner vel limit */
     hal_bit_t *free_tp_enable;	/* RPI: free traj planner is running */
-    hal_bit_t *kb_jog_active;   /* RPI: executing keyboard jog */
-    hal_bit_t *wheel_jog_active;/* RPI: executing handwheel jog */
+    hal_bit_t *kb_jjog_active;   /* RPI: executing keyboard jog */
+    hal_bit_t *wheel_jjog_active;/* RPI: executing handwheel jog */
 
     hal_bit_t *active;		/* RPI: joint is active, whatever that means */
     hal_bit_t *in_position;	/* RPI: joint is in position */
@@ -71,10 +71,10 @@ typedef struct {
     hal_bit_t *unlock;          /* WPI: command that axis should unlock for rotation */
     hal_bit_t *is_unlocked;     /* RPI: axis is currently unlocked */
 
-    hal_s32_t *jog_counts;	/* WPI: jogwheel position input */
-    hal_bit_t *jog_enable;	/* RPI: enable jogwheel */
-    hal_float_t *jog_scale;	/* RPI: distance to jog on each count */
-    hal_bit_t *jog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
+    hal_s32_t   *jjog_counts;	/* WPI: jogwheel position input */
+    hal_bit_t   *jjog_enable;	/* RPI: enable jogwheel */
+    hal_float_t *jjog_scale;	/* RPI: distance to jog on each count */
+    hal_bit_t   *jjog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
 
 } joint_hal_t;
 
@@ -83,7 +83,14 @@ typedef struct {
     hal_float_t *vel_cmd;        /* RPI: commanded velocity */
     hal_float_t *teleop_pos_cmd; /* RPI: teleop traj planner pos cmd */
     hal_float_t *teleop_vel_lim; /* RPI: teleop traj planner vel limit */
-    hal_bit_t *teleop_tp_enable; /* RPI: teleop traj planner is running */
+    hal_bit_t   *teleop_tp_enable; /* RPI: teleop traj planner is running */
+
+    hal_s32_t   *ajog_counts;	/* WPI: jogwheel position input */
+    hal_bit_t   *ajog_enable;	/* RPI: enable jogwheel */
+    hal_float_t *ajog_scale;	/* RPI: distance to jog on each count */
+    hal_bit_t   *ajog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
+    hal_bit_t   *kb_ajog_active;   /* RPI: executing keyboard jog */
+    hal_bit_t   *wheel_ajog_active;/* RPI: executing handwheel jog */
 } axis_hal_t;
 
 /* machine data */
