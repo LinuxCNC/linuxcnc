@@ -113,6 +113,7 @@ static int init_hal_io(void);
 
 /* functions called by init_hal_io() */
 static int export_joint(int num, joint_hal_t * addr);
+static int export_axis(char c, axis_hal_t  * addr);
 
 /* init_comm_buffers() allocates and initializes the command,
    status, and error buffers used to communicate witht the user
@@ -272,6 +273,7 @@ static int init_hal_io(void)
 {
     int n, retval;
     joint_hal_t *joint_data;
+    axis_hal_t  *axis_data;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_hal_io() starting...\n");
 
@@ -449,11 +451,24 @@ static int init_hal_io(void)
 
     /* export axis pins and parameters */
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].pos_cmd), mot_comp_id, "axis.%c.pos-cmd", "xyzabcuvw"[n])) != 0) goto error;
-        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].vel_cmd), mot_comp_id, "axis.%c.vel-cmd", "xyzabcuvw"[n])) != 0) goto error;
-        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_pos_cmd), mot_comp_id, "axis.%c.teleop-pos-cmd", "xyzabcuvw"[n])) != 0) goto error;
-        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_vel_lim), mot_comp_id, "axis.%c.teleop-vel-lim", "xyzabcuvw"[n])) != 0) goto error;
-        if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_tp_enable), mot_comp_id, "axis.%c.teleop-tp-enable", "xyzabcuvw"[n])) != 0) goto error;
+        char c = "xyzabcuvw"[n];
+        axis_data = &(emcmot_hal_data->axis[n]);
+        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].pos_cmd),
+           mot_comp_id, "axis.%c.pos-cmd",         c)) != 0) goto error;
+        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].vel_cmd),
+           mot_comp_id, "axis.%c.vel-cmd",         c)) != 0) goto error;
+        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_pos_cmd),
+           mot_comp_id, "axis.%c.teleop-pos-cmd",  c)) != 0) goto error;
+        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_vel_lim),
+           mot_comp_id, "axis.%c.teleop-vel-lim",  c)) != 0) goto error;
+        if ((retval = hal_pin_bit_newf(HAL_OUT,   &(emcmot_hal_data->axis[n].teleop_tp_enable),
+           mot_comp_id, "axis.%c.teleop-tp-enable",c)) != 0) goto error;
+
+        retval = export_axis(c, axis_data);
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: axis %c pin/param export failed\n"), c);
+	    return -1;
+	}
     }
 
     /* Done! */
@@ -490,10 +505,10 @@ static int export_joint(int num, joint_hal_t * addr)
     if ((retval = hal_pin_bit_newf(HAL_IO, &(addr->index_enable), mot_comp_id, "joint.%d.index-enable", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->amp_enable), mot_comp_id, "joint.%d.amp-enable-out", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(addr->amp_fault), mot_comp_id, "joint.%d.amp-fault-in", num)) != 0) return retval;
-    if ((retval = hal_pin_s32_newf(HAL_IN, &(addr->jog_counts), mot_comp_id, "joint.%d.jog-counts", num)) != 0) return retval;
-    if ((retval = hal_pin_bit_newf(HAL_IN, &(addr->jog_enable), mot_comp_id, "joint.%d.jog-enable", num)) != 0) return retval;
-    if ((retval = hal_pin_float_newf(HAL_IN, &(addr->jog_scale), mot_comp_id, "joint.%d.jog-scale", num)) != 0) return retval;
-    if ((retval = hal_pin_bit_newf(HAL_IN, &(addr->jog_vel_mode), mot_comp_id, "joint.%d.jog-vel-mode", num)) != 0) return retval;
+    if ((retval = hal_pin_s32_newf(HAL_IN,   &(addr->jjog_counts), mot_comp_id, "joint.%d.jog-counts", num)) != 0) return retval;
+    if ((retval = hal_pin_bit_newf(HAL_IN,   &(addr->jjog_enable), mot_comp_id, "joint.%d.jog-enable", num)) != 0) return retval;
+    if ((retval = hal_pin_float_newf(HAL_IN, &(addr->jjog_scale), mot_comp_id, "joint.%d.jog-scale", num)) != 0) return retval;
+    if ((retval = hal_pin_bit_newf(HAL_IN,   &(addr->jjog_vel_mode), mot_comp_id, "joint.%d.jog-vel-mode", num)) != 0) return retval;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(addr->joint_vel_cmd), mot_comp_id, "joint.%d.vel-cmd", num)) != 0) return retval;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(addr->backlash_corr), mot_comp_id, "joint.%d.backlash-corr", num)) != 0) return retval;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(addr->backlash_filt), mot_comp_id, "joint.%d.backlash-filt", num)) != 0) return retval;
@@ -503,8 +518,8 @@ static int export_joint(int num, joint_hal_t * addr)
     if ((retval = hal_pin_float_newf(HAL_OUT, &(addr->free_pos_cmd), mot_comp_id, "joint.%d.free-pos-cmd", num)) != 0) return retval;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(addr->free_vel_lim), mot_comp_id, "joint.%d.free-vel-lim", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->free_tp_enable), mot_comp_id, "joint.%d.free-tp-enable", num)) != 0) return retval;
-    if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->kb_jog_active), mot_comp_id, "joint.%d.kb-jog-active", num)) != 0) return retval;
-    if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->wheel_jog_active), mot_comp_id, "joint.%d.wheel-jog-active", num)) != 0) return retval;
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->kb_jjog_active), mot_comp_id, "joint.%d.kb-jog-active", num)) != 0) return retval;
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->wheel_jjog_active), mot_comp_id, "joint.%d.wheel-jog-active", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->in_position), mot_comp_id, "joint.%d.in-position", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->phl), mot_comp_id, "joint.%d.pos-hard-limit", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->nhl), mot_comp_id, "joint.%d.neg-hard-limit", num)) != 0) return retval;
@@ -515,6 +530,7 @@ static int export_joint(int num, joint_hal_t * addr)
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->homed), mot_comp_id, "joint.%d.homed", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->homing), mot_comp_id, "joint.%d.homing", num)) != 0) return retval;
     if ((retval = hal_pin_s32_newf(HAL_OUT, &(addr->home_state), mot_comp_id, "joint.%d.home-state", num)) != 0) return retval;
+// FIXME not a good test for generic (non-IDENTITY kins) in joints_axes branch
     if(num >= 3 && num <= 5) {
         // for rotaries only...
         if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->unlock), mot_comp_id, "joint.%d.unlock", num)) != 0) return retval;
@@ -522,6 +538,23 @@ static int export_joint(int num, joint_hal_t * addr)
     }
 
     /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_axis(char c, axis_hal_t * addr)
+{
+    int retval, msg;
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    if ((retval = hal_pin_bit_newf(HAL_IN,  &(addr->ajog_enable),      mot_comp_id,"axis.%c.jog-enable", c)) != 0) return retval;
+    if ((retval = hal_pin_float_newf(HAL_IN,&(addr->ajog_scale),       mot_comp_id,"axis.%c.jog-scale", c)) != 0) return retval;
+    if ((retval = hal_pin_s32_newf(HAL_IN,  &(addr->ajog_counts),      mot_comp_id,"axis.%c.jog-counts", c)) != 0) return retval;
+    if ((retval = hal_pin_bit_newf(HAL_IN,  &(addr->ajog_vel_mode),    mot_comp_id,"axis.%c.jog-vel-mode", c)) != 0) return retval;
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->kb_ajog_active),   mot_comp_id,"axis.%c.kb-jog-active", c)) != 0) return retval;
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->wheel_ajog_active),mot_comp_id,"axis.%c.wheel-jog-active", c)) != 0) return retval;
+
     rtapi_set_msg_level(msg);
     return 0;
 }
@@ -621,7 +654,6 @@ static int init_comm_buffers(void)
     SET_MOTION_ENABLE_FLAG(0);
     /* record the kinematics type of the machine */
     emcmotConfig->kinType = kinematicsType();
-
     emcmot_config_change();
 
     /* init pointer to joint structs */

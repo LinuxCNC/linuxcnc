@@ -12,6 +12,7 @@
 *
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
+
 #include "posemath.h"
 #include "rtapi.h"
 #include "hal.h"
@@ -141,11 +142,12 @@ static void check_for_faults(void);
 */
 static void set_operating_mode(void);
 
-/* 'handle_jogwheels()' reads jogwheels, decides if they should be
+/* 'handle_jjogwheels()' reads jogwheels, decides if they should be
    enabled, and if so, changes the free mode planner's target position
    when the jogwheel(s) turn.
 */
-static void handle_jogwheels(void);
+static void handle_jjogwheels(void);
+static void handle_ajogwheels(void);
 
 /* 'do_homing_sequence()' looks at emcmotStatus->homingSequenceState 
    to decide what, if anything, needs to be done related to multi-joint
@@ -317,8 +319,10 @@ check_stuff ( "after process_probe_inputs()" );
 check_stuff ( "after check_for_faults()" );
     set_operating_mode();
 check_stuff ( "after set_operating_mode()" );
-    handle_jogwheels();
-check_stuff ( "after handle_jogwheels()" );
+    handle_jjogwheels();
+check_stuff ( "after handle_jjogwheels()" );
+    handle_ajogwheels();
+check_stuff ( "after handle_ajogwheels()" );
     do_homing_sequence();
 check_stuff ( "after do_homing_sequence()" );
     do_homing();
@@ -942,12 +946,12 @@ static void set_operating_mode(void)
     }
 }
 
-static void handle_jogwheels(void)
+static void handle_jjogwheels(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
     joint_hal_t *joint_data;
-    int new_jog_counts, delta;
+    int new_jjog_counts, delta;
     double distance, pos, stop_dist;
     static int first_pass = 1;	/* used to set initial conditions */
 
@@ -960,10 +964,10 @@ static void handle_jogwheels(void)
 	    continue;
 	}
 	/* get counts from jogwheel */
-	new_jog_counts = *(joint_data->jog_counts);
-	delta = new_jog_counts - joint->old_jog_counts;
+	new_jjog_counts = *(joint_data->jjog_counts);
+	delta = new_jjog_counts - joint->old_jjog_counts;
 	/* save value for next time */
-	joint->old_jog_counts = new_jog_counts;
+	joint->old_jjog_counts = new_jjog_counts;
 	/* initialization complete */
 	if ( first_pass ) {
 	    continue;
@@ -984,7 +988,7 @@ static void handle_jogwheels(void)
 	    continue;
 	}
 	/* the jogwheel input for this joint must be enabled */
-	if ( *(joint_data->jog_enable) == 0 ) {
+	if ( *(joint_data->jjog_enable) == 0 ) {
 	    continue;
 	}
 	/* must not be homing */
@@ -992,7 +996,7 @@ static void handle_jogwheels(void)
 	    continue;
 	}
 	/* must not be doing a keyboard jog */
-	if (joint->kb_jog_active) {
+	if (joint->kb_jjog_active) {
 	    continue;
 	}
 	if (emcmotStatus->net_feed_scale < 0.0001 ) {
@@ -1000,7 +1004,7 @@ static void handle_jogwheels(void)
 	    break;
 	}
 	/* calculate distance to jog */
-	distance = delta * *(joint_data->jog_scale);
+	distance = delta * *(joint_data->jjog_scale);
 	/* check for joint already on hard limit */
 	if (distance > 0.0 && GET_JOINT_PHL_FLAG(joint)) {
 	    continue;
@@ -1025,7 +1029,7 @@ static void handle_jogwheels(void)
 	   commanded distance.  Velocity mode is for those folks.  If
 	   the command is faster than the machine can track, excess
 	   command is simply dropped. */
-	if ( *(joint_data->jog_vel_mode) ) {
+	if ( *(joint_data->jjog_vel_mode) ) {
             double v = joint->vel_limit * emcmotStatus->net_feed_scale;
 	    /* compute stopping distance at max speed */
 	    stop_dist = v * v / ( 2 * joint->acc_limit);
@@ -1042,7 +1046,7 @@ static void handle_jogwheels(void)
         joint->free_tp.max_vel = joint->vel_limit;
         joint->free_tp.max_acc = joint->acc_limit;
 	/* lock out other jog sources */
-	joint->wheel_jog_active = 1;
+	joint->wheel_jjog_active = 1;
         /* and let it go */
         joint->free_tp.enable = 1;
 	SET_JOINT_ERROR_FLAG(joint, 0);
@@ -1056,6 +1060,58 @@ static void handle_jogwheels(void)
     // done with initialization, do the whole thing from now on
     first_pass = 0;
 }
+
+static void handle_ajogwheels(void)
+{
+    int axis_num;
+    emcmot_axis_t *axis;
+    axis_hal_t *axis_data;
+    int new_ajog_counts, delta;
+    double distance, pos, stop_dist;
+    static int first_pass = 1;	/* used to set initial conditions */
+
+    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+        axis = &axes[axis_num];
+	axis_data = &(emcmot_hal_data->axis[axis_num]);
+	new_ajog_counts = *(axis_data->ajog_counts);
+	delta = new_ajog_counts - axis->old_ajog_counts;
+	axis->old_ajog_counts = new_ajog_counts;
+	if ( first_pass ) { continue; }
+	if ( delta == 0 ) {
+            //just update counts
+            continue;
+        }
+        if (GET_MOTION_COORD_FLAG())          { continue; }
+        if (!GET_MOTION_TELEOP_FLAG())        { continue; }
+	if (!GET_MOTION_ENABLE_FLAG())        { continue; }
+	if ( *(axis_data->ajog_enable) == 0 ) { continue; }
+	if (emcmotStatus->homing_active)      { continue; }
+	if (axis->kb_ajog_active)             { continue; }
+	distance = delta * *(axis_data->ajog_scale);
+	pos = axis->teleop_tp.pos_cmd + distance;
+	if ( *(axis_data->ajog_vel_mode) ) {
+            double v = axis->vel_limit * emcmotStatus->net_feed_scale;
+	    /* compute stopping distance at max speed */
+	    stop_dist = v * v / ( 2 * axis->acc_limit);
+	    /* if commanded position leads the actual position by more
+	       than stopping distance, discard excess command */
+	    if ( pos > axis->pos_cmd + stop_dist ) {
+		pos = axis->pos_cmd + stop_dist;
+	    } else if ( pos < axis->pos_cmd - stop_dist ) {
+		pos = axis->pos_cmd - stop_dist;
+	    }
+	}
+	if (pos > axis->max_pos_limit) { break; }
+	if (pos < axis->min_pos_limit) { break; }
+        axis->teleop_tp.pos_cmd = pos;
+        axis->teleop_tp.max_vel = axis->vel_limit;
+        axis->teleop_tp.max_acc = axis->acc_limit;
+	axis->wheel_ajog_active = 1;
+        axis->teleop_tp.enable  = 1;
+    }
+    first_pass = 0;
+}
+
 static void get_pos_cmds(long period)
 {
     int joint_num, axis_num, result;
@@ -1136,8 +1192,8 @@ static void get_pos_cmds(long period)
             } else {
 		SET_JOINT_INPOS_FLAG(joint, 1);
 		/* joint has stopped, so any outstanding jogs are done */
-		joint->kb_jog_active = 0;
-		joint->wheel_jog_active = 0;
+		joint->kb_jjog_active = 0;
+		joint->wheel_jjog_active = 0;
             }
 	}//for loop for joints
 	/* if overriding is true and we're in position, the jog
@@ -1193,6 +1249,11 @@ static void get_pos_cmds(long period)
 	break;
 
     case EMCMOT_MOTION_COORD:
+	for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+	    axis = &axes[axis_num];
+	    axis->teleop_tp.enable = 0;
+	    axis->teleop_tp.curr_vel = 0.0;
+        }
 	/* check joint 0 to see if the interpolators are empty */
 	while (cubicNeedNextPoint(&(joints[0].cubic))) {
 	    /* they're empty, pull next point(s) off Cartesian planner */
@@ -1263,6 +1324,11 @@ static void get_pos_cmds(long period)
             simple_tp_update(&(axis->teleop_tp), servo_period);
             axis->vel_cmd = axis->teleop_tp.curr_vel;
             axis->pos_cmd = axis->teleop_tp.curr_pos;
+
+            if(!axis->teleop_tp.active) {
+                axis->kb_ajog_active = 0;
+                axis->wheel_ajog_active = 0;
+            }
         }
 
         emcmotStatus->carte_pos_cmd.tran.x = (&axes[0])->teleop_tp.curr_pos;
@@ -1802,8 +1868,8 @@ static void output_to_hal(void)
 	*(joint_data->free_pos_cmd) = joint->free_tp.pos_cmd;
 	*(joint_data->free_vel_lim) = joint->free_tp.max_vel;
 	*(joint_data->free_tp_enable) = joint->free_tp.enable;
-	*(joint_data->kb_jog_active) = joint->kb_jog_active;
-	*(joint_data->wheel_jog_active) = joint->wheel_jog_active;
+	*(joint_data->kb_jjog_active) = joint->kb_jjog_active;
+	*(joint_data->wheel_jjog_active) = joint->wheel_jjog_active;
 
 	*(joint_data->active) = GET_JOINT_ACTIVE_FLAG(joint);
 	*(joint_data->in_position) = GET_JOINT_INPOS_FLAG(joint);
@@ -1828,7 +1894,10 @@ static void output_to_hal(void)
 	*(axis_data->teleop_pos_cmd) = axis->teleop_tp.pos_cmd;
 	*(axis_data->teleop_vel_lim) = axis->teleop_tp.max_vel;
 	*(axis_data->teleop_tp_enable) = axis->teleop_tp.enable;
-    }
+	*(axis_data->kb_ajog_active) = axis->kb_ajog_active;
+	*(axis_data->wheel_ajog_active) = axis->wheel_ajog_active;
+     }
+
 }
 
 static void update_status(void)
