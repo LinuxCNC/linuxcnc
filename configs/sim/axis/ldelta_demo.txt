@@ -1,0 +1,11 @@
+ldelta_demo
+
+linear delta kins (Rostock)
+
+Demo includes simple popups to simulate 
+jogging using HAL pins:
+
+Halui: Joint 2    Joint jogging (continuous mode)
+
+Wheel: Joint 0    Joint jogging
+Wheel: Axis X,Y   World (teleop) jogging
