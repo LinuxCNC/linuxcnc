@@ -1,0 +1,12 @@
+G0 X5 (This line should be skipped)
+
+M442 (First remapped command sets up problem)
+G0 X-1 (Should be skipped)
+G1 X2Y0Z0 F40 (SET START LINE HERE, exactly two lines after remapped command)
+X3 (Moves that will be truncated)
+Y4
+X5
+Y6
+M442 (Second remapped command should truncate previous moves)
+
+m2
