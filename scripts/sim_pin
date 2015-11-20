@@ -71,8 +71,8 @@ proc add_item_to_gui {id itemname} {
   switch $::SP($id,itemtype) {
     bit   {add_bit_item_to_gui $f $id}
     s32 -
-    u32 -
-    float {add_number_item_to_gui $f $id}
+    u32   {add_number_item_to_gui $f $id 1}
+    float {add_number_item_to_gui $f $id 0}
     default {return -code error \
         "add_item_to_gui: unexpected itemtype <$::SP($id,itemtype)>"
     }
@@ -131,7 +131,7 @@ proc add_bit_item_to_gui {f id} {
    pack $f -side top -fill x -expand 0
 } ;# add_bit_item_to_gui
 
-proc add_number_item_to_gui {f id} {
+proc add_number_item_to_gui {f id enable_plusminus} {
   set value [get_item $id]
   set color lightgray
   pack [frame $f.one] -fill x -expand 1
@@ -140,6 +140,21 @@ proc add_number_item_to_gui {f id} {
        -relief raised -bd 3 \
        -command [list b_press $id] ]\
        -side left -fill x -expand 1
+
+  if $enable_plusminus {
+    pack [button $f.one.p  -bg $color -fg black \
+       -text "+" \
+       -relief raised -bd 3 \
+       -command [list plus_number_item $id] ]\
+       -side left -fill x -expand 1
+
+    pack [button $f.one.m  -bg $color -fg black \
+       -text "-" \
+       -relief raised -bd 3 \
+       -command [list minus_number_item $id] ]\
+       -side left -fill x -expand 1
+  }
+
   pack [button $f.one.r  -bg $color -fg black \
        -text "Reset" \
        -relief raised -bd 3 \
@@ -419,6 +434,14 @@ proc b_release {id} {
 proc reset_number_item {id} {
   item_set $id $::SP($id,ivalue)
 } ;# reset_number_item
+
+proc plus_number_item {id} {
+  item_set $id [expr 1 + [get_item $id]]
+} ;# plus_number_item
+
+proc minus_number_item {id} {
+  item_set $id [expr -1 + [get_item $id]]
+} ;# minus_number_item
 
 proc get_item {id} {
   set value [hal $::SP($id,get_cmd) $::SP($id,itemname)]
