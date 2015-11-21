@@ -153,5 +153,51 @@ They could be transformed into pairs of lines like this:
 # This is the max velocity of the axis.
 MAX_VELOCITY = 7.5
 -----
+=== That way
+
+Do that.
+
+
+=== The other way
+
+Do the other thing.
+
+== Halui support for teleop jogging (Joints_axes)
+
+Halui now supports teleop jogging resulting in some
+changed pin names and numerous new names for jogging-related
+pins.
+
+    
+Two pins were renamed to clarify usage (joint or axis):
+      was: halui.jog-speed          is: halui.joint.jog-speed
+      was: halui.jog-deadband       is: halui.joint.jog-deadband
+The corresponding new pins for axis jogging are:
+                                   new: halui.axis.jog-speed
+                                   new: halui.axis.jog-deadband
+    
+All pins for joint jogging were renamed for specificity:
+      was: halui.jog.N.plus         is: halui.joint.N.plus
+      was: halui.jog.N.minus        is: halui.joint.N.minus
+           ...  etc                     ... etc
+    where N is a joint number (0 ... num_noints-1) or 'selected'
+    for the joint selected by the halui.joint.N.select pins.
+    
+The corresponding new pins for axis jogging are:
+                                   new: halui.axis.L.plus
+                                   new: halui.axis.L.minus
+                                        ... etc
+where L is a letter corresponding to one of the axes
+specified by [TRAJ]COORDINATES using an axis_mask or 'selected'
+for the axis selected by the halui.axis.L.select pins.
+
+Aditional pin renames for consistency to related pins:
+      was: halui.joint.selected.is_homed
+       is: halui.joint.selected.is-homed
+    
+      was: halui.joint.selected.on-soft-limit
+       is: halui.joint.selected.on-soft-min-limit
+
+See the man page ($ man halui) for pin names.
 
 // vim: set syntax=asciidoc:

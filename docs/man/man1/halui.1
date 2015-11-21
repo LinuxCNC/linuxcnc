@@ -288,7 +288,13 @@ pin for stopping lube
 .B halui.lube.on\fR bit in \fR
 pin for starting lube
 
-.SS joint
+.SS joint (\fBN\fR = joint number (0 ... num_joints-1))
+.TP
+.B halui.joint.N.select\fR bit in \fR
+pin for selecting joint N
+.TP
+.B halui.joint.N.is-selected\fR bit out \fR
+status pin that joint N is selected
 .TP
 .B halui.joint.N.has-fault\fR bit out \fR
 status pin telling that joint N has a fault
@@ -298,9 +304,6 @@ pin for homing joint N
 .TP
 .B halui.joint.N.is-homed\fR bit out \fR
 status pin telling that joint N is homed
-.TP
-.B halui.joint.N.is-selected\fR bit out \fR
-status pin that joint N is selected
 .TP
 .B halui.joint.N.on-hard-max-limit\fR bit out \fR
 status pin telling that joint N is on the positive hardware limit
@@ -314,17 +317,11 @@ status pin telling that joint N is on the positive software limit
 .B halui.joint.N.on-soft-min-limit\fR bit out \fR
 status pin telling that joint N is on the negative software limit
 .TP
-.B halui.joint.N.select\fR bit in \fR
-A rising edge on this pin selects joint N.  The joint remains selected
-until a rising edge on a different halui.joint.N.select pin selects a
-different joint.  By default, joint 0 is the initially selected joint
-at startup.
-.TP
 .B halui.joint.N.unhome\fR bit in \fR
 pin for unhoming joint N
 .TP
 .B halui.joint.selected\fR u32 out \fR
-The number of the currently selected joint (default: joint 0).
+selected joint number (0 ... num_joints-1)
 .TP
 .B halui.joint.selected.has-fault\fR bit out \fR
 status pin selected joint is faulted
@@ -350,46 +347,106 @@ status pin telling that the selected joint is on the negative software limit
 .B halui.joint.selected.unhome\fR bit in \fR
 pin for unhoming the selected joint
 
-.SS jog
-.TP
-.B halui.jog.deadband\fR float in \fR
+.SS joint jogging (\fBN\fR = joint number (0 ... num_joints-1))
+.B halui.joint.jog-deadband\fR float in \fR
 pin for setting jog analog deadband (jog analog inputs smaller/slower than this are ignored)
 .TP
-.B halui.jog-speed\fR float in \fR
+.B halui.joint.jog-speed\fR float in \fR
 pin for setting jog speed for plus/minus jogging.
 .TP
-.B halui.jog.N.analog\fR float in \fR
-pin for jogging the axis N using an float value (e.g. joystick)
+.B halui.joint.N.analog\fR float in \fR
+pin for jogging the joint N using an float value (e.g. joystick)
 .TP
-.B halui.jog.N.increment\fR float in \fR
-pin for setting the jog increment for axis N when using increment-plus/minus
+.B halui.joint.N.increment\fR float in \fR
+pin for setting the jog increment for joint N when using increment-plus/minus
 .TP
-.B halui.jog.N.increment-minus\fR bit in \fR
-a rising edge will will make axis N jog in the negative direction by the increment amount
+.B halui.joint.N.increment-minus\fR bit in \fR
+a rising edge will will make joint N jog in the negative direction by the increment amount
 .TP
-.B halui.jog.N.increment-plus\fR bit in \fR
-a rising edge will will make axis N jog in the positive direction by the increment amount
+.B halui.joint.N.increment-plus\fR bit in \fR
+a rising edge will will make joint N jog in the positive direction by the increment amount
 .TP
-.B halui.jog.N.minus\fR bit in \fR
-pin for jogging axis N in negative direction at the halui.jog-speed velocity
+.B halui.joint.N.minus\fR bit in \fR
+pin for jogging joint N in negative direction at the halui.joint.jog-speed velocity
 .TP
-.B halui.jog.N.plus\fR bit in \fR
-pin for jogging axis N in positive direction at the halui.jog-speed velocity
+.B halui.joint.N.plus\fR bit in \fR
+pin for jogging joint N in positive direction at the halui.joint.jog-speed velocity
 .TP
-.B halui.jog.selected.increment\fR float in \fR
+.B halui.joint.selected.increment\fR float in \fR
+pin for setting the jog increment for the selected joint when using increment-plus/minus
+.TP
+.B halui.joint.selected.increment-minus\fR bit in \fR
+a rising edge will will make the selected joint jog in the negative direction by the increment amount
+.TP
+.B halui.joint.selected.increment-plus\fR bit in \fR
+a rising edge will will make the selected joint jog in the positive direction by the increment amount
+.TP
+.B halui.joint.selected.minus\fR bit in \fR
+pin for jogging the selected joint in negative direction at the halui.joint.jog-speed velocity
+.TP
+.B halui.joint.selected.plus\fR
+pin for jogging the selected joint  bit in \fRin positive direction at the halui.joint.jog-speed velocity
+
+.SS axis  (\fLN\fR = axis index (0:x 1:y 2:z 3:a 4:b 5:c 6:u 7:v 8:w))
+.TP
+.B halui.axis.L.select\fR bit in \fR
+pin for selecting axis by index
+.TP
+.B halui.axis.L.is-selected\fR bit out \fR
+status pin that axis L is selected
+.TP
+.B halui.axis.L.pos-commanded\fR float out \fR float out \fR
+Commanded axis position in machine coordinates
+.TP
+.B halui.axis.L.pos-feedback\fR float out \fR float out \fR
+Feedback axis position in machine coordinates
+.TP
+.B halui.axis.L.pos-relative\fR float out \fR float out \fR
+Commanded axis position in relative coordinates
+
+.SS axis jogging (\fLN\fR = axis index (0:x 1:y 2:z 3:a 4:b 5:c 6:u 7:v 8:w))
+.TP
+.B halui.axis.jog-deadband\fR float in \fR
+pin for setting jog analog deadband (jog analog inputs smaller/slower than this are ignored)
+.TP
+.B halui.axis.jog-speed\fR float in \fR
+pin for setting jog speed for plus/minus jogging.
+.TP
+.B halui.axis.L.analog\fR float in \fR
+pin for jogging the axis L using an float value (e.g. joystick)
+.TP
+.B halui.axis.L.increment\fR float in \fR
+pin for setting the jog increment for axis L when using increment-plus/minus
+.TP
+.B halui.axis.L.increment-minus\fR bit in \fR
+a rising edge will will make axis L jog in the negative direction by the increment amount
+.TP
+.B halui.axis.L.increment-plus\fR bit in \fR
+a rising edge will will make axis L jog in the positive direction by the increment amount
+.TP
+.B halui.axis.L.minus\fR bit in \fR
+pin for jogging axis L in negative direction at the halui.axis.jog-speed velocity
+.TP
+.B halui.axis.L.plus\fR bit in \fR
+pin for jogging axis L in positive direction at the halui.axis.jog-speed velocity
+.TP
+.B halui.axis.selected\fR u32 out \fR
+selected axis (by index: 0:x 1:y 2:z 3:a 4:b 5:cr 6:u 7:v 8:w)
+.TP
+.B halui.axis.selected.increment\fR float in \fR
 pin for setting the jog increment for the selected axis when using increment-plus/minus
 .TP
-.B halui.jog.selected.increment-minus\fR bit in \fR
+.B halui.axis.selected.increment-minus\fR bit in \fR
 a rising edge will will make the selected axis jog in the negative direction by the increment amount
 .TP
-.B halui.jog.selected.increment-plus\fR bit in \fR
+.B halui.axis.selected.increment-plus\fR bit in \fR
 a rising edge will will make the selected axis jog in the positive direction by the increment amount
 .TP
-.B halui.jog.selected.minus\fR bit in \fR
-pin for jogging the selected axis in negative direction at the halui.jog-speed velocity
+.B halui.axis.selected.minus\fR bit in \fR
+pin for jogging the selected axis in negative direction at the halui.axis.jog-speed velocity
 .TP
-.B halui.jog.selected.plus\fR
-pin for jogging the selected axis  bit in \fRin positive direction at the halui.jog-speed velocity
+.B halui.axis.selected.plus\fR
+pin for jogging the selected axis  bit in \fRin positive direction at the halui.axis.jog-speed velocity
 
 .SS flood
 .TP
@@ -459,16 +516,6 @@ pin for displaying Estop state (LinuxCNC internal) On/Off
 .B halui.estop.reset\fR bit in \fR
 pin for resetting Estop (LinuxCNC internal) Off
 
-.SS axis
-.TP
-.B halui.axis.N.pos-commanded\fR float out \fR float out \fR
-Commanded axis position in machine coordinates
-.TP
-.B halui.axis.N.pos-feedback\fR float out \fR float out \fR
-Feedback axis position in machine coordinates
-.TP
-.B halui.axis.N.pos-relative\fR float out \fR float out \fR
-Commanded axis position in relative coordinates
 
 .SS home
 .TP 
