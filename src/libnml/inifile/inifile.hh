@@ -17,6 +17,8 @@
 #define INIFILE_HH
 
 #include <inifile.h>
+#include <string>
+#include <boost/lexical_cast.hpp>
 
 #ifndef __cplusplus
 #warning Inclusion of <inifile.hh> from C programs is deprecated.  Include <inifile.h> instead.
@@ -53,19 +55,60 @@ public:
     bool                        Open(const char *file);
     bool                        Close(void);
     bool                        IsOpen(void){ return(fp != NULL); }
-    ErrorCode                   Find(int *result, int min, int max,
-                                     const char *tag,const char *section,
-                                     int num=1);
-    ErrorCode                   Find(int *result, const char *tag,
-                                     const char *section=NULL, int num = 1);
-    ErrorCode                   Find(double *result, double min, double max,
-                                     const char *tag,const char *section,
-                                     int num=1);
-    ErrorCode                   Find(double *result, const char *tag,
-                                     const char *section=NULL, int num = 1,
-				     int *lineno = NULL);
+
     const char *                Find(const char *tag, const char *section=NULL,
                                      int num = 1, int *lineno = NULL);
+
+    template<class T>
+    ErrorCode                   Find(T *result, T min, T max,
+                                     const char *tag,const char *section,
+                                     int num=1) {
+        ErrorCode errCode;
+        T tmp;
+        if((errCode = Find(&tmp, tag, section, num)) != ERR_NONE)
+            return(errCode);
+
+        if((tmp > max) || (tmp < min)) {
+            ThrowException(ERR_LIMITS);
+            return(ERR_LIMITS);
+        }
+
+        *result = tmp;
+
+        return(ERR_NONE);
+    }
+
+    template<class T>
+    ErrorCode                   Find(T *result,
+                                     const char *tag,const char *section,
+                                     int num=1) {
+        ErrorCode errCode;
+        std::string tmp;
+        if((errCode = Find(&tmp, tag, section, num)) != ERR_NONE)
+            return(errCode);
+
+        try {
+            *result = boost::lexical_cast<T>(tmp);
+        } catch (boost::bad_lexical_cast &) {
+            ThrowException(ERR_CONVERSION);
+            return(ERR_CONVERSION);
+        }
+
+        return(ERR_NONE);
+    }
+
+    ErrorCode                   Find(std::string *s,
+                                     const char *tag,const char *section,
+                                     int num=1) {
+        const char *tmp = Find(tag, section, num);
+        if(!tmp)
+            return ERR_TAG_NOT_FOUND; // can't distinguish errors, ugh
+
+        *s = tmp;
+
+        return(ERR_NONE);
+    }
+
     const char *                FindString(char *dest, size_t n,
 				     const char *tag, const char *section=NULL,
 				     int num = 1, int *lineno = NULL);
