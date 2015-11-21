@@ -294,6 +294,8 @@ case $RTS in
     RTFLAGS="$RTFLAGS -DRTAI=3"
     KERNELDIR=`$RTS --linux-dir`
     RTARCH=`$RTS --arch`
+    ULAPI_CFLAGS=`$RTS --lxrt-cflags`
+    ULAPI_LDFLAGS=`$RTS --lxrt-ldflags`
 ;;
 uspace)
     RTPREFIX=uspace
@@ -302,6 +304,8 @@ uspace)
     BUILD_SYS=uspace
     MODEXT=.so
     MODULE_DIR=${prefix}/lib/linuxcnc/modules
+    ULAPI_CFLAGS=""
+    ULAPI_LDFLAGS=""
 esac
 
 if test "$RTS" != uspace; then
@@ -326,6 +330,8 @@ AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
 AC_SUBST([RTARCH])
+AC_SUBST([ULAPI_CFLAGS])
+AC_SUBST([ULAPI_LDFLAGS])
 
 case "$RTPREFIX" in
 uspace)

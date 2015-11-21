@@ -33,6 +33,8 @@ MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 # used for building
 RTDIR     = @RTDIR@
 RTARCH    = @RTARCH@
+ULAPI_CFLAGS = @ULAPI_CFLAGS@
+ULAPI_LDFLAGS = @ULAPI_LDFLAGS@
 
 # Standard configure directories
 # do we really need these?
