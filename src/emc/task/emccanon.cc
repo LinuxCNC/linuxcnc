@@ -859,6 +859,7 @@ static void flush_segments(void) {
     double u = pos.u, v = pos.v, w = pos.w;
     
     int line_no = pos.line_no;
+    canon_debug("Flushing segments up to line %d\n", line_no);
 
 #ifdef SHOW_JOINED_SEGMENTS
     for(unsigned int i=0; i != chained_points.size(); i++) { printf("."); }
@@ -872,10 +873,12 @@ static void flush_segments(void) {
         if (linedata.vel_xyz > currentLinearFeedRate) {
             vel *= currentLinearFeedRate / linedata.vel_xyz ;
         }
+        canon_debug("cartesian move, linear feed is %f\n", vel);
     } else if (angular_move) {
         if (vel > currentAngularFeedRate) {
             vel = currentAngularFeedRate;
         }
+        canon_debug("angular move, feed is %f\n", vel);
     } 
 
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;

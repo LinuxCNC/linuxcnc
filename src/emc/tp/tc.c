@@ -520,6 +520,15 @@ int tcFlagEarlyStop(TC_STRUCT * const tc,
 
 double pmLine9Target(PmLine9 * const line9)
 {
+    tp_debug_print("xyz mag = %.12e, abc mag = %.12e, uvw mag = %.12e,",
+            line9->xyz.tmag,
+            line9->abc.tmag,
+            line9->uvw.tmag);
+    tp_debug_print("tmag_zero %d %d %d\n",
+            line9->xyz.tmag_zero,
+            line9->abc.tmag_zero,
+            line9->uvw.tmag_zero);
+
     if (!line9->xyz.tmag_zero || !line9->uvw.tmag_zero) {
         return pmSqrt(pmSq(line9->xyz.tmag) + pmSq(line9->uvw.tmag));
     } else if (!line9->abc.tmag_zero) {
