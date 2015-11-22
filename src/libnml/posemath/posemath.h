@@ -854,6 +854,7 @@ extern "C" {
     extern int pmCartCartDiv(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
     extern int pmCartMag(PmCartesian const * const, double * const);
     extern int pmCartMagSq(PmCartesian const * const, double * const);
+    extern int pmCartSup(PmCartesian const * const, double * const);
     extern int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2, double *d);
     extern int pmCartCartAdd(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
     extern int pmCartCartSub(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);

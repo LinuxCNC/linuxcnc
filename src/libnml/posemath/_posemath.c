@@ -840,6 +840,23 @@ int pmCartMagSq(PmCartesian const * const v, double *d)
     return pmErrno = 0;
 }
 
+
+/** Supremum of a cartesian vector */
+int pmCartSup(PmCartesian const * const v, double *d)
+{
+    PmCartesian v_abs;
+    pmCartAbs(v, &v_abs);
+
+    double n_max = 0.0;
+    //FIXME replace with fmax
+    n_max = (v_abs.x > v_abs.y) ? v_abs.x : v_abs.y;
+    n_max = (n_max > v_abs.z) ? n_max : v_abs.z;
+
+    *d = n_max;
+
+    return pmErrno = 0;
+}
+
 int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2,
         double *d)
 {
