@@ -1491,6 +1491,7 @@ static struct option long_options[] = {
     {"debug",        no_argument,    0, 'd'},
     {"svcuuid",   required_argument, 0, 'R'},
     {"interfaces",required_argument, 0, 'n'},
+    {"stderr",    no_argument,       0, 's'},
     {0, 0, 0, 0}
 };
 
@@ -1499,20 +1500,18 @@ int main(int argc, char **argv)
     int c;
     progname = argv[0];
     inifile =  getenv("MACHINEKIT_INI");
+    int syslog_async_option = LOG_NDELAY;
+    int syslog_async_delay = 1000;
 
     uuid_generate_time(process_uuid);
     uuid_unparse(process_uuid, process_uuid_str);
 
     rtapi_set_msg_handler(rtapi_app_msg_handler);
-    openlog_async(argv[0], LOG_NDELAY, LOG_LOCAL1);
-    setlogmask_async(LOG_UPTO(LOG_DEBUG));
-    // max out async syslog buffers for slow system in debug mode
-    tunelog_async(99,1000);
 
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "ShH:m:I:f:r:U:NFdR:n:i:",
+	c = getopt_long (argc, argv, "ShH:m:I:sf:r:U:NFdR:n:i:",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -1567,6 +1566,10 @@ int main(int argc, char **argv)
 	case 'R':
 	    service_uuid = strdup(optarg);
 	    break;
+	case 's':
+	    syslog_async_option |= LOG_PERROR;
+	    syslog_async_delay = 0;
+	    break;
 	case '?':
 	    if (optopt)  fprintf(stderr, "bad short opt '%c'\n", optopt);
 	    else  fprintf(stderr, "bad long opt \"%s\"\n", argv[curind]);
@@ -1579,6 +1582,11 @@ int main(int argc, char **argv)
 	    exit(0);
 	}
     }
+
+    openlog_async(argv[0], syslog_async_option, LOG_LOCAL1);
+    setlogmask_async(LOG_UPTO(LOG_DEBUG));
+    // tune async syslog buffers:  max buffer size; 0 delay for stdout, else 1s
+    tunelog_async(99,syslog_async_delay);
 
     if (trap_signals && (getenv("NOSIGHDLR") != NULL))
 	trap_signals = false;

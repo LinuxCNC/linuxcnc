@@ -90,6 +90,12 @@ if [ "$SHMDRV_OPTS" != "" ]  ; then
     MSGD_OPTS="$MSGD_OPTS --shmdrv_opts=$SHMDRV_OPTS"
 fi
 
+# SYSLOG_TO_STDERR:  when set, log to stdout instead of syslog
+if test -n "$SYSLOG_TO_STDERR"; then
+    MSGD_OPTS+=" -s"
+    RTAPI_APP_OPTS+=" -s"
+fi
+
 # set the default instance, if not already set
 INSTANCE=`printf '%d' $INSTANCE`
 if [ "$INSTANCE_NAME" != "" ]  ; then
