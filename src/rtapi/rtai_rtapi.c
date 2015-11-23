@@ -85,6 +85,10 @@
 #include "rtapi.h"		/* public RTAPI decls */
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 
+#ifndef RTAI_NR_TRAPS
+#define RTAI_NR_TRAPS HAL_NR_FAULTS
+#endif
+
 /* resource data unique to kernel space */
 static RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
@@ -689,7 +693,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     /* request to handle traps in the new task */
     {
     int v;
-    for(v=0; v<HAL_NR_FAULTS; v++)
+    for(v=0; v<RTAI_NR_TRAPS; v++)
         rt_set_task_trap_handler(ostask_array[task_id], v, rtapi_trap_handler);
     }
 
