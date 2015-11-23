@@ -136,19 +136,22 @@ The new version of LinuxCNC differs from version 2.7 in some ways that
 may require changes to your machine configuration.
 
 
-=== This way
+=== Stricter INI file syntax
 
-Do this.
+Lines with numeric INI variables are no longer allowed to have trailing
+text.  In earlier versions of LinuxCNC any text after the number was
+silently ignored, but as of this version such text is totally disallowed.
+This includes comments.
 
+For example, lines like this will no longer be accepted:
+-----
+MAX_VELOCITY = 7.5 # This is the max velocity of the axis.
+-----
 
-=== That way
-
-Do that.
-
-
-=== The other way
-
-Do the other thing.
-
+They could be transformed into pairs of lines like this:
+-----
+# This is the max velocity of the axis.
+MAX_VELOCITY = 7.5
+-----
 
 // vim: set syntax=asciidoc:
