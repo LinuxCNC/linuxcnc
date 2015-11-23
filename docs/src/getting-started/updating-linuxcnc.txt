@@ -19,7 +19,7 @@ section <<cha:getting-linuxcnc,Getting LinuxCNC>>.
 == Upgrade to the new version
 
 The basic idea is to disable the old linuxcnc.org apt sources and add
-a new linuxcnc.org apt source for 2.7, then upgrade LinuxCNC.
+a new linuxcnc.org apt source, then upgrade the LinuxCNC packages.
 
 The details will depend on which platform you're running on.
 Run `lsb_release -ic` to find this information out:
