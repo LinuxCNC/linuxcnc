@@ -20,6 +20,7 @@
 #include "emcpos.h"
 #include "emcmotcfg.h"  // EMCMOT_MAX_DIO, EMCMOT_MAX_AIO
 #include "state_tag.h"
+#include "rtapi_bitops.h"
 
 #define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */
@@ -94,7 +95,7 @@ typedef unsigned long long iomask_t; // 64 bits on both x86 and x86_64
 
 typedef struct {
     char anychanged;
-    iomask_t dio_mask;
+    RTAPI_DECLARE_BITMAP(dio_mask, EMCMOT_MAX_DIO);
     iomask_t aio_mask;
     signed char dios[EMCMOT_MAX_DIO];
     double aios[EMCMOT_MAX_AIO];
