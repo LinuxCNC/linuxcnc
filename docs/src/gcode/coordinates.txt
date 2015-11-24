@@ -178,7 +178,7 @@ in effect, and otherwise the Z offset will be zero.
 The temporary local offset may be canceled with 'G52 X0 Y0'.  Any axes
 not explicitly zeroed will retain the previous offset.
 
-'G52' shares the same offset registers as the legacy 'G92', and thus
+'G52' shares the same offset registers as 'G92', and thus
 'G52' is visible on the DRO and preview labeled with 'G92'.
 
 === The G92 commands[[sec:g92-commands]]
