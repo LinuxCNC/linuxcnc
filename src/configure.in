@@ -152,7 +152,6 @@ AC_MSG_CHECKING(for RT dir)
 
 # set up some default values
 RTDIR=""
-RTNAME=""
 RTAI=""
 RTPREFIX=""
 KERNELDIR=""
@@ -285,7 +284,6 @@ fi
 RTARCH=`uname -m | sed s/i.86/i386/`
 case $RTS in
 */rtai-config)
-    RTNAME=rtai-3.0
     RTPREFIX=rtai
     RTAI=3
     RTDIR=`$RTS --prefix`
@@ -319,7 +317,6 @@ if test "$RTS" != uspace; then
 	])
 fi
 
-AC_SUBST([RTNAME])
 AC_SUBST([RTAI])
 AC_SUBST([RTPREFIX])
 AC_SUBST([KERNELDIR])
