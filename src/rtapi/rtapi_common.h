@@ -72,6 +72,7 @@
 #endif
 
 #include "rtapi_bitops.h"
+#include <rtapi_mutex.h>
 
 /* maximum number of various resources */
 #define RTAPI_MAX_MODULES 64
