@@ -113,7 +113,7 @@ int rtapi_init(const char *modname)
     // sometimes returns -1 on error
     if (rtapi_data == NULL || rtapi_data == (rtapi_data_t*)-1) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERROR: could not open shared memory (errno=%d)\n", errno);
+	    "RTAPI: ERROR: could not open shared memory (%s)\n", strerror(errno));
 	check_memlock_limit("could not open shared memory");
 	rtapi_data = 0;
 	return -ENOMEM;
