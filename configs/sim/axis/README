@@ -12,6 +12,10 @@ lathe.ini          lathe demo
 profile_axis.ini   profiling
 random_tc.ini      random tool changer
 histogram_demo.ini hal-histogram examples
+ini_hal_demo       ini hal pins demo
+rdelta.ini         rotary delta robot
+ldelta.ini         linear delta robot
+ldelta_demo.ini    linear delta with jog guis
 
 Select one of these if you have no functional machine but want to edit some basic configuration stuff or play with one of the LinuxCNC displays.
 
