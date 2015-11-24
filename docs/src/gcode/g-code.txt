@@ -2204,11 +2204,13 @@ LinuxCNC stores the G92 offsets and reuses them on the next run of a
 program. To prevent this, one can program a G92.1 (to erase them), or
 program a G92.2 (to remove them - they are still stored).
 
+[NOTE]
+The 'G52' command can also be used to change this offset; see the
+<<sec:g52-and-g92-offsets,Offsets>> Section for more details about
+'G92' and 'G52' and how they interact.
+
 See the <<cha:coordinate-system,Coordinate System>> Section for an
 overview of coordinate systems.
-
-See the <<sec:g52-and-g92-offsets,Offsets>> Section for more
-information.
 
 See the <<gcode:parameters,Parameters>> Section for more information.
 
