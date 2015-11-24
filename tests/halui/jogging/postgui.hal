@@ -1,13 +1,13 @@
 
 
-setp halui.jog-speed 100
+setp halui.joint.jog-speed 100
 
 
 net jog-selected-minus <= python-ui.jog-selected-minus
-net jog-selected-minus => halui.jog.selected.minus
+net jog-selected-minus => halui.joint.selected.minus
 
 net jog-selected-plus <= python-ui.jog-selected-plus
-net jog-selected-plus => halui.jog.selected.plus
+net jog-selected-plus => halui.joint.selected.plus
 
 
 net joint-0-home   <= python-ui.joint-0-home
