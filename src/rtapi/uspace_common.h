@@ -257,7 +257,7 @@ long long rtapi_get_clocks(void)
 }
 
 typedef struct {
-    unsigned long mutex;
+    rtapi_mutex_t mutex;
     int           uuid;
 } uuid_data_t;
 

@@ -93,6 +93,7 @@
 */
 
 #include <rtapi.h>
+#include <rtapi_mutex.h>
 RTAPI_BEGIN_DECLS
 
 /* SHMPTR(offset) converts 'offset' to a void pointer. */
@@ -163,7 +164,7 @@ typedef struct {
 */
 typedef struct {
     int version;		/* version code for structs, etc */
-    unsigned long mutex;	/* protection for linked lists, etc. */
+    rtapi_mutex_t mutex;	/* protection for linked lists, etc. */
     hal_s32_t shmem_avail;	/* amount of shmem left free */
     constructor pending_constructor;
 			/* pointer to the pending constructor function */

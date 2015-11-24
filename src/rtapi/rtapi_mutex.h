@@ -28,6 +28,8 @@
 #endif
 #include "rtapi_bitops.h"	/* atomic bit ops for lightweight mutex */
 
+typedef unsigned long rtapi_mutex_t;
+
 /** These three functions provide a very simple way to do mutual
     exclusion around shared resources.  They do _not_ replace
     semaphores, and can result in significant slowdowns if contention
