@@ -172,6 +172,7 @@ do_tcl_tk_version() {
 	TCL_TK_VER=8.6
 	case "$DISTRO_ID" in
 	    Debian)  test "${DISTRO_RELEASE/.*/}" -lt 8 && TCL_TK_VER=8.5 ;;
+	    Raspbian)test "${DISTRO_RELEASE/.*/}" -lt 8 && TCL_TK_VER=8.5 ;;
 	    Ubuntu)  test "${DISTRO_RELEASE/.*/}" -lt 14 && TCL_TK_VER=8.5 ;;
 	    *)  usage "Unknown distro '${DISTRO_ID}'" ;;
 	esac
