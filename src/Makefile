@@ -368,7 +368,6 @@ HEADERS := \
     rtapi/rtapi_pci.h \
     rtapi/rtapi_slab.h \
     rtapi/rtapi_stdint.h \
-    rtapi/rtapi_common.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h
