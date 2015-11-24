@@ -89,6 +89,10 @@
 #define RTAI_NR_TRAPS HAL_NR_FAULTS
 #endif
 
+#if RTAI <= 3
+#define rt_free_timers rt_free_timer
+#endif
+
 /* resource data unique to kernel space */
 static RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
@@ -257,7 +261,7 @@ void cleanup_module(void)
     }
     if (rtapi_data->timer_running != 0) {
 	stop_rt_timer();
-	rt_free_timer();
+	rt_free_timers();
 	rtapi_data->timer_period = 0;
 	timer_counts = 0;
 	rtapi_data->timer_running = 0;
@@ -402,7 +406,7 @@ static int module_delete(int module_id)
     if (rtapi_data->rt_module_count == 0) {
 	if (rtapi_data->timer_running != 0) {
 	    stop_rt_timer();
-	    rt_free_timer();
+	    rt_free_timers();
 	    rtapi_data->timer_period = 0;
 	    timer_counts = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
@@ -759,7 +763,7 @@ static int task_delete(int task_id)
     if (rtapi_data->task_count == 0) {
 	if (rtapi_data->timer_running != 0) {
 	    stop_rt_timer();
-	    rt_free_timer();
+	    rt_free_timers();
 	    rtapi_data->timer_period = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
 	    rtapi_data->timer_running = 0;
