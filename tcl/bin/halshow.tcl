@@ -302,7 +302,7 @@ proc makeNodeOther {which otherstring} {
 # builds a global list -- ::treenodes -- but not leaves
 proc writeNode {arg} {
     scan $arg {%i %s %s %s %i} j base node name leaf
-    $::treew insert $j  $base  $node -text $name
+    $::treew insert end  $base  $node -text $name
     if {$leaf > 0} {
         lappend ::treenodes $node
     }
