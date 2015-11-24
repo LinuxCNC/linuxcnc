@@ -51,6 +51,10 @@ class INI:
         print >>file, "MACHINE = %s" % self.d.machinename
         print >>file, "DEBUG = 0"
 
+        # the joints_axes conversion script named 'update_ini'
+        # will try to update for joints_axes if no VERSION is set
+        print >>file, "VERSION = 1.0"
+
         print >>file
         print >>file, "[DISPLAY]"
         if self.d.select_axis:
@@ -89,6 +93,24 @@ class INI:
             print >>file, "FOAM = 1"
             print >>file, "GEOMETRY = XY;UZ"
             print >>file, "OPEN_FILE = ./foam.ngc"
+        print >>file
+
+        # self.d.axes is coded 0: X Y Z
+        #                      1: X Y Z A
+        #                      2: X Z
+        #                      3: X Y U V
+        if   self.d.axes == 0: num_joints = 3 # X Y Z
+        elif self.d.axes == 1: num_joints = 4 # X Y Z A
+        elif self.d.axes == 2: num_joints = 2 # X Z
+        elif self.d.axes == 3: num_joints = 4 # X Y U V
+        else:
+            print "___________________unknown self.d.axes",self.d.axes
+
+        print >>file,  "[KINS]"
+        # trivial kinematics: no. of joints == no.of axes)
+        # with gentrivkins, axes do not have to be consecutive
+        print >>file, "JOINTS = %d"%num_joints
+        print >>file, "KINEMATICS = gentrivkins"
         print >>file
         print >>file, "[FILTER]"
         print >>file, "PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image"
@@ -133,17 +155,14 @@ class INI:
 
         print >>file
         print >>file, "[TRAJ]"
+        # [TRAJ]AXES notused for joints_axes
         if self.d.axes == 1:
-            print >>file, "AXES = 4"
             print >>file, "COORDINATES = X Y Z A"
         elif self.d.axes == 0:
-            print >>file, "AXES = 3"
             print >>file, "COORDINATES = X Y Z"
         elif self.d.axes == 2:
-            print >>file, "AXES = 3"
             print >>file, "COORDINATES = X Z"
         elif self.d.axes == 3:
-            print >>file, "AXES = 8"
             print >>file, "COORDINATES = X Y U V"
         if self.d.units:
             print >>file, "LINEAR_UNITS = mm"
@@ -193,10 +212,29 @@ class INI:
         def get(s): return self.d[letter + s]
         scale = get("scale")
         vel = min(get("maxvel"), self.ideal_maxvel(scale))
+        # linuxcnc doesn't like having home right on an end of travel,
+        # so extend the travel limit by up to .01in or .1mm
+        minlim = get("minlim")
+        maxlim = get("maxlim")
+        home = get("homepos")
+        if self.d.units: extend = .001
+        else: extend = .01
+        minlim = min(minlim, home - extend)
+        maxlim = max(maxlim, home + extend)
+        axis_letter = "XYZABCUVW"[num]
+
         print >>file
-        print >>file, "[AXIS_%d]" % num
+        print >>file, "[AXIS_%s]" % axis_letter
+        print >>file, "MAX_VELOCITY = %s" % vel
+        print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
+        print >>file, "MIN_LIMIT = %s" % minlim
+        print >>file, "MAX_LIMIT = %s" % maxlim
+        print >>file
+        print >>file, "[JOINT_%d]" % num
         print >>file, "TYPE = %s" % type
         print >>file, "HOME = %s" % get("homepos")
+        print >>file, "MIN_LIMIT = %s" % minlim
+        print >>file, "MAX_LIMIT = %s" % maxlim
         print >>file, "MAX_VELOCITY = %s" % vel
         print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
         print >>file, "STEPGEN_MAXACCEL = %s" % (1.25 * get("maxacc"))
@@ -211,17 +249,6 @@ class INI:
             print >>file, "FERROR = 0.05"
             print >>file, "MIN_FERROR = 0.01"
 
-        # linuxcnc doesn't like having home right on an end of travel,
-        # so extend the travel limit by up to .01in or .1mm
-        minlim = get("minlim")
-        maxlim = get("maxlim")
-        home = get("homepos")
-        if self.d.units: extend = .001
-        else: extend = .01
-        minlim = min(minlim, home - extend)
-        maxlim = max(maxlim, home + extend)
-        print >>file, "MIN_LIMIT = %s" % minlim
-        print >>file, "MAX_LIMIT = %s" % maxlim
 
         inputs = self.a.build_input_set()
         thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + letter, "min-home-" + letter,
