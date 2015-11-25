@@ -126,7 +126,7 @@ CATALOGS_DIR = '/catalogs/'
 TEMPLATES_DIR = '/xml/templates/'
 GRAPHICS_DIR = '/graphics/images/'
 
-DEFAULT_TEMPLATE = "def_template.xml"
+DEFAULT_TEMPLATE = "/def_template.xml"
 
 SUPPORTED_DATA_TYPES = ['sub-header', 'header', 'bool', 'boolean', 'int',
                         'float', 'string', 'combo', 'items', 'filename']
@@ -1368,9 +1368,7 @@ Notes:
             if val is not None:
                 self.editor = val
             else:
-                msg = (_('not found: [DISPLAY]EDITOR, using: %s' % DEFAULT_EDITOR))
-                print msg
-                mess_dlg (msg)
+                print(_('not found: [DISPLAY]EDITOR, using: %s' % DEFAULT_EDITOR))
 
         if "--catalog" in optlist :
             self.catalog_dir = APP_PATH + CATALOGS_DIR + optlist["--catalog"]
@@ -1518,7 +1516,7 @@ Notes:
                        % (update_ct, d.lstrip('/'))))
             else :
                 print (_('Created %4d files in: %s'
-                       % (update_ct, APP_PATH + '/' + d.lstrip('/'))))
+                       % (update_ct, APP_PATH.rstrip('/') + '/' + d.lstrip('/'))))
 
     def create_mi(self, _action):
         mi = _action.create_menu_item()
