@@ -132,7 +132,7 @@ int blendParamKinematics6(BlendGeom6 * const geom,
     Vector6 scales;
     int res_scales = calcBoundScales(&u, &v, &scales);
     
-    calcMinBound(&scales, acc_bound, &param->a_max);
+    res_scales |= calcMinBound(&scales, acc_bound, &param->a_max);
 
     // Store max normal acceleration
     param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
@@ -145,7 +145,7 @@ int blendParamKinematics6(BlendGeom6 * const geom,
 
     // Calculate the maximum planar velocity
     double v_planar_max=0;
-    calcMinBound(&scales, vel_bound, &v_planar_max);
+    res_scales |= calcMinBound(&scales, vel_bound, &v_planar_max);
     tp_debug_print("v_planar_max = %f\n", v_planar_max);
 
     // Clip the angle at a reasonable value (less than 90 deg), to prevent div by zero
@@ -296,9 +296,14 @@ int calcMinBound(Vector6 const * scales,
         Vector6 const * bounds,
         double * min_bound)
 {
+    if (!scales || !bounds || !min_bound) {
+        return -1;
+    }
     //TODO check inputs
     //Square of max accel bound
-    double m2 = INFINITY;
+    // KLUDGE use "big" number in place of INFINITY since it doesn't seem to
+    // build in RTAI
+    double m2 = 1e300;
 
     int i;
     for (i = 0; i < 6; ++i) {
