@@ -234,14 +234,8 @@ long long rtapi_get_time(void) {
     return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
-#if defined(__i386__)
-#define rdtscll(val) \
-         __asm__ __volatile__("rdtsc" : "=A" (val))
-#elif defined(__amd64__)
-#define rdtscll(val) \
-    ({ unsigned int eax, edx; \
-         __asm__ __volatile__("rdtsc" : "=a" (eax), "=d" (edx));  \
-        val = ((unsigned long)eax) | (((unsigned long)edx) << 32); })
+#if defined(__i386) || defined(__amd64)
+#define rdtscll(val) ((val) = __builtin_ia32_rdtsc())
 #else
 #define rdtscll(val) ((val) = rtapi_get_time())
 #endif
