@@ -1294,13 +1294,13 @@ Notes:
         !!!If Features subdirs are not present, they will be created"""
 
     def __init__(self, *a, **kw):
-        global APP_PATH, DEFAULT_CATALOG, DEFAULT_METRIC
+        global APP_PATH, DEFAULT_CATALOG, DEFAULT_METRIC, SYS_DIR
 
         exit_if_invalid_rip_standalone()
 
         # process passed args
         # not used herein: c:,x:
-        opt, optl = 'hU:c:x:i:', ["help", "catalog=", "ini="]
+        opt, optl = 'hU:c:x:i:p', ["help", "catalog=", "ini="]
         optlist, args = getopt.getopt(sys.argv[1:], opt, optl)
         optlist = dict(optlist)
 
@@ -1312,6 +1312,10 @@ Notes:
         if "-U" in optlist :
             optlist_, args = getopt.getopt(optlist["-U"].split(), opt, optl)
             optlist.update(optlist_)
+
+        # need this to debug in standalone
+        if "-p" in optlist :
+            SYS_DIR = os.getenv("HOME") + '/linuxcnc-dev/share/features'
 
         ini = os.getenv("INI_FILE_NAME")
         if "-i" in optlist :
