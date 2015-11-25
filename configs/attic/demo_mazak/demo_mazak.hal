@@ -114,7 +114,7 @@ loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=20 numMonost
 loadusr -w classicladder --nogui demo_mazak.clp
 
 # load debounce to handle the pushbuttons on the operator panels
-loadrt debounce cfg="8"
+newinst debounce debounce.0 pincount=8
 setp debounce.0.delay 3
 
 # -----------------------------------------------
