@@ -234,9 +234,7 @@ long long rtapi_get_time(void) {
     return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
-#ifdef MSR_H_USABLE
-#include <asm/msr.h>
-#elif defined(__i386__)
+#if defined(__i386__)
 #define rdtscll(val) \
          __asm__ __volatile__("rdtsc" : "=A" (val))
 #elif defined(__amd64__)
