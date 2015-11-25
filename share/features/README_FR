@@ -1,0 +1,84 @@
+
+Composants de 'Features' de l'arbre git LinuxCNC:
+  1) share/features/ ---------------------- tous ceux qui ne sont pas un programme
+  2) lib/python/gladevcp/features.py ------ le programme principal
+  3) configs/sim/axis/features_demo/ ------ demos pour configuration axis
+     configs/sim/gmoccapy/features_demo/ -- demos pour configuration gmoccapy
+  4) bin/features ------------------------- copiés (lors de make) depuis features.py
+
+Notes:
+  1) Les fichiers de configuration 'Inifiles' doivent spécifier 
+     un répertoire [DISPLAY]FEATURES_DIR pour les sous-répertoires de 'features'
+     (En configuration de simulation, ce répertoire est nommé './myfeatures')
+
+  2) Les fichiers de configuration 'Inifiles' doivent spécifier
+     un chemin [RS274NGC]SUBROUTINE_PATH qui inclus les librairies .ngc
+     de 'features' (exemple [DISPLAY]FEATURES + '/lib')
+     (En configuration de simulation, ce répertoire est nommé './myfeatures/lib')
+
+  3) Les fichiers de configuration 'Inifiles' doivent spécifier un chemin 
+     [DISPLAY]PROGRAM_PREFIX où sera lu le fichier 'features.ngc' créé par 'features'
+     Ce chemin DOIT être './myfeatures/scripts'
+
+  4) L'intégration dans un environnement linuxcnc se fait par une des commandes suivantes:
+     Pour axis, utiliser:
+         [DISPLAY]GLADEVCP = -U --catalog=mill  ./myfeatures/features.ui
+
+     Pour gmoccapy gui, utiliser:
+         [DISPLAY]EMBED_TAB_COMMAND = gladevcp -x {XID} -U \
+                                    --catalog=mill ./myfeatures/features.ui
+
+     Les catalogues disponibles sont: 'mill' et 'lathe'
+     (Le catalogue 'lathe' est encore peu développé)
+     ./myfeatures est un sous-répertoire pour autres sous-répertoires et
+       fichiers requis par 'features'.
+     ./myfeatures/features.ui est un fichier de configuration glase pour 'features'.
+     La référence système est: share/features/features.ui
+
+  5) Le premier démarrage de 'features' intégré à LinuxCNC (axis ou gmoccapy)
+     copiera les fichiers requis au répertoire spécifié par [DISPLAY]FEATURES_DIR.
+     Les démarrage subséquents copieront les mise à jours et ajouts automatiquement
+     lorsque disponibles. Si l'utilisateur a modifié un de ces fichiers, une
+     boîte de dialogue indiquera que ces fichiers doivent être renommés ou supprimés
+     avant que les nouveaux fichiers soient copiés, sous risque qu'ils soient
+     écrasés.
+
+  6) Un contributeur qui utilise un programme 'Run-In-Place (RIP)' peut recopier
+     les fichiers qu'il a modifiés ou créés dans le sous-répertoire approprié de
+     share/features/ afin de créer un patch à ajouter à la distribution. De même,
+     un utilisateur normal peut aussi contribuer à l'avancement en proposant ses
+     développements à un contributeur-développeur afin qu'il l'intègre à la distribution.
+
+  7) Pour utilisation autonome, démarrez depuis une ligne de commande par:
+       $ features [Options]
+
+     Si un fichier de configuration est spécifié, il doit répondre aux 
+     exigences pré-cités. Si aucun fichier n'est spécifié, le répertoire courrant
+     sera utilisé. Dans ce cas, une confirmation de copier les fichiers requis
+     sera demandée. Le catalogue 'mill' sera celui utilisé.
+
+     Pour référence:
+        $ features --help
+
+     Utilisation autonome :
+        features [Options]
+
+     Options:
+        -h | --help                   ce texte (en anglais)
+        -i inifilename | --ini=inifilename inifile for standalone
+
+     Notes:
+       Utilisation autonome :
+          a) Spécifier un fichier (inifilename) qui spécifie [DISPLAY]FEATURES_DIR
+       ou
+          b) Démarrer depuis un répertoire contenant déjà les sous-répertoires et 
+                fichiers requis
+             (Si ces répertoires ne sont pas présents, ils y seront créés)
+
+-------------------------------------------------------------------------------
+Auteurs:
+  Nick Drobchenko - Nick des foruns cnc-club.ru et linuxcnc.org,
+  Fernand Veilleux - FernV du forum linuxcnc.org,
+  Sergey - verser des forums cnc-club.ru et linuxcnc.org,
+  Meison Kim, Alexander Wigen, Konstantin Navrockiy.
+
