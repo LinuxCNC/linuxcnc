@@ -3133,23 +3133,26 @@ else:
 root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
 homing_order_defined = inifile.find("JOINT_0", "HOME_SEQUENCE") is not None
 
-if homing_order_defined:
-    widgets.homebutton.configure(text=_("Home All"), command="home_all_joints")
-    root_window.tk.call("DynamicHelp::add", widgets.homebutton,
-            "-text", _("Home all axes [Ctrl-Home]"))
-    widgets.homemenu.add_command(command=commands.home_all_joints)
-    root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
-            _("Home All Axes"))
-
 update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
 
 interpname = inifile.find("TASK", "INTERPRETER") or ""
 
-widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
-root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All Axes"))
-
 s = linuxcnc.stat();
 s.poll()
+
+if homing_order_defined:
+    widgets.homebutton.configure(text=_("Home All"), command="home_all_joints")
+    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+        ja_name = "Axes"
+    else:
+        ja_name = "Joints"
+    root_window.tk.call("DynamicHelp::add", widgets.homebutton,
+            "-text", _("Home all %s [Ctrl-Home]" % ja_name))
+    widgets.homemenu.add_command(command=commands.home_all_joints)
+    root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
+            _("Home All %s" % ja_name))
+widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
+root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s" % ja_name))
 
 # derive trajcoordinates from axis_mask (initraj.cc [TRAJ]COORDINATES)
 trajcoordinates = ""
@@ -3179,10 +3182,14 @@ for i in range(num_joints):
     #if not (s.axis_mask & (1<<i)): continue # ja:not needed for consecutive joints
     widgets.homemenu.add_command(command=lambda i=i: commands.home_joint_number(i))
     widgets.unhomemenu.add_command(command=lambda i=i: commands.unhome_joint_number(i))
+    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+        ja_name = "Axis"; ja_id = "XYZABCUVW"[i]
+    else:
+        ja_name = "Joint"; ja_id = i
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
-            _("Home Joint _%s") % i)
+            _("Home %(name)s _%(id)s") % {"name":ja_name, "id":ja_id})
     root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end",
-            _("Unhome Joint _%s") % i)
+            _("Unhome %(name)s _%(id)s") % {"name":ja_name, "id":ja_id})
 
 astep_size = step_size = 1
 for a in range(linuxcnc.MAX_AXIS):
