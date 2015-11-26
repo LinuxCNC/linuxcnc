@@ -106,11 +106,16 @@ class INI:
         else:
             print "___________________unknown self.d.axes",self.d.axes
 
+        if   self.d.axes == 1: coords = "X Y Z A"
+        elif self.d.axes == 0: coords = "X Y Z"
+        elif self.d.axes == 2: coords = "X Z"
+        elif self.d.axes == 3: coords = "X Y U V"
+
         print >>file,  "[KINS]"
         # trivial kinematics: no. of joints == no.of axes)
         # with gentrivkins, axes do not have to be consecutive
         print >>file, "JOINTS = %d"%num_joints
-        print >>file, "KINEMATICS = gentrivkins"
+        print >>file, "KINEMATICS = gentrivkins coordinates=%s"%coords.replace(" ","")
         print >>file
         print >>file, "[FILTER]"
         print >>file, "PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image"
@@ -156,14 +161,7 @@ class INI:
         print >>file
         print >>file, "[TRAJ]"
         # [TRAJ]AXES notused for joints_axes
-        if self.d.axes == 1:
-            print >>file, "COORDINATES = X Y Z A"
-        elif self.d.axes == 0:
-            print >>file, "COORDINATES = X Y Z"
-        elif self.d.axes == 2:
-            print >>file, "COORDINATES = X Z"
-        elif self.d.axes == 3:
-            print >>file, "COORDINATES = X Y U V"
+        print >>file, "COORDINATES = ",coords
         if self.d.units:
             print >>file, "LINEAR_UNITS = mm"
         else:
@@ -196,11 +194,11 @@ class INI:
         if self.d.axes == 1: # xyza
             self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
         if self.d.axes == 2: # xZ
-            self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
+            self.write_one_axis(file, 1, "z", "LINEAR", all_homes)
         if self.d.axes == 3: # xyuv
             self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-            self.write_one_axis(file, 6, "u", "LINEAR", all_homes)
-            self.write_one_axis(file, 7, "v", "LINEAR", all_homes)
+            self.write_one_axis(file, 2, "u", "LINEAR", all_homes)
+            self.write_one_axis(file, 3, "v", "LINEAR", all_homes)
         file.close()
         self.d.add_md5sum(filename)
 
