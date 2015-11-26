@@ -139,7 +139,9 @@ XML_TAG = "LinuxCNC-Features"
 PREFERENCES_FILE = "/features.conf"
 TOP_FEATURES = "/top.lst"
 DEFAULTS = '/defaults.ngc'
+DEFAULTS_CUSTOM = '/defaults_custom.ngc'
 POSTAMBLE = '/postamble.ngc'
+POSTAMBLE_CUSTOM = '/postamble_custom.ngc'
 
 SEL_IS_NONE = 0
 SEL_IS_FEATURE = 1
@@ -1398,11 +1400,15 @@ Notes:
         # first use:copy, subsequent: update
         self.update_user_tree(fromdirs, APP_PATH)
 
-        if not os.path.exists(self.catalog_dir + '/menu.xml') :
+        if os.path.exists(self.catalog_dir + '/menu_custom.xml') :
+            xml = etree.parse(self.catalog_dir + '/menu_custom.xml')
+            print('Menu used : menu_custom.xml')
+        elif os.path.exists(self.catalog_dir + '/menu.xml') :
+            xml = etree.parse(self.catalog_dir + '/menu.xml')
+            print('Menu used : menu.xml')
+        else :
             raise IOError(_('Catalog file does not exists : %s' %
                     self.catalog_dir + '/menu.xml'))
-
-        xml = etree.parse(self.catalog_dir + '/menu.xml')
         self.catalog = xml.getroot()
 
         self.LinuxCNC_connected = False
@@ -1452,17 +1458,25 @@ Notes:
 
         self.create_menu_interface()
 
-        self.default_src = search_path(self.catalog_dir + DEFAULTS,
-                _('Can not load NGC default file'), True)
-        if  self.default_src is not None :
+        self.default_src = search_path(self.catalog_dir + DEFAULTS_CUSTOM,
+                _('Custom default file not found'), False)
+        if self.default_src is None :
+            self.default_src = search_path(self.catalog_dir + DEFAULTS,
+                _('Default NGC file not found'), True)
+        if self.default_src is not None :
             self.defaults = open(self.default_src).read()
+            print('Defaults file : %s' % self.default_src)
         else :
-            self.defaults = ''
+            self.defaults = 'G17 G40 G49 G90 G92.1 G94 G54 G64 P0.001'
 
-        self.post_amble_src = search_path(self.catalog_dir + POSTAMBLE,
-                _('Can not load post amble file'), False)
+        self.post_amble_src = search_path(self.catalog_dir + POSTAMBLE_CUSTOM,
+                _('Custom post amble file not found'), False)
+        if self.post_amble_src is None :
+            self.post_amble_src = search_path(self.catalog_dir + POSTAMBLE,
+                _('Post amble file not found'), False)
         if self.post_amble_src is not None :
             self.post_amble = open(self.post_amble_src).read()
+            print('Post amble file : %s' % self.post_amble_src)
         else :
             self.post_amble = ''
 
@@ -1953,44 +1967,47 @@ Notes:
         def add_to_menu(grp_menu, path) :
             for ptr in range(len(path)) :
                 p = path[ptr]
-                if p.tag.lower() == "group":
-                    name = p.get("name") if "name" in p.keys() else None
-                    a_menu_item = gtk.ImageMenuItem(_(name))
+                try :
+                    if p.tag.lower() == "group":
+                        name = p.get("name") if "name" in p.keys() else None
+                        a_menu_item = gtk.ImageMenuItem(_(name))
 
-                    tooltip = p.get("tool_tip") if "tool_tip" in p.keys() else None
-                    if (tooltip is not None) and (tooltip != ''):
-                        a_menu_item.set_tooltip_text(_(tooltip))
+                        tooltip = p.get("tool_tip") if "tool_tip" in p.keys() else None
+                        if (tooltip is not None) and (tooltip != ''):
+                            a_menu_item.set_tooltip_text(_(tooltip))
 
-                    img = gtk.Image()
-                    img.set_from_pixbuf(get_pixbuf(p.get("icon"), ADD_MENU_ICON_SIZE))
-                    a_menu_item.set_image(img)
+                        img = gtk.Image()
+                        img.set_from_pixbuf(get_pixbuf(p.get("icon"), ADD_MENU_ICON_SIZE))
+                        a_menu_item.set_image(img)
 
-                    grp_menu.append(a_menu_item)
-                    a_menu = gtk.Menu()
-                    a_menu_item.set_submenu(a_menu)
-                    add_to_menu(a_menu, p)
+                        grp_menu.append(a_menu_item)
+                        a_menu = gtk.Menu()
+                        a_menu_item.set_submenu(a_menu)
+                        add_to_menu(a_menu, p)
 
-                elif p.tag.lower() == "separator":
-                    sep = gtk.SeparatorMenuItem()
-                    grp_menu.append(sep)
+                    elif p.tag.lower() == "separator":
+                        sep = gtk.SeparatorMenuItem()
+                        grp_menu.append(sep)
 
-                elif p.tag.lower() in ["sub", "import"] :
-                    name = p.get("name") if "name" in p.keys() else None
-                    a_menu_item = gtk.ImageMenuItem(_(name))
+                    elif p.tag.lower() in ["sub", "import"] :
+                        name = p.get("name") if "name" in p.keys() else None
+                        a_menu_item = gtk.ImageMenuItem(_(name))
 
-                    tooltip = p.get("tool_tip") if "tool_tip" in p.keys() else None
-                    if (tooltip is not None) and (tooltip != ''):
-                        a_menu_item.set_tooltip_text(_(tooltip))
+                        tooltip = p.get("tool_tip") if "tool_tip" in p.keys() else None
+                        if (tooltip is not None) and (tooltip != ''):
+                            a_menu_item.set_tooltip_text(_(tooltip))
 
-                    img = gtk.Image()
-                    img.set_from_pixbuf(get_pixbuf(p.get("icon"), ADD_MENU_ICON_SIZE))
-                    a_menu_item.set_image(img)
+                        img = gtk.Image()
+                        img.set_from_pixbuf(get_pixbuf(p.get("icon"), ADD_MENU_ICON_SIZE))
+                        a_menu_item.set_image(img)
 
-                    src = p.get("src") if "src" in p.keys() else None
-                    if (src is not None) and (src != ''):
-                        a_menu_item.connect("activate", self.add_feature_menu, src)
+                        src = p.get("src") if "src" in p.keys() else None
+                        if (src is not None) and (src != ''):
+                            a_menu_item.connect("activate", self.add_feature_menu, src)
 
-                    grp_menu.append(a_menu_item)
+                        grp_menu.append(a_menu_item)
+                except :
+                    continue
 
         try :
             add_to_menu(self.menuAdd, self.catalog)
