@@ -372,20 +372,6 @@ elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
 fi
 
-AC_MSG_CHECKING([for usability of rdtscll from asm/msr.h])
-AC_TRY_LINK(
-    [
-#include <asm/msr.h>
-#include <stdio.h>
-void use_rdtscll(void) { long long tsc; rdtscll(tsc); }
-],
-    [],
-    [
-        MSR_H_USABLE=yes
-        AC_DEFINE([MSR_H_USABLE], [], [Define to 1 if asm/msr.h is usable and defines rdtscll])
-    ], [MSR_H_USABLE=no])
-AC_MSG_RESULT($MSR_H_USABLE)
-
 AC_MSG_CHECKING([for usability of linux/hidraw.h])
 AC_TRY_LINK(
     [
