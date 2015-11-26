@@ -23,6 +23,10 @@ class INI:
         print >>file, "MACHINE = %s" % self.d.machinename
         print >>file, "DEBUG = 0"
 
+        # the joints_axes conversion script named 'update_ini'
+        # will try to update for joints_axes if no VERSION is set
+        print >>file, "VERSION = 1.0"
+
         print >>file
         print >>file, "[DISPLAY]"
         if self.d.frontend == _PD._AXIS:
@@ -134,20 +138,26 @@ class INI:
                 if cmd =="": break
                 print >>file,"MDI_COMMAND = %s"% cmd           
 
+        # self.d.axes codes:
+        if   self.d.axes == 0: num_joints = 3; coords = "X Y Z"
+        elif self.d.axes == 1: num_joints = 4; coords = "X Y Z A"
+        elif self.d.axes == 2: num_joints = 2; coords = "X Z"
+        else:
+            print "___________________unknown self.d.axes",self.d.axes
+        print >>file
+        print >>file,  "[KINS]"
+        # trivial kinematics: no. of joints == no.of axes)
+        # with gentrivkins, axes do not have to be consecutive
+        print >>file, "JOINTS = %d"%num_joints
+        print >>file, "KINEMATICS = gentrivkins coordinates=%s"%coords.replace(" ","")
+
         print >>file
         print >>file, "[TRAJ]"
+        print >>file, "COORDINATES = ",coords
         if self.d.axes == 1:
-            print >>file, "AXES = 4"
-            print >>file, "COORDINATES = X Y Z A"
             print >>file, "MAX_ANGULAR_VELOCITY = %.2f" % self.d.amaxvel
             defvel = min(60, self.d.amaxvel/10.)
             print >>file, "DEFAULT_ANGULAR_VELOCITY = %.2f" % defvel
-        elif self.d.axes == 0:
-            print >>file, "AXES = 3"
-            print >>file, "COORDINATES = X Y Z"
-        else:
-            print >>file, "AXES = 3"
-            print >>file, "COORDINATES = X Z"
         if self.d.units == _PD._METRIC:
             print >>file, "LINEAR_UNITS = mm"
         else:
@@ -182,12 +192,20 @@ class INI:
         if self.d.axes != 2: all_homes = all_homes and self.a.home_sig("y")
         if self.d.axes == 4: all_homes = all_homes and self.a.home_sig("a")
 
-        self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
-        if self.d.axes != 2:
+        # todo: simplify hardcoding for gentrivkins sequential joint no.s
+        if   self.d.axes == 0: # "X Y Z"
+            self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
             self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-        self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
-        if self.d.axes == 1:
+            self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
+        elif self.d.axes == 1: # "X Y Z A"
+            self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
+            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
+            self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
             self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
+        elif self.d.axes == 2: # "X Z"
+            self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
+            self.write_one_axis(file, 1, "z", "LINEAR", all_homes)
+
         self.write_one_axis(file, 9, "s", "null", all_homes)
         file.close()
         self.d.add_md5sum(filename)
@@ -215,9 +233,10 @@ class INI:
             print >>file, "#********************"
             print >>file, "[SPINDLE_%d]" % num
         else:
-            print >>file, "# Axis %s" % letter.upper()
+            print >>file
+            print >>file, "# Joint %d" % num
+            print >>file, "[JOINT_%d]" % num
             print >>file, "#********************"
-            print >>file, "[AXIS_%d]" % num
             print >>file, "TYPE = %s" % type
             print >>file, "HOME = %s" % get("homepos")
             print >>file, "FERROR = %s"% get("maxferror")
@@ -305,6 +324,19 @@ class INI:
         maxlim = max(maxlim, home + extend)
         print >>file, "MIN_LIMIT = %s" % minlim
         print >>file, "MAX_LIMIT = %s" % maxlim
+
+        # For KINEMATICS_IDENTITY:
+        #     use axis MIN,MAX values identical corresponding joint values
+        if not letter == "s":
+            axis_letter = "XYZABCUVW"[num]
+            print >>file, "# Axis %s" % letter.upper()
+            print >>file, "#********************"
+            print >>file, "[AXIS_%s]" % axis_letter
+            print >>file, "MAX_VELOCITY = %s" % get("maxvel")
+            print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
+            print >>file, "MIN_LIMIT = %s" % minlim
+            print >>file, "MAX_LIMIT = %s" % maxlim
+            print >>file
 
         thisaxishome = set(("all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
         ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
