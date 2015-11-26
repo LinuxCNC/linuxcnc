@@ -3140,12 +3140,12 @@ interpname = inifile.find("TASK", "INTERPRETER") or ""
 s = linuxcnc.stat();
 s.poll()
 
+if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+    ja_name = "Axes"
+else:
+    ja_name = "Joints"
 if homing_order_defined:
     widgets.homebutton.configure(text=_("Home All"), command="home_all_joints")
-    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-        ja_name = "Axes"
-    else:
-        ja_name = "Joints"
     root_window.tk.call("DynamicHelp::add", widgets.homebutton,
             "-text", _("Home all %s [Ctrl-Home]" % ja_name))
     widgets.homemenu.add_command(command=commands.home_all_joints)
@@ -3183,7 +3183,7 @@ for i in range(num_joints):
     widgets.homemenu.add_command(command=lambda i=i: commands.home_joint_number(i))
     widgets.unhomemenu.add_command(command=lambda i=i: commands.unhome_joint_number(i))
     if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-        ja_name = "Axis"; ja_id = "XYZABCUVW"[i]
+        ja_name = "Axis"; ja_id = trajcoordinates[i].upper()
     else:
         ja_name = "Joint"; ja_id = i
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
