@@ -20,8 +20,8 @@
 	        <separator/>
 	        <sub name='Line To' tool_tip='Line with relative or absolute position' icon="line-to.png" src="mill/fv_polyline-to.cfg"/>
 	        <sub name='Line Polar' tool_tip='Line of length and angle' icon="line-al.png" src="mill/fv_polyline-polar.cfg"/>
-	        <sub name='Arc R' tool_tip='Define a destination point and radius' icon="arc-to-xyr.png" src="mill/fv_polyline-arc-r.cfg"/>
-	        <sub name='Arc I,J' tool_tip='Define offsets and angle' icon="arc-to-xyij.png" src="mill/fv_polyline-arc-ij.cfg"/>
+	        <!-- sub name='Arc R' tool_tip='Define a destination point and radius' icon="arc-to-xyr.png" src="mill/fv_polyline-arc-r.cfg"/ -->
+	        <!-- sub name='Arc I,J' tool_tip='Define offsets and angle' icon="arc-to-xyij.png" src="mill/fv_polyline-arc-ij.cfg"/ -->
 	        <separator/>
 	        <sub name='Repeat Items' tool_tip='Repeat a group of polyline items' icon="array.png" src="mill/fv_polyline-repeat.cfg"/>
 	        <sub name='Compound corner' tool_tip='Add an compound corner to a polyline' icon="arc-to-xyr.png" src="mill/fv_polyline-corner.cfg"/>
