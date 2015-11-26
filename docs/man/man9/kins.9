@@ -20,6 +20,8 @@ kins \- kinematics definitions for LinuxCNC
 .PP
 .B loadrt genserkins
 .PP
+.B loadrt gentrivkins
+.PP
 .B loadrt pumakins
 .PP
 .B loadrt scarakins
@@ -94,6 +96,41 @@ manipulator are defined by hal pins.
 .TQ
 .B genserkins.D-\fIN
 Parameters describing the \fIN\fRth joint's geometry.
+
+.SS gentrivkins \- generalized trivial kinematics
+There is a 1:1 correspondence between joints and axes.
+Joint numbers are assigned sequentialy according to the axis letters specified
+with the \fBcoordinates=\fR parameter.
+
+.TQ
+Example: loadrt \fBgentrivkins coordinates=xyz\fR
+.TQ
+Assigns: x==joint0, y==joint1, z==joint2
+.TQ
+Example: loadrt \fBgentrivkins coordinates=xz\fR
+.TQ
+Assigns: x==joint0, z=joint1
+
+.TP
+If not specified, \fBcoordinates=\fRxyzabcuvw is used resulting in assignments:
+   x==joint0, y==joint1, z==joint2,
+   a==joint3, b==joint4, z==joint5,
+   u==joint6, v==joint7, w==joint8
+
+.TP
+The default kinematics type is KINEMATICS_IDENTITY. The kinematics type can be set with the \fBkinstype=\fR parameter:
+
+.TQ
+  kinstype=[\fBb\fR|\fBB\fR] for KINEMATICS_BOTH
+.TQ
+  kinstype=[\fBf\fR|\fBF\fR] for KINEMATICS_FORWARD_ONLY
+.TQ
+  kinstype=[\fBi\fR|\fBI\fR] for KINEMATICS_INVERSE_ONLY
+.TQ
+  kinstype=\fB1\fR    for KINEMATICS_IDENTITY (default)
+
+.TP
+Example: loadrt \fBgentrivkins coordinates=xyz kinstype=b\fR
 
 .SS pumakins \- kinematics for puma typed robots
 Kinematics for a puma-style robot with 6 joints
