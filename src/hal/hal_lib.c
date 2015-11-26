@@ -58,6 +58,7 @@
 #include "hal_priv.h"		/* HAL private decls */
 
 #include "rtapi_string.h"
+#include <rtapi_mutex.h>
 
 #ifdef RTAPI
 #include "rtapi_app.h"

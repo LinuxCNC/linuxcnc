@@ -20,7 +20,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <rtapi_errno.h>
-
+#include <rtapi_mutex.h>
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 #include <sys/ipc.h>		/* IPC_* */
@@ -257,7 +257,7 @@ long long rtapi_get_clocks(void)
 }
 
 typedef struct {
-    unsigned long mutex;
+    rtapi_mutex_t mutex;
     int           uuid;
 } uuid_data_t;
 

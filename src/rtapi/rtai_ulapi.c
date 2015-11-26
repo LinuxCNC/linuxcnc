@@ -71,6 +71,7 @@
 #include <errno.h>		/* errno */
 
 #include "rtapi.h"		/* public RTAPI decls */
+#include <rtapi_mutex.h>
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 
 /* the following are internal functions that do the real work associated

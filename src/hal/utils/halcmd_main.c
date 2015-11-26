@@ -44,6 +44,7 @@
 #include "halcmd.h"
 #include "halcmd_commands.h"
 #include "halcmd_completion.h"
+#include <rtapi_mutex.h>
 
 #include <stdio.h>
 #include <stdlib.h>

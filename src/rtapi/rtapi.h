@@ -196,61 +196,6 @@ RTAPI_BEGIN_DECLS
 #endif
 
 /***********************************************************************
-*                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
-************************************************************************/
-#if defined(__KERNEL__)
-#include <linux/sched.h>	/* for blocking when needed */
-#else
-#include <sched.h>		/* for blocking when needed */
-#endif
-#include "rtapi_bitops.h"	/* atomic bit ops for lightweight mutex */
-
-/** These three functions provide a very simple way to do mutual
-    exclusion around shared resources.  They do _not_ replace
-    semaphores, and can result in significant slowdowns if contention
-    is severe.  However, unlike semaphores they can be used from both
-    user and kernel space.  The 'try' and 'give' functions are non-
-    blocking, and can be used anywhere.  The 'get' function blocks if
-    the mutex is already taken, and can only be used in user space or
-    the init code of a realtime module, _not_ in realtime code.
-*/
-
-/** 'rtapi_mutex_give()' releases the mutex pointed to by 'mutex'.
-    The release is unconditional, even if the caller doesn't have
-    the mutex, it will be released.
-*/
-    static __inline__ void rtapi_mutex_give(unsigned long *mutex) {
-	test_and_clear_bit(0, mutex);
-    }
-/** 'rtapi_mutex_try()' makes a non-blocking attempt to get the
-    mutex pointed to by 'mutex'.  If the mutex was available, it
-    returns 0 and the mutex is no longer available, since the
-    caller now has it.  If the mutex is not available, it returns
-    a non-zero value to indicate that someone else has the mutex.
-    The programer is responsible for "doing the right thing" when
-    it returns non-zero.  "Doing the right thing" almost certainly
-    means doing something that will yield the CPU, so that whatever
-    other process has the mutex gets a chance to release it.
-*/ static __inline__ int rtapi_mutex_try(unsigned long *mutex) {
-	return test_and_set_bit(0, mutex);
-    }
-
-/** 'rtapi_mutex_get()' gets the mutex pointed to by 'mutex',
-    blocking if the mutex is not available.  Because of this,
-    calling it from a realtime task is a "very bad" thing to
-    do.
-*/
-    static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
-	while (test_and_set_bit(0, mutex)) {
-#if defined(__KERNEL__)
-	    schedule();
-#else
-	    sched_yield();
-#endif
-	}
-    }
-
-/***********************************************************************
 *                      TIME RELATED FUNCTIONS                          *
 ************************************************************************/
 
