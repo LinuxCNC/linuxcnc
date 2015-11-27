@@ -1,17 +1,6 @@
-(   Lathe deafults )
+(Read CUSTOMIZE before editing defaults.ngc)
 
-; You can customize this file to suit your needs but it will be
-; overwritten when updates are available. To prevent this overwriting,
-; save it under the name 'defaults_custom'.ngc
-; This file if it exists will be loaded, if not it will load the
-; standard 'defaults.ngc'
-; Best is to create a default template by loading the features you need,
-; setting your values and saving it.
-; Default Template is loaded every time you want to create a new job.
-; If not needed anymore delete 'catalogs/lathe/def_template.xml'
-;
-; You can also customize menu the same way and rename it 'menu_custom.xml'
-
+( Lathe defaults )
 	G18	
 
 	#<_global_thread_j> = 1
@@ -35,4 +24,4 @@
 
 	#<_global_spindle> =	1000
 	#<_global_final_spindle> = 1000
-( / Lathe deafults )
+( End lathe defaults )
