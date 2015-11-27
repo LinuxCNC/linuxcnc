@@ -391,7 +391,7 @@ def require_ini_items(fname, ini_instance):
                          ' for [DISPLAY]FEATURES_DIR'
                       % fname))
         APP_PATH = val + '/'
-        print "FEATURES_DIR=", val
+        print "\nFEATURES_DIR=", val
         if not os.path.isabs(APP_PATH) :
             APP_PATH = os.path.dirname(fname) + '/' + APP_PATH
         APP_PATH = os.path.abspath(APP_PATH)
@@ -1377,9 +1377,9 @@ Notes:
                 print(_('not found: [DISPLAY]EDITOR, using: %s' % DEFAULT_EDITOR))
 
         if "--catalog" in optlist :
-            self.catalog_dir = APP_PATH + CATALOGS_DIR + optlist["--catalog"]
-        else :
-            self.catalog_dir = APP_PATH + CATALOGS_DIR + DEFAULT_CATALOG
+            DEFAULT_CATALOG = optlist["--catalog"]
+
+        self.catalog_dir = APP_PATH + CATALOGS_DIR + DEFAULT_CATALOG
 
         if "-h" in optlist or "--help" in optlist:
             self.usage()
@@ -1402,10 +1402,10 @@ Notes:
 
         if os.path.exists(self.catalog_dir + '/menu_custom.xml') :
             xml = etree.parse(self.catalog_dir + '/menu_custom.xml')
-            print('Menu used : menu_custom.xml')
+            print('Menu used : %s/menu_custom.xml' % DEFAULT_CATALOG)
         elif os.path.exists(self.catalog_dir + '/menu.xml') :
             xml = etree.parse(self.catalog_dir + '/menu.xml')
-            print('Menu used : menu.xml')
+            print('Menu used : %s/menu.xml' % DEFAULT_CATALOG)
         else :
             raise IOError(_('Catalog file does not exists : %s' %
                     self.catalog_dir + '/menu.xml'))
@@ -1459,26 +1459,32 @@ Notes:
         self.create_menu_interface()
 
         self.default_src = search_path(self.catalog_dir + DEFAULTS_CUSTOM,
-                _('Custom default file not found'), False)
-        if self.default_src is None :
-            self.default_src = search_path(self.catalog_dir + DEFAULTS,
-                _('Default NGC file not found'), True)
+                '', False)
         if self.default_src is not None :
             self.defaults = open(self.default_src).read()
-            print('Defaults file : %s' % self.default_src)
+            print('Defaults file : %s%s' % (DEFAULT_CATALOG, DEFAULTS_CUSTOM))
         else :
-            self.defaults = 'G17 G40 G49 G90 G92.1 G94 G54 G64 P0.001'
+            self.default_src = search_path(self.catalog_dir + DEFAULTS,
+                _('Default NGC file not found'), True)
+            if self.default_src is not None :
+                self.defaults = open(self.default_src).read()
+                print('Defaults file : %s%s' % (DEFAULT_CATALOG, DEFAULTS))
+            else :
+                self.defaults = 'G17 G40 G49 G90 G92.1 G94 G54 G64 P0.001'
 
         self.post_amble_src = search_path(self.catalog_dir + POSTAMBLE_CUSTOM,
-                _('Custom post amble file not found'), False)
-        if self.post_amble_src is None :
-            self.post_amble_src = search_path(self.catalog_dir + POSTAMBLE,
-                _('Post amble file not found'), False)
+                '', False)
         if self.post_amble_src is not None :
             self.post_amble = open(self.post_amble_src).read()
-            print('Post amble file : %s' % self.post_amble_src)
+            print('Postamble file : %s%s\n' % (DEFAULT_CATALOG, POSTAMBLE_CUSTOM))
         else :
-            self.post_amble = ''
+            self.post_amble_src = search_path(self.catalog_dir + POSTAMBLE,
+                '', False)
+            if self.post_amble_src is not None :
+                self.post_amble = open(self.post_amble_src).read()
+                print('Postamble file : %s%s\n' % (DEFAULT_CATALOG, POSTAMBLE))
+            else :
+                self.post_amble = ''
 
         if use_top_features_toolbar :
             self.setup_top_features()
@@ -1535,6 +1541,7 @@ Notes:
             else :
                 print (_('Created %4d files in: %s'
                        % (update_ct, APP_PATH.rstrip('/') + '/' + d.lstrip('/'))))
+        print('')
 
     def create_mi(self, _action):
         mi = _action.create_menu_item()
@@ -3014,7 +3021,8 @@ Notes:
             gcode_def += d
             itr = self.treestore.iter_next(itr)
         return detect + self.defaults + "\n(Definitions)\n" + gcode_def + \
-            "(End definitions)\n" + gcode + '\n' + self.post_amble + "\nM2"
+            "\n(End definitions)\n" + gcode + '\n(Postamble)\n' + \
+            self.post_amble + "\n(End postamble)\n\nM2\n"
 
 
     def action_build(self, *arg) :
