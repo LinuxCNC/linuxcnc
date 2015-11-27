@@ -938,14 +938,14 @@ static void get_last_pos(double &lx, double &ly, double &lz) {
  *
  * Uses the voronoi regions of a line segment to compute distance:
  *
- *
- *       |                        |
- *       |            (2)         |
- *       |         segment        |
- * (1)   |________________________|   (4)
- *       |                        |
- *       | P0      (3)            | P1
- *       |                        |
+ *       .                        .
+ *       .         (2)            .
+ *       .                        .
+ * (1)   x-------line-segment-----x      (4)
+ *       . P0                     . P1
+ *       .                        .
+ *       .          (3)           .
+ *       .                        .
  *
  *  If the test point lies in regions 2 / 3 in the above diagram, we find the
  *  perpendicular distance to the line.
@@ -961,7 +961,17 @@ static double distance_to_segment(PM_CARTESIAN const & P0,
     PM_CARTESIAN M = P1 - P0;
 
     // Project onto M
-    double t0 = dot(M, V) / dot(M, M);
+    double base_dist_sq = dot(M, M);
+
+    // Distance along the line segment to the point closest to R (if R is in
+    // region 2/3)
+    double t0;
+    if (base_dist_sq > tiny) {
+        t0 = dot(M, V) / base_dist_sq;
+    } else {
+        // Degenerate segment, use end point to calculate distance
+        t0 = 1;
+    }
 
     // Clip t0 if R lies in region 1 / 4
     if(t0 < 0) {
