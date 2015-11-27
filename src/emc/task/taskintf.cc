@@ -476,6 +476,7 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
     return retval;
 }
 
+// JOINTS_AXES is this used anywhere?
 int emcAxisSetHome(int axis, double home)
 {
 
