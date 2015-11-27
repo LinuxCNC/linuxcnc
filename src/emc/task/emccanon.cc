@@ -928,6 +928,56 @@ static void get_last_pos(double &lx, double &ly, double &lz) {
     }
 }
 
+
+/**
+ * Compute distance from a point to a finite line segment.
+ * @param P0 first point of line segment
+ * @param P1 second point of line segment
+ * @param R point to test
+ * @return distance between point and segment
+ *
+ * Uses the voronoi regions of a line segment to compute distance:
+ *
+ *
+ *       |                        |
+ *       |            (2)         |
+ *       |         segment        |
+ * (1)   |________________________|   (4)
+ *       |                        |
+ *       | P0      (3)            | P1
+ *       |                        |
+ *
+ *  If the test point lies in regions 2 / 3 in the above diagram, we find the
+ *  perpendicular distance to the line.
+ *  In region (1), the distance to the segment is R - P0
+ *  In region (4), the distance to the segment is R - P1
+ */
+static double distance_to_segment(PM_CARTESIAN const & P0,
+        PM_CARTESIAN const & P1,
+        PM_CARTESIAN const & R)
+{
+    // Find relative distances from first point
+    PM_CARTESIAN V = R - P0;
+    PM_CARTESIAN M = P1 - P0;
+
+    // Project onto M
+    double t0 = dot(M, V) / dot(M, M);
+
+    // Clip t0 if R lies in region 1 / 4
+    if(t0 < 0) {
+        t0 = 0;
+    } else if (t0 > 1) {
+        t0 = 1;
+    }
+
+    // Subtract away parallel component to find perpendicular distance.
+    return mag(V - t0 * M);
+}
+
+
+/**
+ * Check if we can skip over intermediate points.
+ */
 static bool
 linkable(double x, double y, double z, 
          double a, double b, double c, 
@@ -939,27 +989,31 @@ linkable(double x, double y, double z,
     if(chained_points.size() > 100) return false;
 
     //If ABCUVW motion, then the tangent calculation fails?
-    // TODO is there a fundamental reason that we can't handle 9D motion here?
     if(a != pos.a) return false;
     if(b != pos.b) return false;
     if(c != pos.c) return false;
-    if(u != pos.u) return false;
-    if(v != pos.v) return false;
-    if(w != pos.w) return false;
 
-    if(x==canonEndPoint.x && y==canonEndPoint.y && z==canonEndPoint.z) return false;
+    canon_debug("Testing for motion\n");
+    if(x==canonEndPoint.x && y==canonEndPoint.y && z==canonEndPoint.z && u==canonEndPoint.u && v==canonEndPoint.v && w==canonEndPoint.w ) return false;
+    
+    // start and end points of "merged" segment.
+    PM_CARTESIAN P0(canonEndPoint.x, canonEndPoint.y, canonEndPoint.z);
+    PM_CARTESIAN P1(x,y,z);
+
+    PM_CARTESIAN U0(canonEndPoint.u, canonEndPoint.u, canonEndPoint.u);
+    PM_CARTESIAN U1(u,v,w);
     
     for(std::vector<struct pt>::iterator it = chained_points.begin();
             it != chained_points.end(); it++) {
-        PM_CARTESIAN M(x-canonEndPoint.x, y-canonEndPoint.y, z-canonEndPoint.z),
-                     B(canonEndPoint.x, canonEndPoint.y, canonEndPoint.z),
-                     P(it->x, it->y, it->z);
-        double t0 = dot(M, P-B) / dot(M, M);
-        if(t0 < 0) t0 = 0;
-        if(t0 > 1) t0 = 1;
-
-        double D = mag(P - (B + t0 * M));
-        if(D > canonNaivecamTolerance) return false;
+        PM_CARTESIAN P(it->x, it->y, it->z);
+        PM_CARTESIAN U(it->u, it->v, it->w);
+        double D_xyz = distance_to_segment(P0, P1, P);
+        double D_uvw = distance_to_segment(U0, U1, U);
+        double D = sqrt(D_uvw * D_uvw + D_xyz * D_xyz);
+        debug_canon_var(D_xyz);
+        debug_canon_var(D_uvw);
+        debug_canon_var(D);
+        if( D > canonNaivecamTolerance) return false;
     }
     return true;
 }
@@ -969,24 +1023,12 @@ see_segment(int line_number,
 	    double x, double y, double z, 
             double a, double b, double c,
             double u, double v, double w) {
-    bool changed_abc = (a != canonEndPoint.a)
-        || (b != canonEndPoint.b)
-        || (c != canonEndPoint.c);
-
-    bool changed_uvw = (u != canonEndPoint.u)
-        || (v != canonEndPoint.v)
-        || (w != canonEndPoint.w);
-
     if(!chained_points.empty() && !linkable(x, y, z, a, b, c, u, v, w)) {
         flush_segments();
     }
     pt pos = {x, y, z, a, b, c, u, v, w, line_number};
     canon_debug("Adding line %d to chained points\n", line_number);
     chained_points.push_back(pos);
-    if(changed_abc || changed_uvw) {
-        canon_debug("flushing segments due to ABCUVW motion\n");
-        flush_segments();
-    }
 }
 
 void FINISH() {
@@ -1047,7 +1089,7 @@ void STRAIGHT_FEED(int line_number,
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
 
-    canon_debug("STRAIGHT_FEED x %g y %g z %g a %g b %g c %g u %g v %g w %g ",
+    canon_debug("STRAIGHT_FEED x %g y %g z %g a %g b %g c %g u %g v %g w %g\n",
             x, y, z, a, b, c, u, v, w);
 
     from_prog(x,y,z,a,b,c,u,v,w);
