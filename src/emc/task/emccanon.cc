@@ -1009,11 +1009,9 @@ linkable(double x, double y, double z,
         PM_CARTESIAN U(it->u, it->v, it->w);
         double D_xyz = distance_to_segment(P0, P1, P);
         double D_uvw = distance_to_segment(U0, U1, U);
-        double D = sqrt(D_uvw * D_uvw + D_xyz * D_xyz);
         debug_canon_var(D_xyz);
         debug_canon_var(D_uvw);
-        debug_canon_var(D);
-        if( D > canonNaivecamTolerance) return false;
+        if( D_xyz > canonNaivecamTolerance || D_uvw > canonNaivecamTolerance) return false;
     }
     return true;
 }
