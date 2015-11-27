@@ -1,7 +1,1 @@
-; You can edit this file to suit your needs but it will be overwritten
-; when updates are available. To prevent this overwriting,
-; save it under the name 'postamble_custom.ngc'
-; Commands herein after are executed last just before M2
-; This file if it exists will be loaded, if not it will load the
-; standard 'postamble.ngc'
-: For a single use, use Custom G-Code as the last feature
+(Read CUSTOMIZE before editing postamble.ngc)
