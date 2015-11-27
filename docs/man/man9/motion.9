@@ -8,7 +8,7 @@
 .SH NAME
 motion \- accepts NML motion commands, interacts with HAL in realtime
 .SH SYNOPSIS
-\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-9]\fB] ([num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB])\fR
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-9]\fB] ([num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB])\fR  \fB[unlock_joints_mask=\fIjointmask]\fB\fR
 
 The maximum number of joints available is set by EMCMOT_MAX_JOINTS.
 The maximum number of digital inputs is set by EMCMOT_MAX_DIO.
@@ -327,6 +327,22 @@ Spindle orient complete pin. Cleared by any of M3,M4,M5.
 .TQ
 \fBmotion.tooloffset.w\fR OUT FLOAT
 Current tool offset in all 9 axes.
+
+.SH ROTARY UNLOCK PINS
+The pins for unlocking a joint are enabled with
+the \fBunlock_joints_mask=\fRjointmask parameter for motmod.
+
+These pins may be required for locking indexers (typically a rotary joint)
+
+The jointmask bits are: (lsb)0:joint0, 1:joint1, 2:joint2, ...
+
+.TQ
+Example: loadrt motmod ... \fBunlock_joints_mask=\fR0x38 creates unlock pins for joints 3,4,5
+
+.TQ
+\fBjoint.N.unlock\fR OUT BIT
+.TQ
+\fBjoint.N.is-unlocked\fR IN BIT
 
 
 .SH DEBUGGING PINS
