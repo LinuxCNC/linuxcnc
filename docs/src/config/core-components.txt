@@ -16,16 +16,15 @@ to the motor drives.
 Optionally the number of Digital I/O is set with num_dio.
 The number of Analog I/O is set with num_aio. The default is 4 each.
 
-Pin names starting with 'axis' are actually joint values, but the pins
-and parameters are still called 'axis.N'.
-They are read and updated by the motion-controller function.
+Pin and parameter names starting with 'axis.L' and joint.N' 
+are read and updated by the motion-controller function.
 
 Motion is loaded with the motmod command. A kins should be loaded
 before motion.
 
 ----
 loadrt motmod [base_period_nsec=period] [servo_period_nsec=period] 
-[traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16])] 
+[traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16]) ([unlock_joints_mask=0xNN])
 ----
 
 * 'base_period_nsec = 50000' - the 'Base' task period in nanoseconds.
@@ -61,7 +60,6 @@ of the low level motion planner.
   kinematics (e.g., hexapods) there is no reason to make this value larger
   than 'servo_period_nsec'.
 
-
 === Options
 
 If the number of digital I/O needed is more than the default of 4 you 
@@ -72,7 +70,11 @@ If the number of analog I/O needed is more than the default of 4 you
 can add up to 16 analog I/O by using the num_aio option when loading
 motmod.
 
-[[sec:motion-pins]]
+The unlock_joints_mask parameter is used to create pins for a joint used
+as a locking indexer (typically a rotary).  The mask bits select the
+joint(s).  The LSB of the mask selects joint 0.  Example:
+   unlock_joints_mask=0x38 selects joints 3,4,5
+
 === Pins (((motion (HAL pins))))
 
 These pins, parameters, and functions are created by the realtime
@@ -360,138 +362,14 @@ order shown.
 * 'motion-controller' - 
     Runs the LinuxCNC motion controller
 
-== Axis (Joints)
+== Axis and Joint Pins and Parameters
 
 These pins and parameters are created by the realtime 'motmod' 
-module. These are actually joint values, but the pins and parameters
-are still called 'axis.N'.footnote:[In 'trivial kinematics' machines,
-there is a one-to-one correspondence between joints and axes.] 
+module.  [In 'trivial kinematics' machines, there is a one-to-one
+correspondence between joints and axes.] 
 They are read and updated by the 'motion-controller' function.
 
-=== Pins (((axis (HAL pins))))
-
-* 'axis.N.active' - 
-    (bit, out)
-
-* 'axis.N.amp-enable-out' - 
-    (bit, out) TRUE if the amplifier for this joint should be enabled
-
-* 'axis.N.amp-fault-in' - 
-     (bit, in) Should be driven TRUE if an external fault is detected with
-    the amplifier for this joint
-
-* 'axis.N.backlash-corr' - 
-    (float, out)
-
-* 'axis.N.backlash-filt' - 
-    (float, out)
-
-* 'axis.N.backlash-vel' - 
-    (float, out)
-
-* 'axis.N.coarse-pos-cmd' - 
-    (float, out)
-
-* 'axis.N.error' - 
-    (bit, out)
-
-* 'axis.N.f-error' - 
-    (float, out)
-
-* 'axis.N.f-error-lim' - 
-    (float, out)
-
-* 'axis.N.f-errored' - 
-    (bit, out)
-
-* 'axis.N.faulted' - 
-    (bit, out)
-
-* 'axis.N.free-pos-cmd' - 
-    (float, out)
-
-* 'axis.N.free-tp-enable' - 
-    (bit, out)
-
-* 'axis.N.free-vel-lim' - 
-    (float, out)
-
-* 'axis.N.home-sw-in' - 
-     (bit, in) Should be driven TRUE if the home switch for this joint is
-    closed.
-
-* 'axis.N.homed' - 
-    (bit, out) 
-
-* 'axis.N.homing' - 
-    (bit, out) TRUE if the joint is currently homing
-
-* 'axis.N.in-position' - 
-    (bit, out)
-
-* 'axis.N.index-enable' - 
-    (bit, I/O)
-
-* 'axis.N.jog-counts' - 
-     (s32, in) Connect to the 'counts' pin of an external encoder to use a
-    physical jog wheel.
-
-* 'axis.N.jog-enable' - 
-     (bit, in) When TRUE (and in manual mode), any change in 'jog-counts'
-    will result in motion. When false, 'jog-counts' is ignored.
-
-* 'axis.N.jog-scale' - 
-     (float, in) Sets the distance moved for each count on 'jog-counts', in
-    machine units.
-
-* 'axis.N.jog-vel-mode' - 
-     (bit, in) When FALSE (the default), the jogwheel operates in position
-    mode. The axis will move exactly jog-scale units for each count,
-    regardless of how long that might take. When TRUE, the wheel operates
-    in velocity mode - motion stops when the wheel stops, even if that
-    means the commanded motion is not completed.
-
-* 'axis.N.joint-pos-cmd' - 
-     (float, out) The joint (as opposed to motor) commanded position. There
-    may be an offset between the joint and motor positions--for example,
-    the homing process sets this offset.
-
-* 'axis.N.joint-pos-fb' - 
-    (float, out) The joint (as opposed to motor) feedback position.
-
-* 'axis.N.joint-vel-cmd' - 
-    (float, out)
-
-* 'axis.N.kb-jog-active' - 
-    (bit, out)
-
-* 'axis.N.motor-pos-cmd' - 
-    (float, out) The commanded position for this joint.
-
-* 'axis.N.motor-pos-fb' - 
-    (float, in) The actual position for this joint.
-
-* 'axis.N.neg-hard-limit' - 
-    (bit, out)
-
-* 'axis.N.pos-lim-sw-in' - 
-     (bit, in) Should be driven TRUE if the positive limit switch for this
-    joint is closed. 
-
-* 'axis.N.pos-hard-limit' - 
-    (bit, out)
-
-* 'axis.N.neg-lim-sw-in' - 
-     (bit, in) Should be driven TRUE if the negative limit switch for this
-    joint is closed. 
-
-* 'axis.N.wheel-jog-active' - 
-    (bit, out) 
-
-=== Parameters
-
-* 'axis.N.home-state' - 
-    Reflects the step of homing currently taking place. 
+See the motion man page 'motion(9)' for details on the pins and parameters.
 
 == iocontrol
 
