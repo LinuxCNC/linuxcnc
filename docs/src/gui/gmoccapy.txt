@@ -89,7 +89,8 @@ subroutines folder as described below.
 So let us take a closer look to the the INI file and what you need to include 
 to use gmoccapy on your machine: +
 
-=== The DISPLAY Section [[sub:the_display_section]]
+[[gmoccapy:display-section]]
+=== The DISPLAY Section
 
  [DISPLAY]
  DISPLAY = gmoccapy
