@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.5.2"
+_RELEASE = " 1.5.5.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -4068,14 +4068,6 @@ class gmoccapy( object ):
         else:
             self.on_btn_jog_released( widget )
 
-    def _on_axis_limit_changed( self, pin ):
-        if not pin.get() or self.stat.task_state == ( linuxcnc.STATE_ESTOP or linuxcnc.STATE_OFF ):
-            return
-        if self.halcomp["set-max-limit"] == True:
-            self.command.set_max_limit( self.halcomp["axis-to-set"], self.halcomp["limit-value"] )
-        else:
-            self.command.set_min_limit( self.halcomp["axis-to-set"], self.halcomp["limit-value"] )
-
     def _reset_overide( self, pin, type ):
         if pin.get():
             self.widgets["btn_%s_100" % type].emit( "clicked" )
@@ -4250,14 +4242,6 @@ class gmoccapy( object ):
         self.halcomp.newpin( "toolchange-changed", hal.HAL_BIT, hal.HAL_OUT )
         pin = self.halcomp.newpin( 'toolchange-change', hal.HAL_BIT, hal.HAL_IN )
         hal_glib.GPin( pin ).connect( 'value_changed', self.on_tool_change )
-
-        # make some pin to be able to enlarge the working limits, i.e. if the tool changer is in that place
-        # and the soft limits are set to not have colision with the changer, you can use this pin to change
-        # the working area, you are responsible to be in the area if you reduce it!
-        self.halcomp.newpin( "axis-to-set", hal.HAL_S32, hal.HAL_IN )
-        self.halcomp.newpin( "set-max-limit", hal.HAL_BIT, hal.HAL_IN )
-        pin = self.halcomp.newpin( "limit-value", hal.HAL_FLOAT, hal.HAL_IN )
-        hal_glib.GPin( pin ).connect( "value_changed", self._on_axis_limit_changed )
 
         # make a pin to reset feed override to 100 %
         pin = self.halcomp.newpin( "reset-feed-override", hal.HAL_BIT, hal.HAL_IN )
