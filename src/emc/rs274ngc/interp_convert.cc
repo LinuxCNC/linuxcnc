@@ -2456,12 +2456,13 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   // waypoint is in currently active coordinate system
 
   // move indexers first, one at a time
-  if (AA_end != settings->AA_current && settings->a_indexer)
-      issue_straight_index(3, AA_end, block->line_number, settings);
-  if (BB_end != settings->BB_current && settings->b_indexer)
-      issue_straight_index(4, BB_end, block->line_number, settings);
-  if (CC_end != settings->CC_current && settings->c_indexer)
-      issue_straight_index(5, CC_end, block->line_number, settings);
+  // JOINTS_AXES settings->*_indexer_jnum == -1 means notused
+  if (AA_end != settings->AA_current && (-1 != settings->a_indexer_jnum) )
+      issue_straight_index(3,settings->a_indexer_jnum, AA_end, block->line_number, settings);
+  if (BB_end != settings->BB_current && (-1 != settings->b_indexer_jnum) )
+      issue_straight_index(4,settings->b_indexer_jnum, BB_end, block->line_number, settings);
+  if (CC_end != settings->CC_current && (-1 != settings->c_indexer_jnum) )
+      issue_straight_index(5,settings->c_indexer_jnum, CC_end, block->line_number, settings);
 
   STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
@@ -2537,12 +2538,13 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   }
 
   // move indexers first, one at a time
-  if (AA_end != settings->AA_current && settings->a_indexer)
-      issue_straight_index(3, AA_end, block->line_number, settings);
-  if (BB_end != settings->BB_current && settings->b_indexer)
-      issue_straight_index(4, BB_end, block->line_number, settings);
-  if (CC_end != settings->CC_current && settings->c_indexer)
-      issue_straight_index(5, CC_end, block->line_number, settings);
+  // JOINTS_AXES settings->*_indexer_jnum == -1 means notused
+  if (AA_end != settings->AA_current && (-1 != settings->a_indexer_jnum) )
+      issue_straight_index(3,settings->a_indexer_jnum, AA_end, block->line_number, settings);
+  if (BB_end != settings->BB_current && (-1 != settings->b_indexer_jnum) )
+      issue_straight_index(4,settings->b_indexer_jnum, BB_end, block->line_number, settings);
+  if (CC_end != settings->CC_current && (-1 != settings->c_indexer_jnum) )
+      issue_straight_index(5,settings->c_indexer_jnum, CC_end, block->line_number, settings);
 
   STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
@@ -3386,9 +3388,9 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
                           block_pointer block,  //!< pointer to a block of RS274 instructions 
                           setup_pointer settings)       //!< pointer to machine settings              
 {
-  int ai = block->a_flag && settings->a_indexer;
-  int bi = block->b_flag && settings->b_indexer;
-  int ci = block->c_flag && settings->c_indexer;
+  int ai = block->a_flag && settings->a_indexer_jnum;
+  int bi = block->b_flag && settings->b_indexer_jnum;
+  int ci = block->c_flag && settings->c_indexer_jnum;
 
 
   if (motion != G_0) {
@@ -3411,9 +3413,11 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     settings->cycle_il_flag = false;
 
   if (ai || bi || ci) {
-    int n;
-    if(ai) n=3; else if(bi) n=4; else n=5;
-    CHP(convert_straight_indexer(n, block, settings));
+    int anum,jnum;
+    if (     ai) {anum = 3; jnum = settings->a_indexer_jnum;}
+    else if (bi) {anum = 4; jnum = settings->b_indexer_jnum;}
+    else if (ci) {anum = 5; jnum = settings->c_indexer_jnum;}
+    CHP(convert_straight_indexer(anum, jnum, block, settings));
   } else if ((motion == G_0) || (motion == G_1) || (motion == G_33) || (motion == G_33_1) || (motion == G_76)) {
     CHP(convert_straight(motion, block, settings));
   } else if ((motion == G_3) || (motion == G_2)) {
@@ -4463,7 +4467,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   return INTERP_OK;
 }
 
-int Interp::convert_straight_indexer(int axis, block_pointer block, setup_pointer settings) {
+//dng
+int Interp::convert_straight_indexer(int axis, int jnum, block_pointer block, setup_pointer settings) {
     double end_x, end_y, end_z;
     double AA_end, BB_end, CC_end;
     double u_end, v_end, w_end;
@@ -4484,13 +4489,13 @@ int Interp::convert_straight_indexer(int axis, block_pointer block, setup_pointe
 
     switch(axis) {
     case 3:
-        issue_straight_index(axis, AA_end, block->line_number, settings);
+        issue_straight_index(axis, jnum, AA_end, block->line_number, settings);
         break;
     case 4:
-        issue_straight_index(axis, BB_end, block->line_number, settings);
+        issue_straight_index(axis, jnum, BB_end, block->line_number, settings);
         break;
     case 5:
-        issue_straight_index(axis, CC_end, block->line_number, settings);
+        issue_straight_index(axis, jnum, CC_end, block->line_number, settings);
         break;
     default:
         ERS((_("BUG: trying to index incorrect axis")));
@@ -4498,7 +4503,7 @@ int Interp::convert_straight_indexer(int axis, block_pointer block, setup_pointe
     return INTERP_OK;
 }
 
-int Interp::issue_straight_index(int axis, double target, int lineno, setup_pointer settings) {
+int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, setup_pointer settings) {
     CANON_MOTION_MODE save_mode;
     double save_tolerance;
     // temporarily switch to exact stop mode for indexing move
@@ -4512,11 +4517,11 @@ int Interp::issue_straight_index(int axis, double target, int lineno, setup_poin
     double CC_end = axis == 5? target: settings->CC_current;
 
     // tell canon that this is a special indexing move
-    UNLOCK_ROTARY(lineno, axis);
+    UNLOCK_ROTARY(lineno, jnum);
     STRAIGHT_TRAVERSE(lineno, settings->current_x, settings->current_y, settings->current_z,
                       AA_end, BB_end, CC_end,
                       settings->u_current, settings->v_current, settings->w_current);
-    LOCK_ROTARY(lineno, axis);
+    LOCK_ROTARY(lineno, jnum);
 
     // restore path mode
     if(save_mode != CANON_EXACT_PATH)
@@ -5134,12 +5139,13 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
       COMMENT("AXIS,hide");
 
       // move indexers first, one at a time
-      if (AA_end != settings->AA_current && settings->a_indexer)
-          issue_straight_index(3, AA_end, -1, settings);
-      if (BB_end != settings->BB_current && settings->b_indexer)
-          issue_straight_index(4, BB_end, -1, settings);
-      if (CC_end != settings->CC_current && settings->c_indexer)
-          issue_straight_index(5, CC_end, -1, settings);
+      // JOINTS_AXES settings->*_indexer_jnum == -1 means notused
+      if (AA_end != settings->AA_current && (-1 != settings->a_indexer_jnum) )
+          issue_straight_index(3,settings->a_indexer_jnum, AA_end, -1, settings);
+      if (BB_end != settings->BB_current && (-1 != settings->b_indexer_jnum) )
+          issue_straight_index(4,settings->b_indexer_jnum, BB_end, -1, settings);
+      if (CC_end != settings->CC_current && (-1 != settings->c_indexer_jnum) )
+          issue_straight_index(5,settings->c_indexer_jnum, CC_end, -1, settings);
 
       STRAIGHT_TRAVERSE(-1, end_x, end_y, end_z,
                         AA_end, BB_end, CC_end,

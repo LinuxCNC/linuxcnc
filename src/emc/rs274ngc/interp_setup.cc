@@ -165,9 +165,9 @@ setup_struct::setup_struct() :
     b_axis_wrapped(0),
     c_axis_wrapped(0),
 
-    a_indexer(0),
-    b_indexer(0),
-    c_indexer(0),
+    a_indexer_jnum(0),
+    b_indexer_jnum(0),
+    c_indexer_jnum(0),
 
     lathe_diameter_mode(0),
     mdi_interrupt(0),

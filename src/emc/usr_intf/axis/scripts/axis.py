@@ -3182,6 +3182,7 @@ for i in range(num_joints):
     #if not (s.axis_mask & (1<<i)): continue # ja:not needed for consecutive joints
     widgets.homemenu.add_command(command=lambda i=i: commands.home_joint_number(i))
     widgets.unhomemenu.add_command(command=lambda i=i: commands.unhome_joint_number(i))
+    if i >= len(trajcoordinates): break
     if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
         ja_name = "Axis"; ja_id = trajcoordinates[i].upper()
     else:

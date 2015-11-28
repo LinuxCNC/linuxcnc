@@ -751,9 +751,9 @@ typedef struct setup_struct
   int b_axis_wrapped;
   int c_axis_wrapped;
 
-  int a_indexer;
-  int b_indexer;
-  int c_indexer;
+  int a_indexer_jnum;
+  int b_indexer_jnum;
+  int c_indexer_jnum;
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;

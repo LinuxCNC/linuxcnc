@@ -3164,7 +3164,7 @@ int WAIT(int index, /* index of the motion exported input */
  return 0;
 }
 
-int UNLOCK_ROTARY(int line_number, int axis) {
+int UNLOCK_ROTARY(int line_number, int joint_num) {
     EMC_TRAJ_LINEAR_MOVE m;
     // first, set up a zero length move to interrupt blending and get to final position
     m.type = EMC_MOTION_TYPE_TRAVERSE;
@@ -3186,11 +3186,11 @@ int UNLOCK_ROTARY(int line_number, int axis) {
 	START_SPEED_FEED_SYNCH(canon.linearFeedRate, 1);
 
     // now, the next move is the real indexing move, so be ready
-    canon.rotary_unlock_for_traverse = axis;
+    canon.rotary_unlock_for_traverse = joint_num;
     return 0;
 }
 
-int LOCK_ROTARY(int line_number, int axis) {
+int LOCK_ROTARY(int line_number, int joint_num) {
     canon.rotary_unlock_for_traverse = -1;
     return 0;
 }

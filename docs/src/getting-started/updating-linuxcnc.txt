@@ -200,4 +200,35 @@ Aditional pin renames for consistency to related pins:
 
 See the man page ($ man halui) for pin names.
 
+
+LOCKING_ROTARY_INDEXER
+
+With JOINTS_AXES, an indexer is a joint that can be homed (joint mode)
+but also must be locked from gcode.   Specify the joint number that
+corresponds to the AXIS (A,B, or C) with:
+
+  [AXIS_A]LOCKING_INDEXER_JOINT = joint_number_for_indexer (typ 3)
+  [AXIS_B]LOCKING_INDEXER_JOINT = joint_number_for_indexer (typ 4)
+  [AXIS_C]LOCKING_INDEXER_JOINT = joint_number_for_indexer (typ 5)
+
+The typ values are for a machine with XYZ plus one or more rotary axes
+(A,B,C) and IDENTITY kins.  For more complex kinematics, select the
+joint number as required -- there must be a one-to-one correspondence
+for the joint number and the rotary axis.
+
+The hal pins for unlocking a joint (joint.N.unlock, joint.N.is-locked)
+are created by specifying the motmod parameter unlock_joints_mask=
+  [EMCMOT]motmod unlock_joints_mask=MASK
+
+Examples (for an XYZ plus rotary machine):
+  [EMCMOT]motmod unlock_joints_mask=0x08 (for joint 3)
+  [EMCMOT]motmod unlock_joints_mask=0x10 (for joint 4)
+  [EMCMOT]motmod unlock_joints_mask=0x20 (for joint 5)
+  [EMCMOT]motmod unlock_joints_mask=0x38 (for joints 3,4, and 5)
+
+Former ini item no longer used (superseded by LOCKING_INDEXER_JOINT):
+not used: [AXIS_A]LOCKING_INDEXER = 1|0
+not used: [AXIS_B]LOCKING_INDEXER = 1|0
+not used: [AXIS_C]LOCKING_INDEXER = 1|0
+
 // vim: set syntax=asciidoc:

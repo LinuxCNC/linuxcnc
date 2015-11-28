@@ -820,9 +820,9 @@ int Interp::init()
   _setup.b_axis_wrapped = 0;
   _setup.c_axis_wrapped = 0;
   _setup.random_toolchanger = 0;
-  _setup.a_indexer = 0;
-  _setup.b_indexer = 0;
-  _setup.c_indexer = 0;
+  _setup.a_indexer_jnum = -1; // -1 means not used
+  _setup.b_indexer_jnum = -1; // -1 means not used
+  _setup.c_indexer_jnum = -1; // -1 means not used
   _setup.return_value = 0;
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
@@ -845,15 +845,21 @@ int Interp::init()
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
           inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
           inifile.Find(&_setup.tool_change_with_spindle_on, "TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO");
-          inifile.Find(&_setup.a_axis_wrapped, "WRAPPED_ROTARY", "AXIS_3");
-          inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_4");
-          inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_5");
+          inifile.Find(&_setup.a_axis_wrapped, "WRAPPED_ROTARY", "AXIS_A");
+          inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_B");
+          inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
           inifile.Find(&_setup.feature_set, "FEATURES", "RS274NGC");
 
-          inifile.Find(&_setup.a_indexer, "LOCKING_INDEXER", "AXIS_3");
-          inifile.Find(&_setup.b_indexer, "LOCKING_INDEXER", "AXIS_4");
-          inifile.Find(&_setup.c_indexer, "LOCKING_INDEXER", "AXIS_5");
+          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
+              _setup.a_indexer_jnum = atol(inistring);
+          }
+          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_B"))) {
+              _setup.b_indexer_jnum = atol(inistring);
+          }
+          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_C"))) {
+              _setup.c_indexer_jnum = atol(inistring);
+          }
           inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
 
           inifile.Find(&_setup.debugmask, "DEBUG", "EMC");
