@@ -48,7 +48,7 @@ check how to update http://wiki.linuxcnc.org/cgi-bin/wiki.pl?UpdatingTo2.6[here]
 
 You will receive updates with the regular deb packages.
 
-You will get a similar screen to the following if your locale settings is *de* (German):
+You will get a similar screen to the following:
 The design may variate depending on your config.
 
 image::images/gmoccapy_3_axis.png[align="left"]
@@ -59,17 +59,17 @@ you should take care off if you want to use all the features of the GUI.
 
 You will find the following INI files included, just to show the basics: +
  +
-* gmoccapy.ini
-* gmoccapy_4_axis.ini
-* gmoccapy_lathe.ini
-* gmoccapy_lathe_imperial.ini
-* gmoccapy_left_panel.ini
-* gmoccapy_right_panel.ini
-* gmoccapy_messages.ini
-* gmoccapy_pendant.ini
-* gmoccapy_sim_hardware_button.ini
-* gmoccapy_tool_sensor.ini
-* gmoccapy_with_user_tabs.ini
+ * gmoccapy.ini +
+ * gmoccapy_4_axis.ini +
+ * gmoccapy_lathe.ini +
+ * gmoccapy_lathe_imperial.ini +
+ * gmoccapy_left_panel.ini +
+ * gmoccapy_right_panel.ini +
+ * gmoccapy_messages.ini +
+ * gmoccapy_pendant.ini +
+ * gmoccapy_sim_hardware_button.ini +
+ * gmoccapy_tool_sensor.ini +
+ * gmoccapy_with_user_tabs.ini +
  +
 The names should explain the main intention of the different INI Files. +
 
@@ -580,30 +580,6 @@ There are three pins giving information over the program progress +
 The values may not be very accurate, if you are working with subroutines or large remap procedures, 
 also loops will cause different values.
 
-=== Pins to modify soft limits
-Gmoccapy allows you to modify the soft limits using hal pin.
-The pin do allow to reduce or enlarge the soft limits, so you are able to protect your
-rotary table from collision just switching a hal pin. If you do not use it,
-just reduce your soft limits. An other option would be a tool changer which is placed
-in the working area, you do not want a collision during normal work, but you are forced 
-to enter the tool change area to change a tool, so during tool change you enlarge the soft limits.
-
-* gmoccapy.axis-to-set    = HAL_S32    ; indicating the joint of the axis to modify (X=0, Y=1, Z=2 ...)
-* gmoccapy.set-max-limit  = HAL_BIT    ; if set the value will modify the max limit value, else the min value
-* gmoccapy.limit-value    = HAL_FLOAT  ; the new value to set as soft limit
-
-This has not been tested with a rotary axis, so be careful with that kind of axis.
-There will be no check to the limits you set, so if you set a limit and the tool is out of your limit area
-you will get an error about being outside the soft limits.
-
-IMPORTANT: You are responsible to take care about that!
-
-You are only allowed to set limits if the machine is on!
-A value of 0 as limit is not allowed, please give a value of 0.000001 instead.
-The GUI will react to changes of the limit-value pin, so to modify the limits you have to apply a value change to that pin.
-
-WARNING: This is very experimental at the moment, so please take care for your security.
-
 === Tool related pin
 
 .Tool Change Pin
@@ -815,12 +791,6 @@ the size and position using the mouse, but that will not have any influence on t
 '*hide the cursor*' does allow to hide the cursor, what is very useful if you use a touch screen.
 
 .Keyboard
-
-[NOTE]
-If this section is not sensitive, you have not installed a virtual keyboard,
-+ supported are 'onboard' and 'matchbox-keyboard'.
-
-
 The check-boxes allows the user to select if he want the on board keyboard to be shown immediately, 
 when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program 
 in the EDIT mode. The keyboard button on the bottom button list will not been affected by this settings,
@@ -834,6 +804,11 @@ Default are :
 * show keyboard on MDI = True 
 * show keyboard on EDIT = True 
 * show keyboard on load file = False
+
+[NOTE]
+If this section is not sensitive, you have not installed a virtual keyboard,
++ supported are 'onboard' and 'matchbox-keyboard'.
+
 
 If the keyboard layout is not correct, i.e. clicking X gives Z, than the layout has not been set properly, 
 related to your locale settings. +

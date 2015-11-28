@@ -500,8 +500,8 @@
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
                                             <property name="use_commanded">False</property>
-                                            <property name="enable_dro">False</property>
                                             <property name="show_dtg">False</property>
+                                            <property name="enable_dro">False</property>
                                             <signal name="button_press_event" handler="on_gremlin_button_press_event"/>
                                             <signal name="line_clicked" handler="on_gremlin_line_clicked"/>
                                             <signal name="gcode_error" handler="on_gremlin_gcode_error"/>
@@ -778,8 +778,8 @@
                                 <child>
                                   <object class="OffsetPage" id="offsetpage1">
                                     <property name="visible">True</property>
-                                    <property name="foreground_color">#ffff00000000</property>
                                     <property name="highlight_color">#adadd8d8e6e6</property>
+                                    <property name="foreground_color">#ffff00000000</property>
                                     <signal name="selection_changed" handler="on_offsetpage1_selection_changed"/>
                                   </object>
                                   <packing>
@@ -926,10 +926,10 @@
                                       <object class="Combi_DRO" id="Combi_DRO_x">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="font_size">28</property>
                                         <property name="homed_color">#0000ffff0000</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="font_size">28</property>
                                         <property name="abs_color">#00000000ffff</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <signal name="system_changed" handler="on_Combi_DRO_system_changed"/>
@@ -944,11 +944,11 @@
                                       <object class="Combi_DRO" id="Combi_DRO_y">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="font_size">28</property>
                                         <property name="homed_color">#0000ffff0000</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="font_size">28</property>
                                         <property name="abs_color">#00000000ffff</property>
                                         <property name="joint_number">1</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
@@ -961,11 +961,11 @@
                                       <object class="Combi_DRO" id="Combi_DRO_z">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="font_size">28</property>
                                         <property name="homed_color">#0000ffff0000</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="font_size">28</property>
                                         <property name="abs_color">#00000000ffff</property>
                                         <property name="joint_number">2</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
@@ -978,11 +978,11 @@
                                       <object class="Combi_DRO" id="Combi_DRO_4">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="font_size">28</property>
                                         <property name="homed_color">#0000ffff0000</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="font_size">28</property>
                                         <property name="abs_color">#00000000ffff</property>
                                         <property name="joint_number">3</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
@@ -2235,16 +2235,16 @@
                                                             <child>
                                                             <object class="HAL_HBar" id="spindle_feedback_bar">
                                                             <property name="visible">True</property>
-                                                            <property name="z0_border">0.40000000596046448</property>
-                                                            <property name="text_template">%i</property>
-                                                            <property name="target_color">#0000ffff0000</property>
-                                                            <property name="z0_color">#0000ffff0000</property>
                                                             <property name="target_value">-0.039999999105930328</property>
-                                                            <property name="z1_color">#0000ffff0000</property>
-                                                            <property name="max">6000</property>
                                                             <property name="bg_color">#bebebebebebe</property>
-                                                            <property name="z1_border">0.80000001192092896</property>
+                                                            <property name="text_template">%i</property>
                                                             <property name="z2_color">#0000ffff0000</property>
+                                                            <property name="max">6000</property>
+                                                            <property name="z0_border">0.40000000596046448</property>
+                                                            <property name="z0_color">#0000ffff0000</property>
+                                                            <property name="target_color">#0000ffff0000</property>
+                                                            <property name="z1_border">0.80000001192092896</property>
+                                                            <property name="z1_color">#0000ffff0000</property>
                                                             </object>
                                                             <packing>
                                                             <property name="position">0</property>
@@ -3006,64 +3006,6 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFrame" id="frm_gremlin_gridsize">
-                                    <property name="visible">True</property>
-                                    <property name="label_xalign">0.5</property>
-                                    <child>
-                                      <object class="GtkAlignment" id="ali_gremlin_gridsize">
-                                        <property name="visible">True</property>
-                                        <property name="top_padding">5</property>
-                                        <property name="bottom_padding">5</property>
-                                        <property name="left_padding">3</property>
-                                        <property name="right_padding">3</property>
-                                        <child>
-                                          <object class="GtkHBox" id="hbox16">
-                                            <property name="visible">True</property>
-                                            <child>
-                                              <object class="GtkLabel" id="label8">
-                                                <property name="visible">True</property>
-                                                <property name="xalign">0</property>
-                                                <property name="label" translatable="yes">Grid size</property>
-                                              </object>
-                                              <packing>
-                                                <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkSpinButton" id="grid_size">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="invisible_char">&#x25CF;</property>
-                                                <property name="xalign">1</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
-                                                <property name="adjustment">adj_grid_size</property>
-                                                <property name="digits">3</property>
-                                                <signal name="value_changed" handler="on_grid_size_value_changed"/>
-                                              </object>
-                                              <packing>
-                                                <property name="position">1</property>
-                                              </packing>
-                                            </child>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel" id="lbl_frm_gremlin_grid_size">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;b&gt;Preview&lt;/b&gt;</property>
-                                        <property name="use_markup">True</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">3</property>
-                                  </packing>
-                                </child>
-                                <child>
                                   <object class="GtkToggleButton" id="tbtn_use_screen2">
                                     <property name="label" translatable="yes">  Display 
 Aux Screen</property>
@@ -3077,7 +3019,7 @@ Aux Screen</property>
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
-                                    <property name="position">4</property>
+                                    <property name="position">3</property>
                                   </packing>
                                 </child>
                               </object>
@@ -3425,16 +3367,36 @@ Aux Screen</property>
                                           <object class="GtkVBox" id="vbox_preview">
                                             <property name="visible">True</property>
                                             <child>
-                                              <object class="GtkCheckButton" id="chk_show_offsets">
-                                                <property name="label" translatable="yes">Show offsets</property>
+                                              <object class="GtkHBox" id="hbox16">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">False</property>
-                                                <property name="draw_indicator">True</property>
-                                                <signal name="toggled" handler="on_chk_show_offsets_toggled"/>
+                                                <child>
+                                                  <object class="GtkLabel" id="label8">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="label" translatable="yes">Grid size</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkSpinButton" id="grid_size">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="invisible_char">&#x25CF;</property>
+                                                    <property name="xalign">1</property>
+                                                    <property name="primary_icon_sensitive">True</property>
+                                                    <property name="secondary_icon_sensitive">True</property>
+                                                    <property name="adjustment">adj_grid_size</property>
+                                                    <property name="digits">3</property>
+                                                    <signal name="value_changed" handler="on_grid_size_value_changed"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
                                               </object>
                                               <packing>
-                                                <property name="expand">False</property>
                                                 <property name="position">0</property>
                                               </packing>
                                             </child>
@@ -3453,6 +3415,20 @@ Aux Screen</property>
                                               </packing>
                                             </child>
                                             <child>
+                                              <object class="GtkCheckButton" id="chk_show_offsets">
+                                                <property name="label" translatable="yes">Show offsets</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="receives_default">False</property>
+                                                <property name="draw_indicator">True</property>
+                                                <signal name="toggled" handler="on_chk_show_offsets_toggled"/>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
+                                            <child>
                                               <object class="GtkCheckButton" id="chk_show_dtg">
                                                 <property name="label" translatable="yes">Show DTG</property>
                                                 <property name="visible">True</property>
@@ -3464,7 +3440,7 @@ Aux Screen</property>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="position">2</property>
+                                                <property name="position">3</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3473,7 +3449,7 @@ Aux Screen</property>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="position">3</property>
+                                                <property name="position">4</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3485,7 +3461,7 @@ Aux Screen</property>
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">False</property>
-                                                <property name="position">4</property>
+                                                <property name="position">5</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3498,7 +3474,7 @@ Aux Screen</property>
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">False</property>
-                                                <property name="position">5</property>
+                                                <property name="position">6</property>
                                               </packing>
                                             </child>
                                           </object>

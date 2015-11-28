@@ -1,3 +1,11 @@
+ver. 1.5.5.3
+- deleted the working area limit pin, as this can be realized better
+  with standard hal pin and did not work well with gmoccapy
+- settings page, all previes settings are now in one frame
+- updated the documentation
+- new serbian translation files, and corrected the language code 
+  was rs.po instead sr.po
+
 ver. 1.5.5.2
 - unloading a tool with M61 Q0 did not reset the tool information 
   because the tool number changed to "-1" and I tested only for "0"
