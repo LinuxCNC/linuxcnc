@@ -1,7 +1,6 @@
 [TRAJ]
 NO_FORCE_HOMING     = 1
 COORDINATES         = X Y Z
-HOME                = 0 0 0
 LINEAR_UNITS        = inch
 ANGULAR_UNITS       = degree
 CYCLE_TIME          = 0.010
