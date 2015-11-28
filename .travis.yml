@@ -1,0 +1,16 @@
+sudo: required
+
+language: bash
+
+services:
+- docker
+
+env:
+  global:
+    - ROOT=/opt/rootfs
+    - JOBS=2
+  matrix:
+    - TAG=wheezy-64    CMD=run_tests
+
+script:
+- .travis/docker_run.sh
