@@ -315,13 +315,16 @@ status pin telling that joint N is on the positive software limit
 status pin telling that joint N is on the negative software limit
 .TP
 .B halui.joint.N.select\fR bit in \fR
-pin for selecting joint N
+A rising edge on this pin selects joint N.  The joint remains selected
+until a rising edge on a different halui.joint.N.select pin selects a
+different joint.  By default, joint 0 is the initially selected joint
+at startup.
 .TP
 .B halui.joint.N.unhome\fR bit in \fR
 pin for unhoming joint N
 .TP
 .B halui.joint.selected\fR u32 out \fR
-selected joint
+The number of the currently selected joint (default: joint 0).
 .TP
 .B halui.joint.selected.has-fault\fR bit out \fR
 status pin selected joint is faulted
