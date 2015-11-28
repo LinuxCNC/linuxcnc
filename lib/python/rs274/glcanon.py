@@ -1215,7 +1215,6 @@ class GlCanonDraw:
                 for char in string:
                     glCallList(base + ord(char))
                 if i < len(homed) and homed[i]:
-                    print "((((W i=%d homed[i]=%d len(homed)=%d ls=%d s=%s"%(i,homed[i],len(homed),linespace,string)
                     glRasterPos2i(charwidth *3, ypos)
                     glBitmap(13, 16, 0, 3, 17, 0, homeicon)
                 ypos -= linespace
