@@ -96,15 +96,14 @@ HOME_IGNORE_LIMITS = NO
 HOME_IGNORE_LIMITS = NO
      HOME_SEQUENCE = 1
     HOME_IS_SHARED = 1
+
 [AXIS_X]
-            HOME = 0.000
        MIN_LIMIT = -10.1
        MAX_LIMIT = 10.2
     MAX_VELOCITY = 3.1
 MAX_ACCELERATION = 20.1
 
 [AXIS_Z]
-            HOME = 0.0
        MIN_LIMIT = -2.1
        MAX_LIMIT = 4.4
     MAX_VELOCITY = 3.2

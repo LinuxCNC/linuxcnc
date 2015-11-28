@@ -41,7 +41,6 @@ SERVO_PERIOD = 1000000
 
 [TRAJ]
         COORDINATES = X Y Z
-               HOME = 0 0 0
        LINEAR_UNITS = inch
       ANGULAR_UNITS = degree
          CYCLE_TIME = 0.010
@@ -54,7 +53,6 @@ MAX_LINEAR_VELOCITY = 1.2
 KINEMATICS = trivkins
 
 [AXIS_X]
-            HOME = 0.000
        MIN_LIMIT = -40.0
        MAX_LIMIT = 40.0
     MAX_VELOCITY = 4
@@ -81,7 +79,6 @@ HOME_IGNORE_LIMITS = NO
     HOME_IS_SHARED = 1
 
 [AXIS_Y]
-            HOME = 0.000
        MIN_LIMIT = -40.0
        MAX_LIMIT = 40.0
     MAX_VELOCITY = 4
@@ -107,7 +104,6 @@ HOME_IGNORE_LIMITS = NO
      HOME_SEQUENCE = 1
 
 [AXIS_Z]
-            HOME = 0.0
        MIN_LIMIT = -8.0
        MAX_LIMIT = 1.0
     MAX_VELOCITY = 4

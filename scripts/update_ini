@@ -235,7 +235,6 @@ if version == "$Revision$" or version < "1.0":
                 copysection("[JOINT_%i]" % j)
         elif  re.search("^\[AXIS_%i\]" % j, inistring, re.MULTILINE): #Looks like an [AXIS_0] style layout
                 newini.write("\n[AXIS_%s]\n" % "XYZABCUVW"[j])
-                writeifexists(newini, "AXIS_%i" % j, "HOME")
                 writeifexists(newini, "AXIS_%i" % j, "MIN_LIMIT")
                 writeifexists(newini, "AXIS_%i" % j, "MAX_LIMIT")
                 writeifexists(newini, "AXIS_%i" % j, "MAX_VELOCITY")
