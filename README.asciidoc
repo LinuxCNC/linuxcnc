@@ -1,0 +1,55 @@
+image:https://travis-ci.org/machinekit/machinekit.svg?branch=master["Build Status", link="https://travis-ci.org/machinekit/machinekit"]
+
+
+== DISCLAIMER
+
+====
+THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
+ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
+TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
+harming persons must have provisions for completely removing power
+from all motors, etc, before persons enter any danger area.  All
+machinery must be designed to comply with local and national safety
+codes, and the authors of this software can not, and do not, take
+any responsibility for such compliance.
+====
+
+== What is Machinekit?
+
+Machinekit is a platform for machine control applications.
+
+Machinekit is portable across a wide range of hardware platforms
+and real-time environments, and delivers excellent performance at
+low cost. It is based on the HAL component architecture, an intuitive
+and easy to use circuit model that includes over 150 building blocks
+for digital logic, motion, control loops, signal processing, and hardware
+drivers. Machinekit supports local and networked UI options, including 
+ubiquitous platforms like phones or tablets.
+
+== Getting Machinekit
+
+The easiest way to get up-and-running is to install Debian Wheezy and get the
+binary packages. Please go to
+link:http://www.machinekit.io/docs/packages-debian/[machinekit.io/docs/packages-debian/]
+for further instructions
+
+== The Build Process
+
+
+Refer to the link:http://www.machinekit.io/docs/building-from-source/[machinekit.io/docs/building-from-source/]
+for information about building from source and running the software.
+
+== Documentation
+
+The Machinekit documentation set is evolving. Please see 
+link:http://www.machinekit.io[machinekit.io] and the
+link:http://github.com/machinekit/machinekit-docs[Machinekit documentation]
+
+History
+-------
+
+The open-source Machinekit project forked from the open-source LinuxCNC project
+(http://www.linuxcnc.org) in 2014. At the present time, identifiers such as
+'linuxcnc' and 'emc' (the antecedent of linuxcnc) still occur in various
+places. These occurrences are diminishing with time as the Machinekit codebase
+and Machinekit documentation evolve.
