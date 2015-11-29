@@ -6,7 +6,7 @@ notifications:
     on_failure: always
   webhooks:
     urls:
-      - https://webhooks.gitter.im/e/8d4ba176d0a87862caa8
+      - $GITTER_IM_URL
     on_success: change
     on_failure: always
     on_start: never
