@@ -3388,9 +3388,9 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
                           block_pointer block,  //!< pointer to a block of RS274 instructions 
                           setup_pointer settings)       //!< pointer to machine settings              
 {
-  int ai = block->a_flag && settings->a_indexer_jnum;
-  int bi = block->b_flag && settings->b_indexer_jnum;
-  int ci = block->c_flag && settings->c_indexer_jnum;
+  int ai = block->a_flag && (-1 != settings->a_indexer_jnum);
+  int bi = block->b_flag && (-1 != settings->b_indexer_jnum);
+  int ci = block->c_flag && (-1 != settings->c_indexer_jnum);
 
 
   if (motion != G_0) {
