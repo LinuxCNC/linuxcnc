@@ -1,20 +1,15 @@
 #!/bin/sh -ex
 
-cd /usr/src/build/${MK_DIR}/machinekit/src
+# this script is run inside a docker container
 
-./autogen.sh
+PROOT_OPTS="-b /dev/shm -r ${CHROOT_PATH}"
+if echo ${TAG} | grep -iq arm; then
+    PROOT_OPTS="${PROOT_OPTS} -q qemu-arm-static"
+fi
 
-./configure \
-     --with-posix \
-     --without-rt-preempt \
-     --without-xenomai \
-     --without-xenomai-kernel \
-     --without-rtai-kernel
+# rip build
+proot ${PROOT_OPTS} ${TRAVIS_PATH}/build_rip_helper.sh
 
-make -j${JOBS}
-
-# needs this otherwise regression tests fails
-useradd mk
-chown -R mk:mk ../
-
-make setuid
+# tar the chroot directory
+tar czf /tmp/rootfs.tgz -C ${CHROOT_PATH} .
+cp /tmp/rootfs.tgz ${CHROOT_PATH}${TRAVIS_PATH}/mk_runtests
