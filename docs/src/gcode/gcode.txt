@@ -1732,16 +1732,18 @@ for the canned cycle. It does not follow exactly the same path nor does
 it drill in the same order as the earlier example. But the program
 writing economy of a good canned cycle should be obvious.
 
+NOTE: Line numbers are not needed but help clarify these examples
+
 .Eight Holes
 ----
-G90 G0 X0 Y0 Z0 (move coordinate home)
-G1 F10 X0 G4 P0.1
-G91 G81 X1 Y0 Z-1 R1 L4(canned drill cycle)
-G90 G0 X0 Y1
-Z0
-G91 G81 X1 Y0 Z-0.5 R1 L4(canned drill cycle)
-G80 (turn off canned cycle)
-M2 (program end)
+N100 G90 G0 X0 Y0 Z0 (move coordinate home)
+N110 G1 F10 X0 G4 P0.1
+N120 G91 G81 X1 Y0 Z-1 R1 L4(canned drill cycle)
+N130 G90 G0 X0 Y1
+N140 Z0
+N150 G91 G81 X1 Y0 Z-0.5 R1 L4(canned drill cycle)
+N160 G80 (turn off canned cycle)
+N170 M2 (program end)
 ----
 The G98 to the second line above means that the return move will be to
 the value of Z in the first line since it is higher that the R value
@@ -1758,17 +1760,17 @@ G81 motion mode. Here we produce 12 holes using five lines of code in
 the canned motion mode.
 
 ----
-G90 G0 X0 Y0 Z0 (move coordinate home)
-G1 F50 X0 G4 P0.1
-G91 G81 X1 Y0 Z-0.5 R1 L4 (canned drill cycle)
-X0 Y1 R0 L3 (repeat)
-X-1 Y0 L3 (repeat)
-X0 Y-1 L2 (repeat)
-G80 (turn off canned cycle)
-G90 G0 X0 (rapid move home)
-Y0
-Z0
-M2 (program end)
+N1000 G90 G0 X0 Y0 Z0 (move coordinate home)
+N1010 G1 F50 X0 G4 P0.1
+N1020 G91 G81 X1 Y0 Z-0.5 R1 L4 (canned drill cycle)
+N1030 X0 Y1 R0 L3 (repeat)
+N1040 X-1 Y0 L3 (repeat)
+N1050 X0 Y-1 L2 (repeat)
+N1060 G80 (turn off canned cycle)
+N1070 G90 G0 X0 (rapid move home)
+N1080 Y0
+N1090 Z0
+N1100 M2 (program end)
 ----
 
 image::images/twelve.png[align="center"]
