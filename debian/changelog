@@ -1,4 +1,37 @@
-linuxcnc (1:2.7.2) UNRELEASED; urgency=low
+linuxcnc (1:2.7.3) unstable; urgency=medium
+
+  * docs: update install instructions for glade
+  * docs: correct description of m19 feedback requirements
+  * docs: clarify some pins in the halui manpage
+  * docs: fix link to the giteveryday(1) manpage
+  * docs: combine jog wheel information to one place
+  * docs: minor changes to gmoccapy documentation
+  * docs: fix links in Gcode Quick Reference (English and French)
+
+  * gmoccapy: document updates and deleted some pin
+  * halui: fix some jogging bugs
+  * halui: fix a copy-paste error that could prevent homing
+  * tooledit_widget.py: tool diameter sorting fix
+
+  * hal: don't segfault if rtapi_init() fails
+  * rtapi: error messages are better than errno numbers
+  * tp: purge old circle length function
+  * tp: overhaul spiral fit computation to use more numerically stable quadratic formula
+  * tp: fix for arc-arc coplanar check
+  * bugfix:  Start line and remap interaction
+  * interp: it's nonsense to take a boost::cref(this)
+  * build system: verify links in the Gcode Quick Reference documents
+
+  * linuxcnc launch script: export LINUXCNC_NCFILES_DIR
+  * rip-environment: export LINUXCNC_VERSION
+
+  * halui/jogging test: change which joint is selected while jogging
+  * tests: test homing in halui/jogging
+  * tests: add a motion-logger test of a remap bug
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 29 Nov 2015 12:51:49 -0700
+
+linuxcnc (1:2.7.2) unstable; urgency=low
 
   * docs: improve parport docs
 
