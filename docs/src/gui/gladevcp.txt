@@ -212,18 +212,16 @@ handled in more detail in the
 [[gladevcp:prerequisites]]
 
 === Prerequisite: Glade installation
-To view or modify Glade UI files, you need glade installed - it is not
-needed just to run a GladeVCP panel. If the glade command is missing,
-install it with the command:
+To view or modify Glade UI files, you need glade 3.8.0 installed - it is not
+needed just to run a GladeVCP panel. If the glade command is missing, install
+it with the command:
 
- $ sudo apt-get install glade
+ $ sudo apt-get install glade-gtk2
 
-Verify the version number to be greater than 3.6.7:
+Verify the version number to be 3.8.0 or less
 
- $ glade --version
- glade3 3.6.7
-
-(On recent systems, the required glade package is glade-gtk2)
+ $ glade-gtk2 --version
+glade3 3.8.0
 
 === Running Glade to create a new user interface
 This section just outlines the initial LinuxCNC-specific steps. For more
