@@ -10,6 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+JOGMODE = 1 # (1 ==> joint mode) FIXME JOINTS_AXES
 
 import math
 
@@ -128,22 +129,22 @@ class emc_control:
                 self.jog_velocity = velocity / 60.0
                 for i in range(9):
                         if self.isjogging[i]:
-                                self.emccommand.jog(self.emc.JOG_CONTINUOUS, i, self.isjogging[i] * self.jog_velocity)
+                                self.emccommand.jog(self.emc.JOG_CONTINUOUS, JOGMODE, i, self.isjogging[i] * self.jog_velocity)
         
         def continuous_jog(self, axis, direction):
                 if self.masked: return
                 if direction == 0:
                         self.isjogging[axis] = 0
-                        self.emccommand.jog(self.emc.JOG_STOP, axis)
+                        self.emccommand.jog(self.emc.JOG_STOP, JOGMODE, axis)
                 else:
                         self.isjogging[axis] = direction
-                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, axis, direction * self.jog_velocity)
+                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, JOGMODE, axis, direction * self.jog_velocity)
                 
 	def quill_up(self):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.wait_complete()
-                self.emccommand.jog(self.emc.JOG_CONTINUOUS, 2, 100)
+                self.emccommand.jog(self.emc.JOG_CONTINUOUS, JOGMODE, 2, 100)
 
         def feed_override(self, f):
 		if self.masked: return

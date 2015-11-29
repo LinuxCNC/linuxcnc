@@ -10,6 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+JOGMODE = 1 # (1 ==> joint mode) FIXME JOINTS_AXES
 
 import math
 
@@ -130,20 +131,20 @@ class emc_control:
                     rate = self.jog_velocity = velocity / 60.0
                 for i in range(9):
                         if self.isjogging[i]:
-                                self.emccommand.jog(self.emc.JOG_CONTINUOUS, i, self.isjogging[i] * rate)
+                                self.emccommand.jog(self.emc.JOG_CONTINUOUS, JOGMODE, i, self.isjogging[i] * rate)
         
         def continuous_jog(self, axis, direction):
                 if self.masked: return
                 if direction == 0:
                         self.isjogging[axis] = 0
-                        self.emccommand.jog(self.emc.JOG_STOP, axis)
+                        self.emccommand.jog(self.emc.JOG_STOP, JOGMODE, axis)
                 else:
                     if axis in (3,4,5):
                         rate = self.angular_jog_velocity
                     else:
                         rate = self.jog_velocity
                     self.isjogging[axis] = direction
-                    self.emccommand.jog(self.emc.JOG_CONTINUOUS, axis, direction * rate)
+                    self.emccommand.jog(self.emc.JOG_CONTINUOUS, JOGMODE, axis, direction * rate)
 
         def incremental_jog(self, axis, direction, distance):
                 if self.masked: return
@@ -152,14 +153,14 @@ class emc_control:
                     rate = self.angular_jog_velocity
                 else:
                     rate = self.jog_velocity
-                self.emccommand.jog(self.emc.JOG_INCREMENT, axis, direction * rate, distance)
+                self.emccommand.jog(self.emc.JOG_INCREMENT, JOGMODE, axis, direction * rate, distance)
                 self.isjogging[axis] = 0
                 
         def quill_up(self):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.wait_complete()
-                self.emccommand.jog(self.emc.JOG_CONTINUOUS, 2, 100)
+                self.emccommand.jog(self.emc.JOG_CONTINUOUS, JOGMODE, 2, 100)
 
         def feed_hold(self, data):
                 if self.masked: return
