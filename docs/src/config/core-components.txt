@@ -75,6 +75,7 @@ as a locking indexer (typically a rotary).  The mask bits select the
 joint(s).  The LSB of the mask selects joint 0.  Example:
    unlock_joints_mask=0x38 selects joints 3,4,5
 
+[[sec:motion-pins]]
 === Pins (((motion (HAL pins))))
 
 These pins, parameters, and functions are created by the realtime
