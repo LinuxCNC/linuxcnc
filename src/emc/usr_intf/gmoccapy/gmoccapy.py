@@ -25,6 +25,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 """
+JOGMODE = 1 # (1 ==> joint mode) FIXME JOINTS_AXES
+
 import traceback          # needed to launch traceback errors
 import hal                # base hal class to react to hal signals
 import hal_glib           # needed to make our own hal pins
@@ -2585,9 +2587,9 @@ class gmoccapy( object ):
             direction = -1
 
         if self.distance <> 0:  # incremental jogging
-            self.command.jog( linuxcnc.JOG_INCREMENT, axisnumber, direction * velocity, self.distance )
+            self.command.jog( linuxcnc.JOG_INCREMENT, JOGMODE, axisnumber, direction * velocity, self.distance )
         else:  # continuous jogging
-            self.command.jog( linuxcnc.JOG_CONTINUOUS, axisnumber, direction * velocity )
+            self.command.jog( linuxcnc.JOG_CONTINUOUS, JOGMODE, axisnumber, direction * velocity )
 
     def on_btn_jog_released( self, widget, data = None ):
         # only in manual mode we will allow jogging the axis at this development state
@@ -2605,7 +2607,7 @@ class gmoccapy( object ):
         if self.distance <> 0:
             pass
         else:
-            self.command.jog( linuxcnc.JOG_STOP, axis )
+            self.command.jog( linuxcnc.JOG_STOP, JOGMODE,  axis )
 
     # use the current loaded file to be loaded on start up
     def on_btn_use_current_clicked( self, widget, data = None ):
