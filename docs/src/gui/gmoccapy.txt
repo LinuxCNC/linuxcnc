@@ -83,7 +83,7 @@ The names should explain the main intention of the different INI Files. +
 
 If you use an existing configuration of your machine, just edit your INI according to this document. +
 
-IMPORTANT: If you want to use <<sub:MACROS,MACROS>>, don't forget to set the path to your macros or 
+IMPORTANT: If you want to use <<gmoccapy:macros,MACROS>>, don't forget to set the path to your macros or 
 subroutines folder as described below.
 
 So let us take a closer look to the the INI file and what you need to include 
@@ -115,7 +115,7 @@ The most important part is to tell LinuxCNC to use gmoccapy, editing the [DISPLA
 
 The line PREFERENCE_FILE_PATH gives the location and name of the preferences file to be used.
 In most cases this line will not be needed, it is used by gmoccapy to store your settings of the GUI, 
-like themes, DRO units, colors, and keyboard settings, etc., see <<sub:The_settings_page,SETTINGS>> for more details. 
+like themes, DRO units, colors, and keyboard settings, etc., see <<gmoccapy:settings-page,settings page>> for more details. 
 
 [NOTE]
 If no path or file is given, gmoccapy will use as default
@@ -179,8 +179,8 @@ See also the <<gmoccapy:lathe-section, Lathe Specific Section>>
 Is the entry to tell linuxcnc/gmoccapy where to look for the ngc files.
 
 [NOTE]
-If not specificed Gmoccapy will look in the following order for ngc files:
-linuxcnc/nc_files then the users home directoy.
+If not specified Gmoccapy will look in the following order for ngc files:
+linuxcnc/nc_files and then the users home directory.
 
 .Configuration of tabs and side panels
 
