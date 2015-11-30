@@ -3413,7 +3413,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     settings->cycle_il_flag = false;
 
   if (ai || bi || ci) {
-    int anum,jnum;
+    int anum=-1,jnum=-1;
     if (     ai) {anum = 3; jnum = settings->a_indexer_jnum;}
     else if (bi) {anum = 4; jnum = settings->b_indexer_jnum;}
     else if (ci) {anum = 5; jnum = settings->c_indexer_jnum;}
