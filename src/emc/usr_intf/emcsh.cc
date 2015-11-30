@@ -1766,19 +1766,22 @@ static int emc_jog_stop(ClientData clientdata,
 			Tcl_Obj * CONST objv[])
 {
     int joint;
+    int jjogmode;
 
     CHECKEMC
-    if (objc != 2) {
-	setresult(interp,"emc_jog_stop: need joint");
+    if (objc != 3) {
+	setresult(interp,"emc_jog_stop: need joint,jogmode");
 	return TCL_ERROR;
     }
-
     if (0 != Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	setresult(interp,"emc_jog_stop: need joint as integer, 0..");
+	setresult(interp,"emc_jog_stop: need joint as integer, 0|1");
 	return TCL_ERROR;
     }
-
-    if (0 != sendJogJointStop(joint)) {
+    if (0 != Tcl_GetIntFromObj(0, objv[2], &jjogmode)) {
+	setresult(interp,"emc_jog_stop: need jogmode as integer, 0..");
+	return TCL_ERROR;
+    }
+    if (0 != sendJogStop(joint, jjogmode)) {
 	setresult(interp,"emc_jog_stop: can't send jog stop msg");
 	return TCL_OK;
     }
@@ -1790,24 +1793,29 @@ static int emc_jog(ClientData clientdata,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     int joint;
+    int jjogmode;
     double speed;
 
     CHECKEMC
-    if (objc != 3) {
-	setresult(interp,"emc_jog: need joint and speed");
+    if (objc != 4) {
+	setresult(interp,"emc_jog: need joint,jjogmode and speed");
 	return TCL_ERROR;
     }
 
     if (0 != Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	setresult(interp,"emc_jog: need joint as integer, 0..");
+	setresult(interp,"emc_jog: need joint as integer, 0|1");
 	return TCL_ERROR;
     }
-    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &speed)) {
+    if (0 != Tcl_GetIntFromObj(0, objv[2], &jjogmode)) {
+	setresult(interp,"emc_jog: need jogmode as integer, 0..");
+	return TCL_ERROR;
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &speed)) {
 	setresult(interp,"emc_jog: need speed as real number");
 	return TCL_ERROR;
     }
 
-    if (0 != sendJogJointCont(joint, speed)) {
+    if (0 != sendJogCont(joint, jjogmode, speed)) {
 	setresult(interp,"emc_jog: can't jog");
 	return TCL_OK;
     }
@@ -1820,29 +1828,35 @@ static int emc_jog_incr(ClientData clientdata,
 			Tcl_Obj * CONST objv[])
 {
     int joint;
+    int jjogmode;
     double speed;
     double incr;
 
     CHECKEMC
-    if (objc != 4) {
-	setresult(interp,"emc_jog_incr: need joint, speed, and increment");
+    if (objc != 5) {
+	setresult(interp,"emc_jog_incr: need jjogmode,joint, speed, and increment");
 	return TCL_ERROR;
     }
 
     if (0 != Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	setresult(interp,"emc_jog_incr: need joint as integer, 0..");
+	setresult(interp,"emc_jog_incr: need joint as integer, 0|1");
 	return TCL_ERROR;
     }
-    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &speed)) {
+    if (0 != Tcl_GetIntFromObj(0, objv[2], &jjogmode)) {
+	setresult(interp,"emc_jog_incr: need jogmode as integer, 0..");
+	return TCL_ERROR;
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &speed)) {
 	setresult(interp,"emc_jog_incr: need speed as real number");
 	return TCL_ERROR;
     }
-    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &incr)) {
+    if (0 != Tcl_GetDoubleFromObj(0, objv[4], &incr)) {
 	setresult(interp,"emc_jog_incr: need increment as real number");
 	return TCL_ERROR;
     }
-
-    if (0 != sendJogJointIncr(joint, speed, incr)) {
+fprintf(stderr,"Incr emcsh sendJogIncr joint=%d jjogmode=%d speed=%.3f incr=%.3f\n"
+,joint,jjogmode,speed,incr);
+    if (0 != sendJogIncr(joint, jjogmode, speed, incr)) {
 	setresult(interp,"emc_jog_incr: can't jog");
 	return TCL_OK;
     }

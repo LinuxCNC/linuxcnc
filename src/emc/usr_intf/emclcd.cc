@@ -25,6 +25,10 @@
 *
 ********************************************************************/
 
+#define JOGJOINT  1
+#define JOGTELEOP 0
+#define JOGMODE   JOGJOINT
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -1145,16 +1149,16 @@ static int jog(int jnum, float speed)
       case jtCont: 
         if (jogging == 1) {  // toggle if driver does not support key down / key up
           jogging = 0;
-          return sendJogJointStop(jnum);
+          return sendJogStop(jnum, JOGMODE);
           }
         else {
           jogging = 1;
-          return sendJogJointCont(jnum, speed);
+          return sendJogCont(jnum, JOGMODE, speed);
           }
-      case jtStep1: return sendJogJointIncr(jnum, speed, stepSize/conversion); break;
-      case jtStep01: return sendJogJointIncr(jnum, speed, (stepSize/10.0)/conversion); break;
-      case jtStep001: return sendJogJointIncr(jnum, speed, (stepSize/100.0)/conversion); break;
-      case jtStep0001: return sendJogJointIncr(jnum, speed, (stepSize/1000.0)/conversion); break;
+      case jtStep1: return sendJogIncr(jnum, JOGMODE, speed, stepSize/conversion); break;
+      case jtStep01: return sendJogIncr(jnum, JOGMODE, speed, (stepSize/10.0)/conversion); break;
+      case jtStep001: return sendJogIncr(jnum, JOGMODE, speed, (stepSize/100.0)/conversion); break;
+      case jtStep0001: return sendJogIncr(jnum, JOGMODE, speed, (stepSize/1000.0)/conversion); break;
       default: return -1;
       }
 //    }
@@ -1167,7 +1171,7 @@ static int jogStop(int jnum)
   if ((jnum < 0) || (jnum > 5)) return -1;
   jogging = 0;
   if (jogMode != jtCont) return 0;
-  return sendJogJointStop(jnum);
+  return sendJogStop(jnum, JOGMODE);
 }
 
 static int leftKey()

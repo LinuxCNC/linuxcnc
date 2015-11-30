@@ -14,6 +14,11 @@
 * Last change:
 ********************************************************************/
 
+#define JOGJOINT  1
+#define JOGTELEOP 0
+#define JOGMODE   JOGJOINT
+
+
 #define _REENTRANT
 
 #include <stdio.h>
@@ -1018,7 +1023,7 @@ static cmdResponseType setJogStop(char *s, connectionRecType *context)
   if (s == NULL) return rtStandardError;
   if (sscanf(s, "%d", &jnum) <= 0) return rtStandardError;
   if ((jnum < 0) || (jnum > 5)) return rtStandardError;
-  if (sendJogJointStop(jnum) != 0) return rtStandardError;
+  if (sendJogStop(jnum,JOGMODE) != 0) return rtStandardError;
   return rtNoError;
 }
 
@@ -1035,7 +1040,7 @@ static cmdResponseType setJog(char *s, connectionRecType *context)
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &speed) <= 0) return rtStandardError; 
-  if (sendJogJointCont(jnum, speed) != 0) return rtStandardError;
+  if (sendJogCont(jnum, JOGMODE, speed) != 0) return rtStandardError;
   return rtNoError;
 }
 
@@ -1065,7 +1070,7 @@ static cmdResponseType setJogIncr(char *s, connectionRecType *context)
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &incr) <= 0) return rtStandardError; 
-  if (sendJogJointIncr(jnum, speed, incr) != 0) return rtStandardError;
+  if (sendJogIncr(jnum, JOGMODE, speed, incr) != 0) return rtStandardError;
   return rtNoError;
 }
 
