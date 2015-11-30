@@ -2303,7 +2303,6 @@ int main(int argc, char *argv[])
                   emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_Z);
                   emc_jog_cont_msg.jjogmode = 1;
                   if (zJogPol)
-                  if (zJogPol)
                     emc_jog_cont_msg.vel = - jogSpeed / 60.0;
                   else
                     emc_jog_cont_msg.vel = jogSpeed / 60.0;
