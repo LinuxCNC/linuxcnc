@@ -15,11 +15,11 @@ license "GPL";
 #define max(a,b) ((a)>(b)?(a):(b))
 
 rtapi_s64 now = rtapi_get_time();
-rtapi_s64 del = (now - last);
-out = del;
-
 
 if(last != 0) {
+        rtapi_s64 del = (now - last);
+        out = del;
+
 	err = err + del - period;
 	if(first) {
 		first = 0;
