@@ -944,6 +944,8 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         }
     } else {
         tcSetLineXYZ(prev_tc, &line1_temp);
+        //KLUDGE the previous segment is still there, so we don't need the at-speed flag on the blend too
+        blend_tc->atspeed=0;
     }
     tcSetCircleXYZ(tc, &circ2_temp);
 
@@ -1091,6 +1093,7 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     //Cleanup any mess from parabolic
     tc->blend_prev = 0;
+    blend_tc->atspeed=0;
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
     return TP_ERR_OK;
 }
@@ -1261,6 +1264,7 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
 
     //Cleanup any mess from parabolic
     tc->blend_prev = 0;
+    blend_tc->atspeed=0;
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
     return TP_ERR_OK;
@@ -1343,6 +1347,7 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         //TODO refactor connect function to stretch lines and check for bad stretching
         tp_debug_print("keeping previous line\n");
         retval = tcConnectBlendArc(prev_tc, tc, &points.arc_start, &points.arc_end);
+        blend_tc->atspeed=0;
     }
     return retval;
 }
@@ -2646,7 +2651,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_MISSING_INPUT;
     }
 
-    if (tp->reverse_run && (tc->motion_type == TC_RIGIDTAP || tc->synchronized != TC_SYNC_NONE || tc->atspeed)) {
+    if (tp->reverse_run && (tc->motion_type == TC_RIGIDTAP || tc->synchronized != TC_SYNC_NONE)) {
         //Can't activate a segment with synced motion in reverse
         return TP_ERR_REVERSE_EMPTY;
     }
