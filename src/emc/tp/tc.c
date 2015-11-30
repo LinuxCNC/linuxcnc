@@ -245,21 +245,27 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
  */
 double tcGetDistanceToGo(TC_STRUCT const * const tc, int direction)
 {
-    double distance;
-    if (direction == TC_DIR_FORWARD) {
-        // Return standard distance to go
-        distance = tc->target - tc->progress;
-    } else {
-        // Reverse direction, distance from zero instead of target
-        distance = tc->progress;
+    double distance = tcGetTarget(tc, direction) - tc->progress;
+    if (direction == TC_DIR_REVERSE) {
+        distance *=-1.0;
     }
-
     return distance;
 }
 
 double tcGetTarget(TC_STRUCT const * const tc, int direction)
 {
-    return (direction == TC_DIR_REVERSE) ? 0.0 : tc->target;
+    // Trivial case if in forward direction
+    if (direction == TC_DIR_FORWARD) {
+        return tc->target;
+    }
+
+    switch (tc->motion_type) {
+        case TC_SPHERICAL:
+            // initial "target" may be negative if there is a consumed line
+            return -tc->coords.arc.xyz.line_length;
+        default:
+            return 0;
+    }
 }
 
 

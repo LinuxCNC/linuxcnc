@@ -166,7 +166,7 @@ int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
     return 0;
 }
 
-#define TCQ_REVERSE_MARGIN 100
+#define TCQ_REVERSE_MARGIN 200
 
 int tcqPop(TC_QUEUE_STRUCT * const tcq)
 {
@@ -233,7 +233,6 @@ int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n)
 
 /**
  * Step backward into the reverse history.
- * WARNING: this is a totally unsafe implementation as a proof of concept: Use at your own peril!!!
  */
 int tcqBackStep(TC_QUEUE_STRUCT * const tcq)
 {
@@ -244,8 +243,7 @@ int tcqBackStep(TC_QUEUE_STRUCT * const tcq)
 
     // start == end means that queue is empty
 
-    int rempty = (tcq->start == tcq->rend);
-    if ( rempty && !tcq->allFull) {	
+    if ( tcq->start == tcq->rend) {	
         return -1;
     }
     /* update start ptr and reset allFull flag and len */

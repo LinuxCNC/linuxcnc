@@ -2130,11 +2130,12 @@ STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_de
     } else {
         double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
         // Account for reverse run (flip sign if need be)
-        double disp_sign = reverse_run ? -1 : 1;
+        double disp_sign = reverse_run ? -1.0 : 1.0;
         tc->progress += (disp_sign * displacement);
 
         //Progress has to be within the allowable range
-        tc->progress = bisaturate(tc->progress, tc->target, 0.0);
+        //KLUDGE lookup the actual progress limits
+        tc->progress = bisaturate(tc->progress, tcGetTarget(tc, TC_DIR_FORWARD), tcGetTarget(tc, TC_DIR_REVERSE));
     }
     tc->currentvel = v_next;
 
