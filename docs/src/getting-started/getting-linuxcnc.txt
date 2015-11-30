@@ -232,7 +232,7 @@ uname -v
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 8f374fef
+sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
 
 . Add a new apt source that looks like this:
@@ -274,7 +274,7 @@ sudo apt-get dist-upgrade
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 8f374fef
+sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
 
 . Add a new apt source 
