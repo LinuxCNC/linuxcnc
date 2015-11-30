@@ -14,6 +14,7 @@
 * Last change:
 ********************************************************************/
 
+
 #define __STDC_FORMAT_MACROS
 #include <stdio.h>
 #include <string.h>
@@ -40,6 +41,10 @@
 
 LINEAR_UNIT_CONVERSION linearUnitConversion;
 ANGULAR_UNIT_CONVERSION angularUnitConversion;
+
+#define JOGJOINT 1
+#define JOGAXIS  0
+static int num_joints = EMCMOT_MAX_JOINTS;
 
 int emcCommandSerialNumber;
 
@@ -552,58 +557,86 @@ int sendOverrideLimits(int axis)
     return 0;
 }
 
-int sendJogJointStop(int jnum)
+int sendJogStop(int ja, int jjogmode)
 {
     EMC_JOG_STOP emc_jog_stop_msg;
-    
-    emc_jog_stop_msg.jjogmode = 1;
-    emc_jog_stop_msg.joint_or_axis = jnum;
-    emcCommandSend(emc_jog_stop_msg);
 
+    if (   (   (jjogmode == JOGJOINT)
+            && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
+        || (   (jjogmode == JOGAXIS )
+            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+       ) {
+       return -1;
+    }
+
+    if (  jjogmode &&  (ja < 0 || ja >= num_joints)) {
+      fprintf(stderr,"shcom.cc: unexpected_1 %d\n",ja); return -1;
+    }
+    if ( !jjogmode &&  (ja < 0))                     {
+      fprintf(stderr,"shcom.cc: unexpected_2 %d\n",ja); return -1;
+    }
+
+    emc_jog_stop_msg.jjogmode = jjogmode;
+    emc_jog_stop_msg.joint_or_axis = ja;
+    emcCommandSend(emc_jog_stop_msg);
     return 0;
 }
 
-int sendJogJointCont(int jnum, double speed)
+int sendJogCont(int ja, int jjogmode, double speed)
 {
     EMC_JOG_CONT emc_jog_cont_msg;
 
-    if (0 == jogPol[jnum]) {
-        speed = -speed;
+    if (emcStatus->task.state != EMC_TASK_STATE_ON) { return -1; }
+    if (   (  (jjogmode == JOGJOINT)
+            && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
+        || (   (jjogmode == JOGAXIS )
+            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+       ) {
+       return -1;
     }
 
-    emc_jog_cont_msg.jjogmode = 1;
-    emc_jog_cont_msg.joint_or_axis = jnum;
+    if (  jjogmode &&  (ja < 0 || ja >= num_joints)) {
+       fprintf(stderr,"shcom.cc: unexpected_3 %d\n",ja); return -1;
+    }
+    if ( !jjogmode &&  (ja < 0))                     {
+       fprintf(stderr,"shcom.cc: unexpected_4 %d\n",ja); return -1;
+    }
+
+    emc_jog_cont_msg.jjogmode = jjogmode;
+    emc_jog_cont_msg.joint_or_axis = ja;
     emc_jog_cont_msg.vel = speed / 60.0;
-    emcCommandSend(emc_jog_cont_msg);
 
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
+    emcCommandSend(emc_jog_cont_msg);
 
     return 0;
 }
 
-int sendJogJointIncr(int jnum, double speed, double incr)
+int sendJogIncr(int ja, int jjogmode, double speed, double incr)
 {
     EMC_JOG_INCR emc_jog_incr_msg;
 
-    if (0 == jogPol[jnum]) {
-	speed = -speed;
+    if (emcStatus->task.state != EMC_TASK_STATE_ON) { return -1; }
+    if (   ( (jjogmode == JOGJOINT)
+        && (  emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
+        || ( (jjogmode == JOGAXIS )
+        && (  emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+       ) {
+       return -1;
     }
 
-    emc_jog_incr_msg.jjogmode = 1;
-    emc_jog_incr_msg.joint_or_axis = jnum;
+    if (  jjogmode &&  (ja < 0 || ja >= num_joints)) {
+        fprintf(stderr,"shcom.cc: unexpected_5 %d\n",ja); return -1;
+    }
+    if ( !jjogmode &&  (ja < 0))                     {
+        fprintf(stderr,"shcom.cc: unexpected_6 %d\n",ja); return -1;
+    }
+
+    emc_jog_incr_msg.jjogmode = jjogmode;
+    emc_jog_incr_msg.joint_or_axis = ja;
     emc_jog_incr_msg.vel = speed / 60.0;
     emc_jog_incr_msg.incr = incr;
-    emcCommandSend(emc_jog_incr_msg);
 
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
+    emcCommandSend(emc_jog_incr_msg);
 
     return 0;
 }
