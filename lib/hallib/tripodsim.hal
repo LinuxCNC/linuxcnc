@@ -2,7 +2,7 @@
 
 # first load all the RT modules that will be needed
 # kinematics
-loadrt tripodkins
+loadrt [KINS]KINEMATICS
 setp tripodkins.Bx 10
 setp tripodkins.Cx 5
 setp tripodkins.Cy 7.071
