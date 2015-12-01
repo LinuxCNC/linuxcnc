@@ -1,4 +1,4 @@
-loadrt rotarydeltakins
+loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 loadusr -W rotarydelta
