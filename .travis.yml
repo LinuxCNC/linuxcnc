@@ -16,6 +16,9 @@ language: bash
 services:
 - docker
 
+before_install:
+  - gem install package_cloud
+
 env:
   global:
     - ROOT=/opt/rootfs
