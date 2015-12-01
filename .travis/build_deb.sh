@@ -2,8 +2,13 @@
 
 # this script is run inside a docker container
 
+# Verbose build
+if ${MK_PACKAGE_VERBOSE}; then
+    DEBUILD_OPTS+=" -eDH_VERBOSE=1"
+fi
+
 # build unsigned packages
-DEBUILD_OPTS="-eDEB_BUILD_OPTIONS="parallel=${JOBS}" -us -uc -j${JOBS} -b"
+DEBUILD_OPTS+=" -eDEB_BUILD_OPTIONS=parallel=${JOBS} -us -uc -j${JOBS} -b"
 
 PROOT_OPTS="-b /dev/shm -r ${CHROOT_PATH}"
 if echo ${TAG} | grep -iq arm; then
