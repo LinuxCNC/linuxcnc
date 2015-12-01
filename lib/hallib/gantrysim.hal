@@ -1,5 +1,5 @@
-
-loadrt gantrykins coordinates=XYZY
+loadrt [KINS]KINEMATICS
+show comp
 
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
