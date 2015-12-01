@@ -1,0 +1,15 @@
+gentrivkins examples
+
+xz.ini           KINEMATICS_IDENTITY
+
+xz_both.ini      KINEMATICS_BOTH
+
+NOTE:
+!!!  [TRAJ]COORDINATES MUST AGREE WITH KINS:
+!!!  [TRAJ]COORDINATES = xz 
+
+xz.ini
+  [KINS]KINEMATICS=gentrivkins coordinates=xz
+
+xz_both.ini 
+  KINEMATICS = gentrivkins coordinates=xz kinstype=BOTH
