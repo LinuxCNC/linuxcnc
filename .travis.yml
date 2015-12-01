@@ -23,6 +23,7 @@ env:
     - JOBS=2
   matrix:
     - TAG=wheezy-64    CMD=run_tests
+    - TAG=wheezy-64    CMD=build_deb
 
 script:
 - .travis/docker_run.sh
