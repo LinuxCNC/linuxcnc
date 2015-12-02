@@ -5,6 +5,9 @@ CHROOT_PATH="/opt/rootfs"
 MACHINEKIT_PATH="/usr/src/machinekit"
 TRAVIS_PATH="$MACHINEKIT_PATH/.travis"
 CONTAINER="kinsamanka/mkdocker"
+COMMITTER_NAME="$(git log -1 --pretty=format:%an)"
+COMMITTER_EMAIL="$(git log -1 --pretty=format:%ae)"
+COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"
 # Verbose RIP build output:  "true" or "false"
 MK_BUILD_VERBOSE=${MK_BUILD_VERBOSE:-"false"}
 # Verbose package build output:  "true" or "false"
@@ -27,8 +30,20 @@ docker run \
     -e CHROOT_PATH=${CHROOT_PATH} \
     -e MACHINEKIT_PATH=${MACHINEKIT_PATH} \
     -e TRAVIS_PATH=${TRAVIS_PATH} \
-    -e MK_BUILD_VERBOSE \
-    -e MK_PACKAGE_VERBOSE \
+    -e COMMITTER_NAME="${COMMITTER_NAME}" \
+    -e COMMITTER_EMAIL="${COMMITTER_EMAIL}" \
+    -e COMMIT_TIMESTAMP=${COMMIT_TIMESTAMP} \
+    -e MK_BUILD_VERBOSE="${MK_BUILD_VERBOSE}" \
+    -e MK_PACKAGE_VERBOSE="${MK_PACKAGE_VERBOSE}" \
+    -e MAJOR_MINOR_VERSION \
+    -e PKGSOURCE \
+    -e DISTRO \
+    -e DEBIAN_SUITE \
+    -e GITHUB_URL \
+    -e TRAVIS_REPO_SLUG \
+    -e TRAVIS_PULL_REQUEST \
+    -e TRAVIS_COMMIT \
+    -e TRAVIS_BRANCH \
     ${CONTAINER}:${TAG} \
     ${CHROOT_PATH}${TRAVIS_PATH}/${cmd}.sh
 
