@@ -44,6 +44,7 @@ docker run \
     -e TRAVIS_PULL_REQUEST \
     -e TRAVIS_COMMIT \
     -e TRAVIS_BRANCH \
+    -e LC_ALL="POSIX" \
     ${CONTAINER}:${TAG} \
     ${CHROOT_PATH}${TRAVIS_PATH}/${cmd}.sh
 
@@ -58,5 +59,6 @@ then
     docker run \
         -e MACHINEKIT_PATH=${MACHINEKIT_PATH} \
         -e MK_DEBUG_TESTS=${MK_DEBUG_TESTS} \
+        -e LC_ALL="POSIX" \
         --rm=true mk_runtest /run_tests.sh
 fi
