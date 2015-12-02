@@ -33,6 +33,8 @@ import gobject
 import os
 import mimetypes
 import gio
+import tempfile
+import errno
 
 # constants
 _ASCENDING = 0
@@ -113,7 +115,7 @@ class IconFileSelection(gtk.HBox):
         image = gtk.Image()
         image.set_from_stock(gtk.STOCK_GOTO_TOP, 48)
         self.btn_dir_up.set_image(image)
-        self.btn_dir_up.set_tooltip_text(_("Move to parrent directory"))
+        self.btn_dir_up.set_tooltip_text(_("Move to parent directory"))
         self.buttonbox.add(self.btn_dir_up)
 
         self.btn_sel_prev = gtk.Button()
@@ -121,7 +123,7 @@ class IconFileSelection(gtk.HBox):
         image = gtk.Image()
         image.set_from_stock(gtk.STOCK_GO_BACK, 48)
         self.btn_sel_prev.set_image(image)
-        self.btn_sel_prev.set_tooltip_text(_("Select the previos file"))
+        self.btn_sel_prev.set_tooltip_text(_("Select the previous file"))
         self.buttonbox.add(self.btn_sel_prev)
 
         self.btn_sel_next = gtk.Button()
@@ -336,6 +338,12 @@ class IconFileSelection(gtk.HBox):
         self.btn_dir_up.set_sensitive(True)
 
     def on_btn_jump_to_clicked(self, widget):
+        try:
+            testfile = tempfile.TemporaryFile(dir = self.jump_to_dir)
+            testfile.close()
+        except OSError as e:
+            if e.errno == errno.EACCES:  # 13
+                return False
         self.cur_dir = self.jump_to_dir
         self._fill_store()
         self.btn_dir_up.set_sensitive(True)
@@ -362,8 +370,11 @@ class IconFileSelection(gtk.HBox):
             new_iter = self.model.get_iter_from_string(str(pos))
             new_path = self.model.get_path(new_iter)
         except:
-            new_iter = self.get_iter_last(self.model)
-            new_path = self.model.get_path(new_iter)
+            try:
+                new_iter = self.get_iter_last(self.model)
+                new_path = self.model.get_path(new_iter)
+            except:
+                return
         self.iconView.set_cursor(new_path)
         self.iconView.select_path(new_path)
 
@@ -484,6 +495,7 @@ class IconFileSelection(gtk.HBox):
                 if name == 'jump_to_dir':
                     self.jump_to_dir = os.path.expanduser(value)
                     self.on_btn_jump_to()
+                    # save to preferences file?
                 if name == 'filetypes':
                     self.set_filetypes(value)
                 if name == 'sortorder':
