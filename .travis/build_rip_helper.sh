@@ -9,6 +9,6 @@ cd ${MACHINEKIT_PATH}/src
      --without-xenomai-kernel \
      --without-rtai-kernel
 make -j${JOBS}
-useradd mk
+useradd -m -s /bin/bash mk
 chown -R mk:mk ../
 make setuid
