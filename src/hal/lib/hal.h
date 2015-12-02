@@ -199,7 +199,7 @@ RTAPI_BEGIN_DECLS
  * linking and unlinking of pins is possible as long as the
  * component state != COMP_INITIALIZING.
  */
-enum comp_type  {
+typedef enum comp_type  {
     TYPE_INVALID = 0,
     TYPE_RT,
     TYPE_USER,
@@ -209,15 +209,15 @@ enum comp_type  {
     // which needs extra care since the HAL shm segment needs to be
     // allocated
     TYPE_HALLIB,
-};
+} comp_type_t;
 
-enum comp_state {
+typedef enum comp_state {
     COMP_INVALID = 0,
     COMP_INITIALIZING,
     COMP_UNBOUND,
     COMP_BOUND,
     COMP_READY
-};
+} comp_state_t;
 
 typedef int (*hal_constructor_t) (const char *name, const int argc, const char**argv);
 typedef int (*hal_destructor_t) (const char *name, void *inst, const int inst_size);
