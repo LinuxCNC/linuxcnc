@@ -472,7 +472,6 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 {
     static char name[] = "control_back_to";
     char newFileName[PATH_MAX+1];
-    char tmpFileName[PATH_MAX+1];
     FILE *newFP;
     offset_map_iterator it;
     offset_pointer op;
