@@ -1,5 +1,10 @@
 #!/bin/sh -ex
 
+# Verbose build
+if ${MK_BUILD_VERBOSE}; then
+    VERBOSE="V=1"
+fi
+
 cd ${MACHINEKIT_PATH}/src
 ./autogen.sh
 ./configure \
@@ -8,7 +13,7 @@ cd ${MACHINEKIT_PATH}/src
      --without-xenomai \
      --without-xenomai-kernel \
      --without-rtai-kernel
-make -j${JOBS}
+make -j${JOBS} ${VERBOSE}
 useradd -m -s /bin/bash mk
 chown -R mk:mk ../
-make setuid
+make setuid ${VERBOSE}
