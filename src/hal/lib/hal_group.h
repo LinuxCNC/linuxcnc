@@ -123,12 +123,12 @@ extern int hal_cgroup_match(hal_compiled_group_t *cgroup);
 // given a cgroup which returned a non-zero value from hal_cgroup_match(),
 // generate a report.
 // the report callback is called for the following phases:
-enum report_phase {
+typedef enum report_phase {
     REPORT_BEGIN,
     REPORT_SIGNAL, // for cgroups only
     REPORT_PIN,    // for ccomp's only
     REPORT_END
-};
+} report_phase_t;
 
 #if 0
 // a sample report callback would have the following structure:
