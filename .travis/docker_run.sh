@@ -4,7 +4,7 @@ cd "$(dirname $0)/.."
 CHROOT_PATH="/opt/rootfs"
 MACHINEKIT_PATH="/usr/src/machinekit"
 TRAVIS_PATH="$MACHINEKIT_PATH/.travis"
-CONTAINER="kinsamanka/mkdocker"
+DOCKER_CONTAINER=${DOCKER_CONTAINER:-"kinsamanka/mkdocker"}
 COMMITTER_NAME="$(git log -1 --pretty=format:%an)"
 COMMITTER_EMAIL="$(git log -1 --pretty=format:%ae)"
 COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"
@@ -45,7 +45,7 @@ docker run \
     -e TRAVIS_COMMIT \
     -e TRAVIS_BRANCH \
     -e LC_ALL="POSIX" \
-    ${CONTAINER}:${TAG} \
+    ${DOCKER_CONTAINER}:${TAG} \
     ${CHROOT_PATH}${TRAVIS_PATH}/${cmd}.sh
 
 # tests are run under a new container instead of chrooting
