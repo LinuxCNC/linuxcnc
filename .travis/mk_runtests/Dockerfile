@@ -1,4 +1,9 @@
-FROM scratch
+FROM	scratch
 
-ADD rootfs.tgz /
-ADD run_tests.sh /
+# decompress rootfs
+ADD	rootfs.tgz /
+
+# add helper scripts
+ADD	run_tests.sh /
+ADD 	run_tests_helper.sh /
+
