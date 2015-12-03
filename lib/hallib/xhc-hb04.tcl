@@ -2,6 +2,7 @@
 
 # library procs:
 source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
+source [file join $::env(HALLIB_DIR) util_lib.tcl]
 
 # Usage:
 # In ini file, include:
@@ -17,7 +18,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #   scales = 1 1 1 1 (optional)
 #   threadname = servo-thread (optional)
 #   sequence = 1     (optional: 1|2)
-#   jogmode = normal (optional: normal|vnormal|plus-minus(Experimental))
+#   jogmode = normal (optional: normal|vnormal)
 #   require_pendant = yes (optional: yes|no)
 #   inch_or_mm = in  (optional: in|mm, default is mm)
 
@@ -47,21 +48,12 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #       Typically:
 #         (-s1) sequence 1 (1,10,100,1000) is ok for mm-based machines
 #         (-s2) sequence 2 (1,5,10,20)     is ok for inch-based machines
-#    4) jogmode==plus-minus -- Experimental implementation for  halui plus-minus jogging which
-#       seems to work in both joint and world modes
-#       (tested on git master branch before integration of joints_axesN branch)
 #
-#    5) 19feb2014 notes for future work
-#       jogging non-trivkins machines in world mode
-#
-#       jogmode==plus-minus-increment reserved for halui plus-minus-increment jogging
-#       incremental, world-mode jogging is not working in current git master
-#       (at this date, current git master has not merged a joint_axesN branch)
-#
-#       see:
-#       http://www.linuxcnc.org/docs/html/man/man9/gantrykins.9.html
-#       Joint-mode (aka Free mode) supports continuous and incremental jogging.
-#       World-mode (aka Teleop mode) only supports continuous jogging.
+#    5) updated for joints_axes: support only configs with known kins
+#       and they must be KINEMATICS_IDENTITY (trivkins,gentrivkins)
+#       a) connect axis.L.jog-counts to joint.N.jog-counts
+#                  axis.L.jog-scale  to joint.L.jog-scale
+#       c) use  [JOINT_N]MAX_ACCELERATION for both axis.L, joint.N
 
 #-----------------------------------------------------------------------
 # Copyright: 2014-15
@@ -194,7 +186,8 @@ proc wheel_setup {jogmode} {
   net pendant:jog-prescale    => pendant_util.divide-by-k-in
 
   net pendant:jog-scale       <= pendant_util.divide-by-k-out
-  #   pendant:jog-scale connects to each joint.$axno.jog-scale
+  #   pendant:jog-scale connects to each joint.$jnum.jog-scale
+  #                                  and axis.$coord.jog-scale
 
   net pendant:wheel-counts     <= xhc-hb04.jog.counts
   net pendant:wheel-counts-neg <= xhc-hb04.jog.counts-neg
@@ -238,7 +231,7 @@ proc wheel_setup {jogmode} {
 
   set mapmsg ""
   foreach coord $::XHC_HB04_CONFIG(coords) {
-    set axno $::XHC_HB04_CONFIG($coord,axno)
+    set jnum [joint_number_for_axis $coord]
     set use_lbl($coord) [lindex $anames $use_idx($coord)]
     set idx $use_idx($coord)
     if {"$use_lbl($coord)" != "$coord"} {
@@ -250,25 +243,27 @@ proc wheel_setup {jogmode} {
     setp pendant_util.scale$idx [expr $kvalue * $::XHC_HB04_CONFIG(scale,$idx)]
 
     set acoord [lindex $anames $idx]
-    net pendant:pos-$coord <= halui.axis.$axno.pos-feedback \
+    net pendant:pos-$coord <= halui.axis.$coord.pos-feedback \
                            => xhc-hb04.$acoord.pos-absolute
-    net pendant:pos-rel-$coord <= halui.axis.$axno.pos-relative \
+    net pendant:pos-rel-$coord <= halui.axis.$coord.pos-relative \
                                => xhc-hb04.$acoord.pos-relative
 
-    if ![pin_exists joint.$axno.jog-scale] {
+    if ![pin_exists joint.$jnum.jog-scale] {
       err_exit "Not configured for coords = $::XHC_HB04_CONFIG(coords),\
-      missing joint.$axno.* pins"
+      missing joint.$jnum.* pins"
     }
-    net pendant:jog-scale => joint.$axno.jog-scale
+    net pendant:jog-scale => joint.$jnum.jog-scale \
+                          => axis.$coord.jog-scale
 
     net pendant:wheel-counts                 => pendant_util.in$idx
     net pendant:wheel-counts-$coord-filtered <= pendant_util.out$idx \
-                                             => joint.$axno.jog-counts
+                                             => joint.$jnum.jog-counts \
+                                             => axis.$coord.jog-counts
 
     #-----------------------------------------------------------------------
     # multiplexer for ini.N.max_acceleration
-    if [catch {set std_accel [set ::JOINT_[set axno](MAX_ACCELERATION)]} msg] {
-      err_exit "Error: missing \[JOINT_[set axno]\]MAX_ACCELERATION"
+    if [catch {set std_accel [set ::JOINT_[set jnum](MAX_ACCELERATION)]} msg] {
+      err_exit "Error: missing \[JOINT_[set jnum]\]MAX_ACCELERATION"
     }
     setp pendant_util.amux$idx-in0 $std_accel
     if ![info exists ::XHC_HB04_CONFIG(accel,$idx)] {
@@ -276,29 +271,20 @@ proc wheel_setup {jogmode} {
     }
     setp pendant_util.amux$idx-in1 $::XHC_HB04_CONFIG(accel,$idx)
 
-    # This signal is named using $axno so the connection can be made
+    # This signal is named using $jnum so the connection can be made
     # later when the ini pins have been created
-    net pendant:muxed-accel-$axno <= pendant_util.amux$idx-out
+    net pendant:muxed-accel-$jnum <= pendant_util.amux$idx-out
     # a script running after task is started must connect:
-    # net pendant:muxed-accel-$axno => ini.$axno.max_acceleration
+    # net pendant:muxed-accel-$jnum => ini.$jnum.max_acceleration
 
     #-----------------------------------------------------------------------
-    switch $jogmode {
-      normal - vnormal {
-        net pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
-                               => joint.$axno.jog-enable
-      }
-      plus-minus {
-        # (Experimental) connect halui plus,minus pins
-        net pendant:jog-plus-$coord  <= xhc-hb04.jog.plus-$acoord  \
-                                     => halui.jog.$axno.plus
-        net pendant:jog-minus-$coord <= xhc-hb04.jog.minus-$acoord \
-                                     => halui.jog.$axno.minus
-      }
-    }
+    net pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
+                           => joint.$jnum.jog-enable \
+                           => axis.$coord.jog-enable
     switch $jogmode {
       vnormal {
-        setp joint.$axno.jog-vel-mode 1
+        setp joint.$jnum.jog-vel-mode 1
+        setp axis.$coord.jog-vel-mode 1
       }
     }
   }
@@ -306,21 +292,7 @@ proc wheel_setup {jogmode} {
     puts "\n$::progname:\n$mapmsg"
   }
 
-  switch $jogmode {
-    normal - vnormal {
-      net pendant:jog-speed <= halui.max-velocity.value
-      # not used: xhc-hb04.jog.velocity
-      # not used: xhc-hb04.jog.max-velocity
-    }
-    plus-minus {
-      # (Experimental)
-      # Note: the xhc-hb04 driver manages xhc-hb04.jog.velocity
-      net pendant:jog-max-velocity <= halui.max-velocity.value
-      net pendant:jog-max-velocity => xhc-hb04.jog.max-velocity
-      net pendant:jog-speed        <= xhc-hb04.jog.velocity
-      net pendant:jog-speed        => halui.jog-speed
-    }
-  }
+  net pendant:jog-speed <= halui.max-velocity.value
 
   setp halui.feed-override.scale 0.01
   net pendant:wheel-counts  => halui.feed-override.counts
@@ -474,18 +446,6 @@ switch -glob $::XHC_HB04_CONFIG(inch_or_mm) {
   default {}
 }
 
-# jogmodes:
-#   normal,vnormal: use motion pins:
-#               joint.N.jog-counts
-#               joint.N.jog-enable
-#               joint.N.jog-scale  (machine units per count)
-#               joint.N.jog-vel-mode
-
-#   plus-minus: use halui pins:   (Experimental)
-#               halui.jog.N.plus  (jog in + dir at jog-speed)
-#               halui.jog.N.minus (jog in - dir at jog-speed)
-#               halui.jog-speed   (applies to plus-minus jogging only)
-#
 if ![info exists ::XHC_HB04_CONFIG(jogmode)] {
   set ::XHC_HB04_CONFIG(jogmode) normal ;# default
 }
@@ -494,17 +454,12 @@ set jogmode $::XHC_HB04_CONFIG(jogmode)
 switch $jogmode {
   normal {}
   vnormal {}
-  plus-minus {}
   default {
     set ::XHC_HB04_CONFIG(jogmode) normal
     set msg "Unkknown jogmode <$jogmode>"
     set msg "$msg  Using $::XHC_HB04_CONFIG(jogmode)"
     popup_msg "$msg"
   }
-}
-
-set ct 0; foreach coord {x y z a b c u v w} {
-  set ::XHC_HB04_CONFIG($coord,axno) $ct;  incr ct
 }
 
 if [info exists ::XHC_HB04_CONFIG(coords)] {
