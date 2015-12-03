@@ -476,6 +476,20 @@ GetFromIniEx NML_FILE LINUXCNC NML_FILE EMC @DEFAULT_NMLFILE@
 NMLFILE=$retval
 export NMLFILE
 
+# 2.10. INI information that may be needed by other apps in process tree
+GetFromIni COORDINATES TRAJ
+TRAJ_COORDINATES=$retval
+export TRAJ_COORDINATES
+
+GetFromIni KINEMATICS KINS
+KINS_KINEMATICS=$retval
+export KINS_KINEMATICS
+
+GetFromIni DUH TRAJ
+TRAJ_DUH=$retval
+export TRAJ_DUH
+
+
 ################################################################################
 # 3. Done gathering information, define a few functions
 # Execution resumes after function definitions...
