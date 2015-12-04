@@ -485,11 +485,6 @@ GetFromIni KINEMATICS KINS
 KINS_KINEMATICS=$retval
 export KINS_KINEMATICS
 
-GetFromIni DUH TRAJ
-TRAJ_DUH=$retval
-export TRAJ_DUH
-
-
 ################################################################################
 # 3. Done gathering information, define a few functions
 # Execution resumes after function definitions...

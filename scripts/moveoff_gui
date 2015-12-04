@@ -716,7 +716,6 @@ proc get_parms {} {
          return "unknown axis letter <$letter>"
       }
     }
-#dng
     # make a list in usual order: eg from xyz to {x y z}
     foreach letter {x y z a b c u v w} {
       if {[string first $letter $::MV(parm,axes)] >= 0} {
@@ -763,9 +762,7 @@ proc set_restrictions_on_widgets {} {
 
 proc cross_reference {} {
   # return "" or errtxt
-  set letters {x y z a b c u v w}
   foreach aname $::MV(axes) {
-    #set jnum [lsearch $letters $aname]
     set jnum [joint_number_for_axis $aname]
     set ::MV($aname,jnum) $jnum
     set ::MV($jnum,aname) $aname ;# cross-ref
