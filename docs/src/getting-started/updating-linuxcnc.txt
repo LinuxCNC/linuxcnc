@@ -313,6 +313,14 @@ entries.  For example XYZB machine with identity kinematics:
   [AXIS_B]LOCKING_INDEXER_JOINT = 4
 
 
+=== AUTO_TELEOP
+
+The axis gui supports an option, [KINS]AUTO_TELEOP = nseconds, to cause
+an automatic switch to teleop mode after homing.  The nseconds parameter
+specifes the maxium time to wait after initiating homing with the
+Home-All button.  The setting is applicable only for kinematics that
+are not trivial (KINEMATICS_IDENTITY).
+
 
 === `shuttlexpress` driver renamed to `shuttle`
 
