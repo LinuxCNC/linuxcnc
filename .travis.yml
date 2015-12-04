@@ -11,7 +11,6 @@ notifications:
     on_failure: always
     on_start: never
 
-
 language: bash
 
 services:
@@ -24,6 +23,10 @@ env:
   matrix:
     - TAG=wheezy-64    CMD=run_tests
     - TAG=wheezy-64    CMD=build_deb
+    - TAG=wheezy-32    CMD=build_deb
+    - TAG=wheezy-armhf CMD=build_deb FLAV=posix
+    - TAG=wheezy-armhf CMD=build_deb FLAV=xenomai
+    - TAG=wheezy-armhf CMD=build_deb FLAV=rt_preempt
 
 script:
 - .travis/docker_run.sh
