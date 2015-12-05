@@ -14,9 +14,6 @@
 * Last change:
 ********************************************************************/
 
-#define JOGJOINT  1
-#define JOGTELEOP 0
-
 #define _REENTRANT
 
 #include <stdio.h>

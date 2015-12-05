@@ -42,8 +42,6 @@
 LINEAR_UNIT_CONVERSION linearUnitConversion;
 ANGULAR_UNIT_CONVERSION angularUnitConversion;
 
-#define JOGJOINT 1
-#define JOGAXIS  0
 static int num_joints = EMCMOT_MAX_JOINTS;
 
 int emcCommandSerialNumber;
@@ -563,7 +561,7 @@ int sendJogStop(int ja, int jjogmode)
 
     if (   (   (jjogmode == JOGJOINT)
             && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
-        || (   (jjogmode == JOGAXIS )
+        || (   (jjogmode == JOGTELEOP )
             && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
        ) {
        return -1;
@@ -589,7 +587,7 @@ int sendJogCont(int ja, int jjogmode, double speed)
     if (emcStatus->task.state != EMC_TASK_STATE_ON) { return -1; }
     if (   (  (jjogmode == JOGJOINT)
             && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
-        || (   (jjogmode == JOGAXIS )
+        || (   (jjogmode == JOGTELEOP )
             && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
        ) {
        return -1;
@@ -618,7 +616,7 @@ int sendJogIncr(int ja, int jjogmode, double speed, double incr)
     if (emcStatus->task.state != EMC_TASK_STATE_ON) { return -1; }
     if (   ( (jjogmode == JOGJOINT)
         && (  emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
-        || ( (jjogmode == JOGAXIS )
+        || ( (jjogmode == JOGTELEOP )
         && (  emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
        ) {
        return -1;
