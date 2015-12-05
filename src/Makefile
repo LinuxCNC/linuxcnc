@@ -283,7 +283,6 @@ HEADERS := \
     emc/tp/spherical_arc.h \
     emc/tp/blendmath.h \
     emc/motion/emcmotcfg.h \
-    emc/motion/emcmotglb.h \
     emc/motion/motion.h \
     emc/motion/usrmotintf.h \
     emc/nml_intf/canon.hh \
@@ -935,7 +934,6 @@ motmod-objs += emc/motion/motion.o
 motmod-objs += emc/motion/command.o
 motmod-objs += emc/motion/control.o
 motmod-objs += emc/motion/homing.o
-motmod-objs += emc/motion/emcmotglb.o
 motmod-objs += emc/motion/emcmotutil.o
 motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o
