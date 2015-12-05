@@ -338,8 +338,6 @@ int emcSystemCmd(char *s)
 	// we're the child
 	// convert string to argc/argv
 	argvize(s, buffer, argv, EMC_SYSTEM_CMD_LEN);
-	// drop any setuid privileges
-	setuid(getuid());
 	execvp(argv[0], argv);
 	// if we get here, we didn't exec
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
