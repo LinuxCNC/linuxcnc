@@ -25,9 +25,7 @@
 *
 ********************************************************************/
 
-#define JOGJOINT  1
-#define JOGTELEOP 0
-#define JOGMODE   JOGJOINT
+#define JOGMODE   JOGJOINT  
 
 #include <stdio.h>
 #include <string.h>

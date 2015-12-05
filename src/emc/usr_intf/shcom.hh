@@ -29,6 +29,9 @@
 #define RAD_PER_DEG TO_RAD	// from posemath.h
 #define DEFAULT_PATH "../../nc_files/"
 
+#define JOGTELEOP 0
+#define JOGJOINT  1
+
 enum LINEAR_UNIT_CONVERSION {
     LINEAR_UNITS_CUSTOM = 1,
     LINEAR_UNITS_AUTO,
