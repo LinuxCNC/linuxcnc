@@ -291,4 +291,29 @@ specifes the maxium time to wait after initiating homing with the
 Home-All button.  The setting is applicable only for kinematics that
 are not trivial (KINEMATICS_IDENTITY).
 
+=== linuxcncrsh
+
+The jogging commands have been altered to accomodate both joint (free)
+and teleop (world) jogging.  
+
+    was: set jog      joint_number             speed
+     is: set jog      joint_number|axis_letter speed
+    
+    was: set jog_incr joint_number             speed increment
+     is: set jog_incr joint_number|axis_letter speed increment
+    
+    was: set jog_stop
+     is: set jog_stop joint_number|axis_letter
+    
+    Note: Test for teleop mode using command: get teleop_enable
+          if TELEOP_ENABLE=YES, use axis_letter
+          else                  use joint_number
+    
+    Note: Formerly, the command 'set jog 0 1.234' would jog the zeroth
+    axis (X) with requested speed=1.234 in any mode (free or teleop).
+    This command now attemps to jog the zeroth joint (Joint0) provided
+    the mode is free (not teleop).  To jog the X axis, the mode
+    must be teleop and the corresponding command is: 'set jog x 1.234'
+
+
 // vim: set syntax=asciidoc:

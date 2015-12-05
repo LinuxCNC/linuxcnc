@@ -97,6 +97,7 @@ Once LinuxCNC is up and linuxcncrsh is running, you can connect to it using
 HOST is the hostname or IP address of the computer running linuxcncrsh, and
 PORT is the port it's listening on (5007 if you did not give linuxcncrsh the
 --port option).
+
 .RE
 .SH Network protocol
 .P
@@ -376,20 +377,26 @@ With set, loads the tool table specified by <file>.
 With set, homes the indicated axis.
 .RE
 .P
-\fBjog_stop {0|1|2|...}\fR
+\fBjog_stop joint_number|axis_letter\fR
 .RS
-With set, stop any in-progress jog on the specified axis.
+With set, stop any in-progress jog on the specified joint or axis.
+If TELEOP_ENABLE is  NO, use joint_number;
+If TELEOP_ENABLE is YES, use axis_letter.
 .RE
 .P
-\fBjog {0|1|2|...} <speed>\fR
+\fBjog joint_number|axis_letter <speed>\fR
 .RS
-With set, jog the specified axis at <speed>; sign of speed is direction.
+With set, jog the specified joint or axis at <speed>; sign of speed is direction.
+If TELEOP_ENABLE is  NO, use joint_number;
+If TELEOP_ENABLE is YES, use axis_letter.
 .RE
 .P
-\fBjog_incr {0|1|2|...} <speed> <incr>\fR
+\fBjog_incr jog_number|axis_letter <speed> <incr>\fR
 .RS
-With set, jog the indicated axis by increment <incr> at the <speed>; sign of
+With set, jog the indicated joint or axis by increment <incr> at the <speed>; sign of
 speed is direction.
+If TELEOP_ENABLE is  NO, use joint_number;
+If TELEOP_ENABLE is YES, use axis_letter.
 .RE
 .P
 \fBfeed_override <percent>\fR
@@ -664,8 +671,10 @@ setting is returned.  With set, the setting is set as specified.
 .RE
 .SH Example Session
 .P
-This section shows an example session.  Bold items are typed by you,
-non-bold is machine output.
+This section shows an example session to the local machine (\fBlocalhost\fR).
+Bold items are typed by you, non-bold is machine output.  Default values  are shown for
+--port PORT_NUMBER (\fB5007\fR), --conectpw PASSWORD (\fBEMC\fR), and
+--enablepw PASSWORD (\fBEMCTOO\fR).
 .P
 The user connects to linuxcncrsh, handshakes with the server (hello), enables
 machine commanding from this session (set enable), brings the machine
@@ -720,6 +729,30 @@ set mode mdi
 \fBset mdi g0x1\fR
 .br
 set mdi g0x1
+.br
+\fBhelp\fR
+.br
+help
+.br
+Available commands:
+  Hello <password> <client name> <protocol version>
+  Get <emc command>
+  Set <emc command>
+  Shutdown
+  Help <command>
+.br
+\fBhelp get\fR
+.br
+help get
+.br
+Usage:
+Get <emc command>
+  Get commands require that a hello has been successfully negotiated.
+  Emc command may be one of:
+    Abs_act_pos
+    Abs_cmd_pos
+.br
+\fB ... \fR
 .br
 \fBshutdown\fR
 .br
