@@ -3,7 +3,7 @@
 # this script is run inside a docker container
 
 PROOT_OPTS="-b /dev/shm -r ${CHROOT_PATH}"
-if echo ${TAG} | grep -iq arm; then
+if test ${MARCH} = armhf; then
     PROOT_OPTS="${PROOT_OPTS} -q qemu-arm-static"
 fi
 

@@ -8,6 +8,8 @@ DOCKER_CONTAINER=${DOCKER_CONTAINER:-"kinsamanka/mkdocker"}
 COMMITTER_NAME="$(git log -1 --pretty=format:%an)"
 COMMITTER_EMAIL="$(git log -1 --pretty=format:%ae)"
 COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"
+DISTRO=${TAG%-*}
+MARCH=${TAG#*-}
 # Verbose RIP build output:  "true" or "false"
 MK_BUILD_VERBOSE=${MK_BUILD_VERBOSE:-"false"}
 # Verbose package build output:  "true" or "false"
@@ -27,6 +29,8 @@ docker run \
     -e FLAV="${FLAV}" \
     -e JOBS=${JOBS} \
     -e TAG=${TAG} \
+    -e DISTRO=${DISTRO} \
+    -e MARCH=${MARCH} \
     -e CHROOT_PATH=${CHROOT_PATH} \
     -e MACHINEKIT_PATH=${MACHINEKIT_PATH} \
     -e TRAVIS_PATH=${TRAVIS_PATH} \

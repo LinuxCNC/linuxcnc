@@ -11,7 +11,6 @@ fi
 # Supplied variables for package configuration
 MAJOR_MINOR_VERSION="${MAJOR_MINOR_VERSION:-0.1}"
 PKGSOURCE="${PKGSOURCE:-travis.${TRAVIS_REPO_SLUG/\//.}}"
-DISTRO="${DISTRO:-${TAG%-*}}"
 DEBIAN_SUITE="${DEBIAN_SUITE:-experimental}"
 REPO_URL="${REPO_URL:-https://github.com/machinekit/machinekit}"
 
@@ -59,22 +58,20 @@ cat debian/changelog.old >> debian/changelog
 
 # build unsigned packages and sources on amd64
 DEBUILD_OPTS+=" -eDEB_BUILD_OPTIONS=parallel=${JOBS} -us -uc -j${JOBS}"
-# the rest will be binaries only
-if [[ ${TAG} != *"64"* ]]; then
+if test ${MARCH} = 64; then
+    # create upstream tarball only on amd64
+    (
+	cd ${CHROOT_PATH}${MACHINEKIT_PATH}
+	git archive HEAD | bzip2 -z > \
+            ../machinekit_${VERSION}.orig.tar.bz2
+    )
+else
+    # the rest will be binaries only
     DEBUILD_OPTS+=" -b"
 fi
 
-# create upstream tarball only on amd64
-if [[ ${TAG} == *"64"* ]]; then
-(
-    cd ${CHROOT_PATH}${MACHINEKIT_PATH}
-    git archive HEAD | bzip2 -z > \
-        ../machinekit_${VERSION}.orig.tar.bz2
-)
-fi
-
 PROOT_OPTS="-b /dev/shm -r ${CHROOT_PATH}"
-if echo ${TAG} | grep -iq arm; then
+if test ${MARCH} = armhf; then
     PROOT_OPTS="${PROOT_OPTS} -q qemu-arm-static"
 fi
 
@@ -102,7 +99,7 @@ cp ${CHROOT_PATH}/${MACHINEKIT_PATH}/../*deb \
     ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
 
 # copy source
-if [[ ${TAG} == *"64"* ]]; then
+if test ${MARCH} = 64; then
 (
     cd ${CHROOT_PATH}/${MACHINEKIT_PATH}/../
     cp *bz2 *dsc *changes ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
