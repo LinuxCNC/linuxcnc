@@ -15,16 +15,16 @@ DEBIAN_SUITE="${DEBIAN_SUITE:-experimental}"
 REPO_URL="${REPO_URL:-https://github.com/machinekit/machinekit}"
 
 # Compute version
-if test "$TRAVIS_PULL_REQUEST" = "false"; then
+if ${IS_PR}; then
     # Use build timestamp (now) as pkg version patchlevel
     TIMESTAMP="$(date +%s)"
-    PR_OR_BRANCH="${TRAVIS_BRANCH}"
-    COMMIT_URL="${REPO_URL}/commit/${TRAVIS_COMMIT:0:8}"
+    PR_OR_BRANCH="pr${TRAVIS_PULL_REQUEST}"
+    COMMIT_URL="${REPO_URL}/pull/${TRAVIS_PULL_REQUEST}"
 else
     # Use merge commit timestamp as pkg version patchlevel
     TIMESTAMP="$COMMIT_TIMESTAMP"
-    PR_OR_BRANCH="pr${TRAVIS_PULL_REQUEST}"
-    COMMIT_URL="${REPO_URL}/pull/${TRAVIS_PULL_REQUEST}"
+    PR_OR_BRANCH="${TRAVIS_BRANCH}"
+    COMMIT_URL="${REPO_URL}/commit/${TRAVIS_COMMIT:0:8}"
 fi
 
 # sanitize upstream version
