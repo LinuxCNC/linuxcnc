@@ -771,7 +771,7 @@ status</property>
                                         <child>
                                           <object class="HAL_DRO" id="dro_a3">
                                             <property name="label" translatable="yes">label</property>
-                                            <property name="reference_type">1</property>
+                                            <property name="reference_type">2</property>
                                             <property name="joint_number">3</property>
                                             <attributes>
                                               <attribute name="weight" value="heavy"/>
