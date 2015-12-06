@@ -254,18 +254,7 @@ double tcGetDistanceToGo(TC_STRUCT const * const tc, int direction)
 
 double tcGetTarget(TC_STRUCT const * const tc, int direction)
 {
-    // Trivial case if in forward direction
-    if (direction == TC_DIR_FORWARD) {
-        return tc->target;
-    }
-
-    switch (tc->motion_type) {
-        case TC_SPHERICAL:
-            // initial "target" may be negative if there is a consumed line
-            return -tc->coords.arc.xyz.line_length;
-        default:
-            return 0;
-    }
+    return (direction == TC_DIR_REVERSE) ? 0.0 : tc->target;
 }
 
 
