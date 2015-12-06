@@ -156,7 +156,7 @@ class OffsetPage(gtk.VBox):
     # Reload the offsets into display
     def reload_offsets(self):
         g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3 = self.read_file()
-
+        if g54 == None: return
         # Get the offsets arrays and convert the units if the display
         # is not in machine native units
         g5x = self.status.g5x_offset
@@ -214,44 +214,47 @@ class OffsetPage(gtk.VBox):
     # and pull out the info we need
     # if anything goes wrong we set all the info to 0
     def read_file(self):
-        g54 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        g55 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        g56 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        g57 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        g58 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        g59 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        g59_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        g59_2 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        g59_3 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        if self.filename == None:
-            return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
-        if not os.path.exists(self.filename):
-            return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
-        logfile = open(self.filename, "r").readlines()
-        for line in logfile:
-            temp = line.split()
-            param = int(temp[0])
-            data = float(temp[1])
+        try:
+            g54 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g55 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g56 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g57 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g58 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59_2 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59_3 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            if self.filename == None:
+                return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
+            if not os.path.exists(self.filename):
+                return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
+            logfile = open(self.filename, "r").readlines()
+            for line in logfile:
+                temp = line.split()
+                param = int(temp[0])
+                data = float(temp[1])
 
-            if 5229 >= param >= 5221:
-                g54[param - 5221] = data
-            elif 5249 >= param >= 5241:
-                g55[param - 5241] = data
-            elif 5269 >= param >= 5261:
-                g56[param - 5261] = data
-            elif 5289 >= param >= 5281:
-                g57[param - 5281] = data
-            elif 5309 >= param >= 5301:
-                g58[param - 5301] = data
-            elif 5329 >= param >= 5321:
-                g59[param - 5321] = data
-            elif 5349 >= param >= 5341:
-                g59_1[param - 5341] = data
-            elif 5369 >= param >= 5361:
-                g59_2[param - 5361] = data
-            elif 5389 >= param >= 5381:
-                g59_3[param - 5381] = data
-        return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
+                if 5229 >= param >= 5221:
+                    g54[param - 5221] = data
+                elif 5249 >= param >= 5241:
+                    g55[param - 5241] = data
+                elif 5269 >= param >= 5261:
+                    g56[param - 5261] = data
+                elif 5289 >= param >= 5281:
+                    g57[param - 5281] = data
+                elif 5309 >= param >= 5301:
+                    g58[param - 5301] = data
+                elif 5329 >= param >= 5321:
+                    g59[param - 5321] = data
+                elif 5349 >= param >= 5341:
+                    g59_1[param - 5341] = data
+                elif 5369 >= param >= 5361:
+                    g59_2[param - 5361] = data
+                elif 5389 >= param >= 5381:
+                    g59_3[param - 5381] = data
+            return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
+        except:
+            return None, None, None, None, None, None, None, None, None
 
     # This allows hiding or showing columns from a text string of columnns
     # eg list ='ab'
