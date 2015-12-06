@@ -11,21 +11,20 @@ fi
 # Supplied variables for package configuration
 MAJOR_MINOR_VERSION="${MAJOR_MINOR_VERSION:-0.1}"
 PKGSOURCE="${PKGSOURCE:-travis.${TRAVIS_REPO_SLUG/\//.}}"
-DISTRO="${DISTRO:-${TAG%-*}}"
 DEBIAN_SUITE="${DEBIAN_SUITE:-experimental}"
 REPO_URL="${REPO_URL:-https://github.com/machinekit/machinekit}"
 
 # Compute version
-if test "$TRAVIS_PULL_REQUEST" = "false"; then
+if ${IS_PR}; then
     # Use build timestamp (now) as pkg version patchlevel
     TIMESTAMP="$(date +%s)"
-    PR_OR_BRANCH="${TRAVIS_BRANCH}"
-    COMMIT_URL="${REPO_URL}/commit/${TRAVIS_COMMIT:0:8}"
+    PR_OR_BRANCH="pr${TRAVIS_PULL_REQUEST}"
+    COMMIT_URL="${REPO_URL}/pull/${TRAVIS_PULL_REQUEST}"
 else
     # Use merge commit timestamp as pkg version patchlevel
     TIMESTAMP="$COMMIT_TIMESTAMP"
-    PR_OR_BRANCH="pr${TRAVIS_PULL_REQUEST}"
-    COMMIT_URL="${REPO_URL}/pull/${TRAVIS_PULL_REQUEST}"
+    PR_OR_BRANCH="${TRAVIS_BRANCH}"
+    COMMIT_URL="${REPO_URL}/commit/${TRAVIS_COMMIT:0:8}"
 fi
 
 # sanitize upstream version
@@ -59,22 +58,20 @@ cat debian/changelog.old >> debian/changelog
 
 # build unsigned packages and sources on amd64
 DEBUILD_OPTS+=" -eDEB_BUILD_OPTIONS=parallel=${JOBS} -us -uc -j${JOBS}"
-# the rest will be binaries only
-if [[ ${TAG} != *"64"* ]]; then
+if test ${MARCH} = 64; then
+    # create upstream tarball only on amd64
+    (
+	cd ${CHROOT_PATH}${MACHINEKIT_PATH}
+	git archive HEAD | bzip2 -z > \
+            ../machinekit_${VERSION}.orig.tar.bz2
+    )
+else
+    # the rest will be binaries only
     DEBUILD_OPTS+=" -b"
 fi
 
-# create upstream tarball only on amd64
-if [[ ${TAG} == *"64"* ]]; then
-(
-    cd ${CHROOT_PATH}${MACHINEKIT_PATH}
-    git archive HEAD | bzip2 -z > \
-        ../machinekit_${VERSION}.orig.tar.bz2
-)
-fi
-
 PROOT_OPTS="-b /dev/shm -r ${CHROOT_PATH}"
-if echo ${TAG} | grep -iq arm; then
+if test ${MARCH} = armhf; then
     PROOT_OPTS="${PROOT_OPTS} -q qemu-arm-static"
 fi
 
@@ -102,7 +99,7 @@ cp ${CHROOT_PATH}/${MACHINEKIT_PATH}/../*deb \
     ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
 
 # copy source
-if [[ ${TAG} == *"64"* ]]; then
+if test ${MARCH} = 64; then
 (
     cd ${CHROOT_PATH}/${MACHINEKIT_PATH}/../
     cp *bz2 *dsc *changes ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
