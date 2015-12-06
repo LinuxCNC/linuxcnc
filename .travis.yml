@@ -14,15 +14,19 @@ notifications:
 language: bash
 
 services:
-- docker
+  - docker
 
 before_install:
   - gem install package_cloud
+  - .travis/get_sftp_key.sh 
 
 env:
   global:
     - ROOT=/opt/rootfs
     - JOBS=2
+    - SFTP_DEPLOY_PORT="${SFTP_DEPLOY_PORT:-22}"
+    - SFTP_DEPLOY_USER="${SFTP_DEPLOY_USER:-travis}"
+    - SFTP_DEPLOY_ADDR="${SFTP_DEPLOY_ADDR:-empty}"
   matrix:
     - TAG=wheezy-64    CMD=run_tests
     - TAG=wheezy-64    CMD=build_deb
@@ -32,5 +36,11 @@ env:
     - TAG=wheezy-armhf CMD=build_deb FLAV=rt_preempt
 
 script:
-- .travis/docker_run.sh
+  - .travis/docker_run.sh
+
+after_success:
+  - .travis/send_binaries.sh
+
+after_script:
+  - .travis/send_status.sh
 
