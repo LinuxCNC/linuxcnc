@@ -8,7 +8,8 @@ if [ "${CMD}" = "run_tests" ]; then
 fi
 
 # skip upload on failure
-if [ "${TRAVIS_TEST_RESULT}" -eq 0 ] && [ "${CMD}" = "build_deb" ]; then
+if [ "${TRAVIS_TEST_RESULT}" -eq 0 ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ] \
+        && [ "${CMD}" = "build_deb" ]; then
     PACKAGECLOUD_REPO=${PACKAGECLOUD_REPO:-machinekit}
     repo=${PACKAGECLOUD_USER}/${PACKAGECLOUD_REPO}/debian/${DISTRO}
 
