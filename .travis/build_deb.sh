@@ -95,20 +95,14 @@ proot ${PROOT_OPTS} /bin/sh -exc 'cd ${MACHINEKIT_PATH}; \
 
 # copy results
 mkdir ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
-cp ${CHROOT_PATH}/${MACHINEKIT_PATH}/../*deb \
-    ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
+chmod 0777 ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
+cd ${CHROOT_PATH}/${MACHINEKIT_PATH}/../
+cp *deb *changes ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
 
 # copy source
 if test ${MARCH} = 64; then
-(
-    cd ${CHROOT_PATH}/${MACHINEKIT_PATH}/../
-    cp *bz2 *dsc *changes ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
-)
+    cp *bz2 *dsc ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
 fi
 
-# delete extra debs as packagecloud fails if files have the same name
-if [ "${FLAV}" == "rt_preempt" ] || [ "${FLAV}" == "xenomai" ]; then
-    rm ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy/machinekit_*
-    rm ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy/machinekit-dev*
-fi
+chmod 0666 ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy/*
 
