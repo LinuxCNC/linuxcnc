@@ -269,6 +269,8 @@ include::motion/kinematics.txt[]
 
 include::motion/pid-theory.txt[]
 
+include::code/rs274.txt[]
+
 :leveloffset: 0
 
 include::common/glossary.txt[]
