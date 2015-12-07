@@ -1,4 +1,5 @@
-#!/bin/bash -x
+#!/bin/bash -e
+# do not enable verbosity as the PACKAGECLOUD_TOKEN will be visible
 
 DISTRO=${TAG%-*}
 MARCH=${TAG#*-}
@@ -9,6 +10,7 @@ fi
 
 # skip upload on failure
 if [ "${TRAVIS_TEST_RESULT}" -eq 0 ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ] \
+        && [ ! -z ${PACKAGECLOUD_USER+x} ] && [ ! -z ${PACKAGECLOUD_TOKEN+x} ] \
         && [ "${CMD}" = "build_deb" ]; then
     PACKAGECLOUD_REPO=${PACKAGECLOUD_REPO:-machinekit}
     repo=${PACKAGECLOUD_USER}/${PACKAGECLOUD_REPO}/debian/${DISTRO}
