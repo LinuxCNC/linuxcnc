@@ -442,7 +442,7 @@ ifeq ($(BUILD_SYS),kbuild)
 
 modules:
 	MAKEFLAGS="$(filter-out --warn-undefined-variables,$(MAKEFLAGS))" \
-	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
+	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=$(BUILD_VERBOSE) modules
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
