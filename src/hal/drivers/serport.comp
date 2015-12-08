@@ -105,7 +105,7 @@ FUNCTION(read) {
     pin_9_in_not = (i & RI) == RI;
 
     pin_1_in = (i & DCD) == 0;
-    pin_1_in_not = !(i & DCD) == DCD;
+    pin_1_in_not = (i & DCD) == DCD;
 
     pin_6_in = (i & DSR) == 0;
     pin_6_in_not = (i & DSR) == DSR;
