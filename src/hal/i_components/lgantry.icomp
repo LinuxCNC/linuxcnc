@@ -186,6 +186,13 @@ FUNCTION(write)
             }
         }
     }
+    else
+    {
+        // save prev command when not homing or we will get a big delta
+        // and joint following errors or more when we switching to homing mode
+        // on a high joint positon
+        prev_cmd = position_cmd;
+    }
 
     // Update each joint's commanded position
     for (i = 0; i < localpincount; i++) {
