@@ -1,3 +1,9 @@
+ver. 1.5.5.4
+- corrected a error shown on start up, because I used greeen instead of green
+- glade file did contain a signal "on_gremlin_clicked", but gmoccapy did not offer a handler,
+  resulting in error messages in the terminal on start up. the unneeded signal has been errased
+- The horizontal buttons of gmoccapy will stay synconized with the iconview widget
+ 
 ver. 1.5.5.3
 - deleted the working area limit pin, as this can be realized better
   with standard hal pin and did not work well with gmoccapy
