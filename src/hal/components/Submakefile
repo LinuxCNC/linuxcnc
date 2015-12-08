@@ -70,6 +70,15 @@ USERSRCS += $(HALSAMPLERSRCS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halsampler
 
+PYSAMPLERSRCS := hal/components/panelui.c
+USERSRCS += $(PYSAMPLERSRCS)
+PYFLAGS := -L$(SITEPY) -lpthread -ldl -lutil -lm -l$(LIBPYTHON) -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
+
+../bin/panelui: $(call TOOBJS, $(PYSAMPLERSRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(PYFLAGS)
+TARGETS += ../bin/panelui
+
 hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh float s32 "" -2147483647-1 2147483647 < $< > $@
