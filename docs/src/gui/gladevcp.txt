@@ -1423,6 +1423,11 @@ The widget will emit the following signals:
     selected
         This signal is emitted, when the user selects an icon, it will return a string containing a
         file path if a file has been selected, or None if an directory has been selected
+    sensitive
+        This signal is emitted, when the buttons change there state from sensitive to not sensitive or vice versa. 
+        This signal is usefull to mantain surrounding GUI synconized with the button of the widget. See gmoccapy as example.
+        It will return the buttonname and the new state. Buttonname is one of "btn_home", "btn_dir_up", "btn_sel_prev",
+        "btn_sel_next", "btn_jump_to" or "btn_select". State is a boolean and will be True or False.
     exit
         This signal is Emmit, when the exit button has been pressed to close the IconView
         mostly needed if the application is started as stand alone.
