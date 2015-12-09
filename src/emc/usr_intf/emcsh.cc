@@ -1854,8 +1854,6 @@ static int emc_jog_incr(ClientData clientdata,
 	setresult(interp,"emc_jog_incr: need increment as real number");
 	return TCL_ERROR;
     }
-fprintf(stderr,"Incr emcsh sendJogIncr joint=%d jjogmode=%d speed=%.3f incr=%.3f\n"
-,joint,jjogmode,speed,incr);
     if (0 != sendJogIncr(joint, jjogmode, speed, incr)) {
 	setresult(interp,"emc_jog_incr: can't jog");
 	return TCL_OK;
