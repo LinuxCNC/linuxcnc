@@ -555,6 +555,7 @@ int emcSetupArcBlends(int arcBlendEnable,
         int arcBlendGapCycles,
         double arcBlendRampFreq,
         double arcBlendTangentKinkRatio);
+int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit);
 
 extern int emcUpdate(EMC_STAT * stat);
 // full EMC status
