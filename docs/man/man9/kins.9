@@ -106,10 +106,18 @@ with the \fBcoordinates=\fR parameter.
 Example: loadrt \fBgentrivkins coordinates=xyz\fR
 .TQ
 Assigns: x==joint0, y==joint1, z==joint2
+
 .TQ
 Example: loadrt \fBgentrivkins coordinates=xz\fR
 .TQ
-Assigns: x==joint0, z=joint1
+Assigns: x==joint0, z==joint1
+
+.TQ
+An axis letter may be assigned more than once
+.TQ
+Example: coordinates=\fBxyyzw\fR
+.TQ
+Assigns: x==joint0, y==joint1 \fBAND\fR joint2, z==joint3, w==joint4
 
 .TP
 If not specified, \fBcoordinates=\fRxyzabcuvw is used resulting in assignments:
@@ -131,6 +139,9 @@ The default kinematics type is KINEMATICS_IDENTITY. The kinematics type can be s
 
 .TP
 Example: loadrt \fBgentrivkins coordinates=xyz kinstype=b\fR
+
+.TP
+The \fBkinstype=\fR parameter is provided for testing, guis (like axis) may provide special features for kinematics that are KINEMATICS_IDENTITY (the default).
 
 .SS pumakins \- kinematics for puma typed robots
 Kinematics for a puma-style robot with 6 joints
