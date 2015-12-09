@@ -623,6 +623,12 @@ int main(int argc, char* argv[]) {
                 log_print("SETUP_ARC_BLENDS\n");
                 break;
 
+            case EMCMOT_SET_PROBE_ERR_INHIBIT:
+                log_print("SETUP_SET_PROBE_ERR_INHIBIT %d %d\n",
+                          c->probe_jog_err_inhibit,
+                          c->probe_home_err_inhibit);
+                break;
+
             default:
                 log_print("ERROR: unknown command %d\n", c->command);
                 break;
