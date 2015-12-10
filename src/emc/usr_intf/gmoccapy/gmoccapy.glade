@@ -36,7 +36,6 @@
     <property name="value">1500</property>
     <property name="upper">10500</property>
     <property name="step_increment">50</property>
-    <signal name="value_changed" handler="on_adj_jog_vel_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_max_messages">
     <property name="value">10</property>
@@ -53,7 +52,7 @@
   </object>
   <object class="GtkAdjustment" id="adj_probe_height">
     <property name="value">32.429000000000002</property>
-    <property name="upper">100</property>
+    <property name="upper">999</property>
     <property name="step_increment">0.001</property>
   </object>
   <object class="GtkAdjustment" id="adj_scale_feed_override">
@@ -172,6 +171,7 @@
     <signal name="mode_mdi" handler="on_hal_status_mode_mdi"/>
     <signal name="state_on" handler="on_hal_status_state_on"/>
     <signal name="mode_auto" handler="on_hal_status_mode_auto"/>
+    <signal name="line_changed" handler="on_hal_status_line_changed"/>
     <signal name="file_loaded" handler="on_hal_status_file_loaded"/>
     <signal name="all_homed" handler="on_hal_status_all_homed"/>
     <signal name="interp_idle" handler="on_hal_status_interp_idle"/>
@@ -499,10 +499,9 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
-                                            <property name="show_dtg">False</property>
                                             <property name="enable_dro">False</property>
+                                            <property name="show_dtg">False</property>
                                             <property name="use_commanded">False</property>
-                                            <signal name="button_press_event" handler="on_gremlin_button_press_event"/>
                                             <signal name="line_clicked" handler="on_gremlin_line_clicked"/>
                                             <signal name="gcode_error" handler="on_gremlin_gcode_error"/>
                                           </object>
@@ -778,8 +777,8 @@
                                 <child>
                                   <object class="OffsetPage" id="offsetpage1">
                                     <property name="visible">True</property>
-                                    <property name="highlight_color">#adadd8d8e6e6</property>
                                     <property name="foreground_color">#ffff00000000</property>
+                                    <property name="highlight_color">#adadd8d8e6e6</property>
                                     <signal name="selection_changed" handler="on_offsetpage1_selection_changed"/>
                                   </object>
                                   <packing>
@@ -820,6 +819,7 @@
                                     <property name="filetypes">ngc,py,bmp</property>
                                     <signal name="selected" handler="on_IconFileSelection1_selected"/>
                                     <signal name="exit" handler="on_IconFileSelection1_exit"/>
+                                    <signal name="sensitive" handler="on_IconFileSelection1_sensitive"/>
                                   </object>
                                   <packing>
                                     <property name="position">3</property>
@@ -926,12 +926,12 @@
                                       <object class="Combi_DRO" id="Combi_DRO_x">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="font_size">28</property>
                                         <property name="unhomed_color">#ffff00000000</property>
-                                        <property name="abs_color">#00000000ffff</property>
+                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
-                                        <property name="homed_color">#0000ffff0000</property>
                                         <signal name="system_changed" handler="on_Combi_DRO_system_changed"/>
                                         <signal name="units_changed" handler="on_Combi_DRO_units_changed"/>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
@@ -944,13 +944,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_y">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="font_size">28</property>
                                         <property name="unhomed_color">#ffff00000000</property>
                                         <property name="joint_number">1</property>
-                                        <property name="abs_color">#00000000ffff</property>
+                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
-                                        <property name="homed_color">#0000ffff0000</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -961,13 +961,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_z">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="font_size">28</property>
                                         <property name="unhomed_color">#ffff00000000</property>
                                         <property name="joint_number">2</property>
-                                        <property name="abs_color">#00000000ffff</property>
+                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
-                                        <property name="homed_color">#0000ffff0000</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -978,13 +978,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_4">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="font_size">28</property>
                                         <property name="unhomed_color">#ffff00000000</property>
                                         <property name="joint_number">3</property>
-                                        <property name="abs_color">#00000000ffff</property>
+                                        <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
-                                        <property name="homed_color">#0000ffff0000</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -1007,58 +1007,68 @@
                                 <property name="visible">True</property>
                                 <property name="show_tabs">False</property>
                                 <child>
-                                  <object class="GtkVBox" id="vbox_jog">
+                                  <object class="GtkFrame" id="frm_jogging">
                                     <property name="visible">True</property>
+                                    <property name="label_xalign">0.5</property>
                                     <child>
-                                      <object class="GtkHBox" id="hbox_jog_vel">
-                                        <property name="height_request">50</property>
+                                      <object class="GtkAlignment" id="ali_jogging">
                                         <property name="visible">True</property>
+                                        <property name="bottom_padding">5</property>
+                                        <property name="left_padding">5</property>
+                                        <property name="right_padding">5</property>
                                         <child>
-                                          <object class="GtkLabel" id="lbl_jog_vel">
-                                            <property name="width_request">85</property>
-                                            <property name="visible">True</property>
-                                            <property name="label" translatable="yes">Jog. Vel.</property>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkHScale" id="scl_jog_vel">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="adjustment">adj_jog_vel</property>
-                                            <property name="digits">0</property>
-                                          </object>
-                                          <packing>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkHBox" id="hbox_jog">
-                                        <property name="visible">True</property>
-                                        <child>
-                                          <object class="GtkVBox" id="vbox_jog_button">
-                                            <property name="width_request">240</property>
+                                          <object class="GtkVBox" id="vbox_jog">
                                             <property name="visible">True</property>
                                             <child>
-                                              <object class="GtkFrame" id="frm_jog_button">
+                                              <object class="GtkHBox" id="hbox_jog_vel">
+                                                <property name="height_request">50</property>
                                                 <property name="visible">True</property>
-                                                <property name="label_xalign">0.5</property>
                                                 <child>
-                                                  <object class="GtkAlignment" id="ali_jog_button">
+                                                  <object class="GtkHScale" id="scl_jog_vel">
                                                     <property name="visible">True</property>
-                                                    <property name="top_padding">5</property>
-                                                    <property name="bottom_padding">5</property>
-                                                    <property name="left_padding">5</property>
-                                                    <property name="right_padding">5</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="adjustment">adj_jog_vel</property>
+                                                    <property name="digits">0</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkToggleButton" id="tbtn_turtle_jog">
+                                                    <property name="width_request">50</property>
+                                                    <property name="height_request">50</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <signal name="toggled" handler="on_tbtn_turtle_jog_toggled"/>
+                                                    <child>
+                                                      <object class="GtkImage" id="img_rabbit_jog">
+                                                        <property name="width_request">36</property>
+                                                        <property name="height_request">36</property>
+                                                        <property name="visible">True</property>
+                                                        <property name="pixbuf">images/rabbit_jog.png</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkHBox" id="hbox_jog">
+                                                <property name="visible">True</property>
+                                                <child>
+                                                  <object class="GtkVBox" id="vbx_jog_button">
+                                                    <property name="visible">True</property>
                                                     <child>
                                                       <object class="GtkTable" id="tbl_jog_btn">
                                                         <property name="visible">True</property>
@@ -1232,41 +1242,37 @@
                                                           <placeholder/>
                                                         </child>
                                                       </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">False</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkCheckButton" id="chk_ignore_limits">
+                                                        <property name="label" translatable="yes">Ignore limits</property>
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="receives_default">False</property>
+                                                        <property name="draw_indicator">True</property>
+                                                        <signal name="toggled" handler="on_chk_ignore_limits_toggled"/>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">False</property>
+                                                        <property name="padding">5</property>
+                                                        <property name="pack_type">end</property>
+                                                        <property name="position">1</property>
+                                                      </packing>
                                                     </child>
                                                   </object>
+                                                  <packing>
+                                                    <property name="position">0</property>
+                                                  </packing>
                                                 </child>
-                                                <child type="label">
-                                                  <object class="GtkLabel" id="lbl_jogging">
-                                                    <property name="visible">True</property>
-                                                    <property name="label" translatable="yes">&lt;b&gt;Jogging&lt;/b&gt;</property>
-                                                    <property name="use_markup">True</property>
-                                                  </object>
-                                                </child>
-                                              </object>
-                                              <packing>
-                                                <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkFrame" id="frm_jog_rates">
-                                            <property name="width_request">120</property>
-                                            <property name="visible">True</property>
-                                            <property name="label_xalign">0.5</property>
-                                            <child>
-                                              <object class="GtkAlignment" id="ali_jog_rates">
-                                                <property name="visible">True</property>
-                                                <property name="top_padding">5</property>
-                                                <property name="bottom_padding">5</property>
-                                                <property name="left_padding">5</property>
-                                                <property name="right_padding">5</property>
                                                 <child>
-                                                  <object class="GtkVButtonBox" id="vbuttonbox2">
-                                                    <property name="width_request">50</property>
+                                                  <object class="GtkVButtonBox" id="vbtb_jog_incr">
+                                                    <property name="width_request">110</property>
                                                     <property name="visible">True</property>
                                                     <property name="spacing">3</property>
                                                     <child>
@@ -1285,51 +1291,36 @@
                                                       <placeholder/>
                                                     </child>
                                                   </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="pack_type">end</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
                                                 </child>
                                               </object>
+                                              <packing>
+                                                <property name="padding">3</property>
+                                                <property name="position">1</property>
+                                              </packing>
                                             </child>
-                                            <child type="label">
-                                              <object class="GtkLabel" id="lbl_steps">
-                                                <property name="visible">True</property>
-                                                <property name="label" translatable="yes">&lt;b&gt;Jog Rates&lt;/b&gt;</property>
-                                                <property name="use_markup">True</property>
+                                            <child>
+                                              <object class="GtkImage" id="img_logo">
+                                                <property name="pixbuf">images/Logo.png</property>
                                               </object>
+                                              <packing>
+                                                <property name="position">2</property>
+                                              </packing>
                                             </child>
                                           </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="padding">2</property>
-                                            <property name="pack_type">end</property>
-                                            <property name="position">0</property>
-                                          </packing>
                                         </child>
                                       </object>
-                                      <packing>
-                                        <property name="position">1</property>
-                                      </packing>
                                     </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="chk_ignore_limits">
-                                        <property name="label" translatable="yes">Ignore limits</property>
+                                    <child type="label">
+                                      <object class="GtkLabel" id="lbl_jogging">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="draw_indicator">True</property>
-                                        <signal name="toggled" handler="on_chk_ignore_limits_toggled"/>
+                                        <property name="label" translatable="yes">&lt;b&gt;Jogging&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
                                       </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">2</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkImage" id="img_logo">
-                                        <property name="pixbuf">images/Logo.png</property>
-                                      </object>
-                                      <packing>
-                                        <property name="position">3</property>
-                                      </packing>
                                     </child>
                                   </object>
                                 </child>
@@ -1700,7 +1691,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="xalign">1</property>
                                                         <property name="ypad">3</property>
-                                                        <property name="label">10000</property>
+                                                        <property name="label">0</property>
                                                         <attributes>
                                                           <attribute name="style" value="normal"/>
                                                           <attribute name="weight" value="bold"/>
@@ -2094,7 +2085,7 @@
                                                             <child>
                                                             <object class="GtkLabel" id="lbl_spindle_act">
                                                             <property name="visible">True</property>
-                                                            <property name="label">S 3500</property>
+                                                            <property name="label">S 0</property>
                                                             <attributes>
                                                             <attribute name="weight" value="bold"/>
                                                             <attribute name="scale" value="1.500000"/>
@@ -2244,16 +2235,16 @@
                                                             <child>
                                                             <object class="HAL_HBar" id="spindle_feedback_bar">
                                                             <property name="visible">True</property>
-                                                            <property name="bg_color">#bebebebebebe</property>
-                                                            <property name="max">6000</property>
-                                                            <property name="z1_color">#0000ffff0000</property>
-                                                            <property name="z1_border">0.80000001192092896</property>
-                                                            <property name="z2_color">#0000ffff0000</property>
-                                                            <property name="target_color">#0000ffff0000</property>
-                                                            <property name="z0_border">0.40000000596046448</property>
-                                                            <property name="target_value">-0.039999999105930328</property>
                                                             <property name="z0_color">#0000ffff0000</property>
+                                                            <property name="bg_color">#bebebebebebe</property>
+                                                            <property name="target_color">#0000ffff0000</property>
                                                             <property name="text_template">%i</property>
+                                                            <property name="z1_color">#0000ffff0000</property>
+                                                            <property name="target_value">-0.039999999105930328</property>
+                                                            <property name="z1_border">0.80000001192092896</property>
+                                                            <property name="max">6000</property>
+                                                            <property name="z2_color">#0000ffff0000</property>
+                                                            <property name="z0_border">0.40000000596046448</property>
                                                             </object>
                                                             <packing>
                                                             <property name="position">0</property>
@@ -2263,6 +2254,7 @@
                                                             <object class="HAL_LED" id="spindle_at_speed_led">
                                                             <property name="visible">True</property>
                                                             <property name="led_blink_rate">0</property>
+                                                            <property name="pick_color_on">#0000ffff0000</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -2594,26 +2586,6 @@
                   <object class="GtkNotebook" id="ntb_setup">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <child>
-                      <object class="GtkScrolledWindow" id="terminal_window">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hscrollbar_policy">never</property>
-                        <property name="shadow_type">out</property>
-                        <child>
-                          <placeholder/>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="tab">
-                      <object class="GtkLabel" id="lbl_ntb_setup_debug">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Debug</property>
-                      </object>
-                      <packing>
-                        <property name="tab_fill">False</property>
-                      </packing>
-                    </child>
                     <child>
                       <object class="GtkNotebook" id="ntb_setup_pages">
                         <property name="visible">True</property>
@@ -3033,64 +3005,6 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFrame" id="frm_gremlin_gridsize">
-                                    <property name="visible">True</property>
-                                    <property name="label_xalign">0.5</property>
-                                    <child>
-                                      <object class="GtkAlignment" id="ali_gremlin_gridsize">
-                                        <property name="visible">True</property>
-                                        <property name="top_padding">5</property>
-                                        <property name="bottom_padding">5</property>
-                                        <property name="left_padding">3</property>
-                                        <property name="right_padding">3</property>
-                                        <child>
-                                          <object class="GtkHBox" id="hbox16">
-                                            <property name="visible">True</property>
-                                            <child>
-                                              <object class="GtkLabel" id="label8">
-                                                <property name="visible">True</property>
-                                                <property name="xalign">0</property>
-                                                <property name="label" translatable="yes">Grid size</property>
-                                              </object>
-                                              <packing>
-                                                <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkSpinButton" id="grid_size">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="invisible_char">&#x25CF;</property>
-                                                <property name="xalign">1</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
-                                                <property name="adjustment">adj_grid_size</property>
-                                                <property name="digits">3</property>
-                                                <signal name="value_changed" handler="on_grid_size_value_changed"/>
-                                              </object>
-                                              <packing>
-                                                <property name="position">1</property>
-                                              </packing>
-                                            </child>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel" id="lbl_frm_gremlin_grid_size">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;b&gt;Preview&lt;/b&gt;</property>
-                                        <property name="use_markup">True</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">3</property>
-                                  </packing>
-                                </child>
-                                <child>
                                   <object class="GtkToggleButton" id="tbtn_use_screen2">
                                     <property name="label" translatable="yes">  Display 
 Aux Screen</property>
@@ -3104,7 +3018,7 @@ Aux Screen</property>
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
-                                    <property name="position">4</property>
+                                    <property name="position">3</property>
                                   </packing>
                                 </child>
                               </object>
@@ -3132,7 +3046,7 @@ Aux Screen</property>
                                         <child>
                                           <object class="GtkTable" id="tbl_frm_dro">
                                             <property name="visible">True</property>
-                                            <property name="n_rows">9</property>
+                                            <property name="n_rows">10</property>
                                             <property name="n_columns">2</property>
                                             <property name="row_spacing">3</property>
                                             <child>
@@ -3365,6 +3279,8 @@ Aux Screen</property>
                                                     <property name="numeric">True</property>
                                                   </object>
                                                   <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="pack_type">end</property>
                                                     <property name="position">1</property>
                                                   </packing>
                                                 </child>
@@ -3373,6 +3289,48 @@ Aux Screen</property>
                                                 <property name="right_attach">2</property>
                                                 <property name="top_attach">8</property>
                                                 <property name="bottom_attach">9</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkHBox" id="hbox_dro_size1">
+                                                <property name="visible">True</property>
+                                                <child>
+                                                  <object class="GtkLabel" id="lbl_dro_size1">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="xpad">5</property>
+                                                    <property name="ypad">5</property>
+                                                    <property name="label" translatable="yes">Digits</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="padding">3</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkSpinButton" id="spbtn_dro_digits">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="invisible_char">&#x25CF;</property>
+                                                    <property name="xalign">1</property>
+                                                    <property name="primary_icon_sensitive">True</property>
+                                                    <property name="secondary_icon_sensitive">True</property>
+                                                    <property name="adjustment">adj_dro_digits</property>
+                                                    <property name="climb_rate">1</property>
+                                                    <property name="numeric">True</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="pack_type">end</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="right_attach">2</property>
+                                                <property name="top_attach">9</property>
+                                                <property name="bottom_attach">10</property>
                                               </packing>
                                             </child>
                                           </object>
@@ -3408,16 +3366,36 @@ Aux Screen</property>
                                           <object class="GtkVBox" id="vbox_preview">
                                             <property name="visible">True</property>
                                             <child>
-                                              <object class="GtkCheckButton" id="chk_show_offsets">
-                                                <property name="label" translatable="yes">Show offsets</property>
+                                              <object class="GtkHBox" id="hbox16">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">False</property>
-                                                <property name="draw_indicator">True</property>
-                                                <signal name="toggled" handler="on_chk_show_offsets_toggled"/>
+                                                <child>
+                                                  <object class="GtkLabel" id="label8">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="label" translatable="yes">Grid size</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkSpinButton" id="grid_size">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="invisible_char">&#x25CF;</property>
+                                                    <property name="xalign">1</property>
+                                                    <property name="primary_icon_sensitive">True</property>
+                                                    <property name="secondary_icon_sensitive">True</property>
+                                                    <property name="adjustment">adj_grid_size</property>
+                                                    <property name="digits">3</property>
+                                                    <signal name="value_changed" handler="on_grid_size_value_changed"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
                                               </object>
                                               <packing>
-                                                <property name="expand">False</property>
                                                 <property name="position">0</property>
                                               </packing>
                                             </child>
@@ -3436,6 +3414,20 @@ Aux Screen</property>
                                               </packing>
                                             </child>
                                             <child>
+                                              <object class="GtkCheckButton" id="chk_show_offsets">
+                                                <property name="label" translatable="yes">Show offsets</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="receives_default">False</property>
+                                                <property name="draw_indicator">True</property>
+                                                <signal name="toggled" handler="on_chk_show_offsets_toggled"/>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
+                                            <child>
                                               <object class="GtkCheckButton" id="chk_show_dtg">
                                                 <property name="label" translatable="yes">Show DTG</property>
                                                 <property name="visible">True</property>
@@ -3447,7 +3439,7 @@ Aux Screen</property>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="position">2</property>
+                                                <property name="position">3</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3456,7 +3448,7 @@ Aux Screen</property>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="position">3</property>
+                                                <property name="position">4</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3468,7 +3460,7 @@ Aux Screen</property>
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">False</property>
-                                                <property name="position">4</property>
+                                                <property name="position">5</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -3481,7 +3473,7 @@ Aux Screen</property>
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">False</property>
-                                                <property name="position">5</property>
+                                                <property name="position">6</property>
                                               </packing>
                                             </child>
                                           </object>
@@ -4103,7 +4095,6 @@ Aux Screen</property>
                                                 <property name="label" translatable="yes">Starting RPM</property>
                                               </object>
                                               <packing>
-                                                <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                 <property name="y_options">GTK_SHRINK</property>
                                                 <property name="x_padding">5</property>
                                               </packing>
@@ -4126,7 +4117,7 @@ Aux Screen</property>
                                               <packing>
                                                 <property name="left_attach">1</property>
                                                 <property name="right_attach">2</property>
-                                                <property name="y_options">GTK_SHRINK</property>
+                                                <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                 <property name="y_padding">2</property>
                                               </packing>
                                             </child>
@@ -4150,7 +4141,7 @@ Aux Screen</property>
                                                 <property name="right_attach">2</property>
                                                 <property name="top_attach">1</property>
                                                 <property name="bottom_attach">2</property>
-                                                <property name="y_options">GTK_SHRINK</property>
+                                                <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                 <property name="y_padding">2</property>
                                               </packing>
                                             </child>
@@ -4174,7 +4165,7 @@ Aux Screen</property>
                                                 <property name="right_attach">2</property>
                                                 <property name="top_attach">2</property>
                                                 <property name="bottom_attach">3</property>
-                                                <property name="y_options">GTK_SHRINK</property>
+                                                <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                 <property name="y_padding">2</property>
                                               </packing>
                                             </child>
@@ -4187,7 +4178,6 @@ Aux Screen</property>
                                               <packing>
                                                 <property name="top_attach">1</property>
                                                 <property name="bottom_attach">2</property>
-                                                <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                 <property name="y_options">GTK_SHRINK</property>
                                                 <property name="x_padding">5</property>
                                               </packing>
@@ -4201,7 +4191,6 @@ Aux Screen</property>
                                               <packing>
                                                 <property name="top_attach">2</property>
                                                 <property name="bottom_attach">3</property>
-                                                <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                 <property name="y_options">GTK_SHRINK</property>
                                                 <property name="x_padding">5</property>
                                               </packing>
@@ -4224,7 +4213,97 @@ Aux Screen</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
+                                  <object class="GtkFrame" id="frm_turtle_jog">
+                                    <property name="visible">True</property>
+                                    <property name="label_xalign">0.5</property>
+                                    <child>
+                                      <object class="GtkAlignment" id="ali_turtle_jog">
+                                        <property name="visible">True</property>
+                                        <property name="top_padding">5</property>
+                                        <property name="bottom_padding">5</property>
+                                        <property name="left_padding">5</property>
+                                        <property name="right_padding">5</property>
+                                        <child>
+                                          <object class="GtkVBox" id="vbox3">
+                                            <property name="visible">True</property>
+                                            <child>
+                                              <object class="GtkCheckButton" id="chk_turtle_jog">
+                                                <property name="label" translatable="yes">Hide turtle Jog Button</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="receives_default">False</property>
+                                                <property name="draw_indicator">True</property>
+                                                <signal name="toggled" handler="on_chk_turtle_jog_toggled"/>
+                                              </object>
+                                              <packing>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkHSeparator" id="hseparator3">
+                                                <property name="visible">True</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkTable" id="tbl_turtle_jog_factor">
+                                                <property name="visible">True</property>
+                                                <property name="n_columns">2</property>
+                                                <child>
+                                                  <object class="GtkLabel" id="lbl_turtle_jog_factor">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="xpad">5</property>
+                                                    <property name="ypad">5</property>
+                                                    <property name="label" translatable="yes">Turtle jog Factor</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="y_options"></property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkSpinButton" id="spbtn_turtle_jog_factor">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="invisible_char">&#x25CF;</property>
+                                                    <property name="xalign">1</property>
+                                                    <property name="primary_icon_sensitive">True</property>
+                                                    <property name="secondary_icon_sensitive">True</property>
+                                                    <property name="adjustment">adj_turtle_jog_factor</property>
+                                                    <property name="numeric">True</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="left_attach">1</property>
+                                                    <property name="right_attach">2</property>
+                                                    <property name="x_options">GTK_SHRINK | GTK_FILL</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="padding">3</property>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel" id="frm_turtle_jo">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Turtle Jog&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">4</property>
+                                  </packing>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -5055,7 +5134,6 @@ actions</property>
                         </child>
                       </object>
                       <packing>
-                        <property name="position">1</property>
                         <property name="tab_fill">False</property>
                       </packing>
                     </child>
@@ -5065,7 +5143,6 @@ actions</property>
                         <property name="label" translatable="yes">Settings</property>
                       </object>
                       <packing>
-                        <property name="position">1</property>
                         <property name="tab_fill">False</property>
                       </packing>
                     </child>
@@ -5086,7 +5163,7 @@ actions</property>
                         </child>
                       </object>
                       <packing>
-                        <property name="position">2</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child type="tab">
@@ -5095,7 +5172,7 @@ actions</property>
                         <property name="label" translatable="yes">Alarm History</property>
                       </object>
                       <packing>
-                        <property name="position">2</property>
+                        <property name="position">1</property>
                         <property name="tab_fill">False</property>
                       </packing>
                     </child>
@@ -5171,9 +5248,7 @@ actions</property>
               <object class="GtkVButtonBox" id="vbtb_main">
                 <property name="width_request">100</property>
                 <property name="visible">True</property>
-                <property name="spacing">3</property>
                 <property name="homogeneous">True</property>
-                <property name="layout_style">spread</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_estop">
                     <property name="width_request">85</property>
@@ -5314,6 +5389,19 @@ actions</property>
                     <property name="position">6</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkLabel" id="lbl_time">
+                    <property name="visible">True</property>
+                    <property name="label">Time
+Date</property>
+                    <property name="justify">center</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -5441,6 +5529,18 @@ actions</property>
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkLabel" id="lbl_space_3">
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkToggleButton" id="tbtn_fullsize_preview">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
@@ -5450,18 +5550,6 @@ actions</property>
                     <property name="tooltip_text" translatable="yes">make the preview as large as possible</property>
                     <property name="image">img_fullsize_preview</property>
                     <signal name="toggled" handler="on_tbtn_fullsize_preview_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lbl_space_3">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -5661,8 +5749,8 @@ actions</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Run the  loaded program step by step</property>
+                    <property name="related_action">hal_action_step</property>
                     <property name="image">img_step</property>
-                    <signal name="clicked" handler="on_btn_step_clicked"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -6463,14 +6551,14 @@ selected</property>
                 <property name="visible">True</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkButton" id="btn_save1">
+                  <object class="GtkButton" id="btn_reload">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="related_action">hal_action_reload</property>
                     <property name="use_underline">True</property>
                     <child>
-                      <object class="GtkImage" id="img_save1">
+                      <object class="GtkImage" id="img_reload">
                         <property name="visible">True</property>
                         <property name="icon_name">view-refresh</property>
                       </object>
@@ -6537,22 +6625,10 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_save_and_run">
+                  <object class="GtkLabel" id="lbl_space_1">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">save the program reload it and run it</property>
-                    <signal name="clicked" handler="on_btn_save_and_run_clicked"/>
-                    <child>
-                      <object class="GtkImage" id="img_save_and_run">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="stock">gtk-media-play</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7069,4 +7145,25 @@ selected</property>
   </object>
   <object class="EMC_Action_Stop" id="hal_action_stop"/>
   <object class="EMC_ToggleAction_Pause" id="hal_tgl_pause"/>
+  <object class="GtkImage" id="img_turtle_jog">
+    <property name="width_request">36</property>
+    <property name="height_request">36</property>
+    <property name="visible">True</property>
+    <property name="pixbuf">images/turtle_jog.png</property>
+  </object>
+  <object class="GtkAdjustment" id="adj_turtle_jog_factor">
+    <property name="value">20</property>
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <signal name="value_changed" handler="on_adj_turtle_jog_factor_value_changed"/>
+  </object>
+  <object class="GtkAdjustment" id="adj_dro_digits">
+    <property name="value">3</property>
+    <property name="lower">1</property>
+    <property name="upper">5</property>
+    <property name="step_increment">1</property>
+    <signal name="value_changed" handler="on_adj_dro_digits_value_changed"/>
+  </object>
+  <object class="EMC_Action_Step" id="hal_action_step"/>
 </interface>

@@ -71,6 +71,15 @@ class GetIniInfo:
             return False
         return True
 
+    def get_position_feedback_actual(self):
+        temp = self.inifile.find("DISPLAY", "POSITION_FEEDBACK")
+        if not temp or temp == "0":
+            return True
+        if temp.lower() == "actual":
+            return True
+        else:
+            return False
+
     def get_lathe(self):
         temp = self.inifile.find("DISPLAY", "LATHE")
         if not temp or temp == "0":
