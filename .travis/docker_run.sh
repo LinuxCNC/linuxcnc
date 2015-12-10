@@ -54,22 +54,20 @@ docker run \
     ${DOCKER_CONTAINER}:${TAG} \
     ${CHROOT_PATH}${TRAVIS_PATH}/${cmd}.sh
 
-if ${IS_PR}; then
-    if test ${cmd} = build_rip; then
-        # PR:  Run regression tests
-        #
-        # tests are run under a new container instead of chrooting
-        # this will allow us to run docker without using privileged mode
+if test ${cmd} = build_rip; then
+    # PR:  Run regression tests
+    #
+    # tests are run under a new container instead of chrooting
+    # this will allow us to run docker without using privileged mode
 
-        # create container using RIP rootfs
-        docker build -t mk_runtest .travis/mk_runtests
+    # create container using RIP rootfs
+    docker build -t mk_runtest .travis/mk_runtests
 
-        # run regressions
-        docker run --rm=true \
-            -e MACHINEKIT_PATH=${MACHINEKIT_PATH} \
-            -e MK_DEBUG_TESTS=${MK_DEBUG_TESTS} \
-            -e LC_ALL="POSIX" \
-             mk_runtest /run_tests.sh
-    fi
+    # run regressions
+    docker run --rm=true \
+	-e MACHINEKIT_PATH=${MACHINEKIT_PATH} \
+	-e MK_DEBUG_TESTS=${MK_DEBUG_TESTS} \
+	-e LC_ALL="POSIX" \
+	 mk_runtest /run_tests.sh
 fi
 
