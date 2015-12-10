@@ -804,6 +804,11 @@ image:images/axis-lathe-tool.png[align="center"]
 
 == Advanced Configuration
 
+When AXIS is started it creates the HAL pins for the GUI then it executes
+the HAL file named in '[HAL]POSTGUI_HALFILE' in the ini file. Only one post
+GUI file may be used. Place all HAL commands that connect to the GUI HAL pins
+in the post gui HAL file.
+
 For more information on ini file settings that can change how AXIS
 works see the <<sec:display-section,Display Section>> of the INI 
 Configuration Chapter.
@@ -890,17 +895,6 @@ this causes the built-in options to be created at the option level
 'widgetDefault', so that X Resources (which are level 'userDefault')
 can override them.
 
-=== Physical jog wheels
-
-To improve the interaction of AXIS with physical jog wheels, the axis
-currently selected in the GUI is also reported on a pin with a name
-like 'axisui.jog.x'. One of these pins is 'TRUE' at one time, and the rest are
-'FALSE'. These are meant to control motion's jog-enable pins.
-
-After AXIS has created these HAL pins, it executes the HAL file named
-in '[HAL]POSTGUI_HALFILE'. Unlike '[HAL]HALFILE', only one such file
-may be used.
-
 === ~./axisrc
 
 If it exists, the contents of '~/.axisrc'  are executed as Python
@@ -953,8 +947,14 @@ preview on certain parts that are already working OK).
 This display can be useful in the Axis preview when (debug,message)
 comments are not displayed.
 
-
 === Axisui Pins
+
+To improve the interaction of AXIS with physical jog wheels, the axis
+currently selected in the GUI is also reported on a pin with a name
+like 'axisui.jog.x'. One of these pins is 'TRUE' at one time, and the rest are
+'FALSE'. These are meant to control motion's jog-enable pins.
+
+.Axisui Pins
 
 Axis has Hal pins to indicate which jog radio button is selected in the
 'Manual Control' tab.

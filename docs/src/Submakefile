@@ -26,6 +26,7 @@ DOC_SRCS_EN := \
 	code/code-notes.txt \
 	code/style-guide.txt \
 	code/nml-messages.txt \
+	code/rs274.txt \
 	code/contributing-to-linuxcnc.txt \
 	common/emc-history.txt \
 	common/glossary.txt \
@@ -308,10 +309,10 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_fr checkref_es
 
-checkref_en: $(DOC_TARGETS_HTML_EN) .htmldoc-stamp
+checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref English $^
 
-checkref_fr: $(DOC_TARGETS_HTML_FR) .htmldoc-stamp
+checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref French $^
 
 checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp

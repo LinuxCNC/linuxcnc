@@ -1,4 +1,37 @@
-linuxcnc (1:2.7.2) UNRELEASED; urgency=low
+linuxcnc (1:2.7.3) unstable; urgency=medium
+
+  * docs: update install instructions for glade
+  * docs: correct description of m19 feedback requirements
+  * docs: clarify some pins in the halui manpage
+  * docs: fix link to the giteveryday(1) manpage
+  * docs: combine jog wheel information to one place
+  * docs: minor changes to gmoccapy documentation
+  * docs: fix links in Gcode Quick Reference (English and French)
+
+  * gmoccapy: document updates and deleted some pin
+  * halui: fix some jogging bugs
+  * halui: fix a copy-paste error that could prevent homing
+  * tooledit_widget.py: tool diameter sorting fix
+
+  * hal: don't segfault if rtapi_init() fails
+  * rtapi: error messages are better than errno numbers
+  * tp: purge old circle length function
+  * tp: overhaul spiral fit computation to use more numerically stable quadratic formula
+  * tp: fix for arc-arc coplanar check
+  * bugfix:  Start line and remap interaction
+  * interp: it's nonsense to take a boost::cref(this)
+  * build system: verify links in the Gcode Quick Reference documents
+
+  * linuxcnc launch script: export LINUXCNC_NCFILES_DIR
+  * rip-environment: export LINUXCNC_VERSION
+
+  * halui/jogging test: change which joint is selected while jogging
+  * tests: test homing in halui/jogging
+  * tests: add a motion-logger test of a remap bug
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 29 Nov 2015 12:51:49 -0700
+
+linuxcnc (1:2.7.2) unstable; urgency=low
 
   * docs: improve parport docs
 
@@ -481,6 +514,27 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
   * Other things!
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
+
+linuxcnc (1:2.6.11) UNRELEASED; urgency=low
+
+  * docs: update code notes on M61
+
+  * hm2_7i90 manpage: clarify firmware management
+  * hm2_7i90 manpage: remove incorrect EPP info
+
+  * gmoccapy: bug in tool info handling with tool number being "-1"
+
+  * interp: fix an old bug in canned cycle preliminary & in-between moves
+
+  * io: "no tool" is spelled "0", not "-1"
+  * io: fix HAL pins on "M61 Q0"
+
+  * tests: add an interpreter test of G81
+  * tests: add spindle unloading to m61 test
+  * add motion-logger, a debugging tool
+  * motion: motion_debug.h needs to include motion.h
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 01 Nov 2015 10:16:51 -0700
 
 linuxcnc (1:2.6.10) wheezy; urgency=low
 

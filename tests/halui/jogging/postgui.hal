@@ -10,14 +10,35 @@ net jog-selected-plus <= python-ui.jog-selected-plus
 net jog-selected-plus => halui.jog.selected.plus
 
 
+net joint-0-home   <= python-ui.joint-0-home
+net joint-0-home   => halui.joint.0.home
+
+net joint-0-homed <= halui.joint.0.is-homed
+net joint-0-homed => python-ui.joint-0-homed
+
 net joint-0-select   <= python-ui.joint-0-select
 net joint-0-select   => halui.joint.0.select
 
 net joint-0-selected <= halui.joint.0.is-selected
 net joint-0-selected => python-ui.joint-0-selected
 
+net joint-0-velocity <= axis.0.joint-vel-cmd
+net joint-0-velocity => python-ui.joint-0-velocity
+
+net joint-0-jog-plus <= python-ui.joint-0-jog-plus
+net joint-0-jog-plus => halui.jog.0.plus
+
+net joint-0-jog-minus <= python-ui.joint-0-jog-minus
+net joint-0-jog-minus => halui.jog.0.minus
+
 net Xpos => python-ui.joint-0-position
 
+
+net joint-1-home   <= python-ui.joint-1-home
+net joint-1-home   => halui.joint.1.home
+
+net joint-1-homed <= halui.joint.1.is-homed
+net joint-1-homed => python-ui.joint-1-homed
 
 net joint-1-select   <= python-ui.joint-1-select
 net joint-1-select   => halui.joint.1.select
@@ -25,14 +46,38 @@ net joint-1-select   => halui.joint.1.select
 net joint-1-selected <= halui.joint.1.is-selected
 net joint-1-selected => python-ui.joint-1-selected
 
+net joint-1-velocity <= axis.1.joint-vel-cmd
+net joint-1-velocity => python-ui.joint-1-velocity
+
+net joint-1-jog-plus <= python-ui.joint-1-jog-plus
+net joint-1-jog-plus => halui.jog.1.plus
+
+net joint-1-jog-minus <= python-ui.joint-1-jog-minus
+net joint-1-jog-minus => halui.jog.1.minus
+
 net Ypos => python-ui.joint-1-position
 
+
+net joint-2-home   <= python-ui.joint-2-home
+net joint-2-home   => halui.joint.2.home
+
+net joint-2-homed <= halui.joint.2.is-homed
+net joint-2-homed => python-ui.joint-2-homed
 
 net joint-2-select   <= python-ui.joint-2-select
 net joint-2-select   => halui.joint.2.select
 
 net joint-2-selected <= halui.joint.2.is-selected
 net joint-2-selected => python-ui.joint-2-selected
+
+net joint-2-velocity <= axis.2.joint-vel-cmd
+net joint-2-velocity => python-ui.joint-2-velocity
+
+net joint-2-jog-plus <= python-ui.joint-2-jog-plus
+net joint-2-jog-plus => halui.jog.2.plus
+
+net joint-2-jog-minus <= python-ui.joint-2-jog-minus
+net joint-2-jog-minus => halui.jog.2.minus
 
 net Zpos => python-ui.joint-2-position
 

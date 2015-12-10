@@ -1662,19 +1662,33 @@ double pmCircleAngleFromParam(PmCircle const * const circle,
     double s_in = t * fit->total_planar_length;
 
     // Quadratic formula to invert arc length -> angle
-    double angle_out;
-    double disc = 4.0 * fit->b0 * s_in + pmSq(fit->b1);
-    //FIXME bigger than POS_EPSILON to smooth out acceleration on near-circular cases
-    const double MIN_FIT_COEF = 1e-10;
 
-    if (fabs(fit->b0) > MIN_FIT_COEF && disc > TP_POS_EPSILON) {
-        //Know that discriminant is positive and divisor is large enough not to
-        //cause numerical errors
-        angle_out = (pmSqrt(disc) - fit->b1) / (2.0 * fit->b0);
-    } else {
-        //Circle case, don't need a fit
-        angle_out = s_in / circle->radius;
+    double A = fit->b0;
+    double B = fit->b1;
+    double C = -s_in;
+
+    double disc = pmSq(B) - 4.0 * A * C ;
+    if (disc < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "discriminant %f is negative in angle calculation\n",disc);
+        return TP_ERR_FAIL;
     }
+
+    /*
+     * Stability of inverting the arc-length relationship.
+     * Since the b1 coefficient is analogous to arc radius, we can be
+     * reasonably assured that it will be large enough not to cause numerical
+     * errors. If this is not the case, then the arc itself is degenerate (very
+     * small radius), and this condition should be caught well before here.
+     *
+     * Since an arc with a very small spiral coefficient will have a small b0
+     * coefficient in the fit, we use the Citardauq Formula to ensure that the
+     * positive root does not lose precision due to subtracting near-similar values.
+     *
+     * For more information, see:
+     * http://people.csail.mit.edu/bkph/articles/Quadratics.pdf
+     */
+
+    double angle_out = (2.0 * C) / ( -B - pmSqrt(disc));
 
     if (fit->spiral_in) {
         // Spiral fit assumes that we're spiraling out, so
@@ -1753,10 +1767,11 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
 
     angle_end_chk = pmCircleAngleFromParam(circle, fit, 1.0);
     double fit_err = angle_end_chk - circle->angle;
-
     if (fabs(fit_err) > TP_ANGLE_EPSILON) {
-        tp_debug_print("Spiral fit check: fit_err = %e\n",
-                fit_err);
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "Spiral fit angle difference is %e, maximum allowed is %e\n",
+                fit_err,
+                TP_ANGLE_EPSILON);
         return TP_ERR_FAIL;
     }
 

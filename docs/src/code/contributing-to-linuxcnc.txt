@@ -98,7 +98,7 @@ follow-on documentation are also available online here:
   https://www.kernel.org/pub/software/scm/git/docs/gittutorial-2.html
 
 * Everyday git with 20 commands or so:
-  https://www.kernel.org/pub/software/scm/git/docs/everyday.html
+  https://www.kernel.org/pub/software/scm/git/docs/giteveryday.html
 
 * Git User's Manual:
   https://www.kernel.org/pub/software/scm/git/docs/user-manual.html
