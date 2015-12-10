@@ -399,6 +399,7 @@ void emcmotCommandHandler(void *arg, long period)
     emcmot_comp_entry_t *comp_entry;
     char issue_atspeed = 0;
     int abort = 0;
+    char* emsg;
 
 check_stuff ( "before command_handler()" );
 
@@ -428,32 +429,34 @@ check_stuff ( "before command_handler()" );
 
 //-----------------------------------------------------------------------------
 // joints_axes test for unexpected conditions
-// remove after branch stabilization:
+// example: non-cooperating guis
         if (   emcmotCommand->command == EMCMOT_JOG_CONT
             || emcmotCommand->command == EMCMOT_JOG_INCR
             || emcmotCommand->command == EMCMOT_JOG_ABS
            ) {
            if (GET_MOTION_TELEOP_FLAG() && axis_num < 0) {
-	       rtapi_print_msg(RTAPI_MSG_ERR,
-                    "command.com teleop bad axis_num cmd=%d\n",
-                    emcmotCommand->command);
+               emsg = "command.com teleop bad axis_num";
                abort = 1;
            }
            if (!GET_MOTION_TELEOP_FLAG() && joint_num < 0) {
-	       rtapi_print_msg(RTAPI_MSG_ERR,
-                    "command.com !teleop bad joint_num cmd=%d\n",
-                    emcmotCommand->command);
+             emsg = "command.com teleop bad joint_num";
              abort = 1;
            }
         }
         if (abort) {
           switch (emcmotCommand->command) {
-          case EMCMOT_JOG_CONT:    rtapi_print_msg(RTAPI_MSG_ERR,"JOG_CONT\n");
+          case EMCMOT_JOG_CONT:
+               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_CONT %s cmd=%d\n",
+                               emsg,emcmotCommand->command);
                break;
-          case EMCMOT_JOG_INCR:    rtapi_print_msg(RTAPI_MSG_ERR,"JOG_INCR\n");
+          case EMCMOT_JOG_INCR:
+               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_INCR %s cmd=%d\n",
+                               emsg,emcmotCommand->command);
                break;
-          case EMCMOT_JOG_ABS:     rtapi_print_msg(RTAPI_MSG_ERR,"JOG_ABS\n");
-                break;
+          case EMCMOT_JOG_ABS:
+               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_ABS %s cmd=%d\n",
+                               emsg,emcmotCommand->command);
+               break;
           default: break;
           }
           return;
