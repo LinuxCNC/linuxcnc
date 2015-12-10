@@ -123,7 +123,7 @@ static int init_comm_buffers(void) {
     emcmotStatus->enables_new = FS_ENABLED | SS_ENABLED | FH_ENABLED;
     emcmotStatus->enables_queued = emcmotStatus->enables_new;
     SET_MOTION_INPOS_FLAG(1);
-    emcmotConfig->kinematics_type = KINEMATICS_IDENTITY;
+    emcmotConfig->kinType = KINEMATICS_IDENTITY;
 
     emcmot_config_change();
 
@@ -308,8 +308,8 @@ int main(int argc, char* argv[]) {
                 log_print("ABORT\n");
                 break;
 
-            case EMCMOT_AXIS_ABORT:
-                log_print("AXIS_ABORT joint=%d\n", c->axis);
+            case EMCMOT_JOINT_ABORT:
+                log_print("JOINT_ABORT joint=%d\n", c->joint);
                 break;
 
             case EMCMOT_ENABLE:
@@ -324,11 +324,11 @@ int main(int argc, char* argv[]) {
                 update_motion_state();
                 break;
 
-            case EMCMOT_ENABLE_AMPLIFIER:
+            case EMCMOT_JOINT_ENABLE_AMPLIFIER:
                 log_print("ENABLE_AMPLIFIER\n");
                 break;
 
-            case EMCMOT_DISABLE_AMPLIFIER:
+            case EMCMOT_JOINT_DISABLE_AMPLIFIER:
                 log_print("DISABLE_AMPLIFIER\n");
                 break;
 
@@ -340,12 +340,12 @@ int main(int argc, char* argv[]) {
                 log_print("DISABLE_WATCHDOG\n");
                 break;
 
-            case EMCMOT_ACTIVATE_JOINT:
-                log_print("ACTIVATE_JOINT joint=%d\n", c->axis);
+            case EMCMOT_JOINT_ACTIVATE:
+                log_print("JOINT_ACTIVATE joint=%d\n", c->joint);
                 break;
 
-            case EMCMOT_DEACTIVATE_JOINT:
-                log_print("DEACTIVATE_JOINT joint=%d\n", c->axis);
+            case EMCMOT_JOINT_DEACTIVATE:
+                log_print("JOINT_DEACTIVATE joint=%d\n", c->joint);
                 break;
 
             case EMCMOT_PAUSE:
@@ -414,19 +414,19 @@ int main(int argc, char* argv[]) {
                 log_print("OVERRIDE_LIMITS\n");
                 break;
 
-            case EMCMOT_HOME:
-                log_print("HOME joint=%d\n", c->axis);
-                if (c->axis < 0) {
+            case EMCMOT_JOINT_HOME:
+                log_print("JOINT_HOME joint=%d\n", c->joint);
+                if (c->joint < 0) {
                     for (int j = 0; j < num_joints; j ++) {
                         mark_joint_homed(j);
                     }
                 } else {
-                    mark_joint_homed(c->axis);
+                    mark_joint_homed(c->joint);
                 }
                 break;
 
-            case EMCMOT_UNHOME:
-                log_print("UNHOME joint=%d\n", c->axis);
+            case EMCMOT_JOINT_UNHOME:
+                log_print("JOINT_UNHOME joint=%d\n", c->joint);
                 break;
 
             case EMCMOT_JOG_CONT:
@@ -486,25 +486,34 @@ int main(int argc, char* argv[]) {
                 log_print("RIGID_TAP\n");
                 break;
 
-            case EMCMOT_SET_POSITION_LIMITS:
+            case EMCMOT_SET_JOINT_POSITION_LIMITS:
                 log_print(
-                    "SET_POSITION_LIMITS joint=%d, min=%.6f, max=%.6f\n",
+                    "SET_JOINT_POSITION_LIMITS joint=%d, min=%.6f, max=%.6f\n",
+                    c->joint, c->minLimit, c->maxLimit
+                );
+                joints[c->axis].max_pos_limit = c->maxLimit;
+                joints[c->axis].min_pos_limit = c->minLimit;
+                break;
+
+            case EMCMOT_SET_AXIS_POSITION_LIMITS:
+                log_print(
+                    "SET_AXIS_POSITION_LIMITS axis=%d, min=%.6f, max=%.6f\n",
                     c->axis, c->minLimit, c->maxLimit
                 );
                 joints[c->axis].max_pos_limit = c->maxLimit;
                 joints[c->axis].min_pos_limit = c->minLimit;
                 break;
 
-            case EMCMOT_SET_BACKLASH:
-                log_print("SET_BACKLASH joint=%d, backlash=%.6f\n", c->axis, c->backlash);
+            case EMCMOT_SET_JOINT_BACKLASH:
+                log_print("SET_JOINT_BACKLASH joint=%d, backlash=%.6f\n", c->joint, c->backlash);
                 break;
 
-            case EMCMOT_SET_MIN_FERROR:
-                log_print("SET_MIN_FERROR joint=%d, minFerror=%.6f\n", c->axis, c->minFerror);
+            case EMCMOT_SET_JOINT_MIN_FERROR:
+                log_print("SET_JOINT_MIN_FERROR joint=%d, minFerror=%.6f\n", c->joint, c->minFerror);
                 break;
 
-            case EMCMOT_SET_MAX_FERROR:
-                log_print("SET_MAX_FERROR joint=%d, maxFerror=%.6f\n", c->axis, c->maxFerror);
+            case EMCMOT_SET_JOINT_MAX_FERROR:
+                log_print("SET_JOINT_MAX_FERROR joint=%d, maxFerror=%.6f\n", c->joint, c->maxFerror);
                 break;
 
             case EMCMOT_SET_VEL:
@@ -515,12 +524,20 @@ int main(int argc, char* argv[]) {
                 log_print("SET_VEL_LIMIT vel=%.6f\n", c->vel);
                 break;
 
+            case EMCMOT_SET_AXIS_VEL_LIMIT:
+                log_print("SET_AXIS_VEL_LIMIT axis=%d vel=%.6f\n", c->axis, c->vel);
+                break;
+
             case EMCMOT_SET_JOINT_VEL_LIMIT:
-                log_print("SET_JOINT_VEL_LIMIT joint=%d, vel=%.6f\n", c->axis, c->vel);
+                log_print("SET_JOINT_VEL_LIMIT joint=%d, vel=%.6f\n", c->joint, c->vel);
+                break;
+
+            case EMCMOT_SET_AXIS_ACC_LIMIT:
+                log_print("SET_AXIS_ACC_LIMIT axis=%d, acc=%.6f\n", c->axis, c->acc);
                 break;
 
             case EMCMOT_SET_JOINT_ACC_LIMIT:
-                log_print("SET_JOINT_ACC_LIMIT joint=%d, acc=%.6f\n", c->axis, c->acc);
+                log_print("SET_JOINT_ACC_LIMIT joint=%d, acc=%.6f\n", c->joint, c->acc);
                 break;
 
             case EMCMOT_SET_ACC:
@@ -531,9 +548,9 @@ int main(int argc, char* argv[]) {
                 log_print("SET_TERM_COND termCond=%d, tolerance=%.6f\n", c->termCond, c->tolerance);
                 break;
 
-            case EMCMOT_SET_NUM_AXES:
-                log_print("SET_NUM_AXES %d\n", c->axis);
-                num_joints = c->axis;
+            case EMCMOT_SET_NUM_JOINTS:
+                log_print("SET_NUM_JOINTS %d\n", c->joint);
+                num_joints = c->joint;
                 break;
 
             case EMCMOT_SET_WORLD_HOME:
@@ -545,10 +562,10 @@ int main(int argc, char* argv[]) {
                 );
                 break;
 
-            case EMCMOT_SET_HOMING_PARAMS:
+            case EMCMOT_SET_JOINT_HOMING_PARAMS:
                 log_print(
-                    "SET_HOMING_PARAMS joint=%d, offset=%.6f home=%.6f, final_vel=%.6f, search_vel=%.6f, latch_vel=%.6f, flags=0x%08x, sequence=%d, volatile=%d\n",
-                    c->axis, c->offset, c->home, c->home_final_vel,
+                    "SET_JOINT_HOMING_PARAMS joint=%d, offset=%.6f home=%.6f, final_vel=%.6f, search_vel=%.6f, latch_vel=%.6f, flags=0x%08x, sequence=%d, volatile=%d\n",
+                    c->joint, c->offset, c->home, c->home_final_vel,
                     c->search_vel, c->latch_vel, c->flags,
                     c->home_sequence, c->volatile_home
                 );
@@ -598,8 +615,8 @@ int main(int argc, char* argv[]) {
                 log_print("SPINDLE_ORIENT\n");
                 break;
 
-            case EMCMOT_SET_MOTOR_OFFSET:
-                log_print("SET_MOTOR_OFFSET\n");
+            case EMCMOT_SET_JOINT_MOTOR_OFFSET:
+                log_print("SET_JOINT_MOTOR_OFFSET\n");
                 break;
 
             case EMCMOT_SET_JOINT_COMP:

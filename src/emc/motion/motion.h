@@ -124,6 +124,9 @@ extern "C" {
 
 	EMCMOT_SET_LINE,	/* queue up a linear move */
 	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
+	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
+					   world cartesian coordinates, not
+					   in joint space like EMCMOT_JOG_* */
 	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
 	EMCMOT_PROBE,		/* go to pos, stop if probe trips, record
 				   trip pos */
@@ -151,8 +154,10 @@ extern "C" {
         EMCMOT_SET_OFFSET, /* set tool offsets */
         EMCMOT_SET_MAX_FEED_OVERRIDE,
         EMCMOT_SETUP_ARC_BLENDS,
-        EMCMOT_SET_PROBE_ERR_INHIBIT,
 
+	EMCMOT_SET_PROBE_ERR_INHIBIT,
+	EMCMOT_ENABLE_WATCHDOG,         /* enable watchdog sound, parport */
+	EMCMOT_DISABLE_WATCHDOG,        /* enable watchdog sound, parport */
 	EMCMOT_JOG_CONT,	/* continuous jog */
 	EMCMOT_JOG_INCR,	/* incremental jog */
 	EMCMOT_JOG_ABS,		/* absolute jog */
@@ -538,6 +543,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double motor_offset;	/* diff between internal and motor pos, used
 				   to set position to zero during homing */
 	int old_jjog_counts;	/* prior value, used for deltas */
+	double big_vel;		/* used for "debouncing" velocity */
     } emcmot_joint_t;
 
 /* This structure contains only the "status" data associated with
@@ -768,10 +774,29 @@ Suggestion: Split this in to an Error and a Status flag register..
         double arcBlendRampFreq;
         double arcBlendTangentKinkRatio;
         double maxFeedScale;
-        
         int inhibit_probe_jog_error;
         int inhibit_probe_home_error;
     } emcmot_config_t;
+
+/*********************************
+      INTERNAL STRUCTURE
+*********************************/
+
+/* This is the internal structure.  It contains stuff that is used
+   internally by the motion controller that does not need to be in
+   shared memory.  It will wind up with a lot of the stuff that got
+   tossed into the debug structure.
+
+   FIXME - so far most if the stuff that was tossed in here got
+   moved back out, maybe don't need it after all?
+*/
+
+    typedef struct emcmot_internal_t {
+	unsigned char head;	/* flag count for mutex detect */
+
+	int probe_debounce_cntr;
+	unsigned char tail;	/* flag count for mutex detect */
+    } emcmot_internal_t;
 
 /* error structure - A ring buffer used to pass formatted printf stings to usr space */
     typedef struct emcmot_error_t {
