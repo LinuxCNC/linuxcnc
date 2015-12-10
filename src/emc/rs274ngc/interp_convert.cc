@@ -4372,7 +4372,6 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   return INTERP_OK;
 }
 
-//dng
 int Interp::convert_straight_indexer(int axis, int jnum, block_pointer block, setup_pointer settings) {
     double end_x, end_y, end_z;
     double AA_end, BB_end, CC_end;
