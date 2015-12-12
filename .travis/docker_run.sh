@@ -24,6 +24,13 @@ then
     cmd=build_rip
 fi
 
+# only allow x64 builds for PR's to speed up the process
+if test ${TRAVIS_PULL_REQUEST} != 'false'; then
+    if test ${MARCH} != '64'; then
+        exit 0
+    fi
+fi
+
 # run build step
 docker run \
     -v $(pwd):${CHROOT_PATH}${MACHINEKIT_PATH} \
