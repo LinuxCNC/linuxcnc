@@ -29,12 +29,12 @@ env:
     - SFTP_DEPLOY_ADDR="${SFTP_DEPLOY_ADDR:-empty}"
   matrix:
     - TAG=wheezy-64    CMD=run_tests
+    - TAG=jessie-64    CMD=run_tests
     - TAG=wheezy-64    CMD=build_deb
     - TAG=wheezy-32    CMD=build_deb
     - TAG=wheezy-armhf CMD=build_deb FLAV=posix
     - TAG=wheezy-armhf CMD=build_deb FLAV=xenomai
     - TAG=wheezy-armhf CMD=build_deb FLAV=rt_preempt
-    - TAG=jessie-64    CMD=run_tests
     - TAG=jessie-64    CMD=build_deb
     - TAG=jessie-32    CMD=build_deb
     - TAG=jessie-armhf CMD=build_deb FLAV=posix
