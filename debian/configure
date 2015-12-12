@@ -60,9 +60,12 @@ fi
 
 TARGET=$1
 
+# for example: "3.16.0-9"
+KERNEL_VERSION_ABI=${TARGET%-rtai-*}
+
 MODULE_PATH=usr/realtime-$1/modules/linuxcnc
 MODULE_EXT=.ko
-KERNEL_DEPENDS=linux-image-$1,rtai-modules-$1
+KERNEL_DEPENDS="linux-image-$1,rtai-modules-$TARGET|rtai-modules-$KERNEL_VERSION_ABI"
 KERNEL_HEADERS=linux-headers-$1
 EXTRA_FILES="usr/bin/linuxcnc_module_helper"
 KERNEL_VERSION=$1
@@ -183,7 +186,7 @@ subst () {
 sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@MODULE_EXT@|$MODULE_EXT|g" \
     -e "s|@KERNEL_VERSION@|$KERNEL_VERSION|g" \
-    -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
+    -e "s/@KERNEL_DEPENDS@/$KERNEL_DEPENDS/g" \
     -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
     -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
     -e "s|@LIBREADLINE_DEV@|$LIBREADLINE_DEV|g" \
