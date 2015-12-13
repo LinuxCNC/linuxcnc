@@ -11,7 +11,6 @@
 *
 * Last change:
 ********************************************************************/
-#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,8 +23,6 @@
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"	// interpreter private definitions
 #include "rs274ngc_interp.hh"
-
-namespace bp = boost::python;
 
 /****************************************************************************/
 

@@ -18,11 +18,14 @@
  */
 // TODO: reuse interp converters
 
-#include <boost/python.hpp>
-#include <boost/python/module.hpp>
 #include <boost/python/class.hpp>
+#include <boost/python/def.hpp>
+#include <boost/python/implicit.hpp>
+#include <boost/python/module.hpp>
+#include <boost/python/overloads.hpp>
+#include <boost/python/scope.hpp>
 #include <boost/ref.hpp>
-
+#include "python_plugin.hh"
 #include "rs274ngc.hh"
 #include "interp_internal.hh"
 #include "taskclass.hh"

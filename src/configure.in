@@ -54,9 +54,8 @@ CPPFLAGS="$PYTHON_CPPFLAGS $saved_CPPFLAGS"
 AC_CACHE_CHECK([whether the Boost::Python headers are available],
                [ac_cv_boost_python],
                [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <boost/python/module.hpp>
+#include <boost/python/object_fwd.hpp>
 using namespace boost::python;
-BOOST_PYTHON_MODULE(test) { (void)0; }
 ]], [])],
     [ac_cv_boost_python=yes], [ac_cv_boost_python=no])])
 
@@ -82,7 +81,7 @@ AS_IF([test "x$ac_cv_boost_python" = xyes],
     # Note that this requires LIBPYTHON from configure.in
     LIBS="$saved_LIBS -l$LIBPYTHON -l$ax_lib"
     AC_LINK_IFELSE(
-      [AC_LANG_PROGRAM([[#include <boost/python.hpp>]], [[boost::python::object test_object;]])],
+      [AC_LANG_PROGRAM([[#include <boost/python/object_fwd.hpp>]], [[boost::python::object *test_object;]])],
       [BOOST_PYTHON_LIBS="-l$ax_lib"; break])
   done
   AS_IF([test "x$BOOST_PYTHON_LIBS" != x], [ax_result=$BOOST_PYTHON_LIBS], [ax_result=])

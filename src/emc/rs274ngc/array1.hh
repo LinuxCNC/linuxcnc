@@ -6,11 +6,15 @@
 #ifndef __array_1_pyplusplus_hpp__
 #define __array_1_pyplusplus_hpp__
 
-#include "boost/python.hpp"
+#include <boost/python/iterator.hpp>
+#include <boost/python/enum.hpp>
+#include <boost/python/object.hpp>
+#include <boost/python/scope.hpp>
+#include <boost/python/converter/registry.hpp>
+#include <stdexcept>
 #include "boost/mpl/if.hpp"
 #include "boost/type_traits/is_same.hpp"
 #include "boost/type_traits/is_fundamental.hpp"
-#include "boost/python/converter/registry.hpp"
 
 #include <iostream>
 

@@ -12,7 +12,9 @@
 *
 ********************************************************************/
 
-#include <boost/python.hpp>
+#include <boost/python/list.hpp>
+#include <boost/python/tuple.hpp>
+#include <boost/python/dict.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +30,7 @@
 #include "interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+#include "python_plugin.hh"
 
 namespace bp = boost::python;
 

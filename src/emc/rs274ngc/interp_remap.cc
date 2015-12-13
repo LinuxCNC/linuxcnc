@@ -13,6 +13,10 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+#include "python_plugin.hh"
+#include <boost/python/list.hpp>
+namespace bp = boost::python;
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +29,6 @@
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
 
-namespace bp = boost::python;
 
 
 bool Interp::has_user_mcode(setup_pointer settings,block_pointer block)

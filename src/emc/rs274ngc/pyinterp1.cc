@@ -19,7 +19,7 @@
 // Michael Haberler 7/2011
 //
 
-#include <boost/python.hpp>
+#include <boost/python/object.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <map>
 

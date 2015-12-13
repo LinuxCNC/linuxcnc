@@ -23,6 +23,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <boost/python/exec.hpp>
+#include <boost/python/extract.hpp>
+#include <boost/python/import.hpp>
+
+namespace bp = boost::python;
+
 #define MAX_ERRMSG_SIZE 256
 
 #define ERRMSG(fmt, args...)					\

@@ -13,8 +13,6 @@
 #ifndef INTERP_INTERNAL_HH
 #define INTERP_INTERNAL_HH
 
-#include <boost/python.hpp>
-#include <boost/range/end.hpp>
 #include <algorithm>
 #include "config.h"
 #include <limits.h>
@@ -25,7 +23,8 @@
 #include "canon.hh"
 #include "emcpos.h"
 #include "libintl.h"
-#include "python_plugin.hh"
+#include <boost/python/object.hpp>
+//#include "python_plugin.hh"
 
 
 #define _(s) gettext(s)
@@ -391,9 +390,9 @@ typedef struct block_struct
     offset(0), o_type(0), call_type(0), o_name(NULL),
     /* params, */ param_cnt(0), breadcrumbs(),
     executing_remap(NULL), remappings(), phase(0), builtin_used(0) {
-        std::fill(g_modes, boost::end(g_modes), 0);
-        std::fill(m_modes, boost::end(m_modes), 0);
-        std::fill(params, boost::end(params), 0);
+        std::fill(g_modes, std::end(g_modes), 0);
+        std::fill(m_modes, std::end(m_modes), 0);
+        std::fill(params, std::end(params), 0);
     }
   bool a_flag;
   double a_number;
@@ -801,7 +800,7 @@ typedef struct setup_struct
 typedef setup *setup_pointer;
 // the externally visible singleton instance
 
-extern    PythonPlugin *python_plugin;
+extern class PythonPlugin *python_plugin;
 #define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
 
 inline bool is_a_cycle(int motion) {

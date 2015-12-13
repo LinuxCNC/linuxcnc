@@ -33,8 +33,10 @@
 // this is actually a bug in libgl1-mesa-dri and it looks
 // it has been fixed in mesa - 7.10.1-0ubuntu2
 
-#include <boost/python.hpp>
-
+#include "python_plugin.hh"
+#include <boost/python/extract.hpp>
+#include <boost/python/import.hpp>
+#include <boost/python/str.hpp>
 namespace bp = boost::python;
 
 #include <unistd.h>
