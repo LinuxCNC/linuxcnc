@@ -6,7 +6,7 @@ rtapi_app_exit \- User-provided function to shut down a component
 .SH SYNTAX
 .nf
 .B #include <rtapi_app.h>
-.SP
+.HP
 .BI "void rtapi_app_exit(void) {" ... "}"
 .fi
 .SH ARGUMENTS
