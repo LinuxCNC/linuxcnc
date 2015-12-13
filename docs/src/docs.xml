@@ -24,7 +24,6 @@
 <doc name="gui_ngcgui" title="GUI: NGCGUI"/>
 <doc name="gui_tklinuxcnc" title="GUI: TkLinuxCNC"/>
 <doc name="gui_mini" title="GUI: Mini"/>
-<doc name="gui_keystick" title="GUI: Keystick"/>
 <doc name="common_machining_center" title="Machining Center Info"/>
 <doc name="gcode_overview" title="Gcode Overview"/>
 <doc name="gcode_coordinates" title="Gcode Coordinates"/>
@@ -122,7 +121,6 @@
 <doc name="gui/ngcgui_es.html" title="GUI: NGCGUI"/>
 <doc name="gui/tklinuxcnc_es.html" title="GUI: TkLinuxCNC"/>
 <doc name="gui/mini_es.html" title="GUI: Mini"/>
-<doc name="gui/keystick_es.html" title="GUI: KeyStick"/>
 <doc name="common/machining_center_es.html" title="Informations Centre d'usinage"/>
 <doc name="gcode/overview_es.html" title="Aperçu gcode"/>
 <doc name="gcode/coordinates_es.html" title="Les systèmes de coordonnées"/>
@@ -216,7 +214,6 @@
 <doc name="gui/ngcgui_fr.html" title="L'interface graphique NGCGUI"/>
 <doc name="gui/tklinuxcnc_fr.html" title="L'interface graphique TkLinuxCNC"/>
 <doc name="gui/mini_fr.html" title="L'interface graphique Mini"/>
-<doc name="gui/keystick_fr.html" title="L'interface textuelle KeyStick"/>
 <doc name="gcode/machining_center_fr.html" title="Aper&ccedil;u global d'une machine CNC"/>
 <doc name="gcode/overview_fr.html" title="Vue g&eacute;n&eacute;rale du G-code"/>
 <doc name="gcode/gcode_fr.html" title="Le G-code"/>

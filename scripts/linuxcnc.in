@@ -559,7 +559,7 @@ function Cleanup() {
     echo "Shutting down and cleaning up LinuxCNC..."
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of linuxcnc
-    for KILL_TASK in xlinuxcnc ylinuxcnc linuxcncpanel keystick iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel; do
+    for KILL_TASK in xlinuxcnc ylinuxcnc linuxcncpanel iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
@@ -878,19 +878,6 @@ case $EMCDISPLAY in
     # dummy display just waits for <ENTER>
     echo "DUMMY DISPLAY MODULE, press <ENTER> to continue."
     read foo;
-  ;;
-  keystick)
-    if ! program_available keystick ; then
-	echo "Can't execute DISPLAY program $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
-	Cleanup
-	exit 1
-    fi
-    if [ ! -z "$DISPLAY" ]; then
-        xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e keystick -ini "$INIFILE"
-    else
-        keystick -ini "$INIFILE"
-    fi
-    result=$?
   ;;
   linuxcncrsh)
     $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS -- -ini "$INIFILE"

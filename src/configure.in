@@ -1443,26 +1443,6 @@ fi
 AC_SUBST([HAVE_READLINE])
 AC_SUBST([READLINE_LIBS])
 
-
-#check for ncurses.h needed for emc2/src/emc/usr_intf/keystick.cc
-
-AC_CHECK_HEADERS(ncurses.h,
-	    [HAVE_NCURSES=yes],
-	    [HAVE_NCURSES=no])
-
-AC_CHECK_LIB(ncurses, initscr,
-	    [],
-	    [HAVE_NCURSES=no])
-
-if test "x$HAVE_NCURSES" = "xno"; then
-    AC_MSG_WARN(ncurses lib missing, you won't be able to build/run keystick. try installing it with 'apt-get install libncurses-dev')
-else    
-    NCURSES_LIBS="-lncurses"
-fi
-AC_SUBST([HAVE_NCURSES])
-AC_SUBST([NCURSES_LIBS])
-
-
 ##############################################################################
 # Section 7 - Language support                                               #
 #                                                                            #
