@@ -86,13 +86,6 @@ C'est l'interface la plus populaire après Axis
 .L'interface graphique tklinuxcnc[[fig:L-interface-graphique-tklinuxcnc]]
 image::images/tklinuxcnc_fr.png[align="center"]
 
-* <<cha:keystick-gui,_Keystick_>>, une interface graphique textuelle et
-minimaliste, appropriée pour les installations légères (sans serveur X par
-exemple).
-
-.L'interface textuelle Keystick[[fig:L-interface-Keystick]]
-image::images/keystick.png[align="center"]
-
 * _Xemc_, un programme X-Windows
 
 * _halui_, une interface utilisateur basée sur HAL, qui permet de contrôler

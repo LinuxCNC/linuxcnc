@@ -66,8 +66,6 @@ include::gui/tklinuxcnc.txt[]
 
 include::gui/mini.txt[]
 
-include::gui/keystick.txt[]
-
 :leveloffset: 1
 
 = Programming

@@ -94,10 +94,6 @@ CFLAGS_X = @X_CFLAGS@
 XLIBS = @XAW_LIBS@
 HAVE_XAW = @HAVE_XAW@
 
-# ncurses support for keystick
-KEYSTICKLIBS =  @NCURSES_LIBS@
-HAVE_NCURSES = @HAVE_NCURSES@
-
 # readline support for halcmd
 READLINE_LIBS =  @READLINE_LIBS@
 

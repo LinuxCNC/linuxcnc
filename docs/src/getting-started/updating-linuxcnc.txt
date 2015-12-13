@@ -719,12 +719,6 @@ that it supported prior to joints_axes incorporation.  Jogging is done in
 joint mode (no coordination of joint/teleop modes with other guis
 is currently provided).
 
-=== keystick, xlinuxcnc guis
-
-The keystick and xlinuxcnc continue to support the identity kinematics
-configurations supported prior to joints_axes incorporation.  Jogging is done
-in joint mode.
-
 === mini gui
 
 The mini gui continues to support the identity kinematics configurations
