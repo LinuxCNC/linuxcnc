@@ -901,20 +901,6 @@ Out</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkRadioButton" id="GUIMINI">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="label" translatable="yes">Mini</property>
-                                        <property name="response_id">0</property>
-                                        <property name="active">True</property>
-                                        <property name="draw_indicator">True</property>
-                                        <property name="group">GUIAXIS</property>
-                                      </widget>
-                                      <packing>
-                                        <property name="position">4</property>
-                                      </packing>
-                                    </child>
-                                    <child>
                                       <widget class="GtkRadioButton" id="GUITOUCHY">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>

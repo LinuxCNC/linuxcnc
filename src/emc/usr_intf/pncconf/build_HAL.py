@@ -973,7 +973,6 @@ class HAL:
         else: unit = "a metric"
         if self.d.frontend == _PD._AXIS: display = "AXIS"
         elif self.d.frontend == _PD._TKLINUXCNC: display = "Tklinuxcnc"
-        elif self.d.frontend == _PD._MINI: display = "Mini"
         elif self.d.frontend == _PD._TOUCHY: display = "TOUCHY"
         else: display = "an unknown"
         if self.d.axes == 0:machinetype ="XYZ"

@@ -719,14 +719,6 @@ that it supported prior to joints_axes incorporation.  Jogging is done in
 joint mode (no coordination of joint/teleop modes with other guis
 is currently provided).
 
-=== mini gui
-
-The mini gui continues to support the identity kinematics configurations
-that it supported prior to joints_axes incorporation.  Jogging is done
-in joint mode by default with limited support for teleop jogging when
-set by a contemporaneous, cooperating gui.
-Note that the values used for jogging may not be appropriate for both modes.
-
 === linuxcnclcd
 
 The linuxcnclcd gui has been updated to continue support for the identity
