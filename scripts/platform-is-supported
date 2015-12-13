@@ -95,11 +95,6 @@ if kernel_flavor not in supported_kernel_flavors:
     print "unsupported kernel flavor"
     sys.exit(1)
 
-if kernel_flavor == 'rtai':
-    if distributor == 'Debian' and release_major > 7:
-        print "RTAI is only supported up to Debian 7 (Wheezy)"
-        sys.exit(1)
-
 print "this platform is supported!"
 sys.exit(0)
 
