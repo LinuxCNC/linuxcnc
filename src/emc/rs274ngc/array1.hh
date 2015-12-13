@@ -12,9 +12,7 @@
 #include <boost/python/scope.hpp>
 #include <boost/python/converter/registry.hpp>
 #include <stdexcept>
-#include "boost/mpl/if.hpp"
-#include "boost/type_traits/is_same.hpp"
-#include "boost/type_traits/is_fundamental.hpp"
+#include <type_traits>
 
 #include <iostream>
 
@@ -32,14 +30,11 @@ namespace details{
 
 template<class T>
 struct is_immutable{
-    BOOST_STATIC_CONSTANT(
-        bool
-        , value = ( boost::is_same< T, std::string >::value )
-                  || ( boost::is_same< T, std::wstring >::value )
-                  || ( boost::is_fundamental< T >::value )
-                  || ( boost::is_enum< T >::value )
-    );
-
+    enum { value = 
+        ( std::is_same< T, std::string >::value )
+                  || ( std::is_same< T, std::wstring >::value )
+                  || ( std::is_fundamental< T >::value )
+                  || ( std::is_enum< T >::value ) };
 };
 
 template<class T>
@@ -63,7 +58,7 @@ struct const_array_1_t{
 
     typedef BOOST_DEDUCED_TYPENAME boost::call_traits<const TItemType>::param_type param_type;
 
-    typedef BOOST_DEDUCED_TYPENAME boost::mpl::if_c<
+    typedef typename std::conditional<
             details::is_immutable<TItemType>::value
             , TItemType
             , param_type
@@ -96,7 +91,7 @@ struct array_1_t{
 
     typedef BOOST_DEDUCED_TYPENAME boost::call_traits<const TItemType>::param_type param_type;
 
-    typedef BOOST_DEDUCED_TYPENAME boost::mpl::if_c<
+    typedef typename std::conditional<
             details::is_immutable<TItemType>::value
             , TItemType
             , param_type

@@ -24,7 +24,6 @@
 #include <boost/python/module.hpp>
 #include <boost/python/overloads.hpp>
 #include <boost/python/scope.hpp>
-#include <boost/ref.hpp>
 #include "python_plugin.hh"
 #include "rs274ngc.hh"
 #include "interp_internal.hh"

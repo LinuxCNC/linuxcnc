@@ -36,7 +36,6 @@
 #include <rtapi_firmware.h>
 #include "rtapi_uspace.hh"
 
-#include <boost/foreach.hpp>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -261,7 +260,7 @@ void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver)
     if (!driver) return;
 
     WITH_ROOT;
-    BOOST_FOREACH(struct rtapi_pci_dev *dev, DEVICES(driver))
+    for(auto dev : DEVICES(driver))
     {
         driver->remove(dev);
         delete dev;
