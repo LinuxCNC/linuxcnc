@@ -33,8 +33,6 @@ class INI:
             print >>file, "DISPLAY = axis"
         elif self.d.frontend == _PD._TKLINUXCNC:
             print >>file, "DISPLAY = tklinuxcnc"
-        elif self.d.frontend == _PD._MINI:
-            print >>file, "DISPLAY = mini"
         elif self.d.frontend == _PD._TOUCHY:
             print >>file, "DISPLAY = touchy"
         if self.d.gladevcp:

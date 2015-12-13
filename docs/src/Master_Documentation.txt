@@ -64,8 +64,6 @@ include::gui/gscreen.txt[]
 
 include::gui/tklinuxcnc.txt[]
 
-include::gui/mini.txt[]
-
 :leveloffset: 1
 
 = Programming

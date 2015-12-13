@@ -75,11 +75,6 @@ construire des programmes G-code complets sans aucune programmation.
 .L'interface graphique NGCGUI intégrée dans Axis[[fig:ngcgui-gui]]
 image::images/ngcgui_fr.png[align="center"]
 
-* <<cha:Mini,_Mini_>>, une interface en Tcl/Tk.
-
-.L'interface graphique Mini[[fig:Interface-graphique-Mini]]
-image::images/mini_fr.png[align="center"]
-
 * <<cha:TkLinuxCNC,_TkLinuxCNC_>>, une autre interface basée sur Tcl/Tk.
 C'est l'interface la plus populaire après Axis
 
