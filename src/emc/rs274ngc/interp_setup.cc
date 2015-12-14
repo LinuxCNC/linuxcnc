@@ -21,6 +21,7 @@
 #include "rs274ngc_interp.hh"
 #include <boost/python/object.hpp>
 
+#pragma GCC diagnostic error "-Wmissing-field-initializers"
 setup_struct::setup_struct() :
     AA_axis_offset(0.0),
     AA_current(0.0),
