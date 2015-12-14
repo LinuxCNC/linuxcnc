@@ -43,8 +43,6 @@
 #define SQ(a) ((a)*(a))
 #endif
 
-#define MAX(x, y)        ((x) > (y) ? (x) : (y))
-
 #define round_to_int(x) ((int) ((x) < 0.0 ? ((x) - 0.5) : ((x) + 0.5)))
 /* how far above hole bottom for rapid return, in inches */
 #define G83_RAPID_DELTA 0.010

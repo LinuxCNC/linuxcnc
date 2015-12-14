@@ -62,7 +62,7 @@ int Interp::inverse_time_rate_arc(double x1,     //!< x coord of start point of 
   if (settings->feed_mode != INVERSE_TIME) return -1;
 
   length = find_arc_length(x1, y1, z1, cx, cy, turn, x2, y2, z2);
-  rate = MAX(0.1, (length * block->f_number));
+  rate = std::max(0.1, (length * block->f_number));
   enqueue_SET_FEED_RATE(rate);
   settings->feed_rate = rate;
 
@@ -121,7 +121,7 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
                                 settings->AA_current, settings->BB_current, settings->CC_current,
                                 settings->u_current, settings->v_current, settings->w_current);
 
-  rate = MAX(0.1, (length * block->f_number));
+  rate = std::max(0.1, (length * block->f_number));
   enqueue_SET_FEED_RATE(rate);
   settings->feed_rate = rate;
 
