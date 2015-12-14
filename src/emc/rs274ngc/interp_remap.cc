@@ -197,11 +197,11 @@ int Interp::add_parameters(setup_pointer settings,
     // if any Python handlers are present, create a kwargs dict
     bool pydict = rptr->remap_py || rptr->prolog_func || rptr->epilog_func;
 
-    memset(missing,0,sizeof(missing));
-    memset(optional,0,sizeof(optional));
-    memset(required,0,sizeof(required));
-    memset(msg,0,sizeof(msg));
-    memset(tail,0,sizeof(tail));
+    std::fill(missing, std::end(missing), 0);
+    std::fill(optional, std::end(optional), 0);
+    std::fill(required, std::end(required), 0);
+    std::fill(msg, std::end(msg), 0);
+    std::fill(tail, std::end(tail), 0);
 
     s = argspec = rptr->argspec;
     CHKS((argspec == NULL),"BUG: add_parameters: argspec = NULL");
