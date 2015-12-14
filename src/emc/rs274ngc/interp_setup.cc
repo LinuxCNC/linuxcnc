@@ -19,6 +19,7 @@
  */
 #include <string.h>
 #include "rs274ngc_interp.hh"
+#include <boost/python/object.hpp>
 
 setup_struct::setup_struct() :
     AA_axis_offset(0.0),
@@ -178,4 +179,9 @@ setup_struct::setup_struct() :
     // pythis
     // g_remapped,m_remapped
     // remaps
+}
+
+setup::~setup() {
+    assert(!pythis || Py_IsInitialized());
+    if(pythis) delete pythis;
 }

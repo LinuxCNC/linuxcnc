@@ -14,6 +14,7 @@
 #define _GNU_SOURCE
 #endif
 #include "python_plugin.hh"
+#include "interp_python.hh"
 #include <boost/python/list.hpp>
 namespace bp = boost::python;
 
@@ -219,7 +220,7 @@ int Interp::add_parameters(setup_pointer settings,
 #define STORE(name,value)						\
     if (pydict) {							\
 	try {								\
-	    active_frame->kwargs[name] = value;				\
+	    active_frame->pystuff.impl->kwargs[name] = value;		\
         }								\
         catch (bp::error_already_set) {					\
 	    PyErr_Print();						\

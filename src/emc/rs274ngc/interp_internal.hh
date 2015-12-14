@@ -23,8 +23,7 @@
 #include "canon.hh"
 #include "emcpos.h"
 #include "libintl.h"
-#include <boost/python/object.hpp>
-//#include "python_plugin.hh"
+#include <boost/python/object_fwd.hpp>
 
 
 #define _(s) gettext(s)
@@ -560,8 +559,18 @@ typedef parameter_map::iterator parameter_map_iterator;
 #define M_MODE_OK(m) ((m > 3) && (m < 11))
 #define G_MODE_OK(m) (m == 1)
 
+struct pycontext_impl;
+struct pycontext {
+    pycontext();
+    pycontext(const struct pycontext &);
+    pycontext &operator=(const struct pycontext &);
+    ~pycontext();
+    pycontext_impl *impl;
+};
+
 typedef struct context_struct {
     context_struct();
+
     long position;       // location (ftell) in file
     int sequence_number; // location (line number) in file
     const char *filename;      // name of file for this context
@@ -573,14 +582,8 @@ typedef struct context_struct {
     int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
     int call_type; // enum call_types
+    pycontext pystuff;
     // Python-related stuff
-    boost::python::object tupleargs; // the args tuple for Py functions
-    boost::python::object kwargs; // the args dict for Py functions
-    int py_return_type;   // type of Python return value - enum retopts 
-    double py_returned_double;
-    int py_returned_int;
-    // generator object next method as returned if Python function contained a yield statement
-    boost::python::object generator_next; 
 } context;
 
 typedef context *context_pointer;
@@ -622,7 +625,7 @@ and is not represented here
 typedef struct setup_struct
 {
   setup_struct();
- ~setup_struct() { assert(!pythis || Py_IsInitialized()); }
+  ~setup_struct();
 
   double AA_axis_offset;        // A-axis g92 offset
   double AA_current;            // current A-axis position
@@ -781,7 +784,7 @@ typedef struct setup_struct
 #define FEATURE_NO_DOWNCASE_OWORD    0x00000010
 #define FEATURE_OWORD_WARNONLY       0x00000020
 
-    boost::python::object pythis;  // boost::cref to 'this'
+    boost::python::object *pythis;  // boost::cref to 'this'
     const char *on_abort_command;
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;
