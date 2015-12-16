@@ -26,10 +26,10 @@
 # ###################################
 
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 # hostmot2 driver
 loadrt hostmot2
@@ -78,16 +78,16 @@ net motor.00.pos-fb => joint.0.motor-pos-fb
 
 
 # timing parameters
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.dirsetup        [AXIS_0]DIRSETUP
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.dirhold         [AXIS_0]DIRHOLD
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.dirsetup        [JOINT_0]DIRSETUP
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.dirhold         [JOINT_0]DIRHOLD
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.steplen         [AXIS_0]STEPLEN
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.stepspace       [AXIS_0]STEPSPACE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.steplen         [JOINT_0]STEPLEN
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.stepspace       [JOINT_0]STEPSPACE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-scale  [AXIS_0]SCALE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-scale  [JOINT_0]SCALE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxvel          [JOINT_0]STEPGEN_MAX_VEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxaccel        [JOINT_0]STEPGEN_MAX_ACC
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.step_type       0
 
@@ -113,16 +113,16 @@ net motor.01.pos-fb => joint.1.motor-pos-fb
 
 
 # timing parameters
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.dirsetup        [AXIS_1]DIRSETUP
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.dirhold         [AXIS_1]DIRHOLD
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.dirsetup        [JOINT_1]DIRSETUP
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.dirhold         [JOINT_1]DIRHOLD
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.steplen         [AXIS_1]STEPLEN
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.stepspace       [AXIS_1]STEPSPACE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.steplen         [JOINT_1]STEPLEN
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.stepspace       [JOINT_1]STEPSPACE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-scale  [AXIS_1]SCALE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-scale  [JOINT_1]SCALE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxvel          [JOINT_1]STEPGEN_MAX_VEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxaccel        [JOINT_1]STEPGEN_MAX_ACC
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.step_type       0
 
@@ -148,16 +148,16 @@ net motor.02.pos-fb => joint.2.motor-pos-fb
 
 
 # timing parameters
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.dirsetup        [AXIS_2]DIRSETUP
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.dirhold         [AXIS_2]DIRHOLD
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.dirsetup        [JOINT_2]DIRSETUP
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.dirhold         [JOINT_2]DIRHOLD
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.steplen         [AXIS_2]STEPLEN
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.stepspace       [AXIS_2]STEPSPACE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.steplen         [JOINT_2]STEPLEN
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.stepspace       [JOINT_2]STEPSPACE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.position-scale  [AXIS_2]SCALE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.position-scale  [JOINT_2]SCALE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxvel          [JOINT_2]STEPGEN_MAX_VEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxaccel        [JOINT_2]STEPGEN_MAX_ACC
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.step_type       0
 
