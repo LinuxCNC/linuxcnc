@@ -3253,7 +3253,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     EmcPose disp;
     emcPoseSub(&tp->currentPos, &pos_before, &disp);
     emcPoseMagnitude(&disp, &mag);
-    tp_debug_print("tp_displacement = %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e\n",
+    tp_debug_print("tp_displacement = %d %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e\n",
+            tc->id,
             time_elapsed,
             disp.tran.x,
             disp.tran.y,
