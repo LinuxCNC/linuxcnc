@@ -3249,6 +3249,19 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
 #ifdef TP_DEBUG
+    tp_info_print("tp_pos = %d %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e\n",
+            tc->id,
+            time_elapsed,
+            tp->currentPos.tran.x,
+            tp->currentPos.tran.y,
+            tp->currentPos.tran.z,
+            tp->currentPos.a,
+            tp->currentPos.b,
+            tp->currentPos.c,
+            tp->currentPos.u,
+            tp->currentPos.v,
+            tp->currentPos.w);
+
     double mag;
     EmcPose disp;
     emcPoseSub(&tp->currentPos, &pos_before, &disp);
