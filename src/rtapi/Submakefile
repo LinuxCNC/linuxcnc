@@ -170,7 +170,7 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR) $(RTAPI_APP_RPATH) \
+	$(Q)$(CXX) -Wl,--no-as-needed -Wl,-rpath,$(EMC2_RTLIB_DIR) $(RTAPI_APP_RPATH) \
 	    -o $@ $^ $(RT_LDFLAGS) \
 	$(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) $(LTTNG_UST_LIBS) -lstdc++ -ldl -luuid
 
