@@ -805,15 +805,12 @@ static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
     int dir;
-    double vel;
+    double vel = 1;
     if(!PyArg_ParseTuple(o, "i|d", &dir, &vel)) return NULL;
     switch(dir) {
         case LOCAL_SPINDLE_FORWARD:
         case LOCAL_SPINDLE_REVERSE:
         {
-            if(PyTuple_Size(o) != 2) {
-            vel = 1;
-            }
             EMC_SPINDLE_ON m;
             m.speed = dir * vel;
             m.serial_number = next_serial(s);
@@ -862,14 +859,14 @@ static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
 }
 
 static PyObject *mdi(pyCommandChannel *s, PyObject *o) {
+    EMC_TASK_PLAN_EXECUTE m;
     char *cmd;
     int len;
     if(!PyArg_ParseTuple(o, "s#", &cmd, &len)) return NULL;
-    if(len >= 255) {
-        PyErr_Format(PyExc_ValueError,"MDI commands limited to 255 characters");
+    if(unsigned(len) > sizeof(m.command) - 1) {
+        PyErr_Format(PyExc_ValueError, "MDI commands limited to %zu characters", sizeof(m.command) - 1);
         return NULL;
     }
-    EMC_TASK_PLAN_EXECUTE m;
     m.serial_number = next_serial(s);
     strcpy(m.command, cmd);
     s->c->write(m);
@@ -1118,6 +1115,10 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
     int len;
 
     if(!PyArg_ParseTuple(o, "s#", &file, &len)) return NULL;
+    if(unsigned(len) > sizeof(m.file) - 1) {
+        PyErr_Format(PyExc_ValueError, "File name limited to %zu characters", sizeof(m.file) - 1);
+        return NULL;
+    }
     m.serial_number = next_serial(s);
     strcpy(m.file, file);
     s->c->write(m);
@@ -1247,7 +1248,7 @@ static PyObject *set_max_limit(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *set_feed_override(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_FO_ENABLE m;
-    if(!PyArg_ParseTuple(o, "i", &m.mode))
+    if(!PyArg_ParseTuple(o, "b", &m.mode))
         return NULL;
 
     m.serial_number = next_serial(s);
@@ -1260,7 +1261,7 @@ static PyObject *set_feed_override(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *set_spindle_override(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_SO_ENABLE m;
-    if(!PyArg_ParseTuple(o, "i", &m.mode))
+    if(!PyArg_ParseTuple(o, "b", &m.mode))
         return NULL;
 
     m.serial_number = next_serial(s);
@@ -1273,7 +1274,7 @@ static PyObject *set_spindle_override(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *set_feed_hold(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_FH_ENABLE m;
-    if(!PyArg_ParseTuple(o, "i", &m.mode))
+    if(!PyArg_ParseTuple(o, "b", &m.mode))
         return NULL;
 
     m.serial_number = next_serial(s);
@@ -1286,7 +1287,7 @@ static PyObject *set_feed_hold(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *set_adaptive_feed(pyCommandChannel *s, PyObject *o) {
     EMC_MOTION_ADAPTIVE m;
-    if(!PyArg_ParseTuple(o, "i", &m.status))
+    if(!PyArg_ParseTuple(o, "b", &m.status))
         return NULL;
 
     m.serial_number = next_serial(s);
@@ -1299,7 +1300,7 @@ static PyObject *set_adaptive_feed(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *set_digital_output(pyCommandChannel *s, PyObject *o) {
     EMC_MOTION_SET_DOUT m;
-    if(!PyArg_ParseTuple(o, "ii", &m.index, &m.start))
+    if(!PyArg_ParseTuple(o, "bb", &m.index, &m.start))
         return NULL;
 
     m.now = 1;
@@ -1313,7 +1314,7 @@ static PyObject *set_digital_output(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *set_analog_output(pyCommandChannel *s, PyObject *o) {
     EMC_MOTION_SET_AOUT m;
-    if(!PyArg_ParseTuple(o, "id", &m.index, &m.start))
+    if(!PyArg_ParseTuple(o, "bd", &m.index, &m.start))
         return NULL;
 
     m.now = 1;
