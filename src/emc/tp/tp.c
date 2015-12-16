@@ -690,7 +690,7 @@ STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * con
         length /= 2.0;
     }
     double triangle_vel = pmSqrt( acc_scaled * length);
-    tp_debug_print("triangle vel for segment %d is %f\n", tc->id, triangle_vel);
+    tc_debug_print("triangle vel for segment %d is %f\n", tc->id, triangle_vel);
 
     return triangle_vel;
 }
@@ -3181,7 +3181,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     tc_debug_print("-------------------\n");
 
-#ifdef TC_DEBUG
+#ifdef TP_DEBUG
     //Hack debug output for timesteps
     static double time_elapsed = 0;
     time_elapsed+=tp->cycleTime;
@@ -3234,7 +3234,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             break;
     }
 
-#ifdef TC_DEBUG
+#ifdef TP_DEBUG
     EmcPose pos_before = tp->currentPos;
 #endif
 
@@ -3248,16 +3248,12 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tpHandleRegularCycle(tp, tc, nexttc);
     }
 
-#ifdef TC_DEBUG
+#ifdef TP_DEBUG
     double mag;
     EmcPose disp;
     emcPoseSub(&tp->currentPos, &pos_before, &disp);
     emcPoseMagnitude(&disp, &mag);
-    tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n",
-            time_elapsed,
-            mag, emcmotStatus->current_vel);
-
-    tc_debug_print("tp_displacement = %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e\n",
+    tp_debug_print("tp_displacement = %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e %.12e\n",
             time_elapsed,
             disp.tran.x,
             disp.tran.y,

@@ -7,7 +7,7 @@ MAKECMD="make -j4 "
 # Show debug info for each timestep, as well as segment creation
 #$MAKECMD EXTRA_DEBUG='-DTC_DEBUG -DTP_DEBUG'
 # Show debugging info for segment creation and optimization
-#make EXTRA_DEBUG='-DTP_DEBUG -DTP_INFO_LOGGING'
-$MAKECMD EXTRA_DEBUG='-DTC_DEBUG -DTP_DEBUG -DTP_INFO_LOGGING'
+$MAKECMD EXTRA_DEBUG='-DTP_DEBUG -DTP_INFO_LOGGING'
+#$MAKECMD EXTRA_DEBUG='-DTC_DEBUG -DTP_DEBUG -DTP_INFO_LOGGING'
 #make EXTRA_DEBUG='-DTP_DEBUG'
 #make EXTRA_DEBUG='-DTC_DEBUG'
