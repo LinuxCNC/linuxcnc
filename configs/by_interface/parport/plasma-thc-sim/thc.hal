@@ -92,7 +92,7 @@ setp mux2.1.in1 1
 setp mux2.3.in0 0
 
 # Set the lowest value the THC will try to move the torch
-setp sum2.4.in0 [AXIS_2]MIN_LIMIT
+setp sum2.4.in0 [JOINT_2]MIN_LIMIT
 
 # Set default gains for sum, positive for addition and negative for subtraction
 # Setting positive gains will become implicit and those can be removed safely in a later version
