@@ -373,6 +373,7 @@ LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
 else
 LDFLAGS := -Wl,-rpath-link,../lib
 endif
+LDFLAGS += -Wl,--no-as-needed
 
 # Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
