@@ -1,5 +1,5 @@
-loadrt trivkins
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[KINS]JOINTS
 loadrt stepgen step_type=0,0,0,0
 loadrt match8 count=1
 # Used to filter out spurious limit switch signals
@@ -43,18 +43,18 @@ net Zdir stepgen.2.dir parport.0.pin-06-out
 net Astep stepgen.3.step parport.0.pin-09-out
 net Adir stepgen.3.dir parport.0.pin-08-out
 
-setp stepgen.0.position-scale [AXIS_0]SCALE
-setp stepgen.1.position-scale [AXIS_1]SCALE
-setp stepgen.2.position-scale [AXIS_2]SCALE
-setp stepgen.3.position-scale [AXIS_3]SCALE
-setp stepgen.0.maxvel [AXIS_0]STEPGEN_MAXVEL
-setp stepgen.1.maxvel [AXIS_1]STEPGEN_MAXVEL
-setp stepgen.2.maxvel [AXIS_2]STEPGEN_MAXVEL
-setp stepgen.3.maxvel [AXIS_3]STEPGEN_MAXVEL
-setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
-setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
-setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
-setp stepgen.3.maxaccel [AXIS_3]STEPGEN_MAXACCEL
+setp stepgen.0.position-scale [JOINT_0]SCALE
+setp stepgen.1.position-scale [JOINT_1]SCALE
+setp stepgen.2.position-scale [JOINT_2]SCALE
+setp stepgen.3.position-scale [JOINT_3]SCALE
+setp stepgen.0.maxvel [JOINT_0]STEPGEN_MAXVEL
+setp stepgen.1.maxvel [JOINT_1]STEPGEN_MAXVEL
+setp stepgen.2.maxvel [JOINT_2]STEPGEN_MAXVEL
+setp stepgen.3.maxvel [JOINT_3]STEPGEN_MAXVEL
+setp stepgen.0.maxaccel [JOINT_0]STEPGEN_MAXACCEL
+setp stepgen.1.maxaccel [JOINT_1]STEPGEN_MAXACCEL
+setp stepgen.2.maxaccel [JOINT_2]STEPGEN_MAXACCEL
+setp stepgen.3.maxaccel [JOINT_3]STEPGEN_MAXACCEL
 
 # four axis motion allows 4 other outputs on pins 1,14,16,17
 # five additional input pins are available 10,11,12,13,15

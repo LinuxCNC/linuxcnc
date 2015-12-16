@@ -25,16 +25,16 @@ setp stepgen.2.dirsetup 35200
 setp stepgen.2.dirhold 35200
 
 # Set stepgen module scaling - get values from ini file
-setp stepgen.0.position-scale [AXIS_0]SCALE
-setp stepgen.1.position-scale [AXIS_1]SCALE
-setp stepgen.2.position-scale [AXIS_2]SCALE
-setp stepgen.3.position-scale [AXIS_3]SCALE
+setp stepgen.0.position-scale [JOINT_0]SCALE
+setp stepgen.1.position-scale [JOINT_1]SCALE
+setp stepgen.2.position-scale [JOINT_2]SCALE
+setp stepgen.3.position-scale [JOINT_3]SCALE
 
 # Set stepgen module accel limits - get values from ini file
-setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
-setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
-setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
-setp stepgen.3.maxaccel [AXIS_3]STEPGEN_MAXACCEL
+setp stepgen.0.maxaccel [JOINT_0]STEPGEN_MAXACCEL
+setp stepgen.1.maxaccel [JOINT_1]STEPGEN_MAXACCEL
+setp stepgen.2.maxaccel [JOINT_2]STEPGEN_MAXACCEL
+setp stepgen.3.maxaccel [JOINT_3]STEPGEN_MAXACCEL
 
 # Hook up stepgen to motion modules
 net PosX-cmd joint.0.motor-pos-cmd => stepgen.0.position-cmd

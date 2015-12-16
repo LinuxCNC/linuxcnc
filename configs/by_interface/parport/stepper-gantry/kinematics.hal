@@ -1,6 +1,6 @@
 ############################## Kinematics & Motion Controller ####################################
 # Kinematics
-loadrt gantrykins
+loadrt [KINS]KINEMATICS
 
 # Settings for gantrykins
 setp gantrykins.joint-0 0

@@ -12,10 +12,10 @@ loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=1 num_pwm
 #setp hm2_5i20.0.watchdog.timeout_ns 10000000
 
 # load kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 
 # load motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[KINS]JOINTS
 
 # load charge pump
 loadrt charge_pump
@@ -45,30 +45,30 @@ setp hm2_5i20.0.stepgen.00.dirsetup        2500
 setp hm2_5i20.0.stepgen.00.dirhold         2500
 setp hm2_5i20.0.stepgen.00.steplen         2500
 setp hm2_5i20.0.stepgen.00.stepspace       2500
-setp hm2_5i20.0.stepgen.00.position-scale  [AXIS_0]SCALE
-setp hm2_5i20.0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
-setp hm2_5i20.0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.00.position-scale  [JOINT_0]SCALE
+setp hm2_5i20.0.stepgen.00.maxaccel        [JOINT_0]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.00.maxvel          [JOINT_0]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.01.dirsetup        2500
 setp hm2_5i20.0.stepgen.01.dirhold         2500
 setp hm2_5i20.0.stepgen.01.steplen         2500
 setp hm2_5i20.0.stepgen.01.stepspace       2500
-setp hm2_5i20.0.stepgen.01.position-scale  [AXIS_1]SCALE
-setp hm2_5i20.0.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAXACCEL
-setp hm2_5i20.0.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.01.position-scale  [JOINT_1]SCALE
+setp hm2_5i20.0.stepgen.01.maxaccel        [JOINT_1]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.01.maxvel          [JOINT_1]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.02.dirsetup        2500
 setp hm2_5i20.0.stepgen.02.dirhold         2500
 setp hm2_5i20.0.stepgen.02.steplen         2500
 setp hm2_5i20.0.stepgen.02.stepspace       2500
-setp hm2_5i20.0.stepgen.02.position-scale  [AXIS_2]SCALE
-setp hm2_5i20.0.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
-setp hm2_5i20.0.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.02.position-scale  [JOINT_2]SCALE
+setp hm2_5i20.0.stepgen.02.maxaccel        [JOINT_2]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.02.maxvel          [JOINT_2]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.03.dirsetup        2500
 setp hm2_5i20.0.stepgen.03.dirhold         2500
 setp hm2_5i20.0.stepgen.03.steplen         2500
 setp hm2_5i20.0.stepgen.03.stepspace       2500
-setp hm2_5i20.0.stepgen.03.position-scale  [AXIS_3]SCALE
-setp hm2_5i20.0.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAXACCEL
-setp hm2_5i20.0.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.03.position-scale  [JOINT_3]SCALE
+setp hm2_5i20.0.stepgen.03.maxaccel        [JOINT_3]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.03.maxvel          [JOINT_3]STEPGEN_MAXVEL
 
 # connect position commands from motion module to step generator
 net Xpos-cmd joint.0.motor-pos-cmd => hm2_5i20.0.stepgen.00.position-cmd
