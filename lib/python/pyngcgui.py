@@ -2357,9 +2357,13 @@ class ControlPanel():
             f.write("%\n")
             f.write("(%s: nom2 option)\n" % g_progname)
 
-        featurect = 0
+        featurect = 0; features_total=0
         for pg in plist:
-            ct = self.write_to_file(f,pg,featurect)
+            features_total = features_total + len(pg.savesec)
+        for pg in plist:
+            if featurect == -1 + features_total:
+                islast = 1
+            ct = self.write_to_file(f,pg,featurect,features_total)
             featurect += ct
             pg.feature_ct = 0
             self.lfct.set_label(str(pg.feature_ct))
@@ -2406,16 +2410,25 @@ class ControlPanel():
         g_label_id = 0 # reinitialize
         return
 
-    def write_to_file(self,file,pg,featurect):
+    def write_to_file(self,file,pg,featurect,features_total):
         ct = 0
         for i in range(0,len(pg.savesec) ):
             ct += 1
             for l in pg.savesec[i].sdata:
                 if l.find("#<_feature:>") == 0:
-                    l = "(%s: feature line added) #<_feature:> = %d\n" \
-                         % (g_progname,featurect)
+                    file.write(
+                      "(%s: feature line added) #<_feature:> = %d\n"\
+                      % (g_progname,featurect))
                     featurect += 1
-                file.write(l)
+                    islast = 0
+                    if featurect == features_total:
+                        islast = 1
+                    file.write(
+                      "(%s: remaining_features line added) "
+                      " #<_remaining_features:> = %d\n"\
+                      % (g_progname,features_total - featurect))
+                else:
+                    file.write(l)
         return(ct)
 
     def file_choose(self,widget,ftype):
