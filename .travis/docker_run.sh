@@ -34,6 +34,7 @@ fi
 docker run \
     -v $(pwd):/opt/rootfs/${MACHINEKIT_PATH} \
     -v $(pwd)/.travis:/travis \
+    -v $(pwd)/../ccache:/opt/rootfs/ccache \
     -e FLAV="${FLAV}" \
     -e JOBS=${JOBS} \
     -e TAG=${TAG} \

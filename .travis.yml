@@ -27,6 +27,7 @@ env:
     - SFTP_DEPLOY_PORT="${SFTP_DEPLOY_PORT:-22}"
     - SFTP_DEPLOY_USER="${SFTP_DEPLOY_USER:-travis}"
     - SFTP_DEPLOY_ADDR="${SFTP_DEPLOY_ADDR:-empty}"
+    - CCACHE_REPO="${CCACHE_REPO:-kinsamanka/mk-ccache}"
   matrix:
     - TAG=wheezy-64    CMD=run_tests
     - TAG=jessie-64    CMD=run_tests
@@ -41,13 +42,16 @@ env:
     - TAG=jessie-armhf CMD=build_deb FLAV=xenomai
     - TAG=jessie-armhf CMD=build_deb FLAV=rt_preempt
 
+before_script:
+  - .travis/get_ccache.sh
+
 script:
   - .travis/docker_run.sh
 
 after_success:
+  - .travis/save_ccache.sh
   - .travis/send_binaries.sh
   - .travis/upload_packagecloud.sh
 
 after_script:
   - .travis/send_status.sh
-
