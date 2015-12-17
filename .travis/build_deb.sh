@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 # this script is run inside a docker container
-cd ${CHROOT_PATH}${MACHINEKIT_PATH}
+cd ${ROOTFS}${MACHINEKIT_PATH}
 
 # Verbose build
 if ${MK_PACKAGE_VERBOSE}; then
@@ -61,18 +61,13 @@ DEBUILD_OPTS+=" -eDEB_BUILD_OPTIONS=parallel=${JOBS} -us -uc -j${JOBS}"
 if test ${MARCH} = 64; then
     # create upstream tarball only on amd64
     (
-	cd ${CHROOT_PATH}${MACHINEKIT_PATH}
+	cd ${ROOTFS}${MACHINEKIT_PATH}
 	git archive HEAD | bzip2 -z > \
             ../machinekit_${VERSION}.orig.tar.bz2
     )
 else
     # the rest will be binaries only
     DEBUILD_OPTS+=" -b"
-fi
-
-PROOT_OPTS="-b /dev/shm -r ${CHROOT_PATH}"
-if test ${MARCH} = armhf; then
-    PROOT_OPTS="${PROOT_OPTS} -q qemu-arm-static"
 fi
 
 case "${FLAV}" in
@@ -89,20 +84,19 @@ export FLAV_OPTS
 
 # build debs
 export DEBUILD_OPTS
-proot ${PROOT_OPTS} /bin/sh -exc 'cd ${MACHINEKIT_PATH}; \
+proot-helper /bin/sh -exc 'cd ${MACHINEKIT_PATH}; \
     ./debian/configure ${FLAV_OPTS} ; \
     debuild ${DEBUILD_OPTS}'
 
 # copy results
-mkdir ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
-chmod 0777 ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
-cd ${CHROOT_PATH}/${MACHINEKIT_PATH}/../
-cp *deb *changes ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
+mkdir ${ROOTFS}/${MACHINEKIT_PATH}/deploy
+chmod 0777 ${ROOTFS}/${MACHINEKIT_PATH}/deploy
+cd ${ROOTFS}/${MACHINEKIT_PATH}/../
+cp *deb *changes ${ROOTFS}/${MACHINEKIT_PATH}/deploy
 
 # copy source
 if test ${MARCH} = 64; then
-    cp *bz2 *dsc ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy
+    cp *bz2 *dsc ${ROOTFS}/${MACHINEKIT_PATH}/deploy
 fi
 
-chmod 0666 ${CHROOT_PATH}/${MACHINEKIT_PATH}/deploy/*
-
+chmod 0666 ${ROOTFS}/${MACHINEKIT_PATH}/deploy/*
