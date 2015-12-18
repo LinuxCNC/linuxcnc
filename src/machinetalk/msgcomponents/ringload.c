@@ -41,7 +41,7 @@ int rtapi_app_main(void)
 	flags |= ALLOC_HALMEM;
 
     for (n = 0; n < num_rings; n++) {
-	snprintf(ringname, HAL_NAME_LEN, "ring_%d",n);
+	rtapi_snprintf(ringname, HAL_NAME_LEN, "ring_%d",n);
 	if ((retval = hal_ring_new(ringname, size, spsize,flags))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "ringload: failed to create new ring %s: %d\n",
@@ -61,7 +61,7 @@ void rtapi_app_exit(void)
     char ringname[HAL_NAME_LEN + 1];
 
     for (n = 0; n < num_rings; n++) {
-	snprintf(ringname, HAL_NAME_LEN, "ring_%d",n);
+	rtapi_snprintf(ringname, HAL_NAME_LEN, "ring_%d",n);
 	if ((retval = hal_ring_delete(ringname))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "ringload: failed to delete ring %s: %d\n",
