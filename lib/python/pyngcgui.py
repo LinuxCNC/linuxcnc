@@ -2361,8 +2361,6 @@ class ControlPanel():
         for pg in plist:
             features_total = features_total + len(pg.savesec)
         for pg in plist:
-            if featurect == -1 + features_total:
-                islast = 1
             ct = self.write_to_file(f,pg,featurect,features_total)
             featurect += ct
             pg.feature_ct = 0
@@ -2420,9 +2418,6 @@ class ControlPanel():
                       "(%s: feature line added) #<_feature:> = %d\n"\
                       % (g_progname,featurect))
                     featurect += 1
-                    islast = 0
-                    if featurect == features_total:
-                        islast = 1
                     file.write(
                       "(%s: remaining_features line added) "
                       " #<_remaining_features:> = %d\n"\
