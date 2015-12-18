@@ -102,6 +102,8 @@ MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 
 DEBUG_FILE=$(mktemp /tmp/linuxcnc.debug.XXXXXX)
 PRINT_FILE=$(mktemp /tmp/linuxcnc.print.XXXXXX)
+ln -sf $PRINT_FILE /tmp/linuxcnc.print
+ln -sf $DEBUG_FILE /tmp/linuxcnc.debug
 
 program_available () {
     type -path "$1" > /dev/null 2>&1
