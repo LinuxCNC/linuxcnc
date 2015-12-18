@@ -2,14 +2,14 @@
 
 # this script is run inside a docker container
 
-PROOT_OPTS="-b /dev/shm -r ${CHROOT_PATH}"
-if test ${MARCH} = armhf; then
-    PROOT_OPTS="${PROOT_OPTS} -q qemu-arm-static"
-fi
-
 # rip build
-proot ${PROOT_OPTS} ${TRAVIS_PATH}/build_rip_helper.sh
+proot-helper ${TRAVIS_PATH}/build_rip_helper.sh
 
 # tar the chroot directory
-tar czf /tmp/rootfs.tgz -C ${CHROOT_PATH} .
-cp /tmp/rootfs.tgz ${CHROOT_PATH}${TRAVIS_PATH}/mk_runtests
+tar czf /tmp/rootfs.tgz -C ${ROOTFS} .
+cp /tmp/rootfs.tgz ${ROOTFS}${TRAVIS_PATH}/mk_runtests
+
+# display ccache stats
+CCACHE_DIR=/ccache proot-helper ccache -s
+# reset ccache stats
+CCACHE_DIR=/ccache proot-helper ccache -z > /dev/null

@@ -1,10 +1,9 @@
 #!/bin/bash -ex
 cd "$(dirname $0)/.."
 
-CHROOT_PATH="/opt/rootfs"
 MACHINEKIT_PATH="/usr/src/machinekit"
 TRAVIS_PATH="$MACHINEKIT_PATH/.travis"
-DOCKER_CONTAINER=${DOCKER_CONTAINER:-"kinsamanka/mkdocker"}
+DOCKER_CONTAINER=${DOCKER_CONTAINER:-"kinsamanka/machinekit_builder"}
 COMMITTER_NAME="$(git log -1 --pretty=format:%an)"
 COMMITTER_EMAIL="$(git log -1 --pretty=format:%ae)"
 COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"
@@ -33,13 +32,14 @@ fi
 
 # run build step
 docker run \
-    -v $(pwd):${CHROOT_PATH}${MACHINEKIT_PATH} \
+    -v $(pwd):/opt/rootfs/${MACHINEKIT_PATH} \
+    -v $(pwd)/.travis:/travis \
+    -v $(pwd)/../ccache:/opt/rootfs/ccache \
     -e FLAV="${FLAV}" \
     -e JOBS=${JOBS} \
     -e TAG=${TAG} \
     -e DISTRO=${DISTRO} \
     -e MARCH=${MARCH} \
-    -e CHROOT_PATH=${CHROOT_PATH} \
     -e MACHINEKIT_PATH=${MACHINEKIT_PATH} \
     -e TRAVIS_PATH=${TRAVIS_PATH} \
     -e COMMITTER_NAME="${COMMITTER_NAME}" \
@@ -59,7 +59,7 @@ docker run \
     -e TRAVIS_BRANCH \
     -e LC_ALL="POSIX" \
     ${DOCKER_CONTAINER}:${TAG} \
-    ${CHROOT_PATH}${TRAVIS_PATH}/${cmd}.sh
+    /travis/${cmd}.sh
 
 if test ${cmd} = build_rip; then
     # PR:  Run regression tests
@@ -77,4 +77,3 @@ if test ${cmd} = build_rip; then
 	-e LC_ALL="POSIX" \
 	 mk_runtest /run_tests.sh
 fi
-
