@@ -3,7 +3,7 @@ cd "$(dirname $0)/.."
 
 MACHINEKIT_PATH="/usr/src/machinekit"
 TRAVIS_PATH="$MACHINEKIT_PATH/.travis"
-DOCKER_CONTAINER=${DOCKER_CONTAINER:-"kinsamanka/mkdocker"}
+DOCKER_CONTAINER=${DOCKER_CONTAINER:-"kinsamanka/machinekit_builder"}
 COMMITTER_NAME="$(git log -1 --pretty=format:%an)"
 COMMITTER_EMAIL="$(git log -1 --pretty=format:%ae)"
 COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"
