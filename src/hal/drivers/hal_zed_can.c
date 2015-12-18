@@ -388,7 +388,7 @@ static int setup_CAN(int n)
 
     /** \todo error mamagement a palla */
     //
-    sprintf(ifr.ifr_name,"can%d",n); 
+    rtapi_snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "can%d",n); 
     //
     ioctl (sock[n], SIOCGIFINDEX, &ifr);
     //
