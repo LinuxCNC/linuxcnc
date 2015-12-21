@@ -108,19 +108,19 @@ pin in bit pin_12_in_fake;
 pin in bit pin_13_in_fake;
 pin in bit pin_15_in_fake;
 
-pin out bit pin_02_in_invert;
-pin out bit pin_03_in_invert;
-pin out bit pin_04_in_invert;
-pin out bit pin_05_in_invert;
-pin out bit pin_06_in_invert;
-pin out bit pin_07_in_invert;
-pin out bit pin_08_in_invert;
-pin out bit pin_09_in_invert;
-pin out bit pin_10_in_invert;
-pin out bit pin_11_in_invert;
-pin out bit pin_12_in_invert;
-pin out bit pin_13_in_invert;
-pin out bit pin_15_in_invert;
+pin out bit pin_02_in_not;
+pin out bit pin_03_in_not;
+pin out bit pin_04_in_not;
+pin out bit pin_05_in_not;
+pin out bit pin_06_in_not;
+pin out bit pin_07_in_not;
+pin out bit pin_08_in_not;
+pin out bit pin_09_in_not;
+pin out bit pin_10_in_not;
+pin out bit pin_11_in_not;
+pin out bit pin_12_in_not;
+pin out bit pin_13_in_not;
+pin out bit pin_15_in_not;
 
 pin in float reset_time;
 
@@ -147,19 +147,19 @@ pin_12_in = pin_12_in_fake;
 pin_13_in = pin_13_in_fake;
 pin_15_in = pin_15_in_fake;
 
-pin_02_in_invert = ! pin_02_in;
-pin_03_in_invert = ! pin_03_in;
-pin_04_in_invert = ! pin_04_in;
-pin_05_in_invert = ! pin_05_in;
-pin_06_in_invert = ! pin_06_in;
-pin_07_in_invert = ! pin_07_in;
-pin_08_in_invert = ! pin_08_in;
-pin_09_in_invert = ! pin_09_in;
-pin_10_in_invert = ! pin_10_in;
-pin_11_in_invert = ! pin_11_in;
-pin_12_in_invert = ! pin_12_in;
-pin_13_in_invert = ! pin_13_in;
-pin_15_in_invert = ! pin_15_in;
+pin_02_in_not = ! pin_02_in_fake;
+pin_03_in_not = ! pin_03_in_fake;
+pin_04_in_not = ! pin_04_in_fake;
+pin_05_in_not = ! pin_05_in_fake;
+pin_06_in_not = ! pin_06_in_fake;
+pin_07_in_not = ! pin_07_in_fake;
+pin_08_in_not = ! pin_08_in_fake;
+pin_09_in_not = ! pin_09_in_fake;
+pin_10_in_not = ! pin_10_in_fake;
+pin_11_in_not = ! pin_11_in_fake;
+pin_12_in_not = ! pin_12_in_fake;
+pin_13_in_not = ! pin_13_in_fake;
+pin_15_in_not = ! pin_15_in_fake;
 
 }
 
