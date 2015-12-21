@@ -143,12 +143,19 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             if (self.has_hal_pins):
                 if (self.button_halio_pin):
                     self.set_active(True)
-                    self.button_pin.set(True)
+                    try:
+                        self.button_pin.set(True)
+                    except:
+                        pass
                 else:
                     active = not self.active
                     self.set_active(active)
-                    self.button_pin.set(active)
-                    self.button_pin_not.set(not active)
+                    try:
+                        self.button_pin.set(active)
+                        self.button_pin_not.set(not active)
+                    except:
+                        pass
+
             else:
                 active = not self.active
                 self.set_active(active)
