@@ -529,7 +529,7 @@ class HAL:
             p ='{0:<20}'.format(p)
         else:
             p ='{0:<15}'.format(p)
-        if i:
+        if i and not fake:
             print >>file, "net %s <= parport.%d.pin-%02d-in-not%s" \
                 % (p, port, num,ending)
         else:
