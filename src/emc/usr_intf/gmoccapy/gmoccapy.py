@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.0"
+_RELEASE = " 2.0.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -4126,7 +4126,10 @@ class gmoccapy( object ):
 
     def _on_pin_jog_changed( self, pin, axis, direction ):
         if axis not in "xyz":
-            axis = "4"
+            if axis == self.axisletter_four:
+                axis = 4
+            if axis == self.axisletter_five:
+                axis = 5
         if direction == 1:
             widget = self.widgets["btn_%s_plus" % axis]
         else:
