@@ -1266,10 +1266,9 @@ It is an error if:
 G43.1 axes
 ----
 
-* 'G43.1 axes' - change subsequent motions by offsetting the Z and/or X
-   offsets stored in the tool table. G43.1 does not cause any
-   motion. The next time a compensated axis is moved, that axis's
-   endpoint is the compensated location.
+* 'G43.1 axes' - change subsequent motions by replacing the current offset(s)
+   of axes. G43.1 does not cause any motion. The next time a compensated axis
+   is moved, that axis's endpoint is the compensated location.
 
 .G43.1 Example
 ----
@@ -1284,6 +1283,8 @@ M2 (end program)
 It is an error if:
 
 * motion is commanded on the same line as 'G43.1'
+
+NOTE: G43.1 does not write to the tool table.
 
 [[gcode:g43.2]]
 == G43.2: Apply additional Tool Length Offset
@@ -1316,6 +1317,8 @@ It is an error if:
 
 * 'H' is unspecified, or
 * the given tool number does not exist in the tool table
+
+NOTE: G43.2 does not write to the tool table.
 
 [[gcode:g49]]
 == G49: Cancel Tool Length Compensation
