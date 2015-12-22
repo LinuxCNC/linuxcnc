@@ -5,6 +5,10 @@ if ${MK_BUILD_VERBOSE}; then
     VERBOSE="V=1"
 fi
 
+# enable ccache
+export CCACHE_DIR=/ccache 
+export PATH=/usr/lib/ccache:$PATH
+
 cd ${MACHINEKIT_PATH}/src
 ./autogen.sh
 ./configure \
