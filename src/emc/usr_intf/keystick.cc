@@ -1216,11 +1216,16 @@ void startTimer(int us)
   status, the update of the status window, and key-up simulation and
   handling
 */
-static void alarmHandler(int sig)
-{
-  // mask out this signal for now
-  signal(SIGALRM, SIG_IGN);
+int sigpipe[2];
 
+static void alarmHandler(int sig, siginfo_t *unused, void *unused2)
+{
+  char ch = 0;
+  write(sigpipe[1], &ch, 1);
+}
+
+static void idleHandler()
+{
   // read NML status
   updateStatus();
 
@@ -1280,9 +1285,6 @@ static void alarmHandler(int sig)
       emcCommandWait(emcCommandSerialNumber);
       spindleChanging = 0;
     }
-
-  // reenable this signal
-  signal(SIGALRM, alarmHandler);
 
   return;
 }
@@ -1626,6 +1628,34 @@ int tryNml()
 #undef RETRY_INTERVAL
 }
 
+int getch_and_idle()
+{
+  fd_set readfds;
+  while (1)
+    {
+      FD_ZERO(&readfds);
+      FD_SET(0, &readfds);
+      FD_SET(sigpipe[0], &readfds);
+
+      select(sigpipe[0] + 1, &readfds, NULL, NULL, NULL);
+
+      if(FD_ISSET(sigpipe[0], &readfds))
+        {
+          char buf;
+          read(sigpipe[0], &buf, 1);
+          idleHandler();
+          continue;
+        }
+
+      if(FD_ISSET(0, &readfds))
+        {
+          break;
+        }
+    }
+
+  return getch();
+}
+
 int main(int argc, char *argv[])
 {
   int dump = 0;
@@ -1752,8 +1782,13 @@ int main(int argc, char *argv[])
   // trap SIGINT
   signal(SIGINT, quit);
 
+  pipe(sigpipe);
+
   // set up handler for SIGALRM to handle periodic timer events
-  signal(SIGALRM, alarmHandler);
+  struct sigaction sa;
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_sigaction = alarmHandler;
+  sigaction(SIGALRM, &sa, NULL);
 
 #ifdef LOG
   errorFp = fopen(ERROR_FILE, "w");
@@ -1832,7 +1867,8 @@ int main(int argc, char *argv[])
   while (! done)
     {
       oldch = ch;
-      ch = (chtype) getch();
+      ch = (chtype) getch_and_idle();
+
       // check for ^C that may happen during blocking read
       if (done)
         {
