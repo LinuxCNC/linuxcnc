@@ -92,7 +92,7 @@ foreach arg $argv {
 set ::worldlabellist "X Y Z A B C U V W"
 set ::numjoints [emc_ini "JOINTS" "KINS"]
 if {$::numjoints == 0} {
-  puts "$prog: \[KINS\]JOINTS is missing or 0"
+  puts "$::prog: \[KINS\]JOINTS is missing or 0"
   exit 1
 }
 
@@ -1021,12 +1021,6 @@ for {set idx 0} {$idx < $::MAX_JOINTS} {incr idx} {
     set poslabel$jno   $jno ;# not identity, initially show joint no.
   }
   pack $positionframe -side top
-  lappend ::jointcoordmap $jno
-  # for identity kins:
-  #                    joint0-->first axis letter in ::jointcoordmap
-  #                    joint1-->next  axis letter in ::jointcoordmap
-  #                    etc.
-  # final ::jointcoordmap examples: xz: {0 2},  xyza {0 1 2 3}
   incr jointcount ;# controls font size
   incr jno
 }
