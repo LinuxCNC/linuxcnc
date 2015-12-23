@@ -31,6 +31,25 @@ exec ${LINUXCNC_EMCSH-emcsh} "$0" "$@"
 package require Linuxcnc
 eval emc_init $argv
 
+set ::prog [file tail $::argv0]
+set ::JOGJOINT  1           ;# joint jog
+set ::JOGTELEOP 0           ;# teleop jog
+set ::KINEMATICS_IDENTITY 1 ;# src/emc/kinematics/kinematics.h
+set ::MAX_JOINTS 9          ;# src/emc/motion/emcmotcfg.h
+
+set kinematics [lindex [emc_ini "KINEMATICS" "KINS"] 0]
+switch $kinematics {
+  trivkins -
+  gentrivkins {}
+  default     {
+    if {"$kinematics" == ""} {
+      puts "$::prog: \[KINS\]KINEMATICS not specified, assuming identity kins"
+    } else {
+      puts "$::prog: \[KINS\]KINEMATICS = <$kinematics> not supported"
+      exit 1
+    }
+  }
+}
 set tkemc 1
 
 # wheelEvent code curtesy of Tsahi Levent-Levi - on activestate web site.
@@ -89,16 +108,29 @@ if { [string length $paramfilename] == 0} {
     set paramfilename "emc.var"
 }
 
-# determine what the axes and coordinates are.
-set worldlabellist ""
-set axiscoordmap ""
-set numaxes [emc_ini "AXES" "TRAJ"]
-set coordnames [ emc_ini "COORDINATES" "TRAJ"]
-set activeAxis 0
+set ::worldlabellist {X Y Z A B C}
 
-# AJ: took over coords setup from tkemc
-# old style:
-#     set coords [emc_ini "POSITION_OFFSET" "DISPLAY"]
+set ::numjoints [emc_ini "JOINTS" "KINS"]
+if {$::numjoints == 0} {
+  puts "$::prog: \[KINS\]JOINTS is missing or 0"
+  exit 1
+}
+
+for {set i 0} {$i < $::numjoints} {incr i} { lappend ::jointlist $i }
+
+set ::coordnames [ emc_ini "COORDINATES" "TRAJ"]
+if {[string first " " $::coordnames] < 0 } {
+  # split to acommodate "XYZ" style (as well as {X Y Z} style)
+  set ::coordnames [split $::coordnames ""]
+}
+
+for {set idx 0} {$idx < $::MAX_JOINTS} {incr idx} {
+   set worldlabel$idx [lindex  $::worldlabellist $idx ]
+   set jointlabel$idx "$idx"
+}
+
+set ::activeJA 0
+
 # coords can be relative or machine
 set temp [emc_ini "POSITION_OFFSET" "DISPLAY"]
 if {$temp == "RELATIVE"} {
@@ -139,28 +171,11 @@ proc toggleCmdAct {} {
     }
 }
 
-set numcoords 0
-
-# Assign names to each axis number
-set possibles {X Y Z A B C}
-set j "-1"
-foreach axname $possibles {
-    incr j
-    global worldlabel${j} jointlabel${j}
-    if { [ string first $axname $coordnames ] >= 0 } {
-        set worldlabel${j} $axname
-        set jointlabel${j} ${j}
-        set numcoords [expr $numcoords +1]
-        set worldlabellist [ concat $worldlabellist $axname]
-        set axiscoordmap [ concat $axiscoordmap ${j} ]
-    }
-}
-
-# Read maxJogSpeed and axisType for each axis and store them arrays
-foreach temp $axiscoordmap {
-    set maxJogSpeedAxis($temp) \
+# Read ::maxJogSpeed and ::jointType for each axis and store them arrays
+foreach temp $jointlist {
+    set ::maxJogSpeedJoint($temp) \
     [int [expr [emc_ini MAX_VELOCITY JOINT_$temp] * 60 +0.5]]
-    set axisType($temp) [emc_ini TYPE JOINT_$temp]
+    set ::jointType($temp) [emc_ini TYPE JOINT_$temp]
  }
 
 set programDirectory [emc_ini PROGRAM_PREFIX DISPLAY]
@@ -178,129 +193,120 @@ set runMark 0
 # -----MISC Processes Jog-----
 
 proc toggleJogType {} {
-    global jogType jogIncrement
-
-    if {$jogType == "continuous"} {
-        set jogType $jogIncrement
+    if {$::jogType == "continuous"} {
+        set ::jogType $::jogIncrement
     } else {
-        set jogType continuous
+        set ::jogType continuous
     }
 }
 
 # fixme to work with both rotary and linear
 proc toggleJogIncrement {} {
-    global jogType jogIncrement
-set units "0"
-    if {$jogType == "continuous"} {
-        set jogType $jogIncrement
+    set units "0"
+    if {$::jogType == "continuous"} {
+        set ::jogType $::jogIncrement
     } else {
-        if {$jogIncrement == "0.0001"} {
-            set jogIncrement 0.0010
-        } elseif {$jogIncrement == "0.0010"} {
-            set jogIncrement 0.0100
-        } elseif {$jogIncrement == "0.0100"} {
-            set jogIncrement 0.1000
-        } elseif {$jogIncrement == "0.1000"} {
-            set jogIncrement 1.0000
-        } elseif {$jogIncrement == "1.0000"} {
-            set jogIncrement 5.0000
-        } elseif {$jogIncrement == "5.0000"} {
-            set jogIncrement 10.0000
-        } elseif {$jogIncrement == "10.0000"} {
-            set jogIncrement 0.0001
+        if {$::jogIncrement == "0.0001"} {
+            set ::jogIncrement 0.0010
+        } elseif {$::jogIncrement == "0.0010"} {
+            set ::jogIncrement 0.0100
+        } elseif {$::jogIncrement == "0.0100"} {
+            set ::jogIncrement 0.1000
+        } elseif {$::jogIncrement == "0.1000"} {
+            set ::jogIncrement 1.0000
+        } elseif {$::jogIncrement == "1.0000"} {
+            set ::jogIncrement 5.0000
+        } elseif {$::jogIncrement == "5.0000"} {
+            set ::jogIncrement 10.0000
+        } elseif {$::jogIncrement == "10.0000"} {
+            set ::jogIncrement 0.0001
         }
         set units [emc_program_linear_units]
         # puts "program_units $units"
-        set jogType $jogIncrement
+        set ::jogType $::jogIncrement
     }
 }
 
-# given axis, determines speed and cont v. incr and jogs it neg
-proc jogNeg {axis} {
-    global activeAxis jogSpeed jogType jogIncrement axiscoordmap
-set units "0"
-    set activeAxis $axis
-    if { [emc_teleop_enable] == 0 } {
-	set axisToJog [ lindex $axiscoordmap $axis ]
+proc jogNeg {jora} {
+    set units "0"
+    set ::activeJA $jora
+    if { [emc_teleop_enable] == 1 } {
+        set letter  [set ::poslabel$jora]
+	set jatojog [lsearch $::worldlabellist $letter]
+        set jogmode $::JOGTELEOP
     } else {
-	set axisToJog $axis
+	set jatojog $jora
+        set jogmode $::JOGJOINT
     }
+    catch { set units [emc_program_linear_units] }
 
-        catch { set units [emc_program_linear_units] }
-        # puts "program_units $units $axisToJog"
-
-    if {$jogType == "continuous"} {
-        emc_jog $axisToJog -$jogSpeed
+    if {$::jogType == "continuous"} {
+        emc_jog $jatojog $jogmode -$::jogSpeed
     } else {
-        emc_jog_incr $axisToJog -$jogSpeed $jogIncrement
-    }
-}
-
-# given axis, determines speed and cont v. incr and jogs it pos
-proc jogPos {axis} {
-    global activeAxis jogSpeed jogType jogIncrement axiscoordmap
-set units "0"
-    set activeAxis $axis
-    if { [emc_teleop_enable] == 0 } {
-	set axisToJog [ lindex $axiscoordmap $axis ]
-    } else {
-	set axisToJog $axis
-    }
-
-        catch { set units [emc_program_linear_units] }
-        # puts "program_units $units $axisToJog"
-
-    if {$jogType == "continuous"} {
-        emc_jog $axisToJog $jogSpeed
-    } else {
-        emc_jog_incr $axisToJog $jogSpeed $jogIncrement
+        emc_jog_incr $jatojog $jogmode -$::jogSpeed $::jogIncrement
     }
 }
 
-# stops the active axis
-proc jogStop {args} {
-    global activeAxis jogType
+proc jogPos {jora} {
+    set units "0"
+    set ::activeJA $jora
+    if { [emc_teleop_enable] == 1 } {
+        set letter  [set ::poslabel$jora]
+        set jatojog [lsearch $::worldlabellist $letter]
+        set jogmode $::JOGTELEOP
+    } else {
+	set jatojog $jora
+        set jogmode $::JOGJOINT
+    }
+    catch { set units [emc_program_linear_units] }
+
+    if {$::jogType == "continuous"} {
+        emc_jog $jatojog $jogmode $::jogSpeed
+    } else {
+        emc_jog_incr $jatojog $jogmode $::jogSpeed $::jogIncrement
+    }
+}
+
+proc jogStop {jora} {
+    if { [emc_teleop_enable] == 1 } {
+        set jogmode $::JOGTELEOP
+        set letter [set ::poslabel$jora]
+        set jatostop  [lsearch $::worldlabellist $letter]
+    } else {
+        set jogmode $::JOGJOINT
+        set jatostop  $jora
+    }
     # only stop continuous jogs; let incremental jogs finish
-    if {$jogType == "continuous"} {
-        if {$args == "" } {
-            emc_jog_stop $activeAxis
-        } else {
-            emc_jog_stop $args
-        }
+    if {$::jogType == "continuous"} {
+        emc_jog_stop $jatostop $jogmode
     }
 }
 
 proc incrJogSpeed {} {
-    global jogSpeed maxJogSpeed
-
-    if {$jogSpeed < $maxJogSpeed} {
-        set jogSpeed [int [expr $jogSpeed + 1.5]]
+    if {$::jogSpeed < $::maxJogSpeed} {
+        set ::jogSpeed [int [expr $::jogSpeed + 1.5]]
     }
 }
 
 proc decrJogSpeed {} {
-    global jogSpeed
-    if {$jogSpeed > 1} {
-        set jogSpeed [int [expr $jogSpeed - 0.5]]
+    if {$::jogSpeed > 1} {
+        set ::jogSpeed [int [expr $::jogSpeed - 0.5]]
     }
 }
 
 proc minusDone {} {
-    global minusAxis
-    jogStop $minusAxis
+    jogStop $::minusJA
     bind ManualBindings <KeyPress-minus> minusDown
-    set $minusAxis -1
+    set $::minusJA -1
 }
 
 proc minusDown {} {
-    global activeAxis minusAxis
-    
-    if {$minusAxis < 0} {
-	set minusAxis $activeAxis
+    if {$::minusJA < 0} {
+	set ::minusJA $::activeJA
     }
     bind ManualBindings <KeyPress-minus> {}
     after cancel minusDone
-    jogNeg $activeAxis
+    jogNeg $::activeJA
 }
 
 proc minusUp {} {
@@ -310,21 +316,18 @@ proc minusUp {} {
 }
 
 proc equalDone {} {
-    global equalAxis
-    jogStop $equalAxis
+    jogStop $::equalJA
     bind ManualBindings <KeyPress-equal> equalDown
-    set $equalAxis -1
+    set $::equalJA -1
 }
 
 proc equalDown {} {
-    global activeAxis equalAxis
-
-    if {$equalAxis < 0} {
-	set equalAxis $activeAxis
+    if {$::equalJA < 0} {
+	set ::equalJA $::activeJA
     }
     bind ManualBindings <KeyPress-equal> {}
     after cancel equalDone
-    jogPos $activeAxis
+    jogPos $::activeJA
 }
 
 proc equalUp {} {
@@ -338,7 +341,7 @@ proc leftDone {} {
 }
 
 proc leftDown {} {
-    axisSelectx 0
+    joraSelect 0
     bind ManualBindings <KeyPress-Left> {}
     after cancel leftDone
     jogNeg 0
@@ -355,7 +358,7 @@ proc rightDone {} {
 }
 
 proc rightDown {} {
-    axisSelectx 0
+    joraSelect 0
     bind ManualBindings <KeyPress-Right> {}
     after cancel rightDone
     jogPos 0
@@ -372,7 +375,7 @@ proc downDone {} {
 }
 
 proc downDown {} {
-    axisSelectx 1
+    joraSelect 1
     bind ManualBindings <KeyPress-Down> {}
     after cancel downDone
     jogNeg 1
@@ -389,7 +392,7 @@ proc upDone {} {
 }
 
 proc upDown {} {
-    axisSelectx 1
+    joraSelect 1
     bind ManualBindings <KeyPress-Up> {}
     after cancel upDone
     jogPos 1
@@ -407,7 +410,7 @@ proc priorDone {} {
 }
 
 proc priorDown {} {
-    axisSelectx 2
+    joraSelect 2
     bind ManualBindings <KeyPress-Prior> {}
     after cancel priorDone
     jogPos 2
@@ -425,7 +428,7 @@ proc nextDone {} {
 }
 
 proc nextDown {} {
-    axisSelectx 2
+    joraSelect 2
     bind ManualBindings <KeyPress-Next> {}
     after cancel nextDone
     jogNeg 2
@@ -444,7 +447,7 @@ proc nextUp {} {
 
 # Setup incremental jogs for both linear and rotary axes.
 # Read default values for these if they exist in ini.
-set jogType continuous
+set ::jogType continuous
 set linjogincr 0.100
 set oldlinjogincr 0.0100
 set templin [emc_ini  "DEFAULT_LINEAR_JOG_INCREMENT"  "DISPLAY"]
@@ -459,48 +462,46 @@ if {$temprot != ""} {
     set oldrotjogincr $temprot
 }
 
-set jogIncrement $oldlinjogincr
+set ::jogIncrement $oldlinjogincr
 
-proc axisSelectx {axis} {
-    global activeAxis axiscoordmap axisType jogplustext jognegtext worldlabellist
-    global feedscale maxJogSpeedAxis maxJogSpeed axishometext
-    global iframe irframe jogIncrement oldlinjogincr oldrotjogincr
+proc isint {x} {
+  if [catch {format %d $x}] {return 0}
+  return 1
+}
+proc joraSelect {jora} {
+    global feedscale ::axishometext
+    global iframe irframe oldlinjogincr oldrotjogincr
     global unitsetting immframe
     # clear all display settings
-    foreach axnum $axiscoordmap {
-        global pos${axnum}
-        [set pos${axnum}] config -relief flat
+    foreach jnum $::jointlist {
+        global pos${jnum}
+        [set pos${jnum}] config -relief flat
     }
-    set axis [string toupper $axis]
-    switch -- $axis {
-        X {set temp 0}
-        Y {set temp 1}
-        Z {set temp 2}
-        A {set temp 3}
-        B {set temp 4}
-        C {set temp 5}
-        default {set temp $axis}
+    if [isint $jora] {
+        set temp $jora
+    } else {
+        set temp [lsearch $::coordnames $jora]
     }
-    set oldaxis $activeAxis
-    set activeAxis $temp
+    set oldjora $::activeJA
+    set ::activeJA $temp
     set modex [emc_mode]
     if {$modex == "manual"} {
         [set pos${temp}] config -relief groove
-        set axisname [lindex $worldlabellist $temp]
-        set jogplustext [msgcat::mc "JOG %s +" $axisname]
-        set jognegtext [msgcat::mc "JOG %s -" $axisname]
-        set axishometext [msgcat::mc "%s\n\nZ\nE\nR\nO" $axisname]
-        set maxJogSpeed [set maxJogSpeedAxis($temp) ]
-        $feedscale configure -to $maxJogSpeed
+        set joraname [lindex $::coordnames $temp]
+        set ::jogplustext [msgcat::mc "JOG %s +" $joraname]
+        set ::jognegtext [msgcat::mc "JOG %s -" $joraname]
+        set ::axishometext [msgcat::mc "%s\n\nZ\nE\nR\nO" $joraname]
+        set ::maxJogSpeed [set ::maxJogSpeedJoint($temp) ]
+        $feedscale configure -to $::maxJogSpeed
         # add the linear v rotary jog increment stuff here.
-        if {$axisType($oldaxis) == "LINEAR" && $axisType($temp) == "ANGULAR" } {
-            set oldlinjogincr $jogIncrement
+        if {$::jointType($oldjora) == "LINEAR" && $::jointType($temp) == "ANGULAR" } {
+            set oldlinjogincr $::jogIncrement
             grid forget $iframe
             grid forget $immframe
             grid configure $irframe -column 6 -row 0 -rowspan 5 -sticky nsew
-            set jogIncrement $oldrotjogincr
-        } elseif {$axisType($oldaxis) == "ANGULAR" && $axisType($temp) == "LINEAR" } {
-            set oldrotjogincr $jogIncrement
+            set ::jogIncrement $oldrotjogincr
+        } elseif {$::jointType($oldjora) == "ANGULAR" && $::jointType($temp) == "LINEAR" } {
+            set oldrotjogincr $::jogIncrement
             grid forget $irframe
             if { $unitsetting == "(mm)" } {
                 grid forget $iframe
@@ -509,7 +510,7 @@ proc axisSelectx {axis} {
                 grid forget $immframe
                 grid configure $iframe -column 6 -row 0 -rowspan 5 -sticky nsew
             }
-            set jogIncrement $oldlinjogincr
+            set ::jogIncrement $oldlinjogincr
         }
     }
 }
@@ -529,26 +530,6 @@ proc sendMdi {mdi} {
     }
 }
 
-# -----MISC Processes Coordinate Names-----
-
-proc setCoordNamesx {} {
-    global coordnames worldlabellist axiscoordmap numcoords
-
-    set possibles {X Y Z A B C}
-    set j "-1"
-    foreach axname $possibles {
-        incr j
-        global worldlabel${j} jointlabel${j}
-        if { [ string first $axname $coordnames ] >= 0 } {
-            set worldlabel${j} $axname
-            set jointlabel${j} ${j}
-            set numcoords [expr $numcoords +1]
-            set worldlabellist [ concat $worldlabellist $axname]
-            set axiscoordmap [ concat $axiscoordmap ${j} ]
-        }
-    }
-}
-
 # -----MISC Processes Key Bindings-----
 
 proc setManualBindings {} {
@@ -564,7 +545,7 @@ proc setMdiBindings {} {
 }
 
 proc setKeyBindingsx {} {
-    global modifier worldlabellist
+    global modifier
 
     bind . <KeyPress-F1> {toggleEstop}
     bind . <KeyPress-F2> {toggleMachine}
@@ -580,9 +561,9 @@ proc setKeyBindingsx {} {
 
 
     # key bindings for 6 axis operation based on axis name.
-    foreach axname $worldlabellist {
-        bind ManualBindings "<KeyPress-${axname}>" "axisSelectx ${axname}"
-        bind ManualBindings "<KeyPress-[string tolower ${axname}]>" "axisSelectx ${axname}"
+    foreach axname $::worldlabellist {
+        bind ManualBindings "<KeyPress-${axname}>" "joraSelect ${axname}"
+        bind ManualBindings "<KeyPress-[string tolower ${axname}]>" "joraSelect ${axname}"
     }
 
     bind ManualBindings <KeyPress-grave> {emc_feed_override 0}
@@ -609,7 +590,7 @@ proc setKeyBindingsx {} {
     bind ManualBindings <KeyPress-F8> {toggleFlood}
     bind ManualBindings <KeyPress-F9> {toggleSpindleForward}
     bind ManualBindings <KeyPress-F10> {toggleSpindleReverse}
-    bind ManualBindings <Home> {emc_home $activeAxis}
+    bind ManualBindings <Home> {emc_home $::activeJA}
     bind ManualBindings <KeyPress-F11> spindleDecrDown
     bind ManualBindings <KeyRelease-F11> spindleDecrUp
     bind ManualBindings <KeyPress-F12> spindleIncrDown
@@ -768,17 +749,17 @@ proc toggleFeedhold {} {
 # jog type only exists at the interface level
 
 proc setJogType {which} {
-    global jogType jogincrement jogcontinuous iframe immframe irframe
+    global iframe immframe irframe
     if {$which == "continuous"} {
-        set jogType "continuous"
+        set ::jogType "continuous"
         set thisstate disabled
-        $jogcontinuous configure -relief sunken
-        $jogincrement configure -relief raised
+        $::jogcontinuous configure -relief sunken
+        $::jogincrement configure -relief raised
     } else {
-        set jogType "increment"
+        set ::jogType "increment"
         set thisstate normal
-        $jogcontinuous configure -relief raised
-        $jogincrement configure -relief sunken
+        $::jogcontinuous configure -relief raised
+        $::jogincrement configure -relief sunken
     }
     for {set x 1} {$x < 6} {incr x} {
         eval [list "${iframe}.r${x}" configure -state ${thisstate}]
@@ -790,13 +771,13 @@ proc setJogType {which} {
 # -----MISC Processes Set Font -----
 
 proc setfontx {} {
-    global fontfamily fontsize fontstyle axiscoordmap
+    global fontfamily fontsize fontstyle
 
     set nf [list $fontfamily $fontsize $fontstyle]
-    foreach axnum $axiscoordmap {
-        global "pos${axnum}l" "pos${axnum}d"
-        [set "pos${axnum}l"] config -font $nf
-        [set "pos${axnum}d"] config -font $nf
+    foreach jnum $::jointlist {
+        global "pos${jnum}l" "pos${jnum}d"
+        [set "pos${jnum}l"] config -font $nf
+        [set "pos${jnum}d"] config -font $nf
     }
 }
 
@@ -1080,12 +1061,11 @@ set oldunitsetting $unitsetting
     }
 
 
-# FIXME - Remove the jointworld stuff throughout
 set jointworld "world"
-foreach axnum $axiscoordmap {
-    set "poslabel${axnum}" [set "worldlabel${axnum}"]
+foreach jnum $::jointlist {
+    set "poslabel${jnum}" [lindex $::coordnames $jnum]
     # create poslabel name list for globals
-    lappend posnames poslabel${axnum} posdigit${axnum}
+    lappend posnames poslabel${jnum} posdigit${jnum}
 }
 
 set fontfamily Courier
@@ -1136,17 +1116,17 @@ set linunit [label $selector.unit -textvariable unitsetting  -width 8 -takefocus
 pack $relmac $actcom $linunit -side left -fill x -expand yes
 # pack $selector -side top -fill x -expand yes
 
-foreach axnum $axiscoordmap {
-    set pos${axnum} [frame $position.pos${axnum} -borderwidth 3]
-    pack [set pos${axnum}] -side top -fill x -expand yes
-    set "pos${axnum}l" [label [set "pos${axnum}"].l -textvariable poslabel${axnum} -width 1 -anchor w]
-    set "pos${axnum}d" [label [set "pos${axnum}"].d -textvariable posdigit${axnum} -width 6 -anchor w]
-    pack [set "pos${axnum}l"] -side left
-    pack [set "pos${axnum}d"] -side left -fill x -expand yes
-    bind [set "pos${axnum}l"] <ButtonPress-1> "axisSelectx ${axnum}"
-    bind [set "pos${axnum}d"] <ButtonPress-1> "axisSelectx ${axnum}"
+foreach jnum $::jointlist {
+    set pos${jnum} [frame $position.pos${jnum} -borderwidth 3]
+    pack [set pos${jnum}] -side top -fill x -expand yes
+    set "pos${jnum}l" [label [set "pos${jnum}"].l -textvariable poslabel${jnum} -width 1 -anchor w]
+    set "pos${jnum}d" [label [set "pos${jnum}"].d -textvariable posdigit${jnum} -width 6 -anchor w]
+    pack [set "pos${jnum}l"] -side left
+    pack [set "pos${jnum}d"] -side left -fill x -expand yes
+    bind [set "pos${jnum}l"] <ButtonPress-1> "joraSelect ${jnum}"
+    bind [set "pos${jnum}d"] <ButtonPress-1> "joraSelect ${jnum}"
     # add widget names to posnames
-    lappend posnames pos${axnum} "pos${axnum}l" "pos${axnum}d" jointlabel${axnum} worldlabel${axnum}
+    lappend posnames pos${jnum} "pos${jnum}l" "pos${jnum}d" jointlabel${jnum} worldlabel${jnum}
 }
 
 set realfeedoverride [emc_feed_override]
@@ -1275,7 +1255,7 @@ proc popIn {which} {
 # Be a bit careful with this with steppers it homes all axi at the same time.
 # Will have to add the var file read here rather than in popin
 proc setAllZero { } {
-    global vartext numaxis tooloffsetsetting
+    global vartext tooloffsetsetting
     findVarNumbers
     if {$tooloffsetsetting > 0.0001 } {
         mText [msgcat::mc "Can't set zero with a tool offset active so I issued G49 to cancel it."]
@@ -1289,7 +1269,7 @@ proc setAllZero { } {
     emc_mdi "g92.1"
     # Now zero out all coordinate offfsets
     foreach firstcoord {5211 5221 5241 5261 5281 5301 5321 5341 5361 5381} {
-        for {set i 0} {$i < $numaxis} {incr i} {
+        for {set i 0} {$i < $::numjoints} {incr i} {
             global val$i oval$i
             set val$i 0.000000
             set oval$i 0.000000
@@ -1308,16 +1288,16 @@ proc setAllZero { } {
     emc_mdi "g54"
     # Now home all axes.
     emc_mode "manual"
-    for {set i 0} {$i < $numaxis} {incr i}  {
+    for {set i 0} {$i < $::numjoints} {incr i}  {
         emc_home "$i"
     }
 }
 
 proc setVarValues {} {
     global vartext
-    global numaxis val0 val1 val2 val3 val4 val5
+    global val0 val1 val2 val3 val4 val5
     global num0 num1 num2 num3 num4 num5
-    for {set i 0} {$i < $numaxis} {incr i} {
+    for {set i 0} {$i < $::numjoints} {incr i} {
         set locate [$vartext search [set num$i] 1.0 ]
         $vartext mark set insert "$locate +5c"
         $vartext delete insert "insert lineend"
@@ -1402,7 +1382,7 @@ set limoridebuttonabg [$limoridebutton cget -activebackground]
 # bind $limoridebutton <ButtonPress-1> {emc_override_limit}
 
 set homebutton [button $setframe.home -text [msgcat::mc "home"] -takefocus 0]
-bind $homebutton <ButtonPress-1> {emc_home [ lindex $axiscoordmap $activeAxis] }
+bind $homebutton <ButtonPress-1> {emc_home [ lindex $::jointlist $::activeJA] }
 
 set offsetsetting ""
 
@@ -1417,24 +1397,24 @@ set temp [emc_ini "DEFAULT_VELOCITY" "TRAJ"]
 if { [string length $temp] == 0} {
     set temp 1
 }
-set jogSpeed [int [expr $temp * 60 + 0.5]]
-set defaultJogSpeed $jogSpeed
+set ::jogSpeed [int [expr $temp * 60 + 0.5]]
+set defaultJogSpeed $::jogSpeed
 
-set maxJogSpeed 1
+set ::maxJogSpeed 1
 
-set feeddefault [button $manframe.default -text [msgcat::mc "DEFAULT"] -width 10 -command {set jogSpeed $defaultJogSpeed}]
+set feeddefault [button $manframe.default -text [msgcat::mc "DEFAULT"] -width 10 -command {set ::jogSpeed $defaultJogSpeed}]
 set feedlabel [label $manframe.label -text [msgcat::mc "Speed:"] -width 10]
-set feedvalue [label $manframe.value -textvariable jogSpeed -width 10 -anchor w]
+set feedvalue [label $manframe.value -textvariable ::jogSpeed -width 10 -anchor w]
 set feedspace [label $manframe.space -text "" -width 10 ]
-set feedrapid [button $manframe.rapid -text [msgcat::mc "RAPID"] -width 10 -command {set jogSpeed $maxJogSpeed}]
-set feedscale [scale $manframe.scale -length 270 -from 0 -to $maxJogSpeed -variable jogSpeed -orient horizontal -showvalue 0 -takefocus 0]
+set feedrapid [button $manframe.rapid -text [msgcat::mc "RAPID"] -width 10 -command {set ::jogSpeed $::maxJogSpeed}]
+set feedscale [scale $manframe.scale -length 270 -from 0 -to $::maxJogSpeed -variable ::jogSpeed -orient horizontal -showvalue 0 -takefocus 0]
 bind $feedlabel <ButtonPress-1> {popupJogSpeed}
 bind $feedlabel <ButtonPress-3> {popupJogSpeed}
 bind $feedvalue <ButtonPress-1> {popupJogSpeed}
 bind $feedvalue <ButtonPress-3> {popupJogSpeed}
 
 proc popupJogSpeed {} {
-    global jogSpeed maxJogSpeed popupJogSpeedEntry
+    global popupJogSpeedEntry
 
     if {[winfo exists .jogspeedpopup]} {
         wm deiconify .jogspeedpopup
@@ -1446,19 +1426,19 @@ proc popupJogSpeed {} {
     wm title .jogspeedpopup [msgcat::mc "Set Jog Speed"]
 
     # initialize value to current jog speed
-    set popupJogSpeedEntry $jogSpeed
+    set popupJogSpeedEntry $::jogSpeed
 
     frame .jogspeedpopup.input
     label .jogspeedpopup.input.label -text [msgcat::mc "Set jog speed:"]
     entry .jogspeedpopup.input.entry -textvariable popupJogSpeedEntry -width 20
     frame .jogspeedpopup.buttons
-    button .jogspeedpopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
+    button .jogspeedpopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set ::jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
     button .jogspeedpopup.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .jogspeedpopup"
     pack .jogspeedpopup.input.label .jogspeedpopup.input.entry -side left
     pack .jogspeedpopup.input -side top
     pack .jogspeedpopup.buttons -side bottom -fill x -pady 2m
     pack .jogspeedpopup.buttons.ok .jogspeedpopup.buttons.cancel -side left -expand 1
-    bind .jogspeedpopup <Return> {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
+    bind .jogspeedpopup <Return> {set ::jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
 
     focus .jogspeedpopup.input.entry
     .jogspeedpopup.input.entry select range 0 end
@@ -1469,68 +1449,68 @@ proc popupJogSpeed {} {
 set iframe [frame $manframe.linearincrement -borderwidth 1 -relief sunken ]
 set irframe [frame $manframe.rotaryincrement -borderwidth 1 -relief sunken ]
 
-radiobutton $iframe.r1 -text "0.0001" -variable jogIncrement -value "0.0001" -anchor w \
+radiobutton $iframe.r1 -text "0.0001" -variable ::jogIncrement -value "0.0001" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled -width 7
-radiobutton $iframe.r2 -text "0.0010" -variable jogIncrement -value "0.0010" -anchor w \
+radiobutton $iframe.r2 -text "0.0010" -variable ::jogIncrement -value "0.0010" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
-radiobutton $iframe.r3 -text "0.0100" -variable jogIncrement -value "0.0100" -anchor w \
+radiobutton $iframe.r3 -text "0.0100" -variable ::jogIncrement -value "0.0100" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
-radiobutton $iframe.r4 -text "0.1000" -variable jogIncrement -value "0.1000" -anchor w \
+radiobutton $iframe.r4 -text "0.1000" -variable ::jogIncrement -value "0.1000" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
-radiobutton $iframe.r5 -text "1.0000" -variable jogIncrement -value "1.0000" -anchor w \
+radiobutton $iframe.r5 -text "1.0000" -variable ::jogIncrement -value "1.0000" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
 pack $iframe.r5 $iframe.r4 $iframe.r3 $iframe.r2 $iframe.r1 -side top -fill both -expand yes
 
 set immframe [frame $manframe.metricincrement -borderwidth 1 -relief sunken ]
-radiobutton $immframe.r1 -text "0.01" -variable jogIncrement -value "0.0100" -anchor w \
+radiobutton $immframe.r1 -text "0.01" -variable ::jogIncrement -value "0.0100" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled -width 7
-radiobutton $immframe.r2 -text "0.10" -variable jogIncrement -value "0.1000" -anchor w \
+radiobutton $immframe.r2 -text "0.10" -variable ::jogIncrement -value "0.1000" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
-radiobutton $immframe.r3 -text "1.00" -variable jogIncrement -value "1.0000" -anchor w \
+radiobutton $immframe.r3 -text "1.00" -variable ::jogIncrement -value "1.0000" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
-radiobutton $immframe.r4 -text "5.00" -variable jogIncrement -value "5.0000" -anchor w \
+radiobutton $immframe.r4 -text "5.00" -variable ::jogIncrement -value "5.0000" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
-radiobutton $immframe.r5 -text "10.00" -variable jogIncrement -value "10.0000" -anchor w \
+radiobutton $immframe.r5 -text "10.00" -variable ::jogIncrement -value "10.0000" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
 pack $immframe.r5 $immframe.r4 $immframe.r3 $immframe.r2 $immframe.r1 -side top -fill both -expand yes
 
 
-radiobutton $irframe.r1 -text "0.01" -variable jogIncrement -value 0.01 -anchor w \
+radiobutton $irframe.r1 -text "0.01" -variable ::jogIncrement -value 0.01 -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled  -width 7
-radiobutton $irframe.r2 -text "0.10" -variable jogIncrement -value 0.1 -anchor w \
+radiobutton $irframe.r2 -text "0.10" -variable ::jogIncrement -value 0.1 -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
-radiobutton $irframe.r3 -text "1.00" -variable jogIncrement -value 1 -anchor w \
+radiobutton $irframe.r3 -text "1.00" -variable ::jogIncrement -value 1 -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
-radiobutton $irframe.r4 -text "15.00" -variable jogIncrement -value 15 -anchor w \
+radiobutton $irframe.r4 -text "15.00" -variable ::jogIncrement -value 15 -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
-radiobutton $irframe.r5 -text "90.00" -variable jogIncrement -value 90  -anchor w \
+radiobutton $irframe.r5 -text "90.00" -variable ::jogIncrement -value 90  -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
 pack $irframe.r5 $irframe.r4 $irframe.r3 $irframe.r2 $irframe.r1 -side top -fill both -expand yes
 
-set jogplustext [msgcat::mc "JOG X +"]
-set jognegtext [msgcat::mc "JOG X -"]
+set ::jogplustext [msgcat::mc "JOG X +"]
+set ::jognegtext [msgcat::mc "JOG X -"]
 
-set jognegbutton [button $manframe.neg -textvariable jognegtext -width 10 -takefocus 0]
-set jogposbutton [button $manframe.pos -textvariable jogplustext -width 10 -takefocus 0]
-set jogincrement [button $manframe.incr -text [msgcat::mc "increment"] -takefocus 0 \
+set jognegbutton [button $manframe.neg -textvariable ::jognegtext -width 10 -takefocus 0]
+set jogposbutton [button $manframe.pos -textvariable ::jogplustext -width 10 -takefocus 0]
+set ::jogincrement [button $manframe.incr -text [msgcat::mc "increment"] -takefocus 0 \
     -width 8 -command {setJogType increment}]
-set jogcontinuous [button $manframe.cont -text [msgcat::mc "continuous"] -takefocus 0 \
+set ::jogcontinuous [button $manframe.cont -text [msgcat::mc "continuous"] -takefocus 0 \
     -width 8 -command {setJogType continuous}]
 set joebutton [button $manframe.bzero -text [msgcat::mc "A\nL\nL\n\nZ\nE\nR\nO"] \
     -command {setAllZero} -bg lightgreen -activebackground green3 \
     -activeforeground white]
-set homebutton [button $manframe.bhome -textvariable axishometext \
-    -command {emc_home $activeAxis} -bg lightgreen -activebackground green3 \
+set homebutton [button $manframe.bhome -textvariable ::axishometext \
+    -command {emc_home $::activeJA} -bg lightgreen -activebackground green3 \
     -activeforeground white]
 if { [emc_machine] == "on" } {
     $joebutton configure -state normal -bg lightgreen
     $homebutton configure -state normal -bg lightgreen
 }
 
-bind $jognegbutton <ButtonPress-1> {jogNeg $activeAxis}
-bind $jognegbutton <ButtonRelease-1> {jogStop}
-bind $jogposbutton <ButtonPress-1> {jogPos $activeAxis}
-bind $jogposbutton <ButtonRelease-1> {jogStop}
+bind $jognegbutton <ButtonPress-1> {jogNeg $::activeJA}
+bind $jognegbutton <ButtonRelease-1> {jogStop $::activeJA}
+bind $jogposbutton <ButtonPress-1> {jogPos $::activeJA}
+bind $jogposbutton <ButtonRelease-1> {jogStop $::activeJA}
 
 grid configure $homebutton -column 0 -row 0 -rowspan 5 -sticky nsew
 grid $feeddefault -column 1 -row 0 -sticky nsew
@@ -1542,8 +1522,8 @@ grid $feedscale -column 1 -row 1 -sticky nsew
 grid configure $feedscale -columnspan 5
 grid $jognegbutton -column 1 -row 2 -sticky nsew
 grid configure $jognegbutton -columnspan 2 -rowspan 3
-grid $jogincrement -column 3 -row 2 -sticky nsew -padx 4
-grid $jogcontinuous -column 3 -row 4 -sticky nsew -padx 4
+grid $::jogincrement -column 3 -row 2 -sticky nsew -padx 4
+grid $::jogcontinuous -column 3 -row 4 -sticky nsew -padx 4
 grid $jogposbutton -column 4 -row 2 -sticky nsew
 grid configure $jogposbutton -columnspan 2 -rowspan 3
 
@@ -1574,8 +1554,8 @@ grid rowconfigure $manframe 2 -weight 1
 grid rowconfigure $manframe 3 -weight 1
 grid rowconfigure $manframe 4 -weight 1
 
-# Initialize with axis 0
-axisSelectx [ lindex $axiscoordmap 0 ]
+# Initialize with jora 0
+joraSelect [ lindex $::jointlist 0 ]
 
 update
 
@@ -1797,8 +1777,8 @@ toggleEstop
 
 setKeyBindingsx
 set syncingFeedOverride 0
-set minusAxis -1
-set equalAxis -1
+set ::minusJA -1
+set ::equalJA -1
 
 # force explicit updates, so calls to emc_estop, for example, don't
 # always cause an NML read; they just return last latched status
@@ -1816,7 +1796,7 @@ showMode manual
 # Record that we're in manual display mode
 set modeInDisplay "manual"
 set oldmode "manual"
-set jogType incremental
+set ::jogType incremental
 setJogType continuous
 
 set lastjointworld $jointworld
@@ -1827,7 +1807,7 @@ set offsetactive 3
 set oldoffsetactive 3
 set oldrestartline 0
 
-axisSelectx "X"
+joraSelect "X"
 
 
 # ----------LOOP TO SET VALUES ----------
@@ -1841,8 +1821,8 @@ proc updateMini {} {
     global estoplabel modelabel mistlabel floodlabel lubelabel spindlelabel brakelabel
     global toolsetting tooloffsetsetting offsetsetting
     global unitlabel unitsetting oldunitsetting
-    global actcmd coords jointworld axiscoordmap worldlabellist
-    global posnames activeAxis axisType
+    global actcmd coords jointworld
+    global posnames
     foreach item $posnames {
         global $item
     }
@@ -1856,8 +1836,7 @@ proc updateMini {} {
 #    global taskhb taskcmd tasknum taskstatus
 #    global iohb iocmd ionum iostatus
 #    global motionhb motioncmd motionnum motionstatus
-    global oldstatusstring jogSpeed
-    global axiscoordmap
+    global oldstatusstring
     global popinframe feedholdbutton stopbutton feedvalue feedlabel
     global isnew oldmode workoffsets defbg offsetactive oldoffsetactive
     global restartline oldrestartline
@@ -1937,7 +1916,7 @@ proc updateMini {} {
     set temp [emc_mode]
     if {$temp != $modeInDisplay} {
         showMode $temp
-        axisSelectx $activeAxis
+        joraSelect $::activeJA
         if {$temp == "auto"} {
             $mdientry config -state disabled
             focus .
@@ -1955,8 +1934,8 @@ proc updateMini {} {
 
     if {$jointworld == "joint" } {
         if { $lastjointworld != "joint" } {
-            foreach axnum $axiscoordmap {
-                set "poslabel${axnum}" [set "jointlabel${axnum}"]
+            foreach jnum $::jointlist {
+                set "poslabel${jnum}" [set "jointlabel${jnum}"]
             }
             set lastactcmd $actcmd
             set lastcoords $coords
@@ -1972,12 +1951,15 @@ proc updateMini {} {
                 set emc_teleop_enable_command_given 0
             }
         }
-        foreach axnum $axiscoordmap {
-            set "posdigit${axnum}" [format "%8.4f" [emc_joint_pos ${axnum}] ]
+        foreach jnum $::jointlist {
+            set "posdigit${jnum}" [format "%8.4f" [emc_joint_pos ${jnum}] ]
         }
     } else {
         if { $lastjointworld != "world" } {
-            if { [emc_teleop_enable] == 0  && [emc_kinematics_type] != 1 && $modeInDisplay == "manual" } {
+            if {   [emc_teleop_enable] == 0
+                && [emc_kinematics_type] != $::KINEMATICS_IDENTITY
+                && $modeInDisplay == "manual"
+               } {
                 if { $emc_teleop_enable_command_given == 0 } {
                     emc_teleop_enable 1
                     set emc_teleop_enable_command_given 1
@@ -1986,10 +1968,10 @@ proc updateMini {} {
                     set emc_teleop_enable_command_given 0
                 }
             } else {
-                foreach axnum $axiscoordmap {
-                    set "poslabel${axnum}" [set "worldlabel${axnum}"]
+                foreach jnum $::jointlist {
+                    set "poslabel${jnum}" [set "worldlabel${jnum}"]
                 }
-                foreach axname $worldlabellist {
+                foreach axname $::worldlabellist {
                     set temp "[emc_pos_offset ${axname}]"
                 }
                 set actcmd $lastactcmd
@@ -2011,11 +1993,14 @@ proc updateMini {} {
             } else {
                 set whizbang {emc_abs_act_pos}
             }
-            foreach axnum $axiscoordmap {
-                if {$axisType($axnum) == "LINEAR"} {
-                    set posdigit${axnum} [format "%8.4f" [eval $whizbang $axnum]]
+            foreach jnum $::jointlist {
+                set letter [lindex $::coordnames $jnum]
+                set anum   [lsearch $::worldlabellist $letter]
+                if {$::jointType($jnum) == "LINEAR"} {
+                    set posdigit${jnum} [format "%8.4f" [eval $whizbang $anum]]
+                    set posdigit${jnum} [format "%8.4f" [eval $whizbang $anum]]
                 } else {
-                    set posdigit${axnum} [format "%8.2f" [expr [eval $whizbang $axnum]]]
+                    set posdigit${jnum} [format "%8.2f" [expr [eval $whizbang $anum]]]
                 }
             }
         }
@@ -2023,19 +2008,19 @@ proc updateMini {} {
 
     # set the offset information
     set offsetsetting ""
-    foreach axname $worldlabellist {
+    foreach axname $::worldlabellist {
         set temp [format "${axname}%.4f" [emc_pos_offset $axname] ]
         set offsetsetting  "$offsetsetting [join $temp ]"
     }
 
     # color the numbers
-    foreach axnum $axiscoordmap {
-        if { [emc_joint_limit ${axnum} ] != "ok"} {
-            [set "pos${axnum}d"] config -foreground red
-        } elseif { [emc_joint_homed ${axnum} ] == "homed"} {
-            [set "pos${axnum}d"] config -foreground darkgreen
+    foreach jnum $::jointlist {
+        if { [emc_joint_limit ${jnum} ] != "ok"} {
+            [set "pos${jnum}d"] config -foreground red
+        } elseif { [emc_joint_homed ${jnum} ] == "homed"} {
+            [set "pos${jnum}d"] config -foreground darkgreen
         } else {
-            [set "pos${axnum}d"] config -foreground gold3
+            [set "pos${jnum}d"] config -foreground gold3
         }
     }
 
@@ -2052,7 +2037,7 @@ proc updateMini {} {
     }
 
     # temporary fix for 0 jog speed problem
-    if {$jogSpeed <= 0} {set jogSpeed .000001}
+    if {$::jogSpeed <= 0} {set ::jogSpeed .000001}
 
     # fill in the program codes
     set programcodestring [emc_program_codes]
@@ -2264,8 +2249,6 @@ set paramfilename [emc_ini "PARAMETER_FILE" "RS274NGC"]
 if { [string length $paramfilename] == 0} {
     set paramfilename "emc.var"
 }
-set numaxis [emc_ini "AXES" "TRAJ"]
-set nameaxis [emc_ini "COORDINATES" "TRAJ"]
 # put the parm file into an invisible widget
 set vartext [text $top.vartext]
 $vartext config -state normal
@@ -2284,7 +2267,7 @@ set touchofflength 0.0000
 set touchoffdirection "+"
 
 proc popinOffsets { } {
-    global coord popinframe numaxis paramfilename nameaxis vartext coordsys
+    global coord popinframe paramfilename vartext coordsys
     global num0 num1 num2 num3 num4 num5 val0 val1 val2 val3 val4 val5
     global oval0 oval1 oval2 oval3 oval4 oval5
     global zerocoordnumber touchoffradius touchofflength touchoffdirection
@@ -2319,8 +2302,8 @@ proc popinOffsets { } {
     label $caxis.name -text [msgcat::mc "Axis "]
     label $caxis.varval -text [msgcat::mc "Value "]
     grid $caxis.name $caxis.varval -sticky news
-    for {set i 0} {$i < $numaxis} {incr i} {
-        label  $caxis.l$i -text "[lindex $nameaxis $i ]   "  -anchor e
+    for {set i 0} {$i < $::numjoints} {incr i} {
+        label  $caxis.l$i -text "[lindex $::coordnames $i ]   "  -anchor e
         entry $caxis.e$i -textvariable val$i -fg darkred -bg white -relief flat -width 10 -takefocus 1
         button $caxis.b$i -text [msgcat::mc "Teach"] -command "getLocation $i" -takefocus 0
         grid $caxis.l$i $caxis.e$i $caxis.b$i -sticky news
@@ -2422,11 +2405,9 @@ proc setTouchOff {} {
 
 set coordsys 5241
 proc findVarNumbers {} {
-    global coordsys numaxis num0 num1 num2 num3 num4 num5
+    global coordsys num0 num1 num2 num3 num4 num5
     # set the initial coordinate system and find values.
-    set numaxis [emc_ini "AXES" "TRAJ"]
-    set nameaxis [emc_ini "COORDINATES" "TRAJ"]
-    for {set i 0} {$i < $numaxis} {incr i} {
+    for {set i 0} {$i < $::numjoints} {incr i} {
         set num$i [expr $coordsys +$i]
         set val$i 0.000000
     }
@@ -2436,14 +2417,14 @@ proc findVarNumbers {} {
 
 proc findVarValues {}  {
     global vartext
-    global numaxis val0 val1 val2 val3 val4 val5
+    global val0 val1 val2 val3 val4 val5
     global num0 num1 num2 num3 num4 num5
-    global numaxis oval0 oval1 oval2 oval3 oval4 oval5
-    for {set i 0} {$i < $numaxis} {incr i} {
+    global oval0 oval1 oval2 oval3 oval4 oval5
+    for {set i 0} {$i < $::numjoints} {incr i} {
         set val$i 0.000000
     }
     set locate "1.0"
-    for {set i 0} {$i < $numaxis} {incr i}  {
+    for {set i 0} {$i < $::numjoints} {incr i}  {
         set oval$i [set val$i]
         set locate [$vartext search [set num$i] 1.0 ]
         set locate [expr int($locate)]
@@ -2453,30 +2434,30 @@ proc findVarValues {}  {
 }
 
 proc getZero {} {
-    global numaxis val0 val1 val2 val3 val4 val5
-    for {set i 0} {$i < $numaxis} {incr i} {
+    global val0 val1 val2 val3 val4 val5
+    for {set i 0} {$i < $::numjoints} {incr i} {
         set val$i 0.000000
     }
 }
 
-proc getLocation {axnum} {
-    global numaxis val0 val1 val2 val3 val4 val5
+proc getLocation {jnum} {
+    global val0 val1 val2 val3 val4 val5
     global zerocoordnumber touchoffradius touchofflength touchoffdirection
-    switch -- $axnum {
+    switch -- $jnum {
         "0" -
         "1" {
-            set val$axnum [expr [emc_abs_act_pos $axnum] $touchoffdirection $touchoffradius ]
+            set val$jnum [expr [emc_abs_act_pos $jnum] $touchoffdirection $touchoffradius ]
         }
         "2" {
-            set val$axnum [expr [emc_abs_act_pos $axnum] $touchoffdirection $touchofflength ]
+            set val$jnum [expr [emc_abs_act_pos $jnum] $touchoffdirection $touchofflength ]
         }
         all {
-            for {set i 0} {$i < $numaxis} {incr i} {
+            for {set i 0} {$i < $::numjoints} {incr i} {
             set val$i [emc_abs_act_pos $i]
             }
         }
         "default" {
-            set val$axnum [emc_abs_act_pos $axnum]
+            set val$jnum [emc_abs_act_pos $jnum]
         }
     }
 }
@@ -4010,7 +3991,6 @@ proc updatePlot {} {
     global a_plot b_plot c_plot 3d_plot Gmode Glast
     global delta_Alast delta_Blast delta_Clast
     global unitsetting
-    global worldlabellist
 
     # hack to divide scale for mm plotting
     if {$unitsetting == "(mm)" } {
@@ -4039,32 +4019,32 @@ proc updatePlot {} {
     set delta_C 0
 
 
-if { [ string first X $worldlabellist ] >= 0 } {
+if { [ string first X $::worldlabellist ] >= 0 } {
     set X [emc_abs_act_pos 0]
 } else {
     set X 0
 }
-if { [ string first Y $worldlabellist ] >= 0 } {
+if { [ string first Y $::worldlabellist ] >= 0 } {
     set Y [emc_abs_act_pos 1]
 } else {
     set Y 0
 }
-if { [ string first Z $worldlabellist ] >= 0 } {
+if { [ string first Z $::worldlabellist ] >= 0 } {
     set Z [emc_abs_act_pos 2]
 } else {
     set Z 0
 }
-if { [ string first A $worldlabellist ] >= 0 } {
+if { [ string first A $::worldlabellist ] >= 0 } {
     set A [emc_abs_act_pos 3]
 } else {
     set A 0
 }
-if { [ string first B $worldlabellist ] >= 0 } {
+if { [ string first B $::worldlabellist ] >= 0 } {
     set B [emc_abs_act_pos 4]
 } else {
     set B 0
 }
-if { [ string first C $worldlabellist ] >= 0 } {
+if { [ string first C $::worldlabellist ] >= 0 } {
     set C [emc_abs_act_pos 5]
 } else {
     set C 0
@@ -4156,4 +4136,3 @@ proc setInitialPlotview {} {
 }
 
 # -----end of backplot-----
-
