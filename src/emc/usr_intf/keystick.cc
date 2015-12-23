@@ -48,6 +48,7 @@
 #define XGRAPH_PATH "xgraph"
 #define SYSTEM_STRING_LEN 1024
 
+#define JOGJOINT 1
 
 // the NML channels to the EMC task
 static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
@@ -1280,7 +1281,7 @@ static void idleHandler()
   if (axisJogging != AXIS_NONE && keyup_count == 0)
     {
       emc_jog_stop_msg.joint_or_axis = axisIndex(axisJogging);
-      emc_jog_stop_msg.jjogmode = 1;
+      emc_jog_stop_msg.jjogmode = JOGJOINT;
       emcCommandSend(emc_jog_stop_msg);
       axisJogging = AXIS_NONE;
     }
@@ -1446,6 +1447,19 @@ static int iniLoad(const char *filename)
       return -1;
     }
 
+  if ((inistring = inifile.Find("KINEMATICS", "KINS")))
+    {
+       if (strcmp(inistring, "trivkins")) {
+          printf("\n\n\n\n[KINS]KINEMATICS must be trivkins not: %s\n",inistring);
+          esleep(10.0);
+          return -1;
+       }
+    } else {
+          printf("[KINS]KINEMATICS is missing\n");
+          esleep(10.0);
+          return -1;
+    }
+
   if ((inistring = inifile.Find("MACHINE", "EMC")))
     {
       strcpy(machine, inistring);
@@ -1545,7 +1559,7 @@ static int iniLoad(const char *filename)
     }
 
   xJogPol = 1;                  // set to default
-  if ((inistring = inifile.Find("JOGGING_POLARITY", "AXIS_0")) &&
+  if ((inistring = inifile.Find("JOGGING_POLARITY", "JOINT_0")) &&
       1 == sscanf(inistring, "%d", &jogPol) &&
       jogPol == 0)
     {
@@ -1554,7 +1568,7 @@ static int iniLoad(const char *filename)
     }
 
   yJogPol = 1;                  // set to default
-  if ((inistring = inifile.Find("JOGGING_POLARITY", "AXIS_1")) &&
+  if ((inistring = inifile.Find("JOGGING_POLARITY", "JOINT_1")) &&
       1 == sscanf(inistring, "%d", &jogPol) &&
       jogPol == 0)
     {
@@ -1563,7 +1577,7 @@ static int iniLoad(const char *filename)
     }
 
   zJogPol = 1;                  // set to default
-  if ((inistring = inifile.Find("JOGGING_POLARITY", "AXIS_2")) &&
+  if ((inistring = inifile.Find("JOGGING_POLARITY", "JOINT_2")) &&
       1 == sscanf(inistring, "%d", &jogPol) &&
       jogPol == 0)
     {
@@ -1783,7 +1797,9 @@ int main(int argc, char *argv[])
     }
 
   // read INI file
-  iniLoad(emc_inifile);
+  if (iniLoad(emc_inifile)) {
+    exit(1); //expect callee to print message in the xterm
+  }
 
   // trap SIGINT
   signal(SIGINT, quit);
@@ -2128,7 +2144,7 @@ int main(int argc, char *argv[])
               if (jogMode == JOG_INCREMENTAL)
                 {
                   emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_X);
-                  emc_jog_incr_msg.jjogmode = 1;
+                  emc_jog_incr_msg.jjogmode = JOGJOINT;
                   if (xJogPol)
                     emc_jog_incr_msg.vel = jogSpeed / 60.0;
                   else
@@ -2141,7 +2157,7 @@ int main(int argc, char *argv[])
                 {
                   jogMode = JOG_CONTINUOUS;
                   emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_X);
-                  emc_jog_cont_msg.jjogmode = 1;
+                  emc_jog_cont_msg.jjogmode = JOGJOINT;
                   if (xJogPol)
                     emc_jog_cont_msg.vel = jogSpeed / 60.0;
                   else
@@ -2160,7 +2176,7 @@ int main(int argc, char *argv[])
               if (jogMode == JOG_INCREMENTAL)
                 {
                   emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_X);
-                  emc_jog_incr_msg.jjogmode = 1;
+                  emc_jog_incr_msg.jjogmode = JOGJOINT;
                   if (xJogPol)
                     emc_jog_incr_msg.vel = - jogSpeed / 60.0;
                   else
@@ -2173,7 +2189,7 @@ int main(int argc, char *argv[])
                 {
                   jogMode = JOG_CONTINUOUS;
                   emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_X);
-                  emc_jog_cont_msg.jjogmode = 1;
+                  emc_jog_cont_msg.jjogmode = JOGJOINT;
                   if (xJogPol)
                     emc_jog_cont_msg.vel = - jogSpeed / 60.0;
                   else
@@ -2192,7 +2208,7 @@ int main(int argc, char *argv[])
               if (jogMode == JOG_INCREMENTAL)
                 {
                   emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_Y);
-                  emc_jog_incr_msg.jjogmode = 1;
+                  emc_jog_incr_msg.jjogmode = JOGJOINT;
                   if (yJogPol)
                     emc_jog_incr_msg.vel = jogSpeed / 60.0;
                   else
@@ -2205,7 +2221,7 @@ int main(int argc, char *argv[])
                 {
                   jogMode = JOG_CONTINUOUS;
                   emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_Y);
-                  emc_jog_cont_msg.jjogmode = 1;
+                  emc_jog_cont_msg.jjogmode = JOGJOINT;
                   if (yJogPol)
                     emc_jog_cont_msg.vel = jogSpeed / 60.0;
                   else
@@ -2224,7 +2240,7 @@ int main(int argc, char *argv[])
               if (jogMode == JOG_INCREMENTAL)
                 {
                   emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_Y);
-                  emc_jog_incr_msg.jjogmode = 1;
+                  emc_jog_incr_msg.jjogmode = JOGJOINT;
                   if (yJogPol)
                     emc_jog_incr_msg.vel = - jogSpeed / 60.0;
                   else
@@ -2237,7 +2253,7 @@ int main(int argc, char *argv[])
                 {
                   jogMode = JOG_CONTINUOUS;
                   emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_Y);
-                  emc_jog_cont_msg.jjogmode = 1;
+                  emc_jog_cont_msg.jjogmode = JOGJOINT;
                   if (yJogPol)
                     emc_jog_cont_msg.vel = - jogSpeed / 60.0;
                   else
@@ -2256,7 +2272,7 @@ int main(int argc, char *argv[])
               if (jogMode == JOG_INCREMENTAL)
                 {
                   emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_Z);
-                  emc_jog_incr_msg.jjogmode = 1;
+                  emc_jog_incr_msg.jjogmode = JOGJOINT;
                   if (zJogPol)
                     emc_jog_incr_msg.vel = jogSpeed / 60.0;
                   else
@@ -2269,7 +2285,7 @@ int main(int argc, char *argv[])
                 {
                   jogMode = JOG_CONTINUOUS;
                   emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_Z);
-                  emc_jog_cont_msg.jjogmode = 1;
+                  emc_jog_cont_msg.jjogmode = JOGJOINT;
                   if (zJogPol)
                     emc_jog_cont_msg.vel = jogSpeed / 60.0;
                   else
@@ -2288,7 +2304,7 @@ int main(int argc, char *argv[])
               if (jogMode == JOG_INCREMENTAL)
                 {
                   emc_jog_incr_msg.joint_or_axis = axisIndex(AXIS_Z);
-                  emc_jog_incr_msg.jjogmode = 1;
+                  emc_jog_incr_msg.jjogmode = JOGJOINT;
                   if (zJogPol)
                     emc_jog_incr_msg.vel = - jogSpeed / 60.0;
                   else
@@ -2301,7 +2317,7 @@ int main(int argc, char *argv[])
                 {
                   jogMode = JOG_CONTINUOUS;
                   emc_jog_cont_msg.joint_or_axis = axisIndex(AXIS_Z);
-                  emc_jog_cont_msg.jjogmode = 1;
+                  emc_jog_cont_msg.jjogmode = JOGJOINT;
                   if (zJogPol)
                     emc_jog_cont_msg.vel = - jogSpeed / 60.0;
                   else
