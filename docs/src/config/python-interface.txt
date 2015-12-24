@@ -367,7 +367,7 @@ of a particular axis:
 import linuxcnc
 s = linuxcnc.stat() 
 s.poll() 
-print 'Axis 1 homed: ', s.axis[1]['homed']
+print "Axis 1 homed: ", s.axis[1]["homed"]
 ---------------------------------------------------------------------
 
 For each axis, the following dictionary keys are available:
@@ -705,7 +705,7 @@ inifile = linuxcnc.ini(sys.argv[1])
 # inifile.find() returns None if the key wasnt found - the
 # following idiom is useful for setting a default value:
 
-machine_name = inifile.find('EMC', 'MACHINE') or "unknown"
+machine_name = inifile.find("EMC", "MACHINE") or "unknown"
 print "machine name: ", machine_name
 
 # inifile.findall() returns a list of matches, or an empty list
