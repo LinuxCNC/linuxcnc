@@ -53,7 +53,7 @@ The values for offsets are stored in the VAR file that is requested by the INI
 file during the startup of an LinuxCNC.
 
 In the VAR file scheme, the first variable number stores the X offset,
-the second the Y offset and so on for all six axes. There are numbered
+the second the Y offset and so on for all nine axes. There are numbered
 sets like this for each of the coordinate system offsets.
 
 Each of the graphical interfaces has a way to set values for these offsets.
