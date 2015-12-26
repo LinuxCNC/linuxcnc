@@ -909,6 +909,12 @@ root_window.bind("<Control-q>", "destroy .")
 help2.append(("Control-Q", "Quit"))
 ----
 
+The following stops the "Do you really want to quit" dialog.
+
+----
+root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .") 
+----
+
 === External Editor
 
 The menu options File > Edit... and File > Edit Tool Table... become
