@@ -1620,7 +1620,7 @@ The canned cycles 'G81' through 'G89' and the canned cycle stop 'G80'
 are described in this section.
 
 All canned cycles are performed with respect to the currently-selected
-plane. Any of the six planes may be selected. Throughout this section,
+plane. Any of the nine planes may be selected. Throughout this section,
 most of the descriptions assume the XY-plane has been selected. The
 behavior is analogous if another plane is selected, and the correct
 words must be used. For instance, in the 'G17.1' plane, the action of

@@ -993,7 +993,7 @@ int Interp::init()
               "RS274NGC"
           );
           if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS275NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in ini file\n");
+              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in ini file\n");
           }
 
           r = inifile.Find(
@@ -1004,7 +1004,7 @@ int Interp::init()
               "RS274NGC"
           );
           if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS275NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in ini file\n");
+              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in ini file\n");
           }
 
 	  // ini file g52/g92 offset persistence default setting
