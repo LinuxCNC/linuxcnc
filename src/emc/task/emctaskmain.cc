@@ -3259,7 +3259,7 @@ int main(int argc, char *argv[])
     maxTime = 0.0;		// set to value that can never be underset
 
     while (!done) {
-        check_ini_hal_items();
+        check_ini_hal_items(emcStatus->motion.traj.joints);
 	// read command
 	if (0 != emcCommandBuffer->read()) {
 	    // got a new command, so clear out errors

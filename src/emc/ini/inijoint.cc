@@ -26,7 +26,9 @@
 #include "emcglb.h"		// EMC_DEBUG
 #include "emccfg.h"		// default values for globals
 
+#include "inihal.hh"
 
+extern value_inihal_data old_inihal_data;
 /*
   loadJoint(int joint)
 
@@ -120,6 +122,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         if (0 != emcJointSetBacklash(joint, backlash)) {
             return -1;
         }
+        old_inihal_data.joint_backlash[joint] = backlash;
 
         // set min position limit
         limit = -1e99;	                // default
@@ -127,6 +130,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         if (0 != emcJointSetMinPositionLimit(joint, limit)) {
              return -1;
         }
+        old_inihal_data.joint_min_limit[joint] = limit;
 
         // set max position limit
         limit = 1e99;	                // default
@@ -134,6 +138,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         if (0 != emcJointSetMaxPositionLimit(joint, limit)) {
             return -1;
         }
+        old_inihal_data.joint_max_limit[joint] = limit;
 
         // set following error limit (at max speed)
         ferror = 1;	                // default
@@ -141,12 +146,14 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         if (0 != emcJointSetFerror(joint, ferror)) {
              return -1;
         }
+        old_inihal_data.joint_ferror[joint] = ferror;
 
         // do MIN_FERROR, if it's there. If not, use value of maxFerror above
         jointIniFile->Find(&ferror, "MIN_FERROR", jointString);
         if (0 != emcJointSetMinFerror(joint, ferror)) {
             return -1;
         }
+        old_inihal_data.joint_min_ferror[joint] = ferror;
 
         // set homing paramsters (total of 6)
         home = 0;	                // default
@@ -184,12 +191,14 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         if (0 != emcJointSetMaxVelocity(joint, maxVelocity)) {
             return -1;
         }
+        old_inihal_data.joint_max_velocity[joint] = maxVelocity;
 
         maxAcceleration = DEFAULT_JOINT_MAX_ACCELERATION;
         jointIniFile->Find(&maxAcceleration, "MAX_ACCELERATION", jointString);
         if (0 != emcJointSetMaxAcceleration(joint, maxAcceleration)) {
             return -1;
         }
+        old_inihal_data.joint_max_acceleration[joint] = maxAcceleration;
 
         comp_file_type = 0;             // default
         jointIniFile->Find(&comp_file_type, "COMP_FILE_TYPE", jointString);
