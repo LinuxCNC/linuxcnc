@@ -30,6 +30,8 @@
 
 #include "inihal.hh"
 
+extern value_inihal_data old_inihal_data;
+
 /*
   loadAxis(int axis)
 
@@ -48,8 +50,6 @@
   emcAxisSetMaxVelocity(int axis, double vel);
   emcAxisSetMaxAcceleration(int axis, double acc);
   */
-
-extern value_inihal_data old_inihal_data;
 
 static int loadAxis(int axis, EmcIniFile *axisIniFile)
 {
@@ -83,7 +83,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
-        old_inihal_data.min_limit[axis] = limit;
+        old_inihal_data.axis_min_limit[axis] = limit;
 
         // set max position limit
         limit = 1e99;	                // default
@@ -94,7 +94,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
-        old_inihal_data.max_limit[axis] = limit;
+        old_inihal_data.axis_max_limit[axis] = limit;
 
         // set maximum velocity
         maxVelocity = DEFAULT_AXIS_MAX_VELOCITY;
@@ -105,8 +105,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
-
-        old_inihal_data.max_velocity[axis] = maxVelocity;
+        old_inihal_data.axis_max_velocity[axis] = maxVelocity;
 
         maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;
         axisIniFile->Find(&maxAcceleration, "MAX_ACCELERATION", axisString);
@@ -116,6 +115,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
+        old_inihal_data.axis_max_acceleration[axis] = maxAcceleration;
     }
 
 
