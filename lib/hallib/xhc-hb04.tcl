@@ -53,7 +53,7 @@ source [file join $::env(HALLIB_DIR) util_lib.tcl]
 #       and they must be KINEMATICS_IDENTITY (trivkins,gentrivkins)
 #       a) connect axis.L.jog-counts to joint.N.jog-counts
 #                  axis.L.jog-scale  to joint.L.jog-scale
-#       c) use  [JOINT_N]MAX_ACCELERATION for both axis.L, joint.N
+#       c) use  [AXIS_N]MAX_ACCELERATION for both axis.L, joint.N
 
 #-----------------------------------------------------------------------
 # Copyright: 2014-16
@@ -261,9 +261,19 @@ proc wheel_setup {jogmode} {
                                              => axis.$coord.jog-counts
 
     #-----------------------------------------------------------------------
-    # multiplexer for ini.N.max_acceleration
+    # multiplexer for ini.N.max_acceleration, ini.L.max_acceleration
+    set COORD [string toupper $coord]
+    if [catch {set std_accel [set ::AXIS_[set COORD](MAX_ACCELERATION)]} msg] {
+      err_exit "Error: missing \[AXIS_[set COORD]\]MAX_ACCELERATION"
+    }
     if [catch {set std_accel [set ::JOINT_[set jnum](MAX_ACCELERATION)]} msg] {
       err_exit "Error: missing \[JOINT_[set jnum]\]MAX_ACCELERATION"
+    }
+    if {   [set ::JOINT_[set jnum](MAX_ACCELERATION)]
+        != [set ::AXIS_[set COORD](MAX_ACCELERATION)] } {
+      puts stderr "$::progname: Warning accel values differ:"
+      puts stderr "  \[JOINT_[set jnum]\]MAX_ACCELERATION=[set ::JOINT_[set jnum](MAX_ACCELERATION)]"
+      puts stderr "  \[AXIS_[set COORD]\]MAX_ACCELERATION=[set ::AXIS_[set COORD](MAX_ACCELERATION)]"
     }
     setp pendant_util.amux$idx-in0 $std_accel
     if ![info exists ::XHC_HB04_CONFIG(accel,$idx)] {
@@ -271,11 +281,13 @@ proc wheel_setup {jogmode} {
     }
     setp pendant_util.amux$idx-in1 $::XHC_HB04_CONFIG(accel,$idx)
 
-    # This signal is named using $jnum so the connection can be made
+    # This signal is named using $coord so the connection can be made
     # later when the ini pins have been created
-    net pendant:muxed-accel-$jnum <= pendant_util.amux$idx-out
+    net pendant:muxed-accel-$coord <= pendant_util.amux$idx-out
     # a script running after task is started must connect:
-    # net pendant:muxed-accel-$jnum => ini.$jnum.max_acceleration
+    # net pendant:muxed-accel-$coord => ini.$coord.max_acceleration
+    # and
+    # net pendant:muxed-accel-$coord => ini.$jnum.max_acceleration
 
     #-----------------------------------------------------------------------
     net pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
