@@ -1614,11 +1614,11 @@ int emcMotionInit()
 
     if (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0) {
 	emcmotion_initialized = 1;
-        if (ini_hal_init()) {
+        if (ini_hal_init(TrajConfig.Joints)) {
 	    rcs_print("emcMotionInit: ini_hal_init fail, continuing\n");
         }
 
-        if (ini_hal_init_pins()) {
+        if (ini_hal_init_pins(TrajConfig.Joints)) {
 	    rcs_print("emcMotionInit: ini_hal_init_pins fail, continuing\n");
         }
     }

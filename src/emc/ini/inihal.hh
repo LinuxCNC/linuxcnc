@@ -22,10 +22,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "hal.h"
 #include "emcmotcfg.h"
 
-int check_ini_hal_items();
-int ini_hal_init(void);
+int check_ini_hal_items(int numjoints);
+int ini_hal_init(int numjoints);
 int ini_hal_exit(void);
-int ini_hal_init_pins(void);
+int ini_hal_init_pins(int numjoints);
 
 /* not doing these fields (yet,ever?):
 [TRAJ]COORDINATES
@@ -60,13 +60,18 @@ int ini_hal_init_pins(void);
     FIELD(hal_float_t,traj_arc_blend_ramp_freq) \
     FIELD(hal_float_t,traj_arc_blend_tangent_kink_ratio) \
 \
-    ARRAY(hal_float_t,backlash,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,min_limit,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,max_limit,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,max_velocity,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,max_acceleration,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,ferror,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,min_ferror,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_backlash,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_ferror,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_min_ferror,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_min_limit,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_max_limit,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_max_velocity,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_max_acceleration,EMCMOT_MAX_JOINTS) \
+\
+    ARRAY(hal_float_t,axis_min_limit,EMCMOT_MAX_AXIS) \
+    ARRAY(hal_float_t,axis_max_limit,EMCMOT_MAX_AXIS) \
+    ARRAY(hal_float_t,axis_max_velocity,EMCMOT_MAX_AXIS) \
+    ARRAY(hal_float_t,axis_max_acceleration,EMCMOT_MAX_AXIS) \
 
 struct PTR {
     template<class T>
