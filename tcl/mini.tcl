@@ -1176,7 +1176,6 @@ pack $oridetop $oridebottom -side top -fill x
 
 # Messages are reported here.
 set mview [frame $left.message ]
-pack $mview -side top -fill both -expand yes
 set mbutton [button $mview.button -text [msgcat::mc "-- MESSAGES --"] -bd 2 \
     -command {$mtext delete 1.0 end; set messagenumber 1} ]
 bind "." <Alt-KeyPress-m> {$mtext delete 1.0 end; set messagenumber 1}

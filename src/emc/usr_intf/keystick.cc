@@ -1207,14 +1207,29 @@ static int emcCommandSend(RCS_CMD_MSG & cmd) {
 */
 void startTimer(int us)
 {
-    timeout(us < 1000 ? 1 : us/1000);
+  struct itimerval value;
+
+  value.it_interval.tv_sec = 0;
+  value.it_interval.tv_usec = us;
+  value.it_value.tv_sec = 0;
+  value.it_value.tv_usec = us;
+
+  setitimer(ITIMER_REAL, &value, 0);
 }
 
 /*
-  idleHandler is called when no key is received after timeout and handles the
-  reading of NML status, the update of the status window, and key-up simulation
-  and handling
+  alarmHandler is attached to SIGALRM, and handles the reading of NML
+  status, the update of the status window, and key-up simulation and
+  handling
 */
+int sigpipe[2];
+
+static void alarmHandler(int sig, siginfo_t *unused, void *unused2)
+{
+  char ch = 0;
+  write(sigpipe[1], &ch, 1);
+}
+
 static void idleHandler()
 {
   // read NML status
@@ -1272,12 +1287,16 @@ static void idleHandler()
       emcCommandSend(emc_spindle_constant_msg);
       spindleChanging = 0;
     }
+
   return;
 }
 
 static int done = 0;
 static void quit(int sig)
 {
+  // disable timer
+  startTimer(0);
+
   // clean up curses windows
   delwin(progwin);
   progwin = 0;
@@ -1327,6 +1346,7 @@ static void quit(int sig)
     }
 
   // reset signal handlers to default
+  signal(SIGALRM, SIG_DFL);
   signal(SIGINT, SIG_DFL);
 
   exit(0);
@@ -1610,6 +1630,34 @@ int tryNml()
 #undef RETRY_INTERVAL
 }
 
+int getch_and_idle()
+{
+  fd_set readfds;
+  while (1)
+    {
+      FD_ZERO(&readfds);
+      FD_SET(0, &readfds);
+      FD_SET(sigpipe[0], &readfds);
+
+      select(sigpipe[0] + 1, &readfds, NULL, NULL, NULL);
+
+      if(FD_ISSET(sigpipe[0], &readfds))
+        {
+          char buf;
+          read(sigpipe[0], &buf, 1);
+          idleHandler();
+          continue;
+        }
+
+      if(FD_ISSET(0, &readfds))
+        {
+          break;
+        }
+    }
+
+  return getch();
+}
+
 int main(int argc, char *argv[])
 {
   int dump = 0;
@@ -1633,6 +1681,7 @@ int main(int argc, char *argv[])
       if (!strcmp(argv[t], "-dump"))
         {
           dump = 1;
+          t++;          // step over nmlfile
           continue;
         }
 
@@ -1735,6 +1784,14 @@ int main(int argc, char *argv[])
   // trap SIGINT
   signal(SIGINT, quit);
 
+  pipe(sigpipe);
+
+  // set up handler for SIGALRM to handle periodic timer events
+  struct sigaction sa;
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_sigaction = alarmHandler;
+  sigaction(SIGALRM, &sa, NULL);
+
 #ifdef LOG
   errorFp = fopen(ERROR_FILE, "w");
   // failure here just disables logging
@@ -1812,13 +1869,7 @@ int main(int argc, char *argv[])
   while (! done)
     {
       oldch = ch;
-      int keypress = getch();
-      if(keypress == ERR) 
-      {
-        idleHandler(); 
-        continue;
-      }
-      ch = (chtype) keypress;
+      ch = (chtype) getch_and_idle();
 
       // check for ^C that may happen during blocking read
       if (done)

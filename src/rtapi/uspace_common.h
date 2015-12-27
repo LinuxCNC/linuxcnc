@@ -65,7 +65,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   /* now get shared memory block from OS */
   shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0666);
   if (shmem->id == -1) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget()\n");
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget(key=0x%08x): %s\n", key, strerror(errno));
     return -errno;
   }
 
