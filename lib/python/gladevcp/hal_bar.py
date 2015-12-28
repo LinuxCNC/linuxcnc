@@ -238,8 +238,8 @@ class HAL_HBar(HAL_Bar):
             cr.rectangle(w - wv, 0, wv - zv, h)
         cr.clip_preserve()
         cr.stroke_preserve()
-
-        if self.invert:
+        bi_flag = bool((self.min == (- self.max)) and self.value < 0)
+        if self.invert or bi_flag:
             lg = cairo.LinearGradient(w, 0, 0, 0)
         else:
             lg = cairo.LinearGradient(0, 0, w, 0)
@@ -310,7 +310,8 @@ class HAL_VBar(HAL_Bar):
         cr.clip_preserve()
         cr.stroke_preserve()
 
-        if self.invert:
+        bi_flag = bool((self.min == (- self.max)) and self.value < 0)
+        if self.invert or bi_flag:
             lg = cairo.LinearGradient(0, 0, 0, h)
         else:
             lg = cairo.LinearGradient(0, h, 0, 0)
