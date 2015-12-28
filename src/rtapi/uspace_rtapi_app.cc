@@ -441,7 +441,6 @@ get_fifo_path(char *buf, size_t bufsize) {
     return 0;
 }
 
-
 int main(int argc, char **argv) {
     if(getuid() == 0) {
         char *fallback_uid_str = getenv("RTAPI_UID");

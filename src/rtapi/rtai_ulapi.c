@@ -446,7 +446,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	    /* is this module already using it? */
 	    if (test_bit(module_id, shmem->bitmap)) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
-		rtapi_print_msg(RTAPI_MSG_WARN,
+		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "RTAPI: Warning: shmem already mapped\n");
 		return -EINVAL;
 	    }

@@ -427,5 +427,19 @@ extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
 */
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 
+#define HAL_STREAM_MAGIC_NUM		0x4649464F
+struct hal_stream_shm {
+    unsigned int magic;
+    volatile unsigned int in;
+    volatile unsigned int out;
+    unsigned this_sample;
+    int depth;
+    int num_pins;
+    unsigned long num_overruns, num_underruns;
+    hal_type_t type[HAL_STREAM_MAX_PINS];
+    union hal_stream_data data[];
+};
+
+extern int halpr_parse_types(hal_type_t type[HAL_STREAM_MAX_PINS], const char *fcg);
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */
