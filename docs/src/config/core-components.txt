@@ -429,19 +429,29 @@ A number of ini settings are made available as hal input pins.
 
 === Pins (((ini settings (HAL pins))))
 
-* 'ini.n.min_limit' - (float, in) [AXIS_n]MIN_LIMIT
+N refers to a joint number, L refers to an axis letter
 
-* 'ini.n.max_limit' - (float, in) [AXIS_n]MAX_LIMIT
+* 'ini.N.ferror' - (float, in) [JOINT_N]FERROR
 
-* 'ini.n.ferror' - (float, in) [AXIS_n]FERROR
+* 'ini.N.min_ferror' - (float, in) [JOINT_N]MIN_FERROR
 
-* 'ini.n.min_ferror' - (float, in) [AXIS_n]MIN_FERROR
+* 'ini.N.backlash' - (float, in) [JOINT_N]BACKLASH
 
-* 'ini.n.max_velocity' - (float, in) [AXIS_n]MAX_VELOCITY
+* 'ini.N.min_limit' - (float, in) [JOINT_N]MIN_LIMIT
 
-* 'ini.n.max_acceleration' - (float, in) [AXIS_n]MAX_ACCELERATION
+* 'ini.N.max_limit' - (float, in) [JOINT_N]MAX_LIMIT
 
-* 'ini.n.backlash' - (float, in) [AXIS_n]BACKLASH
+* 'ini.N.max_velocity' - (float, in) [JOINT_N]MAX_VELOCITY
+
+* 'ini.N.max_acceleration' - (float, in) [JOINT_N]MAX_ACCELERATION
+
+* 'ini.L.min_limit' - (float, in) [AXIS_L]MIN_LIMIT
+
+* 'ini.L.max_limit' - (float, in) [AXIS_L]MAX_LIMIT
+
+* 'ini.L.max_velocity' - (float, in) [AXIS_L]MAX_VELOCITY
+
+* 'ini.L.max_acceleration' - (float, in) [AXIS_L]MAX_ACCELERATION
 
 [NOTE]
 The per-axis min_limit and max_limit pins are honored continuously after homing.
