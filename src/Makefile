@@ -600,8 +600,13 @@ HEADERS := \
     rtapi/$(THREADS_SOURCE).h \
     rtapi/shmdrv/shmdrv.h
 
-# Make each include file a target
-TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
+# the "headers" target installs all the header files in ../include
+.PHONY: headers
+HEADERS := $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
+headers: $(HEADERS)
+
+# install header files as part of the build
+TARGETS += headers
 
 # Add headers to this list that need to go into subdirectories; their
 # respective Submakefiles will need to provide rules to copy them into
