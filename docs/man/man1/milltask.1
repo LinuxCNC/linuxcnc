@@ -7,28 +7,42 @@ milltask is an internal process of LinuxCNC.  It is generally not invoked direct
 It creates the pins shown as owned by the "inihal" component, which allow
 runtime modification of certain values from the inifile.
 .SH PINS
-.SS Per-axis pins
+.SS Per-joint pins (N == joint number)
 .TP
-\fBini.\fI#\fB.backlash
-Allows adjustment of \fB[AXIS_\fI#\fB]BACKLASH
+\fBini.\fIN\fB.backlash
+Allows adjustment of \fB[JOINT_\fIN\fB]BACKLASH
 .TP
-\fBini.\fI#\fB.max_acceleration
-Allows adjustment of \fB[AXIS_\fI#\fB]MAX_ACCELERATION
+\fBini.\fIN\fB.ferror
+Allows adjustment of \fB[JOINT_\fIN\fB]FERROR
 .TP
-\fBini.\fI#\fB.max_velocity
-Allows adjustment of \fB[AXIS_\fI#\fB]MAX_VELOCITY
+\fBini.\fIN\fB.min_ferror
+Allows adjustment of \fB[JOINT_\fIN\fB]MIN_FERROR
 .TP
-\fBini.\fI#\fB.max_limit
-Allows adjustment of \fB[AXIS_\fI#\fB]MAX_LIMIT
+\fBini.\fIN\fB.min_limit
+Allows adjustment of \fB[JOINT_\fIN\fB]MIN_LIMIT
 .TP
-\fBini.\fI#\fB.min_limit
-Allows adjustment of \fB[AXIS_\fI#\fB]MIN_LIMIT
+\fBini.\fIN\fB.max_limit
+Allows adjustment of \fB[JOINT_\fIN\fB]MAX_LIMIT
 .TP
-\fBini.\fI#\fB.ferror
-Allows adjustment of \fB[AXIS_\fI#\fB]FERROR
+\fBini.\fIN\fB.max_velocity
+Allows adjustment of \fB[JOINT_\fIN\fB]MAX_VELOCITY
 .TP
-\fBini.\fI#\fB.min_ferror
-Allows adjustment of \fB[AXIS_\fI#\fB]MIN_FERROR
+\fBini.\fIN\fB.max_acceleration
+Allows adjustment of \fB[JOINT_\fIN\fB]MAX_ACCELERATION
+.SS Per-axis pins (L == axis letter)
+.TP
+\fBini.\fIL\fB.min_limit
+Allows adjustment of \fB[AXIS_\fIL\fB]MIN_LIMIT
+.TP
+\fBini.\fIL\fB.max_limit
+Allows adjustment of \fB[AXIS_\fIL\fB]MAX_LIMIT
+.TP
+\fBini.\fIL\fB.max_velocity
+Allows adjustment of \fB[AXIS_\fIL\fB]MAX_VELOCITY
+.TP
+\fBini.\fIL\fB.max_acceleration
+Allows adjustment of \fB[AXIS_\fIL\fB]MAX_ACCELERATION
+
 .SS Global pins
 .TP
 \fBini.traj_default_acceleration
