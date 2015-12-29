@@ -40,6 +40,11 @@ Kinematics)))Trivial Kinematics). These are the most common machines
 used in milling, but are not very common in other domains of machine
 control (e.g. welding: puma-typed robots).
 
+LinuxCNC supports axes with names: X Y Z A B C U V W.  The X Y Z axes
+typically refer to the usual Cartesian coordinates. The A B C axes refer to
+rotational coordinates about the X Y Z axes respectively.  The U V W axes refer to
+additional coordinates that are commonly made colinear to the X Y Z axes respectively.
+
 == Trivial Kinematics
 
 The simplest machines are those in which which each joint is placed
@@ -51,13 +56,10 @@ actuators of the machine) is trivial. It is a simple 1:1 mapping:
 pos->tran.x = joints[0];
 pos->tran.y = joints[1];
 pos->tran.z = joints[2];
-pos->a = joints[3];
-pos->b = joints[4];
-pos->c = joints[5];
 ----
 
 In the above code snippet one can see how the mapping is done: the X
-position is identical with the joint 0, the Y posittion with with 
+position is identical with the joint 0, the Y position with
 joint 1, etc. The above refers to the direct kinematics (one 
 direction of the transformation). 
 The next code snippet refers to the inverse kinematics (or the 
@@ -67,22 +69,72 @@ inverse direction of the transformation):
 joints[0] = pos->tran.x;
 joints[1] = pos->tran.y;
 joints[2] = pos->tran.z;
+----
+
+In LinuxCNC, the identity kinematics are implemented with the
+'trivkins' kinematics module and extended to 9 axes:
+
+----
+pos->tran.x = joints[0];
+pos->tran.y = joints[1];
+pos->tran.z = joints[2];
+pos->a      = joints[3];
+pos->b      = joints[4];
+pos->c      = joints[5];
+pos->tran.x = joints[6];
+pos->tran.y = joints[7];
+pos->tran.z = joints[8];
+----
+
+Inverse kinematics for trivkins:
+
+----
+joints[0] = pos->tran.x;
+joints[1] = pos->tran.y;
+joints[2] = pos->tran.z;
 joints[3] = pos->a;
 joints[4] = pos->b;
 joints[5] = pos->c;
+joints[6] = pos->tran.u;
+joints[7] = pos->tran.v;
+joints[8] = pos->tran.w;
 ----
 
-As one can see, it's pretty straightforward to do the transformation
-for a trivial "kins" (kinematics) or Cartesian machine. It gets a bit more
-complicated if the machine is missing one of the axes.footnote:[If a
-machine (e.g. a lathe) is set up with only the axes X,Z & A, and
-the LinuxCNC inifile holds only these 3 joints defined, then the above
-matching will be faulty. That is because we actually have (joint0=x,
-joint1=Z, joint2=A) whereas the above assumes joint1=Y. To make it
-easily work in LinuxCNC one needs to define all axes (XYZA), then use a
-simple loopback in HAL for the unused Y axis.] footnote:[One other 
-way of making it work, is by changing the matching code and 
-recompiling the software.]
+As one can see, it's pretty straightforward to do the transformation for a
+trivial "kins" ('trivkins' kinematics) or Cartesian machine. It gets a bit more
+complicated if the machine is missing one of the axes.footnote:[If a machine
+(e.g. a lathe) is set up with only the axes X & Z, and the LinuxCNC inifile
+holds only these 2 axes defined, then the above matching will be faulty. That
+is because we actually have (joint0=x, joint1=Z) whereas the above
+assumes joint1=Y. To make it easily work in LinuxCNC using the 'trivkins'
+kinematics module, one needs to define the omitted axes (XYZ), then use a simple
+loopback in HAL for the unused Y axis.  This is done with sim configs so that
+they can share common hal files.]  
+
+The problems of omitted axes is addressed with a generalized version of
+identity kinematics: the 'gentrivkins' kinematics module.  With 'gentrivkins',
+the coordinates used are specified with a module parameter (coordinates=) and
+joint numbers are assigned consecutively to each coordinate.  So a lathe can be
+described with coordinates=xz The joint assignments will be:
+
+----
+joints[0] = pos->tran.x
+joints[1] = pos->tran.z
+----
+
+The 'gentrivkins' kinematics module allows the same coordinate to be specified
+for more than one joint.  This feature can be useful on machines like a gantry
+having two independent motors for the y coordinate.  Such a machine could use
+coordinates=xyyz resulting in joint assignments:
+
+----
+joints[0] = pos->tran.x
+joints[1] = pos->tran.y
+joints[2] = pos->tran.y
+joints[3] = pos->tran.z
+----
+    
+See the trivkins and gentrivkns man pages for more information.
 
 == Non-trivial kinematics
 
@@ -247,7 +299,7 @@ void rtapi_app_exit(void)
 These are the standard setup and tear-down functions of RTAPI modules.
 
 When they are contained in a single source file, kinematics modules
-may be compiled and installed by 'comp'. See the 'comp(1)' manpage or
+may be compiled and installed by 'halcompile'. See the 'halcompile(1)' manpage or
 the HAL manual for more information.
 
 
