@@ -2446,7 +2446,6 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
     // report our line number to the guis
     tp->execId = tc->id;
     emcmotStatus->requested_vel = tc->reqvel;
-    emcmotStatus->current_vel = tc->currentvel;
 
     emcPoseSub(&tc_pos, &tp->currentPos, &emcmotStatus->dtg);
     return TP_ERR_OK;
@@ -2840,9 +2839,6 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
     tp->motionType = 0;
 #endif
 
-    //Update velocity status based on both tc and nexttc
-    emcmotStatus->current_vel = tc->currentvel + nexttc->currentvel;
-
     return TP_ERR_OK;
 }
 
@@ -2894,6 +2890,15 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
     //Store displacement (checking for valid pose)
     int res_set = tpAddCurrentPos(tp, &displacement);
+
+    // Compute current velocity along XYZ axes only. This extra calculation is
+    // necessary because "velocity" within the TP now includes UVW components.
+    // Therefore, we can't directly use the TP segment velocity.
+    // TODO make output velocity selectable via external flags
+    double current_vel;
+    pmCartMag(&displacement.tran, &current_vel);
+    current_vel /= tp->cycleTime;
+    emcmotStatus->current_vel = current_vel;
 
 #ifdef TC_DEBUG
     double mag;
