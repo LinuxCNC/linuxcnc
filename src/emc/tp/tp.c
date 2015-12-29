@@ -690,7 +690,6 @@ STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * con
         length /= 2.0;
     }
     double triangle_vel = pmSqrt( acc_scaled * length);
-    tc_debug_print("triangle vel for segment %d is %f\n", tc->id, triangle_vel);
 
     return triangle_vel;
 }
