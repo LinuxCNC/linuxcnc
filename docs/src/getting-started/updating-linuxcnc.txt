@@ -180,12 +180,16 @@ the following ways:
 
 === Huanyang VFD
 
-If you use the Huanyang VFD component there are a few hal pin changes to the
-component.
+A driver for the Huanyang family of VFDs was added to LinuxCNC 2.7.
+Before 2.7, the Huanyang VFD driver was maintained separately from
+LinuxCNC.
+
+If you use a Huanyang VFD and are switching to the LinuxCNC version of
+the driver, you'll need to make a few changes to your HAL config.
 
 [options="header"]
 |====
-| 2.6 hy-vfd driver        | 2.7 hy-vfd driver
+| old hy-vfd driver        | 2.7 hy-vfd driver
 | hy_vfd.fwd               | hy_vfd.forward
 | hy_vfd.rev               | hy_vfd.reverse
 | hy_vfd.modbus-ok         | hy_vfd.hycomm-ok
