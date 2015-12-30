@@ -284,13 +284,16 @@ RTARCH=`uname -m | sed s/i.86/i386/`
 case $RTS in
 */rtai-config)
     RTPREFIX=rtai
-    RTAI=3
+    RTAI_VERSION=$($RTS --version)
+    RTAI=$(echo $RTAI_VERSION | cut -f 1 -d .)
     RTDIR=`$RTS --prefix`
     RTDIR=$(cd $RTDIR ; pwd -P )
     RTFLAGS=`$RTS --module-cflags`
-    RTFLAGS="$RTFLAGS -DRTAI=3"
+    RTFLAGS="$RTFLAGS -DRTAI=$RTAI"
     KERNELDIR=`$RTS --linux-dir`
     RTARCH=`$RTS --arch`
+    ULAPI_CFLAGS=`$RTS --lxrt-cflags`
+    ULAPI_LDFLAGS=`$RTS --lxrt-ldflags`
 ;;
 uspace)
     RTPREFIX=uspace
@@ -299,6 +302,8 @@ uspace)
     BUILD_SYS=uspace
     MODEXT=.so
     MODULE_DIR=${prefix}/lib/linuxcnc/modules
+    ULAPI_CFLAGS=""
+    ULAPI_LDFLAGS=""
 esac
 
 if test "$RTS" != uspace; then
@@ -322,6 +327,8 @@ AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
 AC_SUBST([RTARCH])
+AC_SUBST([ULAPI_CFLAGS])
+AC_SUBST([ULAPI_LDFLAGS])
 
 case "$RTPREFIX" in
 uspace)
@@ -546,7 +553,7 @@ AC_SUBST([EXT_RTFLAGS])
 #                                                                            #
 # Provides the user the possibility to specify (--with-module-dir=<path>)    #
 # If not specified default inside /lib/modules/${KERNEL_VERS}/               #
-# to the location where a RT-module gets found (mbuff.o or rtai_shm.o)       #
+# to the location where a RT-module gets found (mbuff.o or rtai_shed.o)     #
 # (maybe the default should be /lib/modules/$KERNEL_VERS/extra if it exists? #
 ##############################################################################
 
@@ -1057,7 +1064,7 @@ AC_SUBST(BUILD_DOCS_HTML)
 
 if test $RTS '!=' uspace
 then
-for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
+for m in adeos rtai_hal rtai_ksched rtai_sched rtai_fifos rtai_sem rtai_math \
 ; do
     AC_MSG_CHECKING([for $m])
     TMP=$(find $MODULE_DIR -name $m$MODEXT 2>/dev/null)
@@ -1071,8 +1078,8 @@ done
 AC_SUBST(MODPATH_adeos)
 AC_SUBST(MODPATH_rtai_hal)
 AC_SUBST(MODPATH_rtai_ksched)
+AC_SUBST(MODPATH_rtai_sched)
 AC_SUBST(MODPATH_rtai_fifos)
-AC_SUBST(MODPATH_rtai_shm)
 AC_SUBST(MODPATH_rtai_sem)
 AC_SUBST(MODPATH_rtai_math)
 fi

@@ -20,13 +20,18 @@ MODPATH=@MODULE_DIR@
 
 # List of realtime kernel modules to be loaded
 if [ "@RTAI@" = "3" ] ; then \
-    MODULES="adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math"
+    MODULES="adeos rtai_hal rtai_ksched rtai_fifos rtai_sem rtai_math"
     RTAI=@RTAI@
     MODPATH_adeos=@MODPATH_adeos@
     MODPATH_rtai_hal=@MODPATH_rtai_hal@
     MODPATH_rtai_ksched=@MODPATH_rtai_ksched@
     MODPATH_rtai_fifos=@MODPATH_rtai_fifos@
-    MODPATH_rtai_shm=@MODPATH_rtai_shm@
     MODPATH_rtai_sem=@MODPATH_rtai_sem@
+    MODPATH_rtai_math=@MODPATH_rtai_math@
+elif [ "@RTAI@" = "5" ] ; then \
+    MODULES="rtai_hal rtai_sched rtai_math"
+    RTAI=@RTAI@
+    MODPATH_rtai_hal=@MODPATH_rtai_hal@
+    MODPATH_rtai_sched=@MODPATH_rtai_sched@
     MODPATH_rtai_math=@MODPATH_rtai_math@
 fi
