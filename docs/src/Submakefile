@@ -8,6 +8,9 @@ LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 
+GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
+GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.txt, ../docs/man/%, $(wildcard ../docs/src/man/*/*.txt))
+
 MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man1/*.1) \
 	$(wildcard $(DOC_DIR)/man/man3/*.3*) \
@@ -274,8 +277,6 @@ ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
 Makefile: $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
 endif
-
-GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
 
 ../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
 	./config.status --file=$@:$<
