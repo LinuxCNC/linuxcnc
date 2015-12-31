@@ -457,7 +457,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	@cp $< $@
 
 .html-images-stamp: $(DOC_TARGETS_HTML)
-	for HTML_FILE in $^; do \
+	set -e; for HTML_FILE in $^; do \
 		HTML_DIR=$$(basename $$(dirname $$HTML_FILE)); \
 		for IMAGE_FILE in $$(xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $$HTML_FILE); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
