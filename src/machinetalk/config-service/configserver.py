@@ -181,7 +181,11 @@ class ConfigServer:
         if self.rx.type == MT_RETRIEVE_APPLICATION:
             a = self.rx.app[0]
             self.retrieve_app(origin, a.name)
-        return
+            return
+
+        if self.rx.type == MT_PING:
+            self.send_msg(origin, MT_PING_ACKNOWLEDGE)
+            return
 
         note = self.tx.note.add()
         note = "unsupported request type %d" % (self.rx.type)
