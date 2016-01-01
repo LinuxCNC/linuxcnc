@@ -1,6 +1,6 @@
 component carousel """Orient a toolchanger carousel using various encoding schemes
 
-.B loadrt toolchange pockets=\\fIN\\fR[,\\fIN\\fR]
+.B loadrt carousel pockets=\\fIN\\fR[,\\fIN\\fR]
 .B encoding=\\fIssss\\fR[,\\fIsss\\fR]\\fB
 .B num_sense=\\fIN\\fR[,\\fIN\\fR]
 .B bidirectional=\\fIN\\fR[,\\fIN]
@@ -11,7 +11,7 @@ component carousel """Orient a toolchanger carousel using various encoding schem
 Use up to 8 numbers separated by commas to create multiple carousel components.
 .TP
 \\fBencoding\\fR The position encoding.
-gray, binary, index or single. Default = 'gray'
+gray, binary, bcd, index or single. Default = 'gray'
 .TP
 \\fBnum_sense\\fR The number of position sense pins.
 Default = 4.
@@ -22,9 +22,9 @@ Default = bidirectional
 
 description """This component is intended to help operate various types of
 carousel-type toolchangers. 
-The component can be configured to operate with binary or gray-coded position 
-feedback, with an individual sensor for each tool position or with a sensor at each
-tool position and a separate index.
+The component can be configured to operate with binary, binary-coded decimal (BCD) 
+or gray-coded position feedback, with an individual sensor for each tool position
+or with a sensor at each tool position and a separate index.
 
 At the moment it is best-suited to Geneva-mechanism type systems where the
 motor is either on or off.
@@ -48,8 +48,8 @@ The component will monitor the carousel position and, when the correct position
 is reached, set the motor-control pins to 0, set "active" to 0 and set "ready"
 to 1.
 
-In index mode the behaviour is slightly different the first time that the "enable"
-pin is set; the carousel will rotate forwards when first enabled until 
+In index mode the behaviour is slightly different. The first time that the "enable"
+pin is set; the carousel will rotate forwards until 
 both the index and pulse inputs are true. If there is no pulse line at the
 index position then a HAL "or2" function can be used to allow the index sensor
 to toggle both inputs. Setting "enable" low does not halt the homing move, so if
@@ -105,7 +105,7 @@ RTAPI_MP_ARRAY_INT(num_sense, MAX_CHAN, "The number of sense pins to create")
 
 
 FUNCTION(_){
-    int i;
+    int i,d,pow;
     int p = 0;
     unsigned int mask;
 
@@ -123,6 +123,23 @@ FUNCTION(_){
             p += sense(i) << i;
         }
         break;
+    case 'D': // BCD
+        i = 0;
+        pow = 1;
+        while (i < inst_sense){
+            if (i < inst_sense) d += sense(i) << (i % 4);
+            i++;
+            if (i < inst_sense) d += sense(i) << (i % 4);
+            i++;
+            if (i < inst_sense) d += sense(i) << (i % 4);
+            i++;
+            if (i < inst_sense) d += sense(i) << (i % 4);
+            i++;
+            p += d * pow;
+            pow *= 10;
+            d = 0;
+        }
+        break;     
     case 'S': // individual sensors
         for (i = inst_sense - 1; sense(i) == 0 && i > 0 ; i--) {}
         p = i;
@@ -218,6 +235,8 @@ EXTRA_SETUP(){
         //it's already default_code
     } else if (strncmp(encoding[extra_arg], "binary", 6) == 0) {
         default_code = 'B';
+    } else if (strncmp(encoding[extra_arg], "bcd", 3) == 0) {
+        default_code = 'D';
     } else if (strncmp(encoding[extra_arg], "single", 6) == 0) {
         default_code = 'S';
     } else if (strncmp(encoding[extra_arg], "index", 5) == 0) {
