@@ -22,11 +22,7 @@ The two main ways that project developers communicate with each other are:
 
 == The LinuxCNC Source Forge project
 
-We use Source Forge for mailing lists and bug tracking.
-
-Our SF mailing lists are here: http://sourceforge.net/p/emc/mailman/
-
-Our SF bug tracker is here: http://sourceforge.net/p/emc/bugs/
+We use Source Forge for mailing lists: http://sourceforge.net/p/emc/mailman/
 
 
 == The git Revision Control System
@@ -38,11 +34,11 @@ git footnote:[http://git-scm.com/].
 
 The official LinuxCNC git repo is at http://git.linuxcnc.org.
 
-The anonymous clone command is:
+Anyone can get a read-only copy of the LinuxCNC source tree via git:
 
 `git clone git://git.linuxcnc.org/git/linuxcnc.git linuxcnc-dev`
 
-If you are a registered developer with push access, the ssh clone
+If you are a developer with push access, the ssh clone
 command is:
 
 `git clone ssh://$YOU@git.linuxcnc.org/git/linuxcnc.git linuxcnc-dev`
@@ -56,7 +52,14 @@ git repo there too is confusing.
 === LinuxCNC on github
 
 There is a regularly updated git clone on github:
-https://github.com/jepler/linuxcnc-mirror
+https://github.com/LinuxCNC/linuxcnc
+
+Issues and pull requests are welcome there.
+https://github.com/LinuxCNC/linuxcnc/issues
+https://github.com/LinuxCNC/linuxcnc/pulls
+
+The old sourceforge bug tracker continues to exist in read-only mode:
+http://sourceforge.net/p/emc/bugs/
 
 You can submit pull requests here.
 
