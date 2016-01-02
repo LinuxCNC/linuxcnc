@@ -49,6 +49,7 @@ DOC_SRCS_EN := \
 	drivers/gm.txt \
 	drivers/gs2.txt \
 	drivers/hostmot2.txt \
+	drivers/mb2hal.txt \
 	drivers/motenc.txt \
 	drivers/opto22.txt \
 	drivers/pico-ppmc.txt \

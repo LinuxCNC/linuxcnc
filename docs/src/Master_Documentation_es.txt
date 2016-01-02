@@ -178,6 +178,8 @@ include::drivers/hostmot2.txt[]
 
 include::drivers/motenc.txt[]
 
+include::drivers/mb2hal.txt[]
+
 include::drivers/opto22.txt[]
 
 include::drivers/pico-ppmc.txt[]
