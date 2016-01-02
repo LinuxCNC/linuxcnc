@@ -3149,10 +3149,7 @@ if homing_order_defined:
 widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s" % ja_name))
 
-# derive trajcoordinates from axis_mask (initraj.cc [TRAJ]COORDINATES)
-trajcoordinates = ""
-for i in range(9):
-    if s.axis_mask & (1<<i): trajcoordinates = trajcoordinates + "xyzabcuvw"[i]
+trajcoordinates=inifile.find("TRAJ", "COORDINATES").lower()
 vars.trajcoordinates.set(trajcoordinates)
 
 no_joint_display = False
