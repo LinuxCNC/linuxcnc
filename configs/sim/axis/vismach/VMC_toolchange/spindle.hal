@@ -35,6 +35,7 @@ net spindle-in-pos 	orient.0.is-oriented  motion.spindle-is-oriented
 # this switches modes
 net orient-mode 	motion.spindle-orient orient.0.enable pid.1.enable mux2.0.sel
 net velocity-mode	motion.spindle-on pid.0.enable #pwmgen.0.enable 
+net orient-dir		motion.spindle-orient-mode orient.0.mode
 
 # this is simple for the simulated spindle.
 net spindle-cmd 	mux2.0.out
