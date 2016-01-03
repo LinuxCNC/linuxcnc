@@ -24,6 +24,7 @@
 #include "emcpos.h"
 #include "libintl.h"
 #include <boost/python/object_fwd.hpp>
+#include <cmath>
 
 
 #define _(s) gettext(s)
