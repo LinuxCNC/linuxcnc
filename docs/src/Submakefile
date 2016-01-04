@@ -80,6 +80,7 @@ DOC_SRCS_EN := \
 	gui/gmoccapy.txt \
 	gui/gmoccapy-hu.txt \
 	gui/gscreen.txt \
+	gui/panelui.txt \
 	gui/halui.txt \
 	gui/image-to-gcode.txt \
 	gui/keystick.txt \
