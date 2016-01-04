@@ -492,8 +492,7 @@ class LinuxCNCWrapper():
 
         self.publish()
 
-        threading.Thread(target=self.process_sockets).start()
-        threading.Thread(target=self.poll).start()
+        threading.Thread(target=self.process_sockets, name="process_sockets").start()
         self.running = True
 
     def process_sockets(self):
@@ -501,15 +500,44 @@ class LinuxCNCWrapper():
         poll.register(self.statusSocket, zmq.POLLIN)
         poll.register(self.errorSocket, zmq.POLLIN)
         poll.register(self.commandSocket, zmq.POLLIN)
-
+    
+        next_poll = time.time() + self.pollInterval
+        polldelay = (self.pollInterval) * 1000 # convert to ms
         while not self.shutdown.is_set():
-            s = dict(poll.poll(1000))
+            s = dict(poll.poll(polldelay))
             if self.statusSocket in s and s[self.statusSocket] == zmq.POLLIN:
                 self.process_status(self.statusSocket)
             if self.errorSocket in s and s[self.errorSocket] == zmq.POLLIN:
                 self.process_error(self.errorSocket)
             if self.commandSocket in s and s[self.commandSocket] == zmq.POLLIN:
                 self.process_command(self.commandSocket)
+            
+            polldelay = (next_poll - time.time()) * 1000 # convert to ms
+            if (polldelay > 0):
+                continue
+
+            next_poll = time.time() + self.pollInterval
+            polldelay = (self.pollInterval) * 1000 # convert to ms
+
+            try:
+                if (self.statusServiceSubscribed):
+                    self.stat.poll()
+                    self.update_status(self.stat)
+                    if (self.pingCount == self.pingRatio):
+                        self.ping_status()
+                if (self.errorServiceSubscribed):
+                    error = self.error.poll()
+                    self.update_error(error)
+                    if (self.pingCount == self.pingRatio):
+                        self.ping_error()
+            except linuxcnc.error as detail:
+                printError(str(detail))
+                self.stop()
+
+            if (self.pingCount == self.pingRatio):
+                self.pingCount = 0
+            else:
+                self.pingCount += 1
 
         self.unpublish()
         self.running = False
@@ -1315,34 +1343,6 @@ class LinuxCNCWrapper():
         parameters.keepalive_timer = int(self.pingInterval * 1000.0)
         self.txStatus.pparams.MergeFrom(parameters)
 
-    def poll(self):
-        while not self.shutdown.is_set():
-            try:
-                if (self.statusServiceSubscribed):
-                    self.stat.poll()
-                    self.update_status(self.stat)
-                    if (self.pingCount == self.pingRatio):
-                        self.ping_status()
-
-                if (self.errorServiceSubscribed):
-                    error = self.error.poll()
-                    self.update_error(error)
-                    if (self.pingCount == self.pingRatio):
-                        self.ping_error()
-
-            except linuxcnc.error as detail:
-                printError(str(detail))
-                self.stop()
-
-            if (self.pingCount == self.pingRatio):
-                self.pingCount = 0
-            else:
-                self.pingCount += 1
-            time.sleep(self.pollInterval)
-
-        self.running = False
-        return
-
     def ping_status(self):
         if (self.ioSubscribed):
             self.send_status_msg('io', MT_PING)
@@ -1369,7 +1369,8 @@ class LinuxCNCWrapper():
 
     def process_status(self, socket):
         try:
-            rc = socket.recv()
+            with self.statusLock:
+                rc = socket.recv()
             subscription = rc[1:]
             status = (rc[0] == "\x01")
 
@@ -1404,7 +1405,8 @@ class LinuxCNCWrapper():
 
     def process_error(self, socket):
         try:
-            rc = socket.recv()
+            with self.errorLock:
+                rc = socket.recv()
             subscription = rc[1:]
             status = (rc[0] == "\x01")
 
@@ -1470,7 +1472,8 @@ class LinuxCNCWrapper():
                          args=(identity, ticket, )).start()
 
     def process_command(self, socket):
-        (identity, message) = socket.recv_multipart()
+        with self.commandLock:
+            (identity, message) = socket.recv_multipart()
         self.rx.ParseFromString(message)
 
         if self.debug:
