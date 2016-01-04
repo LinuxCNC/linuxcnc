@@ -160,6 +160,8 @@ include::gui/gladevcp.txt[]
 
 :leveloffset: 2
 
+include::gui/panelui.txt[]
+
 include::gui/halui.txt[]
 
 include::hal/halui-examples.txt[]
