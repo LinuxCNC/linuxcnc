@@ -19,6 +19,9 @@ MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man9/*.9) \
 	$(GENERATED_MANPAGES))
 
+../docs/man/man1/linuxcnc.1: $(DOC_SRCDIR)/man/man1/linuxcnc.1.in config.status
+	./config.status --file=$@:$<
+
 ifneq ($(MANDB),)
 default: $(DOC_DIR)/man/index.db
 $(DOC_DIR)/man/index.db: $(MAN_SRCS)
@@ -280,9 +283,6 @@ ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
 Makefile: $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
 endif
-
-../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
-	./config.status --file=$@:$<
 
 docs: manpages
 manpages: $(GENERATED_MANPAGES)
