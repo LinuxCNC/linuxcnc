@@ -1,4 +1,4 @@
-= DISCLAIMER
+# DISCLAIMER
 
 **THE AUTHORS OF THIS SOFTWARE ACCEPT ABSOLUTELY NO LIABILITY FOR ANY HARM OR LOSS RESULTING FROM ITS USE.
 IT IS _EXTREMELY_ UNWISE TO RELY ON SOFTWARE ALONE FOR SAFETY.
@@ -10,13 +10,13 @@ This software is released under the GPLv2, with some parts under the LGPL.
 See the file COPYING for more details.
 
 
-= The Build Process
+# The Build Process
 
 Refer to the file 'docs/INSTALL' for information about building and 
 running the software.
     
 
-= Quickstart
+# Quickstart
 
 From the top level directory, switch to the source directory:
 
