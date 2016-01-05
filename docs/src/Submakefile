@@ -612,6 +612,7 @@ $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.txt
 	a2x -v --doctype manpage \
 		--format manpage \
 		--destination-dir `dirname $@` \
+		--xsltproc-opts --nonet \
 		-a mansource=LinuxCNC \
 		-a manmanual='LinuxCNC Documentation' \
 		$<
