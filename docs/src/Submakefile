@@ -9,7 +9,9 @@ LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 
 GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
+ifeq ($(BUILD_DOCS),yes)
 GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.txt, ../docs/man/%, $(wildcard ../docs/src/man/*/*.txt))
+endif
 
 MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man1/*.1) \
