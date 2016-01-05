@@ -261,7 +261,8 @@ HTML_TARGETS := \
 	$(DOC_DIR)/html/index_es.html \
 	$(DOC_DIR)/html/index_fr.html \
 
-A2X = a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
+A2X = a2x --xsltproc-opts "--nonet \
+			   --stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
 			   --stringparam generate.section.toc.level 2 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
