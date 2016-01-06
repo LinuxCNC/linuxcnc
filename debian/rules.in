@@ -162,11 +162,12 @@ install: build
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
-	rm debian/tmp/usr/share/applications/linuxcnc-usermanual*.desktop
-	rm debian/tmp/usr/share/applications/linuxcnc-halmanual*.desktop
-	rm debian/tmp/usr/share/applications/linuxcnc-integratormanual*.desktop
-	rm debian/tmp/usr/share/applications/linuxcnc-gettingstarted*.desktop
-	rm debian/tmp/usr/share/applications/linuxcnc-developer*.desktop
+	## if they weren't there we don't care if rm fails
+	rm -f debian/tmp/usr/share/applications/linuxcnc-usermanual*.desktop
+	rm -f debian/tmp/usr/share/applications/linuxcnc-halmanual*.desktop
+	rm -f debian/tmp/usr/share/applications/linuxcnc-integratormanual*.desktop
+	rm -f debian/tmp/usr/share/applications/linuxcnc-gettingstarted*.desktop
+	rm -f debian/tmp/usr/share/applications/linuxcnc-developer*.desktop
 
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
@@ -190,7 +191,7 @@ endif
 	fi
 
 	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
-
+	
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
