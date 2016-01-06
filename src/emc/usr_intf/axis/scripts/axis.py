@@ -3154,7 +3154,7 @@ if homing_order_defined:
 widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s" % ja_name))
 
-trajcoordinates=inifile.find("TRAJ", "COORDINATES").lower()
+trajcoordinates=inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
 vars.trajcoordinates.set(trajcoordinates)
 
 duplicate_coord_letters = ""
