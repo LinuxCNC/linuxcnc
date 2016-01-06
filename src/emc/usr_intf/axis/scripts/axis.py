@@ -2463,17 +2463,34 @@ class TclCommands(nf.TclCommands):
 
     def home_joint(event=None):
         if not manual_ok(): return
+        jora = vars.ja_rbutton.get()
+        if jora in trajcoordinates:
+            if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+                print "home_joint <%s> Use joint mode for homing"%jora
+                return
+            jnum = trajcoordinates.index(jora)
+        else:
+            jnum = int(jora)
         doHoming=True
-        if s.homed[trajcoordinates.index(vars.ja_rbutton.get())]:
+        if s.homed[jnum]:
             doHoming=prompt_areyousure(_("Warning"),_("This joint is already homed, are you sure you want to re-home?"))
         if doHoming:
             ensure_mode(linuxcnc.MODE_MANUAL)
-            go_home(trajcoordinates.index(vars.ja_rbutton.get()))
+            go_home(jnum)
 
     def unhome_joint(event=None):
         if not manual_ok(): return
+        jora = vars.ja_rbutton.get()
+        if jora in trajcoordinates:
+            if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+                print "unhome_joint <%s> Use joint mode for unhoming"%jora
+                return
+            jnum = trajcoordinates.index(jora)
+        else:
+            jnum = int(jora)
         ensure_mode(linuxcnc.MODE_MANUAL)
-        c.unhome(trajcoordinates.index(vars.ja_rbutton.get()))
+        jnum = int(vars.ja_rbutton.get())
+        c.unhome(jnum)
 
     def home_joint_number(num):
         ensure_mode(linuxcnc.MODE_MANUAL)
