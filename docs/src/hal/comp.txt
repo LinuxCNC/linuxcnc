@@ -269,8 +269,8 @@ The currently defined options are:
    in the automatically defined 'rtapi_app_main'.
 
 * 'option userspace yes' - (default: no)
-   If specified, this file describes a userspace component, rather
-   than a real one. A userspace component may not have functions 
+   If specified, this file describes a userspace (ie, non-realtime) component, rather
+   than a regular (ie, realtime) one. A userspace component may not have functions
    defined by the 'function'  directive. Instead, after all the 
    instances are constructed, the C function `void user_mainloop(void);`
    is called. When this function returns, the component exits. 

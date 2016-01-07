@@ -437,7 +437,7 @@ void cb_response_in(struct libusb_transfer *transfer)
 		xhc.button_code = in_buf[1];
 		xhc.axis = (xhc_axis_t)in_buf[3];
 
-		*(xhc.hal->jog_counts) += ((char)in_buf[4]);
+		*(xhc.hal->jog_counts) += ((signed char)in_buf[4]);
 		*(xhc.hal->jog_counts_neg) = - *(xhc.hal->jog_counts);
 		*(xhc.hal->jog_enable_off) = (xhc.axis == axis_off);
 		*(xhc.hal->jog_enable_x) = (xhc.axis == axis_x);
@@ -473,7 +473,7 @@ void cb_response_in(struct libusb_transfer *transfer)
 			}
 		}
 		if (simu_mode) {
-			if ((char)in_buf[4] != 0) printf(" delta %+3d",(char)in_buf[4]);
+			if ((signed char)in_buf[4] != 0) printf(" delta %+3d",(signed char)in_buf[4]);
 			printf("\n");
 		}
 
