@@ -2489,7 +2489,6 @@ class TclCommands(nf.TclCommands):
         else:
             jnum = int(jora)
         ensure_mode(linuxcnc.MODE_MANUAL)
-        jnum = int(vars.ja_rbutton.get())
         c.unhome(jnum)
 
     def home_joint_number(num):
