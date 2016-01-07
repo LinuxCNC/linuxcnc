@@ -135,11 +135,12 @@ class EMC_JOG_CMD_MSG:public RCS_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    // 0 = X, 1 = Y, 2 = Z, etc.
+    // joint_or_axis == joint_number          for joint jogs (jjogmode==1)
+    // joint_or_axis == 0 for X, 1 for Y,...  for axis  jogs (jjogmode==0)
     int joint_or_axis;
 };
 
-// AIXS status base class
+// AXIS status base class
 class EMC_AXIS_STAT_MSG:public RCS_STAT_MSG {
   public:
     EMC_AXIS_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
@@ -181,7 +182,6 @@ class EMC_JOINT_CMD_MSG:public RCS_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    // 0 = X, 1 = Y, 2 = Z, etc.
     int joint;
 };
 
@@ -402,7 +402,7 @@ class EMC_JOG_CONT:public EMC_JOG_CMD_MSG {
     void update(CMS * cms);
 
     double vel;
-    int jjogmode;
+    int jjogmode; // 1==> joint jog, 0==> axis jog
 };
 
 class EMC_JOG_INCR:public EMC_JOG_CMD_MSG {
@@ -416,7 +416,7 @@ class EMC_JOG_INCR:public EMC_JOG_CMD_MSG {
 
     double incr;
     double vel;
-    int jjogmode;
+    int jjogmode; // 1==> joint jog, 0==> axis jog
 };
 
 class EMC_JOG_ABS:public EMC_JOG_CMD_MSG {
@@ -430,7 +430,7 @@ class EMC_JOG_ABS:public EMC_JOG_CMD_MSG {
 
     double pos;
     double vel;
-    int jjogmode;
+    int jjogmode; // 1==> joint jog, 0==> axis jog
 };
 
 class EMC_JOG_STOP:public EMC_JOG_CMD_MSG {
@@ -442,7 +442,7 @@ class EMC_JOG_STOP:public EMC_JOG_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    int jjogmode;
+    int jjogmode; // 1==> joint jog, 0==> axis jog
 };
 
 class EMC_JOINT_ACTIVATE:public EMC_JOINT_CMD_MSG {
