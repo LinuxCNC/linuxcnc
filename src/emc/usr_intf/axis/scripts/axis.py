@@ -3183,10 +3183,10 @@ if duplicate_coord_letters != "":
     # Can occur, for instance, with gantrykins (or gentrivkins with kinstype=both).
     # In such kins, the value for a duplicated axis letter will equal the
     # value of the highest numbered joint.
-    # Movements on axis gui display (after homing) may be unexpected, e.g., moving 
-    # a joint that is not the highest number will not affect the corresponding
-    # 'identity' coordinate.
-    print ("Warning: Inverse kinematics must handle duplicate coordinate letters:%s"%
+    # Movements on axis gui display in joint mode (after homing) may be unexpected,
+    #   e.g., moving  a joint that is not the highest number will not affect the
+    # corresponding 'identity' coordinate.
+    print ("Warning: Forward kinematics must handle duplicate coordinate letters:%s"%
           duplicate_coord_letters)
 
 no_joint_display = False
