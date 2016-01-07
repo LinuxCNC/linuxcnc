@@ -123,19 +123,13 @@ class EMC_SET_DEBUG:public RCS_CMD_MSG {
     int debug;
 };
 
-// declarations for EMC_AXIS classes
 
 /*
- * AXIS command base class.
- * This is the base class for all commands that operate on a single axis.
- * The axis parameter specifies which axis the command affects.
- * These commands are sent to the emcCommand buffer to be read by the
- * TASK program that will then pass along corresponding messages to the
- * motion system.
+ * EMC_JOG_CMD_MSG class.
  */
-class EMC_AXIS_CMD_MSG:public RCS_CMD_MSG {
+class EMC_JOG_CMD_MSG:public RCS_CMD_MSG {
   public:
-    EMC_AXIS_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
+    EMC_JOG_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
     };
 
     // For internal NML/CMS use only.
@@ -398,9 +392,9 @@ class EMC_JOINT_UNHOME:public EMC_JOINT_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_JOG_CONT:public EMC_AXIS_CMD_MSG {
+class EMC_JOG_CONT:public EMC_JOG_CMD_MSG {
   public:
-    EMC_JOG_CONT():EMC_AXIS_CMD_MSG(EMC_JOG_CONT_TYPE,
+    EMC_JOG_CONT():EMC_JOG_CMD_MSG(EMC_JOG_CONT_TYPE,
 				    sizeof(EMC_JOG_CONT)) {
     };
 
@@ -411,9 +405,9 @@ class EMC_JOG_CONT:public EMC_AXIS_CMD_MSG {
     int jjogmode;
 };
 
-class EMC_JOG_INCR:public EMC_AXIS_CMD_MSG {
+class EMC_JOG_INCR:public EMC_JOG_CMD_MSG {
   public:
-    EMC_JOG_INCR():EMC_AXIS_CMD_MSG(EMC_JOG_INCR_TYPE,
+    EMC_JOG_INCR():EMC_JOG_CMD_MSG(EMC_JOG_INCR_TYPE,
 					 sizeof(EMC_JOG_INCR)) {
     };
 
@@ -425,9 +419,9 @@ class EMC_JOG_INCR:public EMC_AXIS_CMD_MSG {
     int jjogmode;
 };
 
-class EMC_JOG_ABS:public EMC_AXIS_CMD_MSG {
+class EMC_JOG_ABS:public EMC_JOG_CMD_MSG {
   public:
-    EMC_JOG_ABS():EMC_AXIS_CMD_MSG(EMC_JOG_ABS_TYPE,
+    EMC_JOG_ABS():EMC_JOG_CMD_MSG(EMC_JOG_ABS_TYPE,
 					sizeof(EMC_JOG_ABS)) {
     };
 
@@ -439,9 +433,9 @@ class EMC_JOG_ABS:public EMC_AXIS_CMD_MSG {
     int jjogmode;
 };
 
-class EMC_JOG_STOP:public EMC_AXIS_CMD_MSG {
+class EMC_JOG_STOP:public EMC_JOG_CMD_MSG {
   public:
-    EMC_JOG_STOP():EMC_AXIS_CMD_MSG(EMC_JOG_STOP_TYPE,
+    EMC_JOG_STOP():EMC_JOG_CMD_MSG(EMC_JOG_STOP_TYPE,
 				    sizeof(EMC_JOG_STOP)) {
     };
 
