@@ -973,7 +973,7 @@ void EMC_TRAJ_DELAY::update(CMS * cms)
 void EMC_JOG_ABS::update(CMS * cms)
 {
 
-    EMC_AXIS_CMD_MSG::update(cms);
+    EMC_JOG_CMD_MSG::update(cms);
     cms->update(pos);
     cms->update(vel);
 
@@ -985,7 +985,7 @@ void EMC_JOG_ABS::update(CMS * cms)
 void EMC_JOG_STOP::update(CMS * cms)
 {
 
-    EMC_AXIS_CMD_MSG::update(cms);
+    EMC_JOG_CMD_MSG::update(cms);
 
 }
 
@@ -1268,7 +1268,7 @@ void EMC_JOINT_CMD_MSG::update(CMS * cms)
 }
 
 
-void EMC_AXIS_CMD_MSG::update(CMS * cms)
+void EMC_JOG_CMD_MSG::update(CMS * cms)
 {
     cms->update(joint_or_axis);
 
@@ -1308,7 +1308,7 @@ void EMC_STAT::update(CMS * cms)
 void EMC_JOG_CONT::update(CMS * cms)
 {
 
-    EMC_AXIS_CMD_MSG::update(cms);
+    EMC_JOG_CMD_MSG::update(cms);
     cms->update(vel);
 
 }
@@ -2109,7 +2109,7 @@ void EMC_TASK_SET_MODE::update(CMS * cms)
 void EMC_JOG_INCR::update(CMS * cms)
 {
 
-    EMC_AXIS_CMD_MSG::update(cms);
+    EMC_JOG_CMD_MSG::update(cms);
     cms->update(incr);
     cms->update(vel);
 
