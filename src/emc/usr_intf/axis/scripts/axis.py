@@ -2857,15 +2857,21 @@ def set_feedrate(n):
 def set_rapidrate(n):
     widgets.rapidoverride.set(n)
 
-def activate_ja_widget_or_set_feedrate(n):
-    if      (joints_mode()
-        and (s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY)):
-        return
-    # teleop or identity allows (De Morgan):
-    if manual_ok() and (str(n) in trajcoordinates):
-        activate_ja_widget(n)
+def activate_ja_widget_or_set_feedrate(jora):
+    # note: call with integers only
+    if manual_ok():
+        if joints_mode():
+            activate_ja_widget(jora)
+            return
+        if not joints_mode():
+            if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+                activate_ja_widget(jora)
+                return
+            else:
+                return # ignore number (no teleop letter correspondence)
     else:
-        set_feedrate(10*n)
+        set_feedrate(10*jora)
+    return
 
 def nomodifier(f):
     def g(event):
