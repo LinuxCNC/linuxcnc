@@ -61,21 +61,12 @@ struct PM_CARTESIAN;
 
 #define EMC_JOINT_SET_JOINT_TYPE                       ((NMLTYPE) 101)
 #define EMC_JOINT_SET_UNITS_TYPE                      ((NMLTYPE) 102)
-/* gap because of deleted message types */
-
-
-
-
 #define EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE         ((NMLTYPE) 107)
 #define EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE         ((NMLTYPE) 108)
 #define EMC_JOINT_SET_FERROR_TYPE                     ((NMLTYPE) 111)
 #define EMC_JOINT_SET_HOMING_PARAMS_TYPE              ((NMLTYPE) 112)
-// gap because of deleted message types
-
 #define EMC_JOINT_SET_MIN_FERROR_TYPE                 ((NMLTYPE) 115)
 #define EMC_JOINT_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 116)
-// gap because of deleted message types
-
 #define EMC_JOINT_INIT_TYPE                           ((NMLTYPE) 118)
 #define EMC_JOINT_HALT_TYPE                           ((NMLTYPE) 119)
 #define EMC_JOINT_ABORT_TYPE                          ((NMLTYPE) 120)
@@ -89,7 +80,6 @@ struct PM_CARTESIAN;
 #define EMC_JOINT_DEACTIVATE_TYPE                     ((NMLTYPE) 128)
 #define EMC_JOINT_OVERRIDE_LIMITS_TYPE                ((NMLTYPE) 129)
 #define EMC_JOINT_LOAD_COMP_TYPE                      ((NMLTYPE) 131)
-// gap because of deleted message type (EMC_AXIS_ALTER_TYPE)
 #define EMC_JOINT_SET_BACKLASH_TYPE                   ((NMLTYPE) 134)
 #define EMC_JOINT_UNHOME_TYPE                         ((NMLTYPE) 135)
 #define EMC_JOG_STOP_TYPE                             ((NMLTYPE) 136)
@@ -100,7 +90,6 @@ struct PM_CARTESIAN;
 // NML for EMC_TRAJ
 
 // defs for termination conditions
-
 #define EMC_TRAJ_TERM_COND_STOP  0
 #define EMC_TRAJ_TERM_COND_EXACT 1
 #define EMC_TRAJ_TERM_COND_BLEND 2
@@ -134,12 +123,9 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_HOME_TYPE                       ((NMLTYPE) 225)
 #define EMC_TRAJ_SET_ROTATION_TYPE                   ((NMLTYPE) 226)
 #define EMC_TRAJ_SET_G92_TYPE                        ((NMLTYPE) 227)
-/* gap because of removed messages */
-
 #define EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE       ((NMLTYPE) 228)
 #define EMC_TRAJ_PROBE_TYPE                          ((NMLTYPE) 229)
 #define EMC_TRAJ_SET_TELEOP_ENABLE_TYPE              ((NMLTYPE) 230)
-/* gap because of removed message EMC_TRAJ_SET_TELEOP_VECTOR (now handled by regular jog commands) */
 #define EMC_TRAJ_SET_SPINDLESYNC_TYPE                ((NMLTYPE) 232)
 #define EMC_TRAJ_SET_SPINDLE_SCALE_TYPE              ((NMLTYPE) 233)
 #define EMC_TRAJ_SET_FO_ENABLE_TYPE                  ((NMLTYPE) 234)
@@ -204,12 +190,6 @@ struct PM_CARTESIAN;
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
 // EMC_AUX type declarations
-
-/* removed #define EMC_AUX_INIT_TYPE                             ((NMLTYPE) 1201) */
-/* removed #define EMC_AUX_HALT_TYPE                             ((NMLTYPE) 1202) */
-/* removed #define EMC_AUX_ABORT_TYPE                            ((NMLTYPE) 1203) */
-/* removed #define EMC_AUX_DIO_WRITE_TYPE                        ((NMLTYPE) 1204) */
-/* removed #define EMC_AUX_AIO_WRITE_TYPE                        ((NMLTYPE) 1205) */
 #define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)
 #define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)
 #define EMC_AUX_ESTOP_RESET_TYPE                      ((NMLTYPE) 1208)
@@ -218,22 +198,13 @@ struct PM_CARTESIAN;
 #define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)
 
 // EMC_SPINDLE type declarations
-
-/* removed #define EMC_SPINDLE_INIT_TYPE                        ((NMLTYPE) 1301) */
-/* removed #define EMC_SPINDLE_HALT_TYPE                        ((NMLTYPE) 1302) */
-/* removed #define EMC_SPINDLE_ABORT_TYPE                       ((NMLTYPE) 1303) */
 #define EMC_SPINDLE_ON_TYPE                          ((NMLTYPE) 1304)
 #define EMC_SPINDLE_OFF_TYPE                         ((NMLTYPE) 1305)
-/* removed #define EMC_SPINDLE_FORWARD_TYPE                     ((NMLTYPE) 1306) */
-/* removed #define EMC_SPINDLE_REVERSE_TYPE                     ((NMLTYPE) 1307) */
-/* removed #define EMC_SPINDLE_STOP_TYPE                        ((NMLTYPE) 1308) */
 #define EMC_SPINDLE_INCREASE_TYPE                    ((NMLTYPE) 1309)
 #define EMC_SPINDLE_DECREASE_TYPE                    ((NMLTYPE) 1310)
 #define EMC_SPINDLE_CONSTANT_TYPE                    ((NMLTYPE) 1311)
 #define EMC_SPINDLE_BRAKE_RELEASE_TYPE               ((NMLTYPE) 1312)
 #define EMC_SPINDLE_BRAKE_ENGAGE_TYPE                ((NMLTYPE) 1313)
-/* removed #define EMC_SPINDLE_ENABLE_TYPE                      ((NMLTYPE) 1314) */
-/* removed #define EMC_SPINDLE_DISABLE_TYPE                     ((NMLTYPE) 1315) */
 #define EMC_SPINDLE_SPEED_TYPE                       ((NMLTYPE) 1316)
 #define EMC_SPINDLE_ORIENT_TYPE                      ((NMLTYPE) 1317)
 #define EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE        ((NMLTYPE) 1318)
@@ -241,10 +212,6 @@ struct PM_CARTESIAN;
 #define EMC_SPINDLE_STAT_TYPE                        ((NMLTYPE) 1399)
 
 // EMC_COOLANT type declarations
-
-/* removed #define EMC_COOLANT_INIT_TYPE                        ((NMLTYPE) 1401) */
-/* removed #define EMC_COOLANT_HALT_TYPE                        ((NMLTYPE) 1402) */
-/* removed #define EMC_COOLANT_ABORT_TYPE                       ((NMLTYPE) 1403) */
 #define EMC_COOLANT_MIST_ON_TYPE                     ((NMLTYPE) 1404)
 #define EMC_COOLANT_MIST_OFF_TYPE                    ((NMLTYPE) 1405)
 #define EMC_COOLANT_FLOOD_ON_TYPE                    ((NMLTYPE) 1406)
@@ -253,22 +220,11 @@ struct PM_CARTESIAN;
 #define EMC_COOLANT_STAT_TYPE                        ((NMLTYPE) 1499)
 
 // EMC_LUBE type declarations
-
-/* removed #define EMC_LUBE_INIT_TYPE                           ((NMLTYPE) 1501) */
-/* removed #define EMC_LUBE_HALT_TYPE                           ((NMLTYPE) 1502) */
-/* removed #define EMC_LUBE_ABORT_TYPE                          ((NMLTYPE) 1503) */
 #define EMC_LUBE_ON_TYPE                             ((NMLTYPE) 1504)
 #define EMC_LUBE_OFF_TYPE                            ((NMLTYPE) 1505)
-
 #define EMC_LUBE_STAT_TYPE                           ((NMLTYPE) 1599)
 
-// EMC IO point configuration declarations
-
-/* removed #define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001) */
-/* removed #define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002) */
-
 // EMC_IO aggregate class type declaration
-
 #define EMC_IO_INIT_TYPE                             ((NMLTYPE) 1601)
 #define EMC_IO_HALT_TYPE                             ((NMLTYPE) 1602)
 #define EMC_IO_ABORT_TYPE                            ((NMLTYPE) 1603)
@@ -277,7 +233,6 @@ struct PM_CARTESIAN;
 #define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699)
 
 // EMC aggregate class type declaration
-
 // these are placeholders
 #define EMC_LOG_TYPE_IO_CMD      21	// command into EMC IO controller
 #define EMC_LOG_TYPE_TASK_CMD    51	// command into EMC Task controller
