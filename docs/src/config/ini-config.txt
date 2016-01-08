@@ -1006,6 +1006,9 @@ For more information on kinematics modules see the manpage: man kins ('kins(9)')
     errors for stationary axes from inadvertently aborting motion. Small
     following errors will always be present due to vibration, etc.
 
+* 'LOCKING_INDEXER = 1' -
+     Indicates the joint is used as a locking indexer.
+
 .Homing
 
 These parameters are Homing related, for a better explanation read the

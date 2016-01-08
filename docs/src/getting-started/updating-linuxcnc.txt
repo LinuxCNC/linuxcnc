@@ -183,11 +183,84 @@ They could be transformed into pairs of lines like this:
 # This is the max velocity of the axis.
 MAX_VELOCITY = 7.5
 -----
+
+=== Locking rotary indexer (updates for joints_axes)
+
+With joints_axes, an indexer is a joint that can be homed (joint mode)
+but must also be unlocked from gcode.  This requires a one-to-one
+correspondence between a single joint and an axis.
+
+Specify the joint number that corresponds to a rotary axis (L = A,B, or C)
+with an ini file setting for the axis:
+
+----
+  [AXIS_L]LOCKING_INDEXER_JOINT = joint_number_for_indexer
+----
+
+Specify that the joint is a locking indexer with an ini file setting
+for the joint (N is the joint_number_for_indexer):
+
+----
+  [JOINT_N]LOCKING_INDEXER = 1
+----
+
+Hal pins can be created to coordinate use of a locking indicator joint:
+
+----
+   joint.N.unlock      (BIT output from Hal)
+   joint.N.is-unlocked (BIT input  to   Hal)
+----
+
+To create these hal pins for locking joints, specify all joints that
+are used as locking indexers with the 'unlock_joints_mask' parameter for
+the motmod module.  (bit0(LSB)==>joint0, bit1==>joint1, etc.)
+
+----
+  [EMCMOT]motmod unlock_joints_mask = BITMASK
+----
+
+As an example, consider a machine using gentrivkins kinematics with coordinates
+XYZB where B is a locking indexer.  For gentrivkins, joint numbers (starting
+with 0) are assigned consecutively to the coordinates specified (axis
+coordinate letters may be omitted).  For this example, X==>joint0, Y==>joint1,
+Z==>joint2, B==>joint3.  The mask to specify joint 3 is 000001000 (binary) ==
+0x08 (hexadecimal)
+
+The required ini file entries for this gentrivkins XYAB example are:
+----
+  [KINS]
+  JOINTS = 4
+  KINEMATICS = gentrivkins coordinates = XYZB
+  ...
+
+  [TRAJ]
+  COORDINATES = XYZB
+  ...
+
+  [EMCMOT]
+  motmod unlock_joints_mask = 0x08
+  ...
+
+  [AXIS_L]
+  LOCKING_INDEXER_JOINT = 3
+  ...
+
+  [JOINT_3]
+  LOCKING_INDEXER = 1
+  ...
+----
+
+For more complex kinematics, select the joint number as required -- there must
+be a one-to-one correspondence between the rotary axis and the joint number.
+
+(See the motion man page ($ man motion) for more information on motmod)
+
+== Hal (updates for joints_axes)
+
 === Ini Hal pins
 
-Hal pins are created for ini items for both joints ([JOINT_N] stanzas)
+Hal pins are created for ini file items for both joints ([JOINT_N] stanzas)
 and axes ([AXIS_L] stanzas):
-
 
   For N = 0 ... ([KINS]JOINTS -1)
   Ini File Item              hal pin name
@@ -210,129 +283,12 @@ Note: In prior versions of LinuxCNC (before joints_axes updates), the
       hal pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc.
       (pins were created for all 9 axes)
       See the man page ($ man milltask) for more information
-    
-=== Halui support for teleop jogging (Joints_axes)
 
-Halui now supports teleop jogging resulting in some
-changed pin names and numerous new names for jogging-related
-pins.
+== GUIs (updates for joints_axes)
 
-    
-Two pins were renamed to clarify usage (joint or axis):
+=== Axis gui
 
-      was: halui.jog-speed          is: halui.joint.jog-speed
-      was: halui.jog-deadband       is: halui.joint.jog-deadband
-
-The corresponding new pins for axis jogging are:
-
-                                   new: halui.axis.jog-speed
-                                   new: halui.axis.jog-deadband
-    
-All pins for joint jogging were renamed for specificity:
-
-      was: halui.jog.N.plus         is: halui.joint.N.plus
-      was: halui.jog.N.minus        is: halui.joint.N.minus
-           ...  etc                     ... etc
-
-    where N is a joint number (0 ... num_noints-1) or 'selected'
-    for the joint selected by the halui.joint.N.select pins.
-    
-The corresponding new pins for axis jogging are:
-
-                                   new: halui.axis.L.plus
-                                   new: halui.axis.L.minus
-                                        ... etc
-
-where L is a letter corresponding to one of the axes
-specified by [TRAJ]COORDINATES using an axis_mask or 'selected'
-for the axis selected by the halui.axis.L.select pins.
-
-Aditional pin renames for consistency to related pins:
-
-      was: halui.joint.selected.is_homed
-       is: halui.joint.selected.is-homed
-    
-      was: halui.joint.selected.on-soft-limit
-       is: halui.joint.selected.on-soft-min-limit
-
-See the man page ($ man halui) for pin names.
-
-=== LOCKING_ROTARY_INDEXER
-
-With JOINTS_AXES, an indexer is a joint that can be homed (joint mode)
-but also must be unlocked from gcode.   Specify the joint number that
-corresponds to a rotary axis (A,B, or C) with:
-
-  [AXIS_A]LOCKING_INDEXER_JOINT = joint_number_for_indexer
-  [AXIS_B]LOCKING_INDEXER_JOINT = joint_number_for_indexer
-  [AXIS_C]LOCKING_INDEXER_JOINT = joint_number_for_indexer
-
-For a machine configured as XYZABC[UVW] with trivkins identity
-kinematics, the values would be:
-
-  [AXIS_A]LOCKING_INDEXER_JOINT = 3
-  [AXIS_B]LOCKING_INDEXER_JOINT = 4
-  [AXIS_C]LOCKING_INDEXER_JOINT = 5
-
-Note: trivkins assigns joints sequentially for XYZABCUVW, and 
-      does not support omitted axes.
-
-For more complex kinematics, including identity kinematics with
-omitted axes, select the joint number as required -- there must
-be a one-to-one correspondence between the rotary axis and the joint number.
-
-For a machine configured as XYZB with gentrivkins identity kinematics:
-
-  [AXIS_B]LOCKING_INDEXER_JOINT = 3
-
-Note that gentrivkins assigns joints sequentially (starting with 0)
-for each axis specified by the coordinates= parameter.  For an XYZB
-config specified with:
-
-   loadrt gentrivkins coordinates=XYZB
-
-the assignments are:
-
-   X-->0, Y-->1, Z-->2, B-->3
-
-Former ini item no longer used (superseded by LOCKING_INDEXER_JOINT):
-
-  not used: [AXIS_A]LOCKING_INDEXER = 1|0
-  not used: [AXIS_B]LOCKING_INDEXER = 1|0
-  not used: [AXIS_C]LOCKING_INDEXER = 1|0
-
-The hal pins for unlocking a joint: 
-
-   joint.N.unlock
-   joint.N.is-locked
-
-were formerly created automatically for axes A,B,C.
-With separation of joints/axes functionality, these pins
-must now be created for required joints using a motmod parameter:
-
-  [EMCMOT]motmod unlock_joints_mask=MASK
-
-For a machine configured as XYZABC[UVW] with trivkins identity kinematics:
-
-  [EMCMOT]motmod unlock_joints_mask=0x08 (for joint 3)
-  [EMCMOT]motmod unlock_joints_mask=0x10 (for joint 4)
-  [EMCMOT]motmod unlock_joints_mask=0x20 (for joint 5)
-  [EMCMOT]motmod unlock_joints_mask=0x38 (for joints 3, 4, and 5)
-
-For a machine configured as XYZB with gentrivkins identity kinematics:
-
-  [EMCMOT]motmod unlock_joints_mask=0x08 (for joint 3)
-
-(See the motion man page ($ man motion) for more information)
-
-A configuration with a single locking joint will have two inifile
-entries.  For example XYZB machine with identity kinematics:
-
-  [EMCMOT]motmod unlock_joints_mask = 0x10
-  [AXIS_B]LOCKING_INDEXER_JOINT = 4
-
-
-=== AUTO_TELEOP
+==== AUTO_TELEOP
 
 The axis gui supports an option, [KINS]AUTO_TELEOP = nseconds, to cause
 an automatic switch to teleop mode after homing.  The nseconds parameter
@@ -340,29 +296,93 @@ specifes the maxium time to wait after initiating homing with the
 Home-All button.  The setting is applicable only for kinematics that
 are not KINEMATICS_IDENTITY.
 
+Usage Example (wait 20 seconds max):
+
+----
+[KINS]
+AUTO_TELEOP = 20
+...
+----
+
+=== Halui
+
+Halui now supports teleop jogging resulting in some changed pin names and
+numerous new names for jogging-related pins.
+
+See the man page ($ man halui) for all pin names.
+
+==== TELEOP jogging (also called axis or world jogging)
+
+New pins for teleop jogging are:
+
+----
+      new: halui.axis.jog-speed
+      new: halui.axis.jog-deadband
+
+      new: halui.axis.L.plus
+      new: halui.axis.L.minus
+           ... etc.
+----
+
+where 'L' is a letter corresponding to one of the axis letters specified by
+[TRAJ]COORDINATES or 'selected' for the axis selected by the
+halui.axis.L.select pins.
+
+==== Joint jogging
+
+All pins for joint jogging were renamed for specificity:
+
+----
+      was: halui.jog-speed          is: halui.joint.jog-speed
+      was: halui.jog-deadband       is: halui.joint.jog-deadband
+
+      was: halui.jog.N.plus         is: halui.joint.N.plus
+      was: halui.jog.N.minus        is: halui.joint.N.minus
+           ...  etc.                    ... etc.
+----
+
+where 'N' is a joint number (0 ... num_noints-1) or 'selected'
+for the joint selected by the halui.joint.N.select pins.
+
+====  Aditional pin renames
+
+The hal pins for 'selected' joints were renamed for consistency
+with related pins.
+
+----
+      was: halui.joint.selected.is_homed
+       is: halui.joint.selected.is-homed
+
+      was: halui.joint.selected.on-soft-limit
+       is: halui.joint.selected.on-soft-min-limit
+----
+
+
 === linuxcncrsh
 
 The jogging commands have been altered to accomodate both joint (free)
-and teleop (world) jogging.  
+and teleop (world) jogging.
 
+----
     was: set jog      joint_number             speed
      is: set jog      joint_number|axis_letter speed
-    
+
     was: set jog_incr joint_number             speed increment
      is: set jog_incr joint_number|axis_letter speed increment
-    
+
     was: set jog_stop
      is: set jog_stop joint_number|axis_letter
-    
-    Note: Test for teleop mode using command: get teleop_enable
-          if TELEOP_ENABLE=YES, use axis_letter
-          else                  use joint_number
-    
-    Note: Formerly, the command 'set jog 0 1.234' would jog the zeroth
-    axis (X) with requested speed=1.234 in any mode (free or teleop).
-    This command now attemps to jog the zeroth joint (Joint0) provided
-    the mode is free (not teleop).  To jog the X axis, the mode
-    must be teleop and the corresponding command is: 'set jog x 1.234'
+----
+
+Note: Test for teleop mode using command: get teleop_enable
+      if TELEOP_ENABLE=YES, use axis_letter
+      else                  use joint_number
+
+Note: Formerly, the command 'set jog 0 1.234' would jog the zeroth
+axis (X) with requested speed=1.234 in any mode (free or teleop).
+This command now attemps to jog the zeroth joint (Joint0) provided
+the mode is free (not teleop).  To jog the X axis, the mode
+must be teleop and the corresponding command is: 'set jog x 1.234'
 
 
 // vim: set syntax=asciidoc:
