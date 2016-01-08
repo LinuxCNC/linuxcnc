@@ -52,8 +52,8 @@ net j0-min-soft          pyvcp.x.min-soft           halui.joint.0.on-soft-min-li
 net j0-max-soft          pyvcp.x.max-soft           halui.joint.0.on-soft-max-limit
 net j0-max-hard          pyvcp.x.max-hard           halui.joint.0.on-hard-max-limit
 net j0-has-fault         pyvcp.x.has-fault          halui.joint.0.has-fault
-net j0-minus             pyvcp.jog-x-               halui.jog.0.minus
-net j0-plus              pyvcp.jog-x+               halui.jog.0.plus
+net j0-minus             pyvcp.jog-x-               halui.joint.0.minus
+net j0-plus              pyvcp.jog-x+               halui.joint.0.plus
 
 net j1-home              pyvcp.y.home               halui.joint.1.home
 net j1-is-homed          pyvcp.y.is-homed           halui.joint.1.is-homed
@@ -62,8 +62,8 @@ net j1-min-soft          pyvcp.y.min-soft           halui.joint.1.on-soft-min-li
 net j1-max-soft          pyvcp.y.max-soft           halui.joint.1.on-soft-max-limit
 net j1-max-hard          pyvcp.y.max-hard           halui.joint.1.on-hard-max-limit
 net j1-has-fault         pyvcp.y.has-fault          halui.joint.1.has-fault
-net j1-minus             pyvcp.jog-y-               halui.jog.1.minus
-net j1-plus              pyvcp.jog-y+               halui.jog.1.plus
+net j1-minus             pyvcp.jog-y-               halui.joint.1.minus
+net j1-plus              pyvcp.jog-y+               halui.joint.1.plus
 
 net j2-home              pyvcp.z.home               halui.joint.2.home
 net j2-is-homed          pyvcp.z.is-homed           halui.joint.2.is-homed
@@ -72,8 +72,8 @@ net j2-min-soft          pyvcp.z.min-soft           halui.joint.2.on-soft-min-li
 net j2-max-soft          pyvcp.z.max-soft           halui.joint.2.on-soft-max-limit
 net j2-max-hard          pyvcp.z.max-hard           halui.joint.2.on-hard-max-limit
 net j2-has-fault         pyvcp.z.has-fault          halui.joint.2.has-fault
-net j2-minus             pyvcp.jog-z-               halui.jog.2.minus
-net j2-plus              pyvcp.jog-z+               halui.jog.2.plus
+net j2-minus             pyvcp.jog-z-               halui.joint.2.minus
+net j2-plus              pyvcp.jog-z+               halui.joint.2.plus
 
 net fo-increase          pyvcp.feed-override+       halui.feed-override.increase
 net fo-decrease          pyvcp.feed-override-       halui.feed-override.decrease
@@ -96,4 +96,4 @@ net bd-is-on             pyvcp.block-delete.is-on   halui.program.block-delete.i
 net quill-up             pyvcp.quillup              halui.mdi-command-00
 net reference-pos        pyvcp.referencepos         halui.mdi-command-01
 
-net jogspeed             pyvcp.jog-speed            halui.jog-speed
+net jogspeed             pyvcp.jog-speed            halui.joint.jog-speed
