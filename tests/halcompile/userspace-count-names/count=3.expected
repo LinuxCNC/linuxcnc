@@ -1,0 +1,8 @@
+count=3
+argc=1
+argv[0]=userspace_count_names
+argv[1]=(null)
+userspace-count-names.0.out
+userspace-count-names.1.out
+userspace-count-names.2.out
+
