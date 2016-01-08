@@ -104,7 +104,7 @@ net sxp.abs-jog-speed <= tristate-float.sxp5.out
 net sxp.abs-jog-speed <= tristate-float.sxp6.out
 net sxp.abs-jog-speed <= tristate-float.sxp7.out
 
-net sxp.abs-jog-speed => halui.jog-speed
+net sxp.abs-jog-speed => halui.axis.jog-speed
 
 # while an axis button is depressed, jog the axis continuously in the
 # direction indicated by the spring-wheel
@@ -117,27 +117,27 @@ addf and2.sxp-z-neg servo-thread
 
 net sxp.x-button                     => and2.sxp-x-pos.in0
 net sxp.spring-wheel-is-positive     => and2.sxp-x-pos.in1
-net sxp.jog-x-pos and2.sxp-x-pos.out => halui.jog.0.plus
+net sxp.jog-x-pos and2.sxp-x-pos.out => halui.axis.x.plus
 
 net sxp.x-button                     => and2.sxp-x-neg.in0
 net sxp.spring-wheel-is-negative     => and2.sxp-x-neg.in1
-net sxp.jog-x-neg and2.sxp-x-neg.out => halui.jog.0.minus
+net sxp.jog-x-neg and2.sxp-x-neg.out => halui.axis.x.minus
 
 net sxp.y-button                     => and2.sxp-y-pos.in0
 net sxp.spring-wheel-is-positive     => and2.sxp-y-pos.in1
-net sxp.jog-y-pos and2.sxp-y-pos.out => halui.jog.1.plus
+net sxp.jog-y-pos and2.sxp-y-pos.out => halui.axis.y.plus
 
 net sxp.y-button                     => and2.sxp-y-neg.in0
 net sxp.spring-wheel-is-negative     => and2.sxp-y-neg.in1
-net sxp.jog-y-neg and2.sxp-y-neg.out => halui.jog.1.minus
+net sxp.jog-y-neg and2.sxp-y-neg.out => halui.axis.y.minus
 
 net sxp.z-button                     => and2.sxp-z-pos.in0
 net sxp.spring-wheel-is-positive     => and2.sxp-z-pos.in1
-net sxp.jog-z-pos and2.sxp-z-pos.out => halui.jog.2.plus
+net sxp.jog-z-pos and2.sxp-z-pos.out => halui.axis.z.plus
 
 net sxp.z-button                     => and2.sxp-z-neg.in0
 net sxp.spring-wheel-is-negative     => and2.sxp-z-neg.in1
-net sxp.jog-z-neg and2.sxp-z-neg.out => halui.jog.2.minus
+net sxp.jog-z-neg and2.sxp-z-neg.out => halui.axis.z.minus
 
 
 
@@ -191,9 +191,9 @@ net sxp.jog-increment <= tristate-float.sxp-jog-increment-1.out
 net sxp.jog-increment <= tristate-float.sxp-jog-increment-2.out
 net sxp.jog-increment <= tristate-float.sxp-jog-increment-3.out
 
-net sxp.jog-increment => axis.0.jog-scale
-net sxp.jog-increment => axis.1.jog-scale
-net sxp.jog-increment => axis.2.jog-scale
+net sxp.jog-increment => axis.x.jog-scale
+net sxp.jog-increment => axis.y.jog-scale
+net sxp.jog-increment => axis.z.jog-scale
 
 
 
@@ -204,9 +204,9 @@ net sxp.jog-increment => axis.2.jog-scale
 #
 
 # hook up the axis buttons to the axis jog-enable pins
-net sxp.x-button axis.0.jog-enable
-net sxp.y-button axis.1.jog-enable
-net sxp.z-button axis.2.jog-enable
+net sxp.x-button axis.x.jog-enable
+net sxp.y-button axis.y.jog-enable
+net sxp.z-button axis.z.jog-enable
 
 # The ShuttleXpress jog wheel has 10 clicks per revolution
 # 
@@ -223,7 +223,7 @@ setp ilowpass.sxp.scale 1000
 net sxp.counts => ilowpass.sxp.in
 
 net sxp.counts-smoothed <= ilowpass.sxp.out
-net sxp.counts-smoothed => axis.0.jog-counts
-net sxp.counts-smoothed => axis.1.jog-counts
-net sxp.counts-smoothed => axis.2.jog-counts
+net sxp.counts-smoothed => axis.x.jog-counts
+net sxp.counts-smoothed => axis.y.jog-counts
+net sxp.counts-smoothed => axis.z.jog-counts
 
