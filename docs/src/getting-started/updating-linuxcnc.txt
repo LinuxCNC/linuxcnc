@@ -196,7 +196,7 @@ coordinate letters may be omitted).  For this example, X==>joint0, Y==>joint1,
 Z==>joint2, B==>joint3.  The mask to specify joint 3 is 000001000 (binary) ==
 0x08 (hexadecimal)
 
-The required ini file entries for this gentrivkins XYAB example are:
+The required ini file entries for this gentrivkins XYZB example are:
 ----
   [KINS]
   JOINTS = 4
@@ -208,7 +208,7 @@ The required ini file entries for this gentrivkins XYAB example are:
   ...
 
   [EMCMOT]
-  motmod unlock_joints_mask = 0x08
+  EMCMOT = motmod unlock_joints_mask = 0x08
   ...
 
   [AXIS_L]
@@ -232,7 +232,7 @@ be a one-to-one correspondence between the rotary axis and the joint number.
 Hal pins are created for ini file items for both joints ([JOINT_N] stanzas)
 and axes ([AXIS_L] stanzas):
 
-  For N = 0 ... ([KINS]JOINTS -1)
+  For N = 0 ... [KINS](JOINTS -1)
   Ini File Item              hal pin name
   [JOINT_N]BACKLASH          ini.N.backlash
   [JOINT_N]FERROR            ini.N.ferror
