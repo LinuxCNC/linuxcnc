@@ -1148,9 +1148,10 @@ class HAL:
                     print >>file, "net ratio_select.out   pid.%s.maxoutput " % (let)
                 else:
                     print >>file, "setp   pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
-                # steppers
                 print >>file, "setp   pid.%s.error-previous-target true" % let
-                print >>file, "setp   pid.%s.maxerror .0005" % let
+                # steppers
+                if steppinname:
+                    print >>file, "setp   pid.%s.maxerror .0005" % let
                 print >>file
                 if let == 's':
                     name = "spindle"
