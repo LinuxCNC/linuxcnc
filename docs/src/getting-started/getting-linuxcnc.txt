@@ -200,9 +200,8 @@ and `linux-image-rt-686-pae`.
 
 === Installing on Debian Wheezy (with Preempt-RT kernel)
 
-. Install Debian Wheezy (Debian version 7),
-  either i386 or amd64.  You can download the installer here:
-  https://www.debian.org/releases/
+. Download and install the LinuxCNC from
+  LiveCD http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso
 
 . Run the following in a terminal to bring the machine up to date with the
   latest packages.
@@ -233,12 +232,12 @@ uname -v
 sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
 
-. Add a new apt source that looks like this:
+. Open the Synaptic Package Manager from the Settings Menu. Go to Settings >
+Repositories and on the Other Software tab click the Add button and paste the
+following into the APT line:
 +
 ----
 deb http://linuxcnc.org/ wheezy base 2.7-uspace
-or
-deb http://linuxcnc.org/ jessie base 2.7-uspace
 ----
 
 . Update the package list from linuxcnc.org
