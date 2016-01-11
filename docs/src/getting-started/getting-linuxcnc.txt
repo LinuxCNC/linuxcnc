@@ -204,6 +204,8 @@ and `linux-image-rt-686-pae`.
   either i386 or amd64.  You can download the installer here:
   https://www.debian.org/releases/
 
+WARNING: Do not enter a root password, if you do sudo is disabled.
+
 . Run the following in a terminal to bring the machine up to date with the
   latest packages.
 +
