@@ -1335,7 +1335,7 @@ class LinuxCNCWrapper():
         with self.commandLock:
             self.txCommand.type = type
             txBuffer = self.txCommand.SerializeToString()
-            self.commandSocket.send_multipart([identity, txBuffer], zmq.NOBLOCK)
+            self.commandSocket.send_multipart(identity + [txBuffer], zmq.NOBLOCK)
             self.txCommand.Clear()
 
     def add_pparams(self):
@@ -1473,7 +1473,9 @@ class LinuxCNCWrapper():
 
     def process_command(self, socket):
         with self.commandLock:
-            (identity, message) = socket.recv_multipart()
+            frames = socket.recv_multipart()
+            iidentity = frames[:-1]  # multipart id
+            message = frames[-1]  # last frame
         self.rx.ParseFromString(message)
 
         if self.debug:
