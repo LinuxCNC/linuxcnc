@@ -14,6 +14,7 @@ import shlex
 from machinekit import service
 from machinekit import config
 
+from google.protobuf.message import DecodeError
 from message_pb2 import Container
 from config_pb2 import *
 from types_pb2 import *
@@ -355,8 +356,8 @@ class Mklauncher:
     def write_stdin_process(self, index, data):
         self.processes[index].stdin.write(data)
 
-    def send_command_wrong_params(self, identity):
-        self.txCommand.note.append('wrong parameters')
+    def send_command_wrong_params(self, identity, note='wrong parameters'):
+        self.txCommand.note.append(note)
         self.send_command_msg(identity, MT_ERROR)
 
     def send_command_wrong_index(self, identity):
@@ -365,10 +366,16 @@ class Mklauncher:
 
     def process_command(self, s):
         (identity, message) = s.recv_multipart()
-        self.rx.ParseFromString(message)
 
         if self.debug:
             print("process command called, id: %s" % identity)
+
+        try:
+            self.rx.ParseFromString(message)
+        except DecodeError as e:
+            note = 'Protobuf Decode Error: ' + str(e)
+            self.send_command_wrong_params(identity, note=note)
+            return
 
         if self.rx.type == MT_PING:
             self.send_command_msg(identity, MT_PING_ACKNOWLEDGE)
