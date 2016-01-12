@@ -171,7 +171,7 @@ int ping_comps(htself_t *self);
 int handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg);
 
 // haltalk_introspect.cc:
-int process_describe(htself_t *self, const std::string &from,  void *socket);
+int process_describe(htself_t *self, zmsg_t *from,  void *socket);
 int describe_group(htself_t *self, const char *group, const std::string &from,  void *socket);
 int describe_comp(htself_t *self, const char *comp, const std::string &from,  void *socket);
 int describe_parameters(htself_t *self);

@@ -23,9 +23,9 @@
 
 #include <google/protobuf/text_format.h>
 
-static int dispatch_request(htself_t *self, const std::string &from, void *socket);
-static int process_get(htself_t *self, const std::string &from, void *socket);
-static int process_set(htself_t *self, bool halrcomp, const std::string &from, void *socket);
+static int dispatch_request(htself_t *self, zmsg_t *from, void *socket);
+static int process_get(htself_t *self, zmsg_t *from, void *socket);
+static int process_set(htself_t *self, bool halrcomp, zmsg_t *from, void *socket);
 static int describe_pin_by_name(htself_t *self, const char *name);
 static int describe_signal_by_name(htself_t *self, const char *name);
 static int apply_initial_values(htself_t *self, const pb::Component *pbcomp);
@@ -41,31 +41,26 @@ handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     if (self->cfg->debug  > 4)
 	zmsg_dump(msg);
 
-    zframe_t *o = zmsg_pop (msg);
-    std::string origin( (const char *) zframe_data(o), zframe_size(o));
+    zframe_t *f = zmsg_last(msg);
+    zmsg_remove(msg, f);
 
-    size_t nframes = zmsg_size( msg);
-
-    for(size_t i = 0; i < nframes; i++) {
-	zframe_t *f = zmsg_pop (msg);
-
-	if (!self->rx.ParseFromArray(zframe_data(f), zframe_size(f))) {
-	    rtapi_print_hex_dump(RTAPI_MSG_ALL, RTAPI_DUMP_PREFIX_OFFSET,
-				 16, 1, zframe_data(f), zframe_size(f), true,
-				 "%s: invalid pb ", origin.c_str());
-	} else {
-	    if (self->cfg->debug) {
-		std::string s;
-		gpb::TextFormat::PrintToString(self->rx, &s);
-		fprintf(stderr,"%s: req=%s\n",__func__,s.c_str());
-	    }
-	    // a valid protobuf. Interpret and reply as needed.
-	    dispatch_request(self, origin, poller->socket);
-	}
-	zframe_destroy(&f);
+    if (!self->rx.ParseFromArray(zframe_data(f), zframe_size(f))) {
+        zframe_t *o = zmsg_first (msg);  // freed with msg
+        std::string origin( (const char *) zframe_data(o), zframe_size(o));
+        rtapi_print_hex_dump(RTAPI_MSG_ALL, RTAPI_DUMP_PREFIX_OFFSET,
+                 16, 1, zframe_data(f), zframe_size(f), true,
+                 "%s: invalid pb ", origin.c_str());
+    } else {
+        if (self->cfg->debug) {
+        std::string s;
+        gpb::TextFormat::PrintToString(self->rx, &s);
+        fprintf(stderr,"%s: req=%s\n",__func__,s.c_str());
+        }
+        // a valid protobuf. Interpret and reply as needed.
+        dispatch_request(self, msg, poller->socket);
     }
+    zframe_destroy(&f);
     zmsg_destroy(&msg);
-    zframe_destroy(&o);
 
     return retval;
 }
@@ -73,7 +68,7 @@ handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 // ----- end of public functions ---
 
 static int
-process_ping(htself_t *self, const std::string &from,  void *socket)
+process_ping(htself_t *self, zmsg_t *from, void *socket)
 {
     self->tx.set_type( pb::MT_PING_ACKNOWLEDGE);
     self->tx.set_uuid(&self->netopts.proc_uuid, sizeof(uuid_t));
@@ -201,7 +196,7 @@ validate_component(const char *name, const pb::Component *pbcomp, pb::Container 
 // accumulate any errors in self->tx.note.
 static rcomp_t *
 create_rcomp(htself_t *self,  const pb::Component *pbcomp,
-	     const std::string &from, void *socket)
+	     zmsg_t *from, void *socket)
 {
     int arg1 = 0, arg2 = 0, retval;
     rcomp_t *rc = new rcomp_t();
@@ -303,7 +298,7 @@ create_rcomp(htself_t *self,  const pb::Component *pbcomp,
 }
 
 static int
-process_rcomp_bind(htself_t *self, const std::string &from,
+process_rcomp_bind(htself_t *self, zmsg_t *from,
 		   const pb::Component *pbcomp, void *socket)
 {
     int retval = 0;
@@ -317,9 +312,11 @@ process_rcomp_bind(htself_t *self, const std::string &from,
 
     // fail if comp.name not present
     if (!pbcomp->has_name()) {
-	note_printf(self->tx, "request %d from '%s': no name in Component submessage",
-		    self->rx.type(), from.c_str());
-	return send_pbcontainer(from, self->tx, socket);
+        zframe_t *o = zmsg_first (from);  // freed with msg
+        std::string origin( (const char *) zframe_data(o), zframe_size(o));
+        note_printf(self->tx, "request %d from '%s': no name in Component submessage",
+                    self->rx.type(), origin.c_str());
+        return send_pbcontainer(from, self->tx, socket);
     }
 
     cname = pbcomp->name().c_str();
@@ -334,9 +331,11 @@ process_rcomp_bind(htself_t *self, const std::string &from,
 
 	    // TODO if (type < HAL_BIT || type > HAL_U32)
 	    gpb::TextFormat::PrintToString(p, &s);
+        zframe_t *o = zmsg_first (from);  // freed with msg
+        std::string origin( (const char *) zframe_data(o), zframe_size(o));
 	    note_printf(self->tx,
 			"request %d from %s: invalid pin - name, type or dir missing: Pin=(%s)",
-			self->rx.type(), from.c_str(), s.c_str());
+			self->rx.type(), origin.c_str(), s.c_str());
 	}
     }
     // reply if any bad news so far
@@ -354,9 +353,11 @@ process_rcomp_bind(htself_t *self, const std::string &from,
     // fail if no_create flag is set in Component submessage
     // meaning: bind succeeds only if the component exists
     if (pbcomp->has_no_create() && pbcomp->no_create()) {
-    note_printf(self->tx,
+        zframe_t *o = zmsg_first (from);  // freed with msg
+        std::string origin( (const char *) zframe_data(o), zframe_size(o));
+        note_printf(self->tx,
             "request %d from '%s': Component not created since no_create flag set",
-            self->rx.type(), from.c_str());
+            self->rx.type(), origin.c_str());
     return send_pbcontainer(from, self->tx, socket);
     }
 
@@ -386,10 +387,12 @@ process_rcomp_bind(htself_t *self, const std::string &from,
 	// validate request against existing comp
 	retval = validate_component(cname, pbcomp, self->tx);
 	if (retval) {
+        zframe_t *o = zmsg_first (from);  // freed with msg
+        std::string origin( (const char *) zframe_data(o), zframe_size(o));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "%s: bind request from %s:"
 			    " mismatch against existing HAL component",
-			    self->cfg->progname, from.c_str());
+			    self->cfg->progname, origin.c_str());
 	    return send_pbcontainer(from, self->tx, socket);
 	}
 
@@ -432,7 +435,7 @@ process_rcomp_bind(htself_t *self, const std::string &from,
 }
 
 static int
-dispatch_request(htself_t *self, const std::string &from,  void *socket)
+dispatch_request(htself_t *self, zmsg_t *from, void *socket)
 {
     int retval = 0;
     pb::ContainerType type = self->rx.type();
@@ -448,8 +451,10 @@ dispatch_request(htself_t *self, const std::string &from,  void *socket)
     case pb::MT_HALRCOMP_BIND:
 	// check for component submessages, and fail if none present
 	if (self->rx.comp_size() == 0) {
+        zframe_t *o = zmsg_first (from);  // freed with msg
+        std::string origin( (const char *) zframe_data(o), zframe_size(o));
 	    note_printf(self->tx, "request %d from '%s': no Component submessage",
-			self->rx.type(), from.c_str());
+			self->rx.type(), origin.c_str());
 	    return send_pbcontainer(from, self->tx, socket);
 	}
 	// bind them all
@@ -482,16 +487,18 @@ dispatch_request(htself_t *self, const std::string &from,  void *socket)
     default:
 	self->tx.set_type(pb::MT_HALRCOMMAND_ERROR);
 	note_printf(self->tx, "rcommand %d: not implemented", self->rx.type());
-	return send_pbcontainer(from, self->tx, socket);
+    send_pbcontainer(from, self->tx, socket);
+    zframe_t *o = zmsg_first (from);  // freed with msg
+    std::string origin( (const char *) zframe_data(o), zframe_size(o));
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: rcommand from %s : unhandled type %d",
-			self->cfg->progname, from.c_str(), (int) self->rx.type());
+			self->cfg->progname, origin.c_str(), (int) self->rx.type());
 	retval = -1;
     }
     return retval;
 }
 
 static int
-process_set(htself_t *self, bool halrcomp, const std::string &from,  void *socket)
+process_set(htself_t *self, bool halrcomp, zmsg_t *from, void *socket)
 {
     itemmap_iterator it;
 
@@ -660,7 +667,7 @@ process_set(htself_t *self, bool halrcomp, const std::string &from,  void *socke
 }
 
 static int
-process_get(htself_t *self, const std::string &from,  void *socket)
+process_get(htself_t *self, zmsg_t *from, void *socket)
 {
     itemmap_iterator it;
 

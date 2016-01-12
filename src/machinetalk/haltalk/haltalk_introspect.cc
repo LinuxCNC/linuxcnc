@@ -33,7 +33,7 @@ static int describe_group_cb(hal_group_t *group,  void *arg);
 
 // describe the current HAL universe as a protobuf message.
 int
-process_describe(htself_t *self, const std::string &from,  void *socket)
+process_describe(htself_t *self, zmsg_t *from,  void *socket)
 {
     int retval __attribute__((cleanup(halpr_autorelease_mutex)));
     rtapi_mutex_get(&(hal_data->mutex));
