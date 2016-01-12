@@ -124,7 +124,7 @@ class ConfigServer:
         if self.debug:
             print(("send_msg " + str(self.tx)))
         self.tx.Clear()
-        self.socket.send_multipart([dest, txBuffer], zmq.NOBLOCK)
+        self.socket.send_multipart(dest + [txBuffer], zmq.NOBLOCK)
 
     def list_apps(self, origin):
         for name in self.cfg.sections():
@@ -166,7 +166,9 @@ class ConfigServer:
         self.send_msg(origin, MT_APPLICATION_DETAIL)
 
     def process(self, s):
-        (identity, message) = s.recv_multipart()
+        frames = s.recv_multipart()
+        identity = frames[:-1]  # multipart id
+        message = frames[-1]  # last frame
 
         if self.debug:
             print("process called, id: %s" % identity)
