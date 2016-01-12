@@ -23,6 +23,7 @@ from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 
+from google.protobuf.message import DecodeError
 from message_pb2 import Container
 from config_pb2 import *
 from types_pb2 import *
@@ -1439,8 +1440,8 @@ class LinuxCNCWrapper():
                 gcodes.append('G' + str(rawGCode / 10.0))
         return ' '.join(gcodes)
 
-    def send_command_wrong_params(self, identity):
-        self.txCommand.note.append("wrong parameters")
+    def send_command_wrong_params(self, identity, note="wrong parameters"):
+        self.txCommand.note.append(note)
         self.send_command_msg(identity, MT_ERROR)
 
     def command_completion_process(self, event):
@@ -1476,10 +1477,16 @@ class LinuxCNCWrapper():
             frames = socket.recv_multipart()
             iidentity = frames[:-1]  # multipart id
             message = frames[-1]  # last frame
-        self.rx.ParseFromString(message)
 
         if self.debug:
             print("process command called, id: %s" % identity)
+
+        try:
+            self.rx.ParseFromString(message)
+        except DecodeError as e:
+            note = 'Protobuf Decode Error: ' + str(e)
+            self.send_command_wrong_params(identity, note=note)
+            return
 
         try:
             if self.rx.type == MT_PING:
