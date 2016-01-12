@@ -277,7 +277,7 @@ class Mklauncher:
     def send_command_msg(self, identity, msgType):
         self.txCommand.type = msgType
         txBuffer = self.txCommand.SerializeToString()
-        self.commandSocket.send_multipart([identity, txBuffer], zmq.NOBLOCK)
+        self.commandSocket.send_multipart(identity + [txBuffer], zmq.NOBLOCK)
         self.txCommand.Clear()
 
     def poll(self):
@@ -365,7 +365,9 @@ class Mklauncher:
         self.send_command_msg(identity, MT_ERROR)
 
     def process_command(self, s):
-        (identity, message) = s.recv_multipart()
+        frames = s.recv_multipart()
+        identity = frames[:-1]  # multipart id
+        message = frames[-1]  # last frame
 
         if self.debug:
             print("process command called, id: %s" % identity)
