@@ -26,6 +26,10 @@ device files.  This can be accomplished by adding a file
 
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="0b33", ATTRS{idProduct}=="0020", MODE="0444"
 
+The LinuxCNC Debian package installs this udev file automatically, but
+if you are building LinuxCNC from source and are not using the Debian
+packaging, you'll need to install this file by hand.
+
 .SH A warning about the Jog Wheel
 The ShuttleXpress device has an internal 8-bit counter for the current
 jog-wheel position.  The shuttlexpress driver can not know this value

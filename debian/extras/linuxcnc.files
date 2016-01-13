@@ -8,4 +8,5 @@ usr/share/desktop-directories/cnc.directory
 usr/share/pixmaps/linuxcncicon.png
 etc/modprobe.d/linuxcnc.conf
 etc/xdg/menus/applications-merged/cnc.menu
+lib/udev/rules.d/99-shuttlexpress.rules
 lib/udev/rules.d/99-xhc.rules
