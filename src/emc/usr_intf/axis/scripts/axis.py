@@ -1351,6 +1351,7 @@ def jogspeed_incremental(dir=1):
     jogincr_size = int(root_window.call(widgets.jogincr._w, "list", "size"))
     # pdb.set_trace()
     cursel = root_window.call(widgets.jogincr._w, "curselection")
+    if type(cursel) == tuple: cursel = cursel[0]
     if cursel == "":
         cursel = 0
     else:
