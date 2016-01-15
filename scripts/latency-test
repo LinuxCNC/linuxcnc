@@ -32,6 +32,7 @@ human_time () {
 }
 
 BASE=$(parse_time 25us); SERVO=$(parse_time 1ms)
+if [ "`linuxcnc_var RTS`" = "uspace" ]; then BASE=0; fi
 case $# in
 0) ;;
 1) BASE=$(parse_time $1) ;;
