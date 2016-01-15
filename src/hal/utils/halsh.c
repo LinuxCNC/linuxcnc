@@ -97,6 +97,20 @@ int Hal_Init(Tcl_Interp *interp) {
         return TCL_ERROR;
     }
 
+    char buf[8];
+
+    snprintf(buf, sizeof(buf), "%d", rtapi_is_kernelspace());
+    Tcl_SetVar2(interp, "hal", "is_kernelspace", buf, TCL_GLOBAL_ONLY);
+
+    snprintf(buf, sizeof(buf), "%d", !rtapi_is_kernelspace());
+    Tcl_SetVar2(interp, "hal", "is_userspace", buf, TCL_GLOBAL_ONLY);
+
+    snprintf(buf, sizeof(buf), "%d", !rtapi_is_realtime());
+    Tcl_SetVar2(interp, "hal", "is_sim", buf, TCL_GLOBAL_ONLY);
+
+    snprintf(buf, sizeof(buf), "%d", rtapi_is_realtime());
+    Tcl_SetVar2(interp, "hal", "is_rt", buf, TCL_GLOBAL_ONLY);
+
     Tcl_CreateCommand(interp, "hal", halCmd, 0, halExit);
 
     Tcl_PkgProvide(interp, "Hal", "1.0");
