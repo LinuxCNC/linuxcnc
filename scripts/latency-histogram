@@ -16,7 +16,8 @@
 #   --logscale  0|1  (y axis log scale, default: 1)
 #   --text      note (additional note, default: "" )
 #   --show           (show count of undisplayed bins)
-#   --nobase         (servo thread only)
+#   --nobase         (servo thread only) (default for uspace realtime)
+#   --base           (base and servo threads) (default for rtapi realtime)
 #   --verbose        (progress and debug)
 #
 # Notes:
@@ -47,6 +48,7 @@
 #-----------------------------------------------------------------------
 
 package require Tclx
+package require Hal
 
 proc set_defaults {} {
   set ::LH(start) [clock seconds]
@@ -76,7 +78,11 @@ proc set_defaults {} {
 
   set ::LH(y,logscale) 1
 
-  set ::LH(threads)  {base servo}
+  if {$::hal(is_userspace)} {
+    set ::LH(threads)  {base}
+  } else {
+    set ::LH(threads)  {base servo}
+  }
 
   set ::LH(base,name)  base
   set ::LH(servo,name) servo
@@ -170,6 +176,8 @@ proc config {} {
                    set ::argv [lreplace $::argv 0 0]
                   }
       --nobase    {set ::LH(threads) {servo}
+                  }
+      --base      {set ::LH(threads) {base servo}
                   }
       --show      {set ::LH(opt,show) 1
                   }
