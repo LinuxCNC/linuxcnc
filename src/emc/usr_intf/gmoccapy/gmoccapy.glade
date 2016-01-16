@@ -3767,9 +3767,9 @@ Aux Screen</property>
                           </object>
                         </child>
                         <child type="tab">
-                          <object class="GtkLabel" id="lbl_ntb_setup_pages_apearance">
+                          <object class="GtkLabel" id="lbl_ntb_setup_pages_appearance">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Apearance</property>
+                            <property name="label" translatable="yes">Appearance</property>
                           </object>
                           <packing>
                             <property name="tab_fill">False</property>

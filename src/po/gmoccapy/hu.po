@@ -786,7 +786,7 @@ msgid "Alert Audio"
 msgstr "Riasztás hangjelzéssel"
 
 #: gmoccapy.glade.h:48
-msgid "Apearance"
+msgid "Appearance"
 msgstr "Megjelenés"
 
 #: gmoccapy.glade.h:49

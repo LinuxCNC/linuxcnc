@@ -659,8 +659,8 @@ The most frequently used keyboard shortcuts are shown in the following Table
 [width="80%", options="header", cols="^,<,^"]
 |====================================================================
 |Keystroke        | Action Taken                              | Mode
-|F1               | Toggle Emergency Stop                     | All
-|F2               | Turn machine on/off                       | All
+|F1               | Toggle Emergency Stop                     | Any
+|F2               | Turn machine on/off                       | Any
 |`, 1 .. 9, 0     | Set feed override from 0% to 100%         | Varies
 |X, `             | Activate first axis                       | Manual
 |Y, 1             | Activate second axis                      | Manual
@@ -685,6 +685,8 @@ The most frequently used keyboard shortcuts are shown in the following Table
 |Shift-Left,Right | Rapid X Axis                              | Manual
 |Shift-Up,Down    | Rapid Y Axis                              | Manual
 |Shift-PgUp, PgDn | Rapid Z Axis                              | Manual
+|@                | toggle Actual/Commanded                   | Any
+|#                | toggle Relative/Machine                   | Any
 |====================================================================
 
 == Show LinuxCNC Status (linuxcnctop)

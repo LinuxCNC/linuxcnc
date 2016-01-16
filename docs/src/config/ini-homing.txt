@@ -11,11 +11,12 @@ complicated.
 
 == Homing Sequence
 
-There are four possible homing sequences defined by the sign of SEARCH_VEL
-and LATCH_VEL, along with the associated configuration parameters as shown
-in the following table. Two basic conditions exist, SEARCH_VEL and LATCH_VEL
-are the same sign or they are opposite signs. For a more detailed description
-of what each configuration parameter does, see the following section.
+There are four possible homing sequences defined by the sign of HOME_SEARCH_VEL
+and HOME_LATCH_VEL, along with the associated configuration parameters as shown
+in the following table. Two basic conditions exist, HOME_SEARCH_VEL and
+HOME_LATCH_VEL are the same sign or they are opposite signs. For a more
+detailed description of what each configuration parameter does, see the
+following section.
 
 .Homing Sequences
 
@@ -28,7 +29,7 @@ They are defined in an [AXIS] section of the inifile.
 
 [width="80%", options="header", cols="4*^"]
 |==========================================================
-|Homing Type      |SEARCH_VEL |LATCH_VEL    |USE_INDEX
+|Homing Type      |HOME_SEARCH_VEL |HOME_LATCH_VEL    |HOME_USE_INDEX
 |Immediate        |0          |0            |NO
 |Index-only       |0          |nonzero      |YES
 |Switch-only      |nonzero    |nonzero      |NO

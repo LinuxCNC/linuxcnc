@@ -775,7 +775,7 @@ msgid "Alert Audio"
 msgstr "Alerta de Audio"
 
 #: gmoccapy.glade.h:48
-msgid "Apearance"
+msgid "Appearance"
 msgstr "Apariencia"
 
 #: gmoccapy.glade.h:49

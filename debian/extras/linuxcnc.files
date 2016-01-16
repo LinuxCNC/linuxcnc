@@ -6,4 +6,5 @@ usr/share/applications/linuxcnc-pncconf.desktop
 usr/share/desktop-directories/cnc.directory
 usr/share/pixmaps/linuxcncicon.png
 etc/xdg/menus/applications-merged/cnc.menu
+lib/udev/rules.d/99-shuttlexpress.rules
 lib/udev/rules.d/99-xhc.rules

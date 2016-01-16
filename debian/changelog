@@ -521,6 +521,49 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
 
+linuxcnc (1:2.6.12) unstable; urgency=low
+
+  * docs: add more github info to Contributing to LinuxCNC
+  * docs: improve G43.1 info
+  * docs: acknowledge Debian and UBUNTU trademarks
+  * docs: fix incorrect GladeVCP example syntax and typo
+  * docs: fix manpage markup bug in rtapi_app_{main,exit}.3rtapi
+  * docs: gladevcp - describe the new iconview signal "sensitive"
+  * docs: restore line numbers in example G-code
+  * docs: clarify some pins in the halui manpage
+  * docs: fix M70-M73 links in French Gcode Quick Reference
+  * docs: fix link to the giteveryday(1) manpage
+  * docs: describe gmoccapy Show Aux Display feature
+  * docs: document gmoccapy updates and deleted some pin
+
+  * mini.tcl: remove duplicate geo mgmt of widget
+  * keystick: fix signal handler a second time
+  * gladevcp: iconview could create exception in some circumstances
+  * gmoccapy: stay syncronized with iconview widget button states
+  * gladevcp/offset_widget: fix rare error of non-existant var file
+  * gscreen: fix industrial skin's A axis DRO readout
+  * tooledit_widget.py: tool diameter sorting fix
+  * halui: fix some jogging bugs
+  * halui: fix a copy-paste error that could prevent homing
+  * serport: fix pin-1-in-not
+
+  * task: fix start-from-line and remap interaction
+  * interp: it's nonsense to take a boost::cref(this)
+  * emcmodule: fix argument parsing
+  * rtapi/sim: better error reporting
+  * rtapi: error messages are better than errno numbers
+  * hal: don't segfault if rtapi_init() fails
+  * realtime script: wait for rtapi_app to die when stopping realtime
+
+  * halui/jogging test: change which joint is selected while jogging
+  * tests: test homing in halui/jogging
+  * tests: add a motion-logger test of a remap bug
+  * packaging: use "set -e" to fail on error in the postinst script
+  * buildbot: dont try to build on Jessie RTAI
+  * build: verify links in the gcode Quick Reference (English & French)
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 10 Jan 2016 10:07:09 -0700
+
 linuxcnc (1:2.6.11) UNRELEASED; urgency=low
 
   * docs: update code notes on M61
