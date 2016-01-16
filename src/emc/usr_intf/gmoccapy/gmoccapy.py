@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.5.4"
+_RELEASE = " 1.5.5.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -2626,6 +2626,10 @@ class gmoccapy( object ):
             self.command.jog( linuxcnc.JOG_CONTINUOUS, axisnumber, direction * velocity )
 
     def on_btn_jog_released( self, widget, data = None ):
+        # only in manual mode we will allow jogging the axis at this development state
+        if not self.stat.task_mode == linuxcnc.MODE_MANUAL:
+            return
+
         axisletter = widget.get_label()[0]
         if not axisletter.lower() in "xyzabcuvw":
             print ( "unknown axis %s" % axisletter )

@@ -769,7 +769,7 @@ msgid "Alert Audio"
 msgstr "Zvučni alarm"
 
 #: gmoccapy.glade.h:48
-msgid "Apearance"
+msgid "Appearance"
 msgstr "Prikaz"
 
 #: gmoccapy.glade.h:49 ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:2
