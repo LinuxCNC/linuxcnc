@@ -8,6 +8,7 @@ cat9/
 
 man1/linuxcnc.1
 man1/halstreamer.1
+man1/thermistor.1
 
 man9/abs.9
 man9/abs_s32.9
