@@ -439,8 +439,8 @@ check_stuff ( "before command_handler()" );
                abort = 1;
            }
            if (!GET_MOTION_TELEOP_FLAG() && joint_num < 0) {
-             emsg = "command.com teleop bad joint_num";
-             abort = 1;
+               emsg = "command.com !teleop bad joint_num";
+               abort = 1;
            }
         }
         if (abort) {
@@ -733,12 +733,6 @@ check_stuff ( "before command_handler()" );
 	       stop the jog. */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_CONT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    /* must be in free mode and enabled */
-	    if (GET_MOTION_COORD_FLAG()) {
-		reportError(_("Can't jog joint in coordinated mode."));
-		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
 		reportError(_("Can't jog joint when not enabled."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
@@ -816,12 +810,6 @@ check_stuff ( "before command_handler()" );
 	    /* do an incremental jog */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_INCR");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    /* must be in free mode and enabled */
-	    if (GET_MOTION_COORD_FLAG()) {
-		reportError(_("Can't jog joint in coordinated mode."));
-		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
 		reportError(_("Can't jog joint when not enabled."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
@@ -917,12 +905,6 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (joint == 0) {
-		break;
-	    }
-	    /* must be in free mode and enabled */
-	    if (GET_MOTION_COORD_FLAG()) {
-		reportError(_("Can't jog joint in coordinated mode."));
-		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {

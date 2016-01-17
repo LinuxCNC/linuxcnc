@@ -1273,7 +1273,6 @@ static void sendJogCont(int ja, double speed, int jjogmode)
     emc_jog_cont_msg.joint_or_axis = ja;
     emc_jog_cont_msg.vel = speed / 60.0;
 
-    sendManual();
     emcCommandSend(emc_jog_cont_msg);
 }
 
@@ -1297,7 +1296,6 @@ static void sendJogIncr(int ja, double speed, double incr, int jjogmode)
     emc_jog_incr_msg.vel = speed / 60.0;
     emc_jog_incr_msg.incr = incr;
 
-    sendManual();
     emcCommandSend(emc_jog_incr_msg);
 }
 
