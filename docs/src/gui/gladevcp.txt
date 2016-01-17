@@ -1189,8 +1189,9 @@ metric_units::
     Used to toggle the display units between metric and imperial.
 
 auto_units::
-    Units will toggle between metric and imperial according to the
-    active gcode being G20 or G21
+    Units will toggle between metric and imperial according to the 
+    active gcode being G20 or G21 +
+    default is TRUE
 
 diameter::
     Whether to display position as diameter or radius, in diameter mode
@@ -1228,13 +1229,20 @@ font_size::
     The font size of the big numbers, the small ones will be 2.5 times smaller,
     the value must be an integer in the range of 8 to 96, +
     default is 25
+
+toggle_readout::
+    A left mouse click will toggle the DRO readout through the differnt modes ["Rel", "Abs", "DTG"]. +
+    By unchecking the box you can disable that behavior. The toogling can still be done with [widget name].toggle_readout() +
+    Value must be bool +    
+    default is TRUE
+
 ====
 
 Direct program control::
 ======
-Using goobject to set the above listed properties:
+Using gobject to set the above listed properties:
 
-    [widget name].set_property(property,value)
+    [widget name].set_property(property, value)
 
 There are several python methods to control the widget:
 
