@@ -1086,8 +1086,7 @@ static void handle_ajogwheels(void)
             axis->teleop_tp.enable = 0;
             return;
         }
-        if (GET_MOTION_COORD_FLAG())          { continue; }
-        if (!GET_MOTION_TELEOP_FLAG())        { continue; }
+    if (!GET_MOTION_TELEOP_FLAG())        { continue; }
 	if (!GET_MOTION_ENABLE_FLAG())        { continue; }
 	if ( *(axis_data->ajog_enable) == 0 ) { continue; }
 	if (emcmotStatus->homing_active)      { continue; }

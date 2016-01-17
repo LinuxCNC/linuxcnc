@@ -323,20 +323,22 @@ int emcTaskSetState(int state)
 
   Depends on traj mode, and mdiOrAuto flag
 
-  traj mode   mdiOrAuto     mode
-  ---------   ---------     ----
+  traj mode   mdiOrAuto     task mode
+  ---------   ---------     ---------
   FREE        XXX           MANUAL
+  TELEOP
   COORD       MDI           MDI
   COORD       AUTO          AUTO
   */
 static int determineMode()
 {
-    // if traj is in free mode, then we're in manual mode
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_FREE ||
-	emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
-	return EMC_TASK_MODE_MANUAL;
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_FREE) {
+        return EMC_TASK_MODE_MANUAL;
     }
-    // else traj is in coord mode-- we can be in either mdi or auto
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
+        return EMC_TASK_MODE_AUTO;
+    }
+    // for EMC_TRAJ_MODE_COORD
     return mdiOrAuto;
 }
 

@@ -683,7 +683,8 @@ class LivePlotter:
             self.stat = linuxcnc.stat()
         except linuxcnc.error:
             return False
-        self.current_task_mode = self.stat.task_mode
+        self.last_task_mode = self.stat.task_mode
+        self.last_motion_mode  = self.stat.motion_mode
         def C(s):
             a = o.colors[s + "_alpha"]
             s = o.colors[s]
@@ -738,15 +739,23 @@ class LivePlotter:
             print "error", detail
             del self.stat
             return
-        if (self.stat.task_mode != self.current_task_mode):
-            self.current_task_mode = self.stat.task_mode
-            if (self.current_task_mode == linuxcnc.MODE_MANUAL):
+
+        # With joints_axes support and jogging while mdi
+        #  (ref: emctaskmain.cc:allow_while_idle_type())
+        # behavior is better without changing tabs upon detecting
+        # a task_mode change.
+        # Restore behavior with this local var: enable_tab_change
+        enable_tab_change = False
+        if (     enable_tab_change
+            and (self.stat.task_mode != self.last_task_mode)):
+            if (self.stat.task_mode == linuxcnc.MODE_MANUAL):
                 root_window.tk.eval(pane_top + ".tabs raise manual")
-            if (self.current_task_mode == linuxcnc.MODE_MDI):
+            if (self.stat.task_mode == linuxcnc.MODE_MDI):
                 root_window.tk.eval(pane_top + ".tabs raise mdi")
-            if (self.current_task_mode == linuxcnc.MODE_AUTO):
+            if (self.stat.task_mode == linuxcnc.MODE_AUTO):
                 # not sure if anything needs to be done for this
                 pass
+        self.last_task_mode = self.stat.task_mode
 
         self.after = self.win.after(update_ms, self.update)
 
@@ -767,7 +776,7 @@ class LivePlotter:
                 or self.stat.rotation_xy != o.last_rotation_xy
                 or self.stat.limit != o.last_limit
                 or self.stat.tool_table[0] != o.last_tool
-                or self.stat.motion_mode != o.last_motion_mode
+                or self.stat.motion_mode != self.last_motion_mode
                 or abs(speed - self.last_speed) > .01):
             o.redraw_soon()
             o.last_limits = limits
@@ -778,7 +787,7 @@ class LivePlotter:
             o.last_g92_offset = self.stat.g92_offset
             o.last_g5x_index = self.stat.g5x_index
             o.last_rotation_xy = self.stat.rotation_xy
-            o.last_motion_mode = self.stat.motion_mode
+            self.last_motion_mode = self.stat.motion_mode
             o.last_tool = self.stat.tool_table[0]
             o.last_joint_position = self.stat.joint_actual_position
             self.last_speed = speed
@@ -903,13 +912,15 @@ This means this function returns True when the mdi tab is visible."""
     return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
 # If LinuxCNC is not already in one of the modes given, switch it to the
-# first mode
+# first mode MANUAL,MDI,AUTO
 def ensure_mode(m, *p):
     s.poll()
-    if s.task_mode == m or s.task_mode in p: return True
+    # jogging in mdi requires setting always for mdi,auto (not sure why)
+    if ( (s.task_mode == m) and (m == linuxcnc.MODE_MANUAL) ): return True
     if running(do_poll=False): return False
     c.mode(m)
     c.wait_complete()
+    s.poll()
     return True
 
 class DummyProgress:
@@ -2366,11 +2377,20 @@ class TclCommands(nf.TclCommands):
     def ensure_manual(*event):
         if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
-        commands.set_teleop_mode()
-
+        if all_homed():
+            vars.teleop_mode.set(1)
+            commands.set_teleop_mode()
+        else:
+            vars.teleop_mode.set(0)
+            commands.set_teleop_mode()
+   
     def ensure_mdi(*event):
+        # called from axis.tcl on tab raisecmd
         if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MDI)
+        vars.teleop_mode.set(1)
+        commands.set_teleop_mode()
+        s.poll()
 
     def redraw(*ignored):
         o.tkRedraw()
@@ -2720,6 +2740,7 @@ class TclCommands(nf.TclCommands):
         teleop_mode = vars.teleop_mode.get()
         c.teleop_enable(teleop_mode)
         c.wait_complete()
+        s.poll()
 
     def save_gcode(*args):
         if not loaded_file: return
@@ -2988,7 +3009,6 @@ except IOError:
 def jog(*args):
     if not manual_ok(): return
     if not manual_tab_visible(): return
-    ensure_mode(linuxcnc.MODE_MANUAL)
     c.jog(*args)
 
 def get_jog_mode():
