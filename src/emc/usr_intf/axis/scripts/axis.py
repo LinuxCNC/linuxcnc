@@ -1790,9 +1790,9 @@ def motion_modename(x):
     if x == linuxcnc.TRAJ_MODE_TELEOP: return "TELEOP"
 
 def task_modename(x):
-    if x ==    linuxcnc.TASK_MODE_MDI: return "MDI"
-    if x == linuxcnc.TASK_MODE_MANUAL: return "MANUAL"
-    if x ==   linuxcnc.TASK_MODE_AUTO: return "AUTO"
+    if x ==    linuxcnc.MODE_MDI: return "MDI"
+    if x == linuxcnc.MODE_MANUAL: return "MANUAL"
+    if x ==   linuxcnc.MODE_AUTO: return "AUTO"
 
 def task_statename(x):
     if x ==       linuxcnc.STATE_ESTOP: return "STATE_ESTOP"
@@ -2987,22 +2987,22 @@ def jog(*args):
     c.jog(*args)
 
 def get_jog_mode():
+    s.poll()
     if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-        vars.teleop_mode.set(1)
-        commands.set_teleop_mode()
-        ans = False
-        #print "get_jog_mode() IDENTITY force TELEOP"
+        vars.teleop_mode.set(1) # force teleop for identity kins
+        jjogmode = False
     else:
-        s.poll()
         # check motion_mode since other guis (halui) could alter it
         if s.motion_mode == linuxcnc.TRAJ_MODE_FREE:
-            vupdate(vars.teleop_mode,0)
-            ans = True
+            vars.teleop_mode.set(0)
+            jjogmode = True
         else:
-            vupdate(vars.teleop_mode,1)
-            ans = False
-    # ans==True ==> jjogmode, False ==> jog_axes (teleop)
-    return ans
+            vars.teleop_mode.set(1)
+            jjogmode = False
+    if (   (    jjogmode and s.motion_mode != linuxcnc.TRAJ_MODE_FREE)
+        or (not jjogmode and s.motion_mode != linuxcnc.TRAJ_MODE_TELEOP) ):
+        commands.set_teleop_mode()
+    return jjogmode
 
 # Note: require linuxcnc.MAX_JOINTS >= linuxcnc.MAX_AXIS
 jog_after = [None]  * linuxcnc.MAX_JOINTS
