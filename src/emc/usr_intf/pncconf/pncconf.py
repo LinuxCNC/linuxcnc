@@ -4455,11 +4455,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         set_value("encoderscale")
         w[axis+"maxvel"].set_value(d[axis+"maxvel"]*60)
         set_value("maxacc")
-        if not axis == "s" or axis == "s" and (encoder and (pwmgen or tppwm or stepdriven)):
+        if not axis == "s" or axis == "s" and (encoder and (pwmgen or tppwm or stepdriven or sserial_scaling)):
             w[axis + "servo_info"].show()
         else:
             w[axis + "servo_info"].hide()
-        if stepdriven or not pwmgen:
+        if stepdriven or not (pwmgen or spindlepot):
             w[axis + "output_info"].hide()
         else:
             w[axis + "output_info"].show()
@@ -4470,7 +4470,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             w[axis + "stepper_info"].show()
         else:
             w[axis + "stepper_info"].hide()
-        if pwmgen or spindlepot:
+        if pwmgen or sserial_scaling:
             w[axis + "outputscale"].show()
             w[axis + "outputscalelabel"].show()
         else:
@@ -4717,6 +4717,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         get_pagevalue("deadband")
         if stepdrive:
             d[axis + "maxoutput"] = (get_value(w[axis + "maxvel"])/60) *1.25 # TODO should be X2 if using backlash comp ?
+        if axis == "s":
+            d[axis + "maxoutput"] = (get_value(w[axis +"outputscale"]))
         else:
             get_pagevalue("maxoutput")
         get_pagevalue("steptime")
