@@ -725,6 +725,21 @@ void readahead_waiting(void)
         }
 }
 
+static bool allow_while_idle_type() {
+    // allow for EMC_TASK_MODE_AUTO, EMC_TASK_MODE_MDI
+    // expect immediate command
+    switch(emcCommand->type) {
+      case EMC_JOG_CONT_TYPE:
+      case EMC_JOG_INCR_TYPE:
+      case EMC_JOG_STOP_TYPE:
+      case EMC_JOG_ABS_TYPE:
+      case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+       return 1;
+       break;
+    }
+    return 0;
+}
+
 /*
   emcTaskPlan()
 
@@ -1064,9 +1079,13 @@ static int emcTaskPlan(void)
 		    // then resynch interpreter
 		    emcTaskQueueCommand(&taskPlanSynchCmd);
 		    break;
-
 		    // otherwise we can't handle it
 		default:
+	            //EMC_TASK_MODE_AUTO(2) && EMC_TASK_INTERP_IDLE(1)
+                    if ( allow_while_idle_type() ) {
+                        retval = emcTaskIssueCommand(emcCommand);
+		        break;
+                    }
 		    emcOperatorError(0, _
 			    ("can't do that (%s) in auto mode with the interpreter idle"),
 			    emc_symbol_lookup(type));
@@ -1399,6 +1418,11 @@ static int emcTaskPlan(void)
 
 		// otherwise we can't handle it
 	    default:
+	        //EMC_TASK_MODE_MDI(3) && EMC_TASK_INTERP_IDLE(1)
+                if ( allow_while_idle_type() ) {
+                    retval = emcTaskIssueCommand(emcCommand);
+		    break;
+                }
 		emcOperatorError(0, _("can't do that (%s:%d) in MDI mode"),
 			emc_symbol_lookup(type),(int) type);
 
@@ -1579,7 +1603,6 @@ int emcTaskQueueCommand(NMLmsg * cmd)
     if (0 == cmd) {
 	return 0;
     }
-
     interp_list.append(cmd);
 
     return 0;
