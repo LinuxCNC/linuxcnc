@@ -936,36 +936,32 @@ The page is separated in three main tabs:
 
 On this tab you will find the following options:
 
-.Main Window
-
-Here you can select how you wish the GUI to start. The main reason for this
-was the wish to get an easy way for the user to set the starting options
-without the need to touch code.
-
-You have three options:
+Main Window::
+    Here you can select how you wish the GUI to start. The main reason for this was the wish to get an easy + 
+    way for the user to set the starting options without the need to touch code. +
+    +
+    You have three options: + 
 
 * start as full screen
 * start maximized
 * start as window
-
-If you select start as window the spin boxes to set the position and size will
-get active. One time set, the GUI will start every time on the place and with
-the size selected. Nevertheless the user can change the size and position using
-the mouse, but that will not have any influence on the settings.
+    +
+    If you select start as window the spinboxes to set the position and size will get active. + 
+    One time set, the GUI will start every time on the place and with the size selected. + 
+    Nevertheless the user can change the size and position using the mouse, but that will +
+    not have any influence on the settings. +
 
 '*hide the cursor*' does allow to hide the cursor, what is very useful if you
 use a touch screen.
 
-.Keyboard
-
-The check-boxes allows the user to select if he want the on board keyboard to
-be shown immediately, when entering the MDI Mode, when entering the offset
-page, the tool edit widget or when open a program in the EDIT mode. The
-keyboard button on the bottom button list will not been affected by this
-settings, so you be able to show or hide the keyboard by pressing the button.
-The default behavior will be set by the check-boxes.
-
-Default are :
+Keyboard::
+    The check-boxes allows the user to select if he want the on board keyboard to be shown immediately, + 
+    when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program + 
+    in the EDIT mode. The keyboard button on the bottom button list will not been affected by this settings, + 
+    so you be able to show or hide the keyboard by pressing the button. The default behavior will be set by + 
+    the check-boxes. + 
+    + 
+    Default are : +  
 
 * show keyboard on offset = True
 * show keyboard on tooledit = False
@@ -1003,10 +999,9 @@ layout ask in the forum.
 If this section is not sensitive, you have not installed a virtual keyboard,
 supported are 'onboard' and 'matchbox-keyboard'.
 
-.On Touch Off
-
-Give the option to show the preview tab or the offset page tab if you enter
-the touch off mode by clicking the corresponding bottom button.
+On Touch Off::
+    give the option to show the preview tab or the offset page tab if you enter the touch off mode by clicking the 
+    corresponding bottom button.
 
 * show preview
 * show offsets
@@ -1014,16 +1009,15 @@ the touch off mode by clicking the corresponding bottom button.
 As the notebook tabs are shown, you are able to switch between both views in
 any case.
 
-.Show Aux Display
-By clicking this button a additional window will be opened. This button is only sensitive, if a file named 'gmoccapy2.glade' is located in your config folder. You can build the Aux Screen using Glade. 
+Show Aux Display::
+    By clicking this button a additional window will be opened. This button is only sensitive, if a file named 'gmoccapy2.glade'
+    is located in your config folder. You can build the Aux Screen using Glade. 
 
 WARNING: 'The main window of the aux screen must be named window2'
 
-.DRO Options
-
-You have the option to select the background colors of the different DRO
-states. So users suffering from protanopia (red/green weakness) are able to
-select proper colors
+DRO Options::
+You have the option to select the background colors of the different DRO states.
+So users suffering from protanopia (red/green weakness) are able to select proper colors
 
 By default the backgrounds are:
 
@@ -1036,17 +1030,22 @@ The foreground color of the DRO can be selected with:
 * homed color   = green
 * unhomed color = red
 
-'show dro in preview', the DRO will be shown in the preview window
-'show offsets', the Offsets will be shown in the preview window
-'show DTG' , the distance to go will be shown in the preview window
+'show dro in preview' +
+the DRO will be shown in the preview window + + 
 
-'show DRO Button' will allow you to display additional buttons on the left side
- of the DRO.
+'show offsets'+ 
+the Offsets will be shown in the preview window + + 
 
-It will display:
-One button to switch from relative to absolute coordinates, one button to
-toggle between distance to go and the other states and one button to toggle
-the units from metric to imperial and vice versa.
+'show DTG' + 
+the distance to go will be shown in the preview window + + 
+ +
+'show DRO Button' + 
+will allow you to display additional buttons on the left side of the DRO. +
+
+It will display: +
+* one button to switch from relative to absolute coordinates, +
+* one button to toggle between distance to go and the other states +
+* and one button to toggle the units from metric to imperial and vice versa.
 
 [WARNING] It is not recommended to use this option, because the user will
 loose the auto unit option, which will toggle the units according to the
@@ -1055,20 +1054,23 @@ active gcode G20 / G21.
 [NOTE] *You can change through the DRO modes (absolute, relative, distance
 to go) by clicking on the DRO!*
 
-'Use Auto Units' allows to disable the auto units option of the display, so
-you can run a program in inches and watch the DRO in mm.
+'Use Auto Units' + 
+allows to disable the auto units option of the display, so you can run a program in inches and watch the DRO in mm. + + 
 
-'size' allows to set the size of the DRO font, default is 28, if you use a
-bigger screen you may want to increase the size up to 56. If you do use 4 axis,
-the DRO font size will be 3/4 of the value, because of space reason.
+'size' + 
+allows to set the size of the DRO font, default is 28, if you use a bigger screen you may want to increase the size up to 56. 
+    If you do use 4 axis, the DRO font size will be 3/4 of the value, because of space reason. + + 
 
-'digits' sets the number of digits of the DRO from 1 to 5.
+'digits' +  
+sets the number of digits of the DRO from 1 to 5. + 
+ 
+NOTE: Imperial will show one digit more that metric. So if you are in imperial machine units and set the digit value to 1, you will get no digit at all in metric.
 
-[NOTE] Imperial will show one digit more that metric. So if you are in
-imperial machine units and set the digit value to 1, you will get no digit at
-all in metric.
+'toggle DRO mode' + 
+if not active, a mouse click on the DRO will not take any action. + 
+By default this checkbox is active, so every click on any DRO will toogle the DRO readout from actual to relative to DTG (distance to go). + + 
 
-.Preview
+Preview::
 
 'Grid Size' Sets the grid size of the preview window. Unfortunately the size
 *has to be set in inches*, even if your machine units are metric. We do hope
@@ -1076,8 +1078,8 @@ to fix that in a future release.
 
 [NOTE] The grid will not be shown in perspective view.
 
-'Show DRO' will show the a DRO also in the preview window, it will be shown
-automatically in full size preview.
+'Show DRO' +
+Will show the a DRO also in the preview window, it will be shown automatically in fullsize preview
 
 'Show DTG' will show also the DTG (direct distance to end point) in the
 preview, only if Show DRO is active and not full size preview.
@@ -1105,7 +1107,9 @@ The mouse wheel will still zoom the preview in every mode.
 If you select an element in the preview, the selected element will be
 taken as rotation center point.
 
-.File to load on start up
+File to load on start up::
+    Select the file you want to be loaded on start up. 
+    In other GUI changing this was very cumbersome, because the users where forced to edit the INI File.
 
 Select the file you want to be loaded on start up. If a file is loaded, it can
 be set by pressing the current button to avoid that any program is loaded at
@@ -1115,32 +1119,27 @@ The file selection screen will use the filters you have set in the INI File,
 if there aren't any filters given, you will only see *ngc* files. The path
 will be set according to the INI settings in [DISPLAY] PROGRAM_PREFIX
 
-.Jump to dir
-
-you can set here the directory to jump to if you press the corresponding
-button in the file selection dialog.
+Jump to dir::
+    you can set here the directory to jump to if you press the corresponding button 
+    in the file selection dialog.
 
 image::images/gmoccapy_file_selection_dialog_with_keyboard.png[align="left"]
 
-.Themes and Sounds
-
-This lets the user select what desktop theme to apply and what error and
-messages sounds should be played. By default "Follow System Theme" is set.
+Themes and Sounds::
+    This lets the user select what desktop theme to apply and what error and messages sounds should be played.
+    By default "Follow System Theme" is set.
 
 === Hardware
 
 image::images/gmoccapy_settings_hardware.png[align="left"]
 
-.Hardware MPG Scales
-
-For the different Hal Pin to connect MPG Wheels to, you may select individual
-scales to be applied. The main reason for this was my own test to solve this
-through hal connections, resulting in a very complex hal file. Imagine a user
-having an MPG Wheel with 100 ipr and he wants to slow down the max vel from
-14000 to 2000 mm/min, that needs 12000 impulses, resulting in 120 turns of the
-wheel! Or an other user having a MPG Wheel with 500 ipr and he wants to set
-the spindle override witch has limits from 50 to 120 % so he goes from min to
-max within 70 impulses, meaning not even 1/4 turn.
+Hardware MPG Scales::
+For the different Hal Pin to connect MPG Wheels to, you may select individual scales to be applied.
+The main reason for this was my own test to solve this through hal connections, resulting in a very 
+complex hal file. Imagine a user having an MPG Wheel with 100 ipr and he wants to slow down the max 
+vel from 14000 to 2000 mm/min, that needs 12000 impulses, resulting in 120 turns of the wheel! 
+Or an other user having a MPG Wheel with 500 ipr and he wants to set the spindle override witch has 
+limits from 50 to 120 % so he goes from min to max within 70 impulses, meaning not even 1/4 turn.
 
 By default all scales are set using the calculation:
 
@@ -1148,11 +1147,9 @@ By default all scales are set using the calculation:
 (MAX - MIN)/100
 ----
 
-.Keyboard shortcuts
-
-Some users want to jog there machine using the keyboard buttons and there are
-others that will never allow this. So everybody can select whether to use them
-or not.
+Keyboard shortcuts::
+Some users want to jog there machine using the keyboard buttons and there are others that will never allow this.
+So everybody can select whether to use them or not.
 
 Default is to use keyboard shortcuts.
 
@@ -1177,7 +1174,7 @@ There are additional keys for message handling, see
  * WINDOWS = Delete last message
  * <STRG><SPACE> = Delete all messages
 
-.Unlock Options
+Unlock options::
 
 There are three options to unlock the settings page:
 
@@ -1188,7 +1185,8 @@ There are three options to unlock the settings page:
 
 Default is use unlock code (default = *123*)
 
-.Spindle
+Spindle::
+The start RPM sets the rpm to be used if the spindle is started and no S value has been set.
 
 The start RPM sets the rpm to be used if the spindle is started and no S value
 has been set.
@@ -1206,8 +1204,7 @@ MAX = 6000
 
 [[gmoccapy:turtle-jog]]
 
-.Turtle Jog
-
+Turtle Jog:: [[sub:turtle_jog]]
 This settings will have influence on the jog velocities.
 
 * 'hide turtle jog button' will hide the button right of the jog velocity
