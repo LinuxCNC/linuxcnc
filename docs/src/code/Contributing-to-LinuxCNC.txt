@@ -122,17 +122,26 @@ like this:
 
 * Clone the git repo
 
-* Commit the changes you desire to a local branch
+* Make your changes in a local branch, making sure you "sign off" your commits
+  according to our signed-off-by policy (see below).
 
-* Share your changes with the other project developers in one of two ways:
+* Adding documentation and tests is an important part of adding a new
+  feature.  Otherwise, others won't know how to use your feature, and
+  if other changes break your feature it can go unnoticed without a test.
+
+* Share your changes with the other project developers in one of these ways:
+
+** Push your branch to github and create a github pull request to
+   https://github.com/linuxcnc/linuxcnc (this requires a github account)
 
 ** Push your branch to a publicly visible git repo (such as github,
-   bitbucket, your own publicly-accessible server, etc), or
+   bitbucket, your own publicly-accessible server, etc) and share that
+   location on the emc-developers mailing list, or
 
-** Email your commits to the emc-developers mailing list (using `git
-   format-patch`)
+** Email your commits to the emc-developers mailing list (use `git
+   format-patch` to create the patches)
 
-* Champion your patch
+* Advocate for your patch
 
 ** Explain what problem it addresses and why it should be included
    in LinuxCNC
