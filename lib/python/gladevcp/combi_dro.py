@@ -79,6 +79,8 @@ class Combi_DRO(gtk.VBox):
                         gobject.PARAM_READWRITE),
         'font_size' : (gobject.TYPE_INT, 'Font Size', 'The font size of the big numbers, the small ones will be 2.5 times smaler',
                     8, 96, 25, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'toggle_readout' : (gobject.TYPE_BOOLEAN, 'Enable toggling readout with click', 'The DRO will toggle between Absolut , Relativ and DTG with each mouse click.',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
 
@@ -114,6 +116,7 @@ class Combi_DRO(gtk.VBox):
         self.machine_units = _MM
         self.unit_convert = 1
         self._auto_units = True
+        self.toggle_readout = True
 
         # Make the GUI and connect signals
         self.eventbox = gtk.EventBox()
@@ -198,6 +201,8 @@ class Combi_DRO(gtk.VBox):
 
     # if the eventbox has been clicked, we like to toggle the DRO's
     def _on_eventbox_clicked(self, widget, event):
+        if not self.toggle_readout:
+            return
         self.toogle_readout()
 
     # Get propertys
@@ -245,6 +250,8 @@ class Combi_DRO(gtk.VBox):
                 if name == "font_size":
                     self.font_size = value
                     self._set_labels()
+                if name == "toggle_readout":
+                    self.toggle_readout = value
                 if name in ('metric_units', 'actual', 'diameter'):
                     setattr(self, name, value)
                     self.queue_draw()
@@ -552,6 +559,7 @@ def main():
     MDRO_C.connect("clicked", clicked)
     MDRO_C.set_property('mm_text_template', '%10.2f')
     MDRO_C.set_property('imperial_text_template', '%10.2f')
+    MDRO_C.set_property('toggle_readout', False)
     window.show_all()
     gtk.main()
 

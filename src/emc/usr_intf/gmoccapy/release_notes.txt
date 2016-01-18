@@ -1,4 +1,11 @@
-ver. 1.5.5.4
+ver 1.5.6
+- deleted the alarm_entry log page, as it has not been used by users
+  to report bugs, and therefor it was designed.
+- changing DRO mode by click can be disabled on settings page
+- corercted and added information to the docs
+- added a new property to combi_dro to disable readout toggling
+
+ver. 1.5.5.5
 - if using gmoccapy jog hal pin in MDI mode a error was thrown on button release
 - Typo in settings page, corrected also the translation files
 

@@ -2,36 +2,42 @@
 
 = NGCGUI
 
+.NGCGUI imbedded into Axis
 image::images/ngcgui.png[align="center"]
 
 == Overview
-    
-* 'NGCGUI' is a tcl application for using LinuxCNC subroutines.
+
+* 'NGCGUI' is a Tcl application to work with subroutines. It allows you to
+  have a conversational interface with LinuxCNC. You can organize the
+  subroutines in the order you need them to run and concatenate the
+  subroutines into one file for a complete part program.
 * 'NGCGUI' can run as a standalone application or can be embedded in
-   multiple tab pages in the axis gui
+   multiple tab pages in the axis GUI
 * 'PYNGCGUI' is an alternate, python implementation of ngcgui.
 * 'PYNGCGUI' can run as a standalone application or can be embedded as
    a tab page (with its own set of multiple subroutine tabs) in any
-   gui that supports embedding of gladevcp applications.  Example guis include:
-   axis, touchy, gscreen and gmoccapy
+   GUI that supports embedding of gladevcp applications axis, touchy, gscreen
+   and gmoccapy.
 
 Using NGCGUI or PYNGCGUI:
 
-* Tab pages are provided for subroutines specified in the INI file
-* New subroutines tab pages can be added using Custom tab pages
+* Tab pages are provided for each subroutine specified in the INI file
+* New subroutines tab pages can be added on the fly using the
+  <<ngcgui-ini,custom tab>>
 * Each subroutine tab page provides entry boxes for all subroutine parameters
 * The entry boxes can have a default value and an label that
   are identified by special comments in the subroutine file
-* Subroutine invocations are concatenated together to form a multiple step program
-* Any single-file gcode subroutine that conforms to ngcgui conventions can be used
-* Any gcmc (Gcode-meta-compiler) program that conforms to ngcgui conventions
+* Subroutine invocations can be concatenated together to form a multiple step
+  program
+* Any single-file G code subroutine that conforms to ngcgui conventions can be used
+* Any gcmc (G code-meta-compiler) program that conforms to ngcgui conventions
   for tagging variables can be used. (The gcmc executable must be installed
   separately, see: http://www.vagrearg.org/content/gcmc)
 
 [NOTE]
 NGCGUI and PYNGCGUI implement the same functions and both process .ngc and .gcmc
 files that conform to a few ngcgui-specific conventions.  In this document,
-the tern NGCGUI generally refers to either application.
+the term 'NGCGUI' generally refers to either application.
 
 == Demonstration Configurations
 
@@ -39,31 +45,31 @@ A number of demonstration configurations are located in the sim directory
 of the Sample Configurations offered by the LinuxCNC configuration picker. The
 configuration picker is on the system's main menu:
 
-  Applications > CNC > LinuxCNC
+ CNC > LinuxCNC
 
-Examples are included for the axis, touchy, gscreen, and gmoccapy guis.
+Examples are included for the axis, touchy, gscreen, and gmoccapy.
 These examples demonstrate both 3-axis (XYZ) cartesian configurations
 (like mills) and lathe (XZ) setups.  Some examples show the use of a
-popupkeyboard for touch screen systems and other examples demonstrate
-the use of files created for the gcmc (Gcode Meta Compiler) application.
-The touchy examples also demonstrate incorporation of a gladevcp backplot
+pop up keyboard for touch screen systems and other examples demonstrate
+the use of files created for the gcmc (G code Meta Compiler) application.
+The touchy examples also demonstrate incorporation of a gladevcp back plot
 viewer (gremlin_view).
 
 The simplest application is found as:
  
-  Sample Configurations / sim / axis / ngcgui /ngcgui_simple
+ Sample Configurations/sim/axis/ngcgui /ngcgui_simple
 
 A comprehensive example showing gcmc compatibility is at:
 
-  Sample Configurations / sim / axis / ngcgui / ngcgui_gcmc
+ Sample Configurations/sim/axis/ngcgui/ngcgui_gcmc
 
 A comprehensive example embedded as a gladevcp app and using gcmc is at:
 
-  Sample Configurations / sim / gscreen / ngcgui / pyngcgui_gcmc
+ Sample Configurations/sim/gscreen/ngcgui/pyngcgui_gcmc
 
 
 The example sim configurations make use of library files that provide
-example gcode subroutine (.ngc) files and Gcode-meta-compiler (.gcmc) files:
+example G code subroutine (.ngc) files and G code-meta-compiler (.gcmc) files:
 
 * 'nc_files/ngcgui_lib'
 ** 'arc1.ngc' - basic arc using cutter radius compensation
@@ -110,6 +116,11 @@ any empty blanks with sensible values and press
 image:images/tool_run.gif[] button to watch it run.  Experiment
 by creating multiple features and features from different tab pages.
 
+To create several subroutines concatinated into a single file, go to each tab
+fill in the blanks, press 'Create Feature' then using the arrow keys move any
+tabs needed to put them in order. Now press 'Finalize' and answer the prompt
+to create 
+
 Other guis will have similar functionality but the buttons and names
 may be different.
 
@@ -117,7 +128,7 @@ may be different.
 [NOTE]
 ===============================
 The demonstration configs create tab pages for just a few of the provided
-examples.  Any gui with a Custom tab page can open any of the library
+examples.  Any gui with a <<ngcgui-ini,custom tab>> can open any of the library
 example subroutines or any user file if it is in the linuxCNC subroutine
 path.
 
@@ -305,6 +316,7 @@ Configuration Chapter.
   The truetype tracer gui front-end is not currently available for gladevcp
 applications.
 
+[[ngcgui-ini]]
 === Additional INI File items required for ngcgui or pyngcgui
 The following INI file items go in the [DISPLAY] section for any gui
 that embeds either ngcgui or pyngcgui.
