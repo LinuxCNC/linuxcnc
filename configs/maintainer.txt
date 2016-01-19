@@ -12,6 +12,9 @@ each with one or more ini files, that are intended to:
   2) run when copied to a user ~/linuxcnc directory
      by the configuration picker (pickconfig.tcl)
 
+Note: Special cases
+      Any file named _panelui.ini is ignored
+
 Additionally, demonstration scripts identified by a file
 extension .demo, can run standalone to show linuxcnc-related
 functionality without requiring start-up of linuxcnc.
