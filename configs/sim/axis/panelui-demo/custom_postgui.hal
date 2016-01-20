@@ -17,17 +17,18 @@ net     mpg_small   panelui.mpg_small-state     gladevcp.select-low-light
 
 # axis selection for MPG jogging
 net     select-x    panelui.select_x-state    gladevcp.select_x-light
-net     select-x    axis.0.jog-enable
+net     select-x    joint.0.jog-enable axis.x.jog-enable
 
 net     select-z    panelui.select_z    gladevcp.select_z-light
-net     select-z    axis.2.jog-enable
+net     select-z    joint.1.jog-enable  axis.z.jog-enable
 
 # connect pins for axis MPG jogging scale
 # note that z axis is scaled inversely so the turning direction is opposite
 net     mpg-counts  gladevcp.mpg
-net     mpg-counts  axis.0.jog-counts    axis.2.jog-counts
-net     mpg-scale-x  panelui.mpg_scale            axis.2.jog-scale
-net     mpg-scale-z  panelui.mpg_scale-not        axis.0.jog-scale
+net     mpg-counts  joint.0.jog-counts    joint.1.jog-counts
+net     mpg-counts  axis.x.jog-counts     axis.z.jog-counts
+net     mpg-scale-x  panelui.mpg_scale            joint.0.jog-scale axis.x.jog-scale
+net     mpg-scale-z  panelui.mpg_scale-not        joint.1.jog-scale axis.z.jog-scale
 
 #show pin sim-matrix
 
