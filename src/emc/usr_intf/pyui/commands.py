@@ -10,6 +10,10 @@ except:
     CONFIGPATH = os.path.expanduser("~")
     CONFIGDIR = os.path.join(CONFIGPATH, 'panelui_handler.py')
 
+# constants
+JOGJOINT  = 1
+JOGTELEOP = 0
+
 DBG_state = 0
 def DBG(str):
     if DBG_state > 0:
@@ -91,6 +95,7 @@ class CNC_COMMANDS():
             DBG_state = master._dbg
             self.emc = linuxcnc
             self.emcstat = linuxcnc.stat()
+            self.coord_letters=[] # defer until valid poll() for axis_mask 
             self.emccommand = linuxcnc.command()
             self.return_to_mode = -1 # if not -1 return to the mode specified
             self.sb = 0;
@@ -140,13 +145,13 @@ class CNC_COMMANDS():
             self.emccommand.mode(self.emc.MODE_MANUAL)
             self.emccommand.unhome(-1)
 
-        def home_selected(self, wname, axis):
+        def home_selected(self, wname, joint):
             self.emccommand.mode(self.emc.MODE_MANUAL)
-            self.emccommand.home(int(axis))
+            self.emccommand.home(int(joint))
 
-        def unhome_selected(self, wname, axis):
+        def unhome_selected(self, wname, joint):
             self.emccommand.mode(self.emc.MODE_MANUAL)
-            self.emccommand.unhome(int(axis))
+            self.emccommand.unhome(int(joint))
 
         def jogging(self, wname, b):
             self.emccommand.mode(self.emc.MODE_MANUAL)
@@ -205,43 +210,47 @@ class CNC_COMMANDS():
             velocity = float(cmd)
             if velocity is not None:
                 rate = self.jog_velocity = velocity / 60.0
-                for i in (0,1,2,6,7,8):
-                    if self.isjogging[i]:
-                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, i, self.isjogging[i] * rate)
+                for axisnum in (0,1,2,6,7,8):
+                    if self.isjogging[axisnum]:
+                        jjogmode,j_or_a = self.get_jog_info(axisnum)
+                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[i] * rate)
 
         def set_angular_jog_velocity(self, wname, cmd):
             angular = float(cmd)
             if velocity is not None:
                 rate = self.angular_jog_velocity = angular / 60.0
-                for i in (3,4,5):
-                    if self.isjogging[i]:
-                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, i, self.isjogging[i] * rate)
+                for axisnum in (3,4,5):
+                    if self.isjogging[axisnum]:
+                        jjogmode,j_or_a = self.get_jog_info(axisnum)
+                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[i] * rate)
 
         def continuous_jog(self, wname, cmd):
-            axis =int(cmd[0])
+            axisnum = int(cmd[0])
+            jjogmode,j_or_a = self.get_jog_info(axisnum)
             direction = int(cmd[1])
             if direction == 0:
-                self.isjogging[axis] = 0
-                self.emccommand.jog(self.emc.JOG_STOP, axis)
+                self.isjogging[axisnum] = 0
+                self.emccommand.jog(self.emc.JOG_STOP, jjogmode, j_or_a)
             else:
-                if axis in (3,4,5):
+                if axisnum in (3,4,5):
                     rate = self.angular_jog_velocity
                 else:
                     rate = self.jog_velocity
-                self.isjogging[axis] = direction
-                self.emccommand.jog(self.emc.JOG_CONTINUOUS, axis, direction * rate)
+                self.isjogging[axisnum] = direction
+                self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, direction * rate)
 
         def incremental_jog(self, wname, cmd):
-            axis =int(cmd[0])
+            axisnum = int(cmd[0])
+            jjogmode,j_or_a = self.get_jog_info(axisnum)
             direction = int(cmd[1])
             distance = float(cmd[2])
-            self.isjogging[axis] = direction
-            if axis in (3,4,5):
+            self.isjogging[axisnum] = direction
+            if axisnum in (3,4,5):
                 rate = self.angular_jog_velocity
             else:
                 rate = self.jog_velocity
-            self.emccommand.jog(self.emc.JOG_INCREMENT, axis, direction * rate, distance)
-            self.isjogging[axis] = 0
+            self.emccommand.jog(self.emc.JOG_INCREMENT, jjogmode, axisnum, direction * rate, distance)
+            self.isjogging[axisnum] = 0
 
         def quill_up(self, wname, cmd):
             self.emccommand.mode(self.emc.MODE_MANUAL)
@@ -398,3 +407,28 @@ class CNC_COMMANDS():
             return getattr(self, item)
         def __setitem__(self, item, value):
             return setattr(self, item, value)
+
+        def get_jjogmode(self):
+            self.emcstat.poll()
+            if self.emcstat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
+                return JOGJOINT
+            if self.emcstat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
+                return JOGTELEOP
+            print "commands.py: unexpected motion_mode",self.emcstat.motion_mode
+            return JOGTELEOP
+
+        def jnum_for_axisnum(self,axisnum):
+            if len(self.coord_letters) == 0:
+                # compute coord_letters after poll to get axis_mask
+                self.emcstat.poll()
+                axisletter = "xyzabcuvw"[axisnum]
+                for j,a in enumerate("xyzabcuvw"):
+                    if self.emcstat.axis_mask & (1<<j): self.coord_letters.append(a)
+            return self.coord_letters.index("xyzabcuvw"[axisnum])
+
+        def get_jog_info (self,axisnum):
+            jjogmode = self.get_jjogmode()
+            j_or_a = axisnum
+            if jjogmode == JOGJOINT: j_or_a = self.jnum_for_axisnum(axisnum)
+            return jjogmode,j_or_a
+
