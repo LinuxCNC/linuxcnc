@@ -1348,8 +1348,6 @@ toggle_readout::
     Value must be bool +    
     default is TRUE
 
-====
-
 Direct program control::
     Using gobject to set the above listed properties:
 
