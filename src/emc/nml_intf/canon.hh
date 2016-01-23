@@ -128,7 +128,7 @@ struct CANON_VECTOR {
 
 typedef struct CanonConfig_t {
     double xy_rotation;
-    int rotary_unlock_for_traverse;
+    int rotary_unlock_for_traverse = -1; // jointnumber or -1
 
     // these are both always positive
     double css_maximum;
