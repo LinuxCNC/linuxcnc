@@ -426,6 +426,7 @@ class emc_status:
             self.data.feed_hold = self.emcstat.feed_hold_enabled
             self.data.feed_override = self.emcstat.feedrate
             self.data.velocity_override = self.emcstat.max_velocity / self.data._maxvelocity
+            self.data.rapid_override = self.emcstat.rapidrate
             self.data.file = self.emcstat.file
             self.data.last_line = self.data.motion_line
             self.data.motion_line = self.emcstat.motion_line
