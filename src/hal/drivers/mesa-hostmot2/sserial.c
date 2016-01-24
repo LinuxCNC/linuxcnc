@@ -1206,6 +1206,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 if (*inst->fault_count > inst->fault_lim) {
                     // If there have been a large percentage of misses, for quite
                     // a long time, it's time to take it seriously. 
+                    hm2_sserial_check_errors(hm2, inst);
                     HM2_ERR("Smart Serial Comms Error: "
                             "There have been more than %i errors in %i "
                             "thread executions at least %i times. "
@@ -1233,16 +1234,17 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
                     break; // give the register chance to clear
                 }
-                if (hm2_sserial_check_errors(hm2, inst) != 0) {
-                    if (*inst->data_reg_read & 0xff) { // indicates a failed transfer
-                        f = (*inst->data_reg_read & (comm_err_flag ^ 0xFF));
-                        if (f != 0 && f != 0xFF) {
-                            HM2_ERR("Smart Serial Error: port %i channel %i. " 
-                                "You may see this error if the FPGA card "
-                                """read"" thread is not running. "
-                                "This error message will not repeat.\n",
-                                i, ffs(f) - 1);
-                        }
+                if (*inst->data_reg_read & 0xff) { // indicates a failed transfer
+                    f = (*inst->data_reg_read & (comm_err_flag ^ 0xFF));
+                    if (f != 0 && f != 0xFF) {
+                        static bool printed;
+                        if(!printed)
+                        HM2_ERR("Smart Serial Error: port %i channel %i. "
+                            "You may see this error if the FPGA card "
+                            """read"" thread is not running. "
+                            "This error message will not repeat.\n",
+                            i, ffs(f) - 1);
+                        printed = true;
                     }
                     *inst->fault_count += inst->fault_inc;
                 }
