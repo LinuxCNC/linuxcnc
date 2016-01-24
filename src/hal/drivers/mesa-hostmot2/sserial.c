@@ -1726,6 +1726,31 @@ void hm2_sserial_setmode(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     }
 }
 
+// All sserial faults other than timeouts are indicated by fault
+// bits in the CS register.
+//
+// 1. Communication faults
+//
+// these are indicated when bit 13 (communication error) is set
+// after a doit command.  Further decoding of communication faults
+// should not be done unless bit 13 is set after a doit.  (but note
+// that for sserial firmware version <= 43, these bits are unintentially
+// sticky and are not reset after a doit)
+//
+// If bit 13 is set, bits 0 through 5 (local communication faults)
+// should be decoded and reported if they meet the inc/dec criteria
+// (bits 6 and 7 should  always be ignored)
+//
+// 2. Remote faults
+//
+// These are indicated when bit 8 (remote fault) is set after a doit
+// command.  Further decoding of remote faults should not be done
+// unless bit 8 is set.
+//
+// If bit 8 is set, the specific remote fault error bits (24 through 31)
+// should be decoded and reported. These are mostly sticky and tend to
+// be fatal so should only be reported once and should not be subject to
+// the inc/dec reporting criteria
 
 int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     rtapi_u32 buff;
