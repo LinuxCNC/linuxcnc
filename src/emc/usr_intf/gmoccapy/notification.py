@@ -163,7 +163,8 @@ class Notification(gtk.Window):
         self._show_message(self.messages[number_of_messages])
         if not self.top_to_bottom:
             self.height = self.popup.get_size()[1]
-        # print(self.y_pos, self.popup.get_size(),self.height)
+            print (self.height)
+        print(self.y_pos, self.popup.get_size(),self.height)
         self.popup.move(self.x_pos, self.y_pos - self.height)
         self.popup.show()
         # print(self.popup.get_position())
