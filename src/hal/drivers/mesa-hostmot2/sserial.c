@@ -1773,7 +1773,7 @@ int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
         hm2_sserial_remote_t *chan=&inst->remotes[r];
         buff = chan->status;
         buff &= err_mask;
-        for (i = 31 ; i > 0 ; i--){
+        for (i = 31 ; i >= 0 ; i--){
             if (buff & (1 << i)) {
                 HM2_ERR("Smart serial card %s error = (%i) %s\n", 
                         chan->name, i, err_list[i]);
