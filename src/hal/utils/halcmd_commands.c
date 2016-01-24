@@ -42,6 +42,7 @@
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
+#include <rtapi_mutex.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +52,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <errno.h>
 #include <time.h>
 #include <fnmatch.h>
@@ -2718,7 +2718,7 @@ int do_help_cmd(char *command)
 	printf("  Starts user space program 'progname', passing\n");
 	printf("  'progargs' to it.  Options are:\n");
 	printf("  -W  wait for HAL component to become ready\n");
-	printf("  -Wn name to wait for the component, which will have the given name.\n");
+	printf("  -Wn NAME  wait for component named NAME to become ready\n");
 	printf("  -w  wait for program to finish\n");
 	printf("  -i  ignore program return value (use with -w)\n");
     } else if ((strcmp(command, "linksp") == 0) || (strcmp(command,"linkps") == 0)) {

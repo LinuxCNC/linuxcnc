@@ -91,7 +91,7 @@ CheckConfig(){
         MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
         MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
         case "$MODULES" in
-        *rtai_shm*)
+        *rtai*)
             SHM_DEV=/dev/rtai_shm
         ;;
         *mbuff*)
@@ -183,6 +183,19 @@ Unload(){
     case $RTPREFIX in
     uspace)
         rtapi_app exit 
+
+        # wait 5 seconds for rtapi_app to die and be reaped by its parent
+        START=$SECONDS
+        while [ 5 -gt $((SECONDS-START)) ]; do
+            if ! ps -C rtapi_app > /dev/null 2> /dev/null; then
+                break
+            fi
+            sleep 0.1
+        done
+        if ps -C rtapi_app > /dev/null 2> /dev/null; then
+            echo "ERROR: rtapi_app failed to die" 1>&2
+        fi
+
         ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
         ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
         ipcrm -M 0x48484c34 2>/dev/null ;# UUID_KEY

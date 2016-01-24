@@ -1,0 +1,15 @@
+loadusr -W userspace_count_names names=swim,swish slap slop
+list pin
+unloadusr userspace_count_names
+waitusr userspace_count_names
+
+loadusr -W userspace_count_names slam slalom names=swat,swap slap
+list pin
+unloadusr userspace_count_names
+waitusr userspace_count_names
+
+loadusr -W userspace_count_names slip names=sock,slack
+list pin
+unloadusr userspace_count_names
+waitusr userspace_count_names
+

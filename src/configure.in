@@ -54,9 +54,8 @@ CPPFLAGS="$PYTHON_CPPFLAGS $saved_CPPFLAGS"
 AC_CACHE_CHECK([whether the Boost::Python headers are available],
                [ac_cv_boost_python],
                [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <boost/python/module.hpp>
+#include <boost/python/object_fwd.hpp>
 using namespace boost::python;
-BOOST_PYTHON_MODULE(test) { (void)0; }
 ]], [])],
     [ac_cv_boost_python=yes], [ac_cv_boost_python=no])])
 
@@ -82,7 +81,7 @@ AS_IF([test "x$ac_cv_boost_python" = xyes],
     # Note that this requires LIBPYTHON from configure.in
     LIBS="$saved_LIBS -l$LIBPYTHON -l$ax_lib"
     AC_LINK_IFELSE(
-      [AC_LANG_PROGRAM([[#include <boost/python.hpp>]], [[boost::python::object test_object;]])],
+      [AC_LANG_PROGRAM([[#include <boost/python/object_fwd.hpp>]], [[boost::python::object *test_object;]])],
       [BOOST_PYTHON_LIBS="-l$ax_lib"; break])
   done
   AS_IF([test "x$BOOST_PYTHON_LIBS" != x], [ax_result=$BOOST_PYTHON_LIBS], [ax_result=])
@@ -152,7 +151,6 @@ AC_MSG_CHECKING(for RT dir)
 
 # set up some default values
 RTDIR=""
-RTNAME=""
 RTAI=""
 RTPREFIX=""
 KERNELDIR=""
@@ -285,15 +283,17 @@ fi
 RTARCH=`uname -m | sed s/i.86/i386/`
 case $RTS in
 */rtai-config)
-    RTNAME=rtai-3.0
     RTPREFIX=rtai
-    RTAI=3
+    RTAI_VERSION=$($RTS --version)
+    RTAI=$(echo $RTAI_VERSION | cut -f 1 -d .)
     RTDIR=`$RTS --prefix`
     RTDIR=$(cd $RTDIR ; pwd -P )
     RTFLAGS=`$RTS --module-cflags`
-    RTFLAGS="$RTFLAGS -DRTAI=3"
+    RTFLAGS="$RTFLAGS -DRTAI=$RTAI"
     KERNELDIR=`$RTS --linux-dir`
     RTARCH=`$RTS --arch`
+    ULAPI_CFLAGS=`$RTS --lxrt-cflags`
+    ULAPI_LDFLAGS=`$RTS --lxrt-ldflags`
 ;;
 uspace)
     RTPREFIX=uspace
@@ -302,6 +302,8 @@ uspace)
     BUILD_SYS=uspace
     MODEXT=.so
     MODULE_DIR=${prefix}/lib/linuxcnc/modules
+    ULAPI_CFLAGS=""
+    ULAPI_LDFLAGS=""
 esac
 
 if test "$RTS" != uspace; then
@@ -319,13 +321,14 @@ if test "$RTS" != uspace; then
 	])
 fi
 
-AC_SUBST([RTNAME])
 AC_SUBST([RTAI])
 AC_SUBST([RTPREFIX])
 AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
 AC_SUBST([RTARCH])
+AC_SUBST([ULAPI_CFLAGS])
+AC_SUBST([ULAPI_LDFLAGS])
 
 case "$RTPREFIX" in
 uspace)
@@ -371,20 +374,6 @@ if test -z "$CC"; then
 elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
 fi
-
-AC_MSG_CHECKING([for usability of rdtscll from asm/msr.h])
-AC_TRY_LINK(
-    [
-#include <asm/msr.h>
-#include <stdio.h>
-void use_rdtscll(void) { long long tsc; rdtscll(tsc); }
-],
-    [],
-    [
-        MSR_H_USABLE=yes
-        AC_DEFINE([MSR_H_USABLE], [], [Define to 1 if asm/msr.h is usable and defines rdtscll])
-    ], [MSR_H_USABLE=no])
-AC_MSG_RESULT($MSR_H_USABLE)
 
 AC_MSG_CHECKING([for usability of linux/hidraw.h])
 AC_TRY_LINK(
@@ -564,7 +553,7 @@ AC_SUBST([EXT_RTFLAGS])
 #                                                                            #
 # Provides the user the possibility to specify (--with-module-dir=<path>)    #
 # If not specified default inside /lib/modules/${KERNEL_VERS}/               #
-# to the location where a RT-module gets found (mbuff.o or rtai_shm.o)       #
+# to the location where a RT-module gets found (mbuff.o or rtai_shed.o)     #
 # (maybe the default should be /lib/modules/$KERNEL_VERS/extra if it exists? #
 ##############################################################################
 
@@ -680,7 +669,6 @@ AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translati
 AC_DEFINE_UNQUOTED([EMC2_CONFIG_DIR], "$EMC2_CONFIG_DIR", [Directory for configuration files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
-AC_DEFINE_UNQUOTED([PRELOAD_WORKAROUND], "$PRELOAD_WORKAROUND", [library pathname to LD_PRELOAD])
 
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
@@ -696,7 +684,6 @@ AC_SUBST([EMC2_SCRIPT])
 AC_SUBST([EMC2_LATENCY_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
-AC_SUBST([PRELOAD_WORKAROUND])
 AC_SUBST([HALLIB_DIR])
 
 ##############################################################################
@@ -1064,6 +1051,12 @@ if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
     else
         AC_MSG_RESULT(yes)
     fi
+
+    AC_PATH_PROG(CHECKLINK,checklink,"none")
+    if ( test "none" = "$CHECKLINK" ) ; then
+	AC_MSG_ERROR([no checklink, HTML documentation cannot be built
+install with "sudo apt-get install w3c-linkchecker"])
+    fi
 fi
 AC_SUBST(BUILD_DOCS)
 AC_SUBST(BUILD_DOCS_PDF)
@@ -1071,7 +1064,7 @@ AC_SUBST(BUILD_DOCS_HTML)
 
 if test $RTS '!=' uspace
 then
-for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
+for m in adeos rtai_hal rtai_ksched rtai_sched rtai_fifos rtai_sem rtai_math \
 ; do
     AC_MSG_CHECKING([for $m])
     TMP=$(find $MODULE_DIR -name $m$MODEXT 2>/dev/null)
@@ -1085,8 +1078,8 @@ done
 AC_SUBST(MODPATH_adeos)
 AC_SUBST(MODPATH_rtai_hal)
 AC_SUBST(MODPATH_rtai_ksched)
+AC_SUBST(MODPATH_rtai_sched)
 AC_SUBST(MODPATH_rtai_fifos)
-AC_SUBST(MODPATH_rtai_shm)
 AC_SUBST(MODPATH_rtai_sem)
 AC_SUBST(MODPATH_rtai_math)
 fi
@@ -1127,6 +1120,8 @@ AH_TOP([/********************************************************************
 #define MM_PER_INCH 25.4
 #define INCH_PER_MM (1.0/25.4)
 ])
+
+AC_CHECK_HEADERS([sys/io.h])
 
 AH_VERBATIM([_GNU_SOURCE],
 [/* Enable GNU extensions on systems that have them.  */
@@ -1519,124 +1514,89 @@ else
 fi
 AC_SUBST(MSGFMT)
 
-AC_MSG_CHECKING(for Python support)
-AC_ARG_ENABLE(python,
-    AS_HELP_STRING(
-        [--disable-python],
-        [Disable the parts of LinuxCNC that depend on Python.]
-    ),
-    [
-	case "$enableval" in
-	Y*|y*)
-	    BUILD_PYTHON=yes ;;
-	*)
-	    BUILD_PYTHON=no ;;
-	esac
-    ],
-    [BUILD_PYTHON=yes])
+if test "$PYTHON" = "none"; then
+    AC_MSG_ERROR([Python missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])
+fi
 
-AC_MSG_RESULT($BUILD_PYTHON)
+AC_MSG_CHECKING([python version])
+if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2070000'
+then
+    AC_MSG_ERROR(Python version too old (2.7 or newer required))
+fi
+AC_MSG_RESULT(OK)
 
-if test "$BUILD_PYTHON" = "yes"; then
-    if test "$PYTHON" = "none"; then
-	AC_MSG_ERROR([Python missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])
-    fi
+AC_MSG_CHECKING([version of python libraries])
+LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
+AC_MSG_RESULT($LIBPYTHON)
 
-    AC_MSG_CHECKING([python version])
-    if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2040000'
-    then
-	AC_MSG_ERROR(Python version too old (2.4 or newer required))
-    fi
-    AC_MSG_RESULT(OK)
+AC_MSG_CHECKING([match between tk and Tkinter versions])
+    
+PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
+PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
 
-    AC_MSG_CHECKING([version of python libraries])
-    LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
-    AC_MSG_RESULT($LIBPYTHON)
-
-    AC_MSG_CHECKING([match between tk and Tkinter versions])
-	
-    PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
-    PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
-
-    if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
-	AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
-	AC_MSG_ERROR([Python requires use of Tcl $PYTHON_TCL_VERSION and Tk $PYTHON_TK_VERSION.
+if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
+    AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
+    AC_MSG_ERROR([Python requires use of Tcl $PYTHON_TCL_VERSION and Tk $PYTHON_TK_VERSION.
 Install this version and specify --with-tclConfig and --with-tkConfig if necessary])
-    fi
-    if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
-	AC_MSG_RESULT([Tk mismatch: $TK_VERSION vs $PYTHON_TK_VERSION])
-	AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tkConfig if necessary"])
-    fi
-    AC_MSG_RESULT([$PYTHON_TK_VERSION])
+fi
+if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
+    AC_MSG_RESULT([Tk mismatch: $TK_VERSION vs $PYTHON_TK_VERSION])
+    AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tkConfig if necessary"])
+fi
+AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
-    AC_MSG_CHECKING(location of Python header files)
-    INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
-    AC_MSG_RESULT($INCLUDEPY)
+AC_MSG_CHECKING(location of Python header files)
+INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
+AC_MSG_RESULT($INCLUDEPY)
 
-    AC_MSG_CHECKING([for Python headers])
-    AS_IF([test "x$PYTHON_CPPFLAGS" = x],
-    [
-	_PYTHON_SYSCONFIG([[get_python_inc()]], [PYTHON_CPPFLAGS="-I$py_val"])
-  	_PYTHON_SYSCONFIG([[get_python_inc(True)]],
-  	[test "x$PYTHON_CPPFLAGS" = "x-I$py_val" || PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS -I$py_val"])
-    ])
-    AC_MSG_RESULT([$PYTHON_CPPFLAGS])
-    AC_SUBST(PYTHON_CPPFLAGS)
+AC_MSG_CHECKING([for Python headers])
+AS_IF([test "x$PYTHON_CPPFLAGS" = x],
+[
+    _PYTHON_SYSCONFIG([[get_python_inc()]], [PYTHON_CPPFLAGS="-I$py_val"])
+    _PYTHON_SYSCONFIG([[get_python_inc(True)]],
+    [test "x$PYTHON_CPPFLAGS" = "x-I$py_val" || PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS -I$py_val"])
+])
+AC_MSG_RESULT([$PYTHON_CPPFLAGS])
+AC_SUBST(PYTHON_CPPFLAGS)
 
-    AC_MSG_CHECKING([for Python libraries])
-    AS_IF([test "x$PYTHON_LIBS" = x],
-    [
-	_PYTHON_SYSCONFIG([[get_config_var('LIBS')]], [PYTHON_LIBS=$py_val])
-    ])
-    AC_MSG_RESULT([$PYTHON_LIBS])
-    AC_SUBST(PYTHON_LIBS)
+AC_MSG_CHECKING([for Python libraries])
+AS_IF([test "x$PYTHON_LIBS" = x],
+[
+    _PYTHON_SYSCONFIG([[get_config_var('LIBS')]], [PYTHON_LIBS=$py_val])
+])
+AC_MSG_RESULT([$PYTHON_LIBS])
+AC_SUBST(PYTHON_LIBS)
 
-    # Get the CFLAGS and LIBS for boost::python.
-    # This does an AC_SUBST() of BOOST_PYTHON_LIBS
-    # For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
-    AX_BOOST_PYTHON_EMC
+# Get the CFLAGS and LIBS for boost::python.
+# This does an AC_SUBST() of BOOST_PYTHON_LIBS
+# For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
+AX_BOOST_PYTHON_EMC
 
-    AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
-	[AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
+    [AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
-    AC_MSG_CHECKING(for site-package location)
-    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib()'`
-    AC_MSG_RESULT($SITEPY)
+AC_MSG_CHECKING(for site-package location)
+SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib()'`
+AC_MSG_RESULT($SITEPY)
 
-    AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
-    AC_CHECK_LIB(GL, glBegin, [], [AC_MSG_ERROR([Required GL library missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+AC_CHECK_LIB(GL, glBegin, [], [AC_MSG_ERROR([Required GL library missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
-    AC_MSG_CHECKING(for working GLU quadrics)
-    AC_TRY_COMPILE([
+AC_MSG_CHECKING(for working GLU quadrics)
+AC_TRY_COMPILE([
 #include <GL/gl.h>
 #include <GL/glu.h>
 ],
-	[GLUquadric *q;],
-	[AC_MSG_RESULT(yes)],[
-		AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])]
-	
-    )
+    [GLUquadric *q;],
+    [AC_MSG_RESULT(yes)],[
+            AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])]
+    
+)
 
-    AC_MSG_CHECKING(for Xmu headers)
-    AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
-fi
+AC_MSG_CHECKING(for Xmu headers)
+AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
-AC_MSG_CHECKING(libgl1-mesa-dri workaround)
-
-PRELOAD_WORKAROUND=`../scripts/test-libgl-bug.sh 2>/dev/null`
-if test  $? -ne 0 ; then
-   # real bad, the test failed - let me know
-   AC_MSG_RESULT([test for libgl1-mesa-dri workaround failed, please file a bug])
-   exit 1
-fi
-if test "x$PRELOAD_WORKAROUND" != "x" ; then
-   AC_MSG_RESULT(required - need to preload $PRELOAD_WORKAROUND)
-else
-   AC_MSG_RESULT(not required)
-fi
-
-AC_SUBST([BUILD_PYTHON])
 AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])

@@ -8,11 +8,19 @@ LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 
+GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
+ifeq ($(BUILD_DOCS),yes)
+GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.txt, ../docs/man/%, $(wildcard ../docs/src/man/*/*.txt))
+endif
+
 MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man1/*.1) \
 	$(wildcard $(DOC_DIR)/man/man3/*.3*) \
 	$(wildcard $(DOC_DIR)/man/man9/*.9) \
 	$(GENERATED_MANPAGES))
+
+../docs/man/man1/linuxcnc.1: $(DOC_SRCDIR)/man/man1/linuxcnc.1.in config.status
+	./config.status --file=$@:$<
 
 ifneq ($(MANDB),)
 default: $(DOC_DIR)/man/index.db
@@ -26,6 +34,7 @@ DOC_SRCS_EN := \
 	code/code-notes.txt \
 	code/style-guide.txt \
 	code/nml-messages.txt \
+	code/rs274.txt \
 	code/contributing-to-linuxcnc.txt \
 	common/emc-history.txt \
 	common/glossary.txt \
@@ -48,6 +57,7 @@ DOC_SRCS_EN := \
 	drivers/gm.txt \
 	drivers/gs2.txt \
 	drivers/hostmot2.txt \
+	drivers/mb2hal.txt \
 	drivers/motenc.txt \
 	drivers/opto22.txt \
 	drivers/pico-ppmc.txt \
@@ -79,6 +89,7 @@ DOC_SRCS_EN := \
 	gui/gmoccapy.txt \
 	gui/gmoccapy-hu.txt \
 	gui/gscreen.txt \
+	gui/panelui.txt \
 	gui/halui.txt \
 	gui/image-to-gcode.txt \
 	gui/keystick.txt \
@@ -259,7 +270,8 @@ HTML_TARGETS := \
 	$(DOC_DIR)/html/index_es.html \
 	$(DOC_DIR)/html/index_fr.html \
 
-A2X = a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
+A2X = a2x --xsltproc-opts "--nonet \
+			   --stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
 			   --stringparam generate.section.toc.level 2 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
@@ -273,11 +285,6 @@ ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
 Makefile: $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
 endif
-
-GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
-
-../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
-	./config.status --file=$@:$<
 
 docs: manpages
 manpages: $(GENERATED_MANPAGES)
@@ -308,10 +315,10 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_fr checkref_es
 
-checkref_en: $(DOC_TARGETS_HTML_EN) .htmldoc-stamp
+checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref English $^
 
-checkref_fr: $(DOC_TARGETS_HTML_FR) .htmldoc-stamp
+checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref French $^
 
 checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp
@@ -456,7 +463,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	@cp $< $@
 
 .html-images-stamp: $(DOC_TARGETS_HTML)
-	for HTML_FILE in $^; do \
+	set -e; for HTML_FILE in $^; do \
 		HTML_DIR=$$(basename $$(dirname $$HTML_FILE)); \
 		for IMAGE_FILE in $$(xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $$HTML_FILE); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
@@ -598,6 +605,18 @@ endif
 %.dxf:; $(error Required image file $@ does not exist)
 %.ps:; $(error Required image file $@ does not exist)
 %.eps:; $(error Required image file $@ does not exist)
+
+# make manpages from all the asciidoc manpage-sources
+GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.txt, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.txt))
+$(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.txt
+	@mkdir -p `dirname $@`
+	a2x -v --doctype manpage \
+		--format manpage \
+		--destination-dir `dirname $@` \
+		--xsltproc-opts --nonet \
+		-a mansource=LinuxCNC \
+		-a manmanual='LinuxCNC Documentation' \
+		$<
 
 else
 docclean:

@@ -84,18 +84,23 @@ set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 1]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu
-        set ::savelabel "Save Watch List" ;# identifier for entryconfigure
-        $filemenu add command -label [msgcat::mc $::savelabel] \
-            -command {savewatchlist}
+        set ::savelabel1 "Save Watch List" ;# identifier for entryconfigure
+        set ::savelabel2 "Save Watch List (multiline)" ;# identifier for entryconfigure
+        $filemenu add command -label [msgcat::mc $::savelabel1] \
+            -command savewatchlist
+        $filemenu add command -label [msgcat::mc $::savelabel2] \
+            -command [list savewatchlist multiline]
         $filemenu add command -label [msgcat::mc "Load Watch List"] \
             -command {getwatchlist}
         $filemenu add command -label [msgcat::mc "Exit"] \
             -command {destroy .; exit}
         $filemenu configure -postcommand {
           if {$::watchlist != ""} {
-            $filemenu entryconfigure [msgcat::mc $::savelabel] -state normal
+            $filemenu entryconfigure [msgcat::mc $::savelabel1] -state normal
+            $filemenu entryconfigure [msgcat::mc $::savelabel2] -state normal
           } else {
-            $filemenu entryconfigure [msgcat::mc $::savelabel] -state disabled
+            $filemenu entryconfigure [msgcat::mc $::savelabel1] -state disabled
+            $filemenu entryconfigure [msgcat::mc $::savelabel2] -state disabled
           }
         }
 set viewmenu [menu $menubar.view -tearoff 0]
@@ -297,7 +302,7 @@ proc makeNodeOther {which otherstring} {
 # builds a global list -- ::treenodes -- but not leaves
 proc writeNode {arg} {
     scan $arg {%i %s %s %s %i} j base node name leaf
-    $::treew insert $j  $base  $node -text $name
+    $::treew insert end  $base  $node -text $name
     if {$leaf > 0} {
         lappend ::treenodes $node
     }
@@ -421,6 +426,13 @@ proc showEx {what} {
     $::disp configure -state disabled
 }
 
+set ::last_watchfile_tail my.halshow
+set ::last_watchfile_dir  [pwd]
+set ::filetypes { {{HALSHOW} {.halshow}}\
+                  {{TXT}     {.txt}}\
+                  {{ANY}     {.*}}\
+                }
+
 set ::watchlist ""
 set ::watchstring ""
 proc watchHAL {which} {
@@ -437,9 +449,6 @@ proc watchHAL {which} {
     if {[lsearch $::watchlist $which] != -1} {
         return
     }
-    lappend ::watchlist $which
-    set i [llength $::watchlist]
-    set label [lindex [split $which +] end]
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
     if {$vartype != "pin" && $vartype != "param" && $vartype != "sig"} {
@@ -456,6 +465,10 @@ proc watchHAL {which} {
 	# e.g., clicking "Pins / axis / 0"
 	if {[catch {hal ptype $varname} type]} { return }
     }
+
+    lappend ::watchlist $which
+    set i [llength $::watchlist]
+    set label [lindex [split $which +] end]
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill firebrick4 -tag oval$i
@@ -539,8 +552,9 @@ proc displayThis {str} {
 
 proc getwatchlist {} {
   set lfile [tk_getOpenFile \
-            -initialdir  [pwd]\
-            -initialfile  my.halshow\
+            -filetypes   $::filetypes\
+            -initialdir  $::last_watchfile_dir\
+            -initialfile $::last_watchfile_tail\
             -title       [msgcat::mc "Load a watch list"]\
             ]
   loadwatchlist $lfile
@@ -549,27 +563,45 @@ proc getwatchlist {} {
 proc loadwatchlist {filename} {
   if {"$filename" == ""} return
   set f [open $filename r]
-  set wl [gets $f]
+  set wl ""
+  while {![eof $f]} {
+     set nextline [string trim [gets $f]]
+     if {[string first "#" $nextline] == 0} continue ;# ignore comment lines
+     set wl "$wl $nextline"
+  }
   close $f
+  set ::last_watchfile_tail [file tail    $filename]
+  set ::last_watchfile_dir  [file dirname $filename]
   if {"$wl" == ""} return
   watchReset all
   $::top raise pw
   foreach item $wl { watchHAL $item }
 }
 
-proc savewatchlist {} {
+proc savewatchlist { {fmt oneline} } {
   if {"$::watchlist" == ""} {
     return -code error "savewatchlist: null ::watchlist"
   }
   set sfile [tk_getSaveFile \
-            -initialdir  [pwd]\
-            -initialfile my.halshow\
+            -filetypes   $::filetypes\
+            -initialdir  $::last_watchfile_dir\
+            -initialfile $::last_watchfile_tail\
             -title       [msgcat::mc "Save current watch list"]\
             ]
   if {"$sfile" == ""} return
   set f [open $sfile w]
-  puts $f $::watchlist
+  switch $fmt {
+    multiline {
+      puts $f "# halshow watchlist created [clock format [clock seconds]]\n"
+      foreach line $::watchlist {
+        puts $f $line
+      }
+    }
+    default {puts $f $::watchlist}
+  }
   close $f
+  set ::last_watchfile_tail [file tail    $sfile]
+  set ::last_watchfile_dir  [file dirname $sfile]
 }
 
 #----------start up the displays----------
@@ -606,6 +638,8 @@ if {[llength $::argv] > 0} {
        default { set watchfile [lindex $::argv $idx]
                  if [file readable $watchfile] {
                     loadwatchlist $watchfile
+                    set ::last_watchfile_tail [file tail    $watchfile]
+                    set ::last_watchfile_dir  [file dirname $watchfile]
                  } else {
                     puts "\nCannot read file <$watchfile>\n"
                     usage

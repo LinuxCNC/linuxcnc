@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 int check_ini_hal_items();
 int ini_hal_init(void);
+int ini_hal_exit(void);
 int ini_hal_init_pins(void);
 
 /* not doing these fields (yet,ever?):

@@ -563,10 +563,62 @@ static int comp_id;
         print >>f, "static void user_mainloop(void);"
         if options.get("userinit"):
             print >>f, "static void userinit(int argc, char **argv);"
+
+        print >>f, """
+int __comp_parse_count(int *argc, char **argv) {
+    int i;
+    for (i = 0; i < *argc; i ++) {
+        if (strncmp(argv[i], "count=", 6) == 0) {
+            errno = 0;
+            count = strtoul(&argv[i][6], NULL, 0);
+            for (; i+1 < *argc; i ++) {
+                argv[i] = argv[i+1];
+            }
+            argv[i] = NULL;
+            (*argc)--;
+            if (errno == 0) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+"""
+        print >>f, """
+int __comp_parse_names(int *argc, char **argv) {
+    int i;
+    for (i = 0; i < *argc; i ++) {
+        if (strncmp(argv[i], "names=", 6) == 0) {
+            char *p = &argv[i][6];
+            int j;
+            for (; i+1 < *argc; i ++) {
+                argv[i] = argv[i+1];
+            }
+            argv[i] = NULL;
+            (*argc)--;
+            for (j = 0; j < 16; j ++) {
+                names[j] = strtok(p, ",");
+                p = NULL;
+                if (names[j] == NULL) {
+                    return 1;
+                }
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+"""
         print >>f, "int argc=0; char **argv=0;"
         print >>f, "int main(int argc_, char **argv_) {"    
         print >>f, "    argc = argc_; argv = argv_;"
-        print >>f 
+        print >>f, "    int found_count, found_names;"
+        print >>f, "    found_count = __comp_parse_count(&argc, argv);"
+        print >>f, "    found_names = __comp_parse_names(&argc, argv);"
+        print >>f, "    if (found_count && found_names) {"
+        print >>f, "        rtapi_print_msg(RTAPI_MSG_ERR, \"count= and names= are mutually exclusive\\n\");"
+        print >>f, "        return 1;"
+        print >>f, "    }"
         if options.get("userinit", 0):
             print >>f, "    userinit(argc, argv);"
         print >>f 

@@ -338,8 +338,6 @@ int emcSystemCmd(char *s)
 	// we're the child
 	// convert string to argc/argv
 	argvize(s, buffer, argv, EMC_SYSTEM_CMD_LEN);
-	// drop any setuid privileges
-	setuid(getuid());
 	execvp(argv[0], argv);
 	// if we get here, we didn't exec
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
@@ -587,6 +585,10 @@ interpret_again:
 					       command);
 			    // and execute it
 			    execRetval = emcTaskPlanExecute(0);
+			    // line number may need update after
+			    // returns from subprograms in external
+			    // files
+			    emcStatus->task.readLine = emcTaskPlanLine();
 			    if (execRetval > INTERP_MIN_ERROR) {
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP_WAITING;
@@ -619,9 +621,9 @@ interpret_again:
 			    // throw the results away if we're supposed to
 			    // read
 			    // through it
-			    if (programStartLine < 0 ||
-				emcStatus->task.readLine <
-				programStartLine) {
+			    if ((programStartLine < 0 ||
+				 emcStatus->task.readLine < programStartLine) &&
+				emcTaskPlanLevel() == 0) {
 				// we're stepping over lines, so check them
 				// for
 				// limits, etc. and clear then out
@@ -638,7 +640,8 @@ interpret_again:
 				interp_list.clear();
 			    }
 
-			    if (emcStatus->task.readLine < programStartLine) {
+			    if (emcStatus->task.readLine < programStartLine &&
+				emcTaskPlanLevel() == 0) {
 			    
 				//update the position with our current position, as the other positions are only skipped through
 				CANON_UPDATE_END_POINT(emcStatus->motion.traj.actualPosition.tran.x,
@@ -3384,10 +3387,10 @@ int main(int argc, char *argv[])
 	    // 	emcOperatorError(0, "wait for orient complete timed out");
 	    // }
 
-        // abort everything
-        emcTaskAbort();
-        emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
-        emcSpindleAbort();
+            // abort everything
+            emcTaskAbort();
+            emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
+            emcSpindleAbort();
 	    mdi_execute_abort();
 	    // without emcTaskPlanClose(), a new run command resumes at
 	    // aborted line-- feature that may be considered later

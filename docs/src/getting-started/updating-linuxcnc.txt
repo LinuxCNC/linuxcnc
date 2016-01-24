@@ -2,22 +2,24 @@
 
 = Updating LinuxCNC
 
-This section describes how to upgrade LinuxCNC to version 2.7 from
-version 2.6. It assumes that you have an existing 2.6 install that you
-want to update to 2.7.
+This section describes how to upgrade LinuxCNC from version 2.7 to the
+new version.  It assumes that you have an existing 2.7 install that you
+want to update.
 
-To upgrade LinuxCNC to version 2.7 from a version older than 2.6, you have to
-first link:http://wiki.linuxcnc.org/cgi-bin/wiki.pl?UpdatingTo2.6[upgrade to 2.6]
-, then follow these instructions to upgrade to 2.7.
+To upgrade LinuxCNC from a version older than 2.7, you have to first
+http://linuxcnc.org/docs/2.7/html/getting-started/updating-linuxcnc.html[upgrade
+your old install to 2.7], then follow these instructions to upgrade to
+the new version.
 
-If you do not have an old (pre-2.7) version of LinuxCNC to upgrade,
-then you're best off making a fresh install of 2.7 as described in the
+If you do not have an old version of LinuxCNC to upgrade, then you're
+best off making a fresh install of the new version as described in the
 section <<cha:getting-linuxcnc,Getting LinuxCNC>>.
+
 
 == Upgrade to the new version
 
 The basic idea is to disable the old linuxcnc.org apt sources and add
-a new linuxcnc.org apt source for 2.7, then upgrade LinuxCNC.
+a new linuxcnc.org apt source, then upgrade the LinuxCNC packages.
 
 The details will depend on which platform you're running on.
 Run `lsb_release -ic` to find this information out:
@@ -130,67 +132,26 @@ Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
 
 == Updating Configuration Files
 
-LinuxCNC version 2.7 differs from version 2.6 in some ways that may
-require changes to your machine configuration.
+The new version of LinuxCNC differs from version 2.7 in some ways that
+may require changes to your machine configuration.
 
 
-=== Mesa Hardware
+=== Stricter INI file syntax
 
-==== Hostmot2 Watchdog
+Lines with numeric INI variables are no longer allowed to have trailing
+text.  In earlier versions of LinuxCNC any text after the number was
+silently ignored, but as of this version such text is totally disallowed.
+This includes comments.
 
-If you have Mesa hardware the Hostmot2 watchdog now gets handled by the
-hm2 `write` Hal function. Remove any `addf` lines that refer to the
-`pet_watchdog` function from your main hal file.
+For example, lines like this will no longer be accepted:
+-----
+MAX_VELOCITY = 7.5 # This is the max velocity of the axis.
+-----
 
-==== Hostmot2 dpll
-
-The Hostmot2 dpll's default time constant has been changed from 40960 to 2000.
-The original value could occasionally lead to following errors when software
-like ntpd and ntpdate adjusted the rate of the linux CLOCK_MONOTONIC time
-source by up to 1000ppm in a single step. The new value allows the dpll to
-adjust to the change in the base period frequency without error.
-
-=== Parallel Port
-
-If you use the Parallel Port driver there are some changes. Older versions
-of the LinuxCNC `hal_parport` driver conflicted with the Linux `parport_pc`
-driver. This required two mitigation techniques, prevent `parport_pc` from
-loading, and load another LinuxCNC driver called `probe_parport` before loading
-`hal_parport`.
-
-The LinuxCNC `hal_parport` driver now cooperates well with the Linux
-`parport_pc` driver, and these mitigation techniques are no longer
-needed or useful. In 2.7, the `probe_parport` driver has been removed
-from LinuxCNC.
-
-This means configs that use the parallel port may need to be updated in
-the following ways:
-
-* Make sure LinuxCNC does not prevent the Linux `parport_pc` driver from
-  loading. Older versions of LinuxCNC would blacklist `parport_pc` in
-  `/etc/modprobe.d/linuxcnc.conf` (or `/etc/modprobe.d/emc2.conf` for even
-  older versions of LinuxCNC). Comment out any lines in either of those files
-  that looks like this:
-  +
-  `install parport_pc /bin/true`
-
-* Make sure your Hal configuration does not have `loadrt probe_parport` in any
-  .hal file.
-
-
-=== Huanyang VFD
-
-If you use the Huanyang VFD component there are a few hal pin changes to the
-component.
-
-[options="header"]
-|====
-| 2.6 hy-vfd driver        | 2.7 hy-vfd driver
-| hy_vfd.fwd               | hy_vfd.forward
-| hy_vfd.rev               | hy_vfd.reverse
-| hy_vfd.modbus-ok         | hy_vfd.hycomm-ok
-| hy_vfd.motor-pole-number | (removed)
-| hy_vfd.base-freq         | (removed)
-|====
+They could be transformed into pairs of lines like this:
+-----
+# This is the max velocity of the axis.
+MAX_VELOCITY = 7.5
+-----
 
 // vim: set syntax=asciidoc:

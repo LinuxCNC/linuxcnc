@@ -35,14 +35,11 @@ transfers.
 hm2_7i90 is a device driver that interfaces the Mesa 7i90 board with
 the HostMot2 firmware to the LinuxCNC HAL.
 
-The 7i90 firmware is fixed, it is not programmed by the driver at
-load time.
+The 7i90 firmware is stored on the 7i90 itself, it is not programmed
+by the driver at load time.  The 7i90 firmware can be changed using the
+mesaflash program.
 
 The driver talks with the 7i90 over the parallel port, via EPP.
-
-The hm2_7i90 driver requires an in-kernel EPP communications API.  This is
-provided by the 'epp' driver.  Load this driver before loading hm2_7i90,
-by putting 'loadrt epp' in your .hal file.
 .SH Communicating with the board
 
 The 7i90 communicates with the LinuxCNC computer over EPP, the Enhanced

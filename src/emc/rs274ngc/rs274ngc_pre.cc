@@ -65,7 +65,13 @@ suppression can produce more concise output. Future versions might
 include an option for suppressing superfluous commands.
 
 ****************************************************************************/
-#include <boost/python.hpp>
+#include "python_plugin.hh"
+#include <boost/python/dict.hpp>
+#include <boost/python/extract.hpp>
+#include <boost/python/import.hpp>
+#include <boost/python/list.hpp>
+#include <boost/python/scope.hpp>
+#include <boost/python/tuple.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,6 +97,8 @@ include an option for suppressing superfluous commands.
 #include "rs274ngc_interp.hh"
 
 #include "units.h"
+
+namespace bp = boost::python;
 
 extern char * _rs274ngc_errors[];
 
@@ -130,12 +138,12 @@ Interp::Interp()
 	// since interp.init() may be called repeatedly this would create a new
 	// wrapper instance on every init(), abandoning the old one and all user attributes
 	// tacked onto it, so make sure this is done exactly once
-	_setup.pythis =  boost::python::object(boost::cref(this));
+	_setup.pythis = new boost::python::object(boost::cref(*this));
 	
 	// alias to 'interpreter.this' for the sake of ';py, .... ' comments
 	// besides 'this', eventually use proper instance names to handle
 	// several instances 
-	bp::scope(interp_module).attr("this") =  _setup.pythis;
+	bp::scope(interp_module).attr("this") =  *_setup.pythis;
 
 	// make "this" visible without importing interpreter explicitly
 	bp::object retval;
@@ -747,7 +755,7 @@ int Interp::exit()
       bp::object retval, tupleargs, kwargs;
       bp::list plist;
 
-      plist.append(_setup.pythis); // self
+      plist.append(*_setup.pythis); // self
       tupleargs = bp::tuple(plist);
       kwargs = bp::dict();
 
@@ -985,7 +993,7 @@ int Interp::init()
               "RS274NGC"
           );
           if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS275NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in ini file\n");
+              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in ini file\n");
           }
 
           r = inifile.Find(
@@ -996,8 +1004,13 @@ int Interp::init()
               "RS274NGC"
           );
           if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS275NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in ini file\n");
+              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in ini file\n");
           }
+
+	  // ini file g52/g92 offset persistence default setting
+	  inifile.Find(&_setup.disable_g92_persistence,
+		       "DISABLE_G92_PERSISTENCE",
+		       "RS274NGC");
 
           // close it
           inifile.Close();
@@ -1038,6 +1051,15 @@ int Interp::init()
                  _setup.u_origin_offset ,
                  _setup.v_origin_offset ,
                  _setup.w_origin_offset);
+
+  // Restore G92 offset if DISABLE_G92_PERSISTENCE not set in .ini file.
+  // This can't be done with the static _required_parameters[], where
+  // the .vars file contents would reflect that setting, so instead
+  // edit the restored parameters here.
+  if (_setup.disable_g92_persistence)
+      // Persistence disabled:  clear g92 parameters
+      for (k = 5210; k < 5220; k++)
+	  pars[k] = 0;
 
   if (pars[5210]) {
       _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
@@ -1201,7 +1223,7 @@ int Interp::init()
 	  bp::object retval, tupleargs, kwargs;
 	  bp::list plist;
 
-	  plist.append(_setup.pythis); // self
+	  plist.append(*_setup.pythis); // self
 	  tupleargs = bp::tuple(plist);
 	  kwargs = bp::dict();
 
@@ -2514,8 +2536,8 @@ const char *strstore(const char *s)
 
 context_struct::context_struct()
 : position(0), sequence_number(0), filename(""), subName(""),
-context_status(0), call_type(0), py_return_type(0), py_returned_double(0),
-py_returned_int(0)
+context_status(0), call_type(0)
+
 {
     memset(saved_params, 0, sizeof(saved_params));
     memset(saved_g_codes, 0, sizeof(saved_g_codes));

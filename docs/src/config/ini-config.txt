@@ -925,35 +925,38 @@ Typically (but not always):
     Example triplet with COMP_FILE_TYPE = 0: 1.00 1.01 0.99 +
     Example triplet with COMP_FILE_TYPE = 1: 1.00 0.01 -0.01
 
-* 'MIN_LIMIT = -1000' -
-    (((MIN LIMIT))) The minimum limit (soft limit) for axis motion, in machine units.
-    When this limit is exceeded, the controller aborts axis motion.
 
-* 'MAX_LIMIT = 1000' -
-    (((MAX LIMIT))) The maximum limit (soft limit) for axis motion, in machine units.
-    When this limit is exceeded, the controller aborts axis motion.
 
-* 'MIN_FERROR = 0.010' -
-    (((MIN FERROR))) This is the value in machine units by which the axis is permitted to
-    deviate from commanded position at very low speeds. If MIN_FERROR is
-    smaller than FERROR, the two produce a ramp of error trip points. You
-    could think of this as a graph where one dimension is speed and the
-    other is permitted following error. As speed increases the amount of
-    following error also increases toward the FERROR value.
+* 'MIN_LIMIT = -1000' - (((MIN LIMIT))) The minimum limit for axis motion, in
+    machine units. When this limit is reached, the controller aborts axis
+    motion. The axis must be homed before MIN_LIMIT is in force. For a rotary
+    axis with unlimited rotation having no MIN_LIMIT for that axis in the 
+    [AXIS_n] section then the value -1e99 is used.
 
-* 'FERROR = 1.0' -
-    (((FERROR))) FERROR is the maximum allowable following error, in machine units.
-    If the difference between commanded and sensed position exceeds this
-    amount, the controller disables servo calculations, sets all the
-    outputs to 0.0, and disables the amplifiers. If MIN_FERROR is present
-    in the .ini file, velocity-proportional following errors are used.
-    Here, the maximum allowable following error is proportional to the
-    speed, with FERROR applying to the rapid rate set by
-    [TRAJ]MAX_VELOCITY, and proportionally smaller following errors for
-    slower speeds. The maximum allowable following error will always be
-    greater than MIN_FERROR. This prevents small following errors for
-    stationary axes from inadvertently aborting motion. Small following
-    errors will always be present due to vibration, etc.
+* 'MAX_LIMIT = 1000' - (((MAX LIMIT))) The maximum limit for axis motion, in
+    machine units. When this limit is reached, the controller aborts axis
+    motion. The axis must be homed before MAX_LIMIT is in force. For a rotary
+    axis with unlimited rotation having no MAX_LIMIT for that axis in the 
+    [AXIS_n] section then the value 1e99 is used.
+
+* 'MIN_FERROR = 0.010' - (((MIN FERROR))) This is the value in machine units by
+    which the axis is permitted to deviate from commanded position at very low
+    speeds. If MIN_FERROR is smaller than FERROR, the two produce a ramp of
+    error trip points. You could think of this as a graph where one dimension is
+    speed and the other is permitted following error. As speed increases the
+    amount of following error also increases toward the FERROR value.
+
+* 'FERROR = 1.0' - (((FERROR))) FERROR is the maximum allowable following error,
+    in machine units. If the difference between commanded and sensed position
+    exceeds this amount, the controller disables servo calculations, sets all
+    the outputs to 0.0, and disables the amplifiers. If MIN_FERROR is present in
+    the .ini file, velocity-proportional following errors are used. Here, the
+    maximum allowable following error is proportional to the speed, with FERROR
+    applying to the rapid rate set by [TRAJ]MAX_VELOCITY, and proportionally
+    smaller following errors for slower speeds. The maximum allowable following
+    error will always be greater than MIN_FERROR. This prevents small following
+    errors for stationary axes from inadvertently aborting motion. Small
+    following errors will always be present due to vibration, etc.
 
 .Homing
 
@@ -1315,7 +1318,7 @@ image::images/encoder-scale.png[align="center"]
 * 'TOOL_CHANGE_AT_G30 = 1' -
     The machine is moved to reference point defined by parameters
     5181-5186 for G30 if the value is 1. For more information see the
-    <<sec:parameters,Parameters Section and the
+    <<gcode:parameters,Parameters Section and the
     <<gcode:g30-g30.1,G30 Section>>.
 
 * 'RANDOM_TOOLCHANGER = 1' -

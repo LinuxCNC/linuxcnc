@@ -87,7 +87,7 @@ if cpu not in supported_cpus:
     sys.exit(1)
 
 if distributor == 'Ubuntu':
-    if release_major < 10:
+    if release_major < 12:
         print "release is too old!"
         sys.exit(1)
 

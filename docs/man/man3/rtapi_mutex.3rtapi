@@ -4,14 +4,13 @@
 rtapi_mutex \- Mutex-related functions
 
 .SH SYNTAX
-.HP
- int rtapi_mutex_try(unsigned long *\fImutex\fR)
-
-.HP
- void rtapi_mutex_get(unsigned long *\fImutex\fR)
-
-.HP
- void rtapi_mutex_give(unsigned long *\fImutex\fR)
+.B #include <rtapi_mutex.h>
+.sp
+.BI "int rtapi_mutex_try(unsigned long *" mutex ");"
+.br
+.BI "int rtapi_mutex_get(unsigned long *" mutex ");"
+.br
+.BI "int rtapi_mutex_give(unsigned long *" mutex ");"
 
 .SH  ARGUMENTS
 .IP \fImutex\fR

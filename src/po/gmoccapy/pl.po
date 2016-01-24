@@ -757,7 +757,7 @@ msgid "Alert Audio"
 msgstr "Dźwięk alarmu"
 
 #: gmoccapy.glade.h:48
-msgid "Apearance"
+msgid "Appearance"
 msgstr "Wygląd"
 
 #: gmoccapy.glade.h:49 ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:2

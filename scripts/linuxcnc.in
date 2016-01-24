@@ -66,9 +66,6 @@ else
 fi
 export PYTHONPATH
 
-PRELOAD_WORKAROUND=@PRELOAD_WORKAROUND@
-
-
 XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
 export XFILESEARCHPATH
 
@@ -102,8 +99,6 @@ Usage:
 EOF
 
 }
-
-
 
 ################################################################################
 # 1.1. strip and process command line options
@@ -249,6 +244,7 @@ export LINUXCNC_HELP_DIR
 export LINUXCNC_LANG_DIR
 export REALTIME
 export HALCMD
+export LINUXCNC_NCFILES_DIR
 
 [ -z $RUNTESTS ] && echo "LINUXCNC - $LINUXCNCVERSION" 
 
@@ -446,8 +442,6 @@ EMCTASK=$retval
 
 if [ "$EMCTASK" = emctask ]; then EMCTASK=linuxcnctask; fi
 
-
-
 # 2.6. we hardcode the server name, change if needed
 # linuxcncsvr now holds/creates all the NML channels,
 # so it needs to start by default, as the first process
@@ -457,7 +451,7 @@ EMCSERVER=linuxcncsvr
 GetFromIniQuiet HALUI HAL
 HALUI=$retval
 
-# 2.9. get display information
+# 2.8. get display information
 GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=`(set -- $retval ; echo $1 )`
 EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
@@ -467,7 +461,7 @@ case $EMCDISPLAY in
     xemc) EMCDISPLAY=xlinuxcnc ;;
 esac
 
-# 2.10. get NML config information
+# 2.9. get NML config information
 GetFromIniEx NML_FILE LINUXCNC NML_FILE EMC @DEFAULT_NMLFILE@
 NMLFILE=$retval
 export NMLFILE
@@ -695,8 +689,7 @@ if ! program_available $EMCSERVER; then
     exit 1
 fi
 export INI_FILE_NAME="$INIFILE"
-$EMCSERVER -ini "$INIFILE" &
-sleep 1
+$EMCSERVER -ini "$INIFILE"
 
 # 4.3.2. Start REALTIME
 echo "Loading Real Time OS, RTAPI, and HAL_LIB modules" >>$PRINT_FILE
@@ -723,7 +716,7 @@ else
         echo "Skipping LinuxCNC IO program >>$PRINT_FILE"
 fi
 
-# 4.3.5.0. Run halui in background, if necessary
+# 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
     echo "Starting HAL User Interface program: $HALUI" >>$PRINT_FILE
     if ! program_available $HALUI ; then
@@ -734,9 +727,11 @@ if [ -n "$HALUI" ] ; then
     $HALCMD loadusr -Wn halui $HALUI -ini "$INIFILE"
 fi
 
+# 4.3.6. execute HALCMD config files (if any)
+
 TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
 if [ -n "$TWOPASS" ] ; then
-  # if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
+  # 4.3.6.1. if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
   CFGFILE=@EMC2_TCL_LIB_DIR@/twopass.tcl
   export PRINT_FILE # twopass can append to PRINT_FILE
   if ! haltcl -i "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
@@ -744,7 +739,7 @@ if [ -n "$TWOPASS" ] ; then
       exit -1
   fi
 else
-    # 4.3.6. execute HALCMD config files (if any)
+    # 4.3.6.2. conventional execution of  HALCMD config files
     # get first config file name from ini file
     NUM=1
     CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
@@ -810,7 +805,17 @@ else
     done
 fi
 
-# 4.3.7. execute discrete HAL commands from ini file (if any)
+# 4.3.7. Run task in background
+echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
+if ! program_available $EMCTASK ; then
+    echo "Can't execute TASK program $EMCTASK"
+    Cleanup
+    exit 1
+fi
+
+halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE" &
+
+# 4.3.8. execute discrete HAL commands from ini file (if any)
 # get first command from ini file
 NUM=1
 HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
@@ -828,29 +833,13 @@ while [ -n "$HALCOMMAND" ] ; do
     HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
 done
 
-# 4.3.8. start the realtime stuff ticking
+# 4.3.9. start the realtime stuff ticking
 $HALCMD start
 
-# 4.3.9. Run task in background
-echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
-if ! program_available $EMCTASK ; then
-    echo "Can't execute TASK program $EMCTASK"
-    Cleanup
-    exit 1
-fi
-
-# setup LD_PRELOAD  if deemed necessary by configure
-unset LD_PRELOAD
-if [ -n "$PRELOAD_WORKAROUND" ] ; then
-	export LD_PRELOAD=$PRELOAD_WORKAROUND
-fi
-
-$EMCTASK -ini "$INIFILE" &
-
-# 4.3.9.1. run other applications
+# 4.3.10. run other applications
 run_applications
 
-# 4.3.10. Run display in foreground
+# 4.3.11. Run display in foreground
 echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
 result=0
 case $EMCDISPLAY in

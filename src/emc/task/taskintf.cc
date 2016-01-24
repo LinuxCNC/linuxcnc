@@ -1282,14 +1282,13 @@ int emcMotionInit()
 
     if (r1 == 0 && r2 == 0 && r3 == 0) {
 	emcmotion_initialized = 1;
-    }
+        if (ini_hal_init()) {
+	    rcs_print("emcMotionInit: ini_hal_init fail, continuing\n");
+        }
 
-    if (ini_hal_init()) {
-	rcs_print("emcMotionInit: ini_hal_init fail\n");
-    }
-
-    if (ini_hal_init_pins()) {
-	rcs_print("emcMotionInit: ini_hal_init_pins fail\n");
+        if (ini_hal_init_pins()) {
+	    rcs_print("emcMotionInit: ini_hal_init_pins fail, continuing\n");
+        }
     }
 
     return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
@@ -1297,7 +1296,7 @@ int emcMotionInit()
 
 int emcMotionHalt()
 {
-    int r1, r2, r3, r4;
+    int r1, r2, r3, r4, r5;
     int t;
 
     r1 = -1;
@@ -1310,9 +1309,10 @@ int emcMotionHalt()
     r2 = emcTrajDisable();
     r3 = emcTrajHalt();
     r4 = emcPositionSave();
+    r5 = ini_hal_exit();
     emcmotion_initialized = 0;
 
-    return (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0) ? 0 : -1;
+    return (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0 && r5 == 0) ? 0 : -1;
 }
 
 int emcMotionAbort()
@@ -1575,3 +1575,9 @@ int emcSetMaxFeedOverride(double maxFeedScale) {
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit) {
+    emcmotCommand.command = EMCMOT_SET_PROBE_ERR_INHIBIT;
+    emcmotCommand.probe_jog_err_inhibit = j_inhibit;
+    emcmotCommand.probe_home_err_inhibit = h_inhibit;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}

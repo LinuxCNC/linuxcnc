@@ -1,0 +1,3 @@
+#!/bin/sh
+# success or failure is dermined by the return value of the test.sh script
+exit 0

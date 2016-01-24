@@ -99,3 +99,8 @@ wealth of information and tips at:
 
 link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
 
+=== Bug Reports
+
+Report bugs to the LinuxCNC 
+link:http:///github.com/LinuxCNC/linuxcnc/issues[github bug tracker].
+

@@ -83,7 +83,16 @@
 #include <rtai_fifos.h>
 
 #include "rtapi.h"		/* public RTAPI decls */
+#include <rtapi_mutex.h>
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
+
+#ifndef RTAI_NR_TRAPS
+#define RTAI_NR_TRAPS HAL_NR_FAULTS
+#endif
+
+#if RTAI <= 3
+#define rt_free_timers rt_free_timer
+#endif
 
 /* resource data unique to kernel space */
 static RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
@@ -253,7 +262,7 @@ void cleanup_module(void)
     }
     if (rtapi_data->timer_running != 0) {
 	stop_rt_timer();
-	rt_free_timer();
+	rt_free_timers();
 	rtapi_data->timer_period = 0;
 	timer_counts = 0;
 	rtapi_data->timer_running = 0;
@@ -398,7 +407,7 @@ static int module_delete(int module_id)
     if (rtapi_data->rt_module_count == 0) {
 	if (rtapi_data->timer_running != 0) {
 	    stop_rt_timer();
-	    rt_free_timer();
+	    rt_free_timers();
 	    rtapi_data->timer_period = 0;
 	    timer_counts = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
@@ -689,7 +698,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     /* request to handle traps in the new task */
     {
     int v;
-    for(v=0; v<HAL_NR_FAULTS; v++)
+    for(v=0; v<RTAI_NR_TRAPS; v++)
         rt_set_task_trap_handler(ostask_array[task_id], v, rtapi_trap_handler);
     }
 
@@ -755,7 +764,7 @@ static int task_delete(int task_id)
     if (rtapi_data->task_count == 0) {
 	if (rtapi_data->timer_running != 0) {
 	    stop_rt_timer();
-	    rt_free_timer();
+	    rt_free_timers();
 	    rtapi_data->timer_period = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
 	    rtapi_data->timer_running = 0;

@@ -14,7 +14,6 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "rtapi_string.h"       /* memset */
 #include "hal.h"		/* decls for HAL implementation */
-#include "emcmotglb.h"
 #include "motion.h"
 #include "motion_debug.h"
 #include "motion_struct.h"
@@ -897,9 +896,9 @@ static int init_comm_buffers(void)
 
     ZERO_EMC_POSE(emcmotStatus->carte_pos_cmd);
     ZERO_EMC_POSE(emcmotStatus->carte_pos_fb);
-    emcmotStatus->vel = VELOCITY;
-    emcmotConfig->limitVel = VELOCITY;
-    emcmotStatus->acc = ACCELERATION;
+    emcmotStatus->vel = 0.0;
+    emcmotConfig->limitVel = 0.0;
+    emcmotStatus->acc = 0.0;
     emcmotStatus->feed_scale = 1.0;
     emcmotStatus->rapid_scale = 1.0;
     emcmotStatus->spindle_scale = 1.0;

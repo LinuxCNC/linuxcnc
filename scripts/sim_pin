@@ -12,18 +12,38 @@ proc usage {} {
   Usage:
          $::SP(progname) name1 \[name2 ...\] &
 
-  Note:  linuxcnc must be running
+  Note:  LinuxCNC (or a standalone Hal application) must be running
          A named item can specify a pin, param, or signal
          The item must be writable, e.g.:
             pin:    IN or I/O (and not connected to a signal)
             param:  RW
             signal: connected to a writable pin
 
+         Hal item types bit,s32,u32,float are supported
+
+         When a bit item is specifed, a pushbutton is created
+         to manage the item in one of three manners specified
+         by radio buttons:
+             toggle: Toggle value when button pressed
+             pulse:  Pulse item to 1 once when button pressed
+             hold:   Set to 1 while button pressed
+         The bit pushbutton mode can be specifed on the command
+         line by formatting the item name:
+             namei/mode=\[toggle | pulse | hold\]
 "
   exit 1
 } ;# usage
 
 proc add_item_to_gui {id itemname} {
+  set l [split $itemname /]
+  set itemname [lindex $l 0]
+  set itemargs [lindex $l 1]
+  if { [string first "mode=" "$itemargs"] == 0} {
+    set ::SP($id,mode) [string tolower [lindex [split $itemargs =] 1]]
+  } else {
+    set ::SP($id,mode) "default"
+  }
+
   set ::SP($id,itemname) $itemname
   if ![item_info $itemname $id] {
     puts "$::SP(message)"
@@ -51,8 +71,8 @@ proc add_item_to_gui {id itemname} {
   switch $::SP($id,itemtype) {
     bit   {add_bit_item_to_gui $f $id}
     s32 -
-    u32 -
-    float {add_number_item_to_gui $f $id}
+    u32   {add_number_item_to_gui $f $id 1}
+    float {add_number_item_to_gui $f $id 0}
     default {return -code error \
         "add_item_to_gui: unexpected itemtype <$::SP($id,itemtype)>"
     }
@@ -61,46 +81,57 @@ proc add_item_to_gui {id itemname} {
 } ;# add_item_to_gui
 
 proc add_bit_item_to_gui {f id} {
-  set ::SP($id,mode) "Toggle"
+  switch $::SP($id,mode) {
+    pulse   -
+    hold    -
+    toggle  {}
+    default {
+      if {"$::SP($id,mode)" != "default"} {
+        puts "$::SP($id,itemname): unknown </mode=$::SP($id,mode)>,\
+              using /mode=$::SP(bit,mode,default)"
+      }
+      set ::SP($id,mode) $::SP(bit,mode,default)
+    }
+  }
   set value [get_item $id]
   set color lightgray
   if $value {set color magenta}
   pack [label $f.b \
-       -text "$::SP($id,mode)" \
+       -text "$::SP($::SP($id,mode),text)" \
        -borderwidth 4 -relief raised ] \
        -fill x -expand 1
   set ::SP($id,button) $f.b
   bind $::SP($id,button) <ButtonRelease-1> [list b_release $id]
   bind $::SP($id,button) <ButtonPress-1>   [list b_press   $id]
 
-  set ::SP(ivalue,$id) "$value"
+  set ::SP($id,ivalue) "$value"
   pack [label $f.l -bg $color -fg black \
-       -text "$::SP(iprefix)$::SP(ivalue,$id) $::SP(prefix)$value"] \
+       -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"] \
        -fill x -expand 1
   set ::SP($id,label) $f.l
 
   pack [radiobutton $f.p -text OnePulse \
        -anchor w \
-       -value "Pulse" \
+       -value "pulse" \
        -command [list bit_mode $id] \
        -variable ::SP($id,mode)] \
        -fill x -expand 0
   pack [radiobutton $f.t -text ToggleValue \
        -anchor w \
-       -value "Toggle" \
+       -value "toggle" \
        -command [list bit_mode $id] \
        -variable ::SP($id,mode)] \
        -fill x -expand 0
   pack [radiobutton $f.h -text "1 WhilePressed" \
        -anchor w \
-       -value "Hold" \
+       -value "hold" \
        -command [list bit_mode $id] \
        -variable ::SP($id,mode)] \
        -fill x -expand 0
    pack $f -side top -fill x -expand 0
 } ;# add_bit_item_to_gui
 
-proc add_number_item_to_gui {f id} {
+proc add_number_item_to_gui {f id enable_plusminus} {
   set value [get_item $id]
   set color lightgray
   pack [frame $f.one] -fill x -expand 1
@@ -109,6 +140,21 @@ proc add_number_item_to_gui {f id} {
        -relief raised -bd 3 \
        -command [list b_press $id] ]\
        -side left -fill x -expand 1
+
+  if $enable_plusminus {
+    pack [button $f.one.p  -bg $color -fg black \
+       -text "+" \
+       -relief raised -bd 3 \
+       -command [list plus_number_item $id] ]\
+       -side left -fill x -expand 1
+
+    pack [button $f.one.m  -bg $color -fg black \
+       -text "-" \
+       -relief raised -bd 3 \
+       -command [list minus_number_item $id] ]\
+       -side left -fill x -expand 1
+  }
+
   pack [button $f.one.r  -bg $color -fg black \
        -text "Reset" \
        -relief raised -bd 3 \
@@ -120,10 +166,10 @@ proc add_number_item_to_gui {f id} {
   pack $e -fill x -expand 0
   bind $e <Return> [list b_press $id]
 
-  set ::SP(ivalue,$id) "$value"
+  set ::SP($id,ivalue) "$value"
   pack [label $f.l -bg $color -fg black \
        -anchor w \
-       -text "$::SP(iprefix)$::SP(ivalue,$id) $::SP(prefix)$value"] \
+       -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"] \
        -fill x -expand 1
   set ::SP($id,label) $f.l
   pack $f -side top -fill x -expand 0
@@ -283,9 +329,10 @@ proc item_info {itemname id} {
 
 proc bit_mode {id} {
   switch $::SP($id,mode) {
-    Pulse  {$::SP($id,button) config -text Pulse}
-    Toggle {$::SP($id,button) config -text Toggle}
-    Hold   {$::SP($id,button) config -text "1 while pressed"}
+    pulse   {$::SP($id,button) config -text Pulse}
+    hold    {$::SP($id,button) config -text "1 while pressed"}
+    toggle  -
+    default {$::SP($id,button) config -text Toggle}
   }
 } ;# bit_mode
 
@@ -312,22 +359,22 @@ proc item_unset {id} {
   set color lightgray
   if $value {set color magenta}
   $::SP($id,label) configure -bg $color -fg black \
-       -text "$::SP(iprefix)$::SP(ivalue,$id) $::SP(prefix)$value"
+       -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"
 } ;# item_unset
 
 proc item_show {id} {
   set value [get_item $id]
   set color lightgray
-  if {$value != $::SP(ivalue,$id)}  {set color magenta}
+  if {$value != $::SP($id,ivalue)}  {set color magenta}
   switch $::SP($id,itemtype) {
     bit {
           $::SP($id,label) configure -bg $color \
-       -text "$::SP(iprefix)$::SP(ivalue,$id) $::SP(prefix)$value"
+       -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"
     }
     s32 - \
     u32 - \
     float {$::SP($id,label) configure -bg $color -fg black \
-       -text "$::SP(iprefix)$::SP(ivalue,$id) $::SP(prefix)$value"
+       -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"
     }
   }
 } ;# item_show
@@ -336,14 +383,14 @@ proc b_press {id} {
   set value [get_item $id]
   switch $::SP($id,itemtype) {
     bit {switch $::SP($id,mode) {
-          "Hold"   {item_set $id}
-          "Toggle" {   if $value {
+          "hold"   {item_set $id}
+          "toggle" {   if $value {
                          item_unset $id
                        } else {
                          item_set $id
                        }
                    }
-          "Pulse"  {item_set $id; after $::SP(pulse,ms) [list b_release $id]}
+          "pulse"  {item_set $id; after $::SP(pulse,ms) [list b_release $id]}
           }
         }
     s32 - \
@@ -378,15 +425,23 @@ proc b_press {id} {
 
 proc b_release {id} {
   switch $::SP($id,mode) {
-    "Hold"   {item_unset $id}
-    "Toggle" {}
-    "Pulse"  {item_unset $id}
+    "hold"   {item_unset $id}
+    "toggle" {}
+    "pulse"  {item_unset $id}
   }
 } ;# b_release
 
 proc reset_number_item {id} {
-  item_set $id $::SP(ivalue,$id)
+  item_set $id $::SP($id,ivalue)
 } ;# reset_number_item
+
+proc plus_number_item {id} {
+  item_set $id [expr 1 + [get_item $id]]
+} ;# plus_number_item
+
+proc minus_number_item {id} {
+  item_set $id [expr -1 + [get_item $id]]
+} ;# minus_number_item
 
 proc get_item {id} {
   set value [hal $::SP($id,get_cmd) $::SP($id,itemname)]
@@ -446,6 +501,12 @@ if [catch {
     set ::SP(progname) [file tail $::argv0]
     set ::SP(update,ms) 300
     if {$::argv == ""} {usage}
+
+    set ::SP(bit,mode,default) toggle
+    # button text for bit item modes:
+    set ::SP(pulse,text)  "Pulse"
+    set ::SP(hold,text)   "1 while Pressed"
+    set ::SP(toggle,text) "Toggle"
 
     set ::SP(id) 0
     set ::SP(vframe,column) 0

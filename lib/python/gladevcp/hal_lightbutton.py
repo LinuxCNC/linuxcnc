@@ -49,6 +49,9 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
     __gproperties__ = {
         'has_hal_pins' : ( gobject.TYPE_BOOLEAN, 'Has HAL pins', 'Set false if this button will not be controlled using HAL',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'is_momentary' : ( gobject.TYPE_BOOLEAN, 'Is momentary',
+                        'Set True if this button will be momentary rather then toggle',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'button_halio_pin' : ( gobject.TYPE_BOOLEAN, 'Button pin is HAL_IO', 'If HAL_IO, pin is set true on button press; if HAL_OUT, pin state is toggled by button press',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'create_enable_pin' : ( gobject.TYPE_BOOLEAN, 'Create enable pin', 'Creates an enable pin which enables the button if True, and disables when False',
@@ -123,6 +126,7 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
                        | gtk.gdk.ENTER_NOTIFY_MASK
                        | gtk.gdk.LEAVE_NOTIFY_MASK
                        | gtk.gdk.BUTTON_PRESS_MASK
+                       | gtk.gdk.BUTTON_RELEASE_MASK
                        | gtk.gdk.POINTER_MOTION_MASK
                        | gtk.gdk.POINTER_MOTION_HINT_MASK)
  
@@ -140,21 +144,50 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         
     def do_button_press_event(self, event):
         if event.button == 1:
+            if self.is_momentary:
+                active = True
+            else:
+                active = not self.active
+
             if (self.has_hal_pins):
                 if (self.button_halio_pin):
                     self.set_active(True)
-                    self.button_pin.set(True)
+                    try:
+                        self.button_pin.set(True)
+                    except:
+                        pass
                 else:
-                    active = not self.active
                     self.set_active(active)
-                    self.button_pin.set(active)
-                    self.button_pin_not.set(not active)
+                    try:
+                        self.button_pin.set(active)
+                        self.button_pin_not.set(not active)
+                    except:
+                        pass
+
             else:
-                active = not self.active
                 self.set_active(active)
 
             self.emit("clicked", self)
         return True
+
+    def do_button_release_event(self, event):
+        if event.button == 1:
+            if not self.is_momentary:
+                return True
+            if (self.has_hal_pins):
+                    self.set_active(False)
+                    try:
+                        self.button_pin.set(False)
+                        self.button_pin_not.set(True)
+                    except:
+                        pass
+
+            else:
+                self.set_active(False)
+
+            self.emit("clicked", self)
+        return True
+
 
     def expose(self, widget, event):
         if (self.flags() & gtk.PARENT_SENSITIVE) and (self.flags() & gtk.SENSITIVE):

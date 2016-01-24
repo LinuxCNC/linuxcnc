@@ -862,11 +862,14 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
     ERS(NCE_BUG_DISTANCE_MODE_NOT_G90_OR_G91);
   CHKS((r < cc), NCE_R_LESS_THAN_Z_IN_CYCLE_IN_XY_PLANE);
 
+  // First motion of a canned cycle (maybe): if we're below the R plane,
+  // rapid straight up to the R plane.
   if (old_cc < r) {
     STRAIGHT_TRAVERSE(block->line_number, settings->current_x, settings->current_y, r,
                       settings->AA_current, settings->BB_current, settings->CC_current, 
                       settings->u_current, settings->v_current, settings->w_current);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
@@ -1037,6 +1040,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current, 
                       settings->u_current, settings->v_current, r);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
@@ -1253,6 +1257,7 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, settings->v_current, settings->w_current);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
@@ -1421,6 +1426,7 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       r, settings->v_current, settings->w_current);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
@@ -1646,6 +1652,7 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, settings->v_current, settings->w_current);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
@@ -1813,6 +1820,7 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, r, settings->w_current);
     old_cc = r;
+    current_cc = old_cc;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 

@@ -16,7 +16,6 @@
 #include "posemath.h"
 #include "rtapi.h"
 #include "hal.h"
-#include "emcmotglb.h"
 #include "motion.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
@@ -403,6 +402,10 @@ static void process_probe_inputs(void) {
 	    SET_MOTION_ERROR_FLAG(1);
         }
 
+        // When using same input for probe and Z home (some plasma systems),
+        // we don't want probe errors when homing.
+        // We also may not want the error while jogging
+        
         for(i=0; i<num_joints; i++) {
             emcmot_joint_t *joint = &joints[i];
 
@@ -411,21 +414,26 @@ static void process_probe_inputs(void) {
                 continue;
             }
 
-            // abort any homing
-            if(GET_JOINT_HOMING_FLAG(joint)) {
-                joint->home_state = HOME_ABORT;
-                aborted=1;
+            // inhibit_probe_home_error is set by [TRAJ]->NO_PROBE_HOME_ERROR in the ini file
+            if (!emcmotConfig->inhibit_probe_home_error) {
+                // abort any homing
+                if(GET_JOINT_HOMING_FLAG(joint)) {
+                    joint->home_state = HOME_ABORT;
+                    joint->free_tp_enable = 0;
+                    aborted=1;
+                }
             }
 
-            // abort any jogs
-            if(joint->free_tp_enable == 1) {
-                joint->free_tp_enable = 0;
-                // since homing uses free_tp, this protection of aborted
-                // is needed so the user gets the correct error.
-                if(!aborted) aborted=2;
+            // inhibit_probe_jog_error is set by [TRAJ]->NO_PROBE_JOG_ERROR in the ini file
+            if (!emcmotConfig->inhibit_probe_jog_error) {
+                // abort any jogs - since homing uses free_tp, make sure we are not homing
+                if((joint->free_tp_enable == 1) && !GET_JOINT_HOMING_FLAG(joint)) {
+                    joint->free_tp_enable = 0;
+                    aborted=2;
+                }
             }
         }
-
+    
         if(aborted == 1) {
             reportError(_("Probe tripped during homing motion."));
         }

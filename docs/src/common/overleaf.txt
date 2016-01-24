@@ -16,3 +16,10 @@ LINUX® is the registered trademark of Linus Torvalds in the U.S. and other
 countries.  The registered trademark Linux® is used pursuant to a sublicense
 from LMI, the exclusive licensee of Linus Torvalds, owner of the mark on a
 world-wide basis.
+
+The LinuxCNC project is not affiliated with Debian®.
+_Debian_ is a registered trademark owned by Software in the Public Interest,
+Inc.
+
+The LinuxCNC project is not affiliated with UBUNTU®.
+_UBUNTU_ is a registered trademark owned by Canonical Limited.

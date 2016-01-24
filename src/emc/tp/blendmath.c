@@ -1651,9 +1651,10 @@ double pmCircleActualMaxVel(PmCircle * const circle,
  * Intermediate function to find the angle for a parameter from 0..1 along the
  * spiral arc.
  */
-static double pmCircleAngleFromParam(PmCircle const * const circle,
+static int pmCircleAngleFromParam(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
-        double t)
+        double t,
+        double * const angle)
 {
     if (fit->spiral_in) {
         t = 1.0 - t;
@@ -1662,19 +1663,33 @@ static double pmCircleAngleFromParam(PmCircle const * const circle,
     double s_in = t * fit->total_planar_length;
 
     // Quadratic formula to invert arc length -> angle
-    double angle_out;
-    double disc = 4.0 * fit->b0 * s_in + pmSq(fit->b1);
-    //FIXME bigger than POS_EPSILON to smooth out acceleration on near-circular cases
-    const double MIN_FIT_COEF = 1e-10;
 
-    if (fabs(fit->b0) > MIN_FIT_COEF && disc > TP_POS_EPSILON) {
-        //Know that discriminant is positive and divisor is large enough not to
-        //cause numerical errors
-        angle_out = (pmSqrt(disc) - fit->b1) / (2.0 * fit->b0);
-    } else {
-        //Circle case, don't need a fit
-        angle_out = s_in / circle->radius;
+    double A = fit->b0;
+    double B = fit->b1;
+    double C = -s_in;
+
+    double disc = pmSq(B) - 4.0 * A * C ;
+    if (disc < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "discriminant %f is negative in angle calculation\n",disc);
+        return TP_ERR_FAIL;
     }
+
+    /*
+     * Stability of inverting the arc-length relationship.
+     * Since the b1 coefficient is analogous to arc radius, we can be
+     * reasonably assured that it will be large enough not to cause numerical
+     * errors. If this is not the case, then the arc itself is degenerate (very
+     * small radius), and this condition should be caught well before here.
+     *
+     * Since an arc with a very small spiral coefficient will have a small b0
+     * coefficient in the fit, we use the Citardauq Formula to ensure that the
+     * positive root does not lose precision due to subtracting near-similar values.
+     *
+     * For more information, see:
+     * http://people.csail.mit.edu/bkph/articles/Quadratics.pdf
+     */
+
+    double angle_out = (2.0 * C) / ( -B - pmSqrt(disc));
 
     if (fit->spiral_in) {
         // Spiral fit assumes that we're spiraling out, so
@@ -1682,7 +1697,8 @@ static double pmCircleAngleFromParam(PmCircle const * const circle,
         angle_out = circle->angle - angle_out;
     }
 
-    return angle_out;
+    *angle = angle_out;
+    return TP_ERR_OK;
 }
 
 
@@ -1747,18 +1763,22 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
     printSpiralArcLengthFit(fit);
 
     // Check against start and end angle
-    double angle_end_chk = pmCircleAngleFromParam(circle, fit, 1.0);
-    /*double scale_correction = circle->angle / angle_end_chk;*/
+    double angle_end_chk = 0.0;
+    int res_angle = pmCircleAngleFromParam(circle, fit, 1.0, &angle_end_chk);
+    if (res_angle != TP_ERR_OK) {
+        //TODO better error message
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "Spiral fit failed\n");
+        return TP_ERR_FAIL;
+    }
 
-    /*fit->b0 *= scale_correction;*/
-    /*fit->b1 *= scale_correction;*/
-
-    angle_end_chk = pmCircleAngleFromParam(circle, fit, 1.0);
+    // Check fit against angle
     double fit_err = angle_end_chk - circle->angle;
-
     if (fabs(fit_err) > TP_ANGLE_EPSILON) {
-        tp_debug_print("Spiral fit check: fit_err = %e\n",
-                fit_err);
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "Spiral fit angle difference is %e, maximum allowed is %e\n",
+                fit_err,
+                TP_ANGLE_EPSILON);
         return TP_ERR_FAIL;
     }
 
@@ -1770,35 +1790,17 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
  * Compute the angle around a circular segment from the total progress along
  * the curve.
  */
-double pmCircleAngleFromProgress(PmCircle const * const circle,
+int pmCircleAngleFromProgress(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
-        double progress)
+        double progress,
+        double * const angle)
 {
     double h2;
     pmCartMagSq(&circle->rHelix, &h2);
     double s_end = pmSqrt(pmSq(fit->total_planar_length) + h2);
     // Parameterize by total progress along helix
     double t = progress / s_end;
-    return pmCircleAngleFromParam(circle, fit, t);
-
-}
-
-
-/**
- * compute the total arc length of a circle segment.
- * Deprecated since adding the fit to PmCircle9
- */
-double pmCircleLength(PmCircle const * const circle)
-{
-
-    SpiralArcLengthFit fit;
-    //TODO store in circle init rather than recalculating each time
-    findSpiralArcLengthFit(circle, &fit);
-    double h2;
-    pmCartMagSq(&circle->rHelix, &h2);
-    double helical_length = pmSqrt(pmSq(fit.total_planar_length) + h2);
-
-    return helical_length;
+    return pmCircleAngleFromParam(circle, fit, t, angle);
 }
 
 

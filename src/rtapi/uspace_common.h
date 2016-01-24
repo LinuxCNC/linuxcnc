@@ -20,7 +20,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <rtapi_errno.h>
-
+#include <rtapi_mutex.h>
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 #include <sys/ipc.h>		/* IPC_* */
@@ -65,7 +65,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   /* now get shared memory block from OS */
   shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0666);
   if (shmem->id == -1) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget()\n");
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget(key=0x%08x): %s\n", key, strerror(errno));
     return -errno;
   }
 
@@ -234,16 +234,8 @@ long long rtapi_get_time(void) {
     return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
-#ifdef MSR_H_USABLE
-#include <asm/msr.h>
-#elif defined(__i386__)
-#define rdtscll(val) \
-         __asm__ __volatile__("rdtsc" : "=A" (val))
-#elif defined(__amd64__)
-#define rdtscll(val) \
-    ({ unsigned int eax, edx; \
-         __asm__ __volatile__("rdtsc" : "=a" (eax), "=d" (edx));  \
-        val = ((unsigned long)eax) | (((unsigned long)edx) << 32); })
+#if defined(__i386) || defined(__amd64)
+#define rdtscll(val) ((val) = __builtin_ia32_rdtsc())
 #else
 #define rdtscll(val) ((val) = rtapi_get_time())
 #endif
@@ -257,7 +249,7 @@ long long rtapi_get_clocks(void)
 }
 
 typedef struct {
-    unsigned long mutex;
+    rtapi_mutex_t mutex;
     int           uuid;
 } uuid_data_t;
 

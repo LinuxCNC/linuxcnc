@@ -1,3 +1,122 @@
+linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
+
+  * Upcoming release, any year now!  Watch this space!
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
+
+linuxcnc (1:2.7.3) unstable; urgency=medium
+
+  * docs: update install instructions for glade
+  * docs: correct description of m19 feedback requirements
+  * docs: clarify some pins in the halui manpage
+  * docs: fix link to the giteveryday(1) manpage
+  * docs: combine jog wheel information to one place
+  * docs: minor changes to gmoccapy documentation
+  * docs: fix links in Gcode Quick Reference (English and French)
+
+  * gmoccapy: document updates and deleted some pin
+  * halui: fix some jogging bugs
+  * halui: fix a copy-paste error that could prevent homing
+  * tooledit_widget.py: tool diameter sorting fix
+
+  * hal: don't segfault if rtapi_init() fails
+  * rtapi: error messages are better than errno numbers
+  * tp: purge old circle length function
+  * tp: overhaul spiral fit computation to use more numerically stable quadratic formula
+  * tp: fix for arc-arc coplanar check
+  * bugfix:  Start line and remap interaction
+  * interp: it's nonsense to take a boost::cref(this)
+  * build system: verify links in the Gcode Quick Reference documents
+
+  * linuxcnc launch script: export LINUXCNC_NCFILES_DIR
+  * rip-environment: export LINUXCNC_VERSION
+
+  * halui/jogging test: change which joint is selected while jogging
+  * tests: test homing in halui/jogging
+  * tests: add a motion-logger test of a remap bug
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 29 Nov 2015 12:51:49 -0700
+
+linuxcnc (1:2.7.2) unstable; urgency=low
+
+  * docs: improve parport docs
+
+  * hm2_7i90 manpage: clarify firmware management
+  * hm2_7i90 manpage: remove incorrect EPP info
+
+  * interp: fix an old bug in canned cycle preliminary & in-between moves
+
+  * sample configs: fix homing in sim/axis/halui_pyvcp
+  * sample configs: fix homing in sim/axis/classicladder
+
+  * realtime script: wait for the last rtapi_app to die when stopping realtime
+  * tests: add an interpreter test of G81
+  * tests: add motion-logger, a debugging tool
+  * motion: motion_debug.h needs to include motion.h
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 01 Nov 2015 10:07:24 -0700
+
+linuxcnc (1:2.7.1) wheezy; urgency=low
+
+  * docs: correct and expand description of #<_coord_system>
+  * docs: clarify "Updating from 2.6 to 2.7"
+  * docs: fix misc markup issues, typos, and minor issues
+  * docs: add more information about parallel ports
+  * docs: remove duplicate include
+  * docs: clarify dmesg info in Linux FAQ
+  * docs: update the desktop menus
+  * docs: add info on using % to wrap G-code files
+  * docs: update code notes on M61
+  * docs: add link to upgrade page from 2.5 to 2.6
+  * docs: show complete ini entry names for homing
+  * docs: fix display of terminal commands in pdf viewers
+  * docs: clarify G2 and G3 with R and P
+  * docs: document hal alias APIs with manpages
+  * docs: hostmot2 manpage fixes
+  * docs: update checksums for new Wheezy image containing 2.7.0
+
+  * gmoccapy: fix single stepping bug
+  * gmoccapy: bug in tool info handling with tool number being "-1"
+  * gmoccapy: bug in handling tool info with tool being "-1"
+  * update copyright dates for AXIS and Touchy
+  * gremlin: improve ini file find
+  * ngcgui: improve ini file find
+  * ngcgui: fix fullscreen regression
+
+  * pncconf: fix spindle control signals
+  * pncconf: fix spindle control error
+  * pncconf: fix HAL file - VFD always being selected
+
+  * hm2_eth: don't just crash when packets get lost
+
+  * toggle2nist: does not require floating-point
+
+  * xhc-hb04: honor mpg_accels for all manual_mode jogs
+  * xhc-hb04: fix output scaling
+  * xhc_hb04: update man page text
+  * xhc-hb04: support twopass usage
+
+  * hy-vfd: set P144 correctly
+  * gs2 vfd: add support for configs that power off the VFD on E-stop
+
+  * fix bug #439, non-NCD arcs on machines with ABCUVW axes
+  * motion: set the "In Position" emcmot status flag when aborting
+
+  * add option to disable line number reset in hal_sourceview when idle
+  * build system: make the git scripts more user friendly
+  * tp: fix warning: function declaration isn't a prototype
+  * uspace_rtapi_app: clean up on failed "realtime" module load
+  * task: fix a compile warning (heartbeat is unsigned long)
+  * io: "no tool" is spelled "0", not "-1"
+  * io: fix HAL pins on "M61 Q0"
+  * hal_lib: actually export hal_xxx_alias
+
+  * tests: add a lathe test
+  * tests: add another loadrt test
+  * tests: add "spindle unloading" to m61 test
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 17 Oct 2015 21:07:44 -0600
+
 linuxcnc (1:2.7.0) wheezy; urgency=low
 
   * docs: add jessie rtpreempt install instructions
@@ -401,6 +520,70 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
   * Other things!
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
+
+linuxcnc (1:2.6.12) unstable; urgency=low
+
+  * docs: add more github info to Contributing to LinuxCNC
+  * docs: improve G43.1 info
+  * docs: acknowledge Debian and UBUNTU trademarks
+  * docs: fix incorrect GladeVCP example syntax and typo
+  * docs: fix manpage markup bug in rtapi_app_{main,exit}.3rtapi
+  * docs: gladevcp - describe the new iconview signal "sensitive"
+  * docs: restore line numbers in example G-code
+  * docs: clarify some pins in the halui manpage
+  * docs: fix M70-M73 links in French Gcode Quick Reference
+  * docs: fix link to the giteveryday(1) manpage
+  * docs: describe gmoccapy Show Aux Display feature
+  * docs: document gmoccapy updates and deleted some pin
+
+  * mini.tcl: remove duplicate geo mgmt of widget
+  * keystick: fix signal handler a second time
+  * gladevcp: iconview could create exception in some circumstances
+  * gmoccapy: stay syncronized with iconview widget button states
+  * gladevcp/offset_widget: fix rare error of non-existant var file
+  * gscreen: fix industrial skin's A axis DRO readout
+  * tooledit_widget.py: tool diameter sorting fix
+  * halui: fix some jogging bugs
+  * halui: fix a copy-paste error that could prevent homing
+  * serport: fix pin-1-in-not
+
+  * task: fix start-from-line and remap interaction
+  * interp: it's nonsense to take a boost::cref(this)
+  * emcmodule: fix argument parsing
+  * rtapi/sim: better error reporting
+  * rtapi: error messages are better than errno numbers
+  * hal: don't segfault if rtapi_init() fails
+  * realtime script: wait for rtapi_app to die when stopping realtime
+
+  * halui/jogging test: change which joint is selected while jogging
+  * tests: test homing in halui/jogging
+  * tests: add a motion-logger test of a remap bug
+  * packaging: use "set -e" to fail on error in the postinst script
+  * buildbot: dont try to build on Jessie RTAI
+  * build: verify links in the gcode Quick Reference (English & French)
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 10 Jan 2016 10:07:09 -0700
+
+linuxcnc (1:2.6.11) UNRELEASED; urgency=low
+
+  * docs: update code notes on M61
+
+  * hm2_7i90 manpage: clarify firmware management
+  * hm2_7i90 manpage: remove incorrect EPP info
+
+  * gmoccapy: bug in tool info handling with tool number being "-1"
+
+  * interp: fix an old bug in canned cycle preliminary & in-between moves
+
+  * io: "no tool" is spelled "0", not "-1"
+  * io: fix HAL pins on "M61 Q0"
+
+  * tests: add an interpreter test of G81
+  * tests: add spindle unloading to m61 test
+  * add motion-logger, a debugging tool
+  * motion: motion_debug.h needs to include motion.h
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 01 Nov 2015 10:16:51 -0700
 
 linuxcnc (1:2.6.10) wheezy; urgency=low
 

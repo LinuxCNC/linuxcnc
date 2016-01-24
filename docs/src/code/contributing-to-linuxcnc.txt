@@ -22,11 +22,7 @@ The two main ways that project developers communicate with each other are:
 
 == The LinuxCNC Source Forge project
 
-We use Source Forge for mailing lists and bug tracking.
-
-Our SF mailing lists are here: http://sourceforge.net/p/emc/mailman/
-
-Our SF bug tracker is here: http://sourceforge.net/p/emc/bugs/
+We use Source Forge for mailing lists: http://sourceforge.net/p/emc/mailman/
 
 
 == The git Revision Control System
@@ -38,11 +34,11 @@ git footnote:[http://git-scm.com/].
 
 The official LinuxCNC git repo is at http://git.linuxcnc.org.
 
-The anonymous clone command is:
+Anyone can get a read-only copy of the LinuxCNC source tree via git:
 
 `git clone git://git.linuxcnc.org/git/linuxcnc.git linuxcnc-dev`
 
-If you are a registered developer with push access, the ssh clone
+If you are a developer with push access, the ssh clone
 command is:
 
 `git clone ssh://$YOU@git.linuxcnc.org/git/linuxcnc.git linuxcnc-dev`
@@ -56,7 +52,14 @@ git repo there too is confusing.
 === LinuxCNC on github
 
 There is a regularly updated git clone on github:
-https://github.com/jepler/linuxcnc-mirror
+https://github.com/LinuxCNC/linuxcnc
+
+Issues and pull requests are welcome there.
+https://github.com/LinuxCNC/linuxcnc/issues
+https://github.com/LinuxCNC/linuxcnc/pulls
+
+The old sourceforge bug tracker continues to exist in read-only mode:
+http://sourceforge.net/p/emc/bugs/
 
 You can submit pull requests here.
 
@@ -98,7 +101,7 @@ follow-on documentation are also available online here:
   https://www.kernel.org/pub/software/scm/git/docs/gittutorial-2.html
 
 * Everyday git with 20 commands or so:
-  https://www.kernel.org/pub/software/scm/git/docs/everyday.html
+  https://www.kernel.org/pub/software/scm/git/docs/giteveryday.html
 
 * Git User's Manual:
   https://www.kernel.org/pub/software/scm/git/docs/user-manual.html
@@ -120,17 +123,26 @@ like this:
 
 * Clone the git repo
 
-* Commit the changes you desire to a local branch
+* Make your changes in a local branch, making sure you "sign off" your commits
+  according to our signed-off-by policy (see below).
 
-* Share your changes with the other project developers in one of two ways:
+* Adding documentation and tests is an important part of adding a new
+  feature.  Otherwise, others won't know how to use your feature, and
+  if other changes break your feature it can go unnoticed without a test.
+
+* Share your changes with the other project developers in one of these ways:
+
+** Push your branch to github and create a github pull request to
+   https://github.com/linuxcnc/linuxcnc (this requires a github account)
 
 ** Push your branch to a publicly visible git repo (such as github,
-   bitbucket, your own publicly-accessible server, etc), or
+   bitbucket, your own publicly-accessible server, etc) and share that
+   location on the emc-developers mailing list, or
 
-** Email your commits to the emc-developers mailing list (using `git
-   format-patch`)
+** Email your commits to the emc-developers mailing list (use `git
+   format-patch` to create the patches)
 
-* Champion your patch
+* Advocate for your patch
 
 ** Explain what problem it addresses and why it should be included
    in LinuxCNC

@@ -23,6 +23,9 @@ o<xyz> sub
        #<z0> = #<zmin>
        #<z1> = #<zmax>
 
+       (debug, feature:   #<_feature:>)
+       (debug, remaining: #<_remaining_features:>)
+
        f #<feedrate>
        g1 x #<x0> y #<y0> z #<z0>
 

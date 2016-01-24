@@ -33,6 +33,8 @@ MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 # used for building
 RTDIR     = @RTDIR@
 RTARCH    = @RTARCH@
+ULAPI_CFLAGS = @ULAPI_CFLAGS@
+ULAPI_LDFLAGS = @ULAPI_LDFLAGS@
 
 # Standard configure directories
 # do we really need these?
@@ -70,7 +72,6 @@ tcldir = ${prefix}/lib/tcltk/linuxcnc
 # /Standard configure directories
 
 RUN_IN_PLACE = @RUN_IN_PLACE@
-RTNAME = @RTNAME@
 RTPREFIX = @RTPREFIX@
 RTAI = @RTAI@
 RTFLAGS = @RTFLAGS@ @EXT_RTFLAGS@
@@ -221,7 +222,6 @@ CONFIG_OPTO_AC5=m
 CONFIG_HAL_GM=m
 
 
-BUILD_PYTHON=@BUILD_PYTHON@
 INCLUDEPY=@INCLUDEPY@
 LIBPYTHON=@LIBPYTHON@
 BOOST_PYTHON_LIBS=@BOOST_PYTHON_LIBS@

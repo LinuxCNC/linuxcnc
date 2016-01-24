@@ -212,18 +212,16 @@ handled in more detail in the
 [[gladevcp:prerequisites]]
 
 === Prerequisite: Glade installation
-To view or modify Glade UI files, you need glade installed - it is not
-needed just to run a GladeVCP panel. If the glade command is missing,
-install it with the command:
+To view or modify Glade UI files, you need glade 3.8.0 installed - it is not
+needed just to run a GladeVCP panel. If the glade command is missing, install
+it with the command:
 
- $ sudo apt-get install glade
+ $ sudo apt-get install glade-gtk2
 
-Verify the version number to be greater than 3.6.7:
+Verify the version number to be 3.8.0 or less
 
- $ glade --version
- glade3 3.6.7
-
-(On recent systems, the required glade package is glade-gtk2)
+ $ glade-gtk2 --version
+glade3 3.8.0
 
 === Running Glade to create a new user interface
 This section just outlines the initial LinuxCNC-specific steps. For more
@@ -1303,8 +1301,9 @@ metric_units::
     Used to toggle the display units between metric and imperial.
 
 auto_units::
-    Units will toggle between metric and imperial according to the
-    active gcode being G20 or G21
+    Units will toggle between metric and imperial according to the 
+    active gcode being G20 or G21 +
+    default is TRUE
 
 diameter::
     Whether to display position as diameter or radius, in diameter mode
@@ -1343,11 +1342,16 @@ font_size::
     the value must be an integer in the range of 8 to 96, +
     default is 25
 
+toggle_readout::
+    A left mouse click will toggle the DRO readout through the differnt modes ["Rel", "Abs", "DTG"]. +
+    By unchecking the box you can disable that behavior. The toogling can still be done with [widget name].toggle_readout() +
+    Value must be bool +    
+    default is TRUE
+
 Direct program control::
+    Using gobject to set the above listed properties:
 
-Using goobject to set the above listed properties:
-
-    [widget name].set_property(property,value)
+    [widget name].set_property(property, value)
 
 There are several python methods to control the widget:
 
@@ -1535,6 +1539,11 @@ The widget will emit the following signals:
     selected
         This signal is emitted, when the user selects an icon, it will return a string containing a
         file path if a file has been selected, or None if an directory has been selected
+    sensitive
+        This signal is emitted, when the buttons change there state from sensitive to not sensitive or vice versa. 
+        This signal is usefull to mantain surrounding GUI synconized with the button of the widget. See gmoccapy as example.
+        It will return the buttonname and the new state. Buttonname is one of "btn_home", "btn_dir_up", "btn_sel_prev",
+        "btn_sel_next", "btn_jump_to" or "btn_select". State is a boolean and will be True or False.
     exit
         This signal is Emmit, when the exit button has been pressed to close the IconView
         mostly needed if the application is started as stand alone.

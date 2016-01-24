@@ -295,6 +295,7 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
             alloc = self.get_allocation()
             self.queue_draw_area(alloc.x, alloc.y, alloc.width, alloc.height)
             self.window.process_updates(True)
+            self.queue_draw()
 
     # Get propertys
     def do_get_property(self, property):

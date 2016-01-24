@@ -1,0 +1,60 @@
+component sim_matrix_kb "convert HAL pin inputs to keycodes";
+
+pin out u32 out "pin that outputs the Keycode";
+
+pin in bit button.c00.r##[8] "array of  inputs";
+pin in bit button.c01.r##[8] "array of  inputs";
+pin in bit button.c02.r##[8] "array of  inputs";
+pin in bit button.c03.r##[8] "array of  inputs";
+pin in bit button.c04.r##[8] "array of  inputs";
+pin in bit button.c05.r##[8] "array of  inputs";
+pin in bit button.c06.r##[8] "array of  inputs";
+pin in bit button.c07.r##[8] "array of  inputs";
+
+variable int keydown = 0xC0;
+variable int keyup = 0x80;
+variable int nokeychange = 0x40;
+variable int last[64];
+
+function _;
+license "GPL";
+;;
+FUNCTION(_) {
+    int num = 0;
+    int c, r, cur_button;
+    int allup_flag = true;
+
+    for (r = 0; r < 8; r++){
+        for (c = 0; c < 8; c++){
+            if (c==0) cur_button = button_c00_r(r);
+            if (c==1) cur_button = button_c01_r(r);
+            if (c==2) cur_button = button_c02_r(r);
+            if (c==3) cur_button = button_c03_r(r);
+            if (c==4) cur_button = button_c04_r(r);
+            if (c==5) cur_button = button_c05_r(r);
+            if (c==6) cur_button = button_c06_r(r);
+            if (c==7) cur_button = button_c07_r(r);
+
+            if (cur_button == true) allup_flag = false;
+
+            num = r*8+c; // row * number of rows + column
+            if ( cur_button != last[num] ){
+                rtapi_print("row: %d column: %d code: %d\n",r,c,num);
+                last[num] = cur_button;
+                if (cur_button == 1){
+                    out = num | keydown;
+                    return;
+                }else{
+                    out = num | keyup;
+                    return;
+                }
+            }
+        }
+    }
+    if (allup_flag){
+        out = 0;
+    }else{
+        out = nokeychange;
+    }
+
+}

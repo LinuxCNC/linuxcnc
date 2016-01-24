@@ -33,12 +33,16 @@ Links
 [[anchor]]
 <<anchor,caption>>
 
-Example
+Example document link
 [[sub:torpodeos]]
 
 <<sub:torpodeos,bombs>>
 
-only bombs will show in the text with an underline so always provide a caption for a link
+only bombs will show in the text with an underline so always provide a caption
+for a link.
+
+External link
+http://linuxnc.org/someplace[description of link]
 
 Comment Block
 =============

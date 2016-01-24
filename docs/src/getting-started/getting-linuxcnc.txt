@@ -177,7 +177,6 @@ kernel flavors, etc), new installs are supported on following platforms:
 [options="header"]
 |===================================================================
 | Distribution   | Architecture | kernel     | Typical use
-| Debian Jessie  | amd64 & i386 | Preempt-RT | machine control & simulation
 | Debian Jessie  | amd64 & i386 | Stock      | simulation only
 | Debian Wheezy  | i386         | RTAI       | machine control & simulation
 | Debian Wheezy  | amd64 & i386 | Preempt-RT | machine control & simulation
@@ -196,15 +195,16 @@ debian archive.  The apt source is:
 * Ubuntu Lucid: `deb http://linuxcnc.org lucid base`
 
 The Preempt-RT kernels are available for Debian Wheezy from the
-regular debian.org archive, and for Debian Jessie from the debian.org
-jessie-backports archive.  The packages are called `linux-image-rt-amd64`
+regular debian.org archive.  The packages are called `linux-image-rt-amd64`
 and `linux-image-rt-686-pae`.
 
-=== Installing on Debian Wheezy and Debian Jessie (with Preempt-RT kernel)
+=== Installing on Debian Wheezy (with Preempt-RT kernel)
 
-. Install Debian Wheezy (Debian version 7) or Debian Jessie (Debian version 8),
+. Install Debian Wheezy (Debian version 7),
   either i386 or amd64.  You can download the installer here:
   https://www.debian.org/releases/
+
+WARNING: Do not enter a root password, if you do sudo is disabled.
 
 . Run the following in a terminal to bring the machine up to date with the
   latest packages.
@@ -232,7 +232,7 @@ uname -v
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 8f374fef
+sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
 
 . Add a new apt source that looks like this:
@@ -274,7 +274,7 @@ sudo apt-get dist-upgrade
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 8f374fef
+sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
 
 . Add a new apt source 

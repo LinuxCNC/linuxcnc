@@ -64,7 +64,6 @@
 #include "motion.h"
 #include "motion_debug.h"
 #include "motion_struct.h"
-#include "emcmotglb.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
 #include "motion_types.h"
@@ -1667,6 +1666,10 @@ check_stuff ( "before command_handler()" );
             emcmotConfig->arcBlendGapCycles = emcmotCommand->arcBlendGapCycles;
             emcmotConfig->arcBlendRampFreq = emcmotCommand->arcBlendRampFreq;
             emcmotConfig->arcBlendTangentKinkRatio = emcmotCommand->arcBlendTangentKinkRatio;
+            break;
+        case EMCMOT_SET_PROBE_ERR_INHIBIT:
+            emcmotConfig->inhibit_probe_jog_error = emcmotCommand->probe_jog_err_inhibit;
+            emcmotConfig->inhibit_probe_home_error = emcmotCommand->probe_home_err_inhibit;
             break;
 
 	}			/* end of: command switch */

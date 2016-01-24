@@ -16,6 +16,9 @@ o<gosper> sub
 #<xoff>     = #12 (=-3)
 #<yoff>     = #13 (=-3)
 
+      (debug, feature:   #<_feature:>)
+      (debug, remaining: #<_remaining_features:>)
+
 o<i0> if [#<scale> EQ 0]
         #<scale> = 1.0
         (debug, scale was 0, setting #<scale>)
