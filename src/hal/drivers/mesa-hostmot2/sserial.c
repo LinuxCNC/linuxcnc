@@ -1168,8 +1168,8 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
     // This function contains a state machine to handle starting and stopping
     // The ports as well as setting up the pin data
 
-    static int doit_err_count, comm_err_flag; // to avoid repeating error messages
-    int b, f, i, p, r; 
+    static int doit_err_count; // to avoid repeating error messages
+    int b, i, p, r;
     int bitcount;
     rtapi_u64 buff;
     float val;
@@ -1195,7 +1195,6 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 HM2_DBG("Tag-All = %x\n", inst->tag);
                 *inst->fault_count = 0;
                 doit_err_count = 0;
-                comm_err_flag = 0;
                 break;
             case 0x01: // normal running
                 if (!*inst->run){
@@ -1218,6 +1217,14 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                             inst->fault_inc,
                             inst->fault_lim);
                     HM2_ERR("***Smart Serial Port %i will be stopped***\n",i); 
+                    static bool printed;
+                    if(!inst->ever_read && !printed) {
+                        HM2_ERR("Smart Serial Error: "
+                            "You may see this error if the FPGA card "
+                            """read"" function is not running. "
+                            "This error message will not repeat.\n");
+                        printed = true;
+                    }
                     *inst->state = 0x20;
                     *inst->run = 0;
                     *inst->command_reg_write = 0x800; // stop command
@@ -1238,20 +1245,9 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     break; // give the register chance to clear
                 }
                 if (*inst->data_reg_read & 0xff) { // indicates a failed transfer
-                    f = (*inst->data_reg_read & (comm_err_flag ^ 0xFF));
-                    if (f != 0 && f != 0xFF) {
-                        static bool printed;
-                        if(!printed)
-                        HM2_ERR("Smart Serial Error: port %i channel %i. "
-                            "You may see this error if the FPGA card "
-                            """read"" thread is not running. "
-                            "This error message will not repeat.\n",
-                            i, ffs(f) - 1);
-                        printed = true;
-                    }
                     *inst->fault_count += inst->fault_inc;
                 }
-                
+
                 if (*inst->fault_count > inst->fault_dec) {
                     *inst->fault_count -= inst->fault_dec;
                 }
@@ -1508,6 +1504,7 @@ void hm2_sserial_process_tram_read(hostmot2_t *hm2, long period){
     int i, c;
     for (i = 0 ; i < hm2->sserial.num_instances ; i++){
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
+        inst->ever_read = true;
         if (*inst->state != 0x01) continue ; // Only work on running instances
         for (c = 0 ; c < inst->num_remotes ; c++ ) {
             hm2_sserial_remote_t *chan = &inst->remotes[c];

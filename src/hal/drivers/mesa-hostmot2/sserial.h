@@ -250,6 +250,7 @@ typedef struct {
     hal_bit_t *run;
     hal_u32_t *state;
     rtapi_u32 timer;
+    bool ever_read;
 } hm2_sserial_instance_t;
 
 typedef struct {
