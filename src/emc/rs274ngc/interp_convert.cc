@@ -1252,10 +1252,6 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
 int Interp::convert_param_comment(char *comment, char *expanded, int len)
 {
-    int i;
-    char param[LINELEN+1];
-    int paramNumber;
-    int stat;
     double value;
     char valbuf[VAL_LEN]; // max double length + room
     char *v;
@@ -1265,89 +1261,11 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
     {
         if(*comment == '#')
         {
-            found = 0;
             logDebug("a parameter");
 
-            // skip over the '#'
-            comment++;
-            CHKS((0 == *comment), NCE_NAMED_PARAMETER_NOT_TERMINATED);
-
-            if(isdigit(*comment))  // is this numeric param?
-            {
-                logDebug("numeric parameter");
-                for(i=0; isdigit(*comment)&& (i<LINELEN); i++)
-                {
-                    param[i] = *comment++;
-                }
-                param[i] = 0;
-                paramNumber = atoi(param);
-                if((paramNumber >= 0) &&
-                   (paramNumber < RS274NGC_MAX_PARAMETERS))
-                {
-                    value = _setup.parameters[paramNumber];
-                    found = 1;
-                }
-            }
-            else if(*comment == '<')
-            {
-                logDebug("name parameter");
-                // this is a name parameter
-                // skip over the '<'
-                comment++;
-                CHKS((0 == *comment), NCE_NAMED_PARAMETER_NOT_TERMINATED);
-
-                for(i=0; (')' != *comment) &&
-                        (i<LINELEN) && (0 != *comment);)
-                {
-                    if('>' == *comment)
-                    {
-                        break;     // done
-                    }
-                    if(isspace(*comment)) // skip space inside the param
-                    {
-                        comment++;
-                        continue;
-                    }
-                    else
-                    {
-		        // if tolower is a macro, may need this int
-		        int c = *comment++;
-			if (FEATURE(NO_DOWNCASE_OWORD))
-			    param[i] = c;
-			else
-			    param[i] = tolower(c);
-                        i++;
-                    }
-                }
-                if('>' != *comment)
-                {
-                    ERS(NCE_NAMED_PARAMETER_NOT_TERMINATED);
-                }
-                else
-                {
-                    comment++;
-                }
-
-                // terminate the name
-                param[i] = 0;
-
-                // now lookup the name
-                find_named_param(param, &stat, &value);
-                if(stat)
-                {
-                    found = 1;
-                }
-            }
-            else
-            {
-                // neither numeric or name
-                logDebug("neither numeric nor name");
-                // just store the '#'
-                *expanded++ = '#';
-
-                CHKS((*comment == 0), NCE_NAMED_PARAMETER_NOT_TERMINATED);
-                continue;
-            }
+            int counter = 0;
+            found = read_parameter(comment, &counter, &value, _setup.parameters, false) == INTERP_OK;
+            comment += counter;
 
             // we have a parameter -- now insert it
             // we have the value
