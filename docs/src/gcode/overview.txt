@@ -337,6 +337,11 @@ example '##2'  means the value of the parameter whose index is the
   including all offsets and in the current program units for
   X, Y, Z, A, B, C, U, V & W, volatile.
 
+* '5440-5448' - Current relative position in the machine (G53) coordinate system
+  in the current program units for
+  X, Y, Z, A, B, C, U, V & W, volatile.
+
+* '5599' - Flag for controlling the output of (DEBUG,) statements.
 * '5599' - Flag for controlling the output of (DEBUG,) statements.
    1=output, 0=no output; default=1. Volatile.
 
@@ -645,6 +650,34 @@ can be added easily without changes to the source code.
 
 * '#<_w>' -
     Return current W coordinate. Same as #5428.
+
+* '#<_mx>' -
+    Return current X coordinate. Same as #5440.
+
+* '#<_my>' -
+    Return current Y coordinate. Same as #5441.
+
+* '#<_mz>' -
+    Return current Z coordinate. Same as #5442.
+
+* '#<_ma>' -
+    Return current A coordinate. Same as #5443.
+
+* '#<_mb>' -
+    Return current B coordinate. Same as #5444.
+
+* '#<_mc>' -
+    Return current C coordinate. Same as #5445.
+
+* '#<_mu>' -
+    Return current U coordinate. Same as #5446.
+
+* '#<_mv>' -
+    Return current V coordinate. Same as #5447.
+
+* '#<_mw>' -
+    Return current W coordinate. Same as #5448.
+
 
 * '#<_current_tool>' -
     Return number of the current tool in spindle. Same as #5400.
