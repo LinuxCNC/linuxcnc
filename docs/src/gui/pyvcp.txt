@@ -334,7 +334,6 @@ The label has an optional disable pin that is created when you add
 <label>
     <text>"This is a Label:"</text>
     <font>("Helvetica",20)</font>
-    <disable>False</disable>
 </label>
 -------------------------------------------------
 
