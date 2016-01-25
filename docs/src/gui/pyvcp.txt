@@ -420,7 +420,7 @@ button is released. Buttons can use the following optional options.
 
 * '<activebackground>"color"</activebackground>' - the cursor over color.
 
-* '<fg> "color"</fg> - the forground color.
+* '<fg> "color"</fg>' - the forground color.
 
 * '<bg>"color"</bg>' - the background color.
 
