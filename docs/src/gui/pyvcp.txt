@@ -318,13 +318,15 @@ A label is a way to add text to your panel.
 
 * '<font>("Helvetica",20)</font>' - specificy the font and size of the text
 
-* '<relief>FLAT</relief>' - specificy the border around the label (FLAT, RAISED,
-  SUNKEN)
+* '<relief>FLAT</relief>' - specificy the border around the label ('FLAT',
+  'RAISED', 'SUNKEN') default is 'FLAT'
 
-* '<bd>3</bd>' - sets the border width when 'RAISED' or 'SUNKEN' borders are
-  used.
+* '<bd>n</bd>' - where 'n' is the border width when 'RAISED' or 'SUNKEN' borders
+  are used.
 
+* '<padx>n</padx>' - where 'n' is the amount of extra horizontal extra space.
 
+* '<pady>n</pady>' - where 'n' is the amount of extra vertical extra space.
 
 The label has an optional disable pin that is created when you add
 '<disable_pin>True</disable_pin>'.
