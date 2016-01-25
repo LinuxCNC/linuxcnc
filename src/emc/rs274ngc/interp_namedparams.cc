@@ -82,6 +82,15 @@ enum predefined_named_parameters {
     NP_U,
     NP_V,
     NP_W,
+    NP_MX,
+    NP_MY,
+    NP_MZ,
+    NP_MA,
+    NP_MB,
+    NP_MC,
+    NP_MU,
+    NP_MV,
+    NP_MW,
     NP_VALUE,
     NP_CALL_LEVEL,
     NP_REMAP_LEVEL,
@@ -701,6 +710,21 @@ int Interp::lookup_named_param(const char *nameBuf,
 	// o-word subs may optionally have an
 	// expression after endsub and return
 	// this 'function return value' is accessible as '_value'
+
+    case NP_MX:  // current machine position
+    case NP_MY:
+    case NP_MZ:
+    case NP_MA:
+    case NP_MB:
+    case NP_MC:
+    case NP_MU:
+    case NP_MV:
+    case NP_MW:
+        CHKS((_setup.cutter_comp_side),
+            _("Cannot read current position with cutter radius compensation on"));
+        *value = _setup.parameters[5440 + cmd - NP_MX];
+        break;
+
     case NP_VALUE:
 	*value = _setup.return_value;
 	break;
@@ -869,6 +893,17 @@ int Interp::init_named_parameters()
   init_readonly_param("_u", NP_U, PA_USE_LOOKUP);
   init_readonly_param("_v", NP_V, PA_USE_LOOKUP);
   init_readonly_param("_w", NP_W, PA_USE_LOOKUP);
+
+  // current machine position - alias to #5440-#5449
+  init_readonly_param("_mx", NP_MX, PA_USE_LOOKUP);
+  init_readonly_param("_my", NP_MY, PA_USE_LOOKUP);
+  init_readonly_param("_mz", NP_MZ, PA_USE_LOOKUP);
+  init_readonly_param("_ma", NP_MA, PA_USE_LOOKUP);
+  init_readonly_param("_mb", NP_MB, PA_USE_LOOKUP);
+  init_readonly_param("_mc", NP_MC, PA_USE_LOOKUP);
+  init_readonly_param("_mu", NP_MU, PA_USE_LOOKUP);
+  init_readonly_param("_mv", NP_MV, PA_USE_LOOKUP);
+  init_readonly_param("_mw", NP_MW, PA_USE_LOOKUP);
 
   // last (optional) endsub/return value
   init_readonly_param("_value", NP_VALUE, PA_USE_LOOKUP);

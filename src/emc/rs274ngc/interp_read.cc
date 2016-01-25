@@ -1923,6 +1923,8 @@ int Interp::read_parameter(
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       CHKS(((index >= 5420) && (index <= 5428) && (_setup.cutter_comp_side)),
            _("Cannot read current position with cutter radius compensation on"));
+      CHKS(((index >= 5440) && (index <= 5448) && (_setup.cutter_comp_side)),
+           _("Cannot read current position with cutter radius compensation on"));
       *double_ptr = parameters[index];
   }
   return INTERP_OK;

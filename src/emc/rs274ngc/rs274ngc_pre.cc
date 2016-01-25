@@ -1531,6 +1531,17 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   _setup.parameters[5427] = _setup.v_current;
   _setup.parameters[5428] = _setup.w_current;
 
+  find_current_in_system_without_tlo(&_setup, 0,
+      &_setup.parameters[5440],
+      &_setup.parameters[5441],
+      &_setup.parameters[5442],
+      &_setup.parameters[5443],
+      &_setup.parameters[5444],
+      &_setup.parameters[5445],
+      &_setup.parameters[5446],
+      &_setup.parameters[5447],
+      &_setup.parameters[5448]);
+
   if(_setup.file_pointer)
   {
       EXECUTING_BLOCK(_setup).offset = ftell(_setup.file_pointer);
