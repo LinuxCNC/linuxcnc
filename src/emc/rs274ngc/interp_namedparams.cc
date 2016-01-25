@@ -676,6 +676,8 @@ int Interp::lookup_named_param(const char *nameBuf,
     case NP_U:  // current position
     case NP_V:  // current position
     case NP_W:  // current position
+	CHKS((_setup.cutter_comp_side),
+	    _("Cannot read current position with cutter radius compensation on"));
 	*value = _setup.parameters[cmd - NP_X + 5420];
 	break;
 
