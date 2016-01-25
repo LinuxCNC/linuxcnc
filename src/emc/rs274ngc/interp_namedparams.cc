@@ -668,39 +668,15 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_X:  // current position
-	*value = _setup.current_x;
-	break;
-
     case NP_Y:  // current position
-	*value = _setup.current_y;
-	break;
-
     case NP_Z:  // current position
-	*value = _setup.current_z;
-	break;
-
     case NP_A:  // current position
-	*value = _setup.AA_current;
-	break;
-
     case NP_B:  // current position
-	*value = _setup.BB_current;
-	break;
-
     case NP_C:  // current position
-	*value = _setup.CC_current;
-	break;
-
     case NP_U:  // current position
-	*value = _setup.u_current;
-	break;
-
     case NP_V:  // current position
-	*value = _setup.v_current;
-	break;
-
     case NP_W:  // current position
-	*value = _setup.w_current;
+	*value = _setup.parameters[cmd - NP_X + 5420];
 	break;
 
 	// o-word subs may optionally have an
