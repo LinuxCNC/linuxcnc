@@ -3214,6 +3214,10 @@ if duplicate_coord_letters != "":
     # corresponding 'identity' coordinate.
     print ("Warning: Forward kinematics must handle duplicate coordinate letters:%s"%
           duplicate_coord_letters)
+if len(trajcoordinates) > jointcount:
+    raise SystemExit, (
+          "Error: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d"
+          %(trajcoordinates,jointcount))
 
 no_joint_display = False
 if (s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY):
