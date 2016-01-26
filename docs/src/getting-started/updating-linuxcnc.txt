@@ -154,6 +154,64 @@ They could be transformed into pairs of lines like this:
 MAX_VELOCITY = 7.5
 -----
 
+=== Consistent Joints/Axes specifications
+
+Ini file items that affect joints and axes usage must be consistent.
+
+The motion kinematics module typically loaded with '[KINS]KINEMATICS=' must
+use a number of joints equal to the number specified with '[KINS]JOINTS='.
+
+The kinematics module must implement axis letters that are consistent with the
+specification used by the task module item '[TRAJ]COORDINATES='.
+
+Examples:
+
+Three axis Cartesian machine using trivkins (KINEMATICS_IDENTITY):
+-----
+  [KINS]KINEMATICS  = trivkins
+  [KINS]JOINTS      = 3
+  [TRAJ]COORDINATES = XYZ
+-----
+
+Two axis lathe using gentrivkins (KINEMATICS_IDENTITY) with non-consecutive
+axis letters:
+-----
+  [KINS]KINEMATICS  = gentrivkins coordinates = XZ
+  [KINS]JOINTS      = 2
+  [TRAJ]COORDINATES = XZ
+-----
+
+Gantry using gentrivkins (KINEMATICS_IDENTITY) with duplicated axis letters:
+-----
+  [KINS]KINEMATICS  = gentrivkins coordinates = XYYZ
+  [KINS]JOINTS      = 4
+  [TRAJ]COORDINATES = XYYZ
+-----
+
+Gantry using gentrivkins (KINEMATICS_IDENTITY) with duplicated axis letters
+and a rotary axis with skipped axis letters (A,B skipped):
+-----
+  [KINS]KINEMATICS  = gentrivkins coordinates = XYYZC
+  [KINS]JOINTS      = 5
+  [TRAJ]COORDINATES = XYYZC
+-----
+
+Linear Delta Robot with non-identity kins (KINEMATICS_BOTH) working in cartesian frame
+with an additional rotary coordinate:
+-----
+  [KINS]KINEMATICS  = lineardeltakins
+  [KINS]JOINTS      = 4
+  [TRAJ]COORDINATES = XYZA
+-----
+
+Note: Some general-purpose kinematics modules (like gentrivkins) implement
+      identity kinematics with support for coordinate specification (axis letters).
+      Axis letters may be omitted.  Axis letters may be duplicated.
+      Joints are assigned to axis letters in a defined manner ($ man gentrivkins).
+      Custom kinematics modules that implement non-identity kinematics (like
+      lineardeltakins) define machine-specific relationships between a set
+      of coordinates and a set of joints.
+
 === Locking rotary indexer (updates for joints_axes)
 
 With joints_axes, an indexer is a joint that can be homed (joint mode)
