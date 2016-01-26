@@ -14,6 +14,10 @@ except:
 JOGJOINT  = 1
 JOGTELEOP = 0
 
+inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
+trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
+jointcount = int(inifile.find("KINS","JOINTS"))
+
 DBG_state = 0
 def DBG(str):
     if DBG_state > 0:
@@ -95,7 +99,6 @@ class CNC_COMMANDS():
             DBG_state = master._dbg
             self.emc = linuxcnc
             self.emcstat = linuxcnc.stat()
-            self.coord_letters=[] # defer until valid poll() for axis_mask 
             self.emccommand = linuxcnc.command()
             self.return_to_mode = -1 # if not -1 return to the mode specified
             self.sb = 0;
@@ -418,13 +421,19 @@ class CNC_COMMANDS():
             return JOGTELEOP
 
         def jnum_for_axisnum(self,axisnum):
-            if len(self.coord_letters) == 0:
-                # compute coord_letters after poll to get axis_mask
-                self.emcstat.poll()
-                axisletter = "xyzabcuvw"[axisnum]
-                for j,a in enumerate("xyzabcuvw"):
-                    if self.emcstat.axis_mask & (1<<j): self.coord_letters.append(a)
-            return self.coord_letters.index("xyzabcuvw"[axisnum])
+            if self.emcstat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+                print ("\n%s:\n  Joint jogging not supported for"
+                       "non-identity kinematics"%__file__)
+                return -1 # emcJogCont() et al reject neg joint/axis no.s
+            jnum = trajcoordinates.index( "xyzabcuvw"[axisnum] )
+            if jnum > jointcount:
+                print ("\n%s:\n  Computed joint number=%d for axisnum=%d "
+                       "exceeds jointcount=%d with trajcoordinates=%s"
+                       %(__file__,jnum,axisnum,jointcount,trajcoordinates))
+                # Note: primary gui should protect for this misconfiguration
+                # decline to jog
+                return -1 # emcJogCont() et al reject neg joint/axis no.s
+            return jnum
 
         def get_jog_info (self,axisnum):
             jjogmode = self.get_jjogmode()
