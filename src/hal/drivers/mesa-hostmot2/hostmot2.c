@@ -79,6 +79,16 @@ static void hm2_read_request(void *void_hm2, long period) {
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
+    // if we were invoked twice in a row without an intervening read...
+    if (hm2->llio->read_requested) {
+        static bool printed;
+        if(!printed)
+            HM2_ERR(".read function must follow .read-request function in same thread.\n");
+        printed = true;
+        return;
+    }
+    hm2->llio->read_requested = true;
+    if ((*hm2->llio->io_error) != 0) return;
 
     hm2_tram_read(hm2);
     if ((*hm2->llio->io_error) != 0) return;
@@ -86,7 +96,6 @@ static void hm2_read_request(void *void_hm2, long period) {
     hm2_tp_pwmgen_queue_read(hm2);
     if ((*hm2->llio->io_error) != 0) return;
     hm2_queue_read(hm2);
-    hm2->llio->read_requested = true;
 }
 
 static void hm2_read(void *void_hm2, long period) {
