@@ -110,7 +110,7 @@ The valid entries in the format string are:
 
 .B
  [firmware=\fIF\fB]
- [num_encoders=\fIN\fB]
+ \fB[num_encoders=\fIN\fB]
  [ssi_chan_\fIN\fB=\fIabc%nq\fB]
  [biss_chan_\fIN\fB=\fIabc%nq\fB]
  [fanuc_chan_\fIN\fB=\fIabc%nq\fB]
@@ -124,7 +124,7 @@ The valid entries in the format string are:
  [enable_raw]
 
 .TP
-\fBfirmware\fR [optional]
+\fBfirmware [\fIoptional\fB]
 Load the firmware specified by F into the FPGA on this board.  If no
 "\fBfirmware=\fIF\fR" string is specified, the FPGA will not be
 re-programmed but may continue to run a previously downloaded firmware.
