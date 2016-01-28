@@ -206,14 +206,14 @@ Three axis Cartesian machine using trivkins (KINEMATICS_IDENTITY):
 Two axis lathe using gentrivkins (KINEMATICS_IDENTITY) with non-consecutive
 axis letters:
 -----
-  [KINS]KINEMATICS  = gentrivkins coordinates = XZ
+  [KINS]KINEMATICS  = gentrivkins coordinates=XZ
   [KINS]JOINTS      = 2
   [TRAJ]COORDINATES = XZ
 -----
 
 Gantry using gentrivkins (KINEMATICS_IDENTITY) with duplicated axis letters:
 -----
-  [KINS]KINEMATICS  = gentrivkins coordinates = XYYZ
+  [KINS]KINEMATICS  = gentrivkins coordinates=XYYZ
   [KINS]JOINTS      = 4
   [TRAJ]COORDINATES = XYYZ
 -----
@@ -221,7 +221,7 @@ Gantry using gentrivkins (KINEMATICS_IDENTITY) with duplicated axis letters:
 Gantry using gentrivkins (KINEMATICS_IDENTITY) with duplicated axis letters
 and a rotary axis with skipped axis letters (A,B skipped):
 -----
-  [KINS]KINEMATICS  = gentrivkins coordinates = XYYZC
+  [KINS]KINEMATICS  = gentrivkins coordinates=XYYZC
   [KINS]JOINTS      = 5
   [TRAJ]COORDINATES = XYYZC
 -----
@@ -238,9 +238,19 @@ Note: Some general-purpose kinematics modules (like gentrivkins) implement
       identity kinematics with support for coordinate specification (axis letters).
       Axis letters may be omitted.  Axis letters may be duplicated.
       Joints are assigned to axis letters in a defined manner ($ man gentrivkins).
-      Custom kinematics modules that implement non-identity kinematics (like
+
+Note: For gentrivkins module loading, do not include spaces about the = sign or letters: 
+
+      This:     [KINS]KINEMATICS = gentrivkins coordinates=XZ
+      NOT This: [KINS]KINEMATICS = gentrivkins coordinates = X Z
+
+Note: Custom kinematics modules that implement non-identity kinematics (like
       lineardeltakins) define machine-specific relationships between a set
-      of coordinates and a set of joints.
+      of coordinates and a set of joints.  Typically, custom kinematics modules
+      compute the joints-axes relationships within the custom module but it is
+      important to use consistent settings for the related ini items: '[KINS]JOINTS'
+      and '[TRAJ]COORDINATES'.  The details will usually be explained in the
+      module man page (for example, $ man lineardeltakins).
 
 === Locking rotary indexer (updates for joints_axes)
 
