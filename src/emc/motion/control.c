@@ -1071,6 +1071,9 @@ static void handle_ajogwheels(void)
     double distance, pos, stop_dist;
     static int first_pass = 1;	/* used to set initial conditions */
 
+    // change from teleop to move off joint soft limit
+    if ( emcmotStatus->on_soft_limit ) { return; }
+
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         axis = &axes[axis_num];
 	axis_data = &(emcmot_hal_data->axis[axis_num]);
@@ -1437,10 +1440,16 @@ static void get_pos_cmds(long period)
 	if ( ! emcmotStatus->on_soft_limit ) {
 	    /* just hit the limit */
 	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
-	        if (joint_limit[joint_num][0]) {
-                    reportError(_("Exceeded negative soft limit on joint %d"), joint_num);
-                } else if (joint_limit[joint_num][1]) {
-                    reportError(_("Exceeded positive soft limit on joint %d"), joint_num);
+	        if (joint_limit[joint_num][0] == 1) {
+                    joint = &joints[joint_num];
+                    reportError(_("Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
+                                  "Hint: switch to joint mode to jog off soft limit"),
+                                  joint->min_pos_limit, joint_num);
+                } else if (joint_limit[joint_num][1] == 1) {
+                    joint = &joints[joint_num];
+                    reportError(_("Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
+                                  "Hint: switch to joint mode to jog off soft limit"),
+                                  joint->max_pos_limit,joint_num);
                 }
 	    }
 	    SET_MOTION_ERROR_FLAG(1);
@@ -1448,6 +1457,13 @@ static void get_pos_cmds(long period)
 	}
     } else {
 	emcmotStatus->on_soft_limit = 0;
+    }
+    if (   emcmotDebug->teleoperating
+        // if teleop, don't violate joint soft limit
+        // user must switch to joint mode to jog off the violated joint soft limit
+        && GET_MOTION_TELEOP_FLAG()
+        && emcmotStatus->on_soft_limit ) {
+        SET_MOTION_ERROR_FLAG(1);
     }
 }
 
