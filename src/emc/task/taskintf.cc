@@ -166,8 +166,8 @@ int emcJointSetMinPositionLimit(int joint, double limit)
 
     emcmotCommand.command = EMCMOT_SET_JOINT_POSITION_LIMITS;
     emcmotCommand.joint = joint;
-    emcmotCommand.maxLimit = JointConfig[joint].MinLimit;
-    emcmotCommand.minLimit = JointConfig[joint].MaxLimit;
+    emcmotCommand.minLimit = JointConfig[joint].MinLimit;
+    emcmotCommand.maxLimit = JointConfig[joint].MaxLimit;
 
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
