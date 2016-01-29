@@ -129,7 +129,7 @@ STATIC int limits_ok(void)
 /* check the value of the joint and velocity against current position,
    returning 1 (okay) if the request is to jog off the limit, 0 (bad)
    if the request is to jog further past a limit. */
-STATIC int jog_ok(int joint_num, double vel)
+STATIC int joint_jog_ok(int joint_num, double vel)
 {
     emcmot_joint_t *joint;
     int neg_limit_override, pos_limit_override;
@@ -758,7 +758,7 @@ check_stuff ( "before command_handler()" );
                     break;
                 }
 	        /* don't jog further onto limits */
-	        if (!jog_ok(joint_num, emcmotCommand->vel)) {
+	        if (!joint_jog_ok(joint_num, emcmotCommand->vel)) {
 		    SET_JOINT_ERROR_FLAG(joint, 1);
 		    break;
 	        }
@@ -790,6 +790,7 @@ check_stuff ( "before command_handler()" );
 	        clearHomes(joint_num);
             } else {
                 // TELEOP  JOG_CONT
+                if (GET_MOTION_ERROR_FLAG()) { break; }
 	        if (emcmotCommand->vel > 0.0) {
 		    axis->teleop_tp.pos_cmd = axis->max_pos_limit;
 	        } else {
@@ -835,7 +836,7 @@ check_stuff ( "before command_handler()" );
                     break;
                 }
 	        /* don't jog further onto limits */
-	        if (!jog_ok(joint_num, emcmotCommand->vel)) {
+	        if (!joint_jog_ok(joint_num, emcmotCommand->vel)) {
 		    SET_JOINT_ERROR_FLAG(joint, 1);
 		    break;
 	        }
@@ -875,6 +876,7 @@ check_stuff ( "before command_handler()" );
 	        clearHomes(joint_num);
             } else {
                 // TELEOP JOG_INCR
+                if (GET_MOTION_ERROR_FLAG()) { break; }
 	        if (emcmotCommand->vel > 0.0) {
 		    tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
 	        } else {
@@ -889,7 +891,6 @@ check_stuff ( "before command_handler()" );
 	        }
 	        axis->teleop_tp.pos_cmd = tmp1;
 	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
-	        axis->teleop_tp.max_acc = axis->acc_limit;
 	        axis->teleop_tp.max_acc = axis->acc_limit;
 	        axis->kb_ajog_active = 1;
 	        axis->teleop_tp.enable = 1;
@@ -928,7 +929,7 @@ check_stuff ( "before command_handler()" );
                     break;
                 }
                 /* don't jog further onto limits */
-                if (!jog_ok(joint_num, emcmotCommand->vel)) {
+                if (!joint_jog_ok(joint_num, emcmotCommand->vel)) {
                     SET_JOINT_ERROR_FLAG(joint, 1);
                     break;
                 }
