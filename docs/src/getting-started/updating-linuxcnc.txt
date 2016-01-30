@@ -268,7 +268,7 @@ The required ini file entries for this gentrivkins XYZB example are:
 ----
   [KINS]
   JOINTS = 4
-  KINEMATICS = gentrivkins coordinates = XYZB
+  KINEMATICS = gentrivkins coordinates=XYZB
   ...
 
   [TRAJ]
