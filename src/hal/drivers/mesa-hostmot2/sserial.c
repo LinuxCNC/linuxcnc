@@ -275,7 +275,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                 HM2_ERR("Failed to restart device %i on instance\n", 
                         inst->device_id);
                 goto fail0;}
-            if ((r = hm2_sserial_check_errors(hm2, inst)) < 0) {
+            if ((r = hm2_sserial_check_local_errors(hm2, inst)) < 0) {
                 //goto fail0; // Ignore it for the moment. 
             }
             //only increment the instance index if this one is populated
@@ -1168,8 +1168,8 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
     // This function contains a state machine to handle starting and stopping
     // The ports as well as setting up the pin data
 
-    static int doit_err_count, comm_err_flag; // to avoid repeating error messages
-    int b, f, i, p, r; 
+    static int doit_err_count; // to avoid repeating error messages
+    int b, i, p, r;
     int bitcount;
     rtapi_u64 buff;
     float val;
@@ -1195,7 +1195,6 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 HM2_DBG("Tag-All = %x\n", inst->tag);
                 *inst->fault_count = 0;
                 doit_err_count = 0;
-                comm_err_flag = 0;
                 break;
             case 0x01: // normal running
                 if (!*inst->run){
@@ -1203,9 +1202,13 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     break;
                 }
                 
+                // the side effect of reporting this error will suffice
+                (void)hm2_sserial_check_remote_errors(hm2, inst);
+
                 if (*inst->fault_count > inst->fault_lim) {
                     // If there have been a large percentage of misses, for quite
                     // a long time, it's time to take it seriously. 
+                    hm2_sserial_check_local_errors(hm2, inst);
                     HM2_ERR("Smart Serial Comms Error: "
                             "There have been more than %i errors in %i "
                             "thread executions at least %i times. "
@@ -1214,6 +1217,14 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                             inst->fault_inc,
                             inst->fault_lim);
                     HM2_ERR("***Smart Serial Port %i will be stopped***\n",i); 
+                    static bool printed;
+                    if(!inst->ever_read && !printed) {
+                        HM2_ERR("Smart Serial Error: "
+                            "You may see this error if the FPGA card "
+                            """read"" function is not running. "
+                            "This error message will not repeat.\n");
+                        printed = true;
+                    }
                     *inst->state = 0x20;
                     *inst->run = 0;
                     *inst->command_reg_write = 0x800; // stop command
@@ -1233,20 +1244,10 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
                     break; // give the register chance to clear
                 }
-                if (hm2_sserial_check_errors(hm2, inst) != 0) {
-                    if (*inst->data_reg_read & 0xff) { // indicates a failed transfer
-                        f = (*inst->data_reg_read & (comm_err_flag ^ 0xFF));
-                        if (f != 0 && f != 0xFF) {
-                            HM2_ERR("Smart Serial Error: port %i channel %i. " 
-                                "You may see this error if the FPGA card "
-                                """read"" thread is not running. "
-                                "This error message will not repeat.\n",
-                                i, ffs(f) - 1);
-                        }
-                    }
+                if (*inst->data_reg_read & 0xff) { // indicates a failed transfer
                     *inst->fault_count += inst->fault_inc;
                 }
-                
+
                 if (*inst->fault_count > inst->fault_dec) {
                     *inst->fault_count -= inst->fault_dec;
                 }
@@ -1503,6 +1504,7 @@ void hm2_sserial_process_tram_read(hostmot2_t *hm2, long period){
     int i, c;
     for (i = 0 ; i < hm2->sserial.num_instances ; i++){
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
+        inst->ever_read = true;
         if (*inst->state != 0x01) continue ; // Only work on running instances
         for (c = 0 ; c < inst->num_remotes ; c++ ) {
             hm2_sserial_remote_t *chan = &inst->remotes[c];
@@ -1724,30 +1726,56 @@ void hm2_sserial_setmode(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     }
 }
 
+// All sserial faults other than timeouts are indicated by fault
+// bits in the CS register.
+//
+// 1. Communication faults
+//
+// these are indicated when bit 13 (communication error) is set
+// after a doit command.  Further decoding of communication faults
+// should not be done unless bit 13 is set after a doit.  (but note
+// that for sserial firmware version <= 43, these bits are unintentially
+// sticky and are not reset after a doit)
+//
+// If bit 13 is set, bits 0 through 5 (local communication faults)
+// should be decoded and reported if they meet the inc/dec criteria
+// (bits 6 and 7 should  always be ignored)
+//
+// 2. Remote faults
+//
+// These are indicated when bit 8 (remote fault) is set after a doit
+// command.  Further decoding of remote faults should not be done
+// unless bit 8 is set.
+//
+// If bit 8 is set, the specific remote fault error bits (24 through 31)
+// should be decoded and reported. These are mostly sticky and tend to
+// be fatal so should only be reported once and should not be subject to
+// the inc/dec reporting criteria
 
-int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
+static const char *err_list[32] = {"CRC error", "Invalid cookie", "Overrun",
+    "Timeout", "Extra character", "Serial Break Error", "Remote Fault",
+    "Too many errors",
+
+    "Remote fault", NULL, NULL, NULL, NULL,
+    "Communication error", "No Remote ID", "Communication Not Ready",
+
+    NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+
+    "Watchdog Fault", "No Enable", "Over Temperature", "Over Current",
+    "Over Voltage", "Under Voltage", "Illegal Remote Mode", "LBPCOM Fault"};
+
+int hm2_sserial_check_local_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     rtapi_u32 buff;
     int i,r;
     int err_flag = 0;
-    rtapi_u32 err_mask = 0xFF00E1FF;
-    const char *err_list[32] = {"CRC error", "Invalid cookie", "Overrun",
-        "Timeout", "Extra character", "Serial Break Error", "Remote Fault", 
-        "Too many errors", 
-        
-        "Remote fault", "unused", "unused", "unused", "unused", 
-        "Communication error", "No Remote ID", "Communication Not Ready",
-        
-        "unused","unused","unused","unused","unused","unused","unused","unused",
-        
-        "Watchdog Fault", "No Enable", "Over Temperature", "Over Current", 
-        "Over Voltage", "Under Voltage", "Illegal Remote Mode", "LBPCOM Fault"};
+    rtapi_u32 err_mask = 0x0000E0FF;
     
     for (r = 0 ; r < inst->num_remotes ; r++){
         hm2_sserial_remote_t *chan=&inst->remotes[r];
         buff = chan->status;
         buff &= err_mask;
-        for (i = 31 ; i > 0 ; i--){
-            if (buff & (1 << i)) {
+        for (i = 31 ; i >= 0 ; i--){
+            if (buff & (1 << i) && err_list[i]) {
                 HM2_ERR("Smart serial card %s error = (%i) %s\n", 
                         chan->name, i, err_list[i]);
                 err_flag = -EINVAL;
@@ -1755,6 +1783,31 @@ int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
         }
     }
     return err_flag;
+}
+
+int hm2_sserial_check_remote_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst) {
+    rtapi_u32 buff;
+    int i,r;
+    int err_flag = 0;
+    rtapi_u32 err_mask = 0xFF000100;
+
+
+    for (r = 0 ; r < inst->num_remotes ; r++){
+        hm2_sserial_remote_t *chan=&inst->remotes[r];
+
+        if((chan->status & 0x100) == 0) return 0;
+        buff = chan->status & ~chan->seen_remote_errors & err_mask;
+        chan->seen_remote_errors |= chan->status;
+        for (i = 31 ; i >= 0 ; i--){
+            if (buff & (1 << i) && err_list[i]) {
+                HM2_ERR("Smart serial card %s error = (%i) %s\n",
+                        chan->name, i, err_list[i]);
+                err_flag = -EINVAL;
+            }
+        }
+    }
+    return err_flag;
+
 }
 
 int hm2_sserial_waitfor(hostmot2_t *hm2, rtapi_u32 addr, rtapi_u32 mask, int ms){

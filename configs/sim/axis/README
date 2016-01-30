@@ -6,7 +6,7 @@ axis.ini           basic demo (in)
 axis_9axis.ini     9 axes
 axis_foam          foam cutter
 axis_mm.ini        basic demo (mm)
-canterp            libcanterp.so
+canterp            demo for a non-gcode interpreter
 gantry.ini         gantry demo
 lathe.ini          lathe demo
 profile_axis.ini   profiling

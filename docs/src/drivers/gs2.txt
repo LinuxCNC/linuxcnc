@@ -35,6 +35,20 @@ component gs2_vfd, named spindle-vfd
    must match the device number you set on the GS2. 
 * '-v or --verbose' Turn on debug messages.
 
+* '-A or --accel-seconds' <n> (default 10.0) Seconds to accelerate the spindle
+  from 0 to Max RPM.
+
+* '-D or --decel-seconds' <n> (default 0.0) Seconds to decelerate the spindle
+  from Max RPM to 0. If set to 0.0 the spindle will be allowed to coast to a
+  stop without controlled deceleration.
+
+* '-R or --braking-resistor' This argument should be used when a braking
+  resistor is installed on the GS2 VFD (see Appendix A of the GS2 manual).
+  It disables deceleration over-voltage stall prevention (see GS2 modbus
+  Parameter 6.05), allowing the VFD to keep braking even in situations where
+  the motor is regenerating high voltage. The regenerated voltage gets safely
+  dumped into the braking resistor.
+
 [NOTE]
 That if there are serial configuration errors, turning on verbose
 may result in a flood of timeout errors.
@@ -81,7 +95,9 @@ Where <n> is gs2_vfd or the name given during loading with the -n option.
 * '<n>.nameplate-RPM' (float, RW) Nameplate RPM of motor (default 1730)
 * '<n>.retval' (s32, RW) the return value of an error in HAL
 * '<n>.tolerance' (s32, RW) speed tolerance (default 0.01)
-
+* '<n>.ack-delay' (s32, RW) number of read/write cycles before checking at-speed
+  (default 2)
+  
 For an example of using this component to drive a spindle see the
 <<cha:gs2-spindle,GS2 Spindle>> example.
 

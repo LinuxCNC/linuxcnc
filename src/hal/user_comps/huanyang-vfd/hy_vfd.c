@@ -514,7 +514,7 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
             && (*haldata->Set_F > 0.0)
         ) {
             *haldata->spindle_speed_fb = (*haldata->Out_F / *haldata->max_freq) * *haldata->rated_motor_rev;
-            if (fabs(1 - (*haldata->spindle_speed_fb / *haldata->speed_command)) < *haldata->spindle_at_speed_tolerance) {
+            if (fabs(1 - (*haldata->spindle_speed_fb / fabs(*haldata->speed_command))) < *haldata->spindle_at_speed_tolerance) {
                 *haldata->spindle_at_speed = 1;
             } else {
                 *haldata->spindle_at_speed = 0;

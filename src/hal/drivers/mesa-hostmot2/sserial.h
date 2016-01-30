@@ -203,7 +203,7 @@ typedef struct {
     hm2_sserial_pins_t *pins;
     hm2_sserial_params_t *params;
     hal_u32_t serialnumber;
-    hal_u32_t status;
+    hal_u32_t status, seen_remote_errors;
 
     rtapi_u32 *reg_cs_read;
     rtapi_u32 *reg_cs_write;
@@ -250,6 +250,7 @@ typedef struct {
     hal_bit_t *run;
     hal_u32_t *state;
     rtapi_u32 timer;
+    bool ever_read;
 } hm2_sserial_instance_t;
 
 typedef struct {
