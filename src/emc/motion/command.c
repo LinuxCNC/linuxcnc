@@ -960,8 +960,23 @@ check_stuff ( "before command_handler()" );
             } else {
                 axis->kb_ajog_active = 1;
                 // TELEOP JOG_ABS
-                //FIXME not updated for free/teleop
-                rtapi_print_msg(RTAPI_MSG_DBG,"EMCMOT_JOG_ABS TELEOP notdoneyet\n");
+                if (axis->wheel_ajog_active) { break; }
+	        if (emcmotCommand->vel > 0.0) {
+		    tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
+	        } else {
+		    tmp1 = axis->teleop_tp.pos_cmd - emcmotCommand->offset;
+	        }
+	        if (tmp1 > axis->max_pos_limit) { break; }
+	        if (tmp1 < axis->min_pos_limit) { break; }
+                axis->teleop_tp.pos_cmd = tmp1;
+                axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
+                axis->teleop_tp.max_acc = axis->acc_limit;
+                axis->kb_ajog_active = 1;
+                axis->teleop_tp.enable = 1;
+                for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+                   joint = &joints[joint_num];
+                   if (joint != 0) { joint->free_tp.enable = 0; }
+                }
                 return;
             }
             break;
