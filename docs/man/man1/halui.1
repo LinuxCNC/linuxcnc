@@ -349,13 +349,15 @@ pin for unhoming the selected joint
 
 .SS joint jogging \fR(\fBN\fR = joint number (0 ... num_joints-1))
 .B halui.joint.jog-deadband\fR float in \fR
-pin for setting jog analog deadband (jog analog inputs smaller/slower than this are ignored)
+pin for setting jog analog deadband (jog analog inputs smaller/slower than
+this (in absolute value) are ignored)
 .TP
 .B halui.joint.jog-speed\fR float in \fR
 pin for setting jog speed for plus/minus jogging.
 .TP
 .B halui.joint.N.analog\fR float in \fR
-pin for jogging the joint N using an float value (e.g. joystick)
+pin for jogging the joint N using an float value (e.g. joystick).  The value, typically
+set between 0.0 and +/-1.0, is used as a jog-speed multiplier.
 .TP
 .B halui.joint.N.increment\fR float in \fR
 pin for setting the jog increment for joint N when using increment-plus/minus
@@ -407,13 +409,15 @@ Commanded axis position in relative coordinates
 .SS axis jogging \fR(\fBL\fR = axis index (0:x 1:y 2:z 3:a 4:b 5:c 6:u 7:v 8:w)
 .TP
 .B halui.axis.jog-deadband\fR float in \fR
-pin for setting jog analog deadband (jog analog inputs smaller/slower than this are ignored)
+pin for setting jog analog deadband (jog analog inputs smaller/slower than
+this (in absolute value) are ignored)
 .TP
 .B halui.axis.jog-speed\fR float in \fR
 pin for setting jog speed for plus/minus jogging.
 .TP
 .B halui.axis.L.analog\fR float in \fR
-pin for jogging the axis L using an float value (e.g. joystick)
+pin for jogging the axis L using an float value (e.g. joystick).  The value, typically
+set between 0.0 and +/-1.0, is used as a jog-speed multiplier.
 .TP
 .B halui.axis.L.increment\fR float in \fR
 pin for setting the jog increment for axis L when using increment-plus/minus
