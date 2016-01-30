@@ -58,6 +58,9 @@ emcmot_joint_t joint_array[EMCMOT_MAX_JOINTS];
 int num_joints = EMCMOT_MAX_JOINTS;
 emcmot_joint_t *joints = 0;
 
+emcmot_axis_t axis_array[EMCMOT_MAX_AXIS];
+int num_axes = EMCMOT_MAX_AXIS;
+emcmot_axis_t *axes = 0;
 
 void emcmot_config_change(void) {
     if (emcmotConfig->head == emcmotConfig->tail) {
@@ -70,8 +73,9 @@ void emcmot_config_change(void) {
 
 
 static int init_comm_buffers(void) {
-    int joint_num, n;
+    int joint_num, axis_num, n;
     emcmot_joint_t *joint;
+    emcmot_axis_t *axis;
     int retval;
     int shmem_id;
 
@@ -170,6 +174,25 @@ static int init_comm_buffers(void) {
 	joint->big_vel = 10.0 * joint->vel_limit;
 
 	SET_JOINT_INPOS_FLAG(joint, 1);
+    }
+
+    /* init pointer to axes structs */
+    axes = axis_array;
+
+    /* init per-axis stuff */
+    for (axis_num = 0; axis_num < num_axes; axis_num++) {
+	/* point to structure for this axis */
+	axis = &axes[axis_num];
+	axis->pos_cmd = 0.0;
+	axis->vel_cmd = 0.0;
+	axis->max_pos_limit = 1.0;
+	axis->min_pos_limit = -1.0;
+	axis->vel_limit = 1.0;
+	axis->acc_limit = 1.0;
+	//simple_tp_t teleop_tp
+	axis->old_ajog_counts = 0;
+	axis->kb_ajog_active = 0;
+	axis->wheel_ajog_active = 0;
     }
 
     emcmotDebug->start_time = time(NULL);
@@ -500,8 +523,8 @@ int main(int argc, char* argv[]) {
                     "SET_AXIS_POSITION_LIMITS axis=%d, min=%.6f, max=%.6f\n",
                     c->axis, c->minLimit, c->maxLimit
                 );
-                joints[c->axis].max_pos_limit = c->maxLimit;
-                joints[c->axis].min_pos_limit = c->minLimit;
+                axes[c->axis].max_pos_limit = c->maxLimit;
+                axes[c->axis].min_pos_limit = c->minLimit;
                 break;
 
             case EMCMOT_SET_JOINT_BACKLASH:
