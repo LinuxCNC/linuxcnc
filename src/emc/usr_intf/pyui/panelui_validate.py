@@ -9,11 +9,11 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LIBPATH = os.path.join(BASE, "lib/python/pyui","panelui_spec.ini")
 try:
     CONFIGPATH = os.environ['CONFIG_DIR']
-    CONFIGDIR = os.path.join(CONFIGPATH, 'panelui.ini')
+    CONFIGDIR = os.path.join(CONFIGPATH, '_panelui.ini')
 except:
     print '**** PANEL COMMAND: no panelui.ini file in config directory'
     CONFIGPATH = os.path.expanduser("~")
-    CONFIGDIR = os.path.join(CONFIGPATH, 'panelui.ini')
+    CONFIGDIR = os.path.join(CONFIGPATH, '_panelui.ini')
 print "Validating panelui INI file from: ",CONFIGDIR
 
 def list_check(value):
@@ -54,5 +54,5 @@ if result != True:
         print 'PANELUI:',section_string, ' = ', error
 else:
     print 'PANELUI: validation found no obvious errors'
-shutil.copy2(CONFIGDIR, os.path.join(CONFIGPATH, 'panelui.ini~'))
+shutil.copy2(CONFIGDIR, os.path.join(CONFIGPATH, '_panelui.ini~'))
 config.write()

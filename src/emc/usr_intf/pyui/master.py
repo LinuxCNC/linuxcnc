@@ -8,16 +8,16 @@ from pyui import commands
 # path to the configuration the user requested
 try:
     CONFIGPATH = os.environ['CONFIG_DIR']
-    CONFIGDIR = os.path.join(CONFIGPATH, 'panelui.ini')
+    CONFIGDIR = os.path.join(CONFIGPATH, '_panelui.ini')
 except:
     try:
-        CONFIGDIR = os.path.abspath(os.path.join(os.path.dirname( '..','panelui.ini')))
+        CONFIGDIR = os.path.abspath(os.path.join(os.path.dirname( '..','_panelui.ini')))
     except:
         try:
             CONFIGPATH = os.path.expanduser("~")
-            CONFIGDIR = os.path.join(CONFIGPATH, 'panelui.ini')
+            CONFIGDIR = os.path.join(CONFIGPATH, '_panelui.ini')
         except:
-            print 'PANELUI ERROR: No panelui.ini found.'
+            print 'PANELUI ERROR: No _panelui.ini found.'
             sys.exit(0)
 
 P='Pressed'

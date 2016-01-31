@@ -281,6 +281,7 @@ To add a comment use the xml syntax for a comment.
 Edit the XML file with a text editor. In most cases you can right
 click on the file and select 'open with text editor' or similar.
 
+[[pyvcp-colors]]
 .Colors
 
 Colors can be specified using the X11 rgb colors by name 'gray75' or
@@ -308,7 +309,24 @@ the 'net' command see the <<sec:hal-commands,HAL Commands>> section.
 
 === Label
 
-A label is a piece of text on your panel.
+A label is a way to add text to your panel.
+
+* '<label></label>' - creates a label
+
+* '<text>"text"</text>' - the text to put in your label, a blank label can be
+  used as a spacer to align other objects.
+
+* '<font>("Helvetica",20)</font>' - specificy the font and size of the text
+
+* '<relief>FLAT</relief>' - specificy the border around the label ('FLAT',
+  'RAISED', 'SUNKEN') default is 'FLAT'
+
+* '<bd>n</bd>' - where 'n' is the border width when 'RAISED' or 'SUNKEN' borders
+  are used.
+
+* '<padx>n</padx>' - where 'n' is the amount of extra horizontal extra space.
+
+* '<pady>n</pady>' - where 'n' is the amount of extra vertical extra space.
 
 The label has an optional disable pin that is created when you add
 '<disable_pin>True</disable_pin>'.
@@ -318,7 +336,6 @@ The label has an optional disable pin that is created when you add
 <label>
     <text>"This is a Label:"</text>
     <font>("Helvetica",20)</font>
-    <disable>False</disable>
 </label>
 -------------------------------------------------
 
@@ -350,23 +367,29 @@ If more than one legend pin is TRUE, the highest numbered 'TRUE' legend will be 
 A LED is used to indicate the status of a 'bit' halpin. The LED color
 will be on_color when the halpin is true, and off_color otherwise.
 
-* '<halpin>' - 
-    sets the name of the pin, default is 'led.n', where n is an integer
+* '<led></led>' - makes a round LED
 
-* '<size>' - 
-    sets the size of the led, default is 20
+* '<rectled></rectled>' - makes a rectangle LED
 
-* '<on_color>' - 
-    sets the color of the LED when the pin is true. default is 'green'
+* '<halpin>name</halpin>' - 'name' of the pin, default is 'led.n', where
+  n is an integer that is incremented for each LED.
 
-* '<off_color>' - 
-    sets the color of the LED when the pin is false. default is 'red'
+* '<size>n</size>' - 'n' is the size of the led in pixels, default is 20
 
-* '<disable_pin>' - 
-    when true adds a disable pin to the led.
+* '<on_color>color</on_color>' - sets the color of the LED when the pin is true.
+  default is 'green'. See <<pyvcp-colors,colors>> for more info.
 
-* '<disabled_color>' - 
-    sets the color of the LED when the pin is disabled.
+* '<off_color>color</off_color>' - sets the color of the LED when the pin is
+  false. default is 'red'
+
+* '<height>n<height>' - sets the height of the LED in pixels
+
+* '<width>n<width>' - sets the width of the LED in pixels
+
+* '<disable_pin>false<disable_pin>' - when true adds a disable pin to the led.
+
+* '<disabled_color>color<disabled_color>' - sets the color of the LED when the
+  pin is disabled.
 
 .Round LED
 
@@ -420,7 +443,7 @@ button is released. Buttons can use the following optional options.
 
 * '<activebackground>"color"</activebackground>' - the cursor over color.
 
-* '<fg> "color"</fg> - the forground color.
+* '<fg> "color"</fg>' - the forground color.
 
 * '<bg>"color"</bg>' - the background color.
 

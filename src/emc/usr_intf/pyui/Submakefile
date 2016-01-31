@@ -1,7 +1,7 @@
 pyui_MODULES = master widgets __init__ commands panelui_validate
 
 PYTARGETS += ../bin/pyui $(patsubst %,../lib/python/pyui/%.py,$(pyui_MODULES)) \
-	../lib/python/pyui/panelui_spec.ini 	../lib/python/pyui/panelui.ini
+	../lib/python/pyui/panelui_spec.ini 	../lib/python/pyui/_panelui.ini
 
 ../lib/python/pyui/%: emc/usr_intf/pyui/%
 	@$(ECHO) Syntax checking python script $(notdir $@)
@@ -20,6 +20,6 @@ PYTARGETS += ../bin/pyui $(patsubst %,../lib/python/pyui/%.py,$(pyui_MODULES)) \
 	$(ECHO) Copying INI script $(notdir $@)
 	cp $< $@
 
-../lib/python/pyui/panelui.ini: emc/usr_intf/pyui/panelui.ini
+../lib/python/pyui/_panelui.ini: emc/usr_intf/pyui/_panelui.ini
 	$(ECHO) Copying INI script $(notdir $@)
 	cp $< $@

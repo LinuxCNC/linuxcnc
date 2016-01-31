@@ -2966,57 +2966,71 @@ class Gscreen:
 
 
     def launch_keyboard(self,args="",x="",y=""):
-        """This is a function to show 'Onboard' virtual keyboard if available
+        """This is a function to show 'Onboard' or 'matchbox' virtual keyboard if available.
             check for key_box widget - if there is, and embedded flag, embed Onboard in it.
             else launch an independant Onboard inside a dialog so it works in fullscreen
             (otherwise it hides when main screen is touched)
             else error message
         """
-        print args,x,y
+        def load_keyboard():
+            if os.path.isfile( "/usr/bin/onboard" ):
+                self.data.ob = subprocess.Popen( ["onboard", "--xid", args, x, y],
+                                                   stdin = subprocess.PIPE,
+                                                   stdout = subprocess.PIPE,
+                                                   close_fds = True )
+                return True
+            elif os.path.isfile( "/usr/bin/matchbox-keyboard" ):
+                self.data.ob = subprocess.Popen( ["matchbox-keyboard", "--xid"],
+                                                   stdin = subprocess.PIPE,
+                                                   stdout = subprocess.PIPE,
+                                                   close_fds = True )
+                return True
+            else:
+                print _("Error with launching on-screen keyboard program -can't find program.")
+                self.add_alarm_entry(_("Error with launching on-screen keyboard program -can't find program."))
+                return False
+
         def dialog_keyboard():
             if self.data.keyboard_dialog:
                 self.data.keyboard_dialog.show()
                 self.data.ob = True
             else:
-                self.data.ob = subprocess.Popen(["onboard","--xid",args,x,y],
-                                       stdin=subprocess.PIPE,
-                                       stdout=subprocess.PIPE,
-                                       close_fds=True)
-                sid = self.data.ob.stdout.readline()
-                self.data.keyboard_dialog = gtk.Dialog(_("Keyboard"),
-                           self.widgets.window1,
-                           gtk.DIALOG_DESTROY_WITH_PARENT)
-                self.data.keyboard_dialog.set_accept_focus(False)
-                self.data.keyboard_dialog.set_deletable(False)
-                socket = gtk.Socket()
-                socket.show()
-                self.data.keyboard_dialog.vbox.add(socket)
-                socket.add_id(long(sid))
-                self.data.keyboard_dialog.parse_geometry("800x200")
-                self.data.keyboard_dialog.show_all()
-                self.data.keyboard_dialog.connect("destroy", self.keyboard_return)
+                if load_keyboard():
+                    sid = self.data.ob.stdout.readline()
+                    self.data.keyboard_dialog = gtk.Dialog(_("Keyboard"),
+                               self.widgets.window1,
+                               gtk.DIALOG_DESTROY_WITH_PARENT)
+                    self.data.keyboard_dialog.set_accept_focus(False)
+                    self.data.keyboard_dialog.set_deletable(False)
+                    socket = gtk.Socket()
+                    socket.show()
+                    self.data.keyboard_dialog.vbox.add(socket)
+                    socket.add_id(long(sid))
+                    self.data.keyboard_dialog.parse_geometry("800x200")
+                    self.data.keyboard_dialog.show_all()
+                    self.data.keyboard_dialog.connect("destroy", self.keyboard_return)
 
         try:
             if self.widgets.key_box and self.data.embedded_keyboard:
-                self.widgets.rightside_box.show()
+                try:
+                    self.widgets.rightside_box.show()
+                except:
+                    pass
                 self.widgets.key_box.show()
-                self.data.ob = subprocess.Popen(["onboard","--xid",args,x,y],
-                                       stdin=subprocess.PIPE,
-                                       stdout=subprocess.PIPE,
-                                       close_fds=True)
-                sid = self.data.ob.stdout.readline()
-                print"keyboard", sid # skip header line
-                socket = gtk.Socket()
-                socket.show()
-                self.widgets.key_box.add(socket)
-                socket.add_id(long(sid))
+                if load_keyboard():
+                    sid = self.data.ob.stdout.readline()
+                    print"keyboard", sid # skip header line
+                    socket = gtk.Socket()
+                    socket.show()
+                    self.widgets.key_box.add(socket)
+                    socket.add_id(long(sid))
             else:
                 dialog_keyboard()
-        except:
+        except Exception, e:
             try:
                 dialog_keyboard()
             except:
-                print _("Error with launching 'Onboard' on-screen keyboard program")
+                print _("Error with launching 'Onboard' on-screen keyboard program %s"%e)
 
     # seems the only way to trap the destroy signal
     def keyboard_return(self,widget):
@@ -3027,7 +3041,7 @@ class Gscreen:
     # else kill it and if needed hide the key_box
     def kill_keyboard(self):
         if not self.data.keyboard_dialog == None:
-            self.data.keyboard_dialog.hide()
+            self.data.keyboard_dialog.destroy()
             self.data.ob = None
             return
         try:

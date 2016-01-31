@@ -63,6 +63,9 @@ set ::default_start_node sim/axis/axis.ini
 # exclude directories that should never be offered
 set ::exclude_list [list common]
 
+# exclude files with special names
+set ::exclude_file_list _panelui.ini
+
 # support filenames that are never copied to user:
 set ::never_copy_list [list maintainer.txt nodemocopy]
 
@@ -163,6 +166,9 @@ proc name_is_usable_nodename {node} {
     if {   [ regexp {.*\.ini$}  $node ] == 1 \
         || [ regexp {.*\.demo$} $node ] == 1 \
        } {
+       if {[lsearch $::exclude_file_list [file tail $node]] >= 0} {
+          return 0  
+       }
        return 1 ;# ok
     }
     return 0 ;# fail
