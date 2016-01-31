@@ -45,17 +45,7 @@ import commands
 import hal
 import shutil
 import time
-from multifilebuilder-gtk3 import MultiFileBuilder
-
-"""
-import gtk actually imports gtk+2.x. If you need to use gtk+3, assuming you already have it installed, you need to write:
-From gi.repository import Gtk (with capital letter G)
-Remove these lines:
-import gtk
-import gtk.glade
-and remember to change all instances of gtk inside your code to Gtk. Example: change gtk.main_quit() to Gtk.main_quit()
-"""
-
+from multifilebuilder_gtk3 import MultiFileBuilder
 
 import traceback
 # otherwise, on hardy the user is shown spurious "[application] closed
@@ -744,8 +734,6 @@ class StepconfApp:
             dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (x,y,z))
             self.builder.add_from_file(os.path.join(datadir, '%s.glade'%x))
             page = self.builder.get_object(x)
-            print x
-	    print page
             notebook1.append_page(page)
         notebook1.set_show_tabs(False)
 
@@ -764,15 +752,6 @@ class StepconfApp:
         self.p.initialize()
         window.show()
         #self.w.xencoderscale.realize()
-        # I can get default background from window
-        #myRGBAobj = notebook1.get_style_context().get_background_color(Gtk.StateFlags.NORMAL)
-	myRGBAobj = self.w.xsteprev.get_style_context().get_background_color(Gtk.StateFlags.NORMAL)
-        # Convert to string for css
-        self.origbg = myRGBAobj.to_string()
-        myRGBAobj = window.get_style_context().get_background_color(Gtk.StateFlags.SELECTED)
-        self.origbg_sel = myRGBAobj.to_string()
-        print self.origbg
-        print self.origbg_sel
         #self.origbg = self.w.xsteprev.style.bg[Gtk.STATE_NORMAL]
 
     def build_base(self):
@@ -1054,12 +1033,13 @@ class StepconfApp:
                 a=get(i)
                 if a <= 0:raise ValueError
             except:
-                mystyle = mystyle + '#' + widget_name + ' { background: red; }' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ' { background-color: red; color: red}' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ':selected { background-color: red; color: @selected_fg_color; }' + os.linesep
                 #self.w[axis+i].modify_base(Gtk.STATE_NORMAL, self.w[axis+i].get_colormap().alloc_color("red"))
             else:
-                mystyle = mystyle + '#' + widget_name + ' { background: ' + self.origbg + '; }' + os.linesep
-                #mystyle = mystyle + '#' + widget_name + ' { background: ' + self.origbg_sel + '; }' + os.linesep
-                #self.w[axis+i].modify_base(Gtk.STATE_NORMAL, self.origbg)
+                mystyle = mystyle + '#' + widget_name + ' { background-color: @bg_color; color: @fg_color; }' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ':selected { background-color: @selected_bg_color; color: @selected_fg_color; }' + os.linesep
+
         # Really I have not found a better way to change the background color
         # I hate the person who removed the get_background_color function in GTK3...
         provider = Gtk.CssProvider()
@@ -1068,16 +1048,6 @@ class StepconfApp:
             Gdk.Screen.get_default(),
             provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
-        mystyle = mystyle + '#' + widget_name + ' { background: ' + self.origbg_sel + '; }' + os.linesep
-        provider = Gtk.CssProvider()
-        provider.load_from_data(mystyle)
-        Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
-
 
     # pport functions
     # disallow some signal combinations

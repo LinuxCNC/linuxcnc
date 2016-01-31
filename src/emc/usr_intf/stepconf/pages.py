@@ -200,10 +200,10 @@ class Pages:
             filter.add_pattern("*.stepconf")
             filter.set_name(_("LinuxCNC 'stepconf' configuration files"))
             dialog = Gtk.FileChooserDialog(_("Modify Existing Configuration"),
-                self.w.window1, Gtk.FILE_CHOOSER_ACTION_OPEN,
-                (Gtk.STOCK_CANCEL, Gtk.RESPONSE_CANCEL,
-                 Gtk.STOCK_OPEN, Gtk.RESPONSE_OK))
-            dialog.set_default_response(Gtk.RESPONSE_OK)
+                self.w.window1, Gtk.FileChooserAction.OPEN,
+                (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+            dialog.set_default_response(Gtk.ResponseType.OK)
             dialog.add_filter(filter)
             if not self.d._lastconfigname == "" and self.d._chooselastconfig:
                 dialog.set_filename(os.path.expanduser("~/linuxcnc/configs/%s.stepconf"% self.d._lastconfigname))
@@ -211,7 +211,7 @@ class Pages:
             dialog.set_current_folder(os.path.expanduser("~/linuxcnc/configs"))
             dialog.show_all()
             result = dialog.run()
-            if result == Gtk.RESPONSE_OK:
+            if result == Gtk.ResponseType.OK:
                 filename = dialog.get_filename()
                 dialog.destroy()
                 self.d.load(filename, self)
