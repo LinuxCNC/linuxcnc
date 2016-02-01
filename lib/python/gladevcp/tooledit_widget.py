@@ -296,7 +296,7 @@ class ToolEdit(gtk.VBox):
                     test = i.lstrip() # localized floats
                     line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
 
-            #print >>file,line
+            print >>file,line
         # Theses lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()
