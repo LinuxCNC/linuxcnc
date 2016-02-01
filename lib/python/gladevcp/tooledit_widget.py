@@ -146,6 +146,9 @@ class ToolEdit(gtk.VBox):
             if test == '1' or test == 'True':
                 self.lathe_display_type = True
                 self.set_lathe_display(True)
+            else:
+                self.lathe_display_type = False
+                self.set_lathe_display(False)
         except:
             pass
 
