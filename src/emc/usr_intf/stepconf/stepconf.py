@@ -22,10 +22,16 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-import pygtk
-pygtk.require("2.0")
-import gtk
-import gtk.glade
+#import pygtk
+#pygtk.require("2.0")
+
+#import gtk
+#import gtk.glade
+from gi.repository import Gtk
+#import gobject
+from gi.repository import GObject
+from gi.repository import Gdk
+
 import sys
 import os
 from optparse import Option, OptionParser
@@ -37,10 +43,9 @@ import errno
 import textwrap
 import commands
 import hal
-import gobject
 import shutil
 import time
-from multifilebuilder import MultiFileBuilder
+from multifilebuilder_gtk3 import MultiFileBuilder
 
 import traceback
 # otherwise, on hardy the user is shown spurious "[application] closed
@@ -52,9 +57,9 @@ def excepthook(exc_type, exc_obj, exc_tb):
     except NameError:
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
-    m = gtk.MessageDialog(w,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+    m = Gtk.MessageDialog(w,
+                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
                 _("Stepconf encountered an error.  The following "
                 "information may be useful in troubleshooting:\n\n")
                 + "".join(lines))
@@ -578,9 +583,9 @@ class Data:
             warnings.append("")
             warnings.append(_("Saving this configuration file will discard configuration changes made outside stepconf."))
             if app:
-                dialog = gtk.MessageDialog(app.w.window1,
-                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                    gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                dialog = Gtk.MessageDialog(app.w.window1,
+                    Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                    Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,
                          "\n".join(warnings))
                 dialog.show_all()
                 dialog.run()
@@ -709,7 +714,6 @@ class Widgets:
         return r
 
 class StepconfApp:
- 
     def __init__(self, dbgstate):
         global debug
         debug = self.debug = dbgstate
@@ -720,7 +724,6 @@ class StepconfApp:
         # Private data holds the array of pages to load, signals, and messages
         self._p = Private_Data()
         self.d = Data(self._p)
-
         # build the glade files
         self.builder = MultiFileBuilder()
         self.builder.add_from_file(os.path.join(datadir,'main_page.glade'))
@@ -740,13 +743,15 @@ class StepconfApp:
         self.HAL = build_HAL.HAL(self)
         self.builder.set_translation_domain(domain) # for locale translations
         self.builder.connect_signals( self.p ) # register callbacks from Pages class
-        wiz_pic = gtk.gdk.pixbuf_new_from_file(wizard)
+        #wiz_pic = Gdk.pixbuf_new_from_file(wizard)
+        image = Gtk.Image()
+        image.set_from_file(wizard)
+        wiz_pic = image.get_pixbuf()
         self.w.wizard_image.set_from_pixbuf(wiz_pic)
         self.d.load_preferences()
         self.p.initialize()
         window.show()
         #self.w.xencoderscale.realize()
-        self.origbg = self.w.xsteprev.style.bg[gtk.STATE_NORMAL]
 
     def build_base(self):
         base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
@@ -775,7 +780,7 @@ class StepconfApp:
         self.HAL.write_halfile(base)
         self.copy(base, "tool.tbl")
         if self.warning_dialog(self._p.MESS_QUIT,False):
-            gtk.main_quit()
+            Gtk.main_quit()
 
 #*******************
 # GUI Helper functions
@@ -817,21 +822,21 @@ class StepconfApp:
     # pop up dialog
     def warning_dialog(self,message,is_ok_type):
         if is_ok_type:
-           dialog = gtk.MessageDialog(app.w.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,message)
+           dialog = Gtk.MessageDialog(app.w.window1,
+                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,message)
            dialog.show_all()
            result = dialog.run()
            dialog.destroy()
            return True
         else:   
-            dialog = gtk.MessageDialog(self.w.window1,
-               gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-               gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,message)
+            dialog = Gtk.MessageDialog(self.w.window1,
+               Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+               Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO, message)
             dialog.show_all()
             result = dialog.run()
             dialog.destroy()
-            if result == gtk.RESPONSE_YES:
+            if result == Gtk.ResponseType.YES:
                 return True
             else:
                 return False
@@ -983,7 +988,8 @@ class StepconfApp:
 
     # for Axis page calculation updates
     def update_pps(self, axis):
-        def get(n): return float(self.w[axis + n].get_text())
+        def get(n):
+            return float(self.w[axis + n].get_text())
         self.axis_sanity_test(axis)
         try:
             pitch = get("leadscrew")
@@ -1016,18 +1022,36 @@ class StepconfApp:
             self.p.set_buttons_sensitive(0,0)
             self.w[axis + "axistest"].set_sensitive(0)
 
-    def axis_sanity_test(self,axis):
-        def get(n): return float(self.w[axis + n].get_text())
+    def axis_sanity_test(self, axis):
+        # I hate the inner function
+        def get(n):
+            return float(self.w[axis + n].get_text())
+
+        # List of field with background color can change
         datalist = ('steprev','microstep','pulleynum','pulleyden','leadscrew',
                     'maxvel','maxacc')
+        mystyle =""
         for i in datalist:
+            # Damn! this is a bug. GTKBuilder sets the widget name to be the builder ID.
+            widget_name = Gtk.Buildable.get_name(self.w[axis+i])
             try:
                 a=get(i)
                 if a <= 0:raise ValueError
             except:
-                self.w[axis+i].modify_base(gtk.STATE_NORMAL, self.w[axis+i].get_colormap().alloc_color("red"))
+                mystyle = mystyle + '#' + widget_name + ' { background-color: red; color: red}' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ':selected { background-color: red; color: @selected_fg_color; }' + os.linesep
             else:
-                self.w[axis+i].modify_base(gtk.STATE_NORMAL, self.origbg)
+                mystyle = mystyle + '#' + widget_name + ' { background-color: @bg_color; color: @fg_color; }' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ':selected { background-color: @selected_bg_color; color: @selected_fg_color; }' + os.linesep
+
+        # Really I have not found a better way to change the background color
+        # I hate the person who removed the get_background_color function in GTK3...
+        provider = Gtk.CssProvider()
+        provider.load_from_data(mystyle)
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
     # pport functions
     # disallow some signal combinations
@@ -1132,7 +1156,7 @@ class StepconfApp:
         self.latency_pid = os.spawnvp(os.P_NOWAIT,
                                 "latency-test", ["latency-test"])
         self.w['window1'].set_sensitive(0)
-        gobject.timeout_add(15, self.latency_running_callback)
+        GObject.timeout_add(15, self.latency_running_callback)
 
     def latency_running_callback(self):
         pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
@@ -1354,7 +1378,7 @@ class StepconfApp:
 
         if axis == "a":
             self.w.testvelunit.set_text(_("deg / s"))
-            self.w.testaccunit.set_text(_("deg / s²"))
+            self.w.testaccunit.set_text(_(u"deg / s²"))
             self.w.testampunit.set_text(_("deg"))
             self.w.testvel.set_increments(1,5)
             self.w.testacc.set_increments(1,5)
@@ -1368,7 +1392,7 @@ class StepconfApp:
             self.w.testamplitude.set_value(10)
         elif self.d.units:
             self.w.testvelunit.set_text(_("mm / s"))
-            self.w.testaccunit.set_text(_("mm / s²"))
+            self.w.testaccunit.set_text(_(u"mm / s²"))
             self.w.testampunit.set_text(_("mm"))
             self.w.testvel.set_increments(1,5)
             self.w.testacc.set_increments(1,5)
@@ -1382,7 +1406,7 @@ class StepconfApp:
             self.w.testamplitude.set_value(15)
         else:
             self.w.testvelunit.set_text(_("in / s"))
-            self.w.testaccunit.set_text(_("in / s²"))
+            self.w.testaccunit.set_text(_(u"in / s²"))
             self.w.testampunit.set_text(_("in"))
             self.w.testvel.set_increments(.1,5)
             self.w.testacc.set_increments(1,5)
@@ -1531,5 +1555,5 @@ if __name__ == "__main__":
         app = StepconfApp(dbgstate=True)
     else:
         app = StepconfApp(False)
-    gtk.main()
+    Gtk.main()
 
