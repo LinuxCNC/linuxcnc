@@ -67,7 +67,6 @@ class ToolEdit(gtk.VBox):
             "on_add_clicked" : self.add,
             "on_reload_clicked" : self.reload,
             "on_save_clicked" : self.save,
-            "on_style_clicked" : self.display_toggle,
             "cell_toggled" : self.toggled
             }
         self.wTree.connect_signals( dic )
@@ -140,16 +139,16 @@ class ToolEdit(gtk.VBox):
         # If the toolfile was specified when tooledit was created load it
         if toolfile:
             self.reload(None)
-        # check the ini file if UNITS are set to mm
-        # first check the global settings
-        # if not available then the X axis units
+        # check the ini file if display-type: LATHE is set
         try:
             self.inifile = linuxcnc.ini(INIPATH)
             test = self.inifile.find("DISPLAY", "LATHE")
-            print test,"<<<<<<"
             if test == '1' or test == 'True':
                 self.lathe_display_type = True
                 self.set_lathe_display(True)
+            else:
+                self.lathe_display_type = False
+                self.set_lathe_display(False)
         except:
             pass
 
@@ -227,7 +226,7 @@ class ToolEdit(gtk.VBox):
         # clear the current liststore, search the tool file, and add each tool
         if self.toolfile == None:return
         self.model.clear()
-        print "toolfile:",self.toolfile
+        #print "toolfile:",self.toolfile
         if not os.path.exists(self.toolfile):
             print "Toolfile does not exist"
             return
@@ -279,7 +278,7 @@ class ToolEdit(gtk.VBox):
     def save(self,widget):
         if self.toolfile == None:return
         file = open(self.toolfile, "w")
-        print self.toolfile
+        #print self.toolfile
         liststore = self.model
         for row in liststore:
             values = [ value for value in row ]
@@ -296,7 +295,7 @@ class ToolEdit(gtk.VBox):
                     test = i.lstrip() # localized floats
                     line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
 
-            #print >>file,line
+            print >>file,line
         # Theses lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()
