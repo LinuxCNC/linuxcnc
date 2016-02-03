@@ -1,4 +1,12 @@
-ver 1.5.6
+ver. 1.5.6.1
+- bugfix: If a user did jog with keyboard and while jogging changed the increments
+  pressing "i" on the keyboard the jog move would never stop. I do check now for
+  self.stat.state and do avoid that way the increment changes
+  if the user changes the jog-increment using the hal pin, the increment will change
+  to the new value, but the jog command will be aborted.
+- corrected some typos 
+
+ver. 1.5.6
 - deleted the alarm_entry log page, as it has not been used by users
   to report bugs, and therefor it was designed.
 - changing DRO mode by click can be disabled on settings page
