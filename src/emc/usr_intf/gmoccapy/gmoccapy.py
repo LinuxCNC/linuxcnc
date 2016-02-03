@@ -47,6 +47,7 @@ from gladevcp.gladebuilder import GladeBuilder
 from time import strftime   # needed to add a time stamp with alarm entrys
 from time import localtime  # needed to add a time stamp with alarm entrys
 from ImageChops import difference
+from string import strip
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook( exc_type, exc_obj, exc_tb ):
@@ -88,7 +89,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.1"
+_RELEASE = " 2.0.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -129,9 +130,7 @@ INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 
 class gmoccapy( object ):
-    def __init__( self, argv ):
-
-        print(argv)
+    def __init__( self, argv ):        
 
         # prepare for translation / internationalisation
         locale.setlocale( locale.LC_ALL, '' )
@@ -213,6 +212,30 @@ class gmoccapy( object ):
         self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"
         self.error_sound = "/usr/share/sounds/ubuntu/stereo/dialog-question.ogg"
 
+        # check the arguments given from the command line (Ini file)
+        self.user_mode = False
+        logofile = None
+        for index,arg in enumerate(argv):
+            #print(index, " = ",arg)
+            if arg == "-user_mode":
+                self.user_mode = True
+                self.widgets.tbtn_setup.set_sensitive(False)
+                message = _("**** GMOCCAPY INI Entry **** \n")
+                message += _("user mode selected")
+                print ( message )        
+            if arg == "-logo":
+                logofile = str(argv[ index + 1 ])
+                message = _("**** GMOCCAPY INI Entry **** \n")
+                message += _("logo entry found = %s") % logofile
+                print ( message )        
+                logofile = logofile.strip("\"\'")
+                if not os.path.isfile(logofile):
+                    logofile = None
+                    message = _("**** GMOCCAPY INI Entry Error **** \n")
+                    message += _("Logofile entry found, but could not be converted to path.\n")
+                    message += _("The file path should not contain any spaces")
+                    print( message )
+                
         # Our own clas to get information from ini the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
         self.get_ini_info = getiniinfo.GetIniInfo()
@@ -259,14 +282,11 @@ class gmoccapy( object ):
         self._show_tooledit_tab( False )
         self._show_iconview_tab( False )
 
-        # check if the user want a Logo
-        if self.prefs.getpref( "logo", False, bool ):
-            logofile = self.prefs.getpref( "logofile", None, str )
-            if logofile:
-                self.widgets.img_logo.set_from_file( logofile )
-                self.widgets.img_logo.show()
-                self.widgets.hbox_jog.hide()
-                self.widgets.hbox_jog_vel.hide()
+        # check if the user want a Logo (given as command line argument)
+        if logofile:
+            self.widgets.img_logo.set_from_file( logofile )
+            self.widgets.img_logo.show()
+            self.widgets.frm_jogging.hide()
 
         # the velocity settings
         self.min_spindle_rev = self.prefs.getpref( "spindle_bar_min", 0.0, float )
@@ -1571,7 +1591,7 @@ class gmoccapy( object ):
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks"
         ]
-        if not self.widgets.rbt_hal_unlock.get_active():
+        if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
             widgetlist.append( "tbtn_setup" )
         if self.all_homed or self.no_force_homing:
             widgetlist.append( "rbt_mdi" )
@@ -3953,7 +3973,7 @@ class gmoccapy( object ):
         self.widgets[widget].set_value( value )
 
     def _on_unlock_settings_changed( self, pin ):
-        if not self.widgets.rbt_hal_unlock.get_active():
+        if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
             return
         self.widgets.tbtn_setup.set_sensitive( pin.get() )
 

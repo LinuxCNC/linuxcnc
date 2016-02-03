@@ -1,3 +1,7 @@
+ver. 2.0.2
+- added user mode as command line argument
+- added logo as command line argument
+
 ver. 2.0.1
 - when using hardware button to jog the axis, the 5th axis wath not 
   recognized, resulting in a jog of the 4th axis. I solved this bug
