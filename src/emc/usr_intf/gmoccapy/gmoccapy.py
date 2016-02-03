@@ -30,22 +30,22 @@ import hal                # base hal class to react to hal signals
 import hal_glib           # needed to make our own hal pins
 import gtk                # base for pygtk widgets and constants
 import sys                # handle system calls
-import os                 # needed to get the paths and directorys
+import os                 # needed to get the paths and directories
 import pango              # needed for font settings and changing
-import gladevcp.makepins  # needed for the dialog"s calulator widget
-import atexit             # needed to register childs to be closed on closing the GUI
-import subprocess         # to launch onboard and other proceses
+import gladevcp.makepins  # needed for the dialog"s calculator widget
+import atexit             # needed to register child's to be closed on closing the GUI
+import subprocess         # to launch onboard and other processes
 import vte                # To get the embedded terminal
 import tempfile           # needed only if the user click new in edit mode to open a new empty file
-import linuxcnc           # to get our own error sytsem
+import linuxcnc           # to get our own error system
 import gobject            # needed to add the timer for periodic
 import locale             # for setting the language of the GUI
 import gettext            # to extract the strings to be translated
 
 from gladevcp.gladebuilder import GladeBuilder
 
-from time import strftime   # needed to add a time stamp with alarm entrys
-from time import localtime  # needed to add a time stamp with alarm entrys
+from time import strftime   # needed to add a time stamp with alarm entries
+from time import localtime  # needed to add a time stamp with alarm entries
 from ImageChops import difference
 
 # Throws up a dialog with debug info when an error is encountered
@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.6"
+_RELEASE = " 1.5.6.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1986,6 +1986,8 @@ class gmoccapy( object ):
                 self.on_btn_jog_released( widget )
         elif keyname == "I" or keyname == "i":
             if signal:
+                if self.stat.state != 1: # still moving
+                    return
                 # The active button name is hold in self.active_increment
                 if keyname == "I":
                     # so lets increment it by one
@@ -2025,6 +2027,9 @@ class gmoccapy( object ):
 
     # This is the jogging part
     def on_increment_changed( self, widget = None, data = None ):
+        if self.stat.interp_state != linuxcnc.INTERP_IDLE:
+            return
+
         if data == 0:
             self.distance = 0
         else:
@@ -2596,6 +2601,7 @@ class gmoccapy( object ):
 
         axis = "xyzabcuvw".index( axisletter.lower() )
 
+        # Otherwise the movement would stop before the desired distance was moved
         if self.distance <> 0:
             pass
         else:
@@ -3932,6 +3938,10 @@ class gmoccapy( object ):
                 self.notification.del_last()
 
     def _on_pin_incr_changed( self, pin, buttonnumber ):
+        # print ("State = ", self.stat.state)
+        if self.stat.state != 1:
+            self.command.abort()
+            self.command.wait_complete()
         if not pin.get():
             return
         data = self.jog_increments[int( buttonnumber )]
