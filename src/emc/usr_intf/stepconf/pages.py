@@ -28,9 +28,11 @@
 # add GLADE callbacks for the page here.
 # add large or common function calls to stepconf.py
 
-import gtk
+#import gtk
 import os
-import gobject
+from gi.repository import Gtk
+#import gobject
+from gi.repository import GObject
 
 class Pages:
     def __init__(self, app):
@@ -48,7 +50,7 @@ class Pages:
 #********************
     def on_window1_destroy(self, *args):
         if self.a.warning_dialog (self._p.MESS_ABORT,False):
-            gtk.main_quit()
+            Gtk.main_quit()
             return True
         else:
             return False
@@ -141,9 +143,12 @@ class Pages:
 #***************
     def initialize(self):
         # one time initialized data
+	liststore = self.w.drivertype.get_model()
         for i in self._p.alldrivertypes:
-            self.w.drivertype.append_text(i[1])
-        self.w.drivertype.append_text(_("Other"))
+            #self.w.drivertype.append_text(i[1])
+            liststore.append([i[1]])
+        #self.w.drivertype.append_text(_("Other"))
+        liststore.append([_("Other")])
         self.w.title_label.set_text(self._p.available_page[0][1])
         self.w.button_back.set_sensitive(False)
         self.w.label_fwd.set_text(self._p.MESS_START)
@@ -191,14 +196,14 @@ class Pages:
             if not debug:
                 os.remove('/tmp/temp.stepconf')
         elif not self.w.createconfig.get_active():
-            filter = gtk.FileFilter()
+            filter = Gtk.FileFilter()
             filter.add_pattern("*.stepconf")
             filter.set_name(_("LinuxCNC 'stepconf' configuration files"))
-            dialog = gtk.FileChooserDialog(_("Modify Existing Configuration"),
-                self.w.window1, gtk.FILE_CHOOSER_ACTION_OPEN,
-                (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                 gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-            dialog.set_default_response(gtk.RESPONSE_OK)
+            dialog = Gtk.FileChooserDialog(_("Modify Existing Configuration"),
+                self.w.window1, Gtk.FileChooserAction.OPEN,
+                (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+            dialog.set_default_response(Gtk.ResponseType.OK)
             dialog.add_filter(filter)
             if not self.d._lastconfigname == "" and self.d._chooselastconfig:
                 dialog.set_filename(os.path.expanduser("~/linuxcnc/configs/%s.stepconf"% self.d._lastconfigname))
@@ -206,7 +211,7 @@ class Pages:
             dialog.set_current_folder(os.path.expanduser("~/linuxcnc/configs"))
             dialog.show_all()
             result = dialog.run()
-            if result == gtk.RESPONSE_OK:
+            if result == Gtk.ResponseType.OK:
                 filename = dialog.get_filename()
                 dialog.destroy()
                 self.d.load(filename, self)
@@ -269,12 +274,16 @@ class Pages:
         else:
             self.d.number_pports = 1
         self.page_set_state('pport2',self.w.radio_pp2.get_active())
-        dbg("active axes: %s = %d"% (self.w.axes.get_active_text(),self.d.axes))
-        self.page_set_state('axisz','Z' in self.w.axes.get_active_text())
-        self.page_set_state('axisy','Y' in self.w.axes.get_active_text())
-        self.page_set_state('axisu','U' in self.w.axes.get_active_text())
-        self.page_set_state('axisv','V' in self.w.axes.get_active_text())
-        self.page_set_state('axisa','A' in self.w.axes.get_active_text())
+        # Get item selected in combobox
+        tree_iter = self.w.axes.get_active_iter()
+        model = self.w.axes.get_model()
+        text_selected = model[tree_iter][0]
+        dbg("active axes: %s = %d"% (text_selected,self.d.axes))
+        self.page_set_state('axisz','Z' in text_selected)
+        self.page_set_state('axisy','Y' in text_selected)
+        self.page_set_state('axisu','U' in text_selected)
+        self.page_set_state('axisv','V' in text_selected)
+        self.page_set_state('axisa','A' in text_selected)
 
     # Basic page callbacks
     def on_pp2_checkbutton_toggled(self, *args): 
@@ -643,8 +652,12 @@ class Pages:
         self.a.update_axis_test()
 
     def axis_prepare(self, axis):
-        def set_text(n): self.w[axis + n].set_text("%s" % self.d[axis + n])
-        def set_active(n): self.w[axis + n].set_active(self.d[axis + n])
+        def set_text(n):
+            self.w[axis + n].set_text("%s" % self.d[axis + n])
+            # Set a name for this widget. Necessary for css id
+            self.w[axis + n].set_name("%s%s" % (axis, n))
+        def set_active(n):
+            self.w[axis + n].set_active(self.d[axis + n])
         SIG = self._p
         set_text("steprev")
         set_text("microstep")
@@ -663,19 +676,19 @@ class Pages:
         if axis == "a":
             self.w[axis + "screwunits"].set_text(_("degree / rev"))
             self.w[axis + "velunits"].set_text(_("deg / s"))
-            self.w[axis + "accunits"].set_text(_("deg / s²"))
+            self.w[axis + "accunits"].set_text(_(u"deg / s²"))
             self.w[axis + "accdistunits"].set_text(_("deg"))
             self.w[axis + "scaleunits"].set_text(_("Steps / deg"))
         elif self.d.units:
             self.w[axis + "screwunits"].set_text(_("mm / rev"))
             self.w[axis + "velunits"].set_text(_("mm / s"))
-            self.w[axis + "accunits"].set_text(_("mm / s²"))
+            self.w[axis + "accunits"].set_text(_(u"mm / s²"))
             self.w[axis + "accdistunits"].set_text(_("mm"))
             self.w[axis + "scaleunits"].set_text(_("Steps / mm"))
         else:
             self.w[axis + "screwunits"].set_text(_("rev / in"))
             self.w[axis + "velunits"].set_text(_("in / s"))
-            self.w[axis + "accunits"].set_text(_("in / s²"))
+            self.w[axis + "accunits"].set_text(_(u"in / s²"))
             self.w[axis + "accdistunits"].set_text(_("in"))
             self.w[axis + "scaleunits"].set_text(_("Steps / in"))
 
@@ -688,7 +701,7 @@ class Pages:
         self.w[axis + "latchdir"].set_sensitive(homes)
 
         self.w[axis + "steprev"].grab_focus()
-        gobject.idle_add(lambda: self.a.update_pps(axis))
+        GObject.idle_add(lambda: self.a.update_pps(axis))
 
     def axis_done(self, axis):
         def get_text(n): self.d[axis + n] = float(self.w[axis + n].get_text())
