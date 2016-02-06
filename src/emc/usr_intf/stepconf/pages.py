@@ -695,6 +695,7 @@ class Pages:
         inputs = self.a.build_input_set()
         thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
                             "max-home-" + axis, "both-home-" + axis))
+        # Test if exists limit switches
         homes = bool(inputs & thisaxishome)
         self.w[axis + "homesw"].set_sensitive(homes)
         self.w[axis + "homevel"].set_sensitive(homes)
