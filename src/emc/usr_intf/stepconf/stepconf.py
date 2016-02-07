@@ -734,7 +734,7 @@ class StepconfApp:
             dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (x,y,z))
             self.builder.add_from_file(os.path.join(datadir, '%s.glade'%x))
             page = self.builder.get_object(x)
-            notebook1.append_page(page)
+            notebook1.append_page(page, Gtk.Label(x))
         notebook1.set_show_tabs(False)
 
         self.w = Widgets(self.builder)
