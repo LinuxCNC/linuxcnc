@@ -1266,6 +1266,12 @@ obj-$(CONFIG_PEPPER) += pepper.o
 pepper-objs := hal/components/pepper.o $(MATHSTUB)
 endif
 
+#ifdef TARGET_PLATFORM_SOCFPGA
+#ifeq ($(BUILD_SYS),user-dso)
+#obj-$(CONFIG_HAL_UIO) += ???.o
+#hm2_cvsoc-uio-objs := hal/drivers/???.o
+#endif
+
 ifdef TARGET_PLATFORM_ZEDBOARD
 obj-$(CONFIG_HAL_GPIO) += hal_zed_gpio.o
 hal_zed_gpio-objs := hal/drivers/hal_zed_gpio.o
@@ -1328,9 +1334,12 @@ endif
 ifeq ($(BUILD_HOSTMOT2),yes)
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_7i90.o hm2_pci.o hm2_test.o
 ifeq ($(BUILD_SYS),user-dso)
-obj-$(CONFIG_HOSTMOT2) += hm2_eth.o
+obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_cvsoc.o
 hm2_eth-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_eth.o   \
+    $(MATHSTUB)
+hm2_cvsoc-objs  :=			  \
+    hal/drivers/mesa-hostmot2/hm2_cvsoc.o \
     $(MATHSTUB)
 endif
 #obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_pci.o hm2_7i43.o
@@ -1598,6 +1607,13 @@ ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hm2_eth$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_eth-objs))
 endif
 $(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
+endif
+
+ifdef TARGET_PLATFORM_SOCFPGA
+ifeq ($(BUILD_SYS),user-dso)
+$(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
+$(RTLIBDIR)/hm2_cvsoc$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_cvsoc-objs))
+endif
 endif
 
 ifdef TARGET_PLATFORM_BEAGLEBONE
