@@ -704,7 +704,7 @@ class Data:
             self[temp+"3pwmscale"]= 1
             self[temp+"3pwmdeadtime"]= 500
             self[temp+"maxoutput"]= 0
-            self[temp+"P"]= 50
+            self[temp+"P"]= None
             self[temp+"I"]= 0
             self[temp+"D"]= 0
             self[temp+"FF0"]= 0
@@ -4402,7 +4402,20 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         model.append((_("Custom"),))   
         w["steprev"].set_text("%s" % d[axis+"steprev"])
         w["microstep"].set_text("%s" % d[axis +"microstep"])
-        set_value("P")
+        # P setting needs to default to different values based on
+        # stepper vrs servo configs. But we still want to allow user setting it.
+        # If the value is None then we should set a default value, if not then
+        # that means it's been set to something already...hopefully right.
+        # TODO this should be smarter - after going thru a config once it
+        # always uses the value set here - if it is set to a default value
+        # if should keep checking that the value is still right.
+        # but thats a bigger change then we want now.
+        if not d[axis + "P"] == None:
+            set_value("P")
+        elif stepdriven == True:
+            w[axis + "P"].set_value(d.servoperiod/1000)
+        else:
+            w[axis + "P"].set_value(50)
         set_value("I")
         set_value("D")
         set_value("FF0")
