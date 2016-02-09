@@ -1,5 +1,4 @@
 # This file sets up simulated limits/home/spindle encoder hardware.
-# This is a generated file do not edit.
 
 loadrt sim_encoder names=sim-encoder
 setp sim-encoder.ppr 100
@@ -12,27 +11,27 @@ net fake-spindle-index         sim-encoder.phase-Z
 
 loadrt sim_axis_hardware names=sim-hardware
 
-net Xjoint-pos-fb      axis.0.joint-pos-fb      sim-hardware.Xcurrent-pos
-net Yjoint-pos-fb      axis.1.joint-pos-fb      sim-hardware.Ycurrent-pos
-net Zjoint-pos-fb      axis.2.joint-pos-fb      sim-hardware.Zcurrent-pos
+net xpos-fb            sim-hardware.Xcurrent-pos
+net ypos-fb            sim-hardware.Ycurrent-pos
+net zpos-fb            sim-hardware.Zcurrent-pos
 
 setp sim-hardware.Xmaxsw-upper 1000
-setp sim-hardware.Xmaxsw-lower [AXIS_0]MAX_LIMIT
-setp sim-hardware.Xminsw-upper [AXIS_0]MIN_LIMIT
+setp sim-hardware.Xmaxsw-lower [JOINT_0]MAX_LIMIT
+setp sim-hardware.Xminsw-upper [JOINT_0]MIN_LIMIT
 setp sim-hardware.Xminsw-lower -1000
-setp sim-hardware.Xhomesw-pos [AXIS_0]HOME_OFFSET
+setp sim-hardware.Xhomesw-pos [JOINT_0]HOME_OFFSET
 
 setp sim-hardware.Ymaxsw-upper 1000
-setp sim-hardware.Ymaxsw-lower [AXIS_1]MAX_LIMIT
-setp sim-hardware.Yminsw-upper [AXIS_1]MIN_LIMIT
+setp sim-hardware.Ymaxsw-lower [JOINT_1]MAX_LIMIT
+setp sim-hardware.Yminsw-upper [JOINT_1]MIN_LIMIT
 setp sim-hardware.Yminsw-lower -1000
-setp sim-hardware.Yhomesw-pos [AXIS_1]HOME_OFFSET
+setp sim-hardware.Yhomesw-pos [JOINT_1]HOME_OFFSET
 
 setp sim-hardware.Zmaxsw-upper 1000
-setp sim-hardware.Zmaxsw-lower [AXIS_2]MAX_LIMIT
-setp sim-hardware.Zminsw-upper [AXIS_2]MIN_LIMIT
+setp sim-hardware.Zmaxsw-lower [JOINT_2]MAX_LIMIT
+setp sim-hardware.Zminsw-upper [JOINT_2]MIN_LIMIT
 setp sim-hardware.Zminsw-lower -1000
-setp sim-hardware.Zhomesw-pos [AXIS_2]HOME_OFFSET
+setp sim-hardware.Zhomesw-pos [JOINT_2]HOME_OFFSET
 
 
 net fake-spindle-index   <= parport.0.pin-10-in-fake
