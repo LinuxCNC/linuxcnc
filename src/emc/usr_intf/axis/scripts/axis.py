@@ -290,6 +290,12 @@ def from_internal_linear_unit(v, unit=None):
     lu = (unit or 1) * 25.4
     return v*lu
 
+def masked_axes_count():
+    ct = 0
+    for i in range(linuxcnc.MAX_JOINTS):
+        if s.axis_mask & (1<<i): ct +=1
+    return ct
+
 class Notification(Tkinter.Frame):
     def __init__(self, master):
         self.widgets = []
@@ -579,15 +585,38 @@ class MyOpengl(GlCanonDraw, Opengl):
         text.delete("0.0", "end")
         t = droposstrs[:]
         i = 0
+        axes_count = masked_axes_count()
         for ts in t:
-            if i < len(homed) and homed[i]:
-                t[i] += "*"
-            else:
-                t[i] += " "
-            if i < len(homed) and limit[i]:
-                t[i] += "!" # !!!1!
-            else:
-                t[i] += " "
+            if s.motion_mode == linuxcnc.TRAJ_MODE_FREE:
+                imax = len(homed)
+                if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+                    imax = axes_count
+                if i < imax and homed[i]:
+                    t[i] += "*"
+                else:
+                    t[i] += " "
+                if i < imax and limit[i]:
+                    t[i] += "!"
+                else:
+                    t[i] += " "
+            else: # teleop mode
+                if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+                    if i < axes_count and homed[i]:
+                        t[i] += "*"
+                    else:
+                        t[i] += " "
+                    if i < axes_count and limit[i]:
+                        t[i] += "!"
+                    else:
+                        t[i] += " "
+                else: # non-identity kinematics
+                    all_joints_homed = all_homed()
+                    if i < axes_count and all_joints_homed:
+                        t[i] += "*"
+                    else:
+                        t[i] += " "
+                    # Note: teleop and non-identity:
+                    # don't try to display joint limits
             i+=1
             
         text.insert("end", "\n".join(t))
@@ -1750,6 +1779,7 @@ def all_homed():
 def go_home(num):
     vars.teleop_mode.set(0)
     commands.set_teleop_mode()
+    c.wait_complete()
     c.home(num)
     c.wait_complete()
 
@@ -3214,9 +3244,7 @@ if len(trajcoordinates) > jointcount:
           "Error: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d"
           %(trajcoordinates,jointcount))
 
-no_joint_display = False
-if (s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY):
-    no_joint_display = True
+no_joint_display = (s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
 
 statfail=0
 statwait=.01
