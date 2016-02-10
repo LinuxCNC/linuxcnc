@@ -342,6 +342,24 @@ AUTO_TELEOP = 20
 ...
 ----
 
+==== Home icons
+
+For identity kinematics, home icons are shown for joint numbers and
+the corresponding axis letter when a joint is homed.
+
+For non-identity kinematics, home icons are shown for individual joints
+when the joint is homed but home icons for axis letters are shown only
+if ALL joints are homed.
+
+==== Limit icons
+
+For identity kinematics, limit icons are shown for joint numbers and
+the corresponding axis letter when a joint limit is active.
+
+For non-identity kinematics, limit icons are shown for individual joints
+when the joint limit is active.  Limit icons are not shown for axis
+letters since there is no guaranteed correspondence to a joint number.
+
 === Halui
 
 Halui now supports teleop jogging resulting in some changed pin names and
