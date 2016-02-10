@@ -916,6 +916,17 @@ class GlCanonDraw:
         self.draw_grid_permuted(rotation, permutations[view],
                 inverse_permutations[view])
 
+    def all_joints_homed(self):
+        for i in range (self.stat.joints):
+            if not self.stat.homed[i]: return False
+        return True
+
+    def axes_count(self):
+        ct = 0
+        for i in range(linuxcnc.MAX_JOINTS):
+            if self.stat.axis_mask & (1<<i): ct +=1
+        return ct
+
     def redraw(self):
         s = self.stat
         s.poll()
@@ -1182,6 +1193,9 @@ class GlCanonDraw:
         glEnd()
         glDisable(GL_BLEND)
 
+        all_joints_homed = self.all_joints_homed()
+        axes_count = self.axes_count()
+
         maxlen = 0
         ypos -= linespace+5
         i=0
@@ -1199,14 +1213,26 @@ class GlCanonDraw:
                         glRasterPos2i(pixel_width + 8, ypos - linespace) 
                         glBitmap(13, 16, 0, 3, 17, 0, homeicon)
                     else:
-                        glRasterPos2i(pixel_width + 8, ypos)
-                        glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+                        if ( (   self.get_joints_mode()
+                              or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+                              or all_joints_homed
+                             )
+                             and not (("Vel" in string) or ("DTG" in string))
+                           ):
+                            glRasterPos2i(pixel_width + 8, ypos)
+                            glBitmap(13, 16, 0, 3, 17, 0, homeicon)
 
                 if i < len(homed) and limit[i]:
-                    glBitmap(13, 16, 0, 1, 17, 0, limiticon)
+                    if (     self.get_joints_mode()
+                        or (    (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+                            and (i < axes_count)
+                            # pathological case may have more limits than axis letters
+                            # but rejecting i >=_axes count prevents some wrong display
+                           )
+                       ):
+                        glBitmap(13, 16, 0, 1, 17, 0, limiticon)
                 ypos -= linespace
                 i = i + 1
-        # FIXME needs work for joints_axes with show_offsets below
         if self.get_show_offsets():
             i=0
             for string in droposstrs:
@@ -1215,8 +1241,15 @@ class GlCanonDraw:
                 for char in string:
                     glCallList(base + ord(char))
                 if i < len(homed) and homed[i]:
-                    glRasterPos2i(charwidth *3, ypos)
-                    glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+                    if ( (   self.get_joints_mode()
+                          or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+                          or all_joints_homed
+                         )
+                          and not ((len(string)==0) or ("G5" in string))
+                       ):
+                        glRasterPos2i(charwidth *1, ypos)
+                        glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+
                 ypos -= linespace
                 i = i + 1
 
@@ -1317,6 +1350,7 @@ class GlCanonDraw:
             limit, homed, posstrs, droposstrs = self.dro_format(self.stat,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
         else:
             # N.B. no conversion here because joint positions are unitless
+            #      joint_mode and display_joint
             posstrs = ["  %s:% 9.4f" % i for i in
                 zip(range(self.get_num_joints()), s.joint_actual_position)]
             droposstrs = posstrs
