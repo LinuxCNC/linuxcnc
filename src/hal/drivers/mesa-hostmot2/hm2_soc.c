@@ -382,16 +382,17 @@ static int hm2_soc_mmap(void) {
     uio_fd = open ( "/dev/uio0", ( O_RDWR | O_SYNC ) );
     if (uio_fd < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Could not open UIO resource for: hm2_mksocfpga . (%s)\n", strerror(errno));
-        return 0;
+        return -1;
     }
     // get virtual addr that maps to physical
     virtual_base = mmap( NULL, HM2REG_IO_0_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, uio_fd, 0);
-    return (1);
+//    return (0);
     
+    LL_PRINT("PRINT: mmap run sucessfull \n");
 
     me = &hm2_soc_board[0];
     this = &me->llio;
-     rtapi_snprintf(me->llio.name, sizeof(me->llio.name), "hm2_5i25.%d", num_5i25);
+    rtapi_snprintf(me->llio.name, sizeof(me->llio.name), "hm2_5i25.%d", num_5i25);
     
     me->llio.num_ioport_connectors = 2;
     me->llio.pins_per_connector = 17;
@@ -408,14 +409,16 @@ static int hm2_soc_mmap(void) {
     me->llio.read = hm2_soc_read;
     me->llio.write = hm2_soc_write;
 
+   LL_PRINT("PRINT: will now run hm2_register \n");
+
     r = hm2_register(&hm2_soc_board->llio, config[num_boards]);
 
     if (r != 0) {
-        THIS_ERR("hm2_soc_board fails HM2 registration\n");
+        LL_ERR("hm2_soc_board fails HM2 registration\n");
         return -EIO;
     }
 
-    THIS_PRINT("initialized AnyIO hm2_soc_board \n");
+    LL_PRINT("initialized AnyIO hm2_soc_board \n");
 
     num_boards ++;
     return 0;
