@@ -20,7 +20,7 @@
 
 #define HM2_SOCFPGA_VERSION "0.8"
 
-#define HM2_LLIO_NAME "hm2_cvsoc"
+#define HM2_LLIO_NAME "hm2_soc"
 
 
 #define HM2_SOC_MAX_BOARDS  1
@@ -34,7 +34,7 @@
 
 
 /* how long should we wait for DONE when programming socfpga systems */
-#define DONE_WAIT_CVSOCFPGA			2000 // :-)
+#define DONE_WAIT_socFPGA			2000 // :-)
 
 // the pci dev would corrospond to the uio dev in the soc system.
 // the only unique thing the uio device provides is easy access to the hardware memory
@@ -54,7 +54,7 @@ typedef struct {
     unsigned long ctrl_base_addr;
     unsigned long data_base_addr;
     hm2_lowlevel_io_t llio;
-} hm2_cvsoc_t;
+} hm2_soc_t;
 
 struct compatible {
         char vendor[32];
@@ -79,6 +79,6 @@ typedef struct {
     } test_pattern;
 
     hm2_lowlevel_io_t llio;
-} hm2_cvsoc_t;
+} hm2_soc_t;
 */
 volatile void *virtual_base;

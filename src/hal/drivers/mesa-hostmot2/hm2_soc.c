@@ -63,7 +63,6 @@
 #include "rtapi_app.h"
 //#include "rtapi_math.h"
 #include "rtapi_string.h"
-//#include "rtapi_pci.h"
 
 #include "hal.h"
 
@@ -73,8 +72,8 @@
 
 
 //#include "hal/drivers/mesa-hostmot2/bitfile.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"
-#include "hm2_cvsoc.h"
+#include "hostmot2-lowlevel.h"
+#include "hm2_soc.h"
 
 //#include "../Include/mkhm2soc/hps_0.h"
 #define HM2REG_IO_0_SPAN 65536
@@ -94,7 +93,7 @@ static int  uio_fd;
 
 
 // FIXME: should probably have a linked list of boards instead of an array
-static hm2_cvsoc_t hm2_cvsoc_board[HM2_SOC_MAX_BOARDS];
+static hm2_soc_t hm2_soc_board[HM2_SOC_MAX_BOARDS];
 static int num_boards = 0;
 //static int num_5i20 = 0;
 //static int num_5i21 = 0;
@@ -123,7 +122,7 @@ static const struct of_device_id uio_of_genirq_match[] = {
 
 // this struct contains the hm2 interface ip core info provided in the device-tree
 
-static struct dts_device_id hm2_cvsoc_tbl[] = {
+static struct dts_device_id hm2_soc_tbl[] = {
         
     // 5i25
     {
@@ -140,15 +139,15 @@ static struct dts_device_id hm2_cvsoc_tbl[] = {
     {0,},
 };
 
-//MODULE_DEVICE_TABLE(soc, hm2_cvsoc_tbl);
+//MODULE_DEVICE_TABLE(soc, hm2_soc_tbl);
 
 
 // 
 // these are the "low-level I/O" functions exported up
 //
 
-static int hm2_cvsoc_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
-    hm2_cvsoc_t *board = this->private;
+static int hm2_soc_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+    hm2_soc_t *board = this->private;
     int i;
     u32* src = (u32*) (board->base + addr);
     u32* dst = (u32*) buffer;
@@ -160,7 +159,7 @@ static int hm2_cvsoc_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int s
         u16* src16 = (u16*) src;
         /* hm2_read_idrom performs a 16-bit read, which seems to be OK, so let's allow it */
         if ( ((addr & 0x1) != 0) || (size != 2) ){
-            rtapi_print_msg(RTAPI_MSG_ERR, "hm2_cvsoc_read: Unaligned Access: %08x %04x\n", addr,size);
+            rtapi_print_msg(RTAPI_MSG_ERR, "hm2_soc_read: Unaligned Access: %08x %04x\n", addr,size);
             memcpy(dst, src, size);
             return 1;  // success
         }
@@ -177,8 +176,8 @@ static int hm2_cvsoc_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int s
     return 1;  // success
 }
 
-static int hm2_cvsoc_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
-    hm2_cvsoc_t *board = this->private;
+static int hm2_soc_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+    hm2_soc_t *board = this->private;
     int i;
     u32* src = (u32*) buffer;
     u32* dst = (u32*) (board->base + addr);
@@ -186,7 +185,7 @@ static int hm2_cvsoc_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int 
     /* Per Peter Wallace, all hostmot2 access should be 32 bits and 32-bit aligned */
     /* Check for any address or size values that violate this alignment */
     if ( ((addr & 0x3) != 0) || ((size & 0x03) != 0) ){
-        rtapi_print_msg(RTAPI_MSG_ERR, "hm2_cvsoc_write: Unaligned Access: %08x %04x\n", addr,size);
+        rtapi_print_msg(RTAPI_MSG_ERR, "hm2_soc_write: Unaligned Access: %08x %04x\n", addr,size);
         memcpy(dst, src, size);
         return 1;  // success
     }
@@ -202,7 +201,7 @@ static int hm2_cvsoc_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int 
 
 
 /*
-static int hm2_cvsoc_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
 
 //    disable bridges:  
     echo 0 > hps2fpga, lwhps2fpga, fpga2hps
@@ -221,7 +220,7 @@ fail:
 
 
 /*
-static int hm2_cvsoc_reset(hm2_lowlevel_io_t *this) {
+static int hm2_soc_reset(hm2_lowlevel_io_t *this) {
     return 0;
 }
 */
@@ -230,9 +229,9 @@ static int hm2_cvsoc_reset(hm2_lowlevel_io_t *this) {
 //
 
 /*
-static int hm2_cvsoc_probe(struct cvsoc_dev *dev, const struct dts_device_id *id) {
+static int hm2_soc_probe(struct soc_dev *dev, const struct dts_device_id *id) {
     int r;
-    hm2_cvsoc_t *board;
+    hm2_soc_t *board;
     hm2_lowlevel_io_t *this;
 
 // could there be more than 1 hm2 interface needed on a soc ?
@@ -241,7 +240,7 @@ static int hm2_cvsoc_probe(struct cvsoc_dev *dev, const struct dts_device_id *id
 //        return -EINVAL;
 //    }
 
-    board = &hm2_cvsoc_board[num_boards];
+    board = &hm2_soc_board[num_boards];
     this = &board->llio;
     memset(this, 0, sizeof(hm2_lowlevel_io_t));
 
@@ -302,15 +301,15 @@ static int hm2_cvsoc_probe(struct cvsoc_dev *dev, const struct dts_device_id *id
     board->dev = dev;
 
 //    pci_set_drvdata(dev, board);
-    cvsoc_set_drvdata(dev, board);
+    soc_set_drvdata(dev, board);
     
     board->llio.comp_id = comp_id;
     board->llio.private = board;
 
     board->llio.threadsafe = 1;
 
-    board->llio.read = hm2_cvsoc_read;
-    board->llio.write = hm2_cvsoc_write;
+    board->llio.read = hm2_soc_read;
+    board->llio.write = hm2_soc_write;
 
     r = hm2_register(&board->llio, config[num_boards]);
     if (r != 0) {
@@ -319,7 +318,7 @@ static int hm2_cvsoc_probe(struct cvsoc_dev *dev, const struct dts_device_id *id
     }
 
 //    THIS_PRINT("initialized AnyIO board at %s\n", dts_name(dev));
-    THIS_PRINT("initialized AnyIO HM2 core at %s\n", cvsoc_name(dev));
+    THIS_PRINT("initialized AnyIO HM2 core at %s\n", soc_name(dev));
     
     num_boards ++;
     return 0;
@@ -327,21 +326,21 @@ static int hm2_cvsoc_probe(struct cvsoc_dev *dev, const struct dts_device_id *id
 
 fail1:
 //    pci_set_drvdata(dev, NULL);
-    cvsoc_set_drvdata(dev, NULL);
+    soc_set_drvdata(dev, NULL);
     iounmap(board->base);
     board->base = NULL;
 
 fail0:
-//    cvsoc_disable_device(dev);
+//    soc_disable_device(dev);
     return failed_errno = r;
 }
 */
 /*
-static void hm2_cvsoc_remove(struct cvsoc_dev *dev) {
+static void hm2_soc_remove(struct soc_dev *dev) {
     int i;
 
     for (i = 0; i < num_boards; i++) {
-        hm2_cvsoc_t *board = &hm2_cvsoc_board[i];
+        hm2_soc_t *board = &hm2_soc_board[i];
         hm2_lowlevel_io_t *this = &board->llio;
 
         if (board->dev == dev) {
@@ -363,19 +362,19 @@ static void hm2_cvsoc_remove(struct cvsoc_dev *dev) {
 }
 */
 /*
-static struct uio_driver hm2_cvsoc_driver = {
+static struct uio_driver hm2_soc_driver = {
 	.name = HM2_LLIO_NAME,
-	.id_table = hm2_cvsoc_tbl,
-	.probe = hm2_cvsoc_probe,
-	.remove = hm2_cvsoc_remove,
+	.id_table = hm2_soc_tbl,
+	.probe = hm2_soc_probe,
+	.remove = hm2_soc_remove,
 };
 */
 
-//static int hm2_cvsoc_mmap(const struct dts_device_id *id) {
-//static int hm2_cvsoc_mmap(struct cvsoc_dev *dev, const struct dts_device_id *id) {
-static int hm2_cvsoc_mmap(void) {
+//static int hm2_soc_mmap(const struct dts_device_id *id) {
+//static int hm2_soc_mmap(struct soc_dev *dev, const struct dts_device_id *id) {
+static int hm2_soc_mmap(void) {
 
-    hm2_cvsoc_t *me;
+    hm2_soc_t *me;
     hm2_lowlevel_io_t *this;
     int r = 0;
 
@@ -390,7 +389,7 @@ static int hm2_cvsoc_mmap(void) {
     return (1);
     
 
-    me = &hm2_cvsoc_board[0];
+    me = &hm2_soc_board[0];
     this = &me->llio;
      rtapi_snprintf(me->llio.name, sizeof(me->llio.name), "hm2_5i25.%d", num_5i25);
     
@@ -406,17 +405,17 @@ static int hm2_cvsoc_mmap(void) {
 
     me->llio.threadsafe = 1;
 
-    me->llio.read = hm2_cvsoc_read;
-    me->llio.write = hm2_cvsoc_write;
+    me->llio.read = hm2_soc_read;
+    me->llio.write = hm2_soc_write;
 
-    r = hm2_register(&hm2_cvsoc_board->llio, config[num_boards]);
+    r = hm2_register(&hm2_soc_board->llio, config[num_boards]);
 
     if (r != 0) {
-        THIS_ERR("hm2_cvsoc_board fails HM2 registration\n");
+        THIS_ERR("hm2_soc_board fails HM2 registration\n");
         return -EIO;
     }
 
-    THIS_PRINT("initialized AnyIO hm2_cvsoc_board \n");
+    THIS_PRINT("initialized AnyIO hm2_soc_board \n");
 
     num_boards ++;
     return 0;
@@ -425,7 +424,7 @@ static int hm2_cvsoc_mmap(void) {
 
 }
 
-static int hm2_cvsoc_munmap(void) {
+static int hm2_soc_munmap(void) {
   if (virtual_base)
     munmap((void *) virtual_base, HM2REG_IO_0_SPAN);
   if (uio_fd > -1)
@@ -435,20 +434,22 @@ static int hm2_cvsoc_munmap(void) {
 
 }
 int rtapi_app_main(void) {
-//    hm2_cvsoc_t *me;
+//    hm2_soc_t *me;
 //    hm2_lowlevel_io_t *this;
     int r = 0;
 
-    LL_PRINT("loading Mesa AnyIO HostMot2 socfpgs driver version " HM2_SOCFPGA_VERSION "\n");
+    LL_PRINT("PRINT: loading Mesa AnyIO HostMot2 socfpgs driver version " HM2_SOCFPGA_VERSION "\n");
+    LL_INFO("INFO: loading Mesa AnyIO HostMot2 socfpgs driver version " HM2_SOCFPGA_VERSION "\n");
 
+    
     comp_id = hal_init(HM2_LLIO_NAME);
     if (comp_id < 0) return comp_id;
 
-//    me = &hm2_cvsoc_board[0];
+//    me = &hm2_soc_board[0];
 //    this = &me->llio;
 
-//    r = uio_register_driver(&hm2_cvsoc_driver);
-    r = hm2_cvsoc_mmap();
+//    r = uio_register_driver(&hm2_soc_driver);
+    r = hm2_soc_mmap();
     
     if (r != 0) {
         LL_ERR("error registering UIO driver\n");
@@ -459,9 +460,9 @@ int rtapi_app_main(void) {
     if(failed_errno) {
 	// at least one card registration failed
 	hal_exit(comp_id);
-//	uio_unregister_driver(&hm2_cvsoc_driver);
-//	hm2_cvsoc_munmap(&hm2_cvsoc_driver);
-	r = hm2_cvsoc_munmap();
+//	uio_unregister_driver(&hm2_soc_driver);
+//	hm2_soc_munmap(&hm2_soc_driver);
+	r = hm2_soc_munmap();
 //	return failed_errno;
 	return r;
     }
@@ -470,8 +471,8 @@ int rtapi_app_main(void) {
 	// no cards were detected
     LL_PRINT("error no supported cards detected\n");
 	hal_exit(comp_id);
-//	pci_unregister_driver(&hm2_cvsoc_driver);
-	r = hm2_cvsoc_munmap();
+//	pci_unregister_driver(&hm2_soc_driver);
+	r = hm2_soc_munmap();
    
 //	return -ENODEV;
 	return r;
@@ -487,8 +488,8 @@ int rtapi_app_main(void) {
 
 
 void rtapi_app_exit(void) {
-//    uio_unregister_driver(&hm2_cvsoc_driver);
-    hm2_cvsoc_munmap();
+//    uio_unregister_driver(&hm2_soc_driver);
+    hm2_soc_munmap();
     LL_PRINT("UIO driver unloaded\n");
     hal_exit(comp_id);
 }
