@@ -46,9 +46,14 @@
 //  /proc/device-tree/sopc@0/bridge@0xc0000000/hm2-socfpga@0x100040000:
 //---------------------------------------------------------------------------//
 
+#include <rtapi_io.h>
 
 #include "config.h"
-
+#include "rtapi.h"
+#include "rtapi_app.h"
+#include "rtapi_math.h"
+#include "rtapi_string.h"
+#include "hal.h"
 // this should be an general socfpga #define
 #if !defined(TARGET_PLATFORM_SOCFPGA)
 #error "This driver is for the socfpga platform only"
@@ -59,12 +64,6 @@
 #endif
 
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-//#include "rtapi_math.h"
-#include "rtapi_string.h"
-
-#include "hal.h"
 
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -82,7 +81,7 @@
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Brown");
 MODULE_DESCRIPTION("Driver initially for HostMot2 on the DE0 Nano / Atlas Cyclone V socfpga board from Terasic");
-MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i25");  // FIXME
+MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
 
 
 static char *config[HM2_SOC_MAX_BOARDS];
@@ -93,15 +92,15 @@ static int  uio_fd;
 
 
 // FIXME: should probably have a linked list of boards instead of an array
-static hm2_soc_t hm2_soc_board[HM2_SOC_MAX_BOARDS];
-static int num_boards = 0;
+static hm2_soc_t board[HM2_SOC_MAX_BOARDS];
+static int num_boards;
 //static int num_5i20 = 0;
 //static int num_5i21 = 0;
 //static int num_5i22 = 0;
 //static int num_5i23 = 0;
 //static int num_5i24 = 0;
 static int num_5i25 = 0;
-static int num_6i25 = 0;
+static int num_6i25 = 1;
 //static int num_4i65 = 0;
 //static int num_4i68 = 0;
 //static int num_4i69 = 0;
@@ -320,7 +319,7 @@ static int hm2_soc_probe(struct soc_dev *dev, const struct dts_device_id *id) {
 //    THIS_PRINT("initialized AnyIO board at %s\n", dts_name(dev));
     THIS_PRINT("initialized AnyIO HM2 core at %s\n", soc_name(dev));
     
-    num_boards ++;
+    num_boards++;
     return 0;
 
 
@@ -370,57 +369,51 @@ static struct uio_driver hm2_soc_driver = {
 };
 */
 
-//static int hm2_soc_mmap(const struct dts_device_id *id) {
-//static int hm2_soc_mmap(struct soc_dev *dev, const struct dts_device_id *id) {
 static int hm2_soc_mmap(void) {
 
-    hm2_soc_t *me;
+   //CR hm2_soc_t *me;
     hm2_lowlevel_io_t *this;
     int r = 0;
-
+	
+memset(board, 0,  sizeof(hm2_soc_t));
     /* Open the resource node */
     uio_fd = open ( "/dev/uio0", ( O_RDWR | O_SYNC ) );
     if (uio_fd < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Could not open UIO resource for: hm2_mksocfpga . (%s)\n", strerror(errno));
-        return -1;
+        return 0;
     }
     // get virtual addr that maps to physical
     virtual_base = mmap( NULL, HM2REG_IO_0_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, uio_fd, 0);
-//    return (0);
+    //CR removed to try and fix return (1);
     
-    LL_PRINT("PRINT: mmap run sucessfull \n");
+//    LL_PRINT("PRINT: mmap run sucessfull \n");
 
-    me = &hm2_soc_board[0];
-    this = &me->llio;
-    rtapi_snprintf(me->llio.name, sizeof(me->llio.name), "hm2_5i25.%d", num_5i25);
+    rtapi_snprintf(board[0].llio.name, sizeof(board[0].llio.name), "hm2_5i25.%d", num_5i25);
+      board[0].llio.comp_id = comp_id;
+	board[0].llio.num_ioport_connectors =2;
+	board[0].llio.pins_per_connector = 17;
+	 board[0].llio.ioport_connector_name[0] = "P3";
+	 board[0].llio.ioport_connector_name[1] = "P2";
+	 board[0].llio.fpga_part_number = "6slx9tqg144";
+	board[0].llio.num_leds = 2;
     
-    me->llio.num_ioport_connectors = 2;
-    me->llio.pins_per_connector = 17;
-    me->llio.ioport_connector_name[0] = "P3";
-    me->llio.ioport_connector_name[1] = "P2";
-    me->llio.fpga_part_number = "6slx9tqg144";
-    me->llio.num_leds = 2;
-    
-    me->llio.comp_id = comp_id;
-    me->llio.private = me;
+	
+	 board[0].llio.threadsafe = 1;
 
-    me->llio.threadsafe = 1;
-
-    me->llio.read = hm2_soc_read;
-    me->llio.write = hm2_soc_write;
-
-   LL_PRINT("PRINT: will now run hm2_register \n");
-
-    r = hm2_register(&hm2_soc_board->llio, config[num_boards]);
+	 board[0].llio.read = hm2_soc_read;
+	 board[0].llio.write = hm2_soc_write;
+ 	board[0].base = virtual_base;   
+	board[0].llio.private = &board[0];
+	this =  &board[0].llio;
+	r = hm2_register( &board[0].llio, config[0]);
 
     if (r != 0) {
-        LL_ERR("hm2_soc_board fails HM2 registration\n");
+        THIS_ERR("hm2_soc_board fails HM2 registration\n");
         return -EIO;
     }
 
     LL_PRINT("initialized AnyIO hm2_soc_board \n");
-
-    num_boards ++;
+	num_boards++;
     return 0;
 
 //    close ( fd );
@@ -437,16 +430,12 @@ static int hm2_soc_munmap(void) {
 
 }
 int rtapi_app_main(void) {
-//    hm2_soc_t *me;
-//    hm2_lowlevel_io_t *this;
     int r = 0;
 
-    LL_PRINT("PRINT: loading Mesa AnyIO HostMot2 socfpgs driver version " HM2_SOCFPGA_VERSION "\n");
-    LL_INFO("INFO: loading Mesa AnyIO HostMot2 socfpgs driver version " HM2_SOCFPGA_VERSION "\n");
+    LL_PRINT("loading Mesa AnyIO HostMot2 socfpgs driver version " HM2_SOCFPGA_VERSION "\n");
 
-    
-    comp_id = hal_init(HM2_LLIO_NAME);
-    if (comp_id < 0) return comp_id;
+     comp_id = hal_init(HM2_LLIO_NAME);
+     if (comp_id < 0) return comp_id;
 
 //    me = &hm2_soc_board[0];
 //    this = &me->llio;

@@ -23,7 +23,7 @@
 #define HM2_LLIO_NAME "hm2_soc"
 
 
-#define HM2_SOC_MAX_BOARDS  1
+#define HM2_SOC_MAX_BOARDS  2
 
 
 //
