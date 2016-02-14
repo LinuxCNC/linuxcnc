@@ -1266,11 +1266,11 @@ obj-$(CONFIG_PEPPER) += pepper.o
 pepper-objs := hal/components/pepper.o $(MATHSTUB)
 endif
 
-#ifdef TARGET_PLATFORM_SOCFPGA
-#ifeq ($(BUILD_SYS),user-dso)
-#obj-$(CONFIG_HAL_UIO) += ???.o
-#hm2_soc-uio-objs := hal/drivers/???.o
-#endif
+ifdef TARGET_PLATFORM_SOCFPGA
+ifeq ($(BUILD_SYS),user-dso)
+obj-$(CONFIG_HAL_UIO) += hm2_soc.o
+hm2_soc-uio-objs := hal/drivers/hm2_soc.o
+endif
 
 ifdef TARGET_PLATFORM_ZEDBOARD
 obj-$(CONFIG_HAL_GPIO) += hal_zed_gpio.o
