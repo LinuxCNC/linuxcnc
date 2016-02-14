@@ -4413,7 +4413,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if not d[axis + "P"] == None:
             set_value("P")
         elif stepdriven == True:
-            w[axis + "P"].set_value(d.servoperiod/1000)
+            w[axis + "P"].set_value(1/(d.servoperiod/1000000000))
         else:
             w[axis + "P"].set_value(50)
         set_value("I")
