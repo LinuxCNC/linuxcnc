@@ -1020,9 +1020,11 @@ def document(filename, outfilename):
         print >>f, ".HP"
     else:
         print >>f, ".B loadrt %s " % comp_name
-	print >>f, ".LP"
+        print >>f, ".LP"
         print >>f, ".B newinst %s <newinstname> [ pincount=\\fIN\\fB | iprefix=\\fIprefix\\fB ]" % comp_name
         print >>f, ".B                             [instanceparamX=\\fIX\\fB | argX=\\fIX\\fB ]"
+        print >>f, ".HP"
+        print >>f, "( args in [ ] denote possible args and parameters, may not be used in all components )"
         print >>f, ".HP"
         for type, name, default, doc in modparams:
             print >>f, "[%s=\\fIN\\fB]" % name,
