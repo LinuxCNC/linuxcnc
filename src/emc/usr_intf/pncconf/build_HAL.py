@@ -1438,6 +1438,8 @@ class HAL:
                     print >>file, "sets spindle-at-speed true"
                     print >>file
             if encoderpinname or resolverpinname:
+                if (self.d.pyvcp and self.d.pyvcpconnect == 1 and self.d.pyvcphaltype == 1) \
+                  or self.d.gladevcp and self.d.spindlespeedbar:
                     print >>file, _("#  Use ACTUAL spindle velocity from spindle encoder")
                     print >>file, _("#  spindle-velocity bounces around so we filter it with lowpass")
                     print >>file, _("#  spindle-velocity is signed so we use absolute component to remove sign") 
