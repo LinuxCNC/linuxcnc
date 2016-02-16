@@ -762,7 +762,7 @@ class HAL:
                     print >>f1, _("# **** Setup of spindle speed display using gladevcp ****")
                     print >>f1
                     if spindle_enc:
-                        print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   gladevcp.spindle-speed")
+                        print >>f1, ("net spindle-fb-rpm-abs-filtered       =>   gladevcp.spindle-speed")
                     else:
                         print >>f1, ("net spindle-vel-cmd-rpm-abs    =>    gladevcp.spindle-speed")
                 if self.d.spindleatspeed:
@@ -834,7 +834,7 @@ class HAL:
             print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
             print >>f1
             if spindle_enc:
-                print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
+                print >>f1, ("net spindle-fb-rpm-abs-filtered       =>   pyvcp.spindle-speed")
             else:
                 print >>f1, ("net spindle-vel-cmd-rpm-abs    =>    pyvcp.spindle-speed")
             print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
