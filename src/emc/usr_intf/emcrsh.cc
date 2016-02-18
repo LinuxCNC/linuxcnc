@@ -2892,6 +2892,11 @@ int main(int argc, char *argv[])
       }
 
     // process LinuxCNC command line args
+    // Note: '--' may be used to separate cmd line args
+    //       optind is index of next arg to process
+    //       make argv[optind] zeroth arg
+    argc = argc - optind + 1;
+    argv = argv + optind - 1;
     if (emcGetArgs(argc, argv) != 0) {
 	rcs_print_error("error in argument list\n");
 	exit(1);
