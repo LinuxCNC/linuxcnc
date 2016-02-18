@@ -890,6 +890,9 @@ case $EMCDISPLAY in
     fi
     result=$?
   ;;
+  linuxcncrsh)
+    $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS -- -ini "$INIFILE"
+  ;;
   *)
     # all other displays are assumed to be commands on the PATH
     if ! program_available $EMCDISPLAY; then
