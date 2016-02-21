@@ -127,7 +127,9 @@ $(foreach mod,$(patsubst %.o,%,$(obj-m)),\
 %.so:
 	$(ECHO) Linking $@
 	$(Q)$(LD) -d -r -o $*.tmp $^
-	$(Q)objcopy -j .rtapi_export -O binary $*.tmp $*.exp
-	$(Q)objcopy -G __x86.get_pc_thunk.bx -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < $*.exp | grep -ve '^-G $$' | sort -u` $*.tmp
-	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ $*.tmp
+	$(Q)objcopy -j .rtapi_export -O binary $*.tmp $*.exported
+
+	$(Q)(echo '{ global : '; tr -s '\0' <$*.exported | xargs -r0 printf '%s;\n' | grep .; echo 'local : * ; };') > $*.ver
+	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -Wl,--version-script,$*.ver -o $@ $^ $(EXTRA_LDFLAGS)
+	$(Q)ld -d -r -o $*.tmp $^
 endif
