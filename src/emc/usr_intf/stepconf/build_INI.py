@@ -131,6 +131,8 @@ class INI:
            print >>file
            print >>file, "[HALUI]"
            print >>file, _("# add halui MDI commands here (max 64) ")
+           for mdi_command in self.d.halui_list:
+               print >>file, "MDI_COMMAND = %s" % mdi_command
 
         print >>file
         print >>file, "[TRAJ]"
