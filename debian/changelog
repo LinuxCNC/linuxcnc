@@ -4,6 +4,89 @@ linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
 
+linuxcnc (1:2.7.4) unstable; urgency=medium
+
+  * docs: update hm2_eth manpage with supported boards
+  * docs: fix hostmot2 manpage markup
+  * docs: update gs2 vfd docs with new command-line args
+  * docs: update pyvcp docs (labels, leds, buttons)
+  * docs: improve info on installing preempt-rt kernel
+  * docs: add warning about entering a root password during install
+  * docs: improve contributing intructions
+  * docs: add a bit more info on ngcgui
+  * docs: update max AIO from 16 to 64 in motion manpage 
+  * docs: update homing diagram (dxf and image)
+  * docs: clarify homing variable names
+  * docs: add missing keyboard short cuts to Axis documentation
+  * docs: clarify what "option userspace yes" means to halcompile
+  * docs: add info about min and max soft limits
+  * docs: add mb2hal manpage and documentation
+  * docs: add a link to the github bug tracker
+  * docs: github is more official now
+  * docs: fix a broken links
+  * docs: fix a couple of places to note nine axes or planes supported
+  * docs: add info on how to stop the Axis GUI "do you really want to
+        quit" dialog
+  * docs: add info about examples of logging from G-code
+  * docs: make example code easier to cut and paste
+  * docs: fix descriptions for G43.1 and G43.2
+  * docs: acknowledge Debian and UBUNTU trademarks
+  * docs: fix incorrect example syntax and typo
+  * docs: fix manpage markup bug in rtapi_app_{main,exit}.3rtapi
+  * docs: describe the new gladevcp iconview signal "sensitive"
+  * docs: add info about the rs274 stand alone interperter
+  * docs: fix level offset in pdf docs
+  * docs: remove jessie rt-preempt kernel instructions
+  * docs: use a longer GPG keyy fingerprint
+  * docs: minor fixed in gmoccapy docs
+  * docs: restore line numbers in example G-code
+
+  * Axis GUI: add missing keyboard short cuts to help quick reference
+  * gmoccapy: fix dangerous bug in jogging with keyboard
+  * gmoccapy: deleted alarm entry and added new settings for combi_dro
+  * gmoccapy: small bug fix in hal jogging and fixed a typo
+  * gmoccapy: stay syncronized with iconview widget button states
+  * gscreen: fix industrial skin's A axis DTO readout
+  * Mini GUI: remove duplicate geo mgmt of widget
+  * keystick UI: fix signal handler a second time
+  * gladevcp: fix hal_dial for wheezy
+  * gladevcp: hide error message from hal_lightbutton
+  * gladevcp: iconview could create exception in some circumstances
+  * gladevcp: offset_widget: fix rare error of non-existant var file
+
+  * add gantry.comp from Charles Steinkuehler
+  * xhc-hb04: fix negative jogs on non-x86 architectures
+  * hostmot2: improved sserial error handling (don't crash)
+  * hy-vfd: set spindle_at_speed correctly when spindle is running
+        reverse
+  * serport: fix pin-1-in-not
+  * sim_parport: fix pin names of inverted input
+
+  * stepconf: fix error when using inverted pins on sim config
+  * pncconf: fix spindle setting controls not showing sometimes
+  * pncconf: fix setting or PID maxerror on servo configs
+  * sample configs: make sim/canterp.ini runnable
+  * sample configs: connect the orient mode pin to allow rotation
+        direction to be controlled in the VMC Vismach model
+
+  * emcmodule: Fix incorrect memory access by PyArg_ParseTuple and add better checks for string arguments
+  * interp: fix two error message typos that would lead a user astray
+  * support RTAI 5
+  * better error reporting in rtapi/sim
+
+  * realtime script: wait for the last rtapi_app to die when stopping
+        realtime
+  * tests: verify that the exported realtime math functions exist
+  * build: remove unsupported docs/src/Makefile
+  * build: build-depend on docbook-xsl, instead of using the network at
+        build-time
+  * packaging: include udev rule file for ShuttleXpress USB jog pendant
+  * packaging: gmoccapy depends on gstreamer0.10-plugins-base
+  * packaging: use "set -e" to fail on error in the postinst script
+  * remove stray execute permissions
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 07 Feb 2016 22:30:01 -0700
+
 linuxcnc (1:2.7.3) unstable; urgency=medium
 
   * docs: update install instructions for glade

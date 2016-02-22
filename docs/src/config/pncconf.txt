@@ -41,16 +41,18 @@ image::images/pncconf-splash.png[]
 == Create or Edit
 
 This allows you to select a previously saved configuration or create a new one.
-If you pick 'Modify a configuration' and then press next a file selection box 
-will show. Pncconf preselects your last saved file. Choose the the config you 
-wish to edit. It also allows you to select desktop shortcut / launcher options.
-A desktop shortcut will place a folder icon on the desktop that points to your 
-new configuration files. Otherwise you would have to look in your home folder 
-under emc2/configs.
+If you pick 'Modify a configuration' and then press next a file selection box
+will show. Pncconf preselects your last saved file. Choose the the config you
+wish to edit. If you made any changes to the main hal or ini files *Pncconf will
+over write* those files and those changes will be lost. Some files will not be
+over written and Pncconf places a note in those files. It also allows you to
+select desktop shortcut / launcher options. A desktop shortcut will place a
+folder icon on the desktop that points to your new configuration files.
+Otherwise you would have to look in your home folder under linuxcnc/configs.
 
 A Desktop launcher will add an icon to the desktop for starting your config 
-directly. You can also launch it under Applications/cnc/emc2 and selecting your
-config name.
+directly. You can also launch it from the main menu by using the Configuration
+Selector 'LinuxCNC' found in CNC menu and selecting your config name.
 
 == Basic Machine Information
 
@@ -95,7 +97,7 @@ with the machine
 20000 - 50000 is still good for software stepping and fine for us.
 50000 - 100000 is really not that great but could still be used with hardware 
 cards doing the fast response stuff.
-So anything under 100000 is useable to us.
+So anything under 100000 is usable to us.
 If the latency is disappointing or you get a bad hiccup periodically you may 
 still be able to improve it. 
 
@@ -149,14 +151,14 @@ device with a list of addresses. One of those addresses should work. Not all
 PCI parallel ports work properly. Either type can be selected as 'in' (maximum 
 amount of input pins) or 'out' (maximum amount of output pins)
 
-GUI Frontend list::
+GUI Front-end list::
 This specifies the graphical display screens LinuxCNC will use.
 Each one has different option. 
 
 AXIS
 
 * fully supports lathes.
-* is the most developed and used frontend
+* is the most developed and used front-end
 * is designed to be used with mouse and keyboard
 * is tkinter based so integrates PYVCP (python based virtual control 
                 panels)  naturally.
@@ -234,7 +236,7 @@ The selectable increments option uses the mux16 component. This component
 has options such as debounce and gray code to help filter the raw switch input. 
 
 Overrides::
-PNCconf allows overrides of feedrates and/or spindle speed using a pulse 
+PNCconf allows overrides of feed rates and/or spindle speed using a pulse 
 generator (MPG) or switches (eg. rotary).  
  
 == GUI Configuration
@@ -246,7 +248,7 @@ Here you can set defaults for the display screens, add virtual control panels
 
 image::images/pncconf-gui.png[]
 
-Frontend GUI Options::
+Front-end GUI Options::
 
 The default options allows general defaults to be chosen for any display screen.
 +
@@ -286,11 +288,11 @@ if the spindle is at requested speed.
 PNCconf will connect the proper spindle display HAL pins for you.
 If you are using AXIS then the panel will be integrated on the right side.
 If not using AXIS then the panel will be separate 'stand-alone' from the 
-frontend screen.
+front-end screen.
 +
 You can use the geometry options to size and move the panel, for instance to 
 move it to a second screen if the system is capable. If you press the 'Display 
-sample panel' button the size and placement options will be honoured.
+sample panel' button the size and placement options will be honored.
 
 GLADE VCP::
 GLADE VCPs fit naturally inside of TOUCHY screen as they both use GTK to draw 
@@ -313,7 +315,7 @@ Under 'sample options' select which ones you would like.
 The zero buttons use HALUI commands which you could edit later in the HALUI 
 section.
 +
-Auto Z touch-off also requires the classicladder touch-off program and a probe 
+Auto Z touch-off also requires the classic ladder touch-off program and a probe 
 input selected. It requires a conductive touch-off plate and a grounded 
 conductive tool. For an idea on how it works see:
 +
@@ -324,9 +326,9 @@ Under 'Display Options', size, position, and force max can be used on a
 the system is capable.
 +
 You can select a GTK theme which sets the  basic look and feel of the panel.
-You Usually want this to match the frontend screen.
+You Usually want this to match the front-end screen.
 These options will be used if you press the 'Display sample button'.
-With GLADE VCP depending on the frontend screen, you can select where the panel 
+With GLADE VCP depending on the front-end screen, you can select where the panel 
 will display.
 +
 You can force it to be stand-alone or with AXIS it can be in the center or on 
@@ -352,9 +354,9 @@ Defaults and Options::
 * Restore joint position after shutdown
 ** Used for non-trivial kinematics machines
 
-* Random position toolchangers
-** Used for toolchangers that do not return the tool to the same
-  pocket. You will need to add custom HAL code to support toolchangers.
+* Random position tool changers
+** Used for tool changers that do not return the tool to the same
+  pocket. You will need to add custom HAL code to support tool changers.
 
 == Mesa Configuration
 The Mesa configuration pages allow one to utilize different firmwares.
@@ -365,7 +367,7 @@ and select what and how many components are available.
 
 image::images/pncconf-mesa-config.png[]
 
-Parport address is used only with Mesa parport card, the 7i43. An onboard 
+Parport address is used only with Mesa parport card, the 7i43. An on board 
 parallel port usually uses 0x278 or 0x378 though you should be able to find the 
 address from the BIOS page. The 7i43 requires the parallel port to use the EPP 
 mode, again set in the BIOS page. If using a PCI parallel port the address can 
@@ -463,7 +465,7 @@ tuning test is available.
 Open Loop Test::
 An open loop test is important as it confirms the direction of the motor and 
 encoder. The motor should move the axis in the positive direction when the 
-positive button is pushed and also the encoder should count in the postie 
+positive button is pushed and also the encoder should count in the positive 
 direction. The axis movement should follow the Machinery's Handbook 
 footnote:["axis nomenclature" in the chapter "Numerical Control" in the 
 "Machinery's Handbook" published by Industrial Press.] standards or 
@@ -658,7 +660,7 @@ after LinuxCNC figures out where the ORIGIN is.
 Measure / calculate the positive / negative axis travel distances.
 
 Move the axis to the origin. Mark a reference on the movable
-slide and the non-moveable support (so they are in line) move 
+slide and the non-movable support (so they are in line) move 
 the machine to the end of limits. Measure between the marks that is one 
 of the travel distances. Move the table to the other end of travel.
 Measure the marks again. That is the other travel distance. If the ORIGIN
@@ -917,7 +919,7 @@ Loading Custom Firmware::
 PNCconf searches for firmware on the system and then looks for the XML file that
 it can convert to what it understands. These XML files are only supplied for 
 officially released firmware from the LinuxCNC team. To utilize custom firmware one 
-must convert it to an array that PNCconf understands and add its filepath
+must convert it to an array that PNCconf understands and add its file path
 to PNCconf's preference file. By default this path searches the desktop for
 a folder named custom_firmware and a file named firmware.py.
 
