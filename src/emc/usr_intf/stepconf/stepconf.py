@@ -134,7 +134,8 @@ class Private_Data:
         self.available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
                                 ['base',_('Base Information'),True],
                                 ['pport1', _('Parallel Port 1'),True],['pport2', _('Parallel Port 2'),True],
-                                ['options',_('Options'), True],['axisx', _('Axis X'), True],
+                                ['options',_('Options'), True],['halui_page', _('HALUI'), True],
+                                ['axisx', _('Axis X'), True],
                                 ['axisy', _('Axis Y'), True],['axisz', _('Axis Z'), True],
                                 ['axisu', _('Axis U'), True],['axisv', _('Axis V'), True],
                                 ['axisa', _('Axis A'), True],
@@ -398,6 +399,7 @@ class Data:
         self.floatsin = 10
         self.floatsout = 10
         self.halui = 0
+        self.halui_list = []
         self.createsymlink = 1
         self.createshortcut = 1
 

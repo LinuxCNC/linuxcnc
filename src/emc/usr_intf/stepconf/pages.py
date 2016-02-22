@@ -143,7 +143,7 @@ class Pages:
 #***************
     def initialize(self):
         # one time initialized data
-	liststore = self.w.drivertype.get_model()
+        liststore = self.w.drivertype.get_model()
         for i in self._p.alldrivertypes:
             #self.w.drivertype.append_text(i[1])
             liststore.append([i[1]])
@@ -154,6 +154,16 @@ class Pages:
         self.w.label_fwd.set_text(self._p.MESS_START)
         if debug:
             self.w.window1.set_title('Stepconf -debug mode')
+        # halui table
+        renderer = Gtk.CellRendererText()
+        column = Gtk.TreeViewColumn("Index", renderer, text=0)
+        column.set_reorderable(False)
+        self.w.viewTable1.append_column(column)
+        renderer = Gtk.CellRendererText()
+        renderer.set_property('editable', True)
+        renderer.connect("edited", self.on_halui_row_changed)
+        column = Gtk.TreeViewColumn("MDI__COMMAND", renderer, text=1)
+        self.w.viewTable1.append_column(column)
         # pport1 combo boxes
         model = self.w.output_list
         model.clear()
@@ -334,6 +344,7 @@ class Pages:
         self.w.floatsin.set_value(self.d.floatsin)
         self.w.floatsout.set_value(self.d.floatsout)
         self.w.halui.set_active(self.d.halui)
+        self.page_set_state('halui_page', self.w.halui.get_active())
         self.w.ladderconnect.set_active(self.d.ladderconnect)
         self.w.pyvcpconnect.set_active(self.d.pyvcpconnect)
         self.on_classicladder_toggled()
@@ -355,7 +366,7 @@ class Pages:
         self.d.s32out = self.w.s32out.get_value()
         self.d.floatsin = self.w.floatsin.get_value()
         self.d.floatsout = self.w.floatsout.get_value()
-        self.d.halui = self.w.halui.get_active()    
+        self.d.halui = self.w.halui.get_active()
         self.d.pyvcpconnect = self.w.pyvcpconnect.get_active()  
         self.d.ladderconnect = self.w.ladderconnect.get_active()   
         self.d.manualtoolchange = self.w.manualtoolchange.get_active()       
@@ -426,6 +437,91 @@ class Pages:
         else:
             self.w.radiobutton8.set_sensitive(i)
         self.w.pyvcp_box.set_sensitive(i)
+
+    def on_halui_toggled(self, *args):
+        self.page_set_state('halui_page', self.w.halui.get_active())
+
+#***************
+# halui PAGE
+#***************
+    def halui_page_prepare(self):
+        # Clear listore
+        self.w.lstStore1.clear()
+        # Populate treeview
+        for num, mdi_command in enumerate(self.d.halui_list):
+            self.w.lstStore1.append([num+1, mdi_command])
+
+    def halui_page_finish(self):
+        self.d.halui_list = []
+        # Get first row
+        treeiter = self.w.lstStore1.get_iter_first()
+        if treeiter == None:
+            return True
+        self.d.halui_list.append(self.w.lstStore1.get_value(treeiter, 1))
+        while treeiter != None:
+            treeiter = self.w.lstStore1.iter_next(treeiter)
+            if treeiter != None:
+                current_value = self.w.lstStore1.get_value(treeiter, 1).strip()
+                # Check if value contains data
+                if len(current_value) > 2:
+                    self.d.halui_list.append(current_value)
+
+    def on_halui_btnAdd_clicked(self, *args):
+        next_index = len(self.w.lstStore1) +1
+        self.w.lstStore1.append([next_index, ""])
+
+    def on_halui_btnDel_clicked(self, *args):
+        select = self.w.viewTable1.get_selection()
+        model, treeiter = select.get_selected()
+        if treeiter != None:
+            # Remove selected row
+            self.w.lstStore1.remove(treeiter)
+            # Get first row
+            treeiter = self.w.lstStore1.get_iter_first()
+            if treeiter == None:
+                return
+            index = 1
+            self.w.lstStore1.set_value(treeiter, 0, index)
+            index = index +1
+            # Cicle lstStore1 to update index
+            while treeiter != None:
+                treeiter = self.w.lstStore1.iter_next(treeiter)
+                if treeiter != None:
+                    # Change index
+                    self.w.lstStore1.set_value(treeiter, 0, index)
+                    index = index +1
+
+    def on_halui_btnUp_clicked(self, *args):
+        select = self.w.viewTable1.get_selection()
+        model, treeiter = select.get_selected()
+        if treeiter != None:
+            prev_treeiter = model.iter_previous(treeiter)
+            current_index = model[treeiter][0]
+            # Move up and update first column (index)
+            if((current_index -1) > 0):
+                self.w.lstStore1.move_before(treeiter, prev_treeiter)
+                self.w.lstStore1.set_value(treeiter, 0, current_index -1)
+                self.w.lstStore1.set_value(prev_treeiter, 0, current_index)
+
+    def on_halui_btnDown_clicked(self, *args):
+        select = self.w.viewTable1.get_selection()
+        model, treeiter = select.get_selected()
+        if treeiter != None:
+            next_treeiter = model.iter_next(treeiter)
+            current_index = model[treeiter][0]
+            # Move down and update first column (index)
+            if(next_treeiter != None):
+                self.w.lstStore1.move_after(treeiter, next_treeiter)
+                self.w.lstStore1.set_value(treeiter, 0, current_index +1)
+                self.w.lstStore1.set_value(next_treeiter, 0, current_index)
+
+    def on_halui_row_changed(self, *args):
+        newvalue = args[2]
+        if len(newvalue.strip() <2):
+            return
+        select = self.w.viewTable1.get_selection()
+        model, treeiter = select.get_selected()
+        self.w.lstStore1.set_value(treeiter, 1, newvalue)
 
 #************
 # pport1 PAGE
@@ -633,18 +729,18 @@ class Pages:
 # General Axis methods and callbacks
 #*********************
 
-    def on_jogminus_pressed(self, w):
+    def on_jogminus_pressed(self, *args):
         self.a.jogminus = 1
         self.a.update_axis_test()
 
-    def on_jogminus_released(self, w):
+    def on_jogminus_released(self, *args):
         self.a.jogminus = 0
         self.a.update_axis_test()
 
-    def on_jogplus_pressed(self, w):
+    def on_jogplus_pressed(self, *args):
         self.a.jogplus = 1
         self.a.update_axis_test()
-    def on_jogplus_released(self, w):
+    def on_jogplus_released(self, *args):
         self.a.jogplus = 0
         self.a.update_axis_test()
 
