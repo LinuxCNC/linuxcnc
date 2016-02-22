@@ -112,6 +112,7 @@
         <property name="use_underline">True</property>
         <property name="xalign">0.55000001192092896</property>
         <property name="draw_indicator">True</property>
+        <signal name="toggled" handler="on_halui_toggled" swapped="no"/>
       </object>
       <packing>
         <property name="expand">False</property>
