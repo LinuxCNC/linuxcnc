@@ -21,6 +21,7 @@
 
 #include <machinetalk/generated/message.pb.h>
 #include <string>
+#include <czmq.h>
 
 // for repeated string field creation (Container.note, Container.argv)
 typedef ::google::protobuf::RepeatedPtrField< ::std::string> pbstringarray_t;
@@ -29,6 +30,7 @@ typedef ::google::protobuf::RepeatedPtrField< ::std::string> pbstringarray_t;
 // optionally prepend destination field
 // log any failure to RTAPI
 int send_pbcontainer(const std::string &dest, pb::Container &c, void *socket);
+int send_pbcontainer(zmsg_t *dest, pb::Container &c, void *socket);
 
 // add an printf-formatted string to the 'note' repeated string in a
 // Container

@@ -12,6 +12,7 @@ import ConfigParser
 from machinekit import service
 from machinekit import config
 
+from google.protobuf.message import DecodeError
 from message_pb2 import Container
 from config_pb2 import *
 from types_pb2 import *
@@ -123,7 +124,7 @@ class ConfigServer:
         if self.debug:
             print(("send_msg " + str(self.tx)))
         self.tx.Clear()
-        self.socket.send_multipart([dest, txBuffer], zmq.NOBLOCK)
+        self.socket.send_multipart(dest + [txBuffer], zmq.NOBLOCK)
 
     def list_apps(self, origin):
         for name in self.cfg.sections():
@@ -165,31 +166,37 @@ class ConfigServer:
         self.send_msg(origin, MT_APPLICATION_DETAIL)
 
     def process(self, s):
+        frames = s.recv_multipart()
+        identity = frames[:-1]  # multipart id
+        message = frames[-1]  # last frame
+
         if self.debug:
-            print("process called")
+            print("process called, id: %s" % identity)
+
         try:
-            (origin, msg) = s.recv_multipart()
-        except Exception as e:
-            print(("Exception " + str(e)))
+            self.rx.ParseFromString(message)
+        except DecodeError as e:
+            note = 'Protobuf Decode Error: ' + str(e)
+            self.tx.note.append(note)
+            self.send_msg(identity, MT_ERROR)
             return
-        self.rx.ParseFromString(msg)
 
         if self.rx.type == MT_LIST_APPLICATIONS:
-            self.list_apps(origin)
+            self.list_apps(identity)
             return
 
         if self.rx.type == MT_RETRIEVE_APPLICATION:
             a = self.rx.app[0]
-            self.retrieve_app(origin, a.name)
+            self.retrieve_app(identity, a.name)
             return
 
         if self.rx.type == MT_PING:
-            self.send_msg(origin, MT_PING_ACKNOWLEDGE)
+            self.send_msg(identity, MT_PING_ACKNOWLEDGE)
             return
 
-        note = self.tx.note.add()
         note = "unsupported request type %d" % (self.rx.type)
-        self.send_msg(origin, MT_ERROR)
+        self.tx.note.append(note)
+        self.send_msg(identity, MT_ERROR)
 
 
 shutdown = False
