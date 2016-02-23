@@ -1475,7 +1475,7 @@ class LinuxCNCWrapper():
     def process_command(self, socket):
         with self.commandLock:
             frames = socket.recv_multipart()
-            iidentity = frames[:-1]  # multipart id
+            identity = frames[:-1]  # multipart id
             message = frames[-1]  # last frame
 
         if self.debug:
