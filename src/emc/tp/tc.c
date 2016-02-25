@@ -641,8 +641,8 @@ int tcSetupMotion(TC_STRUCT * const tc,
     tc->maxvel = ini_maxvel;
 
     tc->reqvel = vel;
-    // Initial guess at target velocity is just the requested velocity
-    tc->target_vel = vel;
+    // To be computed by velocity optimization / spindle-sync calculations
+    tc->target_vel = 0;
     // To be filled in by tangent calculation, negative = invalid (KLUDGE)
     tcInitKinkProperties(tc);
 
