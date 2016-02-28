@@ -20,9 +20,8 @@ import cv2
 import gtk
 import gobject 
 import threading
-#import time
 import subprocess
-from OpenGL.raw._WGL import PROC
+#import time
 
 gtk.gdk.threads_init()
 
@@ -41,26 +40,34 @@ class CamView(gtk.VBox):
     GladeVcp Widget - CamView widget, showing the live stream
                      from a web cam or other connected cameras.
    
-    Prerequities : install opencv cv2, min version 2.3 requiered!
-    on Whessy and Jessie just do : apt-get install python-opencv
+    Prerequities : 
+    install opencv (cv2), min version 2.3 requiered!
+    on Whessy and Jessie just do : 
+    apt-get install python-opencv
+    Will install also some depencies
+    
     on Ubuntu 10.04 you will have to build from source
     see: http://docs.opencv.org/2.4/doc/tutorials/introduction/linux-install.html
    
     your camera must be recognised by v4l2, to test that I do recommend to install qv4l2
     apt-get install qv4l2
     start from terminal with qv4l2
-    you can use this tool to setup you camera concerning contrast saturation etc.
+    you can use this tool to get a live stream, you are on the right way.
     
-    If you need special settings for your camera, please make sure you have v4l2-ctl installed
-    sudo apt-get install v4l2-utils   will do it for you,
-    then rung from comandline something like:
+    please make sure you have v4l2-ctl installed it will be used to get yoour devices
+    sudo apt-get install v4l2-utils
+    
+    To be able to open the camera settings from the App, you have to install also v4l2ucp
+    sudo apt-get install v4l2ucp
+    
+    if you want special setting of your camera on start up, you can supply a command through the properties
+    something like this:
     v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_auto_priority=0 -c exposure_absolute=10
-    it overwrites your second camera (/dev/video1) shutter time to manual settings and changes the shutter time (in ms?) 
-    with the last parameter to (in this example) 10.
+    it sets for your second camera (/dev/video1), the shutter time to manual settings and changes the shutter time to 10 ms.
     see v4l2-ctl --help for more details
     
     v4l2-ctl --list-formats-ext
-    will list all supported formats for your camera
+    will list all supported frame sizes and frame rates for your camera
     
     '''
     __gtype_name__ = 'CamView'
@@ -79,7 +86,7 @@ class CamView(gtk.VBox):
                     1, 25, 5, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'autosize' : (gobject.TYPE_BOOLEAN, 'Autosize Image', 'If checked the image will be autosized to fit best the place',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'cam_settings' : ( gobject.TYPE_STRING, 'settings', 'Sets special camera options with a valid v4l2-ctl comand',
+        'cam_settings' : ( gobject.TYPE_STRING, 'settings', 'Sets special camera options with a valid v4l2-ctl command',
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
 
                        }
@@ -91,16 +98,19 @@ class CamView(gtk.VBox):
                      }
 
     
+    
     def __init__(self,videodevice=0, frame_width=640, frame_height=480):
         super(CamView, self).__init__()
 
+        self.__version__ = "0.1.0"
+
         # set the selected camera as video device
         self.videodevice = videodevice
+        
         # set the capture size
         self.frame_width = frame_width
         self.frame_height = frame_height
-        # set the time to be used in other def's
-        #self.time = time
+
         # set other default values or initialize them
         self.color =(0, 0, 255)
         self.radius = 150
@@ -118,6 +128,9 @@ class CamView(gtk.VBox):
         self.img_width = self.frame_width
         self.img_height = self.frame_height
         self.img_ratio = float(self.img_width) / float(self.img_height)
+
+        self.colorseldlg = None
+        self.old_frames = 0
 
         # set the correct camera as video device
         self.cam = cv2.VideoCapture(self.videodevice)
@@ -166,18 +179,30 @@ class CamView(gtk.VBox):
         self.btn_circles_minus.set_tooltip_text(_("Push to reduce the number of circles"))
         self.btn_circles_minus.connect("clicked", self.on_btn_circle_clicked, False)      
         self.btbx_upper_buttons.add(self.btn_circles_minus)
+
         self.btn_circles_plus = gtk.Button("Circles +")
         self.btn_circles_plus.set_tooltip_text(_("Push to increment the number of circles"))
         self.btn_circles_plus.connect("clicked", self.on_btn_circle_clicked, True)      
         self.btbx_upper_buttons.add(self.btn_circles_plus)
-        self.btn_radius_minus=gtk.Button("Circle Radius -")
+
+        self.btn_color_chooser = gtk.Button("Color\nChooser")
+        self.btn_color_chooser.set_tooltip_text(_("Push to select the drawing color"))
+        self.btn_color_chooser.connect("clicked", self.on_btn_color_chooser_clicked)      
+        self.btbx_upper_buttons.add(self.btn_color_chooser)
+        
+        self.lbl_frames = gtk.Label("Cap. Frames")
+        self.btbx_upper_buttons.add(self.lbl_frames)
+        
+        self.btn_radius_minus=gtk.Button("Radius -")
         self.btn_radius_minus.set_tooltip_text(_("Push to reduce the circles radius by 10 Pixel"))
         self.btn_radius_minus.connect("clicked", self.on_btn_radius_clicked, False)      
         self.btbx_upper_buttons.add(self.btn_radius_minus)
-        self.btn_radius_plus=gtk.Button("Circle Radius +")
+        
+        self.btn_radius_plus=gtk.Button("Radius +")
         self.btn_radius_plus.set_tooltip_text(_("Push to increment the circles radius by 10 Pixel"))
         self.btn_radius_plus.connect("clicked", self.on_btn_radius_clicked, True)      
         self.btbx_upper_buttons.add(self.btn_radius_plus)
+        
         self.add(self.btbx_upper_buttons)
         
         self.btbx_lower_buttons = gtk.HButtonBox()
@@ -185,51 +210,63 @@ class CamView(gtk.VBox):
         self.chk_autosize.set_tooltip_text(_("Push to autosize the image to given space"))
         self.chk_autosize.connect("toggled", self.chk_autosize_toggled)  
         self.btbx_lower_buttons.add(self.chk_autosize)
+        
         self.chk_show_full_info = gtk.CheckButton("full info")
         self.chk_show_full_info.set_tooltip_text(_("Push to show more infos to image and given space"))
         self.chk_show_full_info.connect("toggled", self.chk_show_full_info_toggled)  
         self.btbx_lower_buttons.add(self.chk_show_full_info)
+        
         self.btn_run = gtk.Button("Run")
         self.btn_run.set_tooltip_text(_("Push to start live stream"))
         self.btn_run.connect("clicked", self.on_btn_run_clicked)      
         self.btbx_lower_buttons.add(self.btn_run)
+        
         self.btn_stop = gtk.Button("Stop")
         self.btn_stop.set_tooltip_text(_("Push to stop live stream"))
         self.btn_stop.connect("clicked", self.on_btn_stop_clicked)      
         self.btbx_lower_buttons.add(self.btn_stop)
         
-        #self.adj_frame_width = gtk.Adjustment(self.frame_width, 120, 2560, 1, 5, 0)
         self.adj_videodevice = gtk.Adjustment(0, 0, len(self.cam_properties.devices)-1, 1, 1, 0)
         self.adj_videodevice.connect("value_changed", self.adj_videodevice_value_changed)
         self.spn_videodevice = gtk.SpinButton(self.adj_videodevice, 0, 0)
-        #self.spn_frame_width.set_wrap(True)
+        if len(self.cam_properties.devices)==1:
+            self.spn_videodevice.set_sensitive(False)
         self.btbx_lower_buttons.add(self.spn_videodevice)
         
-        store = gtk.ListStore(str)
-        store.append(["None"])
-        store.append(["50 Hz"])
-        store.append(["60 Hz"])
-
-        self.cmb_powerline_frequency = gtk.ComboBox(store)
-        cell = gtk.CellRendererText()
-        self.cmb_powerline_frequency.pack_start(cell, True)
-        self.cmb_powerline_frequency.add_attribute(cell, 'text', 0)
-        self.cmb_powerline_frequency.connect("changed", self.on_cmb_powerline_frequency_changed)
-        self.cmb_powerline_frequency.set_active(1)
-        
-        self.btbx_lower_buttons.add(self.cmb_powerline_frequency)
-        
-        self.adj_brightness = gtk.Adjustment(0, -255, 255, 1, 1, 0)
-        self.adj_brightness.connect("value_changed", self.adj_brightness_value_changed)
-        self.spn_brightness = gtk.SpinButton(self.adj_brightness, 0, 0)
-        self.btbx_lower_buttons.add(self.spn_brightness)
-
-        self.adj_contrast = gtk.Adjustment(0, -255, 255, 1, 1, 0)
-        self.adj_contrast.connect("value_changed", self.adj_contrast_value_changed)
-        self.spn_contrast = gtk.SpinButton(self.adj_contrast, 0, 0)
-        self.btbx_lower_buttons.add(self.spn_contrast)
+#        store = gtk.ListStore(str)
+#        store.append(["None"])
+#        store.append(["50 Hz"])
+#        store.append(["60 Hz"])
+#
+#        self.cmb_powerline_frequency = gtk.ComboBox(store)
+#        cell = gtk.CellRendererText()
+#        self.cmb_powerline_frequency.pack_start(cell, True)
+#        self.cmb_powerline_frequency.add_attribute(cell, 'text', 0)
+#        self.cmb_powerline_frequency.connect("changed", self.on_cmb_powerline_frequency_changed)
+#        self.cmb_powerline_frequency.set_active(1)
+#        
+#        self.btbx_lower_buttons.add(self.cmb_powerline_frequency)
+#        
+#        self.adj_brightness = gtk.Adjustment(0, -255, 255, 1, 1, 0)
+#        self.adj_brightness.connect("value_changed", self.adj_brightness_value_changed)
+#        self.spn_brightness = gtk.SpinButton(self.adj_brightness, 0, 0)
+#        self.btbx_lower_buttons.add(self.spn_brightness)
+#
+#        self.adj_contrast = gtk.Adjustment(0, -255, 255, 1, 1, 0)
+#        self.adj_contrast.connect("value_changed", self.adj_contrast_value_changed)
+#        self.spn_contrast = gtk.SpinButton(self.adj_contrast, 0, 0)
+#        self.btbx_lower_buttons.add(self.spn_contrast)
      
+        self.btn_settings = gtk.Button("Camera\nSettings")
+        self.btn_settings.set_tooltip_text(_("Push to open v4l2ucp to set up your camera"))
+        self.btn_settings.connect("clicked", self.on_btn_settings_clicked)      
+        self.btbx_lower_buttons.add(self.btn_settings)
         
+        self.btn_debug = gtk.Button("Debug\nButton")
+        self.btn_debug.set_tooltip_text(_("Push to senf debug command"))
+        self.btn_debug.connect("clicked", self.on_btn_debug_clicked)      
+        self.btbx_lower_buttons.add(self.btn_debug)
+
         self.add(self.btbx_lower_buttons)
 
         self.btbx_upper_buttons.connect("destroy", self.quit)
@@ -238,6 +275,8 @@ class CamView(gtk.VBox):
 
         self.thread_gtk()
  
+        gobject.timeout_add( 2000, self._periodic )
+ 
     def thread_gtk(self):
         # without this threading function camera speed was realy poor
         self.condition = threading.Condition()
@@ -245,13 +284,22 @@ class CamView(gtk.VBox):
         self.thrd.daemon = True
         self.thrd.start()
 
+    def _periodic(self):
+        FPS = (self.captured_frames - self.old_frames)/2
+        if FPS < 0:
+            FPS = 0
+        self.old_frames = self.captured_frames
+        self.lbl_frames.set_text("FPS\n" + str(FPS) )
+        return True
+
     def run(self):
         self.btn_run.set_sensitive(False)
-            
+        self.captured_frames = 0
         while True:
             with self.condition:
                 if self.paused:
                     self.condition.wait()
+                    self.captured_frames = 0
             try:
                 result, frame = self.cam.read()
                 if result:
@@ -264,9 +312,14 @@ class CamView(gtk.VBox):
                     elif self.full_info:
                         frame = self._draw_text(frame)
                     self.show_image(frame)
+                    # we put that in a try, to avoid an error if the user 
+                    # use the App 24/7 and get to large numbers
+                    try:
+                        self.captured_frames += 1
+                    except:
+                        self.captured_frames = 0
                 else:
                     pass
-                #time.sleep(self.time)
             except KeyboardInterrupt:
                 self.quit()
                 break
@@ -365,8 +418,8 @@ class CamView(gtk.VBox):
         # if the difference is less than 5 pixel we will not react to avoid flicker effects
         if abs(width - self.img_width) < 5 and abs(height - self.img_height) < 5:
             return
-        print(abs(width - self.img_width))
-        print(abs(height - self.img_height))
+        #print(abs(width - self.img_width))
+        #print(abs(height - self.img_height))
         self.img_width = width
         self.img_height = height
 
@@ -408,6 +461,10 @@ class CamView(gtk.VBox):
 
     def chk_show_full_info_toggled(self, widget, data = None):
         self.full_info = widget.get_active()
+        #start = self.captured_frames
+        #time.sleep(2)
+        #end = self.captured_frames
+        #print((end-start)/2)
 
     def adj_videodevice_value_changed(self, widget, data = None):
         if not self.initialized:
@@ -420,32 +477,67 @@ class CamView(gtk.VBox):
         self.resume()
         self.cam_properties.set_powerline_frequeny(self.videodevice, self.cmb_powerline_frequency.get_active())
         self.cam_properties.get_resolution(self.videodevice)
-        #print self.cam_properties.get_resolution(self.videodevice)
 
-    def adj_brightness_value_changed(self, widget, data = None):
-        if not self.initialized:
-            return
-        self.cam_properties.set_brightness(self.videodevice, widget.get_value())
-
-    def adj_contrast_value_changed(self, widget, data = None):
-        if not self.initialized:
-            return
-        self.cam_properties.set_contrast(self.videodevice, widget.get_value())
-
-    def on_cmb_powerline_frequency_changed(self, widget, data = None):
-        value = widget.get_active()
-        self.cam_properties.set_powerline_frequeny(self.videodevice, value)
+#    def adj_brightness_value_changed(self, widget, data = None):
+#        if not self.initialized:
+#            return
+#        self.cam_properties.set_brightness(self.videodevice, widget.get_value())
+#
+#    def adj_contrast_value_changed(self, widget, data = None):
+#        if not self.initialized:
+#            return
+#        self.cam_properties.set_contrast(self.videodevice, widget.get_value())
+#
+#    def on_cmb_powerline_frequency_changed(self, widget, data = None):
+#        value = widget.get_active()
+#        self.cam_properties.set_powerline_frequeny(self.videodevice, value)
 
     def on_btn_run_clicked(self, widget, data = None):
         self.paused = False
         self.resume()
 
-    # instead of just stooping the live stream, it will close the app
+    # just stooping the live stream, without closing the app
     def on_btn_stop_clicked(self, widget, data = None):
         self.paused = True
         self.pause()
 
-    # returns the separate BGR color numbers from the color widget
+    # open the settings control
+    def on_btn_settings_clicked(self, widget, data = None):
+        #print("Settings clicked")
+        self.cam_properties.open_settings(self.videodevice)
+        
+    # launch debug command
+    def on_btn_debug_clicked(self, widget, data = None):
+        print("Debug clicked")
+        self._get_color()
+
+    # launch color Chooser widget
+    def on_btn_color_chooser_clicked(self, widget, data = None):
+        self._get_color()
+
+    def _get_color(self, data= None):
+        # Create color selection dialog
+        if self.colorseldlg == None:
+            self.colorseldlg = gtk.ColorSelectionDialog("Select drawing color")
+
+        # Get the ColorSelection widget
+        colorsel = self.colorseldlg.colorsel
+        gtk_color = self._convert_to_gtk_color(self.color)
+        colorsel.set_previous_color(gtk_color)
+        colorsel.set_current_color(gtk_color)
+        colorsel.set_has_palette(True)
+
+        # Show the dialog
+        response = self.colorseldlg.run()
+
+        if response -- gtk.RESPONSE_OK:
+            self.color = self._convert_to_rgb(colorsel.get_current_color())
+        else:
+            pass
+
+        self.colorseldlg.hide()
+
+    # returns the separate BGR color numbers from the color
     def _convert_to_rgb(self, spec):
         color = spec.to_string()
         temp = color.strip("#")
@@ -454,8 +546,16 @@ class CamView(gtk.VBox):
         b = temp[8:]
         return (int(r, 16), int(g, 16), int(b, 16))
 
-    def emit_comand(self, comand=None):
-        print("should emit comand",comand)
+    def _convert_to_gtk_color(self, spec):
+        def clamp(x): 
+          return max(0, min(x, 255))
+        
+        return gtk.gdk.Color("#{0:02x}{1:02x}{2:02x}".format(clamp(spec[0]), clamp(spec[1]), clamp(spec[2])))
+     
+
+# ToDo: send user commands recieved as property
+    def emit_command(self, command=None):
+        print("should emit command",command)
 
     # Get properties
     def do_get_property(self, property):
@@ -487,7 +587,7 @@ class CamView(gtk.VBox):
                 if name == "autosize":
                     self.autosize = value
                 if name == "cam_settings":
-                    self.emit_comand(value)
+                    self.emit_command(value)
             else:
                 raise AttributeError(_('unknown property %s or value %s') % (property.name, value) )
         except:
@@ -515,49 +615,67 @@ class CamProperties():
 
     def get_resolution(self, videodevice=0):
         self.resolutions = []
+        
         # get all availible resolutions
-        result = subprocess.Popen(['v4l2-ctl', '-d' + str(videodevice), '--list-formats-ext'], stdout=subprocess.PIPE).communicate()[0]
-        result = str(result)
-        infos = result.split('\n')
-        resolution = ""
-        for item, info in enumerate(infos):
-            info = info.strip(' \t\n\r')
-            if info =="":
-                continue
-            if "Size" in info:
-                inf = info.split()
-                resolution = inf[2]
-                self.resolutions.append(resolution)
-                
-        # check for doble entries, not order preserving
+        result = subprocess.Popen(['v4l2-ctl', '-d' + str(videodevice), '--list-formats-ext'], stdout=subprocess.PIPE)#.communicate()[0]
+        line = ""
+        res =""
+        rate = ""
+        for letter in result.stdout.read():
+            if letter == "\n":
+                #print line.strip(" \t\n\r")
+                info = line.split(":")
+                if "Size" in info[0]:
+                    res = info[1].split()
+                    width,height = res[1].split("x")
+                if "Interval" in info[0]:
+                    rate = info[1].split("(")
+                    rate = rate[1]
+                    rate = rate.strip(" fps)")
+                    self.resolutions.append((width,height,rate))
+                line = ""
+            else:
+                line += letter
+        
+#        # check for doble entries, not order preserving
         checked = []
         for element in self.resolutions:
             if element not in checked:
                 checked.append(element)
         
         self.resolutions = sorted(checked)
+        #print self.resolutions
         return self.resolutions
 
     def set_powerline_frequeny(self, videodevice, value):
-        result = subprocess.Popen(['v4l2-ctl', '-d'+ str(videodevice), '--set-ctrl=power_line_frequency=' + str(value)], stdout=subprocess.PIPE).communicate()[0]
-        if result:
-            print result
+        command = 'v4l2-ctl -d'+ str(videodevice) + ' --set-ctrl=power_line_frequency=' + str(value)
+        self._run_command(command)
             
     def set_brightness(self, videodevice, value):
-        result = subprocess.Popen(['v4l2-ctl', '-d'+ str(videodevice), '--set-ctrl=brightness=' + str(value)], stdout=subprocess.PIPE).communicate()[0]
-        if result:
-            print result
+        command = 'v4l2-ctl -d'+ str(videodevice) + ' --set-ctrl=brightness=' + str(value)
+        self._run_command(command)
 
     def set_contrast(self, videodevice, value):
-        result = subprocess.Popen(['v4l2-ctl', '-d'+ str(videodevice), '--set-ctrl=contrast=' + str(value)], stdout=subprocess.PIPE).communicate()[0]
-        if result:
-            print result
+        command = 'v4l2-ctl -d'+ str(videodevice) + ' --set-ctrl=contrast=' + str(value)
+        self._run_command(command)
+        
+    def open_settings(self, videodevice = 0):        
+        command = "v4l2ucp /dev/video"+ str(videodevice)
+        self._run_command(command)
 
+# ToDo: may be we can lauch all commands from here, so we do not need do repeat code
+    def _run_command(self, command):
+        result = subprocess.Popen(command, stderr=None, shell=True)
+
+    def close_child(self):
+        os.kill(self.v4l2ucp.pid, signal.SIGKILL)
+        print("kill signal emitted",self.v4l2ucp.pid)
+        
 
 if __name__ == '__main__':
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     window.set_title("CamView Window")
-    camv = CamView(videodevice=0, frame_width=320, frame_height=240)
+    camv = CamView(videodevice=0, frame_width=640, frame_height=480)
     window.add(camv)
     camv.set_property("draw_color", gtk.gdk.Color("yellow"))
     camv.set_property("circle_size", 150)
