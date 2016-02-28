@@ -517,7 +517,7 @@ class Pages:
 
     def on_halui_row_changed(self, *args):
         newvalue = args[2]
-        if len(newvalue.strip() <2):
+        if len((newvalue.strip()) <2):
             return
         select = self.w.viewTable1.get_selection()
         model, treeiter = select.get_selected()
