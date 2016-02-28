@@ -102,7 +102,7 @@ class CamView(gtk.VBox):
     def __init__(self,videodevice=0, frame_width=640, frame_height=480):
         super(CamView, self).__init__()
 
-        self.__version__ = "0.1.0"
+        self.__version__ = "0.1.1"
 
         # set the selected camera as video device
         self.videodevice = videodevice
@@ -115,11 +115,11 @@ class CamView(gtk.VBox):
         self.color =(0, 0, 255)
         self.radius = 150
         self.radius_difference = 10
-        self.circles = 3
+        self.circles = 5
         self.autosize = False
         self.full_info = False
         self.linewidth = 1
-        self.frame = None
+        #self.frame = None
         self.img_gtk = None
         self.paused = False
         self.thrd = None
@@ -128,7 +128,7 @@ class CamView(gtk.VBox):
         self.img_width = self.frame_width
         self.img_height = self.frame_height
         self.img_ratio = float(self.img_width) / float(self.img_height)
-
+        
         self.colorseldlg = None
         self.old_frames = 0
 
@@ -164,7 +164,7 @@ class CamView(gtk.VBox):
         
         self.cam_properties = CamProperties()
         self.cam_properties.get_devices()
-        self.cam_properties.get_resolution(self.videodevice)
+        #self.cam_properties.get_resolution(self.videodevice)
         
         # make the main GUI
         self.image_box = gtk.EventBox()
@@ -233,34 +233,29 @@ class CamView(gtk.VBox):
             self.spn_videodevice.set_sensitive(False)
         self.btbx_lower_buttons.add(self.spn_videodevice)
         
-#        store = gtk.ListStore(str)
-#        store.append(["None"])
-#        store.append(["50 Hz"])
-#        store.append(["60 Hz"])
-#
-#        self.cmb_powerline_frequency = gtk.ComboBox(store)
-#        cell = gtk.CellRendererText()
-#        self.cmb_powerline_frequency.pack_start(cell, True)
-#        self.cmb_powerline_frequency.add_attribute(cell, 'text', 0)
-#        self.cmb_powerline_frequency.connect("changed", self.on_cmb_powerline_frequency_changed)
-#        self.cmb_powerline_frequency.set_active(1)
-#        
-#        self.btbx_lower_buttons.add(self.cmb_powerline_frequency)
-#        
-#        self.adj_brightness = gtk.Adjustment(0, -255, 255, 1, 1, 0)
-#        self.adj_brightness.connect("value_changed", self.adj_brightness_value_changed)
-#        self.spn_brightness = gtk.SpinButton(self.adj_brightness, 0, 0)
-#        self.btbx_lower_buttons.add(self.spn_brightness)
-#
-#        self.adj_contrast = gtk.Adjustment(0, -255, 255, 1, 1, 0)
-#        self.adj_contrast.connect("value_changed", self.adj_contrast_value_changed)
-#        self.spn_contrast = gtk.SpinButton(self.adj_contrast, 0, 0)
-#        self.btbx_lower_buttons.add(self.spn_contrast)
+        store = gtk.ListStore(str)
+        store.append(["None"])
+        store.append(["50 Hz"])
+        store.append(["60 Hz"])
+        self.cmb_powerline_frequency = gtk.ComboBox(store)
+        cell = gtk.CellRendererText()
+        self.cmb_powerline_frequency.pack_start(cell, True)
+        self.cmb_powerline_frequency.add_attribute(cell, 'text', 0)
+        self.cmb_powerline_frequency.connect("changed", self.on_cmb_powerline_frequency_changed)
+        self.cmb_powerline_frequency.set_active(1)
+        self.btbx_lower_buttons.add(self.cmb_powerline_frequency)
      
         self.btn_settings = gtk.Button("Camera\nSettings")
         self.btn_settings.set_tooltip_text(_("Push to open v4l2ucp to set up your camera"))
         self.btn_settings.connect("clicked", self.on_btn_settings_clicked)      
         self.btbx_lower_buttons.add(self.btn_settings)
+        
+#        self.cmb_resolutions = gtk.combo_box_new_text()
+#        self.fill_combo(self.cmb_resolutions)
+#        active_res = str(int(self.frame_width)) +"x" + str(int(self.frame_height))
+#        self.set_value(self.cmb_resolutions, active_res)
+#        self.cmb_resolutions.connect("changed", self.cmb_resolutions_changed)
+#        self.btbx_upper_buttons.add(self.cmb_resolutions)
         
         self.btn_debug = gtk.Button("Debug\nButton")
         self.btn_debug.set_tooltip_text(_("Push to senf debug command"))
@@ -325,6 +320,7 @@ class CamView(gtk.VBox):
                 break
 
     def resume(self):
+        self.btn_stop.set_sensitive(True)
         self.btn_run.set_sensitive(False)
         if self.circles == 0:
             self.btn_circles_plus.set_sensitive(True)
@@ -339,6 +335,7 @@ class CamView(gtk.VBox):
             self.condition.notify()  # unblock self if waiting
 
     def pause(self):
+        self.btn_stop.set_sensitive(False)
         self.btn_run.set_sensitive(True)
         self.btn_radius_plus.set_sensitive(False)
         self.btn_radius_minus.set_sensitive(False)
@@ -418,8 +415,6 @@ class CamView(gtk.VBox):
         # if the difference is less than 5 pixel we will not react to avoid flicker effects
         if abs(width - self.img_width) < 5 and abs(height - self.img_height) < 5:
             return
-        #print(abs(width - self.img_width))
-        #print(abs(height - self.img_height))
         self.img_width = width
         self.img_height = height
 
@@ -427,6 +422,26 @@ class CamView(gtk.VBox):
         self.paused = True
         self.destroy()
         gtk.main_quit()
+
+#    def fill_combo(self, combobox):
+#        store = combobox.get_model()
+#        store.clear()
+#        for res in self.cam_properties.get_resolution(self.videodevice):
+#            combobox.append_text(res)
+#        
+#    def set_value(self, combobox, value):
+#        index = -1
+#        if self.initialized:
+#            self.pause()
+#        store = combobox.get_model()
+#        itr = store.get_iter_first()
+#        while itr:
+#            if value == store.get_value(itr,0):
+#                index = store.get_string_from_iter(itr)
+#            itr = store.iter_next(itr)
+#        combobox.set_active(int(index))
+#        if self.initialized:
+#            self.resume()
 
     def on_btn_circle_clicked(self, widget, data = None):
         if data:
@@ -461,10 +476,6 @@ class CamView(gtk.VBox):
 
     def chk_show_full_info_toggled(self, widget, data = None):
         self.full_info = widget.get_active()
-        #start = self.captured_frames
-        #time.sleep(2)
-        #end = self.captured_frames
-        #print((end-start)/2)
 
     def adj_videodevice_value_changed(self, widget, data = None):
         if not self.initialized:
@@ -476,21 +487,40 @@ class CamView(gtk.VBox):
         self.cam = cv2.VideoCapture(self.videodevice)
         self.resume()
         self.cam_properties.set_powerline_frequeny(self.videodevice, self.cmb_powerline_frequency.get_active())
-        self.cam_properties.get_resolution(self.videodevice)
+#        self.cam_properties.get_resolution(self.videodevice)
+#        self.fill_combo(self.cmb_resolutions)
+#
+#        self.frame_width = self.cam.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
+#        self.frame_height = self.cam.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
+#        active_res = str(int(self.frame_width)) +"x" + str(int(self.frame_height))
+#
+#        self.set_value(self.cmb_resolutions, active_res)
 
-#    def adj_brightness_value_changed(self, widget, data = None):
+#    def cmb_resolutions_changed(self, widget, data = None):
 #        if not self.initialized:
 #            return
-#        self.cam_properties.set_brightness(self.videodevice, widget.get_value())
-#
-#    def adj_contrast_value_changed(self, widget, data = None):
-#        if not self.initialized:
-#            return
-#        self.cam_properties.set_contrast(self.videodevice, widget.get_value())
-#
-#    def on_cmb_powerline_frequency_changed(self, widget, data = None):
-#        value = widget.get_active()
-#        self.cam_properties.set_powerline_frequeny(self.videodevice, value)
+#        res = widget.get_active_text()
+#        print(res)
+#        if res:
+#            width = res.split("x")[0]
+#            height = res.split("x")[1]
+#            self.pause()
+#            self.cam.release()
+#            self.cam = cv2.VideoCapture(self.videodevice)
+#            self.frame_width = float(width)
+#            self.frame_height = float(height)
+#        
+#        if OPCV3:
+#            self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, self.frame_width )
+#            self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.frame_height)
+#        else:
+#            self.cam.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, self.frame_width )
+#            self.cam.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT,self.frame_height)
+#        self.resume()
+
+    def on_cmb_powerline_frequency_changed(self, widget, data = None):
+        value = widget.get_active()
+        self.cam_properties.set_powerline_frequeny(self.videodevice, value)
 
     def on_btn_run_clicked(self, widget, data = None):
         self.paused = False
@@ -503,13 +533,11 @@ class CamView(gtk.VBox):
 
     # open the settings control
     def on_btn_settings_clicked(self, widget, data = None):
-        #print("Settings clicked")
         self.cam_properties.open_settings(self.videodevice)
         
     # launch debug command
     def on_btn_debug_clicked(self, widget, data = None):
         print("Debug clicked")
-        self._get_color()
 
     # launch color Chooser widget
     def on_btn_color_chooser_clicked(self, widget, data = None):
@@ -551,11 +579,6 @@ class CamView(gtk.VBox):
           return max(0, min(x, 255))
         
         return gtk.gdk.Color("#{0:02x}{1:02x}{2:02x}".format(clamp(spec[0]), clamp(spec[1]), clamp(spec[2])))
-     
-
-# ToDo: send user commands recieved as property
-    def emit_command(self, command=None):
-        print("should emit command",command)
 
     # Get properties
     def do_get_property(self, property):
@@ -587,7 +610,7 @@ class CamView(gtk.VBox):
                 if name == "autosize":
                     self.autosize = value
                 if name == "cam_settings":
-                    self.emit_command(value)
+                    self.cam_properties._run_command(value)
             else:
                 raise AttributeError(_('unknown property %s or value %s') % (property.name, value) )
         except:
@@ -613,63 +636,54 @@ class CamProperties():
                 self.devices.append(device)
         return self.devices
 
-    def get_resolution(self, videodevice=0):
-        self.resolutions = []
-        
-        # get all availible resolutions
-        result = subprocess.Popen(['v4l2-ctl', '-d' + str(videodevice), '--list-formats-ext'], stdout=subprocess.PIPE)#.communicate()[0]
-        line = ""
-        res =""
-        rate = ""
-        for letter in result.stdout.read():
-            if letter == "\n":
-                #print line.strip(" \t\n\r")
-                info = line.split(":")
-                if "Size" in info[0]:
-                    res = info[1].split()
-                    width,height = res[1].split("x")
-                if "Interval" in info[0]:
-                    rate = info[1].split("(")
-                    rate = rate[1]
-                    rate = rate.strip(" fps)")
-                    self.resolutions.append((width,height,rate))
-                line = ""
-            else:
-                line += letter
-        
-#        # check for doble entries, not order preserving
-        checked = []
-        for element in self.resolutions:
-            if element not in checked:
-                checked.append(element)
-        
-        self.resolutions = sorted(checked)
-        #print self.resolutions
-        return self.resolutions
+#    def get_resolution(self, videodevice=0):
+#        self.resolutions = []
+#        
+#        # get all availible resolutions
+#        result = subprocess.Popen(['v4l2-ctl', '-d' + str(videodevice), '--list-formats-ext'], stdout=subprocess.PIPE)#.communicate()[0]
+#        line = ""
+#        res =""
+#        rate = ""
+#        for letter in result.stdout.read():
+#            if letter == "\n":
+#                #print line.strip(" \t\n\r")
+#                info = line.split(":")
+#                if "Size" in info[0]:
+#                    res = info[1].split()
+#                    #width,height = res[1].split("x")
+##                if "Interval" in info[0]:
+##                    rate = info[1].split("(")
+##                    rate = rate[1]
+##                    rate = rate.strip(" fps)")
+#                    self.resolutions.append(str(res[1]))
+#                line = ""
+#            else:
+#                line += letter
+#        
+##        # check for doble entries, not order preserving
+#        checked = []
+#        for element in self.resolutions:
+#            if element not in checked:
+#                checked.append(element)
+#        
+#        self.resolutions = sorted(checked)
+#        return self.resolutions
 
     def set_powerline_frequeny(self, videodevice, value):
         command = 'v4l2-ctl -d'+ str(videodevice) + ' --set-ctrl=power_line_frequency=' + str(value)
-        self._run_command(command)
-            
-    def set_brightness(self, videodevice, value):
-        command = 'v4l2-ctl -d'+ str(videodevice) + ' --set-ctrl=brightness=' + str(value)
-        self._run_command(command)
-
-    def set_contrast(self, videodevice, value):
-        command = 'v4l2-ctl -d'+ str(videodevice) + ' --set-ctrl=contrast=' + str(value)
         self._run_command(command)
         
     def open_settings(self, videodevice = 0):        
         command = "v4l2ucp /dev/video"+ str(videodevice)
         self._run_command(command)
 
-# ToDo: may be we can lauch all commands from here, so we do not need do repeat code
     def _run_command(self, command):
-        result = subprocess.Popen(command, stderr=None, shell=True)
+        if command:
+            result = subprocess.Popen(command, stderr=None, shell=True)
 
-    def close_child(self):
-        os.kill(self.v4l2ucp.pid, signal.SIGKILL)
-        print("kill signal emitted",self.v4l2ucp.pid)
+#    def close_child(self):
+#        os.kill(self.v4l2ucp.pid, signal.SIGKILL)
+#        print("kill signal emitted",self.v4l2ucp.pid)
         
 
 if __name__ == '__main__':
@@ -680,6 +694,8 @@ if __name__ == '__main__':
     camv.set_property("draw_color", gtk.gdk.Color("yellow"))
     camv.set_property("circle_size", 150)
     camv.set_property("number_of_circles", 5)
+    command = 'v4l2-ctl -d0 --set-ctrl=power_line_frequency=1'
+    camv.set_property("cam_settings", command)
     window.show_all()
     window.connect("destroy", camv.quit)
     gtk.main()
