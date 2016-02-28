@@ -634,13 +634,14 @@ panel</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="xalign">0.5</property>
+                                    <property name="xalign">0</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                     <child>
                                       <object class="GtkLabel" id="newladder">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="xalign">0</property>
                                         <property name="label" translatable="yes">Blank ladder program</property>
                                         <property name="use_underline">True</property>
                                       </object>
@@ -658,7 +659,7 @@ panel</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="xalign">0.5</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">radiobutton1</property>
                                   </object>
@@ -675,7 +676,7 @@ panel</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="use_underline">True</property>
-                                    <property name="xalign">0.5</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">radiobutton1</property>
                                   </object>
@@ -692,7 +693,7 @@ panel</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="use_underline">True</property>
-                                    <property name="xalign">0.5</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">radiobutton1</property>
                                   </object>
@@ -709,7 +710,7 @@ panel</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="use_underline">True</property>
-                                    <property name="xalign">0.5</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
