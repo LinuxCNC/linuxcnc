@@ -93,7 +93,7 @@
         <property name="can_focus">True</property>
         <property name="receives_default">False</property>
         <property name="use_underline">True</property>
-        <property name="xalign">0.5</property>
+        <property name="xalign">0</property>
         <property name="draw_indicator">True</property>
       </object>
       <packing>
@@ -110,7 +110,7 @@
         <property name="receives_default">False</property>
         <property name="relief">none</property>
         <property name="use_underline">True</property>
-        <property name="xalign">0.55000001192092896</property>
+        <property name="xalign">0</property>
         <property name="draw_indicator">True</property>
         <signal name="toggled" handler="on_halui_toggled" swapped="no"/>
       </object>
@@ -184,7 +184,7 @@
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
                                         <property name="use_underline">True</property>
-                                        <property name="xalign">0.5</property>
+                                        <property name="xalign">0</property>
                                         <property name="active">True</property>
                                         <property name="draw_indicator">True</property>
                                       </object>
@@ -201,7 +201,7 @@
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
                                         <property name="use_underline">True</property>
-                                        <property name="xalign">0.5</property>
+                                        <property name="xalign">0</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">radiobutton5</property>
                                       </object>
@@ -218,7 +218,7 @@
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
                                         <property name="use_underline">True</property>
-                                        <property name="xalign">0.5</property>
+                                        <property name="xalign">0</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">radiobutton5</property>
                                       </object>
@@ -235,7 +235,7 @@
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
                                         <property name="use_underline">True</property>
-                                        <property name="xalign">0.5</property>
+                                        <property name="xalign">0</property>
                                         <property name="draw_indicator">True</property>
                                       </object>
                                       <packing>
@@ -348,7 +348,7 @@ panel</property>
         <property name="can_focus">True</property>
         <property name="receives_default">False</property>
         <property name="use_underline">True</property>
-        <property name="xalign">0.5</property>
+        <property name="xalign">0</property>
         <property name="draw_indicator">True</property>
         <signal name="toggled" handler="on_classicladder_toggled" swapped="no"/>
       </object>
@@ -485,7 +485,7 @@ panel</property>
                                             <property name="label" translatable="yes">Number of digital in pins:</property>
                                             <property name="use_underline">True</property>
                                             <property name="mnemonic_widget">digitsin</property>
-                                            <property name="angle">0.019999999552965164</property>
+                                            <property name="angle">2.2351741811588166e-10</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">0</property>
@@ -605,53 +605,11 @@ panel</property>
                                     <property name="position">2</property>
                                   </packing>
                                 </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
                                 <property name="fill">True</property>
                                 <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkBox" id="vbox4">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="orientation">vertical</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
