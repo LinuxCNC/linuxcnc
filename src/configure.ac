@@ -1829,6 +1829,7 @@ if $TARGET_PLATFORM_BEAGLEBONE; then
    AC_DEFINE(TARGET_PLATFORM_BEAGLEBONE, [], [build for BeagleBone platform])
    target_platform_beaglebone_val=yes
 fi
+AC_SUBST(TARGET_PLATFORM_BEAGLEBONE,$target_platform_beaglebone_val)
 
 if $TARGET_PLATFORM_SOCFPGA; then
    AC_DEFINE(TARGET_PLATFORM_SOCFPGA, [], [build for Socfpga platform])

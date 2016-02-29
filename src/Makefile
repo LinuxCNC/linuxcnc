@@ -1258,18 +1258,20 @@ obj-$(CONFIG_HAL_SPI) += hal_spi.o
 hal_spi-objs := hal/drivers/hal_spi.o
 endif
 
+
+ifdef TARGET_PLATFORM_SOCFPGA
+ifeq ($(BUILD_SYS),user-dso)
+obj-$(CONFIG_HAL_UIO) += hm2_soc.o
+hm2_soc-uio-objs := hal/drivers/hm2_soc.o
+endif
+endif
+
 ifdef TARGET_PLATFORM_BEAGLEBONE
 ifeq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
 hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o
 obj-$(CONFIG_PEPPER) += pepper.o
 pepper-objs := hal/components/pepper.o $(MATHSTUB)
-endif
-
-ifdef TARGET_PLATFORM_SOCFPGA
-ifeq ($(BUILD_SYS),user-dso)
-obj-$(CONFIG_HAL_UIO) += hm2_soc.o
-hm2_soc-uio-objs := hal/drivers/hm2_soc.o
 endif
 
 ifdef TARGET_PLATFORM_ZEDBOARD
