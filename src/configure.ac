@@ -533,8 +533,8 @@ KSOURCE_LOCATION_HINTS=$(echo \
 
 # PLATFORM
 # TARGET_PLATFORM_PC
-# TARGET_PLATFORM_BEAGLEBONE
 # TARGET_PLATFORM_SOCFPGA
+# TARGET_PLATFORM_BEAGLEBONE
 # TARGET_PLATFORM_RASPBERRY
 # TARGET_PLATFORM_ZEDBOARD
 #
@@ -615,6 +615,35 @@ AC_ARG_WITH(platform-pc,
 		;;
 	esac
     ])
+    
+AC_ARG_WITH(platform-socfpga,
+    [AS_HELP_STRING(
+        [--with-platform-socfpga],
+	[Build for Socfpga platform (default for ARM arch)])],
+    [
+        case $with_platform_socfpga in
+	    (y*)
+	    	TARGET_PLATFORM_SOCFPGA=true
+		platform_specified=true
+		platform_socfpga_reason="$cmdl_enab_msg"
+		;;
+	    (*)
+	    	TARGET_PLATFORM_SOCFPGA=false
+		platform_socfpga_reason="$cmdl_disab_msg"
+		;;
+	esac
+    ],
+    [
+        case $host_cpu in
+	    (arm*)
+	        TARGET_PLATFORM_SOCFPGA=unk
+		;;
+	    (*)
+	        TARGET_PLATFORM_SOCFPGA=false
+		platform_beaglebone_reason="$arch_disab_msg"
+		;;
+	esac
+    ])
 
 AC_ARG_WITH(platform-beaglebone,
     [AS_HELP_STRING(
@@ -640,35 +669,6 @@ AC_ARG_WITH(platform-beaglebone,
 		;;
 	    (*)
 	        TARGET_PLATFORM_BEAGLEBONE=false
-		platform_beaglebone_reason="$arch_disab_msg"
-		;;
-	esac
-    ])
-
-AC_ARG_WITH(platform-socfpga,
-    [AS_HELP_STRING(
-        [--with-platform-socfpga],
-	[Build for Socfpga platform (default for ARM arch)])],
-    [
-        case $with_platform_socfpga in
-	    (y*)
-	    	TARGET_PLATFORM_SOCFPGA=true
-		platform_specified=true
-		platform_socfpga_reason="$cmdl_enab_msg"
-		;;
-	    (*)
-	    	TARGET_PLATFORM_SOCFPGA=false
-		platform_socfpga_reason="$cmdl_disab_msg"
-		;;
-	esac
-    ],
-    [
-        case $host_cpu in
-	    (arm*)
-	        TARGET_PLATFORM_SOCFPGA=unk
-		;;
-	    (*)
-	        TARGET_PLATFORM_SOCFPGA=false
 		platform_beaglebone_reason="$arch_disab_msg"
 		;;
 	esac
@@ -739,13 +739,13 @@ if $platform_specified; then
 	TARGET_PLATFORM_PC=false
 	platform_pc_reason="$cmdl_notspec_msg"
     fi
-    if test $TARGET_PLATFORM_BEAGLEBONE = unk; then
-	TARGET_PLATFORM_BEAGLEBONE=false
-	platform_beaglebone_reason="$cmdl_notspec_msg"
-    fi
     if test $TARGET_PLATFORM_SOCFPGA = unk; then
 	TARGET_PLATFORM_SOCFPGA=false
 	platform_socfpga_reason="$cmdl_notspec_msg"
+    fi
+    if test $TARGET_PLATFORM_BEAGLEBONE = unk; then
+	TARGET_PLATFORM_BEAGLEBONE=false
+	platform_beaglebone_reason="$cmdl_notspec_msg"
     fi
     if test $TARGET_PLATFORM_RASPBERRY = unk; then
 	TARGET_PLATFORM_RASPBERRY=false
@@ -763,13 +763,13 @@ else
         TARGET_PLATFORM_PC=true
 	platform_pc_reason="$arch_enab_msg"
     fi
-    if test $TARGET_PLATFORM_BEAGLEBONE = unk; then
-        TARGET_PLATFORM_BEAGLEBONE=true
-	platform_beaglebone_reason="$arch_enab_msg"
-    fi
     if test $TARGET_PLATFORM_SOCFPGA = unk; then
         TARGET_PLATFORM_SOCFPGA=true
 	platform_socfpga_reason="$arch_enab_msg"
+    fi
+    if test $TARGET_PLATFORM_BEAGLEBONE = unk; then
+        TARGET_PLATFORM_BEAGLEBONE=true
+	platform_beaglebone_reason="$arch_enab_msg"
     fi
     if test $TARGET_PLATFORM_RASPBERRY = unk; then
         TARGET_PLATFORM_RASPBERRY=true
@@ -1825,17 +1825,17 @@ if $TARGET_PLATFORM_PC; then
 fi
 AC_SUBST(TARGET_PLATFORM_PC,$target_platform_pc_val)
 
-if $TARGET_PLATFORM_BEAGLEBONE; then
-   AC_DEFINE(TARGET_PLATFORM_BEAGLEBONE, [], [build for BeagleBone platform])
-   target_platform_beaglebone_val=yes
-fi
-AC_SUBST(TARGET_PLATFORM_BEAGLEBONE,$target_platform_beaglebone_val)
-
 if $TARGET_PLATFORM_SOCFPGA; then
    AC_DEFINE(TARGET_PLATFORM_SOCFPGA, [], [build for Socfpga platform])
    target_platform_socfpga_val=yes
 fi
 AC_SUBST(TARGET_PLATFORM_SOCFPGA,$target_platform_socfpga_val)
+
+if $TARGET_PLATFORM_BEAGLEBONE; then
+   AC_DEFINE(TARGET_PLATFORM_BEAGLEBONE, [], [build for BeagleBone platform])
+   target_platform_beaglebone_val=yes
+fi
+AC_SUBST(TARGET_PLATFORM_BEAGLEBONE,$target_platform_beaglebone_val)
 
 if $TARGET_PLATFORM_RASPBERRY; then
    AC_DEFINE(TARGET_PLATFORM_RASPBERRY, [], [build for Raspberry Pi platform])
