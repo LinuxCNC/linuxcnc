@@ -640,7 +640,7 @@ AC_ARG_WITH(platform-socfpga,
 		;;
 	    (*)
 	        TARGET_PLATFORM_SOCFPGA=false
-		platform_beaglebone_reason="$arch_disab_msg"
+		platform_socfpga_reason="$arch_disab_msg"
 		;;
 	esac
     ])
