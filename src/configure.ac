@@ -538,7 +538,7 @@ KSOURCE_LOCATION_HINTS=$(echo \
 # TARGET_PLATFORM_RASPBERRY
 # TARGET_PLATFORM_ZEDBOARD
 #
-# Platforms. set by --with-platform-{pc,beaglebone,raspberry,zedboard}
+# Platforms. set by --with-platform-{pc,beaglebone,socfpga,raspberry,zedboard}
 # see Section 2.3 to enable other platforms, and 2.7 to AC_DEFINE it
 
 ARCHITECTURE=`$ARCHCMD`
@@ -563,7 +563,7 @@ XENO_CONFIG=
 # Configure several basic features:                                          #
 # - some etc/linuxcnc/machinekit.ini  values                                 #
 # - the MKUUID instance UUID                                                 #
-# - Platform (PC, Raspberry Pi, BeagleBone, Zedboard)                        #
+# - Platform (PC, Raspberry Pi, BeagleBone,SocFpga, Zedboard)                        #
 # - Common shared memory driver                                              #
 # - Parport I/O mode (portable or inb/outb)                                  #
 # - emcweb UI                                                                #
