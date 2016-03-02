@@ -41,6 +41,9 @@ env:
     - TAG=jessie-armhf CMD=build_deb FLAV=posix
     - TAG=jessie-armhf CMD=build_deb FLAV=xenomai
     - TAG=jessie-armhf CMD=build_deb FLAV=rt_preempt
+    - TAG=raspbian-armhf CMD=build_deb FLAV=posix
+    - TAG=raspbian-armhf CMD=build_deb FLAV=xenomai
+    - TAG=raspbian-armhf CMD=build_deb FLAV=rt_preempt
 
 before_script:
   - .travis/get_ccache.sh
