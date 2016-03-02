@@ -54,7 +54,7 @@ script:
 after_success:
   - .travis/save_ccache.sh
   - .travis/send_binaries.sh
-  - test ${TAG} != "raspbian-armhf" && .travis/upload_packagecloud.sh
+  - .travis/upload_packagecloud.sh
 
 after_script:
   - .travis/send_status.sh
