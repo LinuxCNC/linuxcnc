@@ -125,7 +125,7 @@ class INI:
         print >>file, "HALFILE = %s.hal" % self.d.machinename
         if self.d.customhal:
             print >>file, "HALFILE = custom.hal"
-            print >>file, "POSTGUI_HALFILE = custom_postgui.hal"
+            print >>file, "POSTGUI_HALFILE = postgui_call_list.hal"
 
         if self.d.halui:
            print >>file

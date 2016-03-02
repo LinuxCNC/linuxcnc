@@ -821,6 +821,7 @@ class HAL:
                 if self.d.mitsub_vfd:
                     print >>f1, "source mitsub_vfd.hal"
             print >>f1, "source custom_postgui.hal"
+            f1.close()
 
 
         # If the user asked for pyvcp sample panel add the HAL commands too
