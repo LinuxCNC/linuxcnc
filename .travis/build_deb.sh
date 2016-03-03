@@ -8,9 +8,6 @@ if ${MK_PACKAGE_VERBOSE}; then
     DEBUILD_OPTS+=" -eDH_VERBOSE=1"
 fi
 
-# enable ccache
-DEBUILD_OPTS+=" -eCCACHE_DIR=/ccache --prepend-path=/usr/lib/ccache"
-
 # Supplied variables for package configuration
 MAJOR_MINOR_VERSION="${MAJOR_MINOR_VERSION:-0.1}"
 PKGSOURCE="${PKGSOURCE:-travis.${TRAVIS_REPO_SLUG/\//.}}"
@@ -103,8 +100,3 @@ if test ${MARCH} = 64; then
 fi
 
 chmod 0666 ${ROOTFS}/${MACHINEKIT_PATH}/deploy/*
-
-# display ccache stats
-CCACHE_DIR=/ccache proot-helper ccache -s
-# reset ccache stats
-CCACHE_DIR=/ccache proot-helper ccache -z > /dev/null

@@ -29,7 +29,6 @@ env:
     - SFTP_PORT="${SFTP_DEPLOY_PORT:-22}"
     - SFTP_USER="${SFTP_DEPLOY_USER:-travis}"
     - SFTP_ADDR="${SFTP_DEPLOY_ADDR:-empty}"
-    - CCACHE_REPO="${CCACHE_REPO:-kinsamanka/mk-ccache}"
   matrix:
     - TAG=wheezy-64    CMD=run_tests
     - TAG=jessie-64    CMD=run_tests
@@ -47,14 +46,10 @@ env:
     - TAG=raspbian-armhf CMD=build_deb FLAV=xenomai
     - TAG=raspbian-armhf CMD=build_deb FLAV=rt_preempt
 
-before_script:
-  - .travis/get_ccache.sh
-
 script:
   - .travis/docker_run.sh
 
 after_success:
-  - .travis/save_ccache.sh
   - .travis/send_binaries.sh
   - test ${TAG} != "raspbian-armhf" && .travis/upload_packagecloud.sh
 
