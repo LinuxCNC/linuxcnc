@@ -20,15 +20,15 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq sshpass
   - gem install package_cloud
-  - .travis/get_sftp_key.sh 
+  - .travis/check_sftp.sh 
 
 env:
   global:
     - ROOT=/opt/rootfs
     - JOBS=2
-    - SFTP_DEPLOY_PORT="${SFTP_DEPLOY_PORT:-22}"
-    - SFTP_DEPLOY_USER="${SFTP_DEPLOY_USER:-travis}"
-    - SFTP_DEPLOY_ADDR="${SFTP_DEPLOY_ADDR:-empty}"
+    - SFTP_PORT="${SFTP_DEPLOY_PORT:-22}"
+    - SFTP_USER="${SFTP_DEPLOY_USER:-travis}"
+    - SFTP_ADDR="${SFTP_DEPLOY_ADDR:-empty}"
     - CCACHE_REPO="${CCACHE_REPO:-kinsamanka/mk-ccache}"
   matrix:
     - TAG=wheezy-64    CMD=run_tests
