@@ -50,6 +50,16 @@ EOF
         die "Error connecting with sftp. Exit code: ${err}"
     fi
 
+    err=0
+    SSHPASS=${SFTP_PASSWD}
+    sshpass -e sftp -P ${SFTP_PORT} -o StrictHostKeyChecking=no -oBatchMode=no \
+        -b ${TRAVIS_BUILD_DIR}/../sftp_cmds \
+        ${SFTP_USER}@${SFTP_ADDR} || err=$?
+
+    if [ $err -ne 0 ]; then
+        die "Error connecting with sftp. Exit code: ${err}"
+    fi
+
     exit 0
 fi
 
