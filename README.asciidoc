@@ -43,7 +43,7 @@ for information about building from source and running the software.
 
 The Machinekit documentation set is evolving. Please see 
 link:http://www.machinekit.io[machinekit.io] and the
-link:http://github.com/machinekit/machinekit-docs[Machinekit documentation]
+link:http://github.com/machinekit/machinekit-docs[Machinekit documentation].
 
 History
 -------
