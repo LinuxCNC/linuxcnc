@@ -19,9 +19,6 @@ EOF
 
     sftp -P ${SFTP_DEPLOY_PORT} -o StrictHostKeyChecking=no -oBatchMode=no \
         -b sftp_cmds ${SFTP_DEPLOY_USER}@${SFTP_DEPLOY_ADDR}
-
-    SSHPASS=${SFTP_PASSWD}
-    sshpass -e sftp -P ${SFTP_PORT} -o StrictHostKeyChecking=no -oBatchMode=no \
-        -b sftp_cmds ${SFTP_USER}@${SFTP_ADDR}
-
+    
 fi
+
