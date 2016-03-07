@@ -31,10 +31,6 @@ loadrt trivkins
 # motion controller, get name and thread periods from ini file
 # trajectory planner
 loadrt tp
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES  #tp=tp kins=trivkins
-
-# only the 7i43 needs this, but it doesnt hurt the others
-#loadrt probe_parport
 
 # hostmot2 driver
 loadrt hostmot2
@@ -43,17 +39,25 @@ loadrt hostmot2
 loadrt [HOSTMOT2](DRIVER)
 #config=[HOSTMOT2](CONFIG)
 
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES  #tp=tp kins=trivkins
+
+# only the 7i43 needs this, but it doesnt hurt the others
+#loadrt probe_parport
+
+
 
 # ################################################
 # THREADS
 # ################################################
 
-addf hm2_[HOSTMOT2](BOARD).0.read         servo-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
-# revel in the free time here from not having to run PID
+
 addf hm2_[HOSTMOT2](BOARD).0.write        servo-thread
-addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog servo-thread
+addf hm2_[HOSTMOT2](BOARD).0.read         servo-thread
+
+# revel in the free time here from not having to run PID
+#addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog servo-thread
 
 
 # ######################################################
@@ -94,6 +98,7 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.step_type       0
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.control-type    0
 
 
 # ################
