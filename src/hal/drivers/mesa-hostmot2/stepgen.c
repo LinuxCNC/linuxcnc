@@ -276,7 +276,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     *s->hal.pin.velocity_fb = (hal_float_t)new_vel;
 
     steps_per_sec_cmd = new_vel * s->hal.param.position_scale;
-    hm2->stepgen.step_rate_reg[i] = steps_per_sec_cmd * (4294967296.0 / (double)hm2->stepgen.clock_frequency);
+    hm2->stepgen.step_rate_reg[i] = (hal_u32_t)(hal_s32_t)(steps_per_sec_cmd * (4294967296.0 / (double)hm2->stepgen.clock_frequency));
     *s->hal.pin.dbg_step_rate = hm2->stepgen.step_rate_reg[i];
 }
 
