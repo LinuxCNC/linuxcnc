@@ -141,7 +141,7 @@ may require changes to your machine configuration.
 Lines with numeric INI variables are no longer allowed to have trailing
 text.  In earlier versions of LinuxCNC any text after the number was
 silently ignored, but as of this version such text is totally disallowed.
-This includes comments.
+This includes hash characters ("#"), which in this position are a part of the value, not a comment character.
 
 For example, lines like this will no longer be accepted:
 -----
