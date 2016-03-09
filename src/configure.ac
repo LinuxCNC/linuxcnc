@@ -533,11 +533,12 @@ KSOURCE_LOCATION_HINTS=$(echo \
 
 # PLATFORM
 # TARGET_PLATFORM_PC
+# TARGET_PLATFORM_SOCFPGA
 # TARGET_PLATFORM_BEAGLEBONE
 # TARGET_PLATFORM_RASPBERRY
 # TARGET_PLATFORM_ZEDBOARD
 #
-# Platforms. set by --with-platform-{pc,beaglebone,raspberry,zedboard}
+# Platforms. set by --with-platform-{pc,beaglebone,socfpga,raspberry,zedboard}
 # see Section 2.3 to enable other platforms, and 2.7 to AC_DEFINE it
 
 ARCHITECTURE=`$ARCHCMD`
@@ -562,7 +563,7 @@ XENO_CONFIG=
 # Configure several basic features:                                          #
 # - some etc/linuxcnc/machinekit.ini  values                                 #
 # - the MKUUID instance UUID                                                 #
-# - Platform (PC, Raspberry Pi, BeagleBone, Zedboard)                        #
+# - Platform (PC, Raspberry Pi, BeagleBone,SocFpga, Zedboard)                        #
 # - Common shared memory driver                                              #
 # - Parport I/O mode (portable or inb/outb)                                  #
 # - emcweb UI                                                                #
@@ -611,6 +612,35 @@ AC_ARG_WITH(platform-pc,
 	    (*)
 	        TARGET_PLATFORM_PC=false
 		platform_pc_reason="$arch_disab_msg"
+		;;
+	esac
+    ])
+    
+AC_ARG_WITH(platform-socfpga,
+    [AS_HELP_STRING(
+        [--with-platform-socfpga],
+	[Build for Socfpga platform (default for ARM arch)])],
+    [
+        case $with_platform_socfpga in
+	    (y*)
+	    	TARGET_PLATFORM_SOCFPGA=true
+		platform_specified=true
+		platform_socfpga_reason="$cmdl_enab_msg"
+		;;
+	    (*)
+	    	TARGET_PLATFORM_SOCFPGA=false
+		platform_socfpga_reason="$cmdl_disab_msg"
+		;;
+	esac
+    ],
+    [
+        case $host_cpu in
+	    (arm*)
+	        TARGET_PLATFORM_SOCFPGA=unk
+		;;
+	    (*)
+	        TARGET_PLATFORM_SOCFPGA=false
+		platform_socfpga_reason="$arch_disab_msg"
 		;;
 	esac
     ])
@@ -709,6 +739,10 @@ if $platform_specified; then
 	TARGET_PLATFORM_PC=false
 	platform_pc_reason="$cmdl_notspec_msg"
     fi
+    if test $TARGET_PLATFORM_SOCFPGA = unk; then
+	TARGET_PLATFORM_SOCFPGA=false
+	platform_socfpga_reason="$cmdl_notspec_msg"
+    fi
     if test $TARGET_PLATFORM_BEAGLEBONE = unk; then
 	TARGET_PLATFORM_BEAGLEBONE=false
 	platform_beaglebone_reason="$cmdl_notspec_msg"
@@ -728,6 +762,10 @@ else
     if test $TARGET_PLATFORM_PC = unk; then
         TARGET_PLATFORM_PC=true
 	platform_pc_reason="$arch_enab_msg"
+    fi
+    if test $TARGET_PLATFORM_SOCFPGA = unk; then
+        TARGET_PLATFORM_SOCFPGA=true
+	platform_socfpga_reason="$arch_enab_msg"
     fi
     if test $TARGET_PLATFORM_BEAGLEBONE = unk; then
         TARGET_PLATFORM_BEAGLEBONE=true
@@ -749,6 +787,9 @@ AC_MSG_RESULT([$platform_pc_reason])
 
 AC_MSG_CHECKING(platform-beaglebone)
 AC_MSG_RESULT([$platform_beaglebone_reason])
+
+AC_MSG_CHECKING(platform-socfpga)
+AC_MSG_RESULT([$platform_socfpga_reason])
 
 AC_MSG_CHECKING(platform-raspberry)
 AC_MSG_RESULT([$platform_raspberry_reason])
@@ -1783,6 +1824,12 @@ if $TARGET_PLATFORM_PC; then
    target_platform_pc_val=yes
 fi
 AC_SUBST(TARGET_PLATFORM_PC,$target_platform_pc_val)
+
+if $TARGET_PLATFORM_SOCFPGA; then
+   AC_DEFINE(TARGET_PLATFORM_SOCFPGA, [], [build for Socfpga platform])
+   target_platform_socfpga_val=yes
+fi
+AC_SUBST(TARGET_PLATFORM_SOCFPGA,$target_platform_socfpga_val)
 
 if $TARGET_PLATFORM_BEAGLEBONE; then
    AC_DEFINE(TARGET_PLATFORM_BEAGLEBONE, [], [build for BeagleBone platform])
