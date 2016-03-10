@@ -907,7 +907,7 @@ class Data:
         for i in  self.halsteppersignames:
             temp.append(i)
             for j in(["-step","-dir","-c","-d","-e","-f"]):
-                self._PD.hal_stepper_names.append(i+j)
+                _PD.hal_stepper_names.append(i+j)
         if i: _PD.human_stepper_names[6][1]= temp
 
         warnings = []
