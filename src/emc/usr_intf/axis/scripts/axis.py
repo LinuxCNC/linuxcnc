@@ -3773,6 +3773,9 @@ else:
     root_window.deiconify()
     destroy_splash()
 
+vars.teleop_mode.set(0) # start in joint mode
+commands.set_teleop_mode()
+
 root_window.tk.call("trace", "variable", "metric", "w", "update_units")
 install_help(root_window)
 
