@@ -1258,6 +1258,13 @@ obj-$(CONFIG_HAL_SPI) += hal_spi.o
 hal_spi-objs := hal/drivers/hal_spi.o
 endif
 
+ifdef TARGET_PLATFORM_SOCFPGA
+ifeq ($(BUILD_SYS),user-dso)
+obj-$(CONFIG_HM2_SOC) += hm2_soc.o
+hm2_soc-objs := hal/drivers/mesa-hostmot2/hm2_soc.o
+endif
+endif
+
 ifdef TARGET_PLATFORM_BEAGLEBONE
 ifeq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
@@ -1667,6 +1674,13 @@ ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hm2_eth$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_eth-objs))
 endif
 $(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
+endif
+
+ifdef TARGET_PLATFORM_SOCFPGA
+ifeq ($(BUILD_SYS),user-dso)
+$(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
+$(RTLIBDIR)/hm2_soc$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_soc-objs))
+endif
 endif
 
 ifdef TARGET_PLATFORM_BEAGLEBONE
