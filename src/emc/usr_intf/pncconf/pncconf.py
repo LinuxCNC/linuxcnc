@@ -2932,7 +2932,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.widgets["mesa%dsserial0_3"% boardnum].hide()
         self.widgets["mesa%dsserial0_4"% boardnum].hide()
         currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
-        if currentboard == "5i20" or currentboard == "5i23":
+        if currentboard == "5i20" or currentboard == "5i23" or currentboard == "5i24":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
