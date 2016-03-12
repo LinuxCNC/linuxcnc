@@ -2459,19 +2459,19 @@ panel</property>
     <property name="step_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="default_lin_vel_adjust">
-    <property name="upper">100</property>
+    <property name="upper">1000</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="min_lin_vel_adjust">
-    <property name="upper">100</property>
+    <property name="upper">500</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="max_lin_vel_adjust">
-    <property name="upper">100</property>
+    <property name="upper">2000</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="default_ang_vel_adjust">
-    <property name="upper">100</property>
+    <property name="upper">1000</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="min_ang_vel_adjust">
@@ -2479,7 +2479,7 @@ panel</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="max_ang_vel_adjust">
-    <property name="upper">100</property>
+    <property name="upper">21600</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="axis_width_adjust">
