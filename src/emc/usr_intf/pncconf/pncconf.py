@@ -376,12 +376,10 @@ class Data:
         self.min_spindle_override = .5
         self.max_spindle_override = 1.0
         # These are for AXIS gui only
-        self.default_linear_velocity = .25 # units per second
-        self.min_linear_velocity = .01
-        self.max_linear_velocity = 1.0
-        self.default_angular_velocity = .25
-        self.min_angular_velocity = .01
-        self.max_angular_velocity = 1.0
+        # linear jog defaults are set with: set_axis_unit_defaults() 
+        self.default_angular_velocity = 12
+        self.min_angular_velocity = 3
+        self.max_angular_velocity = 180
         self.increments_metric = "5mm 1mm .5mm .1mm .05mm .01mm .005mm"
         self.increments_imperial= ".1in .05in .01in .005in .001in .0005in .0001in"
         self.editor = "gedit"
@@ -797,6 +795,12 @@ class Data:
     # This only sets data that makes sense to change eg gear ratio don't change
     def set_axis_unit_defaults(self, units=True):
         if units: # imperial
+            # set GUI defaults
+            self.max_linear_velocity = 1 # 60 inches per min
+            self.default_linear_velocity = .25 # 15 inches per min
+            self.min_linear_velocity = .01667
+
+            # axes defaults
             for i in ('x','y','z'):
                 self[i+'maxvel'] = 1
                 self[i+'maxacc'] = 30
@@ -812,6 +816,12 @@ class Data:
                     self.zminlim = -4
                     self.zmaxlim = 0
         else: # metric
+            # set gui defaults
+            self.max_linear_velocity = 25 # 1500 mm per min
+            self.default_linear_velocity = 6 # 380 mm per min
+            self.min_linear_velocity = .5
+
+            # axes defaults
             for i in ('x','y','z'):
                 self[i+'maxvel'] = 25
                 self[i+'maxacc'] = 750
@@ -907,7 +917,7 @@ class Data:
         for i in  self.halsteppersignames:
             temp.append(i)
             for j in(["-step","-dir","-c","-d","-e","-f"]):
-                self._PD.hal_stepper_names.append(i+j)
+                _PD.hal_stepper_names.append(i+j)
         if i: _PD.human_stepper_names[6][1]= temp
 
         warnings = []

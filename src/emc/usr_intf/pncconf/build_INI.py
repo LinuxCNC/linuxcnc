@@ -130,7 +130,7 @@ class INI:
         print >>file, "[HALUI]"          
         if self.d.halui == True:
             for i in range(0,15):
-                cmd =self["halui_cmd" + str(i)]
+                cmd =self.d["halui_cmd" + str(i)]
                 if cmd =="": break
                 print >>file,"MDI_COMMAND = %s"% cmd           
 

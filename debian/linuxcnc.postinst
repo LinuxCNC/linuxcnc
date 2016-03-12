@@ -3,7 +3,7 @@ set -e
 
 #DEBHELPER#
 
-[ -x /etc/init.d/udev ] && /etc/init.d/udev restart
+invoke-rc.d udev restart
 
 if [ -f /etc/security/limits.conf ]; then
     if ! grep -q "EMC2" /etc/security/limits.conf; then

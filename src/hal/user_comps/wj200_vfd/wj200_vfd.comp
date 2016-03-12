@@ -208,11 +208,19 @@ void userinit(int argc, char **argv)
 				break;
 
 			default:
+                                fprintf(stderr, "internal error: invalid option index!\n");
 				exit(1);
 		}
 
 	}
-	
+
+        if (optind < argc) {
+            fprintf(stderr, "WARNING: unhandled arguments to wj200_vfd driver:\n");
+            for (int i = optind; i < argc; i ++) {
+                fprintf(stderr, "    %s\n", argv[i]);
+            }
+        }
+
 	ctx = modbus_new_rtu(device, baud, parity, data_bits, stop_bits);
 
 	if (ctx == NULL) {
