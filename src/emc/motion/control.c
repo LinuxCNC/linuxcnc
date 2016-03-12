@@ -837,6 +837,19 @@ static void set_operating_mode(void)
 	       state */
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	}
+	if ( !GET_MOTION_ENABLE_FLAG() ) {
+        if (GET_MOTION_TELEOP_FLAG()) {
+            (&axes[0])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.tran.x;
+            (&axes[1])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.tran.y;
+            (&axes[2])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.tran.z;
+            (&axes[3])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.a;
+            (&axes[4])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.b;
+            (&axes[5])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.c;
+            (&axes[6])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.u;
+            (&axes[7])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.v;
+            (&axes[8])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.w;
+        }
+	}
 	SET_MOTION_ENABLE_FLAG(1);
 	/* clear any outstanding motion errors when going into enabled state */
 	SET_MOTION_ERROR_FLAG(0);
@@ -2011,4 +2024,3 @@ static void update_status(void)
     }
 #endif
 }
-

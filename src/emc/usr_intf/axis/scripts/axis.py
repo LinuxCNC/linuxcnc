@@ -2080,9 +2080,6 @@ class TclCommands(nf.TclCommands):
     def onoff_clicked(event=None):
         s.poll()
         if s.task_state == linuxcnc.STATE_ESTOP_RESET:
-            if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-               vars.teleop_mode.set(0) # start in joint mode
-               commands.set_teleop_mode()
             c.state(linuxcnc.STATE_ON)
         else:
             c.state(linuxcnc.STATE_OFF)
