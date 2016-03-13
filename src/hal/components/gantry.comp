@@ -68,7 +68,7 @@ and all joints run in lock-step once more.
 For best results, set HOME_SEARCH_VEL and HOME_LATCH_VEL to the same direction
 and as slow as practical.  When a joint home switch trips, the commanded
 velocity will drop immediately from HOME_SEARCH_VEL to zero, with no limit on
-accleration.
+acceleration.
 """;
 license "GPL";
 variable float offset[7] = 0.0;
