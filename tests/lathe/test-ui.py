@@ -8,6 +8,7 @@ import sys
 import os
 import math
 
+jjogmode = 1 #joint jogging
 
 # this is how long we wait for linuxcnc to do our bidding
 timeout = 5.0
@@ -39,7 +40,6 @@ def wait_for_joint_to_stop(joint_number):
     print "joint %d is at %.3f %.3f seconds after reaching target (prev_pos=%.3f)" % (joint_number, s.position[joint_number], timeout, prev_pos)
     sys.exit(1)
 
-
 def jog_joint(joint_number, target):
     s.poll()
     start_pos = s.position
@@ -53,14 +53,14 @@ def jog_joint(joint_number, target):
         vel = -5
         done = lambda pos: pos < target
 
-    c.jog(linuxcnc.JOG_CONTINUOUS, joint_number, vel)
+    c.jog(linuxcnc.JOG_CONTINUOUS, jjogmode, joint_number, vel)
 
     start = time.time()
     while not done(s.position[joint_number]) and ((time.time() - start) < timeout):
         time.sleep(0.1)
         s.poll()
 
-    c.jog(linuxcnc.JOG_STOP, joint_number)
+    c.jog(linuxcnc.JOG_STOP, jjogmode, joint_number)
 
     if not done(s.position[joint_number]):
         print "failed to jog joint %d to %.3f" % (joint_number, target)
