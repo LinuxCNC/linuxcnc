@@ -74,7 +74,7 @@ if dialogs:
                            "The process can not be automatically reversed, though a "
                            "backup version of your entire existing config will be created.",
                            tkMessageBox.QUESTION, tkMessageBox.YESNOCANCEL)
-    if ret == 'cancel': exit(1)
+    if ret == 'cancel': exit(42)
     elif ret == 'no': exit(0)
 
 try:
