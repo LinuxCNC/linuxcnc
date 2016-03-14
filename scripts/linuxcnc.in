@@ -428,10 +428,12 @@ function GetFromIniEx {
 GetFromIni VERSION EMC
 if [ "$retval" != "1.0" ]; then
     update_ini -d $INIFILE
-    if [ "$?" != 0 ]; then
-            echo "LinuxCNC startup cancelled by user (or unhandled error)"
-            exit 0
-    fi
+    exitval=$?
+    case "$exitval" in
+    0) ;;
+    42) echo "update_ini cancelled by user" ;;
+    *) echo "update script failed in an unexpected way."; exit $exitval ;;
+    esac
 fi
 
 # 2.2. get param file
