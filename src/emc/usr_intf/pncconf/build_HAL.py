@@ -138,6 +138,8 @@ class HAL:
             #if not self.d.findsignal(i+"-encoder-a") and not self.d.findsignal(i+"-resolver"):
             #    continue
             temp = temp + "pid.%s,"%i
+            if self.d.make_pinname(self.a.stepgen_sig(i+"2")):
+                temp = temp + "pid.%s2,"%i
         # if user requested PID components add them to the list as well, starting at 0 and working up
         for i in range(0,self.d.userneededpid):
                 temp=temp+"pid.%d,"% (i)
@@ -1135,40 +1137,40 @@ class HAL:
             print >>file, "net %s-is-init           bldc.%s.init-done"% (let,axnum)
             print >>file
 
-        if 1==1: # FIXME
-                print >>file, "setp   pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
-                print >>file, "setp   pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
-                print >>file, "setp   pid.%s.Dgain     [%s_%d]D" % (let, title, axnum)
-                print >>file, "setp   pid.%s.bias      [%s_%d]BIAS" % (let, title, axnum)
-                print >>file, "setp   pid.%s.FF0       [%s_%d]FF0" % (let, title, axnum)
-                print >>file, "setp   pid.%s.FF1       [%s_%d]FF1" % (let, title, axnum)
-                print >>file, "setp   pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
-                print >>file, "setp   pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
-                if let =='s' and self.d.suseoutputrange2:
-                    print >>file, "net ratio_select.out   pid.%s.maxoutput " % (let)
+        # general PID setup function
+        def setup_pid(prime, modifier = ''):
+                axlet=prime+modifier
+                if not modifier=='':
+                    print >>file, "#----Tandem motor----\n"
+                print >>file, "setp   pid.%s.Pgain     [%s_%d]P" % (axlet, title, axnum)
+                print >>file, "setp   pid.%s.Igain     [%s_%d]I" % (axlet, title, axnum)
+                print >>file, "setp   pid.%s.Dgain     [%s_%d]D" % (axlet, title, axnum)
+                print >>file, "setp   pid.%s.bias      [%s_%d]BIAS" % (axlet, title, axnum)
+                print >>file, "setp   pid.%s.FF0       [%s_%d]FF0" % (axlet, title, axnum)
+                print >>file, "setp   pid.%s.FF1       [%s_%d]FF1" % (axlet, title, axnum)
+                print >>file, "setp   pid.%s.FF2       [%s_%d]FF2" % (axlet, title, axnum)
+                print >>file, "setp   pid.%s.deadband  [%s_%d]DEADBAND" % (axlet, title, axnum)
+                if axlet =='s' and self.d.suseoutputrange2:
+                    print >>file, "net ratio_select.out   pid.%s.maxoutput " % (axlet)
                 else:
-                    print >>file, "setp   pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
-                print >>file, "setp   pid.%s.error-previous-target true" % let
+                    print >>file, "setp   pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (axlet, title, axnum)
+                print >>file, "setp   pid.%s.error-previous-target true" % axlet
                 # steppers
                 if steppinname:
-                    print >>file, "setp   pid.%s.maxerror .0005" % let
-                print >>file
-                if let == 's':
-                    name = "spindle"
-                else:
-                    name = let
-                print >>file, "net %s-index-enable  <=> pid.%s.index-enable" % (name, let)
-                print >>file, "net %s-enable        =>  pid.%s.enable" % (name, let)
+                    print >>file, "setp   pid.%s.maxerror .0005" % axlet
 
-                if let == 's':
+                print >>file
+                if axlet == 's':
+                    print >>file, "net spindle-index-enable  <=> pid.%s.index-enable" % (axlet)
+                    print >>file, "net spindle-enable        =>  pid.%s.enable" % (axlet)
                     if self.d.susenegativevoltage:
                         signal = "spindle-vel-cmd-rpm"
                         fbsignal= "spindle-vel-fb-rpm"
                     else:
                         signal = "spindle-vel-cmd-rpm-abs"
                         fbsignal= "spindle-vel-fb-rpm-abs"
-                    print >>file, "net %s     => pid.%s.command" % (signal, let)
-                    print >>file, "net %s      => pid.%s.feedback"% (fbsignal, let)
+                    print >>file, "net %s     => pid.%s.command" % (signal, axlet)
+                    print >>file, "net %s      => pid.%s.feedback"% (fbsignal, axlet)
                     if self.d.suseoutputrange2:
                         print >>file, "net spindle-pid-out  pid.s.output    => scale.gear.in"
                         print >>file, "net gear-ratio       ratio_select.out-f => scale.gear.gain"
@@ -1181,14 +1183,19 @@ class HAL:
                         #print >>file, "net gear-select-c ratio_select.sel2"
                         print >>file, "net spindle-output        <=  scale.gear.out"
                     else:
-                        print >>file, "net spindle-output        <=  pid.%s.output"% (let)
+                        print >>file, "net spindle-output        <=  pid.%s.output"% (axlet)
                 else:
-                    print >>file, "net %s-pos-cmd       =>  pid.%s.command" % (name, let)
-                    print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let) # This must be connected to something
-                    print >>file, "net %s-pos-fb        =>  pid.%s.feedback"% (name,let)
-                    print >>file, "net %s-output        =>  pid.%s.output"% (name, let)
-                    #print >>file, "net %s-vel-fb           => pid.%s.feedback-deriv"% (name, let) # This must be connected to something
+                    print >>file, "net %s-index-enable  <=> pid.%s.index-enable" % (axlet, axlet)
+                    print >>file, "net %s-enable        =>  pid.%s.enable" % (let, axlet) # enable must come from the actual axis letter
+                    print >>file, "net %s-pos-cmd       =>  pid.%s.command" % (let, axlet)
+                    print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (let, axlet) # This must be connected to something
+                    print >>file, "net %s-pos-fb        =>  pid.%s.feedback"% (axlet,axlet)
+                    print >>file, "net %s-output        <=  pid.%s.output"% (axlet, axlet)
                 print >>file
+
+        setup_pid(let)
+        if steppinname2:
+            setup_pid(let,'2')
 
         if tppwmpinname:
                 print >>file, "# ---TPPWM Generator signals/setup---"
@@ -1293,72 +1300,50 @@ class HAL:
                     print >>file, "net %s-enable     axis.%d.amp-enable-out  => "% (let,axnum) + pwmpinname +".enable"
                 print >>file
 
-        if steppinname:
-            print >>file, "# Step Gen signals/setup"
-            print >>file
-            print >>file, "setp   " + steppinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".step_type        0"
-            print >>file, "setp   " + steppinname + ".control-type     1"
-            if let =="s":
-                print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
-                print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
-            else:
-                print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, axnum)
-                print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, axnum)
-            for i in stepinvertlist:
-                   print >>file, "setp    "+i+".invert_output true"
-            if let == "s":
-                print >>file
-                print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
-                print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
-                if not encoderpinname and not resolverpinname:
-                    print >>file, "net spindle-vel-fb-rps         <=  "+ steppinname + ".velocity-fb"
-            print >>file
-            print >>file, "# ---closedloop stepper signals---"
-            print >>file
-            print >>file, "net %s-pos-cmd    <= axis.%d.motor-pos-cmd" % (let, axnum )
-            print >>file, "net %s-vel-cmd    <= axis.%d.joint-vel-cmd" % (let, axnum )
-            print >>file, "net %s-output     <= "% (let) + steppinname + ".velocity-cmd"
-            print >>file, "net %s-pos-fb     <= "% (let) + steppinname + ".position-fb"
-            print >>file, "net %s-pos-fb     => axis.%d.motor-pos-fb" % (let, axnum )
-            print >>file, "net %s-enable     <= axis.%d.amp-enable-out"% (let,axnum)
-            print >>file, "net %s-enable     => %s.enable"% (let, steppinname)
-            print >>file
+        # General stepgen setup function
+        def connect_stepgen(steppinname, modifier = ''):
+                axlet=let+modifier
 
-        if steppinname2:
-            steppinname = steppinname2
-            print >>file, "# Step Gen signals/setup for tandem axis stepper"
-            print >>file
-            print >>file, "setp   " + steppinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".step_type        0"
-            if closedloop:
+                print >>file, "# Step Gen signals/setup"
+                if not modifier=='':
+                    print >>file, "#----Tandem motor----"
+                print >>file
+                print >>file, "setp   " + steppinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
+                print >>file, "setp   " + steppinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
+                print >>file, "setp   " + steppinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
+                print >>file, "setp   " + steppinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
+                print >>file, "setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, axnum)
+                print >>file, "setp   " + steppinname + ".step_type        0"
                 print >>file, "setp   " + steppinname + ".control-type     1"
-            else:
-                print >>file, "setp   " + steppinname + ".control-type     0"
-            print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, axnum)
-            for i in stepinvertlist2:
-                   print >>file, "setp    "+i+".invert_output true"
-            if closedloop:
+                if let =="s":
+                    print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
+                    print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
+                else:
+                    print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, axnum)
+                    print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, axnum)
+                for i in stepinvertlist:
+                       print >>file, "setp    "+i+".invert_output true"
+                if let == "s":
+                    print >>file
+                    print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
+                    print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
+                    if not encoderpinname and not resolverpinname:
+                        print >>file, "net spindle-vel-fb-rps         <=  "+ steppinname + ".velocity-fb"
                 print >>file
-                print >>file, "# ---closedloop stepper signals---"
+                if modifier =='':
+                    print >>file, "net %s-enable     <= axis.%d.amp-enable-out"% (let,axnum)
+                    print >>file, "net %s-pos-cmd    <= axis.%d.motor-pos-cmd" % (let, axnum )
+                    print >>file, "net %s-vel-cmd    <= axis.%d.joint-vel-cmd" % (let, axnum )
+                    print >>file, "net %s-pos-fb     => axis.%d.motor-pos-fb" % (let, axnum )
+                print >>file, "net %s-output     => "% (axlet) + steppinname + ".velocity-cmd"
+                print >>file, "net %s-pos-fb     <= "% (axlet) + steppinname + ".position-fb"
+                print >>file, "net %s-enable     => %s.enable"% (let, steppinname)
                 print >>file
-                print >>file, "net %s-output                             => "% (let) + steppinname + ".velocity-cmd"
-                print >>file, "net %s-enable                             => "% (let) + steppinname +".enable"
-            else:
-                print >>file
-                print >>file, "net %s2-pos-fb                            <=  " % (let) + steppinname + ".position-fb"
-                print >>file, "net %s-pos-cmd                            =>  " % (let) + steppinname + ".position-cmd"
-                print >>file, "net %s-enable                             =>  " % (let)+ steppinname + ".enable"
-            print >>file
+
+        if steppinname:
+            connect_stepgen(steppinname)
+        if steppinname2:
+            connect_stepgen(steppinname2, '2')
 
         if encoderpinname:             
             countmode = 0
