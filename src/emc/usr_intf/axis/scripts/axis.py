@@ -568,7 +568,9 @@ class MyOpengl(GlCanonDraw, Opengl):
 
     def redraw_dro(self):
         self.stat.poll()
-        limit, homed, posstrs, droposstrs = self.posstrs(no_joint_display)
+        limit, homed, posstrs, droposstrs = self.posstrs(no_joint_display,
+                                                         kinstype,
+                                                         trajcoordinates)
 
         text = widgets.numbers_text
 
@@ -584,40 +586,60 @@ class MyOpengl(GlCanonDraw, Opengl):
 
         text.delete("0.0", "end")
         t = droposstrs[:]
-        i = 0
+        sline = 0 # zeroth line in t string
         axes_count = masked_axes_count()
         for ts in t:
+            idx = sline
+            aletter = ts.replace(" ","").split(":")[0]
+            if  (   ("Dia" in ts)
+                 or ("Vel" in ts)
+                 or ("G5"  in ts)
+                 or ("TLO" in ts)
+                 or (len(ts) == 0)
+                ):
+                sline += 1
+                continue
+
+            if  (    aletter in ["X","Y","Z","A","B","C","U","V","W"]
+                 and self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
+                ):
+                idx = jnum_for_aletter(aletter)
+            elif aletter == "Rad":
+                idx = 0; # specialcase
+            else: idx = sline
+
             if s.motion_mode == linuxcnc.TRAJ_MODE_FREE:
                 imax = len(homed)
                 if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
                     imax = axes_count
-                if i < imax and homed[i]:
-                    t[i] += "*"
+                if homed[idx]:
+                    t[sline] += "*"
                 else:
-                    t[i] += " "
-                if i < imax and limit[i]:
-                    t[i] += "!"
+                    t[sline] += " "
+                if limit[idx]:
+                    t[sline] += "!"
                 else:
-                    t[i] += " "
+                    t[sline] += " "
             else: # teleop mode
                 if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                    if i < axes_count and homed[i]:
-                        t[i] += "*"
+                    if idx < axes_count and homed[idx]:
+                        t[sline] += "*"
                     else:
-                        t[i] += " "
-                    if i < axes_count and limit[i]:
-                        t[i] += "!"
+                        t[sline] += " "
+                    if idx < axes_count and limit[idx]:
+                        t[sline] += "!"
                     else:
-                        t[i] += " "
+                        t[sline] += " "
                 else: # non-identity kinematics
                     all_joints_homed = all_homed()
-                    if i < axes_count and all_joints_homed:
-                        t[i] += "*"
+                    #if idx < axes_count and all_joints_homed:
+                    if all_joints_homed:
+                        t[sline] += "*"
                     else:
-                        t[i] += " "
+                        t[sline] += " "
                     # Note: teleop and non-identity:
                     # don't try to display joint limits
-            i+=1
+            sline+=1
             
         text.insert("end", "\n".join(t))
 
@@ -1802,7 +1824,6 @@ def go_home(num):
 def switch_to_teleop(ct,delta_secs,max_wait_secs):
     import threading
     s.poll()
-    #print ct,get_states()
     if s.task_state != linuxcnc.STATE_ON:
         print("AUTO_TELEOP: ABANDON (task_state=%s)"
               % task_statename(s.task_state))
@@ -2543,10 +2564,12 @@ class TclCommands(nf.TclCommands):
         c.unhome(jnum)
 
     def home_joint_number(num):
+        # invoked by machine menu/home widgets
         ensure_mode(linuxcnc.MODE_MANUAL)
         go_home(num)
 
     def unhome_joint_number(num):
+        # invoked by machine menu/unhome widgets
         ensure_mode(linuxcnc.MODE_MANUAL)
         c.unhome(num)
 
@@ -3225,6 +3248,8 @@ root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All
 trajcoordinates=inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
 vars.trajcoordinates.set(trajcoordinates)
 
+kinstype=inifile.find("KINS", "KINEMATICS").lower()
+
 duplicate_coord_letters = ""
 for i in range(len(trajcoordinates)):
     if trajcoordinates[i] == " ": continue
@@ -3259,16 +3284,50 @@ while s.joints == 0:
             "More information may be available when running from a terminal.")
     s.poll()
 
-num_joints = s.joints
-for i in range(num_joints):
-    #if not (s.axis_mask & (1<<i)): continue # ja:not needed for consecutive joints
-    widgets.homemenu.add_command(command=lambda i=i: commands.home_joint_number(i))
-    widgets.unhomemenu.add_command(command=lambda i=i: commands.unhome_joint_number(i))
-    if i >= len(trajcoordinates): break
-    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-        ja_name = "Axis"; ja_id = trajcoordinates[i].upper()
+def jnum_for_aletter(aletter):
+    if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+        raise SystemExit("jnum_for_aletter: Must be KINEMATICS_IDENTITY")
+    aletter = aletter.lower()
+    if kinstype == "trivkins":
+        return "xyzabcuvw".index(aletter)
+    elif "gentrivkins" in kinstype:
+        return trajcoordinates.index(aletter)
     else:
-        ja_name = "Joint"; ja_id = i
+        guess = trajcoordinates.index(aletter)
+        print "jnum_for_aletter guessing %s --> %d"%(aletter,guess)
+        return guess
+
+def aletter_for_jnum(jnum):
+    if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+        raise SystemExit("aletter_for_jnum: Must be KINEMATICS_IDENTITY")
+    if kinstype == "trivkins":
+        if not (s.axis_mask & (1<<jnum)):
+            return "NOALETTER"
+        else:
+            return "XYZABCUVW"[jnum]
+    elif "gentrivkins" in kinstype:
+        return trajcoordinates.upper()[jnum]
+    else:
+        guess = trajcoordinates.upper()[jnum]
+        print "aletter_for_jnum guessing %d --> %s"%(jnum,guess)
+        return guess
+
+num_joints = s.joints
+for jnum in range(num_joints):
+    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+        ja_name = "Axis"
+        ja_id = aletter_for_jnum(jnum)
+        if ja_id == "NOALETTER": continue
+        widgets.homemenu.add_command(
+               command=lambda jnum=jnum: commands.home_joint_number(jnum))
+        widgets.unhomemenu.add_command(
+               command=lambda jnum=jnum: commands.unhome_joint_number(jnum))
+    else:
+        widgets.homemenu.add_command(
+               command=lambda jnum=jnum: commands.home_joint_number(jnum))
+        widgets.unhomemenu.add_command(
+               command=lambda jnum=jnum: commands.unhome_joint_number(jnum))
+        ja_name = "Joint"; ja_id = jnum
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
             _("Home %(name)s _%(id)s") % {"name":ja_name, "id":ja_id})
     root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end",
