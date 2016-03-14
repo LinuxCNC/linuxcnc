@@ -382,6 +382,8 @@ class GlCanonDraw:
         self.cached_tool = -1
         self.initialised = 0
         self.no_joint_display = False
+        self.kinstype = "UNKNOWN"
+        self.trajcoordinates = "unknown"
 
     def realize(self):
         self.hershey = hershey.Hershey()
@@ -923,7 +925,7 @@ class GlCanonDraw:
 
     def axes_count(self):
         ct = 0
-        for i in range(linuxcnc.MAX_JOINTS):
+        for i in range(self.stat.joints):
             if self.stat.axis_mask & (1<<i): ct +=1
         return ct
 
@@ -1172,7 +1174,9 @@ class GlCanonDraw:
         glPushMatrix()
         glLoadIdentity()
 
-        limit, homed, posstrs, droposstrs = self.posstrs(self.no_joint_display)
+        limit, homed, posstrs, droposstrs = self.posstrs(self.no_joint_display,
+                                                         self.kinstype,
+                                                         self.trajcoordinates)
 
         charwidth, linespace, base = self.get_font_info()
 
@@ -1198,7 +1202,7 @@ class GlCanonDraw:
 
         maxlen = 0
         ypos -= linespace+5
-        i=0
+        sline = 0 # zeroth line of string in posstrs
         glColor3f(*self.colors['overlay_foreground'])
         if not self.get_show_offsets():
             for string in posstrs:
@@ -1207,40 +1211,67 @@ class GlCanonDraw:
                 for char in string:
                     glCallList(base + ord(char))
 
-                if i < len(homed) and homed[i]:
-                    if "Dia" in string:
-                        # use line below
-                        glRasterPos2i(pixel_width + 8, ypos - linespace) 
-                        glBitmap(13, 16, 0, 3, 17, 0, homeicon)
-                    else:
-                        if ( (   self.get_joints_mode()
-                              or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
-                              or all_joints_homed
-                             )
-                             and not (("Vel" in string) or ("DTG" in string))
-                           ):
-                            glRasterPos2i(pixel_width + 8, ypos)
-                            glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+                if  (   ("Dia" in string)
+                     or ("Vel" in string)
+                     or ("DTG" in string)
+                     or (len(string) == 0)
+                    ):
+                    ypos -= linespace
+                    continue
 
-                if i < len(homed) and limit[i]:
-                    if (     self.get_joints_mode()
-                        or (    (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
-                            and (i < axes_count)
-                            # pathological case may have more limits than axis letters
-                            # but rejecting i >=_axes count prevents some wrong display
-                           )
+                aletter = string.replace(" ","").split(":")[0]
+                if  (    aletter in ["X","Y","Z","A","B","C","U","V","W"]
+                     and self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
+                    ):
+                    idx = self.jnum_for_aletter(aletter,
+                                                 self.kinstype,
+                                                 self.trajcoordinates)
+                elif aletter == "Rad":
+                    idx = 0; # specialcase
+                else: idx = sline
+#               print "!!!sline=%d aletter=%s idx=%d kinstype=%s"%(sline,aletter,idx,self.kinstype)
+
+                if homed[idx]:
+                    if  (    self.get_joints_mode()
+                          or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+                          or all_joints_homed
+                        ):
+                        glRasterPos2i(pixel_width + 8, ypos)
+                        glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+                if limit[idx]:
+                    if (   self.get_joints_mode()
+                        or self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
                        ):
                         glBitmap(13, 16, 0, 1, 17, 0, limiticon)
                 ypos -= linespace
-                i = i + 1
+                sline = sline + 1
+        #-----------------------------------------------------------------------
         if self.get_show_offsets():
-            i=0
+            sline = 0 # zeroth line in droposstrs
             for string in droposstrs:
                 maxlen = max(maxlen, len(string))
                 glRasterPos2i(5, ypos)
                 for char in string:
                     glCallList(base + ord(char))
-                if i < len(homed) and homed[i]:
+
+                if  (   ("G5" in string)
+                     or ("TL" in string)
+                     or ("Dia" in string)
+                     or (len(string) == 0)
+                    ):
+                    ypos -= linespace
+                    continue
+                aletter = string.replace(" ","").split(":")[0]
+                if  (    aletter in ["X","Y","Z","A","B","C","U","V","W"]
+                     and self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
+                    ):
+                    idx = self.jnum_for_aletter(aletter,
+                                                 self.kinstype,
+                                                 self.trajcoordinates)
+                elif aletter == "Rad":
+                    idx = 0; # specialcase
+                else: idx = sline
+                if homed[idx]:
                     if ( (   self.get_joints_mode()
                           or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
                           or all_joints_homed
@@ -1251,7 +1282,7 @@ class GlCanonDraw:
                         glBitmap(13, 16, 0, 3, 17, 0, homeicon)
 
                 ypos -= linespace
-                i = i + 1
+                sline = sline + 1
 
         glDepthFunc(GL_LESS)
         glDepthMask(GL_TRUE)
@@ -1287,7 +1318,31 @@ class GlCanonDraw:
                 gluDeleteQuadric(q)
         glEndList()
 
-    def posstrs(self,no_joint_display=False):
+    def aletter_for_jnum(self,jnum,kinstype,trajcoordinates):
+        if kinstype == "trivkins":
+            if not (self.stat.axis_mask & (1<<jnum)):
+                return "NOALETTER"
+            else:
+                return "XYZABCUVW"[jnum]
+        elif "gentrivkins" in kinstype:
+            return trajcoordinates[jnum]
+        else:
+            guess = trajcoordinates[jnum]
+            return guess
+
+    def jnum_for_aletter(self,aletter,kinstype,trajcoordinates):
+        aletter = aletter.upper()
+        if kinstype == "trivkins":
+            return "XYZABCUVW".index(aletter)
+        elif "gentrivkins" in kinstype:
+            return trajcoordinates.index(aletter)
+        else:
+            guess = trajcoordinates.index(aletter)
+            return guess
+
+    def posstrs(self,no_joint_display=False,kinstype="UNKNOWN",trajcoordinates="UNKNOWN"):
+        self.kinstype = kinstype
+        self.trajcoordinates = trajcoordinates.upper()
         s = self.stat
         self.no_joint_display = no_joint_display
         limit = list(s.limit[:])
@@ -1369,32 +1424,57 @@ class GlCanonDraw:
                 rotformat = "% 5s %1s:% 9.4f"
             diaformat = " " + format
 
+            coord_letters = []
+            for l in self.trajcoordinates.upper():
+                if l == " ": continue
+                coord_letters.append(l)
+
+            traj_letters = []
+            for l in self.trajcoordinates: traj_letters.append(l)
+
             posstrs = []
             droposstrs = []
-            for i in range(9):
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
-                    posstrs.append(format % (a, positions[i]))
-                    droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
+            used_letters = []
+            for i in range(self.stat.joints):
+                if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+                    a = self.aletter_for_jnum(i,self.kinstype,self.trajcoordinates)
+                else:
+                    a = self.trajcoordinates.upper()[i]
+                if a == "NOALETTER": continue
+                idx = "XYZABCUVW".index(a)
+                if  ((a not in used_letters) and (a in traj_letters)):
+                    posstrs.append(format % (a, positions[idx]))
+                    droposstrs.append(droformat % (a, positions[idx], a, axisdtg[idx]))
+                    used_letters.append(a)
 
             droposstrs.append("")
 
-            for i in range(9):
+            for i in range(self.stat.joints):
                 index = s.g5x_index
                 if index<7:
                     label = "G5%d" % (index+3)
                 else:
                     label = "G59.%d" % (index-6)
 
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
+                if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+                    a = self.aletter_for_jnum(i,self.kinstype,self.trajcoordinates)
+                else:
+                    a = "XYZABCUVW"[i]
+                if a == "NOALETTER": continue
+                if  (a in traj_letters):
+#               if s.axis_mask & (1<<i):
                     droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
             droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
 
             droposstrs.append("")
-            for i in range(9):
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
+            for i in range(self.stat.joints):
+                if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+                    a = self.aletter_for_jnum(i,self.kinstype,self.trajcoordinates)
+                else:
+                    a = "XYZABCUVW"[i]
+                if a == "NOALETTER": continue
+                if  (a in traj_letters):
+#               if s.axis_mask & (1<<i):
                     droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
 
 
