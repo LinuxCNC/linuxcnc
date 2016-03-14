@@ -323,12 +323,30 @@ void clearHomes(int joint_num)
     }
 }
 
-void emcmotSetRotaryUnlock(int axis, int unlock) {
-    *(emcmot_hal_data->joint[axis].unlock) = unlock;
+void emcmotSetRotaryUnlock(int jnum, int unlock) {
+    if (NULL == emcmot_hal_data->joint[jnum].unlock) {
+        reportError(
+        "emcmotSetRotaryUnlock(): No unlock pin configured for joint %d\n"
+        "   Use motmod parameter: unlock_joints_mask=%X",
+        jnum,1<<jnum);
+        return;
+    }
+    *(emcmot_hal_data->joint[jnum].unlock) = unlock;
 }
 
-int emcmotGetRotaryIsUnlocked(int axis) {
-    return *(emcmot_hal_data->joint[axis].is_unlocked);
+int emcmotGetRotaryIsUnlocked(int jnum) {
+    static int gave_message = 0;
+    if (NULL == emcmot_hal_data->joint[jnum].unlock) {
+        if (!gave_message) {
+            reportError(
+            "emcmotGetRotaryUnlocked(): No unlock pin configured for joint %d\n"
+            "   Use motmod parameter: unlock_joints_mask=%X'",
+            jnum,1<<jnum);
+        }
+        gave_message = 1;
+        return 0;
+    }
+    return *(emcmot_hal_data->joint[jnum].is_unlocked);
 }
 
 /*! \function emcmotDioWrite()
