@@ -309,7 +309,7 @@ The required ini file entries for this gentrivkins XYZB example are:
   EMCMOT = motmod unlock_joints_mask = 0x08
   ...
 
-  [AXIS_L]
+  [AXIS_B]
   LOCKING_INDEXER_JOINT = 3
   ...
 
