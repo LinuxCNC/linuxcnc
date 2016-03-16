@@ -503,7 +503,6 @@ HEADERS := \
     hal/lib/hal_rcomp.h \
     hal/lib/hal_ring.h \
     hal/lib/vtable.h \
-    hal/drivers/hal_gpiomap.h \
     hal/drivers/hal_spi.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
@@ -1285,12 +1284,6 @@ hal_arm335xQEP-objs := hal/drivers/hal_arm335xQEP.o $(MATHSTUB)
 
 endif
 
-ifeq ($(BUILD_SYS),user-dso)
-obj-m += gpiomap.o
-gpiomap-objs := hal/drivers/hal_gpiomap.o
-obj-m += gpiouse.o
-gpiouse-objs := hal/drivers/hal_gpiouse.o
-endif
 
 # hal_pru_generic driver
 ifdef TARGET_PLATFORM_BEAGLEBONE
@@ -1661,8 +1654,6 @@ $(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-o
 
 ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
-$(RTLIBDIR)/gpiomap$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(gpiomap-objs))
-$(RTLIBDIR)/gpiouse$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(gpiouse-objs))
 endif
 
 ifeq ($(USERMODE_PCI),yes)
