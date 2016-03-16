@@ -527,6 +527,14 @@ int main(int argc, char* argv[]) {
                 axes[c->axis].min_pos_limit = c->minLimit;
                 break;
 
+            case EMCMOT_SET_AXIS_LOCKING_JOINT:
+                log_print(
+                    "SET_AXIS_LOCKING_JOINT axis=%d, locking_joint=%d\n",
+                    c->axis, c->joint
+                );
+                axes[c->axis].locking_joint = c->joint;
+                break;
+
             case EMCMOT_SET_JOINT_BACKLASH:
                 log_print("SET_JOINT_BACKLASH joint=%d, backlash=%.6f\n", c->joint, c->backlash);
                 break;
@@ -668,6 +676,7 @@ int main(int argc, char* argv[]) {
                           c->probe_jog_err_inhibit,
                           c->probe_home_err_inhibit);
                 break;
+
 
             default:
                 log_print("ERROR: unknown command %d\n", c->command);

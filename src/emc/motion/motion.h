@@ -182,6 +182,8 @@ extern "C" {
         EMCMOT_SET_AXIS_POSITION_LIMITS, /* set the axis position +/- limits */
         EMCMOT_SET_AXIS_VEL_LIMIT,      /* set the max axis vel */
         EMCMOT_SET_AXIS_ACC_LIMIT,      /* set the max axis acc */
+        EMCMOT_SET_AXIS_LOCKING_JOINT,  /* set the axis locking joint */
+
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -603,7 +605,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int old_ajog_counts;	/* prior value, used for deltas */
 	int kb_ajog_active;	/* non-zero during a keyboard jog */
 	int wheel_ajog_active;	/* non-zero during a wheel jog */
-
+	int locking_joint;	/* locking_joint number, -1 ==> notused*/
     } emcmot_axis_t;
 
     typedef struct {
