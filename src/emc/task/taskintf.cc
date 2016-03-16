@@ -476,6 +476,28 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
     return retval;
 }
 
+int emcAxisSetLockingJoint(int axis, int joint)
+{
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
+	return 0;
+    }
+
+    if (joint < 0) {
+	joint = -1;
+    }
+
+    emcmotCommand.command = EMCMOT_SET_AXIS_LOCKING_JOINT;
+    emcmotCommand.axis    = axis;
+    emcmotCommand.joint   = joint;
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %d) returned %d\n", __FUNCTION__, axis, joint, retval);
+    }
+    return retval;
+}
+
 // JOINTS_AXES is this used anywhere?
 int emcAxisSetHome(int axis, double home)
 {
