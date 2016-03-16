@@ -15,9 +15,10 @@ def test_rtapi_connect():
     rt = rtapi.RTAPIcommand(uuid=uuid)
 
 def test_loadrt_ringmods():
-    rt.loadrt("ringload",   "num_rings=4", "size=16386")
-    rt.loadrt("ringread",  "ring=ring_2")
-    rt.loadrt("ringwrite", "ring=ring_2")
+    global r1
+    r1 = hal.Ring("test", size=16384)
+    rt.loadrt("ringread",  "ring=test")
+    rt.loadrt("ringwrite", "ring=test")
     rt.loadrt("charge_pump")
 
 def test_net():

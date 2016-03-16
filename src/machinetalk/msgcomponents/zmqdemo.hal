@@ -1,11 +1,8 @@
 # HAL Ringbuffer demo to work with zmqringpub.py and zmqringsub.py
 
+newring test 16384
 
-# this creates the named rings ring_0 ... ring_3
-loadrt ringload num_rings=4 size=16384
-
-# attach to ring_2, others will have a zero writer attribute
-loadrt ringwrite ring=ring_2
+loadrt ringwrite ring=test
 
 # slow square signal on ringwrite.write
 # every edge on ringwrite.write causes a message to be queued
