@@ -448,6 +448,7 @@ check_stuff ( "before command_handler()" );
 //-----------------------------------------------------------------------------
 // joints_axes test for unexpected conditions
 // example: non-cooperating guis
+// example: attempt to jog locking indexer axis letter
         if (   emcmotCommand->command == EMCMOT_JOG_CONT
             || emcmotCommand->command == EMCMOT_JOG_INCR
             || emcmotCommand->command == EMCMOT_JOG_ABS
@@ -459,6 +460,15 @@ check_stuff ( "before command_handler()" );
            if (!GET_MOTION_TELEOP_FLAG() && joint_num < 0) {
                emsg = "command.com !teleop bad joint_num";
                abort = 1;
+           }
+           if (GET_MOTION_TELEOP_FLAG()) {
+                axis = &axes[axis_num];
+                if (axis->locking_joint >= 0) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Cannot jog a locking indexer axis_num=%d\n",
+                    axis_num);
+                    return;
+                }
            }
         }
         if (abort) {
@@ -771,7 +781,7 @@ check_stuff ( "before command_handler()" );
 		    break;
 	        }
                 if (joint->home_flags & HOME_UNLOCK_FIRST) {
-                    reportError("Can't jog a locking joint.");
+                    reportError("Can't jog locking joint_num=%d",joint_num);
                     SET_JOINT_ERROR_FLAG(joint, 1);
                     break;
                 }
@@ -849,7 +859,7 @@ check_stuff ( "before command_handler()" );
 		    break;
 	        }
                 if (joint->home_flags & HOME_UNLOCK_FIRST) {
-                    reportError("Can't jog a locking joint.");
+                    reportError("Can't jog locking joint_num=%d",joint_num);
                     SET_JOINT_ERROR_FLAG(joint, 1);
                     break;
                 }
@@ -1773,6 +1783,16 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    axis->acc_limit = emcmotCommand->acc;
+            break;
+
+        case EMCMOT_SET_AXIS_LOCKING_JOINT:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_ACC_LOCKING_JOINT");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", axis_num);
+	    emcmot_config_change();
+	    if (axis == 0) {
+		break;
+	    }
+	    axis->locking_joint = joint_num;
             break;
 
 	default:

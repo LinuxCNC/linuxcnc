@@ -57,6 +57,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
     double limit;
     double maxVelocity;
     double maxAcceleration;
+    int    lockingjnum = -1; // -1 ==> locking joint not used
 
     // compose string to match, axis = 0 -> AXIS_X etc.
     switch (axis) {
@@ -116,6 +117,14 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             return -1;
         }
         old_inihal_data.axis_max_acceleration[axis] = maxAcceleration;
+
+        axisIniFile->Find(&lockingjnum, "LOCKING_INDEXER_JOINT", axisString);
+        if (0 != emcAxisSetLockingJoint(axis, lockingjnum)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetLockingJoint\n");
+            }
+            return -1;
+        }
     }
 
 
