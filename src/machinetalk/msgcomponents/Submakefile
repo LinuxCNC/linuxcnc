@@ -26,8 +26,6 @@ pbmsgs-objs := \
 	$(PBGEN)/status.npb.o \
 	$(PBGEN)/value.npb.o
 
-obj-m += ringload.o
-ringload-objs := $(MSGCOMP_DIR)/ringload.o
 
 obj-m += pbring.o
 pbring-objs := $(MSGCOMP_DIR)/pbring.o
@@ -35,7 +33,6 @@ pbring-objs := $(MSGCOMP_DIR)/pbring.o
 
 ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 $(RTLIBDIR)/pbmsgs$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pbmsgs-objs))
-$(RTLIBDIR)/ringload$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(ringload-objs))
 $(RTLIBDIR)/pbring$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pbring-objs))
 endif
 
