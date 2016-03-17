@@ -1017,6 +1017,10 @@ static void handle_jjogwheels(void)
 	    /* don't jog if feedhold is on or if feed override is zero */
 	    break;
 	}
+        if (joint->home_flags & HOME_UNLOCK_FIRST) {
+            reportError("Can't wheel jog locking joint_num=%d",joint_num);
+            continue;
+        }
 	/* calculate distance to jog */
 	distance = delta * *(joint_data->jjog_scale);
 	/* check for joint already on hard limit */
@@ -1102,11 +1106,19 @@ static void handle_ajogwheels(void)
             axis->teleop_tp.enable = 0;
             return;
         }
-    if (!GET_MOTION_TELEOP_FLAG())        { continue; }
+	if (!GET_MOTION_TELEOP_FLAG())        { continue; }
 	if (!GET_MOTION_ENABLE_FLAG())        { continue; }
 	if ( *(axis_data->ajog_enable) == 0 ) { continue; }
 	if (emcmotStatus->homing_active)      { continue; }
 	if (axis->kb_ajog_active)             { continue; }
+
+        if (axis->locking_joint >= 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+            "Cannot wheel jog a locking indexer axis_num=%d\n",
+            axis_num);
+            continue;
+        }
+
 	distance = delta * *(axis_data->ajog_scale);
 	pos = axis->teleop_tp.pos_cmd + distance;
 	if ( *(axis_data->ajog_vel_mode) ) {
