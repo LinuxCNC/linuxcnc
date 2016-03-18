@@ -3,16 +3,6 @@
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-requires gladevcp 0.0 -->
   <!-- interface-naming-policy project-wide -->
-  <object class="EMC_Action_Open" id="hal_action_open"/>
-  <object class="EMC_Action_Reload" id="hal_action_reload"/>
-  <object class="EMC_Action_Save" id="hal_action_save">
-    <property name="textview">gcode_view</property>
-  </object>
-  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
-    <property name="textview">gcode_view</property>
-  </object>
-  <object class="EMC_Action_Step" id="hal_action_step"/>
-  <object class="EMC_Action_Stop" id="hal_action_stop"/>
   <object class="GtkAdjustment" id="adf_probe_vel">
     <property name="upper">100</property>
     <property name="value">10</property>
@@ -53,6 +43,7 @@
     <property name="upper">10500</property>
     <property name="value">1500</property>
     <property name="step_increment">50</property>
+    <signal name="value-changed" handler="on_adj_scale_jog_vel_value_changed" swapped="no"/>
   </object>
   <object class="GtkAdjustment" id="adj_max_messages">
     <property name="lower">1</property>
@@ -177,6 +168,16 @@
   <object class="GtkTextBuffer" id="alarm_buffer"/>
   <object class="GtkFileFilter" id="ff_file_to_load"/>
   <object class="GtkFileFilter" id="filefilter1"/>
+  <object class="EMC_Action_Open" id="hal_action_open"/>
+  <object class="EMC_Action_Reload" id="hal_action_reload"/>
+  <object class="EMC_Action_Save" id="hal_action_save">
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_Step" id="hal_action_step"/>
+  <object class="EMC_Action_Stop" id="hal_action_stop"/>
   <object class="EMC_Stat" id="hal_status">
     <signal name="mode-manual" handler="on_hal_status_mode_manual" swapped="no"/>
     <signal name="all-homed" handler="on_hal_status_all_homed" swapped="no"/>
@@ -725,24 +726,6 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
                                           <object class="GtkButton" id="btn_gcode">
                                             <property name="label" translatable="yes">gcode</property>
                                             <property name="visible">True</property>
@@ -763,6 +746,38 @@
                                             <property name="left_attach">1</property>
                                             <property name="right_attach">2</property>
                                           </packing>
+                                        </child>
+                                        <child>
+                                          <object class="SpeedControl" id="speedcontrol1">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="color">#ffff0000ffff</property>
+                                            <property name="height">42</property>
+                                            <property name="increment">50</property>
+                                            <property name="max">10000</property>
+                                            <property name="value">300</property>
+                                            <signal name="value-changed" handler="on_adj_scale_jog_vel_value_changed" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">3</property>
+                                            <property name="right_attach">4</property>
+                                            <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
                                         </child>
                                       </object>
                                       <packing>
@@ -1031,6 +1046,7 @@
                                       <object class="HAL_LED" id="hal_led1">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="led_blink_rate">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -1042,6 +1058,7 @@
                                       <object class="HAL_LED" id="hal_led2">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="led_blink_rate">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>

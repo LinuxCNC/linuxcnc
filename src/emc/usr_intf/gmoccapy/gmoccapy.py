@@ -739,6 +739,11 @@ class gmoccapy( object ):
         self.scale_feed_override = self.prefs.getpref( "scale_feed_override", 1, float )
         self.widgets.adj_scale_feed_override.set_value( self.scale_feed_override )
 
+    def _init_axis_size( self ):
+        self.dro_size = int( self.prefs.getpref( "dro_size", 28, int ) )
+        self.widgets.adj_dro_size.set_value( self.dro_size )
+
+
 #     def _init_axis_four( self ):
 #         self.dro_size = int( self.prefs.getpref( "dro_size", 28, int ) )
 #         self.widgets.adj_dro_size.set_value( self.dro_size )
@@ -1745,6 +1750,8 @@ class gmoccapy( object ):
         self.command.wait_complete()
 
         self.initialized = True
+        
+        self._init_axis_size()
 
         # does the user want to show screen2
         self._check_screen2()
@@ -3290,6 +3297,7 @@ class gmoccapy( object ):
     def on_adj_scale_jog_vel_value_changed( self, widget, data = None ):
         self.prefs.putpref( "scale_jog_vel", widget.get_value(), float )
         self.scale_jog_vel = widget.get_value()
+        self.widgets.adj_jog_vel.set_value(self.scale_jog_vel)
 
     def on_adj_scale_feed_override_value_changed( self, widget, data = None ):
         self.prefs.putpref( "scale_feed_override", widget.get_value(), float )
@@ -3363,6 +3371,7 @@ class gmoccapy( object ):
         value = int( widget.get_value() )
         self.prefs.putpref( "dro_size", value, int )
         self.dro_size = value
+        print("Font size = ", self.dro_size)
         for axis in self.axis_list:
             self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", self.dro_size )
         #self._init_axis_four()
@@ -3602,30 +3611,30 @@ class gmoccapy( object ):
 
 # =========================================================
 # gremlin relevant calls
-    def on_rbt_view_p_toggled( self, widget, data = None ):
-        if self.widgets.rbt_view_p.get_active():
-            self.widgets.gremlin.set_property( "view", "p" )
-        self.prefs.putpref( "gremlin_view", "rbt_view_p", str )
-
-    def on_rbt_view_x_toggled( self, widget, data = None ):
-        if self.widgets.rbt_view_x.get_active():
-            self.widgets.gremlin.set_property( "view", "x" )
-        self.prefs.putpref( "gremlin_view", "rbt_view_x", str )
-
-    def on_rbt_view_y_toggled( self, widget, data = None ):
-        if self.widgets.rbt_view_y.get_active():
-            self.widgets.gremlin.set_property( "view", "y" )
-        self.prefs.putpref( "gremlin_view", "rbt_view_y", str )
-
-    def on_rbt_view_z_toggled( self, widget, data = None ):
-        if self.widgets.rbt_view_z.get_active():
-            self.widgets.gremlin.set_property( "view", "z" )
-        self.prefs.putpref( "gremlin_view", "rbt_view_z", str )
-
-    def on_rbt_view_y2_toggled( self, widget, data = None ):
-        if self.widgets.rbt_view_y2.get_active():
-            self.widgets.gremlin.set_property( "view", "y2" )
-        self.prefs.putpref( "gremlin_view", "rbt_view_y2", str )
+#     def on_rbt_view_p_toggled( self, widget, data = None ):
+#         if self.widgets.rbt_view_p.get_active():
+#             self.widgets.gremlin.set_property( "view", "p" )
+#         self.prefs.putpref( "gremlin_view", "rbt_view_p", str )
+# 
+#     def on_rbt_view_x_toggled( self, widget, data = None ):
+#         if self.widgets.rbt_view_x.get_active():
+#             self.widgets.gremlin.set_property( "view", "x" )
+#         self.prefs.putpref( "gremlin_view", "rbt_view_x", str )
+# 
+#     def on_rbt_view_y_toggled( self, widget, data = None ):
+#         if self.widgets.rbt_view_y.get_active():
+#             self.widgets.gremlin.set_property( "view", "y" )
+#         self.prefs.putpref( "gremlin_view", "rbt_view_y", str )
+# 
+#     def on_rbt_view_z_toggled( self, widget, data = None ):
+#         if self.widgets.rbt_view_z.get_active():
+#             self.widgets.gremlin.set_property( "view", "z" )
+#         self.prefs.putpref( "gremlin_view", "rbt_view_z", str )
+# 
+#     def on_rbt_view_y2_toggled( self, widget, data = None ):
+#         if self.widgets.rbt_view_y2.get_active():
+#             self.widgets.gremlin.set_property( "view", "y2" )
+#         self.prefs.putpref( "gremlin_view", "rbt_view_y2", str )
 
     def on_btn_zoom_in_clicked( self, widget, data = None ):
         self.widgets.gremlin.zoom_in()
