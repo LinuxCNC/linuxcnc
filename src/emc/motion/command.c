@@ -465,8 +465,8 @@ check_stuff ( "before command_handler()" );
                 axis = &axes[axis_num];
                 if (axis->locking_joint >= 0) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Cannot jog a locking indexer axis_num=%d\n",
-                    axis_num);
+                    "Cannot jog a locking indexer AXIS_%c,joint_num=%d\n",
+                    "XYZABCUVW"[axis_num],axis->locking_joint);
                     return;
                 }
            }
