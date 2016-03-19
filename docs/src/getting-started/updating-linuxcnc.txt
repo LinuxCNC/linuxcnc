@@ -360,6 +360,21 @@ For non-identity kinematics, limit icons are shown for individual joints
 when the joint limit is active.  Limit icons are not shown for axis
 letters since there is no guaranteed correspondence to a joint number.
 
+==== Key bindings for a fourth axis
+
+If a fourth axis is defined in a conventional cartesian configuration
+(xyza,xyzb,xyzc) the axis gui will assign the "[","]" keys for jogging the
+fourth axis (a,b,c).  The assignment may not be correct in configurations that
+use duplicate axis letters with a gentrivkins configuration (example: xyyzb).
+In such cases, the "[","]" key bindings can be made using a custom ~/.axisrc
+file:
+
+----
+For xyyzb
+bind_axis("bracketleft, "bracketright", 4)
+(b is the 4th axis letter in the allowed set of axis letters: "xyzabcuvw"):
+----
+
 === Halui
 
 Halui now supports teleop jogging resulting in some changed pin names and
