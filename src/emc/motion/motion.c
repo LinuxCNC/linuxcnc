@@ -567,7 +567,7 @@ static int export_axis(char c, axis_hal_t * addr)
 */
 static int init_comm_buffers(void)
 {
-    int joint_num, n;
+    int joint_num, axis_num, n;
     emcmot_joint_t *joint;
     int retval;
 
@@ -667,6 +667,11 @@ static int init_comm_buffers(void)
     axes = &(axis_array[0]);
 #endif
 
+   for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+      emcmot_axis_t *axis;
+      axis = &axes[axis_num];
+      axis->locking_joint = -1;
+   }
     /* init per-joint stuff */
     for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	/* point to structure for this joint */
