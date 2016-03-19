@@ -3409,7 +3409,15 @@ else:
     bind_axis("KP_4", "KP_6", 0)
     bind_axis("KP_2", "KP_8", 1)
     bind_axis("KP_3", "KP_9", 2)
-    bind_axis("bracketleft", "bracketright", 3)
+    try:
+        fourth_axis_letter = trajcoordinates.upper()[3]
+        fourth_axis_number = "XYZABCUVW".index(fourth_axis_letter)
+        bind_axis("bracketleft", "bracketright", fourth_axis_number)
+        # Note: not usable if there are duplicated axis letters
+        #       example: for xyyzb, use .axisrc:
+        #       bind_axis("bracketleft, "bracketright", 4)
+    except:
+        pass
 
 root_window.bind("<KeyPress-minus>", nomodifier(commands.jog_minus))
 root_window.bind("<KeyPress-equal>", nomodifier(commands.jog_plus))
