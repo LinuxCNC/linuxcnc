@@ -1112,12 +1112,12 @@ static void handle_ajogwheels(void)
 	if (emcmotStatus->homing_active)      { continue; }
 	if (axis->kb_ajog_active)             { continue; }
 
-        if (axis->locking_joint >= 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-            "Cannot wheel jog a locking indexer axis_num=%d\n",
-            axis_num);
-            continue;
-        }
+	if (axis->locking_joint >= 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+        "Cannot wheel jog a locking indexer AXIS_%c\n",
+        "XYZABCUVW"[axis_num]);
+	continue;
+	}
 
 	distance = delta * *(axis_data->ajog_scale);
 	pos = axis->teleop_tp.pos_cmd + distance;
