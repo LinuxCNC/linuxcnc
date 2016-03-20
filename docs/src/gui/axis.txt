@@ -804,6 +804,20 @@ When in lathe mode, the shape of the loaded tool (if any) is shown.
 
 image:images/axis-lathe-tool.png[align="center"]
 
+== Using AXIS in Foam Cutting mode
+
+By including the line 'FOAM = 1'
+in the [DISPLAY] section of the ini file, AXIS selects foam-cutting mode.
+In the program preview, XY motions are displayed in one plane, and UV motions
+in another.  In the live plot, lines are drawn between corresponding points on
+the XY plane and the UV plane.  The special comments (XY_Z_POS) and (UV_Z_POS)
+set the Z coordinates of these planes, which default to 0 and 1.5 machine units.
+
+.Foam cutting mode
+
+image:images/axis-foam.png[align="center"]
+
+
 == Advanced Configuration
 
 When AXIS is started it creates the HAL pins for the GUI then it executes
