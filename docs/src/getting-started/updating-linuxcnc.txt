@@ -392,12 +392,12 @@ letters since there is no guaranteed correspondence to a joint number.
 
 ==== Key bindings for a fourth axis
 
-If a fourth axis is defined in a conventional cartesian configuration
-(xyza,xyzb,xyzc) the axis gui will assign the "[","]" keys for jogging the
-fourth axis (a,b,c).  The assignment may not be correct in configurations that
-use duplicate axis letters with a gentrivkins configuration (example: xyyzb).
-In such cases, the "[","]" key bindings can be made using a custom ~/.axisrc
-file:
+In the AXIS gui, jogging keys are assigned to axes in a configurable
+fashion.  For 3-axis machines, XYZA machines, and lathes the default is
+the same as in 2.7.  For other machines, the 4 pairs of jogging keys are
+assigned to the first 4 axes that exist in the order XYZ ABC UVW.
+These assignments can be controlled by new inifile directives in the
+<<sec:display-section,[DISPLAY] section of the inifile>>
 
 ----
 For xyyzb
