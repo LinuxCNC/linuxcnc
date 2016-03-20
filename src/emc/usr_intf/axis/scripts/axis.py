@@ -1726,6 +1726,11 @@ def get_jog_speed(a):
             return vars.jog_speed.get()/60.
         else:
             return vars.jog_aspeed.get()/60.
+def get_jog_speed_map(a):
+    if not get_jog_mode():
+        axis_letter = jog_order[a]
+        a = "XYZABCUVW".index(axis_letter)
+    return get_jog_speed(a)
 
 def get_max_jog_speed(a):
     max_linear_speed = vars.max_speed.get()
@@ -1742,6 +1747,11 @@ def get_max_jog_speed(a):
             return max_linear_speed
         else:
             return vars.max_aspeed.get()
+def get_max_jog_speed_map(a):
+    if not get_jog_mode():
+        axis_letter = jog_order[a]
+        a = "XYZABCUVW".index(axis_letter)
+    return get_max_jog_speed(a)
 
 def run_warn():
     warnings = []
@@ -3122,13 +3132,28 @@ def jog_off_all():
         if jogging[i]:
             jog_off_actual(i)
 
+def jog_on_map(num, speed):
+    if not get_jog_mode():
+        if num >= len(jog_order): return
+        axis_letter = jog_order[num]
+        num = "XYZABCUVW".index(axis_letter)
+        if axis_letter in jog_invert: speed = -speed
+    print "jog_on_map", num, speed
+    return jog_on(num, speed)
+
+def jog_off_map(num):
+    if not get_jog_mode():
+        if num >= len(jog_order): return
+        num = "XYZABCUVW".index(jog_order[num])
+    return jog_off(num)
+
 def bind_axis(a, b, d):
-    root_window.bind("<KeyPress-%s>" % a, kp_wrap(lambda e: jog_on(d, -get_jog_speed(d)), "KeyPress"))
-    root_window.bind("<KeyPress-%s>" % b, kp_wrap(lambda e: jog_on(d, get_jog_speed(d)), "KeyPress"))
-    root_window.bind("<Shift-KeyPress-%s>" % a, lambda e: jog_on(d, -get_max_jog_speed(d)))
-    root_window.bind("<Shift-KeyPress-%s>" % b, lambda e: jog_on(d, get_max_jog_speed(d)))
-    root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off(d))
-    root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off(d))
+    root_window.bind("<KeyPress-%s>" % a, kp_wrap(lambda e: jog_on_map(d, -get_jog_speed_map(d)), "KeyPress"))
+    root_window.bind("<KeyPress-%s>" % b, kp_wrap(lambda e: jog_on_map(d, get_jog_speed_map(d)), "KeyPress"))
+    root_window.bind("<Shift-KeyPress-%s>" % a, lambda e: jog_on_map(d, -get_max_jog_speed_map(d)))
+    root_window.bind("<Shift-KeyPress-%s>" % b, lambda e: jog_on_map(d, get_max_jog_speed_map(d)))
+    root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off_map(d))
+    root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off_map(d))
 
 root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
 
@@ -3390,34 +3415,44 @@ del sys.argv[1:3]
 root_window.bind("<KeyPress-KP_Begin>", kp_wrap(lambda e: None, "KeyPress"))
 root_window.bind("<KeyPress-KP_Insert>", kp_wrap(lambda e: None, "KeyPress"))
 
-if lathe:
-    bind_axis("Left", "Right", 2)
-    bind_axis("Up", "Down", 0)
-    bind_axis("KP_Left", "KP_Right", 2)
-    bind_axis("KP_Up", "KP_Down", 0)
-    bind_axis("KP_4", "KP_6", 2)
-    bind_axis("KP_8", "KP_2", 0)
+def unique_axes(axes, order):
+    r = ""
+    axes = set(axes.upper())
+    for c in order.upper():
+        if c in axes: r += c
+    return r
+
+jog_invert = inifile.find("DISPLAY", "JOG_INVERT")
+if jog_invert is None:
+    if lathe: jog_invert = "X"
+    else: jog_invert = ""
+jog_invert = set(jog_invert.upper())
+
+jog_order = inifile.find("DISPLAY", "JOG_AXES")
+if jog_order is None:
+    if lathe:
+        jog_order = unique_axes(trajcoordinates, "ZXYABCUVW")
+    elif foam:
+        jog_order = unique_axes(trajcoordinates, "XYUVABCZW")
+    else:
+        jog_order = unique_axes(trajcoordinates, "XYZABCUVW")
+
+print >>sys.stderr, "note: jog_order=%r" % jog_order
+print >>sys.stderr, "note: jog_invert=%r" % jog_invert
+bind_axis("Left", "Right", 0)
+bind_axis("Down", "Up", 1)
+bind_axis("Next", "Prior", 2)
+bind_axis("KP_Left", "KP_Right", 0)
+bind_axis("KP_Down", "KP_Up", 1)
+bind_axis("KP_Next", "KP_Prior", 2)
+bind_axis("KP_4", "KP_6", 0)
+bind_axis("KP_2", "KP_8", 1)
+bind_axis("KP_3", "KP_9", 2)
+bind_axis("bracketleft", "bracketright", 3)
+
+if len(jog_order) < 3:
     root_window.bind("<KeyPress-KP_Next>", kp_wrap(lambda e: None, "KeyPress"))
     root_window.bind("<KeyPress-KP_Prior>", kp_wrap(lambda e: None, "KeyPress"))
-else:
-    bind_axis("Left", "Right", 0)
-    bind_axis("Down", "Up", 1)
-    bind_axis("Next", "Prior", 2)
-    bind_axis("KP_Left", "KP_Right", 0)
-    bind_axis("KP_Down", "KP_Up", 1)
-    bind_axis("KP_Next", "KP_Prior", 2)
-    bind_axis("KP_4", "KP_6", 0)
-    bind_axis("KP_2", "KP_8", 1)
-    bind_axis("KP_3", "KP_9", 2)
-    try:
-        fourth_axis_letter = trajcoordinates.upper()[3]
-        fourth_axis_number = "XYZABCUVW".index(fourth_axis_letter)
-        bind_axis("bracketleft", "bracketright", fourth_axis_number)
-        # Note: not usable if there are duplicated axis letters
-        #       example: for xyyzb, use .axisrc:
-        #       bind_axis("bracketleft, "bracketright", 4)
-    except:
-        pass
 
 root_window.bind("<KeyPress-minus>", nomodifier(commands.jog_minus))
 root_window.bind("<KeyPress-equal>", nomodifier(commands.jog_plus))

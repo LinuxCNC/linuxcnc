@@ -347,6 +347,10 @@ The following [DISPLAY] items are for the AXIS interface only, many of them are 
     directory. This is useful if you have multiple configurations on one
     computer.
 
+* 'JOG_AXES =' - The order in which jog keys are assigned to axis letters.  The left and right arrows are assigned to the first axis letter, up and down to the second, page up/page down to the third, and left and right bracket to the fourth.  If unspecified, the default is determined from the [TRAJ]COORDINATES, [DISPLAY]LATHE and [DISPLAY]FOAM values.
+
+* 'JOG_INVERT =' - For each axis letter, the jog direction is inverted.  The default is "X" for lathes and blank otherwise.
+
 [NOTE]
 The following [DISPLAY] item is used by the TKLinuxCNC interface only.
 
