@@ -312,6 +312,8 @@ The following [DISPLAY] items are for the AXIS interface only, many of them are 
 * 'LATHE = 1' - This displays in lathe mode with a top view and with Radius and
     Diameter on the DRO.
 
+* 'FOAM = 1' - Change the display for foam-cutter mode.
+
 * 'GEOMETRY = XYZABCUVW' - Controls the preview and backplot of rotary motion. This item consists
     of a sequence of axis letters, optionally preceded by a "-" sign.
     This sequence specifies the order in which the effect
@@ -325,6 +327,10 @@ The following [DISPLAY] items are for the AXIS interface only, many of them are 
     expresses the order in which the different transformations are applied.
     For example rotating around C then B is different than rotating around
     B then C. Geometry has no effect without a rotary axis.
+     Foam-cutting machines (FOAM = 1) should specify "XY;UV" or leave the value
+    blank even though this value is presently ignored in foam-cutter mode.  A
+    future version may define what ";" means, but if it does "XY;UV" will mean
+    the same as the current foam default.
 
 * 'ARCDIVISION = 64' - Set the quality of preview of arcs. Arcs are previewed by dividing
     them into a number of straight lines; a semicircle is divided into
