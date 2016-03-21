@@ -380,7 +380,7 @@ class Data:
         self.amicrostep = 2
         self.apulleynum = 1
         self.apulleyden = 1
-        self.aleadscrew = 8
+        self.aleadscrew = 360
         self.amaxvel = 360
         self.amaxacc = 1200
 
