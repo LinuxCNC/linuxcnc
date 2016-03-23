@@ -846,16 +846,10 @@ typedef struct {
     u32 tx_fifo_count_addr;
     u32 tx_bitrate_addr;
     u32 tx_addr;
-    //u32 tx2_addr;
-    //u32 tx3_addr;
-    //u32 tx4_addr;
     u32 tx_mode_addr;
     u32 rx_fifo_count_addr;
     u32 rx_bitrate_addr;
     u32 rx_addr;
-    // u32 rx2_addr;
-    // u32 rx3_addr;
-    // u32 rx4_addr;
     u32 rx_mode_addr;
     char name[HAL_NAME_LEN+1];
 } hm2_pktuart_instance_t;
@@ -1037,7 +1031,7 @@ typedef struct {
         int num_sserials;
         int num_bspis;
         int num_uarts;
-		int num_pktuarts;
+        int num_pktuarts;
         int num_dplls;
         char sserial_modes[4][8];
         int enable_raw;
@@ -1077,7 +1071,7 @@ typedef struct {
     hm2_sserial_t sserial;
     hm2_bspi_t bspi;
     hm2_uart_t uart;
-	hm2_pktuart_t pktuart;
+    hm2_pktuart_t pktuart;
     hm2_ioport_t ioport;
     hm2_watchdog_t watchdog;
     hm2_dpll_t dpll;
