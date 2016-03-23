@@ -217,6 +217,18 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             }
             break;
 
+        case HM2_GTAG_PKTUART_RX:
+            switch (sec_pin) {
+                case 0x1: return "RX Data";
+            }
+            break;
+        case HM2_GTAG_PKTUART_TX:    
+            switch (sec_pin) {
+                case 0x1: return "TX Data";
+                case 0x2: return "Drv Enable";
+            }
+            break;
+
         case HM2_GTAG_DPLL: // Not Supported Currently
             switch (sec_pin) {
                 case 0x1: return "SynchIn";
@@ -586,6 +598,8 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_BSPI,  hm2->bspi.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_UART_RX,  hm2->uart.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_UART_TX ,  hm2->uart.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_PKTUART_RX,  hm2->pktuart.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_PKTUART_TX ,  hm2->pktuart.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIAL,  hm2->sserial.num_instances);
     // muxed encoder gets the sel pins
     hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->encoder.num_instances);
