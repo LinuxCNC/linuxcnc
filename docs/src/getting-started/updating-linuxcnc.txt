@@ -399,12 +399,6 @@ assigned to the first 4 axes that exist in the order XYZ ABC UVW.
 These assignments can be controlled by new inifile directives in the
 <<sec:display-section,[DISPLAY] section of the inifile>>
 
-----
-For xyyzb
-bind_axis("bracketleft, "bracketright", 4)
-(b is the 4th axis letter in the allowed set of axis letters: "xyzabcuvw"):
-----
-
 === Halui
 
 Halui now supports teleop jogging resulting in some changed pin names and

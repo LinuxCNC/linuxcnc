@@ -3138,7 +3138,6 @@ def jog_on_map(num, speed):
         axis_letter = jog_order[num]
         num = "XYZABCUVW".index(axis_letter)
         if axis_letter in jog_invert: speed = -speed
-    print "jog_on_map", num, speed
     return jog_on(num, speed)
 
 def jog_off_map(num):
