@@ -2431,12 +2431,17 @@ class TclCommands(nf.TclCommands):
         commands.mdi_history_write_to_file(mdi_history_save_filename, -1)
 
     def ensure_manual(*event):
+        s.poll()
         if not manual_ok(): return
-        ensure_mode(linuxcnc.MODE_MANUAL)
-        if all_homed():
+        if  (     all_homed()
+             and (s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
+                  or
+                 (s.motion_mode == linuxcnc.TRAJ_MODE_COORD)
+            ):
             vars.teleop_mode.set(1)
             commands.set_teleop_mode()
         else:
+            ensure_mode(linuxcnc.MODE_MANUAL)
             vars.teleop_mode.set(0)
             commands.set_teleop_mode()
    

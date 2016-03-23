@@ -1883,7 +1883,7 @@ proc set_mode_from_tab {} {
     set page [${::pane_top}.tabs raise]
     switch $page {
         mdi { ensure_mdi }
-        default {}
+        default { ensure_manual }
     }
 
 }
