@@ -63,5 +63,7 @@ Negative error codes are:
 
 
 .SH SEE ALSO
-man hm2_pktuart_setup, man hm2_pktuart_send
-See src/hal/components mesa_pktgyro_test.comp for an example usage.
+.TP
+.B man hm2_pktuart_setup, man hm2_pktuart_send
+.TP
+See src/hal/components/mesa_pktgyro_test.comp for an example usage.

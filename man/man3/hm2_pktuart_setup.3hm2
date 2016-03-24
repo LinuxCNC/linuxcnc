@@ -93,9 +93,10 @@ txclear!=1 or rxclear!=1 lets the corresponding registers unchanged.
 Returns 0 on success and -1 or -EINVAL on failure. 
 
 .SH SEE ALSO
-man hm2_pktuart_send, man hm2_pktuart_read
-See src/hal/drivers mesa_pktgyro_test.comp for an example usage. 
+.B man hm2_pktuart_send, man hm2_pktuart_read
+.TP
+See src/hal/components/mesa_pktgyro_test.comp for an example usage. 
 
 .SH FUTURE DEVELOPMENT
-.B This function is subject to change as digital filters will be added on the Rx UART,
+This function is subject to change as digital filters will be added on the Rx UART,
 and bit rate register will gain a 12 bit field for the input filter constant.
