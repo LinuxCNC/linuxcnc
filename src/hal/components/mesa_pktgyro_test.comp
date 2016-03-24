@@ -18,7 +18,7 @@ terminal prompt to view the output.
 If you want to work with more than one PktUART instance, consult Andy Pugh's
 mesa_uart.comp
 
-The component exports only one function, namely receive, which need to be added
+The component exports only one function, namely receive, which needs to be added
 to a realtime thread.
 To test this component  set DEBUG=5 before and execute this HAL script:
 \\fB loadrt hostmot2\\fR
