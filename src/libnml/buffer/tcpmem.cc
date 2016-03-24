@@ -1444,7 +1444,7 @@ CMS_STATUS TCPMEM::peek()
     return (status);
 }
 
-CMS_STATUS TCPMEM::write(void *user_data)
+CMS_STATUS TCPMEM::write(void *user_data, int *serial_number_out)
 {
 
     if (!write_permission_flag) {
@@ -1570,7 +1570,7 @@ CMS_STATUS TCPMEM::write(void *user_data)
     return (status);
 }
 
-CMS_STATUS TCPMEM::write_if_read(void *user_data)
+CMS_STATUS TCPMEM::write_if_read(void *user_data, int *serial_number_out)
 {
 
     if (!write_permission_flag) {
