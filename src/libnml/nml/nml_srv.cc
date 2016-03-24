@@ -296,6 +296,7 @@ REMOTE_WRITE_REPLY *NML_SERVER_LOCAL_PORT::writer(REMOTE_WRITE_REQUEST * _req)
     }
 
     write_reply.status = (int) cms->status;
+    write_reply.write_id = cms->header.write_id;
     write_reply.was_read = cms->header.was_read;
     write_reply.confirm_write = cms->confirm_write;
 

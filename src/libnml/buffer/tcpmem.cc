@@ -1552,6 +1552,7 @@ CMS_STATUS TCPMEM::write(void *user_data, int *serial_number_out)
 
 	status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
 	header.was_read = ntohl(*((uint32_t *) temp_buffer + 2));
+	header.write_id = returned_serial_number;
     } else {
 	header.was_read = 0;
 	status = CMS_WRITE_OK;
