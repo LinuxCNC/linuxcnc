@@ -860,7 +860,7 @@ typedef struct {
     hm2_pktuart_instance_t *instance;
     u8 instances;
     u8 num_registers;
-	struct rtapi_heap *heap;
+    struct rtapi_heap *heap;
 } hm2_pktuart_t;
 
 //

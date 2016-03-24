@@ -112,7 +112,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_sserial_prepare_tram_write(hm2, period);
     hm2_bspi_prepare_tram_write(hm2, period);
     hm2_watchdog_prepare_tram_write(hm2);
-    //UARTS and PktUART need to be explicity handled by an external component
+    //UARTS and PktUARTS need to be explicity handled by an external component
     hm2_tram_write(hm2);
 
     // these usually do nothing
@@ -936,7 +936,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_PKTUART_TX:
                 md_accepted = hm2_pktuart_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_HM2DPLL:
                 md_accepted = hm2_dpll_parse_md(hm2, md_index);
                 break;

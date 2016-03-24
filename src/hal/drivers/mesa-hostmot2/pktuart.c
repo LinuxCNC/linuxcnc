@@ -25,7 +25,6 @@
 #include "hal.h"
 #include "hostmot2.h"
 
-#include <stdlib.h>
 
 #define MaxTrFrames     (16) // Send counts are written to 16 deep FIFO, burst mode
 
