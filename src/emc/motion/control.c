@@ -223,24 +223,7 @@ static void update_status(void);
 
 void emcmotController(void *arg, long period)
 {
-    // - overrun detection -
-    // maintain some records of how long it's been between calls.  The
-    // first time we see a delay that's much longer than the records show
-    // is normal, report an error.  This might detect bogus realtime 
-    // performance caused by ACPI, onboard video, etc.  It can be reliably
-    // triggered by maximizing glxgears on my nvidia system, which also
-    // causes the rtai latency test to show overruns.
-
-    // check below if you set this under 5
-#define CYCLE_HISTORY 5
-
-
     static long long int last = 0;
-#ifdef __KERNEL__
-    static int index = 0;
-    static long int cycles[CYCLE_HISTORY];
-    static int priming = 1;
-#endif
 
     long long int now = rtapi_get_clocks();
     long int this_run = (long int)(now - last);
@@ -248,53 +231,6 @@ void emcmotController(void *arg, long period)
 #ifdef HAVE_CPU_KHZ
     emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
 #endif
-
-#ifdef __KERNEL__
-    if(!priming) {
-        // we have CYCLE_HISTORY samples, so check for this call being 
-        // anomolously late
-        int i;
-
-        for(i=0; i<CYCLE_HISTORY; i++) {
-            if (this_run > 1.2 * cycles[i]) {
-                emcmot_hal_data->overruns++;
-                // print message on first overrun only
-                if(emcmot_hal_data->overruns == 1) {
-                    int saved_level = rtapi_get_msg_level();
-                    rtapi_set_msg_level(RTAPI_MSG_ALL);
-                    reportError(_("Unexpected realtime delay: check dmesg for details."));
-                    rtapi_print_msg(RTAPI_MSG_WARN,
-                        _("\nIn recent history there were\n"
-                        "%ld, %ld, %ld, %ld, and %ld\n"
-                        "elapsed clocks between calls to the motion controller.\n"),
-                        cycles[0], cycles[1], cycles[2], cycles[3], cycles[4]);
-                    rtapi_print_msg(RTAPI_MSG_WARN,
-                        _("This time, there were %ld which is so anomalously\n"
-                        "large that it probably signifies a problem with your\n"
-                        "realtime configuration.  For the rest of this run of\n"
-                        "LinuxCNC, this message will be suppressed.\n\n"),
-                        this_run);
-                    rtapi_set_msg_level(saved_level);
-                }
-
-		break;
-	    }
-        }
-    }
-    if(last) {
-        cycles[index++] = this_run;
-    }
-    if(index == CYCLE_HISTORY) {
-        // wrap around to the start of the array
-        index = 0;
-        // we now have CYCLE_HISTORY good samples, so start checking times
-        priming = 0;
-    }
-#endif
-    // we need this for next time
-    last = now;
-
-    // end of overrun detection
 
     /* calculate servo period as a double - period is in integer nsec */
     servo_period = period * 0.000000001;
