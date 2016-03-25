@@ -193,6 +193,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     int i;
     min_compatible_version = 0;
     force_raw = 0;
+    serial = 0;
     confirm_write = 0;
     disable_final_write_raw_for_dma = 0;
     /* Init string buffers */
@@ -415,6 +416,11 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	char *enc_max_string;
 	if (NULL != (enc_max_string = strstr(word[i], "ENC_MAX_SIZE="))) {
 	    enc_max_size = strtoul(enc_max_string + 13, (char **) NULL, 0);
+	    continue;
+	}
+
+	if (!strcmp(word[i], "SERIAL")) {
+	    serial = 1;
 	    continue;
 	}
 
