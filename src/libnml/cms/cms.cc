@@ -206,7 +206,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     memset(proclineupper, 0, CMS_CONFIG_LINELEN);
     memset(PermissionString, 0, CMS_CONFIG_LINELEN);
 
-    /* Initailize some variables. */
+    /* Initialize some variables. */
     read_permission_flag = 0;	/* Allow both read and write by default.  */
     write_permission_flag = 0;
     queuing_enabled = 0;
