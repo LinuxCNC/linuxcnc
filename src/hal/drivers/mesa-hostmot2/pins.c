@@ -17,8 +17,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include "config_module.h"
-#include RTAPI_INC_SLAB_H
+#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -254,13 +253,13 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             switch (sec_pin) {
                 case 0x41: return "Strobe";
                 default:
-                    rtapi_snprintf(unknown, sizeof(unknown),  "Data%02x",sec_pin - 1);
+                    sprintf(unknown, "Data%02x",sec_pin - 1);
                     return unknown;
             }
             break;
 
         case HM2_GTAG_BINOSC: // Not Supported Currently
-             rtapi_snprintf(unknown, sizeof(unknown), "Out%02x",sec_pin -1);
+             sprintf(unknown, "Out%02x",sec_pin -1);
              return unknown;
              break;
 
@@ -293,11 +292,11 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
 
         case HM2_GTAG_TWIDDLER: // Not Supported Currently
              if (sec_pin < 0x20){
-                 rtapi_snprintf(unknown, sizeof(unknown), "In%02x", sec_pin - 1);
+                 sprintf(unknown, "In%02x", sec_pin - 1);
              } else if (sec_pin > 0xC0){
-                 rtapi_snprintf(unknown, sizeof(unknown), "IO%02x", sec_pin - 1);
+                 sprintf(unknown, "IO%02x", sec_pin - 1);
              } else {
-                 rtapi_snprintf(unknown, sizeof(unknown), "Out%02x", sec_pin - 1);
+                 sprintf(unknown, "Out%02x", sec_pin - 1);
              }
              return unknown;
              break;
@@ -307,6 +306,199 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
     return unknown;
 }
 
+const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
+    int sec_pin = pin->sec_pin & 0x7F;  // turn off the "pin is an output" bit
+//FIXME: some pins use the same sec_tag but different meanings depending on
+//direction.
+    switch (pin->sec_tag) {
+
+        case HM2_GTAG_MUXED_ENCODER:
+            switch (sec_pin) {
+                case 1: return "phase-A";
+                case 2: return "phase-B";
+                case 3: return "phase-Z";
+                case 4: return "phase-Z-mask";
+            }
+            break;
+
+        case HM2_GTAG_MUXED_ENCODER_SEL:
+            switch (sec_pin) {
+                case 1: return "sel0";
+                case 2: return "sel1";
+            }
+            break;
+
+        case HM2_GTAG_ENCODER:
+            switch (sec_pin) {
+                case 1: return "phase-A";
+                case 2: return "phase-B";
+                case 3: return "phase-Z";
+                case 4: return "phase-Z-mask";
+                case 5: return "probe-latch";
+            }
+            break;
+        case HM2_GTAG_SSI:
+            switch (sec_pin) {
+                case 1: return "clock";
+                case 2: return "clock-enable";
+                case 3: return "data";
+            }
+            break;
+
+        case HM2_GTAG_SPI: // Not supported yet
+                switch (sec_pin) {
+                    case 1: return "frame";
+                    case 2: return "out";
+                    case 3: return "clock";
+                    case 4: return "in";
+                }
+                break;
+
+        case HM2_GTAG_RESOLVER:
+            switch (sec_pin) {
+                case 1: return "nc";
+                case 2: return "refpdm-plus";
+                case 3: return "refpdm-minus";
+                case 4: return "amux0";
+                case 5: return "amux1";
+                case 6: return "amux2";
+                case 7: return "spics";
+                case 8: return "spiclk";
+                case 9: return "spido0";
+                case 10: return "spido1";
+            }
+            break;
+
+        case HM2_GTAG_PWMGEN:
+            // FIXME: these depend on the pwmgen mode
+            switch (sec_pin) {
+                case 1: return "out0";
+                case 2: return "out1";
+                case 3: return "enable";
+            }
+            break;
+
+        case HM2_GTAG_TPPWM:
+            switch (sec_pin) {
+                case 1: return "phase-A";
+                case 2: return "phase-B";
+                case 3: return "phase-C";
+                case 4: return "phase-A-inverted";
+                case 5: return "phase-B-inverted";
+                case 6: return "phase-C-inverted";
+                case 7: return "enable";
+                case 8: return "fault";
+            }
+            break;
+
+        case HM2_GTAG_STEPGEN:
+            // FIXME: these depend on the stepgen mode
+            switch (sec_pin) {
+                case 1: return "step";
+                case 2: return "direction";
+                case 3: return "table2";
+                case 4: return "table3";
+                case 5: return "table4";
+                case 6: return "table5";
+                case 7: return "table6";
+                case 8: return "table7";
+            }
+            break;
+
+        case HM2_GTAG_SMARTSERIAL:
+            if (pin->sec_pin & 0x80){ // Output pin codes
+                switch (sec_pin) {
+                    case 0x1: return "tx0";
+                    case 0x2: return "tx1";
+                    case 0x3: return "tx2";
+                    case 0x4: return "tx3";
+                    case 0x5: return "tx4";
+                    case 0x6: return "tx5";
+                    case 0x7: return "tx6";
+                    case 0x8: return "tx7";
+                    case 0x11: return "txen0";
+                    case 0x12: return "txen1";
+                    case 0x13: return "txen2";
+                    case 0x14: return "txen3";
+                    case 0x15: return "txen4";
+                    case 0x16: return "txen5";
+                    case 0x17: return "txen6";
+                    case 0x18: return "txen7";
+                }
+                break;
+            }else{ // INput Pin Codes
+                switch (sec_pin) {
+                    case 0x1: return "rx0";
+                    case 0x2: return "rx1";
+                    case 0x3: return "rx2";
+                    case 0x4: return "rx3";
+                    case 0x5: return "rx4";
+                    case 0x6: return "rx5";
+                    case 0x7: return "rx6";
+                    case 0x8: return "rx7";
+                }
+                break;
+            }
+        case HM2_GTAG_BSPI:
+            switch (sec_pin) {
+                case 0x1: return "nframe";
+                case 0x2: return "out";
+                case 0x3: return "clk";
+                case 0x4: return "in";
+                case 0x5: return "cs0";
+                case 0x6: return "cs1";
+                case 0x7: return "cs2";
+                case 0x8: return "cs3";
+                case 0x9: return "cs4";
+                case 0xA: return "cs5";
+                case 0xB: return "cs6";
+                case 0xC: return "cs7";
+        }
+        break;
+
+        case HM2_GTAG_DBSPI: // Not Supported Currently
+            switch (sec_pin) {
+                case 0x2: return "out";
+                case 0x3: return "clock";
+                case 0x4: return "in";
+                case 0x5: return "cs0";
+                case 0x6: return "cs1";
+                case 0x7: return "cs2";
+                case 0x8: return "cs3";
+                case 0x9: return "cs4";
+                case 0xA: return "cs5";
+                case 0xB: return "cs6";
+                case 0xC: return "cs7";
+            }
+            break;
+
+        case HM2_GTAG_UART_RX:
+            switch (sec_pin) {
+                case 0x1: return "rx";
+            }
+            break;
+        case HM2_GTAG_UART_TX:
+            switch (sec_pin) {
+                case 0x1: return "tx";
+                case 0x2: return "tx-drive-enable";
+            }
+            break;
+
+        case HM2_GTAG_PKTUART_RX:
+            switch (sec_pin) {
+                case 0x1: return "rx";
+            }
+            break;
+        case HM2_GTAG_PKTUART_TX:
+            switch (sec_pin) {
+                case 0x1: return "tx";
+                case 0x2: return "tx-drive-enable";
+            }
+            break;
+
+    }
+    return NULL;
+}
 
 
 
@@ -346,10 +538,10 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
     int i;
     int addr;
 
-    const u8 DB25[] = {1,14,2,15,3,16,4,17,5,6,7,8,9,10,11,12,13};
+    const rtapi_u8 DB25[] = {1,14,2,15,3,16,4,17,5,6,7,8,9,10,11,12,13};
     
     hm2->num_pins = hm2->idrom.io_width;
-    hm2->pin = kmalloc(sizeof(hm2_pin_t) * hm2->num_pins, GFP_KERNEL);
+    hm2->pin = rtapi_kmalloc(sizeof(hm2_pin_t) * hm2->num_pins, RTAPI_GFP_KERNEL);
     if (hm2->pin == NULL) {
         HM2_ERR("out of memory!\n");
         return -ENOMEM;
@@ -358,9 +550,9 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
     addr = hm2->idrom_offset + hm2->idrom.offset_to_pin_desc;
     for (i = 0; i < hm2->num_pins; i ++) {
         hm2_pin_t *pin = &(hm2->pin[i]);
-        u32 d;
+        rtapi_u32 d;
 
-        if (!hm2->llio->read(hm2->llio, addr, &d, sizeof(u32))) {
+        if (!hm2->llio->read(hm2->llio, addr, &d, sizeof(rtapi_u32))) {
             HM2_ERR("error reading Pin Descriptor %d (at 0x%04x)\n", i, addr); 
             return -EIO;
         }
@@ -608,4 +800,27 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_HM2DPLL, hm2->dpll.num_instances);
 }
 
+const char *hm2_get_general_function_hal_name(int gtag) {
+    switch(gtag) {
+        case HM2_GTAG_ENCODER:  return "encoder";
+        case HM2_GTAG_SSI:      return "ssi";
+        case HM2_GTAG_BISS:     return "biss";
+        case HM2_GTAG_FABS:     return "fanuc";
+        case HM2_GTAG_RESOLVER: return "resolver";
+        case HM2_GTAG_STEPGEN:  return "stepgen";
+        case HM2_GTAG_PWMGEN:   return "pwmgen";
+        case HM2_GTAG_TPPWM:    return "3pwmgen";
+        case HM2_GTAG_MUXED_ENCODER: return "encoder";
+        case HM2_GTAG_MUXED_ENCODER_SEL: return "encoder";
 
+        // XXX these don't seem to have consistent names of the expected form
+        case HM2_GTAG_SMARTSERIAL: return "sserial";
+        case HM2_GTAG_BSPI:     return "bspi";
+        case HM2_GTAG_UART_RX:  return "uart";
+        case HM2_GTAG_UART_TX:  return "uart";
+        case HM2_GTAG_PKTUART_RX:  return "uart";
+        case HM2_GTAG_PKTUART_TX:  return "uart";
+
+        default: return NULL;
+    }
+}

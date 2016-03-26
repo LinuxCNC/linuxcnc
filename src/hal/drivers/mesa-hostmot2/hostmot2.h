@@ -20,27 +20,18 @@
 #ifndef __HOSTMOT2_H
 #define __HOSTMOT2_H
 
+#include <rtapi_list.h>
+
 // please God where do these live in real life?
 #define INT32_MIN (-2147483647-1)
 #define INT32_MAX (2147483647)
 #define UINT32_MAX (4294967295U)
 
-#include "config_module.h"
-#include RTAPI_INC_LIST_H
 #include "rtapi.h"
 #include "hal.h"
 #include "sserial.h"
 
 #include "hostmot2-lowlevel.h"
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,14)
-typedef unsigned long gfp_t;
-char *kstrdup(const char *s, gfp_t gpf);
-#endif
-void argv_free(char **argv);
-char **argv_split(gfp_t gfp, const char *str, int *argcp);
-#endif
 
 #ifndef FIRMWARE_NAME_MAX
     #define FIRMWARE_NAME_MAX  30
@@ -100,7 +91,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 
 
 // 
-// Module Descriptor constants from IDROMConst.vhd
+// Module Descriptor constants
 // 
 
 #define HM2_GTAG_WATCHDOG          (2)
@@ -145,36 +136,36 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 
 
 typedef struct {
-    u32 idrom_type;
-    u32 offset_to_modules;
-    u32 offset_to_pin_desc;
-    u8 board_name[8];  // ascii string, but not NULL terminated!
-    u32 fpga_size;
-    u32 fpga_pins;
-    u32 io_ports;
-    u32 io_width;
-    u32 port_width;
-    u32 clock_low;
-    u32 clock_high;
-    u32 instance_stride_0;
-    u32 instance_stride_1;
-    u32 register_stride_0;
-    u32 register_stride_1;
+    rtapi_u32 idrom_type;
+    rtapi_u32 offset_to_modules;
+    rtapi_u32 offset_to_pin_desc;
+    rtapi_u8 board_name[8];  // ascii string, but not NULL terminated!
+    rtapi_u32 fpga_size;
+    rtapi_u32 fpga_pins;
+    rtapi_u32 io_ports;
+    rtapi_u32 io_width;
+    rtapi_u32 port_width;
+    rtapi_u32 clock_low;
+    rtapi_u32 clock_high;
+    rtapi_u32 instance_stride_0;
+    rtapi_u32 instance_stride_1;
+    rtapi_u32 register_stride_0;
+    rtapi_u32 register_stride_1;
 } hm2_idrom_t;
 
 
 typedef struct {
-    u8 gtag;
-    u8 version;
-    u8 clock_tag;
-    u32 clock_freq;  // this one's not in the MD struct in the device, it's set from clock_tag and the idrom header for our convenience
-    u8 instances;
-    u16 base_address;
+    rtapi_u8 gtag;
+    rtapi_u8 version;
+    rtapi_u8 clock_tag;
+    rtapi_u32 clock_freq;  // this one's not in the MD struct in the device, it's set from clock_tag and the idrom header for our convenience
+    rtapi_u8 instances;
+    rtapi_u16 base_address;
 
-    u8 num_registers;
-    u32 register_stride;
-    u32 instance_stride;
-    u32 multiple_registers;
+    rtapi_u8 num_registers;
+    rtapi_u32 register_stride;
+    rtapi_u32 instance_stride;
+    rtapi_u32 multiple_registers;
 } hm2_module_descriptor_t;
 
 
@@ -208,13 +199,13 @@ typedef struct {
 
 typedef struct {
     // these are from the Pin Descriptor in the HM2 IDROM
-    u8 sec_pin;
-    u8 sec_tag;
-    u8 sec_unit;
-    u8 primary_tag;
-    u8 port_num;
-    u8 port_pin;
-    u8 bit_num;
+    rtapi_u8 sec_pin;
+    rtapi_u8 sec_tag;
+    rtapi_u8 sec_unit;
+    rtapi_u8 primary_tag;
+    rtapi_u8 port_num;
+    rtapi_u8 port_pin;
+    rtapi_u8 bit_num;
 
 
     //
@@ -305,20 +296,20 @@ typedef struct {
 
     } hal;
 
-    s32 zero_offset;  // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
+    rtapi_s32 zero_offset;  // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
 
-    u16 prev_reg_count;  // from this and the current count in the register we compute a change-in-counts, which we add to rawcounts
+    rtapi_u16 prev_reg_count;  // from this and the current count in the register we compute a change-in-counts, which we add to rawcounts
 
-    s32 prev_dS_counts;  // last time the function ran, it saw this many counts from the time before *that*
+    rtapi_s32 prev_dS_counts;  // last time the function ran, it saw this many counts from the time before *that*
 
-    u32 prev_control;
+    rtapi_u32 prev_control;
 
     // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
-    s32 prev_event_rawcounts;
-    u16 prev_event_reg_timestamp;
+    rtapi_s32 prev_event_rawcounts;
+    rtapi_u16 prev_event_reg_timestamp;
 
-    s32 tsc_num_rollovers;
-    u16 prev_time_of_interest;
+    rtapi_s32 tsc_num_rollovers;
+    rtapi_u16 prev_time_of_interest;
 
     enum { HM2_ENCODER_STOPPED, HM2_ENCODER_MOVING } state;
 
@@ -330,6 +321,7 @@ typedef struct {
     struct {
         hal_u32_t *sample_frequency;
         hal_u32_t *skew;
+        hal_s32_t *dpll_timer_num;
     } pin;
 } hm2_encoder_module_global_t;
 
@@ -338,33 +330,36 @@ typedef struct {
 
     hm2_encoder_instance_t *instance;
 
-    u32 stride;
-    u32 clock_frequency;
-    u8 version;
+    rtapi_u32 stride;
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
 
     // module-global HAL objects...
     hm2_encoder_module_global_t *hal;
-    u32 written_sample_frequency;
+    rtapi_u32 written_sample_frequency;
     int has_skew;
-    u32 written_skew;
+    rtapi_u32 written_skew;
+    uint32_t desired_dpll_timer_reg, written_dpll_timer_reg;
 
     // hw registers
-    u32 counter_addr;
-    u32 *counter_reg;
+    rtapi_u32 counter_addr;
+    rtapi_u32 *counter_reg;
 
-    u32 latch_control_addr;
-    u32 *control_reg;
-    u32 *read_control_reg;
+    rtapi_u32 latch_control_addr;
+    rtapi_u32 *control_reg;
+    rtapi_u32 *read_control_reg;
 
-    u32 timestamp_div_addr;
-    u32 timestamp_div_reg;  // one register for the whole Function
+    rtapi_u32 timestamp_div_addr;
+    rtapi_u32 timestamp_div_reg;  // one register for the whole Function
     hal_float_t seconds_per_tsdiv_clock;
 
-    u32 timestamp_count_addr;
-    u32 *timestamp_count_reg;
-    u32 prev_timestamp_count_reg;
+    rtapi_u32 timestamp_count_addr;
+    rtapi_u32 *timestamp_count_reg;
+    rtapi_u32 prev_timestamp_count_reg;
 
-    u32 filter_rate_addr;
+    rtapi_u32 filter_rate_addr;
+
+    rtapi_u32 dpll_timer_num_addr;
 } hm2_encoder_t;
 
 //
@@ -378,7 +373,7 @@ typedef struct {
     int gtag;
     int index;
     char string[MAX_ABSENC_LEN];
-    struct list_head list;
+    struct rtapi_list_head list;
 } hm2_absenc_format_t;
 
 /* The absolute encoder protocols, with a bit field containing many
@@ -391,16 +386,16 @@ typedef struct {
     int num_chans;
     hm2_sserial_remote_t *chans;
 
-    u32 clock_frequency;
-    u8 ssi_version;
-    u8 biss_version;
-    u8 fanuc_version;
-    u32 ssi_global_start_addr;
-    u32 fabs_global_start_addr;
-    u32 biss_global_start_addr;
-    u32 *biss_busy_flags;
-    u32 *ssi_busy_flags;
-    u32 *fabs_busy_flags;
+    rtapi_u32 clock_frequency;
+    rtapi_u8 ssi_version;
+    rtapi_u8 biss_version;
+    rtapi_u8 fanuc_version;
+    rtapi_u32 ssi_global_start_addr;
+    rtapi_u32 fabs_global_start_addr;
+    rtapi_u32 biss_global_start_addr;
+    rtapi_u32 *biss_busy_flags;
+    rtapi_u32 *ssi_busy_flags;
+    rtapi_u32 *fabs_busy_flags;
 } hm2_absenc_t;
 
 //
@@ -430,10 +425,10 @@ typedef struct {
 
     } hal;
     
-    __s64 accum;
-    __s64 offset;
-    __u32 old_reg;
-    __u32 index_cnts;
+    rtapi_s64 accum;
+    rtapi_s64 offset;
+    rtapi_u32 old_reg;
+    rtapi_u32 index_cnts;
 
 } hm2_resolver_instance_t;
 
@@ -450,23 +445,23 @@ typedef struct {
     hm2_resolver_global_t *hal;
     hm2_resolver_instance_t *instance;
 
-    u32 stride;
-    u32 clock_frequency;
-    u8 version;
+    rtapi_u32 stride;
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
 
     // hw registers
-    u32 status_addr;
-    u32 *status_reg;
+    rtapi_u32 status_addr;
+    rtapi_u32 *status_reg;
     
-    u32 command_addr;
+    rtapi_u32 command_addr;
     
-    u32 data_addr;
+    rtapi_u32 data_addr;
     
-    u32 position_addr;
-    u32 *position_reg;
+    rtapi_u32 position_addr;
+    rtapi_u32 *position_reg;
 
-    u32 velocity_addr;
-    s32 *velocity_reg;
+    rtapi_u32 velocity_addr;
+    rtapi_s32 *velocity_reg;
     
     hal_float_t written_khz;
     hal_float_t kHz;
@@ -501,11 +496,11 @@ typedef struct {
 
     // this keeps track of the output_type that we've told the FPGA, so we
     // know if we need to update it
-    s32 written_output_type;
+    rtapi_s32 written_output_type;
 
     // this keeps track of the enable bit for this instance that we've told
     // the FPGA, so we know if we need to update it
-    s32 written_enable;
+    rtapi_s32 written_enable;
 } hm2_pwmgen_instance_t;
 
 
@@ -522,8 +517,8 @@ typedef struct {
     int num_instances;
     hm2_pwmgen_instance_t *instance;
 
-    u32 clock_frequency;
-    u8 version;
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
 
 
     // module-global HAL objects...
@@ -531,27 +526,27 @@ typedef struct {
 
     // these keep track of the most recent hal->param.p{d,w}m_frequency
     // that we've told the FPGA about, so we know if we need to update it
-    u32 written_pwm_frequency;
-    u32 written_pdm_frequency;
+    rtapi_u32 written_pwm_frequency;
+    rtapi_u32 written_pdm_frequency;
 
     // number of bits of resolution of the PWM signal (PDM is fixed at 12 bits)
     int pwm_bits;
 
 
-    u32 pwm_value_addr;
-    u32 *pwm_value_reg;
+    rtapi_u32 pwm_value_addr;
+    rtapi_u32 *pwm_value_reg;
 
-    u32 pwm_mode_addr;
-    u32 *pwm_mode_reg;
+    rtapi_u32 pwm_mode_addr;
+    rtapi_u32 *pwm_mode_reg;
 
-    u32 pwmgen_master_rate_dds_addr;
-    u32 pwmgen_master_rate_dds_reg;  // one register for the whole Function
+    rtapi_u32 pwmgen_master_rate_dds_addr;
+    rtapi_u32 pwmgen_master_rate_dds_reg;  // one register for the whole Function
 
-    u32 pdmgen_master_rate_dds_addr;
-    u32 pdmgen_master_rate_dds_reg;  // one register for the whole Function
+    rtapi_u32 pdmgen_master_rate_dds_addr;
+    rtapi_u32 pdmgen_master_rate_dds_reg;  // one register for the whole Function
 
-    u32 enable_addr;
-    u32 enable_reg;  // one register for the whole Function
+    rtapi_u32 enable_addr;
+    rtapi_u32 enable_reg;  // one register for the whole Function
 } hm2_pwmgen_t;
 
 
@@ -603,24 +598,24 @@ typedef struct {
 
     hm2_tp_pwmgen_global_hal_t *hal;
 
-    u32 clock_frequency;
-    u8 version;
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
 
     // these keep track of the most recent hal->param.p{d,w}m_frequency
     // that we've told the FPGA about, so we know if we need to update it
-    u32 written_pwm_frequency;
+    rtapi_u32 written_pwm_frequency;
 
-    u32 pwm_value_addr; // All three phases share a register (10 bits each)
-    u32 *pwm_value_reg; // Pointer to a memory block that holds the set.
+    rtapi_u32 pwm_value_addr; // All three phases share a register (10 bits each)
+    rtapi_u32 *pwm_value_reg; // Pointer to a memory block that holds the set.
 
-    u32 setup_addr; // holds dead-time, fault polarity and ADC sample time
-    u32 *setup_reg;
+    rtapi_u32 setup_addr; // holds dead-time, fault polarity and ADC sample time
+    rtapi_u32 *setup_reg;
 
-    u32 enable_addr; // a 32-bit enable register for each tp_pwmgen. Seems excessive
-    u32 *enable_reg;
+    rtapi_u32 enable_addr; // a 32-bit enable register for each tp_pwmgen. Seems excessive
+    rtapi_u32 *enable_reg;
 
-    u32 pwmgen_master_rate_dds_addr;
-    u32 pwmgen_master_rate_dds_reg;  // one register for the whole Function
+    rtapi_u32 pwmgen_master_rate_dds_addr;
+    rtapi_u32 pwmgen_master_rate_dds_reg;  // one register for the whole Function
 
 } hm2_tp_pwmgen_t;
 
@@ -636,27 +631,27 @@ typedef struct {
     // NOTE: there is just one data register for both reading and writing,
     // but the hostmot2 driver's TRAM support can't deal with that so we
     // need two copies...
-    u32 data_addr;
-    u32 *data_read_reg;
-    u32 *data_write_reg;
+    rtapi_u32 data_addr;
+    rtapi_u32 *data_read_reg;
+    rtapi_u32 *data_write_reg;
 
-    u32 ddr_addr;
-    u32 *ddr_reg;
-    u32 *written_ddr;  // not a register, but a copy of the most recently written value
+    rtapi_u32 ddr_addr;
+    rtapi_u32 *ddr_reg;
+    rtapi_u32 *written_ddr;  // not a register, but a copy of the most recently written value
 
-    u32 alt_source_addr;
-    u32 *alt_source_reg;
+    rtapi_u32 alt_source_addr;
+    rtapi_u32 *alt_source_reg;
 
-    u32 open_drain_addr;
-    u32 *open_drain_reg;
-    u32 *written_open_drain;  // not a register, but a copy of the most recently written value
+    rtapi_u32 open_drain_addr;
+    rtapi_u32 *open_drain_reg;
+    rtapi_u32 *written_open_drain;  // not a register, but a copy of the most recently written value
 
-    u32 output_invert_addr;
-    u32 *output_invert_reg;
-    u32 *written_output_invert;  // not a register, but a copy of the most recently written value
+    rtapi_u32 output_invert_addr;
+    rtapi_u32 *output_invert_reg;
+    rtapi_u32 *written_output_invert;  // not a register, but a copy of the most recently written value
 
-    u32 clock_frequency;
-    u8 version;
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
 } hm2_ioport_t;
 
 
@@ -707,18 +702,18 @@ typedef struct {
     // computing the feedforward velocity
     hal_float_t old_position_cmd;
 
-    u32 prev_accumulator;
+    rtapi_u32 prev_accumulator;
 
     // this is a 48.16 signed fixed-point representation of the current
     // stepgen position (16 bits of sub-step resolution)
-    s64 subcounts;
+    rtapi_s64 subcounts;
 
-    u32 written_steplen;
-    u32 written_stepspace;
-    u32 written_dirsetup;
-    u32 written_dirhold;
-    u32 written_step_type;
-    u32 table_width;
+    rtapi_u32 written_steplen;
+    rtapi_u32 written_stepspace;
+    rtapi_u32 written_dirsetup;
+    rtapi_u32 written_dirhold;
+    rtapi_u32 written_step_type;
+    rtapi_u32 table_width;
     
 } hm2_stepgen_instance_t;
 
@@ -734,43 +729,43 @@ typedef struct {
     int num_instances;
     hm2_stepgen_instance_t *instance;
 
-    u32 clock_frequency;
-    u8 version;
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
 
     // module-global HAL objects...
     hm2_stepgen_module_global_t *hal;
-    u32 written_dpll_timer_num;
+    rtapi_u32 written_dpll_timer_num;
 
     // write this (via TRAM) every hm2_<foo>.write
-    u32 step_rate_addr;
-    u32 *step_rate_reg;
+    rtapi_u32 step_rate_addr;
+    rtapi_u32 *step_rate_reg;
 
     // read this (via TRAM) every hm2_<foo>.read
-    u32 accumulator_addr;
-    u32 *accumulator_reg;
+    rtapi_u32 accumulator_addr;
+    rtapi_u32 *accumulator_reg;
 
-    u32 mode_addr;
-    u32 *mode_reg;
+    rtapi_u32 mode_addr;
+    rtapi_u32 *mode_reg;
 
-    u32 dir_setup_time_addr;
-    u32 *dir_setup_time_reg;
+    rtapi_u32 dir_setup_time_addr;
+    rtapi_u32 *dir_setup_time_reg;
 
-    u32 dir_hold_time_addr;
-    u32 *dir_hold_time_reg;
+    rtapi_u32 dir_hold_time_addr;
+    rtapi_u32 *dir_hold_time_reg;
 
-    u32 pulse_width_addr;
-    u32 *pulse_width_reg;
+    rtapi_u32 pulse_width_addr;
+    rtapi_u32 *pulse_width_reg;
 
-    u32 pulse_idle_width_addr;
-    u32 *pulse_idle_width_reg;
+    rtapi_u32 pulse_idle_width_addr;
+    rtapi_u32 *pulse_idle_width_reg;
 
     // FIXME: these two are not supported yet
-    u32 table_sequence_data_setup_addr;
-    u32 table_sequence_length_addr;
+    rtapi_u32 table_sequence_data_setup_addr;
+    rtapi_u32 table_sequence_length_addr;
 
-    u32 master_dds_addr;
-
-    u32 dpll_timer_num_addr;
+    rtapi_u32 master_dds_addr;
+    
+    rtapi_u32 dpll_timer_num_addr;
 } hm2_stepgen_t;
 
 //
@@ -778,20 +773,20 @@ typedef struct {
 // 
 
 typedef struct {
-    u32 cd[16];
-    u16 addr[16];
+    rtapi_u32 cd[16];
+    rtapi_u16 addr[16];
     int conf_flag[16];
-    u16 cd_addr;
-    u16 count_addr;
+    rtapi_u16 cd_addr;
+    rtapi_u16 count_addr;
     hal_u32_t *count;
     int num_frames;
-    u32 clock_freq;
-    u16 base_address;
-    u32 register_stride;
-    u32 instance_stride;
+    rtapi_u32 clock_freq;
+    rtapi_u16 base_address;
+    rtapi_u32 register_stride;
+    rtapi_u32 instance_stride;
     char name[HAL_NAME_LEN+1];
-    void *read_function;
-    void *write_function;
+    int (*read_function)(void*);
+    int (*write_function)(void*);
     void *subdata;
 } hm2_bspi_instance_t;
 
@@ -799,8 +794,8 @@ typedef struct {
     int version;
     int num_instances;
     hm2_bspi_instance_t *instance;
-    u8 instances;
-    u8 num_registers;
+    rtapi_u8 instances;
+    rtapi_u8 num_registers;
 } hm2_bspi_t;
 
 //
@@ -808,23 +803,23 @@ typedef struct {
 // 
 
 typedef struct {
-    u32 clock_freq;
-    u32 bitrate;
-    u32 tx_fifo_count_addr;
-    u32 tx_fifo_count;
-    u32 tx_bitrate_addr;
-    u32 tx1_addr;
-    u32 tx2_addr;
-    u32 tx3_addr;
-    u32 tx4_addr;
-    u32 tx_mode_addr;
-    u32 rx_fifo_count_addr;
-    u32 rx_bitrate_addr;
-    u32 rx1_addr;
-    u32 rx2_addr;
-    u32 rx3_addr;
-    u32 rx4_addr;
-    u32 rx_mode_addr;
+    rtapi_u32 clock_freq;
+    rtapi_u32 bitrate;
+    rtapi_u32 tx_fifo_count_addr;
+    rtapi_u32 tx_fifo_count;
+    rtapi_u32 tx_bitrate_addr;
+    rtapi_u32 tx1_addr;
+    rtapi_u32 tx2_addr;
+    rtapi_u32 tx3_addr;
+    rtapi_u32 tx4_addr;
+    rtapi_u32 tx_mode_addr;
+    rtapi_u32 rx_fifo_count_addr;
+    rtapi_u32 rx_bitrate_addr;
+    rtapi_u32 rx1_addr;
+    rtapi_u32 rx2_addr;
+    rtapi_u32 rx3_addr;
+    rtapi_u32 rx4_addr;
+    rtapi_u32 rx_mode_addr;
     char name[HAL_NAME_LEN+1];
 } hm2_uart_instance_t;
 
@@ -832,8 +827,8 @@ typedef struct {
     int version;
     int num_instances;
     hm2_uart_instance_t *instance;
-    u8 instances;
-    u8 num_registers;
+    rtapi_u8 instances;
+    rtapi_u8 num_registers;
 } hm2_uart_t;
 
 //
@@ -841,16 +836,16 @@ typedef struct {
 // 
 
 typedef struct {
-    u32 clock_freq;
-    u32 bitrate;
-    u32 tx_fifo_count_addr;
-    u32 tx_bitrate_addr;
-    u32 tx_addr;
-    u32 tx_mode_addr;
-    u32 rx_fifo_count_addr;
-    u32 rx_bitrate_addr;
-    u32 rx_addr;
-    u32 rx_mode_addr;
+    rtapi_u32 clock_freq;
+    rtapi_u32 bitrate;
+    rtapi_u32 tx_fifo_count_addr;
+    rtapi_u32 tx_bitrate_addr;
+    rtapi_u32 tx_addr;
+    rtapi_u32 tx_mode_addr;
+    rtapi_u32 rx_fifo_count_addr;
+    rtapi_u32 rx_bitrate_addr;
+    rtapi_u32 rx_addr;
+    rtapi_u32 rx_mode_addr;
     char name[HAL_NAME_LEN+1];
 } hm2_pktuart_instance_t;
 
@@ -858,11 +853,10 @@ typedef struct {
     int version;
     int num_instances;
     hm2_pktuart_instance_t *instance;
-    u8 instances;
-    u8 num_registers;
+    rtapi_u8 instances;
+    rtapi_u8 num_registers;
     struct rtapi_heap *heap;
 } hm2_pktuart_t;
-
 //
 // HM2DPLL
 //
@@ -885,21 +879,21 @@ typedef struct {
     int num_instances ;
     hm2_dpll_pins_t *pins ;
 
-    u32 base_rate_addr;
-    u32 base_rate_written;
-    u32 phase_err_addr;
-    u32 control_reg0_addr;
-    u32 control_reg0_written;
-    u32 control_reg1_addr;
-    u32 control_reg1_written;
-    u32 *control_reg1_read;
-    u32 timer_12_addr;
-    u32 timer_12_written;
-    u32 timer_34_addr;
-    u32 timer_34_written;
-    u32 hm2_dpll_sync_addr;
-    u32 *hm2_dpll_sync_reg;
-    u32 clock_frequency;
+    rtapi_u32 base_rate_addr;
+    rtapi_u32 base_rate_written;
+    rtapi_u32 phase_err_addr;
+    rtapi_u32 control_reg0_addr;
+    rtapi_u32 control_reg0_written;
+    rtapi_u32 control_reg1_addr;
+    rtapi_u32 control_reg1_written;
+    rtapi_u32 *control_reg1_read;
+    rtapi_u32 timer_12_addr;
+    rtapi_u32 timer_12_written;
+    rtapi_u32 timer_34_addr;
+    rtapi_u32 timer_34_written;
+    rtapi_u32 hm2_dpll_sync_addr;
+    rtapi_u32 *hm2_dpll_sync_reg;
+    rtapi_u32 clock_frequency;
 
 } hm2_dpll_t ;
 
@@ -921,18 +915,10 @@ typedef struct {
 
     } hal;
 
-    u32 written_timeout_ns;
+    rtapi_u32 written_timeout_ns;
 
     int enable;  // gets set to 0 at load time, gets set to 1 at first pet_watchdog
     int written_enable;
-
-    // This is a flag to help warn the user if they specify a too-short
-    // timeout.  The flag gets set to 0 whenever the user changes the
-    // timeout.  The pet_watchdog() funtion checks the requested timeout
-    // against the reported period, if if it's dangeriously short it warns
-    // about it once, and sets this flag to remind it not to warn again
-    // (until the user changes the timeout again).
-    int warned_about_short_timeout;
 } hm2_watchdog_instance_t;
 
 
@@ -940,17 +926,17 @@ typedef struct {
     int num_instances;
     hm2_watchdog_instance_t *instance;
 
-    u32 clock_frequency;
-    u8 version;
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
 
-    u32 timer_addr;
-    u32 *timer_reg;
+    rtapi_u32 timer_addr;
+    rtapi_u32 *timer_reg;
 
-    u32 status_addr;
-    u32 *status_reg;
+    rtapi_u32 status_addr;
+    rtapi_u32 *status_reg;
 
-    u32 reset_addr;
-    u32 *reset_reg;
+    rtapi_u32 reset_addr;
+    rtapi_u32 *reset_reg;
 } hm2_watchdog_t;
 
 //
@@ -967,10 +953,10 @@ typedef struct {
 
     hm2_led_instance_t *instance ;
 
-    u32 written_buff ;
+    rtapi_u32 written_buff ;
 
-    u32 led_addr;
-    u32 *led_reg;
+    rtapi_u32 led_addr;
+    rtapi_u32 *led_reg;
 
 } hm2_led_t ;
 
@@ -1002,10 +988,10 @@ typedef struct {
 //
 
 typedef struct {
-    u16 addr;
-    u16 size;
-    u32 **buffer;
-    struct list_head list;
+    rtapi_u16 addr;
+    rtapi_u16 size;
+    rtapi_u32 **buffer;
+    struct rtapi_list_head list;
 } hm2_tram_entry_t;
 
 
@@ -1021,7 +1007,7 @@ typedef struct {
     struct {
         int num_encoders;
         int num_absencs;
-        struct list_head absenc_formats;
+        struct rtapi_list_head absenc_formats;
         int num_resolvers;
         int num_pwmgens;
         int num_tp_pwmgens;
@@ -1039,7 +1025,7 @@ typedef struct {
     } config;
 
     char config_name[HM2_CONFIGNAME_LENGTH + 1];
-    u16 idrom_offset;
+    rtapi_u16 idrom_offset;
 
     hm2_idrom_t idrom;
 
@@ -1053,13 +1039,13 @@ typedef struct {
     int num_pins;
 
     // this keeps track of all the tram entries
-    struct list_head tram_read_entries;
-    u32 *tram_read_buffer;
-    u16 tram_read_size;
+    struct rtapi_list_head tram_read_entries;
+    rtapi_u32 *tram_read_buffer;
+    rtapi_u16 tram_read_size;
 
-    struct list_head tram_write_entries;
-    u32 *tram_write_buffer;
-    u16 tram_write_size;
+    struct rtapi_list_head tram_write_entries;
+    rtapi_u32 *tram_write_buffer;
+    rtapi_u16 tram_write_size;
 
     // the hostmot2 "Functions"
     hm2_encoder_t encoder;
@@ -1079,7 +1065,7 @@ typedef struct {
 
     hm2_raw_t *raw;
 
-    struct list_head list;
+    struct rtapi_list_head list;
 } hostmot2_t;
 
 
@@ -1091,10 +1077,10 @@ typedef struct {
 int hm2_md_is_consistent(
     hostmot2_t *hm2,
     int md_index,
-    u8 version,
-    u8 num_registers,
-    u32 instance_stride,
-    u32 multiple_registers
+    rtapi_u8 version,
+    rtapi_u8 num_registers,
+    rtapi_u32 instance_stride,
+    rtapi_u32 multiple_registers
 );
 
 // this one prints a warning message about the unexpected MD,
@@ -1102,15 +1088,15 @@ int hm2_md_is_consistent(
 int hm2_md_is_consistent_or_complain(
     hostmot2_t *hm2,
     int md_index,
-    u8 version,
-    u8 num_registers,
-    u32 instance_stride,
-    u32 multiple_registers
+    rtapi_u8 version,
+    rtapi_u8 num_registers,
+    rtapi_u32 instance_stride,
+    rtapi_u32 multiple_registers
 );
 
 const char *hm2_get_general_function_name(int gtag);
 
-const char *hm2_hz_to_mhz(u32 freq_hz);
+const char *hm2_hz_to_mhz(rtapi_u32 freq_hz);
 
 void hm2_print_modules(hostmot2_t *hm2);
 
@@ -1125,11 +1111,14 @@ int hm2_get_pktuart(hostmot2_t **hm2, char *name);
 // Translation RAM functions
 //
 
-int hm2_register_tram_read_region(hostmot2_t *hm2, u16 addr, u16 size, u32 **buffer);
-int hm2_register_tram_write_region(hostmot2_t *hm2, u16 addr, u16 size, u32 **buffer);
+int hm2_register_tram_read_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 size, rtapi_u32 **buffer);
+int hm2_register_tram_write_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 size, rtapi_u32 **buffer);
 int hm2_allocate_tram_regions(hostmot2_t *hm2);
 int hm2_tram_read(hostmot2_t *hm2);
+int hm2_finish_read(hostmot2_t *hm2);
+int hm2_queue_read(hostmot2_t *hm2);
 int hm2_tram_write(hostmot2_t *hm2);
+int hm2_finish_write(hostmot2_t *hm2);
 void hm2_tram_cleanup(hostmot2_t *hm2);
 
 
@@ -1228,7 +1217,8 @@ void hm2_tp_pwmgen_cleanup(hostmot2_t *hm2);
 void hm2_tp_pwmgen_write(hostmot2_t *hm2);
 void hm2_tp_pwmgen_force_write(hostmot2_t *hm2);
 void hm2_tp_pwmgen_prepare_tram_write(hostmot2_t *hm2);
-void hm2_tp_pwmgen_read(hostmot2_t *hm2);
+void hm2_tp_pwmgen_queue_read(hostmot2_t *hm2);
+void hm2_tp_pwmgen_process_read(hostmot2_t *hm2);
 
 
 //
@@ -1255,8 +1245,9 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period);
 int hm2_sserial_read_pins(hm2_sserial_remote_t *chan);
 void hm2_sserial_process_tram_read(hostmot2_t *hm2, long period);
 void hm2_sserial_cleanup(hostmot2_t *hm2);
-int hm2_sserial_waitfor(hostmot2_t *hm2, u32 addr, u32 mask, int ms);
-int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst);
+int hm2_sserial_waitfor(hostmot2_t *hm2, rtapi_u32 addr, rtapi_u32 mask, int ms);
+int hm2_sserial_check_local_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst);
+int hm2_sserial_check_remote_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst);
 int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int index);
 int hm2_sserial_setup_remotes(hostmot2_t *hm2, hm2_sserial_instance_t *inst, hm2_module_descriptor_t *md);
 void hm2_sserial_setmode(hostmot2_t *hm2, hm2_sserial_instance_t *inst);
@@ -1277,9 +1268,9 @@ void hm2_bspi_force_write(hostmot2_t *hm2);
 void hm2_bspi_prepare_tram_write(hostmot2_t *hm2, long period);
 void hm2_bspi_process_tram_read(hostmot2_t *hm2, long period);
 int hm2_allocate_bspi_tram(char* name);
-int hm2_bspi_write_chan(char* name, int chan, u32 val);
+int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val);
 int hm2_allocate_bspi_tram(char* name);
-int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
+int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 **rbuff);
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz, 
                         int delay, int cpol, int cpha, int clear, int echo);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
@@ -1293,13 +1284,12 @@ int  hm2_uart_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_uart_print_module(hostmot2_t *hm2);
 void hm2_uart_cleanup(hostmot2_t *hm2);
 void hm2_uart_write(hostmot2_t *hm2);
-void hm2_uart_force_write(hostmot2_t *hm2); 
+void hm2_uart_force_write(hostmot2_t *hm2);
 void hm2_uart_prepare_tram_write(hostmot2_t *hm2, long period);
 void hm2_uart_process_tram_read(hostmot2_t *hm2, long period);
-int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode);
+int hm2_uart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode);
 int hm2_uart_send(char *name, unsigned char data[], int count);
 int hm2_uart_read(char *name, unsigned char data[]);
-
 //
 // PktUART functions
 //
@@ -1311,9 +1301,9 @@ void hm2_pktuart_write(hostmot2_t *hm2);
 void hm2_pktuart_force_write(hostmot2_t *hm2); // ?? 
 void hm2_pktuart_prepare_tram_write(hostmot2_t *hm2, long period); //??
 void hm2_pktuart_process_tram_read(hostmot2_t *hm2, long period);  //  ??
-int hm2_pktuart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode, int txclear, int rxclear);
-int hm2_pktuart_send(char *name,  unsigned char data[], u8 *num_frames, u16 frame_sizes[]);
-int hm2_pktuart_read(char *name, unsigned char data[],  u8 *num_frames, u16 *max_frame_length, u16 frame_sizes[]);
+int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear);
+int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 frame_sizes[]);
+int hm2_pktuart_read(char *name, unsigned char data[],  rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[]);
 
 //
 // hm2dpll functions
@@ -1353,7 +1343,7 @@ void hm2_led_cleanup(hostmot2_t *hm2);
 //
 
 int hm2_raw_setup(hostmot2_t *hm2);
-void hm2_raw_read(hostmot2_t *hm2);
+void hm2_raw_queue_read(hostmot2_t *hm2);
 void hm2_raw_write(hostmot2_t *hm2);
 
 
@@ -1363,4 +1353,8 @@ void hm2_raw_write(hostmot2_t *hm2);
 // used by hm2_register() to initialize and by hm2_pet_watchdog() to recover from io errors and watchdog errors
 void hm2_force_write(hostmot2_t *hm2);
 
+
+// items related to pin naming
+const char *hm2_get_general_function_hal_name(int gtag);
+const char *hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin);
 #endif
