@@ -839,6 +839,7 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/stepgen.o   \
 	hal/drivers/mesa-hostmot2/bspi.o	  \
 	hal/drivers/mesa-hostmot2/uart.o	  \
+    hal/drivers/mesa-hostmot2/pktuart.o   \
     hal/drivers/mesa-hostmot2/watchdog.o  \
     hal/drivers/mesa-hostmot2/pins.o	  \
     hal/drivers/mesa-hostmot2/dpll.o  \
