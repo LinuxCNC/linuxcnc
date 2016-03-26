@@ -120,6 +120,12 @@ struct hm2_lowlevel_io_struct {
     // to amortize latency on multiple ethernet devices
     bool read_requested;
 
+    // the period (in ns) of the last read-request invocation
+    unsigned long period;
+
+    // the time (in ns) that the last read-request was issued
+    unsigned long long read_time;
+
     // TRUE if it is useful to split reads into a request and response part
     bool split_read;
 
