@@ -1175,7 +1175,7 @@
                                                   <object class="SpeedControl" id="spc_jog_vel">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="color">#ffff0000ffff</property>
+                                                    <property name="color">#ffff81811616</property>
                                                     <property name="max">10500</property>
                                                     <property name="unit">mm/min</property>
                                                     <property name="value">1500</property>
@@ -2181,7 +2181,7 @@
                                                           <object class="SpeedControl" id="spc_spindle">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="color">#ffff0000ffff</property>
+                                                            <property name="color">#ffff81811616</property>
                                                             <property name="max">120</property>
                                                             <property name="template">%d</property>
                                                             <property name="unit">%</property>
@@ -2490,7 +2490,7 @@
                                                   <object class="SpeedControl" id="spc_feed">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="color">#ffff0000ffff</property>
+                                                    <property name="color">#ffff81811616</property>
                                                     <property name="template">%d</property>
                                                     <property name="unit">%</property>
                                                     <property name="value">100</property>
@@ -2591,7 +2591,7 @@
                                                   <object class="SpeedControl" id="spc_max_vel">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="color">#ffff0000ffff</property>
+                                                    <property name="color">#ffff81811616</property>
                                                     <property name="max">8500</property>
                                                     <property name="value">1800</property>
                                                   </object>

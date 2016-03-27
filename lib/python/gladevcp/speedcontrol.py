@@ -95,7 +95,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
                     'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
                    }
 
-    def __init__(self, size = 36, value = 0, min = 0, max = 100, inc_speed = 100, unit = "%", color = "#FF00FF", template = "%.1f"):
+    def __init__(self, size = 36, value = 0, min = 0, max = 100, inc_speed = 100, unit = "", color = "#FF8116", template = "%.1f"):
         super(SpeedControl, self).__init__()
 
         # basic settings
@@ -435,7 +435,6 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
                     self._unit = value
                 if name == "color":
                     self.color = value
-                    print("New Color with property = ", self.color)
                 if name == "template":
                     self._template = value
                 self._draw_widget()
