@@ -110,7 +110,7 @@ class _HalJogWheelBase(_HalWidgetBase):
 
 class _HalSpeedControlBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name + '.value', hal.HAL_FLOAT, hal.HAL_OUT)
         self.connect("value-changed", self.hal_update)
 
     def hal_update(self, *a):

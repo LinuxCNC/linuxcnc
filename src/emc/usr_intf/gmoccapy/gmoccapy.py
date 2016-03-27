@@ -2553,17 +2553,17 @@ class gmoccapy( object ):
             active_jog_vel = self.widgets.adj_jog_vel.get_value()
             self.widgets.adj_jog_vel.configure( self.turtle_jog, 0,
                                                self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0 )
+            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
             increment = self.widgets.spc_jog_vel.get_property("increment") / self.turtle_jog_factor
             self.widgets.spc_jog_vel.set_property("increment", increment)
-            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
         else:
             self.turtle_jog = self.widgets.adj_jog_vel.get_value()
             widget.set_image( self.widgets.img_rabbit_jog )
             self.widgets.adj_jog_vel.configure( self.rabbit_jog, 0,
                                                self.jog_rate_max, 1, 0, 0 )
+            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
             increment = self.widgets.spc_jog_vel.get_property("increment") * self.turtle_jog_factor
             self.widgets.spc_jog_vel.set_property("increment", increment)
-            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
  
     def _on_turtle_jog_enable( self, pin ):
         self.widgets.tbtn_turtle_jog.set_active( bool( pin.get() ) )
