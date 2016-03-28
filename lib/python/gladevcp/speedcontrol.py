@@ -361,10 +361,10 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     # so the widget can be connected to existing adjustments
     def set_adjustment(self, adjustment):
         self.adjustment = adjustment
-        self.adjustment.connect("value_changed", self._on_value_changed)
         self._min = self.adjustment.get_lower()
         self._max = self.adjustment.get_upper()
         self.adjustment.set_page_size(adjustment.get_page_size())
+        self.adjustment.connect("value_changed", self._on_value_changed)
         self._value = self.adjustment.get_value()
         self.set_value(self._value)    
         

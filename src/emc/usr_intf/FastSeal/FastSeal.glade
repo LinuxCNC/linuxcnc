@@ -43,7 +43,6 @@
     <property name="upper">10500</property>
     <property name="value">1500</property>
     <property name="step_increment">50</property>
-    <signal name="value-changed" handler="on_adj_scale_jog_vel_value_changed" swapped="no"/>
   </object>
   <object class="GtkAdjustment" id="adj_max_messages">
     <property name="lower">1</property>
@@ -565,15 +564,15 @@
                 <property name="show_tabs">False</property>
                 <signal name="switch-page" handler="on_ntb_main_switch_page" swapped="no"/>
                 <child>
-                  <object class="GtkVBox" id="vbox2">
+                  <object class="GtkVBox" id="vbox_main">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkHBox" id="hbox2">
+                      <object class="GtkHBox" id="hbox_main">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkVBox" id="vbox14">
+                          <object class="GtkVBox" id="vbx_left_side">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -729,28 +728,10 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkButton" id="btn_gcode">
-                                            <property name="label" translatable="yes">gcode</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <signal name="clicked" handler="on_btn_gcode_clicked" swapped="no"/>
-                                          </object>
+                                          <placeholder/>
                                         </child>
                                         <child>
-                                          <object class="GtkButton" id="btn_status_page">
-                                            <property name="label" translatable="yes">Status</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <signal name="clicked" handler="on_btn_status_page_clicked" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
-                                          </packing>
+                                          <placeholder/>
                                         </child>
                                         <child>
                                           <placeholder/>
@@ -1588,7 +1569,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="hbox4">
+                              <object class="GtkHBox" id="hbx_info">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
@@ -1848,8 +1829,6 @@
                                         <property name="homed_color">#0000ffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <property name="unhomed_color">#ffff00000000</property>
-                                        <signal name="system-changed" handler="on_Combi_DRO_system_changed" swapped="no"/>
-                                        <signal name="units-changed" handler="on_Combi_DRO_units_changed" swapped="no"/>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked" swapped="no"/>
                                       </object>
                                       <packing>
@@ -1920,11 +1899,15 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <child>
-                                                  <object class="GtkHScale" id="scl_jog_vel">
+                                                  <object class="SpeedControl" id="spc_jog_vel">
                                                     <property name="visible">True</property>
-                                                    <property name="can_focus">True</property>
-                                                    <property name="adjustment">adj_jog_vel</property>
-                                                    <property name="digits">0</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="color">#ffff81811616</property>
+                                                    <property name="height">48</property>
+                                                    <property name="max">15000</property>
+                                                    <property name="template">%d</property>
+                                                    <property name="unit">mm/min</property>
+                                                    <property name="value">5000</property>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">True</property>
@@ -2284,16 +2267,15 @@
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <object class="GtkHScale" id="scl_feed">
+                                                  <object class="SpeedControl" id="spc_feed">
                                                     <property name="visible">True</property>
-                                                    <property name="can_focus">True</property>
-                                                    <property name="adjustment">adj_feed</property>
-                                                    <property name="lower_stepper_sensitivity">on</property>
-                                                    <property name="upper_stepper_sensitivity">on</property>
-                                                    <property name="show_fill_level">True</property>
-                                                    <property name="restrict_to_fill_level">False</property>
-                                                    <property name="round_digits">0</property>
-                                                    <property name="digits">0</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="color">#ffff81811616</property>
+                                                    <property name="height">48</property>
+                                                    <property name="max">150</property>
+                                                    <property name="template">%d</property>
+                                                    <property name="unit">%</property>
+                                                    <property name="value">100</property>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">True</property>
@@ -2387,13 +2369,15 @@
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <object class="GtkHScale" id="scl_max_vel">
+                                                  <object class="SpeedControl" id="spc_max_vel">
                                                     <property name="visible">True</property>
-                                                    <property name="can_focus">True</property>
-                                                    <property name="adjustment">adj_max_vel</property>
-                                                    <property name="show_fill_level">True</property>
-                                                    <property name="round_digits">0</property>
-                                                    <property name="digits">0</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="color">#ffff81811616</property>
+                                                    <property name="height">48</property>
+                                                    <property name="max">15000</property>
+                                                    <property name="template">%d</property>
+                                                    <property name="unit">mm/min</property>
+                                                    <property name="value">10000</property>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">True</property>
@@ -2583,16 +2567,19 @@
                                                       </packing>
                                                     </child>
                                                     <child>
-                                                      <object class="GtkHScale" id="scl_spindle">
+                                                      <object class="SpeedControl" id="spc_spindle">
                                                         <property name="visible">True</property>
-                                                        <property name="can_focus">True</property>
-                                                        <property name="adjustment">adj_spindle</property>
-                                                        <property name="round_digits">0</property>
-                                                        <property name="digits">0</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="color">#ffff81811616</property>
+                                                        <property name="height">48</property>
+                                                        <property name="max">150</property>
+                                                        <property name="template">%d</property>
+                                                        <property name="unit">%</property>
+                                                        <property name="value">100</property>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">True</property>
-                                                        <property name="fill">False</property>
+                                                        <property name="fill">True</property>
                                                         <property name="position">1</property>
                                                       </packing>
                                                     </child>
@@ -3349,125 +3336,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFrame" id="frm_keyboard">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label_xalign">0.5</property>
-                                <child>
-                                  <object class="GtkAlignment" id="ali_keyboard">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="top_padding">5</property>
-                                    <property name="bottom_padding">5</property>
-                                    <property name="left_padding">3</property>
-                                    <property name="right_padding">3</property>
-                                    <child>
-                                      <object class="GtkVBox" id="vbox_keyboard">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_use_kb_on_offset">
-                                            <property name="label" translatable="yes">Show keyboard on offset</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <property name="active">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_use_kb_on_offset_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_use_kb_on_tooledit">
-                                            <property name="label" translatable="yes">Show keyboard on tooledit</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <property name="active">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_use_kb_on_tooledit_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_use_kb_on_mdi">
-                                            <property name="label" translatable="yes">Show keyboard on MDI</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <property name="active">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_use_kb_on_mdi_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_use_kb_on_edit">
-                                            <property name="label" translatable="yes">Show keyboard on EDIT</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <property name="active">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_use_kb_on_edit_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">3</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_use_kb_on_file_selection">
-                                            <property name="label" translatable="yes">Show keyboard on load file</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_use_kb_on_file_selection_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">4</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="lbl_frm_keyboard">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Keyboard&lt;/b&gt;</property>
-                                    <property name="use_markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="padding">5</property>
-                                <property name="position">1</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child>
                               <object class="GtkFrame" id="frm_ntb_preview">
@@ -3540,22 +3409,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkToggleButton" id="tbtn_use_screen2">
-                                <property name="label" translatable="yes">  Display 
-Aux Screen</property>
-                                <property name="width_request">100</property>
-                                <property name="height_request">56</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
-                                <signal name="toggled" handler="on_tbtn_use_screen2_toggled" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">3</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                           </object>
                           <packing>
@@ -3682,47 +3536,6 @@ Aux Screen</property>
                                             <property name="bottom_attach">3</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                             <property name="y_padding">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_auto_units">
-                                            <property name="label" translatable="yes">Use Auto Units</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <property name="xalign">1</property>
-                                            <property name="active">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_auto_units_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="right_attach">2</property>
-                                            <property name="top_attach">7</property>
-                                            <property name="bottom_attach">8</property>
-                                            <property name="x_options">GTK_SHRINK | GTK_FILL</property>
-                                            <property name="y_options">GTK_SHRINK</property>
-                                            <property name="x_padding">5</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_show_dro_btn">
-                                            <property name="label" translatable="yes">Show the DRO Button</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <property name="xalign">1</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_show_dro_btn_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="right_attach">2</property>
-                                            <property name="top_attach">6</property>
-                                            <property name="bottom_attach">7</property>
-                                            <property name="x_options">GTK_SHRINK | GTK_FILL</property>
-                                            <property name="y_options">GTK_SHRINK</property>
-                                            <property name="x_padding">5</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -3929,6 +3742,18 @@ clicking on the DRO</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                             <property name="x_padding">5</property>
                                           </packing>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
                                         </child>
                                       </object>
                                     </child>
@@ -5447,74 +5272,7 @@ to configure the settings.</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFrame" id="frm_tool_changer">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label_xalign">0.5</property>
-                                    <child>
-                                      <object class="GtkAlignment" id="ali_tool_changer">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="top_padding">5</property>
-                                        <property name="bottom_padding">5</property>
-                                        <property name="left_padding">3</property>
-                                        <property name="right_padding">3</property>
-                                        <child>
-                                          <object class="GtkVBox" id="vbox_hide_axis_4">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <child>
-                                              <object class="GtkLabel" id="lbl_hide_axis_4">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
-                                                <property name="label" translatable="yes">If the 4'th axis is used
-for a tool changer, you
-hide the DRO and
-jog buttons.</property>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">True</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkCheckButton" id="chk_hide_axis_4">
-                                                <property name="label" translatable="yes">Hide 4'th axis</property>
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">False</property>
-                                                <property name="use_action_appearance">False</property>
-                                                <property name="draw_indicator">True</property>
-                                                <signal name="toggled" handler="on_chk_hide_axis_4_toggled" swapped="no"/>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">True</property>
-                                                <property name="fill">False</property>
-                                                <property name="padding">10</property>
-                                                <property name="position">1</property>
-                                              </packing>
-                                            </child>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel" id="lbl:frm_tool_changer">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">&lt;b&gt;Tool Changer&lt;/b&gt;</property>
-                                        <property name="use_markup">True</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="padding">5</property>
-                                    <property name="position">1</property>
-                                  </packing>
+                                  <placeholder/>
                                 </child>
                               </object>
                               <packing>
@@ -6372,7 +6130,6 @@ Date</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">This button will show or hide the Keyboard</property>
                     <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_show_kbd_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_keyboard">
                         <property name="visible">True</property>
@@ -6420,7 +6177,6 @@ Date</property>
                     <property name="tooltip_text" translatable="yes">Load a new program</property>
                     <property name="use_action_appearance">False</property>
                     <property name="image">img_open</property>
-                    <signal name="state-changed" handler="on_btn_load_state_changed" swapped="no"/>
                     <signal name="clicked" handler="on_btn_load_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7210,8 +6966,8 @@ selected</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label">&lt;b&gt;gmoccapy
-  1.0.3&lt;/b&gt;</property>
+                    <property name="label">&lt;b&gt;FastSeal
+    0.3&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                   <packing>
@@ -7515,7 +7271,6 @@ selected</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Show or hide the virtual keyboard</property>
                     <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_show_kbd_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_keyboard2">
                         <property name="width_request">48</property>

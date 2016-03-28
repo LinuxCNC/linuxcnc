@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "0.1"
+_RELEASE = "  0.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -208,8 +208,8 @@ class FastSeal( object ):
         self.default_theme = gtk.settings_get_default().get_property( "gtk-theme-name" )
 
         # the sounds to play if an error or message rises
-        self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"
-        self.error_sound = "/usr/share/sounds/ubuntu/stereo/dialog-question.ogg"
+        self.alert_sound = "/usr/share/sounds/freedesktop/stereo/dialog-error.wav"
+        self.error_sound = "/usr/share/sounds/freedesktop/stereo/dialog-question.ogg"
 
         # Our own clas to get information from ini the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
@@ -218,7 +218,6 @@ class FastSeal( object ):
         self.prefs = preferences.preferences( self.get_ini_info.get_preference_file_path() )
 
         self._get_axis_list()
-        #self._init_axis_four()
         self._init_jog_increments()
 
         self._init_hal_pins()
@@ -245,7 +244,6 @@ class FastSeal( object ):
         self._init_audio()
         self._init_gremlin()
         self._init_hide_cursor()
-#         self._init_keyboard()
         self._init_offsetpage()
         self._init_keybindings()
         self._init_IconFileSelection()
@@ -281,19 +279,6 @@ class FastSeal( object ):
         self.widgets.fontbutton_popup.set_font_name( self.prefs.getpref( "message_font", "sans 10", str ) )
         self.widgets.chk_use_frames.set_active( self.prefs.getpref( "use_frames", True, bool ) )
 
-        # Only used if the DRO buttons will remain in FastSeal
-        #self.widgets.chk_show_dro_btn.set_active( self.prefs.getpref( "show_dro_btn", False, bool ) )
-        #self.widgets.chk_auto_units.set_active( self.prefs.getpref( "use_auto_units", True, bool ) )
-        #self.on_chk_show_dro_btn_toggled( None )
-        #self.on_chk_auto_units_toggled( None )
-        #if self.widgets.Combi_DRO_x.machine_units == 0:
-        #    self.widgets.tbtn_units.set_active( True )
-
-        #self.widgets.tbtn_rel.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        #self.widgets.tbtn_dtg.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        #self.widgets.tbtn_units.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        # end of the button usage
-
         # this sets the background colors of several buttons
         # the colors are different for the states of the button
         self.widgets.tbtn_on.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
@@ -306,15 +291,8 @@ class FastSeal( object ):
         self.widgets.rbt_forward.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#00FF00" ) )
         self.widgets.rbt_reverse.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#00FF00" ) )
         self.widgets.rbt_stop.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        #self.widgets.rbt_view_p.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        #self.widgets.rbt_view_x.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        #self.widgets.rbt_view_y.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        #self.widgets.rbt_view_y2.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        #self.widgets.rbt_view_z.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        #self.widgetsmodify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#00FF00" ) )
         self.widgets.tbtn_fullsize_preview.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
         self.widgets.tbtn_fullsize_preview1.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        #self.widgets.tbtn_mist.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#00FF00" ) )
         self.widgets.tbtn_optional_blocks.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
         self.widgets.tbtn_optional_stops.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
         self.widgets.tbtn_user_tabs.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
@@ -393,7 +371,7 @@ class FastSeal( object ):
             self.widgets.lbl_tool_measurement.show()
             self.widgets.btn_zero_g92.show()
             self.widgets.btn_block_height.hide()
-            print( _( "**** GMOCCAPY INFO ****" ) )
+            print( _( "**** FASTSEAL INFO ****" ) )
             print( _( "**** no valid probe config in INI File ****" ) )
             print( _( "**** disabled tool measurement ****" ) )
         else:
@@ -402,6 +380,7 @@ class FastSeal( object ):
             self.widgets.spbtn_search_vel.set_value( self.prefs.getpref( "searchvel", 75.0, float ) )
             self.widgets.spbtn_probe_vel.set_value( self.prefs.getpref( "probevel", 10.0, float ) )
             self.widgets.chk_use_tool_measurement.set_active( self.prefs.getpref( "use_toolmeasurement", False, bool ) )
+
             # to set the hal pin with correct values we emit a toogled
             self.widgets.chk_use_tool_measurement.emit( "toggled" )
             self.widgets.lbl_x_probe.set_label( str( xpos ) )
@@ -429,8 +408,6 @@ class FastSeal( object ):
 
         self.widgets.tbtn_view_tool_path.set_active( self.prefs.getpref( "view_tool_path", True ) )
         self.widgets.tbtn_view_dimension.set_active( self.prefs.getpref( "view_dimension", True ) )
-        #view = self.prefs.getpref( "gremlin_view", "rbt_view_p", str )
-        #self.widgets[view].set_active( True )
 
         # if the INI Config is valid, lets check further on, what to do
         if self.get_ini_info.get_embedded_tabs()[1]:
@@ -496,20 +473,6 @@ class FastSeal( object ):
             self.widgets.tbtn_setup.set_sensitive( False )
         self.unlock_code = self.prefs.getpref( "unlock_code", "123", str )  # get unlock code
 
-        # get when the keyboard should be shown
-        # and set the corresponding button active
-        # only if onbaoard keýboard is ok.
-#         if self.onboard:
-#             self.widgets.chk_use_kb_on_offset.set_active( self.prefs.getpref( "show_keyboard_on_offset",
-#                                                                             True, bool ) )
-#             self.widgets.chk_use_kb_on_tooledit.set_active( self.prefs.getpref( "show_keyboard_on_tooledit",
-#                                                                               False, bool ) )
-#             self.widgets.chk_use_kb_on_edit.set_active( self.prefs.getpref( "show_keyboard_on_edit",
-#                                                                           True, bool ) )
-#             self.widgets.chk_use_kb_on_mdi.set_active( self.prefs.getpref( "show_keyboard_on_mdi",
-#                                                                          True, bool ) )
-#             self.widgets.chk_use_kb_on_file_selection.set_active( self.prefs.getpref( "show_keyboard_on_file_selection",
-#                                                                                     False, bool ) )
 
         # check if the user want to display preview window insteadt of offsetpage widget
         state = self.prefs.getpref( "show_preview_on_offset", False, bool )
@@ -528,7 +491,7 @@ class FastSeal( object ):
         LANGDIR = os.path.join( BASE, "share", "gtksourceview-2.0", "language-specs" )
         file_path = os.path.join( LANGDIR, "gcode.lang" )
         if os.path.isfile( file_path ):
-            print "**** GMOCCAPY INFO: Gcode.lang found ****"
+            print "**** FASTSEAL INFO: Gcode.lang found ****"
             self.widgets.gcode_view.set_language( "gcode", LANGDIR )
 
         # set the user colors and digits of the DRO
@@ -580,9 +543,9 @@ class FastSeal( object ):
         # call the function to change the button status
         # so every thing is ready to start
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "scl_feed",  "rbt_forward", "btn_index_tool",
+                      "ntb_jog", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "btn_change_tool",
-                      "btn_select_tool_by_no", "scl_max_vel", "scl_spindle",
+                      "btn_select_tool_by_no", "spc_max_vel", "spc_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets( widgetlist, False )
@@ -602,49 +565,10 @@ class FastSeal( object ):
             self.widgets.btn_tool_touchoff_x.show()
             self.widgets.lbl_hide_tto_x.hide()
 
-            # we have to re-arrange the jog buttons, so first remove all button
-            #self.widgets.tbl_jog_btn.remove( self.widgets.btn_y_minus )
-            #self.widgets.tbl_jog_btn.remove( self.widgets.btn_y_plus )
-            #self.widgets.tbl_jog_btn.remove( self.widgets.btn_x_minus )
-            #self.widgets.tbl_jog_btn.remove( self.widgets.btn_x_plus )
-            #self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_minus )
-            #self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_plus )
-
-            # now we place them in a different order
-            #if self.backtool_lathe:
-            #    self.widgets.tbl_jog_btn.attach( self.widgets.btn_x_plus, 1, 2, 0, 1, gtk.SHRINK, gtk.SHRINK )
-            #    self.widgets.tbl_jog_btn.attach( self.widgets.btn_x_minus, 1, 2, 2, 3, gtk.SHRINK, gtk.SHRINK )
-            #else:
-            #    self.widgets.tbl_jog_btn.attach( self.widgets.btn_x_plus, 1, 2, 2, 3, gtk.SHRINK, gtk.SHRINK )
-            #    self.widgets.tbl_jog_btn.attach( self.widgets.btn_x_minus, 1, 2, 0, 1, gtk.SHRINK, gtk.SHRINK )
-            #self.widgets.tbl_jog_btn.attach( self.widgets.btn_z_plus, 2, 3, 1, 2, gtk.SHRINK, gtk.SHRINK )
-            #self.widgets.tbl_jog_btn.attach( self.widgets.btn_z_minus, 0, 1, 1, 2, gtk.SHRINK, gtk.SHRINK )
-
-            # The Y DRO we make to a second X DRO to indicate the diameter
-            #self.widgets.Combi_DRO_y.set_to_diameter( True )
-            #self.widgets.Combi_DRO_y.set_property( "joint_number", 0 )
-
-            # we change the axis letters of the DRO's
-            #self.widgets.Combi_DRO_x.change_axisletter( "R" )
-            #self.widgets.Combi_DRO_y.change_axisletter( "D" )
-
-            # and we will have to change the colors of the Y DRO according to the settings
-            #self.widgets.Combi_DRO_y.set_property( "abs_color", gtk.gdk.color_parse( self.abs_color ) )
-            #self.widgets.Combi_DRO_y.set_property( "rel_color", gtk.gdk.color_parse( self.rel_color ) )
-            #self.widgets.Combi_DRO_y.set_property( "dtg_color", gtk.gdk.color_parse( self.dtg_color ) )
-            #self.widgets.Combi_DRO_y.set_property( "homed_color", gtk.gdk.color_parse( self.homed_color ) )
-            #self.widgets.Combi_DRO_y.set_property( "unhomed_color", gtk.gdk.color_parse( self.unhomed_color ) )
-            #self.widgets.Combi_DRO_y.set_property( "actual", self.dro_actual)
 
             # For gremlin we don"t need the following button
             if self.backtool_lathe:
-                #self.widgets.rbt_view_y2.set_active( True )
                 self.widgets.gremlin.set_property( "view", "y2" )
-            #else:
-            #    self.widgets.rbt_view_y.set_active( True )
-            #self.widgets.rbt_view_p.hide()
-            #self.widgets.rbt_view_x.hide()
-            #self.widgets.rbt_view_z.hide()
 
             # check if G7 or G8 is active
             if "70" in self.stat.gcodes:
@@ -693,7 +617,7 @@ class FastSeal( object ):
         self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
         self.feed_override_max = self.get_ini_info.get_max_feed_override()
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
-
+ 
         # set the slider limmits
         self.widgets.adj_max_vel.configure( self.stat.max_velocity * 60, 0.0,
                                            self.stat.max_velocity * 60, 1, 0, 0 )
@@ -702,10 +626,22 @@ class FastSeal( object ):
         self.widgets.adj_spindle.configure( 100, self.spindle_override_min * 100,
                                            self.spindle_override_max * 100, 1, 0, 0 )
         self.widgets.adj_feed.configure( 100, 0, self.feed_override_max * 100, 1, 0, 0 )
-
+ 
+        # set the adjustment to the speed controls
+        self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+        self.widgets.spc_max_vel.set_adjustment(self.widgets.adj_max_vel)
+        self.widgets.spc_feed.set_adjustment(self.widgets.adj_feed)
+        self.widgets.spc_spindle.set_adjustment(self.widgets.adj_spindle)
+         
+        # and hide the button, as we do not need them
+        #self.widgets.spc_jog_vel.hide_button(True)
+        #self.widgets.spc_max_vel.hide_button(True)
+        #self.widgets.spc_feed.hide_button(True)
+        #self.widgets.spc_spindle.hide_button(True)        
+ 
         # holds the max velocity value and is needed to be able to react to halui pin
         self.max_velocity = self.maxvel = self.stat.max_velocity
-
+ 
         # set and get all information for turtle jogging
         self.rabbit_jog = self.jog_rate
         hide_turtle_jog_button = self.prefs.getpref( "hide_turtle_jog_button", False, bool )
@@ -717,15 +653,15 @@ class FastSeal( object ):
             self.widgets.tbtn_turtle_jog.hide()
             self.turtle_jog_factor = 1
         self.turtle_jog = self.rabbit_jog / self.turtle_jog_factor
-
+ 
         # and according to machine units the digits to display
         if self.stat.linear_units == _MM:
-            self.widgets.scl_max_vel.set_digits( 0 )
-            self.widgets.scl_jog_vel.set_digits( 0 )
+            self.widgets.spc_max_vel.set_digits( 0 )
+            self.widgets.spc_jog_vel.set_digits( 0 )
         else:
-            self.widgets.scl_max_vel.set_digits( 3 )
-            self.widgets.scl_jog_vel.set_digits( 3 )
-
+            self.widgets.spc_max_vel.set_digits( 3 )
+            self.widgets.spc_jog_vel.set_digits( 3 )
+ 
         # the scale to apply to the count of the hardware mpg wheel, to avoid to much turning
         default = ( self.stat.max_velocity * 60 - self.stat.max_velocity * 0.1 ) / 100
         self.scale_max_vel = self.prefs.getpref( "scale_max_vel", default, float )
@@ -737,132 +673,10 @@ class FastSeal( object ):
         self.widgets.adj_scale_spindle_override.set_value( self.scale_spindle_override )
         self.scale_feed_override = self.prefs.getpref( "scale_feed_override", 1, float )
         self.widgets.adj_scale_feed_override.set_value( self.scale_feed_override )
-
+ 
     def _init_axis_size( self ):
         self.dro_size = int( self.prefs.getpref( "dro_size", 28, int ) )
         self.widgets.adj_dro_size.set_value( self.dro_size )
-
-
-#     def _init_axis_four( self ):
-#         self.dro_size = int( self.prefs.getpref( "dro_size", 28, int ) )
-#         self.widgets.adj_dro_size.set_value( self.dro_size )
-# 
-#         if len( self.axis_list ) < 4:
-#             self.widgets.Combi_DRO_4.hide()
-#             self.widgets.chk_hide_axis_4.set_active( False )
-#             self.widgets.frm_tool_changer.set_sensitive( False )
-#             self.prefs.putpref( "hide_axis_4", False, bool )
-# 
-#             for axis in self.axis_list:
-#                 self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", self.dro_size )
-# 
-#             return
-#         axis_four = list( set( self.axis_list ) - set( ( "x", "y", "z" ) ) )
-#         if len( axis_four ) > 1:
-#             message = _( "**** GMOCCAPY ERROR : ****" )
-#             message += _( 
-#                 "**** FastSeal can only handle 4 axis, ****\n**** but you have given %d through your INI file ****\n" % len( 
-#                     self.axis_list ) )
-#             message += _( "**** FastSeal will not start ****\n\n" )
-#             print( message )
-#             self.widgets.window1.destroy()
-#         self.axisletter_four = axis_four[0]
-#         self.axisnumber_four = "xyzabcuvw".index( self.axisletter_four )
-#         self.widgets.Combi_DRO_4.set_property( "joint_number", self.axisnumber_four )
-#         self.widgets.Combi_DRO_4.change_axisletter( self.axisletter_four.upper() )
-#         if self.axisletter_four in "abc":
-#             self.widgets.Combi_DRO_4.set_property( "mm_text_template", "%11.2f" )
-#             self.widgets.Combi_DRO_4.set_property( "imperial_text_template", "%11.2f" )
-#         image = self.widgets["img_home_%s" % self.axisletter_four]
-#         self.widgets.btn_home_4.set_image( image )
-#         self.widgets.btn_home_4.set_property( "tooltip-text", _( "Home axis %s" ) % self.axisletter_four.upper() )
-# 
-#         # We have to change the size of the DRO, to make 4 DRO fit the space we got
-#         for axis in self.axis_list:
-#             if axis == self.axisletter_four:
-#                 axis = 4
-#             self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", self.dro_size * 3 / 4 )
-# 
-#         self.widgets.btn_4_plus.set_label( "%s+" % self.axisletter_four.upper() )
-#         self.widgets.btn_4_minus.set_label( "%s-" % self.axisletter_four.upper() )
-#         self.widgets.btn_4_plus.show()
-#         self.widgets.btn_4_minus.show()
-#         self.widgets.lbl_replace_4.hide()
-#         self.widgets.btn_home_4.show()
-# 
-#         # we have to re-arrange the jog buttons, so first remove all button
-#         self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_minus )
-#         self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_plus )
-#         self.widgets.tbl_jog_btn.remove( self.widgets.btn_4_minus )
-#         self.widgets.tbl_jog_btn.remove( self.widgets.btn_4_plus )
-# 
-#         # now we place them in a different order
-#         self.widgets.tbl_jog_btn.attach( self.widgets.btn_z_plus, 2, 3, 0, 1, gtk.SHRINK, gtk.SHRINK )
-#         self.widgets.tbl_jog_btn.attach( self.widgets.btn_z_minus, 2, 3, 2, 3, gtk.SHRINK, gtk.SHRINK )
-#         self.widgets.tbl_jog_btn.attach( self.widgets.btn_4_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK )
-#         self.widgets.tbl_jog_btn.attach( self.widgets.btn_4_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK )
-# 
-#         if self.prefs.getpref( "hide_axis_4", False, bool ):
-#             self._hide_axis_4( True )
-# 
-#     def _hide_axis_4( self, state = False ):
-#         print( "axis 4 should be hidden", state )
-# 
-#         # we save the state, because it will be needed also
-#         # in _init_offsetpage and _init_tooleditor
-#         self.hide_axis_4 = state
-# 
-#         self.widgets.chk_hide_axis_4.set_active( self.hide_axis_4 )
-# 
-#         if self.hide_axis_4:
-#             self.widgets.frm_tool_changer.set_sensitive( True )
-#             self.widgets.Combi_DRO_4.hide()
-#             self.widgets.btn_4_plus.hide()
-#             self.widgets.btn_4_minus.hide()
-#             font_size = self.dro_size
-# 
-#             # we have to re-arrange the jog buttons, so first remove all button
-#             self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_minus )
-#             self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_plus )
-#             self.widgets.tbl_jog_btn.remove( self.widgets.btn_4_minus )
-#             self.widgets.tbl_jog_btn.remove( self.widgets.btn_4_plus )
-# 
-#             # now we place them in a different order
-#             self.widgets.tbl_jog_btn.attach( self.widgets.btn_z_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK )
-#             self.widgets.tbl_jog_btn.attach( self.widgets.btn_z_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK )
-#             self.widgets.tbl_jog_btn.attach( self.widgets.btn_4_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK )
-#             self.widgets.tbl_jog_btn.attach( self.widgets.btn_4_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK )
-# 
-#             self.widgets.btn_4_plus.hide()
-#             self.widgets.btn_4_minus.hide()
-#             self.widgets.lbl_replace_4.show()
-#             self.widgets.btn_home_4.hide()
-# 
-#         else:
-#             font_size = self.dro_size * 3 / 4
-# 
-#             # we have to re-arrange the jog buttons, so first remove all button
-#             self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_minus )
-#             self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_plus )
-#             self.widgets.tbl_jog_btn.remove( self.widgets.btn_4_minus )
-#             self.widgets.tbl_jog_btn.remove( self.widgets.btn_4_plus )
-# 
-#             # now we place them in a different order
-#             self.widgets.tbl_jog_btn.attach( self.widgets.btn_z_plus, 2, 3, 0, 1, gtk.SHRINK, gtk.SHRINK )
-#             self.widgets.tbl_jog_btn.attach( self.widgets.btn_z_minus, 2, 3, 2, 3, gtk.SHRINK, gtk.SHRINK )
-#             self.widgets.tbl_jog_btn.attach( self.widgets.btn_4_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK )
-#             self.widgets.tbl_jog_btn.attach( self.widgets.btn_4_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK )
-# 
-#             self.widgets.btn_4_plus.show()
-#             self.widgets.btn_4_minus.show()
-#             self.widgets.lbl_replace_4.hide()
-#             self.widgets.btn_home_4.show()
-#             self.widgets.Combi_DRO_4.show()
-# 
-#         for axis in self.axis_list:
-#             if axis == self.axisletter_four:
-#                 axis = 4
-#             self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", font_size )
 
     def _init_jog_increments( self ):
         # Now we will build the option buttons to select the Jog-rates
@@ -873,7 +687,7 @@ class FastSeal( object ):
         # We get the increments from INI File
         self.jog_increments = self.get_ini_info.get_increments()
         if len( self.jog_increments ) > 10:
-            print( _( "**** GMOCCAPY INFO ****" ) )
+            print( _( "**** FASTSEAL INFO ****" ) )
             print( _( "**** To many increments given in INI File for this screen ****" ) )
             print( _( "**** Only the first 10 will be reachable through this screen ****" ) )
             # we shorten the incrementlist to 10 (first is default = 0)
@@ -907,26 +721,6 @@ class FastSeal( object ):
             self.incr_rbt_list.append( rbt )
         self.active_increment = "rbt0"
 
-#     def _check_screen2( self ):
-#         # second screen
-#         self.screen2 = False
-#         screen2 = os.path.join( CONFIGPATH, "FastSeal2.glade" )
-#         if os.path.exists( screen2 ):
-#             print ( _( "**** GMOCCAPY INFO ****" ) )
-#             print ( _( "**** FastSeal screen 2 found ****" ) )
-#             try:
-#                 self.builder.add_from_file( screen2 )
-#                 self.screen2 = True
-#             except Exception, e:
-#                 print ( _( "**** GMOCCAPY ERROR ****" ) )
-#                 print _( "**** screen 2 GLADE ERROR: ****" )
-#                 self.widgets.tbtn_use_screen2.set_sensitive( False )
-#                 traceback.print_exc()
-#         else:
-#             print ( _( "**** GMOCCAPY INFO ****" ) )
-#             print _( "**** No FastSeal2.glade file present ****" )
-#             self.widgets.tbtn_use_screen2.set_sensitive( False )
-
 # =============================================================
 # Dynamic tabs handling Start
 
@@ -938,7 +732,7 @@ class FastSeal( object ):
 
         tab_names, tab_location, tab_cmd = self.get_ini_info.get_embedded_tabs()
         if not tab_names:
-            print ( _( "**** GMOCCAPY INFO ****" ) )
+            print ( _( "**** FASTSEAL INFO ****" ) )
             print ( _( "**** Invalid embeded tab configuration ****" ) )
             print ( _( "**** No tabs will be added! ****" ) )
             return
@@ -991,7 +785,7 @@ class FastSeal( object ):
         # get the path to the tool table
         tooltable = self.get_ini_info.get_toolfile()
         if not tooltable:
-            print( _( "**** GMOCCAPY ERROR ****" ) )
+            print( _( "**** FASTSEAL ERROR ****" ) )
             print( _( "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****" ) )
             sys.exit()
         toolfile = os.path.join( CONFIGPATH, tooltable )
@@ -1035,10 +829,10 @@ class FastSeal( object ):
             import gst
 
             self._AUDIO_AVAILABLE = True
-            print ( _( "**** GMOCCAPY INFO ****" ) )
+            print ( _( "**** FASTSEAL INFO ****" ) )
             print ( _( "**** audio available! ****" ) )
         except:
-            print ( _( "**** GMOCCAPY INFO ****" ) )
+            print ( _( "**** FASTSEAL INFO ****" ) )
             print ( _( "**** no audio available! ****" ) )
             print( _( "**** PYGST libray not installed? ****" ) )
             return
@@ -1058,9 +852,7 @@ class FastSeal( object ):
         grid_size = self.prefs.getpref( 'grid_size', 1.0, float )
         self.widgets.grid_size.set_value( grid_size )
         self.widgets.gremlin.grid_size = grid_size
-        #view = self.prefs.getpref( 'view', "y2", str )
         self.widgets.gremlin.set_property( "view", "y2" )
-        #self.widgets.gremlin.set_property( "view", view )
         self.widgets.gremlin.set_property( "metric_units", int( self.stat.linear_units ) )
         self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property( "use_commanded", not self.dro_actual)
@@ -1078,76 +870,6 @@ class FastSeal( object ):
             self.widgets.window1.window.set_cursor( None )
             self.widgets.gremlin.set_property( "use_default_controls", True )
 
-# # =============================================================
-# # Onboard keybord handling Start
-# 
-#     # shows "Onboard" virtual keyboard if available
-#     # else error message
-#     def _init_keyboard( self, args = "", x = "", y = "" ):
-#         self.onboard = False
-# 
-#         # now we check if onboard or matchbox-keyboard is installed
-#         try:
-#             if os.path.isfile( "/usr/bin/onboard" ):
-#                 self.onboard_kb = subprocess.Popen( ["onboard", "--xid", args, x, y],
-#                                                    stdin = subprocess.PIPE,
-#                                                    stdout = subprocess.PIPE,
-#                                                    close_fds = True )
-#                 print ( _( "**** GMOCCAPY INFO ****" ) )
-#                 print ( _( "**** virtual keyboard program found : <onboard>" ) )
-#             elif os.path.isfile( "/usr/bin/matchbox-keyboard" ):
-#                 self.onboard_kb = subprocess.Popen( ["matchbox-keyboard", "--xid"],
-#                                                    stdin = subprocess.PIPE,
-#                                                    stdout = subprocess.PIPE,
-#                                                    close_fds = True )
-#                 print ( _( "**** GMOCCAPY INFO ****" ) )
-#                 print ( _( "**** virtual keyboard program found : <matchbox-keyboard>" ) )
-#             else:
-#                 print ( _( "**** GMOCCAPY INFO ****" ) )
-#                 print ( _( "**** No virtual keyboard installed, we checked for <onboard> and <matchbox-keyboard>." ) )
-#                 self._no_virt_keyboard()
-#                 return
-#             sid = self.onboard_kb.stdout.readline()
-#             socket = gtk.Socket()
-#             socket.show()
-#             self.widgets.key_box.add( socket )
-#             socket.add_id( long( sid ) )
-#             self.onboard = True
-#         except Exception, e:
-#             print ( _( "**** GMOCCAPY ERROR ****" ) )
-#             print ( _( "**** Error with launching virtual keyboard," ) )
-#             print ( _( "**** is onboard or matchbox-keyboard installed? ****" ) )
-#             traceback.print_exc()
-#             self._no_virt_keyboard()
-# 
-#     def _no_virt_keyboard( self ):
-#         # In this case we will disable the coresponding part on the settings page
-#         self.widgets.chk_use_kb_on_offset.set_active( False )
-#         self.widgets.chk_use_kb_on_tooledit.set_active( False )
-#         self.widgets.chk_use_kb_on_edit.set_active( False )
-#         self.widgets.chk_use_kb_on_mdi.set_active( False )
-#         self.widgets.chk_use_kb_on_file_selection.set_active( False )
-#         self.widgets.frm_keyboard.set_sensitive( False )
-#         self.widgets.btn_show_kbd.set_sensitive( False )
-#         self.widgets.btn_show_kbd.set_image( self.widgets.img_brake_macro )
-#         self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "interrupt running macro" ) )
-#         self.widgets.btn_keyb.set_sensitive( False )
-# 
-#     def _kill_keyboard( self ):
-#         try:
-#             self.onboard_kb.kill()
-#             self.onboard_kb.terminate()
-#             self.onboard_kb = None
-#         except:
-#             try:
-#                 self.onboard_kb.kill()
-#                 self.onboard_kb.terminate()
-#                 self.onboard_kb = None
-#             except:
-#                 pass
-# 
-# # Onboard keybord handling End
-# # =============================================================
 
     def _init_offsetpage( self ):
         temp = "xyzabcuvw"
@@ -1162,7 +884,7 @@ class FastSeal( object ):
 
         parameterfile = self.get_ini_info.get_parameter_file()
         if not parameterfile:
-            print( _( "**** GMOCCAPY ERROR ****" ) )
+            print( _( "**** FASTSEAL ERROR ****" ) )
             print( _( "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****" ) )
             sys.exit()
         path = os.path.join( CONFIGPATH, parameterfile )
@@ -1269,7 +991,7 @@ class FastSeal( object ):
                 pin = hal_glib.GPin( 
                     self.halcomp.newpin( "messages." + message[2] + "-responce", hal.HAL_BIT, hal.HAL_OUT ) )
             else:
-                print( _( "**** GMOCCAPY ERROR **** /n Message type %s not suported" % message[1] ) )
+                print( _( "**** FASTSEAL ERROR **** /n Message type %s not suported" % message[1] ) )
 
     def _show_user_message( self, pin, message ):
         if message[1] == "status":
@@ -1293,7 +1015,7 @@ class FastSeal( object ):
             else:
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
         else:
-            print( _( "**** GMOCCAPY ERROR **** /n Message type %s not suported" % message[1] ) )
+            print( _( "**** FASTSEAL ERROR **** /n Message type %s not suported" % message[1] ) )
 
     def _show_offset_tab( self, state ):
         page = self.widgets.ntb_preview.get_nth_page( 1 )
@@ -1304,8 +1026,6 @@ class FastSeal( object ):
             self.widgets.ntb_preview.set_property( "show-tabs", state )
             self.widgets.ntb_preview.set_current_page( 1 )
             self.widgets.offsetpage1.mark_active( ( self.system_list[self.stat.g5x_index] ).lower() )
-#             if self.widgets.chk_use_kb_on_offset.get_active():
-#                 self.widgets.ntb_info.set_current_page( 1 )
         else:
             names = self.widgets.offsetpage1.get_names()
             for system, name in names:
@@ -1314,7 +1034,6 @@ class FastSeal( object ):
             page.hide()
             self.widgets.tbtn_edit_offsets.set_active( False )
             self.widgets.ntb_preview.set_current_page( 0 )
-#            self.widgets.ntb_info.set_current_page( 0 )
             if self.widgets.ntb_preview.get_n_pages() <= 4:  # else user tabs are availible
                 self.widgets.ntb_preview.set_property( "show-tabs", state )
 
@@ -1328,33 +1047,28 @@ class FastSeal( object ):
             self.widgets.vbx_jog.hide()
             self.widgets.ntb_preview.set_current_page( 2 )
             self.widgets.tooledit1.set_selected_tool( self.stat.tool_in_spindle )
-#             if self.widgets.chk_use_kb_on_tooledit.get_active():
-#                 self.widgets.ntb_info.set_current_page( 1 )
         else:
             page.hide()
             if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are availible
                 self.widgets.ntb_preview.set_property( "show-tabs", not state )
             self.widgets.vbx_jog.show()
             self.widgets.ntb_preview.set_current_page( 0 )
-#            self.widgets.ntb_info.set_current_page( 0 )
 
     def _show_iconview_tab( self, state ):
         page = self.widgets.ntb_preview.get_nth_page( 3 )
         if page.get_visible() and state or not page.get_visible() and not state:
             return
         if state:
+            self.widgets.hbx_info.hide()
             page.show()
             self.widgets.ntb_preview.set_property( "show-tabs", not state )
             self.widgets.ntb_preview.set_current_page( 3 )
-            if self.widgets.chk_use_kb_on_file_selection.get_active():
-                self.widgets.box_info.show()
-#                self.widgets.ntb_info.set_current_page( 1 )
         else:
+            self.widgets.hbx_info.show()
             page.hide()
             if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are availible
                 self.widgets.ntb_preview.set_property( "show-tabs", not state )
             self.widgets.ntb_preview.set_current_page( 0 )
-#            self.widgets.ntb_info.set_current_page( 0 )
 
     # every 100 milli seconds this gets called
     # check linuxcnc for status, error and then update the readout
@@ -1376,7 +1090,6 @@ class FastSeal( object ):
                 self._switch_to_g7( True )
 
         self._update_vel()
-#         self._update_coolant()
         self._update_spindle()
         self._update_halui_pin()
 
@@ -1551,10 +1264,6 @@ class FastSeal( object ):
         self._sensitize_widgets( widgetlist, True )
         for btn in self.macrobuttons:
             btn.set_sensitive( True )
-#         if self.onboard:
-#             self.widgets.btn_show_kbd.set_image( self.widgets.img_keyboard )
-#         else:
-#             self.widgets.btn_show_kbd.set_image( self.widgets.img_brake_macro )
         self.widgets.btn_run.set_sensitive( True )
 
         if self.tool_change:
@@ -1607,9 +1316,9 @@ class FastSeal( object ):
 
     def on_hal_status_state_off( self, widget ):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr","btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle",
+                      "btn_spindle_100", "spc_max_vel", "spc_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets( widgetlist, False )
@@ -1620,14 +1329,13 @@ class FastSeal( object ):
         self.widgets.chk_ignore_limits.set_sensitive( True )
         self.widgets.ntb_main.set_current_page( 0 )
         self.widgets.ntb_button.set_current_page( 0 )
-#        self.widgets.ntb_info.set_current_page( 0 )
         self.widgets.ntb_jog.set_current_page( 0 )
 
     def on_hal_status_state_on( self, widget ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward",
+                      "ntb_jog", "btn_feed_100", "rbt_forward",
                       "rbt_reverse", "rbt_stop"
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle"
+                      "btn_spindle_100", "spc_max_vel", "spc_spindle"
         ]
         self._sensitize_widgets( widgetlist, True )
         if not self.widgets.tbtn_on.get_active():
@@ -1646,7 +1354,6 @@ class FastSeal( object ):
             return
         self.widgets.ntb_main.set_current_page( 0 )
         self.widgets.ntb_button.set_current_page( 0 )
-#        self.widgets.ntb_info.set_current_page( 0 )
         self.widgets.ntb_jog.set_current_page( 0 )
         self._check_limits()
 
@@ -1657,7 +1364,6 @@ class FastSeal( object ):
         if self.tool_change:
             self.widgets.ntb_main.set_current_page( 0 )
             self.widgets.ntb_button.set_current_page( 0 )
- #           self.widgets.ntb_info.set_current_page( 0 )
             self.widgets.ntb_jog.set_current_page( 0 )
             return
         # if MDI button is not sensitive, we are not ready for MDI commands
@@ -1670,10 +1376,6 @@ class FastSeal( object ):
             self._show_error( ( 13, _( "It is not possible to change to MDI Mode at the moment" ) ) )
             return
         else:
-#             if self.widgets.chk_use_kb_on_mdi.get_active():
-#                 self.widgets.ntb_info.set_current_page( 1 )
-#             else:
-#                 self.widgets.ntb_info.set_current_page( 0 )
             self.widgets.ntb_main.set_current_page( 0 )
             self.widgets.ntb_button.set_current_page( 1 )
             self.widgets.ntb_jog.set_current_page( 1 )
@@ -1693,7 +1395,6 @@ class FastSeal( object ):
         else:
             self.widgets.ntb_main.set_current_page( 0 )
             self.widgets.ntb_button.set_current_page( 2 )
-            #self.widgets.ntb_info.set_current_page( 0 )
             self.widgets.ntb_jog.set_current_page( 2 )
             self.widgets.rbt_auto.set_active( True )
 
@@ -1752,15 +1453,9 @@ class FastSeal( object ):
         
         self._init_axis_size()
 
-        # does the user want to show screen2
-#         self._check_screen2()
-#         if self.screen2:
-#             self.widgets.tbtn_use_screen2.set_active( self.prefs.getpref( "use_screen2", False, bool ) )
-
     # kill keyboard and estop machine before closing
     def on_window1_destroy( self, widget, data = None ):
         print "estopping / killing FastSeal"
-#         self._kill_keyboard()
         self.command.state( linuxcnc.STATE_OFF )
         self.command.state( linuxcnc.STATE_ESTOP )
         gtk.main_quit()
@@ -1770,14 +1465,14 @@ class FastSeal( object ):
         o_codes = data.split()
         subroutines_path = self.get_ini_info.get_subroutine_path()
         if not subroutines_path:
-            message = _( "**** GMOCCAPY ERROR ****" )
+            message = _( "**** FASTSEAL ERROR ****" )
             message += _( "\n**** No subroutine folder or program prefix is given in the ini file **** \n" )
             message += _( "**** so the corresponding file could not be found ****" )
             dialogs.warning_dialog( self, _( "Important Warning" ), message )
             return
         file = subroutines_path + "/" + o_codes[0] + ".ngc"
         if not os.path.isfile( file ):
-            message = _( "**** GMOCCAPY ERROR ****" )
+            message = _( "**** FASTSEAL ERROR ****" )
             message += _( "\n**** File %s of the macro could not be found ****\n" % [o_codes[0] + ".ngc"] )
             message += _( "**** we searched in subdirectory %s ****" % subroutines_path )
             dialogs.warning_dialog( self, _( "Important Warning" ), message )
@@ -1804,41 +1499,25 @@ class FastSeal( object ):
         self.command.mdi( command )
         for btn in self.macrobuttons:
             btn.set_sensitive( False )
-        # we change the widget_image and use the button to interupt running macros
-#         if not self.onboard:
-#             self.widgets.btn_show_kbd.set_sensitive(True)
         self.widgets.btn_show_kbd.set_image( self.widgets.img_brake_macro )
         self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "interrupt running macro" ) )
-        #self.widgets.ntb_info.set_current_page( 0 )
 
 # helpers functions start
 # =========================================================
 
     def _update_widgets( self, state ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
-                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle",
+                      "btn_spindle_100", "spc_max_vel", "spc_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets( widgetlist, state )
 
     def _switch_to_g7( self, state ):
         if state:
-#             self.widgets.Combi_DRO_x.set_property( "abs_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-#             self.widgets.Combi_DRO_x.set_property( "rel_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-#             self.widgets.Combi_DRO_x.set_property( "dtg_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-#             self.widgets.Combi_DRO_y.set_property( "abs_color", gtk.gdk.color_parse( self.abs_color ) )
-#             self.widgets.Combi_DRO_y.set_property( "rel_color", gtk.gdk.color_parse( self.rel_color ) )
-#             self.widgets.Combi_DRO_y.set_property( "dtg_color", gtk.gdk.color_parse( self.dtg_color ) )
             self.diameter_mode = True
         else:
-#             self.widgets.Combi_DRO_y.set_property( "abs_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-#             self.widgets.Combi_DRO_y.set_property( "rel_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-#             self.widgets.Combi_DRO_y.set_property( "dtg_color", gtk.gdk.color_parse( "#F2F1F0" ) )
-#             self.widgets.Combi_DRO_x.set_property( "abs_color", gtk.gdk.color_parse( self.abs_color ) )
-#             self.widgets.Combi_DRO_x.set_property( "rel_color", gtk.gdk.color_parse( self.rel_color ) )
-#             self.widgets.Combi_DRO_x.set_property( "dtg_color", gtk.gdk.color_parse( self.dtg_color ) )
             self.diameter_mode = False
 
     def on_key_event( self, widget, event, signal ):
@@ -2081,7 +1760,7 @@ class FastSeal( object ):
             if item[1] == old_value:
                 new_tupple = ( item[0], new_value )
                 item = new_tupple
-                print( _( "**** GMOCCAPY INFO ****" ) )
+                print( _( "**** FASTSEAL INFO ****" ) )
                 print( _( "**** replaced {0} to {1} ****".format( old_value, new_value ) ) )
             self.h_tabs[int_tab].append( item )
 
@@ -2090,7 +1769,7 @@ class FastSeal( object ):
         macros = self.get_ini_info.get_macros()
         num_macros = len( macros )
         if num_macros > 9:
-            message = _( "**** GMOCCAPY INFO ****" )
+            message = _( "**** FASTSEAL INFO ****" )
             message += _( "\n**** found more than 9 macros, only the first 9 will be used ****" )
             print( message )
             num_macros = 9
@@ -2123,7 +1802,7 @@ class FastSeal( object ):
     def show_try_errors( self ):
         exc_type, exc_value, exc_traceback = sys.exc_info()
         formatted_lines = traceback.format_exc().splitlines()
-        print( _( "**** GMOCCAPY ERROR ****" ) )
+        print( _( "**** FASTSEAL ERROR ****" ) )
         print( _( "**** %s ****" % formatted_lines[0] ) )
         traceback.print_tb( exc_traceback, limit = 1, file = sys.stdout )
         print ( formatted_lines[-1] )
@@ -2133,7 +1812,7 @@ class FastSeal( object ):
             try:
                 self.widgets[name].set_sensitive( value )
             except Exception, e:
-                print ( _( "**** GMOCCAPY ERROR ****" ) )
+                print ( _( "**** FASTSEAL ERROR ****" ) )
                 print _( "**** No widget named: %s to sensitize ****" % name )
                 traceback.print_exc()
 
@@ -2256,8 +1935,6 @@ class FastSeal( object ):
 
     def _change_dro_color( self, property, color ):
         for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
             self.widgets["Combi_DRO_%s" % axis].set_property( property, color )
         if self.lathe_mode:
             #self.widgets.Combi_DRO_y.set_property( property, color )
@@ -2333,10 +2010,6 @@ class FastSeal( object ):
             self.widgets["Combi_DRO_%s" % axis].set_property( "mm_text_template", format_string_mm )
             self.widgets["Combi_DRO_%s" % axis].set_property( "imperial_text_template", format_string_inch )
 
-        #if self.lathe_mode:
-        #    self.widgets.Combi_DRO_y.set_property( "mm_text_template", format_string_mm )
-        #    self.widgets.Combi_DRO_y.set_property( "imperial_text_template", format_string_inch )
-
     def on_chk_toggle_readout_toggled( self, widget, data = None):
         state = widget.get_active()
         self.prefs.putpref( "toggle_readout", state, bool )
@@ -2353,19 +2026,7 @@ class FastSeal( object ):
             if axis == self.axisletter_four:
                 axis = 4
             self.widgets["Combi_DRO_%s" % axis].set_order( order )
-#         if self.lathe_mode:
-#             self.widgets.Combi_DRO_y.set_order( order )
         self._offset_changed( None, None )
-# from here only needed, if the DRO button will remain in FastSeal
-#         if order[0] == "Abs" and self.widgets.tbtn_rel.get_label() != "Abs":
-#             self.widgets.tbtn_rel.set_active( False )
-#         if order[0] == "Rel" and self.widgets.tbtn_rel.get_label() != self.widgets.Combi_DRO_x.system:
-#             self.widgets.tbtn_rel.set_active( True )
-#         if order[0] == "DTG":
-#             self.widgets.tbtn_dtg.set_active( True )
-#         else:
-#             self.widgets.tbtn_dtg.set_active( False )
-# to here only needed, if the DRO button will remain in FastSeal
 
     def _offset_changed( self, pin, tooloffset ):
         if self.widgets.Combi_DRO_x.machine_units == _MM:
@@ -2381,112 +2042,6 @@ class FastSeal( object ):
         else:
             self.widgets.btn_set_selected.set_sensitive( True )
 
-# =========================================================
-# from here only needed, if the DRO button will remain in FastSeal
-
-#     def on_Combi_DRO_system_changed( self, widget, system ):
-#         if self.widgets.tbtn_rel.get_active():
-#             self.widgets.tbtn_rel.set_label( system )
-#         else:
-#             self.widgets.tbtn_rel.set_label( "Abs" )
-# 
-#     def on_Combi_DRO_units_changed( self, widget, metric_units ):
-#         # if the user do not wish to use auto units, we leave here
-#         if not self.widgets.chk_auto_units.get_active():
-#             return
-# 
-#         # set gremlin_units
-#         self.widgets.gremlin.set_property( "metric_units", metric_units )
-# 
-#         widgetlist = ["adj_jog_vel", "adj_max_vel"]
-# 
-#         # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
-#         # display units not equal machine units
-#         if metric_units != int( self.stat.linear_units ):
-#             # machine units = metric
-#             if self.stat.linear_units == _MM:
-#                 self.faktor = ( 1.0 / 25.4 )
-#             # machine units = imperial
-#             else:
-#                 self.faktor = 25.4
-#             self._update_slider( widgetlist )
-#         else:
-#             # display units equal machine units would be factor = 1,
-#             # but if factor not equal 1.0 than we have to reconvert from previous first
-#             if self.faktor != 1.0:
-#                 self.faktor = 1 / self.faktor
-#                 self._update_slider( widgetlist )
-#                 self.faktor = 1.0
-#                 self._update_slider( widgetlist )
-# 
-#         if metric_units:
-#             self.widgets.scl_max_vel.set_digits( 0 )
-#             self.widgets.scl_jog_vel.set_digits( 0 )
-#         else:
-#             self.widgets.scl_max_vel.set_digits( 3 )
-#             self.widgets.scl_jog_vel.set_digits( 3 )
-# 
-#     def on_tbtn_rel_toggled( self, widget, data = None ):
-#         if self.widgets.tbtn_dtg.get_active():
-#             self.widgets.tbtn_dtg.set_active( False )
-#         if widget.get_active():
-#             widget.set_label( self.widgets.Combi_DRO_x.system )
-#             order = ["Rel", "Abs", "DTG"]
-#         else:
-#             widget.set_label( "Abs" )
-#             order = ["Abs", "DTG", "Rel"]
-#         self.on_Combi_DRO_clicked( None, None, order )
-# 
-#     def on_tbtn_dtg_toggled( self, widget, data = None ):
-#         if widget.get_active():
-#             widget.set_label( "GTD" )
-#             order = ["DTG", "Rel", "Abs"]
-#         else:
-#             widget.set_label( "DTG" )
-#             if self.widgets.tbtn_rel.get_active():
-#                 order = ["Rel", "Abs", "DTG"]
-#             else:
-#                 order = ["Abs", "DTG", "Rel"]
-#         self.on_Combi_DRO_clicked( None, None, order )
-# 
-#     def on_tbtn_units_toggled( self, widget, data = None ):
-#         if widget.get_active():
-#             widget.set_label( "inch" )
-#             metric_units = False
-#         else:
-#             widget.set_label( "mm" )
-#             metric_units = True
-#         for axis in self.axis_list:
-#             if axis == self.axisletter_four:
-#                 axis = 4
-#             self.widgets["Combi_DRO_%s" % axis].set_to_inch( not metric_units )
-#         if self.lathe_mode:
-#             self.widgets.Combi_DRO_y.set_to_inch( not metric_units )
-#         # set gremlin_units
-#         self.widgets.gremlin.set_property( "metric_units", metric_units )
-# 
-#     def on_chk_auto_units_toggled( self, widget, data = None ):
-#         for axis in self.axis_list:
-#             if axis == self.axisletter_four:
-#                 axis = 4
-#             self.widgets["Combi_DRO_%s" % axis].set_auto_units( self.widgets.chk_auto_units.get_active() )
-#         if self.lathe_mode:
-#             self.widgets.Combi_DRO_y.set_auto_units( self.widgets.chk_auto_units.get_active() )
-#         self.prefs.putpref( "use_auto_units", self.widgets.chk_auto_units.get_active(), bool )
-# 
-#     def on_chk_show_dro_btn_toggled( self, widget, data = None ):
-#         if self.widgets.chk_show_dro_btn.get_active():
-#             self.widgets.tbl_dro_button.show()
-#             self.widgets.chk_auto_units.set_active( False )
-#             self.widgets.chk_auto_units.set_sensitive( False )
-#         else:
-#             self.widgets.tbl_dro_button.hide()
-#             self.widgets.chk_auto_units.set_active( True )
-#             self.widgets.chk_auto_units.set_sensitive( True )
-#         self.prefs.putpref( "show_dro_btn", self.widgets.chk_show_dro_btn.get_active(), bool )
-# 
-# # to here only needed, if the DRO button will remain in FastSeal
-# # =========================================================
 
     def on_adj_x_pos_popup_value_changed( self, widget, data = None ):
         if not self.initialized:
@@ -2557,11 +2112,17 @@ class FastSeal( object ):
             active_jog_vel = self.widgets.adj_jog_vel.get_value()
             self.widgets.adj_jog_vel.configure( self.turtle_jog, 0,
                                                self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0 )
+            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+            increment = self.widgets.spc_jog_vel.get_property("increment") / self.turtle_jog_factor
+            self.widgets.spc_jog_vel.set_property("increment", increment)
         else:
             self.turtle_jog = self.widgets.adj_jog_vel.get_value()
             widget.set_image( self.widgets.img_rabbit_jog )
             self.widgets.adj_jog_vel.configure( self.rabbit_jog, 0,
                                                self.jog_rate_max, 1, 0, 0 )
+            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+            increment = self.widgets.spc_jog_vel.get_property("increment") * self.turtle_jog_factor
+            self.widgets.spc_jog_vel.set_property("increment", increment)
 
     def _on_turtle_jog_enable( self, pin ):
         self.widgets.tbtn_turtle_jog.set_active( bool( pin.get() ) )
@@ -2931,32 +2492,6 @@ class FastSeal( object ):
         self.widgets.spindle_feedback_bar.set_property( "max", self.max_spindle_rev )
 
 # =========================================================
-# Coolant an mist coolant button
-#     def on_tbtn_flood_toggled( self, widget, data = None ):
-#         if self.stat.flood and self.widgets.tbtn_flood.get_active():
-#             return
-#         elif not self.stat.flood and not self.widgets.tbtn_flood.get_active():
-#             return
-#         elif self.widgets.tbtn_flood.get_active():
-#             self.widgets.tbtn_flood.set_image( self.widgets.img_coolant_on )
-#             self.command.flood( linuxcnc.FLOOD_ON )
-#         else:
-#             self.widgets.tbtn_flood.set_image( self.widgets.img_coolant_off )
-#             self.command.flood( linuxcnc.FLOOD_OFF )
-# 
-#     def on_tbtn_mist_toggled( self, widget, data = None ):
-#         if self.stat.mist and self.widgets.tbtn_mist.get_active():
-#             return
-#         elif not self.stat.mist and not self.widgets.tbtn_mist.get_active():
-#             return
-#         elif self.widgets.tbtn_mist.get_active():
-#             self.widgets.tbtn_mist.set_image( self.widgets.img_mist_on )
-#             self.command.mist( linuxcnc.MIST_ON )
-#         else:
-#             self.widgets.tbtn_mist.set_image( self.widgets.img_mist_off )
-#             self.command.mist( linuxcnc.MIST_OFF )
-
-# =========================================================
 # feed stuff
     def on_adj_feed_value_changed( self, widget, data = None ):
         if not self.initialized:
@@ -2981,52 +2516,6 @@ class FastSeal( object ):
         result = dialogs.yesno_dialog( self, message, _( "Attention!!" ) )
         if result:
             self.widgets.hal_mdihistory.model.clear()
-
-    def on_tbtn_use_screen2_toggled( self, widget, data = None ):
-        self.prefs.putpref( "use_screen2", widget.get_active(), bool )
-        if widget.get_active():
-            self.widgets.window2.show()
-            if self.widgets.rbtn_window.get_active():
-                try:
-                    pos = self.widgets.window1.get_position()
-                    size = self.widgets.window1.get_size()
-                    left = pos[0] + size[0]
-                    self.widgets.window2.move( left, pos[1] )
-                except:
-                    pass
-        else:
-            self.widgets.window2.hide()
-
-    def on_btn_show_kbd_clicked( self, widget, data = None ):
-        # if the image is img_brake macro, we want to interupt the running macro
-        if self.widgets.btn_show_kbd.get_image() == self.widgets.img_brake_macro:
-            self.command.abort()
-            for btn in self.macrobuttons:
-                btn.set_sensitive( True )
-#             if self.onboard:
-#                 self.widgets.btn_show_kbd.set_image( self.widgets.img_keyboard )
-#                 self.widgets.btn_show_kbd.set_property( "tooltip-text", _( "This button will show or hide the keyboard" ) )
-#             else:
-#                 self.widgets.btn_show_kbd.set_sensitive(False)
-                
-        #elif self.widgets.ntb_info.get_current_page() == 1:
-        #    self.widgets.ntb_info.set_current_page( 0 )
-        #else:
-        #    self.widgets.ntb_info.set_current_page( 1 )
-        # special case if we are in edit mode
-        #if self.widgets.ntb_button.get_current_page() == 6:
-        #    if self.widgets.ntb_info.get_visible():
-        #        self.widgets.box_info.set_size_request( -1, 50 )
-        #        self.widgets.ntb_info.hide()
-        #    else:
-        #        self.widgets.box_info.set_size_request( -1, 250 )
-        #        self.widgets.ntb_info.show()
-
-#     def on_ntb_info_switch_page( self, widget, page, page_num, data = None ):
-#         if self.stat.task_mode == linuxcnc.MODE_MDI:
-#             self.widgets.hal_mdihistory.entry.grab_focus()
-#         elif self.stat.task_mode == linuxcnc.MODE_AUTO:
-#             self.widgets.gcode_view.grab_focus()
 
     # Three back buttons to be able to leave notebook pages
     # All use the same callback offset
@@ -3076,11 +2565,6 @@ class FastSeal( object ):
         if not state:  # we must switch back to manual mode, otherwise jogging is not possible
             self.command.mode( linuxcnc.MODE_MANUAL )
             self.command.wait_complete()
-
-        # show virtual keyboard?
-#         if state and self.widgets.chk_use_kb_on_offset.get_active():
-#             self.widgets.ntb_info.set_current_page( 1 )
-#             self.widgets.ntb_preview.set_current_page( 1 )
 
     def on_btn_zero_g92_clicked( self, widget, data = None ):
         self.command.mode( linuxcnc.MODE_MDI )
@@ -3202,15 +2686,6 @@ class FastSeal( object ):
             self.halcomp["probeheight"] = 0.0
         self.prefs.putpref( "use_toolmeasurement", widget.get_active(), bool )
 
-    def on_chk_hide_axis_4_toggled( self, widget, data = None ):
-        if not self.initialized:
-            return
-        state = widget.get_active()
-        self.prefs.putpref( "hide_axis_4", state, bool )
-        self._hide_axis_4( state )
-        self._init_offsetpage()
-        self._init_tooleditor()
-
     def on_btn_block_height_clicked( self, widget, data = None ):
         probeheight = self.widgets.spbtn_probe_height.get_value()
         blockheight = dialogs.entry_dialog( self, data = None, header = _( "Enter the block height" ),
@@ -3268,21 +2743,6 @@ class FastSeal( object ):
                 self.prefs.putpref( "run_from_line", "run", str )
                 self.widgets.btn_from_line.set_sensitive( True )
 
-    def on_chk_use_kb_on_offset_toggled( self, widget, data = None ):
-        self.prefs.putpref( "show_keyboard_on_offset", widget.get_active(), bool )
-
-    def on_chk_use_kb_on_tooledit_toggled( self, widget, data = None ):
-        self.prefs.putpref( "show_keyboard_on_tooledit", widget.get_active(), bool )
-
-    def on_chk_use_kb_on_edit_toggled( self, widget, data = None ):
-        self.prefs.putpref( "show_keyboard_on_edit", widget.get_active(), bool )
-
-    def on_chk_use_kb_on_mdi_toggled( self, widget, data = None ):
-        self.prefs.putpref( "show_keyboard_on_mdi", widget.get_active(), bool )
-
-    def on_chk_use_kb_on_file_selection_toggled( self, widget, data = None ):
-        self.prefs.putpref( "show_keyboard_on_file_selection", widget.get_active(), bool )
-
     def on_chk_use_kb_shortcuts_toggled( self, widget, data = None ):
         self.prefs.putpref( "use_keyboard_shortcuts", widget.get_active(), bool )
 
@@ -3296,7 +2756,6 @@ class FastSeal( object ):
     def on_adj_scale_jog_vel_value_changed( self, widget, data = None ):
         self.prefs.putpref( "scale_jog_vel", widget.get_value(), float )
         self.scale_jog_vel = widget.get_value()
-        self.widgets.adj_jog_vel.set_value(self.scale_jog_vel)
 
     def on_adj_scale_feed_override_value_changed( self, widget, data = None ):
         self.prefs.putpref( "scale_feed_override", widget.get_value(), float )
@@ -3608,33 +3067,6 @@ class FastSeal( object ):
             message = _( "Could not understand the entered tool number. Will not change anything" )
             dialogs.warning_dialog( self, _( "Important Warning!" ), message )
 
-# =========================================================
-# gremlin relevant calls
-#     def on_rbt_view_p_toggled( self, widget, data = None ):
-#         if self.widgets.rbt_view_p.get_active():
-#             self.widgets.gremlin.set_property( "view", "p" )
-#         self.prefs.putpref( "gremlin_view", "rbt_view_p", str )
-# 
-#     def on_rbt_view_x_toggled( self, widget, data = None ):
-#         if self.widgets.rbt_view_x.get_active():
-#             self.widgets.gremlin.set_property( "view", "x" )
-#         self.prefs.putpref( "gremlin_view", "rbt_view_x", str )
-# 
-#     def on_rbt_view_y_toggled( self, widget, data = None ):
-#         if self.widgets.rbt_view_y.get_active():
-#             self.widgets.gremlin.set_property( "view", "y" )
-#         self.prefs.putpref( "gremlin_view", "rbt_view_y", str )
-# 
-#     def on_rbt_view_z_toggled( self, widget, data = None ):
-#         if self.widgets.rbt_view_z.get_active():
-#             self.widgets.gremlin.set_property( "view", "z" )
-#         self.prefs.putpref( "gremlin_view", "rbt_view_z", str )
-# 
-#     def on_rbt_view_y2_toggled( self, widget, data = None ):
-#         if self.widgets.rbt_view_y2.get_active():
-#             self.widgets.gremlin.set_property( "view", "y2" )
-#         self.prefs.putpref( "gremlin_view", "rbt_view_y2", str )
-
     def on_btn_zoom_in_clicked( self, widget, data = None ):
         self.widgets.gremlin.zoom_in()
 
@@ -3654,13 +3086,6 @@ class FastSeal( object ):
 
     def on_gremlin_line_clicked( self, widget, line ):
         self.widgets.gcode_view.set_line_number( line )
-
-
-    def on_btn_gcode_clicked(self, widget, data = None):
-        self.widgets.ntb_preview.set_page(4)
-
-    def on_btn_status_page_clicked(self, widget, data = None):
-        self.widgets.ntb_preview.set_page(5)
 
     def on_btn_load_clicked( self, widget, data = None ):
         print("load clicked")
@@ -3710,22 +3135,18 @@ class FastSeal( object ):
     def on_btn_edit_clicked( self, widget, data = None ):
         self.widgets.ntb_button.set_current_page( 6 )
         self.widgets.ntb_preview.hide()
-        self.widgets.hbox_dro.hide()
+        #self.widgets.hbox_dro.hide()
         width = self.widgets.window1.allocation.width
         width -= self.widgets.vbtb_main.allocation.width
-        width -= self.widgets.box_right.allocation.width
-        width -= self.widgets.box_left.allocation.width
-        self.widgets.vbx_jog.set_size_request( width, -1 )
-        if not self.widgets.vbx_jog.get_visible():
-            self.widgets.vbx_jog.set_visible(True)
+        #width -= self.widgets.vbx_left_side.allocation.width
+        #width -= self.widgets.box_left.allocation.width
+        #self.widgets.vbx_jog.hide()
+        self.widgets.vbx_left_side.hide()
+        #self.widgets.vbx_jog.set_size_request( width, -1 )
+        #if not self.widgets.vbx_jog.get_visible():
+        #    self.widgets.vbx_jog.set_visible(True)
         self.widgets.gcode_view.set_sensitive( True )
         self.widgets.gcode_view.grab_focus()
-#         if self.widgets.chk_use_kb_on_edit.get_active():
-#             self.widgets.ntb_info.set_current_page( 1 )
-#             self.widgets.box_info.set_size_request( -1, 250 )
-#         else:
-#             self.widgets.ntb_info.hide()
-#             self.widgets.box_info.set_size_request( -1, 50 )
         self.widgets.tbl_search.show()
         self.gcodeerror = ""
 
@@ -3781,8 +3202,6 @@ class FastSeal( object ):
             self.widgets.gcode_view.set_sensitive( 0 )
             self.widgets.btn_save.set_sensitive( True )
             self.widgets.hal_action_reload.emit( "activate" )
-            #self.widgets.ntb_info.set_current_page( 0 )
-            #self.widgets.ntb_info.show()
             self.widgets.box_info.set_size_request( -1, 200 )
             self.widgets.tbl_search.hide()
 
@@ -4176,9 +3595,9 @@ if __name__ == "__main__":
     app = FastSeal()
 
     inifile = sys.argv[2]
-    print ( "**** GMOCCAPY INFO : inifile = %s ****:" % sys.argv[2] )
+    print ( "**** FASTSEAL INFO : inifile = %s ****:" % sys.argv[2] )
     postgui_halfile = app.get_ini_info.get_postgui_halfile()
-    print ( "**** GMOCCAPY INFO : postgui halfile = %s ****:" % postgui_halfile )
+    print ( "**** FASTSEAL INFO : postgui halfile = %s ****:" % postgui_halfile )
 
     if postgui_halfile:
         if postgui_halfile.lower().endswith('.tcl'):
