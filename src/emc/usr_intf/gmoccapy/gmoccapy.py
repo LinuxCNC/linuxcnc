@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.6.1"
+_RELEASE = " 1.6.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -581,7 +581,7 @@ class gmoccapy( object ):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
-                      "btn_select_tool_by_no", "btn_spindle_100", "scl_max_vel", "scl_spindle",
+                      "btn_select_tool_by_no", "btn_spindle_100", "spc_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets( widgetlist, False )
@@ -691,7 +691,7 @@ class gmoccapy( object ):
         self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
         self.feed_override_max = self.get_ini_info.get_max_feed_override()
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
-
+        
         # set the slider limmits
         self.widgets.adj_max_vel.configure( self.stat.max_velocity * 60, 0.0,
                                            self.stat.max_velocity * 60, 1, 0, 0 )
@@ -700,6 +700,12 @@ class gmoccapy( object ):
         self.widgets.adj_spindle.configure( 100, self.spindle_override_min * 100,
                                            self.spindle_override_max * 100, 1, 0, 0 )
         self.widgets.adj_feed.configure( 100, 0, self.feed_override_max * 100, 1, 0, 0 )
+
+        # set the adjustment to the speed controls
+        self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+        self.widgets.spc_max_vel.set_adjustment(self.widgets.adj_max_vel)
+        self.widgets.spc_feed.set_adjustment(self.widgets.adj_feed)
+        self.widgets.spc_spindle.set_adjustment(self.widgets.adj_spindle)
 
         # holds the max velocity value and is needed to be able to react to halui pin
         self.max_velocity = self.maxvel = self.stat.max_velocity
@@ -718,11 +724,11 @@ class gmoccapy( object ):
 
         # and according to machine units the digits to display
         if self.stat.linear_units == _MM:
-            self.widgets.scl_max_vel.set_digits( 0 )
-            self.widgets.scl_jog_vel.set_digits( 0 )
+            self.widgets.spc_max_vel.set_digits( 0 )
+            self.widgets.spc_jog_vel.set_digits( 0 )
         else:
-            self.widgets.scl_max_vel.set_digits( 3 )
-            self.widgets.scl_jog_vel.set_digits( 3 )
+            self.widgets.spc_max_vel.set_digits( 3 )
+            self.widgets.spc_jog_vel.set_digits( 3 )
 
         # the scale to apply to the count of the hardware mpg wheel, to avoid to much turning
         default = ( self.stat.max_velocity * 60 - self.stat.max_velocity * 0.1 ) / 100
@@ -1601,7 +1607,7 @@ class gmoccapy( object ):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle",
+                      "btn_spindle_100", "spc_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets( widgetlist, False )
@@ -1619,7 +1625,7 @@ class gmoccapy( object ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist",
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle"
+                      "btn_spindle_100", "spc_max_vel", "scl_spindle"
         ]
         self._sensitize_widgets( widgetlist, True )
         if not self.widgets.tbtn_on.get_active():
@@ -1808,7 +1814,7 @@ class gmoccapy( object ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
                       "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle",
+                      "btn_spindle_100", "spc_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets( widgetlist, state )
@@ -2410,11 +2416,11 @@ class gmoccapy( object ):
                 self._update_slider( widgetlist )
 
         if metric_units:
-            self.widgets.scl_max_vel.set_digits( 0 )
-            self.widgets.scl_jog_vel.set_digits( 0 )
+            self.widgets.spc_max_vel.set_digits( 0 )
+            self.widgets.spc_jog_vel.set_digits( 0 )
         else:
-            self.widgets.scl_max_vel.set_digits( 3 )
-            self.widgets.scl_jog_vel.set_digits( 3 )
+            self.widgets.spc_max_vel.set_digits( 3 )
+            self.widgets.spc_jog_vel.set_digits( 3 )
 
     def on_tbtn_rel_toggled( self, widget, data = None ):
         if self.widgets.tbtn_dtg.get_active():
@@ -2547,12 +2553,18 @@ class gmoccapy( object ):
             active_jog_vel = self.widgets.adj_jog_vel.get_value()
             self.widgets.adj_jog_vel.configure( self.turtle_jog, 0,
                                                self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0 )
+            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+            increment = self.widgets.spc_jog_vel.get_property("increment") / self.turtle_jog_factor
+            self.widgets.spc_jog_vel.set_property("increment", increment)
         else:
             self.turtle_jog = self.widgets.adj_jog_vel.get_value()
             widget.set_image( self.widgets.img_rabbit_jog )
             self.widgets.adj_jog_vel.configure( self.rabbit_jog, 0,
                                                self.jog_rate_max, 1, 0, 0 )
-
+            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+            increment = self.widgets.spc_jog_vel.get_property("increment") * self.turtle_jog_factor
+            self.widgets.spc_jog_vel.set_property("increment", increment)
+ 
     def _on_turtle_jog_enable( self, pin ):
         self.widgets.tbtn_turtle_jog.set_active( bool( pin.get() ) )
 

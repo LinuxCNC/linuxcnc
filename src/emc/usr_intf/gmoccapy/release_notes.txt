@@ -1,3 +1,7 @@
+ver. 1.6.0
+- this is a test version for andrei badea
+  with new controls for touch screens, based on my speedcontrol widget 
+
 ver. 1.5.6.1
 - bugfix: If a user did jog with keyboard and while jogging changed the increments
   pressing "i" on the keyboard the jog move would never stop. I do check now for
