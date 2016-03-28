@@ -107,12 +107,24 @@ proc ::tp::loadusr_substitute {args} {
   }
 } ;# loadusr_substitute
 
-proc ::tp::loadrt_substitute {args} {
-  # syntax: loadrt modulename item=value ...
-  set parms  [split $args]
+proc ::tp::loadrt_substitute {arg1 args} {
+  set arg1split [split $arg1]
+  # detect multiple items in arg1
+  if {[llength $arg1split] > 1} {
+    #puts "loadrt_substitute arg1split=<$arg1split>"
+    #example:                arg1split=<\{gentrivkins coordinates=xyz\}>
+    set arg1split [string range $arg1 1 [expr -2 + [string len $arg1]]]
+    set arg1args  ""
+    for {set i 0} {$i < [llength $arg1split]} {incr i} {
+      set arg1args [concat $arg1args [lindex $arg1split $i]]
+    }
+    set theargs [concat $arg1args $args]
+  } else {
+    set theargs [concat $arg1 $args]
+  }
+  set parms  [split $theargs]
   set module [lindex $parms 0]
   set pass   [passnumber]
-  #puts "loadrt_substitute<$pass> <$parms>"
 
   # keep track of loadrt for each module in order to detect
   # unsupportable loadrt calls in pass1. The ct is the number of
@@ -136,7 +148,9 @@ proc ::tp::loadrt_substitute {args} {
     }
   }
   if {$pass > 0} {
-    eval orig_loadrt $parms
+    if [catch {eval orig_loadrt $parms} msg] {
+      puts "\ntwopass:loadrt_substitute parms=<$parms>\n$msg\n"
+    }
     return
   }
   # pass0 only follows ------------------------------------
@@ -475,7 +489,9 @@ proc ::tp::load_the_modules {} {
       set cmd "$cmd $::TP($m,other)"
     }
     verbose "[string range $cmd 5 end]" ;# omit leading orig_
-    eval $cmd
+    if [catch { eval $cmd} msg] {
+       puts "\ntwopass: load_the_modules cmd=<$cmd>\n$msg\n"
+    }
   }
   set ::TP(loaded,modules) $::TP(modules)
   set ::TP(modules) ""
