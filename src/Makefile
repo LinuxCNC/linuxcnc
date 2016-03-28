@@ -123,6 +123,7 @@ SUBDIRS := \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin \ emc/usr_intf/gscreen \ emc/usr_intf/pyui \
     emc/usr_intf/gmoccapy \
+    emc/usr_intf/FastSeal \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
     emc/motion-logger \
@@ -383,6 +384,7 @@ TARGETS += headers
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
 TARGETS += $(patsubst po/gmoccapy/%.po, ../share/locale/%/LC_MESSAGES/gmoccapy.mo, $(wildcard po/gmoccapy/*.po))
+TARGETS += $(patsubst po/FastSeal/%.po, ../share/locale/%/LC_MESSAGES/FastSeal.mo, $(wildcard po/FastSeal/*.po))
 TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
 
 # tooledit as standalone app:
@@ -558,6 +560,7 @@ install-dirs:
 		$(DESTDIR)$(datadir)/gscreen/images \
 		$(DESTDIR)$(datadir)/gscreen/skins \
 		$(DESTDIR)$(datadir)/gmoccapy/images \
+		$(DESTDIR)$(datadir)/FastSeal/images \
 		$(DESTDIR)$(datadir)/glade3/catalogs \
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
@@ -623,6 +626,7 @@ install-kernel-indep: install-dirs
 	$(FILE) ../share/linuxcnc/gscreen.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/gscreen2.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/gmoccapy/gmoccapy.glade $(DESTDIR)$(prefix)/share/gmoccapy
+	$(FILE) ../share/FastSeal/FastSeal.glade $(DESTDIR)$(prefix)/share/FastSeal
 	$(FILE) ../share/linuxcnc/pncconf/*.glade $(DESTDIR)$(prefix)/share/linuxcnc/pncconf
 	$(FILE) ../share/linuxcnc/gremlin_view.ui $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/popupkeyboard.ui $(DESTDIR)$(prefix)/share/linuxcnc
@@ -641,6 +645,7 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/touchy
 	$(DIR) $(DESTDIR)$(SITEPY)/gscreen
 	$(DIR) $(DESTDIR)$(SITEPY)/gmoccapy
+	$(DIR) $(DESTDIR)$(SITEPY)/FastSeal
 	$(DIR) $(DESTDIR)$(SITEPY)/gladevcp
 	$(DIR) $(DESTDIR)$(SITEPY)/stepconf
 	$(DIR) $(DESTDIR)$(SITEPY)/pncconf
@@ -650,6 +655,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
 	$(FILE) ../lib/python/gscreen/*.py $(DESTDIR)$(SITEPY)/gscreen
 	$(FILE) ../lib/python/gmoccapy/*.py $(DESTDIR)$(SITEPY)/gmoccapy
+	$(FILE) ../lib/python/FastSeal/*.py $(DESTDIR)$(SITEPY)/FastSeal
 	$(FILE) ../lib/python/gladevcp/*.py $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/gladevcp/*.glade $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/stepconf/*.py $(DESTDIR)$(SITEPY)/stepconf
@@ -671,6 +677,7 @@ install-python: install-dirs
 	$(EXE) ../bin/touchy $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gscreen $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gmoccapy $(DESTDIR)$(bindir)
+	$(EXE) ../bin/FastSeal $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) ../share/linuxcnc/linuxcnc-wizard.gif $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
@@ -680,6 +687,7 @@ install-python: install-dirs
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
+	$(FILE) ../share/FastSeal/images/*.png ../share/FastSeal/images/*.gif ../share/FastSeal/images/*.svg $(DESTDIR)$(datadir)/FastSeal/images
 
 install-kernel-dep:
 	$(DIR)	$(DESTDIR)$(moduledir)/linuxcnc \
