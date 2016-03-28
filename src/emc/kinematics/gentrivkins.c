@@ -116,8 +116,9 @@ static int next_axis_number(void) {
 	    case ' ': case '\t': coordinates++; continue;
 	}
 	rtapi_print_msg(RTAPI_MSG_ERR,
-		"GENTRIVKINS: ERROR: Invalid character '%c' in coordinates",
+		"GENTRIVKINS: ERROR: Invalid character '%c' in coordinates\n",
 		*coordinates);
+		return -1;
     }
     return -1;
 }
