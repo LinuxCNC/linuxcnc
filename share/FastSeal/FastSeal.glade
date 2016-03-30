@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
   <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="adf_probe_vel">
     <property name="upper">100</property>
@@ -169,12 +169,6 @@
   <object class="GtkFileFilter" id="filefilter1"/>
   <object class="EMC_Action_Open" id="hal_action_open"/>
   <object class="EMC_Action_Reload" id="hal_action_reload"/>
-  <object class="EMC_Action_Save" id="hal_action_save">
-    <property name="textview">gcode_view</property>
-  </object>
-  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
-    <property name="textview">gcode_view</property>
-  </object>
   <object class="EMC_Action_Step" id="hal_action_step"/>
   <object class="EMC_Action_Stop" id="hal_action_stop"/>
   <object class="EMC_Stat" id="hal_status">
@@ -541,6 +535,12 @@
       </row>
     </data>
   </object>
+  <object class="EMC_Action_Save" id="hal_action_save">
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
+    <property name="textview">gcode_view</property>
+  </object>
   <object class="GtkWindow" id="window1">
     <property name="width_request">979</property>
     <property name="height_request">750</property>
@@ -614,6 +614,27 @@
                                         <property name="can_focus">False</property>
                                         <property name="n_columns">13</property>
                                         <property name="column_spacing">5</property>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
                                         <child>
                                           <object class="GtkButton" id="btn_delete_view">
                                             <property name="width_request">48</property>
@@ -726,6 +747,9 @@
                                             <property name="x_options">GTK_SHRINK</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                           </packing>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
                                         </child>
                                         <child>
                                           <placeholder/>
@@ -1903,7 +1927,6 @@
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
                                                     <property name="color">#ffff81811616</property>
-                                                    <property name="height">48</property>
                                                     <property name="max">15000</property>
                                                     <property name="template">%d</property>
                                                     <property name="unit">mm/min</property>
@@ -1966,6 +1989,15 @@
                                                         <property name="row_spacing">3</property>
                                                         <property name="homogeneous">True</property>
                                                         <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
                                                           <object class="GtkButton" id="btn_x_minus">
                                                             <property name="label">X-</property>
                                                             <property name="width_request">50</property>
@@ -2021,6 +2053,9 @@
                                                           </packing>
                                                         </child>
                                                         <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
                                                           <object class="GtkButton" id="btn_z_minus">
                                                             <property name="label">Z-</property>
                                                             <property name="width_request">50</property>
@@ -2036,6 +2071,9 @@
                                                             <property name="x_options">GTK_SHRINK</property>
                                                             <property name="y_options">GTK_SHRINK</property>
                                                           </packing>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
                                                         </child>
                                                         <child>
                                                           <placeholder/>
@@ -2092,35 +2130,6 @@
                                                     <property name="expand">True</property>
                                                     <property name="fill">True</property>
                                                     <property name="position">0</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkVButtonBox" id="vbtb_jog_incr">
-                                                    <property name="width_request">110</property>
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="spacing">3</property>
-                                                    <child>
-                                                      <placeholder/>
-                                                    </child>
-                                                    <child>
-                                                      <placeholder/>
-                                                    </child>
-                                                    <child>
-                                                      <placeholder/>
-                                                    </child>
-                                                    <child>
-                                                      <placeholder/>
-                                                    </child>
-                                                    <child>
-                                                      <placeholder/>
-                                                    </child>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">False</property>
-                                                    <property name="fill">True</property>
-                                                    <property name="pack_type">end</property>
-                                                    <property name="position">1</property>
                                                   </packing>
                                                 </child>
                                               </object>
@@ -2271,7 +2280,6 @@
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
                                                     <property name="color">#ffff81811616</property>
-                                                    <property name="height">48</property>
                                                     <property name="max">150</property>
                                                     <property name="template">%d</property>
                                                     <property name="unit">%</property>
@@ -2373,7 +2381,6 @@
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
                                                     <property name="color">#ffff81811616</property>
-                                                    <property name="height">48</property>
                                                     <property name="max">15000</property>
                                                     <property name="template">%d</property>
                                                     <property name="unit">mm/min</property>
@@ -2571,7 +2578,6 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
                                                         <property name="color">#ffff81811616</property>
-                                                        <property name="height">48</property>
                                                         <property name="max">150</property>
                                                         <property name="template">%d</property>
                                                         <property name="unit">%</property>
@@ -3444,6 +3450,18 @@
                                         <property name="n_columns">2</property>
                                         <property name="row_spacing">3</property>
                                         <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
                                           <object class="GtkLabel" id="lbl_rel_color">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
@@ -3742,18 +3760,6 @@ clicking on the DRO</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                             <property name="x_padding">5</property>
                                           </packing>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
                                         </child>
                                       </object>
                                     </child>
@@ -6205,6 +6211,7 @@ Date</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_stop">
+                    <property name="related_action">hal_action_stop</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6223,6 +6230,7 @@ Date</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_pause">
+                    <property name="related_action">hal_tgl_pause</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6250,6 +6258,7 @@ Date</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_step">
+                    <property name="related_action">hal_action_step</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7121,6 +7130,7 @@ selected</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkButton" id="btn_reload">
+                    <property name="related_action">hal_action_reload</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -7155,6 +7165,7 @@ selected</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_save">
+                    <property name="related_action">hal_action_save</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -7176,6 +7187,7 @@ selected</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_save_as">
+                    <property name="related_action">hal_action_saveas</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>

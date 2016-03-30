@@ -701,11 +701,11 @@ class FastSeal( object ):
         label = _( "Continuous" )
         rbt0 = gtk.RadioButton( None, label )
         rbt0.connect( "pressed", self.on_increment_changed, 0 )
-        self.widgets.vbtb_jog_incr.pack_start( rbt0, True, True, 0 )
+        #self.widgets.vbtb_jog_incr.pack_start( rbt0, True, True, 0 )
         rbt0.set_property( "draw_indicator", False )
         rbt0.show()
-        rbt0.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
-        rbt0.__name__ = "rbt0"
+        #rbt0.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
+        #rbt0.__name__ = "rbt0"
         self.incr_rbt_list.append( rbt0 )
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
@@ -713,10 +713,10 @@ class FastSeal( object ):
             rbt = "rbt%d" % ( item )
             rbt = gtk.RadioButton( rbt0, self.jog_increments[item] )
             rbt.connect( "pressed", self.on_increment_changed, self.jog_increments[item] )
-            self.widgets.vbtb_jog_incr.pack_start( rbt, True, True, 0 )
+            #self.widgets.vbtb_jog_incr.pack_start( rbt, True, True, 0 )
             rbt.set_property( "draw_indicator", False )
-            rbt.show()
-            rbt.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
+            #rbt.show()
+            #rbt.modify_bg( gtk.STATE_ACTIVE, gtk.gdk.color_parse( "#FFFF00" ) )
             rbt.__name__ = "rbt%d" % ( item )
             self.incr_rbt_list.append( rbt )
         self.active_increment = "rbt0"
@@ -1309,7 +1309,7 @@ class FastSeal( object ):
         self.widgets.tbtn_on.set_sensitive( True )
         self.widgets.ntb_jog.set_sensitive( True )
         self.widgets.tbl_jog_btn.set_sensitive( False )
-        self.widgets.vbtb_jog_incr.set_sensitive( False )
+        #self.widgets.vbtb_jog_incr.set_sensitive( False )
         self.widgets.hbox_jog_vel.set_sensitive( False )
         self.widgets.chk_ignore_limits.set_sensitive( True )
         self._check_limits()

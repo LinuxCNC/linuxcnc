@@ -72,7 +72,7 @@ sys.excepthook = excepthook
 debug = False
 
 if debug:
-    pydevdir = '/home/emcmesa/Aptana_Studio_3/plugins/org.python.pydev_2.7.0.2013032300/pysrc'
+    pydevdir = '/home/gmoccapy/Aptana_Studio_3/plugins/org.python.pydev_4.5.5.201603221110/pysrc'
 
     if os.path.isdir( pydevdir ):  # and  'emctask' in sys.builtin_module_names:
         sys.path.append( pydevdir )
