@@ -325,6 +325,58 @@ be a one-to-one correspondence between the rotary axis and the joint number.
 
 == Hal (updates for joints_axes)
 
+=== Wheel or MPG (manual pulse generator) jogging
+
+Prior to incorporation of joints_axes updates, wheel jogging was
+supported in joint mode only and controlled with hal pins:
+
+----
+   bit   IN  axis.M.jog-enable
+   float IN  axis.M.jog-scale
+   s32   IN  axis.M.jog-counts
+   bit   IN  axis.M.jog-vel-mode
+----
+
+where 'M' is a number corresponding to an axis letter (0==>X, 1==>Y, etc.)
+
+With incorporation of joints_axes updates, wheel jogging is available
+for joints in joint mode and for each axis coordinate in teleop mode.  The
+controlling hal pins provided are:
+
+----
+   bit   IN  joint.N.jog-enable
+   float IN  joint.N.jog-scale
+   s32   IN  joint.N.jog-counts
+   bit   IN  joint.N.jog-vel-mode
+
+   bit   IN  axis.L.jog-enable
+   float IN  axis.L.jog-scale
+   s32   IN  axis.L.jog-counts
+   bit   IN  axis.L.jog-vel-mode
+----
+
+where 'N' is a joint number and 'L' is an axis letter.
+
+To use an MPG in identity kins configurations where there is a one-to-one
+correspondence of a joint number and an axis letter, it may be convenient to
+connect the corresponding hal pins.  For example, if joint 1 corresponds
+exactly to axis letter y:
+
+----
+   net jora_1_y_enable   => joint.1.jog-enable => axis.y.jog-enable
+   net jora_1_y_scale    => joint.1.jog-scale  => axis.y.jog-scale
+   net jora_1_y_counts   => joint.1.jog-counts => axis.y.jog-counts
+   net jora_1_y_vel-mode => joint.1.jog-counts => axis.y.jog-vel-mode
+----
+
+(The signal names jora_1_y_* are examples, names prior to conversion
+for joints_axes will depend upon the specific configuration details.)
+
+Configurations with non-identity kinematics and configurations that use
+duplicated axis letters (for example, gantries using more than one joint for an
+axis coordinate) will require appropriate independent control logic to support
+both joint and teleop (world) jogging.
+
 === Ini Hal pins
 
 Hal pins are created for ini file items for both joints ([JOINT_N] stanzas)
