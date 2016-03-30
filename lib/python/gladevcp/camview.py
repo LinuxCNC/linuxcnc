@@ -3,7 +3,7 @@
 # GladeVcp Widget - CamView widget, showing the live stream
 #                   from a web cam or other connected cameras.
 #
-# Copyright (c) 2013 Norbert Schechner
+# Copyright (c) 2016 Norbert Schechner
 # Based on the DisplayImage code from Jay Rambhia 
 #
 # This program is free software: you can redistribute it and/or modify
@@ -54,8 +54,8 @@ class CamView(gtk.VBox):
     start from terminal with qv4l2
     you can use this tool to get a live stream, you are on the right way.
     
-    please make sure you have v4l2-ctl installed it will be used to get yoour devices
-    sudo apt-get install v4l2-utils
+    please make sure you have v4l2-ctl installed it will be used to get your devices
+    sudo apt-get install v4l-utils
     
     To be able to open the camera settings from the App, you have to install also v4l2ucp
     sudo apt-get install v4l2ucp
@@ -102,7 +102,7 @@ class CamView(gtk.VBox):
     def __init__(self,videodevice=0, frame_width=640, frame_height=480):
         super(CamView, self).__init__()
 
-        self.__version__ = "0.1.1"
+        self.__version__ = "0.1.2"
 
         # set the selected camera as video device
         self.videodevice = videodevice
