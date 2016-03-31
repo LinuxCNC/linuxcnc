@@ -209,6 +209,53 @@ configurations include:
 The following subsections and the section for 'Hal Changes' list items that
 may require additional user edits to ini or hal files.
 
+=== Kinematics modules
+
+The gentrivkins and gantrykins kinematics modules have been removed as their
+functionality is now available in the updated trivkins module.
+
+The gentrivkins module has only been available in prior joints_axes
+branches.  To convert, it is necessary to change the name.
+
+Hal file examples:
+
+----
+was: loadrt gentrivkins
+ is: loadrt trivkins
+
+was: loadrt gentrivkins coordinates=xyyz
+ is: loadrt trivkins    coordinates=xyyz
+----
+
+Configurations using gantrykins should be updated to use trivkins with the
+kinstype= parameter set to BOTH (for KINEMAICS_BOTH).
+
+Hal file example:
+
+----
+was: loadrt gantrykins coordinates=xyyz
+ is: loadrt trivkins   coordinates=xyyz kinstype=BOTH
+----
+
+See the trvkins man page for additional information ( $ man trivkins )
+
+Note: the most supported usage for specifying kinematics in joints_axes
+is to set values in the configuration ini file [KINS} section and then
+reference them within the specified [HAL]HALFILES ( .hal .tcl files).  For
+example:
+
+----
+inifile:    [KINS]
+            KINEMAICS = trivkins
+            JOINTS = 3
+            ...
+
+halfile:    loadrt [KINS]KINEMATICS
+
+haltclfile: loadrt $::KINS(KINEMATICS)
+----
+
+
 === Stricter INI file syntax
 
 Lines with numeric INI variables are no longer allowed to have trailing
@@ -246,25 +293,25 @@ Three axis Cartesian machine using trivkins (KINEMATICS_IDENTITY):
   [TRAJ]COORDINATES = XYZ
 -----
 
-Two axis lathe using gentrivkins (KINEMATICS_IDENTITY) with non-consecutive
+Two axis lathe using trivkins (KINEMATICS_IDENTITY) with non-consecutive
 axis letters:
 -----
-  [KINS]KINEMATICS  = gentrivkins coordinates=XZ
+  [KINS]KINEMATICS  = trivkins coordinates=XZ
   [KINS]JOINTS      = 2
   [TRAJ]COORDINATES = XZ
 -----
 
-Gantry using gentrivkins (KINEMATICS_IDENTITY) with duplicated axis letters:
+Gantry using trivkins (KINEMATICS_IDENTITY) with duplicated axis letters:
 -----
-  [KINS]KINEMATICS  = gentrivkins coordinates=XYYZ
+  [KINS]KINEMATICS  = trivkins coordinates=XYYZ
   [KINS]JOINTS      = 4
   [TRAJ]COORDINATES = XYYZ
 -----
 
-Gantry using gentrivkins (KINEMATICS_IDENTITY) with duplicated axis letters
+Gantry using trivkins (KINEMATICS_IDENTITY) with duplicated axis letters
 and a rotary axis with skipped axis letters (A,B skipped):
 -----
-  [KINS]KINEMATICS  = gentrivkins coordinates=XYYZC
+  [KINS]KINEMATICS  = trivkins coordinates=XYYZC
   [KINS]JOINTS      = 5
   [TRAJ]COORDINATES = XYYZC
 -----
@@ -277,15 +324,15 @@ with an additional rotary coordinate:
   [TRAJ]COORDINATES = XYZA
 -----
 
-Note: Some general-purpose kinematics modules (like gentrivkins) implement
+Note: Some general-purpose kinematics modules (like trivkins) implement
       identity kinematics with support for coordinate specification (axis letters).
       Axis letters may be omitted.  Axis letters may be duplicated.
-      Joints are assigned to axis letters in a defined manner ($ man gentrivkins).
+      Joints are assigned to axis letters in a defined manner ($ man trivkins).
 
-Note: For gentrivkins module loading, do not include spaces about the = sign or letters: 
+Note: For trivkins module loading, do not include spaces about the = sign or letters:
 
-      This:     [KINS]KINEMATICS = gentrivkins coordinates=XZ
-      NOT This: [KINS]KINEMATICS = gentrivkins coordinates = X Z
+      This:     [KINS]KINEMATICS = trivkins coordinates=XZ
+      NOT This: [KINS]KINEMATICS = trivkins coordinates = X Z
 
 Note: Custom kinematics modules that implement non-identity kinematics (like
       lineardeltakins) define machine-specific relationships between a set
@@ -332,18 +379,18 @@ the motmod module.  (bit0(LSB)==>joint0, bit1==>joint1, etc.)
   [EMCMOT]motmod unlock_joints_mask = BITMASK
 ----
 
-As an example, consider a machine using gentrivkins kinematics with coordinates
-XYZB where B is a locking indexer.  For gentrivkins, joint numbers (starting
+As an example, consider a machine using trivkins kinematics with coordinates
+XYZB where B is a locking indexer.  For trivkins, joint numbers (starting
 with 0) are assigned consecutively to the coordinates specified (axis
 coordinate letters may be omitted).  For this example, X==>joint0, Y==>joint1,
 Z==>joint2, B==>joint3.  The mask to specify joint 3 is 000001000 (binary) ==
 0x08 (hexadecimal)
 
-The required ini file entries for this gentrivkins XYZB example are:
+The required ini file entries for this trivkins XYZB example are:
 ----
   [KINS]
   JOINTS = 4
-  KINEMATICS = gentrivkins coordinates=XYZB
+  KINEMATICS = trivkins coordinates=XYZB
   ...
 
   [TRAJ]

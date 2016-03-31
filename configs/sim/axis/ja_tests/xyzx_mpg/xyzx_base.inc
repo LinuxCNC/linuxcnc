@@ -1,10 +1,10 @@
 [EMC]
 VERSION = 1.0
-MACHINE = gentrivkins xyzx KINEMATICS_BOTH,AUTO_TELEOP
+MACHINE = trivkins xyzx KINEMATICS_BOTH,AUTO_TELEOP
   DEBUG = 0
 
 [KINS]
- KINEMATICS = gentrivkins coordinates=xyzx kinstype=BOTH
+ KINEMATICS = trivkins coordinates=xyzx kinstype=BOTH
      JOINTS = 4
 AUTO_TELEOP = 20
 

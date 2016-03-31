@@ -1,5 +1,5 @@
 xyzx_gantry configs using:
-  gentrivkins coordinates=xyzx kintype=BOTH
+  trivkins coordinates=xyzx kintype=BOTH
 
 xyzx.ini          -- includes sim_pin simulation for wheel jogging
 xyzx-xhc-hb04.ini -- uses an  xhc-hb04 pendant (18 button model)
@@ -55,7 +55,7 @@ b) The configs use [KINS]AUTOTELEOP= to automatically
    switch to teleop mode after homing.
 
 c) The LIB:xhc-hb04.tcl script handles configurations
-   with known kinematics -- gentrivkins for the configs
+   with known kinematics -- trivkins for the configs
    provided here.
 
 d) For a machine configured as xyzx, the 0,1,2 --> x,y,z

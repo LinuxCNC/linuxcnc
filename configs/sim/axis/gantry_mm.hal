@@ -1,6 +1,6 @@
 # first load all the RT modules that will be needed
 # kinematics
-loadrt [KINS]KINEMATICS coordinates=XYYZ
+loadrt [KINS]KINEMATICS
 
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS

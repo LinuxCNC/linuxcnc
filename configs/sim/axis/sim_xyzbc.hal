@@ -2,11 +2,6 @@
 
 # first load all the RT modules that will be needed
 loadrt [KINS]KINEMATICS
-setp [KINS](KINEMATICS).joint-0 0
-setp [KINS](KINEMATICS).joint-1 1
-setp [KINS](KINEMATICS).joint-2 2
-setp [KINS](KINEMATICS).joint-3 4
-setp [KINS](KINEMATICS).joint-4 5
 
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS

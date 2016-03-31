@@ -147,9 +147,9 @@ class INI:
         print >>file
         print >>file,  "[KINS]"
         # trivial kinematics: no. of joints == no.of axes)
-        # with gentrivkins, axes do not have to be consecutive
+        # with trivkins, axes do not have to be consecutive
         print >>file, "JOINTS = %d"%num_joints
-        print >>file, "KINEMATICS = gentrivkins coordinates=%s"%coords.replace(" ","")
+        print >>file, "KINEMATICS = trivkins coordinates=%s"%coords.replace(" ","")
 
         print >>file
         print >>file, "[TRAJ]"
@@ -192,7 +192,7 @@ class INI:
         if self.d.axes != 2: all_homes = all_homes and self.a.home_sig("y")
         if self.d.axes == 4: all_homes = all_homes and self.a.home_sig("a")
 
-        # todo: simplify hardcoding for gentrivkins sequential joint no.s
+        # todo: simplify hardcoding for trivkins sequential joint no.s
         if   self.d.axes == 0: # "X Y Z"
             self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
             self.write_one_axis(file, 1, "y", "LINEAR", all_homes)

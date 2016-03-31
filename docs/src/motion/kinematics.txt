@@ -112,7 +112,7 @@ loopback in HAL for the unused Y axis.  This is done with sim configs so that
 they can share common hal files.]  
 
 The problems of omitted axes is addressed with a generalized version of
-identity kinematics: the 'gentrivkins' kinematics module.  With 'gentrivkins',
+identity kinematics: the 'trivkins' kinematics module.  With 'trivkins',
 the coordinates used are specified with a module parameter (coordinates=) and
 joint numbers are assigned consecutively to each coordinate.  So a lathe can be
 described with coordinates=xz The joint assignments will be:
@@ -122,7 +122,7 @@ joints[0] = pos->tran.x
 joints[1] = pos->tran.z
 ----
 
-The 'gentrivkins' kinematics module allows the same coordinate to be specified
+The 'trivkins' kinematics module allows the same coordinate to be specified
 for more than one joint.  This feature can be useful on machines like a gantry
 having two independent motors for the y coordinate.  Such a machine could use
 coordinates=xyyz resulting in joint assignments:
@@ -134,7 +134,7 @@ joints[2] = pos->tran.y
 joints[3] = pos->tran.z
 ----
     
-See the trivkins and gentrivkns man pages for more information.
+See the trivkins man pages for more information.
 
 == Non-trivial kinematics
 

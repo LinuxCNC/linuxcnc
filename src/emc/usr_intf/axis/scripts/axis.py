@@ -3285,7 +3285,7 @@ for i in range(len(trajcoordinates)):
     if trajcoordinates.count(trajcoordinates[i]) > 1:
         duplicate_coord_letters = duplicate_coord_letters + trajcoordinates[i]
 if duplicate_coord_letters != "":
-    # Can occur, for instance, with gantrykins (or gentrivkins with kinstype=both).
+    # Can occur, for instance, with trivkins with kinstype=both).
     # In such kins, the value for a duplicated axis letter will equal the
     # value of the highest numbered joint.
     # Movements on axis gui display in joint mode (after homing) may be unexpected,
@@ -3317,9 +3317,7 @@ def jnum_for_aletter(aletter):
     if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
         raise SystemExit("jnum_for_aletter: Must be KINEMATICS_IDENTITY")
     aletter = aletter.lower()
-    if kinstype == "trivkins":
-        return "xyzabcuvw".index(aletter)
-    elif "gentrivkins" in kinstype:
+    if "trivkins" in kinstype:
         return trajcoordinates.index(aletter)
     else:
         guess = trajcoordinates.index(aletter)
@@ -3329,12 +3327,7 @@ def jnum_for_aletter(aletter):
 def aletter_for_jnum(jnum):
     if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
         raise SystemExit("aletter_for_jnum: Must be KINEMATICS_IDENTITY")
-    if kinstype == "trivkins":
-        if not (s.axis_mask & (1<<jnum)):
-            return "NOALETTER"
-        else:
-            return "XYZABCUVW"[jnum]
-    elif "gentrivkins" in kinstype:
+    if "trivkins" in kinstype:
         return trajcoordinates.upper()[jnum]
     else:
         guess = trajcoordinates.upper()[jnum]

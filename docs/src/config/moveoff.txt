@@ -112,7 +112,7 @@ a configuration ini file, it will:
 
 Note: The moveoff_gui application supports configurations that use known
 kinematics modules with KINEMATICS_TYPE=KINEMATICS_IDENTITY.  Supported
-modules include: trivkins, gentrivkins.  With identity kins, moveoff_gui
+modules include: trivkins.  With identity kins, moveoff_gui
 assigns each axis name specified with the command line parameter '-axes axisnames'
 to the corresponding joint.
 

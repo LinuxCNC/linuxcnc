@@ -1,6 +1,6 @@
 [TRAJ]
 NO_FORCE_HOMING =       1
-COORDINATES =           X Y Z A B C U V W
+COORDINATES =           X Y Z C
 LINEAR_UNITS =          inch
 ANGULAR_UNITS =         degree
 CYCLE_TIME =            0.010
@@ -11,5 +11,5 @@ MAX_LINEAR_VELOCITY =   1.2
 MAX_ANGULAR_VELOCITY =  90.0
 
 [KINS]
-KINEMATICS = trivkins
-JOINTS = 9
+KINEMATICS = trivkins coordinates=xyzc
+JOINTS = 4

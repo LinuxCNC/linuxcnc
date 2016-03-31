@@ -39,8 +39,7 @@ set ::MAX_JOINTS 9          ;# src/emc/motion/emcmotcfg.h
 
 set kinematics [lindex [emc_ini "KINEMATICS" "KINS"] 0]
 switch $kinematics {
-  trivkins -
-  gentrivkins {}
+  trivkins {}
   default     {
     if {"$kinematics" == ""} {
       puts "$::prog: \[KINS\]KINEMATICS not specified, assuming identity kins"

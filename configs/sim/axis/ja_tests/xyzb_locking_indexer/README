@@ -16,13 +16,12 @@ The configs start additional applications:
      Signal j:b is jog-counts for  axis b AND joint 3
  2) halshow app to show relevant hal pins
 
-xyzb_trivkins.ini         trivkins with omitted axis letter (a)
-xyzb_gentrivkins.ini   gentrivkins with ommitted axis letter (a)
-xyyzb_gentrivkins.ini  gentrivkins with ommitted axis letter (a)
+xyzb.ini   trivkins with ommitted axis letter (a)
+xyyzb.ini  trivkins with ommitted axis letter (a)
                                    and  duplicated axis letter (y)
                                    and  auto teleop after homing
 
-The xyyzb_gentrivkins.ini uses the gentrivkins kinstype option
+The xyyzb.ini uses the trivkins kinstype option
 to set the kinematics type to KINEMATICS_BOTH to demonstrate
 jogging and teleop jogging and the AUTO_TELEOP capability.
 

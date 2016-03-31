@@ -386,7 +386,7 @@ class HAL:
 
                 # joints only items (no corresponding axis item):
                 print >>file, "net %s-is-homed     halui.joint.%d.is-homed"% (axletter,jnum)
-                jnum = jnum + 1 # expect joints in sequence (like gentrivkins)
+                jnum = jnum + 1 # expect joints in sequence (like trivkins)
 
         print >>file, "net jog-selected-pos      halui.axis.selected.plus"
         print >>file, "net jog-selected-neg      halui.axis.selected.minus"

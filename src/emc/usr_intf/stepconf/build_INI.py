@@ -113,9 +113,9 @@ class INI:
 
         print >>file,  "[KINS]"
         # trivial kinematics: no. of joints == no.of axes)
-        # with gentrivkins, axes do not have to be consecutive
+        # with trivkins, axes do not have to be consecutive
         print >>file, "JOINTS = %d"%num_joints
-        print >>file, "KINEMATICS = gentrivkins coordinates=%s"%coords.replace(" ","")
+        print >>file, "KINEMATICS = trivkins coordinates=%s"%coords.replace(" ","")
         print >>file
         print >>file, "[FILTER]"
         print >>file, "PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image"

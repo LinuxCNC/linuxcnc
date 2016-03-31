@@ -907,12 +907,6 @@ obj-m += 5axiskins.o
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o
 
-obj-m += gantrykins.o
-gantrykins-objs := emc/kinematics/gantrykins.o
-
-obj-m += gentrivkins.o
-gentrivkins-objs := emc/kinematics/gentrivkins.o
-
 obj-m += rotatekins.o
 rotatekins-objs := emc/kinematics/rotatekins.o
 
@@ -1051,10 +1045,8 @@ endif
 ../rtlib/hal_lib$(MODULE_EXT): $(addprefix objects/rt,$(hal_lib-objs))
 ../rtlib/motmod$(MODULE_EXT): $(addprefix objects/rt,$(motmod-objs))
 ../rtlib/trivkins$(MODULE_EXT): $(addprefix objects/rt,$(trivkins-objs))
-../rtlib/gentrivkins$(MODULE_EXT): $(addprefix objects/rt,$(gentrivkins-objs))
 ../rtlib/5axiskins$(MODULE_EXT): $(addprefix objects/rt,$(5axiskins-objs))
 ../rtlib/maxkins$(MODULE_EXT): $(addprefix objects/rt,$(maxkins-objs))
-../rtlib/gantrykins$(MODULE_EXT): $(addprefix objects/rt,$(gantrykins-objs))
 ../rtlib/rotatekins$(MODULE_EXT): $(addprefix objects/rt,$(rotatekins-objs))
 ../rtlib/tripodkins$(MODULE_EXT): $(addprefix objects/rt,$(tripodkins-objs))
 ../rtlib/lineardeltakins$(MODULE_EXT): $(addprefix objects/rt,$(lineardeltakins-objs))

@@ -2,13 +2,13 @@
 
 #----------------------------------------------------------------------
 # Notes (Joints-Axes):
-#   1) establish indices for common kins (trivkins, gentrivkins)
+#   1) establish indices for common kins (trivkins)
 #   2) if  ::KINS(KINEMATICS) exists:
 #        loadrt the kins using any included parameters
 #        example: for inifile item:
-#           [KINS]KINEMATICS = gentrivkins coordinates=XZ kinstype=BOTH
+#           [KINS]KINEMATICS = trivkins coordinates=XZ kinstype=BOTH
 #        use:
-#           loadrt gentrivkins coordinates=xz kinstype=BOTH
+#           loadrt trivkins coordinates=xz kinstype=BOTH
 #      else:
 #           loadrt trivkins
 #
@@ -16,21 +16,17 @@
 #          coordinats must agree with ::TRAJ(COORDINATES)
 #
 #----------------------------------------------------------------------
-proc indices_for_trivkins {  {axes {x y z a b c u v w} } } {
-  foreach a [string tolower $axes] {
-    set ::SIM_LIB(jointidx,$a) [lsearch {x y z a b c u v w} $a]
-  }
-} ;# indices_for_trivkins
 
-proc indices_for_gentrivkins {axes} {
-  # ref: src/emc/kinematics/gentrivkins.c
+proc indices_for_trivkins {axes} {
+  # ref: src/emc/kinematics/trivkins.c
+  if {"$axes" == ""} {set axes {x y z abc u v w}}
   set i 0
   foreach a [string tolower $axes] {
      # assign to consecutive joints:
      set ::SIM_LIB(jointidx,$a) $i
      incr i
   }
-} ;# indices_for_gentrivkins
+} ;# indices_for_trivkins
 
 proc get_traj_coordinates {} {
   # initraj.cc: coordinates may be with or without spaces X Z or XZ
@@ -44,7 +40,7 @@ proc get_traj_coordinates {} {
 proc setup_kins {axes} {
   if ![info exists ::KINS(KINEMATICS)] {
     puts stderr "NO \[KINS\]KINEMATICS, trying trivkins"
-    indices_for_trivkins
+    indices_for_trivkins {}
     eval loadrt trivkins
     return
   }
@@ -62,7 +58,6 @@ proc setup_kins {axes} {
 
   # set up axis indices for known kins
   switch $kins {
-    gentrivkins {indices_for_gentrivkins $axes}
     trivkins    {indices_for_trivkins    $axes}
     default      {
       puts stderr "setup_kins:UNKNOWN \[KINS\]KINEMATICS=<$::KINS(KINEMATICS)>,\

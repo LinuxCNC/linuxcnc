@@ -203,7 +203,7 @@ Recommended procedure is to create a new configuration based on an existing conf
 ----------------------------------
 Note: The xhc-hb04.tcl script supports configurations with known kins which
       must have KINEMATICS_TYPE = KINEMATICS_IDENTITY.
-      Currently, known kins are: trivkins, gentrivkins)
+      Currently, known kins are: trivkins)
 
       Use with non-identity kinematics is not supported with the
       xhc-hb04.tcl script (but the driver, xhc-hb04, can be configured with
