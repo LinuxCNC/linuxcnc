@@ -156,6 +156,8 @@ class GremlinView():
         self.topwindow = bldr.get_object('gremlin_view_window')
         self.gbox      = bldr.get_object('gremlin_view_box')
         self.halg      = bldr.get_object('gremlin_view_hal_gremlin')
+        self.halg.kinstype = self.halg.inifile.find('KINS','KINEMATICS')
+        self.halg.trajcoordinates = self.halg.inifile.find('TRAJ','COORDINATES')
 
         if not linuxcnc_running:
             # blanks display area:
