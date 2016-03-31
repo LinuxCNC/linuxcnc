@@ -1186,6 +1186,8 @@ class Gscreen:
         self.widgets.gremlin.grid_size = self.data.grid_size
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
         self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == self.data._MM))
+        self.widgets.gremlin.kinstype = self.inifile.find("KINS", "KINEMATICS")
+        self.widgets.gremlin.trajcoordinates = self.inifile.find("TRAJ", "COORDINATES")
 
     def init_manual_spindle_controls(self):
         """ set spindle default start rpm

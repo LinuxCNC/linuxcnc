@@ -1056,6 +1056,8 @@ class gmoccapy( object ):
         self.widgets.gremlin.set_property( "metric_units", int( self.stat.linear_units ) )
         self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property( "use_commanded", not self.dro_actual)
+        self.widgets.gremlin.kinstype = self.get_ini_info.get_kinstype()
+        self.widgets.gremlin.trajcoordinates = self.get_ini_info.get_trajcoordinates()
 
     # init the function to hide the cursor
     def _init_hide_cursor( self ):
