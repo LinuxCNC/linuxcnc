@@ -165,6 +165,49 @@ sudo dpkg -i linuxcnc_2.7.4.deb
 The new version of LinuxCNC differs from version 2.7 in some ways that
 may require changes to your machine configuration.
 
+=== Distribution Configurations (updates for joints_axes)
+
+The LinuxCNC distribution includes many example configurations organized in
+directory hierarchies named: by_machine, by_interface, and sim (simulated
+machines).  These configurations are often used as starting points for making a
+new configuration, as examples for study, or as complete simulated machines that
+can run without special hardware or real-time kernels.
+
+The configuration files in these directory trees have been updated for the
+changes required for the joints_axes updates.
+
+=== Automatic updates (update_ini script for joints_axes)
+
+Since the joints_axes updates require a number of changes to user ini files and
+their related halfiles, a script named update_ini is provided to automatically
+convert user configurations.
+
+This script is invoked when a user starts an existing configuration for the
+first time after updating LinuxCNC.  The script searches the user ini file for
+a [EMC]VERSION item.   If this item 1) does not exist, or 2) exists and is set
+to the historical CVS value "$Revision$", or is a numerical value less than
+1.0, then the update_ini script will popup a dialog to offer to edit the user
+files to create an updated configuration.  If the user accepts, the
+configuration will be updated.
+
+For example, if the user configuration is named bigmill.ini, the bigmill.ini file
+and its local associated hal files will be edited to incorporate joints_axes
+changes.  All files of the initial configuration will be saved in a new directory
+named after the original configuration with a ".old" suffix (bigmill.old in the
+example).
+
+The update_ini script handles all common user items that are found in basic
+machines employing identity kinematics.  Less common items used in more complex
+machines may not be converted automatically.  Examples of complex machine
+configurations include:
+
+   gantries with two joints for an axis
+   machines with jogwheels
+   robots with non-identity kinematics
+   configurations using haltcl files
+
+The following subsections and the section for 'Hal Changes' list items that
+may require additional user edits to ini or hal files.
 
 === Stricter INI file syntax
 
@@ -252,6 +295,8 @@ Note: Custom kinematics modules that implement non-identity kinematics (like
       and '[TRAJ]COORDINATES'.  The details will usually be explained in the
       module man page (for example, $ man lineardeltakins).
 
+
+
 === Locking rotary indexer (updates for joints_axes)
 
 With joints_axes, an indexer is a joint that can be homed (joint mode)
@@ -323,7 +368,7 @@ be a one-to-one correspondence between the rotary axis and the joint number.
 
 (See the motion man page ($ man motion) for more information on motmod)
 
-== Hal (updates for joints_axes)
+== Hal Changes (updates for joints_axes)
 
 === Wheel or MPG (manual pulse generator) jogging
 
