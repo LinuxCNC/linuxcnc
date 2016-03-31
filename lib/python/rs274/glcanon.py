@@ -1318,7 +1318,19 @@ class GlCanonDraw:
                 gluDeleteQuadric(q)
         glEndList()
 
+    def lathe_historical_config(self,trajcoordinates):
+        # detect historical lathe config with dummy joint 1
+        if      (self.is_lathe()
+            and (trajcoordinates == "XZ")
+            and (self.get_num_joints() == 3)):
+            return True
+        return False
+
     def aletter_for_jnum(self,jnum,kinstype,trajcoordinates):
+        if self.lathe_historical_config(trajcoordinates):
+            if jnum == 1: return "Y"
+            if jnum == 2: return "Z"
+
         if "trivkins" in kinstype:
             return trajcoordinates[jnum]
         else:
@@ -1340,13 +1352,6 @@ class GlCanonDraw:
         self.no_joint_display = no_joint_display
         limit = list(s.limit[:])
         homed = list(s.homed[:])
-
-        if self.is_lathe() and (s.joints >= 3):
-           # hack to hide homeicon for dummy joint_1
-           # better to use trivkins with KINEMATICS_BOTH
-           # even trivkins with KINEMATICS_IDENTITY is better
-           homed[1] = 0
-           limit[1] = 0
 
         if not self.get_joints_mode() or self.no_joint_display:
             if self.get_show_commanded():

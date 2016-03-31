@@ -3324,7 +3324,19 @@ def jnum_for_aletter(aletter):
         print "jnum_for_aletter guessing %s --> %d"%(aletter,guess)
         return guess
 
+def lathe_historical_config():
+    # detect historical lathe config with dummy joint 1
+    if      (lathe
+        and (trajcoordinates.upper() == "XZ")
+        and (num_joints == 3)):
+        return True
+    return False
+
 def aletter_for_jnum(jnum):
+    if lathe_historical_config():
+        if jnum == 1: return "Y"
+        if jnum == 2: return "Z"
+
     if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
         raise SystemExit("aletter_for_jnum: Must be KINEMATICS_IDENTITY")
     if "trivkins" in kinstype:
