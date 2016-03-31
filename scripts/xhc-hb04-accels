@@ -40,8 +40,9 @@ if ![info exists ok] {
 }
 
 foreach coord {x y z a b c u v w} {
-  set jnum [joint_number_for_axis $coord]
-  if ![catch {hal gets pendant:muxed-accel-$coord} msg] {
+  if ![catch {
+    set jnum [joint_number_for_axis $coord]
+    hal gets pendant:muxed-accel-$coord} msg] {
     hal net pendant:muxed-accel-$coord ini.$coord.max_acceleration
     hal net pendant:muxed-accel-$coord ini.$jnum.max_acceleration
   }

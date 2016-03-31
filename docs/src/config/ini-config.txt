@@ -795,9 +795,9 @@ small, tight corners, since you're limited by cornering acceleration.
     axis names (X- Y- Z-) to joint numbers--for 'trivkins kinematics', X is
     always joint 0, A is always joint 3, and U is always joint 6, and so
     on. It is permitted to write an axis name twice (e.g., X Y Y Z for a
-    gantry machine) but this has no effect.  For 'gentrivkins kinematics',
+    gantry machine) but this has no effect.  For 'trivkins kinematics',
     joint numbers are assigned in sequence according to the 
-    gentrivkins parameter coordinates=.  So, for gentrivkins coordinates=xz,
+    trivkins parameter coordinates=.  So, for trivkins coordinates=xz,
     joint0 corresponds to X and joint1 corresponds to Z.
 
 * 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
@@ -931,7 +931,7 @@ correspondence between a joint and an axis):
 * JOINT_8 = W
 
 Other kinematics modules with identity kinematics are available to support
-configurations with partial sets of axes.  For example, using gentrivkins
+configurations with partial sets of axes.  For example, using trivkins
 with coordinates=XZ, the joint-axes relationships are:
 
 * JOINT_0 = X

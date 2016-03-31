@@ -1319,12 +1319,7 @@ class GlCanonDraw:
         glEndList()
 
     def aletter_for_jnum(self,jnum,kinstype,trajcoordinates):
-        if kinstype == "trivkins":
-            if not (self.stat.axis_mask & (1<<jnum)):
-                return "NOALETTER"
-            else:
-                return "XYZABCUVW"[jnum]
-        elif "gentrivkins" in kinstype:
+        if "trivkins" in kinstype:
             return trajcoordinates[jnum]
         else:
             guess = trajcoordinates[jnum]
@@ -1332,9 +1327,7 @@ class GlCanonDraw:
 
     def jnum_for_aletter(self,aletter,kinstype,trajcoordinates):
         aletter = aletter.upper()
-        if kinstype == "trivkins":
-            return "XYZABCUVW".index(aletter)
-        elif "gentrivkins" in kinstype:
+        if "trivkins" in kinstype:
             return trajcoordinates.index(aletter)
         else:
             guess = trajcoordinates.index(aletter)
@@ -1350,8 +1343,8 @@ class GlCanonDraw:
 
         if self.is_lathe() and (s.joints >= 3):
            # hack to hide homeicon for dummy joint_1
-           # better to use gentrivkins with KINEMATICS_BOTH
-           # even gentrivkins with KINEMATICS_IDENTITY is better
+           # better to use trivkins with KINEMATICS_BOTH
+           # even trivkins with KINEMATICS_IDENTITY is better
            homed[1] = 0
            limit[1] = 0
 

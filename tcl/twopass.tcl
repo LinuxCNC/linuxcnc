@@ -112,7 +112,7 @@ proc ::tp::loadrt_substitute {arg1 args} {
   # detect multiple items in arg1
   if {[llength $arg1split] > 1} {
     #puts "loadrt_substitute arg1split=<$arg1split>"
-    #example:                arg1split=<\{gentrivkins coordinates=xyz\}>
+    #example:                arg1split=<\{trivkins coordinates=xyz\}>
     set arg1split [string range $arg1 1 [expr -2 + [string len $arg1]]]
     set arg1args  ""
     for {set i 0} {$i < [llength $arg1split]} {incr i} {

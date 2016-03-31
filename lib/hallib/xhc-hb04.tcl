@@ -50,7 +50,7 @@ source [file join $::env(HALLIB_DIR) util_lib.tcl]
 #         (-s2) sequence 2 (1,5,10,20)     is ok for inch-based machines
 #
 #    5) updated for joints_axes: support only configs with known kins
-#       and they must be KINEMATICS_IDENTITY (trivkins,gentrivkins)
+#       and they must be KINEMATICS_IDENTITY (trivkins)
 #       a) connect axis.L.jog-counts to joint.N.jog-counts
 #                  axis.L.jog-scale  to joint.L.jog-scale
 #       c) use  [AXIS_N]MAX_ACCELERATION for both axis.L, joint.N

@@ -1,4 +1,4 @@
-# for gentrivkins xyyzb kinstype=BOTH
+# for trivkins xyyzb kinstype=BOTH
 # -->             01234
 
 net j:0 joint.0.jog-counts
