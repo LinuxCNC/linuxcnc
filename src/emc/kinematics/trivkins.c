@@ -83,7 +83,7 @@ int kinematicsHome(EmcPose * world,
     return kinematicsForward(joint, world, fflags, iflags);
 }
 
-static KINEMATICS_TYPE ktype;
+static KINEMATICS_TYPE ktype = -1;
 
 KINEMATICS_TYPE kinematicsType()
 {
