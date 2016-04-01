@@ -3260,6 +3260,19 @@ interpname = inifile.find("TASK", "INTERPRETER") or ""
 s = linuxcnc.stat();
 s.poll()
 
+statfail=0
+statwait=.01
+while ((s.joints == 0) or (s.kinematics_type < linuxcnc.KINEMATICS_IDENTITY)):
+    print "waiting for s.joints<%d>, s.kinematics_type<%d>"%(s.joints,s.kinematics_type)
+    time.sleep(.01)
+    statfail+=1
+    statwait *= 2
+    if statfail > 8:
+        raise SystemExit, (
+            "A configuration error is preventing LinuxCNC from starting.\n"
+            "More information may be available when running from a terminal.")
+    s.poll()
+
 if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
     ja_name = "Axes"
 else:
@@ -3300,18 +3313,6 @@ if len(trajcoordinates) > jointcount:
 
 no_joint_display = (s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
 
-statfail=0
-statwait=.01
-while s.joints == 0:
-    print "waiting for s.joints"
-    time.sleep(.01)
-    statfail+=1
-    statwait *= 2
-    if statfail > 8:
-        raise SystemExit, (
-            "A configuration error is preventing LinuxCNC from starting.\n"
-            "More information may be available when running from a terminal.")
-    s.poll()
 
 def jnum_for_aletter(aletter):
     if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
