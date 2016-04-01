@@ -106,3 +106,5 @@ net spindle-speed motion.spindle-speed-out
 net lube iocontrol.0.lube
 net flood iocontrol.0.coolant-flood
 net mist iocontrol.0.coolant-mist
+
+net Aloop joint.3.motor-pos-cmd joint.3.motor-pos-fb
