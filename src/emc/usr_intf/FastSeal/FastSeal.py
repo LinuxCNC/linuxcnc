@@ -72,7 +72,7 @@ sys.excepthook = excepthook
 debug = False
 
 if debug:
-    pydevdir = '/home/emcmesa/Aptana_Studio_3/plugins/org.python.pydev_2.7.0.2013032300/pysrc'
+    pydevdir = '/home/gmoccapy/Aptana_Studio_3/plugins/org.python.pydev_4.5.5.201603221110/pysrc'
 
     if os.path.isdir( pydevdir ):  # and  'emctask' in sys.builtin_module_names:
         sys.path.append( pydevdir )
@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.3"
+_RELEASE = "  0.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -3390,7 +3390,7 @@ class FastSeal( object ):
     def _reset_overide( self, pin, type ):
         if pin.get():
             self.widgets["btn_%s_100" % type].emit( "clicked" )
-#ToDo: Fill with content
+
     def _on_vaccum_changed( self, pin ):
         if pin.get():
             self.widgets.img_vaccum_off.hide()
@@ -3414,9 +3414,6 @@ class FastSeal( object ):
         else:
             self.widgets.img_coolant_off.show()
             self.widgets.img_coolant_on.hide()
-            
-            
-#ToDo END: Fill with content
 
 # =========================================================
 # The actions of the buttons

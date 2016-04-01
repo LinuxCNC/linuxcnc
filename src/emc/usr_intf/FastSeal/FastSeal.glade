@@ -232,7 +232,7 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">images/stop.png</property>
   </object>
-  <object class="GtkImage" id="img_close1">
+  <object class="GtkImage" id="img_close">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/exit_application.png</property>
@@ -241,6 +241,11 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="icon_name">go-up</property>
+  </object>
+  <object class="GtkImage" id="img_editor">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/editor.png</property>
   </object>
   <object class="GtkImage" id="img_emergency_off">
     <property name="width_request">48</property>
@@ -570,6 +575,33 @@
                                         <property name="can_focus">False</property>
                                         <property name="n_columns">13</property>
                                         <property name="column_spacing">5</property>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
                                         <child>
                                           <placeholder/>
                                         </child>
@@ -2261,6 +2293,15 @@
                                                             <property name="x_options">GTK_SHRINK</property>
                                                             <property name="y_options">GTK_SHRINK</property>
                                                           </packing>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
                                                         </child>
                                                         <child>
                                                           <placeholder/>
@@ -6098,6 +6139,7 @@ Date</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Close moccapy / leave the program</property>
                     <property name="use_action_appearance">False</property>
+                    <property name="image">img_close</property>
                     <signal name="clicked" handler="on_btn_exit_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6388,6 +6430,7 @@ Date</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Edit the loaded program</property>
                     <property name="use_action_appearance">False</property>
+                    <property name="image">img_editor</property>
                     <signal name="clicked" handler="on_btn_edit_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7300,23 +7343,11 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_keyb">
+                  <object class="GtkLabel" id="lbl_space_14">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">Show or hide the virtual keyboard</property>
-                    <property name="use_action_appearance">False</property>
-                    <child>
-                      <object class="GtkImage" id="img_keyboard2">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/keyboard.png</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
