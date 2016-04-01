@@ -345,7 +345,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         button2 = event.state & gtk.gdk.BUTTON2_MASK
         button3 = event.state & gtk.gdk.BUTTON3_MASK
         shift = event.state & gtk.gdk.SHIFT_MASK
-        cancel = bool(self.lathe_option and not self.current_view == 'p')
+        cancel = bool(self.lathe_option)
         
         # 0 = default: left rotate, middle move, right zoom
         if self.mouse_btn_mode == 0:
@@ -401,10 +401,13 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
                 self.translateOrRotate(event.x, event.y)
         # 4 = left move,   middle zoom,   right rotate
         elif self.mouse_btn_mode == 4:
+        elif self.mouse_btn_mode == 4:
             if button1:    
                 if shift:
-                    self.continueZoom(event.y)
-                elif not cancel:
+                    if not cancel:
+                        self.set_prime(event.x, event.y)
+                        self.rotateOrTranslate(event.x, event.y)
+                else:
                     self.translateOrRotate(event.x, event.y)
             elif button2:
                 self.continueZoom(event.y)
