@@ -16,12 +16,17 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+# Tested cams
+# HD WebCam from Acer Aspire E5-771G-7169 (without timer OK)
+# Logitech HD Pro Webcam C920 (without timer OK)
+# trust spacecam 300 (only with timer)
+
 import cv2 
 import gtk
 import gobject 
 import threading
 import subprocess
-#import time
+import time
 
 gtk.gdk.threads_init()
 
@@ -307,6 +312,7 @@ class CamView(gtk.VBox):
                     elif self.full_info:
                         frame = self._draw_text(frame)
                     self.show_image(frame)
+                    time.sleep(0.1)
                     # we put that in a try, to avoid an error if the user 
                     # use the App 24/7 and get to large numbers
                     try:
