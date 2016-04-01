@@ -1229,7 +1229,6 @@ class GlCanonDraw:
                 elif aletter == "Rad":
                     idx = 0; # specialcase
                 else: idx = sline
-#               print "!!!sline=%d aletter=%s idx=%d kinstype=%s"%(sline,aletter,idx,self.kinstype)
 
                 if homed[idx]:
                     if  (    self.get_joints_mode()
@@ -1422,59 +1421,34 @@ class GlCanonDraw:
                 rotformat = "% 5s %1s:% 9.4f"
             diaformat = " " + format
 
-            coord_letters = []
-            for l in self.trajcoordinates.upper():
-                if l == " ": continue
-                coord_letters.append(l)
-
-            traj_letters = []
-            for l in self.trajcoordinates: traj_letters.append(l)
-
             posstrs = []
             droposstrs = []
             used_letters = []
-            for i in range(self.stat.joints):
-                if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                    a = self.aletter_for_jnum(i,self.kinstype,self.trajcoordinates)
-                else:
-                    a = self.trajcoordinates.upper()[i]
-                if a == "NOALETTER": continue
-                idx = "XYZABCUVW".index(a)
-                if  ((a not in used_letters) and (a in traj_letters)):
-                    posstrs.append(format % (a, positions[idx]))
-                    droposstrs.append(droformat % (a, positions[idx], a, axisdtg[idx]))
-                    used_letters.append(a)
+            for i in range(linuxcnc.MAX_AXIS):
+                a = "XYZABCUVW"[i]
+                if s.axis_mask & (1<<i):
+                    posstrs.append(format % (a, positions[i]))
+                    droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
 
             droposstrs.append("")
 
-            for i in range(self.stat.joints):
+            for i in range(linuxcnc.MAX_AXIS):
                 index = s.g5x_index
                 if index<7:
                     label = "G5%d" % (index+3)
                 else:
                     label = "G59.%d" % (index-6)
 
-                if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                    a = self.aletter_for_jnum(i,self.kinstype,self.trajcoordinates)
-                else:
-                    a = "XYZABCUVW"[i]
-                if a == "NOALETTER": continue
-                if  (a in traj_letters):
-#               if s.axis_mask & (1<<i):
+                a = "XYZABCUVW"[i]
+                if s.axis_mask & (1<<i):
                     droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
             droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
 
             droposstrs.append("")
-            for i in range(self.stat.joints):
-                if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                    a = self.aletter_for_jnum(i,self.kinstype,self.trajcoordinates)
-                else:
-                    a = "XYZABCUVW"[i]
-                if a == "NOALETTER": continue
-                if  (a in traj_letters):
-#               if s.axis_mask & (1<<i):
+            for i in range(linuxcnc.MAX_AXIS):
+                a = "XYZABCUVW"[i]
+                if s.axis_mask & (1<<i):
                     droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
-
 
             if self.is_lathe():
                 posstrs[0] = format % ("Rad", positions[0])
