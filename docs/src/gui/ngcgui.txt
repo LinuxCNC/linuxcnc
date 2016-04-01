@@ -251,9 +251,8 @@ Options requiring values:
     [-p | --preamble      preamble_filename]
     [-P | --postamble     postamble_filename]
     [-i | --ini           inifile_name]
-    [-a | --autofile      autoauto_filename]
+    [-a | --autofile      auto_filename]
     [-t | --test          testno]
-    [-H | --height        height_of_entry widget] (typ 20-40)
     [-K | --keyboardfile  glade_file] (use custom popupkeyboard glade file)
 Solo Options:
     [-v | --verbose]
@@ -268,7 +267,7 @@ Notes:
       One set of files can be specified from cmdline.
       Multiple sets of files can be specified from an inifile.
       If --ini is NOT specified:
-         search for a running linuxCNC and use it's inifile
+         search for a running linuxCNC and use its inifile
 ----
     
 [NOTE]

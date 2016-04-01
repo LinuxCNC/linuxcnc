@@ -370,7 +370,7 @@ class Data:
         self.amicrostep = 2
         self.apulleynum = 1
         self.apulleyden = 1
-        self.aleadscrew = 8
+        self.aleadscrew = 360
         self.amaxvel = 360
         self.amaxacc = 1200
 
@@ -995,9 +995,12 @@ class StepconfApp:
         self.axis_sanity_test(axis)
         try:
             pitch = get("leadscrew")
+            step = get("steprev")
+            micro = get("microstep")
+            pullnum = get("pulleynum")
+            pulldem = get("pulleyden")
             if self.d.units == 1 or axis == 'a': pitch = 1./pitch
-            pps = (pitch * get("steprev") * get("microstep") *
-                (get("pulleynum") / get("pulleyden")) * get("maxvel"))
+            pps = (pitch * step * micro * (pullnum / pulldem) * get("maxvel"))
             if pps == 0: raise ValueError
             pps = abs(pps)
             acctime = get("maxvel") / get("maxacc")
@@ -1005,9 +1008,12 @@ class StepconfApp:
             self.w[axis + "acctime"].set_text("%.4f" % acctime)
             self.w[axis + "accdist"].set_text("%.4f" % accdist)
             self.w[axis + "hz"].set_text("%.1f" % pps)
-            scale = self.d[axis + "scale"] = (1.0 * pitch * get("steprev")
-                * get("microstep") * (get("pulleynum") / get("pulleyden")))
+            scale = self.d[axis + "scale"] = (1.0 * pitch * step
+                * micro * (pullnum / pulldem))
             self.w[axis + "scale"].set_text("%.1f" % scale)
+            temp = "Axis Scale: %d × %d × (%.1f ÷ %.1f) × %.3f ="% (
+                int(step),int(micro),(pullnum),(pulldem),pitch)
+            self.w[axis + "scaledescr"].set_text(temp)
             self.p.set_buttons_sensitive(1,1)
             self.w[axis + "axistest"].set_sensitive(1)
         except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid

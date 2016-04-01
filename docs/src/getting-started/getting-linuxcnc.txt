@@ -156,7 +156,7 @@ Linux knowledge needed.
 It is OK to upgrade everything except the operating system when asked to.
 
 [WARNING]
-Do not upgrade the operating system if promped to do so.
+Do not upgrade the operating system if prompted to do so.
 
 == Install Problems
 
@@ -287,7 +287,7 @@ sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 . Add a new apt source 
 +
 ----
-deb http://linuxcnc.org/ precise base 2.7-rtai
+sudo add-apt-repository "deb http://linuxcnc.org/ precise base 2.7-rtai"
 ----
 
 . Fetch the package list from linuxcnc.org.

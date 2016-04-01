@@ -64,7 +64,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #       World-mode (aka Teleop mode) only supports continuous jogging.
 
 #-----------------------------------------------------------------------
-# Copyright: 2014-15
+# Copyright: 2014-16
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -343,9 +343,25 @@ proc wheel_setup {jogmode} {
   net pendant:spindle-override <= halui.spindle-override.value \
                                => xhc-hb04.spindle-override
 
-  net pendant:spindle-rps <= motion.spindle-speed-out-rps-abs \
-                          => xhc-hb04.spindle-rps
+  set sname [existing_outpin_signame \
+                motion.spindle-speed-out-rps-abs pendant:spindle-rps]
+  net $sname <= motion.spindle-speed-out-rps-abs \
+             => xhc-hb04.spindle-rps
 } ;# wheel_setup
+
+proc existing_outpin_signame {pinname newsigname} {
+  # return existing outpin signame if it exists, else newsigname
+  set answer [is_connected $pinname signame]
+  switch $answer {
+    not_connected {return $newsigname}
+        is_output {puts "$::progname: Using existing outpin signame: $signame"
+                   return "$signame"
+                  }
+         default {return -code error \
+                   "existing_outpin_signame:UNEXPECTED $answer"
+                 }
+  }
+} ;# existing_outpin_signame
 
 proc std_start_pause_button {} {
   # hardcoded setup for button-start-pause

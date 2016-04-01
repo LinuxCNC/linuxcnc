@@ -143,31 +143,18 @@ Created for each LED on the device.
 .SH PERMISSIONS AND UDEV
 By default, the input devices may not be accessible to regular
 users--\fBhal_input\fR requires read-write access, even if the device has no
-outputs.  To change the default permission of a device, add a new file to
-/etc/udev/rules.d to set the device's GROUP to "plugdev".  You can do this for
-all input devices with this rule:
-.RS
-SUBSYSTEM=="input", MODE="0660", GROUP="plugdev"
-.RE
-You can also make more specific rules for particular devices.  For instance, a
-SpaceBall input device uses the 'spaceball' kernel module, so a udev entry for
-it would read:
-.RS
-DRIVER=="spaceball", MODE="0660", GROUP="plugdev"
-.RE
-the next time the device is attached to the system, it will be accessible
-to the "plugdev" group.
+outputs.
 
-For USB devices, the udev line would refer to the device's Vendor and Product
-values, such as 
-.RS
-SYSFS{idProduct}=="c00e", SYSFS{idVendor}=="046d", MODE="0660", GROUP="plugdev"
-.RE
-for a particular logictech-brand mouse.
+Different versions of udev have slightly different, incompatible syntaxes.  For
+this reason, it is not possible for this manual page to give an accurate
+example.  The
+.B udev(7)
+manual page documents the syntax used on your Linux distribution.
+To view it in a terminal, the command is
+.BR "man 7 udev" .
 
-For more information on writing udev rules, see \fBudev(8)\fR.
 .SH BUGS
 The initial state of keys, buttons, and absolute axes are erroneously reported
 as FALSE or 0 until an event is received for that key, button, or axis.
 .SH SEE ALSO
-\fBudev(8)\fR
+\fBudev(8)\fR, \fBudev(7)\fR
