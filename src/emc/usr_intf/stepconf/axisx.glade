@@ -1,16 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkTable" id="axisx">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
     <property name="n_rows">17</property>
     <property name="n_columns">4</property>
     <child>
       <object class="GtkLabel" id="xscaleunits">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Steps / mm</property>
       </object>
@@ -26,7 +24,6 @@
     <child>
       <object class="GtkLabel" id="label97">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">_Motor steps per revolution:</property>
         <property name="use_underline">True</property>
@@ -40,7 +37,6 @@
     <child>
       <object class="GtkLabel" id="label98">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">_Driver Microstepping:</property>
         <property name="use_underline">True</property>
@@ -56,7 +52,6 @@
     <child>
       <object class="GtkLabel" id="label99">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">_Pulley teeth (Motor:Leadscrew):</property>
         <property name="use_underline">True</property>
@@ -72,7 +67,6 @@
     <child>
       <object class="GtkLabel" id="label100">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">_Leadscrew Pitch:</property>
         <property name="use_underline">True</property>
@@ -88,7 +82,6 @@
     <child>
       <object class="GtkLabel" id="label101">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Maximum _Velocity:</property>
         <property name="use_underline">True</property>
@@ -104,7 +97,6 @@
     <child>
       <object class="GtkLabel" id="label102">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Maximum _Acceleration:</property>
         <property name="use_underline">True</property>
@@ -120,7 +112,6 @@
     <child>
       <object class="GtkLabel" id="label103">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Time to accelerate to max speed:</property>
         <property name="use_underline">True</property>
@@ -136,7 +127,6 @@
     <child>
       <object class="GtkLabel" id="label104">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Distance to accelerate to max speed:</property>
         <property name="use_underline">True</property>
@@ -153,12 +143,10 @@
       <object class="GtkEntry" id="xmicrostep">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
-        <signal name="changed" handler="on_xmicrostep_changed" swapped="no"/>
+        <signal name="changed" handler="on_xmicrostep_changed"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
@@ -172,12 +160,10 @@
       <object class="GtkEntry" id="xpulleyden">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
-        <signal name="changed" handler="on_xpulleyden_changed" swapped="no"/>
+        <signal name="changed" handler="on_xpulleyden_changed"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
@@ -191,12 +177,10 @@
       <object class="GtkEntry" id="xpulleynum">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
-        <signal name="changed" handler="on_xpulleynum_changed" swapped="no"/>
+        <signal name="changed" handler="on_xpulleynum_changed"/>
       </object>
       <packing>
         <property name="left_attach">3</property>
@@ -210,12 +194,10 @@
       <object class="GtkEntry" id="xleadscrew">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
-        <signal name="changed" handler="on_xleadscrew_changed" swapped="no"/>
+        <signal name="changed" handler="on_xleadscrew_changed"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
@@ -229,12 +211,10 @@
       <object class="GtkEntry" id="xmaxvel">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
-        <signal name="changed" handler="on_xmaxvel_changed" swapped="no"/>
+        <signal name="changed" handler="on_xmaxvel_changed"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
@@ -248,12 +228,10 @@
       <object class="GtkEntry" id="xmaxacc">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
-        <signal name="changed" handler="on_xmaxacc_changed" swapped="no"/>
+        <signal name="changed" handler="on_xmaxacc_changed"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
@@ -266,7 +244,6 @@
     <child>
       <object class="GtkLabel" id="label105">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Pulse rate at max speed:</property>
       </object>
@@ -337,7 +314,6 @@
     <child>
       <object class="GtkLabel" id="label109">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">_Home location:</property>
         <property name="use_underline">True</property>
@@ -353,7 +329,6 @@
     <child>
       <object class="GtkLabel" id="label110">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Home _Switch location:</property>
         <property name="use_underline">True</property>
@@ -369,7 +344,6 @@
     <child>
       <object class="GtkLabel" id="label111">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Home Sear_ch velocity:</property>
         <property name="use_underline">True</property>
@@ -385,7 +359,6 @@
     <child>
       <object class="GtkLabel" id="label112">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Home La_tch direction:</property>
         <property name="use_underline">True</property>
@@ -400,7 +373,6 @@
     <child>
       <object class="GtkLabel" id="label113">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="label" translatable="yes">_:</property>
         <property name="use_underline">True</property>
         <property name="justify">center</property>
@@ -418,7 +390,6 @@
     <child>
       <object class="GtkComboBox" id="xlatchdir">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="model">xlatch_dir_liststore</property>
         <child>
           <object class="GtkCellRendererText" id="cellrenderertext1"/>
@@ -440,9 +411,7 @@
       <object class="GtkEntry" id="xhomepos">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
       </object>
@@ -458,9 +427,7 @@
       <object class="GtkEntry" id="xhomesw">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
       </object>
@@ -476,9 +443,7 @@
       <object class="GtkEntry" id="xhomevel">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
       </object>
@@ -493,7 +458,6 @@
     <child>
       <object class="GtkLabel" id="label114">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Tab_le travel:</property>
         <property name="use_underline">True</property>
@@ -510,9 +474,7 @@
       <object class="GtkEntry" id="xminlim">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
       </object>
@@ -527,7 +489,6 @@
     <child>
       <object class="GtkLabel" id="label115">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="label" translatable="yes">t_o</property>
         <property name="use_underline">True</property>
         <property name="justify">center</property>
@@ -546,9 +507,7 @@
       <object class="GtkEntry" id="xmaxlim">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
       </object>
@@ -564,12 +523,10 @@
       <object class="GtkEntry" id="xsteprev">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
+        <property name="invisible_char">&#x25CF;</property>
         <property name="primary_icon_sensitive">True</property>
         <property name="secondary_icon_sensitive">True</property>
-        <signal name="changed" handler="on_xsteprev_changed" swapped="no"/>
+        <signal name="changed" handler="on_xsteprev_changed"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
@@ -581,7 +538,6 @@
       <object class="GtkHSeparator" id="hseparator7">
         <property name="height_request">17</property>
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="right_attach">4</property>
@@ -595,7 +551,6 @@
       <object class="GtkHSeparator" id="hseparator8">
         <property name="height_request">17</property>
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="right_attach">4</property>
@@ -608,7 +563,6 @@
     <child>
       <object class="GtkLabel" id="xscrewunits">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">mm / rev</property>
       </object>
@@ -624,7 +578,6 @@
     <child>
       <object class="GtkLabel" id="xvelunits">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">mm / s</property>
       </object>
@@ -640,9 +593,8 @@
     <child>
       <object class="GtkLabel" id="xaccunits">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
-        <property name="label" translatable="yes">mm / s²</property>
+        <property name="label" translatable="yes">mm / s&#xB2;</property>
       </object>
       <packing>
         <property name="left_attach">2</property>
@@ -656,7 +608,6 @@
     <child>
       <object class="GtkLabel" id="xaccdistunits">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label">mm</property>
       </object>
@@ -672,7 +623,6 @@
     <child>
       <object class="GtkLabel" id="label191">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">s</property>
       </object>
@@ -688,7 +638,6 @@
     <child>
       <object class="GtkLabel" id="label192">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Hz</property>
       </object>
@@ -706,23 +655,19 @@
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
-        <property name="use_action_appearance">False</property>
-        <signal name="clicked" handler="on_xaxistest_clicked" swapped="no"/>
+        <signal name="clicked" handler="on_xaxistest_clicked"/>
         <child>
           <object class="GtkAlignment" id="alignment5">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="xscale">0</property>
             <property name="yscale">0</property>
             <child>
               <object class="GtkHBox" id="hbox9">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
                 <property name="spacing">2</property>
                 <child>
                   <object class="GtkImage" id="image9">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="stock">gtk-execute</property>
                   </object>
                   <packing>
@@ -734,7 +679,6 @@
                 <child>
                   <object class="GtkLabel" id="label228">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">T_est this axis</property>
                     <property name="use_markup">True</property>
                     <property name="use_underline">True</property>
@@ -758,13 +702,13 @@
       </packing>
     </child>
     <child>
-      <object class="GtkLabel" id="label229">
+      <object class="GtkLabel" id="xscaledescr">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Axis SCALE:</property>
       </object>
       <packing>
+        <property name="right_attach">2</property>
         <property name="top_attach">16</property>
         <property name="bottom_attach">17</property>
         <property name="x_options">GTK_FILL</property>

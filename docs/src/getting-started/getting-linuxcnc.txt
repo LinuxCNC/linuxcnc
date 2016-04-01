@@ -156,7 +156,7 @@ Linux knowledge needed.
 It is OK to upgrade everything except the operating system when asked to.
 
 [WARNING]
-Do not upgrade the operating system if promped to do so.
+Do not upgrade the operating system if prompted to do so.
 
 == Install Problems
 

@@ -44,9 +44,7 @@ import gettext            # to extract the strings to be translated
 
 from gladevcp.gladebuilder import GladeBuilder
 
-from time import strftime   # needed to add a time stamp with alarm entries
-from time import localtime  # needed to add a time stamp with alarm entries
-from ImageChops import difference
+from time import strftime   # needed for the clock in the GUI
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook( exc_type, exc_obj, exc_tb ):
@@ -1914,7 +1912,7 @@ class gmoccapy( object ):
         # Only in manual mode jogging with keyboard is allowed
         # in this case we do not return true, otherwise entering code in MDI history
         # and the integrated editor will not work
-        # we also check if we are in settings or terminal or alarm page
+        # we also check if we are in settings or user page
         if self.stat.task_mode != linuxcnc.MODE_MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
             return
 
