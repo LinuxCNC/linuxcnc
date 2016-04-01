@@ -1158,6 +1158,9 @@ mouse_btn_mode ::
    3 =          left zoom,   middle rotate, right move
    4 =          left move,   middle zoom,   right rotate
    5 =          left rotate, middle zoom,   right move
+   6 =          left move,   middle zoom,   right zoom
+
+   mode 6 is reccomended for plasmas and lathes, as rotation is not needed for such machines
 
 Direct program control::
 
