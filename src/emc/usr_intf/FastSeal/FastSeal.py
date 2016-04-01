@@ -493,6 +493,7 @@ class FastSeal( object ):
         if os.path.isfile( file_path ):
             print "**** FASTSEAL INFO: Gcode.lang found ****"
             self.widgets.gcode_view.set_language( "gcode", LANGDIR )
+            self.widgets.gcode_edit_view.set_language( "gcode", LANGDIR )
 
         # set the user colors and digits of the DRO
         self.abs_color = self.prefs.getpref( "abs_color", "blue", str )
@@ -856,6 +857,7 @@ class FastSeal( object ):
         self.widgets.gremlin.set_property( "metric_units", int( self.stat.linear_units ) )
         self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property( "use_commanded", not self.dro_actual)
+        self.widgets.eb_program_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0,0,0))
 
     # init the function to hide the cursor
     def _init_hide_cursor( self ):
@@ -1218,8 +1220,7 @@ class FastSeal( object ):
         pass
 
     def on_hal_status_file_loaded( self, widget, filename ):
-        widgetlist = ["btn_use_current"
-        ]
+        widgetlist = ["btn_use_current" ]
         # this test is only neccesary, because of remap and toolchange, it will emit a file loaded signal
         if filename:
             fileobject = file( filename, 'r' )
@@ -1227,8 +1228,8 @@ class FastSeal( object ):
             fileobject.close()
             self.halcomp["program.length"] = len( lines )
 
-            if len( filename ) > 50:
-                filename = filename[0:10] + "..." + filename[len( filename ) - 39:len( filename )]
+            if len( filename ) > 70:
+                filename = filename[0:10] + "..." + filename[len( filename ) - 50:len( filename )]
             self.widgets.lbl_program.set_text( filename )
             self._sensitize_widgets( widgetlist, True )
         else:
@@ -2306,14 +2307,12 @@ class FastSeal( object ):
 
     def on_tbtn_fullsize_preview_toggled( self, widget, data = None ):
         if widget.get_active():
-            self.widgets.box_info.hide()
             self.widgets.vbx_jog.hide()
             self.widgets.gremlin.set_property( "metric_units", self.widgets.Combi_DRO_x.metric_units )
             self.widgets.gremlin.set_property( "enable_dro", True )
             if self.lathe_mode:
                 self.widgets.gremlin.set_property( "show_lathe_radius", not self.diameter_mode )
         else:
-            self.widgets.box_info.show()
             self.widgets.vbx_jog.show()
             if not self.widgets.chk_show_dro.get_active():
                 self.widgets.gremlin.set_property( "enable_dro", False )
@@ -2521,7 +2520,7 @@ class FastSeal( object ):
     # All use the same callback offset
     def on_btn_back_clicked( self, widget, data = None ):
         if self.widgets.ntb_button.get_current_page() == 6:  # edit mode, go back to auto_buttons
-            self.widgets.ntb_button.set_current_page( 2 )
+            self.widgets.ntb_button.set_current_page( 2 )            
             if self.widgets.tbtn_fullsize_preview1.get_active():
                 self.widgets.vbx_jog.set_visible(False)
         elif self.widgets.ntb_button.get_current_page() == 8:  # File selection mode
@@ -3088,10 +3087,8 @@ class FastSeal( object ):
         self.widgets.gcode_view.set_line_number( line )
 
     def on_btn_load_clicked( self, widget, data = None ):
-        print("load clicked")
         self.widgets.ntb_button.set_current_page( 8 )
         self.widgets.ntb_preview.set_current_page( 3 )
-        self.widgets.tbtn_fullsize_preview.set_active( True )
         self._show_iconview_tab( True )
         self.widgets.IconFileSelection1.refresh_filelist()
         self.widgets.IconFileSelection1.iconView.grab_focus()
@@ -3135,41 +3132,34 @@ class FastSeal( object ):
     def on_btn_edit_clicked( self, widget, data = None ):
         self.widgets.ntb_button.set_current_page( 6 )
         self.widgets.ntb_preview.hide()
-        #self.widgets.hbox_dro.hide()
-        width = self.widgets.window1.allocation.width
-        width -= self.widgets.vbtb_main.allocation.width
-        #width -= self.widgets.vbx_left_side.allocation.width
-        #width -= self.widgets.box_left.allocation.width
-        #self.widgets.vbx_jog.hide()
-        self.widgets.vbx_left_side.hide()
-        #self.widgets.vbx_jog.set_size_request( width, -1 )
-        #if not self.widgets.vbx_jog.get_visible():
-        #    self.widgets.vbx_jog.set_visible(True)
-        self.widgets.gcode_view.set_sensitive( True )
-        self.widgets.gcode_view.grab_focus()
+        self.widgets.hbx_info.hide()
+        self.widgets.scw_gode_edit_view.show()
+        self.widgets.scw_gode_edit_view.set_sensitive( True )
+        self.widgets.scw_gode_edit_view.grab_focus()
         self.widgets.tbl_search.show()
         self.gcodeerror = ""
+        self.widgets.ntb_jog.set_current_page( 0 )
 
     # Search and replace handling in edit mode
     # undo changes while in edit mode
     def on_btn_undo_clicked( self, widget, data = None ):
-        self.widgets.gcode_view.undo()
+        self.widgets.gcode_edit_view.undo()
 
     # search backward while in edit mode
     def on_btn_search_back_clicked( self, widget, data = None ):
-        self.widgets.gcode_view.text_search( direction = False,
+        self.widgets.gcode_edit_view.text_search( direction = False,
                                             mixed_case = self.widgets.chk_ignore_case.get_active(),
                                             text = self.widgets.search_entry.get_text() )
 
     # search forward while in edit mode
     def on_btn_search_forward_clicked( self, widget, data = None ):
-        self.widgets.gcode_view.text_search( direction = True,
+        self.widgets.gcode_edit_view.text_search( direction = True,
                                             mixed_case = self.widgets.chk_ignore_case.get_active(),
                                             text = self.widgets.search_entry.get_text() )
 
     # replace text in edit mode
     def on_btn_replace_clicked( self, widget, data = None ):
-        self.widgets.gcode_view.replace_text_search( direction = True,
+        self.widgets.gcode_edit_view.replace_text_search( direction = True,
                                                     mixed_case = self.widgets.chk_ignore_case.get_active(),
                                                     text = self.widgets.search_entry.get_text(),
                                                     re_text = self.widgets.replace_entry.get_text(),
@@ -3177,7 +3167,7 @@ class FastSeal( object ):
 
     # redo changes while in edit mode
     def on_btn_redo_clicked( self, widget, data = None ):
-        self.widgets.gcode_view.redo()
+        self.widgets.gode_edit_view.redo()
 
     # if we leave the edit mode, we will have to show all widgets again
     def on_ntb_button_switch_page( self, *args ):
@@ -3197,13 +3187,10 @@ class FastSeal( object ):
             self.widgets.tbtn_fullsize_preview.set_active( False )
         if self.widgets.ntb_button.get_current_page() == 6 or self.widgets.ntb_preview.get_current_page() == 3:
             self.widgets.ntb_preview.show()
-            self.widgets.hbox_dro.show()
-            self.widgets.vbx_jog.set_size_request( 360, -1 )
-            self.widgets.gcode_view.set_sensitive( 0 )
-            self.widgets.btn_save.set_sensitive( True )
-            self.widgets.hal_action_reload.emit( "activate" )
-            self.widgets.box_info.set_size_request( -1, 200 )
+            self.widgets.hbx_info.show()
+            self.widgets.scw_gode_edit_view.hide()
             self.widgets.tbl_search.hide()
+            self.widgets.ntb_jog.set_current_page( 2 )
 
     # make a new file
     def on_btn_new_clicked( self, widget, data = None ):
@@ -3220,7 +3207,7 @@ class FastSeal( object ):
         else:
             self.widgets.hal_action_open.load_file( tempfilename )
             # self.command.program_open(tempfilename)
-        self.widgets.gcode_view.grab_focus()
+        self.widgets.gcode_edit_view.grab_focus()
         self.widgets.btn_save.set_sensitive( False )
 
     def on_tbtn_optional_blocks_toggled( self, widget, data = None ):
@@ -3403,6 +3390,33 @@ class FastSeal( object ):
     def _reset_overide( self, pin, type ):
         if pin.get():
             self.widgets["btn_%s_100" % type].emit( "clicked" )
+#ToDo: Fill with content
+    def _on_vaccum_changed( self, pin ):
+        if pin.get():
+            self.widgets.img_vaccum_off.hide()
+            self.widgets.img_vaccum_on.show()
+        else:
+            self.widgets.img_coolant_off.show()
+            self.widgets.img_coolant_on.hide()
+        
+    def _on_chip_cutter_changed( self, pin ):
+        if pin.get():
+            self.widgets.img_chipcutter_off.hide()
+            self.widgets.img_chipcutter_on.show()
+        else:
+            self.widgets.img_coolant_off.show()
+            self.widgets.img_coolant_on.hide()
+        
+    def _on_coolant_changed( self, pin ):
+        if pin.get():
+            self.widgets.img_coolant_off.hide()
+            self.widgets.img_coolant_on.show()
+        else:
+            self.widgets.img_coolant_off.show()
+            self.widgets.img_coolant_on.hide()
+            
+            
+#ToDo END: Fill with content
 
 # =========================================================
 # The actions of the buttons
@@ -3584,6 +3598,18 @@ class FastSeal( object ):
         self.halcomp.newpin( "program.length", hal.HAL_S32, hal.HAL_OUT )
         self.halcomp.newpin( "program.current-line", hal.HAL_S32, hal.HAL_OUT )
         self.halcomp.newpin( "program.progress", hal.HAL_FLOAT, hal.HAL_OUT )
+
+        # make a pin for the vaccum
+        pin = self.halcomp.newpin( "vacuum-on", hal.HAL_BIT, hal.HAL_IN )
+        hal_glib.GPin( pin ).connect( "value_changed", self._on_vaccum_changed )
+
+        # make a pin for the chip_cutter
+        pin = self.halcomp.newpin( "chipcutter-on", hal.HAL_BIT, hal.HAL_IN )
+        hal_glib.GPin( pin ).connect( "value_changed", self._on_chip_cutter_changed )
+
+        # make a pin for coolant
+        pin = self.halcomp.newpin( "coolant-on", hal.HAL_BIT, hal.HAL_IN )
+        hal_glib.GPin( pin ).connect( "value_changed", self._on_coolant_changed )
 
 # Hal Pin Handling End
 # =========================================================

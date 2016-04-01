@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding:UTF-8 -*-
 
 '''
     This widget can be used to show small popup windows showing messages.
