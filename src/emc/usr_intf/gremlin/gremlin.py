@@ -26,6 +26,15 @@
 #    3 =          left zoom,   middle rotate, right move
 #    4 =          left move,   middle zoom,   right rotate
 #    5 =          left rotate, middle zoom,   right move
+#
+#    2015 Moses McKnight introduced mode 6 
+#    6 = left move, middle zoom, right zoom (no rotate - for 2D plasma machines or lathes)
+#
+#    2016 Norbert Schechner
+#    corrected mode handling for lathes, as in most modes it was not possible to move, as 
+#    it has only been allowed in p view.
+
+
 
 import gtk
 import gtk.gtkgl.widget
@@ -345,7 +354,9 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         button2 = event.state & gtk.gdk.BUTTON2_MASK
         button3 = event.state & gtk.gdk.BUTTON3_MASK
         shift = event.state & gtk.gdk.SHIFT_MASK
-        cancel = bool(self.lathe_option and not self.current_view == 'p')
+        # for lathe or plasmas rotation is not used, so we check for it
+        # recomended to use mode 6 for that type of machines
+        cancel = bool(self.lathe_option)
         
         # 0 = default: left rotate, middle move, right zoom
         if self.mouse_btn_mode == 0:
@@ -403,15 +414,17 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         elif self.mouse_btn_mode == 4:
             if button1:    
                 if shift:
-                    self.continueZoom(event.y)
-                elif not cancel:
+                    if not cancel:
+                        self.set_prime(event.x, event.y)
+                        self.rotateOrTranslate(event.x, event.y)
+                else:
                     self.translateOrRotate(event.x, event.y)
             elif button2:
                 self.continueZoom(event.y)
             elif button3 and not cancel:
                 self.set_prime(event.x, event.y)
                 self.rotateOrTranslate(event.x, event.y)
-        # 5 = left rotate, middle zoom,   right move
+        # 5 = left rotate, middle zoom, right move
         elif self.mouse_btn_mode == 5:
             if button1:    
                 if shift:
@@ -423,12 +436,16 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
                 self.continueZoom(event.y)
             elif button3:
                 self.translateOrRotate(event.x, event.y)
-        # 6 = left move, middle zoom, right zoom (no rotate - for 2D plasma machines)
+        # 6 = left move, middle zoom, right zoom (no rotate - for 2D plasma machines or lathes)
         elif self.mouse_btn_mode == 6:
-            if button1:
+            if button1:    
                 if shift:
-                    self.continueZoom(event.y)
-                elif not cancel:
+                    if cancel:
+                        self.continueZoom(event.y)
+                    else:
+                        self.set_prime(event.x, event.y)
+                        self.rotateOrTranslate(event.x, event.y)
+                else:
                     self.translateOrRotate(event.x, event.y)
             elif button2:
                 self.continueZoom(event.y)
