@@ -586,8 +586,6 @@ class gmoccapy( object ):
 
         # Do we control a lathe?
         if self.lathe_mode:
-            # is this a backtool lathe?
-            self.backtool_lathe = self.get_ini_info.get_backtool_lathe()
 
             # we first hide the Y button to home and touch off
             self.widgets.btn_home_y.hide()
@@ -683,6 +681,8 @@ class gmoccapy( object ):
         self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', 300, float )
         # if it's a lathe config, set the tooleditor style
         self.lathe_mode = self.get_ini_info.get_lathe()
+        # is this a backtool lathe?
+        self.backtool_lathe = self.get_ini_info.get_backtool_lathe()
         self.jog_rate = self.get_ini_info.get_jog_vel()
         self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
         self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
@@ -1055,10 +1055,17 @@ class gmoccapy( object ):
         grid_size = self.prefs.getpref( 'grid_size', 1.0, float )
         self.widgets.grid_size.set_value( grid_size )
         self.widgets.gremlin.grid_size = grid_size
-        view = self.prefs.getpref( 'view', "p", str )
+        if self.lathe_mode:
+            if self.backtool_lathe:
+                view = self.prefs.getpref( 'view', "y2", str )
+            else:
+                view = self.prefs.getpref( 'view', "y", str )
+            self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 2, int ) )
+        else:
+            view = self.prefs.getpref( 'view', "p", str )
+            self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property( "view", view )
         self.widgets.gremlin.set_property( "metric_units", int( self.stat.linear_units ) )
-        self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property( "use_commanded", not self.dro_actual)
 
     # init the function to hide the cursor
