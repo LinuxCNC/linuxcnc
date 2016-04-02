@@ -3291,6 +3291,13 @@ trajcoordinates=inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
 vars.trajcoordinates.set(trajcoordinates)
 
 kinstype=inifile.find("KINS", "KINEMATICS").lower()
+kins_is_trivkins = False
+if kinstype.split()[0] == "trivkins":
+    kins_is_trivkins = True
+    trivkinscoords = "XYZABCUVW"
+    for item in kinstype.split():
+        if "coordinates=" in item:
+            trivkinscoords = item.split("=")[1]
 
 duplicate_coord_letters = ""
 for i in range(len(trajcoordinates)):
@@ -3318,7 +3325,7 @@ def jnum_for_aletter(aletter):
     if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
         raise SystemExit("jnum_for_aletter: Must be KINEMATICS_IDENTITY")
     aletter = aletter.lower()
-    if "trivkins" in kinstype:
+    if kins_is_trivkins:
         return trajcoordinates.index(aletter)
     else:
         guess = trajcoordinates.index(aletter)
@@ -3337,11 +3344,10 @@ def aletter_for_jnum(jnum):
     if lathe_historical_config():
         if jnum == 1: return "Y"
         if jnum == 2: return "Z"
-
+    if kins_is_trivkins:
+        return trivkinscoords.upper()[jnum]
     if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
         raise SystemExit("aletter_for_jnum: Must be KINEMATICS_IDENTITY")
-    if "trivkins" in kinstype:
-        return trajcoordinates.upper()[jnum]
     else:
         guess = trajcoordinates.upper()[jnum]
         print "aletter_for_jnum guessing %d --> %s"%(jnum,guess)
