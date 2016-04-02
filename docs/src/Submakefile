@@ -327,15 +327,15 @@ checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp
 MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
 
-PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
+PDF_MAN_ORDER_ := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
 	man3/intro.3hal $(filter-out %/undocumented.3hal %/intro.3hal, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
 	man3/undocumented.3hal man3/intro.3rtapi $(filter-out %/undocumented.3rtapi %/intro.3rtapi, $(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
 	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO)) 
+PDF_MAN_ORDER = $(patsubst %,../docs/man/%,$(PDF_MAN_ORDER_))
 
-$(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
+$(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER $(DOC_SRCDIR)/tocenize.py
 	@echo Formatting manual pages as PDF
-	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
-		| ps2pdf - $@
+	bash -c 'set -eo pipefail; python $(DOC_SRCDIR)/tocenize.py $(PDF_MAN_ORDER) | groff -t -rC1 -rD1 -Tps -man - | ps2pdf - $@.tmp && mv -f $@.tmp $@'
 
 $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
