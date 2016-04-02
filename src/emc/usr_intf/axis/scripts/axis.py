@@ -1727,6 +1727,7 @@ def get_jog_speed(a):
         else:
             return vars.jog_aspeed.get()/60.
 def get_jog_speed_map(a):
+    if a >= len(jog_order): return 0
     if not get_jog_mode():
         axis_letter = jog_order[a]
         a = "XYZABCUVW".index(axis_letter)
