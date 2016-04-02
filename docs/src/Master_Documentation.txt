@@ -273,6 +273,8 @@ include::motion/pid-theory.txt[]
 
 include::code/rs274.txt[]
 
+include::config/scripts.txt[]
+
 :leveloffset: 0
 
 include::common/glossary.txt[]
