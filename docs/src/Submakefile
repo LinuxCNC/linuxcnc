@@ -40,7 +40,6 @@ DOC_SRCS_EN := \
 	config/moveoff.txt \
 	config/pncconf.txt \
 	config/python-interface.txt \
-	config/scripts.txt \
 	config/stepconf.txt \
 	config/stepper-diagnostics.txt \
 	config/stepper.txt \
