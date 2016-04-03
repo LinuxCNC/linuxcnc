@@ -321,11 +321,6 @@ int jacobianForward(const double * joints,
 
 /**************************** kinematicsForward() ***************************/
 
-/* the inverse kinematics take world coordinates and determine joint values,
-   given the inverse kinematics flags to resolve any ambiguities. The forward
-   flags are set to indicate their value appropriate to the world coordinates
-   passed in. */
-
 int kinematicsForward(const double * joints,
                       EmcPose * pos,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
@@ -468,6 +463,10 @@ int kinematicsForward(const double * joints,
 
 
 /************************ kinematicsInverse() ********************************/
+/* the inverse kinematics take world coordinates and determine joint values,
+   given the inverse kinematics flags to resolve any ambiguities. The forward
+   flags are set to indicate their value appropriate to the world coordinates
+   passed in. */
 
 int kinematicsInverse(const EmcPose * pos,
                       double * joints,
