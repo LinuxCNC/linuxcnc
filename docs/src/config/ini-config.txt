@@ -839,6 +839,12 @@ small, tight corners, since you're limited by cornering acceleration.
    machine first. Interfaces without homing ability will need to have this
    option set to 1.
 
+* 'HOME = 0 0 0 0 0 0 0 0 0' - World home position needed for kinematics modules
+   that compute world coordinates using kinematicsForward() when switching
+   from joint to teleop mode.  Up to nine coordinate values (X Y Z A B C U V W)
+   may be specified, unused trailing items may be omitted.
+   Note: the sim hexapod config requires a non-zero value for the Z coordinate.
+
 [WARNING]
 LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'.
 

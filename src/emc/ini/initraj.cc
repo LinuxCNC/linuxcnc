@@ -244,7 +244,80 @@ static int loadTraj(EmcIniFile *trajInifile)
         e.Print();
         return -1;
     }
+    try{
+        const char *inistring;
+        unsigned char coordinateMark[6] = { 1, 1, 1, 0, 0, 0 };
+        int t;
+        int len;
+        char homes[LINELEN];
+        char home[LINELEN];
+        EmcPose homePose = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        double d;
+        if (NULL != (inistring = trajInifile->Find("HOME", "TRAJ"))) {
+            // [TRAJ]HOME is important for genhexkins.c kinetmaticsForward()
+            // and probably other non-identity kins that solve the forward
+            // kinematics with an iterative algorithm when the homePose
+            // is not all zeros
 
+            // found it, now interpret it according to coordinateMark[]
+            strcpy(homes, inistring);
+            len = 0;
+            for (t = 0; t < 6; t++) {
+                if (!coordinateMark[t]) {
+                    continue;    // position t at index of next non-zero mark
+                }
+                // there is a mark, so read the string for a value
+                if (1 == sscanf(&homes[len], "%s", home) &&
+                    1 == sscanf(home, "%lf", &d)) {
+                    // got an entry, index into coordinateMark[] is 't'
+                    if (t == 0)
+                        homePose.tran.x = d;
+                    else if (t == 1)
+                        homePose.tran.y = d;
+                    else if (t == 2)
+                        homePose.tran.z = d;
+                    else if (t == 3)
+                        homePose.a = d;
+                    else if (t == 4)
+                        homePose.b = d;
+                    else if (t == 5)
+                        homePose.c = d;
+                    else if (t == 6)
+                        homePose.u = d;
+                    else if (t == 7)
+                        homePose.v = d;
+                    else
+                        homePose.w = d;
+
+                    // position string ptr past this value
+                    len += strlen(home);
+                    // and at start of next value
+                    while ((len < LINELEN) && (homes[len] == ' ' || homes[len] == '\t')) {
+                        len++;
+                    }
+                    if (len >= LINELEN) {
+                        break;    // out of for loop
+                    }
+                } else {
+                    // badly formatted entry
+                    rcs_print("invalid inifile value for [TRAJ] HOME: %s\n",
+                          inistring);
+                        return -1;
+                }
+            }  // end of for-loop on coordinateMark[]
+        }
+        if (0 != emcTrajSetHome(homePose)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetHome\n");
+            }
+            return -1;
+        }
+     } //try
+
+    catch (EmcIniFile::Exception &e) {
+        e.Print();
+        return -1;
+    }
     return 0;
 }
 

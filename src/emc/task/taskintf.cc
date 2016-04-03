@@ -1599,7 +1599,6 @@ int emcMotionInit()
 {
     int r1, r2, r3, r4;
     int joint, axis;
-    EmcPose home;
     
     r1 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
     // it also determines the number of existing joints, and axes
@@ -1619,18 +1618,6 @@ int emcMotionInit()
 	    }
 	}
     }
-
-    home.tran.x = AxisConfig[0].Home;
-    home.tran.y = AxisConfig[1].Home;
-    home.tran.z = AxisConfig[2].Home;
-    home.a = AxisConfig[3].Home;
-    home.b = AxisConfig[4].Home;
-    home.c = AxisConfig[5].Home;
-    home.u = AxisConfig[6].Home;
-    home.v = AxisConfig[7].Home;
-    home.w = AxisConfig[8].Home;
-
-    emcTrajSetHome(home);
 
     r4 = emcPositionLoad();
 
