@@ -498,22 +498,6 @@ int emcAxisSetLockingJoint(int axis, int joint)
     return retval;
 }
 
-// JOINTS_AXES is this used anywhere?
-int emcAxisSetHome(int axis, double home)
-{
-
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-    
-    AxisConfig[axis].Home = home;
-
-    if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, home);
-    }
-    return 0;
-}
-
 double emcAxisGetMaxVelocity(int axis)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {

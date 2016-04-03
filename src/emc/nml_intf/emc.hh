@@ -339,7 +339,6 @@ extern int emcAxisSetMinPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxVelocity(int axis, double vel);
 extern int emcAxisSetMaxAcceleration(int axis, double acc);
-extern int emcAxisSetHome(int axis, double home);
 extern double emcAxisGetMaxVelocity(int axis);
 extern double emcAxisGetMaxAcceleration(int axis);
 extern int emcAxisSetLockingJoint(int axis,int joint);
