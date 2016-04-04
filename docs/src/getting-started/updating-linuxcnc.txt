@@ -228,7 +228,7 @@ was: loadrt gentrivkins coordinates=xyyz
 ----
 
 Configurations using gantrykins should be updated to use trivkins with the
-kinstype= parameter set to BOTH (for KINEMAICS_BOTH).
+kinstype= parameter set to BOTH (for KINEMATICS_BOTH).
 
 Hal file example:
 
@@ -246,7 +246,7 @@ example:
 
 ----
 inifile:    [KINS]
-            KINEMAICS = trivkins
+            KINEMATICS = trivkins
             JOINTS = 3
             ...
 
