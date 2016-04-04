@@ -586,61 +586,6 @@ class MyOpengl(GlCanonDraw, Opengl):
 
         text.delete("0.0", "end")
         t = droposstrs[:]
-        sline = 0 # zeroth line in t string
-        axes_count = masked_axes_count()
-        for ts in t:
-            idx = sline
-            aletter = ts.replace(" ","").split(":")[0]
-            if  (   ("Dia" in ts)
-                 or ("Vel" in ts)
-                 or ("G5"  in ts)
-                 or ("TLO" in ts)
-                 or (len(ts) == 0)
-                ):
-                sline += 1
-                continue
-
-            if  (    aletter in ["X","Y","Z","A","B","C","U","V","W"]
-                 and self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
-                ):
-                idx = jnum_for_aletter(aletter)
-            elif aletter == "Rad":
-                idx = 0; # specialcase
-            else: idx = sline
-
-            if s.motion_mode == linuxcnc.TRAJ_MODE_FREE:
-                imax = len(homed)
-                if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                    imax = axes_count
-                if homed[idx]:
-                    t[sline] += "*"
-                else:
-                    t[sline] += " "
-                if limit[idx]:
-                    t[sline] += "!"
-                else:
-                    t[sline] += " "
-            else: # teleop mode
-                if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                    if idx < axes_count and homed[idx]:
-                        t[sline] += "*"
-                    else:
-                        t[sline] += " "
-                    if idx < axes_count and limit[idx]:
-                        t[sline] += "!"
-                    else:
-                        t[sline] += " "
-                else: # non-identity kinematics
-                    all_joints_homed = all_homed()
-                    #if idx < axes_count and all_joints_homed:
-                    if all_joints_homed:
-                        t[sline] += "*"
-                    else:
-                        t[sline] += " "
-                    # Note: teleop and non-identity:
-                    # don't try to display joint limits
-            sline+=1
-            
         text.insert("end", "\n".join(t))
 
         window_height = text.winfo_height()
