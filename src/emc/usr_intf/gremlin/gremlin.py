@@ -401,7 +401,6 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
                 self.translateOrRotate(event.x, event.y)
         # 4 = left move,   middle zoom,   right rotate
         elif self.mouse_btn_mode == 4:
-        elif self.mouse_btn_mode == 4:
             if button1:    
                 if shift:
                     if not cancel:
