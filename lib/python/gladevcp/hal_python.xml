@@ -71,6 +71,13 @@
         <glade-widget-class name="HAL_Graph" generic-name="hal_graph" title="HAL Graph"/>
         
         <glade-widget-class name="JogWheel" generic-name="jogwheel" title="Jog Wheel"/>
+        <glade-widget-class name="SpeedControl" generic-name="speedcontrol" title="Speed Control">
+            <properties>
+                <property id="size" query="False" default="1" visible="False"/>
+                <property id="spacing" query="False" default="0" visible="False"/>
+                <property id="homogeneous" query="False" default="0" visible="False"/>
+            </properties>
+        </glade-widget-class>
         <glade-widget-class name="Hal_Dial" generic-name="hal_dial" title="Hal_Dial"/>
         
         <glade-widget-class name="PyNgcGui" generic-name="pyngcgui" title="Python NgcGui"/>
@@ -179,6 +186,7 @@
         <glade-widget-class-ref name="HAL_Meter"/>
         <glade-widget-class-ref name="HAL_Graph"/>
         <glade-widget-class-ref name="JogWheel"/>
+        <glade-widget-class-ref name="SpeedControl"/>
         <glade-widget-class-ref name="Hal_Dial"/>
         
         <glade-widget-class-ref name="PyNgcGui"/>
