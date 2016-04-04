@@ -1224,9 +1224,9 @@ class GlCanonDraw:
                      and self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
                     ):
                     idx = self.jnum_for_aletter(aletter,
-                                                 self.kinstype,
-                                                 self.trajcoordinates)
-                elif aletter == "Rad":
+                                                self.kinstype,
+                                                self.trajcoordinates)
+                elif self.lathe_historical_config(self.trajcoordinates):
                     idx = 0; # specialcase
                 else: idx = sline
 
@@ -1237,7 +1237,14 @@ class GlCanonDraw:
                         ):
                         glRasterPos2i(pixel_width + 8, ypos)
                         glBitmap(13, 16, 0, 3, 17, 0, homeicon)
-                if limit[idx]:
+
+                limit_idx = idx
+                if  (    (aletter == "Z")
+                     and self.lathe_historical_config(self.trajcoordinates)
+                    ):
+                    limit_idx = 2; # specialcase for limiticon: Z is on joint2
+
+                if limit[limit_idx]:
                     if (   self.get_joints_mode()
                         or self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
                        ):
@@ -1265,9 +1272,9 @@ class GlCanonDraw:
                      and self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
                     ):
                     idx = self.jnum_for_aletter(aletter,
-                                                 self.kinstype,
-                                                 self.trajcoordinates)
-                elif aletter == "Rad":
+                                                self.kinstype,
+                                                self.trajcoordinates)
+                elif self.lathe_historical_config(self.trajcoordinates):
                     idx = 0; # specialcase
                 else: idx = sline
                 if homed[idx]:
@@ -1324,17 +1331,6 @@ class GlCanonDraw:
             and (self.get_num_joints() == 3)):
             return True
         return False
-
-    def aletter_for_jnum(self,jnum,kinstype,trajcoordinates):
-        if self.lathe_historical_config(trajcoordinates):
-            if jnum == 1: return "Y"
-            if jnum == 2: return "Z"
-
-        if "trivkins" in kinstype:
-            return trajcoordinates[jnum]
-        else:
-            guess = trajcoordinates[jnum]
-            return guess
 
     def jnum_for_aletter(self,aletter,kinstype,trajcoordinates):
         aletter = aletter.upper()
