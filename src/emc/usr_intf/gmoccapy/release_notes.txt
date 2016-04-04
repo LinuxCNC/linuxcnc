@@ -1,6 +1,7 @@
-ver. 1.6.0
-- this is a test version for andrei badea
-  with new controls for touch screens, based on my speedcontrol widget 
+ver. 1.5.6.2
+- bugfix: run from line was trying to set an entry in the alarm page, whitch
+  I drobed in 1.5.6 
+  I cleared the code from unneeded imports and comments
 
 ver. 1.5.6.1
 - bugfix: If a user did jog with keyboard and while jogging changed the increments
