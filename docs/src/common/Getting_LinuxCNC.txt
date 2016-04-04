@@ -116,9 +116,7 @@ link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
 
 Download the Live CD from:
 
-http://www.linuxcnc.org/[the LinuxCNC homepage at www.linuxcnc.org]
-
-and follow the Download link.
+http://linuxcnc.org/iso/
 
 === Multi-session Download (((Multi-session Download)))
 
