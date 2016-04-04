@@ -704,6 +704,10 @@ class gmoccapy( object ):
         self.widgets.spc_max_vel.set_adjustment(self.widgets.adj_max_vel)
         self.widgets.spc_feed.set_adjustment(self.widgets.adj_feed)
         self.widgets.spc_spindle.set_adjustment(self.widgets.adj_spindle)
+        
+        # as for jog vel there are two increments, turtle an rabbit, we have to initialize the start mode
+        increment = ( self.widgets.adj_jog_vel.upper - self.widgets.adj_jog_vel.lower ) / 100
+        self.widgets.spc_jog_vel.set_property("increment", increment)
 
         # holds the max velocity value and is needed to be able to react to halui pin
         self.max_velocity = self.maxvel = self.stat.max_velocity
