@@ -19,7 +19,8 @@
 # Tested cams
 # HD WebCam from Acer Aspire E5-771G-7169 (without timer OK)
 # Logitech HD Pro Webcam C920 (without timer OK)
-# trust spacecam 300 (only with timer)
+# Trust spacecam 300 (without timer OK)
+# Logitech C270 (only with timer set to )
 
 import cv2 
 import gtk
@@ -312,7 +313,7 @@ class CamView(gtk.VBox):
                     elif self.full_info:
                         frame = self._draw_text(frame)
                     self.show_image(frame)
-                    time.sleep(0.1)
+                    time.sleep(0.011)
                     # we put that in a try, to avoid an error if the user 
                     # use the App 24/7 and get to large numbers
                     try:
