@@ -205,13 +205,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                     droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
 
             # if its a lathe only show radius or diameter as per property
-            # we have to adjust the homing icon to line up:
             if self.is_lathe():
-                if homed[0]:
-                    homed.pop(0)
-                    homed.pop(0)
-                    homed.insert(0,1)
-                    homed.insert(0,0)
                 posstrs[0] = ""
                 if self.show_lathe_radius:
                     posstrs.insert(1, format % ("Rad", positions[0]))
