@@ -792,8 +792,8 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
-    print >>f, ".TH %s \"9\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
-        comp_name.upper(), time.strftime("%F"))
+    print >>f, '.TH %s "9" "" "LinuxCNC Documentation" "HAL Component"' % (
+        comp_name.upper())
     print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
 
     print >>f, ".SH NAME\n"
