@@ -385,7 +385,8 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.set_eyepoint(5.)
         self.get_resources()
         self.realize()
-
+        self.init_glcanondraw(trajcoordinates=trajcoordinates,
+                              kinstype=kinstype)
     def getRotateMode(self):
         return vars.rotate_mode.get()
 
@@ -568,9 +569,8 @@ class MyOpengl(GlCanonDraw, Opengl):
 
     def redraw_dro(self):
         self.stat.poll()
-        limit, homed, posstrs, droposstrs = self.posstrs(no_joint_display,
-                                                         kinstype,
-                                                         trajcoordinates)
+
+        limit, homed, posstrs, droposstrs = self.posstrs(no_joint_display)
 
         text = widgets.numbers_text
 

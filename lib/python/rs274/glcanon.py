@@ -421,6 +421,13 @@ class GlCanonDraw:
         self.kinstype = "UNKNOWN"
         self.trajcoordinates = "unknown"
 
+    def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinstype="trivkins",msg=""):
+        self.trajcoordinates = trajcoordinates.upper().replace(" ","")
+        self.kinstype = kinstype
+        if (msg != ""):
+            print "init_glcanondraw %s coords=%s kinstype=%s"%(
+                   msg,self.trajcoordinates,self.kinstype)
+
     def realize(self):
         self.hershey = hershey.Hershey()
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
@@ -1276,9 +1283,7 @@ class GlCanonDraw:
         glPushMatrix()
         glLoadIdentity()
 
-        limit, homed, posstrs, droposstrs = self.posstrs(self.no_joint_display,
-                                                         self.kinstype,
-                                                         self.trajcoordinates)
+        limit, homed, posstrs, droposstrs = self.posstrs(self.no_joint_display)
 
         charwidth, linespace, base = self.get_font_info()
 
@@ -1427,9 +1432,7 @@ class GlCanonDraw:
             guess = trajcoordinates.index(aletter)
             return guess
 
-    def posstrs(self,no_joint_display=False,kinstype="UNKNOWN",trajcoordinates="UNKNOWN"):
-        self.kinstype = kinstype
-        self.trajcoordinates = trajcoordinates.upper().replace(" ","")
+    def posstrs(self,no_joint_display=False):
 
         s = self.stat
         self.no_joint_display = no_joint_display

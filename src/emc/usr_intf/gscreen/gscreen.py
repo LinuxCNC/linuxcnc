@@ -1180,14 +1180,15 @@ class Gscreen:
         """ initalizes the plot screen options from the data class
             expects the plot widget to be called gremlin
         """ 
+        self.widgets.gremlin.init_glcanondraw(
+                trajcoordinates = self.inifile.find("TRAJ", "COORDINATES"),
+                kinstype = self.inifile.find("KINS", "KINEMATICS"))
         self.widgets.show_offsets.set_active( self.data.show_offsets )
         self.widgets.gremlin.show_offsets = self.data.show_offsets
         self.widgets.grid_size.set_value(self.data.grid_size) 
         self.widgets.gremlin.grid_size = self.data.grid_size
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
         self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == self.data._MM))
-        self.widgets.gremlin.kinstype = self.inifile.find("KINS", "KINEMATICS")
-        self.widgets.gremlin.trajcoordinates = self.inifile.find("TRAJ", "COORDINATES")
 
     def init_manual_spindle_controls(self):
         """ set spindle default start rpm
