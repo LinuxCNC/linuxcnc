@@ -19,7 +19,7 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
 .\" USA.
-.TH funct "3rtapi" "2014-06-28" "LinuxCNC Documentation" "RTAPI"
+.TH funct "3rtapi" "" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_device.h \- RTAPI wrappers for linux kernel functionality

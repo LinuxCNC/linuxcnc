@@ -23,7 +23,7 @@
 .\"
 .\"
 .\"
-.TH LinuxCNC "1"  "2006-02-20" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.TH LinuxCNC "1"  "" "LinuxCNC Documentation" "The Enhanced Machine Controller"
 .SH NAME
 linuxcnc \- LinuxCNC (The Enhanced Machine Controller)
 .SH SYNOPSIS

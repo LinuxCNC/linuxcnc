@@ -19,7 +19,7 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
 .\" USA.
-.TH parport "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.TH parport "3rtapi" "" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_parport \- portable access to PC-style parallel ports

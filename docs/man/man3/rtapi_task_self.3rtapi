@@ -1,4 +1,4 @@
-.TH rtapi_task_self "3rtapi" "2015-04-18" "LinuxCNC Documentation" "RTAPI"
+.TH rtapi_task_self "3rtapi" "" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_task_self \- Retrieve ID of current task

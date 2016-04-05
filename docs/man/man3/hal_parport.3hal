@@ -1,4 +1,4 @@
-.TH parport "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.TH parport "3hal" "" "LinuxCNC Documentation" "HAL"
 .SH NAME
 
 hal_parport \- portable access to PC-style parallel ports
