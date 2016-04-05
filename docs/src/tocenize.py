@@ -67,6 +67,7 @@ for fn in sys.argv[1:]:
     with open(fn, "rU") as f:
         for line in f.readlines():
             line = line.rstrip('\n')
+            if line.startswith(".so "): continue
             if not head and line.startswith(".SH NAME"):
                 head = line
             elif head and line:

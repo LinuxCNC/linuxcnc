@@ -8,12 +8,17 @@ LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 
-GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
+GENERATED_MANPAGES += $(patsubst ../docs/src/man/%, ../docs/man/%, \
+	$(wildcard $(DOC_SRCDIR)/man/man1/*.1) \
+	$(patsubst %.in,%,$(wildcard $(DOC_SRCDIR)/man/man1/*.1.in)) \
+	$(wildcard $(DOC_SRCDIR)/man/man3/*.3hal) \
+	$(wildcard $(DOC_SRCDIR)/man/man3/*.3rtapi) \
+	$(wildcard $(DOC_SRCDIR)/man/man9/*.9))
 ifeq ($(BUILD_DOCS),yes)
 GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.txt, ../docs/man/%, $(wildcard ../docs/src/man/*/*.txt))
 endif
 
-MAN_SRCS = $(sort \
+MANPAGES = $(sort \
 	$(wildcard $(DOC_DIR)/man/man1/*.1) \
 	$(wildcard $(DOC_DIR)/man/man3/*.3*) \
 	$(wildcard $(DOC_DIR)/man/man9/*.9) \
@@ -24,7 +29,7 @@ MAN_SRCS = $(sort \
 
 ifneq ($(MANDB),)
 default: $(DOC_DIR)/man/index.db
-$(DOC_DIR)/man/index.db: $(MAN_SRCS)
+$(DOC_DIR)/man/index.db: $(MANPAGES)
 	@echo "Updating 'whatis' database"
 	$(Q)$(MANDB) $(DOC_DIR)/man
 endif
@@ -238,7 +243,7 @@ DOC_TARGETS_HTML_ES := $(filter %_es.html, $(DOC_TARGETS_HTML))
 DOC_TARGETS_HTML_FR := $(filter %_fr.html, $(DOC_TARGETS_HTML))
 DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(DOC_TARGETS_HTML)) )
 
-MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
+MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MANPAGES))
 
 PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started.pdf \
@@ -291,7 +296,7 @@ manpages: $(GENERATED_MANPAGES)
 
 clean: clean-manpages
 clean-manpages:
-	-rm -f $(GENERATED_MANPAGES)
+	-rm -rf $(DOC_DIR)/man
 
 
 ifeq ($(BUILD_DOCS_PDF),yes)
@@ -324,16 +329,14 @@ checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
 checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Spanish $^
 
-MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
-			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
-
-PDF_MAN_ORDER_ := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
-	man3/intro.3hal $(filter-out %/undocumented.3hal %/intro.3hal, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
-	man3/undocumented.3hal man3/intro.3rtapi $(filter-out %/undocumented.3rtapi %/intro.3rtapi, $(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
-	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO)) 
+MAN := $(patsubst $(DOC_DIR)/man/%,%,$(MANPAGES))
+PDF_MAN_ORDER_ := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN))) \
+	man3/intro.3hal $(filter-out %/undocumented.3hal %/intro.3hal, $(filter man3/%.3hal, $(MAN))) \
+	man3/undocumented.3hal man3/intro.3rtapi $(filter-out %/undocumented.3rtapi %/intro.3rtapi, $(filter man3/%.3rtapi, $(MAN))) \
+	man3/undocumented.3rtapi $(filter man9/%, $(MAN))
 PDF_MAN_ORDER = $(patsubst %,../docs/man/%,$(PDF_MAN_ORDER_))
 
-$(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER $(DOC_SRCDIR)/tocenize.py
+$(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MANPAGES) objects/var-PDF_MAN_ORDER $(DOC_SRCDIR)/tocenize.py
 	@echo Formatting manual pages as PDF
 	bash -c 'set -eo pipefail; python $(DOC_SRCDIR)/tocenize.py $(PDF_MAN_ORDER) | groff -t -rC1 -rD1 -Tps -man - | ps2pdf - $@.tmp && mv -f $@.tmp $@'
 
@@ -608,6 +611,10 @@ endif
 
 # make manpages from all the asciidoc manpage-sources
 GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.txt, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.txt))
+$(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%
+	$(ECHO) Copy $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp $< $@
 $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.txt
 	@mkdir -p `dirname $@`
 	a2x -v --doctype manpage \
