@@ -560,7 +560,8 @@ int rtapi_app_main(void) {
         }
 
         default: {
-            LL_ERR("unknown test pattern %d", test_pattern); 
+            LL_ERR("unknown test pattern %d", test_pattern);
+	    hal_exit(comp_id);
             return -ENODEV;
         }
     }
@@ -584,6 +585,7 @@ int rtapi_app_main(void) {
     r = hm2_register(&board->llio, config[0]);
     if (r != 0) {
         THIS_ERR("hm2_test fails HM2 registration\n");
+	hal_exit(comp_id);
         return -EIO;
     }
 
