@@ -1,4 +1,3 @@
-
 //
 //    Copyright (C) 2007-2008 Sebastian Kuzminsky
 //
@@ -18,12 +17,13 @@
 //
 //    Transformed for Machinekit socfpga in 2016 by Michael Brown
 //    Copyright (C) Holotronic 2016-2017
-
+//
+//    some polishings Michael Haberler 2016
 
 //---------------------------------------------------------------------------//
-//  # 
+//  #
 //  # module assignments (from hm2reg_io_hw.tcl)
-//  # 
+//  #
 //  set_module_assignment embeddedsw.dts.group hm2-socfpga
 //  set_module_assignment embeddedsw.dts.name hm2reg-io
 //  set_module_assignment embeddedsw.dts.params.address_width 14
@@ -45,15 +45,8 @@
 //  hm2-socfpga@0x100040000
 //  /proc/device-tree/sopc@0/bridge@0xc0000000/hm2-socfpga@0x100040000:
 //---------------------------------------------------------------------------//
-
-#include <rtapi_io.h>
-
 #include "config.h"
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
-#include "hal.h"
+
 // this should be an general socfpga #define
 #if !defined(TARGET_PLATFORM_SOCFPGA)
 #error "This driver is for the socfpga platform only"
@@ -63,89 +56,56 @@
 #error "This driver is for usermode threads only"
 #endif
 
-
+#include "rtapi.h"
+#include "rtapi_app.h"
+#include "rtapi_string.h"
+#include "rtapi_hexdump.h"
+#include "rtapi_compat.h"
+#include "rtapi_io.h"
+#include "hal.h"
+#include "hal/lib/config_module.h"
+#include "hostmot2-lowlevel.h"
+#include "hostmot2.h"
+#include "hm2_soc.h"
 
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
-
-
-//#include "hal/drivers/mesa-hostmot2/bitfile.h"
-#include "hal/lib/config_module.h"
-#include "hostmot2-lowlevel.h"
-#include "hm2_soc.h"
+#include <string.h>
+#include <ctype.h>
 
 //#include "../Include/mkhm2soc/hps_0.h"
 #define HM2REG_IO_0_SPAN 65536
 
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Brown");
-MODULE_DESCRIPTION("Driver initially for HostMot2 on the DE0 Nano / Atlas Cyclone V socfpga board from Terasic");
-MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
+MODULE_DESCRIPTION("Driver initially for HostMot2 on the DE0 Nano"
+		   " / Atlas Cyclone V socfpga board from Terasic");
+MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i25");
 
 
 static char *config[HM2_SOC_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, HM2_SOC_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
+RTAPI_MP_ARRAY_STRING(config, HM2_SOC_MAX_BOARDS,
+		      "config string for the AnyIO boards (see hostmot2(9) manpage)")
+static int debug;
+RTAPI_MP_INT(debug, "turn on extra debug output");
 
 static int comp_id;
-static int  uio_fd;
-
-
-// FIXME: should probably have a linked list of boards instead of an array
 static hm2_soc_t board[HM2_SOC_MAX_BOARDS];
 static int num_boards;
-//static int num_5i20 = 0;
-//static int num_5i21 = 0;
-//static int num_5i22 = 0;
-//static int num_5i23 = 0;
-//static int num_5i24 = 0;
-static int num_5i25 = 0;
-static int num_6i25 = 1;
-//static int num_4i65 = 0;
-//static int num_4i68 = 0;
-//static int num_4i69 = 0;
-//static int num_3x20 = 0;
-static int failed_errno=0; // errno of last failed registration
+static int failed_errno = 0; // errno of last failed registration
+static char *fpga0_status = "/sys/class/fpga/fpga0/status";
+static char *fpga_device = "/dev/fpga0";
+static char *uio_dev = "/dev/uio0";
 
-
-//---------------------------------------------------------------//
-
-
-
-/* // probe string for uio driver
-static const struct of_device_id uio_of_genirq_match[] = {
-    { .compatible = "machkt,hm2reg-io-1.0", },
-    { }
-};
-*/
-
-// this struct contains the hm2 interface ip core info provided in the device-tree
-
-static struct dts_device_id hm2_soc_tbl[] = {
-        
-    // 5i25
-    {
-        .address_width = 14,        //0x0000000E
-        .clocks = 2,                //0x00000002 number of clocks ?
-        .compatible = {
-            .vendor = "machkt",       //6D 61 63 68 6B 74 2C
-            .name = "hm2reg-io",      //68 6D 32 72 65 67 2D 69 6F 2D 31 2E 30 00
-        }, // (machkt,hm2reg-io-1.0.)
-        .data_width = 32,           // 0x00000020
-        .name = "hm2-socfpga",        //68 6D 32 2D 73 6F 63 66 70 67 61 00 (hm2-socfpga.)
-        .reg = {0x00000001, 0x00040000, 0x00010000},// ?, address offset from bridge, address span (= max address +1)
-    },
-    {0,},
-};
-
-//MODULE_DEVICE_TABLE(soc, hm2_soc_tbl);
-
+static int hm2_soc_mmap(hm2_soc_t *board);
+static int fpga_loaded();
+static char *strlwr(char *str);
+static int set_fpga_bridge(const char *bridge, const char *value);
 
 // 
 // these are the "low-level I/O" functions exported up
 //
-
 static int hm2_soc_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     hm2_soc_t *board = this->private;
     int i;
@@ -159,20 +119,16 @@ static int hm2_soc_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int siz
         u16* src16 = (u16*) src;
         /* hm2_read_idrom performs a 16-bit read, which seems to be OK, so let's allow it */
         if ( ((addr & 0x1) != 0) || (size != 2) ){
-            rtapi_print_msg(RTAPI_MSG_ERR, "hm2_soc_read: Unaligned Access: %08x %04x\n", addr,size);
+            LL_ERR( "hm2_soc_read: Unaligned Access: %08x %04x\n", addr,size);
             memcpy(dst, src, size);
             return 1;  // success
         }
         dst16[0] = src16[0];
         return 1;  // success
     }
-
-//    rtapi_print_msg(RTAPI_MSG_ERR, "pci_read : %08x.%04x", addr,size);
     for (i=0; i<(size/4); i++) {
         dst[i] = src[i];
-//        rtapi_print_msg(RTAPI_MSG_ERR, " %08x", dst[i]);
     }
-//    rtapi_print_msg(RTAPI_MSG_ERR, "\n");
     return 1;  // success
 }
 
@@ -185,305 +141,335 @@ static int hm2_soc_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int si
     /* Per Peter Wallace, all hostmot2 access should be 32 bits and 32-bit aligned */
     /* Check for any address or size values that violate this alignment */
     if ( ((addr & 0x3) != 0) || ((size & 0x03) != 0) ){
-        rtapi_print_msg(RTAPI_MSG_ERR, "hm2_soc_write: Unaligned Access: %08x %04x\n", addr,size);
+        LL_ERR( "hm2_soc_write: Unaligned Access: %08x %04x\n", addr,size);
         memcpy(dst, src, size);
         return 1;  // success
     }
 
-//    rtapi_print_msg(RTAPI_MSG_ERR, "pci_write: %08x.%04x", addr,size);
     for (i=0; i<(size/4); i++) {
-//        rtapi_print_msg(RTAPI_MSG_ERR, " %08x", src[i]);
         dst[i] = src[i];
     }
-//    rtapi_print_msg(RTAPI_MSG_ERR, "\n");
     return 1;  // success
 }
 
-
-/*
-static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
-
-//    disable bridges:  
-    echo 0 > hps2fpga, lwhps2fpga, fpga2hps
-    cat bitfile > /dev/fpga
-    //    enable bridges:  
-    echo 1 > hps2fpga, lwhps2fpga, fpga2hps
-
-    return 0;
-
-
-fail:
-    ???
-    return -EIO;
+// when no firmware= was specified, hm2_register() will read/write from the
+// (as of yet unmapped) fpga region. Trap this case by lazy mapping - this will
+// happen only once at startup as hm2_soc_mmap() sets llio->read&write
+// to hm2_soc_read & hm2_soc_write.
+static int hm2_soc_unmapped_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+    hm2_soc_t *board = this->private;
+    int rc = hm2_soc_mmap(board);
+    if (rc)
+	return rc;
+    return hm2_soc_read(this, addr, buffer, size);
 }
-*/
 
+static int hm2_soc_unmapped_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+    hm2_soc_t *board = this->private;
+    int rc = hm2_soc_mmap(board);
+    if (rc)
+	return rc;
+    return hm2_soc_write(this, addr, buffer, size);
+}
 
-/*
+static int hm2_soc_verify_firmware(hm2_lowlevel_io_t *this,  const struct firmware *fw) {
+    // if you dont trust what is being passed in, inspect *fw here
+    LL_DBG("soc_verify_firmware size=%zu at %p fd=%d",
+	   fw->size, fw->data, fw->fd);
+    return 0;
+}
+
 static int hm2_soc_reset(hm2_lowlevel_io_t *this) {
+    // currently not needed
+    LL_DBG( "soc_reset");
     return 0;
 }
-*/
-// 
-// misc internal functions
-//
 
-/*
-static int hm2_soc_probe(struct soc_dev *dev, const struct dts_device_id *id) {
-    int r;
-    hm2_soc_t *board;
-    hm2_lowlevel_io_t *this;
+static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
+				const bitfile_t *bitfile,
+				const struct firmware *fw) {
 
-// could there be more than 1 hm2 interface needed on a soc ?
-//    if (num_boards >= HM2_SOC_MAX_BOARDS) {
-//        LL_PRINT("skipping hm2 soc interface at %s, this driver can only handle %d\n", dts_name(dev), HM2_SOC_MAX_BOARDS);
-//        return -EINVAL;
-//    }
+    int rc;
+    LL_DBG("soc_program_fpga");
 
-    board = &hm2_soc_board[num_boards];
-    this = &board->llio;
-    memset(this, 0, sizeof(hm2_lowlevel_io_t));
+    if ((rc = fpga_loaded()) < 0) {
+	LL_ERR("check for %s failed - permissions issue or wrong platform?", fpga_device);
+	return rc;
+    }
+    char *gpio_module = "gpio_altera";
+    int gpio_altera_was_loaded = is_module_loaded(gpio_module);
 
-//    switch (dev->name) {
-    switch (dts_device_id->name) {
-            
-        case hm2-socfpga: {
-            if (dts_device_id->compatible->name == hm2reg-io) {
-//                LL_PRINT("discovered hm2reg-io at %s\n", dts_name(dev));
-                LL_PRINT("discovered hm2reg-io at entity (machkt,hm2reg-io-1.0.)\n");                
-//                rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i25.%d", num_5i25);
-                num_5i25 ++;
-            }
-//            else {
-//                LL_PRINT("discovered 6i25 at %s\n", dts_name(dev));
-//                rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_6i25.%d", num_6i25);
-//                num_6i25 ++;
-//            }
-            board->llio.num_ioport_connectors = 2;
-            board->llio.pins_per_connector = 17;
-            board->llio.ioport_connector_name[0] = "P3";
-            board->llio.ioport_connector_name[1] = "P2";
-            board->llio.fpga_part_number = "6slx9tqg144";
-            board->llio.num_leds = 2;
-            break;
-        }
-
-        default: {
-//            LL_ERR("unknown subsystem device id 0x%04x\n", dev->name);
-            LL_ERR("unknown dts subsystem \n");
-            return failed_errno = -ENODEV;
-        }
+    // unload gpio_altera during FPGA loading
+    if (gpio_altera_was_loaded) {
+	rc = run_shell("/sbin/modprobe -r %s", gpio_module);
+	if (rc) {
+	    LL_ERR("run_shell(modprobe -r %s) failed: %s", gpio_module, strerror(errno));
+	    return -errno;
+	}
+	// paranoia
+	if (is_module_loaded(gpio_module)) {
+	    LL_ERR("module %s failed to unload", gpio_module);
+	    return -EBUSY;
+	}
     }
 
-
-    switch (dev->name) {
-//        case HM2_PCI_DEV_MESA5I25:
-        case hm2-socfpga: {
-              // mksocfpga_io_hm2 is 64K mem (32 bit)
-//            board->len = pci_resource_len(dev, 0);
-            board->base = pci_ioremap_bar(dev, 0);
-            if (board->base == NULL) {
-                THIS_ERR("could not map in FPGA address space\n");
-                r = -ENODEV;
-                goto fail0;
-            }
-            break;
-        }
-
-        default: {
-            THIS_ERR("unknown DTS Device ID 0x%04x\n", dev->group);
-            r = -ENODEV;
-            goto fail0;
-        }
+    int fd = open(fpga_device, O_WRONLY);
+    if (fd < 0) {
+	LL_ERR("open(%s) failed: %s", fpga_device, strerror(errno));
+	return -EIO;
     }
 
+    // disable bridges
+    set_fpga_bridge("hps2fpga", "0\n");
+    set_fpga_bridge("fpga2hps", "0\n");
+    set_fpga_bridge("lwhps2fpga", "0\n");
 
-    board->dev = dev;
-
-//    pci_set_drvdata(dev, board);
-    soc_set_drvdata(dev, board);
-    
-    board->llio.comp_id = comp_id;
-    board->llio.private = board;
-
-    board->llio.threadsafe = 1;
-
-    board->llio.read = hm2_soc_read;
-    board->llio.write = hm2_soc_write;
-
-    r = hm2_register(&board->llio, config[num_boards]);
-    if (r != 0) {
-        THIS_ERR("board fails HM2 registration\n");
-        goto fail1;
+    // load FPGA
+    if (write(fd, fw->data, fw->size) != fw->size)  {
+	LL_ERR("write(%s, %zu) failed: %s",
+	       fpga_device, fw->size, strerror(errno));
+	close(fd);
+	return -EIO;
     }
+    close(fd);
 
-//    THIS_PRINT("initialized AnyIO board at %s\n", dts_name(dev));
-    THIS_PRINT("initialized AnyIO HM2 core at %s\n", soc_name(dev));
-    
-    num_boards++;
+    // re-enable bridge(s)
+    // set_fpga_bridge("hps2fpga", "1\n"); // currently unused
+    // set_fpga_bridge("fpga2hps", "1\n"); // currently unused
+    set_fpga_bridge("lwhps2fpga", "1\n");
+
+    // load gpio_altera it again if it was present
+    if (gpio_altera_was_loaded) {
+	rc = run_shell("/sbin/modprobe %s", gpio_module);
+	if (rc) {
+	    LL_ERR("run_shell(modprobe %s) failed: %s",
+		   gpio_module, strerror(errno));
+	    return -errno;
+	}
+	// paranoia
+	if (!is_module_loaded(gpio_module)) {
+	    LL_ERR("module %s failed to load", gpio_module);
+	    return -ENOENT;
+	}
+    }
+    if (fpga_loaded()){
+        LL_ERR("FPGA not loaded\n");
+        return -ENOENT;
+    }
+    rc = hm2_soc_mmap(this->private);
+    if (rc) {
+	LL_ERR("soc_mmap_fail");
+	return -EINVAL;
+    }
     return 0;
-
-
-fail1:
-//    pci_set_drvdata(dev, NULL);
-    soc_set_drvdata(dev, NULL);
-    iounmap(board->base);
-    board->base = NULL;
-
-fail0:
-//    soc_disable_device(dev);
-    return failed_errno = r;
 }
-*/
-/*
-static void hm2_soc_remove(struct soc_dev *dev) {
-    int i;
 
-    for (i = 0; i < num_boards; i++) {
-        hm2_soc_t *board = &hm2_soc_board[i];
-        hm2_lowlevel_io_t *this = &board->llio;
+static int hm2_soc_mmap(hm2_soc_t *board) {
 
-        if (board->dev == dev) {
-            THIS_PRINT("dropping AnyIO board at %s\n", dts_name(dev));
+    volatile void *virtual_base;
+    hm2_lowlevel_io_t *this = &board->llio;
 
-            hm2_unregister(&board->llio);
-
-            // Unmap board memory
-            if (board->base != NULL) {
-                iounmap(board->base);
-                board->base = NULL;
-            }
-
-            pci_disable_device(dev);
-            pci_set_drvdata(dev, NULL);
-            board->dev = NULL;
-        }
+    board->uio_fd = open ( board->uio_dev , ( O_RDWR | O_SYNC ) );
+    if (board->uio_fd < 0) {
+        LL_ERR("Could not open %s: %s",  board->uio_dev, strerror(errno));
+        return -errno;
     }
+    virtual_base = mmap( NULL, HM2REG_IO_0_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED,
+			 board->uio_fd, 0);
+
+    if (virtual_base == MAP_FAILED) {
+	LL_ERR( "mmap failed: %s", strerror(errno));
+	close(board->uio_fd);
+	board->uio_fd = -1;
+	return -EINVAL;
+    }
+    if (debug)
+	rtapi_print_hex_dump(RTAPI_MSG_INFO, RTAPI_DUMP_PREFIX_OFFSET,
+			     16, 1, (const void *)virtual_base, 4096, true,
+			     "hm2 regs at %p:", virtual_base);
+
+    // this duplicates stuff already happening in hm2_register - no harm
+    u32 reg = *((u32 *)(virtual_base + HM2_ADDR_IOCOOKIE));
+    if (reg != HM2_IOCOOKIE) {
+	LL_ERR("invalid cookie, got 0x%08X, expected 0x%08X\n", reg, HM2_IOCOOKIE);
+	LL_ERR( "FPGA failed to initialize, or unexpected firmware?\n");
+	close(board->uio_fd);
+	board->uio_fd = -1;
+	return -EINVAL;
+    }
+
+    reg = *((u32 *)(virtual_base + HM2_ADDR_IDROM_OFFSET));
+    hm2_idrom_t *idrom = (void *)(virtual_base + reg);
+
+    LL_DBG("hm2 cookie check OK, board name='%8.8s'", idrom->board_name);
+
+    void *configname = (void *)virtual_base + HM2_ADDR_CONFIGNAME;
+    if (strncmp(configname, HM2_CONFIGNAME, HM2_CONFIGNAME_LENGTH) != 0) {
+	LL_ERR("%s signature not found at %p", HM2_CONFIGNAME, configname);
+	close(board->uio_fd);
+	board->uio_fd = -1;
+	return -EINVAL;
+    }
+
+    // use BoardNameHigh as board name - see http://freeby.mesanet.com/regmap
+    rtapi_snprintf(this->name, sizeof(this->name), "hm2_%4.4s.%d",
+		   idrom->board_name + 4, num_boards);
+    strlwr(this->name);
+    board->base = (void *)virtual_base;
+    // now it's safe to read/write
+    this->read = hm2_soc_read;
+    this->write = hm2_soc_write;
+    return 0;
 }
-*/
-/*
-static struct uio_driver hm2_soc_driver = {
-	.name = HM2_LLIO_NAME,
-	.id_table = hm2_soc_tbl,
-	.probe = hm2_soc_probe,
-	.remove = hm2_soc_remove,
-};
-*/
 
-static int hm2_soc_mmap(void) {
+static int hm2_soc_register(hm2_soc_t *brd, char *dev) {
+    memset(brd, 0,  sizeof(hm2_soc_t));
 
-   //CR hm2_soc_t *me;
-    hm2_lowlevel_io_t *this;
-    int r = 0;
-	
-memset(board, 0,  sizeof(hm2_soc_t));
-    /* Open the resource node */
-    uio_fd = open ( "/dev/uio0", ( O_RDWR | O_SYNC ) );
-    if (uio_fd < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Could not open UIO resource for: hm2_mksocfpga . (%s)\n", strerror(errno));
-        return 0;
-    }
-    // get virtual addr that maps to physical
-    virtual_base = mmap( NULL, HM2REG_IO_0_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, uio_fd, 0);
-    //CR removed to try and fix return (1);
-    
-//    LL_PRINT("PRINT: mmap run sucessfull \n");
+    brd->uio_dev = uio_dev;
 
-    rtapi_snprintf(board[0].llio.name, sizeof(board[0].llio.name), "hm2_5i25.%d", num_5i25);
-      board[0].llio.comp_id = comp_id;
-	board[0].llio.num_ioport_connectors =2;
-	board[0].llio.pins_per_connector = 17;
-	 board[0].llio.ioport_connector_name[0] = "P3";
-	 board[0].llio.ioport_connector_name[1] = "P2";
-	 board[0].llio.fpga_part_number = "6slx9tqg144";
-	board[0].llio.num_leds = 2;
-    
-	
-	 board[0].llio.threadsafe = 1;
+    brd->llio.comp_id = comp_id;
+    brd->llio.num_ioport_connectors = 2;
+    brd->llio.pins_per_connector = 17;
+    brd->llio.ioport_connector_name[0] = "P3";
+    brd->llio.ioport_connector_name[1] = "P2";
+    brd->llio.fpga_part_number = 0; // "6slx9tqg144";
+    brd->llio.num_leds = 2;
 
-	 board[0].llio.read = hm2_soc_read;
-	 board[0].llio.write = hm2_soc_write;
- 	board[0].base = virtual_base;   
-	board[0].llio.private = &board[0];
-	this =  &board[0].llio;
-	r = hm2_register( &board[0].llio, config[0]);
+    // keeps hm2_register happy - will be overwritten
+    // once the FPGA regs are accessible
+    strcpy( brd->llio.name, "foo");
 
+    brd->llio.threadsafe = 1;
+
+    // not safe to read yet as fpga memory not yet mapped
+    // so trap this on first downcall
+    brd->llio.read = hm2_soc_unmapped_read;
+    brd->llio.write = hm2_soc_unmapped_write;
+    brd->llio.reset = hm2_soc_reset;
+
+    // hm2_register will downcall on those if firmware= given
+    brd->llio.program_fpga = hm2_soc_program_fpga;
+    brd->llio.verify_firmware = hm2_soc_verify_firmware;
+
+    brd->llio.private = brd;
+    hm2_lowlevel_io_t *this =  &brd->llio;
+    int r = hm2_register( this, config[0]);
     if (r != 0) {
         THIS_ERR("hm2_soc_board fails HM2 registration\n");
+	close(brd->uio_fd);
+	board->uio_fd = -1;
         return -EIO;
     }
-
     LL_PRINT("initialized AnyIO hm2_soc_board \n");
-	num_boards++;
+    num_boards++;
     return 0;
-
-//    close ( fd );
-
 }
 
-static int hm2_soc_munmap(void) {
-  if (virtual_base)
-    munmap((void *) virtual_base, HM2REG_IO_0_SPAN);
-  if (uio_fd > -1)
-      close (uio_fd);
-//  hal_exit(comp_id);
-  return(1);
 
+static int hm2_soc_munmap(hm2_soc_t *board) {
+    if (board->base != NULL)
+	munmap((void *) board->base, HM2REG_IO_0_SPAN);
+    if (board->uio_fd > -1) {
+	close(board->uio_fd);
+	board->uio_fd = -1;
+    }
+    return(1);
 }
+
 int rtapi_app_main(void) {
     int r = 0;
 
-    LL_PRINT("loading Mesa AnyIO HostMot2 socfpgs driver version " HM2_SOCFPGA_VERSION "\n");
+    LL_PRINT("loading Mesa AnyIO HostMot2 socfpga driver version " HM2_SOCFPGA_VERSION "\n");
 
-     comp_id = hal_init(HM2_LLIO_NAME);
-     if (comp_id < 0) return comp_id;
+    if (!(r = is_module_loaded("hm2reg_ui"))) {
+        LL_ERR("hm2reg_uio not loaded!");
+        return r;
+    }
 
-//    me = &hm2_soc_board[0];
-//    this = &me->llio;
+    comp_id = hal_init(HM2_LLIO_NAME);
+    if (comp_id < 0) return comp_id;
 
-//    r = uio_register_driver(&hm2_soc_driver);
-    r = hm2_soc_mmap();
-    
+    r = hm2_soc_register(&board[0], uio_dev);
     if (r != 0) {
         LL_ERR("error registering UIO driver\n");
         hal_exit(comp_id);
         return r;
     }
 
-    if(failed_errno) {
+    if (failed_errno) {
 	// at least one card registration failed
 	hal_exit(comp_id);
-//	uio_unregister_driver(&hm2_soc_driver);
-//	hm2_soc_munmap(&hm2_soc_driver);
-	r = hm2_soc_munmap();
-//	return failed_errno;
+	r = hm2_soc_munmap(&board[0]);
 	return r;
     }
 
-    if(num_boards == 0) {
+    if (num_boards == 0) {
 	// no cards were detected
-    LL_PRINT("error no supported cards detected\n");
+	LL_PRINT("error - no supported cards detected\n");
 	hal_exit(comp_id);
-//	pci_unregister_driver(&hm2_soc_driver);
-	r = hm2_soc_munmap();
-   
-//	return -ENODEV;
+	r = hm2_soc_munmap(&board[0]);
 	return r;
     }
-
-//    me->llio.program_fpga = hm2_test_program_fpga;
-//    me->llio.reset = hm2_test_reset;
-
-
     hal_ready(comp_id);
     return 0;
 }
 
 
 void rtapi_app_exit(void) {
-//    uio_unregister_driver(&hm2_soc_driver);
-    hm2_soc_munmap();
+
+    hm2_unregister(&board->llio);
+    hm2_soc_munmap(&board[0]);
     LL_PRINT("UIO driver unloaded\n");
     hal_exit(comp_id);
 }
 
+static int set_fpga_bridge(const char *bridge, const char *value) {
+    char fname[100];
+    rtapi_snprintf(fname, sizeof(fname),"/sys/class/fpga-bridge/%s/enable", bridge);
+    int rc = procfs_cmd(fname, value);
+    if (rc < 0)
+	LL_ERR( "write '%s' to '%s' failed: %s",
+			value, fname, strerror(errno));
+    return rc;
+}
+
+static char *strlwr(char *str)
+{
+  unsigned char *p = (unsigned char *)str;
+  while (*p) {
+     *p = tolower(*p);
+      p++;
+  }
+  return str;
+}
+
+// if RBF file not loaded: contents="configuration phase"
+// loaded: contents="user mode"
+
+#define FPGA_LOADED "user mode"
+
+static int fpga_loaded()
+{
+    int fd = open(fpga0_status, O_RDONLY);
+    if (fd < 0) {
+	LL_ERR( "Failed to open sysfs entry '%s': %s\n",
+		fpga0_status, strerror(errno));
+	return -errno;
+    }
+    char status[100];
+    memset(status, 0, sizeof(status));
+    int len = read(fd, status, sizeof(status));
+    if (len < 0)  {
+	LL_ERR( "Failed to read sysfs entry '%s': %s\n",
+		fpga0_status, strerror(errno));
+	close(fd);
+	return -errno;
+    }
+    close(fd);
+    if (strncmp(status, FPGA_LOADED, strlen(FPGA_LOADED)) != 0) {
+	LL_DBG( "FPGA not loaded - status=%s\n", status);
+	return 1;
+    }
+    LL_DBG( "FPGA loaded: status=%s\n", status);
+    return 0;
+}
