@@ -950,6 +950,7 @@ Direct program control::
         Hide or show the button
 
 Example Speedcontrol:
+
 image::images/SpeedControl.png[]
 
 [[gladevcp:hal-label]]
