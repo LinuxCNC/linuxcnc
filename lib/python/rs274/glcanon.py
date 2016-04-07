@@ -424,9 +424,10 @@ class GlCanonDraw:
     def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinstype="trivkins",msg=""):
         self.trajcoordinates = trajcoordinates.upper().replace(" ","")
         self.kinstype = kinstype
+        self.no_joint_display = self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
         if (msg != ""):
-            print "init_glcanondraw %s coords=%s kinstype=%s"%(
-                   msg,self.trajcoordinates,self.kinstype)
+            print "init_glcanondraw %s coords=%s kinstype=%s no_joint_display=%d"%(
+                   msg,self.trajcoordinates,self.kinstype,self.no_joint_display)
 
     def realize(self):
         self.hershey = hershey.Hershey()
@@ -1283,7 +1284,7 @@ class GlCanonDraw:
         glPushMatrix()
         glLoadIdentity()
 
-        limit, homed, posstrs, droposstrs = self.posstrs(self.no_joint_display)
+        limit, homed, posstrs, droposstrs = self.posstrs()
 
         charwidth, linespace, base = self.get_font_info()
 
@@ -1432,10 +1433,9 @@ class GlCanonDraw:
             guess = trajcoordinates.index(aletter)
             return guess
 
-    def posstrs(self,no_joint_display=False):
+    def posstrs(self):
 
         s = self.stat
-        self.no_joint_display = no_joint_display
         limit = list(s.limit[:])
         homed = list(s.homed[:])
 
