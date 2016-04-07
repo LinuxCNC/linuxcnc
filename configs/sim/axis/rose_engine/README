@@ -1,0 +1,10 @@
+rose_engine.ini: rose engine demo
+
+Demonstrates a rose engine kinematics
+
+(man 9 rosekins)
+
+joint_0 linear, transverse
+joint_1 linear, longitudinal
+joint_2 rotary, spindle (cumalative angle)
+
