@@ -570,7 +570,7 @@ class MyOpengl(GlCanonDraw, Opengl):
     def redraw_dro(self):
         self.stat.poll()
 
-        limit, homed, posstrs, droposstrs = self.posstrs(no_joint_display)
+        limit, homed, posstrs, droposstrs = self.posstrs()
 
         text = widgets.numbers_text
 
@@ -3263,9 +3263,6 @@ if len(trajcoordinates) > jointcount:
     raise SystemExit, (
           "Error: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d"
           %(trajcoordinates,jointcount))
-
-no_joint_display = (s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
-
 
 def jnum_for_aletter(aletter):
     if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
