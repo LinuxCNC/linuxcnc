@@ -22,7 +22,7 @@ core_sim $axes \
          $::EMCMOT(SERVO_PERIOD) \
          $base_period
 
-make_ddts $axes
-simulated_home $axes
+make_ddts $number_of_joints
+simulated_home $number_of_joints
 use_hal_manualtoolchange
 sim_spindle
