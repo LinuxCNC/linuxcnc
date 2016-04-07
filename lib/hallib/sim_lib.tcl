@@ -2,8 +2,7 @@
 
 #----------------------------------------------------------------------
 # Notes (Joints-Axes):
-#   1) establish indices for common kins (trivkins)
-#   2) if  ::KINS(KINEMATICS) exists:
+#   1) if  ::KINS(KINEMATICS) exists:
 #        loadrt the kins using any included parameters
 #        example: for inifile item:
 #           [KINS]KINEMATICS = trivkins coordinates=XZ kinstype=BOTH
@@ -12,14 +11,16 @@
 #      else:
 #           loadrt trivkins
 #
-#   3) NB: If $::KINS(KINEMATICS) specifies coordinates=, the
-#          coordinats must agree with ::TRAJ(COORDINATES)
+#   2) NB: If $::KINS(KINEMATICS) specifies coordinates=, the
+#          coordinates must agree with ::TRAJ(COORDINATES)
 #
+#   3) if known kins (trivkins) and xyz, make hypotenuse velocity
+#      pins for xy,xyz
 #----------------------------------------------------------------------
 
 proc indices_for_trivkins {axes} {
   # ref: src/emc/kinematics/trivkins.c
-  if {"$axes" == ""} {set axes {x y z abc u v w}}
+  if {"$axes" == ""} {set axes {x y z a b c u v w}}
   set i 0
   foreach a [string tolower $axes] {
      # assign to consecutive joints:
@@ -39,9 +40,8 @@ proc get_traj_coordinates {} {
 
 proc setup_kins {axes} {
   if ![info exists ::KINS(KINEMATICS)] {
-    puts stderr "NO \[KINS\]KINEMATICS, trying trivkins"
-    indices_for_trivkins {}
-    eval loadrt trivkins
+    puts stderr "setup_kins: NO \[KINS\]KINEMATICS, trying default trivkins"
+    loadrt trivkins
     return
   }
   set ::KINS(KINEMATICS) [lindex $::KINS(KINEMATICS) end]
@@ -53,16 +53,14 @@ proc setup_kins {axes} {
   if [catch {eval $cmd} msg] {
     puts stderr "msg=$msg"
     # if fail, try without coordinates parameters
-    eval $cmd
+    $cmd
   }
 
   # set up axis indices for known kins
   switch $kins {
-    trivkins    {indices_for_trivkins    $axes}
-    default      {
-      puts stderr "setup_kins:UNKNOWN \[KINS\]KINEMATICS=<$::KINS(KINEMATICS)>,\
-                  trying incices_for_trivkins"
-      indices_for_trivkins $axes
+    trivkins   {indices_for_trivkins $axes}
+    default    {
+      puts stderr "setup_kins: unknown \[KINS\]KINEMATICS=<$::KINS(KINEMATICS)>"
     }
   }
 } ;# setup_kins
@@ -77,21 +75,20 @@ proc core_sim {axes
   # note: with default emcmot==motmot,
   #       thread will not be added for (default) base_pariod == 0
   setup_kins $axes
-  set lcmd "loadrt $emcmot"
 
-  set lcmd "$lcmd base_period_nsec=$base_period"
-  set lcmd "$lcmd servo_period_nsec=$servo_period"
-  set lcmd "$lcmd num_joints=$number_of_joints"
+  loadrt $emcmot \
+         base_period_nsec=$base_period \
+         servo_period_nsec=$servo_period \
+         num_joints=$number_of_joints
 
-  eval $lcmd
   addf motion-command-handler servo-thread
   addf motion-controller      servo-thread
 
   set pid_names ""
   set mux_names ""
-  foreach a $axes {
-    set pid_names "${pid_names},${a}_pid"
-    set mux_names "${mux_names},${a}_mux"
+  for {set jno 0} {$jno < $number_of_joints} {incr jno} {
+    set pid_names "${pid_names},J${jno}_pid"
+    set mux_names "${mux_names},J${jno}_mux"
   }
   set pid_names [string trimleft $pid_names ,]
   set mux_names [string trimleft $mux_names ,]
@@ -128,61 +125,76 @@ proc core_sim {axes
   net tool:change-loop => iocontrol.0.tool-changed
 
   net sample:enable <= motion.motion-enabled
-  foreach a $axes {
-    set idx $::SIM_LIB(jointidx,$a)
-    net sample:enable => ${a}_mux.sel
 
-    net ${a}:enable  <= joint.$idx.amp-enable-out
-    net ${a}:enable  => ${a}_pid.enable
+  for {set jno 0} {$jno < $number_of_joints} {incr jno} {
+    net sample:enable => J${jno}_mux.sel
 
-    net ${a}:pos-cmd <= joint.$idx.motor-pos-cmd
-    net ${a}:pos-cmd => ${a}_pid.command
+    net J${jno}:enable  <= joint.$jno.amp-enable-out
+    net J${jno}:enable  => J${jno}_pid.enable
 
-    net ${a}:on-pos  <= ${a}_pid.output
-    net ${a}:on-pos  => ${a}_mux.in1 ;# pass thru when motion-enabled
+    net J${jno}:pos-cmd <= joint.$jno.motor-pos-cmd
+    net J${jno}:pos-cmd => J${jno}_pid.command
 
-    net ${a}:pos-fb  <= ${a}_mux.out
-    net ${a}:pos-fb  => ${a}_mux.in0 ;# hold position when !motion-enabled
-    net ${a}:pos-fb  => joint.$idx.motor-pos-fb
+    net J${jno}:on-pos  <= J${jno}_pid.output
+    net J${jno}:on-pos  => J${jno}_mux.in1 ;# pass thru when motion-enabled
+
+    net J${jno}:pos-fb  <= J${jno}_mux.out
+    net J${jno}:pos-fb  => J${jno}_mux.in0 ;# hold position when !motion-enabled
+    net J${jno}:pos-fb  => joint.$jno.motor-pos-fb
   }
 } ;# core_sim
 
-proc make_ddts {axes} {
-  # adapted as haltcl proc from core_sim.hal
-  # any number of axes letters {x y z a b c u v w}
-  # note: 2d velocity output only for xy  (xy:vel)
-  # note: 3d velocity output only for xyz (xyz:vel)
+proc make_ddts {number_of_joints} {
+  # make vel,accel signals for all joints
+  # if xyz, make hypotenuse xy,xyz vels
 
+  set num_ddts $number_of_joints
+  set ddt_lim 8
+  # limited by ddt.comp: array sizes for .comp 16 max
+  if {$number_of_joints > [expr $ddt_lim/2]} {
+    set num_ddts $ddt_lim
+    puts stderr "make_ddts limit on ddts is $ddt_lim"
+  }
   set ddt_names ""
-  foreach a $axes {
-    set ddt_names "${ddt_names},${a}_vel,${a}_accel"
+  for {set jno 0} {$jno < $num_ddts} {incr jno} {
+    set ddt_names "${ddt_names},J${jno}_vel,J${jno}_accel"
   }
   set ddt_names [string trimleft $ddt_names ,]
   loadrt ddt names=$ddt_names
   foreach cname [split $ddt_names ,] {
     addf $cname servo-thread
   }
-  loadrt hypot names=hyp_xy,hyp_xyz ;# vector velocities
-  addf hyp_xy  servo-thread
-  addf hyp_xyz servo-thread
 
-  # signal connections:
-  foreach a $axes {
-    net ${a}:pos-fb   => ${a}_vel.in ;# net presumed to exist
-    net ${a}:vel      <= ${a}_vel.out
-    net ${a}:vel      => ${a}_accel.in
-    net ${a}:acc      <= ${a}_accel.out
+  # joint vel,accel signal connections:
+  for {set jno 0} {$jno < $num_ddts} {incr jno} {
+    net J${jno}:pos-fb   => J${jno}_vel.in ;# net presumed to exist
+    net J${jno}:vel      <= J${jno}_vel.out
+    net J${jno}:vel      => J${jno}_accel.in
+    net J${jno}:acc      <= J${jno}_accel.out
+  }
 
-    switch $a {
-      x {net ${a}:vel => hyp_xy.in0
-         net ${a}:vel => hyp_xyz.in0
-        }
-      y {net ${a}:vel => hyp_xy.in1
-         net ${a}:vel => hyp_xyz.in1
-        }
-      z {net ${a}:vel => hyp_xyz.in2
-        }
+  set has_xyz 1
+  foreach letter {x y z} {
+    if ![info exists ::SIM_LIB(jointidx,$letter)] {
+      set has_xyz 0
+      break
     }
+  }
+  if $has_xyz {
+    loadrt hypot names=hyp_xy,hyp_xyz ;# vector velocities
+    addf hyp_xy  servo-thread
+    addf hyp_xyz servo-thread
+    net J$::SIM_LIB(jointidx,x):vel <= J$::SIM_LIB(jointidx,x)_vel.out
+    net J$::SIM_LIB(jointidx,x):vel => hyp_xy.in0
+    net J$::SIM_LIB(jointidx,x):vel => hyp_xyz.in0
+
+    net J$::SIM_LIB(jointidx,y):vel <= J$::SIM_LIB(jointidx,y)_vel.out
+    net J$::SIM_LIB(jointidx,y):vel => hyp_xy.in1
+    net J$::SIM_LIB(jointidx,y):vel => hyp_xyz.in1
+
+    net J$::SIM_LIB(jointidx,z):vel <= J$::SIM_LIB(jointidx,z)_vel.out
+    net J$::SIM_LIB(jointidx,z):vel => hyp_xyz.in2
+
     net xy:vel   => hyp_xy.out
     net xyz:vel  <= hyp_xyz.out
   }
@@ -206,11 +218,11 @@ proc use_hal_manualtoolchange {} {
   net tool:prep-number => iocontrol.0.tool-prep-number
 } ;# use_hal_manualtoolchange
 
-proc simulated_home {axes} {
+proc simulated_home {number_of_joints} {
   # uses sim_home_switch component
   set switch_names ""
-  foreach a $axes {
-    set switch_names "${switch_names},${a}_switch"
+  for {set jno 0} {$jno < $number_of_joints} {incr jno} {
+    set switch_names "${switch_names},J${jno}_switch"
   }
   set switch_names [string trimleft $switch_names ,]
   loadrt sim_home_switch names=$switch_names
@@ -218,16 +230,15 @@ proc simulated_home {axes} {
     addf $cname servo-thread
   }
 
-  foreach a $axes {
-    set idx $::SIM_LIB(jointidx,$a)
+  for {set jno 0} {$jno < $number_of_joints} {incr jno} {
     # add pin to pre-existing signal:
-    net ${a}:pos-fb => ${a}_switch.cur-pos
+    net J${jno}:pos-fb => J${jno}_switch.cur-pos
 
-    net ${a}:homesw <= ${a}_switch.home-sw
-    net ${a}:homesw => joint.$idx.home-sw-in
+    net J${jno}:homesw <= J${jno}_switch.home-sw
+    net J${jno}:homesw => joint.$jno.home-sw-in
 
-    #setp ${a}_switch.hysteresis ;# using component default
-    #setp ${a}_switch.home-pos   ;# using component default
+    #setp J${jno}_switch.hysteresis ;# using component default
+    #setp J${jno}_switch.home-pos   ;# using component default
   }
 } ;# simulated_home
 
