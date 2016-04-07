@@ -1,0 +1,27 @@
+o<rcone> sub
+   #<rmax>   = #1 (= 10)
+   #<rmin>   = #2 (=  1)
+    #<del_r> = #3 (=  0.001)
+    #<del_z> = #4 (= -0.001)
+#<del_theta> = #5 (= +1 1:CCW -1:CW)
+    #<frate> = #6 (=100)
+
+#<r> = #<rmax>
+#<z> = 0
+#<theta> = 0
+
+f #<frate>
+
+g0 x#<r> y0
+o<10wh> while [#<r> gt #<rmin>]
+         #<r> = [#<r> - #<del_r>]
+         #<theta> = [#<theta> + #<del_theta>]
+         #<x> = [#<r> * cos[#<theta>]]
+         #<y> = [#<r> * sin[#<theta>]]
+         #<z> = [#<z> + #<del_z>]
+         ;#<x> = [#<rmax> * cos[#<theta>]]
+         ;#<y> = [#<rmax> * sin[#<theta>]]
+         ;#<z> = [0 + #<del_z>]
+         g1 x#<x> y#<y> z#<z>
+o<10wh> endwhile
+o<rcone> endsub
