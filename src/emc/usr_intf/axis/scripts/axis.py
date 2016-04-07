@@ -354,7 +354,7 @@ class Notification(Tkinter.Frame):
 
 def soft_limits():
     def fudge(x):
-        if abs(x) > 1e30: return 0
+        if abs(x) > 1e99: return 0
         return x
 
     ax = s.axis
