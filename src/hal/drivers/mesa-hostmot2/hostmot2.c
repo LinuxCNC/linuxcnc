@@ -1245,33 +1245,41 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             goto fail0;
         }
 
-        r = bitfile_parse_and_verify(fw, &bitfile);
-        if (r != 0) {
-            HM2_ERR("firmware %s fails verification, aborting hm2_register\n", hm2->config.firmware);
-            release_firmware(fw);
-            goto fail0;
-        }
-
-        HM2_INFO("firmware %s:\n", hm2->config.firmware);
-        HM2_INFO("    %s %s %s\n", bitfile.a.data, bitfile.c.data, bitfile.d.data);
-        HM2_INFO("    Part Name: %s\n", bitfile.b.data);
-        HM2_INFO("    FPGA Config: %d bytes\n", bitfile.e.size);
-
-        if (llio->fpga_part_number == NULL) {
-            HM2_ERR("llio did not provide an FPGA part number, cannot verify firmware part number\n");
-        } else {
-            if (strcmp(llio->fpga_part_number, (const char *) bitfile.b.data) != 0) {
-                HM2_ERR(
-                    "board has FPGA '%s', but the firmware in %s is for FPGA '%s'\n",
-                    llio->fpga_part_number,
-                    hm2->config.firmware,
-                    bitfile.b.data
-                );
-                release_firmware(fw);
-                r = -EINVAL;
-                goto fail0;
-            }
-        }
+	if (llio->verify_firmware == NULL) {
+	    r = bitfile_parse_and_verify(fw, &bitfile);
+	    if (r != 0) {
+		HM2_ERR("firmware %s fails verification, aborting hm2_register\n", hm2->config.firmware);
+		release_firmware(fw);
+		goto fail0;
+	    }
+	    HM2_INFO("firmware %s:\n", hm2->config.firmware);
+	    HM2_INFO("    %s %s %s\n", bitfile.a.data, bitfile.c.data, bitfile.d.data);
+	    HM2_INFO("    Part Name: %s\n", bitfile.b.data);
+	    HM2_INFO("    FPGA Config: %d bytes\n", bitfile.e.size);
+	    if (llio->fpga_part_number == NULL) {
+		HM2_ERR("llio did not provide an FPGA part number, cannot verify firmware part number\n");
+	    } else {
+		if (strcmp(llio->fpga_part_number, (const char *) bitfile.b.data) != 0) {
+		    HM2_ERR(
+			    "board has FPGA '%s', but the firmware in %s is for FPGA '%s'\n",
+			    llio->fpga_part_number,
+			    hm2->config.firmware,
+			    bitfile.b.data
+			    );
+		    release_firmware(fw);
+		    r = -EINVAL;
+		    goto fail0;
+		}
+	    }
+	} else {
+	    // custom verify
+	    r = llio->verify_firmware(llio, fw);
+	    if (r != 0) {
+		HM2_ERR("firmware %s fails custom verification, aborting hm2_register\n", hm2->config.firmware);
+		release_firmware(fw);
+		goto fail0;
+	    }
+	}
 
         if (llio->reset != NULL) {
             r = llio->reset(llio);
@@ -1282,7 +1290,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             }
         }
 
-        r = llio->program_fpga(llio, &bitfile);
+        r = llio->program_fpga(llio, &bitfile, fw);
         release_firmware(fw);
         if (r != 0) {
             HM2_ERR("failed to program fpga, aborting hm2_register\n");
