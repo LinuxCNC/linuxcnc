@@ -257,7 +257,8 @@ int hm2_7i43_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
 
 
 
-int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile,
+			  const struct firmware *fw) {
     int orig_debug_epp = debug_epp;  // we turn off EPP debugging for this part...
     hm2_7i43_t *board = this->private;
     int64_t start_time, end_time;
