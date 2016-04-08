@@ -591,6 +591,28 @@ proc toggleJointWorld {} {
     }
 }
 
+proc set_jorw {jorw} {
+    switch $jorw {
+        world   {
+          set ::jointworld world
+          if {     [emc_kinematics_type] != $::KINEMATICS_IDENTITY
+              && ! [emc_teleop_enable]
+             } {
+               emc_teleop_enable 1
+             }
+        }
+        joint   {
+          set ::jointworld joint
+          if {   [emc_kinematics_type] != $::KINEMATICS_IDENTITY
+              && [emc_teleop_enable]
+             } {
+               emc_teleop_enable 0
+             }
+        }
+        default {puts "set_jorw: unknown <$jorw>"}
+    }
+}
+
 proc toggleJogType {} {
     global jogLabel jogType jogIncrement
 
@@ -1108,8 +1130,8 @@ set radioact [radiobutton $coordsel.act -text [msgcat::mc "actual"] -variable ac
 set radiocmd [radiobutton $coordsel.cmd -text [msgcat::mc "commanded"] -variable actcmd -value commanded -command {} -takefocus 0]
 
 if {[emc_kinematics_type] != $::KINEMATICS_IDENTITY} {
-  set radiojoint [radiobutton $coordsel.joint -text [msgcat::mc "joint"] -variable ::jointworld -value joint -command {} -takefocus 0]
-  set radioworld [radiobutton $coordsel.world -text [msgcat::mc "world"] -variable ::jointworld -value world -command {} -takefocus 0]
+  set radiojoint [radiobutton $coordsel.joint -text [msgcat::mc "joint"] -variable ::jointworld -value joint -command {set_jorw joint} -takefocus 0]
+  set radioworld [radiobutton $coordsel.world -text [msgcat::mc "world"] -variable ::jointworld -value world -command {set_jorw world} -takefocus 0]
 }
 
 pack $radiorel -side top -anchor w
@@ -2084,12 +2106,6 @@ proc updateStatus {} {
             $mdientry select range 0 end
             setMdiBindings
         } else {
-	    if {   $::jointworld == "world"
-                && [emc_kinematics_type] != $::KINEMATICS_IDENTITY
-                && ! [emc_teleop_enable]
-               } {
-		emc_teleop_enable 1
-	    }
             set modelabel [msgcat::mc "MANUAL"]
             $mistbutton config -state normal
             $floodbutton config -state normal
