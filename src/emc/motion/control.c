@@ -231,6 +231,8 @@ void emcmotController(void *arg, long period)
 #ifdef HAVE_CPU_KHZ
     emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
 #endif
+    // we need this for next time
+    last = now;
 
     /* calculate servo period as a double - period is in integer nsec */
     servo_period = period * 0.000000001;
