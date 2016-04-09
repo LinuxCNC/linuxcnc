@@ -12,7 +12,7 @@
 *
 ********************************************************************/
 
-#include <math.h>		// isnan()
+#include <cmath>
 #include <float.h>		// DBL_MAX
 #include <string.h>		// memcpy() strncpy()
 #include <unistd.h>             // unlink()
@@ -110,8 +110,8 @@ int emcAxisSetUnits(int axis, double units)
 int emcAxisSetBacklash(int axis, double backlash)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(backlash)) {
-	printf("isnan error in emcAxisSetBacklash()\n");
+    if (std::isnan(backlash)) {
+	printf("std::isnan error in emcAxisSetBacklash()\n");
 	return -1;
     }
 #endif
@@ -135,8 +135,8 @@ static double saveMaxLimit[EMCMOT_MAX_JOINTS];
 int emcAxisSetMinPositionLimit(int axis, double limit)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(limit)) {
-	printf("isnan error in emcAxisSetMinPosition()\n");
+    if (std::isnan(limit)) {
+	printf("std::isnan error in emcAxisSetMinPosition()\n");
 	return -1;
     }
 #endif
@@ -157,8 +157,8 @@ int emcAxisSetMinPositionLimit(int axis, double limit)
 int emcAxisSetMaxPositionLimit(int axis, double limit)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(limit)) {
-	printf("isnan error in emcAxisSetMaxPosition()\n");
+    if (std::isnan(limit)) {
+	printf("std::isnan error in emcAxisSetMaxPosition()\n");
 	return -1;
     }
 #endif
@@ -179,8 +179,8 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
 int emcAxisSetMotorOffset(int axis, double offset) 
 {
 #ifdef ISNAN_TRAP
-    if (isnan(offset)) {
-	printf("isnan error in emcAxisSetMotorOffset()\n");
+    if (std::isnan(offset)) {
+	printf("std::isnan error in emcAxisSetMotorOffset()\n");
 	return -1;
     }
 #endif
@@ -198,8 +198,8 @@ int emcAxisSetMotorOffset(int axis, double offset)
 int emcAxisSetFerror(int axis, double ferror)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(ferror)) {
-	printf("isnan error in emcAxisSetFerror()\n");
+    if (std::isnan(ferror)) {
+	printf("std::isnan error in emcAxisSetFerror()\n");
 	return -1;
     }
 #endif
@@ -218,8 +218,8 @@ int emcAxisSetFerror(int axis, double ferror)
 int emcAxisSetMinFerror(int axis, double ferror)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(ferror)) {
-	printf("isnan error in emcAxisSetMinFerror()\n");
+    if (std::isnan(ferror)) {
+	printf("std::isnan error in emcAxisSetMinFerror()\n");
 	return -1;
     }
 #endif
@@ -240,9 +240,9 @@ int emcAxisSetHomingParams(int axis, double home, double offset, double home_fin
 			   int sequence,int volatile_home, int locking_indexer)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(home) || isnan(offset) || isnan(home_final_vel) ||
-	isnan(search_vel) || isnan(latch_vel)) {
-	printf("isnan error in emcAxisSetHoming()\n");
+    if (std::isnan(home) || std::isnan(offset) || std::isnan(home_final_vel) ||
+	std::isnan(search_vel) || std::isnan(latch_vel)) {
+	printf("std::isnan error in emcAxisSetHoming()\n");
 	return -1;
     }
 #endif
@@ -772,10 +772,10 @@ int emcTrajSetMaxAcceleration(double acc)
 int emcTrajSetHome(EmcPose home)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(home.tran.x) || isnan(home.tran.y) || isnan(home.tran.z) ||
-	isnan(home.a) || isnan(home.b) || isnan(home.c) ||
-	isnan(home.u) || isnan(home.v) || isnan(home.w)) {
-	printf("isnan error in emcTrajSetHome()\n");
+    if (std::isnan(home.tran.x) || std::isnan(home.tran.y) || std::isnan(home.tran.z) ||
+	std::isnan(home.a) || std::isnan(home.b) || std::isnan(home.c) ||
+	std::isnan(home.u) || std::isnan(home.v) || std::isnan(home.w)) {
+	printf("std::isnan error in emcTrajSetHome()\n");
 	return 0;		// ignore it for now, just don't send it
     }
 #endif
@@ -990,10 +990,10 @@ int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, doub
                       int indexrotary)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(end.tran.x) || isnan(end.tran.y) || isnan(end.tran.z) ||
-        isnan(end.a) || isnan(end.b) || isnan(end.c) ||
-        isnan(end.u) || isnan(end.v) || isnan(end.w)) {
-	printf("isnan error in emcTrajLinearMove()\n");
+    if (std::isnan(end.tran.x) || std::isnan(end.tran.y) || std::isnan(end.tran.z) ||
+        std::isnan(end.a) || std::isnan(end.b) || std::isnan(end.c) ||
+        std::isnan(end.u) || std::isnan(end.v) || std::isnan(end.w)) {
+	printf("std::isnan error in emcTrajLinearMove()\n");
 	return 0;		// ignore it for now, just don't send it
     }
 #endif
@@ -1016,12 +1016,12 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
 			PM_CARTESIAN normal, int turn, int type, double vel, double ini_maxvel, double acc)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(end.tran.x) || isnan(end.tran.y) || isnan(end.tran.z) ||
-	isnan(end.a) || isnan(end.b) || isnan(end.c) ||
-	isnan(end.u) || isnan(end.v) || isnan(end.w) ||
-	isnan(center.x) || isnan(center.y) || isnan(center.z) ||
-	isnan(normal.x) || isnan(normal.y) || isnan(normal.z)) {
-	printf("isnan error in emcTrajCircularMove()\n");
+    if (std::isnan(end.tran.x) || std::isnan(end.tran.y) || std::isnan(end.tran.z) ||
+	std::isnan(end.a) || std::isnan(end.b) || std::isnan(end.c) ||
+	std::isnan(end.u) || std::isnan(end.v) || std::isnan(end.w) ||
+	std::isnan(center.x) || std::isnan(center.y) || std::isnan(center.z) ||
+	std::isnan(normal.x) || std::isnan(normal.y) || std::isnan(normal.z)) {
+	printf("std::isnan error in emcTrajCircularMove()\n");
 	return 0;		// ignore it for now, just don't send it
     }
 #endif
@@ -1059,10 +1059,10 @@ int emcTrajClearProbeTrippedFlag()
 int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double acc, unsigned char probe_type)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(pos.tran.x) || isnan(pos.tran.y) || isnan(pos.tran.z) ||
-        isnan(pos.a) || isnan(pos.b) || isnan(pos.c) ||
-        isnan(pos.u) || isnan(pos.v) || isnan(pos.w)) {
-	printf("isnan error in emcTrajProbe()\n");
+    if (std::isnan(pos.tran.x) || std::isnan(pos.tran.y) || std::isnan(pos.tran.z) ||
+        std::isnan(pos.a) || std::isnan(pos.b) || std::isnan(pos.c) ||
+        std::isnan(pos.u) || std::isnan(pos.v) || std::isnan(pos.w)) {
+	printf("std::isnan error in emcTrajProbe()\n");
 	return 0;		// ignore it for now, just don't send it
     }
 #endif
@@ -1082,8 +1082,8 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
 int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(pos.tran.x) || isnan(pos.tran.y) || isnan(pos.tran.z)) {
-	printf("isnan error in emcTrajRigidTap()\n");
+    if (std::isnan(pos.tran.x) || std::isnan(pos.tran.y) || std::isnan(pos.tran.z)) {
+	printf("std::isnan error in emcTrajRigidTap()\n");
 	return 0;		// ignore it for now, just don't send it
     }
 #endif
