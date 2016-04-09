@@ -177,7 +177,7 @@ class Combi_DRO(gtk.VBox):
             units = self.inifile.find("TRAJ", "LINEAR_UNITS")
             if units == None:
                 # else then the X axis units
-                units = self.inifile.find("AXIS_0", "UNITS")
+                units = self.inifile.find("AXIS_X", "UNITS")
         except:
             units = "inch"
 
