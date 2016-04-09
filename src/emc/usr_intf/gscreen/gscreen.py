@@ -561,9 +561,9 @@ class Gscreen:
         units=self.inifile.find("TRAJ","LINEAR_UNITS")
         if units==None:
             # else then the X axis units
-            units=self.inifile.find("AXIS_0","UNITS")
+            units=self.inifile.find("AXIS_X","UNITS")
             if units==None:
-                self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_0] of INI file"))
+                self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"))
         if units=="mm" or units=="metric" or units == "1.0":
             self.machine_units_mm=1
             conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3

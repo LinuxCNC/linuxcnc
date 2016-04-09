@@ -258,7 +258,7 @@ class touchy:
                 units=self.ini.find("TRAJ","LINEAR_UNITS")
 
                 if units==None:
-                        units=self.ini.find("AXIS_0","UNITS")
+                        units=self.ini.find("AXIS_X","UNITS")
 
                 if units=="mm" or units=="metric" or units == "1.0":
                         self.machine_units_mm=1
