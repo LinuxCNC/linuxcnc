@@ -941,6 +941,11 @@ rotarydeltakins-objs := emc/kinematics/rotarydeltakins.o
 rotarydeltakins-objs += libnml/posemath/_posemath.o
 rotarydeltakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
+obj-m += xyzac-trt-kins.o
+xyzac-trt-kins-objs := emc/kinematics/xyzac-trt-kins.o
+obj-m += xyzbc-trt-kins.o
+xyzbc-trt-kins-objs := emc/kinematics/xyzbc-trt-kins.o
+
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o
 motmod-objs += emc/tp/tc.o
@@ -1055,6 +1060,8 @@ endif
 ../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
 ../rtlib/scarakins$(MODULE_EXT): $(addprefix objects/rt,$(scarakins-objs))
 ../rtlib/rotarydeltakins$(MODULE_EXT): $(addprefix objects/rt,$(rotarydeltakins-objs))
+../rtlib/xyzac-trt-kins$(MODULE_EXT): $(addprefix objects/rt,$(xyzac-trt-kins-objs))
+../rtlib/xyzbc-trt-kins$(MODULE_EXT): $(addprefix objects/rt,$(xyzbc-trt-kins-objs))
 ../rtlib/hal_gm$(MODULE_EXT): $(addprefix objects/rt,$(hal_gm-objs))
 ../rtlib/hostmot2$(MODULE_EXT): $(addprefix objects/rt,$(hostmot2-objs))
 ../rtlib/hm2_test$(MODULE_EXT): $(addprefix objects/rt,$(hm2_test-objs))
