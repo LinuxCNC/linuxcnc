@@ -338,18 +338,9 @@ kilohertz). This means the axis can't keep up, so error builds up, and
 you trip a following error. Change the INI file parameter for [TRAJ]
 MAX_VELOCITY to be lower.
 
-Q. The axes don't move when I try to jog them.
+Q. The joints don't move when I try to jog them.
 A. Make sure you're out of estop, in manual mode. If you still can't
-jog then maybe the hard limit switches are seen as tripped. This often
-happens when running the EMC without actual hardware, in which case
-the bits float high. To correct this change the polarity of the limit
-switches in your ini file (emc.ini, or whatever you are using), as in
-
-[AXIS_0]
-MIN_LIMIT_SWITCH_POLARITY =     1
-MAX_LIMIT_SWITCH_POLARITY =     1
-
-Change them and see if this clears the problem up.
+jog then maybe the hard limit switches are seen as tripped.
 
 Q. My script gives syntax errors when I run it, like this:
 
