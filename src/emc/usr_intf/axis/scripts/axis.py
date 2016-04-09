@@ -3260,8 +3260,7 @@ if duplicate_coord_letters != "":
     print ("Warning: Forward kinematics must handle duplicate coordinate letters:%s"%
           duplicate_coord_letters)
 if len(trajcoordinates) > jointcount:
-    raise SystemExit, (
-          "Error: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d"
+    print ("Note: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d"
           %(trajcoordinates,jointcount))
 
 def jnum_for_aletter(aletter):
