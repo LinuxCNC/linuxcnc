@@ -95,12 +95,12 @@ $::SECTION(ITEM)
 For example, an ini file item like:
 
 ----
-[AXIS_0]
+[JOINT_0]
 MAX_VELOCITY = 4
 ----
 
-is expressed as   [AXIS_0]MAX_VELOCITY  in .hal files for halcmd +
-and as          $::AXIS_0(MAX_VELOCITY) in .tcl files for haltcl +
+is expressed as   [JOINT_0]MAX_VELOCITY  in .hal files for halcmd +
+and as          $::JOINT_0(MAX_VELOCITY) in .tcl files for haltcl +
 
 Because inifiles can repat the same ITEM in the same SECTION multiple times,
 $::SECTION(ITEM) is actually a Tcl list of each individual value.
@@ -158,15 +158,15 @@ is implicitly treated as an expression in the tcl language.
 
 .Example
 ----
-# set gain to convert deg/sec to units/min for AXIS_0 radius
-setp scale.0.gain 6.28/360.0*$::AXIS_0(radius)*60.0
+# set gain to convert deg/sec to units/min for JOINT_0 radius
+setp scale.0.gain 6.28/360.0*$::JOINT_0(radius)*60.0
 ----
 
 Whitespace in the bare expression is not allowed, use quotes
 for that:
 
 ----
-setp scale.0.gain "6.28 / 360.0 * $::AXIS_0(radius) * 60.0"
+setp scale.0.gain "6.28 / 360.0 * $::JOINT_0(radius) * 60.0"
 ----
 
 In other contexts, such as 'loadrt', you must explicitly use
@@ -185,7 +185,7 @@ planner.  So, when using halcmd files, we force inifiles to have a manually
 calculated value.
 
 ----
-[AXIS_0]
+[JOINT_0]
 MAXACCEL = 10.0
 STEPGEN_MAXACCEL = 10.5
 ----
@@ -194,7 +194,7 @@ With haltcl, you can use tcl commands to do the computation and
 eliminate the STEPGEN_MAXACCEL inifile item altogether.
 
 ----
-setp stepgen.0.maxaccel $::AXIS_0(MAXACCEL)*1.05
+setp stepgen.0.maxaccel $::JOINT_0(MAXACCEL)*1.05
 ----
 
 Another haltcl feature is looping and testing.  For example, many simulator
