@@ -82,9 +82,9 @@ pos->tran.z = joints[2];
 pos->a      = joints[3];
 pos->b      = joints[4];
 pos->c      = joints[5];
-pos->tran.x = joints[6];
-pos->tran.y = joints[7];
-pos->tran.z = joints[8];
+pos->u      = joints[6];
+pos->v      = joints[7];
+pos->w      = joints[8];
 ----
 
 Similarly, the default relationships for inverse kinematics for trivkins
@@ -97,9 +97,9 @@ joints[2] = pos->tran.z;
 joints[3] = pos->a;
 joints[4] = pos->b;
 joints[5] = pos->c;
-joints[6] = pos->tran.u;
-joints[7] = pos->tran.v;
-joints[8] = pos->tran.w;
+joints[6] = pos->u;
+joints[7] = pos->v;
+joints[8] = pos->w;
 ----
 
 It is straightforward to do the transformation for a trivial "kins" ('trivkins'
