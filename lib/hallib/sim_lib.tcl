@@ -145,19 +145,19 @@ proc core_sim {axes
 } ;# core_sim
 
 proc make_ddts {number_of_joints} {
-  # make vel,accel signals for all joints
+  # make vel,accel ddts and signals for all joints
   # if xyz, make hypotenuse xy,xyz vels
 
-  set num_ddts $number_of_joints
-  set ddt_lim 8
-  # limited by ddt.comp: array sizes for .comp 16 max
-  if {$number_of_joints > [expr $ddt_lim/2]} {
-    set num_ddts $ddt_lim
-    puts stderr "make_ddts limit on ddts is $ddt_lim"
-  }
+  set ddt_limit 16 ;# limited by ddt component
   set ddt_names ""
-  for {set jno 0} {$jno < $num_ddts} {incr jno} {
+  set ddt_ct 0
+  for {set jno 0} {$jno < $number_of_joints} {incr jno} {
+    if {$ddt_ct > $ddt_limit} {
+      puts stderr "make_ddts: number of ddts limited to $ddt_limit"
+      continue
+    }
     set ddt_names "${ddt_names},J${jno}_vel,J${jno}_accel"
+    incr ddt_ct 2
   }
   set ddt_names [string trimleft $ddt_names ,]
   loadrt ddt names=$ddt_names
@@ -166,11 +166,14 @@ proc make_ddts {number_of_joints} {
   }
 
   # joint vel,accel signal connections:
-  for {set jno 0} {$jno < $num_ddts} {incr jno} {
+  set ddt_ct 0
+  for {set jno 0} {$jno < $number_of_joints} {incr jno} {
+    if {$ddt_ct > $ddt_limit} { continue }
     net J${jno}:pos-fb   => J${jno}_vel.in ;# net presumed to exist
     net J${jno}:vel      <= J${jno}_vel.out
     net J${jno}:vel      => J${jno}_accel.in
     net J${jno}:acc      <= J${jno}_accel.out
+    incr ddt_ct 2
   }
 
   set has_xyz 1
