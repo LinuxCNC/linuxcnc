@@ -2394,6 +2394,8 @@ class TclCommands(nf.TclCommands):
     def ensure_mdi(*event):
         # called from axis.tcl on tab raisecmd
         if not manual_ok(): return
+        vars.teleop_mode.set(0)
+        commands.set_teleop_mode()
         ensure_mode(linuxcnc.MODE_MDI)
         vars.teleop_mode.set(1)
         commands.set_teleop_mode()
