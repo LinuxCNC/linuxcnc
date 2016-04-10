@@ -163,7 +163,7 @@ typedef struct {
 
     hal_float_t     *hal_out1;
     hal_float_t     *hal_out2;
-    
+
     hal_u32_t       *hal_pin1;
     hal_u32_t       *hal_pin2;
 
@@ -233,6 +233,7 @@ typedef struct {
             hal_float_t *position;
             hal_float_t *position_latch;
             hal_float_t *velocity;
+            hal_float_t *velocity_abs;
             hal_bit_t   *reset;
             hal_bit_t   *index_enable;
             hal_bit_t   *latch_enable;
@@ -251,6 +252,7 @@ typedef struct {
             hal_bit_t   *filter;
             hal_float_t *vel_timeout;
             hal_bit_t   *running;
+            hal_u32_t   *latency;
         } pin;
 
     } hal;

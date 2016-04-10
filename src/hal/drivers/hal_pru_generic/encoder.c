@@ -220,6 +220,7 @@ void hpg_encoder_read_chan(hal_pru_generic_t *hpg, int instance, int channel) {
     else {
         if (delta_time * 1e-9 > *(e->hal.pin.vel_timeout)) {
             *(e->hal.pin.velocity) = 0;
+            *(e->hal.pin.velocity_abs) = 0;
             *(e->hal.pin.running) = 0;
         }
     }
@@ -228,12 +229,13 @@ void hpg_encoder_read_chan(hal_pru_generic_t *hpg, int instance, int channel) {
     // We need a minimum amount of pulses or polls to have a valid estimation
     // This algorithm is an hybrid period/frequency based velocity estimation
 
-    bool valid =   (abs(e->pulse_count) == 1 && e->poll_count >= 100)   // Period mode (1% accuracy)
-                || (abs(e->pulse_count) >= 100 && e->poll_count == 1)   // Frequency mode (1% accuracy)
-                || (abs(e->pulse_count) >= 10 && e->poll_count >= 10);  // Hybrid mode (20% accuracy)
+    bool valid =   (reg_count_diff != 0 && e->poll_count >= 100)   // Period mode (3% accuracy)
+                || (abs(e->pulse_count) >= 100 && e->poll_count >= 50);  // Frequency mode (3% accuracy)
     if (*(e->hal.pin.running) && valid) {
         real_t vel = (e->pulse_count / *(e->hal.pin.scale) ) / (delta_time * 1e-9);
         *(e->hal.pin.velocity) = vel;
+        *(e->hal.pin.velocity_abs) = abs(vel);
+        *(e->hal.pin.latency) = delta_time;
         e->pulse_count = 0;
         e->poll_count = 0;
         e->timestamp = timebase;
@@ -305,6 +307,12 @@ int export_encoder(hal_pru_generic_t *hpg, int i)
         r = hal_pin_float_newf(HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.velocity), hpg->config.comp_id, "%s.encoder.%02d.chan.%02d.velocity", hpg->config.halname, i, j);
         if (r < 0) {
             HPG_ERR("encoder %02d chan %02d: error adding pin 'velocity', aborting\n", i, j);
+            return r;
+        }
+
+        r = hal_pin_float_newf(HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.velocity_abs), hpg->config.comp_id, "%s.encoder.%02d.chan.%02d.velocity-abs", hpg->config.halname, i, j);
+        if (r < 0) {
+            HPG_ERR("encoder %02d chan %02d: error adding pin 'velocity-abs', aborting\n", i, j);
             return r;
         }
 
@@ -416,6 +424,12 @@ int export_encoder(hal_pru_generic_t *hpg, int i)
             return r;
         }
 
+        r = hal_pin_u32_newf(HAL_IN, &(hpg->encoder.instance[i].chan[j].hal.pin.latency), hpg->config.comp_id, "%s.encoder.%02d.chan.%02d.latency", hpg->config.halname, i, j);
+        if (r < 0) {
+            HPG_ERR("encoder %02d chan %02d: error adding pin 'latency', aborting\n", i, j);
+            return r;
+        }
+
         //
         // init the hal objects that need it
         //
@@ -443,6 +457,7 @@ int export_encoder(hal_pru_generic_t *hpg, int i)
         hpg->encoder.instance[i].chan[j].pulse_count = 0;
         hpg->encoder.instance[i].chan[j].poll_count = 0;
         *hpg->encoder.instance[i].chan[j].hal.pin.running = 0;
+        *hpg->encoder.instance[i].chan[j].hal.pin.latency = 0;
     }
 
     return 0;
