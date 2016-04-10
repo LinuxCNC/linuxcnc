@@ -1,13 +1,16 @@
 #!/usr/bin/python
 # -*- coding:UTF-8 -*-
 """
-    A try of a new GUI for LinuxCNC based on gladevcp and Python
+    A try of a lathe GUI for LinuxCNC based on gladevcp and Python
     Based on the design of moccagui from Tom
     and with a lot of code from gscreen from Chris Morley
     and with the help from Michael Haberler
     and Chris Morley and some more
+    
+    This is special made for EU Surplus!
+    It is a modification of gmoccapy.
 
-    Copyright 2012 Norbert Schechner
+    Copyright 2016 Norbert Schechner
     nieson@web.de
 
     This program is free software; you can redistribute it and/or modify
@@ -320,19 +323,19 @@ class FastSeal( object ):
         tab_ref = [( 1, "btn_home_all" ), ( 3, "btn_home_x" ),
                    ( 5, "btn_home_z" ), ( 7, "btn_unhome_all" ), ( 9, "btn_back_ref" )
         ]
-        if not self.lathe_mode:
-            tab_ref.append( ( 4, "btn_home_y" ) )
-        if len( self.axis_list ) == 4:
-            tab_ref.append( ( 6, "btn_home_4" ) )
+#         if not self.lathe_mode:
+#             tab_ref.append( ( 4, "btn_home_y" ) )
+#         if len( self.axis_list ) == 4:
+#             tab_ref.append( ( 6, "btn_home_4" ) )
         self.h_tabs.append( tab_ref )
 
         tab_touch = [( 0, "tbtn_edit_offsets" ), ( 1, "btn_zero_x" ), ( 3, "btn_zero_z" ), ( 4, "btn_zero_g92" ),
                      ( 5, "btn_set_value_x" ), ( 7, "btn_set_value_z" ), ( 8, "btn_set_selected" ),
                      ( 9, "btn_back_zero" )
         ]
-        if not self.lathe_mode:
-            tab_touch.append( ( 2, "btn_zero_y" ) )
-            tab_touch.append( ( 6, "btn_set_value_y" ) )
+#         if not self.lathe_mode:
+#             tab_touch.append( ( 2, "btn_zero_y" ) )
+#             tab_touch.append( ( 6, "btn_set_value_y" ) )
         self.h_tabs.append( tab_touch )
 
         tab_setup = [( 0, "btn_delete" ), ( 4, "btn_classicladder" ), ( 5, "btn_hal_scope" ), ( 6, "btn_status" ),
@@ -341,7 +344,7 @@ class FastSeal( object ):
         self.h_tabs.append( tab_setup )
 
         tab_edit = [( 0, "btn_open_edit" ), ( 2, "btn_save" ), ( 3, "btn_save_as" ), ( 4, "btn_save_and_run" ),
-                    ( 6, "btn_new" ), ( 8, "btn_keyb" ), ( 9, "btn_back_edit" )
+                    ( 6, "btn_new" ), ( 9, "btn_back_edit" )
         ]
         self.h_tabs.append( tab_edit )
 
