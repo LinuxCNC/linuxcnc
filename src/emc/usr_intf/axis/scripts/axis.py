@@ -3226,7 +3226,7 @@ statfail=0
 statwait=.01
 while ((s.joints == 0) or (s.kinematics_type < linuxcnc.KINEMATICS_IDENTITY)):
     print "waiting for s.joints<%d>, s.kinematics_type<%d>"%(s.joints,s.kinematics_type)
-    time.sleep(.01)
+    time.sleep(statwait)
     statfail+=1
     statwait *= 2
     if statfail > 8:
