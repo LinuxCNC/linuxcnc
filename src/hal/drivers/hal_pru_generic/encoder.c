@@ -229,7 +229,7 @@ void hpg_encoder_read_chan(hal_pru_generic_t *hpg, int instance, int channel) {
     // We need a minimum amount of pulses or polls to have a valid estimation
     // This algorithm is an hybrid period/frequency based velocity estimation
 
-    bool valid =   (reg_count_diff != 0 && e->poll_count >= 100)   // Period mode (3% accuracy)
+    hal_bool valid =   (reg_count_diff != 0 && e->poll_count >= 100)   // Period mode (3% accuracy)
                 || (abs(e->pulse_count) >= 100 && e->poll_count >= 50);  // Frequency mode (3% accuracy)
     if (*(e->hal.pin.running) && valid) {
         real_t vel = (e->pulse_count / *(e->hal.pin.scale) ) / (delta_time * 1e-9);
