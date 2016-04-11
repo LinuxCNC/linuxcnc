@@ -1,3 +1,27 @@
+ver. 1.5.6.2
+- bugfix: run from line was trying to set an entry in the alarm page, whitch
+  I drobed in 1.5.6 
+  I cleared the code from unneeded imports and comments
+
+ver. 1.5.6.1
+- bugfix: If a user did jog with keyboard and while jogging changed the increments
+  pressing "i" on the keyboard the jog move would never stop. I do check now for
+  self.stat.state and do avoid that way the increment changes
+  if the user changes the jog-increment using the hal pin, the increment will change
+  to the new value, but the jog command will be aborted.
+- corrected some typos 
+
+ver. 1.5.6
+- deleted the alarm_entry log page, as it has not been used by users
+  to report bugs, and therefor it was designed.
+- changing DRO mode by click can be disabled on settings page
+- corercted and added information to the docs
+- added a new property to combi_dro to disable readout toggling
+
+ver. 1.5.5.5
+- if using gmoccapy jog hal pin in MDI mode a error was thrown on button release
+- Typo in settings page, corrected also the translation files
+
 ver. 1.5.5.4
 - corrected a error shown on start up, because I used greeen instead of green
 - glade file did contain a signal "on_gremlin_clicked", but gmoccapy did not offer a handler,
@@ -7,7 +31,7 @@ ver. 1.5.5.4
 ver. 1.5.5.3
 - deleted the working area limit pin, as this can be realized better
   with standard hal pin and did not work well with gmoccapy
-- settings page, all previes settings are now in one frame
+- settings page, all preview settings are now in one frame
 - updated the documentation
 - new serbian translation files, and corrected the language code 
   was rs.po instead sr.po
@@ -159,7 +183,7 @@ ver. 1.4.2
 ver. 1.4.1
 - corrected brocken layout style, as the jog-increment buttons has not 
   been modified to change there background color, getting only dark grey 
-  instead of yellow, if they where active. No the follow the gmoccapy style.
+  instead of yellow, if they where active. Now they follow the gmoccapy style.
 - the number of digits of the DRO can now be set on the settings page, so 
   users of fragil machines can reduce the digits.
 
