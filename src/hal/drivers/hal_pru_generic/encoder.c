@@ -163,6 +163,9 @@ const PRU_encoder_LUT_t Counter_LUT = { {
     1       // 1 1 | 1   1   1   1 
 } };
 
+static u64 timebase;		/* master timestamp */
+#define abs(x) ( (x) > 0 ? (x) : -(x))
+
 void hpg_encoder_read_chan(hal_pru_generic_t *hpg, int instance, int channel) {
     u16 reg_count;
     s32 reg_count_diff;
@@ -180,15 +183,15 @@ void hpg_encoder_read_chan(hal_pru_generic_t *hpg, int instance, int channel) {
     }
 
     PRU_encoder_chan_t *pruchan = (PRU_encoder_chan_t *) ((u32) hpg->pru_data + (u32) inst->task.addr + sizeof(inst->pru));
-    
+
     e->pru.raw.dword[1] = pruchan[channel].raw.dword[1];    // Encoder count
     e->pru.raw.dword[2] = pruchan[channel].raw.dword[2];    // Index count and latched count
 
 //  HPG_ERR("rawenc:%08x %08x %08x\n", pruchan[channel].raw.dword[0],pruchan[channel].raw.dword[1],pruchan[channel].raw.dword[2]);
 
-    // 
+    //
     // figure out current rawcounts accumulated by the driver
-    // 
+    //
 
     reg_count = e->pru.hdr.count;
 
@@ -198,17 +201,56 @@ void hpg_encoder_read_chan(hal_pru_generic_t *hpg, int instance, int channel) {
 
     *(e->hal.pin.rawcounts) += reg_count_diff;
 
-    *(e->hal.pin.rawlatch)  = e->pru.hdr.Z_capture;
+    e->zero_offset =  (s32)e->pru.hdr.count - (s32)e->pru.hdr.Z_capture;
+    if (e->zero_offset < 0) e->zero_offset += 65536;
 
-    *(e->hal.pin.count) += 1;
+    *(e->hal.pin.count) = *(e->hal.pin.rawcounts) - e->zero_offset;
 
     e->prev_reg_count = reg_count;
+    e->pulse_count += reg_count_diff;
+    e->poll_count++;
+    u32 delta_time = timebase - e->timestamp;
+
+    if (*(e->hal.pin.scale) == 0) *(e->hal.pin.scale) = 1.0;  //Sanity check
+
+    // Check if the encoder is running
+    if (reg_count_diff != 0) {
+        *(e->hal.pin.running) = 1;
+    }
+    else {
+        if (delta_time * 1e-9 > *(e->hal.pin.vel_timeout)) {
+            *(e->hal.pin.velocity) = 0;
+            *(e->hal.pin.velocity_abs) = 0;
+            *(e->hal.pin.running) = 0;
+        }
+    }
+
+    // Compute velocity
+    // We need a minimum amount of pulses or polls to have a valid estimation
+    // This algorithm is an hybrid period/frequency based velocity estimation
+
+    bool valid =   (reg_count_diff != 0 && e->poll_count >= 100)   // Period mode (3% accuracy)
+                || (abs(e->pulse_count) >= 100 && e->poll_count >= 50);  // Frequency mode (3% accuracy)
+    if (*(e->hal.pin.running) && valid) {
+        real_t vel = (e->pulse_count / *(e->hal.pin.scale) ) / (delta_time * 1e-9);
+        *(e->hal.pin.velocity) = vel;
+        *(e->hal.pin.velocity_abs) = abs(vel);
+        *(e->hal.pin.latency) = delta_time;
+        e->pulse_count = 0;
+        e->poll_count = 0;
+        e->timestamp = timebase;
+    }
+
+    // Compute position, without interpolation
+    *(e->hal.pin.position) = *(e->hal.pin.count) / *(e->hal.pin.scale);
 
 }
 
-void hpg_encoder_read(hal_pru_generic_t *hpg) {
+void hpg_encoder_read(hal_pru_generic_t *hpg, long l_period_ns) {
     int i,j;
-    
+
+    timebase += l_period_ns;
+
     for (i = 0; i < hpg->encoder.num_instances; i ++) {
         for (j = 0; j < hpg->encoder.instance[i].num_channels; j ++) {
             hpg_encoder_read_chan(hpg, i, j);
@@ -265,6 +307,12 @@ int export_encoder(hal_pru_generic_t *hpg, int i)
         r = hal_pin_float_newf(HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.velocity), hpg->config.comp_id, "%s.encoder.%02d.chan.%02d.velocity", hpg->config.halname, i, j);
         if (r < 0) {
             HPG_ERR("encoder %02d chan %02d: error adding pin 'velocity', aborting\n", i, j);
+            return r;
+        }
+
+        r = hal_pin_float_newf(HAL_OUT, &(hpg->encoder.instance[i].chan[j].hal.pin.velocity_abs), hpg->config.comp_id, "%s.encoder.%02d.chan.%02d.velocity-abs", hpg->config.halname, i, j);
+        if (r < 0) {
+            HPG_ERR("encoder %02d chan %02d: error adding pin 'velocity-abs', aborting\n", i, j);
             return r;
         }
 
@@ -370,6 +418,18 @@ int export_encoder(hal_pru_generic_t *hpg, int i)
             return r;
         }
 
+        r = hal_pin_bit_newf(HAL_IN, &(hpg->encoder.instance[i].chan[j].hal.pin.running), hpg->config.comp_id, "%s.encoder.%02d.chan.%02d.running", hpg->config.halname, i, j);
+        if (r < 0) {
+            HPG_ERR("encoder %02d chan %02d: error adding pin 'running', aborting\n", i, j);
+            return r;
+        }
+
+        r = hal_pin_u32_newf(HAL_IN, &(hpg->encoder.instance[i].chan[j].hal.pin.latency), hpg->config.comp_id, "%s.encoder.%02d.chan.%02d.latency", hpg->config.halname, i, j);
+        if (r < 0) {
+            HPG_ERR("encoder %02d chan %02d: error adding pin 'latency', aborting\n", i, j);
+            return r;
+        }
+
         //
         // init the hal objects that need it
         //
@@ -393,10 +453,11 @@ int export_encoder(hal_pru_generic_t *hpg, int i)
         *hpg->encoder.instance[i].chan[j].hal.pin.quadrature_error = 0;
 
         hpg->encoder.instance[i].chan[j].zero_offset = 0;
-
-        hpg->encoder.instance[i].chan[j].prev_reg_count = 0;
-
-        hpg->encoder.instance[i].chan[j].state = HM2_ENCODER_STOPPED;
+        hpg->encoder.instance[i].chan[j].timestamp = timebase;
+        hpg->encoder.instance[i].chan[j].pulse_count = 0;
+        hpg->encoder.instance[i].chan[j].poll_count = 0;
+        *hpg->encoder.instance[i].chan[j].hal.pin.running = 0;
+        *hpg->encoder.instance[i].chan[j].hal.pin.latency = 0;
     }
 
     return 0;
@@ -404,6 +465,8 @@ int export_encoder(hal_pru_generic_t *hpg, int i)
 
 int hpg_encoder_init(hal_pru_generic_t *hpg){
     int r,i;
+
+    timebase = 0;
 
     if (hpg->config.num_encoders <= 0)
         return 0;
@@ -417,8 +480,8 @@ rtapi_print("hpg_encoder_init\n");
     // Allocate HAL shared memory for instance state data
     hpg->encoder.instance = (hpg_encoder_instance_t *) hal_malloc(sizeof(hpg_encoder_instance_t) * hpg->encoder.num_instances);
     if (hpg->encoder.instance == 0) {
-    HPG_ERR("ERROR: hal_malloc() failed\n");
-    return -1;
+        HPG_ERR("ERROR: hal_malloc() failed\n");
+        return -1;
     }
 
 rtapi_print("malloc: hpg_encoder_instance_t = %p\n",hpg->encoder.instance);
@@ -448,7 +511,7 @@ rtapi_print("malloc: hpg_encoder_channel_instance_t = %p\n",hpg->encoder.instanc
 
         pru_task_add(hpg, &(hpg->encoder.instance[i].task));
 
-        if ((r = export_encoder(hpg,i)) != 0){ 
+        if ((r = export_encoder(hpg,i)) != 0){
             HPG_ERR("ERROR: failed to export encoder %i: %i\n",i,r);
             return -1;
         }
