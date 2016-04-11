@@ -1,7 +1,11 @@
 component muxn "Select from one of N input values";
 pin in s32 sel = 0;
-pin out float out "Follows the value of \\fBin<M>\\fR whereas M is the value of the \\fBsel\\fR input. \
-If \\fBsel\\fR is not in the range of available inputs 0 is output.";
+pin out float out 
+"""
+Follows the value of *in<M>* whereas M is the value of the *sel* input.
+
+If *sel* is not in the range of available inputs 0 is output.
+""";
 pin in float in#.[pincount];
 
 instanceparam int pincount = 2;

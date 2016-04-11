@@ -1,13 +1,18 @@
-
 component hbridge "generate driving signals for 2 PWM generators to drive an H-Bridge";
-description """
+description 
+"""
 Together with 2 PWM's, this comp can be used to drive a DC motor through an H-bridge.
 If the H-bridge needs a PWM signal at full speed (e.g. for charge pumps), limit the
 output value by setting maxout.
 See also: http://en.wikipedia.org/wiki/H_bridge .
 
-Two output pins, up and down. For positive inputs, the PWM/PDM driving signal appears on up, while down is low. For negative inputs, the driving signal on down, while up is low. Suitable for driving the two sides of an H-bridge to generate a bipolar output.
+Two output pins, up and down. 
 
+For positive inputs, the PWM/PDM driving signal appears on up, while down is low. 
+
+For negative inputs, the driving signal on down, while up is low. 
+
+Suitable for driving the two sides of an H-bridge to generate a bipolar output.
 """;
 
 pin in float  command "target speed, < 0: reverse, > 0: forward";

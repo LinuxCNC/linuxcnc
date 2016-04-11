@@ -61,12 +61,13 @@ variable hal_s32_t   prev_home[pincount] = 0;
 variable hal_s32_t   curr_home[pincount] = 0;
 variable hal_float_t pos_fb_target[pincount] = 0.0;
 
-description """
+description
+"""
 Drives multiple physical motors (joints) from a single axis input
-.LP
-The `pincount' value is the number of joints to control.  Two is typical, but
+
+The 'pincount' value is the number of joints to control.  Two is typical, but
 up to seven is supported (a three joint setup has been tested with hardware).
-.LP
+
 All controlled joints track the commanded position (with a per-joint offset)
 unless in the process of latching.  Latching is when the commanded position is
 moving away the from the homing switches (as determined by the sign of search-vel),
@@ -75,18 +76,18 @@ latching and a joint home switch deactivates, the command value sent to that joi
 is "frozen" and the joint offset value is updated instead.  Once all home
 switches are deactivated, there are no more adjustments made to the offset values
 and all joints run in lock-step once more.
-.LP
+
 For best results, set HOME_SEARCH_VEL and HOME_LATCH_VEL to the opposite direction
 and as slow as practical.  When a joint home switch trips, the commanded
 velocity will drop immediately from HOME_SEARCH_VEL to zero, with no limit on
 accleration.
-.LP
+
 The latching gantry component is the opposite of the normal gantry component. It
 makes sense to use it with home switches that have a reproduceable deactivation hysteresis.
-.LP
+
 Using the per joint home-offset input it is possible add a small offset when latching.
 This makes it possible to adjust small differences in the endstop positions of the gantry setup.
-.LP
+
 The homing input must be connected to the axis homing output motion in order to enable
 the gantry component. When the axis is not homing latching will not be activated.
 """;

@@ -2411,27 +2411,16 @@ fi
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     [  --enable-build-documentation[=format]   Build documentation.
-                          Format may be "pdf" or "html" if only one format is desired.],
+                          Format may be "asciidoc" only.],
     [
         case "$enableval" in
-        Y*|y*|html,pdf|pdf,html)
-            BUILD_DOCS=yes
-            BUILD_DOCS_PDF=yes
-            BUILD_DOCS_HTML=yes
-            AC_MSG_RESULT([PDF and HTML requested])
-        ;;
-        html)
+        asciidoc)
             BUILD_DOCS=yes
             BUILD_DOCS_PDF=no
-            BUILD_DOCS_HTML=yes
-            AC_MSG_RESULT([HTML requested])
-	;;
-        pdf)
-            BUILD_DOCS=yes
-            BUILD_DOCS_PDF=yes
             BUILD_DOCS_HTML=no
-            AC_MSG_RESULT([PDF requested])
+            AC_MSG_RESULT([ASCIIDOC build requested])
 	;;
+
         *)
             BUILD_DOCS=no
             AC_MSG_RESULT([no])
@@ -2443,121 +2432,122 @@ AC_ARG_ENABLE(build-documentation,
         AC_MSG_RESULT([no])
     ])
 
+# don't need this crap, our asciidocs are generated or already present
 # Programs required for building all documentation
-if ( test "$BUILD_DOCS" = "yes" ) ; then
-    if ( test "none" = "$PYTHON" ) ; then
-        AC_MSG_ERROR([no python, documentation cannot be built])
-    fi
-
-    AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
-    if ( test "none" = "$ASCIIDOC" ) ; then
-	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
-    fi
-
-    AC_PATH_PROG(A2X,a2x,"none")
-    if ( test "none" = "$A2X" ) ; then
-	AC_MSG_ERROR([no a2x, documentation cannot be built])
-    fi
-
-    AC_MSG_CHECKING([asciidoc version])
-    set -- `asciidoc --version`; ASCIIDOC_VER=$2
-    set -- `echo $ASCIIDOC_VER | sed 's/\./ /g'`
-
-    if test $1 -lt 8 -o \( $1 -eq 8 -a $2 -lt 5 \); then
-        AC_MSG_ERROR([asciidoc version $ASCIIDOC_VER less than 8.5.
-Documentation cannot be built.
-On Lucid, install the regular asciidoc from Ubuntu by running "sudo apt-get install asciidoc".
-On Hardy, install the backported asciidoc available from the linuxcnc.org debian archive.
-On other systems, do what you need to install asciidoc version 8.5 or newer.])
-    fi
-    AC_MSG_RESULT([$ASCIIDOC_VER])
-
-    AC_MSG_CHECKING([whether to specify latex.encoding])
-    temp_asciidoc=`mktemp --suffix=.asciidoc`
-    cat > $temp_asciidoc <<EOF
-:lang: fr
-:ascii-ids:
-
-....
-umläut nuß
-....
-EOF
-    if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
-    then
-        A2X_LATEX_ENCODING="-P latex.encoding=utf8"
-        AC_MSG_RESULT(yes)
-    else
-        A2X_LATEX_ENCODING=""
-        AC_MSG_RESULT(no)
-    fi
-    AC_SUBST(A2X_LATEX_ENCODING)
-    rm -f $temp_asciidoc ${temp_asciidoc%.asciidoc}.pdf
-
-    AC_PATH_PROG(DBLATEX,dblatex,"none")
-    if ( test "none" = "$DBLATEX" ) ; then
-	AC_MSG_ERROR([no dblatex, documentation cannot be built])
-    fi
-
-    AC_MSG_CHECKING([dblatex version])
-    set -- `dblatex --version`; DBLATEX_VER=$3
-    set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
-
-    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${3:-0} -lt 12 \) \); then
-        AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
-Documentation cannot be built.])
-    fi
-    AC_MSG_RESULT([$DBLATEX_VER])
-
-
-    AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
-    if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
-	AC_MSG_ERROR([no source-highlight, documentation cannot be built])
-    fi
-
-
-    AC_PATH_PROG(CONVERT,convert,"none")
-    if ( test "none" = "$CONVERT" ) ; then
-	AC_MSG_ERROR([no convert, documentation cannot be built])
-    fi
-
-    AC_PATH_PROG(GS,gs,"none")
-    if ( test "none" = "$GS" ) ; then
-	AC_MSG_ERROR([no gs, documentation cannot be built])
-    fi
-fi
+#if ( test "$BUILD_DOCS" = "yes" ) ; then
+#    if ( test "none" = "$PYTHON" ) ; then
+#        AC_MSG_ERROR([no python, documentation cannot be built])
+#    fi
+#
+#    AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
+#    if ( test "none" = "$ASCIIDOC" ) ; then#
+#	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
+#    fi
+#
+#    AC_PATH_PROG(A2X,a2x,"none")
+#    if ( test "none" = "$A2X" ) ; then
+#	AC_MSG_ERROR([no a2x, documentation cannot be built])
+#    fi
+#
+#    AC_MSG_CHECKING([asciidoc version])
+#    set -- `asciidoc --version`; ASCIIDOC_VER=$2
+#    set -- `echo $ASCIIDOC_VER | sed 's/\./ /g'`
+#
+#    if test $1 -lt 8 -o \( $1 -eq 8 -a $2 -lt 5 \); then
+#        AC_MSG_ERROR([asciidoc version $ASCIIDOC_VER less than 8.5.
+#Documentation cannot be built.
+#On Lucid, install the regular asciidoc from Ubuntu by running "sudo apt-get install asciidoc".
+#On Hardy, install the backported asciidoc available from the linuxcnc.org debian archive.
+#On other systems, do what you need to install asciidoc version 8.5 or newer.])
+#    fi
+#    AC_MSG_RESULT([$ASCIIDOC_VER])
+#
+#    AC_MSG_CHECKING([whether to specify latex.encoding])
+#    temp_asciidoc=`mktemp --suffix=.asciidoc`
+#    cat > $temp_asciidoc <<EOF
+#:lang: fr
+#:ascii-ids:
+#
+#....
+#umläut nuß
+#....
+#EOF
+#    if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
+#    then
+#        A2X_LATEX_ENCODING="-P latex.encoding=utf8"
+#        AC_MSG_RESULT(yes)
+#    else
+#        A2X_LATEX_ENCODING=""
+#        AC_MSG_RESULT(no)
+#    fi
+#    AC_SUBST(A2X_LATEX_ENCODING)
+#    rm -f $temp_asciidoc ${temp_asciidoc%.asciidoc}.pdf
+#
+#    AC_PATH_PROG(DBLATEX,dblatex,"none")
+#    if ( test "none" = "$DBLATEX" ) ; then
+#	AC_MSG_ERROR([no dblatex, documentation cannot be built])
+#    fi
+#
+#    AC_MSG_CHECKING([dblatex version])
+#    set -- `dblatex --version`; DBLATEX_VER=$3
+#    set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
+#
+#    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${3:-0} -lt 12 \) \); then
+#        AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
+#Documentation cannot be built.])
+#    fi
+#    AC_MSG_RESULT([$DBLATEX_VER])
+#
+#
+#    AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
+#    if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
+#	AC_MSG_ERROR([no source-highlight, documentation cannot be built])
+#    fi
+#
+#
+#    AC_PATH_PROG(CONVERT,convert,"none")
+#    if ( test "none" = "$CONVERT" ) ; then
+#	AC_MSG_ERROR([no convert, documentation cannot be built])
+#    fi
+#
+#    AC_PATH_PROG(GS,gs,"none")
+#    if ( test "none" = "$GS" ) ; then
+#	AC_MSG_ERROR([no gs, documentation cannot be built])
+#    fi
+#fi
 
 # Programs required only for building the PDF documentation
-if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
-    AC_PATH_PROG(DBLATEX,dblatex,"none")
-    if ( test "none" = "$DBLATEX" ) ; then
-	AC_MSG_ERROR([no dblatex, PDF documentation cannot be built])
-    fi
-
-    AC_PATH_PROG(PDFLATEX,pdflatex,"none")
-    if ( test "none" = "$PDFLATEX" ) ; then
-	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
-    fi
-fi
-
+#if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
+#    AC_PATH_PROG(DBLATEX,dblatex,"none")
+#    if ( test "none" = "$DBLATEX" ) ; then
+#	AC_MSG_ERROR([no dblatex, PDF documentation cannot be built])
+#    fi
+#
+#    AC_PATH_PROG(PDFLATEX,pdflatex,"none")
+#    if ( test "none" = "$PDFLATEX" ) ; then
+#	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
+#    fi
+#fi
+#
 # Programs required only for building the HTML documentation
-if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
-    AC_PATH_PROG(XSLTPROC,xsltproc,"none")
-    if ( test "none" = "$XSLTPROC" ) ; then
-	AC_MSG_ERROR([no xsltproc, HTML documentation cannot be built])
-    fi
-
-    AC_PATH_PROG(DVIPNG,dvipng,"none")
-    if ( test "none" = "$DVIPNG" ) ; then
-	AC_MSG_ERROR([no dvipng, HTML documentation cannot be built])
-    fi
-
-    AC_MSG_CHECKING([for HTML support in groff])
-    if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
-        AC_MSG_ERROR([no groff -Thtml, HTML documentation cannot be built])
-    else
-        AC_MSG_RESULT(yes)
-    fi
-fi
+#if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
+#    AC_PATH_PROG(XSLTPROC,xsltproc,"none")
+#    if ( test "none" = "$XSLTPROC" ) ; then
+#	AC_MSG_ERROR([no xsltproc, HTML documentation cannot be built])
+#    fi
+#
+#    AC_PATH_PROG(DVIPNG,dvipng,"none")
+#    if ( test "none" = "$DVIPNG" ) ; then
+#	AC_MSG_ERROR([no dvipng, HTML documentation cannot be built])
+#    fi
+#
+#    AC_MSG_CHECKING([for HTML support in groff])
+#    if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
+#        AC_MSG_ERROR([no groff -Thtml, HTML documentation cannot be built])
+#    else
+#        AC_MSG_RESULT(yes)
+#    fi
+#fi
 AC_SUBST(BUILD_DOCS)
 AC_SUBST(BUILD_DOCS_PDF)
 AC_SUBST(BUILD_DOCS_HTML)

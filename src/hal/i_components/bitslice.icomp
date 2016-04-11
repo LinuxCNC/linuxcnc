@@ -1,4 +1,4 @@
-component bitslice "";
+component bitslice "Converts an unsigned-32 input into individual bits";
 
 pin in u32 in           "The input value";
 pin out bit out-##[pincount];

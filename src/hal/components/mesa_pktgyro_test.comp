@@ -1,15 +1,18 @@
 component mesa_pktgyro_test "PktUART simple test with Microstrain 3DM-GX3-15 gyro";
 
-description """This component is written in order to test
+description 
+"""
+This component is written in order to test
 the PktUART driver for Mesa. It resembles partly Andy Pugh's mesa_uart.comp .
 
 This module uses the names= mode of loadrt declaration to specifiy which PktUART
 instances to enable. A check is included to ensure that the count= option is
 not used instead.
+
 For simplicity we test only one PktUART instance, therefore load the component
 like this:
 
-\\fB loadrt mesa_uart names=hm2_5i25.0.pktuart.0\\fR
+*loadrt mesa_uart names=hm2_5i25.0.pktuart.0*
 
 The PktUART instance names are printed to the dmesg buffer during the Hostmot2
 setup sequence, one for each PktUART instance included in the bitfile loaded to
@@ -20,16 +23,17 @@ mesa_uart.comp
 
 The component exports only one function, namely receive, which needs to be added
 to a realtime thread.
+
 To test this component  set DEBUG=5 before and execute this HAL script:
-\\fB loadrt hostmot2\\fR
-\\fB loadrt hm2_pci\\fR
-\\fB loadrt mesa_pktgyro_test names=hm2_5i25.0.pktuart.0\\fR
-\\fB loadrt threads name1=test1 period1=10000000\\fR
-\\fB addf hm2_5i25.0.pktuart.0.receive test1\\fR
-\\fB start\\fR
+
+    loadrt hostmot2
+    loadrt hm2_pci
+    loadrt mesa_pktgyro_test names=hm2_5i25.0.pktuart.0
+    loadrt threads name1=test1 period1=10000000
+    addf hm2_5i25.0.pktuart.0.receive test1
+    start
 
 Check linuxcnc.log for debug output.
-
 """;
 
 

@@ -3,9 +3,8 @@ component sim_axis_hardware "A component to simulate home and limit switches";
 description
 """
 This component creates simulated home and limit switches based on the current position.
-.br
-It currently can supply simulation for X,Y,Z and A axes.
 
+It currently can supply simulation for X,Y,Z and A axes.
 """;
 pin in float Xcurrent_pos "The current position on the axis - eg connect to axis.0.joint-pos-fb";
 pin in float Ycurrent_pos;

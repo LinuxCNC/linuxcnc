@@ -2,11 +2,11 @@ component wcompn "N-range window comparator";
 pin in float in "Value being compared";
 pin in float value#[pincount] "Boundary N for comparison";
 pin in s32 default_out = -1 "Default output value when input is not in range";
-pin out s32 out "Returns the index of the window the \\fBin\\fR is currently in";
-pin out bit under "True if \\fBin\\fR is less than \\fBvalue0\\fR";
-pin out bit over "True if \\fBin\\fR is greater than or equal to \\fvalue<N-1>\\fR";
-pin out bit in_range "True if \\fBin\\fR is strictly between \\fBvalue0\\fR and \\fBvalue<N-1>\\fR";
-notes "If \\fBmax\\fR <= \\fBmin\\fR or \\fBvalue<x>\\fR are not in ascending orderthen the behavior is undefined.";
+pin out s32 out "Returns the index of the window the *in* is currently in";
+pin out bit under "True if *in* is less than *value0*";
+pin out bit over "True if *in* is greater than or equal to *value<N-1>*";
+pin out bit in_range "True if *in* is strictly between *value0* and *value<N-1>*";
+notes "If *max* <= *min* or *value<x>* are not in ascending order then the behavior is undefined.";
 
 instanceparam int pincount = 2;
 

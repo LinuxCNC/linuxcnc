@@ -16,44 +16,43 @@ pass the Z position and feed back untouched.
 
 If not enabled pass the Z position and feed back untouched.
 
-Physical Connections typical
+*Physical Connections typical*
 paraport.0.pin-12-in <= THC controller Plasma Up
 paraport.0.pin-13-in <= THC controller Plasma Down
 parport.0.pin-15-in  <= Plasma Torch Arc Ok Signal
 parport.0.pin-16-out => Plasma Torch Start Arc Contacts
 
-HAL Plasma Connections
+*HAL Plasma Connections*
 thc.torch-up <= paraport.0.pin-12-in
 thc.torch-down <= paraport.0.pin-13-in
 motion.spindle-on => parport.0.pin-16-out (start the arc)
 thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
 
-HAL Motion Connections
+*HAL Motion Connections*
 thc.requested-vel <= motion.requested-vel
 thc.current-vel <= motion.current-vel
 
-Pyvcp Connections
+*Pyvcp Connections*
 In the xml file you need something like:
 
-<checkbutton>
-  <text>"THC Enable"</text>
-  <halpin>"thc-enable"</halpin>
-</checkbutton>
-<spinbox>
-  <width>"5"</width>
-  <halpin>"vel-tol"</halpin>
-  <min_>.01</min_>
-  <max_>1</max_>
-  <resolution>0.01</resolution>
-  <initval>0.2</initval>
-  <format>"1.2f"</format>
-  <font>("Arial",10)</font>
-</spinbox>
+    <checkbutton>
+      <text>"THC Enable"</text>
+      <halpin>"thc-enable"</halpin>
+    </checkbutton>
+    <spinbox>
+      <width>"5"</width>
+      <halpin>"vel-tol"</halpin>
+      <min_>.01</min_>
+      <max_>1</max_>
+      <resolution>0.01</resolution>
+      <initval>0.2</initval>
+      <format>"1.2f"</format>
+      <font>("Arial",10)</font>
+    </spinbox>
 
 Connect the Pyvcp pins in the postgui.hal file like this:
 
 net thc-enable thcud.enable <= pyvcp.thc-enable
-
 """;
 
 author "John Thornton";

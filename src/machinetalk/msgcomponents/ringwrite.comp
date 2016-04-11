@@ -1,4 +1,16 @@
-component ringwrite;
+component ringwrite "demonstrate wring write operations";
+
+description
+"""
+Demonstration of ringwrite operations
+
+Will output
+....
+    Number of messages
+    Number of failed writes
+    Number of dropped writes
+""";
+
 pin in bit write   "send a message on pin transition";
 pin out u32 sent   "number of messages written";
 pin out u32 overrun   "number of failed write attempts";

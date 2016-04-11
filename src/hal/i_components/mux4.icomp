@@ -1,24 +1,24 @@
 component mux4 "Select from one of four input values";
 pin in bit sel0;
-pin in bit sel1 """\
-Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
+pin in bit sel1 
+"""
+Together, these determine which *inN* value is copied to *out*.
 """;
-pin out float out """\
-Follows the value of one of the \\fBin\\fIN\\fR values according to the two \\fBsel\\fR values
-.RS
-.TP
-\\fBsel1=FALSE\\fR, \\fBsel0=FALSE\\fR
-\\fBout\\fR follows \\fBin0\\fR
-.TP
-\\fBsel1=FALSE\\fR, \\fBsel0=TRUE\\fR
-\\fBout\\fR follows \\fBin1\\fR
-.TP
-\\fBsel1=TRUE\\fR, \\fBsel0=FALSE\\fR
-\\fBout\\fR follows \\fBin2\\fR
-.TP
-\\fBsel1=TRUE\\fR, \\fBsel0=TRUE\\fR
-\\fBout\\fR follows \\fBin3\\fR
-.RE
+pin out float out 
+"""
+Follows the value of one of the *inN* values according to the two *sel* values
+
+    sel1=FALSE, sel0=FALSE
+    out follows in0
+
+    sel1=FALSE, sel0=TRUE
+    out follows in1
+
+    sel1=TRUE, sel0=FALSE
+    out follows in2
+
+    sel1=TRUE, sel0=TRUE
+    out follows in3
 """;
 pin in float in0;
 pin in float in1;

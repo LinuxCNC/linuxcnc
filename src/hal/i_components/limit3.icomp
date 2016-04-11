@@ -1,7 +1,14 @@
-component limit3 "Limit the output signal to fall between min and max, limit its slew rate to less than maxv per second, and limit its second derivative to less than maxa per second squared.  When the signal is a position, this means that the position, velocity, and acceleration are limited.";
+component limit3 "Limit the output signal to fall between min and max";
+description
+"""
+Limit the output signal to fall between min and max, limit its slew rate to less than maxv per second, 
+and limit its second derivative to less than maxa per second squared.  
+
+When the signal is a position, this means that the position, velocity, and acceleration are limited.
+""";
 pin in float in;
 pin out float out;
-pin in bit load "When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv and maxa";
+pin in bit load "When TRUE, immediately set *out* to *in*, ignoring maxv and maxa";
 pin in float min_=-1e20;
 pin in float max_=1e20;
 pin in float maxv=1e20;

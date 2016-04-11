@@ -37,33 +37,49 @@
  
 component message "Display a message";
  
-description """Allows HAL pins to trigger a message. Example hal commands:
- loadrt message names=oillow,oilpressure,inverterfail messages="Slideway oil low,No oil
-pressure,Spindle inverter fault"
- addf oillow servo-thread
- addf oilpressure servo-thread
- addf inverterfail servo-thread
+description 
+"""
+Allows HAL pins to trigger a message. Example hal commands:
+
+    loadrt message names=oillow,oilpressure,inverterfail messages="Slideway oil low,No oil
+    pressure,Spindle inverter fault"
+    addf oillow servo-thread
+    addf oilpressure servo-thread
+    addf inverterfail servo-thread
  
- setp oillow.edge 0 #this pin should be active low
- net no-oil classicladder.0.out-21 oillow.trigger
- net no-pressure classicladder.0.out-22 oilpressure.trigger
- net no-inverter classicladder.0.out-23 inverterfail.trigger
+    setp oillow.edge 0 #this pin should be active low
+    net no-oil classicladder.0.out-21 oillow.trigger
+    net no-pressure classicladder.0.out-22 oilpressure.trigger
+    net no-inverter classicladder.0.out-23 inverterfail.trigger
  
-When any pin goes active, the corresponding message will be displayed.""";
+When any pin goes active, the corresponding message will be displayed.
+""";
  
 pin in bit trigger =FALSE "signal that triggers the message";
-pin in bit force =FALSE """A FALSE->TRUE transition forces the message to be
-displayed again if the trigger is active""";
+pin in bit force =FALSE 
+"""
+A FALSE->TRUE transition forces the message to be
+displayed again if the trigger is active
+""";
  
-param rw bit edge =TRUE """Selects the desired edge: TRUE means falling, FALSE
-means rising""";
+param rw bit edge =TRUE 
+"""
+Selects the desired edge: TRUE means falling, FALSE means rising
+""";
 
-modparam dummy messages """The messages to display. These should be listed,
-comma-delimited, inside a single set of quotes. See the "Description" section
-for an example.
+modparam dummy messages
+"""
+The messages to display. 
+
+These should be listed,comma-delimited, inside a single set of quotes. 
+See the "Description" section for an example.
+
 If there are more messages than "count" or "names" then the excess will be
-ignored. If there are fewer messages than "count" or "names" then an error will
-be raised and the component will not load.""";
+ignored. 
+
+If there are fewer messages than "count" or "names" then an error will
+be raised and the component will not load.
+""";
  
 variable int myidx;
 variable hal_bit_t prev_trigger = FALSE;

@@ -22,7 +22,7 @@ The interval, in nanoseconds, between iterations of the thread
 Must be nonzero if a function which uses floating-point will be attached
 to this thread.
 
-.IP \fcpu_id\fR
+.IP \fIcpu_id\fR
 Make the RTAPI layer bind this thread to a particular CPU core.
 
 .SH DESCRIPTION

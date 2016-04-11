@@ -14,9 +14,9 @@
  *
  ********************************************************************/
 component at_pid "HAL component that provides Proportional \
-    Integeral/Derivative control loops.  It is a realtime component.";
+    Integeral/Derivative control loops.";
 
-description """ \
+description """ 
   This file, 'at_pid.icomp', is a HAL component that provides Proportional/
   Integeral/Derivative control loops.  It is a realtime component.
 
@@ -90,7 +90,6 @@ description """ \
   limit output to +/- maxoutput
 
   This component exports one function called '<name>.do-pid-calcs'
-
 """;
 
 pin in float deadband = 0.0 "Amount of error that will be ignored";
