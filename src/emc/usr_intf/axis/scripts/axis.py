@@ -3396,6 +3396,7 @@ if jog_order is None:
         jog_order = unique_axes(trajcoordinates, "XYUVABCZW")
     else:
         jog_order = unique_axes(trajcoordinates, "XYZABCUVW")
+else: jog_order = jog_order.upper()
 
 print >>sys.stderr, "note: jog_order=%r" % jog_order
 print >>sys.stderr, "note: jog_invert=%r" % jog_invert
