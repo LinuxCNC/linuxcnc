@@ -163,7 +163,7 @@ typedef struct {
 
     hal_float_t     *hal_out1;
     hal_float_t     *hal_out2;
-    
+
     hal_u32_t       *hal_pin1;
     hal_u32_t       *hal_pin2;
 
@@ -233,6 +233,7 @@ typedef struct {
             hal_float_t *position;
             hal_float_t *position_latch;
             hal_float_t *velocity;
+            hal_float_t *velocity_abs;
             hal_bit_t   *reset;
             hal_bit_t   *index_enable;
             hal_bit_t   *latch_enable;
@@ -250,6 +251,8 @@ typedef struct {
             hal_u32_t   *counter_mode;
             hal_bit_t   *filter;
             hal_float_t *vel_timeout;
+            hal_bit_t   *running;
+            hal_u32_t   *latency;
         } pin;
 
     } hal;
@@ -262,15 +265,9 @@ typedef struct {
 
     u32 written_state;
 
-    // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
-    s32 prev_event_rawcounts;
-    u16 prev_event_reg_timestamp;
-
-    s32 tsc_num_rollovers;
-    u16 prev_time_of_interest;
-
-    enum { HM2_ENCODER_STOPPED, HM2_ENCODER_MOVING } state;
-
+    u64 timestamp; // Timestamp since last velocity estimation
+    u32 poll_count; // Number of hpg_encoder_read_chan() calls since last velocity estimation
+    s32 pulse_count; // Number of pulses since last velocity estimation
 } hpg_encoder_channel_instance_t;
 
 typedef struct {
@@ -379,6 +376,6 @@ void hpg_stepgen_read(hal_pru_generic_t *hpg, long l_period_ns);
 int hpg_encoder_init(hal_pru_generic_t *hpg);
 void hpg_encoder_force_write(hal_pru_generic_t *hpg);
 void hpg_encoder_update(hal_pru_generic_t *hpg);
-void hpg_encoder_read(hal_pru_generic_t *hpg);
+void hpg_encoder_read(hal_pru_generic_t *hpg, long l_period_ns);
 
 #endif

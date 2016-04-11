@@ -282,7 +282,7 @@ static void hpg_read(void *void_hpg, long period) {
     hal_pru_generic_t *hpg = void_hpg;
 
     hpg_stepgen_read(hpg, period);
-    hpg_encoder_read(hpg);
+    hpg_encoder_read(hpg, period);
 
 }
 
