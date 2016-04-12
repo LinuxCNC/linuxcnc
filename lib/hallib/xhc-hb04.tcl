@@ -186,8 +186,9 @@ proc wheel_setup {jogmode} {
   net pendant:jog-prescale    => pendant_util.divide-by-k-in
 
   net pendant:jog-scale       <= pendant_util.divide-by-k-out
-  #   pendant:jog-scale connects to each joint.$jnum.jog-scale
-  #                                  and axis.$coord.jog-scale
+  #   pendant:jog-scale connects to each:
+  #           and axis.$coord.jog-scale
+  #           joint.$jnum.jog-scale (if applicable)
 
   net pendant:wheel-counts     <= xhc-hb04.jog.counts
   net pendant:wheel-counts-neg <= xhc-hb04.jog.counts-neg
@@ -231,7 +232,12 @@ proc wheel_setup {jogmode} {
 
   set mapmsg ""
   foreach coord $::XHC_HB04_CONFIG(coords) {
-    set jnum [joint_number_for_axis $coord]
+    if [catch {set jnum [joint_number_for_axis $coord]} msg] {
+      puts stderr "$::progname: $msg"
+      set has_jnum 0
+    } else {
+      set has_jnum 1
+    }
     set use_lbl($coord) [lindex $anames $use_idx($coord)]
     set idx $use_idx($coord)
     if {"$use_lbl($coord)" != "$coord"} {
@@ -248,16 +254,10 @@ proc wheel_setup {jogmode} {
     net pendant:pos-rel-$coord <= halui.axis.$coord.pos-relative \
                                => xhc-hb04.$acoord.pos-relative
 
-    if ![pin_exists joint.$jnum.jog-scale] {
-      err_exit "Not configured for coords = $::XHC_HB04_CONFIG(coords),\
-      missing joint.$jnum.* pins"
-    }
-    net pendant:jog-scale => joint.$jnum.jog-scale \
-                          => axis.$coord.jog-scale
+    net pendant:jog-scale => axis.$coord.jog-scale
 
     net pendant:wheel-counts                 => pendant_util.in$idx
     net pendant:wheel-counts-$coord-filtered <= pendant_util.out$idx \
-                                             => joint.$jnum.jog-counts \
                                              => axis.$coord.jog-counts
 
     #-----------------------------------------------------------------------
@@ -265,15 +265,6 @@ proc wheel_setup {jogmode} {
     set COORD [string toupper $coord]
     if [catch {set std_accel [set ::AXIS_[set COORD](MAX_ACCELERATION)]} msg] {
       err_exit "Error: missing \[AXIS_[set COORD]\]MAX_ACCELERATION"
-    }
-    if [catch {set std_accel [set ::JOINT_[set jnum](MAX_ACCELERATION)]} msg] {
-      err_exit "Error: missing \[JOINT_[set jnum]\]MAX_ACCELERATION"
-    }
-    if {   [set ::JOINT_[set jnum](MAX_ACCELERATION)]
-        != [set ::AXIS_[set COORD](MAX_ACCELERATION)] } {
-      puts stderr "$::progname: Warning accel values differ:"
-      puts stderr "  \[JOINT_[set jnum]\]MAX_ACCELERATION=[set ::JOINT_[set jnum](MAX_ACCELERATION)]"
-      puts stderr "  \[AXIS_[set COORD]\]MAX_ACCELERATION=[set ::AXIS_[set COORD](MAX_ACCELERATION)]"
     }
     setp pendant_util.amux$idx-in0 $std_accel
     if ![info exists ::XHC_HB04_CONFIG(accel,$idx)] {
@@ -286,20 +277,43 @@ proc wheel_setup {jogmode} {
     net pendant:muxed-accel-$coord <= pendant_util.amux$idx-out
     # a script running after task is started must connect:
     # net pendant:muxed-accel-$coord => ini.$coord.max_acceleration
-    # and
+    # and, if applicable
     # net pendant:muxed-accel-$coord => ini.$jnum.max_acceleration
 
     #-----------------------------------------------------------------------
     net pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
-                           => joint.$jnum.jog-enable \
                            => axis.$coord.jog-enable
     switch $jogmode {
       vnormal {
-        setp joint.$jnum.jog-vel-mode 1
         setp axis.$coord.jog-vel-mode 1
       }
     }
-  }
+    # connect for joint pins if known (trivkins)
+    if $has_jnum {
+      if ![pin_exists joint.$jnum.jog-scale] {
+        err_exit "Not configured for coords = $::XHC_HB04_CONFIG(coords),\
+        missing joint.$jnum.* pins"
+      }
+      net pendant:jog-scale => joint.$jnum.jog-scale
+      net pendant:wheel-counts-$coord-filtered => joint.$jnum.jog-counts
+      if [catch {set std_accel [set ::JOINT_[set jnum](MAX_ACCELERATION)]} msg] {
+        err_exit "Error: missing \[JOINT_[set jnum]\]MAX_ACCELERATION"
+      }
+      if {   [set ::JOINT_[set jnum](MAX_ACCELERATION)]
+          != [set ::AXIS_[set COORD](MAX_ACCELERATION)] } {
+        puts stderr "$::progname: Warning accel values differ:"
+        puts stderr "  \[JOINT_[set jnum]\]MAX_ACCELERATION=[set ::JOINT_[set jnum](MAX_ACCELERATION)]"
+        puts stderr "  \[AXIS_[set COORD]\]MAX_ACCELERATION=[set ::AXIS_[set COORD](MAX_ACCELERATION)]"
+      }
+      net pendant:jog-$coord => joint.$jnum.jog-enable
+      switch $jogmode {
+        vnormal {
+          setp joint.$jnum.jog-vel-mode 1
+        }
+      }
+
+    }
+  } ;# for coord
   if {"$mapmsg" != ""} {
     puts "\n$::progname:\n$mapmsg"
   }

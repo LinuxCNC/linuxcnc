@@ -201,10 +201,47 @@ Recommended procedure is to create a new configuration based on an existing conf
    The entries in the new or updated stanzas should be customized for your machine.
 
 ----------------------------------
-Note: The xhc-hb04.tcl script supports configurations with known kins which
-      must have KINEMATICS_TYPE = KINEMATICS_IDENTITY.
-      Currently, known kins are: trivkins)
+Note: For identity kinematics (trivkins), the LIB:xhc-hb04.tcl script connects
+axis and joint pins having a one-to-one correspondence to support jogging
+in both joint and teleop motion modes.
 
-      Use with non-identity kinematics is not supported with the
-      xhc-hb04.tcl script (but the driver, xhc-hb04, can be configured with
-      hal files as usual).
+For unknown kinematics (e.g., non-identity kinematics), the LIB:xhc-hb04
+script connects the axis coordinate specified by:
+   [XHC_HB04_CONFIG]coords=
+for world mode (teleop) jogging.  No connections are made for joint
+mode jogging of individual joints.
+
+If wheel jogging for joints in joint motion mode is wanted for configs with
+non-identity kinematics, use additional Hal connections to connect the
+appropriate joint jog pins.
+
+Example: non-identity kinematics having a rotary axis (c) that has a
+one-to-one correspondence to a single joint (3).  The LIB:xhc-hb04.tcl
+script makes Hal connections for axis c as:
+
+                  pendant:jog-c <= xhc-hb04.jog.enable-a
+                                => axis.c.jog-enable
+              pendant:jog-scale <= pendant_util.divide-by-k-out
+                                => axis.c.jog-scale
+pendant:wheel-counts-c-filtered <= pendant_util.out3
+                                => axis.c.jog-counts
+
+To add joint jogging for joint 3 (with scaling identical to world scaling),
+add supplemental hal commands:
+
+net                   pendant:jog-c => joint.3.jog-enable
+net               pendant:jog-scale => joint.3.jog-scale
+net pendant:wheel-counts-c-filtered => joint.3.jog-counts
+
+These connections could be added in an additional [HAL]HALFILE= or
+by using [HAL]HALCMD= lines in the ini file
+
+Similar connections could be made for other joints having a one-to-one
+correspondence to an axis coordinate.
+
+For joints having no direct correspondence to an axis coordinate, joint jog pin
+connections can be made as in the example above but altered connections may be
+required for proper scaling.  Make the joint jog pin connections using an axis
+coord letter for a position of the pendant rotary axis selector switch.  The
+joint jogging will occur for that switch position when LinuxCNC is in joint
+motion mode.
