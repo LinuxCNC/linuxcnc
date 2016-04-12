@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: 5axiskins.c
-*   Trivial kinematics for 3 axis Cartesian machine
+*   kinematics for XYZBC 5 axis bridge mill
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
@@ -46,12 +46,13 @@ int kinematicsForward(const double *joints,
     pos->tran.x = joints[0] + r.x;
     pos->tran.y = joints[1] + r.y;
     pos->tran.z = joints[2] + *(haldata->pivot_length) + r.z;
-    pos->a = joints[3];
-    pos->b = joints[4];
-    pos->c = joints[5];
-    pos->u = joints[6];
-    pos->v = joints[7];
-    pos->w = joints[8];
+    pos->b      = joints[3];
+    pos->c      = joints[4];
+
+    pos->a = 0;
+    pos->u = 0;
+    pos->v = 0;
+    pos->w = 0;
 
     return 0;
 }
@@ -67,12 +68,9 @@ int kinematicsInverse(const EmcPose * pos,
     joints[0] = pos->tran.x - r.x;
     joints[1] = pos->tran.y - r.y;
     joints[2] = pos->tran.z - *(haldata->pivot_length) - r.z;
-    joints[3] = pos->a;
-    joints[4] = pos->b;
-    joints[5] = pos->c;
-    joints[6] = pos->u;
-    joints[7] = pos->v;
-    joints[8] = pos->w;
+
+    joints[3] = pos->b;
+    joints[4] = pos->c;
 
     return 0;
 }
