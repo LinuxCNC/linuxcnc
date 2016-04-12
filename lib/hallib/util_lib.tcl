@@ -49,7 +49,8 @@ proc joint_number_for_axis {axis_letter} {
   switch $kinematics {
     trivkins {set joint_number [lsearch $coordinates $axis_letter]}
     default     {return -code error \
-      "joint_number_for_axis: kinematics not supported <$::env(KINS_KINEMATICS)"
+      "joint_number_for_axis: <$axis_letter> unavailable for kinematics:\
+<$::env(KINS_KINEMATICS)>"
     }
   }
   #puts stderr "kins=$kinematics coords=$coordinates a=$axis_letter j=$joint_number"
