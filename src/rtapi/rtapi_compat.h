@@ -101,6 +101,8 @@ extern long int simple_strtol(const char *nptr, char **endptr, int base);
 #define PROCFS_RTAPICMD "/proc/rtapi/hal/rtapicmd"
 extern int procfs_cmd(const char *path, const char *format, ...);
 
+int run_shell(char *format, ...);
+
 // kernel tests in rtapi_compat.c
 extern int kernel_is_xenomai();
 extern int kernel_is_rtai();

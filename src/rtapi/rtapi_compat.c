@@ -36,7 +36,8 @@
 #include <limits.h>		/* PATH_MAX */
 #include <stdlib.h>		/* exit() */
 #include <grp.h>                // getgroups
-
+#include <spawn.h>              // posix_spawn
+#include <sys/wait.h>           // wait_pid
 #include <elf.h>                // get_rpath()
 #include <link.h>
 
@@ -682,3 +683,43 @@ int rtapi_get_tags(const char *mod_name)
     free(caps);
     return result;
 }
+
+
+// lifted from hm2_ether.c by Michael Geszkiewicz  and Jeff Epler
+int run_shell(char *format, ...)
+{
+    char command[PATH_MAX];
+    va_list args;
+    int retval;
+
+    va_start(args, format);
+    retval = vsnprintf(command, sizeof(command), format, args);
+    va_end(args);
+
+    if (retval < 0) {
+	perror("vsnprintf");
+	return retval;
+    }
+    char *const argv[] = {"sh", "-c", command, NULL};
+    pid_t pid;
+    retval = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
+    if(retval < 0)
+	perror("posix_spawn");
+
+    int status;
+    waitpid(pid, &status, 0);
+    if (WIFEXITED(status))
+	return WEXITSTATUS(status);
+    else if (WIFSTOPPED(status))
+	return WTERMSIG(status)+128;
+    else
+	return status;
+}
+
+
+// those are ok to use from userland RT modules:
+#if defined(BUILD_SYS_USER_DSO) && defined(RTAPI)
+EXPORT_SYMBOL(run_shell);
+EXPORT_SYMBOL(procfs_cmd);
+EXPORT_SYMBOL(is_module_loaded);
+#endif
