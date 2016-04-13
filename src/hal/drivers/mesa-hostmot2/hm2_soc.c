@@ -83,12 +83,14 @@ MODULE_DESCRIPTION("Driver initially for HostMot2 on the DE0 Nano"
 		   " / Atlas Cyclone V socfpga board from Terasic");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i25");
 
-
 static char *config[HM2_SOC_MAX_BOARDS];
 RTAPI_MP_ARRAY_STRING(config, HM2_SOC_MAX_BOARDS,
 		      "config string for the AnyIO boards (see hostmot2(9) manpage)")
 static int debug;
 RTAPI_MP_INT(debug, "turn on extra debug output");
+
+static char *uio_dev = "/dev/uio0";
+RTAPI_MP_STRING(uio_dev, "UIO device to use; default /dev/uio0");
 
 static int comp_id;
 static hm2_soc_t board[HM2_SOC_MAX_BOARDS];
@@ -96,7 +98,6 @@ static int num_boards;
 static int failed_errno = 0; // errno of last failed registration
 static char *fpga0_status = "/sys/class/fpga/fpga0/status";
 static char *fpga_device = "/dev/fpga0";
-static char *uio_dev = "/dev/uio0";
 
 static int hm2_soc_mmap(hm2_soc_t *board);
 static int fpga_loaded();
