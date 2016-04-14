@@ -266,7 +266,9 @@ static int hm2_pci_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int si
 
 
 
-static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this,
+				    const bitfile_t *bitfile,
+				    const struct firmware *fw) {
     hm2_pci_t *board = this->private;
     int i;
     u32 status, control;
@@ -386,7 +388,9 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
 
 
 
-static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this,
+				    const bitfile_t *bitfile,
+				    const struct firmware *fw) {
     hm2_pci_t *board = this->private;
     int i;
     u32 status;

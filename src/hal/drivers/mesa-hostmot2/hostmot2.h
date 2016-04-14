@@ -98,6 +98,8 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_PIN_DIR_IS_INPUT     (0x00000002)
 #define HM2_PIN_DIR_IS_OUTPUT    (0x00000004)
 
+#define HM2_IDROMOFFSET_BOARDNAME_LOW    (0x0C)
+#define HM2_IDROMOFFSET_BOARDNAME_HIGH   (0x10)
 
 // 
 // Module Descriptor constants from IDROMConst.vhd
