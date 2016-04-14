@@ -8,29 +8,36 @@
 .SH NAME
 kins \- kinematics definitions for LinuxCNC
 .SH SYNOPSIS
-.B loadrt trivkins
-.PP
-.B loadrt rotatekins 
-.PP
-.B loadrt tripodkins
+.B loadrt trivkins (use for most cartesian machines)
 .PP
 .B loadrt genhexkins
 .PP
-.B loadrt maxkins
-.PP
 .B loadrt genserkins
+.PP
+.B loadrt lineardeltakins (see separate manpage)
+.PP
+.B loadrt maxkins
 .PP
 .B loadrt pumakins
 .PP
+.B loadrt rotarydeltakins
+.PP
+.B loadrt rotatekins
+.PP
 .B loadrt scarakins
-
-.SH Additional kinematics modules (individual man pages):
-lineardeltakins
+.PP
+.B loadrt tripodkins
+.PP
+.B loadrt xyzac-trt-kins
+.PP
+.B loadrt xyzbc-trt-kins
+.PP
+.B loadrt 5axiskins
+.PP
 
 .SH DESCRIPTION
 Rather than exporting HAL pins and functions, these components provide the
 forward and inverse kinematics definitions for LinuxCNC.
-
 
 .SS trivkins \- generalized trivial kinematics
 There is a 1:1 correspondence between joints and axes.
@@ -103,11 +110,7 @@ two joints (joint1 and joint2) to move a single axis (y).  Using
 kinstype=BOTH allows the configuration to be toggled between joint
 and world modes of operation.
 
-.SS rotatekins \- Rotated Kinematics
-The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
-.SS tripodkins \- Tripod Kinematics
-The joints represent the distance of the controlled point from three predefined
-locations (the motors), giving three degrees of freedom in position (XYZ)
+
 .TP
 .B tripodkins.Bx
 .TQ
@@ -115,6 +118,7 @@ locations (the motors), giving three degrees of freedom in position (XYZ)
 .TQ
 .B tripodkins.Cy
 The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
+
 .SS genhexkins \- Hexapod Kinematics
 Gives six degrees of freedom in position and orientation (XYZABC).  The
 location of base and platform joints is defined by hal parameters.  The
@@ -148,14 +152,10 @@ Number of iterations spent for the last forward kinematics solution.
 .B genhexkins.max-iterations
 Maximum number of iterations spent for a converged solution during current
 session.
-.SS maxkins \- 5-axis kinematics example
-Kinematics for Chris Radek's tabletop 5 axis mill named 'max' with tilting
-head (B axis) and horizintal rotary mounted to the table (C axis).  Provides
-UVW motion in the rotated coordinate system.  The source file, maxkins.c,
-may be a useful starting point for other 5-axis systems.
+
 .SS genserkins \- generalized serial kinematics
 Kinematics that can model a general serial-link manipulator with up to 6
-angular joints.  
+angular joints.
 
 The kinematics use Denavit-Hartenberg definition for the joint and
 links. The DH definitions are the ones used by John J Craig in
@@ -169,6 +169,12 @@ manipulator are defined by hal pins.
 .B genserkins.D-\fIN
 Parameters describing the \fIN\fRth joint's geometry.
 
+.SS maxkins \- 5-axis kinematics example
+Kinematics for Chris Radek's tabletop 5 axis mill named 'max' with tilting
+head (B axis) and horizintal rotary mounted to the table (C axis).  Provides
+UVW motion in the rotated coordinate system.  The source file, maxkins.c,
+may be a useful starting point for other 5-axis systems.
+
 
 .SS pumakins \- kinematics for puma typed robots
 Kinematics for a puma-style robot with 6 joints
@@ -181,6 +187,12 @@ Kinematics for a puma-style robot with 6 joints
 .TQ
 .B pumakins.D4
 Describe the geometry of the robot
+
+.SS rotarydeltakins \- kinematics for a rotary delta machine
+Rotary delta robot (3 Joints)
+
+.SS rotatekins \- Rotated Kinematics
+The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
 
 .SS scarakins \- kinematics for SCARA-type robots
 .TP
@@ -209,6 +221,21 @@ Horizontal distance from the centerline of the end effector (and the
 joints 2 and 3 axis) and the tooltip.  Zero means the tooltip is on the
 centerline.  Non-zero values should be positive, if negative they
 introduce a 180 degree offset on the value of joint[3].
+
+.SS tripodkins \- Tripod Kinematics
+The joints represent the distance of the controlled point from three predefined
+locations (the motors), giving three degrees of freedom in position (XYZ)
+
+.SS xyzac-trt-kins \- 5 Axis mill (Table Rotary/Tilting)
+Tilting table (A) and horizontal rotary mounted tothe table (C)
+(5 Joints)
+
+.SS xyzbc-trt-kins \- 5 Axis mill (Table Rotary/Tilting)
+Tilting table (B) and horizontal rotary mounted to table (C axis)
+(5 Joints)
+
+.SS 5axiskins \- 5 Axis bridge mill
+XYZBC (5 Joints)
 
 .SH SEE ALSO
 \fIKinematics\fR section in the LinuxCNC documentation
