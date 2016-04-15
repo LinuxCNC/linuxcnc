@@ -7,8 +7,8 @@ o<test-xyzbc> sub
   #<xy_max> =  #3 (=30)
    #<z_max> =  #4 (=10)
 #<feedrate> =  #5 (=200)
-   #<tool1> =  #6 (=1 First Tool)
-   #<tool2> =  #7 (=2 First Tool)
+   #<tool1> =  #6 (=1 1st Tool)
+   #<tool2> =  #7 (=2 2nd Tool)
   #<speed1> =  #8 (=500)
   #<speed2> =  #9 (=600)
 
