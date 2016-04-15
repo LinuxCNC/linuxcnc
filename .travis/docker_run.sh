@@ -23,10 +23,15 @@ then
     cmd=build_rip
 fi
 
-# only allow x64 builds for PR's to speed up the process
+# only allow x64 builds and one armhf flavor for PR's to speed up the process
 if test ${TRAVIS_PULL_REQUEST} != 'false'; then
     if test ${MARCH} != '64'; then
-        exit 0
+        if test ${TAG} != 'jessie-armhf'; then
+            exit 0
+        fi
+        if test ${FLAV} != 'posix'; then
+            exit 0
+        fi
     fi
 fi
 
