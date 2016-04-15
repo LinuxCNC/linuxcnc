@@ -971,7 +971,7 @@ def main():
             mode = DOCUMENT
         if k in ("-j", "--install-doc"):
             mode = INSTALLDOC
-        if k in ("-j", "--view-doc"):
+        if k in ("-v", "--view-doc"):
             mode = VIEWDOC
         if k in ("--print-modinc",):
             mode = MODINC
