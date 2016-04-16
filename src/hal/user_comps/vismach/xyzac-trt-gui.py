@@ -95,7 +95,7 @@ ctable = Collection([
          Color([1,1,1,0], [CylinderX(-50,1,50,1)]),
          Color([1,1,1,0], [CylinderY(-50,1,50,1)]),
          # lump on one side
-         Color([1,1,1,0], [Box( -4, -42, -20, 4, -51, 5)])
+         Color([1,1,1,0], [Box(42, -4, -20, 51, 4, 5)])
          ])
 ctable = HalRotate([ctable],c,"rotate-c",1,0,0,1)
 ctable = Color([1,0,1,0], [ctable] )
