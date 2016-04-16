@@ -1,3 +1,24 @@
+# basic_sim.tcl
+#
+# Provide common hal components and connections for a simulated machine.
+# By default, the script makes and connects ddts, simulated_home,
+# spindle, and hal_manualtoolchange components.
+#
+# Options are available to disable specific hal components and
+# connections
+#
+# Coordinate letters and number_of_joints are determined from the usual
+# ini # file settings.
+#
+# Ini file usage:
+#                 [HAL]HALFILE = basic_sim.tcl [Options]
+# Options:
+#                 -no_make_ddts
+#                 -no_simulated_home
+#                 -no_use_hal_manualtoolchange
+#                 -no_sim_spindle
+
+#----------------------------------------------------------------------
 # Notes:
 #  1) ::env() is a global associative array of environmental variables
 #     as exported by the main LinuxCNC script (linuxcnc)
@@ -22,7 +43,15 @@ core_sim $axes \
          $::EMCMOT(SERVO_PERIOD) \
          $base_period
 
-make_ddts $number_of_joints
-simulated_home $number_of_joints
-use_hal_manualtoolchange
-sim_spindle
+if {[lsearch -nocase $::argv -no_make_ddts] < 0} {
+  make_ddts $number_of_joints
+}
+if {[lsearch -nocase $::argv -no_simulated_home] < 0} {
+  simulated_home $number_of_joints
+}
+if {[lsearch -nocase $::argv -no_use_hal_manualtoolchange] < 0} {
+  use_hal_manualtoolchange
+}
+if {[lsearch -nocase $::argv -no_sim_spindle] < 0} {
+  sim_spindle
+}
