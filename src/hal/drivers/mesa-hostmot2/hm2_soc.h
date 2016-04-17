@@ -48,9 +48,11 @@
 
 
 typedef struct {
-//    struct dts_dev *dev;
+    int fpga_state;
+    const char *fpga_dev;       // "fpga0"
     int  uio_fd;
-    char *uio_dev;
+    int firmware_given;
+    const char *uio_dev;
     void __iomem *base;
     int len;
     unsigned long ctrl_base_addr;
