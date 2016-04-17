@@ -74,11 +74,24 @@
 #include <string.h>
 #include <ctype.h>
 
-//#include "../Include/mkhm2soc/hps_0.h"
+// from 3.10.37-ltsi drivers/fpga/fpga-mgrs/altera.c:
+// returned by altera_fpga_status()
+/* Register bit defines */
+/* ALT_FPGAMGR_STAT register */
+#define ALT_FPGAMGR_STAT_POWER_UP			0x0
+#define ALT_FPGAMGR_STAT_RESET				0x1
+#define ALT_FPGAMGR_STAT_CFG				0x2
+#define ALT_FPGAMGR_STAT_INIT				0x3
+#define ALT_FPGAMGR_STAT_USER_MODE			0x4
+#define ALT_FPGAMGR_STAT_UNKNOWN			0x5
+#define ALT_FPGAMGR_STAT_STATE_MASK			0x7
+/* This is a flag value that doesn't really happen in this register field */
+#define ALT_FPGAMGR_STAT_POWER_OFF			0xf
+
 #define HM2REG_IO_0_SPAN 65536
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Michael Brown");
+MODULE_AUTHOR("Michael Brown & Michael Haberler");
 MODULE_DESCRIPTION("Driver initially for HostMot2 on the DE0 Nano"
 		   " / Atlas Cyclone V socfpga board from Terasic");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i25");
@@ -96,13 +109,14 @@ static int comp_id;
 static hm2_soc_t board[HM2_SOC_MAX_BOARDS];
 static int num_boards;
 static int failed_errno = 0; // errno of last failed registration
-static char *fpga0_status = "/sys/class/fpga/fpga0/status";
-static char *fpga_device = "/dev/fpga0";
+static char *fpga_sysfs_status = "/sys/class/fpga/%s/status";
+static char *fpga_dev = "fpga0";
 
 static int hm2_soc_mmap(hm2_soc_t *board);
-static int fpga_loaded();
+
+static int altera_fpga_status(const char *fmt, ...);
 static char *strlwr(char *str);
-static int set_fpga_bridge(const char *bridge, const char *value);
+static int altera_set_fpga_bridge(const char *bridge, const char *value);
 
 // 
 // these are the "low-level I/O" functions exported up
@@ -191,11 +205,18 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
 				const struct firmware *fw) {
 
     int rc;
-    LL_DBG("soc_program_fpga");
+    hm2_soc_t *board =  this->private;
 
-    if ((rc = fpga_loaded()) < 0) {
-	LL_ERR("check for %s failed - permissions issue or wrong platform?", fpga_device);
-	return rc;
+    LL_DBG("soc_program_fpga");
+    board->firmware_given = 1;
+
+    char devname[100];
+    rtapi_snprintf(devname, sizeof(devname),"/dev/%s", board->fpga_dev);
+
+    if (board->fpga_state  < 0) {
+	LL_ERR("%s: %s - invalid FPGA state :%d",
+	       __FUNCTION__, devname, board->fpga_state);
+	return board->fpga_state;
     }
     char *gpio_module = "gpio_altera";
     int gpio_altera_was_loaded = is_module_loaded(gpio_module);
@@ -214,30 +235,30 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
 	}
     }
 
-    int fd = open(fpga_device, O_WRONLY);
+    int fd = open(devname, O_WRONLY);
     if (fd < 0) {
-	LL_ERR("open(%s) failed: %s", fpga_device, strerror(errno));
+	LL_ERR("open(%s) failed: %s", devname, strerror(errno));
 	return -EIO;
     }
 
     // disable bridges
-    set_fpga_bridge("hps2fpga", "0\n");
-    set_fpga_bridge("fpga2hps", "0\n");
-    set_fpga_bridge("lwhps2fpga", "0\n");
+    altera_set_fpga_bridge("hps2fpga", "0\n");
+    altera_set_fpga_bridge("fpga2hps", "0\n");
+    altera_set_fpga_bridge("lwhps2fpga", "0\n");
 
     // load FPGA
     if (write(fd, fw->data, fw->size) != fw->size)  {
 	LL_ERR("write(%s, %zu) failed: %s",
-	       fpga_device, fw->size, strerror(errno));
+	       devname, fw->size, strerror(errno));
 	close(fd);
 	return -EIO;
     }
     close(fd);
 
     // re-enable bridge(s)
-    // set_fpga_bridge("hps2fpga", "1\n"); // currently unused
-    // set_fpga_bridge("fpga2hps", "1\n"); // currently unused
-    set_fpga_bridge("lwhps2fpga", "1\n");
+    // altera_set_fpga_bridge("hps2fpga", "1\n"); // currently unused
+    // altera_set_fpga_bridge("fpga2hps", "1\n"); // currently unused
+    altera_set_fpga_bridge("lwhps2fpga", "1\n");
 
     // load gpio_altera it again if it was present
     if (gpio_altera_was_loaded) {
@@ -253,8 +274,10 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
 	    return -ENOENT;
 	}
     }
-    if (fpga_loaded()){
-        LL_ERR("FPGA not loaded\n");
+    board->fpga_state = altera_fpga_status(fpga_sysfs_status, board->fpga_dev);
+    if (board->fpga_state != ALT_FPGAMGR_STAT_USER_MODE) {
+	LL_ERR("FPGA %s not in user mode post programming: state=%d",
+	       devname, board->fpga_state);
         return -ENOENT;
     }
     rc = hm2_soc_mmap(this->private);
@@ -270,7 +293,17 @@ static int hm2_soc_mmap(hm2_soc_t *board) {
     volatile void *virtual_base;
     hm2_lowlevel_io_t *this = &board->llio;
 
-    board->uio_fd = open ( board->uio_dev , ( O_RDWR | O_SYNC ) );
+    // we can mmap this device safely only if programmed so cop out
+    if (board->fpga_state != ALT_FPGAMGR_STAT_USER_MODE) {
+	LL_ERR("/dev/%s: invalid fpga state %d, unsafe to mmap %s",
+	       board->fpga_dev, board->fpga_state, board->uio_dev);
+	if (!board->firmware_given)
+	    LL_ERR("the FPGA was not initialized and no"
+		   " firmware was specified during 'loadrt %s'",HM2_LLIO_NAME);
+	return -EIO;
+    }
+
+    board->uio_fd = open(board->uio_dev , ( O_RDWR | O_SYNC ));
     if (board->uio_fd < 0) {
         LL_ERR("Could not open %s: %s",  board->uio_dev, strerror(errno));
         return -errno;
@@ -323,9 +356,18 @@ static int hm2_soc_mmap(hm2_soc_t *board) {
     return 0;
 }
 
-static int hm2_soc_register(hm2_soc_t *brd, char *dev) {
+static int hm2_soc_register(hm2_soc_t *brd,
+			    const char *uiodev,
+			    const char *fpgadev) {
     memset(brd, 0,  sizeof(hm2_soc_t));
 
+    int state = altera_fpga_status(fpga_sysfs_status, fpgadev);
+    if (state < 0) {
+	return state;
+    }
+
+    brd->fpga_state = state;
+    brd->fpga_dev = fpgadev;
     brd->uio_dev = uio_dev;
 
     brd->llio.comp_id = comp_id;
@@ -390,7 +432,7 @@ int rtapi_app_main(void) {
     comp_id = hal_init(HM2_LLIO_NAME);
     if (comp_id < 0) return comp_id;
 
-    r = hm2_soc_register(&board[0], uio_dev);
+    r = hm2_soc_register(&board[0], uio_dev, fpga_dev);
     if (r != 0) {
         LL_ERR("error registering UIO driver\n");
         hal_exit(comp_id);
@@ -424,7 +466,7 @@ void rtapi_app_exit(void) {
     hal_exit(comp_id);
 }
 
-static int set_fpga_bridge(const char *bridge, const char *value) {
+static int altera_set_fpga_bridge(const char *bridge, const char *value) {
     char fname[100];
     rtapi_snprintf(fname, sizeof(fname),"/sys/class/fpga-bridge/%s/enable", bridge);
     int rc = procfs_cmd(fname, value);
@@ -444,17 +486,36 @@ static char *strlwr(char *str)
   return str;
 }
 
-// if RBF file not loaded: contents="configuration phase"
-// loaded: contents="user mode"
+struct altera_fpga_state {
+    int state;
+    char *name;
+};
 
-#define FPGA_LOADED "user mode"
+static struct altera_fpga_state altera_fpga_states[] = {
+    { ALT_FPGAMGR_STAT_POWER_UP, "power up phase" },
+    { ALT_FPGAMGR_STAT_RESET, "reset phase" },
+    { ALT_FPGAMGR_STAT_CFG, "configuration phase" },
+    { ALT_FPGAMGR_STAT_INIT, "initialization phase" },
+    { ALT_FPGAMGR_STAT_USER_MODE, "user mode" },
+    { ALT_FPGAMGR_STAT_UNKNOWN, "undetermined" },
+    { ALT_FPGAMGR_STAT_POWER_OFF, "powered off" },
+    { -1, NULL }
+};
 
-static int fpga_loaded()
+static int altera_fpga_status(const char *fmt, ...)
 {
-    int fd = open(fpga0_status, O_RDONLY);
+    va_list ap;
+    char sysfsname[100];
+
+    va_start(ap, fmt);
+    rtapi_vsnprintf(sysfsname, sizeof(sysfsname), fmt, ap);
+    va_end(ap);
+
+    //    rtapi_snprintf(sysfsname, sizeof(sysfsname), fpga_sysfs_status, fpga_dev);
+    int fd = open(sysfsname, O_RDONLY);
     if (fd < 0) {
 	LL_ERR( "Failed to open sysfs entry '%s': %s\n",
-		fpga0_status, strerror(errno));
+		sysfsname, strerror(errno));
 	return -errno;
     }
     char status[100];
@@ -462,15 +523,19 @@ static int fpga_loaded()
     int len = read(fd, status, sizeof(status));
     if (len < 0)  {
 	LL_ERR( "Failed to read sysfs entry '%s': %s\n",
-		fpga0_status, strerror(errno));
+		sysfsname, strerror(errno));
 	close(fd);
 	return -errno;
     }
     close(fd);
-    if (strncmp(status, FPGA_LOADED, strlen(FPGA_LOADED)) != 0) {
-	LL_DBG( "FPGA not loaded - status=%s\n", status);
-	return 1;
+    struct altera_fpga_state *fs = altera_fpga_states;
+    while (fs->state > -1) {
+	if (strncmp(status, fs->name, strlen(fs->name)) == 0) {
+	    LL_DBG( "FPGA /dev/%s status: %s", fpga_dev, status);
+	    return fs->state;
+	}
+	fs++;
     }
-    LL_DBG( "FPGA loaded: status=%s\n", status);
-    return 0;
+    LL_ERR( "FPGA /dev/%s: unknown status: %s", fpga_dev, status);
+    return -EINVAL;
 }
