@@ -1,9 +1,0 @@
-moveoff_demo5
-
-This demo is identical to moveoff_demo2 except it uses a special HALFILE:
-   [HAL]HALFILE = LIB:hookup_moveoff.tcl
-to load and automatically connect the moveoff component.
-
-This script allows the moveoff component to be added to a configuration without making changes to existing halfiles.
-
-See moveoff_demo3 for more information
