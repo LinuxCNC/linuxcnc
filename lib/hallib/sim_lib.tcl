@@ -38,6 +38,44 @@ proc get_traj_coordinates {} {
   return [string tolower $coordinates]
 } ;# get_traj_coordinates
 
+proc check_ini_items {} {
+  foreach {section item} {KINS KINEMATICS
+                          KINS JOINTS
+                          TRAJ COORDINATES
+                         } {
+    if ![info exists ::${section}($item)] {
+      return -code error "Missing inifile item: \[$section\]$item"
+    }
+  }
+
+  if {   [info exists ::DISPLAY(LATHE)]
+      && [lsearch $::KINS(KINEMATICS) trivkins] >= 0
+     } {
+     # reject historical lathe config using default trivkins coordinates (all)
+     if {[lsearch $::KINS(KINEMATICS) =] < 0} {
+       set msg "trivkins lathe config must specify coordinates= "
+       set msg "$msg\n(typically use \[KINS]KINEMATICS trivkins coordinates=XZ)"
+       return -code error "$msg"
+     }
+  }
+
+  set kins [split [lindex $::KINS(KINEMATICS) 0]]
+  if {[string first trivkins $kins] >= 0} {
+    foreach item $kins {
+      if {[string first coordinates= $item] < 0} continue
+        set     tcoords [lindex [split $item =] end]
+        set len_tcoords [string len $tcoords]
+        if {$len_tcoords != $::KINS(JOINTS)} {
+          set m "\ncheck_ini_items: WARNING:\n"
+          set m "$m  trivkins coordinates=$tcoords specifies $len_tcoords joints\n"
+          set m "$m  but \[KINS\]JOINTS is $::KINS(JOINTS)\n"
+          puts stderr $m
+        }
+    } ;# foreach
+  }
+  return
+} ;# check_ini_items
+
 proc setup_kins {axes} {
   if ![info exists ::KINS(KINEMATICS)] {
     puts stderr "setup_kins: NO \[KINS\]KINEMATICS, trying default trivkins"
@@ -74,6 +112,7 @@ proc core_sim {axes
   # adapted as haltcl proc from core_sim.hal
   # note: with default emcmot==motmot,
   #       thread will not be added for (default) base_pariod == 0
+
   setup_kins $axes
 
   loadrt $emcmot \

@@ -30,6 +30,10 @@
 #begin-----------------------------------------------------------------
 source [file join $::env(HALLIB_DIR) sim_lib.tcl]
 
+if [catch {check_ini_items} msg] {
+  puts "\nbasic_sim.tcl ERROR: $msg\n"
+  exit 1
+}
 set axes [get_traj_coordinates]
 set number_of_joints $::KINS(JOINTS)
 
