@@ -8,7 +8,7 @@
 
 == NAME
 
-delayline -- buffer for delaying pins
+delayline - buffer for delaying pins
 
 
 
@@ -46,74 +46,66 @@ thus making the values of the pins available thru attaching to the ring.
 
 delayline.**sample** use like: __addf delayline.sample realtime-thread__
 
-To be called by a thread to be executed. This function puts the sample from
-a pin into the buffer.
+    To be called by a thread to be executed. This function puts the
+    sample from a pin into the buffer.
 
 
 delayline.**output** use like: __addf delayline.output realtime-thread__
 
-To be called by a thread to be executed. This function reads the sample
-from the the buffer, and puts it into the pins. When delay time is decreased
-the records between the current (old position) record, and the new position
-read record (current sample - new delay) will be dropped.
-
-
-
+    To be called by a thread to be executed. This function reads the
+    sample from the the buffer, and puts it into the pins. When delay
+    time is decreased the records between the current (old position)
+    record, and the new position read record (current sample - new
+    delay) will be dropped.
 
 == PINS
 
 delayline.**enable** bit in
 
-Enables the delayline, when not enabled, the input sample is set directly
-to the output pin.
-
+    Enables the delayline, when not enabled, the input sample is set
+    directly to the output pin.
 
 delayline.**abort** bit in
 
-This flushes the buffer. The user is responsible for whether this pin is attached.
-
+    This flushes the buffer. The user is responsible for whether this
+    pin is attached.
 
 delayline.**delay** float in
 
-The delay in thread periods.
-
+    The delay in thread periods.
 
 delayline.__{type}__**-in**__{N}__ the input sample pin
 
-__{type}__ corresponds with __bit__, __flt__, __u32__ or __s32__
+    {type} corresponds with bit, flt, u32 or s32
 
-__{N}__ corresponds with the consecutive number of the pin in the line,
-so flt-in2 is the pin that is generated after bit-in1.
+    {N} corresponds with the consecutive number of the pin in the
+    line, so flt-in2 is the pin that is generated after bit-in1.
 
-The input sample pin is matched by output sample pin.
-__delayline.flt-in0__ is the source of the delayed __delayline.flt-out0__
-pin
+    The input sample pin is matched by output sample pin.
+
+    delayline.flt-in0 is the source of the delayed
+    delayline.flt-out0 pin
 
 
 delayline.__{type}__**-out**__{N}__ the input sample pin
 
-__{type}__ corresponds with __bit__, __flt__, __u32__ or __s32__
+    {type} corresponds with bit, flt, u32 or s32
 
-__{N}__ corresponds with the consecutive number of the pin in the line,
-so flt-out2 is the pin that is generated after bit-out1.
+    {N} corresponds with the consecutive number of the pin in the
+    line, so flt-out2 is the pin that is generated after bit-out1.
 
-The output sample pin is matched by input sample pin
-__delayline.flt-out0__ is the delay of the __delayline.flt-out0 input
-__sample
-
+    The output sample pin is matched by input sample pin
+    delayline.flt-out0 is the delay of the delayline.flt-out0
+    input sample
 
 delayline.**write-fail** u32 out
-counter of failed writes
-
+    counter of failed writes
 
 delayline.**read-fail** u32 out
-counter of failed reads
-
+    counter of failed reads
 
 delayline.**too-old** u32 out
-counter of records being too old
-
-
+    counter of records being too old
 
 == NOTES
 When enabled, the delay time can be changed during use. This can result in
