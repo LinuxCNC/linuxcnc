@@ -972,12 +972,6 @@ class GlCanonDraw:
             if self.stat.limit[i]: return True
         return False
 
-    def axes_count(self):
-        ct = 0
-        for i in range(self.stat.joints):
-            if self.stat.axis_mask & (1<<i): ct +=1
-        return ct
-
     def idx_for_home_or_limit_icon(self,string):
         # parse posstr and return encoded idx
         if  (    self.get_joints_mode()
@@ -1304,9 +1298,6 @@ class GlCanonDraw:
         glVertex3f(pixel_width+42, ypos, 1)
         glEnd()
         glDisable(GL_BLEND)
-
-        all_joints_homed = self.all_joints_homed()
-        axes_count = self.axes_count()
 
         maxlen = 0
         ypos -= linespace+5
