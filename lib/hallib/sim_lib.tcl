@@ -191,12 +191,12 @@ proc make_ddts {number_of_joints} {
   set ddt_names ""
   set ddt_ct 0
   for {set jno 0} {$jno < $number_of_joints} {incr jno} {
+    incr ddt_ct 2
     if {$ddt_ct > $ddt_limit} {
       puts stderr "make_ddts: number of ddts limited to $ddt_limit"
       continue
     }
     set ddt_names "${ddt_names},J${jno}_vel,J${jno}_accel"
-    incr ddt_ct 2
   }
   set ddt_names [string trimleft $ddt_names ,]
   loadrt ddt names=$ddt_names
@@ -207,12 +207,12 @@ proc make_ddts {number_of_joints} {
   # joint vel,accel signal connections:
   set ddt_ct 0
   for {set jno 0} {$jno < $number_of_joints} {incr jno} {
+    incr ddt_ct 2
     if {$ddt_ct > $ddt_limit} { continue }
     net J${jno}:pos-fb   => J${jno}_vel.in ;# net presumed to exist
     net J${jno}:vel      <= J${jno}_vel.out
     net J${jno}:vel      => J${jno}_accel.in
     net J${jno}:acc      <= J${jno}_accel.out
-    incr ddt_ct 2
   }
 
   set has_xyz 1
