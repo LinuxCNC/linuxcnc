@@ -1,0 +1,121 @@
+= DELAYLINE(9)
+:manmanual: HAL Components
+:mansource: ../man/man9/delayline.9.asciidoc
+:man version : 
+
+
+
+
+== NAME
+
+delayline -- buffer for delaying pins
+
+
+
+== SYNOPSIS
+loadrt delayline names=foo,bar max_delay=500,2500 samples=ffb,ffbsu
+
+
+
+== DELAYLINE
+The delayline will sample the value of an input pin, and put the sample
+in the output pin after a certain amount of periods.
+
+With this component it is possible to attach with another component to
+inspect the buffer. For example to create a virtual look-ahead by delaying
+certain pins (motion) without other actuators. This delay
+will buy time to inspect and change buffer record values.
+
+__max_delay__ will specify the max allowble delay time. When entering a
+value higher than max_delay the time will be cropped to this max value
+
+__samples__ specifies the different types of pins to be created.
+These pins must be of the type of BIT (b), FLOAT (f), S32 (s), or U32 (u).
+
+There can be different (amount of) pins that are going to be created and
+they will all have the same delay.
+
+The number of periods to delay is taken from the delay pin of the component
+
+The pins of the component are created in a HAL section of the ring buffer
+thus making the values of the pins available thru attaching to the ring.
+
+
+
+== THREADS
+
+delayline.**sample** use like: __addf delayline.sample realtime-thread__
+
+To be called by a thread to be executed. This function puts the sample from
+a pin into the buffer.
+
+
+delayline.**output** use like: __addf delayline.output realtime-thread__
+
+To be called by a thread to be executed. This function reads the sample
+from the the buffer, and puts it into the pins. When delay time is decreased
+the records between the current (old position) record, and the new position
+read record (current sample - new delay) will be dropped.
+
+
+
+
+== PINS
+
+delayline.**enable** bit in
+
+Enables the delayline, when not enabled, the input sample is set directly
+to the output pin.
+
+
+delayline.**abort** bit in
+
+This flushes the buffer. The user is responsible for whether this pin is attached.
+
+
+delayline.**delay** float in
+
+The delay in thread periods.
+
+
+delayline.__{type}__**-in**__{N}__ the input sample pin
+
+__{type}__ corresponds with __bit__, __flt__, __u32__ or __s32__
+
+__{N}__ corresponds with the consecutive number of the pin in the line,
+so flt-in2 is the pin that is generated after bit-in1.
+
+The input sample pin is matched by output sample pin.
+__delayline.flt-in0__ is the source of the delayed __delayline.flt-out0__
+pin
+
+
+delayline.__{type}__**-out**__{N}__ the input sample pin
+
+__{type}__ corresponds with __bit__, __flt__, __u32__ or __s32__
+
+__{N}__ corresponds with the consecutive number of the pin in the line,
+so flt-out2 is the pin that is generated after bit-out1.
+
+The output sample pin is matched by input sample pin
+__delayline.flt-out0__ is the delay of the __delayline.flt-out0 input
+__sample
+
+
+delayline.**write-fail** u32 out
+counter of failed writes
+
+
+delayline.**read-fail** u32 out
+counter of failed reads
+
+
+delayline.**too-old** u32 out
+counter of records being too old
+
+
+
+== NOTES
+When enabled, the delay time can be changed during use. This can result in
+dropped records (decreasing delay time), or records being extra delayed
+(increasing delay time).
