@@ -14,6 +14,10 @@ net spindle-at-speed      gmoccapy.spindle_at_speed_led
 unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
 
+# remove signal created with with LIB:basic_sim.tcl
+delsig tool:prep-number
+
+
 net tool-change      gmoccapy.toolchange-change   <=  iocontrol.0.tool-change 
 net tool-changed     gmoccapy.toolchange-changed  <=  iocontrol.0.tool-changed
 net tool-prep-number gmoccapy.toolchange-number   <=  iocontrol.0.tool-prep-number
