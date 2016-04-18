@@ -255,24 +255,49 @@ halfile:    loadrt [KINS]KINEMATICS
 haltclfile: loadrt $::KINS(KINEMATICS)
 ----
 
+=== Lathe Configurations
 
-=== Stricter INI file syntax
+Prior to joints_axes incorporation, lathes were often configured as if they
+were three axis (XYZ) machines with an unused axis (Y).  This was convenient
+for sharing Hal files (especially for simulation configs) but required
+specification of [TRAJ]AXES =3, a 'dummy' AXIS_Y section, and provisions for
+homing the unused Y coordinate.  These arrangements are no longer required
+or recommended.
 
-Lines with numeric INI variables are no longer allowed to have trailing
-text.  In earlier versions of LinuxCNC any text after the number was
-silently ignored, but as of this version such text is totally disallowed.
-This includes hash characters ("#"), which in this position are a part of the value, not a comment character.
+Historical lathe configurations used the default options for the trivkins
+kinematics module.  These default options configure all axis letters
+(XYZABCUVW).  With joints_axes incorporation, a more appropriate kinematics
+specification sets the coordinates to the exact ones used (XZ) and sets the
+number of joints accordingly to 2.  There is no need for an ini file [AXIS_Y]
+section and only two [JOINT_N] sections need be defined.
 
-For example, lines like this will no longer be accepted:
------
-MAX_VELOCITY = 7.5 # This is the max velocity of the axis.
------
+Example ini file items for a lathe (only sections relevant to kinematics
+are shown):
 
-They could be transformed into pairs of lines like this:
------
-# This is the max velocity of the axis.
-MAX_VELOCITY = 7.5
------
+----
+[KINS]
+KINEMATICS = trivkins coordinates=xz
+JOINTS = 2
+
+[TRAJ]
+COORDINATES = XZ
+...
+
+[AXIS_X]
+...
+
+[AXIS_Z]
+...
+
+[JOINT_0]
+...
+
+[JOINT_1]
+...
+----
+
+Note that some simulation configurations may still use the historical lathe
+configuration precedents.
 
 === Consistent Joints/Axes specifications
 
@@ -414,6 +439,24 @@ For more complex kinematics, select the joint number as required -- there must
 be a one-to-one correspondence between the rotary axis and the joint number.
 
 (See the motion man page ($ man motion) for more information on motmod)
+
+=== Stricter INI file syntax
+
+Lines with numeric INI variables are no longer allowed to have trailing
+text.  In earlier versions of LinuxCNC any text after the number was
+silently ignored, but as of this version such text is totally disallowed.
+This includes hash characters ("#"), which in this position are a part of the value, not a comment character.
+
+For example, lines like this will no longer be accepted:
+-----
+MAX_VELOCITY = 7.5 # This is the max velocity of the axis.
+-----
+
+They could be transformed into pairs of lines like this:
+-----
+# This is the max velocity of the axis.
+MAX_VELOCITY = 7.5
+-----
 
 == Hal Changes (updates for joints_axes)
 
