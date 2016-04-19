@@ -1,3 +1,6 @@
+#!!! DECLINING USAGE use: HALFILE=LIB:basic_sim.tcl to automatically
+#!!! make the components and connections required for sim configs
+
 # core HAL config file for simulation
 
 # first load all the RT modules that will be needed
