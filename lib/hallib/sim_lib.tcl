@@ -115,10 +115,30 @@ proc core_sim {axes
 
   setup_kins $axes
 
-  loadrt $emcmot \
-         base_period_nsec=$base_period \
-         servo_period_nsec=$servo_period \
-         num_joints=$number_of_joints
+  if {"$emcmot" == "motmod"} {
+    loadrt $emcmot \
+      base_period_nsec=$base_period \
+      servo_period_nsec=$servo_period \
+      num_joints=$number_of_joints
+  } else {
+     # known special case with additional parameter:
+     #       unlock_joint_mask=0xNN
+     set module  [split [lindex $emcmot 0]]
+     set modname [lindex $module 0]
+     set modparm [lindex $module 1]
+     if [catch {loadrt $modname $modparm \
+                  base_period_nsec=$base_period \
+                  servo_period_nsec=$servo_period \
+                  num_joints=$number_of_joints} msg
+        ] {
+        puts stderr "\n"
+        puts stderr "core_sim:unhandled emcmot<$emcmot>"
+        puts stderr "         modname=$modname"
+        puts stderr "         modparm=$modparm"
+        puts stderr "     msg=$msg\n"
+        exit 1
+     }
+  }
 
   addf motion-command-handler servo-thread
   addf motion-controller      servo-thread
