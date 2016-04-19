@@ -45,7 +45,8 @@ if [info exists ::EMCMOT(BASE_PERIOD)] {
 core_sim $axes \
          $number_of_joints \
          $::EMCMOT(SERVO_PERIOD) \
-         $base_period
+         $base_period \
+         $::EMCMOT(EMCMOT)
 
 if {[lsearch -nocase $::argv -no_make_ddts] < 0} {
   make_ddts $number_of_joints
