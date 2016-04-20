@@ -329,7 +329,7 @@ int emcTaskSetState(int state)
   traj mode   mdiOrAuto     task mode
   ---------   ---------     ---------
   FREE        XXX           MANUAL
-  TELEOP
+  TELEOP      XXX           MANUAL
   COORD       MDI           MDI
   COORD       AUTO          AUTO
   */
@@ -339,7 +339,7 @@ static int determineMode()
         return EMC_TASK_MODE_MANUAL;
     }
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
-        return EMC_TASK_MODE_AUTO;
+        return EMC_TASK_MODE_MANUAL;
     }
     // for EMC_TRAJ_MODE_COORD
     return mdiOrAuto;
