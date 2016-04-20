@@ -48,7 +48,8 @@ Depends: ${shlibs:Depends}, machinekit-rt-threads, @TCL_TK_DEPS@,
     python-vte, python-xlib, python-gtkglext1, python-configobj,
     python-zmq, python-protobuf (>= 2.4.1), python-gst0.10,
     python-avahi, python-simplejson, python-pyftpdlib,
-    tclreadline, bc, procps, psmisc, module-init-tools | kmod
+    tclreadline, bc, procps, psmisc, module-init-tools | kmod,
+    gstreamer0.10-plugins-base
 Description: PC based motion controller for real-time Linux
  Machinekit is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
