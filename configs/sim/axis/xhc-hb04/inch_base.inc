@@ -36,6 +36,12 @@ COMM_TIMEOUT =          1.0
 COMM_WAIT =             0.010
 SERVO_PERIOD =          1000000
 
+[EMCIO]
+EMCIO =                io
+CYCLE_TIME =           0.100
+TOOL_TABLE =           sim.tbl
+TOOL_CHANGE_POSITION = 0 0 2
+
 [AXIS_X]
 MIN_LIMIT = -10.0
 MAX_LIMIT = 10.0
@@ -44,23 +50,13 @@ MAX_ACCELERATION = 20.0
 
 [JOINT_0]
 TYPE =                  LINEAR
-HOME =                  0.000
 MAX_VELOCITY =          1.2
 MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
 MIN_LIMIT =             -10.0
 MAX_LIMIT =             10.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           0.0
 HOME_SEARCH_VEL =       5.0
 HOME_LATCH_VEL =        1.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         1
-HOME_IS_SHARED =        1
+HOME_SEQUENCE =         0
 
 [AXIS_Y]
 MIN_LIMIT = -10.0
@@ -70,22 +66,13 @@ MAX_ACCELERATION = 20.0
 
 [JOINT_1]
 TYPE =                  LINEAR
-HOME =                  0.000
 MAX_VELOCITY =          1.2
 MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
 MIN_LIMIT =             -10.0
 MAX_LIMIT =             10.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           0.0
 HOME_SEARCH_VEL =       5.0
 HOME_LATCH_VEL =        1.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         1
+HOME_SEQUENCE =         0
 
 [AXIS_Z]
 MIN_LIMIT = -2.0
@@ -95,167 +82,22 @@ MAX_ACCELERATION = 20.0
 
 [JOINT_2]
 TYPE =                  LINEAR
-HOME =                  0.0
 MAX_VELOCITY =          1.2
 MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
 MIN_LIMIT =             -2.0
 MAX_LIMIT =             4.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           1.0
 HOME_SEARCH_VEL =       5.0
 HOME_LATCH_VEL =        1.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
 HOME_SEQUENCE =         0
-HOME_IS_SHARED =        1
-
-[AXIS_A]
-MAX_VELOCITY = 90.0
-MAX_ACCELERATION = 1200.0
-
-[JOINT_3]
-TYPE =                  ANGULAR
-HOME =                  0.0
-MAX_VELOCITY =          90.0
-MAX_ACCELERATION =      1200.0
-BACKLASH =              0.000
-INPUT_SCALE =           40
-OUTPUT_SCALE =          1.000
-FERROR =                5.0
-MIN_FERROR =            1.0
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         1
-
-[AXIS_B]
-MAX_VELOCITY = 90.0
-MAX_ACCELERATION = 1200.0
-
-[JOINT_4]
-TYPE =                  ANGULAR
-HOME =                  0.0
-MAX_VELOCITY =          90.0
-MAX_ACCELERATION =      1200.0
-BACKLASH =              0.000
-INPUT_SCALE =           40
-OUTPUT_SCALE =          1.000
-FERROR =                5.0
-MIN_FERROR =            1.0
-HOME_OFFSET =           45.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         1
 
 [AXIS_C]
 MAX_VELOCITY = 90.0
 MAX_ACCELERATION = 1200.0
 
-[JOINT_5]
+[JOINT_3]
 TYPE =                  ANGULAR
-HOME =                  0.0
 MAX_VELOCITY =          90.0
 MAX_ACCELERATION =      1200.0
-BACKLASH =              0.000
-INPUT_SCALE =           40
-OUTPUT_SCALE =          1.000
-FERROR =                5.0
-MIN_FERROR =            1.0
-HOME_OFFSET =           0.0
 HOME_SEARCH_VEL =       0.0
 HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         1
-
-[AXIS_U]
-MIN_LIMIT = -10.0
-MAX_LIMIT = 10.0
-MAX_VELOCITY = 1.2
-MAX_ACCELERATION = 20.0
-
-[JOINT_6]
-TYPE =                  LINEAR
-HOME =                  0.000
-MAX_VELOCITY =          1.2
-MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
-MIN_LIMIT =             -10.0
-MAX_LIMIT =             10.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
 HOME_SEQUENCE =         0
-HOME_IS_SHARED =        0
-
-[AXIS_V]
-MIN_LIMIT = -10.0
-MAX_LIMIT = 10.0
-MAX_VELOCITY = 1.2
-MAX_ACCELERATION = 20.0
-
-[JOINT_7]
-TYPE =                  LINEAR
-HOME =                  0.000
-MAX_VELOCITY =          1.2
-MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
-MIN_LIMIT =             -10.0
-MAX_LIMIT =             10.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         0
-HOME_IS_SHARED =        0
-
-[AXIS_W]
-MIN_LIMIT = -2.0
-MAX_LIMIT = 4.0
-MAX_VELOCITY = 1.2
-MAX_ACCELERATION = 20.0
-
-[JOINT_8]
-TYPE =                  LINEAR
-HOME =                  0.0
-MAX_VELOCITY =          1.2
-MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
-MIN_LIMIT =             -2.0
-MAX_LIMIT =             4.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         0
-HOME_IS_SHARED =        0
-
-[EMCIO]
-EMCIO =                io
-CYCLE_TIME =           0.100
-TOOL_TABLE =           sim.tbl
-TOOL_CHANGE_POSITION = 0 0 2
