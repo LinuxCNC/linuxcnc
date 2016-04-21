@@ -299,9 +299,28 @@ proc simulated_home {number_of_joints} {
     net J${jno}:homesw <= J${jno}_switch.home-sw
     net J${jno}:homesw => joint.$jno.home-sw-in
 
-    #setp J${jno}_switch.hysteresis ;# using component default
-    #setp J${jno}_switch.home-pos   ;# using component default
-  }
+    # set sim_home_switch .hysteresis,.home-pos pins
+    # according to traj units and joint type
+    if ![info exists ::JOINT_[set jno](TYPE)] {
+      # use component defaults
+    } else {
+      if {"[set ::JOINT_[set jno](TYPE)]" == "ANGULAR"} {
+        # use component defaults
+      } else {
+        if ![info exists ::TRAJ(LINEAR_UNITS)] {
+          # use component defaults
+        } else {
+          switch $::TRAJ(LINEAR_UNITS) {
+            in - inch - imperial {
+              setp J${jno}_switch.hysteresis 0.05
+              setp J${jno}_switch.home-pos   0.10
+            }
+            default { # use component default }
+          }
+        }
+      }
+    } ;# type
+  } ;# for
 } ;# simulated_home
 
 proc sim_spindle {} {
