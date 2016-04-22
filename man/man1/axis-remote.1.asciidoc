@@ -1,0 +1,75 @@
+= axis-remote(9)
+:manmanual: HAL Components
+:mansource: ../man/man1/axis-remote.1.asciidoc
+:man version : 
+
+
+== NAME
+axis-remote -- AXIS Remote Interface
+
+
+== SYNOPSIS
+axis-remote __OPTIONS__|__FILENAME__
+
+
+== DESCRIPTION
+**axis-remote** is a small script that triggers commands in a running AXIS GUI.
+Use **axis-remote --help** for further information.
+
+
+== OPTIONS
+
+**--ping**, **-p**
+Check whether AXIS is running.
+
+**--reload**, **-r**
+Make AXIS reload the currently loaded file.
+
+**--clear**, **-c**
+Make AXIS clear the backplot.
+
+**--quit**, **-q**
+Make AXIS quit.
+
+**--help**, **-h**, **-?**
+Display a list of valid parameters for **axis-remote**.
+
+**--mdi COMMAND**, **-m COMMAND**
+Run the MDI command **COMMAND**.
+
+**--run**, **-R**
+Run the current loaded file.
+
+**FILENAME**
+Load the G-code file **FILENAME**.
+
+
+== SEE ALSO
+**axis(1)**
+
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/linuxcnc/.
+
+
+
+== HISTORY
+
+
+
+== BUGS
+None known at this time. 
+.PP
+
+
+== AUTHOR
+This man page written by Alex Joni, as part of the LinuxCNC project.
+
+
+== REPORTING BUGS
+Report bugs to alex_joni AT users DOT sourceforge DOT net
+
+
+== COPYRIGHT
+Copyright \(co 2007 Alex Joni.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

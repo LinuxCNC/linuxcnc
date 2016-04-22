@@ -1,0 +1,103 @@
+= LinuxCNC(9)
+:manmanual: HAL Components
+:mansource: ../man/man1/linuxcnc.1.asciidoc
+:man version : 
+
+
+== NAME
+linuxcnc -- LinuxCNC (The Enhanced Machine Controller)
+
+
+== SYNOPSIS
+linuxcnc
+[__-v__] [__-d__] [__INIFILE__]
+
+
+== DESCRIPTION
+**linuxcnc** is used to start LinuxCNC (The Enhanced Machine Controller). It
+starts the realtime system and then initializes a number of LinuxCNC
+components (IO, Motion, GUI, HAL, etc).  The most important parameter
+is __INIFILE__, which specifies the configuration name you would like
+to run. If __INIFILE__ is not specified, the **linuxcnc** script presents
+a graphical wizard to let you choose one.
+
+
+== OPTIONS
+
+**--v** 
+Be a little bit verbose. This causes the script to print information
+as it works.
+
+**--d**
+Print lots of debug information. All executed commands
+are echoed to the screen. This mode is useful when something is
+not working as it should.
+
+**INIFILE**
+The ini file is the main piece of an LinuxCNC configuration. It is not the
+entire configuration; there are various other files that go with it
+(NML files, HAL files, TBL files, VAR files). It is, however, the most
+important one, because it is the file that holds the configuration
+together. It can adjust a lot of parameters itself, but it also tells
+**linuxcnc** which other files to load and use.
+
+There are several ways to specify which config to use:
+
+Specify the absolute path to an ini, e.g.
+**linuxcnc** __/usr/local/linuxcnc/configs/sim/sim.ini__
+
+Specify a relative path from the current directory, e.g.
+**linuxcnc** __configs/sim/sim.ini__
+
+Otherwise, in the case where the **INIFILE** is not specified,
+the behavior will depend on whether you configured linuxcnc with
+**--enable-run-in-place**.  If so, the linuxcnc config chooser will search
+only the configs directory in your source tree.  If not (or if you are
+using a packaged version of linuxcnc), it may search several directories.
+The config chooser is currently set to search the path:
+
+.nf
+**~/machinekit/configs:/home/bas/machinekit/configs**
+
+
+
+== EXAMPLES
+    
+**linuxcnc**
+
+**linuxcnc** __configs/sim/sim.ini__
+
+**linuxcnc** __/etc/linuxcnc/sample-configs/stepper/stepper_mm.ini__
+
+
+
+== SEE ALSO
+**halcmd(1)**
+
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/linuxcnc/.
+
+
+
+== HISTORY
+
+
+
+== BUGS
+None known at this time. 
+.PP
+
+
+== AUTHOR
+This man page written by Alex Joni, as part of the LinuxCNC Enhanced Machine
+Controller project.
+
+
+== REPORTING BUGS
+Report bugs to alex_joni AT users DOT sourceforge DOT net
+
+
+== COPYRIGHT
+Copyright \(co 2006 Alex Joni.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

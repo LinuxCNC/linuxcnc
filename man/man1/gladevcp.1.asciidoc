@@ -1,0 +1,68 @@
+= GLADEVCP(9)
+:manmanual: HAL Components
+:mansource: ../man/man1/gladevcp.1.asciidoc
+:man version : 
+
+
+== NAME
+gladevcp -- Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets
+
+
+== SYNOPSIS
+**gladevcp** [-g __WxH+X+Y__] [-c __component-name__] [-u __handler__] [-U __useroption__] [-H __halfile__] [-d] __myfile.ui__
+
+
+== OPTIONS
+
+**-g** __WxH+X+Y__
+This sets the initial geometry of the root window.
+Use 'WxH' for just size, '+X+Y' for just position, or 'WxH+X+Y' for both.
+Size / position use pixel units. Position is referenced from top left. 
+
+**-c** __component-name__
+Use __component-name__ as the HAL component name.  If the component name is
+not specified, the basename of the ui file is used.
+
+**-u** __handler__
+Instructs gladevcp to inspect the Python script __handler__ for event handlers,
+and connect them to signals in the ui file.
+
+**-U** __useroption__
+gladevcp collects all __useroption__ strings and passes them to the handler init()
+method as a list of strings without further inspection.
+
+**-x** __XID__
+Reparent gladevcp into an existing window __XID__ instead of
+creating a new top level window.
+
+**-H** __halfile__
+gladevcp runs __halfile__ - a list of HAL commands - by executing __halcmd -c halfile__
+after the HAL component is finalized.
+
+
+**-d**
+enable debug output.
+
+
+**-R** __gtkrcfile__
+explicitly load a gtkrc file.
+
+
+**-t** __THEME__
+set gtk theme. Default is __system__ theme. Different panels can have different themes.
+
+
+**-m** __MAXIMUM__
+force panel window to maxumize.  Together with the __-g geometry__ option 
+one can move the panel to a second monitor and force it to use all of the screen
+
+
+**-R**
+explicitly deactivate workaround for a gtk bug which makes matches of widget and widget_class
+matches in gtk theme and gtkrc files fail. Normally not needed.
+
+
+
+== SEE ALSO
+__GladeVCP__ in the LinuxCNC documentation for a description of gladevcp's capabilities
+and the associated HAL widget set, along with examples
