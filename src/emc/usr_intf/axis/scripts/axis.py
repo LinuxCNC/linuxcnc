@@ -258,6 +258,13 @@ def install_help(app):
 def joints_mode():
     return s.motion_mode == linuxcnc.TRAJ_MODE_FREE
 
+def set_motion_teleop(value):
+    # 1:teleop, 0: joint
+    vars.teleop_mode.set(value)
+    c.teleop_enable(value)
+    c.wait_complete()
+    s.poll()
+
 def parse_color(c):
     if c == "": return (1,0,0)
     return tuple([i/65535. for i in root_window.winfo_rgb(c)])
@@ -1755,9 +1762,7 @@ def all_homed():
     return isHomed
 
 def go_home(num):
-    vars.teleop_mode.set(0)
-    commands.set_teleop_mode()
-    c.wait_complete()
+    set_motion_teleop(0)
     c.home(num)
     c.wait_complete()
 
@@ -1787,8 +1792,7 @@ def switch_to_teleop(ct,delta_secs,max_wait_secs):
     ct = ct + 1
     elapsed = ct * delta_secs
     if all_homed():
-        vars.teleop_mode.set(1)
-        commands.set_teleop_mode()
+        set_motion_teleop(1)
         print "AUTO_TELEOP: homing finished in %s seconds" % elapsed
         return
     if (elapsed < max_wait_secs):
@@ -2170,6 +2174,7 @@ class TclCommands(nf.TclCommands):
 
         global program_start_line, program_start_line_last
         program_start_line_last = program_start_line;
+        set_motion_teleop(0) # workaround
         ensure_mode(linuxcnc.MODE_AUTO)
         c.auto(linuxcnc.AUTO_RUN, program_start_line)
         program_start_line = 0
@@ -2262,6 +2267,7 @@ class TclCommands(nf.TclCommands):
         if command != "":
             command= command.lstrip().rstrip()
             vars.mdi_command.set("")
+            set_motion_teleop(0) # workaround
             ensure_mode(linuxcnc.MODE_MDI)
             widgets.mdi_history.selection_clear(0, "end")
             ## check if input is already in list. If so, then delete old element
@@ -2285,6 +2291,7 @@ class TclCommands(nf.TclCommands):
                 history_size= (mdi_history_max_entries + 1)
             # pdb.set_trace()
             mdi_history_index = widgets.mdi_history.index("end") - 1
+
             c.mdi(command)
             o.tkRedraw()
             commands.mdi_history_write_to_file(mdi_history_save_filename, history_size)
@@ -2384,21 +2391,17 @@ class TclCommands(nf.TclCommands):
                   or
                  (s.motion_mode == linuxcnc.TRAJ_MODE_COORD)
             ):
-            vars.teleop_mode.set(1)
-            commands.set_teleop_mode()
+            set_motion_teleop(1)
         else:
             ensure_mode(linuxcnc.MODE_MANUAL)
-            vars.teleop_mode.set(0)
-            commands.set_teleop_mode()
+            set_motion_teleop(0)
    
     def ensure_mdi(*event):
         # called from axis.tcl on tab raisecmd
         if not manual_ok(): return
-        vars.teleop_mode.set(0)
-        commands.set_teleop_mode()
+        set_motion_teleop(0)
         ensure_mode(linuxcnc.MODE_MDI)
-        vars.teleop_mode.set(1)
-        commands.set_teleop_mode()
+        set_motion_teleop(1)
         s.poll()
 
     def redraw(*ignored):
@@ -2555,14 +2558,6 @@ class TclCommands(nf.TclCommands):
     def touch_off_system(event=None, new_axis_value = None):
         global system
         if not manual_ok(): return
-
-        if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-            c.teleop_enable(1)
-            c.wait_complete()
-            #print "touch_off_system() IDENTITY force TELEOP"
-            s.poll()
-
-        if joints_mode(): return
         offset_axis = trajcoordinates.index(vars.ja_rbutton.get())
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
@@ -2575,7 +2570,9 @@ class TclCommands(nf.TclCommands):
         else:
             system = vars.touch_off_system.get()
         if new_axis_value is None: return
+
         save_task_mode = s.task_mode
+        set_motion_teleop(0) # workaround
         vars.touch_off_system.set(system)
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
@@ -2596,18 +2593,11 @@ class TclCommands(nf.TclCommands):
         o.tkRedraw()
         reload_file(False)
         ensure_mode(save_task_mode)
+        set_motion_teleop(1)
 
     def touch_off_tool(event=None, new_axis_value = None):
         global system
         if not manual_ok(): return
-
-        if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-            c.teleop_enable(1)
-            c.wait_complete()
-            #print "touch_off_tool() IDENTITY force TELEOP"
-            s.poll()
-
-        if joints_mode(): return
         s.poll()
         # in case we get here via the keyboard shortcut, when the widget is disabled:
         if s.tool_in_spindle == 0: return
@@ -2622,7 +2612,9 @@ class TclCommands(nf.TclCommands):
         else:
             system = vars.touch_off_system.get()
         if new_axis_value is None: return
+
         save_task_mode = s.task_mode
+        set_motion_teleop(0) # workaround
         vars.touch_off_system.set(system)
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
@@ -2646,6 +2638,7 @@ class TclCommands(nf.TclCommands):
         o.tkRedraw()
         reload_file(False)
         ensure_mode(save_task_mode)
+        set_motion_teleop(1)
 
     def set_axis_offset(event=None):
         commands.touch_off_system(new_axis_value=0.)
@@ -2710,8 +2703,7 @@ class TclCommands(nf.TclCommands):
         o.tkRedraw()
 
     def toggle_teleop_mode(*args):
-        vars.teleop_mode.set(not vars.teleop_mode.get())
-        commands.set_teleop_mode()
+        set_motion_teleop(not vars.teleop_mode.get())
 
     def toggle_coord_type(*args):
         vars.coord_type.set(not vars.coord_type.get())
@@ -2751,10 +2743,8 @@ class TclCommands(nf.TclCommands):
         comp['jog.v'] = vars.ja_rbutton.get() == "v"
         comp['jog.w'] = vars.ja_rbutton.get() == "w"
 
-    def set_teleop_mode(*args):
-        teleop_mode = vars.teleop_mode.get()
-        c.teleop_enable(teleop_mode)
-        c.wait_complete()
+    def set_teleop_mode():
+        set_motion_teleop(vars.teleop_mode.get())
         s.poll()
 
     def save_gcode(*args):
@@ -3029,19 +3019,19 @@ def jog(*args):
 def get_jog_mode():
     s.poll()
     if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-        vars.teleop_mode.set(1) # force teleop for identity kins
+        teleop_mode = 1
         jjogmode = False
     else:
         # check motion_mode since other guis (halui) could alter it
         if s.motion_mode == linuxcnc.TRAJ_MODE_FREE:
-            vars.teleop_mode.set(0)
+            teleop_mode = 0
             jjogmode = True
         else:
-            vars.teleop_mode.set(1)
+            teleop_mode = 1
             jjogmode = False
     if (   (    jjogmode and s.motion_mode != linuxcnc.TRAJ_MODE_FREE)
         or (not jjogmode and s.motion_mode != linuxcnc.TRAJ_MODE_TELEOP) ):
-        commands.set_teleop_mode()
+        set_motion_teleop(teleop_mode)
     return jjogmode
 
 # Note: require linuxcnc.MAX_JOINTS >= linuxcnc.MAX_AXIS
@@ -3835,8 +3825,7 @@ else:
     root_window.deiconify()
     destroy_splash()
 
-vars.teleop_mode.set(0) # start in joint mode
-commands.set_teleop_mode()
+set_motion_teleop(0) # start in joint mode
 
 root_window.tk.call("trace", "variable", "metric", "w", "update_units")
 install_help(root_window)
