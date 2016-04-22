@@ -7,7 +7,7 @@
 encoder - software counting of quadrature encoder signals
 
 == SYNOPSIS
-**loadrt encoder [num_chan=__num__** | names=**__name1__**[,**__name2...__**]]**
+**loadrt encoder [num_chan=**__num__** | names=**__name1__**[,**__name2...__**]]**
 
 == DESCRIPTION
 **encoder** is used to measure position by counting the pulses
@@ -35,16 +35,24 @@ characteristics of quadrature are lost.
 
 == FUNCTIONS
 **encoder.update-counters** (no floating-point)
-    Does the actual counting, by sampling the encoder signals and
-    decoding the quadrature waveforms.  Must be called as frequently
-    as possible, preferably twice as fast as the maximum desired
-    count rate.  Operates on all channels at once.
+
+[indent=4]
+====
+Does the actual counting, by sampling the encoder signals and
+decoding the quadrature waveforms.  Must be called as frequently
+as possible, preferably twice as fast as the maximum desired
+count rate.  Operates on all channels at once.
+====
 
 **encoder.capture-position** (uses floating point)
-    Captures the raw counts from **update-counters** and performs
-    scaling and other necessary conversion, handles counter rollover,
-    etc. Can (and should) be called less frequently than **update-
-    counters**. Operates on all channels at once.
+
+[indent=4]
+====
+Captures the raw counts from **update-counters** and performs
+scaling and other necessary conversion, handles counter rollover,
+etc. Can (and should) be called less frequently than **update-
+counters**. Operates on all channels at once.
+====
 
 == NAMING
 The names for pins and parameters are prefixed as:
@@ -55,62 +63,114 @@ The **encoder.N.** format is shown in the following descriptions.
 
 == PINS
 **encoder.**__N__**.counter-mode** bit i/o
-    Enables counter mode.  When true, the counter counts each rising
-    edge of the phase-A input, ignoring the value on phase-B.  This
-    is useful for counting the output of a single channel (non-
-    quadrature) sensor.  When false (the default), it counts in
-    quadrature mode.
+
+[indent=4]
+====
+Enables counter mode.  When true, the counter counts each rising
+edge of the phase-A input, ignoring the value on phase-B.  This
+is useful for counting the output of a single channel (non-
+quadrature) sensor.  When false (the default), it counts in
+quadrature mode.
+====
 
 **encoder.**__N__**.counts** s32 out
-    Position in encoder counts.
+
+[indent=4]
+====
+Position in encoder counts.
+====
 
 **encoder.**__N__**.index-enable** bit i/o
-    When true, **counts** and **position** are reset to zero on the next
-    rising edge of **Phase-Z**.  At the same time, **index-enable** is reset
-    to zero to indicate that the rising edge has occurred.
+
+[indent=4]
+====
+When true, **counts** and **position** are reset to zero on the next
+rising edge of **Phase-Z**.  At the same time, **index-enable** is reset
+to zero to indicate that the rising edge has occurred.
+====
 
 **encoder.**__N__**.phase-A** bit in
-    Quadrature input for encoder channel __N__.
+
+[indent=4]
+====
+Quadrature input for encoder channel __N__.
+====
 
 **encoder.**__N__**.phase-B** bit in
-    Quadrature input.
+
+[indent=4]
+====
+Quadrature input.
+====
 
 **encoder.**__N__**.phase-Z** bit in
-    Index pulse input.
+
+[indent=4]
+====
+Index pulse input.
+====
 
 **encoder.**__N__**.position** float out
-    Position in scaled units (see **position-scale**)
+
+[indent=4]
+====
+Position in scaled units (see **position-scale**)
+====
 
 **encoder.**__N__**.position-interpolated** float out
-    Position in scaled units, interpolated between encoder counts.
-    Only valid when velocity is approximately constant and above
-    **min-velocity-estimate**. Do not use for position control.
+
+[indent=4]
+====
+Position in scaled units, interpolated between encoder counts.
+Only valid when velocity is approximately constant and above
+**min-velocity-estimate**. Do not use for position control.
+====
 
 **encoder.**__N__**.position-scale** float i/o
-    Scale factor, in counts per length unit.  For example, if
-    **position-scale** is 500, then 1000 counts of the encoder will
-    be reported as a position of 2.0 units.
+
+[indent=4]
+====
+Scale factor, in counts per length unit.  For example, if
+**position-scale** is 500, then 1000 counts of the encoder will
+be reported as a position of 2.0 units.
+====
 
 **encoder.**__N__**.rawcounts** s32 out
-    The raw count, as determined by **update-counters**. This value
-    is updated more frequently than **counts** and **position**.  It is
-    also unaffected by **reset** or the index pulse.
+
+[indent=4]
+====
+The raw count, as determined by **update-counters**. This value
+is updated more frequently than **counts** and **position**.  It is
+also unaffected by **reset** or the index pulse.
+====
 
 **encoder.**__N__**.reset** bit in
-    When true, **counts** and **position** are reset to zero immediately.
+
+[indent=4]
+====
+When true, **counts** and **position** are reset to zero immediately.
+====
 
 **encoder.**__N__**.velocity** float out
-    Velocity in scaled units per second.  **encoder** uses an algorithm
-    that greatly reduces quantization noise as compared to simply
-    differentiating the **position** output.  When the magnitude of the
-    true velocity is below min-velocity-estimate, the velocity
-    output is 0.
+
+[indent=4]
+====
+Velocity in scaled units per second.  **encoder** uses an algorithm
+that greatly reduces quantization noise as compared to simply
+differentiating the **position** output.  When the magnitude of the
+true velocity is below min-velocity-estimate, the velocity
+output is 0.
+====
 
 **encoder.**__N__**.x4-mode** bit i/o
-    Enables times-4 mode.  When true (the default), the counter counts
-    each edge of the quadrature waveform (four counts per full cycle).
-    When false, it only counts once per full cycle.  In **counter-
-    mode**, this parameter is ignored.
+
+[indent=4]
+====
+Enables times-4 mode.  When true (the default), the counter counts
+each edge of the quadrature waveform (four counts per full cycle).
+When false, it only counts once per full cycle.  In **counter-
+mode**, this parameter is ignored.
+====
 
 **encoder.**__N__**.latch-input** bit in
 
@@ -121,31 +181,55 @@ The **encoder.N.** format is shown in the following descriptions.
 **encoder.**__N__**.counts-latched** s32 out
 
 **encoder.**__N__**.position-latched** float out
-    Update **counts-latched** and **position-latched** on the rising and/or
-    falling edges of **latch-input** as indicated by **latch-rising** and
-    **latch-falling**.
+
+[indent=4]
+====
+Update **counts-latched** and **position-latched** on the rising and/or
+falling edges of **latch-input** as indicated by **latch-rising** and
+**latch-falling**.
+====
 
 **encoder.**__N__**.counter-mode** bit rw
-    Enables counter mode.  When true, the counter counts each rising
-    edge of the phase-A input, ignoring the value on phase-B.  This
-    is useful for counting the output of a single channel (non-
-    quadrature) sensor. When false (the default), it counts in
-    quadrature mode.
+
+[indent=4]
+====
+Enables counter mode.  When true, the counter counts each rising
+edge of the phase-A input, ignoring the value on phase-B.  This
+is useful for counting the output of a single channel (non-
+quadrature) sensor. When false (the default), it counts in
+quadrature mode.
+====
 
 **encoder.**__N__**.capture-position.tmax** s32 rw
+
+[indent=4]
+====
     Maximum number of CPU cycles it took to execute this function.
+====
 
 == PARAMETERS
 Parameter names for num_chan= specifier are:
-    **encoder.**__N__**.the_parameter_name**
+
+[indent=4]
+====
+**encoder.**__N__**.the_parameter_name**
+====
 
 Parameter names for names= specifier are:
-    **nameN.the_parameter_name**
+
+[indent=4]
+====
+**nameN.the_parameter_name**
+====
 
 **encoder.**__N__**.min-velocity-estimate** float rw (default: 1.0)
-    Determine the minimum true velocity magnitude at which **velocity**
-    will be estimated as nonzero and **postition-interpolated** will
-    be interpolated. The units of **min-velocity-estimate** are the same
-    as the units of **velocity**.  Setting this parameter too low will
-    cause it to take a long time for **velocity** to go to 0 after
-    encoder pulses have stopped arriving.
+
+[indent=4]
+====
+Determine the minimum true velocity magnitude at which **velocity**
+will be estimated as nonzero and **postition-interpolated** will
+be interpolated. The units of **min-velocity-estimate** are the same
+as the units of **velocity**.  Setting this parameter too low will
+cause it to take a long time for **velocity** to go to 0 after
+encoder pulses have stopped arriving.
+====

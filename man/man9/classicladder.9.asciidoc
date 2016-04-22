@@ -13,39 +13,68 @@ classicladder - realtime software plc based on ladder logic
 These pins and parameters are created by the realtime **classicladder_rt** module. Each period (minimum 1000000 ns), classicladder reads the inputs, evaluates the ladder logic defined in the GUI, and then writes the outputs.
 
 == PINS
-**classicladder.0.in-**__N__ IN bit 
-    These bit signal pins map to **%I**__NNN__ variables in classicladder
+**classicladder.0.in-**__N__ IN bit
 
-**classicladder.0.out-**__N__ OUT bit 
-    These bit signal pins map to **%Q**__nNN__ variables in classicladder
-    Output from classicladder
+[indent=4]
+====
+These bit signal pins map to **%I**__NNN__ variables in classicladder
+====
+
+**classicladder.0.out-**__N__ OUT bit
+
+[indent=4]
+====
+These bit signal pins map to **%Q**__nNN__ variables in classicladder
+Output from classicladder
+====
 
 **classicladder.0.in-**__N__ IN s32
-    Integer input from classicladder
-    These s32 signal pins map to **%IW**__NNN__ variables in classicladder
 
-**classicladder.0.out-**__N__ OUT s32 
-    Integer output from classicladder
-    These s32 signal pins map to **%QW**__NNN__ variables in classicladder
+[indent=4]
+====
+Integer input from classicladder
+These s32 signal pins map to **%IW**__NNN__ variables in classicladder
+====
+
+**classicladder.0.out-**__N__ OUT s32
+
+[indent=4]
+====
+Integer output from classicladder
+These s32 signal pins map to **%QW**__NNN__ variables in classicladder
+====
 
 == PARAMETERS
 **classicladder.0.refresh.time** RO s32
-    Tells you how long the last refresh took
+
+[indent=4]
+====
+Tells you how long the last refresh took
+====
 
 **classicladder.0.refresh.tmax** RW s32
-    Tells you how long the longest refresh took
+
+[indent=4]
+====
+Tells you how long the longest refresh took
+====
 
 **classicladder.0.ladder-state** RO s32
-    Tells you if the program is running or not
+
+[indent=4]
+====
+Tells you if the program is running or not
+====
 
 == FUNCTIONS
 **classicladder.0.refresh** FP 
-    The rung update rate. Add this to the servo thread.
-    You can added it to a faster thread but it
-    Will update no faster than once every 1 millisecond (1000000 ns).
 
-== BUGS
-See http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadder_Ver_7.124 for the latest.
+[indent=4]
+====
+The rung update rate. Add this to the servo thread.
+You can added it to a faster thread but it
+Will update no faster than once every 1 millisecond (1000000 ns).
+====
 
 == SEE ALSO
 __Classicladder__ chapters in the Machinekit documentation for a full

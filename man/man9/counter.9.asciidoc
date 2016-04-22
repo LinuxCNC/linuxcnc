@@ -31,34 +31,66 @@ in the HAL manual.
 
 == FUNCTIONS
 **counter.capture-position** (uses floating-point)
+
+[indent=4]
+====
 Updates the counts, position and velocity outputs based on internal counters.
+====
 
 **counter.update-counters**
+
+[indent=4]
+====
 Samples the phase-A and phase-Z inputs and updates internal counters.
+====
 
 == PINS
 **counter.**__N__**.phase-A** bit in
+
+[indent=4]
+====
 The primary input signal.  The internal counter is incremented on each
 rising edge.
+====
 
 **counter.**__N__**.phase-Z** bit in
+
+[indent=4]
+====
 The index input signal.  When the **index-enable** pin is TRUE and a rising
 edge on **phase-Z** is seen, **index-enable** is set to FALSE and the
 internal counter is reset to zero.
+====
 
 **counter.**__N__**.index-enable** bit io
+
 **counter.**__N__**.reset** bit io
+
 **counter.**__N__**.counts** signed out
+
 **counter.**__N__**.position** float out
+
 **counter.**__N__**.velocity** float out
+
+[indent=4]
+====
 These pins function according to the canonical digital encoder interface.
+====
 
 **counter.**__N__**.position-scale** float rw
+
+[indent=4]
+====
 This parameter functions according to the canonical digital encoder interface.
+====
 
 **counter.**__N__**.rawcounts** signed ro
+
+[indent=4]
+====
 The internal counts value, updated from **update-counters** and reflected
 in the output pins at the next call to **capture-position**.
+====
 
 == SEE ALSO
 **encoder(9)** in the Machinekit documentation.

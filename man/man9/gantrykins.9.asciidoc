@@ -10,41 +10,49 @@ gantrykins - A kinematics module that maps one axis to multiple joints
 **loadrt gantrykins coordinates=**__axisletters__
 
 **Specifying gantry joint mapping via loadrt**
-    The **coordinates=** parameter specifies the initial gantry
-    joint mapping. Each axis letter is mapped to a joint, starting
-    from 0.
-    So **coordinates=XYYZ** maps the X axis to joint 0, the Y axis
-    to joint 1 and 2, and the Z axis to joint 3.  If not specified,
-    the default mapping is **coordinates=XYZABC**. Coordinate
-    letters may be specified in uppercase or lowercase.
+
+[indent=4]
+====
+The **coordinates=** parameter specifies the initial gantry
+joint mapping. Each axis letter is mapped to a joint, starting
+from 0.
+So **coordinates=XYYZ** maps the X axis to joint 0, the Y axis
+to joint 1 and 2, and the Z axis to joint 3.  If not specified,
+the default mapping is **coordinates=XYZABC**. Coordinate
+letters may be specified in uppercase or lowercase.
+====
 
 **A note about joints and axes**
-    LinuxCNC makes a distinction between joints and axes: a joint
-    is something controlled by a motor, and an axis is a coordinate
-    you can move via G-code. You can also jog joints or jog axes.
 
-    A gantry has two joints controlling one axis, and this requires
-    a bit of special care.
+[indent=4]
+====
+LinuxCNC makes a distinction between joints and axes: a joint
+is something controlled by a motor, and an axis is a coordinate
+you can move via G-code. You can also jog joints or jog axes.
 
-    Homing always happens in joint mode (aka Free mode).  The two
-    joints of a gantry's axis must be homed together, so they must
-    have the same [AXIS_n]HOME_SEQUENCE in the .ini file.
+A gantry has two joints controlling one axis, and this requires
+a bit of special care.
 
-    Jogging of a gantry must happen in world mode (aka Teleop mode).
-    If you jog a gantry in joint mode (Free mode), you will move
-    just one of the joints, and the gantry will rack.  In contrast,
-    if you jog a gantry in world mode (Teleop mode), it's the axis
-    that jogs: linuxcnc will coordinate the motion of the two joints
-    that make up the axis, both joints will move together, and the
-    gantry will stay square.
+Homing always happens in joint mode (aka Free mode).  The two
+joints of a gantry's axis must be homed together, so they must
+have the same [AXIS_n]HOME_SEQUENCE in the .ini file.
 
-    The Axis GUI has provisions for jogging in joint mode (Free) and
-    in world mode (Teleop).  Use the "$" hotkey, or the View menu
-    to switch between them.
+Jogging of a gantry must happen in world mode (aka Teleop mode).
+If you jog a gantry in joint mode (Free mode), you will move
+just one of the joints, and the gantry will rack.  In contrast,
+if you jog a gantry in world mode (Teleop mode), it's the axis
+that jogs: linuxcnc will coordinate the motion of the two joints
+that make up the axis, both joints will move together, and the
+gantry will stay square.
 
-    Joint-mode (aka Free mode) supports continuous and incremental
-    jogging. World-mode (aka Teleop mode) only supports continuous
-    jogging.
+The Axis GUI has provisions for jogging in joint mode (Free) and
+in world mode (Teleop).  Use the "$" hotkey, or the View menu
+to switch between them.
+
+Joint-mode (aka Free mode) supports continuous and incremental
+jogging. World-mode (aka Teleop mode) only supports continuous
+jogging.
+====
 
 == KINEMATICS
 In the inverse kinematics, each joint gets the value of its
@@ -61,12 +69,16 @@ None.
 
 == PARAMETERS
 **gantrykins.joint-**__N__**(s32)**
-    Specifies the axis mapped to joint __N__.  The values 0 through
-    8 correspond to the axes XYZABCUVW.  It is preferable to use the
-    "coordinates=" parameter at loadrt-time rather than setting the
-    joint-N parameters later, because the gantrykins module prints
-    the joint-to-axis mapping at loadrt-time, and having that output
-    correct is nice.
+
+[indent=4]
+====
+Specifies the axis mapped to joint __N__.  The values 0 through
+8 correspond to the axes XYZABCUVW.  It is preferable to use the
+"coordinates=" parameter at loadrt-time rather than setting the
+joint-N parameters later, because the gantrykins module prints
+the joint-to-axis mapping at loadrt-time, and having that output
+correct is nice.
+====
 
 == NOTES
 **gantrykins** must be loaded before **motion**.
