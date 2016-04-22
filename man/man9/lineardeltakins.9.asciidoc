@@ -1,0 +1,75 @@
+= LINEARDELTAKINS(9)
+:manmanual: HAL Components
+:mansource: ../man/man9/lineardeltakins.9.asciidoc
+:man version : 
+
+
+
+
+== NAME
+
+lineardeltakins -- Kinematics for a linear delta robot
+
+
+
+== SYNOPSIS
+loadrt lineardeltakins
+
+
+
+== KINEMATICS
+The kinematics model is appropriate for a rostock/kossel-style design
+with three joints arranged in an equilateral triangle.  (0,0) is always
+the center of the working volume.  Joint 0 is at (0,R) and subsequent
+joints are 120 degrees clockwise (note that joint 0 is not at zero
+radians).  The length of the arm is L.
+
+Joints 0-2 are the linear carriages.  Axes ABC and UVW are passed
+through unchanged in joints 3-8, so that e.g., A can still be used to
+control an extruder.
+
+Three pins have been provided for joints 0-2, to allow for offset trimming 
+during calibration. It is suggested that these pins are only used during 
+calibration to determine the proper distance between the work surface and 
+the limit switches for each joint. Once the proper distance has been determined 
+The pins should be set to zero and update each joints home parameters in the INI
+file.
+ 
+
+
+
+== PINS
+
+lineardeltakins.R float in
+Effective diameter of the platform.
+
+R is different than the distance from the center of the table to the
+center of the belt/smooth rod/extrusion that the joints ride on.  In
+RepRap delta parlance, R is DELTA_RADIUS which is computed as
+DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET.
+
+
+lineardeltakins.L float in
+Length of the rod connecting the carriage to the effector.  In RepRap
+delta parlance, L is DELTA_DIAGONAL_ROD
+
+
+lineardeltakins.J0offs float in
+Offset distance applied to Joint 0 
+
+
+lineardeltakins.J1offs float in
+Offset distance applied to Joint 1
+
+
+lineardeltakins.J2offs float in
+Offset distance applied to Joint 2 
+
+
+
+== NOTES
+The R and L and joint offset values can be adjusted while LinuxCNC is running.  However,
+doing so while in coordinated mode will lead to a step change in joint
+position, which generally will trigger a following error if in joint
+mode with machine on.
+

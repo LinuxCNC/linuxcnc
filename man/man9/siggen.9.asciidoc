@@ -1,0 +1,105 @@
+= SIGGEN(9)
+:manmanual: HAL Components
+:mansource: ../man/man9/siggen.9.asciidoc
+:man version : 
+
+
+
+
+== NAME
+siggen -- signal generator
+
+
+== SYNOPSIS
+**loadrt siggen [num_chan=**__num__** | names=**__name1__**[,**__name2...__**]]
+**
+
+
+
+
+== DESCRIPTION
+**siggen** is a signal generator that can be used for testing and
+other applications that need simple waveforms.  It produces sine,
+cosine, triangle, sawtooth, and square waves of variable frequency,
+amplitude, and offset, which can be used as inputs to other HAL
+components.
+
+.P
+**siggen** supports a maximum of sixteen channels.  The number of
+channels actually loaded is set by the **num_chan** argument when
+the module is loaded.  Alternatively, specify **names=** and unique names
+separated by commas.
+.P
+The **num_chan=** and **names=** specifiers are mutually exclusive.
+If neither **num_chan=** nor **names=** are specified, the default
+value is one.
+
+
+
+== NAMING
+The names for pins, parameters, and functions are prefixed as:
+  **siggen.N.** for N=0,1,...,num-1 when using **num_chan=num**
+  **nameN.** for nameN=name1,name2,... when using **names=name1,name2,...**
+
+The **siggen.N.** format is shown in the following descriptions.
+
+
+
+
+== FUNCTIONS
+
+**siggen.**__N__**.update** (uses floating-point)
+Updates output pins for signal generator __N__.  Each time it is
+called it calculates a new sample.  It should be called many times
+faster than the desired signal frequency, to avoid distortion and
+aliasing.
+
+
+
+== PINS
+
+
+**siggen.**__N__**.frequency** float in
+The output frequency for signal generator __N__, in Hertz.  The default
+value is 1.0 Hertz.
+
+**siggen.**__N__**.amplitude** float in
+The output amplitude for signal generator __N__.  If **offset** is
+zero, the outputs will swing from -**amplitude** to +**amplitude**.
+The default value is 1.00.
+
+**siggen.**__N__**.offset** float in
+The output offset for signal generator __N__.  This value is added
+directly to the output signal.  The default value is zero.
+
+**siggen.**__N__**.clock** bit out
+The clock output.  Bit type clock signal output at the commanded
+frequency.
+
+**siggen.**__N__**.square** float out
+The square wave output.  Positive while **triangle** and **cosine**
+are ramping upwards, and while **sine** is negative.
+
+**siggen.**__N__**.sine** float out
+The sine output.  Lags **cosine** by 90 degrees.
+
+**siggen.**__N__**.cosine** float out
+The cosine output.  Leads **sine** by 90 degrees.
+
+**siggen.**__N__**.triangle** float out
+The triangle wave output.  Ramps up while **square** is positive, and
+down while **square** is negative.  Reaches its positive and negative
+peaks at the same time as **cosine**.
+
+**siggen.**__N__**.sawtooth** float out
+The sawtooth output.  Ramps upwards to its positive peak, then instantly
+drops to its negative peak and starts ramping again.  The drop occurs
+when **triangle** and **cosine** are at their positive peaks, and
+coincides with the falling edge of **square**.
+
+
+
+== PARAMETERS
+.P
+None
+

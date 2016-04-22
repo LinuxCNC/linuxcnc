@@ -1,0 +1,139 @@
+= STREAMER(9)
+:manmanual: HAL Components
+:mansource: ../man/man9/streamer.9.asciidoc
+:man version : 
+
+
+== NAME
+streamer -- stream file data into HAL in real time
+
+
+== SYNOPSIS
+loadrt streamer
+ depth= depth1[,depth2...]
+ cfg= string1[,string2...]
+
+
+
+== DESCRIPTION
+streamer
+and
+ halstreamer (1)
+are used together to stream data from a file into the HAL in real time.
+streamer
+is a realtime HAL component that exports HAL pins and creates a FIFO in shared memory.
+hal_streamer
+is a user space program that copies data from stdin into the FIFO, so that
+streamer
+can write it to the HAL pins.
+
+
+
+== OPTIONS
+
+ depth= depth1[,depth2...]
+sets the depth of the user->realtime FIFO that
+streamer
+creates to receive data from
+halstreamer.
+Multiple values of
+.I depth
+(separated by commas) can be specified if you need more than one FIFO 
+(for example if you want to stream data from two different realtime threads).
+
+ cfg= string1[,string2...]
+defines the set of HAL pins that
+streamer
+exports and later writes data to.  One 
+.I string
+must be supplied for each FIFO, separated by commas.
+streamer
+exports one pin for each character in
+.I string.
+Legal characters are:
+.IP "" 7
+F, f
+(float pin)
+.IP "" 7
+B, b
+(bit pin)
+.IP "" 7
+S, s
+(s32 pin)
+.IP "" 7
+U, u
+(u32 pin)
+
+
+
+== FUNCTIONS
+
+ streamer. N
+One function is created per FIFO, numbered from zero.
+
+
+
+== PINS
+
+**streamer.**__N__**.pin.**__M__ output
+Data from column
+.I M
+of the data in FIFO
+.I N
+appears on this pin.  The pin type depends on the config string.
+
+**streamer.**__N__**.curr-depth** s32 output
+Current number of samples in the FIFO.  When this reaches zero, new data will no longer be written to the pins.
+
+**streamer.**__N__**.empty** bit output
+TRUE when the FIFO
+.I N
+is empty, FALSE when valid data is available.
+
+**streamer.**__N__**.enable** bit input
+When TRUE, data from FIFO __N__ is written to the HAL pins.
+When false, no data is transferred.  Defaults to TRUE.
+
+**streamer.**__N__**.underruns** s32 read/write
+The number of times that
+sampler
+has tried to write data to the HAL pins but found no fresh data in the FIFO.  It increments whenever
+empty
+is true, and can be reset by the
+setp
+command.
+
+
+
+== SEE ALSO
+ halstreamer (1)
+ sampler (9)
+ halsampler (1)
+
+
+
+== HISTORY
+
+
+
+== BUGS
+Should an 
+enable
+HAL pin be added, to allow streaming to be turned on and off?
+
+
+
+== AUTHOR
+Original version by John Kasunich, as part of the LinuxCNC
+project.  Improvements by several other members of
+the LinuxCNC development team.
+
+
+== REPORTING BUGS
+Report bugs to jmkasunich AT users DOT sourceforge DOT net
+
+
+== COPYRIGHT
+Copyright \(co 2006 John Kasunich.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
