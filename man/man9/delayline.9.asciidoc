@@ -3,19 +3,12 @@
 :mansource: ../man/man9/delayline.9.asciidoc
 :man version : 
 
-
-
-
 == NAME
 
 delayline - buffer for delaying pins
 
-
-
 == SYNOPSIS
 loadrt delayline names=foo,bar max_delay=500,2500 samples=ffb,ffbsu
-
-
 
 == DELAYLINE
 The delayline will sample the value of an input pin, and put the sample
@@ -40,72 +33,101 @@ The number of periods to delay is taken from the delay pin of the component
 The pins of the component are created in a HAL section of the ring buffer
 thus making the values of the pins available thru attaching to the ring.
 
-
-
 == THREADS
-
 delayline.**sample** use like: __addf delayline.sample realtime-thread__
 
-    To be called by a thread to be executed. This function puts the
-    sample from a pin into the buffer.
-
+[indent=4]
+====
+To be called by a thread to be executed. This function puts the sample
+from a pin into the buffer.
+====
 
 delayline.**output** use like: __addf delayline.output realtime-thread__
 
-    To be called by a thread to be executed. This function reads the
-    sample from the the buffer, and puts it into the pins. When delay
-    time is decreased the records between the current (old position)
-    record, and the new position read record (current sample - new
-    delay) will be dropped.
+[indent=4]
+====
+To be called by a thread to be executed. This function reads the
+sample from the the buffer, and puts it into the pins. When delay
+time is decreased the records between the current (old position)
+record, and the new position read record (current sample - new
+delay) will be dropped.
+====
 
 == PINS
 
 delayline.**enable** bit in
 
-    Enables the delayline, when not enabled, the input sample is set
-    directly to the output pin.
+[indent=4]
+====
+Enables the delayline, when not enabled, the input sample is set
+directly to the output pin.
+====
 
 delayline.**abort** bit in
 
-    This flushes the buffer. The user is responsible for whether this
-    pin is attached.
+[indent=4]
+====
+This flushes the buffer. The user is responsible for whether this
+pin is attached.
+====
 
 delayline.**delay** float in
 
-    The delay in thread periods.
+[indent=4]
+====
+The delay in thread periods.
+====
 
 delayline.__{type}__**-in**__{N}__ the input sample pin
 
-    {type} corresponds with bit, flt, u32 or s32
+[indent=4]
+====
+__{type}__ corresponds with bit, flt, u32 or s32
 
-    {N} corresponds with the consecutive number of the pin in the
-    line, so flt-in2 is the pin that is generated after bit-in1.
+__{N}__ corresponds with the consecutive number of the pin in the
+line, so flt-in2 is the pin that is generated after bit-in1.
 
-    The input sample pin is matched by output sample pin.
+The input sample pin is matched by output sample pin.
 
-    delayline.flt-in0 is the source of the delayed
-    delayline.flt-out0 pin
-
+**delayline.flt-in0** is the source of the delayed
+delayline.flt-out0 pin
+====
 
 delayline.__{type}__**-out**__{N}__ the input sample pin
 
-    {type} corresponds with bit, flt, u32 or s32
+[indent=4]
+====
+__{type}__ corresponds with bit, flt, u32 or s32
 
-    {N} corresponds with the consecutive number of the pin in the
-    line, so flt-out2 is the pin that is generated after bit-out1.
+__{N}__ corresponds with the consecutive number of the pin in the
+line, so flt-out2 is the pin that is generated after bit-out1.
 
-    The output sample pin is matched by input sample pin
-    delayline.flt-out0 is the delay of the delayline.flt-out0
-    input sample
+The output sample pin is matched by input sample pin
+
+**delayline.flt-out0 **is the delay of the delayline.flt-out0
+input sample
+====
 
 delayline.**write-fail** u32 out
-    counter of failed writes
+
+[indent=4]
+====
+counter of failed writes
+====
 
 delayline.**read-fail** u32 out
-    counter of failed reads
+
+[indent=4]
+====
+counter of failed reads
+====
 
 delayline.**too-old** u32 out
-    counter of records being too old
+
+[indent=4]
+====
+counter of records being too old
+====
 
 == NOTES
 When enabled, the delay time can be changed during use. This can result in
