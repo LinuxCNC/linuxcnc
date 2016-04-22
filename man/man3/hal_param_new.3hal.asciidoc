@@ -1,0 +1,74 @@
+= hal_param_new(3hal)
+:manmanual: HAL Components
+:mansource: ../man/man3/hal_param_new.3hal.asciidoc
+:man version : 
+
+
+== NAME
+
+hal_param_new -- Create a HAL parameter
+
+
+
+== SYNTAX
+
+ int hal_param_bit_new(const char *__name__, hal_param_dir_t __dir__, hal_bit_t * __data_addr__, int __comp_id__)
+
+ int hal_param_float_new(const char *__name__, hal_param_dir_t __dir__, hal_float_t * __data_addr__, int __comp_id__)
+
+ int hal_param_u32_new(const char *__name__, hal_param_dir_t __dir__, hal_u32_t * __data_addr__, int __comp_id__)
+
+ int hal_param_s32_new(const char *__name__, hal_param_dir_t __dir__, hal_s32_t * __data_addr__, int __comp_id__)
+
+ int hal_param_bit_newf(hal_param_dir_t __dir__, hal_bit_t * __data_addr__, int __comp_id__, const char *__fmt__, __...__)
+
+ int hal_param_float_newf(hal_param_dir_t __dir__, hal_float_t * __data_addr__, int __comp_id__, const char *__fmt__, __...__)
+
+ int hal_param_u32_newf(hal_param_dir_t __dir__, hal_u32_t * __data_addr__, int __comp_id__, const char *__fmt__, __...__)
+
+ int hal_param_s32_newf(hal_param_dir_t __dir__, hal_s32_t * __data_addr__, int __comp_id__, const char *__fmt__, __...__)
+
+ int hal_param_new(const char *__name__, hal_type_t __type__, hal_in_dir_t __dir__, void *__data_addr__, int __comp_id__) 
+
+
+
+== ARGUMENTS
+
+__name__
+The name to give to the created parameter
+
+__dir__
+The direction of the parameter, from the viewpoint of the component.  It may be
+one of **HAL_RO**, or **HAL_RW** A component may assign a value to any
+parameter, but other programs (such as halcmd) may only assign a value to a
+parameter that is **HAL_RW**.
+
+__data_addr__
+The address of the data, which must lie within memory allocated by
+**hal_malloc**.
+
+__comp_id__
+A HAL component identifier returned by an earlier call to **hal_init**.
+
+__fmt,\ ...__
+A printf-style format string and arguments
+
+__type__
+The type of the parameter, as specified in **hal_type_t(3hal)**.
+
+
+
+== DESCRIPTION
+The **hal_param_new** family of functions create a new __param__ object.
+
+There are functions for each of the data types that the HAL supports.  Pins may
+only be linked to signals of the same type.
+
+
+
+== RETURN VALUE
+Returns a HAL status code.
+
+
+== SEE ALSO
+**hal_type_t(3hal)**

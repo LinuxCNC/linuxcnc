@@ -1,0 +1,81 @@
+= hm2_pktuart_read(Extension)
+\# Author Boris Skegin
+\# Issued under the terms of the GPL v2 License or any later version
+:manmanual: HAL Components
+:mansource: ../man/man3/hm2_pktuart_read.3hm2.asciidoc
+:man version : 
+
+
+== NAME
+
+hm2_pktuart_read -- read data from a Hostmot2 UART buffer
+
+
+
+== SYNTAX
+int hm2_pktuart_read(char *name,  unsigned char data[], u8 *num_frames, u16 *max_frame_length, u16 frame_sizes[])
+
+
+
+== DESCRIPTION
+**hm2_pktuart_read** reads data from the PktUART "name".
+"name" is a unique string given to each PktUART during hostmot2 setup. The names of 
+the available channels are printed to standard output during the driver loading 
+process and take the form:
+hm2_<board name>.<board index>.pktuart.<index> For example hm2_5i25.0.pktuart.0
+
+This function reads a variable number of PktUART packets from the the specified 
+channel. It should be used inside a realtime HAL component registered with the 
+main hostmot2 driver using the function hm2_pktuart_setup in the setup
+code. 
+
+"(*num_frames)*(*max_frame_length)" should be <= sizeof "data", which one tries
+to estimate or guess before calling the function.
+If there are more bytes in the buffer than the size of data array is, then
+RxArraySizeError is returned.
+
+Note that the PktUART MaxFrameSize is 1024 bytes as hard-coded in hostmot2.vhd .
+
+
+
+
+== RETURN VALUE
+Returns the number of bytes read on success and negative error codes on failure.
+
+"num_frames" which pointer is passed by value is set to the number of successfully 
+datagrams read.
+
+Negative error codes are:
+
+-1 - low level read/write error
+
+-EINVAL - any PktUART configuration error per instance
+
+
+
+ -110 - RxStartbitError, Rx mode register error
+
+ -111 - RxOverrunError, Rx mode register error
+
+ -114 - RxRCFIFOError, Rx mode register error
+
+
+
+ -1115 - RxPacketOverrrunError, Rx count register error
+
+ -1114 - RxPacketStartbitError, Rx count register error
+
+
+
+ -1120 - RxPacketSizeZero, the size of the received packet is zero
+
+ -1140 - RxArraySizeError, data array is too small for all the data in the buffer
+
+
+
+
+== SEE ALSO
+
+man hm2_pktuart_setup, man hm2_pktuart_send
+
+See src/hal/components/mesa_pktgyro_test.comp for an example usage.

@@ -1,0 +1,45 @@
+= hal_init(3hal)
+:manmanual: HAL Components
+:mansource: ../man/man3/hal_init.3hal.asciidoc
+:man version : 
+
+
+== NAME
+
+hal_init -- Sets up HAL and RTAPI
+
+
+
+== SYNTAX
+ int hal_init(const char *__modname__)
+
+
+
+== ARGUMENTS
+.IP __modname__
+The name of this hal module
+
+
+
+== DESCRIPTION
+
+**hal_init** sets up HAL and RTAPI.  It must be called by any
+module that intends to use the API, before any other RTAPI
+calls.
+
+__modname__ can optionally point to a string that identifies
+the module.  The string may be no longer than **RTAPI_NAME_LEN**
+characters.  If __modname__ is **NULL**, the system will assign a
+name.
+
+
+
+== REALTIME CONSIDERATIONS
+Call only from within user or init/cleanup code, not from relatime tasks.
+
+
+
+== RETURN VALUE
+On success, returns a positive integer module ID, which is
+used for subsequent calls to hal and rtapi APIs.
+On failure, returns a HAL error code.

@@ -1,0 +1,67 @@
+= funct(Extension)
+:manmanual: HAL Components
+:mansource: ../man/man3/PM_ROTATION_VECTOR.3.asciidoc
+:man version : 
+
+
+
+== NAME
+
+PM_CARTESIAN -- Three-axis cartesian position
+
+
+
+== SYNTAX
+#include "posemath.h"
+struct PM_CARTESIAN;
+
+
+
+== CONSTRUCTORS
+
+PM_CARTESIAN()
+Construct the point <0,0,0>
+
+PMCARTESIAN(double __x__**, double **__y__**, double **__z__**)
+**Construct the point <__x__**,**__y__**,**__z__**>
+**
+PMCARTESIAN(const PM_CARTESIAN &v)
+Construct a copy of the point __v__
+
+
+
+== DATA
+double __x__**, **__y__**, **__z
+__
+
+
+== OPERATORS
+
+operator[](int n);
+Return the __n__th component of the vector (x=0, y=1, z=2)
+
+int operator==(PM_CARTESIAN __v1__**, PM_CARTESIAN **__v2__**)
+**int operator!=(PM_CARTESIAN __v1__**, PM_CARTESIAN **__v2__**)
+**Elementwise equality and inequality operator
+
+PM_CARTESIAN operator+(PM_CARTESIAN __v1__**, PM_CARTESIAN**__v2__**)
+**PM_CARTESIAN operator-(PM_CARTESIAN __v1__**, PM_CARTESIAN**__v2__**)
+**Addition and subtraction of vectors
+
+PM_CARTESIAN operator*(double __s__**, PM_CARTESIAN **__v__**)
+**PM_CARTESIAN operator*(PM_CARTESIAN __v__**, double **__s__**)
+**Scalar multiplication
+
+PM_CARTESIAN operator/(PM_CARTESIAN __v__**, double **__s__**)
+**Scalar multiplication by __1/s__
+
+
+== OTHER FUNCTIONS ON PM_CARTESIAN OBJECTS
+
+double dot(PM_CARTESIAN __v1__**, PM_CARTESIAN **__v2__**)
+**PM_CARTESIAN cross(PM_CARTESIAN __v1__**, PM_CARTESIAN **__v2__**)
+**PM_CARTESIAN norm(PM_CARTESIAN __v__**)
+**
+
+
+== SEE ALSO

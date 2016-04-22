@@ -1,116 +1,81 @@
-= HALSTREAMER(9)
+= LinuxCNC(9)
 :manmanual: HAL Components
-:mansource: ../man/man1/halstreamer.1.asciidoc
+:mansource: ../man/man1/linuxcnc.1.asciidoc
 :man version : 
 
 
 == NAME
-halstreamer -- stream file data into HAL in real time
+linuxcnc -- LinuxCNC (The Enhanced Machine Controller)
 
 
 == SYNOPSIS
-halstreamer
-.RI [ options ]
-
+linuxcnc
+[__-v__] [__-d__] [__INIFILE__]
 
 
 == DESCRIPTION
- streamer (9)
-and
-halstreamer
-are used together to stream data from a file into the HAL in real time.
-streamer
-is a realtime HAL component that exports HAL pins and creates a FIFO in shared memory.
-hal_streamer
-is a user space program that copies data from stdin into the FIFO, so that
-streamer
-can write it to the HAL pins.
-
+**linuxcnc** is used to start LinuxCNC (The Enhanced Machine Controller). It
+starts the realtime system and then initializes a number of LinuxCNC
+components (IO, Motion, GUI, HAL, etc).  The most important parameter
+is __INIFILE__, which specifies the configuration name you would like
+to run. If __INIFILE__ is not specified, the **linuxcnc** script presents
+a graphical wizard to let you choose one.
 
 
 == OPTIONS
 
- "-c " CHAN
-instructs 
-halstreamer
-to write to FIFO
-.IR CHAN .
-FIFOs are numbered from zero, and the default value is zero, so
-this option is not needed unless multiple FIFOs have been created.
+**--v** 
+Be a little bit verbose. This causes the script to print information
+as it works.
 
- "-N " NAME
-sets an explicit HAL component name.
+**--d**
+Print lots of debug information. All executed commands
+are echoed to the screen. This mode is useful when something is
+not working as it should.
 
-FILENAME
-instructs
-halsampler
-to read from **FILENAME** instead of from stdin.
+**INIFILE**
+The ini file is the main piece of an LinuxCNC configuration. It is not the
+entire configuration; there are various other files that go with it
+(NML files, HAL files, TBL files, VAR files). It is, however, the most
+important one, because it is the file that holds the configuration
+together. It can adjust a lot of parameters itself, but it also tells
+**linuxcnc** which other files to load and use.
 
+There are several ways to specify which config to use:
 
-== USAGE
-A FIFO must first be created by loading 
- streamer (9)
-with 
-halcmd loadrt
-or a
-loadrt
-command in a .hal file.  Then
-halstreamer
-can be invoked to begin writing data into the FIFO.
-.P
-Data is read from stdin, and is almost always either redirected from a file
-or piped from some other program, since keyboard input would be unable to keep
-up with even slow streaming rates.
-.P
-Each line of input must match the pins that are attached to the FIFO, for example, if the
-streamer
-config string was "ffbs" then each
-line of input must consist of two floats, a bit, and a signed integer, in that
-order and separated by whitespace.  Floats must be formatted as required by
- strtod (3),
-signed and unsigned integers must be formated as required by
- strtol (3)
-and
- strtoul (3),
-and bits must be either '0' or '1'.
-.P
-halstreamer
-transfers data to the FIFO as fast as possible until the FIFO is full, then it retries at regular intervals, until it is either killed or reads 
-EOF
-from stdin.  Data can be redirected from a file or piped from some other program.
-.P
-The FIFO size should be chosen to ride through any momentary disruptions in the flow of data, such as disk seeks.  If the FIFO is big enough,
-halstreamer
-can be restarted with the same or a new file before the FIFO empties, resulting in a continuous stream of data.
-.P
-The data format for
-halstreamer
-input is the same as for
- halsampler (1)
-output, so 'waveforms' captured with
-halsampler
-can be replayed using
-halstreamer.
+Specify the absolute path to an ini, e.g.
+**linuxcnc** __/usr/local/linuxcnc/configs/sim/sim.ini__
+
+Specify a relative path from the current directory, e.g.
+**linuxcnc** __configs/sim/sim.ini__
+
+Otherwise, in the case where the **INIFILE** is not specified,
+the behavior will depend on whether you configured linuxcnc with
+**--enable-run-in-place**.  If so, the linuxcnc config chooser will search
+only the configs directory in your source tree.  If not (or if you are
+using a packaged version of linuxcnc), it may search several directories.
+The config chooser is currently set to search the path:
+
+.nf
+**~/machinekit/configs:/home/bas/machinekit/configs**
 
 
 
-== EXIT STATUS
-If a problem is encountered during initialization,
-halstreamer
-prints a message to stderr and returns failure.
-.P
-If a badly formatted line is encountered while writing to the FIFO, it prints a message to stderr, skips the line, and continues (this behavior may be revised in the future).
-.P
-Upon reading
-EOF
-from the input, it returns success.  If it is terminated before the input ends, it returns failure.
+== EXAMPLES
+    
+**linuxcnc**
+
+**linuxcnc** __configs/sim/sim.ini__
+
+**linuxcnc** __/etc/linuxcnc/sample-configs/stepper/stepper_mm.ini__
 
 
 
 == SEE ALSO
- streamer (9)
- sampler (9)
- halsampler (1)
+**halcmd(1)**
+
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/linuxcnc/.
 
 
 
@@ -119,20 +84,20 @@ from the input, it returns success.  If it is terminated before the input ends, 
 
 
 == BUGS
-
+None known at this time. 
+.PP
 
 
 == AUTHOR
-Original version by John Kasunich, as part of the LinuxCNC
-project.  Improvements by several other members of
-the LinuxCNC development team.
+This man page written by Alex Joni, as part of the LinuxCNC Enhanced Machine
+Controller project.
 
 
 == REPORTING BUGS
-Report bugs to jmkasunich AT users DOT sourceforge DOT net
+Report bugs to alex_joni AT users DOT sourceforge DOT net
 
 
 == COPYRIGHT
-Copyright \(co 2006 John Kasunich.
+Copyright \(co 2006 Alex Joni.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

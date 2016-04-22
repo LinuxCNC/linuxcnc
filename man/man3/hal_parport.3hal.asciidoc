@@ -1,0 +1,70 @@
+= funct(3hal)
+:manmanual: HAL Components
+:mansource: ../man/man3/hal_parport.3hal.asciidoc
+:man version : 
+
+
+== NAME
+
+funct -- one-line description of funct
+
+
+
+== SYNTAX
+#include "hal_parport.h"
+int **hal_parport_get**(int __comp_id__, hal_parport_t *__port__, unsigned short __base__, unsigned short __base_hi__, unsigned int __modes__)
+void **hal_parport_release**(hal_parport_t *__port__)
+
+
+== ARGUMENTS
+.IP __comp_id__
+A HAL component identifier returned by an earlier call to **hal_init**.
+.IP __port__
+A pointer to a hal_parport_t structure
+.IP __base__
+The base address of the port (if port >= 16) or the linux port number of the
+port (if port < 16)
+.IP __base_hi__
+The "high" address of the port (location of the ECP registers), 0 to use a
+probed high address, or -1 to disable the high address
+.IP __modes__
+Advise the driver of the desired port modes, from <linux/parport.h>.  If a
+linux-detected port does not provide the requested modes, a warning is printed
+with rtapi_print_msg.   This does not make the port request fail, because
+unfortunately, many systems that have working EPP parports are not detected as
+such by Linux.
+
+
+== DESCRIPTION
+**hal_parport_get** allocates a parallel port for exclusive use of the
+named hal component.  The port must be released with **hal_parport_release**
+before the component exits with **hal_exit**.
+
+
+== HIGH ADDRESS PROBING
+If the port is a parallel port known to Linux, and Linux detected a high
+I/O address, this value is used.  Otherwise, if base+0x400 is not registered
+to any device, it is used.  Otherwise, no address is used.  If no high address
+is detected, port->base_hi is 0.
+
+
+== PARPORT STRUCTURE
+.in +4n
+.nf
+typedef struct
+{
+    unsigned short base;
+    unsigned short base_hi;
+    .... // and further unspecified fields
+} hal_parport_t;
+.fi
+.in
+
+
+== RETURN VALUE
+**hal_parport_get** returns a HAL status code.  On success, __port__ is
+filled out with information about the allocated port.  On failure, the contents
+of __port__ are undefined except that it is safe (but not required) to pass
+this port to **hal_parport_release**.
+
+**hal_parport_release** does not return a value.  It always succeeds.

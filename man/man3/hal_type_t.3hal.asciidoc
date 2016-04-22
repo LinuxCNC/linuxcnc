@@ -1,0 +1,88 @@
+= hal_type_t(3hal)
+:manmanual: HAL Components
+:mansource: ../man/man3/hal_type_t.3hal.asciidoc
+:man version : 
+
+
+== NAME
+hal_type_t -- typedefs for HAL datatypes
+
+
+== DESRCIPTION
+
+typedef ... **hal_bool;
+**A type which may have a value of 0 or nonzero.
+
+typedef ... **hal_bit_t;
+**A volatile type which may have a value of 0 or nonzero.
+
+typedef ... **hal_s32_t**;
+A volatile type which may have a value from -2147483648 to 2147483647.
+
+typedef ... **hal_u32_t**;
+A volatile type which may have a value from 0 to 4294967295.
+
+typedef ... **hal_float_t**;
+A volatile floating-point type, which typically has the same precision and range
+as the C type **double**.
+
+typedef ... **real_t**;
+A nonvolatile floating-point type with at least as much precision as
+**hal_float_t**.
+
+typedef ... **ireal_t**;
+A nonvolatile unsigned integral type the same size as **hal_float_t**.
+
+typedef enum **hal_type_t**;
+.RS
+
+**HAL_BIT**
+Corresponds to the type **hal_bit_t**.
+
+**HAL_FLOAT**
+Corresponds to the type **hal_float_t**.
+
+**HAL_S32**
+Corresponds to the type **hal_s32_t**.
+
+**HAL_U32**
+Corresponds to the type **hal_u32_t**.
+.RE
+
+
+== NOTES
+**hal_bit_t** is typically a typedef to an integer type whose range is larger
+than just 0 and 1.  When testing the value of a **hal_bit_t**, never compare
+it to 1.  Prefer one of the following:
+.RS
+.IP \(bu 4
+if(b)
+.IP \(bu 4
+if(b != 0)
+.RE
+
+It is often useful to refer to a type that can represent all the values as a
+hal type, but without the volatile qualifier.  The following types correspond
+with the hal types:
+.RS
+.IP hal_bit_t 16
+int
+
+.IP hal_s32_t 16
+__s32
+
+.IP hal_u32_t 16
+__u32
+
+.IP hal_float_t 16
+hal_real_t
+.RE
+
+Take care not to use the types **s32** and **u32**.  These will compile in
+kernel modules but not in userspace, and not for "realtime components" when
+using simulated (userspace) realtime.
+
+
+
+== SEE ALSO
+**hal_pin_new(3hal)**, **hal_param_new(3hal)**
