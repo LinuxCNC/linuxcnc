@@ -3,26 +3,17 @@
 :mansource: ../man/man9/hm2_pci.9.asciidoc
 :man version : 
 
-
-
-
 == NAME
-
-hm2_pci -- LinuxCNC HAL driver for the Mesa Electronics PCI-based Anything IO boards, with HostMot2 firmware.
+hm2_pci - LinuxCNC HAL driver for the Mesa Electronics PCI-based Anything IO boards, with HostMot2 firmware.
 
 
 == SYNOPSIS
-
-loadrt hm2_pci [config=__"str[,str...]"__**]
-**.RS 4
+**loadrt hm2_pci [config=**__"str[,str...]"__**]**
 
 **config** [default: ""]
 HostMot2 config strings, described in the hostmot2(9) manpage.
-.RE
-
 
 == DESCRIPTION
-
 hm2_pci is a device driver that interfaces Mesa's PCI and PC-104/Plus
 based Anything I/O boards (with the HostMot2 firmware) to the LinuxCNC
 HAL.
@@ -38,10 +29,8 @@ in the __config modparam__ section.
 
 
 == SEE ALSO
-
 hostmot2(9)
 
 
 == LICENSE
-
 GPL
