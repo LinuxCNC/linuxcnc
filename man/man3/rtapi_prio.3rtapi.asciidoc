@@ -1,0 +1,61 @@
+= rtapi_prio(9)
+:manmanual: HAL Components
+:mansource: ../man/man3/rtapi_prio.3rtapi.asciidoc
+:man version : 
+
+
+== NAME
+
+rtapi_prio -- thread priority functions
+
+
+
+== SYNTAX
+int rtapi_prio_highest()
+int rtapi_prio_lowest()
+int rtapi_prio_next_higher(int __prio__)
+int rtapi_prio_next_lower(int __prio__)
+
+
+
+== ARGUMENTS
+.IP __prio__
+A value returned by a prior **rtapi_prio_xxx** call
+
+
+
+== DESCRIPTION
+The **rtapi_prio_xxxx** functions provide a portable way to set task
+priority.  The mapping of actual priority to priority number depends on the
+RTOS.  Priorities range from **rtapi_prio_lowest** to
+**rtapi_prio_highest**, inclusive. To use this API, use one of two methods:
+
+.IP 1)
+Set your lowest priority task to **rtapi_prio_lowest**, and for
+each task of the next lowest priority, set their priorities to
+**rtapi_prio_next_higher(previous)**.
+
+.IP 2)
+Set your highest priority task to **rtapi_prio_highest**, and
+for each task of the next highest priority, set their priorities
+to **rtapi_prio_next_lower(previous)**.
+
+.PP
+N.B. A high priority task will pre-empt or interrupt a lower priority
+task. Linux is always the lowest priority!
+
+
+
+== REALTIME CONSIDERATIONS
+Call these functions only from within init/cleanup code, not from realtime
+tasks.
+
+
+
+== RETURN VALUE
+Returns an opaque real-time priority number.
+
+
+
+== SEE ALSO
+**rtapi_task_new(3rtapi)**

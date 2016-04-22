@@ -1,0 +1,15 @@
+= undocumented(9)
+:manmanual: HAL Components
+:mansource: ../man/man3/undocumented.3rtapi.asciidoc
+:man version : 
+
+
+== NAME
+
+undocumented -- undocumented functions in RTAPI
+
+
+
+== SEE ALSO
+The header file __rtapi.h__.  Most rtapi functions have documentation
+in that file.

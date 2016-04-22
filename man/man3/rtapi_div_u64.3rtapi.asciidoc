@@ -1,0 +1,70 @@
+= rtapi_div_u64(9)
+\" Copyright (C) 2013 Jeff Epler <jepler@unpythonic.net>
+\"
+\" This program is free software; you can redistribute it and/or
+\" modify it under the terms of the GNU General Public License
+\" as published by the Free Software Foundation; either version 2
+\" of the License, or (at your option) any later version.
+\"
+\" This program is distributed in the hope that it will be useful,
+\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\" GNU General Public License for more details.
+\"
+\" You should have received a copy of the GNU General Public License
+\" along with this program; if not, write to the Free Software
+\" Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+:manmanual: HAL Components
+:mansource: ../man/man3/rtapi_div_u64.3rtapi.asciidoc
+:man version : 
+
+
+== NAME
+
+rtapi_div_u64 -- unsigned division of a 64-bit number by a 32-bit number
+
+
+
+== SYNTAX
+__u64 rtapi_div_u64_rem(__u64 __dividend__, __u32 __divisor__, __u32 *__remainder__)
+__u64 rtapi_div_u64(__u64 __dividend__, __u32 __divisor__)
+__s64 rtapi_div_s64(__s64 __dividend__, __s32 __divisor__)
+__s64 rtapi_div_s64_rem(__s64 __dividend__, __s32 __divisor__, __s32 *__remainder__)
+
+
+
+== ARGUMENTS
+.IP __dividend__
+The value to be divided
+.IP __divisor__
+The value to divide by
+.IP __remainder__
+Pointer to the location to store the remainder.  This may not be a NULL
+pointer.  If the remainder is not desired, call **rtapi_div_u64** or
+**rtapi_div_s64**.
+
+
+
+== DESCRIPTION
+Perform integer division (and optionally compute the remainder) with a 64-bit dividend and 32-bit divisor.
+
+
+
+== RETURN VALUE
+The result of integer division of __dividend / divisor__.  In versions with the __remainder__ argument, the remainder is stored in the pointed-to location.
+
+
+
+== NOTES
+If the result of the division does not fit in the return type, the result is
+undefined.
+
+This function exists because in kernel space the use of the division operator
+on a 64-bit type can lead to an undefined symbol such as __umoddi3 when the
+module is loaded.
+
+
+
+== REALTIME CONSIDERATIONS
+May be called from init/cleanup code and from within realtime tasks.
+Available in userspace components.

@@ -1,0 +1,37 @@
+= rtapi_exit(9)
+:manmanual: HAL Components
+:mansource: ../man/man3/rtapi_exit.3rtapi.asciidoc
+:man version : 
+
+
+== NAME
+
+rtapi_exit -- Shut down RTAPI
+
+
+
+== SYNTAX
+ int rtapi_exit(int __module_id__)
+
+
+
+== ARGUMENTS
+.IP __module_id__
+An rtapi module identifier returned by an earlier call to **rtapi_init**.
+
+
+
+== DESCRIPTION
+**rtapi_exit** shuts down and cleans up the RTAPI.  It must be
+called prior to exit by any module that called **rtapi_init**.
+
+
+
+== REALTIME CONSIDERATIONS
+Call only from within user or init/cleanup code, not from relatime tasks.
+
+
+
+== RETURN VALUE
+Returns a RTAPI status code.
+

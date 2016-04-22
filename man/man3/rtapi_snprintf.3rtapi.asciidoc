@@ -1,0 +1,46 @@
+= rtapi_snprintf(9)
+:manmanual: HAL Components
+:mansource: ../man/man3/rtapi_snprintf.3rtapi.asciidoc
+:man version : 
+
+
+== NAME
+
+rtapi_snprintf, rtapi_vsnprintf -- Perform snprintf-like string formatting
+
+
+
+== SYNTAX
+ int rtapi_snprintf(char *__buf__, unsigned long int __size__, const char *__fmt__, __...__)
+
+ int rtapi_vsnprintf(char *__buf__, unsigned long int __size__, const char *__fmt__, va_list __apfB)
+__
+
+
+== ARGUMENTS
+As for __snprintf(3)__ or __vsnprintf(3)__.
+
+
+
+== DESCRIPTION
+These functions work like the standard C printf functions, except that a
+reduced set of formatting operations are supported.
+
+In particular: formatting of long long values is not supported.  Formatting of
+floating-point values is done as though with %A even when other formats like %f
+are specified.
+
+
+
+== REALTIME CONSIDERATIONS
+May be called from user, init/cleanup, and realtime code.
+
+
+
+== RETURN VALUE
+The number of characters written to __buf__.
+
+
+
+== SEE ALSO
+**printf(3)**
