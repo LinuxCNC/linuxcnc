@@ -1,4 +1,4 @@
-= LinuxCNC(Extension)
+= LinuxCNC(1)
 :manmanual: HAL Components
 :mansource: ../man/man1/linuxcnc.1.asciidoc
 :man version : 

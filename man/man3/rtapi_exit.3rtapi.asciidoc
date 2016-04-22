@@ -1,4 +1,4 @@
-= rtapi_exit(9)
+= rtapi_exit(3rtapi)
 :manmanual: HAL Components
 :mansource: ../man/man3/rtapi_exit.3rtapi.asciidoc
 :man version : 

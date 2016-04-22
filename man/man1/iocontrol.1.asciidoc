@@ -1,4 +1,4 @@
-= IOCONTROL(9)
+= IOCONTROL(1)
 :manmanual: HAL Components
 :mansource: ../man/man1/iocontrol.1.asciidoc
 :man version : 

@@ -1,4 +1,4 @@
-= vfdb_vfd(9)
+= vfdb_vfd(1)
 :manmanual: HAL Components
 :mansource: ../man/man1/vfdb_vfd.1.asciidoc
 :man version : 

@@ -1,4 +1,4 @@
-= rtapi_snprintf(9)
+= rtapi_snprintf(3rtapi)
 :manmanual: HAL Components
 :mansource: ../man/man3/rtapi_snprintf.3rtapi.asciidoc
 :man version : 

@@ -1,4 +1,4 @@
-= rtapi_outb(9)
+= rtapi_outb(3rtapi)
 :manmanual: HAL Components
 :mansource: ../man/man3/rtapi_outb.3rtapi.asciidoc
 :man version : 

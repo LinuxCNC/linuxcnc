@@ -1,4 +1,4 @@
-= hm2_tram_add_bspi_frame(Extension)
+= hm2_tram_add_bspi_frame(3hm2)
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
 :manmanual: HAL Components

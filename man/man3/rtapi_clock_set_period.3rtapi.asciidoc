@@ -1,4 +1,4 @@
-= rtapi_clock_set_period(9)
+= rtapi_clock_set_period(3rtapi)
 :manmanual: HAL Components
 :mansource: ../man/man3/rtapi_clock_set_period.3rtapi.asciidoc
 :man version : 

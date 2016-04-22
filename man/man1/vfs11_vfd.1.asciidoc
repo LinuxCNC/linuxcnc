@@ -1,4 +1,4 @@
-= vfs11_vfd(9)
+= vfs11_vfd(1)
 :manmanual: HAL Components
 :mansource: ../man/man1/vfs11_vfd.1.asciidoc
 :man version : 

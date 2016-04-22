@@ -1,4 +1,4 @@
-= HALUI(9)
+= HALUI(1)
 :manmanual: HAL Components
 :mansource: ../man/man1/halui.1.asciidoc
 :man version : 

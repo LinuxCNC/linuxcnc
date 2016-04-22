@@ -1,4 +1,4 @@
-= hm2_bspi_write_chan(Extension)
+= hm2_bspi_write_chan(3hm2)
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
 :manmanual: HAL Components

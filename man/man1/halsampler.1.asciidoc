@@ -1,4 +1,4 @@
-= HALSAMPLER(9)
+= HALSAMPLER(1)
 :manmanual: HAL Components
 :mansource: ../man/man1/halsampler.1.asciidoc
 :man version : 

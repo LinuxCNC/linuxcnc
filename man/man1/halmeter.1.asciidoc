@@ -1,4 +1,4 @@
-= HALMETER(9)
+= HALMETER(1)
 :manmanual: HAL Components
 :mansource: ../man/man1/halmeter.1.asciidoc
 :man version : 

@@ -1,4 +1,4 @@
-= rtapi_task_wait(9)
+= rtapi_task_wait(3rtapi)
 :manmanual: HAL Components
 :mansource: ../man/man3/rtapi_task_wait.3rtapi.asciidoc
 :man version : 

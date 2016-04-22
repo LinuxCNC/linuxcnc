@@ -1,4 +1,4 @@
-= gs2_vfd(9)
+= gs2_vfd(1)
 :manmanual: HAL Components
 :mansource: ../man/man1/gs2.1.asciidoc
 :man version : 

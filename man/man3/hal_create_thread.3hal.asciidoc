@@ -6,7 +6,7 @@
 
 == NAME
 
-hal_create_thread - Create a HAL thread
+hal_create_thread -- Create a HAL thread
 
 
 

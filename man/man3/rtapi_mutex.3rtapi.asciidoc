@@ -1,4 +1,4 @@
-= rtapi_mutex(9)
+= rtapi_mutex(3rtapi)
 :manmanual: HAL Components
 :mansource: ../man/man3/rtapi_mutex.3rtapi.asciidoc
 :man version : 

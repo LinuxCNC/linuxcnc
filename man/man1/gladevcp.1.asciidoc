@@ -1,4 +1,4 @@
-= GLADEVCP(9)
+= GLADEVCP(1)
 :manmanual: HAL Components
 :mansource: ../man/man1/gladevcp.1.asciidoc
 :man version : 

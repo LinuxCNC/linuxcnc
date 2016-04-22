@@ -1,4 +1,4 @@
-= intro(9)
+= intro(3rtapi)
 :manmanual: HAL Components
 :mansource: ../man/man3/intro.3rtapi.asciidoc
 :man version : 

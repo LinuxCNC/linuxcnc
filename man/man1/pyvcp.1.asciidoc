@@ -1,4 +1,4 @@
-= PYVCP(9)
+= PYVCP(1)
 :manmanual: HAL Components
 :mansource: ../man/man1/pyvcp.1.asciidoc
 :man version : 

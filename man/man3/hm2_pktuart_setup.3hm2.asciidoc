@@ -1,4 +1,4 @@
-= hm2_pktuart_setup(Extension)
+= hm2_pktuart_setup(3hm2)
 \# Author Boris Skegin
 \# Issued under the terms of the GPL v2 License or any later version
 :manmanual: HAL Components
