@@ -618,6 +618,7 @@ check_stuff ( "before command_handler()" );
 	       controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "TELEOP");
 	    emcmotDebug->teleoperating = 1;
+	    emcmotDebug->coordinating  = 0;
 	    if (emcmotConfig->kinType != KINEMATICS_IDENTITY) {
 		if (!checkAllHomed()) {
 		    reportError(_("all joints must be homed before going into teleop mode"));

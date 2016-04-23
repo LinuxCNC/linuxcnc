@@ -2174,7 +2174,6 @@ class TclCommands(nf.TclCommands):
 
         global program_start_line, program_start_line_last
         program_start_line_last = program_start_line;
-        set_motion_teleop(0) # workaround
         ensure_mode(linuxcnc.MODE_AUTO)
         c.auto(linuxcnc.AUTO_RUN, program_start_line)
         program_start_line = 0
@@ -2267,7 +2266,6 @@ class TclCommands(nf.TclCommands):
         if command != "":
             command= command.lstrip().rstrip()
             vars.mdi_command.set("")
-            set_motion_teleop(0) # workaround
             ensure_mode(linuxcnc.MODE_MDI)
             widgets.mdi_history.selection_clear(0, "end")
             ## check if input is already in list. If so, then delete old element
@@ -2572,7 +2570,6 @@ class TclCommands(nf.TclCommands):
         if new_axis_value is None: return
 
         save_task_mode = s.task_mode
-        set_motion_teleop(0) # workaround
         vars.touch_off_system.set(system)
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
@@ -2614,7 +2611,6 @@ class TclCommands(nf.TclCommands):
         if new_axis_value is None: return
 
         save_task_mode = s.task_mode
-        set_motion_teleop(0) # workaround
         vars.touch_off_system.set(system)
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
