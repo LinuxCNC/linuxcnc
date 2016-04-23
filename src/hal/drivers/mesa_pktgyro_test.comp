@@ -90,7 +90,6 @@ FUNCTION(receive){
 	int bytes_total = 0;
 	while(k <num_frames) {
 		        int j=0;
-
 	            while(j<=frame_sizes3[k]-1) {
 				   rtapi_print_msg(RTAPI_MSG_INFO, "Rec frame %d, byte %d 0x%.2x", k+1 , bytes_total+j , Replyd3[bytes_total+j]);
 				   j++;
@@ -104,8 +103,8 @@ FUNCTION(receive){
 
 }
 
-EXTRA_SETUP(){ // the names parameters are passed in 'prefix'. You just have to know that.
-	if (prefix[0] == 'm'){ // should be the 'h' of hm2_....
+EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
+	if (prefix[0] == 'm'){ // should be the 'm' of hm2_....
 		rtapi_print_msg(0, "mesa_pktuart_test can not be loaded using the 'count' "
 						"parameter, see man mesa_uart for details\n");
 		return -1;

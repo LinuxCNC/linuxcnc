@@ -39,11 +39,12 @@ Negative error codes are:
 .TP
 .B -EINVAL - any PktUART configuration error per instance
 .TP
-.B -214  - TxSCFIFOError, Tx Send Count FIFO Error
-
+.B -HM2_PKTUART_TxSCFIFOError - Tx Send Count FIFO Error
+.TP
+Numeric values of HM2_PKTUART_ error codes are defined in src/hal/drivers/mesa-hostmot2/pktuart_errno.h .
 
 
 .SH SEE ALSO
 .B man hm2_pktuart_setup, man hm2_pktuart_read
 .TP
-See src/hal/components/mesa_pktgyro_test.comp for an example usage.
+See src/hal/drivers/mesa_pktgyro_test.comp for an example usage.

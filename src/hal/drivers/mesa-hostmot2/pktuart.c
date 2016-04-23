@@ -23,26 +23,13 @@
 #include "hal.h"
 #include "hostmot2.h"
 
+// PktUART specific error codes
+#include "pktuart_errno.h"
+
 
 #define MaxTrFrames     (16) // Send counts are written to 16 deep FIFO, burst mode
 
-// Tx mode register errors
-#define  TxSCFIFOError  (214)  // Tx Send Count FIFO Error
 
-
-// Rx mode register errors
-#define RxRCFIFOError   (114)  // RCFIFO Error, Bit  4  
-#define RxOverrunError  (111)  // Overrun error (no stop bit when expected) (sticky), Bit  1
-#define RxStartbitError (110)  // False Start bit error (sticky), Bit  0
-
-// Rx count register errors
-#define RxPacketOverrrunError (1115)    // Bit 15         Overrun error in this packet
-#define RxPacketStartbitError (1114)    // Bit 14         False Start bit error in this packet
-
-// the next two error conditions
-// are very unprobable, but we consider them nevertheless
-#define RxPacketSizeZero      (1120)    // the length of the received packet is 0
-#define RxArraySizeError      (1140)    // sizeof(data array)= num_frames*max_frame_length is too small for all the data in the buffer
 
 int hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index) 
 {
@@ -341,7 +328,7 @@ int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rt
                                  &buff, sizeof(rtapi_u32));
     if ((buff >> 4) & 0x01) {
         HM2_ERR_NO_LL("%s: SCFFIFO error\n", name);
-        return -TxSCFIFOError;
+        return -HM2_PKTUART_TxSCFIFOError;
     }
 
     if (r < 0){
@@ -406,17 +393,17 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
     // Now check the error bits
     if ((buff >> 1) & 0x1){
         HM2_ERR_NO_LL("%s: Overrun error, no stop bit\n", name); 
-        return -RxOverrunError;
+        return -HM2_PKTUART_RxOverrunError;
     }
     if (buff & 0x1){
         HM2_ERR_NO_LL("%s: False Start bit error\n", name);     
-        return -RxStartbitError;
+        return -HM2_PKTUART_RxStartbitError;
     }
 
     // RCFIFO Error will get sticky if it is a consequence of either Overrun or False Start bit error?
     if ((buff >> 4) & 0x1){
         HM2_ERR_NO_LL("%s: RCFIFO Error\n", name); 
-        return -RxRCFIFOError;
+        return -HM2_PKTUART_RxRCFIFOError;
     }
 
     if (countp==0){ 
@@ -438,24 +425,24 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
 
           if ((buff >> 14) & 0x1) {
               HM2_ERR_NO_LL("%s has False Start bit error in this packet.\n", name);
-              return -RxPacketStartbitError;
+              return -HM2_PKTUART_RxPacketStartbitError;
           }
 
           if ((buff >> 15) & 0x1) {
               HM2_ERR_NO_LL("%s has Overrun error in this packet\n", name);
-              return -RxPacketOverrrunError;
+              return -HM2_PKTUART_RxPacketOverrrunError;
           }
 
            // a packet is completely received, but its byte count is zero
            // is very unprobable, however we intercept this error too
           if (countb==0) {
               HM2_ERR_NO_LL("%s: packet %d has %d bytes.\n", name, countp+1, countb);
-              return -RxPacketSizeZero; 
+              return -HM2_PKTUART_RxPacketSizeZero; 
           }
 
           if (( bytes_total+countb)> data_size) {
                HM2_ERR_NO_LL("%s: bytes avalaible %d are more than data array size %d\n", name, bytes_total+countb, data_size);
-               return -RxArraySizeError ;
+               return -HM2_PKTUART_RxArraySizeError ;
           }
 
           (*num_frames)++; // increment num_frames to be returned at the end

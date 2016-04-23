@@ -43,27 +43,29 @@ Negative error codes are:
 .TP
 .B 
 .TP
-.B  -110 - RxStartbitError, Rx mode register error
+.B -HM2_PKTUART_RxStartbitError - Rx mode register error
 .TP
-.B  -111 - RxOverrunError, Rx mode register error
+.B -HM2_PKTUART_RxOverrunError - Rx mode register error
 .TP
-.B  -114 - RxRCFIFOError, Rx mode register error
-.TP
-.B 
-.TP
-.B  -1115 - RxPacketOverrrunError, Rx count register error
-.TP
-.B  -1114 - RxPacketStartbitError, Rx count register error
+.B -HM2_PKTUART_RxRCFIFOError - Rx mode register error
 .TP
 .B 
 .TP
-.B  -1120 - RxPacketSizeZero, the size of the received packet is zero
+.B -HM2_PKTUART_RxPacketOverrrunError - Rx count register error
 .TP
-.B  -1140 - RxArraySizeError, data array is too small for all the data in the buffer
+.B -HM2_PKTUART_RxPacketStartbitError - Rx count register error
+.TP
+.B 
+.TP
+.B -HM2_PKTUART_RxPacketSizeZero - the size of the received packet is zero
+.TP
+.B -HM2_PKTUART_RxArraySizeError - data array is too small for all the data in the buffer
+.TP
+Numeric values of the HM2_PKTUART_ error codes are defined in src/hal/drivers/mesa-hostmot2/pktuart_errno.h .
 
 
 .SH SEE ALSO
 .TP
 .B man hm2_pktuart_setup, man hm2_pktuart_send
 .TP
-See src/hal/components/mesa_pktgyro_test.comp for an example usage.
+See src/hal/drivers/mesa_pktgyro_test.comp for an example usage.
