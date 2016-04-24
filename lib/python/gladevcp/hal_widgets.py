@@ -108,6 +108,13 @@ class _HalJogWheelBase(_HalWidgetBase):
         except:
             pass
 
+class _HalSpeedControlBase(_HalWidgetBase):
+    def _hal_init(self):
+        self.hal_pin = self.hal.newpin(self.hal_name + '.value', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.connect("value-changed", self.hal_update)
+
+    def hal_update(self, *a):
+        self.hal_pin.set(self.get_value())
 """ Real widgets """
 
 class HAL_HBox(gtk.HBox, _HalSensitiveBase):

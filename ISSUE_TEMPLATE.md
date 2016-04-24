@@ -1,3 +1,10 @@
+# The issue tracker is not a support forum
+
+The LinuxCNC issue tracker is to report bugs in the software.
+If you have a question about how to use the software, use one of the other methods detailed on our community support page: http://linuxcnc.org/community/
+
+(delete this section before submitting your bug report)
+
 ## Here are the steps I follow to reproduce the issue:
 
  1.

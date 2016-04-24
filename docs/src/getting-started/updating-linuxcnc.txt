@@ -18,17 +18,20 @@ section <<cha:getting-linuxcnc,Getting LinuxCNC>>.
 
 == Upgrade to the new version
 
-The basic idea is to disable the old linuxcnc.org apt sources and add
-a new linuxcnc.org apt source, then upgrade the LinuxCNC packages.
+To upgrade major versions like 2.6 to 2.7 when you have a network connection at
+the machine you need to disable the old linuxcnc.org apt sources and add a new
+linuxcnc.org apt source for 2.7, then upgrade LinuxCNC.
 
 The details will depend on which platform you're running on.
 Run `lsb_release -ic` to find this information out:
+Press Ctrl + Alt + t to open a terminal then type `lsb_release -ic` to find this
+information out:
 
------
-> lsb_release -ic
+----
+lsb_release -ic
 Distributor ID: Debian
 Codename:       wheezy
------
+----
 
 You should be running on Debian Wheezy (as above), or Ubuntu Precise,
 or Ubuntu Lucid.
@@ -88,7 +91,6 @@ image::images/upgrading-to-2.7.png[align="left"]
   If it pops up a window informing you that the information about
   available software is out-of-date, click the `Reload` button.
 
-
 === Upgrading to the new version
 
 Now your computer knows where to get the new version of the software,
@@ -116,7 +118,6 @@ Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
   package. The old linuxcnc package will be automatically upgraded to
   the new one.
 
-
 === Ubuntu Precise
 
 * Click on the `Dash Home` icon in the top left.
@@ -129,6 +130,36 @@ Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
 * Click the `Install Updates` button to install the new versions of
   all packages.
 
+== Updating without Network
+
+To update without a network connection you need to download the deb then install
+it with dpkg. The buildbot builds new debs each time something is updated and
+stores them at http://buildbot.linuxcnc.org/dists/
+
+You have to drill down from the above link to find the correct deb for your
+installation. Press Ctrl + Alt + t to open a terminal and type in
+'lsb_release -ic' to find the name of your OS. 
+
+----
+> lsb_release -ic
+Distributor ID: Debian
+Codename:       wheezy
+----
+
+Pick the OS from the list then pick the major version you want like 2.7-rt for
+real time or 2.7-sim for the simulator only.
+
+Next pick the type of computer you have i386 for 32 bit and amd64 for 64 bit.
+
+Next pick the version you want from the bottom of the list like
+'linuxcnc_2.7.4.46.g5954dcf_i386.deb'. Download the deb and copy it to your
+home directory. You can rename the file to something a bit shorter with the file
+manager like 'linuxcnc_2.7.4.deb' then open a terminal and install it with the
+package manager with this command 'sudo dpkg -i linuxcnc_2.7.4.deb'
+
+----
+sudo dpkg -i linuxcnc_2.7.4.deb
+----
 
 == Updating Configuration Files
 
