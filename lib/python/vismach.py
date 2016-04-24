@@ -769,7 +769,7 @@ class O(rs274.OpenGLTk.Opengl):
 	#self.q2 = gluNewQuadric()
 	#self.q3 = gluNewQuadric()
 	self.plotdata = []
-	self.plotlen = 4000
+	self.plotlen = 16000
 	#does not show HUD by default
 	self.hud = Hud()
 
