@@ -125,6 +125,7 @@ DOC_SRCS_EN := \
 	motion/kinematics.txt \
 	motion/pid-theory.txt \
 	motion/tweaking-steppers.txt \
+	motion/5-axis-kinematics.txt \
 	remap/remap.txt \
 	user/starting-linuxcnc.txt \
 	user/user-concepts.txt \
