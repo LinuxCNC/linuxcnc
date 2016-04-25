@@ -52,7 +52,7 @@ proc check_ini_items {} {
       && [lsearch $::KINS(KINEMATICS) trivkins] >= 0
      } {
      # reject historical lathe config using default trivkins coordinates (all)
-     if {[lsearch $::KINS(KINEMATICS) =] < 0} {
+     if {[string first "=" $::KINS(KINEMATICS)] < 0} {
        set msg "trivkins lathe config must specify coordinates= "
        set msg "$msg\n(typically use \[KINS]KINEMATICS trivkins coordinates=XZ)"
        return -code error "$msg"
@@ -82,10 +82,9 @@ proc setup_kins {axes} {
     loadrt trivkins
     return
   }
-  set ::KINS(KINEMATICS) [lindex $::KINS(KINEMATICS) end]
-  set cmd "loadrt $::KINS(KINEMATICS)" ;# may include parms
-
-  set kins [lindex $::KINS(KINEMATICS) 0] ;# just the kins
+  set kins_kinematics [lindex $::KINS(KINEMATICS) end]
+  set cmd "loadrt $kins_kinematics" ;# may include parms
+  set kins_module [lindex $kins_kinematics 0]
 
   puts stderr "setup_kins: cmd=$cmd"
   if [catch {eval $cmd} msg] {
@@ -95,7 +94,7 @@ proc setup_kins {axes} {
   }
 
   # set up axis indices for known kins
-  switch $kins {
+  switch $kins_module {
     trivkins   {indices_for_trivkins $axes}
     default    {
       puts stderr "setup_kins: unknown \[KINS\]KINEMATICS=<$::KINS(KINEMATICS)>"
