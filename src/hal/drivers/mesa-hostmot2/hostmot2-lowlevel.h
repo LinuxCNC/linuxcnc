@@ -131,7 +131,9 @@ struct hm2_lowlevel_io_struct {
 
     // this gets set to TRUE when the llio driver detects an io_error, and
     // by the hm2 watchdog (if present) when it detects a watchdog bite
-    int needs_reset;
+    // needs_soft_reset is like needs_reset except that no message is logged
+    // to the user
+    int needs_reset, needs_soft_reset;
 
     // the pin-count and names of the io port connectors on this board
     int num_ioport_connectors;
