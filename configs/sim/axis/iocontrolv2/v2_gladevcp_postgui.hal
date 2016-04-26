@@ -3,6 +3,7 @@ unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
 unlinkp iocontrol.0.tool-prepare
 unlinkp iocontrol.0.tool-prepared
+unlinkp iocontrol.0.tool-prep-number
 
 net tool-prepare iocontrol.0.tool-prepare gladevcp.tool-prepare
 net tool-prepared gladevcp.tool-prepared iocontrol.0.tool-prepared
