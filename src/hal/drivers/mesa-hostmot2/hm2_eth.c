@@ -484,19 +484,28 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
     rtapi_u8 tmp_buffer[board->queue_buff_size];
     long long t1, t2;
     t1 = rtapi_get_time();
+    unsigned long long read_deadline = this->read_deadline;
     do {
         errno = 0;
-        recv = eth_socket_recv(board->sockfd, (void*) &tmp_buffer, board->queue_buff_size, 0);
+        recv = eth_socket_recv(board->sockfd, (void*) &tmp_buffer, board->queue_buff_size, MSG_DONTWAIT);
         if(recv < 0) rtapi_delay(READ_PCK_DELAY_NS);
         t2 = rtapi_get_time();
         i++;
-    } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
+    } while (recv < 0 && t2 < read_deadline);
     if(recv != board->queue_buff_size) {
-        LL_PRINT("enqueue_read ERROR: reading packet: recv() -> %d %s (expected to read %d bytes)\n", recv, strerror(errno), board->queue_buff_size);
         board->queue_reads_count = 0;
         board->queue_buff_size = 0;
+        if(board->comm_error_counter < 10)
+            board->comm_error_counter ++;
+        return board->comm_error_counter < 10;
         return 0;
     }
+
+    if(board->comm_error_counter < 2)
+        board->comm_error_counter = 0;
+    else
+        board->comm_error_counter -= 2;
+
     LL_PRINT_IF(debug, "enqueue_read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, recv, i, t2 - t1);
 
     for (i = 0; i < board->queue_reads_count; i++) {

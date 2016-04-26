@@ -53,6 +53,7 @@ typedef struct {
     int read_cnt;
     int write_cnt;
 
+    int comm_error_counter;
     struct arpreq req;
 } hm2_eth_t;
 
