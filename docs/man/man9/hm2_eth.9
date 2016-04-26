@@ -91,6 +91,59 @@ iface eth1 inet static
     hardware-irq-coalesce-rx-usecs 0
 .EE
 
+.SH PINS
+In addition to the pins documented in
+.BR hostmot2(9) ", " hm2_eth(9)
+creates additional pins:
+
+.TP
+(bit, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error
+This pin is TRUE when the most recent cycle detected a read or write error,
+and FALSE at other times.
+.TP
+(s32, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error-level
+This pin shows the current error level, with higher numbers indicating
+a greater number of recent detected errors.  The error level is always in
+the range from 0 to packet-error-limit, inclusive.
+.TP
+(bit, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error-exceeded
+This pin is TRUE when the current error level is equal to the maximum,
+and FALSE at other times.
+
+.SH PARAMETERS
+In addition to the parameters documented in
+.BR hostmot2(9) ", " hm2_eth(9)
+creates additional parameters:
+
+.TP
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error-decrement
+The amount deducted from \fIpacket-error-level\fR in a cycle without
+detected read or write errors, without going below zero.
+
+.TP
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error-increment
+The amount added to \fIpacket-error-level\fR in a cycle without
+detected read or write errors, without going above packet-error-limit.
+
+.TP
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error-limit
+The level at which a detected read or write error is treated as a permament
+error.  When this error level is reached, the board's \fIio-error\fR pin
+becomes TRUE and the condition must be manually reset.
+
+.TP
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-read-timeout
+The length of time that must pass before a read request times out.
+If the value is less than or equal to 0, it is interpreted as 80% of the thread
+period.  If the value is less than 100, it is interpreted as a percentage of
+the thread period.  Otherwise, it is interpreted as a time in nanoseconds.  In
+any case, the timeout is never less than 100 microseconds.
+
+Setting this value too low can cause spurious read errors.  Setting it too
+high can cause realtime delay errors.
+
+
+.B
 .SH NOTES
 hm2_eth uses an iptables chain called "hm2-eth-rules-output" to control access
 to the network interface while hal is running.  The chain is created if it does

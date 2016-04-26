@@ -54,7 +54,18 @@ typedef struct {
     int write_cnt;
 
     int comm_error_counter;
+    uint16_t old_rxudpcount, rxudpcount;
     struct arpreq req;
+
+    struct {
+        hal_s32_t read_timeout;
+        hal_s32_t packet_error_limit;
+        hal_s32_t packet_error_increment;
+        hal_s32_t packet_error_decrement;
+        hal_bit_t *packet_error;
+        hal_s32_t *packet_error_level;
+        hal_bit_t *packet_error_exceeded;
+    } *hal;
 } hm2_eth_t;
 
 #endif
