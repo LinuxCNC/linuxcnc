@@ -137,9 +137,8 @@ static int loadTraj(EmcIniFile *trajInifile)
         angularUnits = 0;
         trajInifile->FindAngularUnits(&angularUnits, "ANGULAR_UNITS", "TRAJ");
         if (0 != emcTrajSetUnits(linearUnits, angularUnits)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetUnits\n");
-            }
+            rcs_print("emcTrajSetUnits failed to set "
+                      "[TRAJ]LINEAR_UNITS or [TRAJ]ANGULAR_UNITS\n");
             return -1;
         }
 
