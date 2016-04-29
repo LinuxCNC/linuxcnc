@@ -3172,6 +3172,9 @@ editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
 tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
 tooltable = inifile.find("EMCIO", "TOOL_TABLE")
+if inifile.find("RS274NGC", "PARAMETER_FILE") is None:
+    raise SystemExit, (
+          "Missing ini file setting for [RS274NGC]PARAMETER_FILE")
 try:
     lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
 except TypeError:
