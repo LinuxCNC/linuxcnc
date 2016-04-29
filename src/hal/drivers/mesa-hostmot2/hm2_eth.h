@@ -48,7 +48,7 @@ typedef struct {
     int queue_buff_size;
 
     rtapi_u8 write_packet[1400];
-    void *write_packet_ptr;
+    rtapi_u8 *write_packet_ptr;
     int write_packet_size;
     int read_cnt;
     int write_cnt;

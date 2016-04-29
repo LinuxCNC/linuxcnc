@@ -640,7 +640,7 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
     }
     t1 = rtapi_get_time();
     LL_PRINT_IF(debug, "enqueue_write(%d) : PACKET SEND [SIZE: %d | TIME: %llu]\n", board->write_cnt, send, t1 - t0);
-    board->write_packet_ptr = &board->write_packet;
+    board->write_packet_ptr = board->write_packet;
     board->write_packet_size = 0;
     return 1;
 }
