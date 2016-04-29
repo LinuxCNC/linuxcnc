@@ -42,8 +42,9 @@ typedef struct {
     struct sockaddr_in local_addr;
     struct sockaddr_in server_addr;
 
+    rtapi_u8 read_packet[1400];
+    rtapi_u8 *read_packet_ptr;
     hm2_read_queue_entry_t queue_reads[MAX_ETH_READS];
-    lbp16_cmd_addr queue_packets[MAX_ETH_READS];
     int queue_reads_count;
     int queue_buff_size;
 

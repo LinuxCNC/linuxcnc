@@ -381,6 +381,7 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
     }
 
     board->write_packet_ptr = board->write_packet;
+    board->read_packet_ptr = board->read_packet;
 
     return 0;
 }
@@ -471,7 +472,8 @@ static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
     int send;
 
     // read (low 16 bits of) last write number from space 4 address 0010
-    LBP16_INIT_PACKET4(board->queue_packets[board->queue_reads_count], CMD_READ_COMM_CTRL_ADDR16(1), 0x8);
+    LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)(board->read_packet_ptr), CMD_READ_COMM_CTRL_ADDR16(1), 0x8);
+    board->read_packet_ptr += sizeof(lbp16_cmd_addr);
     board->queue_reads[board->queue_reads_count].buffer = &board->rxudpcount;
     board->queue_reads[board->queue_reads_count].size = 2;
     board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
@@ -479,7 +481,7 @@ static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
     board->queue_buff_size += 2;
     
     board->read_cnt++;
-    send = eth_socket_send(board->sockfd, (void*) &board->queue_packets, sizeof(lbp16_cmd_addr)*board->queue_reads_count, 0);
+    send = eth_socket_send(board->sockfd, (void*) &board->read_packet, board->read_packet_ptr - board->read_packet, 0);
     if(send < 0) {
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
         return 0;
@@ -547,6 +549,7 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
         i++;
     } while (recv < 0 && t2 < read_deadline);
     if(recv != board->queue_buff_size) {
+        board->read_packet_ptr = board->read_packet;
         board->queue_reads_count = 0;
         board->queue_buff_size = 0;
         return record_soft_error(board);
@@ -558,6 +561,7 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
         memcpy(board->queue_reads[i].buffer, &tmp_buffer[board->queue_reads[i].from], board->queue_reads[i].size);
     }
 
+    board->read_packet_ptr = board->read_packet;
     board->queue_reads_count = 0;
     board->queue_buff_size = 0;
 
@@ -588,7 +592,8 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
     // XXX this is missing a check for exceeding the maximum packet size!
-    LBP16_INIT_PACKET4(board->queue_packets[board->queue_reads_count], CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
+    LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)board->read_packet_ptr, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
+    board->read_packet_ptr += sizeof(lbp16_cmd_addr);
     board->queue_reads[board->queue_reads_count].buffer = buffer;
     board->queue_reads[board->queue_reads_count].size = size;
     board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
