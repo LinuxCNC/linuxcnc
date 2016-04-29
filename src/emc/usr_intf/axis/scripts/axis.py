@@ -3172,7 +3172,11 @@ editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
 tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
 tooltable = inifile.find("EMCIO", "TOOL_TABLE")
-lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
+try:
+    lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
+except TypeError:
+    raise SystemExit, (
+          "Missing [TRAJ]LINEAR_UNITS or ANGULAR_UNITS")
 a_axis_wrapped = inifile.find("AXIS_A", "WRAPPED_ROTARY")
 b_axis_wrapped = inifile.find("AXIS_B", "WRAPPED_ROTARY")
 c_axis_wrapped = inifile.find("AXIS_C", "WRAPPED_ROTARY")
