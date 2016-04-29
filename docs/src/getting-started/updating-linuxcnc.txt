@@ -341,7 +341,7 @@ and a rotary axis with skipped axis letters (A,B skipped):
   [TRAJ]COORDINATES = XYYZC
 -----
 
-Linear Delta Robot with non-identity kins (KINEMATICS_BOTH) working in cartesian frame
+Linear Delta Robot with non-identity kins (KINEMATICS_BOTH) working in Cartesian frame
 with an additional rotary coordinate:
 -----
   [KINS]KINEMATICS  = lineardeltakins
@@ -666,5 +666,94 @@ This command now attemps to jog the zeroth joint (Joint0) provided
 the mode is free (not teleop).  To jog the X axis, the mode
 must be teleop and the corresponding command is: 'set jog x 1.234'
 
+== Simulator configurations (updates for joints axes)
+
+=== Pre-joints_axes
+
+Prior to joints_axes incorporation, the halfiles used in sim configs
+typically supported a common milling machine -- a Cartesian system with
+trivial kinematics and three axes named 'X Y Z'.  Typical halfile
+entries:
+
+----
+[HAL]
+HALFILE = core_sim.hal
+HALFILE = sim_spindle_encoder.hal
+HALFILE = axis_manualtoolchange.hal
+HALFILE = simulated_home.hal
+----
+
+Lathe configs often shared the same halfiles and used the expedient
+method of specifying 3 axes with 'Y' unused.  More complex sim configs
+provided specific sets of halfiles according to the configuration
+purpose.
+
+=== Post-joints_axes
+
+With the incorporation of joints_axes functionality, may sims provided
+in the distribution now take advantage of a general purpose halfile that
+supports numerous configurations automatically.  A typical sim config
+HALFILE specification is:
+
+----
+[HAL]
+HALFILE = LIB:basic_sim.tcl
+----
+
+The basic_sim.tcl HALFILE supports a number of commonly required
+functions for any number of joints as specified by:
+
+----
+[KINS]
+...
+JOINTS = number_of_joints
+...
+----
+
+Functions supported include:
+
+. ddts -- differentiator hal components are loaded and connected
+for each joint (and xy, xyz for trivkins machines)
+
+. simulated_home -- a sim_home_switch hal component is loaded and
+connected for each joint.  The homing conditions are specified by the
+usual [JOINT_n]HOME_* ini file items.
+
+. use_hal_manualtoolchange -- the user space hal_manualtoolchange
+component is loaded and connected.
+
+.sim_spindle -- the sim_spindle component is loaded and connected to
+additional loaded hal components to simulate the inertia of a rotating
+spindle mass.
+
+These functions are activated by default but can be excluded using
+options '-no_make_ddts, -no_simulated_home, -no_use_hal_manualtoolchange,
+no_sim_spindle'.  For example, to omit ddts:
+
+----
+HALFILE = LIB:basic_sim.tcl -no_make_ddts
+----
+
+Omitting one or more of the core functions allow a user to test without
+the function or to add new HALFILEs to implement or expand on the
+functionality.
+
+=== Notes
+
+All components and connections made by LIB:basic_sim.tcl can be viewed
+using halcmd.  The entire hal configuration (except for userspace
+components loaded with loadusr) can be saved to a file using:
+
+----
+$ halcmd save > hal.save
+----
+
+Use of LIB:basic_sim.tcl reduces the effort needed to make a simulation
+config since it handles most of the required component loading and hal
+connections.
+
+The sim config 'Sample Configurations/sim/axis/minimal_xyz.ini'
+demonstrates a working xyz configuration that uses LIB:basic_sim.tcl
+with a minimal number of ini file settings.
 
 // vim: set syntax=asciidoc:
