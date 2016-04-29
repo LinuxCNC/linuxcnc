@@ -1,9 +1,21 @@
-component ringread;
+component ringread "demonstrate ring read operations";
+
+description
+"""
+Demonstartion of ringread operations
+
+Will output
+    
+    Number of underruns
+    Number of successful reads
+    Number of times writer outstripped the reader
+""";    
 
 pin out u32 underrun   "number of failed read attempts";
 pin out u32 received   "number of successful read attempts";
 pin out u32 tooslow    "number of times the reader couldnt keep up with the writer";
 pin in  bit circular   "circular flag - set to nonzero to enable circular record buffer";
+
 function _;
 
 option singleton yes;

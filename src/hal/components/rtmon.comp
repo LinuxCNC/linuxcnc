@@ -1,7 +1,7 @@
 component rtmon "monitor RT faults and generate estop signal based on a parameterized function";
 
-description """
-
+description 
+"""
 This component is an example how realtime faults (e.g. timing violations) can be dealt with. The realtime API (RTAPI)
 only collects relevant events but does not act upon them; every RT fault causes a call to the RTAPI
 exception handler, which is a function in RTAPI printing a message to the system log by default.
@@ -39,8 +39,8 @@ pin out u32 fault_count "current level for RT scheduling violations; reset on es
 pin out u32 stats_updates  "total number of rtapi_task_update_stats() calls so far";
 
 // default values: cause estop on first RT fault
-param rw u32 fault_inc  = 1      "increment faul_count by fault_inc for each RT fault detected";
-param rw u32 fault_dec  = 0      "decrement faul_count in each thread iteration";
+param rw u32 fault_inc  = 1      "increment fault_count by fault_inc for each RT fault detected";
+param rw u32 fault_dec  = 0      "decrement fault_count in each thread iteration";
 param rw u32 fault_limit = 1     "if fault_count exceeds fault_limit, cause an estop";
 param rw bit autoclear_estop = 0 "clear estop condition once fault_count reaches zero";
 param rw u32 stats_divisor = 1000 "rtapi_task_update_stats() update frequency";

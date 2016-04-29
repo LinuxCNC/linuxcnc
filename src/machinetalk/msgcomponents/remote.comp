@@ -1,6 +1,6 @@
 // demo comp - a remote component
 
-component remote;
+component remote "demonstrate a remote component";
 
 pin in  float to_remote    "a value passed to a remote HAL component";
 pin in  float from_remote  "a value updated by a remote HAL component";

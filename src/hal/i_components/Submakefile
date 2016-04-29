@@ -13,10 +13,19 @@ ICOMPS := $(sort $(wildcard $(HALICOMPDIR)/*.icomp))
 ICOMP_MANPAGES := $(patsubst $(HALICOMPDIR)/%.icomp, ../man/man9/%.9icomp, \
 	$(ICOMPS))
 
+ICOMP_DOCPAGES := $(patsubst $(HALICOMPDIR)/%.icomp, ../man/doc/man9/%.asciidoc, \
+	$(ICOMPS))
 
 i_manpages: $(ICOMP_MANPAGES)
+i_docpages: $(ICOMP_DOCPAGES)
+
 TARGETS += i_manpages
 .PHONY: i_manpages
+
+ifeq ($(BUILD_DOCS),yes)
+TARGETS += i_docpages
+.PHONY: i_docpages
+endif
 
 ifeq ($(TRIVIAL_BUILD)+$(BUILD_THREAD_MODULES),no+yes)
 -include $(patsubst %.icomp, $(BASEPWD)/halcomp-srcs/%.mak,\
@@ -37,6 +46,14 @@ $(ICOMP_MANPAGES): ../man/man9/%.9icomp: $(HALICOMPDIR)/%.icomp ../bin/instcomp
 	$(ECHO) Making icomp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/instcomp --document -o $@ $<
+
+ICOMP_DOCPAGES := $(patsubst $(HALICOMPDIR)/%.icomp, ../man/doc/man9/%.asciidoc, \
+	$(ICOMPS))
+
+$(ICOMP_DOCPAGES): ../man/doc/man9/%.asciidoc: $(HALICOMPDIR)/%.icomp ../bin/instcomp
+	$(ECHO) Making icomp docpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/instcomp --ascii-document -o $@ $<
 
 ifeq ($(BUILD_ALL_FLAVORS),yes)
 # .c and .mak files are identical for all flavors
@@ -63,6 +80,10 @@ modules: $(patsubst %.icomp, halcomp-srcs/%.mak, \
 	$(ICOMPS))
 endif # BUILD_ALL_FLAVORS == yes
 
-clean: clean-icomp-manpages
-clean-icomp-manpages:
-	-rm -f $(ICOMP_MANPAGES)
+#.PHONEY: clean
+# now done directly in main Makefile
+#clean:
+#	-rm -f ../man/man9/*.9icomp
+#	-rm -f ../man/doc/man9/*.asciidoc
+
+

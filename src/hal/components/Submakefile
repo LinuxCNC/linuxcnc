@@ -16,18 +16,37 @@ CONVERTERS :=  \
     conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
 COMPS := $(sort $(wildcard hal/components/*.comp) \
 	$(addprefix hal/components/, $(CONVERTERS)))
+	
 COMP_MANPAGES := $(patsubst hal/components/%.comp, ../man/man9/%.9comp, \
+	$(COMPS))
+
+COMP_DOCPAGES := $(patsubst hal/components/%.comp, ../man/doc/man9/%.asciidoc, \
 	$(COMPS))
 
 MSG_COMPS := $(wildcard machinetalk/msgcomponents/*.comp)
 MSG_COMP_MANPAGES := $(patsubst machinetalk/msgcomponents/%.comp, \
 	../man/man9/%.9comp, $(MSG_COMPS))
 
+MSG_COMP_DOCPAGES := $(patsubst machinetalk/msgcomponents/%.comp, \
+	../man/doc/man9/%.asciidoc, $(MSG_COMPS))
+
 DRIVER_COMPS := $(wildcard hal/drivers/*.comp)
 DRIVER_COMP_MANPAGES := $(patsubst hal/drivers/%.comp, ../man/man9/%.9comp, \
 	$(COMP_DRIVERS))
 
+DRIVER_COMP_DOCPAGES := $(patsubst hal/drivers/%.comp, ../man/doc/man9/%.asciidoc, \
+	$(COMP_DRIVERS))
+
+
+
+
+ifeq ($(BUILD_DOCS),yes)                                       
+manpages: $(COMP_MANPAGES) $(COMP_DOCPAGES) $(DRIVER_COMP_MANPAGES) $(DRIVER_COMP_DOCPAGES) $(MSG_COMP_MANPAGES) $(MSG_COMP_DOCPAGES)
+else
 manpages: $(COMP_MANPAGES) $(DRIVER_COMP_MANPAGES) $(MSG_COMP_MANPAGES)
+endif        
+
+
 TARGETS += manpages
 .PHONY: manpages
 ifeq ($(TRIVIAL_BUILD)+$(BUILD_THREAD_MODULES),no+yes)
@@ -48,16 +67,33 @@ $(COMP_MANPAGES): ../man/man9/%.9comp: hal/components/%.comp ../bin/comp
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
 
+$(COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/components/%.comp ../bin/comp
+	$(ECHO) Making comp docpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/comp --ascii-document -o $@ $<
+
+
 $(DRIVER_COMP_MANPAGES): ../man/man9/%.9comp: hal/drivers/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
+
+$(DRIVER_COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/drivers/%.comp ../bin/comp
+	$(ECHO) Making driver comp docpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/comp --ascii-document -o $@ $<
 
 $(MSG_COMP_MANPAGES): ../man/man9/%.9comp: \
 		machinetalk/msgcomponents/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
+
+$(MSG_COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: \
+		machinetalk/msgcomponents/%.comp ../bin/comp
+	$(ECHO) Making message comp docpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/comp --ascii-document -o $@ $<
 
 ifeq ($(BUILD_ALL_FLAVORS),yes)
 # .c and .mak files are identical for all flavors

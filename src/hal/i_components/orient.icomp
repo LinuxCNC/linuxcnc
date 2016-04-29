@@ -11,23 +11,24 @@ variable hal_bit_t   last_enable = false;
 
 option fp yes;
 
-function _ "Update \\fBcommand\\fR based on \\fBenable\\fR, \\fBposition\\fR, \\fBmode\\fR and \\fBangle\\fR.";
+function _ "Update *command* based on *enable*, *position*, *mode* and *angle*.";
 author "Michael Haberler";
 
 
-description """
+description 
+"""
 This component is designed to support a spindle orientation PID loop by providing a
 command value, and fit with the motion spindle-orient support pins to support the M19 code.
 
 The spindle is assumed to have stopped in an arbitrary position. The spindle
-encoder position is linked to the  \\fBposition\\fR pin.
-The  current value of the position pin is sampled on a positive edge on the \\fBenable\\fR pin, and
-\\fBcommand\\fR is computed and set as follows: floor(number of
+encoder position is linked to the  *position* pin.
+The  current value of the position pin is sampled on a positive edge on the *enable* pin, and
+*command* is computed and set as follows: floor(number of
 full spindle revolutions
-in the \\fBposition\\fR sampled on positive edge)
-plus \\fBangle\\fR/360 (the fractional revolution) +1/-1/0 depending on \\fBmode\\fR.
+in the *position* sampled on positive edge)
+plus *angle*/360 (the fractional revolution) +1/-1/0 depending on *mode*.
 
-The \\fBmode\\fR pin is interpreted as follows:
+The *mode* pin is interpreted as follows:
 
 0: the spindle rotates in the direction with the lesser angle,
 which may be clockwise or counterclockwise.
@@ -36,26 +37,24 @@ which may be clockwise or counterclockwise.
 
 2: the spindle rotates always rotates counterclockwise to the new angle.
 
+HAL USAGE
 
-.SH HAL USAGE
-
-On \\fBmotion.spindle-orient\\fR disconnect the spindle control and connect to the orient-pid
+On *motion.spindle-orient* disconnect the spindle control and connect to the orient-pid
 loop:
 
 loadrt orient names=orient
-.br
+
 loadrt pid    names=orient-pid
-.br
+
 net orient-angle  motion.spindle-orient-angle orient.angle
-.br
+
 net orient-mode   motion.spindle-orient-mode  orient.mode
-.br
+
 net orient-enable motion.spindle-orient       orient.enable orient-pid.enable
-.br
+
 net spindle-pos    ...encoder..position orient.position orient-pid.feedback
-.br
+
 net orient-command orient.command orient-pid.command
-.br
 
 """;
 

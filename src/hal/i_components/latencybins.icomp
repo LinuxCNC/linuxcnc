@@ -1,8 +1,13 @@
-component latencybins
-"""comp utility for scripts/latencyhistogram
-
+component latencybins "comp utility for scripts/latencyhistogram";
+description
+"""
 Usage:
   Read availablebins pin for the number of bins available.
+""";
+
+special_format_doc
+"""
+[%hardbreaks]
   Set the maxbinnumber pin for the number of +/- bins.
     Ensure maxbinnumber <= availablebins
     For maxbinnumber = N, the bins are numbered:
@@ -18,14 +23,36 @@ Usage:
          (nbinvalue is count for bin = -index)
          (pextra    is count for all bins > maxbinnumber)
          (nextra    is count for all bins < maxbinnumber)
+   If index is out of range ( index < 0 or index > maxbinnumber)
+   then pbinvalue = nbinvalue = -1.
+   The reset pin may be used to restart.
+   The latency pin outputs the instantaneous latency.
+Maintainers note: hardcoded for MAXBINNUMBER==1000
+""";
 
+special_format_man
+"""
+  Set the maxbinnumber pin for the number of +/- bins.
+    Ensure maxbinnumber <= availablebins
+    For maxbinnumber = N, the bins are numbered:
+       -N ... 0 ... + N bins
+    (the -0 bin is not populated)
+    (total effective bins = 2*maxbinnumber +1)
+  Set nsbinsize pin for the binsize (ns)
+  Iterate:
+    Set index pin to a bin number: 0 <= index <= maxbinnumber.
+    Read check pin and verify that check pin == index pin.
+    Read pbinvalue,nbinvalue,pextra,nextra pins.
+         (pbinvalue is count for bin = +index)
+         (nbinvalue is count for bin = -index)
+         (pextra    is count for all bins > maxbinnumber)
+         (nextra    is count for all bins < maxbinnumber)
    If index is out of range ( index < 0 or index > maxbinnumber)
    then pbinvalue = nbinvalue = -1.
    The reset pin may be used to restart.
    The latency pin outputs the instantaneous latency.
 
 Maintainers note: hardcoded for MAXBINNUMBER==1000
-
 """;
 
 pin in  s32 maxbinnumber = 1000;  // MAXBINNUMBER

@@ -1,5 +1,8 @@
 component stats "compute mean and variance of a value";
-// http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+see_also
+"""
+http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+""";
 pin in float in;
 pin in bit enable "";
 pin out float mean;

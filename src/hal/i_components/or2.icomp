@@ -1,17 +1,18 @@
 component or2 "Two-input OR gate";
 pin in bit in0;
 pin in bit in1;
-pin out bit out """\
-\\fBout\\fR is computed from the value of \\fBin0\\fR and \\fBin1\\fR according
+pin out bit out 
+"""
+*out* is computed from the value of *in0* and *in1* according
 to the following rule:
-.RS
-.TP
-\\fBin0=FALSE in1=FALSE\\fB
-\\fBout=FALSE\\fR
-.TP
+
+    in0=FALSE in1=FALSE
+    out=FALSE
+
 Otherwise,
-\\fBout=TRUE\\fR
-.RE"""
+
+    out=TRUE
+"""
 ;
 function _ nofp;
 license "GPL";

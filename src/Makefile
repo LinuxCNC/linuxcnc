@@ -7,7 +7,7 @@ ifeq ("$(origin VV)", "command line")
 endif
 # Delete the default suffix rules
 .SUFFIXES:
-.PHONY: default userspace modules clean modclean depclean install python pythonclean cscope cscopeclean
+.PHONY: default userspace modules clean modclean depclean docclean install python pythonclean cscope cscopeclean
 
 # A "trivial build" is one which should not include dependency information
 # either because it should be usable before dependency information can be
@@ -176,6 +176,7 @@ INSTALL_DIRS :=
 # Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \
 	\
+	../man \
 	machinetalk \
 	machinetalk/support \
 	machinetalk/messagebus \
@@ -277,6 +278,7 @@ TODEPS = $(patsubst %.cc,depends/%$(2).d,$(patsubst %.c,depends/%$(2).d,$(1)))
 TOOBJSDEPS = $(call TOOBJS,$(1),$(2)) $(call TODEPS, $(1),$(2))
 
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
+#$(info SUBMAKEFILES=$(SUBMAKEFILES))
 -include $(wildcard $(SUBMAKEFILES))
 
 # This checks that all the things listed in USERSRCS are either C files
@@ -700,8 +702,12 @@ modclean:
 
 depclean:
 	-rm -rf depends
-
-clean: depclean modclean
+	
+docclean:
+	-rm -f ../man/man9/*.9icomp
+	-rm -f ../man/doc/man9/*.asciidoc
+	
+clean: depclean modclean docclean
 	find . -name '*.o' |xargs rm -f
 	-rm -rf objects
 	-rm -f $(TARGETS)
