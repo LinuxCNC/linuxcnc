@@ -114,15 +114,15 @@ followed by the appropriate pin, param, or signal name.  The
 token-name pairs are separated by a space character.
 
 Example:
-   pin+axis.0.pos-hard-limit pin+axis.1.pos-hard-limit sig+estop-loop
+   pin+joint.0.pos-hard-limit pin+joint.1.pos-hard-limit sig+estop-loop
 
 A watchfile created using the 'File/Save Watch List (multiline)' menu item
 is formatted with separate lines for each item identified with token-name
 pairs as described above.
 
 Example:
-   pin+axis.0.pos-hard-limit
-   pin+axis.1.pos-hard-limit
+   pin+joint.0.pos-hard-limit
+   pin+joint.1.pos-hard-limit
    sig+estop-loop
 
 When loading a watchfile with the 'File/Load Watch List' menu item, the

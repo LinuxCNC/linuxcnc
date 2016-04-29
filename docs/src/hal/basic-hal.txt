@@ -106,10 +106,10 @@ must be separated by a space from the pin names.
 ----
 net signal-name pin-name <optional arrow> <optional second pin-name>
 
-net home-x axis.0.home-sw-in <= parport.0.pin-11-in
+net home-x joint.0.home-sw-in <= parport.0.pin-11-in
 ----
 
-In the above example 'home-x' is the signal name, 'axis.0.home-sw-in' is a
+In the above example 'home-x' is the signal name, 'joint.0.home-sw-in' is a
 'Direction IN' pin, '<=' is the optional direction arrow, and 
 'parport.0.pin-11-in' is a 'Direction OUT' pin. This may seem confusing but
 the in and out labels for a parallel port pin indicates the physical way the
