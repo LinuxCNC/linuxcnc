@@ -156,37 +156,37 @@ typedef struct {
 } lbp16_write_ip_addr_packets;
 
 #define LBP16_INIT_PACKET4(packet, cmd, addr) do { \
-    packet.cmd_hi = LO_BYTE(cmd); \
-    packet.cmd_lo = HI_BYTE(cmd); \
-    packet.addr_hi = LO_BYTE(addr); \
-    packet.addr_lo = HI_BYTE(addr); \
+    (packet).cmd_hi = LO_BYTE(cmd); \
+    (packet).cmd_lo = HI_BYTE(cmd); \
+    (packet).addr_hi = LO_BYTE(addr); \
+    (packet).addr_lo = HI_BYTE(addr); \
     } while (0);
 
 #define LBP16_INIT_PACKET4_PTR(packet, cmd, addr) do { \
-    packet->cmd_hi = LO_BYTE(cmd); \
-    packet->cmd_lo = HI_BYTE(cmd); \
-    packet->addr_hi = LO_BYTE(addr); \
-    packet->addr_lo = HI_BYTE(addr); \
+    (packet)->cmd_hi = LO_BYTE(cmd); \
+    (packet)->cmd_lo = HI_BYTE(cmd); \
+    (packet)->addr_hi = LO_BYTE(addr); \
+    (packet)->addr_lo = HI_BYTE(addr); \
     } while (0);
 
 #define LBP16_INIT_PACKET6(packet, cmd, addr, data) do { \
-    packet.cmd_hi = LO_BYTE(cmd); \
-    packet.cmd_lo = HI_BYTE(cmd); \
-    packet.addr_hi = LO_BYTE(addr); \
-    packet.addr_lo = HI_BYTE(addr); \
-    packet.data_hi = LO_BYTE(data); \
-    packet.data_lo = HI_BYTE(data); \
+    (packet).cmd_hi = LO_BYTE(cmd); \
+    (packet).cmd_lo = HI_BYTE(cmd); \
+    (packet).addr_hi = LO_BYTE(addr); \
+    (packet).addr_lo = HI_BYTE(addr); \
+    (packet).data_hi = LO_BYTE(data); \
+    (packet).data_lo = HI_BYTE(data); \
     } while (0);
 
 #define LBP16_INIT_PACKET8(packet, cmd, addr, data) do { \
-    packet.cmd_hi = LO_BYTE(cmd); \
-    packet.cmd_lo = HI_BYTE(cmd); \
-    packet.addr_hi = LO_BYTE(addr); \
-    packet.addr_lo = HI_BYTE(addr); \
-    packet.data1 = LO_BYTE(data); \
-    packet.data2 = HI_BYTE(data); \
-    packet.data3 = LO_BYTE((data >> 16) & 0xFFFF); \
-    packet.data4 = HI_BYTE((data >> 16) & 0xFFFF); \
+    (packet).cmd_hi = LO_BYTE(cmd); \
+    (packet).cmd_lo = HI_BYTE(cmd); \
+    (packet).addr_hi = LO_BYTE(addr); \
+    (packet).addr_lo = HI_BYTE(addr); \
+    (packet).data1 = LO_BYTE(data); \
+    (packet).data2 = HI_BYTE(data); \
+    (packet).data3 = LO_BYTE((data >> 16) & 0xFFFF); \
+    (packet).data4 = HI_BYTE((data >> 16) & 0xFFFF); \
     } while (0);
 
 typedef struct {
