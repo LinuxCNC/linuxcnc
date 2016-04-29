@@ -3229,7 +3229,10 @@ if homing_order_defined:
 widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s" % ja_name))
 
-trajcoordinates=inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
+try:
+    trajcoordinates=inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
+except:
+    raise SystemExit("Missing [TRAJ]COORDINATES")
 vars.trajcoordinates.set(trajcoordinates)
 
 kinstype=inifile.find("KINS", "KINEMATICS").lower()
