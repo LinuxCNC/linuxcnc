@@ -24,7 +24,7 @@ system:
    connected to the bus altogether.
    
 *  20 optically isolated input pins: Six times three for the direct 
-   connection of two end switch and one homing sensor for each axis. And 
+   connection of two end switch and one homing sensor for each joint. And
    additionally, two optically isolated E-stop inputs.
 
 image::images/GMsystem.png[align="center", scaledwidth="70%",alt="GM servo control system"]
@@ -263,12 +263,12 @@ setp gm.0.encoder.0.position-scale 20000   # 10 encoder rev cause the machine to
 Connect encoder position to LinuxCNC position feedback:
 
 ----
-net Xpos-fb gm.0.encoder.0.position => axis.0.motor-pos-fb
+net Xpos-fb gm.0.encoder.0.position => joint.0.motor-pos-fb
 ----
 
 === Stepgen module
 
-The GM6-PCI motion control card has six stepgen modules, one for each axis. 
+The GM6-PCI motion control card has six stepgen modules, one for each joint.
 Each module has two output signals. It can produce Step/Direction, 
 Up/Down or Quadrature (A/B) pulses. Each stepgen module is connected 
 to the pins of the corresponding RJ50 axis connector.
@@ -365,8 +365,8 @@ setp gm.0.stepgen.0.dirdelay 2000       # 2000 ns = 2 us
 Connect stepgen to axis 0 position reference and enable pins:
 
 ----
-net Xpos-cmd axis.0.motor-pos-cmd => gm.0.stepgen.0.position-cmd
-net Xen axis.0.amp-enable-out => gm.0.stepgen.0.enable
+net Xpos-cmd joint.0.motor-pos-cmd => gm.0.stepgen.0.position-cmd
+net Xen joint.0.amp-enable-out => gm.0.stepgen.0.enable
 ----
 
 === Enable and Fault signals
@@ -400,7 +400,7 @@ gm.<nr of card>.read
 === Axis DAC
 
 The GM6-PCI motion control card has six serial axis DAC driver modules, 
-one for each axis. Each module is connected to the pin of the 
+one for each joint. Each module is connected to the pin of the
 corresponding RJ50 axis connector.
 Every axis DAC pin and parameter name begins as follows:
 
@@ -581,16 +581,16 @@ image::images/GM_ENDSWpinout.png[align="center"]
 2+| GND       | 1/End+ | 1/Hom-ing | 2/End- | 3/End+ | 3/Hom-ing | 4/End- | 5/End+ | 5/Hom-ing | 6/End- | E-Stop 1 | V+ (Ext.)
 |========================================
 
-The GM6-PCI motion control card has two limit- and one homing switch input for each axis. All the names of these pins begin as follows:
+The GM6-PCI motion control card has two limit- and one homing switch input for each joint. All the names of these pins begin as follows:
 
 ----
-gm.<nr. of card>.axis.<nr of axis>
+gm.<nr. of card>.joint.<nr of axis>
 ----
 
 ,where nr of axis is form 0 to 5. For example:
 
 ----
-gm.0.axis.0.home-sw-in
+gm.0.joint.0.home-sw-in
 ----
 
 indicates the state of the axis 0 home switch.

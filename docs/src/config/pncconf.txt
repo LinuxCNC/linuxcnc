@@ -626,7 +626,7 @@ in 'active high' - a TRUE means the switch was tripped. When
 starting LinuxCNC if you get an on-limit warning, and axis is NOT
 tripping the switch, inverting the signal is probably the
 solution. (use HALMETER to check the corresponding HAL signal  
-eg. axis.0.pos-lim-sw-in  X axis positive limit switch)
+eg. joint.0.pos-lim-sw-in  X axis positive limit switch)
 
 Decide on the home switch location.
 
