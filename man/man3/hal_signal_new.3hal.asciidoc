@@ -1,0 +1,63 @@
+= hal_signal_new(3hal)
+:manmanual: HAL Components
+:mansource: ../man/man3/hal_signal_new.3hal.asciidoc
+:man version : 
+
+
+== NAME
+
+hal_signal_new, hal_signal_delete, hal_link, hal_unlink -- Manipulate HAL signals
+
+
+
+== SYNTAX
+int hal_signal_new(const char *__signal_name__, hal_type_t __type__)
+
+int hal_signal_delete(const char *__signal_name__)
+
+int hal_link(const char *__pin_name__, const char *__signal_name__)
+
+int hal_unlink(const char *__pin_name__)
+
+
+== ARGUMENTS
+.IP __signal_name__
+The name of the signal
+
+.IP __pin_name__
+The name of the pin
+
+.IP __type__
+The type of the signal, as specified in **hal_type_t(3hal)**.
+
+
+
+== DESCRIPTION
+**hal_signal_new** creates a new signal object.  Once a signal has been
+created, pins can be linked to it with **hal_link**.  The signal object
+contains the actual storage for the signal data.  Pin objects linked to the
+signal have pointers that point to the data.  'name' is the name of the new
+signal.  It may be no longer than HAL_NAME_LEN characters.  If there is already
+a signal with the same name the call will fail.
+
+**hal_link** links a pin to a signal.  If the pin is already linked to the
+desired signal, the command succeeds.  If the pin is already linked to some
+other signal, it is an error.  In either case, the existing connection is not
+modified.  (Use 'hal_unlink' to break an existing connection.)  If the signal
+already has other pins linked to it, they are unaffected - one signal can be
+linked to many pins, but a pin can be linked to only one signal.
+
+**hal_unlink** unlinks any signal from the specified pin.
+
+**hal_signal_delete** deletes a signal object.  Any pins linked to the object
+are unlinked.
+
+
+
+== RETURN VALUE
+Returns a HAL status code.
+
+
+
+== SEE ALSO
+**hal_type_t(3hal)**

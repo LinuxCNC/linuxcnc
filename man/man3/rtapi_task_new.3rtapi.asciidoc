@@ -1,0 +1,61 @@
+= rtapi_task_new(3rtapi)
+:manmanual: HAL Components
+:mansource: ../man/man3/rtapi_task_new.3rtapi.asciidoc
+:man version : 
+
+
+== NAME
+
+rtapi_task_new -- create a realtime task
+
+
+
+== SYNTAX
+int rtapi_task_new(void (*__taskcode__)(void*), void *__arg__,
+	int __prio__, unsigned long __stacksize__, int
+	__uses_fp__, char **__name__, int __cpu_id__)
+int rtapi_task_delete(int __task_id__)
+
+
+== ARGUMENTS
+.IP __taskcode__
+A pointer to the function to be called when the task is started
+.IP __arg__
+An argument to be passed to the __taskcode__ function when the task is
+started
+.IP __prio__
+A task priority value returned by **rtapi_prio_xxxx**
+.IP __uses_fp__
+A flag that tells the OS whether the task uses floating point or not.
+.IP __task_id__
+A task ID returned by a previous call to **rtapi_task_new**
+.IP __name__
+The name argument is used to identify the thread by name at the
+operating system level. Corresponds to the HAL name of the thread.
+.IP __cpu_id__
+Bind this thread to a particular CPU core.
+
+
+
+== DESCRIPTION
+**rtapi_task_new** creates but does not start a realtime task.  The task is
+created in the "paused" state.  To start it, call either **rtapi_task_start**
+for periodic tasks, or **rtapi_task_resume** for free-running tasks.
+
+
+
+== REALTIME CONSIDERATIONS
+Call only from within init/cleanup code, not from realtime tasks.
+
+
+
+== RETURN VALUE
+On success, returns a positive integer task ID.  This ID is used
+for all subsequent calls that need to act on the task.  On failure,
+returns an RTAPI status code.
+
+
+
+== SEE ALSO
+**rtapi_prio(3rtapi)**, **rtapi_task_start(3rtapi)**, **rtapi_task_wait(3rtapi)**, **rtapi_task_resume(3rtapi)
+**

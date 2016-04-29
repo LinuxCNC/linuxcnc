@@ -1,0 +1,15 @@
+= undocumented(3hal)
+:manmanual: HAL Components
+:mansource: ../man/man3/undocumented.3hal.asciidoc
+:man version : 
+
+
+== NAME
+
+undocumented -- undocumented functions in HAL
+
+
+
+== SEE ALSO
+The header file __hal.h__.  Most hal functions have documentation
+in that file.

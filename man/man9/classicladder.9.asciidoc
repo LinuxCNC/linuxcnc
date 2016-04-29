@@ -1,0 +1,81 @@
+= CLASSICLADDER(9)
+:manmanual: HAL Components
+:mansource: ../man/man9/classicladder.9.asciidoc
+:man version : 
+
+== NAME
+classicladder - realtime software plc based on ladder logic
+
+== SYNOPSIS
+**loadrt classicladder_rt  [numRungs=**__N__**] [numBits=**__N__**] [numWords=**__N__**] [numTimers=**__N__**] [numMonostables=**__N__**] [numCounters=**__N__**] [numPhysInputs=**__N__**] [numPhysOutputs=**__N__**] [numArithmExpr=**__N__**] [numSections=**__N__**] [numSymbols=**__N__**] [numS32in=**__N__**] [numS32out=**__N__**]**
+
+== DESCRIPTION
+These pins and parameters are created by the realtime **classicladder_rt** module. Each period (minimum 1000000 ns), classicladder reads the inputs, evaluates the ladder logic defined in the GUI, and then writes the outputs.
+
+== PINS
+**classicladder.0.in-**__N__ IN bit
+
+[indent=4]
+====
+These bit signal pins map to **%I**__NNN__ variables in classicladder
+====
+
+**classicladder.0.out-**__N__ OUT bit
+
+[indent=4]
+====
+These bit signal pins map to **%Q**__nNN__ variables in classicladder
+Output from classicladder
+====
+
+**classicladder.0.in-**__N__ IN s32
+
+[indent=4]
+====
+Integer input from classicladder
+These s32 signal pins map to **%IW**__NNN__ variables in classicladder
+====
+
+**classicladder.0.out-**__N__ OUT s32
+
+[indent=4]
+====
+Integer output from classicladder
+These s32 signal pins map to **%QW**__NNN__ variables in classicladder
+====
+
+== PARAMETERS
+**classicladder.0.refresh.time** RO s32
+
+[indent=4]
+====
+Tells you how long the last refresh took
+====
+
+**classicladder.0.refresh.tmax** RW s32
+
+[indent=4]
+====
+Tells you how long the longest refresh took
+====
+
+**classicladder.0.ladder-state** RO s32
+
+[indent=4]
+====
+Tells you if the program is running or not
+====
+
+== FUNCTIONS
+**classicladder.0.refresh** FP 
+
+[indent=4]
+====
+The rung update rate. Add this to the servo thread.
+You can added it to a faster thread but it
+Will update no faster than once every 1 millisecond (1000000 ns).
+====
+
+== SEE ALSO
+__Classicladder__ chapters in the Machinekit documentation for a full
+description of the **Classicladder** syntax and examples

@@ -1,0 +1,79 @@
+= hal_pin_new(3hal)
+:manmanual: HAL Components
+:mansource: ../man/man3/hal_pin_new.3hal.asciidoc
+:man version : 
+
+
+== NAME
+
+hal_pin_new -- Create a HAL pin
+
+
+
+== SYNTAX
+
+ int hal_pin_bit_new(const char *__name__, hal_pin_dir_t __dir__, hal_bit_t ** __data_ptr_addr__, int __comp_id__)
+
+ int hal_pin_float_new(const char *__name__, hal_pin_dir_t __dir__, hal_float_t ** __data_ptr_addr__, int __comp_id__)
+
+ int hal_pin_u32_new(const char *__name__, hal_pin_dir_t __dir__, hal_u32_t ** __data_ptr_addr__, int __comp_id__)
+
+ int hal_pin_s32_new(const char *__name__, hal_pin_dir_t __dir__, hal_s32_t ** __data_ptr_addr__, int __comp_id__)
+
+ int hal_pin_bit_newf(hal_pin_dir_t __dir__, hal_bit_t ** __data_ptr_addr__, int __comp_id__, const char *__fmt__, __...__)
+
+ int hal_pin_float_newf(hal_pin_dir_t __dir__, hal_float_t ** __data_ptr_addr__, int __comp_id__, const char *__fmt__, __...__)
+
+ int hal_pin_u32_newf(hal_pin_dir_t __dir__, hal_u32_t ** __data_ptr_addr__, int __comp_id__, const char *__fmt__, __...__)
+
+ int hal_pin_s32_newf(hal_pin_dir_t __dir__, hal_s32_t ** __data_ptr_addr__, int __comp_id__, const char *__fmt__, __...__)
+
+ int hal_pin_new(const char *__name__, hal_type_t __type__, hal_in_dir_t __dir__, void **__data_ptr_addr__, int __comp_id__)
+
+
+
+== ARGUMENTS
+.IP __name__
+The name of the pin
+.IP __dir__
+
+The direction of the pin, from the viewpoint of the component.  It may be one
+of **HAL_IN**, **HAL_OUT**, or **HAL_IO**.  Any number of **HAL_IN** or
+**HAL_IO** pins may be connected to the same signal, but at most one
+**HAL_OUT** pin is permitted.  A component may assign a value to a pin that
+is **HAL_OUT** or **HAL_IO**, but may not assign a value to a pin that is
+**HAL_IN**.
+
+.IP __data_ptr_addr__
+The address of the pointer-to-data, which must lie within memory allocated by
+**hal_malloc**.
+
+.IP __comp_id__
+A HAL component identifier returned by an earlier call to **hal_init**.
+
+.IP __fmt, ...__
+A printf-style format string and arguments
+
+.IP __type__
+The type of the param, as specified in **hal_type_t(3hal)**.
+
+
+
+== DESCRIPTION
+The **hal_pin_new** family of functions create a new __pin__ object.  Once
+a pin has been created, it can be linked to a signal object using
+**hal_link**.  A pin contains a pointer, and the component that owns the pin
+can dereference the pointer to access whatever signal is linked to the pin.
+(If no signal is linked, it points to a dummy signal.)
+
+There are functions for each of the data types that the HAL supports.  Pins may
+only be linked to signals of the same type.
+
+
+
+== RETURN VALUE
+Returns a HAL status code.
+
+
+== SEE ALSO
+**hal_type_t(3hal)**, **hal_link(3hal)**

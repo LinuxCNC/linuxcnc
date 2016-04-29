@@ -1,0 +1,52 @@
+= rtapi_region(3rtapi)
+:manmanual: HAL Components
+:mansource: ../man/man3/rtapi_region.3rtapi.asciidoc
+:man version : 
+
+
+== NAME
+
+rtapi_region -- functions to manage I/O memory regions
+
+
+
+== SYNTAX
+ void *rtapi_request_region(unsigned long __base__, unsigned long int __size__, const char *__name__)
+
+ void rtapi_release_region(unsigned long __base__, unsigned long int __size__)
+
+
+
+== ARGUMENTS
+.IP __base__
+The base address of the I/O region
+
+.IP __size__
+The size of the I/O region
+
+.IP __name__
+The name to be shown in /proc/ioports
+
+
+
+== DESCRIPTION
+**rtapi_request_region** reserves I/O memory starting at __base__
+and going for __size__ bytes.
+
+
+
+== REALTIME CONSIDERATIONS
+May be called from realtime init/cleanup code only.
+
+
+
+== BUGS
+On kernels before 2.4.0, **rtapi_request_region** always suceeds.
+
+
+
+== RETURN VALUE
+**rtapi_request_region** returns NULL if the allocation fails, and a non-NULL
+value otherwise.
+
+**rtapi_release_region** has no return value.

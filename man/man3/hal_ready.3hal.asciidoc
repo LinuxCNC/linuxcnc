@@ -1,0 +1,33 @@
+= funct(3hal)
+:manmanual: HAL Components
+:mansource: ../man/man3/hal_ready.3hal.asciidoc
+:man version : 
+
+
+== NAME
+
+hal_ready -- indicates that this component is ready
+
+
+
+== SYNTAX
+ hal_ready(int __comp_id__)
+
+
+
+== ARGUMENTS
+.IP __comp_id__
+A HAL component identifier returned by an earlier call to **hal_init**.
+
+
+
+== DESCRIPTION
+**hal_ready** indicates that this component is ready (has created all its pins,
+parameters, and functions).  This must be called in any realtime HAL component
+before its **rtapi_app_init** exits, and in any userspace component before it
+enters its main loop.
+
+
+
+== RETURN VALUE
+Returns a HAL status code.

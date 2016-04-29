@@ -1,0 +1,57 @@
+= comp(1)
+:manmanual: HAL Components
+:mansource: ../man/man1/comp.1.asciidoc
+:man version : 
+
+
+== NAME
+comp -- Build, compile and install LinuxCNC HAL components
+
+
+== SYNOPSIS
+.PD 0
+.RS 5
+.PP
+**comp** [**--compile**|**--preprocess**|**--document**|**--view-doc**] compfile...
+.RE
+.PP
+__sudo__ **comp** [**--install**|**--install-doc**] compfile...
+.RS 5
+.PP
+**comp** **--compile** **--userspace** cfile...
+.RE
+.PP
+__sudo__ **comp** **--install** **--userspace** cfile...
+.PP
+__sudo__ **comp** **--install** **--userspace** pyfile...
+.PD
+
+
+== DESCRIPTION
+**comp** performs many different functions:
+.IP \(bu 4
+Compile **.comp** and **.c** files into **.so** or **.ko** HAL realtime components (the **--compile** flag)
+.IP \(bu 4
+Compile **.comp** and **.c** files into HAL userspace components (the **--compile --userspace** flag)
+.IP \(bu 4
+Preprocess **.comp** files into **.c** files (the **--preprocess** flag)
+.IP \(bu 4
+Extract documentation from **.comp** files into **.9** manpage files (the **--document** flag)
+.IP \(bu 4
+Display documentation from **.comp** files onscreen (the **--view-doc** flag)
+.IP \(bu 4
+Compile and install **.comp** and **.c** files into the proper directory for HAL realtime components (the **--install** flag), which may require __sudo__ to write to system directories.
+.IP \(bu 4
+Install **.c** and **.py** files into the proper directory for HAL userspace components (the **--install --userspace** flag), which may require __sudo__ to write to system directories.
+.IP \(bu 4
+Extract documentation from **.comp** files into **.9** manpage files in the proper system directory (the **--install** flag), which may require __sudo__ to write to system directories.
+.IP \(bu 4
+Preprocess **.comp** files into **.c** files (the **--preprocess** flag)
+
+
+== SEE ALSO
+__Comp HAL Component Generator__ in the LinuxCNC documentation for a full description of the **.comp** syntax, along with examples
+
+**pydoc hal** and __Creating Userspace Python Components__ in the LinuxCNC documentation for documentation on the Python interface to HAL components
+
+**comp(9)** for documentation on the "two input comparator with hysteresis", a HAL realtime component with the same name as this program

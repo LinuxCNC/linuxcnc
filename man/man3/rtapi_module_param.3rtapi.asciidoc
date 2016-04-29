@@ -1,0 +1,92 @@
+= rtapi_module_param(3rtapi)
+:manmanual: HAL Components
+:mansource: ../man/man3/rtapi_module_param.3rtapi.asciidoc
+:man version : 
+
+
+== NAME
+
+rtapi_module_param -- Specifying module parameters
+
+
+
+== SYNTAX
+RTAPI_MP_INT(__var__, __description__)
+
+RTAPI_MP_LONG(__var__, __description__)
+
+RTAPI_MP_STRING(__var__, __description__)
+
+RTAPI_MP_ARRAY_INT(__var__, __num__, __description__)
+
+RTAPI_MP_ARRAY_LONG(__var__, __num__, __description__)
+
+RTAPI_MP_ARRAY_STRING(__var__, __num__, __description__)
+
+MODULE_LICENSE(__license__)
+
+MODULE_AUTHOR(__author__)
+
+MODULE_DESCRIPTION(__description__)
+
+EXPORT_FUNCTION(__function__)
+
+
+
+== ARGUMENTS
+.IP __var__
+The variable where the parameter should be stored
+.IP __description__
+A short description of the parameter or module
+.IP __num__
+The maximum number of values for an array parameter
+.IP __license__
+The license of the module, for instance "GPL"
+.IP __author__
+The author of the module
+.IP __function__
+The pointer to the function to be exported
+
+
+
+== DESCRIPTION
+These macros are portable ways to declare kernel module parameters.  They must
+be used in the global scope, and are not followed by a terminating semicolon.
+They must be used after the associated variable or function has been defined.
+
+
+
+== NOTES
+EXPORT_FUNCTION makes a symbol available for use by a subsequently loaded
+component.  It is unrelated to hal functions, which are described in
+hal_export_funct(3hal)
+
+
+
+== Interpretation of license strings
+
+**MODULE_LICENSE** follows the kernel's definition of license strings.  Notably,
+"GPL" indicates "GNU Public License v2 __or later__".  (emphasis ours).
+
+.IP **"GPL"**
+GNU Public License v2 or later
+.IP **"GPL\ v2"**
+GNU Public License v2
+.IP **"GPL\ and\ additional\ rights"**
+GNU Public License v2 rights and more
+.IP **"Dual\ BSD/GPL"**
+GNU Public License v2 or BSD license choice
+.IP **"Dual\ MIT/GPL"**
+GNU Public License v2 or MIT license choice
+.IP **"Dual\ MPL/GPL"**
+GNU Public License v2 or Mozilla license choice
+.IP **"Proprietary"**
+Non-free products
+.P
+It is still good practice to include a license block which indicates the author,
+copyright date, and disclaimer of warranty as recommended by the GNU GPL.
+
+
+
+== REALTIME CONSIDERATIONS
+Not available in userspace code.

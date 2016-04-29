@@ -1,0 +1,87 @@
+= rtapi_shmem(3rtapi)
+:manmanual: HAL Components
+:mansource: ../man/man3/rtapi_shmem.3rtapi.asciidoc
+:man version : 
+
+
+== NAME
+
+rtapi_shmem -- Functions for managing shared memory blocks
+
+
+
+== SYNTAX
+ int rtapi_shmem_new(int __key__, int __module_id__, unsigned long int __size__)
+
+ int rtapi_shmem_delete(int __shmem_id__, int __module_id__)
+
+ int rtapi_shmem_getptr(int __shmem_id__, void ** __ptr__, unsigned long int * __sizeptr__)
+
+ int rtapi_shmem_exists(int __key__)
+
+
+
+== ARGUMENTS
+.IP __key__**
+**Identifies the memory block.  Key must be nonzero.  All modules wishing to use the same memory must use the same key.
+
+.IP __module_id__**
+**Module identifier returned by a prior call to **rtapi_init**.
+
+.IP __size__**
+**The desired size of the shared memory block, in bytes
+
+.IP __ptr__**
+**The pointer to the shared memory block.  Note that the block may be mapped
+at a different address for different modules.
+
+.IP __sizeptr__**
+**Pointer to an unsigned long, or 0. If non-zero, set to the size of the shared memory block.
+
+
+
+== DESCRIPTION
+
+**rtapi_shmem_new** allocates a block of shared memory.  __key__
+identifies the memory block, and must be non-zero.  All modules
+wishing to access the same memory must use the same key.
+__module_id__ is the ID of the module that is making the call (see
+rtapi_init).  The block will be at least __size__ bytes, and may
+be rounded up.  Allocating many small blocks may be very wasteful.
+When a particular block is allocated for the first time, the first
+4 bytes are zeroed.  Subsequent allocations of the same block
+by other modules or processes will not touch the contents of the
+block.  Applications can use those bytes to see if they need to 
+initialize the block, or if another module already did so.
+On success, it returns a positive integer ID, which is used for
+all subsequent calls dealing with the block.  On failure it 
+returns a negative error code.
+
+Calling **rtapi_shmem_new** with a zero size argument will
+attach to an existing shared memory segment; if this segment does not  
+exist a negative error code is returned.
+
+**rtapi_shmem_delete** frees the shared memory block associated
+with __shmem_id__.  __module_id__ is the ID of the calling module.
+Returns a status code.
+
+**rtapi_shmem_getptr** sets __*ptr__ to point to shared memory block
+associated with __shmem_id__.
+
+**rtapi_shmem_exists** may be used to test if a shared memory segment 
+exists. A value of 1 means the segment exists, a value of 0 means it doesnt.
+
+
+
+== REALTIME CONSIDERATIONS
+
+**rtapi_shmem_getptr** may be called from user code, init/cleanup code,
+or realtime tasks.
+
+**rtapi_shmem_new** and **rtapi_shmem_dete** may not be called from
+realtime tasks.
+
+
+
+== RETURN VALUE
+

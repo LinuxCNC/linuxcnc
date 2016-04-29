@@ -1,0 +1,439 @@
+= MOTION(9)
+:manmanual: HAL Components
+:mansource: ../man/man9/motion.9.asciidoc
+:man version : 
+
+
+
+
+== NAME
+motion -- accepts NML motion commands, interacts with HAL in realtime
+
+
+== SYNOPSIS
+**loadrt motmod [base_period_nsec=**__period__**] [base_thread_fp=**__0 or 1__**] [base_cpu=**__cpu number__**] [servo_period_nsec=**__period__**]  [servo_cpu=**__cpu number__**]  [traj_period_nsec=**__period__**] [num_joints=**__[0-9]__**] ([num_dio=**__[1-64]__**] [num_aio=**__[1-16]__**])
+**
+
+
+== DESCRIPTION
+By default, the base thread does not support floating point.  Software stepping, software encoder counting, and software pwm do not use floating point.  **base_thread_fp** can be used to enable floating point in the base thread (for example for brushless DC motor control).
+
+.P
+These pins and parameters are created by the realtime **motmod** module. This module provides a HAL interface for LinuxCNC's motion planner. Basically **motmod** takes in a list of waypoints and generates a nice blended and constraint-limited stream of joint positions to be fed to the motor drives. 
+
+.P
+Optionally the number of Digital I/O is set with num_dio. The number of Analog I/O is set with num_aio. The default is 4 each.
+
+.P
+Pin names starting with "**axis**" are actually joint values, but the pins and parameters are still called "**axis.**__N__". They are read and updated by the motion-controller function.
+
+
+
+== PINS
+
+
+**axis.**__N__**.amp-enable-out** OUT BIT 
+TRUE if the amplifier for this joint should be enabled
+
+
+**axis.**__N__**.amp-fault-in** IN BIT 
+Should be driven TRUE if an external fault is detected with the amplifier for this joint
+
+
+**axis.**__N__**.home-sw-in** IN BIT 
+Should be driven TRUE if the home switch for this joint is closed
+
+
+**axis.**__N__**.homing** OUT BIT 
+TRUE if the joint is currently homing
+
+
+**axis.**__N__**.index-enable** IO BIT 
+Should be attached to the index-enable pin of the joint's encoder to enable homing to index pulse
+
+
+**axis.**__N__**.is-unlocked** IN BIT
+If the axis is a locked rotary the unlocked sensor should be connected to this pin
+
+
+**axis.**__N__**.jog-counts** IN S32 
+Connect to the "counts" pin of an external encoder to use a physical jog wheel.
+
+
+**axis.**__N__**.jog-enable** IN BIT 
+When TRUE (and in manual mode), any change to "jog-counts" will result in motion. When false, "jog-counts" is ignored.
+
+
+**axis.**__N__**.jog-scale** IN FLOAT 
+Sets the distance moved for each count on "jog-counts", in machine units.
+
+
+**axis.**__N__**.jog-vel-mode** IN BIT 
+When FALSE (the default), the jogwheel operates in position mode. The axis will move exactly jog-scale units for each count, regardless of how long that might take. When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
+
+
+**axis.**__N__**.joint-pos-cmd** OUT FLOAT 
+The joint (as opposed to motor) commanded position. There may be several offsets between the joint and motor coordinates: backlash compensation, screw error compensation, and home offsets.
+
+
+**axis.**__N__**.joint-pos-fb** OUT FLOAT 
+The joint feedback position. This value is computed from the actual motor position minus joint offsets. Useful for machine visualization.
+
+
+**axis.**__N__**.motor-pos-cmd** OUT FLOAT 
+The commanded position for this joint.
+
+
+**axis.**__N__**.motor-pos-fb** IN FLOAT 
+The actual position for this joint.
+
+
+**axis.**__N__**.neg-lim-sw-in** IN BIT 
+Should be driven TRUE if the negative limit switch for this joint is tripped.
+
+
+**axis.**__N__**.pos-lim-sw-in** IN BIT 
+Should be driven TRUE if the positive limit switch for this joint is tripped.
+
+
+**axis.**__N__**.unlock** OUT BIT 
+TRUE if the axis is a locked rotary and a move is commanded.
+
+
+**motion.adaptive-feed** IN FLOAT 
+When adaptive feed is enabled with M52 P1, the commanded velocity is multiplied by this value. This effect is multiplicative with the NML-level feed override value and motion.feed-hold.
+
+
+**motion.analog-in-**__NN__ IN FLOAT 
+These pins are used by M66 Enn wait-for-input mode.
+
+
+**motion.analog-out-**__NN__ OUT FLOAT 
+These pins are used by M67-68.
+
+
+**motion.analog-out-io-**__NN__ OUT FLOAT 
+Same as **motion.analog-out-**__NN__, compatible with I/O signals.
+
+
+**motion.coord-error** OUT BIT 
+TRUE when motion has encountered an error, such as exceeding a soft limit
+
+
+**motion.coord-mode** OUT BIT 
+TRUE when motion is in "coordinated mode", as opposed to "teleop mode"
+
+
+**motion.current-vel** OUT FLOAT
+Current cartesian velocity
+
+
+**motion.digital-in-**__NN__ IN BIT 
+These pins are used by M66 Pnn wait-for-input mode.
+
+
+**motion.digital-out-**__NN__ OUT BIT 
+These pins are controlled by the M62 through M65 words.
+
+
+**motion.digital-out-io-**__NN__ OUT BIT 
+Same as **motion.digital-out-**__NN__, compatible with I/O signals.
+
+
+**motion.distance-to-go** OUT FLOAT
+Distance remaining in the current move
+
+
+**motion.enable** IN BIT 
+If this bit is driven FALSE, motion stops, the machine is placed in the "machine off" state, and a message is displayed for the operator. For normal motion, drive this bit TRUE.
+
+
+**motion.feed-hold** IN BIT 
+When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed rate is set to 0.
+
+
+**motion.feed-inhibit** IN BIT 
+When this bit is TRUE, the feed rate is set and held to 0. This will be delayed during spindle synch moves till the end of the move. 
+
+
+**motion.motion-inpos** OUT BIT 
+TRUE if the machine is in position.
+
+
+**motion.current-motion** OUT S32
+Indicates the currently executing motion type. Zero if no motion in progress, or paused. Otherwise, the meanings are: 1 for traverse move, 2 for linear feed move, 3 for arc move, 4 for toolchange, 5 for probing, 6 for indexrotary action.
+
+
+**motion.probe-input** IN BIT 
+G38.x uses the value on this pin to determine when the probe has made contact. TRUE for probe contact closed (touching), FALSE for probe contact open.
+
+
+**motion.program-line** OUT S32 
+
+
+**motion.requested-vel** OUT FLOAT 
+The requested velocity with no adjustments for feed override
+
+
+**motion.spindle-at-speed** IN BIT 
+Motion will pause until this pin is TRUE, under the following conditions: before the
+first feed move after each spindle start or speed change; before the start of every
+chain of spindle-synchronized moves; and if in CSS mode, at every rapid->feed transition.
+
+
+**motion.spindle-brake** OUT BIT 
+TRUE when the spindle brake should be applied
+
+
+**motion.spindle-forward** OUT BIT 
+TRUE when the spindle should rotate forward
+
+
+**motion.spindle-index-enable** I/O BIT 
+For correct operation of spindle synchronized moves, this signal must be hooked to the index-enable pin of the spindle encoder.
+
+
+**motion.spindle-inhibit** IN BIT 
+When TRUE, the spindle speed is set and held to 0.
+
+
+**motion.spindle-on** OUT BIT 
+TRUE when spindle should rotate
+
+
+**motion.spindle-reverse** OUT BIT 
+TRUE when the spindle should rotate backward
+
+
+**motion.spindle-revs** IN FLOAT 
+For correct operation of spindle synchronized moves, this signal must be hooked to the position pin of the spindle encoder.
+
+
+**motion.spindle-speed-in** IN FLOAT 
+Actual spindle speed feedback in revolutions per second; used for G96 (constant surface speed) and G95 (feed per revolution) modes.
+
+
+**motion.spindle-speed-out** OUT FLOAT 
+Desired spindle speed in rotations per minute
+
+
+**motion.spindle-speed-out-abs** OUT FLOAT 
+Desired spindle speed in rotations per minute, always positive regardless of spindle direction.
+
+
+**motion.spindle-speed-out-rps** OUT float
+Desired spindle speed in rotations per second
+
+
+**motion.spindle-speed-out-rps-abs** OUT float
+Desired spindle speed in rotations per second, always positive regardless of spindle direction.
+
+
+**motion.spindle-orient-angle** OUT FLOAT
+Desired spindle orientation for M19. Value of the M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
+
+
+**motion.spindle-orient-mode** OUT BIT
+Desired spindle rotation mode. Reflects M19 P parameter word.
+
+
+**motion.spindle-orient** OUT BIT
+Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3,M4,M5. 
+If spindle-orient-fault is not zero during spindle-orient true, the M19 command fails with an error message.
+
+
+**motion.spindle-is-oriented** IN BIT
+Acknowledge pin for spindle-orient. Completes orient cycle. If spindle-orient was true when spindle-is-oriented 
+was asserted, the spindle-orient pin is cleared and the spindle-locked pin is asserted. Also, the spindle-brake pin is asserted.
+
+
+**motion.spindle-orient-fault** IN S32
+Fault code input for orient cycle. Any value other than zero will cause the orient cycle to abort.
+
+
+**motion.spindle-locked** OUT BIT
+Spindle orient complete pin. Cleared by any of M3,M4,M5. 
+
+
+**motion.teleop-mode** OUT bit
+
+
+**motion.tooloffset.x** OUT FLOAT
+
+**motion.tooloffset.y** OUT FLOAT
+
+**motion.tooloffset.z** OUT FLOAT
+
+**motion.tooloffset.a** OUT FLOAT
+
+**motion.tooloffset.b** OUT FLOAT
+
+**motion.tooloffset.c** OUT FLOAT
+
+**motion.tooloffset.u** OUT FLOAT
+
+**motion.tooloffset.v** OUT FLOAT
+
+**motion.tooloffset.w** OUT FLOAT
+Current tool offset in all 9 axes.
+
+
+
+
+== DEBUGGING PINS
+
+Many of the pins below serve as debugging aids, and are subject to change or removal at any time.
+
+
+**axis.**__N__**.active** OUT BIT
+TRUE when this joint is active
+
+
+**axis.**__N__**.backlash-corr** OUT FLOAT
+Backlash or screw compensation raw value
+
+
+**axis.**__N__**.backlash-filt** OUT FLOAT
+Backlash or screw compensation filtered value (respecting motion limits)
+
+
+**axis.**__N__**.backlash-vel** OUT FLOAT
+Backlash or screw compensation velocity 
+
+
+**axis.**__N__**.coarse-pos-cmd** OUT FLOAT
+
+
+**axis.**__N__**.error** OUT BIT
+TRUE when this joint has encountered an error, such as a limit switch closing
+
+
+**axis.**__N__**.f-error** OUT FLOAT
+The actual following error
+
+
+**axis.**__N__**.f-error-lim** OUT FLOAT
+The following error limit
+
+
+**axis.**__N__**.f-errored** OUT BIT
+TRUE when this joint has exceeded the following error limit
+
+
+**axis.**__N__**.faulted** OUT BIT
+
+
+**axis.**__N__**.free-pos-cmd** OUT FLOAT
+The "free planner" commanded position for this joint.
+
+
+**axis.**__N__**.free-tp-enable** OUT BIT
+TRUE when the "free planner" is enabled for this joint
+
+
+**axis.**__N__**.free-vel-lim** OUT FLOAT
+The velocity limit for the free planner
+
+
+**axis.**__N__**.homed** OUT BIT
+TRUE if the joint has been homed
+
+
+**axis.**__N__**.in-position** OUT BIT
+TRUE if the joint is using the "free planner" and has come to a stop
+
+
+**axis.**__N__**.joint-vel-cmd** OUT FLOAT
+The joint's commanded velocity
+
+
+**axis.**__N__**.kb-jog-active** OUT BIT
+
+
+
+**axis.**__N__**.neg-hard-limit** OUT BIT
+The negative hard limit for the joint
+
+
+**axis.**__N__**.pos-hard-limit** OUT BIT
+The positive hard limit for the joint
+
+
+**axis.**__N__**.wheel-jog-active** OUT BIT
+
+
+**motion.in-position** OUT BIT
+Same as the pin motion.motion-inpos
+
+
+**motion.motion-enabled** OUT BIT
+
+
+**motion.on-soft-limit** OUT BIT
+
+
+**motion.program-line** OUT S32
+
+
+
+**motion.teleop-mode** OUT BIT
+TRUE when motion is in "teleop mode", as opposed to "coordinated mode"
+
+
+
+
+== PARAMETERS
+
+Many of the parameters serve as debugging aids, and are subject to change or removal at any time.
+
+
+**motion-command-handler.time**
+
+**motion-command-handler.tmax**
+
+**motion-controller.time**
+
+**motion-controller.tmax**
+Show information about the execution time of these HAL functions in CPU cycles
+
+
+**motion.debug-**__*__ 
+These values are used for debugging purposes. 
+
+**motion.servo.last-period** 
+The number of CPU cycles between invocations of the servo thread. Typically, this number divided by the CPU speed gives the time in seconds, and can be used to determine whether the realtime motion controller is meeting its timing constraints
+
+
+**motion.servo.overruns** 
+By noting large differences between successive values of motion.servo.last-period, the motion controller can determine that there has probably been a failure to meet its timing constraints. Each time such a failure is detected, this value is incremented.
+
+
+
+**base_cpu** is optional and intended to explicitly 
+assign an RT thread to a specific CPU, instead of the default.
+**servo_cpu** works identical. This feature is experimental.
+
+
+
+
+== FUNCTIONS
+
+Generally, these functions are both added to the servo-thread in the order shown.
+
+
+**motion-command-handler** 
+Processes motion commands coming from user space
+
+
+**motion-controller** 
+Runs the LinuxCNC motion controller
+
+
+
+== BUGS
+This manual page is horribly incomplete.
+
+
+
+== SEE ALSO
+iocontrol(1)

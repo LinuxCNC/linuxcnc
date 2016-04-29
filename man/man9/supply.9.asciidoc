@@ -1,0 +1,67 @@
+= SUPPLY(9)
+:manmanual: HAL Components
+:mansource: ../man/man9/supply.9.asciidoc
+:man version : 
+
+
+
+
+== NAME
+supply -- set output pins with values from parameters (obsolete)
+
+
+== SYNOPSIS
+**loadrt supply num_chan=**__num__
+
+
+
+== DESCRIPTION
+**supply** was used to allow the inputs of other HAL components
+to be manipulated for testing purposes.  When it was written, the
+only way to set the value of an input pin was to connect it to a 
+signal and connect that signal to an output pin of some other
+component, and then let that component write the pin value.
+**supply** was written to be that "other component".  It reads
+values from parameters (set with the HAL command **setp**) and
+writes them to output pins.
+
+Since **supply** was written, the **setp** command has been
+modified to allow it to set unconnected pins as well as parameters.
+In addition, the **sets** command was added, which can directly
+set HAL signals, as long as there are no output pins connected to
+them.  Therefore, **supply** is obsolete.
+.P
+**supply** supports a maximum of eight channels.  The number of
+channels actually loaded is set by the **num_chan** argument when
+the module is loaded.  If **numchan** is not specified, the default
+value is one.
+
+
+
+== FUNCTIONS
+
+**supply.**__N__**.update** (uses floating-point)
+Updates output pins for channel __N__.
+
+
+
+== PINS
+
+**supply.**__N__**.q** bit out
+Output bit, copied from parameter **supply.**__N__**.d**.
+
+**supply.**__N__**._q** bit out
+Output bit, inverted copy of parameter **supply.**__N__**.d**.
+
+**supply.**__N__**.variable** float out
+Analog output, copied from parameter **supply.**__N__**.value**.
+
+**supply.**__N__**._variable** float out
+Analog output, equal to -1.0 times parameter **supply.**__N__**.value**.
+
+**supply.**__N__**.d** bit rw
+Data source for **q** and **_q** output pins.
+
+**supply.**__N__**.value** bit rw
+Data source for **variable** and **_variable** output pins.
+

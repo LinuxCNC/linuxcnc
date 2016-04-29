@@ -1,0 +1,469 @@
+= HALUI(1)
+:manmanual: HAL Components
+:mansource: ../man/man1/halui.1.asciidoc
+:man version : 
+
+
+== NAME
+halui -- observe HAL pins and command LinuxCNC through NML
+
+
+== SYNOPSIS
+halui
+[**-ini <path-to-ini>**]
+
+
+== DESCRIPTION
+**halui** is used to build a User Interface using hardware knobs
+and switches. It exports a big number of pins, and acts accordingly 
+when these change.
+
+
+== OPTIONS
+
+**-ini name**
+use the __name__ as the configuration file. Note: halui must find the 
+nml file specified in the ini, usually that file is in the same 
+folder as the ini, so it makes sense to run halui from that folder.
+
+
+== USAGE
+When run, **halui** will export a large number of pins. A user can connect
+those to his physical knobs & switches & leds, and when a change is noticed
+halui triggers an appropriate event.
+
+**halui** expects the signals to be debounced, so if needed (bad knob contact) connect the physical button to a HAL debounce filter first.
+
+
+
+== PINS
+
+.SS abort
+
+halui.abort bit in 
+pin for clearing most errors
+
+.SS tool
+
+halui.tool.length-offset.a float out 
+current applied tool length offset for the A axis
+
+halui.tool.length-offset.b float out 
+current applied tool length offset for the B axis
+
+halui.tool.length-offset.c float out 
+current applied tool length offset for the C axis
+
+halui.tool.length-offset.u float out 
+current applied tool length offset for the U axis
+
+halui.tool.length-offset.v float out 
+current applied tool length offset for the V axis
+
+halui.tool.length-offset.w float out 
+current applied tool length offset for the W axis
+
+halui.tool.length-offset.x float out 
+current applied tool length offset for the X axis
+
+halui.tool.length-offset.y float out 
+current applied tool length offset for the Y axis
+
+halui.tool.length-offset.z float out 
+current applied tool length offset for the Z axis
+
+halui.tool.number u32 out 
+current selected tool
+
+.SS spindle
+
+halui.spindle.brake-is-on bit out 
+status pin that tells us if brake is on
+
+halui.spindle.brake-off bit in 
+pin for deactivating the spindle brake
+
+halui.spindle.brake-on bit in 
+pin for activating the spindle brake
+
+halui.spindle.decrease bit in 
+a rising edge on this pin decreases the current spindle speed by 100
+
+halui.spindle.forward bit in 
+a rising edge on this pin makes the spindle go forward
+
+halui.spindle.increase bit in 
+a rising edge on this pin increases the current spindle speed by 100
+
+halui.spindle.is-on bit out 
+status pin telling if the spindle is on
+
+halui.spindle.reverse bit in 
+a rising edge on this pin makes the spindle go reverse
+
+halui.spindle.runs-backward bit out 
+status pin telling if the spindle is running backward
+
+halui.spindle.runs-forward bit out 
+status pin telling if the spindle is running forward
+
+halui.spindle.start bit in 
+a rising edge on this pin starts the spindle
+
+halui.spindle.stop bit in 
+a rising edge on this pin stops the spindle
+
+.SS spindle override
+
+halui.spindle-override.count-enable bit in  (default: **TRUE**)
+When TRUE, modify spindle override when counts changes.
+
+halui.spindle-override.counts s32 in 
+counts X scale = spindle override percentage
+
+halui.spindle-override.decrease bit in 
+pin for decreasing the SO (-=scale)
+
+halui.spindle-override.direct-value bit in 
+pin to enable direct spindle override value input
+
+halui.spindle-override.increase bit in 
+pin for increasing the SO (+=scale)
+
+halui.spindle-override.scale float in 
+pin for setting the scale of counts for SO
+
+halui.spindle-override.value float out 
+current FO value
+
+.SS program
+
+halui.program.block-delete.is-on bit out 
+status pin telling that block delete is on
+
+halui.program.block-delete.off bit in 
+pin for requesting that block delete is off
+
+halui.program.block-delete.on bit in 
+pin for requesting that block delete is on
+
+halui.program.is-idle bit out 
+status pin telling that no program is running
+
+halui.program.is-paused bit out 
+status pin telling that a program is paused
+
+halui.program.is-running bit out 
+status pin telling that a program is running
+
+halui.program.optional-stop.is-on bit out 
+status pin telling that the optional stop is on
+
+halui.program.optional-stop.off bit in 
+pin requesting that the optional stop is off
+
+halui.program.optional-stop.on bit in 
+pin requesting that the optional stop is on
+
+halui.program.pause bit in 
+pin for pausing a program
+
+halui.program.resume bit in 
+pin for resuming a program
+
+halui.program.run bit in 
+pin for running a program
+
+halui.program.step bit in 
+pin for stepping in a program
+
+halui.program.stop bit in 
+pin for stopping a program 
+(note: this pin does the same thing as halui.abort)
+
+.SS mode
+
+halui.mode.auto bit in 
+pin for requesting auto mode
+
+halui.mode.is-auto bit out 
+pin for auto mode is on
+
+halui.mode.is-joint bit out 
+pin showing joint by joint jog mode is on
+
+halui.mode.is-manual bit out 
+pin for manual mode is on
+
+halui.mode.is-mdi bit out 
+pin for mdi mode is on
+
+halui.mode.is-teleop bit out 
+pin showing coordinated jog mode is on
+
+halui.mode.joint bit in 
+pin for requesting joint by joint jog mode
+
+halui.mode.manual bit in 
+pin for requesting manual mode
+
+halui.mode.mdi bit in 
+pin for requesting mdi mode
+
+halui.mode.teleop bit in 
+pin for requesting coordinated jog mode
+
+.SS mdi (optional)
+
+halui.mdi-command-XX bit in
+**halui** looks for ini variables named [HALUI]MDI_COMMAND, and
+exports a pin for each command it finds.  When the pin is driven TRUE,
+**halui** runs the specified MDI command.  XX is a two digit number
+starting at 00.  If no [HALUI]MDI_COMMAND variables are set in the ini
+file, no halui.mdi-command-XX pins will be exported by halui.
+
+.SS mist
+
+halui.mist.is-on bit out 
+pin for mist is on
+
+halui.mist.off bit in 
+pin for stopping mist
+
+halui.mist.on bit in 
+pin for starting mist
+
+.SS max-velocity
+
+halui.max-velocity.count-enable bit in  (default: **TRUE**)
+When TRUE, modify max velocity when counts changes.
+
+halui.max-velocity.counts s32 in 
+counts from an encoder for example to change maximum velocity
+
+halui.max-velocity.decrease bit in 
+pin for decreasing the maximum velocity (-=scale)
+
+halui.max-velocity.direct-value bit in 
+pin for using a direct value for max velocity
+
+halui.max-velocity.increase bit in 
+pin for increasing the maximum velocity (+=scale)
+
+halui.max-velocity.scale float in 
+pin for setting the scale on changing the maximum velocity
+
+halui.max-velocity.value float out 
+Current value for maximum velocity
+
+.SS machine
+
+halui.machine.is-on bit out 
+pin for machine is On/Off
+
+halui.machine.off bit in 
+pin for setting machine Off
+
+halui.machine.on bit in 
+pin for setting machine On
+
+.SS lube
+
+halui.lube.is-on bit out 
+pin for lube is on
+
+halui.lube.off bit in 
+pin for stopping lube
+
+halui.lube.on bit in 
+pin for starting lube
+
+.SS joint
+
+halui.joint.N.has-fault bit out 
+status pin telling that joint N has a fault
+
+halui.joint.N.home bit in 
+pin for homing joint N
+
+halui.joint.N.is-homed bit out 
+status pin telling that joint N is homed
+
+halui.joint.N.is-selected bit out 
+status pin that joint N is selected
+
+halui.joint.N.on-hard-max-limit bit out 
+status pin telling that joint N is on the positive hardware limit
+
+halui.joint.N.on-hard-min-limit bit out 
+status pin telling that joint N is on the negative hardware limit
+
+halui.joint.N.on-soft-max-limit bit out 
+status pin telling that joint N is on the positive software limit
+
+halui.joint.N.on-soft-min-limit bit out 
+status pin telling that joint N is on the negative software limit
+
+halui.joint.N.select bit in 
+pin for selecting joint N
+
+halui.joint.N.unhome bit in 
+pin for unhoming joint N
+
+halui.joint.selected u32 out 
+selected joint
+
+halui.joint.selected.has-fault bit out 
+status pin selected joint is faulted
+
+halui.joint.selected.home bit in 
+pin for homing the selected joint 
+
+halui.joint.selected.is-homed bit out 
+status pin telling that the selected joint is homed
+
+halui.joint.selected.on-hard-max-limit bit out 
+status pin telling that the selected joint is on the positive hardware limit
+
+halui.joint.selected.on-hard-min-limit bit out 
+status pin telling that the selected joint is on the negative hardware limit
+
+halui.joint.selected.on-soft-max-limit bit out 
+status pin telling that the selected joint is on the positive software limit
+
+halui.joint.selected.on-soft-min-limit bit out 
+status pin telling that the selected joint is on the negative software limit
+
+halui.joint.selected.unhome bit in 
+pin for unhoming the selected joint
+
+.SS jog
+
+halui.jog.deadband float in 
+pin for setting jog analog deadband (jog analog inputs smaller/slower than this are ignored)
+
+halui.jog-speed float in 
+pin for setting jog speed for plus/minus jogging.
+
+halui.jog.N.analog float in 
+pin for jogging the axis N using an float value (e.g. joystick)
+
+halui.jog.N.increment float in 
+pin for setting the jog increment for axis N when using increment-plus/minus
+
+halui.jog.N.increment-minus bit in 
+a rising edge will will make axis N jog in the negative direction by the increment amount
+
+halui.jog.N.increment-plus bit in 
+a rising edge will will make axis N jog in the positive direction by the increment amount
+
+halui.jog.N.minus bit in 
+pin for jogging axis N in negative direction at the halui.jog-speed velocity
+
+halui.jog.N.plus bit in 
+pin for jogging axis N in positive direction at the halui.jog-speed velocity
+
+halui.jog.selected.increment float in 
+pin for setting the jog increment for the selected axis when using increment-plus/minus
+
+halui.jog.selected.increment-minus bit in 
+a rising edge will will make the selected axis jog in the negative direction by the increment amount
+
+halui.jog.selected.increment-plus bit in 
+a rising edge will will make the selected axis jog in the positive direction by the increment amount
+
+halui.jog.selected.minus bit in 
+pin for jogging the selected axis in negative direction at the halui.jog-speed velocity
+
+halui.jog.selected.plus
+pin for jogging the selected axis  bit in in positive direction at the halui.jog-speed velocity
+
+.SS flood
+
+halui.flood.is-on bit out 
+pin for flood is on
+
+halui.flood.off bit in 
+pin for stopping flood
+
+halui.flood.on bit in 
+pin for starting flood
+
+.SS feed override
+
+halui.feed-override.count-enable bit in  (default: **TRUE**)
+When TRUE, modify feed override when counts changes.
+
+halui.feed-override.counts s32 in 
+counts X scale = feed override percentage
+
+halui.feed-override.decrease bit in 
+pin for decreasing the FO (-=scale)
+
+halui.feed-override.direct-value bit in 
+pin to enable direct value feed override input
+
+halui.feed-override.increase bit in 
+pin for increasing the FO (+=scale)
+
+halui.feed-override.scale float in 
+pin for setting the scale on changing the FO
+
+halui.feed-override.value float out 
+current Feed Override value
+
+.SS estop
+
+halui.estop.activate bit in 
+pin for setting Estop (LinuxCNC internal) On
+
+halui.estop.is-activated bit out 
+pin for displaying Estop state (LinuxCNC internal) On/Off
+
+halui.estop.reset bit in 
+pin for resetting Estop (LinuxCNC internal) Off
+
+.SS axis
+
+halui.axis.N.pos-commanded float out  float out 
+Commanded axis position in machine coordinates
+
+halui.axis.N.pos-feedback float out  float out 
+Feedback axis position in machine coordinates
+
+halui.axis.N.pos-relative float out  float out 
+Commanded axis position in relative coordinates
+
+.SS home
+
+halui.home-all bit in 
+pin for requesting home-all 
+(only available when a valid homing sequence is specified)
+
+
+
+== SEE ALSO
+
+
+
+== HISTORY
+
+
+
+== BUGS
+none known at this time.
+
+
+== AUTHOR
+Written by Alex Joni, as part of the LinuxCNC project. Updated by John
+Thornton
+
+
+== REPORTING BUGS
+Report bugs to alex_joni AT users DOT sourceforge DOT net
+
+
+== COPYRIGHT
+Copyright \(co 2006 Alex Joni.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
