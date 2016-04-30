@@ -1669,7 +1669,7 @@ def dist((x,y,z),(p,q,r)):
 # returns units/sec
 def get_jog_speed(a):
     if vars.teleop_mode.get():
-        if a in (0,1,2,6,7,8):
+        if axis_type[a] == "LINEAR" :
             return vars.jog_speed.get()/60.
         else:
             return vars.jog_aspeed.get()/60.
@@ -1678,6 +1678,7 @@ def get_jog_speed(a):
             return vars.jog_speed.get()/60.
         else:
             return vars.jog_aspeed.get()/60.
+
 def get_jog_speed_map(a):
     if a >= len(jog_order): return 0
     if not get_jog_mode():
@@ -3132,24 +3133,28 @@ jog_speed = (
     or inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
     or inifile.find("TRAJ", "DEFAULT_VELOCITY")
     or 1.0)
+
 vars.jog_speed.set(float(jog_speed)*60)
 jog_speed = (
     inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
     or inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY")
     or inifile.find("TRAJ", "DEFAULT_VELOCITY")
     or jog_speed)
+
 vars.jog_aspeed.set(float(jog_speed)*60)
 mlv = (
     inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
     or inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
     or inifile.find("TRAJ","MAX_VELOCITY")
     or 1.0)
+
 vars.max_speed.set(float(mlv))
 mav = (
     inifile.find("DISPLAY","MAX_ANGULAR_VELOCITY")
     or inifile.find("TRAJ","MAX_ANGULAR_VELOCITY")
     or inifile.find("TRAJ","MAX_VELOCITY")
     or mlv)
+
 vars.max_aspeed.set(float(mav))
 mv = inifile.find("DISPLAY","MAX_LINEAR_VELOCITY") or inifile.find("TRAJ","MAX_LINEAR_VELOCITY") or inifile.find("TRAJ","MAX_VELOCITY") or inifile.find("AXIS_X","MAX_VELOCITY") or 1.0
 vars.maxvel_speed.set(float(mv)*60)
@@ -3338,9 +3343,22 @@ for a in range(linuxcnc.MAX_AXIS):
 
 joint_type = [None] * linuxcnc.MAX_JOINTS
 for j in range(linuxcnc.MAX_JOINTS):
-    if s.axis_mask & (1<<j) == 0: continue
-    section = "AXIS_%d" % j
-    joint_type[j] = inifile.find(section, "TYPE")
+    section = "JOINT_%d" % j
+    joint_type[j] = inifile.find(section, "TYPE") or "LINEAR"
+
+axis_type = [None] * linuxcnc.MAX_AXIS
+for a in range(linuxcnc.MAX_AXIS):
+    # supply defaults, supersede with ini [AXIS_*]TYPE
+    if a in [3,4,5]:
+        axis_type[a] = "ANGULAR"
+    else:
+        axis_type[a] = "LINEAR"
+    if s.axis_mask & (1<<a) == 0: continue
+    letter = "XYZABCUVW"[a]
+    section = "AXIS_%s" % letter
+    initype = inifile.find(section, "TYPE")
+    if initype is None: continue # use default
+    axis_type[a] = initype
 
 if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)
