@@ -724,30 +724,30 @@ JOINTS = number_of_joints
 
 Functions supported include:
 
-. ddts -- differentiator hal components are loaded and connected
+. 'ddts' -- differentiator hal components are loaded and connected
 for each joint (and xy, xyz for trivkins machines)
 
-. simulated_home -- a sim_home_switch hal component is loaded and
+. 'simulated_home' -- a sim_home_switch hal component is loaded and
 connected for each joint.  The homing conditions are specified by the
 usual [JOINT_n]HOME_* ini file items.
 
-. use_hal_manualtoolchange -- the user space hal_manualtoolchange
+. 'use_hal_manualtoolchange' -- the user space hal_manualtoolchange
 component is loaded and connected.
 
-.sim_spindle -- the sim_spindle component is loaded and connected to
+. 'sim_spindle' -- the sim_spindle component is loaded and connected to
 additional loaded hal components to simulate the inertia of a rotating
 spindle mass.
 
 These functions are activated by default but can be excluded using
 options '-no_make_ddts, -no_simulated_home, -no_use_hal_manualtoolchange,
-no_sim_spindle'.  For example, to omit ddts:
+-no_sim_spindle'.  For example, to omit ddts:
 
 ----
 HALFILE = LIB:basic_sim.tcl -no_make_ddts
 ----
 
 Omitting one or more of the core functions allow a user to test without
-the function or to add new HALFILEs to implement or expand on the
+the function or add new HALFILEs to implement or expand on the
 functionality.
 
 === Notes
