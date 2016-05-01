@@ -388,6 +388,7 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.last_origin = None
         self.last_rotation_xy = None
         self.last_tool = None
+        self.last_tool_offset = None
         self.last_limits = None
         self.set_eyepoint(5.)
         self.get_resources()
@@ -768,6 +769,9 @@ class LivePlotter:
 
         limits = soft_limits()
 
+        if (   self.stat.tool_offset   != o.last_tool_offset
+            or self.stat.tool_table[0] != o.last_tool):
+            o.redraw_dro()
         if (self.logger.npts != self.lastpts
                 or limits != o.last_limits
                 or self.stat.actual_position != o.last_position
@@ -778,6 +782,7 @@ class LivePlotter:
                 or self.stat.g5x_index != o.last_g5x_index
                 or self.stat.rotation_xy != o.last_rotation_xy
                 or self.stat.limit != o.last_limit
+                or self.stat.tool_offset != o.last_tool_offset
                 or self.stat.tool_table[0] != o.last_tool
                 or self.stat.motion_mode != self.last_motion_mode
                 or abs(speed - self.last_speed) > .01):
@@ -792,6 +797,7 @@ class LivePlotter:
             o.last_rotation_xy = self.stat.rotation_xy
             self.last_motion_mode = self.stat.motion_mode
             o.last_tool = self.stat.tool_table[0]
+            o.last_tool_offset = self.stat.tool_offset
             o.last_joint_position = self.stat.joint_actual_position
             self.last_speed = speed
             self.lastpts = self.logger.npts
@@ -2592,6 +2598,7 @@ class TclCommands(nf.TclCommands):
         reload_file(False)
         ensure_mode(save_task_mode)
         set_motion_teleop(1)
+        o.redraw_dro()
 
     def touch_off_tool(event=None, new_axis_value = None):
         global system
@@ -2636,6 +2643,7 @@ class TclCommands(nf.TclCommands):
         reload_file(False)
         ensure_mode(save_task_mode)
         set_motion_teleop(1)
+        o.redraw_dro()
 
     def set_axis_offset(event=None):
         commands.touch_off_system(new_axis_value=0.)
