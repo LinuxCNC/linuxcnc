@@ -155,11 +155,15 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         }
         old_inihal_data.joint_min_ferror[joint] = ferror;
 
-        // set homing paramsters (total of 6)
+        // set homing paramsters
         home = 0;	                // default
         jointIniFile->Find(&home, "HOME", jointString);
+        old_inihal_data.joint_home[joint] = home;
+
         offset = 0;	                // default
         jointIniFile->Find(&offset, "HOME_OFFSET", jointString);
+        old_inihal_data.joint_home_offset[joint] = offset;
+
         search_vel = 0;	                // default
         jointIniFile->Find(&search_vel, "HOME_SEARCH_VEL", jointString);
         latch_vel = 0;	                // default
@@ -226,10 +230,9 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
 /*
   iniJoint(int joint, const char *filename)
 
-  Loads ini file parameters for specified joint, [0 .. AXES - 1]
+  Loads ini file parameters for specified joint
 
-  Looks for AXES in TRAJ section for how many to do, up to
-  EMC_JOINT_MAX.
+  Looks for [KINS]JOINTS for how many to do, up to EMC_JOINT_MAX.
  */
 int iniJoint(int joint, const char *filename)
 {
