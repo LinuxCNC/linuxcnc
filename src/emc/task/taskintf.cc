@@ -328,6 +328,28 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
     return retval;
 }
 
+int emcJointUpdateHomingParams(int joint, double home, double offset)
+{
+    CATCH_NAN(isnan(home) || isnan(offset) );
+
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	return 0;
+    }
+
+    emcmotCommand.command = EMCMOT_SET_JOINT_HOMING_PARAMS;
+    emcmotCommand.joint = joint;
+    emcmotCommand.home = home;
+    emcmotCommand.offset = offset;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f, %.4f) returned %d\n",
+          __FUNCTION__, joint, home, offset,retval);
+    }
+    return retval;
+}
+
 int emcJointSetMaxVelocity(int joint, double vel)
 {
     CATCH_NAN(isnan(vel));

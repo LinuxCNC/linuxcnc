@@ -662,6 +662,17 @@ check_stuff ( "before command_handler()" );
 	    joint->volatile_home = emcmotCommand->volatile_home;
 	    break;
 
+	case EMCMOT_UPDATE_JOINT_HOMING_PARAMS:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "UPDATE_JOINT_HOMING_PARAMS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    emcmot_config_change();
+	    if (joint == 0) {
+		break;
+	    }
+	    joint->home_offset = emcmotCommand->offset;
+	    joint->home = emcmotCommand->home;
+	    break;
+
 	case EMCMOT_OVERRIDE_LIMITS:
 	    /* this command can be issued with joint < 0 to re-enable
 	       limits, but they are automatically re-enabled at the

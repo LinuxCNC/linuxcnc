@@ -176,6 +176,7 @@ extern "C" {
 	EMCMOT_SET_JOINT_VEL_LIMIT,     /* set the max joint vel */
 	EMCMOT_SET_JOINT_ACC_LIMIT,     /* set the max joint accel */
 	EMCMOT_SET_JOINT_HOMING_PARAMS, /* sets joint homing parameters */
+	EMCMOT_UPDATE_JOINT_HOMING_PARAMS, /* updates some joint homing parameters */
 	EMCMOT_SET_JOINT_MOTOR_OFFSET,  /* set the offset between joint and motor */
 	EMCMOT_SET_JOINT_COMP,          /* set a compensation triplet for a joint (nominal, forw., rev.) */
 

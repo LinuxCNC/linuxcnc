@@ -602,6 +602,13 @@ int main(int argc, char* argv[]) {
                 );
                 break;
 
+            case EMCMOT_UPDATE_JOINT_HOMING_PARAMS:
+                log_print(
+                    "UPDATE_JOINT_HOMING_PARAMS joint=%d, offset=%.6f home=%.6f\n",
+                    c->joint, c->offset, c->home
+                );
+                break;
+
             case EMCMOT_SET_DEBUG:
                 log_print("SET_DEBUG\n");
                 break;

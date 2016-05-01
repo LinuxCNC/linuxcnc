@@ -67,6 +67,8 @@ int ini_hal_init_pins(int numjoints);
     ARRAY(hal_float_t,joint_max_limit,EMCMOT_MAX_JOINTS) \
     ARRAY(hal_float_t,joint_max_velocity,EMCMOT_MAX_JOINTS) \
     ARRAY(hal_float_t,joint_max_acceleration,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_home,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_home_offset,EMCMOT_MAX_JOINTS) \
 \
     ARRAY(hal_float_t,axis_min_limit,EMCMOT_MAX_AXIS) \
     ARRAY(hal_float_t,axis_max_limit,EMCMOT_MAX_AXIS) \

@@ -144,6 +144,8 @@ int ini_hal_init(int numjoints)
         MAKE_FLOAT_PIN_IDX(joint_max_limit,max_limit,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_max_velocity,max_velocity,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_max_acceleration,max_acceleration,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_home,home,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_home_offset,home_offset,HAL_IN,idx);
     }
     for (int idx = 0; idx < EMCMOT_MAX_AXIS; idx++) {
         char letter = "xyzabcuvw"[idx];
@@ -191,6 +193,8 @@ int ini_hal_init_pins(int numjoints)
         INIT_PIN(joint_max_limit[idx]);
         INIT_PIN(joint_max_velocity[idx]);
         INIT_PIN(joint_max_acceleration[idx]);
+        INIT_PIN(joint_home[idx]);
+        INIT_PIN(joint_home_offset[idx]);
     }
     for (int idx = 0; idx < EMCMOT_MAX_AXIS; idx++) {
         INIT_PIN(axis_min_limit[idx]);
@@ -323,6 +327,22 @@ int check_ini_hal_items(int numjoints)
             if (0 != emcJointSetMaxAcceleration(idx, NEW(joint_max_acceleration[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxAcceleration\n");
+                }
+            }
+        }
+        if (   CHANGED_IDX(joint_home,idx)
+            || CHANGED_IDX(joint_home_offset,idx)
+           ) {
+            if (debug) {
+                SHOW_CHANGE_IDX(joint_home,idx);
+                SHOW_CHANGE_IDX(joint_home_offset,idx);
+            }
+            UPDATE_IDX(joint_home,idx);
+            if  (0 != emcJointUpdateHomingParams(idx, NEW(joint_home[idx]),
+                                                      NEW(joint_home_offset[idx]))
+                ) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointUpdateHomingParams\n");
                 }
             }
         }
