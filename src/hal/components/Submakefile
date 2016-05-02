@@ -14,14 +14,23 @@ CONVERTERS :=  \
     conv_bit_s32.comp conv_bit_u32.comp \
     conv_s32_float.comp conv_s32_bit.comp conv_s32_u32.comp \
     conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
+
 COMPS := $(sort $(wildcard hal/components/*.comp) \
 	$(addprefix hal/components/, $(CONVERTERS)))
-	
+
+USER_COMP_COMPS := $(sort $(wildcard hal/user_comps/*.comp))
+
 COMP_MANPAGES := $(patsubst hal/components/%.comp, ../man/man9/%.9comp, \
 	$(COMPS))
 
 COMP_DOCPAGES := $(patsubst hal/components/%.comp, ../man/doc/man9/%.asciidoc, \
 	$(COMPS))
+
+USER_COMP_MANPAGES := $(patsubst hal/user_comps/%.comp, ../man/man9/%.9comp, \
+	$(USER_COMP_COMPS))
+
+USER_COMP_DOCPAGES := $(patsubst hal/user_comps/%.comp, ../man/doc/man9/%.asciidoc, \
+	$(USER_COMP_COMPS))
 
 MSG_COMPS := $(wildcard machinetalk/msgcomponents/*.comp)
 MSG_COMP_MANPAGES := $(patsubst machinetalk/msgcomponents/%.comp, \
@@ -40,11 +49,11 @@ DRIVER_COMP_DOCPAGES := $(patsubst hal/drivers/%.comp, ../man/doc/man9/%.asciido
 
 
 
-ifeq ($(BUILD_DOCS),yes)                                       
-manpages: $(COMP_MANPAGES) $(COMP_DOCPAGES) $(DRIVER_COMP_MANPAGES) $(DRIVER_COMP_DOCPAGES) $(MSG_COMP_MANPAGES) $(MSG_COMP_DOCPAGES)
+ifeq ($(BUILD_DOCS),yes)
+manpages: $(COMP_MANPAGES) $(COMP_DOCPAGES) $(DRIVER_COMP_MANPAGES) $(DRIVER_COMP_DOCPAGES) $(MSG_COMP_MANPAGES) $(MSG_COMP_DOCPAGES)  $(USER_COMP_MANPAGES)  $(USER_COMP_DOCPAGES)
 else
-manpages: $(COMP_MANPAGES) $(DRIVER_COMP_MANPAGES) $(MSG_COMP_MANPAGES)
-endif        
+manpages: $(COMP_MANPAGES) $(DRIVER_COMP_MANPAGES) $(MSG_COMP_MANPAGES)  $(USER_COMP_MANPAGES)
+endif
 
 
 TARGETS += manpages
@@ -67,11 +76,20 @@ $(COMP_MANPAGES): ../man/man9/%.9comp: hal/components/%.comp ../bin/comp
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
 
-$(COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/components/%.comp ../bin/comp
+$(USER_COMP_MANPAGES): ../man/man9/%.9comp: hal/user_comps/%.comp ../bin/comp
+	$(ECHO) Making usercomp manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/comp --document -o $@ $<
+
+$(COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/components/%.comp  ../bin/comp
 	$(ECHO) Making comp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --ascii-document -o $@ $<
 
+$(USER_COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/user_comps/%.comp  ../bin/comp
+	$(ECHO) Making comp docpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/comp --ascii-document -o $@ $<
 
 $(DRIVER_COMP_MANPAGES): ../man/man9/%.9comp: hal/drivers/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
