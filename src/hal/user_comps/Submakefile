@@ -15,13 +15,6 @@ $(patsubst %, ../bin/%, $(USER_COMP_PY)) : ../bin/%: hal/user_comps/%.py
 
 PYTARGETS += $(patsubst %, ../bin/%, $(USER_COMP_PY))
 
-USER_COMP_COMP := $(sort $(wildcard hal/user_comps/*.comp))
-USER_COMP_BIN :=  $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMP_COMP))
-TARGETS += $(USER_COMP_BIN)
-
-../bin/%: hal/user_comps/%.comp ../bin/comp
-	comp --install $<
-
 ifdef HAVE_LIBMODBUS3
 MODBUSSRCS := hal/user_comps/gs2_vfd.c
 MODBUSLDFLAGS := $(GLIB_LIBS) $(LIBMODBUS_LIBS)
