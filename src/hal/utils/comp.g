@@ -96,6 +96,8 @@ parser Hal:
                 | FPNUMBER {{ return FPNUMBER }}
                 | NUMBER {{ return NUMBER }}
     rule OptValue: Value {{ return Value }}
+                | TSTRING {{ return eval(TSTRING) }}
+                | STRING {{ return eval(STRING) }}
                 | {{ return 1 }}
     rule OptSValue: SValue {{ return SValue }}
                 | {{ return 1 }}
