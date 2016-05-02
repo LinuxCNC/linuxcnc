@@ -5,6 +5,7 @@ USER_COMP_PY = \
 	hal_storage \
 	hal_temp_ads7828 \
 	hal_temp_bbb \
+	hal_gy86 \
 	gladevcp
 
 $(patsubst %, ../bin/%, $(USER_COMP_PY)) : ../bin/%: hal/user_comps/%.py
@@ -15,13 +16,28 @@ $(patsubst %, ../bin/%, $(USER_COMP_PY)) : ../bin/%: hal/user_comps/%.py
 
 PYTARGETS += $(patsubst %, ../bin/%, $(USER_COMP_PY))
 
+# USER_COMP_COMPS is defined in hal/components/Submakefile
+USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMP_COMPS))
+
+../bin/%: hal/user_comps/%.comp ../bin/comp ../lib/liblinuxcnchal.so.0 ../lib/librtapi_math.so.0
+	$(ECHO) "Preprocessing usercomp $(notdir $<)"
+	@mkdir -p objects/hal/user_comps
+	$(Q)../bin/comp -o $(patsubst  hal/user_comps/%.comp, objects/hal/user_comps/%.c, $<) $<
+	$(ECHO) "Compiling usercomp $(notdir $<)"
+	$(Q)$(CC) -DULAPI $(INCLUDE) -o $@ $(LDFLAGS) \
+		$(patsubst  hal/user_comps/%.comp, objects/hal/user_comps/%.c, $<) \
+		../lib/liblinuxcnchal.so.0 \
+		../lib/librtapi_math.so.0
+
+TARGETS +=  $(USER_COMP_BINS)
+
 ifdef HAVE_LIBMODBUS3
 MODBUSSRCS := hal/user_comps/gs2_vfd.c
 MODBUSLDFLAGS := $(GLIB_LIBS) $(LIBMODBUS_LIBS)
 MODBUSCCFLAGS := $(GLIB_CFLAGS) $(LIBMODBUS_CFLAGS)
 USERSRCS += $(MODBUSSRCS)
 
- $(call TOOBJSDEPS, $(MODBUSSRCS)) : EXTRAFLAGS += $(MODBUSCCFLAGS)
+$(call TOOBJSDEPS, $(MODBUSSRCS)) : EXTRAFLAGS += $(MODBUSCCFLAGS)
 
 ../bin/gs2_vfd: $(call TOOBJS, $(MODBUSSRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
