@@ -120,6 +120,8 @@ struct hm2_lowlevel_io_struct {
     // if FALSE, the hostmot2 driver will export only global read() and write() functions (and pet_watchdog())
     // if TRUE, the hostmot2 driver will export those three functions and also read_gpio() and write_gpio()
     int threadsafe;
+    
+    char *firmware; // Name of the firmware file
 
     void *private;  // for the low-level driver to hang their struct on
 };
