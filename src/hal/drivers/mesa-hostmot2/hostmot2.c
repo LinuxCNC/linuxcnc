@@ -1191,7 +1191,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         goto fail0;
     }
 
-
+    llio->firmware = hm2->config.firmware;
 
     // NOTE: program_fpga will be NULL for 6i25 and 5i25 (and future cards 
     // with EPROM firmware, probably. 
