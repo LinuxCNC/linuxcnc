@@ -17,6 +17,8 @@
 #include "mot_priv.h"
 #include "rtapi_math.h"
 
+#define ABS(x) (((x) < 0) ? -(x) : (x))
+
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
 
@@ -37,6 +39,10 @@
 /* variable used internally by do_homing, but global so that
    'home_do_moving_checks()' can access it */
 static int immediate_state;
+
+#define MAX_HOME_SEQUENCES EMCMOT_MAX_JOINTS
+static int sync_final_move[MAX_HOME_SEQUENCES];
+static int home_sequence = -1;
 
 /***********************************************************************
 *                      LOCAL FUNCTIONS                                 *
@@ -100,8 +106,8 @@ static void home_do_moving_checks(emcmot_joint_t * joint)
 
 void do_homing_sequence(void)
 {
-    static int home_sequence = -1;
-    int i;
+    int i,ii;
+    int special_case_sync_all;
     int seen = 0;
     emcmot_joint_t *joint;
 
@@ -117,7 +123,38 @@ void do_homing_sequence(void)
 	break;
 
     case HOME_SEQUENCE_START:
-	/* a request to home all joints */
+        /* Request to home all joints
+        *  A negative joint->home_sequence means sync final move
+        *
+        * Initializations
+        */
+        home_sequence = 0;
+        for(i=0; i < MAX_HOME_SEQUENCES; i++) {
+            sync_final_move[i] = 0; //reset to allow a rehome
+        }
+        /*
+        *  Force all joints having identical ABS(joint->home_sequence)
+        *  to agree, e.g., if any one is negative make them all negative
+        *
+        *  special_case_sync_all: if home_sequence == -1 for all joints
+        *                         synchronize all joints final move
+        */
+        special_case_sync_all = 1; // disprove
+        for(i=0; i < emcmotConfig->numJoints; i++) {
+            joint = &joints[i];
+            if (joint->home_sequence != -1) {special_case_sync_all = 0;}
+            if (joint->home_sequence < 0) {
+                // if a joint->home_sequence is neg, find all joints that
+                // have the same ABS sequence value and make them the same
+                emcmot_joint_t *jtmp;
+                for(ii=0; ii < emcmotConfig->numJoints; ii++) {
+                    jtmp = &joints[ii];
+                    if (jtmp->home_sequence == ABS(joint->home_sequence)) {
+                        jtmp->home_sequence = joint->home_sequence;
+                    }
+                }
+            }
+        }
 	for(i=0; i < emcmotConfig->numJoints; i++) {
 	    joint = &joints[i];
 	    if(joint->home_state != HOME_IDLE) {
@@ -126,8 +163,12 @@ void do_homing_sequence(void)
 		return;
 	    }
 	}
-	/* ok to start the sequence, start at zero */
-	home_sequence = 0;
+        if (special_case_sync_all) {
+            home_sequence = 1;
+        } else {
+            /* ok to start the sequence, start at zero */
+            home_sequence = 0;
+        }
 	/* tell the world we're on the job */
 	emcmotStatus->homing_active = 1;
 	/* and drop into next state */
@@ -136,7 +177,8 @@ void do_homing_sequence(void)
 	/* start all joints whose sequence number matches home_sequence */
 	for(i=0; i < emcmotConfig->numJoints; i++) {
 	    joint = &joints[i];
-	    if(joint->home_sequence == home_sequence) {
+            // negative joint->home_sequence means sync final move
+	    if(ABS(joint->home_sequence) == home_sequence) {
 		/* start this joint */
 	        joint->free_tp.enable = 0;
 		joint->home_state = HOME_START;
@@ -157,7 +199,8 @@ void do_homing_sequence(void)
     case HOME_SEQUENCE_WAIT_JOINTS:
 	for(i=0; i < emcmotConfig->numJoints; i++) {
 	    joint = &joints[i];
-	    if(joint->home_sequence != home_sequence) {
+            // negative joint->home_sequence means sync final move
+	    if(ABS(joint->home_sequence) != home_sequence) {
 		/* this joint is not at the current sequence number, ignore it */
 		continue;
 	    }
@@ -707,8 +750,36 @@ void do_homing(void)
 		if (joint->home_pause_timer < (HOME_DELAY * servo_freq)) {
 		    /* no, update timer and wait some more */
 		    joint->home_pause_timer++;
-		    break;
+                    if (joint->home_sequence<0) {
+                        if (!sync_final_move[home_sequence]) break;
+                    } else {
+                        break;
+                    }
+
 		}
+                // negative joint->home_sequence means sync final move
+                //          defer final move until all joints in sequence are ready
+                if  (        (joint->home_sequence  < 0)
+                     && ( ABS(joint->home_sequence) == home_sequence)
+                    ) {
+                    if (!sync_final_move[home_sequence]) {
+                        int jno;
+                        emcmot_joint_t *jtmp;
+                        sync_final_move[home_sequence] = 1; //disprove
+                        for (jno = 0; jno < emcmotConfig->numJoints; jno++) {
+                            jtmp = &joints[jno];
+                            if (ABS(jtmp->home_sequence) != home_sequence) {continue;}
+                            if (   (jtmp->home_state != HOME_FINAL_MOVE_START)
+                                ||
+                                   (jtmp->free_tp.active)
+                                ) {
+                                sync_final_move[home_sequence] = 0;
+                                break;
+                            }
+                        }
+                        if (!sync_final_move[home_sequence]) break;
+                    }
+                }
 		joint->home_pause_timer = 0;
 		/* plan a move to home position */
 		joint->free_tp.pos_cmd = joint->home;
