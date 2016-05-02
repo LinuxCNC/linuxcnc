@@ -108,7 +108,7 @@ the home switch (depending on the signs of HOME_SEARCH_VEL and
 HOME_LATCH_VEL). The default value is NO.
 
 [NOTE]
-HOME_USE_INDEX requires connections in your hal file to axis.n.index-enable
+HOME_USE_INDEX requires connections in your hal file to joint.n.index-enable
 from the encoder.n.index-enable.
 
 === HOME_OFFSET (((HOME OFFSET)))

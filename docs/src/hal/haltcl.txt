@@ -205,13 +205,13 @@ code would work for any combination of axes in a trivkins machine.
 ----
 # Create position, velocity and acceleration signals for each axis
 set ddt 0
-foreach axis {X Y Z A B C U V W} axno {0 1 2 3 4 5 6 7 8} {
+for {set jnum 0} {$jnum < $::KINS(JOINTS)} {incr jnum} {
   # 'list pin' returns an empty list if the pin doesn't exist
-  if {[hal list pin axis.$axno.motor-pos-cmd] == {}} {
+  if {[hal list pin joint.${jnum}.motor-pos-cmd] == {}} {
     continue
   }
-  net ${axis}pos axis.$axno.motor-pos-cmd => axis.$axno.motor-pos-fb \
-                                          => ddt.$ddt.in
+  net ${jnum}pos joint.${jnum}.motor-pos-cmd => joint.$axno.motor-pos-fb \
+                                             => ddt.$ddt.in
   net ${axis}vel <= ddt.$ddt.out
   incr ddt
   net ${axis}vel => ddt.$ddt.in

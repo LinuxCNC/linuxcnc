@@ -98,7 +98,10 @@ reflects [TRAJ] ANGULAR_UNITS ini value.
 current value of the analog output pins.
 
 *axes*:: '(returns string)' -
-reflects [TRAJ] AXES ini value.
+reflects [TRAJ] AXES ini value.  (deprecated)
+
+*joints*:: '(returns string)' -
+reflects [KINS] JOINTS ini value.
 
 *axis*:: '(returns tuple of dicts)' -
 reflecting current axis values. See
@@ -367,18 +370,18 @@ of a particular axis:
 import linuxcnc
 s = linuxcnc.stat() 
 s.poll() 
-print "Axis 1 homed: ", s.axis[1]["homed"]
+print "Joint 1 homed: ", s.joint[1]["homed"]
 ---------------------------------------------------------------------
 
-For each axis, the following dictionary keys are available:
+For each joint, the following dictionary keys are available:
 
-*axisType*:: '(returns integer)' -
+*jointType*:: '(returns integer)' -
 type of axis configuration parameter, reflects
-[AXIS_x]TYPE. LINEAR=1, ANGULAR=2. See <<sec:axis-section, Axis
+[JOINT_n]TYPE. LINEAR=1, ANGULAR=2. See <<sec:axis-section, Joint
 ini configuration>> for details.
 
 *backlash*:: '(returns float)' -
-Backlash in machine units. configuration parameter, reflects [AXIS_x]BACKLASH.
+Backlash in machine units. configuration parameter, reflects [JOINT_n]BACKLASH.
 
 *enabled*:: '(returns integer)' -
 non-zero means enabled.
@@ -406,27 +409,27 @@ current input position.
 
 *max_ferror*:: '(returns float)' -
 maximum following error. configuration
-parameter, reflects [AXIS_x]FERROR.
+parameter, reflects [JOINT_n]FERROR.
 
 *max_hard_limit*:: '(returns integer)' -
 non-zero means max hard limit exceeded.
 
 *max_position_limit*:: '(returns float)' -
 maximum limit (soft limit) for axis motion, in machine units.configuration
-parameter, reflects [AXIS_x]MAX_LIMIT.
+parameter, reflects [JOINT_n]MAX_LIMIT.
 
 *max_soft_limit*::
 non-zero means `max_position_limit` was exceeded, int
 
 *min_ferror*:: '(returns float)' -
-configuration parameter, reflects [AXIS_x]MIN_FERROR.
+configuration parameter, reflects [JOINT_n]MIN_FERROR.
 
 *min_hard_limit*:: '(returns integer)' -
 non-zero means min hard limit exceeded.
 
 *min_position_limit*:: '(returns float)' -
 minimum limit (soft limit) for axis motion, in machine units.configuration
-parameter, reflects [AXIS_x]MIN_LIMIT.
+parameter, reflects [JOINT_n]MIN_LIMIT.
 
 *min_soft_limit*:: '(returns integer)' -
 non-zero means `min_position_limit` was exceeded.

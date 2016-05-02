@@ -158,9 +158,9 @@ Do not use 'Run From Selected Line' if your g code program contains subroutines.
 
 * 'Paste to MDI history' - Paste from the clipboard to the MDI history window
 
-* 'Calibration' - Starts the Servo Axis Calibration assistant.
+* 'Calibration' - Starts the Servo Joint Calibration assistant.
    Calibration reads the HAL file and for every 'setp' that uses a variable
-   from the ini file that is in an [AXIS_n] section it creates an entry that
+   from the ini file that is in an [JOINT_n] section it creates an entry that
    can be edited and tested.
 
 * 'Show HAL Configuration' - Opens the HAL Configuration window where you can

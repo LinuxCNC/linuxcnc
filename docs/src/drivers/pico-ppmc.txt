@@ -113,7 +113,7 @@ board to have a sufficient revision level to support the feature.
 * '(All float output) ppmc.<port>.encoder.<channel>.position' -
    Encoder position, in user units.
 * '(All bit bidir) ppmc.<port>.encoder.<channel>.index-enable'  -
-   Connect to axis.#.index-enable for home-to-index. This is a
+   Connect to joint.#.index-enable for home-to-index. This is a
    bidirectional HAL signal. Setting it to true causes the encoder
    hardware to reset the count to zero on the next encoder index pulse.
    The driver will detect this and set the signal back to false.
