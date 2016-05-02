@@ -1,7 +1,6 @@
 usr/share/applications/linuxcnc.desktop
 usr/share/applications/linuxcnc-gcoderef.desktop
 usr/share/applications/linuxcnc-latency.desktop
-usr/share/applications/linuxcnc-latency-histogram.desktop
 usr/share/applications/linuxcnc-stepconf.desktop
 usr/share/applications/linuxcnc-pncconf.desktop
 usr/share/desktop-directories/cnc.directory
