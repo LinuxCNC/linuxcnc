@@ -3,7 +3,7 @@
 [[cha:moveoff]]
 
 The moveoff Hal component is a Hal-only method
-for implementing offsets.  See the manpage (man moveoff)
+for implementing offsets.  See the manpage ('$ man moveoff')
 for the IMPORTANT limitations and warnings.
 
 The moveoff component is used to offset joint positions using custom Hal
