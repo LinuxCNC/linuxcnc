@@ -237,7 +237,7 @@ was: loadrt gantrykins coordinates=xyyz
  is: loadrt trivkins   coordinates=xyyz kinstype=BOTH
 ----
 
-See the trvkins man page for additional information ( $ man trivkins )
+See the trvkins man page for additional information ('$ man trivkins')
 
 Note: the most supported usage for specifying kinematics in joints_axes
 is to set values in the configuration ini file [KINS} section and then
@@ -352,7 +352,7 @@ with an additional rotary coordinate:
 Note: Some general-purpose kinematics modules (like trivkins) implement
       identity kinematics with support for coordinate specification (axis letters).
       Axis letters may be omitted.  Axis letters may be duplicated.
-      Joints are assigned to axis letters in a defined manner ($ man trivkins).
+      Joints are assigned to axis letters in a defined manner ('$ man trivkins').
 
 Note: For trivkins module loading, do not include spaces about the = sign or letters:
 
@@ -365,7 +365,7 @@ Note: Custom kinematics modules that implement non-identity kinematics (like
       compute the joints-axes relationships within the custom module but it is
       important to use consistent settings for the related ini items: '[KINS]JOINTS'
       and '[TRAJ]COORDINATES'.  The details will usually be explained in the
-      module man page (for example, $ man lineardeltakins).
+      module man page (for example, '$ man lineardeltakins').
 
 
 
@@ -438,7 +438,7 @@ The required ini file entries for this trivkins XYZB example are:
 For more complex kinematics, select the joint number as required -- there must
 be a one-to-one correspondence between the rotary axis and the joint number.
 
-(See the motion man page ($ man motion) for more information on motmod)
+(See the motion man page ('$ man motion') for more information on motmod)
 
 === Stricter INI file syntax
 
@@ -526,6 +526,8 @@ and axes ([AXIS_L] stanzas):
   [JOINT_N]MAX_LIMIT         ini.N.max_limit
   [JOINT_N]MAX_VELOCITY      ini.N.max_velocity
   [JOINT_N]MAX_ACCELERATION  ini.N.max_acceleration
+  [JOINT_N]HOME              ini.N.home
+  [JOINT_N]HOME_OFFSET       ini.N.home_offset
 
   For L = x y z a b c u v w:
   Ini File Item              hal pin name
@@ -537,7 +539,7 @@ and axes ([AXIS_L] stanzas):
 Note: In prior versions of LinuxCNC (before joints_axes updates), the
       hal pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc.
       (pins were created for all 9 axes)
-      See the man page ($ man milltask) for more information
+      See the man page ('$ man milltask') for more information
 
 == GUIs (updates for joints_axes)
 
@@ -591,7 +593,7 @@ These assignments can be controlled by new inifile directives in the
 Halui now supports teleop jogging resulting in some changed pin names and
 numerous new names for jogging-related pins.
 
-See the man page ($ man halui) for all pin names.
+See the man page ('$ man halui') for all pin names.
 
 ==== TELEOP jogging (also called axis or world jogging)
 

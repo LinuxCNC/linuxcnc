@@ -862,7 +862,7 @@ LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'
 * 'KINEMATICS = trivkins' - Specify a kinematics module for the motion module.
      Guis may use this variable to specify the loadrt line in hal files for
      the motmod module.  For more information on kinematics modules see the
-     manpage: man kins ('kins(9)')
+     manpage: '$ man kins'
 
 * 'AUTO_TELEOP = 20' - (Axis gui) Switch to teleop mode after successful 
    Home-All.  The number (20) specifies the number of seconds for completion
@@ -943,7 +943,7 @@ with coordinates=XZ, the joint-axes relationships are:
 * JOINT_0 = X
 * JOINT_1 = Z
 
-For more information on kinematics modules see the manpage: man kins ('kins(9)')
+For more information on kinematics modules see the manpage: '$ man kins'
 
 * 'TYPE = LINEAR' -
     The type of joint, either LINEAR or ANGULAR.
