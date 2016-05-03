@@ -1079,9 +1079,11 @@ These parameters are Homing related, for a better explanation read the
 
 * 'HOME_SEQUENCE = <n>' -
      Used to define the "Home All" sequence. <n> starts at 0 and no numbers
-    may be skipped. If left out or set to -1 the joint will not be homed by
-    the "Home All" function. More than one joint can be homed at the same
-    time.
+    may be skipped. If left out the joint will not be homed by the
+    "Home All" function. More than one joint can be homed at the same
+    time by specifying the same sequence number for more than one joint.
+    A negative sequence number is used to defer the final move for
+    all joints having that (negative or positive) sequence number.
 
 * 'VOLATILE_HOME = 0' -
      When enabled (set to 1) this joint will be unhomed if the Machine
