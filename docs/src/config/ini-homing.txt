@@ -150,12 +150,62 @@ is already closed.
 
 Used to define a multi-axis homing sequence HOME ALL and enforce
 homing order (e.g., Z may not be homed if X is not yet homed). An axis
-may be homed after all axes with a lower HOME_SEQUENCE have already
-been homed and are at the HOME_OFFSET. If two axes have the same
-HOME_SEQUENCE, they may be homed at the same time. If HOME_SEQUENCE is
--1 or not specified then this joint will not be homed by the HOME ALL
-sequence. HOME_SEQUENCE numbers start with 0 and there may be no unused
-numbers.
+may be homed after all axes with a lower (absolute value)
+HOME_SEQUENCE have already been homed and are at the HOME_OFFSET. If
+two axes have the same HOME_SEQUENCE, they may be homed at the same
+time. If HOME_SEQUENCE is not specified then this joint will not be
+homed by the HOME ALL sequence. HOME_SEQUENCE numbers start with 0 and
+there may be no unused numbers.
+
+Negative HOME_SEQUENCE values indicate that joints in the sequence
+should synchronize the final move to HOME by waiting until all 
+joints in the sequence are ready.  If any joint has a negative
+HOME_SEQUENCE value, then all joints with the same (positive
+or negative) value will synchronize the final move.
+
+Examples for a 3 joint system
+    
+Two sequences (0,1), no synchronization
+
+----
+[JOINT_0]HOME_SEQUENCE =  0
+[JOINT_1]HOME_SEQUENCE =  1
+[JOINT_2]HOME_SEQUENCE =  1
+----
+    
+Two sequences, joints 1 and 2 synchronized
+
+----
+[JOINT_0]HOME_SEQUENCE =  0
+[JOINT_1]HOME_SEQUENCE = -1
+[JOINT_2]HOME_SEQUENCE = -1
+----
+
+With mixed positive and negative values, joints 1 and 2 synchronized
+
+----
+[JOINT_0]HOME_SEQUENCE =  0
+[JOINT_1]HOME_SEQUENCE = -1
+[JOINT_2]HOME_SEQUENCE =  1
+----
+
+    
+One sequence, no synchronization
+
+----
+[JOINT_0]HOME_SEQUENCE =  0
+[JOINT_1]HOME_SEQUENCE =  0
+[JOINT_2]HOME_SEQUENCE =  0
+----
+    
+One sequence, all joints synchronized
+
+----
+[JOINT_0]HOME_SEQUENCE = -1
+[JOINT_1]HOME_SEQUENCE = -1
+[JOINT_2]HOME_SEQUENCE = -1
+----
+    
 
 === VOLATILE_HOME (((VOLATILE HOME)))
 
