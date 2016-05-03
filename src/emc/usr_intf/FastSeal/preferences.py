@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding:UTF-8 -*-
+
+
 # Touchy is Copyright (c) 2009  Chris Radek <chris@timeguy.com>
 #
 # Touchy is free software: you can redistribute it and/or modify
