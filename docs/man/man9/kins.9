@@ -40,7 +40,6 @@ Rather than exporting HAL pins and functions, these components provide the
 forward and inverse kinematics definitions for LinuxCNC.
 
 .SS trivkins \- generalized trivial kinematics
-There is a 1:1 correspondence between joints and axes.
 Joint numbers are assigned sequentialy according to the axis letters specified
 with the \fBcoordinates=\fR parameter.
 
@@ -65,6 +64,11 @@ Assigns: x==joint0, y==joint1, z==joint2
 Example: loadrt \fBtrivkins coordinates=xz\fR
 .TQ
 Assigns: x==joint0, z==joint1
+
+.TQ
+Example: loadrt \fBtrivkins coordinates=xyzy\fR
+.TQ
+Assigns: x==joint0, y0==joint1, z==joint2, y1==joint3
 
 
 .PP
