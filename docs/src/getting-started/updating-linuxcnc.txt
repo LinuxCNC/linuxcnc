@@ -201,10 +201,10 @@ machines employing identity kinematics.  Less common items used in more complex
 machines may not be converted automatically.  Examples of complex machine
 configurations include:
 
-   gantries with two joints for an axis
-   machines with jogwheels
-   robots with non-identity kinematics
-   configurations using haltcl files
+* gantries with two joints for an axis
+* machines with jogwheels
+* robots with non-identity kinematics
+* configurations using haltcl files
 
 The following subsections and the section for 'Hal Changes' list items that
 may require additional user edits to ini or hal files.
