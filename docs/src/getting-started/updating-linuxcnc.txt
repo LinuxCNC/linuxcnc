@@ -237,7 +237,7 @@ was: loadrt gantrykins coordinates=xyyz
  is: loadrt trivkins   coordinates=xyyz kinstype=BOTH
 ----
 
-See the trvkins man page for additional information ('$ man trivkins')
+See the trivkins man page for additional information ('$ man trivkins')
 
 Note: the most supported usage for specifying kinematics in joints_axes
 is to set values in the configuration ini file [KINS} section and then
