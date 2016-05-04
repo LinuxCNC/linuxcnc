@@ -2503,6 +2503,7 @@ class TclCommands(nf.TclCommands):
     def unhome_all_joints(event=None):
         if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
+        set_motion_teleop(0)
         c.unhome(-1)
 
     def home_joint(event=None):
@@ -2533,6 +2534,7 @@ class TclCommands(nf.TclCommands):
         else:
             jnum = int(jora)
         ensure_mode(linuxcnc.MODE_MANUAL)
+        set_motion_teleop(0)
         c.unhome(jnum)
 
     def home_joint_number(num):
@@ -2543,6 +2545,7 @@ class TclCommands(nf.TclCommands):
     def unhome_joint_number(num):
         # invoked by machine menu/unhome widgets
         ensure_mode(linuxcnc.MODE_MANUAL)
+        set_motion_teleop(0)
         c.unhome(num)
 
     def clear_offset(num):
