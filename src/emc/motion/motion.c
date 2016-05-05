@@ -138,6 +138,27 @@ static int setServoCycleTime(double secs);
 *                     PUBLIC FUNCTION CODE                             *
 ************************************************************************/
 
+void switch_to_teleop_mode(void) {
+    int joint_num;
+    emcmot_joint_t *joint;
+
+    if (emcmotConfig->kinType != KINEMATICS_IDENTITY) {
+        if (!checkAllHomed()) {
+            reportError(_("all joints must be homed before going into teleop mode"));
+            return;
+        }
+    }
+
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+        joint = &joints[joint_num];
+        if (joint != 0) { joint->free_tp.enable = 0; }
+    }
+
+    emcmotDebug->teleoperating = 1;
+    emcmotDebug->coordinating  = 0;
+}
+
+
 void emcmot_config_change(void)
 {
     if (emcmotConfig->head == emcmotConfig->tail) {
