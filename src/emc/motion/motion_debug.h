@@ -48,9 +48,6 @@ typedef struct emcmot_debug_t {
 
 	int split;		/* number of split command reads */
 
-	/* flag that all active axes are homed */
-	unsigned char allHomed;
-
 	TP_STRUCT coord_tp;	/* coordinated mode planner */
 
 /* space for trajectory planner queues, plus 10 more for safety */
