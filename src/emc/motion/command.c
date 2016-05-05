@@ -78,11 +78,6 @@ int checkAllHomed(void)
     int joint_num;
     emcmot_joint_t *joint;
 
-    /* bail out if the allHomed flag is already set */
-    if (0 != emcmotDebug) {
-	if (emcmotDebug->allHomed) return 1;
-    }
-
     for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
@@ -94,10 +89,6 @@ int checkAllHomed(void)
 	    /* if any of the joints is not homed return false */
 	    return 0;
 	}
-    }
-    /* set the global flag that all joints are homed */
-    if (0 != emcmotDebug) {
-	emcmotDebug->allHomed = 1;
     }
     /* return true if all active joints are homed*/
     return 1;
@@ -317,9 +308,6 @@ void clearHomes(int joint_num)
 	    /* clear flag */
 	    SET_JOINT_HOMED_FLAG(joint, 0);
 	}
-    }
-    if (0 != emcmotDebug) {
-	emcmotDebug->allHomed = 0;
     }
 }
 
