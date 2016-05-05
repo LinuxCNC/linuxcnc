@@ -779,6 +779,12 @@ void do_homing(void)
 		SET_JOINT_AT_HOME_FLAG(joint, 1);
 		joint->home_state = HOME_IDLE;
 		immediate_state = 1;
+                // This joint just finished homing.  See if this is the
+                // final one and all joints are now homed, and switch to
+                // Teleop mode if so.
+                if (checkAllHomed()) {
+                    switch_to_teleop_mode();
+                }
 		break;
 
 	    case HOME_ABORT:
