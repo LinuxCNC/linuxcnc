@@ -593,27 +593,8 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_TELEOP:
-            for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
-                joint = &joints[joint_num];
-                if (joint != 0) { joint->free_tp.enable = 0; }
-            }
-	    /* change the mode to teleop motion */
-	    /* can be done at any time */
-	    /* this code doesn't actually make the transition, it merely
-	       tests a condition and then sets a flag requesting the
-	       transition */
-	    /* set the emcmotDebug->teleoperating flag to defer transition to
-	       controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "TELEOP");
-	    emcmotDebug->teleoperating = 1;
-	    emcmotDebug->coordinating  = 0;
-	    if (emcmotConfig->kinType != KINEMATICS_IDENTITY) {
-		if (!checkAllHomed()) {
-		    reportError(_("all joints must be homed before going into teleop mode"));
-		    emcmotDebug->teleoperating = 0;
-		    break;
-		}
-	    }
+            switch_to_teleop_mode();
 	    break;
 
 	case EMCMOT_SET_NUM_JOINTS:

@@ -243,6 +243,18 @@ extern int emcmotGetRotaryIsUnlocked(int axis);
 extern void do_homing_sequence(void);
 extern void do_homing(void);
 
+
+//
+// Try to change the Motion mode to Teleop.
+//
+// This function can be called at any time.  Returns without changing
+// mode if Teleop is not currently allowed.  This code doesn't actually
+// make the transition, it just sets a flag requesting the transition.
+// The real transition to Teleop mode is done in emcmotController().
+//
+void switch_to_teleop_mode(void);
+
+
 /* loops through the active joints and checks if any are not homed */
 extern int checkAllHomed(void);
 /* recalculates jog limits */
