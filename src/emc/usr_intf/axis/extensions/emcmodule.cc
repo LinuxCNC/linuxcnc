@@ -764,6 +764,13 @@ static PyObject *mode(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *task_plan_synch(pyCommandChannel *s) {
+    EMC_TASK_PLAN_SYNCH synch;
+    emcSendCommand(s, synch);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *maxvel(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_MAX_VELOCITY m;
     if(!PyArg_ParseTuple(o, "d", &m.velocity)) return NULL;
@@ -1271,6 +1278,7 @@ static PyMethodDef Command_methods[] = {
     {"brake", (PyCFunction)brake, METH_VARARGS},
     {"load_tool_table", (PyCFunction)load_tool_table, METH_NOARGS},
     {"abort", (PyCFunction)emcabort, METH_NOARGS},
+    {"task_plan_synch", (PyCFunction)task_plan_synch, METH_NOARGS},
     {"override_limits", (PyCFunction)override_limits, METH_NOARGS},
     {"home", (PyCFunction)home, METH_VARARGS},
     {"unhome", (PyCFunction)unhome, METH_VARARGS},
