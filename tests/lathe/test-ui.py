@@ -18,11 +18,6 @@ timeout = 5.0
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
 
-def introspect(h):
-    os.system("halcmd show pin python-ui")
-    os.system("halcmd show sig")
-
-
 def wait_for_joint_to_stop(joint_number):
     print "waiting for joint", joint_number, "to stop"
     s.poll()
@@ -65,7 +60,6 @@ def jog_joint(joint_number, target):
     if not done(s.position[joint_number]):
         print "failed to jog joint %d to %.3f" % (joint_number, target)
         print "timed out at %.3f after %.3f seconds" % (s.position[joint_number], timeout)
-        introspect(h)
         sys.exit(1)
 
     print "    jogged joint %d past target %.3f" % (joint_number, target)
