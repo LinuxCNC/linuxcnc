@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding:UTF-8 -*-
 
 '''
     This class is used to handle the dialogs from gmoccapy,

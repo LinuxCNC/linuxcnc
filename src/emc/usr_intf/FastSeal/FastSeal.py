@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.4"
+_RELEASE = "  0.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -3394,21 +3394,21 @@ class FastSeal( object ):
         if pin.get():
             self.widgets["btn_%s_100" % type].emit( "clicked" )
 
-    def _on_vaccum_changed( self, pin ):
+    def _on_vacuum_changed( self, pin ):
         if pin.get():
-            self.widgets.img_vaccum_off.hide()
-            self.widgets.img_vaccum_on.show()
+            self.widgets.img_vacuum_off.hide()
+            self.widgets.img_vacuum_on.show()
         else:
-            self.widgets.img_coolant_off.show()
-            self.widgets.img_coolant_on.hide()
+            self.widgets.img_vacuum_off.show()
+            self.widgets.img_vacuum_on.hide()
         
     def _on_chip_cutter_changed( self, pin ):
         if pin.get():
             self.widgets.img_chipcutter_off.hide()
             self.widgets.img_chipcutter_on.show()
         else:
-            self.widgets.img_coolant_off.show()
-            self.widgets.img_coolant_on.hide()
+            self.widgets.img_chipcutter_off.show()
+            self.widgets.img_chipcutter_on.hide()
         
     def _on_coolant_changed( self, pin ):
         if pin.get():
@@ -3601,7 +3601,7 @@ class FastSeal( object ):
 
         # make a pin for the vaccum
         pin = self.halcomp.newpin( "vacuum-on", hal.HAL_BIT, hal.HAL_IN )
-        hal_glib.GPin( pin ).connect( "value_changed", self._on_vaccum_changed )
+        hal_glib.GPin( pin ).connect( "value_changed", self._on_vacuum_changed )
 
         # make a pin for the chip_cutter
         pin = self.halcomp.newpin( "chipcutter-on", hal.HAL_BIT, hal.HAL_IN )

@@ -237,26 +237,6 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">images/exit_application.png</property>
   </object>
-  <object class="GtkImage" id="img_close1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/exit_application.png</property>
-  </object>
-  <object class="GtkImage" id="img_coolant_off">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/coolant_off.png</property>
-  </object>
-  <object class="GtkImage" id="img_coolant_off1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/coolant_off.png</property>
-  </object>
-  <object class="GtkImage" id="img_coolant_on">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/coolant_on.gif</property>
-  </object>
   <object class="GtkImage" id="img_dir_up">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -308,31 +288,6 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-home</property>
   </object>
-  <object class="GtkImage" id="img_home_b">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/refb.png</property>
-  </object>
-  <object class="GtkImage" id="img_home_c">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/refc.png</property>
-  </object>
-  <object class="GtkImage" id="img_home_u">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/refu.png</property>
-  </object>
-  <object class="GtkImage" id="img_home_v">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/refv.png</property>
-  </object>
-  <object class="GtkImage" id="img_home_w">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/refw.png</property>
-  </object>
   <object class="GtkImage" id="img_jump_to">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -352,26 +307,6 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/mdi_mode.png</property>
-  </object>
-  <object class="GtkImage" id="img_mist_off">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/mist_off.png</property>
-  </object>
-  <object class="GtkImage" id="img_mist_off1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/mist_off.png</property>
-  </object>
-  <object class="GtkImage" id="img_mist_off3">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/mist_off.png</property>
-  </object>
-  <object class="GtkImage" id="img_mist_on">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/mist_on.gif</property>
   </object>
   <object class="GtkImage" id="img_open">
     <property name="visible">True</property>
@@ -441,11 +376,6 @@
     <property name="pixbuf">images/stop.gif</property>
   </object>
   <object class="GtkImage" id="img_toolchange">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/toolchange.png</property>
-  </object>
-  <object class="GtkImage" id="img_toolchange1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/toolchange.png</property>
@@ -536,10 +466,10 @@
     </data>
   </object>
   <object class="EMC_Action_Save" id="hal_action_save">
-    <property name="textview">gcode_view</property>
+    <property name="textview">gcode_edit_view</property>
   </object>
   <object class="EMC_Action_SaveAs" id="hal_action_saveas">
-    <property name="textview">gcode_view</property>
+    <property name="textview">gcode_edit_view</property>
   </object>
   <object class="GtkWindow" id="window1">
     <property name="width_request">979</property>
@@ -582,24 +512,55 @@
                                 <property name="show_tabs">False</property>
                                 <property name="homogeneous">True</property>
                                 <child>
-                                  <object class="GtkVBox" id="vbox15">
+                                  <object class="GtkVBox" id="vbx_preview">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
-                                      <object class="GtkEventBox" id="eventbox_gremlin">
+                                      <object class="GtkVBox" id="vbx_gremlin_with_file_label">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <child>
-                                          <object class="HAL_Gremlin" id="gremlin">
+                                          <object class="GtkEventBox" id="eb_program_label">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="double_buffered">False</property>
-                                            <property name="enable_dro">False</property>
-                                            <property name="show_dtg">False</property>
-                                            <property name="use_commanded">False</property>
-                                            <signal name="line-clicked" handler="on_gremlin_line_clicked" swapped="no"/>
-                                            <signal name="gcode-error" handler="on_gremlin_gcode_error" swapped="no"/>
+                                            <child>
+                                              <object class="GtkLabel" id="lbl_program">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">No Program loaded</property>
+                                                <attributes>
+                                                  <attribute name="foreground" value="#ffffffffffff"/>
+                                                  <attribute name="background" value="#000000000000"/>
+                                                </attributes>
+                                              </object>
+                                            </child>
                                           </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkEventBox" id="eventbox_gremlin">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="HAL_Gremlin" id="gremlin">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="double_buffered">False</property>
+                                                <property name="enable_dro">False</property>
+                                                <property name="show_dtg">False</property>
+                                                <property name="use_commanded">False</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
                                         </child>
                                       </object>
                                       <packing>
@@ -636,15 +597,79 @@
                                           <placeholder/>
                                         </child>
                                         <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
                                           <object class="GtkButton" id="btn_delete_view">
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="has_tooltip">True</property>
+                                            <property name="tooltip_markup">clear plot</property>
                                             <property name="tooltip_text" translatable="yes">clear plot</property>
                                             <property name="use_action_appearance">False</property>
-                                            <signal name="clicked" handler="on_btn_delete_view_clicked" swapped="no"/>
                                             <child>
                                               <object class="GtkImage" id="img_tool_clear">
                                                 <property name="visible">True</property>
@@ -667,10 +692,11 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="has_tooltip">True</property>
+                                            <property name="tooltip_markup">Zoom in</property>
                                             <property name="tooltip_text" translatable="yes">Zoom in</property>
                                             <property name="use_action_appearance">False</property>
                                             <property name="image">img_zoom_in</property>
-                                            <signal name="clicked" handler="on_btn_zoom_in_clicked" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="left_attach">8</property>
@@ -686,10 +712,11 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="has_tooltip">True</property>
+                                            <property name="tooltip_markup">Zoom out</property>
                                             <property name="tooltip_text" translatable="yes">Zoom out</property>
                                             <property name="use_action_appearance">False</property>
                                             <property name="image">img_zoom_out</property>
-                                            <signal name="clicked" handler="on_btn_zoom_out_clicked" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="left_attach">9</property>
@@ -705,9 +732,10 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="has_tooltip">True</property>
+                                            <property name="tooltip_markup">Show or hide tool path</property>
                                             <property name="tooltip_text" translatable="yes">Show or hide tool path</property>
                                             <property name="use_action_appearance">False</property>
-                                            <signal name="toggled" handler="on_tbtn_view_tool_path_toggled" swapped="no"/>
                                             <child>
                                               <object class="GtkImage" id="imimg_toll_path">
                                                 <property name="visible">True</property>
@@ -730,9 +758,10 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="has_tooltip">True</property>
+                                            <property name="tooltip_markup">Show or hide dimensions</property>
                                             <property name="tooltip_text" translatable="yes">Show or hide dimensions</property>
                                             <property name="use_action_appearance">False</property>
-                                            <signal name="toggled" handler="on_tbtn_view_dimension_toggled" swapped="no"/>
                                             <child>
                                               <object class="GtkImage" id="img_dimensions">
                                                 <property name="visible">True</property>
@@ -747,15 +776,6 @@
                                             <property name="x_options">GTK_SHRINK</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                           </packing>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
                                         </child>
                                         <child>
                                           <placeholder/>
@@ -1772,49 +1792,271 @@
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkScrolledWindow" id="scw_gode_edit_view">
+                                <property name="can_focus">True</property>
+                                <property name="hscrollbar_policy">automatic</property>
+                                <property name="vscrollbar_policy">automatic</property>
                                 <child>
-                                  <object class="GtkFrame" id="frm_program">
+                                  <object class="EMC_SourceView" id="gcode_edit_view">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="left_margin">2</property>
+                                    <property name="right_margin">2</property>
+                                    <property name="show_line_numbers">True</property>
+                                    <property name="show_line_marks">True</property>
+                                    <property name="tab_width">3</property>
+                                    <property name="auto_indent">True</property>
+                                    <property name="insert_spaces_instead_of_tabs">True</property>
+                                    <property name="right_margin_position">81</property>
+                                    <property name="highlight_current_line">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkTable" id="tbl_search">
+                                <property name="height_request">50</property>
+                                <property name="can_focus">False</property>
+                                <property name="n_columns">16</property>
+                                <child>
+                                  <object class="GtkButton" id="btn_undo">
+                                    <property name="label" translatable="yes">Undo</property>
+                                    <property name="height_request">48</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label_xalign">0.5</property>
-                                    <child>
-                                      <object class="GtkAlignment" id="alignment10">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="top_padding">5</property>
-                                        <property name="bottom_padding">5</property>
-                                        <property name="left_padding">5</property>
-                                        <property name="right_padding">5</property>
-                                        <child>
-                                          <object class="GtkLabel" id="lbl_program">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="label" translatable="yes">No Program loaded</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel" id="lbl_frame_program">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">&lt;b&gt;Program&lt;/b&gt;</property>
-                                        <property name="use_markup">True</property>
-                                      </object>
-                                    </child>
+                                    <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <signal name="clicked" handler="on_btn_undo_clicked" swapped="no"/>
                                   </object>
                                   <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="pack_type">end</property>
-                                    <property name="position">1</property>
+                                    <property name="x_options">GTK_SHRINK</property>
+                                    <property name="y_options">GTK_SHRINK</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btn_search_back">
+                                    <property name="label" translatable="yes">Search
+ back</property>
+                                    <property name="height_request">48</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <signal name="clicked" handler="on_btn_search_back_clicked" swapped="no"/>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="x_options">GTK_SHRINK</property>
+                                    <property name="y_options">GTK_SHRINK</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btn_search_forward">
+                                    <property name="label" translatable="yes">Search
+  fwd</property>
+                                    <property name="height_request">48</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <signal name="clicked" handler="on_btn_search_forward_clicked" swapped="no"/>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">10</property>
+                                    <property name="right_attach">11</property>
+                                    <property name="x_options">GTK_SHRINK</property>
+                                    <property name="y_options">GTK_SHRINK</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btn_redo">
+                                    <property name="label" translatable="yes">Redo</property>
+                                    <property name="height_request">48</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <signal name="clicked" handler="on_btn_redo_clicked" swapped="no"/>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">15</property>
+                                    <property name="right_attach">16</property>
+                                    <property name="x_options">GTK_SHRINK</property>
+                                    <property name="y_options">GTK_SHRINK</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="lbl_space">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="lbl_spac">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">6</property>
+                                    <property name="right_attach">7</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="lbl_replace_text">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Replace
+  Text:</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">7</property>
+                                    <property name="right_attach">8</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="chk_replace_all">
+                                    <property name="label" translatable="yes">Replace
+   All</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">12</property>
+                                    <property name="right_attach">13</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="chk_ignore_case">
+                                    <property name="label" translatable="yes">Ignore
+ Case</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">11</property>
+                                    <property name="right_attach">12</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="lbl_spac1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">9</property>
+                                    <property name="right_attach">10</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btn_replace">
+                                    <property name="label" translatable="yes">Replace</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <signal name="clicked" handler="on_btn_replace_clicked" swapped="no"/>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">13</property>
+                                    <property name="right_attach">14</property>
+                                    <property name="x_options">GTK_SHRINK</property>
+                                    <property name="y_options">GTK_SHRINK</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="lbl_search_text">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Search
+  Text:</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">4</property>
+                                    <property name="right_attach">5</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="lbl_spac2">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">3</property>
+                                    <property name="right_attach">4</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="lbl_spac3">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">14</property>
+                                    <property name="right_attach">15</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="search_entry">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">●</property>
+                                    <property name="invisible_char_set">True</property>
+                                    <property name="primary_icon_activatable">False</property>
+                                    <property name="secondary_icon_activatable">False</property>
+                                    <property name="primary_icon_sensitive">True</property>
+                                    <property name="secondary_icon_sensitive">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">5</property>
+                                    <property name="right_attach">6</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="replace_entry">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">●</property>
+                                    <property name="invisible_char_set">True</property>
+                                    <property name="primary_icon_activatable">False</property>
+                                    <property name="secondary_icon_activatable">False</property>
+                                    <property name="primary_icon_sensitive">True</property>
+                                    <property name="secondary_icon_sensitive">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">8</property>
+                                    <property name="right_attach">9</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">1</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                           </object>
@@ -2056,6 +2298,33 @@
                                                           <placeholder/>
                                                         </child>
                                                         <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
+                                                          <placeholder/>
+                                                        </child>
+                                                        <child>
                                                           <object class="GtkButton" id="btn_z_minus">
                                                             <property name="label">Z-</property>
                                                             <property name="width_request">50</property>
@@ -2188,7 +2457,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkScrolledWindow" id="scrolledwindow1">
+                                  <object class="GtkScrolledWindow" id="scw_gcode_view">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="hscrollbar_policy">automatic</property>
@@ -2205,6 +2474,7 @@
                                         <property name="auto_indent">True</property>
                                         <property name="insert_spaces_instead_of_tabs">True</property>
                                         <property name="right_margin_position">81</property>
+                                        <property name="smart_home_end">always</property>
                                         <property name="highlight_current_line">True</property>
                                       </object>
                                     </child>
@@ -2443,10 +2713,9 @@
                                               <object class="GtkTable" id="tbl_cooling">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="n_rows">4</property>
-                                                <property name="homogeneous">True</property>
+                                                <property name="n_rows">7</property>
                                                 <child>
-                                                  <object class="GtkImage" id="img_coolant">
+                                                  <object class="GtkImage" id="img_coolant_off">
                                                     <property name="width_request">56</property>
                                                     <property name="height_request">56</property>
                                                     <property name="visible">True</property>
@@ -2461,7 +2730,7 @@
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <object class="GtkImage" id="img_vacuum">
+                                                  <object class="GtkImage" id="img_vacuum_off">
                                                     <property name="width_request">56</property>
                                                     <property name="height_request">56</property>
                                                     <property name="visible">True</property>
@@ -2469,14 +2738,14 @@
                                                     <property name="pixbuf">images/vacuum_off.png</property>
                                                   </object>
                                                   <packing>
-                                                    <property name="top_attach">2</property>
-                                                    <property name="bottom_attach">3</property>
+                                                    <property name="top_attach">3</property>
+                                                    <property name="bottom_attach">4</property>
                                                     <property name="x_options">GTK_SHRINK</property>
                                                     <property name="y_options">GTK_SHRINK</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <object class="GtkImage" id="img_chip_cutter">
+                                                  <object class="GtkImage" id="img_chipcutter_off">
                                                     <property name="width_request">56</property>
                                                     <property name="height_request">56</property>
                                                     <property name="visible">True</property>
@@ -2484,8 +2753,8 @@
                                                     <property name="pixbuf">images/chipcutter_off.png</property>
                                                   </object>
                                                   <packing>
-                                                    <property name="top_attach">3</property>
-                                                    <property name="bottom_attach">4</property>
+                                                    <property name="top_attach">5</property>
+                                                    <property name="bottom_attach">6</property>
                                                     <property name="x_options">GTK_SHRINK</property>
                                                     <property name="y_options">GTK_SHRINK</property>
                                                   </packing>
@@ -2501,6 +2770,48 @@
                                                     <property name="image">img_T0303</property>
                                                   </object>
                                                   <packing>
+                                                    <property name="x_options">GTK_SHRINK</property>
+                                                    <property name="y_options">GTK_SHRINK</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkImage" id="img_coolant_on">
+                                                    <property name="width_request">56</property>
+                                                    <property name="height_request">56</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="pixbuf">images/coolant_on.png</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="top_attach">2</property>
+                                                    <property name="bottom_attach">3</property>
+                                                    <property name="x_options">GTK_SHRINK</property>
+                                                    <property name="y_options">GTK_SHRINK</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkImage" id="img_vacuum_on">
+                                                    <property name="width_request">56</property>
+                                                    <property name="height_request">56</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="pixbuf">images/vacuum_on.png</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="top_attach">4</property>
+                                                    <property name="bottom_attach">5</property>
+                                                    <property name="x_options">GTK_SHRINK</property>
+                                                    <property name="y_options">GTK_SHRINK</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkImage" id="img_chipcutter_on">
+                                                    <property name="width_request">56</property>
+                                                    <property name="height_request">56</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="pixbuf">images/chipcutter_on.png</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="top_attach">6</property>
+                                                    <property name="bottom_attach">7</property>
                                                     <property name="x_options">GTK_SHRINK</property>
                                                     <property name="y_options">GTK_SHRINK</property>
                                                   </packing>
@@ -2798,249 +3109,6 @@
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkVBox" id="box_info">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <child>
-                          <object class="GtkTable" id="tbl_search">
-                            <property name="height_request">50</property>
-                            <property name="can_focus">False</property>
-                            <property name="n_columns">16</property>
-                            <child>
-                              <object class="GtkButton" id="btn_undo">
-                                <property name="label" translatable="yes">Undo</property>
-                                <property name="height_request">48</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
-                                <signal name="clicked" handler="on_btn_undo_clicked" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="x_options">GTK_SHRINK</property>
-                                <property name="y_options">GTK_SHRINK</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkButton" id="btn_search_back">
-                                <property name="label" translatable="yes">Search
- back</property>
-                                <property name="height_request">48</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
-                                <signal name="clicked" handler="on_btn_search_back_clicked" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="x_options">GTK_SHRINK</property>
-                                <property name="y_options">GTK_SHRINK</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkButton" id="btn_search_forward">
-                                <property name="label" translatable="yes">Search
-  fwd</property>
-                                <property name="height_request">48</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
-                                <signal name="clicked" handler="on_btn_search_forward_clicked" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="left_attach">10</property>
-                                <property name="right_attach">11</property>
-                                <property name="x_options">GTK_SHRINK</property>
-                                <property name="y_options">GTK_SHRINK</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkButton" id="btn_redo">
-                                <property name="label" translatable="yes">Redo</property>
-                                <property name="height_request">48</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
-                                <signal name="clicked" handler="on_btn_redo_clicked" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="left_attach">15</property>
-                                <property name="right_attach">16</property>
-                                <property name="x_options">GTK_SHRINK</property>
-                                <property name="y_options">GTK_SHRINK</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="lbl_space">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="lbl_spac">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">6</property>
-                                <property name="right_attach">7</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="lbl_replace_text">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Replace
-  Text:</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">7</property>
-                                <property name="right_attach">8</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkCheckButton" id="chk_replace_all">
-                                <property name="label" translatable="yes">Replace
-   All</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
-                                <property name="draw_indicator">True</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">12</property>
-                                <property name="right_attach">13</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkCheckButton" id="chk_ignore_case">
-                                <property name="label" translatable="yes">Ignore
- Case</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">11</property>
-                                <property name="right_attach">12</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="lbl_spac1">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">9</property>
-                                <property name="right_attach">10</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkButton" id="btn_replace">
-                                <property name="label" translatable="yes">Replace</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
-                                <signal name="clicked" handler="on_btn_replace_clicked" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="left_attach">13</property>
-                                <property name="right_attach">14</property>
-                                <property name="x_options">GTK_SHRINK</property>
-                                <property name="y_options">GTK_SHRINK</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="lbl_search_text">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Search
-  Text:</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">4</property>
-                                <property name="right_attach">5</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="lbl_spac2">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">3</property>
-                                <property name="right_attach">4</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="lbl_spac3">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">14</property>
-                                <property name="right_attach">15</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="search_entry">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">●</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">5</property>
-                                <property name="right_attach">6</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="replace_entry">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">●</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">8</property>
-                                <property name="right_attach">9</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="pack_type">end</property>
-                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
@@ -7275,23 +7343,11 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_keyb">
+                  <object class="GtkLabel" id="lbl_space_14">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">Show or hide the virtual keyboard</property>
-                    <property name="use_action_appearance">False</property>
-                    <child>
-                      <object class="GtkImage" id="img_keyboard2">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/keyboard.png</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
