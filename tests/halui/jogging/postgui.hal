@@ -81,3 +81,9 @@ net joint-2-jog-minus => halui.joint.2.minus
 
 net Zpos => python-ui.joint-2-position
 
+net motion-mode-joint <= python-ui.motion-mode-joint
+net motion-mode-joint => halui.mode.joint
+
+net motion-mode-is-joint <= python-ui.motion-mode-is-joint
+net motion-mode-is-joint => halui.mode.is-joint
+
