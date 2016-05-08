@@ -1417,6 +1417,9 @@ scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
 
+obj-m += XYZACkins.o
+XYZACkins-objs := emc/kinematics/XYZACkins.o
+
 obj-m += 5axiskins.o
 5axiskins-objs := emc/kinematics/5axiskins.o
 
@@ -1720,6 +1723,7 @@ $(RTLIBDIR)/opto_ac5$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(opto_ac5-objs))
 $(RTLIBDIR)/scope_rt$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(scope_rt-objs))
 $(RTLIBDIR)/motmod$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(motmod-objs))
 $(RTLIBDIR)/trivkins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(trivkins-objs))
+$(RTLIBDIR)/XYZACkins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(XYZACkins-objs))
 $(RTLIBDIR)/5axiskins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(5axiskins-objs))
 $(RTLIBDIR)/maxkins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(maxkins-objs))
 $(RTLIBDIR)/gantrykins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(gantrykins-objs))
