@@ -368,7 +368,7 @@ Note: Custom kinematics modules that implement non-identity kinematics (like
       module man page (for example, '$ man lineardeltakins').
 
 
-=== Home sequences 
+=== Home sequences
 
 Negative values may be used for the ini file items
 named [JOINT_n]HOME_SEQUENCE.  Prior to joints_axes incorporation a value
@@ -550,51 +550,6 @@ Note: In prior versions of LinuxCNC (before joints_axes updates), the
 
 == GUIs (updates for joints_axes)
 
-=== Axis gui
-
-==== AUTO_TELEOP
-
-The axis gui supports an option, [KINS]AUTO_TELEOP = nseconds, to cause
-an automatic switch to teleop mode after homing.  The nseconds parameter
-specifes the maxium time to wait after initiating homing with the
-Home-All button.  The setting is applicable only for kinematics that
-are not KINEMATICS_IDENTITY.
-
-Usage Example (wait 20 seconds max):
-
-----
-[KINS]
-AUTO_TELEOP = 20
-...
-----
-
-==== Home icons
-
-For identity kinematics, home icons are shown for joint numbers and
-the corresponding axis letter when a joint is homed.
-
-For non-identity kinematics, home icons are shown for individual joints
-when the joint is homed but home icons for axis letters are shown only
-if ALL joints are homed.
-
-==== Limit icons
-
-For identity kinematics, limit icons are shown for joint numbers and
-the corresponding axis letter when a joint limit is active.
-
-For non-identity kinematics, limit icons are shown for individual joints
-when the joint limit is active.  Limit icons are not shown for axis
-letters since there is no guaranteed correspondence to a joint number.
-
-==== Key bindings for a fourth axis
-
-In the AXIS gui, jogging keys are assigned to axes in a configurable
-fashion.  For 3-axis machines, XYZA machines, and lathes the default is
-the same as in 2.7.  For other machines, the 4 pairs of jogging keys are
-assigned to the first 4 axes that exist in the order XYZ ABC UVW.
-These assignments can be controlled by new inifile directives in the
-<<sec:display-section,[DISPLAY] section of the inifile>>
-
 === Halui
 
 Halui now supports teleop jogging resulting in some changed pin names and
@@ -648,6 +603,142 @@ with related pins.
        is: halui.joint.selected.on-soft-min-limit
 ----
 
+=== Axis gui
+
+==== Kinematics Support
+
+===== Identity
+
+The axis gui continues to support identity kinematics configurations.  This gui
+hides the distinctions of axes and joints in order to simplify the display and
+usage of simple machines.
+
+===== Special cases
+
+Some machines, typically gantrys, may use a configuration with more than
+one joint assigned to an axis letter.  This can be done with the trivkins
+kinematics module using repeated coordinate letters.  For example, a
+machine configured with ini settings:
+
+----
+[KINS]
+KINEMATICS = trivkins coordinates=XYYZ kinstype=BOTH
+...
+[TRAJ]
+COORDINATES = XYYZ
+...
+----
+
+This machine, after homing, has a one-to-one correspondence between a single
+axis letter (Y) and a pair of joints (1,2).  Using 'kinematics=BOTH' allows
+control of individual joints in joint mode 'if/when required'.
+
+===== Non-identity
+
+The axis gui supports configurations using non-identity kinematics with
+
+. Key binding ('$') to toggle joint or teleop mode
+. Preview Tab display of joints or axes according to joint or teleop mode
+. Preview Tab display of 'Home' and 'Limit' icons in joint mode
+. Preview Tab display of 'All-homed' and 'Any-limit icons in teleop mode
+. DRO Tab display of joint or axes according to joint or teleop mode
+. Provision to automatically switch to teleop mode after homing (see
+  below for AUTO_TELEOP)
+
+==== AUTO_TELEOP
+
+The axis gui supports an option, [KINS]AUTO_TELEOP = N_seconds, to cause
+an automatic switch to teleop mode after homing.  The N_seconds parameter
+specifes the maximum time to wait after initiating homing with the
+Home-All button.  The setting is applicable only for kinematics that
+are not KINEMATICS_IDENTITY.
+
+Usage Example (wait 20 seconds max):
+
+----
+[KINS]
+AUTO_TELEOP = 20
+...
+----
+
+==== Home icons
+
+For identity kinematics, 'Home' icons are shown for the correspoinding
+(one-to-one) axis letter when a joint is homed.
+
+For non-identity kinematics, 'Home' icons are shown for individual joints when
+a joint is homed in joint display mode.  An 'All-homed' icon is displayed for
+all axis letters when ALL joints are homed in world display mode.
+
+==== Limit icons
+
+For identity kinematics, 'Limit' icons are shown for the corresponding
+(one-to-one) axis letter when a joint limit is active.
+
+For non-identity kinematics, 'Limit' icons are shown for individual joints when
+the joint limit is active in joint display mode.  An 'Any-Limit' icon is displayed
+if any joint is at a limit in teleop display mode.
+
+==== Key bindings for a fourth axis
+
+In the AXIS gui, jogging keys are assigned to axes in a configurable
+fashion.  For 3-axis machines, XYZA machines, and lathes the default is
+the same as in 2.7.  For other machines, the 4 pairs of jogging keys are
+assigned to the first 4 axes that exist in the order XYZ ABC UVW.
+These assignments can be controlled by new inifile directives in the
+<<sec:display-section,[DISPLAY] section of the inifile>>
+
+=== tklinuxcnc
+
+==== Kinematics Support
+
+The tklinuxcnc gui supports both identity and non-identity kinematics, includes
+gui radiobuttons and a key bindiing ('$') for toggling joint and teleop modes.
+Jogging is supported in both joint and teleop modes.
+Note that the values used for jogging may not be appropriate for both modes.
+
+=== touchy
+
+The touchy gui continues to support the identity kinematics configurations
+that it supported prior to joints_axes incorporation.  Jogging is done in
+joint mode (no coordination of joint/teleop modes with other guis
+is currently provided).
+
+=== gscreen
+
+The gscreen gui continues to support the identity kinematics configurations
+that it supported prior to joints_axes incorporation.  Jogging is done in
+joint mode by default with limited support for teleop jogging when set
+by a contemporaneous, cooperating gui.
+Note that the values used for jogging may not be appropriate for both modes.
+
+=== gmoccapy
+
+The gmoccapy gui continues to support the identity kinematics configurations
+that it supported prior to joints_axes incorporation.  Jogging is done in
+joint mode (no coordination of joint/teleop modes with other guis
+is currently provided).
+
+=== keystick, xlinuxcnc guis
+
+The keystick and xlinuxcnc continue to support the identity kinematics
+configurations supported prior to joints_axes incorporation.  Jogging is done
+in joint mode.
+
+=== mini gui
+
+The mini gui continues to support the identity kinematics configurations
+that it supported prior to joints_axes incorporation.  Jogging is done
+in joint mode by default with limited support for teleop jogging when
+set by a contemporaneous, cooperating gui.
+Note that the values used for jogging may not be appropriate for both modes.
+
+=== linuxcnclcd
+
+The linuxcnclcd gui has been updated to continue support for the identity
+kinematics supported prior to joints_axes incorporations.  Jogging is
+done in joint mode.  Compatiblity testsing awaits users with the required
+hardware.
 
 
 === `shuttlexpress` driver renamed to `shuttle`
