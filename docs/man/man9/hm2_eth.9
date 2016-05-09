@@ -91,6 +91,38 @@ iface eth1 inet static
     hardware-irq-coalesce-rx-usecs 0
 .EE
 
+.SH PACKET LOSS
+While ethernet is fairly resistant to electrical noise, many systems will not
+have 100% perfect packet reception.
+The hm2_eth driver has a limited ability to deal with lost packets.  Packet
+loss is detected by transmitting an expected read or write packet count with
+each request, and checking the value with each read response.  When a lost
+packet is detected, the
+.B packet-error
+pin is asserted in that cycle, the
+.B packet-error-level
+pin is increased, and if it reaches a threshold then a permanent low-level
+I/O error is signaled.
+
+However, not all hm2 special functions know how to properly recover from
+lost packets.  For instance, the encoder special function does not properly
+distinguish between a lost write packet and an actual index pulse.  Serial
+devices also don't have appropriate error handling.
+
+On the other hand, pid-stepper systems will run properly for extended periods
+of time with packet loss on the order of .01%, as long as following error is
+increased enough that having stale position feedback does not trigger a
+following error.  Altering the HAL configuration so that during transient
+packet loss the pid and motion feedback value is equal to the command value,
+instead of the stale feedback value, appears to improve tuning.  This can be
+accomplished with a
+.B mux2(9)
+component for each feedback signal, using
+.B packet-error
+as the mux2
+.B sel
+input.
+
 .SH PINS
 In addition to the pins documented in
 .BR hostmot2(9) ", " hm2_eth(9)
@@ -143,7 +175,6 @@ Setting this value too low can cause spurious read errors.  Setting it too
 high can cause realtime delay errors.
 
 
-.B
 .SH NOTES
 hm2_eth uses an iptables chain called "hm2-eth-rules-output" to control access
 to the network interface while hal is running.  The chain is created if it does
@@ -166,9 +197,10 @@ requires the ethtool package to be installed.
 Some hostmot2 functions such uart are coded in a way that causes additional
 latency when used with hm2_eth.
 
-The HAL pins for the LEDs are called CR01..CR04, but the silkscreens are
-CR3..CR6.  Depending on the FPGA firmware, the LEDs may initially be under
-control of the ethernet engine.  This can be changed until power cycle with
+On the 7i92, the HAL pins for the LEDs are called CR01..CR04, but the
+silkscreens are CR3..CR6.  Depending on the FPGA firmware, the LEDs may
+initially be under control of the ethernet engine.  This can be changed until
+power cycle with
 
 .EX
 elbpcom 01D914000000
@@ -176,7 +208,7 @@ elbpcom 01D914000000
 
 .SH SEE ALSO
 
-hostmot2(9)
+.BR hostmot2 "(9), " elbpcom (1)
 .SH LICENSE
 
 GPL
