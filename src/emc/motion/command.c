@@ -451,7 +451,7 @@ check_stuff ( "before command_handler()" );
            }
            if (GET_MOTION_TELEOP_FLAG()) {
                 axis = &axes[axis_num];
-                if (axis->locking_joint >= 0) {
+                if ( (axis_num >= 0) && (axis->locking_joint >= 0) ) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
                     "Cannot jog a locking indexer AXIS_%c,joint_num=%d\n",
                     "XYZABCUVW"[axis_num],axis->locking_joint);
