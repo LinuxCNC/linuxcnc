@@ -106,7 +106,8 @@ the rules are also removed by a reboot.
 "hardware-irq-coalesce-rx-usecs" decreases time waiting to receive a packet
 on most systems, but on at least some Marvel-chipset NICs it is harmful.
 If the line does not improve system performance, then remove it.  A reboot
-is required for the value to be set back to its power-on default.
+is required for the value to be set back to its power-on default.  This
+requires the ethtool package to be installed.
 
 .SH BUGS
 Some hostmot2 functions such uart are coded in a way that causes additional
