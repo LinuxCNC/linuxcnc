@@ -161,20 +161,20 @@ int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_m
         inst->bitrate = buff;
         r += hm2->llio->write(hm2->llio, inst->rx_bitrate_addr, &buff, sizeof(rtapi_u32));
         r += hm2->llio->write(hm2->llio, inst->tx_bitrate_addr, &buff, sizeof(rtapi_u32));
-
-        /* http://freeby.mesanet.com/regmap
-        The PktUARTx/PktUARTr mode register has a special data command that clears the PktUARTx/PktUARTr
-        Clearing aborts any sends/receives in process, clears the data FIFO and 
-        clears the send count FIFO. To issue a clear command, you write 0x80010000
-        to the PktUARTx/PktUARTr mode register.
-        */
-        buff = 0x80010000;
-        if (txclear==1)
-            r += hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32)); // clear sends, data FIFO and count register
-        if (rxclear==1)
-            r += hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32)); // clear receives, data FIFO and count register
     }
-    
+
+    /* http://freeby.mesanet.com/regmap
+    The PktUARTx/PktUARTr mode register has a special data command that clears the PktUARTx/PktUARTr
+    Clearing aborts any sends/receives in process, clears the data FIFO and 
+    clears the send count FIFO. To issue a clear command, you write 0x80010000
+    to the PktUARTx/PktUARTr mode register.
+     */
+     buff = 0x80010000;
+     if (txclear==1)
+         r += hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(rtapi_u32)); // clear sends, data FIFO and count register
+     if (rxclear==1)
+         r += hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(rtapi_u32)); // clear receives, data FIFO and count register
+
     /*  http://freeby.mesanet.com/regmap
       The PktUARTxMode register is used for setting and checking the
       PktUARTx's operation mode, timing and status:
