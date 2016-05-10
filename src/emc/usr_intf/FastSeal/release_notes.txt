@@ -1,3 +1,7 @@
+ver. 0.6
+- added missing handlers for gremlin button
+- added door switch
+
 ver. 0.5
 - solved bug in handling the "LED" for 
   chipcutter, coolant and vacuum
