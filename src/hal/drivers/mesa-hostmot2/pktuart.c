@@ -177,20 +177,20 @@ int hm2_pktuart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode, int txc
         inst->bitrate = buff;
         r += hm2->llio->write(hm2->llio, inst->rx_bitrate_addr, &buff, sizeof(u32));
         r += hm2->llio->write(hm2->llio, inst->tx_bitrate_addr, &buff, sizeof(u32));
-
-        /* http://freeby.mesanet.com/regmap
-        The PktUARTx/PktUARTr mode register has a special data command that clears the PktUARTx/PktUARTr
-        Clearing aborts any sends/receives in process, clears the data FIFO and 
-        clears the send count FIFO. To issue a clear command, you write 0x80010000
-        to the PktUARTx/PktUARTr mode register.
-        */
-        buff = 0x80010000;
-        if (txclear==1)
-            r += hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(u32)); // clear sends, data FIFO and count register
-        if (rxclear==1)
-            r += hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(u32)); // clear receives, data FIFO and count register
     }
-    
+
+    /* http://freeby.mesanet.com/regmap
+     The PktUARTx/PktUARTr mode register has a special data command that clears the PktUARTx/PktUARTr
+     Clearing aborts any sends/receives in process, clears the data FIFO and 
+     clears the send count FIFO. To issue a clear command, you write 0x80010000
+     to the PktUARTx/PktUARTr mode register.
+    */
+    buff = 0x80010000;
+    if (txclear==1)
+        r += hm2->llio->write(hm2->llio, inst->tx_mode_addr, &buff, sizeof(u32)); // clear sends, data FIFO and count register
+    if (rxclear==1)
+        r += hm2->llio->write(hm2->llio, inst->rx_mode_addr, &buff, sizeof(u32)); // clear receives, data FIFO and count register
+
     /*  http://freeby.mesanet.com/regmap
       The PktUARTxMode register is used for setting and checking the
       PktUARTx's operation mode, timing and status:
@@ -360,7 +360,7 @@ int hm2_pktuart_send(char *name,  unsigned char data[], u8 *num_frames, u16 fram
 }
 
 EXPORT_SYMBOL_GPL(hm2_pktuart_read);
-int hm2_pktuart_read(char *name, unsigned char data[],  u8 *num_frames, u16 *max_frame_length, u16 frame_sizes[])
+int hm2_pktuart_read(char *name, unsigned char data[], u8 *num_frames, u16 *max_frame_length, u16 frame_sizes[])
 {
     hostmot2_t *hm2;
     int r, c;
