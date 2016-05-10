@@ -420,11 +420,6 @@ These values are used for debugging purposes.
 \fBmotion.servo.last-period\fR 
 The number of CPU cycles between invocations of the servo thread. Typically, this number divided by the CPU speed gives the time in seconds, and can be used to determine whether the realtime motion controller is meeting its timing constraints
 
-.TP
-\fBmotion.servo.overruns\fR 
-By noting large differences between successive values of motion.servo.last-period, the motion controller can determine that there has probably been a failure to meet its timing constraints. Each time such a failure is detected, this value is incremented.
-
-
 .SH FUNCTIONS
 
 Generally, these functions are both added to the servo-thread in the order shown.

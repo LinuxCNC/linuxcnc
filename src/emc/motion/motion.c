@@ -517,11 +517,6 @@ static int init_hal_io(void)
 	return retval;
     }
 #endif
-    retval =
-	hal_param_u32_new("motion.servo.overruns", HAL_RW, &(emcmot_hal_data->overruns), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
 
     retval = hal_pin_float_new("motion.tooloffset.x", HAL_OUT, &(emcmot_hal_data->tooloffset_x), mot_comp_id);
     if (retval != 0) {
@@ -595,7 +590,6 @@ static int init_hal_io(void)
     emcmot_hal_data->debug_float_2 = 0.0;
     emcmot_hal_data->debug_float_3 = 0.0;
 
-    emcmot_hal_data->overruns = 0;
     emcmot_hal_data->last_period = 0;
 
     /* export joint pins and parameters */
