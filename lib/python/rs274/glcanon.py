@@ -969,7 +969,7 @@ class GlCanonDraw:
                         label = "G59.%d" % (i-6)
                     glPushMatrix()
                     glScalef(0.2,0.2,0.2)
-                    if self.is_lathe:
+                    if self.is_lathe():
                         g5xrot=math.atan2(g5x_offset[0], -g5x_offset[2])
                         glRotatef(90, 1, 0, 0)
                         glRotatef(-90, 0, 0, 1)
@@ -992,7 +992,7 @@ class GlCanonDraw:
 
                     glPushMatrix()
                     glScalef(0.2,0.2,0.2)
-                    if self.is_lathe:
+                    if self.is_lathe():
                         g92rot=math.atan2(g92_offset[0], -g92_offset[2])
                         glRotatef(90, 1, 0, 0)
                         glRotatef(-90, 0, 0, 1)
