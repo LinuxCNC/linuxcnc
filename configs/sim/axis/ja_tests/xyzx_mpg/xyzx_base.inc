@@ -1,12 +1,11 @@
 [EMC]
 VERSION = 1.0
-MACHINE = trivkins xyzx KINEMATICS_BOTH,AUTO_TELEOP
+MACHINE = trivkins xyzx KINEMATICS_BOTH
   DEBUG = 0
 
 [KINS]
  KINEMATICS = trivkins coordinates=xyzx kinstype=BOTH
      JOINTS = 4
-AUTO_TELEOP = 20
 
 [DISPLAY]
          JOG_AXES = XYZX
