@@ -39,7 +39,7 @@ Check linuxcnc.log for debug output.
 author "Boris Skegin";
 license "GPL";
 
-include "../drivers/mesa-hostmot2/hostmot2.h";
+include "hal/drivers/mesa-hostmot2/hostmot2.h";
 
 
 pin out s32 rxbytes  "Number of Bytes received or negative Error code";
