@@ -39,7 +39,6 @@ Check linuxcnc.log for debug output.
 author "Boris Skegin";
 license "GPL";
 
-include <unistd.h>;
 include "../drivers/mesa-hostmot2/hostmot2.h";
 
 
