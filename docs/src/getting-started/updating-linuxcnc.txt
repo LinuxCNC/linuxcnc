@@ -642,24 +642,6 @@ The axis gui supports configurations using non-identity kinematics with
 . Preview Tab display of 'Home' and 'Limit' icons in joint mode
 . Preview Tab display of 'All-homed' and 'Any-limit icons in teleop mode
 . DRO Tab display of joint or axes according to joint or teleop mode
-. Provision to automatically switch to teleop mode after homing (see
-  below for AUTO_TELEOP)
-
-==== AUTO_TELEOP
-
-The axis gui supports an option, [KINS]AUTO_TELEOP = N_seconds, to cause
-an automatic switch to teleop mode after homing.  The N_seconds parameter
-specifes the maximum time to wait after initiating homing with the
-Home-All button.  The setting is applicable only for kinematics that
-are not KINEMATICS_IDENTITY.
-
-Usage Example (wait 20 seconds max):
-
-----
-[KINS]
-AUTO_TELEOP = 20
-...
-----
 
 ==== Home icons
 

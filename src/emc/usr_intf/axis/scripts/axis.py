@@ -1773,44 +1773,6 @@ def go_home(num):
     c.home(num)
     c.wait_complete()
 
-    auto_teleop = inifile.find("KINS", "AUTO_TELEOP") or 0
-    auto_teleop = int(float(auto_teleop)) # use as int
-    # Optional: set teleop after homing
-    # [KINS]AUTO_SET_TELEOP is max seconds to wait
-    #                       zero value or absence disables
-    # test on != KINEMATICS_IDENTITY is not mandatory
-    if (    (auto_teleop > 0)
-        and (num == -1)
-        and (s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY)
-       ):
-        delta_secs     = 1          # seconds
-        max_wait_secs = auto_teleop # seconds
-        print("AUTO_TELEOP: wait for homing completion (%s seconds max)"
-             % max_wait_secs)
-        switch_to_teleop(0,delta_secs,max_wait_secs)
-
-def switch_to_teleop(ct,delta_secs,max_wait_secs):
-    import threading
-    s.poll()
-    if s.task_state != linuxcnc.STATE_ON:
-        print("AUTO_TELEOP: ABANDON (task_state=%s)"
-              % task_statename(s.task_state))
-        return
-    ct = ct + 1
-    elapsed = ct * delta_secs
-    if all_homed():
-        set_motion_teleop(1)
-        print "AUTO_TELEOP: homing finished in %s seconds" % elapsed
-        return
-    if (elapsed < max_wait_secs):
-        #print "ct=%s max=%s elapsed=%s" % (ct,max_wait_secs,elapsed)
-        threading.Timer(delta_secs,
-                        switch_to_teleop,
-                        args=(ct,delta_secs,max_wait_secs)).start()
-    else:
-        print "AUTO_TELEOP: GIVEUP after %s seconds" % max_wait_secs
-        pass
-
 #-----------------------------------------------------------
 # convenience functions
 def motion_modename(x):

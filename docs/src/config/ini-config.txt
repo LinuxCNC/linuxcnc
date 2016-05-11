@@ -864,10 +864,6 @@ LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'
      the motmod module.  For more information on kinematics modules see the
      manpage: '$ man kins'
 
-* 'AUTO_TELEOP = 20' - (Axis gui) Switch to teleop mode after successful 
-   Home-All.  The number (20) specifies the number of seconds for completion
-   of homing.
-
 [[sec:axis-section]](((INI File, AXIS Section)))
 
 === [AXIS_<letter>] Section
