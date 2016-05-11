@@ -688,6 +688,9 @@ assigned to the first 4 axes that exist in the order XYZ ABC UVW.
 These assignments can be controlled by new inifile directives in the
 <<sec:display-section,[DISPLAY] section of the inifile>>
 
+Note that the values used for jogging may not be appropriate for both modes
+for machines with non-identity kinematics.
+
 === tklinuxcnc
 
 ==== Kinematics Support
@@ -695,7 +698,9 @@ These assignments can be controlled by new inifile directives in the
 The tklinuxcnc gui supports both identity and non-identity kinematics, includes
 gui radiobuttons and a key bindiing ('$') for toggling joint and teleop modes.
 Jogging is supported in both joint and teleop modes.
-Note that the values used for jogging may not be appropriate for both modes.
+
+Note that the values used for jogging may not be appropriate for both modes
+for machines with non-identity kinematics.
 
 === touchy
 
@@ -707,9 +712,7 @@ teleop mode.
 
 The gscreen gui continues to support the identity kinematics configurations
 that it supported prior to joints_axes incorporation.  Jogging is done in
-joint mode by default with limited support for teleop jogging when set
-by a contemporaneous, cooperating gui.
-Note that the values used for jogging may not be appropriate for both modes.
+teleop mode.
 
 === gmoccapy
 
