@@ -169,7 +169,6 @@ class _GStat(gobject.GObject):
         interp_new = self.old['interp']
         if interp_new != interp_old:
             if not interp_old or interp_old == linuxcnc.INTERP_IDLE:
-                print "Emit", "interp-run"
                 self.emit('interp-run')
             self.emit(self.INTERP[interp_new])
 
