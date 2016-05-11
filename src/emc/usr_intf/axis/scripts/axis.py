@@ -1093,7 +1093,6 @@ def open_file_guts(f, filtered=False, addrecent=True):
         # Force a sync of the interpreter, which writes out the var file.
         c.task_plan_synch()
         c.wait_complete()
-        ensure_mode(linuxcnc.MODE_AUTO)
         c.program_open(f)
         lines = open(f).readlines()
         progress = Progress(2, len(lines))
