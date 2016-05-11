@@ -701,8 +701,7 @@ Note that the values used for jogging may not be appropriate for both modes.
 
 The touchy gui continues to support the identity kinematics configurations
 that it supported prior to joints_axes incorporation.  Jogging is done in
-joint mode (no coordination of joint/teleop modes with other guis
-is currently provided).
+teleop mode.
 
 === gscreen
 

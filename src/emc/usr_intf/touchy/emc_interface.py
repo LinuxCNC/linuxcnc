@@ -10,8 +10,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-JOGMODE = 1 # (1 ==> joint mode) FIXME JOINTS_AXES
-
 import math
 
 from __main__ import set_active, set_text
@@ -28,6 +26,11 @@ class emc_control:
                 self.listing = listing
                 self.error = error
                 self.isjogging = [0,0,0,0,0,0,0,0,0]
+                self.emccommand.teleop_enable(1)
+                self.emccommand.wait_complete()
+                self.emcstat.poll()
+                if self.emcstat.kinematics_type != emc.KINEMATICS_IDENTITY:
+                    raise SystemExit, "\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n"
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -125,26 +128,37 @@ class emc_control:
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.spindle(self.emc.SPINDLE_DECREASE)
 
+        def set_motion_mode(self):
+            self.emcstat.poll()
+            if self.emcstat.motion_mode != self.emc.TRAJ_MODE_TELEOP:
+                self.emccommand.teleop_enable(1)
+                self.emccommand.wait_complete()
+
         def continuous_jog_velocity(self, velocity):
+                self.set_motion_mode()
                 self.jog_velocity = velocity / 60.0
                 for i in range(9):
                         if self.isjogging[i]:
-                                self.emccommand.jog(self.emc.JOG_CONTINUOUS, JOGMODE, i, self.isjogging[i] * self.jog_velocity)
+                                self.emccommand.jog(self.emc.JOG_CONTINUOUS
+                                ,0 ,i ,self.isjogging[i] * self.jog_velocity)
         
         def continuous_jog(self, axis, direction):
                 if self.masked: return
+                self.set_motion_mode()
                 if direction == 0:
                         self.isjogging[axis] = 0
-                        self.emccommand.jog(self.emc.JOG_STOP, JOGMODE, axis)
+                        self.emccommand.jog(self.emc.JOG_STOP, 0, axis)
                 else:
                         self.isjogging[axis] = direction
-                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, JOGMODE, axis, direction * self.jog_velocity)
+                        self.emccommand.jog(self.emc.JOG_CONTINUOUS
+                        ,0 ,axis ,direction * self.jog_velocity)
                 
 	def quill_up(self):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.set_motion_mode()
                 self.emccommand.wait_complete()
-                self.emccommand.jog(self.emc.JOG_CONTINUOUS, JOGMODE, 2, 100)
+                self.emccommand.jog(self.emc.JOG_CONTINUOUS, 0, 2, 100)
 
         def feed_override(self, f):
 		if self.masked: return
