@@ -1128,7 +1128,7 @@ int sendMdiCmd(char *mdi)
 
 static int sendMdiCommand(int n)
 {
-    int r1,r2;
+    int r;
 
     if (!halui_sent_mdi) {
         // There is currently no MDI command from halui executing, we're
@@ -1139,14 +1139,20 @@ static int sendMdiCommand(int n)
 
     // switch to MDI mode if needed
     if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
-	r1 = sendMdi();
+        r = sendMdi();
+        if (r != 0) {
+            return -1;
+        }
     }
 
-    r2 = sendMdiCmd(mdi_commands[n]);
+    r = sendMdiCmd(mdi_commands[n]);
+    if (r != 0) {
+        return -1;
+    }
 
     halui_sent_mdi = 1;
 
-    return r1 || r2;
+    return 0;
 }
 
 
