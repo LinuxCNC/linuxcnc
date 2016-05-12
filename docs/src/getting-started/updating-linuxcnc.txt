@@ -408,7 +408,8 @@ are used as locking indexers with the 'unlock_joints_mask' parameter for
 the motmod module.  (bit0(LSB)==>joint0, bit1==>joint1, etc.)
 
 ----
-  [EMCMOT]motmod unlock_joints_mask = BITMASK
+  [EMCMOT]
+  EMCMOT = motmod unlock_joints_mask=BITMASK
 ----
 
 As an example, consider a machine using trivkins kinematics with coordinates
@@ -430,7 +431,7 @@ The required ini file entries for this trivkins XYZB example are:
   ...
 
   [EMCMOT]
-  EMCMOT = motmod unlock_joints_mask = 0x08
+  EMCMOT = motmod unlock_joints_mask=0x08
   ...
 
   [AXIS_B]
