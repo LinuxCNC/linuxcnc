@@ -1,0 +1,17 @@
+%
+
+; In the program header, SprutCAM reportedly will output an 'O'
+; followed by the SprutCAM project file basename, e.g. 'OMyProgram',
+; which is illegal G code.  These two commits are a workaround.
+
+; My research seems to point to a bug in the Mach post-processor [1]
+; distributed by SprutCAM.  The `Mach3-5x.sppx` and `MACH3.sppx` files
+; there have statements in the `PartNo` commands such as `output
+; "O"+cldata$`, where `cldata$` is the SprutCAM project file name.
+
+; [1]: http://download.sprutcam.com/download/sprutcam/PostProcessors/Mach.zip
+
+OMyProgram ; Mimic bug in SprutCAM Mach post processor
+
+G0 X1 Y1 Z-1 ; junk move
+%
