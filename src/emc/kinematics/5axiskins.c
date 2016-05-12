@@ -36,23 +36,35 @@ static PmCartesian s2r(double r, double t, double p) {
     return c;
 }
 
+
+// 6 joints (5axiskins name is misnomer)
+#define JOINT_0 0
+#define JOINT_1 1
+#define JOINT_2 2
+// joints with identity to axis letters:
+#define JOINT_B 3
+#define JOINT_C 4
+#define JOINT_W 5
+
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    PmCartesian r = s2r(*(haldata->pivot_length) + joints[8], joints[5], 180.0 - joints[4]);
+    PmCartesian r = s2r(*(haldata->pivot_length)+ joints[JOINT_W]
+                       ,joints[JOINT_C]
+                       ,180.0 - joints[JOINT_B]);
 
-    pos->tran.x = joints[0] + r.x;
-    pos->tran.y = joints[1] + r.y;
-    pos->tran.z = joints[2] + *(haldata->pivot_length) + r.z;
-    pos->b      = joints[3];
-    pos->c      = joints[4];
+    pos->tran.x = joints[JOINT_0] + r.x;
+    pos->tran.y = joints[JOINT_1] + r.y;
+    pos->tran.z = joints[JOINT_2] + *(haldata->pivot_length) + r.z;
+    pos->b      = joints[JOINT_B];
+    pos->c      = joints[JOINT_C];
+    pos->w      = joints[JOINT_W];
 
     pos->a = 0;
     pos->u = 0;
     pos->v = 0;
-    pos->w = 0;
 
     return 0;
 }
@@ -63,14 +75,17 @@ int kinematicsInverse(const EmcPose * pos,
 		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
 
-    PmCartesian r = s2r(*(haldata->pivot_length) + pos->w, pos->c, 180.0 - pos->b);
+    PmCartesian r = s2r(*(haldata->pivot_length) + pos->w
+                       ,pos->c
+                       ,180.0 - pos->b);
 
-    joints[0] = pos->tran.x - r.x;
-    joints[1] = pos->tran.y - r.y;
-    joints[2] = pos->tran.z - *(haldata->pivot_length) - r.z;
+    joints[JOINT_0] = pos->tran.x - r.x;
+    joints[JOINT_1] = pos->tran.y - r.y;
+    joints[JOINT_2] = pos->tran.z - *(haldata->pivot_length) - r.z;
 
-    joints[3] = pos->b;
-    joints[4] = pos->c;
+    joints[JOINT_B] = pos->b;
+    joints[JOINT_C] = pos->c;
+    joints[JOINT_W] = pos->w;
 
     return 0;
 }
