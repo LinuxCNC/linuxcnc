@@ -584,11 +584,17 @@ proc toggleCmdAct {} {
 set ::jointworld "joint"
 
 proc toggleJointWorld {} {
+    if { [emc_kinematics_type] == $::KINEMATICS_IDENTITY} {
+        return
+    }
     if {$::jointworld == "joint"} {
         set ::jointworld world
+        emc_teleop_enable 1
     } else {
         set ::jointworld joint
+        emc_teleop_enable 0
     }
+    emc_wait done
 }
 
 proc set_jorw {jorw} {
@@ -2190,6 +2196,14 @@ proc updateStatus {} {
     if {$oldunitsetting != $unitsetting} {
 	set oldunitsetting $unitsetting
 	set_balloon $unitlabel [unithelp $unitsetting]
+    }
+    
+    # detect external motion_mode change
+    set teleop_mode [emc_teleop_enable]
+    if {$::jointworld == "joint" && $teleop_mode} {
+      set ::jointworld "world" ;# radiobutton var
+    } elseif {$::jointworld == "world" && !$teleop_mode} {
+      set ::jointworld "joint"
     }
 
     # format the numbers with 4 digits-dot-4 digits

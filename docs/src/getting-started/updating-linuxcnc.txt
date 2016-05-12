@@ -636,13 +636,15 @@ control of individual joints in joint mode 'if/when required'.
 
 ===== Non-identity
 
-The axis gui supports configurations using non-identity kinematics with
+The axis gui supports configurations using non-identity kinematics with:
 
 . Key binding ('$') to toggle joint or teleop mode
 . Preview Tab display of joints or axes according to joint or teleop mode
 . Preview Tab display of 'Home' and 'Limit' icons in joint mode
 . Preview Tab display of 'All-homed' and 'Any-limit icons in teleop mode
 . DRO Tab display of joint or axes according to joint or teleop mode
+. Jogging is supported in both joint and teleop motion modes
+. External changes to the joint/teleop motion mode are detected.
 
 ==== Home icons
 
@@ -678,7 +680,8 @@ for machines with non-identity kinematics.
 
 The tklinuxcnc gui supports both identity and non-identity kinematics, includes
 gui radiobuttons and a key bindiing ('$') for toggling joint and teleop modes.
-Jogging is supported in both joint and teleop modes.
+External changes to joint or teleop motion mode are detected.
+Jogging is supported in both joint and teleop motion modes.
 
 Note that the parameters used for jogging may not be appropriate for both modes
 for machines with non-identity kinematics.
