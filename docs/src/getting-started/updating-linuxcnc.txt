@@ -670,18 +670,16 @@ assigned to the first 4 axes that exist in the order XYZ ABC UVW.
 These assignments can be controlled by new inifile directives in the
 <<sec:display-section,[DISPLAY] section of the inifile>>
 
-Note that the values used for jogging may not be appropriate for both modes
+Note that the parameters used for jogging may not be appropriate for both modes
 for machines with non-identity kinematics.
 
 === tklinuxcnc
-
-==== Kinematics Support
 
 The tklinuxcnc gui supports both identity and non-identity kinematics, includes
 gui radiobuttons and a key bindiing ('$') for toggling joint and teleop modes.
 Jogging is supported in both joint and teleop modes.
 
-Note that the values used for jogging may not be appropriate for both modes
+Note that the parameters used for jogging may not be appropriate for both modes
 for machines with non-identity kinematics.
 
 === touchy
@@ -700,15 +698,7 @@ teleop mode.
 
 The gmoccapy gui continues to support the identity kinematics configurations
 that it supported prior to joints_axes incorporation.  Jogging is done in
-joint mode (no coordination of joint/teleop modes with other guis
-is currently provided).
-
-=== linuxcnclcd
-
-The linuxcnclcd gui has been updated to continue support for the identity
-kinematics supported prior to joints_axes incorporations.  Jogging is
-done in joint mode.  Compatiblity testsing awaits users with the required
-hardware.
+teleop mode.
 
 
 === `shuttlexpress` driver renamed to `shuttle`

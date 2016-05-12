@@ -25,7 +25,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 """
-JOGMODE = 1 # (1 ==> joint mode) FIXME JOINTS_AXES
 
 import traceback          # needed to launch traceback errors
 import hal                # base hal class to react to hal signals
@@ -141,6 +140,13 @@ class gmoccapy( object ):
         self.halcomp = hal.component( "gmoccapy" )
         self.command = linuxcnc.command()
         self.stat = linuxcnc.stat()
+
+        self.command.teleop_enable(1)
+        self.command.wait_complete()
+        self.stat.poll()
+        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            raise SystemExit, "\n*** gmoccapy: Only KINEMATICS_IDENTITY is supported\n"
+
         self.error_channel = linuxcnc.error_channel()
         # initial poll, so all is up to date
         self.stat.poll()
@@ -668,6 +674,12 @@ class gmoccapy( object ):
         # The gobject.timeout_add() function sets a function to be called at regular intervals
         # the time between calls to the function, in milliseconds
         gobject.timeout_add( 100, self._periodic )  # time between calls to the function, in milliseconds
+
+    def set_motion_mode(self):
+        self.stat.poll()
+        if self.stat.motion_mode != linuxcnc.TRAJ_MODE_TELEOP:
+            self.command.teleop_enable(1)
+            self.command.wait_complete()
 
     def _get_axis_list( self ):
         temp = self.get_ini_info.get_coordinates()
@@ -2584,10 +2596,11 @@ class gmoccapy( object ):
         else:
             direction = -1
 
+        self.set_motion_mode()
         if self.distance <> 0:  # incremental jogging
-            self.command.jog( linuxcnc.JOG_INCREMENT, JOGMODE, axisnumber, direction * velocity, self.distance )
+            self.command.jog( linuxcnc.JOG_INCREMENT, 0, axisnumber, direction * velocity, self.distance )
         else:  # continuous jogging
-            self.command.jog( linuxcnc.JOG_CONTINUOUS, JOGMODE, axisnumber, direction * velocity )
+            self.command.jog( linuxcnc.JOG_CONTINUOUS, 0, axisnumber, direction * velocity )
 
     def on_btn_jog_released( self, widget, data = None ):
         # only in manual mode we will allow jogging the axis at this development state
@@ -2605,7 +2618,8 @@ class gmoccapy( object ):
         if self.distance <> 0:
             pass
         else:
-            self.command.jog( linuxcnc.JOG_STOP, JOGMODE,  axis )
+            self.set_motion_mode()
+            self.command.jog( linuxcnc.JOG_STOP, 0,  axis )
 
     # use the current loaded file to be loaded on start up
     def on_btn_use_current_clicked( self, widget, data = None ):
@@ -2698,12 +2712,16 @@ class gmoccapy( object ):
         self.widgets.ntb_button.set_current_page( 3 )
 
     def on_btn_home_all_clicked( self, widget, data = None ):
+        self.command.teleop_enable(0)
+        self.command.wait_complete()
         # home -1 means all
         self.command.home( -1 )
 
     def on_btn_unhome_all_clicked( self, widget, data = None ):
         self.all_homed = False
         # -1 for all
+        self.command.teleop_enable(0)
+        self.command.wait_complete()
         self.command.unhome( -1 )
 
     def on_btn_home_selected_clicked( self, widget, data = None ):
