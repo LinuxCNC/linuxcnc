@@ -135,14 +135,10 @@ void do_homing_sequence(void)
         /*
         *  Force all joints having identical ABS(joint->home_sequence)
         *  to agree, e.g., if any one is negative make them all negative
-        *
-        *  special_case_sync_all: if home_sequence == -1 for all joints
-        *                         synchronize all joints final move
         */
-        special_case_sync_all = 1; // disprove
+
         for(i=0; i < emcmotConfig->numJoints; i++) {
             joint = &joints[i];
-            if (joint->home_sequence != -1) {special_case_sync_all = 0;}
             if (joint->home_sequence < 0) {
                 // if a joint->home_sequence is neg, find all joints that
                 // have the same ABS sequence value and make them the same
@@ -150,10 +146,18 @@ void do_homing_sequence(void)
                 for(ii=0; ii < emcmotConfig->numJoints; ii++) {
                     jtmp = &joints[ii];
                     if (jtmp->home_sequence == ABS(joint->home_sequence)) {
-                        jtmp->home_sequence = joint->home_sequence;
+                        jtmp->home_sequence =      joint->home_sequence;
                     }
                 }
             }
+        }
+        /*  special_case_sync_all: if home_sequence == -1 for all joints
+        *                         synchronize all joints final move
+        */
+        special_case_sync_all = 1; // disprove
+        for(i=0; i < emcmotConfig->numJoints; i++) {
+            joint = &joints[i];
+            if (joint->home_sequence != -1) {special_case_sync_all = 0;}
         }
 	for(i=0; i < emcmotConfig->numJoints; i++) {
 	    joint = &joints[i];

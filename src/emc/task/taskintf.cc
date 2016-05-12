@@ -336,7 +336,7 @@ int emcJointUpdateHomingParams(int joint, double home, double offset)
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_SET_JOINT_HOMING_PARAMS;
+    emcmotCommand.command = EMCMOT_UPDATE_JOINT_HOMING_PARAMS;
     emcmotCommand.joint = joint;
     emcmotCommand.home = home;
     emcmotCommand.offset = offset;
