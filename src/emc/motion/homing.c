@@ -855,6 +855,7 @@ void do_homing(void)
                 // Teleop mode if so.
                 if (checkAllHomed()) {
                     switch_to_teleop_mode();
+                    homing_flag = 0;
                 }
 		break;
 
