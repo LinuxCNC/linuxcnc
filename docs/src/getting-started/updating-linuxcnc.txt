@@ -748,6 +748,18 @@ This command now attemps to jog the zeroth joint (Joint0) provided
 the mode is free (not teleop).  To jog the X axis, the mode
 must be teleop and the corresponding command is: 'set jog x 1.234'
 
+== Obsolete Guis
+
+The guis 'mini' and 'keystick' have been removed in conjunction with
+updates for joints_axes.  All related source code, examples, and
+documentation are available in the git repository.
+
+== Deprecated Guis
+
+The guis 'xlinuxcnc' and 'linuxcnclcd' are candidates for removal.
+Should these components be removed, all related source code, examples,
+and documentation will be available in the git repository.
+
 == Simulator configurations (updates for joints axes)
 
 === Pre-joints_axes
