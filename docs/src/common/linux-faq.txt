@@ -30,6 +30,16 @@ Example:
 linuxcnc /home/mill/linuxcnc/config/mill/mill.ini
 ----
 
+[[faq:terminal]]
+
+== Terminal
+
+Many things need to be done from the terminal like checking the kernel message
+buffer with 'dmesg'. Ubuntu and Linux Mint have a keyboard shortcut Ctrl + Alt
++ t. Most modern file managers support the right key to open a terminal just
+make sure your right clicking on a blank area or a directory not a file name.
+Most OS's have the terminal as a menu item, usually in Accessories.
+
 [[faq:man-pages]]
 
 == Man Pages
@@ -37,9 +47,7 @@ linuxcnc /home/mill/linuxcnc/config/mill/mill.ini
 A man page (short for manual page) is a form of software documentation
 usually found on a Unix or Unix-like operating system like Linux.
 
-To view a man page open up a terminal window by going to 'Applications >
-Accessories > Terminal'. Some Linux desktops support 'Ctrl + Alt + t' to
-open a terminal. For example if you wanted to find out something about the
+To view a man page open up a terminal to find out something about the
 find command in the terminal window type:
 
 ----
@@ -84,9 +92,7 @@ mode.
 
 === The Command Line Way
 
-Open up 'Applications > Accessories > Terminal'.
-
-In the terminal window type
+Open a terminal and type
 
 ----
 sudo gedit

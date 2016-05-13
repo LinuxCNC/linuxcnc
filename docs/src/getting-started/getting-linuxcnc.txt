@@ -47,7 +47,7 @@ method.
 
 .zsync in Linux
 
-. Install zsync using Synaptic or, by running the following in a terminal
+. Install zsync using Synaptic or, by running the following in a <<faq:terminal,terminal>>
 +
 ----
 sudo apt-get install zsync
@@ -213,8 +213,8 @@ and `linux-image-rt-686-pae`.
 WARNING: Do not enter a root password, if you do sudo is disabled and you won't
 be able to complete the following steps.
 
-. Run the following in a terminal to bring the machine up to date with the
-  latest packages.
+. Run the following in a <<faq:terminal,terminal>> to bring the machine up to
+  date with the latest packages.
 +
 ----
 sudo apt-get update
