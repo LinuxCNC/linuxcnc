@@ -589,6 +589,32 @@ linuxcnc (1:2.6.0~pre1) precise; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 16 Apr 2014 21:12:39 -0600
 
+linuxcnc (1:2.5.5) lucid; urgency=low
+
+  * AXIS: fix UVW jogs being too fast on inch configs displaying mm
+  * AXIS: fix shift-jog being too slow on inch configs displaying mm
+  * Docs: many fixes and updates
+  * HAL: biquad: fix crash when first enabled
+  * HAL: comp: fail to build some kinds of buggy comp code, 
+    instead of successfully compiling and then crashing at runtime.
+  * HAL: comp: reject comp files whose names don't match the 
+    component name
+  * HAL: edge: fix out-invert pin on first invocation
+  * HAL: edge: fix output pulse width
+  * HAL: halsh: fix for tcl8.6 in (x)ubuntu 14.04
+  * HAL: serport: fix pin-1-in-not not being notted
+  * HAL: stepgen: support 16 stepgens instead of 8
+  * HAL: fix pin values changing when linking/unlinking them
+  * Linuxcnctop: fix crawling scrollbar
+  * Motion: fix canned cycles when old Z is below retract plane
+  * NURBS: reject incorrect NURBS specifications instead of
+    accepting them and then generating incorrect motion
+  * NURBS: fix path calculation and discontinuous motion
+  * Pncconf: fix some GPIO pins not showing
+  * Pncconf: sserial fixes
+
+ -- Chris Radek <chris@timeguy.com>  Wed, 11 May 2016 19:46:47 -0500
+
 linuxcnc (1:2.5.4) lucid; urgency=low
 
   * Build: update dependencies for Debian 7
