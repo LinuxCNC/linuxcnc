@@ -338,6 +338,7 @@ int check_ini_hal_items(int numjoints)
                 SHOW_CHANGE_IDX(joint_home_offset,idx);
             }
             UPDATE_IDX(joint_home,idx);
+            UPDATE_IDX(joint_home_offset,idx);
             if  (0 != emcJointUpdateHomingParams(idx, NEW(joint_home[idx]),
                                                       NEW(joint_home_offset[idx]))
                 ) {
