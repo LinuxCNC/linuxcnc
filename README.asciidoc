@@ -1,5 +1,5 @@
-image:https://travis-ci.org/machinekit/machinekit.svg?branch=master["Build Status", link="https://travis-ci.org/machinekit/machinekit"]
-
+Travis build status: image:https://travis-ci.org/machinekit/machinekit.svg?branch=master["Travis Build Status", link="https://travis-ci.org/machinekit/machinekit"]
+Manpage build status: image:https://jenkins.machinekit.io/job/machinekit-manpages/badge/icon
 
 == DISCLAIMER
 
