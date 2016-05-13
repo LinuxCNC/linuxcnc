@@ -567,7 +567,8 @@ do_recv_packet:
         board->read_packet_ptr = board->read_packet;
         board->queue_reads_count = 0;
         board->queue_buff_size = 0;
-        return record_soft_error(board);
+        if(!record_soft_error(board)) return 0;
+        return -EAGAIN;
     }
 
     LL_PRINT_IF(debug, "enqueue_read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, recv, i, t2 - t1);
