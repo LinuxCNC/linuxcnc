@@ -177,7 +177,7 @@ int hm2_finish_read(hostmot2_t *hm2) {
     int r = hm2->llio->receive_queued_reads(hm2->llio);
     if (r < 0) return r;
     if (!r) {
-        HM2_ERR("error finishing read! iter=%u)\n",
+        HM2_ERR("error finishing read! iter=%u\n",
             tram_read_iteration);
         return -EIO;
     }
