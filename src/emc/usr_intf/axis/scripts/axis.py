@@ -743,7 +743,7 @@ class LivePlotter:
             print "error", detail
             del self.stat
             return
-
+        
         if  (    all_homed
             and (self.stat.motion_mode != linuxcnc.TRAJ_MODE_FREE)
             and (self.stat.task_mode   != linuxcnc.MODE_AUTO)
@@ -3110,37 +3110,119 @@ geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZBCUVW"
 geometry = re.split(" *(-?[XYZABCUVW])", geometry.upper())
 geometry = "".join(reversed(geometry))
 
-jog_speed = (
-    inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_VELOCITY")
-    or 1.0)
-vars.jog_speed.set(float(jog_speed)*60)
+try:
+    trajcoordinates=inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
+except:
+    raise SystemExit("Missing [TRAJ]COORDINATES")
+vars.trajcoordinates.set(trajcoordinates)
 
-jog_speed = (
-    inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_VELOCITY")
-    or jog_speed)
-vars.jog_aspeed.set(float(jog_speed)*60)
+joint_type = [None] * linuxcnc.MAX_JOINTS
+for j in range(linuxcnc.MAX_JOINTS):
+    section = "JOINT_%d" % j
+    joint_type[j] = inifile.find(section, "TYPE") or "LINEAR"
 
-mlv = (
+axis_type = [None] * linuxcnc.MAX_AXIS
+for a in range(linuxcnc.MAX_AXIS):
+    # supply defaults, supersede with ini [AXIS_*]TYPE
+    letter = "xyzabcuvw"[a]
+    if not (letter in trajcoordinates): continue
+    if letter in "abc":
+        axis_type[a] = "ANGULAR"
+    else:
+        axis_type[a] = "LINEAR"
+    section = "AXIS_%s" % letter
+    initype = inifile.find(section, "TYPE")
+    if initype is None: continue # use default
+    axis_type[a] = initype
+
+has_angular_joint_or_axis = (   ("ANGULAR" in joint_type)
+                             or ("ANGULAR" in axis_type) )
+
+has_linear_joint_or_axis = (    ("LINEAR" in joint_type)
+                             or ("LINEAR" in axis_type) )
+
+# Search rules for slider items
+max_linear_speed = (
     inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
     or inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
     or inifile.find("TRAJ","MAX_VELOCITY")
-    or 1.0)
+    or None)
+default_jog_linear_speed = (
+    inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY")
+    or inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
+    or inifile.find("TRAJ", "DEFAULT_VELOCITY")
+    or None)
 
-vars.max_speed.set(float(mlv))
-mav = (
+max_angular_speed = (
     inifile.find("DISPLAY","MAX_ANGULAR_VELOCITY")
     or inifile.find("TRAJ","MAX_ANGULAR_VELOCITY")
     or inifile.find("TRAJ","MAX_VELOCITY")
-    or mlv)
+    or None)
+default_jog_angular_speed = (
+    inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
+    or inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY")
+    or inifile.find("TRAJ", "DEFAULT_VELOCITY")
+    or None)
 
-vars.max_aspeed.set(float(mav))
-mv = inifile.find("DISPLAY","MAX_LINEAR_VELOCITY") or inifile.find("TRAJ","MAX_LINEAR_VELOCITY") or inifile.find("TRAJ","MAX_VELOCITY") or inifile.find("AXIS_X","MAX_VELOCITY") or 1.0
-vars.maxvel_speed.set(float(mv)*60)
-vars.max_maxvel.set(float(mv))
+max_velocity = (
+    inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
+    or inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
+    or inifile.find("TRAJ","MAX_VELOCITY")
+    or inifile.find("AXIS_X","MAX_VELOCITY")
+    or None)
+
+# Enforce these slider items (exit if missing)
+try:
+    msg = "max velocity"
+    vars.maxvel_speed.set(float(max_velocity)*60)
+    vars.max_maxvel.set(float(max_velocity))
+    if has_linear_joint_or_axis:
+        msg = "max linear speed"
+        vars.max_speed.set(float(max_linear_speed))
+except Exception:
+    print "\nMissing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
+    raise SystemExit
+
+if default_jog_linear_speed is None: default_jog_linear_speed = max_linear_speed
+vars.jog_speed.set(float(default_jog_linear_speed)*60)
+
+# Check for these slider items (message if missing)
+try:
+    if has_angular_joint_or_axis:
+        msg = "max angular speed"
+        vars.max_aspeed.set(float(max_angular_speed))
+except Exception:
+    print "\nWarning: Missing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
+    max_angular_speed = 1
+    default_jog_angular_speed = 1
+    vars.max_aspeed.set(float(max_angular_speed))
+    vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
+
+if default_jog_angular_speed is None: default_jog_angular_speed = max_angular_speed
+vars.jog_speed.set(float(default_jog_linear_speed)*60)
+
+# temporary debugging prints
+print >>sys.stderr, "note: MAXV     max: %.3f units/sec %.3f units/min"%(
+      float(max_velocity),60*float(max_velocity))
+if has_linear_joint_or_axis:
+    print >>sys.stderr, "note: LJOG     max: %.3f units/sec %.3f units/min"%(
+          float(max_linear_speed),60*float(max_linear_speed))
+    print >>sys.stderr, "note: LJOG default: %.3f units/sec %.3f units/min"%(
+          float(default_jog_linear_speed),60*float(default_jog_linear_speed))
+if has_angular_joint_or_axis:
+    print >>sys.stderr, "note: AJOG     max: %.3f units/sec %.3f units/min"%(
+          float(max_angular_speed),60*float(max_angular_speed))
+    print >>sys.stderr, "note: AJOG default: %.3f units/sec %.3f units/min"%(
+          float(default_jog_angular_speed),60*float(default_jog_angular_speed))
+
+# always allow tcl widgets creation (though they may be forgotten later)
+if not has_linear_joint_or_axis:
+    vars.jog_speed.set(1)
+    vars.max_speed.set(1)
+if not has_angular_joint_or_axis:
+    vars.jog_aspeed.set(1)
+    vars.max_aspeed.set(1)
+
 root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
 root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
 root_window.tk.eval("${pane_top}.maxvel.s set [setval $maxvel_speed $max_maxvel]")
@@ -3218,12 +3300,6 @@ if homing_order_defined:
             _("Home All %s" % ja_name))
 widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s" % ja_name))
-
-try:
-    trajcoordinates=inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
-except:
-    raise SystemExit("Missing [TRAJ]COORDINATES")
-vars.trajcoordinates.set(trajcoordinates)
 
 kinstype=inifile.find("KINS", "KINEMATICS").lower()
 kins_is_trivkins = False
@@ -3323,31 +3399,13 @@ for a in range(linuxcnc.MAX_AXIS):
             if a < 3: step_size = astep_size = step_size_tmp
             else: astep_size = step_size_tmp
 
-joint_type = [None] * linuxcnc.MAX_JOINTS
-for j in range(linuxcnc.MAX_JOINTS):
-    section = "JOINT_%d" % j
-    joint_type[j] = inifile.find(section, "TYPE") or "LINEAR"
-
-axis_type = [None] * linuxcnc.MAX_AXIS
-for a in range(linuxcnc.MAX_AXIS):
-    # supply defaults, supersede with ini [AXIS_*]TYPE
-    if a in [3,4,5]:
-        axis_type[a] = "ANGULAR"
-    else:
-        axis_type[a] = "LINEAR"
-    if s.axis_mask & (1<<a) == 0: continue
-    letter = "XYZABCUVW"[a]
-    section = "AXIS_%s" % letter
-    initype = inifile.find(section, "TYPE")
-    if initype is None: continue # use default
-    axis_type[a] = initype
-
 if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)
 elif inifile.find("DISPLAY", "MIN_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY"))*60)
 elif step_size != 1:
     root_window.tk.call("set_slider_min", step_size*30)
+
 if inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY"):
     root_window.tk.call("set_aslider_min", float(inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY"))*60)
 elif inifile.find("DISPLAY", "MIN_VELOCITY"):
