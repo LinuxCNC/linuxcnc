@@ -3106,15 +3106,15 @@ jog_speed = (
     or inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
     or inifile.find("TRAJ", "DEFAULT_VELOCITY")
     or 1.0)
-
 vars.jog_speed.set(float(jog_speed)*60)
+
 jog_speed = (
     inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
     or inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY")
     or inifile.find("TRAJ", "DEFAULT_VELOCITY")
     or jog_speed)
-
 vars.jog_aspeed.set(float(jog_speed)*60)
+
 mlv = (
     inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
     or inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
@@ -3425,8 +3425,11 @@ for i in range(num_joints, linuxcnc.MAX_JOINTS):
     c = getattr(widgets, "joint_%d" % i)
     c.grid_forget()
 
-if s.axis_mask & 56 == 0: # 56==0x38== 000111000 (abc)
+if  (       (s.axis_mask & 56 == 0)  # 56==0x38== 000111000 (ABC)
+    and not ("ANGULAR" in joint_type)
+    ):
     widgets.ajogspeed.grid_forget()
+
 c = linuxcnc.command()
 e = linuxcnc.error_channel()
 
