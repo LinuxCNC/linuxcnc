@@ -1,3 +1,112 @@
+linuxcnc (1:2.7.5) unstable; urgency=medium
+
+  * docs: update GladeVCP SpeedControl
+  * docs: fix a typo in example gcode
+  * docs: add some detail to Getting LinuxCNC
+  * docs: clarify the intro to the python-interface documentation
+  * docs: fix typo in python-interface docs
+  * docs: fix information about opening a terminal
+  * docs: add info about non network updates to Updating LinuxCNC
+  * docs: update location of ISOs in Getting LinuxCNC
+  * docs: fix command to add an apt source to Getting LinuxCNC
+  * docs: fix typo in Getting Started guide
+  * docs: new GladeVCP widget SpeedControl
+  * docs: remove outdated remap information
+  * docs: add more info on Classic Ladder compare and groups
+  * docs: add info to pncconfig docs about editing a config
+  * hm2_eth manpage: note the irq-coalesce trick
+  * hal_input manpage: don't try to document udev rules syntax
+  * linuxcncrsh manpage: remove wrong info about open g-code files
+
+  * Axis GUI: fix File/Open on ini files with no [DISPLAY]PROGRAM_PREFIX
+  * gmoccapy: small bug fixes (iconview and handlers)
+  * gmoccapy: bugfix caused due to rests of alarm page
+  * tklinuxcnc GUI: rebranding
+
+  * carousel comp: Fix a bad initialisation in index mode
+  * gantry comp: fix typo in docs
+  * wj200 comp: warn on unhandled command-line arguments
+  * xhc-hb04: accomodate prior connections to the
+      motion.spindle-speed-out-rps-abs pin
+
+  * shuttlexpress: clean up the manpage & asciidocs
+
+  * GladeVCP: SpeedControl - changing limits do reset the increment
+  * GladeVCP: SpeedControl - set default increment after setting a new adjustment
+  * GladeVCP: SpeedControl - added widget icon
+  * GladeVCP: tooledit.glade - corrected typo
+  * GladeVCP: hal_sourceview - fix permissions of created files
+  * GladevCP: gremlin - bugfix mouse button modes 4 and 6
+  * GladeVCP: IconView - Bug due to double click
+  * GladeVCP: Iconview - sensitivity bugfix
+  * GladeVCP: Fix mdi error with tiny values
+  * pyngcgui: find gcmc if not specified in ini
+  * pyngcgui: remove mention of incorrect --height argument
+  * hal_glib: add callLevel to EMC_TASK_STAT class, to fix file-loaded bug
+
+  * stepconf: fix default pitch for A axis
+  * stepconf: dynamically show how step scale is calculated
+  * pncconf: add support for 5i24
+  * pncconf: fix GUI's jog default settings
+  * pncconf: fix user created stepper names error
+  * pncconf: fix halui commands error
+  * pncconf: fix spindle feedback signal error
+  * pncconf: fix spindle display not working with encoder
+  * pncconf: fix wrong inverted step/direction pin
+  * pncconf: fix axis tests with invert step/pwm pins
+  * pncconf: PID P calculation was wrong for steppers
+  * pncconf: set PID P to a better default for stepper systems
+  * pncconf: fix error when selecting both-home-x or y or
+
+  * Pico configs: add lots of documenting comments
+  * Pico configs: update format of tool table
+  * configs: let it trigger a gladevcp bug
+
+  * GM6-PCI driver: add support for PCI SubDevice ID 0x6ACC
+
+  * rs274: work around boost::python bug
+  * rs274: implement makeInterp for external users of librs274
+  * interp: consistently set feed rate to 0 on M2/M30
+  * interp: don't return potentially stacked data
+  * interp: fix message for INTERP_FILE_NOT_OPEN (fixes #63)
+  * interp: reset Interp and Canon state on Abort
+  * interp: move end-of-program cleanup code to its own function
+  * interp: fix build errors on Ubuntu 16.04
+  * interp: don't return potentially stacked data
+  * Task: fix a recent "surprise motion on abort" bug
+  * Task: Fix serial number handling after 516deaef
+  * Task: add drain_interp_list
+  * Task: simplify handling of emcCommand
+  * Task: only turn off the spindle once, when entering Estop
+  * Task: only call emcTaskPlanInit() once during startup
+  * Task: don't call emcAbortCleanup() in emcIoAbort()
+  * Task: fixup indentation
+  * rtapi (sim): flush stdout/stderr after rtapi_print()
+  * rtapi parport: make all inline functions static
+  * motion: remove overruns parameter
+  * motion: remove heuristic delay warning
+  * linuxcncsrv: ioctl(FIONREAD) wants int*, not ulong*
+  * glcanon: is_lathe() is a function
+  * HAL: fix comments describing HAL thread & funct times
+
+  * tests: longer timeout in halui mdi test
+  * tests: hm2-idrom: exit early when a test fails
+  * tests: compile an example user of librs274
+  * tests: add comments to motion-logger/basic 'expected' file
+  * tests: add a test of STARTUP_GCODE vs Abort
+  * tests: add a test to reproduce the g5x/abort preview problem
+
+  * src/configure: detect potential readline license conflict
+  * src/configure: fix a typo in a hep message
+  * debian/configure: modernize usage/help message
+  * debian/configure: add info about kernel
+  * platform-is-supported: detect OS in a more portable way
+  * rip-environment: rebranding
+  * build: make failure copying images an error
+  * packaging: interface with udev better
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 12 July 2016 21:47:18 -0600
+
 linuxcnc (1:2.7.4) unstable; urgency=medium
 
   * docs: update hm2_eth manpage with supported boards
