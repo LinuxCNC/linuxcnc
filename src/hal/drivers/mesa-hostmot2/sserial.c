@@ -1183,6 +1183,8 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
         
         switch (*inst->state){
+            case 0x04: // just transitioning to idle
+                *inst->state = 0x00;
             case 0: // Idle
                 if (! *inst->run){ return; }
                 *inst->state = 0x11;
@@ -1196,6 +1198,8 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 *inst->fault_count = 0;
                 doit_err_count = 0;
                 break;
+            case 0x05: // just transitioning to running
+                *inst->state = 0x01;
             case 0x01: // normal running
                 if (!*inst->run){
                      *inst->state = 0x02;
@@ -1337,7 +1341,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     *inst->fault_count += inst->fault_inc;
                     // carry on, nothing much we can do about it
                 }
-                *inst->state &= 0x0F;
+                *inst->state = (*inst->state & 0x0F) | 0x4;
                 *inst->command_reg_write = 0x80000000; // mask pointless writes
                 break;
             case 0x20:// Do-nothing state for serious errors. require run pin to cycle
