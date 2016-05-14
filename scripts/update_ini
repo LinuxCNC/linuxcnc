@@ -62,9 +62,10 @@ asked and the conversion will proceed blindly"""
 if dialogs:
     ret = tkMessageBox._show("Confirm automatic update",
                            "This version of LinuxCNC separates the concepts of Axes and "
-                           "Joints which necessitates changes to the INI and HAL files."
+                           "Joints which necessitates changes to the INI and HAL files. "
                            "The changes required are described here:\n"
-                           "http://wiki.linuxcnc.org/cgi-bin/wiki.pl?JointAxesBranch\n"
+                           "http://linuxcnc.org/docs/ja/ in the section"
+                           "'Getting Started' -> 'Updating LinuxCNC'\n"
                            "The [EMC]VERSION data in your INI file indicates that your "
                            "configuration requires update.\n"
                            "A script exists that can attempt to automatically "
