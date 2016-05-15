@@ -261,6 +261,7 @@ if version == "$Revision$" or version < "1.0":
     newini.write("JOINTS = %i\n" % joints)
 
     j = 0
+    lock_mask = 0x0
     while 1:
          # Search preferentially in "[JOINT_N] in case the file is part-converted already
         if re.search("^(\[JOINT_%i\])"%j, inistring, re.MULTILINE):
@@ -281,6 +282,9 @@ if version == "$Revision$" or version < "1.0":
                 writeifexists(newini, "AXIS_%i" % j, "MAX_LIMIT")
                 writeifexists(newini, "AXIS_%i" % j, "MAX_VELOCITY")
                 writeifexists(newini, "AXIS_%i" % j, "MAX_ACCELERATION")
+                if ini.find("AXIS_%i" % j, "LOCKING_INDEXER"):
+                    lock_mask |= 1 << j
+                    newini.write("LOCKING_INDEXER_JOINT = %i\n" % j)
                 newini.write("\n[JOINT_%i]\n" % j)
                 section = re.search("\[AXIS_%i\](.+?)(\n\[|$)" % j, inistring, re.DOTALL)
                 all_sections.remove("AXIS_%i" % j)
@@ -299,6 +303,12 @@ if version == "$Revision$" or version < "1.0":
     # If there were any custom sections, tag them on the end.
     while all_sections:
         copysection(all_sections[0])
+
+    # and turn the locking mask into a string
+    if lock_mask:
+        lock_string = 'unlock_joints_mask=%i' % lock_mask
+    else:
+        lock_string = ""
 
     #That's the INI file done:
     newini.close()
@@ -346,7 +356,9 @@ if version == "$Revision$" or version < "1.0":
     'num_joints=\[TRAJ\]AXES':    'num_joints=[KINS]JOINTS',
     'loadrt(.+kins)':             'loadrt [KINS]KINEMATICS\n#autoconverted \\1',
     '\[AXIS_(.)\]':               '[JOINT_\\1]',
-    '(setp +gantrykins.+)':       '# \\1'}
+    '(setp +gantrykins.+)':       '# \\1',
+    '(.+servo_period_ns.+)':      '\\1 %s' % lock_string
+    }
 
     for halfile in halpaths:
         halstring = open(halfile,'r').read()
