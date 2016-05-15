@@ -139,6 +139,7 @@ void do_homing_sequence(void)
 
         for(i=0; i < emcmotConfig->numJoints; i++) {
             joint = &joints[i];
+            SET_JOINT_HOMED_FLAG(joint, 0);
             if (joint->home_sequence < 0) {
                 // if a joint->home_sequence is neg, find all joints that
                 // have the same ABS sequence value and make them the same
