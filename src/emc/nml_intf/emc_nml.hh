@@ -307,6 +307,7 @@ class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
     int home_sequence;
     int volatile_home;
     int locking_indexer;
+    int absolute_encoder;
 };
 
 class EMC_JOINT_SET_MAX_VELOCITY:public EMC_JOINT_CMD_MSG {

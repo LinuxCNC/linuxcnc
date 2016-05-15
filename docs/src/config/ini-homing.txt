@@ -146,6 +146,26 @@ to prevent homing from starting if one of the shared switches is
 already closed. Set this value to 0 to permit homing even if the switch
 is already closed.
 
+=== HOME_ABSOLUTE_ENCODER (((HOME ABSOLUTE ENCODER)))
+
+Use for absolute encoders.  When a request is made to home the joint,
+the current joint position is set to the '[JOINT_n]HOME_OFFSET' value.
+
+The final move to the '[JOINT_n]HOME' position is optional according
+to the 'HOME_ABSOLUTE_ENCODER' setting:
+
+----
+HOME_ABSOLUTE_ENCODER = 0 (Default) joint does not use an absolute encoder
+HOME_ABSOLUTE_ENCODER = 1 Absolute encoder, final move to [JOINT_n]HOME
+HOME_ABSOLUTE_ENCODER = 2 Absolute encoder, NO final move to [JOINT_n]HOME
+----
+
+[NOTE]
+A HOME_IS_SHARED setting is silently ignored.
+[NOTE]
+A request to rehome the joint is silently ignored.
+
+
 === HOME_SEQUENCE (((HOME SEQUENCE)))
 
 Used to define a multi-axis homing sequence HOME ALL and enforce

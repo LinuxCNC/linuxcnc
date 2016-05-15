@@ -88,6 +88,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
     int sequence;
     int volatile_home;
     int locking_indexer;
+    int absolute_encoder;
     int comp_file_type; //type for the compensation file. type==0 means nom, forw, rev. 
     double maxVelocity;
     double maxAcceleration;
@@ -182,10 +183,19 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         jointIniFile->Find(&volatile_home, "VOLATILE_HOME", jointString);
         locking_indexer = false;
         jointIniFile->Find(&locking_indexer, "LOCKING_INDEXER", jointString);
+        absolute_encoder = false;
+        jointIniFile->Find(&absolute_encoder, "HOME_ABSOLUTE_ENCODER", jointString);
         // issue NML message to set all params
-        if (0 != emcJointSetHomingParams(joint, home, offset, final_vel, search_vel,
-                                        latch_vel, (int)use_index, (int)ignore_limits,
-                                        (int)is_shared, sequence, volatile_home, locking_indexer)) {
+        if (0 != emcJointSetHomingParams(joint, home, offset
+                                        ,final_vel, search_vel, latch_vel
+                                        ,(int)use_index
+                                        ,(int)ignore_limits
+                                        ,(int)is_shared
+                                        ,sequence
+                                        ,volatile_home
+                                        ,locking_indexer
+                                        ,absolute_encoder
+                                        )) {
             return -1;
         }
 
