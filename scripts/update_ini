@@ -218,7 +218,8 @@ if version == "$Revision$" or version < "1.0":
     # Search the Halfiles to find the kinematics.
     kins = None
     kinstype = None
-    coordinates = None
+    coordinates = list("XYZABCUVW")
+    coords_entry = False
     for halfile in halpaths:
         hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
         for line in hal.readlines():
@@ -226,7 +227,9 @@ if version == "$Revision$" or version < "1.0":
             if match:
                 kins = match.group(1)
                 match = re.search('coordinates *= *(\w+)', line)
-                if match: coordinates = list(match.group(1))
+                if match:
+                    coordinates = list(match.group(1))
+                    coords_enry = 1
                 match = re.search('kinstype *= *(\w+)', line)
                 if kinstype: kinstype = match.group(1)
                 break
@@ -238,7 +241,7 @@ if version == "$Revision$" or version < "1.0":
     if  kins == "gantrykins":
         kins = "trivkins"
         kinstype = "BOTH"
-        if not coordinates: coordinates = list('XYZABCUVW')
+        coords_entry = True
         for halfile in halpaths:
             hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
             for line in hal.readlines():
@@ -248,13 +251,13 @@ if version == "$Revision$" or version < "1.0":
                     if j > joints: joints = j
                     a = int(match.group(2))
                     coordinates[j] = 'XYZABCUVW'[a]
-    coordinates = ''.join(coordinates[: joints])
+    coordinates = ''.join(coordinates)
     if kins == "gentrivkins":
         kins = "trivkins" #trivkins has the same defaults as gentrivkins
 
     newini.write("\n\n[KINS]\n")
     newini.write("KINEMATICS = %s" % kins)
-    if coordinates: newini.write(" coordinates=%s" % coordinates)
+    if coords_entry: newini.write(" coordinates=%s" % coordinates[: joints])
     if kinstype: newini.write(" kinstype=%s" % kinstype)
     newini.write("\n")
     newini.write("#This is a best-guess at the number of joints, it should be checked\n")
@@ -312,12 +315,6 @@ if version == "$Revision$" or version < "1.0":
 
     #That's the INI file done:
     newini.close()
-
-    # extend coordinates to keep the regex happy
-    if coordinates:
-        coordinates = coordinates + "XYZABCUVW"[len(coordinates):]
-    else:
-        coordinates = "XYZABCUVW"
 
     # set a flag to decide whether to link world jogging pins
     if not kinstype:
