@@ -1073,6 +1073,13 @@ These parameters are Homing related, for a better explanation read the
     prevent homing from starting if the one of the shared switches is
     already closed. Set <n> to 0 to permit homing if a switch is closed.
 
+* 'HOME_ABSOLUTE_ENCODER = 0 | 1 | 2' -
+     Used to indicate the joint uses an absolute encoder.  At a request
+    for homing, the current joint value is set to the 'HOME_OFFSET' value.
+    If the 'HOME_ABSOLUTE_ENCODER' setting is 1, the machine makes the usual
+    final move to the 'HOME' value.  
+    If the 'HOME_ABSOLUTE_ENCODER' setting is 2, no final move is made.
+
 * 'HOME_SEQUENCE = <n>' -
      Used to define the "Home All" sequence. <n> starts at 0 and no numbers
     may be skipped. If left out the joint will not be homed by the

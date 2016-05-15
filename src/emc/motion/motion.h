@@ -469,6 +469,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define HOME_USE_INDEX		2
 #define HOME_IS_SHARED		4
 #define HOME_UNLOCK_FIRST       8
+#define HOME_ABSOLUTE_ENCODER  16
+#define HOME_NO_REHOME         32
+#define HOME_NO_FINAL_MOVE     64
 
 /* flags for enabling spindle scaling, feed scaling,
    adaptive feed, and feed hold */

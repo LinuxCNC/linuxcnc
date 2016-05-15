@@ -139,7 +139,13 @@ void do_homing_sequence(void)
 
         for(i=0; i < emcmotConfig->numJoints; i++) {
             joint = &joints[i];
-            SET_JOINT_HOMED_FLAG(joint, 0);
+            if (   (joint->home_flags & HOME_NO_REHOME)
+                && GET_JOINT_HOMED_FLAG(joint)
+               ) {
+                continue;
+            } else {
+                SET_JOINT_HOMED_FLAG(joint, 0);
+            }
             if (joint->home_sequence < 0) {
                 // if a joint->home_sequence is neg, find all joints that
                 // have the same ABS sequence value and make them the same
@@ -291,19 +297,32 @@ void do_homing(void)
 		   determines what state is next */
 		if (joint->home_flags & HOME_IS_SHARED && home_sw_active) {
 		    reportError(
-			_("Cannot home while shared home switch is closed"));
+			_("Cannot home while shared home switch is closed %d"),joint_num);
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
 		/* set flags that communicate with the rest of EMC */
-		SET_JOINT_HOMING_FLAG(joint, 1);
-		SET_JOINT_HOMED_FLAG(joint, 0);
+                if (   (joint->home_flags & HOME_NO_REHOME)
+                    && GET_JOINT_HOMED_FLAG(joint)
+                   ) {
+                   joint->home_state = HOME_IDLE;
+                   break; //no rehome allowed if absolute_enoder
+                } else {
+                    SET_JOINT_HOMING_FLAG(joint, 1);
+                    SET_JOINT_HOMED_FLAG(joint, 0);
+                }
 		SET_JOINT_AT_HOME_FLAG(joint, 0);
 		/* stop any existing motion */
 		joint->free_tp.enable = 0;
 		/* reset delay counter */
 		joint->home_pause_timer = 0;
 		/* figure out exactly what homing sequence is needed */
+                if (joint->home_flags & HOME_ABSOLUTE_ENCODER) {
+                    joint->home_flags &= ~HOME_IS_SHARED; // shared not applicable
+                    joint->home_state = HOME_SET_SWITCH_POSITION;
+                    immediate_state = 1;
+		    break;
+                }
 		if (joint->home_flags & HOME_UNLOCK_FIRST) {
 		    joint->home_state = HOME_UNLOCK;
 		} else {
@@ -638,13 +657,24 @@ void do_homing(void)
 		   current joint position to 'home_offset', which is the
 		   location of the home switch in joint coordinates. */
 		/* set the current position to 'home_offset' */
-		offset = joint->home_offset - joint->pos_fb;
+                if (joint->home_flags & HOME_ABSOLUTE_ENCODER) {
+                    offset = joint->home_offset;
+                } else {
+                    offset = joint->home_offset - joint->pos_fb;
+                }
 		/* this moves the internal position but does not affect the
 		   motor position */
 		joint->pos_cmd += offset;
 		joint->pos_fb += offset;
 		joint->free_tp.curr_pos += offset;
 		joint->motor_offset -= offset;
+                if (joint->home_flags & HOME_ABSOLUTE_ENCODER) {
+                    if (joint->home_flags & HOME_NO_FINAL_MOVE) {
+                        joint->home_state = HOME_FINISHED;
+                        immediate_state = 1;
+                        break;
+                    }
+                }
 		/* next state */
 		joint->home_state = HOME_FINAL_MOVE_START;
 		immediate_state = 1;
@@ -774,6 +804,7 @@ void do_homing(void)
                         for (jno = 0; jno < emcmotConfig->numJoints; jno++) {
                             jtmp = &joints[jno];
                             if (ABS(jtmp->home_sequence) != home_sequence) {continue;}
+                            if (jtmp->home_flags & HOME_ABSOLUTE_ENCODER)  {continue;}
                             if (   (jtmp->home_state != HOME_FINAL_MOVE_START)
                                 ||
                                    (jtmp->free_tp.active)
@@ -820,8 +851,7 @@ void do_homing(void)
 		    /* on limit, check to see if we should trip */
 		    if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
 			/* not ignoring limits, time to quit */
-			reportError(_("hit limit in home state %d"),
-			    joint->home_state);
+			reportError(_("hit limit in home state"));
 			joint->home_state = HOME_ABORT;
 			immediate_state = 1;
 			break;

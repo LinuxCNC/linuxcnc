@@ -281,7 +281,7 @@ int emcJointSetMinFerror(int joint, double ferror)
 int emcJointSetHomingParams(int joint, double home, double offset, double home_final_vel,
 			   double search_vel, double latch_vel,
 			   int use_index, int ignore_limits, int is_shared,
-			   int sequence,int volatile_home, int locking_indexer)
+			   int sequence,int volatile_home, int locking_indexer,int absolute_encoder)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(home) || std::isnan(offset) || std::isnan(home_final_vel) ||
@@ -316,6 +316,21 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
     }
     if (locking_indexer) {
         emcmotCommand.flags |= HOME_UNLOCK_FIRST;
+    }
+    if (absolute_encoder) {
+        switch (absolute_encoder) {
+          case 0: break;
+          case 1: emcmotCommand.flags |= HOME_ABSOLUTE_ENCODER;
+                  emcmotCommand.flags |= HOME_NO_REHOME;
+                  break;
+          case 2: emcmotCommand.flags |= HOME_ABSOLUTE_ENCODER;
+                  emcmotCommand.flags |= HOME_NO_REHOME;
+                  emcmotCommand.flags |= HOME_NO_FINAL_MOVE;
+                  break;
+          default: fprintf(stderr,
+                   "Unknown option for absolute_encoder <%d>",absolute_encoder);
+                  break;
+        }
     }
 
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
