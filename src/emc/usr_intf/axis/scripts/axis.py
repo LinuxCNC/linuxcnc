@@ -3198,7 +3198,7 @@ except Exception:
     vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
 
 if default_jog_angular_speed is None: default_jog_angular_speed = max_angular_speed
-vars.jog_speed.set(float(default_jog_linear_speed)*60)
+vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
 
 # temporary debugging prints
 print >>sys.stderr, "note: MAXV     max: %.3f units/sec %.3f units/min"%(
