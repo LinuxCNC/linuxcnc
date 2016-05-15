@@ -226,7 +226,7 @@ if version == "$Revision$" or version < "1.0":
             if match:
                 kins = match.group(1)
                 match = re.search('coordinates *= *(\w+)', line)
-                if match: coordinates = match.group(1)
+                if match: coordinates = list(match.group(1))
                 match = re.search('kinstype *= *(\w+)', line)
                 if kinstype: kinstype = match.group(1)
                 break
@@ -235,10 +235,10 @@ if version == "$Revision$" or version < "1.0":
 
     #gantrykins and gentrivkins are gone, so need special treatment
 
-    if (kins == "gantrykins") and not coordinates:
+    if  kins == "gantrykins":
         kins = "trivkins"
         kinstype = "BOTH"
-        coordinates = list('XYZABCUVW')
+        if not coordinates: coordinates = list('XYZABCUVW')
         for halfile in halpaths:
             hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
             for line in hal.readlines():
@@ -248,7 +248,7 @@ if version == "$Revision$" or version < "1.0":
                     if j > joints: joints = j
                     a = int(match.group(2))
                     coordinates[j] = 'XYZABCUVW'[a]
-        coordinates = ''.join(coordinates[: joints])
+    coordinates = ''.join(coordinates[: joints])
     if kins == "gentrivkins":
         kins = "trivkins" #trivkins has the same defaults as gentrivkins
 
@@ -313,6 +313,20 @@ if version == "$Revision$" or version < "1.0":
     #That's the INI file done:
     newini.close()
 
+    # extend coordinates to keep the regex happy
+    if coordinates:
+        coordinates = coordinates + "XYZABCUVW"[len(coordinates):]
+    else:
+        coordinates = "XYZABCUVW"
+
+    # set a flag to decide whether to link world jogging pins
+    if not kinstype:
+        identitykins = True
+    elif kinstype == "1":
+        identitykins = True
+    else:
+        identitykins = False
+
     # Now change all the pin names etc in the linked HAL files.
     subs = {'axis.(.).active':    'joint.\\1.active',
     'axis.(.).amp-enable-out':    'joint.\\1.amp-enable-out',
@@ -335,10 +349,14 @@ if version == "$Revision$" or version < "1.0":
     'axis.(.).homing':            'joint.\\1.homing',
     'axis.(.).in-position':       'joint.\\1.in-position',
     'axis.(.).index-enable':      'joint.\\1.index-enable',
-    'axis.(.).jog-counts':        'joint.\\1.jog-counts',
-    'axis.(.).jog-enable':        'joint.\\1.jog-enable',
-    'axis.(.).jog-scale':         'joint.\\1.jog-scale',
-    'axis.(.).jog-vel-mode':      'joint.\\1.jog-vel-mode',
+    'axis.(.).jog-counts':        'joint.\\1.jog-counts' if not identitykins
+                             else 'joint.\\1.jog-counts => temp\\1.jog-counts',
+    'axis.(.).jog-enable':        'joint.\\1.jog-enable' if not identitykins
+                             else 'joint.\\1.jog-enable => temp\\1.jog-enable',
+    'axis.(.).jog-scale':         'joint.\\1.jog-scale' if not identitykins
+                             else 'joint.\\1.jog-scale => temp\\1.jog-scale',
+    'axis.(.).jog-vel-mode':      'joint.\\1.jog-vel-mode' if not identitykins
+                             else 'joint.\\1.jog-vel-mode => temp\\1.jog-counts',
     'axis.(.).joint-pos-cmd':     'joint.\\1.pos-cmd',
     'axis.(.).joint-pos-fb':      'joint.\\1.pos-fb',
     'axis.(.).joint-vel-cmd':     'joint.\\1.vel-cmd',
@@ -359,11 +377,25 @@ if version == "$Revision$" or version < "1.0":
     '(setp +gantrykins.+)':       '# \\1',
     '(.+servo_period_ns.+)':      '\\1 %s' % lock_string
     }
+    
+    subs2 = {
+    'temp0':                     'axis.%s' % coordinates[0],
+    'temp1':                     'axis.%s' % coordinates[1],
+    'temp2':                     'axis.%s' % coordinates[2],
+    'temp3':                     'axis.%s' % coordinates[3],
+    'temp4':                     'axis.%s' % coordinates[4],
+    'temp5':                     'axis.%s' % coordinates[5],
+    'temp6':                     'axis.%s' % coordinates[6],
+    'temp7':                     'axis.%s' % coordinates[7],
+    'temp8':                     'axis.%s' % coordinates[8]
+    }
 
     for halfile in halpaths:
         halstring = open(halfile,'r').read()
         for sub in subs:
             halstring = re.sub(sub, subs[sub], halstring)
+        for sub in subs2:
+            halstring = re.sub(sub, subs2[sub], halstring)
         newhal = open(halfile, 'w')
         newhal.write(halstring)
         newhal.close()
