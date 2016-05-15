@@ -250,7 +250,7 @@ if version == "$Revision$" or version < "1.0":
                     coordinates[j] = 'XYZABCUVW'[a]
         coordinates = ''.join(coordinates[: joints])
     if kins == "gentrivkins":
-        kins = trivkins #trivkins has the same defaults as gentrivkins
+        kins = "trivkins" #trivkins has the same defaults as gentrivkins
 
     newini.write("\n\n[KINS]\n")
     newini.write("KINEMATICS = %s" % kins)
