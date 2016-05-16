@@ -368,6 +368,27 @@ if version == "$Revision$" or version < "1.0":
     'axis.(.).wheel-jog-active':  'joint.\\1.wheel-jog-active',
     'axis.(.).unlock':            'joint.\\1.unlock',
     'axis.(.).is-unlocked':       'joint.\\1.is-unlocked',
+    'halui.axis.(.).pos-commanded':'halui.@ax\\1@.pos-commanded',
+    'halui.axis.(.).pos-feedback':'halui.@ax\\1@.pos-feedback',
+    'halui.axis.(.).pos-relative':'halui.@ax\\1@.pos-relative',
+    'halui.joint.(.).is-selected':'halui.@ax\\1@.is-selected',
+    'halui.jog.(.).analog':       'halui.@ax\\1@.analog',
+    'halui.jog.(.).increment':    'halui.@ax\\1@.increment',
+    'halui.jog.(.).increment-minus':'halui.@ax\\1@.increment-minus',
+    'halui.jog.(.).increment-plus':'halui.@ax\\1@.increment-plus',
+    'halui.jog.(.).minus':        'halui.@ax\\1@.minus',
+    'halui.jog.(.).plus':         'halui.@ax\\1@.plus',
+    'halui.joint.(.).select':     'halui.@ax\\1@.select',
+    'halui.jog.selected.increment':'halui.axis.selected.increment',
+    'halui.jog.selected.increment-minus':'halui.axis.selected.increment-minus',
+    'halui.jog.selected.increment-plus':'halui.axis.selected.increment-plus',
+    'halui.jog.selected.minus':   'halui.axis.selected.minus',
+    'halui.jog.selected.plus':    'halui.axis.selected.plus',
+    'halui.jog-deadband':         'halui.axis.jog-deadband',
+    'halui.jog-speed':            'halui.axis.jog-speed',
+    'halui.joint.selected':       'halui.joint.selected',
+    'halui.joint.selected.is_homed':'halui.joint.selected.is-homed',
+    'halui.joint.selected.on-soft-limit':'halui.joint.selected.on-soft-max-limit',
     'num_joints=\[TRAJ\]AXES':    'num_joints=[KINS]JOINTS',
     'loadrt(.+kins)':             'loadrt [KINS]KINEMATICS\n#autoconverted \\1',
     '\[AXIS_(.)\]':               '[JOINT_\\1]',
@@ -376,15 +397,15 @@ if version == "$Revision$" or version < "1.0":
     }
 
     subs2 = {
-    '@ax0@':                     'axis.%s' % coordinates[0],
-    '@ax1@':                     'axis.%s' % coordinates[1],
-    '@ax2@':                     'axis.%s' % coordinates[2],
-    '@ax3@':                     'axis.%s' % coordinates[3],
-    '@ax4@':                     'axis.%s' % coordinates[4],
-    '@ax5@':                     'axis.%s' % coordinates[5],
-    '@ax6@':                     'axis.%s' % coordinates[6],
-    '@ax7@':                     'axis.%s' % coordinates[7],
-    '@ax8@':                     'axis.%s' % coordinates[8]
+    '@ax0@':                     'axis.%s' % coordinates[0].lower(),
+    '@ax1@':                     'axis.%s' % coordinates[1].lower(),
+    '@ax2@':                     'axis.%s' % coordinates[2].lower(),
+    '@ax3@':                     'axis.%s' % coordinates[3].lower(),
+    '@ax4@':                     'axis.%s' % coordinates[4].lower(),
+    '@ax5@':                     'axis.%s' % coordinates[5].lower(),
+    '@ax6@':                     'axis.%s' % coordinates[6].lower(),
+    '@ax7@':                     'axis.%s' % coordinates[7].lower(),
+    '@ax8@':                     'axis.%s' % coordinates[8].lower()
     }
 
     for halfile in halpaths:
