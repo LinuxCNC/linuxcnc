@@ -747,7 +747,7 @@ class LivePlotter:
         if  (    all_homed
             and (self.stat.motion_mode != linuxcnc.TRAJ_MODE_FREE)
             and (self.stat.task_mode   != linuxcnc.MODE_AUTO)
-            and (not (self.stat.task_mode == linuxcnc.MODE_MDI))
+            and (self.stat.task_mode   != linuxcnc.MODE_MDI)
             ):
             try:
                 set_motion_teleop(1)
