@@ -2,11 +2,11 @@
 Encoding=UTF-8
 Version=
 Type=Application
-Exec=/usr/bin/machinekit
+Exec=/usr/bin/latency-test
 Icon=machinekiticon
 X-GNOME-DocPath=
 Terminal=false
-Name=Machinekit
-Comment=The Machinekit CNC Machine Controller
+Name=Latency Test
+Comment=Determine your machine's latency
 StartupNotify=false
 Categories=X-CNC;

@@ -44,6 +44,15 @@ else
     fi
 fi
 
+# Until rebranded completely solve corner cases like this
 
+if [ -f "/usr/share/linuxcnc" ]; then
+    if [ ! -f "/usr/share/machinekit" ]; then
+	if [ ! -L "/usr/share/machinekit" ]; then
+	    ln -s /usr/share/linuxcnc /usr/share/machinekit
+	    echo "Creating machinekit symlink"
+	fi
+    fi
+fi
 
 

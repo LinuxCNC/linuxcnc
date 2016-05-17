@@ -2,11 +2,11 @@
 Encoding=UTF-8
 Version=
 Type=Application
-Exec=/usr/bin/machinekit
+Exec=/usr/bin/stepconf
 Icon=machinekiticon
 X-GNOME-DocPath=
 Terminal=false
-Name=Machinekit
-Comment=The Machinekit CNC Machine Controller
+Name=Machinekit Stepconf Wizard
+Comment=Stepconf Configuration Wizard
 StartupNotify=false
 Categories=X-CNC;

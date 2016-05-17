@@ -2,11 +2,11 @@
 Encoding=UTF-8
 Version=
 Type=Application
-Exec=/usr/bin/machinekit
+Exec=/usr/bin/pncconf
 Icon=machinekiticon
 X-GNOME-DocPath=
 Terminal=false
-Name=Machinekit
-Comment=The Machinekit CNC Machine Controller
+Comment=Configuration Wizard For Mesa I/O Cards
 StartupNotify=false
 Categories=X-CNC;
+Name=Machinekit Pncconf Wizard
