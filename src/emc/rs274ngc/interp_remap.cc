@@ -642,9 +642,18 @@ int Interp::init_remap_sets()
     _setup.m_remappable[0] = 1;   // program pause
     _setup.m_remappable[1] = 1;   // program pause if the optional stop switch is on
 
-    _setup.m_remappable[60] = 1;  //Pallet Change Pause
 
     _setup.m_remappable[19] = 1;  //spindle orientation
+
+    _setup.m_remappable[60] = 1;  //Pallet Change Pause
+
+    // analog/digital IO
+    _setup.m_remappable[62] = 1;  // digital io output on synched
+    _setup.m_remappable[63] = 1;  // digital io output off synched
+    _setup.m_remappable[64] = 1;  // digital io output on immediate
+    _setup.m_remappable[65] = 1;  // digital io output off immediate
+    _setup.m_remappable[66] = 1;  // analog io input
+
 
     // the G codes:
     // in the range 1..999 unused G-codes are remappable
