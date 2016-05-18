@@ -1,0 +1,9 @@
+# net analog and digital in signals to test-ui pin for m66
+net a_in-0 test-ui.a_in => motion.analog-in-00
+net d_in-0 test-ui.d_in => motion.digital-in-00
+
+# net digital out to test-ui pin for m62-m65
+net d_out-0 motion.digital-out-00 => test-ui.d_out
+
+# net analog out to test-ui pin for m67, m68
+net a_out-0 motion.analog-out-00 => test-ui.a_out

@@ -1,0 +1,13 @@
+o<io_input_M66> sub
+(debug,X io_input_M66 remapping pre:  5399=#5399)
+o<analog_or_digital> if [EXISTS[#<e>]]
+    ; analog input
+    M66 E0 L0
+o<analog_or_digital> else
+    ; digital input
+    M66 P0 L0
+o<analog_or_digital> endif
+; Result should be available here after M66; save it for test to check
+#100 = #5399
+(debug,X io_input_M66 remapping post:  5399=#5399)
+o<io_input_M66> endsub

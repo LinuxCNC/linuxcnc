@@ -2889,7 +2889,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
      M67 reads a digital input
      M68 reads an analog input*/
 
-  if (IS_USER_MCODE(block,settings,5) && ONCE_M(5))  {
+  if (IS_USER_MCODE(block,settings,5) &&
+      STEP_REMAPPED_IN_BLOCK(block, STEP_M_5) &&
+      ONCE_M(5))  {
       return convert_remapped_code(block, settings, STEP_M_5, 'm',
 				   block->m_modes[5]);
   } else if ((block->m_modes[5] == 62) && ONCE_M(5)) {

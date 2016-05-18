@@ -144,6 +144,8 @@ int Interp::pycall(setup_pointer settings,
     case PY_FINISH_EPILOG:
 	logPy("pycall: call generator.next()" );
 	
+	// check inputs here, since _read() may not be called
+	read_inputs(&_setup);
 	// handler continuation if a generator was used
 	try {
 	    retval = frame->generator_next();
