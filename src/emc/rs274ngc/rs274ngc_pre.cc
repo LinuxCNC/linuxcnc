@@ -652,7 +652,15 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 	    block->remappings.insert(STEP_PREPARE);
     }
     // User defined M-Codes in group 5
-    if (IS_USER_MCODE(block,settings,5))
+    if (IS_USER_MCODE(block,settings,5) &&
+	!(((block->m_modes[5] == 62) && remap_in_progress("M62")) ||
+	  ((block->m_modes[5] == 63) && remap_in_progress("M63")) ||
+	  ((block->m_modes[5] == 64) && remap_in_progress("M64")) ||
+	  ((block->m_modes[5] == 65) && remap_in_progress("M65")) ||
+	  ((block->m_modes[5] == 66) && remap_in_progress("M66")) ||
+	  ((block->m_modes[5] == 67) && remap_in_progress("M67")) ||
+	  ((block->m_modes[5] == 68) && remap_in_progress("M68"))))
+	// non-recursive behavior
 	block->remappings.insert(STEP_M_5);
 
     // User defined M-Codes in group 6 (including M6, M61)
@@ -1980,7 +1988,7 @@ int Interp::synch()
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
-  // read_inputs(&_setup); // input/probe/toolchange 
+  // read_inputs(&_setup); // input/probe/toolchange
 
   return INTERP_OK;
 }
