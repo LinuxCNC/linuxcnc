@@ -320,6 +320,8 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
                 hm2->llio->name, index);
         return -EINVAL;
     }
+    *inst->run = true;
+
     r = hal_pin_u32_newf(HAL_OUT, &(inst->state),
                          hm2->llio->comp_id, 
                          "%s.sserial.port-%1d.port_state",
@@ -1919,17 +1921,8 @@ int check_set_baudrate(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
 
 
 void hm2_sserial_force_write(hostmot2_t *hm2){
-    int i;
-    rtapi_u32 buff;
-    for(i = 0; i < hm2->sserial.num_instances; i++){
-        buff = 0x800;
-        hm2->llio->write(hm2->llio, hm2->sserial.instance[i].command_reg_addr, &buff, sizeof(rtapi_u32));
-        *hm2->sserial.instance[i].run = 0;
-        *hm2->sserial.instance[i].state = 0;
-        hm2_sserial_waitfor(hm2, hm2->sserial.instance[i].command_reg_addr, 0xFFFFFFFF, 26);
-        *hm2->sserial.instance[i].run = 1;
-        *hm2->sserial.instance[i].command_reg_write = 0x80000000;
-    }
+    // there's nothing to do here, because hm2_sserial_prepare_tram_write takes
+    // charge of recovering after communication error.
 }
 
 void hm2_sserial_cleanup(hostmot2_t *hm2){
