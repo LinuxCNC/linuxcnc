@@ -487,13 +487,13 @@ static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
     *(uint32_t*)board->read_packet_ptr = board->read_cnt;
     board->read_packet_ptr += sizeof(uint32_t);
 
-    LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)(board->read_packet_ptr), CMD_READ_TIMER_ADDR16_INCR(2), 0x10);
+    LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)(board->read_packet_ptr), CMD_READ_TIMER_ADDR16_INCR(4), 0x10);
     board->read_packet_ptr += sizeof(lbp16_cmd_addr);
     board->queue_reads[board->queue_reads_count].buffer = &board->confirm_read_cnt;
-    board->queue_reads[board->queue_reads_count].size = 4;
+    board->queue_reads[board->queue_reads_count].size = 8;
     board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
     board->queue_reads_count++;
-    board->queue_buff_size += 4;
+    board->queue_buff_size += 8;
 
     send = eth_socket_send(board->sockfd, (void*) &board->read_packet, board->read_packet_ptr - board->read_packet, 0);
     if(send < 0) {
@@ -584,24 +584,13 @@ do_recv_packet:
     board->queue_buff_size = 0;
 
     int result = 1;
-    // use rxudpcount to detect lost write:
-    // For every cycle the hostmot2 "rxudp" count should increase by 2: One for
-    // the write packet, and one for the read request packet.  if a response
-    // comes back that doesn't match what was expected, then the write packet
-    // was lost.  If a read request or read response packet was lost, we
-    // already returned above and we don't reach here.  However, it's likely
-    // that we'll error here next time, because our predicted count will be
-    // wrong.  This means most single errors actually end up
-    // double-incrementing the error level.
-    if(board->write_cnt > 2 && board->read_cnt > 2) {
-        uint16_t predicted_rxudpcount = board->old_rxudpcount + 2;
-        if(predicted_rxudpcount != board->rxudpcount) {
-            result = record_soft_error(board);
-        } else {
-            decrement_soft_error(board);
-        }
+    // (this means that one in 2^32 lost writes will not be diagnosed,
+    // each time board->write_cnt overflows)
+    if(board->write_cnt && board->write_cnt != board->confirm_write_cnt) {
+        result = record_soft_error(board);
+    } else {
+        decrement_soft_error(board);
     }
-    board->old_rxudpcount = board->rxudpcount;
     return result;
 }
 
@@ -655,6 +644,14 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
     hm2_eth_t *board = this->private;
 
     board->write_cnt++;
+    // XXX this is missing a check for exceeding the maximum packet size!
+    lbp16_cmd_addr *packet = (lbp16_cmd_addr *) board->write_packet_ptr;
+    LBP16_INIT_PACKET4(*packet, CMD_WRITE_TIMER_ADDR16_INCR(2), 0x14);
+    board->write_packet_ptr += sizeof(*packet);
+    memcpy(board->write_packet_ptr, &board->write_cnt, 4);
+    board->write_packet_ptr += 4;
+    board->write_packet_size += (sizeof(*packet) + 4);
+    
     t0 = rtapi_get_time();
     send = eth_socket_send(board->sockfd, (void*) &board->write_packet, board->write_packet_size, 0);
     if(send < 0) {

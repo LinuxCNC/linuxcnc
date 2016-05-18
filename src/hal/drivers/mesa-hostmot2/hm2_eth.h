@@ -51,8 +51,10 @@ typedef struct {
     rtapi_u8 write_packet[1400];
     rtapi_u8 *write_packet_ptr;
     int write_packet_size;
-    uint32_t read_cnt, confirm_read_cnt;
-    uint32_t write_cnt;
+    uint32_t read_cnt, write_cnt;
+    // these two fields must be kept together, they're read by a single
+    // read-request
+    uint32_t confirm_read_cnt, confirm_write_cnt;
 
     int comm_error_counter;
     uint16_t old_rxudpcount, rxudpcount;
