@@ -1394,14 +1394,22 @@ static void get_pos_cmds(long period)
 	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	        if (joint_limit[joint_num][0] == 1) {
                     joint = &joints[joint_num];
-                    reportError(_("Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
-                                  "Hint: switch to joint mode to jog off soft limit"),
+                    reportError(_("Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"),
                                   joint->min_pos_limit, joint_num);
+                    if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
+                        reportError(_("Check: joints vs axis LIMITS"));
+                    } else {
+                        reportError(_("Hint: switch to joint mode to jog off soft limit"));
+                    }
                 } else if (joint_limit[joint_num][1] == 1) {
                     joint = &joints[joint_num];
-                    reportError(_("Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
-                                  "Hint: switch to joint mode to jog off soft limit"),
+                    reportError(_("Exceeded POSITIVE soft limit (%.5f) on joint %d\n"),
                                   joint->max_pos_limit,joint_num);
+                    if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
+                        reportError(_("Check: joints vs axis LIMITS"));
+                    } else {
+                        reportError(_("Hint: switch to joint mode to jog off soft limit"));
+                    }
                 }
 	    }
 	    SET_MOTION_ERROR_FLAG(1);
@@ -1411,11 +1419,14 @@ static void get_pos_cmds(long period)
 	emcmotStatus->on_soft_limit = 0;
     }
     if (   emcmotDebug->teleoperating
-        // if teleop, don't violate joint soft limit
-        // user must switch to joint mode to jog off the violated joint soft limit
         && GET_MOTION_TELEOP_FLAG()
         && emcmotStatus->on_soft_limit ) {
         SET_MOTION_ERROR_FLAG(1);
+        for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+            axis = &axes[axis_num];
+            axis->teleop_tp.enable = 0;
+            axis->teleop_tp.curr_vel = 0.0;
+        }
     }
 }
 
