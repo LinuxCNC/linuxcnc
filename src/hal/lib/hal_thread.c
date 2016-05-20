@@ -76,6 +76,9 @@ static void thread_task(void *arg)
 	    if (thread->runtime > thread->maxtime) {
 		thread->maxtime = thread->runtime;
 	    }
+	} else {
+	    rtapi_wait();
+	    continue;
 	}
 	/* wait until next period */
 	if (do_wait)
