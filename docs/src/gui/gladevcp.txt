@@ -1712,6 +1712,9 @@ Direct program control::
 === Tooleditor widget
 
 This is a tooleditor widget for displaying and modifying a tool editor file. +
+If in lathe mode, it will display wear offsets and tool offsets separately. +
+Wear offsets are designated by tool number above 10000 (Fanuc style) +
+Note linuxcnc requires remapping of tool calls to actually use wear offsets +
 It checks the current file once a second to see if linuxcnc updated it. +
 It has the following properties:
 
@@ -1734,7 +1737,37 @@ Direct program control::
             Sets and loads the tool file.
         [widget name].reload(None)
             Reloads the current toolfile
-
+        [widget name].set_font('sans 16,tab='1')
+            Sets the (Pango) font on the Tab, column title, and tool data.
+            The all_offsets, wear_offsets, tool_offsets can be set at the same time by
+            adding 1,2 and/or 3 to the tab string. Default is all the tabs 
+            set.
+        [widget name].set_title_font('sans 16,tab='1')
+            Sets the (Pango) font on the column titles only.
+            The all_offsets, wear_offsets, tool_offsets can be set at the same time by
+            adding 1,2 and/or 3 to the tab string. Default is all the tabs 
+            set.
+        [widget name].set_tab_font('sans 16,tab='1')
+            Sets the (Pango) font on the tabs only.
+            The all_offsets, wear_offsets, tool_offsets can be set at the same time by
+            adding 1,2 and/or 3 to the tab string. Default is all the tabs 
+            set.
+        [widget name].set_col_visible("abcUVW", False, tab='1')
+            This would hide (False) the abcuvw columns on tab 1 (all_offsets)
+        [widget name].set_lathe_display(value)
+            hides or shows the wear and tool offset tabs used for lathes
+        [widget name].get_toolinfo(toolnum)
+            Returns the tool information array of the requested toolnumber
+            or current tool if no tool number is specified
+            returns None if tool not found in table or if there is no current tool
+        [widget name].hide_buttonbox(self, True)
+            'convenience' method to hide buttons
+            you must call this after show_all()
+        [widget name].get_selected_tool()
+            return the user selected (highlighted) tool number
+        [widget name].set_selected_tool(toolnumber)
+            Selects (highlights) the requested tool
+ 
 image::images/gtk-tooledit.png[]
 
 [[gladevcp:offsetpage]]
