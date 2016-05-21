@@ -1,0 +1,39 @@
+= rtapi_release_temporary_root(3rtapi)
+
+== NAME
+
+rtapi_release_temporary_root - Temporarily switch to UID0 for filesystem access
+
+== SYNOPSIS
+
+void **release_temporary_root**()
+
+== ARGUMENTS
+filename::
+mode::
+    As for open(2)
+
+== DESCRIPTION
+By default, rtapi_app performs filesystem access with the permissions of the
+user who invoked rtapi_app, not as root.  *rtapi_request_temporary_root*
+temporarily elevates filesystem privileges until the corresponding
+*rtapi_release_temporary_root* call.  Internally, a count of active root
+requests is kept, and only when the number drops to 0 is root access given up.
+
+This can be used e.g., if a hardware driver requires access to `/dev/mem`.
+(but if the operation that needs root access is **open**(2) then  use 
+**rtapi_open_as_root**(3rtapi) instead.
+
+== REALTIME CONSIDERATIONS
+Only available for realtime code with "uspace" realtime.  Call only from within
+init/cleanup code, not from realtime tasks.
+
+== SEE ALSO
+**rtapi_request_temporary_root**(3rtapi),
+**rtapi_open_as_root**(3rtapi)
+
+== COPYRIGHT
+Copyright © 2016 Jeff Epler.  This is free software; see the
+source for copying conditions.  There is NO warranty; not even for
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+

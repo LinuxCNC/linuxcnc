@@ -51,16 +51,26 @@
 #include "hal.h"
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
+#include "rtapi_uspace.h"
 
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
 #include <string.h>
 
-int WithRoot::level;
+#include <atomic>
 
 namespace
 {
+std::atomic<int> root_level{};
 RtapiApp &App();
+}
+
+void rtapi_request_temporary_root() {
+    if(!root_level++) setfsuid(geteuid());
+}
+
+void rtapi_release_temporary_root() {
+    if(!--root_level) setfsuid(getuid());
 }
 
 static int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
@@ -1053,6 +1063,10 @@ int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
     return App().run_threads(fd, callback);
 }
 
+int rtapi_open_as_root(const char *filename, int mode) {
+    WITH_ROOT;
+    return open(filename, mode);
+}
 
 
 #include "rtapi/uspace_common.h"

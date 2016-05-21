@@ -1,0 +1,36 @@
+= rtapi_open_as_root(3rtapi)
+
+== NAME
+
+rtapi_open_as_root - Open a file with permissions of UID0
+
+== SYNOPSIS
+
+int **rtapi_open_as_root**(const char *__filename__, int __mode__)
+
+== ARGUMENTS
+filename::
+mode::
+    As for open(2)
+
+== DESCRIPTION
+By default, rtapi_app performs filesystem access with the permissions of the
+user who invoked rtapi_app, not as root.  *rtapi_open_as_root* simply
+invokes `open`(2) with the specified arguments, but with filesystem permissions
+elevated to root access.
+
+This can be used e.g., if a hardware driver requires access to `/dev/mem`.
+
+== REALTIME CONSIDERATIONS
+Only available for realtime code with "uspace" realtime.  Call only from within
+init/cleanup code, not from realtime tasks.
+
+== SEE ALSO
+**rtapi_request_temporary_root**(3rtapi),
+**rtapi_release_temporary_root**(3rtapi),
+
+== COPYRIGHT
+Copyright © 2016 Jeff Epler.  This is free software; see the
+source for copying conditions.  There is NO warranty; not even for
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+

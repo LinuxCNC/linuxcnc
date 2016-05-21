@@ -20,12 +20,12 @@
 #include <sys/fsuid.h>
 #include <unistd.h>
 #include <pthread.h>
+#include "rtapi_uspace.h"
 
 struct WithRoot
 {
-    WithRoot() { if(!level) setfsuid(geteuid()); level++; }
-    ~WithRoot() { --level; if(!level) setfsuid(getuid()); }
-    static int level;
+    WithRoot() { rtapi_request_temporary_root(); }
+    ~WithRoot() { rtapi_release_temporary_root(); }
 };
 
 struct RtapiApp
