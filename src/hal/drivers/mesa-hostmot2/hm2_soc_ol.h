@@ -23,11 +23,18 @@
 #define HM2_LLIO_NAME "hm2_soc_ol"
 
 #define HM2_SOC_MAX_BOARDS  2
+typedef struct {
+    hal_u32_t *irq_count;
+    hal_u32_t *irq_missed;
+    hal_u32_t *read_errors;
+    hal_u32_t *write_errors;
+} hm2_soc_pins_t;
 
 typedef struct {
     int fpga_state;
-    int  uio_fd;
+    int uio_fd;
     int firmware_given;
+    const char *name;
     const char *uio_dev;
     void __iomem *base;
     int len;
@@ -35,6 +42,7 @@ typedef struct {
     unsigned long data_base_addr;
     char *firmware;
     hm2_lowlevel_io_t llio;
+    hm2_soc_pins_t *pins;
 } hm2_soc_t;
 
 struct compatible {
