@@ -43,7 +43,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #endif
 
 #ifndef FIRMWARE_NAME_MAX
-    #define FIRMWARE_NAME_MAX  30
+    #define FIRMWARE_NAME_MAX  62
 #endif
 
 #define HM2_VERSION "0.15"
@@ -72,9 +72,9 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 
 
 
-// 
+//
 // idrom addresses & constants
-// 
+//
 
 #define HM2_ADDR_IOCOOKIE  (0x0100)
 #define HM2_IOCOOKIE       (0x55AACAFE)
@@ -88,9 +88,9 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_MAX_MODULE_DESCRIPTORS  (48)
 #define HM2_MAX_PIN_DESCRIPTORS     (1000)
 
-// 
+//
 // Pin Descriptor constants
-// 
+//
 
 #define HM2_PIN_SOURCE_IS_PRIMARY   (0x00000000)
 #define HM2_PIN_SOURCE_IS_SECONDARY (0x00000001)
@@ -101,9 +101,9 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_IDROMOFFSET_BOARDNAME_LOW    (0x0C)
 #define HM2_IDROMOFFSET_BOARDNAME_HIGH   (0x10)
 
-// 
+//
 // Module Descriptor constants from IDROMConst.vhd
-// 
+//
 
 #define HM2_GTAG_WATCHDOG          (2)
 #define HM2_GTAG_IOPORT            (3)
@@ -114,7 +114,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_SSI               (8)
 #define HM2_GTAG_UART_TX           (9)
 #define HM2_GTAG_UART_RX           (10)
-#define HM2_GTAG_PKTUART_TX        (27)  // PktUART uses same addresses as normal UART with 
+#define HM2_GTAG_PKTUART_TX        (27)  // PktUART uses same addresses as normal UART with
 #define HM2_GTAG_PKTUART_RX        (28) // the assumption you would not use both in one config
 #define HM2_GTAG_TRANSLATIONRAM    (11)
 #define HM2_GTAG_MUXED_ENCODER     (12)
@@ -129,9 +129,9 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_DAQFIFO           (21) // Not supported
 #define HM2_GTAG_BINOSC            (22) // Not supported
 #define HM2_GTAG_DDMA              (23) // Not supported
-#define HM2_GTAG_BISS              (24) 
-#define HM2_GTAG_FABS              (25) 
-#define HM2_GTAG_HM2DPLL           (26) 
+#define HM2_GTAG_BISS              (24)
+#define HM2_GTAG_FABS              (25)
+#define HM2_GTAG_HM2DPLL           (26)
 #define HM2_GTAG_LIOPORT           (64) // Not supported
 #define HM2_GTAG_LED               (128)
 
@@ -182,7 +182,7 @@ typedef struct {
 
 
 
-// 
+//
 // these structures keep track of the FPGA's I/O pins; and for I/O pins
 // used as GPIOs, keep track of the HAL state of the pins
 //
@@ -431,7 +431,7 @@ typedef struct {
         } param;
 
     } hal;
-    
+
     __s64 accum;
     __s64 offset;
     __u32 old_reg;
@@ -459,31 +459,31 @@ typedef struct {
     // hw registers
     u32 status_addr;
     u32 *status_reg;
-    
+
     u32 command_addr;
-    
+
     u32 data_addr;
-    
+
     u32 position_addr;
     u32 *position_reg;
 
     u32 velocity_addr;
     s32 *velocity_reg;
-    
+
     hal_float_t written_khz;
     hal_float_t kHz;
-    
+
 } hm2_resolver_t;
 
 
 //
 // pwmgen
-// 
+//
 
 #define HM2_PWMGEN_OUTPUT_TYPE_PWM          1  // this is the same value that the software pwmgen component uses
 #define HM2_PWMGEN_OUTPUT_TYPE_UP_DOWN      2  // this is the same value that the software pwmgen component uses
 #define HM2_PWMGEN_OUTPUT_TYPE_PDM          3  // software pwmgen does not support pdm as an output type
-#define HM2_PWMGEN_OUTPUT_TYPE_PWM_SWAPPED  4  // software pwmgen does not support pwm/swapped output type because it doesnt need to 
+#define HM2_PWMGEN_OUTPUT_TYPE_PWM_SWAPPED  4  // software pwmgen does not support pwm/swapped output type because it doesnt need to
 
 typedef struct {
 
@@ -627,9 +627,9 @@ typedef struct {
 } hm2_tp_pwmgen_t;
 
 
-// 
+//
 // ioport
-// 
+//
 
 typedef struct {
     int num_instances;
@@ -664,9 +664,9 @@ typedef struct {
 
 
 
-// 
+//
 // stepgen
-// 
+//
 
 typedef struct {
     struct {
@@ -721,7 +721,7 @@ typedef struct {
     u32 written_dirhold;
     u32 written_step_type;
     u32 table_width;
-    
+
 } hm2_stepgen_instance_t;
 
 
@@ -777,7 +777,7 @@ typedef struct {
 
 //
 // Buffered SPI transciever
-// 
+//
 
 typedef struct {
     u32 cd[16];
@@ -807,7 +807,7 @@ typedef struct {
 
 //
 // UART
-// 
+//
 
 typedef struct {
     u32 clock_freq;
@@ -840,7 +840,7 @@ typedef struct {
 
 //
 // PktUART
-// 
+//
 
 typedef struct {
     u32 clock_freq;
@@ -906,9 +906,9 @@ typedef struct {
 } hm2_dpll_t ;
 
 
-// 
+//
 // watchdog
-// 
+//
 
 typedef struct {
     struct {
@@ -977,7 +977,7 @@ typedef struct {
 } hm2_led_t ;
 
 
-// 
+//
 // raw peek/poke access
 //
 
@@ -999,7 +999,7 @@ typedef struct {
 
 
 
-// 
+//
 // this struct hold an entry in our Translation RAM region list
 //
 
@@ -1013,7 +1013,7 @@ typedef struct {
 
 
 
-// 
+//
 // this struct holds a HostMot2 instance
 //
 
@@ -1050,7 +1050,7 @@ typedef struct {
 
     int dpll_module_present;
     int use_serial_numbers;
-    
+
     hm2_pin_t *pin;
     int num_pins;
 
@@ -1282,7 +1282,7 @@ int hm2_allocate_bspi_tram(char* name);
 int hm2_bspi_write_chan(char* name, int chan, u32 val);
 int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
-int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz, 
+int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
                         int delay, int cpol, int cpha, int clear, int echo);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
 int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata);
@@ -1295,7 +1295,7 @@ int  hm2_uart_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_uart_print_module(hostmot2_t *hm2);
 void hm2_uart_cleanup(hostmot2_t *hm2);
 void hm2_uart_write(hostmot2_t *hm2);
-void hm2_uart_force_write(hostmot2_t *hm2); 
+void hm2_uart_force_write(hostmot2_t *hm2);
 void hm2_uart_prepare_tram_write(hostmot2_t *hm2, long period);
 void hm2_uart_process_tram_read(hostmot2_t *hm2, long period);
 int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode);
@@ -1310,7 +1310,7 @@ int  hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_pktuart_print_module(hostmot2_t *hm2);
 void hm2_pktuart_cleanup(hostmot2_t *hm2);
 void hm2_pktuart_write(hostmot2_t *hm2);
-void hm2_pktuart_force_write(hostmot2_t *hm2); // ?? 
+void hm2_pktuart_force_write(hostmot2_t *hm2); // ??
 void hm2_pktuart_prepare_tram_write(hostmot2_t *hm2, long period); //??
 void hm2_pktuart_process_tram_read(hostmot2_t *hm2, long period);  //  ??
 int hm2_pktuart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode, int txclear, int rxclear);
@@ -1327,9 +1327,9 @@ int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period);
 void hm2_dpll_write(hostmot2_t *hm2, long period);
 
-// 
+//
 // watchdog functions
-// 
+//
 
 int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_watchdog_print_module(hostmot2_t *hm2);
@@ -1342,7 +1342,7 @@ void hm2_watchdog_process_tram_read(hostmot2_t *hm2);
 
 
 
-// 
+//
 // LED functions
 //
 
