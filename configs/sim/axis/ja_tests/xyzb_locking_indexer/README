@@ -23,5 +23,5 @@ xyyzb.ini  trivkins with ommitted axis letter (a)
 
 The xyyzb.ini uses the trivkins kinstype option
 to set the kinematics type to KINEMATICS_BOTH to demonstrate
-jogging and teleop jogging and the AUTO_TELEOP capability.
+jogging and teleop jogging.
 
