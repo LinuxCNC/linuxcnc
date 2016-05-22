@@ -930,13 +930,13 @@ This means this function returns True when the mdi tab is visible."""
     return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
 # If LinuxCNC is not already in one of the modes given, switch it to the
-# first mode MANUAL,MDI,AUTO
+# first (task) mode MANUAL,MDI,AUTO
 def ensure_mode(m, *p):
     s.poll()
     # jogging in mdi requires setting always for mdi,auto (not sure why)
     if ( (s.task_mode == m) and (m == linuxcnc.MODE_MANUAL) ): return True
     if running(do_poll=False): return False
-    c.mode(m)
+    c.mode(m) # task_mode
     c.wait_complete()
     s.poll()
     return True
@@ -1106,6 +1106,9 @@ def cancel_open(event=None):
 
 loaded_file = None
 def open_file_guts(f, filtered=False, addrecent=True):
+    s.poll()
+    save_task_mode = s.task_mode
+    ensure_mode(linuxcnc.MODE_MANUAL)
     if addrecent:
         add_recent_file(f)
     if not filtered:
@@ -1123,6 +1126,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
                             % {'program': program_filter, 'code': exitcode},
                         "error",0,_("OK"))
                 return
+            ensure_mode(save_task_mode)
             return open_file_guts(tempfile, True, False)
 
     set_first_line(0)
