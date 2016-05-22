@@ -55,4 +55,3 @@ The open-source Machinekit project forked from the open-source LinuxCNC project
 'linuxcnc' and 'emc' (the antecedent of linuxcnc) still occur in various
 places. These occurrences are diminishing with time as the Machinekit codebase
 and Machinekit documentation evolve.
-
