@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.6.1"
+_RELEASE = "  0.6.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1322,8 +1322,7 @@ class FastSeal( object ):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr","btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_spindle_100", "spc_max_vel", "spc_spindle",
-                      "btn_tool_touchoff_x", "btn_tool_touchoff_z"
+                      "spc_max_vel", "spc_spindle", "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets( widgetlist, False )
         if self.widgets.tbtn_on.get_active():
@@ -1338,8 +1337,7 @@ class FastSeal( object ):
     def on_hal_status_state_on( self, widget ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "btn_feed_100", "rbt_forward",
-                      "rbt_reverse", "rbt_stop",
-                      "btn_spindle_100", "spc_max_vel", "spc_spindle"
+                      "rbt_reverse", "rbt_stop", "spc_max_vel", "spc_spindle"
         ]
         self._sensitize_widgets( widgetlist, True )
         if not self.widgets.tbtn_on.get_active():
@@ -1513,8 +1511,7 @@ class FastSeal( object ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
                       "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_spindle_100", "spc_max_vel", "spc_spindle",
-                      "btn_tool_touchoff_x", "btn_tool_touchoff_z"
+                      "spc_max_vel", "spc_spindle", "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets( widgetlist, state )
 
@@ -2444,9 +2441,6 @@ class FastSeal( object ):
         elif real_spindle_speed < self.min_spindle_rev:
             real_spindle_speed = self.min_spindle_rev
         return real_spindle_speed
-
-    def on_btn_spindle_100_clicked( self, widget, data = None ):
-        self.widgets.adj_spindle.set_value( 100 )
 
     def on_adj_spindle_value_changed( self, widget, data = None ):
         if not self.initialized:
