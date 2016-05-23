@@ -88,6 +88,51 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_MAX_MODULE_DESCRIPTORS  (48)
 #define HM2_MAX_PIN_DESCRIPTORS     (1000)
 
+// for timer IRQ
+// see http://freeby.mesanet.com/regmap
+
+#define HM2_DPLL_CONTROL_REG_0      0x7200
+
+// Bits 0..23	On writes = PLimit (phase adjustment limit)
+//     		On reads = Filtered Phase Error
+// Bits 24..31	DPLL Prescale
+#define HM2_DPLL_PLIMIT             0x0fff
+#define HM2_DPLL_FILTERED_PHASE_ERROR HM2_DPLL_PLIMIT
+#define HM2_DPLL_PRESCALE_MASK      0xf000
+#define HM2_DPLL_PRESCALE_SHIFT     24
+
+#define HM2_IRQ_STATUS_REG          0x0A00
+#define HM2_CLEAR_IRQ_REG           0x0B00
+
+// bits in HM2_IRQ_STATUS_REG:
+#define HM2_IRQ_STATUS              0b0000000001  // R/W
+#define HM2_IRQ_MASK                0b0000000010  // 0: masked
+
+#define HM2_IRQ_TIMER_MASK          0b0000011100  // 0: masked
+#define HM2_IRQ_TIMER1              0b0000000100
+#define HM2_IRQ_TIMER2              0b0000001000
+#define HM2_IRQ_TIMER3              0b0000001100
+#define HM2_IRQ_TIMER4              0b0000010000
+
+// DPLL base rate = (clocklow/2^DDSSize*DPLLPreScale)*BaseRateRegisterValue
+#define HM2_DPLL_BASERATE_REG           0x7000 //0x7000	32 bit HM2DPLL BaseRate
+
+#define HM2_DPLL_CONTROL_REG_1      0x7300
+#define HM2_DDSSIZE_MASK            0x000f
+#define HM2_DPLL_FILTERTIME_MASK    0x0000ff00
+#define HM2_DPLL_FILTERTIME_SHIFT   16
+
+#define HM2_DPLL_TIMER12_REG        0x7400
+// Bits 0..15	Timer1 phase
+// Bits 16..31	Timer2 phase
+
+#define HM2_DPLL_TIMER34_REG        0x7500
+// Bits 0..15	Timer3 phase
+// Bits 16..31	Timer4 phase
+
+#define HM2_DPLL_SYNC_REG           0x7600
+
+
 //
 // Pin Descriptor constants
 //

@@ -292,11 +292,13 @@ int hal_add_funct_to_thread(const char *funct_name,
 	    HALERR("thread '%s' not found", thread_name);
 	    return -EINVAL;
 	}
+#if 0
 	/* ok, we have thread and function, are they compatible? */
 	if ((funct->uses_fp) && (!thread->uses_fp)) {
 	    HALERR("function '%s' needs FP", funct_name);
 	    return -EINVAL;
 	}
+#endif
 	/* find insertion point */
 	list_root = &(thread->funct_list);
 	list_entry = list_root;
