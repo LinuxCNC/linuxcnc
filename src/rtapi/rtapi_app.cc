@@ -327,7 +327,7 @@ static int do_kmodinst_args(const string &comp,
 			param_name.c_str());
 	    return -ENOENT;
 	}
-	int retval = procfs_cmd(path.c_str(), param_value.c_str());
+	int retval = rtapi_fs_write(path.c_str(), param_value.c_str());
 	if (retval < 0) {
 	    note_printf(pbreply, "newinst %s: setting param %s to %s failed:  %d - %s",
 			comp.c_str(),
@@ -391,10 +391,10 @@ static int do_newinst_cmd(int instance,
 	string s = pbconcat(args);
 	retval = do_kmodinst_args(comp,args,pbreply);
 	if (retval) return retval;
-	return procfs_cmd(PROCFS_RTAPICMD,"call newinst %s %s %s",
-			  comp.c_str(),
-			  instname.c_str(),
-			  s.c_str());
+	return rtapi_fs_write(PROCFS_RTAPICMD,"call newinst %s %s %s",
+			      comp.c_str(),
+			      instname.c_str(),
+			      s.c_str());
     } else {
 	if (call_usrfunct == NULL) {
 	    pbreply.set_retcode(1);
@@ -453,7 +453,7 @@ static int do_delinst_cmd(int instance,
 
 
     if (kernel_threads(flavor)) {
-	return procfs_cmd(PROCFS_RTAPICMD,"call delinst %s", instname.c_str());
+	return rtapi_fs_write(PROCFS_RTAPICMD,"call delinst %s", instname.c_str());
     } else {
 	if (call_usrfunct == NULL) {
 	    pbreply.set_retcode(1);
@@ -481,7 +481,7 @@ static int do_callfunc_cmd(int instance,
 
     if (kernel_threads(flavor)) {
 	string s = pbconcat(args);
-	return procfs_cmd(PROCFS_RTAPICMD,"call %s %s", func.c_str(), s.c_str());
+	return rtapi_fs_write(PROCFS_RTAPICMD,"call %s %s", func.c_str(), s.c_str());
     } else {
 	if (call_usrfunct == NULL) {
 	    pbreply.set_retcode(1);
@@ -867,12 +867,12 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	assert(pbreq.rtapicmd().has_flags());
 
 	if (kernel_threads(flavor)) {
-	    int retval =  procfs_cmd(PROCFS_RTAPICMD,"newthread %s %d %d %d %d",
-				     pbreq.rtapicmd().threadname().c_str(),
-				     pbreq.rtapicmd().threadperiod(),
-				     pbreq.rtapicmd().use_fp(),
-				     pbreq.rtapicmd().cpu(),
-				     pbreq.rtapicmd().flags());
+	    int retval =  rtapi_fs_write(PROCFS_RTAPICMD,"newthread %s %d %d %d %d",
+					 pbreq.rtapicmd().threadname().c_str(),
+					 pbreq.rtapicmd().threadperiod(),
+					 pbreq.rtapicmd().use_fp(),
+					 pbreq.rtapicmd().cpu(),
+					 pbreq.rtapicmd().flags());
 	    pbreply.set_retcode(retval < 0 ? retval:0);
 
 	} else {
@@ -910,8 +910,8 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	assert(pbreq.rtapicmd().has_instance());
 
 	if (kernel_threads(flavor)) {
-	    int retval =  procfs_cmd(PROCFS_RTAPICMD, "delthread %s",
-					   pbreq.rtapicmd().threadname().c_str());
+	    int retval =  rtapi_fs_write(PROCFS_RTAPICMD, "delthread %s",
+					 pbreq.rtapicmd().threadname().c_str());
 	    pbreply.set_retcode(retval < 0 ? retval:0);
 	} else {
 	    void *w = modules["hal_lib"];
