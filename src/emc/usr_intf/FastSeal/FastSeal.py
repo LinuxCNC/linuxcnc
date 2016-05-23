@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.6.2"
+_RELEASE = "  0.6.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1320,7 +1320,7 @@ class FastSeal( object ):
 
     def on_hal_status_state_off( self, widget ):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr","btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "btn_change_tool", "btn_select_tool_by_no",
                       "spc_max_vel", "spc_spindle", "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
@@ -1336,7 +1336,7 @@ class FastSeal( object ):
 
     def on_hal_status_state_on( self, widget ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "btn_feed_100", "rbt_forward",
+                      "ntb_jog", "rbt_forward",
                       "rbt_reverse", "rbt_stop", "spc_max_vel", "spc_spindle"
         ]
         self._sensitize_widgets( widgetlist, True )
@@ -1509,7 +1509,7 @@ class FastSeal( object ):
 
     def _update_widgets( self, state ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
-                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "btn_change_tool", "btn_select_tool_by_no",
                       "spc_max_vel", "spc_spindle", "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
@@ -2494,9 +2494,6 @@ class FastSeal( object ):
             return
         self.command.feedrate( widget.get_value() / 100 )
         self.widgets.adj_max_vel.set_value( float( self.widgets.adj_max_vel.upper * widget.get_value() / 100 ) )
-
-    def on_btn_feed_100_clicked( self, widget, data = None ):
-        self.widgets.adj_feed.set_value( 100 )
 
     def on_adj_max_vel_value_changed( self, widget, data = None ):
         if not self.initialized:
