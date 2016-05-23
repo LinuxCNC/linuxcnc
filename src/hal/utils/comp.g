@@ -930,7 +930,7 @@ def document(filename, outfilename):
 # asciidoc
 ############
 
-def adocument(filename, outfilename):
+def adocument(filename, outfilename, frontmatter):
     if outfilename is None:
         outfilename = os.path.splitext(filename)[0] + ".asciidoc"
 
@@ -944,6 +944,16 @@ def adocument(filename, outfilename):
     for name, type, array, dir, value, personality in params:
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
+
+    if frontmatter:
+        print >>f, "---"
+        for fm in frontmatter:
+            print >>f, fm
+        print >>f, "edit-path: src/%s" % (filename)
+        print >>f, "generated: %s "% (time.strftime("%F %H:%M UTC"))
+        print >>f, "generator: comp"
+        print >>f, "---"
+        print >>f, ":skip-front-matter:\n"
 
     print >>f, "= Machinekit Documentation"
 
@@ -1209,11 +1219,12 @@ def main():
     global doctype
     mode = PREPROCESS
     outfile = None
+    frontmatter = []
     userspace = False
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "luijcpdo:h?",
-                           ['install', 'compile', 'preprocess', 'outfile=',
+        opts, args = getopt.getopt(sys.argv[1:], "f:luijcpdo:h?",
+                           ['frontmatter=', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'ascii-document', 'help', 'userspace', 'install-doc',
                             'install-man', 'view-doc', 'require-license', 'print-modinc'])
     except getopt.GetoptError:
@@ -1251,6 +1262,8 @@ def main():
             if len(args) != 1:
                 raise SystemExit, "Error: Cannot specify -o with multiple input files"
             outfile = v
+        if k in ("-f", "--frontmatter"):
+            frontmatter.append(v)
         if k in ("-?", "-h", "--help"):
             usage(0)    
     
@@ -1271,7 +1284,7 @@ def main():
                 if doctype == "manpage":
                     document(f, outfile)
                 else:
-		    adocument(f, outfile)
+		    adocument(f, outfile, frontmatter)
 
             elif f.endswith(".icomp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()

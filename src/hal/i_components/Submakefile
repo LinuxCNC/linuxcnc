@@ -1,3 +1,4 @@
+
 HALICOMPDIR= hal/i_components
 
 HALICOMP_SUBMAKEFILE= $(HALICOMPDIR)/Submakefile
@@ -53,7 +54,10 @@ ICOMP_DOCPAGES := $(patsubst $(HALICOMPDIR)/%.icomp, ../man/doc/man9/%.asciidoc,
 $(ICOMP_DOCPAGES): ../man/doc/man9/%.asciidoc: $(HALICOMPDIR)/%.icomp ../bin/instcomp
 	$(ECHO) Making icomp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/instcomp --ascii-document -o $@ $<
+	$(Q)../bin/instcomp --ascii-document 	\
+	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
+	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
+		-o $@ $<
 
 ifeq ($(BUILD_ALL_FLAVORS),yes)
 # .c and .mak files are identical for all flavors
