@@ -469,7 +469,7 @@ void rtapi_app_exit(void) {
 static int altera_set_fpga_bridge(const char *bridge, const char *value) {
     char fname[100];
     rtapi_snprintf(fname, sizeof(fname),"/sys/class/fpga-bridge/%s/enable", bridge);
-    int rc = procfs_cmd(fname, value);
+    int rc = rtapi_fs_write(fname, value);
     if (rc < 0)
 	LL_ERR( "write '%s' to '%s' failed: %s",
 			value, fname, strerror(errno));
