@@ -1,3 +1,21 @@
+ver. 0.6.4
+- solved bug on gremlin, 
+  both was missing handler calls in FastSeal.glade
+  * line clicked did not highlite the gcode line
+  * error in gcode was not shown
+
+ver. 0.6.3
+- deleted all stuff related to btn_feed_100
+  as this button does not exist any more
+
+ver. 0.6.2
+- deleted all stuff related to btn_spindle_100
+  as this button does not exist any more
+
+ver. 0.6.1
+- solved a bug widget not found 
+  rbt_stopbtn_spindle_100
+
 ver. 0.6
 - added missing handlers for gremlin button
 - added door switch

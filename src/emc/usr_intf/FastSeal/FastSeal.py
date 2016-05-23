@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.6.3"
+_RELEASE = "  0.6.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp

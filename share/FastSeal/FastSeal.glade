@@ -553,6 +553,8 @@
                                                 <property name="enable_dro">False</property>
                                                 <property name="show_dtg">False</property>
                                                 <property name="use_commanded">False</property>
+                                                <signal name="line-clicked" handler="on_gremlin_line_clicked" swapped="no"/>
+                                                <signal name="gcode-error" handler="on_gremlin_gcode_error" swapped="no"/>
                                               </object>
                                             </child>
                                           </object>
