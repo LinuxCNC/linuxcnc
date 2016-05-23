@@ -376,12 +376,10 @@ class Data:
         self.min_spindle_override = .5
         self.max_spindle_override = 1.0
         # These are for AXIS gui only
-        self.default_linear_velocity = .25 # units per second
-        self.min_linear_velocity = .01
-        self.max_linear_velocity = 1.0
-        self.default_angular_velocity = .25
-        self.min_angular_velocity = .01
-        self.max_angular_velocity = 1.0
+        # linear jog defaults are set with: set_axis_unit_defaults() 
+        self.default_angular_velocity = 12
+        self.min_angular_velocity = 3
+        self.max_angular_velocity = 180
         self.increments_metric = "5mm 1mm .5mm .1mm .05mm .01mm .005mm"
         self.increments_imperial= ".1in .05in .01in .005in .001in .0005in .0001in"
         self.editor = "gedit"
@@ -704,7 +702,7 @@ class Data:
             self[temp+"3pwmscale"]= 1
             self[temp+"3pwmdeadtime"]= 500
             self[temp+"maxoutput"]= 0
-            self[temp+"P"]= 50
+            self[temp+"P"]= None
             self[temp+"I"]= 0
             self[temp+"D"]= 0
             self[temp+"FF0"]= 0
@@ -797,6 +795,12 @@ class Data:
     # This only sets data that makes sense to change eg gear ratio don't change
     def set_axis_unit_defaults(self, units=True):
         if units: # imperial
+            # set GUI defaults
+            self.max_linear_velocity = 1 # 60 inches per min
+            self.default_linear_velocity = .25 # 15 inches per min
+            self.min_linear_velocity = .01667
+
+            # axes defaults
             for i in ('x','y','z'):
                 self[i+'maxvel'] = 1
                 self[i+'maxacc'] = 30
@@ -812,6 +816,12 @@ class Data:
                     self.zminlim = -4
                     self.zmaxlim = 0
         else: # metric
+            # set gui defaults
+            self.max_linear_velocity = 25 # 1500 mm per min
+            self.default_linear_velocity = 6 # 380 mm per min
+            self.min_linear_velocity = .5
+
+            # axes defaults
             for i in ('x','y','z'):
                 self[i+'maxvel'] = 25
                 self[i+'maxacc'] = 750
@@ -907,7 +917,7 @@ class Data:
         for i in  self.halsteppersignames:
             temp.append(i)
             for j in(["-step","-dir","-c","-d","-e","-f"]):
-                self._PD.hal_stepper_names.append(i+j)
+                _PD.hal_stepper_names.append(i+j)
         if i: _PD.human_stepper_names[6][1]= temp
 
         warnings = []
@@ -2932,7 +2942,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.widgets["mesa%dsserial0_3"% boardnum].hide()
         self.widgets["mesa%dsserial0_4"% boardnum].hide()
         currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
-        if currentboard == "5i20" or currentboard == "5i23":
+        if currentboard == "5i20" or currentboard == "5i23" or currentboard == "5i24":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
@@ -4402,7 +4412,20 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         model.append((_("Custom"),))   
         w["steprev"].set_text("%s" % d[axis+"steprev"])
         w["microstep"].set_text("%s" % d[axis +"microstep"])
-        set_value("P")
+        # P setting needs to default to different values based on
+        # stepper vrs servo configs. But we still want to allow user setting it.
+        # If the value is None then we should set a default value, if not then
+        # that means it's been set to something already...hopefully right.
+        # TODO this should be smarter - after going thru a config once it
+        # always uses the value set here - if it is set to a default value
+        # if should keep checking that the value is still right.
+        # but thats a bigger change then we want now.
+        if not d[axis + "P"] == None:
+            set_value("P")
+        elif stepdriven == True:
+            w[axis + "P"].set_value(1/(d.servoperiod/1000000000))
+        else:
+            w[axis + "P"].set_value(50)
         set_value("I")
         set_value("D")
         set_value("FF0")

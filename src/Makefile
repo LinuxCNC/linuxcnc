@@ -191,7 +191,7 @@ INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := $(DEBUG) -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
-CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT)
+CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
@@ -839,6 +839,7 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/stepgen.o   \
 	hal/drivers/mesa-hostmot2/bspi.o	  \
 	hal/drivers/mesa-hostmot2/uart.o	  \
+    hal/drivers/mesa-hostmot2/pktuart.o   \
     hal/drivers/mesa-hostmot2/watchdog.o  \
     hal/drivers/mesa-hostmot2/pins.o	  \
     hal/drivers/mesa-hostmot2/dpll.o  \
@@ -960,7 +961,8 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@
 	$(Q)ld -d -r -o objects/$*.tmp $^
-	$(Q)(echo '{ global : '; objcopy -j .rtapi_export -O binary objects/$*.tmp /dev/stdout | tr -s '\0' | xargs -r0 printf '%s;\n' | grep .; echo 'local : * ; };') > objects/$*.ver
+	$(Q)objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.sym
+	$(Q)(echo '{ global : '; tr -s '\0' < objects/$*.sym | xargs -r0 printf '%s;\n' | grep .; echo 'local : * ; };') > objects/$*.ver
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -Wl,--version-script,objects/$*.ver -o $@ $^ -lm
 
 RTFLAGS += -fno-strict-aliasing -fwrapv

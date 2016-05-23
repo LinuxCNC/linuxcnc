@@ -483,10 +483,6 @@ With set, initializes the program interpreter.
 With set, opens the named file.  The <filename> is opened by linuxcnc,
 so it should either be an absolute path or a relative path starting in
 the linuxcnc working directory (the directory of the active .ini file).
-Note that linuxcnc can only have one file open at a time, and it's up to
-the UI (linuxcncrsh or similar) to close any open file before opening a
-new file.  linuxcncrsh currently does not support closing files, which
-rather limits the utility of this command.
 .RE
 .P
 \fBrun [<StartLine>]\fR

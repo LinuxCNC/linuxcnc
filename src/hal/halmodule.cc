@@ -90,7 +90,7 @@ bool from_python(PyObject *o, uint32_t *u) {
         goto got_value;
     }
 
-    tmp = PyLong_Check(o) ? o : PyNumber_Long(tmp);
+    tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
 
     l = PyLong_AsLongLong(tmp);
@@ -118,7 +118,7 @@ bool from_python(PyObject *o, int32_t *i) {
         goto got_value;
     }
 
-    tmp = PyLong_Check(o) ? o : PyNumber_Long(tmp);
+    tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
 
     l = PyLong_AsLongLong(tmp);
@@ -285,7 +285,7 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                 pin->u->param.b = PyObject_IsTrue(value);
                 break;
             case HAL_FLOAT: {
-                int32_t tmp;
+                double tmp;
                 if(!from_python(value, &tmp)) return -1;
                 pin->u->param.f = tmp;
                 break;

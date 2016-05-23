@@ -46,7 +46,7 @@ hm2_eth is a device driver that interfaces Mesa's ethernet
 based Anything I/O boards (with the HostMot2 firmware) to the LinuxCNC
 HAL.
 
-The supported boards are: 7I80DB, 7I80HD.
+The supported boards are: 7I80DB, 7I80HD, 7i92, 7i76E.
 
 The board must have its hardware loaded on the board by the mesaflash(1) program.
 
@@ -88,6 +88,7 @@ static address:
 auto eth1
 iface eth1 inet static
     address 192.168.1.1
+    hardware-irq-coalesce-rx-usecs 0
 .EE
 
 .SH NOTES
@@ -101,6 +102,12 @@ your local network.
 At (normal) exit, hm2_eth will remove the rules.  After a crash, you can
 manually clear the rules with \fBsudo iptables -F hm2-eth-rules-output\fR;
 the rules are also removed by a reboot.
+
+"hardware-irq-coalesce-rx-usecs" decreases time waiting to receive a packet
+on most systems, but on at least some Marvel-chipset NICs it is harmful.
+If the line does not improve system performance, then remove it.  A reboot
+is required for the value to be set back to its power-on default.  This
+requires the ethtool package to be installed.
 
 .SH BUGS
 Some hostmot2 functions such uart are coded in a way that causes additional

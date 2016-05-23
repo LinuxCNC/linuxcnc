@@ -523,9 +523,10 @@ The above code produced this example.
 
 image::images/pyvcp_radiobutton.png[]
 
-Note that the HAL pins in the example above will me named
+Note that the HAL pins in the example above will be named
 my-radio.one, my-radio.two, and my-radio.three. In the image above,
 'one' is the selected value.
+Use this tag '<orient>HORIZONTAL</orient>' to display horizontally.
 
 === Number Displays
 

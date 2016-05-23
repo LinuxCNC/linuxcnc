@@ -1,0 +1,286 @@
+component mesa_pktgyro_test "PktUART simple test with Microstrain 3DM-GX3-15 gyro";
+
+description """This component is written in order to test
+the PktUART driver for Mesa. It resembles partly Andy Pugh's mesa_uart.comp .
+
+This module uses the names= mode of loadrt declaration to specifiy which PktUART
+instances to enable. A check is included to ensure that the count= option is
+not used instead.
+For simplicity we test only one PktUART instance, therefore load the component
+like this:
+
+\\fB loadrt mesa_uart names=hm2_5i25.0.pktuart.0\\fR
+
+The PktUART instance names are printed to the dmesg buffer during the Hostmot2
+setup sequence, one for each PktUART instance included in the bitfile loaded to
+each installed card during the Hostmot2 setup sequence. Type "dmesg" at the
+terminal prompt to view the output.
+If you want to work with more than one PktUART instance, consult Andy Pugh's
+mesa_uart.comp
+
+In order to compile and install do:
+\\fB halcompile --install src/hal/drivers/mesa_pktgyro_test.comp\\fR
+
+The component exports only one function, namely receive, which needs to be added
+to a realtime thread.
+To test this component  set DEBUG=5 before and execute this HAL script:
+\\fB loadrt hostmot2\\fR
+\\fB loadrt hm2_pci\\fR
+\\fB loadrt mesa_pktgyro_test names=hm2_5i25.0.pktuart.0\\fR
+\\fB loadrt threads name1=test1 period1=10000000\\fR
+\\fB addf hm2_5i25.0.pktuart.0.receive test1\\fR
+\\fB start\\fR
+
+Check linuxcnc.log for debug output.
+
+""";
+
+
+author "Boris Skegin";
+license "GPL";
+
+include "hal/drivers/mesa-hostmot2/hostmot2.h";
+
+
+pin out s32 rxbytes  "Number of Bytes received or negative Error code";
+
+variable char *name; // PktUART name
+
+option extra_setup yes;
+
+function receive;
+
+;;
+
+
+
+#define BAUDRATE (115200)
+
+
+
+/* This uses the RTAPI_MP_ARRAY_STRING macro to load the list of PktUART channels
+into an array. This is copied into the *name string of each */
+
+char *pktuart_chans[4] = {0,};
+RTAPI_MP_ARRAY_STRING(pktuart_chans, 2, "PktUART Channel names");
+
+static hostmot2_t* hm2=NULL;
+
+
+
+FUNCTION(receive){
+	rtapi_u16 max_frame_length = 20;
+	rtapi_u8 num_frames = 20;
+	unsigned char Replyd3[num_frames*max_frame_length];
+	rtapi_u16 frame_sizes3[20];
+	rxbytes=hm2_pktuart_read(name, Replyd3, &num_frames, &max_frame_length, frame_sizes3);
+	rtapi_print_msg(RTAPI_MSG_INFO, "PktUART receive: got %d bytes, %d frames\n", rxbytes, num_frames);
+
+	//Print out the actual frame sizes
+	int i;
+	for(i=0;i<num_frames; i++) {
+	    rtapi_print_msg(RTAPI_MSG_INFO, "Rec frame %d: size %d bytes\n", i+1 , frame_sizes3[i]);
+		}
+	rtapi_print_msg(RTAPI_MSG_INFO, "\n");
+
+	// Print out ACK replies for the frames sent out
+	// from EXTRA_SETUP function
+	int k=0;
+	int bytes_total = 0;
+	while(k <num_frames) {
+		        int j=0;
+	            while(j<=frame_sizes3[k]-1) {
+				   rtapi_print_msg(RTAPI_MSG_INFO, "Rec frame %d, byte %d 0x%.2x", k+1 , bytes_total+j , Replyd3[bytes_total+j]);
+				   j++;
+				}
+		   bytes_total = bytes_total + frame_sizes3[k];
+		   rtapi_print_msg(RTAPI_MSG_INFO, "\n");
+		   k++;
+	}
+
+
+
+}
+
+EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
+	if (prefix[0] == 'm'){ // should be the 'm' of hm2_....
+		rtapi_print_msg(0, "mesa_pktuart_test can not be loaded using the 'count' "
+						"parameter, see man mesa_uart for details\n");
+		return -1;
+	}
+	name = prefix;
+
+
+	/* 115200bps - default value from MIP Monitor Systems Settings */
+
+
+	 rtapi_print_msg(RTAPI_MSG_INFO, "Set up PktUART now\n");
+
+	/* Check buff = (u32)((bitrate * 1048576.0)/inst->clock_freq);
+	   Bitrate is (RXBitrate_Register_Value/1048576)*ClockLow */
+	/*  http://freeby.mesanet.com/regmap
+	  The PktUARTxMode register is used for setting and checking the
+	  PktUARTx's operation mode, timing and status:
+	  Bit  21	       FrameBuffer Has Data
+	  Bits 20..16      Frames to send
+	  Bits 15..8       InterFrame delay in bit times
+	  Bit  7	       Tr Logic active (not an error)
+	  Bit  6	       Drive Enable bit (enables external RS-422/485 Driver when set)
+	  Bit  5	       Drive enable Auto (Automatic external drive enable)
+	  Bit  4	       unused
+	  Bits 3..0        Drive enable delay (delay from asserting drive enable
+					   to start of data transmit. In CLock Low periods
+	*/
+
+	 /* http://freeby.mesanet.com/regmap
+	  The PktUARTrMode register is used for setting and checking the PktUARTr's
+	  operation mode, timing, and status
+	  Bit  21	       FrameBuffer has data
+	  Bits 20..16      Frames received
+	  Bits 15..8       InterFrame delay in bit times
+	  Bit  7	       Rx Logic active ( not an error)
+	  Bit  6	       RXMask
+	  Bit  5	       Unused
+	  Bit  4	       RCFIFO Error
+	  Bit  3	       RXEnable (must be set to receive packets)
+	  Bit  2	       RXMask Enable (enables input data masking when transmitting)
+	  Bit  1	       Overrun error (no stop bit when expected) (sticky)
+	  Bit  0	       False Start bit error (sticky)
+	*/
+
+
+	/*
+	   In case our device is streaming data from the very beginning,
+	   at first we do not set RXEnable but clear Rx and Tx registers.
+	   Then we read out whatever is in the buffer, send the DISABLE STREAM
+	   datagram and only then set RXEnable bit.
+	*/
+	int retval=hm2_pktuart_setup(name, BAUDRATE , 0x0ff20,  0x007f00,1,1);
+	if (retval<0)
+	{
+	    rtapi_print_msg(1, "PktUART for gyro setup problem: %d\n", retval);
+	    return -1;
+	}
+
+	/*
+	  We expect the max frame length to be 58 byte if the gyro is
+	  streaming data from the beggining,
+	  but in case the InterFrame delay is not appropriate,
+	  the frame size can be longer.
+	  Anyway as long as the array size we pass to hm2_pktuart_read
+	  is big enough, we can read everything which is in the Rx buffer.
+	*/
+	rtapi_u16 max_frame_length = 58*2;
+	rtapi_u8 num_frames = 20;
+
+	// If Rx buffer <= 1024 bytes, than 2*58*20 bytes of read1 array are enough
+	unsigned char read1[num_frames*max_frame_length];
+	rtapi_u16 read1_sizes[num_frames];
+
+	// read out as many frames as possible
+	retval=hm2_pktuart_read(name, read1, &num_frames, &max_frame_length, read1_sizes);
+
+	rtapi_print_msg(RTAPI_MSG_INFO, "PktUART after first read: got %d bytes\n", retval);
+
+
+
+	//Print out the actual frame sizes
+	int i;
+	for(i=0;i<num_frames; i++) {
+	    rtapi_print_msg(RTAPI_MSG_INFO, "Reply frame %d: size %d bytes\n", i+1 , read1_sizes[i]);
+	}
+
+	int k=0;
+	int bytes_total=0;
+	while(k < num_frames) {
+		  int j=0;
+	      while(j<read1_sizes[k]) {
+				rtapi_print_msg(RTAPI_MSG_INFO, "Reply frame %d, byte %d 0x%.2x", k+1 , bytes_total+j , read1[bytes_total+j]);
+				j++;
+		  }
+		  bytes_total = bytes_total + read1_sizes[k];
+		  rtapi_print_msg(RTAPI_MSG_INFO, "\n");
+		  k++;
+	}
+	// We have read out everything we could
+	rtapi_print_msg(RTAPI_MSG_INFO, "%s: read all of the buffer\n", name);
+
+
+	// Test the exported hm2_get_pktuart function
+	retval = hm2_get_pktuart(&hm2, name);
+	if (retval!=0)
+	{
+	   rtapi_print_msg(RTAPI_MSG_ERR, "%s hm2_get_pktuart: smth. is wrong. \n", name);
+	   return -1;
+	}
+
+	// Now we set RxEnable bit and clear Rx/Tx registers
+	retval=hm2_pktuart_setup(name, BAUDRATE , 0x0ff20,  0x007f08,1,1);
+	if (retval<0)
+	{
+	 rtapi_print_msg(1, "PktUART for gyro setup problem: %d\n", retval);
+	 return -1;
+	}
+
+	/*
+	Disable the IMU/AHRS data-stream "7565 0C05 0511 0101 0003 19"
+	In order to test the hm2_pktuart_send function
+	we want to send out 16 DISABLE STREAM datagrams
+	and receive 16 ACK datagrams as replies.
+	*/
+
+	unsigned char disable16[11*16] ={
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
+	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19
+	};
+	rtapi_u16 disable_size16[16]={11,11,11,11, 11,11,11,11, 11,11,11,11, 11,11,11,11};
+	num_frames = 16;
+	retval=hm2_pktuart_send(name, disable16, &num_frames, disable_size16);
+	rtapi_print_msg(RTAPI_MSG_INFO, "%s sent: bytes %d, frames %u\n", name, retval, num_frames);
+
+
+
+	/*
+	We assume a bit time to be 10 us/bit at 115200 bit/s baud rate for simplicity.
+	Try to estimate the total time for sending out 16 frames and receiving
+	16 reply frames:
+
+	16 Frames * 10 bits/byte * 10 us/bit*11 bytes + 15*255*10 us/bit (Tx Interfame delay) +
+	+ 16 Frames * 10 bits/byte * 10 us/bit*10 bytes + 15*255*10 us/bit (Rx Interfame delay) =
+	= 17600 + 38250 + 16000 + 38250 = 110100 us at least as the gyro needs to process
+	each DISABLE STREAM datagram and "compute" an ACK reply.
+
+	This wait time might be too long for  EXTRA_SETUP function,
+	that's why we read  out the ACK reply frames in the receive function
+	attached to a thread cycle of 10000 us , as we need about
+	10 bits/byte * 10 us/bit*10 bytes + 255*10 us/bit = 1000 + 2550 = 3550 us
+	for receiving an ACK frame of 10 bytes at 115200 bit/s baud rate .
+	*/
+
+
+	return 0;
+}
+
+
+int get_count(void){
+	int i;
+	for (i= 0; pktuart_chans[i] != NULL && i < 2 ; i++){}
+	return i;
+}

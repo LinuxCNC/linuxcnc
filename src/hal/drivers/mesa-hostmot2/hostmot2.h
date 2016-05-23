@@ -103,6 +103,8 @@
 #define HM2_GTAG_SSI               (8)
 #define HM2_GTAG_UART_TX           (9)
 #define HM2_GTAG_UART_RX           (10)
+#define HM2_GTAG_PKTUART_TX        (27)  // PktUART uses same addresses as normal UART with 
+#define HM2_GTAG_PKTUART_RX        (28) // the assumption you would not use both in one config
 #define HM2_GTAG_TRANSLATIONRAM    (11)
 #define HM2_GTAG_MUXED_ENCODER     (12)
 #define HM2_GTAG_MUXED_ENCODER_SEL (13)
@@ -830,6 +832,32 @@ typedef struct {
 } hm2_uart_t;
 
 //
+// PktUART
+// 
+
+typedef struct {
+    rtapi_u32 clock_freq;
+    rtapi_u32 bitrate;
+    rtapi_u32 tx_fifo_count_addr;
+    rtapi_u32 tx_bitrate_addr;
+    rtapi_u32 tx_addr;
+    rtapi_u32 tx_mode_addr;
+    rtapi_u32 rx_fifo_count_addr;
+    rtapi_u32 rx_bitrate_addr;
+    rtapi_u32 rx_addr;
+    rtapi_u32 rx_mode_addr;
+    char name[HAL_NAME_LEN+1];
+} hm2_pktuart_instance_t;
+
+typedef struct {
+    int version;
+    int num_instances;
+    hm2_pktuart_instance_t *instance;
+    rtapi_u8 instances;
+    rtapi_u8 num_registers;
+    struct rtapi_heap *heap;
+} hm2_pktuart_t;
+//
 // HM2DPLL
 //
 
@@ -989,6 +1017,7 @@ typedef struct {
         int num_sserials;
         int num_bspis;
         int num_uarts;
+        int num_pktuarts;
         int num_dplls;
         char sserial_modes[4][8];
         int enable_raw;
@@ -1028,6 +1057,7 @@ typedef struct {
     hm2_sserial_t sserial;
     hm2_bspi_t bspi;
     hm2_uart_t uart;
+    hm2_pktuart_t pktuart;
     hm2_ioport_t ioport;
     hm2_watchdog_t watchdog;
     hm2_dpll_t dpll;
@@ -1074,6 +1104,7 @@ void hm2_print_modules(hostmot2_t *hm2);
 hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t **hm2, char *name);
 int hm2_get_bspi(hostmot2_t **hm2, char *name);
 int hm2_get_uart(hostmot2_t **hm2, char *name);
+int hm2_get_pktuart(hostmot2_t **hm2, char *name);
 
 
 //
@@ -1259,6 +1290,20 @@ void hm2_uart_process_tram_read(hostmot2_t *hm2, long period);
 int hm2_uart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode);
 int hm2_uart_send(char *name, unsigned char data[], int count);
 int hm2_uart_read(char *name, unsigned char data[]);
+//
+// PktUART functions
+//
+
+int  hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_pktuart_print_module(hostmot2_t *hm2);
+void hm2_pktuart_cleanup(hostmot2_t *hm2);
+void hm2_pktuart_write(hostmot2_t *hm2);
+void hm2_pktuart_force_write(hostmot2_t *hm2); // ?? 
+void hm2_pktuart_prepare_tram_write(hostmot2_t *hm2, long period); //??
+void hm2_pktuart_process_tram_read(hostmot2_t *hm2, long period);  //  ??
+int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear);
+int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 frame_sizes[]);
+int hm2_pktuart_read(char *name, unsigned char data[],  rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[]);
 
 //
 // hm2dpll functions

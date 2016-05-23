@@ -188,10 +188,10 @@ class Private_Data:
             _("X Both Limit"), _("Y Both Limit"), _("Z Both Limit"), _("A Both Limit"),
             _("All Limits") ]
         home = [_("X Home"), _("Y Home"), _("Z Home"), _("A Home"),_("All Home") ]
-        home_limits_shared = [ _("All Limits + Home"),_("X Minimum Limit + Home"), _("Y Minimum Limit + Home"), _("Z Minimum Limit + Home"),
+        home_limits_shared = [ _("X Minimum Limit + Home"), _("Y Minimum Limit + Home"), _("Z Minimum Limit + Home"),
                              _("A Minimum Limit + Home"),_("X Maximum Limit + Home"), _("Y Maximum Limit + Home"), _("Z Maximum Limit + Home"),
                              _("A Maximum Limit + Home"),_("X Both Limit + Home"), _("Y Both Limit + Home"), _("Z Both Limit + Home"),
-                             _("A Both Limit + Home") ]
+                             _("A Both Limit + Home"),_("All Limits + Home") ]
         digital = [ _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3") ]
         axis_select = [_("Joint select A"),_("Joint select B"),_("Joint select C"), _("Joint select D") ]
         override = [_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),_("Jog incr D"),_("Feed Override incr A"),_("Feed Override incr B"),
@@ -423,7 +423,7 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         self.MESA_INTERNAL_FIRMWAREDATA = [
     ['5i25-Internal Data', '5i25', '7i76x2 -With One 7i76', '5i25', 'hm2_pci', 1,3, 0,0, 0,3, 0,0, 5,2, 1,2, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
         # TAB 3
-        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
         # TAB 2
@@ -433,11 +433,11 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
 
     ["5i25-Internal Data", "5i25", "7i76x2", "5i24", "hm2_pci", 2,3, 0,0, 0,3, 0,0, 10,2, 1,4, 0,0,0,0,0,0,0,0, 1, 34 , 33, 200, [3,2],
         # TAB 3
-        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
         # TAB 2
-        [S.STEPA,5],[S.STEPB,5],[S.STEPA,6],[S.STEPB,6],[S.STEPA,7],[S.STEPB,7],[S.STEPA,8],[S.STEPB,8],[S.STEPA,9],[S.STEPB,9],
+        [S.STEPB,5],[S.STEPA,5],[S.STEPB,6],[S.STEPA,6],[S.STEPB,7],[S.STEPA,7],[S.STEPB,8],[S.STEPA,8],[S.STEPB,9],[S.STEPA,9],
         [S.SS7I76M2,0],[S.RXDATA2,0],[S.TXDATA3,0],[S.RXDATA3,0],[S.ENCI,1],[S.ENCB,1],[S.ENCA,1],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
@@ -447,7 +447,7 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
         # TAB 2
-        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M3,0],[S.RXDATA3,0],[S.TXDATA4,0],[S.RXDATA4,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
@@ -499,7 +499,7 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
      ],
     ['7i76e-Internal Data', '7i76e', '7i76e', '7i76', 'hm2_eth', 1,3, 0,0, 0,3, 0,0, 5,2, 1,2, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
         # TAB 1
-        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
         # TAB 2

@@ -38,6 +38,7 @@ extern "C" {
 #include "linklist.hh"
 #include "physmem.hh"
 #include "cmsdiag.hh"
+#include "cmd_msg.hh" // layering violation ahoy
 NML_SERVER::NML_SERVER(NML * _nml, int _set_to_master):CMS_SERVER()
 {
     NML_SERVER_LOCAL_PORT *new_local_port = NULL;
@@ -281,13 +282,16 @@ REMOTE_WRITE_REPLY *NML_SERVER_LOCAL_PORT::writer(REMOTE_WRITE_REQUEST * _req)
     // memcpy(cms->encoded_data, _req->data, _req->size);
     cms->header.in_buffer_size = _req->size;
     temp->size = _req->size;
+    int *serial_number = cms->serial
+	? &(((RCS_CMD_MSG*)temp)->serial_number)
+	: NULL;
 
     switch (_req->access_type) {
     case CMS_WRITE_ACCESS:
-	nml->write(*temp);
+	nml->write(*temp, serial_number);
 	break;
     case CMS_WRITE_IF_READ_ACCESS:
-	nml->write_if_read(*temp);
+	nml->write_if_read(*temp, serial_number);
 	break;
     default:
 	rcs_print_error("NML_SERVER: Invalid Access type. (%d)\n",
@@ -296,6 +300,7 @@ REMOTE_WRITE_REPLY *NML_SERVER_LOCAL_PORT::writer(REMOTE_WRITE_REQUEST * _req)
     }
 
     write_reply.status = (int) cms->status;
+    write_reply.write_id = cms->header.write_id;
     write_reply.was_read = cms->header.was_read;
     write_reply.confirm_write = cms->confirm_write;
 

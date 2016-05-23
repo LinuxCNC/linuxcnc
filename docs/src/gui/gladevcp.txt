@@ -504,7 +504,7 @@ label your panel.
    <<gladevcp:hal-progressbar,HAL_ProgressBar>>,
    <<gladevcp:hal-bars,HAL_HBar and HAL_VBar>>, <<gladevcp:hal-meter,HAL_Meter>>
  - Widgets for controlling "number" signals: <<gladevcp:hal-spinbutton,HAL_SpinButton>>,
-   <<gladevcp:hal-scales,HAL_HScale and HAL_VScale>>, <<gladevcp:jogwheel, Jog Wheel>>
+   <<gladevcp:hal-scales,HAL_HScale and HAL_VScale>>, <<gladevcp:jogwheel, Jog Wheel>>, <<gladevcp:speedcontrol, Speed Control>>
  - Sensitive control widgets: <<gladevcp:hal-table, State_Sensitive_Table HAL_Table and HAL_HBox>>
  - Tool Path preview: <<gladevcp:hal-gremlin,HAL_Gremlin>>
  - Widgets to show axis positions: <<gladevcp:dro_widget, DRO Widget>>,
@@ -817,7 +817,7 @@ Direct program control::
 
     There a couple ways to directly control the widget using Python.
 
-    Using goobject to set the above listed properties:
+    Using gobject to set the above listed properties:
         [widget name].set_property("size",int(value))
         [widget name].set_property("cpr",int(value))
         [widget name].set_property("show_counts, True)
@@ -831,6 +831,127 @@ Direct program control::
 Example JogWheel:
 
 image::images/JogWheel.png[]
+
+[[gladevcp:speedcontrol]]
+
+=== Speed Control
+
+SpeedControl is a widget specially made to control an adjustment 
+with a touch screen. It is a replacement to the normal scale widget
+witch is difficult to slide on a touch screen.
+
+The value is controled with two button to increase or drecrease the value. 
+The Increment will change as long a button is pressed. The value of each increment 
+as well as the time between two changes can be set using the widget properties. 
+
+SpeedControl offers some hal pin:
+
+<widgetname>-value::
+   out float pin
+   The shown value of the widget
+
+<widgetname>-scaled-value::
+   out float pin
+   The shown value divided by the scale value, this is very usefull, if the 
+   velocity is shown in units / min, but linuxcnc expects it to be in units / second
+
+<widgetname>-scale::
+   in float pin
+   The scale to apply
+   Default is 60
+
+<widgetname>-increase::
+   in bit pin
+   As long as the pin is true, the value will increase
+   Very handy with connected momentary switch
+
+<widgetname>-decrease::
+   in bit pin
+   As long as the pin is true, the value will decrease
+   Very handy with connected momentary switch
+
+It has the following properties:
+
+size::
+	integer
+	The height of the widget in pixel
+	allowed values are 24 to 96
+	default is 36
+
+value::
+	float
+	The  start value to set
+	allowed values are in the range from 0.001 to 99999.0
+	default is 10.0
+
+min::
+	float
+	The min allowed value
+	allowed values are 0.0 to 99999.0
+	default is 0.0
+
+max::
+	float
+	The max allowed value
+	allowed values are 0.001, 99999.0
+	default is 100.0
+
+inc_speed::
+	integer
+	Sets the timer delay for the increment speed holding pressed the buttons
+	allowed values are 20 to 300
+	default is 100
+
+unit::
+	string
+	Sets the unit to be shown in the bar after the value
+	any string is allowed
+	default is ""
+
+color::
+	Color
+	Sets the color of the bar
+	any hex color is allowed
+	default is "#FF8116"
+
+template::
+	String
+	Text template to display the value Python formatting is used
+	Any allowed format
+	default is "%.1f"
+
+hide_button::
+	Boolean
+	Whether to show or hide the increment an devrement button
+	True or False
+	Default = False
+
+Direct program control::
+
+    There a couple ways to directly control the widget using Python.
+
+    Using gobject to set the above listed properties:
+        [widget name].set_property("hide_button",bool(value))
+        [widget name].set_property("color","#FF00FF")
+        [widget name].set_property("unit", "mm/min")
+		etc.
+
+    There are also python methods to modify the widget:
+        [widget name].set_adjustment(gtk-adjustment)
+        You can assign a existing adjustment to the control, that way it is easy to replace
+        existing sliders without many code changes.
+        [widget name].get_value()
+        Will return the counts value as float
+        [widget name].set_value(float(value))
+        Sets the widget to the commanded value
+        [widget name].set_digits(int(value))
+        Sets the digits of the value to be used
+        [widget name].hide_button(bool(value))
+        Hide or show the button
+
+Example Speedcontrol:
+
+image::images/SpeedControl.png[]
 
 [[gladevcp:hal-label]]
 
@@ -1158,6 +1279,9 @@ mouse_btn_mode ::
    3 =          left zoom,   middle rotate, right move
    4 =          left move,   middle zoom,   right rotate
    5 =          left rotate, middle zoom,   right move
+   6 =          left move,   middle zoom,   right zoom
+
+   mode 6 is reccomended for plasmas and lathes, as rotation is not needed for such machines
 
 Direct program control::
 
@@ -1588,6 +1712,9 @@ Direct program control::
 === Tooleditor widget
 
 This is a tooleditor widget for displaying and modifying a tool editor file. +
+If in lathe mode, it will display wear offsets and tool offsets separately. +
+Wear offsets are designated by tool number above 10000 (Fanuc style) +
+Note linuxcnc requires remapping of tool calls to actually use wear offsets +
 It checks the current file once a second to see if linuxcnc updated it. +
 It has the following properties:
 
@@ -1610,7 +1737,37 @@ Direct program control::
             Sets and loads the tool file.
         [widget name].reload(None)
             Reloads the current toolfile
-
+        [widget name].set_font('sans 16,tab='1')
+            Sets the (Pango) font on the Tab, column title, and tool data.
+            The all_offsets, wear_offsets, tool_offsets can be set at the same time by
+            adding 1,2 and/or 3 to the tab string. Default is all the tabs 
+            set.
+        [widget name].set_title_font('sans 16,tab='1')
+            Sets the (Pango) font on the column titles only.
+            The all_offsets, wear_offsets, tool_offsets can be set at the same time by
+            adding 1,2 and/or 3 to the tab string. Default is all the tabs 
+            set.
+        [widget name].set_tab_font('sans 16,tab='1')
+            Sets the (Pango) font on the tabs only.
+            The all_offsets, wear_offsets, tool_offsets can be set at the same time by
+            adding 1,2 and/or 3 to the tab string. Default is all the tabs 
+            set.
+        [widget name].set_col_visible("abcUVW", False, tab='1')
+            This would hide (False) the abcuvw columns on tab 1 (all_offsets)
+        [widget name].set_lathe_display(value)
+            hides or shows the wear and tool offset tabs used for lathes
+        [widget name].get_toolinfo(toolnum)
+            Returns the tool information array of the requested toolnumber
+            or current tool if no tool number is specified
+            returns None if tool not found in table or if there is no current tool
+        [widget name].hide_buttonbox(self, True)
+            'convenience' method to hide buttons
+            you must call this after show_all()
+        [widget name].get_selected_tool()
+            return the user selected (highlighted) tool number
+        [widget name].set_selected_tool(toolnumber)
+            Selects (highlights) the requested tool
+ 
 image::images/gtk-tooledit.png[]
 
 [[gladevcp:offsetpage]]

@@ -30,6 +30,7 @@ from hal_lightbutton import HAL_LightButton
 from overridewidget import Override
 
 from jogwheel import JogWheel
+from speedcontrol import SpeedControl
 from hal_dial import Hal_Dial
 
 from hal_actions import *

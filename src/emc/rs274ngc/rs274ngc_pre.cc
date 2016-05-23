@@ -2531,7 +2531,7 @@ const char *strstore(const char *s)
     if (s == NULL)
         throw invalid_argument("strstore(): NULL argument");
     pair< set<string>::iterator, bool > pair = stringtable.insert(s);
-    return string(*pair.first).c_str();
+    return pair.first->c_str();
 }
 
 context_struct::context_struct()

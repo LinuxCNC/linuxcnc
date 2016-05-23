@@ -99,7 +99,6 @@ class GetIniInfo:
         temp = self.inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY")
         if not temp:
             temp = 3.0
-            # self.add_alarm_entry(_("No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
         return float(temp) * 60
 
     def get_max_jog_vel(self):
@@ -108,7 +107,6 @@ class GetIniInfo:
         temp = self.inifile.find("DISPLAY", "MAX_LINEAR_VELOCITY")
         if not temp:
             temp = 10.0
-            # self.add_alarm_entry(_("No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
         return float(temp) * 60
 
 # ToDo : This may not be needed, as it could be recieved from linuxcnc.stat
