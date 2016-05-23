@@ -24,6 +24,15 @@ TRIVIAL_BUILD=no
 endif
 endif
 
+# asciidoctor frontmatter generation for comp/instcomp
+# this assumes we're running inside a git repo.
+# if not, override EDIT_REMOTE EDIT_REPO EDIT_BRANCH via the environment, eg
+#  EDIT_REMOTE=machinekit  make manpages  i_docpages
+
+EDIT_REMOTE ?= origin
+EDIT_REPO  ?= $(shell git ls-remote --get-url $(EDIT_REMOTE)  |sed 's/.git$$//')
+EDIT_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
+# $(info EDIT_REMOTE=$(EDIT_REMOTE) EDIT_BRANCH=$(EDIT_BRANCH)  EDIT_REPO=$(EDIT_REPO))
 
 # Beautify output
 # ---------------------------------------------------------------------------
