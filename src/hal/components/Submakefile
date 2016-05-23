@@ -84,12 +84,18 @@ $(USER_COMP_MANPAGES): ../man/man9/%.9comp: hal/user_comps/%.comp ../bin/comp
 $(COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/components/%.comp  ../bin/comp
 	$(ECHO) Making comp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --ascii-document -o $@ $<
+	$(Q)../bin/comp --ascii-document \
+	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
+	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
+	-o $@ $<
 
 $(USER_COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/user_comps/%.comp  ../bin/comp
 	$(ECHO) Making comp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --ascii-document -o $@ $<
+	$(Q)../bin/comp --ascii-document \
+	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
+	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
+	-o $@ $<
 
 $(DRIVER_COMP_MANPAGES): ../man/man9/%.9comp: hal/drivers/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
@@ -99,7 +105,10 @@ $(DRIVER_COMP_MANPAGES): ../man/man9/%.9comp: hal/drivers/%.comp ../bin/comp
 $(DRIVER_COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/drivers/%.comp ../bin/comp
 	$(ECHO) Making driver comp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --ascii-document -o $@ $<
+	$(Q)../bin/comp --ascii-document  \
+	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
+	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
+	-o $@ $<
 
 $(MSG_COMP_MANPAGES): ../man/man9/%.9comp: \
 		machinetalk/msgcomponents/%.comp ../bin/comp
@@ -111,7 +120,10 @@ $(MSG_COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: \
 		machinetalk/msgcomponents/%.comp ../bin/comp
 	$(ECHO) Making message comp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --ascii-document -o $@ $<
+	$(Q)../bin/comp --ascii-document  \
+	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
+	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
+	-o $@ $<
 
 ifeq ($(BUILD_ALL_FLAVORS),yes)
 # .c and .mak files are identical for all flavors
