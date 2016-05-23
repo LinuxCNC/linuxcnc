@@ -60,6 +60,9 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     template  = Templ.  : Text template to display the value Python formatting is used
                           Any allowed format
                           default is "%.1f"
+    hide_button = Bool  : Whether to show or hide the increment an devrement button
+                          True or False
+                          Default = False
 
     '''
 
@@ -84,6 +87,8 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         'template' : (gobject.TYPE_STRING, 'Text template for bar value',
                 'Text template to display. Python formatting may be used for one variable',
                 "%.1f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'hide_button' : ( gobject.TYPE_BOOLEAN, 'Hide the button', 'Display the button + and - to alter the values',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
                       }
     __gproperties = __gproperties__
 
@@ -119,9 +124,6 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         self.btn_minus.connect("pressed", self.on_btn_minus_pressed)
         self.btn_minus.connect("released", self.on_btn_minus_released)
         
-        #self.btn_debug = gtk.Button("debug")
-        #self.btn_debug.connect("pressed", self.on_btn_debug_pressed)
-
         self.draw = gtk.DrawingArea()
         self.draw.connect("expose-event", self.expose)
 
@@ -129,8 +131,6 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         self.table.attach( self.btn_minus, 0, 1, 0, 1, gtk.SHRINK, gtk.SHRINK )
         self.table.attach( self.draw, 1, 4, 0, 1, gtk.FILL|gtk.EXPAND, gtk.EXPAND )
         self.table.attach( self.btn_plus, 4, 5, 0, 1, gtk.SHRINK, gtk.SHRINK )
-
-        #self.table.attach( self.btn_debug, 1, 4, 1, 2, gtk.SHRINK, gtk.SHRINK )
 
         self.add(self.table)
         self.show_all()
@@ -151,7 +151,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         self.hal_pin_scale.set(60.0)
 
         # the scaled value to be handled in hal
-        self.hal_pin_scaled_value = self.hal.newpin(self.hal_name+".scale_value", hal.HAL_FLOAT, hal.HAL_OUT)     
+        self.hal_pin_scaled_value = self.hal.newpin(self.hal_name+".scaled-value", hal.HAL_FLOAT, hal.HAL_OUT)     
         
         # pins to allow hardware button to be connected to the software button
         self.hal_pin_increase = self.hal.newpin(self.hal_name+".increase", hal.HAL_BIT, hal.HAL_IN)
@@ -334,9 +334,6 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         else:
             self.on_btn_minus_released(None)
 
-    #def on_btn_debug_pressed(self,widget):
-    #    self.hide_button(False)
-
     # returns the separate RGB color numbers from the color widget
     def _convert_to_rgb(self, spec):
         color = spec.to_string()
@@ -361,10 +358,10 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     # so the widget can be connected to existing adjustments
     def set_adjustment(self, adjustment):
         self.adjustment = adjustment
+        self.adjustment.connect("value_changed", self._on_value_changed)
         self._min = self.adjustment.get_lower()
         self._max = self.adjustment.get_upper()
         self.adjustment.set_page_size(adjustment.get_page_size())
-        self.adjustment.connect("value_changed", self._on_value_changed)
         self._value = self.adjustment.get_value()
         self.set_value(self._value)    
         
@@ -437,6 +434,8 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
                     self.color = value
                 if name == "template":
                     self._template = value
+                if name == "hide_button":
+                    self.hide_button(value)
                 self._draw_widget()
             else:
                 raise AttributeError('unknown property %s' % property.name)

@@ -586,17 +586,21 @@ class pyvcp_jogwheel(Canvas):
         <choices>["one","two","three"]</choices>    labels next to each button
         <halpin>"radio"</halpin>                    pin giving index of active button
         <initval>0</initval>                        index of button pin to set true at start
+        <orient>HORIZONTAL</orient>                 add horizontal tag default is vertical
     </radiobutton>
     """
 ################################################################################
 
 class pyvcp_radiobutton(Frame):
     n=0
-    def __init__(self,master,pycomp,halpin=None,initval=0,choices=[],**kw):
+    def __init__(self,master,pycomp,halpin=None,initval=0,orient=None,choices=[],**kw):
         f=Frame.__init__(self,master,bd=2,relief=GROOVE)
         self.v = IntVar()
         self.v.set(1)
         self.choices=choices
+        self.side = 'top'
+        if orient != None:
+            self.side = 'left'
         if halpin == None:
             halpin = "radiobutton."+str(pyvcp_radiobutton.n)
             pyvcp_radiobutton.n += 1
@@ -605,7 +609,7 @@ class pyvcp_radiobutton(Frame):
         n=0
         for c in choices:
             b=Radiobutton(self,f, text=str(c),variable=self.v, value=pow(2,n))
-            b.pack()
+            b.pack(side=self.side)
             if n==initval: 
                 b.select()
             c_halpin=halpin+"."+str(c)

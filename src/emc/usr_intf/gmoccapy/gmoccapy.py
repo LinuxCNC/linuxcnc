@@ -86,7 +86,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.6.0"
+_RELEASE = " 1.5.6.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp

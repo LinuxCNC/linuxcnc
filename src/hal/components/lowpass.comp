@@ -1,4 +1,34 @@
 component lowpass "Low-pass filter";
+notes """
+
+\\fBgain\\fR pin setting
+
+The digital filter implemented is equivalent to a unity-gain
+continuous-time single-pole low-pass filter that is preceded
+by a zero-order-hold and sampled at a fixed period.  For a pole
+at \\fB-a\\fR (radians/seconds) the corresponding continuous-time
+lowpass filter LaPlace transfer function is:
+
+\\fBH(s) = a/(s + a)\\fR
+
+For a sampling period \\fBT\\fR (seconds), the gain for this
+Hal lowpass component is:
+
+\\fBgain = 1 - e**(-a * T)\\fR
+
+\\fBExamples:\\fR
+     T = 0.001 seconds (typical servo thread period)
+     a = (2*pi*100)    (\\fB100Hz\\fR bandwith single pole)
+  gain = \\fB0.466\\fR
+
+     T = 0.001 seconds (typical servo thread period)
+     a = (2*pi*10)     ( \\fB10Hz\\fR bandwith single pole)
+  gain = \\fB0.0609\\fR
+
+     T = 0.001 seconds (typical servo thread period)
+     a = (2*pi*1)      ( \\fB1Hz\\fR bandwith single pole)
+  gain = \\fB0.0063\\fR
+""";
 pin in float in;
 pin out float out " out += (in - out) * gain ";
 pin in bit load "When TRUE, copy \\fBin\\fR to \\fBout\\fR instead of applying the filter equation.";
