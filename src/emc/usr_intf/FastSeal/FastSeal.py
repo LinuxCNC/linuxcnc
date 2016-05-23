@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.6"
+_RELEASE = "  0.6.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1338,7 +1338,7 @@ class FastSeal( object ):
     def on_hal_status_state_on( self, widget ):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "btn_feed_100", "rbt_forward",
-                      "rbt_reverse", "rbt_stop"
+                      "rbt_reverse", "rbt_stop",
                       "btn_spindle_100", "spc_max_vel", "spc_spindle"
         ]
         self._sensitize_widgets( widgetlist, True )
