@@ -263,7 +263,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_SSI:             return "SSI Encoder";
         case HM2_GTAG_BISS:            return "BiSS Encoder";
         case HM2_GTAG_FABS:            return "Fanuc Abs Encoder";
-        case HM2_GTAG_RESOLVER:        return "Resolver";    
+        case HM2_GTAG_RESOLVER:        return "Resolver";
         case HM2_GTAG_STEPGEN:         return "StepGen";
         case HM2_GTAG_PWMGEN:          return "PWMGen";
         case HM2_GTAG_TRANSLATIONRAM:  return "TranslationRAM";
@@ -288,7 +288,7 @@ const char *hm2_get_general_function_name(int gtag) {
     }
 }
 
-int hm2_fabs_parse(hostmot2_t *hm2, char *token, int gtag){ 
+int hm2_fabs_parse(hostmot2_t *hm2, char *token, int gtag){
     //adds the absolute encoder format strings to a list
     hm2_absenc_format_t *def;
     struct list_head *ptr;
@@ -381,11 +381,11 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "ssi_chan_", 9) == 0) {
             token += 9;
             if (hm2_fabs_parse(hm2, token, HM2_GTAG_SSI) )goto fail;
-            
+
         } else if (strncmp(token, "biss_chan_", 10) == 0) {
             token += 10;
             if (hm2_fabs_parse(hm2, token, HM2_GTAG_BISS)) goto fail;
-            
+
         } else if (strncmp(token, "fanuc_chan_", 11) == 0) {
             token += 11;
             if (hm2_fabs_parse(hm2, token, HM2_GTAG_FABS)) goto fail;
@@ -393,7 +393,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "num_resolvers=", 14) == 0) {
             token += 14;
             hm2->config.num_resolvers = simple_strtol(token, NULL, 0);
-            
+
         } else if (strncmp(token, "num_pwmgens=", 12) == 0) {
             token += 12;
             hm2->config.num_pwmgens = simple_strtol(token, NULL, 0);
@@ -401,7 +401,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "num_3pwmgens=", 13) == 0) {
             token += 13;
             hm2->config.num_tp_pwmgens = simple_strtol(token, NULL, 0);
-            
+
         } else if (strncmp(token, "sserial_port_", 13) == 0) {
             int i;
             int c = 0;
@@ -423,11 +423,11 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
                     hm2->config.sserial_modes[i][c++] = *token;
                 }
             }
-            
+
             if (hm2->config.num_sserials == -1){
                 hm2->config.num_sserials = 0;
             }
-                
+
             if (i >= hm2->config.num_sserials && flag){
                 hm2->config.num_sserials = i + 1;
             }
@@ -455,7 +455,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "num_leds=", 9) == 0) {
             token += 9;
             hm2->config.num_leds = simple_strtol(token, NULL, 0);
-            
+
         } else if (strncmp(token, "num_dplls=", 10) == 0) {
             token += 10;
             hm2->config.num_dplls = simple_strtol(token, NULL, 0);
@@ -489,9 +489,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("    sserial_port_0=%8.8s\n"
             "                    sserial_port_1=%8.8s\n"
             "                    sserial_port_2=%8.8s\n"
-            "                    sserial_port_3=%8.8s\n", 
+            "                    sserial_port_3=%8.8s\n",
             hm2->config.sserial_modes[0],
-            hm2->config.sserial_modes[1], 
+            hm2->config.sserial_modes[1],
             hm2->config.sserial_modes[2],
             hm2->config.sserial_modes[3]);
     HM2_DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
@@ -521,8 +521,8 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
 
     HM2_PRINT("    IDRom Type: 0x%08X\n", hm2->idrom.idrom_type);
 
-    HM2_PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules); 
-    HM2_PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc); 
+    HM2_PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules);
+    HM2_PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc);
 
     HM2_PRINT(
         "    Board Name: %c%c%c%c%c%c%c%c\n",
@@ -590,7 +590,7 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
         return -EIO;
     }
     if (
-        (hm2->idrom.idrom_type != 2) 
+        (hm2->idrom.idrom_type != 2)
         && (hm2->idrom.idrom_type != 3)
     ) {
         HM2_ERR("invalid IDROM type %d, expected 2 or 3, aborting load\n", hm2->idrom.idrom_type);
@@ -888,7 +888,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
         }
     }
 
-    // Now look for the other modules. 
+    // Now look for the other modules.
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
         hm2_module_descriptor_t *md = &hm2->md[md_index];
 
@@ -1005,18 +1005,18 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             return md_accepted;
         }
 
-    }    
-    
-    // on any one run throught the absenc driver there is no way to know if 
-    // it is the last time, so we need to  trigger this from somewhere that 
-    // does know that it has stopped calling the sub-driver. 
+    }
+
+    // on any one run throught the absenc driver there is no way to know if
+    // it is the last time, so we need to  trigger this from somewhere that
+    // does know that it has stopped calling the sub-driver.
     if (hm2->absenc.num_chans > 0){
          if (hm2_absenc_register_tram(hm2)){
              HM2_ERR("Failed to register TRAM for absolute encoders\n");
              return -EINVAL;
          }
     }
-                                           
+
     return 0;  // success!
 }
 
@@ -1186,8 +1186,8 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     llio->firmware = hm2->config.firmware;
 
-    // NOTE: program_fpga will be NULL for 6i25 and 5i25 (and future cards 
-    // with EPROM firmware, probably. 
+    // NOTE: program_fpga will be NULL for 6i25 and 5i25 (and future cards
+    // with EPROM firmware, probably.
 
     if ((llio->program_fpga != NULL) && (hm2->config.firmware == NULL)) {
         HM2_PRINT_NO_LL("no firmware specified in config modparam!  the board had better have firmware configured already, or this won't work\n");
@@ -1630,6 +1630,13 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         }
     }
 
+    if(hm2->llio->irq_period > 0) {
+      // set the dpll values read from the FPGA
+      hm2_dpll_process_tram_read(hm2, hm2->llio->irq_period);
+      // llio wants to provide an external clock period
+      hm2_dpll_write(hm2, hm2->llio->irq_period);
+    }
+
 
     //
     // found one!
@@ -1722,4 +1729,3 @@ void hm2_force_write(hostmot2_t *hm2) {
     hm2_bspi_force_write(hm2);
     hm2_dpll_force_write(hm2);
 }
-

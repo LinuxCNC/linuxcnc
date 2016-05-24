@@ -120,7 +120,7 @@ RTAPI_MP_STRING(descriptor, ".bin file with encoded fwid protobuf descriptor mes
 static int no_init_llio;
 RTAPI_MP_INT(no_init_llio, "debugging - if 1, do not set any llio fields (like num_leds");
 
-static int timer1;
+static long timer1;
 RTAPI_MP_INT(timer1, "rate for hm2 Timer1 IRQ, 0: IRQ disabled");
 
 
@@ -548,10 +548,10 @@ int rtapi_app_main(void) {
 	if (!brd->pins)
 	    return -1;
 
-	if (hal_pin_u32_newf(HAL_OUT, &brd->pins->irq_count, comp_id, "hm2.%d.irq-count", 0) ||
-	    hal_pin_u32_newf(HAL_OUT, &brd->pins->irq_missed, comp_id, "hm2.%d.irq-missed", 0) ||
-	    hal_pin_u32_newf(HAL_OUT, &brd->pins->write_errors, comp_id, "hm2.%d.write-errors", 0) ||
-	    hal_pin_u32_newf(HAL_OUT, &brd->pins->read_errors, comp_id, "hm2.%d.read-errors", 0))
+	if (hal_pin_u32_newf(HAL_OUT, &brd->pins->irq_count, comp_id, "%s.irq.count", brd->llio.name) ||
+	    hal_pin_u32_newf(HAL_OUT, &brd->pins->irq_missed, comp_id, "%s.irq.missed", brd->llio.name) ||
+	    hal_pin_u32_newf(HAL_OUT, &brd->pins->write_errors, comp_id, "%s.errors.write", brd->llio.name) ||
+	    hal_pin_u32_newf(HAL_OUT, &brd->pins->read_errors, comp_id, "%s.errors.read", brd->llio.name))
 	    return -1;
 
 	hal_export_xfunct_args_t xfunct_args = {
@@ -569,9 +569,7 @@ int rtapi_app_main(void) {
 	    return r;
 	}
 
-	// set timer1 period:
-	hm2_soc_write(&brd->llio, HM2_DPLL_CONTROL_REG_0 , (void *)&timer1, sizeof(timer1));
-	// and enable timer 1 interrupt
+	// enable timer 1 interrupt
 	int val = 2;
 	hm2_soc_write(&brd->llio, HM2_IRQ_STATUS_REG , (void *)&val, sizeof(val));
 
