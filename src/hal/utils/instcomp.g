@@ -1202,8 +1202,6 @@ def document(filename, outfilename):
         print >>f, ".HP"
         
 
-    print >>f, "( Generated from source file: %s )" % filename
-    
 ##############################################################################
 # asciidoc
 ############
@@ -1220,7 +1218,6 @@ def adocument(filename, outfilename, frontmatter):
         for fm in frontmatter:
             print >>f, fm
         print >>f, "edit-path: src/%s" % (filename)
-        print >>f, "generated: %s "% (time.strftime("%F %H:%M UTC"))
         print >>f, "generator: instcomp"
         print >>f, "---"
         print >>f, ":skip-front-matter:\n"
@@ -1411,9 +1408,8 @@ def adocument(filename, outfilename, frontmatter):
         print >>f, ""
         print >>f, "%s" % doc[1]
         print >>f, ""    
-        
-    print >>f, "( Generated from source file: %s on %s )" % (filename, time.strftime("%F"))
-        
+
+
 ###########################################################
 
 
