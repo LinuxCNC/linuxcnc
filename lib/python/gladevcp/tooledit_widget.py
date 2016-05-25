@@ -267,7 +267,7 @@ class ToolEdit(gtk.VBox):
                             except:
                                 print "Tooledit widget int error"
                         else:
-                            try:                            
+                            try:
                                 array[offset]= locale.format("%10.4f", float(word.lstrip(i)))
                             except:
                                 print "Tooledit_widget float error"
