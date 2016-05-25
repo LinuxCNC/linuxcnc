@@ -407,8 +407,6 @@ void emcmotCommandHandler(void *arg, long period)
     int abort = 0;
     char* emsg;
 
-check_stuff ( "before command_handler()" );
-
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
 	emcmotDebug->split++;

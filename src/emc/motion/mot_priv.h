@@ -262,8 +262,6 @@ extern void refresh_jog_limits(emcmot_joint_t *joint);
 /* handles 'homed' flags, see command.c for details */
 extern void clearHomes(int joint_num);
 
-extern void check_stuff(const char *msg);
-
 extern void emcmot_config_change(void);
 extern void reportError(const char *fmt, ...) __attribute((format(printf,1,2))); /* Use the rtapi_print call */
 
