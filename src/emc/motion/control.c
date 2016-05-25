@@ -40,45 +40,6 @@ double servo_freq;
    JOINT_FLAG and MOTION_FLAG */
 // #define WATCH_FLAGS 1
 
-/* debugging function - it watches a particular variable and
-   prints a message when the value changes.  Right now there are
-   calls to this scattered throughout this and other files.
-   To disable them, comment out the following define:
-*/
-// #define ENABLE_CHECK_STUFF
-
-#ifdef ENABLE_CHECK_STUFF
-void check_stuff(const char *location)
-{
-   static char *target, old = 0xFF;
-/*! \todo Another #if 0 */
-#if 0
-/* kludge to look at emcmotDebug->enabling and emcmotStatus->motionFlag
-   at the same time - we simply use a high bit of the flags to
-   hold "enabling" */
-   short tmp;
-   if ( emcmotDebug->enabling )
-     tmp = 0x1000;
-   else
-     tmp = 0x0;
-   tmp |= emcmotStatus->motionFlag;
-   target = &tmp;
-/* end of kluge */
-#endif
-
-    target = (emcmot_hal_data->enable);
-    if ( old != *target ) {
-	rtapi_print ( "%d: watch value %02X (%s)\n", emcmotStatus->heartbeat, *target, location );
-	old = *target;
-    }
-}
-#else /* make it disappear */
-void check_stuff(const char *location)
-{
-/* do nothing (I wonder if gcc is smart
-   enough to optimize the calls away?) */
-}
-#endif /* ENABLE_CHECK_STUFF */
 
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *
@@ -251,11 +212,8 @@ void emcmotController(void *arg, long period)
     process_probe_inputs();
     check_for_faults();
     set_operating_mode();
-check_stuff ( "after set_operating_mode()" );
     handle_jjogwheels();
-check_stuff ( "after handle_jjogwheels()" );
     handle_ajogwheels();
-check_stuff ( "after handle_ajogwheels()" );
     do_homing_sequence();
     do_homing();
     get_pos_cmds(period);
