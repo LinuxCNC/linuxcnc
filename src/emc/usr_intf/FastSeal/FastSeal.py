@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.6.4"
+_RELEASE = "  0.6.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -615,6 +615,7 @@ class FastSeal( object ):
         self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', 300, float )
         # if it's a lathe config, set the tooleditor style
         self.lathe_mode = self.get_ini_info.get_lathe()
+        self.backtool_lathe = self.get_ini_info.get_backtool_lathe()
         self.jog_rate = self.get_ini_info.get_jog_vel()
         self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
         self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
@@ -856,7 +857,12 @@ class FastSeal( object ):
         grid_size = self.prefs.getpref( 'grid_size', 1.0, float )
         self.widgets.grid_size.set_value( grid_size )
         self.widgets.gremlin.grid_size = grid_size
-        self.widgets.gremlin.set_property( "view", "y2" )
+        if self.backtool_lathe:
+            view = "y2"
+        else:
+            view = "y"
+        self.widgets.gremlin.set_property( "view", view )
+        self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 2, int ) )
         self.widgets.gremlin.set_property( "metric_units", int( self.stat.linear_units ) )
         self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property( "use_commanded", not self.dro_actual)
@@ -1105,7 +1111,6 @@ class FastSeal( object ):
 
     def _show_error( self, error ):
         kind, text = error
-        # print kind,text
         if "joint" in text:
             for letter in self.axis_list:
                 axnum = "xyzabcuvws".index( letter )
@@ -1247,7 +1252,6 @@ class FastSeal( object ):
             self.halcomp["program.progress"] = 100.00 * line / self.halcomp["program.length"]
         else:
             self.halcomp["program.progress"] = 0.0
-            # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
 
     def on_hal_status_interp_idle( self, widget ):
         widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
@@ -1457,7 +1461,6 @@ class FastSeal( object ):
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy( self, widget, data = None ):
-        print "estopping / killing FastSeal"
         self.command.state( linuxcnc.STATE_OFF )
         self.command.state( linuxcnc.STATE_ESTOP )
         gtk.main_quit()
@@ -2621,7 +2624,6 @@ class FastSeal( object ):
         if offset == "CANCEL":
             return
         elif offset == "ERROR":
-            print( _( "Conversion error in btn_set_value" ) )
             dialogs.warning_dialog( self, _( "Conversion error in btn_set_value!" ),
                                    _( "Please enter only numerical values. Values have not been applied" ) )
         else:
@@ -2694,7 +2696,6 @@ class FastSeal( object ):
         else:
             self.prefs.putpref( "blockheight", 0.0, float )
             self.prefs.putpref( "probeheight", 0.0, float )
-            print( _( "Conversion error in btn_block_height" ) )
             dialogs.warning_dialog( self, _( "Conversion error in btn_block_height!" ),
                                    _( "Please enter only numerical values\nValues have not been applied" ) )
 
@@ -2822,7 +2823,6 @@ class FastSeal( object ):
         value = int( widget.get_value() )
         self.prefs.putpref( "dro_size", value, int )
         self.dro_size = value
-        print("Font size = ", self.dro_size)
         for axis in self.axis_list:
             self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", self.dro_size )
         #self._init_axis_four()
@@ -2929,7 +2929,6 @@ class FastSeal( object ):
             if result:
                 self.halcomp["toolchange-changed"] = True
             else:
-                print"toolchange abort", self.stat.tool_in_spindle, self.halcomp['toolchange-number']
                 self.command.abort()
                 self.halcomp['toolchange-number'] = self.stat.tool_in_spindle
                 self.halcomp['toolchange-change'] = False
@@ -2952,6 +2951,8 @@ class FastSeal( object ):
     def on_btn_apply_tool_changes_clicked( self, widget, data = None ):
         self.tooledit_btn_apply_tool.emit( "clicked" )
         tool = self.widgets.tooledit1.get_selected_tool()
+        self._update_toolinfo(tool)
+        self.widgets.hal_action_reload.emit( "activate" )
 
     def on_btn_tool_touchoff_clicked( self, widget, data = None ):
         if not self.widgets.tooledit1.get_selected_tool():
@@ -3221,7 +3222,6 @@ class FastSeal( object ):
         self._sensitize_widgets( widgetlist, widget.get_active() )
 
     def on_btn_stop_clicked( self, widget, data = None ):
-        print( "stop clicked" )
         self.start_line = 0
         self.widgets.gcode_view.set_line_number( 0 )
         self.widgets.tbtn_pause.set_active( False )

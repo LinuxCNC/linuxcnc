@@ -1,3 +1,9 @@
+ver. 0.6.5
+- if the user changes a tool in the tool editor, 
+  pressing the apply button will update the tool info window 
+  and also reload the preview, unfortunately this means also
+  that the selected zoom area will be undone :-(
+
 ver. 0.6.4
 - solved bug on gremlin, 
   both was missing handler calls in FastSeal.glade
