@@ -1832,6 +1832,9 @@ proc update_state {args} {
     }
 
     if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE} {
+        if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
+            set_mode_from_tab
+        }
         enable_group $::manualgroup
     } else {
         disable_group $::manualgroup
