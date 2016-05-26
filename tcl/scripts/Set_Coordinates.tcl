@@ -31,11 +31,14 @@ if {[string length $paramfilename] == 0} {
     set paramfilename "emc.var"
 }
 
-# Reads the number of axi from ini
-set numaxis [emc_ini "AXES" "TRAJ"]
+# Reads axis coordinate letters from ini
+set ::coordnames [ emc_ini "COORDINATES" "TRAJ" ]
+if {[string first " " $::coordnames] < 0 } {
+  # split to acommodate "XYZ" style (as well as {X Y Z} style)
+  set ::coordnames [split $::coordnames ""]
+}
 
-# Reads axi names from ini
-set nameaxis1 [emc_ini "COORDINATES" "TRAJ"]
+set numaxis [llength $coordnames]
 
 set nameaxis "X Y Z A B C U V W"
 
@@ -83,7 +86,7 @@ label $axis.varval -text [msgcat::mc "Offset Value "]
 label $axis.forceval -text [msgcat::mc "What to Teach"]
 grid $axis.name $axis.varnum $axis.varval $axis.forceval -sticky news
 for {set i 0} {$i < $numaxis} {incr i} {
-  if { [lsearch $nameaxis1 [lindex $nameaxis $i]] != -1 } {
+  if { [lsearch $::coordnames [lindex $nameaxis $i]] != -1 } {
     label  $axis.l$i -text [lindex $nameaxis $i ]  -anchor e
     label $axis.l1$i -textvariable "num$i"  -anchor e
     entry $axis.e$i -textvariable val$i -takefocus 1
