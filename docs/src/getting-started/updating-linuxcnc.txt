@@ -686,6 +686,24 @@ Jogging is supported in both joint and teleop motion modes.
 Note that the parameters used for jogging may not be appropriate for both modes
 for machines with non-identity kinematics.
 
+==== emcsh commands
+
+The code of emcsh.cc provides the set of tcl commands used by tklinuxcnc.  The
+commands are available to tcl applications as the tcl package named 'Linuxcnc'.
+A number of commands previously required the use of a numeric argument to
+specify an axis coordinate (0-->X, 1-->Y, ..., 8-->W).  These commands have
+been simplified to use an argument that is just the coordinate letter.
+
+Commands now using a coordinate letter argument are:
+
+. emc_pos_offset
+. emc_abs_cmd_pos
+. emc_abs_act_pos
+. emc_rel_cmd_pos
+. emc_rel_act_pos
+. emc_tool_offset
+. emc_probed_pos
+
 === touchy
 
 The touchy gui continues to support the identity kinematics configurations
