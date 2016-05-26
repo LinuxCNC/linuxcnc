@@ -203,7 +203,7 @@
   Returns double objs containing the actual pos in absolute coords of individual
   joint/slider positions, excludes tool length offset
 
-  emc_pos_offset X | Y | Z | R | P | W
+  emc_pos_offset X | Y | Z | A | B | C | U | V | W
   Returns the position offset associated with the world coordinate provided
 
   emc_joint_limit 0 | 1 | ...
@@ -1487,12 +1487,12 @@ static int emc_pos_offset(ClientData clientdata,
 			  Tcl_Interp * interp, int objc,
 			  Tcl_Obj * CONST objv[])
 {
-    char string[256];
+    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
     if (objc != 2) {
-	setresult(interp,"emc_pos_offset: need exactly 1 non-negative integer");
+	setresult(interp,"emc_pos_offset: need exactly 1 coordinate letter");
 	return TCL_ERROR;
     }
 
@@ -1500,37 +1500,47 @@ static int emc_pos_offset(ClientData clientdata,
 	updateStatus();
     }
 
-    strcpy(string, Tcl_GetStringFromObj(objv[1], 0));
+    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
 
-    if (string[0] == 'X') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g92_offset.tran.x));
-    } else if (string[0] == 'Y') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g92_offset.tran.y));
-    } else if (string[0] == 'Z') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.z + emcStatus->task.g92_offset.tran.z));
-    } else if (string[0] == 'A') {
-	posobj =
-	    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.a + emcStatus->task.g92_offset.a));
-    } else if (string[0] == 'B') {
-	posobj =
-	    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.b + emcStatus->task.g92_offset.b));
-    } else if (string[0] == 'C') {
-	posobj =
-	    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.c + emcStatus->task.g92_offset.c));
-    } else if (string[0] == 'U') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.u + emcStatus->task.g92_offset.u));
-    } else if (string[0] == 'V') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.v + emcStatus->task.g92_offset.v));
-    } else if (string[0] == 'W') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.w + emcStatus->task.g92_offset.w));
-    } else {
-	setresult(interp,"emc_pos_offset: bad integer argument");
+    switch (string[0]) {
+    case 'x': case 'X':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.x
+                                                    +emcStatus->task.g92_offset.tran.x));
+        break;
+    case 'y': case 'Y':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.y
+                                                    +emcStatus->task.g92_offset.tran.y));
+        break;
+    case 'z': case 'Z':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.z
+                                                    +emcStatus->task.g92_offset.tran.z));
+        break;
+    case 'a': case 'A':
+	posobj = Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.a
+                                                    +emcStatus->task.g92_offset.a));
+        break;
+    case 'b': case 'B':
+	posobj = Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.b
+                                                    +emcStatus->task.g92_offset.b));
+        break;
+    case 'c': case 'C':
+	posobj = Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.c
+                                                    +emcStatus->task.g92_offset.c));
+        break;
+    case 'u': case 'U':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.u
+                                                    +emcStatus->task.g92_offset.u));
+        break;
+    case 'v': case 'V':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.v
+                                                    +emcStatus->task.g92_offset.v));
+        break;
+    case 'w': case 'W':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.w
+                                                    +emcStatus->task.g92_offset.w));
+        break;
+    default:
+	setresult(interp,"emc_pos_offset: bad coordinate letter argument");
 	return TCL_ERROR;
     }
 
