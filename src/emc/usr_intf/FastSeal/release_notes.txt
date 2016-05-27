@@ -1,3 +1,8 @@
+ver. 0.6.5.1
+- the icon size of the IconFileSelection widget was 
+  hard codded, so changes of the glade file had no
+  influence, I changed that
+
 ver. 0.6.5
 - if the user changes a tool in the tool editor, 
   pressing the apply button will update the tool info window 

@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.6.5"
+_RELEASE = "  0.6.5.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -925,9 +925,6 @@ class FastSeal( object ):
     # Icon file selection stuff
     def _init_IconFileSelection( self ):
         self.widgets.IconFileSelection1.set_property( "start_dir", self.get_ini_info.get_program_prefix() )
-
-        iconsize = 48
-        self.widgets.IconFileSelection1.set_property( "icon_size", iconsize )
 
         file_ext = self.get_ini_info.get_file_ext()
         filetypes = ""
