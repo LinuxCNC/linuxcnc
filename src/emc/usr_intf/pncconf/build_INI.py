@@ -322,20 +322,6 @@ class INI:
         maxlim = max(maxlim, home + extend)
         print >>file, "MIN_LIMIT = %s" % minlim
         print >>file, "MAX_LIMIT = %s" % maxlim
-
-        # For KINEMATICS_IDENTITY:
-        #     use axis MIN,MAX values identical corresponding joint values
-        if not letter == "s":
-            axis_letter = "XYZABCUVW"[num]
-            print >>file, "# Axis %s" % letter.upper()
-            print >>file, "#********************"
-            print >>file, "[AXIS_%s]" % axis_letter
-            print >>file, "MAX_VELOCITY = %s" % get("maxvel")
-            print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
-            print >>file, "MIN_LIMIT = %s" % minlim
-            print >>file, "MAX_LIMIT = %s" % maxlim
-            print >>file
-
         thisaxishome = set(("all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
         ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
         homes = False
@@ -370,6 +356,20 @@ class INI:
                 print >>file, "HOME_SEQUENCE = %s" % order[num]
         else:
             print >>file, "HOME_OFFSET = %s" % get("homepos")
+
+        # For KINEMATICS_IDENTITY:
+        #     use axis MIN,MAX values identical corresponding joint values
+        if not letter == "s":
+            axis_letter = "XYZABCUVW"[num]
+            print >>file, "# Axis %s" % letter.upper()
+            print >>file, "#********************"
+            print >>file, "[AXIS_%s]" % axis_letter
+            print >>file, "MAX_VELOCITY = %s" % get("maxvel")
+            print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
+            print >>file, "MIN_LIMIT = %s" % minlim
+            print >>file, "MAX_LIMIT = %s" % maxlim
+            print >>file
+
 
 
 # BOILER CODE
