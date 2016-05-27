@@ -36,6 +36,10 @@
 
 #include <libwebsockets.h>
 
+#if ((LWS_LIBRARY_VERSION_MAJOR >= 1) &&  (LWS_LIBRARY_VERSION_MINOR >= 6)) || (LWS_LIBRARY_VERSION_MAJOR >= 2)
+#define LWS_NEW_API 1
+#endif
+
 #define LWS_INITIAL_TXBUFFER 4096  // transmit buffer grows as needed
 #define LWS_TXBUFFER_EXTRA 256   // add to current required size if growing tx buffer
 
@@ -124,8 +128,17 @@ typedef struct zws_session_data {
     void *socket; // zmq destination
     zmq_pollitem_t pollitem;
     int socket_type;
+#ifdef LWS_NEW_API
+    lws_write_protocol txmode;
+        // needed for websocket writable callback
+    struct lws *wsiref;
+    struct lws_context *ctxref;
+#else
     libwebsocket_write_protocol txmode;
-
+    // needed for websocket writable callback
+    struct libwebsocket *wsiref;
+    struct libwebsocket_context *ctxref;
+#endif
     void *wsq_in;
     void *wsq_out;
     zmq_pollitem_t wsqin_pollitem;
@@ -144,9 +157,7 @@ typedef struct zws_session_data {
     zframe_t *current;   // partially sent frame (to ws)
     size_t already_sent; // how much of current was sent already
 
-    // needed for websocket writable callback
-    struct libwebsocket *wsiref;
-    struct libwebsocket_context *ctxref;
+
 
     // URI/args state
     UriUriA u;
@@ -204,7 +215,11 @@ typedef struct wtself {
     pb::Container tx; // tx must be Clear()'d after or before use
 
     zlist_t *policies;
+#ifdef LWS_NEW_API
+    struct lws_context *wsctx;
+#else
     struct libwebsocket_context *wsctx;
+#endif
     int service_timer;
 
     mk_netopts_t netopts;
@@ -226,9 +241,15 @@ int wt_zeroconf_withdraw(wtself_t *self);
 void echo_thread(void *args, zctx_t *ctx, void *pipe);
 
 // webtalk_proxy.cc:
-int callback_http(struct libwebsocket_context *context,
+int callback_http(
+#ifdef LWS_NEW_API
+		  struct lws *wsi,
+		  enum lws_callback_reasons reason, void *user,
+#else
+		  struct libwebsocket_context *context,
 		  struct libwebsocket *wsi,
 		  enum libwebsocket_callback_reasons reason, void *user,
+#endif
 		  void *in, size_t len);
 int wt_proxy_new(wtself_t *self);
 int wt_proxy_add_policy(wtself_t *self, const char *name, zwscvt_cb cb);
@@ -247,5 +268,9 @@ int default_policy(wtself_t *self, zws_session_t *wss, zwscb_type type);
 int wt_add_plugin(wtself_t *self, const char *sopath);
 
 // webtalk_initproto.cc
+#ifdef LWS_NEW_API
+extern struct lws_protocols *protocols;
+#else
 extern struct libwebsocket_protocols *protocols;
+#endif
 void init_protocols(void);

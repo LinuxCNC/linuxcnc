@@ -71,8 +71,11 @@ int register_zmq_poller(zws_session_t *wss)
 	return -1;
 
     // start watching the zmq socket
+#ifdef LWS_NEW_API
+    wtself_t *self = (wtself_t *) lws_context_user(wss->ctxref);
+#else
     wtself_t *self = (wtself_t *) libwebsocket_context_user(wss->ctxref);
-
+#endif
     wss->pollitem.socket =  wss->socket;
     wss->pollitem.fd = 0;
     wss->pollitem.events =  ZMQ_POLLIN;
@@ -85,7 +88,11 @@ int register_zmq_poller(zws_session_t *wss)
 int
 service_timer_callback(zloop_t *loop, int  timer_id, void *context)
 {
+#ifdef LWS_NEW_API
+    lws_service ((struct lws_context *) context, 0);
+#else
     libwebsocket_service ((struct libwebsocket_context *) context, 0);
+#endif
     return 0;
 }
 
@@ -131,9 +138,15 @@ static int set_policy(zws_session_t *wss, wtself_t *self)
 }
 
 // serves files via HTTP from www_dir if not NULL
+#ifdef LWS_NEW_API
+static int serve_http(struct lws_context *context,
+		      wtself_t *self, struct lws *wsi,
+		      void *in, size_t len)
+#else
 static int serve_http(struct libwebsocket_context *context,
 		      wtself_t *self, struct libwebsocket *wsi,
 		      void *in, size_t len)
+#endif
 {
     const char *ext, *mt = NULL;
     char buf[PATH_MAX];
@@ -173,32 +186,57 @@ static int serve_http(struct libwebsocket_context *context,
 			      "<address>webtalk Port %d</address>"
 			      "</body></html>",
 			      (char *)in,buf, self->cfg->info.port);
+#ifdef LWS_NEW_API
+	lws_write (wsi, (unsigned char *)m404, len, LWS_WRITE_HTTP);
+#else
 	libwebsocket_write (wsi, (unsigned char *)m404, len, LWS_WRITE_HTTP);
+#endif
 	return -1;
     }
     lwsl_debug("serving '%s' mime type='%s'\n", buf, mt);
 #ifdef LWS_FEATURE_SERVE_HTTP_FILE_HAS_OTHER_HEADERS_LEN
+#ifdef LWS_NEW_API
+    if (lws_serve_http_file(wsi, buf, mt, NULL, 0))
+        return -1;
+#else
     if (libwebsockets_serve_http_file(context, wsi, buf, mt, NULL, 0))
+        return -1;
+#endif
+#else
+#ifdef LWS_NEW_API
+    if (lws_serve_http_file(context, wsi, buf, mt, NULL))
         return -1;
 #else
     if (libwebsockets_serve_http_file(context, wsi, buf, mt, NULL))
         return -1;
 #endif
+#endif
     return 0;
 }
 
 // HTTP + Websockets server
+#ifdef LWS_NEW_API
+int callback_http(struct lws *wsi,
+	          enum lws_callback_reasons reason, void *user,
+	          void *in, size_t len)
+{
+    struct lws_context *context = lws_get_context(wsi);
+    struct lws_pollargs *pa = (struct lws_pollargs *)in;
+    wtself_t *self = (wtself_t *) lws_context_user(context);
+
+#else
 int
 callback_http(struct libwebsocket_context *context,
 	      struct libwebsocket *wsi,
 	      enum libwebsocket_callback_reasons reason, void *user,
 	      void *in, size_t len)
 {
+    struct libwebsocket_pollargs *pa = (struct libwebsocket_pollargs *)in;
+    wtself_t *self = (wtself_t *) libwebsocket_context_user(context);
 
+#endif
 
     zws_session_t *wss = (zws_session_t *)user;
-    wtself_t *self = (wtself_t *) libwebsocket_context_user(context);
-    struct libwebsocket_pollargs *pa = (struct libwebsocket_pollargs *)in;
 
     switch (reason) {
 
@@ -207,10 +245,17 @@ callback_http(struct libwebsocket_context *context,
 	{
 	    char client_name[128];
 	    char client_ip[128];
+#ifdef LWS_NEW_API
+	    lws_get_peer_addresses(wsi, (int)(long)in, client_name,
+				   sizeof(client_name),
+				   client_ip,
+				   sizeof(client_ip));
+#else
 	    libwebsockets_get_peer_addresses(context, wsi, (int)(long)in, client_name,
 					     sizeof(client_name),
 					     client_ip,
 					     sizeof(client_ip));
+#endif
 	    lwsl_info("%s connect from %s (%s)\n",
 		      __func__, client_name, client_ip);
 	    // access control: insert any filter here and return -1 to close connection
@@ -225,8 +270,11 @@ callback_http(struct libwebsocket_context *context,
 	// websockets support
     case LWS_CALLBACK_FILTER_PROTOCOL_CONNECTION:
 	{
+#ifdef LWS_NEW_API
+	    int fd = lws_get_socket_fd(wsi);
+#else
 	    int fd = libwebsocket_get_socket_fd(wsi);
-
+#endif
 	    // parse URI and query
 	    // set policy if contained in query
 	    // call ZWS_CONNECTING callback
@@ -245,8 +293,11 @@ callback_http(struct libwebsocket_context *context,
 	    // extract and parse uri and args
 	    lws_hdr_copy(wsi, geturi, sizeof geturi, WSI_TOKEN_GET_URI);
 	    int arglen = lws_hdr_copy(wsi, uriargs, sizeof uriargs, WSI_TOKEN_HTTP_URI_ARGS);
-
+#ifdef LWS_NEW_API
+	    const struct lws_protocols *proto = lws_get_protocol(wsi);
+#else
 	    const struct libwebsocket_protocols *proto = libwebsockets_get_protocol(wsi);
+#endif
 
 	    lwsl_uri("%s %d: proto='%s' uri='%s' args='%s'\n",
 		     __func__, fd, proto->name, geturi, uriargs);
@@ -343,15 +394,24 @@ callback_http(struct libwebsocket_context *context,
 		    // enlarge as needed
 		    needed += LWS_TXBUFFER_EXTRA;
 		    lwsl_info("Websocket %d: enlarge txbuf %d to %d\n",
-			     libwebsocket_get_socket_fd(wsi), wss->txbufsize, needed);
+#ifdef LWS_NEW_API
+			      lws_get_socket_fd(wsi), wss->txbufsize, needed);
+#else
+		              libwebsocket_get_socket_fd(wsi), wss->txbufsize, needed);
+#endif
 		    free(wss->txbuffer);
 		    wss->txbuffer = (unsigned char *) zmalloc(needed);
 		    assert(wss->txbuffer);
 		    wss->txbufsize = needed;
 		}
 		memcpy(&wss->txbuffer[LWS_SEND_BUFFER_PRE_PADDING], zframe_data(f), n);
+#ifdef LWS_NEW_API
+		m = lws_write(wsi, &wss->txbuffer[LWS_SEND_BUFFER_PRE_PADDING],
+				       n, wss->txmode);
+#else
 		m = libwebsocket_write(wsi, &wss->txbuffer[LWS_SEND_BUFFER_PRE_PADDING],
 				       n, wss->txmode);
+#endif
 		assert(m == n);  // library must handle this case
 		zframe_destroy(&f);
 		wss->completed++;
@@ -366,7 +426,11 @@ callback_http(struct libwebsocket_context *context,
 
 		    zloop_poller_end (self->netopts.z_loop, &wss->wsqin_pollitem);
 		    wss->wsqin_poller_active = false;
+#ifdef LWS_NEW_API
+		    lws_callback_on_writable(wsi);
+#else
 		    libwebsocket_callback_on_writable(context, wsi);
+#endif
 		    break;
 		}
 	    } while (1);
@@ -382,7 +446,11 @@ callback_http(struct libwebsocket_context *context,
 
 	    lwsl_info("Websocket %d stats: in %d/%d out"
 		      " %d/%d zmq %d/%d partial=%d retry=%d complete=%d txbuf=%d\n",
+#ifdef LWS_NEW_API
+		      lws_get_socket_fd(wsi), wss->wsin_msgs, wss->wsin_bytes,
+#else
 		      libwebsocket_get_socket_fd(wsi), wss->wsin_msgs, wss->wsin_bytes,
+#endif
 		      wss->wsout_msgs, wss->wsout_bytes,
 		      wss->zmq_msgs, wss->zmq_bytes,
 		      wss->partial, wss->partial_retry, wss->completed,
@@ -470,7 +538,11 @@ libws_socket_readable(zloop_t *loop, zmq_pollitem_t *item, void *context)
 
     pollstruct.fd = item->fd;
     pollstruct.revents = pollstruct.events = pevents;
+#ifdef LWS_NEW_API
+    lws_service_fd((struct lws_context *) context, &pollstruct);
+#else
     libwebsocket_service_fd((struct libwebsocket_context *)context, &pollstruct);
+#endif
     return 0;
 }
 
@@ -478,7 +550,11 @@ static int
 zmq_socket_readable(zloop_t *loop, zmq_pollitem_t *item, void *arg)
 {
     zws_session_t *wss = (zws_session_t *)arg;
+#ifdef LWS_NEW_API
+    wtself_t *self = (wtself_t *) lws_context_user(wss->ctxref);
+#else
     wtself_t *self = (wtself_t *) libwebsocket_context_user(wss->ctxref);
+#endif
     return wss->policy(self, wss, ZWS_TO_WS);
 }
 
@@ -486,7 +562,11 @@ static int
 wsqin_socket_readable(zloop_t *loop, zmq_pollitem_t *item, void *arg)
 {
     zws_session_t *wss = (zws_session_t *)arg;
+#ifdef LWS_NEW_API
+    lws_callback_on_writable(wss->wsiref);
+#else
     libwebsocket_callback_on_writable(wss->ctxref, wss->wsiref);
+#endif
     return 0;
 }
 
