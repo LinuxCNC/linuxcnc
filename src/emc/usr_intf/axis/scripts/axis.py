@@ -1120,6 +1120,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
             ensure_mode(save_task_mode)
             return open_file_guts(tempfile, True, False)
 
+    ensure_mode(save_task_mode)
     set_first_line(0)
     t0 = time.time()
 
@@ -2561,7 +2562,6 @@ class TclCommands(nf.TclCommands):
         c.mdi(offset_command)
         c.wait_complete()
 
-        ensure_mode(linuxcnc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
         reload_file(False)
@@ -2606,7 +2606,6 @@ class TclCommands(nf.TclCommands):
         c.mdi("G43")
         c.wait_complete()
 
-        ensure_mode(linuxcnc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
         reload_file(False)
