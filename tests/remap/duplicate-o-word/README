@@ -1,0 +1,14 @@
+This tests for a specific interpreter regression where in very
+specific circumstances involving remapped functions,
+`_setup.sequence_number` is reset, which triggers the "duplicate
+O-word label" sanity check.
+
+This test triggers the regression by calling a remap twice.  In the first
+call, before the problem O-word, it calls a second-level remap that
+returns with a reset `_setup.sequence_number`, so the following O-word
+is recorded with an incorrect position.
+
+In the second call, the second-level remap is not invoked, so the
+following O-word appears at the correct `_setup.sequence_number`; the
+differing positions then triggers the "duplicate O-word label" sanity
+check and the program exits with an error.
