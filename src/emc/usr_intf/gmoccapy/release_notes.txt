@@ -1,3 +1,9 @@
+ver. 1.5.6.3
+- bugfix: In _init_IconFileSelection the icon size was fixed with 48 
+  so changes the user makes to the glade file was not been taken care of
+- In glade file a signal on_btn_load_state_changed was set, but no handler present, 
+  leading to a error message on start in the terminal, erased the signal
+
 ver. 1.5.6.2
 - bugfix: run from line was trying to set an entry in the alarm page, whitch
   I drobed in 1.5.6 
