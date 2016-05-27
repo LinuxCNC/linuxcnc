@@ -250,14 +250,12 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-    if (!nothreads) {
-	/* set up for realtime execution of code */
-	retval = init_threads();
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: init_threads() failed\n"));
-	    hal_exit(mot_comp_id);
-	    return -1;
-	}
+    /* set up for realtime execution of code */
+    retval = init_threads();
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: init_threads() failed\n"));
+	hal_exit(mot_comp_id);
+	return -1;
     }
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_module() complete\n");
