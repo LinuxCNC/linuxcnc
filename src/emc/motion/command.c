@@ -62,6 +62,7 @@
 #include "posemath.h"
 #include "rtapi.h"
 #include "hal.h"
+#include "hal_priv.h"
 #include "motion.h"
 #include "motion_debug.h"
 #include "motion_struct.h"
@@ -378,21 +379,29 @@ int abort_and_switchback(void)
   emcmotCommandHandler() is called each main cycle to read the
   shared memory buffer
   */
-void emcmotCommandHandler(void *arg, long period)
+int emcmotCommandHandler(void *arg, const hal_funct_args_t *fa)
 {
+    long period = fa_period(fa);
     int joint_num;
     int n;
     emcmot_joint_t *joint;
     double tmp1;
     emcmot_comp_entry_t *comp_entry;
     char issue_atspeed = 0;
-    
-check_stuff ( "before command_handler()" );
+    static int once = 1;
+
+    check_stuff ( "before command_handler()" );
+
+    if (once) {
+	setServoCycleTime(period * 1e-9);
+	setTrajCycleTime((traj_period_nsec == 0) ? period * 1e-9 : traj_period_nsec);
+	once = 0;
+    }
 
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
 	emcmotDebug->split++;
-	return;			/* not really an error */
+	return 0;			/* not really an error */
     }
     if (emcmotCommand->commandNum != emcmotStatus->commandNumEcho) {
 	/* increment head count-- we'll be modifying emcmotStatus */
@@ -1281,7 +1290,7 @@ check_stuff ( "before command_handler()" );
 	    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
 		/* can't home unless in free mode */
 		reportError(_("must be in joint mode to home"));
-		return;
+		return 0;
 	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
 		break;
@@ -1331,7 +1340,7 @@ check_stuff ( "before command_handler()" );
             
             if ((emcmotStatus->motion_state != EMCMOT_MOTION_FREE) && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
                 reportError(_("must be in joint mode or disabled to unhome"));
-                return;
+                return 0;
             }
 
             if (joint_num < 0) {
@@ -1343,11 +1352,11 @@ check_stuff ( "before command_handler()" );
                     if(GET_JOINT_ACTIVE_FLAG(joint)) {
                         if (GET_JOINT_HOMING_FLAG(joint)) {
                             reportError(_("Cannot unhome while homing, joint %d"), n);
-                            return;
+                            return 0;
                         }
                         if (!GET_JOINT_INPOS_FLAG(joint)) {
                             reportError(_("Cannot unhome while moving, joint %d"), n);
-                            return;
+                            return 0;
                         }
                     }
                 }
@@ -1366,11 +1375,11 @@ check_stuff ( "before command_handler()" );
                 if(GET_JOINT_ACTIVE_FLAG(joint)) {
                     if (GET_JOINT_HOMING_FLAG(joint)) {
                         reportError(_("Cannot unhome while homing, joint %d"), joint_num);
-                        return;
+                        return 0;
                     }
                     if (!GET_JOINT_INPOS_FLAG(joint)) {
                         reportError(_("Cannot unhome while moving, joint %d"), joint_num);
-                        return;
+                        return 0;
                     }
                     SET_JOINT_HOMED_FLAG(joint, 0);
                 } else {
@@ -1379,7 +1388,7 @@ check_stuff ( "before command_handler()" );
             } else {
                 /* invalid joint number specified */
                 reportError(_("Cannot unhome invalid joint %d (max %d)"), joint_num, (num_joints-1));
-                return;
+                return 0;
             }
 
             break;
@@ -1753,5 +1762,5 @@ check_stuff ( "before command_handler()" );
     /* end of: if-new-command */
 check_stuff ( "after command_handler()" );
 
-    return;
+    return 0;
 }

@@ -814,6 +814,9 @@ Suggestion: Split this in to an Error and a Status flag register..
     extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
     extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
 
+    int setTrajCycleTime(double secs);
+    int setServoCycleTime(double secs);
+
 #ifdef __cplusplus
 }
 #endif

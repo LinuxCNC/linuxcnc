@@ -33,6 +33,7 @@
 
 /* joint data */
 #include "hal.h"
+#include "hal_priv.h"
 #include "../motion/motion.h"
 
 typedef struct {
@@ -299,13 +300,14 @@ extern TP_STRUCT *emcmotPrimQueue;
 extern TP_STRUCT *emcmotAltQueue;
 extern TP_STRUCT *emcmotQueue;
 
+extern long traj_period_nsec; // motion.c commandline argument
 /***********************************************************************
 *                    PUBLIC FUNCTION PROTOTYPES                        *
 ************************************************************************/
 
 /* function definitions */
-extern void emcmotCommandHandler(void *arg, long period);
-extern void emcmotController(void *arg, long period);
+extern int emcmotCommandHandler(void *arg, const hal_funct_args_t *fa);
+extern int emcmotController(void *arg,  const hal_funct_args_t *fa);
 extern void emcmotSetCycleTime(unsigned long nsec);
 
 /* these are related to synchronized I/O */
