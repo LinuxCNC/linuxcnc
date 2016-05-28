@@ -682,9 +682,14 @@ The tklinuxcnc gui supports both identity and non-identity kinematics, includes
 gui radiobuttons and a key bindiing ('$') for toggling joint and teleop modes.
 External changes to joint or teleop motion mode are detected.
 Jogging is supported in both joint and teleop motion modes.
-
 Note that the parameters used for jogging may not be appropriate for both modes
 for machines with non-identity kinematics.
+
+OpenGL is not used by tklinuxcnc so it may be used to isolate problems and
+system dependencies that are exposed with more modern guis like axis.
+
+The rudimentary backplot gui provided is available for use with identity kinematics
+(xyz) machine configurations.
 
 ==== emcsh commands
 
@@ -762,14 +767,14 @@ must be teleop and the corresponding command is: 'set jog x 1.234'
 
 == Obsolete Guis
 
-The guis 'mini' and 'keystick' have been removed in conjunction with
-updates for joints_axes.  All related source code, examples, and
-documentation are available in the git repository.
+The guis 'mini', 'keystick', and 'xlinuxcnc' have been removed in
+conjunction with updates for joints_axes.  All related source code,
+examples, and documentation are available in the git repository.
 
 == Deprecated Guis
 
-The guis 'xlinuxcnc' and 'linuxcnclcd' are candidates for removal.
-Should these components be removed, all related source code, examples,
+The 'linuxcnclcd' gui is a candidate for removal.
+Should this component be removed, all related source code, examples,
 and documentation will be available in the git repository.
 
 == Simulator configurations (updates for joints axes)

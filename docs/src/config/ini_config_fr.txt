@@ -355,8 +355,8 @@ Pour plus d'informations, voire la section Interfaces du Manuel de l'utilisateur
 
 * 'DISPLAY = axis' - Le nom de l'interface graphique à utiliser. Les options
 disponibles sont les suivantes: 'axis',(((axis))) 'touchy',(((touchy)))
- 'mini',(((mini))) 'tklinuxcnc',(((tklinuxcnc)))
-'xlinuxcnc', (((xlinuxcnc)))
+'tklinuxcnc',(((tklinuxcnc)))
+
 
 * 'POSITION_OFFSET = RELATIVE' - Le système de coordonnées (RELATIVE ou MACHINE)
 à utiliser au démarrage de l'interface utilisateur. Le système de coordonnées

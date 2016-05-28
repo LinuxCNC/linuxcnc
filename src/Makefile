@@ -611,7 +611,6 @@ install-kernel-indep: install-dirs
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkLinuxCNC $(DESTDIR)/etc/X11/app-defaults
-	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/linuxcnc
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/hal.so $(DESTDIR)$(tcldir)
