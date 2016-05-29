@@ -123,7 +123,6 @@ RTAPI_MP_INT(no_init_llio, "debugging - if 1, do not set any llio fields (like n
 static long timer1;
 RTAPI_MP_INT(timer1, "rate for hm2 Timer1 IRQ, 0: IRQ disabled");
 
-
 static int comp_id;
 static hm2_soc_t board[HM2_SOC_MAX_BOARDS];
 static int num_boards;
@@ -133,10 +132,8 @@ static int failed_errno = 0; // errno of last failed registration
 static char *configfs_dir = "/sys/kernel/config/device-tree/overlays/hm2_soc_ol";
 static char *configfs_path = "/sys/kernel/config/device-tree/overlays/hm2_soc_ol/path";
 static char *configfs_status = "/sys/kernel/config/device-tree/overlays/hm2_soc_ol/status";
-static int zero = 0;
 
 static int hm2_soc_mmap(hm2_soc_t *brd);
-static int waitirq(void *arg, const hal_funct_args_t *fa); // HAL thread funct
 static int fpga_status();
 static char *strlwr(char *str);
 static int locate_uio_device(hm2_soc_t *brd, const char *name);
@@ -306,6 +303,7 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
         LL_ERR("soc_mmap_fail");
         return -EINVAL;
     }
+
     return 0;
 }
 
@@ -387,6 +385,11 @@ static int hm2_soc_mmap(hm2_soc_t *brd) {
     // now it's safe to read/write
     this->read = hm2_soc_read;
     this->write = hm2_soc_write;
+
+    // handle irq setup request
+    if (this->host_wants_irq != 0)
+        this->irq_fd = brd->uio_fd;
+
     return 0;
 }
 
@@ -541,41 +544,6 @@ int rtapi_app_main(void) {
         return r;
     }
 
-    // enable time IRQ's
-    if (timer1) {
-
-	brd->pins = hal_malloc(sizeof(hm2_soc_pins_t));
-	if (!brd->pins)
-	    return -1;
-
-	if (hal_pin_u32_newf(HAL_OUT, &brd->pins->irq_count, comp_id, "%s.irq.count", brd->llio.name) ||
-	    hal_pin_u32_newf(HAL_OUT, &brd->pins->irq_missed, comp_id, "%s.irq.missed", brd->llio.name) ||
-	    hal_pin_u32_newf(HAL_OUT, &brd->pins->write_errors, comp_id, "%s.errors.write", brd->llio.name) ||
-	    hal_pin_u32_newf(HAL_OUT, &brd->pins->read_errors, comp_id, "%s.errors.read", brd->llio.name))
-	    return -1;
-
-	hal_export_xfunct_args_t xfunct_args = {
-	    .type = FS_XTHREADFUNC,
-	    .funct.x = waitirq,
-	    .arg = brd,
-	    .uses_fp = 0,
-	    .reentrant = 0,
-	    .owner_id = comp_id
-	};
-	if ((r = hal_export_xfunctf(&xfunct_args, "waitirq.%d", 0)) != 0) {
-	    LL_PRINT("hal_export waitirq failed - %d\n", r);
-	    hal_exit(comp_id);
-	    r = hm2_soc_munmap(brd);
-	    return r;
-	}
-
-	// enable timer 1 interrupt
-	int val = 2;
-	hm2_soc_write(&brd->llio, HM2_IRQ_STATUS_REG , (void *)&val, sizeof(val));
-
-    } else {
-	LL_PRINT("timer1 argument 0 - waitirq function not exported\n");
-    }
     hal_ready(comp_id);
     return 0;
 }
@@ -665,34 +633,5 @@ static int locate_uio_device(hm2_soc_t *brd, const char *name)
 
     rtapi_snprintf(buf, sizeof(buf), "/dev/uio%d", uio_id);
     brd->uio_dev = strdup(buf);
-    return 0;
-}
-
-
-static int waitirq(void *arg, const hal_funct_args_t *fa)
-{
-    hm2_soc_t *brd = arg;
-    uint32_t info;
-    ssize_t nb;
-
-    info = 1; /* unmask */
-
-    nb = write(brd->uio_fd, &info, sizeof(info));
-    if (nb < sizeof(info)) {
-	*(brd->pins->write_errors) += 1;
-    }
-
-    info = 0;
-    // wait for IRQ
-    nb = read(brd->uio_fd, &info, sizeof(info));
-    if (nb != sizeof(info)) {
-	*(brd->pins->read_errors) += 1;
-    }
-    *(brd->pins->irq_count) += 1;
-    *(brd->pins->irq_missed) = info - *(brd->pins->irq_count);
-
-    // clear pending IRQ
-    hm2_soc_write(&brd->llio, HM2_CLEAR_IRQ_REG, &zero, sizeof(zero));
-
     return 0;
 }

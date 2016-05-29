@@ -60,15 +60,15 @@ RTAPI_MP_INT(use_serial_numbers, "Name cards by serial number, not enumeration o
 int sserial_baudrate = -1;
 RTAPI_MP_INT(sserial_baudrate, "Over-ride the standard smart-serial baud rate. For flashing remote firmware only.");
 
+u32 irq_period_nsec = 0;
+RTAPI_MP_INT(irq_period_nsec, "Rate to generate IRQ requests from the DPLL");
+
 // this keeps track of all the hm2 instances that have been registered by
 // the low-level drivers
 struct list_head hm2_list;
 
 
 static int comp_id;
-
-
-
 
 //
 // functions exported to LinuxCNC
@@ -127,6 +127,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_absenc_write(hm2);    // set bit-lengths and frequency
     hm2_resolver_write(hm2, period); // Update the excitation frequency
     hm2_dpll_write(hm2, period); // Update the timer phases
+    hm2_irq_write(hm2); // Update the irq period - after dpll call
     hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
@@ -152,8 +153,6 @@ static void hm2_write_gpio(void *void_hm2, long period) {
     hm2_ioport_gpio_write(hm2);
     hm2_watchdog_write(hm2, period);
 }
-
-
 
 
 //
@@ -1186,6 +1185,12 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     llio->firmware = hm2->config.firmware;
 
+    // Request llio to return IRQ fd if module param asks
+    if (irq_period_nsec > 0)
+        llio->host_wants_irq = 1;
+    else
+        llio->host_wants_irq = 0;
+
     // NOTE: program_fpga will be NULL for 6i25 and 5i25 (and future cards
     // with EPROM firmware, probably.
 
@@ -1537,7 +1542,6 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     hm2_stepgen_tram_init(hm2);
     hm2_stepgen_process_tram_read(hm2, 1000);
 
-
     //
     // write the TRAM one first time
     //
@@ -1568,6 +1572,20 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         goto fail1;
     }
 
+    // if module param requests the dpll to generate an irq
+    if (irq_period_nsec > 0) {
+        // Can this llio generate handle the irq?
+        if (hm2->dpll.num_instances <= 0 || hm2->llio->irq_fd < 0) {
+            HM2_ERR("dpll irq is not supported by llio %s\n", hm2->llio->name);
+            r = -EINVAL;
+            goto fail1;
+        }
+
+        // initialize the dpll accum width, etc.
+        hm2_dpll_process_tram_read(hm2, irq_period_nsec);
+
+        hm2_irq_setup(hm2, irq_period_nsec);
+    }
 
     //
     // all initialized show what pins & modules we ended up with
@@ -1629,14 +1647,6 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             goto fail1;
         }
     }
-
-    if(hm2->llio->irq_period > 0) {
-      // set the dpll values read from the FPGA
-      hm2_dpll_process_tram_read(hm2, hm2->llio->irq_period);
-      // llio wants to provide an external clock period
-      hm2_dpll_write(hm2, hm2->llio->irq_period);
-    }
-
 
     //
     // found one!

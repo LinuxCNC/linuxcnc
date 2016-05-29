@@ -121,9 +121,9 @@ struct hm2_lowlevel_io_struct {
     // if TRUE, the hostmot2 driver will export those three functions and also read_gpio() and write_gpio()
     int threadsafe;
 
-    long irq_period;  // IRQ period in ns
-
     char *firmware; // Name of the firmware file
+    int host_wants_irq; // flag passed in to request llio to setup IRQ
+    int irq_fd;     // The uio file descriptor used for irq blocking
 
     void *private;  // for the low-level driver to hang their struct on
 

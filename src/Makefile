@@ -1368,6 +1368,7 @@ hostmot2-objs +=			  \
     hal/drivers/mesa-hostmot2/watchdog.o  \
     hal/drivers/mesa-hostmot2/pins.o	  \
     hal/drivers/mesa-hostmot2/dpll.o  \
+    hal/drivers/mesa-hostmot2/irq.o  \
     hal/drivers/mesa-hostmot2/led.o	  \
     hal/drivers/mesa-hostmot2/fwid.o	  \
     hal/drivers/mesa-hostmot2/tram.o	  \
