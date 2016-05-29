@@ -1,3 +1,7 @@
+ver. 0.7.0
+- X_DRO will now change its letter to "D" if you are 
+  in diameter mode and back to "X" if in radius mode
+
 ver. 0.6.6
 - bug, the checkbox "ignore limits" lost it's signal
   so it was not possible to jog away from a limit switch

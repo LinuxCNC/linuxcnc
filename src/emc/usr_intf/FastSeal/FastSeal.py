@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.6.6"
+_RELEASE = "  0.7.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1518,8 +1518,12 @@ class FastSeal( object ):
     def _switch_to_g7( self, state ):
         if state:
             self.diameter_mode = True
+            self.widgets.Combi_DRO_x.change_axisletter("D")
         else:
             self.diameter_mode = False
+            self.widgets.Combi_DRO_x.change_axisletter("X")
+
+        self.widgets.Combi_DRO_x.set_to_diameter(state)
 
     def on_key_event( self, widget, event, signal ):
 
