@@ -11,7 +11,9 @@ net jog-z   axis.2.jog-enable   <=   pendant.jog-z
 # setp axis.2.jog-scale   0.05
 # setp axis.0.jog-scale   0.05
 # but also better do connect them to the jog- increments of FastSeal. 
-net scale axis.2.jog-scale   <=   axis.0.jog-scale   <=   FastSeal.jog-increment
+#net scale axis.2.jog-scale   <=   axis.0.jog-scale   <=   FastSeal.jog-increment
+setp axis.2.jog-scale   0.1
+setp axis.0.jog-scale   0.1
 
 # Connect all counts to Jogwheel-counts / Alle count san Jogwheel-counts anbinden
 net override-counts       pendant.override-wheel-counts

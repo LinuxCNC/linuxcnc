@@ -30,6 +30,7 @@ docs/html/drivers
 lib/python/gremlin.py
 lib/python/touchy
 configs/sim/gmoccapy/*.pref
+configs/sim/FastSeal/*.pref
 configs/sim/gmoccapy/gmoccapy_plasma/*.pref
 # Miscellaneous generated files (Rob)
 cscope
