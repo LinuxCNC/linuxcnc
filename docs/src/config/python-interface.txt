@@ -51,7 +51,7 @@ periodically, and process any messages retrieved.
 == Reading LinuxCNC status
 
 Here is a Python fragment to explore the contents of the
-`linuxcnc.stat` object which contains some 8ß0+ values (run while
+`linuxcnc.stat` object which contains some 80+ values (run while
 linuxcnc is running for typical values):
 
 [source,python]
