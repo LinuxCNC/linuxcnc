@@ -22,6 +22,8 @@
 # 3 =          left zoom,   middle rotate, right move
 # 4 =          left move,   middle zoom,   right rotate
 # 5 =          left rotate, middle zoom,   right move
+# 2015 Moses McKnight introduced mode 6 
+# 6 = left move, middle zoom, right zoom (no rotate - for 2D plasma machines or lathes)
 
 import os
 import gtk, gobject
