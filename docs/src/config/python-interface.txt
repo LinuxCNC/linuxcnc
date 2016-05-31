@@ -6,8 +6,8 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-This is work in progress by Michael Haberler. Comments, fixes, and
-addenda are welcome, especially for PositionLogger (A bit of intent, purpose and usage would help here!)
+This documentation describes the 'linuxcnc' python module, which provides
+a python API for talking to LinuxCNC.
 
 == The linuxcnc Python module
 
