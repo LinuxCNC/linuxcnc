@@ -1,3 +1,9 @@
+ver. 0.8.0
+- introduced two ne hal pin
+  * FastSeal.clear-preview
+  * FastSeal.reload-preview
+  To enable the user to automaticaly reload parts
+
 ver. 0.7.0
 - X_DRO will now change its letter to "D" if you are 
   in diameter mode and back to "X" if in radius mode

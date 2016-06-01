@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.7.0"
+_RELEASE = "  0.8.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -3082,6 +3082,16 @@ class FastSeal( object ):
     def on_gremlin_line_clicked( self, widget, line ):
         self.widgets.gcode_view.set_line_number( line )
 
+    def _on_clear_preview_changed(self, pin):
+        if pin.get():
+            print("clear preview")
+            self.widgets.gremlin.clear_live_plotter()
+
+    def _on_reload_preview_changed(self, pin):
+        if pin.get():
+            print("reload preview")
+            self.widgets.hal_action_reload.emit( "activate" )
+
     def on_btn_load_clicked( self, widget, data = None ):
         self.widgets.ntb_button.set_current_page( 8 )
         self.widgets.ntb_preview.set_current_page( 3 )
@@ -3602,6 +3612,13 @@ class FastSeal( object ):
         # make a pin for coolant
         pin = self.halcomp.newpin( "coolant-on", hal.HAL_BIT, hal.HAL_IN )
         hal_glib.GPin( pin ).connect( "value_changed", self._on_coolant_changed )
+        
+        # make pins for gremlin; clear preview and reload preview
+        pin = self.halcomp.newpin( "clear-preview", hal.HAL_BIT, hal.HAL_IN )
+        hal_glib.GPin( pin ).connect( "value_changed", self._on_clear_preview_changed )
+        pin = self.halcomp.newpin( "reload-preview", hal.HAL_BIT, hal.HAL_IN )
+        hal_glib.GPin( pin ).connect( "value_changed", self._on_reload_preview_changed )
+        
 
 # Hal Pin Handling End
 # =========================================================
