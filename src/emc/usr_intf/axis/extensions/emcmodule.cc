@@ -309,6 +309,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"task_state", T_INT, O(task.state), READONLY},
     {(char*)"exec_state", T_INT, O(task.execState), READONLY},
     {(char*)"interp_state", T_INT, O(task.interpState), READONLY},
+    {(char*)"call_level", T_INT, O(task.callLevel), READONLY},
     {(char*)"read_line", T_INT, O(task.readLine), READONLY},
     {(char*)"motion_line", T_INT, O(task.motionLine), READONLY},
     {(char*)"current_line", T_INT, O(task.currentLine), READONLY},
