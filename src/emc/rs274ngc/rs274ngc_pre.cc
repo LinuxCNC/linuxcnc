@@ -2467,6 +2467,9 @@ int Interp::on_abort(int reason, const char *message)
     _setup.probe_flag = false;
     _setup.input_flag = false;
 
+    logDebug("interp: %s simulating M30\n", __func__);
+    program_end_cleanup(&_setup);
+
     if (_setup.on_abort_command == NULL)
 	return -1;
 
