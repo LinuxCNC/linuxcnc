@@ -141,10 +141,13 @@ int rtapi_shmem_delete(int handle, int module_id)
 
 
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
-    if(level == RTAPI_MSG_ALL)
+    if(level == RTAPI_MSG_ALL) {
 	vfprintf(stdout, fmt, ap);
-    else
+        fflush(stdout);
+    } else {
 	vfprintf(stderr, fmt, ap);
+        fflush(stderr);
+    }
 }
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 
