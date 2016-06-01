@@ -1,3 +1,6 @@
+ver. 0.8.1
+- deleted unneeded print commands
+
 ver. 0.8.0
 - introduced two ne hal pin
   * FastSeal.clear-preview

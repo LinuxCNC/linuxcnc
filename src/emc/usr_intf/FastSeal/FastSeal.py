@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # FastSeal  #"
-_RELEASE = "  0.8.0"
+_RELEASE = "  0.8.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -3084,12 +3084,10 @@ class FastSeal( object ):
 
     def _on_clear_preview_changed(self, pin):
         if pin.get():
-            print("clear preview")
             self.widgets.gremlin.clear_live_plotter()
 
     def _on_reload_preview_changed(self, pin):
         if pin.get():
-            print("reload preview")
             self.widgets.hal_action_reload.emit( "activate" )
 
     def on_btn_load_clicked( self, widget, data = None ):
