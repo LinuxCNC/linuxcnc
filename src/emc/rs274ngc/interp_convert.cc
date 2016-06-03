@@ -4227,7 +4227,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 
 /*4*/ settings->feed_mode = UNITS_PER_MINUTE;
     SET_FEED_MODE(0);
-    settings->feed_rate = block->f_number;
+    settings->feed_rate = 0;
     SET_FEED_RATE(0);
 
 /*5*/ if (!settings->feed_override) {
