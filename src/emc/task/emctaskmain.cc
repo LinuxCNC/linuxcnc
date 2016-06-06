@@ -134,6 +134,13 @@ int _task = 1; // control preview behaviour when remapping
 // %d receives io.reason
 static const char *io_error = "toolchanger error %d";
 
+// When this flag is True (non-zero), Task will refrain from reading NML
+// input from the user interfaces, preferring instead to process Canon
+// messages from interp_list.  It's used in situations where Interp's
+// output is vital and must not be interrupted by pesky users, such as
+// when processing an Abort.
+int drain_interp_list = 0;
+
 extern void setup_signal_handlers(); // backtrace, gdb-in-new-window supportx
 
 static int all_homed(void) {
@@ -788,6 +795,14 @@ static int emcTaskPlan(void)
     RCS_CMD_MSG *emcCommand;
     NMLTYPE type;
     int retval = 0;
+
+    if (drain_interp_list) {
+        if ((interp_list.len() == 0) && (emcTaskCommand == NULL)) {
+            drain_interp_list = 0;
+        } else {
+            return 0;
+        }
+    }
 
     emcCommand = emcCommandBuffer->get_address();
 
