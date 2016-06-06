@@ -151,14 +151,32 @@ FREE
 
 #
 # Now Task is done with its internal immediate startup and starts
-# processing UI commands and the interp_list.
+# draining the interp_list.
 #
 # emctask_start() called emcTaskPlanInit(), which initialized the
-# Interpreter, enqueueing Canon commands on interp_list.  Before Task can
-# process them, the UI sends a command to switch state to ESTOP_RESET,
-# which discards the interp list.
+# Interpreter, enqueueing Canon commands on interp_list.
 #
-# So what we see here is the handling of the switch to ESTOP_RESET.
+
+SET_TERM_COND termCond=2, tolerance=0.000000
+SET_SPINDLESYNC sync=0.000000, flags=0x00000000
+SPINDLE_OFF
+
+#
+# Task has fully booted!  It's now in Estop, in Manual, and ready to
+# receive commands from the UIs.
+#
+
+#
+# The test UI first sends a command to switch state to ESTOP_RESET,
+# which does these things:
+#     * Send Estop Off to IO (we miss this)
+#     * Send Lube Off to IO (we miss this)
+#     * Task Abort (Aborts Motion, closes Interp)
+#     * Send Abort to IO (we miss this)
+#     * Turn off the spindle
+#     * Abort Interp, which enqueues Canon commands to turn off Spindle
+#           Sync and the Spindle (and do other things inside Task, which
+#           we dont see here)
 #
 
 AXIS_ABORT joint=0
@@ -173,6 +191,7 @@ AXIS_ABORT joint=8
 ABORT
 SPINDLE_OFF
 SET_SPINDLESYNC sync=0.000000, flags=0x00000000
+SPINDLE_OFF
 
 #
 # The test UI then sends an NML command to move Task to the On state, which
