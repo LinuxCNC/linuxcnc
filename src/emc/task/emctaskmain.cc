@@ -3286,8 +3286,6 @@ int main(int argc, char *argv[])
     emcTaskSetState(EMC_TASK_STATE_ESTOP);
     emcTaskSetMode(EMC_TASK_MODE_MANUAL);
 
-    // cause the interpreter's starting offset to be reflected
-    emcTaskPlanInit();
     // reflect the initial value of EMC_DEBUG in emcStatus->debug
     emcStatus->debug = emc_debug;
 
