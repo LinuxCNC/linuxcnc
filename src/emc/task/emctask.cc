@@ -188,6 +188,7 @@ int emcTaskAbort()
     emcStatus->task.motionLine = 0;
     emcStatus->task.readLine = 0;
     emcStatus->task.command[0] = 0;
+    emcStatus->task.callLevel = 0;
 
     stepping = 0;
     steppingWait = 0;

@@ -1921,6 +1921,7 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update((int *) &state, 1);
     cms->update((int *) &execState, 1);
     cms->update((int *) &interpState, 1);
+    cms->update(callLevel);
     cms->update(motionLine);
     cms->update(currentLine);
     cms->update(readLine);
