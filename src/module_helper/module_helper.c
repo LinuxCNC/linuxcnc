@@ -28,6 +28,7 @@ In summary, I don't like this any more than you do, but I can't
 think of a better way.
 */
 
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
