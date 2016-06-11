@@ -20,7 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <limits.h>             // DBL_MAX, maybe
+#include <float.h>
 #include <stdarg.h>
 #include <sys/stat.h>           // struct stat, stat()
 #include <unistd.h>
