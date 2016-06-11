@@ -29,6 +29,10 @@
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
 
+#ifndef M_PI_2l
+#define M_PI_2l        1.570796326794896619231321691639751442L /* pi/2 */
+#endif
+
 #define _(s) gettext(s)
 
 char Interp::arc_axis1(int plane) {
