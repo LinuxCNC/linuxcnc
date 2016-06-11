@@ -104,10 +104,10 @@ pin is asserted in that cycle, the
 pin is increased, and if it reaches a threshold then a permanent low-level
 I/O error is signaled.
 
-However, not all hm2 special functions know how to properly recover from
-lost packets.  For instance, the encoder special function does not properly
-distinguish between a lost write packet and an actual index pulse.  Serial
-devices also don't have appropriate error handling.
+However, not all hm2 special functions know how to properly recover from lost
+packets.  For instance, the encoder special function does not properly manage
+the index feature when packets are lost.  The author believes that this can
+lead to rare failures in home-to-index, which can have severe consequences.
 
 On the other hand, pid-stepper systems will run properly for extended periods
 of time with packet loss on the order of .01%, as long as following error is
@@ -205,6 +205,10 @@ power cycle with
 .EX
 elbpcom 01D914000000
 .EE
+
+Depending on firmware version, this driver may cause the hardware error
+LED to light even though the driver and hardware are functioning normally.
+This will reportedly be fixed in future bitfile updates from Mesa.
 
 .SH SEE ALSO
 
