@@ -16,7 +16,7 @@
 
 #include <stddef.h>		/* NULL */
 #include <stdio.h>		/* printf */
-#include <malloc.h>		/* malloc(), free() */
+#include <stdlib.h>		/* malloc(), free() */
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
