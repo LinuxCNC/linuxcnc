@@ -32,6 +32,12 @@
 #define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)>0)||((side)==RIGHT&&(turn)<0))
 #define DEBUG_EMC
 
+#ifndef M_PI_2l
+#define M_PI_2l        1.570796326794896619231321691639751442L /* pi/2 */
+#endif
+#ifndef M_PIl
+#define M_PIl                3.141592653589793238462643383279502884L /* pi */
+#endif
 
 // These four functions help make the rest of cutter comp
 // plane-agnostic in much the same way the ARC_FEED canon call is.
