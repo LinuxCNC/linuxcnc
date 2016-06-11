@@ -94,9 +94,6 @@ static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
 static RCS_STAT_CHANNEL *emcStatusBuffer = 0;
 static NML *emcErrorBuffer = 0;
 
-// NML command channel data pointer
-static RCS_CMD_MSG *emcCommand = 0;
-
 // global EMC status
 EMC_STAT *emcStatus = 0;
 
@@ -790,8 +787,11 @@ void readahead_waiting(void)
   */
 static int emcTaskPlan(void)
 {
+    RCS_CMD_MSG *emcCommand;
     NMLTYPE type;
     int retval = 0;
+
+    emcCommand = emcCommandBuffer->get_address();
 
     // check for new command
     if (emcCommand->serial_number != emcStatus->echo_serial_number) {
@@ -1461,6 +1461,15 @@ static int emcTaskPlan(void)
 	break;
 
     }				// switch (task.state)
+
+
+    // Acknowledge receipt of the command by "echoing" the type and serial
+    // number in the emcStatus struct.
+    emcStatus->task.command_type = emcCommand->type;
+    emcStatus->task.echo_serial_number = emcCommand->serial_number;
+
+    emcStatus->command_type = emcCommand->type;
+    emcStatus->echo_serial_number = emcCommand->serial_number;
 
     return retval;
 }
@@ -2849,8 +2858,6 @@ static int emctask_startup()
 	rcs_print_error("can't get emcCommand buffer\n");
 	return -1;
     }
-    // get our command data structure
-    emcCommand = emcCommandBuffer->get_address();
 
     // get the NML status buffer
     if (!(emc_debug & EMC_DEBUG_NML)) {
@@ -3058,7 +3065,6 @@ static int emctask_shutdown(void)
     if (0 != emcCommandBuffer) {
 	delete emcCommandBuffer;
 	emcCommandBuffer = 0;
-	emcCommand = 0;
     }
 
     if (0 != emcStatus) {
@@ -3425,14 +3431,6 @@ int main(int argc, char *argv[])
 
 	// handle RCS_STAT_MSG base class members explicitly, since this
 	// is not an NML_MODULE and they won't be set automatically
-
-	// do task
-	emcStatus->task.command_type = emcCommand->type;
-	emcStatus->task.echo_serial_number = emcCommand->serial_number;
-
-	// do top level
-	emcStatus->command_type = emcCommand->type;
-	emcStatus->echo_serial_number = emcCommand->serial_number;
 
 	if (taskPlanError || taskExecuteError ||
 	    emcStatus->task.execState == EMC_TASK_EXEC_ERROR ||
