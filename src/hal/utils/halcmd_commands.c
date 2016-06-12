@@ -1507,6 +1507,9 @@ int do_unloadrt_cmd(char *mod_name)
     while ((name = zlist_pop(vtables)) != NULL)
 	zlist_append(components, name);
 
+    if (all)
+	do_delthread_cmd("all");
+
     /* we now have a list of components to do in-order, unload them */
     retval1 = 0;
     while ((name = zlist_pop(components)) != NULL) {

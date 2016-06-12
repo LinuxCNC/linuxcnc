@@ -150,7 +150,6 @@ fi
 if [ ! -z "$INTERACTIVE" ]; then $INTERACTIVE; fi
 
 halcmd stop || result=$?
-halcmd unload all || result=$?
 
 $REALTIME stop || result=$?
 
