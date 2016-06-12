@@ -622,6 +622,11 @@ static int do_load_cmd(int instance,
 // shut down the stack in reverse loading order
 static void exit_actions(int instance)
 {
+    void *w = modules["hal_lib"];
+    int (*exit_threads)(void) =
+		DLSYM<int(*)(void)>(w,"hal_exit_threads");
+    exit_threads();
+
     pb::Container reply;
     size_t index = loading_order.size() - 1;
     for(std::vector<std::string>::reverse_iterator rit = loading_order.rbegin();
