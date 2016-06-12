@@ -920,14 +920,26 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		pbreply.set_retcode(-1);
 		break;
 	    }
-	    int (*delete_thread)(const char *) =
-		DLSYM<int(*)(const char *)>(w,"hal_thread_delete");
-	    if (delete_thread == NULL) {
-		pbreply.add_note("symbol 'hal_thread_delete' not found in hal_lib");
-		pbreply.set_retcode(-1);
-		break;
+	    int retval;
+	    if (pbreq.rtapicmd().threadname() == "all") {
+		int (*exit_threads)(void) =
+		    DLSYM<int(*)(void)>(w,"hal_exit_threads");
+		if (exit_threads == NULL) {
+		    pbreply.add_note("symbol 'hal_exit_threads' not found in hal_lib");
+		    pbreply.set_retcode(-1);
+		    break;
+		}
+		retval = exit_threads();
+	    } else {
+		int (*delete_thread)(const char *) =
+		    DLSYM<int(*)(const char *)>(w,"hal_thread_delete");
+		if (delete_thread == NULL) {
+		    pbreply.add_note("symbol 'hal_thread_delete' not found in hal_lib");
+		    pbreply.set_retcode(-1);
+		    break;
+		}
+		retval = delete_thread(pbreq.rtapicmd().threadname().c_str());
 	    }
-	    int retval = delete_thread(pbreq.rtapicmd().threadname().c_str());
 	    pbreply.set_retcode(retval);
 	}
 	break;
