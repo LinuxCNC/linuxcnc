@@ -40,6 +40,7 @@ extern double floor(double);
 #define frexp(p,q) __builtin_frexp((p),(q))
 #define isnan(x) __builtin_isnan((x))
 #define signbit(x) __builtin_signbit((x))
+#define nan(x) __builtin_nan((x))
 
 #define M_PIl		3.1415926535897932384626433832795029L  /* pi */
 #ifndef M_PI
