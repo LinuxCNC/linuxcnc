@@ -67,7 +67,7 @@ static float to_fahrenheit(float celsius) {
 
 static float read_celsius(int32_t v) {
   if (v & 0x7) {
-    return NAN; /* fault bit(s) set */
+    return nan(""); /* fault bit(s) set */
   }
 
   /* thermocouple temperature is in bits 31:18 */
@@ -81,7 +81,7 @@ static float read_celsius(int32_t v) {
 
 static float read_internal(int32_t v) {
   if (v & 0x7) {
-    return NAN; /* fault bit(s) set */
+    return nan(""); /* fault bit(s) set */
   }
 
   /* internal temperature is in bits 15:4 */
@@ -100,7 +100,7 @@ static float read_celsius_adjusted(int32_t sensor_data) {
   float voltage_internal = 0, voltage_thermocouple = 0, temp_corrected = 0;
 
   if (isnan(temp_raw) || isnan(temp_internal))
-    return NAN;
+    return nan("");
 
   /* NIST K-Type table (http://srdata.nist.gov/its90/download/type_k.tab) */
   float coeff[][11] = {
