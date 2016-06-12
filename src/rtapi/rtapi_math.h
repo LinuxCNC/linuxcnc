@@ -52,7 +52,6 @@ extern double floor(double);
 #define isnan(x) __builtin_isnan((x))
 #define signbit(x) __builtin_signbit((x))
 #define nan(x) __builtin_nan((x))
-
 #define isinf(x) __builtin_isinf((x))
 
 extern __inline double atan (double __y) {
