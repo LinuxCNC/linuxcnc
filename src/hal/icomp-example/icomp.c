@@ -1,3 +1,5 @@
+#include <unistd.h>
+#include <getopt.h>
 
 #include "rtapi.h"
 #include "rtapi_app.h"
@@ -95,8 +97,10 @@ static int export_halobjs(struct inst_data *ip, int owner_id, const char *name)
 }
 
 // constructor - init all HAL pins, params, funct etc here
-static int instantiate(const char *name, const int argc, const char**argv)
+static int instantiate(const int argc, const char**argv)
 {
+    // argv[0]: component name
+    const char *name = argv[1]; // instance name
     struct inst_data *ip;
 
     // allocate a named instance, and some HAL memory for the instance data
@@ -108,12 +112,46 @@ static int instantiate(const char *name, const int argc, const char**argv)
 
     // here ip is guaranteed to point to a blob of HAL memory
     // of size sizeof(struct inst_data).
-    HALERR("inst=%s argc=%d\n", name, argc);
-    HALERR("instance parms: repeat=%d prefix='%s'", repeat, prefix);
-    HALERR("module parms: answer=%d text='%s'", answer, text);
+    HALINFO("inst=%s argc=%d\n", name, argc);
+    HALINFO("instance parms: repeat=%d prefix='%s'", repeat, prefix);
+    HALINFO("module parms: answer=%d text='%s'", answer, text);
+
+    // example - parse newinst arguments getopt-style:
+    // straight from: http://www.informit.com/articles/article.aspx?p=175771&seqNum=3
+
+    int do_all, do_help, do_verbose;    /* flag variables */
+    char *myfile;
+    struct option longopts[] = {
+	{ "all",     no_argument,       & do_all,     1   },
+	{ "file",    required_argument, NULL,         'f' },
+	{ "help",    no_argument,       & do_help,    1   },
+	{ "verbose", no_argument,       & do_verbose, 1   },
+	{ 0, 0, 0, 0 }
+    };
+    int c;
+    while ((c = getopt_long(argc, argv, ":f:", longopts, NULL)) != -1) {
+	switch (c) {
+	case 'f':
+	    myfile = optarg;
+	    break;
+	case 0:     // getopt_long() set a variable, just keep going
+	    break;
+	case ':':   // missing option argument 
+	    HALERR("%s: option `-%c' requires an argument\n",
+		    argv[1], optopt);
+	    break;
+	case '?':
+	default:    // invalid option
+	    HALERR("%s: option `-%c' is invalid, ignored",
+		   argv[1], optopt);
+	    break;
+	}
+    }
+    HALINFO("do_all=%d do_help=%d do_verbose=%d myfile=%s",
+	    do_all, do_help, do_verbose, myfile);
 
     // these pins/params/functs will be owned by the instance,
-    // and can be separately exited 'halcmd delinst <instancename>'
+    // and can be separately exited via 'halcmd delinst <instancename>'
     int retval = export_halobjs(ip, inst_id, name);
 
     // unittest: echo instance parameters into observer pins
