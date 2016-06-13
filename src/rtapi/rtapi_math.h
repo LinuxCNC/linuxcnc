@@ -29,6 +29,7 @@ extern double atan(double);
 extern double atan2(double, double);
 extern double asin(double);
 extern double acos(double);
+extern double exp(double);
 extern double pow(double, double);
 extern double fmin(double, double);
 extern double fmax(double, double);
