@@ -3550,7 +3550,11 @@ void hal_stream_wait_writable(hal_stream_t *stream, sig_atomic_t *stop) {
     while(!hal_stream_writable(stream) && (!stop || !*stop)) {
         /* fifo full, sleep for 10mS */
         struct timespec delay = { .tv_sec = 0, .tv_nsec = 10000000};
+#ifdef __FreeBSD__
+        nanosleep(&delay, NULL);
+#else
         clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, NULL);
+#endif
     }
 }
 
