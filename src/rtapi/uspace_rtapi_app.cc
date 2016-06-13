@@ -936,7 +936,31 @@ void Posix::wait() {
     }
     else
     {
+#ifndef __FreeBSD__
         int res = clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, NULL);
+#else
+	/*
+	 * FreeBSD doesn't have clock_nanosleep(2), nor TIMER_ABSTIME.
+	 */
+#define	timespecsub(tvp, uvp, vvp)					\
+	do {								\
+		(vvp)->tv_sec = (tvp)->tv_sec - (uvp)->tv_sec;		\
+		(vvp)->tv_nsec = (tvp)->tv_nsec - (uvp)->tv_nsec;	\
+		if ((vvp)->tv_nsec < 0) {				\
+			(vvp)->tv_sec--;				\
+			(vvp)->tv_nsec += 1000000000;			\
+		}							\
+	} while (0)
+
+	struct timespec now, t;
+	int res;
+
+	res = clock_gettime(RTAPI_CLOCK, &now);
+	if (res < 0)
+		perror("clock_nanosleep");
+	timespecsub(&task->nextstart, &now, &t);
+	res = nanosleep(&t, NULL);
+#endif /* __FreeBSD__ */
         if(res < 0) perror("clock_nanosleep");
     }
     if(do_thread_lock)

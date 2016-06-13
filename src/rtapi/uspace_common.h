@@ -322,7 +322,11 @@ int rtapi_is_realtime() {
 
 void rtapi_delay(long ns) {
     struct timespec ts = {0, ns};
+#ifdef __FreeBSD__
+    nanosleep(&ts, NULL);
+#else
     clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, 0);
+#endif
 }
 
 long int rtapi_delay_max() { return 10000; }
