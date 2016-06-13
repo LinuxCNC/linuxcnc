@@ -39,6 +39,7 @@ extern double atan(double);
 extern double atan2(double, double);
 extern double asin(double);
 extern double acos(double);
+extern double exp(double);
 extern double pow(double, double);
 extern double fmin(double, double);
 extern double fmax(double, double);
@@ -50,6 +51,7 @@ extern double floor(double);
 #define frexp(p,q) __builtin_frexp((p),(q))
 #define isnan(x) __builtin_isnan((x))
 #define signbit(x) __builtin_signbit((x))
+#define nan(x) __builtin_nan((x))
 
 #define isinf(x) __builtin_isinf((x))
 
