@@ -1444,13 +1444,6 @@ int do_loadusr_cmd(char *args[])
     argv[m] = NULL;
     /* start the child process */
     pid = hal_systemv_nowait(argv);
-    /* make sure we reconnected to the HAL */
-    if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
-	    comp_id );
-	exit(-1);
-    }
-    hal_ready(comp_id);
     if ( wait_comp_flag ) {
         int ready = 0, count=0, exited=0;
         hal_comp_t *comp = NULL;

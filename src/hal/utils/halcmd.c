@@ -62,6 +62,7 @@ FILE *halcmd_inifile = NULL;
 #include <time.h>
 #include <fnmatch.h>
 #include <search.h>
+#include <spawn.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
@@ -187,47 +188,20 @@ static int compare_command(const void *namep, const void *commandp) {
 
 pid_t hal_systemv_nowait(char *const argv[]) {
     pid_t pid;
-    int n;
+    int n, retval;
 
-    /* now we need to fork, and then exec .... */
-    /* disconnect from the HAL shmem area before forking */
-    hal_exit(comp_id);
-    comp_id = 0;
-    /* now the fork() */
-    pid = fork();
-    if ( pid < 0 ) {
-	/* fork failed */
-	halcmd_error("fork() failed\n");
-	/* reconnect to the HAL shmem area */
-	comp_id = hal_init(comp_name);
-	if (comp_id < 0) {
-	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
-                    comp_id );
-	    exit(-1);
-	}
-        hal_ready(comp_id);
-	return -1;
+    /* print debugging info if "very verbose" (-V) */
+    for(n=0; argv[n] != NULL; n++) {
+        if(n) rtapi_print_msg(RTAPI_MSG_DBG, " " );
+        rtapi_print_msg(RTAPI_MSG_DBG, "%s", argv[n] );
     }
-    if ( pid == 0 ) {
-	/* child process */
-	/* print debugging info if "very verbose" (-V) */
-        for(n=0; argv[n] != NULL; n++) {
-	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n] );
-	}
-        if (n == 0) {
-            halcmd_error("hal_systemv_nowait: empty argv array passed in\n");
-            exit(1);
-        }
-	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
-        /* call execv() to invoke command */
-	execvp(argv[0], argv);
-	/* should never get here */
-	halcmd_error("execv(%s): %s\n", argv[0], strerror(errno) );
-	exit(1);
+    rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
+
+    retval = posix_spawnp(&pid, argv[0], NULL, NULL, argv, environ);
+    if(retval < 0) {
+        halcmd_error("posix_spawn(%s): %s\n", argv[0], strerror(errno) );
+        return -1;
     }
-    /* parent process */
-    /* reconnect to the HAL shmem area */
-    comp_id = hal_init(comp_name);
 
     return pid;
 }
@@ -241,11 +215,6 @@ int hal_systemv(char *const argv[]) {
     pid = hal_systemv_nowait(argv);
     /* this is the parent process, wait for child to end */
     retval = waitpid ( pid, &status, 0 );
-    if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed after systemv: %d\n", comp_id );
-	exit(-1);
-    }
-    hal_ready(comp_id);
     /* check result of waitpid() */
     if ( retval < 0 ) {
 	halcmd_error("waitpid(%d) failed: %s\n", pid, strerror(errno) );
