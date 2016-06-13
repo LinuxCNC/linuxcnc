@@ -255,10 +255,10 @@ typedef struct {
 
 #define UUID_KEY  0x48484c34 /* key for UUID for simulator */
 
+static         int  uuid_mem_id = 0;
 int rtapi_init(const char *modname)
 {
     static uuid_data_t* uuid_data   = 0;
-    static         int  uuid_mem_id = 0;
     const static   int  uuid_id     = 0;
 
     static char* uuid_shmem_base = 0;
@@ -293,7 +293,7 @@ int rtapi_init(const char *modname)
 
 int rtapi_exit(int module_id)
 {
-  /* does nothing, for now */
+  rtapi_shmem_delete(uuid_mem_id, module_id);
   return 0;
 }
 
