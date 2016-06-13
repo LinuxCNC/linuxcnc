@@ -2592,7 +2592,8 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     return newFP;
 }
 
-static std::set<std::string> stringtable;
+
+static std::set<std::string>  stringtable;
 
 const char *strstore(const char *s)
 {
@@ -2600,8 +2601,13 @@ const char *strstore(const char *s)
 
     if (s == NULL)
         throw invalid_argument("strstore(): NULL argument");
-    pair< set<string>::iterator, bool > pair = stringtable.insert(s);
-    return string(*pair.first).c_str();
-}
 
+    std::set<std::string>::iterator it = stringtable.find(s);
+    if (it == stringtable.end()) {
+	std::string *p = new std::string(s);
+	stringtable.insert(*p);
+	return p->c_str();
+    }
+    return (*it).c_str();
+}
 
