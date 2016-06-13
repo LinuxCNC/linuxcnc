@@ -711,11 +711,11 @@ modclean:
 
 depclean:
 	-rm -rf depends
-	
+
 docclean:
 	-rm -f ../man/man9/*.9icomp
 	-rm -f ../man/doc/man9/*.asciidoc
-	
+
 clean: depclean modclean docclean
 	find . -name '*.o' |xargs rm -f
 	-rm -rf objects
@@ -1488,8 +1488,8 @@ obj-m += icomp.o
 icomp-objs := hal/icomp-example/icomp.o
 
 # clashes with component in i_components
-#obj-m += lutn.o
-#lutn-objs := hal/icomp-example/lutn.o
+obj-m += lutn-demo.o
+lutn-demo-objs := hal/icomp-example/lutn-demo.o
 
 obj-m += ufdemo.o
 ufdemo-objs := hal/userfunct-example/ufdemo.o
@@ -1748,7 +1748,7 @@ $(RTLIBDIR)/hal_gm$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gm-objs))
 $(RTLIBDIR)/tp$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(tp-objs))
 $(RTLIBDIR)/ufdemo$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(ufdemo-objs))
 $(RTLIBDIR)/icomp$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(icomp-objs))
-$(RTLIBDIR)/lutn$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(lutn-objs))
+$(RTLIBDIR)/lutn-demo$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(lutn-demo-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))
