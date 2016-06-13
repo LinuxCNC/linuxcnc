@@ -1,9 +1,8 @@
 newsig in0 bit
 newsig in1 bit
 
-loadrt lutn
-newinst lutn or2.0  inputs=2 function=0xe
-newinst lutn and2.0 inputs=2 function=0x8
+newinst lutn-demo  or2.0  inputs=2 function=0xe
+newinst  lutn-demo and2.0 inputs=2 function=0x8
 
 net in0 and2.0.in0 or2.0.in0
 net in1 and2.0.in1 or2.0.in1
