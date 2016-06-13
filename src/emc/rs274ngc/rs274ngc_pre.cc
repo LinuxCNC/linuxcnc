@@ -119,7 +119,7 @@ static char savedError[LINELEN+1];
 
 Interp::Interp()
     : log_file(stderr),
-      _setup(setup_struct())
+    _setup{}
 {
     _setup.init_once = 1;  
     init_named_parameters();  // need this before Python init.
