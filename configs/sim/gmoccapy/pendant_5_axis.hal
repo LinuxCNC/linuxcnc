@@ -18,11 +18,11 @@ net jog-c   axis.5.jog-enable   <=   pendant_5_axis.jog-5
 # setp axis.1.jog-scale   0.05
 # setp axis.0.jog-scale   0.05
 # but also better do connect them to the jog- increments of gmoccapy. 
-net scale axis.5.jog-scale   <=   axis.3.jog-scale   <=   axis.2.jog-scale   <=   axis.1.jog-scale   <=   axis.0.jog-scale   <=   gmoccapy.jog-increment
+net scale axis.5.jog-scale   <=   axis.3.jog-scale   <=   axis.2.jog-scale   <=   axis.1.jog-scale   <=   axis.0.jog-scale   <=   gmoccapy.jog.jog-increment
 
 # Connect all counts to Jogwheel-counts / Alle count san Jogwheel-counts anbinden
 net override-counts       pendant_5_axis.override-wheel-counts
-net override-counts       gmoccapy.max-velocity.counts
+net override-counts       gmoccapy.rapid-override.counts
 net override-counts       gmoccapy.feed-override.counts
 net override-counts       gmoccapy.spindle-override.counts
 net override-counts       gmoccapy.jog-speed.counts
@@ -42,6 +42,6 @@ setp axis.5.jog-vel-mode 1
 
 net feed           gmoccapy.feed-override.count-enable      <=   pendant_5_axis.feed
 net spindle        gmoccapy.spindle-override.count-enable   <=   pendant_5_axis.spindle
-net maxvel         gmoccapy.max-velocity.count-enable       <=   pendant_5_axis.maxvel
+net maxvel         gmoccapy.rapid-override.count-enable     <=   pendant_5_axis.rapid
 net jogvel         gmoccapy.jog-speed.count-enable          <=   pendant_5_axis.jogvel 
 

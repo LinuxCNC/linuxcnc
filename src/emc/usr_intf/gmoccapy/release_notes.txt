@@ -1,3 +1,6 @@
+ver. 2.0.3
+- bug in DRO size handling
+
 ver. 2.0.2
 - added user mode as command line argument
 - added logo as command line argument

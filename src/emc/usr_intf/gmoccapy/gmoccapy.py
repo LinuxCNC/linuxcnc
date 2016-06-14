@@ -89,7 +89,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.2"
+_RELEASE = " 2.0.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -216,7 +216,7 @@ class gmoccapy( object ):
         self.user_mode = False
         logofile = None
         for index,arg in enumerate(argv):
-            #print(index, " = ",arg)
+            print(index, " = ",arg)
             if arg == "-user_mode":
                 self.user_mode = True
                 self.widgets.tbtn_setup.set_sensitive(False)
@@ -763,6 +763,9 @@ class gmoccapy( object ):
         self.scale_rapid_override = self.prefs.getpref( "scale_rapid_override", 1, float )
         self.widgets.adj_scale_rapid_override.set_value( self.scale_rapid_override )
 
+        # the size of the DRO
+        self.dro_size = self.prefs.getpref( "dro_size", 28, int )
+        self.widgets.adj_dro_size.set_value(self.dro_size)
 
     def _init_extra_axes(self):
         # XYZ machine
@@ -846,16 +849,15 @@ class gmoccapy( object ):
             self.widgets.Combi_DRO_4.set_property("mm_text_template", "%11.2f")
             self.widgets.Combi_DRO_4.set_property("imperial_text_template", "%11.2f")
 
-        # We have to change the size of the DRO, to make 4 DRO fit the space we got
-        if len(self.axis_list) == 5:
-            size = 17
-        else:
-            size = 20
+        # We have to change the size of the DRO, to make them fit the space
         for axis in self.axis_list:
+            size = self.dro_size
             if axis == self.axisletter_four:
                 axis = 4
+                size = int(size * 0.75)
             if axis == self.axisletter_five:
                 axis = 5
+                size = int(size * 0.75)
             self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
 
     def _hide_axis_4( self, state = False ):
@@ -892,8 +894,6 @@ class gmoccapy( object ):
             self.widgets.btn_home_4.hide()
 
         else:
-            font_size = self.dro_size * 3 / 4
-
             # we have to re-arrange the jog buttons, so first remove all button
             self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_minus )
             self.widgets.tbl_jog_btn.remove( self.widgets.btn_z_plus )
@@ -913,11 +913,14 @@ class gmoccapy( object ):
             self.widgets.Combi_DRO_4.show()
 
         for axis in self.axis_list:
+            size = self.dro_size
             if axis == self.axisletter_four:
                 axis = 4
+                size = int(size * 0.75)
             if axis == self.axisletter_five:
                 axis = 5
-            self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", font_size )
+                size = int(size * 0.75)
+            self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", size )
 
     def _init_jog_increments( self ):
         # Now we will build the option buttons to select the Jog-rates
@@ -3427,8 +3430,17 @@ class gmoccapy( object ):
         value = int( widget.get_value() )
         self.prefs.putpref( "dro_size", value, int )
         self.dro_size = value
-        self._init_axis_four()
-
+        
+        for axis in self.axis_list:
+            size = self.dro_size
+            if axis == self.axisletter_four:
+                axis = 4
+                size = int(size * 0.75)
+            if axis == self.axisletter_five:
+                axis = 5
+                size = int(size * 0.75)
+            self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", size )
+        
     def on_chk_hide_cursor_toggled( self, widget, data = None ):
         self.prefs.putpref( "hide_cursor", widget.get_active(), bool )
         self.hide_cursor = widget.get_active()
