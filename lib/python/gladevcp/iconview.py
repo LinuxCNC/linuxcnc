@@ -491,17 +491,17 @@ class IconFileSelection(gtk.HBox):
         return self.on_btn_select_clicked(self)
 
     def on_btn_select_clicked(self, data):
-        #try:
-        self.iconView.item_activated(self.iconView.get_cursor()[0])
-        if self.path:
-            filepath = self.cur_dir + os.path.sep + self.path
-            self.file_label.set_text(filepath)
-        else:
-            self.file_label.set_text("")
-            filepath = None
-        self.emit('selected', filepath)
-        #except:
-        #    pass
+        try:
+            self.iconView.item_activated(self.iconView.get_cursor()[0])
+            if self.path:
+                filepath = self.cur_dir + os.path.sep + self.path
+                self.file_label.set_text(filepath)
+            else:
+                self.file_label.set_text("")
+                filepath = None
+            self.emit('selected', filepath)
+        except:
+            pass
 
     def on_btn_exit_clicked(self, data):
         if __name__ == "__main__":

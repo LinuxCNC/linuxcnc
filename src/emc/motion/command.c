@@ -75,7 +75,6 @@
 
 /* debugging functions */
 extern void print_pose ( EmcPose *pos );
-extern void check_stuff(const char *msg);
 
 /* kinematics flags */
 KINEMATICS_FORWARD_FLAGS fflags = 0;
@@ -354,9 +353,6 @@ void emcmotCommandHandler(void *arg, long period)
     double tmp1;
     emcmot_comp_entry_t *comp_entry;
     char issue_atspeed = 0;
-    
-check_stuff ( "before command_handler()" );
-
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
 	emcmotDebug->split++;
@@ -1685,7 +1681,6 @@ check_stuff ( "before command_handler()" );
 
     }
     /* end of: if-new-command */
-check_stuff ( "after command_handler()" );
 
     return;
 }

@@ -441,7 +441,8 @@ class FloatComp:
     def __init__(self, comp):
         self.comp = comp
     def __getitem__(self, k):
-        return float(self.comp[k])
+        v = float(self.comp[k])
+        return "%f" % v
 
 class EMC_Action_MDI(_EMC_Action):
     __gtype_name__ = 'EMC_Action_MDI'

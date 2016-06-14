@@ -309,6 +309,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"task_state", T_INT, O(task.state), READONLY},
     {(char*)"exec_state", T_INT, O(task.execState), READONLY},
     {(char*)"interp_state", T_INT, O(task.interpState), READONLY},
+    {(char*)"call_level", T_INT, O(task.callLevel), READONLY},
     {(char*)"read_line", T_INT, O(task.readLine), READONLY},
     {(char*)"motion_line", T_INT, O(task.motionLine), READONLY},
     {(char*)"current_line", T_INT, O(task.currentLine), READONLY},
@@ -760,6 +761,13 @@ static PyObject *mode(pyCommandChannel *s, PyObject *o) {
             return NULL;
     }
     emcSendCommand(s, m);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *task_plan_synch(pyCommandChannel *s) {
+    EMC_TASK_PLAN_SYNCH synch;
+    emcSendCommand(s, synch);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1271,6 +1279,7 @@ static PyMethodDef Command_methods[] = {
     {"brake", (PyCFunction)brake, METH_VARARGS},
     {"load_tool_table", (PyCFunction)load_tool_table, METH_NOARGS},
     {"abort", (PyCFunction)emcabort, METH_NOARGS},
+    {"task_plan_synch", (PyCFunction)task_plan_synch, METH_NOARGS},
     {"override_limits", (PyCFunction)override_limits, METH_NOARGS},
     {"home", (PyCFunction)home, METH_VARARGS},
     {"unhome", (PyCFunction)unhome, METH_VARARGS},

@@ -340,13 +340,6 @@ aux changements ou au retrait à tout moment.
 * 'motion.servo.last-period-ns' - 
     (float, RO)
 
-* 'motion.servo.overruns' - 
-    (u32, RW)
-     En voyant de grandes différences entre les valeurs successives de
-    'motion.servo.last-period' , le contrôleur de mouvement peut
-    déterminer qu'il a échoué dans le respect de ses contraintes de timing.
-    Chaque fois qu'une erreur est détectée, cette valeur est incrémentée.
-
 === Fonctions
 
 Généralement, ces fonctions sont toutes les deux ajoutées à

@@ -83,6 +83,7 @@ class ToolEdit(gtk.VBox):
             #print name,col
             renderer = self.wTree.get_object(name+'1')
             renderer.connect( 'edited', self.col_editted, col+1, None)
+        self.all_label = self.wTree.get_object("all_label")
 
         # for lathe wear view2:
 
@@ -94,6 +95,7 @@ class ToolEdit(gtk.VBox):
             renderer.connect( 'edited', self.col_editted, col, 'wear' )
         # Hide columns we don't want to see
         self.set_col_visible(list='spyabcuvwdijq', bool= False, tab= '2')
+        self.wear_label = self.wTree.get_object("wear_label")
 
         # for tool offsets view 3:
 
@@ -105,6 +107,7 @@ class ToolEdit(gtk.VBox):
             renderer.connect( 'edited', self.col_editted, col, 'tool' )
         # Hide columns we don't want to see
         self.set_col_visible(list='spyabcuvwdij', bool= False, tab= '3')
+        self.tool_label = self.wTree.get_object("tool_label")
 
         # global references
         self.model = self.wTree.get_object("liststore1")
@@ -265,7 +268,7 @@ class ToolEdit(gtk.VBox):
                                 print "Tooledit widget int error"
                         else:
                             try:
-                                array[offset]= "%10.4f"% float(word.lstrip(i))
+                                array[offset]= locale.format("%10.4f", float(word.lstrip(i)))
                             except:
                                 print "Tooledit_widget float error"
                         break
@@ -339,6 +342,32 @@ class ToolEdit(gtk.VBox):
                 for col,name in enumerate(self.tool_cell_list):
                     temp2 = self.wTree.get_object(name+tab[i])
                     temp2.set_property('font', value)
+        self.set_title_font(value, tab)
+        self.set_tab_font(value, tab)
+
+    # set font of the column titles
+    def set_title_font(self, value, tab='123'):
+        objectlist = "s","t","p","x","y","z","a","b","c","u","v","w","d","i","j","q",";"
+        for i in range(0, len(tab)):
+            if tab[i] in ('1','2','3'):
+                for j in objectlist:
+                    column = self.wTree.get_object(j+tab[i])
+                    label = gtk.Label(column.get_title())
+                    label.modify_font(pango.FontDescription(value))
+                    label.show()
+                    column.set_widget(label)
+
+    def set_tab_font (self, value, tab='123'):
+        for i in range(0, len(tab)):
+            if tab[i] in ('1','2','3'):
+                if tab[i] =='1':
+                    self.all_label.modify_font(pango.FontDescription(value))
+                elif tab[i] =='2':
+                    self.wear_label.modify_font(pango.FontDescription(value))
+                elif tab[i] =='3':
+                    self.tool_label.modify_font(pango.FontDescription(value))
+                else:
+                    pass
 
     # for legacy interface
     def set_visible(self,list,bool):
@@ -510,8 +539,8 @@ def main(filename=None):
     window.vbox.add(tooledit)
     window.connect("destroy", gtk.main_quit)
     tooledit.set_col_visible("abcUVW", False, tab='1')
-    tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/gscreen_custom/lathe-fanucy.tbl")
-    #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/test.tbl")
+    #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/gscreen_custom/lathe-fanucy.tbl")
+    tooledit.set_filename("/home/chris/emc2-dev/configs/sim/lathe.tbl")
     tooledit.set_font("sans 16",tab='23')
     window.show_all()
     #tooledit.set_lathe_display(True)

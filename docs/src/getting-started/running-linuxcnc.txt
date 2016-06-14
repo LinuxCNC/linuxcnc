@@ -5,7 +5,7 @@
 == Invoking LinuxCNC
 
 After installation, LinuxCNC starts just like any other Linux program: 
-run it from the terminal by issuing the command 'linuxcnc',
+run it from the <<faq:terminal,terminal>> by issuing the command 'linuxcnc',
 or select it in the Applications - CNC menu.
 
 [[sec:config-launcher]] (((Configuration Launcher)))
@@ -16,7 +16,8 @@ When starting LinuxCNC from the CNC menu or from the command line without
 specifiying an ini file the Configuration Selector dialog starts.
 
 The Configuration Selector dialog allows the user to pick one of their
-existing configurations (My Configurations) or select a new one (from the Sample Configurations) to be copied to their home directory. Copied configurations
+existing configurations (My Configurations) or select a new one (from the Sample
+Configurations) to be copied to their home directory. Copied configurations
 will appear under My Configurations on the next invocation of the Configuration
 Selector.
 
@@ -91,7 +92,7 @@ be used with linuxcnc:
 * info - creates a file with system information that may be useful for
   problem diagnosis.
 * gladevcp - Example gladevcp applications.
-* halrun  - Starts halrun in an terminal.
+* halrun  - Starts halrun in an <<faq:terminal,terminal>>.
 * latency - Applications to investigate latency
 ** latency-test - standard test
 ** latency-plot - stripchart

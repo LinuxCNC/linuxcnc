@@ -846,6 +846,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
+	    case EMC_TASK_PLAN_SYNCH_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_AUX_INPUT_WAIT_TYPE:
@@ -957,6 +958,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_MODE_TYPE:
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
+	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
@@ -1396,6 +1398,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
+	    case EMC_TASK_PLAN_SYNCH_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
@@ -2554,6 +2557,7 @@ static int emcTaskExecute(void)
 		    emcTaskEager = 1;
 		    emcStatus->task.currentLine =
 			interp_list.get_line_number();
+		    emcStatus->task.callLevel = emcTaskPlanLevel();
 		    // and set it for all subsystems which use queued ids
 		    emcTrajSetMotionId(emcStatus->task.currentLine);
 		    if (emcStatus->motion.traj.queueFull) {

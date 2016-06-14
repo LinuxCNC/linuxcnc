@@ -119,7 +119,7 @@ static char savedError[LINELEN+1];
 
 Interp::Interp()
     : log_file(stderr),
-      _setup(setup_struct())
+    _setup{}
 {
     _setup.init_once = 1;  
     init_named_parameters();  // need this before Python init.
@@ -2114,6 +2114,13 @@ char * Interp::error_text(int error_code,        //!< code number of error
     if(error_code == INTERP_ERROR)
     {
         strncpy(error_text, savedError, max_size);
+        error_text[max_size-1] = 0;
+
+        return error_text;
+    }
+    else if (error_code == INTERP_FILE_NOT_OPEN)
+    {
+        strncpy(error_text, "File not open", max_size);
         error_text[max_size-1] = 0;
 
         return error_text;

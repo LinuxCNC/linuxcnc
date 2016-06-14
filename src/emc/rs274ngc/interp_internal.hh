@@ -606,10 +606,10 @@ and is not represented here
 #define STACK_ENTRY_LEN 80
 #define MAX_SUB_DIRS 10
 
-typedef struct setup_struct
+struct setup
 {
-  setup_struct();
-  ~setup_struct();
+  setup();
+  ~setup();
 
   double AA_axis_offset;        // A-axis g92 offset
   double AA_current;            // current A-axis position
@@ -780,7 +780,7 @@ typedef struct setup_struct
     // task calls upon interp.init() repeatedly
     // protect init() operations which are not idempotent
     int init_once;  
-} setup;
+};
 
 typedef setup *setup_pointer;
 // the externally visible singleton instance

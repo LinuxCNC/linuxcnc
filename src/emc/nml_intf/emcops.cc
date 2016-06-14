@@ -116,6 +116,7 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     state = EMC_TASK_STATE_ESTOP;
     execState = EMC_TASK_EXEC_DONE;
     interpState = EMC_TASK_INTERP_IDLE;
+    callLevel = 0;
     motionLine = 0;
     currentLine = 0;
     readLine = 0;

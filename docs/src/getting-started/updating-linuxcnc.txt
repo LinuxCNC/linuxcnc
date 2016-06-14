@@ -22,10 +22,9 @@ To upgrade major versions like 2.6 to 2.7 when you have a network connection at
 the machine you need to disable the old linuxcnc.org apt sources and add a new
 linuxcnc.org apt source for 2.7, then upgrade LinuxCNC.
 
-The details will depend on which platform you're running on.
-Run `lsb_release -ic` to find this information out:
-Press Ctrl + Alt + t to open a terminal then type `lsb_release -ic` to find this
-information out:
+The details will depend on which platform you're running on.  Open a
+<<faq:terminal,terminal>> then type `lsb_release -ic` to find this information
+out:
 
 ----
 lsb_release -ic
@@ -137,8 +136,8 @@ it with dpkg. The buildbot builds new debs each time something is updated and
 stores them at http://buildbot.linuxcnc.org/dists/
 
 You have to drill down from the above link to find the correct deb for your
-installation. Press Ctrl + Alt + t to open a terminal and type in
-'lsb_release -ic' to find the name of your OS. 
+installation. Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic'
+to find the name of your OS.
 
 ----
 > lsb_release -ic

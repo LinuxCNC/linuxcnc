@@ -198,9 +198,9 @@ is .inc.  Do not use a file extension of .ini for included files.
     of most graphical interfaces. You can put whatever you want here as
     long as you make it a single line long.
 
-* 'DEBUG = 0' - Debug level 0 means no messages will be printed when LinuxCNC is run from a
-    terminal. Debug flags are usually only useful to developers. See
-    src/emc/nml_intf/debugflags.h for other settings.
+* 'DEBUG = 0' - Debug level 0 means no messages will be printed when LinuxCNC is
+  run from a <<faq:terminal,terminal>>. Debug flags are usually only useful to
+  developers. See src/emc/nml_intf/debugflags.h for other settings.
 
 [[sec:display-section]](((INI File, DISPLAY Section)))
 

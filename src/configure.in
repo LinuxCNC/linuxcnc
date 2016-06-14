@@ -156,6 +156,17 @@ RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
 
+NONDISTRIBUTABLE=false
+AC_ARG_ENABLE(non-distributable,
+    AS_HELP_STRING(
+        [--enable-non-distributable],
+        [To build LinuxCNC even if a license problem would render the resulting binaries non-distributable under the terms of the LinuxCNC license]),
+    [
+        case "$enableval" in
+        (yes) NONDISTRIBUTABLE=true ;;
+        esac
+    ])
+
 ##############################################################################
 # Subsection 2.1                                                             #
 # Check for arguments to ./configure                                         #
@@ -1399,6 +1410,30 @@ elif test "x$HAVE_READLINE_TERMCAP" = "xyes"; then
 else
     HAVE_READLINE=no
 fi
+
+AC_MSG_CHECKING([whether readline license is compatible with GPL-2])
+AC_TRY_COMPILE([
+        #include <readline/readline.h>
+    ],[
+        #if RL_VERSION_MAJOR > 5
+        #error Readline version 6 and up are not compatible with GPL-2
+        #endif
+    ],[AC_MSG_RESULT(yes)],[
+        AC_MSG_RESULT(no)
+        AC_MSG_WARN(
+[The LinuxCNC binary you are building may not be
+distributable due to a license incompatiblilty with LinuxCNC (some portions
+GPL-2 only) and Readline version 6 and greater (GPL-3 or later).])
+        if $NONDISTRIBUTABLE; then
+            AC_MSG_WARN(
+[User requested to enable non-distributable builds.  Continuing.])
+        else
+            AC_MSG_ERROR(
+[To configure LinuxCNC in this way, you must
+invoke configure with "--enable-non-distributable=yes".  Note that on
+Debian-based systems, you may be able to use libreadline-gplv2-dev instead.])
+        fi
+])
 
 if test "x$HAVE_READLINE" = "xyes"; then
     AC_DEFINE([HAVE_READLINE], [], [Define to 1 if you have the 'readline' library (-lreadline) and required headers])

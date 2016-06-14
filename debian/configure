@@ -23,10 +23,11 @@ Usage:
         Deprecated synonym for '$P uspace'
 
     $P [kernel-version]
-        Build for the realtime kernel [kernel-version], such as 2.6.12-magma
+        Build for the installed RTAI realtime kernel specified by
+        [kernel-version], for example "3.4.9-rtai-686-pae"
 
     $P -r
-        Build for the currently running kernel
+        Build for the currently running kernel for RTAI realtime only
 
     $P -a
         If the currently running kernel has realtime extensions, use it.

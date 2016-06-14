@@ -191,7 +191,7 @@ INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := $(DEBUG) -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
-CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT)
+CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
@@ -839,6 +839,7 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/stepgen.o   \
 	hal/drivers/mesa-hostmot2/bspi.o	  \
 	hal/drivers/mesa-hostmot2/uart.o	  \
+    hal/drivers/mesa-hostmot2/pktuart.o   \
     hal/drivers/mesa-hostmot2/watchdog.o  \
     hal/drivers/mesa-hostmot2/pins.o	  \
     hal/drivers/mesa-hostmot2/dpll.o  \
