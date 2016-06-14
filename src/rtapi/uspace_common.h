@@ -149,8 +149,13 @@ int rtapi_shmem_delete(int handle, int module_id)
 
   /* destroy the shared memory */
   r2 = shmctl(shmem->id, IPC_STAT, &d);
+  if (r2 != 0)
+      rtapi_print_msg(RTAPI_MSG_ERR, "shmctl(%d, IPC_STAT, ...): %s\n", shmem->id, strerror(errno));
+
   if(r2 == 0 && d.shm_nattch == 0) {
       r2 = shmctl(shmem->id, IPC_RMID, &d);
+      if (r2 != 0)
+	      rtapi_print_msg(RTAPI_MSG_ERR, "shmctl(%d, IPC_RMID, ...): %s\n", shmem->id, strerror(errno));
   }
 
   /* free the shmem structure */
