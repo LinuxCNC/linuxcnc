@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #   This is a component of LinuxCNC
 #   Copyright 2011 Michael Haberler <git@mah.priv.at>
 #
