@@ -536,7 +536,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
             settings->filename[sizeof(settings->filename)-1] = '\0'; // oh well, truncate the filename
         }
     } else {
-	char *dirname = get_current_dir_name();
+	char *dirname = getcwd(NULL, 0);
 	logOword("fopen: |%s| failed CWD:|%s|", newFileName,
 		 dirname);
 	free(dirname);
