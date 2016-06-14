@@ -123,8 +123,6 @@ license "GPL";
 author "Chris Morley";
 ;;
 
-FUNCTION(update) {
-
     /* private comparator function */
     int comp(double in0, double in1, double hyst) {
         double tmp;
@@ -145,6 +143,9 @@ FUNCTION(update) {
     int wcomp (double in, double max_, double min_){
         return !((in >= max_)|| (in <= min_));
     }
+
+
+FUNCTION(update) {
 
 /*set home switches */
 Xhomesw_out = comp(Xhomesw_pos,Xcurrent_pos,Xhomesw_hyst);
