@@ -221,8 +221,9 @@ static int update_pbring(void *arg, const hal_funct_args_t *fa)
 
 
 // constructor - init all HAL pins, params, funct etc here
-static int instantiate(const char *name, const int argc, const char**argv)
+static int instantiate(const int argc, const char**argv)
 {
+    const char *name = argv[1];
     struct inst_data *inst;
     int retval, inst_id;
 

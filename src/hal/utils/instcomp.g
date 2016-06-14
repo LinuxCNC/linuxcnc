@@ -535,7 +535,7 @@ static int comp_id;
 
 
 
-    print >>f, "struct inst_data\n    {"
+    print >>f, "struct inst_data {\n"
 
     for name, type, array, dir, value in pins:
         if array:
@@ -560,7 +560,7 @@ static int comp_id;
             print >>f, "    %s %s;" % (type, name)
     ##local copy used in function and set to default value
     print >>f, "    int localpincount;"
-    print >>f, "    };"
+    print >>f, "};"
 
 ############## extra headers and forward defines of functions  ##########################
 
@@ -581,7 +581,7 @@ static int comp_id;
         print >>f, "static int %s(void *arg, const hal_funct_args_t *fa);\n" % to_c(name)
         names[name] = 1
 
-    print >>f, "static int instantiate(const char *name, const int argc, const char**argv);\n"
+    print >>f, "static int instantiate(const int argc, const char**argv);\n"
     if options.get("extra_inst_cleanup"):
         print >>f, "static int delete(const char *name, void *inst, const int inst_size);\n"
 
@@ -679,18 +679,17 @@ static int comp_id;
         print >>f, "    hal_print_msg(RTAPI_MSG_DBG,\"export_halobjs() ip->localpincount set to %d\", ip->localpincount);"
 
     for name, fp in functions:
-        print >>f, "    // exporting an extended thread function:"
-        print >>f, "    hal_export_xfunct_args_t %s_xf = " % to_c(name)
-        print >>f, "        {"
+        print >>f, "    // export an extended thread function:"
+        print >>f, "    hal_export_xfunct_args_t %s_xf = { " % to_c(name)
         print >>f, "        .type = FS_XTHREADFUNC,"
         print >>f, "        .funct.x = %s," % to_c(name)
         print >>f, "        .arg = ip,"
         print >>f, "        .uses_fp = %d," % int(fp)
         print >>f, "        .reentrant = 0,"
         print >>f, "        .owner_id = owner_id"
-        print >>f, "        };\n"
+        print >>f, "    };\n"
 
-        strng = " rtapi_snprintf(buf, sizeof(buf),\"%s"
+        strng = "    rtapi_snprintf(buf, sizeof(buf),\"%s"
         if (len(functions) == 1) and name == "_":
             strng += "\", name);"
         else :
@@ -708,18 +707,20 @@ static int comp_id;
 ###########################  instantiate() ###############################################################
 
     print >>f, "\n// constructor - init all HAL pins, params, funct etc here"
-    print >>f, "static int instantiate(const char *name, const int argc, const char**argv)\n{"
-    print >>f, "struct inst_data *ip;"
-    print >>f, "int r;"
+    print >>f, "static int instantiate(const int argc, const char**argv)\n{"
+    print >>f, "    const char *name  __attribute__((unused)) = argv[1];";
+
+    print >>f, "    struct inst_data *ip;"
+    print >>f, "    int r;"
     if options.get("extra_inst_setup"):
-            print >>f, "int k;"
-    print >>f, "\n// allocate a named instance, and some HAL memory for the instance data"
-    print >>f, "int inst_id = hal_inst_create(name, comp_id, sizeof(struct inst_data), (void **)&ip);\n"
+            print >>f, "    int k;"
+    print >>f, "\n    // allocate a named instance, and some HAL memory for the instance data"
+    print >>f, "    int inst_id = hal_inst_create(name, comp_id, sizeof(struct inst_data), (void **)&ip);\n"
     print >>f, "    if (inst_id < 0)\n        return -1;\n"
 
-    print >>f, "// here ip is guaranteed to point to a blob of HAL memory of size sizeof(struct inst_data)."
+    print >>f, "    // here ip is guaranteed to point to a blob of HAL memory of size sizeof(struct inst_data)."
     print >>f, "    hal_print_msg(RTAPI_MSG_DBG,\"%s inst=%s argc=%d\",__FUNCTION__, name, argc);\n"
-    print >>f, "// Debug print of params and values"
+    print >>f, "    // Debug print of params and values"
 
     for name, mptype, value in instanceparams:
         if (mptype == 'int'):
@@ -744,7 +745,8 @@ static int comp_id;
                     print >>f, "    hal_print_msg(RTAPI_MSG_DBG,\"ip->localpincount set to %d\", pin_param_value);"
 
 
-    print >>f, "\n// These pins - params - functs will be owned by the instance, and can be separately exited with delinst"
+    print >>f, "\n    // These pins - params - functs will be owned by the instance"
+    print >>f, "    // which can be separately exited with delinst"
 
     print >>f, "    if(strlen(iprefix))"
     print >>f, "        r = export_halobjs(ip, inst_id, iprefix);"
@@ -756,12 +758,12 @@ static int comp_id;
             print >>f, "    if(k != 0)"
             print >>f, "        return k;\n"
 
-    print >>f, "    if(r == 0)"
-    print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation SUCCESSFUL\",__FUNCTION__, name);"
-    print >>f, "    else"
-    print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation ABORTED\",__FUNCTION__, name);"
+    # print >>f, "    if(r == 0)"
+    # print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation SUCCESSFUL\",__FUNCTION__, name);"
+    # print >>f, "    else"
+    # print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation ABORTED\",__FUNCTION__, name);"
     if have_count:
-        print >>f, "//reset pincount to -1 so that instantiation without it will result in DEFAULTCOUNT"
+        print >>f, "    //reset pincount to -1 so that instantiation without it will result in DEFAULTCOUNT"
         print >>f, "    pincount = -1;\n"
 
     print >>f, "    return r;\n}"
@@ -769,7 +771,7 @@ static int comp_id;
 ##############################  rtapi_app_main  ######################################################
 
     print >>f, "\nint rtapi_app_main(void)\n{"
-    print >>f, "// Debug print of params and values"
+    print >>f, "    // Debug print of params and values"
     for name, mptype, value in instanceparams:
         if (mptype == 'int'):
             strg = "    hal_print_msg(RTAPI_MSG_DBG,\"%s: int instance param: %s=%d\",__FUNCTION__,"
@@ -791,15 +793,14 @@ static int comp_id;
 ################  stub to allow 'base component to have function if req later ####
 #
 #    print >>f, "    // exporting an extended thread function:"
-#    print >>f, "    hal_export_xfunct_args_t xtf = "
-#    print >>f, "        {"
+#    print >>f, "    hal_export_xfunct_args_t xtf = {"
 #    print >>f, "        .type = FS_XTHREADFUNC,"
 #    print >>f, "        .funct.x = (void *) funct,"
 #    print >>f, "        .arg = \"x-instance-data\","
 #    print >>f, "        .uses_fp = 0,"
 #    print >>f, "        .reentrant = 0,"
 #    print >>f, "        .owner_id = comp_id"
-#    print >>f, "        };\n"
+#    print >>f, "    };\n"
 #
 #    print >>f, "    if (hal_export_xfunctf(&xtf,\"%s.funct\", compname))"
 #    print >>f, "        return -1;"
@@ -1467,8 +1468,8 @@ def process(filename, mode, outfilename):
                     g,h = q.split("{")
                     c += g
                     c += "{"
-                    c += "\nlong period __attribute__((unused)) = fa_period(fa);\n"
-                    c += "struct inst_data *ip = arg;\n\n"
+                    c += "\n    long period __attribute__((unused)) = fa_period(fa);\n"
+                    c += "    struct inst_data *ip = arg;\n\n"
                     c += h
                     insert = False
                 else :
@@ -1481,8 +1482,8 @@ def process(filename, mode, outfilename):
         # if the code is loose because there is just one function
         elif len(functions) == 1:
             f.write("FUNCTION(%s)\n{\n" % functions[0][0])
-            f.write("long period __attribute__((unused)) = fa_period(fa);\n")
-            f.write("struct inst_data *ip = arg;\n\n")
+            f.write("    long period __attribute__((unused)) = fa_period(fa);\n")
+            f.write("    struct inst_data *ip = arg;\n\n")
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             f.write(b)
             f.write("\n}\n")

@@ -35,7 +35,7 @@ MODULE_LICENSE("GPL");
 RTAPI_TAG(HAL,HC_INSTANTIABLE);
 
 static int comp_id;
-static char *compname = "lutn";
+static char *compname = "lutn-demo";
 
 struct inst_data {
     int inputs;
@@ -50,7 +50,7 @@ RTAPI_IP_INT(function, "lookup function - see man lut5");
 static int inputs = 0;
 RTAPI_IP_INT(inputs, "number of input pins, in0..inN");
 
-static void lutn(void *arg, const hal_funct_args_t *fa)
+static int lutn(void *arg, const hal_funct_args_t *fa)
 {
     // using the extended thread function export call makes the following
     // context visible here:
@@ -72,12 +72,13 @@ static void lutn(void *arg, const hal_funct_args_t *fa)
 	if (*(ip->in[i])) shift += (1 << i);
 
     *(ip->out) = (ip->function & (1 << shift)) != 0;
+    return 0;
 }
 
-static int instantiate_lutn(const char *name,
-			    const int argc,
+static int instantiate_lutn(const int argc,
 			    const char**argv)
 {
+    const char *name = argv[1];
     struct inst_data *ip;
     int i, inst_id;
 
@@ -119,13 +120,13 @@ static int instantiate_lutn(const char *name,
     // it is fully backwards compatible and the recommened way of doing an export
     hal_export_xfunct_args_t xfunct_args = {
         .type = FS_XTHREADFUNC,
-        .funct.x = write,
+        .funct.x = lutn,
         .arg = ip,
         .uses_fp = 0,
         .reentrant = 0,
         .owner_id = inst_id
     };
-    return hal_export_xfunctf(xfunct_args, "%s.funct", name))
+    return hal_export_xfunctf(&xfunct_args, "%s.funct", name);
 }
 
 
