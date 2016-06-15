@@ -222,6 +222,8 @@ RTAPI_BEGIN_DECLS
     available from user (non-realtime) code.
 */
     extern long int rtapi_clock_set_period(long int nsecs);
+#endif /* RTAPI */
+
 /** rtapi_delay() is a simple delay.  It is intended only for short
     delays, since it simply loops, wasting CPU cycles.  'nsec' is the
     desired delay, in nano-seconds.  'rtapi_delay_max() returns the
@@ -236,7 +238,6 @@ RTAPI_BEGIN_DECLS
     extern void rtapi_delay(long int nsec);
     extern long int rtapi_delay_max(void);
 
-#endif /* RTAPI */
 
 /** rtapi_get_time returns the current time in nanoseconds.  Depending
     on the RTOS, this may be time since boot, or time since the clock
