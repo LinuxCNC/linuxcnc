@@ -3548,17 +3548,15 @@ int hal_stream_maxdepth(hal_stream_t *stream) {
 #ifdef ULAPI
 void hal_stream_wait_writable(hal_stream_t *stream, sig_atomic_t *stop) {
     while(!hal_stream_writable(stream) && (!stop || !*stop)) {
-        /* fifo full, sleep for 10mS */
-        struct timespec delay = { .tv_sec = 0, .tv_nsec = 10000000};
-        clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, NULL);
+        /* fifo full, sleep for 10ms */
+        rtapi_delay(10000000);
     }
 }
 
 void hal_stream_wait_readable(hal_stream_t *stream, sig_atomic_t *stop) {
     while(!hal_stream_readable(stream) && (!stop || !*stop)) {
-        /* fifo full, sleep for 10mS */
-        struct timespec delay = { .tv_sec = 0, .tv_nsec = 10000000};
-        nanosleep(&delay, NULL);
+        /* fifo full, sleep for 10ms */
+        rtapi_delay(10000000);
     }
 }
 #endif
