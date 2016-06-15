@@ -36,7 +36,7 @@ utilisateur.
 * _iocontrol_ - Accepte les commandes NML I/O, interagi avec HAL dans l'espace
 utilisateur.
 * _pyvcp_ - Panneau de Contrôle Virtuel pour LinuxCNC (Python Virtual Control Panel).
-* _shuttle_ - Contrôle des pins de HAL avec la manette ShuttleXpress, de
+* _shuttle_ - Contrôle des pins de HAL avec la manette ShuttleXpress et ShuttlePRO, de
 la société _Contour Design_.
 
 == Composants temps réel et modules du noyau

@@ -6,6 +6,10 @@
 # counts per revolution and detents, and a 15-position rotary knob with
 # return-to-center springy action.
 #
+# Note: The shuttle driver also supports the ShuttlePRO device.  To adapt
+#     this hal file to the ShuttlePro, rename all the pins from
+#     "shuttlexpress" to "shuttlepro".
+#
 
 loadusr -W shuttle
 

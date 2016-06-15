@@ -1,9 +1,9 @@
 
 //
-// This is a userspace HAL driver for the ShuttleXpress device by Contour
-// Design.
+// This is a userspace HAL driver for the ShuttleXpress and ShuttlePRO
+// devices by Contour Design.
 //
-// Copyright 2011 Sebastian Kuzminsky <seb@highlab.com>
+// Copyright 2011, 2016 Sebastian Kuzminsky <seb@highlab.com>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@
 
 #define Max(a, b)  ((a) > (b) ? (a) : (b))
 
-#define MAX_BUTTONS 5
+#define MAX_BUTTONS 13
 
 
 typedef struct {
@@ -60,6 +60,7 @@ typedef struct {
 } contour_dev_t;
 
 
+
 contour_dev_t contour_dev[] = {
     {
         .name = "shuttlexpress",
@@ -67,10 +68,17 @@ contour_dev_t contour_dev[] = {
         .product_id = 0x0020,
         .num_buttons = 5,
         .button_mask = { 0x0010, 0x0020, 0x0040, 0x0080, 0x0100 }
+    },
+    {
+        .name = "shuttlepro",
+        .vendor_id = 0x05f3,
+        .product_id = 0x0240,
+        .num_buttons = 13,
+        .button_mask = { 0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100, 0x0200, 0x0400, 0x0800, 0x1000 }
     }
 };
 
-// each packet from the ShuttleXpress is this many bytes
+// each packet from the Shuttle* devices is this many bytes
 #define PACKET_LEN 5
 
 
@@ -83,7 +91,7 @@ int hal_comp_id;
 
 
 
-// each ShuttleXpress presents this interface to HAL
+// each Shuttle* device presents this interface to HAL
 struct shuttle_hal {
     hal_bit_t *button[MAX_BUTTONS];
     hal_bit_t *button_not[MAX_BUTTONS];
@@ -103,7 +111,7 @@ struct shuttle {
 };
 
 
-// this will become an array of all the ShuttleXpress devices we're using
+// this will become an array of all the Shuttle* devices we're using
 struct shuttle **shuttle = NULL;
 int num_devices = 0;
 
@@ -290,7 +298,7 @@ int main(int argc, char *argv[]) {
     atexit(call_hal_exit);
 
 
-    // get the list of device filenames to check for ShuttleXpress devices
+    // get the list of device filenames to check for Shuttle devices
     if (argc > 1) {
         // list of devices provided on the command line
         names = &argv[1];
@@ -314,7 +322,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    // probe for ShuttleXpress devices on all those device file names
+    // probe for Shuttle devices on all those device file names
     for (i = 0; i < num_names; i ++) {
         struct shuttle *s;
         s = check_for_shuttle(names[i]);
