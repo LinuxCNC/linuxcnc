@@ -28,6 +28,8 @@ static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 /* These structs hold data associated with objects like tasks, etc. */
 /* Task handles are pointers to these structs.                      */
 
+#include "config.h"
+
 typedef struct {
   int magic;			/* to check for valid handle */
   int key;			/* key to shared memory area */
@@ -328,10 +330,52 @@ int rtapi_is_realtime() {
     return _rtapi_is_realtime;
 }
 
+/* Like clock_nanosleep, except that an optional 'estimate of now' parameter may
+ * optionally be passed in.  This is a very slight optimization for platforms
+ * where rtapi_clock_nanosleep is implemented in terms of nanosleep, because it
+ * can avoid an additional clock_gettime syscall.
+ */
+static int rtapi_clock_nanosleep(clockid_t clock_id, int flags,
+        const struct timespec *prequest, struct timespec *remain,
+        const struct timespec *pnow)
+{
+#if defined(HAVE_CLOCK_NANOSLEEP)
+    return clock_nanosleep(clock_id, flags, prequest, remain);
+#else
+    if(flags == 0)
+        return nanosleep(prequest, remain);
+    if(flags != TIMER_ABSTIME)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+    struct timespec now;
+    if(!pnow)
+    {
+        int res = clock_gettime(clock_id, &now);
+        if(res < 0) return res;
+        pnow = &now;
+    }
+#undef timespecsub
+#define	timespecsub(tvp, uvp, vvp)					\
+	do {								\
+		(vvp)->tv_sec = (tvp)->tv_sec - (uvp)->tv_sec;		\
+		(vvp)->tv_nsec = (tvp)->tv_nsec - (uvp)->tv_nsec;	\
+		if ((vvp)->tv_nsec < 0) {				\
+			(vvp)->tv_sec--;				\
+			(vvp)->tv_nsec += 1000000000;			\
+		}							\
+	} while (0)
+    struct timespec request;
+    timespecsub(prequest, pnow, &request);
+    return nanosleep(&request, remain);
+#endif
+}
+
 void rtapi_delay(long ns) {
     if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
     struct timespec ts = {0, ns};
-    clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, 0);
+    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
 }
 
 #ifdef USPACE
