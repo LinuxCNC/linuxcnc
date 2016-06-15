@@ -30,12 +30,12 @@ TARGETS += ../bin/gs2_vfd
 endif # HAVE_LIBMODBUS
 
 ifeq ($(HIDRAW_H_USABLE),yes)
-SHUTTLEXPRESS_SRC = hal/user_comps/shuttlexpress.c
-USERSRCS += $(SHUTTLEXPRESS_SRC)
-../bin/shuttlexpress: $(call TOOBJS, $(SHUTTLEXPRESS_SRC)) ../lib/liblinuxcnchal.so.0
+SHUTTLE_SRC = hal/user_comps/shuttle.c
+USERSRCS += $(SHUTTLE_SRC)
+../bin/shuttle: $(call TOOBJS, $(SHUTTLE_SRC)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
-TARGETS += ../bin/shuttlexpress
+TARGETS += ../bin/shuttle
 endif
 
 ifdef HAVE_LIBUSB10

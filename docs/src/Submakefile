@@ -63,7 +63,7 @@ DOC_SRCS_EN := \
 	drivers/pico-ppmc.txt \
 	drivers/pluto-p.txt \
 	drivers/servo-to-go.txt \
-	drivers/shuttlexpress.txt \
+	drivers/shuttle.txt \
 	examples/gcode.txt \
 	examples/gs2-example.txt \
 	examples/mpg.txt \

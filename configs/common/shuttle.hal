@@ -7,7 +7,7 @@
 # return-to-center springy action.
 #
 
-loadusr -W shuttlexpress
+loadusr -W shuttle
 
 loadrt abs_s32 names=abs_s32.sxp
 loadrt select8 names=select8.sxp-jog-speed,select8.sxp-jog-increment
