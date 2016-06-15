@@ -48,13 +48,15 @@
 
 #define Max(a, b)  ((a) > (b) ? (a) : (b))
 
+#define MAX_BUTTONS 5
+
 
 typedef struct {
     const char *name;
     uint16_t vendor_id;
     uint16_t product_id;
     int num_buttons;
-    uint16_t button_mask[5];
+    uint16_t button_mask[MAX_BUTTONS];
 } contour_dev_t;
 
 
@@ -83,16 +85,8 @@ int hal_comp_id;
 
 // each ShuttleXpress presents this interface to HAL
 struct shuttle_hal {
-    hal_bit_t *button_0;
-    hal_bit_t *button_0_not;
-    hal_bit_t *button_1;
-    hal_bit_t *button_1_not;
-    hal_bit_t *button_2;
-    hal_bit_t *button_2_not;
-    hal_bit_t *button_3;
-    hal_bit_t *button_3_not;
-    hal_bit_t *button_4;
-    hal_bit_t *button_4_not;
+    hal_bit_t *button[MAX_BUTTONS];
+    hal_bit_t *button_not[MAX_BUTTONS];
     hal_s32_t *counts;        // accumulated counts from the jog wheel
     hal_float_t *spring_wheel_f;  // current position of the springy outer wheel, as a float from -1 to +1 inclusive
     hal_s32_t *spring_wheel_s32;  // current position of the springy outer wheel, as a s32 from -7 to +7 inclusive
@@ -132,6 +126,7 @@ static void call_hal_exit(void) {
 int read_update(struct shuttle *s) {
     int r;
     int8_t packet[PACKET_LEN];
+    uint16_t button;
 
     r = read(s->fd, packet, PACKET_LEN);
     if (r < 0) {
@@ -142,16 +137,15 @@ int read_update(struct shuttle *s) {
         return -1;
     }
 
-    *s->hal->button_0 = packet[3] & 0x10;
-    *s->hal->button_0_not = !*s->hal->button_0;
-    *s->hal->button_1 = packet[3] & 0x20;
-    *s->hal->button_1_not = !*s->hal->button_1;
-    *s->hal->button_2 = packet[3] & 0x40;
-    *s->hal->button_2_not = !*s->hal->button_2;
-    *s->hal->button_3 = packet[3] & 0x80;
-    *s->hal->button_3_not = !*s->hal->button_3;
-    *s->hal->button_4 = packet[4] & 0x01;
-    *s->hal->button_4_not = !*s->hal->button_4;
+    button = ((uint8_t)packet[4] << 8) | (uint8_t)packet[3];
+    for (int i = 0; i < s->contour_type->num_buttons; i ++) {
+        if (button & s->contour_type->button_mask[i]) {
+            *s->hal->button[i] = 1;
+        } else {
+            *s->hal->button[i] = 0;
+        }
+        *s->hal->button_not[i] = !*s->hal->button[i];
+    }
 
     {
         int curr_count = packet[1];
@@ -240,35 +234,15 @@ struct shuttle *check_for_shuttle(char *dev_filename) {
         goto fail1;
     }
 
-    r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_0), hal_comp_id, "%s.%d.button-0", modname, num_devices);
-    if (r != 0) goto fail1;
+    for (int i = 0; i < s->contour_type->num_buttons; i ++) {
+        r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button[i]), hal_comp_id, "%s.%d.button-%d", s->contour_type->name, num_devices, i);
+        if (r != 0) goto fail1;
+        *s->hal->button[i] = 0;
 
-    r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_0_not), hal_comp_id, "%s.%d.button-0-not", modname, num_devices);
-    if (r != 0) goto fail1;
-
-    r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_1), hal_comp_id, "%s.%d.button-1", modname, num_devices);
-    if (r != 0) goto fail1;
-
-    r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_1_not), hal_comp_id, "%s.%d.button-1-not", modname, num_devices);
-    if (r != 0) goto fail1;
-
-    r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_2), hal_comp_id, "%s.%d.button-2", modname, num_devices);
-    if (r != 0) goto fail1;
-
-    r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_2_not), hal_comp_id, "%s.%d.button-2-not", modname, num_devices);
-    if (r != 0) goto fail1;
-
-    r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_3), hal_comp_id, "%s.%d.button-3", modname, num_devices);
-    if (r != 0) goto fail1;
-
-    r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_3_not), hal_comp_id, "%s.%d.button-3-not", modname, num_devices);
-    if (r != 0) goto fail1;
-
-    r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_4), hal_comp_id, "%s.%d.button-4", modname, num_devices);
-    if (r != 0) goto fail1;
-
-    r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_4_not), hal_comp_id, "%s.%d.button-4-not", modname, num_devices);
-    if (r != 0) goto fail1;
+        r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_not[i]), hal_comp_id, "%s.%d.button-%d-not", s->contour_type->name, num_devices, i);
+        if (r != 0) goto fail1;
+        *s->hal->button_not[i] = 1;
+    }
 
     r = hal_pin_s32_newf(HAL_OUT, &(s->hal->counts), hal_comp_id, "%s.%d.counts", s->contour_type->name, num_devices);
     if (r != 0) goto fail1;
@@ -279,16 +253,6 @@ struct shuttle *check_for_shuttle(char *dev_filename) {
     r = hal_pin_s32_newf(HAL_OUT, &(s->hal->spring_wheel_s32), hal_comp_id, "%s.%d.spring-wheel-s32", s->contour_type->name, num_devices);
     if (r != 0) goto fail1;
 
-    *s->hal->button_0 = 0;
-    *s->hal->button_0_not = 1;
-    *s->hal->button_1 = 0;
-    *s->hal->button_1_not = 1;
-    *s->hal->button_2 = 0;
-    *s->hal->button_2_not = 1;
-    *s->hal->button_3 = 0;
-    *s->hal->button_3_not = 1;
-    *s->hal->button_4 = 0;
-    *s->hal->button_4_not = 1;
     *s->hal->counts = 0;
     *s->hal->spring_wheel_f = 0.0;
     *s->hal->spring_wheel_s32 = 0;
