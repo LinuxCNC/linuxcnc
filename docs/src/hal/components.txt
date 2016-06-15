@@ -32,7 +32,7 @@ io:: Accepts NML I/O commands, interacts with HAL in userspace.
 iocontrol:: Accepts NML I/O commands, interacts with HAL in userspace.
 linuxcnc:: LinuxCNC (The Enhanced Machine Controller).
 pyvcp:: Virtual Control Panel for LinuxCNC.
-shuttlexpress:: control HAL pins with the ShuttleXpress device made by Contour Design.
+shuttle:: control HAL pins with the ShuttleXpress device made by Contour Design.
 
 [[sec:realtime-components]]
 

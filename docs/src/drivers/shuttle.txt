@@ -1,10 +1,10 @@
-[[cha:shuttlexpress]](((ShuttleXpress)))
+[[cha:shuttle]](((Shuttle)))
 
-= ShuttleXpress
+= Shuttle
 
 == Description
 
-shuttlexpress is a non-realtime HAL component that interfaces Contour
+shuttle is a non-realtime HAL component that interfaces Contour
 Design’s ShuttleXpress device with LinuxCNC’s HAL.
 
 If the driver is started without command-line arguments, it will probe
@@ -19,7 +19,7 @@ returns to center when released.
 [WARNING]
 =====
 The ShuttleXpress device has an internal 8-bit counter for the current
-jog-wheel position. The shuttlexpress driver can not know this value
+jog-wheel position. The shuttle driver can not know this value
 until the ShuttleXpress device sends its first event. When the first
 event comes into the driver, the driver uses the device’s reported
 jog-wheel position to initialize counts to 0.
@@ -36,9 +36,9 @@ notice the first click.
 
 == Setup
 
-The shuttlexpress module needs read permission to the /dev/hidraw*
+The shuttle module needs read permission to the /dev/hidraw*
 device files. This can be accomplished by adding a file
-/etc/udev/rules.d/99-shuttlexpress.rules, with the following contents:
+/etc/udev/rules.d/99-shuttle.rules, with the following contents:
 
 ----
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="0b33", ATTRS{idProduct}=="0020", MODE="0444"

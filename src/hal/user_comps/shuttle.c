@@ -183,7 +183,7 @@ struct shuttlexpress *check_for_shuttlexpress(char *dev_filename) {
     if (s->fd < 0) {
         fprintf(stderr, "%s: error opening %s: %s\n", modname, s->device_file, strerror(errno));
         if (errno == EACCES) {
-            fprintf(stderr, "%s: make sure you have read permission on %s, read the shuttlexpress(1) manpage for more info\n", modname, s->device_file);
+            fprintf(stderr, "%s: make sure you have read permission on %s, read the shuttle(1) manpage for more info\n", modname, s->device_file);
         }
         goto fail0;
     }

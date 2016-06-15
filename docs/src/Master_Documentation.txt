@@ -196,7 +196,7 @@ include::drivers/pluto-p.txt[]
 
 include::drivers/servo-to-go.txt[]
 
-include::drivers/shuttlexpress.txt[]
+include::drivers/shuttle.txt[]
 
 include::drivers/gm.txt[]
 
