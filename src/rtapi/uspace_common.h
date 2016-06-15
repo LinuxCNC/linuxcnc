@@ -329,6 +329,7 @@ int rtapi_is_realtime() {
 }
 
 void rtapi_delay(long ns) {
+    if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
     struct timespec ts = {0, ns};
     clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, 0);
 }
