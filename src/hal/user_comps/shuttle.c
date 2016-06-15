@@ -49,19 +49,31 @@
 #define Max(a, b)  ((a) > (b) ? (a) : (b))
 
 
+typedef struct {
+    const char *name;
+    uint16_t vendor_id;
+    uint16_t product_id;
+    int num_buttons;
+    uint16_t button_mask[5];
+} contour_dev_t;
 
 
-// USB Vendor and Product IDs
-#define VENDOR_ID  0x0b33  // Contour Design
-#define PRODUCT_ID 0x0020  // ShuttleXpress
-
+contour_dev_t contour_dev[] = {
+    {
+        .name = "shuttlexpress",
+        .vendor_id = 0x0b33,
+        .product_id = 0x0020,
+        .num_buttons = 5,
+        .button_mask = { 0x0010, 0x0020, 0x0040, 0x0080, 0x0100 }
+    }
+};
 
 // each packet from the ShuttleXpress is this many bytes
 #define PACKET_LEN 5
 
 
-// the module name, and prefix for all HAL pins 
-char *modname = "shuttlexpress";
+// the module name, and prefix for all HAL pins
+char *modname = "shuttle";
 
 
 int hal_comp_id;
@@ -70,7 +82,7 @@ int hal_comp_id;
 
 
 // each ShuttleXpress presents this interface to HAL
-struct shuttlexpress_hal {
+struct shuttle_hal {
     hal_bit_t *button_0;
     hal_bit_t *button_0_not;
     hal_bit_t *button_1;
@@ -87,17 +99,18 @@ struct shuttlexpress_hal {
 };
 
 
-struct shuttlexpress {
+struct shuttle {
     int fd;
     char *device_file;
-    struct shuttlexpress_hal *hal;
+    struct shuttle_hal *hal;
     int read_first_event;
     int prev_count;
+    contour_dev_t *contour_type;
 };
 
 
 // this will become an array of all the ShuttleXpress devices we're using
-struct shuttlexpress **shuttlexpress = NULL;
+struct shuttle **shuttle = NULL;
 int num_devices = 0;
 
 
@@ -116,7 +129,7 @@ static void call_hal_exit(void) {
 
 
 
-int read_update(struct shuttlexpress *s) {
+int read_update(struct shuttle *s) {
     int r;
     int8_t packet[PACKET_LEN];
 
@@ -163,15 +176,15 @@ int read_update(struct shuttlexpress *s) {
 }
 
 
-struct shuttlexpress *check_for_shuttlexpress(char *dev_filename) {
-    struct shuttlexpress *s;
+struct shuttle *check_for_shuttle(char *dev_filename) {
+    struct shuttle *s;
     struct hidraw_devinfo devinfo;
     char name[100];
     int r;
 
     printf("%s: checking %s\n", modname, dev_filename);
 
-    s = (struct shuttlexpress *)calloc(1, sizeof(struct shuttlexpress));
+    s = (struct shuttle *)calloc(1, sizeof(struct shuttle));
     if (s == NULL) {
         fprintf(stderr, "%s: out of memory!\n", modname);
         return NULL;
@@ -195,13 +208,21 @@ struct shuttlexpress *check_for_shuttlexpress(char *dev_filename) {
         goto fail1;
     }
 
-    if (devinfo.vendor != VENDOR_ID) {
-        fprintf(stderr, "%s: dev %s has unexpected Vendor ID 0x%04x (expected Contour Design, 0x%04x)\n", modname, s->device_file, devinfo.vendor, VENDOR_ID);
-        goto fail1;
+    for (int i = 0; i < sizeof(contour_dev)/sizeof(contour_dev_t); i ++) {
+        if (devinfo.vendor != contour_dev[i].vendor_id) {
+            continue;
+        }
+
+        if (devinfo.product != contour_dev[i].product_id) {
+            continue;
+        }
+
+        s->contour_type = &contour_dev[i];
+        break;
     }
 
-    if (devinfo.product != PRODUCT_ID) {
-        fprintf(stderr, "%s: dev %s has unexpected Product ID 0x%04x (expected ShuttleXpress, 0x%04x)\n", modname, s->device_file, devinfo.product, PRODUCT_ID);
+    if (s->contour_type == NULL) {
+        fprintf(stderr, "%s: dev %s is not a known Shuttle device\n", modname, s->device_file);
         goto fail1;
     }
 
@@ -213,7 +234,7 @@ struct shuttlexpress *check_for_shuttlexpress(char *dev_filename) {
     printf("%s: found %s on %s\n", modname, name, s->device_file);
 
 
-    s->hal = (struct shuttlexpress_hal *)hal_malloc(sizeof(struct shuttlexpress_hal));
+    s->hal = (struct shuttle_hal *)hal_malloc(sizeof(struct shuttle_hal));
     if (s->hal == NULL) {
         fprintf(stderr, "%s: ERROR: unable to allocate HAL shared memory\n", modname);
         goto fail1;
@@ -249,13 +270,13 @@ struct shuttlexpress *check_for_shuttlexpress(char *dev_filename) {
     r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_4_not), hal_comp_id, "%s.%d.button-4-not", modname, num_devices);
     if (r != 0) goto fail1;
 
-    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->counts), hal_comp_id, "%s.%d.counts", modname, num_devices);
+    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->counts), hal_comp_id, "%s.%d.counts", s->contour_type->name, num_devices);
     if (r != 0) goto fail1;
 
-    r = hal_pin_float_newf(HAL_OUT, &(s->hal->spring_wheel_f), hal_comp_id, "%s.%d.spring-wheel-f", modname, num_devices);
+    r = hal_pin_float_newf(HAL_OUT, &(s->hal->spring_wheel_f), hal_comp_id, "%s.%d.spring-wheel-f", s->contour_type->name, num_devices);
     if (r != 0) goto fail1;
 
-    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->spring_wheel_s32), hal_comp_id, "%s.%d.spring-wheel-s32", modname, num_devices);
+    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->spring_wheel_s32), hal_comp_id, "%s.%d.spring-wheel-s32", s->contour_type->name, num_devices);
     if (r != 0) goto fail1;
 
     *s->hal->button_0 = 0;
@@ -325,23 +346,23 @@ int main(int argc, char *argv[]) {
         names = glob_buffer.gl_pathv;
         num_names = glob_buffer.gl_pathc;
 
-        // the pathnames we got from glob(3) are used in the shuttlexpress array, so we intentionally dont call globfree(3)
+        // the pathnames we got from glob(3) are used in the shuttle array, so we intentionally dont call globfree(3)
     }
 
 
     // probe for ShuttleXpress devices on all those device file names
     for (i = 0; i < num_names; i ++) {
-        struct shuttlexpress *s;
-        s = check_for_shuttlexpress(names[i]);
+        struct shuttle *s;
+        s = check_for_shuttle(names[i]);
         if (s == NULL) continue;
 
         num_devices ++;
-        shuttlexpress = (struct shuttlexpress **)realloc(shuttlexpress, (num_devices * sizeof(struct shuttlexpress *)));
-        if (shuttlexpress == NULL) {
+        shuttle = (struct shuttle **)realloc(shuttle, (num_devices * sizeof(struct shuttle *)));
+        if (shuttle == NULL) {
             fprintf(stderr, "%s: out of memory!\n", modname);
             exit(1);
         }
-        shuttlexpress[num_devices - 1] = s;
+        shuttle[num_devices - 1] = s;
     }
 
 
@@ -365,8 +386,8 @@ int main(int argc, char *argv[]) {
         max_fd = -1;
 
         for (i = 0; i < num_devices; i ++) {
-            FD_SET(shuttlexpress[i]->fd, &readers);
-            max_fd = Max(max_fd, shuttlexpress[i]->fd);
+            FD_SET(shuttle[i]->fd, &readers);
+            max_fd = Max(max_fd, shuttle[i]->fd);
         }
 
         r = select(max_fd + 1, &readers, NULL, NULL, NULL);
@@ -377,8 +398,8 @@ int main(int argc, char *argv[]) {
         }
 
         for (i = 0; i < num_devices; i ++) {
-            if (FD_ISSET(shuttlexpress[i]->fd, &readers)) {
-                r = read_update(shuttlexpress[i]);
+            if (FD_ISSET(shuttle[i]->fd, &readers)) {
+                r = read_update(shuttle[i]);
                 if (r < 0) {
                     exit(1);
                 }
