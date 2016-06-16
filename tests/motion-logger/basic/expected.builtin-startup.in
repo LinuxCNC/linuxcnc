@@ -1,3 +1,8 @@
+
+#
+# First come "immediate" Motion commands sent from emctask_startup().
+#
+
 SET_NUM_AXES 9
 SET_VEL vel=0.000000, ini_maxvel=1.200000
 SET_VEL_LIMIT vel=999999999999999967336168804116691273849533185806555472917961779471295845921727862608739868455469056.000000
@@ -86,6 +91,27 @@ SET_HOMING_PARAMS joint=8, offset=0.000000 home=0.000000, final_vel=-1.000000, s
 SET_JOINT_VEL_LIMIT joint=8, vel=4.000000
 SET_JOINT_ACC_LIMIT joint=8, acc=1000.000000
 ACTIVATE_JOINT joint=8
+
+#
+# Everything above this line was sent from emctask_startup().
+# That function also enqueued some Canon commands on interp_list, that will
+# generate Motion commands later.
+#
+
+#
+# Next Task enters Estop, by calling emcTaskSetState(EMC_TASK_STATE_ESTOP).
+# This does the following:
+#     * Abort Motion, which aborts each Axis, then Aborts Motion
+#     * Stop the spindle
+#     * Send Estop to IO (which we don't detect in motion-logger)
+#     * Disable all the amps
+#     * Disable Motion
+#     * Send Lube Off to IO (which we don't detect)
+#     * Abort Motion again, which aborts each Axis, and Motion, again
+#     * Abort IO, which we miss
+#     * Unhome VOLATILE_HOME joints
+#
+
 AXIS_ABORT joint=0
 AXIS_ABORT joint=1
 AXIS_ABORT joint=2
@@ -117,9 +143,44 @@ AXIS_ABORT joint=6
 AXIS_ABORT joint=7
 AXIS_ABORT joint=8
 ABORT
-SPINDLE_OFF
 UNHOME joint=-2
+
+#
+# Here's emcTaskSetMode(EMC_TASK_MODE_MANUAL)
+#
+
 FREE
+
+#
+# Now Task is done with its internal immediate startup and starts
+# draining the interp_list.
+#
+# emctask_start() called emcTaskPlanInit(), which initialized the
+# Interpreter, enqueueing Canon commands on interp_list.
+#
+
+SET_TERM_COND termCond=2, tolerance=0.000000
+SET_SPINDLESYNC sync=0.000000, flags=0x00000000
+SPINDLE_OFF
+
+#
+# Task has fully booted!  It's now in Estop, in Manual, and ready to
+# receive commands from the UIs.
+#
+
+#
+# The test UI first sends a command to switch state to ESTOP_RESET,
+# which does these things:
+#     * Send Estop Off to IO (we miss this)
+#     * Send Lube Off to IO (we miss this)
+#     * Task Abort (Aborts Motion, closes Interp)
+#     * Send Abort to IO (we miss this)
+#     * Turn off the spindle
+#     * Abort Interp, which enqueues Canon commands to turn off Spindle
+#           Sync and the Spindle (and do other things inside Task, which
+#           we dont see here)
+#
+
 AXIS_ABORT joint=0
 AXIS_ABORT joint=1
 AXIS_ABORT joint=2
@@ -131,6 +192,14 @@ AXIS_ABORT joint=7
 AXIS_ABORT joint=8
 ABORT
 SPINDLE_OFF
+SET_SPINDLESYNC sync=0.000000, flags=0x00000000
+SPINDLE_OFF
+
+#
+# The test UI then sends an NML command to move Task to the On state, which
+# turns on Motion and all the amps.
+#
+
 ENABLE
 ENABLE_AMPLIFIER
 ENABLE_AMPLIFIER
@@ -141,6 +210,12 @@ ENABLE_AMPLIFIER
 ENABLE_AMPLIFIER
 ENABLE_AMPLIFIER
 ENABLE_AMPLIFIER
+
+#
+# The test UI finally switches mode to Auto, which switches Motion to Coord
+# and aborts.
+#
+
 COORD
 AXIS_ABORT joint=0
 AXIS_ABORT joint=1

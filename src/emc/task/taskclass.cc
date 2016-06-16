@@ -527,9 +527,6 @@ int Task::emcIoAbort(int reason)
     // send abort command to emcio
     sendCommand(&ioAbortMsg);
 
-    // call abort o-word sub handler if defined
-    emcAbortCleanup(reason);
-
     return 0;
 }
 
