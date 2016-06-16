@@ -178,8 +178,10 @@ int emcTaskAbort()
     emcMotionAbort();
 
     // clear out the pending command
-    emcTaskCommand = 0;
-    interp_list.clear();
+    if (!drain_interp_list) {
+        emcTaskCommand = 0;
+        interp_list.clear();
+    }
 
     // clear out the interpreter state
     emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
@@ -301,7 +303,6 @@ int emcTaskSetState(int state)
 	emcLubeOff();
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
-        emcSpindleAbort();
         emcAxisUnhome(-2); // only those joints which are volatile_home
 	emcAbortCleanup(EMC_ABORT_TASK_STATE_ESTOP);
 	emcTaskPlanSynch();
@@ -442,6 +443,10 @@ int emcTaskPlanInit()
 	    }
 	}
     }
+
+    // Let the Interp init and .ini startup code finish before talking
+    // with the user interfaces.
+    drain_interp_list = 1;
 
     if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanInit() returned %d\n", retval);
@@ -696,6 +701,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 int emcAbortCleanup(int reason, const char *message)
 {
     int status = interp.on_abort(reason,message);
+    drain_interp_list = 1;
     if (status > INTERP_MIN_ERROR)
 	print_interp_error(status);
     return status;
