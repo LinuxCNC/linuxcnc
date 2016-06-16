@@ -520,7 +520,8 @@ struct rtapi_module {
 #define MODULE_OFFSET 32768
 
 rtapi_task::rtapi_task()
-    : magic{}, id{}, owner{}, thr{}, stacksize{}, prio{}, period{}, nextstart{},
+    : magic{}, id{}, owner{}, appspecific{}, stacksize{}, prio{},
+      period{}, nextstart{},
       ratio{}, arg{}, taskcode{}
 {}
 
@@ -528,6 +529,10 @@ namespace
 {
 struct PosixTask : rtapi_task
 {
+    PosixTask() : rtapi_task{}, thr{}
+    {}
+
+    pthread_t thr;                /* thread's context */
 };
 
 struct Posix : RtapiApp
@@ -804,9 +809,14 @@ rtapi_task *RtapiApp::get_task(int task_id) {
     return task;
 }
 
+template<class T=rtapi_task>
+T *get_task(int task_id) {
+    return static_cast<T*>(RtapiApp::get_task(task_id));
+}
+
 int Posix::task_delete(int id)
 {
-  struct rtapi_task *task = get_task(id);
+  auto task = ::get_task<PosixTask>(id);
   if(!task) return -EINVAL;
 
   pthread_cancel(task->thr);
@@ -819,7 +829,7 @@ int Posix::task_delete(int id)
 
 int Posix::task_start(int task_id, unsigned long int period_nsec)
 {
-  struct rtapi_task *task = get_task(task_id);
+  auto task = ::get_task<PosixTask>(task_id);
   if(!task) return -EINVAL;
 
   if(period_nsec < (unsigned long)period) period_nsec = (unsigned long)period;
