@@ -56,6 +56,15 @@
 #include <sys/shm.h>		/* shmget() */
 #include <string.h>
 
+#ifndef sigev_notify_thread_id
+#define sigev_notify_thread_id _sigev_un._tid
+#endif
+
+#ifndef gettid
+#include <sys/syscall.h>
+#define gettid() syscall(__NR_gettid)
+#endif
+
 int WithRoot::level;
 
 namespace
@@ -529,10 +538,15 @@ namespace
 {
 struct PosixTask : rtapi_task
 {
-    PosixTask() : rtapi_task{}, thr{}
+    PosixTask() : rtapi_task{}, thr{}, sigset{}, timer_id{}, pending_overruns{},
+    iteration{}
     {}
 
     pthread_t thr;                /* thread's context */
+    sigset_t sigset;
+    timer_t timer_id;
+    int pending_overruns;
+    long iteration;
 };
 
 struct Posix : RtapiApp
@@ -891,10 +905,7 @@ pthread_key_t Posix::key;
 
 void *Posix::wrapper(void *arg)
 {
-  struct rtapi_task *task;
-
-  /* use the argument to point to the task data */
-  task = (struct rtapi_task*)arg;
+  auto task = (struct PosixTask*)arg;
   long int period = App().period;
   if(task->period < period) task->period = period;
   task->ratio = task->period / period;
@@ -908,14 +919,39 @@ void *Posix::wrapper(void *arg)
   if(papp.do_thread_lock)
       pthread_mutex_lock(&papp.thread_lock);
 
+  sigemptyset(&task->sigset);
+  sigaddset(&task->sigset, SIGALRM);
+  sigprocmask(SIG_BLOCK, &task->sigset, NULL);
+
+  struct sigevent sigev;
+  sigev.sigev_notify = SIGEV_THREAD_ID | SIGEV_SIGNAL;
+  sigev.sigev_signo = SIGALRM;
+  sigev.sigev_notify_thread_id = gettid();
+  if(timer_create(RTAPI_CLOCK, &sigev, &task->timer_id) < 0) {
+    rtapi_print("ERROR: timer_create failed: %s", strerror(errno));
+    return NULL;
+  }
+
   struct timespec now;
   clock_gettime(RTAPI_CLOCK, &now);
+  advance_clock(task->nextstart, now, task->period);
+
+  struct itimerspec itimer;
+  itimer.it_interval.tv_sec = task->period / 1000000000;
+  itimer.it_interval.tv_nsec = task->period % 1000000000;
+  itimer.it_value = task->nextstart;
+  if(timer_settime(task->timer_id, TIMER_ABSTIME, &itimer, NULL) < 0) {
+    rtapi_print("ERROR: timer_settime failed: %s\n", strerror(errno));
+    return NULL;
+  }
   advance_clock(task->nextstart, now, task->period);
 
   /* call the task function with the task argument */
   (task->taskcode) (task->arg);
 
   rtapi_print("ERROR: reached end of wrapper for task %d\n", task->id);
+  timer_delete(task->timer_id);
+
   return NULL;
 }
 
@@ -933,38 +969,42 @@ int Posix::task_self() {
     return task->id;
 }
 
-static bool ts_less(const struct timespec &ta, const struct timespec &tb) {
-    if(ta.tv_sec < tb.tv_sec) return 1;
-    if(ta.tv_sec > tb.tv_sec) return 0;
-    return ta.tv_nsec < tb.tv_nsec;
-}
-
 void Posix::wait() {
     if(do_thread_lock)
         pthread_mutex_unlock(&thread_lock);
     pthread_testcancel();
-    struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
+    auto task = reinterpret_cast<PosixTask*>(pthread_getspecific(key));
     advance_clock(task->nextstart, task->nextstart, task->period);
-    struct timespec now;
-    clock_gettime(RTAPI_CLOCK, &now);
-    if(ts_less(task->nextstart, now))
+    if(task->pending_overruns ) {
+        task->pending_overruns --;
+        goto out;
+    }
+    int sigs;
+    if (sigwait(&task->sigset, &sigs) < 0) {
+        perror("sigwait");
+        return;
+    }
+    {
+    int result = timer_getoverrun(task->timer_id);
+    if(result > 0)
+        task->pending_overruns = result;
+    }
+    if(task->pending_overruns)
     {
         static int printed = 0;
         if(policy == SCHED_FIFO && !printed)
         {
             rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Unexpected realtime delay on task %d with period %ld\n"
-		    "This Message will only display once per session.\n"
-		    "Run the Latency Test and resolve before continuing.\n", 
-                    task->id, task->period);
+                "Unexpected realtime delay on task %d, iteration %ld, period %ld\n"
+                "This Message will only display once per session.\n"
+                "Run the Latency Test and resolve before continuing.\n"
+                "Pending overruns: %d\n",
+                task->id, task->iteration, task->period, task->pending_overruns);
             printed = 1;
         }
     }
-    else
-    {
-        int res = clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, NULL);
-        if(res < 0) perror("clock_nanosleep");
-    }
+out:
+    task->iteration++;
     if(do_thread_lock)
         pthread_mutex_lock(&thread_lock);
 }
