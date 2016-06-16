@@ -744,6 +744,11 @@ class LivePlotter:
             del self.stat
             return
 
+        if  (   (self.stat.motion_mode != linuxcnc.TRAJ_MODE_FREE)
+            and (self.stat.task_mode   == linuxcnc.MODE_MANUAL)
+            ):
+            set_motion_teleop(1)
+
         # With joints_axes support and jogging while mdi
         #  (ref: emctaskmain.cc:allow_while_idle_type())
         # behavior is better without changing tabs upon detecting
