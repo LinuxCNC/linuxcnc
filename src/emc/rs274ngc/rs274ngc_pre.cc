@@ -153,6 +153,10 @@ Interp::Interp()
     }
 }
 
+InterpBase *makeInterp()
+{
+    return new Interp;
+}
 
 Interp::~Interp() {
 
