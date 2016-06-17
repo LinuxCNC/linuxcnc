@@ -728,6 +728,8 @@ void readahead_waiting(void)
 static bool allow_while_idle_type() {
     // allow for EMC_TASK_MODE_AUTO, EMC_TASK_MODE_MDI
     // expect immediate command
+    RCS_CMD_MSG *emcCommand;
+    emcCommand = emcCommandBuffer->get_address();
     switch(emcCommand->type) {
       case EMC_JOG_CONT_TYPE:
       case EMC_JOG_INCR_TYPE:
