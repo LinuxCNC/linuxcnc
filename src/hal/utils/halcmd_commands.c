@@ -1406,7 +1406,7 @@ int do_loadusr_cmd(char *args[])
     prog_name = NULL;
 
     /* check for options (-w, -i, and/or -r) */
-    optind = 0;
+    optind = 1;
     while (1) {
 	int c = getopt(argc, args, "+wWin:");
 	if(c == -1) break;

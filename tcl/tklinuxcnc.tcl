@@ -348,7 +348,7 @@ proc popupAbout {} {
     }
     toplevel .about
     wm title .about [msgcat::mc "About TkLinuxCNC"]
-    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(LinuxCNC %s)" [msgcat::mc "TkLinuxcnc\n\nTcl/Tk GUI for LinuxCNC\n\nGPL Version 2 (2012)"] $env(EMC2VERSION) ]
+    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(LinuxCNC %s)" [msgcat::mc "TkLinuxcnc\n\nTcl/Tk GUI for LinuxCNC\n\nGPL Version 2 (2012)"] $env(LINUXCNCVERSION) ]
     frame .about.buttons
     button .about.buttons.ok -default active -text OK -command "destroy .about"
     pack .about.msg -side top

@@ -1251,9 +1251,6 @@ class gmoccapy( object ):
     def _init_IconFileSelection( self ):
         self.widgets.IconFileSelection1.set_property( "start_dir", self.get_ini_info.get_program_prefix() )
 
-        iconsize = 48
-        self.widgets.IconFileSelection1.set_property( "icon_size", iconsize )
-
         file_ext = self.get_ini_info.get_file_ext()
         filetypes = ""
         for ext in file_ext:

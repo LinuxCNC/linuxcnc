@@ -73,7 +73,7 @@ int Interp::close_and_downcase(char *line)       //!< string: one line of NC cod
     int comment, semicomment;
     char item;
     comment = semicomment = 0;
-    for (n = 0, m = 0; (item = line[m]) != (char) NULL; m++) {
+    for (n = 0, m = 0; (item = line[m]) != '\0'; m++) {
 	if ((item == ';') && !comment)
 	    semicomment = 1;
 

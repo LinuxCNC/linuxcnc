@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import hal
 import time
 c = hal.component("stream_reader")
