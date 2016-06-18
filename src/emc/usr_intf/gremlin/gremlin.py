@@ -440,11 +440,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         elif self.mouse_btn_mode == 6:
             if button1:    
                 if shift:
-                    if cancel:
-                        self.continueZoom(event.y)
-                    else:
-                        self.set_prime(event.x, event.y)
-                        self.rotateOrTranslate(event.x, event.y)
+                    self.continueZoom(event.y)
                 else:
                     self.translateOrRotate(event.x, event.y)
             elif button2:

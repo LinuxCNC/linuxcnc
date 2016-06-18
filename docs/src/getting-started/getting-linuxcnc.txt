@@ -229,12 +229,17 @@ or
 sudo apt-get install linux-image-rt-686-pae
 ----
 
-. Reboot, and make sure you boot into the Preempt-RT kernel. When you
-  log in, verify that the following includes `PREEMPT` and `RT`.
+linux-rt
+. Reboot, and select the Linux 3.2.0-4-rt-686-pae kernel. When you
+  log in, verify that `PREEMPT RT`is reported by the following command.
 +
 ----
 uname -v
 ----
+
+. Open Applications Menu > System > Synaptic Package Manager search for
+  'linux-image' and right click on 'linux-image-3.2.0-4-686-pae' and select
+  'Mark for Complete Removal do the same for'linux-image-686-pae'. Reboot.
 
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
 +
@@ -242,12 +247,10 @@ uname -v
 sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
 
-. Add a new apt source that looks like this:
+. Add a the apt repository:
 +
 ----
 sudo add-apt-repository "deb http://linuxcnc.org/ wheezy base 2.7-uspace"
-or
-sudo add-apt-repository "deb http://linuxcnc.org/ jessie base 2.7-uspace"
 ----
 
 . Update the package list from linuxcnc.org
@@ -256,7 +259,7 @@ sudo add-apt-repository "deb http://linuxcnc.org/ jessie base 2.7-uspace"
 sudo apt-get update
 ----
 
-. Install uspace
+. Install uspace (a reboot may be required prior to installing uspace)
 +
 ----
 sudo apt-get install linuxcnc-uspace
