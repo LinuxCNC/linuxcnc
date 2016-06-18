@@ -1164,6 +1164,23 @@ AC_MSG_RESULT([$sincos_ok])
 AC_CHECK_FUNCS(__sincos)
 LIBS=$LIBS_hold
 
+AC_MSG_CHECKING([for optreset])
+AC_TRY_LINK(
+    [
+#include <unistd.h>
+extern int optreset;
+    ],
+    [ optreset = 1; ],
+    [
+	HAVE_OPTRESET=yes
+        AC_DEFINE([HAVE_OPTRESET], [], [Define to 1 if getopt has the BSD 'optreset' extension])
+],
+    [HAVE_OPTRESET=no])
+AC_MSG_RESULT($HAVE_OPTRESET)
+AC_SUBST([HAVE_OPTRESET])
+
+
+
 AH_BOTTOM(#endif
 )
 
