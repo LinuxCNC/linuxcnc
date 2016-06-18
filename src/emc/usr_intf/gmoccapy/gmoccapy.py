@@ -675,11 +675,17 @@ class gmoccapy( object ):
         # the time between calls to the function, in milliseconds
         gobject.timeout_add( 100, self._periodic )  # time between calls to the function, in milliseconds
 
-    def set_motion_mode(self):
+    def toggle_motion_mode(self):
+        # 1:teleop, 0: joint
         self.stat.poll()
-        if self.stat.motion_mode != linuxcnc.TRAJ_MODE_TELEOP:
-            self.command.teleop_enable(1)
-            self.command.wait_complete()
+        value = self.stat.motion_mode
+        print("Motion Mode = ", value)
+        self.command.teleop_enable(1)
+        self.command.wait_complete()
+        self.stat.poll()
+#         if self.stat.motion_mode != linuxcnc.TRAJ_MODE_TELEOP:
+#             self.command.teleop_enable(1)
+#             self.command.wait_complete()
 
     def _get_axis_list( self ):
         temp = self.get_ini_info.get_coordinates()
@@ -1847,7 +1853,9 @@ class gmoccapy( object ):
 
         # get the keyname
         keyname = gtk.gdk.keyval_name( event.keyval )
-        #print("pressed key = ",keyname)
+        print("******************************************")
+        print("pressed key = ",keyname)
+        print("******************************************")
 
         # estop with F1 shold work every time
         # so should also escape aboart actions
@@ -1857,6 +1865,10 @@ class gmoccapy( object ):
         if keyname == "Escape":
             self.command.abort()
             return True
+
+        if keyname == "F12":
+            print("F12 has been pressed, switch mode")
+            self.toggle_motion_mode()
 
         #print self.last_key_event[0] ,self.last_key_event[1]
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
@@ -2596,7 +2608,6 @@ class gmoccapy( object ):
         else:
             direction = -1
 
-        self.set_motion_mode()
         if self.distance <> 0:  # incremental jogging
             self.command.jog( linuxcnc.JOG_INCREMENT, 0, axisnumber, direction * velocity, self.distance )
         else:  # continuous jogging
@@ -2618,7 +2629,6 @@ class gmoccapy( object ):
         if self.distance <> 0:
             pass
         else:
-            self.set_motion_mode()
             self.command.jog( linuxcnc.JOG_STOP, 0,  axis )
 
     # use the current loaded file to be loaded on start up
