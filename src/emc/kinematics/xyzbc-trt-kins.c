@@ -50,10 +50,10 @@ int kinematicsForward(const double *joints,
     double    dx = *(haldata->x_offset);
     double    dz = *(haldata->z_offset);
     double    dt = *(haldata->tool_offset);
+              dz = dz + dt;
     double b_rad = joints[JB]*TO_RAD;
     double c_rad = joints[JC]*TO_RAD;
 
-    dz = dz + dt;
 
     pos->tran.x =   cos(c_rad) * cos(b_rad) * (joints[JX] - dx)
                   + sin(c_rad) *              (joints[JY])
@@ -88,12 +88,12 @@ int kinematicsInverse(const EmcPose * pos,
     double    dx = *(haldata->x_offset);
     double    dz = *(haldata->z_offset);
     double    dt = *(haldata->tool_offset);
+              dz = dz + dt;
     double b_rad = pos->b*TO_RAD;
     double c_rad = pos->c*TO_RAD;
     double   dpx = -cos(b_rad)*dx - sin(b_rad)*dz + dx;
     double   dpz = sin(b_rad)*dx - cos(b_rad)*dz + dz;
 
-    dz        = dz + dt;
 
     joints[JX] =   cos(c_rad) * cos(b_rad) * (pos->tran.x)
                  - sin(c_rad) * cos(b_rad) * (pos->tran.y)
