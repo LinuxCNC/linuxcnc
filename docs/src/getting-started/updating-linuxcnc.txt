@@ -326,17 +326,18 @@ axis letters:
   [TRAJ]COORDINATES = XZ
 -----
 
-Gantry using trivkins (KINEMATICS_IDENTITY) with duplicated axis letters:
+Gantry using trivkins with duplicated axis letters and KINEMATICS_BOTH to
+allow individual joint positioning (for homing):
 -----
-  [KINS]KINEMATICS  = trivkins coordinates=XYYZ
+  [KINS]KINEMATICS  = trivkins coordinates=XYYZ kinstype=BOTH
   [KINS]JOINTS      = 4
   [TRAJ]COORDINATES = XYYZ
 -----
 
-Gantry using trivkins (KINEMATICS_IDENTITY) with duplicated axis letters
+Gantry using trivkins (KINEMATICS_BOTH) with duplicated axis letters
 and a rotary axis with skipped axis letters (A,B skipped):
 -----
-  [KINS]KINEMATICS  = trivkins coordinates=XYYZC
+  [KINS]KINEMATICS  = trivkins coordinates=XYYZC kinstype=BOTH
   [KINS]JOINTS      = 5
   [TRAJ]COORDINATES = XYYZC
 -----
