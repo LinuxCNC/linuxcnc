@@ -58,7 +58,7 @@ def excepthook( exc_type, exc_obj, exc_tb ):
     m = gtk.MessageDialog( w,
                           gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                           gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-                          ( "Found an error!\nThe following information may be useful in troubleshooting:\n\n" )
+                          ( "Found an error!\nThe following information may be useful for troubleshooting:\n\n" )
                           + "".join( lines ) )
     m.show()
     m.run()
@@ -865,7 +865,7 @@ class gmoccapy( object ):
         self.jog_increments = self.get_ini_info.get_increments()
         if len( self.jog_increments ) > 10:
             print( _( "**** GMOCCAPY INFO ****" ) )
-            print( _( "**** To many increments given in INI File for this screen ****" ) )
+            print( _( "**** Too many increments given in INI File for this screen ****" ) )
             print( _( "**** Only the first 10 will be reachable through this screen ****" ) )
             # we shorten the incrementlist to 10 (first is default = 0)
             self.jog_increments = self.jog_increments[0:11]
@@ -930,7 +930,7 @@ class gmoccapy( object ):
         tab_names, tab_location, tab_cmd = self.get_ini_info.get_embedded_tabs()
         if not tab_names:
             print ( _( "**** GMOCCAPY INFO ****" ) )
-            print ( _( "**** Invalid embeded tab configuration ****" ) )
+            print ( _( "**** Invalid embedded tab configuration ****" ) )
             print ( _( "**** No tabs will be added! ****" ) )
             return
 
@@ -1105,7 +1105,7 @@ class gmoccapy( object ):
             self.onboard = True
         except Exception, e:
             print ( _( "**** GMOCCAPY ERROR ****" ) )
-            print ( _( "**** Error with launching virtual keyboard," ) )
+            print ( _( "**** Error launching virtual keyboard," ) )
             print ( _( "**** is onboard or matchbox-keyboard installed? ****" ) )
             traceback.print_exc()
             self._no_virt_keyboard()
@@ -1438,7 +1438,7 @@ class gmoccapy( object ):
             self.stat.poll()
             if self.stat.task_state != linuxcnc.STATE_ON:
                 widget.set_active( False )
-                self._show_error( ( 11, _( "ERROR : Could not switch the machine on, is limit switch aktivated?" ) ) )
+                self._show_error( ( 11, _( "ERROR : Could not switch the machine on, is limit switch activated?" ) ) )
                 self._update_widgets( False )
                 return
             self._update_widgets( True )
