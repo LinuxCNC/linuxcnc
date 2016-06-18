@@ -171,7 +171,7 @@ def introspect():
 
 
 def wait_for_joint_to_stop_at(joint, target):
-    timeout = 5.0
+    timeout = 10.0
     tolerance = 0.0001
 
     start = time.time()
