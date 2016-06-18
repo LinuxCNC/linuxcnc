@@ -149,6 +149,10 @@ Number of iterations spent for the last forward kinematics solution.
 .B genhexkins.max-iterations
 Maximum number of iterations spent for a converged solution during current
 session.
+.TQ
+.B genhexkins.tool-offset
+TCP offset from platform origin along Z to implement RTCP function. To
+avoid joints jump change tool offset only when the platform is not tilted.
 
 .SS genserkins \- generalized serial kinematics
 Kinematics that can model a general serial-link manipulator with up to 6
