@@ -56,6 +56,15 @@
 #include <sys/shm.h>		/* shmget() */
 #include <string.h>
 
+#ifndef sigev_notify_thread_id
+#define sigev_notify_thread_id _sigev_un._tid
+#endif
+
+#ifndef gettid
+#include <sys/syscall.h>
+#define gettid() syscall(__NR_gettid)
+#endif
+
 int WithRoot::level;
 
 namespace
@@ -519,8 +528,27 @@ struct rtapi_module {
 #define MAX_MODULES  64
 #define MODULE_OFFSET 32768
 
+rtapi_task::rtapi_task()
+    : magic{}, id{}, owner{}, appspecific{}, stacksize{}, prio{},
+      period{}, nextstart{},
+      ratio{}, arg{}, taskcode{}
+{}
+
 namespace
 {
+struct PosixTask : rtapi_task
+{
+    PosixTask() : rtapi_task{}, thr{}, sigset{}, timer_id{}, pending_overruns{},
+    iteration{}
+    {}
+
+    pthread_t thr;                /* thread's context */
+    sigset_t sigset;
+    timer_t timer_id;
+    int pending_overruns;
+    long iteration;
+};
+
 struct Posix : RtapiApp
 {
     Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
@@ -534,6 +562,9 @@ struct Posix : RtapiApp
     int task_resume(int task_id);
     int task_self();
     void wait();
+    struct rtapi_task *do_task_new() {
+        return new PosixTask;
+    }   
     unsigned char do_inb(unsigned int port);
     void do_outb(unsigned char value, unsigned int port);
     int run_threads(int fd, int (*callback)(int fd));
@@ -704,7 +735,7 @@ RtapiApp &App()
 
 }
 /* data for all tasks */
-struct rtapi_task task_array[MAX_TASKS] = {{0},};
+struct rtapi_task *task_array[MAX_TASKS];
 
 /* Priority functions.  Uspace uses POSIX task priorities. */
 
@@ -741,12 +772,12 @@ int RtapiApp::prio_next_lower(int prio)
   return prio - 1;
 }
 
-int RtapiApp::allocate_task()
+int RtapiApp::allocate_task_id()
 {
     for(int n=0; n<MAX_TASKS; n++)
     {
-        rtapi_task *task = &(task_array[n]);
-        if(__sync_bool_compare_and_swap(&task->magic, 0, TASK_MAGIC_INIT))
+        rtapi_task **taskptr = &(task_array[n]);
+        if(__sync_bool_compare_and_swap(taskptr, (rtapi_task*)0, TASK_MAGIC_INIT))
             return n;
     }
     return -ENOSPC;
@@ -761,20 +792,21 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
   }
 
   /* label as a valid task structure */
-  int n = allocate_task();
+  int n = allocate_task_id();
   if(n < 0) return n;
 
   // cannot use get_task, since task->magic is TASK_MAGIC_INIT
-  struct rtapi_task *task = &(task_array[n]);
-
+  struct rtapi_task *task = do_task_new();
   if(stacksize < (1024*1024)) stacksize = (1024*1024);
   memset(task, 0, sizeof(*task));
+  task->id = n;
   task->owner = owner;
   task->arg = arg;
   task->stacksize = stacksize;
   task->taskcode = taskcode;
   task->prio = prio;
   task->magic = TASK_MAGIC;
+  task_array[n] = task;
 
   /* and return handle to the caller */
 
@@ -784,27 +816,34 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
 rtapi_task *RtapiApp::get_task(int task_id) {
     if(task_id < 0 || task_id >= MAX_TASKS) return NULL;
     /* validate task handle */
-    rtapi_task *task = &task_array[task_id];
-    if(!task || task->magic != TASK_MAGIC)
+    rtapi_task *task = task_array[task_id];
+    if(!task || task == TASK_MAGIC_INIT || task->magic != TASK_MAGIC)
         return NULL;
 
     return task;
 }
 
+template<class T=rtapi_task>
+T *get_task(int task_id) {
+    return static_cast<T*>(RtapiApp::get_task(task_id));
+}
+
 int Posix::task_delete(int id)
 {
-  struct rtapi_task *task = get_task(id);
+  auto task = ::get_task<PosixTask>(id);
   if(!task) return -EINVAL;
 
   pthread_cancel(task->thr);
   pthread_join(task->thr, 0);
   task->magic = 0;
+  task_array[id] = 0;
+  delete task;
   return 0;
 }
 
 int Posix::task_start(int task_id, unsigned long int period_nsec)
 {
-  struct rtapi_task *task = get_task(task_id);
+  auto task = ::get_task<PosixTask>(task_id);
   if(!task) return -EINVAL;
 
   if(period_nsec < (unsigned long)period) period_nsec = (unsigned long)period;
@@ -866,10 +905,7 @@ pthread_key_t Posix::key;
 
 void *Posix::wrapper(void *arg)
 {
-  struct rtapi_task *task;
-
-  /* use the argument to point to the task data */
-  task = (struct rtapi_task*)arg;
+  auto task = (struct PosixTask*)arg;
   long int period = App().period;
   if(task->period < period) task->period = period;
   task->ratio = task->period / period;
@@ -883,14 +919,39 @@ void *Posix::wrapper(void *arg)
   if(papp.do_thread_lock)
       pthread_mutex_lock(&papp.thread_lock);
 
+  sigemptyset(&task->sigset);
+  sigaddset(&task->sigset, SIGALRM);
+  sigprocmask(SIG_BLOCK, &task->sigset, NULL);
+
+  struct sigevent sigev;
+  sigev.sigev_notify = SIGEV_THREAD_ID | SIGEV_SIGNAL;
+  sigev.sigev_signo = SIGALRM;
+  sigev.sigev_notify_thread_id = gettid();
+  if(timer_create(RTAPI_CLOCK, &sigev, &task->timer_id) < 0) {
+    rtapi_print("ERROR: timer_create failed: %s", strerror(errno));
+    return NULL;
+  }
+
   struct timespec now;
   clock_gettime(RTAPI_CLOCK, &now);
+  advance_clock(task->nextstart, now, task->period);
+
+  struct itimerspec itimer;
+  itimer.it_interval.tv_sec = task->period / 1000000000;
+  itimer.it_interval.tv_nsec = task->period % 1000000000;
+  itimer.it_value = task->nextstart;
+  if(timer_settime(task->timer_id, TIMER_ABSTIME, &itimer, NULL) < 0) {
+    rtapi_print("ERROR: timer_settime failed: %s\n", strerror(errno));
+    return NULL;
+  }
   advance_clock(task->nextstart, now, task->period);
 
   /* call the task function with the task argument */
   (task->taskcode) (task->arg);
 
-  rtapi_print("ERROR: reached end of wrapper for task %d\n", (int)(task - task_array));
+  rtapi_print("ERROR: reached end of wrapper for task %d\n", task->id);
+  timer_delete(task->timer_id);
+
   return NULL;
 }
 
@@ -905,40 +966,45 @@ int Posix::task_resume(int) {
 int Posix::task_self() {
     struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
     if(!task) return -EINVAL;
-    return task - task_array;
-}
-
-static bool ts_less(const struct timespec &ta, const struct timespec &tb) {
-    if(ta.tv_sec < tb.tv_sec) return 1;
-    if(ta.tv_sec > tb.tv_sec) return 0;
-    return ta.tv_nsec < tb.tv_nsec;
+    return task->id;
 }
 
 void Posix::wait() {
     if(do_thread_lock)
         pthread_mutex_unlock(&thread_lock);
     pthread_testcancel();
-    struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
+    auto task = reinterpret_cast<PosixTask*>(pthread_getspecific(key));
     advance_clock(task->nextstart, task->nextstart, task->period);
-    struct timespec now;
-    clock_gettime(RTAPI_CLOCK, &now);
-    if(ts_less(task->nextstart, now))
+    if(task->pending_overruns ) {
+        task->pending_overruns --;
+        goto out;
+    }
+    int sigs;
+    if (sigwait(&task->sigset, &sigs) < 0) {
+        perror("sigwait");
+        return;
+    }
+    {
+    int result = timer_getoverrun(task->timer_id);
+    if(result > 0)
+        task->pending_overruns = result;
+    }
+    if(task->pending_overruns)
     {
         static int printed = 0;
         if(policy == SCHED_FIFO && !printed)
         {
-            rtapi_print_msg(RTAPI_MSG_ERR, "Unexpected realtime delay on task %zd\n"
-		    "This Message will only display once per session.\n"
-		    "Run the Latency Test and resolve before continuing.\n", 
-                    task - task_array);
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "Unexpected realtime delay on task %d, iteration %ld, period %ld\n"
+                "This Message will only display once per session.\n"
+                "Run the Latency Test and resolve before continuing.\n"
+                "Pending overruns: %d\n",
+                task->id, task->iteration, task->period, task->pending_overruns);
             printed = 1;
         }
     }
-    else
-    {
-        int res = clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, NULL);
-        if(res < 0) perror("clock_nanosleep");
-    }
+out:
+    task->iteration++;
     if(do_thread_lock)
         pthread_mutex_lock(&thread_lock);
 }

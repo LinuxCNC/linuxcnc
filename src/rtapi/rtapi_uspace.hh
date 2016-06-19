@@ -28,6 +28,22 @@ struct WithRoot
     static int level;
 };
 
+struct rtapi_task {
+  rtapi_task();
+
+  int magic;			/* to check for valid handle */
+  int id;
+  int owner;
+  void *appspecific;          /* app-specific storage */
+  size_t stacksize;
+  int prio;
+  long period;
+  struct timespec nextstart;
+  unsigned ratio;
+  void *arg;
+  void (*taskcode) (void*);	/* pointer to task function */
+};
+
 struct RtapiApp
 {
 
@@ -40,7 +56,8 @@ struct RtapiApp
     long clock_set_period(long int period_nsec);
     int task_new(void (*taskcode)(void*), void *arg,
             int prio, int owner, unsigned long int stacksize, int uses_fp);
-    static int allocate_task();
+    virtual rtapi_task *do_task_new() = 0;
+    static int allocate_task_id();
     static struct rtapi_task *get_task(int task_id);
     virtual int task_delete(int id) = 0;
     virtual int task_start(int task_id, unsigned long period_nsec) = 0;
@@ -57,25 +74,9 @@ struct RtapiApp
 
 #define MAX_TASKS  64
 #define TASK_MAGIC    21979	/* random numbers used as signatures */
-#define TASK_MAGIC_INIT   ~21979
+#define TASK_MAGIC_INIT   ((rtapi_task*)(-1))
 
-struct rtapi_task {
-  int magic;			/* to check for valid handle */
-  int owner;
-  union {
-      pthread_t thr;                /* thread's context */
-      void *appspecific;          /* app-specific storage */
-  };
-  size_t stacksize;
-  int prio;
-  long period;
-  struct timespec nextstart;
-  unsigned ratio;
-  void *arg;
-  void (*taskcode) (void*);	/* pointer to task function */
-};
-
-extern struct rtapi_task task_array[MAX_TASKS];
+extern struct rtapi_task *task_array[MAX_TASKS];
 
 #define WITH_ROOT WithRoot root
 #endif
