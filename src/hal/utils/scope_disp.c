@@ -779,7 +779,6 @@ void draw_waveform(int chan_num, int highlight)
     double yscale, yfoffset, ypoffset, fy, prev_fy = 0.;
     hal_type_t type;
     int x1, y1, x2, y2, miny, maxy, midx, ct, pn;
-    GdkPoint *points;
     int first=1;
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
 
@@ -802,7 +801,7 @@ void draw_waveform(int chan_num, int highlight)
     start = disp->start_sample;
     end = disp->end_sample;
     ct = end - start + 1;
-    points = alloca(2 * ct * sizeof(GdkPoint));
+    GdkPoint points[2*ct];
     pn = 0;
     n = start;
     dptr += n * sample_len;
