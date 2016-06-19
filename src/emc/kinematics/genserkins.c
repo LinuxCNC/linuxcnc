@@ -651,8 +651,8 @@ void rtapi_app_exit(void)
 #ifdef ULAPI
 
 #include <stdio.h>
-#include <malloc.h>
 #include <sys/time.h>		/* struct timeval */
+#include <stdlib.h>		/* malloc() */
 #include <unistd.h>		/* gettimeofday() */
 
 static double timestamp()

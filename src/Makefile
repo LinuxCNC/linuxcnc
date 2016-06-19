@@ -193,11 +193,20 @@ DEBUG := $(DEBUG) -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
 CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
 
+UNAME_S := $(shell uname -s)
+
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
 else
 LDFLAGS := -Wl,-rpath-link,../lib
 endif
+
+ifeq ($(UNAME_S),Linux)
+	LIBDL := -ldl
+else
+	LIBDL :=
+endif
+
 
 # Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c

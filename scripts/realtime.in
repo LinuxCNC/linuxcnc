@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/local/bin/bash
 #
 # @configure_input@ 
 # on @DATE@
@@ -6,7 +6,7 @@
 
 export LANG=C
 
-PIDOF=@PIDOF@
+HALCMD="halcmd"
 
 CheckKernel() {
     case "@KERNEL_VERS@" in
@@ -104,7 +104,7 @@ CheckConfig(){
 CheckStatus(){
     case $RTPREFIX in
     uspace)
-        if [ -z "$($PIDOF rtapi_app)" ]; then
+        if [ `$HALCMD -s show comp | wc -l` -eq 2 ]; then
             exit 1
         else
             exit 0
@@ -187,15 +187,14 @@ Unload(){
         # wait 5 seconds for rtapi_app to die and be reaped by its parent
         START=$SECONDS
         while [ 5 -gt $((SECONDS-START)) ]; do
-            if ! ps -C rtapi_app > /dev/null 2> /dev/null; then
+            if [ `$HALCMD -s show comp | wc -l` -eq 2 ]; then
                 break
             fi
             sleep 0.1
         done
-        if ps -C rtapi_app > /dev/null 2> /dev/null; then
+        if [ `$HALCMD -s show comp | wc -l` -ne 2 ]; then
             echo "ERROR: rtapi_app failed to die" 1>&2
         fi
-
         ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
         ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
         ipcrm -M 0x48484c34 2>/dev/null ;# UUID_KEY
