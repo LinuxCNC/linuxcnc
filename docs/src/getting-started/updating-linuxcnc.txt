@@ -184,4 +184,16 @@ They could be transformed into pairs of lines like this:
 MAX_VELOCITY = 7.5
 -----
 
+
+=== 'shuttlexpress driver renamed to 'shuttle'
+
+The HAL driver for the Contour Designs ShuttleXpress device has been
+renamed from "shuttlexpress" to just "shuttle".  If your hal files include
+some variant of "loadusr shuttlexpress", replace "shuttlexpress" with
+"shuttle".
+
+Support has been added for the ShuttlePRO, a bigger version of the
+ShuttleXpress, so the old driver name is no longer accurate.
+
+
 // vim: set syntax=asciidoc:
