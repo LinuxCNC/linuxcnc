@@ -2,7 +2,7 @@
 
 '''
     This class is just to handle the widgets of gmoccapy,
-    it is just a coppy of a class from gscreen and has been slighly modified
+    it is just a copy of a class from gscreen and has been slighly modified
 
     Copyright 2014 Norbert Schechner
     nieson@web.de
