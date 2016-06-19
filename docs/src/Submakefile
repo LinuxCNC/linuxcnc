@@ -36,6 +36,7 @@ DOC_SRCS_EN := \
 	code/nml-messages.txt \
 	code/rs274.txt \
 	code/contributing-to-linuxcnc.txt \
+	code/building-linuxcnc.txt \
 	common/emc-history.txt \
 	common/glossary.txt \
 	common/gpld-copyright.txt \
