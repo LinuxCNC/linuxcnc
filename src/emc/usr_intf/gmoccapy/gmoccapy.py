@@ -1648,7 +1648,7 @@ class gmoccapy( object ):
             self.widgets.ntb_jog.set_current_page( 0 )
             return
         # if MDI button is not sensitive, we are not ready for MDI commands
-        # so we have to aboart external commands and get back to manual mode
+        # so we have to abort external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
         if not self.widgets.rbt_mdi.get_sensitive():
             self.command.abort()
@@ -1669,7 +1669,7 @@ class gmoccapy( object ):
 
     def on_hal_status_mode_auto( self, widget ):
         # if Auto button is not sensitive, we are not ready for AUTO commands
-        # so we have to aboart external commands and get back to manual mode
+        # so we have to abort external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
         if not self.widgets.rbt_auto.get_sensitive():
             self.command.abort()
@@ -2655,7 +2655,7 @@ class gmoccapy( object ):
                 dialogs.warning_dialog( self, _( "Just to warn you" ), message )
                 self.widgets.tbtn_setup.set_active( False )
         else:
-            # check witch button should be sensitive, depending on the state of the machine
+            # check which button should be sensitive, depending on the state of the machine
             if self.stat.task_state == linuxcnc.STATE_ESTOP:
                 # estoped no mode availible
                 self.widgets.rbt_manual.set_sensitive( False )
