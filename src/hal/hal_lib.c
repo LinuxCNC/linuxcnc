@@ -3776,6 +3776,7 @@ EXPORT_SYMBOL(hal_param_alias);
 EXPORT_SYMBOL_GPL(hal_stream_create);
 EXPORT_SYMBOL_GPL(hal_stream_destroy);
 EXPORT_SYMBOL_GPL(hal_stream_readable);
+EXPORT_SYMBOL_GPL(hal_stream_writable);
 EXPORT_SYMBOL_GPL(hal_stream_depth);
 EXPORT_SYMBOL_GPL(hal_stream_maxdepth);
 EXPORT_SYMBOL_GPL(hal_stream_write);
