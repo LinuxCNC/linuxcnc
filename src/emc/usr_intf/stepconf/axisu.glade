@@ -1,152 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
-  <object class="GtkTable" id="axisu">
+  <requires lib="gtk+" version="3.4"/>
+  <object class="GtkListStore" id="ulatch_dir_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Same</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Opposite</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkGrid" id="axisu">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="n_rows">17</property>
-    <property name="n_columns">4</property>
+    <property name="can_focus">True</property>
+    <property name="receives_default">True</property>
     <child>
       <object class="GtkLabel" id="uscaleunits">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="xalign">0</property>
+        <property name="xpad">3</property>
         <property name="label" translatable="yes">Steps / mm</property>
       </object>
       <packing>
         <property name="left_attach">2</property>
-        <property name="right_attach">4</property>
         <property name="top_attach">16</property>
-        <property name="bottom_attach">17</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label97">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">_Motor steps per revolution:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">usteprev</property>
-      </object>
-      <packing>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label98">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">_Driver Microstepping:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">umicrostep</property>
-      </object>
-      <packing>
-        <property name="top_attach">1</property>
-        <property name="bottom_attach">2</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label99">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">_Pulley teeth (Motor:Leadscrew):</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">upulleyden</property>
-      </object>
-      <packing>
-        <property name="top_attach">2</property>
-        <property name="bottom_attach">3</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label100">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">_Leadscrew Pitch:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">uleadscrew</property>
-      </object>
-      <packing>
-        <property name="top_attach">3</property>
-        <property name="bottom_attach">4</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label101">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">Maximum _Velocity:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">umaxvel</property>
-      </object>
-      <packing>
-        <property name="top_attach">4</property>
-        <property name="bottom_attach">5</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label102">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">Maximum _Acceleration:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">umaxacc</property>
-      </object>
-      <packing>
-        <property name="top_attach">5</property>
-        <property name="bottom_attach">6</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label103">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">Time to accelerate to max speed:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">uacctime</property>
-      </object>
-      <packing>
-        <property name="top_attach">13</property>
-        <property name="bottom_attach">14</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label104">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">Distance to accelerate to max speed:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">uaccdist</property>
-      </object>
-      <packing>
-        <property name="top_attach">14</property>
-        <property name="bottom_attach">15</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
+        <property name="width">2</property>
       </packing>
     </child>
     <child>
@@ -156,16 +41,11 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
         <signal name="changed" handler="on_umicrostep_changed" swapped="no"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">1</property>
-        <property name="bottom_attach">2</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -175,16 +55,11 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
         <signal name="changed" handler="on_upulleyden_changed" swapped="no"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">2</property>
-        <property name="bottom_attach">3</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -194,16 +69,11 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
         <signal name="changed" handler="on_upulleynum_changed" swapped="no"/>
       </object>
       <packing>
         <property name="left_attach">3</property>
-        <property name="right_attach">4</property>
         <property name="top_attach">2</property>
-        <property name="bottom_attach">3</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -213,16 +83,11 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
         <signal name="changed" handler="on_uleadscrew_changed" swapped="no"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">3</property>
-        <property name="bottom_attach">4</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -232,16 +97,11 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
         <signal name="changed" handler="on_umaxvel_changed" swapped="no"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">4</property>
-        <property name="bottom_attach">5</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -251,30 +111,11 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
         <signal name="changed" handler="on_umaxacc_changed" swapped="no"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">5</property>
-        <property name="bottom_attach">6</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label105">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">Pulse rate at max speed:</property>
-      </object>
-      <packing>
-        <property name="top_attach">15</property>
-        <property name="bottom_attach">16</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -288,12 +129,7 @@
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">13</property>
-        <property name="bottom_attach">14</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-        <property name="x_padding">4</property>
       </packing>
     </child>
     <child>
@@ -307,12 +143,7 @@
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">14</property>
-        <property name="bottom_attach">15</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-        <property name="x_padding">4</property>
       </packing>
     </child>
     <child>
@@ -326,75 +157,7 @@
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">15</property>
-        <property name="bottom_attach">16</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-        <property name="x_padding">4</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label109">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">_Home location:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">uhomepos</property>
-      </object>
-      <packing>
-        <property name="top_attach">7</property>
-        <property name="bottom_attach">8</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label110">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">Home _Switch location:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">uhomesw</property>
-      </object>
-      <packing>
-        <property name="top_attach">9</property>
-        <property name="bottom_attach">10</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label111">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">Home Sear_ch velocity:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">uhomevel</property>
-      </object>
-      <packing>
-        <property name="top_attach">10</property>
-        <property name="bottom_attach">11</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label112">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">Home La_tch direction:</property>
-        <property name="use_underline">True</property>
-      </object>
-      <packing>
-        <property name="top_attach">11</property>
-        <property name="bottom_attach">12</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -408,11 +171,7 @@
       </object>
       <packing>
         <property name="left_attach">2</property>
-        <property name="right_attach">3</property>
         <property name="top_attach">2</property>
-        <property name="bottom_attach">3</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -429,11 +188,7 @@
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">11</property>
-        <property name="bottom_attach">12</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options">GTK_FILL</property>
       </packing>
     </child>
     <child>
@@ -443,15 +198,10 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">7</property>
-        <property name="bottom_attach">8</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -461,15 +211,10 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">9</property>
-        <property name="bottom_attach">10</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -479,31 +224,10 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">10</property>
-        <property name="bottom_attach">11</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label114">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">Tab_le travel:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">uminlim</property>
-      </object>
-      <packing>
-        <property name="top_attach">8</property>
-        <property name="bottom_attach">9</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -513,15 +237,10 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">8</property>
-        <property name="bottom_attach">9</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -535,11 +254,7 @@
       </object>
       <packing>
         <property name="left_attach">2</property>
-        <property name="right_attach">3</property>
         <property name="top_attach">8</property>
-        <property name="bottom_attach">9</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -549,15 +264,10 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
       </object>
       <packing>
         <property name="left_attach">3</property>
-        <property name="right_attach">4</property>
         <property name="top_attach">8</property>
-        <property name="bottom_attach">9</property>
-        <property name="y_options"></property>
       </packing>
     </child>
     <child>
@@ -567,42 +277,11 @@
         <property name="invisible_char">●</property>
         <property name="primary_icon_activatable">False</property>
         <property name="secondary_icon_activatable">False</property>
-        <property name="primary_icon_sensitive">True</property>
-        <property name="secondary_icon_sensitive">True</property>
         <signal name="changed" handler="on_usteprev_changed" swapped="no"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkHSeparator" id="hseparator7">
-        <property name="height_request">17</property>
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-      <packing>
-        <property name="right_attach">4</property>
-        <property name="top_attach">6</property>
-        <property name="bottom_attach">7</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options">GTK_FILL</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkHSeparator" id="hseparator8">
-        <property name="height_request">17</property>
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-      <packing>
-        <property name="right_attach">4</property>
-        <property name="top_attach">12</property>
-        <property name="bottom_attach">13</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options">GTK_FILL</property>
+        <property name="top_attach">0</property>
       </packing>
     </child>
     <child>
@@ -614,11 +293,8 @@
       </object>
       <packing>
         <property name="left_attach">2</property>
-        <property name="right_attach">4</property>
         <property name="top_attach">3</property>
-        <property name="bottom_attach">4</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
+        <property name="width">2</property>
       </packing>
     </child>
     <child>
@@ -630,11 +306,8 @@
       </object>
       <packing>
         <property name="left_attach">2</property>
-        <property name="right_attach">4</property>
         <property name="top_attach">4</property>
-        <property name="bottom_attach">5</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
+        <property name="width">2</property>
       </packing>
     </child>
     <child>
@@ -646,11 +319,8 @@
       </object>
       <packing>
         <property name="left_attach">2</property>
-        <property name="right_attach">4</property>
         <property name="top_attach">5</property>
-        <property name="bottom_attach">6</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
+        <property name="width">2</property>
       </packing>
     </child>
     <child>
@@ -658,15 +328,13 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="xalign">0</property>
+        <property name="xpad">3</property>
         <property name="label">mm</property>
       </object>
       <packing>
         <property name="left_attach">2</property>
-        <property name="right_attach">4</property>
         <property name="top_attach">14</property>
-        <property name="bottom_attach">15</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
+        <property name="width">2</property>
       </packing>
     </child>
     <child>
@@ -674,15 +342,13 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="xalign">0</property>
+        <property name="xpad">3</property>
         <property name="label" translatable="yes">s</property>
       </object>
       <packing>
         <property name="left_attach">2</property>
-        <property name="right_attach">4</property>
         <property name="top_attach">13</property>
-        <property name="bottom_attach">14</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
+        <property name="width">2</property>
       </packing>
     </child>
     <child>
@@ -690,32 +356,33 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="xalign">0</property>
+        <property name="xpad">3</property>
         <property name="label" translatable="yes">Hz</property>
       </object>
       <packing>
         <property name="left_attach">2</property>
-        <property name="right_attach">4</property>
         <property name="top_attach">15</property>
-        <property name="bottom_attach">16</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
+        <property name="width">2</property>
       </packing>
     </child>
     <child>
       <object class="GtkButton" id="uaxistest">
+        <property name="use_action_appearance">False</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
-        <property name="use_action_appearance">False</property>
+        <property name="halign">center</property>
         <signal name="clicked" handler="on_uaxistest_clicked" swapped="no"/>
         <child>
           <object class="GtkAlignment" id="alignment5">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="halign">center</property>
+            <property name="resize_mode">immediate</property>
             <property name="xscale">0</property>
             <property name="yscale">0</property>
             <child>
-              <object class="GtkHBox" id="hbox9">
+              <object class="GtkBox" id="hbox9">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="spacing">2</property>
@@ -752,23 +419,7 @@
       </object>
       <packing>
         <property name="left_attach">3</property>
-        <property name="right_attach">4</property>
-        <property name="x_options"></property>
-        <property name="y_options"></property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label229">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="xalign">0</property>
-        <property name="label" translatable="yes">Axis SCALE:</property>
-      </object>
-      <packing>
-        <property name="top_attach">16</property>
-        <property name="bottom_attach">17</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
+        <property name="top_attach">0</property>
       </packing>
     </child>
     <child>
@@ -781,12 +432,236 @@
       </object>
       <packing>
         <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
         <property name="top_attach">16</property>
-        <property name="bottom_attach">17</property>
-        <property name="x_options">GTK_FILL</property>
-        <property name="y_options"></property>
-        <property name="x_padding">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label97">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">_Motor steps per revolution:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">usteprev</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label98">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">_Driver Microstepping:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">umicrostep</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label99">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">_Pulley teeth (Motor:Leadscrew):</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">upulleyden</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label100">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">_Leadscrew Pitch:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">uleadscrew</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label101">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Maximum _Velocity:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">umaxvel</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label102">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Maximum _Acceleration:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">umaxacc</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">5</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSeparator" id="hseparator7">
+        <property name="height_request">17</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">6</property>
+        <property name="width">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label109">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">_Home location:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">uhomepos</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">7</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label114">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Tab_le travel:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">uminlim</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">8</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label110">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Home _Switch location:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">uhomesw</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">9</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label111">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Home Sear_ch velocity:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">uhomevel</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">10</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label112">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Home La_tch direction:</property>
+        <property name="use_underline">True</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">11</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSeparator" id="hseparator8">
+        <property name="height_request">17</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">12</property>
+        <property name="width">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label103">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Time to accelerate to max speed:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">uacctime</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">13</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label104">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Distance to accelerate to max speed:</property>
+        <property name="use_underline">True</property>
+        <property name="mnemonic_widget">uaccdist</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">14</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label105">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Pulse rate at max speed:</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">15</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="uscaledescr">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Axis SCALE:</property>
+      </object>
+      <packing>
+        <property name="left_attach">0</property>
+        <property name="top_attach">16</property>
       </packing>
     </child>
     <child>
@@ -822,19 +697,5 @@
     <child>
       <placeholder/>
     </child>
-  </object>
-  <object class="GtkListStore" id="ulatch_dir_liststore">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Same</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Opposite</col>
-      </row>
-    </data>
   </object>
 </interface>
