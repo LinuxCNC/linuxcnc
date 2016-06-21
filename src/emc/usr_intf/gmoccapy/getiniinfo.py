@@ -95,11 +95,10 @@ class GetIniInfo:
     def get_jog_vel(self):
         # get default jog velocity
         # must convert from INI's units per second to gscreen's units per minute
-        temp = self.inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
+        temp = self.inifile.find("TRAJ", "DEFAULT_VELOCITY")
         if not temp:
-            print("**** GMOCCAPY GETINIINFO **** \n No DEFAULT_LINEAR_VELOCITY found in [TRAJ] of the INI file")
+            print("**** GMOCCAPY GETINIINFO **** \n No DEFAULT_VELOCITY found in [TRAJ] of the INI file")
             temp = 3.0
-        print("Jog Vel = ", float(temp) * 60)
         return float(temp) * 60
 
     def get_max_jog_vel(self):
@@ -107,19 +106,9 @@ class GetIniInfo:
         # must convert from INI's units per second to gscreen's units per minute
         temp = self.inifile.find("DISPLAY", "MAX_LINEAR_VELOCITY")
         if not temp:
-            temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY")
+            temp = self.inifile.find("TRAJ", "MAX_VELOCITY")
             if not temp:
                 temp = 10.0
-        return float(temp) * 60
-
-# ToDo : This may not be needed, as it could be recieved from linuxcnc.stat
-    def get_max_velocity(self):
-        # max velocity settings: more then one place to check
-        # This is the maximum velocity of the machine
-        temp = self.inifile.find("TRAJ", "MAX_VELOCITY")
-        if  temp == None:
-            print("**** GMOCCAPY GETINIINFO **** \n No MAX_VELOCITY found in [TRAJ] of the INI file")
-            temp = 15.0
         return float(temp) * 60
 
     def get_max_spindle_override(self):
