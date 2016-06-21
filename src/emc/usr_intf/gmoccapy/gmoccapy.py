@@ -58,7 +58,7 @@ def excepthook( exc_type, exc_obj, exc_tb ):
     m = gtk.MessageDialog( w,
                           gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                           gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-                          ( "Found an error!\nThe following information may be useful in troubleshooting:\n\n" )
+                          ( "Found an error!\nThe following information may be useful for troubleshooting:\n\n" )
                           + "".join( lines ) )
     m.show()
     m.run()
@@ -865,7 +865,7 @@ class gmoccapy( object ):
         self.jog_increments = self.get_ini_info.get_increments()
         if len( self.jog_increments ) > 10:
             print( _( "**** GMOCCAPY INFO ****" ) )
-            print( _( "**** To many increments given in INI File for this screen ****" ) )
+            print( _( "**** Too many increments given in INI File for this screen ****" ) )
             print( _( "**** Only the first 10 will be reachable through this screen ****" ) )
             # we shorten the incrementlist to 10 (first is default = 0)
             self.jog_increments = self.jog_increments[0:11]
@@ -930,7 +930,7 @@ class gmoccapy( object ):
         tab_names, tab_location, tab_cmd = self.get_ini_info.get_embedded_tabs()
         if not tab_names:
             print ( _( "**** GMOCCAPY INFO ****" ) )
-            print ( _( "**** Invalid embeded tab configuration ****" ) )
+            print ( _( "**** Invalid embedded tab configuration ****" ) )
             print ( _( "**** No tabs will be added! ****" ) )
             return
 
@@ -1105,7 +1105,7 @@ class gmoccapy( object ):
             self.onboard = True
         except Exception, e:
             print ( _( "**** GMOCCAPY ERROR ****" ) )
-            print ( _( "**** Error with launching virtual keyboard," ) )
+            print ( _( "**** Error launching virtual keyboard," ) )
             print ( _( "**** is onboard or matchbox-keyboard installed? ****" ) )
             traceback.print_exc()
             self._no_virt_keyboard()
@@ -1438,7 +1438,7 @@ class gmoccapy( object ):
             self.stat.poll()
             if self.stat.task_state != linuxcnc.STATE_ON:
                 widget.set_active( False )
-                self._show_error( ( 11, _( "ERROR : Could not switch the machine on, is limit switch aktivated?" ) ) )
+                self._show_error( ( 11, _( "ERROR : Could not switch the machine on, is limit switch activated?" ) ) )
                 self._update_widgets( False )
                 return
             self._update_widgets( True )
@@ -1648,7 +1648,7 @@ class gmoccapy( object ):
             self.widgets.ntb_jog.set_current_page( 0 )
             return
         # if MDI button is not sensitive, we are not ready for MDI commands
-        # so we have to aboart external commands and get back to manual mode
+        # so we have to abort external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
         if not self.widgets.rbt_mdi.get_sensitive():
             self.command.abort()
@@ -1669,7 +1669,7 @@ class gmoccapy( object ):
 
     def on_hal_status_mode_auto( self, widget ):
         # if Auto button is not sensitive, we are not ready for AUTO commands
-        # so we have to aboart external commands and get back to manual mode
+        # so we have to abort external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
         if not self.widgets.rbt_auto.get_sensitive():
             self.command.abort()
@@ -2655,7 +2655,7 @@ class gmoccapy( object ):
                 dialogs.warning_dialog( self, _( "Just to warn you" ), message )
                 self.widgets.tbtn_setup.set_active( False )
         else:
-            # check witch button should be sensitive, depending on the state of the machine
+            # check which button should be sensitive, depending on the state of the machine
             if self.stat.task_state == linuxcnc.STATE_ESTOP:
                 # estoped no mode availible
                 self.widgets.rbt_manual.set_sensitive( False )
