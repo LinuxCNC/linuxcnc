@@ -78,13 +78,27 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   int res = shmctl(shmem->id, IPC_STAT, &stat);
   if(res < 0) perror("shmctl IPC_STAT");
 
+  /* ensure the segment is owned by user, not root */
   if(geteuid() == 0 && getuid() != 0) {
     stat.shm_perm.uid = getuid();
+    res = shmctl(shmem->id, IPC_SET, &stat);
+    if(res < 0) perror("shmctl IPC_SET");
   }
 
-  stat.shm_perm.mode |= SHM_LOCKED;
-  res = shmctl(shmem->id, IPC_SET, &stat);
-  if(res < 0) perror("shmctl IPC_SET");
+#ifdef RTAPI
+  if(rtapi_is_realtime())
+  {
+    /* ensure the segment is locked */
+    res = shmctl(shmem->id, SHM_LOCK, NULL);
+    if(res < 0) perror("shmctl IPC_LOCK");
+
+    res = shmctl(shmem->id, IPC_STAT, &stat);
+    if(res < 0) perror("shmctl IPC_STAT");
+    if((stat.shm_perm.mode & SHM_LOCKED) != SHM_LOCKED)
+      rtapi_print_msg(RTAPI_MSG_ERR,
+          "shared memory segment not locked as requested\n");
+  }
+#endif
 
   /* and map it into process space */
   shmem->mem = shmat(shmem->id, 0, 0);
