@@ -378,7 +378,7 @@ void rtapi_delay(long ns) {
     rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
 }
 
-#ifdef USPACE
+#ifdef ULAPI
 long int rtapi_delay_max() { return 999999999; }
 #else
 long int rtapi_delay_max() { return 10000; }
