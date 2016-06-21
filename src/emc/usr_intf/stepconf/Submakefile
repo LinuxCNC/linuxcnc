@@ -8,6 +8,7 @@ STEPCONF_GLADEFILES := \
 	pport2.glade \
 	spindle.glade \
 	options.glade \
+	halui_page.glade \
 	axisx.glade \
 	axisy.glade \
 	axisz.glade \
