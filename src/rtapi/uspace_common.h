@@ -338,7 +338,7 @@ void rtapi_delay(long ns) {
 #endif
 }
 
-#ifdef USPACE
+#ifdef ULAPI
 long int rtapi_delay_max() { return 999999999; }
 #else
 long int rtapi_delay_max() { return 10000; }
