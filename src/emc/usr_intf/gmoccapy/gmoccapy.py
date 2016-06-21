@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.6.3"
+_RELEASE = " 1.6.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -144,8 +144,8 @@ class gmoccapy( object ):
         self.command.teleop_enable(1)
         self.command.wait_complete()
         self.stat.poll()
-        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            raise SystemExit, "\n*** gmoccapy: Only KINEMATICS_IDENTITY is supported\n"
+#        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+#            raise SystemExit, "\n*** gmoccapy: Only KINEMATICS_IDENTITY is supported\n"
 
         self.error_channel = linuxcnc.error_channel()
         # initial poll, so all is up to date
@@ -212,8 +212,8 @@ class gmoccapy( object ):
         self.default_theme = gtk.settings_get_default().get_property( "gtk-theme-name" )
 
         # the sounds to play if an error or message rises
-        self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"
-        self.error_sound = "/usr/share/sounds/ubuntu/stereo/dialog-question.ogg"
+        self.alert_sound = "/usr/share/sounds/freedesktop/stereo/bell.oga"
+        self.error_sound = "/usr/share/sounds/freedesktop/stereo/dialog-error.oga"
 
         # Our own clas to get information from ini the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
@@ -256,6 +256,9 @@ class gmoccapy( object ):
 
         # now we initialize the file to load widget
         self._init_file_to_load()
+        
+        # check for the kinematics type
+        self._init_kineamtics_type()
 
         self._show_offset_tab( False )
         self._show_tooledit_tab( False )
@@ -675,17 +678,24 @@ class gmoccapy( object ):
         # the time between calls to the function, in milliseconds
         gobject.timeout_add( 100, self._periodic )  # time between calls to the function, in milliseconds
 
-    def toggle_motion_mode(self):
+    def toggle_motion_mode(self, state = None):
         # 1:teleop, 0: joint
         self.stat.poll()
-        value = self.stat.motion_mode
-        print("Motion Mode = ", value)
-        self.command.teleop_enable(1)
+        print("Motion Mode Teleop ? = ", self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
+        print("desired Mode switch to ? = ", state)
+        print("state ? = ", state)
+        
+        # if state, we want to set a special mode, even if the axis ae not homed
+        # mainly used to initialize the GUI 
+        if state:
+            value = state
+        else:
+            value =  not self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP
+        print("Motion Mode Teleop ? = ", value)
+        
+        self.command.teleop_enable(value)
         self.command.wait_complete()
         self.stat.poll()
-#         if self.stat.motion_mode != linuxcnc.TRAJ_MODE_TELEOP:
-#             self.command.teleop_enable(1)
-#             self.command.wait_complete()
 
     def _get_axis_list( self ):
         temp = self.get_ini_info.get_coordinates()
@@ -697,7 +707,15 @@ class gmoccapy( object ):
                 continue
             self.axis_list.append( letter.lower() )
 
-    def _init_preferences( self ):
+    def _init_kineamtics_type(self):
+        # check for the kinematics type
+        if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+            self.toggle_motion_mode(1)
+        else:
+            print("**** GMOCCAPY INFO: Kinematics Type = ", self.stat.kinematics_type)
+            self.toggle_motion_mode(0)
+
+    def _init_preferences( self ):            
         # check if NO_FORCE_HOMING is used in ini
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
         self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', 300, float )
@@ -1398,10 +1416,10 @@ class gmoccapy( object ):
     def _show_error( self, error ):
         kind, text = error
         # print kind,text
-        if "joint" in text:
-            for letter in self.axis_list:
-                axnum = "xyzabcuvws".index( letter )
-                text = text.replace( "joint %d" % axnum, "Axis %s" % letter.upper() )
+#         if "joint" in text:
+#             for letter in self.axis_list:
+#                 axnum = "xyzabcuvws".index( letter )
+#                 text = text.replace( "joint %d" % axnum, "Axis %s" % letter.upper() )
         if kind in ( linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR ):
             icon = ALERT_ICON
             self.halcomp["error"] = True
@@ -1853,9 +1871,6 @@ class gmoccapy( object ):
 
         # get the keyname
         keyname = gtk.gdk.keyval_name( event.keyval )
-        print("******************************************")
-        print("pressed key = ",keyname)
-        print("******************************************")
 
         # estop with F1 shold work every time
         # so should also escape aboart actions
@@ -1865,12 +1880,17 @@ class gmoccapy( object ):
         if keyname == "Escape":
             self.command.abort()
             return True
+# ToDo:
+# Check if homed, otherwise fo not allow to change mode
 
+        # change between teleop and worl mode
         if keyname == "F12":
-            print("F12 has been pressed, switch mode")
-            self.toggle_motion_mode()
+            # only change mode pressing the key, not releasing it
+            if signal:
+                print("F12 has been pressed, switch mode")
+                self.toggle_motion_mode()
+            return True
 
-        #print self.last_key_event[0] ,self.last_key_event[1]
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
         if self.last_key_event[0] == keyname and self.last_key_event[1] == signal:
             return True
@@ -2615,7 +2635,7 @@ class gmoccapy( object ):
 
     def on_btn_jog_released( self, widget, data = None ):
         # only in manual mode we will allow jogging the axis at this development state
-        if not self.stat.task_mode == linuxcnc.MODE_MANUAL:
+        if self.stat.estop or not self.stat.task_mode == linuxcnc.MODE_MANUAL:
             return
 
         axisletter = widget.get_label()[0]

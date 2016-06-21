@@ -227,7 +227,8 @@ class ToolEdit(gtk.VBox):
     def reload(self,widget):
         self.hash_code = self.md5sum(self.toolfile)
         # clear the current liststore, search the tool file, and add each tool
-        if self.toolfile == None:return
+        if self.toolfile == None:
+            return
         self.model.clear()
         #print "toolfile:",self.toolfile
         if not os.path.exists(self.toolfile):

@@ -1,3 +1,8 @@
+ver. 1.6.0
+- changed the initial sound files to fit freedesktop path
+  was set to ubuntu till now
+- first steps to support teleop mode
+
 ver. 1.5.6.3
 - bugfix: In _init_IconFileSelection the icon size was fixed with 48 
   so changes the user makes to the glade file was not been taken care of
