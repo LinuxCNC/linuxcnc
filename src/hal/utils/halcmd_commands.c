@@ -1384,6 +1384,29 @@ static char *guess_comp_name(char *prog_name)
     return name;
 }
 
+static void reset_getopt_state() {
+/*
+
+It turns out that it is not portable to reset the state of getopt, so that
+a different argv list can be parsed.
+
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=192834
+
+(though that thread ends with the bug being closed as fixed in lenny, it
+is not fixed or has regressed by debian jessie)
+*/
+
+#ifdef __GNU_LIBRARY__
+    optind = 0;
+#else
+    optind = 1;
+#endif
+
+#ifdef HAVE_OPTRESET
+    optreset = 1;
+#endif
+}
+
 int do_loadusr_cmd(char *args[])
 {
     int wait_flag, wait_comp_flag, ignore_flag;
@@ -1406,7 +1429,7 @@ int do_loadusr_cmd(char *args[])
     prog_name = NULL;
 
     /* check for options (-w, -i, and/or -r) */
-    optind = 1;
+    reset_getopt_state();
     while (1) {
 	int c = getopt(argc, args, "+wWin:");
 	if(c == -1) break;
