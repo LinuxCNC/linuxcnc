@@ -615,9 +615,6 @@ static void configure_memory()
     free(buf);
 }
 
-extern "C"
-int rtapi_is_realtime();
-
 static int harden_rt()
 {
     if(!rtapi_is_realtime()) return -EINVAL;
