@@ -249,6 +249,8 @@ FUNCTION(_){
             homed = 1;
             homing = 0;
             active = 0;
+            motor_fwd = 0;
+            motor_rev = 0;
             state = 0;
         }
         old_index = (sense(0) && sense(1));
