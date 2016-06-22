@@ -811,18 +811,18 @@ small, tight corners, since you're limited by cornering acceleration.
      This does not affect the angular units of NC code. In RS274NGC, A-, B-
     and C- words are always expressed in degrees.
 
-* 'DEFAULT_VELOCITY = 0.0167' - The initial rate for jogs of linear axes, in 
+* 'DEFAULT_LINEAR_VELOCITY = 0.0167' - The initial rate for jogs of linear axes, in
   machine units per second. The value shown in 'Axis' equals
   machine units per minute.
 
-* 'DEFAULT_ACCELERATION = 2.0' - In machines with nontrivial kinematics, the acceleration used
+* 'DEFAULT_LINEAR_ACCELERATION = 2.0' - In machines with nontrivial kinematics, the acceleration used
     for "teleop" (Cartesian space) jogs, in 'machine units' per second per second.
 
-* 'MAX_VELOCITY = 5.0' - (((MAX VELOCITY))) The maximum velocity for any axis or coordinated
+* 'MAX_LINEAR_VELOCITY = 5.0' - (((MAX VELOCITY))) The maximum velocity for any axis or coordinated
     move, in 'machine units' per second. The value shown equals 300 units per
     minute.
 
-* 'MAX_ACCELERATION = 20.0' - (((MAX ACCELERATION))) The maximum acceleration for any axis or
+* 'MAX_LINEAR_ACCELERATION = 20.0' - (((MAX ACCELERATION))) The maximum acceleration for any axis or
     coordinated axis move, in 'machine units' per second per second.
 
 * 'POSITION_FILE = position.txt' - If set to a non-empty value, the joint positions are stored between

@@ -209,6 +209,19 @@ configurations include:
 The following subsections and the section for 'Hal Changes' list items that
 may require additional user edits to ini or hal files.
 
+=== TRAJ velocities, accelerations names
+ 
+With incorporation of joints_axes functionality, some names were
+changed to clarify available functionality.
+
+----
+was: [TRAJ]MAX_VELOCITY         is: [TRAJ]MAX_LINEAR_VELOCITY
+was: [TRAJ]DEFAULT_VELOCITY     is: [TRAJ]DEFAULT_LINEAR_VELOCITY
+
+was: [TRAJ]MAX_ACCELERATION     is: [TRAJ]MAX_LINEAR_ACCELERATION
+was: [TRAJ]DEFAULT_ACCELERATION is: [TRAJ]DEFAULT_LINEAR_ACCELERATION
+----
+
 === Kinematics modules
 
 The gentrivkins and gantrykins kinematics modules have been removed as their
