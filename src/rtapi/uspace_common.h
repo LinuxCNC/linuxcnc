@@ -19,6 +19,9 @@
 #include <sys/utsname.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <rtapi_errno.h>
 #include <rtapi_mutex.h>
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
@@ -311,7 +314,7 @@ int rtapi_is_kernelspace() { return 0; }
 static int _rtapi_is_realtime = -1;
 static int detect_realtime() {
     struct utsname u;
-    int crit1, crit2 = 0;
+    int crit1, crit2 = 0, crit3 = 0;
     FILE *fd;
 
     uname(&u);
@@ -322,7 +325,13 @@ static int detect_realtime() {
         crit2 = ((fscanf(fd, "%d", &flag) == 1) && (flag == 1));
         fclose(fd);
     }
-    return crit1 && crit2;
+
+    struct stat st;
+    if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) == 0)
+            && st.st_uid == 0 && (st.st_mode & S_ISUID))
+        crit3 = 1;
+
+    return crit1 && crit2 && crit3;
 }
 
 int rtapi_is_realtime() {
