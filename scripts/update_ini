@@ -205,7 +205,23 @@ if version == "$Revision$" or version < "1.0":
     copysection("TASK")
     copysection("HAL")
     copysection("HALUI")
-    copysection("TRAJ")
+
+    # In JA [TRAJ] expects MAX_LINEAR_VELOCITY not MAX_VELOCITY
+    all_sections.remove("TRAJ")
+    section = re.search("\[TRAJ\](.+?)\n\[", inistring, re.DOTALL)
+    if section: section = section.group(1)
+    newini.write("[TRAJ]\n")
+    if section != None:
+        if not re.search("MAX_LINEAR_VELOCITY", section):
+            section = re.sub("MAX_VELOCITY", "MAX_LINEAR_VELOCITY", section)
+        if not re.search("DEFAULT_LINEAR_VELOCITY", section):
+            section = re.sub("DEFAULT_VELOCITY", "DEFAULT_LINEAR_VELOCITY", section)
+        if not re.search("MAX_LINEAR_ACCELERATION", section):
+            section = re.sub("MAX_ACCELERATION", "MAX_LINEAR_ACCELERATION", section)
+        if not re.search("DEFAULT_ACCELERATION", section):
+            section = re.sub("DEFAULT_ACCELERATION", "DEFAULT_LINEAR_ACCELERATION", section)
+        newini.write(section)
+
     copysection("EMCIO")
 
     # Insert the new-fangled [KINS] section
