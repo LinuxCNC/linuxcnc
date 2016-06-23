@@ -3145,29 +3145,24 @@ has_linear_joint_or_axis = (    ("LINEAR" in joint_type)
 max_linear_speed = (
     inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
     or inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
-    or inifile.find("TRAJ","MAX_VELOCITY")
     or None)
 default_jog_linear_speed = (
     inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY")
     or inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_VELOCITY")
     or None)
 
 max_angular_speed = (
     inifile.find("DISPLAY","MAX_ANGULAR_VELOCITY")
     or inifile.find("TRAJ","MAX_ANGULAR_VELOCITY")
-    or inifile.find("TRAJ","MAX_VELOCITY")
     or None)
 default_jog_angular_speed = (
     inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
     or inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_VELOCITY")
     or None)
 
 max_velocity = (
     inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
     or inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
-    or inifile.find("TRAJ","MAX_VELOCITY")
     or inifile.find("AXIS_X","MAX_VELOCITY")
     or None)
 
