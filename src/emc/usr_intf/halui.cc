@@ -1398,8 +1398,8 @@ static int iniLoad(const char *filename)
 	}
     }
 
-    if(inifile.Find(&maxMaxVelocity, "MAX_VELOCITY", "TRAJ") &&
-       inifile.Find(&maxMaxVelocity, "MAX_VELOCITY", "AXIS_0"))
+    if(inifile.Find(&maxMaxVelocity, "MAX_LINEAR_VELOCITY", "TRAJ") &&
+       inifile.Find(&maxMaxVelocity, "MAX_VELOCITY", "AXIS_X"))
         maxMaxVelocity = 1.0;
 
     if (NULL != (inistring = inifile.Find("MIN_SPINDLE_OVERRIDE", "DISPLAY"))) {
