@@ -789,6 +789,11 @@ void readahead_waiting(void)
   emcTaskPlan()
 
   Planner for NC code or manual mode operations
+
+  Note that early return from this function is not OK; the bottom, where
+  echo_serial_numbers are updated, must be reached for linuxcnc to operate
+  properly.
+
   */
 static int emcTaskPlan(void)
 {
@@ -1180,7 +1185,7 @@ static int emcTaskPlan(void)
                 case EMC_LUBE_ON_TYPE:
                 case EMC_LUBE_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
-		    return retval;
+                    goto done;
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
@@ -1479,6 +1484,7 @@ static int emcTaskPlan(void)
     }				// switch (task.state)
 
 
+done:
     // Acknowledge receipt of the command by "echoing" the type and serial
     // number in the emcStatus struct.
     emcStatus->task.command_type = emcCommand->type;
