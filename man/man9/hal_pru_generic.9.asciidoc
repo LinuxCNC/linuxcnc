@@ -1,0 +1,517 @@
+= HAL_PRU_GENERIC(9)
+:manmanual: HAL Components
+:mansource: ../man/man9/hal_pru_generic.9.asciidoc
+:man version : 
+
+== NAME
+hal_pru_generic - Machinekit HAL driver for the TI Programmable Realtime Unit (PRU).
+
+
+== SYNOPSIS
+**loadrt hal_pru_generic [format_string]**
+
+The valid entries in the format_string are:
+
+* [**prucode=**__<file.bin>__]
+* [**pru=**__(0|1)__]
+* [**pru_period=**__N__]
+* [**halname=**__<Name>__]
+* [**num_stepgens=**__N__]
+* [**num_pwmgens=**__N[,N]__]
+* [**num_encoders=**__N[,N]__]
+* [**disabled=**__(0|1)__]
+
+=== **prucode** [required]
+Binary PRU firmware to load and run on the specified PRU.
+
+=== **pru** [optional, default: 1]
+Which PRU (0 or 1) to use to run the code.  This only matters if you are using
+direct PRU I/O pins, in which case the PRU specified needs to be able to access
+the pins used in the HAL configuration.
+
+=== **pru_period** [optional, default: 10000]
+The task period time for the PRU, in nano-seconds.  The default of 10000 nS
+results in a PRU task frequency of 100 KHz.  Smaller values here provide better
+timing performance for pwm and step/dir generators, but the setting must be
+large enough to allow all PRU tasks to complete.
+
+=== **halname** [optional, default: hal_pru_generic]
+This identifier is used to prefix all created HAL pins and parameters.  The
+default is for legacy configurations and should otherwise be avoided.  Recent
+convention sets halname=hpg to provide for shorter HAL names.
+
+=== **num_stepgens** [optional, default: 0]
+Create N stepgen instances.
+
+=== **num_pwmgens** [optional, default: 0]
+Create pwmgen instance[s] with N channels.
+
+=== **num_encoders** [optional, default: 0]
+Create N encoder instances.
+
+=== **disabled** [optional, default: 0]
+If you set disabled=1, the driver will start with the PRU in the disabled
+state, which can be useful for debugging.  In this state, it is possible to
+single-step through the PRU startup code after the driver is loaded.
+
+== DESCRIPTION
+hal_pru_generic is a device driver that uses the PRU subsystem available on
+the BeagleBone SBC to perform high-speed hard-real-time bit-twiddling to
+generate step/direction and PWM outputs, avoiding the need to run a base
+thread on the ARM core which has fairly poor interrupt latency.
+
+The driver is written for flexibility rather than raw speed (hence the
+'generic' in the name).  Various functions are supported by small bits
+of PRU code (tasklets) that are linked into a function chain for the PRU
+when the driver is first loaded.  The minimum pru_period (and thus the
+maximum step frequency) is determined by how long the PRU takes to execute
+all configured tasklets, so simple configurations can run faster than
+complex setups with lots of outputs.
+
+Currently, there are tasklets written for step/direction generation, PWM
+output, and encoder inputs (using direct PRU input pins).
+
+== I/O PINS
+The hal_pru_generic driver runs on a BeagleBone and has used a variety of
+numbering schemes to identify I/O pins.  All legacy pin numbering schemes
+are still supported for backwards compatibility, but are not documented here
+to avoid confusion (see fixup_pin() the code if you really need to know
+how the previous schemes worked).  The current numbering scheme is based on
+the P8/P9 pin headers found on the BeagleBone.
+
+Pins are specified using a 4 digit value.  The four digit value is composed
+of three fields:
+
+  An optional prefix to indicate direct PRU I/O:
+    0 or no prefix = standard GPIO pin
+    1 = PRU direct output
+    2 = PRU direct input
+  8 or 9 to indicate the P8 or P9 header
+  2 digits to represent the specific pin on the P8 or P9 header
+
+  Examples:
+    0811 = GPIO on P8, pin 11
+     811 = GPIO on P8, pin 11 (identical to above)
+    1811 = PRU direct output on P8, pin 11
+    2927 = PRU direct input on P9, pin 27
+
+Note that not all P8/P9 pins can be used as I/O (some pins are dedicated
+to specific signals or power) and not all GPIO pins can be used as PRU
+direct input or output.
+
+WARNINGS:
+Direct PRU I/O pins are attatched to a specific PRU.  If you choose to use
+direct I/O pins, you are responsible for selecting a valid combination of
+pin numbers and pru= such that the PRU code runs on a PRU core that can
+access the configured pins.
+
+This driver does not setup any pin multiplexing or GPIO settings (pin
+direction, pull-up/down).  The user is required to configure these
+settings prior to launching the driver, typically by using either a
+device tree overlay or the cape-universal overlay and the config-pin
+utility.
+
+== STEPGEN
+
+stepgens have names like "hpg.stepgen.__<Instance>__".
+"Instance" is a two-digit number that corresponds to the stepgen
+instance number.  There are 'num_stepgens' instances, starting with 00.
+
+Each stepgen uses 2 IO pins, one for the step signal and one for the direction
+signal.
+
+Each stepgen instance has the following pins and parameters:
+
+=== Pins:
+
+(float input) position-cmd
+
+[indent=4]
+====
+Target position of stepper motion, in
+arbitrary position units.  This pin is only used when the stepgen is in
+position control mode (control-type=0).
+====
+
+(float input) velocity-cmd
+
+[indent=4]
+====
+Target velocity of stepper motion, in
+arbitrary position units per second.  This pin is only used when the
+stepgen is in velocity control mode (control-type=1).
+====
+
+(float output) position-fb
+
+[indent=4]
+====
+Feedback position in arbitrary position
+units. This is similar to "counts/position_scale", but has finer than
+step resolution.
+====
+
+(float output) velocity-fb
+
+[indent=4]
+====
+Feedback velocity in arbitrary position
+units per second.
+====
+
+(s32 output) counts
+
+[indent=4]
+====
+Feedback position in counts (number of steps).
+====
+
+(bit input) enable
+
+[indent=4]
+====
+This pin enables the step generator instance.
+When True, the stepgen instance works as expected.  When False, no steps
+are generated and velocity-fb goes immediately to 0.  If the stepgen is
+moving when enable goes false it stops immediately, without obeying the
+maxaccel limit.
+====
+
+(bit input) control-type
+
+[indent=4]
+====
+Switches between position control mode (0)
+and velocity control mode (1).  Defaults to position control (0).
+====
+
+(float input) position-scale
+
+[indent=4]
+====
+Converts from counts to position units.
+position = counts / position_scale
+====
+
+(float input) maxvel
+
+[indent=4]
+====
+Maximum speed, in position units per second.  If set
+to 0, the driver will always use the maximum possible velocity based
+on the current step timings and position-scale.  The max velocity will
+change if the step timings or position-scale changes. Defaults to 0.
+====
+
+(float input) maxaccel
+
+[indent=4]
+====
+Maximum acceleration, in position units per second
+per second.  Defaults to 1.0.  If set to 0, the driver will not limit its
+acceleration at all - this requires that the position-cmd or velocity-cmd
+pin is driven in a way that does not exceed the machine's capabilities.
+This is probably what you want if you're going to be using the LinuxCNC
+trajectory planner to jog or run G-code.
+====
+
+(u32 input) steplen
+
+[indent=4]
+====
+Minimum duration of the step signal, in nanoseconds.
+====
+
+(u32 input) stepspace
+
+[indent=4]
+====
+Minimum interval between step signals, in
+nanoseconds.
+====
+
+(u32 input) dirsetup
+
+[indent=4]
+====
+Minimum duration of stable Direction signal before
+a step begins, in nanoseconds.
+====
+
+(u32 input) dirhold
+
+[indent=4]
+====
+Minimum duration of stable Direction signal after a
+step ends, in nanoseconds.
+====
+
+(u32 input) step_pin
+====
+I/O pin to use for the step output
+====
+
+(u32 input) dir_pin
+====
+I/O pin to use for the direction output
+====
+
+(bit input) stepinvert
+====
+Inverts the step output (normally high with pulses going low)
+====
+
+== PWMGEN
+pwmgens have names like "hpg.pwmgen.__<Instance>__.out.__<Channel>__".
+"Instance" is a two-digit number that corresponds to the pwmgen
+instance number.  Each channel number value passed to 'num_pwmgens'
+creates a pwmgen instance, starting with 00.  "Channel" is a two-digit
+number that corresponds to a specific pwmgen channel in a pwmgen
+instance, starting with 00.
+
+Each pwmgen instance has a single pwm_peroid, so all channels in that
+instance have the same pwm frequency.  To support multiple PWM
+frequencies, it is possible to create more than one PWM instance, with
+each instance having a configurable number of channels.  To do so, pass
+multiple values separated by commas to num_pwmgens, eg: num_pwmgens=2,1
+would create 2 pwmgen instances with a total of 3 channels:
+
+[indent=4]
+====
+hpg.pwmgen.00.out.00
+hpg.pwmgen.00.out.01
+hpg.pwmgen.01.out.00
+====
+
+Each pwmgen uses 1 IO pin
+
+=== Pins:
+
+(bit input) enable
+
+[indent=4]
+====
+If true, the pwmgen will output pulses.
+If 'enable' is false, pwmgen will not output any signals.
+====
+
+(float input) value
+
+[indent=4]
+====
+The current pwmgen command value, in arbitrary units.
+====
+
+(float input) scale
+
+[indent=4]
+====
+Scaling factor to convert 'value' from arbitrary units
+to duty cycle: dc = value / scale.  Duty cycle has an effective range
+of -1.0 to +1.0 inclusive, anything outside that range gets clipped.
+The default scale is 1.0.
+====
+
+(u32 input) pin
+====
+I/O pin to use for the pwm output
+====
+
+In addition to the per-channel pins listed above, there is one
+setting that affects all pwmgen channels in an instance:
+
+(u32 input) pwm_period
+
+[indent=4]
+====
+This specifies the PWM period, in nS.  The default is 10,000,000 nS, or
+100 Hz.  The lower bound is determined by the pru_period and the desired
+resolution.  The longer the pwm_period, the more bits of resolution are
+available but the lower the PWM frequency.
+====
+
+== ENCODER
+Encoders have names like "hpg.encoder.__<Instance>__.out.__<Channel>__".
+"Instance" is a two-digit number that corresponds to the encoder
+instance number.  Each channel number value passed to 'num_encoders'
+creates an encoder instance, starting with 00.  "Channel" is a two-digit
+number that corresponds to a specific encoder channel in an encoder
+instance, starting with 00.
+
+Currently, there is no particular reason to use multiple encoder
+instances unless you happen to prefer the way the pins are exported to
+HAL (perhaps to keep encoders for motion separate from encoders for a
+jog wheel).  Support for multiple instances is intended to allow for
+different settings for high-speed encoder instances using direct PRU
+input pins and lower-speed instances that access standard GPIO pins.
+
+Currently all encoders **MUST** use direct PRU input pins.
+
+Each encoder uses up to three PRU direct input pins, depending on the
+counting mode.
+
+WARNING: The encoder uses different pin numbering than the rest of the
+hal_pru_generic driver.  The pin number values for (A|B|index)-pin
+should be the PRU dedicated input pin number, a value in the range of
+0-16 inclusive.  It is the user's responsibility to insure the physical
+I/O pins used are available as direct PRU input pins on the PRU used
+to run the hal_pru_generic PRU binary.  Unused pins should be assigned
+to a PRU input that will not change value (the 'unconnected' inputs
+17-29 work well for this).
+
+Each encoder instance has the following pins:
+
+=== Pins:
+
+(s32 output) count
+
+[indent=4]
+====
+Number of encoder counts since the previous reset.
+====
+
+(float output) position
+
+[indent=4]
+====
+Encoder position in position units (count / scale).
+====
+
+(float output) velocity
+
+[indent=4]
+====
+Estimated encoder velocity in position units per second.
+====
+
+(bit input) reset
+
+[indent=4]
+====
+Currently unsupported, included for compatability with hm2.
+====
+
+(bit in/out) index-enable
+
+[indent=4]
+====
+Currently unsupported, included for compatability with hm2.
+====
+
+(s32 output) rawcount
+
+[indent=4]
+====
+Total number of encoder counts since the start, not adjusted for index or reset.
+====
+
+(float input) scale
+
+[indent=4]
+====
+Converts from 'count' units to 'position' units.
+====
+
+(u32 input) A-pin
+====
+PRU direct input pin to use for the A signal
+====
+
+(bit input) A-invert
+
+[indent=4]
+====
+If True, inverts the polarity of the A signal
+====
+
+(u32 input) B-pin
+====
+PRU direct input pin to use for the B signal
+====
+
+(bit input) B-invert
+
+[indent=4]
+====
+If True, inverts the polarity of the B signal
+====
+
+(u32 input) index-pin
+====
+PRU direct input pin to use for the index (Z) signal
+====
+
+(bit input) index-invert
+
+[indent=4]
+====
+If True, the rising edge of the Index input pin triggers the Index event
+(if index-enable is True).  If set to False, the falling edge triggers.
+====
+
+(bit input) index-mask
+
+[indent=4]
+====
+Currently unsupported, included for compatability with hm2.
+====
+
+(bit input) index-mask-invert
+
+[indent=4]
+====
+Currently unsupported, included for compatability with hm2.
+====
+
+(u32 input) counter-mode
+
+[indent=4]
+====
+0 = Quadrature mode (default)
+1 = Step/Dir mode (A = Step, B = Up/Down)
+2 = Up counter (counts rising edges on A, B is ignored)
+3 = Quadrature x1 mode (matches HAL software encoder x1 mode)
+All other values are reserved
+====
+
+(bit input) filter
+
+[indent=4]
+====
+Currently unsupported, included for compatability with hm2.
+====
+
+(float input) vel-timeout
+
+[indent=4]
+====
+When the encoder is moving slower than one
+pulse for each time that the driver reads the count from the PRU (in
+the capture-position() function), the velocity is harder to estimate.  The driver
+can wait several iterations for the next pulse to arrive, all the while
+reporting the upper bound of the encoder velocity, which can be accurately
+guessed.  This parameter specifies how long to wait for the next pulse,
+before reporting the encoder stopped.  This parameter is in seconds.
+====
+
+== FUNCTIONS
+**<halname>.capture-position**
+
+[indent=4]
+====
+This reads the encoder counters and stepgen feedbacks from the PRU.
+====
+
+**<halname>.update**
+
+[indent=4]
+====
+This updates the PWM duty cycles and stepgen rates on the PRU.  Any
+changes to configuration pins such as stepgen timing, inversions,
+etc, are also effected by this function.
+====
+
+== SEE ALSO
+
+== LICENSE
+GPL
