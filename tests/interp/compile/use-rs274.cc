@@ -17,11 +17,25 @@
 #include <Python.h> // must be first header
 #include "rs274ngc.hh"
 
+static void read_execute(InterpBase *b, const char *line) {
+    fprintf(stderr, "> %s\n", line);
+    int r = b->read(line);
+    r = b->execute();
+}
+
 int main() {
     InterpBase *b = makeInterp();
     b->init();
-    b->read("(this is a comment)");
-    b->execute();
+    read_execute(b, "(this is a comment)");
+    read_execute(b, "G0X0Y0");
+    read_execute(b, "F100");
+    read_execute(b, "G5.2 X3.53   Y-1.50   P2");
+    read_execute(b, "     X5.33   Y-11.01  P1");
+    read_execute(b, "     X3.52   Y-24.00  P1");
+    read_execute(b, "     X0.0    Y-29.56  P1");
+    read_execute(b, "G5.3");
+    read_execute(b, "(second comment)");
+    read_execute(b, "M2");
     return 0;
 }
 
@@ -79,8 +93,26 @@ void ARC_FEED(int lineno,
 void STRAIGHT_FEED(int lineno,
                           double x, double y, double z,
                           double a, double b, double c,
-                          double u, double v, double w) {}
-void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {}
+                          double u, double v, double w) {
+    printf("-> %.1f %.1f\n", x, y);
+}
+void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+    double u = 0.0;
+    unsigned int n = nurbs_control_points.size() - 1;
+    double umax = n - k + 2;
+    unsigned int div = nurbs_control_points.size()*3;
+    std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);
+    PLANE_POINT P1;
+    while (u+umax/div < umax) {
+        PLANE_POINT P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
+        STRAIGHT_FEED(lineno, P1.X,P1.Y, 0., 0.,0.,0.,  0.,0.,0.);
+        u = u + umax/div;
+    }
+    P1.X = nurbs_control_points[n].X;
+    P1.Y = nurbs_control_points[n].Y;
+    STRAIGHT_FEED(lineno, P1.X,P1.Y, 0., 0.,0.,0.,  0.,0.,0.);
+    knot_vector.clear();
+}
 void RIGID_TAP(int lineno,
                       double x, double y, double z) {}
 void STRAIGHT_PROBE(int lineno,
@@ -211,7 +243,7 @@ int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {}
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) {}
 double GET_EXTERNAL_ANALOG_INPUT(int index, double def) {}
-int GET_EXTERNAL_AXIS_MASK() {}
+int GET_EXTERNAL_AXIS_MASK() { return 7; }
 void FINISH(void) {}
 void CANON_ERROR(const char *fmt, ...) {}
 void PLUGIN_CALL(int len, const char *call) {}
