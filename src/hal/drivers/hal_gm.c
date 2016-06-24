@@ -355,9 +355,16 @@ rtapi_pci_device_id gm_pci_tbl[] = {
         .vendor = PLX_VENDOR_ID,
         .device = GM_DEVICE_ID,
         .subvendor = PLX_VENDOR_ID,
-        .subdevice = GM_SUBDEVICE_ID,
+        .subdevice = GM_SUBDEVICE_ID_1,
     },
  
+    {
+        .vendor = PLX_VENDOR_ID,
+        .device = GM_DEVICE_ID,
+        .subvendor = PLX_VENDOR_ID,
+        .subdevice = GM_SUBDEVICE_ID_2,
+    },
+
     {0,},
 };
 
