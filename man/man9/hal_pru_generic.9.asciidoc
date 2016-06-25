@@ -247,16 +247,19 @@ step ends, in nanoseconds.
 ====
 
 (u32 input) step_pin
+[indent=4]
 ====
 I/O pin to use for the step output
 ====
 
 (u32 input) dir_pin
+[indent=4]
 ====
 I/O pin to use for the direction output
 ====
 
 (bit input) stepinvert
+[indent=4]
 ====
 Inverts the step output (normally high with pulses going low)
 ====
@@ -313,6 +316,7 @@ The default scale is 1.0.
 ====
 
 (u32 input) pin
+[indent=4]
 ====
 I/O pin to use for the pwm output
 ====
@@ -413,6 +417,7 @@ Converts from 'count' units to 'position' units.
 ====
 
 (u32 input) A-pin
+[indent=4]
 ====
 PRU direct input pin to use for the A signal
 ====
@@ -425,6 +430,7 @@ If True, inverts the polarity of the A signal
 ====
 
 (u32 input) B-pin
+[indent=4]
 ====
 PRU direct input pin to use for the B signal
 ====
@@ -437,6 +443,7 @@ If True, inverts the polarity of the B signal
 ====
 
 (u32 input) index-pin
+[indent=4]
 ====
 PRU direct input pin to use for the index (Z) signal
 ====
