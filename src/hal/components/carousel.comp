@@ -245,7 +245,7 @@ FUNCTION(_){
         state = 11;
     case 11: // waiting for index & pulse
         if  ( (! old_index) && (sense(0) && sense(1)) ){ // index found
-            p = 1;
+            current_position = 1;
             homed = 1;
             homing = 0;
             active = 0;
