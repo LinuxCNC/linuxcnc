@@ -168,7 +168,7 @@ class INI:
             maxvel = max(self.d.xmaxvel, self.d.ymaxvel, self.d.zmaxvel)
         hypotvel = (self.d.xmaxvel**2 + self.d.ymaxvel**2 + self.d.zmaxvel**2) **.5
         defvel = min(maxvel, max(.1, maxvel/10.))
-        print >>file, "DEFAULT_VELOCITY = %.2f" % defvel
+        print >>file, "DEFAULT_LINEAR_VELOCITY = %.2f" % defvel
         print >>file, "MAX_LINEAR_VELOCITY = %.2f" % maxvel
         if self.d.restore_joint_position:
             print >>file, "POSITION_FILE = position.txt"

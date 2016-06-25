@@ -678,9 +678,9 @@ class Gscreen:
 
         # max velocity settings: more then one place to check
         # This is the maximum velocity of the machine
-        temp = self.inifile.find("TRAJ","MAX_VELOCITY")
+        temp = self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
         if temp == None:
-            self.add_alarm_entry(_("No MAX_VELOCITY found in [TRAJ] of the INI file"))
+            self.add_alarm_entry(_("No MAX_LINEAR_VELOCITY found in [TRAJ] of the INI file"))
             temp = 1.0
         self.data._maxvelocity = float(temp)
 

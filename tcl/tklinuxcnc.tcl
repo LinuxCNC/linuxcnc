@@ -963,7 +963,7 @@ bind $tooloffsetsetting <ButtonPress-3> {popupToolOffset}
 # process ini file settings for jog speed -- angular and linear
 # use TRAJ settings only
 set vitems "DEFAULT_VELOCITY DEFAULT_ANGULAR_VELOCITY DEFAULT_LINEAR_VELOCITY\
-                MAX_VELOCITY     MAX_ANGULAR_VELOCITY     MAX_LINEAR_VELOCITY"
+                MAX_ANGULAR_VELOCITY     MAX_LINEAR_VELOCITY"
 foreach item $vitems {
   set temp [emc_ini "$item" "TRAJ"]
   if {"$temp" != ""} {set tempini($item) $temp}
