@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #    Copyright 2007 John Kasunich and Jeff Epler
 #
 #    This program is free software; you can redistribute it and/or modify
