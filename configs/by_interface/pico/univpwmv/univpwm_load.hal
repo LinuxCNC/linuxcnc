@@ -12,6 +12,9 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 loadrt pid num_chan=4
 
 # install Universal PWM Controller driver
+# port_addr is the address of the parallel port data register
+# timestamp="0x00" turns on the timestamped encoder velocity feature
+# on the first PWM controller board
 loadrt hal_ppmc port_addr="0x378" timestamp="0x00"
 
 # load realtime portion of scope, just to have it handy
