@@ -11,6 +11,8 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 loadrt pid num_chan=4
 
 # install Universal PWM Controller driver
+# if the parallel port the PPMC is connected to is not the standard 0x378, add
+#  port_addr="0x1234" to the end of the following line, separated by a space
 loadrt hal_ppmc
 
 # make some signals for the scope for tuning.
