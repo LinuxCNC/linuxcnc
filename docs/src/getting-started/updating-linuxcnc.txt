@@ -185,7 +185,7 @@ MAX_VELOCITY = 7.5
 -----
 
 
-=== 'shuttlexpress driver renamed to 'shuttle'
+=== `shuttlexpress` driver renamed to `shuttle`
 
 The HAL driver for the Contour Designs ShuttleXpress device has been
 renamed from "shuttlexpress" to just "shuttle".  If your hal files include
