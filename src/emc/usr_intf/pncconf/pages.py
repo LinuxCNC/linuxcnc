@@ -262,7 +262,6 @@ class Pages:
              self.w.radio_none.set_active(True)
         if self.d.frontend == self._p._AXIS : self.w.GUIAXIS.set_active(True)
         elif self.d.frontend == self._p._TKLINUXCNC: self.w.GUITKLINUXCNC.set_active(True)
-        elif self.d.frontend == self._p._MINI: self.w.GUIMINI.set_active(True)
         elif self.d.frontend == self._p._TOUCHY: self.w.GUITOUCHY.set_active(True)
 
     def base_finish(self):
@@ -305,8 +304,6 @@ class Pages:
            self.d.frontend = self._p._AXIS
         elif self.w.GUITKLINUXCNC.get_active():
            self.d.frontend = self._p._TKLINUXCNC
-        elif self.w.GUIMINI.get_active():
-           self.d.frontend = self._p._MINI
         elif self.w.GUITOUCHY.get_active():
            self.d.frontend = self._p._TOUCHY
 

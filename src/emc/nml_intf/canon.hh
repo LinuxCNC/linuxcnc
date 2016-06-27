@@ -18,6 +18,7 @@
 
 #include "emcpos.h"
 #include "emctool.h"
+#include "canon_position.hh"
 
 /*
   This is the header file that all applications that use the
@@ -124,6 +125,67 @@ struct CANON_VECTOR {
     }
     double x, y, z;
 };
+
+typedef struct CanonConfig_t {
+    CanonConfig_t() : rotary_unlock_for_traverse(-1) {}
+
+    double xy_rotation;
+    int rotary_unlock_for_traverse; // jointnumber or -1
+
+    // these are both always positive
+    double css_maximum;
+    double css_numerator;
+
+    int feed_mode;
+    int synched;
+    CANON_POSITION g5xOffset;
+    CANON_POSITION g92Offset;
+/*
+  canonEndPoint is the last programmed end point, stored in case it's
+  needed for subsequent calculations. It's in absolute frame, mm units.
+
+  note that when segments are queued for the naive cam detector that the
+  canonEndPoint may not be the last programmed endpoint.  get_last_pos()
+  retrieves the xyz position after the last of the queued segments.  these
+  are also in absolute frame, mm units.
+  */
+    CANON_POSITION endPoint;
+    CANON_UNITS lengthUnits;
+    CANON_PLANE activePlane;
+/* Tool length offset is saved here */
+    EmcPose toolOffset;
+/* motion control mode is used to signify blended v. stop-at-end moves.
+   Set to 0 (invalid) at start, so first call will send command out */
+    CANON_MOTION_MODE motionMode;
+/* motion path-following tolerance is used to set the max path-following
+   deviation during CANON_CONTINUOUS.
+   If this param is 0, then it will behave as emc always did, allowing
+   almost any deviation trying to keep speed up. */
+   double motionTolerance;
+   double naivecamTolerance;
+/* Spindle speed is saved here */
+   double spindleSpeed;
+   int spindle_dir;
+/* Prepped tool is saved here */
+//   int preppedTool;
+/*
+  Feed rate is saved here; values are in mm/sec or deg/sec.
+  It will be initially set in INIT_CANON() below.
+*/
+    double linearFeedRate;
+    double angularFeedRate;
+/* optional program stop */
+    bool optional_program_stop;
+/* optional block delete */
+    bool block_delete;
+/* Used to indicate whether the current move is linear, angular, or 
+   a combination of both. */
+   //AJ says: linear means axes XYZ move (lines or even circles)
+   //         angular means axes ABC move
+    int cartesian_move;
+    int angular_move;
+} CanonConfig_t;
+
 /* Initialization */
 
 /* reads world model data into the canonical interface */
@@ -676,10 +738,10 @@ extern int WAIT(int index, /* index of the motion exported input */
    Return value: either wait_type if timeout didn't occur, or -1 otherwise. */
 
 /* tell canon the next move needs the rotary to be unlocked */
-extern int UNLOCK_ROTARY(int line_no, int axis);
+extern int UNLOCK_ROTARY(int line_no, int joint_num);
 
 /* tell canon that is no longer the case */
-extern int LOCK_ROTARY(int line_no, int axis);
+extern int LOCK_ROTARY(int line_no, int joint_num);
 
 /*************************************************************************/
 

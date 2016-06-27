@@ -3,7 +3,7 @@
 [[cha:moveoff]]
 
 The moveoff Hal component is a Hal-only method
-for implementing offsets.  See the manpage (man moveoff)
+for implementing offsets.  See the manpage ('$ man moveoff')
 for the IMPORTANT limitations and warnings.
 
 The moveoff component is used to offset joint positions using custom Hal
@@ -99,23 +99,30 @@ settings support the use of a simple gui (moveoff_gui) for controlling offsets.
 When the system halfile (LIB:hookup_moveoff.tcl) is properly specified in
 a configuration ini file, it will:
 
-. Disconnect the original axis.N.motor-pos-cmd and axis.N.motor-pos-fb pin
+. Disconnect the original joint.N.motor-pos-cmd and joint.N.motor-pos-fb pin
   connections
 . Load (loadrt) the moveoff component (using the name mv) with a personality
   set to accomodate all axes identified in the ini file
 . Add (addf) the moveoff component functions in the required sequence
-. Reconnect the axis.N.motor-pos-cmd and axis.N.motor-pos-fb pins to use
+. Reconnect the joint.N.motor-pos-cmd and joint.N.motor-pos-fb pins to use
   the moveoff component
 . Set the moveoff component operating parameters and limits for each axis
   in accordance with additional ini file settings
+
+
+Note: The moveoff_gui application supports configurations that use known
+kinematics modules with KINEMATICS_TYPE=KINEMATICS_IDENTITY.  Supported
+modules include: trivkins.  With identity kins, moveoff_gui
+assigns each axis name specified with the command line parameter '-axes axisnames'
+to the corresponding joint.
 
 Modify an existing configuration as follows:
 
 Make sure there is an ini file entry for [HAL]HALUI and create a new
 [HAL]HALFILE entry for LIB:hookup_moveoff.tcl.
 The entry for LIB:hookup_moveoff.tcl should follow all HALFILE= entries
-for halfiles that connect the pins for axis.N.motor-pos-cmd,
-axis.N.motor-pos-fb, and any components connected to these pins (pid
+for halfiles that connect the pins for joint.N.motor-pos-cmd,
+joint.N.motor-pos-fb, and any components connected to these pins (pid
 and encoder components in a servo system for instance).
 
 ----

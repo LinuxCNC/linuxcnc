@@ -7,9 +7,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-*
 ********************************************************************/
 #ifndef MOT_PRIV_H
 #define MOT_PRIV_H
@@ -50,8 +47,8 @@ typedef struct {
     hal_float_t *free_pos_cmd;	/* RPI: free traj planner pos cmd */
     hal_float_t *free_vel_lim;	/* RPI: free traj planner vel limit */
     hal_bit_t *free_tp_enable;	/* RPI: free traj planner is running */
-    hal_bit_t *kb_jog_active;   /* RPI: executing keyboard jog */
-    hal_bit_t *wheel_jog_active;/* RPI: executing handwheel jog */
+    hal_bit_t *kb_jjog_active;   /* RPI: executing keyboard jog */
+    hal_bit_t *wheel_jjog_active;/* RPI: executing handwheel jog */
 
     hal_bit_t *active;		/* RPI: joint is active, whatever that means */
     hal_bit_t *in_position;	/* RPI: joint is in position */
@@ -74,12 +71,27 @@ typedef struct {
     hal_bit_t *unlock;          /* WPI: command that axis should unlock for rotation */
     hal_bit_t *is_unlocked;     /* RPI: axis is currently unlocked */
 
-    hal_s32_t *jog_counts;	/* WPI: jogwheel position input */
-    hal_bit_t *jog_enable;	/* RPI: enable jogwheel */
-    hal_float_t *jog_scale;	/* RPI: distance to jog on each count */
-    hal_bit_t *jog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
+    hal_s32_t   *jjog_counts;	/* WPI: jogwheel position input */
+    hal_bit_t   *jjog_enable;	/* RPI: enable jogwheel */
+    hal_float_t *jjog_scale;	/* RPI: distance to jog on each count */
+    hal_bit_t   *jjog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
 
 } joint_hal_t;
+
+typedef struct {
+    hal_float_t *pos_cmd;        /* RPI: commanded position */
+    hal_float_t *vel_cmd;        /* RPI: commanded velocity */
+    hal_float_t *teleop_pos_cmd; /* RPI: teleop traj planner pos cmd */
+    hal_float_t *teleop_vel_lim; /* RPI: teleop traj planner vel limit */
+    hal_bit_t   *teleop_tp_enable; /* RPI: teleop traj planner is running */
+
+    hal_s32_t   *ajog_counts;	/* WPI: jogwheel position input */
+    hal_bit_t   *ajog_enable;	/* RPI: enable jogwheel */
+    hal_float_t *ajog_scale;	/* RPI: distance to jog on each count */
+    hal_bit_t   *ajog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
+    hal_bit_t   *kb_ajog_active;   /* RPI: executing keyboard jog */
+    hal_bit_t   *wheel_ajog_active;/* RPI: executing handwheel jog */
+} axis_hal_t;
 
 /* machine data */
 
@@ -95,7 +107,6 @@ typedef struct {
     hal_bit_t *feed_inhibit;	/* RPI: set TRUE to stop motion (non maskable)*/
     hal_bit_t *motion_enabled;	/* RPI: motion enable for all joints */
     hal_bit_t *in_position;	/* RPI: all joints are in position */
-//    hal_bit_t *inpos_output;	/* WPI: all joints are in position (used to power down steppers for example) */
     hal_bit_t *coord_mode;	/* RPA: TRUE if coord, FALSE if free */
     hal_bit_t *teleop_mode;	/* RPA: TRUE if teleop mode */
     hal_bit_t *coord_error;	/* RPA: TRUE if coord mode error */
@@ -179,6 +190,7 @@ typedef struct {
     hal_float_t *tooloffset_w;
 
     joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */
+    axis_hal_t axis[EMCMOT_MAX_AXIS];	        /* data for each axis */
 
 } emcmot_hal_data_t;
 
@@ -186,41 +198,22 @@ typedef struct {
 *                   GLOBAL VARIABLE DECLARATIONS                       *
 ************************************************************************/
 
-/* HAL component ID for motion module */
-extern int mot_comp_id;
-
-/* userdefined number of joints. default is EMCMOT_MAX_JOINTS(=8), 
-   but can be altered at motmod insmod time */
-extern int num_joints;
-
-/* userdefined number of digital IO. default is 4. (EMCMOT_MAX_DIO=64), 
-   but can be altered at motmod insmod time */
-extern int num_dio;
-
-/* userdefined number of analog IO. default is 4. (EMCMOT_MAX_AIO=16), 
-   but can be altered at motmod insmod time */
-extern int num_aio;
-
 /* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
 extern emcmot_hal_data_t *emcmot_hal_data;
 
 /* pointer to array of joint structs with all joint data */
 /* the actual array may be in shared memory or in kernel space, as
-   determined by the init code in motion.c
-*/
+   determined by the init code in motion.c */
 extern emcmot_joint_t *joints;
 
+/* pointer to array of axis structs with all axis data */
+extern emcmot_axis_t *axes;
+
 /* Variable defs */
-extern int kinType;
-extern int rehomeAll;
-extern int DEBUG_MOTION;
-extern int EMCMOT_NO_FORWARD_KINEMATICS;
 extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
-/* these variables have the servo cycle time and 1/cycle time */
-extern double servo_period;
+/* these variable have the 1/servo cycle time */
 extern double servo_freq;
-
 
 /* Struct pointers */
 extern struct emcmot_struct_t *emcmotStruct;
@@ -228,7 +221,6 @@ extern struct emcmot_command_t *emcmotCommand;
 extern struct emcmot_status_t *emcmotStatus;
 extern struct emcmot_config_t *emcmotConfig;
 extern struct emcmot_debug_t *emcmotDebug;
-extern struct emcmot_internal_t *emcmotInternal;
 extern struct emcmot_error_t *emcmotError;
 
 /***********************************************************************
@@ -250,6 +242,18 @@ extern int emcmotGetRotaryIsUnlocked(int axis);
 /* homing is no longer in control.c, make functions public */
 extern void do_homing_sequence(void);
 extern void do_homing(void);
+
+
+//
+// Try to change the Motion mode to Teleop.
+//
+// This function can be called at any time.  Returns without changing
+// mode if Teleop is not currently allowed.  This code doesn't actually
+// make the transition, it just sets a flag requesting the transition.
+// The real transition to Teleop mode is done in emcmotController().
+//
+void switch_to_teleop_mode(void);
+
 
 /* loops through the active joints and checks if any are not homed */
 extern int checkAllHomed(void);

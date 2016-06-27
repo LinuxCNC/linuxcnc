@@ -8,7 +8,7 @@ gladevcp -u ./meter_scale.py ./meter_scale.ui &
 sleep 3
 # start sim_pin to exercise pins
 sim_pin \
-   meter_scale.hal_table1 \
+   meter_scale.hal_table1/mode=toggle \
    meter_scale.max-value \
    meter_scale.meter \
 

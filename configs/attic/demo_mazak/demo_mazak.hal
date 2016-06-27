@@ -1,7 +1,7 @@
 # this file contains the HAL configuration for Roland's Mazak
 #
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 # first load the motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD
 
@@ -206,7 +206,7 @@ net motion-enable motion.enable
 
 # servo amp enable (only one, driven by axis 0)
 net servo-enable motenc.3.out-02
-net servo-enable axis.0.amp-enable-out
+net servo-enable joint.0.amp-enable-out
 
 # servo amp fault signals
 # the signals from the amps are actually "not running"
@@ -221,27 +221,27 @@ net Z-amp-running motenc.3.out-15
 # these are the real fault signals, and go to the motion
 # controller, they are derived from the ones above by
 # ladder logic
-net X-amp-fault axis.0.amp-fault-in
-net Y-amp-fault axis.1.amp-fault-in
-net Z-amp-fault axis.2.amp-fault-in
+net X-amp-fault joint.0.amp-fault-in
+net Y-amp-fault joint.1.amp-fault-in
+net Z-amp-fault joint.2.amp-fault-in
 
 # Limit switches
 # (the switches are NC, and open when hit, so
 # we invert the signals by using the -not input
 # pin - the result is limit signals that are
 # TRUE when the machine is on the limit.)
-net X-lim-plus  motenc.3.in-00-not => axis.0.pos-lim-sw-in
-net X-lim-minus motenc.3.in-01-not => axis.0.neg-lim-sw-in
-net Y-lim-plus  motenc.3.in-02-not => axis.1.pos-lim-sw-in
-net Y-lim-minus motenc.3.in-03-not => axis.1.neg-lim-sw-in
-net Z-lim-plus  motenc.3.in-04-not => axis.2.pos-lim-sw-in
-net Z-lim-minus motenc.3.in-05-not => axis.2.neg-lim-sw-in
+net X-lim-plus  motenc.3.in-00-not => joint.0.pos-lim-sw-in
+net X-lim-minus motenc.3.in-01-not => joint.0.neg-lim-sw-in
+net Y-lim-plus  motenc.3.in-02-not => joint.1.pos-lim-sw-in
+net Y-lim-minus motenc.3.in-03-not => joint.1.neg-lim-sw-in
+net Z-lim-plus  motenc.3.in-04-not => joint.2.pos-lim-sw-in
+net Z-lim-minus motenc.3.in-05-not => joint.2.neg-lim-sw-in
 
 # Home switches
 # (the switches are NC, see note above)
-net X-home motenc.3.in-08-not => axis.0.home-sw-in
-net Y-home motenc.3.in-09-not => axis.1.home-sw-in
-net Z-home motenc.3.in-10-not => axis.2.home-sw-in
+net X-home motenc.3.in-08-not => joint.0.home-sw-in
+net Y-home motenc.3.in-09-not => joint.1.home-sw-in
+net Z-home motenc.3.in-10-not => joint.2.home-sw-in
 
 # spindle related signals: "high level" signals
 #   ready (from drive to PC)
@@ -518,9 +518,9 @@ net Y-enc-counts motenc.3.enc-01-count
 net Z-enc-counts motenc.3.enc-02-count
 
 # scaling to get inches (scale comes from ini file)
-setp motenc.3.enc-00-scale [AXIS_0]INPUT_SCALE
-setp motenc.3.enc-01-scale [AXIS_1]INPUT_SCALE
-setp motenc.3.enc-02-scale [AXIS_2]INPUT_SCALE
+setp motenc.3.enc-00-scale [JOINT_0]INPUT_SCALE
+setp motenc.3.enc-01-scale [JOINT_1]INPUT_SCALE
+setp motenc.3.enc-02-scale [JOINT_2]INPUT_SCALE
 
 # position in inches
 net X-enc-pos motenc.3.enc-00-position
@@ -528,9 +528,9 @@ net Y-enc-pos motenc.3.enc-01-position
 net Z-enc-pos motenc.3.enc-02-position
 
 # index pulses
-net X-index-enable motenc.3.enc-00-index-enable axis.0.index-enable
-net Y-index-enable motenc.3.enc-01-index-enable axis.1.index-enable
-net Z-index-enable motenc.3.enc-02-index-enable axis.2.index-enable
+net X-index-enable motenc.3.enc-00-index-enable joint.0.index-enable
+net Y-index-enable motenc.3.enc-01-index-enable joint.1.index-enable
+net Z-index-enable motenc.3.enc-02-index-enable joint.2.index-enable
 
 # -----------------------------------------------------
 # DACs - output to servo amps
@@ -539,12 +539,12 @@ net X-volts motenc.3.dac-00-value
 net Y-volts motenc.3.dac-01-value
 net Z-volts motenc.3.dac-02-value
 # get scale and offset from the ini file
-setp motenc.3.dac-00-gain [AXIS_0]OUTPUT_SCALE
-setp motenc.3.dac-01-gain [AXIS_1]OUTPUT_SCALE
-setp motenc.3.dac-02-gain [AXIS_2]OUTPUT_SCALE
-setp motenc.3.dac-00-offset [AXIS_0]OUTPUT_OFFSET
-setp motenc.3.dac-01-offset [AXIS_1]OUTPUT_OFFSET
-setp motenc.3.dac-02-offset [AXIS_2]OUTPUT_OFFSET
+setp motenc.3.dac-00-gain [JOINT_0]OUTPUT_SCALE
+setp motenc.3.dac-01-gain [JOINT_1]OUTPUT_SCALE
+setp motenc.3.dac-02-gain [JOINT_2]OUTPUT_SCALE
+setp motenc.3.dac-00-offset [JOINT_0]OUTPUT_OFFSET
+setp motenc.3.dac-01-offset [JOINT_1]OUTPUT_OFFSET
+setp motenc.3.dac-02-offset [JOINT_2]OUTPUT_OFFSET
 
 # -----------------------------------------------------
 # ADCs - servo amp current feedback
@@ -566,9 +566,9 @@ setp motenc.3.adc-02-offset 0.0
 
 # signals for position command
 # hook the motion controller outputs to the position command
-net X-pos-cmd axis.0.motor-pos-cmd
-net Y-pos-cmd axis.1.motor-pos-cmd
-net Z-pos-cmd axis.2.motor-pos-cmd
+net X-pos-cmd joint.0.motor-pos-cmd
+net Y-pos-cmd joint.1.motor-pos-cmd
+net Z-pos-cmd joint.2.motor-pos-cmd
 # and to the PID inputs
 net X-pos-cmd pid.0.command
 net Y-pos-cmd pid.1.command
@@ -579,9 +579,9 @@ net X-enc-pos pid.0.feedback
 net Y-enc-pos pid.1.feedback
 net Z-enc-pos pid.2.feedback
 # and to motion controller
-net X-enc-pos axis.0.motor-pos-fb
-net Y-enc-pos axis.1.motor-pos-fb
-net Z-enc-pos axis.2.motor-pos-fb
+net X-enc-pos joint.0.motor-pos-fb
+net Y-enc-pos joint.1.motor-pos-fb
+net Z-enc-pos joint.2.motor-pos-fb
 
 # hook PID outputs to DACs
 net X-volts pid.0.output
@@ -597,34 +597,34 @@ net servo-enable pid.1.enable
 net servo-enable pid.2.enable
 
 # get tuning params from ini file
-setp pid.0.deadband [AXIS_0]DEADBAND
-setp pid.0.Pgain [AXIS_0]PGAIN
-setp pid.0.Igain [AXIS_0]IGAIN
-setp pid.0.Dgain [AXIS_0]DGAIN
-setp pid.0.FF0 [AXIS_0]FF0
-setp pid.0.FF1 [AXIS_0]FF1
-setp pid.0.FF2 [AXIS_0]FF2
-setp pid.0.bias [AXIS_0]BIAS
-setp pid.1.deadband [AXIS_1]DEADBAND
-setp pid.1.Pgain [AXIS_1]PGAIN
-setp pid.1.Igain [AXIS_1]IGAIN
-setp pid.1.Dgain [AXIS_1]DGAIN
-setp pid.1.FF0 [AXIS_1]FF0
-setp pid.1.FF1 [AXIS_1]FF1
-setp pid.1.FF2 [AXIS_1]FF2
-setp pid.1.bias [AXIS_1]BIAS
-setp pid.2.deadband [AXIS_2]DEADBAND
-setp pid.2.Pgain [AXIS_2]PGAIN
-setp pid.2.Igain [AXIS_2]IGAIN
-setp pid.2.Dgain [AXIS_2]DGAIN
-setp pid.2.FF0 [AXIS_2]FF0
-setp pid.2.FF1 [AXIS_2]FF1
-setp pid.2.FF2 [AXIS_2]FF2
-setp pid.2.bias [AXIS_2]BIAS
+setp pid.0.deadband [JOINT_0]DEADBAND
+setp pid.0.Pgain [JOINT_0]PGAIN
+setp pid.0.Igain [JOINT_0]IGAIN
+setp pid.0.Dgain [JOINT_0]DGAIN
+setp pid.0.FF0 [JOINT_0]FF0
+setp pid.0.FF1 [JOINT_0]FF1
+setp pid.0.FF2 [JOINT_0]FF2
+setp pid.0.bias [JOINT_0]BIAS
+setp pid.1.deadband [JOINT_1]DEADBAND
+setp pid.1.Pgain [JOINT_1]PGAIN
+setp pid.1.Igain [JOINT_1]IGAIN
+setp pid.1.Dgain [JOINT_1]DGAIN
+setp pid.1.FF0 [JOINT_1]FF0
+setp pid.1.FF1 [JOINT_1]FF1
+setp pid.1.FF2 [JOINT_1]FF2
+setp pid.1.bias [JOINT_1]BIAS
+setp pid.2.deadband [JOINT_2]DEADBAND
+setp pid.2.Pgain [JOINT_2]PGAIN
+setp pid.2.Igain [JOINT_2]IGAIN
+setp pid.2.Dgain [JOINT_2]DGAIN
+setp pid.2.FF0 [JOINT_2]FF0
+setp pid.2.FF1 [JOINT_2]FF1
+setp pid.2.FF2 [JOINT_2]FF2
+setp pid.2.bias [JOINT_2]BIAS
 # get maximum (and minimum) output volts from ini file
-setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
-setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
-setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
+setp pid.0.maxoutput [JOINT_0]MAX_OUTPUT
+setp pid.1.maxoutput [JOINT_1]MAX_OUTPUT
+setp pid.2.maxoutput [JOINT_2]MAX_OUTPUT
 
 # LADDER LOGIC!!!
 #

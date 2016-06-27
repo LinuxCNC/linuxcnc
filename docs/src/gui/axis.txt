@@ -158,9 +158,9 @@ Do not use 'Run From Selected Line' if your g code program contains subroutines.
 
 * 'Paste to MDI history' - Paste from the clipboard to the MDI history window
 
-* 'Calibration' - Starts the Servo Axis Calibration assistant.
+* 'Calibration' - Starts the Servo Joint Calibration assistant.
    Calibration reads the HAL file and for every 'setp' that uses a variable
-   from the ini file that is in an [AXIS_n] section it creates an entry that
+   from the ini file that is in an [JOINT_n] section it creates an entry that
    can be edited and tested.
 
 * 'Show HAL Configuration' - Opens the HAL Configuration window where you can
@@ -803,6 +803,20 @@ When in lathe mode, the shape of the loaded tool (if any) is shown.
 .Lathe Tool Shape
 
 image:images/axis-lathe-tool.png[align="center"]
+
+== Using AXIS in Foam Cutting mode
+
+By including the line 'FOAM = 1'
+in the [DISPLAY] section of the ini file, AXIS selects foam-cutting mode.
+In the program preview, XY motions are displayed in one plane, and UV motions
+in another.  In the live plot, lines are drawn between corresponding points on
+the XY plane and the UV plane.  The special comments (XY_Z_POS) and (UV_Z_POS)
+set the Z coordinates of these planes, which default to 0 and 1.5 machine units.
+
+.Foam cutting mode
+
+image:images/axis-foam.png[align="center"]
+
 
 == Advanced Configuration
 

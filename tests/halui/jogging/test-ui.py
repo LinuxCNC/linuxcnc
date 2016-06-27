@@ -251,6 +251,16 @@ def jog_plus(name, target):
     return True
 
 
+def wait_for_pin_value(pin_name, target_value, timeout=2.0):
+    start_time = time.time()
+    while h[pin_name] != target_value:
+        if (time.time() - start_time) > timeout:
+            log("Error: pin %s didn't reach target value %s!" % (pin_name, target_value))
+            log("pin value is %s at timeout after %.3f seconds" % (h[pin_value], timeout))
+            sys.exit(1)
+        time.sleep(0.1)
+
+
 def wait_for_joint_to_stop(joint_number):
     pos_pin = 'joint-%d-position' % joint_number
     start_time = time.time()
@@ -339,6 +349,9 @@ h.newpin("joint-2-jog-minus", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("jog-selected-minus", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("jog-selected-plus", hal.HAL_BIT, hal.HAL_OUT)
 
+h.newpin("motion-mode-joint", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("motion-mode-is-joint", hal.HAL_BIT, hal.HAL_IN)
+
 h.ready() # mark the component as 'ready'
 
 os.system("halcmd source ./postgui.hal")
@@ -367,6 +380,10 @@ h['joint-2-select'] = 0
 
 # The machine is homed and all the .joint.N.select pins are deasserted.
 e.set_mode(linuxcnc.MODE_MANUAL)
+
+h['motion-mode-joint'] = 1
+wait_for_pin_value('motion-mode-is-joint', 1, 2.0)
+h['motion-mode-joint'] = 0
 
 
 #

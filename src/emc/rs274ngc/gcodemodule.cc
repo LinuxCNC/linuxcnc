@@ -461,8 +461,8 @@ void SET_MOTION_OUTPUT_BIT(int bit) {}
 void SET_MOTION_OUTPUT_VALUE(int index, double value) {}
 void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
-int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
-int LOCK_ROTARY(int line_no, int axis) {return 0;}
+int UNLOCK_ROTARY(int line_no, int joint_num) {return 0;}
+int LOCK_ROTARY(int line_no, int joint_num) {return 0;}
 void INTERP_ABORT(int reason,const char *message) {}
 void PLUGIN_CALL(int len, const char *call) {}
 void IO_PLUGIN_CALL(int len, const char *call) {}

@@ -169,7 +169,6 @@ class _GStat(gobject.GObject):
         interp_new = self.old['interp']
         if interp_new != interp_old:
             if not interp_old or interp_old == linuxcnc.INTERP_IDLE:
-                print "Emit", "interp-run"
                 self.emit('interp-run')
             self.emit(self.INTERP[interp_new])
 
@@ -211,19 +210,19 @@ class _GStat(gobject.GObject):
         homed_old = old.get('homed', None)
         homed_new = self.old['homed']
         if homed_new != homed_old:
-            axis_count = count = 0
+            axis_count = homed_count = 0
             unhomed = homed = ""
             for i,h in enumerate(homed_new):
                 if h:
-                    count +=1
+                    if self.stat.axis_mask & (1<<i): homed_count +=1
                     homed += str(i)
                 if self.stat.axis_mask & (1<<i) == 0: continue
                 axis_count += 1
                 if not h:
                     unhomed += str(i)
-            if count:
+            if homed_count:
                 self.emit('homed',homed)
-            if count == axis_count:
+            if homed_count == axis_count:
                 self.emit('all-homed')
             else:
                 self.emit('not-all-homed',unhomed)

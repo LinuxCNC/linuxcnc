@@ -27,6 +27,42 @@ import gcode
 def minmax(*args):
     return min(*args), max(*args)
 
+allhomedicon = array.array('B',
+        [0x00, 0x00,
+         0x00, 0x00,
+         0x00, 0x00,
+         0x08, 0x20,
+         0x08, 0x20,
+         0x08, 0x20,
+         0x08, 0x20,
+         0x08, 0x20,
+         0x0f, 0xe0,
+         0x08, 0x20,
+         0x08, 0x20,
+         0x08, 0x20,
+         0x08, 0x20,
+         0x00, 0x00,
+         0x00, 0x00,
+         0x00, 0x00])
+
+somelimiticon = array.array('B',
+        [0x00, 0x00,
+         0x00, 0x00,
+         0x00, 0x00,
+         0x0f, 0xc0,
+         0x08, 0x00,
+         0x08, 0x00,
+         0x08, 0x00,
+         0x08, 0x00,
+         0x08, 0x00,
+         0x08, 0x00,
+         0x08, 0x00,
+         0x08, 0x00,
+         0x08, 0x00,
+         0x00, 0x00,
+         0x00, 0x00,
+         0x00, 0x00])
+
 homeicon = array.array('B',
         [0x2, 0x00,   0x02, 0x00,   0x02, 0x00,   0x0f, 0x80,
         0x1e, 0x40,   0x3e, 0x20,   0x3e, 0x20,   0x3e, 0x20,
@@ -381,6 +417,17 @@ class GlCanonDraw:
         self.select_buffer_size = 100
         self.cached_tool = -1
         self.initialised = 0
+        self.no_joint_display = False
+        self.kinstype = "UNKNOWN"
+        self.trajcoordinates = "unknown"
+
+    def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinstype="trivkins",msg=""):
+        self.trajcoordinates = trajcoordinates.upper().replace(" ","")
+        self.kinstype = kinstype
+        self.no_joint_display = self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
+        if (msg != ""):
+            print "init_glcanondraw %s coords=%s kinstype=%s no_joint_display=%d"%(
+                   msg,self.trajcoordinates,self.kinstype,self.no_joint_display)
 
     def realize(self):
         self.hershey = hershey.Hershey()
@@ -915,6 +962,77 @@ class GlCanonDraw:
         self.draw_grid_permuted(rotation, permutations[view],
                 inverse_permutations[view])
 
+    def all_joints_homed(self):
+        for i in range (self.stat.joints):
+            if not self.stat.homed[i]: return False
+        return True
+
+    def one_or_more_on_limit(self):
+        for i in range (self.stat.joints):
+            if self.stat.limit[i]: return True
+        return False
+
+    def idx_for_home_or_limit_icon(self,string):
+        # parse posstr and return encoded idx
+        if  (    self.get_joints_mode()
+             and (self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY)
+            ):
+            jnum = int(string.replace(" ","").split(":")[0])
+            return jnum
+
+        if  (   ("Vel" in string)
+             or ("G5" in string)
+             or ("TL" in string)
+             or (len(string) == 0)
+            ):
+            return -1 # no icon display
+
+        aletter = string.replace(" ","").split(":")[0]
+        ans = 0
+        if (      aletter in ["X","Y","Z","A","B","C","U","V","W","Rad","Dia"]
+              and self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY
+            ):
+            if self.all_joints_homed():     ans = ans -2 # allhomeicon on all letters
+            if self.one_or_more_on_limit(): ans = ans -4 # limitedicon on all letters
+        if (ans < 0):
+            return ans # -2,-4,-6
+
+        if (aletter == "DTG"): return -1
+        if (aletter == "Rad"): return  0
+        if (aletter == "Dia"): return  0
+        if self.lathe_historical_config(self.trajcoordinates):
+            if (aletter == "Z"):
+                return 2 # Z for historical lathe
+            return  0    # Rad or Dia
+
+        if (      aletter in ["X","Y","Z","A","B","C","U","V","W"]
+              and self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
+            ):
+            return self.jnum_for_aletter(aletter,
+                                         self.kinstype,
+                                         self.trajcoordinates)
+        else:
+            return -1 # no icon display
+
+    def show_icon_init(self):
+        self.show_icon_home_list  = []
+        self.show_icon_limit_list = []
+
+    def show_icon(self,idx,width,height,xorig,yorig,xmove,ymove,iconname):
+        # only show icon once for idx
+        # accomodate hal_gremlin override format_dro()
+        # and prevent display for both Rad and Dia
+        if iconname is "home":
+            if idx in self.show_icon_home_list: return
+            self.show_icon_home_list.append(idx)
+            glBitmap(width,height,xorig,yorig,xmove,ymove,homeicon)
+            return
+        if iconname is "limit":
+            if idx in self.show_icon_limit_list: return
+            self.show_icon_limit_list.append(idx)
+            glBitmap(width,height,xorig,yorig,xmove,ymove,limiticon)
+            return
+
     def redraw(self):
         s = self.stat
         s.poll()
@@ -1183,33 +1301,78 @@ class GlCanonDraw:
 
         maxlen = 0
         ypos -= linespace+5
-        i=0
         glColor3f(*self.colors['overlay_foreground'])
+
+        self.show_icon_init()
+        stringstart_xpos = 15
+        #-----------------------------------------------------------------------
         if not self.get_show_offsets():
             for string in posstrs:
                 maxlen = max(maxlen, len(string))
-                glRasterPos2i(5, ypos)
+                glRasterPos2i(stringstart_xpos, ypos)
                 for char in string:
                     glCallList(base + ord(char))
-                if i < len(homed) and homed[i]:
-                    glRasterPos2i(pixel_width + 8, ypos)
-                    glBitmap(13, 16, 0, 3, 17, 0, homeicon)
-                if i < len(homed) and limit[i]:
-                    glBitmap(13, 16, 0, 1, 17, 0, limiticon)
+
+                idx = self.idx_for_home_or_limit_icon(string)
+                if (idx == -1): # skip icon display for this line
+                    if (len(string) != 0): ypos -= linespace
+                    continue
+
+                glRasterPos2i(0, ypos)
+                if (idx == -2 or idx == -6): # use allhomed icon display
+                    glBitmap(13, 16, 0, 3, 17, 0, allhomedicon)
+                if (idx == -4 or idx == -6): # use atleastonelimit display
+                    glBitmap(13, 16, 0, 3, 17, 0, somelimiticon)
+                if (idx <= -2):
+                    ypos -= linespace
+                    continue
+
+                if  (    self.get_joints_mode()
+                     or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+                    ):
+                    if homed[idx]:
+                        self.show_icon(idx,13, 16, 0, 3, 17, 0, "home")
+                    if limit[idx]:
+                        self.show_icon(idx,13, 16, 0, 1, 17, 0, "limit")
+                else:
+                    # icons not shown for teleop and non-identity
+                    pass
+
                 ypos -= linespace
-                i = i + 1
+        #-----------------------------------------------------------------------
         if self.get_show_offsets():
-            i=0
             for string in droposstrs:
                 maxlen = max(maxlen, len(string))
-                glRasterPos2i(5, ypos)
+                glRasterPos2i(stringstart_xpos, ypos)
                 for char in string:
                     glCallList(base + ord(char))
-                if i < len(homed) and homed[i]:
-                    glRasterPos2i(charwidth *3, ypos)
-                    glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+
+                idx = self.idx_for_home_or_limit_icon(string)
+                if (idx == -1): # skip icon display
+                    if (len(string) != 0): ypos -= linespace
+                    continue
+
+                glRasterPos2i(0, ypos)
+                if (idx == -2 or idx == -6): # use allhomed icon display
+                    glBitmap(13, 16, 0, 3, 17, 0, allhomedicon)
+                if (idx == -4 or idx == -6): # use atleastonelimit display
+                    glBitmap(13, 16, 0, 3, 17, 0, somelimiticon)
+                if (idx <= -2):
+                    ypos -= linespace
+                    continue
+
+                if  (     self.get_joints_mode()
+                     or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+                    ):
+                    if homed[idx]:
+                        self.show_icon(idx,13, 16, 0, 3, 17, 0, "home")
+                    if limit[idx]:
+                        self.show_icon(idx,13, 16, 0, 3, 17, 0, "limit")
+                else:
+                    # icons not shown for teleop and non-identity
+                    pass
+
                 ypos -= linespace
-                i = i + 1
 
         glDepthFunc(GL_LESS)
         glDepthMask(GL_TRUE)
@@ -1245,23 +1408,29 @@ class GlCanonDraw:
                 gluDeleteQuadric(q)
         glEndList()
 
+    def lathe_historical_config(self,trajcoordinates):
+        # detect historical lathe config with dummy joint 1
+        if      (self.is_lathe()
+            and (trajcoordinates == "XZ")
+            and (self.get_num_joints() == 3)):
+            return True
+        return False
+
+    def jnum_for_aletter(self,aletter,kinstype,trajcoordinates):
+        aletter = aletter.upper()
+        if "trivkins" in kinstype:
+            return trajcoordinates.index(aletter)
+        else:
+            guess = trajcoordinates.index(aletter)
+            return guess
+
     def posstrs(self):
+
         s = self.stat
-        limit = []
-        for i,l in enumerate(s.limit):
-            if s.axis_mask & (1<<i):
-                limit.append(l)
+        limit = list(s.limit[:])
+        homed = list(s.homed[:])
 
-        homed = []
-        for i,h in enumerate(s.homed):
-            if s.axis_mask & (1<<i):
-                homed.append(h)
-
-        if self.is_lathe() and not s.axis_mask & 2:
-            homed.insert(1, 0)
-            limit.insert(1, 0)
-
-        if not self.get_joints_mode():
+        if not self.get_joints_mode() or self.no_joint_display:
             if self.get_show_commanded():
                 positions = s.position
             else:
@@ -1308,9 +1477,12 @@ class GlCanonDraw:
                 dtg *= 25.4
                 spd = spd * 25.4
             spd = spd * 60
+
+            # Note: hal_gremlin overrides dro_format() for different dro behavior
             limit, homed, posstrs, droposstrs = self.dro_format(self.stat,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
         else:
             # N.B. no conversion here because joint positions are unitless
+            #      joint_mode and display_joint
             posstrs = ["  %s:% 9.4f" % i for i in
                 zip(range(self.get_num_joints()), s.joint_actual_position)]
             droposstrs = posstrs
@@ -1331,7 +1503,8 @@ class GlCanonDraw:
 
             posstrs = []
             droposstrs = []
-            for i in range(9):
+            used_letters = []
+            for i in range(linuxcnc.MAX_AXIS):
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
                     posstrs.append(format % (a, positions[i]))
@@ -1339,7 +1512,7 @@ class GlCanonDraw:
 
             droposstrs.append("")
 
-            for i in range(9):
+            for i in range(linuxcnc.MAX_AXIS):
                 index = s.g5x_index
                 if index<7:
                     label = "G5%d" % (index+3)
@@ -1352,11 +1525,10 @@ class GlCanonDraw:
             droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
 
             droposstrs.append("")
-            for i in range(9):
+            for i in range(linuxcnc.MAX_AXIS):
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
                     droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
-
 
             if self.is_lathe():
                 posstrs[0] = format % ("Rad", positions[0])

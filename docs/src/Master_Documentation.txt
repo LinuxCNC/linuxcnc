@@ -64,10 +64,6 @@ include::gui/gscreen.txt[]
 
 include::gui/tklinuxcnc.txt[]
 
-include::gui/mini.txt[]
-
-include::gui/keystick.txt[]
-
 :leveloffset: 1
 
 = Programming
@@ -270,6 +266,8 @@ include::hal/halmodule.txt[]
 :leveloffset: 1
 
 include::motion/kinematics.txt[]
+
+include::motion/5-axis-kinematics.txt[]
 
 include::motion/pid-theory.txt[]
 

@@ -44,7 +44,6 @@ TCLSRCS := \
 	../tcl/bin/halshow.tcl \
 	../tcl/bin/pickconfig.tcl \
 	../tcl/bin/tkbackplot.tcl \
-	../tcl/mini.tcl \
 	../tcl/show_errors.tcl \
 	../tcl/tklinuxcnc.tcl \
 	../tcl/scripts/Set_Coordinates.tcl \

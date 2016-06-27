@@ -2,9 +2,9 @@
 
 # first load all the RT modules that will be needed
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # PID module, for three PID loops
 loadrt pid names=pid_x,pid_y,pid_z
 # 6 differentiators (for velocity and accel sigs),
@@ -58,29 +58,29 @@ addf ddt_zv servo-thread
 
 # get position feedback from encoder module
 # connect position feedback to PID loop and motion module
-net Xpos-fb encoder_px.position => pid_x.feedback axis.0.motor-pos-fb
-net Ypos-fb encoder_py.position => pid_y.feedback axis.1.motor-pos-fb
-net Zpos-fb encoder_pz.position => pid_z.feedback axis.2.motor-pos-fb
+net Xpos-fb encoder_px.position => pid_x.feedback joint.0.motor-pos-fb
+net Ypos-fb encoder_py.position => pid_y.feedback joint.1.motor-pos-fb
+net Zpos-fb encoder_pz.position => pid_z.feedback joint.2.motor-pos-fb
 
 # set position feedback scaling
-setp encoder_px.position-scale [AXIS_0]INPUT_SCALE
-setp encoder_py.position-scale [AXIS_1]INPUT_SCALE
-setp encoder_pz.position-scale [AXIS_2]INPUT_SCALE
+setp encoder_px.position-scale [JOINT_0]INPUT_SCALE
+setp encoder_py.position-scale [JOINT_1]INPUT_SCALE
+setp encoder_pz.position-scale [JOINT_2]INPUT_SCALE
 
 # connect encoder index-enables for homing on index
-net Xindex-enable encoder_px.index-enable <=> axis.0.index-enable pid_x.index-enable
-net Yindex-enable encoder_py.index-enable <=> axis.1.index-enable
-net Zindex-enable encoder_pz.index-enable <=> axis.2.index-enable
+net Xindex-enable encoder_px.index-enable <=> joint.0.index-enable pid_x.index-enable
+net Yindex-enable encoder_py.index-enable <=> joint.1.index-enable
+net Zindex-enable encoder_pz.index-enable <=> joint.2.index-enable
 
 # connect position commands from motion controller to PID input
-net Xpos-cmd <= axis.0.motor-pos-cmd => pid_x.command
-net Ypos-cmd <= axis.1.motor-pos-cmd => pid_y.command
-net Zpos-cmd <= axis.2.motor-pos-cmd => pid_z.command
+net Xpos-cmd <= joint.0.motor-pos-cmd => pid_x.command
+net Ypos-cmd <= joint.1.motor-pos-cmd => pid_y.command
+net Zpos-cmd <= joint.2.motor-pos-cmd => pid_z.command
 
 # connect motion controller enables to PID blocks
-net Xenable axis.0.amp-enable-out => pid_x.enable
-net Yenable axis.1.amp-enable-out => pid_y.enable
-net Zenable axis.2.amp-enable-out => pid_z.enable
+net Xenable joint.0.amp-enable-out => pid_x.enable
+net Yenable joint.1.amp-enable-out => pid_y.enable
+net Zenable joint.2.amp-enable-out => pid_z.enable
 
 # connect PID loops to scale blocks that translate to motor revs per sec
 net Xoutput pid_x.output => scale_x.in
@@ -89,9 +89,9 @@ net Zoutput pid_z.output => scale_z.in
 
 # set scaling, number of motor revs needed to
 # travel one inch
-setp scale_x.gain [AXIS_0]DRIVE_RATIO
-setp scale_y.gain [AXIS_1]DRIVE_RATIO
-setp scale_z.gain [AXIS_2]DRIVE_RATIO
+setp scale_x.gain [JOINT_0]DRIVE_RATIO
+setp scale_y.gain [JOINT_1]DRIVE_RATIO
+setp scale_z.gain [JOINT_2]DRIVE_RATIO
 
 # motor speed command sigs come from scale blocks
 # motor speed commands go thru lowpass filters
@@ -113,9 +113,9 @@ net Ymtr-spd lowpass_y.out => sim_encoder_py.speed
 net Zmtr-spd lowpass_z.out => sim_encoder_pz.speed
 
 # set simulated encoder scaling
-setp sim_encoder_px.ppr [AXIS_0]MOTOR_PPR
-setp sim_encoder_py.ppr [AXIS_1]MOTOR_PPR
-setp sim_encoder_pz.ppr [AXIS_2]MOTOR_PPR
+setp sim_encoder_px.ppr [JOINT_0]MOTOR_PPR
+setp sim_encoder_py.ppr [JOINT_1]MOTOR_PPR
+setp sim_encoder_pz.ppr [JOINT_2]MOTOR_PPR
 
 # simulated encoder output signals
 # connect them up
@@ -130,9 +130,9 @@ net ZphB sim_encoder_pz.phase-B => encoder_pz.phase-B
 net ZphZ sim_encoder_pz.phase-Z => encoder_pz.phase-Z
 
 # set PID loop output limits to max velocity
-setp pid_x.maxoutput [AXIS_0]MAX_VELOCITY
-setp pid_y.maxoutput [AXIS_1]MAX_VELOCITY
-setp pid_z.maxoutput [AXIS_2]MAX_VELOCITY
+setp pid_x.maxoutput [JOINT_0]MAX_VELOCITY
+setp pid_y.maxoutput [JOINT_1]MAX_VELOCITY
+setp pid_z.maxoutput [JOINT_2]MAX_VELOCITY
 
 # set PID loop gains
 # NOTE: eventually these will be non-zero values as
@@ -147,35 +147,35 @@ setp pid_z.maxoutput [AXIS_2]MAX_VELOCITY
 # of the tuning parameters, and enter those values here.
 
 # the values below come from the ini
-setp pid_x.Pgain [AXIS_0]PGAIN
-setp pid_x.Igain [AXIS_0]IGAIN
-setp pid_x.Dgain [AXIS_0]DGAIN
-setp pid_x.bias [AXIS_0]BIAS
-setp pid_x.FF0 [AXIS_0]FF0
-setp pid_x.FF1 [AXIS_0]FF1
-setp pid_x.FF2 [AXIS_0]FF2
+setp pid_x.Pgain [JOINT_0]PGAIN
+setp pid_x.Igain [JOINT_0]IGAIN
+setp pid_x.Dgain [JOINT_0]DGAIN
+setp pid_x.bias [JOINT_0]BIAS
+setp pid_x.FF0 [JOINT_0]FF0
+setp pid_x.FF1 [JOINT_0]FF1
+setp pid_x.FF2 [JOINT_0]FF2
 # deadband should be just over 1 count
-setp pid_x.deadband [AXIS_0]DEADBAND
+setp pid_x.deadband [JOINT_0]DEADBAND
 
-setp pid_y.Pgain [AXIS_1]PGAIN
-setp pid_y.Igain [AXIS_1]IGAIN
-setp pid_y.Dgain [AXIS_1]DGAIN
-setp pid_y.bias [AXIS_1]BIAS
-setp pid_y.FF0 [AXIS_1]FF0
-setp pid_y.FF1 [AXIS_1]FF1
-setp pid_y.FF2 [AXIS_1]FF2
+setp pid_y.Pgain [JOINT_1]PGAIN
+setp pid_y.Igain [JOINT_1]IGAIN
+setp pid_y.Dgain [JOINT_1]DGAIN
+setp pid_y.bias [JOINT_1]BIAS
+setp pid_y.FF0 [JOINT_1]FF0
+setp pid_y.FF1 [JOINT_1]FF1
+setp pid_y.FF2 [JOINT_1]FF2
 # deadband should be just over 1 count
-setp pid_y.deadband [AXIS_1]DEADBAND
+setp pid_y.deadband [JOINT_1]DEADBAND
 
-setp pid_z.Pgain [AXIS_2]PGAIN
-setp pid_z.Igain [AXIS_2]IGAIN
-setp pid_z.Dgain [AXIS_2]DGAIN
-setp pid_z.bias [AXIS_2]BIAS
-setp pid_z.FF0 [AXIS_2]FF0
-setp pid_z.FF1 [AXIS_2]FF1
-setp pid_z.FF2 [AXIS_2]FF2
+setp pid_z.Pgain [JOINT_2]PGAIN
+setp pid_z.Igain [JOINT_2]IGAIN
+setp pid_z.Dgain [JOINT_2]DGAIN
+setp pid_z.bias [JOINT_2]BIAS
+setp pid_z.FF0 [JOINT_2]FF0
+setp pid_z.FF1 [JOINT_2]FF1
+setp pid_z.FF2 [JOINT_2]FF2
 # deadband should be just over 1 count
-setp pid_z.deadband [AXIS_2]DEADBAND
+setp pid_z.deadband [JOINT_2]DEADBAND
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
@@ -193,9 +193,9 @@ net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
-net xflt => axis.0.amp-fault-in
-net yflt => axis.1.amp-fault-in
-net zflt => axis.2.amp-fault-in
+net xflt => joint.0.amp-fault-in
+net yflt => joint.1.amp-fault-in
+net zflt => joint.2.amp-fault-in
 
 # a second set of encoder counters keeps track of position
 net XphA => encoder_x.phase-A
@@ -205,9 +205,9 @@ net YphB => encoder_y.phase-B
 net ZphA => encoder_z.phase-A
 net ZphB => encoder_z.phase-B
 
-setp encoder_x.position-scale [AXIS_0]INPUT_SCALE
-setp encoder_y.position-scale [AXIS_1]INPUT_SCALE
-setp encoder_z.position-scale [AXIS_2]INPUT_SCALE
+setp encoder_x.position-scale [JOINT_0]INPUT_SCALE
+setp encoder_y.position-scale [JOINT_1]INPUT_SCALE
+setp encoder_z.position-scale [JOINT_2]INPUT_SCALE
 
 # connect "actual" position from encoders
 # to window comparators
@@ -216,51 +216,51 @@ net Yaxis-pos encoder_y.position => wcomp_yneg.in wcomp_ypos.in wcomp_yhome.in
 net Zaxis-pos encoder_z.position => wcomp_zneg.in wcomp_zpos.in wcomp_zhome.in
 
 # connect simulated switch outputs to motion controller
-net Xminlim wcomp_xneg.out => axis.0.neg-lim-sw-in
-net Xmaxlim wcomp_xpos.out => axis.0.pos-lim-sw-in
-net Xhome wcomp_xhome.out => axis.0.home-sw-in
+net Xminlim wcomp_xneg.out => joint.0.neg-lim-sw-in
+net Xmaxlim wcomp_xpos.out => joint.0.pos-lim-sw-in
+net Xhome wcomp_xhome.out => joint.0.home-sw-in
 
-net Yminlim wcomp_yneg.out => axis.1.neg-lim-sw-in
-net Ymaxlim wcomp_ypos.out => axis.1.pos-lim-sw-in
-net Yhome wcomp_yhome.out => axis.1.home-sw-in
+net Yminlim wcomp_yneg.out => joint.1.neg-lim-sw-in
+net Ymaxlim wcomp_ypos.out => joint.1.pos-lim-sw-in
+net Yhome wcomp_yhome.out => joint.1.home-sw-in
 
-net Zminlim wcomp_zneg.out => axis.2.neg-lim-sw-in
-net Zmaxlim wcomp_zpos.out => axis.2.pos-lim-sw-in
-net Zhome wcomp_zhome.out => axis.2.home-sw-in
+net Zminlim wcomp_zneg.out => joint.2.neg-lim-sw-in
+net Zmaxlim wcomp_zpos.out => joint.2.pos-lim-sw-in
+net Zhome wcomp_zhome.out => joint.2.home-sw-in
 
 # configure the points at which the simulated switches trip
 # X axis first
 # min limit switch
-setp wcomp_xneg.max [AXIS_0]MIN_HARD_LIMIT
-setp wcomp_xneg.min [AXIS_0]MIN_HARD_LIMIT_RELEASE
+setp wcomp_xneg.max [JOINT_0]MIN_HARD_LIMIT
+setp wcomp_xneg.min [JOINT_0]MIN_HARD_LIMIT_RELEASE
 # max limit switch
-setp wcomp_xpos.min [AXIS_0]MAX_HARD_LIMIT
-setp wcomp_xpos.max [AXIS_0]MAX_HARD_LIMIT_RELEASE
+setp wcomp_xpos.min [JOINT_0]MAX_HARD_LIMIT
+setp wcomp_xpos.max [JOINT_0]MAX_HARD_LIMIT_RELEASE
 # home switch
-setp wcomp_xhome.min [AXIS_0]HOME_SW_MIN
-setp wcomp_xhome.max [AXIS_0]HOME_SW_MAX
+setp wcomp_xhome.min [JOINT_0]HOME_SW_MIN
+setp wcomp_xhome.max [JOINT_0]HOME_SW_MAX
 
 # Y axis
 # min limit switch
-setp wcomp_yneg.max [AXIS_1]MIN_HARD_LIMIT
-setp wcomp_yneg.min [AXIS_1]MIN_HARD_LIMIT_RELEASE
+setp wcomp_yneg.max [JOINT_1]MIN_HARD_LIMIT
+setp wcomp_yneg.min [JOINT_1]MIN_HARD_LIMIT_RELEASE
 # max limit switch
-setp wcomp_ypos.min [AXIS_1]MAX_HARD_LIMIT
-setp wcomp_ypos.max [AXIS_1]MAX_HARD_LIMIT_RELEASE
+setp wcomp_ypos.min [JOINT_1]MAX_HARD_LIMIT
+setp wcomp_ypos.max [JOINT_1]MAX_HARD_LIMIT_RELEASE
 # home switch
-setp wcomp_yhome.min [AXIS_1]HOME_SW_MIN
-setp wcomp_yhome.max [AXIS_1]HOME_SW_MAX
+setp wcomp_yhome.min [JOINT_1]HOME_SW_MIN
+setp wcomp_yhome.max [JOINT_1]HOME_SW_MAX
 
 # Z axis
 # min limit switch
-setp wcomp_zneg.max [AXIS_2]MIN_HARD_LIMIT
-setp wcomp_zneg.min [AXIS_2]MIN_HARD_LIMIT_RELEASE
+setp wcomp_zneg.max [JOINT_2]MIN_HARD_LIMIT
+setp wcomp_zneg.min [JOINT_2]MIN_HARD_LIMIT_RELEASE
 # max limit switch
-setp wcomp_zpos.min [AXIS_2]MAX_HARD_LIMIT
-setp wcomp_zpos.max [AXIS_2]MAX_HARD_LIMIT_RELEASE
+setp wcomp_zpos.min [JOINT_2]MAX_HARD_LIMIT
+setp wcomp_zpos.max [JOINT_2]MAX_HARD_LIMIT_RELEASE
 # home switch
-setp wcomp_zhome.min [AXIS_2]HOME_SW_MIN
-setp wcomp_zhome.max [AXIS_2]HOME_SW_MAX
+setp wcomp_zhome.min [JOINT_2]HOME_SW_MIN
+setp wcomp_zhome.max [JOINT_2]HOME_SW_MAX
 
 # Configure fake probing
 loadrt sphereprobe names=sphereprobe

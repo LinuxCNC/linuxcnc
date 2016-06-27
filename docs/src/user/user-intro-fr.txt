@@ -75,23 +75,11 @@ construire des programmes G-code complets sans aucune programmation.
 .L'interface graphique NGCGUI intégrée dans Axis[[fig:ngcgui-gui]]
 image::images/ngcgui_fr.png[align="center"]
 
-* <<cha:Mini,_Mini_>>, une interface en Tcl/Tk.
-
-.L'interface graphique Mini[[fig:Interface-graphique-Mini]]
-image::images/mini_fr.png[align="center"]
-
 * <<cha:TkLinuxCNC,_TkLinuxCNC_>>, une autre interface basée sur Tcl/Tk.
 C'est l'interface la plus populaire après Axis
 
 .L'interface graphique tklinuxcnc[[fig:L-interface-graphique-tklinuxcnc]]
 image::images/tklinuxcnc_fr.png[align="center"]
-
-* <<cha:keystick-gui,_Keystick_>>, une interface graphique textuelle et
-minimaliste, appropriée pour les installations légères (sans serveur X par
-exemple).
-
-.L'interface textuelle Keystick[[fig:L-interface-Keystick]]
-image::images/keystick.png[align="center"]
 
 * _Xemc_, un programme X-Windows
 

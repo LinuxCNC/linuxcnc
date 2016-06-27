@@ -1392,36 +1392,7 @@ if test "x$HAVE_XINERAMA" = "xno"; then
     AC_MSG_ERROR([Xinerama library or headers not found])
 fi
 
-# check for Xaw, that is needed for emc2/src/emc/usr_intf/xemc.cc
-
-if test "$have_x" = "yes"; then
-CFLAGS_hold=$CFLAGS
-LIBS_hold=$LIBS
-CFLAGS="$CFLAGS $X_CFLAGS"
-LIBS="$LIBS $X_PRE_LIBS $X_LIBS"
-
-AC_CHECK_HEADERS(X11/Xaw/XawInit.h,
-	    [HAVE_XAW=yes],
-	    [HAVE_XAW=no],
-	    [[#include <X11/Intrinsic.h>
-	    ]])
-
-AC_CHECK_LIB(Xaw, XawDialogGetValueString,
-	    [],
-	    [HAVE_XAW=no])
-CFLAGS=$CFLAGS_hold
-LIBS=$LIBS_hold
-fi
-
-if test "x$HAVE_XAW" = "xno"; then
-    AC_MSG_WARN([Xaw lib missing, you won't be able to build/run xemc. try installing it with 'apt-get install libxaw7-dev'])
-else    
-    XAW_LIBS="$X_PRE_LIBS $X_LIBS -lX11 -lXaw -lXt"
-fi
-AC_SUBST([HAVE_XAW])
-AC_SUBST([XAW_LIBS])
-
-#clean out LIBS, or else all future tests will check with -lXaw (which fails on odd systems)
+#clean out LIBS
 temp_LIBS=$LIBS
 LIBS=
 
@@ -1477,26 +1448,6 @@ else
 fi
 AC_SUBST([HAVE_READLINE])
 AC_SUBST([READLINE_LIBS])
-
-
-#check for ncurses.h needed for emc2/src/emc/usr_intf/keystick.cc
-
-AC_CHECK_HEADERS(ncurses.h,
-	    [HAVE_NCURSES=yes],
-	    [HAVE_NCURSES=no])
-
-AC_CHECK_LIB(ncurses, initscr,
-	    [],
-	    [HAVE_NCURSES=no])
-
-if test "x$HAVE_NCURSES" = "xno"; then
-    AC_MSG_WARN(ncurses lib missing, you won't be able to build/run keystick. try installing it with 'apt-get install libncurses-dev')
-else    
-    NCURSES_LIBS="-lncurses"
-fi
-AC_SUBST([HAVE_NCURSES])
-AC_SUBST([NCURSES_LIBS])
-
 
 ##############################################################################
 # Section 7 - Language support                                               #

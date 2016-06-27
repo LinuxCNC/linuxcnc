@@ -1,0 +1,69 @@
+xyzx_gantry configs using:
+  trivkins coordinates=xyzx kintype=BOTH
+
+xyzx.ini          -- includes sim_pin simulation for wheel jogging
+xyzx-xhc-hb04.ini -- uses an  xhc-hb04 pendant (18 button model)
+
+Usage:
+
+    1) F1        (estop off)
+       F2        (machine on)
+       Ctrl-HOME (home, switch automatically to teleop mode)
+
+    2) Teleop mode jogging:
+
+         keyboard jog: Left/Right arrows------ x
+                       Up/Dn arrows----------- y
+                       PgUp/Dn---------------- z
+                       left/right bracket----- x
+
+         mpg jog:      rotary x/wheel -------- x
+                       rotary y/wheel -------- y
+                       rotary z/wheel -------- z
+                       rotary a/wheel -------- none
+
+         sim_pin jog   jog:x-0 +/- ----------- x
+                       jog:y-1 +/- ----------- y
+                       jog:z-2 +/- ----------- z
+                       jog:3   +/- ----------- none
+
+    3) To switch to joint mode in axis gui, use '$' key
+
+    4) Joint mode jogging:
+
+         keyboard jog: Left/Right arrows------ joint_0
+                       Up/Dn arrows----------- joint_1
+                       PgUp/Dn---------------- joint_2
+                       left/right bracket----- joint_3
+
+         mpg jog:      rotary x/wheel -------- joint_0
+                       rotary y/wheel -------- joint_1
+                       rotary z/wheel -------- joint_2
+                       rotary a/wheel -------- joint_3
+
+         sim_pin jog   jog:x-0 +/- ----------- joint_0
+                       jog:y-1 +/- ----------- joint_1
+                       jog:z-2 +/- ----------- joint_2
+                       jog:3   +/- ----------- joint_3
+
+Notes:
+a) For simplicity, the configs connect:
+       joint.N.motor=pos-cmd => joint.0.motor-pos-fb
+   and use immediate homing (no home switch logic).
+
+b) The configs use [KINS]AUTOTELEOP= to automatically
+   switch to teleop mode after homing.
+
+c) The LIB:xhc-hb04.tcl script handles configurations
+   with known kinematics -- trivkins for the configs
+   provided here.
+
+d) For a machine configured as xyzx, the 0,1,2 --> x,y,z
+   connections are handled automatically by LIB:xhc-hb04.tcl.
+   Additional hal connections to allow jogging joint_3
+   are done in a postgui hal file (xhc-hb04-postgui.hal).
+
+   In practice, independent joint jogging of joint_0 and joint_3
+   may rack a gantry or cause other problems if not used with
+   extreme care.
+

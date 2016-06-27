@@ -92,7 +92,7 @@ setp mux2.1.in1 1
 setp mux2.3.in0 0
 
 # Set the lowest value the THC will try to move the torch
-setp sum2.4.in0 [AXIS_2]MIN_LIMIT
+setp sum2.4.in0 [JOINT_2]MIN_LIMIT
 
 # Set default gains for sum, positive for addition and negative for subtraction
 # Setting positive gains will become implicit and those can be removed safely in a later version
@@ -139,8 +139,8 @@ net TorchAndFloat and2.6.out => flipflop.0.set
 net PosAndFloat and2.7.out => or2.5.in1
 net IgnitionEstop comp.2.out => logic.0.in-01
 net StartTorchOn and2.8.out => and2.3.in0
-net OriginalPosZ-cmd axis.2.motor-pos-cmd => mux2.5.in0 sum2.2.in1
-net JointPoz-cmd axis.2.joint-pos-cmd => sum2.2.in0
+net OriginalPosZ-cmd joint.2.motor-pos-cmd => mux2.5.in0 sum2.2.in1
+net JointPoz-cmd joint.2.pos-cmd => sum2.2.in0
 net CHLTriggered comp.0.out => and2.0.in0
 net AtPosition comp.1.equal => and2.7.in0
 net VelX ddt.0.out => hypot.0.in0
@@ -166,7 +166,7 @@ net PierceDelayElapsed oneshot.0.out-not => and2.2.in1
 net IgnitionTimer oneshot.1.out => edge.0.in or2.8.in0
 net AdjustHeight or2.0.out => xor2.2.in1 and2.1.in0
 net TakeSnapshot or2.1.out => mux2.2.sel
-net TriggerLimit or2.2.out => axis.2.neg-lim-sw-in axis.2.pos-lim-sw-in axis.2.home-sw-in
+net TriggerLimit or2.2.out => joint.2.neg-lim-sw-in joint.2.pos-lim-sw-in joint.2.home-sw-in
 net ProbeOrArcOK or2.3.out => mux2.6.sel 
 net PAFOrArcOK or2.5.out => and2.3.in1
 net EstopOrArcOK or2.6.out => flipflop.0.reset
@@ -176,7 +176,7 @@ net ExtEStop  => logic.0.in-00
 # Z limit handled by simulator, see simulator.hal
 #net LimitZ parport.0.pin-13-in => or2.2.in0
 net ThresholdPercentage scale.0.out => mult2.1.in1
-net PosZ-fb stepgen.2.position-fb => axis.2.motor-pos-fb mux2.2.in1 comp.1.in0
+net PosZ-fb stepgen.2.position-fb => joint.2.motor-pos-fb mux2.2.in1 comp.1.in0
 net PierceOffset sum2.0.out => mux2.0.in0
 net DestinationHeight sum2.1.out => mux2.6.in1
 net JointAxisDiff sum2.2.out => sum2.3.in1 sum2.4.in1

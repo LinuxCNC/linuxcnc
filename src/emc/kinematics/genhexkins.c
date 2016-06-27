@@ -93,6 +93,7 @@ struct haldata {
     hal_u32_t *iter_limit;
     hal_float_t *max_error;
     hal_float_t *conv_criterion;
+    hal_float_t *tool_offset;
 } *haldata;
 
 
@@ -210,10 +211,10 @@ int genhexkins_read_hal_pins(void) {
     for (t = 0; t < NUM_STRUTS; t++) {
         b[t].x = haldata->basex[t];
         b[t].y = haldata->basey[t];
-        b[t].z = haldata->basez[t];
+        b[t].z = haldata->basez[t] + *haldata->tool_offset;
         a[t].x = haldata->platformx[t];
         a[t].y = haldata->platformy[t];
-        a[t].z = haldata->platformz[t];
+        a[t].z = haldata->platformz[t] + *haldata->tool_offset;
     }
     return 0;
 }
@@ -320,11 +321,6 @@ int jacobianForward(const double * joints,
 }
 
 /**************************** kinematicsForward() ***************************/
-
-/* the inverse kinematics take world coordinates and determine joint values,
-   given the inverse kinematics flags to resolve any ambiguities. The forward
-   flags are set to indicate their value appropriate to the world coordinates
-   passed in. */
 
 int kinematicsForward(const double * joints,
                       EmcPose * pos,
@@ -468,6 +464,10 @@ int kinematicsForward(const double * joints,
 
 
 /************************ kinematicsInverse() ********************************/
+/* the inverse kinematics take world coordinates and determine joint values,
+   given the inverse kinematics flags to resolve any ambiguities. The forward
+   flags are set to indicate their value appropriate to the world coordinates
+   passed in. */
 
 int kinematicsInverse(const EmcPose * pos,
                       double * joints,
@@ -585,6 +585,11 @@ int rtapi_app_main(void)
         "genhexkins.limit-iterations")) < 0)
     goto error;
     *haldata->iter_limit = 120;
+    
+    if ((res = hal_pin_float_newf(HAL_IN, &haldata->tool_offset, comp_id,
+        "genhexkins.tool-offset")) < 0)
+    goto error;
+    *haldata->tool_offset = 0.0;
 
     haldata->basex[0] = DEFAULT_BASE_0_X;
     haldata->basey[0] = DEFAULT_BASE_0_Y;

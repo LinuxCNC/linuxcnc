@@ -2808,16 +2808,16 @@ proc ::ngcgui::entrykeybinding {ax w v} {
   set axis [string toupper $ax]
   # these coord values may not work for some configurations:
   switch $axis {
-    X {set coord 0}
-    Y {set coord 1}
-    Z {set coord 2}
-    A {set coord 3}
-    B {set coord 4}
-    C {set coord 5}
-    U {set coord 6}
-    V {set coord 7}
-    W {set coord 8}
-    D {set coord 0;# for diameter}
+    X {set coord X}
+    Y {set coord Y}
+    Z {set coord Z}
+    A {set coord A}
+    B {set coord B}
+    C {set coord C}
+    U {set coord U}
+    V {set coord V}
+    W {set coord W}
+    D {set coord X;# for diameter}
   }
   if {![info exists coord]} return ;# silently
   # ignore errors (standalone for example)

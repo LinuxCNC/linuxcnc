@@ -89,11 +89,6 @@ image::../gui/images/gmoccapy_3_axis.png[align="center"]
 
 image::../gui/images/ngcgui.png[align="center"]
 
-<<cha:keystick-gui,'Keystick'>>, a character-based screen graphics program
-  suitable for minimal installations (without the X server running).
-
-image::../gui/images/keystick.png[align="center"]
-
 === Additional Features
 
 * 'Xemc', an X-Windows program. A simulator configuration of Xemc can be 

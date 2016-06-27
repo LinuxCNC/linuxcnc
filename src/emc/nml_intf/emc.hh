@@ -16,12 +16,13 @@
 #define EMC_HH
 
 #include "config.h"
-#include "emcglb.h"		// EMC_AXIS_MAX
+#include "emcmotcfg.h"		// EMC_JOINT_MAX, EMC_AXIS_MAX
 #include "nml_type.hh"
 #include "motion_types.h"
 #include <stdint.h>
 
 // Forward class declarations
+class EMC_JOINT_STAT;
 class EMC_AXIS_STAT;
 class EMC_TRAJ_STAT;
 class EMC_MOTION_STAT;
@@ -56,48 +57,39 @@ struct PM_CARTESIAN;
 
 #define EMC_SYSTEM_CMD_TYPE                          ((NMLTYPE) 30)
 
-// NML for EMC_AXIS
+// NML for EMC_JOINT
 
-#define EMC_AXIS_SET_AXIS_TYPE                       ((NMLTYPE) 101)
-#define EMC_AXIS_SET_UNITS_TYPE                      ((NMLTYPE) 102)
-/* gap because of deleted message types */
+#define EMC_JOINT_SET_JOINT_TYPE                       ((NMLTYPE) 101)
+#define EMC_JOINT_SET_UNITS_TYPE                      ((NMLTYPE) 102)
+#define EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE         ((NMLTYPE) 107)
+#define EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE         ((NMLTYPE) 108)
+#define EMC_JOINT_SET_FERROR_TYPE                     ((NMLTYPE) 111)
+#define EMC_JOINT_SET_HOMING_PARAMS_TYPE              ((NMLTYPE) 112)
+#define EMC_JOINT_SET_MIN_FERROR_TYPE                 ((NMLTYPE) 115)
+#define EMC_JOINT_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 116)
+#define EMC_JOINT_INIT_TYPE                           ((NMLTYPE) 118)
+#define EMC_JOINT_HALT_TYPE                           ((NMLTYPE) 119)
+#define EMC_JOINT_ABORT_TYPE                          ((NMLTYPE) 120)
+#define EMC_JOINT_ENABLE_TYPE                         ((NMLTYPE) 121)
+#define EMC_JOINT_DISABLE_TYPE                        ((NMLTYPE) 122)
+#define EMC_JOINT_HOME_TYPE                           ((NMLTYPE) 123)
+#define EMC_JOG_CONT_TYPE                             ((NMLTYPE) 124)
+#define EMC_JOG_INCR_TYPE                             ((NMLTYPE) 125)
+#define EMC_JOG_ABS_TYPE                              ((NMLTYPE) 126)
+#define EMC_JOINT_ACTIVATE_TYPE                       ((NMLTYPE) 127)
+#define EMC_JOINT_DEACTIVATE_TYPE                     ((NMLTYPE) 128)
+#define EMC_JOINT_OVERRIDE_LIMITS_TYPE                ((NMLTYPE) 129)
+#define EMC_JOINT_LOAD_COMP_TYPE                      ((NMLTYPE) 131)
+#define EMC_JOINT_SET_BACKLASH_TYPE                   ((NMLTYPE) 134)
+#define EMC_JOINT_UNHOME_TYPE                         ((NMLTYPE) 135)
+#define EMC_JOG_STOP_TYPE                             ((NMLTYPE) 136)
 
-
-
-
-#define EMC_AXIS_SET_MIN_POSITION_LIMIT_TYPE         ((NMLTYPE) 107)
-#define EMC_AXIS_SET_MAX_POSITION_LIMIT_TYPE         ((NMLTYPE) 108)
-#define EMC_AXIS_SET_FERROR_TYPE                     ((NMLTYPE) 111)
-#define EMC_AXIS_SET_HOMING_PARAMS_TYPE              ((NMLTYPE) 112)
-// gap because of deleted message types
-
-#define EMC_AXIS_SET_MIN_FERROR_TYPE                 ((NMLTYPE) 115)
-#define EMC_AXIS_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 116)
-// gap because of deleted message types
-
-#define EMC_AXIS_INIT_TYPE                           ((NMLTYPE) 118)
-#define EMC_AXIS_HALT_TYPE                           ((NMLTYPE) 119)
-#define EMC_AXIS_ABORT_TYPE                          ((NMLTYPE) 120)
-#define EMC_AXIS_ENABLE_TYPE                         ((NMLTYPE) 121)
-#define EMC_AXIS_DISABLE_TYPE                        ((NMLTYPE) 122)
-#define EMC_AXIS_HOME_TYPE                           ((NMLTYPE) 123)
-#define EMC_AXIS_UNHOME_TYPE                           ((NMLTYPE) 135)
-#define EMC_AXIS_JOG_TYPE                            ((NMLTYPE) 124)
-#define EMC_AXIS_INCR_JOG_TYPE                       ((NMLTYPE) 125)
-#define EMC_AXIS_ABS_JOG_TYPE                        ((NMLTYPE) 126)
-#define EMC_AXIS_ACTIVATE_TYPE                       ((NMLTYPE) 127)
-#define EMC_AXIS_DEACTIVATE_TYPE                     ((NMLTYPE) 128)
-#define EMC_AXIS_OVERRIDE_LIMITS_TYPE                ((NMLTYPE) 129)
-#define EMC_AXIS_LOAD_COMP_TYPE                      ((NMLTYPE) 131)
-// gap because of deleted message type (EMC_AXIS_ALTER_TYPE)
-#define EMC_AXIS_SET_BACKLASH_TYPE                   ((NMLTYPE) 134)
-
+#define EMC_JOINT_STAT_TYPE                          ((NMLTYPE) 198)
 #define EMC_AXIS_STAT_TYPE                           ((NMLTYPE) 199)
 
 // NML for EMC_TRAJ
 
 // defs for termination conditions
-
 #define EMC_TRAJ_TERM_COND_STOP  0
 #define EMC_TRAJ_TERM_COND_EXACT 1
 #define EMC_TRAJ_TERM_COND_BLEND 2
@@ -131,12 +123,9 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_HOME_TYPE                       ((NMLTYPE) 225)
 #define EMC_TRAJ_SET_ROTATION_TYPE                   ((NMLTYPE) 226)
 #define EMC_TRAJ_SET_G92_TYPE                        ((NMLTYPE) 227)
-/* gap because of removed messages */
-
 #define EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE       ((NMLTYPE) 228)
 #define EMC_TRAJ_PROBE_TYPE                          ((NMLTYPE) 229)
 #define EMC_TRAJ_SET_TELEOP_ENABLE_TYPE              ((NMLTYPE) 230)
-#define EMC_TRAJ_SET_TELEOP_VECTOR_TYPE              ((NMLTYPE) 231)
 #define EMC_TRAJ_SET_SPINDLESYNC_TYPE                ((NMLTYPE) 232)
 #define EMC_TRAJ_SET_SPINDLE_SCALE_TYPE              ((NMLTYPE) 233)
 #define EMC_TRAJ_SET_FO_ENABLE_TYPE                  ((NMLTYPE) 234)
@@ -201,12 +190,6 @@ struct PM_CARTESIAN;
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
 // EMC_AUX type declarations
-
-/* removed #define EMC_AUX_INIT_TYPE                             ((NMLTYPE) 1201) */
-/* removed #define EMC_AUX_HALT_TYPE                             ((NMLTYPE) 1202) */
-/* removed #define EMC_AUX_ABORT_TYPE                            ((NMLTYPE) 1203) */
-/* removed #define EMC_AUX_DIO_WRITE_TYPE                        ((NMLTYPE) 1204) */
-/* removed #define EMC_AUX_AIO_WRITE_TYPE                        ((NMLTYPE) 1205) */
 #define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)
 #define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)
 #define EMC_AUX_ESTOP_RESET_TYPE                      ((NMLTYPE) 1208)
@@ -215,22 +198,13 @@ struct PM_CARTESIAN;
 #define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)
 
 // EMC_SPINDLE type declarations
-
-/* removed #define EMC_SPINDLE_INIT_TYPE                        ((NMLTYPE) 1301) */
-/* removed #define EMC_SPINDLE_HALT_TYPE                        ((NMLTYPE) 1302) */
-/* removed #define EMC_SPINDLE_ABORT_TYPE                       ((NMLTYPE) 1303) */
 #define EMC_SPINDLE_ON_TYPE                          ((NMLTYPE) 1304)
 #define EMC_SPINDLE_OFF_TYPE                         ((NMLTYPE) 1305)
-/* removed #define EMC_SPINDLE_FORWARD_TYPE                     ((NMLTYPE) 1306) */
-/* removed #define EMC_SPINDLE_REVERSE_TYPE                     ((NMLTYPE) 1307) */
-/* removed #define EMC_SPINDLE_STOP_TYPE                        ((NMLTYPE) 1308) */
 #define EMC_SPINDLE_INCREASE_TYPE                    ((NMLTYPE) 1309)
 #define EMC_SPINDLE_DECREASE_TYPE                    ((NMLTYPE) 1310)
 #define EMC_SPINDLE_CONSTANT_TYPE                    ((NMLTYPE) 1311)
 #define EMC_SPINDLE_BRAKE_RELEASE_TYPE               ((NMLTYPE) 1312)
 #define EMC_SPINDLE_BRAKE_ENGAGE_TYPE                ((NMLTYPE) 1313)
-/* removed #define EMC_SPINDLE_ENABLE_TYPE                      ((NMLTYPE) 1314) */
-/* removed #define EMC_SPINDLE_DISABLE_TYPE                     ((NMLTYPE) 1315) */
 #define EMC_SPINDLE_SPEED_TYPE                       ((NMLTYPE) 1316)
 #define EMC_SPINDLE_ORIENT_TYPE                      ((NMLTYPE) 1317)
 #define EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE        ((NMLTYPE) 1318)
@@ -238,10 +212,6 @@ struct PM_CARTESIAN;
 #define EMC_SPINDLE_STAT_TYPE                        ((NMLTYPE) 1399)
 
 // EMC_COOLANT type declarations
-
-/* removed #define EMC_COOLANT_INIT_TYPE                        ((NMLTYPE) 1401) */
-/* removed #define EMC_COOLANT_HALT_TYPE                        ((NMLTYPE) 1402) */
-/* removed #define EMC_COOLANT_ABORT_TYPE                       ((NMLTYPE) 1403) */
 #define EMC_COOLANT_MIST_ON_TYPE                     ((NMLTYPE) 1404)
 #define EMC_COOLANT_MIST_OFF_TYPE                    ((NMLTYPE) 1405)
 #define EMC_COOLANT_FLOOD_ON_TYPE                    ((NMLTYPE) 1406)
@@ -250,22 +220,11 @@ struct PM_CARTESIAN;
 #define EMC_COOLANT_STAT_TYPE                        ((NMLTYPE) 1499)
 
 // EMC_LUBE type declarations
-
-/* removed #define EMC_LUBE_INIT_TYPE                           ((NMLTYPE) 1501) */
-/* removed #define EMC_LUBE_HALT_TYPE                           ((NMLTYPE) 1502) */
-/* removed #define EMC_LUBE_ABORT_TYPE                          ((NMLTYPE) 1503) */
 #define EMC_LUBE_ON_TYPE                             ((NMLTYPE) 1504)
 #define EMC_LUBE_OFF_TYPE                            ((NMLTYPE) 1505)
-
 #define EMC_LUBE_STAT_TYPE                           ((NMLTYPE) 1599)
 
-// EMC IO point configuration declarations
-
-/* removed #define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001) */
-/* removed #define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002) */
-
 // EMC_IO aggregate class type declaration
-
 #define EMC_IO_INIT_TYPE                             ((NMLTYPE) 1601)
 #define EMC_IO_HALT_TYPE                             ((NMLTYPE) 1602)
 #define EMC_IO_ABORT_TYPE                            ((NMLTYPE) 1603)
@@ -274,7 +233,6 @@ struct PM_CARTESIAN;
 #define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699)
 
 // EMC aggregate class type declaration
-
 // these are placeholders
 #define EMC_LOG_TYPE_IO_CMD      21	// command into EMC IO controller
 #define EMC_LOG_TYPE_TASK_CMD    51	// command into EMC Task controller
@@ -376,46 +334,61 @@ extern int emcOperatorDisplay(int id, const char *fmt, ...) __attribute__((forma
 
 // implementation functions for EMC_AXIS types
 
-extern int emcAxisSetAxis(int axis, unsigned char axisType);
 extern int emcAxisSetUnits(int axis, double units);
-extern int emcAxisSetBacklash(int axis, double backlash);
 extern int emcAxisSetMinPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxPositionLimit(int axis, double limit);
-extern int emcAxisSetMotorOffset(int axis, double offset);
-extern int emcAxisSetFerror(int axis, double ferror);
-extern int emcAxisSetMinFerror(int axis, double ferror);
-extern int emcAxisSetHomingParams(int axis, double home, double offset, double home_final_vel,
-				  double search_vel, double latch_vel,
-				  int use_index, int ignore_limits,
-				  int is_shared, int home_sequence, int volatile_home, int locking_indexer);
 extern int emcAxisSetMaxVelocity(int axis, double vel);
 extern int emcAxisSetMaxAcceleration(int axis, double acc);
-
-extern int emcAxisInit(int axis);
-extern int emcAxisHalt(int axis);
-extern int emcAxisAbort(int axis);
-extern int emcAxisEnable(int axis);
-extern int emcAxisDisable(int axis);
-extern int emcAxisHome(int axis);
-extern int emcAxisUnhome(int axis);
-extern int emcAxisJog(int axis, double vel);
-extern int emcAxisIncrJog(int axis, double incr, double vel);
-extern int emcAxisAbsJog(int axis, double pos, double vel);
-extern int emcAxisActivate(int axis);
-extern int emcAxisDeactivate(int axis);
-extern int emcAxisOverrideLimits(int axis);
-extern int emcAxisLoadComp(int axis, const char *file, int type);
-
+extern double emcAxisGetMaxVelocity(int axis);
+extern double emcAxisGetMaxAcceleration(int axis);
+extern int emcAxisSetLockingJoint(int axis,int joint);
 
 extern int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes);
 
+// implementation functions for EMC_JOINT types
+
+extern int emcJointSetType(int joint, unsigned char jointType);
+extern int emcJointSetUnits(int joint, double units);
+extern int emcJointSetBacklash(int joint, double backlash);
+extern int emcJointSetMinPositionLimit(int joint, double limit);
+extern int emcJointSetMaxPositionLimit(int joint, double limit);
+extern int emcJointSetMotorOffset(int joint, double offset);
+extern int emcJointSetFerror(int joint, double ferror);
+extern int emcJointSetMinFerror(int joint, double ferror);
+extern int emcJointSetHomingParams(int joint, double home, double offset, double home_vel,
+				  double search_vel, double latch_vel,
+				  int use_index, int ignore_limits,
+				  int is_shared, int home_sequence, int volatile_home, int locking_indexer,
+                  int absolute_encoder);
+extern int emcJointUpdateHomingParams(int joint, double home, double offset);
+extern int emcJointSetMaxVelocity(int joint, double vel);
+extern int emcJointSetMaxAcceleration(int joint, double acc);
+
+extern int emcJointInit(int joint);
+extern int emcJointHalt(int joint);
+extern int emcJointEnable(int joint);
+extern int emcJointDisable(int joint);
+extern int emcJointHome(int joint);
+extern int emcJointUnhome(int joint);
+extern int emcJointActivate(int joint);
+extern int emcJointDeactivate(int joint);
+extern int emcJointOverrideLimits(int joint);
+extern int emcJointLoadComp(int joint, const char *file, int type);
+extern int emcJogStop(int nr, int jjogmode);
+extern int emcJogCont(int nr, double vel, int jjogmode);
+extern int emcJogIncr(int nr, double incr, double vel, int jjogmode);
+extern int emcJogAbs(int nr, double pos, double vel, int jjogmode);
+
+
+extern int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints);
+
 // implementation functions for EMC_TRAJ types
 
-extern int emcTrajSetAxes(int axes, int axismask);
+extern int emcTrajSetJoints(int joints);
+extern int emcTrajSetAxes(int axismask);
 extern int emcTrajSetUnits(double linearUnits, double angularUnits);
 extern int emcTrajSetCycleTime(double cycleTime);
 extern int emcTrajSetMode(int traj_mode);
-extern int emcTrajSetTeleopVector(EmcPose vel);
 extern int emcTrajSetVelocity(double vel, double ini_maxvel);
 extern int emcTrajSetAcceleration(double acc);
 extern int emcTrajSetMaxVelocity(double vel);
@@ -567,15 +540,15 @@ extern EMC_IO_STAT *emcIoStatus;
 // EMC MOTION status
 extern EMC_MOTION_STAT *emcMotionStatus;
 
-// values for EMC_AXIS_SET_AXIS, axisType
-enum EmcAxisType {
-    EMC_AXIS_LINEAR             = 1,
-    EMC_AXIS_ANGULAR            = 2,
+// values for EMC_JOINT_SET_JOINT, jointType
+enum EmcJointType {
+    EMC_LINEAR             = 1,
+    EMC_ANGULAR            = 2,
 };
 
 /**
  * Set the units conversion factor.
- * @see EMC_AXIS_SET_INPUT_SCALE
+ * @see EMC_JOINT_SET_INPUT_SCALE
  */
 typedef double                  EmcLinearUnits;
 typedef double                  EmcAngularUnits;

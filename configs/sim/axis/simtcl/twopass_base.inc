@@ -1,5 +1,4 @@
-# twopass_compat: test compatibility with existing hal files
-# (core_sim.hal,axis_manualtoolchange.hal,simlated_home.hal)
+# twopass_base.inc
 
 [DISPLAY]
                 DISPLAY = axis
@@ -41,73 +40,71 @@ BASE_PERIOD  = 0
 SERVO_PERIOD = 1000000
 
 [TRAJ]
-               AXES = 3
         COORDINATES = X Y Z
-               HOME = 0 0 0
        LINEAR_UNITS = inch
       ANGULAR_UNITS = degree
          CYCLE_TIME = 0.010
-   DEFAULT_VELOCITY = 1.2
+DEFAULT_LINEAR_VELOCITY = 1.2
       POSITION_FILE = position.txt
 MAX_LINEAR_VELOCITY = 1.2
 
-[AXIS_0]
+[KINS]
+    JOINTS = 3
+KINEMATICS = trivkins
+
+[AXIS_X]
+       MIN_LIMIT = -40.0
+       MAX_LIMIT = 40.0
+    MAX_VELOCITY = 4
+MAX_ACCELERATION = 100.0
+
+[JOINT_0]
               TYPE = LINEAR
               HOME = 0.000
       MAX_VELOCITY = 4
   MAX_ACCELERATION = 100.0
-          BACKLASH = 0.000
-       INPUT_SCALE = 4000
-      OUTPUT_SCALE = 1.000
          MIN_LIMIT = -40.0
          MAX_LIMIT = 40.0
-            FERROR = 0.050
-        MIN_FERROR = 0.010
        HOME_OFFSET = 0.0
    HOME_SEARCH_VEL = 20.0
     HOME_LATCH_VEL = 20.0
-    HOME_USE_INDEX = NO
-HOME_IGNORE_LIMITS = NO
      HOME_SEQUENCE = 1
     HOME_IS_SHARED = 1
 
-[AXIS_1]
+[AXIS_Y]
+       MIN_LIMIT = -40.0
+       MAX_LIMIT = 40.0
+    MAX_VELOCITY = 4
+MAX_ACCELERATION = 100.0
+
+[JOINT_1]
               TYPE = LINEAR
               HOME = 0.000
       MAX_VELOCITY = 4
   MAX_ACCELERATION = 100.0
-          BACKLASH = 0.000
-       INPUT_SCALE = 4000
-      OUTPUT_SCALE = 1.000
          MIN_LIMIT = -40.0
          MAX_LIMIT = 40.0
-            FERROR = 0.050
-        MIN_FERROR = 0.010
        HOME_OFFSET = 0.0
    HOME_SEARCH_VEL = 20.0
     HOME_LATCH_VEL = 20.0
-    HOME_USE_INDEX = NO
-HOME_IGNORE_LIMITS = NO
      HOME_SEQUENCE = 1
 
-[AXIS_2]
+[AXIS_Z]
+       MIN_LIMIT = -8.0
+       MAX_LIMIT = 1.0
+    MAX_VELOCITY = 4
+MAX_ACCELERATION = 100.0
 
+[JOINT_2]
               TYPE = LINEAR
               HOME = 0.0
       MAX_VELOCITY = 4
   MAX_ACCELERATION = 100.0
-          BACKLASH = 0.000
-       INPUT_SCALE = 4000
-      OUTPUT_SCALE = 1.000
          MIN_LIMIT = -8.0
          MAX_LIMIT = 1.0
-            FERROR = 0.050
-        MIN_FERROR = 0.010
        HOME_OFFSET = 1.0
    HOME_SEARCH_VEL = 20.0
     HOME_LATCH_VEL = 20.0
-    HOME_USE_INDEX = NO
-HOME_IGNORE_LIMITS = NO
      HOME_SEQUENCE = 0
     HOME_IS_SHARED = 1
 

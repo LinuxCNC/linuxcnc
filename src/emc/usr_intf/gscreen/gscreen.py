@@ -60,6 +60,15 @@ import time
 from time import strftime,localtime
 import hal_glib
 
+#--------------------------------------------------------
+# limit number of times err msgs are displayed
+excepthook_msg_ct = 0
+excepthook_msg_ct_max = 10
+
+update_spindle_bar_error_ct = 0
+update_spindle_bar_error_ct_max = 3
+#--------------------------------------------------------
+
 # try to add a notify system so messages use the
 # nice intergrated pop-ups
 # Ubuntu kinda wrecks this be not following the
@@ -150,15 +159,22 @@ def excepthook(exc_type, exc_obj, exc_tb):
     except NameError:
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
-    m = gtk.MessageDialog(w,
+    global excepthook_msg_ct,excepthook_msg_ct_max
+    excepthook_msg_ct += 1
+    if excepthook_msg_ct < excepthook_msg_ct_max:
+        print "*******************************************************\n",excepthook_msg_ct
+        print "".join(lines)
+        print "*******************************************************\n",excepthook_msg_ct
+    if excepthook_msg_ct < 1:
+        m = gtk.MessageDialog(w,
                 gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                 gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
                 ("Gscreen encountered an error.  The following "
                 "information may be useful in troubleshooting:\n\n")
                 + "".join(lines))
-    m.show()
-    m.run()
-    m.destroy()
+        m.show()
+        m.run()
+        m.destroy()
 sys.excepthook = excepthook
 
 # constants
@@ -545,9 +561,9 @@ class Gscreen:
         units=self.inifile.find("TRAJ","LINEAR_UNITS")
         if units==None:
             # else then the X axis units
-            units=self.inifile.find("AXIS_0","UNITS")
+            units=self.inifile.find("AXIS_X","UNITS")
             if units==None:
-                self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_0] of INI file"))
+                self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"))
         if units=="mm" or units=="metric" or units == "1.0":
             self.machine_units_mm=1
             conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
@@ -662,9 +678,9 @@ class Gscreen:
 
         # max velocity settings: more then one place to check
         # This is the maximum velocity of the machine
-        temp = self.inifile.find("TRAJ","MAX_VELOCITY")
+        temp = self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
         if temp == None:
-            self.add_alarm_entry(_("No MAX_VELOCITY found in [TRAJ] of the INI file"))
+            self.add_alarm_entry(_("No MAX_LINEAR_VELOCITY found in [TRAJ] of the INI file"))
             temp = 1.0
         self.data._maxvelocity = float(temp)
 
@@ -752,6 +768,13 @@ class Gscreen:
             self.handler_instance.initialize_widgets()
         else:
             self.initialize_widgets()
+
+        try:
+            self.widgets.gremlin.init_glcanondraw(
+                trajcoordinates = self.inifile.find("TRAJ", "COORDINATES"),
+                kinstype = self.inifile.find("KINS", "KINEMATICS"))
+        except:
+            print ("**** GSCREEN NOTE: could not init_glcanondraw for gremlin")
 
         # see if there are user messages in the ini file 
         self.message_setup()
@@ -1182,7 +1205,7 @@ class Gscreen:
         """ 
         self.widgets.show_offsets.set_active( self.data.show_offsets )
         self.widgets.gremlin.show_offsets = self.data.show_offsets
-        self.widgets.grid_size.set_value(self.data.grid_size) 
+        self.widgets.grid_size.set_value(self.data.grid_size)
         self.widgets.gremlin.grid_size = self.data.grid_size
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
         self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == self.data._MM))
@@ -4401,7 +4424,12 @@ class Gscreen:
         try:
             self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
         except:
-            self.show_try_errors()
+            global update_spindle_bar_error_ct,update_spindle_bar_error_ct_max
+            if update_spindle_bar_error_ct < update_spindle_bar_error_ct_max:
+                print "%2d/%2d update_spindle_bar error"%(
+                       update_spindle_bar_error_ct,update_spindle_bar_error_ct_max)
+                self.show_try_errors()
+                update_spindle_bar_error_ct += 1
 
     def update_dro(self):
         # DRO

@@ -93,8 +93,6 @@ DOC_SRCS_EN := \
 	gui/panelui.txt \
 	gui/halui.txt \
 	gui/image-to-gcode.txt \
-	gui/keystick.txt \
-	gui/mini.txt \
 	gui/ngcgui.txt \
 	gui/tklinuxcnc.txt \
 	gui/tooledit.txt \
@@ -126,6 +124,7 @@ DOC_SRCS_EN := \
 	motion/kinematics.txt \
 	motion/pid-theory.txt \
 	motion/tweaking-steppers.txt \
+	motion/5-axis-kinematics.txt \
 	remap/remap.txt \
 	user/starting-linuxcnc.txt \
 	user/user-concepts.txt \
@@ -173,8 +172,6 @@ DOC_SRCS_FR := \
 	gui/axis_fr.txt \
 	gui/gladevcp_fr.txt \
 	gui/image-to-gcode_fr.txt \
-	gui/keystick_fr.txt \
-	gui/mini_fr.txt \
 	gui/ngcgui_fr.txt \
 	gui/tklinuxcnc_fr.txt \
 	gui/tooledit_fr.txt\

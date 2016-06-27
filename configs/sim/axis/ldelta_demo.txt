@@ -1,0 +1,10 @@
+ldelta_demo
+
+linear delta kins (Rostock)
+
+Demo includes simple popups to simulate 
+jogging using HAL pins:
+
+Joints (FREE) jogging (012 wheel and halui)
+
+Axis (TELEOP) jogging (xyz wheel and halui)
