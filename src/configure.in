@@ -807,23 +807,23 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-if test $INSMOD = "none"
+if test "$RTS" = "uspace"
 then
-    AC_MSG_ERROR([insmod not found])
+    LSMOD=true
+    RMMOD=false
+    INSMOD=false
+else
+    RMMOD="$EMC2_BIN_DIR/linuxcnc_module_helper remove"
+    INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
+    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
+    if test $LSMOD = "none"
+    then
+        AC_MSG_ERROR([lsmod not found])
+    fi
 fi
-
-AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-if test $RMMOD = "none"
-then
-    AC_MSG_ERROR([rmmod not found])
-fi
-
-AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-if test $LSMOD = "none"
-then
-    AC_MSG_ERROR([lsmod not found])
-fi
+AC_SUBST([INSMOD])
+AC_SUBST([RMMOD])
+AC_SUBST([LSMOD])
 
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
 if test $PIDOF = "none"
@@ -845,48 +845,6 @@ fi
 
 # MANDB empty is handled in doc/Submakefile
 AC_PATH_PROG(MANDB, mandb, "")
-
-AC_ARG_WITH(rmmod,
-    AS_HELP_STRING(
-        [--with-rmmod=PATH],
-        [Location of the rmmod program to use.]
-    ),
-    [
-	case "$withval" in
-	"" | y | ye | yes)
-	    AC_MSG_ERROR([You must supply an argument to --with-rmmod.])
-	  ;;
-	n | no | none)
-	    RMMOD=""
-	  ;;
-	*)
-	    RMMOD="$withval"
-	esac
-    ],
-    [
-            RMMOD="$EMC2_BIN_DIR/linuxcnc_module_helper remove"
-    ])
-
-AC_ARG_WITH(insmod,
-    AS_HELP_STRING(
-        [--with-insmod=PATH],
-        [Location of the insmod program to use.]
-    ),
-    [
-	case "$withval" in
-	"" | y | ye | yes)
-	    AC_MSG_ERROR([You must supply an argument to --with-insmod.])
-	  ;;
-	n | no | none)
-	    INSMOD=""
-	  ;;
-	*)
-	    INSMOD="$withval"
-	esac
-    ],
-    [
-            INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
-    ])
 
 ##############################################################################
 # Subsection 3.7 - check for programs needed to build documentation          #
