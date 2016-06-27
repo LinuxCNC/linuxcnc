@@ -299,7 +299,7 @@ static void handle_pipe_error(int signum)
 
 void CMS_SERVER_REMOTE_TCP_PORT::run()
 {
-    unsigned long bytes_ready;
+    int bytes_ready;
     int ready_descriptors;
     if (NULL == client_ports) {
 	rcs_print_error("CMS_SERVER: List of client ports is NULL.\n");
@@ -418,7 +418,7 @@ void CMS_SERVER_REMOTE_TCP_PORT::run()
 		    if (client_port_to_check->blocking) {
 			if (client_port_to_check->threadId > 0) {
 			    rcs_print_debug(PRINT_SERVER_THREAD_ACTIVITY,
-				"Data recieved from %s:%d when it should be blocking (bytes_ready=%ld).\n",
+				"Data recieved from %s:%d when it should be blocking (bytes_ready=%d).\n",
 				inet_ntoa
 				(client_port_to_check->address.
 				    sin_addr),
