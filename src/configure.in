@@ -825,10 +825,10 @@ then
     AC_MSG_ERROR([lsmod not found])
 fi
 
-AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
+AC_PATH_PROG(PGREP, pgrep, "none", $SPATH)
 if test $PIDOF = "none"
 then
-    AC_MSG_ERROR([pidof not found])
+    AC_MSG_ERROR([pgrep not found])
 fi
 
 AC_PATH_PROG(IPCS, ipcs, "none")
