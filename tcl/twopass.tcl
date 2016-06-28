@@ -102,8 +102,12 @@ proc ::tp::loadusr_substitute {args} {
   #puts "loadusr_substitute<$pass> <$args>"
   if {$pass == 0} {
     #puts "loadusr_substitute<$pass> ignored"
-  } else {
+    # ensure userspace modules are loaded on pass 0, as some rt modules require
+    # userspace modules for loading their configuration (ethercat i.e.)
     eval orig_loadusr $args
+  } else {
+    # FIXME: load uspace modules before RT ones, and do this on pass 1 again
+    #eval orig_loadusr $args
   }
 } ;# loadusr_substitute
 
@@ -200,6 +204,13 @@ proc ::tp::loadrt_substitute {arg1 args} {
                 set ::TP($module,names) $value
               } else {
                 set ::TP($module,names) "$::TP($module,names),$value"
+              }
+            }
+      personality {
+              if ![info exists ::TP($module,personality)] {
+                set ::TP($module,personality) $value
+              } else {
+                set ::TP($module,personality) "$::TP($module,personality),$value"
               }
             }
      debug  {
@@ -481,6 +492,10 @@ proc ::tp::load_the_modules {} {
       set cmd "$cmd num_chan=$::TP($m,num_chan)"
     } elseif [info exists ::TP($m,names)] {
       set cmd "$cmd names=$::TP($m,names)"
+    }
+
+    if [info exists ::TP($m,personality)] {
+      set cmd "$cmd personality=$::TP($m,personality)"
     }
     if [info exists ::TP($m,debug)] {
       set cmd "$cmd debug=$::TP($m,debug)"
