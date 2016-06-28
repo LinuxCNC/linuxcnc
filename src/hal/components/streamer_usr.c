@@ -164,6 +164,7 @@ int main(int argc, char **argv)
     /* open shmem for user/RT comms (stream) */
     int r = hal_stream_attach(&stream, comp_id, STREAMER_SHMEM_KEY+channel, 0);
     if ( r < 0 ) {
+	errno = -r;
 	perror("hal_stream_attach");
 	goto out;
     }

@@ -184,6 +184,7 @@ int main(int argc, char **argv)
     hal_ready(comp_id);
     int res = hal_stream_attach(&stream, comp_id, SAMPLER_SHMEM_KEY+channel, 0);
     if (res < 0) {
+	errno = -res;
 	perror("hal_stream_attach");
 	goto out;
     }
@@ -194,6 +195,7 @@ int main(int argc, char **argv)
 	if(stop) break;
 	int res = hal_stream_read(&stream, buf, &this_sample);
 	if (res < 0) {
+	    errno = -res;
 	    perror("hal_stream_read");
 	    goto out;
 	}
