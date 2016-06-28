@@ -171,7 +171,7 @@ proc listHAL {} {
                 makeNodeP $node [set ${node}str]
             }
             sig {
-                makeNodeSig $sigstr
+                makeNodeP $node [set ${node}str]
             }
             comp {-}
             funct {-}
