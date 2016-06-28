@@ -186,6 +186,13 @@ proc ::tp::loadrt_substitute {args} {
                 set ::TP($module,names) "$::TP($module,names),$value"
               }
             }
+      personality {
+              if ![info exists ::TP($module,personality)] {
+                set ::TP($module,personality) $value
+              } else {
+                set ::TP($module,personality) "$::TP($module,personality),$value"
+              }
+            }
      debug  {
               if ![info exists ::TP($module,debug)] {
                 set ::TP($module,debug) $value
@@ -405,6 +412,10 @@ proc ::tp::load_the_modules {} {
       set cmd "$cmd num_chan=$::TP($m,num_chan)"
     } elseif [info exists ::TP($m,names)] {
       set cmd "$cmd names=$::TP($m,names)"
+    }
+
+    if [info exists ::TP($m,personality)] {
+      set cmd "$cmd personality=$::TP($m,personality)"
     }
     if [info exists ::TP($m,debug)] {
       set cmd "$cmd debug=$::TP($m,debug)"
