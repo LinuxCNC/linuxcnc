@@ -773,7 +773,7 @@ static PyObject * pyhal_pin_new(halitem * pin, const char * name) {
 PyObject *pin_has_writer(PyObject *self, PyObject *args) {
     char *name;
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -797,7 +797,7 @@ PyObject *pin_has_writer(PyObject *self, PyObject *args) {
 PyObject *component_exists(PyObject *self, PyObject *args) {
     char *name;
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -809,7 +809,7 @@ PyObject *component_exists(PyObject *self, PyObject *args) {
 PyObject *component_is_ready(PyObject *self, PyObject *args) {
     char *name;
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -824,7 +824,7 @@ PyObject *new_sig(PyObject *self, PyObject *args) {
     char *name;
     int type,retval;
     if(!PyArg_ParseTuple(args, "si", &name,&type)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -853,7 +853,7 @@ PyObject *new_sig(PyObject *self, PyObject *args) {
 PyObject *connect(PyObject *self, PyObject *args) {
     char *signame,*pinname;
     if(!PyArg_ParseTuple(args, "ss", &pinname,&signame)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -941,7 +941,7 @@ PyObject *set_p(PyObject *self, PyObject *args) {
     void *d_ptr;
     
     if(!PyArg_ParseTuple(args, "ss", &name,&value)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
