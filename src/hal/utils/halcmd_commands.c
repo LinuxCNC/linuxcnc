@@ -83,8 +83,8 @@ static const char *pin_data_dir(int dir);
 static const char *param_data_dir(int dir);
 static const char *data_arrow1(int dir);
 static const char *data_arrow2(int dir);
-static char *data_value(int type, void *valptr);
-static char *data_value2(int type, void *valptr);
+static const char *data_value(int type, void *valptr);
+static const char *data_value2(int type, void *valptr);
 static void save_comps(FILE *dst);
 static void save_aliases(FILE *dst);
 static void save_signals(FILE *dst, int only_unlinked);
@@ -1093,7 +1093,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     char arg_string[MAX_CMD_LEN+1];
     int m=0, n=0, retval;
     hal_comp_t *comp;
-    char *argv[MAX_TOK+3];
+    const char *argv[MAX_TOK+3];
     char *cp1;
 #if defined(RTAPI_USPACE)
     argv[m++] = "-Wn";
@@ -1357,7 +1357,7 @@ int do_unloadrt_cmd(char *mod_name)
 static int unloadrt_comp(char *mod_name)
 {
     int retval;
-    char *argv[4];
+    const char *argv[4];
 
 #if defined(RTAPI_USPACE)
     argv[0] = EMC2_BIN_DIR "/rtapi_app";
@@ -1404,13 +1404,13 @@ int do_unload_cmd(char *mod_name) {
     }
 }
 
-static char *guess_comp_name(char *prog_name)
+static const char *guess_comp_name(const char *prog_name)
 {
     static char name[HAL_NAME_LEN+1];
-    char *last_slash = strrchr(prog_name, '/');
-    char *st = last_slash ? last_slash + 1 : prog_name;
-    char *last_dot = strrchr(st, '.');
-    char *en = last_dot ? last_dot : prog_name + strlen(prog_name);
+    const char *last_slash = strrchr(prog_name, '/');
+    const char *st = last_slash ? last_slash + 1 : prog_name;
+    const char *last_dot = strrchr(st, '.');
+    const char *en = last_dot ? last_dot : prog_name + strlen(prog_name);
     size_t len = en-st;
 
     snprintf(name, sizeof(name), "%.*s", (int)len, st);
@@ -1440,11 +1440,11 @@ is not fixed or has regressed by debian jessie)
 #endif
 }
 
-int do_loadusr_cmd(char *args[])
+int do_loadusr_cmd(const char *args[])
 {
     int wait_flag, wait_comp_flag, ignore_flag;
-    char *prog_name, *new_comp_name=NULL;
-    char *argv[MAX_TOK+1];
+    const char *prog_name, *new_comp_name=NULL;
+    const char *argv[MAX_TOK+1];
     int n, m, retval, status;
     pid_t pid;
 
@@ -1464,7 +1464,7 @@ int do_loadusr_cmd(char *args[])
     /* check for options (-w, -i, and/or -r) */
     reset_getopt_state();
     while (1) {
-	int c = getopt(argc, args, "+wWin:");
+	int c = getopt(argc, (char * const *)args, "+wWin:");
 	if(c == -1) break;
 
 	switch(c) {
@@ -2341,9 +2341,9 @@ static const char *data_arrow2(int dir)
 
 /* Switch function to return var value for the print_*_list functions  */
 /* the value is printed in a 12 character wide field */
-static char *data_value(int type, void *valptr)
+static const char *data_value(int type, void *valptr)
 {
-    char *value_str;
+    const char *value_str;
     static char buf[15];
 
     switch (type) {
@@ -2378,9 +2378,9 @@ static char *data_value(int type, void *valptr)
 
 /* Switch function to return var value in string form  */
 /* the value is printed as a packed string (no whitespace */
-static char *data_value2(int type, void *valptr)
+static const char *data_value2(int type, void *valptr)
 {
-    char *value_str;
+    const char *value_str;
     static char buf[15];
 
     switch (type) {
@@ -2414,7 +2414,7 @@ static char *data_value2(int type, void *valptr)
     return value_str;
 }
 
-int do_save_cmd(char *type, char *filename)
+int do_save_cmd(const char *type, char *filename)
 {
     FILE *dst;
 
