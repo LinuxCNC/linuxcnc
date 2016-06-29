@@ -396,7 +396,7 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
     if(writers || bidirs) 
     {
         hal_pin_t *pin;
-        int next;
+        SHMFIELD(hal_pin_t) next;
         for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr) 
         {
             pin = SHMPTR(next);
@@ -1199,7 +1199,8 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 
 int do_delsig_cmd(char *mod_name)
 {
-    int next, retval, retval1, n;
+    SHMFIELD(hal_sig_t) next;
+    int retval, retval1, n;
     hal_sig_t *sig;
     char sigs[MAX_EXPECTED_SIGS][HAL_NAME_LEN+1];
 
@@ -1261,7 +1262,8 @@ int do_delsig_cmd(char *mod_name)
 
 int do_unloadusr_cmd(char *mod_name)
 {
-    int next, all;
+    SHMFIELD(hal_comp_t) next;
+    int all;
     hal_comp_t *comp;
     pid_t ourpid = getpid();
 
@@ -1292,7 +1294,8 @@ int do_unloadusr_cmd(char *mod_name)
 
 int do_unloadrt_cmd(char *mod_name)
 {
-    int next, retval, retval1, n, all;
+    SHMFIELD(hal_comp_t) next;
+    int retval, retval1, n, all;
     hal_comp_t *comp;
     char comps[64][HAL_NAME_LEN+1];
 
@@ -1632,7 +1635,7 @@ int do_waitusr_cmd(char *comp_name)
 
 static void print_comp_info(char **patterns)
 {
-    int next;
+    SHMFIELD(hal_comp_t) next;
     hal_comp_t *comp;
 
     if (scriptmode == 0) {
@@ -1671,7 +1674,7 @@ static void print_comp_info(char **patterns)
 
 static void print_pin_info(int type, char **patterns)
 {
-    int next;
+    SHMFIELD(hal_pin_t) next;
     hal_pin_t *pin;
     hal_comp_t *comp;
     hal_sig_t *sig;
@@ -1723,7 +1726,7 @@ static void print_pin_info(int type, char **patterns)
 
 static void print_pin_aliases(char **patterns)
 {
-    int next;
+    SHMFIELD(hal_pin_t) next;
     hal_oldname_t *oldname;
     hal_pin_t *pin;
 
@@ -1754,7 +1757,7 @@ static void print_pin_aliases(char **patterns)
 
 static void print_sig_info(int type, char **patterns)
 {
-    int next;
+    SHMFIELD(hal_sig_t) next;
     hal_sig_t *sig;
     void *dptr;
     hal_pin_t *pin;
@@ -1789,7 +1792,7 @@ static void print_sig_info(int type, char **patterns)
 
 static void print_script_sig_info(int type, char **patterns)
 {
-    int next;
+    SHMFIELD(hal_sig_t) next;
     hal_sig_t *sig;
     void *dptr;
     hal_pin_t *pin;
@@ -1822,7 +1825,7 @@ static void print_script_sig_info(int type, char **patterns)
 
 static void print_param_info(int type, char **patterns)
 {
-    int next;
+    SHMFIELD(hal_param_t) next;
     hal_param_t *param;
     hal_comp_t *comp;
 
@@ -1858,7 +1861,7 @@ static void print_param_info(int type, char **patterns)
 
 static void print_param_aliases(char **patterns)
 {
-    int next;
+    SHMFIELD(hal_param_t) next;
     hal_oldname_t *oldname;
     hal_param_t *param;
 
@@ -1889,7 +1892,7 @@ static void print_param_aliases(char **patterns)
 
 static void print_funct_info(char **patterns)
 {
-    int next;
+    SHMFIELD(hal_funct_t) next;
     hal_funct_t *fptr;
     hal_comp_t *comp;
 
@@ -1925,7 +1928,8 @@ static void print_funct_info(char **patterns)
 
 static void print_thread_info(char **patterns)
 {
-    int next_thread, n;
+    SHMFIELD(hal_thread_t) next_thread;
+    int n;
     hal_thread_t *tptr;
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *fentry;
@@ -2005,7 +2009,7 @@ static void print_thread_info(char **patterns)
 
 static void print_comp_names(char **patterns)
 {
-    int next;
+    SHMFIELD(hal_comp_t) next;
     hal_comp_t *comp;
 
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2023,7 +2027,7 @@ static void print_comp_names(char **patterns)
 
 static void print_pin_names(char **patterns)
 {
-    int next;
+    SHMFIELD(hal_pin_t) next;
     hal_pin_t *pin;
 
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2041,7 +2045,7 @@ static void print_pin_names(char **patterns)
 
 static void print_sig_names(char **patterns)
 {
-    int next;
+    SHMFIELD(hal_sig_t) next;
     hal_sig_t *sig;
 
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2059,7 +2063,7 @@ static void print_sig_names(char **patterns)
 
 static void print_param_names(char **patterns)
 {
-    int next;
+    SHMFIELD(hal_param_t) next;
     hal_param_t *param;
 
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2077,7 +2081,7 @@ static void print_param_names(char **patterns)
 
 static void print_funct_names(char **patterns)
 {
-    int next;
+    SHMFIELD(hal_funct_t) next;
     hal_funct_t *fptr;
 
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2095,7 +2099,7 @@ static void print_funct_names(char **patterns)
 
 static void print_thread_names(char **patterns)
 {
-    int next_thread;
+    SHMFIELD(hal_thread_t) next_thread;
     hal_thread_t *tptr;
 
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2149,7 +2153,7 @@ static int count_list(int list_root)
 
 static void print_mem_status()
 {
-    int active, recycled, next;
+    int active, recycled;
     hal_pin_t *pin;
     hal_param_t *param;
 
@@ -2169,18 +2173,22 @@ static void print_mem_status()
     halcmd_output("  active/recycled parameters: %d/%d\n", active, recycled);
     // count aliases
     rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
+    {
+    SHMFIELD(hal_pin_t) next = hal_data->pin_list_ptr;
     active = 0;
     while (next != 0) {
 	pin = SHMPTR(next);
 	if ( pin->oldname != 0 ) active++;
 	next = pin->next_ptr;
     }
-    next = hal_data->param_list_ptr;
+    }
+    {
+    SHMFIELD(hal_param_t) next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
 	if ( param->oldname != 0 ) active++;
 	next = param->next_ptr;
+    }
     }
     rtapi_mutex_give(&(hal_data->mutex));
     recycled = count_list(hal_data->oldname_free_ptr);
@@ -2489,7 +2497,7 @@ int do_save_cmd(const char *type, char *filename)
 
 static void save_comps(FILE *dst)
 {
-    int next;
+    SHMFIELD(hal_comp_t) next;
     hal_comp_t *comp;
 
     fprintf(dst, "# components\n");
@@ -2543,13 +2551,14 @@ static void save_comps(FILE *dst)
 
 static void save_aliases(FILE *dst)
 {
-    int next;
     hal_pin_t *pin;
     hal_param_t *param;
     hal_oldname_t *oldname;
 
     fprintf(dst, "# pin aliases\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    {
+    SHMFIELD(hal_pin_t) next;
     next = hal_data->pin_list_ptr;
     while (next != 0) {
 	pin = SHMPTR(next);
@@ -2560,7 +2569,10 @@ static void save_aliases(FILE *dst)
 	}
 	next = pin->next_ptr;
     }
+    }
     fprintf(dst, "# param aliases\n");
+    {
+    SHMFIELD(hal_param_t) next;
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
@@ -2571,12 +2583,13 @@ static void save_aliases(FILE *dst)
 	}
 	next = param->next_ptr;
     }
+    }
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
 static void save_signals(FILE *dst, int only_unlinked)
 {
-    int next;
+    SHMFIELD(hal_sig_t) next;
     hal_sig_t *sig;
 
     fprintf(dst, "# signals\n");
@@ -2592,7 +2605,7 @@ static void save_signals(FILE *dst, int only_unlinked)
 
 static void save_links(FILE *dst, int arrow)
 {
-    int next;
+    SHMFIELD(hal_pin_t) next;
     hal_pin_t *pin;
     hal_sig_t *sig;
     const char *arrow_str;
@@ -2618,7 +2631,7 @@ static void save_links(FILE *dst, int arrow)
 
 static void save_nets(FILE *dst, int arrow)
 {
-    int next;
+    SHMFIELD(hal_sig_t) next;
     hal_pin_t *pin;
     hal_sig_t *sig;
     const char *arrow_str;
@@ -2701,7 +2714,7 @@ static void save_nets(FILE *dst, int arrow)
 
 static void save_params(FILE *dst)
 {
-    int next;
+    SHMFIELD(hal_param_t) next;
     hal_param_t *param;
 
     fprintf(dst, "# parameter values\n");
@@ -2721,7 +2734,7 @@ static void save_params(FILE *dst)
 
 static void save_threads(FILE *dst)
 {
-    int next_thread;
+    SHMFIELD(hal_thread_t) next_thread;
     hal_thread_t *tptr;
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *fentry;
