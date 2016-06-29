@@ -96,6 +96,8 @@
 #include <rtapi_mutex.h>
 RTAPI_BEGIN_DECLS
 
+#define SHMFIELD(type) int
+
 /* SHMPTR(offset) converts 'offset' to a void pointer. */
 #define SHMPTR(offset)  ( (void *)( hal_shmem_base + (offset) ) )
 
@@ -131,8 +133,8 @@ RTAPI_BEGIN_DECLS
     inside a larger structure.
 */
 typedef struct {
-    rtapi_intptr_t next;			/* next element in list */
-    rtapi_intptr_t prev;			/* previous element in list */
+    SHMFIELD(hal_list_t) next;			/* next element in list */
+    SHMFIELD(hal_list_t) prev;			/* previous element in list */
 } hal_list_t;
 
 /** HAL "oldname" data structure.
@@ -140,7 +142,7 @@ typedef struct {
     store the original name.
 */
 typedef struct {
-    rtapi_intptr_t next_ptr;		/* next struct (used for free list only) */
+    SHMFIELD(hal_oldname_t) next_ptr;		/* next struct (used for free list only) */
     char name[HAL_NAME_LEN + 1];	/* the original name */
 } hal_oldname_t;
 
@@ -162,24 +164,24 @@ typedef struct {
 			        /* prefix of name for new instance */
     char constructor_arg[HAL_NAME_LEN+1];
 			        /* prefix of name for new instance */
-    rtapi_intptr_t shmem_bot;		/* bottom of free shmem (first free byte) */
-    rtapi_intptr_t shmem_top;		/* top of free shmem (1 past last free) */
-    rtapi_intptr_t comp_list_ptr;		/* root of linked list of components */
-    rtapi_intptr_t pin_list_ptr;		/* root of linked list of pins */
-    rtapi_intptr_t sig_list_ptr;		/* root of linked list of signals */
-    rtapi_intptr_t param_list_ptr;		/* root of linked list of parameters */
-    rtapi_intptr_t funct_list_ptr;		/* root of linked list of functions */
-    rtapi_intptr_t thread_list_ptr;	/* root of linked list of threads */
+    int shmem_bot;		/* bottom of free shmem (first free byte) */
+    int shmem_top;		/* top of free shmem (1 past last free) */
+    SHMFIELD(hal_comp_t) comp_list_ptr;		/* root of linked list of components */
+    SHMFIELD(hal_pin_t) pin_list_ptr;		/* root of linked list of pins */
+    SHMFIELD(hal_sig_t) sig_list_ptr;		/* root of linked list of signals */
+    SHMFIELD(hal_param_t) param_list_ptr;		/* root of linked list of parameters */
+    SHMFIELD(hal_funct_t) funct_list_ptr;		/* root of linked list of functions */
+    SHMFIELD(hal_thread_t) thread_list_ptr;	/* root of linked list of threads */
     long base_period;		/* timer period for realtime tasks */
     int threads_running;	/* non-zero if threads are started */
-    rtapi_intptr_t oldname_free_ptr;	/* list of free oldname structs */
-    rtapi_intptr_t comp_free_ptr;		/* list of free component structs */
-    rtapi_intptr_t pin_free_ptr;		/* list of free pin structs */
-    rtapi_intptr_t sig_free_ptr;		/* list of free signal structs */
-    rtapi_intptr_t param_free_ptr;		/* list of free parameter structs */
-    rtapi_intptr_t funct_free_ptr;		/* list of free function structs */
+    SHMFIELD(hal_oldname_t) oldname_free_ptr;	/* list of free oldname structs */
+    SHMFIELD(hal_comp_t) comp_free_ptr;		/* list of free component structs */
+    SHMFIELD(hal_pin_t) pin_free_ptr;		/* list of free pin structs */
+    SHMFIELD(hal_sig_t) sig_free_ptr;		/* list of free signal structs */
+    SHMFIELD(hal_param_t) param_free_ptr;		/* list of free parameter structs */
+    SHMFIELD(hal_funct_t) funct_free_ptr;		/* list of free function structs */
     hal_list_t funct_entry_free;	/* list of free funct entry structs */
-    rtapi_intptr_t thread_free_ptr;	/* list of free thread structs */
+    SHMFIELD(hal_thread_t) thread_free_ptr;	/* list of free thread structs */
     int exact_base_period;      /* if set, pretend that rtapi satisfied our
 				   period request exactly */
     unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
@@ -201,7 +203,7 @@ typedef enum {
     component calls hal_init().
 */
 typedef struct {
-    rtapi_intptr_t next_ptr;		/* next component in the list */
+    SHMFIELD(hal_comp_t) next_ptr;		/* next component in the list */
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
     component_type_t type;
@@ -210,19 +212,19 @@ typedef struct {
     void *shmem_base;		/* base of shmem for this component */
     char name[HAL_NAME_LEN + 1];	/* component name */
     constructor make;
-    int insmod_args;		/* args passed to insmod when loaded */
+    SHMFIELD(char) insmod_args;		/* args passed to insmod when loaded */
 } hal_comp_t;
 
 /** HAL 'pin' data structure.
     This structure contains information about a 'pin' object.
 */
 typedef struct {
-    rtapi_intptr_t next_ptr;		/* next pin in linked list */
-    int data_ptr_addr;		/* address of pin data pointer */
-    int owner_ptr;		/* component that owns this pin */
-    int signal;			/* signal to which pin is linked */
+    SHMFIELD(hal_pin_t) next_ptr;		/* next pin in linked list */
+    SHMFIELD(void*) data_ptr_addr;		/* address of pin data pointer */
+    SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this pin */
+    SHMFIELD(hal_sig_t) signal;			/* signal to which pin is linked */
     hal_data_u dummysig;	/* if unlinked, data_ptr points here */
-    int oldname;		/* old name if aliased, else zero */
+    SHMFIELD(hal_oldname_t) oldname;		/* old name if aliased, else zero */
     hal_type_t type;		/* data type */
     hal_pin_dir_t dir;		/* pin direction */
     char name[HAL_NAME_LEN + 1];	/* pin name */
@@ -232,8 +234,8 @@ typedef struct {
     This structure contains information about a 'signal' object.
 */
 typedef struct {
-    rtapi_intptr_t next_ptr;		/* next signal in linked list */
-    int data_ptr;		/* offset of signal value */
+    SHMFIELD(hal_sig_t) next_ptr;		/* next signal in linked list */
+    SHMFIELD(void*) data_ptr;		/* offset of signal value */
     hal_type_t type;		/* data type */
     int readers;		/* number of input pins linked */
     int writers;		/* number of output pins linked */
@@ -245,10 +247,10 @@ typedef struct {
     This structure contains information about a 'parameter' object.
 */
 typedef struct {
-    rtapi_intptr_t next_ptr;		/* next parameter in linked list */
-    int data_ptr;		/* offset of parameter value */
-    int owner_ptr;		/* component that owns this signal */
-    int oldname;		/* old name if aliased, else zero */
+    SHMFIELD(hal_param_t) next_ptr;		/* next parameter in linked list */
+    SHMFIELD(void*) data_ptr;		/* offset of parameter value */
+    SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this signal */
+    SHMFIELD(hal_oldname_t) oldname;		/* old name if aliased, else zero */
     hal_type_t type;		/* data type */
     hal_param_dir_t dir;	/* data direction */
     char name[HAL_NAME_LEN + 1];	/* parameter name */
@@ -271,9 +273,9 @@ typedef struct {
 */
 
 typedef struct {
-    rtapi_intptr_t next_ptr;		/* next function in linked list */
+    SHMFIELD(hal_funct_t) next_ptr;		/* next function in linked list */
     int uses_fp;		/* floating point flag */
-    int owner_ptr;		/* component that added this funct */
+    SHMFIELD(hal_comp_t) owner_ptr;		/* component that added this funct */
     int reentrant;		/* non-zero if function is re-entrant */
     int users;			/* number of threads using function */
     void *arg;			/* argument for function */
@@ -288,13 +290,13 @@ typedef struct {
     hal_list_t links;		/* linked list data */
     void *arg;			/* argument for function */
     void (*funct) (void *, long);	/* ptr to function code */
-    int funct_ptr;		/* pointer to function */
+    SHMFIELD(hal_funct_t) funct_ptr;		/* pointer to function */
 } hal_funct_entry_t;
 
 #define HAL_STACKSIZE 16384	/* realtime task stacksize */
 
 typedef struct {
-    rtapi_intptr_t next_ptr;		/* next thread in linked list */
+    SHMFIELD(hal_thread_t) next_ptr;		/* next thread in linked list */
     int uses_fp;		/* floating point flag */
     long int period;		/* period of the thread, in nsec */
     int priority;		/* priority of the thread */
