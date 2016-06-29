@@ -94,7 +94,47 @@
 
 #include <rtapi.h>
 #include <rtapi_mutex.h>
+
+/* IMPORTANT:  If any of the structures in this file are changed, the
+   version code (HAL_VER) must be incremented, to ensure that 
+   incompatible utilities, etc, aren't used to manipulate data in
+   shared memory.
+*/
+
+/* Historical note: in versions 2.0.0 and 2.0.1 of EMC, the key was
+   0x48414C21, and instead of the structure starting with a version
+   number, it started with a fixed magic number.  Mixing binaries or
+   kernel modules from those releases with newer versions will result
+   in two shmem regions being open, and really strange results (but 
+   should _not_ result in segfaults or other crash type problems).
+   This is unfortunate, but I can't retroactively make the old code
+   detect version mismatches.  The alternative is worse: if the new
+   code used the same shmem key, the result would be segfaults or
+   kernel oopses.
+
+   The use of version codes  means that any subsequent changes to
+   the structs will be fully protected, with a clean shutdown and
+   meaningfull error messages in case of a mismatch.
+*/
+
+#define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
+#define HAL_VER   0x00000010	/* version code */
+#define HAL_SIZE  (256*4096)
+#define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
+
+/* These pointers are set by hal_init() to point to the shmem block
+   and to the master data structure. All access should use these
+   pointers, they takes into account the mapping of shared memory
+   into either kernel or user space.  (The HAL kernel module and
+   each HAL user process have their own copy of these vars,
+   initialized to match that process's memory mapping.)
+*/
+
 RTAPI_BEGIN_DECLS
+extern char *hal_shmem_base;
+extern struct hal_data_t *hal_data;
+RTAPI_END_DECLS
+
 
 #define SHMFIELD(type) int
 
@@ -326,48 +366,11 @@ struct hal_thread_t {
     int comp_id;
 };
 
-/* IMPORTANT:  If any of the structures in this file are changed, the
-   version code (HAL_VER) must be incremented, to ensure that 
-   incompatible utilities, etc, aren't used to manipulate data in
-   shared memory.
-*/
-
-/* Historical note: in versions 2.0.0 and 2.0.1 of EMC, the key was
-   0x48414C21, and instead of the structure starting with a version
-   number, it started with a fixed magic number.  Mixing binaries or
-   kernel modules from those releases with newer versions will result
-   in two shmem regions being open, and really strange results (but 
-   should _not_ result in segfaults or other crash type problems).
-   This is unfortunate, but I can't retroactively make the old code
-   detect version mismatches.  The alternative is worse: if the new
-   code used the same shmem key, the result would be segfaults or
-   kernel oopses.
-
-   The use of version codes  means that any subsequent changes to
-   the structs will be fully protected, with a clean shutdown and
-   meaningful error messages in case of a mismatch.
-*/
-
-#define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000010	/* version code */
-#define HAL_SIZE  (256*4096)
-#define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
-
-/* These pointers are set by hal_init() to point to the shmem block
-   and to the master data structure. All access should use these
-   pointers, they takes into account the mapping of shared memory
-   into either kernel or user space.  (The HAL kernel module and
-   each HAL user process have their own copy of these vars,
-   initialized to match that process's memory mapping.)
-*/
-
-extern char *hal_shmem_base;
-extern hal_data_t *hal_data;
-
 /***********************************************************************
 *            PRIVATE HAL FUNCTIONS - NOT PART OF THE API               *
 ************************************************************************/
 
+RTAPI_BEGIN_DECLS
 /** None of these functions get or release any mutex.  They all assume
     that the mutex has already been obtained.  Calling them without
     having the mutex may give incorrect results if other processes are
