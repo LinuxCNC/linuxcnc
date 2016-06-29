@@ -156,6 +156,14 @@ typedef struct hal_oldname_t {
     char name[HAL_NAME_LEN + 1];	/* the original name */
 } hal_oldname_t;
 
+typedef struct hal_comp_t hal_comp_t;
+typedef struct hal_pin_t hal_pin_t;
+typedef struct hal_sig_t hal_sig_t;
+typedef struct hal_param_t hal_param_t;
+typedef struct hal_funct_t hal_funct_t;
+typedef struct hal_funct_entry_t hal_funct_entry_t;
+typedef struct hal_thread_t hal_thread_t;
+
 /* Master HAL data structure
    There is a single instance of this structure in the machine.
    It resides at the base of the HAL shared memory block, where it
@@ -212,7 +220,7 @@ typedef enum {
     An instance of this structure is added to a linked list when the
     component calls hal_init().
 */
-typedef struct hal_comp_t {
+struct hal_comp_t {
     SHMFIELD(hal_comp_t) next_ptr;		/* next component in the list */
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
@@ -223,12 +231,12 @@ typedef struct hal_comp_t {
     char name[HAL_NAME_LEN + 1];	/* component name */
     constructor make;
     SHMFIELD(char) insmod_args;		/* args passed to insmod when loaded */
-} hal_comp_t;
+};
 
 /** HAL 'pin' data structure.
     This structure contains information about a 'pin' object.
 */
-typedef struct hal_pin_t {
+struct hal_pin_t {
     SHMFIELD(hal_pin_t) next_ptr;		/* next pin in linked list */
     SHMFIELD(void*) data_ptr_addr;		/* address of pin data pointer */
     SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this pin */
@@ -238,12 +246,12 @@ typedef struct hal_pin_t {
     hal_type_t type;		/* data type */
     hal_pin_dir_t dir;		/* pin direction */
     char name[HAL_NAME_LEN + 1];	/* pin name */
-} hal_pin_t;
+};
 
 /** HAL 'signal' data structure.
     This structure contains information about a 'signal' object.
 */
-typedef struct hal_sig_t {
+struct hal_sig_t {
     SHMFIELD(hal_sig_t) next_ptr;		/* next signal in linked list */
     SHMFIELD(void*) data_ptr;		/* offset of signal value */
     hal_type_t type;		/* data type */
@@ -251,12 +259,12 @@ typedef struct hal_sig_t {
     int writers;		/* number of output pins linked */
     int bidirs;			/* number of I/O pins linked */
     char name[HAL_NAME_LEN + 1];	/* signal name */
-} hal_sig_t;
+};
 
 /** HAL 'parameter' data structure.
     This structure contains information about a 'parameter' object.
 */
-typedef struct hal_param_t {
+struct hal_param_t {
     SHMFIELD(hal_param_t) next_ptr;		/* next parameter in linked list */
     SHMFIELD(void*) data_ptr;		/* offset of parameter value */
     SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this signal */
@@ -264,7 +272,7 @@ typedef struct hal_param_t {
     hal_type_t type;		/* data type */
     hal_param_dir_t dir;	/* data direction */
     char name[HAL_NAME_LEN + 1];	/* parameter name */
-} hal_param_t;
+};
 
 /** the HAL uses functions and threads to handle synchronization of
     code.  In general, most control systems need to read inputs,
@@ -282,7 +290,7 @@ typedef struct hal_param_t {
     that identify the functions connected to that thread.
 */
 
-typedef struct hal_funct_t {
+struct hal_funct_t {
     SHMFIELD(hal_funct_t) next_ptr;		/* next function in linked list */
     int uses_fp;		/* floating point flag */
     SHMFIELD(hal_comp_t) owner_ptr;		/* component that added this funct */
@@ -294,18 +302,18 @@ typedef struct hal_funct_t {
     hal_s32_t maxtime;	/* (param) duration of longest run, in CPU cycles */
     hal_bit_t maxtime_increased;	/* on last call, maxtime increased */
     char name[HAL_NAME_LEN + 1];	/* function name */
-} hal_funct_t;
+};
 
-typedef struct hal_funct_entry_t {
+struct hal_funct_entry_t {
     hal_list_t links;		/* linked list data */
     void *arg;			/* argument for function */
     void (*funct) (void *, long);	/* ptr to function code */
     SHMFIELD(hal_funct_t) funct_ptr;		/* pointer to function */
-} hal_funct_entry_t;
+};
 
 #define HAL_STACKSIZE 16384	/* realtime task stacksize */
 
-typedef struct hal_thread_t {
+struct hal_thread_t {
     SHMFIELD(hal_thread_t) next_ptr;		/* next thread in linked list */
     int uses_fp;		/* floating point flag */
     long int period;		/* period of the thread, in nsec */
@@ -316,7 +324,7 @@ typedef struct hal_thread_t {
     hal_list_t funct_list;	/* list of functions to run */
     char name[HAL_NAME_LEN + 1];	/* thread name */
     int comp_id;
-} hal_thread_t;
+};
 
 /* IMPORTANT:  If any of the structures in this file are changed, the
    version code (HAL_VER) must be incremented, to ensure that 
