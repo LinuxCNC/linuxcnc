@@ -1442,6 +1442,28 @@ is not fixed or has regressed by debian jessie)
 #endif
 }
 
+#include <set>
+#include <string>
+
+static std::set<std::string> get_all_comp_names() {
+    std::set<std::string> result;
+    for(auto comp = hal_data->comp_list_ptr; comp; comp=comp->next_ptr) {
+        result.insert(comp->name);
+    }
+    return result;
+}
+
+static void warn_newly_loaded_comps(std::set<std::string> &names, const char *newname) {
+    auto new_names = get_all_comp_names();
+    for(const auto &name : new_names) {
+        if(name == newname) continue;
+        if(names.find(name) == names.end()) {
+            fprintf(stderr, "\nWhile waiting for '%s', component '%s' loaded.\nDid you specify the correct name via 'loadusr -Wn'?", newname, name.c_str());
+        }
+    }
+    std::swap(new_names, names);
+}
+
 int do_loadusr_cmd(const char *args[])
 {
     int wait_flag, wait_comp_flag, ignore_flag;
@@ -1490,6 +1512,9 @@ int do_loadusr_cmd(const char *args[])
     if(!new_comp_name) {
 	new_comp_name = guess_comp_name(prog_name);
     }
+
+    std::set<std::string> comp_names_pre = get_all_comp_names();
+
     /* prepare to exec() the program */
     argv[0] = prog_name;
     /* loop thru remaining arguments */
@@ -1539,9 +1564,11 @@ int do_loadusr_cmd(const char *args[])
             if(count == 200) {
                 fprintf(stderr, "Waiting for component '%s' to become ready.",
                         new_comp_name);
+                warn_newly_loaded_comps(comp_names_pre, new_comp_name);
                 fflush(stderr);
             } else if(count > 200 && count % 10 == 0) {
                 fprintf(stderr, ".");
+                warn_newly_loaded_comps(comp_names_pre, new_comp_name);
                 fflush(stderr);
             }
         }
