@@ -135,7 +135,47 @@ extern char *hal_shmem_base;
 extern struct hal_data_t *hal_data;
 RTAPI_END_DECLS
 
+#ifdef __cplusplus
+template<class T>
+bool hal_shmchk(T *t) {
+    char *c = (char*)t;
+    return c > hal_shmem_base && c < hal_shmem_base + HAL_SIZE;
+}
 
+template<class T>
+int hal_shmoff(T *t) { return t ? (char*)t - hal_shmem_base : 0; }
+
+template<class T>
+T *hal_shmptr(int p) { return p ? (T*)(hal_shmem_base + p) : nullptr; }
+
+template<class T>
+class hal_shmfield {
+public:
+    hal_shmfield() : off{} {}
+    hal_shmfield(T *t) : off{hal_shmoff(t)} {}
+    hal_shmfield &operator=(T *t) { off = hal_shmoff(t); }
+    T *get() { return hal_shmptr<T>(off); }
+    const T *get() const { return hal_shmptr<T>(off); }
+    T *operator *() { return get(); }
+    const T *operator *() const { return get(); }
+    T *operator ->() { return get(); }
+    const T *operator ->() const { return get(); }
+    operator bool() const { return off; }
+private:
+    int off;
+};
+
+template<class T>
+hal_shmfield<T> hal_make_shmfield(T *t) {
+    return hal_shmfield<T>(t);
+}
+
+static_assert(sizeof(hal_shmfield<void>) == sizeof(int), "hal_shmfield size matches");
+
+#define SHMFIELD(type) hal_shmfield<type>
+#define SHMPTR(arg) ((arg).get())
+#define SHMOFF(ptr) (hal_make_shmfield(ptr))
+#else
 #define SHMFIELD(type) int
 
 /* SHMPTR(offset) converts 'offset' to a void pointer. */
@@ -151,6 +191,7 @@ RTAPI_END_DECLS
    false by design */
 #define SHMCHK(ptr)  ( ((char *)(ptr)) > (hal_shmem_base) && \
                        ((char *)(ptr)) < (hal_shmem_base + HAL_SIZE) )
+#endif
 
 /** The good news is that none of this linked list complexity is
     visible to the components that use this API.  Complexity here
