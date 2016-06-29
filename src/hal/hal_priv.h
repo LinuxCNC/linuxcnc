@@ -121,6 +121,16 @@ RTAPI_BEGIN_DECLS
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
 ************************************************************************/
 
+/** HAL "data union" structure
+ ** This structure may hold any type of hal data
+*/
+typedef union hal_data_u {
+    hal_bit_t b;
+    hal_s32_t s;
+    hal_u32_t u;
+    hal_float_t f;
+} hal_data_u;
+
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
     lists.  Such lists have the following characteristics:
@@ -132,7 +142,7 @@ RTAPI_BEGIN_DECLS
     This structure has no data, only links.  To use it, include it
     inside a larger structure.
 */
-typedef struct {
+typedef struct hal_list_t {
     SHMFIELD(hal_list_t) next;			/* next element in list */
     SHMFIELD(hal_list_t) prev;			/* previous element in list */
 } hal_list_t;
@@ -141,7 +151,7 @@ typedef struct {
     When a pin or parameter gets an alias, this structure is used to
     store the original name.
 */
-typedef struct {
+typedef struct hal_oldname_t {
     SHMFIELD(hal_oldname_t) next_ptr;		/* next struct (used for free list only) */
     char name[HAL_NAME_LEN + 1];	/* the original name */
 } hal_oldname_t;
@@ -154,7 +164,7 @@ typedef struct {
    in the area, as well as some housekeeping data.  It is the root
    structure for all data in the HAL.
 */
-typedef struct {
+typedef struct hal_data_t {
     int version;		/* version code for structs, etc */
     rtapi_mutex_t mutex;	/* protection for linked lists, etc. */
     hal_s32_t shmem_avail;	/* amount of shmem left free */
@@ -202,7 +212,7 @@ typedef enum {
     An instance of this structure is added to a linked list when the
     component calls hal_init().
 */
-typedef struct {
+typedef struct hal_comp_t {
     SHMFIELD(hal_comp_t) next_ptr;		/* next component in the list */
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
@@ -218,7 +228,7 @@ typedef struct {
 /** HAL 'pin' data structure.
     This structure contains information about a 'pin' object.
 */
-typedef struct {
+typedef struct hal_pin_t {
     SHMFIELD(hal_pin_t) next_ptr;		/* next pin in linked list */
     SHMFIELD(void*) data_ptr_addr;		/* address of pin data pointer */
     SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this pin */
@@ -233,7 +243,7 @@ typedef struct {
 /** HAL 'signal' data structure.
     This structure contains information about a 'signal' object.
 */
-typedef struct {
+typedef struct hal_sig_t {
     SHMFIELD(hal_sig_t) next_ptr;		/* next signal in linked list */
     SHMFIELD(void*) data_ptr;		/* offset of signal value */
     hal_type_t type;		/* data type */
@@ -246,7 +256,7 @@ typedef struct {
 /** HAL 'parameter' data structure.
     This structure contains information about a 'parameter' object.
 */
-typedef struct {
+typedef struct hal_param_t {
     SHMFIELD(hal_param_t) next_ptr;		/* next parameter in linked list */
     SHMFIELD(void*) data_ptr;		/* offset of parameter value */
     SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this signal */
@@ -272,7 +282,7 @@ typedef struct {
     that identify the functions connected to that thread.
 */
 
-typedef struct {
+typedef struct hal_funct_t {
     SHMFIELD(hal_funct_t) next_ptr;		/* next function in linked list */
     int uses_fp;		/* floating point flag */
     SHMFIELD(hal_comp_t) owner_ptr;		/* component that added this funct */
@@ -286,7 +296,7 @@ typedef struct {
     char name[HAL_NAME_LEN + 1];	/* function name */
 } hal_funct_t;
 
-typedef struct {
+typedef struct hal_funct_entry_t {
     hal_list_t links;		/* linked list data */
     void *arg;			/* argument for function */
     void (*funct) (void *, long);	/* ptr to function code */
@@ -295,7 +305,7 @@ typedef struct {
 
 #define HAL_STACKSIZE 16384	/* realtime task stacksize */
 
-typedef struct {
+typedef struct hal_thread_t {
     SHMFIELD(hal_thread_t) next_ptr;		/* next thread in linked list */
     int uses_fp;		/* floating point flag */
     long int period;		/* period of the thread, in nsec */
