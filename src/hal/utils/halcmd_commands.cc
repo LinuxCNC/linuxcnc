@@ -75,7 +75,6 @@ static void print_param_names(char **patterns);
 static void print_funct_names(char **patterns);
 static void print_thread_names(char **patterns);
 static void print_lock_status();
-static int count_list(int list_root);
 static void print_mem_status();
 static const char *data_type(int type);
 static const char *data_type2(int type);
@@ -1173,7 +1172,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 	strncat(arg_string, " ", MAX_CMD_LEN);
     }
     /* allocate HAL shmem for the string */
-    cp1 = hal_malloc(strlen(arg_string)+1);
+    cp1 = (char*)hal_malloc(strlen(arg_string)+1);
     if ( cp1 == NULL ) {
 	halcmd_error("failed to allocate memory for module args\n");
 	return -1;
@@ -2136,16 +2135,18 @@ static void print_lock_status()
 	halcmd_output("  HAL_LOCK_RUN     - running/stopping HAL is locked\n");
 }
 
-static int count_list(int list_root)
+template<class T>
+int count_list(SHMFIELD(T) list_root)
 {
-    int n, next;
+    int n;
+    SHMFIELD(T) next;
 
     rtapi_mutex_get(&(hal_data->mutex));
     next = list_root;
     n = 0;
     while (next != 0) {
 	n++;
-	next = *((int *) SHMPTR(next));
+	next = SHMPTR(next)->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     return n;
