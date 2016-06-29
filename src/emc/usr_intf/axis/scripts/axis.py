@@ -744,7 +744,7 @@ class LivePlotter:
             del self.stat
             return
 
-        if  (   (self.stat.motion_mode != linuxcnc.TRAJ_MODE_FREE)
+        if  (   (self.stat.motion_mode == linuxcnc.TRAJ_MODE_COORD)
             and (self.stat.task_mode   == linuxcnc.MODE_MANUAL)
             ):
             set_motion_teleop(1)
@@ -2720,10 +2720,6 @@ class TclCommands(nf.TclCommands):
         comp['jog.u'] = vars.ja_rbutton.get() == "u"
         comp['jog.v'] = vars.ja_rbutton.get() == "v"
         comp['jog.w'] = vars.ja_rbutton.get() == "w"
-
-    def set_teleop_mode():
-        set_motion_teleop(vars.teleop_mode.get())
-        s.poll()
 
     def save_gcode(*args):
         if not loaded_file: return
