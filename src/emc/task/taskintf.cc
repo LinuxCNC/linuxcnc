@@ -345,7 +345,7 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
 
 int emcJointUpdateHomingParams(int joint, double home, double offset)
 {
-    CATCH_NAN(isnan(home) || isnan(offset) );
+    CATCH_NAN(std::isnan(home) || std::isnan(offset) );
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -367,7 +367,7 @@ int emcJointUpdateHomingParams(int joint, double home, double offset)
 
 int emcJointSetMaxVelocity(int joint, double vel)
 {
-    CATCH_NAN(isnan(vel));
+    CATCH_NAN(std::isnan(vel));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -393,7 +393,7 @@ int emcJointSetMaxVelocity(int joint, double vel)
 
 int emcJointSetMaxAcceleration(int joint, double acc)
 {
-    CATCH_NAN(isnan(acc));
+    CATCH_NAN(std::isnan(acc));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -419,7 +419,7 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     
 int emcAxisSetMinPositionLimit(int axis, double limit)
 {
-    CATCH_NAN(isnan(limit));
+    CATCH_NAN(std::isnan(limit));
 
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
 	return 0;
@@ -442,7 +442,7 @@ int emcAxisSetMinPositionLimit(int axis, double limit)
 
 int emcAxisSetMaxPositionLimit(int axis, double limit)
 {
-    CATCH_NAN(isnan(limit));
+    CATCH_NAN(std::isnan(limit));
 
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
 	return 0;
@@ -465,7 +465,7 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
 
 int emcAxisSetMaxVelocity(int axis, double vel)
 {
-    CATCH_NAN(isnan(vel));
+    CATCH_NAN(std::isnan(vel));
 
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
 	return 0;
@@ -490,7 +490,7 @@ int emcAxisSetMaxVelocity(int axis, double vel)
 
 int emcAxisSetMaxAcceleration(int axis, double acc)
 {
-    CATCH_NAN(isnan(acc));
+    CATCH_NAN(std::isnan(acc));
 
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
 	return 0;
