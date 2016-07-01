@@ -703,6 +703,8 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 
 int emcAbortCleanup(int reason, const char *message)
 {
+    emcTaskPlanSynch();
+
     int status = interp.on_abort(reason,message);
     drain_interp_list = 1;
     if (status > INTERP_MIN_ERROR)
