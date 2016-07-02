@@ -15,6 +15,7 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <cmath>
+#define isnan(x) std::isnan(x)
 #include "lineardeltakins-common.h"
 #include <boost/python.hpp>
 using namespace boost::python;
