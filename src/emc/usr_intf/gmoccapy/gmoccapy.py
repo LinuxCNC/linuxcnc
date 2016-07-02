@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.7"
+_RELEASE = " 2.0.8"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -799,6 +799,7 @@ class gmoccapy(object):
 
         # find first 5_th axis
         if len(self.axis_list) == 5:
+            self.widgets.lbl_replace_set_value_y.hide()
             self.widgets.lbl_replace_4.hide()
             self.widgets.lbl_replace_5.hide()
             self.widgets.lbl_replace_set_value_4.hide()
@@ -834,9 +835,10 @@ class gmoccapy(object):
         if self.axisletter_five:
             axis_four = list(set(self.axis_list) - set(("x", "y", "z")) - set(self.axisletter_five))
         else:
-            self.widgets.Combi_DRO_5.hide()
+            self.widgets.lbl_replace_set_value_y.hide()
             self.widgets.lbl_replace_set_value_4.hide()
             self.widgets.lbl_replace_4.hide()
+            self.widgets.Combi_DRO_5.hide()
             self.widgets.btn_home_5.hide()
             axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
         self.axisletter_four = axis_four[0]

@@ -1,3 +1,7 @@
+ver. 2.0.8
+- 4 axis config did not hide y replace label, leading to 
+  touch of button beeing to nerow
+
 ver. 2.0.7
 - bug in key handling of F12 (switch mode)
   as mode was also changed in IDENTITY kinematics
