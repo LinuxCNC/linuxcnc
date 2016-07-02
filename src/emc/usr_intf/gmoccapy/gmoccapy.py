@@ -59,7 +59,7 @@ def excepthook( exc_type, exc_obj, exc_tb ):
     m = gtk.MessageDialog( w,
                           gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                           gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-                          ( "Found an error!\nThe following information may be useful for troubleshooting:\n\n" )
+                          ( "Found an error!\nThe following information may be useful in troubleshooting:\n\n" )
                           + "".join( lines ) )
     m.show()
     m.run()
@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.6.3"
+_RELEASE = " 1.6.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -140,12 +140,6 @@ class gmoccapy( object ):
         self.halcomp = hal.component( "gmoccapy" )
         self.command = linuxcnc.command()
         self.stat = linuxcnc.stat()
-
-        self.command.teleop_enable(1)
-        self.command.wait_complete()
-        self.stat.poll()
-        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            raise SystemExit, "\n*** gmoccapy: Only KINEMATICS_IDENTITY is supported\n"
 
         self.error_channel = linuxcnc.error_channel()
         # initial poll, so all is up to date
@@ -212,8 +206,8 @@ class gmoccapy( object ):
         self.default_theme = gtk.settings_get_default().get_property( "gtk-theme-name" )
 
         # the sounds to play if an error or message rises
-        self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"
-        self.error_sound = "/usr/share/sounds/ubuntu/stereo/dialog-question.ogg"
+        self.alert_sound = "/usr/share/sounds/freedesktop/stereo/bell.oga"
+        self.error_sound = "/usr/share/sounds/freedesktop/stereo/dialog-error.oga"
 
         # Our own clas to get information from ini the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
@@ -256,7 +250,7 @@ class gmoccapy( object ):
 
         # now we initialize the file to load widget
         self._init_file_to_load()
-
+        
         self._show_offset_tab( False )
         self._show_tooledit_tab( False )
         self._show_iconview_tab( False )
@@ -675,11 +669,11 @@ class gmoccapy( object ):
         # the time between calls to the function, in milliseconds
         gobject.timeout_add( 100, self._periodic )  # time between calls to the function, in milliseconds
 
-    def set_motion_mode(self):
-        self.stat.poll()
-        if self.stat.motion_mode != linuxcnc.TRAJ_MODE_TELEOP:
-            self.command.teleop_enable(1)
-            self.command.wait_complete()
+    def set_motion_mode(self, state):
+        # 1:teleop, 0: joint
+        self.command.teleop_enable(state)
+        print("Line 675")
+        self.command.wait_complete()
 
     def _get_axis_list( self ):
         temp = self.get_ini_info.get_coordinates()
@@ -691,7 +685,7 @@ class gmoccapy( object ):
                 continue
             self.axis_list.append( letter.lower() )
 
-    def _init_preferences( self ):
+    def _init_preferences( self ):            
         # check if NO_FORCE_HOMING is used in ini
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
         self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', 300, float )
@@ -705,6 +699,7 @@ class gmoccapy( object ):
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
 
         # set the slider limmits
+        print ("Self.stat.max_velocity = %s"% self.stat.max_velocity)
         self.widgets.adj_max_vel.configure( self.stat.max_velocity * 60, 0.0,
                                            self.stat.max_velocity * 60, 1, 0, 0 )
         self.widgets.adj_jog_vel.configure( self.jog_rate, 0,
@@ -714,7 +709,7 @@ class gmoccapy( object ):
         self.widgets.adj_feed.configure( 100, 0, self.feed_override_max * 100, 1, 0, 0 )
 
         # holds the max velocity value and is needed to be able to react to halui pin
-        self.max_velocity = self.maxvel = self.stat.max_velocity
+        self.max_velocity = self.stat.max_velocity
 
         # set and get all information for turtle jogging
         self.rabbit_jog = self.jog_rate
@@ -879,7 +874,7 @@ class gmoccapy( object ):
         self.jog_increments = self.get_ini_info.get_increments()
         if len( self.jog_increments ) > 10:
             print( _( "**** GMOCCAPY INFO ****" ) )
-            print( _( "**** Too many increments given in INI File for this screen ****" ) )
+            print( _( "**** To many increments given in INI File for this screen ****" ) )
             print( _( "**** Only the first 10 will be reachable through this screen ****" ) )
             # we shorten the incrementlist to 10 (first is default = 0)
             self.jog_increments = self.jog_increments[0:11]
@@ -944,7 +939,7 @@ class gmoccapy( object ):
         tab_names, tab_location, tab_cmd = self.get_ini_info.get_embedded_tabs()
         if not tab_names:
             print ( _( "**** GMOCCAPY INFO ****" ) )
-            print ( _( "**** Invalid embedded tab configuration ****" ) )
+            print ( _( "**** Invalid embeded tab configuration ****" ) )
             print ( _( "**** No tabs will be added! ****" ) )
             return
 
@@ -1071,6 +1066,9 @@ class gmoccapy( object ):
         self.widgets.gremlin.init_glcanondraw(
              trajcoordinates=self.get_ini_info.get_trajcoordinates(),
              kinstype=self.get_ini_info.get_kinstype())
+        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            self.widgets.gremlin.set_property( "enable_dro", True )
+            self.widgets.gremlin.use_joints_mode = True          
 
     # init the function to hide the cursor
     def _init_hide_cursor( self ):
@@ -1122,7 +1120,7 @@ class gmoccapy( object ):
             self.onboard = True
         except Exception, e:
             print ( _( "**** GMOCCAPY ERROR ****" ) )
-            print ( _( "**** Error launching virtual keyboard," ) )
+            print ( _( "**** Error with launching virtual keyboard," ) )
             print ( _( "**** is onboard or matchbox-keyboard installed? ****" ) )
             traceback.print_exc()
             self._no_virt_keyboard()
@@ -1392,10 +1390,10 @@ class gmoccapy( object ):
     def _show_error( self, error ):
         kind, text = error
         # print kind,text
-        if "joint" in text:
-            for letter in self.axis_list:
-                axnum = "xyzabcuvws".index( letter )
-                text = text.replace( "joint %d" % axnum, "Axis %s" % letter.upper() )
+#         if "joint" in text:
+#             for letter in self.axis_list:
+#                 axnum = "xyzabcuvws".index( letter )
+#                 text = text.replace( "joint %d" % axnum, "Axis %s" % letter.upper() )
         if kind in ( linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR ):
             icon = ALERT_ICON
             self.halcomp["error"] = True
@@ -1455,7 +1453,7 @@ class gmoccapy( object ):
             self.stat.poll()
             if self.stat.task_state != linuxcnc.STATE_ON:
                 widget.set_active( False )
-                self._show_error( ( 11, _( "ERROR : Could not switch the machine on, is limit switch activated?" ) ) )
+                self._show_error( ( 11, _( "ERROR : Could not switch the machine on, is limit switch aktivated?" ) ) )
                 self._update_widgets( False )
                 return
             self._update_widgets( True )
@@ -1495,6 +1493,8 @@ class gmoccapy( object ):
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
         ]
         self._sensitize_widgets( widgetlist, True )
+        print("Line 1496")
+        self.set_motion_mode(1)
 
     def on_hal_status_not_all_homed( self, *args ):
         self.all_homed = False
@@ -1504,7 +1504,9 @@ class gmoccapy( object ):
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
         ]
         self._sensitize_widgets( widgetlist, False )
-
+        self.set_motion_mode(0)
+        print("Line 1508")
+        
     def on_hal_status_homed( self, widget, data ):
         pass
 
@@ -1665,7 +1667,7 @@ class gmoccapy( object ):
             self.widgets.ntb_jog.set_current_page( 0 )
             return
         # if MDI button is not sensitive, we are not ready for MDI commands
-        # so we have to abort external commands and get back to manual mode
+        # so we have to aboart external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
         if not self.widgets.rbt_mdi.get_sensitive():
             self.command.abort()
@@ -1686,7 +1688,7 @@ class gmoccapy( object ):
 
     def on_hal_status_mode_auto( self, widget ):
         # if Auto button is not sensitive, we are not ready for AUTO commands
-        # so we have to abort external commands and get back to manual mode
+        # so we have to aboart external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
         if not self.widgets.rbt_auto.get_sensitive():
             self.command.abort()
@@ -1700,6 +1702,24 @@ class gmoccapy( object ):
             self.widgets.ntb_info.set_current_page( 0 )
             self.widgets.ntb_jog.set_current_page( 2 )
             self.widgets.rbt_auto.set_active( True )
+
+    def on_hal_status_motion_mode_changed( self, widget, new_mode ):
+        # Motion mode change in identity kinematics makes no sence
+        # so we will not react on the signal and correct the misbehavior
+        print("Motion mode has changed, now we are in mode ", new_mode)
+        # Mode 1 = joint ; Mode 3 = teleop
+        # so in mode 1 we have to show Joints and in Mode 3 axis values
+        print("we have %s joints" %self.stat.joints)
+        print("we have %s axis" %self.stat.axes)
+
+        if new_mode == 1 and self.stat.motion_type != linuxcnc.KINEMATICS_IDENTITY:
+            self.widgets.gremlin.set_property( "enable_dro", True )
+            self.widgets.gremlin.use_joints_mode = True
+        else:
+            if not self.widgets.tbtn_fullsize_preview.get_active():
+                self.widgets.gremlin.set_property( "enable_dro", False )
+            self.widgets.gremlin.use_joints_mode = False
+            
 
 # hal status End
 # =========================================================
@@ -1847,7 +1867,6 @@ class gmoccapy( object ):
 
         # get the keyname
         keyname = gtk.gdk.keyval_name( event.keyval )
-        #print("pressed key = ",keyname)
 
         # estop with F1 shold work every time
         # so should also escape aboart actions
@@ -1857,8 +1876,21 @@ class gmoccapy( object ):
         if keyname == "Escape":
             self.command.abort()
             return True
+# ToDo:
+# Check if homed, otherwise fo not allow to change mode
 
-        #print self.last_key_event[0] ,self.last_key_event[1]
+        # change between teleop and worl mode
+        if keyname == "F12" or keyname == "$":
+            # only change mode pressing the key, not releasing it
+            if signal:
+                print("F12 or $ has been pressed, switch mode")
+                # No mode switch to joints on Identity kinematics
+                if self.stat.motion_mode == 3:
+                    self.set_motion_mode(0)
+                else:
+                    self.set_motion_mode(1)
+            return True
+
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
         if self.last_key_event[0] == keyname and self.last_key_event[1] == signal:
             return True
@@ -2398,7 +2430,7 @@ class gmoccapy( object ):
             return
 
         # set gremlin_units
-        self.widgets.gremlin.set_property( "metric_units", metric_units )
+        self.widgets.gremlin.set_property( "enable_dro", True ).set_property( "metric_units", metric_units )
 
         widgetlist = ["adj_jog_vel", "adj_max_vel"]
 
@@ -2465,7 +2497,7 @@ class gmoccapy( object ):
         if self.lathe_mode:
             self.widgets.Combi_DRO_y.set_to_inch( not metric_units )
         # set gremlin_units
-        self.widgets.gremlin.set_property( "metric_units", metric_units )
+        self.widgets.gremlin.set_property( "enable_dro", True ).set_property( "metric_units", metric_units )
 
     def on_chk_auto_units_toggled( self, widget, data = None ):
         for axis in self.axis_list:
@@ -2570,7 +2602,7 @@ class gmoccapy( object ):
 
     def on_btn_jog_pressed( self, widget, data = None ):
         # only in manual mode we will allow jogging the axis at this development state
-        if not self.stat.task_mode == linuxcnc.MODE_MANUAL:
+        if self.stat.estop or not self.stat.task_mode == linuxcnc.MODE_MANUAL:
             return
 
         axisletter = widget.get_label()[0]
@@ -2596,15 +2628,27 @@ class gmoccapy( object ):
         else:
             direction = -1
 
-        self.set_motion_mode()
+        if self.stat.motion_mode == 1:
+            if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+                # this may happen, because the joints / axes has been unhomed
+                print("wrong motion mode, change to the correct one")
+                self.set_motion_mode(1)
+                print("Line 2636")
+                JOGMODE = 0
+            else:
+                JOGMODE = 1
+        else :
+            JOGMODE = 0
+        
+        print("JOGMODE =",JOGMODE)    
         if self.distance <> 0:  # incremental jogging
-            self.command.jog( linuxcnc.JOG_INCREMENT, 0, axisnumber, direction * velocity, self.distance )
+            self.command.jog( linuxcnc.JOG_INCREMENT, JOGMODE, axisnumber, direction * velocity, self.distance )
         else:  # continuous jogging
-            self.command.jog( linuxcnc.JOG_CONTINUOUS, 0, axisnumber, direction * velocity )
+            self.command.jog( linuxcnc.JOG_CONTINUOUS, JOGMODE, axisnumber, direction * velocity )
 
     def on_btn_jog_released( self, widget, data = None ):
         # only in manual mode we will allow jogging the axis at this development state
-        if not self.stat.task_mode == linuxcnc.MODE_MANUAL:
+        if self.stat.estop or not self.stat.task_mode == linuxcnc.MODE_MANUAL:
             return
 
         axisletter = widget.get_label()[0]
@@ -2613,13 +2657,25 @@ class gmoccapy( object ):
             return
 
         axis = "xyzabcuvw".index( axisletter.lower() )
+        if self.stat.motion_mode == 1:
+            if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+                # this may happen, because the joints / axes has been unhomed
+                print("wrong motion mode, change to the correct one")
+                self.set_motion_mode(1)
+                print("Line 2665")
+                JOGMODE = 0
+            else:
+                JOGMODE = 1
+        else :
+            JOGMODE = 0
+
+        print("JOGMODE =",JOGMODE)    
 
         # Otherwise the movement would stop before the desired distance was moved
         if self.distance <> 0:
             pass
         else:
-            self.set_motion_mode()
-            self.command.jog( linuxcnc.JOG_STOP, 0,  axis )
+            self.command.jog( linuxcnc.JOG_STOP, JOGMODE,  axis )
 
     # use the current loaded file to be loaded on start up
     def on_btn_use_current_clicked( self, widget, data = None ):
@@ -2674,7 +2730,7 @@ class gmoccapy( object ):
                 dialogs.warning_dialog( self, _( "Just to warn you" ), message )
                 self.widgets.tbtn_setup.set_active( False )
         else:
-            # check which button should be sensitive, depending on the state of the machine
+            # check witch button should be sensitive, depending on the state of the machine
             if self.stat.task_state == linuxcnc.STATE_ESTOP:
                 # estoped no mode availible
                 self.widgets.rbt_manual.set_sensitive( False )
@@ -2712,16 +2768,18 @@ class gmoccapy( object ):
         self.widgets.ntb_button.set_current_page( 3 )
 
     def on_btn_home_all_clicked( self, widget, data = None ):
-        self.command.teleop_enable(0)
-        self.command.wait_complete()
+        if self.stat.motion_mode == 3:
+            self.set_motion_mode(0)
+            print ("Line 2781")
+            
         # home -1 means all
         self.command.home( -1 )
 
     def on_btn_unhome_all_clicked( self, widget, data = None ):
+        self.set_motion_mode(0)
+        print("Line 2780")
         self.all_homed = False
         # -1 for all
-        self.command.teleop_enable(0)
-        self.command.wait_complete()
         self.command.unhome( -1 )
 
     def on_btn_home_selected_clicked( self, widget, data = None ):
@@ -2733,6 +2791,11 @@ class gmoccapy( object ):
             axis = 2
         elif widget == self.widgets.btn_home_4:
             axis = "xyzabcuvw".index( self.axisletter_four )
+
+        if self.stat.motion_mode == 3:
+            self.set_motion_mode(0)
+            print ("Line 2803")
+      
         self.command.home( axis )
 
     def _check_limits( self ):
