@@ -1,3 +1,6 @@
+ver. 2.0.9
+- added some 5 axis IDENTITY kinematics sim configs
+
 ver. 2.0.8
 - 4 axis config did not hide y replace label, leading to 
   touch of button beeing to nerow
