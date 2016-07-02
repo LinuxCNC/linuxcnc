@@ -122,7 +122,7 @@ loop runs the code in the loop then checks the test condition. The
 ----
 (draw a sawtooth shape)
 G0 X1 Y0 (move to start position)
-#1 = 1 (assign parameter #1 the value of 0)
+#1 = 0 (assign parameter #1 the value of 0)
 F25 (set a feed rate)
 o101 while [#1 LT 10]
   G1 X0
