@@ -7,7 +7,7 @@
     and with the help from Michael Haberler
     and Chris Morley and some more
 
-    Copyright 2012 Norbert Schechner
+    Copyright 2012 / 2016 Norbert Schechner
     nieson@web.de
 
     This program is free software; you can redistribute it and/or modify
