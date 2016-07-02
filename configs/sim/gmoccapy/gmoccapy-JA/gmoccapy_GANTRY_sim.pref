@@ -1,13 +1,13 @@
 [DEFAULT]
 dro_size = 28
 hide_axis_4 = False
-spindle_start_rpm = 300
+spindle_start_rpm = 300.0
 hide_turtle_jog_button = False
 turtle_jog_factor = 20
 scale_max_vel = 59.9
 scale_jog_vel = 60.0
-scale_spindle_override = 1
-scale_feed_override = 1
+scale_spindle_override = 1.0
+scale_feed_override = 1.0
 open_file = 
 screen1 = window
 x_pos = 40
@@ -39,9 +39,9 @@ logo = False
 spindle_bar_min = 0.0
 spindle_bar_max = 6000.0
 x_pos_popup = 45.0
-y_pos_popup = 55
+y_pos_popup = 55.0
 width_popup = 250.0
-max_messages = 10
+max_messages = 10.0
 message_font = sans 10
 use_frames = True
 show_dro_btn = False
@@ -71,4 +71,5 @@ homed_color = green
 unhomed_color = red
 dro_digits = 3
 toggle_readout = True
+scale_rapid_override = 1.0
 

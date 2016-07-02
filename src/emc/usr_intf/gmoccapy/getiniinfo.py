@@ -109,16 +109,6 @@ class GetIniInfo:
             temp = 10.0
         return float(temp) * 60
 
-# ToDo : This may not be needed, as it could be recieved from linuxcnc.stat
-    def get_max_velocity(self):
-        # max velocity settings: more then one place to check
-        # This is the maximum velocity of the machine
-        temp = self.inifile.find("TRAJ", "MAX_VELOCITY")
-        if  temp == None:
-            print("**** GMOCCAPY GETINIINFO **** \n No MAX_VELOCITY found in [TRAJ] of the INI file")
-            temp = 15.0
-        return float(temp) * 60
-
     def get_max_spindle_override(self):
         # check for override settings
         temp = self.inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE")
@@ -139,6 +129,13 @@ class GetIniInfo:
         if not temp:
             temp = 1.0
             print("**** GMOCCAPY GETINIINFO **** \n No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file")
+        return float(temp)
+
+    def get_max_rapid_override(self):
+        temp = self.inifile.find("DISPLAY", "MAX_RAPID_OVERRIDE")
+        if not temp:
+            temp = 1.0
+            print("**** GMOCCAPY GETINIINFO **** \n No MAX_RAPID_OVERRIDE entry found in [DISPLAY] of INI file")
         return float(temp)
 
     def get_embedded_tabs(self):

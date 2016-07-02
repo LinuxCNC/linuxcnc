@@ -1,3 +1,22 @@
+ver. 2.0.4
+- merged with the gmoccapy JA version
+
+ver. 2.0.3
+- bug in DRO size handling
+
+ver. 2.0.2
+- added user mode as command line argument
+- added logo as command line argument
+
+ver. 2.0.1
+- when using hardware button to jog the axis, the 5th axis wath not 
+  recognized, resulting in a jog of the 4th axis. I solved this bug
+  and introduced a new config to test this.
+  Thanks to Ludwig for reporting the bug
+
+ver. 2.0.0
+- initial push of beta gmoccapy with 5 axis
+
 ver. 1.6.0
 - changed the initial sound files to fit freedesktop path
   was set to ubuntu till now
