@@ -90,6 +90,7 @@ class _GStat(gobject.GObject):
         'reload-display': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'tool-in-spindle-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'motion-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -132,6 +133,7 @@ class _GStat(gobject.GObject):
         self.old['line']  = self.stat.motion_line
         self.old['homed'] = self.stat.homed
         self.old['tool-in-spindle'] = self.stat.tool_in_spindle
+        self.old['motion-mode'] = self.stat.motion_mode
 
     def update(self):
         try:
@@ -201,6 +203,11 @@ class _GStat(gobject.GObject):
         tool_new = self.old['tool-in-spindle']
         if tool_new != tool_old:
             self.emit('tool-in-spindle-changed', tool_new)
+
+        motion_mode_old = old.get('motion-mode', None)
+        motion_mode_new = self.old['motion-mode']
+        if motion_mode_new != motion_mode_old:
+            self.emit('motion-mode-changed', motion_mode_new)
 
         # if the homed status has changed
         # check number of homed axes against number of available axes
