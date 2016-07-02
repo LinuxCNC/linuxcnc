@@ -1,3 +1,8 @@
+ver. 2.0.6
+- corrected some small bugs, avoiding gremlin to switch 
+  to fullsize preview,
+- got back some missing handlers in the glade file
+
 ver. 2.0.5
 - merged with the touchscreen slider version
 - deleted unneeded INI entries

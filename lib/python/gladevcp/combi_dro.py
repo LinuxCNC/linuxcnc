@@ -95,7 +95,7 @@ class Combi_DRO(gtk.VBox):
     def __init__(self, joint_number = 0):
         super(Combi_DRO, self).__init__()
 
-        # get the necesarry connextions to linuxcnc
+        # get the necessary connections to linuxcnc
         self.joint_number = joint_number
         self.linuxcnc = linuxcnc
         self.status = linuxcnc.stat()
@@ -177,7 +177,7 @@ class Combi_DRO(gtk.VBox):
             units = self.inifile.find("TRAJ", "LINEAR_UNITS")
             if units == None:
                 # else then the X axis units
-                units = self.inifile.find("AXIS_X", "UNITS")
+                units = self.inifile.find("AXIS_0", "UNITS")
         except:
             units = "inch"
 

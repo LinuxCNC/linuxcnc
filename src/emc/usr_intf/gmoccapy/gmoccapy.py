@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.5"
+_RELEASE = " 2.0.6"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1125,15 +1125,21 @@ class gmoccapy(object):
             self.widgets.audio_error_chooser.set_sensitiv(False)
 
     # init the preview
-    def _init_gremlin(self):
-        grid_size = self.prefs.getpref('grid_size', 1.0, float)
-        self.widgets.grid_size.set_value(grid_size)
+    def _init_gremlin( self ):
+        grid_size = self.prefs.getpref( 'grid_size', 1.0, float )
+        self.widgets.grid_size.set_value( grid_size )
         self.widgets.gremlin.grid_size = grid_size
-        view = self.prefs.getpref('view', "p", str)
-        self.widgets.gremlin.set_property("view", view)
-        self.widgets.gremlin.set_property("metric_units", int(self.stat.linear_units))
-        self.widgets.gremlin.set_property("mouse_btn_mode", self.prefs.getpref("mouse_btn_mode", 4, int))
-        self.widgets.gremlin.set_property("use_commanded", not self.dro_actual)
+        view = self.prefs.getpref( 'view', "p", str )
+        self.widgets.gremlin.set_property( "view", view )
+        self.widgets.gremlin.set_property( "metric_units", int( self.stat.linear_units ) )
+        self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
+        self.widgets.gremlin.set_property( "use_commanded", not self.dro_actual)
+        self.widgets.gremlin.init_glcanondraw(
+             trajcoordinates = self.get_ini_info.get_trajcoordinates(),
+             kinstype = self.get_ini_info.get_kinstype())
+        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            self.widgets.gremlin.set_property( "enable_dro", True )
+            self.widgets.gremlin.use_joints_mode = True
         self.widgets.eb_program_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0, 0, 0))
 
     # init the function to hide the cursor
@@ -1950,10 +1956,11 @@ class gmoccapy(object):
             if signal:
                 print("F12 or $ has been pressed, switch mode")
                 # No mode switch to joints on Identity kinematics
+                # Mode 1 = joint ; Mode 3 = teleop
                 if self.stat.motion_mode == 3:
-                    self.set_motion_mode(0)
+                    self.set_motion_mode(0) # set joint mode
                 else:
-                    self.set_motion_mode(1)
+                    self.set_motion_mode(1) # set t mode
             return True
 
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
