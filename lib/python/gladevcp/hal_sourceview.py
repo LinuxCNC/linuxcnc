@@ -258,6 +258,7 @@ def safe_write(filename, data, mode=0644):
         os.close(fd)
         fd = None
         os.rename(fn, filename)
+        os.chmod(filename, mode)
     finally:
         if fd is not None:
             os.close(fd)

@@ -709,7 +709,7 @@ class gmoccapy( object ):
         self.widgets.adj_feed.configure( 100, 0, self.feed_override_max * 100, 1, 0, 0 )
 
         # holds the max velocity value and is needed to be able to react to halui pin
-        self.max_velocity = self.maxvel = self.stat.max_velocity
+        self.max_velocity = self.stat.max_velocity
 
         # set and get all information for turtle jogging
         self.rabbit_jog = self.jog_rate
@@ -1066,6 +1066,9 @@ class gmoccapy( object ):
         self.widgets.gremlin.init_glcanondraw(
              trajcoordinates=self.get_ini_info.get_trajcoordinates(),
              kinstype=self.get_ini_info.get_kinstype())
+        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            self.widgets.gremlin.set_property( "enable_dro", True )
+            self.widgets.gremlin.use_joints_mode = True          
 
     # init the function to hide the cursor
     def _init_hide_cursor( self ):
@@ -1709,7 +1712,7 @@ class gmoccapy( object ):
         print("we have %s joints" %self.stat.joints)
         print("we have %s axis" %self.stat.axes)
 
-        if new_mode == 1:
+        if new_mode == 1 and self.stat.motion_type != linuxcnc.KINEMATICS_IDENTITY:
             self.widgets.gremlin.set_property( "enable_dro", True )
             self.widgets.gremlin.use_joints_mode = True
         else:
