@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.6"
+_RELEASE = " 2.0.7"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -781,21 +781,21 @@ class gmoccapy(object):
         self.widgets.adj_dro_size.set_value(self.dro_size)
 
     def _init_extra_axes(self):
-        # XYZ machine
+        # to much axes given, can only handle 5
+        if len(self.axis_list) > 5:
+            message = _("**** GMOCCAPY INFO : ****")
+            message += _("**** gmoccapy can only handle 5 axis, ****\n**** but you have given %d through your INI file ****\n" % len(self.axis_list))
+            message += _("**** gmoccapy will not start ****\n\n")
+            print(message)
+            self.widgets.window1.destroy()
+
+        # XYZ machine or lathe, lathe will be handled in _init_preferences
         if len(self.axis_list) < 4:
             self.widgets.Combi_DRO_4.hide()
             self.widgets.Combi_DRO_5.hide()
             self.widgets.btn_home_4.hide()
             self.widgets.btn_home_5.hide()
             return
-
-        # to much axes given, can only handle 5
-        if len(self.axis_list) > 5:
-            message = _("**** LUMINOS INFO : ****")
-            message += _("**** luminos can only handle 5 axis, ****\n**** but you have given %d through your INI file ****\n" % len(self.axis_list))
-            message += _("**** luminos will not start ****\n\n")
-            print(message)
-            self.widgets.window1.destroy()
 
         # find first 5_th axis
         if len(self.axis_list) == 5:
@@ -835,6 +835,7 @@ class gmoccapy(object):
             axis_four = list(set(self.axis_list) - set(("x", "y", "z")) - set(self.axisletter_five))
         else:
             self.widgets.Combi_DRO_5.hide()
+            self.widgets.lbl_replace_set_value_4.hide()
             self.widgets.lbl_replace_4.hide()
             self.widgets.btn_home_5.hide()
             axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
@@ -1783,7 +1784,7 @@ class gmoccapy(object):
         print("we have %s joints" % self.stat.joints)
         print("we have %s axis" % self.stat.axes)
 
-        if new_mode == 1 and self.stat.motion_type != linuxcnc.KINEMATICS_IDENTITY:
+        if new_mode == 1 and self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             self.widgets.gremlin.set_property("enable_dro", True)
             self.widgets.gremlin.use_joints_mode = True
         else:
@@ -1956,11 +1957,12 @@ class gmoccapy(object):
             if signal:
                 print("F12 or $ has been pressed, switch mode")
                 # No mode switch to joints on Identity kinematics
-                # Mode 1 = joint ; Mode 3 = teleop
-                if self.stat.motion_mode == 3:
-                    self.set_motion_mode(0) # set joint mode
-                else:
-                    self.set_motion_mode(1) # set t mode
+                if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+                    # Mode 1 = joint ; Mode 3 = teleop
+                    if self.stat.motion_mode == 3:
+                        self.set_motion_mode(0) # set joint mode
+                    else:
+                        self.set_motion_mode(1) # set t mode
             return True
 
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
