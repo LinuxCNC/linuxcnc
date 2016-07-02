@@ -26,22 +26,22 @@
 
 """
 
-import traceback  # needed to launch traceback errors
-import hal  # base hal class to react to hal signals
-import hal_glib  # needed to make our own hal pins
-import gtk  # base for pygtk widgets and constants
-import sys  # handle system calls
-import os  # needed to get the paths and directories
-import pango  # needed for font settings and changing
-import gladevcp.makepins  # needed for the dialog"s calculator widget
-import atexit  # needed to register child's to be closed on closing the GUI
-import subprocess  # to launch onboard and other processes
-import vte  # To get the embedded terminal
-import tempfile  # needed only if the user click new in edit mode to open a new empty file
-import linuxcnc  # to get our own error system
-import gobject  # needed to add the timer for periodic
-import locale  # for setting the language of the GUI
-import gettext  # to extract the strings to be translated
+import traceback           # needed to launch traceback errors
+import hal                 # base hal class to react to hal signals
+import hal_glib            # needed to make our own hal pins
+import gtk                 # base for pygtk widgets and constants
+import sys                 # handle system calls
+import os                  # needed to get the paths and directories
+import pango               # needed for font settings and changing
+import gladevcp.makepins   # needed for the dialog"s calculator widget
+import atexit              # needed to register child's to be closed on closing the GUI
+import subprocess          # to launch onboard and other processes
+import vte                 # To get the embedded terminal
+import tempfile            # needed only if the user click new in edit mode to open a new empty file
+import linuxcnc            # to get our own error system
+import gobject             # needed to add the timer for periodic
+import locale              # for setting the language of the GUI
+import gettext             # to extract the strings to be translated
 
 from gladevcp.gladebuilder import GladeBuilder
 
@@ -87,9 +87,9 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.3"
-_INCH = 0  # imperial units are active
-_MM = 1  # metric units are active
+_RELEASE = " 2.0.5"
+_INCH = 0                         # imperial units are active
+_MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
 
 # set up paths to files
@@ -98,12 +98,12 @@ LIBDIR = os.path.join(BASE, "lib", "python")
 sys.path.insert(0, LIBDIR)
 
 # as now we know the libdir path we can import our own modules
-from gmoccapy import widgets  # a class to handle the widgets
-from gmoccapy import player  # a class to handle sounds
+from gmoccapy import widgets       # a class to handle the widgets
+from gmoccapy import player        # a class to handle sounds
 from gmoccapy import notification  # this is the module we use for our error handling
-from gmoccapy import preferences  # this handles the preferences
-from gmoccapy import getiniinfo  # this handles the INI File reading so checking is done in that module
-from gmoccapy import dialogs  # this takes the code of all our dialogs
+from gmoccapy import preferences   # this handles the preferences
+from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
+from gmoccapy import dialogs       # this takes the code of all our dialogs
 
 # set up paths to files, part two
 CONFIGPATH = os.environ['CONFIG_DIR']
@@ -161,46 +161,46 @@ class gmoccapy(object):
 
         self.start_line = 0  # needed for start from line
 
-        self.active_gcodes = []  # this are the formated G code values
-        self.active_mcodes = []  # this are the formated M code values
-        self.gcodes = []  # this are the unformated G code values to check if an update is requiered
-        self.mcodes = []  # this are the unformated M code values to check if an update is requiered
+        self.active_gcodes = []   # this are the formated G code values
+        self.active_mcodes = []   # this are the formated M code values
+        self.gcodes = []          # this are the unformated G code values to check if an update is requiered
+        self.mcodes = []          # this are the unformated M code values to check if an update is requiered
 
-        self.distance = 0  # This global will hold the jog distance
+        self.distance = 0         # This global will hold the jog distance
         self.tool_change = False  # this is needed to get back to manual mode after a tool change
-        self.macrobuttons = []  # The list of all macrios defined in the INI file
-        self.fo_counts = 0  # need to calculate diference in counts to change the feed override slider
-        self.so_counts = 0  # need to calculate diference in counts to change the spindle override slider
-        self.jv_counts = 0  # need to calculate diference in counts to change the jog_vel slider
-        self.mv_counts = 0  # need to calculate diference in counts to change the max_speed slider
+        self.macrobuttons = []    # The list of all macrios defined in the INI file
+        self.fo_counts = 0        # need to calculate diference in counts to change the feed override slider
+        self.so_counts = 0        # need to calculate diference in counts to change the spindle override slider
+        self.jv_counts = 0        # need to calculate diference in counts to change the jog_vel slider
+        self.mv_counts = 0        # need to calculate diference in counts to change the max_speed slider
 
-        self.spindle_override = 1  # holds the feed override value and is needed to be able to react to halui pin
-        self.feed_override = 1  # holds the spindle override value and is needed to be able to react to halui pin
-        self.rapidrate = 1  # holds the rapid override value and is needed to be able to react to halui pin
+        self.spindle_override = 1 # holds the feed override value and is needed to be able to react to halui pin
+        self.feed_override = 1    # holds the spindle override value and is needed to be able to react to halui pin
+        self.rapidrate = 1        # holds the rapid override value and is needed to be able to react to halui pin
 
-        self.incr_rbt_list = []  # we use this list to add hal pin to the button later
+        self.incr_rbt_list = []   # we use this list to add hal pin to the button later
         self.jog_increments = []  # This holds the increment values
-        self.unlock = False  # this value will be set using the hal pin unlock settings
+        self.unlock = False       # this value will be set using the hal pin unlock settings
 
         # needed to display the labels
         self.system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
-        self.dro_size = 28  # The size of the DRO, user may want them bigger on bigger screen
-        self.axisnumber_four = ""  # we use this to get the number of the 4-th axis
+        self.dro_size = 28           # The size of the DRO, user may want them bigger on bigger screen
+        self.axisnumber_four = ""    # we use this to get the number of the 4-th axis
         self.axisletter_four = None  # we use this to get the letter of the 4-th axis
-        self.axisnumber_five = ""  # we use this to get the number of the 5-th axis
+        self.axisnumber_five = ""    # we use this to get the number of the 5-th axis
         self.axisletter_five = None  # we use this to get the letter of the 5-th axis
-        self.hide_axis_4 = False  # will hold if the 4'th axis should be hidden
+        self.hide_axis_4 = False     # will hold if the 4'th axis should be hidden
 
         self.notification = notification.Notification()  # Our own message system
         self.notification.connect("message_deleted", self._on_message_deleted)
         self.last_key_event = None, 0  # needed to avoid the auto repeat function of the keyboard
-        self.all_homed = False  # will hold True if all axis are homed
-        self.faktor = 1.0  # needed to calculate velocitys
+        self.all_homed = False         # will hold True if all axis are homed
+        self.faktor = 1.0              # needed to calculate velocitys
 
-        self.xpos = 40  # The X Position of the main Window
-        self.ypos = 30  # The Y Position of the main Window
-        self.width = 979  # The width of the main Window
-        self.height = 750  # The heigh of the main Window
+        self.xpos = 40        # The X Position of the main Window
+        self.ypos = 30        # The Y Position of the main Window
+        self.width = 979      # The width of the main Window
+        self.height = 750     # The heigh of the main Window
 
         self.gcodeerror = ""  # we need this to avoid multile messages of the same error
 
@@ -612,9 +612,9 @@ class gmoccapy(object):
         # call the function to change the button status
         # so every thing is ready to start
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "ntb_jog", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
-                      "btn_select_tool_by_no", "btn_spindle_100", "scl_rapid_override", "scl_spindle",
+                      "btn_select_tool_by_no", "btn_spindle_100", "spc_rapid", "spc_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets(widgetlist, False)
@@ -736,6 +736,13 @@ class gmoccapy(object):
         self.widgets.adj_spindle.configure(100, self.spindle_override_min * 100,
                                            self.spindle_override_max * 100, 1, 0, 0)
         self.widgets.adj_feed.configure(100, 0, self.feed_override_max * 100, 1, 0, 0)
+        self.widgets.adj_rapid_override.configure(100, 0, self.rapid_override_max * 100, 1, 0, 0)
+
+        # set the adjustment to the speed controls
+        self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+        self.widgets.spc_rapid.set_adjustment(self.widgets.adj_rapid_override)
+        self.widgets.spc_feed.set_adjustment(self.widgets.adj_feed)
+        self.widgets.spc_spindle.set_adjustment(self.widgets.adj_spindle)
 
         # holds the max velocity value and is needed to be able to react to halui pin
         self.max_velocity = self.stat.max_velocity
@@ -754,9 +761,9 @@ class gmoccapy(object):
 
         # and according to machine units the digits to display
         if self.stat.linear_units == _MM:
-            self.widgets.scl_jog_vel.set_digits(0)
+            self.widgets.spc_jog_vel.set_digits(0)
         else:
-            self.widgets.scl_jog_vel.set_digits(3)
+            self.widgets.spc_jog_vel.set_digits(3)
 
         # the scale to apply to the count of the hardware mpg wheel, to avoid to much turning
         default = (self.jog_rate_max / 100)
@@ -1671,9 +1678,9 @@ class gmoccapy(object):
 
     def on_hal_status_state_off(self, widget):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_spindle_100", "scl_rapid_override", "scl_spindle",
+                      "btn_spindle_100", "spc_rapid", "spc_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets(widgetlist, False)
@@ -1689,9 +1696,9 @@ class gmoccapy(object):
 
     def on_hal_status_state_on(self, widget):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward",
+                      "ntb_jog", "spc_feed", "btn_feed_100", "rbt_forward",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist",
-                      "btn_spindle_100", "scl_rapid_override", "scl_spindle"
+                      "btn_spindle_100", "spc_rapid", "spc_spindle"
         ]
         self._sensitize_widgets(widgetlist, True)
         if not self.widgets.tbtn_on.get_active():
@@ -1896,9 +1903,9 @@ class gmoccapy(object):
 
     def _update_widgets(self, state):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
-                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "tbl_jog_btn", "vbtb_jog_incr", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_spindle_100", "scl_rapid_override", "scl_spindle",
+                      "btn_spindle_100", "spc_rapid", "spc_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets(widgetlist, state)
@@ -2511,9 +2518,9 @@ class gmoccapy(object):
                 self._update_slider(widgetlist)
 
         if metric_units:
-            self.widgets.scl_jog_vel.set_digits(0)
+            self.widgets.spc_jog_vel.set_digits(0)
         else:
-            self.widgets.scl_jog_vel.set_digits(3)
+            self.widgets.spc_jog_vel.set_digits(3)
 
     def on_tbtn_rel_toggled(self, widget, data=None):
         if self.widgets.tbtn_dtg.get_active():
@@ -2643,18 +2650,24 @@ class gmoccapy(object):
             self.widgets.adj_jog_vel.configure(self.turtle_jog, 1,
                                                self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0)
 
-    def on_tbtn_turtle_jog_toggled(self, widget, data=None):
+    def on_tbtn_turtle_jog_toggled( self, widget, data = None ):
         if widget.get_active():
             self.rabbit_jog = self.widgets.adj_jog_vel.get_value()
-            widget.set_image(self.widgets.img_turtle_jog)
+            widget.set_image( self.widgets.img_turtle_jog )
             active_jog_vel = self.widgets.adj_jog_vel.get_value()
-            self.widgets.adj_jog_vel.configure(self.turtle_jog, 0,
-                                               self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0)
+            self.widgets.adj_jog_vel.configure( self.turtle_jog, 0,
+                                               self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0 )
+            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+            increment = self.widgets.spc_jog_vel.get_property("increment") / self.turtle_jog_factor
+            self.widgets.spc_jog_vel.set_property("increment", increment)
         else:
             self.turtle_jog = self.widgets.adj_jog_vel.get_value()
-            widget.set_image(self.widgets.img_rabbit_jog)
-            self.widgets.adj_jog_vel.configure(self.rabbit_jog, 0,
-                                               self.jog_rate_max, 1, 0, 0)
+            widget.set_image( self.widgets.img_rabbit_jog )
+            self.widgets.adj_jog_vel.configure( self.rabbit_jog, 0,
+                                               self.jog_rate_max, 1, 0, 0 )
+            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+            increment = self.widgets.spc_jog_vel.get_property("increment") * self.turtle_jog_factor
+            self.widgets.spc_jog_vel.set_property("increment", increment)
 
     def _on_turtle_jog_enable(self, pin):
         self.widgets.tbtn_turtle_jog.set_active(bool(pin.get()))

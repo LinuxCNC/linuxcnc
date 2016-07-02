@@ -1,3 +1,8 @@
+ver. 2.0.5
+- merged with the touchscreen slider version
+- deleted unneeded INI entries
+- Attention: Hal pin names have changed during change from 1.n to 2.0
+
 ver. 2.0.4
 - merged with the gmoccapy JA version
 
