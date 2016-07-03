@@ -1,3 +1,6 @@
+ver. 2.0.13
+- updated debug server to use newest version on my computer
+
 ver. 2.0.12
 - bug in touchscreen slider if machine units and display units not equal
 - corrected some strange entries in ini files
