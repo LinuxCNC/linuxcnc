@@ -1,3 +1,10 @@
+ver. 2.0.11
+- some small changes in INI configs
+- changed the DRO Size settings depending on number of axis
+- set the init_colors of the combi DRO to hex values instead of names
+  like green, as different desktops do interpret the names with 
+  different color values
+ 
 ver. 2.0.10
 - jog vel touchscreen slider was not initialized with the correct 
   increment due to a type in a variable

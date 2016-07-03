@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.10"
+_RELEASE = " 2.0.11"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -562,11 +562,11 @@ class gmoccapy(object):
             self.widgets.gcode_view.set_language("gcode", LANGDIR)
 
         # set the user colors and digits of the DRO
-        self.abs_color = self.prefs.getpref("abs_color", "blue", str)
-        self.rel_color = self.prefs.getpref("rel_color", "black", str)
-        self.dtg_color = self.prefs.getpref("dtg_color", "yellow", str)
-        self.homed_color = self.prefs.getpref("homed_color", "green", str)
-        self.unhomed_color = self.prefs.getpref("unhomed_color", "red", str)
+        self.abs_color = self.prefs.getpref("abs_color", "#0000FF", str)         # blue
+        self.rel_color = self.prefs.getpref("rel_color", "#000000", str)         # black
+        self.dtg_color = self.prefs.getpref("dtg_color", "#FFFF00", str)         # yellow
+        self.homed_color = self.prefs.getpref("homed_color", "#00FF00", str)     # green
+        self.unhomed_color = self.prefs.getpref("unhomed_color", "#FF0000", str) # red
         self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.abs_color))
         self.widgets.rel_colorbutton.set_color(gtk.gdk.color_parse(self.rel_color))
         self.widgets.dtg_colorbutton.set_color(gtk.gdk.color_parse(self.dtg_color))
@@ -873,15 +873,28 @@ class gmoccapy(object):
             self.widgets.Combi_DRO_4.set_property("imperial_text_template", "%11.2f")
 
         # We have to change the size of the DRO, to make them fit the space
-        for axis in self.axis_list:
+        
+        # XYZ machine or lathe, no need to change the size
+        if len(self.axis_list) < 4:
+            return
+        # if we have 4 axis, we split the size of all DRO
+        elif len(self.axis_list) < 5:
+            size = int(self.dro_size * 0.75)
+            for axis in self.axis_list:
+                if axis == self.axisletter_four:
+                    axis = 4
+                self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
+        # if we have 5 axes, we will need some extra space:
+        else:
             size = self.dro_size
-            if axis == self.axisletter_four:
-                axis = 4
-                size = int(size * 0.75)
-            if axis == self.axisletter_five:
-                axis = 5
-                size = int(size * 0.75)
-            self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
+            for axis in self.axis_list:
+                if axis == self.axisletter_four:
+                    axis = 4
+                    size = int(size * 0.75)
+                if axis == self.axisletter_five:
+                    axis = 5
+                    size = int(size * 0.75)
+                self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
 
     def _hide_axis_4(self, state=False):
         print("axis 4 should be hidden", state)
