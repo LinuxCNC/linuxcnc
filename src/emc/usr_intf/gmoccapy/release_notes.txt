@@ -1,3 +1,8 @@
+ver. 2.0.10
+- jog vel touchscreen slider was not initialized with the correct 
+  increment due to a type in a variable
+- changed some default values in the INI file of 4 axis gmoccapy.ini
+
 ver. 2.0.9
 - added some 5 axis IDENTITY kinematics sim configs
 

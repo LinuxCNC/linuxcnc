@@ -137,7 +137,7 @@ class GetIniInfo:
         temp = self.inifile.find("DISPLAY", "MAX_RAPID_OVERRIDE")
         if not temp:
             temp = 1.0
-            print("**** GMOCCAPY GETINIINFO **** \n No MAX_RAPID_OVERRIDE entry found in [DISPLAY] of INI file")
+            print("**** GMOCCAPY GETINIINFO **** \n No MAX_RAPID_OVERRIDE entry found in [DISPLAY] of INI file \n Default settings 100 % applied!")
         return float(temp)
 
     def get_embedded_tabs(self):

@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.9"
+_RELEASE = " 2.0.10"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -720,9 +720,12 @@ class gmoccapy(object):
         # check if NO_FORCE_HOMING is used in ini
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
         self.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300, float)
+
         # if it's a lathe config, set the tooleditor style
         self.lathe_mode = self.get_ini_info.get_lathe()
-        self.jog_rate = self.get_ini_info.get_jog_vel()
+
+        # get the values for the sliders
+        default_jog_vel = self.get_ini_info.get_jog_vel()
         self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
         self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
         self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
@@ -731,7 +734,7 @@ class gmoccapy(object):
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
 
         # set the slider limmits
-        self.widgets.adj_jog_vel.configure(self.jog_rate, 0,
+        self.widgets.adj_jog_vel.configure(default_jog_vel, 0,
                                            self.jog_rate_max, 1, 0, 0)
         self.widgets.adj_spindle.configure(100, self.spindle_override_min * 100,
                                            self.spindle_override_max * 100, 1, 0, 0)
@@ -739,16 +742,31 @@ class gmoccapy(object):
         self.widgets.adj_rapid_override.configure(100, 0, self.rapid_override_max * 100, 1, 0, 0)
 
         # set the adjustment to the speed controls
+        # after setting the adjustment, it might be needed to change the increment
+        # as it will be resetted to its default value (MAX - MIN) / 100
         self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
         self.widgets.spc_rapid.set_adjustment(self.widgets.adj_rapid_override)
         self.widgets.spc_feed.set_adjustment(self.widgets.adj_feed)
         self.widgets.spc_spindle.set_adjustment(self.widgets.adj_spindle)
 
+        # the scales to apply to the count of the hardware mpg wheel, to avoid to much turning
+        default = (self.jog_rate_max / 100)
+        self.scale_jog_vel = self.prefs.getpref("scale_jog_vel", default, float)
+        self.widgets.adj_scale_jog_vel.set_value(self.scale_jog_vel)
+        self.scale_spindle_override = self.prefs.getpref("scale_spindle_override", 1, float)
+        self.widgets.adj_scale_spindle_override.set_value(self.scale_spindle_override)
+        self.scale_feed_override = self.prefs.getpref("scale_feed_override", 1, float)
+        self.widgets.adj_scale_feed_override.set_value(self.scale_feed_override)
+        self.scale_rapid_override = self.prefs.getpref("scale_rapid_override", 1, float)
+        self.widgets.adj_scale_rapid_override.set_value(self.scale_rapid_override)
+
         # holds the max velocity value and is needed to be able to react to halui pin
         self.max_velocity = self.stat.max_velocity
 
         # set and get all information for turtle jogging
-        self.rabbit_jog = self.jog_rate
+        # self.rabbit_jog will be used in future to store the last value
+        # so it can be recovered after jog_vel_mode switch
+        self.rabbit_jog = default_jog_vel
         hide_turtle_jog_button = self.prefs.getpref("hide_turtle_jog_button", False, bool)
         self.widgets.chk_turtle_jog.set_active(hide_turtle_jog_button)
         self.turtle_jog_factor = self.prefs.getpref('turtle_jog_factor', 20, int)
@@ -764,17 +782,6 @@ class gmoccapy(object):
             self.widgets.spc_jog_vel.set_digits(0)
         else:
             self.widgets.spc_jog_vel.set_digits(3)
-
-        # the scale to apply to the count of the hardware mpg wheel, to avoid to much turning
-        default = (self.jog_rate_max / 100)
-        self.scale_jog_vel = self.prefs.getpref("scale_jog_vel", default, float)
-        self.widgets.adj_scale_jog_vel.set_value(self.scale_jog_vel)
-        self.scale_spindle_override = self.prefs.getpref("scale_spindle_override", 1, float)
-        self.widgets.adj_scale_spindle_override.set_value(self.scale_spindle_override)
-        self.scale_feed_override = self.prefs.getpref("scale_feed_override", 1, float)
-        self.widgets.adj_scale_feed_override.set_value(self.scale_feed_override)
-        self.scale_rapid_override = self.prefs.getpref("scale_rapid_override", 1, float)
-        self.widgets.adj_scale_rapid_override.set_value(self.scale_rapid_override)
 
         # the size of the DRO
         self.dro_size = self.prefs.getpref("dro_size", 28, int)
@@ -2649,7 +2656,7 @@ class gmoccapy(object):
             self.turtle_jog_factor = self.prefs.getpref('turtle_jog_factor', 20, int)
             self.widgets.adj_turtle_jog_factor.configure(self.turtle_jog_factor, 1,
                                                          100, 1, 0, 0)
-            self.turtle_jog = self.jog_rate / self.turtle_jog_factor
+            self.turtle_jog = self.jog_rate_max / self.turtle_jog_factor
 
     def on_adj_turtle_jog_factor_value_changed(self, widget, data=None):
         if not self.initialized:
