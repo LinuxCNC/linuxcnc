@@ -29,7 +29,7 @@ problems.  Especially the section on <<Satisfying-Build-Dependencies,
 Satisfying Build Dependencies>>.
 
 If you are running on a realtime-capable system (such as an install from
-the LinuxCNC Live/Install Image, see the <<Realtime>> section below),
+the LinuxCNC Live/Install Image, see the <<_realtime,Realtime>> section below),
 one extra build step is needed at this time:
 
 -----
