@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.11"
+_RELEASE = " 2.0.12"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -780,8 +780,10 @@ class gmoccapy(object):
         # and according to machine units the digits to display
         if self.stat.linear_units == _MM:
             self.widgets.spc_jog_vel.set_digits(0)
+            self.widgets.spc_jog_vel.set_property("unit", "mm/min")
         else:
-            self.widgets.spc_jog_vel.set_digits(3)
+            self.widgets.spc_jog_vel.set_digits(2)
+            self.widgets.spc_jog_vel.set_property("unit", "inch/min")
 
         # the size of the DRO
         self.dro_size = self.prefs.getpref("dro_size", 28, int)
@@ -2374,8 +2376,12 @@ class gmoccapy(object):
             self.widgets[widget].lower = min * self.faktor
             self.widgets[widget].upper = max * self.faktor
             self.widgets[widget].set_value(value * self.faktor)
+
         self.scale_jog_vel = self.scale_jog_vel * self.faktor
         self.on_adj_rapid_override_value_changed(self.widgets.adj_rapid_override)
+        
+        self.rabbit_jog = self.rabbit_jog * self.faktor
+        self.turtle_jog = self.turtle_jog * self.faktor            
 
     def _change_dro_color(self, property, color):
         for axis in self.axis_list:
@@ -2548,11 +2554,15 @@ class gmoccapy(object):
                 self.faktor = 1.0
                 self._update_slider(widgetlist)
 
+        self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+
         if metric_units:
             self.widgets.spc_jog_vel.set_digits(0)
+            self.widgets.spc_jog_vel.set_property("unit", "mm/min")
         else:
-            self.widgets.spc_jog_vel.set_digits(3)
-
+            self.widgets.spc_jog_vel.set_digits(2)
+            self.widgets.spc_jog_vel.set_property("unit", "inch/min")
+            
     def on_tbtn_rel_toggled(self, widget, data=None):
         if self.widgets.tbtn_dtg.get_active():
             self.widgets.tbtn_dtg.set_active(False)
@@ -2682,20 +2692,24 @@ class gmoccapy(object):
                                                self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0)
 
     def on_tbtn_turtle_jog_toggled( self, widget, data = None ):
+        # due to imperial and metric options we have to get first the values of the widget
+        max = self.widgets.adj_jog_vel.upper
+        min = self.widgets.adj_jog_vel.lower
+
         if widget.get_active():
             self.rabbit_jog = self.widgets.adj_jog_vel.get_value()
             widget.set_image( self.widgets.img_turtle_jog )
             active_jog_vel = self.widgets.adj_jog_vel.get_value()
-            self.widgets.adj_jog_vel.configure( self.turtle_jog, 0,
-                                               self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0 )
+            self.widgets.adj_jog_vel.configure( self.turtle_jog, min,
+                                               max / self.turtle_jog_factor, 1, 0, 0 )
             self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
             increment = self.widgets.spc_jog_vel.get_property("increment") / self.turtle_jog_factor
             self.widgets.spc_jog_vel.set_property("increment", increment)
         else:
             self.turtle_jog = self.widgets.adj_jog_vel.get_value()
             widget.set_image( self.widgets.img_rabbit_jog )
-            self.widgets.adj_jog_vel.configure( self.rabbit_jog, 0,
-                                               self.jog_rate_max, 1, 0, 0 )
+            self.widgets.adj_jog_vel.configure( self.rabbit_jog, min,
+                                               max * self.turtle_jog_factor, 1, 0, 0 )
             self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
             increment = self.widgets.spc_jog_vel.get_property("increment") * self.turtle_jog_factor
             self.widgets.spc_jog_vel.set_property("increment", increment)
