@@ -2681,7 +2681,8 @@ class TclCommands(nf.TclCommands):
         o.tkRedraw()
 
     def toggle_teleop_mode(*args):
-        set_motion_teleop(not vars.teleop_mode.get())
+        s.poll()
+        set_motion_teleop(not (s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP))
 
     def toggle_coord_type(*args):
         vars.coord_type.set(not vars.coord_type.get())
