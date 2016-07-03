@@ -2722,6 +2722,10 @@ class TclCommands(nf.TclCommands):
         comp['jog.v'] = vars.ja_rbutton.get() == "v"
         comp['jog.w'] = vars.ja_rbutton.get() == "w"
 
+    def set_teleop_mode():
+        set_motion_teleop(vars.teleop_mode.get())
+        s.poll()
+
     def save_gcode(*args):
         if not loaded_file: return
         initialfile = ''
@@ -3778,9 +3782,7 @@ def balance_ja():
     widgets.axes.configure(width=w, height=h)
     widgets.joints.configure(width=w, height=h)
 if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-    c.teleop_enable(0)
-    c.wait_complete()
-    vars.teleop_mode.set(0)
+    set_motion_teleop(0)
     widgets.joints.grid_propagate(0)
     widgets.axes.grid_propagate(0)
     root_window.after_idle(balance_ja)
