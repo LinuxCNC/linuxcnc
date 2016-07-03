@@ -28,6 +28,14 @@ means you should read this whole document to find out how to fix your
 problems.  Especially the section on <<Satisfying-Build-Dependencies,
 Satisfying Build Dependencies>>.
 
+If you are running on a realtime-capable system (such as an install from
+the LinuxCNC Live/Install Image, see the <<_realtime,Realtime>> section below),
+one extra build step is needed at this time:
+
+-----
+> sudo make setuid
+-----
+
 After you've successfully built LinuxCNC it's time to run the tests:
 
 -----
@@ -69,6 +77,14 @@ Preempt-RT::
     Preempt-RT patch is occasionally available from the Debian
     archive at https://www.debian.org, and from the wayback machine at
     https://snapshot.debian.org.
+
+To make use of the realtime capabilities of LinuxCNC, certain parts of
+LinuxCNC need to run with root priviledges.  To enable root for these
+parts, run this extra command after the `make` that builds LinuxCNC:
+
+-----
+> sudo make setuid
+-----
 
 
 === Non-realtime
