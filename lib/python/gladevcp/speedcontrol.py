@@ -36,33 +36,35 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
 
     SpeedControl(size, value, min, max, inc_speed, unit, color, template)
 
-    size      = integer : The height of the widget in pixel
-                          allowed values are 24 to 96
-                          default is 36
-    value     = float   : The  start value to set
-                          allowed values are in the range from 0.001 to 99999.0
-                          default is 10.0
-    min       = float   : The min allowed value
-                          allowed values are 0.0 to 99999.0
-                          default is 0.0
-    max       = float   : The max allowed value
-                          allowed values are 0.001, 99999.0
-                          default is 100.0
-    inc_speed = integer : Sets the timer delay for the increment speed holding pressed the buttons
-                          allowed values are 20 to 300
-                          default is 100
-    unit      = string  : Sets the unit to be shown in the bar after the value
-                          any string is allowed
-                          default is ""
-    color     = Color   : Sets the color of the bar
-                          any hex color is allowed
-                          default is "#FF8116"
-    template  = Templ.  : Text template to display the value Python formatting is used
-                          Any allowed format
-                          default is "%.1f"
-    hide_button = Bool  : Whether to show or hide the increment an devrement button
-                          True or False
-                          Default = False
+    height      = integer : The height of the widget in pixel
+                            allowed values are 24 to 96
+                            default is 36
+    value       = float   : The  start value to set
+                            allowed values are in the range from 0.001 to 99999.0
+                            default is 10.0
+    min         = float   : The min allowed value
+                            allowed values are 0.0 to 99999.0
+                            default is 0.0
+    max         = float   : The max allowed value
+                            allowed values are 0.001, 99999.0
+                            default is 100.0
+    increment   = float   : sets the applied increment per mouse click,
+                            -1 means 100 increments fom min to max
+    inc_speed   = integer : Sets the timer delay for the increment speed holding pressed the buttons
+                            allowed values are 20 to 300
+                            default is 100
+    unit        = string  : Sets the unit to be shown in the bar after the value
+                            any string is allowed
+                            default is ""
+    color       = Color   : Sets the color of the bar
+                            any hex color is allowed
+                            default is "#FF8116"
+    template    = Templ.  : Text template to display the value Python formatting is used
+                            Any allowed format
+                            default is "%.1f"
+    hide_button = Bool  :   Whether to show or hide the increment an devrement button
+                            True or False
+                            Default = False
 
     '''
 
@@ -361,6 +363,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         self.adjustment.connect("value_changed", self._on_value_changed)
         self._min = self.adjustment.get_lower()
         self._max = self.adjustment.get_upper()
+        self._increment = (self._max - self._min) / 100.0
         self.adjustment.set_page_size(adjustment.get_page_size())
         self._value = self.adjustment.get_value()
         self.set_value(self._value)    

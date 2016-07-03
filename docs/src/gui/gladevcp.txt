@@ -872,7 +872,7 @@ SpeedControl offers some hal pin:
 
 It has the following properties:
 
-size::
+height::
 	integer
 	The height of the widget in pixel
 	allowed values are 24 to 96
@@ -893,8 +893,14 @@ min::
 max::
 	float
 	The max allowed value
-	allowed values are 0.001, 99999.0
+	allowed values are 0.001 to 99999.0
 	default is 100.0
+
+increment::
+        float
+        sets the applied increment per mouse click
+	allowed values are 0.001 to 99999.0 and -1
+        default is -1 resulting in 100 increments fom min to max
 
 inc_speed::
 	integer
@@ -939,7 +945,8 @@ Direct program control::
     There are also python methods to modify the widget:
         [widget name].set_adjustment(gtk-adjustment)
         You can assign a existing adjustment to the control, that way it is easy to replace
-        existing sliders without many code changes.
+        existing sliders without many code changes. Be aware, that after changing the adjustment
+        you may need to set a new increment, as it will be resetted to its default (100 steps from MIN to MAX)
         [widget name].get_value()
         Will return the counts value as float
         [widget name].set_value(float(value))
