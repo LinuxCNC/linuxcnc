@@ -633,7 +633,8 @@ Button .toolbar.rotate \
             } else {
                 .toolbar.rotate configure -relief link
             }
-        }
+        } \
+	-takefocus 0
 
 vrule .toolbar.rule12
 
