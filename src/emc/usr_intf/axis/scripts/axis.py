@@ -38,6 +38,7 @@ import traceback
 
 # Print Tk errors to stdout. python.org/sf/639266
 import Tkinter 
+import ttk
 OldTk = Tkinter.Tk
 class Tk(OldTk):
     def __init__(self, *args, **kw):
@@ -758,9 +759,9 @@ class LivePlotter:
         if (     enable_tab_change
             and (self.stat.task_mode != self.last_task_mode)):
             if (self.stat.task_mode == linuxcnc.MODE_MANUAL):
-                root_window.tk.eval(pane_top + ".tabs raise manual")
+                widgets.tabs.select(0)
             if (self.stat.task_mode == linuxcnc.MODE_MDI):
-                root_window.tk.eval(pane_top + ".tabs raise mdi")
+                widgets.tabs.select(1)
             if (self.stat.task_mode == linuxcnc.MODE_AUTO):
                 # not sure if anything needs to be done for this
                 pass
@@ -911,8 +912,7 @@ def running(do_poll=True):
     return s.task_mode == linuxcnc.MODE_AUTO and s.interp_state != linuxcnc.INTERP_IDLE
 
 def manual_tab_visible():
-    page = root_window.tk.call(widgets.tabs, "raise")
-    return page == "manual"
+    return widgets.tabs.index("current") == 0
 
 def manual_ok(do_poll=True):
     """warning: deceptive function name.
@@ -1222,8 +1222,8 @@ widgets = nf.Widgets(root_window,
     ("text", Text, pane_bottom + ".t.text"),
     ("preview_frame", Frame, tabs_preview),
     ("numbers_text", Text, tabs_numbers + ".text"),
-    ("tabs", bwidget.NoteBook, pane_top + ".tabs"),
-    ("right", bwidget.NoteBook, pane_top + ".right"),
+    ("tabs", ttk.Notebook, pane_top + ".tabs"),
+    ("right", ttk.Notebook, pane_top + ".right"),
     ("mdi_history", Listbox, tabs_mdi + ".history"),
     ("mdi_command", Entry, tabs_mdi + ".command"),
     ("code_text", Text, tabs_mdi + ".gcodes"),
@@ -1818,14 +1818,10 @@ def ttk_instate(w, st):
 
 class TclCommands(nf.TclCommands):
     def next_tab(event=None):
-        current = widgets.right.raise_page()
-        pages = widgets.right.pages()
-        try:
-            idx = pages.index(current)
-        except ValueError:
-            idx = -1
-        newidx = (idx + 1) % len(pages)
-        widgets.right.raise_page(pages[newidx])
+        idx = widgets.right.index("current")
+        npages = widgets.right.index("end")
+        newidx = (idx + 1) % npages
+        widgets.right.select(newidx)
         root_window.focus_force()
 
     def redraw_soon(event=None):
@@ -3549,8 +3545,8 @@ def get_coordinate_font(large):
     fontbase, coordinate_charwidth, coordinate_linespace = \
             font_cache[coordinate_font]
 
-root_window.bind("<Key-F3>", pane_top + ".tabs raise manual")
-root_window.bind("<Key-F5>", pane_top + ".tabs raise mdi")
+root_window.bind("<Key-F3>", lambda e: widgets.tabs.select(0))
+root_window.bind("<Key-F5>", lambda e: widgets.tabs.select(1))
 root_window.bind("<Key-F5>", "+" + tabs_mdi + ".command selection range 0 end")
 root_window.bind("<Key-F4>", commands.next_tab)
 
@@ -3699,7 +3695,8 @@ def destroy_splash():
         pass
 
 def _dynamic_tab(name, text):
-    tab = widgets.right.insert("end", name, text=text)
+    tab = Tkinter.Frame(widgets.right)
+    widgets.right.add(tab, text=text)
     tab.configure(borderwidth=1, highlightthickness=0)
     return tab
 

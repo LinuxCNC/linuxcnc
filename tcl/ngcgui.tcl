@@ -337,8 +337,7 @@
 # 19. For linuxcnc 2.4, the tcl proc embed_in_axis_tab will embed directly
 #     in an axis tab using [DISPLAY]USER_COMMAND_FILE (or ~/.axisrc)
 #     example:
-#     w = widgets.right.insert("end", 'ngcgui', text='Ngcgui')
-#     w.configure(borderwidth=1, highlightthickness=0)
+#     w = _dynamic_tab('ngcgui', 'Ngcgui')
 #     f = Tkinter.Frame(w, container=0, borderwidth=0, highlightthickness=0)
 #     f.pack(fill="both", expand=1, anchor="nw",side="top")
 #     root_window.tk.call("source","somepath/ngcgui.tcl")

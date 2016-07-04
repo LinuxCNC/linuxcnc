@@ -755,16 +755,7 @@ catch {
     .pane paneconfigure $pane_bottom -stretch never
 }
 
-NoteBook ${pane_top}.tabs \
-	-borderwidth 2 \
-	-arcradius 3
-proc show_all_tabs w {
-    upvar 0 NoteBook::$w data
-    set a [winfo reqwidth $w]
-    set b [expr $data(wpage) + 3]
-    if {$a < $b} { $w configure -width $b }
-}
-after 1 after idle show_all_tabs ${pane_top}.tabs
+ttk::notebook ${pane_top}.tabs
 proc set_pane_minsize {} {
     global pane_bottom pane_top
     .pane paneconfigure $pane_top -minsize [winfo reqheight $pane_top]
@@ -772,18 +763,21 @@ proc set_pane_minsize {} {
 }
 after 1 after idle set_pane_minsize
 
-set _tabs_manual [${pane_top}.tabs insert end manual -text [_ "Manual Control \[F3\]"] -raisecmd {focus .; ensure_manual}]
-set _tabs_mdi [${pane_top}.tabs insert end mdi -text [_ "MDI \[F5\]"]]
+set _tabs_manual [frame ${pane_top}.tabs.manual]
+${pane_top}.tabs add $_tabs_manual -text [_ "Manual Control \[F3\]"] 
+set _tabs_mdi [frame ${pane_top}.tabs.mdi]
+${pane_top}.tabs add $_tabs_mdi -text [_ "MDI \[F5\]"]
+bind ${pane_top}.tabs <<NotebookTabChanged>> {
+    if {[${pane_top}.tabs select] == $_tabs_manual} {
+        focus .; ensure_manual
+    }
+}
 $_tabs_manual configure -borderwidth 2
 $_tabs_mdi configure -borderwidth 2
 
-${pane_top}.tabs itemconfigure mdi -raisecmd "[list focus ${_tabs_mdi}.command]; ensure_mdi"
-#${pane_top}.tabs raise manual
 after idle {
-    ${pane_top}.tabs raise manual
-    ${pane_top}.right raise preview 
-    after idle ${pane_top}.tabs compute_size
-    after idle ${pane_top}.right compute_size
+    ${pane_top}.tabs select 0
+    ${pane_top}.right select 0
 }
 
 label $_tabs_manual.axis
@@ -1263,15 +1257,12 @@ grid $_tabs_mdi.vs3 \
 grid columnconfigure $_tabs_mdi 0 -weight 1
 grid rowconfigure $_tabs_mdi 1 -weight 1
 
-NoteBook ${pane_top}.right \
-        -borderwidth 2 \
-        -arcradius 3
-after 1 after idle show_all_tabs ${pane_top}.right
+ttk::notebook ${pane_top}.right
 
-set _tabs_preview [${pane_top}.right insert end preview -text [_ "Preview"]]
-set _tabs_numbers [${pane_top}.right insert end numbers -text [_ "DRO"]]
-$_tabs_preview configure -borderwidth 1
-$_tabs_numbers configure -borderwidth 1
+set _tabs_preview [frame ${pane_top}.right.preview]
+set _tabs_numbers [frame ${pane_top}.right.numbers]
+${pane_top}.right add $_tabs_preview -text [_ "Preview"]
+${pane_top}.right add $_tabs_numbers -text [_ "DRO"]
 
 text ${_tabs_numbers}.text -width 1 -height 1 -wrap none \
 	-background [systembuttonface] \
@@ -1853,11 +1844,11 @@ proc update_state {args} {
 }
 
 proc set_mode_from_tab {} {
-    set page [${::pane_top}.tabs raise]
+    set page [${::pane_top}.tabs select]
     switch $page {
-        mdi { ensure_mdi }
+        ${::tabs_mdi} { ensure_mdi }
         default { ensure_manual
-                  focus $::pane_top.tabs.fmanual
+                  focus $::_tabs_manual
                 }
     }
 
@@ -1954,8 +1945,8 @@ set editor_deleted 0
 bind . <Control-Tab> {
     set page [${pane_top}.tabs raise]
     switch $page {
-        mdi { ${pane_top}.tabs raise manual }
-        default { ${pane_top}.tabs raise mdi }
+        mdi { ${pane_top}.tabs select 0 }
+        default { ${pane_top}.tabs select 1 }
     }
     break
 }
