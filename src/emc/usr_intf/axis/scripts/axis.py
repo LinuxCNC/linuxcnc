@@ -310,11 +310,11 @@ def masked_axes_count():
         if s.axis_mask & (1<<i): ct +=1
     return ct
 
-class Notification(Tkinter.Frame):
+class Notification(ttk.Frame):
     def __init__(self, master):
         self.widgets = []
         self.cache = []
-        Tkinter.Frame.__init__(self, master)
+        ttk.Frame.__init__(self, master)
 
     def clear(self,iconname=None):
         if iconname:
@@ -344,10 +344,10 @@ class Notification(Tkinter.Frame):
             text.configure(text=message)
             widgets = frame, icon, text, button, iconname
         else:
-            frame = Tkinter.Frame(self)
-            icon = Tkinter.Label(frame, image=iconname)
-            text = Tkinter.Label(frame, text=message, wraplength=300, justify="left")
-            button = Tkinter.Button(frame, image=close)
+            frame = ttk.Frame(self)
+            icon = ttk.Label(frame, image=iconname)
+            text = ttk.Label(frame, text=message, wraplength=300, justify="left")
+            button = ttk.Button(frame, image=close)
             widgets = frame, icon, text, button, iconname
             text.pack(side="left")
             icon.pack(side="left")
@@ -1461,14 +1461,14 @@ class _prompt_areyousure:
         self.w = w = StringVar(t)
         l = Tkinter.Message(t, textvariable=w, justify="left", anchor="w",
                 aspect=500)
-        self.buttons = f = Tkinter.Frame(t)
-        self.ok = Tkinter.Button(f, text=_("Ok"), command=self.do_ok, width=10,height=1,padx=0,pady=.25, default="active")
-        self.cancel = Tkinter.Button(f, text=_("Cancel"), command=self.do_cancel, width=10,height=1,padx=0,pady=.25, default="normal")
+        self.buttons = f = ttk.Frame(t)
+        self.ok = ttk.Button(f, text=_("Ok"), command=self.do_ok, width=-10, default="active")
+        self.cancel = ttk.Button(f, text=_("Cancel"), command=self.do_cancel, width=-10, default="normal")
         t.wm_protocol("WM_DELETE_WINDOW", self.cancel.invoke)
-        t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
-        t.bind("<KP_Enter>", lambda event: (self.ok.flash(), self.ok.invoke()))
-        t.bind("<space>", lambda event: (self.ok.flash(), self.ok.invoke()))
-        t.bind("<Escape>", lambda event: (self.cancel.flash(), self.cancel.invoke()))
+        t.bind("<Return>", lambda event: (self.ok.invoke()))
+        t.bind("<KP_Enter>", lambda event: (self.ok.invoke()))
+        t.bind("<space>", lambda event: (self.ok.invoke()))
+        t.bind("<Escape>", lambda event: (self.cancel.invoke()))
 
         m.pack(side="top", anchor="w")
         l.pack(side="top", anchor="w", fill="x", expand=1)
@@ -1517,14 +1517,14 @@ class _prompt_float:
                 aspect=500)
         v.set(default)
         self.e = e = Entry(t, textvariable=v)
-        self.buttons = f = Tkinter.Frame(t)
-        self.ok = Tkinter.Button(f, text=_("OK"), command=self.do_ok, width=10,height=1,padx=0,pady=.25, default="active")
-        self.cancel = Tkinter.Button(f, text=_("Cancel"), command=self.do_cancel, width=10,height=1,padx=0,pady=.25, default="normal")
+        self.buttons = f = ttk.Frame(t)
+        self.ok = ttk.Button(f, text=_("OK"), command=self.do_ok, width=-10,default="active")
+        self.cancel = ttk.Button(f, text=_("Cancel"), command=self.do_cancel, width=-10,default="normal")
         v.trace("w", self.check_valid)
         t.wm_protocol("WM_DELETE_WINDOW", self.cancel.invoke)
-        t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
-        t.bind("<KP_Enter>", lambda event: (self.ok.flash(), self.ok.invoke()))
-        t.bind("<Escape>", lambda event: (self.cancel.flash(), self.cancel.invoke()))
+        t.bind("<Return>", lambda event: (self.ok.invoke()))
+        t.bind("<KP_Enter>", lambda event: (self.ok.invoke()))
+        t.bind("<Escape>", lambda event: (self.cancel.invoke()))
 
         m.pack(side="top", anchor="w")
         e.pack(side="top", anchor="e")
@@ -1636,9 +1636,9 @@ class _prompt_touchoff(_prompt_float):
         c.trace_variable("w", self.change_system)
         if not tool_only:
             l = Label(f, text=_("Coordinate System:"))
-            mb = OptionMenu(f, c, *systems)
-            mb.tk.call("size_menubutton_to_entries", mb)
-            mb.configure(takefocus=1)
+            mb = ttk.Combobox(f, textvariable=c, values=systems)
+            mb.tk.call("size_combobox_to_entries", mb)
+            mb.state(('readonly',))
             l.pack(side="left")
             mb.pack(side="left")
         f.pack(side="top") 
@@ -3621,7 +3621,7 @@ if hal_present == 1 :
     if vcp:
         import vcpparse
         comp.setprefix("pyvcp")
-        f = Tkinter.Frame(root_window)
+        f = ttk.Frame(root_window)
         f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
         vcpparse.filename = vcp
         vcpparse.create_vcp(f, comp)
@@ -3629,7 +3629,7 @@ if hal_present == 1 :
 
     gladevcp = inifile.find("DISPLAY", "GLADEVCP")
     if gladevcp:
-        f = Tkinter.Frame(root_window, container=1, borderwidth=0, highlightthickness=0)
+        f = ttk.Frame(root_window, container=1, borderwidth=0, highlightthickness=0)
         f.grid(row=0, column=5, rowspan=6, sticky="nsew", padx=4, pady=4)
     else:
         f = None
@@ -3704,7 +3704,7 @@ def destroy_splash():
         pass
 
 def _dynamic_tab(name, text):
-    tab = Tkinter.Frame(widgets.right)
+    tab = ttk.Frame(widgets.right)
     widgets.right.add(tab, text=text)
     tab.configure(borderwidth=1, highlightthickness=0)
     return tab
@@ -3725,7 +3725,7 @@ def _dynamic_tabs(inifile):
 
     for i,t,c in zip(range(len(tab_cmd)), tab_names, tab_cmd):
         w = _dynamic_tab("user_" + str(i), t)
-        f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
+        f = ttk.Frame(w, container=1, borderwidth=0, highlightthickness=0)
         f.pack(fill="both", expand=1)
         xid = f.winfo_id()
         cmd = c.replace('{XID}', str(xid)).split()
