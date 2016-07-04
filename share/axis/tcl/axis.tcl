@@ -810,12 +810,10 @@ ttk::frame $_tabs_manual.axes
 # Axis select radiobuttons
 # These set the variable ja_rbutton to alphabetic value
 foreach {letter} {x y z a b c u v w} {
-  radiobutton $_tabs_manual.axes.axis$letter \
-	-anchor w \
-	-padx 0 \
-	-value $letter \
+  ttk::radiobutton $_tabs_manual.axes.axis$letter \
+        -style Small.TRadiobutton \
+	-value "$letter" \
 	-variable ja_rbutton \
-	-width 2 \
         -text [string toupper $letter] \
         -command axis_activated
 }
@@ -835,9 +833,8 @@ ttk::frame $_tabs_manual.joints
 # Joints select radiobuttons
 # These set the variable ja_rbutton to numeric values [0,MAX_JOINTS)
 for {set num 0} {$num < $::MAX_JOINTS} {incr num} {
-  radiobutton $_tabs_manual.joints.joint$num \
-	-anchor w \
-	-padx 0 \
+  ttk::radiobutton $_tabs_manual.joints.joint$num \
+        -style Small.TRadiobutton \
 	-value $num \
 	-variable ja_rbutton \
 	-width 2 \
