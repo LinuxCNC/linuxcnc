@@ -1351,48 +1351,43 @@ def set_hal_jogincrement():
         distance = parse_increment(jogincr)
     comp['jog.increment'] = distance
 
-def jogspeed_listbox_change(dummy, value):
+def jogspeed_listbox_change(unused=None):
+    values = root_window.tk.splitlist(widgets.jogincr.cget("values"))
+    value = vars.jogincrement.get()
     global jogincr_index_last
-    # pdb.set_trace()
-    # FJ: curselection is not always up to date here, so 
-    #     do a linear search by hand
-    iterator = iter(root_window.call(widgets.jogincr._w, "list", "get", "0", "end"))
-    idx = 0
-    cursel = -1
-    for i in iterator:
-        if i == unicode(value, 'utf-8'):
-            cursel= idx
-            break
-        idx += 1
+    try:
+        cursel = values.index(value)
+    except ValueError:
+        cursel = -1
     if cursel > 0:
         jogincr_index_last= cursel
     set_hal_jogincrement()
 
 def jogspeed_continuous():
-    root_window.call(widgets.jogincr._w, "select", 0)
+    values = root_window.tk.splitlist(widgets.jogincr.cget("values"))
+    vars.jogincrement.set(values[0])
+    set_hal_jogincrement()
 
 def jogspeed_incremental(dir=1):
     global jogincr_index_last
-    jogincr_size = int(root_window.call(widgets.jogincr._w, "list", "size"))
-    # pdb.set_trace()
-    cursel = root_window.call(widgets.jogincr._w, "curselection")
-    if type(cursel) == tuple: cursel = cursel[0]
-    if cursel == "":
-        cursel = 0
-    else:
-        cursel = int(cursel)
+    values = root_window.tk.splitlist(widgets.jogincr.cget("values"))
+    value = vars.jogincrement.get()
+    try:
+        cursel = values.index(value)
+    except ValueError:
+        cursel = -1
     if dir == 1:
         if cursel > 0:
             # If it was "Continous" just before, then don't change last jog increment!
             jogincr_index_last += 1
-        if jogincr_index_last >= jogincr_size:
-            jogincr_index_last = jogincr_size - 1
+        if jogincr_index_last >= len(values):
+            jogincr_index_last = len(values) - 1
     else:
         if cursel > 0:
             jogincr_index_last -= 1
         if jogincr_index_last < 1:
             jogincr_index_last = 1
-    root_window.call(widgets.jogincr._w, "select", jogincr_index_last)   
+    vars.jogincrement.set(values[jogincr_index_last])
     set_hal_jogincrement()
 
 
@@ -2781,6 +2776,7 @@ vars = nf.Variables(root_window,
     ("task_mode", IntVar),
     ("has_ladder", IntVar),
     ("has_editor", IntVar),
+    ("jogincrement", StringVar),
     ("ja_rbutton", StringVar),
     ("tto_g11", BooleanVar),
     ("mist", BooleanVar),
@@ -3413,10 +3409,11 @@ if increments:
         increments = [i.strip() for i in increments.split(",")]
     else:
         increments = increments.split()
-    root_window.call(widgets.jogincr._w, "list", "delete", "1", "end")
-    root_window.call(widgets.jogincr._w, "list", "insert", "end", *increments)
-widgets.jogincr.configure(command= jogspeed_listbox_change)
-root_window.call(widgets.jogincr._w, "select", 0)   
+    increments = [_("Continuous")] + increments
+    widgets.jogincr.configure(values=increments)
+    root_window.call("size_combobox_to_entries", widgets.jogincr._w)
+widgets.jogincr.bind("<<ComboboxSelected>>", jogspeed_listbox_change)
+jogspeed_continuous()
 
 vcp = inifile.find("DISPLAY", "PYVCP")
 

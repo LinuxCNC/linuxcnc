@@ -117,10 +117,8 @@ def start(r):
 
     source_lib_tcl(r, "accel.tcl")
     source_lib_tcl(r, "support.tcl")
-    source_lib_tcl(r, "combobox.tcl")
     source_lib_tcl(r, "dialog.tcl")
 
     r.tk.call("package", "require", "BWidget", "1.7")
-    r.tk.call("namespace", "import", "combobox::combobox")
 
 # vim:ts=8:sts=4:et:

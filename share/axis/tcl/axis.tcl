@@ -889,12 +889,12 @@ bind $_tabs_manual.jogf.jog.jogplus <ButtonRelease-1> {
     if {[is_continuous]} { jog_stop }
 }
 
-combobox $_tabs_manual.jogf.jog.jogincr \
-	-editable 0 \
+ttk::combobox $_tabs_manual.jogf.jog.jogincr \
 	-textvariable jogincrement \
 	-value [_ Continuous] \
+        -values [list [_ Continuous] 0.1000 0.0100 0.0010 0.0001] \
 	-width 10
-$_tabs_manual.jogf.jog.jogincr list insert end [_ Continuous] 0.1000 0.0100 0.0010 0.0001
+$_tabs_manual.jogf.jog.jogincr state readonly
 
 frame $_tabs_manual.jogf.zerohome
 
@@ -2057,7 +2057,7 @@ proc size_combobox_to_entries c {
     set fo [$c cget -font]
     set wi [font measure $fo 0]
     set sz 4
-    foreach i [$c list get 0 end] {
+    foreach i [$c cget -values] {
         set li [expr ([font measure $fo $i] + $wi - 1)/$wi]
         if {$li > $sz} { set sz $li }
     }
