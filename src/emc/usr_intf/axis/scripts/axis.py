@@ -550,12 +550,12 @@ class MyOpengl(GlCanonDraw, Opengl):
 
     def get_view(self):
         x,y,z,p = 0,1,2,3
-        if str(widgets.view_x['relief']) == "sunken":
+        if ttk_instate(widgets.view_x, 'selected'):
             view = x
-        elif str(widgets.view_y['relief']) == "sunken":
+        elif ttk_instate(widgets.view_y, 'selected'):
             view = y
-        elif (str(widgets.view_z['relief']) == "sunken" or
-              str(widgets.view_z2['relief']) == "sunken"):
+        elif (ttk_instate(widgets.view_z, 'selected') or
+              ttk_instate(widgets.view_z2, 'selected')):
             view = z
         else:
             view = p
@@ -1811,6 +1811,11 @@ def get_states():
            )
 #-----------------------------------------------------------
 
+def ttk_state(w, st):
+    w.tk.call(w._w, "state", st)
+def ttk_instate(w, st):
+    return w.tk.call(w._w, "instate", st)
+
 class TclCommands(nf.TclCommands):
     def next_tab(event=None):
         current = widgets.right.raise_page()
@@ -1975,48 +1980,48 @@ class TclCommands(nf.TclCommands):
         o.zoomout()
 
     def set_view_x(event=None):
-        widgets.view_z.configure(relief="link")
-        widgets.view_z2.configure(relief="link")
-        widgets.view_x.configure(relief="sunken")
-        widgets.view_y.configure(relief="link")
-        widgets.view_p.configure(relief="link")
+        ttk_state(widgets.view_z, "!selected")
+        ttk_state(widgets.view_z2, "!selected")
+        ttk_state(widgets.view_x, "selected")
+        ttk_state(widgets.view_y, "!selected")
+        ttk_state(widgets.view_p, "!selected")
         vars.view_type.set(3)
         o.set_view_x()
 
     def set_view_y(event=None):
-        widgets.view_z.configure(relief="link")
-        widgets.view_z2.configure(relief="link")
-        widgets.view_x.configure(relief="link")
-        widgets.view_y.configure(relief="sunken")
-        widgets.view_p.configure(relief="link")
+        ttk_state(widgets.view_z, "!selected")
+        ttk_state(widgets.view_z2, "!selected")
+        ttk_state(widgets.view_x, "!selected")
+        ttk_state(widgets.view_y, "selected")
+        ttk_state(widgets.view_p, "!selected")
         vars.view_type.set(4)
         o.set_view_y()
 
     def set_view_z(event=None):
-        widgets.view_z.configure(relief="sunken")
-        widgets.view_z2.configure(relief="link")
-        widgets.view_x.configure(relief="link")
-        widgets.view_y.configure(relief="link")
-        widgets.view_p.configure(relief="link")
+        ttk_state(widgets.view_z, "selected")
+        ttk_state(widgets.view_z2, "!selected")
+        ttk_state(widgets.view_x, "!selected")
+        ttk_state(widgets.view_y, "!selected")
+        ttk_state(widgets.view_p, "!selected")
         vars.view_type.set(1)
         o.set_view_z()
 
     def set_view_z2(event=None):
-        widgets.view_z.configure(relief="link")
-        widgets.view_z2.configure(relief="sunken")
-        widgets.view_x.configure(relief="link")
-        widgets.view_y.configure(relief="link")
-        widgets.view_p.configure(relief="link")
+        ttk_state(widgets.view_z, "!selected")
+        ttk_state(widgets.view_z2, "selected")
+        ttk_state(widgets.view_x, "!selected")
+        ttk_state(widgets.view_y, "!selected")
+        ttk_state(widgets.view_p, "!selected")
         vars.view_type.set(2)
         o.set_view_z2()
 
 
     def set_view_p(event=None):
-        widgets.view_z.configure(relief="link")
-        widgets.view_z2.configure(relief="link")
-        widgets.view_x.configure(relief="link")
-        widgets.view_y.configure(relief="link")
-        widgets.view_p.configure(relief="sunken")
+        ttk_state(widgets.view_z, "!selected")
+        ttk_state(widgets.view_z2, "!selected")
+        ttk_state(widgets.view_x, "!selected")
+        ttk_state(widgets.view_y, "!selected")
+        ttk_state(widgets.view_p, "selected")
         vars.view_type.set(5)
         o.set_view_p()
 
@@ -2070,13 +2075,13 @@ class TclCommands(nf.TclCommands):
 
     def open_file_name(f):
         open_file_guts(f)
-        if str(widgets.view_x['relief']) == "sunken":
+        if ttk_instate(widgets.view_x, 'selected'):
             commands.set_view_x()
-        elif str(widgets.view_y['relief']) == "sunken":
+        elif ttk_instate(widgets.view_y, 'selected'):
             commands.set_view_y()
-        elif str(widgets.view_z['relief']) == "sunken":
+        elif ttk_instate(widgets.view_z, 'selected'):
             commands.set_view_z()
-        elif  str(widgets.view_z2['relief']) == "sunken":
+        elif ttk_instate(widgets.view_z2, 'selected'):
             commands.set_view_z2()
         else:
             commands.set_view_p()
@@ -2693,13 +2698,13 @@ class TclCommands(nf.TclCommands):
             c.override_limits()
 
     def cycle_view(*args):
-        if str(widgets.view_x['relief']) == "sunken":
+        if ttk_instate(widgets.view_x, 'selected'):
             commands.set_view_y()
-        elif str(widgets.view_y['relief']) == "sunken":
+        elif ttk_instate(widgets.view_y, 'selected'):
             commands.set_view_p()
-        elif str(widgets.view_z['relief']) == "sunken":
+        elif ttk_instate(widgets.view_z, 'selected'):
             commands.set_view_z2()
-        elif str(widgets.view_z2['relief']) == "sunken":
+        elif ttk_instate(widgets.view_z2, 'selected'):
             commands.set_view_x()
         else:
             commands.set_view_z()

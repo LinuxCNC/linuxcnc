@@ -472,57 +472,57 @@ frame .toolbar \
 
 vrule .toolbar.rule16
 
-Button .toolbar.machine_estop \
+ttk::button .toolbar.machine_estop \
+        -style Toolbutton \
 	-image [load_image tool_estop] \
-	-relief sunken \
 	-takefocus 0
 bind .toolbar.machine_estop <Button-1> { estop_clicked }
 setup_widget_accel .toolbar.machine_estop {}
 
-Button .toolbar.machine_power \
+ttk::button .toolbar.machine_power \
+        -style Toolbutton \
 	-command onoff_clicked \
 	-image [load_image tool_power] \
-	-relief link \
 	-state disabled \
 	-takefocus 0
 setup_widget_accel .toolbar.machine_power {}
 
 vrule .toolbar.rule0
 
-Button .toolbar.file_open \
+ttk::button .toolbar.file_open \
+        -style Toolbutton \
 	-command { open_file } \
 	-image [load_image tool_open] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.file_open {}
 
-Button .toolbar.reload \
+ttk::button .toolbar.reload \
+        -style Toolbutton \
 	-command { reload_file } \
 	-image [load_image tool_reload] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.reload {}
 
 vrule .toolbar.rule4
 
-Button .toolbar.program_run \
+ttk::button .toolbar.program_run \
+        -style Toolbutton \
 	-command task_run \
 	-image [load_image tool_run] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.program_run {}
 
-Button .toolbar.program_step \
+ttk::button .toolbar.program_step \
+        -style Toolbutton \
 	-command task_step \
 	-image [load_image tool_step] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.program_step {}
 
-Button .toolbar.program_pause \
+ttk::button .toolbar.program_pause \
+        -style Toolbutton \
 	-command task_pauseresume \
 	-image [load_image tool_pause] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.program_pause {}
 
@@ -533,97 +533,96 @@ proc pause_image_override {} {
   .toolbar.program_pause configure -image [load_image resume_inhibit]
 }
 
-Button .toolbar.program_stop \
+ttk::button .toolbar.program_stop \
+        -style Toolbutton \
 	-command task_stop \
 	-image [load_image tool_stop] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.program_stop {}
 
 vrule .toolbar.rule8
 
-Button .toolbar.program_blockdelete \
+ttk::button .toolbar.program_blockdelete \
+        -style Toolbutton \
         -command { set block_delete [expr {!$block_delete}]; toggle_block_delete } \
 	-image [load_image tool_blockdelete] \
-        -relief link \
         -takefocus 0
 
-Button .toolbar.program_optpause \
+ttk::button .toolbar.program_optpause \
+        -style Toolbutton \
         -command { set optional_stop [expr {!$optional_stop}]; toggle_optional_stop } \
 	-image [load_image tool_optpause] \
-        -relief link \
         -takefocus 0
 
 vrule .toolbar.rule9
  
-Button .toolbar.view_zoomin \
+ttk::button .toolbar.view_zoomin \
+        -style Toolbutton \
 	-command zoomin \
 	-image [load_image tool_zoomin] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.view_zoomin {}
 
-Button .toolbar.view_zoomout \
+ttk::button .toolbar.view_zoomout \
+        -style Toolbutton \
 	-command zoomout \
 	-image [load_image tool_zoomout] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.view_zoomout {}
 
-Button .toolbar.view_z \
+ttk::button .toolbar.view_z \
+        -style Toolbutton \
 	-command set_view_z \
 	-image [load_image tool_axis_z] \
-	-relief sunken \
 	-takefocus 0
 setup_widget_accel .toolbar.view_z {}
 
-Button .toolbar.view_z2 \
+ttk::button .toolbar.view_z2 \
+        -style Toolbutton \
 	-command set_view_z2 \
 	-image [load_image tool_axis_z2] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.view_z2 {}
 
-Button .toolbar.view_x \
+ttk::button .toolbar.view_x \
+        -style Toolbutton \
 	-command set_view_x \
 	-image [load_image tool_axis_x] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.view_x {}
 
-Button .toolbar.view_y \
+ttk::button .toolbar.view_y \
+        -style Toolbutton \
 	-command set_view_y \
 	-image [load_image tool_axis_y] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.view_y {}
 
-Button .toolbar.view_p \
+ttk::button .toolbar.view_p \
+        -style Toolbutton \
 	-command set_view_p \
 	-image [load_image tool_axis_p] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.view_p {}
 
-Button .toolbar.rotate \
+ttk::button .toolbar.rotate \
+        -style Toolbutton \
         -image [load_image tool_rotate] \
-        -relief link \
         -command {
             set rotate_mode [expr {!$rotate_mode}]
             if {$rotate_mode} {
                 .toolbar.rotate configure -relief sunken
             } else {
-                .toolbar.rotate configure -relief link
             }
         } \
 	-takefocus 0
 
 vrule .toolbar.rule12
 
-Button .toolbar.clear_plot \
+ttk::button .toolbar.clear_plot \
+        -style Toolbutton \
 	-command clear_live_plot \
 	-image [load_image tool_clear] \
-	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.clear_plot {}
 
@@ -1680,7 +1679,7 @@ proc enable_group {ws} { foreach w $ws { $w configure -state normal } }
 
 proc state {e args} {
     set e [uplevel \#0 [list expr $e]]
-    if {$e} { set newstate normal } else {set newstate disabled}
+    if {$e} { set newstate normal; set tstate !disabled } else {set newstate disabled; set tstate disabled}
     foreach w $args {
         if {[llength $w] > 1} {
             set m [lindex $w 0]
@@ -1692,17 +1691,30 @@ proc state {e args} {
                 }
             }
         } else {
-            set oldstate [$w cget -state]
-            if {$oldstate != $newstate} {
-                $w configure -state $newstate
+            set cl [winfo class $w]
+            switch -- $cl {
+                TButton { $w state $tstate }
+                * {
+                    set oldstate [$w cget -state]
+                    if {$oldstate != $newstate} {
+                        $w configure -state $newstate
+                    }
+                }
             }
         }
     }
 }
+
 proc relief {e args} {
     set e [uplevel \#0 [list expr $e]]
-    if {$e} { set newstate sunken } else {set newstate link }
-    foreach w $args { $w configure -relief $newstate }
+    if {$e} { set newstate sunken; set tstate selected } else {set newstate link; set tstate !selected }
+    foreach w $args {
+        set cl [winfo class $w]
+        switch -- $cl {
+            TButton { $w state $tstate }
+            * { $w configure -relief $newstate }
+        }
+    }
 }
 
 proc update_title {args} {
