@@ -16,6 +16,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+ttk::style theme use alt
+
 proc add_standard_styles {} {
     ttk::style configure NoIndicator.TCheckbutton -relief flat -anchor {}
     ttk::style map NoIndicator.TCheckbutton \
