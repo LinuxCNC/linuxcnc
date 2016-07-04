@@ -16,6 +16,26 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+proc add_standard_styles {} {
+    ttk::style configure NoIndicator.TCheckbutton -relief flat -anchor {}
+    ttk::style map NoIndicator.TCheckbutton \
+        -relief [list selected sunken {pressed !disabled} sunken active raised]
+    ttk::style layout NoIndicator.TCheckbutton {
+        Checkbutton.border -children {
+           Checkbutton.padding -children {
+               Checkbutton.focus -children { Checkbutton.label } } } }
+    ttk::style configure NoIndicator.TRadiobutton -relief flat -anchor {}
+    ttk::style map NoIndicator.TRadiobutton \
+        -relief [list selected sunken {pressed !disabled} sunken active raised]
+    ttk::style layout NoIndicator.TRadiobutton {
+        Radiobutton.border -children {
+           Radiobutton.padding -children {
+               Radiobutton.focus -children { Radiobutton.label } } } }
+    ttk::style configure Small.TButton -padding {0 0 0 0}
+}
+
+foreach t [ttk::style theme names] { ttk::style theme settings $t add_standard_styles }
+
 lappend auto_path $::linuxcnc::TCL_LIB_DIR
 
 . configure \
@@ -962,37 +982,33 @@ ttk::frame $_tabs_manual.spindlef
 ttk::frame $_tabs_manual.spindlef.row1
 ttk::frame $_tabs_manual.spindlef.row2
 
-radiobutton $_tabs_manual.spindlef.ccw \
-	-borderwidth 2 \
+ttk::radiobutton $_tabs_manual.spindlef.ccw \
 	-command spindle \
 	-image [load_image spindle_ccw] \
-	-indicatoron 0 \
-	-selectcolor [systembuttonface] \
+	-style NoIndicator.TRadiobutton \
 	-value -1 \
 	-variable spindledir
 setup_widget_accel $_tabs_manual.spindlef.ccw {}
 
-radiobutton $_tabs_manual.spindlef.stop \
-	-borderwidth 2 \
+ttk::radiobutton $_tabs_manual.spindlef.stop \
 	-command spindle \
-	-indicatoron 0 \
-	-selectcolor [systembuttonface] \
+	-style NoIndicator.TRadiobutton \
 	-value 0 \
+        -width 0 \
 	-variable spindledir
 setup_widget_accel $_tabs_manual.spindlef.stop [_ Stop]
 
-radiobutton $_tabs_manual.spindlef.cw \
-	-borderwidth 2 \
+ttk::radiobutton $_tabs_manual.spindlef.cw \
 	-command spindle \
 	-image [load_image spindle_cw] \
-	-indicatoron 0 \
-	-selectcolor [systembuttonface] \
+	-style NoIndicator.TRadiobutton \
 	-value 1 \
 	-variable spindledir
 setup_widget_accel $_tabs_manual.spindlef.cw {}
 
 ttk::button $_tabs_manual.spindlef.spindleminus \
-	-width 2
+	-width 2 \
+        -style Small.TButton
 bind $_tabs_manual.spindlef.spindleminus <Button-1> {
 	if {[%W cget -state] == "disabled"} { continue }
 	spindle_decrease
@@ -1004,7 +1020,8 @@ bind $_tabs_manual.spindlef.spindleminus <ButtonRelease-1> {
 setup_widget_accel $_tabs_manual.spindlef.spindleminus [_ -]
 
 ttk::button $_tabs_manual.spindlef.spindleplus \
-	-width 2
+	-width 2 \
+        -style Small.TButton
 bind $_tabs_manual.spindlef.spindleplus <Button-1> {
 	if {[%W cget -state] == "disabled"} { continue }
 	spindle_increase
