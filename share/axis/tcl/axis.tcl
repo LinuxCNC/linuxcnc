@@ -863,10 +863,8 @@ for {set row 0} {$row < 3} {incr row} {
 frame $_tabs_manual.jogf
 frame $_tabs_manual.jogf.jog
 
-button $_tabs_manual.jogf.jog.jogminus \
+ttk::button $_tabs_manual.jogf.jog.jogminus \
 	-command {if {![is_continuous]} {jog_minus 1}} \
-	-padx 0 \
-	-pady 0 \
 	-width 2 \
         -text -
 bind $_tabs_manual.jogf.jog.jogminus <Button-1> {
@@ -876,10 +874,8 @@ bind $_tabs_manual.jogf.jog.jogminus <ButtonRelease-1> {
     if {[is_continuous]} { jog_stop }
 }
 
-button $_tabs_manual.jogf.jog.jogplus \
+ttk::button $_tabs_manual.jogf.jog.jogplus \
 	-command {if {![is_continuous]} {jog_plus 1}} \
-	-padx 0 \
-	-pady 0 \
 	-width 2 \
         -text +
 bind $_tabs_manual.jogf.jog.jogplus <Button-1> {
@@ -898,22 +894,16 @@ $_tabs_manual.jogf.jog.jogincr state readonly
 
 frame $_tabs_manual.jogf.zerohome
 
-button $_tabs_manual.jogf.zerohome.home \
-	-command home_joint \
-	-padx 2m \
-	-pady 0
+ttk::button $_tabs_manual.jogf.zerohome.home \
+	-command home_joint
 setup_widget_accel $_tabs_manual.jogf.zerohome.home [_ "Home Axis"]
 
-button $_tabs_manual.jogf.zerohome.zero \
-	-command touch_off_system \
-	-padx 2m \
-	-pady 0
+ttk::button $_tabs_manual.jogf.zerohome.zero \
+	-command touch_off_system
 setup_widget_accel $_tabs_manual.jogf.zerohome.zero [_ "Touch Off"]
 
-button $_tabs_manual.jogf.zerohome.tooltouch \
-	-command touch_off_tool \
-	-padx 2m \
-	-pady 0
+ttk::button $_tabs_manual.jogf.zerohome.tooltouch \
+	-command touch_off_tool
 setup_widget_accel $_tabs_manual.jogf.zerohome.tooltouch [_ "Tool Touch Off"]
 
 
@@ -1026,9 +1016,7 @@ radiobutton $_tabs_manual.spindlef.cw \
 	-variable spindledir
 setup_widget_accel $_tabs_manual.spindlef.cw {}
 
-button $_tabs_manual.spindlef.spindleminus \
-	-padx 0 \
-	-pady 0 \
+ttk::button $_tabs_manual.spindlef.spindleminus \
 	-width 2
 bind $_tabs_manual.spindlef.spindleminus <Button-1> {
 	if {[%W cget -state] == "disabled"} { continue }
@@ -1040,9 +1028,7 @@ bind $_tabs_manual.spindlef.spindleminus <ButtonRelease-1> {
 }
 setup_widget_accel $_tabs_manual.spindlef.spindleminus [_ -]
 
-button $_tabs_manual.spindlef.spindleplus \
-	-padx 0 \
-	-pady 0 \
+ttk::button $_tabs_manual.spindlef.spindleplus \
 	-width 2
 bind $_tabs_manual.spindlef.spindleplus <Button-1> {
 	if {[%W cget -state] == "disabled"} { continue }
@@ -1201,7 +1187,7 @@ listbox $_tabs_mdi.history \
 # always have an empty element at the end
 $_tabs_mdi.history insert end ""
 
-scrollbar $_tabs_mdi.history.sby -borderwidth 0  -command "$_tabs_mdi.history yview"
+ttk::scrollbar $_tabs_mdi.history.sby -command "$_tabs_mdi.history yview"
 pack $_tabs_mdi.history.sby -side right -fill y
 grid rowconfigure $_tabs_mdi.history 0 -weight 1
 
@@ -1211,13 +1197,11 @@ vspace $_tabs_mdi.vs1 \
 label $_tabs_mdi.commandl
 setup_widget_accel $_tabs_mdi.commandl [_ "MDI Command:"]
 
-entry $_tabs_mdi.command \
+ttk::entry $_tabs_mdi.command \
 	-textvariable mdi_command
 
-button $_tabs_mdi.go \
-	-command send_mdi \
-	-padx 1m \
-	-pady 0
+ttk::button $_tabs_mdi.go \
+	-command send_mdi
 setup_widget_accel $_tabs_mdi.go [_ Go]
 
 vspace $_tabs_mdi.vs2 \
@@ -1373,10 +1357,8 @@ text ${pane_bottom}.t.text \
 ${pane_bottom}.t.text insert end {}
 bind ${pane_bottom}.t.text <Configure> { goto_sensible_line }
 
-scrollbar ${pane_bottom}.t.sb \
-	-borderwidth 0 \
-	-command [list ${pane_bottom}.t.text yview] \
-	-highlightthickness 0
+ttk::scrollbar ${pane_bottom}.t.sb \
+	-command [list ${pane_bottom}.t.text yview]
 
 # Pack widget ${pane_bottom}.t.text
 pack ${pane_bottom}.t.text \
@@ -1567,11 +1549,9 @@ text .about.message \
 .about.message insert end [subst [_ "LinuxCNC/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with LinuxCNC.\n\nVisit the LinuxCNC web site: "]] {} {http://www.linuxcnc.org/} link
 .about.message configure -state disabled
 
-button .about.ok \
+ttk::button .about.ok \
 	-command {wm wi .about} \
 	-default active \
-	-padx 0 \
-	-pady 0 \
 	-width 10
 setup_widget_accel .about.ok [_ OK]
 
@@ -1604,11 +1584,9 @@ bind .keys <Key-Escape> { wm withdraw .keys }
 
 frame .keys.text \
 
-button .keys.ok \
+ttk::button .keys.ok \
 	-command {wm wi .keys} \
 	-default active \
-	-padx 0 \
-	-pady 0 \
 	-width 10
 setup_widget_accel .keys.ok [_ OK]
 
