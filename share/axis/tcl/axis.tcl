@@ -466,7 +466,7 @@ setup_menu_accel .menu end [_ _View]
 	-menu .menu.help
 setup_menu_accel .menu end [_ _Help]
 
-frame .toolbar \
+ttk::frame .toolbar \
 	-borderwidth 1 \
 	-relief raised
 
@@ -746,8 +746,8 @@ panedwindow .pane \
         -sashpad 0 \
         -showhandle 1
 
-set pane_top [frame .pane.top]
-set pane_bottom [frame .pane.bottom]
+set pane_top [ttk::frame .pane.top]
+set pane_bottom [ttk::frame .pane.bottom]
 .pane add $pane_top -sticky nsew
 .pane add $pane_bottom -sticky nsew
 catch {
@@ -763,9 +763,9 @@ proc set_pane_minsize {} {
 }
 after 1 after idle set_pane_minsize
 
-set _tabs_manual [frame ${pane_top}.tabs.manual]
+set _tabs_manual [ttk::frame ${pane_top}.tabs.manual]
 ${pane_top}.tabs add $_tabs_manual -text [_ "Manual Control \[F3\]"] 
-set _tabs_mdi [frame ${pane_top}.tabs.mdi]
+set _tabs_mdi [ttk::frame ${pane_top}.tabs.mdi]
 ${pane_top}.tabs add $_tabs_mdi -text [_ "MDI \[F5\]"]
 bind ${pane_top}.tabs <<NotebookTabChanged>> {
     if {[${pane_top}.tabs select] == $_tabs_manual} {
@@ -780,10 +780,10 @@ after idle {
     ${pane_top}.right select 0
 }
 
-label $_tabs_manual.axis
+ttk::label $_tabs_manual.axis
 setup_widget_accel $_tabs_manual.axis [_ Axis:]
 
-frame $_tabs_manual.axes
+ttk::frame $_tabs_manual.axes
 
 # Axis select radiobuttons
 # These set the variable ja_rbutton to alphabetic value
@@ -808,7 +808,7 @@ for {set row 0} {$row < 3} {incr row} {
   }
 }
 
-frame $_tabs_manual.joints
+ttk::frame $_tabs_manual.joints
 
 # Joints select radiobuttons
 # These set the variable ja_rbutton to numeric values [0,MAX_JOINTS)
@@ -836,8 +836,8 @@ for {set row 0} {$row < 3} {incr row} {
   if {$jno >= $::MAX_JOINTS} break
 }
 
-frame $_tabs_manual.jogf
-frame $_tabs_manual.jogf.jog
+ttk::frame $_tabs_manual.jogf
+ttk::frame $_tabs_manual.jogf.jog
 
 ttk::button $_tabs_manual.jogf.jog.jogminus \
 	-command {if {![is_continuous]} {jog_minus 1}} \
@@ -868,7 +868,7 @@ ttk::combobox $_tabs_manual.jogf.jog.jogincr \
 	-width 10
 $_tabs_manual.jogf.jog.jogincr state readonly
 
-frame $_tabs_manual.jogf.zerohome
+ttk::frame $_tabs_manual.jogf.zerohome
 
 ttk::button $_tabs_manual.jogf.zerohome.home \
 	-command home_joint
@@ -956,12 +956,12 @@ grid $_tabs_manual.jogf.jog.jogincr \
 vspace $_tabs_manual.space1 \
 	-height 12
 
-label $_tabs_manual.spindlel
+ttk::label $_tabs_manual.spindlel
 setup_widget_accel $_tabs_manual.spindlel [_ Spindle:]
 
-frame $_tabs_manual.spindlef
-frame $_tabs_manual.spindlef.row1
-frame $_tabs_manual.spindlef.row2
+ttk::frame $_tabs_manual.spindlef
+ttk::frame $_tabs_manual.spindlef.row1
+ttk::frame $_tabs_manual.spindlef.row2
 
 radiobutton $_tabs_manual.spindlef.ccw \
 	-borderwidth 2 \
@@ -1065,7 +1065,7 @@ pack $_tabs_manual.spindlef.spindleplus \
 vspace $_tabs_manual.space2 \
 	-height 12
 
-label $_tabs_manual.coolant
+ttk::label $_tabs_manual.coolant
 setup_widget_accel $_tabs_manual.coolant [_ Coolant:]
 
 checkbutton $_tabs_manual.mist \
@@ -1147,7 +1147,7 @@ grid $_tabs_manual.spindlel \
 	-pady 2 \
 	-sticky nw
 
-label $_tabs_mdi.historyl
+ttk::label $_tabs_mdi.historyl
 setup_widget_accel $_tabs_mdi.historyl [_ History:]
 
 # MDI-history listbox
@@ -1170,7 +1170,7 @@ grid rowconfigure $_tabs_mdi.history 0 -weight 1
 vspace $_tabs_mdi.vs1 \
 	-height 12
 
-label $_tabs_mdi.commandl
+ttk::label $_tabs_mdi.commandl
 setup_widget_accel $_tabs_mdi.commandl [_ "MDI Command:"]
 
 ttk::entry $_tabs_mdi.command \
@@ -1183,7 +1183,7 @@ setup_widget_accel $_tabs_mdi.go [_ Go]
 vspace $_tabs_mdi.vs2 \
 	-height 12
 
-label $_tabs_mdi.gcodel
+ttk::label $_tabs_mdi.gcodel
 setup_widget_accel $_tabs_mdi.gcodel [_ "Active G-Codes:"]
 
 text $_tabs_mdi.gcodes \
@@ -1259,8 +1259,8 @@ grid rowconfigure $_tabs_mdi 1 -weight 1
 
 ttk::notebook ${pane_top}.right
 
-set _tabs_preview [frame ${pane_top}.right.preview]
-set _tabs_numbers [frame ${pane_top}.right.numbers]
+set _tabs_preview [ttk::frame ${pane_top}.right.preview]
+set _tabs_numbers [ttk::frame ${pane_top}.right.numbers]
 ${pane_top}.right add $_tabs_preview -text [_ "Preview"]
 ${pane_top}.right add $_tabs_numbers -text [_ "DRO"]
 
@@ -1271,9 +1271,9 @@ text ${_tabs_numbers}.text -width 1 -height 1 -wrap none \
 pack ${_tabs_numbers}.text -fill both -expand 1
 bindtags ${_tabs_numbers}.text [list ${_tabs_numbers}.text . all]
 
-frame .info
+ttk::frame .info
 
-label .info.task_state \
+ttk::label .info.task_state \
 	-anchor w \
 	-borderwidth 2 \
 	-relief sunken \
@@ -1281,21 +1281,21 @@ label .info.task_state \
 	-width 14
 setup_widget_accel .info.task_state {}
 
-label .info.tool \
+ttk::label .info.tool \
 	-anchor w \
 	-borderwidth 2 \
 	-relief sunken \
 	-textvariable tool \
 	-width 30
 
-label .info.offset \
+ttk::label .info.offset \
 	-anchor w \
 	-borderwidth 2 \
 	-relief sunken \
 	-textvariable offset \
 	-width 25
 
-label .info.position \
+ttk::label .info.position \
 	-anchor w \
 	-borderwidth 2 \
 	-relief sunken \
@@ -1314,10 +1314,9 @@ pack .info.tool \
 pack .info.position \
 	-side left
 
-frame ${pane_bottom}.t \
+ttk::frame ${pane_bottom}.t \
 	-borderwidth 2 \
-	-relief sunken \
-	-highlightthickness 1
+	-relief sunken
 
 text ${pane_bottom}.t.text \
 	-borderwidth 0 \
@@ -1344,11 +1343,11 @@ pack ${pane_bottom}.t.sb \
 	-fill y \
 	-side left
 
-frame ${pane_top}.ajogspeed
-label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]
-label ${pane_top}.ajogspeed.l1
+ttk::frame ${pane_top}.ajogspeed
+ttk::label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]
+ttk::label ${pane_top}.ajogspeed.l1
 scale ${pane_top}.ajogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable ajog_slider_val -command update_ajog_slider_vel -orient h -takefocus 0
-label ${pane_top}.ajogspeed.l -textv jog_aspeed -width 6 -anchor e
+ttk::label ${pane_top}.ajogspeed.l -textv jog_aspeed -width 6 -anchor e
 pack ${pane_top}.ajogspeed.l0 -side left
 pack ${pane_top}.ajogspeed.l -side left
 pack ${pane_top}.ajogspeed.l1 -side left
@@ -1357,11 +1356,11 @@ bind . <less> [regsub %W [bind Scale <Left>] ${pane_top}.ajogspeed.s]
 bind . <greater> [regsub %W [bind Scale <Right>] ${pane_top}.ajogspeed.s]
 
 
-frame ${pane_top}.jogspeed
-label ${pane_top}.jogspeed.l0 -text [_ "Jog Speed:"]
-label ${pane_top}.jogspeed.l1
+ttk::frame ${pane_top}.jogspeed
+ttk::label ${pane_top}.jogspeed.l0 -text [_ "Jog Speed:"]
+ttk::label ${pane_top}.jogspeed.l1
 scale ${pane_top}.jogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable jog_slider_val -command update_jog_slider_vel -orient h -takefocus 0
-label ${pane_top}.jogspeed.l -textv jog_speed -width 6 -anchor e
+ttk::label ${pane_top}.jogspeed.l -textv jog_speed -width 6 -anchor e
 pack ${pane_top}.jogspeed.l0 -side left
 pack ${pane_top}.jogspeed.l -side left
 pack ${pane_top}.jogspeed.l1 -side left
@@ -1369,11 +1368,11 @@ pack ${pane_top}.jogspeed.s -side right
 bind . , [regsub %W [bind Scale <Left>] ${pane_top}.jogspeed.s]
 bind . . [regsub %W [bind Scale <Right>] ${pane_top}.jogspeed.s]
 
-frame ${pane_top}.maxvel
-label ${pane_top}.maxvel.l0 -text [_ "Max Velocity:"]
-label ${pane_top}.maxvel.l1
+ttk::frame ${pane_top}.maxvel
+ttk::label ${pane_top}.maxvel.l0 -text [_ "Max Velocity:"]
+ttk::label ${pane_top}.maxvel.l1
 scale ${pane_top}.maxvel.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable maxvel_slider_val -command update_maxvel_slider_vel -orient h -takefocus 0
-label ${pane_top}.maxvel.l -textv maxvel_speed -width 6 -anchor e
+ttk::label ${pane_top}.maxvel.l -textv maxvel_speed -width 6 -anchor e
 pack ${pane_top}.maxvel.l0 -side left
 pack ${pane_top}.maxvel.l -side left
 pack ${pane_top}.maxvel.l1 -side left
@@ -1381,9 +1380,9 @@ pack ${pane_top}.maxvel.s -side right
 bind . <semicolon> [regsub %W [bind Scale <Left>] ${pane_top}.maxvel.s]
 bind . ' [regsub %W [bind Scale <Right>] ${pane_top}.maxvel.s]
 
-frame ${pane_top}.spinoverride
+ttk::frame ${pane_top}.spinoverride
 
-label ${pane_top}.spinoverride.foentry \
+ttk::label ${pane_top}.spinoverride.foentry \
 	-textvariable spindlerate \
 	-width 3 \
         -anchor e
@@ -1398,9 +1397,9 @@ scale ${pane_top}.spinoverride.foscale \
 	-to 120.0 \
 	-variable spindlerate
 
-label ${pane_top}.spinoverride.l
+ttk::label ${pane_top}.spinoverride.l
 setup_widget_accel ${pane_top}.spinoverride.l [_ "Spindle Override:"]
-label ${pane_top}.spinoverride.m -width 1
+ttk::label ${pane_top}.spinoverride.m -width 1
 setup_widget_accel ${pane_top}.spinoverride.m [_ "%"]
 
 # Pack widget ${pane_top}.spinoverride.l
@@ -1421,9 +1420,9 @@ pack ${pane_top}.spinoverride.foentry \
 
 
 
-frame ${pane_top}.feedoverride
+ttk::frame ${pane_top}.feedoverride
 
-label ${pane_top}.feedoverride.foentry \
+ttk::label ${pane_top}.feedoverride.foentry \
 	-textvariable feedrate \
 	-width 4 \
         -anchor e
@@ -1438,9 +1437,9 @@ scale ${pane_top}.feedoverride.foscale \
 	-to 120.0 \
 	-variable feedrate
 
-label ${pane_top}.feedoverride.l
+ttk::label ${pane_top}.feedoverride.l
 setup_widget_accel ${pane_top}.feedoverride.l [_ "Feed Override:"]
-label ${pane_top}.feedoverride.m -width 1
+ttk::label ${pane_top}.feedoverride.m -width 1
 setup_widget_accel ${pane_top}.feedoverride.m [_ "%"]
 
 # Pack widget ${pane_top}.feedoverride.l
@@ -1459,9 +1458,9 @@ pack ${pane_top}.feedoverride.m \
 pack ${pane_top}.feedoverride.foentry \
 	-side right
 
-frame ${pane_top}.rapidoverride
+ttk::frame ${pane_top}.rapidoverride
 
-label ${pane_top}.rapidoverride.foentry \
+ttk::label ${pane_top}.rapidoverride.foentry \
 	-textvariable rapidrate \
 	-width 4 \
         -anchor e
@@ -1476,9 +1475,9 @@ scale ${pane_top}.rapidoverride.foscale \
 	-to 120.0 \
 	-variable rapidrate
 
-label ${pane_top}.rapidoverride.l
+ttk::label ${pane_top}.rapidoverride.l
 setup_widget_accel ${pane_top}.rapidoverride.l [_ "Rapid Override:"]
-label ${pane_top}.rapidoverride.m -width 1
+ttk::label ${pane_top}.rapidoverride.m -width 1
 setup_widget_accel ${pane_top}.rapidoverride.m [_ "%"]
 
 # Pack widget ${pane_top}.rapidoverride.l
@@ -1528,7 +1527,7 @@ ttk::button .about.ok \
 	-width 10
 setup_widget_accel .about.ok [_ OK]
 
-label .about.image \
+ttk::label .about.image \
 	-borderwidth 0 \
 	-image [load_image banner]
 setup_widget_accel .about.image {}
@@ -1555,7 +1554,7 @@ toplevel .keys
 bind .keys <Key-Return> { wm withdraw .keys }
 bind .keys <Key-Escape> { wm withdraw .keys }
 
-frame .keys.text \
+ttk::frame .keys.text \
 
 ttk::button .keys.ok \
 	-command {wm wi .keys} \
@@ -2019,6 +2018,7 @@ proc delete_all text {
 
 proc size_combobox_to_entries c {
     set fo [$c cget -font]
+    if {$fo == ""} { set fo TkDefaultFont }
     set wi [font measure $fo 0]
     set sz 4
     foreach i [$c cget -values] {
@@ -2030,6 +2030,7 @@ proc size_combobox_to_entries c {
 
 proc size_label_to_strings {w args} {
     set fo [$w cget -font]
+    if {$fo == ""} { set fo TkDefaultFont }
     set wi [font measure $fo 0]
     set sz 4
     foreach i args {
@@ -2042,6 +2043,7 @@ proc size_label_to_strings {w args} {
 proc size_menubutton_to_entries {w} {
     set m $w.menu
     set fo [$w cget -font]
+    if {$fo == ""} { set fo TkDefaultFont }
     set wi [font measure $fo 0]
     set sz 4
     for {set i 0} {$i <= [$m index end]} {incr i} {
