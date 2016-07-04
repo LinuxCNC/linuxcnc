@@ -116,8 +116,8 @@ proc nf_dialog {w title text image default args} {
 	unsupported1 style $w dBoxProc
     }
 
-    frame $w.bot
-    frame $w.top 
+    ttk::frame $w.bot
+    ttk::frame $w.top 
     if {[llength $args] == 1} {
 	pack $w.bot -side bottom -fill both
     } else {
@@ -125,29 +125,20 @@ proc nf_dialog {w title text image default args} {
     }
     pack $w.top -side top -fill both -expand 1
 
-    # 2. Fill the top part with image and message (use the option
-    # database for -wraplength and -font so that they can be
-    # overridden by the caller).
-
     option add *Dialog.msg.wrapLength 3i widgetDefault
-    if {![string compare $tcl_platform(platform) "macintosh"]} {
-	option add *Dialog.msg.font system widgetDefault
-    } else {
-	option add *Dialog.msg.font {Times 12} widgetDefault
-    }
 
-    label $w.msg -justify left -text $text
+    ttk::label $w.msg -justify left -text $text
     pack $w.msg -in $w.top -side right -expand 1 -fill both -padx 3m -pady 3m
     if {[string compare $image ""]} {
       if {![string compare $tcl_platform(platform) "macintosh"] && ![string compare $image "error"]} {
 	    set image "stop"
 	}
-	label $w.image -image [load_image std_$image]
+	ttk::label $w.image -image [load_image std_$image]
 	pack $w.image -in $w.top -side left -padx 3m -pady 3m
     }
 
     if {$ext != {}} {
-	frame $w.ext
+	ttk::frame $w.ext
 	text $w.ext.t -yscrollcommand [list $w.ext.s set] -wrap word
 	scrollbar $w.ext.s -command [list $w.ext.t yview] -orient v
 	pack $w.ext.t -side left -fill both -expand 1
@@ -162,8 +153,8 @@ proc nf_dialog {w title text image default args} {
     set i 0
     set l [llength $args]
     foreach but $args {
-	button $w.button$i -text $but -command "set tkPriv(button) $i" \
-            -width 10 -height 1 -padx 0 -pady .25 
+	ttk::button $w.button$i -text $but -command "set tkPriv(button) $i" \
+            -width -10
 
         set u [lindex $accel $i]
 
@@ -183,13 +174,6 @@ proc nf_dialog {w title text image default args} {
 
 	grid $w.button$i -in $w.bot -column $i -row 0 -sticky ew -padx 3 -pady 3
 	grid columnconfigure $w.bot $i
-
-        set f [$w.button$i cget -font]
-        set bwidth [expr 9 * [font measure $f "0"]]
-        set twidth [font measure $f $but]
-        if {$twidth > $bwidth} {
-            $w.button$i configure -width 0 -padx .25m
-        }
 
 	incr i
     }
