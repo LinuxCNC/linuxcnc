@@ -611,8 +611,9 @@ ttk::button .toolbar.rotate \
         -command {
             set rotate_mode [expr {!$rotate_mode}]
             if {$rotate_mode} {
-                .toolbar.rotate configure -relief sunken
+                .toolbar.rotate state selected
             } else {
+                .toolbar.rotate state !selected
             }
         } \
 	-takefocus 0

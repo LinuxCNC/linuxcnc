@@ -513,11 +513,11 @@ class MyOpengl(GlCanonDraw, Opengl):
         if lathe: return
         Opengl.tkRotate(self, event)
         self.perspective = True
-        widgets.view_z.configure(relief="link")
-        widgets.view_z2.configure(relief="link")
-        widgets.view_x.configure(relief="link")
-        widgets.view_y.configure(relief="link")
-        widgets.view_p.configure(relief="link")
+        ttk_state(widgets.view_z, "!selected")
+        ttk_state(widgets.view_z2, "!selected")
+        ttk_state(widgets.view_x, "!selected")
+        ttk_state(widgets.view_y, "!selected")
+        ttk_state(widgets.view_p, "!selected")
         vars.view_type.set(0)
 
     def tkTranslateOrRotate(self, event):
