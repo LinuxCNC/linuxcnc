@@ -897,8 +897,7 @@ grid $_tabs_manual.jogf.zerohome \
 grid $_tabs_manual.jogf.jog \
 	-column 0 \
 	-row 0 \
-	-columnspan 3 \
-	-sticky w
+	-sticky ew
 
 # Grid widget $_tabs_manual.jogf.zerohome.home
 grid $_tabs_manual.jogf.zerohome.home \
@@ -1343,158 +1342,85 @@ pack ${pane_bottom}.t.sb \
 	-fill y \
 	-side left
 
-ttk::frame ${pane_top}.ajogspeed
-ttk::label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]
-ttk::label ${pane_top}.ajogspeed.l1
-scale ${pane_top}.ajogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable ajog_slider_val -command update_ajog_slider_vel -orient h -takefocus 0
-ttk::label ${pane_top}.ajogspeed.l -textv jog_aspeed -width 6 -anchor e
-pack ${pane_top}.ajogspeed.l0 -side left
-pack ${pane_top}.ajogspeed.l -side left
-pack ${pane_top}.ajogspeed.l1 -side left
-pack ${pane_top}.ajogspeed.s -side right
-bind . <less> [regsub %W [bind Scale <Left>] ${pane_top}.ajogspeed.s]
-bind . <greater> [regsub %W [bind Scale <Right>] ${pane_top}.ajogspeed.s]
+proc grid_row {r args} {
+    set c 0
+    foreach w $args {
+        grid $w -row $r -column $c -sticky new
+        incr c
+    }
+}
 
+proc slider_row {r t tv args} {
+    set l0 [ttk::label ${::sliders}._${r}_l0]
+    setup_widget_accel $l0 $t
+    ttk::label ${::sliders}._${r}_l -textv $tv -width 12 -anchor e
+    ttk::scale ${::sliders}._${r}_s -orient h -takefocus 0 {*}$args
+    grid_row $r ${::sliders}._${r}_l0 ${::sliders}._${r}_l ${::sliders}._${r}_s
+    grid ${::sliders}._${r}_s -sticky ne
+}
 
-ttk::frame ${pane_top}.jogspeed
-ttk::label ${pane_top}.jogspeed.l0 -text [_ "Jog Speed:"]
-ttk::label ${pane_top}.jogspeed.l1
-scale ${pane_top}.jogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable jog_slider_val -command update_jog_slider_vel -orient h -takefocus 0
-ttk::label ${pane_top}.jogspeed.l -textv jog_speed -width 6 -anchor e
-pack ${pane_top}.jogspeed.l0 -side left
-pack ${pane_top}.jogspeed.l -side left
-pack ${pane_top}.jogspeed.l1 -side left
-pack ${pane_top}.jogspeed.s -side right
-bind . , [regsub %W [bind Scale <Left>] ${pane_top}.jogspeed.s]
-bind . . [regsub %W [bind Scale <Right>] ${pane_top}.jogspeed.s]
+proc do_format_var {fmt vn vn1 vn2 args} {
+    upvar \#0 $vn v
+    upvar \#0 $vn1 v1
+    upvar \#0 $vn2 v2
+    #if {![info exists v1]} { set v1 {} }
+    #if {![info exists v2]} { set v2 {} }
+    set v [format $fmt $v1 $v2]
+}
 
-ttk::frame ${pane_top}.maxvel
-ttk::label ${pane_top}.maxvel.l0 -text [_ "Max Velocity:"]
-ttk::label ${pane_top}.maxvel.l1
-scale ${pane_top}.maxvel.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable maxvel_slider_val -command update_maxvel_slider_vel -orient h -takefocus 0
-ttk::label ${pane_top}.maxvel.l -textv maxvel_speed -width 6 -anchor e
-pack ${pane_top}.maxvel.l0 -side left
-pack ${pane_top}.maxvel.l -side left
-pack ${pane_top}.maxvel.l1 -side left
-pack ${pane_top}.maxvel.s -side right
-bind . <semicolon> [regsub %W [bind Scale <Left>] ${pane_top}.maxvel.s]
-bind . ' [regsub %W [bind Scale <Right>] ${pane_top}.maxvel.s]
+proc format_var {fmt vn vn1 vn2} {
+    upvar \#0 $vn1 v1
+    upvar \#0 $vn2 v2
+    if {![info exists v1]} { set v1 {} }
+    if {![info exists v2]} { set v2 {} }
+    trace add variable v1 {write unset} [list do_format_var $fmt $vn $vn1 $vn2]
+    trace add variable v2 {write unset} [list do_format_var $fmt $vn $vn1 $vn2]
+}
 
-ttk::frame ${pane_top}.spinoverride
+proc do_concat_var {vn vn1 vn2 args} {
+    upvar \#0 $vn v
+    upvar \#0 $vn1 v1
+    upvar \#0 $vn2 v2
+    set v "$v1$v2"
+}
 
-ttk::label ${pane_top}.spinoverride.foentry \
-	-textvariable spindlerate \
-	-width 3 \
-        -anchor e
-setup_widget_accel ${pane_top}.spinoverride.foentry 0
+proc concat_var {vn vn1 vn2} {
+    upvar \#0 $vn1 v1
+    upvar \#0 $vn2 v2
+    if {![info exists v1]} { set v1 {} }
+    if {![info exists v2]} { set v2 {} }
+    trace add variable v1 {write unset} [list do_concat_var $vn $vn1 $vn2]
+    trace add variable v2 {write unset} [list do_concat_var $vn $vn1 $vn2]
+}
 
-scale ${pane_top}.spinoverride.foscale \
-	-command set_spindlerate \
-	-orient horizontal \
-	-resolution 1.0 \
-	-showvalue 0 \
-	-takefocus 0 \
-	-to 120.0 \
-	-variable spindlerate
+set pct %
+format_var "%.1f%s" feedrate_pct feedrate pct
+format_var "%.1f%s" rapidrate_pct rapidrate pct
+format_var "%.1f%s" spindlerate_pct spindlerate pct
+concat_var jog_speed jog_val linear_units
+concat_var jog_aspeed ajog_val angular_units
+concat_var maxvel_speed maxvel_val linear_units
 
-ttk::label ${pane_top}.spinoverride.l
-setup_widget_accel ${pane_top}.spinoverride.l [_ "Spindle Override:"]
-ttk::label ${pane_top}.spinoverride.m -width 1
-setup_widget_accel ${pane_top}.spinoverride.m [_ "%"]
+set sliders [frame ${pane_top}.sliders]
+grid $sliders \
+        -column 0 \
+        -row 2 \
+        -sticky new
+grid columnconfigure $sliders 2 -weight 1
 
-# Pack widget ${pane_top}.spinoverride.l
-pack ${pane_top}.spinoverride.l \
-	-side left
+slider_row 0 [_ "Feed Override:"]    feedrate_pct -from 0 -to 120 -variable feedrate -command set_feedrate
+slider_row 1 [_ "Rapid Override:"]   rapidrate_pct -from 0 -to 120 -variable rapidrate -command set_rapidrate
+slider_row 2 [_ "Spindle Override:"] spindlerate_pct -from 0 -to 120 -variable spindlerate -command set_spindlerate
+slider_row 3 [_ "Jog Speed:"]        jog_speed -from 10 -to 100 -variable jog_slider_val -command update_jog_slider_vel 
+slider_row 4 {}                      jog_aspeed -from 10 -to 100 -variable ajog_slider_val -command update_ajog_slider_vel 
+slider_row 5 [_ "Max Velocity:"]     maxvel_speed -from 10 -to 100 -variable maxvel_slider_val -command update_maxvel_slider_vel
 
-# Pack widget ${pane_top}.spinoverride.foscale
-pack ${pane_top}.spinoverride.foscale \
-	-side right
-
-# Pack widget ${pane_top}.spinoverride.foentry
-pack ${pane_top}.spinoverride.m \
-	-side right
-
-# Pack widget ${pane_top}.spinoverride.foentry
-pack ${pane_top}.spinoverride.foentry \
-	-side right
-
-
-
-ttk::frame ${pane_top}.feedoverride
-
-ttk::label ${pane_top}.feedoverride.foentry \
-	-textvariable feedrate \
-	-width 4 \
-        -anchor e
-setup_widget_accel ${pane_top}.feedoverride.foentry 0
-
-scale ${pane_top}.feedoverride.foscale \
-	-command set_feedrate \
-	-orient horizontal \
-	-resolution 1.0 \
-	-showvalue 0 \
-	-takefocus 0 \
-	-to 120.0 \
-	-variable feedrate
-
-ttk::label ${pane_top}.feedoverride.l
-setup_widget_accel ${pane_top}.feedoverride.l [_ "Feed Override:"]
-ttk::label ${pane_top}.feedoverride.m -width 1
-setup_widget_accel ${pane_top}.feedoverride.m [_ "%"]
-
-# Pack widget ${pane_top}.feedoverride.l
-pack ${pane_top}.feedoverride.l \
-	-side left
-
-# Pack widget ${pane_top}.feedoverride.foscale
-pack ${pane_top}.feedoverride.foscale \
-	-side right
-
-# Pack widget ${pane_top}.feedoverride.foentry
-pack ${pane_top}.feedoverride.m \
-	-side right
-
-# Pack widget ${pane_top}.feedoverride.foentry
-pack ${pane_top}.feedoverride.foentry \
-	-side right
-
-ttk::frame ${pane_top}.rapidoverride
-
-ttk::label ${pane_top}.rapidoverride.foentry \
-	-textvariable rapidrate \
-	-width 4 \
-        -anchor e
-setup_widget_accel ${pane_top}.rapidoverride.foentry 0
-
-scale ${pane_top}.rapidoverride.foscale \
-	-command set_rapidrate \
-	-orient horizontal \
-	-resolution 1.0 \
-	-showvalue 0 \
-	-takefocus 0 \
-	-to 120.0 \
-	-variable rapidrate
-
-ttk::label ${pane_top}.rapidoverride.l
-setup_widget_accel ${pane_top}.rapidoverride.l [_ "Rapid Override:"]
-ttk::label ${pane_top}.rapidoverride.m -width 1
-setup_widget_accel ${pane_top}.rapidoverride.m [_ "%"]
-
-# Pack widget ${pane_top}.rapidoverride.l
-pack ${pane_top}.rapidoverride.l \
-	-side left
-
-# Pack widget ${pane_top}.rapidoverride.foscale
-pack ${pane_top}.rapidoverride.foscale \
-	-side right
-
-# Pack widget ${pane_top}.rapidoverride.foentry
-pack ${pane_top}.rapidoverride.m \
-	-side right
-
-# Pack widget ${pane_top}.rapidoverride.foentry
-pack ${pane_top}.rapidoverride.foentry \
-	-side right
+bind . <comma> [regsub %W [bind TScale <<PrevChar>>] ${sliders}._3_s]
+bind . <period> [regsub %W [bind TScale <<NextChar>>] ${sliders}._3_s]
+bind . <less> [regsub %W [bind TScale <<PrevChar>>] ${sliders}._4_s]
+bind . <greater> [regsub %W [bind TScale <<NextChar>>] ${sliders}._4_s]
+bind . ' [regsub %W [bind TScale <<PrevChar>>] ${sliders}._5_s]
+bind . <semicolon> [regsub %W [bind TScale <<NextChar>>] ${sliders}._5_s]
 
 toplevel .about
 bind .about <Key-Return> { wm wi .about }
@@ -1576,39 +1502,6 @@ wm iconname .keys {}
 wm resiz .keys 0 0
 wm minsize .keys 1 1
 wm protocol .keys WM_DELETE_WINDOW {wm wi .keys}
-
-# Grid widget ${pane_top}.feedoverride
-grid ${pane_top}.feedoverride \
-	-column 0 \
-	-row 2 \
-	-sticky new
-
-# Grid widget ${pane_top}.rapidoverride
-grid ${pane_top}.rapidoverride \
-	-column 0 \
-	-row 3 \
-	-sticky new
-
-# Grid widget ${pane_top}.spinoverride
-grid ${pane_top}.spinoverride \
-	-column 0 \
-	-row 4 \
-	-sticky new
-
-grid ${pane_top}.jogspeed \
-	-column 0 \
-	-row 5 \
-	-sticky new
-
-grid ${pane_top}.ajogspeed \
-	-column 0 \
-	-row 6 \
-	-sticky new
-
-grid ${pane_top}.maxvel \
-	-column 0 \
-	-row 7 \
-	-sticky new
 
 # Grid widget .info
 grid .info \
@@ -2063,10 +1956,11 @@ proc setval {vel max_speed} {
     if {$vel == 0} { return 0 }
     if {$vel >= 60*$max_speed} { set vel [expr 60*$max_speed] }
     set x [expr {-1/(log($vel/60./$max_speed)-1)}]
-    expr {round($x * 200.) / 200.}
+    expr {round($x * 200.) / 2.}
 }
 
 proc val2vel {val max_speed} {
+    set val [expr {$val/100}]
     if {$val == 0} { return 0 }
     if {$val == 1} { format "%32.5f" [expr {$max_speed * 60.}]
     } else { format "%32.5f" [expr {60 * $max_speed * exp(-1/$val + 1)}] }
@@ -2091,11 +1985,11 @@ proc val2vel_show {val maxvel} {
     set next_places 0
     set last_places 0
     if {$val > .005} {
-        set next_vel [val2vel [expr {$val - .005}] $maxvel]
+        set next_vel [val2vel [expr {$val - .5}] $maxvel]
         set next_places [places $this_vel $next_vel]
     }
     if {$val < .995} {
-        set prev_vel [val2vel [expr {$val + .005}] $maxvel]
+        set prev_vel [val2vel [expr {$val + .5}] $maxvel]
         set prev_places [places $this_vel $prev_vel]
     }
     if {$next_places > $last_places} {
@@ -2108,57 +2002,55 @@ proc val2vel_show {val maxvel} {
 proc set_slider_min {minval} {
     global pane_top
     global max_speed
-    ${pane_top}.jogspeed.s configure -from [setval $minval $max_speed]
+    ${::sliders}._3_s configure -from [setval $minval $max_speed]
 }
 
 proc set_aslider_min {minval} {
     global pane_top
     global max_aspeed
-    ${pane_top}.ajogspeed.s configure -from [setval $minval $max_aspeed]
+    ${::sliders}._4_s configure -from [setval $minval $max_aspeed]
 }
 
 proc update_jog_slider_vel {newval} {
-    global jog_speed max_speed
+    global jog_val max_speed
     set max_speed_units [to_internal_linear_unit $max_speed]
     if {$max_speed_units == {None}} return
     if {$::metric} { set max_speed_units [expr {25.4 * $max_speed_units}] }
     set speed [val2vel_show $newval $max_speed_units];
-    set jog_speed $speed
+    set jog_val $speed
 }
 
 proc update_maxvel_slider_vel {newval} {
-    global maxvel_speed max_maxvel
+    global maxvel_val max_maxvel
     set max_speed_units [to_internal_linear_unit $max_maxvel]
     if {$max_speed_units == {None}} return
     if {$::metric} { set max_speed_units [expr {25.4 * $max_speed_units}] }
     set speed [val2vel_show $newval $max_speed_units];
-    set maxvel_speed $speed
+    set maxvel_val $speed
     set_maxvel $speed
 }
 
 proc update_maxvel_slider {} {
-    global maxvel_speed max_maxvel maxvel_slider_val
+    global maxvel_val max_maxvel maxvel_slider_val
     set max_speed_units [to_internal_linear_unit $max_maxvel]
     if {$max_speed_units == {None}} return
     if {$::metric} { set max_speed_units [expr {25.4 * $max_speed_units}] }
-    set maxvel_slider_val [setval $maxvel_speed $max_speed_units]
+    set maxvel_slider_val [setval $maxvel_val $max_speed_units]
 }
 
 proc update_units {args} {
     if {$::metric} {
-        ${::pane_top}.jogspeed.l1 configure -text mm/min
-        ${::pane_top}.maxvel.l1 configure -text mm/min
+        set ::linear_units mm/min
     } else {
-        ${::pane_top}.jogspeed.l1 configure -text in/min
-        ${::pane_top}.maxvel.l1 configure -text in/min
+        set ::linear_units in/min
     }
     update_jog_slider_vel $::jog_slider_val
     update_maxvel_slider_vel $::maxvel_slider_val
 }
 
 proc update_ajog_slider_vel {newval} {
-    global jog_aspeed max_aspeed
-    set jog_aspeed [val2vel_show $newval $max_aspeed];
+    global ajog_val max_aspeed
+    set ajog_val [val2vel_show $newval $max_aspeed];
 }
 
 proc update_recent {args} {

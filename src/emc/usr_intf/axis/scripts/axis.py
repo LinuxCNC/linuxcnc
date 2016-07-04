@@ -126,6 +126,12 @@ nf.makecommand(root_window, "_", _)
 rs274.options.install(root_window)
 root_window.tk.call("set", "version", linuxcnc.version)
 
+
+s = linuxcnc.stat();
+s.poll()
+c = linuxcnc.command()
+e = linuxcnc.error_channel()
+
 try:
     root_window.tk.call("set","::MAX_JOINTS"         ,linuxcnc.MAX_JOINTS)
     root_window.tk.call("set","::MAX_AXIS"           ,linuxcnc.MAX_AXIS)
@@ -857,7 +863,7 @@ class LivePlotter:
         if time.time() > maxvel_blackout:
             m = to_internal_linear_unit(self.stat.max_velocity)
             if vars.metric.get(): m = m * 25.4
-            vupdate(vars.maxvel_speed, float(int(600 * m)/10.0))
+            vupdate(vars.maxvel_vel, float(int(600 * m)/10.0))
             root_window.tk.call("update_maxvel_slider")
         vupdate(vars.override_limits, self.stat.joint[0]['override_limits'])
         on_any_limit = 0
@@ -1215,6 +1221,7 @@ tabs_manual = str(root_window.tk.call("set", "_tabs_manual"))
 tabs_preview = str(root_window.tk.call("set", "_tabs_preview"))
 tabs_numbers = str(root_window.tk.call("set", "_tabs_numbers"))
 pane_top = str(root_window.tk.call("set", "pane_top"))
+sliders = str(root_window.tk.call("set", "sliders"))
 pane_bottom = str(root_window.tk.call("set", "pane_bottom"))
 widgets = nf.Widgets(root_window, 
     ("help_window", Toplevel, ".keys"),
@@ -1254,7 +1261,6 @@ widgets = nf.Widgets(root_window,
     ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
     ("override", Checkbutton, tabs_manual + ".jogf.override"),
 
-    ("ajogspeed", Entry, pane_top + ".ajogspeed"),
 
     ("lubel", Label, tabs_manual + ".coolant"),
     ("flood", Checkbutton, tabs_manual + ".flood"),
@@ -1278,10 +1284,14 @@ widgets = nf.Widgets(root_window,
     ("view_p", Button, ".toolbar.view_p"),
     ("rotate", Button, ".toolbar.rotate"),
 
-    ("feedoverride", Scale, pane_top + ".feedoverride.foscale"),
-    ("rapidoverride", Scale, pane_top + ".rapidoverride.foscale"),
-    ("spinoverride", Scale, pane_top + ".spinoverride.foscale"),
-    ("spinoverridef", Scale, pane_top + ".spinoverride"),
+    ("ajogspeed_l0", Label, sliders + "._4_l0"),
+    ("ajogspeed_l", Label, sliders + "._4_l"),
+    ("ajogspeed_s", Scale, sliders + "._4_s"),
+    ("feedoverride", Scale, sliders + "._0_s"),
+    ("rapidoverride", Scale, sliders + "._1_s"),
+    ("spinoverride_l0", Label, sliders + "._2_l0"),
+    ("spinoverride_l", Label, sliders + "._2_l"),
+    ("spinoverride_s", Scale, sliders + "._2_s"),
 
     ("menu_view", Menu, ".menu.view"),
     ("menu_grid", Menu, ".menu.view.grid"),
@@ -1681,14 +1691,14 @@ def dist((x,y,z),(p,q,r)):
 def get_jog_speed(a):
     if vars.teleop_mode.get():
         if axis_type[a] == "LINEAR" :
-            return vars.jog_speed.get()/60.
+            return vars.jog_val.get()/60.
         else:
-            return vars.jog_aspeed.get()/60.
+            return vars.jog_aval.get()/60.
     else:
         if joint_type[a] == 'LINEAR':
-            return vars.jog_speed.get()/60.
+            return vars.jog_val.get()/60.
         else:
-            return vars.jog_aspeed.get()/60.
+            return vars.jog_aval.get()/60.
 
 def get_jog_speed_map(a):
     if a >= len(jog_order): return 0
@@ -1912,9 +1922,10 @@ class TclCommands(nf.TclCommands):
         webbrowser.open("http://www.linuxcnc.org/")
 
     def set_spindlerate(newval):
+        print "set_spindlerate", newval
         global spindlerate_blackout
         try:
-            value = int(newval)
+            value = int(float(newval))
         except ValueError: return
         value = value / 100.
         c.spindleoverride(value)
@@ -1927,7 +1938,7 @@ class TclCommands(nf.TclCommands):
         # teleop or identity allows (De Morgan):
         global feedrate_blackout
         try:
-            value = int(newval)
+            value = int(float(newval))
         except ValueError: return
         value = value / 100.
         c.feedrate(value)
@@ -1936,7 +1947,7 @@ class TclCommands(nf.TclCommands):
     def set_rapidrate(newval):
         global rapidrate_blackout
         try:
-            value = int(newval)
+            value = int(float(newval))
         except ValueError: return
         value = value / 100.
         c.rapidrate(value)
@@ -2808,11 +2819,11 @@ vars = nf.Variables(root_window,
     ("display_type", IntVar),
     ("override_limits", BooleanVar),
     ("view_type", IntVar),
-    ("jog_speed", DoubleVar),
-    ("jog_aspeed", DoubleVar),
+    ("jog_val", DoubleVar),
+    ("jog_aval", DoubleVar),
     ("max_speed", DoubleVar),
     ("max_aspeed", DoubleVar),
-    ("maxvel_speed", DoubleVar),
+    ("maxvel_vel", DoubleVar),
     ("max_maxvel", DoubleVar),
     ("teleop_mode", IntVar),
     ("motion_mode", IntVar),
@@ -3166,7 +3177,7 @@ max_velocity = (
 # Enforce these slider items (exit if missing)
 try:
     msg = "max velocity"
-    vars.maxvel_speed.set(float(max_velocity)*60)
+    vars.maxvel_vel.set(float(max_velocity)*60)
     vars.max_maxvel.set(float(max_velocity))
     if has_linear_joint_or_axis:
         msg = "max linear speed"
@@ -3176,7 +3187,7 @@ except Exception:
     raise SystemExit
 
 if default_jog_linear_speed is None: default_jog_linear_speed = max_linear_speed
-vars.jog_speed.set(float(default_jog_linear_speed)*60)
+vars.jog_val.set(float(default_jog_linear_speed)*60)
 
 # Check for these slider items (message if missing)
 try:
@@ -3184,13 +3195,13 @@ try:
         msg = "max angular speed"
         vars.max_aspeed.set(float(max_angular_speed))
         if default_jog_angular_speed is None: default_jog_angular_speed = max_angular_speed
-        vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
+        vars.jog_aval.set(float(default_jog_angular_speed)*60)
 except Exception:
     print "\nWarning: Missing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
     max_angular_speed = 1
     default_jog_angular_speed = 1
     vars.max_aspeed.set(float(max_angular_speed))
-    vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
+    vars.jog_aval.set(float(default_jog_angular_speed)*60)
 
 # temporary debugging prints
 print >>sys.stderr, "note: MAXV     max: %.3f units/sec %.3f units/min"%(
@@ -3208,18 +3219,18 @@ if has_angular_joint_or_axis:
 
 # always allow tcl widgets creation (though they may be forgotten later)
 if not has_linear_joint_or_axis:
-    vars.jog_speed.set(1)
+    vars.jog_val.set(1)
     vars.max_speed.set(1)
 if not has_angular_joint_or_axis:
-    vars.jog_aspeed.set(1)
+    vars.jog_aval.set(1)
     vars.max_aspeed.set(1)
 
-root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
-root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
-root_window.tk.eval("${pane_top}.maxvel.s set [setval $maxvel_speed $max_maxvel]")
+root_window.tk.eval("${sliders}._3_s set [setval $jog_val $max_speed]")
+root_window.tk.eval("${sliders}._4_s set [setval $jog_aval $max_aspeed]")
+root_window.tk.eval("${sliders}._5_s set [setval $maxvel_vel $max_maxvel]")
 widgets.feedoverride.configure(to=max_feed_override)
 widgets.rapidoverride.configure(to=100)
-widgets.spinoverride.configure(to=max_spindle_override)
+widgets.spinoverride_s.configure(to=max_spindle_override)
 nmlfile = inifile.find("EMC", "NML_FILE")
 if nmlfile:
     linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[2]), nmlfile)
@@ -3250,20 +3261,15 @@ else:
     if lu in [.001, .01, .1, 1, 10]: vars.metric.set(1)
     else: vars.metric.set(0)
 if lu == 1:
-    root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text mm/min")
-    root_window.tk.eval("${pane_top}.maxvel.l1 configure -text mm/min")
+    root_window.tk.call("set", "linear_units", "mm/min")
 else:
-    root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text in/min")
-    root_window.tk.eval("${pane_top}.maxvel.l1 configure -text in/min")
-root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
+    root_window.tk.call("set", "linear_units", "in/min")
+root_window.tk.call("set", "angular_units", "deg/min")
 homing_order_defined = inifile.find("JOINT_0", "HOME_SEQUENCE") is not None
 
 update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
 
 interpname = inifile.find("TASK", "INTERPRETER") or ""
-
-s = linuxcnc.stat();
-s.poll()
 
 statfail=0
 statwait=.01
@@ -3487,7 +3493,10 @@ for i in range(num_joints, linuxcnc.MAX_JOINTS):
 if  (       (s.axis_mask & 56 == 0)  # 56==0x38== 000111000 (ABC)
     and not ("ANGULAR" in joint_type)
     ):
-    widgets.ajogspeed.grid_forget()
+    
+    widgets.ajogspeed_s.grid_forget()
+    widgets.ajogspeed_l0.grid_forget()
+    widgets.ajogspeed_l.grid_forget()
 
 c = linuxcnc.command()
 e = linuxcnc.error_channel()
@@ -3809,7 +3818,7 @@ widgets.feedoverride.set(100)
 commands.set_feedrate(100)
 widgets.rapidoverride.set(100)
 commands.set_rapidrate(100)
-widgets.spinoverride.set(100)
+widgets.spinoverride_s.set(100)
 commands.set_spindlerate(100)
 
 def forget(widget, *pins):
@@ -3839,7 +3848,11 @@ forget(widgets.spindlef,  "motion.spindle-forward", "motion.spindle-reverse", "m
 forget(widgets.spindlel,  "motion.spindle-forward", "motion.spindle-reverse", "motion.spindle-on", "motion.spindle-brake",
        "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
 
-forget(widgets.spinoverridef,
+forget(widgets.spinoverride_l0,
+       "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
+forget(widgets.spinoverride_l,
+       "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
+forget(widgets.spinoverride_s,
        "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
 
 has_limit_switch = 0
