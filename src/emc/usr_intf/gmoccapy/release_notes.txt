@@ -1,3 +1,9 @@
+ver. 2.0.14
+- deleted adj_spinlde and changes the code to use directly the settings
+  of the SpeedControl widget. This way we save resources, because we
+  need one adjustment less. I will change the code also for the rest of
+  the sliders.
+
 ver. 2.0.13
 - updated debug server to use newest version on my computer
 
