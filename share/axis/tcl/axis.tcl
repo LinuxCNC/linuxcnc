@@ -1158,7 +1158,6 @@ setup_widget_accel $_tabs_mdi.historyl [_ History:]
 
 # MDI-history listbox
 listbox $_tabs_mdi.history \
-    -width 40 \
     -height 8 \
     -exportselection 0 \
     -selectmode extended \
@@ -1171,6 +1170,7 @@ $_tabs_mdi.history insert end ""
 
 ttk::scrollbar $_tabs_mdi.history.sby -command "$_tabs_mdi.history yview"
 pack $_tabs_mdi.history.sby -side right -fill y
+pack propagate $_tabs_mdi.history 0
 grid rowconfigure $_tabs_mdi.history 0 -weight 1
 
 vspace $_tabs_mdi.vs1 \
