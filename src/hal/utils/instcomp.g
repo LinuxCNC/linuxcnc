@@ -131,6 +131,8 @@ def _parse(rule, text, filename=None):
 def parse(filename):
     initialize()
     f = open(filename).read()
+    if '\r' in f:
+	raise SystemExit, "Error: Mac or DOS style line endings in file %s" % filename
     a, b = f.split("\n;;\n", 1)
     p = _parse('File', a + "\n\n", filename)
     if not p: raise SystemExit, 1
