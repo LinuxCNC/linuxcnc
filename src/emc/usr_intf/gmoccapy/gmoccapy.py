@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.14"
+_RELEASE = " 2.0.15"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -268,6 +268,7 @@ class gmoccapy(object):
         self._init_themes()
         self._init_audio()
         self._init_gremlin()
+        self._init_kinematics_type()
         self._init_hide_cursor()
         self._init_keyboard()
         self._init_offsetpage()
@@ -893,14 +894,14 @@ class gmoccapy(object):
                 self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
         # if we have 5 axes, we will need some extra space:
         else:
-            size = self.dro_size
             for axis in self.axis_list:
+                size = self.dro_size
                 if axis == self.axisletter_four:
                     axis = 4
-                    size = int(size * 0.75)
+                    size = int(size * 0.65) # This factor is just testing to ensure the DRO is able to fit with number 9999.999
                 if axis == self.axisletter_five:
                     axis = 5
-                    size = int(size * 0.75)
+                    size = int(size * 0.65)
                 self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
 
     def _hide_axis_4(self, state=False):
@@ -1167,10 +1168,22 @@ class gmoccapy(object):
         self.widgets.gremlin.init_glcanondraw(
              trajcoordinates = self.get_ini_info.get_trajcoordinates(),
              kinstype = self.get_ini_info.get_kinstype())
+        self.widgets.eb_program_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0, 0, 0))
+
+    def _init_kinematics_type (self):
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             self.widgets.gremlin.set_property( "enable_dro", True )
             self.widgets.gremlin.use_joints_mode = True
-        self.widgets.eb_program_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0, 0, 0))
+            self.widgets.tbtn_switch_mode.show()
+            self.widgets.tbtn_switch_mode.set_label(_(" Joint\nmode"))
+            self.widgets.tbtn_switch_mode.set_sensitive(False)
+            self.widgets.tbtn_switch_mode.set_active(True)
+            self.widgets.lbl_replace_mode_btn.hide()
+        else:
+            self.widgets.gremlin.set_property( "enable_dro", False )
+            self.widgets.gremlin.use_joints_mode = False
+            self.widgets.tbtn_switch_mode.hide()
+            self.widgets.lbl_replace_mode_btn.show()
 
     # init the function to hide the cursor
     def _init_hide_cursor(self):
@@ -1592,7 +1605,7 @@ class gmoccapy(object):
         self.all_homed = True
         self.widgets.ntb_button.set_current_page(0)
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
+                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "tbtn_switch_mode"
         ]
         self._sensitize_widgets(widgetlist, True)
         print("Line 1496")
@@ -1603,7 +1616,7 @@ class gmoccapy(object):
         if self.no_force_homing:
             return
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_touch", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
+                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "tbtn_switch_mode"
         ]
         self._sensitize_widgets(widgetlist, False)
         self.set_motion_mode(0)
@@ -1816,12 +1829,13 @@ class gmoccapy(object):
         if new_mode == 1 and self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             self.widgets.gremlin.set_property("enable_dro", True)
             self.widgets.gremlin.use_joints_mode = True
+            self.widgets.tbtn_switch_mode.set_active(True)
         else:
             if not self.widgets.tbtn_fullsize_preview.get_active():
                 self.widgets.gremlin.set_property("enable_dro", False)
             self.widgets.gremlin.use_joints_mode = False
+            self.widgets.tbtn_switch_mode.set_active(False)
             
-
 # hal status End
 # =========================================================
 
@@ -3084,6 +3098,7 @@ class gmoccapy(object):
         # this is in a try except, because on initializing the window the values are still zero
         # so we would get an division / zero error
         real_spindle_speed = 0
+        value = widget.get_value()
         try:
             if not abs(self.stat.settings[2]):
                 if self.widgets.rbt_forward.get_active() or self.widgets.rbt_reverse.get_active():
@@ -3092,18 +3107,17 @@ class gmoccapy(object):
                     speed = 0
             else:
                 speed = abs(self.stat.spindle_speed)
-            spindle_override = widget.get_value() / 100
+            spindle_override = value / 100
             real_spindle_speed = speed * spindle_override
             if real_spindle_speed > self.max_spindle_rev:
-                value_to_set = widget.get_value() / (real_spindle_speed / self.max_spindle_rev)
-                widget.set_value(value_to_set)
+                value_to_set = value / (real_spindle_speed / self.max_spindle_rev)
                 real_spindle_speed = self.max_spindle_rev
             elif real_spindle_speed < self.min_spindle_rev:
-                value_to_set = widget.get_value() / (real_spindle_speed / self.min_spindle_rev)
-                widget.set_value(value_to_set)
+                value_to_set = value / (real_spindle_speed / self.min_spindle_rev)
                 real_spindle_speed = self.min_spindle_rev
             else:
                 value_to_set = spindle_override * 100
+            widget.set_value(value_to_set)
             self.command.spindleoverride(value_to_set / 100)
         except:
             pass
@@ -4034,6 +4048,16 @@ class gmoccapy(object):
             else:
                 self.alert_sound = file
                 self.prefs.putpref("audio_alert", file, str)
+
+    def on_tbtn_switch_mode_toggled(self, widget, data=None):
+        if widget.get_active():
+            self.widgets.tbtn_switch_mode.set_label(_(" Joint\nmode"))
+            # Mode 1 = joint ; Mode 3 = teleop
+            # so in mode 1 we have to show Joints and in Mode 3 axis values
+            self.set_motion_mode(0)
+        else:
+            self.widgets.tbtn_switch_mode.set_label(_("World\nmode"))
+            self.set_motion_mode(1)
 
 # =========================================================
 # Hal Pin Handling Start

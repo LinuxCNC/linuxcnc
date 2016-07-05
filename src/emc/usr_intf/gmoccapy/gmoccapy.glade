@@ -1171,7 +1171,9 @@
                                       <object class="GtkTable" id="tbl_DRO_45">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="n_columns">3</property>
+                                        <property name="n_columns">2</property>
+                                        <property name="column_spacing">2</property>
+                                        <property name="homogeneous">True</property>
                                         <child>
                                           <object class="Combi_DRO" id="Combi_DRO_4">
                                             <property name="visible">True</property>
@@ -1183,21 +1185,9 @@
                                             <property name="joint_number">3</property>
                                             <property name="rel_color">#000000000000</property>
                                             <property name="unhomed_color">#ffff00000000</property>
+                                            <signal name="clicked" handler="on_Combi_DRO_clicked" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="y_options">GTK_SHRINK | GTK_FILL</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel" id="lbl_space_DRO_34">
-                                            <property name="width_request">3</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
-                                            <property name="x_options">GTK_SHRINK</property>
                                             <property name="y_options">GTK_SHRINK | GTK_FILL</property>
                                           </packing>
                                         </child>
@@ -1209,13 +1199,14 @@
                                             <property name="dtg_color">#ffffffff0000</property>
                                             <property name="font_size">28</property>
                                             <property name="homed_color">#0000ffff0000</property>
-                                            <property name="joint_number">3</property>
+                                            <property name="joint_number">4</property>
                                             <property name="rel_color">#000000000000</property>
                                             <property name="unhomed_color">#ffff00000000</property>
+                                            <signal name="clicked" handler="on_Combi_DRO_clicked" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">2</property>
-                                            <property name="right_attach">3</property>
+                                            <property name="left_attach">1</property>
+                                            <property name="right_attach">2</property>
                                             <property name="y_options">GTK_SHRINK | GTK_FILL</property>
                                           </packing>
                                         </child>
@@ -2521,13 +2512,12 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
-                                      <object class="GtkFrame" id="frm_feed_override">
-                                        <property name="width_request">200</property>
+                                      <object class="GtkFrame" id="frm_overrides">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="label_xalign">0.5</property>
                                         <child>
-                                          <object class="GtkAlignment" id="alignment5">
+                                          <object class="GtkAlignment" id="alignment1">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="top_padding">5</property>
@@ -2535,47 +2525,104 @@
                                             <property name="left_padding">5</property>
                                             <property name="right_padding">5</property>
                                             <child>
-                                              <object class="GtkVBox" id="vbox9">
+                                              <object class="GtkVBox" id="vbx_overrides">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <child>
-                                                  <object class="GtkHBox" id="hbox8">
+                                                  <object class="GtkFrame" id="frm_rapid_override">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
+                                                    <property name="label_xalign">0.5</property>
                                                     <child>
-                                                      <object class="GtkLabel" id="lbl_feed_act">
+                                                      <object class="GtkAlignment" id="alignment6">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="tooltip_text" translatable="yes">Displayes the programmed feed rate</property>
-                                                        <property name="label">F 275</property>
-                                                        <attributes>
-                                                          <attribute name="weight" value="bold"/>
-                                                          <attribute name="scale" value="1.5"/>
-                                                        </attributes>
+                                                        <property name="top_padding">5</property>
+                                                        <property name="bottom_padding">5</property>
+                                                        <property name="left_padding">5</property>
+                                                        <property name="right_padding">5</property>
+                                                        <child>
+                                                          <object class="GtkVBox" id="vbox10">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkHBox" id="hbx_rapid_override">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_vel">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="label" translatable="yes">Vel.</property>
+                                                            <attributes>
+                                                            <attribute name="style" value="normal"/>
+                                                            <attribute name="weight" value="bold"/>
+                                                            <attribute name="scale" value="1.5"/>
+                                                            </attributes>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">0</property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_current_vel">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="has_tooltip">True</property>
+                                                            <property name="tooltip_markup">Displays the current velocity</property>
+                                                            <property name="tooltip_text" translatable="yes">Displays the current velocity</property>
+                                                            <property name="xpad">5</property>
+                                                            <property name="ypad">5</property>
+                                                            <property name="label">10000</property>
+                                                            <property name="justify">center</property>
+                                                            <attributes>
+                                                            <attribute name="style" value="normal"/>
+                                                            <attribute name="weight" value="bold"/>
+                                                            <attribute name="scale" value="1.5"/>
+                                                            </attributes>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">1</property>
+                                                            </packing>
+                                                            </child>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">0</property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="SpeedControl" id="spc_rapid">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="color">#ffff81811616</property>
+                                                            <property name="max">120</property>
+                                                            <property name="template">%.d</property>
+                                                            <property name="unit">%</property>
+                                                            <property name="value">100</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">1</property>
+                                                            </packing>
+                                                            </child>
+                                                          </object>
+                                                        </child>
                                                       </object>
-                                                      <packing>
-                                                        <property name="expand">True</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">0</property>
-                                                      </packing>
                                                     </child>
-                                                    <child>
-                                                      <object class="GtkButton" id="btn_feed_100">
-                                                        <property name="label">100%</property>
-                                                        <property name="width_request">48</property>
-                                                        <property name="height_request">48</property>
+                                                    <child type="label">
+                                                      <object class="GtkLabel" id="lbl_frame_rapid_override">
                                                         <property name="visible">True</property>
-                                                        <property name="can_focus">True</property>
-                                                        <property name="receives_default">True</property>
-                                                        <property name="tooltip_text" translatable="yes">reset feed override to 100 %</property>
-                                                        <property name="use_action_appearance">False</property>
-                                                        <signal name="clicked" handler="on_btn_feed_100_clicked" swapped="no"/>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">&lt;b&gt;Rapid&lt;/b&gt;</property>
+                                                        <property name="use_markup">True</property>
                                                       </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">1</property>
-                                                      </packing>
                                                     </child>
                                                   </object>
                                                   <packing>
@@ -2585,14 +2632,101 @@
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <object class="SpeedControl" id="spc_feed">
+                                                  <object class="GtkFrame" id="frm_feed_override">
+                                                    <property name="width_request">200</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="color">#ffff81811616</property>
-                                                    <property name="max">120</property>
-                                                    <property name="template">%d</property>
-                                                    <property name="unit">%</property>
-                                                    <property name="value">100</property>
+                                                    <property name="label_xalign">0.5</property>
+                                                    <child>
+                                                      <object class="GtkAlignment" id="alignment5">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="top_padding">5</property>
+                                                        <property name="bottom_padding">5</property>
+                                                        <property name="left_padding">5</property>
+                                                        <property name="right_padding">5</property>
+                                                        <child>
+                                                          <object class="GtkVBox" id="vbox9">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkHBox" id="hbox8">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_feed_act">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="has_tooltip">True</property>
+                                                            <property name="tooltip_markup">Displayes the programmed feed rate</property>
+                                                            <property name="tooltip_text" translatable="yes">Displayes the programmed feed rate</property>
+                                                            <property name="label">F 275</property>
+                                                            <attributes>
+                                                            <attribute name="weight" value="bold"/>
+                                                            <attribute name="scale" value="1.5"/>
+                                                            </attributes>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">0</property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkButton" id="btn_feed_100">
+                                                            <property name="label">100%</property>
+                                                            <property name="width_request">48</property>
+                                                            <property name="height_request">48</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">True</property>
+                                                            <property name="has_tooltip">True</property>
+                                                            <property name="tooltip_markup">reset feed override to 100 %</property>
+                                                            <property name="tooltip_text" translatable="yes">reset feed override to 100 %</property>
+                                                            <property name="use_action_appearance">False</property>
+                                                            <signal name="clicked" handler="on_btn_feed_100_clicked" swapped="no"/>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">1</property>
+                                                            </packing>
+                                                            </child>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">0</property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="SpeedControl" id="spc_feed">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="color">#ffff81811616</property>
+                                                            <property name="max">120</property>
+                                                            <property name="template">%d</property>
+                                                            <property name="unit">%</property>
+                                                            <property name="value">100</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">1</property>
+                                                            </packing>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel" id="lbl_feed_override">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">&lt;b&gt;Feed&lt;/b&gt;</property>
+                                                        <property name="use_markup">True</property>
+                                                      </object>
+                                                    </child>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">True</property>
@@ -2605,10 +2739,10 @@
                                           </object>
                                         </child>
                                         <child type="label">
-                                          <object class="GtkLabel" id="lbl_feed_override">
+                                          <object class="GtkLabel" id="lbl_frm_overrides">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="label" translatable="yes">&lt;b&gt;Feed Override [%]&lt;/b&gt;</property>
+                                            <property name="label" translatable="yes">&lt;b&gt;Overrides&lt;/b&gt;</property>
                                             <property name="use_markup">True</property>
                                           </object>
                                         </child>
@@ -2616,110 +2750,7 @@
                                       <packing>
                                         <property name="expand">True</property>
                                         <property name="fill">True</property>
-                                        <property name="pack_type">end</property>
                                         <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkFrame" id="frm_max_vel">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label_xalign">0.5</property>
-                                        <child>
-                                          <object class="GtkAlignment" id="alignment6">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="top_padding">5</property>
-                                            <property name="bottom_padding">5</property>
-                                            <property name="left_padding">5</property>
-                                            <property name="right_padding">5</property>
-                                            <child>
-                                              <object class="GtkVBox" id="vbox10">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <child>
-                                                  <object class="GtkHBox" id="hbx_rapid_override">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <child>
-                                                      <object class="GtkLabel" id="lbl_vel">
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="label" translatable="yes">Vel.</property>
-                                                        <attributes>
-                                                          <attribute name="style" value="normal"/>
-                                                          <attribute name="weight" value="bold"/>
-                                                          <attribute name="scale" value="1.5"/>
-                                                        </attributes>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">True</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">0</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkLabel" id="lbl_current_vel">
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="tooltip_text" translatable="yes">Displays the current velocity</property>
-                                                        <property name="xpad">5</property>
-                                                        <property name="ypad">5</property>
-                                                        <property name="label">10000</property>
-                                                        <property name="justify">center</property>
-                                                        <attributes>
-                                                          <attribute name="style" value="normal"/>
-                                                          <attribute name="weight" value="bold"/>
-                                                          <attribute name="scale" value="1.5"/>
-                                                        </attributes>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">True</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">1</property>
-                                                      </packing>
-                                                    </child>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">True</property>
-                                                    <property name="fill">True</property>
-                                                    <property name="position">0</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="SpeedControl" id="spc_rapid">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="color">#ffff81811616</property>
-                                                    <property name="max">120</property>
-                                                    <property name="template">%.d</property>
-                                                    <property name="unit">%</property>
-                                                    <property name="value">100</property>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">True</property>
-                                                    <property name="fill">True</property>
-                                                    <property name="position">1</property>
-                                                  </packing>
-                                                </child>
-                                              </object>
-                                            </child>
-                                          </object>
-                                        </child>
-                                        <child type="label">
-                                          <object class="GtkLabel" id="lbl_frame_rapid_override">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="label" translatable="yes">&lt;b&gt;Rapid Override&lt;/b&gt;</property>
-                                            <property name="use_markup">True</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="pack_type">end</property>
-                                        <property name="position">1</property>
                                       </packing>
                                     </child>
                                   </object>
@@ -5957,7 +5988,8 @@ jog buttons.</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Estop the machine</property>
+                    <property name="tooltip_text" translatable="yes">Estop the machine
+[F1]</property>
                     <property name="use_action_appearance">False</property>
                     <signal name="toggled" handler="on_tbtn_estop_toggled" swapped="no"/>
                     <child>
@@ -5981,7 +6013,8 @@ jog buttons.</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Turn the machine on/off</property>
+                    <property name="tooltip_text" translatable="yes">Turn the machine on/off
+[F2]</property>
                     <property name="use_action_appearance">False</property>
                     <signal name="toggled" handler="on_tbtn_on_toggled" swapped="no"/>
                     <child>
@@ -6005,7 +6038,8 @@ jog buttons.</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">enter manual mode to jog axis by hand or touch off</property>
+                    <property name="tooltip_text" translatable="yes">enter manual mode to jog axis by hand or touch off
+[F3]</property>
                     <property name="use_action_appearance">False</property>
                     <property name="image">img_manual</property>
                     <property name="active">True</property>
@@ -6026,7 +6060,8 @@ jog buttons.</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">enter MDI mode to launch g-code commands</property>
+                    <property name="tooltip_text" translatable="yes">enter MDI mode to launch g-code commands
+[F5]</property>
                     <property name="use_action_appearance">False</property>
                     <property name="image">img_mdi</property>
                     <property name="draw_indicator">False</property>
@@ -6241,7 +6276,27 @@ Date</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_9">
+                  <object class="GtkToggleButton" id="tbtn_switch_mode">
+                    <property name="label" translatable="yes">World
+Mode</property>
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Switch motion mode between Joint and World mode
+F12 or $ key does the same</property>
+                    <property name="use_action_appearance">False</property>
+                    <signal name="toggled" handler="on_tbtn_switch_mode_toggled" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="lbl_replace_mode_btn">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6250,7 +6305,7 @@ Date</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">6</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
                 <child>
@@ -6263,7 +6318,7 @@ Date</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">7</property>
+                    <property name="position">8</property>
                   </packing>
                 </child>
                 <child>
@@ -6281,7 +6336,7 @@ Date</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">8</property>
+                    <property name="position">9</property>
                   </packing>
                 </child>
                 <child>
@@ -6299,7 +6354,7 @@ Date</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">9</property>
+                    <property name="position">10</property>
                   </packing>
                 </child>
               </object>

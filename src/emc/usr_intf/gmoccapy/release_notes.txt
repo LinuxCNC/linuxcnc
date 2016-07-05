@@ -1,3 +1,12 @@
+ver. 2.0.15
+- finally found a way to avoid jumping DRO size of axis 4 and 5
+  if the amount of numbers change, i.e. from 99.999 to 100.001
+  as it need more space.
+- added a togglebutton to switch from joint to teleop, this button 
+  will be hidden on identity kinematics machines
+- small bug in spc_spinlde handling 
+  (to many get and set leaded to jumping values)
+
 ver. 2.0.14
 - deleted adj_spinlde and changes the code to use directly the settings
   of the SpeedControl widget. This way we save resources, because we
