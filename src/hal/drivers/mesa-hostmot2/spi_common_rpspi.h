@@ -96,7 +96,7 @@ typedef enum {
 } platform_t;
 
 
-static char *firmware = "/lib/firmware/pluto_spi_mix_31.rbf";
+static char *firmware = "/lib/firmware/7i90_spi_svst4_8.bit";
 RTAPI_MP_STRING(firmware, "Firmware Path");
 
 
