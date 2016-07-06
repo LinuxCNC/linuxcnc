@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.19"
+_RELEASE = " 2.0.20"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -4025,7 +4025,7 @@ class gmoccapy(object):
 
     def _on_analog_enable_changed(self, pin, widget):
         if not self.initialized:
-            return                               
+            return
         if widget == "spc_spindle":
             if pin.get():
                 self.widgets.btn_spindle_100.hide()
@@ -4036,6 +4036,7 @@ class gmoccapy(object):
                 self.widgets.btn_feed_100.hide()
             else:
                 self.widgets.btn_feed_100.show()
+        # widget can also be spc_jog_vel and spc_rapid
         self.widgets[widget].hide_button(pin.get())
         
         if pin.get():
@@ -4131,10 +4132,10 @@ class gmoccapy(object):
             self.on_btn_jog_released(widget)
 
     def _reset_overide(self, pin, type):
-        if type == "rapid":
-            self.command.rapidrate(1.0)
-            return
         if pin.get():
+            if type == "rapid":
+                self.command.rapidrate(1.0)
+                return
             self.widgets["btn_%s_100" % type].emit("clicked")
 
 # =========================================================

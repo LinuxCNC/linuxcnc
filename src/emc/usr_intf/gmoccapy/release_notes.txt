@@ -1,3 +1,8 @@
+ver. 2.0.20
+- small bug in _reset_override in rapid handling, 
+  as it would reset to 100 % on change to any state, 
+  instead only on pin.get()
+
 ver. 2.0.19
 - deleted the settings to hide axis 4 if used as tool changer
   as that is not longer needed on Joint Axis branch
