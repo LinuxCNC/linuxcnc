@@ -445,6 +445,7 @@ static int map_gpio() {
 	default:
 		rtapi_print_msg(RTAPI_MSG_ERR,"HAL_hm2_rpspi: Plattform not supported! \n");
 		return -1;
+		break;
 	}
 
 	//fd = open("/dev/mem", O_RDWR | O_SYNC);
