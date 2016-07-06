@@ -152,7 +152,6 @@ static int hm2_rpspi_write(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer,
 
 	int msgsize = size/4;
 	uint8_t *tbuff;
-	uint8_t *buffer8 = (uint8_t *)buffer;
 	uint32_t *buffer32 = (uint32_t *)buffer;
 	int i=0, j=0;
 	uint8_t  gully;
@@ -207,7 +206,6 @@ static int hm2_rpspi_read(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer, 
 
 	int msgsize = size/4;
 	uint8_t *tbuff, *rbuff;
-	uint8_t *buffer8 = buffer;
 	uint32_t *buffer32 = (uint32_t *)buffer;
 	int j=0, i=0;
 	this->txBuf[0] = mk_read_cmd(addr, msgsize, true);
@@ -410,7 +408,7 @@ static void hm2_rpspi_cleanup(void) {
 /*************************************************/
 int rtapi_app_main() {
 	int ret;
-	int i=0;
+	
 	comp_id = ret = hal_init("hm2_rpspi");
 	if(ret < 0) goto fail;
 
@@ -444,6 +442,9 @@ static int map_gpio() {
 		mem_base = BCM2835_GPIO_BASE + BCM2709_OFFSET;
 		mem_spi_base = BCM2835_SPI_BASE + BCM2709_OFFSET;
 		break;
+	default:
+		rtapi_print_msg(RTAPI_MSG_ERR,"HAL_hm2_rpspi: Plattform not supported! \n");
+		return -1;
 	}
 
 	//fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -535,6 +536,7 @@ static void restore_gpio() {
 static int hm2_rpspi_program(char *firmware) {
 	
 	rtapi_print_msg(RTAPI_MSG_ERR,"...done\n");
+	return -1;
 }
 
 /*************************************************/
