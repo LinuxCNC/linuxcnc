@@ -17,12 +17,6 @@
     <property name="step_increment">1</property>
     <signal name="value-changed" handler="on_adj_dro_size_value_changed" swapped="no"/>
   </object>
-  <object class="GtkAdjustment" id="adj_feed">
-    <property name="upper">200</property>
-    <property name="value">100</property>
-    <property name="step_increment">1</property>
-    <signal name="value-changed" handler="on_adj_feed_value_changed" swapped="no"/>
-  </object>
   <object class="GtkAdjustment" id="adj_grid_size">
     <property name="upper">100</property>
     <property name="step_increment">0.10000000000000001</property>
@@ -2703,6 +2697,7 @@
                                                             <property name="template">%d</property>
                                                             <property name="unit">%</property>
                                                             <property name="value">100</property>
+                                                            <signal name="value-changed" handler="on_spc_feed_value_changed" swapped="no"/>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>

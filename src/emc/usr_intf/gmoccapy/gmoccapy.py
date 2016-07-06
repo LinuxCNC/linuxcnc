@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.16"
+_RELEASE = " 2.0.17"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -163,16 +163,16 @@ class gmoccapy(object):
 
         self.active_gcodes = []   # this are the formated G code values
         self.active_mcodes = []   # this are the formated M code values
-        self.gcodes = []          # this are the unformated G code values to check if an update is requiered
-        self.mcodes = []          # this are the unformated M code values to check if an update is requiered
+        self.gcodes = []          # this are the unformatted G code values to check if an update is required
+        self.mcodes = []          # this are the unformatted M code values to check if an update is required
 
         self.distance = 0         # This global will hold the jog distance
         self.tool_change = False  # this is needed to get back to manual mode after a tool change
-        self.macrobuttons = []    # The list of all macrios defined in the INI file
-        self.fo_counts = 0        # need to calculate diference in counts to change the feed override slider
-        self.so_counts = 0        # need to calculate diference in counts to change the spindle override slider
-        self.jv_counts = 0        # need to calculate diference in counts to change the jog_vel slider
-        self.mv_counts = 0        # need to calculate diference in counts to change the max_speed slider
+        self.macrobuttons = []    # The list of all macros defined in the INI file
+        self.fo_counts = 0        # need to calculate difference in counts to change the feed override slider
+        self.so_counts = 0        # need to calculate difference in counts to change the spindle override slider
+        self.jv_counts = 0        # need to calculate difference in counts to change the jog_vel slider
+        self.mv_counts = 0        # need to calculate difference in counts to change the max_speed slider
 
         self.spindle_override = 1 # holds the feed override value and is needed to be able to react to halui pin
         self.feed_override = 1    # holds the spindle override value and is needed to be able to react to halui pin
@@ -195,14 +195,14 @@ class gmoccapy(object):
         self.notification.connect("message_deleted", self._on_message_deleted)
         self.last_key_event = None, 0  # needed to avoid the auto repeat function of the keyboard
         self.all_homed = False         # will hold True if all axis are homed
-        self.faktor = 1.0              # needed to calculate velocitys
+        self.faktor = 1.0              # needed to calculate velocities
 
         self.xpos = 40        # The X Position of the main Window
         self.ypos = 30        # The Y Position of the main Window
         self.width = 979      # The width of the main Window
-        self.height = 750     # The heigh of the main Window
+        self.height = 750     # The height of the main Window
 
-        self.gcodeerror = ""  # we need this to avoid multile messages of the same error
+        self.gcodeerror = ""  # we need this to avoid multiple messages of the same error
 
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
@@ -347,7 +347,7 @@ class gmoccapy(object):
         self.widgets.tbtn_switch_mode.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
 
         # This is needed only because we connect all the horizontal button
-        # to hal pins, so the user can conect them to hardware buttons
+        # to hal pins, so the user can connect them to hardware buttons
         self.h_tabs = []
         tab_main = [(0, "btn_homing"), (1, "btn_touch"), (3, "btn_tool"),
                     (8, "tbtn_fullsize_preview"), (9, "btn_exit")
@@ -469,7 +469,7 @@ class gmoccapy(object):
             if "ntb_preview" in self.get_ini_info.get_embedded_tabs()[1]:
                 self.widgets.ntb_preview.set_property("show-tabs", True)
 
-            # This is normaly only used for the plasma screen layout
+            # This is normally only used for the plasma screen layout
             if "box_coolant_and_spindle" in self.get_ini_info.get_embedded_tabs()[1]:
                 widgetlist = ["box_spindle", "box_cooling"]
                 for widget in widgetlist:
@@ -530,7 +530,7 @@ class gmoccapy(object):
 
         # get when the keyboard should be shown
         # and set the corresponding button active
-        # only if onbaoard keýboard is ok.
+        # only if onbaoard keyboard is ok.
         if self.onboard:
             self.widgets.chk_use_kb_on_offset.set_active(self.prefs.getpref("show_keyboard_on_offset",
                                                                             True, bool))
@@ -543,7 +543,7 @@ class gmoccapy(object):
             self.widgets.chk_use_kb_on_file_selection.set_active(self.prefs.getpref("show_keyboard_on_file_selection",
                                                                                     False, bool))
 
-        # check if the user want to display preview window insteadt of offsetpage widget
+        # check if the user want to display preview window instead of offsetpage widget
         state = self.prefs.getpref("show_preview_on_offset", False, bool)
         if state:
             self.widgets.rbtn_show_preview.set_active(True)
@@ -686,7 +686,7 @@ class gmoccapy(object):
         else:
             # the Y2 view is not needed on a mill
             self.widgets.rbt_view_y2.hide()
-            # X Offset is not necesary on a mill
+            # X Offset is not necessary on a mill
             self.widgets.lbl_tool_offset_x.hide()
             self.widgets.lbl_offset_x.hide()
             self.widgets.btn_tool_touchoff_x.hide()
@@ -735,7 +735,7 @@ class gmoccapy(object):
         self.rapid_override_max = self.get_ini_info.get_max_rapid_override()
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
 
-        # set the slider limmits
+        # set the slider limits
         self.widgets.adj_jog_vel.configure(default_jog_vel, 0,
                                            self.jog_rate_max, 1, 0, 0)
 
@@ -747,13 +747,14 @@ class gmoccapy(object):
         self.widgets.spc_rapid.set_property("max", self.rapid_override_max * 100)
         self.widgets.spc_rapid.set_value(100)
 
-        self.widgets.adj_feed.configure(100, 0, self.feed_override_max * 100, 1, 0, 0)
+        self.widgets.spc_feed.set_property("min", 0)
+        self.widgets.spc_feed.set_property("max", self.feed_override_max * 100)
+        self.widgets.spc_feed.set_value(100)
 
         # set the adjustment to the speed controls
         # after setting the adjustment, it might be needed to change the increment
-        # as it will be resetted to its default value (MAX - MIN) / 100
+        # as it will be reseted to its default value (MAX - MIN) / 100
         self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
-        self.widgets.spc_feed.set_adjustment(self.widgets.adj_feed)
 
         # the scales to apply to the count of the hardware mpg wheel, to avoid to much turning
         default = (self.jog_rate_max / 100)
@@ -968,7 +969,7 @@ class gmoccapy(object):
 
     def _init_jog_increments(self):
         # Now we will build the option buttons to select the Jog-rates
-        # We do this dynamicly, because users are able to set them in INI File
+        # We do this dynamically, because users are able to set them in INI File
         # because of space on the screen only 10 items are allowed
         # jogging increments
 
@@ -1041,7 +1042,7 @@ class gmoccapy(object):
         tab_names, tab_location, tab_cmd = self.get_ini_info.get_embedded_tabs()
         if not tab_names:
             print (_("**** GMOCCAPY INFO ****"))
-            print (_("**** Invalid embeded tab configuration ****"))
+            print (_("**** Invalid embedded tab configuration ****"))
             print (_("**** No tabs will be added! ****"))
             return
 
@@ -1055,7 +1056,7 @@ class gmoccapy(object):
                 self._dynamic_childs[xid] = child
                 nb.show_all()
         except:
-            print(_("ERROR, trying to initialize the user tabs or panaels, check for typos"))
+            print(_("ERROR, trying to initialize the user tabs or panels, check for typos"))
 
     # adds the embedded object to a notebook tab or box
     def _dynamic_tab(self, widget, text):
@@ -1241,7 +1242,7 @@ class gmoccapy(object):
             self._no_virt_keyboard()
 
     def _no_virt_keyboard(self):
-        # In this case we will disable the coresponding part on the settings page
+        # In this case we will disable the corresponding part on the settings page
         self.widgets.chk_use_kb_on_offset.set_active(False)
         self.widgets.chk_use_kb_on_tooledit.set_active(False)
         self.widgets.chk_use_kb_on_edit.set_active(False)
@@ -1384,9 +1385,9 @@ class gmoccapy(object):
                 pin = hal_glib.GPin(
                     self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
                 pin = hal_glib.GPin(
-                    self.halcomp.newpin("messages." + message[2] + "-responce", hal.HAL_BIT, hal.HAL_OUT))
+                    self.halcomp.newpin("messages." + message[2] + "-response", hal.HAL_BIT, hal.HAL_OUT))
             else:
-                print(_("**** GMOCCAPY ERROR **** /n Message type %s not suported" % message[1]))
+                print(_("**** GMOCCAPY ERROR **** /n Message type %s not supported" % message[1]))
 
     def _show_user_message(self, pin, message):
         if message[1] == "status":
@@ -1402,15 +1403,15 @@ class gmoccapy(object):
         elif message[1] == "yesnodialog":
             if pin.get():
                 self.halcomp["messages." + message[2] + "-waiting"] = 1
-                self.halcomp["messages." + message[2] + "-responce"] = 0
+                self.halcomp["messages." + message[2] + "-response"] = 0
                 title = "Pin " + message[2] + " message"
                 responce = dialogs.yesno_dialog(self, message[0], title)
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
-                self.halcomp["messages." + message[2] + "-responce"] = responce
+                self.halcomp["messages." + message[2] + "-response"] = responce
             else:
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
         else:
-            print(_("**** GMOCCAPY ERROR **** /n Message type %s not suported" % message[1]))
+            print(_("**** GMOCCAPY ERROR **** /n Message type %s not supported" % message[1]))
 
     def _show_offset_tab(self, state):
         page = self.widgets.ntb_preview.get_nth_page(1)
@@ -1432,7 +1433,7 @@ class gmoccapy(object):
             self.widgets.tbtn_edit_offsets.set_active(False)
             self.widgets.ntb_preview.set_current_page(0)
             self.widgets.ntb_info.set_current_page(0)
-            if self.widgets.ntb_preview.get_n_pages() <= 4:  # else user tabs are availible
+            if self.widgets.ntb_preview.get_n_pages() <= 4:  # else user tabs are available
                 self.widgets.ntb_preview.set_property("show-tabs", state)
 
     def _show_tooledit_tab(self, state):
@@ -1449,7 +1450,7 @@ class gmoccapy(object):
                 self.widgets.ntb_info.set_current_page(1)
         else:
             page.hide()
-            if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are availible
+            if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are available
                 self.widgets.ntb_preview.set_property("show-tabs", not state)
             self.widgets.vbx_jog.show()
             self.widgets.ntb_preview.set_current_page(0)
@@ -1468,7 +1469,7 @@ class gmoccapy(object):
                 self.widgets.ntb_info.set_current_page(1)
         else:
             page.hide()
-            if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are availible
+            if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are available
                 self.widgets.ntb_preview.set_property("show-tabs", not state)
             self.widgets.ntb_preview.set_current_page(0)
             self.widgets.ntb_info.set_current_page(0)
@@ -1568,7 +1569,7 @@ class gmoccapy(object):
             self.stat.poll()
             if self.stat.task_state != linuxcnc.STATE_ON:
                 widget.set_active(False)
-                self._show_error((11, _("ERROR : Could not switch the machine on, is limit switch aktivated?")))
+                self._show_error((11, _("ERROR : Could not switch the machine on, is limit switch activated?")))
                 self._update_widgets(False)
                 return
             self._update_widgets(True)
@@ -1589,7 +1590,7 @@ class gmoccapy(object):
         self.command.mode(linuxcnc.MODE_AUTO)
         self.command.wait_complete()
 
-    # If button exit is clicked, press emergency button bevor closing the application
+    # If button exit is clicked, press emergency button before closing the application
     def on_btn_exit_clicked(self, widget, data=None):
         self.widgets.window1.destroy()
 
@@ -1627,7 +1628,7 @@ class gmoccapy(object):
 
     def on_hal_status_file_loaded(self, widget, filename):
         widgetlist = ["btn_use_current" ]
-        # this test is only neccesary, because of remap and toolchange, it will emit a file loaded signal
+        # this test is only necessary, because of remap and toolchange, it will emit a file loaded signal
         if filename:
             fileobject = file(filename, 'r')
             lines = fileobject.readlines()
@@ -1645,7 +1646,7 @@ class gmoccapy(object):
 
     def on_hal_status_line_changed(self, widget, line):
         self.halcomp["program.current-line"] = line
-        # this test is only neccesary, because of remap and toolchange, it will emit a file loaded signal
+        # this test is only necessary, because of remap and toolchange, it will emit a file loaded signal
         if self.halcomp["program.length"] > 0:
             self.halcomp["program.progress"] = 100.00 * line / self.halcomp["program.length"]
         else:
@@ -1781,8 +1782,8 @@ class gmoccapy(object):
             self.widgets.ntb_jog.set_current_page(0)
             return
         # if MDI button is not sensitive, we are not ready for MDI commands
-        # so we have to aboart external commands and get back to manual mode
-        # This will hapen mostly, if we are in settings mode, as we do disable the mode button
+        # so we have to abort external commands and get back to manual mode
+        # This will happen mostly, if we are in settings mode, as we do disable the mode button
         if not self.widgets.rbt_mdi.get_sensitive():
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
@@ -1802,8 +1803,8 @@ class gmoccapy(object):
 
     def on_hal_status_mode_auto(self, widget):
         # if Auto button is not sensitive, we are not ready for AUTO commands
-        # so we have to aboart external commands and get back to manual mode
-        # This will hapen mostly, if we are in settings mode, as we do disable the mode button
+        # so we have to abort external commands and get back to manual mode
+        # This will happen mostly, if we are in settings mode, as we do disable the mode button
         if not self.widgets.rbt_auto.get_sensitive():
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
@@ -1818,7 +1819,7 @@ class gmoccapy(object):
             self.widgets.rbt_auto.set_active(True)
 
     def on_hal_status_motion_mode_changed(self, widget, new_mode):
-        # Motion mode change in identity kinematics makes no sence
+        # Motion mode change in identity kinematics makes no sense
         # so we will not react on the signal and correct the misbehavior
         print("Motion mode has changed, now we are in mode ", new_mode)
         # Mode 1 = joint ; Mode 3 = teleop
@@ -1839,7 +1840,7 @@ class gmoccapy(object):
 # hal status End
 # =========================================================
 
-    # There are some settings we can only do if the window is on the screen allready
+    # There are some settings we can only do if the window is on the screen already
     def on_window1_show(self, widget, data=None):
 
         # it is time to get the correct estop state and set the button status
@@ -1874,7 +1875,7 @@ class gmoccapy(object):
             self.width = int(self.prefs.getpref("width", 979, float))
             self.height = int(self.prefs.getpref("height", 750, float))
 
-            # set the adjustments acording to Window position and size
+            # set the adjustments according to Window position and size
             self.widgets.adj_x_pos.set_value(self.xpos)
             self.widgets.adj_y_pos.set_value(self.ypos)
             self.widgets.adj_width.set_value(self.width)
@@ -1896,7 +1897,7 @@ class gmoccapy(object):
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data=None):
-        print "estopping / killing gmoccapy"
+        print "estoping / killing gmoccapy"
         self._kill_keyboard()
         self.command.state(linuxcnc.STATE_OFF)
         self.command.state(linuxcnc.STATE_ESTOP)
@@ -1933,7 +1934,7 @@ class gmoccapy(object):
             else:
                 pass
             command = command + " [" + str(parameter) + "] "
-# TODO: Should not only clear the plot, but also the loaded programm?
+# TODO: Should not only clear the plot, but also the loaded program?
         # self.command.program_open("")
         # self.command.reset_interpreter()
         self.widgets.gremlin.clear_live_plotter()
@@ -1941,7 +1942,7 @@ class gmoccapy(object):
         self.command.mdi(command)
         for btn in self.macrobuttons:
             btn.set_sensitive(False)
-        # we change the widget_image and use the button to interupt running macros
+        # we change the widget_image and use the button to interrupt running macros
         if not self.onboard:
             self.widgets.btn_show_kbd.set_sensitive(True)
         self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
@@ -1984,7 +1985,7 @@ class gmoccapy(object):
         keyname = gtk.gdk.keyval_name(event.keyval)
 
         # estop with F1 shold work every time
-        # so should also escape aboart actions
+        # so should also escape abort actions
         if keyname == "F1":  # will estop the machine, but not reset estop!
             self.command.state(linuxcnc.STATE_ESTOP)
             return True
@@ -1994,7 +1995,7 @@ class gmoccapy(object):
 # ToDo:
 # Check if homed, otherwise fo not allow to change mode
 
-        # change between teleop and worl mode
+        # change between teleop and world mode
         if keyname == "F12" or keyname == "$":
             # only change mode pressing the key, not releasing it
             if signal:
@@ -2008,7 +2009,7 @@ class gmoccapy(object):
                         self.set_motion_mode(1) # set t mode
             return True
 
-        # This will avoid excecuting the key press event several times caused by keyboard auto repeat
+        # This will avoid executing the key press event several times caused by keyboard auto repeat
         if self.last_key_event[0] == keyname and self.last_key_event[1] == signal:
             return True
 
@@ -2037,7 +2038,7 @@ class gmoccapy(object):
         # in this case we do not return true, otherwise entering code in MDI history
         # and the integrated editor will not work
         if not self.widgets.chk_use_kb_shortcuts.get_active():
-            print("Settings say: do not use keyboard shortcuts, aboart")
+            print("Settings say: do not use keyboard shortcuts, abort")
             return
 
         # F3 should change to manual mode
@@ -2082,7 +2083,7 @@ class gmoccapy(object):
         if self.widgets.ntb_preview.get_current_page() == 2:
             return
 
-        # take care of differnt key handling for lathe operation
+        # take care of different key handling for lathe operation
         if self.lathe_mode:
             if keyname == "Page_Up" or keyname == "Page_Down":
                 return
@@ -2155,14 +2156,14 @@ class gmoccapy(object):
                     # so lets increment it by one
                     rbt = int(self.active_increment[-1]) + 1
                     # we check if we are still in the allowed limit
-                    if rbt > len(self.jog_increments) - 1:  # begining from zero
+                    if rbt > len(self.jog_increments) - 1:  # beginning from zero
                         rbt = 0
                 else:  # must be "i"
                     # so lets reduce it by one
                     rbt = int(self.active_increment[-1]) - 1
                     # we check if we are still in the allowed limit
                     if rbt < 0:
-                        rbt = len(self.jog_increments) - 1  # begining from zero
+                        rbt = len(self.jog_increments) - 1  # beginning from zero
                 # we set the corresponding button active
                 self.incr_rbt_list[rbt].set_active(True)
                 # and we have to update all pin and variables
@@ -2256,11 +2257,11 @@ class gmoccapy(object):
             btn = gtk.Button(lbl, None, False)
             btn.connect("pressed", self._on_btn_macro_pressed, name)
             btn.position = increment
-            # we add the button to a list to be able later to see what makro to excecute
+            # we add the button to a list to be able later to see what macro to execute
             self.macrobuttons.append(btn)
             self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
             btn.show()
-        # if there is still place, we fill it with empty labels, to be sure the button will not be on differnt
+        # if there is still place, we fill it with empty labels, to be sure the button will not be on different
         # places if the amount of macros change.
         if num_macros < 9:
             for label_space in range(num_macros, 9):
@@ -2377,7 +2378,7 @@ class gmoccapy(object):
             self.initialized = True
         if self.feed_override != self.stat.feedrate:
             self.initialized = False
-            self.widgets.adj_feed.set_value(self.stat.feedrate * 100)
+            self.widgets.spc_feed.set_value(self.stat.feedrate * 100)
             self.feed_override = self.stat.feedrate
             self.initialized = True
         if self.rapidrate != self.stat.rapidrate:
@@ -2445,7 +2446,7 @@ class gmoccapy(object):
             self.widgets.lbl_tool_name.set_text(toolinfo[16])
 
         # we do not allow touch off with no tool mounted, so we set the
-        # coresponding widgets unsensitive and set the description acordingly
+        # corresponding widgets unsensitized and set the description accordingly
         if tool <= 0:
             self.widgets.lbl_tool_no.set_text("0")
             self.widgets.lbl_tool_dia.set_text("0")
@@ -2822,7 +2823,7 @@ class gmoccapy(object):
             self.widgets.file_to_load_chooser.set_filename(self.stat.file)
             self.prefs.putpref("open_file", self.stat.file, str)
 
-    # Clear the status to load a file on start up, so there will not be loaded a programm
+    # Clear the status to load a file on start up, so there will not be loaded a program
     # on the next start of the GUI
     def on_btn_none_clicked(self, widget, data=None):
         self.widgets.file_to_load_chooser.set_filename(" ")
@@ -2871,7 +2872,7 @@ class gmoccapy(object):
         else:
             # check witch button should be sensitive, depending on the state of the machine
             if self.stat.task_state == linuxcnc.STATE_ESTOP:
-                # estoped no mode availible
+                # estopped no mode available
                 self.widgets.rbt_manual.set_sensitive(False)
                 self.widgets.rbt_mdi.set_sensitive(False)
                 self.widgets.rbt_auto.set_sensitive(False)
@@ -2881,7 +2882,7 @@ class gmoccapy(object):
                 self.widgets.rbt_mdi.set_sensitive(False)
                 self.widgets.rbt_auto.set_sensitive(False)
             if (self.stat.task_state == linuxcnc.STATE_ON) and (self.all_homed or self.no_force_homing):
-                # all OK, make all modes availible
+                # all OK, make all modes available
                 self.widgets.rbt_manual.set_sensitive(True)
                 self.widgets.rbt_mdi.set_sensitive(True)
                 self.widgets.rbt_auto.set_sensitive(True)
@@ -3009,7 +3010,7 @@ class gmoccapy(object):
         else:
             speed = self.stat.spindle_speed
         self.widgets.active_speed_label.set_label("%.0f" % abs(speed))
-        self.on_spc_spindle_value_changed(self.widgets.spc_spindle)
+        #self.on_spc_spindle_value_changed(self.widgets.spc_spindle)
 
     def on_rbt_forward_clicked(self, widget, data=None):
         if widget.get_active():
@@ -3118,6 +3119,7 @@ class gmoccapy(object):
             else:
                 value_to_set = spindle_override * 100
             widget.set_value(value_to_set)
+            self.spindle_override = value_to_set
             self.command.spindleoverride(value_to_set / 100)
         except:
             pass
@@ -3165,13 +3167,15 @@ class gmoccapy(object):
 
 # =========================================================
 # feed stuff
-    def on_adj_feed_value_changed(self, widget, data=None):
+    def on_spc_feed_value_changed(self, widget, data=None):
         if not self.initialized:
             return
-        self.command.feedrate(widget.get_value() / 100)
+        value = widget.get_value() / 100
+        self.feed_override = value
+        self.command.feedrate(value)
 
     def on_btn_feed_100_clicked(self, widget, data=None):
-        self.widgets.adj_feed.set_value(100)
+        self.widgets.spc_feed.set_value(100)
 
     def on_spc_rapid_value_changed(self, widget, data=None):
         if not self.initialized:
@@ -3205,7 +3209,7 @@ class gmoccapy(object):
             self.widgets.window2.hide()
 
     def on_btn_show_kbd_clicked(self, widget, data=None):
-        # if the image is img_brake macro, we want to interupt the running macro
+        # if the image is img_brake macro, we want to interrupt the running macro
         if self.widgets.btn_show_kbd.get_image() == self.widgets.img_brake_macro:
             self.command.abort()
             for btn in self.macrobuttons:
@@ -3441,7 +3445,7 @@ class gmoccapy(object):
             dialogs.warning_dialog(self, _("Conversion error in btn_block_height!"),
                                    _("Please enter only numerical values\nValues have not been applied"))
 
-        # set koordinate system to new origin
+        # set coordinate system to new origin
         origin = self.get_ini_info.get_axis_2_min_limit() + blockheight
         self.command.mode(linuxcnc.MODE_MDI)
         self.command.wait_complete()
@@ -3683,13 +3687,13 @@ class gmoccapy(object):
         toolnumber = self.halcomp['toolchange-number']
         if change:
             # if toolnumber = 0 we will get an error because we will not be able to get
-            # any tooldescription, so we avoid that case
+            # any tool description, so we avoid that case
             if toolnumber == 0:
                 message = _("Please remove the mounted tool and press OK when done")
             else:
                 tooldescr = self.widgets.tooledit1.get_toolinfo(toolnumber)[16]
                 message = _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
-            result = dialogs.warning_dialog(self, message, title=_("Manual Toolchange"))
+            result = dialogs.warning_dialog(self, message, title=_("Manual Tool change"))
             if result:
                 self.halcomp["toolchange-changed"] = True
             else:
@@ -3781,7 +3785,7 @@ class gmoccapy(object):
                                      label=_("Select the tool to change"), integer=True)
         if value == "ERROR":
             message = _("Conversion error because of wrong entry for tool number\n")
-            message += _("enter only integer nummbers")
+            message += _("enter only integer numbers")
             print(message)
             dialogs.warning_dialog(self, _("Conversion error !"), message)
             return
@@ -4070,7 +4074,7 @@ class gmoccapy(object):
         difference = 0
         counts = pin.get()
         if self.halcomp["feed-override.count-enable"]:
-            if widget == "adj_feed":
+            if widget == "spc_feed":
                 difference = (counts - self.fo_counts) * self.scale_feed_override
                 self.fo_counts = counts
                 self._check_counts(counts)
@@ -4102,7 +4106,7 @@ class gmoccapy(object):
 
     def _check_counts(self, counts):
         # as we do not know how the user did connect the jog wheels, we have to check all
-        # possibilitys. Does he use only one jog wheel and a selection switch or do he use
+        # possibilities. Does he use only one jog wheel and a selection switch or do he use
         # a mpg for each slider or one for speeds and one for override, or ??
         if self.halcomp["feed-override.counts"] == self.halcomp["spindle-override.counts"]:
             if self.halcomp["feed-override.count-enable"] and self.halcomp["spindle-override.count-enable"]:
@@ -4141,7 +4145,7 @@ class gmoccapy(object):
     def _on_analog_value_changed(self, pin, widget):
         if not self.initialized:
             return
-        if widget == "adj_feed" and not self.halcomp["feed-override.analog-enable"]:
+        if widget == "spc_feed" and not self.halcomp["feed-override.analog-enable"]:
             return
         if widget == "spc_spindle" and not self.halcomp["spindle-override.analog-enable"]:
             return
@@ -4152,12 +4156,12 @@ class gmoccapy(object):
         percentage = pin.get()
         if percentage > 1.0:
             percentage = 1.0
-        if widget == "spc_spindle" or widget == "spc_rapid":
+        if widget == "spc_spindle" or widget == "spc_rapid" or widget == "spc_feed":
             range = self.widgets[widget].get_property("max") - self.widgets[widget].get_property("min")
         else:
             range = self.widgets[widget].upper - self.widgets[widget].lower
         try:  # otherwise a value of 0.0 would give an error
-            if widget == "spc_spindle" or widget == "spc_rapid":
+            if widget == "spc_spindle" or widget == "spc_rapid" or widget == "spc_feed":
                 value = self.widgets[widget].get_property("min") + (range * percentage)
             else:
                 value = self.widgets[widget].lower + (range * percentage)
@@ -4193,7 +4197,6 @@ class gmoccapy(object):
                 self.notification.del_last()
 
     def _on_pin_incr_changed(self, pin, buttonnumber):
-        # print ("State = ", self.stat.state)
         if self.stat.state != 1:
             self.command.abort()
             self.command.wait_complete()
@@ -4229,7 +4232,7 @@ class gmoccapy(object):
 # The actions of the buttons
     def _on_h_button_changed(self, pin):
         # we check if the button is pressed ore release,
-        # otehrwise a signal will be emitted, wenn the button is released and
+        # otherwise a signal will be emitted, if the button is released and
         # the signal drob down to zero
         if not pin.get():
             return
@@ -4249,13 +4252,13 @@ class gmoccapy(object):
                 button = index[1]
         if button:
             # only emit a signal if the button is sensitive, otherwise
-            # running actions may be interupted
+            # running actions may be interrupted
             if self.widgets[button].get_sensitive() == False:
                 print("%s not_sensitive" % button)
                 return
             self.widgets[button].emit("clicked")
         else:
-            # as we are generating the macro buttons dynamecely, we can"t use the same
+            # as we are generating the macro buttons dynamically, we can"t use the same
             # method as above, here is how we do it
             if page == 1:  # macro page
                 # does the user press a valid hardware button?
@@ -4284,7 +4287,7 @@ class gmoccapy(object):
                 button = index[1]
         if button:
             # only emit a signal if the button is sensitive, otherwise
-            # running actions may be interupted
+            # running actions may be interrupted
             if self.widgets[button].get_sensitive() == False:
                 print("%s not_sensitive" % button)
                 return
@@ -4302,7 +4305,7 @@ class gmoccapy(object):
 
 # We need extra HAL pins here is where we do it.
 # we make pins for the hardware buttons witch can be placed around the
-# screen to activate the coresponding buttons on the GUI
+# screen to activate the corresponding buttons on the GUI
     def _init_hal_pins(self):
         # generate the horizontal button pins
         for h_button in range(0, 10):
@@ -4335,7 +4338,7 @@ class gmoccapy(object):
 
         # generate the pins to connect encoders to the sliders
         pin = self.halcomp.newpin("feed-override.counts", hal.HAL_S32, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "adj_feed")
+        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_feed")
         pin = self.halcomp.newpin("spindle-override.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_spindle")
         pin = self.halcomp.newpin("jog-speed.counts", hal.HAL_S32, hal.HAL_IN)
@@ -4354,7 +4357,7 @@ class gmoccapy(object):
         self.halcomp.newpin("jog-speed.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         self.halcomp.newpin("rapid-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         pin = self.halcomp.newpin("feed-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "adj_feed")
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_feed")
         pin = self.halcomp.newpin("spindle-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_spindle")
         pin = self.halcomp.newpin("jog-speed.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
