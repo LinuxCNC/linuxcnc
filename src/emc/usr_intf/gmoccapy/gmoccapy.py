@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.18"
+_RELEASE = " 2.0.19"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -189,7 +189,6 @@ class gmoccapy(object):
         self.axisletter_four = None  # we use this to get the letter of the 4-th axis
         self.axisnumber_five = ""    # we use this to get the number of the 5-th axis
         self.axisletter_five = None  # we use this to get the letter of the 5-th axis
-        self.hide_axis_4 = False     # will hold if the 4'th axis should be hidden
 
         self.notification = notification.Notification()  # Our own message system
         self.notification.connect("message_deleted", self._on_message_deleted)
@@ -888,7 +887,9 @@ class gmoccapy(object):
             for axis in self.axis_list:
                 if axis == self.axisletter_four:
                     axis = 4
+                    self.widgets.tbl_DRO_45.set_homogeneous(False)
                 self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
+
         # if we have 5 axes, we will need some extra space:
         else:
             for axis in self.axis_list:
@@ -900,68 +901,6 @@ class gmoccapy(object):
                     axis = 5
                     size = int(size * 0.65)
                 self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
-
-    def _hide_axis_4(self, state=False):
-        print("axis 4 should be hidden", state)
-
-        # we save the state, because it will be needed also
-        # in _init_offsetpage and _init_tooleditor
-        self.hide_axis_4 = state
-
-        self.widgets.chk_hide_axis_4.set_active(self.hide_axis_4)
-
-        if self.hide_axis_4:
-            self.widgets.frm_tool_changer.set_sensitive(True)
-            self.widgets.Combi_DRO_4.hide()
-            self.widgets.btn_4_plus.hide()
-            self.widgets.btn_4_minus.hide()
-            font_size = self.dro_size
-
-            # we have to re-arrange the jog buttons, so first remove all button
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_minus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_plus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_minus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_plus)
-
-            # now we place them in a different order
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK)
-
-            self.widgets.btn_4_plus.hide()
-            self.widgets.btn_4_minus.hide()
-            self.widgets.lbl_replace_4.show()
-            self.widgets.btn_home_4.hide()
-
-        else:
-            # we have to re-arrange the jog buttons, so first remove all button
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_minus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_plus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_minus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_plus)
-
-            # now we place them in a different order
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_plus, 2, 3, 0, 1, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_minus, 2, 3, 2, 3, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK)
-
-            self.widgets.btn_4_plus.show()
-            self.widgets.btn_4_minus.show()
-            self.widgets.lbl_replace_4.hide()
-            self.widgets.btn_home_4.show()
-            self.widgets.Combi_DRO_4.show()
-
-        for axis in self.axis_list:
-            size = self.dro_size
-            if axis == self.axisletter_four:
-                axis = 4
-                size = int(size * 0.75)
-            if axis == self.axisletter_five:
-                axis = 5
-                size = int(size * 0.75)
-            self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
 
     def _init_jog_increments(self):
         # Now we will build the option buttons to select the Jog-rates
@@ -1080,9 +1019,6 @@ class gmoccapy(object):
     def _init_tooleditor(self):
         self.widgets.tooledit1.set_visible("abcxyzuvwijq", False)
         for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                if self.hide_axis_4:
-                    continue
             self.widgets.tooledit1.set_visible("%s" % axis, True)
 
         if self.lathe_mode:
@@ -1271,9 +1207,6 @@ class gmoccapy(object):
         self.widgets.offsetpage1.set_col_visible(temp, False)
         temp = ""
         for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                if self.hide_axis_4:
-                    continue
             temp = temp + axis
         self.widgets.offsetpage1.set_col_visible(temp, True)
 
@@ -3294,32 +3227,6 @@ class gmoccapy(object):
         self.command.wait_complete()
         self.widgets.btn_touch.emit("clicked")
 
-# TODO: what to do when there are more axis?
-# all over one handler with "G10 L20 P0 %s%f"%(axis,value)
-    def on_btn_zero_x_clicked(self, widget, data=None):
-        self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
-        self.command.mdi("G10 L20 P0 X0")
-        self.widgets.hal_action_reload.emit("activate")
-        self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
-
-    def on_btn_zero_y_clicked(self, widget, data=None):
-        self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
-        self.command.mdi("G10 L20 P0 Y0")
-        self.widgets.hal_action_reload.emit("activate")
-        self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
-
-    def on_btn_zero_z_clicked(self, widget, data=None):
-        self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
-        self.command.mdi("G10 L20 P0 Z0")
-        self.widgets.hal_action_reload.emit("activate")
-        self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
-
     def on_btn_set_value_clicked(self, widget, data=None):
         if widget == self.widgets.btn_set_value_x:
             axis = "x"
@@ -3364,7 +3271,6 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
             self.prefs.putpref("offset_axis_%s" % axis, offset, float)
-# TODO: End
 
     def on_btn_set_selected_clicked(self, widget, data=None):
         system, name = self.widgets.offsetpage1.get_selected()
@@ -3409,15 +3315,6 @@ class gmoccapy(object):
             self.halcomp["probevel"] = 0.0
             self.halcomp["probeheight"] = 0.0
         self.prefs.putpref("use_toolmeasurement", widget.get_active(), bool)
-
-    def on_chk_hide_axis_4_toggled(self, widget, data=None):
-        if not self.initialized:
-            return
-        state = widget.get_active()
-        self.prefs.putpref("hide_axis_4", state, bool)
-        self._hide_axis_4(state)
-        self._init_offsetpage()
-        self._init_tooleditor()
 
     def on_btn_block_height_clicked(self, widget, data=None):
         probeheight = self.widgets.spbtn_probe_height.get_value()

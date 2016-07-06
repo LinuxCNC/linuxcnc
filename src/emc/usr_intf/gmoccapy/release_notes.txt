@@ -1,3 +1,9 @@
+ver. 2.0.19
+- deleted the settings to hide axis 4 if used as tool changer
+  as that is not longer needed on Joint Axis branch
+- corrected a DRO display issue on 4 axis config
+- deleted unneeded handlers for axis touch off to zero
+
 ver. 2.0.18
 - deleted adj_jog_vel and use spc_jog_vel
 - If a user uses analog input signals 
