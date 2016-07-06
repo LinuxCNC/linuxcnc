@@ -21,7 +21,7 @@ net override-counts       pendant.override-wheel-counts
 net override-counts       gmoccapy.rapid-override.counts
 net override-counts       gmoccapy.feed-override.counts
 net override-counts       gmoccapy.spindle-override.counts
-net override-counts       gmoccapy.jog-speed.counts
+net override-counts       gmoccapy.jog-velocity.counts
 
 # the scales of the counts are set on the settings page of the GUI, not here
 # this is differnet from using halui pin!!
@@ -37,5 +37,5 @@ setp axis.z.jog-vel-mode 1
 net feed           gmoccapy.feed-override.count-enable      <=   pendant.feed
 net spindle        gmoccapy.spindle-override.count-enable   <=   pendant.spindle
 net maxvel         gmoccapy.rapid-override.count-enable     <=   pendant.rapid
-net jogvel         gmoccapy.jog-speed.count-enable          <=   pendant.jogvel 
+net jogvel         gmoccapy.jog-velocity.count-enable       <=   pendant.jogvel 
 

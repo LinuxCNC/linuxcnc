@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.17"
+_RELEASE = " 2.0.18"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -155,9 +155,9 @@ class gmoccapy(object):
         self.widgets = widgets.Widgets(self.builder)
 
         self.initialized = False  # will be set True after the window has been shown and all
-        # basic settings has been finished, so we avoid some actions
-        # because we cause click or toggle events when initializing
-        # widget states.
+                                  # basic settings has been finished, so we avoid some actions
+                                  # because we cause click or toggle events when initializing
+                                  # widget states.
 
         self.start_line = 0  # needed for start from line
 
@@ -172,7 +172,7 @@ class gmoccapy(object):
         self.fo_counts = 0        # need to calculate difference in counts to change the feed override slider
         self.so_counts = 0        # need to calculate difference in counts to change the spindle override slider
         self.jv_counts = 0        # need to calculate difference in counts to change the jog_vel slider
-        self.mv_counts = 0        # need to calculate difference in counts to change the max_speed slider
+        self.ro_counts = 0        # need to calculate difference in counts to change the rapid override slider
 
         self.spindle_override = 1 # holds the feed override value and is needed to be able to react to halui pin
         self.feed_override = 1    # holds the spindle override value and is needed to be able to react to halui pin
@@ -736,8 +736,9 @@ class gmoccapy(object):
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
 
         # set the slider limits
-        self.widgets.adj_jog_vel.configure(default_jog_vel, 0,
-                                           self.jog_rate_max, 1, 0, 0)
+        self.widgets.spc_jog_vel.set_property("min", 0)
+        self.widgets.spc_jog_vel.set_property("max", self.jog_rate_max)
+        self.widgets.spc_jog_vel.set_value(default_jog_vel)
 
         self.widgets.spc_spindle.set_property("min", self.spindle_override_min * 100)
         self.widgets.spc_spindle.set_property("max", self.spindle_override_max * 100)
@@ -750,11 +751,6 @@ class gmoccapy(object):
         self.widgets.spc_feed.set_property("min", 0)
         self.widgets.spc_feed.set_property("max", self.feed_override_max * 100)
         self.widgets.spc_feed.set_value(100)
-
-        # set the adjustment to the speed controls
-        # after setting the adjustment, it might be needed to change the increment
-        # as it will be reseted to its default value (MAX - MIN) / 100
-        self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
 
         # the scales to apply to the count of the hardware mpg wheel, to avoid to much turning
         default = (self.jog_rate_max / 100)
@@ -2553,7 +2549,7 @@ class gmoccapy(object):
         # set gremlin_units
         self.widgets.gremlin.set_property("metric_units", metric_units)
 
-        widgetlist = ["adj_jog_vel"]
+        widgetlist = ["spc_jog_vel"]
 
         # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
         # display units not equal machine units
@@ -2574,7 +2570,7 @@ class gmoccapy(object):
                 self.faktor = 1.0
                 self._update_slider(widgetlist)
 
-        self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
+#        self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
 
         if metric_units:
             self.widgets.spc_jog_vel.set_digits(0)
@@ -2708,34 +2704,31 @@ class gmoccapy(object):
         self.prefs.putpref("turtle_jog_factor", self.turtle_jog_factor, int)
         self.turtle_jog = self.rabbit_jog / self.turtle_jog_factor
         if self.widgets.tbtn_turtle_jog.get_active():
-            self.widgets.adj_jog_vel.configure(self.turtle_jog, 1,
-                                               self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0)
+            self.widgets.spc_jog_vel.set_property("min", 0)
+            self.widgets.spc_jog_vel.set_property("max", self.jog_rate_max / self.turtle_jog_factor)
+            self.widgets.spc_jog_vel.set_value(self.turtle_jog)
 
     def on_tbtn_turtle_jog_toggled( self, widget, data = None ):
         # due to imperial and metric options we have to get first the values of the widget
-        max = self.widgets.adj_jog_vel.upper
-        min = self.widgets.adj_jog_vel.lower
-
+        max = self.widgets.spc_jog_vel.max
+        min = self.widgets.spc_jog_vel.min
+        value = self.widgets.spc_jog_vel.get_value()
+        
         if widget.get_active():
-            self.rabbit_jog = self.widgets.adj_jog_vel.get_value()
+            self.rabbit_jog = value
             widget.set_image( self.widgets.img_turtle_jog )
-            active_jog_vel = self.widgets.adj_jog_vel.get_value()
-            self.widgets.adj_jog_vel.configure( self.turtle_jog, min,
-                                               max / self.turtle_jog_factor, 1, 0, 0 )
-            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
-            increment = self.widgets.spc_jog_vel.get_property("increment") / self.turtle_jog_factor
-            self.widgets.spc_jog_vel.set_property("increment", increment)
+            self.widgets.spc_jog_vel.set_property("min", min)
+            self.widgets.spc_jog_vel.set_property("max", max / self.turtle_jog_factor)
+            self.widgets.spc_jog_vel.set_value(self.turtle_jog)
         else:
-            self.turtle_jog = self.widgets.adj_jog_vel.get_value()
+            self.turtle_jog = value
             widget.set_image( self.widgets.img_rabbit_jog )
-            self.widgets.adj_jog_vel.configure( self.rabbit_jog, min,
-                                               max * self.turtle_jog_factor, 1, 0, 0 )
-            self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
-            increment = self.widgets.spc_jog_vel.get_property("increment") * self.turtle_jog_factor
-            self.widgets.spc_jog_vel.set_property("increment", increment)
+            self.widgets.spc_jog_vel.set_property("min", min)
+            self.widgets.spc_jog_vel.set_property("max", max * self.turtle_jog_factor)
+            self.widgets.spc_jog_vel.set_value(self.rabbit_jog)
 
     def _on_turtle_jog_enable(self, pin):
-        self.widgets.tbtn_turtle_jog.set_active(bool(pin.get()))
+        self.widgets.tbtn_turtle_jog.set_active(pin.get())
 
     def on_btn_jog_pressed(self, widget, data=None):
         if not self.initialized:
@@ -2758,7 +2751,7 @@ class gmoccapy(object):
         if data:
             value = self.stat.max_velocity
         else:
-            value = self.widgets.adj_jog_vel.get_value() / 60
+            value = self.widgets.spc_jog_vel.get_value() / 60
 
         velocity = value * (1 / self.faktor)
 
@@ -4088,14 +4081,14 @@ class gmoccapy(object):
                 difference = (counts - self.so_counts) * self.scale_spindle_override
                 self.so_counts = counts
                 self._check_counts(counts)
-        if self.halcomp["jog-speed.count-enable"]:
-            if widget == "adj_jog_vel":
+        if self.halcomp["jog-velocity.count-enable"]:
+            if widget == "spc_jog_vel":
                 difference = (counts - self.jv_counts) * self.scale_jog_vel
                 if self.widgets.tbtn_turtle_jog.get_active():
                     difference = difference / self.turtle_jog_factor
                 self.jv_counts = counts
                 self._check_counts(counts)
-        if not self.halcomp["feed-override.count-enable"] and not self.halcomp["spindle-override.count-enable"] and not self.halcomp["jog-speed.count-enable"] and not self.halcomp["rapid-override.count-enable"]:
+        if not self.halcomp["feed-override.count-enable"] and not self.halcomp["spindle-override.count-enable"] and not self.halcomp["jog-velocity.count-enable"] and not self.halcomp["rapid-override.count-enable"]:
             self._check_counts(counts)
 
         val = self.widgets[widget].get_value() + difference
@@ -4112,62 +4105,81 @@ class gmoccapy(object):
             if self.halcomp["feed-override.count-enable"] and self.halcomp["spindle-override.count-enable"]:
                 return
             self.fo_counts = self.so_counts = counts
-        if self.halcomp["feed-override.counts"] == self.halcomp["jog-speed.counts"]:
-            if self.halcomp["feed-override.count-enable"] and self.halcomp["jog-speed.count-enable"]:
+        if self.halcomp["feed-override.counts"] == self.halcomp["jog-velocity.counts"]:
+            if self.halcomp["feed-override.count-enable"] and self.halcomp["jog-velocity.count-enable"]:
                 return
             self.fo_counts = self.jv_counts = counts
         if self.halcomp["feed-override.counts"] == self.halcomp["rapid-override.counts"]:
             if self.halcomp["feed-override.count-enable"] and self.halcomp["rapid-override.count-enable"]:
                 return
             self.fo_counts = self.ro_counts = counts
-        if self.halcomp["spindle-override.counts"] == self.halcomp["jog-speed.counts"]:
-            if self.halcomp["spindle-override.count-enable"] and self.halcomp["jog-speed.count-enable"]:
+        if self.halcomp["spindle-override.counts"] == self.halcomp["jog-velocity.counts"]:
+            if self.halcomp["spindle-override.count-enable"] and self.halcomp["jog-velocity.count-enable"]:
                 return
             self.so_counts = self.jv_counts = counts
         if self.halcomp["spindle-override.counts"] == self.halcomp["rapid-override.counts"]:
             if self.halcomp["spindle-override.count-enable"] and self.halcomp["rapid-override.count-enable"]:
                 return
             self.so_counts = self.ro_counts = counts
-        if self.halcomp["jog-speed.counts"] == self.halcomp["rapid-override.counts"]:
-            if self.halcomp["jog-speed.count-enable"] and self.halcomp["rapid-override.count-enable"]:
+        if self.halcomp["jog-velocity.counts"] == self.halcomp["rapid-override.counts"]:
+            if self.halcomp["jog-velocity.count-enable"] and self.halcomp["rapid-override.count-enable"]:
                 return
             self.jv_counts = self.ro_counts = counts
 
     def _on_analog_enable_changed(self, pin, widget):
         if not self.initialized:
-            return
+            return                               
         if widget == "spc_spindle":
             if pin.get():
                 self.widgets.btn_spindle_100.hide()
             else:
                 self.widgets.btn_spindle_100.show()
+        if widget == "spc_feed":
+            if pin.get():
+                self.widgets.btn_feed_100.hide()
+            else:
+                self.widgets.btn_feed_100.show()
+        self.widgets[widget].hide_button(pin.get())
+        
+        if pin.get():
+            # special case of jog_vel, as we have to take care of both modes,
+            # more details see _on_analog_value_changed
+            if self.widgets.tbtn_turtle_jog.get_active():
+                value = self.rabbit_jog = self.jog_rate_max * self.halcomp["jog-velocity.direct-value"]
+            elif not self.widgets.tbtn_turtle_jog.get_active():
+                value = self.turtle_jog = self.jog_rate_max / self.turtle_jog_factor * self.halcomp["jog-velocity.direct-value"]
+            self.widgets.spc_jog_vel.set_value(value)
 
     def _on_analog_value_changed(self, pin, widget):
         if not self.initialized:
             return
+        if widget == "spc_jog_vel" and not self.halcomp["jog-velocity.analog-enable"]:
+            return
         if widget == "spc_feed" and not self.halcomp["feed-override.analog-enable"]:
             return
         if widget == "spc_spindle" and not self.halcomp["spindle-override.analog-enable"]:
-            return
-        if widget == "adj_jog_vel" and not self.halcomp["jog-speed.analog-enable"]:
             return
         if widget == "spc_rapid" and not self.halcomp["rapid-override.analog-enable"]:
             return
         percentage = pin.get()
         if percentage > 1.0:
             percentage = 1.0
-        if widget == "spc_spindle" or widget == "spc_rapid" or widget == "spc_feed":
-            range = self.widgets[widget].get_property("max") - self.widgets[widget].get_property("min")
-        else:
-            range = self.widgets[widget].upper - self.widgets[widget].lower
+        range = self.widgets[widget].get_property("max") - self.widgets[widget].get_property("min")
         try:  # otherwise a value of 0.0 would give an error
-            if widget == "spc_spindle" or widget == "spc_rapid" or widget == "spc_feed":
-                value = self.widgets[widget].get_property("min") + (range * percentage)
-            else:
-                value = self.widgets[widget].lower + (range * percentage)
+            value = self.widgets[widget].get_property("min") + (range * percentage)
         except:
             value = 0
         self.widgets[widget].set_value(value)
+
+        # special case of jog_vel, as we have to take care of both modes,
+        # meaning the analog value must be applied to both! If we do not do this,
+        # it might be that a user has analog in signal set to 0.5 and switch the mode
+        # but in the other mode he had only 0.3 from its value, so a small change of the 
+        # analog in to 0.51 would result in a jump of 20 %! 
+        if self.widgets.tbtn_turtle_jog.get_active():
+            self.rabbit_jog = self.jog_rate_max * pin.get()
+        elif not self.widgets.tbtn_turtle_jog.get_active():
+            self.turtle_jog = self.jog_rate_max / self.turtle_jog_factor * pin.get()
 
     def _on_unlock_settings_changed(self, pin):
         if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
@@ -4341,27 +4353,30 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_feed")
         pin = self.halcomp.newpin("spindle-override.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog-speed.counts", hal.HAL_S32, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "adj_jog_vel")
+        pin = self.halcomp.newpin("jog-velocity.counts", hal.HAL_S32, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_jog_vel")
         pin = self.halcomp.newpin("rapid-override.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_rapid")
         self.halcomp.newpin("feed-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
         self.halcomp.newpin("spindle-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("jog-speed.count-enable", hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("jog-velocity.count-enable", hal.HAL_BIT, hal.HAL_IN)
         self.halcomp.newpin("rapid-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
 
         # generate the pins to connect analog inputs for sliders
-        self.halcomp.newpin("feed-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_feed")
         pin = self.halcomp.newpin("spindle-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_spindle")
-        self.halcomp.newpin("jog-speed.analog-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("rapid-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog-velocity.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_jog_vel")
+        pin = self.halcomp.newpin("rapid-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_rapid")
         pin = self.halcomp.newpin("feed-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_feed")
         pin = self.halcomp.newpin("spindle-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog-speed.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "adj_jog_vel")
+        pin = self.halcomp.newpin("jog-velocity.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_jog_vel")
         pin = self.halcomp.newpin("rapid-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_rapid")
 

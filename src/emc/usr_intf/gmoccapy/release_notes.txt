@@ -1,3 +1,15 @@
+ver. 2.0.18
+- deleted adj_jog_vel and use spc_jog_vel
+- If a user uses analog input signals 
+  (i.e. gmoccapy.jog-speed.analog-enable) the 100 % button will be hidden
+  as pushing this buttons will lead to unsynchronized state between GUI and
+  hardware. Also the turtle and rabbit jog velocities can not be different
+  in there percentage, as the can be using a jog wheel.
+  we will also hide the plus and minus button of the widgets, as they also
+  can not be used together with analog input
+- changed pin name from jog-speed to jog-velocity
+- changed back the override frames to original order
+
 ver. 2.0.17
 - deleted adj_feed and use spc_feed
 - corrected a strange way of updating spindle override values
