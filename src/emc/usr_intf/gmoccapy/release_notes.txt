@@ -1,3 +1,6 @@
+ver. 2.0.16
+- deleted adj_rapid_override and use spc_rapid
+
 ver. 2.0.15
 - finally found a way to avoid jumping DRO size of axis 4 and 5
   if the amount of numbers change, i.e. from 99.999 to 100.001

@@ -56,12 +56,6 @@
     <property name="value">10</property>
     <property name="step_increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="adj_rapid_override">
-    <property name="upper">150</property>
-    <property name="value">100</property>
-    <property name="step_increment">10</property>
-    <signal name="value-changed" handler="on_adj_rapid_override_value_changed" swapped="no"/>
-  </object>
   <object class="GtkAdjustment" id="adj_scale_feed_overrid">
     <property name="upper">100</property>
     <property name="step_increment">1</property>
@@ -2605,6 +2599,7 @@
                                                             <property name="template">%.d</property>
                                                             <property name="unit">%</property>
                                                             <property name="value">100</property>
+                                                            <signal name="value-changed" handler="on_spc_rapid_value_changed" swapped="no"/>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
