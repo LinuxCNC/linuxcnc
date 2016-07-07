@@ -34,6 +34,7 @@ struct rtapi_task {
   int magic;			/* to check for valid handle */
   int id;
   int owner;
+  int uses_fp;
   void *appspecific;          /* app-specific storage */
   size_t stacksize;
   int prio;

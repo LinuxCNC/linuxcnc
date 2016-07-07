@@ -784,6 +784,7 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
   memset(task, 0, sizeof(*task));
   task->id = n;
   task->owner = owner;
+  task->uses_fp = uses_fp;
   task->arg = arg;
   task->stacksize = stacksize;
   task->taskcode = taskcode;
