@@ -24,36 +24,34 @@ else
 endif
 ECHO := @echo
 
+DESTDIR := /usr/local
 # all protobuf definitions live here
-PROTODIR := proto
+NAMESPACEDIR := machinetalk/protobuf
+SRCDIR := src
+SRCDIRINV := $(shell realpath --relative-to=$(SRCDIR) .)
+PROTODIR := $(SRCDIR)/$(NAMESPACEDIR)
 
+BUILDDIR := build
 
 # generated C++ headers + source files
-CXXGEN   := generated
+CXXGEN   := $(BUILDDIR)/cpp
 
 # generated Python files
-PYGEN    := python
+PYGEN    := $(BUILDDIR)/python
 
-# disable protobuf.js per default
-PROTOBUFJS := 0
+# generated Documentation files
+# default to asciidoc template
+# for mk-docs formatting, pass in TEMPLATE pointing to the mk-docs template
+TEMPLATE := $(SRCDIRINV)/scripts/asciidoc.mustache
+DOCFORMAT := asciidoc
+DOCEXT := asciidoc
+#DOCFORMAT := markdown
+#DOCEXT := md
 
-# directory for ProtoBuf.js generated files
-PROTOBUFJS_GEN := js
-
-# the proto2js compiler
-PROTOJS := $(shell which proto2js)
+DOCGEN := $(BUILDDIR)/doc
 
 # pkg-config
 PKG_CONFIG := $(shell which pkg-config)
-
-# proto2js options - namespace
-#PROTOBUFJS_OPT := -commonjs=pb
-# http://en.wikipedia.org/wiki/Asynchronous_module_definition
-#PROTOBUFJS_OPT := -amd
-PROTOBUFJS_OPT := -class
-
-# protobuf namespace; all protos except nanopb.proto
-JSNAMESPACE := =pb
 
 # the set of all proto specs generated files depend on
 PROTO_SPECS := $(wildcard $(PROTODIR)/*.proto)
@@ -66,67 +64,71 @@ GPBINCLUDE :=  $(shell $(PKG_CONFIG) --variable=includedir protobuf)
 DESCDIR    :=  $(GPBINCLUDE)/google/protobuf
 
 # object files generated during dependency resolving
-OBJDIR := objects
+OBJDIR := $(BUILDDIR)/objects
 
 # search path for .proto files
 # see note on PBDEP_OPT below
 vpath %.proto  $(PROTODIR):$(GPBINCLUDE):$(DESCDIR)/compiler
 
 # machinetalk/proto/*.proto derived Python bindings
-PROTO_PY_TARGETS += $(subst $(PROTODIR)/, \
-	$(PYGEN)/, \
-	$(patsubst %.proto, %_pb2.py, $(PROTO_SPECS)))
+PROTO_PY_TARGETS := ${PROTO_SPECS:$(SRCDIR)/%.proto=$(PYGEN)/%_pb2.py}
+PROTO_PY_EXTRAS := $(PYGEN)/setup.py $(PYGEN)/machinetalk/__init__.py $(PYGEN)/machinetalk/protobuf/__init__.py
 
 # generated C++ includes
-PROTO_CXX_INCS := $(subst $(PROTODIR)/, \
-	$(CXXGEN)/,  \
-	$(patsubst %.proto, %.pb.h, $(PROTO_SPECS)))
+PROTO_CXX_INCS := ${PROTO_SPECS:$(SRCDIR)/%.proto=$(CXXGEN)/%.pb.h}
 
 # generated C++ sources
-PROTO_CXX_SRCS  :=  $(subst $(PROTODIR)/, \
-	$(CXXGEN)/, \
-	$(patsubst %.proto, %.pb.cc, $(PROTO_SPECS)))
+PROTO_CXX_SRCS  :=  ${PROTO_SPECS:$(SRCDIR)/%.proto=$(CXXGEN)/%.pb.cc}
 
+# generated doc file
+DOC_TARGET := $(DOCGEN)/machinetalk-protobuf.$(DOCEXT)
 
 # ---- generate dependcy files for .proto files
 #
 # the list of .d dep files for .proto files:
-PROTO_DEPS :=  $(patsubst %,$(OBJDIR)/%,$(patsubst %.proto,%.d,$(PROTO_SPECS)))
+PROTO_DEPS :=  ${PROTO_SPECS:$(SRCDIR)/%.proto=$(OBJDIR)/%.d}
+
 #
 # options to the dependency generator protoc plugin
 PBDEP_OPT :=
 #PBDEP_OPT += --debug
 PBDEP_OPT += --cgen=$(CXXGEN)
 PBDEP_OPT += --pygen=$(PYGEN)
-PBDEP_OPT += --jsgen=$(PROTOBUFJS_GEN)
 # this path must match the vpath arrangement exactly or the deps will be wrong
 # unfortunately there is no way to extract the proto path in the code
 # generator plugin
-PBDEP_OPT += --vpath=$(PROTODIR)
+PBDEP_OPT += --vpath=$(SRCDIR)
 PBDEP_OPT += --vpath=$(GPBINCLUDE)
 PBDEP_OPT += --vpath=$(DESCDIR)/compiler
 
-$(OBJDIR)/$(PROTODIR)/%.d: $(PROTODIR)/%.proto
+
+GENERATED += \
+	$(PROTO_CXX_SRCS)\
+	$(PROTO_CXX_INCS) \
+	$(PROTO_PY_TARGETS) \
+	$(PROTO_PY_EXTRAS)
+
+$(OBJDIR)/%.d: $(SRCDIR)/%.proto
 	$(ECHO) "protoc create dependencies for $<"
-	@mkdir -p $(OBJDIR)/$(PROTODIR)
+	@mkdir -p $(OBJDIR)/
 	$(Q)$(PROTOC) \
-	--plugin=protoc-gen-depends=scripts/protoc-gen-depends \
-	--proto_path=$(PROTODIR)/ \
-	--proto_path=$(GPBINCLUDE)/ \
-	--depends_out="$(PBDEP_OPT)":$(OBJDIR)/$(PROTODIR)/ \
-	 $<
+		--plugin=protoc-gen-depends=scripts/protoc-gen-depends \
+		--proto_path=$(SRCDIR)/ \
+		--proto_path=$(GPBINCLUDE)/ \
+		--depends_out="$(PBDEP_OPT)":$(OBJDIR)/ \
+		 $<
 
 #---------- C++ rules -----------
 #
 # generate .cc/.h from proto files
 # for command.proto, generated files are: command.pb.cc	command.pb.h
-$(CXXGEN)/%.pb.cc $(CXXGEN)/%.pb.h: %.proto
+$(CXXGEN)/%.pb.cc $(CXXGEN)/%.pb.h: $(SRCDIR)/%.proto
 	$(ECHO) "protoc create $@ from $<"
 	@mkdir -p $(CXXGEN)
 	$(Q)$(PROTOC) $(PROTOCXX_FLAGS) \
-	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(SRCDIR)/ \
 	--proto_path=$(GPBINCLUDE)/ \
-	--cpp_out=$(CXXGEN)/ \
+	--cpp_out=$(CXXGEN) \
 	$<
 
 # ------------- Python rules ------------
@@ -135,61 +137,58 @@ $(CXXGEN)/%.pb.cc $(CXXGEN)/%.pb.h: %.proto
 # adapt here if using one of the accelerated methods
 #
 # generate Python modules from proto files
-$(PYGEN)/%_pb2.py: %.proto
+$(PYGEN)/%_pb2.py: $(SRCDIR)/%.proto
 	$(ECHO) "protoc create $@ from $<"
 	@mkdir -p $(PYGEN)
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
-	--proto_path=$(PROTODIR)/ \
-	--proto_path=$(GPBINCLUDE)/ \
-	--python_out=$(PYGEN)/ \
-	$<
+		--proto_path=$(SRCDIR)/ \
+		--proto_path=$(GPBINCLUDE)/ \
+		--python_out=$(PYGEN)/ \
+		$<
 
-# ------------- ProtoBuf.js rules ------------
-#
-# see https://github.com/dcodeIO/ProtoBuf.js
-#
-# generate Javascript modules from proto files
-#=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
-
-$(PROTOBUFJS_GEN)/%.js: %.proto
-	$(ECHO) $(PROTOJS)" create $@ from $<"
-	@mkdir -p $(PROTOBUFJS_GEN)
-	$(Q)$(PROTOJS) 	$< \
-	$(PROTOBUFJS_OPT)$(JSNAMESPACE) \
-	> $@
-
-# nanopb.proto needs different opts - no namespace argument
-$(PROTOBUFJS_GEN)/nanopb.js: $(PROTODIR)/nanopb.proto
-	$(ECHO) $(PROTOJS)" create $@ from $<"
-	@mkdir -p $(PROTOBUFJS_GEN)
-	$(Q)$(PROTOJS) 	$< \
-	$(PROTOBUFJS_OPT) \
-	> $@
-
-# generated Javasript sources
-# everything is namespace pb except nanopb.proto
-PROTO_PROTOBUFJS_SRCS  :=  $(subst $(PROTODIR)/, \
-	$(PROTOBUFJS_GEN)/, \
-	$(filter-out $(PROTODIR)/nanopb.js, $(patsubst %.proto, %.js, $(PROTO_SPECS))))
-
-
-GENERATED += $(PROTO_PY_TARGETS) \
-	$(PROTO_CXX_SRCS)\
-	$(PROTO_CXX_INCS)
-
-
-ifeq ($(PROTOBUFJS),1)
-GENERATED += $(PROTO_PROTOBUFJS_SRCS) $(PROTOBUFJS_GEN)/nanopb.js
-endif
+$(PYGEN)/%.py: python/%.py
+	cp "$<" "$@"
 
 # force create of %.proto-dependent files and their deps
 Makefile: $(GENERATED) $(PROTO_DEPS)
 -include $(PROTO_DEPS)
 
+# ------------- protoc-gen-doc rules ------------
+#
+# see https://github.com/estan/protoc-gen-doc
+#
+# generate $(DOCFORMAT) files from proto files
+$(DOC_TARGET): $(wildcard $(SRCDIR)/*.proto) $(TEMPLATE) Makefile
+#doc_base:
+	$(ECHO) "protoc create $@ from *.proto"
+	@mkdir -p $(DOCGEN)
+	$(Q)cd $(SRCDIR); \
+	$(PROTOC) $(PROTOC_FLAGS) \
+	--proto_path=./ \
+	--proto_path=$(GPBINCLUDE)/ \
+	--doc_out=$(TEMPLATE),$(SRCDIRINV)/$@:./ \
+	$(NAMESPACEDIR)/*.proto
+
+all: $(GENERATED) $(PROTO_DEPS)
+
 ios_replace:
 	sh scripts/ios-replace.sh $(CXXGEN)
 
-all:  $(PROTO_DEPS) $(GENERATED)
+docs: $(PROTO_DEPS) $(DOC_TARGET)
 
 clean:
-	rm -rf $(OBJDIR) $(CXXGEN) $(PYGEN) $(PROTO_PROTOBUFJS_SRCS)
+	rm -rf build
+
+install_proto: $(PROTO_SPECS)
+	mkdir -p $(DESTDIR)/include/$(NAMESPACEDIR)
+	for proto in $(PROTO_SPECS); do \
+		install -m 0644 $$proto $(DESTDIR)/include/$(NAMESPACEDIR); \
+	done
+
+install_cpp: $(PROTO_CXX_INCS)
+	mkdir -p $(DESTDIR)/include/$(NAMESPACEDIR)
+	for headerfile in $(PROTO_CXX_INCS); do \
+		install -m 0644 $$headerfile $(DESTDIR)/include/$(NAMESPACEDIR); \
+	done
+
+install: install_proto install_cpp

@@ -3,8 +3,8 @@ package pb;
 // see README.msgid
 // msgid base: 600
 
-import "emcclass.proto";
-import "nanopb.proto";
+import "machinetalk/protobuf/emcclass.proto";
+import "machinetalk/protobuf/nanopb.proto";
 
 // an uncleaned first transliteration
 

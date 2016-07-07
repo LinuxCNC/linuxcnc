@@ -7,20 +7,20 @@
 package pb;
 
 
-import "nanopb.proto";
-import "types.proto";
-import "object.proto";
-import "log.proto";
-import "motcmds.proto";
-//import "test.proto";
-import "task.proto";
-import "canon.proto";
-import "value.proto";
-import "rtapicommand.proto";
-import "rtapi_message.proto";
-import "config.proto";
-import "preview.proto";
-import "status.proto";
+import "machinetalk/protobuf/nanopb.proto";
+import "machinetalk/protobuf/types.proto";
+import "machinetalk/protobuf/object.proto";
+import "machinetalk/protobuf/log.proto";
+import "machinetalk/protobuf/motcmds.proto";
+//import "machinetalk/protobuf/test.proto";
+import "machinetalk/protobuf/task.proto";
+import "machinetalk/protobuf/canon.proto";
+import "machinetalk/protobuf/value.proto";
+import "machinetalk/protobuf/rtapicommand.proto";
+import "machinetalk/protobuf/rtapi_message.proto";
+import "machinetalk/protobuf/config.proto";
+import "machinetalk/protobuf/preview.proto";
+import "machinetalk/protobuf/status.proto";
 
 message Container {
 

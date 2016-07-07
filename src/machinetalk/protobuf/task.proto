@@ -35,8 +35,8 @@
 // interpreter reply to a command:
 // MT_EMC_TASK_PLAN_REPLY	= 10530;
 
-import "types.proto";
-import "nanopb.proto";
+import "machinetalk/protobuf/types.proto";
+import "machinetalk/protobuf/nanopb.proto";
 
 // see README.msgid
 // msgid base: 1200
