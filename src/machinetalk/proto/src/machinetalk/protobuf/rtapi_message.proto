@@ -1,5 +1,5 @@
-import "nanopb.proto";
-import "value.proto";
+import "machinetalk/protobuf/nanopb.proto";
+import "machinetalk/protobuf/value.proto";
 
 // see README.msgid
 // msgid base: 1000

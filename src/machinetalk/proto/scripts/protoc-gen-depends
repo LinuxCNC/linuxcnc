@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # protoc plugin to generate dependeny files
 #
 # the .d file format is rather project specific
@@ -93,4 +93,3 @@ if sys.version_info >= (3, 0):
     stdout.buffer.write(res.SerializeToString())
 else:
     stdout.write(res.SerializeToString())
-
