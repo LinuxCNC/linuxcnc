@@ -159,8 +159,6 @@ fi
 # Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
 ##############################################################################
 
-AC_MSG_CHECKING(for RT dir)
-
 # set up some default values
 RTDIR=""
 RTAI=""
@@ -227,8 +225,29 @@ AC_SUBST([RTS])
 ##############################################################################
 
 #at this point if RTS is empty, we need to find RT ourselves
-if test "$RTS" = uspace ; then
-  AC_MSG_RESULT([Using userspace realtime]);
+AC_MSG_CHECKING([for RTAI])
+if test -z "$RTDIR"; then
+  DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
+else
+  DIRS="$RTS"
+fi
+  SIG=""
+  for location in $DIRS; do
+    for subdir in . scripts bin; do
+    for signature in rtai; do
+      candidate=$location/$subdir/$signature-config
+      if test -z "$SIG" -a -e $candidate; then
+        SIG=$candidate
+      fi
+    done
+  done
+done
+AC_MSG_RESULT([${SIG:-no}])
+
+AC_MSG_CHECKING([for realtime API to use])
+if test "$RTS" = uspace || test -z "$RTS" -a -z "$SIG" ; then
+  RTS=uspace
+  AC_MSG_RESULT([$RTS])
 
   AC_MSG_CHECKING([whether to enable userspace PCI access])
   AC_ARG_ENABLE(userspace-pci,
@@ -269,30 +288,8 @@ if test "$RTS" = uspace ; then
   AC_SUBST([LIBUDEV_CFLAGS])
   AC_SUBST([LIBUDEV_LIBS])
 else
-  if test -z "$RTDIR"; then
-    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
-  else
-    DIRS="$RTS"
-  fi
-  RTS=""
-  for location in $DIRS; do
-    for subdir in . scripts bin; do
-      for signature in rtai; do
-	candidate=$location/$subdir/$signature-config
-	if test -z "$RTS" -a -e $candidate; then
-	  RTS=$candidate
-	fi
-      done
-    done
- done
- if test -z "$RTS"; then
-    AC_MSG_ERROR([RT not found.  Specify:
-	--with-realtime=<path>
-or use
-	--with-realtime=uspace
-to build for userspace (with or without realtime support)])
-  fi
-  AC_MSG_RESULT([Using $RTS as the RT signature])
+  RTS="$SIG"
+  AC_MSG_RESULT([$RTS])
 fi
 
 
