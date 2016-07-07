@@ -48,6 +48,7 @@
 #include "config.h"
 
 #include "rtapi.h"
+#include "rtapi/uspace_common.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
@@ -1056,4 +1057,3 @@ int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
 
 
 
-#include "rtapi/uspace_common.h"
