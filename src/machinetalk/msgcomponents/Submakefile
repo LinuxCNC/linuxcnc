@@ -10,21 +10,21 @@ RTFLAGS +=   $(PROTO_NANOPB_CFLAGS)
 obj-m += pbmsgs.o
 pbmsgs-objs := \
 	$(MSGCOMP_DIR)/pbmsgs.o	\
-	$(PBGEN)/canon.npb.o \
-	$(PBGEN)/emcclass.npb.o \
-	$(PBGEN)/log.npb.o \
-	$(PBGEN)/message.npb.o \
-	$(PBGEN)/motcmds.npb.o \
-	$(PBGEN)/object.npb.o  \
-	$(PBGEN)/rtapi_message.npb.o \
-	$(PBGEN)/rtapicommand.npb.o \
-	$(PBGEN)/task.npb.o \
-	$(PBGEN)/test.npb.o \
-	$(PBGEN)/types.npb.o \
-	$(PBGEN)/config.npb.o \
-	$(PBGEN)/preview.npb.o \
-	$(PBGEN)/status.npb.o \
-	$(PBGEN)/value.npb.o
+	$(PBGEN)/$(NAMESPACEDIR)/canon.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/emcclass.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/log.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/message.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/motcmds.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/object.npb.o  \
+	$(PBGEN)/$(NAMESPACEDIR)/rtapi_message.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/rtapicommand.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/task.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/test.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/types.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/config.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/preview.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/status.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/value.npb.o
 
 
 obj-m += pbring.o
@@ -39,7 +39,6 @@ endif
 
 ../include/%.h: ./$(MSGCOMP_DIR)/%.h
 	cp $^ $@
-
 
 # ifeq ($(BUILD_EXAMPLES),yes)
 

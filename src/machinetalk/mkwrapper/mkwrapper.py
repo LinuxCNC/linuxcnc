@@ -24,13 +24,13 @@ from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 
 from google.protobuf.message import DecodeError
-from message_pb2 import Container
-from config_pb2 import *
-from types_pb2 import *
-from status_pb2 import *
-from preview_pb2 import *
-from motcmds_pb2 import *
-from object_pb2 import ProtocolParameters
+from machinetalk.protobuf.message_pb2 import Container
+from machinetalk.protobuf.config_pb2 import *
+from machinetalk.protobuf.types_pb2 import *
+from machinetalk.protobuf.status_pb2 import *
+from machinetalk.protobuf.preview_pb2 import *
+from machinetalk.protobuf.motcmds_pb2 import *
+from machinetalk.protobuf.object_pb2 import ProtocolParameters
 
 
 def printError(msg):

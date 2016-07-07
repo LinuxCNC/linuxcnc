@@ -27,9 +27,9 @@ typedef struct {
 #define PB_MSGINFO_DELIMITER {0, -1, NULL, 0, NULL, NULL}
 #define PB_MSGID
 
-#include <machinetalk/generated/message.npb.h>
-#include <machinetalk/generated/value.npb.h>
-#include <machinetalk/generated/test.npb.h>
+#include <machinetalk/protobuf/message.npb.h>
+#include <machinetalk/protobuf/value.npb.h>
+#include <machinetalk/protobuf/test.npb.h>
 
 
 #endif // _PBMSGS_H

@@ -124,6 +124,8 @@ PROTO_NANOPB_C_SRCS += $(PBGEN)/$(NAMESPACEDIR)/nanopb.npb.c
 NANOPB_SUPPORT := ../lib/python/$(NAMESPACEDIR)/nanopb_pb2.py
 NANOPB_SUPPORT += ../lib/python/$(NAMESPACEDIR)/nanopb_generator.py
 NANOPB_SUPPORT += ../lib/python/$(NAMESPACEDIR)/protoc-gen-nanopb
+NANOPB_SUPPORT += ../lib/python/$(NAMESPACEDIR)/__init__.py
+NANOPB_SUPPORT += ../lib/python/$(MACHINETALK)/__init__.py
 
 PROTO_PY_TARGETS := $(NANOPB_SUPPORT)
 
@@ -149,7 +151,7 @@ PROTO_CXX_SRCS  +=  $(subst $(PROTODIR)/, \
 
 # headers which are to go into ../include
 MT_INSTALL_INCS := $(subst $(PBGEN), \
-	../include/$(PBGEN),  \
+	../include,  \
 	$(PROTO_CXX_INCS) $(PROTO_C_INCS) $(PROTO_NANOPB_C_INCS))
 
 MT_INSTALL_INCS +=  \
@@ -192,7 +194,7 @@ PBDEP_OPT += --vpath=$(DESCDIR)/compiler
 
 #objects/$(PROTODIR)/%.d: $(PROTODIR)/%.proto
 objects/$(PROTODIR)/%.d: %.proto
-	$(ECHO) "protoc create dependencies $@ from $<"
+	$(ECHO) "protoc create dependencies for $<"
 	@mkdir -p objects/$(PROTODIR)/
 	$(Q)$(PROTOC) \
 	--plugin=protoc-gen-depends=$(GENDEP) \
@@ -229,7 +231,7 @@ $(PBGEN)/$(NAMESPACEDIR)/%.npb.c $(PBGEN)/$(NAMESPACEDIR)/%.npb.h: %.proto $(NAN
 	@mkdir -p $(PBGEN)/$(NAMESPACEDIR)
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
 	--plugin=protoc-gen-nanopb=../lib/python/$(NAMESPACEDIR)/protoc-gen-nanopb \
-	--nanopb_out="--generated-include-format='#include <"$(PBGEN)/$(NAMESPACEDIR)"/%s>' --extension=.npb --options-file=$(MACHINETALK)/nanopb.options":$(PBGEN)/$(NAMESPACEDIR) \
+	--nanopb_out="--generated-include-format='#include \""$(NAMESPACEDIR)"/%s\"' --extension=.npb --options-file=$(MACHINETALK)/nanopb.options":$(PBGEN) \
 	--proto_path=$(PROTOSRCDIR)/ \
 	--proto_path=$(GPBINCLUDE) \
 	$<
@@ -278,6 +280,10 @@ PROTO_JS_SRCS +=$(JSGEN)/nanopb.js
 	@mkdir -p ../lib/python/$(NAMESPACEDIR)/
 	touch ../lib/python/$(NAMESPACEDIR)/__init__.py
 
+../lib/python/$(MACHINETALK)/__init__.py:
+	@mkdir -p ../lib/python/$(MACHINETALK)/
+	touch ../lib/python/$(MACHINETALK)/__init__.py
+
 # the nanopb plugin executable
 ../lib/python/$(NAMESPACEDIR)/protoc-gen-nanopb: $(NANOPB)/generator/protoc-gen-nanopb
 	cp $^ $@
@@ -307,11 +313,11 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
 # protoc generated headers are exported to ../include
-../include/%.h: ./$(PBGEN)/$(NAMESPACEDIR)/%.h
+../include/$(NAMESPACEDIR)/%.h: ./$(PBGEN)/$(NAMESPACEDIR)/%.h
 	@mkdir -p $(dir $@)
 	cp $^ $@
 
-../include/%.hh: ./$(PBGEN)/$(NAMESPACEDIR)/%.hh
+../include/$(NAMESPACEDIR)/%.hh: ./$(PBGEN)/$(NAMESPACEDIR)/%.hh
 	@mkdir -p $(dir $@)
 	cp $^ $@
 
@@ -320,7 +326,7 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 	@mkdir -p $(dir $@)
 	cp $^ $@
 
-../include/%.h: ./$(MACHINETALK)/%.h
+../include/%.h: ./%.h
 	cp $^ $@
 
 ../include/%.h: ./$(MACHINETALK)/include/%.h
@@ -362,5 +368,5 @@ TARGETS += $(NANOPROTOCLIB) $(NANOPROTOCLIB).0 \
 
 clean: machinetalk-clean
 machinetalk-clean:
-	rm -rf machinetalk/generated ../include/machinetalk
-	rm -f ../lib/python/$(NAMESPACEDIR)/nanopb_pb2.pyc
+	rm -rf $(PBGEN) ../include/$(MACHINETALK)
+	rm -rf ../lib/python/$(MACHINETALK)

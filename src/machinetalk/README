@@ -51,13 +51,13 @@ Using examples can be found under hal/msgcomponents.
 Include files:
 --------------
 
-C bindings:  #include "message.pb-c.h"  // to reference message.proto
-C++ bindings:  #include "message.pb.h"
-Nanopb C bindings:  #include "message.npb.h"  // to reference message.proto
+C bindings:  #include "machinetalk/protobuf/message.pb-c.h"  // to reference message.proto
+C++ bindings:  #include "machinetalk/protobuf/message.pb.h"
+Nanopb C bindings:  #include "machinetalk/protobuf/message.npb.h"  // to reference message.proto
 
 and link to the appropriate library.
 
-Python:  import message_pb2
+Python:  import machinetalk.protobuf.message_pb2
 
 To use a protobuf Message (using the Command message as example):
 

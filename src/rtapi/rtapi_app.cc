@@ -67,7 +67,7 @@
 #include <czmq.h>
 #include <google/protobuf/text_format.h>
 
-#include <machinetalk/generated/message.pb.h>
+#include <machinetalk/protobuf/message.pb.h>
 #include <pbutil.hh>  // note_printf(pb::Container &c, const char *fmt, ...)
 
 using namespace google::protobuf;
