@@ -27,9 +27,9 @@ are assumed to have a .proto extension.
 For the C and C++ bindings, all message formats are compiled and built
 into the following libraries:
 
- C bindings: lib/liblinuxcnc-pb2.so
- C++ bindings: lib/liblinuxcnc-pb2++.so
- Nanopb C bindings, userland library build: liblinuxcnc-npb.so.0
+ C bindings: lib/libmachinetalk-pb2.so
+ C++ bindings: lib/libmachinetalk-pb2++.so
+ Nanopb C bindings, userland library build: libmachinetalk-npb.so.0
  Python bindings: lib/python/<message>_pb2.py
   (corresponding to src/protobuf/proto/<message>.proto)
 
@@ -153,7 +153,7 @@ Example C protobuf application
 
 See src/hal/halreport - this uses the HAL group mechanism to report
 signal changes. halreport links against the C bindings library
-(lib/liblinuxcnc-pb2.so) generated in this directory.
+(lib/libmachinetalk-pb2.so) generated in this directory.
 
 A matching Gladevcp demo application using protobufs can be found in
 src/hal/halreport/zmqdemo.py. This uses the Python bindings, also

@@ -79,13 +79,13 @@ PROTO_SPECS := $(wildcard $(PROTODIR)/*.proto)
 USERSRCS += $(PROTO_SPECS)
 
 # C bindings library
-PROTOCLIB = ../lib/liblinuxcnc-pb2.so
+PROTOCLIB = ../lib/libmachinetalk-pb2.so
 
 # C++ bindings library
-PROTOCXXLIB = ../lib/liblinuxcnc-pb2++.so
+PROTOCXXLIB = ../lib/libmachinetalk-pb2++.so
 
 # Nanopb C bindings library
-NANOPROTOCLIB := ../lib/liblinuxcnc-npb.so
+NANOPROTOCLIB := ../lib/libmachinetalk-npb.so
 PROTOC_FLAGS :=
 PROTOCXX_LDFLAGS := $(PROTOBUF_LIBS)
 PROTOCXX_FLAGS :=
