@@ -250,7 +250,7 @@ platform to build for.  The normal values for this argument are:
 
 `uspace`::
 
-    Configure the Debian package for for Preempt-RT realtime or for
+    Configure the Debian package for Preempt-RT realtime or for
     non-realtime (these two are compatible).
 
 `-r`::
