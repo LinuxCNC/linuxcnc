@@ -33,6 +33,7 @@ think of a better way.
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/utsname.h>
 
 #include "config.h"
 
@@ -50,7 +51,7 @@ char *module_whitelist[] = {
 /* module path must start with this. */
 
 char *path_whitelist[] = {
-    "/lib/modules", RTDIR,
+    "/lib/modules", RTDIR, NULL,
 
     NULL
 };
@@ -183,6 +184,8 @@ int main(int argc, char **argv) {
     int i;
     int inserting = 0;
     int res;
+    struct utsname u;
+    char buf[4096];
     char **exec_argv;
 
     if(geteuid() != 0) {
@@ -196,6 +199,21 @@ int main(int argc, char **argv) {
         perror("seteuid");
         return 1;
     }
+
+    res = uname(&u);
+    if(res != 0)
+    {
+        perror("uname");
+        return 1;
+    }
+
+    res = snprintf(buf, sizeof(buf), "/usr/realtime-%s/modules", u.release);
+    if(res < 0 || res >= sizeof(buf))
+    {
+        perror("snprintf");
+        return 1;
+    }
+    path_whitelist[2] = buf;
 
     if(argc < 3) error(argc, argv);
     if(strcmp(argv[1], "insert") && strcmp(argv[1], "remove")) error(argc, argv);
