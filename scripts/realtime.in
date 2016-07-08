@@ -76,28 +76,23 @@ CheckConfig(){
     MODULES_UNLOAD=
     case $RTPREFIX in
     uspace) SHM_DEV=/dev/zero;;
-    *)
-        for  MOD in $MODULES ; do
-            eval MOD=\${MODPATH_$MOD}
-            if [ -z "$MOD" ]; then continue; fi
-            if [ -L $MOD ]; then
-                MOD=${MOD%/*}/$(readlink $MOD)
-            fi
-            MODULES_LOAD="$MODULES_LOAD $MOD"
-            MOD="${MOD##*/}"
-            MOD="${MOD%$MODULE_EXT}"
-            MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
-        done
+    esac
+    for  MOD in $MODULES ; do
+        eval MOD=\${MODPATH_$MOD}
+        if [ -z "$MOD" ]; then continue; fi
+        if [ -L $MOD ]; then
+            MOD=${MOD%/*}/$(readlink $MOD)
+        fi
+        MODULES_LOAD="$MODULES_LOAD $MOD"
+        MOD="${MOD##*/}"
+        MOD="${MOD%.*}"
+        MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
+    done
+    case $RTPREFIX in
+    *rtai*)
         MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
         MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
-        case "$MODULES" in
-        *rtai*)
-            SHM_DEV=/dev/rtai_shm
-        ;;
-        *mbuff*)
-            SHM_DEV=/dev/mbuff
-        ;;
-        esac
+        SHM_DEV=/dev/rtai_shm
     esac
 }
 
@@ -151,17 +146,12 @@ CheckMem(){
 
 Load(){
     CheckKernel
-    case $RTPREFIX in
-    uspace)
-    ;;
-    *)
-        for MOD in $MODULES_LOAD ; do
-            $INSMOD $MOD || return $?
-        done
-        if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
-            echo "$DEBUG" > /proc/rtapi/debug
-        fi
-    esac
+    for MOD in $MODULES_LOAD ; do
+        $INSMOD $MOD || return $?
+    done
+    if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
+        echo "$DEBUG" > /proc/rtapi/debug
+    fi
 }
 
 CheckLoaded(){
@@ -199,12 +189,10 @@ Unload(){
         ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
         ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
         ipcrm -M 0x48484c34 2>/dev/null ;# UUID_KEY
-        ;;
-    *)
-        for module in $MODULES_UNLOAD ; do
-            $RMMOD $module
-        done
     esac
+    for module in $MODULES_UNLOAD ; do
+        $RMMOD $module
+    done
 }
 
 CheckUnloaded(){
