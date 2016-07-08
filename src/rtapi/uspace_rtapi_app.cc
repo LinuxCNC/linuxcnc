@@ -751,10 +751,19 @@ static RtapiApp *makeApp()
     {
         rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
         return new Posix(SCHED_OTHER);
-    } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
-        return new Posix(SCHED_FIFO);
     }
+    if(detect_rtai()) {
+        auto dll = dlopen(EMC2_HOME "/lib/libuspace-rtai.so.0", RTLD_NOW);
+        if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+        auto fn = reinterpret_cast<RtapiApp*(*)()>(dlsym(dll, "make"));
+        if(!fn) fprintf(stderr, "dlopen: %s\n", dlerror());
+        auto result = fn ? fn() : nullptr;
+        if(result) {
+            return result;
+        }
+    }
+    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
+    return new Posix(SCHED_FIFO);
 }
 RtapiApp &App()
 {
