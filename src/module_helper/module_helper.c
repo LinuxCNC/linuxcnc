@@ -59,7 +59,7 @@ char *path_whitelist[] = {
 /* module extension must be one of these */
 
 char *ext_whitelist[] = {
-    MODULE_EXT, NULL
+    ".ko", NULL
 };
 
 void error(int argc, char **argv) {
