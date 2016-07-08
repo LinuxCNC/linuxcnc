@@ -322,11 +322,12 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 	cp $^ $@
 
 # as are the nanop library headers
-../include/%.h: ./$(NANOPB)/%.h
+../include/$(MACHINETALK)/%.h: ./$(NANOPB)/%.h
 	@mkdir -p $(dir $@)
 	cp $^ $@
 
 ../include/%.h: ./%.h
+	@mkdir -p $(dir $@)
 	cp $^ $@
 
 ../include/%.h: ./$(MACHINETALK)/include/%.h
