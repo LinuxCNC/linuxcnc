@@ -4,8 +4,8 @@
 // msgid base: 700
 
 
-import "nanopb.proto";
-import "types.proto";
+import "machinetalk/protobuf/nanopb.proto";
+import "machinetalk/protobuf/types.proto";
 
 package pb;
 

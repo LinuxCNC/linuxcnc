@@ -33,11 +33,11 @@
 #include <machinetalk/nanopb/pb_decode.h>
 #include <machinetalk/nanopb/pb_encode.h>
 
-#include <machinetalk/generated/types.npb.h>
-#include <machinetalk/generated/object.npb.h>
-#include <machinetalk/generated/message.npb.h>
-#include <machinetalk/generated/emcclass.npb.h>
-#include <machinetalk/generated/rtapi_message.npb.h>
+#include <machinetalk/protobuf/types.npb.h>
+#include <machinetalk/protobuf/object.npb.h>
+#include <machinetalk/protobuf/message.npb.h>
+#include <machinetalk/protobuf/emcclass.npb.h>
+#include <machinetalk/protobuf/rtapi_message.npb.h>
 
 #undef USE_STRING_STREAM
 

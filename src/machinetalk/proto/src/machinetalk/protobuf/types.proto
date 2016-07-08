@@ -1,5 +1,5 @@
 // fundamental types
-import "nanopb.proto";
+import "machinetalk/protobuf/nanopb.proto";
 
 // see README.msgid
 // msgid base: 1400
@@ -343,6 +343,10 @@ enum ContainerType {
 
     // generic error reply. note field contains explanation.
     MT_ERROR = 360;
+
+    // generic full update and incremental update
+    MT_FULL_UPDATE = 370;
+    MT_INCREMENTAL_UPDATE = 371;
 
     // task/client comms
     MT_TASK_REPLY     = 400;
@@ -698,7 +702,7 @@ enum InterpreterStateType {
     INTERP_RUNNING     = 2;
     INTERP_SYNC_WAIT   = 3;
     INTERP_PAUSED      = 4;
-    INTERP_QEUEUE_WAIT = 5;
+    INTERP_QUEUE_WAIT  = 5;
     INTERP_ABORT_WAIT  = 6;
     INTERP_STATE_UNSET = 99; // to ease change tracking
 };

@@ -1,7 +1,7 @@
-import "nanopb.proto";
+import "machinetalk/protobuf/nanopb.proto";
 
-import "emcclass.proto";
-import "types.proto";
+import "machinetalk/protobuf/emcclass.proto";
+import "machinetalk/protobuf/types.proto";
 
 // see README.msgid
 // msgid base: 1500

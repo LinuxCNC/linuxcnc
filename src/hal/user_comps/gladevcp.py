@@ -48,8 +48,8 @@ try:
     import glib
     import gtk.gdk
     import zmq
-    from message_pb2 import Container
-    from types_pb2 import *
+    from machinetalk.protobuf.message_pb2 import Container
+    from machinetalk.protobuf.types_pb2 import *
 except ImportError,msg:
     print >> sys.stderr, "gladevcp: cant operate remotely - import error: %s" % (msg)
     remote_ok = False

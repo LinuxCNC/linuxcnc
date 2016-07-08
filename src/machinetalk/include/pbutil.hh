@@ -19,7 +19,7 @@
 #ifndef _PBUTIL_HH_INCLUDED
 #define _PBUTIL_HH_INCLUDED
 
-#include <machinetalk/generated/message.pb.h>
+#include <machinetalk/protobuf/message.pb.h>
 #include <string>
 #include <czmq.h>
 

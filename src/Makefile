@@ -1129,7 +1129,6 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 	-I$(INCLUDE_PREFIX)/libnml/nml \
 	-I$(INCLUDE_PREFIX)/libnml/buffer \
 	-I$(INCLUDE_PREFIX)/libnml/posemath \
-	-I$(INCLUDE_PREFIX)/protobuf/nanopb \
 	-I$(INCLUDE_PREFIX)/rtapi \
 	-I$(INCLUDE_PREFIX)/hal/lib \
 	-I$(INCLUDE_PREFIX)/emc/nml_intf \
@@ -1137,6 +1136,7 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 	-I$(INCLUDE_PREFIX)/emc/motion \
 	-I$(INCLUDE_PREFIX)/emc/tp \
 	-I$(INCLUDE_PREFIX)/machinetalk/nanopb \
+	-I$(INCLUDE_PREFIX)/machinetalk/build \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
 	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	$(call cc-option,-mieee-fp) \
@@ -1766,7 +1766,7 @@ endif  # build kernel RTAPI modules
 NOTAGSIN := \
 	depends \
 	objects \
-	machinetalk/generated \
+	machinetalk/build \
 	machinetalk/nanopb
 
 CTAGOPTS := $(addprefix --exclude=,$(NOTAGSIN))

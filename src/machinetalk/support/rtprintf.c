@@ -21,9 +21,9 @@
 #include <machinetalk/include/pb-linuxcnc.h>
 #include <machinetalk/nanopb/pb_encode.h>
 
-#include <machinetalk/generated/types.npb.h>
-#include <machinetalk/generated/value.npb.h>
-#include <machinetalk/generated/rtapi_message.npb.h>
+#include <machinetalk/protobuf/types.npb.h>
+#include <machinetalk/protobuf/value.npb.h>
+#include <machinetalk/protobuf/rtapi_message.npb.h>
 #include "rtapi.h"
 
 #define MIN(a,b) ((a)<(b)?(a):(b))

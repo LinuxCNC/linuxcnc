@@ -945,7 +945,7 @@ def generate_header(dependencies, headername, enums, messages, extensions, optio
     
     for dependency in dependencies:
         noext = os.path.splitext(dependency)[0]
-        yield options.genformat % (noext + options.extension + '.h')
+        yield '#include "%s"' % (noext + options.extension + '.h')
         yield '\n'
 
     yield '#if PB_PROTO_HEADER_VERSION != 30\n'

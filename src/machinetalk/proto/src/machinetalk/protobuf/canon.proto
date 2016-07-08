@@ -1,11 +1,11 @@
-import "nanopb.proto";
+import "machinetalk/protobuf/nanopb.proto";
 
 // see README.msgid
 // msgid base: 100
 
-import "types.proto";
-import "emcclass.proto";
-import "motcmds.proto";
+import "machinetalk/protobuf/types.proto";
+import "machinetalk/protobuf/emcclass.proto";
+import "machinetalk/protobuf/motcmds.proto";
 
 package pb;
 

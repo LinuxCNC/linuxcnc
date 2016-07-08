@@ -1,7 +1,7 @@
 // use any of the below for testing and experimentation.
 
-import "emcclass.proto";
-import "nanopb.proto";
+import "machinetalk/protobuf/emcclass.proto";
+import "machinetalk/protobuf/nanopb.proto";
 
 package pb;
 
