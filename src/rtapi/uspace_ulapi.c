@@ -23,6 +23,7 @@
 #include "rtapi.h"
 #include <unistd.h>
 #include <rtapi_errno.h>
+#include "rtapi/uspace_common.h"
 
 
 /* FIXME - no support for fifos */
@@ -64,4 +65,10 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
     }
 }
 
-#include "rtapi/uspace_common.h"
+long int rtapi_delay_max() { return 999999999; }
+
+void rtapi_delay(long ns) {
+    if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
+    struct timespec ts = {0, ns};
+    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
+}

@@ -607,6 +607,8 @@ struct Posix : RtapiApp
         clock_gettime(CLOCK_MONOTONIC, &ts);
         return ts.tv_sec * 1000000000LL + ts.tv_nsec;
     }
+
+    void do_delay(long ns);
 };
 
 static void signal_handler(int sig, siginfo_t *si, void *uctx)
@@ -1032,6 +1034,10 @@ void Posix::do_outb(unsigned char val, unsigned int port)
 #endif
 }
 
+void Posix::do_delay(long ns) {
+    struct timespec ts = {0, ns};
+    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
+}
 int rtapi_prio_highest(void)
 {
     return App().prio_highest();
@@ -1135,5 +1141,12 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
     m.level = level;
     vsnprintf(m.msg, sizeof(m.msg), fmt, ap);
     rtapi_msg_queue.push(m);
+}
+
+long int rtapi_delay_max() { return 10000; }
+
+void rtapi_delay(long ns) {
+    if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
+    App().do_delay(ns);
 }
 
