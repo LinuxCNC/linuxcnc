@@ -57,10 +57,6 @@
 #include <sys/shm.h>		/* shmget() */
 #include <string.h>
 
-static int rtapi_clock_nanosleep(clockid_t clock_id, int flags,
-        const struct timespec *prequest, struct timespec *remain,
-        const struct timespec *pnow);
-
 int WithRoot::level;
 
 namespace
