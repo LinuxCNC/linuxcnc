@@ -54,4 +54,14 @@ long long rtapi_get_time(void) {
     return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
+void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
+    if(level == RTAPI_MSG_ALL) {
+	vfprintf(stdout, fmt, ap);
+        fflush(stdout);
+    } else {
+	vfprintf(stderr, fmt, ap);
+        fflush(stderr);
+    }
+}
+
 #include "rtapi/uspace_common.h"

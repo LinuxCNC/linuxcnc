@@ -56,12 +56,39 @@
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
 #include <string.h>
+#include <boost/lockfree/queue.hpp>
 
 int WithRoot::level;
 
 namespace
 {
 RtapiApp &App();
+
+struct message_t {
+    msg_level_t level;
+    char msg[1024-sizeof(level)];
+};
+
+boost::lockfree::queue<message_t, boost::lockfree::capacity<128>>
+rtapi_msg_queue;
+
+pthread_t queue_thread;
+void *queue_function(void *arg) {
+    // note: can't use anything in this function that requires App() to exist
+    // but it's OK to use functions that aren't safe for realtime (that's the
+    // point of running this in a thread)
+    while(1) {
+        pthread_testcancel();
+        pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, nullptr);
+        rtapi_msg_queue.consume_all([](const message_t &m) {
+            fputs(m.msg, m.level == RTAPI_MSG_ALL ? stdout : stderr);
+        });
+        pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, nullptr);
+        struct timespec ts = {0, 10000000};
+        rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
+    }
+    return nullptr;
+}
 }
 
 static int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
@@ -395,16 +422,26 @@ static int callback(int fd)
 }
 
 static int master(int fd, vector<string> args) {
+    if(pthread_create(&queue_thread, nullptr, &queue_function, nullptr) < 0) {
+        perror("pthread_create (queue function)");
+        return -1;
+    }
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
     App(); // force rtapi_app to be created
+    int result;
     if(args.size()) {
-        int result = handle_command(args);
-        if(result != 0) return result;
-        if(force_exit || instance_count == 0) return 0;
+        result = handle_command(args);
+        if(result != 0) goto out;
+        if(force_exit || instance_count == 0) goto out;
     }
     sim_rtapi_run_threads(fd, callback);
-
-    return 0;
+out:
+    pthread_cancel(queue_thread);
+    pthread_join(queue_thread, nullptr);
+    rtapi_msg_queue.consume_all([](const message_t &m) {
+        fputs(m.msg, m.level == RTAPI_MSG_ALL ? stdout : stderr);
+    });
+    return result;
 }
 
 static std::string
@@ -1093,4 +1130,10 @@ long long rtapi_get_time() {
     return App().do_get_time();
 }
 
+void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
+    message_t m;
+    m.level = level;
+    vsnprintf(m.msg, sizeof(m.msg), fmt, ap);
+    rtapi_msg_queue.push(m);
+}
 
