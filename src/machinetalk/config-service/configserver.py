@@ -13,9 +13,9 @@ from machinekit import service
 from machinekit import config
 
 from google.protobuf.message import DecodeError
-from message_pb2 import Container
-from config_pb2 import *
-from types_pb2 import *
+from machinetalk.protobuf.message_pb2 import Container
+from machinetalk.protobuf.config_pb2 import *
+from machinetalk.protobuf.types_pb2 import *
 
 
 class ConfigServer:
