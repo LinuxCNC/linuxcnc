@@ -808,6 +808,19 @@ rtapi_task *RtapiApp::get_task(int task_id) {
     return task;
 }
 
+void RtapiApp::unexpected_realtime_delay(rtapi_task *task, int nperiod) {
+    static int printed = 0;
+    if(!printed)
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "Unexpected realtime delay on task %d with period %ld\n"
+                "This Message will only display once per session.\n"
+                "Run the Latency Test and resolve before continuing.\n",
+                task->id, task->period);
+        printed = 1;
+    }
+}
+
 template<class T=rtapi_task>
 T *get_task(int task_id) {
     return static_cast<T*>(RtapiApp::get_task(task_id));
@@ -948,16 +961,8 @@ void Posix::wait() {
     clock_gettime(RTAPI_CLOCK, &now);
     if(ts_less(task->nextstart, now))
     {
-        static int printed = 0;
-        if(policy == SCHED_FIFO && !printed)
-        {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Unexpected realtime delay on task %d with period %ld\n"
-		    "This Message will only display once per session.\n"
-		    "Run the Latency Test and resolve before continuing.\n", 
-                    task->id, task->period);
-            printed = 1;
-        }
+        if(policy == SCHED_FIFO)
+            unexpected_realtime_delay(task);
     }
     else
     {
