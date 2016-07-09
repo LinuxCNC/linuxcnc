@@ -70,6 +70,7 @@ struct RtapiApp
     virtual unsigned char do_inb(unsigned int port) = 0;
     virtual void do_outb(unsigned char value, unsigned int port) = 0;
     virtual int run_threads(int fd, int (*callback)(int fd)) = 0;
+    virtual long long do_get_time(void) = 0;
     int policy;
     long period;
 };
