@@ -1199,7 +1199,7 @@ def process(filename, mode, outfilename):
         shutil.rmtree(tempdir)
 
 def usage(exitval=0):
-    print """%(name)s: Build, compile, and install LinuxCNC HAL components
+    print """%(name)s: Build, compile, and install Machinekit HAL components
 
 Usage:
            %(name)s [--compile|--preprocess|--document|--ascii-document|--view-doc] compfile...
@@ -1230,7 +1230,7 @@ def main():
 
     for k, v in opts:
         if k in ("-u", "--userspace"):
-            raise SystemExit, "Error: instcomp does not support userspace components"
+            userspace = True
         if k in ("-i", "--install"):
             mode = INSTALL
         if k in ("-c", "--compile"):
@@ -1284,7 +1284,7 @@ def main():
                 else:
 		    adocument(f, outfile, frontmatter)
 
-            elif f.endswith(".icomp") and mode == VIEWDOC:
+            elif f.endswith(".comp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
                     outfile = os.path.join(tempdir, basename + ".9comp")
