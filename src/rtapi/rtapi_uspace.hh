@@ -60,6 +60,7 @@ struct RtapiApp
     virtual rtapi_task *do_task_new() = 0;
     static int allocate_task_id();
     static struct rtapi_task *get_task(int task_id);
+    void unexpected_realtime_delay(rtapi_task *task, int nperiod=1);
     virtual int task_delete(int id) = 0;
     virtual int task_start(int task_id, unsigned long period_nsec) = 0;
     virtual int task_pause(int task_id) = 0;
