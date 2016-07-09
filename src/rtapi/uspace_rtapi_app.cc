@@ -564,6 +564,12 @@ struct Posix : RtapiApp
     static void init_key(void) {
         pthread_key_create(&key, NULL);
     }
+
+    long long do_get_time(void) {
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+    }
 };
 
 static void signal_handler(int sig, siginfo_t *si, void *uctx)
@@ -1083,5 +1089,8 @@ int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
     return App().run_threads(fd, callback);
 }
 
+long long rtapi_get_time() {
+    return App().do_get_time();
+}
 
 

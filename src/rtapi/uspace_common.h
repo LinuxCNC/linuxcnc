@@ -255,12 +255,6 @@ int rtapi_get_msg_level() {
     return msg_level;
 }
 
-long long rtapi_get_time(void) {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec * 1000000000LL + ts.tv_nsec;
-}
-
 #if defined(__i386) || defined(__amd64)
 #define rdtscll(val) ((val) = __builtin_ia32_rdtsc())
 #else
