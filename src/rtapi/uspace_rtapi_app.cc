@@ -747,14 +747,22 @@ static int harden_rt()
 
 static RtapiApp *makeApp()
 {
-    if(harden_rt() < 0)
+    if(geteuid() != 0 || harden_rt() < 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
         return new Posix(SCHED_OTHER);
     }
-    if(detect_rtai()) {
-        auto dll = dlopen(EMC2_HOME "/lib/libuspace-rtai.so.0", RTLD_NOW);
+    WithRoot r;
+    void *dll = nullptr;
+    if(detect_xenomai()) {
+        dll = dlopen(EMC2_HOME "/lib/libuspace-xenomai.so.0", RTLD_NOW);
         if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+    } else if(detect_rtai()) {
+        dll = dlopen(EMC2_HOME "/lib/libuspace-rtai.so.0", RTLD_NOW);
+        if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+    }
+    if(dll)
+    {
         auto fn = reinterpret_cast<RtapiApp*(*)()>(dlsym(dll, "make"));
         if(!fn) fprintf(stderr, "dlopen: %s\n", dlerror());
         auto result = fn ? fn() : nullptr;
