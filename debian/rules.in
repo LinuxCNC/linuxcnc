@@ -158,6 +158,8 @@ install: build
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
+	mkdir -p debian/tmp/usr/lib/python2.7/dist-packages/machinetalk/protobuf
+	cp lib/python/machinetalk/protobuf/*.* debian/tmp/usr/lib/python*/dist-packages/machinetalk/protobuf
 	(cd debian/extras && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
