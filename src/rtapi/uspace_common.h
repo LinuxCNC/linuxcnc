@@ -340,12 +340,23 @@ static int detect_rtai() {
     return 0;
 }
 #endif
+#ifdef USPACE_XENOMAI
+static int detect_xenomai() {
+    struct utsname u;
+    uname(&u);
+    return strcasestr (u.release, "-xenomai") != 0;
+}
+#else
+static int detect_xenomai() {
+    return 0;
+}
+#endif
 static int detect_realtime() {
     struct stat st;
     if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) < 0)
             || st.st_uid != 0 || !(st.st_mode & S_ISUID))
         return 0;
-    return detect_preempt_rt() || detect_rtai();
+    return detect_preempt_rt() || detect_rtai() || detect_xenomai();
 }
 
 int rtapi_is_realtime() {
