@@ -454,7 +454,7 @@ int main(int argc, char **argv) {
             fprintf(stderr,
                 "Refusing to run as root without fallback UID specified\n"
                 "To run under a debugger with I/O, use e.g.,\n"
-                "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb rtapi_app\n");
+                "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
             exit(1);
         }
         setreuid(fallback_uid, 0);
