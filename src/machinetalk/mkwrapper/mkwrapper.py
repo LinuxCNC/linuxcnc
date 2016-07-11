@@ -1929,13 +1929,13 @@ class LinuxCNCWrapper():
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('tool_data') \
                 and self.rx.emc_command_params.tool_data.HasField('offset') \
-                and self.rx.emc_command_params.tool_data.index \
-                and self.rx.emc_command_params.tool_data.offset.z \
-                and self.rx.emc_command_params.tool_data.offset.x \
-                and self.rx.emc_command_params.tool_data.diameter \
-                and self.rx.emc_command_params.tool_data.frontangle \
-                and self.rx.emc_command_params.tool_data.backangle \
-                and self.rx.emc_command_params.tool_data.orientation:
+                and self.rx.emc_command_params.tool_data.HasField('index') \
+                and self.rx.emc_command_params.tool_data.offset.HasField('z') \
+                and self.rx.emc_command_params.tool_data.offset.HasField('x') \
+                and self.rx.emc_command_params.tool_data.HasField('diameter') \
+                and self.rx.emc_command_params.tool_data.HasField('frontangle') \
+                and self.rx.emc_command_params.tool_data.HasField('backangle') \
+                and self.rx.emc_command_params.tool_data.HasField('orientation'):
                     toolno = self.rx.emc_command_params.tool_data.index
                     z_offset = self.rx.emc_command_params.tool_data.offset.z
                     x_offset = self.rx.emc_command_params.tool_data.offset.x
