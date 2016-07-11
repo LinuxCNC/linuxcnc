@@ -30,6 +30,18 @@ if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
 
+AC_PROG_CXX
+
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADER([boost/lockfree/queue.hpp],
+    [], [RTAPI_APP_CFLAGS="$RTAPI_APP_CFLAGS -I external"])
+AC_LANG_POP([C++])
+AC_SUBST([RTAPI_APP_CFLAGS])
+
+m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
+# make this optional - it will likely only result in warnings
+AX_CXX_COMPILE_STDCXX_11(noext,optional)
+
 ## _PYTHON_SYSCONFIG(expression, [action-if-succeeded], [action-if-failed])
 ##
 m4_define([_PYTHON_SYSCONFIG],
@@ -766,12 +778,6 @@ AC_SUBST(GLIB_CFLAGS)
 ##############################################################################
 
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
-AC_PROG_CXX
-
-m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
-# make this optional - it will likely only result in warnings
-AX_CXX_COMPILE_STDCXX_11(noext,optional)
-
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
