@@ -21,6 +21,8 @@ include::code/nml-messages.txt[]
 
 include::code/style-guide.txt[]
 
+include::code/building-linuxcnc.txt[]
+
 include::code/contributing-to-linuxcnc.txt[]
 
 include::common/glossary.txt[]
