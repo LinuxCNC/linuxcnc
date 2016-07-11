@@ -720,16 +720,15 @@ class LinuxCNCWrapper():
 
         if self.configFirstrun:
             self.status.config.default_acceleration = 0.0
-            self.status.config.angular_units = 0.0
+            self.status.config.angular_units = ANGULAR_UNITS_DEGREES
             self.status.config.axes = 0
             self.status.config.axis_mask = 0
             self.status.config.cycle_time = 0.0
             self.status.config.debug = 0
             self.status.config.kinematics_type = KINEMATICS_IDENTITY
-            self.status.config.linear_units = 0.0
+            self.status.config.linear_units = LINEAR_UNITS_MM
             self.status.config.max_acceleration = 0.0
             self.status.config.max_velocity = 0.0
-            self.status.config.program_units = CANON_UNITS_INCHES
             self.status.config.default_velocity = 0.0
             self.status.config.position_offset = EMC_CONFIG_RELATIVE_OFFSET
             self.status.config.position_feedback = EMC_CONFIG_ACTUAL_FEEDBACK
@@ -855,16 +854,37 @@ class LinuxCNCWrapper():
                 timeUnitsConverted = TIME_UNITS_MINUTE
             modified |= self.update_config_value('time_units', timeUnitsConverted)
 
+            linearUnits = str(self.ini.find('TRAJ', 'LINEAR_UNITS') or 'mm')
+            if linearUnits in ['mm', 'metric']:
+                linearUnitsConverted = LINEAR_UNITS_MM
+            elif linearUnits in ['in', 'inch', 'imperial']:
+                linearUnitsConverted = LINEAR_UNITS_INCH
+            elif linearUnits in ['cm']:
+                linearUnitsConverted = LINEAR_UNITS_CM
+            else:
+                linearUnitsConverted = LINEAR_UNITS_MM
+            modified |= self.update_config_value('linear_units', linearUnitsConverted)
+
+            angularUnits = str(self.ini.find('TRAJ', 'ANGULAR_UNITS') or 'deg')
+            if angularUnits in ['deg', 'degree']:
+                angularUnitsConverted = ANGULAR_UNITS_DEGREES
+            elif angularUnits in ['rad', 'radian']:
+                angularUnitsConverted = ANGULAR_UNITS_RADIAN
+            elif angularUnits in ['grad', 'gon']:
+                angularUnitsConverted = ANGULAR_UNTIS_GRAD
+            else:
+                angularUnitsConverted = ANGULAR_UNITS_DEGREES
+            modified |= self.update_config_value('angular_units', angularUnitsConverted)
+
             modified |= self.update_config_value('remote_path', self.directory)
 
             name = str(self.ini.find('EMC', 'MACHINE') or '')
             modified |= self.update_config_value('name', name)
 
-        for name in ['axis_mask', 'debug', 'kinematics_type', 'program_units',
-                     'axes']:
+        for name in ['axis_mask', 'debug', 'kinematics_type', 'axes']:
             modified |= self.update_config_value(name, getattr(stat, name))
 
-        for name in ['cycle_time', 'linear_units', 'angular_units']:
+        for name in ['cycle_time']:
             modified |= self.update_config_float(name, getattr(stat, name))
 
         modified |= self.update_config_float('default_acceleration', stat.acceleration)
@@ -881,13 +901,12 @@ class LinuxCNCWrapper():
             if len(self.status.config.axis) == index:
                 self.status.config.axis.add()
                 self.status.config.axis[index].index = index
-                self.status.config.axis[index].axisType = EMC_AXIS_LINEAR
+                self.status.config.axis[index].axis_type = EMC_AXIS_LINEAR
                 self.status.config.axis[index].backlash = 0.0
                 self.status.config.axis[index].max_ferror = 0.0
                 self.status.config.axis[index].max_position_limit = 0.0
                 self.status.config.axis[index].min_ferror = 0.0
                 self.status.config.axis[index].min_position_limit = 0.0
-                self.status.config.axis[index].units = 0.0
                 self.status.config.axis[index].home_sequence = -1
                 self.status.config.axis[index].max_velocity = 0.0
                 self.status.config.axis[index].max_acceleration = 0.0
@@ -912,10 +931,10 @@ class LinuxCNCWrapper():
                                                         'increments', value)
 
             axis = self.status.config.axis[index]
-            axisModified |= self.update_proto_value(axis, txAxis, 'axisType', statAxis['axisType'])
+            axisModified |= self.update_proto_value(axis, txAxis, 'axis_type', statAxis['axisType'])
 
             for name in ['backlash', 'max_ferror', 'max_position_limit',
-                         'min_ferror', 'min_position_limit', 'units']:
+                         'min_ferror', 'min_position_limit']:
                 axisModified |= self.update_proto_float(axis, txAxis, name, statAxis[name])
 
             if axisModified:
@@ -965,15 +984,7 @@ class LinuxCNCWrapper():
                 self.status.io.tool_table.add()
                 self.status.io.tool_table[index].index = index
                 self.status.io.tool_table[index].id = 0
-                self.status.io.tool_table[index].xOffset = 0.0
-                self.status.io.tool_table[index].yOffset = 0.0
-                self.status.io.tool_table[index].zOffset = 0.0
-                self.status.io.tool_table[index].aOffset = 0.0
-                self.status.io.tool_table[index].bOffset = 0.0
-                self.status.io.tool_table[index].cOffset = 0.0
-                self.status.io.tool_table[index].uOffset = 0.0
-                self.status.io.tool_table[index].vOffset = 0.0
-                self.status.io.tool_table[index].wOffset = 0.0
+                self.status.io.tool_table[index].offset.MergeFrom(self.zero_position())
                 self.status.io.tool_table[index].diameter = 0.0
                 self.status.io.tool_table[index].frontangle = 0.0
                 self.status.io.tool_table[index].backangle = 0.0
@@ -990,10 +1001,12 @@ class LinuxCNCWrapper():
                 resultModified |= self.update_proto_float(toolResult, txToolResult,
                                                           name, value)
 
-            for axis in ['x', 'y', 'z', 'a', 'b', 'c', 'u', 'v', 'w']:
+            position = range(0, 9)
+            for i, axis in enumerate(['x', 'y', 'z', 'a', 'b', 'c', 'u', 'v', 'w']):
                 value = getattr(statToolResult, axis + 'offset')
-                resultModified |= self.update_proto_float(toolResult, txToolResult,
-                                                          axis + 'Offset', value)
+                position[i] = value
+            resultModified |= self.update_proto_position(toolResult, txToolResult,
+                                                         'offset', position)
 
             if resultModified:
                 txToolResult.index = index
@@ -1045,9 +1058,10 @@ class LinuxCNCWrapper():
             self.status.interp.command = ""
             self.status.interp.interp_state = EMC_TASK_INTERP_IDLE
             self.status.interp.interpreter_errcode = 0
+            self.status.interp.program_units = CANON_UNITS_INCHES
             self.interpFirstrun = False
 
-        for name in ['command', 'interp_state', 'interpreter_errcode']:
+        for name in ['command', 'interp_state', 'interpreter_errcode', 'program_units']:
             modified |= self.update_interp_value(name, getattr(stat, name))
 
         txObjItem = EmcStatusGCode()
@@ -1914,16 +1928,17 @@ class LinuxCNCWrapper():
             elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('tool_data') \
+                and self.rx.emc_command_params.tool_data.HasField('offset') \
                 and self.rx.emc_command_params.tool_data.index \
-                and self.rx.emc_command_params.tool_data.zOffset \
-                and self.rx.emc_command_params.tool_data.xOffset \
+                and self.rx.emc_command_params.tool_data.offset.z \
+                and self.rx.emc_command_params.tool_data.offset.x \
                 and self.rx.emc_command_params.tool_data.diameter \
                 and self.rx.emc_command_params.tool_data.frontangle \
                 and self.rx.emc_command_params.tool_data.backangle \
                 and self.rx.emc_command_params.tool_data.orientation:
                     toolno = self.rx.emc_command_params.tool_data.index
-                    z_offset = self.rx.emc_command_params.tool_data.zOffset
-                    x_offset = self.rx.emc_command_params.tool_data.xOffset
+                    z_offset = self.rx.emc_command_params.tool_data.offset.z
+                    x_offset = self.rx.emc_command_params.tool_data.offset.x
                     diameter = self.rx.emc_command_params.tool_data.diameter
                     frontangle = self.rx.emc_command_params.tool_data.frontangle
                     backangle = self.rx.emc_command_params.tool_data.backangle
