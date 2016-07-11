@@ -1007,7 +1007,7 @@ static void handle_ajogwheels(void)
 	distance = delta * *(axis_data->ajog_scale);
 	pos = axis->teleop_tp.pos_cmd + distance;
 	if ( *(axis_data->ajog_vel_mode) ) {
-            double v = axis->vel_limit * emcmotStatus->net_feed_scale;
+            double v = axis->vel_limit;
 	    /* compute stopping distance at max speed */
 	    stop_dist = v * v / ( 2 * axis->acc_limit);
 	    /* if commanded position leads the actual position by more
