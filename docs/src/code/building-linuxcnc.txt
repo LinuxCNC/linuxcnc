@@ -63,13 +63,18 @@ portability to new platforms are always welcome.
 === Realtime
 
 LinuxCNC is a machine tool controller, and it requires a realtime platform
-to do this job.  LinuxCNC version 2.7 supports two realtime platforms:
+to do this job.  This version of LinuxCNC supports three realtime platforms
 
 RTAI::
 
     From https://www.rtai.org.  A Linux kernel with the RTAI patch is
     available from the Debian archive at http://www.linuxcnc.org.  See
     <<cha:getting-linuxcnc, Getting LinuxCNC>> for installation instructions.
+
+Xenomai::
+
+    From https://xenomai.org.  You will have to compile or obtain a Xenomai
+    kernel yourself.
 
 Preempt-RT::
 
@@ -138,15 +143,20 @@ The most commonly used arguments are:
 
 `--with-realtime=uspace`::
 
-    Build for Preempt-RT realtime platform, or for non-realtime.
+    Build for any realtime platform, or for non-realtime.
     The resulting LinuxCNC executables will run on both a Linux kernel
     with Preempt-RT patches (providing realtime machine control) and
     on a vanilla (un-patched) Linux kernel (providing G-code simulation
-    but no realtime machine control).
+    but no realtime machine control).  If development files are installed
+    for Xenomai (typically from package libxenomai-dev) or RTAI (typically
+    from a package with a name starting "rtai-modules"), support for
+    these real-time kernels will also be enabled.
 
 `--with-realtime=/usr/realtime-$VERSION`::
 
-    Build for the RTAI realtime platform.  This requires that
+    Build for the RTAI realtime platform using the older "kernel realtime"
+    model.
+    This requires that
     you have an RTAI kernel and the RTAI modules installed in
     `/usr/realtime-$VERSION`.  The resulting LinuxCNC executables will
     only run on the specified RTAI kernel.  As of LinuxCNC 2.7, this
@@ -220,7 +230,7 @@ from the git repo by running this:
 
 -----
 > cd linuxcnc-dev/debian
-> ./configure uspace
+> ./configure uspace rtai
 -----
 
 [NOTE]
@@ -254,6 +264,24 @@ platform to build for.  The normal values for this argument are:
 
     Configure the Debian package for Preempt-RT realtime or for
     non-realtime (these two are compatible).
+
+`noauto`::
+`rtai`::
+`xenomai`::
+
+    Normally, the lists of RTOSes for uspace realtime to support is detected
+    automatically.  However, if you wish, you may specify one or more of these
+    after `uspace` to enable support for these RTOSes.  Or, to disable
+    autodetection, specify `noauto`.
+
+    If you want just the traditional RTAI "kernel module" realtime, use
+    `-r` or `$KERNEL_VERSION` instead.
+
+`rtai=<package name>`::
+
+    If the development package for rtai lxrt does not start with
+    "rtai-modules", or if the first such package listed by apt-cache search
+    is not the desired one, then explicitly specify the package name.
 
 `-r`::
 
