@@ -1458,6 +1458,14 @@ class LinuxCNCWrapper():
         self.txCommand.note.append(note)
         self.send_command_msg(identity, MT_ERROR)
 
+    def send_command_completed(self, identity, ticket):
+        self.txCommand.reply_ticket = ticket
+        self.send_command_msg(identity, MT_EMCCMD_COMPLETED)
+
+    def send_command_executed(self, identity, ticket):
+        self.txCommand.reply_ticket = ticket
+        self.send_command_msg(identity, MT_EMCCMD_EXECUTED)
+
     def command_completion_process(self, event):
         self.command.wait_complete()  # wait for emcmodule
         event.set()  # inform the listening thread
@@ -1469,15 +1477,13 @@ class LinuxCNCWrapper():
                                 args=(event,)).start()
         # wait until the command is completed
         event.wait()
-        self.txCommand.reply_ticket = ticket
-        self.send_command_msg(identity, MT_EMCCMD_COMPLETED)
+        self.send_command_completed(identity, ticket)
 
         if self.debug:
             print('command #%i from %s completed' % (ticket, identity))
 
     def wait_complete(self, identity, ticket):
-        self.txCommand.reply_ticket = ticket
-        self.send_command_msg(identity, MT_EMCCMD_EXECUTED)
+        self.send_command_executed(identity, ticket)
 
         if self.debug:
             print('waiting for command #%ifrom %s to complete' % (ticket, identity))
@@ -1709,7 +1715,11 @@ class LinuxCNCWrapper():
                             if self.rx.HasField('ticket'):
                                 self.wait_complete(identity, self.rx.ticket)
                         elif self.rx.interp_name == 'preview':
+                            if self.rx.HasField('ticket'):
+                                self.send_command_executed(identity, self.rx.ticket)
                             self.preview.program_open(fileName)
+                            if self.rx.HasField('ticket'):
+                                self.send_command_completed(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
