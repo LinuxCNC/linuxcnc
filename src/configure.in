@@ -1434,7 +1434,7 @@ AC_TRY_COMPILE([
         AC_MSG_RESULT(no)
         AC_MSG_WARN(
 [The LinuxCNC binary you are building may not be
-distributable due to a license incompatiblilty with LinuxCNC (some portions
+distributable due to a license incompatibility with LinuxCNC (some portions
 GPL-2 only) and Readline version 6 and greater (GPL-3 or later).])
         if $NONDISTRIBUTABLE; then
             AC_MSG_WARN(
