@@ -13,7 +13,8 @@ import argparse
 from urlparse import urlparse
 import shutil
 import subprocess
-
+import re
+import codecs
 import ConfigParser
 import linuxcnc
 from machinekit import service
@@ -346,6 +347,7 @@ class LinuxCNCWrapper():
         self.ioSubscribed = False
         self.ioFullUpdate = False
         self.ioFirstrun = True
+        self.ioLoadToolTable = True
         self.taskSubscribed = False
         self.taskFullUpdate = False
         self.taskFirstrun = True
@@ -395,6 +397,10 @@ class LinuxCNCWrapper():
 
             # initialize total line count
             self.totalLines = 0
+            # initialize tool table path
+            self.toolTablePath = self.ini.find('EMCIO', 'TOOL_TABLE') or ''
+            if self.toolTablePath is not '':
+                self.toolTablePath = os.path.abspath(os.path.expanduser(self.toolTablePath))
             # If specified in the ini, try to open the  default file
             openFile = self.ini.find('DISPLAY', 'OPEN_FILE') or ""
             openFile = openFile.strip('"')  # quote signs are allowed
@@ -594,6 +600,55 @@ class LinuxCNCWrapper():
         with open(filePath) as f:
             self.totalLines = sum(1 for line in f)
         return filePath
+
+    def load_tool_table(self, io, txIo):
+        if self.toolTablePath is '':
+            return
+
+        lines = []
+        with codecs.open(self.toolTablePath, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+
+        toolMap = {}
+        for line in lines:
+            regex = re.compile(r'(?:.*T(\d+))(?:.*P(\d+))?(?:.*;(.*))?', re.IGNORECASE)
+            match = regex.match(line)
+            if match:
+                id = int(match.group(1))
+                pocket = match.group(2)
+                comment = match.group(3)
+                if pocket == '':
+                    pocket = 0
+                toolMap[id] = {'pocket': int(pocket), 'comment': comment}
+
+        for i, toolResult in enumerate(io.tool_table):
+            txToolResult = None
+            for result in txIo.tool_table:
+                if result.index == toolResult.index:
+                    txToolResult = result
+            if not txToolResult:
+                txToolResult = txIo.tool_table.add()
+                txToolResult.CopyFrom(toolResult)
+            id = toolResult.id
+            if id in toolMap:
+                toolResult.pocket = toolMap[id]['pocket']
+                toolResult.comment = toolMap[id]['comment']
+                txToolResult.pocket = toolMap[id]['pocket']
+                txToolResult.comment = toolMap[id]['comment']
+
+    def update_tool_table(self, toolTable):
+        if self.toolTablePath is '':
+            return False
+
+        with codecs.open(self.toolTablePath, 'w', encoding='utf-8') as file:
+            for tool in toolTable:
+                line = 'T%d P%d D%f X%+f Y%+f Z%+f A%+f B%+f C%+f U%+f V%+f W%+f I%+f J%+f Q%d ;%s\n' \
+                % (tool.id, tool.pocket, tool.diameter, tool.offset.x, tool.offset.y, tool.offset.z,
+                   tool.offset.a, tool.offset.b, tool.offset.c, tool.offset.u, tool.offset.v, tool.offset.w,
+                   tool.frontangle, tool.backangle, tool.orientation, tool.comment)
+                file.write(line)
+
+        return True
 
     def notEqual(self, a, b):
         threshold = 0.0001
@@ -973,6 +1028,7 @@ class LinuxCNCWrapper():
                                                'tool_offset', stat.tool_offset)
 
         txToolResult = EmcToolData()
+        toolTableChanged = False
         for index, statToolResult in enumerate(stat.tool_table):
             txToolResult.Clear()
             resultModified = False
@@ -989,6 +1045,8 @@ class LinuxCNCWrapper():
                 self.status.io.tool_table[index].frontangle = 0.0
                 self.status.io.tool_table[index].backangle = 0.0
                 self.status.io.tool_table[index].orientation = 0
+                self.status.io.tool_table[index].comment = ""
+                self.status.io.tool_table[index].pocket = 0
 
             toolResult = self.status.io.tool_table[index]
 
@@ -1012,6 +1070,13 @@ class LinuxCNCWrapper():
                 txToolResult.index = index
                 self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
                 modified = True
+                toolTableChanged = True
+
+        if toolTableChanged or self.ioLoadToolTable:
+            # update pocket and comment from tool table file
+            self.load_tool_table(self.status.io, self.statusTx.io)
+            self.ioLoadToolTable = False
+            modified = True
         del txToolResult
 
         if self.ioFullUpdate:
@@ -1458,6 +1523,14 @@ class LinuxCNCWrapper():
         self.txCommand.note.append(note)
         self.send_command_msg(identity, MT_ERROR)
 
+    def send_command_completed(self, identity, ticket):
+        self.txCommand.reply_ticket = ticket
+        self.send_command_msg(identity, MT_EMCCMD_COMPLETED)
+
+    def send_command_executed(self, identity, ticket):
+        self.txCommand.reply_ticket = ticket
+        self.send_command_msg(identity, MT_EMCCMD_EXECUTED)
+
     def command_completion_process(self, event):
         self.command.wait_complete()  # wait for emcmodule
         event.set()  # inform the listening thread
@@ -1469,15 +1542,13 @@ class LinuxCNCWrapper():
                                 args=(event,)).start()
         # wait until the command is completed
         event.wait()
-        self.txCommand.reply_ticket = ticket
-        self.send_command_msg(identity, MT_EMCCMD_COMPLETED)
+        self.send_command_completed(identity, ticket)
 
         if self.debug:
             print('command #%i from %s completed' % (ticket, identity))
 
     def wait_complete(self, identity, ticket):
-        self.txCommand.reply_ticket = ticket
-        self.send_command_msg(identity, MT_EMCCMD_EXECUTED)
+        self.send_command_executed(identity, ticket)
 
         if self.debug:
             print('waiting for command #%ifrom %s to complete' % (ticket, identity))
@@ -1649,11 +1720,6 @@ class LinuxCNCWrapper():
                 else:
                     self.send_command_wrong_params(identity)
 
-            elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
-                self.command.load_tool_table()
-                if self.rx.HasField('ticket'):
-                        self.wait_complete(identity, self.rx.ticket)
-
             elif self.rx.type == MT_EMC_TRAJ_SET_MAX_VELOCITY:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('velocity'):
@@ -1714,7 +1780,11 @@ class LinuxCNCWrapper():
                             if self.rx.HasField('ticket'):
                                 self.wait_complete(identity, self.rx.ticket)
                         elif self.rx.interp_name == 'preview':
+                            if self.rx.HasField('ticket'):
+                                self.send_command_executed(identity, self.rx.ticket)
                             self.preview.program_open(fileName)
+                            if self.rx.HasField('ticket'):
+                                self.send_command_completed(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1925,6 +1995,12 @@ class LinuxCNCWrapper():
                 else:
                     self.send_command_wrong_params(identity)
 
+            elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
+                self.command.load_tool_table()
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
+                self.ioLoadToolTable = True
+
             elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('tool_data') \
@@ -1947,6 +2023,17 @@ class LinuxCNCWrapper():
                         frontangle, backangle, orientation)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
+                else:
+                    self.send_command_wrong_params(identity)
+
+            elif self.rx.type == MT_EMC_TOOL_UPDATE_TOOL_TABLE:
+                if self.rx.HasField('emc_command_params'):
+                    if self.rx.HasField('ticket'):
+                        self.send_command_executed(identity, self.rx.ticket)
+                    if not self.update_tool_table(self.rx.emc_command_params.tool_table):
+                        self.add_error('Cannot update tool table')
+                    if self.rx.HasField('ticket'):
+                        self.send_command_completed(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
