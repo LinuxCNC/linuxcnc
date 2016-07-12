@@ -1649,11 +1649,6 @@ class LinuxCNCWrapper():
                 else:
                     self.send_command_wrong_params(identity)
 
-            elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
-                self.command.load_tool_table()
-                if self.rx.HasField('ticket'):
-                        self.wait_complete(identity, self.rx.ticket)
-
             elif self.rx.type == MT_EMC_TRAJ_SET_MAX_VELOCITY:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('velocity'):
@@ -1924,6 +1919,12 @@ class LinuxCNCWrapper():
                         self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
+
+            elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
+                self.command.load_tool_table()
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
+                self.ioLoadToolTable = True
 
             elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
                 if self.rx.HasField('emc_command_params') \
