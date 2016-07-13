@@ -1027,28 +1027,35 @@ class LinuxCNCWrapper():
         modified |= self.update_proto_position(self.status.io, self.statusTx.io,
                                                'tool_offset', stat.tool_offset)
 
+        if self.ioLoadToolTable:  # reload tool table
+            del self.status.io.tool_table[:]
+
         txToolResult = EmcToolData()
         toolTableChanged = False
+        tableIndex = 0
         for index, statToolResult in enumerate(stat.tool_table):
             txToolResult.Clear()
             resultModified = False
 
-            if (statToolResult.id == -1) and (index > 0):  # last tool in table
-                break
+            if (statToolResult.id == -1):
+                if (index > 0):  # last tool in table
+                    break
+                else:
+                    continue
 
-            if len(self.status.io.tool_table) == index:
+            if len(self.status.io.tool_table) == tableIndex:
                 self.status.io.tool_table.add()
-                self.status.io.tool_table[index].index = index
-                self.status.io.tool_table[index].id = 0
-                self.status.io.tool_table[index].offset.MergeFrom(self.zero_position())
-                self.status.io.tool_table[index].diameter = 0.0
-                self.status.io.tool_table[index].frontangle = 0.0
-                self.status.io.tool_table[index].backangle = 0.0
-                self.status.io.tool_table[index].orientation = 0
-                self.status.io.tool_table[index].comment = ""
-                self.status.io.tool_table[index].pocket = 0
+                self.status.io.tool_table[tableIndex].index = tableIndex
+                self.status.io.tool_table[tableIndex].id = 0
+                self.status.io.tool_table[tableIndex].offset.MergeFrom(self.zero_position())
+                self.status.io.tool_table[tableIndex].diameter = 0.0
+                self.status.io.tool_table[tableIndex].frontangle = 0.0
+                self.status.io.tool_table[tableIndex].backangle = 0.0
+                self.status.io.tool_table[tableIndex].orientation = 0
+                self.status.io.tool_table[tableIndex].comment = ""
+                self.status.io.tool_table[tableIndex].pocket = 0
 
-            toolResult = self.status.io.tool_table[index]
+            toolResult = self.status.io.tool_table[tableIndex]
 
             for name in ['id', 'orientation']:
                 value = getattr(statToolResult, name)
@@ -1067,10 +1074,12 @@ class LinuxCNCWrapper():
                                                          'offset', position)
 
             if resultModified:
-                txToolResult.index = index
+                txToolResult.index = tableIndex
                 self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
                 modified = True
                 toolTableChanged = True
+
+            tableIndex += 1
 
         if toolTableChanged or self.ioLoadToolTable:
             # update pocket and comment from tool table file
