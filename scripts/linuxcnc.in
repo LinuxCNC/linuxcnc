@@ -24,7 +24,7 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 
 LSMOD=@LSMOD@
-PIDOF="@PIDOF@ -x"
+PGREP="@PGREP@ -x"
 PS=@PS@
 AWK=@AWK@
 IPCS=@IPCS@
@@ -500,7 +500,7 @@ KILL_TIMEOUT=20
 ################################################################################
 function KillTaskWithTimeout() {
     if [ ! -n "$KILL_PIDS" ] ; then
-	KILL_PIDS=`$PIDOF $KILL_TASK`
+	KILL_PIDS=`$PGREP $KILL_TASK`
     fi
     if [ ! -n "$KILL_PIDS" ] ; then
 	echo "Could not find pid(s) for task $KILL_TASK"
@@ -559,7 +559,7 @@ function Cleanup() {
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of linuxcnc
     for KILL_TASK in linuxcncpanel iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel; do
-	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
+	if $PGREP $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
     done
@@ -592,7 +592,7 @@ function Cleanup() {
 
     # now kill all the other user space components
     for KILL_TASK in linuxcncsvr milltask; do
-	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
+	if $PGREP $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
     done

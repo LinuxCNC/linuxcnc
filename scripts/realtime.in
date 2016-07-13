@@ -6,7 +6,7 @@
 
 export LANG=C
 
-PIDOF=@PIDOF@
+PGREP=@PGREP@
 
 CheckKernel() {
     case "@KERNEL_VERS@" in
@@ -104,7 +104,7 @@ CheckConfig(){
 CheckStatus(){
     case $RTPREFIX in
     uspace)
-        if [ -z "$($PIDOF rtapi_app)" ]; then
+        if [ -z "$($PGREP rtapi_app)" ]; then
             exit 1
         else
             exit 0
