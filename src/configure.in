@@ -807,6 +807,8 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
+if test $RTS != "uspace"
+then
 AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
 if test $INSMOD = "none"
 then
@@ -824,8 +826,9 @@ if test $LSMOD = "none"
 then
     AC_MSG_ERROR([lsmod not found])
 fi
+fi
 
-AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
+AC_PATH_PROGS(PIDOF, pidof pgrep, "none", $SPATH)
 if test $PIDOF = "none"
 then
     AC_MSG_ERROR([pidof not found])
@@ -1178,7 +1181,6 @@ extern int optreset;
     [HAVE_OPTRESET=no])
 AC_MSG_RESULT($HAVE_OPTRESET)
 AC_SUBST([HAVE_OPTRESET])
-
 
 
 LIBS_hold=$LIBS
