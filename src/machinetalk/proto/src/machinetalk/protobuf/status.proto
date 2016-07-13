@@ -70,7 +70,7 @@ enum EmcTrajectoryModeType {
  * Types for EMC Canon units.
  */
 enum EmcCanonUnitsType {
-    CANON_UNITS_INCHES  = 1;  /// Inches.
+    CANON_UNITS_INCH    = 1;  /// Inches.
     CANON_UNITS_MM      = 2;  /// Millimeters.
     CANON_UNITS_CM      = 3;  /// Centimeters.
 }
@@ -79,7 +79,7 @@ enum EmcCanonUnitsType {
  * Types for EMC linear units.
  */
 enum EmcLinearUnitsType {
-    LINEAR_UNITS_INCHES = 1;  /// Inches.
+    LINEAR_UNITS_INCH   = 1;  /// Inches.
     LINEAR_UNITS_MM     = 2;  /// Millimeters.
     LINEAR_UNITS_CM     = 3;  /// Centimeters.
 }
