@@ -1,3 +1,0 @@
-loadusr -W motion-logger out.motion-logger
-setp iocontrol.0.emc-enable-in 1
-

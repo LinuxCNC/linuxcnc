@@ -1,6 +1,0 @@
-*.po merge=pofile
-*.pot merge=pofile
-
-# Don't export git artifacts into tarball archives
-.gitignore	export-ignore
-.gitattributes	export-ignore

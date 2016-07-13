@@ -1,6 +1,0 @@
-INCLUDES += libnml/rcs
-
-../include/%.h: ./libnml/rcs/%.h
-	cp $^ $@
-../include/%.hh: ./libnml/rcs/%.hh
-	cp $^ $@

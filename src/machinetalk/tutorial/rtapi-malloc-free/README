@@ -1,1 +1,0 @@
-demo component exercising the rtapi_heap api (malloc/free in RT), using the heap in the global segment

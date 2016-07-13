@@ -1,1 +1,0 @@
-ngcgui example with lathe subroutines

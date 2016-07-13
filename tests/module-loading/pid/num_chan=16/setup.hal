@@ -1,4 +1,0 @@
-
-loadrt pid count=16
-show pin
-

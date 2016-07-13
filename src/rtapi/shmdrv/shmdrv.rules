@@ -1,2 +1,0 @@
-# make the shared memory allocator publically accessible
-KERNEL=="shmdrv", MODE="0666"

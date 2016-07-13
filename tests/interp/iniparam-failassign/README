@@ -1,3 +1,0 @@
-assigning to an inifile variable reference must fail:
-
-#<_ini[section]name> = <value>

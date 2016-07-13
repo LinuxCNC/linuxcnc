@@ -1,3 +1,0 @@
-info: Create a file with information about Machinekit and important system items.
-
-The file is created in /tmp and is suitable for posting for aid in diagnosing problems.
