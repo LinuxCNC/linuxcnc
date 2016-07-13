@@ -76,6 +76,7 @@ static int comp_id;
 
 static void hm2_read_request(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
+    hm2->llio->period = period;
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
@@ -87,6 +88,7 @@ static void hm2_read_request(void *void_hm2, long period) {
     if ((*hm2->llio->io_error) != 0) return;
     hm2_queue_read(hm2);
     hm2->llio->read_requested = true;
+    hm2->llio->read_time = rtapi_get_time();
 }
 
 static void hm2_read(void *void_hm2, long period) {
@@ -97,7 +99,8 @@ static void hm2_read(void *void_hm2, long period) {
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
-    hm2_finish_read(hm2);
+    // if there's a temporary read failure, don't sweat it
+    if(hm2_finish_read(hm2) == -EAGAIN) return;
     if ((*hm2->llio->io_error) != 0) return;
 
     hm2_watchdog_process_tram_read(hm2);

@@ -89,6 +89,7 @@
 #define CMD_WRITE_HOSTMOT2_ADDR32(size)       (CMD_WRITE_ADDR_32 | LBP16_SPACE_HM2 | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_WRITE_HOSTMOT2_ADDR32_INCR(size)  (CMD_WRITE_ADDR_32 | LBP16_SPACE_HM2 | LBP16_ADDR_AUTO_INC | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_WRITE_FPGA_FLASH_ADDR32(size)     (CMD_WRITE_ADDR_32 | LBP16_SPACE_FPGA_FLASH | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
+#define CMD_WRITE_TIMER_ADDR16_INCR(size)     (CMD_WRITE_ADDR_16 | LBP16_SPACE_TIMER | LBP16_ADDR_AUTO_INC | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_WRITE_COMM_CTRL_ADDR16(size)      (CMD_WRITE_ADDR_16 | LBP16_SPACE_COMM_CTRL | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_WRITE_ETH_EEPROM_ADDR16(size)     (CMD_WRITE_ADDR_16 | LBP16_SPACE_ETH_EEPROM | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_WRITE_ETH_EEPROM_ADDR16_INCR(size) (CMD_WRITE_ADDR_16_INCR | LBP16_SPACE_ETH_EEPROM | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
@@ -156,37 +157,37 @@ typedef struct {
 } lbp16_write_ip_addr_packets;
 
 #define LBP16_INIT_PACKET4(packet, cmd, addr) do { \
-    packet.cmd_hi = LO_BYTE(cmd); \
-    packet.cmd_lo = HI_BYTE(cmd); \
-    packet.addr_hi = LO_BYTE(addr); \
-    packet.addr_lo = HI_BYTE(addr); \
+    (packet).cmd_hi = LO_BYTE(cmd); \
+    (packet).cmd_lo = HI_BYTE(cmd); \
+    (packet).addr_hi = LO_BYTE(addr); \
+    (packet).addr_lo = HI_BYTE(addr); \
     } while (0);
 
 #define LBP16_INIT_PACKET4_PTR(packet, cmd, addr) do { \
-    packet->cmd_hi = LO_BYTE(cmd); \
-    packet->cmd_lo = HI_BYTE(cmd); \
-    packet->addr_hi = LO_BYTE(addr); \
-    packet->addr_lo = HI_BYTE(addr); \
+    (packet)->cmd_hi = LO_BYTE(cmd); \
+    (packet)->cmd_lo = HI_BYTE(cmd); \
+    (packet)->addr_hi = LO_BYTE(addr); \
+    (packet)->addr_lo = HI_BYTE(addr); \
     } while (0);
 
 #define LBP16_INIT_PACKET6(packet, cmd, addr, data) do { \
-    packet.cmd_hi = LO_BYTE(cmd); \
-    packet.cmd_lo = HI_BYTE(cmd); \
-    packet.addr_hi = LO_BYTE(addr); \
-    packet.addr_lo = HI_BYTE(addr); \
-    packet.data_hi = LO_BYTE(data); \
-    packet.data_lo = HI_BYTE(data); \
+    (packet).cmd_hi = LO_BYTE(cmd); \
+    (packet).cmd_lo = HI_BYTE(cmd); \
+    (packet).addr_hi = LO_BYTE(addr); \
+    (packet).addr_lo = HI_BYTE(addr); \
+    (packet).data_hi = LO_BYTE(data); \
+    (packet).data_lo = HI_BYTE(data); \
     } while (0);
 
 #define LBP16_INIT_PACKET8(packet, cmd, addr, data) do { \
-    packet.cmd_hi = LO_BYTE(cmd); \
-    packet.cmd_lo = HI_BYTE(cmd); \
-    packet.addr_hi = LO_BYTE(addr); \
-    packet.addr_lo = HI_BYTE(addr); \
-    packet.data1 = LO_BYTE(data); \
-    packet.data2 = HI_BYTE(data); \
-    packet.data3 = LO_BYTE((data >> 16) & 0xFFFF); \
-    packet.data4 = HI_BYTE((data >> 16) & 0xFFFF); \
+    (packet).cmd_hi = LO_BYTE(cmd); \
+    (packet).cmd_lo = HI_BYTE(cmd); \
+    (packet).addr_hi = LO_BYTE(addr); \
+    (packet).addr_lo = HI_BYTE(addr); \
+    (packet).data1 = LO_BYTE(data); \
+    (packet).data2 = HI_BYTE(data); \
+    (packet).data3 = LO_BYTE((data >> 16) & 0xFFFF); \
+    (packet).data4 = HI_BYTE((data >> 16) & 0xFFFF); \
     } while (0);
 
 typedef struct {

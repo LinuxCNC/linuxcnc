@@ -34,6 +34,7 @@
 #include <rtapi_slab.h>
 #include <rtapi_ctype.h>
 #include <rtapi_list.h>
+#include <rtapi_math64.h>
 
 #include "rtapi.h"
 #include "rtapi_app.h"
@@ -380,6 +381,7 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
     }
 
     board->write_packet_ptr = board->write_packet;
+    board->read_packet_ptr = board->read_packet;
 
     return 0;
 }
@@ -469,13 +471,63 @@ static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
     hm2_eth_t *board = this->private;
     int send;
 
+    // read (low 16 bits of) last write number from space 4 address 0010
+    LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)(board->read_packet_ptr), CMD_READ_COMM_CTRL_ADDR16(1), 0x8);
+    board->read_packet_ptr += sizeof(lbp16_cmd_addr);
+    board->queue_reads[board->queue_reads_count].buffer = &board->rxudpcount;
+    board->queue_reads[board->queue_reads_count].size = 2;
+    board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
+    board->queue_reads_count++;
+    board->queue_buff_size += 2;
+    
     board->read_cnt++;
-    send = eth_socket_send(board->sockfd, (void*) &board->queue_packets, sizeof(lbp16_cmd_addr)*board->queue_reads_count, 0);
+    // write then read back space 4 scratch register at 0010 to verify we got the right receive packet
+    LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)(board->read_packet_ptr), CMD_WRITE_TIMER_ADDR16_INCR(2), 0x10);
+    board->read_packet_ptr += sizeof(lbp16_cmd_addr);
+    *(uint32_t*)board->read_packet_ptr = board->read_cnt;
+    board->read_packet_ptr += sizeof(uint32_t);
+
+    LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)(board->read_packet_ptr), CMD_READ_TIMER_ADDR16_INCR(4), 0x10);
+    board->read_packet_ptr += sizeof(lbp16_cmd_addr);
+    board->queue_reads[board->queue_reads_count].buffer = &board->confirm_read_cnt;
+    board->queue_reads[board->queue_reads_count].size = 8;
+    board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
+    board->queue_reads_count++;
+    board->queue_buff_size += 8;
+
+    send = eth_socket_send(board->sockfd, (void*) &board->read_packet, board->read_packet_ptr - board->read_packet, 0);
     if(send < 0) {
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
         return 0;
     }
     return 1;
+}
+
+static bool record_soft_error(hm2_eth_t *board) {
+    if(!board->hal) return 1; // still early in hm2_eth_probe
+    board->llio.needs_soft_reset = 1;
+    *board->hal->packet_error = 1;
+    int32_t increment = board->hal->packet_error_increment;
+    if(increment < 1) increment = 1;
+    board->comm_error_counter += increment;
+    if(board->comm_error_counter < 0 || board->comm_error_counter > board->hal->packet_error_limit)
+        board->comm_error_counter = board->hal->packet_error_limit;
+    *board->hal->packet_error_level = board->comm_error_counter;
+    bool result = board->comm_error_counter < board->hal->packet_error_limit;
+    if(!result) *board->llio.io_error = true;
+    *board->hal->packet_error_exceeded = !result;
+    return result;
+}
+
+static void decrement_soft_error(hm2_eth_t *board) {
+    if(!board->hal) return; // still early in hm2_eth_probe
+    int32_t decrement = board->hal->packet_error_decrement;
+    if(decrement < 1) decrement = 1;
+    board->comm_error_counter -= decrement;
+    if(board->comm_error_counter < 0) board->comm_error_counter = 0;
+    *board->hal->packet_error_level = board->comm_error_counter;
+    *board->hal->packet_error = 0;
+    *board->hal->packet_error_exceeded = 0;
 }
 
 static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
@@ -484,28 +536,63 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
     rtapi_u8 tmp_buffer[board->queue_buff_size];
     long long t1, t2;
     t1 = rtapi_get_time();
+    
+    // an error occurred in the past but the user has reset the io_error
+    // pin (or they did something else like fiddle with the error limit
+    // during a run, in which case we don't care if we reset the counter
+    // or not)
+    if(board->hal && board->comm_error_counter == board->hal->packet_error_limit && !*board->llio.io_error) {
+        board->comm_error_counter = 0;
+    }
+
+    long read_timeout = board->hal ? board->hal->read_timeout : 800000;
+    if(read_timeout <= 0)
+        read_timeout = 80;
+    if(read_timeout < 100)
+        read_timeout = rtapi_div_s64(read_timeout * (unsigned long long)board->llio.period, 100);
+    if(read_timeout < 100000)
+        read_timeout = 100000;
+ 
+    if(!board->hal) this->read_time = t1;
+    unsigned long long read_deadline = this->read_time + read_timeout;
     do {
+do_recv_packet:
         errno = 0;
-        recv = eth_socket_recv(board->sockfd, (void*) &tmp_buffer, board->queue_buff_size, 0);
+        recv = eth_socket_recv(board->sockfd, (void*) &tmp_buffer, board->queue_buff_size, MSG_DONTWAIT);
         if(recv < 0) rtapi_delay(READ_PCK_DELAY_NS);
         t2 = rtapi_get_time();
         i++;
-    } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
+    } while (recv != board->queue_buff_size && t2 < read_deadline);
     if(recv != board->queue_buff_size) {
-        LL_PRINT("enqueue_read ERROR: reading packet: recv() -> %d %s (expected to read %d bytes)\n", recv, strerror(errno), board->queue_buff_size);
+        board->read_packet_ptr = board->read_packet;
         board->queue_reads_count = 0;
         board->queue_buff_size = 0;
-        return 0;
+        if(!record_soft_error(board)) return 0;
+        return -EAGAIN;
     }
+
     LL_PRINT_IF(debug, "enqueue_read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, recv, i, t2 - t1);
 
     for (i = 0; i < board->queue_reads_count; i++) {
         memcpy(board->queue_reads[i].buffer, &tmp_buffer[board->queue_reads[i].from], board->queue_reads[i].size);
     }
 
+    if(board->confirm_read_cnt != board->read_cnt && t2 < read_deadline)
+        goto do_recv_packet;
+
+    board->read_packet_ptr = board->read_packet;
     board->queue_reads_count = 0;
     board->queue_buff_size = 0;
-    return 1;
+
+    int result = 1;
+    // (this means that one in 2^32 lost writes will not be diagnosed,
+    // each time board->write_cnt overflows)
+    if(board->write_cnt && board->write_cnt != board->confirm_write_cnt) {
+        result = record_soft_error(board);
+    } else {
+        decrement_soft_error(board);
+    }
+    return result;
 }
 
 static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
@@ -513,7 +600,8 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
     // XXX this is missing a check for exceeding the maximum packet size!
-    LBP16_INIT_PACKET4(board->queue_packets[board->queue_reads_count], CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
+    LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)board->read_packet_ptr, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
+    board->read_packet_ptr += sizeof(lbp16_cmd_addr);
     board->queue_reads[board->queue_reads_count].buffer = buffer;
     board->queue_reads[board->queue_reads_count].size = size;
     board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
@@ -557,6 +645,14 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
     hm2_eth_t *board = this->private;
 
     board->write_cnt++;
+    // XXX this is missing a check for exceeding the maximum packet size!
+    lbp16_cmd_addr *packet = (lbp16_cmd_addr *) board->write_packet_ptr;
+    LBP16_INIT_PACKET4(*packet, CMD_WRITE_TIMER_ADDR16_INCR(2), 0x14);
+    board->write_packet_ptr += sizeof(*packet);
+    memcpy(board->write_packet_ptr, &board->write_cnt, 4);
+    board->write_packet_ptr += 4;
+    board->write_packet_size += (sizeof(*packet) + 4);
+    
     t0 = rtapi_get_time();
     send = eth_socket_send(board->sockfd, (void*) &board->write_packet, board->write_packet_size, 0);
     if(send < 0) {
@@ -565,7 +661,7 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
     }
     t1 = rtapi_get_time();
     LL_PRINT_IF(debug, "enqueue_write(%d) : PACKET SEND [SIZE: %d | TIME: %llu]\n", board->write_cnt, send, t1 - t0);
-    board->write_packet_ptr = &board->write_packet;
+    board->write_packet_ptr = board->write_packet;
     board->write_packet_size = 0;
     return 1;
 }
@@ -730,6 +826,71 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     return 0;
 }
 
+static int hm2_eth_items(hm2_eth_t *board) {
+    int r;
+
+    board->hal = hal_malloc(sizeof(*board->hal));
+    if(!board->hal) return -ENOMEM;
+
+    if((r = hal_param_s32_newf(HAL_RW,
+            &board->hal->read_timeout,
+            board->llio.comp_id,
+            "%s.packet-read-timeout",
+            board->llio.name)) < 0)
+        return r;
+    board->hal->read_timeout = 80;
+
+    if((r = hal_param_s32_newf(HAL_RW,
+            &board->hal->packet_error_limit,
+            board->llio.comp_id,
+            "%s.packet-error-limit",
+            board->llio.name)) < 0)
+        return r;
+    board->hal->packet_error_limit = 10;
+
+    if((r = hal_param_s32_newf(HAL_RW,
+            &board->hal->packet_error_increment,
+            board->llio.comp_id,
+            "%s.packet-error-increment",
+            board->llio.name)) < 0)
+        return r;
+    board->hal->packet_error_increment = 2;
+
+    if((r = hal_param_s32_newf(HAL_RO,
+            &board->hal->packet_error_decrement,
+            board->llio.comp_id,
+            "%s.packet-error-decrement",
+            board->llio.name)) < 0)
+        return r;
+    board->hal->packet_error_decrement = 1;
+
+    if((r = hal_pin_bit_newf(HAL_OUT,
+            &board->hal->packet_error,
+            board->llio.comp_id,
+            "%s.packet-error",
+            board->llio.name)) < 0)
+        return r;
+    *board->hal->packet_error = 0;
+
+    if((r = hal_pin_s32_newf(HAL_OUT,
+            &board->hal->packet_error_level,
+            board->llio.comp_id,
+            "%s.packet-error-level",
+            board->llio.name)) < 0)
+        return r;
+    *board->hal->packet_error_level = 0;
+
+    if((r = hal_pin_bit_newf(HAL_OUT,
+            &board->hal->packet_error_exceeded,
+            board->llio.comp_id,
+            "%s.packet-error-exceeded",
+            board->llio.name)) < 0)
+        return r;
+    *board->hal->packet_error_exceeded = 0;
+
+    return 0;
+}
+
 int rtapi_app_main(void) {
     RTAPI_INIT_LIST_HEAD(&ifnames);
     RTAPI_INIT_LIST_HEAD(&board_num);
@@ -762,6 +923,11 @@ int rtapi_app_main(void) {
 
         if (ret < 0)
             goto error;
+
+        ret = hm2_eth_items(&boards[i]);
+
+        if (ret < 0)
+            goto error;
     }
 
     for(i = 0; i<num_boards; i++) {
@@ -771,6 +937,7 @@ int rtapi_app_main(void) {
             LL_PRINT("failed to retrieve interface name for board");
             continue;
         } 
+        boards[i].read_cnt = boards[i].write_cnt = 0;
         int *added = kvlist_lookup(&ifnames, ifptr);
         if(*added) continue;
         install_iptables_perinterface(ifptr);

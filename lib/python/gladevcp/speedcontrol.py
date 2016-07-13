@@ -62,7 +62,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     template    = Templ.  : Text template to display the value Python formatting is used
                             Any allowed format
                             default is "%.1f"
-    hide_button = Bool  :   Whether to show or hide the increment an devrement button
+    do_hide_button = Bool : Whether to show or hide the increment an decrement button
                             True or False
                             Default = False
 
@@ -89,7 +89,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         'template' : (gobject.TYPE_STRING, 'Text template for bar value',
                 'Text template to display. Python formatting may be used for one variable',
                 "%.1f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'hide_button' : ( gobject.TYPE_BOOLEAN, 'Hide the button', 'Display the button + and - to alter the values',
+        'do_hide_button' : ( gobject.TYPE_BOOLEAN, 'Hide the button', 'Display the button + and - to alter the values',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
                       }
     __gproperties = __gproperties__
@@ -421,9 +421,11 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
                 if name == "min":
                     self._min = value
                     self.adjustment.lower = value
+                    self._increment = (self._max - self._min) / 100.0
                 if name == "max":
                     self._max = value
                     self.adjustment.upper = value
+                    self._increment = (self._max - self._min) / 100.0
                 if name == "increment":
                     if value < 0:
                         self._increment = (self._max - self._min) / 100.0
@@ -437,7 +439,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
                     self.color = value
                 if name == "template":
                     self._template = value
-                if name == "hide_button":
+                if name == "do_hide_button":
                     self.hide_button(value)
                 self._draw_widget()
             else:
