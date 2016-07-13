@@ -1,39 +1,3 @@
-Source: linuxcnc
-Section: misc
-Priority: extra
-Maintainer: Sebastian Kuzminsky <seb@highlab.com>
-Build-Depends: debhelper (>= 6),
-    @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@,
-    tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev,
-    @LIBREADLINE_DEV@,
-    asciidoc (>= 8.5), source-highlight, dblatex (>= 0.2.12), xsltproc, groff,
-    docbook-xsl,
-    python, python-dev, python-tk, python-lxml, libxmu-dev,
-    libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
-    libgtk2.0-dev, gettext, autoconf, libboost-python-dev,
-    texlive-lang-cyrillic, texlive-lang-french,
-    texlive-lang-spanish, texlive-lang-german, netcat,
-    libmodbus-dev (>= 3.0), libusb-1.0-0-dev, procps, psmisc,
-    graphviz, inkscape, w3c-linkchecker
-Standards-Version: 2.1.0
-
-Package: @MAIN_PACKAGE_NAME@-dev
-Architecture: any
-Conflicts: linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
-Depends: g++, @KERNEL_HEADERS@,
-    python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
-    ${python:Depends}, ${misc:Depends},
-    @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
-    yapps2-runtime
-Section: libs
-Description: PC based motion controller for real-time Linux
- LinuxCNC is the next-generation Enhanced Machine Controller which
- provides motion control for CNC machine tools and robotic
- applications (milling, cutting, routing, etc.).
- .
- This package includes files needed to build new realtime components and
- alternate front-ends for linuxcnc
-
 Package: @MAIN_PACKAGE_NAME@
 Conflicts: linuxcnc-sim, @OTHER_MAIN_PACKAGE_NAME@
 Architecture: any
@@ -94,3 +58,4 @@ Description: PC based motion controller for real-time Linux
  applications (milling, cutting, routing, etc.).
  .
  This package contains the documentation in Spanish.
+

@@ -188,15 +188,8 @@ int rtapi_shmem_delete(int handle, int module_id)
 
 
 
-void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
-    if(level == RTAPI_MSG_ALL) {
-	vfprintf(stdout, fmt, ap);
-        fflush(stdout);
-    } else {
-	vfprintf(stderr, fmt, ap);
-        fflush(stderr);
-    }
-}
+void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap);
+
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 
 rtapi_msg_handler_t rtapi_get_msg_handler(void) {
@@ -253,12 +246,6 @@ int rtapi_set_msg_level(int level) {
 
 int rtapi_get_msg_level() {
     return msg_level;
-}
-
-long long rtapi_get_time(void) {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
 #if defined(__i386) || defined(__amd64)
@@ -326,9 +313,9 @@ int rtapi_exit(int module_id)
 
 int rtapi_is_kernelspace() { return 0; }
 static int _rtapi_is_realtime = -1;
-static int detect_realtime() {
+static int detect_preempt_rt() {
     struct utsname u;
-    int crit1, crit2 = 0, crit3 = 0;
+    int crit1, crit2 = 0;
     FILE *fd;
 
     uname(&u);
@@ -340,12 +327,36 @@ static int detect_realtime() {
         fclose(fd);
     }
 
+    return crit1 && crit2;
+}
+#ifdef USPACE_RTAI
+static int detect_rtai() {
+    struct utsname u;
+    uname(&u);
+    return strcasestr (u.release, "-rtai") != 0;
+}
+#else
+static int detect_rtai() {
+    return 0;
+}
+#endif
+#ifdef USPACE_XENOMAI
+static int detect_xenomai() {
+    struct utsname u;
+    uname(&u);
+    return strcasestr (u.release, "-xenomai") != 0;
+}
+#else
+static int detect_xenomai() {
+    return 0;
+}
+#endif
+static int detect_realtime() {
     struct stat st;
-    if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) == 0)
-            && st.st_uid == 0 && (st.st_mode & S_ISUID))
-        crit3 = 1;
-
-    return crit1 && crit2 && crit3;
+    if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) < 0)
+            || st.st_uid != 0 || !(st.st_mode & S_ISUID))
+        return 0;
+    return detect_preempt_rt() || detect_rtai() || detect_xenomai();
 }
 
 int rtapi_is_realtime() {
@@ -394,15 +405,3 @@ static int rtapi_clock_nanosleep(clockid_t clock_id, int flags,
     return nanosleep(&request, remain);
 #endif
 }
-
-void rtapi_delay(long ns) {
-    if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
-    struct timespec ts = {0, ns};
-    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
-}
-
-#ifdef ULAPI
-long int rtapi_delay_max() { return 999999999; }
-#else
-long int rtapi_delay_max() { return 10000; }
-#endif
