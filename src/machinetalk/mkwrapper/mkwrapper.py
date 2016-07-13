@@ -1123,7 +1123,7 @@ class LinuxCNCWrapper():
             self.status.interp.command = ""
             self.status.interp.interp_state = EMC_TASK_INTERP_IDLE
             self.status.interp.interpreter_errcode = 0
-            self.status.interp.program_units = CANON_UNITS_INCHES
+            self.status.interp.program_units = CANON_UNITS_INCH
             self.interpFirstrun = False
 
         for name in ['command', 'interp_state', 'interpreter_errcode', 'program_units']:
