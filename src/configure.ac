@@ -2408,6 +2408,26 @@ then
     AC_MSG_ERROR([python not found])
 fi
 
+AC_MSG_CHECKING(whether pydot capability required)
+AC_ARG_ENABLE(pydot,
+    [  --enable-pydot      enable python-pydot graphing],
+    [
+    PYDOT=yes
+    AC_PYTHON_MODULE(pydot, failed to import pydot
+     - python-pydot package missing? )
+
+    AC_PATH_PROG(XDOT, xdot, "none")
+    if test $XDOT = "none"
+    then
+        AC_MSG_ERROR([xdot not found - xdot package not installed?])
+    fi
+
+        AC_MSG_RESULT([checked for python-pydot and xdot])
+    ],
+    [
+      AC_MSG_RESULT([not checking for python-pydot and xdot])
+    ])
+
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     [  --enable-build-documentation[=format]   Build documentation.
