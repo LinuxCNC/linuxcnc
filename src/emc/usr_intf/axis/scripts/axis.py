@@ -2372,9 +2372,7 @@ class TclCommands(nf.TclCommands):
     def ensure_mdi(*event):
         # called from axis.tcl on tab raisecmd
         if not manual_ok(): return
-        set_motion_teleop(0)
         ensure_mode(linuxcnc.MODE_MDI)
-        set_motion_teleop(1)
         s.poll()
 
     def redraw(*ignored):
