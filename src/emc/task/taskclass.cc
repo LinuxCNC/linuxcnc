@@ -457,7 +457,7 @@ Task::Task() : use_iocontrol(0), random_toolchanger(0) {
     }
     if (!use_iocontrol) {
 	for(int i = 0; i < CANON_POCKETS_MAX; i++) {
-	    ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
+	    ttcomments[i] = (char *)malloc(CANON_TOOL_COMMENT_LEN);
 	}
     }
 

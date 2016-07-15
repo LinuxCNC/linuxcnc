@@ -29,7 +29,7 @@ static bool scan_old_style(
 	int &fakepocket) {
     int scanned, toolno, pocket, orientation;
     double zoffset, xoffset, diameter, frontangle, backangle;
-    char comment[CANON_TOOL_ENTRY_LEN];
+    char comment[CANON_TOOL_COMMENT_LEN];
 
     if((scanned = sscanf(buffer, "%d %d %lf %lf %lf %lf %lf %d %[^\n]",
 			 &toolno, &pocket, &zoffset, &xoffset, &diameter,
