@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
     }
 
     for(int i=0; i<CANON_POCKETS_MAX; i++) {
-        ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
+        ttcomments[i] = (char *)malloc(CANON_TOOL_COMMENT_LEN);
     }
 
 
