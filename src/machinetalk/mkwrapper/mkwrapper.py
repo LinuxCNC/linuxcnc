@@ -610,8 +610,8 @@ class LinuxCNCWrapper():
             lines = file.readlines()
 
         toolMap = {}
+        regex = re.compile(r'(?:.*T(\d+))(?:.*P(\d+))?(?:.*;(.*))?', re.IGNORECASE)
         for line in lines:
-            regex = re.compile(r'(?:.*T(\d+))(?:.*P(\d+))?(?:.*;(.*))?', re.IGNORECASE)
             match = regex.match(line)
             if match:
                 id = int(match.group(1))
