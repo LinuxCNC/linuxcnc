@@ -361,6 +361,13 @@ function run_applications () {
 }
 
 INIFILE="$(handle_includes "$INIFILE")"
+haltcl -i "$INIFILE" $HALLIB_DIR/check_config.tcl
+exitval=$?
+case "$exitval" in
+  0) ;;
+  1) echo "check_config validation failed"; exit $exitval ;;
+  *) echo "check_config validation failed in an unexpected way."; exit $exitval ;;
+esac
 
 # delete directories from path, save name only
 INI_NAME="${INIFILE##*/}"
