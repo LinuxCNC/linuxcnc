@@ -58,7 +58,6 @@
 #include <ctype.h>		// isspace()
 #include <libintl.h>
 #include <locale.h>
-#include "usrmotintf.h"
 
 
 #if 0
@@ -83,8 +82,6 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "taskclass.hh"
 #include "motion.h"             // EMCMOT_ORIENT_*
 #include "inihal.hh"
-
-static emcmot_config_t emcmotConfig;
 
 /* time after which the user interface is declared dead
  * because it would'nt read any more messages
@@ -3293,11 +3290,7 @@ int main(int argc, char *argv[])
     minTime = DBL_MAX;		// set to value that can never be exceeded
     maxTime = 0.0;		// set to value that can never be underset
 
-    if (0 != usrmotReadEmcmotConfig(&emcmotConfig)) {
-        rcs_print("%s failed usrmotReadEmcmotconfig()\n",__FILE__);
-    }
     while (!done) {
-        static int gave_soft_limit_message = 0;
         check_ini_hal_items(emcStatus->motion.traj.joints);
 	// read command
 	if (0 != emcCommandBuffer->read()) {
@@ -3361,23 +3354,11 @@ int main(int argc, char *argv[])
 
 	}
 
-        if (!emcStatus->motion.on_soft_limit) {gave_soft_limit_message = 0;}
-
 	// check for subordinate errors, and halt task if so
-        if (   emcStatus->motion.status == RCS_ERROR
-            && emcStatus->motion.on_soft_limit) { 
-           if (!gave_soft_limit_message) {
-                emcOperatorError(0, "On Soft Limit");
-                // if gui does not provide a means to switch to joint mode
-                // the  machine may be stuck (a misconfiguration)
-                if (emcmotConfig.kinType == KINEMATICS_IDENTITY) {
-                    emcOperatorError(0,"Identity kinematics are MISCONFIGURED");
-                }
-                gave_soft_limit_message = 1;
-           }
-        } else if (emcStatus->motion.status == RCS_ERROR ||
+	if (emcStatus->motion.status == RCS_ERROR ||
 	    ((emcStatus->io.status == RCS_ERROR) &&
 	     (emcStatus->io.reason <= 0))) {
+
 	    /*! \todo FIXME-- duplicate code for abort,
 	      also in emcTaskExecute()
 	      and in emcTaskIssueCommand() */

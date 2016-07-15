@@ -1873,7 +1873,6 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->spindle.direction = emcmotStatus.spindle.direction;
     stat->spindle.orient_state = emcmotStatus.spindle.orient_state;
     stat->spindle.orient_fault = emcmotStatus.spindle.orient_fault;
-    stat->on_soft_limit = emcmotStatus.on_soft_limit;
 
     for (dio = 0; dio < EMCMOT_MAX_DIO; dio++) {
 	stat->synch_di[dio] = emcmotStatus.synch_di[dio];

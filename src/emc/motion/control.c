@@ -1355,7 +1355,7 @@ static void get_pos_cmds(long period)
                     reportError(_("Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"),
                                   joint->min_pos_limit, joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Stop, fix joints axis LIMITS, then Restart"));
+                        reportError(_("Check: joints vs axis LIMITS"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
@@ -1364,7 +1364,7 @@ static void get_pos_cmds(long period)
                     reportError(_("Exceeded POSITIVE soft limit (%.5f) on joint %d\n"),
                                   joint->max_pos_limit,joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Stop, fix joints and axis LIMITS, then Restart"));
+                        reportError(_("Check: joints vs axis LIMITS"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
