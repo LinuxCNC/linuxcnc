@@ -253,6 +253,7 @@ INFILES = \
 	../share/applications/linuxcnc.desktop \
 	../share/applications/linuxcnc-latency.desktop \
 	../scripts/linuxcnc_var \
+	../scripts/halcmd_twopass \
 
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
@@ -576,6 +577,7 @@ install-kernel-indep: install-dirs
 	$(FILE) objects/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/halcmd_twopass $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/sim_pin $(DESTDIR)$(bindir)
