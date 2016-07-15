@@ -200,7 +200,7 @@ objects/$(PROTODIR)/%.d: %.proto
 	--plugin=protoc-gen-depends=$(GENDEP) \
 	--proto_path=$(PROTOSRCDIR)/ \
 	--proto_path=$(GPBINCLUDE) \
-	--depends_out="$(PBDEP_OPT)":./objects/$(PROTODIR)/ \
+	--depends_out="$(PBDEP_OPT)":./objects/$(PROTOSRCDIR)/ \
 	 $<
 
 
